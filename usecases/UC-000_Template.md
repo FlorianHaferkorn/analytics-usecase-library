@@ -1,7 +1,7 @@
 ---
-id: UC-000
+id: COM-000
 title: [Insert Use Case Title]
-domain: [Insert Domain or Cluster Name]
+domain: [Insert Cluster Name: Commercial / Operational Efficiency / Customer and Market / Corporate and Strategy]
 owner: [Insert Business Owner or Responsible Department]
 impact: [High / Medium / Low]
 status: [Draft / In Review / Active / Deprecated]
@@ -17,49 +17,53 @@ last_update: DD.MM.YYYY
 *Purpose:*  
 Explain in one to two sentences why this analysis is important for business steering or decision-making.  
 Focus on the **business outcome**, not the technical metric.  
+
 > Example: Ensure sustainable revenue growth by identifying and explaining deviations versus Plan and Last Year.
 
 ---
 
 ## 2. Business Context
-Provide a short background describing:  
-- The underlying business problem or challenge.  
+Provide concise background information describing:  
+- The underlying business challenge or opportunity.  
 - The key decisions supported by this analysis.  
-- Relevant dependencies (e.g., planning cycles, other reports).  
-> Example: Sales deviations drive liquidity and profitability. The use case highlights where and why deviations occur.
+- Dependencies such as planning cycles, data cadence, or linked processes.  
+
+> Example: Sales deviations drive liquidity and profitability. This use case highlights where and why deviations occur and provides actionable levers.
 
 ---
 
 ## 3. Key Questions
-List the guiding questions this use case should answer.  
-They define the analytical intent and drive the KPI selection.
+List the guiding analytical questions this use case addresses:  
 
-- What happened? (e.g., Where do we miss our plan?)  
-- Where did it happen? (e.g., Which products, regions, or channels?)  
-- Why did it happen? (e.g., Price, Volume, Mix, or external effects?)  
-- What should we do next? (Link to typical actions.)
+- What happened?  
+- Where did it happen?  
+- Why did it happen?  
+- What should we do next?  
+
+> Keep these question sets consistent; they guide KPI selection and visual design.
 
 ---
 
 ## 4. Key KPIs
 Define the core KPIs analyzed in this use case.  
-Each KPI must exist in the central KPI Catalog (`/_includes/KPI_Catalog.md`).
+Each KPI must exist in the shared KPI Catalog (`/_includes/KPI_Catalog.md`).
 
 | KPI | Definition | Unit | Format |
 |------|-------------|------|--------|
-| [KPI Name] | [Brief definition or formula] | [€, %, pcs, days] | [Format, e.g. 0–2 decimals] |
+| [KPI Name] | [Brief definition or formula] | [€, %, pcs, days] | [Format, e.g., 0–2 decimals] |
 | [Δ KPI Name] | [Variance vs Plan or LY] | [€, %, pcs, days] | [Δ or Δ% notation] |
 
-> Always use the naming standards:  
+> Use standard naming rules:  
 > - Δ = absolute variance  
 > - Δ% = relative variance  
-> - % suffix for percentages
+> - % suffix for percentages  
+> - Amount = currency; Qty = quantity; Count = integer
 
 ---
 
 ## 5. Typical Actions
-List 3–5 concrete operational levers or actions derived from this analysis.  
-Each action should refer to a standardized **Action Code** (`/_includes/ActionCodes.md`).
+List 3–5 operational levers or actions derived from this analysis.  
+Each action should reference a standardized **Action Code** (`/_includes/ActionCodes.md`).
 
 | Action | Code | Expected Effect |
 |---------|------|-----------------|
@@ -78,32 +82,33 @@ Quantify or qualify the expected business improvement.
 | Profitability | +0.5–1 pp Gross Margin % | vs LY |
 | Liquidity | DSO −5 days | vs Prior Quarter |
 
-> Keep this section measurable; avoid vague statements like “improve performance”.
+> Keep this section measurable and realistic. Avoid generic statements.
 
 ---
 
 ## 7. Related Processes
-List linked business processes or planning activities that influence or are influenced by this analysis.  
-> Example: Sales Planning, Promotion Management, Pricing Strategy, Replenishment, Forecasting.
+List linked processes or organizational areas that are influenced by or provide input for this analysis.  
+
+> Example: Sales Planning, Promotion Management, Procurement, Replenishment, Forecasting.
 
 ---
 
 ## 8. Insights & Learnings
-Summarize qualitative findings or recurring patterns discovered through this analysis.  
-This section is often updated after review cycles or repeated report usage.
+Summarize recurring insights or findings observed during the analysis.  
+This section is updated as patterns or business learnings emerge.
 
-> Example: Price Realization has stronger impact on GM % than volume growth in non-promo periods.
+> Example: Price Realization correlates more strongly with Gross Margin % than Volume Growth in non-promo periods.
 
 ---
 
 ## 9. Cross-References
-Link to other related use cases, glossary terms, or packages.  
+Provide links to related use cases or documentation.
 
-- Related Use Cases:  
-  `[UC-002 Gross Margin %](../01_Commercial/UC-002_Gross_Margin_Analysis.md)`  
-  `[UC-015 Price-Volume-Mix Bridge](../01_Commercial/UC-015_Price_Volume_Mix_Bridge.md)`  
+- **Related Use Cases:**  
+  `[COM-002 Gross Margin Analysis](../01_Commercial/COM-002_Gross_Margin_Analysis.md)`  
+  `[OPS-001 Cash Conversion Cycle](../02_Operational_Efficiency/OPS-001_Cash_Conversion_Cycle.md)`  
 
-- Related Documents:  
+- **Related Documents:**  
   [`KPI Catalog`](../_includes/KPI_Catalog.md)  
   [`Action Codes`](../_includes/ActionCodes.md)  
   [`Glossary`](../_includes/Glossary.md)
@@ -117,7 +122,7 @@ Link to other related use cases, glossary terms, or packages.
 | Technical Reviewer | [Name / Role] |
 | Version | v1.0 |
 | Review Date | DD.MM.YYYY |
-| Review Notes | [Summary of key feedback] |
+| Review Notes | [Summary of review or comments] |
 
 ---
 
