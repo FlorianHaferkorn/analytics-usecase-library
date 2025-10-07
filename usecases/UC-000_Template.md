@@ -1,7 +1,7 @@
 ---
-id: COM-000
+id: {PREFIX}-000
 title: [Insert Use Case Title]
-domain: [Insert Cluster Name: Commercial / Operational Efficiency / Customer and Market / Corporate and Strategy]
+domain: [Insert Cluster Name, e.g., Commercial / Operational Efficiency / Customer and Market / Corporate and Strategy]
 owner: [Insert Business Owner or Responsible Department]
 impact: [High / Medium / Low]
 status: [Draft / In Review / Active / Deprecated]
@@ -105,8 +105,7 @@ This section is updated as patterns or business learnings emerge.
 Provide links to related use cases or documentation.
 
 - **Related Use Cases:**  
-  `[COM-002 Gross Margin Analysis](../01_Commercial/COM-002_Gross_Margin_Analysis.md)`  
-  `[OPS-001 Cash Conversion Cycle](../02_Operational_Efficiency/OPS-001_Cash_Conversion_Cycle.md)`  
+  `[{{PREFIX}}-002 Related Use Case](../<ClusterFolder>/{{PREFIX}}-002_Example.md)`  
 
 - **Related Documents:**  
   [`KPI Catalog`](../_includes/KPI_Catalog.md)  
