@@ -7,8 +7,8 @@ Each file describes a single analytical scenario in a consistent Markdown format
 | File | Purpose |
 |------|----------|
 | **UC-000_Template.md** | Base template for new use cases (with comments and placeholders). |
-| **UC-001_Sales_Performance.md** | Example of a fully documented use case. |
-| **UC-002_Gross_Margin.md** | Example for a profitability analysis. |
+| **COM-001_Sales_Performance.md** | Example of a fully documented use case. |
+| **COM-002_Gross_Margin.md** | Example for a profitability analysis. |
 | **UC-XXX_*.md** | Each additional use case follows the same naming and layout rules. |
 
 ## Naming Convention
