@@ -23,15 +23,14 @@ This repository acts as a shared reference point for analysts, data engineers, a
 │   ├── Changelog.md
 │
 ├── /usecases/
+│   ├── /_includes/
+│         ├── Glossary.md
+│         ├── KPI_Catalog.md
+│         └── ActionCodes.md
 │   ├── UC-001_Sales_Performance.md
 │   ├── UC-002_Gross_Margin.md
 │   ├── UC-003_Working_Capital.md
 │   └── ... (one Markdown file per use case)
-│
-├── /_includes/
-│   ├── Glossary.md
-│   ├── KPI_Catalog.md
-│   ├── ActionCodes.md
 │
 └── README.md
 ```
