@@ -11,14 +11,19 @@ It ensures consistency, traceability, and quality across all documentation withi
 /analytics-usecase-library/
 │
 ├── /docs/
-│   ├── Instructions.md
+│   ├── Reporting_Strategy.md
 │   ├── Methodology.md
+│   ├── Instructions.md
 │   ├── Changelog.md
 │
 ├── /usecases/
-│   ├── UC-001_Sales_Performance.md
-│   ├── UC-002_Gross_Margin.md
-│   ├── ...
+│   ├── /01_Commercial/
+│   │     ├── COM-001_Sales_Performance.md
+│   │     ├── COM-002_Gross_Margin.md
+│   ├── /02_Operational_Efficiency/
+│   ├── /03_Customer_and_Market/
+│   ├── /04_Corporate_and_Strategy/
+│   └── UC-000_Template.md
 │
 ├── /_includes/
 │   ├── Glossary.md
@@ -27,20 +32,21 @@ It ensures consistency, traceability, and quality across all documentation withi
 │
 └── README.md
 ```
-Each Use Case is documented as an individual Markdown file in `/usecases/` and follows a defined layout (see Section 4).
+Each Use Case is documented as an individual Markdown file and grouped by business cluster.  
+All files follow the defined structure and metadata fields (see Section 4).
 
 ---
 
 ## 3. Naming Conventions
 
-### 3.1 Use Case Files
-- Format: `UC-###_Short_Title.md`
-- Example: `UC-001_Sales_Performance.md`
+### 3.1 File Names
+- Format: `{PREFIX}-###_Short_Title.md` (e.g., `COM-001_Sales_Performance.md`)
+- `{PREFIX}` corresponds to the cluster code: COM, OPS, CST, COR.
 - Use Title Case, no spaces or special characters.
 - Keep titles concise and descriptive.
 
 ### 3.2 Use Case IDs
-- Sequential numeric ID (`UC-001`, `UC-002`, …)
+- Sequential numeric ID within the cluster (`COM-001`, `OPS-002`, …)
 - Once assigned, IDs are never reused.
 
 ### 3.3 Field Naming (within text)
@@ -53,13 +59,16 @@ Each Use Case is documented as an individual Markdown file in `/usecases/` and f
 
 ## 4. Standard Layout for Each Use Case
 
-Every Use Case follows the same Markdown template:
+Every Use Case follows the same Markdown template (`UC-000_Template.md`):
 
 ```markdown
 ---
-id: UC-001
+id: COM-001
 title: Sales Performance vs Plan & Last Year
-domain: Sales & Revenue
+domain: Commercial
+cluster: Sales & Revenue
+reporting_level: Tactical
+analytics_stage: Descriptive
 owner: Head of Sales
 impact: High
 status: Active
@@ -110,19 +119,20 @@ Document key takeaways, interpretation notes, or connections to other use cases.
 | Dates | Format as `DD.MM.YYYY`. |
 | Text | Keep concise, avoid marketing tone; focus on analytical meaning. |
 | Line breaks | Use one blank line between sections. |
-| No emojis | Do not use emojis in any document. |
+| No emojis | Maintain professional, machine-readable text. |
 
 ---
 
 ## 6. Review and Approval Workflow
 
-1. **Create a new branch**: `feature/UC-###_Short_Title`
+1. **Create a new branch**: `feature/{PREFIX}-###_Short_Title`  
+   Example: `feature/COM-003_Price_Realization`
 2. **Copy the template** from `usecases/UC-000_Template.md`
 3. **Fill in** all required sections following this guide.
 4. **Submit a Pull Request** with a short description of the business goal.
 5. **Review requirements**:
    - One business reviewer (domain expert)
-   - One technical reviewer (BI or data model owner)
+   - One technical reviewer (data model owner)
 6. **Merge** only after both approvals.
 7. **Update** `/docs/Changelog.md` with:
    - ID, Title, Version, Author, Date, Change Summary
@@ -133,11 +143,11 @@ Document key takeaways, interpretation notes, or connections to other use cases.
 
 | Element | Guideline |
 |----------|------------|
-| **Versioning** | Increment minor version for textual updates; major version for new KPIs or actions. |
+| **Versioning** | Minor = textual update; Major = KPI or logic change. |
 | **Status** | `Draft`, `In Review`, `Active`, `Deprecated`. |
 | **Changelog** | Required for every addition or modification. |
 | **Archiving** | Deprecated Use Cases remain stored with final version tag. |
-| **Cross-References** | Use `[UC-002 Gross Margin %](../usecases/UC-002_Gross_Margin.md)` for linking. |
+| **Cross-References** | Use `[COM-002 Gross Margin %](../01_Commercial/COM-002_Gross_Margin.md)` for linking. |
 
 ---
 
@@ -145,22 +155,24 @@ Document key takeaways, interpretation notes, or connections to other use cases.
 
 | File | Purpose |
 |------|----------|
-| `/docs/Methodology.md` | Explains reasoning behind 3-30-300, semantic modeling, and standardization. |
-| `/docs/Changelog.md` | Tracks all changes and approvals. |
-| `/_includes/Glossary.md` | Contains all abbreviations, KPIs, and term definitions. |
-| `/_includes/KPI_Catalog.md` | Defines metrics with formulas, units, and formats. |
-| `/_includes/ActionCodes.md` | Lists standard action codes (P2, D1, etc.) with meaning. |
+| [`/docs/Reporting_Strategy.md`](./Reporting_Strategy.md) | Defines reporting levels, analytics stages, and governance layers. |
+| [`/docs/Methodology.md`](./Methodology.md) | Explains modeling, visualization, and standardization principles. |
+| [`/docs/Changelog.md`](./Changelog.md) | Tracks all changes and approvals. |
+| [`/_includes/Glossary.md`](../_includes/Glossary.md) | Contains all abbreviations and analytical term definitions. |
+| [`/_includes/KPI_Catalog.md`](../_includes/KPI_Catalog.md) | Defines metrics with formulas, units, and formats. |
+| [`/_includes/ActionCodes.md`](../_includes/ActionCodes.md) | Lists standardized action codes (P2, D1, etc.) and meanings. |
 
 ---
 
 ## 9. Quality Criteria (Definition of Done)
+
 A Use Case is considered **complete** when:
 
 - All mandatory fields are filled (Business Goal, Context, KPIs, Actions, Impact).  
-- Naming follows the defined conventions (Δ, Δ%, %).  
-- Cross-references and links are valid.  
-- Document reviewed and approved by both business and data reviewer.  
-- Changelog entry created and merged.  
+- Naming follows the conventions (`Δ`, `Δ%`, `%`).  
+- Cross-references and glossary links are valid.  
+- Reviewed and approved by both business and data reviewers.  
+- Entry in `Changelog.md` created and merged.  
 
 ---
 
