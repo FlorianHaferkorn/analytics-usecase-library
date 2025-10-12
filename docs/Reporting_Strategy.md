@@ -1,186 +1,84 @@
 # Reporting Strategy
+_Version 2.0 | Last updated: 12.10.2025_
+
+---
 
 ## 1. Purpose & Vision
-The **Reporting Strategy** defines how business performance information is structured, governed, and communicated across the organization.  
-It provides the conceptual foundation for the **Analytics Use Case Library**, ensuring that all reports, KPIs, and actions are aligned to shared business objectives.
+The **Reporting Strategy** defines how analytics and reporting align with corporate goals.  
+Every report must connect **data to decision** and **insight to impact**.
 
-> **Goal:** Shift from *tool-based reporting* to *goal-based management* — connecting strategy, execution, and learning through one consistent framework.
+> “A report is only valuable if it changes a business outcome.”
 
 ---
 
-## 2. Core Principles
+## 2. Reporting Layers Overview
+
+| Level | Purpose | Example Use Case |
+|--------|----------|------------------|
+| **Strategic** | Measures company performance against long-term goals | COR-001 Working Capital |
+| **Tactical** | Analyzes business drivers and accountability areas | COM-002 Gross Margin |
+| **Operational** | Supports daily execution and monitoring | OPS-001 OEE |
+
+Each layer builds on the previous one. Tactical reports explain *why* strategic KPIs move, and operational reports show *how* execution delivers the result.
+
+---
+
+## 3. Framework Principles
 
 | Principle | Description |
-|------------|-------------|
-| **One Truth per KPI** | Every KPI has one definition, owner, and QA rule (see `/_includes/KPI_Catalog.md`). |
-| **Top-Down Alignment** | All analytics use cases trace back to strategic objectives. |
-| **Governed Freedom** | Flexibility for domain-specific storytelling within shared standards. |
-| **Transparency First** | Clear lineage from KPI → Data → Report → Action. |
-| **Design for Decision** | Visuals are built for action, not decoration. |
-| **Progressive Analytics** | Evolve from descriptive → diagnostic → predictive → prescriptive. |
-| **Copilot-Readiness** | Structured metadata enables AI-supported documentation and automation. |
+|------------|--------------|
+| **Consistency** | KPIs and calculations remain identical across layers. |
+| **Context** | Every report starts from a defined business question. |
+| **Clarity** | 3–30–300 design ensures intuitive user flow and readability. |
+| **Governance** | RLS/OLS, lineage, and review cycles ensure trust and control. |
+| **Reusability** | Standardized templates accelerate time-to-insight. |
 
 ---
 
-## 3. Reporting Levels
+## 4. Strategic Alignment Framework
 
-| Level | Objective | Frequency | Audience | Example Reports | Visual Focus |
-|--------|------------|------------|-----------|------------------|---------------|
-| **Strategic** | Steer long-term goals and company value | Monthly / Quarterly | Executives, Board | Group Scorecard, Strategy Dashboard | KPI Cards, Trends, Indexes |
-| **Tactical** | Manage functions and plans | Weekly / Monthly | Management, Controllers | Sales vs Plan, Margin Bridge, Forecast Accuracy | Variance Bars, Waterfall |
-| **Operational** | Execute and optimize daily processes | Daily / Hourly | Team Leads, Store Managers | Store Dashboard, Fulfillment Metrics | Tables, Small Multiples, Alerts |
+### 4.1 Purpose
+To link corporate objectives, analytical Use Cases, and operational actions into one continuous logic.
 
-> All levels rely on the same KPIs and conformed dimensions — only aggregation and cadence differ.
-
----
-
-## 4. Analytics Maturity Model
-
-| Stage | Key Question | Typical Methods | Example |
-|--------|----------------|----------------|----------|
-| **Descriptive** | What happened? | KPI comparisons, time series | Sales vs Plan |
-| **Diagnostic** | Why did it happen? | Variance analysis, drill-downs | Price-Mix Decomposition |
-| **Predictive** | What will happen? | Forecasting, regression, ML | Demand Forecast |
-| **Prescriptive** | What should we do? | Scenario modeling, optimization | Promotion Planning |
-| **Autonomous** | What happens automatically? | Decision automation, RPA | Auto-Replenishment |
-
-> Each reporting level should at least cover *Descriptive* + *Diagnostic*; higher maturity adds *Predictive* and *Prescriptive* use cases.
-
----
-
-## 5. Framework Layers
-
-| Layer | Purpose | Main Artifacts | Governance Focus |
-|--------|----------|----------------|------------------|
-| **1. Strategy Layer** | Define goals and KPI map | Strategy Map, Objective Tree | Business alignment |
-| **2. Data Layer** | Provide structured data foundation | Data Contracts, Fact/Dim Tables | Data integrity, ownership |
-| **3. Semantic Layer** | Ensure consistent KPI logic | KPI Catalog, DAX Measures | Naming, logic, QA |
-| **4. Analytics Layer** | Apply analytical methods | Use Cases (UC-Templates) | Analytical depth, validation |
-| **5. Visualization Layer** | Present insights for action | 3-30-300 Reports | Design, UX |
-| **6. Action & Feedback Layer** | Link insights to operational action | Action Codes, Impact Logs | Continuous improvement |
-
-> Layers 1–3 = *Data Foundation*; Layers 4–6 = *Decision Enablement.*
-
----
-
-## 6. Integration with the Analytics Use Case Library
-
-| Framework Element | Repository Component |
-|--------------------|----------------------|
-| **Strategy Layer** | `/docs/Reporting_Strategy.md` |
-| **Data & Semantic Layer** | `/_includes/KPI_Catalog.md` |
-| **Analytics Layer** | `/usecases/{Cluster}/UC-###_*.md` |
-| **Visualization & Action** | Governed via `Methodology.md` and `ActionCodes.md` |
-
-Each Use Case:
-- Belongs to a **Cluster** (Commercial, Operational, Customer, Corporate)  
-- Declares its **Reporting Level** (Strategic, Tactical, Operational)  
-- Defines its **Analytics Stage** (Descriptive → Prescriptive)  
-- References standardized KPIs and Actions  
-
-Example Front-Matter:
-```yaml
-reporting_level: Tactical
-analytics_stage: Descriptive
-domain: Commercial
-cluster: Sales & Revenue
+```
+Strategic KPI → Business Driver → Use Case → Action Code → Business Impact
 ```
 
+### 4.2 Layer Definition
+
+| Layer | Key Question | Example |
+|--------|---------------|----------|
+| **Strategic KPI** | What do we aim to achieve? | Revenue Growth % |
+| **Business Driver** | What influences it? | Volume Growth %, DSO, Price Realization % |
+| **Analytical Use Case** | Where can analytics help? | COM-001 Sales Performance, COR-001 Working Capital |
+| **Action Code** | What should be done? | P2 Tighten Discounts, W1 Accelerate Collections |
+| **Impact** | What will change? | +3–5 pp Revenue Growth %, −5 days DSO |
+
+### 4.3 Outcome for Analytics Teams
+- Each Use Case must reference **at least one Strategic KPI**.  
+- Each Use Case must quantify its **expected business impact**.  
+- This linkage is maintained in `/_includes/Strategic_Alignment_Map.md`.
+
 ---
 
-## 7. Governance & Roles
+## 5. Governance & Review Model
 
 | Role | Responsibility |
-|------|-----------------|
-| **Business Owner** | Defines KPI purpose and interpretation. |
-| **Data Owner** | Ensures data lineage, quality, and refresh cadence. |
-| **Report Owner** | Maintains report usability and decision context. |
-| **Governance Board** | Reviews and approves new or changed Use Cases. |
+|------|----------------|
+| **Business Owner** | Defines KPI meaning and thresholds. |
+| **Data Owner** | Guarantees data quality and lineage. |
+| **Steward** | Maintains the KPI and ensures QA compliance. |
+| **Governance Board** | Reviews, approves, and archives KPIs. |
 
-All roles are tracked in Use Case front-matter and version-controlled via `docs/Changelog.md`.
-
----
-
-## 8. Lifecycle
-
-| Step | Description | Output |
-|-------|--------------|---------|
-| **1. Define** | Identify goals, KPIs, and success metrics | Business Goal, KPI references |
-| **2. Design** | Specify data model and attributes | Data Contract |
-| **3. Build** | Implement KPIs and report visuals | DAX + PBIP model |
-| **4. Validate** | QA checks, review, and governance approval | Review sign-off |
-| **5. Deploy** | Publish and communicate certified report | Certified dataset/report |
-| **6. Learn & Evolve** | Track KPI impact and iterate actions | Feedback loop |
+**Review Frequency:** Quarterly or after each fiscal cycle.  
+**Quality Gate:** IR ≥ 99.9 %, Copilot-ready metadata, lineage verified.
 
 ---
 
-## 9. Cross-Domain Clusters
+## 6. Summary & Next Steps
 
-| Cluster | Strategic Focus | Example Use Cases |
-|----------|----------------|------------------|
-| **Commercial** | Revenue growth, pricing, margin | Sales Performance, Price Realization |
-| **Operational Efficiency** | Cost control, supply chain, productivity | Inventory Turnover, Logistics Cost Ratio |
-| **Customer & Market** | Customer value, demand, engagement | Retention Rate, CLV, Market Share |
-| **Corporate & Strategy** | Financial stability, ESG, governance | Working Capital, Sustainability Index |
+- Maintain the **Strategic Alignment Map** as a living document.  
+- Validate quarterly that each analytics initiative supports at least one strategic KPI.  
+- Use the same logic in dashboards, performance reviews, and AI Copilot prompts.
 
-> Each cluster contributes both strategic (KPIs), tactical (plans), and operational (execution) perspectives.
-
----
-
-## 10. Linkages to Methodology & Includes
-
-| Related File | Purpose |
-|---------------|----------|
-| [`/docs/Methodology.md`](./Methodology.md) | Details 3-30-300 visual design, semantic modeling, and report standards. |
-| [`/docs/Instructions.md`](./Instructions.md) | Authoring guide and review workflow for new Use Cases. |
-| [`/_includes/KPI_Catalog.md`](../_includes/KPI_Catalog.md) | Canonical KPI definitions with formulas and QA rules. |
-| [`/_includes/ActionCodes.md`](../_includes/ActionCodes.md) | Standardized operational levers and impact codes. |
-| [`/_includes/Glossary.md`](../_includes/Glossary.md) | Shared business and analytical terminology. |
-
----
-
-## 11. Expected Outcomes
-- Unified KPI and reporting logic across all domains.  
-- End-to-end traceability from strategy to execution.  
-- Measurable decision impact through standardized actions.  
-- Governance and audit readiness.  
-- Foundation for Copilot-driven documentation and automated report generation.
-
----
-
-_Last updated: 12.10.2025_  
-_References: Use Case Library, KPI Catalog, Action Codes_
-
-
-
-## 5a. Strategic Alignment Framework
-
-The **Strategic Alignment Framework** connects business goals (Strategic KPIs) with analytical Use Cases and operational Actions.
-
-| Level | Purpose | Example |
-|--------|----------|----------|
-| **Strategic KPI** | Defines company-level outcome to improve | Revenue Growth %, Gross Margin %, Working Capital % |
-| **Business Driver** | Underlying operational factor influencing KPI | Volume Growth %, Price Realization %, DSO |
-| **Analytical Use Case** | Analytical mechanism to quantify or control the driver | COM-001 Sales Performance, COM-002 Gross Margin, COR-001 Working Capital |
-| **Action Codes** | Operational levers for implementation | P2 Tighten Discounts, D1 Promo Calendar Optimization |
-| **Impact** | Measurable effect on the KPI | +3–5 pp Δ% Net Sales, +0.5 pp GM % |
-
-> **Purpose:** Provide a “line of sight” from business strategy → analytics → operational execution.  
-> Each Use Case in the library must reference at least one Strategic KPI and document the expected impact via Action Codes.
-
-Visual representation:
-
-```
-Strategic KPI
-   ↓
-Business Driver (Supporting KPI)
-   ↓
-Analytical Use Case
-   ↓
-Action Code (Operational Lever)
-   ↓
-Business Impact
-```
-
-The linkage between these levels is maintained in  
-`/_includes/Strategic_Alignment_Map.md`, which lists all Strategic KPIs, their key drivers, relevant Use Cases, and expected impact ranges.
+> “When business goals, KPIs, and analytics move together, the organization learns faster.”
