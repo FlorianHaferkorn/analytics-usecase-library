@@ -164,8 +164,4 @@ A Use Case is considered **complete** when:
 
 ---
 
-## 10. Contact and Maintenance
-For questions or requests:
-- **Repository Maintainers:** analytics-core-team  
-- **Contact:** analytics-governance@company.com  
-- **Last Update:** 07.10.2025
+_Last updated: 12.10.2025_
