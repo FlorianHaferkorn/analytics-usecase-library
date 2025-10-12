@@ -60,9 +60,19 @@ This structure ensures traceability from **business goals → KPIs → data → 
 │   └── UC-000_Template.md
 │
 ├── /_includes/
-│   ├── Glossary.md
-│   ├── KPI_Catalog.md
-│   ├── ActionCodes.md
+│     ├── Glossary.md
+│     ├── ActionCodes.md
+│     ├── Strategic_KPIs.md
+│     └── /kpi_catalog/
+│           ├── KPI_Catalog_README.md
+│           ├── KPI_Catalog_Growth.md
+│           ├── KPI_Catalog_Profitability.md
+│           ├── KPI_Catalog_Liquidity.md
+│           ├── KPI_Catalog_Efficiency.md
+│           ├── KPI_Catalog_CustomerValue.md
+│           ├── KPI_Catalog_ESG.md
+│           ├── KPI_Catalog_Governance.md
+│           └── KPI_Catalog_InnovationPeople.md
 │
 └── README.md
 ```
