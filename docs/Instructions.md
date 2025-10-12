@@ -11,24 +11,35 @@ It ensures consistency, traceability, and quality across all documentation withi
 /analytics-usecase-library/
 │
 ├── /docs/
-│   ├── Reporting_Strategy.md
-│   ├── Methodology.md
-│   ├── Instructions.md
-│   ├── Changelog.md
+│   ├── Reporting_Strategy.md     ← defines reporting levels & architecture
+│   ├── Methodology.md            ← describes modeling & design principles
+│   ├── Instructions.md           ← authoring and governance rules
+│   ├── Changelog.md              ← version control and audit log
 │
 ├── /usecases/
 │   ├── /01_Commercial/
 │   │     ├── COM-001_Sales_Performance.md
 │   │     ├── COM-002_Gross_Margin.md
+│   │     └── ...
 │   ├── /02_Operational_Efficiency/
 │   ├── /03_Customer_and_Market/
 │   ├── /04_Corporate_and_Strategy/
 │   └── UC-000_Template.md
 │
 ├── /_includes/
-│   ├── Glossary.md
-│   ├── KPI_Catalog.md
-│   ├── ActionCodes.md
+│     ├── Glossary.md
+│     ├── ActionCodes.md
+│     ├── Strategic_KPIs.md
+│     └── /kpi_catalog/
+│           ├── KPI_Catalog_README.md
+│           ├── KPI_Catalog_Growth.md
+│           ├── KPI_Catalog_Profitability.md
+│           ├── KPI_Catalog_Liquidity.md
+│           ├── KPI_Catalog_Efficiency.md
+│           ├── KPI_Catalog_CustomerValue.md
+│           ├── KPI_Catalog_ESG.md
+│           ├── KPI_Catalog_Governance.md
+│           └── KPI_Catalog_InnovationPeople.md
 │
 └── README.md
 ```
@@ -159,7 +170,7 @@ Document key takeaways, interpretation notes, or connections to other use cases.
 | [`/docs/Methodology.md`](./Methodology.md) | Explains modeling, visualization, and standardization principles. |
 | [`/docs/Changelog.md`](./Changelog.md) | Tracks all changes and approvals. |
 | [`/_includes/Glossary.md`](../_includes/Glossary.md) | Contains all abbreviations and analytical term definitions. |
-| [`/_includes/KPI_Catalog.md`](../_includes/KPI_Catalog.md) | Defines metrics with formulas, units, and formats. |
+| `/_includes/kpi_catalog/KPI_Catalog_README.md` | Einstieg in alle KPI-Kataloge (Dimensionen, Schema, Links). |
 | [`/_includes/ActionCodes.md`](../_includes/ActionCodes.md) | Lists standardized action codes (P2, D1, etc.) and meanings. |
 
 ---
