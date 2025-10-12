@@ -151,7 +151,7 @@ analytics_stage: Descriptive
 ---
 
 _Linked Files:_  
-[`/docs/Reporting_Strategy.md`](../docs/Reporting_Strategy.md) | [`/docs/Methodology.md`](../docs/Methodology.md) | [`/_includes/KPI_Catalog.md`](../_includes/KPI_Catalog.md) | [`/_includes/ActionCodes.md`](../_includes/ActionCodes.md)
+[`/docs/Reporting_Strategy.md`](../docs/Reporting_Strategy.md) | [`/docs/Methodology.md`](../docs/Methodology.md) | [`/_includes/KPI_Catalog`](../_includes/kpi_catalog/README.md) | [`/_includes/ActionCodes.md`](../_includes/ActionCodes.md)
 
 ---
 
