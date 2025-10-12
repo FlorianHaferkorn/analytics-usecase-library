@@ -24,7 +24,7 @@ Together, these files ensure:
 | File | Purpose |
 |------|----------|
 | **Glossary.md** | Defines standardized terminology and concepts for all business and governance terms. |
-| **KPI_Catalog.md** | Central repository for all approved KPIs with formulas, QA rules, and lineage. |
+| **KPI Catalogs** | Dimension-spezifische Kataloge im Ordner `/_includes/kpi_catalog/` inkl. Master-Übersicht `KPI_Catalog_README.md`. |
 | **Strategic_KPIs.md** | Defines the top-level KPI hierarchy grouped by eight Impact Dimensions (Growth, Profitability, Liquidity, Efficiency, Customer Value, ESG, Governance, Innovation & People). |
 | **ActionCodes.md** | Lists standardized operational levers (Actions) that directly impact KPIs. |
 | **README.md** | Explains how all include files interact and how they are maintained. |
