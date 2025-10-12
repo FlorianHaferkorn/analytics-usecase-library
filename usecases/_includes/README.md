@@ -36,7 +36,7 @@ Together, these files ensure:
 ```mermaid
 flowchart LR
   RS[docs/Reporting_Strategy.md] --> SK[_includes/Strategic_KPIs.md]
-  SK --> KC[_includes/KPI_Catalog.md]
+  SK --> KC[_includes/kpi_catalog (all dimensions)]
   KC --> UC[Use Case Files]
   UC --> AC[_includes/ActionCodes.md]
 
