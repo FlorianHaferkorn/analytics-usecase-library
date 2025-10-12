@@ -1,5 +1,4 @@
 # KPI Catalog – ESG (Environment, Social & Governance)
-_Version 2.0 | Last updated: 12.10.2025_
 
 ---
 
@@ -184,3 +183,7 @@ _Version 2.0 | Last updated: 12.10.2025_
 | **Data Owner** | ESG BI |
 | **Steward** | Environmental Analyst |
 | **Validation Process** | Manual Review |
+
+---
+
+_Last updated: 12.10.2025_
