@@ -2,6 +2,9 @@
 id: "{PREFIX}-000"
 title: "[Insert Use Case Title]"
 domain: "[Insert Cluster Name: Commercial / Operational Efficiency / Customer and Market / Corporate and Strategy]"
+cluster: "[Insert Sub-Domain or Topic, e.g., Sales & Revenue, Supply Chain, Finance]"
+reporting_level: "[Strategic / Tactical / Operational]"
+analytics_stage: "[Descriptive / Diagnostic / Predictive / Prescriptive]"
 owner: "[Insert Business Owner or Responsible Department]"
 impact: "[High / Medium / Low]"
 status: "[Draft / In Review / Active / Deprecated]"
@@ -179,6 +182,8 @@ Provide links to related use cases or documentation.
   `[{{PREFIX}}-002 Related Use Case](../<ClusterFolder>/{{PREFIX}}-002_Example.md)`  
 
 - **Related Documents:**  
+  [`Reporting Strategy`](../docs/Reporting_Strategy.md)  
+  [`Methodology`](../docs/Methodology.md)  
   [`KPI Catalog`](../_includes/KPI_Catalog.md)  
   [`Action Codes`](../_includes/ActionCodes.md)  
   [`Glossary`](../_includes/Glossary.md)
@@ -203,6 +208,7 @@ _Last updated: DD.MM.YYYY_
 <!--
 USAGE NOTES
 - Replace {PREFIX} with your 3-letter cluster code (e.g., COM, OPS, CST, COR).
+- Add reporting_level and analytics_stage according to the Reporting Strategy.
 - File name pattern: {PREFIX}-NNN_Short_Title.md (e.g., COM-001_Sales_Performance.md)
 - Place this file under the appropriate cluster folder (e.g., /usecases/01_Commercial/).
 -->
