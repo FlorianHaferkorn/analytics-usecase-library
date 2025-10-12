@@ -156,3 +156,34 @@ Full list: [`/_includes/ActionCodes.md`](../_includes/ActionCodes.md).
 
 _Last updated: 12.10.2025_  
 _Linked to:_ [`Reporting_Strategy.md`](./Reporting_Strategy.md) | [`Instructions.md`](./Instructions.md) | [`KPI_Catalog`](../_includes/kpi_catalog/README.md) | [`ActionCodes.md`](../_includes/ActionCodes.md)
+
+
+
+## 6a. Mapping Use Cases to Strategic KPIs
+
+To ensure every analysis contributes to business outcomes, each Use Case must map to one or more Strategic KPIs.
+
+### Step-by-Step Approach
+
+| Step | Description | Output |
+|------|--------------|---------|
+| **1. Identify Strategic KPI** | Select KPI from `/_includes/Strategic_KPIs.md` that aligns with the business goal. | Strategic KPI reference |
+| **2. Define Analytical Drivers** | Choose supporting KPIs (from KPI Catalog) that influence the Strategic KPI. | KPI dependency list |
+| **3. Link to Use Case** | Assign existing or new Use Case(s) that quantify and explain the drivers. | Use Case reference |
+| **4. Assign Action Codes** | Connect actionable levers from `/_includes/ActionCodes.md`. | Action reference |
+| **5. Estimate Expected Impact** | Define expected business improvement (Δ, Δ%). | Impact estimate |
+
+> Each Use Case must include fields:
+> ```yaml
+> supports_strategic_kpi: [Revenue Growth %, Gross Margin %]
+> expected_impact: "+2–3 pp Revenue Growth %, +0.5 pp Gross Margin %"
+> ```
+> These entries are validated during the review workflow and stored in the Strategic Alignment Map.
+
+### Example Mapping
+
+| Strategic KPI | Supporting KPI | Use Case | Action Codes | Expected Impact |
+|----------------|----------------|-----------|----------------|----------------|
+| **Revenue Growth %** | Volume Growth %, Price Realization % | COM-001 Sales Performance, COM-004 Price Realization | P1, P2 | +3–5 pp Revenue Growth % |
+| **Working Capital %** | DSO, DPO, Inventory Days | COR-001 Working Capital | W1, I1 | −5 days CCC |
+| **Gross Margin %** | Price Discount %, COGS Amount | COM-002 Gross Margin | P2, PC2 | +0.5–1 pp GM % |
