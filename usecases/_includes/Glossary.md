@@ -97,7 +97,7 @@ Core impact dimensions used to classify all strategic KPIs and Use Cases.
 | File | Purpose |
 |------|----------|
 | [`/_includes/Strategic_KPIs.md`](./Strategic_KPIs.md) | Defines top-level KPIs mapped to the 8 dimensions. |
-| [`/_includes/KPI_Catalog.md`](./KPI_Catalog.md) | Provides formulas, QA, and lineage for all KPIs. |
+| [`/_includes/KPI_Catalog`](./kPI_catalog/README.md) | Provides formulas, QA, and lineage for all KPIs. |
 | [`/_includes/ActionCodes.md`](./ActionCodes.md) | Lists standardized operational levers impacting KPIs. |
 | [`/docs/Methodology.md`](../docs/Methodology.md) | Describes modeling, naming, and visualization standards. |
 | [`/docs/Reporting_Strategy.md`](../docs/Reporting_Strategy.md) | Outlines governance layers, reporting levels, and lifecycle. |
