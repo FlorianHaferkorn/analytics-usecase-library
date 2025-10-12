@@ -35,10 +35,11 @@ Together, these files ensure:
 
 ```mermaid
 flowchart LR
-  RS[docs/Reporting_Strategy.md] --> SK[_includes/Strategic_KPIs.md]
-  SK --> KC[_includes/kpi_catalog (all dimensions)]
-  KC --> UC[Use Case Files]
-  UC --> AC[_includes/ActionCodes.md]
+  RS[Reporting_Strategy] --> SK[Strategic_KPIs]
+  SK --> UC[Use Cases]
+  UC --> DK[Driver KPIs]
+  DK --> AC[ActionCodes]
+  AC --> EI[Expected Impact]
 
 ```
 
