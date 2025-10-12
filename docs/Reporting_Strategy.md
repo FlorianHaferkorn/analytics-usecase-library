@@ -150,3 +150,37 @@ All roles are tracked in Use Case front-matter and version-controlled via `docs/
 
 _Last updated: 12.10.2025_  
 _References: Use Case Library, KPI Catalog, Action Codes_
+
+
+
+## 5a. Strategic Alignment Framework
+
+The **Strategic Alignment Framework** connects business goals (Strategic KPIs) with analytical Use Cases and operational Actions.
+
+| Level | Purpose | Example |
+|--------|----------|----------|
+| **Strategic KPI** | Defines company-level outcome to improve | Revenue Growth %, Gross Margin %, Working Capital % |
+| **Business Driver** | Underlying operational factor influencing KPI | Volume Growth %, Price Realization %, DSO |
+| **Analytical Use Case** | Analytical mechanism to quantify or control the driver | COM-001 Sales Performance, COM-002 Gross Margin, COR-001 Working Capital |
+| **Action Codes** | Operational levers for implementation | P2 Tighten Discounts, D1 Promo Calendar Optimization |
+| **Impact** | Measurable effect on the KPI | +3–5 pp Δ% Net Sales, +0.5 pp GM % |
+
+> **Purpose:** Provide a “line of sight” from business strategy → analytics → operational execution.  
+> Each Use Case in the library must reference at least one Strategic KPI and document the expected impact via Action Codes.
+
+Visual representation:
+
+```
+Strategic KPI
+   ↓
+Business Driver (Supporting KPI)
+   ↓
+Analytical Use Case
+   ↓
+Action Code (Operational Lever)
+   ↓
+Business Impact
+```
+
+The linkage between these levels is maintained in  
+`/_includes/Strategic_Alignment_Map.md`, which lists all Strategic KPIs, their key drivers, relevant Use Cases, and expected impact ranges.
