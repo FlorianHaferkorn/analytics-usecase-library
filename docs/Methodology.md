@@ -81,7 +81,7 @@ Amount = 0–2 dec €, Qty/Count = integer, % = 1–2 dec.
 ---
 
 ## 6. KPI Definition Template
-All KPIs must be defined once in [`/_includes/KPI_Catalog.md`](../_includes/KPI_Catalog.md).
+KPI definitions reside per impact dimension under `/_includes/kpi_catalog/`. Use `KPI_Catalog_README.md` as entry point. Each KPI must include `strategic_ref` to `Strategic_KPIs.md`.
 
 ```
 KPI Name: Gross Margin %
@@ -155,4 +155,4 @@ Full list: [`/_includes/ActionCodes.md`](../_includes/ActionCodes.md).
 ---
 
 _Last updated: 12.10.2025_  
-_Linked to:_ [`Reporting_Strategy.md`](./Reporting_Strategy.md) | [`Instructions.md`](./Instructions.md) | [`KPI_Catalog.md`](../_includes/KPI_Catalog.md) | [`ActionCodes.md`](../_includes/ActionCodes.md)
+_Linked to:_ [`Reporting_Strategy.md`](./Reporting_Strategy.md) | [`Instructions.md`](./Instructions.md) | [`KPI_Catalog`](../_includes/kpi_catalog/README.md) | [`ActionCodes.md`](../_includes/ActionCodes.md)
