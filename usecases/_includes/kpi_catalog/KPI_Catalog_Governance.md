@@ -1,5 +1,4 @@
 # KPI Catalog – Governance & Compliance
-_Version 2.0 | Last updated: 12.10.2025_
 
 ---
 
@@ -185,3 +184,6 @@ _Version 2.0 | Last updated: 12.10.2025_
 | **Steward** | Data Steward |
 | **Validation Process** | Automated |
 
+---
+
+_Last updated: 12.10.2025_
