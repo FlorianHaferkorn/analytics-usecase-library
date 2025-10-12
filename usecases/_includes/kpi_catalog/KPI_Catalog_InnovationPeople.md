@@ -1,5 +1,4 @@
 # KPI Catalog – Innovation & People
-_Version 2.0 | Last updated: 12.10.2025_
 
 ---
 
@@ -184,3 +183,7 @@ _Version 2.0 | Last updated: 12.10.2025_
 | **Data Owner** | HR Analytics |
 | **Steward** | People Analyst |
 | **Validation Process** | Automated |
+
+---
+
+_Last updated: 12.10.2025_
