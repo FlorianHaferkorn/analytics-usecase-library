@@ -4,6 +4,8 @@ This file defines standardized operational levers ("Actions") used across all an
 Each Action Code describes **what to do** when a KPI deviation is detected and **which KPI(s)** it affects.  
 It serves as the semantic bridge between analysis and business execution.
 
+This is a new sentence.
+
 ---
 
 ## 1. Purpose
