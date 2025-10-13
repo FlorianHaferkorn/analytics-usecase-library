@@ -174,6 +174,6 @@ Each cluster aggregates Use Cases that share a **business objective** and **data
 Internal documentation for enterprise analytics governance.  
 Not intended for external publication without prior approval.
 
+---
+
 _Last updated: 12.10.2025_
-3. Update existing Use Cases with the new metadata fields.  
-4. Validate consistency across clusters via the KPI Catalog.
