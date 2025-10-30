@@ -1,0 +1,17 @@
+{
+  "config": "{\"version\":\"5.37\",\"themeCollection\":{\"customTheme\":{\"name\":\"ThemeNew1\",\"version\":\"3.18\",\"type\":1}},\"activeSectionIndex\":0,\"linguisticSchemaSyncVersion\":2}",
+  "layoutOptimization": 0,
+  "sections": [
+    {
+      "config": "{}",
+      "displayName": "Page 1",
+      "displayOption": 0,
+      "filters": "[]",
+      "height": 720.00,
+      "name": "ReportSection",
+      "visualContainers": [],
+      "width": 960.00
+    }
+  ],
+  "theme": "ThemeNew1"
+}

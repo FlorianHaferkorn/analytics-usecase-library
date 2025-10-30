@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Contoso Sales Sample for Power BI Desktop"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "bc759d9a-07ca-4c1c-b0ce-4b76b092edc4"
+  }
+}

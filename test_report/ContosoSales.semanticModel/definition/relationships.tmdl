@@ -1,0 +1,54 @@
+relationship 4f81913b-9717-434b-944d-0fe871897062
+	crossFilteringBehavior: bothDirections
+	fromColumn: Sales.PromotionKey
+	toColumn: Promotion.PromotionKey
+
+relationship d219834a-6b75-4cb0-9090-71ed9a06b8f1
+	crossFilteringBehavior: bothDirections
+	fromColumn: Stores.GeographyKey
+	toColumn: Geography.GeographyKey
+
+relationship 7b03cb88-7ab8-46af-814c-22aa8eceecf5
+	crossFilteringBehavior: bothDirections
+	fromColumn: ProductSubcategory.ProductCategoryKey
+	toColumn: ProductCategory.ProductCategoryKey
+
+relationship bd936648-662f-4438-8a8c-e746b530d8ea
+	crossFilteringBehavior: bothDirections
+	fromColumn: Sales.channelKey
+	toColumn: Channel.Channel
+
+relationship 51df2141-24dd-4ef8-8dd1-bf65764161e7
+	crossFilteringBehavior: bothDirections
+	fromColumn: Sales.ProductKey
+	toColumn: Product.ProductKey
+
+relationship 7656b2ab-bac3-4fef-9ded-3aaf77d08a40
+	crossFilteringBehavior: bothDirections
+	fromColumn: Product.ProductSubcategoryKey
+	toColumn: ProductSubcategory.ProductSubcategoryKey
+
+relationship bd4c3275-3b43-4e3e-a58c-45aff42a0511
+	crossFilteringBehavior: bothDirections
+	fromColumn: Sales.StoreKey
+	toColumn: Stores.StoreKey
+
+relationship 15c0abd7-713b-4e84-a222-926926de07e4
+	fromColumn: Sales.DateKey
+	toColumn: Calendar.DateKey
+
+relationship 4fe17011-bc30-46cf-a8f1-fef9bb66575c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Promotion.StartDate
+	toColumn: LocalDateTable_633f76ce-0a4e-4d73-ba7f-5e75e51f5508.Date
+
+relationship ecce1ab6-3eed-4bcc-8360-63a060ead39b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Promotion.EndDate
+	toColumn: LocalDateTable_8cefae51-0393-43d6-b663-c64c75499034.Date
+
+relationship 138e02dd-2fa8-4fc8-ba09-677d554bad07
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Calendar.DateKey
+	toColumn: LocalDateTable_c7ee05a6-a78f-4de0-9378-f62b539fcddd.Date
+

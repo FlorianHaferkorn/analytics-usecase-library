@@ -1,0 +1,170 @@
+table Sales
+	lineageTag: f372ed8f-7361-49f1-8bc0-16073fe8ac09
+
+	column SalesKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d97d1d2c-3207-4114-992a-22300ea92739
+		summarizeBy: count
+		sourceColumn: SalesKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column DateKey
+		dataType: dateTime
+		isHidden
+		formatString: General Date
+		lineageTag: 7a0bcf7b-1ec4-41c6-8b98-dec2da57ca90
+		summarizeBy: none
+		sourceColumn: DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column channelKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e44be109-310c-4d7c-aff3-fe06f351f596
+		summarizeBy: none
+		sourceColumn: channelKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column StoreKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 9a3b4acc-310f-41e9-9be3-6b6b8cd0b9fe
+		summarizeBy: none
+		sourceColumn: StoreKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4149543f-ea7d-4b44-82e3-b89abf8f222d
+		summarizeBy: none
+		sourceColumn: ProductKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column PromotionKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: c1938e9c-a918-4c5c-9a4d-352b602e2266
+		summarizeBy: none
+		sourceColumn: PromotionKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column UnitCost
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 33adb93b-7699-4af5-b70a-e9dcc824f605
+		summarizeBy: sum
+		sourceColumn: UnitCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column UnitPrice
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 68ecf61c-385a-469e-b3ca-ba0fc6c635a6
+		summarizeBy: sum
+		sourceColumn: UnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column SalesQuantity
+		dataType: int64
+		formatString: 0
+		lineageTag: bfebfaaa-73bd-431e-b099-5d7e76519218
+		summarizeBy: sum
+		sourceColumn: SalesQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReturnQuantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 10718f34-13ff-4af0-a22f-b9d350b51c2d
+		summarizeBy: sum
+		sourceColumn: ReturnQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReturnAmount
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: b1f4cfb9-2415-44d2-bd72-c86b42796c52
+		summarizeBy: sum
+		sourceColumn: ReturnAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column DiscountQuantity
+		dataType: int64
+		formatString: 0
+		lineageTag: cc24452e-c163-4034-ad60-1d215c2619fe
+		summarizeBy: sum
+		sourceColumn: DiscountQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column DiscountAmount
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: fbba5410-daf4-4481-80ea-c1e0da4a3511
+		summarizeBy: sum
+		sourceColumn: DiscountAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column TotalCost
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: de12577b-15f8-4120-b504-8c3d6ad6c668
+		summarizeBy: sum
+		sourceColumn: TotalCost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column SalesAmount
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: a6558ca6-902d-4e92-b880-7281bbd5b6be
+		summarizeBy: sum
+		sourceColumn: SalesAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	partition Sales-d01eb137-1ce7-4ee7-9755-443b893924c4 = m
+		mode: import
+		source =
+				let
+				    Source = Access.Database(File.Contents("C:\Users\owend\Documents\ContosoSalesV31_64bit.accdb")),
+				    _FactSales = Source{[Schema="",Item="FactSales"]}[Data],
+				    #"Removed Columns" = Table.RemoveColumns(_FactSales,{"CurrencyKey", "ETLLoadID", "LoadDate", "UpdateDate"})
+				in
+				    #"Removed Columns"
+
+	annotation ColumnsMetadata = {"Columns":[{"Name":"SalesKey","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//FactSales.{SalesKey,0}"},{"Name":"DateKey","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//FactSales.{DateKey,1}"},{"Name":"channelKey","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//FactSales.{channelKey,2}"},{"Name":"StoreKey","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//FactSales.{StoreKey,3}"},{"Name":"ProductKey","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//FactSales.{ProductKey,4}"},{"Name":"PromotionKey","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//FactSales.{PromotionKey,5}"},{"Name":"UnitCost","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//FactSales.{UnitCost,7}"},{"Name":"UnitPrice","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//FactSales.{UnitPrice,8}"},{"Name":"SalesQuantity","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//FactSales.{SalesQuantity,9}"},{"Name":"ReturnQuantity","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//FactSales.{ReturnQuantity,10}"},{"Name":"ReturnAmount","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//FactSales.{ReturnAmount,11}"},{"Name":"DiscountQuantity","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//FactSales.{DiscountQuantity,12}"},{"Name":"DiscountAmount","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//FactSales.{DiscountAmount,13}"},{"Name":"TotalCost","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//FactSales.{TotalCost,14}"},{"Name":"SalesAmount","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//FactSales.{SalesAmount,15}"}]}
+
+	annotation PBI_ResultType = Table
+
