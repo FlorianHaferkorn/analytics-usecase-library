@@ -6,6 +6,9 @@ owner: "Head of Sales"
 impact: "High"
 status: "Draft"
 last_update: "07.10.2025"
+supports_strategic_kpi: ["Revenue Growth %", "Gross Margin %"]
+action_codes: ["P2", "D1", "M3", "SP1"]
+expected_impact: "+2-5 pp Δ% Net Sales; +0.5-1.5 pp Gross Margin %"
 ---
 
 # Sales Performance vs Plan & Last Year
@@ -17,7 +20,7 @@ Ensure sustainable revenue growth by identifying and explaining deviations from 
 
 ## 2. Business Context
 Sales is the primary driver of both liquidity and profitability. Variances versus Plan or Last Year often arise from a combination of volume, price, mix, and promotion effects. Without a standardized variance logic, discussions focus on symptoms rather than causes.  
-This use case provides a structured revenue bridge (Plan → Actual) and enables data-driven corrective actions across channels, products, and regions.
+This use case provides a structured revenue bridge (Plan -> Actual) and enables data-driven corrective actions across channels, products, and regions.
 
 ---
 
@@ -33,11 +36,11 @@ This use case provides a structured revenue bridge (Plan → Actual) and enables
 ## 4. Key KPIs
 | KPI | Definition | Unit | Format |
 |------|-------------|------|--------|
-| Net Sales Amount | Total invoiced sales excl. returns and taxes | € | 0–2 decimals |
-| Δ Net Sales Amount | Net Sales − Plan (or LY) | € | 0–2 decimals |
-| Δ% Net Sales | (Net Sales − Plan) ÷ Plan | % | 1 decimal |
-| Price Realization % | Net Price ÷ List Price | % | 1 decimal |
-| Promo Uplift % | (Promo Sales − Baseline) ÷ Baseline | % | 1 decimal |
+| Net Sales Amount | Total invoiced sales excl. returns and taxes | EUR | 0-2 decimals |
+| Δ Net Sales Amount | Net Sales - Plan (or LY) | EUR | 0-2 decimals |
+| Δ% Net Sales | (Net Sales - Plan) / Plan | % | 1 decimal |
+| Price Realization % | Net Price / List Price | % | 1 decimal |
+| Promo Uplift % | (Promo Sales - Baseline) / Baseline | % | 1 decimal |
 
 ---
 
@@ -70,7 +73,7 @@ This use case provides a structured revenue bridge (Plan → Actual) and enables
 
 ## 8. Data Freshness & Cadence
 - Refresh frequency: daily at 06:00 CET  
-- Latency ≤ 24h  
+- Latency <= 24h  
 - Backfill = 90 days  
 - Data Owner: Commercial BI Team
 
@@ -80,8 +83,8 @@ This use case provides a structured revenue bridge (Plan → Actual) and enables
 - No negative Net Sales Amount except for return flows  
 - Δ% Net Sales computed only when Plan > 0  
 - Price Realization % bounded [0%; 150%]  
-- Referential integrity ≥ 99.9 % across Date/Org/Product  
-- Missing dimensions default to “Unknown” category
+- Referential integrity >= 99.9 % across Date/Org/Product  
+- Missing dimensions default to 'Unknown' category
 
 ---
 
@@ -95,19 +98,19 @@ This use case provides a structured revenue bridge (Plan → Actual) and enables
 ## 11. Typical Actions
 | Action | Code | Expected Effect |
 |---------|------|-----------------|
-| Tighten Discounts – enforce corridor and reduce leakage | P2 | GM % +0.5–1.5 pp; NS stable |
-| Optimize Promo Calendar – align depth and timing with demand | D1 | Δ% NS +1–3 pp; Forecast accuracy ↑ |
+| Tighten Discounts - enforce corridor and reduce leakage | P2 | GM % +0.5-1.5 pp; NS stable |
+| Optimize Promo Calendar - align depth and timing with demand | D1 | Δ% NS +1-3 pp; Forecast accuracy improves |
 | Rebalance Channel/Product Mix toward high-margin items | M3 | GM % +1.0 pp; Δ% NS stable |
-| Invest/Divest selectively across under/overperforming areas | SP1 | Profitability ↑; capital efficiency ↑ |
+| Invest/Divest selectively across under/overperforming areas | SP1 | Profitability improves; capital efficiency improves |
 
 ---
 
 ## 12. Expected Business Impact
 | Dimension | Expected Impact | Measurement |
 |------------|-----------------|--------------|
-| Revenue | +2–5 pp Δ% Net Sales | vs Plan |
-| Profitability | +0.5–1.5 pp Gross Margin % | vs LY |
-| Forecast Accuracy | +10–20 % lower MAPE | 4–8 week horizon |
+| Revenue | +2-5 pp Δ% Net Sales | vs Plan |
+| Profitability | +0.5-1.5 pp Gross Margin % | vs LY |
+| Forecast Accuracy | +10-20 % lower MAPE | 4-8 week horizon |
 
 ---
 
@@ -128,7 +131,7 @@ Promo intensity correlates inversely with overall margin quality — balanced go
   `[COM-003 Promotion Effectiveness](../01_Commercial/COM-003_Promotion_Effectiveness.md)`  
   `[OPS-001 Cash Conversion Cycle](../02_Operational_Efficiency/OPS-001_Cash_Conversion_Cycle.md)`
 - Related Documents:  
-  [`KPI Catalog`](../_includes/KPI_Catalog.md) · [`Action Codes`](../_includes/ActionCodes.md) · [`Glossary`](../_includes/Glossary.md)
+  [`KPI Catalog`](../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../_includes/ActionCodes.md) | [`Glossary`](../../_includes/Glossary.md)
 
 ---
 

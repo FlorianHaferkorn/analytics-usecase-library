@@ -6,6 +6,9 @@ owner: "Head of Marketing Controlling"
 impact: "High"
 status: "Draft"
 last_update: "07.10.2025"
+supports_strategic_kpi: ["Gross Margin %", "Revenue Growth %"]
+action_codes: ["D1", "P2", "D2", "O2", "SP1"]
+expected_impact: "+10-30 % ROI uplift; +0.5-1.0 pp GM %; +1-3 pp Δ% NS"
 ---
 
 # Promotion Effectiveness (ROI & Uplift)
@@ -34,11 +37,11 @@ This use case provides a standardized framework to assess promotional efficiency
 ## 4. Key KPIs
 | KPI | Definition | Unit | Format |
 |------|-------------|------|--------|
-| Promo ROI % | (Incremental GM − Promo Cost) ÷ Promo Cost | % | 1 decimal |
-| Promo Uplift % | (Promo Sales − Baseline Sales) ÷ Baseline Sales | % | 1 decimal |
-| Incremental Sales Amount | Promo Sales − Baseline Sales | € | 0–2 decimals |
-| Incremental GM Amount | (Promo GM − Baseline GM) | € | 0–2 decimals |
-| GM % During Promo | (Promo NS − Promo COGS) ÷ Promo NS | % | 1 decimal |
+| Promo ROI % | (Incremental GM - Promo Cost) / Promo Cost | % | 1 decimal |
+| Promo Uplift % | (Promo Sales - Baseline Sales) / Baseline Sales | % | 1 decimal |
+| Incremental Sales Amount | Promo Sales - Baseline Sales | EUR | 0-2 decimals |
+| Incremental GM Amount | Promo GM - Baseline GM | EUR | 0-2 decimals |
+| GM % During Promo | (Promo NS - Promo COGS) / Promo NS | % | 1 decimal |
 
 ---
 
@@ -63,8 +66,8 @@ This use case provides a standardized framework to assess promotional efficiency
 ---
 
 ## 7. Scope & Assumptions
-- Promo ROI = (Incremental GM − Promo Cost) ÷ Promo Cost.  
-- Baseline defined as rolling average of non-promo periods (e.g., −8 to −2 weeks).  
+- Promo ROI = (Incremental GM - Promo Cost) / Promo Cost.  
+- Baseline defined as rolling average of non-promo periods (e.g., -8 to -2 weeks).  
 - Exclude overlapping promotions or multichannel effects for initial calculation.  
 - Cost data (promo budget) from Marketing Spend Plan.  
 - Reporting currency = EUR; FX at transaction date.
@@ -73,7 +76,7 @@ This use case provides a standardized framework to assess promotional efficiency
 
 ## 8. Data Freshness & Cadence
 - Refresh frequency: weekly (Monday 07:00 CET)  
-- Latency ≤ 3 days post-promo close  
+- Latency <= 3 days post-promo close  
 - Backfill = 12 months history  
 - Data Owner: Marketing Controlling
 
@@ -81,10 +84,10 @@ This use case provides a standardized framework to assess promotional efficiency
 
 ## 9. Edge Cases & QA Rules
 - Exclude promos shorter than 2 days or with <5 transactions.  
-- ROI capped between [−100%; +500%] to avoid outlier bias.  
+- ROI capped between [-100%; +500%] to avoid outlier bias.  
 - Ensure consistent baseline definition across products.  
 - Validate incremental uplift against total market trends.  
-- Referential integrity ≥ 99.9 % across Date/Org/Product/PromoID.
+- Referential integrity >= 99.9 % across Date/Org/Product/PromoID.
 
 ---
 
@@ -98,20 +101,20 @@ This use case provides a standardized framework to assess promotional efficiency
 ## 11. Typical Actions
 | Action | Code | Expected Effect |
 |---------|------|-----------------|
-| Optimize promotion calendar by ROI ranking | D1 | Δ% GM +0.5–1.0 pp; ROI +10–20 % |
+| Optimize promotion calendar by ROI ranking | D1 | Δ% GM +0.5-1.0 pp; ROI +10-20 % |
 | Reduce depth of low-return discounts | P2 | GM % +0.5 pp; NS stable |
-| Focus investment on high-return mechanics | D2 | ROI +15–30 % |
-| Improve baseline forecasting and promo tagging accuracy | O2 | Forecast bias ↓; reporting stability ↑ |
-| Link trade marketing bonuses to measured ROI | SP1 | Long-term ROI alignment ↑ |
+| Focus investment on high-return mechanics | D2 | ROI +15-30 % |
+| Improve baseline forecasting and promo tagging accuracy | O2 | Forecast bias reduces; reporting stability improves |
+| Link trade marketing bonuses to measured ROI | SP1 | Long-term ROI alignment improves |
 
 ---
 
 ## 12. Expected Business Impact
 | Dimension | Expected Impact | Measurement |
 |------------|-----------------|--------------|
-| ROI Improvement | +10–30 % ROI uplift | vs prior quarter |
-| Profitability | +0.5–1.0 pp GM % | vs LY |
-| Forecast Stability | −10 % forecast bias | Rolling 3M horizon |
+| ROI Improvement | +10-30 % ROI uplift | vs prior quarter |
+| Profitability | +0.5-1.0 pp GM % | vs LY |
+| Forecast Stability | -10 % forecast bias | Rolling 3M horizon |
 
 ---
 
@@ -121,7 +124,7 @@ Promotion Planning · Campaign Management · Marketing Budget Control · Sales F
 ---
 
 ## 14. Insights & Learnings
-~30–40 % of promotions deliver marginal or negative ROI.  
+~30-40 % of promotions deliver marginal or negative ROI.  
 Optimizing frequency and depth yields higher profitability than blanket discounting.  
 Baseline model accuracy directly correlates with ROI reliability.
 
@@ -133,7 +136,7 @@ Baseline model accuracy directly correlates with ROI reliability.
   `[COM-002 Gross Margin Analysis](../01_Commercial/COM-002_Gross_Margin_Analysis.md)`  
   `[COM-004 Price-Volume-Mix Bridge](../01_Commercial/COM-004_Price_Volume_Mix_Bridge.md)`
 - Related Documents:  
-  [`KPI Catalog`](../_includes/KPI_Catalog.md) · [`Action Codes`](../_includes/ActionCodes.md) · [`Glossary`](../_includes/Glossary.md)
+  [`KPI Catalog`](../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../_includes/ActionCodes.md) | [`Glossary`](../../_includes/Glossary.md)
 
 ---
 

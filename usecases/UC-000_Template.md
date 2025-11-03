@@ -9,6 +9,9 @@ owner: "[Insert Business Owner or Responsible Department]"
 impact: "[High / Medium / Low]"
 status: "[Draft / In Review / Active / Deprecated]"
 last_update: "DD.MM.YYYY"
+supports_strategic_kpi: []
+action_codes: []
+expected_impact: ""
 ---
 
 # [Use Case Title]
@@ -46,7 +49,7 @@ List the guiding analytical questions this use case addresses:
 ---
 
 ## 4. Key KPIs
-Each KPI must exist in the shared KPI Catalog (`/_includes/KPI_Catalog.md`).
+Each KPI must exist in the shared KPI Catalog (`/_includes/kpi_catalog/README.md`).
 
 | KPI | Definition | Unit | Format |
 |------|-------------|------|--------|
@@ -184,7 +187,7 @@ Provide links to related use cases or documentation.
 - **Related Documents:**  
   [`Reporting Strategy`](../docs/Reporting_Strategy.md)  
   [`Methodology`](../docs/Methodology.md)  
-  [`KPI Catalog`](../_includes/KPI_Catalog.md)  
+  [`KPI Catalog`](../_includes/kpi_catalog/README.md)  
   [`Action Codes`](../_includes/ActionCodes.md)  
   [`Glossary`](../_includes/Glossary.md)
 

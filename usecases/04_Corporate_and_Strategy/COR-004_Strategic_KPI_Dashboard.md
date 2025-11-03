@@ -6,6 +6,9 @@ owner: "Executive Board / Strategy Office"
 impact: "Very High"
 status: "Draft"
 last_update: "07.10.2025"
+supports_strategic_kpi: ["Revenue Growth %", "Gross Margin %", "Cash Conversion Cycle", "ESG-Aligned Revenue %", "Turnover %", "Project ROI %"]
+action_codes: ["SP2", "O2", "SP1", "O3", "SP3"]
+expected_impact: "Unified view of top KPIs; -50 % latency from data to decision; +100 % KPI-goal linkage"
 ---
 
 # Strategic KPI Dashboard (Enterprise Performance Overview)
@@ -34,12 +37,12 @@ This use case defines the top-level KPI structure for enterprise-wide performanc
 ## 4. Key KPIs (Top-Level)
 | KPI | Definition | Unit | Source |
 |------|-------------|------|--------|
-| Net Sales Δ% | (Actual − Plan) ÷ Plan | % | COM-001 |
-| Gross Margin % | (Net Sales − COGS) ÷ Net Sales | % | COM-002 |
-| Cash Conversion Cycle | DSO + DIO − DPO | Days | OPS-001 |
-| Employee Turnover % | Leavers ÷ Avg Headcount | % | COR-002 |
+| Δ% Net Sales | (Actual - Plan) / Plan | % | COM-001 |
+| Gross Margin % | (Net Sales - COGS) / Net Sales | % | COM-002 |
+| Cash Conversion Cycle | DSO + DIO - DPO | Days | OPS-001 |
+| Employee Turnover % | Leavers / Avg Headcount | % | COR-002 |
 | ESG-Aligned Revenue % | Revenue meeting EU Taxonomy | % | COR-003 |
-| Project ROI % | (Realized Benefit − Cost) ÷ Cost | % | COR-001 |
+| Project ROI % | (Realized Benefit - Cost) / Cost | % | COR-001 |
 
 ---
 
@@ -71,7 +74,7 @@ This use case defines the top-level KPI structure for enterprise-wide performanc
 
 ## 8. Data Freshness & Cadence
 - Refresh: daily for actuals, monthly for full consolidation.  
-- Latency ≤ 24h (automated pipelines).  
+- Latency <= 24h (automated pipelines).  
 - Historical depth = 60 months (5 fiscal years).  
 - Data Owner: Strategy Office / BI Governance.
 
@@ -80,8 +83,8 @@ This use case defines the top-level KPI structure for enterprise-wide performanc
 ## 9. Edge Cases & QA Rules
 - KPI source must reference a validated Use Case ID.  
 - Actual/Plan mismatch flagged automatically.  
-- Missing commentary for “Off Track” KPIs prohibited.  
-- Referential integrity ≥ 99.9 % across Date/Org/KPI.  
+- Missing commentary for 'Off Track' KPIs prohibited.  
+- Referential integrity >= 99.9 % across Date/Org/KPI.  
 - Audit trail required for changes in KPI definitions.
 
 ---
@@ -96,11 +99,11 @@ This use case defines the top-level KPI structure for enterprise-wide performanc
 ## 11. Typical Actions
 | Action | Code | Expected Effect |
 |---------|------|-----------------|
-| Review and reprioritize initiatives in underperforming domains | SP2 | ROI ↑; performance gap ↓ |
-| Launch strategic interventions for KPIs “Off Track” | O2 | Execution speed ↑; deviation ↓ |
-| Link KPI ownership to management scorecards | SP1 | Accountability ↑; alignment ↑ |
-| Integrate KPI narrative automation (AI-generated summaries) | O3 | Reporting latency ↓ 70 % |
-| Adjust strategic targets based on rolling forecasts | SP3 | Forecast bias ↓; agility ↑ |
+| Review and reprioritize initiatives in underperforming domains | SP2 | ROI improves; performance gap reduces |
+| Launch strategic interventions for KPIs 'Off Track' | O2 | Execution speed improves; deviation reduces |
+| Link KPI ownership to management scorecards | SP1 | Accountability improves; alignment improves |
+| Integrate KPI narrative automation (AI-generated summaries) | O3 | Reporting latency reduces 70 % |
+| Adjust strategic targets based on rolling forecasts | SP3 | Forecast bias reduces; agility improves |
 
 ---
 
@@ -108,9 +111,9 @@ This use case defines the top-level KPI structure for enterprise-wide performanc
 | Dimension | Expected Impact | Measurement |
 |------------|-----------------|--------------|
 | Transparency | Unified view of 100 % top KPIs | group-wide |
-| Decision Speed | −50 % latency from data to decision | vs baseline |
+| Decision Speed | -50 % latency from data to decision | vs baseline |
 | Strategic Alignment | 100 % of KPIs linked to corporate goals | governance metric |
-| Reporting Efficiency | −60 % manual effort | vs previous process |
+| Reporting Efficiency | -60 % manual effort | vs previous process |
 
 ---
 
@@ -122,7 +125,7 @@ Enterprise Performance Management · Board Reporting · Strategic Planning · Fi
 ## 14. Insights & Learnings
 The highest impact of strategy execution comes from transparency and cadence — not the number of metrics.  
 KPIs must remain stable but interpretations adaptive.  
-A living “one source of truth” across all domains accelerates management alignment and trust in data.
+A living 'one source of truth' across all domains accelerates management alignment and trust in data.
 
 ---
 
@@ -134,7 +137,7 @@ A living “one source of truth” across all domains accelerates management ali
   `[COM-001 Sales Performance](../01_Commercial/COM-001_Sales_Performance.md)`  
   `[OPS-001 Cash Conversion Cycle](../02_Operational_Efficiency/OPS-001_Cash_Conversion_Cycle.md)`  
 - Related Documents:  
-  [`KPI Catalog`](../_includes/KPI_Catalog.md) · [`Action Codes`](../_includes/ActionCodes.md) · [`Glossary`](../_includes/Glossary.md)
+  [`KPI Catalog`](../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../_includes/ActionCodes.md) | [`Glossary`](../../_includes/Glossary.md)
 
 ---
 

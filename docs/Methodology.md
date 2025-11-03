@@ -105,7 +105,6 @@ expected_impact: "+2–3 pp Revenue Growth %, +0.5 pp Gross Margin %"
 | **Review Workflow** | Each UC reviewed by Business & Data reviewer. |
 | **Definition of Done** | All fields filled, naming correct, cross-references valid. |
 | **Versioning** | Major for KPI changes, minor for text updates. |
-| **Changelog Discipline** | Update `/docs/Changelog.md` for every change. |
 
 **Goal:** Continuous learning loop between analytics and business execution.
 

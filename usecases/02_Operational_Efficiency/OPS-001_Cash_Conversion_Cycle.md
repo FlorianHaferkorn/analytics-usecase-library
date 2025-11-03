@@ -1,14 +1,17 @@
 ---
 id: "OPS-001"
-title: "Cash Conversion Cycle (DSO + DIO − DPO)"
+title: "Cash Conversion Cycle (DSO + DIO - DPO)"
 domain: "Operational Efficiency"
 owner: "Head of Finance / Treasury"
 impact: "High"
 status: "Draft"
 last_update: "07.10.2025"
+supports_strategic_kpi: ["Working Capital %", "Cash Conversion Cycle", "Operating Cash Flow"]
+action_codes: ["W1", "I1", "W2", "O2", "SP1"]
+expected_impact: "DSO -5-10 days; DIO -3-7 days; DPO +5-10 days; CCC -5-8 days"
 ---
 
-# Cash Conversion Cycle (DSO + DIO − DPO)
+# Cash Conversion Cycle (DSO + DIO - DPO)
 
 ## 1. Business Goal
 Optimize working capital and liquidity by managing receivables, inventory, and payables efficiency — measured through the Cash Conversion Cycle (CCC).
@@ -34,11 +37,11 @@ This use case unifies financial and operational perspectives to align Sales, Sup
 ## 4. Key KPIs
 | KPI | Definition | Unit | Format |
 |------|-------------|------|--------|
-| DSO (Days Sales Outstanding) | (Accounts Receivable ÷ Net Sales) × Days in Period | Days | 0 decimals |
-| DIO (Days Inventory Outstanding) | (Inventory ÷ COGS) × Days in Period | Days | 0 decimals |
-| DPO (Days Payables Outstanding) | (Accounts Payable ÷ COGS) × Days in Period | Days | 0 decimals |
-| CCC (Cash Conversion Cycle) | DSO + DIO − DPO | Days | 0 decimals |
-| Δ CCC | Current CCC − Plan or LY | Days | 0 decimals |
+| DSO (Days Sales Outstanding) | (Accounts Receivable / Net Sales) × Days in Period | Days | 0 decimals |
+| DIO (Days Inventory Outstanding) | (Inventory / COGS) × Days in Period | Days | 0 decimals |
+| DPO (Days Payables Outstanding) | (Accounts Payable / COGS) × Days in Period | Days | 0 decimals |
+| CCC (Cash Conversion Cycle) | DSO + DIO - DPO | Days | 0 decimals |
+| Δ CCC | Current CCC - Plan or LY | Days | 0 decimals |
 
 ---
 
@@ -72,7 +75,7 @@ This use case unifies financial and operational perspectives to align Sales, Sup
 
 ## 8. Data Freshness & Cadence
 - Refresh frequency: monthly (3rd business day after closing).  
-- Latency ≤ 72h post-close.  
+- Latency <= 72h post-close.  
 - Historical depth = 24 months.  
 - Data Owner: Finance / Working Capital Team.  
 
@@ -81,9 +84,9 @@ This use case unifies financial and operational perspectives to align Sales, Sup
 ## 9. Edge Cases & QA Rules
 - AR/AP balances cannot be negative.  
 - DSO capped at [0; 180] days, DIO at [0; 365].  
-- Referential integrity ≥ 99.9 % across Date/Org.  
+- Referential integrity >= 99.9 % across Date/Org.  
 - Manual adjustments documented in audit log.  
-- Currency differences reconciled within ±0.5 %.  
+- Currency differences reconciled within +/- 0.5 %.  
 
 ---
 
@@ -97,20 +100,20 @@ This use case unifies financial and operational perspectives to align Sales, Sup
 ## 11. Typical Actions
 | Action | Code | Expected Effect |
 |---------|------|-----------------|
-| Accelerate collections via credit control and factoring | W1 | DSO −5–10 days |
-| Optimize inventory levels and safety stocks | I1 | DIO −3–7 days |
-| Negotiate extended supplier terms | W2 | DPO +5–10 days |
-| Improve payment discipline and dunning automation | O2 | DSO −2 days; CCC −2 days |
-| Align S&OP and Treasury on working capital targets | SP1 | CCC −5–8 days overall |
+| Accelerate collections via credit control and factoring | W1 | DSO -5-10 days |
+| Optimize inventory levels and safety stocks | I1 | DIO -3-7 days |
+| Negotiate extended supplier terms | W2 | DPO +5-10 days |
+| Improve payment discipline and dunning automation | O2 | DSO -2 days; CCC -2 days |
+| Align S&OP and Treasury on working capital targets | SP1 | CCC -5-8 days overall |
 
 ---
 
 ## 12. Expected Business Impact
 | Dimension | Expected Impact | Measurement |
 |------------|-----------------|--------------|
-| Liquidity | +10–20 % free cash release | Δ CCC |
-| Cost of Capital | −0.2–0.5 pp | vs prior FY |
-| Service Level | ≥ 95 % OTIF (no degradation) | vs baseline |
+| Liquidity | +10-20 % free cash release | Δ CCC |
+| Cost of Capital | -0.2-0.5 pp | vs prior FY |
+| Service Level | >= 95 % OTIF (no degradation) | vs baseline |
 
 ---
 
@@ -131,7 +134,7 @@ Integrated CCC management reveals cross-functional trade-offs (e.g., inventory r
   `[OPS-003 Purchase Price Variance](../02_Operational_Efficiency/OPS-003_Purchase_Price_Variance.md)`  
   `[COM-002 Gross Margin Analysis](../01_Commercial/COM-002_Gross_Margin_Analysis.md)`  
 - Related Documents:  
-  [`KPI Catalog`](../_includes/KPI_Catalog.md) · [`Action Codes`](../_includes/ActionCodes.md) · [`Glossary`](../_includes/Glossary.md)
+  [`KPI Catalog`](../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../_includes/ActionCodes.md) | [`Glossary`](../../_includes/Glossary.md)
 
 ---
 

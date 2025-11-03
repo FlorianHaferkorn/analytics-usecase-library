@@ -12,8 +12,8 @@ Each file describes a single analytical scenario in a consistent Markdown format
 | **UC-XXX_*.md** | Each additional use case follows the same naming and layout rules. |
 
 ## Naming Convention
-- File name format: `UC-###_Short_Title.md`
-- Example: `UC-005_Inventory_Health.md`
+- File name format: `{PREFIX}-###_Short_Title.md` (e.g., `COM-005_Inventory_Health.md`)
+- `{PREFIX}` is a cluster code such as `COM`, `OPS`, `CST`, `COR`.
 - Use hyphens (`-`) for separation, no spaces or special characters.
 - IDs are sequential and unique; once assigned, never reused.
 
@@ -26,7 +26,6 @@ Each file describes a single analytical scenario in a consistent Markdown format
 
 ## Review & Governance
 - Each new or updated use case requires a Pull Request.  
-- At least one **business** and one **technical** reviewer must approve.  
-- Upon merge, update `/docs/Changelog.md` with ID, title, version, author, and summary.
+- At least one **business** and one **technical** reviewer must approve.
 
 _Last updated: 07.10.2025_

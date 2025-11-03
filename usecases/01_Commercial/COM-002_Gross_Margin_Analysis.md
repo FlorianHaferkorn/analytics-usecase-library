@@ -6,6 +6,9 @@ owner: "Head of Sales Controlling"
 impact: "High"
 status: "Draft"
 last_update: "07.10.2025"
+supports_strategic_kpi: ["Gross Margin %", "Revenue Growth %"]
+action_codes: ["P2", "PC2", "D1", "M3", "O2"]
+expected_impact: "+0.5-2.0 pp GM %; -1-3 % COGS; +1 pp Δ% Net Sales"
 ---
 
 # Gross Margin % vs Plan & Last Year
@@ -34,11 +37,11 @@ This use case quantifies and decomposes these effects, ensuring commercial, cate
 ## 4. Key KPIs
 | KPI | Definition | Unit | Format |
 |------|-------------|------|--------|
-| Gross Margin % | (Net Sales − COGS) ÷ Net Sales | % | 1 decimal |
-| Gross Margin Amount | Net Sales − COGS | € | 0–2 decimals |
-| Δ Gross Margin % | GM % − Plan or LY GM % | % | 1 decimal |
-| Price Realization % | Net Price ÷ List Price | % | 1 decimal |
-| COGS Amount | Direct product cost including logistics | € | 0–2 decimals |
+| Gross Margin % | (Net Sales - COGS) / Net Sales | % | 1 decimal |
+| Gross Margin Amount | Net Sales - COGS | EUR | 0-2 decimals |
+| Δ Gross Margin % | GM % - Plan or LY GM % | % | 1 decimal |
+| Price Realization % | Net Price / List Price | % | 1 decimal |
+| COGS Amount | Direct product cost including logistics | EUR | 0-2 decimals |
 
 ---
 
@@ -61,7 +64,7 @@ This use case quantifies and decomposes these effects, ensuring commercial, cate
 ---
 
 ## 7. Scope & Assumptions
-- Gross Margin calculated at invoice line level (Net Sales − COGS).  
+- Gross Margin calculated at invoice line level (Net Sales - COGS).  
 - Returns excluded from both Net Sales and COGS.  
 - Reporting currency = EUR; FX rate at transaction date.  
 - Plan data aligned with approved financial version.  
@@ -71,18 +74,18 @@ This use case quantifies and decomposes these effects, ensuring commercial, cate
 
 ## 8. Data Freshness & Cadence
 - Refresh frequency: daily 06:00 CET  
-- Latency ≤ 24h  
+- Latency <= 24h  
 - Historical depth = 24 months  
 - Data Owner: Sales Controlling / Procurement Analytics  
 
 ---
 
 ## 9. Edge Cases & QA Rules
-- No negative GM % beyond −100% (data anomaly).  
+- No negative GM % beyond -100% (data anomaly).  
 - Δ% GM calculated only where Plan GM % > 0.  
-- COGS must reconcile with financial postings (±0.5 % tolerance).  
-- Referential integrity ≥ 99.9 % across Date/Org/Product/Supplier.  
-- Missing dimensions default to “Unknown”.
+- COGS must reconcile with financial postings (+/- 0.5 % tolerance).  
+- Referential integrity >= 99.9 % across Date/Org/Product/Supplier.  
+- Missing dimensions default to 'Unknown'.
 
 ---
 
@@ -96,20 +99,20 @@ This use case quantifies and decomposes these effects, ensuring commercial, cate
 ## 11. Typical Actions
 | Action | Code | Expected Effect |
 |---------|------|-----------------|
-| Rebid or renegotiate supplier contracts | PC2 | COGS −1–3 %, GM % +1 pp |
-| Tighten discount and rebate structure | P2 | GM % +0.5–1.0 pp |
+| Rebid or renegotiate supplier contracts | PC2 | COGS -1-3 %; GM % +1 pp |
+| Tighten discount and rebate structure | P2 | GM % +0.5-1.0 pp |
 | Review and optimize promo depth and ROI | D1 | GM % +0.5 pp; Δ% NS +1 pp |
 | Channel/product mix steering toward high-margin lines | M3 | GM % +1 pp; stable NS |
-| Improve cost-to-serve transparency (freight, packaging) | O2 | GM % +0.3–0.6 pp |
+| Improve cost-to-serve transparency (freight, packaging) | O2 | GM % +0.3-0.6 pp |
 
 ---
 
 ## 12. Expected Business Impact
 | Dimension | Expected Impact | Measurement |
 |------------|-----------------|--------------|
-| Profitability | +0.5–2 pp GM % improvement | vs Plan |
-| Cost Efficiency | −2–3 % COGS | vs LY |
-| Promo ROI | +10–20 % uplift | per campaign |
+| Profitability | +0.5-2.0 pp GM % improvement | vs Plan |
+| Cost Efficiency | -2-3 % COGS | vs LY |
+| Promo ROI | +10-20 % uplift | per campaign |
 
 ---
 
@@ -130,7 +133,7 @@ Mix effects (especially low-margin SKUs) explain up to 30 % of variance but are 
   `[OPS-003 Purchase Price Variance](../02_Operational_Efficiency/OPS-003_Purchase_Price_Variance.md)`  
   `[COM-004 Price-Volume-Mix Bridge](../01_Commercial/COM-004_Price_Volume_Mix_Bridge.md)`
 - Related Documents:  
-  [`KPI Catalog`](../_includes/KPI_Catalog.md) · [`Action Codes`](../_includes/ActionCodes.md) · [`Glossary`](../_includes/Glossary.md)
+  [`KPI Catalog`](../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../_includes/ActionCodes.md) | [`Glossary`](../../_includes/Glossary.md)
 
 ---
 

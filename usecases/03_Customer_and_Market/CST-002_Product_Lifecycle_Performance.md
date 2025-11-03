@@ -6,6 +6,9 @@ owner: "Head of Category Management / Product Strategy"
 impact: "High"
 status: "Draft"
 last_update: "07.10.2025"
+supports_strategic_kpi: ["Revenue Growth %", "Gross Margin %", "Innovation Revenue %"]
+action_codes: ["D1", "SP1", "P2", "SP2", "M3"]
+expected_impact: "-10-20 % SKU count; +2 pp GM %; +3-5 % revenue from new launches"
 ---
 
 # Product Lifecycle Performance
@@ -34,10 +37,10 @@ This use case provides transparency across lifecycle stages to align product, sa
 ## 4. Key KPIs
 | KPI | Definition | Unit | Format |
 |------|-------------|------|--------|
-| New Product Share % | Sales of products <12 months ÷ Total Sales | % | 1 decimal |
-| Product Contribution Margin % | (NS − COGS − Promo Cost) ÷ NS | % | 1 decimal |
+| New Product Share % | Sales of products <12 months / Total Sales | % | 1 decimal |
+| Product Contribution Margin % | (NS - COGS - Promo Cost) / NS | % | 1 decimal |
 | Lifecycle Age (months) | Months since first sale | Months | 0 decimals |
-| Product ROI % | GM − Development & Marketing Cost ÷ Cost | % | 1 decimal |
+| Product ROI % | GM - Development & Marketing Cost / Cost | % | 1 decimal |
 | Phase Distribution % | Share of portfolio in each lifecycle phase | % | 1 decimal |
 
 ---
@@ -62,18 +65,18 @@ This use case provides transparency across lifecycle stages to align product, sa
 ## 7. Scope & Assumptions
 - Lifecycle classification based on sales age and trend:  
   - Launch = <6 months  
-  - Growth = 6–18 months  
-  - Maturity = 18–36 months  
-  - Decline = >36 months or −Δ% NS > 20 % YoY  
-- Product ROI = (GM − DevCost − MktCost) ÷ (DevCost + MktCost).  
+  - Growth = 6-18 months  
+  - Maturity = 18-36 months  
+  - Decline = >36 months or Δ% NS < -20 % YoY  
+- Product ROI = (GM - DevCost - MktCost) / (DevCost + MktCost).  
 - Currency = EUR; FX at transaction date.  
-- Products inactive for >12 months automatically “Phase-Out”.
+- Products inactive for >12 months automatically 'Phase-Out'.
 
 ---
 
 ## 8. Data Freshness & Cadence
 - Refresh: monthly (5th business day post-close).  
-- Latency ≤ 72h.  
+- Latency <= 72h.  
 - Historical depth = 36 months.  
 - Data Owner: Product Analytics / Category Management.  
 
@@ -82,8 +85,8 @@ This use case provides transparency across lifecycle stages to align product, sa
 ## 9. Edge Cases & QA Rules
 - Product Launch Date must exist for lifecycle assignment.  
 - Phase classification must cover 100 % of portfolio.  
-- Missing cost components default to zero (flagged “Incomplete”).  
-- Referential integrity ≥ 99.9 % across Date/Product/Org.  
+- Missing cost components default to zero (flagged 'Incomplete').  
+- Referential integrity >= 99.9 % across Date/Product/Org.  
 - Phase transitions validated quarterly.
 
 ---
@@ -98,20 +101,20 @@ This use case provides transparency across lifecycle stages to align product, sa
 ## 11. Typical Actions
 | Action | Code | Expected Effect |
 |---------|------|-----------------|
-| Accelerate ramp-up of new launches via targeted promotions | D1 | Δ% NS +5–10 pp (Launch) |
-| Reduce tail portfolio complexity (phase-out) | SP1 | COGS ↓; GM % ↑ |
-| Adjust pricing of mature SKUs to protect margin | P2 | GM % +0.5–1 pp |
-| Reinvest in top-growth categories and winning SKUs | SP2 | Δ% NS +2–4 pp |
-| Optimize marketing mix across lifecycle stages | M3 | ROI +10–15 % |
+| Accelerate ramp-up of new launches via targeted promotions | D1 | Δ% NS +5-10 pp (Launch) |
+| Reduce tail portfolio complexity (phase-out) | SP1 | COGS reduces; GM % improves |
+| Adjust pricing of mature SKUs to protect margin | P2 | GM % +0.5-1 pp |
+| Reinvest in top-growth categories and winning SKUs | SP2 | Δ% NS +2-4 pp |
+| Optimize marketing mix across lifecycle stages | M3 | ROI +10-15 % |
 
 ---
 
 ## 12. Expected Business Impact
 | Dimension | Expected Impact | Measurement |
 |------------|-----------------|--------------|
-| Portfolio Efficiency | −10–20 % SKU count; +2 pp GM % | vs LY |
-| Innovation ROI | +15–25 % ROI uplift | vs baseline |
-| Revenue Growth | +3–5 % from new launches | 12M rolling |
+| Portfolio Efficiency | -10-20 % SKU count; +2 pp GM % | vs LY |
+| Innovation ROI | +15-25 % ROI uplift | vs baseline |
+| Revenue Growth | +3-5 % from new launches | 12M rolling |
 
 ---
 
@@ -121,7 +124,7 @@ Portfolio Management · Product Development · Category Planning · Pricing & Pr
 ---
 
 ## 14. Insights & Learnings
-The majority of portfolios carry 30–40 % low-performing tail SKUs that erode margin.  
+The majority of portfolios carry 30-40 % low-performing tail SKUs that erode margin.  
 Lifecycle analytics allow dynamic reallocation of resources and faster decision-making in phase-out and pricing.
 
 ---
@@ -132,7 +135,7 @@ Lifecycle analytics allow dynamic reallocation of resources and faster decision-
   `[COM-002 Gross Margin Analysis](../01_Commercial/COM-002_Gross_Margin_Analysis.md)`  
   `[COR-004 Strategic KPI Dashboard](../04_Corporate_and_Strategy/COR-004_Strategic_KPI_Dashboard.md)`  
 - Related Documents:  
-  [`KPI Catalog`](../_includes/KPI_Catalog.md) · [`Action Codes`](../_includes/ActionCodes.md) · [`Glossary`](../_includes/Glossary.md)
+  [`KPI Catalog`](../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../_includes/ActionCodes.md) | [`Glossary`](../../_includes/Glossary.md)
 
 ---
 

@@ -6,6 +6,9 @@ owner: "Head of Strategy / PMO / Finance Controlling"
 impact: "High"
 status: "Draft"
 last_update: "07.10.2025"
+supports_strategic_kpi: ["Project ROI %", "Benefit Realization %", "Operating Cost Ratio %"]
+action_codes: ["SP1", "SP2", "O2", "O3", "SP3"]
+expected_impact: "+5-10 pp realized ROI; +15 % benefit realization; -10-20 % manual reporting effort"
 ---
 
 # Project ROI & Benefit Tracking
@@ -35,10 +38,10 @@ It links finance (CapEx/OpEx), delivery (timeline/milestones), and value realiza
 ## 4. Key KPIs
 | KPI | Definition | Unit | Format |
 |------|-------------|------|--------|
-| Project ROI % | (Realized Benefits − Total Cost) ÷ Total Cost | % | 1 decimal |
-| Benefit Realization % | Realized Benefits ÷ Planned Benefits | % | 1 decimal |
-| Budget Adherence % | Actual Cost ÷ Planned Cost | % | 1 decimal |
-| Schedule Adherence % | Actual Progress ÷ Planned Progress | % | 1 decimal |
+| Project ROI % | (Realized Benefits - Total Cost) / Total Cost | % | 1 decimal |
+| Benefit Realization % | Realized Benefits / Planned Benefits | % | 1 decimal |
+| Budget Adherence % | Actual Cost / Planned Cost | % | 1 decimal |
+| Schedule Adherence % | Actual Progress / Planned Progress | % | 1 decimal |
 | Payback Period | Time until cumulative benefits = total cost | Months | 0 decimals |
 
 ---
@@ -64,23 +67,23 @@ It links finance (CapEx/OpEx), delivery (timeline/milestones), and value realiza
 - Benefits captured when measurable in P&L (not forecast only).  
 - Non-financial KPIs (e.g., CX, ESG) optionally tracked as qualitative.  
 - Currency = EUR; FX rate at commitment date.  
-- ROI target benchmark typically ≥ 15 %.  
+- ROI target benchmark typically >= 15 %.  
 
 ---
 
 ## 8. Data Freshness & Cadence
 - Refresh: monthly (5th business day after close).  
-- Latency ≤ 72h post-close.  
+- Latency <= 72h post-close.  
 - Historical depth = project duration + 12 months post-closing.  
 - Data Owner: PMO / Finance Controlling.  
 
 ---
 
 ## 9. Edge Cases & QA Rules
-- Projects with ROI < −100 % flagged “Loss-Making”.  
+- Projects with ROI < -100 % flagged 'Loss-Making'.  
 - Benefit > Planned × 1.5 flagged for review (potential misallocation).  
 - Project without closure date cannot report realized benefits.  
-- Referential integrity ≥ 99.9 % across Project/Org/Time.  
+- Referential integrity >= 99.9 % across Project/Org/Time.  
 - Status updates must align with PMO governance cadence.
 
 ---
@@ -95,20 +98,20 @@ It links finance (CapEx/OpEx), delivery (timeline/milestones), and value realiza
 ## 11. Typical Actions
 | Action | Code | Expected Effect |
 |---------|------|-----------------|
-| Reassess project scope or timeline if ROI < threshold | SP1 | ROI ↑; delay ↓ |
-| Prioritize or divest projects based on realized ROI ranking | SP2 | Portfolio efficiency ↑ |
-| Enforce benefit owner accountability | O2 | Benefit Realization % +10–15 pp |
-| Introduce stage-gate reviews for high-risk projects | O3 | Risk exposure ↓; predictability ↑ |
-| Link PMO bonus targets to benefit realization | SP3 | ROI target compliance ↑ |
+| Reassess project scope or timeline if ROI < threshold | SP1 | ROI improves; delay reduces |
+| Prioritize or divest projects based on realized ROI ranking | SP2 | Portfolio efficiency improves |
+| Enforce benefit owner accountability | O2 | Benefit Realization % +10-15 pp |
+| Introduce stage-gate reviews for high-risk projects | O3 | Risk exposure reduces; predictability improves |
+| Link PMO bonus targets to benefit realization | SP3 | ROI target compliance improves |
 
 ---
 
 ## 12. Expected Business Impact
 | Dimension | Expected Impact | Measurement |
 |------------|-----------------|--------------|
-| ROI | +5–10 pp improvement in realized ROI | vs LY |
+| ROI | +5-10 pp improvement in realized ROI | vs LY |
 | Benefit Realization | +15 % realization rate | portfolio average |
-| Portfolio Efficiency | +10–20 % higher value per € invested | rolling 12M |
+| Portfolio Efficiency | +10-20 % higher value per EUR invested | rolling 12M |
 
 ---
 
@@ -130,7 +133,7 @@ Linking PMO dashboards with Finance ensures credibility and faster corrective ac
   `[COM-002 Gross Margin Analysis](../01_Commercial/COM-002_Gross_Margin_Analysis.md)`  
   `[OPS-003 Purchase Price Variance](../02_Operational_Efficiency/OPS-003_Purchase_Price_Variance.md)`  
 - Related Documents:  
-  [`KPI Catalog`](../_includes/KPI_Catalog.md) · [`Action Codes`](../_includes/ActionCodes.md) · [`Glossary`](../_includes/Glossary.md)
+  [`KPI Catalog`](../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../_includes/ActionCodes.md) | [`Glossary`](../../_includes/Glossary.md)
 
 ---
 

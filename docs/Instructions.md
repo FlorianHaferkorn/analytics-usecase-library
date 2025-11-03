@@ -145,8 +145,7 @@ Document key takeaways, interpretation notes, or connections to other use cases.
    - One business reviewer (domain expert)
    - One technical reviewer (data model owner)
 6. **Merge** only after both approvals.
-7. **Update** `/docs/Changelog.md` with:
-   - ID, Title, Version, Author, Date, Change Summary
+7. (removed) No changelog required.
 
 ---
 
@@ -156,7 +155,7 @@ Document key takeaways, interpretation notes, or connections to other use cases.
 |----------|------------|
 | **Versioning** | Minor = textual update; Major = KPI or logic change. |
 | **Status** | `Draft`, `In Review`, `Active`, `Deprecated`. |
-| **Changelog** | Required for every addition or modification. |
+| **Changelog** | Not required (govern via PR history). |
 | **Archiving** | Deprecated Use Cases remain stored with final version tag. |
 | **Cross-References** | Use `[COM-002 Gross Margin %](../01_Commercial/COM-002_Gross_Margin.md)` for linking. |
 
@@ -183,7 +182,7 @@ A Use Case is considered **complete** when:
 - Naming follows the conventions (`Δ`, `Δ%`, `%`).  
 - Cross-references and glossary links are valid.  
 - Reviewed and approved by both business and data reviewers.  
-- Entry in `Changelog.md` created and merged.  
+
 
 ---
 

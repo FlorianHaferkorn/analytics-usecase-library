@@ -16,7 +16,7 @@ Each use case links **business goals** with **data structures**, **KPIs**, and *
 - Enable a shared language between business, data, and analytics teams.  
 - Create a foundation for standardized KPIs, actions, and insights.  
 - Support Copilot readiness through structured metadata and traceability.  
-- Ensure governance and version control through changelog discipline.
+ 
 
 ---
 
@@ -28,7 +28,7 @@ The Library operationalizes the **Reporting Framework** defined in [`/docs/Repor
 | **Reporting Strategy** | Defines reporting levels (Strategic, Tactical, Operational) and analytics maturity (Descriptive → Prescriptive) | `/docs/Reporting_Strategy.md` |
 | **Cluster (Domain)** | Groups related business topics (Commercial, Operational Efficiency, Customer & Market, Corporate & Strategy) | `/usecases/01_Commercial/` |
 | **Use Case** | Describes one analytical question with KPIs and actions | `/usecases/01_Commercial/COM-001_Sales_Performance.md` |
-| **KPI Catalog & Action Codes** | Provide shared semantics and operational levers | `/_includes/KPI_Catalog.md` / `/_includes/ActionCodes.md` |
+| **KPI Catalog & Action Codes** | Provide shared semantics and operational levers | `/_includes/kpi_catalog/README.md` / `/_includes/ActionCodes.md` |
 
 Each Use Case is classified by:
 - `reporting_level:` **Strategic / Tactical / Operational**  
@@ -102,7 +102,7 @@ last_update: 12.10.2025
 1. **Business Goal** – Purpose of the analysis and its link to business outcomes.  
 2. **Business Context** – Background, relevance, and decisions supported.  
 3. **Key Questions** – Core analytical questions (What, Where, Why, What Next).  
-4. **Key KPIs** – Reference to standardized KPIs in `/_includes/KPI_Catalog.md`.  
+4. **Key KPIs** – Reference to standardized KPIs in `/_includes/kpi_catalog/README.md`.  
 5. **Required Attributes** – Business-level fields needed for mapping.  
 6. **Segmentation & Hierarchies** – Time, Org, Product, Customer structures.  
 7. **Scope & Assumptions** – Analytical boundaries and definitions.  
@@ -138,7 +138,7 @@ Each cluster aggregates Use Cases that share a **business objective** and **data
 5. **Submit Pull Request** → reviewed by:
    - One **Business Reviewer** (domain expert)  
    - One **Technical Reviewer** (data model owner)
-6. **Update** `docs/Changelog.md` with ID, version, author, date, and summary.
+ 
 
 ---
 
@@ -149,7 +149,7 @@ Each cluster aggregates Use Cases that share a **business objective** and **data
 | **Review Workflow** | Mandatory business + technical approval |
 | **Versioning** | Major = new KPIs/actions; Minor = text update |
 | **Status** | Draft → In Review → Active → Deprecated |
-| **Changelog Discipline** | Required for every change |
+ 
 | **Naming** | `Δ` = absolute variance, `Δ%` = relative variance, `%` = percentage |
 | **Data Quality** | Referential Integrity ≥ 99.9 % across Date/Org/Product |
 | **Copilot Readiness** | All sections and lineage metadata filled |
@@ -164,7 +164,7 @@ Each cluster aggregates Use Cases that share a **business objective** and **data
 | [`/docs/Reporting_Strategy.md`](./docs/Reporting_Strategy.md) | Defines reporting levels, analytics stages, and governance layers. |
 | [`/docs/Methodology.md`](./docs/Methodology.md) | Explains modeling, 3-30-300 design, and visualization standards. |
 | [`/docs/Instructions.md`](./docs/Instructions.md) | Details authoring and maintenance process. |
-| [`/_includes/KPI_Catalog.md`](./_includes/KPI_Catalog.md) | Canonical KPI definitions with formulas and QA rules. |
+| [`/_includes/kpi_catalog/README.md`](./_includes/kpi_catalog/README.md) | Canonical KPI definitions with formulas and QA rules. |
 | [`/_includes/ActionCodes.md`](./_includes/ActionCodes.md) | Standardized operational actions (P2, D1, etc.). |
 | [`/_includes/Glossary.md`](./_includes/Glossary.md) | Glossary of business and analytical terms. |
 

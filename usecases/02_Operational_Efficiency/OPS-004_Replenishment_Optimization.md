@@ -6,6 +6,9 @@ owner: "Head of Supply Chain Planning"
 impact: "High"
 status: "Draft"
 last_update: "07.10.2025"
+supports_strategic_kpi: ["Service Level %", "Stock-Out Rate %", "Inventory Days"]
+action_codes: ["I1", "PC4", "I2", "O2", "SP1"]
+expected_impact: "+2-3 pp Service Level; -5-10 % Inventory Value; -20 % forecast MAPE"
 ---
 
 # Replenishment Optimization & Service Level Management
@@ -34,11 +37,11 @@ This use case provides a data-driven approach to continuously optimize reorder l
 ## 4. Key KPIs
 | KPI | Definition | Unit | Format |
 |------|-------------|------|--------|
-| Service Level % | Delivered ÷ Requested Units | % | 1 decimal |
-| Stock-Out Rate % | Unfulfilled Demand ÷ Total Demand | % | 1 decimal |
-| Replenishment Adherence % | Actual Orders ÷ Target Orders (on time/quantity) | % | 1 decimal |
-| Inventory Days | Average Inventory ÷ Daily COGS | Days | 0 decimals |
-| Order Accuracy % | Orders fulfilled correctly ÷ Total Orders | % | 1 decimal |
+| Service Level % | Delivered / Requested Units | % | 1 decimal |
+| Stock-Out Rate % | Unfulfilled Demand / Total Demand | % | 1 decimal |
+| Replenishment Adherence % | Actual Orders / Target Orders (on time/quantity) | % | 1 decimal |
+| Inventory Days | Average Inventory / Daily COGS | Days | 0 decimals |
+| Order Accuracy % | Orders fulfilled correctly / Total Orders | % | 1 decimal |
 
 ---
 
@@ -72,18 +75,18 @@ This use case provides a data-driven approach to continuously optimize reorder l
 
 ## 8. Data Freshness & Cadence
 - Refresh: daily for transactional data, weekly for parameter optimization.  
-- Latency ≤ 24 h for stock/order data.  
+- Latency <= 24 h for stock/order data.  
 - Historical depth = 12 months.  
 - Data Owner: Supply Chain Planning / Logistics Analytics.
 
 ---
 
 ## 9. Edge Cases & QA Rules
-- Reorder Point ≥ 0; Safety Stock ≥ 0.  
+- Reorder Point >= 0; Safety Stock >= 0.  
 - Negative order quantities excluded.  
 - Service Level % capped at [0; 100].  
 - Lead Time deviations > 3× standard deviation flagged.  
-- Referential integrity ≥ 99.9 % across Date/Org/Product/Supplier.
+- Referential integrity >= 99.9 % across Date/Org/Product/Supplier.
 
 ---
 
@@ -97,19 +100,19 @@ This use case provides a data-driven approach to continuously optimize reorder l
 ## 11. Typical Actions
 | Action | Code | Expected Effect |
 |---------|------|-----------------|
-| Adjust reorder points based on forecast error and demand variability | I1 | Stock-Outs ↓; Inventory −5–10 % |
-| Synchronize supplier delivery cadence with actual consumption patterns | PC4 | Lead Time ↓; OTIF ↑ |
-| Implement dynamic safety stock based on target service level | I2 | Service ↑; working capital stable |
-| Reduce order batch sizes to avoid overstock | O2 | Inventory Days −5; obsolescence ↓ |
-| Integrate replenishment optimization into S&OP | SP1 | Forecast accuracy ↑; liquidity ↑ |
+| Adjust reorder points based on forecast error and demand variability | I1 | Stock-Outs reduce; Inventory -5-10 % |
+| Synchronize supplier delivery cadence with actual consumption patterns | PC4 | Lead Time reduces; OTIF improves |
+| Implement dynamic safety stock based on target service level | I2 | Service improves; working capital stable |
+| Reduce order batch sizes to avoid overstock | O2 | Inventory Days -5; obsolescence reduces |
+| Integrate replenishment optimization into S&OP | SP1 | Forecast accuracy improves; liquidity improves |
 
 ---
 
 ## 12. Expected Business Impact
 | Dimension | Expected Impact | Measurement |
 |------------|-----------------|--------------|
-| Service Level | +2–3 pp improvement | vs baseline |
-| Working Capital | −5–10 % inventory value | vs LY |
+| Service Level | +2-3 pp improvement | vs baseline |
+| Working Capital | -5-10 % inventory value | vs LY |
 | Forecast Accuracy | +10 % MAPE reduction | rolling 3M horizon |
 
 ---
@@ -131,7 +134,7 @@ Dynamic safety stock policies outperform manual target levels in both cost and s
   `[OPS-003 Purchase Price Variance](../02_Operational_Efficiency/OPS-003_Purchase_Price_Variance.md)`  
   `[COM-001 Sales Performance](../01_Commercial/COM-001_Sales_Performance.md)`  
 - Related Documents:  
-  [`KPI Catalog`](../_includes/KPI_Catalog.md) · [`Action Codes`](../_includes/ActionCodes.md) · [`Glossary`](../_includes/Glossary.md)
+  [`KPI Catalog`](../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../_includes/ActionCodes.md) | [`Glossary`](../../_includes/Glossary.md)
 
 ---
 

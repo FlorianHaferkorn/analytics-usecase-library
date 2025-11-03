@@ -4,7 +4,6 @@ This file defines standardized operational levers ("Actions") used across all an
 Each Action Code describes **what to do** when a KPI deviation is detected and **which KPI(s)** it affects.  
 It serves as the semantic bridge between analysis and business execution.
 
-This is a new sentence.
 
 ---
 
@@ -19,7 +18,6 @@ Each Action Code is uniquely identified and classified by:
 - **Example Use Cases:** where this action typically applies.  
 - **Expected Effect:** quantitative or directional impact on KPIs.
 
-TEST TEST TEST
 
 ---
 
@@ -159,7 +157,7 @@ TEST TEST TEST
 | File | Purpose |
 |------|----------|
 | [`/_includes/Strategic_KPIs.md`](./Strategic_KPIs.md) | Defines KPIs linked to each Action Code. |
-| [`/_includes/KPI_Catalog.md`](./KPI_Catalog.md) | Contains full KPI definitions referenced by codes. |
+| [`/_includes/kpi_catalog/README.md`](./kpi_catalog/README.md) | Contains full KPI definitions referenced by codes. |
 | [`/docs/Methodology.md`](../docs/Methodology.md) | Explains linkage between KPIs, Actions, and visuals. |
 | [`/docs/Reporting_Strategy.md`](../docs/Reporting_Strategy.md) | Provides governance layers and review workflow. |
 

@@ -6,6 +6,9 @@ owner: "Head of Procurement Controlling"
 impact: "High"
 status: "Draft"
 last_update: "07.10.2025"
+supports_strategic_kpi: ["COGS % of Sales", "Gross Margin %", "Supplier OTIF %"]
+action_codes: ["PC2", "O2", "PC4", "SP1", "PC3"]
+expected_impact: "-2-4 % average COGS; +5-10 pp OTIF; +10-20 % verified savings"
 ---
 
 # Purchase Price Variance (PPV) & Supplier Performance
@@ -34,11 +37,11 @@ This use case provides transparency on cost variance, supplier reliability, and 
 ## 4. Key KPIs
 | KPI | Definition | Unit | Format |
 |------|-------------|------|--------|
-| PPV % | (Actual Price − Contract Price) ÷ Contract Price | % | 1 decimal |
-| PPV Amount | (Actual Price − Contract Price) × Quantity | € | 0–2 decimals |
-| Contract Compliance % | Purchases at agreed price ÷ Total purchases | % | 1 decimal |
-| Supplier OTIF % | On-Time In-Full deliveries ÷ Total deliveries | % | 1 decimal |
-| Δ COGS Amount | Change in total procurement cost vs Plan | € | 0–2 decimals |
+| PPV % | (Actual Price - Contract Price) / Contract Price | % | 1 decimal |
+| PPV Amount | (Actual Price - Contract Price) × Quantity | EUR | 0-2 decimals |
+| Contract Compliance % | Purchases at agreed price / Total purchases | % | 1 decimal |
+| Supplier OTIF % | On-Time In-Full deliveries / Total deliveries | % | 1 decimal |
+| Δ COGS Amount | Change in total procurement cost vs Plan | EUR | 0-2 decimals |
 
 ---
 
@@ -61,8 +64,8 @@ This use case provides transparency on cost variance, supplier reliability, and 
 ---
 
 ## 7. Scope & Assumptions
-- PPV = (Actual Price − Contract Price) ÷ Contract Price.  
-- Contract Price derived from latest valid agreement (effective date ≤ order date).  
+- PPV = (Actual Price - Contract Price) / Contract Price.  
+- Contract Price derived from latest valid agreement (effective date <= order date).  
 - Exclude freight or overhead costs unless specified in agreement.  
 - Currency = EUR; FX translation at posting date.  
 - Negative PPV (price gain) treated as positive variance for savings tracking.
@@ -71,7 +74,7 @@ This use case provides transparency on cost variance, supplier reliability, and 
 
 ## 8. Data Freshness & Cadence
 - Refresh frequency: weekly (Monday 07:00 CET).  
-- Latency ≤ 3 days after PO goods receipt.  
+- Latency <= 3 days after PO goods receipt.  
 - Historical depth = 24 months.  
 - Data Owner: Procurement Analytics / Controlling.
 
@@ -79,10 +82,10 @@ This use case provides transparency on cost variance, supplier reliability, and 
 
 ## 9. Edge Cases & QA Rules
 - Actual and Contract Price must be > 0.  
-- PPV % capped between [−50%; +100%].  
-- Missing contract references flagged as “No Valid Contract”.  
+- PPV % capped between [-50%; +100%].  
+- Missing contract references flagged as 'No Valid Contract'.  
 - Supplier master must reconcile with vendor list.  
-- Referential integrity ≥ 99.9 % across Date/Org/Supplier/Material.
+- Referential integrity >= 99.9 % across Date/Org/Supplier/Material.
 
 ---
 
@@ -96,20 +99,20 @@ This use case provides transparency on cost variance, supplier reliability, and 
 ## 11. Typical Actions
 | Action | Code | Expected Effect |
 |---------|------|-----------------|
-| Renegotiate supplier terms and pricing | PC2 | COGS −1–3 %; GM % +0.5 pp |
-| Enforce contract price adherence and prevent off-contract spend | O2 | Contract Compliance ↑; PPV ↓ |
-| Implement supplier scorecards for cost, quality, delivery | PC4 | OTIF ↑; PPV variability ↓ |
-| Consolidate spend to preferred suppliers | SP1 | Scale leverage ↑; COGS ↓ |
-| Adjust procurement indexation policy | PC3 | PPV volatility ↓ 30 % |
+| Renegotiate supplier terms and pricing | PC2 | COGS -1-3 %; GM % +0.5 pp |
+| Enforce contract price adherence and prevent off-contract spend | O2 | Contract Compliance improves; PPV reduces |
+| Implement supplier scorecards for cost, quality, delivery | PC4 | OTIF improves; PPV variability reduces |
+| Consolidate spend to preferred suppliers | SP1 | Scale leverage improves; COGS reduces |
+| Adjust procurement indexation policy | PC3 | PPV volatility reduces 30 % |
 
 ---
 
 ## 12. Expected Business Impact
 | Dimension | Expected Impact | Measurement |
 |------------|-----------------|--------------|
-| Cost Reduction | −2–4 % average COGS | vs LY |
-| Supplier Reliability | +5–10 pp OTIF | vs baseline |
-| Savings Realization | +10–20 % verified savings vs plan | year-to-date |
+| Cost Reduction | -2-4 % average COGS | vs LY |
+| Supplier Reliability | +5-10 pp OTIF | vs baseline |
+| Savings Realization | +10-20 % verified savings vs plan | year-to-date |
 
 ---
 
@@ -130,7 +133,7 @@ Supplier consolidation and proactive rebid cycles generate higher savings than s
   `[COM-002 Gross Margin Analysis](../01_Commercial/COM-002_Gross_Margin_Analysis.md)`  
   `[COR-001 Project ROI Tracking](../04_Corporate_and_Strategy/COR-001_Project_ROI_and_Benefit_Tracking.md)`  
 - Related Documents:  
-  [`KPI Catalog`](../_includes/KPI_Catalog.md) · [`Action Codes`](../_includes/ActionCodes.md) · [`Glossary`](../_includes/Glossary.md)
+  [`KPI Catalog`](../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../_includes/ActionCodes.md) | [`Glossary`](../../_includes/Glossary.md)
 
 ---
 

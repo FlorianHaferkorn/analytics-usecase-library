@@ -6,6 +6,9 @@ owner: "Head of Supply Chain / Logistics"
 impact: "High"
 status: "Draft"
 last_update: "07.10.2025"
+supports_strategic_kpi: ["Working Capital %", "Stock-Out Rate %", "Inventory Days"]
+action_codes: ["I1", "I2", "O2", "D1", "PC4"]
+expected_impact: "-10-15 % Inventory Value; >= 97 % OTIF; -20 % obsolescence"
 ---
 
 # Inventory Health & Stock-Out Prevention
@@ -34,11 +37,11 @@ This use case enables proactive monitoring of inventory coverage, demand volatil
 ## 4. Key KPIs
 | KPI | Definition | Unit | Format |
 |------|-------------|------|--------|
-| Inventory Days | (Average Inventory ÷ Daily COGS) | Days | 0 decimals |
-| Stock-Out Rate % | Unfulfilled Demand ÷ Total Demand | % | 1 decimal |
-| Inventory Turnover | COGS ÷ Average Inventory | Ratio | 2 decimals |
-| Obsolescence % | Aged or blocked stock ÷ Total Inventory | % | 1 decimal |
-| OTIF % | On-Time In-Full deliveries ÷ Total Deliveries | % | 1 decimal |
+| Inventory Days | (Average Inventory / Daily COGS) | Days | 0 decimals |
+| Stock-Out Rate % | Unfulfilled Demand / Total Demand | % | 1 decimal |
+| Inventory Turnover | COGS / Average Inventory | Ratio | 2 decimals |
+| Obsolescence % | Aged or blocked stock / Total Inventory | % | 1 decimal |
+| OTIF % | On-Time In-Full deliveries / Total Deliveries | % | 1 decimal |
 
 ---
 
@@ -63,7 +66,7 @@ This use case enables proactive monitoring of inventory coverage, demand volatil
 ## 7. Scope & Assumptions
 - Inventory valued at standard cost.  
 - Daily snapshots aggregated to month-end for trend analysis.  
-- Service Level = Delivered ÷ Requested Qty.  
+- Service Level = Delivered / Requested Qty.  
 - Exclude consignment or third-party-managed stock.  
 - Currency = EUR; reporting by company code.
 
@@ -71,16 +74,16 @@ This use case enables proactive monitoring of inventory coverage, demand volatil
 
 ## 8. Data Freshness & Cadence
 - Refresh: daily (06:00 CET).  
-- Latency ≤ 24 h.  
+- Latency <= 24 h.  
 - Backfill = 12 months.  
 - Data Owner: Supply Chain Analytics.
 
 ---
 
 ## 9. Edge Cases & QA Rules
-- Inventory Value ≥ 0; Units Qty ≥ 0.  
-- Stock-Out Rate % ≤ 100 %.  
-- Referential integrity ≥ 99.9 % across Date/Org/Product.  
+- Inventory Value >= 0; Units Qty >= 0.  
+- Stock-Out Rate % <= 100 %.  
+- Referential integrity >= 99.9 % across Date/Org/Product.  
 - Exclude discontinued items from active coverage ratio.  
 - Safety Stock recalculated monthly based on updated demand volatility.
 
@@ -96,20 +99,20 @@ This use case enables proactive monitoring of inventory coverage, demand volatil
 ## 11. Typical Actions
 | Action | Code | Expected Effect |
 |---------|------|-----------------|
-| Adjust replenishment parameters (min/max levels, reorder points) | I1 | DIO −5–10 days; Stock-Outs ↓ |
-| Prioritize allocation of limited stock to high-margin SKUs or key stores | I2 | Revenue loss ↓; service stability ↑ |
-| Reduce obsolete inventory via targeted markdown or redistribution | O2 | Inventory value ↓ 5–10 % |
-| Improve forecast accuracy through demand segmentation | D1 | Service ↑; DIO stable |
-| Strengthen supplier reliability (lead time, fill rate) | PC4 | OTIF ↑; Stock-Outs ↓ |
+| Adjust replenishment parameters (min/max levels, reorder points) | I1 | DIO -5-10 days; Stock-Outs reduce |
+| Prioritize allocation of limited stock to high-margin SKUs or key stores | I2 | Revenue loss reduces; service stability improves |
+| Reduce obsolete inventory via targeted markdown or redistribution | O2 | Inventory value reduces 5-10 % |
+| Improve forecast accuracy through demand segmentation | D1 | Service improves; DIO stable |
+| Strengthen supplier reliability (lead time, fill rate) | PC4 | OTIF improves; Stock-Outs reduce |
 
 ---
 
 ## 12. Expected Business Impact
 | Dimension | Expected Impact | Measurement |
 |------------|-----------------|--------------|
-| Working Capital | −10–15 % Inventory Value | vs LY |
-| Service Level | ≥ 97 % OTIF | vs baseline |
-| Obsolescence | −20 % blocked stock | vs prior FY |
+| Working Capital | -10-15 % Inventory Value | vs LY |
+| Service Level | >= 97 % OTIF | vs baseline |
+| Obsolescence | -20 % blocked stock | vs prior FY |
 
 ---
 
@@ -130,7 +133,7 @@ Linking forecast accuracy, replenishment discipline, and supplier reliability de
   `[OPS-003 Purchase Price Variance](../02_Operational_Efficiency/OPS-003_Purchase_Price_Variance.md)`  
   `[COM-002 Gross Margin Analysis](../01_Commercial/COM-002_Gross_Margin_Analysis.md)`  
 - Related Documents:  
-  [`KPI Catalog`](../_includes/KPI_Catalog.md) · [`Action Codes`](../_includes/ActionCodes.md) · [`Glossary`](../_includes/Glossary.md)
+  [`KPI Catalog`](../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../_includes/ActionCodes.md) | [`Glossary`](../../_includes/Glossary.md)
 
 ---
 
