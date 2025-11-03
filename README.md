@@ -47,7 +47,7 @@ This structure ensures traceability from **business goals → KPIs → data → 
 │   ├── Reporting_Strategy.md     ← defines reporting levels & architecture
 │   ├── Methodology.md            ← describes modeling & design principles
 │   ├── Instructions.md           ← authoring and governance rules
-│   ├── Changelog.md              ← version control and audit log
+│   ├── README.md
 │
 ├── /usecases/
 │   ├── /01_Commercial/
@@ -63,6 +63,9 @@ This structure ensures traceability from **business goals → KPIs → data → 
 │     ├── Glossary.md
 │     ├── ActionCodes.md
 │     ├── Strategic_KPIs.md
+│     ├── README.md
+│     ├── Strategic_Alignment_Map.md
+│     ├── UseCase_Inventory.md
 │     └── /kpi_catalog/
 │           ├── KPI_Catalog_README.md
 │           ├── KPI_Catalog_Growth.md
@@ -74,6 +77,7 @@ This structure ensures traceability from **business goals → KPIs → data → 
 │           ├── KPI_Catalog_Governance.md
 │           └── KPI_Catalog_InnovationPeople.md
 │
+├── /test_report/
 └── README.md
 ```
 
