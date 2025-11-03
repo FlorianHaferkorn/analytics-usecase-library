@@ -127,11 +127,11 @@ Promo intensity correlates inversely with overall margin quality — balanced go
 
 ## 15. Cross-References
 - Related Use Cases:  
-  `[COM-002 Gross Margin Analysis](../01_Commercial/COM-002_Gross_Margin_Analysis.md)`  
-  `[COM-003 Promotion Effectiveness](../01_Commercial/COM-003_Promotion_Effectiveness.md)`  
-  `[OPS-001 Cash Conversion Cycle](../02_Operational_Efficiency/OPS-001_Cash_Conversion_Cycle.md)`
+  `[COM-002 Gross Margin Analysis](../COM-002_Gross_Margin_Analysis.md)`  
+  `[COM-003 Promotion Effectiveness](../COM-003_Promotion_Effectiveness.md)`  
+  `[OPS-001 Cash Conversion Cycle](../../02_Operational_Efficiency/OPS-001_Cash_Conversion_Cycle.md)`
 - Related Documents:  
-  [`KPI Catalog`](../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../_includes/ActionCodes.md) | [`Glossary`](../../_includes/Glossary.md)
+  [`KPI Catalog`](../../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../../_includes/ActionCodes.md) | [`Glossary`](../../../_includes/Glossary.md)
 
 ---
 

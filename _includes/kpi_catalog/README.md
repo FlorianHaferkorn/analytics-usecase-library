@@ -97,8 +97,7 @@ Each KPI entry in all catalogs follows the same **v2.0 YAML Schema**:
 4. Submit a Pull Request for review by:  
    - **1 Business Reviewer** (domain expert)  
    - **1 Data Reviewer** (model owner)  
-5. Update `/docs/Changelog.md` with version, date, and author.  
-6. Merge after Governance Board approval.
+5. Merge after Governance Board approval.
 
 ---
 

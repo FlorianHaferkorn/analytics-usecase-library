@@ -168,6 +168,7 @@ Each cluster aggregates Use Cases that share a **business objective** and **data
 | [`/docs/Reporting_Strategy.md`](./docs/Reporting_Strategy.md) | Defines reporting levels, analytics stages, and governance layers. |
 | [`/docs/Methodology.md`](./docs/Methodology.md) | Explains modeling, 3-30-300 design, and visualization standards. |
 | [`/docs/Instructions.md`](./docs/Instructions.md) | Details authoring and maintenance process. |
+| [`/docs/PBIR_Schema_Reference.md`](./docs/PBIR_Schema_Reference.md) | Reference for PBIP/PBIR report structure used by the build pipeline. |
 | [`/_includes/kpi_catalog/README.md`](./_includes/kpi_catalog/README.md) | Canonical KPI definitions with formulas and QA rules. |
 | [`/_includes/ActionCodes.md`](./_includes/ActionCodes.md) | Standardized operational actions (P2, D1, etc.). |
 | [`/_includes/Glossary.md`](./_includes/Glossary.md) | Glossary of business and analytical terms. |

@@ -1,0 +1,83 @@
+version: v1
+last_updated: 2025-10-12
+
+strategic_kpis:
+  - id: SKPI_GROWTH_REVENUE
+    name: "Revenue Growth %"
+    dimension: Growth
+    owner: Head of Sales
+    review_cycle: quarterly
+  - id: SKPI_PROFIT_GM
+    name: "Gross Margin %"
+    dimension: Profitability
+    owner: Head of Controlling
+    review_cycle: quarterly
+  - id: SKPI_LIQUIDITY_CCC
+    name: "Cash Conversion Cycle"
+    dimension: Liquidity
+    owner: Head of Treasury
+    review_cycle: quarterly
+  - id: SKPI_SERVICE
+    name: "Service Level %"
+    dimension: Efficiency
+    owner: Head of Operations
+    review_cycle: monthly
+  - id: SKPI_CUSTOMER_RETENTION
+    name: "Customer Retention %"
+    dimension: Customer Value
+    owner: Head of Marketing
+    review_cycle: quarterly
+  - id: SKPI_ESG_TAXONOMY
+    name: "ESG-Aligned Revenue %"
+    dimension: ESG
+    owner: Head of Sustainability
+    review_cycle: semi-annual
+  - id: SKPI_PROJECT_ROI
+    name: "Project ROI %"
+    dimension: Corporate & Strategy
+    owner: PMO / Finance Controlling
+    review_cycle: monthly
+
+influence_graph:
+  - from: "Revenue Growth %"
+    to:
+      - "Net Sales Amount"
+      - "Net Sales Amount LY"
+      - "Δ Net Sales Amount"
+      - "Δ% Net Sales"
+      - "Price Realization %"
+      - "Promo Uplift %"
+      - "Price Effect Amount"
+      - "Volume Effect Amount"
+      - "Mix Effect Amount"
+  - from: "Gross Margin %"
+    to:
+      - "Gross Margin Amount"
+      - "COGS Amount"
+      - "Price Realization %"
+      - "Δ% Net Sales"
+  - from: "Cash Conversion Cycle"
+    to:
+      - "DSO"
+      - "DIO"
+      - "DPO"
+  - from: "Service Level %"
+    to:
+      - "Stock-Out Rate %"
+      - "OTIF %"
+      - "Inventory Days"
+  - from: "Customer Retention %"
+    to:
+      - "Churn %"
+      - "Reactivation Rate %"
+      - "CLV (Customer Lifetime Value)"
+  - from: "ESG-Aligned Revenue %"
+    to:
+      - "CO2 Emissions (Scope 1-3)"
+      - "Energy Intensity"
+  - from: "Project ROI %"
+    to:
+      - "Benefit Realization %"
+      - "Budget Adherence %"
+      - "Schedule Adherence %"
+

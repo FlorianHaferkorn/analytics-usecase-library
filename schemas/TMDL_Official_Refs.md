@@ -16,6 +16,10 @@ Purpose: Single place to reference the authoritative Microsoft docs for Tabular 
 - **GA announcement (reference):** TMDL view generally available.  
   https://powerbi.microsoft.com/de-de/blog/tmdl-view-generally-available/
 
+## Internal references (this repo)
+- **PBIR schema reference:** PBIP/PBIR structure and mapping used by our generators.  
+  ./../docs/PBIR_Schema_Reference.md
+
 ## Internal usage note (1‑liner)
 - **Policy:** TMDL is the only source of truth for the semantic model in this repo (PBIP layout). Desktop is used for preview/canvas only.
 
