@@ -27,7 +27,7 @@ The Library operationalizes the **Reporting Framework** defined in [`/docs/Repor
 |----------|------|----------|
 | **Reporting Strategy** | Defines reporting levels (Strategic, Tactical, Operational) and analytics maturity (Descriptive → Prescriptive) | `/docs/Reporting_Strategy.md` |
 | **Cluster (Domain)** | Groups related business topics (Commercial, Operational Efficiency, Customer & Market, Corporate & Strategy) | `/usecases/01_Commercial/` |
-| **Use Case** | Describes one analytical question with KPIs and actions | `/usecases/01_Commercial/COM-001_Sales_Performance.md` |
+| **Use Case** | Describes one analytical question with KPIs and actions | `/usecases/01_Commercial/COM-001_Sales_Performance/FactSheet.md` |
 | **KPI Catalog & Action Codes** | Provide shared semantics and operational levers | `/_includes/kpi_catalog/README.md` / `/_includes/ActionCodes.md` |
 
 Each Use Case is classified by:
@@ -41,44 +41,78 @@ This structure ensures traceability from **business goals → KPIs → data → 
 
 ## Repository Structure
 ```
-/analytics-usecase-library/
-│
-├── /docs/
-│   ├── Reporting_Strategy.md     ← defines reporting levels & architecture
-│   ├── Methodology.md            ← describes modeling & design principles
-│   ├── Instructions.md           ← authoring and governance rules
-│   ├── README.md
-│
-├── /usecases/
-│   ├── /01_Commercial/
-│   │     ├── COM-001_Sales_Performance.md
-│   │     ├── COM-002_Gross_Margin.md
-│   │     └── ...
-│   ├── /02_Operational_Efficiency/
-│   ├── /03_Customer_and_Market/
-│   ├── /04_Corporate_and_Strategy/
-│   └── UC-000_Template.md
-│
-├── /_includes/
-│     ├── Glossary.md
-│     ├── ActionCodes.md
-│     ├── Strategic_KPIs.md
-│     ├── README.md
-│     ├── Strategic_Alignment_Map.md
-│     ├── UseCase_Inventory.md
-│     └── /kpi_catalog/
-│           ├── KPI_Catalog_README.md
-│           ├── KPI_Catalog_Growth.md
-│           ├── KPI_Catalog_Profitability.md
-│           ├── KPI_Catalog_Liquidity.md
-│           ├── KPI_Catalog_Efficiency.md
-│           ├── KPI_Catalog_CustomerValue.md
-│           ├── KPI_Catalog_ESG.md
-│           ├── KPI_Catalog_Governance.md
-│           └── KPI_Catalog_InnovationPeople.md
-│
-├── /test_report/
-└── README.md
+analytics-usecase-library/
+├─ docs/
+│  ├─ Reporting_Strategy.md
+│  ├─ Methodology.md
+│  ├─ Instructions.md
+│  └─ README.md
+├─ usecases/
+│  ├─ 01_Commercial/
+│  │  ├─ COM-001_Sales_Performance/
+│  │  │  ├─ FactSheet.md
+│  │  │  └─ README.md
+│  │  ├─ COM-002_Gross_Margin_Analysis/
+│  │  │  ├─ FactSheet.md
+│  │  │  └─ README.md
+│  │  ├─ COM-003_Promotion_Effectiveness/
+│  │  │  ├─ FactSheet.md
+│  │  │  └─ README.md
+│  │  └─ COM-004_Price_Volume_Mix_Bridge/
+│  │     ├─ FactSheet.md
+│  │     └─ README.md
+│  ├─ 02_Operational_Efficiency/
+│  │  ├─ OPS-001_Cash_Conversion_Cycle/
+│  │  │  ├─ FactSheet.md
+│  │  │  └─ README.md
+│  │  ├─ OPS-002_Inventory_Health/
+│  │  │  ├─ FactSheet.md
+│  │  │  └─ README.md
+│  │  ├─ OPS-003_Purchase_Price_Variance/
+│  │  │  ├─ FactSheet.md
+│  │  │  └─ README.md
+│  │  └─ OPS-004_Replenishment_Optimization/
+│  │     ├─ FactSheet.md
+│  │     └─ README.md
+│  ├─ 03_Customer_and_Market/
+│  │  ├─ CST-001_Customer_Retention_and_Churn/
+│  │  │  ├─ FactSheet.md
+│  │  │  └─ README.md
+│  │  └─ CST-002_Product_Lifecycle_Performance/
+│  │     ├─ FactSheet.md
+│  │     └─ README.md
+│  ├─ 04_Corporate_and_Strategy/
+│  │  ├─ COR-001_Project_ROI_and_Benefit_Tracking/
+│  │  │  ├─ FactSheet.md
+│  │  │  └─ README.md
+│  │  ├─ COR-002_Workforce_Productivity_and_Turnover/
+│  │  │  ├─ FactSheet.md
+│  │  │  └─ README.md
+│  │  ├─ COR-003_ESG_and_Compliance_Monitoring/
+│  │  │  ├─ FactSheet.md
+│  │  │  └─ README.md
+│  │  └─ COR-004_Strategic_KPI_Dashboard/
+│  │     ├─ FactSheet.md
+│  │     └─ README.md
+│  └─ UC-000_Template.md
+├─ _includes/
+│  ├─ Glossary.md
+│  ├─ ActionCodes.md
+│  ├─ Strategic_KPIs.md
+│  ├─ Strategic_Alignment_Map.md
+│  ├─ UseCase_Inventory.md
+│  └─ kpi_catalog/
+│     ├─ KPI_Catalog_README.md
+│     ├─ KPI_Catalog_Growth.md
+│     ├─ KPI_Catalog_Profitability.md
+│     ├─ KPI_Catalog_Liquidity.md
+│     ├─ KPI_Catalog_Efficiency.md
+│     ├─ KPI_Catalog_CustomerValue.md
+│     ├─ KPI_Catalog_ESG.md
+│     ├─ KPI_Catalog_Governance.md
+│     └─ KPI_Catalog_InnovationPeople.md
+└─ test_report/
+   └─ README.md
 ```
 
 ---
@@ -181,4 +215,4 @@ Not intended for external publication without prior approval.
 
 ---
 
-_Last updated: 12.10.2025_
+_Last updated: 03.11.2025_

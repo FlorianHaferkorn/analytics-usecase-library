@@ -2,9 +2,12 @@
 
 ---
 
-## 1. Strategic KPIs
+Schema: see `/_includes/kpi_catalog/SCHEMA.md`
+
+## KPIs - Strategic
 ```yaml
-- kpi_key: "Gross Margin %"
+- kpi_id: "margin.gm.pct"
+  kpi_key: "Gross Margin %"
   kpi_type: "strategic"
   strategic_ref: "Gross Margin %"
   impact_dimension: "Profitability"
@@ -49,7 +52,8 @@
 ```
 
 ```yaml
-- kpi_key: "EBITDA Margin %"
+- kpi_id: "margin.ebitda.pct"
+  kpi_key: "EBITDA Margin %"
   kpi_type: "strategic"
   strategic_ref: "EBITDA Margin %"
   impact_dimension: "Profitability"
@@ -135,6 +139,32 @@
     completeness_score: 0.99
     lineage_verified: true
     copilot_ready: true
+```
+
+```yaml
+- kpi_key: "Δ Gross Margin %"
+  kpi_type: "diagnostic"
+  strategic_ref: "Gross Margin %"
+  impact_dimension: "Profitability"
+  domain_tag: ["Commercial"]
+  use_case_ref: ["COM-002"]
+  depends_on: ["Gross Margin %"]
+  calc_type: rate
+  refresh: monthly
+  status: Draft
+  business:
+    purpose: "Relative change in Gross Margin % vs baseline (Plan or LY)."
+    definition: "Gross Margin % - Baseline GM % (Plan or LY)."
+    grain_scope: "Aggregated to reporting period."
+    unit_format: "% (1 decimal)"
+    interpretation: "Explains directional profitability change."
+  technical:
+    dax_name: "Δ Gross Margin %"
+    dax_expression: "[Gross Margin %] - [Baseline GM %]"  # baseline to be bound to Plan or LY
+    formatString: "0.0 %"
+    displayFolder: "02_Margin"
+    description: "Diagnostic GM variance relative to chosen baseline (Plan or LY)."
+    verified: false
 ```
 
 ```yaml
@@ -438,6 +468,64 @@
     completeness_score: 1.00
     lineage_verified: true
     copilot_ready: true
+```
+
+```yaml
+- kpi_id: "margin.gm.amount"
+  kpi_key: "Gross Margin Amount"
+  kpi_type: "diagnostic"
+  strategic_ref: "Gross Margin %"
+  impact_dimension: "Profitability"
+  domain_tag: ["Commercial"]
+  use_case_ref: ["COM-002"]
+  depends_on: ["Net Sales Amount","COGS Amount"]
+  calc_type: amount
+  refresh: monthly
+  status: Active
+  technical:
+    dax_name: "Gross Margin Amount"
+    dax_expression: "[Net Sales Amount] - [COGS Amount]"
+    displayFolder: "02_Margin"
+    formatString: "€ #,0.00"
+    verified: true
+```
+
+```yaml
+- kpi_id: "cost.cogs.amount"
+  kpi_key: "COGS Amount"
+  kpi_type: "supporting"
+  strategic_ref: "Gross Margin %"
+  impact_dimension: "Profitability"
+  domain_tag: ["Commercial"]
+  use_case_ref: ["COM-002"]
+  calc_type: amount
+  technical:
+    dax_name: "COGS Amount"
+    dax_expression: "SUM(fact_sales[COGS Amount])"
+    displayFolder: "02_Margin"
+    formatString: "€ #,0.00"
+    verified: true
+```
+
+```yaml
+- kpi_id: "margin.gm.delta_pct"
+  kpi_key: "Δ Gross Margin %"
+  aliases: ["Delta Gross Margin %"]
+  kpi_type: "diagnostic"
+  strategic_ref: "Gross Margin %"
+  impact_dimension: "Profitability"
+  domain_tag: ["Commercial"]
+  use_case_ref: ["COM-002"]
+  depends_on: ["Gross Margin %"]
+  calc_type: rate
+  refresh: monthly
+  status: Draft
+  technical:
+    dax_name: "Δ Gross Margin %"
+    dax_expression: "[Gross Margin %] - [Baseline GM %]"  # baseline to be Plan or LY
+    displayFolder: "02_Margin"
+    formatString: "0.0 %"
+    verified: false
 ```
 
 ---

@@ -1,8 +1,10 @@
-# KPI Catalog – Customer Value
+# KPI Catalog — Customer Value
 
 ---
 
-## 1. Strategic KPIs
+Schema: see `/_includes/kpi_catalog/SCHEMA.md`
+
+## KPIs - Strategic
 ```yaml
 - kpi_key: "Customer Retention %"
   kpi_type: "strategic"
@@ -86,6 +88,70 @@
 ```
 
 ## 2. Supporting / Diagnostic KPIs
+```yaml
+- kpi_id: "crm.retention.pct"
+  kpi_key: "Retention %"
+  kpi_type: "strategic"
+  domain_tag: ["Customer & Market"]
+  calc_type: rate
+  technical:
+    dax_name: "Retention %"
+    description: "Retained Customers / Total Customers (prior period)"
+    formatString: "0.0 %"
+    verified: false
+```
+
+```yaml
+- kpi_id: "crm.churn.pct"
+  kpi_key: "Churn %"
+  kpi_type: "strategic"
+  domain_tag: ["Customer & Market"]
+  calc_type: rate
+  technical:
+    dax_name: "Churn %"
+    description: "1 - Retention %"
+    formatString: "0.0 %"
+    verified: false
+```
+
+```yaml
+- kpi_id: "crm.clv.amount"
+  kpi_key: "CLV (Customer Lifetime Value)"
+  kpi_type: "diagnostic"
+  domain_tag: ["Customer & Market"]
+  calc_type: amount
+  technical:
+    dax_name: "CLV"
+    description: "∑ (Gross Margin per period / discount factor)"
+    formatString: "€ #,0.00"
+    verified: false
+```
+
+```yaml
+- kpi_id: "crm.reactivation.pct"
+  kpi_key: "Reactivation Rate %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Customer & Market"]
+  calc_type: rate
+  technical:
+    dax_name: "Reactivation Rate %"
+    description: "Reactivated Customers / Lost Customers"
+    formatString: "0.0 %"
+    verified: false
+```
+
+```yaml
+- kpi_id: "crm.at_risk_share.pct"
+  kpi_key: "At-Risk Share %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Customer & Market"]
+  calc_type: rate
+  technical:
+    dax_name: "At-Risk Share %"
+    description: "Customers flagged as churn-risk / Active Base"
+    formatString: "0.0 %"
+    verified: false
+```
 ```yaml
 - kpi_key: "Customer Churn Rate %"
   kpi_type: "supporting"

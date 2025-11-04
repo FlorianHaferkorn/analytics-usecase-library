@@ -43,7 +43,7 @@ It ensures consistency, traceability, and quality across all documentation withi
 │
 └── README.md
 ```
-Each Use Case is documented as an individual Markdown file and grouped by business cluster.  
+Each Use Case lives in its own folder with a `FactSheet.md` and is grouped by business cluster (Variant A).  
 All files follow the defined structure and metadata fields (see Section 4).
 
 ---
@@ -186,4 +186,4 @@ A Use Case is considered **complete** when:
 
 ---
 
-_Last updated: 12.10.2025_
+_Last updated: 03.11.2025_

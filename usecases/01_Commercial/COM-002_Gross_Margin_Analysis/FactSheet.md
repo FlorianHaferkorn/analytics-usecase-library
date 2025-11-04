@@ -5,13 +5,29 @@ domain: "Commercial"
 owner: "Head of Sales Controlling"
 impact: "High"
 status: "Draft"
-last_update: "07.10.2025"
+last_update: "03.11.2025"
 supports_strategic_kpi: ["Gross Margin %", "Revenue Growth %"]
 action_codes: ["P2", "PC2", "D1", "M3", "O2"]
-expected_impact: "+0.5-2.0 pp GM %; -1-3 % COGS; +1 pp Δ% Net Sales"
+expected_impact: "+0.5-2.0 pp GM %; -1-3 % COGS; +1 pp ?% Net Sales"
+required_measures: [
+  "Gross Margin %",
+  "Gross Margin Amount",
+  "Δ Gross Margin %",
+  "COGS Amount",
+  "Price Realization %",
+  "Δ% Net Sales"
+]
+required_kpi_ids: [
+  "margin.gm.pct",
+  "margin.gm.amount",
+  "margin.gm.delta_pct",
+  "cost.cogs.amount",
+  "sales.price.realization_pct",
+  "sales.net_sales.delta_pct.ly"
+]
 ---
 
-# Gross Margin % vs Plan & Last Year
+# Use Case Fact Sheet
 
 ## 1. Business Goal
 Protect and expand profitability by analyzing Gross Margin variance versus Plan and Last Year, identifying underlying price, mix, and cost effects, and translating findings into commercial and procurement actions.
@@ -117,7 +133,7 @@ This use case quantifies and decomposes these effects, ensuring commercial, cate
 ---
 
 ## 13. Related Processes
-Pricing Governance · Procurement Rebid Cycle · Promotion Planning · Financial Planning & Analysis.
+Pricing Governance -> Procurement Rebid Cycle -> Promotion Planning -> Financial Planning & Analysis.
 
 ---
 
@@ -129,11 +145,11 @@ Mix effects (especially low-margin SKUs) explain up to 30 % of variance but are 
 
 ## 15. Cross-References
 - Related Use Cases:  
-  `[COM-001 Sales Performance](../01_Commercial/COM-001_Sales_Performance.md)`  
-  `[OPS-003 Purchase Price Variance](../02_Operational_Efficiency/OPS-003_Purchase_Price_Variance.md)`  
-  `[COM-004 Price-Volume-Mix Bridge](../01_Commercial/COM-004_Price_Volume_Mix_Bridge.md)`
+  `[COM-001 Sales Performance](../COM-001_Sales_Performance/FactSheet.md)`  
+  `[OPS-003 Purchase Price Variance](../../02_Operational_Efficiency/OPS-003_Purchase_Price_Variance/FactSheet.md)`  
+  `[COM-004 Price-Volume-Mix Bridge](../COM-004_Price_Volume_Mix_Bridge/FactSheet.md)`
 - Related Documents:  
-  [`KPI Catalog`](../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../_includes/ActionCodes.md) | [`Glossary`](../../_includes/Glossary.md)
+  [`KPI Catalog`](../../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../../_includes/ActionCodes.md) | [`Glossary`](../../../_includes/Glossary.md)
 
 ---
 
@@ -148,4 +164,10 @@ Mix effects (especially low-margin SKUs) explain up to 30 % of variance but are 
 
 ---
 
-_Last updated: 07.10.2025_
+_Last updated: 03.11.2025_
+
+
+
+
+
+

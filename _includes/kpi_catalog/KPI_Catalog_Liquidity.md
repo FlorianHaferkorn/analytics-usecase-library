@@ -1,8 +1,10 @@
-# KPI Catalog – Liquidity
+# KPI Catalog — Liquidity
 
 ---
 
-## 1. Strategic KPIs
+Schema: see `/_includes/kpi_catalog/SCHEMA.md`
+
+## KPIs - Strategic
 ```yaml
 - kpi_key: "Working Capital %"
   kpi_type: "strategic"
@@ -87,6 +89,81 @@
 ```
 
 ## 2. Supporting / Diagnostic KPIs
+```yaml
+- kpi_id: "ops.working_capital.dso.days"
+  kpi_key: "DSO (Days Sales Outstanding)"
+  kpi_type: "diagnostic"
+  strategic_ref: "Cash Conversion Cycle"
+  impact_dimension: "Liquidity"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: amount
+  technical:
+    dax_name: "DSO (Days)"
+    formatString: "0"
+    description: "(Accounts Receivable / Net Sales) x Days in Period"
+    verified: false
+```
+
+```yaml
+- kpi_id: "ops.working_capital.dio.days"
+  kpi_key: "DIO (Days Inventory Outstanding)"
+  kpi_type: "diagnostic"
+  strategic_ref: "Cash Conversion Cycle"
+  impact_dimension: "Liquidity"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: amount
+  technical:
+    dax_name: "DIO (Days)"
+    formatString: "0"
+    description: "(Inventory / COGS) x Days in Period"
+    verified: false
+```
+
+```yaml
+- kpi_id: "ops.working_capital.dpo.days"
+  kpi_key: "DPO (Days Payables Outstanding)"
+  kpi_type: "diagnostic"
+  strategic_ref: "Cash Conversion Cycle"
+  impact_dimension: "Liquidity"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: amount
+  technical:
+    dax_name: "DPO (Days)"
+    formatString: "0"
+    description: "(Accounts Payable / COGS) x Days in Period"
+    verified: false
+```
+
+```yaml
+- kpi_id: "ops.working_capital.ccc.days"
+  kpi_key: "Cash Conversion Cycle (Days)"
+  kpi_type: "diagnostic"
+  strategic_ref: "Cash Conversion Cycle"
+  impact_dimension: "Liquidity"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: amount
+  technical:
+    dax_name: "CCC (Days)"
+    formatString: "0"
+    description: "DSO + DIO - DPO"
+    verified: false
+```
+
+```yaml
+- kpi_id: "ops.working_capital.ccc.delta_days"
+  kpi_key: "Δ Cash Conversion Cycle (Days)"
+  aliases: ["Delta CCC (Days)"]
+  kpi_type: "diagnostic"
+  strategic_ref: "Cash Conversion Cycle"
+  impact_dimension: "Liquidity"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: amount
+  technical:
+    dax_name: "Δ CCC (Days)"
+    formatString: "0"
+    description: "CCC (Days) - Baseline (Plan or LY)"
+    verified: false
+```
 ```yaml
 - kpi_key: "Days Sales Outstanding (DSO)"
   kpi_type: "supporting"

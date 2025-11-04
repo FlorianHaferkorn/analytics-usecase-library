@@ -2,7 +2,9 @@
 
 ---
 
-## 1. Strategic KPIs
+Schema: see `/_includes/kpi_catalog/SCHEMA.md`
+
+## KPIs - Strategic
 ```yaml
 - kpi_key: "Carbon Emission Intensity (tCO₂e / € Revenue)"
   kpi_type: "strategic"
@@ -187,3 +189,14 @@
 ---
 
 _Last updated: 12.10.2025_
+```yaml
+- kpi_id: "esg.aligned_revenue.pct"
+  kpi_key: "ESG-Aligned Revenue %"
+  kpi_type: "strategic"
+  domain_tag: ["Corporate & Strategy"]
+  calc_type: rate
+  technical:
+    dax_name: "ESG-Aligned Revenue %"
+    description: "Revenue meeting EU Taxonomy criteria"
+    formatString: "0.0 %"
+```

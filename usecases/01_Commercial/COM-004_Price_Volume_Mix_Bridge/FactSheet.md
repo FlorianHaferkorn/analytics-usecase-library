@@ -5,11 +5,24 @@ domain: "Commercial"
 owner: "Head of Sales Controlling"
 impact: "High"
 status: "Draft"
-last_update: "07.10.2025"
+last_update: "03.11.2025"
 supports_strategic_kpi: ["Revenue Growth %", "Gross Margin %"]
 action_codes: ["P2", "M3", "D1", "SP1", "O2"]
 expected_impact: "100% reconciled variance; +0.5-1.5 pp GM %; +1-2 pp Δ% Net Sales"
 ---
+required_kpi_ids: [
+  "sales.net_sales.delta_amount.ly",
+  "sales.pvm.price_effect.amount",
+  "sales.pvm.volume_effect.amount",
+  "sales.pvm.mix_effect.amount",
+  "margin.gm.pct"
+]
+required_kpis:
+  sales.net_sales.delta_amount.ly: "Δ Net Sales Amount"
+  sales.pvm.price_effect.amount: "Price Effect Amount"
+  sales.pvm.volume_effect.amount: "Volume Effect Amount"
+  sales.pvm.mix_effect.amount: "Mix Effect Amount"
+  margin.gm.pct: "Gross Margin %"
 
 # Price-Volume-Mix Bridge (Δ Net Sales & Δ Gross Margin)
 
@@ -43,8 +56,8 @@ This enables management to distinguish tactical from structural effects and to a
 |------|-------------|------|--------|
 | Δ Net Sales Amount | Net Sales - Plan/LY | EUR | 0-2 decimals |
 | Δ Gross Margin Amount | (NS-COGS)_Actual - (NS-COGS)_Plan | EUR | 0-2 decimals |
-| Price Effect Amount | (Actual Price - Plan Price) × Actual Qty | EUR | 0-2 decimals |
-| Volume Effect Amount | (Actual Qty - Plan Qty) × Plan Price | EUR | 0-2 decimals |
+| Price Effect Amount | (Actual Price - Plan Price) x Actual Qty | EUR | 0-2 decimals |
+| Volume Effect Amount | (Actual Qty - Plan Qty) x Plan Price | EUR | 0-2 decimals |
 | Mix Effect Amount | Δ Total - (Price + Volume) Effect | EUR | 0-2 decimals |
 
 ---
@@ -85,7 +98,7 @@ This enables management to distinguish tactical from structural effects and to a
 ---
 
 ## 9. Edge Cases & QA Rules
-- Price + Volume + Mix ≈ Total Δ (variance < 0.5 %)  
+- Price + Volume + Mix ~= Total Δ (variance < 0.5 %)  
 - Plan Qty > 0 and Plan Price > 0 required.  
 - Bound Δ% Price Effect [-30%; +50%].  
 - Missing dimensions = 'Unknown'.  
@@ -121,7 +134,7 @@ This enables management to distinguish tactical from structural effects and to a
 ---
 
 ## 13. Related Processes
-Sales & Margin Review Cycle · Budget vs Actual Reporting · Planning and Forecast Update · Pricing Governance.
+Sales & Margin Review Cycle -> Budget vs Actual Reporting -> Planning and Forecast Update -> Pricing Governance.
 
 ---
 
@@ -134,11 +147,11 @@ Automating PVM bridges creates a shared single source of truth for finance and s
 
 ## 15. Cross-References
 - Related Use Cases:  
-  `[COM-001 Sales Performance](../01_Commercial/COM-001_Sales_Performance.md)`  
-  `[COM-002 Gross Margin Analysis](../01_Commercial/COM-002_Gross_Margin_Analysis.md)`  
-  `[OPS-003 Purchase Price Variance](../02_Operational_Efficiency/OPS-003_Purchase_Price_Variance.md)`  
+  `[COM-001 Sales Performance](../COM-001_Sales_Performance/FactSheet.md)`  
+  `[COM-002 Gross Margin Analysis](../COM-002_Gross_Margin_Analysis/FactSheet.md)`  
+  `[OPS-003 Purchase Price Variance](../../02_Operational_Efficiency/OPS-003_Purchase_Price_Variance/FactSheet.md)`  
 - Related Documents:  
-  [`KPI Catalog`](../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../_includes/ActionCodes.md) | [`Glossary`](../../_includes/Glossary.md)
+  [`KPI Catalog`](../../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../../_includes/ActionCodes.md) | [`Glossary`](../../../_includes/Glossary.md)
 
 ---
 
@@ -153,4 +166,4 @@ Automating PVM bridges creates a shared single source of truth for finance and s
 
 ---
 
-_Last updated: 07.10.2025_
+_Last updated: 03.11.2025_

@@ -1,8 +1,21 @@
-# KPI Catalog – Innovation & People
+# KPI Catalog — Innovation & People
 
 ---
 
-## 1. Strategic KPIs
+Schema: see `/_includes/kpi_catalog/SCHEMA.md`
+
+## KPIs - Strategic
+```yaml
+- kpi_id: "prod.lifecycle.new_share.pct"
+  kpi_key: "New Product Share %"
+  kpi_type: "strategic"
+  domain_tag: ["Customer & Market"]
+  calc_type: rate
+  technical:
+    dax_name: "New Product Share %"
+    description: "Sales of products <12 months / Total Sales"
+    formatString: "0.0 %"
+```
 ```yaml
 - kpi_key: "Innovation Rate %"
   kpi_type: "strategic"
@@ -86,6 +99,113 @@
 ```
 
 ## 2. Supporting / Diagnostic KPIs
+```yaml
+- kpi_id: "prod.contribution_margin.pct"
+  kpi_key: "Product Contribution Margin %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Customer & Market"]
+  calc_type: rate
+  technical:
+    dax_name: "Contribution Margin %"
+    description: "(NS - COGS - Promo Cost) / NS"
+    formatString: "0.0 %"
+```
+
+```yaml
+- kpi_id: "prod.lifecycle.age.months"
+  kpi_key: "Lifecycle Age (months)"
+  kpi_type: "diagnostic"
+  domain_tag: ["Customer & Market"]
+  calc_type: amount
+  technical:
+    dax_name: "Lifecycle Age (months)"
+    description: "Months since first sale"
+    formatString: "0"
+```
+
+```yaml
+- kpi_id: "prod.roi.pct"
+  kpi_key: "Product ROI %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Customer & Market"]
+  calc_type: rate
+  technical:
+    dax_name: "Product ROI %"
+    description: "(GM - DevCost - MktCost) / (DevCost + MktCost)"
+    formatString: "0.0 %"
+```
+
+```yaml
+- kpi_id: "prod.lifecycle.phase_distribution.pct"
+  kpi_key: "Phase Distribution %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Customer & Market"]
+  calc_type: rate
+  technical:
+    dax_name: "Phase Distribution %"
+    description: "Share of portfolio in each lifecycle phase"
+    formatString: "0.0 %"
+```
+
+```yaml
+- kpi_id: "hr.revenue_per_fte.amount"
+  kpi_key: "Revenue per FTE"
+  kpi_type: "strategic"
+  domain_tag: ["Corporate & Strategy"]
+  calc_type: amount
+  technical:
+    dax_name: "Revenue per FTE"
+    description: "Net Sales / Average Headcount"
+    formatString: "€ #,0.00"
+```
+
+```yaml
+- kpi_id: "hr.gm_per_fte.amount"
+  kpi_key: "Gross Margin per FTE"
+  kpi_type: "diagnostic"
+  domain_tag: ["Corporate & Strategy"]
+  calc_type: amount
+  technical:
+    dax_name: "Gross Margin per FTE"
+    description: "Gross Margin / Average Headcount"
+    formatString: "€ #,0.00"
+```
+
+```yaml
+- kpi_id: "hr.personnel_cost_ratio.pct"
+  kpi_key: "Personnel Cost Ratio %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Corporate & Strategy"]
+  calc_type: rate
+  technical:
+    dax_name: "Personnel Cost Ratio %"
+    description: "Personnel Cost / Net Sales"
+    formatString: "0.0 %"
+```
+
+```yaml
+- kpi_id: "hr.turnover.pct"
+  kpi_key: "Turnover Rate %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Corporate & Strategy"]
+  calc_type: rate
+  technical:
+    dax_name: "Turnover Rate %"
+    description: "Leavers / Average Headcount"
+    formatString: "0.0 %"
+```
+
+```yaml
+- kpi_id: "hr.absenteeism.pct"
+  kpi_key: "Absenteeism %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Corporate & Strategy"]
+  calc_type: rate
+  technical:
+    dax_name: "Absenteeism %"
+    description: "Lost Workdays / Total Workdays"
+    formatString: "0.0 %"
+```
 ```yaml
 - kpi_key: "Training Hours per Employee"
   kpi_type: "supporting"

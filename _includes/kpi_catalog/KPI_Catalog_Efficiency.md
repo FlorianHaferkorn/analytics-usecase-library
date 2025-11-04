@@ -1,8 +1,10 @@
-# KPI Catalog – Efficiency
+# KPI Catalog — Efficiency
 
 ---
 
-## 1. Strategic KPIs
+Schema: see `/_includes/kpi_catalog/SCHEMA.md`
+
+## KPIs - Strategic
 ```yaml
 - kpi_key: "Overall Equipment Effectiveness (OEE) %"
   kpi_type: "strategic"
@@ -87,6 +89,135 @@
 ```
 
 ## 2. Supporting / Diagnostic KPIs
+```yaml
+- kpi_id: "ops.inventory.days"
+  kpi_key: "Inventory Days"
+  kpi_type: "diagnostic"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: amount
+  technical:
+    dax_name: "Inventory Days"
+    description: "Average Inventory / Daily COGS"
+    formatString: "0"
+    verified: false
+```
+
+```yaml
+- kpi_id: "ops.stockout.pct"
+  kpi_key: "Stock-Out Rate %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: rate
+  technical:
+    dax_name: "Stock-Out Rate %"
+    description: "Unfulfilled Demand / Total Demand"
+    formatString: "0.0 %"
+    verified: false
+```
+
+```yaml
+- kpi_id: "ops.inventory.turnover"
+  kpi_key: "Inventory Turnover"
+  kpi_type: "diagnostic"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: ratio
+  technical:
+    dax_name: "Inventory Turnover"
+    description: "COGS / Average Inventory"
+    formatString: "0.00"
+    verified: false
+```
+
+```yaml
+- kpi_id: "ops.inventory.obsolescence.pct"
+  kpi_key: "Obsolescence %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: rate
+  technical:
+    dax_name: "Obsolescence %"
+    description: "Aged or blocked stock / Total Inventory"
+    formatString: "0.0 %"
+    verified: false
+```
+
+```yaml
+- kpi_id: "ops.otif.pct"
+  kpi_key: "OTIF %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: rate
+  technical:
+    dax_name: "OTIF %"
+    description: "On-Time In-Full deliveries / Total Deliveries"
+    formatString: "0.0 %"
+    verified: false
+```
+
+```yaml
+- kpi_id: "ops.ppv.pct"
+  kpi_key: "PPV %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: rate
+  technical:
+    dax_name: "PPV %"
+    description: "(Actual Price - Contract Price) / Contract Price"
+    formatString: "0.0 %"
+    verified: false
+```
+
+```yaml
+- kpi_id: "ops.ppv.amount"
+  kpi_key: "PPV Amount"
+  kpi_type: "diagnostic"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: amount
+  technical:
+    dax_name: "PPV Amount"
+    description: "(Actual Price - Contract Price) x Quantity"
+    formatString: "€ #,0.00"
+    verified: false
+```
+
+```yaml
+- kpi_id: "ops.contract.compliance.pct"
+  kpi_key: "Contract Compliance %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: rate
+  technical:
+    dax_name: "Contract Compliance %"
+    description: "Purchases at agreed price / Total purchases"
+    formatString: "0.0 %"
+    verified: false
+```
+
+```yaml
+- kpi_id: "ops.replenishment.adherence.pct"
+  kpi_key: "Replenishment Adherence %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: rate
+  technical:
+    dax_name: "Replenishment Adherence %"
+    description: "Actual Orders / Target Orders (on time/quantity)"
+    formatString: "0.0 %"
+    verified: false
+```
+
+```yaml
+- kpi_id: "ops.order_accuracy.pct"
+  kpi_key: "Order Accuracy %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: rate
+  technical:
+    dax_name: "Order Accuracy %"
+    description: "Orders fulfilled correctly / Total Orders"
+    formatString: "0.0 %"
+    verified: false
+```
 ```yaml
 - kpi_key: "Machine Downtime %"
   kpi_type: "supporting"

@@ -2,7 +2,27 @@
 
 ---
 
-## 1. Strategic KPIs
+## Catalog Schema
+```yaml
+# Fields for each KPI entry
+kpi_id: "namespace.identifier"           # ASCII, namespaced, unique
+kpi_key: "Readable KPI Name"             # Human-readable title
+kpi_type: "strategic|diagnostic|supporting"
+domain_tag: ["…"]                         # One or more domains
+impact_dimension: "Growth|Profitability|Liquidity|Efficiency|Customer|ESG|Governance"
+use_case_ref: ["COM-001"]               # Optional UC references
+calc_type: "amount|rate|ratio|count"
+technical:
+  dax_name: "Measure Name"
+  dax_expression: "...optional..."
+  formatString: "..."
+  displayFolder: "...optional..."
+  description: "Short purpose/definition"
+aliases: ["Optional alternative names"]
+verified: false
+```
+
+## KPIs - Strategic
 ```yaml
 - kpi_key: "Data Quality %"
   kpi_type: "strategic"
@@ -187,3 +207,64 @@
 ---
 
 _Last updated: 12.10.2025_
+ 
+## 2. Project Portfolio KPIs (added)
+```yaml
+- kpi_id: "corp.project.roi.pct"
+  kpi_key: "Project ROI %"
+  kpi_type: "strategic"
+  domain_tag: ["Corporate & Strategy"]
+  calc_type: rate
+  technical:
+    dax_name: "Project ROI %"
+    description: "(Realized Benefits - Total Cost) / Total Cost"
+    formatString: "0.0 %"
+```
+
+```yaml
+- kpi_id: "corp.benefit.realization.pct"
+  kpi_key: "Benefit Realization %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Corporate & Strategy"]
+  calc_type: rate
+  technical:
+    dax_name: "Benefit Realization %"
+    description: "Realized Benefits / Planned Benefits"
+    formatString: "0.0 %"
+```
+
+```yaml
+- kpi_id: "corp.budget.adherence.pct"
+  kpi_key: "Budget Adherence %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Corporate & Strategy"]
+  calc_type: rate
+  technical:
+    dax_name: "Budget Adherence %"
+    description: "Actual Cost / Planned Cost"
+    formatString: "0.0 %"
+```
+
+```yaml
+- kpi_id: "corp.schedule.adherence.pct"
+  kpi_key: "Schedule Adherence %"
+  kpi_type: "diagnostic"
+  domain_tag: ["Corporate & Strategy"]
+  calc_type: rate
+  technical:
+    dax_name: "Schedule Adherence %"
+    description: "Actual Progress / Planned Progress"
+    formatString: "0.0 %"
+```
+
+```yaml
+- kpi_id: "corp.payback.months"
+  kpi_key: "Payback Period (Months)"
+  kpi_type: "diagnostic"
+  domain_tag: ["Corporate & Strategy"]
+  calc_type: amount
+  technical:
+    dax_name: "Payback Period (Months)"
+    description: "Time until cumulative benefits = total cost"
+    formatString: "0"
+```

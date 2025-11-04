@@ -6,13 +6,14 @@ Each file describes a single analytical scenario in a consistent Markdown format
 ## Structure
 | File | Purpose |
 |------|----------|
-| **UC-000_Template.md** | Base template for new use cases (with comments and placeholders). |
+| **UC-000_Template.md** | Base template (Fact Sheet) for new use cases; save as `FactSheet.md` inside each UC folder. |
 | **COM-001_Sales_Performance.md** | Example of a fully documented use case. |
 | **COM-002_Gross_Margin.md** | Example for a profitability analysis. |
 | **UC-XXX_*.md** | Each additional use case follows the same naming and layout rules. |
 
 ## Naming Convention
-- File name format: `{PREFIX}-###_Short_Title.md` (e.g., `COM-005_Inventory_Health.md`)
+- Folder name format: `{PREFIX}-###_Short_Title/` (e.g., `COM-005_Inventory_Health/`)
+- Inside each folder, the main document is `FactSheet.md` (not `README.md`).
 - `{PREFIX}` is a cluster code such as `COM`, `OPS`, `CST`, `COR`.
 - Use hyphens (`-`) for separation, no spaces or special characters.
 - IDs are sequential and unique; once assigned, never reused.

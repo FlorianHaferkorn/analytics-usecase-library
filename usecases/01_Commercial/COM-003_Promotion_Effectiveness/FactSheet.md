@@ -10,8 +10,15 @@ supports_strategic_kpi: ["Gross Margin %", "Revenue Growth %"]
 action_codes: ["D1", "P2", "D2", "O2", "SP1"]
 expected_impact: "+10-30 % ROI uplift; +0.5-1.0 pp GM %; +1-3 pp Δ% NS"
 ---
+required_kpi_ids: [
+  "sales.promo.uplift_pct",
+  "margin.gm.pct"
+]
+required_kpis:
+  sales.promo.uplift_pct: "Promo Uplift %"
+  margin.gm.pct: "Gross Margin %"
 
-# Promotion Effectiveness (ROI & Uplift)
+# Use Case Fact Sheet
 
 ## 1. Business Goal
 Quantify the financial return of promotions by measuring incremental revenue and margin uplift versus baseline performance, and enable optimized calendar planning, depth, and targeting.
@@ -132,11 +139,11 @@ Baseline model accuracy directly correlates with ROI reliability.
 
 ## 15. Cross-References
 - Related Use Cases:  
-  `[COM-001 Sales Performance](../01_Commercial/COM-001_Sales_Performance.md)`  
-  `[COM-002 Gross Margin Analysis](../01_Commercial/COM-002_Gross_Margin_Analysis.md)`  
-  `[COM-004 Price-Volume-Mix Bridge](../01_Commercial/COM-004_Price_Volume_Mix_Bridge.md)`
+  `[COM-001 Sales Performance](../COM-001_Sales_Performance/FactSheet.md)`  
+  `[COM-002 Gross Margin Analysis](../COM-002_Gross_Margin_Analysis/FactSheet.md)`  
+  `[COM-004 Price-Volume-Mix Bridge](../COM-004_Price_Volume_Mix_Bridge/FactSheet.md)`
 - Related Documents:  
-  [`KPI Catalog`](../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../_includes/ActionCodes.md) | [`Glossary`](../../_includes/Glossary.md)
+  [`KPI Catalog`](../../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../../_includes/ActionCodes.md) | [`Glossary`](../../../_includes/Glossary.md)
 
 ---
 
