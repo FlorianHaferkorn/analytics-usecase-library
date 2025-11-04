@@ -1,28 +1,17 @@
----
+﻿---
 id: "COM-001"
 title: "Sales Performance vs Plan & Last Year"
 domain: "Commercial"
 owner: "Head of Sales"
 impact: "High"
 status: "Draft"
-last_update: "03.11.2025"
+last_update: "04.11.2025"
 supports_strategic_kpi: ["Revenue Growth %", "Gross Margin %"]
+supports_strategic_kpi_ids: ["sales.revenue.growth_pct", "margin.gm.pct"]
 action_codes: ["P2", "D1", "M3", "SP1"]
-expected_impact: "+2-5 pp Δ% Net Sales; +0.5-1.5 pp Gross Margin %"
+expected_impact: "+2-5 pp Î”% Net Sales; +0.5-1.5 pp Gross Margin %"
 dataset_model: "Contoso Sales Sample for Power BI Desktop.SemanticModel"
 page_template: "overview_drivers_details"
-required_measures: [
-  "Net Sales Amount",
-  "Δ Net Sales Amount",
-  "Δ% Net Sales",
-  "Price Realization %",
-  "Promo Uplift %",
-  "Price Effect Amount",
-  "Volume Effect Amount",
-  "Mix Effect Amount",
-  "Gross Margin %",
-  "Gross Margin Amount"
-]
 segments: [
   "Org.Region>Area>Store",
   "Product.Category>Subcategory>SKU",
@@ -49,8 +38,8 @@ required_kpi_ids: [
 ]
 required_kpis:
   sales.net_sales.amount: "Net Sales Amount"
-  sales.net_sales.delta_amount.ly: "Δ Net Sales Amount"
-  sales.net_sales.delta_pct.ly: "Δ% Net Sales"
+  sales.net_sales.delta_amount.ly: "Î” Net Sales Amount"
+  sales.net_sales.delta_pct.ly: "Î”% Net Sales"
   sales.price.realization_pct: "Price Realization %"
   sales.promo.uplift_pct: "Promo Uplift %"
   sales.pvm.price_effect.amount: "Price Effect Amount"
@@ -58,6 +47,41 @@ required_kpis:
   sales.pvm.mix_effect.amount: "Mix Effect Amount"
   margin.gm.pct: "Gross Margin %"
   margin.gm.amount: "Gross Margin Amount"
+data_requirements:
+  facts:
+    - name: fact_sales
+      grain: invoice_line
+      primary_key: [InvoiceLineID]
+      required_columns:
+        - { name: "Net Sales Amount", type: decimal, role: amount }
+        - { name: "Units Qty", type: int, role: quantity }
+        - { name: Date, type: date, role: date_key }
+        - { name: OrgID, type: string, role: org_key }
+        - { name: ProductID, type: string, role: product_key }
+        - { name: Channel, type: string, role: channel }
+  dims:
+    - name: dim_date
+      grain: date
+      primary_key: [Date]
+      required_columns:
+        - { name: Year, type: int }
+        - { name: Month, type: int }
+    - name: dim_org
+      grain: org
+      primary_key: [OrgID]
+    - name: dim_product
+      grain: product
+      primary_key: [ProductID]
+  relationships:
+    - { from: fact_sales.Date, to: dim_date.Date, cardinality: many-to-one, direction: single, ri_expected: ">=99.9%" }
+    - { from: fact_sales.OrgID, to: dim_org.OrgID, cardinality: many-to-one, direction: single }
+    - { from: fact_sales.ProductID, to: dim_product.ProductID, cardinality: many-to-one, direction: single }
+model_mapping:
+  "Net Sales Amount": "fact_sales[Net Sales Amount]"
+  "Units Qty": "fact_sales[Units Qty]"
+  "Date": "dim_date[Date]"
+  "Org": "dim_org[OrgID]"
+  "Product": "dim_product[ProductID]"
 ---
 
 # Sales Performance vs Plan & Last Year
@@ -74,7 +98,7 @@ This use case provides a structured revenue bridge (Plan -> Actual) and enables 
 ---
 
 ## 3. Key Questions
-- What is the Δ and Δ% of Net Sales vs Plan and Last Year?  
+- What is the Î” and Î”% of Net Sales vs Plan and Last Year?  
 - Which regions, products, or channels drive over-/underperformance?  
 - What are the main drivers: price, volume, mix, or promo depth?  
 - Which levers can recover revenue shortfalls or protect margins?  
@@ -86,8 +110,8 @@ This use case provides a structured revenue bridge (Plan -> Actual) and enables 
 | KPI | Definition | Unit | Format |
 |------|-------------|------|--------|
 | Net Sales Amount | Total invoiced sales excl. returns and taxes | EUR | 0-2 decimals |
-| Δ Net Sales Amount | Net Sales - Plan (or LY) | EUR | 0-2 decimals |
-| Δ% Net Sales | (Net Sales - Plan) / Plan | % | 1 decimal |
+| Î” Net Sales Amount | Net Sales - Plan (or LY) | EUR | 0-2 decimals |
+| Î”% Net Sales | (Net Sales - Plan) / Plan | % | 1 decimal |
 | Price Realization % | Net Price / List Price | % | 1 decimal |
 | Promo Uplift % | (Promo Sales - Baseline) / Baseline | % | 1 decimal |
 
@@ -130,7 +154,7 @@ This use case provides a structured revenue bridge (Plan -> Actual) and enables 
 
 ## 9. Edge Cases & QA Rules
 - No negative Net Sales Amount except for return flows  
-- Δ% Net Sales computed only when Plan > 0  
+- Î”% Net Sales computed only when Plan > 0  
 - Price Realization % bounded [0%; 150%]  
 - Referential integrity >= 99.9 % across Date/Org/Product  
 - Missing dimensions default to 'Unknown' category
@@ -148,8 +172,8 @@ This use case provides a structured revenue bridge (Plan -> Actual) and enables 
 | Action | Code | Expected Effect |
 |---------|------|-----------------|
 | Tighten Discounts - enforce corridor and reduce leakage | P2 | GM % +0.5-1.5 pp; NS stable |
-| Optimize Promo Calendar - align depth and timing with demand | D1 | Δ% NS +1-3 pp; Forecast accuracy improves |
-| Rebalance Channel/Product Mix toward high-margin items | M3 | GM % +1.0 pp; Δ% NS stable |
+| Optimize Promo Calendar - align depth and timing with demand | D1 | Î”% NS +1-3 pp; Forecast accuracy improves |
+| Rebalance Channel/Product Mix toward high-margin items | M3 | GM % +1.0 pp; Î”% NS stable |
 | Invest/Divest selectively across under/overperforming areas | SP1 | Profitability improves; capital efficiency improves |
 
 ---
@@ -157,7 +181,7 @@ This use case provides a structured revenue bridge (Plan -> Actual) and enables 
 ## 12. Expected Business Impact
 | Dimension | Expected Impact | Measurement |
 |------------|-----------------|--------------|
-| Revenue | +2-5 pp Δ% Net Sales | vs Plan |
+| Revenue | +2-5 pp Î”% Net Sales | vs Plan |
 | Profitability | +0.5-1.5 pp Gross Margin % | vs LY |
 | Forecast Accuracy | +10-20 % lower MAPE | 4-8 week horizon |
 
@@ -170,7 +194,7 @@ Sales Planning and Forecasting -> Pricing Governance -> Promotion Management -> 
 
 ## 14. Insights & Learnings
 Price Realization usually contributes more to GM % variance than volume effects outside promotions.  
-Promo intensity correlates inversely with overall margin quality — balanced governance yields optimal ROI.
+Promo intensity correlates inversely with overall margin quality â€” balanced governance yields optimal ROI.
 
 ---
 
@@ -195,4 +219,5 @@ Promo intensity correlates inversely with overall margin quality — balanced go
 
 ---
 
-_Last updated: 03.11.2025_
+_Last updated: 04.11.2025_
+

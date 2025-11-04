@@ -1,12 +1,13 @@
----
+﻿---
 id: "COR-002"
 title: "Workforce Productivity & Turnover Analysis"
 domain: "Corporate and Strategy"
 owner: "Head of HR Controlling / People Analytics"
 impact: "High"
 status: "Draft"
-last_update: "03.11.2025"
+last_update: "04.11.2025"
 supports_strategic_kpi: ["Revenue per FTE", "Personnel Cost Ratio %", "Turnover Rate %"]
+supports_strategic_kpi_ids: ["hr.revenue_per_fte.amount", "hr.personnel_cost_ratio.pct", "hr.turnover.pct"]
 action_codes: ["C1", "SP1", "O2", "D1", "O3"]
 expected_impact: "+5-10 % Revenue per FTE; -2-4 % Personnel Cost Ratio; +3-5 pp turnover improvement"
 required_kpi_ids: [
@@ -22,27 +23,51 @@ required_kpis:
   hr.personnel_cost_ratio.pct: "Personnel Cost Ratio %"
   hr.turnover.pct: "Turnover Rate %"
   hr.absenteeism.pct: "Absenteeism %"
----
+
+dataset_model: "Contoso Sales Sample for Power BI Desktop.SemanticModel"
+page_template: "overview_drivers_details"
+segments: ["Org.Region>Area>Store","Product.Category>Subcategory>SKU","Channel","Time.Year>Month>Week"]
+filters_default: ["Time: Last 12M","Org: All","Channel: All"]
+qa_asserts: ["RI_OK"]
+
+data_requirements:
+  facts:
+    - name: fact_main
+      grain: invoice_line
+      primary_key: [InvoiceLineID]
+      required_columns:
+        - { name: "Net Sales Amount", type: decimal, role: amount }
+        - { name: "Units Qty", type: int, role: quantity }
+        - { name: Date, type: date, role: date_key }
+        - { name: OrgID, type: string, role: org_key }
+        - { name: ProductID, type: string, role: product_key }
+        - { name: Channel, type: string, role: channel }
+  dims:
+    - name: dim_date
+      grain: date
+      primary_key: [Date]
+    - name: dim_org
+      grain: org
+      primary_key: [OrgID]
+    - name: dim_product
+      grain: product
+      primary_key: [ProductID]
+  relationships:
+    - { from: fact_main.Date, to: dim_date.Date, cardinality: many-to-one, direction: single }
+    - { from: fact_main.OrgID, to: dim_org.OrgID, cardinality: many-to-one, direction: single }
+    - { from: fact_main.ProductID, to: dim_product.ProductID, cardinality: many-to-one, direction: single }
+
+model_mapping:
+  "Net Sales Amount": "fact_main[Net Sales Amount]"
+  "Units Qty": "fact_main[Units Qty]"
+  "Date": "dim_date[Date]"
+  "Org": "dim_org[OrgID]"
+  "Product": "dim_product[ProductID]"---
 
 # Workforce Productivity & Turnover Analysis
 
 ## 1. Business Goal
-Improve organizational efficiency and employee retention by tracking productivity, cost, and turnover trends — enabling data-driven workforce planning and early identification of risk areas.
-
----
-id: "COR-002"
-title: "Workforce Productivity & Turnover Analysis"
-domain: "Corporate and Strategy"
-owner: "Head of HR Controlling / People Analytics"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["Revenue per FTE", "Personnel Cost Ratio %", "Turnover Rate %"]
-action_codes: ["C1", "SP1", "O2", "D1", "O3"]
-expected_impact: "+5-10 % Revenue per FTE; -2-4 % Personnel Cost Ratio; +3-5 pp turnover improvement"
-required_kpi_ids: []
-required_kpis: {}
----
+Improve organizational efficiency and employee retention by tracking productivity, cost, and turnover trends â€” enabling data-driven workforce planning and early identification of risk areas.
 
 ## 3. Key Questions
 - How has productivity evolved per department, region, or function?  
@@ -50,21 +75,6 @@ required_kpis: {}
 - Which segments show high turnover or absenteeism risk?  
 - What is the cost impact of employee churn?  
 - How does engagement or tenure correlate with performance?
-
----
-id: "COR-002"
-title: "Workforce Productivity & Turnover Analysis"
-domain: "Corporate and Strategy"
-owner: "Head of HR Controlling / People Analytics"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["Revenue per FTE", "Personnel Cost Ratio %", "Turnover Rate %"]
-action_codes: ["C1", "SP1", "O2", "D1", "O3"]
-expected_impact: "+5-10 % Revenue per FTE; -2-4 % Personnel Cost Ratio; +3-5 pp turnover improvement"
-required_kpi_ids: []
-required_kpis: {}
----
 
 ## 5. Required Attributes (Business-Level)
 - Employee ID (anonymized or aggregated)  
@@ -74,21 +84,6 @@ required_kpis: {}
 - Net Sales Amount, Gross Margin Amount, Personnel Cost  
 - Optional: Age Group, Tenure, Engagement Score, Job Level
 
----
-id: "COR-002"
-title: "Workforce Productivity & Turnover Analysis"
-domain: "Corporate and Strategy"
-owner: "Head of HR Controlling / People Analytics"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["Revenue per FTE", "Personnel Cost Ratio %", "Turnover Rate %"]
-action_codes: ["C1", "SP1", "O2", "D1", "O3"]
-expected_impact: "+5-10 % Revenue per FTE; -2-4 % Personnel Cost Ratio; +3-5 pp turnover improvement"
-required_kpi_ids: []
-required_kpis: {}
----
-
 ## 7. Scope & Assumptions
 - Productivity = output (Sales, Margin) / workforce input (FTEs, Cost).  
 - Turnover = exits / average headcount over period.  
@@ -96,42 +91,12 @@ required_kpis: {}
 - FTE values standardized to 1.0 for full-time equivalent.  
 - All data aggregated and anonymized for compliance.
 
----
-id: "COR-002"
-title: "Workforce Productivity & Turnover Analysis"
-domain: "Corporate and Strategy"
-owner: "Head of HR Controlling / People Analytics"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["Revenue per FTE", "Personnel Cost Ratio %", "Turnover Rate %"]
-action_codes: ["C1", "SP1", "O2", "D1", "O3"]
-expected_impact: "+5-10 % Revenue per FTE; -2-4 % Personnel Cost Ratio; +3-5 pp turnover improvement"
-required_kpi_ids: []
-required_kpis: {}
----
-
 ## 9. Edge Cases & QA Rules
 - Headcount and FTE cannot be negative.  
 - Turnover % capped at [0; 100].  
 - Cross-check Revenue per FTE with Finance totals.  
 - Referential integrity >= 99.9 % across Date/Org.  
 - Privacy compliance per GDPR (no individual-level display).
-
----
-id: "COR-002"
-title: "Workforce Productivity & Turnover Analysis"
-domain: "Corporate and Strategy"
-owner: "Head of HR Controlling / People Analytics"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["Revenue per FTE", "Personnel Cost Ratio %", "Turnover Rate %"]
-action_codes: ["C1", "SP1", "O2", "D1", "O3"]
-expected_impact: "+5-10 % Revenue per FTE; -2-4 % Personnel Cost Ratio; +3-5 pp turnover improvement"
-required_kpi_ids: []
-required_kpis: {}
----
 
 ## 11. Typical Actions
 | Action | Code | Expected Effect |
@@ -142,38 +107,8 @@ required_kpis: {}
 | Launch engagement or wellbeing programs | D1 | Absenteeism reduces; retention improves |
 | Automate HR analytics in S&OP and budgeting | O3 | Planning accuracy improves; latency reduces |
 
----
-id: "COR-002"
-title: "Workforce Productivity & Turnover Analysis"
-domain: "Corporate and Strategy"
-owner: "Head of HR Controlling / People Analytics"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["Revenue per FTE", "Personnel Cost Ratio %", "Turnover Rate %"]
-action_codes: ["C1", "SP1", "O2", "D1", "O3"]
-expected_impact: "+5-10 % Revenue per FTE; -2-4 % Personnel Cost Ratio; +3-5 pp turnover improvement"
-required_kpi_ids: []
-required_kpis: {}
----
-
 ## 13. Related Processes
 Workforce Planning -> Budgeting & Forecasting -> Talent Management -> Engagement & Wellbeing -> HR Analytics.
-
----
-id: "COR-002"
-title: "Workforce Productivity & Turnover Analysis"
-domain: "Corporate and Strategy"
-owner: "Head of HR Controlling / People Analytics"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["Revenue per FTE", "Personnel Cost Ratio %", "Turnover Rate %"]
-action_codes: ["C1", "SP1", "O2", "D1", "O3"]
-expected_impact: "+5-10 % Revenue per FTE; -2-4 % Personnel Cost Ratio; +3-5 pp turnover improvement"
-required_kpi_ids: []
-required_kpis: {}
----
 
 ## 15. Cross-References
 - Related Use Cases:  
@@ -183,20 +118,7 @@ required_kpis: {}
 - Related Documents:  
   [`KPI Catalog`](../../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../../_includes/ActionCodes.md) | [`Glossary`](../../../_includes/Glossary.md)
 
----
-id: "COR-002"
-title: "Workforce Productivity & Turnover Analysis"
-domain: "Corporate and Strategy"
-owner: "Head of HR Controlling / People Analytics"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["Revenue per FTE", "Personnel Cost Ratio %", "Turnover Rate %"]
-action_codes: ["C1", "SP1", "O2", "D1", "O3"]
-expected_impact: "+5-10 % Revenue per FTE; -2-4 % Personnel Cost Ratio; +3-5 pp turnover improvement"
-required_kpi_ids: []
-required_kpis: {}
----
+_Last updated: 04.11.2025_
 
-_Last updated: 03.11.2025_
+
 

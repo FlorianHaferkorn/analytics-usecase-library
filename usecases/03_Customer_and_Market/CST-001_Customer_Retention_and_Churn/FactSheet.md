@@ -1,11 +1,11 @@
----
+﻿---
 id: "CST-001"
 title: "Customer Retention & Churn Analysis"
 domain: "Customer and Market"
 owner: "Head of CRM / Marketing Analytics"
 impact: "High"
 status: "Draft"
-last_update: "03.11.2025"
+last_update: "04.11.2025"
 supports_strategic_kpi: ["Customer Retention %", "CLV %", "Revenue Growth %"]
 action_codes: ["C1", "C2", "D1", "SP1", "O2"]
 expected_impact: "+3-5 pp Retention; +5-10 % incremental margin; +15-25 % ROI on retention campaigns"
@@ -22,27 +22,51 @@ required_kpis:
   crm.clv.amount: "CLV (Customer Lifetime Value)"
   crm.reactivation.pct: "Reactivation Rate %"
   crm.at_risk_share.pct: "At-Risk Share %"
----
+
+dataset_model: "Contoso Sales Sample for Power BI Desktop.SemanticModel"
+page_template: "overview_drivers_details"
+segments: ["Org.Region>Area>Store","Product.Category>Subcategory>SKU","Channel","Time.Year>Month>Week"]
+filters_default: ["Time: Last 12M","Org: All","Channel: All"]
+qa_asserts: ["RI_OK"]
+
+data_requirements:
+  facts:
+    - name: fact_main
+      grain: invoice_line
+      primary_key: [InvoiceLineID]
+      required_columns:
+        - { name: "Net Sales Amount", type: decimal, role: amount }
+        - { name: "Units Qty", type: int, role: quantity }
+        - { name: Date, type: date, role: date_key }
+        - { name: OrgID, type: string, role: org_key }
+        - { name: ProductID, type: string, role: product_key }
+        - { name: Channel, type: string, role: channel }
+  dims:
+    - name: dim_date
+      grain: date
+      primary_key: [Date]
+    - name: dim_org
+      grain: org
+      primary_key: [OrgID]
+    - name: dim_product
+      grain: product
+      primary_key: [ProductID]
+  relationships:
+    - { from: fact_main.Date, to: dim_date.Date, cardinality: many-to-one, direction: single }
+    - { from: fact_main.OrgID, to: dim_org.OrgID, cardinality: many-to-one, direction: single }
+    - { from: fact_main.ProductID, to: dim_product.ProductID, cardinality: many-to-one, direction: single }
+
+model_mapping:
+  "Net Sales Amount": "fact_main[Net Sales Amount]"
+  "Units Qty": "fact_main[Units Qty]"
+  "Date": "dim_date[Date]"
+  "Org": "dim_org[OrgID]"
+  "Product": "dim_product[ProductID]"---
 
 # Customer Retention & Churn Analysis
 
 ## 1. Business Goal
 Increase customer lifetime value by identifying churn risks early, improving retention strategies, and quantifying the business impact of lost customers.
-
----
-id: "CST-001"
-title: "Customer Retention & Churn Analysis"
-domain: "Customer and Market"
-owner: "Head of CRM / Marketing Analytics"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["Customer Retention %", "CLV %", "Revenue Growth %"]
-action_codes: ["C1", "C2", "D1", "SP1", "O2"]
-expected_impact: "+3-5 pp Retention; +5-10 % incremental margin; +15-25 % ROI on retention campaigns"
-required_kpi_ids: []
-required_kpis: {}
----
 
 ## 3. Key Questions
 - What is the current retention and churn rate?  
@@ -51,41 +75,11 @@ required_kpis: {}
 - Which actions or offers most effectively prevent churn?  
 - How much incremental margin is gained per retained customer?
 
----
-id: "CST-001"
-title: "Customer Retention & Churn Analysis"
-domain: "Customer and Market"
-owner: "Head of CRM / Marketing Analytics"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["Customer Retention %", "CLV %", "Revenue Growth %"]
-action_codes: ["C1", "C2", "D1", "SP1", "O2"]
-expected_impact: "+3-5 pp Retention; +5-10 % incremental margin; +15-25 % ROI on retention campaigns"
-required_kpi_ids: []
-required_kpis: {}
----
-
 ## 5. Required Attributes (Business-Level)
 - Customer ID, Segment, Region, Channel  
 - Transaction Date, Net Sales Amount, Margin Amount  
 - Last Purchase Date, Visit Frequency, Basket Size  
 - Optional: Loyalty Tier, Campaign Interaction, Satisfaction Score (NPS)
-
----
-id: "CST-001"
-title: "Customer Retention & Churn Analysis"
-domain: "Customer and Market"
-owner: "Head of CRM / Marketing Analytics"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["Customer Retention %", "CLV %", "Revenue Growth %"]
-action_codes: ["C1", "C2", "D1", "SP1", "O2"]
-expected_impact: "+3-5 pp Retention; +5-10 % incremental margin; +15-25 % ROI on retention campaigns"
-required_kpi_ids: []
-required_kpis: {}
----
 
 ## 7. Scope & Assumptions
 - Churn = No purchase activity within X months (configurable by business model).  
@@ -94,42 +88,12 @@ required_kpis: {}
 - NPS and campaign data used as behavioral signals (if available).  
 - One record per customer per month in aggregate dataset.
 
----
-id: "CST-001"
-title: "Customer Retention & Churn Analysis"
-domain: "Customer and Market"
-owner: "Head of CRM / Marketing Analytics"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["Customer Retention %", "CLV %", "Revenue Growth %"]
-action_codes: ["C1", "C2", "D1", "SP1", "O2"]
-expected_impact: "+3-5 pp Retention; +5-10 % incremental margin; +15-25 % ROI on retention campaigns"
-required_kpi_ids: []
-required_kpis: {}
----
-
 ## 9. Edge Cases & QA Rules
 - Customers with <2 transactions excluded from churn calculation (insufficient history).  
 - Churn % must be within [0%; 100%].  
 - Duplicated Customer IDs removed.  
 - Referential integrity >= 99.9 % across Customer/Date.  
 - CLV outliers (>99th percentile) capped in analysis.
-
----
-id: "CST-001"
-title: "Customer Retention & Churn Analysis"
-domain: "Customer and Market"
-owner: "Head of CRM / Marketing Analytics"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["Customer Retention %", "CLV %", "Revenue Growth %"]
-action_codes: ["C1", "C2", "D1", "SP1", "O2"]
-expected_impact: "+3-5 pp Retention; +5-10 % incremental margin; +15-25 % ROI on retention campaigns"
-required_kpi_ids: []
-required_kpis: {}
----
 
 ## 11. Typical Actions
 | Action | Code | Expected Effect |
@@ -140,38 +104,8 @@ required_kpis: {}
 | Link loyalty benefits to purchase frequency | SP1 | CLV +10-15 % |
 | Automate churn alerts to account managers | O2 | Time-to-action reduces 50 % |
 
----
-id: "CST-001"
-title: "Customer Retention & Churn Analysis"
-domain: "Customer and Market"
-owner: "Head of CRM / Marketing Analytics"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["Customer Retention %", "CLV %", "Revenue Growth %"]
-action_codes: ["C1", "C2", "D1", "SP1", "O2"]
-expected_impact: "+3-5 pp Retention; +5-10 % incremental margin; +15-25 % ROI on retention campaigns"
-required_kpi_ids: []
-required_kpis: {}
----
-
 ## 13. Related Processes
 CRM Campaign Management -> Loyalty Programs -> Customer Segmentation -> Marketing Automation.
-
----
-id: "CST-001"
-title: "Customer Retention & Churn Analysis"
-domain: "Customer and Market"
-owner: "Head of CRM / Marketing Analytics"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["Customer Retention %", "CLV %", "Revenue Growth %"]
-action_codes: ["C1", "C2", "D1", "SP1", "O2"]
-expected_impact: "+3-5 pp Retention; +5-10 % incremental margin; +15-25 % ROI on retention campaigns"
-required_kpi_ids: []
-required_kpis: {}
----
 
 ## 15. Cross-References
 - Related Use Cases:  
@@ -181,20 +115,7 @@ required_kpis: {}
 - Related Documents:  
   [`KPI Catalog`](../../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../../_includes/ActionCodes.md) | [`Glossary`](../../../_includes/Glossary.md)
 
----
-id: "CST-001"
-title: "Customer Retention & Churn Analysis"
-domain: "Customer and Market"
-owner: "Head of CRM / Marketing Analytics"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["Customer Retention %", "CLV %", "Revenue Growth %"]
-action_codes: ["C1", "C2", "D1", "SP1", "O2"]
-expected_impact: "+3-5 pp Retention; +5-10 % incremental margin; +15-25 % ROI on retention campaigns"
-required_kpi_ids: []
-required_kpis: {}
----
+_Last updated: 04.11.2025_
 
-_Last updated: 03.11.2025_
+
 

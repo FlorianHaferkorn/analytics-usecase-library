@@ -1,4 +1,4 @@
-# KPI Catalog — Liquidity
+﻿# KPI Catalog - Liquidity
 
 ---
 
@@ -6,7 +6,8 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## KPIs - Strategic
 ```yaml
-- kpi_key: "Working Capital %"
+- kpi_id: "fin.liquidity.working_capital"
+  kpi_key: "Working Capital %"
   kpi_type: "strategic"
   strategic_ref: "Working Capital %"
   impact_dimension: "Liquidity"
@@ -18,7 +19,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   status: Active
   business:
     purpose: "Share of capital tied up in operations relative to sales."
-    definition: "(Receivables + Inventory − Payables) / Net Sales Amount"
+    definition: "(Receivables + Inventory âˆ’ Payables) / Net Sales Amount"
     grain_scope: "Monthly close level, companywide."
     unit_format: "% (1 decimal)"
     interpretation: "Indicates liquidity efficiency and cash tied up in operations."
@@ -37,7 +38,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "quarterly"
     validation_process: "dual control"
     qa_rules:
-      - "Reconcile with balance sheet ±1 %"
+      - "Reconcile with balance sheet Â±1 %"
       - "Inventory coverage ratio cross-checked monthly"
     version: "v2.0"
     last_review: "12.10.2025"
@@ -48,7 +49,8 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ```
 
 ```yaml
-- kpi_key: "Free Cash Flow"
+- kpi_id: "fin.liquidity.free_cash_flow"
+  kpi_key: "Free Cash Flow"
   kpi_type: "strategic"
   strategic_ref: "Free Cash Flow"
   impact_dimension: "Liquidity"
@@ -60,9 +62,9 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   status: Active
   business:
     purpose: "Net cash generated after capital expenditures."
-    definition: "Operating Cash Flow − CapEx Amount"
+    definition: "Operating Cash Flow âˆ’ CapEx Amount"
     grain_scope: "Monthly companywide."
-    unit_format: "€ (2 decimals)"
+    unit_format: "â‚¬ (2 decimals)"
     interpretation: "Indicates cash generation capability after investment."
   technical:
     dax_name: "Free Cash Flow"
@@ -79,7 +81,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "quarterly"
     validation_process: "manual review"
     qa_rules:
-      - "Reconcile with cashflow statement ±1 %"
+      - "Reconcile with cashflow statement Â±1 %"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -88,9 +90,9 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     copilot_ready: true
 ```
 
-## 2. Supporting / Diagnostic KPIs
+## KPIs - Supporting / Diagnostic
 ```yaml
-- kpi_id: "ops.working_capital.dso.days"
+- kpi_id: "fin.liquidity.dso_days_sales_outstanding"
   kpi_key: "DSO (Days Sales Outstanding)"
   kpi_type: "diagnostic"
   strategic_ref: "Cash Conversion Cycle"
@@ -105,7 +107,21 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ```
 
 ```yaml
-- kpi_id: "ops.working_capital.dio.days"
+- kpi_id: "fin.liquidity.operating_cash_flow"
+  kpi_key: "Operating Cash Flow"
+  kpi_type: "strategic"
+  impact_dimension: "Liquidity"
+  domain_tag: ["Corporate & Strategy"]
+  calc_type: amount
+  technical:
+    dax_name: "Operating Cash Flow"
+    description: "Cash generated from operations"
+    formatString: "â‚¬ #,0.00"
+    verified: false
+```
+
+```yaml
+- kpi_id: "fin.liquidity.dio_days_inventory_outstanding"
   kpi_key: "DIO (Days Inventory Outstanding)"
   kpi_type: "diagnostic"
   strategic_ref: "Cash Conversion Cycle"
@@ -120,7 +136,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ```
 
 ```yaml
-- kpi_id: "ops.working_capital.dpo.days"
+- kpi_id: "fin.liquidity.dpo_days_payables_outstanding"
   kpi_key: "DPO (Days Payables Outstanding)"
   kpi_type: "diagnostic"
   strategic_ref: "Cash Conversion Cycle"
@@ -135,7 +151,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ```
 
 ```yaml
-- kpi_id: "ops.working_capital.ccc.days"
+- kpi_id: "fin.liquidity.cash_conversion_cycle_days"
   kpi_key: "Cash Conversion Cycle (Days)"
   kpi_type: "diagnostic"
   strategic_ref: "Cash Conversion Cycle"
@@ -150,7 +166,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ```
 
 ```yaml
-- kpi_id: "ops.working_capital.ccc.delta_days"
+- kpi_id: "fin.liquidity.cash_conversion_cycle.delta_days"
   kpi_key: "Δ Cash Conversion Cycle (Days)"
   aliases: ["Delta CCC (Days)"]
   kpi_type: "diagnostic"
@@ -165,6 +181,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     verified: false
 ```
 ```yaml
+  kpi_id: "fin.liquidity.days_sales_outstanding_dso"
 - kpi_key: "Days Sales Outstanding (DSO)"
   kpi_type: "supporting"
   strategic_ref: "Working Capital %"
@@ -207,8 +224,9 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## 3. Base Measures
 ```yaml
+  kpi_id: "fin.liquidity.receivables_amount"
 - kpi_key: "Receivables Amount"
-  kpi_type: "base"
+  kpi_type: "supporting"
   strategic_ref: "Working Capital %"
   impact_dimension: "Liquidity"
   domain_tag: ["Corporate & Strategy"]
@@ -221,7 +239,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     purpose: "Outstanding receivables at end of period."
     definition: "Sum of all unpaid invoices."
     grain_scope: "Company and customer level."
-    unit_format: "€ (2 decimals)"
+    unit_format: "â‚¬ (2 decimals)"
     interpretation: "Represents open cash position from customers."
   technical:
     dax_name: "Receivables Amount"
@@ -264,4 +282,10 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ---
 
-_Last updated: 12.10.2025_
+_Last updated: 04.11.2025_
+
+
+
+
+
+

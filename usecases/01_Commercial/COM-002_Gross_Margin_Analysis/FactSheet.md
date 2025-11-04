@@ -1,23 +1,16 @@
----
+﻿---
 id: "COM-002"
 title: "Gross Margin % vs Plan & Last Year"
 domain: "Commercial"
 owner: "Head of Sales Controlling"
 impact: "High"
 status: "Draft"
-last_update: "03.11.2025"
+last_update: "04.11.2025"
 supports_strategic_kpi: ["Gross Margin %", "Revenue Growth %"]
+supports_strategic_kpi_ids: ["margin.gm.pct", "sales.revenue.growth_pct"]
 action_codes: ["P2", "PC2", "D1", "M3", "O2"]
-expected_impact: "+0.5-2.0 pp GM %; -1-3 % COGS; +1 pp ?% Net Sales"
-required_measures: [
-  "Gross Margin %",
-  "Gross Margin Amount",
-  "Δ Gross Margin %",
-  "COGS Amount",
-  "Price Realization %",
-  "Δ% Net Sales"
-]
-required_kpi_ids: [
+expected_impact: "+0.5-2.0 pp GM %; -1-3 % COGS; +1 pp Δ% Net Sales"
+dataset_model: "Contoso Sales Sample for Power BI Desktop.SemanticModel"`r`npage_template: "overview_drivers_details"`r`nsegments: [`r`n  "Product.Category>Subcategory>SKU",`r`n  "Org.Region>Area>Store",`r`n  "Channel",`r`n  "Time.Year>Month>Week"`r`n]`r`nfilters_default: [`r`n  "Time: Last 12M",`r`n  "Org: All",`r`n  "Channel: All"`r`n]`r`nrequired_kpi_ids: [
   "margin.gm.pct",
   "margin.gm.amount",
   "margin.gm.delta_pct",
@@ -25,7 +18,45 @@ required_kpi_ids: [
   "sales.price.realization_pct",
   "sales.net_sales.delta_pct.ly"
 ]
----
+required_kpis:
+  margin.gm.pct: "Gross Margin %"
+  margin.gm.amount: "Gross Margin Amount"
+  margin.gm.delta_pct: "Δ Gross Margin %"
+  cost.cogs.amount: "COGS Amount"
+  sales.price.realization_pct: "Price Realization %"
+  sales.net_sales.delta_pct.ly: "Δ% Net Sales"
+
+data_requirements:
+  facts:
+    - name: fact_sales
+      grain: invoice_line
+      primary_key: [InvoiceLineID]
+      required_columns:
+        - { name: "Net Sales Amount", type: decimal, role: amount }
+        - { name: "COGS Amount", type: decimal, role: amount }
+        - { name: Date, type: date, role: date_key }
+        - { name: OrgID, type: string, role: org_key }
+        - { name: ProductID, type: string, role: product_key }
+        - { name: Channel, type: string, role: channel }
+  dims:
+    - name: dim_date
+      grain: date
+      primary_key: [Date]
+    - name: dim_org
+      grain: org
+      primary_key: [OrgID]
+    - name: dim_product
+      grain: product
+      primary_key: [ProductID]
+  relationships:
+    - { from: fact_sales.Date, to: dim_date.Date, cardinality: many-to-one, direction: single }
+    - { from: fact_sales.OrgID, to: dim_org.OrgID, cardinality: many-to-one, direction: single }
+    - { from: fact_sales.ProductID, to: dim_product.ProductID, cardinality: many-to-one, direction: single }
+model_mapping:
+  "Net Sales Amount": "fact_sales[Net Sales Amount]"
+  "COGS Amount": "fact_sales[COGS Amount]"
+  "Price Realization %": "[Price Realization %]"
+  "Date": "dim_date[Date]"---
 
 # Use Case Fact Sheet
 
@@ -42,7 +73,7 @@ This use case quantifies and decomposes these effects, ensuring commercial, cate
 ---
 
 ## 3. Key Questions
-- What is the Δ and Δ% of Gross Margin vs Plan and Last Year?  
+- What is the Î” and Î”% of Gross Margin vs Plan and Last Year?  
 - Which products, categories, and regions contribute most to variance?  
 - How much is driven by price, mix, or COGS changes?  
 - Are promotions profitable at the GM % level?  
@@ -55,7 +86,7 @@ This use case quantifies and decomposes these effects, ensuring commercial, cate
 |------|-------------|------|--------|
 | Gross Margin % | (Net Sales - COGS) / Net Sales | % | 1 decimal |
 | Gross Margin Amount | Net Sales - COGS | EUR | 0-2 decimals |
-| Δ Gross Margin % | GM % - Plan or LY GM % | % | 1 decimal |
+| Î” Gross Margin % | GM % - Plan or LY GM % | % | 1 decimal |
 | Price Realization % | Net Price / List Price | % | 1 decimal |
 | COGS Amount | Direct product cost including logistics | EUR | 0-2 decimals |
 
@@ -98,7 +129,7 @@ This use case quantifies and decomposes these effects, ensuring commercial, cate
 
 ## 9. Edge Cases & QA Rules
 - No negative GM % beyond -100% (data anomaly).  
-- Δ% GM calculated only where Plan GM % > 0.  
+- Î”% GM calculated only where Plan GM % > 0.  
 - COGS must reconcile with financial postings (+/- 0.5 % tolerance).  
 - Referential integrity >= 99.9 % across Date/Org/Product/Supplier.  
 - Missing dimensions default to 'Unknown'.
@@ -117,7 +148,7 @@ This use case quantifies and decomposes these effects, ensuring commercial, cate
 |---------|------|-----------------|
 | Rebid or renegotiate supplier contracts | PC2 | COGS -1-3 %; GM % +1 pp |
 | Tighten discount and rebate structure | P2 | GM % +0.5-1.0 pp |
-| Review and optimize promo depth and ROI | D1 | GM % +0.5 pp; Δ% NS +1 pp |
+| Review and optimize promo depth and ROI | D1 | GM % +0.5 pp; Î”% NS +1 pp |
 | Channel/product mix steering toward high-margin lines | M3 | GM % +1 pp; stable NS |
 | Improve cost-to-serve transparency (freight, packaging) | O2 | GM % +0.3-0.6 pp |
 
@@ -164,7 +195,11 @@ Mix effects (especially low-margin SKUs) explain up to 30 % of variance but are 
 
 ---
 
-_Last updated: 03.11.2025_
+_Last updated: 04.11.2025_
+
+
+
+
 
 
 

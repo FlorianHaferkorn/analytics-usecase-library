@@ -1,8 +1,7 @@
-# KPI Catalog � Growth
-
+﻿# KPI Catalog - Growth
 ---
 
-## KPIs � Strategic
+## KPIs - Strategic
 ```yaml
 - kpi_id: "sales.revenue.growth_pct"
   kpi_key: "Revenue Growth %"
@@ -11,7 +10,7 @@
   impact_dimension: "Growth"
   domain_tag: ["Commercial"]
   use_case_ref: ["COM-001", "COM-002"]
-  depends_on: ["Net Sales Amount", "Net Sales Amount LY"]
+  depends_on: ["Δ Net Sales Amount", "Net Sales Amount LY"]
   calc_type: rate
   refresh: monthly
   status: Active
@@ -23,7 +22,7 @@
     interpretation: "Shows revenue momentum and market success."
   technical:
     dax_name: "Revenue Growth %"
-    dax_expression: "DIVIDE([Net Sales Amount]-[Net Sales Amount LY],[Net Sales Amount LY])"
+    dax_expression: "DIVIDE([Δ Net Sales Amount],[Net Sales Amount LY])"
     lineage: ["fact_sales.Net Sales Amount","fact_sales.Net Sales Amount LY"]
     source_grain: "invoice_line"
     source_column_ref: ["fact_sales.net_sales_amt"]
@@ -45,7 +44,7 @@
     copilot_ready: true
 ```
 
-## KPIs � Supporting / Diagnostic
+## KPIs - Supporting / Diagnostic
 ```yaml
 - kpi_id: "sales.net_sales.amount"
   kpi_key: "Net Sales Amount"
@@ -95,7 +94,7 @@
   impact_dimension: "Growth"
   domain_tag: ["Commercial"]
   use_case_ref: ["COM-001"]
-  depends_on: ["Net Sales Amount"]
+  depends_on: ["Δ Net Sales Amount"]
   calc_type: amount
   refresh: monthly
   status: Active
@@ -137,7 +136,7 @@
   impact_dimension: "Growth"
   domain_tag: ["Commercial"]
   use_case_ref: ["COM-001","COM-004"]
-  depends_on: ["Net Sales Amount","Net Sales Amount LY"]
+  depends_on: ["Δ Net Sales Amount","Net Sales Amount LY"]
   calc_type: amount
   refresh: monthly
   status: Active
@@ -193,7 +192,7 @@
     dax_expression: "DIVIDE([Δ Net Sales Amount],[Net Sales Amount LY])"
     formatString: "0.0 %"
     displayFolder: "01_Sales"
-    description: "Purpose: relative variance vs LY. Definition: Δ Net Sales / LY. Grain & Scope: period-level. Unit/Format: 0.0 %."
+    description: "Δ Net Sales / LY. Grain & Scope: period-level. Unit/Format: 0.0 %."
     lineage: ["fact_sales.Net Sales Amount"]
     source_grain: "invoice_line"
     source_system: "ERP"
@@ -266,4 +265,8 @@
     formatString: "€ #,0.00"
     verified: false
 ```
+
+Last updated: 04.11.2025
+
+
 

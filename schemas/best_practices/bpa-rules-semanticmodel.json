@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "_meta": true,
     "version": "v1",
@@ -609,4 +609,44 @@
     "FixExpression": "SummarizeBy = AggregateFunction.None",
     "CompatibilityLevel": 1200
   }
-]
+,
+  {
+    "ID": "DAX_USE_DIVIDE",
+    "Name": "[DAX] Use DIVIDE instead of /",
+    "Category": "DAX",
+    "Description": "Avoid raw / operator in measures to prevent division by zero errors; use DIVIDE().",
+    "Severity": 1,
+    "Scope": "Measure",
+    "Expression": "DaxExpression.Contains(\"/\") and not DaxExpression.Contains(\"//\") and not DaxExpression.Contains(\"DIVIDE(\")",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "DAX_TIME_INTELLIGENCE_LY",
+    "Name": "[DAX] LY measures use SAMEPERIODLASTYEAR",
+    "Category": "DAX",
+    "Description": "Measures labeled with LY should use SAMEPERIODLASTYEAR or DATEADD(-1 YEAR).",
+    "Severity": 1,
+    "Scope": "Measure",
+    "Expression": "Name.EndsWith(\" LY\") and not (DaxExpression.Contains(\"SAMEPERIODLASTYEAR\") or DaxExpression.Contains(\"DATEADD\"))",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "DAX_FORMATSTRING_REQUIRED",
+    "Name": "[DAX] FormatString required",
+    "Category": "Modeling",
+    "Description": "All published measures should define a format string.",
+    "Severity": 1,
+    "Scope": "Measure",
+    "Expression": "FormatString = null or FormatString = \"\"",
+    "CompatibilityLevel": 1200
+  },
+  {
+    "ID": "DAX_DISPLAYFOLDER_SUGGESTED",
+    "Name": "[DAX] DisplayFolder suggested",
+    "Category": "Modeling",
+    "Description": "Measures should be organized in display folders.",
+    "Severity": 0,
+    "Scope": "Measure",
+    "Expression": "DisplayFolder = null or DisplayFolder = \"\"",
+    "CompatibilityLevel": 1200
+  }\n]

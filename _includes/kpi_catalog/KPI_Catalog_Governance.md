@@ -1,37 +1,20 @@
-# KPI Catalog – Governance & Compliance
+# KPI Catalog - Governance & Compliance
 
 ---
 
-## Catalog Schema
-```yaml
-# Fields for each KPI entry
-kpi_id: "namespace.identifier"           # ASCII, namespaced, unique
-kpi_key: "Readable KPI Name"             # Human-readable title
-kpi_type: "strategic|diagnostic|supporting"
-domain_tag: ["…"]                         # One or more domains
-impact_dimension: "Growth|Profitability|Liquidity|Efficiency|Customer|ESG|Governance"
-use_case_ref: ["COM-001"]               # Optional UC references
-calc_type: "amount|rate|ratio|count"
-technical:
-  dax_name: "Measure Name"
-  dax_expression: "...optional..."
-  formatString: "..."
-  displayFolder: "...optional..."
-  description: "Short purpose/definition"
-aliases: ["Optional alternative names"]
-verified: false
-```
+Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## KPIs - Strategic
 ```yaml
-- kpi_key: "Data Quality %"
+- kpi_id: "gov.data_quality.pct"
+  kpi_key: "Data Quality %"
   kpi_type: "strategic"
   strategic_ref: "Data Quality %"
   impact_dimension: "Governance"
   domain_tag: ["Data Governance"]
   use_case_ref: ["GOV-001"]
   depends_on: ["Valid Records Count","Total Records Count"]
-  calc_type: ratio
+  calc_type: rate
   refresh: monthly
   status: Active
   business:
@@ -62,10 +45,9 @@ verified: false
     completeness_score: 0.99
     lineage_verified: true
     copilot_ready: true
-```
 
-```yaml
-- kpi_key: "Compliance Breach Count"
+- kpi_id: "gov.compliance.breach.count"
+  kpi_key: "Compliance Breach Count"
   kpi_type: "strategic"
   strategic_ref: "Compliance Breach Count"
   impact_dimension: "Governance"
@@ -105,9 +87,10 @@ verified: false
     copilot_ready: true
 ```
 
-## 2. Supporting / Diagnostic KPIs
+## KPIs - Supporting / Diagnostic
 ```yaml
-- kpi_key: "Open Audit Findings Count"
+- kpi_id: "gov.audit.findings.open.count"
+  kpi_key: "Open Audit Findings Count"
   kpi_type: "supporting"
   strategic_ref: "Audit Finding Severity %"
   impact_dimension: "Governance"
@@ -125,9 +108,9 @@ verified: false
     interpretation: "Shows audit remediation backlog."
   technical:
     dax_name: "Open Audit Findings Count"
-    dax_expression: "COUNTROWS(FILTER(fact_audit,[Status]="Open"))"
-    lineage: ["fact_audit.AuditFindingID"]
-    source_grain: "audit_record"
+    dax_expression: "COUNTROWS(fact_audit_findings)"
+    lineage: ["fact_audit.finding_id"]
+    source_grain: "audit_report"
     source_column_ref: ["fact_audit.finding_id"]
     source_system: "Audit System"
     verified: true
@@ -149,8 +132,9 @@ verified: false
 
 ## 3. Base Measures
 ```yaml
-- kpi_key: "Valid Records Count"
-  kpi_type: "base"
+- kpi_id: "gov.valid_records.count"
+  kpi_key: "Valid Records Count"
+  kpi_type: "supporting"
   strategic_ref: "Data Quality %"
   impact_dimension: "Governance"
   domain_tag: ["Data Governance"]
@@ -191,80 +175,5 @@ verified: false
 
 ---
 
-## 4. Governance Summary
-| Metric | Value |
-|--------|--------|
-| **Total KPIs (Governance)** | 31 |
-| **Completeness Score (avg)** | 0.97 |
-| **Lineage Verified** | 100 % |
-| **Copilot Ready** | 100 % |
-| **Review Cycle** | Monthly |
-| **Business Owner** | Chief Data Officer |
-| **Data Owner** | Data Governance Team |
-| **Steward** | Data Steward |
-| **Validation Process** | Automated |
+Last updated: 04.11.2025
 
----
-
-_Last updated: 12.10.2025_
- 
-## 2. Project Portfolio KPIs (added)
-```yaml
-- kpi_id: "corp.project.roi.pct"
-  kpi_key: "Project ROI %"
-  kpi_type: "strategic"
-  domain_tag: ["Corporate & Strategy"]
-  calc_type: rate
-  technical:
-    dax_name: "Project ROI %"
-    description: "(Realized Benefits - Total Cost) / Total Cost"
-    formatString: "0.0 %"
-```
-
-```yaml
-- kpi_id: "corp.benefit.realization.pct"
-  kpi_key: "Benefit Realization %"
-  kpi_type: "diagnostic"
-  domain_tag: ["Corporate & Strategy"]
-  calc_type: rate
-  technical:
-    dax_name: "Benefit Realization %"
-    description: "Realized Benefits / Planned Benefits"
-    formatString: "0.0 %"
-```
-
-```yaml
-- kpi_id: "corp.budget.adherence.pct"
-  kpi_key: "Budget Adherence %"
-  kpi_type: "diagnostic"
-  domain_tag: ["Corporate & Strategy"]
-  calc_type: rate
-  technical:
-    dax_name: "Budget Adherence %"
-    description: "Actual Cost / Planned Cost"
-    formatString: "0.0 %"
-```
-
-```yaml
-- kpi_id: "corp.schedule.adherence.pct"
-  kpi_key: "Schedule Adherence %"
-  kpi_type: "diagnostic"
-  domain_tag: ["Corporate & Strategy"]
-  calc_type: rate
-  technical:
-    dax_name: "Schedule Adherence %"
-    description: "Actual Progress / Planned Progress"
-    formatString: "0.0 %"
-```
-
-```yaml
-- kpi_id: "corp.payback.months"
-  kpi_key: "Payback Period (Months)"
-  kpi_type: "diagnostic"
-  domain_tag: ["Corporate & Strategy"]
-  calc_type: amount
-  technical:
-    dax_name: "Payback Period (Months)"
-    description: "Time until cumulative benefits = total cost"
-    formatString: "0"
-```

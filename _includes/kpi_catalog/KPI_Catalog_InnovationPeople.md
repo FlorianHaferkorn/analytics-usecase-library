@@ -1,4 +1,4 @@
-# KPI Catalog — Innovation & People
+﻿# KPI Catalog - Innovation & People
 
 ---
 
@@ -7,6 +7,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ## KPIs - Strategic
 ```yaml
 - kpi_id: "prod.lifecycle.new_share.pct"
+  kpi_id: "people.new_product_share"
   kpi_key: "New Product Share %"
   kpi_type: "strategic"
   domain_tag: ["Customer & Market"]
@@ -17,6 +18,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     formatString: "0.0 %"
 ```
 ```yaml
+  kpi_id: "people.innovation_rate"
 - kpi_key: "Innovation Rate %"
   kpi_type: "strategic"
   strategic_ref: "Innovation Rate %"
@@ -58,6 +60,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ```
 
 ```yaml
+  kpi_id: "people.employee_engagement"
 - kpi_key: "Employee Engagement %"
   kpi_type: "strategic"
   strategic_ref: "Employee Engagement %"
@@ -89,7 +92,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "annual"
     validation_process: "manual review"
     qa_rules:
-      - "Survey participation ≥ 70 %"
+      - "Survey participation â‰¥ 70 %"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -98,9 +101,10 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     copilot_ready: true
 ```
 
-## 2. Supporting / Diagnostic KPIs
+## KPIs - Supporting / Diagnostic
 ```yaml
 - kpi_id: "prod.contribution_margin.pct"
+  kpi_id: "people.product_contribution_margin"
   kpi_key: "Product Contribution Margin %"
   kpi_type: "diagnostic"
   domain_tag: ["Customer & Market"]
@@ -113,6 +117,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ```yaml
 - kpi_id: "prod.lifecycle.age.months"
+  kpi_id: "people.lifecycle_age_months"
   kpi_key: "Lifecycle Age (months)"
   kpi_type: "diagnostic"
   domain_tag: ["Customer & Market"]
@@ -125,6 +130,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ```yaml
 - kpi_id: "prod.roi.pct"
+  kpi_id: "people.product_roi"
   kpi_key: "Product ROI %"
   kpi_type: "diagnostic"
   domain_tag: ["Customer & Market"]
@@ -137,6 +143,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ```yaml
 - kpi_id: "prod.lifecycle.phase_distribution.pct"
+  kpi_id: "people.phase_distribution"
   kpi_key: "Phase Distribution %"
   kpi_type: "diagnostic"
   domain_tag: ["Customer & Market"]
@@ -149,6 +156,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ```yaml
 - kpi_id: "hr.revenue_per_fte.amount"
+  kpi_id: "people.revenue_per_fte"
   kpi_key: "Revenue per FTE"
   kpi_type: "strategic"
   domain_tag: ["Corporate & Strategy"]
@@ -156,11 +164,12 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   technical:
     dax_name: "Revenue per FTE"
     description: "Net Sales / Average Headcount"
-    formatString: "€ #,0.00"
+    formatString: "â‚¬ #,0.00"
 ```
 
 ```yaml
 - kpi_id: "hr.gm_per_fte.amount"
+  kpi_id: "people.gross_margin_per_fte"
   kpi_key: "Gross Margin per FTE"
   kpi_type: "diagnostic"
   domain_tag: ["Corporate & Strategy"]
@@ -168,11 +177,12 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   technical:
     dax_name: "Gross Margin per FTE"
     description: "Gross Margin / Average Headcount"
-    formatString: "€ #,0.00"
+    formatString: "â‚¬ #,0.00"
 ```
 
 ```yaml
 - kpi_id: "hr.personnel_cost_ratio.pct"
+  kpi_id: "people.personnel_cost_ratio"
   kpi_key: "Personnel Cost Ratio %"
   kpi_type: "diagnostic"
   domain_tag: ["Corporate & Strategy"]
@@ -185,6 +195,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ```yaml
 - kpi_id: "hr.turnover.pct"
+  kpi_id: "people.turnover_rate"
   kpi_key: "Turnover Rate %"
   kpi_type: "diagnostic"
   domain_tag: ["Corporate & Strategy"]
@@ -197,6 +208,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ```yaml
 - kpi_id: "hr.absenteeism.pct"
+  kpi_id: "people.absenteeism"
   kpi_key: "Absenteeism %"
   kpi_type: "diagnostic"
   domain_tag: ["Corporate & Strategy"]
@@ -207,6 +219,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     formatString: "0.0 %"
 ```
 ```yaml
+  kpi_id: "people.training_hours_per_employee"
 - kpi_key: "Training Hours per Employee"
   kpi_type: "supporting"
   strategic_ref: "Training Completion %"
@@ -249,8 +262,9 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## 3. Base Measures
 ```yaml
+  kpi_id: "people.employee_count"
 - kpi_key: "Employee Count"
-  kpi_type: "base"
+  kpi_type: "supporting"
   strategic_ref: "Productivity per FTE"
   impact_dimension: "Innovation & People"
   domain_tag: ["Human Resources"]
@@ -280,7 +294,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "quarterly"
     validation_process: "automated"
     qa_rules:
-      - "Employee Count ≥ 0"
+      - "Employee Count â‰¥ 0"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -306,4 +320,6 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ---
 
-_Last updated: 12.10.2025_
+_Last updated: 04.11.2025_
+
+

@@ -1,5 +1,7 @@
 # Strategic KPI Framework
 
+For a business overview of how Strategic KPIs connect to Use Cases and how the Agent/MCP consumes this framework, see: `../docs/Business_Playbook.md`.
+
 This file defines the **Strategic KPI Hierarchy** that connects business goals with analytical use cases across all clusters.  
 KPIs are grouped into **8 Impact Dimensions** which represent the core lenses of enterprise performance.  
 Each KPI acts as a parent for one or more Use Cases in the Analytics Use Case Library.

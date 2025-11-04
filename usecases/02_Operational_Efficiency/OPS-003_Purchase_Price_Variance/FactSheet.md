@@ -1,11 +1,11 @@
----
+﻿---
 id: "OPS-003"
 title: "Purchase Price Variance (PPV) & Supplier Performance"
 domain: "Operational Efficiency"
 owner: "Head of Procurement Controlling"
 impact: "High"
 status: "Draft"
-last_update: "03.11.2025"
+last_update: "04.11.2025"
 supports_strategic_kpi: ["COGS % of Sales", "Gross Margin %", "Supplier OTIF %"]
 action_codes: ["PC2", "O2", "PC4", "SP1", "PC3"]
 expected_impact: "-2-4 % average COGS; +5-10 pp OTIF; +10-20 % verified savings"
@@ -20,49 +20,58 @@ required_kpis:
   ops.ppv.amount: "PPV Amount"
   ops.contract.compliance.pct: "Contract Compliance %"
   ops.otif.pct: "OTIF %"
----
+
+dataset_model: "Contoso Sales Sample for Power BI Desktop.SemanticModel"
+page_template: "overview_drivers_details"
+segments: ["Org.Region>Area>Store","Product.Category>Subcategory>SKU","Channel","Time.Year>Month>Week"]
+filters_default: ["Time: Last 12M","Org: All","Channel: All"]
+qa_asserts: ["RI_OK"]
+
+data_requirements:
+  facts:
+    - name: fact_main
+      grain: invoice_line
+      primary_key: [InvoiceLineID]
+      required_columns:
+        - { name: "Net Sales Amount", type: decimal, role: amount }
+        - { name: "Units Qty", type: int, role: quantity }
+        - { name: Date, type: date, role: date_key }
+        - { name: OrgID, type: string, role: org_key }
+        - { name: ProductID, type: string, role: product_key }
+        - { name: Channel, type: string, role: channel }
+  dims:
+    - name: dim_date
+      grain: date
+      primary_key: [Date]
+    - name: dim_org
+      grain: org
+      primary_key: [OrgID]
+    - name: dim_product
+      grain: product
+      primary_key: [ProductID]
+  relationships:
+    - { from: fact_main.Date, to: dim_date.Date, cardinality: many-to-one, direction: single }
+    - { from: fact_main.OrgID, to: dim_org.OrgID, cardinality: many-to-one, direction: single }
+    - { from: fact_main.ProductID, to: dim_product.ProductID, cardinality: many-to-one, direction: single }
+
+model_mapping:
+  "Net Sales Amount": "fact_main[Net Sales Amount]"
+  "Units Qty": "fact_main[Units Qty]"
+  "Date": "dim_date[Date]"
+  "Org": "dim_org[OrgID]"
+  "Product": "dim_product[ProductID]"---
 
 # Purchase Price Variance (PPV) & Supplier Performance
 
 ## 1. Business Goal
 Control and reduce material costs by identifying deviations between actual and contracted purchase prices, evaluating supplier performance, and enabling proactive negotiation and sourcing actions.
 
----
-id: "OPS-003"
-title: "Purchase Price Variance (PPV) & Supplier Performance"
-domain: "Operational Efficiency"
-owner: "Head of Procurement Controlling"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["COGS % of Sales", "Gross Margin %", "Supplier OTIF %"]
-action_codes: ["PC2", "O2", "PC4", "SP1", "PC3"]
-expected_impact: "-2-4 % average COGS; +5-10 pp OTIF; +10-20 % verified savings"
-required_kpi_ids: []
-required_kpis: {}
----
-
 ## 3. Key Questions
-- What is the Δ and Δ% between actual and contracted purchase prices?  
+- What is the Î” and Î”% between actual and contracted purchase prices?  
 - Which suppliers or materials contribute most to PPV?  
 - Are deviations caused by market prices, indexation, or process inefficiencies?  
 - How reliable are suppliers in pricing and delivery (OTIF, cost adherence)?  
 - Where should procurement focus renegotiation or rebid efforts?
-
----
-id: "OPS-003"
-title: "Purchase Price Variance (PPV) & Supplier Performance"
-domain: "Operational Efficiency"
-owner: "Head of Procurement Controlling"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["COGS % of Sales", "Gross Margin %", "Supplier OTIF %"]
-action_codes: ["PC2", "O2", "PC4", "SP1", "PC3"]
-expected_impact: "-2-4 % average COGS; +5-10 pp OTIF; +10-20 % verified savings"
-required_kpi_ids: []
-required_kpis: {}
----
 
 ## 5. Required Attributes (Business-Level)
 - Date (purchase order or GR date)  
@@ -72,21 +81,6 @@ required_kpis: {}
 - Actual Unit Price, Contract Unit Price, Quantity, COGS Amount  
 - Optional: Indexation Type, Currency, Purchase Order ID, Delivery Date
 
----
-id: "OPS-003"
-title: "Purchase Price Variance (PPV) & Supplier Performance"
-domain: "Operational Efficiency"
-owner: "Head of Procurement Controlling"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["COGS % of Sales", "Gross Margin %", "Supplier OTIF %"]
-action_codes: ["PC2", "O2", "PC4", "SP1", "PC3"]
-expected_impact: "-2-4 % average COGS; +5-10 pp OTIF; +10-20 % verified savings"
-required_kpi_ids: []
-required_kpis: {}
----
-
 ## 7. Scope & Assumptions
 - PPV = (Actual Price - Contract Price) / Contract Price.  
 - Contract Price derived from latest valid agreement (effective date <= order date).  
@@ -94,42 +88,12 @@ required_kpis: {}
 - Currency = EUR; FX translation at posting date.  
 - Negative PPV (price gain) treated as positive variance for savings tracking.
 
----
-id: "OPS-003"
-title: "Purchase Price Variance (PPV) & Supplier Performance"
-domain: "Operational Efficiency"
-owner: "Head of Procurement Controlling"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["COGS % of Sales", "Gross Margin %", "Supplier OTIF %"]
-action_codes: ["PC2", "O2", "PC4", "SP1", "PC3"]
-expected_impact: "-2-4 % average COGS; +5-10 pp OTIF; +10-20 % verified savings"
-required_kpi_ids: []
-required_kpis: {}
----
-
 ## 9. Edge Cases & QA Rules
 - Actual and Contract Price must be > 0.  
 - PPV % capped between [-50%; +100%].  
 - Missing contract references flagged as 'No Valid Contract'.  
 - Supplier master must reconcile with vendor list.  
 - Referential integrity >= 99.9 % across Date/Org/Supplier/Material.
-
----
-id: "OPS-003"
-title: "Purchase Price Variance (PPV) & Supplier Performance"
-domain: "Operational Efficiency"
-owner: "Head of Procurement Controlling"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["COGS % of Sales", "Gross Margin %", "Supplier OTIF %"]
-action_codes: ["PC2", "O2", "PC4", "SP1", "PC3"]
-expected_impact: "-2-4 % average COGS; +5-10 pp OTIF; +10-20 % verified savings"
-required_kpi_ids: []
-required_kpis: {}
----
 
 ## 11. Typical Actions
 | Action | Code | Expected Effect |
@@ -140,38 +104,8 @@ required_kpis: {}
 | Consolidate spend to preferred suppliers | SP1 | Scale leverage improves; COGS reduces |
 | Adjust procurement indexation policy | PC3 | PPV volatility reduces 30 % |
 
----
-id: "OPS-003"
-title: "Purchase Price Variance (PPV) & Supplier Performance"
-domain: "Operational Efficiency"
-owner: "Head of Procurement Controlling"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["COGS % of Sales", "Gross Margin %", "Supplier OTIF %"]
-action_codes: ["PC2", "O2", "PC4", "SP1", "PC3"]
-expected_impact: "-2-4 % average COGS; +5-10 pp OTIF; +10-20 % verified savings"
-required_kpi_ids: []
-required_kpis: {}
----
-
 ## 13. Related Processes
 Source-to-Contract -> Procure-to-Pay -> Supplier Management -> Financial Planning & Analysis.
-
----
-id: "OPS-003"
-title: "Purchase Price Variance (PPV) & Supplier Performance"
-domain: "Operational Efficiency"
-owner: "Head of Procurement Controlling"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["COGS % of Sales", "Gross Margin %", "Supplier OTIF %"]
-action_codes: ["PC2", "O2", "PC4", "SP1", "PC3"]
-expected_impact: "-2-4 % average COGS; +5-10 pp OTIF; +10-20 % verified savings"
-required_kpi_ids: []
-required_kpis: {}
----
 
 ## 15. Cross-References
 - Related Use Cases:  
@@ -181,20 +115,7 @@ required_kpis: {}
 - Related Documents:  
   [`KPI Catalog`](../../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../../_includes/ActionCodes.md) | [`Glossary`](../../../_includes/Glossary.md)
 
----
-id: "OPS-003"
-title: "Purchase Price Variance (PPV) & Supplier Performance"
-domain: "Operational Efficiency"
-owner: "Head of Procurement Controlling"
-impact: "High"
-status: "Draft"
-last_update: "03.11.2025"
-supports_strategic_kpi: ["COGS % of Sales", "Gross Margin %", "Supplier OTIF %"]
-action_codes: ["PC2", "O2", "PC4", "SP1", "PC3"]
-expected_impact: "-2-4 % average COGS; +5-10 pp OTIF; +10-20 % verified savings"
-required_kpi_ids: []
-required_kpis: {}
----
+_Last updated: 04.11.2025_
 
-_Last updated: 03.11.2025_
+
 

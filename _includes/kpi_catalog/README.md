@@ -1,4 +1,4 @@
-# KPI Catalog — Master Overview
+﻿# KPI Catalog - Master Overview
 
 ---
 
@@ -33,9 +33,9 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## Tooling
 - Coverage (ID-only): `tools/coverage/check_factsheet_vs_kpi.ps1`
-- Optional validator (IDs, types, regex) can be added to CI on request.
+- Catalog validator: `tools/coverage/validate_kpi_catalog.ps1`
 
 ---
 
-_Last updated: 03.11.2025_
+Last updated: 04.11.2025
 

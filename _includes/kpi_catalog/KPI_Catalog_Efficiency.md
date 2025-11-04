@@ -1,4 +1,4 @@
-# KPI Catalog — Efficiency
+﻿# KPI Catalog - Efficiency
 
 ---
 
@@ -6,11 +6,11 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## KPIs - Strategic
 ```yaml
-- kpi_key: "Overall Equipment Effectiveness (OEE) %"
+- kpi_id: "ops.oee.pct"`n  kpi_key: "Overall Equipment Effectiveness (OEE) %"
   kpi_type: "strategic"
   strategic_ref: "Overall Equipment Effectiveness (OEE) %"
   impact_dimension: "Efficiency"
-  domain_tag: ["Operations"]
+  domain_tag: ["Operational Efficiency"]
   use_case_ref: ["OPS-001"]
   depends_on: ["Availability %","Performance %","Quality %"]
   calc_type: ratio
@@ -18,26 +18,10 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   status: Active
   business:
     purpose: "Measures manufacturing performance combining availability, performance, and quality."
-    definition: "Availability % × Performance % × Quality %"
+    definition: "Availability % * Performance % * Quality %"
     grain_scope: "Production line; aggregated monthly."
     unit_format: "% (1 decimal)"
-    interpretation: "Higher OEE indicates more efficient equipment utilization."
-  technical:
-    dax_name: "OEE %"
-    dax_expression: "[Availability %]*[Performance %]*[Quality %]"
-    lineage: ["fact_production.Availability","fact_production.Performance","fact_production.Quality"]
-    source_grain: "production_line"
-    source_column_ref: ["fact_production.availability_pct","fact_production.performance_pct","fact_production.quality_pct"]
-    source_system: "MES"
-    verified: true
-  governance:
-    business_owner: "Head of Operations"
-    data_owner: "Manufacturing BI"
-    steward: "Operations Analyst"
-    review_cycle: "quarterly"
-    validation_process: "automated"
-    qa_rules:
-      - "OEE ≤ 100 %"
+    interpretation: "Higher OEE <= 100 %"
       - "All subcomponents validated from MES feed"
     version: "v2.0"
     last_review: "12.10.2025"
@@ -48,11 +32,11 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ```
 
 ```yaml
-- kpi_key: "Process Cost per Unit"
+- kpi_id: "ops.process.cost_per_unit.amount"`n  kpi_key: "Process Cost per Unit"
   kpi_type: "strategic"
   strategic_ref: "Process Cost per Unit"
   impact_dimension: "Efficiency"
-  domain_tag: ["Operations"]
+  domain_tag: ["Operational Efficiency"]
   use_case_ref: ["OPS-002"]
   depends_on: ["Total Process Cost Amount","Produced Units Qty"]
   calc_type: ratio
@@ -79,7 +63,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "quarterly"
     validation_process: "dual control"
     qa_rules:
-      - "Reconcile with manufacturing ledger ±1 %"
+      - "Reconcile with manufacturing ledger <= 1 %"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -88,7 +72,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     copilot_ready: true
 ```
 
-## 2. Supporting / Diagnostic KPIs
+## KPIs - Supporting / Diagnostic
 ```yaml
 - kpi_id: "ops.inventory.days"
   kpi_key: "Inventory Days"
@@ -219,11 +203,12 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     verified: false
 ```
 ```yaml
-- kpi_key: "Machine Downtime %"
+- kpi_id: "ops.machine_downtime.pct"
+  kpi_key: "Machine Downtime %"
   kpi_type: "supporting"
   strategic_ref: "OEE %"
   impact_dimension: "Efficiency"
-  domain_tag: ["Operations"]
+  domain_tag: ["Operational Efficiency"]
   use_case_ref: ["OPS-003"]
   depends_on: ["Downtime Hours","Planned Hours"]
   calc_type: ratio
@@ -250,7 +235,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "quarterly"
     validation_process: "automated"
     qa_rules:
-      - "Downtime % ≤ 100 %"
+      - "Downtime % <= 100 %"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -261,14 +246,15 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## 3. Base Measures
 ```yaml
-- kpi_key: "Produced Units Qty"
-  kpi_type: "base"
+- kpi_id: "ops.produced_units.qty"
+  kpi_key: "Produced Units Qty"
+  kpi_type: "supporting"
   strategic_ref: "Process Cost per Unit"
   impact_dimension: "Efficiency"
-  domain_tag: ["Operations"]
+  domain_tag: ["Operational Efficiency"]
   use_case_ref: ["OPS-002"]
   depends_on: []
-  calc_type: qty
+  calc_type: count
   refresh: daily
   status: Active
   business:
@@ -292,7 +278,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "quarterly"
     validation_process: "dual control"
     qa_rules:
-      - "Produced Units ≥ 0"
+      - "Produced Units >= 0"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -318,4 +304,66 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ---
 
-_Last updated: 12.10.2025_
+Last updated: 04.11.2025
+
+
+
+```yaml
+- kpi_id: "ops.working_capital.dso.days"
+  kpi_key: "DSO (Days)"
+  kpi_type: "diagnostic"
+  strategic_ref: "Cash Conversion Cycle"
+  impact_dimension: "Efficiency"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: amount
+  technical:
+    dax_name: "DSO (Days)"
+    description: "(Accounts Receivable / Net Sales) x Days in Period"
+    formatString: "0"
+    verified: false
+```
+
+```yaml
+- kpi_id: "ops.working_capital.dio.days"
+  kpi_key: "DIO (Days)"
+  kpi_type: "diagnostic"
+  strategic_ref: "Cash Conversion Cycle"
+  impact_dimension: "Efficiency"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: amount
+  technical:
+    dax_name: "DIO (Days)"
+    description: "(Inventory / COGS) x Days in Period"
+    formatString: "0"
+    verified: false
+```
+
+```yaml
+- kpi_id: "ops.working_capital.dpo.days"
+  kpi_key: "DPO (Days)"
+  kpi_type: "diagnostic"
+  strategic_ref: "Cash Conversion Cycle"
+  impact_dimension: "Efficiency"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: amount
+  technical:
+    dax_name: "DPO (Days)"
+    description: "(Accounts Payable / COGS) x Days in Period"
+    formatString: "0"
+    verified: false
+```
+
+```yaml
+- kpi_id: "ops.working_capital.ccc.delta_days"
+  kpi_key: "Δ CCC (Days)"
+  kpi_type: "diagnostic"
+  strategic_ref: "Cash Conversion Cycle"
+  impact_dimension: "Efficiency"
+  domain_tag: ["Operational Efficiency"]
+  calc_type: amount
+  technical:
+    dax_name: "Δ CCC (Days)"
+    description: "CCC (Days) - Baseline (Plan or LY)"
+    formatString: "0"
+    verified: false
+```

@@ -10,18 +10,61 @@ impact: "[High / Medium / Low]"
 status: "[Draft / In Review / Active / Deprecated]"
 last_update: "DD.MM.YYYY"
 supports_strategic_kpi: []
+supports_strategic_kpi_ids: []
 action_codes: []
 expected_impact: ""
-dataset_model: "[Optional model ref, e.g., <PBIP Model Name>]"
-page_template: "[overview_drivers_details | other]"
-required_measures: []
-segments: []
-filters_default: []
-qa_asserts: []
+dataset_model: "[PBIP Model Name or path]"
+page_template: "[overview_drivers_details | drivers_details | other]"
+required_kpi_ids: []
+required_kpis: {}
+segments: ["Org.Region>Area>Store","Product.Category>Subcategory>SKU","Channel","Time.Year>Month>Week"]
+filters_default: ["Time: Last 12M","Org: All","Channel: All"]
+qa_asserts: ["RI_OK"]
+
+# Machine-readable data contract for MCP/model scaffolding
+data_requirements:
+  facts:
+    - name: fact_main
+      grain: invoice_line
+      primary_key: [InvoiceLineID]
+      required_columns:
+        - { name: "Net Sales Amount", type: decimal, role: amount }
+        - { name: "Units Qty", type: int, role: quantity }
+        - { name: Date, type: date, role: date_key }
+        - { name: OrgID, type: string, role: org_key }
+        - { name: ProductID, type: string, role: product_key }
+        - { name: Channel, type: string, role: channel }
+  dims:
+    - name: dim_date
+      grain: date
+      primary_key: [Date]
+      required_columns:
+        - { name: Year, type: int }
+        - { name: Month, type: int }
+    - name: dim_org
+      grain: org
+      primary_key: [OrgID]
+    - name: dim_product
+      grain: product
+      primary_key: [ProductID]
+  relationships:
+    - { from: fact_main.Date, to: dim_date.Date, cardinality: many-to-one, direction: single, ri_expected: ">=99.9%" }
+    - { from: fact_main.OrgID, to: dim_org.OrgID, cardinality: many-to-one, direction: single }
+    - { from: fact_main.ProductID, to: dim_product.ProductID, cardinality: many-to-one, direction: single }
+
+# Canonical label → model field mapping
+model_mapping:
+  "Net Sales Amount": "fact_main[Net Sales Amount]"
+  "Units Qty": "fact_main[Units Qty]"
+  "Date": "dim_date[Date]"
+  "Org": "dim_org[OrgID]"
+  "Product": "dim_product[ProductID]"
 ---
 
 # Use Case Fact Sheet
 Short, descriptive title summarizing the analytical question (e.g., "Sales Performance vs Plan & Last Year").
+
+Authoring help (business): `../../docs/Business_Playbook.md`
 
 ---
 
@@ -188,4 +231,3 @@ USAGE NOTES
 - Replace {PREFIX} with your 3-letter cluster code (e.g., COM, OPS, CST, COR).
 - The Front‑Matter doubles as machine‑readable spec (required_measures, segments, filters_default, qa_asserts).
 -->
-

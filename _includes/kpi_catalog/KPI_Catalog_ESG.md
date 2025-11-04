@@ -1,4 +1,4 @@
-# KPI Catalog – ESG (Environment, Social & Governance)
+﻿# KPI Catalog - ESG (Environment, Social & Governance)
 
 ---
 
@@ -6,25 +6,26 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## KPIs - Strategic
 ```yaml
-- kpi_key: "Carbon Emission Intensity (tCO₂e / € Revenue)"
+  kpi_id: "esg.carbon_emission_intensity_tco_e_revenue"
+- kpi_key: "Carbon Emission Intensity (tCOâ‚‚e / â‚¬ Revenue)"
   kpi_type: "strategic"
   strategic_ref: "Carbon Emission Intensity"
   impact_dimension: "ESG"
   domain_tag: ["Sustainability"]
   use_case_ref: ["ESG-001"]
-  depends_on: ["Total CO₂ Emissions (tCO₂e)","Net Sales Amount"]
+  depends_on: ["Total COâ‚‚ Emissions (tCOâ‚‚e)","Net Sales Amount"]
   calc_type: ratio
   refresh: quarterly
   status: Active
   business:
     purpose: "Measures greenhouse gas emissions relative to revenue."
-    definition: "Total CO₂ Emissions / Net Sales Amount"
+    definition: "Total COâ‚‚ Emissions / Net Sales Amount"
     grain_scope: "Company level, aggregated quarterly."
-    unit_format: "tCO₂e / €m"
+    unit_format: "tCOâ‚‚e / â‚¬m"
     interpretation: "Lower values indicate improved carbon efficiency."
   technical:
     dax_name: "Carbon Emission Intensity"
-    dax_expression: "DIVIDE([Total CO₂ Emissions (tCO₂e)],[Net Sales Amount])"
+    dax_expression: "DIVIDE([Total COâ‚‚ Emissions (tCOâ‚‚e)],[Net Sales Amount])"
     lineage: ["fact_sustainability.CO2_Emissions","fact_sales.Net Sales Amount"]
     source_grain: "facility"
     source_column_ref: ["fact_sustainability.co2_tons"]
@@ -37,7 +38,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "semi-annual"
     validation_process: "manual review"
     qa_rules:
-      - "Scopes 1–3 fully reported for all sites"
+      - "Scopes 1â€“3 fully reported for all sites"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -47,6 +48,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ```
 
 ```yaml
+  kpi_id: "esg.renewable_energy_share"
 - kpi_key: "Renewable Energy Share %"
   kpi_type: "strategic"
   strategic_ref: "Renewable Energy Share %"
@@ -87,9 +89,10 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     copilot_ready: true
 ```
 
-## 2. Supporting / Diagnostic KPIs
+## KPIs - Supporting / Diagnostic
 ```yaml
-- kpi_key: "Scope 1 Emissions (tCO₂e)"
+  kpi_id: "esg.scope_1_emissions_tco_e"
+- kpi_key: "Scope 1 Emissions (tCOâ‚‚e)"
   kpi_type: "supporting"
   strategic_ref: "Carbon Emission Intensity"
   impact_dimension: "ESG"
@@ -101,10 +104,10 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   status: Active
   business:
     purpose: "Direct emissions from owned or controlled sources."
-    definition: "Fuel × Emission Factor"
+    definition: "Fuel Ã— Emission Factor"
     grain_scope: "Facility level."
-    unit_format: "tCO₂e"
-    interpretation: "Core contributor to total CO₂ emissions."
+    unit_format: "tCOâ‚‚e"
+    interpretation: "Core contributor to total COâ‚‚ emissions."
   technical:
     dax_name: "Scope 1 Emissions"
     dax_expression: "SUM(fact_sustainability[Scope1_Emissions])"
@@ -131,8 +134,9 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## 3. Base Measures
 ```yaml
+  kpi_id: "esg.total_energy_kwh"
 - kpi_key: "Total Energy (kWh)"
-  kpi_type: "base"
+  kpi_type: "supporting"
   strategic_ref: "Renewable Energy Share %"
   impact_dimension: "ESG"
   domain_tag: ["Sustainability"]
@@ -188,9 +192,10 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ---
 
-_Last updated: 12.10.2025_
+_Last updated: 04.11.2025_
 ```yaml
 - kpi_id: "esg.aligned_revenue.pct"
+  kpi_id: "esg.esg_aligned_revenue"
   kpi_key: "ESG-Aligned Revenue %"
   kpi_type: "strategic"
   domain_tag: ["Corporate & Strategy"]
@@ -200,3 +205,5 @@ _Last updated: 12.10.2025_
     description: "Revenue meeting EU Taxonomy criteria"
     formatString: "0.0 %"
 ```
+
+
