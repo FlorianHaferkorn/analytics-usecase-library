@@ -15,6 +15,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Commercial"]
   use_case_ref: ["COM-002","COM-003"]
   depends_on: ["Net Sales Amount","COGS Amount"]
+  depends_on_ids: ["sales.net_sales.amount"]
   calc_type: ratio
   refresh: monthly
   status: Active
@@ -29,7 +30,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     dax_expression: "DIVIDE([Net Sales Amount]-[COGS Amount],[Net Sales Amount])"
     formatString: "0.0 %"
     displayFolder: "02_Margin"
-    description: "Purpose: share of gross margin relative to net sales. Definition: ([Net Sales Amount]-[COGS Amount])/[Net Sales Amount]. Grain & Scope: aggregated from invoice_line by Date/Org/Product. Unit/Format: 0.0 %. Lineage: fact_sales Net Sales/COGS. QA: within [-100%;100%]; reconciles to P&L GM within Â±0.5 pp."
+    description: "Purpose: share of gross margin relative to net sales. Definition: ([Net Sales Amount]-[COGS Amount])/[Net Sales Amount]. Grain & Scope: aggregated from invoice_line by Date/Org/Product. Unit/Format: 0.0 %. Lineage: fact_sales Net Sales/COGS. QA: within [-100%;100%]; reconciles to P&L GM within +/-0.5 pp."
     lineage: ["fact_sales.Net Sales Amount","fact_sales.COGS Amount"]
     source_grain: "invoice_line"
     source_column_ref: ["fact_sales.net_sales_amt","fact_sales.cogs_amt"]
@@ -42,8 +43,8 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "quarterly"
     validation_process: "dual control"
     qa_rules:
-      - "Value âˆˆ [âˆ’100%; 100%]"
-      - "Reconcile with P&L Gross Margin Â±0.5 pp"
+      - "Value in [-100%; 100%]"
+      - "Reconcile with P&L Gross Margin +/-0.5 pp"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -62,6 +63,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Corporate & Strategy"]
   use_case_ref: ["COR-002"]
   depends_on: ["EBITDA Amount","Net Sales Amount"]
+  depends_on_ids: ["fin.ebitda.amount","sales.net_sales.amount"]
   calc_type: ratio
   refresh: monthly
   status: Active
@@ -76,7 +78,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     dax_expression: "DIVIDE([EBITDA Amount],[Net Sales Amount])"
     formatString: "0.0 %"
     displayFolder: "02_Margin"
-    description: "Purpose: EBITDA share of revenue. Definition: [EBITDA Amount]/[Net Sales Amount]. Grain & Scope: monthly close, company level. Unit/Format: 0.0 %. Lineage: finance EBITDA, sales revenue. QA: reconciles within Â±0.2 pp."
+    description: "Purpose: EBITDA share of revenue. Definition: [EBITDA Amount]/[Net Sales Amount]. Grain & Scope: monthly close, company level. Unit/Format: 0.0 %. Lineage: finance EBITDA, sales revenue. QA: reconciles within +/-0.2 pp."
     lineage: ["fact_finance.EBITDA Amount","fact_sales.Net Sales Amount"]
     source_grain: "financial_statement"
     source_column_ref: ["fact_finance.ebitda_amt"]
@@ -89,7 +91,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "quarterly"
     validation_process: "manual review"
     qa_rules:
-      - "EBITDA reconciles with P&L within Â±0.2 pp"
+      - "EBITDA reconciles with P&L within +/-0.2 pp"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -100,7 +102,6 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## KPIs - Supporting / Diagnostic
 ```yaml
-  kpi_id: "cost.cogs.amount"
 - kpi_key: "COGS Amount"
   kpi_type: "supporting"
   strategic_ref: "Gross Margin %"
@@ -115,14 +116,14 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     purpose: "Represents cost of goods sold directly linked to sales."
     definition: "Sum of all product cost components for sold units."
     grain_scope: "Invoice line."
-    unit_format: "â‚¬ (2 decimals)"
+    unit_format: "EUR (2 decimals)"
     interpretation: "Input for gross margin calculation."
   technical:
     dax_name: "COGS Amount"
     dax_expression: "SUM(fact_sales[COGS Amount])"
-    formatString: "â‚¬ #,0.00"
+    formatString: "EUR #,0.00"
     displayFolder: "02_Margin"
-    description: "Purpose: direct product cost for sold units. Definition: sum of product cost components for sold units. Grain & Scope: invoice_line aggregated. Unit/Format: EUR #,0.00. Lineage: fact_sales[COGS Amount]. QA: reconcile with P&L COGS within Â±0.5%."
+    description: "Purpose: direct product cost for sold units. Definition: sum of product cost components for sold units. Grain & Scope: invoice_line aggregated. Unit/Format: EUR #,0.00. Lineage: fact_sales[COGS Amount]. QA: reconcile with P&L COGS within +/-0.5%."
     lineage: ["fact_sales.COGS Amount"]
     source_grain: "invoice_line"
     source_column_ref: ["fact_sales.cogs_amt"]
@@ -135,7 +136,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "quarterly"
     validation_process: "dual control"
     qa_rules:
-      - "COGS must reconcile with P&L COGS Â±0.5 %"
+      - "COGS must reconcile with P&L COGS +/-0.5 %"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -145,14 +146,14 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ```
 
 ```yaml
-  kpi_id: "margin.gm.delta_pct"
-- kpi_key: "Î” Gross Margin %"
+- kpi_key: "Δ Gross Margin %"
   kpi_type: "diagnostic"
   strategic_ref: "Gross Margin %"
   impact_dimension: "Profitability"
   domain_tag: ["Commercial"]
   use_case_ref: ["COM-002"]
   depends_on: ["Gross Margin %"]
+  depends_on_ids: ["margin.gm.pct"]
   calc_type: rate
   refresh: monthly
   status: Draft
@@ -163,16 +164,25 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     unit_format: "% (1 decimal)"
     interpretation: "Explains directional profitability change."
   technical:
-    dax_name: "Î” Gross Margin %"
+    dax_name: "Δ Gross Margin %"
     dax_expression: "[Gross Margin %] - [Baseline GM %]"  # baseline to be bound to Plan or LY
     formatString: "0.0 %"
     displayFolder: "02_Margin"
     description: "Diagnostic GM variance relative to chosen baseline (Plan or LY)."
-    verified: false
+    verified: false  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 
 ```yaml
-  kpi_id: "margin.gm.amount"
 - kpi_key: "Gross Margin Amount"
   kpi_type: "supporting"
   strategic_ref: "Gross Margin %"
@@ -180,6 +190,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Commercial"]
   use_case_ref: ["COM-002","COM-004"]
   depends_on: ["Net Sales Amount","COGS Amount"]
+  depends_on_ids: ["sales.net_sales.amount"]
   calc_type: amount
   refresh: monthly
   status: Active
@@ -192,7 +203,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   technical:
     dax_name: "Gross Margin Amount"
     dax_expression: "[Net Sales Amount] - [COGS Amount]"
-    formatString: "â‚¬ #,0.00"
+    formatString: "EUR #,0.00"
     displayFolder: "02_Margin"
     description: "Purpose: currency value of gross margin. Definition: [Net Sales]-[COGS]. Grain & Scope: period-level. Unit/Format: EUR #,0.00. Lineage: revenue and COGS measures. QA: reconciles to P&L GM within tolerance."
     lineage: ["fact_sales.Net Sales Amount","fact_sales.COGS Amount"]
@@ -206,7 +217,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "quarterly"
     validation_process: "dual control"
     qa_rules:
-      - "Reconcile with P&L GM within Â±0.5%"
+      - "Reconcile with P&L GM within +/-0.5%"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -216,14 +227,14 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ```
 
 ```yaml
-  kpi_id: "margin.gm.delta_amount.plan"
-- kpi_key: "Î” Gross Margin Amount"
+- kpi_key: "Δ Gross Margin Amount"
   kpi_type: "diagnostic"
   strategic_ref: "Gross Margin %"
   impact_dimension: "Profitability"
   domain_tag: ["Commercial"]
   use_case_ref: ["COM-004","COM-002"]
   depends_on: ["Gross Margin Amount","Plan Gross Margin Amount"]
+  depends_on_ids: ["margin.gm.plan.amount"]
   calc_type: amount
   refresh: monthly
   status: Active
@@ -234,9 +245,9 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     unit_format: "EUR (2 decimals)"
     interpretation: "Explains gap to plan for margin."
   technical:
-    dax_name: "Î” Gross Margin Amount"
+    dax_name: "Δ Gross Margin Amount"
     dax_expression: "[Gross Margin Amount] - [Plan Gross Margin Amount]"
-    formatString: "â‚¬ #,0.00"
+    formatString: "EUR #,0.00"
     displayFolder: "02_Margin"
     description: "Purpose: absolute variance vs plan. Definition: GM Actual - GM Plan. Grain & Scope: period-level. Unit/Format: EUR #,0.00. Lineage: GM measures (actual/plan). QA: reconciles with bridge within tolerance."
     lineage: ["fact_sales.Net Sales Amount","fact_sales.COGS Amount","fact_plan_sales.Plan Gross Margin Amount"]
@@ -260,7 +271,6 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ```
 
 ```yaml
-  kpi_id: "promo.cogs.amount"
 - kpi_key: "Promo COGS Amount"
   kpi_type: "supporting"
   strategic_ref: "Gross Margin %"
@@ -280,7 +290,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   technical:
     dax_name: "Promo COGS Amount"
     dax_expression: "CALCULATE([COGS Amount], fact_sales[Promo Flag] = TRUE())"
-    formatString: "â‚¬ #,0.00"
+    formatString: "EUR #,0.00"
     displayFolder: "02_Margin"
     description: "Purpose: cost of goods during promotion. Definition: CALCULATE([COGS Amount], Promo Flag). Grain & Scope: promo/product. Unit/Format: EUR #,0.00. Lineage: COGS with promo filter. QA: reconcile to campaign accounting."
     lineage: ["fact_sales.COGS Amount","fact_sales.Promo Flag"]
@@ -304,7 +314,6 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ```
 
 ```yaml
-  kpi_id: "promo.incremental_sales.amount"
 - kpi_key: "Incremental Sales Amount"
   kpi_type: "diagnostic"
   strategic_ref: "Revenue Growth %"
@@ -312,6 +321,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Commercial"]
   use_case_ref: ["COM-003"]
   depends_on: ["Promo Sales Amount","Baseline Sales Amount"]
+  depends_on_ids: ["sales.promo.amount","sales.baseline.amount"]
   calc_type: amount
   refresh: weekly
   status: Active
@@ -324,7 +334,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   technical:
     dax_name: "Incremental Sales Amount"
     dax_expression: "[Promo Sales Amount] - [Baseline Sales Amount]"
-    formatString: "â‚¬ #,0.00"
+    formatString: "EUR #,0.00"
     displayFolder: "01_Sales"
     description: "Purpose: incremental revenue vs baseline during promo. Definition: [Promo Sales]-[Baseline]. Grain & Scope: promo/product. Unit/Format: EUR #,0.00. Lineage: promo and baseline revenue measures. QA: exclude overlaps; align to calendar."
     lineage: ["fact_sales.Net Sales Amount","fact_sales.Promo Flag"]
@@ -348,7 +358,6 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ```
 
 ```yaml
-  kpi_id: "promo.incremental_gm.amount"
 - kpi_key: "Incremental GM Amount"
   kpi_type: "diagnostic"
   strategic_ref: "Gross Margin %"
@@ -356,6 +365,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Commercial"]
   use_case_ref: ["COM-003"]
   depends_on: ["Promo Sales Amount","Promo COGS Amount","Baseline Sales Amount","COGS Amount"]
+  depends_on_ids: ["sales.promo.amount","sales.baseline.amount"]
   calc_type: amount
   refresh: weekly
   status: Active
@@ -368,7 +378,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   technical:
     dax_name: "Incremental GM Amount"
     dax_expression: "([Promo Sales Amount]-[Promo COGS Amount]) - ([Baseline Sales Amount]-CALCULATE([COGS Amount], NOT fact_sales[Promo Flag]))"
-    formatString: "â‚¬ #,0.00"
+    formatString: "EUR #,0.00"
     displayFolder: "02_Margin"
     description: "Purpose: incremental gross margin due to promo. Definition: (Promo NS-Promo COGS)-(Baseline NS-Baseline COGS). Grain & Scope: promo/product. Unit/Format: EUR #,0.00. Lineage: promo/baseline revenue and costs. QA: allocation consistent."
     lineage: ["fact_sales.Net Sales Amount","fact_sales.COGS Amount","fact_sales.Promo Flag"]
@@ -392,7 +402,6 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ```
 
 ```yaml
-  kpi_id: "promo.gm.pct"
 - kpi_key: "GM % During Promo"
   kpi_type: "diagnostic"
   strategic_ref: "Gross Margin %"
@@ -400,6 +409,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Commercial"]
   use_case_ref: ["COM-003"]
   depends_on: ["Promo Sales Amount","Promo COGS Amount"]
+  depends_on_ids: ["sales.promo.amount"]
   calc_type: ratio
   refresh: weekly
   status: Active
@@ -437,7 +447,6 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## 3. Base Measures
 ```yaml
-  kpi_id: "cost.invoice.amount"
 - kpi_key: "Invoice Cost Amount"
   kpi_type: "supporting"
   strategic_ref: "Gross Margin %"
@@ -452,12 +461,12 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     purpose: "Base cost recorded per invoice line."
     definition: "Direct material + labor + overhead allocated to sold unit."
     grain_scope: "Invoice line"
-    unit_format: "â‚¬ (2 decimals)"
+    unit_format: "EUR (2 decimals)"
     interpretation: "Primary element of cost for margin analysis."
   technical:
     dax_name: "Invoice Cost Amount"
     dax_expression: "SUM(fact_sales[Invoice Cost Amount])"
-    formatString: "â‚¬ #,0.00"
+    formatString: "EUR #,0.00"
     displayFolder: "02_Margin"
     description: "Purpose: base cost per invoice line. Definition: direct material+labor+overhead allocated to sold unit. Grain & Scope: invoice_line. Unit/Format: EUR #,0.00. Lineage: fact_sales[Invoice Cost Amount]. QA: non-negative."
     lineage: ["fact_sales.Invoice Cost Amount"]
@@ -505,6 +514,76 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ---
 
 _Last updated: 04.11.2025_
+
+
+
+
+```yaml
+- kpi_id: "fin.ebitda.amount"
+  kpi_key: "EBITDA Amount"
+  kpi_type: "supporting"
+  impact_dimension: "Profitability"
+  domain_tag: ["Corporate & Strategy"]
+  calc_type: amount
+  technical:
+    dax_name: "EBITDA Amount"
+    description: "Earnings before interest, taxes, depreciation, and amortization"
+    formatString: "EUR #,0.00"
+    verified: false
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
+```
+
+```
+
+```yaml
+- kpi_id: "margin.gm.plan.amount"
+  kpi_key: "Plan Gross Margin Amount"
+  kpi_type: "supporting"
+  impact_dimension: "Profitability"
+  domain_tag: ["Commercial"]
+  calc_type: amount
+  technical:
+    dax_name: "Plan Gross Margin Amount"
+    description: "Planned gross margin value for the period"
+    formatString: "EUR #,0.00"
+    verified: false
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
+```
+
+```
+
+
+
 
 
 

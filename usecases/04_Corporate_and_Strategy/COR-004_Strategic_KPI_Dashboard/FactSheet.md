@@ -19,7 +19,7 @@ required_kpi_ids: [
   "corp.project.roi.pct"
 ]
 required_kpis:
-  sales.net_sales.delta_pct.ly: "Î”% Net Sales"
+  sales.net_sales.delta_pct.ly: "Δ% Net Sales"
   margin.gm.pct: "Gross Margin %"
   ops.working_capital.ccc.days: "Cash Conversion Cycle (Days)"
   hr.turnover.pct: "Turnover Rate %"
@@ -122,6 +122,7 @@ Enterprise Performance Management -> Board Reporting -> Strategic Planning -> Fi
   [`KPI Catalog`](../../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../../_includes/ActionCodes.md) | [`Glossary`](../../../_includes/Glossary.md)
 
 _Last updated: 04.11.2025_
+
 
 
 

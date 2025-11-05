@@ -1,0 +1,73 @@
+﻿{
+  "$schema": "https://json.schemastore.org/json-schema",
+  "version": "1.0.1",
+  "title": "DAX Style Rules",
+  "description": "Machine-readable DAX best practices derived from the DAX Style Guide.",
+  "rules": [
+    {
+      "id": "dax.var_return.required",
+      "severity": "warn",
+      "description": "Use VAR and RETURN for non-trivial measures (operators, CALCULATE, iterators).",
+      "match": { "any": ["+", "-", "*", "/", "CALCULATE(", "SUMX(", "AVERAGEX(", "FILTER("] },
+      "mustContain": ["VAR ", "RETURN"]
+    },
+    {
+      "id": "dax.divide.preferred",
+      "severity": "error",
+      "description": "Prefer DIVIDE() over / to handle divide-by-zero and BLANK semantics.",
+      "forbidRegex": "(?i)[^A-Z]\/[^=]",
+      "allowWhenContains": ["DIVIDE("]
+    },
+    {
+      "id": "dax.format.forbidden",
+      "severity": "error",
+      "description": "Do not use FORMAT() in computational measures (format with formatString).",
+      "forbidRegex": "(?i)FORMAT\\s*\\("
+    },
+    {
+      "id": "dax.removefilters.preferred",
+      "severity": "warn",
+      "description": "Prefer REMOVEFILTERS over ALL when only filter removal is intended.",
+      "matchRegex": "(?i)ALL\\s*\\(",
+      "allowWhenContains": ["VALUES(", "ALLSELECTED(", "ALLEXCEPT(", "ALLNOBLANKROW("]
+    },
+    {
+      "id": "dax.ifnesting.avoid",
+      "severity": "warn",
+      "description": "Avoid deep IF() nesting; use SWITCH(TRUE()).",
+      "matchRegex": "(?i)(IF\\s*\\().*(IF\\s*\\()"
+    },
+    {
+      "id": "dax.blank.handling",
+      "severity": "info",
+      "description": "Use BLANK() as no-data; prefer DIVIDE alternate result or COALESCE for display-only.",
+      "matchRegex": "(?i)DIVIDE\\s*\\(.*\\)"
+    },
+    {
+      "id": "dax.timeintelligence.native",
+      "severity": "info",
+      "description": "Use DATEADD/SAMEPERIODLASTYEAR/DATESYTD for standard time intelligence.",
+      "suggest": ["DATEADD(", "SAMEPERIODLASTYEAR(", "DATESYTD("]
+    },
+    {
+      "id": "dax.isinscope.totals",
+      "severity": "info",
+      "description": "Totals/hierarchies: consider ISINSCOPE() patterns to stabilize totals.",
+      "suggest": ["ISINSCOPE("]
+    },
+    {
+      "id": "dax.calculate.preferred",
+      "severity": "info",
+      "description": "Use CALCULATE/CALCULATETABLE for context modifications instead of wrapping FILTER chains where a direct predicate fits.",
+      "matchRegex": "(?i)FILTER\\s*\\(",
+      "suggest": ["CALCULATE(", "CALCULATETABLE("]
+    },
+    {
+      "id": "dax.iterators.only_when_needed",
+      "severity": "warn",
+      "description": "Use iterators (SUMX/AVERAGEX/MINX/MAXX) only when a row context is required.",
+      "matchRegex": "(?i)(SUMX|AVERAGEX|MINX|MAXX)\\s*\\(",
+      "allowWhenContains": ["VAR "]
+    }
+  ]
+}

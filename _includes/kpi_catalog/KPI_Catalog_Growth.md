@@ -10,19 +10,24 @@
   impact_dimension: "Growth"
   domain_tag: ["Commercial"]
   use_case_ref: ["COM-001", "COM-002"]
-  depends_on: ["Δ Net Sales Amount", "Net Sales Amount LY"]
+  depends_on: ["Δ Net Sales Amount", "Net Sales Amount LY"]
+  depends_on_ids: ["sales.net_sales.delta_amount.ly","sales.net_sales.amount.ly"]
   calc_type: rate
   refresh: monthly
   status: Active
   business:
     purpose: "Measures top-line expansion versus Plan and Last Year."
     definition: "((Net Sales Amount - Net Sales Amount LY) / Net Sales Amount LY)"
+    grain_scope: "Company level; monthly."
+    unit_format: "% (1 decimal)"
     grain_scope: "Aggregated at month and org level."
     unit_format: "% (1 decimal)"
     interpretation: "Shows revenue momentum and market success."
   technical:
     dax_name: "Revenue Growth %"
-    dax_expression: "DIVIDE([Δ Net Sales Amount],[Net Sales Amount LY])"
+    dax_expression: "DIVIDE([Δ Net Sales Amount],[Net Sales Amount LY])"
+    description: "Growth rate vs last year revenue."
+    formatString: "0.0 %"
     lineage: ["fact_sales.Net Sales Amount","fact_sales.Net Sales Amount LY"]
     source_grain: "invoice_line"
     source_column_ref: ["fact_sales.net_sales_amt"]
@@ -43,7 +48,6 @@
     lineage_verified: true
     copilot_ready: true
 ```
-
 ## KPIs - Supporting / Diagnostic
 ```yaml
 - kpi_id: "sales.net_sales.amount"
@@ -53,7 +57,8 @@
   impact_dimension: "Growth"
   domain_tag: ["Commercial"]
   use_case_ref: ["COM-001"]
-  depends_on: ["Invoice Line Amount"]
+  depends_on: ["Invoice Line Amount"]
+  depends_on_ids: ["sales.invoice_line.amount"]
   calc_type: amount
   refresh: daily
   status: Active
@@ -65,7 +70,9 @@
     interpretation: "Represents total top-line sales."
   technical:
     dax_name: "Net Sales Amount"
-    dax_expression: "SUM(fact_sales[Net Sales Amount])"
+    dax_expression: "SUM(fact_sales[Net Sales Amount])"
+    description: "Growth rate vs last year revenue."
+    formatString: "0.0 %"
     formatString: "€ #,0.00"
     displayFolder: "01_Sales"
     description: "Purpose: total invoiced sales excluding returns and taxes. Definition: sum of invoice line amounts net of VAT/returns. Grain & Scope: invoice_line aggregated to reporting period by Date/Org/Product. Unit/Format: EUR #,0.00. Lineage: fact_sales[Net Sales Amount]. QA: reconciles with P&L revenue within ±0.1%."
@@ -87,6 +94,7 @@
     lineage_verified: true
   copilot_ready: true
 
+
 - kpi_id: "sales.net_sales.amount.ly"
   kpi_key: "Net Sales Amount LY"
   kpi_type: "supporting"
@@ -106,7 +114,9 @@
     interpretation: "Baseline reference for growth and variance."
   technical:
     dax_name: "Net Sales Amount LY"
-    dax_expression: "CALCULATE([Net Sales Amount], SAMEPERIODLASTYEAR('Date'[Date]))"
+    dax_expression: "CALCULATE([Net Sales Amount], SAMEPERIODLASTYEAR('Date'[Date]))"
+    description: "Growth rate vs last year revenue."
+    formatString: "0.0 %"
     formatString: "€ #,0.00"
     displayFolder: "01_Sales"
     description: "Purpose: prior year reference for revenue comparison. Definition: [Net Sales Amount] shifted by SAMEPERIODLASTYEAR. Grain & Scope: period-level. Unit/Format: EUR #,0.00. Lineage: fact_sales[Net Sales Amount], dim_date[Date]. QA: reconciles to prior year totals within ±0.1%."
@@ -128,9 +138,10 @@
     lineage_verified: true
     copilot_ready: true
 
+
 - kpi_id: "sales.net_sales.delta_amount.ly"
   kpi_key: "Δ Net Sales Amount"
-  aliases: ["Delta Net Sales Amount", "? Net Sales Amount"]
+  aliases: ["Delta Net Sales Amount","Δ Net Sales Amount"]
   kpi_type: "diagnostic"
   strategic_ref: "Revenue Growth %"
   impact_dimension: "Growth"
@@ -148,7 +159,9 @@
     interpretation: "Explains magnitude of change in revenue."
   technical:
     dax_name: "Δ Net Sales Amount"
-    dax_expression: "[Net Sales Amount] - [Net Sales Amount LY]"
+    dax_expression: "[Net Sales Amount] - [Net Sales Amount LY]"
+    description: "Growth rate vs last year revenue."
+    formatString: "0.0 %"
     formatString: "€ #,0.00"
     displayFolder: "01_Sales"
     description: "Purpose: absolute variance of revenue vs LY. Definition: [Net Sales Amount]-[Net Sales Amount LY]. Grain & Scope: period-level. Unit/Format: EUR #,0.00. Lineage: measures above. QA: variance reconciliation within ±0.1 pp."
@@ -169,9 +182,10 @@
     lineage_verified: true
     copilot_ready: true
 
+
 - kpi_id: "sales.net_sales.delta_pct.ly"
   kpi_key: "Δ% Net Sales"
-  aliases: ["Delta% Net Sales", "?% Net Sales"]
+  aliases: ["Delta% Net Sales","Δ% Net Sales"]
   kpi_type: "diagnostic"
   strategic_ref: "Revenue Growth %"
   impact_dimension: "Growth"
@@ -189,7 +203,9 @@
     interpretation: "Shows growth rate vs prior year."
   technical:
     dax_name: "Δ% Net Sales"
-    dax_expression: "DIVIDE([Δ Net Sales Amount],[Net Sales Amount LY])"
+    dax_expression: "DIVIDE([Δ Net Sales Amount],[Net Sales Amount LY])"
+    description: "Growth rate vs last year revenue."
+    formatString: "0.0 %"
     formatString: "0.0 %"
     displayFolder: "01_Sales"
     description: "Δ Net Sales / LY. Grain & Scope: period-level. Unit/Format: 0.0 %."
@@ -197,6 +213,17 @@
     source_grain: "invoice_line"
     source_system: "ERP"
     verified: true
+
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
 
 - kpi_id: "sales.price.realization_pct"
   kpi_key: "Price Realization %"
@@ -207,10 +234,27 @@
   calc_type: rate
   technical:
     dax_name: "Price Realization %"
-    dax_expression: "DIVIDE([Net Sales Amount],[List Price Amount])"
-    displayFolder: "01_Sales"
-    formatString: "0.0 %"
+    dax_expression: "DIVIDE([Net Sales Amount],[List Price Amount])"
+    description: "Growth rate vs last year revenue."
+    formatString: "0.0 %"`r`n    displayFolder: "01_Sales"
     verified: false
+
+
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
 
 - kpi_id: "sales.promo.uplift_pct"
   kpi_key: "Promo Uplift %"
@@ -220,10 +264,27 @@
   calc_type: rate
   technical:
     dax_name: "Promo Uplift %"
-    dax_expression: "DIVIDE([Promo Sales Amount]-[Baseline Sales Amount],[Baseline Sales Amount])"
-    displayFolder: "01_Sales"
-    formatString: "0.0 %"
+    dax_expression: "DIVIDE([Promo Sales Amount]-[Baseline Sales Amount],[Baseline Sales Amount])"
+    description: "Growth rate vs last year revenue."
+    formatString: "0.0 %"`r`n    displayFolder: "01_Sales"
     verified: false
+
+
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
 
 - kpi_id: "sales.pvm.price_effect.amount"
   kpi_key: "Price Effect Amount"
@@ -233,10 +294,29 @@
   calc_type: amount
   technical:
     dax_name: "Price Effect Amount"
-    dax_expression: "([Actual Unit Price]-[Plan Unit Price]) * [Actual Units Qty]"
+    dax_expression: "([Actual Unit Price]-[Plan Unit Price]) * [Actual Units Qty]"
+    description: "Growth rate vs last year revenue."
+    formatString: "0.0 %"
     displayFolder: "01_Sales"
     formatString: "€ #,0.00"
     verified: false
+
+
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
 
 - kpi_id: "sales.pvm.volume_effect.amount"
   kpi_key: "Volume Effect Amount"
@@ -246,10 +326,29 @@
   calc_type: amount
   technical:
     dax_name: "Volume Effect Amount"
-    dax_expression: "([Actual Units Qty]-[Plan Units Qty]) * [Plan Unit Price]"
+    dax_expression: "([Actual Units Qty]-[Plan Units Qty]) * [Plan Unit Price]"
+    description: "Growth rate vs last year revenue."
+    formatString: "0.0 %"
     displayFolder: "01_Sales"
     formatString: "€ #,0.00"
     verified: false
+
+
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
 
 - kpi_id: "sales.pvm.mix_effect.amount"
   kpi_key: "Mix Effect Amount"
@@ -260,13 +359,171 @@
   calc_type: amount
   technical:
     dax_name: "Mix Effect Amount"
-    dax_expression: "[Δ Net Sales Amount] - [Price Effect Amount] - [Volume Effect Amount]"
+    dax_expression: "[Δ Net Sales Amount] - [Price Effect Amount] - [Volume Effect Amount]"
+    description: "Growth rate vs last year revenue."
+    formatString: "0.0 %"
     displayFolder: "01_Sales"
     formatString: "€ #,0.00"
     verified: false
-```
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
+
+  depends_on_ids: [sales.net_sales.amount","sales.list_price.amount]```
 
 Last updated: 04.11.2025
+
+
+
+
+```yaml
+- kpi_id: "sales.invoice_line.amount"
+  kpi_key: "Invoice Line Amount"
+  kpi_type: "supporting"
+  impact_dimension: "Growth"
+  domain_tag: ["Commercial"]
+  calc_type: amount
+  technical:
+    dax_name: "Invoice Line Amount"
+    description: "Unit price * quantity at invoice line"
+    formatString: "€ #,0.00"
+    verified: false
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
+```yaml
+- kpi_id: "sales.invoice_line.amount"
+  kpi_key: "Invoice Line Amount"
+  kpi_type: "supporting"
+  impact_dimension: "Growth"
+  domain_tag: ["Commercial"]
+  calc_type: amount
+  technical:
+    dax_name: "Invoice Line Amount"
+    description: "Line-level net sales amount"
+    formatString: "EUR #,0.00"
+    verified: false
+  business:
+    purpose: "Atomic sales value per invoice line (net of VAT/returns)."
+    definition: "Net amount per line after discounts and returns"
+    grain_scope: "Invoice line"
+    unit_format: "EUR (2 decimals)"
+  governance:
+    business_owner: "Head of Sales"
+    data_owner: "BI Engineering"
+    steward: "Sales Analyst"
+    review_cycle: "quarterly"
+    validation_process: "dual control"
+    qa_rules:
+      - "Reconciles to P&L revenue within +/- 0.1 %"
+```
+```yaml
+- kpi_id: "sales.list_price.amount"
+  kpi_key: "List Price Amount"
+  kpi_type: "supporting"
+  impact_dimension: "Growth"
+  domain_tag: ["Commercial"]
+  calc_type: amount
+  technical:
+    dax_name: "List Price Amount"
+    description: "Reference list price per sold unit"
+    formatString: "EUR #,0.00"
+    verified: false
+  business:
+    purpose: "Reference price baseline for price realization and discount analysis."
+    definition: "Sum of list price for sold units"
+    grain_scope: "Invoice line"
+    unit_format: "EUR (2 decimals)"
+  governance:
+    business_owner: "Head of Pricing"
+    data_owner: "Pricing Team"
+    steward: "Pricing Analyst"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "Reconciles to price list by version and date"
+``` ```yaml
+- kpi_id: "sales.promo.amount"
+  kpi_key: "Promo Sales Amount"
+  kpi_type: "supporting"
+  impact_dimension: "Growth"
+  domain_tag: ["Commercial"]
+  calc_type: amount
+  technical:
+    dax_name: "Promo Sales Amount"
+    description: "Revenue during promotional period"
+    formatString: "EUR #,0.00"
+    verified: false
+  business:
+    purpose: "Sales value attributed to promotions for uplift analysis."
+    definition: "Sum of invoice line amount during promo flag/period"
+    grain_scope: "Invoice line"
+    unit_format: "EUR (2 decimals)"
+  governance:
+    business_owner: "Trade Marketing Lead"
+    data_owner: "Commercial BI"
+    steward: "Marketing Analyst"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "Promo flag/period source reconciles within +/- 0.1 %"
+``` ```yaml
+- kpi_id: "sales.baseline.amount"
+  kpi_key: "Baseline Sales Amount"
+  kpi_type: "supporting"
+  impact_dimension: "Growth"
+  domain_tag: ["Commercial"]
+  calc_type: amount
+  technical:
+    dax_name: "Baseline Sales Amount"
+    description: "Expected sales without promotion"
+    formatString: "EUR #,0.00"
+    verified: false
+  business:
+    purpose: "Baseline reference for calculating promotional uplift."
+    definition: "Modeled or historical average sales excluding promo effect"
+    grain_scope: "Invoice line aggregated to period"
+    unit_format: "EUR (2 decimals)"
+  governance:
+    business_owner: "Trade Marketing Lead"
+    data_owner: "Commercial BI"
+    steward: "Data Scientist"
+    review_cycle: "quarterly"
+    validation_process: "model validation"
+    qa_rules:
+      - "Baseline method documented; drift monitored"
+``````
+
+
+
+
+
 
 
 

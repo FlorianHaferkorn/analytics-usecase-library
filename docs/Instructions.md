@@ -1,4 +1,4 @@
-# Instructions for Authoring and Maintaining Use Cases
+﻿# Instructions for Authoring and Maintaining Use Cases
 
 ## 1. Purpose
 This document defines how business analytics use cases are to be created, formatted, named, and maintained.  
@@ -9,39 +9,39 @@ It ensures consistency, traceability, and quality across all documentation withi
 ## 2. File and Folder Structure
 ```
 /analytics-usecase-library/
-│
-├── /docs/
-│   ├── Reporting_Strategy.md     ← defines reporting levels & architecture
-│   ├── Methodology.md            ← describes modeling & design principles
-│   ├── Instructions.md           ← authoring and governance rules
-│   ├── Changelog.md              ← version control and audit log
-│
-├── /usecases/
-│   ├── /01_Commercial/
-│   │     ├── COM-001_Sales_Performance.md
-│   │     ├── COM-002_Gross_Margin.md
-│   │     └── ...
-│   ├── /02_Operational_Efficiency/
-│   ├── /03_Customer_and_Market/
-│   ├── /04_Corporate_and_Strategy/
-│   └── UC-000_Template.md
-│
-├── /_includes/
-│     ├── Glossary.md
-│     ├── ActionCodes.md
-│     ├── Strategic_KPIs.md
-│     └── /kpi_catalog/
-│           ├── KPI_Catalog_README.md
-│           ├── KPI_Catalog_Growth.md
-│           ├── KPI_Catalog_Profitability.md
-│           ├── KPI_Catalog_Liquidity.md
-│           ├── KPI_Catalog_Efficiency.md
-│           ├── KPI_Catalog_CustomerValue.md
-│           ├── KPI_Catalog_ESG.md
-│           ├── KPI_Catalog_Governance.md
-│           └── KPI_Catalog_InnovationPeople.md
-│
-└── README.md
+â”‚
+â”œâ”€â”€ /docs/
+â”‚   â”œâ”€â”€ Reporting_Strategy.md     â† defines reporting levels & architecture
+â”‚   â”œâ”€â”€ Methodology.md            â† describes modeling & design principles
+â”‚   â”œâ”€â”€ Instructions.md           â† authoring and governance rules
+â”‚   â”œâ”€â”€ Changelog.md              â† version control and audit log
+â”‚
+â”œâ”€â”€ /usecases/
+â”‚   â”œâ”€â”€ /01_Commercial/
+â”‚   â”‚     â”œâ”€â”€ COM-001_Sales_Performance.md
+â”‚   â”‚     â”œâ”€â”€ COM-002_Gross_Margin.md
+â”‚   â”‚     â””â”€â”€ ...
+â”‚   â”œâ”€â”€ /02_Operational_Efficiency/
+â”‚   â”œâ”€â”€ /03_Customer_and_Market/
+â”‚   â”œâ”€â”€ /04_Corporate_and_Strategy/
+â”‚   â””â”€â”€ UC-000_Template.md
+â”‚
+â”œâ”€â”€ /_includes/
+â”‚     â”œâ”€â”€ Glossary.md
+â”‚     â”œâ”€â”€ ActionCodes.md
+â”‚     â”œâ”€â”€ Strategic_KPIs.md
+â”‚     â””â”€â”€ /kpi_catalog/
+â”‚           â”œâ”€â”€ KPI_Catalog_README.md
+â”‚           â”œâ”€â”€ KPI_Catalog_Growth.md
+â”‚           â”œâ”€â”€ KPI_Catalog_Profitability.md
+â”‚           â”œâ”€â”€ KPI_Catalog_Liquidity.md
+â”‚           â”œâ”€â”€ KPI_Catalog_Efficiency.md
+â”‚           â”œâ”€â”€ KPI_Catalog_CustomerValue.md
+â”‚           â”œâ”€â”€ KPI_Catalog_ESG.md
+â”‚           â”œâ”€â”€ KPI_Catalog_Governance.md
+â”‚           â””â”€â”€ KPI_Catalog_InnovationPeople.md
+â”‚
+â””â”€â”€ README.md
 ```
 Each Use Case lives in its own folder with a `FactSheet.md` and is grouped by business cluster (Variant A).  
 All files follow the defined structure and metadata fields (see Section 4).
@@ -57,14 +57,14 @@ All files follow the defined structure and metadata fields (see Section 4).
 - Keep titles concise and descriptive.
 
 ### 3.2 Use Case IDs
-- Sequential numeric ID within the cluster (`COM-001`, `OPS-002`, …)
+- Sequential numeric ID within the cluster (`COM-001`, `OPS-002`, â€¦)
 - Once assigned, IDs are never reused.
 
 ### 3.3 Field Naming (within text)
 - **Δ** prefix = absolute variance (e.g., Δ Net Sales Amount)
 - **Δ%** prefix = relative variance (e.g., Δ% Gross Margin)
 - **%** suffix = percentage metric (e.g., Gross Margin %)
-- Amount = currency (0–2 decimals), Qty/Count = integer, % = 1–2 decimals.
+- Amount = currency (0â€“2 decimals), Qty/Count = integer, % = 1â€“2 decimals.
 
 ---
 
@@ -99,8 +99,8 @@ Summarize the background, challenges, and intended decisions supported by this a
 ## Key KPIs
 | KPI | Definition | Unit | Format |
 |------|-------------|------|--------|
-| Net Sales Amount | Revenue excluding returns | € | 0–2 decimals |
-| Δ Net Sales Amount | Absolute variance vs Plan | € | 0–2 decimals |
+| Net Sales Amount | Revenue excluding returns | â‚¬ | 0â€“2 decimals |
+| Δ Net Sales Amount | Absolute variance vs Plan | â‚¬ | 0â€“2 decimals |
 | Δ% Net Sales | Percentage variance vs Plan | % | 1 decimal |
 
 ## Typical Actions
@@ -108,7 +108,7 @@ Summarize the background, challenges, and intended decisions supported by this a
 - Include both what to do and expected impact.
 
 ## Expected Business Impact
-Summarize the expected improvement (e.g., “+2–5 pp Δ% Net Sales, +0.5 pp Gross Margin %”).
+Summarize the expected improvement (e.g., â€œ+2â€“5 pp Δ% Net Sales, +0.5 pp Gross Margin %â€).
 
 ## Related Processes
 List linked operational or planning processes (e.g., Sales Planning, Promotion Management).
@@ -126,7 +126,7 @@ Document key takeaways, interpretation notes, or connections to other use cases.
 | Headings | Use `##` for section titles; no decorative symbols. |
 | Lists | Use hyphens or numbers, consistent indentation. |
 | Tables | Use Markdown syntax, no HTML. |
-| Units | Always specify (€, %, days, pcs). |
+| Units | Always specify (â‚¬, %, days, pcs). |
 | Dates | Format as `DD.MM.YYYY`. |
 | Text | Keep concise, avoid marketing tone; focus on analytical meaning. |
 | Line breaks | Use one blank line between sections. |
@@ -187,3 +187,4 @@ A Use Case is considered **complete** when:
 ---
 
 _Last updated: 03.11.2025_
+

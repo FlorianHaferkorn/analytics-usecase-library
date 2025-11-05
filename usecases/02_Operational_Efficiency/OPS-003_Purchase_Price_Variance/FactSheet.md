@@ -67,7 +67,7 @@ model_mapping:
 Control and reduce material costs by identifying deviations between actual and contracted purchase prices, evaluating supplier performance, and enabling proactive negotiation and sourcing actions.
 
 ## 3. Key Questions
-- What is the Î” and Î”% between actual and contracted purchase prices?  
+- What is the Δ and Δ% between actual and contracted purchase prices?  
 - Which suppliers or materials contribute most to PPV?  
 - Are deviations caused by market prices, indexation, or process inefficiencies?  
 - How reliable are suppliers in pricing and delivery (OTIF, cost adherence)?  
@@ -116,6 +116,7 @@ Source-to-Contract -> Procure-to-Pay -> Supplier Management -> Financial Plannin
   [`KPI Catalog`](../../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../../_includes/ActionCodes.md) | [`Glossary`](../../../_includes/Glossary.md)
 
 _Last updated: 04.11.2025_
+
 
 
 

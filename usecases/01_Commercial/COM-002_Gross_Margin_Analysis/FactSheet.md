@@ -73,7 +73,7 @@ This use case quantifies and decomposes these effects, ensuring commercial, cate
 ---
 
 ## 3. Key Questions
-- What is the Î” and Î”% of Gross Margin vs Plan and Last Year?  
+- What is the Δ and Δ% of Gross Margin vs Plan and Last Year?  
 - Which products, categories, and regions contribute most to variance?  
 - How much is driven by price, mix, or COGS changes?  
 - Are promotions profitable at the GM % level?  
@@ -86,7 +86,7 @@ This use case quantifies and decomposes these effects, ensuring commercial, cate
 |------|-------------|------|--------|
 | Gross Margin % | (Net Sales - COGS) / Net Sales | % | 1 decimal |
 | Gross Margin Amount | Net Sales - COGS | EUR | 0-2 decimals |
-| Î” Gross Margin % | GM % - Plan or LY GM % | % | 1 decimal |
+| Δ Gross Margin % | GM % - Plan or LY GM % | % | 1 decimal |
 | Price Realization % | Net Price / List Price | % | 1 decimal |
 | COGS Amount | Direct product cost including logistics | EUR | 0-2 decimals |
 
@@ -129,7 +129,7 @@ This use case quantifies and decomposes these effects, ensuring commercial, cate
 
 ## 9. Edge Cases & QA Rules
 - No negative GM % beyond -100% (data anomaly).  
-- Î”% GM calculated only where Plan GM % > 0.  
+- Δ% GM calculated only where Plan GM % > 0.  
 - COGS must reconcile with financial postings (+/- 0.5 % tolerance).  
 - Referential integrity >= 99.9 % across Date/Org/Product/Supplier.  
 - Missing dimensions default to 'Unknown'.
@@ -148,7 +148,7 @@ This use case quantifies and decomposes these effects, ensuring commercial, cate
 |---------|------|-----------------|
 | Rebid or renegotiate supplier contracts | PC2 | COGS -1-3 %; GM % +1 pp |
 | Tighten discount and rebate structure | P2 | GM % +0.5-1.0 pp |
-| Review and optimize promo depth and ROI | D1 | GM % +0.5 pp; Î”% NS +1 pp |
+| Review and optimize promo depth and ROI | D1 | GM % +0.5 pp; Δ% NS +1 pp |
 | Channel/product mix steering toward high-margin lines | M3 | GM % +1 pp; stable NS |
 | Improve cost-to-serve transparency (freight, packaging) | O2 | GM % +0.3-0.6 pp |
 
@@ -196,6 +196,7 @@ Mix effects (especially low-margin SKUs) explain up to 30 % of variance but are 
 ---
 
 _Last updated: 04.11.2025_
+
 
 
 

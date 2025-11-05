@@ -16,9 +16,24 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     dax_name: "New Product Share %"
     description: "Sales of products <12 months / Total Sales"
     formatString: "0.0 %"
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 ```yaml
-  kpi_id: "people.innovation_rate"
 - kpi_key: "Innovation Rate %"
   kpi_type: "strategic"
   strategic_ref: "Innovation Rate %"
@@ -26,6 +41,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Corporate & Strategy"]
   use_case_ref: ["INN-001"]
   depends_on: ["Revenue from New Products","Total Revenue"]
+  depends_on_ids: ["people.total_revenue.amount"]
   calc_type: ratio
   refresh: quarterly
   status: Active
@@ -60,7 +76,6 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ```
 
 ```yaml
-  kpi_id: "people.employee_engagement"
 - kpi_key: "Employee Engagement %"
   kpi_type: "strategic"
   strategic_ref: "Employee Engagement %"
@@ -68,6 +83,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Human Resources"]
   use_case_ref: ["HR-001"]
   depends_on: ["Engaged Employees","Survey Respondents"]
+  depends_on_ids: ["people.engaged_employees.count","people.survey_respondents.count"]
   calc_type: ratio
   refresh: annual
   status: Active
@@ -113,6 +129,22 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     dax_name: "Contribution Margin %"
     description: "(NS - COGS - Promo Cost) / NS"
     formatString: "0.0 %"
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 
 ```yaml
@@ -126,6 +158,22 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     dax_name: "Lifecycle Age (months)"
     description: "Months since first sale"
     formatString: "0"
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 
 ```yaml
@@ -139,6 +187,22 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     dax_name: "Product ROI %"
     description: "(GM - DevCost - MktCost) / (DevCost + MktCost)"
     formatString: "0.0 %"
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 
 ```yaml
@@ -152,6 +216,22 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     dax_name: "Phase Distribution %"
     description: "Share of portfolio in each lifecycle phase"
     formatString: "0.0 %"
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 
 ```yaml
@@ -165,6 +245,22 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     dax_name: "Revenue per FTE"
     description: "Net Sales / Average Headcount"
     formatString: "â‚¬ #,0.00"
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 
 ```yaml
@@ -178,6 +274,22 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     dax_name: "Gross Margin per FTE"
     description: "Gross Margin / Average Headcount"
     formatString: "â‚¬ #,0.00"
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 
 ```yaml
@@ -191,6 +303,22 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     dax_name: "Personnel Cost Ratio %"
     description: "Personnel Cost / Net Sales"
     formatString: "0.0 %"
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 
 ```yaml
@@ -204,6 +332,22 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     dax_name: "Turnover Rate %"
     description: "Leavers / Average Headcount"
     formatString: "0.0 %"
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 
 ```yaml
@@ -217,9 +361,24 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     dax_name: "Absenteeism %"
     description: "Lost Workdays / Total Workdays"
     formatString: "0.0 %"
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 ```yaml
-  kpi_id: "people.training_hours_per_employee"
 - kpi_key: "Training Hours per Employee"
   kpi_type: "supporting"
   strategic_ref: "Training Completion %"
@@ -227,6 +386,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Human Resources"]
   use_case_ref: ["HR-002"]
   depends_on: ["Training Hours","Employee Count"]
+  depends_on_ids: ["people.training_hours.amount"]
   calc_type: ratio
   refresh: quarterly
   status: Active
@@ -262,7 +422,6 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## 3. Base Measures
 ```yaml
-  kpi_id: "people.employee_count"
 - kpi_key: "Employee Count"
   kpi_type: "supporting"
   strategic_ref: "Productivity per FTE"
@@ -321,5 +480,127 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ---
 
 _Last updated: 04.11.2025_
+
+
+
+```yaml
+- kpi_id: "people.engaged_employees.count"
+  kpi_key: "Engaged Employees"
+  kpi_type: "supporting"
+  impact_dimension: "Customer"
+  domain_tag: ["Innovation & People"]
+  calc_type: count
+  technical:
+    dax_name: "Engaged Employees"
+    description: "Employees scoring above engagement threshold"
+    formatString: "0"
+    verified: false
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
+```
+
+```yaml
+- kpi_id: "people.survey_respondents.count"
+  kpi_key: "Survey Respondents"
+  kpi_type: "supporting"
+  impact_dimension: "Customer"
+  domain_tag: ["Innovation & People"]
+  calc_type: count
+  technical:
+    dax_name: "Survey Respondents"
+    description: "Total responses in survey period"
+    formatString: "0"
+    verified: false
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
+```
+
+```yaml
+- kpi_id: "people.total_revenue.amount"
+  kpi_key: "Total Revenue"
+  kpi_type: "supporting"
+  impact_dimension: "Growth"
+  domain_tag: ["Innovation & People"]
+  calc_type: amount
+  technical:
+    dax_name: "Total Revenue"
+    description: "Total revenue for portfolio"
+    formatString: "€ #,0.00"
+    verified: false
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
+```
+
+```yaml
+- kpi_id: "people.training_hours.amount"
+  kpi_key: "Training Hours"
+  kpi_type: "supporting"
+  impact_dimension: "Customer"
+  domain_tag: ["Innovation & People"]
+  calc_type: amount
+  technical:
+    dax_name: "Training Hours"
+    description: "Total employee training hours"
+    formatString: "0.00"
+    verified: false
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
+```
 
 

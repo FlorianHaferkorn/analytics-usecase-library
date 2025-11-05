@@ -14,6 +14,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Corporate & Strategy"]
   use_case_ref: ["COR-001"]
   depends_on: ["Receivables Amount","Inventory Amount","Payables Amount","Net Sales Amount"]
+  depends_on_ids: ["fin.liquidity.inventory.amount","fin.liquidity.payables.amount","sales.net_sales.amount"]
   calc_type: ratio
   refresh: monthly
   status: Active
@@ -30,6 +31,8 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     source_grain: "financial_statement"
     source_column_ref: ["fact_balance.receivables_amt","fact_balance.inventory_amt","fact_balance.payables_amt"]
     source_system: "Finance Dataflow"
+    description: "Share of (AR + Inventory - AP) relative to Net Sales."
+    formatString: "0.0 %"
     verified: true
   governance:
     business_owner: "Head of Treasury"
@@ -38,7 +41,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "quarterly"
     validation_process: "dual control"
     qa_rules:
-      - "Reconcile with balance sheet Â±1 %"
+      - "Reconcile with balance sheet +/-1 %"
       - "Inventory coverage ratio cross-checked monthly"
     version: "v2.0"
     last_review: "12.10.2025"
@@ -57,6 +60,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Corporate & Strategy"]
   use_case_ref: ["COR-004"]
   depends_on: ["Operating Cash Flow","CapEx Amount"]
+  depends_on_ids: ["fin.liquidity.operating_cash_flow","fin.liquidity.capex.amount"]
   calc_type: amount
   refresh: monthly
   status: Active
@@ -73,6 +77,8 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     source_grain: "cashflow_statement"
     source_column_ref: ["fact_cashflow.ocf_amt","fact_cashflow.capex_amt"]
     source_system: "Finance"
+    description: "Net cash generated after capital expenditures."
+    formatString: "EUR #,0.00"
     verified: true
   governance:
     business_owner: "Head of Treasury"
@@ -81,7 +87,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "quarterly"
     validation_process: "manual review"
     qa_rules:
-      - "Reconcile with cashflow statement Â±1 %"
+      - "Reconcile with cashflow statement +/-1 %"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -104,6 +110,22 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     formatString: "0"
     description: "(Accounts Receivable / Net Sales) x Days in Period"
     verified: false
+  business:
+    purpose: "Average number of days to collect receivables."
+    definition: "(Accounts Receivable / Net Sales) x Days in Period"
+    grain_scope: "Company/segment; monthly closing."
+    unit_format: "days"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 
 ```yaml
@@ -116,8 +138,24 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   technical:
     dax_name: "Operating Cash Flow"
     description: "Cash generated from operations"
-    formatString: "â‚¬ #,0.00"
+    formatString: "EUR #,0.00"
     verified: false
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 
 ```yaml
@@ -133,6 +171,22 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     formatString: "0"
     description: "(Inventory / COGS) x Days in Period"
     verified: false
+  business:
+    purpose: "Average number of days inventory is held."
+    definition: "(Inventory / COGS) x Days in Period"
+    grain_scope: "Company/segment; monthly closing."
+    unit_format: "days"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 
 ```yaml
@@ -148,6 +202,22 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     formatString: "0"
     description: "(Accounts Payable / COGS) x Days in Period"
     verified: false
+  business:
+    purpose: "Average number of days to pay suppliers."
+    definition: "(Accounts Payable / COGS) x Days in Period"
+    grain_scope: "Company/segment; monthly closing."
+    unit_format: "days"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 
 ```yaml
@@ -163,6 +233,22 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     formatString: "0"
     description: "DSO + DIO - DPO"
     verified: false
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 
 ```yaml
@@ -179,9 +265,24 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     formatString: "0"
     description: "CCC (Days) - Baseline (Plan or LY)"
     verified: false
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 ```yaml
-  kpi_id: "fin.liquidity.days_sales_outstanding_dso"
 - kpi_key: "Days Sales Outstanding (DSO)"
   kpi_type: "supporting"
   strategic_ref: "Working Capital %"
@@ -189,6 +290,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Corporate & Strategy"]
   use_case_ref: ["COR-002"]
   depends_on: ["Receivables Amount","Net Sales Amount"]
+  depends_on_ids: ["sales.net_sales.amount"]
   calc_type: ratio
   refresh: monthly
   status: Active
@@ -224,7 +326,6 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## 3. Base Measures
 ```yaml
-  kpi_id: "fin.liquidity.receivables_amount"
 - kpi_key: "Receivables Amount"
   kpi_type: "supporting"
   strategic_ref: "Working Capital %"
@@ -285,6 +386,100 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 _Last updated: 04.11.2025_
 
 
+
+
+
+
+
+```yaml
+- kpi_id: "fin.liquidity.capex.amount"
+  kpi_key: "CapEx Amount"
+  kpi_type: "supporting"
+  impact_dimension: "Liquidity"
+  domain_tag: ["Corporate & Strategy"]
+  calc_type: amount
+  technical:
+    dax_name: "CapEx Amount"
+    description: "Capital expenditures"
+    formatString: "EUR #,0.00"
+    verified: false
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
+```
+
+```yaml
+- kpi_id: "fin.liquidity.inventory.amount"
+  kpi_key: "Inventory Amount"
+  kpi_type: "supporting"
+  impact_dimension: "Liquidity"
+  domain_tag: ["Corporate & Strategy"]
+  calc_type: amount
+  technical:
+    dax_name: "Inventory Amount"
+    description: "Inventory value at period end"
+    formatString: "EUR #,0.00"
+    verified: false
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
+```
+
+```yaml
+- kpi_id: "fin.liquidity.payables.amount"
+  kpi_key: "Payables Amount"
+  kpi_type: "supporting"
+  impact_dimension: "Liquidity"
+  domain_tag: ["Corporate & Strategy"]
+  calc_type: amount
+  technical:
+    dax_name: "Payables Amount"
+    description: "Accounts payable at period end"
+    formatString: "EUR #,0.00"
+    verified: false
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
+```
 
 
 

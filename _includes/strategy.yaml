@@ -1,4 +1,4 @@
-version: v1
+﻿version: v1
 last_updated: 2025-10-12
 
 strategic_kpis:
@@ -80,4 +80,5 @@ influence_graph:
       - "Benefit Realization %"
       - "Budget Adherence %"
       - "Schedule Adherence %"
+
 

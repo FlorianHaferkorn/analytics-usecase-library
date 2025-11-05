@@ -86,7 +86,7 @@ Maximize category profitability and portfolio efficiency by tracking the perform
   - Launch = <6 months  
   - Growth = 6-18 months  
   - Maturity = 18-36 months  
-  - Decline = >36 months or Î”% NS < -20 % YoY  
+  - Decline = >36 months or Δ% NS < -20 % YoY  
 - Product ROI = (GM - DevCost - MktCost) / (DevCost + MktCost).  
 - Currency = EUR; FX at transaction date.  
 - Products inactive for >12 months automatically 'Phase-Out'.
@@ -101,10 +101,10 @@ Maximize category profitability and portfolio efficiency by tracking the perform
 ## 11. Typical Actions
 | Action | Code | Expected Effect |
 |---------|------|-----------------|
-| Accelerate ramp-up of new launches via targeted promotions | D1 | Î”% NS +5-10 pp (Launch) |
+| Accelerate ramp-up of new launches via targeted promotions | D1 | Δ% NS +5-10 pp (Launch) |
 | Reduce tail portfolio complexity (phase-out) | SP1 | COGS reduces; GM % improves |
 | Adjust pricing of mature SKUs to protect margin | P2 | GM % +0.5-1 pp |
-| Reinvest in top-growth categories and winning SKUs | SP2 | Î”% NS +2-4 pp |
+| Reinvest in top-growth categories and winning SKUs | SP2 | Δ% NS +2-4 pp |
 | Optimize marketing mix across lifecycle stages | M3 | ROI +10-15 % |
 
 ## 13. Related Processes
@@ -119,6 +119,7 @@ Portfolio Management -> Product Development -> Category Planning -> Pricing & Pr
   [`KPI Catalog`](../../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../../_includes/ActionCodes.md) | [`Glossary`](../../../_includes/Glossary.md)
 
 _Last updated: 04.11.2025_
+
 
 
 

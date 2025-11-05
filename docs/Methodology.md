@@ -1,4 +1,4 @@
-# Methodology & Rationale
+﻿# Methodology & Rationale
 _Version 2.0 | Last updated: 12.10.2025_
 
 ---
@@ -24,15 +24,15 @@ It defines *how* insights are built, standardized, and mapped to strategic impac
 
 ## 3. Core Design Principles
 
-### 3.1 3–30–300 Communication
-- **3s:** 4–5 KPI cards with deltas (the “story headline”).  
+### 3.1 3â€“30â€“300 Communication
+- **3s:** 4â€“5 KPI cards with deltas (the â€œstory headlineâ€).  
 - **30s:** Trends, rankings, and bridges (why it changed).  
 - **300s:** Drill tables, details, correlations (how to act).
 
 ### 3.2 Semantic Modeling 101
-- Star schema structure, clear fact–dimension separation.  
+- Star schema structure, clear factâ€“dimension separation.  
 - Measures > calculated columns, use display folders by domain.  
-- Referential integrity ≥ 99.9 %, RLS/OLS on dimensions only.
+- Referential integrity â‰¥ 99.9 %, RLS/OLS on dimensions only.
 
 ### 3.3 Naming & Formatting Standards
 | Type | Convention | Example |
@@ -48,14 +48,14 @@ It defines *how* insights are built, standardized, and mapped to strategic impac
 ## 4. KPI Lifecycle
 
 ```
-Define → Document → Validate → Map → Improve
+Define â†’ Document â†’ Validate â†’ Map â†’ Improve
 ```
 
 | Stage | Objective | Example Output |
 |--------|------------|----------------|
 | Define | Agree on metric meaning | Gross Margin % |
 | Document | Add to KPI Catalog | YAML entry with lineage |
-| Validate | Verify logic & QA rules | Range [−100%; +100%] |
+| Validate | Verify logic & QA rules | Range [âˆ’100%; +100%] |
 | Map | Link to Use Case & Action | COM-002 Gross Margin |
 | Improve | Reassess impact quarterly | Changelog entry |
 
@@ -67,7 +67,7 @@ Define → Document → Validate → Map → Improve
 Ensure every analysis directly supports a measurable business objective.
 
 ```
-Strategic KPI → Supporting KPI → Use Case → Action Code → Impact
+Strategic KPI â†’ Supporting KPI â†’ Use Case â†’ Action Code â†’ Impact
 ```
 
 ### 5.2 Step-by-Step Mapping
@@ -84,16 +84,16 @@ Strategic KPI → Supporting KPI → Use Case → Action Code → Impact
 
 | Strategic KPI | Supporting KPI | Use Case | Action Codes | Expected Impact |
 |----------------|----------------|-----------|----------------|----------------|
-| **Revenue Growth %** | Volume Growth %, Price Realization % | COM-001 Sales Performance, COM-004 Price Realization | P1, P2 | +3–5 pp Revenue Growth % |
-| **Working Capital %** | DSO, DPO, Inventory Days | COR-001 Working Capital | W1, I1 | −5 days CCC |
-| **Gross Margin %** | Price Discount %, COGS Amount | COM-002 Gross Margin | P2, PC2 | +0.5–1 pp GM % |
+| **Revenue Growth %** | Volume Growth %, Price Realization % | COM-001 Sales Performance, COM-004 Price Realization | P1, P2 | +3â€“5 pp Revenue Growth % |
+| **Working Capital %** | DSO, DPO, Inventory Days | COR-001 Working Capital | W1, I1 | âˆ’5 days CCC |
+| **Gross Margin %** | Price Discount %, COGS Amount | COM-002 Gross Margin | P2, PC2 | +0.5â€“1 pp GM % |
 
 ### 5.4 Expected Outcome for Analytics Teams
 Each Use Case must include the following fields:
 
 ```yaml
 supports_strategic_kpi: [Revenue Growth %, Gross Margin %]
-expected_impact: "+2–3 pp Revenue Growth %, +0.5 pp Gross Margin %"
+expected_impact: "+2â€“3 pp Revenue Growth %, +0.5 pp Gross Margin %"
 ```
 
 ---
@@ -115,7 +115,8 @@ expected_impact: "+2–3 pp Revenue Growth %, +0.5 pp Gross Margin %"
 One consistent chain ensures business impact:
 
 ```
-Metric → Meaning → Action → Impact
+Metric â†’ Meaning â†’ Action â†’ Impact
 ```
 
 > **Key takeaway:** Every Use Case must explain not just *what happened*, but *why* and *what to do next*.
+

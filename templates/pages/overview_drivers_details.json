@@ -1,0 +1,20 @@
+{
+  "name": "overview_drivers_details",
+  "version": 1,
+  "layout": {
+    "sections": [
+      { "id": "header",  "visuals": ["kpi_cards"] },
+      { "id": "trend",   "visuals": ["trend_main"] },
+      { "id": "drivers", "visuals": ["decomposition_or_bridge"] },
+      { "id": "details", "visuals": ["ranking_table"] }
+    ],
+    "slicers_from_segments": true
+  },
+  "bindings": {
+    "kpis": "@required_kpi_ids",
+    "segments": "@segments",
+    "filters": "@filters_default"
+  },
+  "notes": "Template intentionally abstract. Agent binds visuals to measures based on required_kpi_ids; slicers created from segments."
+}
+

@@ -6,7 +6,6 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## KPIs - Strategic
 ```yaml
-  kpi_id: "esg.carbon_emission_intensity_tco_e_revenue"
 - kpi_key: "Carbon Emission Intensity (tCOâ‚‚e / â‚¬ Revenue)"
   kpi_type: "strategic"
   strategic_ref: "Carbon Emission Intensity"
@@ -14,6 +13,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Sustainability"]
   use_case_ref: ["ESG-001"]
   depends_on: ["Total COâ‚‚ Emissions (tCOâ‚‚e)","Net Sales Amount"]
+  depends_on_ids: ["sales.net_sales.amount"]
   calc_type: ratio
   refresh: quarterly
   status: Active
@@ -48,7 +48,6 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ```
 
 ```yaml
-  kpi_id: "esg.renewable_energy_share"
 - kpi_key: "Renewable Energy Share %"
   kpi_type: "strategic"
   strategic_ref: "Renewable Energy Share %"
@@ -56,6 +55,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Sustainability"]
   use_case_ref: ["ESG-002"]
   depends_on: ["Renewable Energy (kWh)","Total Energy (kWh)"]
+  depends_on_ids: ["esg.energy.renewable_kwh","esg.energy.total_kwh"]
   calc_type: ratio
   refresh: quarterly
   status: Active
@@ -91,7 +91,6 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## KPIs - Supporting / Diagnostic
 ```yaml
-  kpi_id: "esg.scope_1_emissions_tco_e"
 - kpi_key: "Scope 1 Emissions (tCOâ‚‚e)"
   kpi_type: "supporting"
   strategic_ref: "Carbon Emission Intensity"
@@ -134,7 +133,6 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## 3. Base Measures
 ```yaml
-  kpi_id: "esg.total_energy_kwh"
 - kpi_key: "Total Energy (kWh)"
   kpi_type: "supporting"
   strategic_ref: "Renewable Energy Share %"
@@ -204,6 +202,114 @@ _Last updated: 04.11.2025_
     dax_name: "ESG-Aligned Revenue %"
     description: "Revenue meeting EU Taxonomy criteria"
     formatString: "0.0 %"
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
+```
+
+
+
+```yaml
+- kpi_id: "esg.energy.renewable_kwh"
+  kpi_key: "Renewable Energy (kWh)"
+  kpi_type: "supporting"
+  impact_dimension: "ESG"
+  domain_tag: ["Sustainability"]
+  calc_type: amount
+  technical:
+    dax_name: "Renewable Energy (kWh)"
+    description: "Total renewable energy consumption"
+    formatString: "#,0"
+    verified: false
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
+```
+
+```yaml
+- kpi_id: "esg.energy.total_kwh"
+  kpi_key: "Total Energy (kWh)"
+  kpi_type: "supporting"
+  impact_dimension: "ESG"
+  domain_tag: ["Sustainability"]
+  calc_type: amount
+  technical:
+    dax_name: "Total Energy (kWh)"
+    description: "Total energy consumption"
+    formatString: "#,0"
+    verified: false
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
+```
+
+```yaml
+- kpi_id: "esg.co2.total.tco2e"
+  kpi_key: "Total CO2 Emissions (tCO2e)"
+  kpi_type: "supporting"
+  impact_dimension: "ESG"
+  domain_tag: ["Sustainability"]
+  calc_type: amount
+  technical:
+    dax_name: "Total CO2 Emissions (tCO2e)"
+    description: "Aggregated Scope 1-3 CO2e"
+    formatString: "#,0"
+    verified: false
+  business:
+    purpose: "TBD"
+    definition: "TBD"
+    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 ```
 
 

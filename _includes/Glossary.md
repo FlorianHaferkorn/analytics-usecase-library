@@ -1,4 +1,4 @@
-# Glossary
+﻿# Glossary
 
 This glossary defines standardized business, analytical, and governance terminology used across the **Analytics Use Case Library**.  
 It ensures semantic consistency between business, data, and AI-driven documentation.
@@ -19,7 +19,7 @@ Core impact dimensions used to classify all strategic KPIs and Use Cases.
 | Dimension | Definition | Typical KPIs |
 |------------|-------------|---------------|
 | **Growth** | Measures expansion in revenue, volume, and market share. | Revenue Growth %, Volume Growth %, Market Share % |
-| **Profitability** | Measures the company’s ability to generate profit from revenue. | Gross Margin %, EBITDA Margin %, Net Profit Margin % |
+| **Profitability** | Measures the companyâ€™s ability to generate profit from revenue. | Gross Margin %, EBITDA Margin %, Net Profit Margin % |
 | **Liquidity** | Measures cash generation and working capital efficiency. | Working Capital %, DSO, DPO, Free Cash Flow |
 | **Efficiency** | Measures process performance, cost, and productivity. | OEE, Cost per Unit, Labor Productivity % |
 | **Customer Value** | Measures loyalty, satisfaction, and customer lifetime revenue. | Retention %, CLV, NPS Score |
@@ -53,7 +53,7 @@ Core impact dimensions used to classify all strategic KPIs and Use Cases.
 | **KPI Catalog** | Master list of all approved metrics with formulas and QA rules. |
 | **Action Code** | Standardized operational lever describing what actions influence KPIs. |
 | **Reporting Level** | Classifies a Use Case as Strategic, Tactical, or Operational. |
-| **Analytics Stage** | Descriptive, Diagnostic, Predictive, or Prescriptive — defines analytical maturity. |
+| **Analytics Stage** | Descriptive, Diagnostic, Predictive, or Prescriptive â€” defines analytical maturity. |
 
 ---
 
@@ -110,3 +110,4 @@ All glossary changes require Pull Request approval by the Governance Board.
 ---
 
 _Last updated: 12.10.2025_
+

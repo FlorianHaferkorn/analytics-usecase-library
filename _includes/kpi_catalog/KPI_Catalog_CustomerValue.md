@@ -1,4 +1,4 @@
-# KPI Catalog - Customer Value
+﻿# KPI Catalog - Customer Value
 
 ---
 
@@ -14,15 +14,21 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Customer & Market"]
   use_case_ref: ["CST-001"]
   depends_on: ["Active Customers","Churned Customers"]
+  depends_on_ids: ["crm.active_customers.count","crm.churned_customers.count"]
   calc_type: rate
   refresh: monthly
   status: Active
+  technical:
+    dax_name: "Customer Retention %"
+    description: "Share of customers retained in period."
+    formatString: "0.0 %"
+    verified: false
   business:
-    purpose: "Measures customer loyalty and recurring engagement."
-    definition: "(Active Customers - Churned Customers) / Active Customers (Start of Period)"
-    grain_scope: "Customer level aggregated monthly."
-    unit_format: "% (1 decimal)"
-    interpretation: "Higher retention indicates customer satisfaction and strong relationships."
+  purpose: "Measures customer loyalty and recurring engagement."
+  definition: "(Active Customers - Churned Customers) / Active Customers (Start of Period)"
+  grain_scope: "Monthly; active base at period start."
+  unit_format: "% (1 decimal)"
+
   technical:
     dax_name: "Customer Retention %"
     dax_expression: "DIVIDE(([Active Customers]-[Churned Customers]),[Active Customers Start])"
@@ -46,6 +52,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     lineage_verified: true
     copilot_ready: true
 
+
 - kpi_id: "crm.nps.index"
   kpi_key: "Net Promoter Score (NPS)"
   kpi_type: "strategic"
@@ -58,11 +65,11 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   refresh: quarterly
   status: Active
   business:
-    purpose: "Measures customer satisfaction and likelihood to recommend."
-    definition: "% Promoters - % Detractors"
-    grain_scope: "Survey responses; aggregated per quarter."
-    unit_format: "index (-100 to 100)"
-    interpretation: "Core metric for brand loyalty and service quality."
+  purpose: "Measures customer loyalty and recurring engagement."
+  definition: "(Active Customers - Churned Customers) / Active Customers (Start of Period)"
+  grain_scope: "Monthly; active base at period start."
+  unit_format: "% (1 decimal)"
+
   technical:
     dax_name: "NPS Score"
     dax_expression: "([Promoters Count]-[Detractors Count])/[Total Respondents]*100"
@@ -97,13 +104,13 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Customer & Market"]
   use_case_ref: ["CST-002"]
   depends_on: ["Churned Customers","Active Customers Start"]
+  depends_on_ids: ["crm.churned_customers.count","crm.active_customers_start.count"]
   calc_type: rate
   refresh: monthly
   status: Active
   business:
     purpose: "Measures proportion of customers lost during a period."
-    definition: "Churned Customers / Active Customers (Start of Period)"
-    grain_scope: "Customer level aggregated monthly."
+    definition: "(Active Customers - Churned Customers) / Active Customers (Start of Period)"`r`n    grain_scope: "Monthly; active base at period start."`r`n    unit_format: "% (1 decimal)"`r`n    grain_scope: "Customer level aggregated monthly."
     unit_format: "% (1 decimal)"
     interpretation: "Lower churn = better retention."
   technical:
@@ -127,7 +134,63 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   metadata_quality:
     completeness_score: 0.98
     lineage_verified: true
-    copilot_ready: true
+  copilot_ready: true
+
+
+- kpi_id: "crm.active_customers_start.count"
+  kpi_key: "Active Customers Start"
+  kpi_type: "supporting"
+  impact_dimension: "Customer"
+  domain_tag: ["Customer & Market"]
+  calc_type: count
+  technical:
+    dax_name: "Active Customers Start"
+    description: "Active customers at start of period (opening balance)"
+    formatString: "0"
+    verified: false
+
+
+  business:
+    purpose: "TBD"
+    definition: "(Active Customers - Churned Customers) / Active Customers (Start of Period)"`r`n    grain_scope: "Monthly; active base at period start."`r`n    unit_format: "% (1 decimal)"`r`n    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
+- kpi_id: "crm.churned_customers.count"
+  kpi_key: "Churned Customers"
+  kpi_type: "supporting"
+  impact_dimension: "Customer"
+  domain_tag: ["Customer & Market"]
+  calc_type: count
+  technical:
+    dax_name: "Churned Customers"
+    description: "Customers lost during the period"
+    formatString: "0"
+    verified: false
+
+  business:
+    purpose: "TBD"
+    definition: "(Active Customers - Churned Customers) / Active Customers (Start of Period)"`r`n    grain_scope: "Monthly; active base at period start."`r`n    unit_format: "% (1 decimal)"`r`n    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
 
 - kpi_id: "crm.clv.amount"
   kpi_key: "CLV (Customer Lifetime Value)"
@@ -137,9 +200,25 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   calc_type: amount
   technical:
     dax_name: "CLV"
-    description: "Σ (Gross Margin per period / discount factor)"
-    formatString: "€ #,0.00"
+    description: "Î£ (Gross Margin per period / discount factor)"
+    formatString: "â‚¬ #,0.00"
     verified: false
+
+
+  business:
+    purpose: "TBD"
+    definition: "(Active Customers - Churned Customers) / Active Customers (Start of Period)"`r`n    grain_scope: "Monthly; active base at period start."`r`n    unit_format: "% (1 decimal)"`r`n    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
 
 - kpi_id: "crm.reactivation.pct"
   kpi_key: "Reactivation Rate %"
@@ -153,6 +232,22 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     formatString: "0.0 %"
     verified: false
 
+
+  business:
+    purpose: "TBD"
+    definition: "(Active Customers - Churned Customers) / Active Customers (Start of Period)"`r`n    grain_scope: "Monthly; active base at period start."`r`n    unit_format: "% (1 decimal)"`r`n    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 - kpi_id: "crm.at_risk_share.pct"
   kpi_key: "At-Risk Share %"
   kpi_type: "diagnostic"
@@ -165,6 +260,22 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     formatString: "0.0 %"
     verified: false
 
+
+  business:
+    purpose: "TBD"
+    definition: "(Active Customers - Churned Customers) / Active Customers (Start of Period)"`r`n    grain_scope: "Monthly; active base at period start."`r`n    unit_format: "% (1 decimal)"`r`n    grain_scope: "TBD"
+    unit_format: "TBD"
+  governance:
+    business_owner: "TBD"
+    data_owner: "TBD"
+    steward: "TBD"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "TBD"
+    version: "v1.0"
+    last_review: "2025-11-04"
+
 - kpi_id: "crm.active_customers.count"
   kpi_key: "Active Customers"
   kpi_type: "supporting"
@@ -176,8 +287,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   status: Active
   business:
     purpose: "Number of unique active customers in the reporting period."
-    definition: "Distinct count of customers with at least one purchase in the period."
-    grain_scope: "Customer level."
+    definition: "(Active Customers - Churned Customers) / Active Customers (Start of Period)"`r`n    grain_scope: "Monthly; active base at period start."`r`n    unit_format: "% (1 decimal)"`r`n    grain_scope: "Customer level."
     unit_format: "count"
     interpretation: "Base for retention and churn calculation."
   technical:
@@ -207,4 +317,9 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ---
 
 Last updated: 04.11.2025
+
+
+
+
+
 

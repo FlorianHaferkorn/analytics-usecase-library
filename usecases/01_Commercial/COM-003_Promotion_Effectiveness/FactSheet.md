@@ -9,7 +9,7 @@ last_update: "04.11.2025"
 supports_strategic_kpi: ["Gross Margin %", "Revenue Growth %"]
 supports_strategic_kpi_ids: ["margin.gm.pct", "sales.revenue.growth_pct"]
 action_codes: ["D1", "P2", "D2", "O2", "SP1"]
-expected_impact: "+10-30 % ROI uplift; +0.5-1.0 pp GM %; +1-3 pp Î”% NS"
+expected_impact: "+10-30 % ROI uplift; +0.5-1.0 pp GM %; +1-3 pp Δ% NS"
 
 dataset_model: "Contoso Sales Sample for Power BI Desktop.SemanticModel"
 page_template: "overview_drivers_details"
@@ -150,7 +150,7 @@ This use case provides a standardized framework to assess promotional efficiency
 ## 11. Typical Actions
 | Action | Code | Expected Effect |
 |---------|------|-----------------|
-| Optimize promotion calendar by ROI ranking | D1 | Î”% GM +0.5-1.0 pp; ROI +10-20 % |
+| Optimize promotion calendar by ROI ranking | D1 | Δ% GM +0.5-1.0 pp; ROI +10-20 % |
 | Reduce depth of low-return discounts | P2 | GM % +0.5 pp; NS stable |
 | Focus investment on high-return mechanics | D2 | ROI +15-30 % |
 | Improve baseline forecasting and promo tagging accuracy | O2 | Forecast bias reduces; reporting stability improves |
@@ -201,6 +201,7 @@ Baseline model accuracy directly correlates with ROI reliability.
 ---
 
 _Last updated: 04.11.2025_
+
 
 
 

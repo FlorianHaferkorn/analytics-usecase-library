@@ -22,7 +22,7 @@ required_kpis:
   ops.working_capital.dio.days: "DIO (Days)"
   ops.working_capital.dpo.days: "DPO (Days)"
   ops.working_capital.ccc.days: "CCC (Days)"
-  ops.working_capital.ccc.delta_days: "Î” CCC (Days)"
+  ops.working_capital.ccc.delta_days: "Δ CCC (Days)"
 
 dataset_model: "Contoso Sales Sample for Power BI Desktop.SemanticModel"
 page_template: "overview_drivers_details"
@@ -135,6 +135,7 @@ Order-to-Cash -> Purchase-to-Pay -> Inventory Management -> Treasury Forecasting
 ---
 
 _Last updated: 04.11.2025_
+
 
 
 
