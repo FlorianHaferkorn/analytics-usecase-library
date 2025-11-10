@@ -1,0 +1,42 @@
+table dim_parts
+	lineageTag: 71cd8551-9c04-43f9-bf9d-1d9e0e194678
+
+	column part_id
+		dataType: string
+		lineageTag: feae32f4-1117-460a-a5ed-f55e0e20e834
+		summarizeBy: none
+		sourceColumn: part_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column part_name
+		dataType: string
+		lineageTag: 3686bb9d-bd45-4a7a-a27d-ac7d2f67657f
+		summarizeBy: none
+		sourceColumn: part_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		lineageTag: 2035763f-eb06-4941-a6c3-89a32e12eaec
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_parts = m
+		mode: import
+		source =
+				let
+				    Quelle = Excel.Workbook(File.Contents(Source), null, true),
+				    Parts_Sheet = Quelle{[Item="Parts",Kind="Sheet"]}[Data],
+				    #"Höher gestufte Header" = Table.PromoteHeaders(Parts_Sheet, [PromoteAllScalars=true]),
+				    #"Geänderter Typ" = Table.TransformColumnTypes(#"Höher gestufte Header",{{"part_id", type text}, {"part_name", type text}, {"category", type text}})
+				in
+				    #"Geänderter Typ"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

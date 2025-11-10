@@ -70,7 +70,7 @@ Quantify the financial return of promotions by measuring incremental revenue and
 ## 2. Business Context
 Promotions are among the largest controllable commercial investments but often lack consistent ROI evaluation.  
 Different departments use separate definitions for uplift, base volume, and margin impact.  
-This use case provides a standardized framework to assess promotional efficiency across channels and categories â€” linking revenue gain, margin impact, and investment cost in one model.
+This use case provides a standardized framework to assess promotional efficiency across channels and categories — linking revenue gain, margin impact, and investment cost in one model.
 
 ---
 
@@ -201,6 +201,7 @@ Baseline model accuracy directly correlates with ROI reliability.
 ---
 
 _Last updated: 04.11.2025_
+
 
 
 

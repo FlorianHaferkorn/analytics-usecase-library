@@ -1,0 +1,44 @@
+table fact_contractdetails
+	lineageTag: 84a897f8-e587-4b28-a0bf-e842af764cd6
+
+	column contract_id
+		dataType: string
+		lineageTag: ee3d43d3-0ff5-4e25-a03c-659cd99e04ed
+		summarizeBy: none
+		sourceColumn: contract_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column part_id
+		dataType: string
+		lineageTag: 8de49d17-ae2a-4813-8b49-9da2d6667748
+		summarizeBy: none
+		sourceColumn: part_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column agreed_price
+		dataType: double
+		lineageTag: 9b568908-29af-41f7-9372-e52cb8c56b45
+		summarizeBy: none
+		sourceColumn: agreed_price
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition fact_contractdetails = m
+		mode: import
+		source =
+				let
+				    Quelle = Excel.Workbook(File.Contents(Source), null, true),
+				    ContractDetails_Sheet = Quelle{[Item="ContractDetails",Kind="Sheet"]}[Data],
+				    #"Höher gestufte Header" = Table.PromoteHeaders(ContractDetails_Sheet, [PromoteAllScalars=true]),
+				    #"Geänderter Typ" = Table.TransformColumnTypes(#"Höher gestufte Header",{{"contract_id", type text}, {"part_id", type text}, {"agreed_price", type number}})
+				in
+				    #"Geänderter Typ"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

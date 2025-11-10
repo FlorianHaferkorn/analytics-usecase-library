@@ -194,7 +194,7 @@ Sales Planning and Forecasting -> Pricing Governance -> Promotion Management -> 
 
 ## 14. Insights & Learnings
 Price Realization usually contributes more to GM % variance than volume effects outside promotions.  
-Promo intensity correlates inversely with overall margin quality â€” balanced governance yields optimal ROI.
+Promo intensity correlates inversely with overall margin quality — balanced governance yields optimal ROI.
 
 ---
 
@@ -220,5 +220,6 @@ Promo intensity correlates inversely with overall margin quality â€” balanc
 ---
 
 _Last updated: 04.11.2025_
+
 
 

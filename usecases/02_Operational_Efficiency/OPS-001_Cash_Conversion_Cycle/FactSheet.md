@@ -67,7 +67,7 @@ model_mapping:
 # Cash Conversion Cycle (DSO + DIO - DPO)
 
 ## 1. Business Goal
-Optimize working capital and liquidity by managing receivables, inventory, and payables efficiency â€” measured through the Cash Conversion Cycle (CCC).
+Optimize working capital and liquidity by managing receivables, inventory, and payables efficiency — measured through the Cash Conversion Cycle (CCC).
 
 ---
 
@@ -135,6 +135,7 @@ Order-to-Cash -> Purchase-to-Pay -> Inventory Management -> Treasury Forecasting
 ---
 
 _Last updated: 04.11.2025_
+
 
 
 

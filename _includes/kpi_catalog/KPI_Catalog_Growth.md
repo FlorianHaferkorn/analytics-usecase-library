@@ -382,7 +382,8 @@
     last_review: "2025-11-04"
 
 
-  depends_on_ids: [sales.net_sales.amount","sales.list_price.amount]```
+  depends_on_ids: ["sales.net_sales.amount","sales.list_price.amount"]
+```
 
 Last updated: 04.11.2025
 

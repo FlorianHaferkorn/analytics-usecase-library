@@ -108,7 +108,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "annual"
     validation_process: "manual review"
     qa_rules:
-      - "Survey participation â‰¥ 70 %"
+      - "Survey participation ≥ 70 %"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -244,7 +244,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   technical:
     dax_name: "Revenue per FTE"
     description: "Net Sales / Average Headcount"
-    formatString: "â‚¬ #,0.00"
+    formatString: "€ #,0.00"
   business:
     purpose: "TBD"
     definition: "TBD"
@@ -273,7 +273,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   technical:
     dax_name: "Gross Margin per FTE"
     description: "Gross Margin / Average Headcount"
-    formatString: "â‚¬ #,0.00"
+    formatString: "€ #,0.00"
   business:
     purpose: "TBD"
     definition: "TBD"
@@ -453,7 +453,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "quarterly"
     validation_process: "automated"
     qa_rules:
-      - "Employee Count â‰¥ 0"
+      - "Employee Count ≥ 0"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -602,5 +602,7 @@ _Last updated: 04.11.2025_
     last_review: "2025-11-04"
 
 ```
+
+
 
 

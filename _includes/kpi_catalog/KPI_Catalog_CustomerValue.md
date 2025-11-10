@@ -201,7 +201,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   technical:
     dax_name: "CLV"
     description: "Î£ (Gross Margin per period / discount factor)"
-    formatString: "â‚¬ #,0.00"
+    formatString: "€ #,0.00"
     verified: false
 
 
@@ -317,6 +317,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ---
 
 Last updated: 04.11.2025
+
 
 
 

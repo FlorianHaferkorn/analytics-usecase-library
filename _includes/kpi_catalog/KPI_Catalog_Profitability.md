@@ -142,7 +142,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   metadata_quality:
     completeness_score: 0.99
     lineage_verified: true
-    copilot_ready: true
+  copilot_ready: true
 ```
 
 ```yaml
@@ -178,12 +178,13 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     qa_rules:
       - "TBD"
     version: "v1.0"
-    last_review: "2025-11-04"
+  last_review: "2025-11-04"
 
 ```
 
 ```yaml
-- kpi_key: "Gross Margin Amount"
+- kpi_id: "margin.gm.amount"
+  kpi_key: "Gross Margin Amount"
   kpi_type: "supporting"
   strategic_ref: "Gross Margin %"
   impact_dimension: "Profitability"
@@ -223,7 +224,45 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   metadata_quality:
     completeness_score: 0.98
     lineage_verified: true
-    copilot_ready: true
+  copilot_ready: true
+```
+
+```yaml
+- kpi_id: "margin.gm.delta_pct"
+  kpi_key: "Gross Margin % Δ%"
+  kpi_type: "diagnostic"
+  strategic_ref: "Gross Margin %"
+  impact_dimension: "Profitability"
+  domain_tag: ["Commercial"]
+  use_case_ref: ["COM-002"]
+  depends_on: ["Gross Margin %"]
+  depends_on_ids: ["margin.gm.pct"]
+  calc_type: rate
+  refresh: monthly
+  status: Draft
+  business:
+    purpose: "Relative change in Gross Margin % vs Last Year."
+    definition: "([Gross Margin %] - CALCULATE([Gross Margin %], SAMEPERIODLASTYEAR('Date'[Date]))) / CALCULATE([Gross Margin %], SAMEPERIODLASTYEAR('Date'[Date]))"
+    grain_scope: "Aggregated to reporting period."
+    unit_format: "% (1 decimal)"
+    interpretation: "Shows relative profitability improvement vs LY."
+  technical:
+    dax_name: "Gross Margin % Δ%"
+    dax_expression: "DIVIDE([Gross Margin %] - CALCULATE([Gross Margin %], SAMEPERIODLASTYEAR('Date'[Date])), CALCULATE([Gross Margin %], SAMEPERIODLASTYEAR('Date'[Date])))"
+    formatString: "0.0 %"
+    displayFolder: "02_Margin"
+    description: "Relative change vs LY of Gross Margin %."
+    verified: false
+  governance:
+    business_owner: "Controlling"
+    data_owner: "BI Engineering"
+    steward: "Finance Analyst"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+      - "Cross-check against GM% and LY base"
+    version: "v1.0"
+    last_review: "2025-11-06"
 ```
 
 ```yaml
@@ -261,7 +300,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "quarterly"
     validation_process: "manual review"
     qa_rules:
-      - "Bridge reconciliation â‰¤0.5% absolute error"
+      - "Bridge reconciliation ≤0.5% absolute error"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -481,7 +520,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "quarterly"
     validation_process: "dual control"
     qa_rules:
-      - "Invoice cost â‰¥ 0"
+      - "Invoice cost ≥ 0"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -581,6 +620,7 @@ _Last updated: 04.11.2025_
 ```
 
 ```
+
 
 
 

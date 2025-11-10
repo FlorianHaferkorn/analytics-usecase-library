@@ -670,6 +670,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   technical:
     dax_name: "Produced Units Qty"
     dax_expression: "SUM(fact_production[Produced Units Qty])"
+  depends_on_ids: []
     lineage: ["fact_production.ProducedUnits"]
     source_grain: "production_line"
     source_column_ref: ["fact_production.produced_qty"]

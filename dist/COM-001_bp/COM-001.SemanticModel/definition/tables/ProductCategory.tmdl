@@ -1,0 +1,38 @@
+table ProductCategory
+	lineageTag: 7d4752b6-02ba-4d88-942d-7fec6ec2050d
+
+	column ProductCategoryKey
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 61e62c44-9506-45e8-a4e2-3a88f4355961
+		summarizeBy: none
+		sourceColumn: ProductCategoryKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductCategory
+		dataType: string
+		lineageTag: 465c967e-f26e-4fb5-82f1-2d554dac1bb4
+		summarizeBy: none
+		sourceColumn: ProductCategory
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	partition ProductCategory-b82a23c6-fdce-4a34-a948-36a3255c445c = m
+		mode: import
+		source =
+				let
+				    Source = Access.Database(File.Contents("C:\Users\owend\Documents\ContosoSalesV31_64bit.accdb")),
+				    _DimProductCategory = Source{[Schema="",Item="DimProductCategory"]}[Data],
+				    #"Removed Columns" = Table.RemoveColumns(_DimProductCategory,{"ProductCategoryLabel", "ETLLoadID", "LoadDate", "UpdateDate", "ProductCategoryDescription"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns",{{"ProductCategoryName", "ProductCategory"}})
+				in
+				    #"Renamed Columns"
+
+	annotation ColumnsMetadata = {"Columns":[{"Name":"ProductCategoryKey","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//DimProductCategory.{ProductCategoryKey,0}"},{"Name":"ProductCategory","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//DimProductCategory.{ProductCategoryName,2}"}]}
+
+	annotation PBI_ResultType = Table
+

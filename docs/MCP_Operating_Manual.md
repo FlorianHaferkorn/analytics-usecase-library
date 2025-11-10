@@ -1,11 +1,11 @@
 ﻿# MCP Operating Manual (Agent + MCP)
 
-Single source of truth for running the IDâ€‘first workflow from Use Case to validated KPIs, DAX measures, and optional PBIP scaffolding.
+Single source of truth for running the ID-first workflow from Use Case to validated KPIs, DAX measures, and optional PBIP scaffolding.
 
 ---
 
 ## Quickstart
-- Pick a Use Case (FactSheet.md) and set frontâ€‘matter:
+- Pick a Use Case (FactSheet.md) and set front-matter:
   - dataset_model, page_template (optional), segments, filters_default
   - supports_strategic_kpi_ids, required_kpi_ids
 - Validate + Lint
@@ -20,13 +20,13 @@ Single source of truth for running the IDâ€‘first workflow from Use Case to
 
 ## Workflow (Variant A)
 1) Author or select Use Case
-   - FactSheet frontâ€‘matter is the machineâ€‘readable source (no spec.yaml)
+   - FactSheet front-matter is the machine-readable source (no spec.yaml)
 2) Validate artifacts
    - Coverage (IDs), Catalog schema + best practices
-3) DAX authoring (askâ€‘first)
+3) DAX authoring (ask-first)
    - Propose DAX where missing; on approval, write to catalog with format/folder
 4) Lint DAX (Style Guide)
-   - Enforce divide usage, VARâ€¦RETURN, avoid FORMAT(), etc.
+   - Enforce divide usage, VAR…RETURN, avoid FORMAT(), etc.
 5) Generate artifacts (optional)
    - DAX/TMDL stubs per UC; later: PBIP page scaffold
 6) QA and iterate
@@ -37,8 +37,8 @@ Single source of truth for running the IDâ€‘first workflow from Use Case to
 ## Task Recipes
 ### Build Measures (from KPI Catalog)
 - Resolve each `required_kpi_id` to catalog
-- If `technical.dax_expression` present â†’ emit measure (name, expression, formatString, displayFolder)
-- If missing â†’ propose DAX (askâ€‘first), then writeâ€‘back and emit
+- If `technical.dax_expression` present → emit measure (name, expression, formatString, displayFolder)
+- If missing → propose DAX (ask-first), then write-back and emit
 - Commands: `analytics-usecase-library/tools/generate/generate_measures.ps1 -UseCase <UC>`
 
 ### Build Report (PBIP, optional)
@@ -51,7 +51,7 @@ Single source of truth for running the IDâ€‘first workflow from Use Case to
 - Ensure descriptions, formatString, displayFolder are present; hide technical columns; set SortByColumn where needed
 
 ### Build Alignment Map
-- Use `_includes/strategy.yaml` + Use Case frontâ€‘matter to render `_includes/Strategic_Alignment_Map.md`
+- Use `_includes/strategy.yaml` + Use Case front-matter to render `_includes/Strategic_Alignment_Map.md`
 
 ---
 
@@ -69,12 +69,13 @@ Single source of truth for running the IDâ€‘first workflow from Use Case to
 ---
 
 ## Precedence & Definition of Done
-Precedence: Validators/Best Practices â†’ Catalog entries â†’ Use Case frontâ€‘matter.
+Precedence: Validators/Best Practices → Catalog entries → Use Case front-matter.
 
-DoD (Autoâ€‘Reportâ€‘Ready):
-- FactSheet frontâ€‘matter complete (IDs, segments, filters, data_requirements if used)
+DoD (Auto-Report-Ready):
+- FactSheet front-matter complete (IDs, segments, filters, data_requirements if used)
 - All `required_kpi_ids` resolvable; DAX present or approved; formats/folders set
 - (Optional) PBIP page scaffolded; slicers + defaults applied
 - BPA checks pass; coverage green; DAX lint has no errors
+
 
 

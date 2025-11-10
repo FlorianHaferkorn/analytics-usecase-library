@@ -52,7 +52,7 @@ data_requirements:
     - { from: fact_main.OrgID, to: dim_org.OrgID, cardinality: many-to-one, direction: single }
     - { from: fact_main.ProductID, to: dim_product.ProductID, cardinality: many-to-one, direction: single }
 
-# Canonical label â†’ model field mapping
+# Canonical label → model field mapping
 model_mapping:
   "Net Sales Amount": "fact_main[Net Sales Amount]"
   "Units Qty": "fact_main[Units Qty]"
@@ -95,8 +95,8 @@ Each KPI must exist in the shared KPI Catalog (`/_includes/kpi_catalog/README.md
 
 | KPI | Definition | Unit | Format |
 |------|-------------|------|--------|
-| [KPI Name] | [Brief definition or formula] | [â‚¬, %, pcs, days] | [Format, e.g., 0-2 decimals] |
-| [Δ KPI Name] | [Variance vs Plan or LY] | [â‚¬, %, pcs, days] | [Δ or Δ% notation] |
+| [KPI Name] | [Brief definition or formula] | [€, %, pcs, days] | [Format, e.g., 0-2 decimals] |
+| [Δ KPI Name] | [Variance vs Plan or LY] | [€, %, pcs, days] | [Δ or Δ% notation] |
 
 > Naming rules:
 > - Δ = absolute variance
@@ -170,11 +170,11 @@ Define the minimum data fields required to launch a basic version of this use ca
 ---
 
 ## 11. Typical Actions
-List 3â€“5 operational levers or actions derived from this analysis. Reference standardized Action Codes (`/_includes/ActionCodes.md`).
+List 3–5 operational levers or actions derived from this analysis. Reference standardized Action Codes (`/_includes/ActionCodes.md`).
 
 | Action | Code | Expected Effect |
 |---------|------|-----------------|
-| [Describe action briefly] | [P2 / D1 / W1 ...] | [e.g., GM% +1â€“2 pp, DSO -5 days] |
+| [Describe action briefly] | [P2 / D1 / W1 ...] | [e.g., GM% +1–2 pp, DSO -5 days] |
 
 ---
 
@@ -183,8 +183,8 @@ Quantify or qualify the expected business improvement.
 
 | Dimension | Expected Impact | Measurement |
 |------------|-----------------|------------|
-| Revenue | +2â€“5 pp Δ% Net Sales | vs Plan |
-| Profitability | +0.5â€“1 pp Gross Margin % | vs LY |
+| Revenue | +2–5 pp Δ% Net Sales | vs Plan |
+| Profitability | +0.5–1 pp Gross Margin % | vs LY |
 | Liquidity | DSO -5 days | vs Prior Quarter |
 
 ---
@@ -229,6 +229,7 @@ Provide links to related use cases or documentation.
 USAGE NOTES
 - Store the fact sheet as `FactSheet.md` inside `usecases/{cluster}/{ID}_{Slug}/` (e.g., `usecases/01_Commercial/COM-001_Sales_Performance/FactSheet.md`).
 - Replace {PREFIX} with your 3-letter cluster code (e.g., COM, OPS, CST, COR).
-- The Frontâ€‘Matter doubles as machineâ€‘readable spec (required_measures, segments, filters_default, qa_asserts).
+- The Front-Matter doubles as machine-readable spec (required_measures, segments, filters_default, qa_asserts).
 -->
+
 

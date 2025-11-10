@@ -1,6 +1,6 @@
-# Page Templates — Mapping
+﻿# Page Templates — Mapping
 
-These minimal JSON templates define the report page structure referred to by the `page_template` field in Use Case front‑matter. The Agent uses them to scaffold visuals and slicers.
+These minimal JSON templates define the report page structure referred to by the `page_template` field in Use Case front-matter. The Agent uses them to scaffold visuals and slicers.
 
 - Template files: `templates/pages/*.json`
 - Bindings:
@@ -22,3 +22,4 @@ Notes
 - Theme/layout styling is handled in the separate project and is not included here.
 
 Last updated: 04.11.2025
+

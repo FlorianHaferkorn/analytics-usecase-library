@@ -1,4 +1,4 @@
-# Strategic Alignment Map (Full Version)
+﻿# Strategic Alignment Map (Full Version)
 _Version 2.0 | Last updated: 12.10.2025_
 
 ---
@@ -6,7 +6,7 @@ _Version 2.0 | Last updated: 12.10.2025_
 ## Purpose
 The **Strategic Alignment Map (Full Version)** connects all **Strategic KPIs (8)** with every **Analytics Use Case (29)**, including primary and secondary influence relationships, business ownership, impact intensity, and governance details.
 
-This map represents the **top‑down governance view** of the Analytics Framework — linking business strategy, analytical design, and operational action.
+This map represents the **top-down governance view** of the Analytics Framework — linking business strategy, analytical design, and operational action.
 
 ---
 
@@ -14,14 +14,14 @@ This map represents the **top‑down governance view** of the Analytics Framewor
 
 | Strategic KPI | Dimension | #Linked UCs | Primary Links | Secondary Links | Owner | Review |
 |----------------|------------|-------------|----------------|------------------|--------|---------|
-| Revenue Growth % | Growth | 6 | COM‑001, COM‑004, COM‑002 | COM‑003, COM‑005, CST‑003 | Head of Sales | Quarterly |
-| Gross Margin % | Profitability | 6 | COM‑002, COM‑004, COM‑003 | COM‑001, COM‑005, CST‑003 | Head of Controlling | Quarterly |
-| Working Capital % | Liquidity | 3 | COR‑001 | COR‑002, OPS‑004 | Head of Treasury | Quarterly |
-| OEE % | Efficiency | 5 | OPS‑001, OPS‑002 | OPS‑003, OPS‑004, OPS‑005 | Head of Operations | Quarterly |
-| Customer Retention % | Customer Value | 5 | CST‑001, CST‑002 | CST‑003, CST‑004, CST‑005 | Head of Marketing | Quarterly |
-| Carbon Emission Intensity | ESG | 2 | ESG‑001 | ESG‑002 | Head of Sustainability | Semi‑Annual |
-| Data Quality % | Governance | 4 | GOV‑001, GOV‑004 | GOV‑002, GOV‑003 | Chief Data Officer | Monthly |
-| Innovation Rate % | Innovation & People | 4 | INN‑001, HR‑001 | INN‑002, HR‑002 | Head of HR | Quarterly |
+| Revenue Growth % | Growth | 6 | COM-001, COM-004, COM-002 | COM-003, COM-005, CST-003 | Head of Sales | Quarterly |
+| Gross Margin % | Profitability | 6 | COM-002, COM-004, COM-003 | COM-001, COM-005, CST-003 | Head of Controlling | Quarterly |
+| Working Capital % | Liquidity | 3 | COR-001 | COR-002, OPS-004 | Head of Treasury | Quarterly |
+| OEE % | Efficiency | 5 | OPS-001, OPS-002 | OPS-003, OPS-004, OPS-005 | Head of Operations | Quarterly |
+| Customer Retention % | Customer Value | 5 | CST-001, CST-002 | CST-003, CST-004, CST-005 | Head of Marketing | Quarterly |
+| Carbon Emission Intensity | ESG | 2 | ESG-001 | ESG-002 | Head of Sustainability | Semi-Annual |
+| Data Quality % | Governance | 4 | GOV-001, GOV-004 | GOV-002, GOV-003 | Chief Data Officer | Monthly |
+| Innovation Rate % | Innovation & People | 4 | INN-001, HR-001 | INN-002, HR-002 | Head of HR | Quarterly |
 
 ---
 
@@ -46,7 +46,7 @@ primary_use_cases:
     title: "Gross Margin Analysis"
     impact_intensity: "Medium"
     action_codes: ["P2 Tighten Discounts", "PC2 Supplier Negotiation"]
-    expected_impact: "+0.5 pp Revenue Growth % (via GM effect)"
+    expected_impact: "+0.5 pp Revenue Growth % (via GM effect)"
 secondary_use_cases:
   - COM-003 Product Mix & Contribution
   - COM-005 Promotion ROI & Effectiveness
@@ -72,7 +72,7 @@ impact_intensity:
   COM-002: High
   COM-004: High
   COM-003: Medium
-expected_impact: "+0.5–1 pp GM %, −2 % COGS"
+expected_impact: "+0.5–1 pp GM %, −2 % COGS"
 governance_owner: "Head of Controlling"
 review_cycle: "quarterly"
 completeness_score: 0.96
@@ -90,7 +90,7 @@ secondary_use_cases:
 impact_intensity:
   COR-001: High
   COR-002: Medium
-expected_impact: "−5 days CCC, +2 % Cash Conversion"
+expected_impact: "−5 days CCC, +2 % Cash Conversion"
 governance_owner: "Head of Treasury"
 review_cycle: "quarterly"
 completeness_score: 0.97
@@ -111,7 +111,7 @@ impact_intensity:
   OPS-001: High
   OPS-002: High
   OPS-003: Medium
-expected_impact: "+5 pp OEE %, −3 % Production Cost"
+expected_impact: "+5 pp OEE %, −3 % Production Cost"
 governance_owner: "Head of Operations"
 review_cycle: "quarterly"
 completeness_score: 0.98
@@ -132,15 +132,15 @@ impact_intensity:
   CST-001: High
   CST-002: High
   CST-003: Medium
-expected_impact: "+2–3 pp Retention, +3 pp NPS"
+expected_impact: "+2–3 pp Retention, +3 pp NPS"
 governance_owner: "Head of Marketing"
 review_cycle: "quarterly"
 completeness_score: 0.95
 ```
 
-### 2.6 Carbon Emission Intensity (tCO₂e/€)
+### 2.6 Carbon Emission Intensity (tCOâ‚‚e/€)
 ```yaml
-strategic_kpi: "Carbon Emission Intensity (tCO₂e/€)"
+strategic_kpi: "Carbon Emission Intensity (tCOâ‚‚e/€)"
 dimension: "ESG"
 primary_use_cases:
   - ESG-001 Emission Tracking & Reporting
@@ -149,7 +149,7 @@ secondary_use_cases:
 impact_intensity:
   ESG-001: High
   ESG-002: Medium
-expected_impact: "−10 % CO₂ Intensity YoY, −5 % Energy Cost"
+expected_impact: "−10 % COâ‚‚ Intensity YoY, −5 % Energy Cost"
 governance_owner: "Head of Sustainability"
 review_cycle: "semi-annual"
 completeness_score: 0.96
@@ -168,7 +168,7 @@ secondary_use_cases:
 impact_intensity:
   GOV-001: High
   GOV-004: Medium
-expected_impact: "+2 pp DQ %, −20 % Issues"
+expected_impact: "+2 pp DQ %, −20 % Issues"
 governance_owner: "Chief Data Officer"
 review_cycle: "monthly"
 completeness_score: 0.99
@@ -187,7 +187,7 @@ secondary_use_cases:
 impact_intensity:
   INN-001: High
   HR-001: Medium
-expected_impact: "+1 pp Innovation Rate, +0.5 pp Productivity"
+expected_impact: "+1 pp Innovation Rate, +0.5 pp Productivity"
 governance_owner: "Head of HR"
 review_cycle: "quarterly"
 completeness_score: 0.96
@@ -237,7 +237,10 @@ completeness_score: 0.96
 | **Strategic KPIs Covered** | 8 |
 | **Total Use Cases Linked** | 29 |
 | **Average Completeness Score** | 0.97 |
-| **Cross‑Linked KPIs (Secondary)** | 21 |
+| **Cross-Linked KPIs (Secondary)** | 21 |
 | **Copilot Ready** | Yes |
-| **Maintainers** | analytics‑core‑team |
-| **Contact** | analytics‑governance@company.com |
+| **Maintainers** | analytics-core-team |
+| **Contact** | analytics-governance@company.com |
+
+
+

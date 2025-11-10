@@ -6,16 +6,16 @@ Scope: Applies to all semantic models in this repo (PBIP layout). Desktop is pre
 ---
 
 ## 1) Global Policies
-- **Descriptions mandatory** for Tables, Columns, Measures (Copilotâ€‘readiness).
-- **Starâ€‘schema**; conformed dimensions; **clear grain** per fact (invoice line, journal line, snapshot).
+- **Descriptions mandatory** for Tables, Columns, Measures (Copilot-readiness).
+- **Star-schema**; conformed dimensions; **clear grain** per fact (invoice line, journal line, snapshot).
 - **RLS/OLS only on dimensions**; never on facts.
-- **Measures > calculated columns**; roleâ€‘playing date dimensions allowed.
+- **Measures > calculated columns**; role-playing date dimensions allowed.
 - **Naming/format (US spelling, EU number format)**:
-  - Currency â†’ suffix ` Amount` (format `â‚¬ #,0.00`, default summarization **Sum**).
-  - Quantity â†’ suffix ` Qty` (integer, **Sum**).
-  - Counts â†’ suffix ` Count` / ` Distinct Count` (integer, **Sum** / **DistinctCount**).
-  - Percent/rates â†’ suffix ` %` or ` Rate` (format `0.0 %`, default summarization **None**).
-  - Time variants â†’ suffixes `YTD`, `MTD`, `QTD`, `YoY`, `MoM`.
+  - Currency → suffix ` Amount` (format `€ #,0.00`, default summarization **Sum**).
+  - Quantity → suffix ` Qty` (integer, **Sum**).
+  - Counts → suffix ` Count` / ` Distinct Count` (integer, **Sum** / **DistinctCount**).
+  - Percent/rates → suffix ` %` or ` Rate` (format `0.0 %`, default summarization **None**).
+  - Time variants → suffixes `YTD`, `MTD`, `QTD`, `YoY`, `MoM`.
 - **Technical columns hidden** (`isHidden: true`), default summarization set explicitly.
 - DAX does **not** support the assignment operator `:=` (use `=`).
 
@@ -25,13 +25,13 @@ Scope: Applies to all semantic models in this repo (PBIP layout). Desktop is pre
 Allowed `dataType` values and their defaults (PBIP/TMDL):
 | dataType   | Use case                            | Default summarization | Format (if applicable) |
 |------------|-------------------------------------|-----------------------|------------------------|
-| `int64`    | surrogate keys, counts, qty         | Sum (except keys)     | â€”                      |
-| `double`   | amounts, ratios (when needed)       | Sum (amounts)         | `â‚¬ #,0.00` or `0.0 %`  |
-| `decimal`  | amounts with fixed precision        | Sum                   | `â‚¬ #,0.00`             |
-| `string`   | labels, codes                       | None                  | â€”                      |
+| `int64`    | surrogate keys, counts, qty         | Sum (except keys)     | —                      |
+| `double`   | amounts, ratios (when needed)       | Sum (amounts)         | `€ #,0.00` or `0.0 %`  |
+| `decimal`  | amounts with fixed precision        | Sum                   | `€ #,0.00`             |
+| `string`   | labels, codes                       | None                  | —                      |
 | `date`     | calendar date                       | None                  | dd.MM.yyyy             |
 | `datetime` | timestamps                           | None                  | dd.MM.yyyy HH:mm       |
-| `boolean`  | flags                                | None                  | â€”                      |
+| `boolean`  | flags                                | None                  | —                      |
 
 Rules:
 - Prefer `decimal` for currency where available; `double` acceptable for engine defaults.
@@ -161,9 +161,9 @@ Example (partition excerpt):
 - `crossFilteringBehavior: "single" | "both"`
 
 Policies:
-- Cardinality: Manyâ€‘toâ€‘One from factâ†’dimension.
-- Default filtering: **single** direction (dimâ†’fact). `both` only by exception and documented.
-- Inactive relationships allowed only with rationale; roleâ€‘playing dates encouraged.
+- Cardinality: Many-to-One from fact→dimension.
+- Default filtering: **single** direction (dim→fact). `both` only by exception and documented.
+- Inactive relationships allowed only with rationale; role-playing dates encouraged.
 
 Example:
 ```json
@@ -197,22 +197,22 @@ Columns typically **no** folders; hide technical columns.
 ---
 
 ## 11) Format Strings & Locale
-- Currency: `â‚¬ #,0.00` (EU punctuation; use project theme locale for visuals).
+- Currency: `€ #,0.00` (EU punctuation; use project theme locale for visuals).
 - Percent: `0.0 %` (always explicit).
 - Integers: `#,0` (no decimals).
 - Dates: `dd.MM.yyyy` as display (storage remains date/datetime).
 
 ---
 
-## 12) Sortâ€‘Byâ€‘Column Policy (examples)
-- Month label (`MMM` or localized name) â†’ `sortByColumn: MonthNumber`.
-- Product name â†’ `sortByColumn: SortOrder` when required.
-- Any nonâ€‘lexical label must declare its sorter column (hidden).
+## 12) Sort-By-Column Policy (examples)
+- Month label (`MMM` or localized name) → `sortByColumn: MonthNumber`.
+- Product name → `sortByColumn: SortOrder` when required.
+- Any non-lexical label must declare its sorter column (hidden).
 
 ---
 
-## 13) Descriptions â€” Required Template
-For every Table/Column/Measure, descriptions must follow this miniâ€‘template (one paragraph):
+## 13) Descriptions — Required Template
+For every Table/Column/Measure, descriptions must follow this mini-template (one paragraph):
 - **Purpose:** one sentence business purpose.
 - **Definition:** formula/logic; numerator/denominator; filters.
 - **Grain & Scope:** aggregation grain; scope (Actual/Plan, etc.).
@@ -273,9 +273,9 @@ Example (measure description inside JSON as string):
 {
   "name": "Net Sales Amount",
   "expression": "SUM ( fact_sales[Net Sales Amount] )",
-  "formatString": "â‚¬ #,0.00",
+  "formatString": "€ #,0.00",
   "displayFolder": "01_Sales",
-  "description": "Purpose: net sales in reporting currency. Definition: sum of fact_sales[Net Sales Amount]; excludes returns if already net. Grain: invoice line aggregated. Unit: currency. Lineage: fact_sales. QA: reconciles to P&L within Â±0.1%."
+  "description": "Purpose: net sales in reporting currency. Definition: sum of fact_sales[Net Sales Amount]; excludes returns if already net. Grain: invoice line aggregated. Unit: currency. Lineage: fact_sales. QA: reconciles to P&L within ±0.1%."
 }
 ```
 
@@ -285,10 +285,12 @@ Example (measure description inside JSON as string):
 - Descriptions present for all objects.
 - Measures have `displayFolder` and correct `formatString` (currency/%).
 - Technical columns hidden; label columns sorted.
-- Relationships singleâ€‘direction; cardinality Manyâ€‘toâ€‘One; rationale for exceptions.
+- Relationships single-direction; cardinality Many-to-One; rationale for exceptions.
 - Storage mode per policy; partitions properly named.
 - QA measures exist for critical KPIs.
 
 ---
 
 **End of Allowed Subset**
+
+

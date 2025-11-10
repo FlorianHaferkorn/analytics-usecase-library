@@ -1,0 +1,111 @@
+createOrReplace
+
+	table 'Time Intelligence'
+		lineageTag: 2728a169-ce6e-410e-8125-13b1b9f8477d
+
+		calculationGroup
+
+			calculationItem Current = SELECTEDMEASURE()
+
+			calculationItem LMTD = ```
+					CALCULATE(
+					    SELECTEDMEASURE(),
+					    DATESMTD(
+					        DATEADD('dim_date'[Date], -1, MONTH)
+					    )
+					)
+					
+					```
+
+			calculationItem LQTD = ```
+					CALCULATE(
+					    SELECTEDMEASURE(),
+					    DATESQTD(
+					        DATEADD('dim_date'[Date], -1, QUARTER)
+					    )
+					)
+					
+					```
+
+			calculationItem LYTD = ```
+					CALCULATE(
+					    SELECTEDMEASURE(),
+					    DATESYTD(
+					        DATEADD('dim_date'[Date], -1, YEAR)
+					    )
+					)
+					
+					```
+
+			calculationItem MoM = ```
+					VAR __CTD = CALCULATE(SELECTEDMEASURE(), DATESMTD('dim_date'[Date]))
+					VAR __PTD = CALCULATE(SELECTEDMEASURE(), DATESMTD(DATEADD('dim_date'[Date], -1, MONTH)))
+					RETURN __CTD - __PTD
+					
+					```
+
+			calculationItem MoM% = ```
+					VAR __CTD = CALCULATE(SELECTEDMEASURE(), DATESMTD('dim_date'[Date]))
+					VAR __PTD = CALCULATE(SELECTEDMEASURE(), DATESMTD(DATEADD('dim_date'[Date], -1, MONTH)))
+					RETURN DIVIDE(__CTD - __PTD, __PTD)
+					
+					```
+
+			calculationItem MTD = TOTALMTD(SELECTEDMEASURE(), 'dim_date'[Date])
+
+			calculationItem QoQ = ```
+					VAR __CTD = CALCULATE(SELECTEDMEASURE(), DATESQTD('dim_date'[Date]))
+					VAR __PTD = CALCULATE(SELECTEDMEASURE(), DATESQTD(DATEADD('dim_date'[Date], -1, QUARTER)))
+					RETURN __CTD - __PTD
+					
+					```
+
+			calculationItem QoQ% = ```
+					VAR __CTD = CALCULATE(SELECTEDMEASURE(), DATESQTD('dim_date'[Date]))
+					VAR __PTD = CALCULATE(SELECTEDMEASURE(), DATESQTD(DATEADD('dim_date'[Date], -1, QUARTER)))
+					RETURN DIVIDE(__CTD - __PTD, __PTD)
+					
+					```
+
+			calculationItem QTD = ```
+					TOTALQTD(SELECTEDMEASURE(), 'dim_date'[Date])
+					
+					```
+
+			calculationItem YoY = ```
+					VAR __CTD = CALCULATE(SELECTEDMEASURE(), DATESYTD('dim_date'[Date]))
+					VAR __PTD = CALCULATE(SELECTEDMEASURE(), DATESYTD(DATEADD('dim_date'[Date], -1, YEAR)))
+					RETURN __CTD - __PTD
+					
+					```
+
+			calculationItem YoY% = ```
+					VAR __CTD = CALCULATE(SELECTEDMEASURE(), DATESYTD('dim_date'[Date]))
+					VAR __PTD = CALCULATE(SELECTEDMEASURE(), DATESYTD(DATEADD('dim_date'[Date], -1, YEAR)))
+					RETURN DIVIDE(__CTD - __PTD, __PTD)
+					
+					```
+
+			calculationItem YTD = ```
+					TOTALYTD(SELECTEDMEASURE(), 'dim_date'[Date])
+					
+					```
+
+		column Period
+			dataType: string
+			lineageTag: 60151448-e5e3-4faf-91dd-23fbd5bc6fd2
+			summarizeBy: none
+			sourceColumn: Name
+			sortByColumn: Ordinalzahl
+
+			annotation SummarizationSetBy = Automatic
+
+		column Ordinalzahl
+			dataType: int64
+			formatString: 0
+			lineageTag: 140142c3-da63-49a7-802d-2ab5dbc9738e
+			summarizeBy: sum
+			sourceColumn: Ordinal
+
+			annotation SummarizationSetBy = Automatic
+

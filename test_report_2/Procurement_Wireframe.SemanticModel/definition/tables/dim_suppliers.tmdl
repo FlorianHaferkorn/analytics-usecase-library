@@ -1,0 +1,42 @@
+table dim_suppliers
+	lineageTag: 57143276-e819-434b-b73e-4fd5b093d141
+
+	column supplier_id
+		dataType: string
+		lineageTag: d42b5658-9705-4d29-82e9-f43caa6b9c52
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_name
+		dataType: string
+		lineageTag: 0e8906ea-e097-4c68-b4a2-1e03ee635481
+		summarizeBy: none
+		sourceColumn: supplier_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column region
+		dataType: string
+		lineageTag: f94fb37b-9f17-49a8-8e16-25f39872c837
+		summarizeBy: none
+		sourceColumn: region
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_suppliers = m
+		mode: import
+		source =
+				let
+				    Quelle = Excel.Workbook(File.Contents(Source), null, true),
+				    Suppliers_Sheet = Quelle{[Item="Suppliers",Kind="Sheet"]}[Data],
+				    #"Höher gestufte Header" = Table.PromoteHeaders(Suppliers_Sheet, [PromoteAllScalars=true]),
+				    #"Geänderter Typ" = Table.TransformColumnTypes(#"Höher gestufte Header",{{"supplier_id", type text}, {"supplier_name", type text}, {"region", type text}})
+				in
+				    #"Geänderter Typ"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

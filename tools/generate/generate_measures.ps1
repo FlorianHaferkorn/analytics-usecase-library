@@ -8,7 +8,48 @@ Param(
 
 function Get-FrontMatter { param([string]$Path) $content = Get-Content -Raw -Path $Path; $m = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---\s"); if ($m.Success) { return $m.Groups[1].Value } return $null }
 function Parse-IdsFromFrontMatter { param([string]$FrontMatter,[string]$Field) if (-not $FrontMatter) { return @() } $m = [regex]::Match($FrontMatter, ($Field + '\s*:\s*\[(.*?)\]'), 'Singleline'); if (-not $m.Success) { return @() } $ids=@(); foreach($mm in [regex]::Matches($m.Groups[1].Value,'"([^"]+)"')){ $ids += $mm.Groups[1].Value } return $ids | Sort-Object -Unique }
-function Load-KpiCatalog { param([string]$Root) $map = @{}; Get-ChildItem -Path $Root -Filter '*.md' | Where-Object { $_.Name -ne 'SCHEMA.md' } | ForEach-Object { $raw = Get-Content -Raw -Path $_.FullName; foreach($m in [regex]::Matches($raw,'(?ms)```yaml\s*(.*?)\s*```')){ $b = $m.Groups[1].Value; $id = ([regex]::Match($b,'kpi_id\s*:\s*"([^"]+)"')).Groups[1].Value; if(-not $id){ continue } $name = ([regex]::Match($b,'(?m)^\s*dax_name\s*:\s*"([^"]+)"')).Groups[1].Value; $expr = ([regex]::Match($b,'(?m)^\s*dax_expression\s*:\s*"(.*)"')).Groups[1].Value; $fmt  = ([regex]::Match($b,'(?m)^\s*formatString\s*:\s*"([^"]+)"')).Groups[1].Value; $folder = ([regex]::Match($b,'(?m)^\s*displayFolder\s*:\s*"([^"]+)"')).Groups[1].Value; $map[$id] = [pscustomobject]@{ id=$id; dax_name=$name; dax_expression=$expr; formatString=$fmt; displayFolder=$folder } } }; return $map }
+function Load-KpiCatalog {
+  param([string]$Root)
+  $map = @{}
+  Get-ChildItem -Path $Root -Filter '*.md' | Where-Object { $_.Name -ne 'SCHEMA.md' } | ForEach-Object {
+    $raw = Get-Content -Raw -Path $_.FullName
+    foreach($m in [regex]::Matches($raw,'(?ms)```yaml\s*(.*?)\s*```')){
+      $block = $m.Groups[1].Value
+      $idMatches = [regex]::Matches($block, '(?m)^\s*-\s*kpi_id\s*:\s*"([^"]+)"')
+      if($idMatches.Count -eq 0){
+        # also support non-list style: kpi_id at top of block
+        $singleId = ([regex]::Match($block,'(?m)^\s*kpi_id\s*:\s*"([^"]+)"')).Groups[1].Value
+        if($singleId){
+          $name = ([regex]::Match($block,'(?m)^\s*dax_name\s*:\s*"([^"]+)"')).Groups[1].Value
+          $expr = ([regex]::Match($block,'(?m)^\s*dax_expression\s*:\s*"(.*)"')).Groups[1].Value
+          $fmtMatches  = [regex]::Matches($block,'(?m)^\s*formatString\s*:\s*"([^"]+)"')
+          $fmt  = if($fmtMatches.Count){ $fmtMatches[$fmtMatches.Count-1].Groups[1].Value } else { '' }
+          $folderMatches = [regex]::Matches($block,'(?m)^\s*displayFolder\s*:\s*"([^"]+)"')
+          $folder = if($folderMatches.Count){ $folderMatches[$folderMatches.Count-1].Groups[1].Value } else { '' }
+          $map[$singleId] = [pscustomobject]@{ id=$singleId; dax_name=$name; dax_expression=$expr; formatString=$fmt; displayFolder=$folder }
+        }
+        continue
+      }
+      # when multiple items are inside one code-fence list, slice by indices
+      $indices = @()
+      foreach($im in $idMatches){ $indices += @{ Start=$im.Index; Id=$im.Groups[1].Value } }
+      for($i=0; $i -lt $indices.Count; $i++){
+        $start = $indices[$i].Start
+        $end = if($i -lt $indices.Count-1){ $indices[$i+1].Start } else { $block.Length }
+        $chunk = $block.Substring($start, $end - $start)
+        $id = $indices[$i].Id
+        $name = ([regex]::Match($chunk,'(?m)^\s*dax_name\s*:\s*"([^"]+)"')).Groups[1].Value
+        $expr = ([regex]::Match($chunk,'(?m)^\s*dax_expression\s*:\s*"(.*)"')).Groups[1].Value
+        $fmtMatches  = [regex]::Matches($chunk,'(?m)^\s*formatString\s*:\s*"([^"]+)"')
+        $fmt  = if($fmtMatches.Count){ $fmtMatches[$fmtMatches.Count-1].Groups[1].Value } else { '' }
+        $folderMatches = [regex]::Matches($chunk,'(?m)^\s*displayFolder\s*:\s*"([^"]+)"')
+        $folder = if($folderMatches.Count){ $folderMatches[$folderMatches.Count-1].Groups[1].Value } else { '' }
+        $map[$id] = [pscustomobject]@{ id=$id; dax_name=$name; dax_expression=$expr; formatString=$fmt; displayFolder=$folder }
+      }
+    }
+  }
+  return $map
+}
 
 if(-not (Test-Path $Out)){ New-Item -ItemType Directory -Path $Out | Out-Null }
 $targetIds = @(); if($UseCase){ $fs = Get-ChildItem -Path $UseCasesRoot -Recurse -Filter 'FactSheet.md' | Where-Object { $_.Directory.Name -like ($UseCase+'*') } | Select-Object -First 1; if(-not $fs){ Write-Host "Use Case not found: $UseCase" -ForegroundColor Red; exit 1 }; $fm = Get-FrontMatter -Path $fs.FullName; $targetIds = Parse-IdsFromFrontMatter -FrontMatter $fm -Field 'required_kpi_ids'; if($targetIds.Count -eq 0){ Write-Host "No required_kpi_ids in $($fs.FullName)." -ForegroundColor Yellow; exit 0 } } else { Write-Host "No -UseCase specified. Generating for all KPIs in catalogs." -ForegroundColor Yellow }

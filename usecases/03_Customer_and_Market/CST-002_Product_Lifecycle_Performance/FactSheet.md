@@ -66,7 +66,7 @@ model_mapping:
 # Product Lifecycle Performance
 
 ## 1. Business Goal
-Maximize category profitability and portfolio efficiency by tracking the performance of products throughout their lifecycle â€” from launch to maturity and phase-out â€” and by steering innovation, pricing, and discontinuation decisions based on data.
+Maximize category profitability and portfolio efficiency by tracking the performance of products throughout their lifecycle — from launch to maturity and phase-out — and by steering innovation, pricing, and discontinuation decisions based on data.
 
 ## 3. Key Questions
 - How do products perform across lifecycle stages (Launch, Growth, Maturity, Decline)?  
@@ -119,6 +119,7 @@ Portfolio Management -> Product Development -> Category Planning -> Pricing & Pr
   [`KPI Catalog`](../../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../../_includes/ActionCodes.md) | [`Glossary`](../../../_includes/Glossary.md)
 
 _Last updated: 04.11.2025_
+
 
 
 

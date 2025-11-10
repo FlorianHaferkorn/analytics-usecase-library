@@ -1,0 +1,126 @@
+﻿/// COM-001 Measures (Contoso tables; procurement-style formatting)
+table _Measures
+
+    /// Total invoiced sales excluding returns and taxes
+    measure 'Net Sales Amount' = ```
+            SUM(Sales[SalesAmount])
+            ```
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// Cost of goods sold amount
+    measure 'COGS Amount' = ```
+            SUM(Sales[TotalCost])
+            ```
+        formatString: "€ #,0.00"
+        displayFolder: "02_Margin"
+
+    /// Currency value of gross margin
+    measure 'Gross Margin Amount' = ```
+            [Net Sales Amount] - [COGS Amount]
+            ```
+        formatString: "€ #,0.00"
+        displayFolder: "02_Margin"
+
+    /// Share of gross margin relative to net sales
+    measure 'Gross Margin %' = ```
+            DIVIDE([Net Sales Amount]-[COGS Amount],[Net Sales Amount])
+            ```
+        formatString: "0.0 %"
+        displayFolder: "02_Margin"
+
+    /// Net Sales for same period last year
+    measure 'Net Sales Amount LY' = ```
+            CALCULATE([Net Sales Amount], SAMEPERIODLASTYEAR('Calendar'[DateKey]))
+            ```
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// Absolute variance of Net Sales vs LY
+    measure 'Δ Net Sales Amount' = ```
+            [Net Sales Amount] - [Net Sales Amount LY]
+            ```
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// Relative variance of Net Sales vs LY
+    measure 'Δ% Net Sales' = ```
+            DIVIDE([Δ Net Sales Amount],[Net Sales Amount LY])
+            ```
+        formatString: "0.0 %"
+        displayFolder: "01_Sales"
+
+    /// Baseline list price × quantity
+    measure 'List Price Amount' = ```
+            SUMX(Sales, Sales[UnitPrice] * Sales[SalesQuantity])
+            ```
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// Achieved price vs list price
+    measure 'Price Realization %' = ```
+            DIVIDE([Net Sales Amount],[List Price Amount])
+            ```
+        formatString: "0.0 %"
+        displayFolder: "01_Sales"
+
+    /// Placeholders: fill when promo/baseline/plan data exist
+    measure 'Promo Sales Amount' = ```
+            BLANK()
+            ```
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    measure 'Baseline Sales Amount' = ```
+            BLANK()
+            ```
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    measure 'Promo Uplift %' = ```
+            DIVIDE([Promo Sales Amount]-[Baseline Sales Amount],[Baseline Sales Amount])
+            ```
+        formatString: "0.0 %"
+        displayFolder: "01_Sales"
+
+    measure 'Actual Units Qty' = ```
+            SUM(Sales[SalesQuantity])
+            ```
+        formatString: "0"
+        displayFolder: "01_Sales"
+
+    measure 'Plan Units Qty' = ```
+            BLANK()
+            ```
+        formatString: "0"
+        displayFolder: "01_Sales"
+
+    measure 'Plan Unit Price' = ```
+            BLANK()
+            ```
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    measure 'Actual Unit Price' = ```
+            DIVIDE([Net Sales Amount],[Actual Units Qty])
+            ```
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    measure 'Price Effect Amount' = ```
+            ([Actual Unit Price] - [Plan Unit Price]) * [Actual Units Qty]
+            ```
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    measure 'Volume Effect Amount' = ```
+            ([Actual Units Qty] - [Plan Units Qty]) * [Plan Unit Price]
+            ```
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    measure 'Mix Effect Amount' = ```
+            [Δ Net Sales Amount] - [Price Effect Amount] - [Volume Effect Amount]
+            ```
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"

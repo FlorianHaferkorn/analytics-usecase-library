@@ -1,4 +1,4 @@
-# Includes Folder
+﻿# Includes Folder
 
 This folder contains all **shared reference files** that define standardized terminology, KPIs, and operational levers across the **Analytics Use Case Library**.  
 These files form the **semantic backbone** of the entire reporting framework.
@@ -46,3 +46,4 @@ flowchart LR
 ---
 
 _Last updated: 12.10.2025_
+

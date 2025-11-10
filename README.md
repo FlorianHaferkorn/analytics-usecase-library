@@ -1,14 +1,14 @@
-# Analytics Use Case Library
+﻿# Analytics Use Case Library
 
 > Start here (Business): `./docs/Business_Playbook.md`  
-> One‑pager: `./docs/Quickstart_1-Pager.md`
+> One-pager: `./docs/Quickstart_1-Pager.md`
 
 ## Purpose
-The Analytics Use Case Library is part of the company‑wide Reporting Framework. It translates strategic, tactical, and operational information needs into standardized, reusable analytical use cases organized by functional clusters.
+The Analytics Use Case Library is part of the company-wide Reporting Framework. It translates strategic, tactical, and operational information needs into standardized, reusable analytical use cases organized by functional clusters.
 
 Each use case links business goals with data structures, KPIs, and actions, ensuring clarity, comparability, and governance across all analytics initiatives.
 
-> Goal: Enable consistent, goal‑driven, and AI‑ready reporting instead of tool‑driven dashboards.
+> Goal: Enable consistent, goal-driven, and AI-ready reporting instead of tool-driven dashboards.
 
 ---
 
@@ -26,7 +26,7 @@ The Library operationalizes the Reporting Framework defined in `./docs/Reporting
 
 | Element | Role | Example |
 |----------|------|---------|
-| Reporting Strategy | Levels (Strategic, Tactical, Operational) and analytics maturity (Descriptive → Prescriptive) | `./docs/Reporting_Strategy.md` |
+| Reporting Strategy | Levels (Strategic, Tactical, Operational) and analytics maturity (Descriptive -> Prescriptive) | `./docs/Reporting_Strategy.md` |
 | Cluster (Domain) | Groups related business topics | `./usecases/01_Commercial/` |
 | Use Case | One analytical question with KPIs and actions | `./usecases/01_Commercial/COM-001_Sales_Performance/FactSheet.md` |
 | KPI Catalog & Action Codes | Shared semantics and operational levers | `./_includes/kpi_catalog/README.md`, `./_includes/ActionCodes.md` |
@@ -36,7 +36,7 @@ Each Use Case is classified by:
 - analytics_stage: Descriptive / Diagnostic / Predictive / Prescriptive
 - domain: Cluster affiliation (e.g., Commercial, Operational Efficiency)
 
-This structure ensures traceability from business goals → KPIs → data → actions.
+This structure ensures traceability from business goals -> KPIs -> data -> actions.
 
 ---
 
@@ -122,3 +122,4 @@ analytics-usecase-library/
 ```
 
 Last updated: 04.11.2025
+

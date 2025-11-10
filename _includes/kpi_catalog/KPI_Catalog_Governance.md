@@ -20,7 +20,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   status: Active
   business:
     purpose: "Measures data accuracy and completeness in governed systems."
-    definition: "(Valid Records / Total Records) Ã— 100"
+    definition: "(Valid Records / Total Records) × 100"
     grain_scope: "Dataset level; aggregated monthly."
     unit_format: "% (1 decimal)"
     interpretation: "Indicates trustworthiness of analytical data assets."
@@ -41,7 +41,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "monthly"
     validation_process: "automated"
     qa_rules:
-      - "DQ % â‰¥ 98 % for certified datasets"
+      - "DQ % ≥ 98 % for certified datasets"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -198,6 +198,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Data Governance"]
   use_case_ref: ["GOV-001"]
   depends_on: []
+  depends_on_ids: []
   calc_type: count
   refresh: daily
   status: Active
@@ -233,6 +234,8 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 ---
 
 Last updated: 04.11.2025
+
+
 
 
 

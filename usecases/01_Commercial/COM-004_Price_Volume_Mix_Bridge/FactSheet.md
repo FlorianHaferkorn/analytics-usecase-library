@@ -67,7 +67,7 @@ required_kpis:
 # Price-Volume-Mix Bridge (Δ Net Sales & Δ Gross Margin)
 
 ## 1. Business Goal
-Provide a unified analytical bridge that decomposes revenue and margin variance into price, volume, and mix components to explain why results deviate from Plan or Last Year â€” enabling targeted commercial and cost actions.
+Provide a unified analytical bridge that decomposes revenue and margin variance into price, volume, and mix components to explain why results deviate from Plan or Last Year — enabling targeted commercial and cost actions.
 
 ---
 
@@ -207,6 +207,7 @@ Automating PVM bridges creates a shared single source of truth for finance and s
 ---
 
 _Last updated: 04.11.2025_
+
 
 
 

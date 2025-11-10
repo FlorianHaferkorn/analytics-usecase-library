@@ -67,7 +67,7 @@ model_mapping:
 # Workforce Productivity & Turnover Analysis
 
 ## 1. Business Goal
-Improve organizational efficiency and employee retention by tracking productivity, cost, and turnover trends â€” enabling data-driven workforce planning and early identification of risk areas.
+Improve organizational efficiency and employee retention by tracking productivity, cost, and turnover trends — enabling data-driven workforce planning and early identification of risk areas.
 
 ## 3. Key Questions
 - How has productivity evolved per department, region, or function?  
@@ -119,6 +119,7 @@ Workforce Planning -> Budgeting & Forecasting -> Talent Management -> Engagement
   [`KPI Catalog`](../../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../../_includes/ActionCodes.md) | [`Glossary`](../../../_includes/Glossary.md)
 
 _Last updated: 04.11.2025_
+
 
 
 

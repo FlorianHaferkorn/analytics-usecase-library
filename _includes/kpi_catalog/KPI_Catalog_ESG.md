@@ -6,7 +6,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
 
 ## KPIs - Strategic
 ```yaml
-- kpi_key: "Carbon Emission Intensity (tCOâ‚‚e / â‚¬ Revenue)"
+- kpi_key: "Carbon Emission Intensity (tCOâ‚‚e / € Revenue)"
   kpi_type: "strategic"
   strategic_ref: "Carbon Emission Intensity"
   impact_dimension: "ESG"
@@ -21,7 +21,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     purpose: "Measures greenhouse gas emissions relative to revenue."
     definition: "Total COâ‚‚ Emissions / Net Sales Amount"
     grain_scope: "Company level, aggregated quarterly."
-    unit_format: "tCOâ‚‚e / â‚¬m"
+    unit_format: "tCOâ‚‚e / €m"
     interpretation: "Lower values indicate improved carbon efficiency."
   technical:
     dax_name: "Carbon Emission Intensity"
@@ -38,7 +38,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     review_cycle: "semi-annual"
     validation_process: "manual review"
     qa_rules:
-      - "Scopes 1â€“3 fully reported for all sites"
+      - "Scopes 1–3 fully reported for all sites"
     version: "v2.0"
     last_review: "12.10.2025"
   metadata_quality:
@@ -103,7 +103,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   status: Active
   business:
     purpose: "Direct emissions from owned or controlled sources."
-    definition: "Fuel Ã— Emission Factor"
+    definition: "Fuel × Emission Factor"
     grain_scope: "Facility level."
     unit_format: "tCOâ‚‚e"
     interpretation: "Core contributor to total COâ‚‚ emissions."
@@ -311,5 +311,7 @@ _Last updated: 04.11.2025_
     last_review: "2025-11-04"
 
 ```
+
+
 
 

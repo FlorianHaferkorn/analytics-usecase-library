@@ -20,7 +20,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   status: Active
   business:
     purpose: "Share of capital tied up in operations relative to sales."
-    definition: "(Receivables + Inventory âˆ’ Payables) / Net Sales Amount"
+    definition: "(Receivables + Inventory − Payables) / Net Sales Amount"
     grain_scope: "Monthly close level, companywide."
     unit_format: "% (1 decimal)"
     interpretation: "Indicates liquidity efficiency and cash tied up in operations."
@@ -66,9 +66,9 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   status: Active
   business:
     purpose: "Net cash generated after capital expenditures."
-    definition: "Operating Cash Flow âˆ’ CapEx Amount"
+    definition: "Operating Cash Flow − CapEx Amount"
     grain_scope: "Monthly companywide."
-    unit_format: "â‚¬ (2 decimals)"
+    unit_format: "€ (2 decimals)"
     interpretation: "Indicates cash generation capability after investment."
   technical:
     dax_name: "Free Cash Flow"
@@ -340,7 +340,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     purpose: "Outstanding receivables at end of period."
     definition: "Sum of all unpaid invoices."
     grain_scope: "Company and customer level."
-    unit_format: "â‚¬ (2 decimals)"
+    unit_format: "€ (2 decimals)"
     interpretation: "Represents open cash position from customers."
   technical:
     dax_name: "Receivables Amount"
@@ -480,6 +480,8 @@ _Last updated: 04.11.2025_
     last_review: "2025-11-04"
 
 ```
+
+
 
 
 

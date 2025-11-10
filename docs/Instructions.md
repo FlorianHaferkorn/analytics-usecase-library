@@ -57,14 +57,14 @@ All files follow the defined structure and metadata fields (see Section 4).
 - Keep titles concise and descriptive.
 
 ### 3.2 Use Case IDs
-- Sequential numeric ID within the cluster (`COM-001`, `OPS-002`, â€¦)
+- Sequential numeric ID within the cluster (`COM-001`, `OPS-002`, …)
 - Once assigned, IDs are never reused.
 
 ### 3.3 Field Naming (within text)
 - **Δ** prefix = absolute variance (e.g., Δ Net Sales Amount)
 - **Δ%** prefix = relative variance (e.g., Δ% Gross Margin)
 - **%** suffix = percentage metric (e.g., Gross Margin %)
-- Amount = currency (0â€“2 decimals), Qty/Count = integer, % = 1â€“2 decimals.
+- Amount = currency (0–2 decimals), Qty/Count = integer, % = 1–2 decimals.
 
 ---
 
@@ -99,8 +99,8 @@ Summarize the background, challenges, and intended decisions supported by this a
 ## Key KPIs
 | KPI | Definition | Unit | Format |
 |------|-------------|------|--------|
-| Net Sales Amount | Revenue excluding returns | â‚¬ | 0â€“2 decimals |
-| Δ Net Sales Amount | Absolute variance vs Plan | â‚¬ | 0â€“2 decimals |
+| Net Sales Amount | Revenue excluding returns | € | 0–2 decimals |
+| Δ Net Sales Amount | Absolute variance vs Plan | € | 0–2 decimals |
 | Δ% Net Sales | Percentage variance vs Plan | % | 1 decimal |
 
 ## Typical Actions
@@ -108,7 +108,7 @@ Summarize the background, challenges, and intended decisions supported by this a
 - Include both what to do and expected impact.
 
 ## Expected Business Impact
-Summarize the expected improvement (e.g., â€œ+2â€“5 pp Δ% Net Sales, +0.5 pp Gross Margin %â€).
+Summarize the expected improvement (e.g., “+2–5 pp Δ% Net Sales, +0.5 pp Gross Margin %”).
 
 ## Related Processes
 List linked operational or planning processes (e.g., Sales Planning, Promotion Management).
@@ -126,7 +126,7 @@ Document key takeaways, interpretation notes, or connections to other use cases.
 | Headings | Use `##` for section titles; no decorative symbols. |
 | Lists | Use hyphens or numbers, consistent indentation. |
 | Tables | Use Markdown syntax, no HTML. |
-| Units | Always specify (â‚¬, %, days, pcs). |
+| Units | Always specify (€, %, days, pcs). |
 | Dates | Format as `DD.MM.YYYY`. |
 | Text | Keep concise, avoid marketing tone; focus on analytical meaning. |
 | Line breaks | Use one blank line between sections. |
@@ -187,4 +187,6 @@ A Use Case is considered **complete** when:
 ---
 
 _Last updated: 03.11.2025_
+
+
 

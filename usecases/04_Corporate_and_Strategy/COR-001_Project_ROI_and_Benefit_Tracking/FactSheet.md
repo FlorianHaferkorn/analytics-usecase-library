@@ -67,7 +67,7 @@ model_mapping:
 # Project ROI & Benefit Tracking
 
 ## 1. Business Goal
-Ensure transparency on project performance by tracking realized financial and non-financial benefits versus investment cost â€” enabling data-driven portfolio steering, reprioritization, and early escalation.
+Ensure transparency on project performance by tracking realized financial and non-financial benefits versus investment cost — enabling data-driven portfolio steering, reprioritization, and early escalation.
 
 ## 3. Key Questions
 - What is the realized ROI per project and portfolio segment?  
@@ -91,7 +91,7 @@ Ensure transparency on project performance by tracking realized financial and no
 
 ## 9. Edge Cases & QA Rules
 - Projects with ROI < -100 % flagged 'Loss-Making'.  
-- Benefit > Planned Ã— 1.5 flagged for review (potential misallocation).  
+- Benefit > Planned × 1.5 flagged for review (potential misallocation).  
 - Project without closure date cannot report realized benefits.  
 - Referential integrity >= 99.9 % across Project/Org/Time.  
 - Status updates must align with PMO governance cadence.
@@ -117,6 +117,7 @@ Portfolio Management -> Strategic Planning -> Financial Forecasting -> PMO Gover
   [`KPI Catalog`](../../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../../_includes/ActionCodes.md) | [`Glossary`](../../../_includes/Glossary.md)
 
 _Last updated: 04.11.2025_
+
 
 
 

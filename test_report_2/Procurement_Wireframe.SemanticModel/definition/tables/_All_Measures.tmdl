@@ -1,0 +1,463 @@
+/// All baseline metrics for procurement reporting
+table _All_Measures
+	lineageTag: 73dac9c9-af1e-4890-8acb-09858fd7d3df
+
+	/// Total spend based on unit price and quantity
+	measure 'Total Spend' = ```
+			
+			-- Sum of unit price times quantity over all transactions
+			SUMX(
+			    fact_transactions, 
+			    fact_transactions[unit_price] * fact_transactions[quantity]
+			)
+			```
+		formatString: #,0.0
+		displayFolder: KPIs
+		lineageTag: 00000000-0000-0000-0000-000000000001
+
+	/// Spend covered by valid contracts
+	measure 'Contract Spend' =
+			
+			-- Only transactions that are linked to a contract
+			CALCULATE([Total Spend], NOT(ISBLANK(fact_transactions[contract_id])))
+		formatString: #,0.0
+		displayFolder: KPIs
+		lineageTag: 00000000-0000-0000-0000-000000000002
+
+	/// Share of spend under contract
+	measure 'Spend under Contract %' =
+			-- Ratio of contract spend to total spend
+			DIVIDE([Contract Spend], [Total Spend])
+		formatString: 0.0\ %;-0.0\ %;0.0\ %
+		displayFolder: KPIs
+		lineageTag: 00000000-0000-0000-0000-000000000003
+
+	/// Average actual price from transactions
+	measure 'Average Actual Price' =
+			-- Average price over all transactions
+			AVERAGEX(fact_transactions, fact_transactions[unit_price])
+		formatString: #,0.0
+		displayFolder: KPIs
+		lineageTag: 00000000-0000-0000-0000-000000000004
+
+	/// Average contract price from contract details
+	measure 'Average Contract Price' =
+			-- Average agreed price per part
+			AVERAGEX(fact_contractdetails, fact_contractdetails[agreed_price])
+		formatString: #,0.0
+		displayFolder: KPIs
+		lineageTag: 00000000-0000-0000-0000-000000000005
+
+	/// Average deviation of actual vs contract price in %
+	measure 'Ø Price Deviation %' =
+			-- (Actual - Contract) / Contract
+			VAR _actual = [Average Actual Price]
+			VAR _contract = [Average Contract Price]
+			VAR _result = DIVIDE( _actual - _contract, _contract)
+			RETURN
+			_result
+		formatString: 0.0\ %;-0.0\ %;0.0\ %
+		displayFolder: KPIs
+		lineageTag: 00000000-0000-0000-0000-000000000006
+
+	/// Number of index-linked contracts
+	measure '# Index Linked Contracts' =
+			-- Count of contracts where index_linked is TRUE
+			CALCULATE(DISTINCTCOUNT(dim_contracts[contract_id]), dim_contracts[index_linked] = TRUE())
+		formatString: #,0
+		displayFolder: KPIs
+		lineageTag: 00000000-0000-0000-0000-000000000007
+
+	/// Share of index-linked contracts
+	measure 'Index Linked Share %' =
+			-- Percentage of contracts that are index-linked
+			DIVIDE([# Index Linked Contracts], DISTINCTCOUNT(dim_contracts[contract_id]))
+		formatString: 0.0\ %;-0.0\ %;0.0\ %
+		displayFolder: KPIs
+		lineageTag: 00000000-0000-0000-0000-000000000008
+
+	/// Contracts expiring within 60 days
+	measure '# Contracts expiring soon' = ```
+			-- Contracts with end date within the next 60 days
+			VAR _selDate = MAX(dim_date[Date])
+			VAR _Threshold = 60
+			VAR _result = 
+			    CALCULATE(
+			        COUNTROWS(dim_contracts), 
+			        dim_contracts[end_date] <= _selDate + _Threshold, 
+			        dim_contracts[end_date] >= _selDate
+			    )
+			RETURN
+			_result
+			```
+		formatString: #,0
+		displayFolder: KPIs
+		lineageTag: 00000000-0000-0000-0000-000000000009
+
+	/// Number of unique parts
+	measure '# Parts' =
+			-- Count of distinct part IDs
+			DISTINCTCOUNT(dim_parts[part_id])
+		formatString: #,0
+		displayFolder: Metadata
+		lineageTag: 00000000-0000-0000-0000-000000000010
+
+	/// Number of unique suppliers
+	measure '# Suppliers' =
+			-- Count of distinct suppliers
+			DISTINCTCOUNT(dim_suppliers[supplier_id])
+		formatString: #,0
+		displayFolder: Metadata
+		lineageTag: 00000000-0000-0000-0000-000000000011
+
+	/// Number of valid contracts
+	measure '# Contracts' =
+			-- Count of distinct contract IDs
+			DISTINCTCOUNT(dim_contracts[contract_id])
+		formatString: #,0
+		displayFolder: Metadata
+		lineageTag: 00000000-0000-0000-0000-000000000012
+
+	/// Number of recorded transactions
+	measure '# Transactions' =
+			-- Row count in fact_transactions
+			COUNTROWS(fact_transactions)
+		formatString: #,0
+		displayFolder: Metadata
+		lineageTag: 00000000-0000-0000-0000-000000000013
+
+	measure Black =
+			
+			"#000000"
+		displayFolder: Colors
+		lineageTag: b042942c-cbaa-4c99-b7dc-ffdfca3ad00b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Green =
+			
+			"#519872"
+		displayFolder: Colors
+		lineageTag: 450e604f-990f-4c41-a254-68166ee877af
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Red =
+			
+			"#EC4E20"
+		displayFolder: Colors
+		lineageTag: 387e943f-9e64-4cf4-8d6b-bffccaffac54
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Transparent Green (10%)
+	measure 'Color Green 10%' =
+			-- Returns #519872 at 10% opacity
+			"#5198721A"
+		formatString: Text
+		displayFolder: Colors
+		lineageTag: 00000000-0000-0000-0000-000000001010
+
+	/// Transparent Green (20%)
+	measure 'Color Green 20%' =
+			-- Returns #519872 at 20% opacity
+			"#51987233"
+		formatString: Text
+		displayFolder: Colors
+		lineageTag: 00000000-0000-0000-0000-000000001020
+
+	/// Transparent Green (30%)
+	measure 'Color Green 30%' =
+			-- Returns #519872 at 30% opacity
+			"#5198724D"
+		formatString: Text
+		displayFolder: Colors
+		lineageTag: 00000000-0000-0000-0000-000000001030
+
+	/// Transparent Green (40%)
+	measure 'Color Green 40%' =
+			-- Returns #519872 at 40% opacity
+			"#51987266"
+		formatString: Text
+		displayFolder: Colors
+		lineageTag: 00000000-0000-0000-0000-000000001040
+
+	/// Transparent Green (50%)
+	measure 'Color Green 50%' =
+			-- Returns #519872 at 50% opacity
+			"#51987280"
+		formatString: Text
+		displayFolder: Colors
+		lineageTag: 00000000-0000-0000-0000-000000001050
+
+	/// Transparent Red (10%)
+	measure 'Color Red 10%' =
+			-- Returns #EC4E20 at 10% opacity
+			"#EC4E201A"
+		formatString: Text
+		displayFolder: Colors
+		lineageTag: 00000000-0000-0000-0000-000000002010
+
+	/// Transparent Red (20%)
+	measure 'Color Red 20%' =
+			-- Returns #EC4E20 at 20% opacity
+			"#EC4E2033"
+		formatString: Text
+		displayFolder: Colors
+		lineageTag: 00000000-0000-0000-0000-000000002020
+
+	/// Transparent Red (30%)
+	measure 'Color Red 30%' =
+			-- Returns #EC4E20 at 30% opacity
+			"#EC4E204D"
+		formatString: Text
+		displayFolder: Colors
+		lineageTag: 00000000-0000-0000-0000-000000002030
+
+	/// Transparent Red (40%)
+	measure 'Color Red 40%' =
+			-- Returns #EC4E20 at 40% opacity
+			"#EC4E2066"
+		formatString: Text
+		displayFolder: Colors
+		lineageTag: 00000000-0000-0000-0000-000000002040
+
+	/// Transparent Red (50%)
+	measure 'Color Red 50%' =
+			-- Returns #EC4E20 at 50% opacity
+			"#EC4E2080"
+		formatString: Text
+		displayFolder: Colors
+		lineageTag: 00000000-0000-0000-0000-000000002050
+
+	/// Upward Triangle (iOS style)
+	measure 'Arrow Up (iOS)' =
+			-- Modern iOS-style up indicator
+			"▲"
+		formatString: Text
+		displayFolder: Symbols
+		lineageTag: 00000000-0000-0000-0000-000000003101
+
+	/// Downward Triangle (iOS style)
+	measure 'Arrow Down (iOS)' =
+			-- Modern iOS-style down indicator
+			"▼"
+		formatString: Text
+		displayFolder: Symbols
+		lineageTag: 00000000-0000-0000-0000-000000003102
+
+	/// Rightward Triangle (iOS style - neutral)
+	measure 'Arrow Flat (iOS)' =
+			-- Modern iOS-style neutral indicator
+			"►"
+		formatString: Text
+		displayFolder: Symbols
+		lineageTag: 00000000-0000-0000-0000-000000003103
+
+	/// Dynamic iOS-style arrow based on Ø Price Deviation %
+	measure 'Price Deviation Arrow (iOS)' =
+			-- Returns ▲, ▼ or ► based on value of Ø Price Deviation %
+			SWITCH(
+				TRUE(),
+				[Ø Price Deviation %] > 0.01, "▲",
+				[Ø Price Deviation %] < -0.01, "▼",
+				"►"
+			)
+		formatString: Text
+		displayFolder: Symbols
+		lineageTag: 00000000-0000-0000-0000-000000003110
+
+	measure 'Total Spend PY' = CALCULATE ( [Total Spend], SAMEPERIODLASTYEAR ( dim_date[DATE] ) )
+		formatString: #,0.0
+		lineageTag: 5906b119-9b31-4418-8db6-2a261fe1e604
+
+	measure 'Δ Total Spend' =
+			
+			VAR _AY = [Total Spend]
+			VAR _LY = [Total Spend PY]
+			VAR _Result = _AY - _LY
+			RETURN
+			_Result
+		formatString: #,0.0
+		lineageTag: 9030b6b4-b8f5-4102-8883-b31d18c6ff6f
+
+	measure 'Δ% Total Spend' =
+			
+			VAR _Deviance = [Δ Total Spend]
+			VAR _LY = [Total Spend PY]
+			VAR _Result = DIVIDE( _Deviance , _LY , 0 )
+			RETURN
+			_Result
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: 1a8e885b-f18a-4051-bd99-79925b9aab4f
+
+	measure 'Color Δ Total Spend' =
+			
+			VAR _UsedMeasure = [Δ Total Spend]
+			VAR _Meas = [Total Spend]
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        _Meas = BLANK (), [Black],
+			        _UsedMeasure > 0, [Green],
+			        _UsedMeasure < 0, [Red],
+			        [Black]
+			    )
+		lineageTag: 498c926c-a913-47a1-b169-92b564322b33
+
+		annotation PBI_FormatHint = {"isText":true}
+
+	measure Card_Detail_Text = "compared to PY"
+		lineageTag: 5eda04b5-3fa2-456a-916f-c134ab0260cf
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Contract Spend PY' = CALCULATE ( [Contract Spend], SAMEPERIODLASTYEAR ( dim_date[DATE] ) )
+		formatString: #,0.0
+		lineageTag: b6a6862d-f13a-4d46-8f46-9d8653f19ae4
+
+	measure 'Ø Price Deviation % PY' = CALCULATE ( [Ø Price Deviation %], SAMEPERIODLASTYEAR ( dim_date[DATE] ) )
+		formatString: 0.0\ %;-0.0\ %;0.0\ %
+		lineageTag: bbb209b1-14a3-487c-b9fb-196e570b77f6
+
+	measure 'Spend under Contract % PY' = CALCULATE ( [Spend under Contract %], SAMEPERIODLASTYEAR ( dim_date[DATE] ) )
+		formatString: 0.0\ %;-0.0\ %;0.0\ %
+		lineageTag: 6304576c-34e3-4b85-af8c-a2483f3ecb45
+
+	measure 'Δ Contract Spend' =
+			
+			VAR _AY = [Contract Spend]
+			VAR _LY = [Contract Spend PY]
+			VAR _Result = _AY - _LY
+			RETURN
+			_Result
+		lineageTag: 009873e6-087f-457c-aaa9-d191d6adb0f2
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Δ Ø Price Deviation %' =
+			
+			VAR _AY = [Ø Price Deviation %]
+			VAR _LY = [Ø Price Deviation % PY]
+			VAR _Result = _AY - _LY
+			RETURN
+			_Result
+		formatString: 0.0\ %;-0.0\ %;0.0\ %
+		lineageTag: c76dcbda-7420-4c1a-b503-fabc93fd7e00
+
+	measure 'Δ% Contract Spend' =
+			
+			VAR _Deviance = [Δ Contract Spend]
+			VAR _LY = [Contract Spend PY]
+			VAR _Result = DIVIDE( _Deviance , _LY , 0 )
+			RETURN
+			_Result
+		formatString: 0.0\ %;-0.0\ %;0.0\ %
+		lineageTag: 9a72407a-c029-4f12-87a2-483b9c7866d9
+
+	measure 'Δ% Ø Price Deviation %' =
+			
+			VAR _Deviance = [Δ Ø Price Deviation %]
+			VAR _LY = [Ø Price Deviation % PY]
+			VAR _Result = DIVIDE( _Deviance , _LY , 0 )
+			RETURN
+			_Result
+		formatString: 0.0\ %;-0.0\ %;0.0\ %
+		lineageTag: 8776a7f7-05ea-4717-bb55-acb3fe5c3d28
+
+	measure 'Δ Spend under Contract %' =
+			
+			VAR _AY = [Spend under Contract %]
+			VAR _LY = [Spend under Contract % PY]
+			VAR _Result = _AY - _LY
+			RETURN
+			_Result
+		formatString: #,0.0
+		lineageTag: 8b59970b-a79d-470f-ba57-b977bed2ec4c
+
+	measure 'Δ% Spend under Contract %' =
+			
+			VAR _Deviance = [Δ Spend under Contract %]
+			VAR _LY = [Spend under Contract % PY]
+			VAR _Result = DIVIDE( _Deviance , _LY , 0 )
+			RETURN
+			_Result
+		formatString: 0.0\ %;-0.0\ %;0.0\ %
+		lineageTag: 7bceae82-2b85-4bea-8146-bd7a75ae2363
+
+	measure 'Symbol Δ% Ø Price Deviation %' =
+			
+			VAR _meas = [Δ% Ø Price Deviation %]
+			VAR _Threshold = 0.02
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        _meas = BLANK (), BLANK (),
+			        _meas < 0, BLANK (),
+			        _meas <= _Threshold, "SymbolMedium",
+			        _meas > _Threshold, "SymbolLow"
+			    )
+		lineageTag: 7a072166-91c9-4871-8044-97801d817680
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure X_AXIS_Suppliers = ```
+			
+			VAR _ScaleFactor = 1.5
+			VAR _Table =
+			    ADDCOLUMNS(
+			        SUMMARIZE(
+			            dim_suppliers,
+			            dim_suppliers[supplier_id]
+			        ),
+			        "Total_Spend", [Total Spend] 
+			    )
+			VAR _MAX =
+			    MAXX(
+			        _Table ,
+			        [Total_Spend]
+			    )
+			RETURN
+			_MAX * _ScaleFactor
+			```
+		lineageTag: 2930142c-4296-4840-b369-674fb5eab207
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Card_Contracts_expiring_soon =
+			
+			SWITCH(
+			    TRUE(),
+			    [# Contracts expiring soon] > 1 , "❗ " & [# Contracts expiring soon] & " contract expiring in the next 60 days" ,
+			    [# Contracts expiring soon] = 1 , "❗ " & [# Contracts expiring soon] & " contracts expiring in the next 60 days" ,
+			    "✅ None in next 60 days")
+		lineageTag: 338d2063-c1df-45ff-bad5-893d6fcf2c63
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Symbol_Δ% Total Spend'
+		lineageTag: 3533102d-6a72-4f77-ae9b-d7c26d3bcfc1
+
+	column 'Spalte "1"'
+		dataType: string
+		isHidden
+		lineageTag: 486d1dbe-8cfb-42de-8160-a529ea52f813
+		summarizeBy: none
+		sourceColumn: Spalte "1"
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _All_Measures = m
+		mode: import
+		source =
+				let
+				    Quelle = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [#"Spalte ""1""" = _t])
+				in
+				    Quelle
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

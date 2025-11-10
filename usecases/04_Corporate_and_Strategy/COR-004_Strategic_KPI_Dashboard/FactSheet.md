@@ -69,7 +69,7 @@ model_mapping:
 # Strategic KPI Dashboard (Enterprise Performance Overview)
 
 ## 1. Business Goal
-Provide a single, consolidated view of strategic KPIs across all business domains â€” enabling leadership to monitor execution of corporate strategy, track key objectives, and steer actions based on real-time insights.
+Provide a single, consolidated view of strategic KPIs across all business domains — enabling leadership to monitor execution of corporate strategy, track key objectives, and steer actions based on real-time insights.
 
 ## 3. Key Questions
 - Are we on track to achieve corporate strategic and financial targets?  
@@ -87,7 +87,7 @@ Provide a single, consolidated view of strategic KPIs across all business domain
 
 ## 7. Scope & Assumptions
 - KPIs sourced from validated domain models (semantic layer).  
-- Actuals vs Plan harmonized per fiscal calendar (Mayâ€“April).  
+- Actuals vs Plan harmonized per fiscal calendar (May–April).  
 - Each KPI has an assigned owner and update frequency.  
 - Currency = EUR; consolidated at Group Level.  
 - Refresh and validation aligned with monthly performance reviews.
@@ -122,6 +122,7 @@ Enterprise Performance Management -> Board Reporting -> Strategic Planning -> Fi
   [`KPI Catalog`](../../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../../_includes/ActionCodes.md) | [`Glossary`](../../../_includes/Glossary.md)
 
 _Last updated: 04.11.2025_
+
 
 
 

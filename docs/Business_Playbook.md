@@ -1,6 +1,6 @@
-﻿# Business Playbook â€” Analytics Use Case Framework
+﻿# Business Playbook — Analytics Use Case Framework
 
-Purpose: Explain in plain language how to work with the Analytics Use Case Framework â€” who provides what, how the process flows, and what the Agent/MCP delivers.
+Purpose: Explain in plain language how to work with the Analytics Use Case Framework — who provides what, how the process flows, and what the Agent/MCP delivers.
 
 ---
 
@@ -33,7 +33,7 @@ Purpose: Explain in plain language how to work with the Analytics Use Case Frame
 - Agent/MCP:
   - Resolves required_kpi_ids in catalogs, generates/patches measures
   - Scaffolds a report page (based on `page_template` later)
-  - Runs bestâ€‘practice checks and coverage; reports gaps
+  - Runs best-practice checks and coverage; reports gaps
 
 ---
 
@@ -43,7 +43,7 @@ Purpose: Explain in plain language how to work with the Analytics Use Case Frame
 3) Author the Use Case FactSheet (analyst):
    - required_kpi_ids (from KPI Catalog)
    - segments and filters_default
-   - data_requirements and model_mapping (businessâ€‘level; no code)
+   - data_requirements and model_mapping (business-level; no code)
 4) Agent/MCP (automation):
    - Look up KPIs by ID in the catalogs
    - Create/patch measures in the semantic model (DAX/templates)
@@ -60,17 +60,17 @@ Purpose: Explain in plain language how to work with the Analytics Use Case Frame
 - Agent provides
   - Measure creation (from KPI Catalog technical blocks and safe templates)
   - Report scaffolding (page template, slicers from segments, default filters)
-  - Diagnostics: bestâ€‘practice linting (semantic model/report) and KPI coverage
+  - Diagnostics: best-practice linting (semantic model/report) and KPI coverage
 
 ---
 
-## Authoring a Use Case (nonâ€‘technical)
-Fill `usecases/<cluster>/<UC-ID_Title>/FactSheet.md` frontâ€‘matter:
+## Authoring a Use Case (non-technical)
+Fill `usecases/<cluster>/<UC-ID_Title>/FactSheet.md` front-matter:
 - id, title, domain, owner, impact, status, last_update
 - supports_strategic_kpi_ids (ID list), action_codes, expected_impact
 - required_kpi_ids (IDs) and required_kpis (human names)
 - segments (e.g., Org.Region>Area>Store) and filters_default (e.g., Time: Last 12M)
-- data_requirements (facts/dims/relationships) and model_mapping (labels â†’ model fields)
+- data_requirements (facts/dims/relationships) and model_mapping (labels → model fields)
 
 Tips
 - Choose only the KPIs needed to answer the key questions
@@ -82,7 +82,7 @@ Tips
 ## KPI Catalog & IDs (why they matter)
 - KPI Catalogs live in `/_includes/kpi_catalog/`
 - Each KPI has a stable ASCII `kpi_id` (e.g., `margin.gm.pct`, `fin.liquidity.free_cash_flow`)
-- Use these IDs in Use Cases; names with symbols (e.g., Δ, %) remain humanâ€‘friendly in `kpi_key`
+- Use these IDs in Use Cases; names with symbols (e.g., Δ, %) remain human-friendly in `kpi_key`
 - The Agent uses IDs to generate the right measures regardless of encoding or language
 
 ---
@@ -93,7 +93,7 @@ Tips
 - relationships: how facts join to dims (direction, RI expectations)
 - model_mapping: link canonical labels (e.g., "Net Sales Amount") to the actual model fields
 
-Outcome: The Agent can validate data readiness or scaffold a model if one doesnâ€™t exist yet.
+Outcome: The Agent can validate data readiness or scaffold a model if one doesn’t exist yet.
 
 ---
 
@@ -109,16 +109,30 @@ Outcome: The Agent can validate data readiness or scaffold a model if one doesn�
 ## FAQ
 - Can I add a new KPI?
   - Yes. Propose an ID and add an entry in the relevant KPI catalog using the schema in `SCHEMA.md`. Keep IDs ASCII and descriptive.
-- What if I donâ€™t know DAX?
-  - The Agent uses catalog technical blocks and safe templates (Δ, Δ%, LY). Provide business definitions; weâ€™ll generate DAX.
+- What if I don’t know DAX?
+  - The Agent uses catalog technical blocks and safe templates (Δ, Δ%, LY). Provide business definitions; we’ll generate DAX.
 - Do I need a finished data model?
   - No. Use the Data Requirements block. The Agent can validate/scaffold based on it and your model_mapping.
 
 ---
 
-Start here: Use COMâ€‘001 in `usecases/01_Commercial/COM-001_Sales_Performance/FactSheet.md` as the working example.
+Start here: Use COM-001 in `usecases/01_Commercial/COM-001_Sales_Performance/FactSheet.md` as the working example.
 
-For a oneâ€‘screen summary, see: `./Quickstart_1-Pager.md`.
+For a one-screen summary, see: `./Quickstart_1-Pager.md`.
 
 Last updated: 04.11.2025
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
