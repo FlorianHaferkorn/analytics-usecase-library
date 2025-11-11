@@ -21,25 +21,75 @@ $errors=@(); $warnings=@()
 $pbip = Get-ChildItem -Path $Root -Filter *.pbip -File | Select-Object -First 1
 if(-not $pbip){ $errors += "Missing .pbip file" } else {
   if(-not (Test-BomFree -Path $pbip.FullName)){ $errors += ".pbip has BOM" }
-  if(-not (Test-JsonValid -Path $pbip.FullName)){ $errors += ".pbip invalid JSON" }
+  if(-not (Test-JsonValid -Path $pbip.FullName)){ $errors += ".pbip invalid JSON" } else {
+    $pj = Get-Content -Raw -Path $pbip.FullName | ConvertFrom-Json
+    if(-not $pj.'$schema'){ $warnings += ".pbip missing $schema (optional but recommended)" }
+    $reportPath = $null
+    if($pj.artifacts){
+      foreach($a in $pj.artifacts){ if($a.report -and $a.report.path){ $reportPath = $a.report.path; break } }
+    }
+    if(-not $reportPath){ $errors += "Unable to resolve report path from .pbip artifacts" }
+  }
 }
 
 # 2) Report definition
-$pbir = Join-Path $Root 'COM-001.Report/definition.pbir'
-if(Test-Path $pbir){ if(-not (Test-BomFree -Path $pbir)){ $errors += "definition.pbir has BOM" }; if(-not (Test-JsonValid -Path $pbir)){ $errors += "definition.pbir invalid JSON" } } else { $warnings += "Missing definition.pbir" }
+if($reportPath){ $pbir = Join-Path $Root (Join-Path $reportPath 'definition.pbir') } else { $pbir = $null }
+if(Test-Path $pbir){
+  if(-not (Test-BomFree -Path $pbir)){ $errors += "definition.pbir has BOM" }
+  if(-not (Test-JsonValid -Path $pbir)){ $errors += "definition.pbir invalid JSON" } else {
+    $dp = Get-Content -Raw -Path $pbir | ConvertFrom-Json
+    if(-not $dp.'$schema'){ $errors += "definition.pbir missing $schema" }
+  }
+} else { $warnings += "Missing definition.pbir" }
 
-$reportJson = Join-Path $Root 'COM-001.Report/definition/report.json'
-if(Test-Path $reportJson){ if(-not (Test-BomFree -Path $reportJson)){ $errors += "report.json has BOM" }; if(-not (Test-JsonValid -Path $reportJson)){ $errors += "report.json invalid JSON" } } else { $warnings += "Missing report.json" }
+$reportJson = if($reportPath){ Join-Path $Root (Join-Path $reportPath 'definition/report.json') } else { $null }
+if(Test-Path $reportJson){
+  if(-not (Test-BomFree -Path $reportJson)){ $errors += "report.json has BOM" }
+  if(-not (Test-JsonValid -Path $reportJson)){ $errors += "report.json invalid JSON" } else {
+    try {
+      $rj = Get-Content -Raw -Path $reportJson | ConvertFrom-Json
+      if(-not $rj.'$schema'){ $errors += "report.json missing $schema" }
+      if($rj.themeCollection -and $rj.themeCollection.baseTheme){
+        if(-not $rj.themeCollection.baseTheme.reportVersionAtImport){ $errors += "report.json missing themeCollection.baseTheme.reportVersionAtImport" }
+      }
+    } catch {}
+  }
+} else { $warnings += "Missing report.json" }
+
+# 2a) version.json presence and BOM (Desktop requires it)
+$verDef = if($reportPath){ Join-Path $Root (Join-Path $reportPath 'definition/version.json') } else { $null }
+$verRoot = if($reportPath){ Join-Path $Root (Join-Path $reportPath 'version.json') } else { $null }
+if(-not (Test-Path $verDef) -and -not (Test-Path $verRoot)){
+  $errors += "Missing version.json in Report (definition or root)"
+}
+foreach($v in @($verDef,$verRoot)){
+  if(Test-Path $v){
+    if(-not (Test-BomFree -Path $v)){ $errors += "version.json has BOM: $v" }
+    if(-not (Test-JsonValid -Path $v)){ $errors += "version.json invalid JSON: $v" } else {
+      try {
+        $vj = Get-Content -Raw -Path $v | ConvertFrom-Json
+        if(-not $vj.'$schema'){ $errors += ("version.json missing `$schema: {0}" -f $v) }
+        if(-not $vj.version){ $warnings += "version.json missing version: $v" }
+      } catch {}
+    }
+  }
+}
 
 # 3) .platform displayName consistency
-$repPlat = Join-Path $Root 'COM-001.Report/.platform'
-$semPlat = Join-Path $Root 'COM-001.SemanticModel/.platform'
+$repPlat = if($reportPath){ Join-Path $Root (Join-Path $reportPath '.platform') } else { $null }
+$semPlat = $null
 if(Test-Path $repPlat){ $rep = Get-Content -Raw -Path $repPlat | ConvertFrom-Json } else { $warnings += "Missing Report .platform" }
-if(Test-Path $semPlat){ $sem = Get-Content -Raw -Path $semPlat | ConvertFrom-Json } else { $warnings += "Missing SemanticModel .platform" }
+if(Test-Path $pbir){ try { $dp = Get-Content -Raw -Path $pbir | ConvertFrom-Json; $semRel = $dp.datasetReference.byPath.path } catch {} }
+if($semRel){
+  $repDir = if($reportPath){ Join-Path $Root $reportPath } else { $Root }
+  try { $semFull = [IO.Path]::GetFullPath((Join-Path $repDir $semRel)) } catch { $semFull = Join-Path $repDir $semRel }
+  $semPlat = Join-Path $semFull '.platform'
+  if(Test-Path $semPlat){ $sem = Get-Content -Raw -Path $semPlat | ConvertFrom-Json } else { $warnings += "Missing SemanticModel .platform" }
+} else { $warnings += "Cannot resolve SemanticModel path from definition.pbir" }
 if($rep -and $sem){ if($rep.metadata.displayName -ne $sem.metadata.displayName){ $warnings += "displayName mismatch: '$($rep.metadata.displayName)' vs '$($sem.metadata.displayName)'" } }
 
 # 4) TMDL presence and basic checks
-$tmdlRoot = Join-Path $Root 'COM-001.SemanticModel/definition'
+$tmdlRoot = $null; if($semFull){ $tmdlRoot = Join-Path $semFull 'definition' }
 if(-not (Test-Path $tmdlRoot)){ $errors += "Missing SemanticModel definition folder" } else {
   $model = Join-Path $tmdlRoot 'model.tmdl'
   if(-not (Test-Path $model)){ $errors += "Missing model.tmdl" } else {
@@ -49,15 +99,23 @@ if(-not (Test-Path $tmdlRoot)){ $errors += "Missing SemanticModel definition fol
   $tables = Join-Path $tmdlRoot 'tables'
   if(-not (Test-Path $tables)){ $errors += "Missing tables folder" } else {
     $files = Get-ChildItem -Path $tables -Filter *.tmdl -File
-    if($files.Count -eq 0){ $errors += "No table .tmdl files found" }
+    if($files.Count -eq 0){ $warnings += "No table .tmdl files found (empty model)" }
     $measureTables = $files | Where-Object { $_.Name -match '_Measures' }
     if($measureTables.Count -eq 0){ $warnings += "No measure table (_Measures or _All_Measures) found" }
   }
 }
 
+# 4a) Validate any *.pbism files (BOM-free + JSON)
+$pbismFiles = Get-ChildItem -Path $Root -Recurse -Filter *.pbism -File -ErrorAction SilentlyContinue
+foreach($f in $pbismFiles){
+  if(-not (Test-BomFree -Path $f.FullName)){ $errors += "pbism has BOM: $($f.FullName)" }
+  if(-not (Test-JsonValid -Path $f.FullName)){ $errors += "pbism invalid JSON: $($f.FullName)" }
+}
+
 if($warnings.Count){ Write-Host "Warnings:" -ForegroundColor Yellow; $warnings | ForEach-Object { Write-Host "- $_" } }
 if($errors.Count){ Write-Host "Errors:" -ForegroundColor Red; $errors | ForEach-Object { Write-Host "- $_" }; exit 2 }
 Write-Host "PBIP structure looks good (BOM-free + basic checks)." -ForegroundColor Green
+
 
 
 

@@ -1,0 +1,110 @@
+/// COM-001 Measures (Sales Performance)
+table _Measures
+
+    /// Total invoiced sales net of returns
+    measure 'Net Sales Amount'
+        expression:
+            '''
+            SUMX(Sales, Sales[UnitPrice] * Sales[SalesQuantity]) - SUM(Sales[ReturnAmount])
+            '''
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// Sum of sold units
+    measure 'Units Qty'
+        expression:
+            '''
+            SUM(Sales[SalesQuantity])
+            '''
+        formatString: "#,0"
+        displayFolder: "01_Sales"
+
+    /// Currency value of gross margin
+    measure 'Gross Margin Amount'
+        expression:
+            '''
+            [Net Sales Amount] - SUMX(Sales, Sales[UnitCost] * Sales[SalesQuantity])
+            '''
+        formatString: "€ #,0.00"
+        displayFolder: "02_Margin"
+
+    /// Share of gross margin relative to net sales
+    measure 'Gross Margin %'
+        expression:
+            '''
+            DIVIDE([Gross Margin Amount],[Net Sales Amount])
+            '''
+        formatString: "0.0 %"
+        displayFolder: "02_Margin"
+
+    /// Net Sales for same period last year
+    measure 'Net Sales Amount LY'
+        expression:
+            '''
+            CALCULATE([Net Sales Amount], SAMEPERIODLASTYEAR(Calendar[DateKey]))
+            '''
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// Absolute variance of Net Sales vs LY
+    measure 'Δ Net Sales Amount'
+        expression:
+            '''
+            [Net Sales Amount] - [Net Sales Amount LY]
+            '''
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// Relative variance of Net Sales vs LY
+    measure 'Δ% Net Sales'
+        expression:
+            '''
+            DIVIDE([Δ Net Sales Amount], [Net Sales Amount LY])
+            '''
+        formatString: "0.0 %"
+        displayFolder: "01_Sales"
+
+    /// Price Realization vs list price (placeholder until list price exists)
+    measure 'Price Realization %'
+        expression:
+            '''
+            BLANK()
+            '''
+        formatString: "0.0 %"
+        displayFolder: "03_Price_Promo"
+
+    /// Promo uplift relative to baseline (placeholder)
+    measure 'Promo Uplift %'
+        expression:
+            '''
+            BLANK()
+            '''
+        formatString: "0.0 %"
+        displayFolder: "03_Price_Promo"
+
+    /// Price effect of PVM bridge (placeholder)
+    measure 'Price Effect Amount'
+        expression:
+            '''
+            BLANK()
+            '''
+        formatString: "€ #,0.00"
+        displayFolder: "04_PVM"
+
+    /// Volume effect of PVM bridge (placeholder)
+    measure 'Volume Effect Amount'
+        expression:
+            '''
+            BLANK()
+            '''
+        formatString: "€ #,0.00"
+        displayFolder: "04_PVM"
+
+    /// Mix effect of PVM bridge (residual placeholder)
+    measure 'Mix Effect Amount'
+        expression:
+            '''
+            BLANK()
+            '''
+        formatString: "€ #,0.00"
+        displayFolder: "04_PVM"

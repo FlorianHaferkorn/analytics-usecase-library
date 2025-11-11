@@ -1,0 +1,1 @@
+{"settings":{"enableAutoRecovery":true},"$schema":"https://developer.microsoft.com/json-schemas/fabric/pbip/pbipProperties/1.0.0/schema.json","artifacts":[{"report":{"path":"COM-001.Report"}}],"version":"1.0"}
