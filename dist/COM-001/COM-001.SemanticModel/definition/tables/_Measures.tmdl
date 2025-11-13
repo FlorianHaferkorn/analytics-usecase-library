@@ -1,110 +1,74 @@
-/// COM-001 Measures (Sales Performance)
+/// COM-001 Measures (Sales Performance vs Plan & Last Year)
 table _Measures
 
-    /// Total invoiced sales net of returns
-    measure 'Net Sales Amount'
-        expression:
-            '''
+    /// Total invoiced sales excl. returns
+    measure 'Net Sales Amount' =
             SUMX(Sales, Sales[UnitPrice] * Sales[SalesQuantity]) - SUM(Sales[ReturnAmount])
-            '''
-        formatString: "€ #,0.00"
+        formatString: "EUR #,0.00"
         displayFolder: "01_Sales"
 
-    /// Sum of sold units
-    measure 'Units Qty'
-        expression:
-            '''
-            SUM(Sales[SalesQuantity])
-            '''
-        formatString: "#,0"
-        displayFolder: "01_Sales"
-
-    /// Currency value of gross margin
-    measure 'Gross Margin Amount'
-        expression:
-            '''
-            [Net Sales Amount] - SUMX(Sales, Sales[UnitCost] * Sales[SalesQuantity])
-            '''
-        formatString: "€ #,0.00"
-        displayFolder: "02_Margin"
-
-    /// Share of gross margin relative to net sales
-    measure 'Gross Margin %'
-        expression:
-            '''
-            DIVIDE([Gross Margin Amount],[Net Sales Amount])
-            '''
-        formatString: "0.0 %"
-        displayFolder: "02_Margin"
-
-    /// Net Sales for same period last year
-    measure 'Net Sales Amount LY'
-        expression:
-            '''
+    /// Net Sales for same period last year (demo)
+    measure 'Net Sales Amount LY' =
             CALCULATE([Net Sales Amount], SAMEPERIODLASTYEAR(Calendar[DateKey]))
-            '''
-        formatString: "€ #,0.00"
+        formatString: "EUR #,0.00"
         displayFolder: "01_Sales"
 
     /// Absolute variance of Net Sales vs LY
-    measure 'Δ Net Sales Amount'
-        expression:
-            '''
+    measure 'Δ Net Sales Amount' =
             [Net Sales Amount] - [Net Sales Amount LY]
-            '''
-        formatString: "€ #,0.00"
+        formatString: "EUR #,0.00"
         displayFolder: "01_Sales"
 
     /// Relative variance of Net Sales vs LY
-    measure 'Δ% Net Sales'
-        expression:
-            '''
+    measure 'Δ% Net Sales' =
             DIVIDE([Δ Net Sales Amount], [Net Sales Amount LY])
-            '''
         formatString: "0.0 %"
         displayFolder: "01_Sales"
 
-    /// Price Realization vs list price (placeholder until list price exists)
-    measure 'Price Realization %'
-        expression:
-            '''
+    /// Cost of goods sold (demo)
+    measure 'COGS Amount' =
+            SUMX(Sales, Sales[UnitCost] * Sales[SalesQuantity])
+        formatString: "EUR #,0.00"
+        displayFolder: "02_Margin"
+
+    /// Gross margin in currency
+    measure 'Gross Margin Amount' =
+            [Net Sales Amount] - [COGS Amount]
+        formatString: "EUR #,0.00"
+        displayFolder: "02_Margin"
+
+    /// Gross margin share of net sales
+    measure 'Gross Margin %' =
+            DIVIDE([Gross Margin Amount], [Net Sales Amount])
+        formatString: "0.0 %"
+        displayFolder: "02_Margin"
+
+    /// Placeholder until list price exists
+    measure 'Price Realization %' =
             BLANK()
-            '''
         formatString: "0.0 %"
         displayFolder: "03_Price_Promo"
 
-    /// Promo uplift relative to baseline (placeholder)
-    measure 'Promo Uplift %'
-        expression:
-            '''
+    /// Placeholder (promo base not modeled)
+    measure 'Promo Uplift %' =
             BLANK()
-            '''
         formatString: "0.0 %"
         displayFolder: "03_Price_Promo"
 
-    /// Price effect of PVM bridge (placeholder)
-    measure 'Price Effect Amount'
-        expression:
-            '''
+    /// Placeholder PVM price effect
+    measure 'Price Effect Amount' =
             BLANK()
-            '''
-        formatString: "€ #,0.00"
+        formatString: "EUR #,0.00"
         displayFolder: "04_PVM"
 
-    /// Volume effect of PVM bridge (placeholder)
-    measure 'Volume Effect Amount'
-        expression:
-            '''
+    /// Placeholder PVM volume effect
+    measure 'Volume Effect Amount' =
             BLANK()
-            '''
-        formatString: "€ #,0.00"
+        formatString: "EUR #,0.00"
         displayFolder: "04_PVM"
 
-    /// Mix effect of PVM bridge (residual placeholder)
-    measure 'Mix Effect Amount'
-        expression:
-            '''
+    /// Placeholder PVM mix effect
+    measure 'Mix Effect Amount' =
             BLANK()
-            '''
-        formatString: "€ #,0.00"
+        formatString: "EUR #,0.00"
         displayFolder: "04_PVM"

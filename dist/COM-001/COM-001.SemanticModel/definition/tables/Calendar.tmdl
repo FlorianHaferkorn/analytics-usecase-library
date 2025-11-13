@@ -1,96 +1,53 @@
 table Calendar
-	lineageTag: d5bc7449-ac94-4430-a733-be1ca19fb4ef
 
 	column DateKey
 		dataType: dateTime
-		isHidden
-		formatString: General Date
-		lineageTag: b4c57c43-b86a-4a31-b4df-e9e17666aa8d
 		summarizeBy: none
 		sourceColumn: DateKey
 
-		annotation SummarizationSetBy = Automatic
-
 	column DateInt
 		dataType: double
-		isHidden
-		lineageTag: e227b160-a5a0-4e89-8b58-e5b01d56bc39
 		summarizeBy: sum
 		sourceColumn: DateInt
 
-		annotation SummarizationSetBy = Automatic
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
 	column MonthName
 		dataType: string
-		lineageTag: 6da56bad-96bd-45c3-a9a6-26d477c3ed79
 		summarizeBy: none
 		sourceColumn: MonthName
 
-		annotation SummarizationSetBy = Automatic
-
-		annotation PBI_FormatHint = {"isText":true}
-
 	column DayOfWeekName
 		dataType: string
-		lineageTag: bce837da-6d80-4723-8076-4eb47a45432a
 		summarizeBy: none
 		sourceColumn: DayOfWeekName
 
-		annotation SummarizationSetBy = Automatic
-
-		annotation PBI_FormatHint = {"isText":true}
-
 	column Year
 		dataType: int64
-		formatString: 0
-		lineageTag: a661445f-910d-44af-a828-c3dfed4659e9
 		summarizeBy: sum
 		sourceColumn: Year
 
-		annotation SummarizationSetBy = Automatic
-
 	column QuarterOfYear
 		dataType: int64
-		formatString: 0
-		lineageTag: 7de0bfd7-d90d-4305-b083-1b2f78cf8c5e
 		summarizeBy: sum
 		sourceColumn: QuarterOfYear
 
-		annotation SummarizationSetBy = Automatic
-
 	column MonthOfYear
 		dataType: int64
-		formatString: 0
-		lineageTag: b450be69-e282-4854-9d0b-e9333e62af14
 		summarizeBy: sum
 		sourceColumn: MonthOfYear
 
-		annotation SummarizationSetBy = Automatic
-
 	column DayOfMonth
 		dataType: int64
-		formatString: 0
-		lineageTag: a7242255-3db0-4c78-ab2a-4e1153263c85
 		summarizeBy: sum
 		sourceColumn: DayOfMonth
 
-		annotation SummarizationSetBy = Automatic
-
-	partition Calendar-c5851a98-1654-4378-9576-8acf34cce5e3 = m
+	partition Calendar_Demo = m
 		mode: import
-		source =
+		source = ```
 				let
-				    Source = Access.Database(File.Contents("C:\Users\owend\Documents\ContosoSalesV31_64bit.accdb")),
-				    _DimDate = Source{[Schema="",Item="DimDate"]}[Data],
-				    #"Changed Type" = Table.TransformColumnTypes(_DimDate,{{"YearKey", Int64.Type}, {"QuarterOfYear", Int64.Type}, {"MonthOfYear", Int64.Type}, {"DayOfMonth", Int64.Type}}),
-				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"MonthInCalendar", "QuarterInCalendar", "DayInWeek"}),
-				    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns",{{"YearKey", "Year"}})
+				    Source = #table({"DateKey","DateInt","MonthName","DayOfWeekName","Year","QuarterOfYear","MonthOfYear","DayOfMonth"}, {
+				        { #date(2024,10,1), 20241001.0, "October", "Tuesday", 2024, 4, 10, 1 },
+				        { #date(2025,10,1), 20251001.0, "October", "Wednesday", 2025, 4, 10, 1 }
+				    })
 				in
-				    #"Renamed Columns"
-
-	annotation ColumnsMetadata = {"Columns":[{"Name":"DateKey","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//DimDate.{DateKey,0}"},{"Name":"DateInt","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//DimDate.{DateInt,1}"},{"Name":"Year","Id":"Section1/DimDate/Changed Type.{YearKey,2}"},{"Name":"QuarterOfYear","Id":"Section1/DimDate/Changed Type.{QuarterOfYear,3}"},{"Name":"MonthOfYear","Id":"Section1/DimDate/Changed Type.{MonthOfYear,4}"},{"Name":"DayOfMonth","Id":"Section1/DimDate/Changed Type.{DayOfMonth,5}"},{"Name":"MonthName","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//DimDate.{MonthName,6}"},{"Name":"DayOfWeekName","Id":"Server.Database\\/1/File/c:\\\\users\\\\owend\\\\documents\\\\contososalesv31_64bit.accdb//DimDate.{DayOfWeekName,9}"}]}
-
-	annotation PBI_ResultType = Table
-
+				    Source
+				```
