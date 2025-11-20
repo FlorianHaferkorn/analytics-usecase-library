@@ -1,0 +1,55 @@
+/// COR-012 Measures (Commercial & Supply Chain Reconciliation)
+table _Measures
+
+    /// sales.net_sales.amount - Net Sales Amount
+    /// Total invoiced revenue net of discounts and returns.
+    measure 'Net Sales Amount' =
+            SUM(fact_sales[Net Sales Amount])
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// sales.promo.roi.pct - Promo ROI %
+    /// Measures profitability of promotions relative to spend.
+    measure 'Promo ROI %' =
+            DIVIDE([Incremental GM Amount] - [Promo Cost Amount],[Promo Cost Amount])
+        formatString: "0.0 %"
+        displayFolder: "03_Price_Promo"
+
+    /// sales.promo.uplift_pct - Promo Uplift %
+    /// Measure incremental sales impact of promotions versus baseline demand.
+    measure 'Promo Uplift %' =
+            DIVIDE([Promo Sales Amount]-[Baseline Sales Amount],[Baseline Sales Amount])
+        formatString: "0.0 %"
+        displayFolder: "01_Sales"
+
+    /// margin.promo.incremental.amount - Incremental GM Amount
+    /// Additional gross margin due to promotion.
+    measure 'Incremental GM Amount' =
+            ([Promo Sales Amount]-[Promo COGS Amount]) - ([Baseline Sales Amount]-CALCULATE([COGS Amount], NOT fact_sales[Promo Flag]))
+        formatString: "EUR #,0.00"
+        displayFolder: "02_Margin"
+
+    /// ops.stockout.pct - Stock-Out Rate %
+    /// Share of demand not fulfilled due to stock unavailability.
+    measure 'Stockout Rate %' =
+            BLANK()
+        formatString: "0.0 %"
+
+    /// ops.inventory.days - Inventory Days
+    /// Average number of days current inventory covers sales (on-hand duration).
+    measure 'Inventory Days on Hand (DIO)' =
+            BLANK()
+        formatString: "0"
+
+    /// ops.inventory.turnover - Inventory Turnover
+    /// Measures how often inventory is sold and replaced over a period to assess stock efficiency.
+    measure 'Inventory Turnover' =
+            BLANK()
+        formatString: "0.00"
+
+    /// ops.working_capital.ccc.days - Cash Conversion Cycle (Days)
+    /// Combines receivables, inventory, and payables days to show cash efficiency.
+    measure 'Cash Conversion Cycle (Days)' =
+            [DSO (Days)] + [DIO (Days)] - [DPO (Days)]
+        formatString: "0"
+        displayFolder: "02_WorkingCapital"

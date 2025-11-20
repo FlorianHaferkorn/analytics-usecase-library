@@ -1,0 +1,16 @@
+/// OPS-009 Measures (Logistics Cost Ratio)
+table _Measures
+
+    /// ops.logistics.cost_ratio.pct - Logistics Cost Ratio %
+    /// Measure logistics cost relative to net sales or shipped value.
+    measure 'Logistics Cost Ratio %' =
+            BLANK()
+        formatString: "0.0 %"
+        displayFolder: "05_Logistics"
+
+    /// ops.logistics.cost_per_unit.amount - Logistics Cost per Unit
+    /// Measure average logistics cost per shipped unit.
+    measure 'Logistics Cost per Unit' =
+            BLANK()
+        formatString: "EUR #,0.000"
+        displayFolder: "05_Logistics"

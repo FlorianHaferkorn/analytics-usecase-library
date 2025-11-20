@@ -1,0 +1,20 @@
+/// OPS-017 Measures (OTIF Root Cause Analysis)
+table _Measures
+
+    /// ops.otif.pct - OTIF %
+    /// Delivery reliability measured by orders delivered on-time and in-full.
+    measure 'On-Time-In-Full (OTIF) %' =
+            BLANK()
+        formatString: "0.0 %"
+
+    /// ops.order_accuracy.pct - Order Accuracy %
+    /// Share of customer orders delivered exactly as ordered (quantity, items, conditions).
+    measure 'Order Accuracy %' =
+            BLANK()
+        formatString: "0.0 %"
+
+    /// ops.stockout.pct - Stock-Out Rate %
+    /// Share of demand not fulfilled due to stock unavailability.
+    measure 'Stockout Rate %' =
+            BLANK()
+        formatString: "0.0 %"

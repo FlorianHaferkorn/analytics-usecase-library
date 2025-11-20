@@ -1,0 +1,20 @@
+/// OPS-016 Measures (Bottleneck & Throughput Analysis (TOC))
+table _Measures
+
+    /// ops.oee.pct - Overall Equipment Effectiveness (OEE) %
+    /// Measures manufacturing performance combining availability, performance, and quality.
+    measure 'Overall Equipment Effectiveness (OEE) %' =
+            [Availability %] * [Performance %] * [Quality %]
+        formatString: "0.0 %"
+
+    /// ops.performance.pct - Performance %
+    /// Throughput speed versus theoretical maximum.
+    measure 'Performance %' =
+            BLANK()
+        formatString: "0.0 %"
+
+    /// ops.produced_units.qty - Produced Units Qty
+    /// Number of finished goods units produced.
+    measure 'Produced Units Qty' =
+            SUM(fact_production[OutputUnits])
+        formatString: "#,0"

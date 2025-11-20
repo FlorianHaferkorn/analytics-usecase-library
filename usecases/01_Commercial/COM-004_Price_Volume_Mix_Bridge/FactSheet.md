@@ -1,4 +1,4 @@
-﻿---
+---
 id: "COM-004"
 title: "Price-Volume-Mix Bridge (Δ Net Sales & Δ Gross Margin)"
 domain: "Commercial"
@@ -6,6 +6,9 @@ owner: "Head of Sales Controlling"
 impact: "High"
 status: "Draft"
 last_update: "04.11.2025"
+maturity: "Pilot"
+reporting_level: "Tactical"
+analytics_stage: "Diagnostic"
 supports_strategic_kpi: ["Revenue Growth %", "Gross Margin %"]
 supports_strategic_kpi_ids: ["sales.revenue.growth_pct", "margin.gm.pct"]
 action_codes: ["P2", "M3", "D1", "SP1", "O2"]
@@ -49,9 +52,10 @@ model_mapping:
   "Units Qty": "fact_sales[Units Qty]"
   "Date": "dim_date[Date]"
   "Org": "dim_org[OrgID]"
-  "Product": "dim_product[ProductID]"---
+  "Product": "dim_product[ProductID]"
 required_kpi_ids: [
   "sales.net_sales.delta_amount.ly",
+  "margin.gm.delta_amount",
   "sales.pvm.price_effect.amount",
   "sales.pvm.volume_effect.amount",
   "sales.pvm.mix_effect.amount",
@@ -59,15 +63,16 @@ required_kpi_ids: [
 ]
 required_kpis:
   sales.net_sales.delta_amount.ly: "Δ Net Sales Amount"
+  margin.gm.delta_amount: "Δ Gross Margin Amount"
   sales.pvm.price_effect.amount: "Price Effect Amount"
   sales.pvm.volume_effect.amount: "Volume Effect Amount"
   sales.pvm.mix_effect.amount: "Mix Effect Amount"
   margin.gm.pct: "Gross Margin %"
-
+---
 # Price-Volume-Mix Bridge (Δ Net Sales & Δ Gross Margin)
 
 ## 1. Business Goal
-Provide a unified analytical bridge that decomposes revenue and margin variance into price, volume, and mix components to explain why results deviate from Plan or Last Year — enabling targeted commercial and cost actions.
+Provide a unified analytical bridge that decomposes revenue and margin variance into price, volume, and mix components to explain why results deviate from Plan or Last Year – enabling targeted commercial and cost actions.
 
 ---
 
@@ -92,13 +97,13 @@ This enables management to distinguish tactical from structural effects and to a
 ---
 
 ## 4. Key KPIs
-| KPI | Definition | Unit | Format |
-|------|-------------|------|--------|
-| Δ Net Sales Amount | Net Sales - Plan/LY | EUR | 0-2 decimals |
-| Δ Gross Margin Amount | (NS-COGS)_Actual - (NS-COGS)_Plan | EUR | 0-2 decimals |
-| Price Effect Amount | (Actual Price - Plan Price) x Actual Qty | EUR | 0-2 decimals |
-| Volume Effect Amount | (Actual Qty - Plan Qty) x Plan Price | EUR | 0-2 decimals |
-| Mix Effect Amount | Δ Total - (Price + Volume) Effect | EUR | 0-2 decimals |
+| KPI                   | Definition                                         | Unit | Format     |
+|-----------------------|----------------------------------------------------|------|------------|
+| Δ Net Sales Amount    | Net Sales - Plan/LY                                | EUR  | € #,0.00   |
+| Δ Gross Margin Amount | (NS-COGS)_Actual - (NS-COGS)_Plan                  | EUR  | € #,0.00   |
+| Price Effect Amount   | (Actual Price - Plan Price) × Actual Qty          | EUR  | € #,0.00   |
+| Volume Effect Amount  | (Actual Qty - Plan Qty) × Plan Price              | EUR  | € #,0.00   |
+| Mix Effect Amount     | Δ Total - (Price + Volume) Effect                 | EUR  | € #,0.00   |
 
 ---
 
@@ -113,91 +118,90 @@ This enables management to distinguish tactical from structural effects and to a
 ---
 
 ## 6. Segmentation & Hierarchies
-- Org: Region > Area > Store  
 - Product: Category > Subcategory > SKU  
+- Org: Region > Area > Store  
 - Channel: Online / Offline  
-- Time: Year > Month > Week
+- Time: Year > Quarter > Month > Week  
 
 ---
 
 ## 7. Scope & Assumptions
-- PVM decomposition calculated at invoice-line level.  
-- Plan values fixed before execution; no rolling reforecast.  
-- Reporting currency = EUR; FX at transaction date.  
-- Negative volume excluded from mix effect.  
-- Volume effect uses Plan Price; Price effect uses Actual Volume.
+- PVM bridge reconciles 100 % of Net Sales and Gross Margin variance between Actual and Plan/LY.  
+- Effects are calculated on a consistent base (e.g., Plan, Last Year) with clearly documented logic.  
+- FX effects are either neutralized (constant currency) or explicitly modeled as a separate effect.  
+- Promotions and one-offs are flagged to avoid misinterpretation of structural price/mix effects.  
 
 ---
 
 ## 8. Data Freshness & Cadence
-- Refresh: daily 06:00 CET  
-- Latency <= 24 h  
-- Backfill = 24 months  
-- Data Owner: Sales Controlling / Finance BI
+- Data refresh: daily after posting of transactional data.  
+- Latency target: ≤ 24 h after day-end close.  
+- Historical depth: at least 24–36 months for trend analysis.  
+- Data Owner: Sales Controlling; Technical Owner: Commercial BI.  
 
 ---
 
 ## 9. Edge Cases & QA Rules
-- Price + Volume + Mix ~= Total Δ (variance < 0.5 %)  
-- Plan Qty > 0 and Plan Price > 0 required.  
-- Bound Δ% Price Effect [-30%; +50%].  
-- Missing dimensions = 'Unknown'.  
-- Referential integrity >= 99.9 %.
+- Negative or zero volumes are flagged and excluded from effect calculation where appropriate.  
+- Extreme price outliers (e.g., below defined floor price) are flagged for review.  
+- Price + Volume + Mix should reconcile to Total Δ within a small tolerance (e.g., < 0.5 %).  
+- Referential integrity between fact_sales and dimensions must be ≥ 99.5 %.  
 
 ---
 
 ## 10. Minimum Viable Dataset (MVD)
-- Required: Date, Org, Product, Units Qty, Net Sales Amount, List Price Amount  
-- Optional: Plan/LY values, COGS Amount  
-- Extended: Promo Flag, Discount Rate, Margin Data
+- Required:
+  - Sales fact with Net Sales Amount, Units Qty, Date, Org, Product, Channel.
+  - Plan / Last Year values for Net Sales and Units Qty.
+- Optional:
+  - COGS, list price, promo flags, additional attributes for more granular mix analysis.
+- Extended:
+  - Customer-level identifiers for customer-mix analysis.
 
 ---
 
 ## 11. Typical Actions
-| Action | Code | Expected Effect |
-|---------|------|----------------|
-| Review price realization by segment and adjust corridors | P2 | GM % +0.5-1.0 pp |
-| Optimize product mix toward high-margin SKUs | M3 | GM % +1 pp; Δ NS stable |
-| Refocus promotions to offset unfavorable mix | D1 | Δ% NS +1-2 pp |
-| Rebalance channel allocation based on unit economics | SP1 | Profit improves; margin stability improves |
-| Integrate PVM logic into rolling forecast | O2 | Forecast variance -20 % |
+| Action                                                     | Code | Expected Effect                  |
+|------------------------------------------------------------|------|----------------------------------|
+| Review price realization by segment and adjust corridors   | P2   | GM % +0.5–1.0 pp                 |
+| Refocus promotions to offset unfavorable mix               | D1   | Δ% Net Sales +1–2 pp             |
+| Optimize assortment focusing on high-margin products       | M3   | GM % +0.5–1.0 pp, stable revenue |
+| Use variance insights to refine next planning assumptions  | SP1  | Lower budget variance, faster cycle |
 
 ---
 
 ## 12. Expected Business Impact
-| Dimension | Expected Impact | Measurement |
-|------------|----------------|-------------|
-| Revenue Insight | 100 % reconciled variance explanation | vs Plan |
-| Profitability | +0.5-1.5 pp GM % | vs LY |
-| Forecast Quality | -20 % MAPE | Rolling 3 M |
+| Dimension      | Expected Impact                      | Measurement  |
+|----------------|--------------------------------------|--------------|
+| Profitability  | +0.5–1.5 pp GM %                     | vs LY        |
+| Transparency   | 100 % reconciled Net Sales & GM Δ    | bridge vs P&L |
+| Planning       | -10–20 % manual effort in variance analysis | vs prior year |
 
 ---
 
 ## 13. Related Processes
-Sales & Margin Review Cycle -> Budget vs Actual Reporting -> Planning and Forecast Update -> Pricing Governance.
+Sales & Margin Review Cycle → Budget vs Actual Reporting → Planning and Forecast Update → Pricing Governance.
 
 ---
 
 ## 14. Insights & Learnings
-Mix effects often explain > 30 % of variance but are under-discussed.  
-Price pressure may increase volume but reduce overall margin efficiency.  
-Automating PVM bridges creates a shared single source of truth for finance and sales.
+Typical findings include misaligned discounting, overreliance on low-margin products, and regional/channel mix shifts that erode margin despite stable or growing revenue.
 
 ---
 
 ## 15. Cross-References
 - Related Use Cases:  
-  `[COM-001 Sales Performance](../COM-001_Sales_Performance/FactSheet.md)`  
-  `[COM-002 Gross Margin Analysis](../COM-002_Gross_Margin_Analysis/FactSheet.md)`  
-  `[OPS-003 Purchase Price Variance](../../02_Operational_Efficiency/OPS-003_Purchase_Price_Variance/FactSheet.md)`  
+  `[COM-001 Sales Performance vs Plan & LY](../COM-001_Sales_Performance/FactSheet.md)`  
+  `[COM-002 Gross Margin % vs Plan & Last Year](../COM-002_Gross_Margin_Analysis/FactSheet.md)`  
+  `[COM-005 Promotion ROI & Effectiveness](../COM-005_Promotion_ROI_and_Effectiveness/FactSheet.md)`  
 - Related Documents:  
   [`KPI Catalog`](../../../_includes/kpi_catalog/README.md) | [`Action Codes`](../../../_includes/ActionCodes.md) | [`Glossary`](../../../_includes/Glossary.md)
 
 ---
 
 ## 16. Review Information
-| Field | Value |
-|--------|-------|
+| Field | Value           |
+|-------|-----------------|
 | Business Reviewer | [Name / Role] |
 | Technical Reviewer | [Name / Role] |
 | Version | v1.0 |
@@ -207,8 +211,4 @@ Automating PVM bridges creates a shared single source of truth for finance and s
 ---
 
 _Last updated: 04.11.2025_
-
-
-
-
 

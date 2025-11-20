@@ -1,0 +1,24 @@
+/// GOV-003 Measures (Risk & Control Testing)
+table _Measures
+
+    /// Supporting: Controls Tested Count
+    /// Number of control tests performed.
+    measure 'Controls Tested Count' =
+            COUNTROWS(fact_controls)
+        formatString: "#,0"
+        displayFolder: "01_RiskControl"
+
+    /// gov.audit.findings.count - Audit Findings Count
+    /// Total number of audit findings.
+    measure 'Audit Findings Count' =
+            COUNTROWS(fact_findings)
+        formatString: "#,0"
+        displayFolder: "01_RiskControl"
+
+    /// gov.audit.findings.open.count - Open Audit Findings Count
+    /// Number of audit findings currently open.
+    measure 'Open Audit Findings Count' =
+            COUNTROWS(FILTER(fact_findings, fact_findings[IsOpen] = TRUE()))
+        formatString: "#,0"
+        displayFolder: "01_RiskControl"
+

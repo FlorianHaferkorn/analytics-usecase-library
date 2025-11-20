@@ -78,7 +78,7 @@ Each Action Code is uniquely identified and classified by:
 ### **Efficiency**
 | Code | Action | Impact Dimension | Target KPI | Typical Use Cases | Expected Effect | Trigger Condition |
 |------|---------|------------------|-------------|-------------------|-----------------|-------------------|
-| **E1** | Streamline Processes | Efficiency | Cost per Unit, OEE | OPS-001 Process Analysis | −2–3 % unit cost | Cycle time â†‘ 10 % |
+| **E1** | Streamline Processes | Efficiency | Cost per Unit, OEE | OPS-001 Process Analysis | −2–3 % unit cost | Cycle time ↑ 10 % |
 | **E2** | Increase Automation | Efficiency | Digital Process Share %, Labor Productivity % | COR-019 Digitalization | +10 % automation | Manual share > 50 % |
 | **E3** | Supplier Consolidation | Efficiency | Supplier On-Time %, Cost per Unit | OPS-010 Procurement Optimization | +2 % OTD | ≥ 5 small suppliers/category |
 | **E4** | Workforce Optimization | Efficiency | Labor Productivity %, Headcount Efficiency % | COR-008 Workforce Efficiency | +3–5 % productivity | Labor cost > Plan +5 % |
@@ -107,7 +107,7 @@ Each Action Code is uniquely identified and classified by:
 ### **ESG**
 | Code | Action | Impact Dimension | Target KPI | Typical Use Cases | Expected Effect | Trigger Condition |
 |------|---------|------------------|-------------|-------------------|-----------------|-------------------|
-| **S1** | Reduce COâ‚‚ Emissions | ESG | Emission Intensity | COR-013 Carbon Footprint | −5 % emissions | > baseline target |
+| **S1** | Reduce CO₂ Emissions | ESG | Emission Intensity | COR-013 Carbon Footprint | −5 % emissions | > baseline target |
 | **S2** | Increase Renewable Share | ESG | Renewable Share %, Energy Efficiency % | COR-014 Energy Transition | +10 % renewable | Renewable < 30 % |
 | **S3** | Waste Recycling Initiative | ESG | Recycling Rate %, Sustainability Score | OPS-013 Circular Economy | +5 % recycling | Recycling rate < 60 % |
 | **S4** | Supplier ESG Screening | ESG | Supplier ESG Compliance % | OPS-015 Supplier ESG | +5 % compliance | Supplier audit gaps > 10 % |

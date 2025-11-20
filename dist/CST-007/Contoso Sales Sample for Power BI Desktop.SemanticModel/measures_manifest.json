@@ -1,0 +1,105 @@
+{
+    "usecase_id":  "CST-007",
+    "title":  "Complaint Rate \u0026 Service Quality",
+    "dataset_model":  "Contoso Sales Sample for Power BI Desktop.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\03_Customer_and_Market\\CST-007_Complaint_Rate_and_Service_Quality\\FactSheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "crm.complaint.rate.pct",
+                         "name":  "Complaint Rate %",
+                         "kpi_key":  "Complaint Rate %",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Customer",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Draft",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "05_Service_Quality",
+                         "purpose":  "Measure complaints relative to delivered orders or customers.",
+                         "description":  "Measure complaints relative to delivered orders or customers.",
+                         "technical_description":  "Complaints as a percentage of orders or customers served.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Customer Service",
+                         "data_owner":  "Service BI",
+                         "steward":  "Service Quality Analyst",
+                         "qa_rules":  [
+                                          "Complaint categorization and severity mapping documented"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     },
+                     {
+                         "kpi_id":  "crm.complaint.count",
+                         "name":  "Complaint Count",
+                         "kpi_key":  "Complaint Count",
+                         "kpi_type":  "supporting",
+                         "impact_dimension":  "Customer",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  "count",
+                         "refresh":  "daily",
+                         "status":  "Draft",
+                         "format_string":  "#,0",
+                         "display_folder":  "05_Service_Quality",
+                         "purpose":  "Provide the absolute number of logged complaints.",
+                         "description":  "Provide the absolute number of logged complaints.",
+                         "technical_description":  "Number of logged complaints in the selected slice.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Customer Service",
+                         "data_owner":  "Service BI",
+                         "steward":  "Service Quality Analyst",
+                         "qa_rules":  [
+                                          "Complaints reconciled to service desk reports"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     },
+                     {
+                         "kpi_id":  "crm.retention.pct",
+                         "name":  "Customer Retention %",
+                         "kpi_key":  "Customer Retention %",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "customer",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "",
+                         "purpose":  "Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.",
+                         "description":  "Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.",
+                         "technical_description":  "Share of customers that remain active between the start and end of the period.",
+                         "dax_expression":  "DIVIDE([Active Customers End],[Active Customers Start])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Marketing",
+                         "data_owner":  "CRM BI",
+                         "steward":  "Customer Insights Analyst",
+                         "qa_rules":  [
+                                          "Retention % within [0;100]"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     }
+                 ]
+}

@@ -138,9 +138,9 @@ review_cycle: "quarterly"
 completeness_score: 0.95
 ```
 
-### 2.6 Carbon Emission Intensity (tCOâ‚‚e/€)
+### 2.6 Carbon Emission Intensity (tCO₂e/€)
 ```yaml
-strategic_kpi: "Carbon Emission Intensity (tCOâ‚‚e/€)"
+strategic_kpi: "Carbon Emission Intensity (tCO₂e/€)"
 dimension: "ESG"
 primary_use_cases:
   - ESG-001 Emission Tracking & Reporting
@@ -149,7 +149,7 @@ secondary_use_cases:
 impact_intensity:
   ESG-001: High
   ESG-002: Medium
-expected_impact: "−10 % COâ‚‚ Intensity YoY, −5 % Energy Cost"
+expected_impact: "−10 % CO₂ Intensity YoY, −5 % Energy Cost"
 governance_owner: "Head of Sustainability"
 review_cycle: "semi-annual"
 completeness_score: 0.96
@@ -207,6 +207,7 @@ completeness_score: 0.96
 | COM-006 Customer Profitability | Gross Margin % | CLV % | Medium | P2, M3 |
 | COR-001 Working Capital | Working Capital % | Cash Flow Accuracy % | High | W1, I1 |
 | COR-002 Cash Flow Forecast | Working Capital % | Governance Score % | Medium | W2, F1 |
+| COR-004 Strategic KPI Dashboard | Gross Margin %, Revenue Growth % | Cash Conversion Cycle, ESG-Aligned Revenue %, Turnover Rate %, Project ROI % | High | SP2, O2, SP1, O3, SP3 |
 | OPS-001 OEE & Throughput | OEE % | Unit Cost % | High | M1, Q1 |
 | OPS-002 Downtime RCA | OEE % | Availability % | High | M1, L1 |
 | OPS-003 Production Yield | OEE % | Waste % | Medium | Q1, Q2 |

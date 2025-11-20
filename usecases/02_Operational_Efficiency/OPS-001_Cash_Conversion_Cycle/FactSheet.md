@@ -1,4 +1,4 @@
-﻿---
+---
 id: "OPS-001"
 title: "Cash Conversion Cycle (DSO + DIO - DPO)"
 domain: "Operational Efficiency"
@@ -6,10 +6,27 @@ owner: "Head of Finance / Treasury"
 impact: "High"
 status: "Draft"
 last_update: "04.11.2025"
+maturity: "Pilot"
+reporting_level: "Operational"
+analytics_stage: "Descriptive"
 supports_strategic_kpi: ["Working Capital %", "Cash Conversion Cycle", "Operating Cash Flow"]
 supports_strategic_kpi_ids: ["ops.working_capital.pct", "ops.working_capital.ccc.days", "fin.cashflow.ocf.amount"]
 action_codes: ["W1", "I1", "W2", "O2", "SP1"]
 expected_impact: "DSO -5-10 days; DIO -3-7 days; DPO +5-10 days; CCC -5-8 days"
+dataset_model: "Contoso Sales Sample for Power BI Desktop.SemanticModel"
+page_template: "overview_drivers_details"
+segments: [
+  "Org.Region>Area>Store",
+  "Product.Category>Subcategory>SKU",
+  "Channel",
+  "Time.Year>Month>Week"
+]
+filters_default: [
+  "Time: Last 12M",
+  "Org: All",
+  "Channel: All"
+]
+qa_asserts: ["RI_OK", "DSO_InRange", "CCC_Calculates"]
 required_kpi_ids: [
   "ops.working_capital.dso.days",
   "ops.working_capital.dio.days",
@@ -23,51 +40,55 @@ required_kpis:
   ops.working_capital.dpo.days: "DPO (Days)"
   ops.working_capital.ccc.days: "CCC (Days)"
   ops.working_capital.ccc.delta_days: "Δ CCC (Days)"
-
-dataset_model: "Contoso Sales Sample for Power BI Desktop.SemanticModel"
-page_template: "overview_drivers_details"
-segments: ["Org.Region>Area>Store","Product.Category>Subcategory>SKU","Channel","Time.Year>Month>Week"]
-filters_default: ["Time: Last 12M","Org: All","Channel: All"]
-qa_asserts: ["RI_OK"]
-
 data_requirements:
   facts:
-    - name: fact_main
-      grain: invoice_line
-      primary_key: [InvoiceLineID]
+    - name: fact_working_capital
+      grain: period_end
+      primary_key: [PeriodEndDate, OrgID]
       required_columns:
+        - { name: "AR Balance", type: decimal, role: receivables }
+        - { name: "AP Balance", type: decimal, role: payables }
+        - { name: "Inventory Value", type: decimal, role: inventory }
         - { name: "Net Sales Amount", type: decimal, role: amount }
-        - { name: "Units Qty", type: int, role: quantity }
+        - { name: "COGS Amount", type: decimal, role: amount }
+        - { name: "Days In Period", type: int, role: helper }
         - { name: Date, type: date, role: date_key }
         - { name: OrgID, type: string, role: org_key }
-        - { name: ProductID, type: string, role: product_key }
-        - { name: Channel, type: string, role: channel }
   dims:
     - name: dim_date
       grain: date
       primary_key: [Date]
+      required_columns:
+        - { name: Year, type: int }
+        - { name: Month, type: int }
     - name: dim_org
       grain: org
       primary_key: [OrgID]
-    - name: dim_product
-      grain: product
-      primary_key: [ProductID]
+      required_columns:
+        - { name: Region, type: string }
+        - { name: Entity, type: string }
   relationships:
-    - { from: fact_main.Date, to: dim_date.Date, cardinality: many-to-one, direction: single }
-    - { from: fact_main.OrgID, to: dim_org.OrgID, cardinality: many-to-one, direction: single }
-    - { from: fact_main.ProductID, to: dim_product.ProductID, cardinality: many-to-one, direction: single }
-
+    - { from: fact_working_capital.Date, to: dim_date.Date, cardinality: many-to-one, direction: single, ri_expected: ">=99.9%" }
+    - { from: fact_working_capital.OrgID, to: dim_org.OrgID, cardinality: many-to-one, direction: single }
 model_mapping:
-  "Net Sales Amount": "fact_main[Net Sales Amount]"
-  "Units Qty": "fact_main[Units Qty]"
+  "AR Balance": "fact_working_capital[AR Balance]"
+  "AP Balance": "fact_working_capital[AP Balance]"
+  "Inventory Value": "fact_working_capital[Inventory Value]"
+  "Net Sales Amount": "fact_working_capital[Net Sales Amount]"
+  "COGS Amount": "fact_working_capital[COGS Amount]"
   "Date": "dim_date[Date]"
   "Org": "dim_org[OrgID]"
-  "Product": "dim_product[ProductID]"---
+---
 
 # Cash Conversion Cycle (DSO + DIO - DPO)
 
 ## 1. Business Goal
-Optimize working capital and liquidity by managing receivables, inventory, and payables efficiency — measured through the Cash Conversion Cycle (CCC).
+Optimize working capital and liquidity by managing receivables, inventory, and payables efficiency - measured through the Cash Conversion Cycle (CCC).
+
+---
+
+## 2. Business Context
+Working capital ties up cash that could otherwise finance growth or reduce debt. Receivables, inventory, and payables are frequently managed by different teams, which leads to conflicting targets and delayed corrective action. A standardized CCC view aligns Treasury, Sales, Supply Chain, and Procurement on a single narrative of how cash moves through the organization and who owns the levers. This use case provides a transparent drill from corporate CCC to customer, product, and supplier segments so that tactical actions translate directly into liquidity improvements.
 
 ---
 
@@ -75,8 +96,19 @@ Optimize working capital and liquidity by managing receivables, inventory, and p
 - How long does it take to convert operational investments into cash?
 - Which levers drive changes in DSO, DIO, and DPO?
 - Which customers or suppliers cause high working capital requirements?
-- How does inventory policy affect liquidity?
+- How does inventory policy affect liquidity and service levels?
 - What scenarios can shorten the CCC without harming service levels?
+
+---
+
+## 4. Key KPIs
+| KPI | Definition | Unit | Format |
+|------|-------------|------|--------|
+| DSO (Days) | Accounts Receivable / Net Sales * Days in Period | days | 0 decimals |
+| DIO (Days) | Inventory / COGS * Days in Period | days | 0 decimals |
+| DPO (Days) | Accounts Payable / COGS * Days in Period | days | 0 decimals |
+| Cash Conversion Cycle (Days) | DSO + DIO - DPO | days | 0 decimals |
+| Δ CCC (Days) | CCC variance vs Plan or LY | days | +/- sign |
 
 ---
 
@@ -84,27 +116,50 @@ Optimize working capital and liquidity by managing receivables, inventory, and p
 - Date (month end)
 - Org (legal entity, region)
 - AR Balance, AP Balance, Inventory Value
-- Net Sales Amount, COGS Amount
-- Days in Period (calendar mapping)
-- Optional: Supplier/Customer, Payment Terms, Country, Currency
+- Net Sales Amount, COGS Amount, Days in Period
+- Optional: Customer/Supplier, Payment Terms, Product hierarchy, FX rate
+
+---
+
+## 6. Segmentation & Hierarchies
+- Org: Region > Entity > Business Unit
+- Customer: Channel > Customer Group > Customer
+- Supplier: Category > Supplier > Vendor
+- Product: Category > Subcategory > SKU (for DIO analysis)
+- Time: Year > Quarter > Month
 
 ---
 
 ## 7. Scope & Assumptions
-- Balances are period-end values.
-- Net Sales and COGS from monthly financials (P&L).
-- AR/AP balances reconciled with GL accounts.
-- Inventory from end-of-month stock snapshot.
+- Balances are period-end values aligned with Financial Close.
+- Net Sales and COGS derive from the same closing version to avoid mismatches.
+- AR/AP balances reconciled with GL accounts; inventory snapshots at standard cost.
+- Returns excluded from Net Sales and COGS.
 - Currency = EUR; FX translation at closing rate.
+
+---
+
+## 8. Data Freshness & Cadence
+- Refresh frequency: daily after month-end close (06:00 CET) plus intra-month preview.
+- Latency target: <= 24h after source systems close.
+- Historical depth: 36 months for trend analysis.
+- Data Owner: Treasury Analytics; Technical Owner: Finance BI.
 
 ---
 
 ## 9. Edge Cases & QA Rules
 - AR/AP balances cannot be negative.
-- DSO capped at [0; 180] days, DIO at [0; 365].
+- DSO bounded [0; 180] days, DIO bounded [0; 365] days, DPO bounded [0; 180] days.
+- Δ CCC calculated only where Plan CCC > 0.
 - Referential integrity >= 99.9 % across Date/Org.
-- Manual adjustments documented in audit log.
-- Currency differences reconciled within +/- 0.5 %.
+- Manual adjustments documented in audit log; FX differences reconciled within +/- 0.5 %.
+
+---
+
+## 10. Minimum Viable Dataset (MVD)
+- Required: Date, Org, AR Balance, AP Balance, Inventory Value, Net Sales Amount, COGS Amount, Days in Period.
+- Optional: Customer and Supplier dimensions, Payment Terms, Product hierarchy.
+- Extended: Aging buckets, Credit Risk Rating, S&OP scenarios, scenario tags.
 
 ---
 
@@ -119,8 +174,22 @@ Optimize working capital and liquidity by managing receivables, inventory, and p
 
 ---
 
+## 12. Expected Business Impact
+| Dimension | Expected Impact | Measurement |
+|------------|-----------------|-------------|
+| Liquidity | CCC -5 to -8 days | vs Prior Quarter |
+| Working Capital | DSO -5-10 days; DIO -3-7 days | vs Plan |
+| Supplier Relations | DPO +5-10 days without penalty | vs Contract Baseline |
+
+---
+
 ## 13. Related Processes
 Order-to-Cash -> Purchase-to-Pay -> Inventory Management -> Treasury Forecasting -> Financial Close.
+
+---
+
+## 14. Insights & Learnings
+Receivables discipline typically explains more CCC variance than payables negotiations, yet payables actions deliver the fastest wins when coordinated with Procurement. Aligning S&OP buffers with Treasury targets prevents inventory build-up that would otherwise offset AR improvements.
 
 ---
 
@@ -134,9 +203,15 @@ Order-to-Cash -> Purchase-to-Pay -> Inventory Management -> Treasury Forecasting
 
 ---
 
+## 16. Review Information
+| Field | Value |
+|--------|--------|
+| Business Reviewer | [Name / Role] |
+| Technical Reviewer | [Name / Role] |
+| Version | v1.0 |
+| Review Date | DD.MM.YYYY |
+| Review Notes | [Summary of comments] |
+
+---
+
 _Last updated: 04.11.2025_
-
-
-
-
-

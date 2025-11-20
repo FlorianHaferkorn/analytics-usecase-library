@@ -1,0 +1,107 @@
+﻿/// COR-001 Measures (Project ROI & Benefit Tracking)
+table _Measures
+
+    /// Supporting: Total Project Cost Amount
+    /// Aggregated actual project cost across all periods.
+    measure 'Total Project Cost Amount' =
+            SUM(fact_projects[ActualCost])
+        formatString: "€ #,0.00"
+        displayFolder: "01_Strategy"
+
+    /// Supporting: Actual Project Cost Amount
+    /// Actual project cost used for budget adherence.
+    measure 'Actual Project Cost Amount' =
+            SUM(fact_projects[ActualCost])
+        formatString: "€ #,0.00"
+        displayFolder: "01_Strategy"
+
+    /// Supporting: Approved Budget Amount
+    /// Approved total project budget.
+    measure 'Approved Budget Amount' =
+            SUM(fact_projects[PlannedCost])
+        formatString: "€ #,0.00"
+        displayFolder: "01_Strategy"
+
+    /// Supporting: Planned Benefit Amount
+    /// Planned total benefit from the business case.
+    measure 'Planned Benefit Amount' =
+            SUM(fact_projects[PlannedBenefit])
+        formatString: "€ #,0.00"
+        displayFolder: "01_Strategy"
+
+    /// Supporting: Realized Benefit Amount
+    /// Realized benefit booked so far.
+    measure 'Realized Benefit Amount' =
+            SUM(fact_projects[RealizedBenefit])
+        formatString: "€ #,0.00"
+        displayFolder: "01_Strategy"
+
+    /// Supporting: Cumulative Benefit Amount
+    /// Cumulative realized benefit over time up to the current period.
+    measure 'Cumulative Benefit Amount' =
+            CALCULATE(
+                [Realized Benefit Amount],
+                FILTER(
+                    ALL('Calendar'[MonthNumber]),
+                    'Calendar'[MonthNumber] <= MAX('Calendar'[MonthNumber])
+                )
+            )
+        formatString: "€ #,0.00"
+        displayFolder: "01_Strategy"
+
+    /// Supporting: Total Milestones
+    /// Total number of planned milestones.
+    measure 'Total Milestones' =
+            SUM(fact_projects[TotalMilestones])
+        formatString: "#,0"
+        displayFolder: "01_Strategy"
+
+    /// Supporting: On-Time Milestones
+    /// Number of milestones completed on or before planned date.
+    measure 'On-Time Milestones' =
+            SUM(fact_projects[OnTimeMilestones])
+        formatString: "#,0"
+        displayFolder: "01_Strategy"
+
+    /// Supporting: Total Projects Count
+    /// Count of projects in the portfolio.
+    measure 'Total Projects Count' =
+            DISTINCTCOUNT(fact_projects[ProjectID])
+        formatString: "#,0"
+        displayFolder: "01_Strategy"
+
+    /// corp.project.roi.pct - Project ROI %
+    /// Measures realized return of strategic initiatives.
+    measure 'Project ROI %' =
+            DIVIDE([Realized Benefit Amount]-[Total Project Cost Amount],[Total Project Cost Amount])
+        formatString: "0.0 %"
+        displayFolder: "01_Strategy"
+
+    /// corp.benefit.realization.pct - Benefit Realization %
+    /// Shows how much of the approved business case has been achieved.
+    measure 'Benefit Realization %' =
+            DIVIDE([Realized Benefit Amount],[Planned Benefit Amount])
+        formatString: "0.0 %"
+        displayFolder: "01_Strategy"
+
+    /// corp.budget.adherence.pct - Budget Adherence %
+    /// Measures how close spending is to approved budget.
+    measure 'Budget Adherence %' =
+            1 - DIVIDE(ABS([Actual Project Cost Amount]-[Approved Budget Amount]),[Approved Budget Amount])
+        formatString: "0.0 %"
+        displayFolder: "01_Strategy"
+
+    /// corp.schedule.adherence.pct - Schedule Adherence %
+    /// Indicates delivery reliability against planned milestones.
+    measure 'Schedule Adherence %' =
+            DIVIDE([On-Time Milestones],[Total Milestones])
+        formatString: "0.0 %"
+        displayFolder: "01_Strategy"
+
+    /// corp.payback.months - Payback Period (Months)
+    /// Shows months required until cumulative benefits exceed total cost.
+    measure 'Payback Period (Months)' =
+            VAR _cost = [Total Project Cost Amount] RETURN CALCULATE(MIN('Calendar'[MonthNumber]), [Cumulative Benefit Amount] >= _cost)
+        formatString: "0"
+        displayFolder: "01_Strategy"
+

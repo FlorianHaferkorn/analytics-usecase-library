@@ -1,0 +1,46 @@
+﻿/// OPS-001 Measures (Cash Conversion Cycle (DSO + DIO - DPO))
+table _Measures
+
+    /// ops.working_capital.dso.days - DSO (Days)
+    /// Measures how long receivables remain outstanding before being converted into cash.
+    measure 'DSO (Days)' =
+            DIVIDE([Average AR Amount],[Net Sales Amount]) * [Days in Period]
+        formatString: "0"
+        displayFolder: "02_WorkingCapital"
+
+    /// ops.working_capital.dio.days - DIO (Days)
+    /// Shows how long inventory stays on hand before being sold.
+    measure 'DIO (Days)' =
+            DIVIDE([Average Inventory Amount],[COGS Amount]) * [Days in Period]
+        formatString: "0"
+        displayFolder: "02_WorkingCapital"
+
+    /// ops.working_capital.dpo.days - DPO (Days)
+    /// Indicates how long the company takes to pay suppliers.
+    measure 'DPO (Days)' =
+            DIVIDE([Average AP Amount],[COGS Amount]) * [Days in Period]
+        formatString: "0"
+        displayFolder: "02_WorkingCapital"
+
+    /// ops.working_capital.ccc.days - Cash Conversion Cycle (Days)
+    /// Combines receivables, inventory, and payables days to show cash efficiency.
+    measure 'CCC (Days)' =
+            [DSO (Days)] + [DIO (Days)] - [DPO (Days)]
+        formatString: "0"
+        displayFolder: "02_WorkingCapital"
+
+    /// ops.working_capital.ccc.delta_days - Delta CCC (Days)
+    /// Explains the variance of the cash conversion cycle versus plan or last year.
+    measure 'Delta CCC (Days)' =
+            VAR _current = [CCC (Days)]
+            VAR _baseline =
+                CALCULATE(
+                    [CCC (Days)],
+                    SAMEPERIODLASTYEAR('Date'[Date])
+                )
+            RETURN
+                _current - _baseline
+        formatString: "0"
+        displayFolder: "02_WorkingCapital"
+
+

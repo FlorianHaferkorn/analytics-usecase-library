@@ -1,0 +1,26 @@
+/// OPS-010 Measures (Replenishment & Safety Stock)
+table _Measures
+
+    /// ops.inventory.days - Inventory Days
+    /// Average number of days current inventory covers sales (on-hand duration).
+    measure 'Inventory Days' =
+            BLANK()
+        formatString: "0"
+
+    /// ops.stockout.pct - Stock-Out Rate %
+    /// Share of demand not fulfilled due to stock unavailability.
+    measure 'Stockout Rate %' =
+            BLANK()
+        formatString: "0.0 %"
+
+    /// ops.otif.pct - OTIF %
+    /// Delivery reliability measured by orders delivered on-time and in-full.
+    measure 'OTIF %' =
+            BLANK()
+        formatString: "0.0 %"
+
+    /// ops.order_accuracy.pct - Order Accuracy %
+    /// Share of customer orders delivered exactly as ordered (quantity, items, conditions).
+    measure 'Order Accuracy %' =
+            BLANK()
+        formatString: "0.0 %"

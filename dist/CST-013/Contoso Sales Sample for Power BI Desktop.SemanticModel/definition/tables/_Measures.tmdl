@@ -1,0 +1,40 @@
+/// CST-013 Measures (CLV & Retention Drivers)
+table _Measures
+
+    /// crm.clv.amount - CLV (Customer Lifetime Value)
+    /// Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
+    measure 'Customer Lifetime Value (CLV) Amount' =
+            BLANK()
+        formatString: "EUR #,0.00"
+
+    /// crm.retention.pct - Customer Retention %
+    /// Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
+    measure 'Customer Retention %' =
+            DIVIDE([Active Customers End],[Active Customers Start])
+        formatString: "0.0 %"
+
+    /// crm.churn.pct - Customer Churn Rate %
+    /// Measures proportion of customers lost during a period.
+    measure 'Customer Churn Rate %' =
+            DIVIDE([Churned Customers],[Active Customers Start])
+
+    /// crm.basket_size.amount - Average Basket Value
+    /// Measure the average monetary value of a transaction or order.
+    measure 'Average Basket Value' =
+            BLANK()
+        formatString: "EUR #,0.00"
+        displayFolder: "06_CrossSell"
+
+    /// crm.basket_size.units - Average Basket Units
+    /// Measure the average number of units per order.
+    measure 'Average Basket Units' =
+            BLANK()
+        formatString: "0.0"
+        displayFolder: "06_CrossSell"
+
+    /// crm.cross_sell_ratio.pct - Cross-Sell Ratio %
+    /// Measure the share of customers buying more than one product category.
+    measure 'Cross-Sell Ratio %' =
+            BLANK()
+        formatString: "0.0 %"
+        displayFolder: "06_CrossSell"

@@ -1,0 +1,65 @@
+/// COR-014 Measures (Integrated Margin Bridge (P&L Driver Tree))
+table _Measures
+
+    /// sales.net_sales.amount - Net Sales Amount
+    /// Total invoiced revenue net of discounts and returns.
+    measure 'Net Sales Amount' =
+            SUM(fact_sales[Net Sales Amount])
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// margin.gm.amount - Gross Margin Amount
+    /// Absolute gross margin in currency.
+    measure 'Gross Margin Amount' =
+            [Net Sales Amount] - [COGS Amount]
+        formatString: "EUR #,0.00"
+        displayFolder: "02_Margin"
+
+    /// margin.gm.pct - Gross Margin % (Operational)
+    /// Provide the Gross Margin % used in commercial and management reporting at the same granularity as Net Sales.
+    measure 'Gross Margin %' =
+            DIVIDE([Net Sales Amount]-[COGS Amount],[Net Sales Amount])
+        formatString: "0.0 %"
+        displayFolder: "02_Margin"
+
+    /// profit.ebitda_margin - EBITDA Margin %
+    /// Shows earnings before interest, taxes, depreciation, and amortization as a share of revenue.
+    measure 'EBITDA Margin %' =
+            DIVIDE([EBITDA Amount],[Net Sales Amount])
+        formatString: "0.0 %"
+        displayFolder: "02_Margin"
+
+    /// sales.net_sales.delta_amount.ly - Δ Net Sales Amount
+    /// Absolute variance of Net Sales vs Last Year.
+    measure 'Î” Net Sales Amount vs LY' =
+            [Net Sales Amount] - [Net Sales Amount LY]
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// sales.pvm.price_effect.amount - Price Effect Amount
+    /// Quantifies the pure price impact in the PVM bridge.
+    measure 'Price Effect Amount' =
+            ([Actual Unit Price]-[Plan Unit Price]) * [Actual Units Qty]
+        formatString: "EUR #,0.00"
+        displayFolder: "04_PVM"
+
+    /// sales.pvm.volume_effect.amount - Volume Effect Amount
+    /// Measures the variance caused purely by quantity changes at plan price.
+    measure 'Volume Effect Amount' =
+            ([Actual Units Qty]-[Plan Units Qty]) * [Plan Unit Price]
+        formatString: "EUR #,0.00"
+        displayFolder: "04_PVM"
+
+    /// sales.pvm.mix_effect.amount - Mix Effect Amount
+    /// Captures the residual effect from changes in product, channel, or region mix.
+    measure 'Mix Effect Amount' =
+            [Δ Net Sales Amount] - [Price Effect Amount] - [Volume Effect Amount]
+        formatString: "EUR #,0.00"
+        displayFolder: "04_PVM"
+
+    /// cost.cogs.amount - COGS Amount
+    /// Represents cost of goods sold directly linked to sales.
+    measure 'COGS Amount' =
+            SUM(fact_sales[COGS Amount])
+        formatString: "EUR #,0.00"
+        displayFolder: "02_Margin"

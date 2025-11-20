@@ -1,0 +1,101 @@
+/// COM-005 Measures (Promotion ROI & Effectiveness)
+table _Measures
+
+    /// Supporting: Net Sales Amount
+    /// Total invoiced revenue net of discounts and returns.
+    measure 'Net Sales Amount' =
+            SUM(fact_sales[Net Sales Amount])
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// Supporting: COGS Amount
+    /// Cost of goods sold during the period.
+    measure 'COGS Amount' =
+            SUM(fact_sales[COGS Amount])
+        formatString: "€ #,0.00"
+        displayFolder: "02_Margin"
+
+    /// Supporting: Promo Sales Amount
+    /// Net Sales Amount during promo-flagged transactions.
+    measure 'Promo Sales Amount' =
+            CALCULATE(
+                [Net Sales Amount],
+                fact_sales[Promo Flag] = TRUE()
+            )
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// Supporting: Baseline Sales Amount
+    /// Net Sales Amount for comparable periods without promotion.
+    measure 'Baseline Sales Amount' =
+            CALCULATE(
+                [Net Sales Amount],
+                fact_sales[Promo Flag] = FALSE()
+            )
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// Supporting: Promo COGS Amount
+    /// COGS for promo-flagged transactions.
+    measure 'Promo COGS Amount' =
+            CALCULATE(
+                [COGS Amount],
+                fact_sales[Promo Flag] = TRUE()
+            )
+        formatString: "€ #,0.00"
+        displayFolder: "02_Margin"
+
+    /// Supporting: Baseline COGS Amount
+    /// COGS for non-promo baseline periods.
+    measure 'Baseline COGS Amount' =
+            CALCULATE(
+                [COGS Amount],
+                fact_sales[Promo Flag] = FALSE()
+            )
+        formatString: "€ #,0.00"
+        displayFolder: "02_Margin"
+
+    /// sales.promo.incremental.amount - Incremental Sales Amount
+    /// Additional sales due to promotion.
+    measure 'Incremental Sales Amount' =
+            [Promo Sales Amount] - [Baseline Sales Amount]
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// margin.promo.incremental.amount - Incremental GM Amount
+    /// Additional gross margin due to promotion.
+    measure 'Incremental GM Amount' =
+            ([Promo Sales Amount]-[Promo COGS Amount])
+                - ([Baseline Sales Amount]-[Baseline COGS Amount])
+        formatString: "€ #,0.00"
+        displayFolder: "02_Margin"
+
+    /// margin.promo.gm.pct - GM % During Promo
+    /// Gross margin rate during promo periods.
+    measure 'GM % During Promo' =
+            VAR _ns = [Promo Sales Amount]
+            RETURN IF(_ns = 0, BLANK(), DIVIDE([Promo Sales Amount]-[Promo COGS Amount], _ns))
+        formatString: "0.0 %"
+        displayFolder: "02_Margin"
+
+    /// sales.promo.cost.amount - Promo Cost Amount
+    /// Marketing investment spent on a promotion.
+    measure 'Promo Cost Amount' =
+            SUM(fact_sales[Promo Cost Amount])
+        formatString: "€ #,0.00"
+        displayFolder: "03_Price_Promo"
+
+    /// sales.promo.uplift_pct - Promo Uplift %
+    /// Measure incremental sales impact of promotions versus baseline demand.
+    measure 'Promo Uplift %' =
+            DIVIDE([Promo Sales Amount]-[Baseline Sales Amount],[Baseline Sales Amount])
+        formatString: "0.0 %"
+        displayFolder: "01_Sales"
+
+    /// sales.promo.roi.pct - Promo ROI %
+    /// Measures profitability of promotions relative to spend.
+    measure 'Promo ROI %' =
+            DIVIDE([Incremental GM Amount] - [Promo Cost Amount],[Promo Cost Amount])
+        formatString: "0.0 %"
+        displayFolder: "03_Price_Promo"
+

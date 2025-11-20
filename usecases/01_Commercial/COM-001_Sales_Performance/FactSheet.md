@@ -1,4 +1,4 @@
-﻿---
+---
 id: "COM-001"
 title: "Sales Performance vs Plan & Last Year"
 domain: "Commercial"
@@ -6,6 +6,9 @@ owner: "Head of Sales"
 impact: "High"
 status: "Draft"
 last_update: "04.11.2025"
+maturity: "Pilot"
+reporting_level: "Tactical"
+analytics_stage: "Diagnostic"
 supports_strategic_kpi: ["Revenue Growth %", "Gross Margin %"]
 supports_strategic_kpi_ids: ["sales.revenue.growth_pct", "margin.gm.pct"]
 action_codes: ["P2", "D1", "M3", "SP1"]

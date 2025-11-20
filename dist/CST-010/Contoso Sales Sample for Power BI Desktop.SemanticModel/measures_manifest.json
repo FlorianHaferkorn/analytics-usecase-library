@@ -1,0 +1,137 @@
+{
+    "usecase_id":  "CST-010",
+    "title":  "Acquisition Funnel Performance",
+    "dataset_model":  "Contoso Sales Sample for Power BI Desktop.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\03_Customer_and_Market\\CST-010_Acquisition_Funnel_Performance\\FactSheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "crm.acquisition.leads.count",
+                         "name":  "Leads Count",
+                         "kpi_key":  "Leads Count",
+                         "kpi_type":  "supporting",
+                         "impact_dimension":  "Customer",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  "count",
+                         "refresh":  "daily",
+                         "status":  "Draft",
+                         "format_string":  "#,0",
+                         "display_folder":  "07_Acquisition",
+                         "purpose":  "Measure the number of new leads generated in the funnel.",
+                         "description":  "Measure the number of new leads generated in the funnel.",
+                         "technical_description":  "Number of new leads created in the selected period.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Marketing",
+                         "data_owner":  "CRM BI",
+                         "steward":  "Demand Generation Manager",
+                         "qa_rules":  [
+                                          "Deduplication and spam filters applied"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     },
+                     {
+                         "kpi_id":  "crm.acquisition.conversions.count",
+                         "name":  "New Customers Acquired",
+                         "kpi_key":  "Acquisition Conversions Count",
+                         "kpi_type":  "supporting",
+                         "impact_dimension":  "Customer",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  "count",
+                         "refresh":  "daily",
+                         "status":  "Draft",
+                         "format_string":  "#,0",
+                         "display_folder":  "07_Acquisition",
+                         "purpose":  "Measure how many leads convert to new customers or deals.",
+                         "description":  "Measure how many leads convert to new customers or deals.",
+                         "technical_description":  "Number of leads converted to customers or opportunities.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Marketing",
+                         "data_owner":  "CRM BI",
+                         "steward":  "Demand Generation Manager",
+                         "qa_rules":  [
+                                          "Conversion definition (customer or opportunity) documented"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     },
+                     {
+                         "kpi_id":  "crm.acquisition.conversion_rate.pct",
+                         "name":  "Conversion Rate %",
+                         "kpi_key":  "Acquisition Conversion Rate %",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Customer",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Draft",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "07_Acquisition",
+                         "purpose":  "Measure how efficiently leads convert into new customers or opportunities.",
+                         "description":  "Measure how efficiently leads convert into new customers or opportunities.",
+                         "technical_description":  "Share of leads that convert into customers or opportunities.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Marketing",
+                         "data_owner":  "CRM BI",
+                         "steward":  "Demand Generation Manager",
+                         "qa_rules":  [
+                                          "Leads and conversions definitions consistent across channels"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     },
+                     {
+                         "kpi_id":  "crm.acquisition.cac.amount",
+                         "name":  "Customer Acquisition Cost (CAC)",
+                         "kpi_key":  "Customer Acquisition Cost (CAC) Amount",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Customer",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  "monthly",
+                         "status":  "Draft",
+                         "format_string":  "EUR #,0.00",
+                         "display_folder":  "07_Acquisition",
+                         "purpose":  "Measure average marketing and sales cost per new acquired customer.",
+                         "description":  "Measure average marketing and sales cost per new acquired customer.",
+                         "technical_description":  "Average acquisition cost per new customer.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Marketing",
+                         "data_owner":  "CRM BI",
+                         "steward":  "Demand Generation Manager",
+                         "qa_rules":  [
+                                          "Acquisition spend allocation and new customer definition documented"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     }
+                 ]
+}

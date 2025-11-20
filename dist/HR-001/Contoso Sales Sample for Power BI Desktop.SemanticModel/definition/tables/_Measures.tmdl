@@ -1,0 +1,31 @@
+/// HR-001 Measures (Employee Development & Learning)
+table _Measures
+
+    /// Supporting: Training Hours
+    /// Total training hours attended.
+    measure 'Training Hours' =
+            SUM(fact_hr_training[TrainingHours])
+        formatString: "#,0.0"
+        displayFolder: "01_Learning"
+
+    /// Supporting: FTE
+    /// Total FTE in the selected slice.
+    measure 'FTE' =
+            SUM(fact_hr_headcount[FTE])
+        formatString: "#,0.0"
+        displayFolder: "01_Learning"
+
+    /// people.training_hours.amount - Training Hours
+    /// Total training hours (KPI-aligned alias).
+    measure 'Training Hours (KPI)' =
+            [Training Hours]
+        formatString: "#,0.0"
+        displayFolder: "01_Learning"
+
+    /// Training Hours per FTE
+    /// Average training hours per FTE.
+    measure 'Training Hours per FTE' =
+            DIVIDE([Training Hours],[FTE])
+        formatString: "#,0.0"
+        displayFolder: "01_Learning"
+

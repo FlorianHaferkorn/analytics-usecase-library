@@ -1,4 +1,4 @@
-﻿---
+---
 id: "COM-002"
 title: "Gross Margin % vs Plan & Last Year"
 domain: "Commercial"
@@ -6,11 +6,28 @@ owner: "Head of Sales Controlling"
 impact: "High"
 status: "Draft"
 last_update: "04.11.2025"
+maturity: "Pilot"
+reporting_level: "Tactical"
+analytics_stage: "Diagnostic"
 supports_strategic_kpi: ["Gross Margin %", "Revenue Growth %"]
 supports_strategic_kpi_ids: ["margin.gm.pct", "sales.revenue.growth_pct"]
 action_codes: ["P2", "PC2", "D1", "M3", "O2"]
 expected_impact: "+0.5-2.0 pp GM %; -1-3 % COGS; +1 pp Δ% Net Sales"
-dataset_model: "Contoso Sales Sample for Power BI Desktop.SemanticModel"`r`npage_template: "overview_drivers_details"`r`nsegments: [`r`n  "Product.Category>Subcategory>SKU",`r`n  "Org.Region>Area>Store",`r`n  "Channel",`r`n  "Time.Year>Month>Week"`r`n]`r`nfilters_default: [`r`n  "Time: Last 12M",`r`n  "Org: All",`r`n  "Channel: All"`r`n]`r`nrequired_kpi_ids: [
+dataset_model: "Contoso Sales Sample for Power BI Desktop.SemanticModel"
+page_template: "overview_drivers_details"
+segments: [
+  "Product.Category>Subcategory>SKU",
+  "Org.Region>Area>Store",
+  "Channel",
+  "Time.Year>Month>Week"
+]
+filters_default: [
+  "Time: Last 12M",
+  "Org: All",
+  "Channel: All"
+]
+qa_asserts: ["RI_OK", "GM_PositivePlan"]
+required_kpi_ids: [
   "margin.gm.pct",
   "margin.gm.amount",
   "margin.gm.delta_pct",
@@ -196,6 +213,7 @@ Mix effects (especially low-margin SKUs) explain up to 30 % of variance but are 
 ---
 
 _Last updated: 04.11.2025_
+
 
 
 

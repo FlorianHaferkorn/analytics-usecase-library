@@ -1,0 +1,82 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run all checks",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "./tools/run_all_checks.ps1"
+      ],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Generate measures for Use Case",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "./tools/generate/generate_tmdl_measures.ps1",
+        "-UseCase",
+        "${input:usecaseId}",
+        "-OverwriteExisting"
+      ],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Generate all measures (stub only)",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "./tools/generate_all_measures.ps1",
+        "-StubOnly"
+      ],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Generate all measures",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "./tools/generate_all_measures.ps1"
+      ],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Generate all & run all checks",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "./tools/generate_all_measures.ps1; ./tools/run_all_checks.ps1"
+      ],
+      "group": "build",
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "usecaseId",
+      "type": "promptString",
+      "description": "Use Case ID (z.B. COM-001, OPS-002, ...)"
+    }
+  ]
+}

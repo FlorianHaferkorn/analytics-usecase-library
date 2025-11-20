@@ -1,0 +1,87 @@
+﻿/// COM-004 Measures (Price-Volume-Mix Bridge (Î” Net Sales & Î” Gross Margin))
+table _Measures
+
+    /// Supporting: Net Sales Amount
+    /// Total invoiced revenue net of discounts and returns.
+    measure 'Net Sales Amount' =
+            SUM(fact_sales[Net Sales Amount])
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// Supporting: Net Sales Amount LY
+    /// Net Sales Amount for the corresponding period last year.
+    measure 'Net Sales Amount LY' =
+            CALCULATE(
+                [Net Sales Amount],
+                SAMEPERIODLASTYEAR('Date'[Date])
+            )
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// sales.net_sales.delta_amount.ly - Î” Net Sales Amount
+    /// Absolute variance of Net Sales vs Last Year.
+    measure 'Î” Net Sales Amount' =
+            [Net Sales Amount] - [Net Sales Amount LY]
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// Supporting: COGS Amount
+    /// Cost of goods sold directly linked to sales.
+    measure 'COGS Amount' =
+            SUM(fact_sales[COGS Amount])
+        formatString: "€ #,0.00"
+        displayFolder: "02_Margin"
+
+    /// margin.gm.amount - Gross Margin Amount
+    /// Absolute gross margin in currency.
+    measure 'Gross Margin Amount' =
+            [Net Sales Amount] - [COGS Amount]
+        formatString: "€ #,0.00"
+        displayFolder: "02_Margin"
+
+    /// Supporting: Baseline GM Amount
+    /// Gross margin for the baseline scenario (Plan or LY).
+    measure 'Baseline GM Amount' =
+            CALCULATE(
+                [Gross Margin Amount],
+                SAMEPERIODLASTYEAR('Date'[Date])
+            )
+        formatString: "€ #,0.00"
+        displayFolder: "02_Margin"
+
+    /// margin.gm.delta_amount - Î” Gross Margin Amount
+    /// Explains absolute change in gross margin vs Plan or Last Year.
+    measure 'Î” Gross Margin Amount' =
+            [Gross Margin Amount] - [Baseline GM Amount]
+        formatString: "€ #,0.00"
+        displayFolder: "02_Margin"
+
+    /// sales.pvm.price_effect.amount - Price Effect Amount
+    /// Quantifies the pure price impact in the PVM bridge.
+    measure 'Price Effect Amount' =
+            ([Actual Unit Price]-[Plan Unit Price]) * [Actual Units Qty]
+        formatString: "€ #,0.00"
+        displayFolder: "04_PVM"
+
+    /// sales.pvm.volume_effect.amount - Volume Effect Amount
+    /// Measures the variance caused purely by quantity changes at plan price.
+    measure 'Volume Effect Amount' =
+            ([Actual Units Qty]-[Plan Units Qty]) * [Plan Unit Price]
+        formatString: "€ #,0.00"
+        displayFolder: "04_PVM"
+
+    /// sales.pvm.mix_effect.amount - Mix Effect Amount
+    /// Captures the residual effect from changes in product, channel, or region mix.
+    measure 'Mix Effect Amount' =
+            [Î” Net Sales Amount] - [Price Effect Amount] - [Volume Effect Amount]
+        formatString: "€ #,0.00"
+        displayFolder: "04_PVM"
+
+    /// margin.gm.pct - Gross Margin %
+    /// Gross margin as a percentage of Net Sales.
+    measure 'Gross Margin %' =
+            DIVIDE([Gross Margin Amount],[Net Sales Amount])
+        formatString: "0.0 %"
+        displayFolder: "02_Margin"
+
+

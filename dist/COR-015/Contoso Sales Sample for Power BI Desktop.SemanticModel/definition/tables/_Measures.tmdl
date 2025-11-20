@@ -1,0 +1,27 @@
+/// COR-015 Measures (Forecast Reconciliation (Bottom-Up â†” Top-Down))
+table _Measures
+
+    /// sales.net_sales.amount - Net Sales Amount
+    /// Total invoiced revenue net of discounts and returns.
+    measure 'Net Sales Amount' =
+            SUM(fact_sales[Net Sales Amount])
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// sales.net_sales.amount.forecast - Net Sales Amount (Forecast)
+    /// MISSING in KPI catalog: sales.net_sales.amount.forecast
+    measure 'Net Sales Amount (Forecast)' =
+            // TODO
+            BLANK()
+
+    /// sales.forecast.mape_pct - Forecast Accuracy (MAPE %)
+    /// MISSING in KPI catalog: sales.forecast.mape_pct
+    measure 'Forecast Accuracy (MAPE %)' =
+            // TODO
+            BLANK()
+
+    /// sales.forecast.bias_pct - Forecast Bias %
+    /// MISSING in KPI catalog: sales.forecast.bias_pct
+    measure 'Forecast Bias %' =
+            // TODO
+            BLANK()

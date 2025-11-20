@@ -1,14 +1,45 @@
 Param(
-  [string]$UseCasesRoot = "analytics-usecase-library/usecases",
-  [string]$KpiCatalogRoot = "analytics-usecase-library/_includes/kpi_catalog",
+  [string]$UseCasesRoot,
+  [string]$KpiCatalogRoot,
   [switch]$FailOnMissing
 )
 
+$ScriptToolsRoot = Split-Path -Parent $PSScriptRoot
+$RepoRoot = Split-Path -Parent $ScriptToolsRoot
+
+function Resolve-RepoPath {
+  param(
+    [string]$ProvidedPath,
+    [string]$DefaultRelative
+  )
+  if ($ProvidedPath) {
+    if (Test-Path $ProvidedPath) { return (Resolve-Path -Path $ProvidedPath).Path }
+    $relativeCandidate = Join-Path -Path $RepoRoot -ChildPath $ProvidedPath
+    if (Test-Path $relativeCandidate) { return (Resolve-Path -Path $relativeCandidate).Path }
+  }
+  if ($DefaultRelative) {
+    $fallback = Join-Path -Path $RepoRoot -ChildPath $DefaultRelative
+    if (Test-Path $fallback) { return (Resolve-Path -Path $fallback).Path }
+  }
+  return $null
+}
+
+$UseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'usecases'
+if (-not $UseCasesRoot) { throw "Unable to resolve UseCases root folder. Provide -UseCasesRoot or run inside repository." }
+
+$KpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative '_includes/kpi_catalog'
+if (-not $KpiCatalogRoot) { throw "Unable to resolve KPI catalog folder. Provide -KpiCatalogRoot or run inside repository." }
+
 function Get-FrontMatter {
   param([string]$Path)
-  $content = Get-Content -Raw -Path $Path
-  $m = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---\s")
-  if ($m.Success) { return $m.Groups[1].Value }
+  $lines = Get-Content -Path $Path
+  if ($lines.Count -lt 2 -or $lines[0].Trim() -ne '---') { return $null }
+  for ($i = 1; $i -lt $lines.Count; $i++) {
+    if ($lines[$i].Trim() -eq '---') {
+      if ($i -eq 1) { return '' }
+      return ($lines[1..($i - 1)] -join [Environment]::NewLine)
+    }
+  }
   return $null
 }
 
@@ -59,6 +90,21 @@ function Load-KpiCatalogIndex {
   return @{ ids = $index; names = $names }
 }
 
+function Test-MeasureCovered {
+  param(
+    [string]$Measure,
+    [string]$CatalogRoot
+  )
+  if (-not $Measure) { return $false }
+  $files = Get-ChildItem -Path $CatalogRoot -Filter '*.md' -Recurse
+  foreach ($file in $files) {
+    if (Select-String -Path $file.FullName -Pattern ([regex]::Escape($Measure)) -SimpleMatch -Quiet -ErrorAction SilentlyContinue) {
+      return $true
+    }
+  }
+  return $false
+}
+
 Write-Host "Scanning FactSheets in $UseCasesRoot ..."
 $catalog = Load-KpiCatalogIndex -Root $KpiCatalogRoot
 $catalogIds = $catalog.ids
@@ -100,4 +146,3 @@ if ($missing.Count -gt 0) {
   $missing | Sort-Object | ForEach-Object { Write-Host "- $_" }
   if ($FailOnMissing) { exit 1 }
 } else { Write-Host "All required measures are covered in KPI Catalog." -ForegroundColor Green }
-

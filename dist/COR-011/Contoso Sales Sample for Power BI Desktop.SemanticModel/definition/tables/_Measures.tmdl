@@ -1,0 +1,64 @@
+/// COR-011 Measures (Integrated Sales & Operations Planning (S&OP))
+table _Measures
+
+    /// sales.net_sales.amount - Net Sales Amount
+    /// Total invoiced revenue net of discounts and returns.
+    measure 'Net Sales Amount' =
+            SUM(fact_sales[Net Sales Amount])
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// sales.net_sales.amount.forecast - Net Sales Amount (Forecast)
+    /// MISSING in KPI catalog: sales.net_sales.amount.forecast
+    measure 'Net Sales Amount (Forecast)' =
+            // TODO
+            BLANK()
+
+    /// sales.forecast.mape_pct - Forecast Accuracy (MAPE %)
+    /// MISSING in KPI catalog: sales.forecast.mape_pct
+    measure 'Forecast Accuracy (MAPE %)' =
+            // TODO
+            BLANK()
+
+    /// sales.forecast.bias_pct - Forecast Bias %
+    /// MISSING in KPI catalog: sales.forecast.bias_pct
+    measure 'Forecast Bias %' =
+            // TODO
+            BLANK()
+
+    /// ops.capacity.utilization.pct - Capacity Utilization %
+    /// MISSING in KPI catalog: ops.capacity.utilization.pct
+    measure 'Capacity Utilization %' =
+            // TODO
+            BLANK()
+
+    /// ops.inventory.days - Inventory Days
+    /// Average number of days current inventory covers sales (on-hand duration).
+    measure 'Inventory Days on Hand (DIO)' =
+            BLANK()
+        formatString: "0"
+
+    /// ops.inventory.turnover - Inventory Turnover
+    /// Measures how often inventory is sold and replaced over a period to assess stock efficiency.
+    measure 'Inventory Turnover' =
+            BLANK()
+        formatString: "0.00"
+
+    /// ops.stockout.pct - Stock-Out Rate %
+    /// Share of demand not fulfilled due to stock unavailability.
+    measure 'Stockout Rate %' =
+            BLANK()
+        formatString: "0.0 %"
+
+    /// fin.liquidity.working_capital - Working Capital %
+    /// Share of capital tied up in operations relative to sales.
+    measure 'Working Capital %' =
+            DIVIDE([Receivables Amount]+[Inventory Amount]-[Payables Amount],[Net Sales Amount])
+        formatString: "0.0 %"
+
+    /// ops.working_capital.ccc.days - Cash Conversion Cycle (Days)
+    /// Combines receivables, inventory, and payables days to show cash efficiency.
+    measure 'Cash Conversion Cycle (Days)' =
+            [DSO (Days)] + [DIO (Days)] - [DPO (Days)]
+        formatString: "0"
+        displayFolder: "02_WorkingCapital"

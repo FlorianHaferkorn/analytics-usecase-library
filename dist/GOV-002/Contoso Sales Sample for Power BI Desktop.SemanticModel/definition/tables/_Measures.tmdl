@@ -1,0 +1,17 @@
+/// GOV-002 Measures (Access & Compliance Review)
+table _Measures
+
+    /// gov.compliance.incidents.count - Compliance Incidents Count
+    /// Total number of compliance incidents.
+    measure 'Compliance Incidents Count' =
+            COUNTROWS(fact_compliance)
+        formatString: "#,0"
+        displayFolder: "01_Compliance"
+
+    /// gov.compliance.breach.count - Compliance Breach Count
+    /// Number of compliance incidents flagged as breach.
+    measure 'Compliance Breach Count' =
+            COUNTROWS(FILTER(fact_compliance, fact_compliance[IsBreach] = TRUE()))
+        formatString: "#,0"
+        displayFolder: "01_Compliance"
+

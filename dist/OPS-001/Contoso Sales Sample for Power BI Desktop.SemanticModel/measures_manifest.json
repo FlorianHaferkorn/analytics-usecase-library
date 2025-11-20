@@ -1,0 +1,169 @@
+{
+    "usecase_id":  "OPS-001",
+    "title":  "Cash Conversion Cycle (DSO + DIO - DPO)",
+    "dataset_model":  "Contoso Sales Sample for Power BI Desktop.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\02_Operational_Efficiency\\OPS-001_Cash_Conversion_Cycle\\FactSheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "ops.working_capital.dso.days",
+                         "name":  "DSO (Days)",
+                         "kpi_key":  "DSO (Days)",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Efficiency",
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0",
+                         "display_folder":  "02_WorkingCapital",
+                         "purpose":  "Measures how long receivables remain outstanding before being converted into cash.",
+                         "description":  "Measures how long receivables remain outstanding before being converted into cash.",
+                         "technical_description":  "Days Sales Outstanding derived from AR balance and revenue.",
+                         "dax_expression":  "DIVIDE([Average AR Amount],[Net Sales Amount]) * [Days in Period]",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Treasury",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Working Capital Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     },
+                     {
+                         "kpi_id":  "ops.working_capital.dio.days",
+                         "name":  "DIO (Days)",
+                         "kpi_key":  "DIO (Days)",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Efficiency",
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0",
+                         "display_folder":  "02_WorkingCapital",
+                         "purpose":  "Shows how long inventory stays on hand before being sold.",
+                         "description":  "Shows how long inventory stays on hand before being sold.",
+                         "technical_description":  "Days Inventory Outstanding derived from inventory balance and COGS.",
+                         "dax_expression":  "DIVIDE([Average Inventory Amount],[COGS Amount]) * [Days in Period]",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Supply Chain",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Inventory Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     },
+                     {
+                         "kpi_id":  "ops.working_capital.dpo.days",
+                         "name":  "DPO (Days)",
+                         "kpi_key":  "DPO (Days)",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Efficiency",
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0",
+                         "display_folder":  "02_WorkingCapital",
+                         "purpose":  "Indicates how long the company takes to pay suppliers.",
+                         "description":  "Indicates how long the company takes to pay suppliers.",
+                         "technical_description":  "Days Payables Outstanding derived from AP balances and cost of goods sold.",
+                         "dax_expression":  "DIVIDE([Average AP Amount],[COGS Amount]) * [Days in Period]",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Procurement Controlling",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Working Capital Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     },
+                     {
+                         "kpi_id":  "ops.working_capital.ccc.days",
+                         "name":  "CCC (Days)",
+                         "kpi_key":  "Cash Conversion Cycle (Days)",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Efficiency",
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0",
+                         "display_folder":  "02_WorkingCapital",
+                         "purpose":  "Combines receivables, inventory, and payables days to show cash efficiency.",
+                         "description":  "Combines receivables, inventory, and payables days to show cash efficiency.",
+                         "technical_description":  "Aggregated cash conversion cycle derived from DSO, DIO, and DPO measures.",
+                         "dax_expression":  "[DSO (Days)] + [DIO (Days)] - [DPO (Days)]",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Treasury",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Working Capital Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     },
+                     {
+                         "kpi_id":  "ops.working_capital.ccc.delta_days",
+                         "name":  "Δ CCC (Days)",
+                         "kpi_key":  "Δ CCC (Days)",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Efficiency",
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0",
+                         "display_folder":  "02_WorkingCapital",
+                         "purpose":  "Explains the variance of the cash conversion cycle versus plan or last year.",
+                         "description":  "Explains the variance of the cash conversion cycle versus plan or last year.",
+                         "technical_description":  "Variance of CCC in days versus a baseline.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Treasury",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Working Capital Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     }
+                 ]
+}

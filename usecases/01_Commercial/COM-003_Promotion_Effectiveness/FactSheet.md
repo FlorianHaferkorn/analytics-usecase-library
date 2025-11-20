@@ -1,4 +1,4 @@
-﻿---
+---
 id: "COM-003"
 title: "Promotion Effectiveness (ROI & Uplift)"
 domain: "Commercial"
@@ -6,6 +6,9 @@ owner: "Head of Marketing Controlling"
 impact: "High"
 status: "Draft"
 last_update: "04.11.2025"
+maturity: "Pilot"
+reporting_level: "Tactical"
+analytics_stage: "Diagnostic"
 supports_strategic_kpi: ["Gross Margin %", "Revenue Growth %"]
 supports_strategic_kpi_ids: ["margin.gm.pct", "sales.revenue.growth_pct"]
 action_codes: ["D1", "P2", "D2", "O2", "SP1"]
@@ -49,14 +52,23 @@ model_mapping:
   "Units Qty": "fact_sales[Units Qty]"
   "Date": "dim_date[Date]"
   "Org": "dim_org[OrgID]"
-  "Product": "dim_product[ProductID]"---
+  "Product": "dim_product[ProductID]"
 required_kpi_ids: [
+  "sales.promo.roi.pct",
   "sales.promo.uplift_pct",
-  "margin.gm.pct"
+  "sales.promo.incremental.amount",
+  "margin.promo.incremental.amount",
+  "margin.promo.gm.pct",
+  "sales.promo.cost.amount"
 ]
 required_kpis:
+  sales.promo.roi.pct: "Promo ROI %"
   sales.promo.uplift_pct: "Promo Uplift %"
-  margin.gm.pct: "Gross Margin %"
+  sales.promo.incremental.amount: "Incremental Sales Amount"
+  margin.promo.incremental.amount: "Incremental GM Amount"
+  margin.promo.gm.pct: "GM % During Promo"
+  sales.promo.cost.amount: "Promo Cost Amount"
+---
 
 
 

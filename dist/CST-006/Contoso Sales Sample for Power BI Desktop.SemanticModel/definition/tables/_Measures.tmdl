@@ -1,0 +1,22 @@
+/// CST-006 Measures (Market Share & Competitive Position)
+table _Measures
+
+    /// market.share.total.pct - Total Market Share %
+    /// Measure the company’s share of total addressable market volume or value.
+    measure 'Market Share % (Total)' =
+            BLANK()
+        formatString: "0.0 %"
+        displayFolder: "08_Market"
+
+    /// market.share.relative.pct - Relative Market Share %
+    /// Measure market share relative to the largest competitor.
+    measure 'Relative Market Share vs Main Competitor' =
+            BLANK()
+        formatString: "0.0"
+        displayFolder: "08_Market"
+
+    /// sales.revenue.growth_pct - Revenue Growth %
+    /// Measures top-line expansion versus Plan and Last Year.
+    measure 'Revenue Growth %' =
+            DIVIDE([Δ Net Sales Amount],[Net Sales Amount LY])
+        formatString: "0.0 %"

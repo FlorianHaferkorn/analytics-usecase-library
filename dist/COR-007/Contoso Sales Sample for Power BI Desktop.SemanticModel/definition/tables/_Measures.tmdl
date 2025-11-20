@@ -1,0 +1,16 @@
+/// COR-007 Measures (Employee Turnover & Retention)
+table _Measures
+
+    /// hr.turnover.pct - Turnover Rate %
+    /// Measure the share of employees leaving the organization over a period to assess retention risk.
+    measure 'Employee Turnover %' =
+            DIVIDE([Exits Count],[Average Headcount])
+        formatString: "0.0 %"
+        displayFolder: "COR Workforce"
+
+    /// hr.absenteeism.pct - Absenteeism %
+    /// Monitor absence behavior as an early indicator of engagement, wellbeing, and operational risk.
+    measure 'Absenteeism %' =
+            DIVIDE([Absent Hours],[Scheduled Hours])
+        formatString: "0.0 %"
+        displayFolder: "COR Workforce"

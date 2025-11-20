@@ -1,0 +1,105 @@
+{
+    "usecase_id":  "COR-008",
+    "title":  "Cybersecurity Incident Monitoring",
+    "dataset_model":  "Contoso Sales Sample for Power BI Desktop.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\04_Corporate_and_Strategy\\COR-008_Cybersecurity_Incident_Monitoring\\FactSheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "sec.incident.count",
+                         "name":  "Cybersecurity Incident Count",
+                         "kpi_key":  "Security Incidents Count",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Governance",
+                         "domain_tags":  [
+                                             "Governance"
+                                         ],
+                         "calc_type":  "count",
+                         "refresh":  "daily",
+                         "status":  "Draft",
+                         "format_string":  "#,0",
+                         "display_folder":  "01_Security",
+                         "purpose":  "Measure the number of detected cybersecurity or information security incidents.",
+                         "description":  "Measure the number of detected cybersecurity or information security incidents.",
+                         "technical_description":  "Number of logged security incidents for the selected slice.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "CISO",
+                         "data_owner":  "Security Operations",
+                         "steward":  "Security Analyst",
+                         "qa_rules":  [
+                                          "Incident classification and deduplication rules documented"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Governance.md"
+                     },
+                     {
+                         "kpi_id":  "sec.incident.critical.count",
+                         "name":  "Critical Incidents Count",
+                         "kpi_key":  "Critical Security Incidents Count",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Governance",
+                         "domain_tags":  [
+                                             "Governance"
+                                         ],
+                         "calc_type":  "count",
+                         "refresh":  "daily",
+                         "status":  "Draft",
+                         "format_string":  "#,0",
+                         "display_folder":  "01_Security",
+                         "purpose":  "Highlight the number of high or critical severity security incidents.",
+                         "description":  "Highlight the number of high or critical severity security incidents.",
+                         "technical_description":  "Number of security incidents classified as high or critical severity.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "CISO",
+                         "data_owner":  "Security Operations",
+                         "steward":  "Security Analyst",
+                         "qa_rules":  [
+                                          "Severity classification scheme documented and consistently applied"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Governance.md"
+                     },
+                     {
+                         "kpi_id":  "sec.incident.mttr.hours",
+                         "name":  "Mean Time to Resolve (MTTR) Hours",
+                         "kpi_key":  "Security Incident MTTR (Hours)",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Governance",
+                         "domain_tags":  [
+                                             "Governance"
+                                         ],
+                         "calc_type":  "ratio",
+                         "refresh":  "monthly",
+                         "status":  "Draft",
+                         "format_string":  "0.0",
+                         "display_folder":  "01_Security",
+                         "purpose":  "Measure average time to resolve security incidents.",
+                         "description":  "Measure average time to resolve security incidents.",
+                         "technical_description":  "Average time in hours between detection and resolution of security incidents.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "CISO",
+                         "data_owner":  "Security Operations",
+                         "steward":  "Security Analyst",
+                         "qa_rules":  [
+                                          "Durations validated; negative or extreme outliers investigated"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Governance.md"
+                     }
+                 ]
+}

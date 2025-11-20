@@ -1,0 +1,21 @@
+/// OPS-006 Measures (Inventory Turnover & Days in Inventory (DIO))
+table _Measures
+
+    /// ops.inventory.turnover - Inventory Turnover
+    /// Measures how often inventory is sold and replaced over a period to assess stock efficiency.
+    measure 'Inventory Turnover' =
+            BLANK()
+        formatString: "0.00"
+
+    /// ops.inventory.days - Inventory Days
+    /// Average number of days current inventory covers sales (on-hand duration).
+    measure 'Inventory Days' =
+            BLANK()
+        formatString: "0"
+
+    /// ops.working_capital.dio.days - DIO (Days)
+    /// Shows how long inventory stays on hand before being sold.
+    measure 'Days in Inventory (DIO)' =
+            DIVIDE([Average Inventory Amount],[COGS Amount]) * [Days in Period]
+        formatString: "0"
+        displayFolder: "02_WorkingCapital"

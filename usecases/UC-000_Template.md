@@ -1,27 +1,39 @@
-﻿---
-id: "{PREFIX}-000"
+---
+id: "{{PREFIX}}-000"
 title: "[Insert Use Case Title]"
-domain: "[Commercial / Operational Efficiency / Customer and Market / Corporate and Strategy]"
-cluster: "[Sub-Domain or Topic, e.g., Sales & Revenue, Supply Chain, Finance]"
-reporting_level: "[Strategic / Tactical / Operational]"
-analytics_stage: "[Descriptive / Diagnostic / Predictive / Prescriptive]"
+domain: "[Commercial / Operational Efficiency / Customer & Market / Corporate & Strategy]"
 owner: "[Business Owner / Responsible Department]"
 impact: "[High / Medium / Low]"
-status: "[Draft / In Review / Active / Deprecated]"
+status: "[Draft / Ready / Archived]"
 last_update: "DD.MM.YYYY"
-supports_strategic_kpi: []
-supports_strategic_kpi_ids: []
-action_codes: []
-expected_impact: ""
-dataset_model: "[PBIP Model Name or path]"
-page_template: "[overview_drivers_details | drivers_details | other]"
-required_kpi_ids: []
-required_kpis: {}
-segments: ["Org.Region>Area>Store","Product.Category>Subcategory>SKU","Channel","Time.Year>Month>Week"]
-filters_default: ["Time: Last 12M","Org: All","Channel: All"]
-qa_asserts: ["RI_OK"]
-
-# Machine-readable data contract for MCP/model scaffolding
+reporting_level: "[Strategic / Tactical / Operational]"
+analytics_stage: "[Descriptive / Diagnostic / Predictive / Prescriptive]"
+maturity: "[Idea / Pilot / Production]"
+supports_strategic_kpi: ["Readable KPI Name"]
+supports_strategic_kpi_ids: ["sales.revenue.growth_pct"]
+action_codes: ["P2","D1"]
+expected_impact: "[Narrative of expected outcome, e.g., '+2-5 pp ?% Net Sales']"
+dataset_model: "[PBIP model name, e.g., Contoso Sales Sample for Power BI Desktop.SemanticModel]"
+page_template: "[overview_drivers_details | drivers_details | other registered template]"
+segments: [
+  "Org.Region>Area>Store",
+  "Product.Category>Subcategory>SKU",
+  "Channel",
+  "Time.Year>Month>Week>Day"
+]
+filters_default: [
+  "Time: Last 12M",
+  "Org: All",
+  "Channel: All"
+]
+qa_asserts: ["RI_OK","DeltaPct_PositivePlan"]
+required_kpi_ids: [
+  "sales.net_sales.amount",
+  "sales.net_sales.delta_pct.ly"
+]
+required_kpis:
+  sales.net_sales.amount: "Net Sales Amount"
+  sales.net_sales.delta_pct.ly: "?% Net Sales"
 data_requirements:
   facts:
     - name: fact_main
@@ -51,8 +63,6 @@ data_requirements:
     - { from: fact_main.Date, to: dim_date.Date, cardinality: many-to-one, direction: single, ri_expected: ">=99.9%" }
     - { from: fact_main.OrgID, to: dim_org.OrgID, cardinality: many-to-one, direction: single }
     - { from: fact_main.ProductID, to: dim_product.ProductID, cardinality: many-to-one, direction: single }
-
-# Canonical label → model field mapping
 model_mapping:
   "Net Sales Amount": "fact_main[Net Sales Amount]"
   "Units Qty": "fact_main[Units Qty]"
@@ -62,9 +72,10 @@ model_mapping:
 ---
 
 # Use Case Fact Sheet
-Short, descriptive title summarizing the analytical question (e.g., "Sales Performance vs Plan & Last Year").
+Short, descriptive title summarizing the analytical question (e.g., "Sales Performance vs Plan & Last Year"). Copy this template into your Use Case folder as `FactSheet.md` and replace every placeholder.
 
-Authoring help (business): `../../docs/Business_Playbook.md`
+Authoring help (business): `../docs/Business_Playbook.md`  
+Schema reference: `./SCHEMA.md`
 
 ---
 
@@ -96,13 +107,9 @@ Each KPI must exist in the shared KPI Catalog (`/_includes/kpi_catalog/README.md
 | KPI | Definition | Unit | Format |
 |------|-------------|------|--------|
 | [KPI Name] | [Brief definition or formula] | [€, %, pcs, days] | [Format, e.g., 0-2 decimals] |
-| [Δ KPI Name] | [Variance vs Plan or LY] | [€, %, pcs, days] | [Δ or Δ% notation] |
+| [? KPI Name] | [Variance vs Plan or LY] | [€, %, pcs, days] | [? or ?% notation] |
 
-> Naming rules:
-> - Δ = absolute variance
-> - Δ% = relative variance
-> - % suffix for percentages
-> - Amount = currency; Qty = quantity; Count = integer
+> Naming rules: `?` = absolute variance, `?%` = relative variance, `%` suffix for percentages, `Amount` = currency, `Qty` = quantity, `Count` = integer.
 
 ---
 
@@ -170,11 +177,11 @@ Define the minimum data fields required to launch a basic version of this use ca
 ---
 
 ## 11. Typical Actions
-List 3–5 operational levers or actions derived from this analysis. Reference standardized Action Codes (`/_includes/ActionCodes.md`).
+List 3-5 operational levers or actions derived from this analysis. Reference standardized Action Codes (`/_includes/ActionCodes.md`).
 
 | Action | Code | Expected Effect |
 |---------|------|-----------------|
-| [Describe action briefly] | [P2 / D1 / W1 ...] | [e.g., GM% +1–2 pp, DSO -5 days] |
+| [Describe action briefly] | [P2 / D1 / W1 ...] | [e.g., GM% +1-2 pp, DSO -5 days] |
 
 ---
 
@@ -183,8 +190,8 @@ Quantify or qualify the expected business improvement.
 
 | Dimension | Expected Impact | Measurement |
 |------------|-----------------|------------|
-| Revenue | +2–5 pp Δ% Net Sales | vs Plan |
-| Profitability | +0.5–1 pp Gross Margin % | vs LY |
+| Revenue | +2-5 pp ?% Net Sales | vs Plan |
+| Profitability | +0.5-1 pp Gross Margin % | vs LY |
 | Liquidity | DSO -5 days | vs Prior Quarter |
 
 ---
@@ -203,7 +210,7 @@ Summarize recurring insights or findings observed during the analysis.
 Provide links to related use cases or documentation.
 
 - **Related Use Cases:**  
-  `[{{PREFIX}}-002 Related Use Case](../<ClusterFolder>/{{PREFIX}}-002_Example.md)`  
+  `[{{PREFIX}}-002 Related Use Case](../<ClusterFolder>/{{PREFIX}}-002_Example/FactSheet.md)`  
 
 - **Related Documents:**  
   [`Reporting Strategy`](../docs/Reporting_Strategy.md)  
@@ -228,8 +235,8 @@ Provide links to related use cases or documentation.
 <!--
 USAGE NOTES
 - Store the fact sheet as `FactSheet.md` inside `usecases/{cluster}/{ID}_{Slug}/` (e.g., `usecases/01_Commercial/COM-001_Sales_Performance/FactSheet.md`).
+- Always update `required_kpis` when adjusting `required_kpi_ids`; validators expect a 1:1 match.
 - Replace {PREFIX} with your 3-letter cluster code (e.g., COM, OPS, CST, COR).
-- The Front-Matter doubles as machine-readable spec (required_measures, segments, filters_default, qa_asserts).
+- Run `./tools/coverage/validate_factsheets.ps1` after every edit to ensure schema compliance.
+- The Front-Matter doubles as machine-readable spec for coverage checks and measure generation.
 -->
-
-

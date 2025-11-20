@@ -1,0 +1,105 @@
+{
+    "usecase_id":  "COR-009",
+    "title":  "Investment \u0026 CapEx Tracking",
+    "dataset_model":  "Contoso Sales Sample for Power BI Desktop.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\04_Corporate_and_Strategy\\COR-009_Investment_and_CapEx_Tracking\\FactSheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "fin.liquidity.capex.amount",
+                         "name":  "CapEx Amount",
+                         "kpi_key":  "CapEx Amount",
+                         "kpi_type":  "supporting",
+                         "impact_dimension":  "Liquidity",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "EUR #,0.00",
+                         "display_folder":  "",
+                         "purpose":  "Track capital expenditures as part of liquidity and investment planning.",
+                         "description":  "Track capital expenditures as part of liquidity and investment planning.",
+                         "technical_description":  "Capital expenditures",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Treasury / Finance",
+                         "data_owner":  "Finance BI",
+                         "steward":  "CapEx Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Liquidity.md"
+                     },
+                     {
+                         "kpi_id":  "fin.liquidity.capex_ratio.pct",
+                         "name":  "CapEx Ratio %",
+                         "kpi_key":  "CapEx to Net Sales Ratio %",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Liquidity",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "quarterly",
+                         "status":  "Draft",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "02_Investments",
+                         "purpose":  "Measure investment intensity relative to company size.",
+                         "description":  "Measure investment intensity relative to company size.",
+                         "technical_description":  "CapEx as a percentage of Net Sales.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Treasury",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Investment Controller",
+                         "qa_rules":  [
+                                          "CapEx and Net Sales reconciled to financial statements"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Liquidity.md"
+                     },
+                     {
+                         "kpi_id":  "fin.liquidity.operating_cash_flow",
+                         "name":  "Operating Cash Flow Amount",
+                         "kpi_key":  "Operating Cash Flow",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "Liquidity",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "EUR #,0.00",
+                         "display_folder":  "",
+                         "purpose":  "Measure cash generated from core operations as basis for liquidity steering.",
+                         "description":  "Measure cash generated from core operations as basis for liquidity steering.",
+                         "technical_description":  "Cash generated from operations",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Treasury",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Cash Flow Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Liquidity.md"
+                     }
+                 ]
+}

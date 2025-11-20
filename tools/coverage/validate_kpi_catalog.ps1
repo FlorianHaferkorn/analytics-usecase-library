@@ -3,9 +3,30 @@ Param(
   [switch]$FailOnError
 )
 
+$script:RepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+
+function Resolve-RepoPath {
+  param(
+    [string]$ProvidedPath,
+    [string]$DefaultRelative
+  )
+  if ($ProvidedPath) {
+    if (Test-Path $ProvidedPath) { return (Resolve-Path -Path $ProvidedPath).Path }
+    if ($script:RepoRoot) {
+      $candidate = Join-Path -Path $script:RepoRoot -ChildPath $ProvidedPath
+      if (Test-Path $candidate) { return (Resolve-Path -Path $candidate).Path }
+    }
+  }
+  if ($DefaultRelative -and $script:RepoRoot) {
+    $fallback = Join-Path -Path $script:RepoRoot -ChildPath $DefaultRelative
+    if (Test-Path $fallback) { return (Resolve-Path -Path $fallback).Path }
+  }
+  return $null
+}
+
 $allowedTypes = @('strategic','diagnostic','supporting')
 $allowedCalc  = @('amount','rate','ratio','count')
-$allowedImpact = @('growth','profitability','liquidity','efficiency','customer','esg','governance')
+$allowedImpact = @('growth','profitability','liquidity','efficiency','customer','esg','governance','innovation & people')
 $idRegex = '^[a-z0-9]+(\.[a-z0-9_]+)*$'
 
 function Get-KpiBlocks {
@@ -21,20 +42,28 @@ function Get-KpiBlocks {
 $errors = @(); $warnings = @(); $seenIds = @{}
 
 # Path to Use Case FactSheets (for required KPI IDs)
-$UseCasesRoot = "analytics-usecase-library/usecases"
+$resolvedCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative '_includes/kpi_catalog'
+if (-not $resolvedCatalogRoot) { throw "Unable to resolve KPI catalog root. Provide -KpiCatalogRoot or run inside repository." }
+
+$UseCasesRoot = Resolve-RepoPath -ProvidedPath "analytics-usecase-library/usecases" -DefaultRelative 'usecases'
 
 function Get-FrontMatter { param([string]$Path) $content = Get-Content -Raw -Path $Path; $m = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---\s"); if ($m.Success) { return $m.Groups[1].Value } return $null }
 function Get-RequiredIdsFromFrontMatter { param([string]$FrontMatter) if (-not $FrontMatter) { return @() } $m = [regex]::Match($FrontMatter, 'required_kpi_ids\s*:\s*\[(.*?)\]', 'Singleline'); if (-not $m.Success) { return @() } $inner = $m.Groups[1].Value; $ids = @(); foreach ($mm in [regex]::Matches($inner, '"([^"]+)"')) { $ids += $mm.Groups[1].Value } return $ids }
 
 # Build set of KPI IDs required by FactSheets
 $requiredSet = New-Object System.Collections.Generic.HashSet[string]
-if (Test-Path $UseCasesRoot) { Get-ChildItem -Path $UseCasesRoot -Recurse -Filter 'FactSheet.md' | ForEach-Object { $fm = Get-FrontMatter -Path $_.FullName; foreach ($rid in (Get-RequiredIdsFromFrontMatter -FrontMatter $fm)) { [void]$requiredSet.Add($rid) } } }
+if ($UseCasesRoot -and (Test-Path $UseCasesRoot)) {
+  Get-ChildItem -Path $UseCasesRoot -Recurse -Filter 'FactSheet.md' | ForEach-Object {
+    $fm = Get-FrontMatter -Path $_.FullName
+    foreach ($rid in (Get-RequiredIdsFromFrontMatter -FrontMatter $fm)) { [void]$requiredSet.Add($rid) }
+  }
+}
 
 # Build index of all IDs for cross-check
 $allIds = New-Object System.Collections.Generic.HashSet[string]
-Get-ChildItem -Path $KpiCatalogRoot -Filter '*.md' | Where-Object { $_.Name -ne 'SCHEMA.md' } | ForEach-Object { $r = Get-Content -Raw -Path $_.FullName; foreach($m in [regex]::Matches($r,'kpi_id\s*:\s*"([^"]+)"')){ [void]$allIds.Add($m.Groups[1].Value) } }
+Get-ChildItem -Path $resolvedCatalogRoot -Filter '*.md' | Where-Object { $_.Name -ne 'SCHEMA.md' } | ForEach-Object { $r = Get-Content -Raw -Path $_.FullName; foreach($m in [regex]::Matches($r,'kpi_id\s*:\s*"([^"]+)"')){ [void]$allIds.Add($m.Groups[1].Value) } }
 
-Get-KpiBlocks -Root $KpiCatalogRoot | ForEach-Object {
+Get-KpiBlocks -Root $resolvedCatalogRoot | ForEach-Object {
   $file = $_.File; $b = $_.Block
   $id  = ([regex]::Match($b, 'kpi_id\s*:\s*"([^"]+)"')).Groups[1].Value
   $typ = ([regex]::Match($b, 'kpi_type\s*:\s*"([^"]+)"')).Groups[1].Value.ToLower()

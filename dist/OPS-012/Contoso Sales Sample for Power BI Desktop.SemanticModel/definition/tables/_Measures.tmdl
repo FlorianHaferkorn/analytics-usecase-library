@@ -1,0 +1,57 @@
+/// OPS-012 Measures (Auto-Replenishment Engine)
+table _Measures
+
+    /// ops.inventory.days - Inventory Days
+    /// Average number of days current inventory covers sales (on-hand duration).
+    measure 'Inventory Days on Hand (DIO)' =
+            BLANK()
+        formatString: "0"
+
+    /// ops.inventory.turnover - Inventory Turnover
+    /// Measures how often inventory is sold and replaced over a period to assess stock efficiency.
+    measure 'Inventory Turnover' =
+            BLANK()
+        formatString: "0.00"
+
+    /// ops.stockout.pct - Stock-Out Rate %
+    /// Share of demand not fulfilled due to stock unavailability.
+    measure 'Stockout Rate %' =
+            BLANK()
+        formatString: "0.0 %"
+
+    /// ops.replenishment.adherence.pct - Replenishment Adherence %
+    /// Adherence of replenishment execution to plan (timing and quantity).
+    measure 'Replenishment Plan Adherence %' =
+            BLANK()
+        formatString: "0.0 %"
+
+    /// ops.order_accuracy.pct - Order Accuracy %
+    /// Share of customer orders delivered exactly as ordered (quantity, items, conditions).
+    measure 'Order Accuracy %' =
+            BLANK()
+        formatString: "0.0 %"
+
+    /// ops.otif.pct - OTIF %
+    /// Delivery reliability measured by orders delivered on-time and in-full.
+    measure 'On-Time-In-Full (OTIF) %' =
+            BLANK()
+        formatString: "0.0 %"
+
+    /// sales.net_sales.amount - Net Sales Amount
+    /// Total invoiced revenue net of discounts and returns.
+    measure 'Net Sales Amount' =
+            SUM(fact_sales[Net Sales Amount])
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// sales.net_sales.amount.forecast - Net Sales Amount (Forecast)
+    /// MISSING in KPI catalog: sales.net_sales.amount.forecast
+    measure 'Net Sales Amount (Forecast)' =
+            // TODO
+            BLANK()
+
+    /// sales.forecast.mape_pct - Forecast Accuracy (MAPE %)
+    /// MISSING in KPI catalog: sales.forecast.mape_pct
+    measure 'Forecast Accuracy (MAPE %)' =
+            // TODO
+            BLANK()

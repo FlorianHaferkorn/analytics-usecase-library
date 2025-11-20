@@ -1,0 +1,173 @@
+{
+    "usecase_id":  "OPS-002",
+    "title":  "Inventory Health \u0026 Stock-Out Prevention",
+    "dataset_model":  "Contoso Sales Sample for Power BI Desktop.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\02_Operational_Efficiency\\OPS-002_Inventory_Health\\FactSheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "ops.inventory.days",
+                         "name":  "Inventory Days",
+                         "kpi_key":  "Inventory Days",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0",
+                         "display_folder":  "",
+                         "purpose":  "Average number of days current inventory covers sales (on-hand duration).",
+                         "description":  "Average number of days current inventory covers sales (on-hand duration).",
+                         "technical_description":  "Average Inventory divided by Daily COGS (Days of Inventory Outstanding).",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Supply Chain / Logistics",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Inventory Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     },
+                     {
+                         "kpi_id":  "ops.stockout.pct",
+                         "name":  "Stock-Out Rate %",
+                         "kpi_key":  "Stock-Out Rate %",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0 %",
+                         "display_folder":  "",
+                         "purpose":  "Share of demand not fulfilled due to stock unavailability.",
+                         "description":  "Share of demand not fulfilled due to stock unavailability.",
+                         "technical_description":  "Unfulfilled Demand / Total Demand",
+                         "dax_expression":  null,
+                         "depends_on":  [
+                                            "Unfulfilled Demand Qty",
+                                            "Total Demand Qty"
+                                        ],
+                         "depends_on_ids":  [
+                                                "ops.demand.unfulfilled.qty",
+                                                "ops.demand.total.qty"
+                                            ],
+                         "business_owner":  "Head of Supply Chain Planning",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Demand Planner",
+                         "qa_rules":  [
+                                          "Bounded between 0% and 100%"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     },
+                     {
+                         "kpi_id":  "ops.inventory.turnover",
+                         "name":  "Inventory Turnover",
+                         "kpi_key":  "Inventory Turnover",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  "ratio",
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.00",
+                         "display_folder":  "",
+                         "purpose":  "Measures how often inventory is sold and replaced over a period to assess stock efficiency.",
+                         "description":  "Measures how often inventory is sold and replaced over a period to assess stock efficiency.",
+                         "technical_description":  "COGS / Average Inventory",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Supply Chain / Finance",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Inventory Controller",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     },
+                     {
+                         "kpi_id":  "ops.inventory.obsolescence.pct",
+                         "name":  "Obsolescence %",
+                         "kpi_key":  "Obsolescence %",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0 %",
+                         "display_folder":  "",
+                         "purpose":  "Share of inventory considered obsolete or blocked.",
+                         "description":  "Share of inventory considered obsolete or blocked.",
+                         "technical_description":  "Aged or blocked stock / Total Inventory",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Logistics / Distribution",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Logistics Planner",
+                         "qa_rules":  [
+                                          "Bounded between 0% and 100%"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     },
+                     {
+                         "kpi_id":  "ops.otif.pct",
+                         "name":  "OTIF %",
+                         "kpi_key":  "OTIF %",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0 %",
+                         "display_folder":  "",
+                         "purpose":  "Delivery reliability measured by orders delivered on-time and in-full.",
+                         "description":  "Delivery reliability measured by orders delivered on-time and in-full.",
+                         "technical_description":  "On-Time In-Full deliveries / Total Deliveries",
+                         "dax_expression":  null,
+                         "depends_on":  [
+                                            "OTIF Deliveries Count",
+                                            "Total Deliveries Count"
+                                        ],
+                         "depends_on_ids":  [
+                                                "ops.deliveries.otif.count",
+                                                "ops.deliveries.total.count"
+                                            ],
+                         "business_owner":  "Head of Supply Chain / Finance",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Inventory Controller",
+                         "qa_rules":  [
+                                          "Inventory days reconcile to inventory and COGS within +/- 1 day"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     }
+                 ]
+}

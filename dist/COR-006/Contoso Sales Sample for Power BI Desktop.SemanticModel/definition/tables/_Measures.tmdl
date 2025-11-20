@@ -1,0 +1,23 @@
+/// COR-006 Measures (Headcount Efficiency & Revenue per FTE)
+table _Measures
+
+    /// hr.revenue_per_fte.amount - Revenue per FTE
+    /// Measure how much revenue is generated per full-time equivalent to assess workforce productivity.
+    measure 'Revenue per FTE' =
+            DIVIDE([Revenue Amount],[Average FTE])
+        formatString: "#,0"
+        displayFolder: "COR Workforce"
+
+    /// hr.personnel_cost_ratio.pct - Personnel Cost Ratio %
+    /// Track personnel cost as a share of revenue to understand workforce cost efficiency.
+    measure 'Personnel Cost Ratio %' =
+            DIVIDE([Personnel Cost Amount],[Revenue Amount])
+        formatString: "0.0 %"
+        displayFolder: "COR Workforce"
+
+    /// hr.gm_per_fte.amount - Gross Margin per FTE
+    /// Show how much gross margin is generated per full-time equivalent, factoring both productivity and margin quality.
+    measure 'Gross Margin per FTE' =
+            DIVIDE([Gross Margin Amount],[Average FTE])
+        formatString: "#,0"
+        displayFolder: "COR Workforce"

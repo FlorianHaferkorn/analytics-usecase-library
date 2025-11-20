@@ -119,7 +119,43 @@ analytics-usecase-library/
     coverage/
       check_factsheet_vs_kpi.ps1
       validate_kpi_catalog.ps1
+    run_all_checks.ps1
+    generate/
+      generate_tmdl_measures.ps1
 ```
 
 Last updated: 04.11.2025
+
+---
+
+## How to run checks & regenerate measures
+
+### 1. All quality checks
+
+From the repo root:
+
+```powershell
+./tools/run_all_checks.ps1
+```
+
+This runs:
+- `tools/coverage/validate_factsheets.ps1` – checks FactSheet frontmatter/schema.
+- `tools/coverage/validate_kpi_catalog.ps1` – validates KPI catalog blocks.
+- `tools/coverage/check_factsheet_vs_kpi.ps1` – verifies that all `required_kpi_ids` exist in the KPI catalogs.
+
+Use this after edits to Use Cases or KPI catalogs.
+
+### 2. Regenerate `_Measures.tmdl` for a Use Case
+
+From the repo root:
+
+```powershell
+./tools/generate/generate_tmdl_measures.ps1 -UseCase COM-001
+```
+
+- Reads `required_kpi_ids` from `usecases/.../COM-001*/FactSheet.md`.
+- Looks up KPI metadata in `_includes/kpi_catalog/*.md`.
+- Writes/overwrites `dist/COM-001/.../_Measures.tmdl` and `measures_manifest.json`.
+
+Omit `-UseCase` to regenerate measures for all Use Cases with `required_kpi_ids`.
 

@@ -1,0 +1,105 @@
+{
+    "usecase_id":  "CST-006",
+    "title":  "Market Share \u0026 Competitive Position",
+    "dataset_model":  "Contoso Sales Sample for Power BI Desktop.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\03_Customer_and_Market\\CST-006_Market_Share_and_Competitive_Position\\FactSheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "market.share.total.pct",
+                         "name":  "Market Share % (Total)",
+                         "kpi_key":  "Total Market Share %",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "Growth",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "quarterly",
+                         "status":  "Draft",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "08_Market",
+                         "purpose":  "Measure the company’s share of total addressable market volume or value.",
+                         "description":  "Measure the company’s share of total addressable market volume or value.",
+                         "technical_description":  "Company sales as a percentage of total market sales.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Strategy",
+                         "data_owner":  "Corporate BI",
+                         "steward":  "Market Insight Analyst",
+                         "qa_rules":  [
+                                          "Market size estimates documented and refreshed at least annually"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     },
+                     {
+                         "kpi_id":  "market.share.relative.pct",
+                         "name":  "Relative Market Share vs Main Competitor",
+                         "kpi_key":  "Relative Market Share %",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Growth",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "quarterly",
+                         "status":  "Draft",
+                         "format_string":  "0.0",
+                         "display_folder":  "08_Market",
+                         "purpose":  "Measure market share relative to the largest competitor.",
+                         "description":  "Measure market share relative to the largest competitor.",
+                         "technical_description":  "Market share relative to the largest competitor in the segment.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Strategy",
+                         "data_owner":  "Corporate BI",
+                         "steward":  "Market Insight Analyst",
+                         "qa_rules":  [
+                                          "Competitor mapping and estimates documented"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     },
+                     {
+                         "kpi_id":  "sales.revenue.growth_pct",
+                         "name":  "Revenue Growth %",
+                         "kpi_key":  "Revenue Growth %",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "Growth",
+                         "domain_tags":  [
+                                             "Commercial"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "",
+                         "purpose":  "Measures top-line expansion versus Plan and Last Year.",
+                         "description":  "Measures top-line expansion versus Plan and Last Year.",
+                         "technical_description":  "Growth rate vs last year revenue.",
+                         "dax_expression":  "DIVIDE([Δ Net Sales Amount],[Net Sales Amount LY])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sales",
+                         "data_owner":  "BI Engineering",
+                         "steward":  "Sales Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Growth.md"
+                     }
+                 ]
+}

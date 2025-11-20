@@ -1,0 +1,17 @@
+/// GOV-004 Measures (Audit Findings Management)
+table _Measures
+
+    /// gov.audit.findings.count - Total Audit Findings Count
+    /// Total number of audit findings.
+    measure 'Total Audit Findings Count' =
+            COUNTROWS(fact_findings)
+        formatString: "#,0"
+        displayFolder: "01_Audit"
+
+    /// gov.audit.findings.open.count - Open Audit Findings Count
+    /// Number of audit findings currently open.
+    measure 'Open Audit Findings Count' =
+            COUNTROWS(FILTER(fact_findings, fact_findings[Status] <> \"Closed\"))
+        formatString: "#,0"
+        displayFolder: "01_Audit"
+

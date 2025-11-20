@@ -1,0 +1,24 @@
+/// INN-001 Measures (Innovation Pipeline Performance)
+table _Measures
+
+    /// Supporting: Ideas Count
+    /// Total number of ideas in the pipeline.
+    measure 'Ideas Count' =
+            COUNTROWS(fact_innovation)
+        formatString: "#,0"
+        displayFolder: "01_Innovation"
+
+    /// Supporting: Implemented Ideas Count
+    /// Number of ideas implemented.
+    measure 'Implemented Ideas Count' =
+            COUNTROWS(FILTER(fact_innovation, fact_innovation[ImplementedFlag] = TRUE()))
+        formatString: "#,0"
+        displayFolder: "01_Innovation"
+
+    /// Idea Implementation Conversion %
+    /// Share of ideas that reach implementation.
+    measure 'Idea Implementation Conversion %' =
+            DIVIDE([Implemented Ideas Count],[Ideas Count])
+        formatString: "0.0 %"
+        displayFolder: "01_Innovation"
+

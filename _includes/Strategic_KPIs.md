@@ -119,7 +119,7 @@ Focus: sustainability, resource usage, and environmental footprint.
 | KPI | Business Question | Cluster | Example Use Cases | Expected Effect |
 |------|--------------------|----------|------------------|-----------------|
 | **Sustainability Score** | How well do we meet ESG goals? | Corporate & Strategy | COR-012 ESG Overview | +10 % score |
-| **Carbon Emission Intensity (tCOâ‚‚e)** | How much COâ‚‚e per revenue unit is emitted? | Corporate & Strategy | COR-013 Carbon Footprint | −5–10 % |
+| **Carbon Emission Intensity (tCO₂e)** | How much CO₂e per revenue unit is emitted? | Corporate & Strategy | COR-013 Carbon Footprint | −5–10 % |
 | **Energy Efficiency %** | How much of consumed energy is renewable? | Corporate & Strategy | COR-014 Energy Transition | +10 % |
 | **Water Usage per Unit** | How much water is used per output unit? | Operational Efficiency | OPS-012 Sustainability Monitoring | −3–5 % |
 | **Waste Recycling Rate %** | How much waste is recycled or reused? | Operational Efficiency | OPS-013 Circular Economy | +5–8 % |

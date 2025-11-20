@@ -1,0 +1,73 @@
+{
+    "usecase_id":  "OPS-009",
+    "title":  "Logistics Cost Ratio",
+    "dataset_model":  "Contoso Sales Sample for Power BI Desktop.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\02_Operational_Efficiency\\OPS-009_Logistics_Cost_Ratio\\FactSheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "ops.logistics.cost_ratio.pct",
+                         "name":  "Logistics Cost Ratio %",
+                         "kpi_key":  "Logistics Cost Ratio %",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Efficiency",
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Draft",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "05_Logistics",
+                         "purpose":  "Measure logistics cost relative to net sales or shipped value.",
+                         "description":  "Measure logistics cost relative to net sales or shipped value.",
+                         "technical_description":  "Logistics cost as % of Net Sales or shipped value.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Logistics",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Logistics Controller",
+                         "qa_rules":  [
+                                          "Cost base (transport, warehousing, handling) clearly defined"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     },
+                     {
+                         "kpi_id":  "ops.logistics.cost_per_unit.amount",
+                         "name":  "Logistics Cost per Unit",
+                         "kpi_key":  "Logistics Cost per Unit",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Efficiency",
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  "ratio",
+                         "refresh":  "monthly",
+                         "status":  "Draft",
+                         "format_string":  "EUR #,0.000",
+                         "display_folder":  "05_Logistics",
+                         "purpose":  "Measure average logistics cost per shipped unit.",
+                         "description":  "Measure average logistics cost per shipped unit.",
+                         "technical_description":  "Average logistics cost per shipped unit.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Logistics",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Logistics Controller",
+                         "qa_rules":  [
+                                          "Units and cost base reconciled to operational reports"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     }
+                 ]
+}

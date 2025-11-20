@@ -1,0 +1,80 @@
+﻿/// CST-001 Measures (Customer Retention & Churn Analysis)
+table _Measures
+
+    /// Supporting: Active Customers Start
+    /// Number of active customers at the beginning of the period.
+    measure 'Active Customers Start' =
+            VAR _start = MIN(dim_date[Date])
+            RETURN CALCULATE(
+                DISTINCTCOUNT(fact_customer_transactions[CustomerID]),
+                dim_date[Date] = _start
+            )
+        formatString: "0"
+
+    /// Supporting: Active Customers End
+    /// Number of active customers at the end of the period.
+    measure 'Active Customers End' =
+            VAR _end = MAX(dim_date[Date])
+            RETURN CALCULATE(
+                DISTINCTCOUNT(fact_customer_transactions[CustomerID]),
+                dim_date[Date] = _end
+            )
+        formatString: "0"
+
+    /// Supporting: Lost Customers Count
+    /// Customers that became inactive in the observation window.
+    measure 'Lost Customers Count' =
+            CALCULATE(
+                DISTINCTCOUNT(fact_customer_profile[CustomerID]),
+                fact_customer_profile[Churn Flag] = TRUE()
+            )
+        formatString: "0"
+
+    /// Supporting: Reactivated Customers Count
+    /// Previously lost customers that became active again.
+    measure 'Reactivated Customers Count' =
+            CALCULATE(
+                DISTINCTCOUNT(fact_customer_transactions[CustomerID]),
+                fact_customer_transactions[Reactivated Flag] = TRUE()
+            )
+        formatString: "0"
+
+    /// Supporting: At-Risk Customers Count
+    /// Customers currently flagged as at-risk by the scoring model.
+    measure 'At-Risk Customers Count' =
+            CALCULATE(
+                DISTINCTCOUNT(fact_customer_transactions[CustomerID]),
+                fact_customer_transactions[At-Risk Flag] = TRUE()
+            )
+        formatString: "0"
+
+    /// crm.retention.pct - Customer Retention %
+    /// Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
+    measure 'Retention %' =
+            DIVIDE([Active Customers End],[Active Customers Start])
+        formatString: "0.0 %"
+
+    /// crm.churn.pct - Churn %
+    /// Customer churn rate as complement of retention.
+    measure 'Churn %' =
+            1 - [Retention %]
+        formatString: "0.0 %"
+
+    /// crm.clv.amount - CLV (Customer Lifetime Value)
+    /// Discounted gross margin per customer over the analysis horizon.
+    measure 'CLV (Customer Lifetime Value)' =
+            SUM(fact_customer_transactions[Margin Amount])
+        formatString: "€ #,0"
+
+    /// crm.reactivation.pct - Reactivation Rate %
+    /// Share of previously lost customers that became active again.
+    measure 'Reactivation Rate %' =
+            DIVIDE([Reactivated Customers Count],[Lost Customers Count])
+        formatString: "0.0 %"
+
+    /// crm.at_risk_share.pct - At-Risk Share %
+    /// Share of active customers currently flagged as at risk.
+    measure 'At-Risk Share %' =
+            DIVIDE([At-Risk Customers Count],[Active Customers End])
+        formatString: "0.0 %"
+

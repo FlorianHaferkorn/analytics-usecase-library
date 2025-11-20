@@ -1,0 +1,30 @@
+/// COM-012 Measures (Dynamic Pricing Optimization)
+table _Measures
+
+    /// sales.net_sales.amount - Net Sales Amount
+    /// Total invoiced revenue net of discounts and returns.
+    measure 'Net Sales Amount' =
+            SUM(fact_sales[Net Sales Amount])
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// margin.gm.pct - Gross Margin % (Operational)
+    /// Provide the Gross Margin % used in commercial and management reporting at the same granularity as Net Sales.
+    measure 'Gross Margin %' =
+            DIVIDE([Net Sales Amount]-[COGS Amount],[Net Sales Amount])
+        formatString: "0.0 %"
+        displayFolder: "02_Margin"
+
+    /// sales.price.realization_pct - Price Realization %
+    /// Shows how much of list price is realized after discounts.
+    measure 'Price Realization %' =
+            DIVIDE([Net Sales Amount],[List Price Amount])
+        formatString: "0.0 %"
+        displayFolder: "03_Price_Promo"
+
+    /// sales.promo.uplift_pct - Promo Uplift %
+    /// Measure incremental sales impact of promotions versus baseline demand.
+    measure 'Promo Uplift %' =
+            DIVIDE([Promo Sales Amount]-[Baseline Sales Amount],[Baseline Sales Amount])
+        formatString: "0.0 %"
+        displayFolder: "01_Sales"

@@ -1,0 +1,203 @@
+{
+    "usecase_id":  "CST-013",
+    "title":  "CLV \u0026 Retention Drivers",
+    "dataset_model":  "Contoso Sales Sample for Power BI Desktop.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\03_Customer_and_Market\\CST-013_CLV_and_Retention_Drivers\\FactSheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "crm.clv.amount",
+                         "name":  "Customer Lifetime Value (CLV) Amount",
+                         "kpi_key":  "CLV (Customer Lifetime Value)",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Customer",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "EUR #,0.00",
+                         "display_folder":  "",
+                         "purpose":  "Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.",
+                         "description":  "Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.",
+                         "technical_description":  "Discounted gross margin expected from a customer over the chosen horizon.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of CRM / Marketing Analytics",
+                         "data_owner":  "CRM BI",
+                         "steward":  "Customer Insights Analyst",
+                         "qa_rules":  [
+                                          "Reconciles to CLV model outputs within an agreed tolerance"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     },
+                     {
+                         "kpi_id":  "crm.retention.pct",
+                         "name":  "Customer Retention %",
+                         "kpi_key":  "Customer Retention %",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "customer",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "",
+                         "purpose":  "Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.",
+                         "description":  "Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.",
+                         "technical_description":  "Share of customers that remain active between the start and end of the period.",
+                         "dax_expression":  "DIVIDE([Active Customers End],[Active Customers Start])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Marketing",
+                         "data_owner":  "CRM BI",
+                         "steward":  "Customer Insights Analyst",
+                         "qa_rules":  [
+                                          "Retention % within [0;100]"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     },
+                     {
+                         "kpi_id":  "crm.churn.pct",
+                         "name":  "Customer Churn Rate %",
+                         "kpi_key":  "Customer Churn Rate %",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Customer",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "",
+                         "display_folder":  "",
+                         "purpose":  "Measures proportion of customers lost during a period.",
+                         "description":  "Measures proportion of customers lost during a period.",
+                         "technical_description":  null,
+                         "dax_expression":  "DIVIDE([Churned Customers],[Active Customers Start])",
+                         "depends_on":  [
+                                            "Churned Customers",
+                                            "Active Customers Start"
+                                        ],
+                         "depends_on_ids":  [
+                                                "crm.churned_customers.count",
+                                                "crm.active_customers_start.count"
+                                            ],
+                         "business_owner":  "Head of Marketing",
+                         "data_owner":  "CRM BI",
+                         "steward":  "Customer Insights Analyst",
+                         "qa_rules":  [
+                                          "Churn Rate \u003c= 100 %"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     },
+                     {
+                         "kpi_id":  "crm.basket_size.amount",
+                         "name":  "Average Basket Value",
+                         "kpi_key":  "Average Basket Value",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Customer",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  "monthly",
+                         "status":  "Draft",
+                         "format_string":  "EUR #,0.00",
+                         "display_folder":  "06_CrossSell",
+                         "purpose":  "Measure the average monetary value of a transaction or order.",
+                         "description":  "Measure the average monetary value of a transaction or order.",
+                         "technical_description":  "Average order value in the selected slice.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Marketing",
+                         "data_owner":  "CRM BI",
+                         "steward":  "Customer Insights Analyst",
+                         "qa_rules":  [
+                                          "Order count definition consistent with billing rules"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     },
+                     {
+                         "kpi_id":  "crm.basket_size.units",
+                         "name":  "Average Basket Units",
+                         "kpi_key":  "Average Basket Units",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Customer",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  "ratio",
+                         "refresh":  "monthly",
+                         "status":  "Draft",
+                         "format_string":  "0.0",
+                         "display_folder":  "06_CrossSell",
+                         "purpose":  "Measure the average number of units per order.",
+                         "description":  "Measure the average number of units per order.",
+                         "technical_description":  "Average quantity of items per order.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Marketing",
+                         "data_owner":  "CRM BI",
+                         "steward":  "Customer Insights Analyst",
+                         "qa_rules":  [
+                                          "Order definition consistent between units and sales aggregation"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     },
+                     {
+                         "kpi_id":  "crm.cross_sell_ratio.pct",
+                         "name":  "Cross-Sell Ratio %",
+                         "kpi_key":  "Cross-Sell Ratio %",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Customer",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Draft",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "06_CrossSell",
+                         "purpose":  "Measure the share of customers buying more than one product category.",
+                         "description":  "Measure the share of customers buying more than one product category.",
+                         "technical_description":  "Share of customers purchasing in multiple product categories.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Marketing",
+                         "data_owner":  "CRM BI",
+                         "steward":  "Customer Insights Analyst",
+                         "qa_rules":  [
+                                          "Customer ID and category mapping validated"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     }
+                 ]
+}

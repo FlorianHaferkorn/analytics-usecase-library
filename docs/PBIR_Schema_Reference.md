@@ -17,23 +17,7 @@ These files live inside the **report folder** of a PBIP project:
 - `definition/` — **PBIR** folder replacing `report.json` (see contents below).
 
 ### PBIR `definition/` Folder Structure
-```
-definition/
-â”œâ”€ bookmarks/
-â”‚  â”œâ”€ [bookmarkName].bookmark.json
-â”‚  â””â”€ bookmarks.json
-â”œâ”€ pages/
-â”‚  â”œâ”€ [pageName]/
-â”‚  â”‚  â”œâ”€ visuals/
-â”‚  â”‚  â”‚  â”œâ”€ [visualName]/
-â”‚  â”‚  â”‚  â”‚  â”œâ”€ mobile.json
-â”‚  â”‚  â”‚  â”‚  â””â”€ visual.json
-â”‚  â”‚  â””â”€ page.json
-â”‚  â””â”€ pages.json
-â”œâ”€ version.json
-â”œâ”€ reportExtensions.json
-â””â”€ report.json
-```
+```text`ndefinition/`n├─ bookmarks/`n│  ├─ [bookmarkName].bookmark.json`n│  └─ bookmarks.json`n├─ pages/`n│  ├─ [pageName]/`n│  │  ├─ visuals/`n│  │  │  ├─ [visualName]/`n│  │  │  │  ├─ mobile.json`n│  │  │  │  └─ visual.json`n│  │  └─ page.json`n│  └─ pages.json`n├─ version.json`n├─ reportExtensions.json`n└─ report.json`n```
 
 ## Public JSON Schemas (how to reference)
 Every PBIR JSON file starts with a `$schema` property that points to a **public schema URL**. Use these URLs as the authoritative reference.
@@ -76,4 +60,6 @@ Each JSON under `definition/` declares its own `$schema`, for example:
 - `definition.pbir` versions and `datasetReference` rules (byPath vs byConnection)
 
 (Keep this reference short; use the `$schema` URLs inside files for the authoritative, versioned property sets.)
+
+
 

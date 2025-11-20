@@ -1,0 +1,22 @@
+/// CST-007 Measures (Complaint Rate & Service Quality)
+table _Measures
+
+    /// crm.complaint.rate.pct - Complaint Rate %
+    /// Measure complaints relative to delivered orders or customers.
+    measure 'Complaint Rate %' =
+            BLANK()
+        formatString: "0.0 %"
+        displayFolder: "05_Service_Quality"
+
+    /// crm.complaint.count - Complaint Count
+    /// Provide the absolute number of logged complaints.
+    measure 'Complaint Count' =
+            BLANK()
+        formatString: "#,0"
+        displayFolder: "05_Service_Quality"
+
+    /// crm.retention.pct - Customer Retention %
+    /// Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
+    measure 'Customer Retention %' =
+            DIVIDE([Active Customers End],[Active Customers Start])
+        formatString: "0.0 %"

@@ -1,0 +1,28 @@
+/// COM-009 Measures (Channel Mix Performance)
+table _Measures
+
+    /// sales.net_sales.amount - Net Sales Amount
+    /// Total invoiced revenue net of discounts and returns.
+    measure 'Net Sales Amount' =
+            SUM(fact_sales[Net Sales Amount])
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// sales.net_sales.channel_share.pct - Channel Revenue Share %
+    /// MISSING in KPI catalog: sales.net_sales.channel_share.pct
+    measure 'Channel Revenue Share %' =
+            // TODO
+            BLANK()
+
+    /// margin.gm.pct - Gross Margin % (Operational)
+    /// Provide the Gross Margin % used in commercial and management reporting at the same granularity as Net Sales.
+    measure 'Gross Margin %' =
+            DIVIDE([Net Sales Amount]-[COGS Amount],[Net Sales Amount])
+        formatString: "0.0 %"
+        displayFolder: "02_Margin"
+
+    /// margin.gm.channel_contribution.amount - Channel Contribution Margin Amount
+    /// MISSING in KPI catalog: margin.gm.channel_contribution.amount
+    measure 'Channel Contribution Margin Amount' =
+            // TODO
+            BLANK()

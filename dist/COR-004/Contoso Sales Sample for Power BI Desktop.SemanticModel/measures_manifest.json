@@ -1,0 +1,178 @@
+{
+    "usecase_id":  "COR-004",
+    "title":  "Strategic KPI Dashboard (Enterprise Performance Overview)",
+    "dataset_model":  "Contoso Sales Sample for Power BI Desktop.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\04_Corporate_and_Strategy\\COR-004_Strategic_KPI_Dashboard\\FactSheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "sales.net_sales.delta_pct.ly",
+                         "name":  "Δ% Net Sales",
+                         "kpi_key":  "Δ% Net Sales",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Growth",
+                         "domain_tags":  [
+                                             "Commercial"
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0 %",
+                         "display_folder":  "01_Sales",
+                         "purpose":  "Relative variance of Net Sales vs Last Year.",
+                         "description":  "Relative variance of Net Sales vs Last Year.",
+                         "technical_description":  "Growth rate vs last year revenue.",
+                         "dax_expression":  "DIVIDE([Δ Net Sales Amount],[Net Sales Amount LY])",
+                         "depends_on":  [
+                                            "Δ Net Sales Amount",
+                                            "Net Sales Amount LY"
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sales Controlling",
+                         "data_owner":  "Commercial BI",
+                         "steward":  "Sales Analyst",
+                         "qa_rules":  [
+                                          "Reconciles to Net Sales and LY revenue within +/- 0.1 pp"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Growth.md"
+                     },
+                     {
+                         "kpi_id":  "margin.gm.pct",
+                         "name":  "Gross Margin %",
+                         "missing":  true,
+                         "purpose":  null,
+                         "description":  null,
+                         "dax_expression":  null
+                     },
+                     {
+                         "kpi_id":  "ops.working_capital.ccc.days",
+                         "name":  "Cash Conversion Cycle (Days)",
+                         "kpi_key":  "Cash Conversion Cycle (Days)",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Efficiency",
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0",
+                         "display_folder":  "02_WorkingCapital",
+                         "purpose":  "Combines receivables, inventory, and payables days to show cash efficiency.",
+                         "description":  "Combines receivables, inventory, and payables days to show cash efficiency.",
+                         "technical_description":  "Aggregated cash conversion cycle derived from DSO, DIO, and DPO measures.",
+                         "dax_expression":  "[DSO (Days)] + [DIO (Days)] - [DPO (Days)]",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Treasury",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Working Capital Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     },
+                     {
+                         "kpi_id":  "hr.turnover.pct",
+                         "name":  "Turnover Rate %",
+                         "kpi_key":  "Turnover Rate %",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "governance",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "COR Workforce",
+                         "purpose":  "Measure the share of employees leaving the organization over a period to assess retention risk.",
+                         "description":  "Measure the share of employees leaving the organization over a period to assess retention risk.",
+                         "technical_description":  "Exits divided by average headcount for the selected period and org.",
+                         "dax_expression":  "DIVIDE([Exits Count],[Average Headcount])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of HR",
+                         "data_owner":  "People Analytics",
+                         "steward":  "HR Analyst",
+                         "qa_rules":  [
+                                          "Turnover bounded between 0 % and 100 %"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_InnovationPeople.md"
+                     },
+                     {
+                         "kpi_id":  "esg.aligned_revenue.pct",
+                         "name":  "ESG-Aligned Revenue %",
+                         "kpi_key":  "ESG-Aligned Revenue %",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "ESG",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "quarterly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "01_Strategy",
+                         "purpose":  "Tracks portion of revenue classified as environmentally sustainable.",
+                         "description":  "Tracks portion of revenue classified as environmentally sustainable.",
+                         "technical_description":  "Share of revenue that meets EU Taxonomy criteria.",
+                         "dax_expression":  "DIVIDE([ESG-Aligned Revenue Amount],[Net Sales Amount])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sustainability",
+                         "data_owner":  "Finance Reporting",
+                         "steward":  "ESG Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_ESG.md"
+                     },
+                     {
+                         "kpi_id":  "corp.project.roi.pct",
+                         "name":  "Project ROI %",
+                         "kpi_key":  "Project ROI %",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "Governance",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "01_Strategy",
+                         "purpose":  "Measures realized return of strategic initiatives.",
+                         "description":  "Measures realized return of strategic initiatives.",
+                         "technical_description":  "ROI evaluation using realized financial benefits.",
+                         "dax_expression":  "DIVIDE([Realized Benefit Amount]-[Total Project Cost Amount],[Total Project Cost Amount])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Strategy",
+                         "data_owner":  "PMO / Finance",
+                         "steward":  "Portfolio Analyst",
+                         "qa_rules":  [
+                                          "Benefits reconciled with finance actuals"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Governance.md"
+                     }
+                 ]
+}

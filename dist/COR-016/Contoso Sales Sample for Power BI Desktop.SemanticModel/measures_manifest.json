@@ -1,0 +1,108 @@
+{
+    "usecase_id":  "COR-016",
+    "title":  "Credit Risk Scorecard (PD/LGD/EAD)",
+    "dataset_model":  "Contoso Sales Sample for Power BI Desktop.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\04_Corporate_and_Strategy\\COR-016_Credit_Risk_Scorecard\\FactSheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "fin.risk.pd.pct",
+                         "name":  "Probability of Default (PD) %",
+                         "kpi_key":  "Probability of Default (PD) %",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Governance",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy",
+                                             "Financial Services"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Draft",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "06_Risk\\\\Credit Risk",
+                         "purpose":  "Measure the probability that a counterparty or exposure defaults within a defined time horizon.",
+                         "description":  "Measure the probability that a counterparty or exposure defaults within a defined time horizon.",
+                         "technical_description":  "Probability of Default per exposure or segment; used in expected loss and capital calculations.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Chief Risk Officer",
+                         "data_owner":  "Risk Analytics",
+                         "steward":  "Credit Risk Analyst",
+                         "qa_rules":  [
+                                          "Model validated per internal model governance and regulatory requirements"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Risk.md"
+                     },
+                     {
+                         "kpi_id":  "fin.risk.lgd.pct",
+                         "name":  "Loss Given Default (LGD) %",
+                         "kpi_key":  "Loss Given Default (LGD) %",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Governance",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy",
+                                             "Financial Services"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Draft",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "06_Risk\\\\Credit Risk",
+                         "purpose":  "Estimate the percentage loss on an exposure if a default occurs.",
+                         "description":  "Estimate the percentage loss on an exposure if a default occurs.",
+                         "technical_description":  "Loss Given Default percentage per exposure or segment.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Chief Risk Officer",
+                         "data_owner":  "Risk Analytics",
+                         "steward":  "Credit Risk Analyst",
+                         "qa_rules":  [
+                                          "LGD assumptions and recovery curves documented and approved"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Risk.md"
+                     },
+                     {
+                         "kpi_id":  "fin.risk.ead.amount",
+                         "name":  "Exposure at Default (EAD) Amount",
+                         "kpi_key":  "Exposure at Default (EAD) Amount",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Governance",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy",
+                                             "Financial Services"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  "monthly",
+                         "status":  "Draft",
+                         "format_string":  "EUR #,0.00",
+                         "display_folder":  "06_Risk\\\\Credit Risk",
+                         "purpose":  "Measure the outstanding exposure amount expected at the time of default.",
+                         "description":  "Measure the outstanding exposure amount expected at the time of default.",
+                         "technical_description":  "Exposure at Default amount per facility or segment.",
+                         "dax_expression":  "",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Chief Risk Officer",
+                         "data_owner":  "Risk Analytics",
+                         "steward":  "Credit Risk Analyst",
+                         "qa_rules":  [
+                                          "EAD reconciles with regulatory and internal risk reports"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Risk.md"
+                     }
+                 ]
+}

@@ -1,0 +1,93 @@
+﻿/// OPS-004 Measures (Replenishment Optimization & Service Level Management)
+table _Measures
+
+    /// ops.replenishment.adherence.pct - Replenishment Adherence %
+    /// Adherence of replenishment execution to plan (timing and quantity).
+    measure 'Replenishment Adherence %' =
+            VAR _actualOrders =
+                SUM(fact_replenishment_order[Order Qty])
+            VAR _targetOrders =
+                SUM(fact_replenishment_order[Forecast Qty])
+            RETURN
+                IF(
+                    _targetOrders = 0,
+                    BLANK(),
+                    DIVIDE(_actualOrders,_targetOrders)
+                )
+        formatString: "0.0 %"
+
+    /// ops.order_accuracy.pct - Order Accuracy %
+    /// Share of customer orders delivered exactly as ordered (quantity, items, conditions).
+    measure 'Order Accuracy %' =
+            VAR _totalOrders =
+                DISTINCTCOUNT(fact_fulfillment[DeliveryID])
+            VAR _correctOrders =
+                CALCULATE(
+                    DISTINCTCOUNT(fact_fulfillment[DeliveryID]),
+                    FILTER(
+                        fact_fulfillment,
+                        fact_fulfillment[Delivered Qty] = fact_fulfillment[Demand Qty]
+                    )
+                )
+            RETURN
+                IF(
+                    _totalOrders = 0,
+                    BLANK(),
+                    DIVIDE(_correctOrders,_totalOrders)
+                )
+        formatString: "0.0 %"
+
+    /// ops.stockout.pct - Stock-Out Rate %
+    /// Share of demand not fulfilled due to stock unavailability.
+    measure 'Stock-Out Rate %' =
+            VAR _totalDemand =
+                SUM(fact_fulfillment[Demand Qty])
+            VAR _unfulfilled =
+                SUMX(
+                    fact_fulfillment,
+                    MAX(fact_fulfillment[Demand Qty] - fact_fulfillment[Delivered Qty], 0)
+                )
+            RETURN
+                IF(
+                    _totalDemand = 0,
+                    BLANK(),
+                    DIVIDE(_unfulfilled,_totalDemand)
+                )
+        formatString: "0.0 %"
+
+    /// ops.inventory.days - Inventory Days
+    /// Average number of days current inventory covers sales (on-hand duration).
+    measure 'Inventory Days' =
+            VAR _inventory =
+                SUM(fact_inventory_snapshot[Inventory Value])
+            VAR _cogs =
+                SUM(fact_sales[COGS Amount])
+            RETURN
+                IF(
+                    _cogs = 0,
+                    BLANK(),
+                    DIVIDE(_inventory,_cogs) * 365
+                )
+        formatString: "0"
+
+    /// ops.otif.pct - OTIF %
+    /// Delivery reliability measured by orders delivered on-time and in-full.
+    measure 'OTIF %' =
+            VAR _totalOrders =
+                DISTINCTCOUNT(fact_fulfillment[DeliveryID])
+            VAR _otifOrders =
+                CALCULATE(
+                    DISTINCTCOUNT(fact_fulfillment[DeliveryID]),
+                    FILTER(
+                        fact_fulfillment,
+                        NOT fact_fulfillment[Stock-Out Flag]
+                    )
+                )
+            RETURN
+                IF(
+                    _totalOrders = 0,
+                    BLANK(),
+                    DIVIDE(_otifOrders,_totalOrders)
+                )
+        formatString: "0.0 %"
+

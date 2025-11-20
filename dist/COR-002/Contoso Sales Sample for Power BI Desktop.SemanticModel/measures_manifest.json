@@ -1,0 +1,169 @@
+{
+    "usecase_id":  "COR-002",
+    "title":  "Workforce Productivity \u0026 Turnover Analysis",
+    "dataset_model":  "Contoso Sales Sample for Power BI Desktop.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\04_Corporate_and_Strategy\\COR-002_Workforce_Productivity_and_Turnover\\FactSheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "hr.revenue_per_fte.amount",
+                         "name":  "Revenue per FTE",
+                         "kpi_key":  "Revenue per FTE",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "efficiency",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy"
+                                         ],
+                         "calc_type":  "ratio",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "#,0",
+                         "display_folder":  "COR Workforce",
+                         "purpose":  "Measure how much revenue is generated per full-time equivalent to assess workforce productivity.",
+                         "description":  "Measure how much revenue is generated per full-time equivalent to assess workforce productivity.",
+                         "technical_description":  "Revenue divided by average FTE for the selected period and org.",
+                         "dax_expression":  "DIVIDE([Revenue Amount],[Average FTE])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of HR Controlling",
+                         "data_owner":  "People Analytics",
+                         "steward":  "HR Analyst",
+                         "qa_rules":  [
+                                          "Check reconciliation to Finance revenue within +/- 0.5 %"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_InnovationPeople.md"
+                     },
+                     {
+                         "kpi_id":  "hr.gm_per_fte.amount",
+                         "name":  "Gross Margin per FTE",
+                         "kpi_key":  "Gross Margin per FTE",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "efficiency",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy"
+                                         ],
+                         "calc_type":  "ratio",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "#,0",
+                         "display_folder":  "COR Workforce",
+                         "purpose":  "Show how much gross margin is generated per full-time equivalent, factoring both productivity and margin quality.",
+                         "description":  "Show how much gross margin is generated per full-time equivalent, factoring both productivity and margin quality.",
+                         "technical_description":  "Gross margin divided by average FTE for the selected period and org.",
+                         "dax_expression":  "DIVIDE([Gross Margin Amount],[Average FTE])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of HR Controlling",
+                         "data_owner":  "People Analytics",
+                         "steward":  "HR Analyst",
+                         "qa_rules":  [
+                                          "Gross Margin Amount reconciles to Finance within +/- 0.5 %"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_InnovationPeople.md"
+                     },
+                     {
+                         "kpi_id":  "hr.personnel_cost_ratio.pct",
+                         "name":  "Personnel Cost Ratio %",
+                         "kpi_key":  "Personnel Cost Ratio %",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "profitability",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "COR Workforce",
+                         "purpose":  "Track personnel cost as a share of revenue to understand workforce cost efficiency.",
+                         "description":  "Track personnel cost as a share of revenue to understand workforce cost efficiency.",
+                         "technical_description":  "Personnel cost divided by revenue for the selected period and org.",
+                         "dax_expression":  "DIVIDE([Personnel Cost Amount],[Revenue Amount])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of HR Controlling",
+                         "data_owner":  "People Analytics",
+                         "steward":  "HR Analyst",
+                         "qa_rules":  [
+                                          "Personnel Cost reconciles to P\u0026L within +/- 0.5 %"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_InnovationPeople.md"
+                     },
+                     {
+                         "kpi_id":  "hr.turnover.pct",
+                         "name":  "Turnover Rate %",
+                         "kpi_key":  "Turnover Rate %",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "governance",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "COR Workforce",
+                         "purpose":  "Measure the share of employees leaving the organization over a period to assess retention risk.",
+                         "description":  "Measure the share of employees leaving the organization over a period to assess retention risk.",
+                         "technical_description":  "Exits divided by average headcount for the selected period and org.",
+                         "dax_expression":  "DIVIDE([Exits Count],[Average Headcount])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of HR",
+                         "data_owner":  "People Analytics",
+                         "steward":  "HR Analyst",
+                         "qa_rules":  [
+                                          "Turnover bounded between 0 % and 100 %"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_InnovationPeople.md"
+                     },
+                     {
+                         "kpi_id":  "hr.absenteeism.pct",
+                         "name":  "Absenteeism %",
+                         "kpi_key":  "Absenteeism %",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "governance",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "COR Workforce",
+                         "purpose":  "Monitor absence behavior as an early indicator of engagement, wellbeing, and operational risk.",
+                         "description":  "Monitor absence behavior as an early indicator of engagement, wellbeing, and operational risk.",
+                         "technical_description":  "Absent hours divided by scheduled working hours for the selected period and org.",
+                         "dax_expression":  "DIVIDE([Absent Hours],[Scheduled Hours])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of HR",
+                         "data_owner":  "People Analytics",
+                         "steward":  "HR Analyst",
+                         "qa_rules":  [
+                                          "Absenteeism bounded between 0 % and 100 %"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_InnovationPeople.md"
+                     }
+                 ]
+}

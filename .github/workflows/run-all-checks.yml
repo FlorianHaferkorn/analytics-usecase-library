@@ -1,0 +1,35 @@
+name: Run Analytics Use Case Library Checks
+
+on:
+  push:
+    paths:
+      - "usecases/**"
+      - "_includes/**"
+      - "docs/**"
+      - "tools/**"
+      - ".github/workflows/run-all-checks.yml"
+  pull_request:
+    paths:
+      - "usecases/**"
+      - "_includes/**"
+      - "docs/**"
+      - "tools/**"
+
+jobs:
+  run-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PowerShell
+        uses: PowerShell/PowerShell@v1
+        with:
+          pwsh-version: '7.4.x'
+
+      - name: Run all checks
+        shell: pwsh
+        run: |
+          ./tools/run_all_checks.ps1
+

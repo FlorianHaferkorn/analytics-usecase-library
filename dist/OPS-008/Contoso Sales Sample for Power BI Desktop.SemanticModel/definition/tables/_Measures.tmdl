@@ -1,0 +1,15 @@
+/// OPS-008 Measures (Unit Cost & COGS Drivers)
+table _Measures
+
+    /// cost.cogs.amount - COGS Amount
+    /// Represents cost of goods sold directly linked to sales.
+    measure 'COGS Amount' =
+            SUM(fact_sales[COGS Amount])
+        formatString: "EUR #,0.00"
+        displayFolder: "02_Margin"
+
+    /// ops.process.cost_per_unit.amount - Process Cost per Unit
+    /// Measures average process cost per produced unit.
+    measure 'Process Cost per Unit' =
+            DIVIDE([Total Process Cost Amount],[Produced Units Qty])
+        formatString: "EUR #,0.00"

@@ -1,0 +1,54 @@
+﻿/// COM-006 Measures (Customer Profitability)
+table _Measures
+
+    /// Supporting: Net Sales Amount
+    /// Total invoiced revenue net of discounts and returns.
+    measure 'Net Sales Amount' =
+            SUM(fact_sales[Net Sales Amount])
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// Supporting: COGS Amount
+    /// Cost of goods sold during the period.
+    measure 'COGS Amount' =
+            SUM(fact_sales[COGS Amount])
+        formatString: "€ #,0.00"
+        displayFolder: "02_Margin"
+
+    /// margin.gm.amount - Gross Margin Amount
+    /// Gross margin across all customers.
+    measure 'Gross Margin Amount' =
+            [Net Sales Amount] - [COGS Amount]
+        formatString: "€ #,0.00"
+        displayFolder: "02_Margin"
+
+    /// margin.gm.pct - Gross Margin %
+    /// Gross margin rate across all customers.
+    measure 'Gross Margin %' =
+            DIVIDE([Gross Margin Amount],[Net Sales Amount])
+        formatString: "0.0 %"
+        displayFolder: "02_Margin"
+
+    /// margin.customer.amount - Customer Margin Amount
+    /// Gross margin per customer or customer segment.
+    measure 'Customer Margin Amount' =
+            [Net Sales Amount] - [COGS Amount]
+        formatString: "€ #,0.00"
+        displayFolder: "03_Customer"
+
+    /// margin.customer.pct - Customer Margin %
+    /// Gross margin percentage per customer or customer segment.
+    measure 'Customer Margin %' =
+            DIVIDE([Customer Margin Amount],[Net Sales Amount])
+        formatString: "0.0 %"
+        displayFolder: "03_Customer"
+
+    /// sales.customer.revenue_share.pct - Customer Revenue Share %
+    /// Share of total revenue contributed by the selected customer or segment.
+    measure 'Customer Revenue Share %' =
+            VAR _total = CALCULATE([Net Sales Amount], ALL(dim_customer))
+            RETURN DIVIDE([Net Sales Amount], _total)
+        formatString: "0.0 %"
+        displayFolder: "03_Customer"
+
+

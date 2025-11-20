@@ -1,0 +1,457 @@
+{
+    "usecase_id":  "COR-010",
+    "title":  "Enterprise Performance Cockpit",
+    "dataset_model":  "Contoso Sales Sample for Power BI Desktop.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\04_Corporate_and_Strategy\\COR-010_Enterprise_Performance_Cockpit\\FactSheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "sales.net_sales.amount",
+                         "name":  "Net Sales Amount",
+                         "kpi_key":  "Net Sales Amount",
+                         "kpi_type":  "supporting",
+                         "impact_dimension":  "Growth",
+                         "domain_tags":  [
+                                             "Commercial"
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "€ #,0.00",
+                         "display_folder":  "01_Sales",
+                         "purpose":  "Total invoiced revenue net of discounts and returns.",
+                         "description":  "Total invoiced revenue net of discounts and returns.",
+                         "technical_description":  "Growth rate vs last year revenue.",
+                         "dax_expression":  "SUM(fact_sales[Net Sales Amount])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sales",
+                         "data_owner":  "BI Engineering",
+                         "steward":  "Sales Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Growth.md"
+                     },
+                     {
+                         "kpi_id":  "sales.revenue.growth_pct",
+                         "name":  "Revenue Growth %",
+                         "kpi_key":  "Revenue Growth %",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "Growth",
+                         "domain_tags":  [
+                                             "Commercial"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "",
+                         "purpose":  "Measures top-line expansion versus Plan and Last Year.",
+                         "description":  "Measures top-line expansion versus Plan and Last Year.",
+                         "technical_description":  "Growth rate vs last year revenue.",
+                         "dax_expression":  "DIVIDE([Δ Net Sales Amount],[Net Sales Amount LY])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sales",
+                         "data_owner":  "BI Engineering",
+                         "steward":  "Sales Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Growth.md"
+                     },
+                     {
+                         "kpi_id":  "margin.gm.pct",
+                         "name":  "Gross Margin %",
+                         "kpi_key":  "Gross Margin % (Operational)",
+                         "kpi_type":  "supporting",
+                         "impact_dimension":  "Profitability",
+                         "domain_tags":  [
+                                             "Commercial"
+                                         ],
+                         "calc_type":  "ratio",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "02_Margin",
+                         "purpose":  "Provide the Gross Margin % used in commercial and management reporting at the same granularity as Net Sales.",
+                         "description":  "Provide the Gross Margin % used in commercial and management reporting at the same granularity as Net Sales.",
+                         "technical_description":  "Operational Gross Margin % measure used in COM and COR reports; aligned with strategic Gross Margin % definition.",
+                         "dax_expression":  "DIVIDE([Net Sales Amount]-[COGS Amount],[Net Sales Amount])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Controlling",
+                         "data_owner":  "BI Engineering",
+                         "steward":  "Controlling Analyst",
+                         "qa_rules":  [
+                                          "Reconciles to strategic Gross Margin % within +/- 0.1 pp for the same slice"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Profitability.md"
+                     },
+                     {
+                         "kpi_id":  "profit.ebitda_margin",
+                         "name":  "EBITDA Margin %",
+                         "kpi_key":  "EBITDA Margin %",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "Profitability",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy"
+                                         ],
+                         "calc_type":  "ratio",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "02_Margin",
+                         "purpose":  "Shows earnings before interest, taxes, depreciation, and amortization as a share of revenue.",
+                         "description":  "Shows earnings before interest, taxes, depreciation, and amortization as a share of revenue.",
+                         "technical_description":  "Purpose: EBITDA share of revenue. Definition: [EBITDA Amount]/[Net Sales Amount]. Grain \u0026 Scope: monthly close, company level. Unit/Format: 0.0 %. Lineage: finance EBITDA, sales revenue. QA: reconciles within +/-0.2 pp.",
+                         "dax_expression":  "DIVIDE([EBITDA Amount],[Net Sales Amount])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Controlling",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Financial Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Profitability.md"
+                     },
+                     {
+                         "kpi_id":  "fin.liquidity.working_capital",
+                         "name":  "Working Capital %",
+                         "kpi_key":  "Working Capital %",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "Liquidity",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy"
+                                         ],
+                         "calc_type":  "ratio",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "",
+                         "purpose":  "Share of capital tied up in operations relative to sales.",
+                         "description":  "Share of capital tied up in operations relative to sales.",
+                         "technical_description":  "Share of (AR + Inventory - AP) relative to Net Sales.",
+                         "dax_expression":  "DIVIDE([Receivables Amount]+[Inventory Amount]-[Payables Amount],[Net Sales Amount])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Treasury",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Treasury Analyst",
+                         "qa_rules":  [
+                                          "Reconcile with balance sheet +/-1 %"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Liquidity.md"
+                     },
+                     {
+                         "kpi_id":  "ops.working_capital.ccc.days",
+                         "name":  "Cash Conversion Cycle (Days)",
+                         "kpi_key":  "Cash Conversion Cycle (Days)",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Efficiency",
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0",
+                         "display_folder":  "02_WorkingCapital",
+                         "purpose":  "Combines receivables, inventory, and payables days to show cash efficiency.",
+                         "description":  "Combines receivables, inventory, and payables days to show cash efficiency.",
+                         "technical_description":  "Aggregated cash conversion cycle derived from DSO, DIO, and DPO measures.",
+                         "dax_expression":  "[DSO (Days)] + [DIO (Days)] - [DPO (Days)]",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Treasury",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Working Capital Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     },
+                     {
+                         "kpi_id":  "ops.inventory.turnover",
+                         "name":  "Inventory Turnover",
+                         "kpi_key":  "Inventory Turnover",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  "ratio",
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.00",
+                         "display_folder":  "",
+                         "purpose":  "Measures how often inventory is sold and replaced over a period to assess stock efficiency.",
+                         "description":  "Measures how often inventory is sold and replaced over a period to assess stock efficiency.",
+                         "technical_description":  "COGS / Average Inventory",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Supply Chain / Finance",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Inventory Controller",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     },
+                     {
+                         "kpi_id":  "ops.inventory.days",
+                         "name":  "Inventory Days on Hand (DIO)",
+                         "kpi_key":  "Inventory Days",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0",
+                         "display_folder":  "",
+                         "purpose":  "Average number of days current inventory covers sales (on-hand duration).",
+                         "description":  "Average number of days current inventory covers sales (on-hand duration).",
+                         "technical_description":  "Average Inventory divided by Daily COGS (Days of Inventory Outstanding).",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Supply Chain / Logistics",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Inventory Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     },
+                     {
+                         "kpi_id":  "crm.retention.pct",
+                         "name":  "Customer Retention %",
+                         "kpi_key":  "Customer Retention %",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "customer",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "",
+                         "purpose":  "Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.",
+                         "description":  "Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.",
+                         "technical_description":  "Share of customers that remain active between the start and end of the period.",
+                         "dax_expression":  "DIVIDE([Active Customers End],[Active Customers Start])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Marketing",
+                         "data_owner":  "CRM BI",
+                         "steward":  "Customer Insights Analyst",
+                         "qa_rules":  [
+                                          "Retention % within [0;100]"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     },
+                     {
+                         "kpi_id":  "crm.clv.amount",
+                         "name":  "Customer Lifetime Value (CLV) Amount",
+                         "kpi_key":  "CLV (Customer Lifetime Value)",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Customer",
+                         "domain_tags":  [
+                                             "Customer \u0026 Market"
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "EUR #,0.00",
+                         "display_folder":  "",
+                         "purpose":  "Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.",
+                         "description":  "Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.",
+                         "technical_description":  "Discounted gross margin expected from a customer over the chosen horizon.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of CRM / Marketing Analytics",
+                         "data_owner":  "CRM BI",
+                         "steward":  "Customer Insights Analyst",
+                         "qa_rules":  [
+                                          "Reconciles to CLV model outputs within an agreed tolerance"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_CustomerValue.md"
+                     },
+                     {
+                         "kpi_id":  "hr.revenue_per_fte.amount",
+                         "name":  "Revenue per FTE Amount",
+                         "kpi_key":  "Revenue per FTE",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "efficiency",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy"
+                                         ],
+                         "calc_type":  "ratio",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "#,0",
+                         "display_folder":  "COR Workforce",
+                         "purpose":  "Measure how much revenue is generated per full-time equivalent to assess workforce productivity.",
+                         "description":  "Measure how much revenue is generated per full-time equivalent to assess workforce productivity.",
+                         "technical_description":  "Revenue divided by average FTE for the selected period and org.",
+                         "dax_expression":  "DIVIDE([Revenue Amount],[Average FTE])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of HR Controlling",
+                         "data_owner":  "People Analytics",
+                         "steward":  "HR Analyst",
+                         "qa_rules":  [
+                                          "Check reconciliation to Finance revenue within +/- 0.5 %"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_InnovationPeople.md"
+                     },
+                     {
+                         "kpi_id":  "hr.turnover.pct",
+                         "name":  "Employee Turnover %",
+                         "kpi_key":  "Turnover Rate %",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "governance",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "COR Workforce",
+                         "purpose":  "Measure the share of employees leaving the organization over a period to assess retention risk.",
+                         "description":  "Measure the share of employees leaving the organization over a period to assess retention risk.",
+                         "technical_description":  "Exits divided by average headcount for the selected period and org.",
+                         "dax_expression":  "DIVIDE([Exits Count],[Average Headcount])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of HR",
+                         "data_owner":  "People Analytics",
+                         "steward":  "HR Analyst",
+                         "qa_rules":  [
+                                          "Turnover bounded between 0 % and 100 %"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_InnovationPeople.md"
+                     },
+                     {
+                         "kpi_id":  "esg.aligned_revenue.pct",
+                         "name":  "ESG-Aligned Revenue %",
+                         "kpi_key":  "ESG-Aligned Revenue %",
+                         "kpi_type":  "strategic",
+                         "impact_dimension":  "ESG",
+                         "domain_tags":  [
+                                             "Corporate \u0026 Strategy"
+                                         ],
+                         "calc_type":  "rate",
+                         "refresh":  "quarterly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "01_Strategy",
+                         "purpose":  "Tracks portion of revenue classified as environmentally sustainable.",
+                         "description":  "Tracks portion of revenue classified as environmentally sustainable.",
+                         "technical_description":  "Share of revenue that meets EU Taxonomy criteria.",
+                         "dax_expression":  "DIVIDE([ESG-Aligned Revenue Amount],[Net Sales Amount])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sustainability",
+                         "data_owner":  "Finance Reporting",
+                         "steward":  "ESG Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_ESG.md"
+                     },
+                     {
+                         "kpi_id":  "esg.co2.total.tco2e",
+                         "name":  "Total COâ‚‚ Emissions (tCO2e)",
+                         "kpi_key":  "Total CO2 Emissions (tCO2e)",
+                         "kpi_type":  "supporting",
+                         "impact_dimension":  "ESG",
+                         "domain_tags":  [
+                                             "Sustainability"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0",
+                         "display_folder":  "",
+                         "purpose":  "Track total greenhouse gas emissions (CO2e) as core input for climate targets and disclosures.",
+                         "description":  "Track total greenhouse gas emissions (CO2e) as core input for climate targets and disclosures.",
+                         "technical_description":  "Aggregated Scope 1-3 CO2e",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sustainability",
+                         "data_owner":  "Sustainability Data Team",
+                         "steward":  "Carbon Accounting Specialist",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_ESG.md"
+                     }
+                 ]
+}

@@ -1,0 +1,38 @@
+/// ESG-001 Measures (Emission Tracking & Reporting)
+table _Measures
+
+    /// Supporting: Total CO2 Emissions (tCO2e)
+    /// Total greenhouse gas emissions in tons CO2e.
+    measure 'Total CO2 Emissions (tCO2e)' =
+            SUM(fact_sustainability[Emission_tCO2e])
+        formatString: "#,0.0"
+        displayFolder: "01_ESG"
+
+    /// Supporting: Net Sales Amount
+    /// Net sales used as denominator for intensity.
+    measure 'Net Sales Amount' =
+            SUM(fact_sales[NetSalesAmount])
+        formatString: "€ #,0.00"
+        displayFolder: "01_ESG"
+
+    /// esg.carbon_intensity.tco2e_per_revenue - Carbon Emission Intensity
+    /// Carbon emissions per unit of revenue.
+    measure 'Carbon Emission Intensity' =
+            DIVIDE([Total CO2 Emissions (tCO2e)],[Net Sales Amount])
+        formatString: "0.00"
+        displayFolder: "01_ESG"
+
+    /// Supporting: ESG-Aligned Revenue Amount
+    /// Revenue classified as ESG-aligned.
+    measure 'ESG-Aligned Revenue Amount' =
+            SUM(fact_sales[ESGAlignedRevenueAmount])
+        formatString: "€ #,0.00"
+        displayFolder: "01_ESG"
+
+    /// esg.aligned_revenue.pct - ESG-Aligned Revenue %
+    /// Share of revenue that is ESG-aligned.
+    measure 'ESG-Aligned Revenue %' =
+            DIVIDE([ESG-Aligned Revenue Amount],[Net Sales Amount])
+        formatString: "0.0 %"
+        displayFolder: "01_ESG"
+

@@ -1,0 +1,24 @@
+/// GOV-001 Measures (Data Quality Monitoring)
+table _Measures
+
+    /// gov.records.total.count - Total Records Count
+    /// Total number of records checked.
+    measure 'Total Records Count' =
+            SUM(fact_dq_checks[TotalRecords])
+        formatString: "#,0"
+        displayFolder: "01_DataQuality"
+
+    /// gov.valid_records.count - Valid Records Count
+    /// Number of records passing all data quality checks.
+    measure 'Valid Records Count' =
+            SUM(fact_dq_checks[ValidRecords])
+        formatString: "#,0"
+        displayFolder: "01_DataQuality"
+
+    /// gov.data_quality.pct - Data Quality %
+    /// Share of valid records in total records.
+    measure 'Data Quality %' =
+            DIVIDE([Valid Records Count],[Total Records Count])
+        formatString: "0.0 %"
+        displayFolder: "01_DataQuality"
+

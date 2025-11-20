@@ -1,0 +1,24 @@
+/// INN-002 Measures (Digital Adoption Index)
+table _Measures
+
+    /// Supporting: Digital Transactions Count
+    /// Number of digital transactions.
+    measure 'Digital Transactions Count' =
+            SUMX(FILTER(fact_digital_usage, fact_digital_usage[IsDigital] = TRUE()), fact_digital_usage[TransactionsCount])
+        formatString: "#,0"
+        displayFolder: "01_Digital"
+
+    /// Supporting: Total Transactions Count
+    /// Total number of eligible transactions.
+    measure 'Total Transactions Count' =
+            SUM(fact_digital_usage[TransactionsCount])
+        formatString: "#,0"
+        displayFolder: "01_Digital"
+
+    /// Digital Adoption Rate %
+    /// Share of digital transactions in total eligible transactions.
+    measure 'Digital Adoption Rate %' =
+            DIVIDE([Digital Transactions Count],[Total Transactions Count])
+        formatString: "0.0 %"
+        displayFolder: "01_Digital"
+

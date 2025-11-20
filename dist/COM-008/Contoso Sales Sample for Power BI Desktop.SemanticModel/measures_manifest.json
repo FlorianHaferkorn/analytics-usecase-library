@@ -1,0 +1,65 @@
+{
+    "usecase_id":  "COM-008",
+    "title":  "Sales Forecast Accuracy",
+    "dataset_model":  "Contoso Sales Sample for Power BI Desktop.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\01_Commercial\\COM-008_Sales_Forecast_Accuracy\\FactSheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "sales.net_sales.amount",
+                         "name":  "Actual Net Sales Amount",
+                         "kpi_key":  "Net Sales Amount",
+                         "kpi_type":  "supporting",
+                         "impact_dimension":  "Growth",
+                         "domain_tags":  [
+                                             "Commercial"
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "€ #,0.00",
+                         "display_folder":  "01_Sales",
+                         "purpose":  "Total invoiced revenue net of discounts and returns.",
+                         "description":  "Total invoiced revenue net of discounts and returns.",
+                         "technical_description":  "Growth rate vs last year revenue.",
+                         "dax_expression":  "SUM(fact_sales[Net Sales Amount])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sales",
+                         "data_owner":  "BI Engineering",
+                         "steward":  "Sales Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Growth.md"
+                     },
+                     {
+                         "kpi_id":  "sales.net_sales.amount.forecast",
+                         "name":  "Forecast Net Sales Amount",
+                         "missing":  true,
+                         "purpose":  null,
+                         "description":  null,
+                         "dax_expression":  null
+                     },
+                     {
+                         "kpi_id":  "sales.forecast.mape_pct",
+                         "name":  "Forecast Accuracy (MAPE %)",
+                         "missing":  true,
+                         "purpose":  null,
+                         "description":  null,
+                         "dax_expression":  null
+                     },
+                     {
+                         "kpi_id":  "sales.forecast.bias_pct",
+                         "name":  "Forecast Bias %",
+                         "missing":  true,
+                         "purpose":  null,
+                         "description":  null,
+                         "dax_expression":  null
+                     }
+                 ]
+}

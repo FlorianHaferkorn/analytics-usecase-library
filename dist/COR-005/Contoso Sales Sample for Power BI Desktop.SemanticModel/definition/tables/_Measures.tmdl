@@ -1,0 +1,23 @@
+/// COR-005 Measures (Profitability Overview (EBITDA & Net Margin))
+table _Measures
+
+    /// sales.net_sales.amount - Net Sales Amount
+    /// Total invoiced revenue net of discounts and returns.
+    measure 'Net Sales Amount' =
+            SUM(fact_sales[Net Sales Amount])
+        formatString: "€ #,0.00"
+        displayFolder: "01_Sales"
+
+    /// cost.cogs.amount - COGS Amount
+    /// Represents cost of goods sold directly linked to sales.
+    measure 'COGS Amount' =
+            SUM(fact_sales[COGS Amount])
+        formatString: "EUR #,0.00"
+        displayFolder: "02_Margin"
+
+    /// profit.ebitda_margin - EBITDA Margin %
+    /// Shows earnings before interest, taxes, depreciation, and amortization as a share of revenue.
+    measure 'EBITDA Margin %' =
+            DIVIDE([EBITDA Amount],[Net Sales Amount])
+        formatString: "0.0 %"
+        displayFolder: "02_Margin"

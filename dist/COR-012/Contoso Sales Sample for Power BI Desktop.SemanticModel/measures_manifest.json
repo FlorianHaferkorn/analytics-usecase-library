@@ -1,0 +1,267 @@
+{
+    "usecase_id":  "COR-012",
+    "title":  "Commercial \u0026 Supply Chain Reconciliation",
+    "dataset_model":  "Contoso Sales Sample for Power BI Desktop.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\04_Corporate_and_Strategy\\COR-012_Commercial_and_Supply_Chain_Reconciliation\\FactSheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "sales.net_sales.amount",
+                         "name":  "Net Sales Amount",
+                         "kpi_key":  "Net Sales Amount",
+                         "kpi_type":  "supporting",
+                         "impact_dimension":  "Growth",
+                         "domain_tags":  [
+                                             "Commercial"
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "€ #,0.00",
+                         "display_folder":  "01_Sales",
+                         "purpose":  "Total invoiced revenue net of discounts and returns.",
+                         "description":  "Total invoiced revenue net of discounts and returns.",
+                         "technical_description":  "Growth rate vs last year revenue.",
+                         "dax_expression":  "SUM(fact_sales[Net Sales Amount])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sales",
+                         "data_owner":  "BI Engineering",
+                         "steward":  "Sales Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Growth.md"
+                     },
+                     {
+                         "kpi_id":  "sales.promo.roi.pct",
+                         "name":  "Promo ROI %",
+                         "kpi_key":  "Promo ROI %",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Profitability",
+                         "domain_tags":  [
+                                             "Commercial"
+                                         ],
+                         "calc_type":  "ratio",
+                         "refresh":  "weekly",
+                         "status":  "Active",
+                         "format_string":  "0.0 %",
+                         "display_folder":  "03_Price_Promo",
+                         "purpose":  "Measures profitability of promotions relative to spend.",
+                         "description":  "Measures profitability of promotions relative to spend.",
+                         "technical_description":  "Return on promotion investments using incremental gross margin uplift.",
+                         "dax_expression":  "DIVIDE([Incremental GM Amount] - [Promo Cost Amount],[Promo Cost Amount])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Marketing Controlling",
+                         "data_owner":  "BI Engineering",
+                         "steward":  "Trade Marketing Analyst",
+                         "qa_rules":  [
+                                          "Promo cost \u003e 0 required"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Profitability.md"
+                     },
+                     {
+                         "kpi_id":  "sales.promo.uplift_pct",
+                         "name":  "Promo Uplift %",
+                         "kpi_key":  "Promo Uplift %",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+                                             "Commercial"
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0 %",
+                         "display_folder":  "01_Sales",
+                         "purpose":  "Measure incremental sales impact of promotions versus baseline demand.",
+                         "description":  "Measure incremental sales impact of promotions versus baseline demand.",
+                         "technical_description":  "Growth rate vs last year revenue.",
+                         "dax_expression":  "DIVIDE([Promo Sales Amount]-[Baseline Sales Amount],[Baseline Sales Amount])",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sales Controlling",
+                         "data_owner":  "Commercial BI",
+                         "steward":  "Promotion Analyst",
+                         "qa_rules":  [
+                                          "Bounds [ -100%; +500% ]; reconcile promo uplift with campaign post-analysis within +/- 1 pp"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Growth.md"
+                     },
+                     {
+                         "kpi_id":  "margin.promo.incremental.amount",
+                         "name":  "Incremental GM Amount",
+                         "kpi_key":  "Incremental GM Amount",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Profitability",
+                         "domain_tags":  [
+                                             "Commercial"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  "weekly",
+                         "status":  "Active",
+                         "format_string":  "EUR #,0.00",
+                         "display_folder":  "02_Margin",
+                         "purpose":  "Additional gross margin due to promotion.",
+                         "description":  "Additional gross margin due to promotion.",
+                         "technical_description":  "Purpose: incremental gross margin due to promo. Definition: (Promo NS-Promo COGS)-(Baseline NS-Baseline COGS). Grain \u0026 Scope: promo/product. Unit/Format: EUR #,0.00. Lineage: promo/baseline revenue and costs. QA: allocation consistent.",
+                         "dax_expression":  "([Promo Sales Amount]-[Promo COGS Amount]) - ([Baseline Sales Amount]-CALCULATE([COGS Amount], NOT fact_sales[Promo Flag]))",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Marketing Controlling",
+                         "data_owner":  "BI Engineering",
+                         "steward":  "Trade Marketing Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Profitability.md"
+                     },
+                     {
+                         "kpi_id":  "ops.stockout.pct",
+                         "name":  "Stockout Rate %",
+                         "kpi_key":  "Stock-Out Rate %",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0 %",
+                         "display_folder":  "",
+                         "purpose":  "Share of demand not fulfilled due to stock unavailability.",
+                         "description":  "Share of demand not fulfilled due to stock unavailability.",
+                         "technical_description":  "Unfulfilled Demand / Total Demand",
+                         "dax_expression":  null,
+                         "depends_on":  [
+                                            "Unfulfilled Demand Qty",
+                                            "Total Demand Qty"
+                                        ],
+                         "depends_on_ids":  [
+                                                "ops.demand.unfulfilled.qty",
+                                                "ops.demand.total.qty"
+                                            ],
+                         "business_owner":  "Head of Supply Chain Planning",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Demand Planner",
+                         "qa_rules":  [
+                                          "Bounded between 0% and 100%"
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     },
+                     {
+                         "kpi_id":  "ops.inventory.days",
+                         "name":  "Inventory Days on Hand (DIO)",
+                         "kpi_key":  "Inventory Days",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0",
+                         "display_folder":  "",
+                         "purpose":  "Average number of days current inventory covers sales (on-hand duration).",
+                         "description":  "Average number of days current inventory covers sales (on-hand duration).",
+                         "technical_description":  "Average Inventory divided by Daily COGS (Days of Inventory Outstanding).",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Supply Chain / Logistics",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Inventory Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     },
+                     {
+                         "kpi_id":  "ops.inventory.turnover",
+                         "name":  "Inventory Turnover",
+                         "kpi_key":  "Inventory Turnover",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  "ratio",
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.00",
+                         "display_folder":  "",
+                         "purpose":  "Measures how often inventory is sold and replaced over a period to assess stock efficiency.",
+                         "description":  "Measures how often inventory is sold and replaced over a period to assess stock efficiency.",
+                         "technical_description":  "COGS / Average Inventory",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Supply Chain / Finance",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Inventory Controller",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     },
+                     {
+                         "kpi_id":  "ops.working_capital.ccc.days",
+                         "name":  "Cash Conversion Cycle (Days)",
+                         "kpi_key":  "Cash Conversion Cycle (Days)",
+                         "kpi_type":  "diagnostic",
+                         "impact_dimension":  "Efficiency",
+                         "domain_tags":  [
+                                             "Operational Efficiency"
+                                         ],
+                         "calc_type":  "amount",
+                         "refresh":  "monthly",
+                         "status":  "Active",
+                         "format_string":  "0",
+                         "display_folder":  "02_WorkingCapital",
+                         "purpose":  "Combines receivables, inventory, and payables days to show cash efficiency.",
+                         "description":  "Combines receivables, inventory, and payables days to show cash efficiency.",
+                         "technical_description":  "Aggregated cash conversion cycle derived from DSO, DIO, and DPO measures.",
+                         "dax_expression":  "[DSO (Days)] + [DIO (Days)] - [DPO (Days)]",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Treasury",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Working Capital Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\_includes\\kpi_catalog\\KPI_Catalog_Efficiency.md"
+                     }
+                 ]
+}

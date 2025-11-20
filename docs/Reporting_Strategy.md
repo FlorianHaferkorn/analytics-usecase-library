@@ -11,19 +11,45 @@ Every report must connect **data to decision** and **insight to impact**.
 
 ---
 
-## 2. Reporting Layers Overview
+## 2. Reporting Layers Overview (Ebenenachse)
 
-| Level | Purpose | Example Use Case |
-|--------|----------|------------------|
-| **Strategic** | Measures company performance against long-term goals | COR-001 Working Capital |
-| **Tactical** | Analyzes business drivers and accountability areas | COM-002 Gross Margin |
-| **Operational** | Supports daily execution and monitoring | OPS-001 OEE |
+We distinguish three reporting levels – this is the **Ebenenachse** and wird im FactSheet als `reporting_level` gepflegt.
+
+| Level        | Purpose                                                | Example Use Case                    |
+|--------------|--------------------------------------------------------|-------------------------------------|
+| **Strategic**  | Measures company performance against long-term goals   | COR-004 Strategic KPI Dashboard     |
+| **Tactical**   | Analyzes drivers and accountability for KPIs           | COM-001 Sales Performance, COM-002  |
+| **Operational**| Supports daily execution and monitoring                | OPS-001 Cash Conversion Cycle, OPS-005 |
 
 Each layer builds on the previous one. Tactical reports explain *why* strategic KPIs move, and operational reports show *how* execution delivers the result.
 
+In the Use Case FactSheet:
+- `reporting_level: Strategic` → board/management view on Strategic KPIs.  
+- `reporting_level: Tactical` → cluster/segment view explaining KPI movements.  
+- `reporting_level: Operational` → process/line-level view for daily execution.
+
 ---
 
-## 3. Framework Principles
+## 3. Analytics Stages (Analytics-Achse)
+
+Orthogonal zu den Reporting Levels unterscheiden wir **Analytics-Stufen**.  
+Diese werden im FactSheet als `analytics_stage` gepflegt.
+
+| Stage         | Question Type                  | Examples in this library                  |
+|---------------|--------------------------------|-------------------------------------------|
+| **Descriptive** | What happened?                 | COM-001 Sales Performance, OPS-001 CCC    |
+| **Diagnostic**  | Why did it happen?             | COM-002 Gross Margin Analysis, COM-004 PVM |
+| **Predictive**  | What is likely to happen?      | CST-003 CLV Analysis, INN-001 Innovation Pipeline |
+| **Prescriptive**| What should we do next?        | OPS-004 Replenishment Optimization (target policy) |
+
+Guidance for FactSheets:
+- Start mit `analytics_stage: Descriptive` oder `Diagnostic` für die meisten Use Cases.  
+- Nutze `Predictive` / `Prescriptive` bewusst, wenn Modelle/Optimierungslogik tatsächlich im Scope sind.  
+- Auch ein strategischer Use Case kann „nur“ descriptive sein – und umgekehrt kann ein operativer Use Case prescriptive Logik enthalten.
+
+---
+
+## 4. Framework Principles
 
 | Principle | Description |
 |------------|--------------|
@@ -35,7 +61,7 @@ Each layer builds on the previous one. Tactical reports explain *why* strategic 
 
 ---
 
-## 4. Strategic Alignment Framework
+## 5. Strategic Alignment Framework
 
 ### 4.1 Purpose
 To link corporate objectives, analytical Use Cases, and operational actions into one continuous logic.
@@ -61,7 +87,7 @@ Strategic KPI → Business Driver → Use Case → Action Code → Business Impa
 
 ---
 
-## 5. Governance & Review Model
+## 6. Governance & Review Model
 
 | Role | Responsibility |
 |------|----------------|
@@ -75,7 +101,7 @@ Strategic KPI → Business Driver → Use Case → Action Code → Business Impa
 
 ---
 
-## 6. Summary & Next Steps
+## 7. Summary & Next Steps
 
 - Maintain the **Strategic Alignment Map** as a living document.  
 - Validate quarterly that each analytics initiative supports at least one strategic KPI.  

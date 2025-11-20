@@ -1,0 +1,30 @@
+/// COM-010 Measures (Sales Funnel & Winâ€“Loss Analysis)
+table _Measures
+
+    /// crm.opportunities.open.amount - Open Opportunities Amount
+    /// Show the current value of open sales opportunities in the pipeline.
+    measure 'Open Pipeline Amount' =
+            BLANK()
+        formatString: "EUR #,0.00"
+        displayFolder: "04_CRM_Pipeline"
+
+    /// crm.opportunities.won.amount - Won Opportunities Amount
+    /// Measure realized pipeline value from closed-won opportunities.
+    measure 'Won Opportunities Amount' =
+            BLANK()
+        formatString: "EUR #,0.00"
+        displayFolder: "04_CRM_Pipeline"
+
+    /// crm.opportunities.win_rate.pct - Opportunity Win Rate %
+    /// Measure how many closed opportunities are won versus lost.
+    measure 'Win Rate %' =
+            BLANK()
+        formatString: "0.0 %"
+        displayFolder: "04_CRM_Pipeline"
+
+    /// crm.opportunities.stage_conversion.pct - Opportunity Stage Conversion %
+    /// Measure conversion between pipeline stages (e.g., Lead → Qualified → Proposal → Won).
+    measure 'Stage Conversion Rate %' =
+            BLANK()
+        formatString: "0.0 %"
+        displayFolder: "04_CRM_Pipeline"

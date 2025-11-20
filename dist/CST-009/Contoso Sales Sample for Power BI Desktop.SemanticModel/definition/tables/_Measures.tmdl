@@ -1,0 +1,21 @@
+/// CST-009 Measures (Brand Equity & Awareness)
+table _Measures
+
+    /// mkt.brand.awareness.pct - Brand Awareness %
+    /// Measure how many respondents recognize the brand (unaided or aided).
+    measure 'Brand Awareness %' =
+            BLANK()
+        formatString: "0.0 %"
+        displayFolder: "09_Brand"
+
+    /// mkt.brand.preference.pct - Brand Preference %
+    /// Measure how many respondents state the brand as first choice versus competitors.
+    measure 'Brand Preference %' =
+            BLANK()
+        formatString: "0.0 %"
+        displayFolder: "09_Brand"
+
+    /// crm.nps.index - Net Promoter Score (NPS)
+    /// Measures customer loyalty and recurring engagement.
+    measure 'Net Promoter Score (NPS)' =
+            ([Promoters Count]-[Detractors Count])/[Total Respondents]*100
