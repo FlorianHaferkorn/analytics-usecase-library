@@ -143,10 +143,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "true"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "corp.project.roi.pct"
   kpi_key: "Project ROI %"
   kpi_type: "strategic"
@@ -218,10 +215,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "false"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "corp.benefit.realization.pct"
   kpi_key: "Benefit Realization %"
   kpi_type: "strategic"
@@ -291,10 +285,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "false"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "corp.budget.adherence.pct"
   kpi_key: "Budget Adherence %"
   kpi_type: "supporting"
@@ -364,10 +355,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "false"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "corp.schedule.adherence.pct"
   kpi_key: "Schedule Adherence %"
   kpi_type: "supporting"
@@ -436,10 +424,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "false"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "corp.payback.months"
   kpi_key: "Payback Period (Months)"
   kpi_type: "supporting"
@@ -580,10 +565,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "false"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "gov.audit.findings.open.count"
   kpi_key: "Open Audit Findings Count"
   kpi_type: "supporting"
@@ -653,10 +635,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     lineage_verified:
       "true"
   copilot_ready: "true"
-```
 
-
-```yaml
 - kpi_id: "gov.audit.findings.count"
   kpi_key: "Audit Findings"
   kpi_type: "supporting"
@@ -684,10 +663,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
         - "Open findings reconciled to audit tracking system (+/- 1 count)"   
     version: "v1.0"
     last_review: "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "gov.records.total.count"
   kpi_key: "Total Records Count"
   kpi_type: "supporting"
@@ -715,11 +691,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
             - "Non-negative and integer only"   
     version: "v1.0"
     last_review: "2025-11-04"
-```
 
-
-## 3. Base Measures
-```yaml
 - kpi_id: "gov.valid_records.count"
   kpi_key: "Valid Records Count"
   kpi_type: "supporting"
@@ -763,9 +735,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     completeness_score: 1.00
     lineage_verified: true
     copilot_ready: true
-```
 
-```yaml
 - kpi_id: "sec.incident.count"
   kpi_key: "Security Incidents Count"
   kpi_type: "diagnostic"
@@ -890,7 +860,3 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     version: "v0.1"
     last_review: "19.11.2025"
 ```
-
----
-
-Last updated: 19.11.2025

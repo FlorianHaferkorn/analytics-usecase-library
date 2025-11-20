@@ -86,10 +86,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "true"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "fin.liquidity.free_cash_flow"
   kpi_key: "Free Cash Flow"
   kpi_type: "strategic"
@@ -210,10 +207,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "fin.liquidity.operating_cash_flow"
   kpi_key: "Operating Cash Flow"
   kpi_type: "strategic"
@@ -255,10 +249,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "fin.liquidity.dio_days_inventory_outstanding"
   kpi_key: "DIO (Days Inventory Outstanding)"
   kpi_type: "diagnostic"
@@ -301,10 +292,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "fin.liquidity.dpo_days_payables_outstanding"
   kpi_key: "DPO (Days Payables Outstanding)"
   kpi_type: "diagnostic"
@@ -347,10 +335,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "fin.liquidity.cash_conversion_cycle_days"
   kpi_key: "Cash Conversion Cycle (Days)"
   kpi_type: "diagnostic"
@@ -393,10 +378,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "fin.liquidity.cash_conversion_cycle.delta_days"
   kpi_key: "Δ Cash Conversion Cycle (Days)"
   kpi_type: "diagnostic"
@@ -441,9 +423,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "2025-11-04"
   aliases:
     - "Delta CCC (Days)"
-```
 
-```yaml
 kpi_key: "Days Sales Outstanding (DSO)"
   kpi_type: "supporting"
   strategic_ref: "Working Capital %"
@@ -508,11 +488,7 @@ kpi_key: "Days Sales Outstanding (DSO)"
       "true"
     copilot_ready:
       "true"
-```
 
-
-## 3. Base Measures
-```yaml
 kpi_key: "Receivables Amount"
   kpi_type: "supporting"
   strategic_ref: "Working Capital %"
@@ -572,35 +548,7 @@ kpi_key: "Receivables Amount"
       "true"
     copilot_ready:
       "true"
-```
 
-
----
-
-## 4. Governance Summary
-| Metric | Value |
-|--------|--------|
-| **Total KPIs (Liquidity)** | 31 |
-| **Completeness Score (avg)** | 0.97 |
-| **Lineage Verified** | 100 % |
-| **Copilot Ready** | 100 % |
-| **Review Cycle** | Quarterly |
-| **Business Owner** | Head of Treasury |
-| **Data Owner** | Finance BI |
-| **Steward** | Treasury Analyst |
-| **Validation Process** | Dual Control |
-
----
-
-_Last updated: 04.11.2025_
-
-
-
-
-
-
-
-```yaml
 - kpi_id: "fin.liquidity.capex.amount"
   kpi_key: "CapEx Amount"
   kpi_type: "supporting"
@@ -642,10 +590,7 @@ _Last updated: 04.11.2025_
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "fin.liquidity.inventory.amount"
   kpi_key: "Inventory Amount"
   kpi_type: "supporting"
@@ -687,10 +632,7 @@ _Last updated: 04.11.2025_
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "fin.liquidity.payables.amount"
   kpi_key: "Payables Amount"
   kpi_type: "supporting"
@@ -732,9 +674,7 @@ _Last updated: 04.11.2025_
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-```yaml
 - kpi_id: "fin.liquidity.capex_ratio.pct"
   kpi_key: "CapEx to Net Sales Ratio %"
   kpi_type: "diagnostic"

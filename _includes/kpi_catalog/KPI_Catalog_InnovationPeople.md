@@ -44,9 +44,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-```yaml
 - kpi_id: "people.innovation_rate.pct"
   kpi_key: "Innovation Rate %"
   kpi_type: "strategic"
@@ -116,10 +114,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "true"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "people.employee_engagement.pct"
   kpi_key: "Employee Engagement %"
   kpi_type: "strategic"
@@ -234,10 +229,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "people.lifecycle_age_months"
   kpi_key: "Lifecycle Age (months)"
   kpi_type: "diagnostic"
@@ -276,10 +268,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "people.product_roi"
   kpi_key: "Product ROI %"
   kpi_type: "diagnostic"
@@ -318,10 +307,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "people.phase_distribution"
   kpi_key: "Phase Distribution %"
   kpi_type: "diagnostic"
@@ -360,10 +346,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "people.revenue_per_fte"
   kpi_key: "Revenue per FTE"
   kpi_type: "strategic"
@@ -402,10 +385,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "people.gross_margin_per_fte"
   kpi_key: "Gross Margin per FTE"
   kpi_type: "diagnostic"
@@ -444,10 +424,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "people.personnel_cost_ratio"
   kpi_key: "Personnel Cost Ratio %"
   kpi_type: "diagnostic"
@@ -486,10 +463,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "people.turnover_rate"
   kpi_key: "Turnover Rate %"
   kpi_type: "diagnostic"
@@ -528,10 +502,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "people.absenteeism"
   kpi_key: "Absenteeism %"
   kpi_type: "diagnostic"
@@ -570,9 +541,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-```yaml
 kpi_key: "Training Hours per Employee"
   kpi_type: "supporting"
   strategic_ref: "Training Completion %"
@@ -637,11 +606,7 @@ kpi_key: "Training Hours per Employee"
       "true"
     copilot_ready:
       "true"
-```
 
-
-## 3. Base Measures
-```yaml
 kpi_key: "Employee Count"
   kpi_type: "supporting"
   strategic_ref: "Productivity per FTE"
@@ -701,31 +666,7 @@ kpi_key: "Employee Count"
       "true"
     copilot_ready:
       "true"
-```
 
-
----
-
-## 4. Governance Summary
-| Metric | Value |
-|--------|--------|
-| **Total KPIs (Innovation & People)** | 31 |
-| **Completeness Score (avg)** | 0.97 |
-| **Lineage Verified** | 100 % |
-| **Copilot Ready** | 100 % |
-| **Review Cycle** | Quarterly |
-| **Business Owner** | Head of HR |
-| **Data Owner** | HR Analytics |
-| **Steward** | People Analyst |
-| **Validation Process** | Automated |
-
----
-
-_Last updated: 04.11.2025_
-
-
-
-```yaml
 - kpi_id: "people.engaged_employees.count"
   kpi_key: "Engaged Employees"
   kpi_type: "supporting"
@@ -767,10 +708,7 @@ _Last updated: 04.11.2025_
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "people.survey_respondents.count"
   kpi_key: "Survey Respondents"
   kpi_type: "supporting"
@@ -812,10 +750,7 @@ _Last updated: 04.11.2025_
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "people.total_revenue.amount"
   kpi_key: "Total Revenue"
   kpi_type: "supporting"
@@ -857,10 +792,7 @@ _Last updated: 04.11.2025_
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "people.training_hours.amount"
   kpi_key: "Training Hours"
   kpi_type: "supporting"
@@ -902,10 +834,7 @@ _Last updated: 04.11.2025_
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-## KPIs - Workforce Productivity & Turnover (Use Case COR-002)
-```yaml
 - kpi_id: "hr.revenue_per_fte.amount"
   kpi_key: "Revenue per FTE"
   kpi_type: "strategic"
@@ -1100,8 +1029,6 @@ _Last updated: 04.11.2025_
       - "Scheduled Hours > 0 in all reported slices"
     version: "v1.0"
     last_review: "04.11.2025"
-
-# Supporting Measures - Workforce Productivity & Turnover
 
 - kpi_id: "hr.revenue.amount"
   kpi_key: "Revenue Amount"
@@ -1406,10 +1333,7 @@ _Last updated: 04.11.2025_
       - "Exits count non-negative"
     version: "v1.0"
     last_review: "06.11.2025"
-```
 
-## KPIs - Product Lifecycle Performance (Use Case CST-002)
-```yaml
 - kpi_id: "prod.lifecycle.new_share.pct"
   kpi_key: "New Product Share %"
   kpi_type: "strategic"
@@ -1603,27 +1527,7 @@ _Last updated: 04.11.2025_
       - "Zero or missing investments flagged as non-evaluable"
     version: "v1.0"
     last_review: "04.11.2025"
-```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```yaml
 - kpi_id: "people.digital_adoption.pct"
   kpi_key: "Digital Adoption Rate %"
   kpi_type: "strategic"

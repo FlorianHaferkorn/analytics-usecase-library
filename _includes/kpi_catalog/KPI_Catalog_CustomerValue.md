@@ -181,6 +181,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       - "Reconciles to customer base snapshot within +/- 0.5 %"
     version: "v1.0"
     last_review: "2025-11-04"
+
 - kpi_id: "crm.active_customers_end.count"
   kpi_key: "Active Customers End"
   kpi_type: "supporting"
@@ -207,6 +208,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       - "Reconciles to customer base snapshot within +/- 0.5 %"
     version: "v1.0"
     last_review: "2025-11-04"
+
 - kpi_id: "crm.churned_customers.count"
   kpi_key: "Churned Customers"
   kpi_type: "supporting"
@@ -233,6 +235,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       - "Reconciles to churn cohort counts within +/- 0.5 %"
     version: "v1.0"
     last_review: "2025-11-04"
+
 - kpi_id: "crm.reactivated_customers.count"
   kpi_key: "Reactivated Customers Count"
   kpi_type: "supporting"
@@ -259,6 +262,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       - "Reconciles to win-back campaign cohorts within +/- 0.5 %"
     version: "v1.0"
     last_review: "2025-11-04"
+
 - kpi_id: "crm.clv.amount"
   kpi_key: "CLV (Customer Lifetime Value)"
   kpi_type: "diagnostic"
@@ -285,6 +289,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       - "Reconciles to CLV model outputs within an agreed tolerance"
     version: "v1.0"
     last_review: "2025-11-04"
+
 - kpi_id: "crm.reactivation.pct"
   kpi_key: "Reactivation Rate %"
   kpi_type: "diagnostic"
@@ -311,6 +316,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       - "Reactivation cohorts reconcile to campaign exposure counts"
     version: "v1.0"
     last_review: "2025-11-04"
+
 - kpi_id: "crm.at_risk_share.pct"
   kpi_key: "At-Risk Share %"
   kpi_type: "diagnostic"
@@ -337,6 +343,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       - "At-risk base reconciles to scoring model output within +/- 0.5 %"
     version: "v1.0"
     last_review: "2025-11-04"
+
 - kpi_id: "crm.at_risk_customers.count"
   kpi_key: "At-Risk Customers Count"
   kpi_type: "supporting"
@@ -363,6 +370,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       - "Reconciles to scoring model output within +/- 0.5 %"
     version: "v1.0"
     last_review: "2025-11-04"
+
 - kpi_id: "crm.active_customers.count"
   kpi_key: "Active Customers"
   kpi_type: "supporting"
@@ -441,9 +449,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       - "Aggregated revenue share sums to 100 % within +/- 0.1 pp"
     version: "v1.0"
     last_review: "2025-11-19"
-```
 
-```yaml
 - kpi_id: "crm.opportunities.open.amount"
   kpi_key: "Open Opportunities Amount"
   kpi_type: "diagnostic"

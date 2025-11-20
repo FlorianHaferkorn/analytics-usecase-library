@@ -83,10 +83,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "true"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "ops.process.cost_per_unit.amount"
   kpi_key: "Process Cost per Unit"
   kpi_type: "strategic"
@@ -203,9 +200,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     last_review:
       "2025-11-04"
   verified: "false"
-```
 
-```yaml
 - kpi_id: "ops.capacity.utilization.pct"
   kpi_key: "Capacity Utilization %"
   kpi_type: "diagnostic"
@@ -249,10 +244,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       - "Reconciles with capacity planning reports within +/- 0.5 pp"
     version: "v0.1"
     last_review: "19.11.2025"
-```
 
-
-```yaml
 - kpi_id: "ops.demand.total.qty"
   kpi_key: "Total Demand Qty"
   kpi_type: "supporting"
@@ -294,10 +286,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.demand.unfulfilled.qty"
   kpi_key: "Unfulfilled Demand Qty"
   kpi_type: "supporting"
@@ -339,10 +328,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.availability.pct"
   kpi_key: "Availability %"
   kpi_type: "supporting"
@@ -384,10 +370,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.performance.pct"
   kpi_key: "Performance %"
   kpi_type: "supporting"
@@ -429,10 +412,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.quality.pct"
   kpi_key: "Quality %"
   kpi_type: "supporting"
@@ -474,10 +454,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.downtime.hours"
   kpi_key: "Downtime Hours"
   kpi_type: "supporting"
@@ -506,10 +483,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
             - "Non-negative; investigate values < 1 or unusually high"
     version: "v1.0"
     last_review: "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.planned.hours"
   kpi_key: "Planned Hours"
   kpi_type: "supporting"
@@ -538,10 +512,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
             - "Reconciles to WMS/OMS order status within +/- 1 pp"
     version: "v1.0"
     last_review: "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.total_process_cost.amount"
   kpi_key: "Total Process Cost Amount"
   kpi_type: "supporting"
@@ -568,10 +539,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
             - "Currency consistent with finance system"    
     version: "v1.0"
     last_review: "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.stockout.pct"
   kpi_key: "Stock-Out Rate %"
   kpi_type: "diagnostic"
@@ -600,10 +568,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       - "Cross-check with replenishment exceptions within +/- 1 pp"
     version: "v1.0"
     last_review: "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.inventory.turnover"
   kpi_key: "Inventory Turnover"
   kpi_type: "diagnostic"
@@ -644,10 +609,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.inventory.obsolescence.pct"
   kpi_key: "Obsolescence %"
   kpi_type: "diagnostic"
@@ -674,10 +636,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
             - "Cross-check against aging report within +/- 1 pp"    
             version: "v1.0"
     last_review: "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.otif.pct"
   kpi_key: "OTIF %"
   kpi_type: "diagnostic"
@@ -706,10 +665,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       - "Bounded: DSO/DIO/DPO derived days must be >= 0"
     version: "v1.0"
     last_review: "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.ppv.pct"
   kpi_key: "PPV %"
   kpi_type: "diagnostic"
@@ -738,10 +694,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       - "Reconciles to contract price list and invoice data within +/- 0.5 pp"
     version: "v1.0"
     last_review: "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.ppv.amount"
   kpi_key: "PPV Amount"
   kpi_type: "diagnostic"
@@ -770,10 +723,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       - "Currency consistent with procurement ledger"
     version: "v1.0"
     last_review: "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.contract.compliance.pct"
   kpi_key: "Contract Compliance %"
   kpi_type: "diagnostic"
@@ -800,10 +750,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
             - "Reconciles to contract master and invoice lines within +/- 1 pp"    
     version: "v1.0"
     last_review: "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.replenishment.adherence.pct"
   kpi_key: "Replenishment Adherence %"
   kpi_type: "diagnostic"
@@ -830,10 +777,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
             - "Cross-check vs planning system exceptions within +/- 1 pp"    
     version: "v1.0"
     last_review: "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.order_accuracy.pct"
   kpi_key: "Order Accuracy %"
   kpi_type: "diagnostic"
@@ -862,9 +806,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       - "Cross-check vs. returns/claims data for inconsistencies"
     version: "v1.0"
     last_review: "2025-11-04"
-```
 
-```yaml
 - kpi_id: "ops.machine_downtime.pct"
   kpi_key: "Machine Downtime %"
   kpi_type: "supporting"
@@ -938,11 +880,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "true"
     copilot_ready:
       "true"
-```
 
-
-## 3. Base Measures
-```yaml
 - kpi_id: "ops.produced_units.qty"
   kpi_key: "Produced Units Qty"
   kpi_type: "supporting"
@@ -985,31 +923,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     completeness_score: 1.00
     lineage_verified: true
     copilot_ready: true
-```
 
-
----
-
-## 4. Governance Summary
-| Metric | Value |
-|--------|--------|
-| **Total KPIs (Efficiency)** | 31 |
-| **Completeness Score (avg)** | 0.97 |
-| **Lineage Verified** | 100 % |
-| **Copilot Ready** | 100 % |
-| **Review Cycle** | Quarterly |
-| **Business Owner** | Head of Operations |
-| **Data Owner** | Manufacturing BI |
-| **Steward** | Operations Analyst |
-| **Validation Process** | Automated |
-
----
-
-Last updated: 04.11.2025
-
-
-
-```yaml
 - kpi_id: "ops.working_capital.dso.days"
   kpi_key: "DSO (Days)"
   kpi_type: "diagnostic"
@@ -1063,10 +977,7 @@ Last updated: 04.11.2025
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.working_capital.dio.days"
   kpi_key: "DIO (Days)"
   kpi_type: "diagnostic"
@@ -1119,10 +1030,7 @@ Last updated: 04.11.2025
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.working_capital.dpo.days"
   kpi_key: "DPO (Days)"
   kpi_type: "diagnostic"
@@ -1175,10 +1083,7 @@ Last updated: 04.11.2025
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "ops.working_capital.ccc.days"
   kpi_key: "Cash Conversion Cycle (Days)"
   kpi_type: "diagnostic"
@@ -1281,14 +1186,7 @@ Last updated: 04.11.2025
       "v1.1"
     last_review:
       "11.11.2025"
-```
 
-
-
-
-
-
-```yaml
 - kpi_id: "ops.orders.total.count"
   kpi_key: "Total Orders Count"
   kpi_type: "supporting"
@@ -1326,9 +1224,7 @@ Last updated: 04.11.2025
       "manual review"
     qa_rules:
       "Reconciles to OMS within +/- 1 count"
-```
 
-```yaml
 - kpi_id: "ops.orders.correct.count"
   kpi_key: "Correct Orders Count"
   kpi_type: "supporting"
@@ -1366,9 +1262,7 @@ Last updated: 04.11.2025
       "manual review"
     qa_rules:
       "Reconciles to OMS quality flags within +/- 1 count"
-```
 
-```yaml
 - kpi_id: "ops.deliveries.total.count"
   kpi_key: "Total Deliveries Count"
   kpi_type: "supporting"
@@ -1406,9 +1300,7 @@ Last updated: 04.11.2025
       "manual review"
     qa_rules:
       "Reconciles to WMS/TMS within +/- 1 count"
-```
 
-```yaml
 - kpi_id: "ops.deliveries.otif.count"
   kpi_key: "OTIF Deliveries Count"
   kpi_type: "supporting"
@@ -1446,9 +1338,7 @@ Last updated: 04.11.2025
       "manual review"
     qa_rules:
       "Reconciles to WMS/TMS within +/- 1 count"
-```
 
-```yaml
 - kpi_id: "ops.purchases.at_contract.amount"
   kpi_key: "Purchases at Contract Amount"
   kpi_type: "supporting"
@@ -1486,9 +1376,7 @@ Last updated: 04.11.2025
       "manual review"
     qa_rules:
       "Reconciles to PO/invoice data within +/- 1 %"
-```
 
-```yaml
 - kpi_id: "ops.purchases.total.amount"
   kpi_key: "Total Purchases Amount"
   kpi_type: "supporting"
@@ -1526,9 +1414,7 @@ Last updated: 04.11.2025
       "manual review"
     qa_rules:
       "Reconciles to PO/invoice data within +/- 1 %"
-```
 
-```yaml
 - kpi_id: "ops.purchase.price.actual.amount"
   kpi_key: "Actual Purchase Price Amount"
   kpi_type: "supporting"
@@ -1566,9 +1452,7 @@ Last updated: 04.11.2025
       "manual review"
     qa_rules:
       "Currency and unit alignment with contract"
-```
 
-```yaml
 - kpi_id: "ops.purchase.price.contract.amount"
   kpi_key: "Contract Purchase Price Amount"
   kpi_type: "supporting"
@@ -1606,9 +1490,7 @@ Last updated: 04.11.2025
       "manual review"
     qa_rules:
       "Currency and unit alignment with contract"
-```
 
-```yaml
 - kpi_id: "ops.purchase.units.qty"
   kpi_key: "Purchase Quantity"
   kpi_type: "supporting"
@@ -1646,9 +1528,7 @@ Last updated: 04.11.2025
       "manual review"
     qa_rules:
       "Reconciles to PO goods receipt within +/- 0.5 %"
-```
 
-```yaml
 - kpi_id: "ops.logistics.cost_ratio.pct"
   kpi_key: "Logistics Cost Ratio %"
   kpi_type: "diagnostic"

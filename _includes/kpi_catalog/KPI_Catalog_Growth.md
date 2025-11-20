@@ -542,8 +542,7 @@
     validation_process: "manual review"
     qa_rules:
       - "Promo flag/period source reconciles within +/- 0.1 %"
-```
-```yaml
+
 - kpi_id: "sales.baseline.amount"
   kpi_key: "Baseline Sales Amount"
   kpi_type: "supporting"
@@ -827,6 +826,6 @@
     completeness_score: 0.85
     lineage_verified: false
     copilot_ready: true
-
+```
 
 

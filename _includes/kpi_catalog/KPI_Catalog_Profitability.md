@@ -82,10 +82,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "true"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "profit.ebitda_margin"
   kpi_key: "EBITDA Margin %"
   kpi_type: "strategic"
@@ -233,10 +230,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     lineage_verified:
       "true"
   copilot_ready: "true"
-```
 
-
-```yaml
 - kpi_key: "Δ Gross Margin %"
   kpi_type: "diagnostic"
   strategic_ref: "Gross Margin %"
@@ -271,10 +265,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       - "GM variance reconciles to financial GM bridge within +/- 0.5 pp"
     version: "v1.0"
     last_review: "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "margin.gm.amount"
   kpi_key: "Gross Margin Amount"
   kpi_type: "supporting"
@@ -346,7 +337,6 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     lineage_verified:
       "true"
   copilot_ready: "true"
-
 
 - kpi_id: "margin.gm.pct"
   kpi_key: "Gross Margin % (Operational)"
@@ -424,10 +414,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "false"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "margin.gm.delta_amount"
   kpi_key: "? Gross Margin Amount"
   kpi_type: "diagnostic"
@@ -502,10 +489,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "false"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "margin.gm.delta_pct"
   kpi_key: "Gross Margin % Δ%"
   kpi_type: "diagnostic"
@@ -562,10 +546,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "v1.0"
     last_review:
       "2025-11-06"
-```
 
-
-```yaml
 kpi_key: "Δ Gross Margin Amount"
   kpi_type: "diagnostic"
   strategic_ref: "Gross Margin %"
@@ -637,10 +618,7 @@ kpi_key: "Δ Gross Margin Amount"
       "false"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "sales.promo.cost.amount"
   kpi_key: "Promo Cost Amount"
   kpi_type: "supporting"
@@ -706,10 +684,7 @@ kpi_key: "Δ Gross Margin Amount"
       "false"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "cost.cogs.promo.amount"
   kpi_key: "Promo COGS Amount"
   kpi_type: "supporting"
@@ -780,10 +755,7 @@ kpi_key: "Δ Gross Margin Amount"
       "false"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "sales.promo.incremental.amount"
   kpi_key: "Incremental Sales Amount"
   kpi_type: "diagnostic"
@@ -856,10 +828,7 @@ kpi_key: "Δ Gross Margin Amount"
       "false"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "margin.promo.incremental.amount"
   kpi_key: "Incremental GM Amount"
   kpi_type: "diagnostic"
@@ -937,10 +906,7 @@ kpi_key: "Δ Gross Margin Amount"
       "false"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "sales.promo.roi.pct"
   kpi_key: "Promo ROI %"
   kpi_type: "diagnostic"
@@ -1015,10 +981,7 @@ kpi_key: "Δ Gross Margin Amount"
       "false"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 - kpi_id: "margin.promo.gm.pct"
   kpi_key: "GM % During Promo"
   kpi_type: "diagnostic"
@@ -1092,11 +1055,7 @@ kpi_key: "Δ Gross Margin Amount"
       "false"
     copilot_ready:
       "true"
-```
 
-
-## 3. Base Measures
-```yaml
 kpi_key: "Invoice Cost Amount"
   kpi_type: "supporting"
   strategic_ref: "Gross Margin %"
@@ -1162,38 +1121,7 @@ kpi_key: "Invoice Cost Amount"
       "true"
     copilot_ready:
       "true"
-```
 
-
-
-
-
-
-
-
----
-
-## 4. Governance Summary
-| Metric | Value |
-|--------|--------|
-| **Total KPIs (Profitability)** | 31 |
-| **Completeness Score (avg)** | 0.96 |
-| **Lineage Verified** | 100 % |
-| **Copilot Ready** | 100 % |
-| **Review Cycle** | Quarterly |
-| **Business Owner** | Head of Controlling |
-| **Data Owner** | BI Engineering |
-| **Steward** | Controlling Analyst |
-| **Validation Process** | Dual Control |
-
----
-
-_Last updated: 04.11.2025_
-
-
-
-
-```yaml
 - kpi_id: "fin.ebitda.amount"
   kpi_key: "EBITDA Amount"
   kpi_type: "supporting"
@@ -1235,12 +1163,7 @@ _Last updated: 04.11.2025_
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```
-
-```yaml
 - kpi_id: "margin.gm.plan.amount"
   kpi_key: "Plan Gross Margin Amount"
   kpi_type: "supporting"
@@ -1282,12 +1205,7 @@ _Last updated: 04.11.2025_
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```
-
-```yaml
 - kpi_id: "margin.customer.amount"
   kpi_key: "Customer Margin Amount"
   kpi_type: "diagnostic"
@@ -1361,9 +1279,7 @@ _Last updated: 04.11.2025_
       "false"
     copilot_ready:
       "true"
-```
 
-```yaml
 - kpi_id: "margin.customer.pct"
   kpi_key: "Customer Margin %"
   kpi_type: "diagnostic"

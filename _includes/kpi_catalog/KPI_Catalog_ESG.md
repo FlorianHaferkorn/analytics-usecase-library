@@ -77,10 +77,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
       "true"
     copilot_ready:
       "true"
-```
 
-
-```yaml
 kpi_key: "Renewable Energy Share %"
   kpi_type: "strategic"
   strategic_ref: "Renewable Energy Share %"
@@ -277,28 +274,7 @@ kpi_key: "Total Energy (kWh)"
       "true"
     copilot_ready:
       "true"
-```
 
-
----
-
-## 4. Governance Summary
-| Metric | Value |
-|--------|--------|
-| **Total KPIs (ESG)** | 31 |
-| **Completeness Score (avg)** | 0.96 |
-| **Lineage Verified** | 100 % |
-| **Copilot Ready** | 100 % |
-| **Review Cycle** | Quarterly |
-| **Business Owner** | Head of Sustainability |
-| **Data Owner** | ESG BI |
-| **Steward** | Environmental Analyst |
-| **Validation Process** | Manual Review |
-
----
-
-_Last updated: 04.11.2025_
-```yaml
 - kpi_id: "esg.aligned_revenue.pct"
   kpi_key: "ESG-Aligned Revenue %"
   kpi_type: "strategic"
@@ -414,10 +390,7 @@ _Last updated: 04.11.2025_
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "esg.energy.total_kwh"
   kpi_key: "Total Energy (kWh)"
   kpi_type: "supporting"
@@ -459,10 +432,7 @@ _Last updated: 04.11.2025_
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-```yaml
 - kpi_id: "esg.co2.total.tco2e"
   kpi_key: "Total CO2 Emissions (tCO2e)"
   kpi_type: "supporting"
@@ -504,13 +474,7 @@ _Last updated: 04.11.2025_
       "v1.0"
     last_review:
       "2025-11-04"
-```
 
-
-
-
-
-```yaml
 - kpi_id: "esg.ltifr.rate"
   kpi_key: "Lost Time Injury Frequency Rate"
   kpi_type: "supporting"
