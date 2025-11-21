@@ -2,214 +2,184 @@
 
 Purpose: Single source of truth for KPI entry structure and ID conventions across all domain catalogs.
 
-Fields (YAML block per KPI)
+Each KPI is a YAML block inside a list:
+
 ```yaml
-- kpi_id: "namespace.identifier"            # Required; stable ASCII ID (dot-separated)
-  kpi_key: "Readable KPI Name"              # Required; human-readable name (with symbols OK)
-  kpi_type: "strategic|diagnostic|supporting"  # Required; one of the enum values
-  strategic_ref: "Optional strategic parent name"  # Optional; human ref only
-  impact_dimension: "Growth|Profitability|Liquidity|Efficiency|Customer|ESG|Governance"  # Required
-  domain_tag: ["Commercial"]                # Required; one or more domain tags
-  use_case_ref: ["COM-001"]                # Optional; related Use Case IDs
-  depends_on: ["Other KPI Key(s)"]         # Optional; human-readable dependencies
-  calc_type: "amount|rate|ratio|count"     # Required; calculation type
-  refresh: daily|weekly|monthly|quarterly  # Optional; data refresh cadence
-  status: Active|Draft|Deprecated          # Optional; lifecycle
+- kpi_id: "sales.net_sales.amount"          # Required; stable machine ID (dot-separated, lowercase)
+  kpi_key: "Net Sales Amount"              # Required; human-readable label
+  kpi_type: "strategic"                    # Required; {strategic|diagnostic|supporting}
+  strategic_ref: "Net Sales Amount"        # Optional; reference name for strategic KPI
+  impact_dimension: "Growth"               # Required; {Growth|Profitability|Liquidity|Efficiency|Customer|ESG|Governance|Risk|InnovationPeople}
+  domain_tag: ["Commercial"]               # Required; 1..n tags, e.g. ["Commercial","SupplyChain"]
+  use_case_ref:                            # Optional; related use cases
+    - "COM-001"
+    - "COR-001"
+  depends_on:                              # Optional; human-readable dependencies
+    - "Invoice Net Sales Amount"
+  depends_on_ids:                          # Optional; KPI-IDs of dependencies
+    - "sales.net_sales.amount"
+  calc_type: "amount"                      # Required; {amount|rate|ratio|count}
+  refresh: "monthly"                       # Optional; {daily|weekly|monthly|quarterly}
 
-  business:                                 # Required; business semantics
-    purpose: "What decision this KPI informs"  # Required
-    definition: "Precise business definition"  # Required
-    grain_scope: "Source grain + aggregation level"  # Required
-    unit_format: "Display units (e.g., EUR, %, pcs)" # Required
-    interpretation: "How to read the KPI"          # Required
-
-  technical:                                # Required; technical mapping
-    dax_name: "Measure Name"                # Required if implemented
-    dax_expression: "...optional..."        # Optional; expression if available
-    formatString: "..."                     # Required for numeric KPIs
-    displayFolder: "...optional..."         # Optional; model folder hint
-    description: "Short purpose/definition" # Required summary
-    lineage: ["table.column or measure"]    # Optional; lineage hints
-    source_grain: "table-level grain"       # Optional
-    source_column_ref: ["table.column"]     # Optional
-    source_system: "ERP|CRM|..."            # Optional
-    verified: false                          # Required; mark true when validated
-
-  governance:                               # Required; ownership & QA
-    business_owner: "Role/Team"             # Required
-    data_owner: "Team"                      # Required
-    steward: "Role"                         # Optional
-    review_cycle: "monthly|quarterly|..."   # Optional
-    validation_process: "automated|manual|dual control"  # Optional
-    qa_rules:
-      - "Rule 1"                            # Optional list of checks
-    version: "vX.Y"                         # Optional version tag
-    last_review: "DD.MM.YYYY"               # Optional review date
-
-  metadata_quality:                         # Optional; metadata KPIs
-    completeness_score: 0.00                # Optional 0..1
-    lineage_verified: false                 # Optional
-    copilot_ready: false                    # Optional
-
-  aliases: ["Optional alternative names"]  # Optional; human variants
-```
-
-Authoring checklist
-- Provide one YAML list item per KPI starting with `- kpi_id:`.
-- Use ASCII-only for `kpi_id`; use readable symbols in `kpi_key` if helpful (e.g., Δ, ±, €).
-- Fill the business and technical blocks; leave technical expression blank only if unknown.
-- Prefer one canonical definition per KPI across catalogs; avoid duplicates.
-
----
-
-## Field Semantics (what to write)
-
-- kpi_id
-  - What: Stable, ASCII, dot-separated identifier that conveys domain.topic.metric.variant.
-  - Do: `margin.gm.amount`, `sales.net_sales.delta_pct.ly`, `fin.liquidity.cash_conversion_cycle.days`.
-  - Don’t: include spaces, uppercase, or symbols; don’t reuse for different semantics.
-
-- kpi_key
-  - What: Human-readable KPI name as seen by users (symbols allowed).
-  - Do: "Gross Margin %", "Δ Net Sales Amount", "Free Cash Flow".
-  - Don’t: encode technical table/column names here.
-
-- kpi_type
-  - strategic: directly reflects strategic objectives or board metrics.
-  - diagnostic: explains variance or drivers of a strategic KPI.
-  - supporting: base or helper KPI needed to compute/interpret others.
-
-- strategic_ref
-  - What: Human name of the parent strategic KPI this KPI supports (if applicable).
-  - Use when a diagnostic/supporting KPI ladders to a strategic KPI.
-
-- impact_dimension
-  - One of: Growth, Profitability, Liquidity, Efficiency, Customer, ESG, Governance.
-  - Choose the primary impact lens for decision-making.
-
-- domain_tag
-  - What: One or more business domains; e.g., Commercial, Operational Efficiency, Customer & Market, Corporate & Strategy, ESG, Governance.
-  - Use the domain most responsible for the KPI.
-
-- use_case_ref
-  - What: List of Use Case IDs this KPI is used in (e.g., ["COM-001"]).
-  - Helps traceability from KPI ↔ Use Case.
-
-- depends_on
-  - What: Human-readable KPI keys this KPI conceptually depends on (not lineage).
-  - Example: for "Δ% Net Sales" → ["Δ Net Sales Amount", "Net Sales Amount LY"].
-
-- calc_type
-  - amount (currency/absolute), rate (calculated rate like %), ratio (unitless ratio), count (integer count).
-  - Choose based on unit and formatting behavior.
-
-- refresh / status
-  - refresh: expected data cadence (daily/weekly/monthly/quarterly).
-  - status: Active/Draft/Deprecated to signal lifecycle.
-
-- business block
-  - purpose: Why this KPI exists and the decision it informs (1–2 sentences).
-  - definition: Business definition; include baseline or filter logic if relevant.
-  - grain_scope: Data grain and aggregation scope (e.g., invoice_line aggregated monthly by Org/Product/Date).
-  - unit_format: Display unit guidance (e.g., "% (1 decimal)", "€ (2 decimals)", "days").
-  - interpretation: How to read changes and what good/bad looks like.
-
-- technical block
-  - dax_name: The exact measure name in the model.
-  - dax_expression: DAX (or semantic formula) when available; keep consistent with definition.
-  - formatString: Valid Power BI format string (e.g., "€ #,0.00", "0.0 %", "0").
-  - displayFolder: Optional model folder path for organization.
-  - description: Short, structured sentence combining purpose/definition/unit.
-  - lineage/source_*: Tables/columns and source systems involved; clarify model vs source grain.
-  - verified: true once the measure compiles and passes basic QA.
-
-- governance block
-  - business_owner: Accountable business role/team.
-  - data_owner: Technical/data team owning the pipeline/model.
-  - steward: Optional caretaker role for metadata quality.
-  - review_cycle: cadence for KPI stewardship (e.g., quarterly).
-  - validation_process: "automated", "manual", or "dual control"; aligns to QA rigor.
-  - qa_rules: Concrete checks with thresholds (e.g., "Variance reconciliation within ±0.1 pp").
-  - version / last_review: Use to track governance changes and last validation.
-
-- metadata_quality
-  - completeness_score: 0..1 subjective coverage score of filled fields.
-  - lineage_verified: true when lineage has been confirmed from source to model.
-  - copilot_ready: true when naming/formatting/descriptions are sufficient for automated tooling.
-
-- aliases
-  - Alternative human names (e.g., legacy labels or symbol-free variants) to aid searchability.
-
----
-
-## Mini Examples
-
-Amount (currency)
-```yaml
-- kpi_id: "margin.gm.amount"
-  kpi_key: "Gross Margin Amount"
-  kpi_type: "supporting"
-  impact_dimension: "Profitability"
-  domain_tag: ["Commercial"]
-  calc_type: amount
   business:
-    purpose: "Shows absolute gross margin before OpEx."
-    definition: "Net Sales Amount - COGS Amount"
-    grain_scope: "Invoice line aggregated monthly by Org/Product/Date"
-    unit_format: "€ (2 decimals)"
-    interpretation: "Higher is better; use with GM % for quality."
+    purpose: "1-sentence business purpose."
+    definition: "Calculation logic in business terms."
+    grain_scope: "Aggregation grain & scope (e.g. invoice_line aggregated to Month, Org, Product)."
+    unit_format: "€, % (1 decimal), pcs, etc."
+    interpretation: "How to read the KPI; good/bad ranges, typical use."
+
   technical:
-    dax_name: "Gross Margin Amount"
-    dax_expression: "[Net Sales Amount] - [COGS Amount]"
+    dax_name: "Net Sales Amount"
+    dax_expression: "SUM(fact_sales[Net Sales Amount])"
     formatString: "€ #,0.00"
-    description: "Absolute GM; NS - COGS; € #,0.00; monthly"
-    verified: true
+    description: "Short technical description (Copilot-optimized)."
+    lineage:
+      - "fact_sales.Net Sales Amount"
+    source_grain: "invoice_line"
+    source_column_ref: "fact_sales[Net Sales Amount]"
+
   governance:
     business_owner: "Head of Controlling"
-    data_owner: "BI Engineering"
+    data_owner: "Finance BI"
+    steward: "Financial Analyst"
     review_cycle: "quarterly"
-    qa_rules: ["Reconcile with P&L GM within ±0.5 %"]
+    validation_process: "Reconcile with P&L during month-end close."
+    qa_rules:
+      - "Reconcile with P&L within ±0.5 %"
+      - "Non-negative; check for extreme outliers."
+    version: "v1.0"
+
+  metadata_quality:
+    completeness_score: 0.95              # 0..1; see rules below
+    last_review: "21.11.2025"
+
+  aliases:                                # Optional; alternative labels
+    - "Revenue"
+    - "Net Revenue"
 ```
 
-Rate (percentage)
-```yaml
-- kpi_id: "sales.revenue.growth_pct"
-  kpi_key: "Revenue Growth %"
-  kpi_type: "strategic"
-  impact_dimension: "Growth"
-  domain_tag: ["Commercial"]
-  calc_type: rate
-  business:
-    purpose: "Top-line expansion vs baseline"
-    definition: "(Net Sales - Net Sales LY) / Net Sales LY"
-    grain_scope: "Aggregated monthly by Org"
-    unit_format: "% (1 decimal)"
-    interpretation: ">0% indicates growth vs LY"
-  technical:
-    dax_name: "Revenue Growth %"
-    dax_expression: "DIVIDE([Net Sales Amount]-[Net Sales Amount LY],[Net Sales Amount LY])"
-    formatString: "0.0 %"
-    verified: true
-```
+## 1. Fields
 
-ID Conventions
-- ASCII only; lowercase; words separated by dots: `area.topic.metric.variant`
-- Examples:
-  - `sales.net_sales.delta_pct.ly`, `margin.gm.pct`, `cost.cogs.amount`
-  - `ops.working_capital.ccc.days`, `crm.retention.pct`, `esg.co2.total.tco2e`
-- Stable across catalogs; no reuse for different semantics.
+Jeder KPI-Eintrag ist ein YAML-Objekt in einer Liste.
 
-Validation (optional CI)
-- Enforce unique `kpi_id` across all catalogs.
-- Restrict `kpi_type` to {strategic, diagnostic, supporting}.
-- Check `calc_type` in {amount, rate, ratio, count}.
-- Lint `kpi_id` by regex: `^[a-z0-9]+(\.[a-z0-9_]+)*$`.
+### Top-Level
 
-Authoring Rules
-- Define each KPI once in the most relevant domain catalog.
-- Reference the schema in each catalog's header; do not embed schema copies.
-- Prefer adding aliases for legacy names with symbols (e.g., “Δ”, “Δ%”) to support readability.
+- `kpi_id` (required, string)  
+  Stabile, maschinenlesbare ID im Format `domain.subdomain.metric` (lowercase, dot-separated). Muss über alle Kataloge eindeutig sein.
 
-Last updated: 04.11.2025
+- `kpi_key` (required, string)  
+  Menschlich lesbarer Name der Kennzahl. Wird als Standard-Anzeigename im Modell verwendet.
 
+- `kpi_type` (required, enum)  
+  Typ der Kennzahl: `strategic`, `diagnostic` oder `supporting`.
 
+- `strategic_ref` (optional, string)  
+  Referenziert den übergeordneten strategischen KPI-Namen, falls dieser KPI eine Detail- oder Teilkennzahl ist.
+
+- `impact_dimension` (required, enum)  
+  Zu welcher Impact-Dimension der KPI gehört (z. B. Growth, Profitability, Liquidity).
+
+- `domain_tag` (required, list<string>)  
+  1..n Domänen-Tags (z. B. `["Commercial"]`, `["SupplyChain","Retail"]`), dienen zum Filtern und Clustern.
+
+- `use_case_ref` (optional, list<string>)  
+  IDs der Use Cases (z. B. `COM-001`), in denen der KPI zentral genutzt wird.
+
+- `depends_on` (optional, list<string>)  
+  Menschlich lesbare Abhängigkeiten (KPI-Namen oder Metriken).
+
+- `depends_on_ids` (optional, list<string>)  
+  KPI-IDs, von denen diese Kennzahl abhängt.
+
+- `calc_type` (required, enum)  
+  Art der Kennzahl: `amount`, `rate`, `ratio`, `count`.
+
+- `refresh` (optional, enum)  
+  Typische Aktualisierungsfrequenz: `daily`, `weekly`, `monthly`, `quarterly`.
+
+### business
+
+- `business.purpose` (required)  
+  Kurzbeschreibung: Wozu existiert dieser KPI?
+
+- `business.definition` (required)  
+  Fachliche Definition / Berechnungslogik in Worten.
+
+- `business.grain_scope` (required)  
+  Aggregationskorn und Scope (z. B. „Invoice line aggregated by Date, Org, Product“).
+
+- `business.unit_format` (required)  
+  Einheit und Format (z. B. „€ (0–2 decimals)“, „% (1 decimal)“, „pcs“).
+
+- `business.interpretation` (required)  
+  Wie der KPI zu lesen ist (gut/schlecht, typische Wertebereiche).
+
+### technical
+
+- `technical.dax_name` (required)  
+  Name der Measure im semantischen Modell (englisch, nach deinen Konventionen).
+
+- `technical.dax_expression` (required für berechnete KPIs)  
+  DAX-Formel laut DAX-Best-Practices (DIVIDE, VAR/RETURN etc.).
+
+- `technical.formatString` (required)  
+  Power BI FormatString passend zu `calc_type` und `unit_format`.
+
+- `technical.description` (required)  
+  Kurze technische Beschreibung, Copilot-optimiert.
+
+- `technical.lineage` (required)  
+  Liste der Quellfelder / Tabellen, die in die Kennzahl einfließen.
+
+- `technical.source_grain` (optional)  
+  Ursprüngliches Datenkorn (z. B. `invoice_line`, `daily_snapshot`).
+
+- `technical.source_column_ref` (optional)  
+  Referenz auf konkrete Spalten im physischen Modell.
+
+### governance
+
+- `governance.business_owner` (required)  
+  Fachlich verantwortliche Rolle/Person.
+
+- `governance.data_owner` (required)  
+  Verantwortlicher für Datenqualität.
+
+- `governance.steward` (optional)  
+  Operativer Owner / Data Steward.
+
+- `governance.review_cycle` (required)  
+  Turnus der Überprüfung (z. B. `monthly`, `quarterly`).
+
+- `governance.validation_process` (required)  
+  Kurzbeschreibung, wie der KPI fachlich/technisch validiert wird.
+
+- `governance.qa_rules` (required, list<string>)  
+  Konkrete Qualitätsregeln (Bounds, Reconcile-Regeln, Ausreißerlogik).
+
+- `governance.version` (required)  
+  Semantische Version des KPI-Eintrags.
+
+### metadata_quality
+
+- `metadata_quality.completeness_score` (required, float 0..1)  
+  Heuristik für Vollständigkeit; basiert auf Anteil befüllter Kernfelder.
+  Basis: Anteil befüllter Kernfelder (kpi_, business., technical., governance., metadata_quality.last_review)
+  - ≥0.95 → „Production-ready“
+  - 0.8–0.95 → „Gut, aber noch Baustellen“
+  - <0.8 → „Draft / Beta“
+
+- `metadata_quality.last_review` (required, date)  
+  Datum der letzten fachlichen/technischen Überprüfung (DD.MM.YYYY).
+
+### aliases
+
+- `aliases` (optional, list<string>)  
+  Alternativenamen / Synonyme, die in Verwendung sind.
+
+## 2. Allowed values
+
+- `kpi_type`: `strategic`, `diagnostic`, `supporting`
+- `impact_dimension`: `Growth`, `Profitability`, `Liquidity`, `Efficiency`, `Customer`, `ESG`, `Governance`, `Risk`, `InnovationPeople`
+- `calc_type`: `amount`, `rate`, `ratio`, `count`
+- `refresh`: `daily`, `weekly`, `monthly`, `quarterly`

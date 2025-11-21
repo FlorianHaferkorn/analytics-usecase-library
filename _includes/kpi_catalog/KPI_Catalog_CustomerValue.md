@@ -67,7 +67,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     dax_name:
       "NPS Score"
     dax_expression:
-      "([Promoters Count]-[Detractors Count])/[Total Respondents]*100"
+      "DIVIDE([Promoters Count]-[Detractors Count]),[Total Respondents]*100)"
     lineage:
       - "fact_survey.Promoters"
       - "fact_survey.Detractors"
@@ -163,6 +163,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   calc_type: count
   technical:
     dax_name: "Active Customers Start"
+    dax_expression: 
     description: "Number of active customers at the beginning of the period (opening base for retention/churn)."
     formatString: "0"
     verified: false
@@ -190,6 +191,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   calc_type: count
   technical:
     dax_name: "Active Customers End"
+    dax_expression:
     description: "Number of active customers at the end of the period (closing base for retention/churn)."
     formatString: "0"
     verified: false
@@ -217,6 +219,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   calc_type: count
   technical:
     dax_name: "Churned Customers"
+    dax_expression:
     description: "Number of customers that were active in the previous period but not active in the current period."
     formatString: "0"
     verified: false
@@ -244,6 +247,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   calc_type: count
   technical:
     dax_name: "Reactivated Customers Count"
+    dax_expression:
     description: "Number of customers that were previously lost and have become active again in the period."
     formatString: "0"
     verified: false
@@ -271,6 +275,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   calc_type: amount
   technical:
     dax_name: "CLV"
+    dax_expression:
     description: "Discounted gross margin expected from a customer over the chosen horizon."
     formatString: "EUR #,0.00"
     verified: false
@@ -298,6 +303,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   calc_type: rate
   technical:
     dax_name: "Reactivation Rate %"
+    dax_expression:
     description: "Reactivated Customers / Lost Customers"
     formatString: "0.0 %"
     verified: false
@@ -325,6 +331,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   calc_type: rate
   technical:
     dax_name: "At-Risk Share %"
+    dax_expression:
     description: "Customers flagged as churn-risk / Active base"
     formatString: "0.0 %"
     verified: false
@@ -352,6 +359,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   calc_type: count
   technical:
     dax_name: "At-Risk Customers Count"
+    dax_expression:
     description: "Number of active customers flagged as at-risk by the churn scoring model."
     formatString: "0"
     verified: false

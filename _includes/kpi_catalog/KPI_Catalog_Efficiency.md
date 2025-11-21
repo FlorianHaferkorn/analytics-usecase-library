@@ -812,6 +812,7 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   kpi_type: "supporting"
   strategic_ref: "OEE %"
   impact_dimension: "Efficiency"
+  use_case_ref: []
   domain_tag: ["Operational Efficiency"]
   use_case_ref:
     - "OPS-003"
@@ -825,25 +826,16 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   refresh: "daily"
   status: "Active"
   business:
-    purpose:
-      "Measures proportion of time equipment is not running."
-    definition:
-      "Downtime Hours / Planned Hours"
-    grain_scope:
-      "Machine level."
-    unit_format:
-      "% (1 decimal)"
-    interpretation:
-      "High downtime reduces efficiency and throughput."
+    purpose: "Measures proportion of time equipment is not running."
+    definition: "Downtime Hours / Planned Hours"
+    grain_scope: "Machine level."
+    unit_format: "% (1 decimal)"
+    interpretation: "High downtime reduces efficiency and throughput."
   technical:
-    dax_name:
-      "Machine Downtime %"
-    dax_expression:
-      "DIVIDE([Downtime Hours],[Planned Hours])"
-    formatString:
-      "0.0 %"
-    description:
-      "Downtime hours divided by planned production hours for the selected slice."
+    dax_name: "Machine Downtime %"
+    dax_expression: "DIVIDE([Downtime Hours],[Planned Hours])"
+    formatString: "0.0 %"
+    description: "Downtime hours divided by planned production hours for the selected slice."
     lineage:
       - "fact_production.DowntimeHours"
       - "fact_production.PlannedHours"
@@ -852,34 +844,21 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
     source_column_ref:
       - "fact_production.downtime_hrs"
       - "fact_production.planned_hrs"
-    source_system:
-      "MES"
-    verified:
-      "true"
+    source_system: "MES"
+    verified: "true"
   governance:
-    business_owner:
-      "Head of Maintenance"
-    data_owner:
-      "Operations Data Team"
-    steward:
-      "Maintenance Planner"
-    review_cycle:
-      "quarterly"
-    validation_process:
-      "automated"
-    qa_rules:
-      "Downtime % <= 100 %"
-    version:
-      "v2.0"
-    last_review:
-      "12.10.2025"
+    business_owner: "Head of Maintenance"
+    data_owner: "Operations Data Team"
+    steward: "Maintenance Planner"
+    review_cycle: "quarterly"
+    validation_process: "automated"
+    qa_rules: "Downtime % <= 100 %"
+    version: "v2.0"
+    last_review: "12.10.2025"
   metadata_quality:
-    completeness_score:
-      "0.98"
-    lineage_verified:
-      "true"
-    copilot_ready:
-      "true"
+    completeness_score: "0.98"
+    lineage_verified: "true"
+    copilot_ready: "true"
 
 - kpi_id: "ops.produced_units.qty"
   kpi_key: "Produced Units Qty"
@@ -937,46 +916,27 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   refresh: "monthly"
   status: "Active"
   business:
-    purpose:
-      "Measures how long receivables remain outstanding before being converted into cash."
-    definition:
-      "(Average Accounts Receivable / Net Sales) x Days in Period."
-    grain_scope:
-      "Consolidated by legal entity, region, or company code."
-    unit_format:
-      "days"
-    interpretation:
-      "Higher values signal slower collections and higher working capital."
+    purpose: "Measures how long receivables remain outstanding before being converted into cash."
+    definition: "(Average Accounts Receivable / Net Sales) x Days in Period."
+    grain_scope: "Consolidated by legal entity, region, or company code."
+    unit_format: "days"
+    interpretation: "Higher values signal slower collections and higher working capital."
   technical:
-    dax_name:
-      "DSO (Days)"
-    dax_expression:
-      "DIVIDE([Average AR Amount],[Net Sales Amount]) * [Days in Period]"
-    displayFolder:
-      "02_WorkingCapital"
-    formatString:
-      "0"
-    description:
-      "Days Sales Outstanding derived from AR balance and revenue."
-    verified:
-      "false"
+    dax_name: "DSO (Days)"
+    dax_expression: "DIVIDE([Average AR Amount],[Net Sales Amount]) * [Days in Period]"
+    displayFolder: "02_WorkingCapital"
+    formatString: "0"
+    description: "Days Sales Outstanding derived from AR balance and revenue."
+    verified: "false"
   governance:
-    business_owner:
-      "Head of Treasury"
-    data_owner:
-      "Finance BI"
-    steward:
-      "Working Capital Analyst"
-    review_cycle:
-      "quarterly"
-    validation_process:
-      "manual review"
-    qa_rules:
-      "DSO bounded between 0 and 180 days; reconciles to AR and revenue balances within +/- 1 day."
-    version:
-      "v1.0"
-    last_review:
-      "2025-11-04"
+    business_owner: "Head of Treasury"
+    data_owner: "Finance BI"
+    steward: "Working Capital Analyst"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules: "DSO bounded between 0 and 180 days; reconciles to AR and revenue balances within +/- 1 day."
+    version: "v1.0"
+    last_review: "2025-11-04"
 
 - kpi_id: "ops.working_capital.dio.days"
   kpi_key: "DIO (Days)"
@@ -990,46 +950,27 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   refresh: "monthly"
   status: "Active"
   business:
-    purpose:
-      "Shows how long inventory stays on hand before being sold."
-    definition:
-      "(Average Inventory / COGS) x Days in Period."
-    grain_scope:
-      "Warehouse / business unit."
-    unit_format:
-      "days"
-    interpretation:
-      "Higher values indicate slow-moving stock binding capital."
+    purpose: "Shows how long inventory stays on hand before being sold."
+    definition: "(Average Inventory / COGS) x Days in Period."
+    grain_scope: "Warehouse / business unit."
+    unit_format: "days"
+    interpretation: "Higher values indicate slow-moving stock binding capital."
   technical:
-    dax_name:
-      "DIO (Days)"
-    dax_expression:
-      "DIVIDE([Average Inventory Amount],[COGS Amount]) * [Days in Period]"
-    displayFolder:
-      "02_WorkingCapital"
-    formatString:
-      "0"
-    description:
-      "Days Inventory Outstanding derived from inventory balance and COGS."
-    verified:
-      "false"
+    dax_name: "DIO (Days)"
+    dax_expression: "DIVIDE([Average Inventory Amount],[COGS Amount]) * [Days in Period]"
+    displayFolder: "02_WorkingCapital"
+    formatString: "0"
+    description: "Days Inventory Outstanding derived from inventory balance and COGS."
+    verified: "false"
   governance:
-    business_owner:
-      "Head of Supply Chain"
-    data_owner:
-      "Finance BI"
-    steward:
-      "Inventory Analyst"
-    review_cycle:
-      "quarterly"
-    validation_process:
-      "manual review"
-    qa_rules:
-      "DIO bounded between 0 and 365 days; reconciles to inventory and COGS balances within +/- 1 day."
-    version:
-      "v1.0"
-    last_review:
-      "2025-11-04"
+    business_owner: "Head of Supply Chain"
+    data_owner: "Finance BI"
+    steward: "Inventory Analyst"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules: "DIO bounded between 0 and 365 days; reconciles to inventory and COGS balances within +/- 1 day."
+    version: "v1.0"
+    last_review: "2025-11-04"
 
 - kpi_id: "ops.working_capital.dpo.days"
   kpi_key: "DPO (Days)"
@@ -1043,46 +984,27 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   refresh: "monthly"
   status: "Active"
   business:
-    purpose:
-      "Indicates how long the company takes to pay suppliers."
-    definition:
-      "(Accounts Payable / COGS) x Days in Period."
-    grain_scope:
-      "Supplier group / legal entity."
-    unit_format:
-      "days"
-    interpretation:
-      "Higher values reflect longer payment terms and better cash preservation."
+    purpose: "Indicates how long the company takes to pay suppliers."
+    definition: "(Accounts Payable / COGS) x Days in Period."
+    grain_scope: "Supplier group / legal entity."
+    unit_format: "days"
+    interpretation: "Higher values reflect longer payment terms and better cash preservation."
   technical:
-    dax_name:
-      "DPO (Days)"
-    dax_expression:
-      "DIVIDE([Average AP Amount],[COGS Amount]) * [Days in Period]"
-    displayFolder:
-      "02_WorkingCapital"
-    formatString:
-      "0"
-    description:
-      "Days Payables Outstanding derived from AP balances and cost of goods sold."
-    verified:
-      "false"
+    dax_name: "DPO (Days)"
+    dax_expression: "DIVIDE([Average AP Amount],[COGS Amount]) * [Days in Period]"
+    displayFolder: "02_WorkingCapital"
+    formatString: "0"
+    description: "Days Payables Outstanding derived from AP balances and cost of goods sold."
+    verified: "false"
   governance:
-    business_owner:
-      "Head of Procurement Controlling"
-    data_owner:
-      "Finance BI"
-    steward:
-      "Working Capital Analyst"
-    review_cycle:
-      "quarterly"
-    validation_process:
-      "manual review"
-    qa_rules:
-      "DPO bounded between 0 and 180 days; reconciles to AP and COGS balances within +/- 1 day."
-    version:
-      "v1.0"
-    last_review:
-      "2025-11-04"
+    business_owner: "Head of Procurement Controlling"
+    data_owner: "Finance BI"
+    steward: "Working Capital Analyst"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules: "DPO bounded between 0 and 180 days; reconciles to AP and COGS balances within +/- 1 day."
+    version: "v1.0"
+    last_review: "2025-11-04"
 
 - kpi_id: "ops.working_capital.ccc.days"
   kpi_key: "Cash Conversion Cycle (Days)"
@@ -1460,36 +1382,23 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Operational Efficiency"]
   calc_type: "amount"
   business:
-    purpose:
-      "Contract price input for PPV."
-    definition:
-      "Contract price per unit"
-    grain_scope:
-      "PO line level; aggregated monthly."
-    unit_format:
-      "EUR (4 decimals)"
+    purpose: "Contract price input for PPV."
+    definition: "Contract price per unit"
+    grain_scope: "PO line level; aggregated monthly."
+    unit_format: "EUR (4 decimals)"
   technical:
-    dax_name:
-      "Contract Purchase Price Amount"
-    formatString:
-      "EUR #,0.0000"
-    description:
-      "Contracted unit price"
-    verified:
-      "false"
+    dax_name: "Contract Purchase Price Amount"
+    dax_expression:
+    formatString: "EUR #,0.0000"
+    description: "Contracted unit price"
+    verified: "false"
   governance:
-    business_owner:
-      "Head of Procurement"
-    data_owner:
-      "Procurement BI"
-    steward:
-      "Procurement Analyst"
-    review_cycle:
-      "monthly"
-    validation_process:
-      "manual review"
-    qa_rules:
-      "Currency and unit alignment with contract"
+    business_owner: "Head of Procurement"
+    data_owner: "Procurement BI"
+    steward: "Procurement Analyst"
+    review_cycle: "monthly"
+    validation_process: "manual review"
+    qa_rules: "Currency and unit alignment with contract"
 
 - kpi_id: "ops.purchase.units.qty"
   kpi_key: "Purchase Quantity"
@@ -1498,36 +1407,23 @@ Schema: see `/_includes/kpi_catalog/SCHEMA.md`
   domain_tag: ["Operational Efficiency"]
   calc_type: "count"
   business:
-    purpose:
-      "Quantity input for PPV amount."
-    definition:
-      "Sum of purchased units"
-    grain_scope:
-      "PO line level; aggregated monthly."
-    unit_format:
-      "qty"
+    purpose: "Quantity input for PPV amount."
+    definition: "Sum of purchased units"
+    grain_scope: "PO line level; aggregated monthly."
+    unit_format: "qty"
   technical:
-    dax_name:
-      "Purchase Quantity"
-    formatString:
-      "0"
-    description:
-      "Purchased units"
-    verified:
-      "false"
+    dax_name: "Purchase Quantity"
+    dax_expression:
+    formatString: "0"
+    description: "Purchased units"
+    verified: "false"
   governance:
-    business_owner:
-      "Head of Procurement"
-    data_owner:
-      "Procurement BI"
-    steward:
-      "Procurement Analyst"
-    review_cycle:
-      "monthly"
-    validation_process:
-      "manual review"
-    qa_rules:
-      "Reconciles to PO goods receipt within +/- 0.5 %"
+    business_owner: "Head of Procurement"
+    data_owner: "Procurement BI"
+    steward: "Procurement Analyst"
+    review_cycle: "monthly"
+    validation_process: "manual review"
+    qa_rules: "Reconciles to PO goods receipt within +/- 0.5 %"
 
 - kpi_id: "ops.logistics.cost_ratio.pct"
   kpi_key: "Logistics Cost Ratio %"
