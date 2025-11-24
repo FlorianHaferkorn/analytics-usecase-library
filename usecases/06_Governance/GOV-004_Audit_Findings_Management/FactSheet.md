@@ -59,31 +59,11 @@ model_mapping:
   "Finding Open Date": "fact_findings[OpenDate]"
 ---
 
-# Use Case Fact Sheet
+# Audit Findings Management
 
-## 1. Business Goal
-Audit Findings transparent managen, um offene Punkte zeitnah zu schlieÃŸen und Governance-Risiken zu reduzieren.
+Dieses FactSheet wurde in separate Business- und Technical-Dokumente aufgeteilt.
 
-## 2. Business Questions
-- Wie viele Findings sind offen, wie alt sind sie und mit welcher Severity?
-- Welche Units und Owner haben die meisten Ã¼berfÃ¤lligen Findings?
+- [Business_Factsheet.md](./Business_Factsheet.md)
+- [Technical_Factsheet.md](./Technical_Factsheet.md)
 
-## 3. Scope & Assumptions
-- Betrachtet werden Findings aus Internal Audit, externem Audit und Compliance-Reviews.
-
-## 4. Target Users & Decisions
-- Zielgruppe: Internal Audit, Action Owner, Management.
-- Entscheidungen: Ressourcen fÃ¼r Remediation, Eskalationen, Priorisierung.
-
-## 5. KPIs & Drivers (Overview)
-- Open Findings Count, Total Findings Count, Aging-Profile.
-
-## 6. Required KPIs (Detail)
-Siehe `required_kpi_ids` in der Front Matter.
-
-## 7. Data & Modelling Notes
-- Status- und Datumsfelder mÃ¼ssen konsistent gepflegt sein.
-
-## 8. Page Layout / Storyboard
-- Overview: Open Findings nach Org/Severity.
-- Drivers: Aging, Status, Owner.
+Bitte nur noch die genannten Dateien pflegen; dieses Dokument bleibt fuer Legacy-Links bestehen.

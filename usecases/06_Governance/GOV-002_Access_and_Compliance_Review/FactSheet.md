@@ -56,31 +56,11 @@ model_mapping:
   "Incident Open Date": "fact_compliance[OpenDate]"
 ---
 
-# Use Case Fact Sheet
+# Access & Compliance Review
 
-## 1. Business Goal
-Sicherstellen, dass Benutzerzugriffe und Compliance-Anforderungen eingehalten werden und VerstÃ¶ÃŸe transparent Ã¼berwacht werden.
+Dieses FactSheet wurde in separate Business- und Technical-Dokumente aufgeteilt.
 
-## 2. Business Questions
-- Wie viele Compliance-Incidents und -Breaches treten pro System/Org auf?
-- Wie entwickeln sich diese Kennzahlen Ã¼ber die Zeit?
+- [Business_Factsheet.md](./Business_Factsheet.md)
+- [Technical_Factsheet.md](./Technical_Factsheet.md)
 
-## 3. Scope & Assumptions
-- Fokus auf kritische Systeme (ERP, CRM, BI).
-
-## 4. Target Users & Decisions
-- Zielgruppe: CISO, Compliance, Internal Audit.
-- Entscheidungen: Zugriffsbereinigung, zusÃ¤tzliche Kontrollen, SchulungsmaÃŸnahmen.
-
-## 5. KPIs & Drivers (Overview)
-- Compliance Incidents Count, Breach Count, Trends nach System/Severity.
-
-## 6. Required KPIs (Detail)
-Siehe `required_kpi_ids` in der Front Matter.
-
-## 7. Data & Modelling Notes
-- Incidents mÃ¼ssen eindeutig klassifiziert sein (Severity, Root Cause).
-
-## 8. Page Layout / Storyboard
-- Overview: Incident-Heatmap nach System/Org.
-- Drivers: Severity, Root Cause, Zeitverlauf.
+Bitte nur noch die genannten Dateien pflegen; dieses Dokument bleibt fuer Legacy-Links bestehen.

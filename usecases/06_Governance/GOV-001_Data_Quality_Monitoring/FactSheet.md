@@ -57,31 +57,11 @@ model_mapping:
   "Total Records": "fact_dq_checks[TotalRecords]"
 ---
 
-# Use Case Fact Sheet
+# Data Quality Monitoring
 
-## 1. Business Goal
-Systematische Ãœberwachung der DatenqualitÃ¤t Ã¼ber DomÃ¤nen hinweg, um Risiken fÃ¼r Berichte und Analytics frÃ¼hzeitig zu erkennen.
+Dieses FactSheet wurde in separate Business- und Technical-Dokumente aufgeteilt.
 
-## 2. Business Questions
-- Welche Tabellen haben die niedrigste Data Quality %?
-- Welche Domains verursachen die meisten DQ-Issues?
+- [Business_Factsheet.md](./Business_Factsheet.md)
+- [Technical_Factsheet.md](./Technical_Factsheet.md)
 
-## 3. Scope & Assumptions
-- Fokus auf kritische Berichts- und Analytics-Tabellen laut Data Catalog.
-
-## 4. Target Users & Decisions
-- Zielgruppe: Data Governance, Domain Owner, BI Teams.
-- Entscheidungen: Priorisierung von DQ-MaÃŸnahmen, Verantwortlichkeiten klÃ¤ren.
-
-## 5. KPIs & Drivers (Overview)
-- Data Quality %, Valid vs. Total Records, DQ-Issue-Trends.
-
-## 6. Required KPIs (Detail)
-Siehe `required_kpi_ids` in der Front Matter.
-
-## 7. Data & Modelling Notes
-- DQ-Regeln und Checks mÃ¼ssen versioniert und dokumentiert sein.
-
-## 8. Page Layout / Storyboard
-- Overview: DQ-Scores nach Domain/Subject Area.
-- Drivers: Regel-Ebene, Zeitverlauf, Root-Cause-Analyse.
+Bitte nur noch die genannten Dateien pflegen; dieses Dokument bleibt fuer Legacy-Links bestehen.

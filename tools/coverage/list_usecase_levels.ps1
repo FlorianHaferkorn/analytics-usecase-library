@@ -2,6 +2,31 @@ param(
   [string]$UseCasesRoot = "usecases"
 )
 
+function Get-FrontMatterBlock {
+  param(
+    [string]$Path,
+    [int]$Depth = 0
+  )
+  if (-not (Test-Path $Path)) { return $null }
+  $content = Get-Content -Raw -Path $Path
+  $match = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---")
+  if (-not $match.Success) { return $null }
+  $block = $match.Groups[1].Value
+  $pointer = [regex]::Match($block, 'business_factsheet\s*:\s*"([^"]+)"')
+  if ($pointer.Success -and $Depth -lt 5) {
+    $parent = Split-Path -Parent $Path
+    $target = Join-Path -Path $parent -ChildPath $pointer.Groups[1].Value
+    if (Test-Path $target) {
+      $resolved = Resolve-Path -Path $target
+      return Get-FrontMatterBlock -Path $resolved.Path -Depth ($Depth + 1)
+    }
+  }
+  return [pscustomobject]@{
+    Text   = $block
+    Source = (Resolve-Path -Path $Path).Path
+  }
+}
+
 Write-Host "Listing reporting levels and analytics stages for all FactSheets..." -ForegroundColor Cyan
 Write-Host "UseCases root: $UseCasesRoot" -ForegroundColor DarkGray
 Write-Host ""
@@ -15,19 +40,12 @@ $items = Get-ChildItem -Path $UseCasesRoot -Recurse -Filter "FactSheet.md" |
   Sort-Object FullName |
   ForEach-Object {
     $path = $_.FullName
-    $lines = Get-Content -Path $path
-    if (-not $lines -or $lines[0].Trim() -ne "---") {
+    $fm = Get-FrontMatterBlock -Path $path
+    if (-not ($fm -and $fm.Text)) {
       return
     }
-
-    $metaLines = @()
-    for ($i = 1; $i -lt $lines.Count; $i++) {
-      if ($lines[$i].Trim() -eq "---") { break }
-      $metaLines += $lines[$i]
-    }
-
     $meta = @{}
-    foreach ($line in $metaLines) {
+    foreach ($line in ($fm.Text -split "\r?\n")) {
       if ($line -match '^\s*([^:]+):\s*(.+)$') {
         $key = $matches[1].Trim()
         $value = $matches[2].Trim().Trim('"')

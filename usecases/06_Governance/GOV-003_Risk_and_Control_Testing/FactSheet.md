@@ -64,31 +64,11 @@ model_mapping:
   "Finding Severity": "fact_findings[Severity]"
 ---
 
-# Use Case Fact Sheet
+# Risk & Control Testing
 
-## 1. Business Goal
-Wirksamkeit des internen Kontrollsystems monitoren, indem Testergebnisse und Findings konsolidiert werden.
+Dieses FactSheet wurde in separate Business- und Technical-Dokumente aufgeteilt.
 
-## 2. Business Questions
-- Wie viele Kontrollen bestehen/nicht bestehen pro Risiko- und Prozesskategorie?
-- Wie viele Findings sind offen und mit welcher Severity?
+- [Business_Factsheet.md](./Business_Factsheet.md)
+- [Technical_Factsheet.md](./Technical_Factsheet.md)
 
-## 3. Scope & Assumptions
-- Fokus auf SOX-/kritische Kontrollen und interne Revision.
-
-## 4. Target Users & Decisions
-- Zielgruppe: Risk Management, Internal Audit, Process Owner.
-- Entscheidungen: Priorisierung von Remediation-MaÃŸnahmen, Anpassung von Kontrollen.
-
-## 5. KPIs & Drivers (Overview)
-- Audit Findings Count, Open Findings Count, Control Pass Rate.
-
-## 6. Required KPIs (Detail)
-Siehe `required_kpi_ids` in der Front Matter.
-
-## 7. Data & Modelling Notes
-- Control- und Finding-IDs mÃ¼ssen stabil und eindeutig sein.
-
-## 8. Page Layout / Storyboard
-- Overview: Control Pass/Fail und Findings nach Kategorie.
-- Drivers: Severity, Aging, Verantwortliche.
+Bitte nur noch die genannten Dateien pflegen; dieses Dokument bleibt fuer Legacy-Links bestehen.

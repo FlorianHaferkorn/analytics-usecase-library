@@ -47,8 +47,71 @@ if (-not $resolvedCatalogRoot) { throw "Unable to resolve KPI catalog root. Prov
 
 $UseCasesRoot = Resolve-RepoPath -ProvidedPath "analytics-usecase-library/usecases" -DefaultRelative 'usecases'
 
-function Get-FrontMatter { param([string]$Path) $content = Get-Content -Raw -Path $Path; $m = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---\s"); if ($m.Success) { return $m.Groups[1].Value } return $null }
-function Get-RequiredIdsFromFrontMatter { param([string]$FrontMatter) if (-not $FrontMatter) { return @() } $m = [regex]::Match($FrontMatter, 'required_kpi_ids\s*:\s*\[(.*?)\]', 'Singleline'); if (-not $m.Success) { return @() } $inner = $m.Groups[1].Value; $ids = @(); foreach ($mm in [regex]::Matches($inner, '"([^"]+)"')) { $ids += $mm.Groups[1].Value } return $ids }
+function Get-FrontMatter {
+  param(
+    [string]$Path,
+    [int]$Depth = 0
+  )
+  if (-not (Test-Path $Path)) { return $null }
+  $content = Get-Content -Raw -Path $Path
+  $m = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---\s")
+  if (-not $m.Success) { return $null }
+  $frontMatter = $m.Groups[1].Value
+  $pointer = [regex]::Match($frontMatter, 'business_factsheet\s*:\s*"([^"]+)"')
+  if ($pointer.Success -and $Depth -lt 5) {
+    $parent = Split-Path -Parent $Path
+    $target = Join-Path -Path $parent -ChildPath $pointer.Groups[1].Value
+    if (Test-Path $target) {
+      $resolved = Resolve-Path -Path $target
+      return Get-FrontMatter -Path $resolved.Path -Depth ($Depth + 1)
+    }
+  }
+  return $frontMatter
+}
+function Parse-ListFromFrontMatter {
+  param([string]$FrontMatter,[string]$Field)
+  if (-not $FrontMatter) { return @() }
+  $escaped = [regex]::Escape($Field)
+  $inline = [regex]::Match($FrontMatter, "^\s*$escaped\s*:\s*\[(.*?)\]", 'Multiline,Singleline')
+  if ($inline.Success) {
+    $vals = @()
+    foreach ($mm in [regex]::Matches($inline.Groups[1].Value, '"([^"]+)"|''([^'']+)''|([^,\s\]]+)')) {
+      $value = if ($mm.Groups[1].Success) { $mm.Groups[1].Value }
+               elseif ($mm.Groups[2].Success) { $mm.Groups[2].Value }
+               else { $mm.Groups[3].Value }
+      if ($value) { $vals += $value }
+    }
+    return $vals
+  }
+  $block = [regex]::Match($FrontMatter, "(?ms)^\s*$escaped\s*:\s*(?:#.*)?\r?\n(?<body>(?:\s{2,}-\s*[^\r\n]*\r?\n?)+)")
+  if ($block.Success) {
+    $results = @()
+    foreach ($line in ($block.Groups['body'].Value -split "\r?\n")) {
+      $trimmed = $line.Trim()
+      if (-not $trimmed) { continue }
+      if ($trimmed -match '^\s*-\s*(.*)$') {
+        $value = $matches[1].Trim()
+      } else {
+        continue
+      }
+      if (-not $value) { continue }
+      if ($value -match '^(?<val>[^#]+)\s*(#.*)?$') { $value = $matches['val'].TrimEnd() }
+      if ($value.StartsWith('"') -and $value.EndsWith('"')) {
+        $value = $value.Trim('"')
+      } elseif ($value.StartsWith("'") -and $value.EndsWith("'")) {
+        $value = $value.Trim("'")
+      }
+      if ($value) { $results += $value }
+    }
+    return $results
+  }
+  return @()
+}
+
+function Get-RequiredIdsFromFrontMatter {
+  param([string]$FrontMatter)
+  return Parse-ListFromFrontMatter -FrontMatter $FrontMatter -Field 'required_kpi_ids'
+}
 
 # Build set of KPI IDs required by FactSheets
 $requiredSet = New-Object System.Collections.Generic.HashSet[string]

@@ -82,32 +82,11 @@ model_mapping:
   "Personnel Cost Amount": "fact_financials[PersonnelCostAmount]"
 ---
 
-# Use Case Fact Sheet
+# Workforce Productivity
 
-## 1. Business Goal
-Workforce-ProduktivitÃ¤t und Ausfallzeiten transparent machen, um gezielt Effizienz- und GesundheitsmaÃŸnahmen zu steuern.
+Dieses FactSheet wurde in separate Business- und Technical-Dokumente aufgeteilt.
 
-## 2. Business Questions
-- Wie entwickelt sich Revenue/Gross Margin per FTE Ã¼ber Organisation und Zeit?
-- Wo sind Ausfallzeiten (Absenteeism) besonders hoch und wie beeinflussen sie die ProduktivitÃ¤t?
+- [Business_Factsheet.md](./Business_Factsheet.md)
+- [Technical_Factsheet.md](./Technical_Factsheet.md)
 
-## 3. Scope & Assumptions
-- Fokus auf interne Mitarbeiter (keine externen Ressourcen).
-- FTE und Arbeitsstunden sind mit Finance/HR abgestimmt.
-
-## 4. Target Users & Decisions
-- Zielgruppe: HR, People Analytics, Linienmanager, Controlling.
-- Entscheidungen: Besetzungsgrade, Priorisierung von Effizienz-Programmen, Gesundheits- und Engagement-Initiativen.
-
-## 5. KPIs & Drivers (Overview)
-- Revenue per FTE, Gross Margin per FTE, Personnel Cost Ratio %, Absenteeism %.
-
-## 6. Required KPIs (Detail)
-Siehe `required_kpi_ids` in der Front Matter.
-
-## 7. Data & Modelling Notes
-- Consistenter Join zwischen HR-Headcount und Financials auf Org/Periodenebene ist kritisch.
-
-## 8. Page Layout / Storyboard
-- Overview: ProduktivitÃ¤t und Absenteeism pro Org/Department.
-- Drivers: Rollen/Level, Kostenstruktur, Zeitverlauf.
+Bitte nur noch die genannten Dateien pflegen; dieses Dokument bleibt fuer Legacy-Links bestehen.

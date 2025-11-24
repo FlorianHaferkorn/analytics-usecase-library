@@ -60,31 +60,11 @@ model_mapping:
   "Is Digital Flag": "fact_digital_usage[IsDigital]"
 ---
 
-# Use Case Fact Sheet
+# Digital Adoption Index
 
-## 1. Business Goal
-Grad der Nutzung digitaler Prozesse und Tools sichtbar machen, um manuelle Arbeit zu reduzieren und Automatisierung voranzutreiben.
+Dieses FactSheet wurde in separate Business- und Technical-Dokumente aufgeteilt.
 
-## 2. Business Questions
-- Wie hoch ist der Digital Adoption Rate % pro Prozess/Org?
-- Welche Prozesse werden noch Ã¼berwiegend manuell ausgefÃ¼hrt?
+- [Business_Factsheet.md](./Business_Factsheet.md)
+- [Technical_Factsheet.md](./Technical_Factsheet.md)
 
-## 3. Scope & Assumptions
-- Nur Prozesse mit definiertem digitalen Zielbild und Usage-Tracking werden berÃ¼cksichtigt.
-
-## 4. Target Users & Decisions
-- Zielgruppe: Digital Transformation, IT, Process Owner.
-- Entscheidungen: Priorisierung von Digitalisierungsinitiativen, Change & Training.
-
-## 5. KPIs & Drivers (Overview)
-- Digital Adoption Rate %, Automatisierungsgrad, manuelle vs. digitale Transaktionen.
-
-## 6. Required KPIs (Detail)
-Noch nicht im KPI-Katalog hinterlegt; wird in einem spÃ¤teren Schritt ergÃ¤nzt.
-
-## 7. Data & Modelling Notes
-- Konsistentes Usage-Tracking und Zuordnung zu Prozessen ist kritisch.
-
-## 8. Page Layout / Storyboard
-- Overview: Digital Adoption nach Org/Process Area.
-- Drivers: Manuelle Restarbeit, Zeitverlauf, Nutzergruppen.
+Bitte nur noch die genannten Dateien pflegen; dieses Dokument bleibt fuer Legacy-Links bestehen.

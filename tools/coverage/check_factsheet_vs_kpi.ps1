@@ -31,38 +31,72 @@ $KpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelativ
 if (-not $KpiCatalogRoot) { throw "Unable to resolve KPI catalog folder. Provide -KpiCatalogRoot or run inside repository." }
 
 function Get-FrontMatter {
-  param([string]$Path)
-  $lines = Get-Content -Path $Path
-  if ($lines.Count -lt 2 -or $lines[0].Trim() -ne '---') { return $null }
-  for ($i = 1; $i -lt $lines.Count; $i++) {
-    if ($lines[$i].Trim() -eq '---') {
-      if ($i -eq 1) { return '' }
-      return ($lines[1..($i - 1)] -join [Environment]::NewLine)
+  param([string]$Path,[int]$Depth = 0)
+  if (-not (Test-Path $Path)) { return $null }
+  $content = Get-Content -Raw -Path $Path
+  $m = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---\s")
+  if (-not $m.Success) { return $null }
+  $frontMatter = $m.Groups[1].Value
+  $pointer = [regex]::Match($frontMatter, 'business_factsheet\s*:\s*"([^"]+)"')
+  if ($pointer.Success -and $Depth -lt 5) {
+    $target = Join-Path -Path (Split-Path -Parent $Path) -ChildPath $pointer.Groups[1].Value
+    if (Test-Path $target) {
+      return Get-FrontMatter -Path $target -Depth ($Depth + 1)
     }
   }
-  return $null
+  return $frontMatter
+}
+
+function Get-ListFromFrontMatter {
+  param([string]$FrontMatter,[string]$Field)
+  if (-not $FrontMatter) { return @() }
+  $escaped = [regex]::Escape($Field)
+  $inline = [regex]::Match($FrontMatter, "^\s*$escaped\s*:\s*\[(.*?)\]", 'Multiline,Singleline')
+  if ($inline.Success) {
+    $items = @()
+    foreach ($mm in [regex]::Matches($inline.Groups[1].Value, '"([^"]+)"|''([^'']+)''|([^,\s\]]+)')) {
+      $value = if ($mm.Groups[1].Success) { $mm.Groups[1].Value }
+               elseif ($mm.Groups[2].Success) { $mm.Groups[2].Value }
+               else { $mm.Groups[3].Value }
+      if ($value) { $items += $value }
+    }
+    return $items
+  }
+  $block = [regex]::Match($FrontMatter, "(?ms)^\s*$escaped\s*:\s*(?:#.*)?\r?\n(?<body>(?:\s{2,}-\s*[^\r\n]*\r?\n?)+)")
+  if ($block.Success) {
+    $out = @()
+    foreach ($line in ($block.Groups['body'].Value -split "\r?\n")) {
+      $trimmed = $line.Trim()
+      if (-not $trimmed) { continue }
+      if ($trimmed -match '^\s*-\s*(.*)$') {
+        $value = $matches[1].Trim()
+      } else {
+        continue
+      }
+      if (-not $value) { continue }
+      if ($value -match '^(?<val>[^#]+)\s*(#.*)?$') { $value = $matches['val'].TrimEnd() }
+      if ($value.StartsWith('"') -and $value.EndsWith('"')) {
+        $value = $value.Trim('"')
+      } elseif ($value.StartsWith("'") -and $value.EndsWith("'")) {
+        $value = $value.Trim("'")
+      }
+      if ($value) { $out += $value }
+    }
+    return $out
+  }
+  return @()
 }
 
 function Get-RequiredMeasuresFromFrontMatter {
   param([string]$FrontMatter)
-  if (-not $FrontMatter) { return @() }
-  $m = [regex]::Match($FrontMatter, 'required_measures\s*:\s*\[(.*?)\]', 'Singleline')
-  if (-not $m.Success) { return @() }
-  $inner = $m.Groups[1].Value
-  $measures = @()
-  foreach ($mm in [regex]::Matches($inner, '"([^"]+)"')) { $measures += $mm.Groups[1].Value }
-  return $measures | Where-Object { $_ -and $_.Trim().Length -gt 0 } | Sort-Object -Unique
+  return (Get-ListFromFrontMatter -FrontMatter $FrontMatter -Field 'required_measures' |
+    Where-Object { $_ -and $_.Trim().Length -gt 0 } | Sort-Object -Unique)
 }
 
 function Get-RequiredIdsFromFrontMatter {
   param([string]$FrontMatter)
-  if (-not $FrontMatter) { return @() }
-  $m = [regex]::Match($FrontMatter, 'required_kpi_ids\s*:\s*\[(.*?)\]', 'Singleline')
-  if (-not $m.Success) { return @() }
-  $inner = $m.Groups[1].Value
-  $ids = @()
-  foreach ($mm in [regex]::Matches($inner, '"([^"]+)"')) { $ids += $mm.Groups[1].Value }
-  return $ids | Where-Object { $_ -and $_.Trim().Length -gt 0 } | Sort-Object -Unique
+  return (Get-ListFromFrontMatter -FrontMatter $FrontMatter -Field 'required_kpi_ids' |
+    Where-Object { $_ -and $_.Trim().Length -gt 0 } | Sort-Object -Unique)
 }
 
 function Load-KpiCatalogIndex {

@@ -74,31 +74,11 @@ model_mapping:
   "FTE": "fact_hr_headcount[FTE]"
 ---
 
-# Use Case Fact Sheet
+# Employee Development & Learning
 
-## 1. Business Goal
-Sicherstellen, dass Mitarbeitende ausreichend und zielgerichtet trainiert werden, um ProduktivitÃ¤t und Engagement zu steigern.
+Dieses FactSheet wurde in separate Business- und Technical-Dokumente aufgeteilt.
 
-## 2. Business Questions
-- Wie verteilen sich Trainingsstunden pro FTE Ã¼ber Organisation, Rollen und Level?
-- Gibt es Korrelationen zwischen TrainingsintensitÃ¤t und ProduktivitÃ¤t pro FTE?
+- [Business_Factsheet.md](./Business_Factsheet.md)
+- [Technical_Factsheet.md](./Technical_Factsheet.md)
 
-## 3. Scope & Assumptions
-- Fokus auf formale Trainings (LMS-registriert), keine informellen LernaktivitÃ¤ten.
-
-## 4. Target Users & Decisions
-- Zielgruppe: HR, Learning & Development, LinienfÃ¼hrungskrÃ¤fte.
-- Entscheidungen: Trainingsbudget-Verteilung, Pflichttrainings, Zielgruppenpriorisierung.
-
-## 5. KPIs & Drivers (Overview)
-- Training Hours per FTE, Revenue per FTE, Training Coverage %.
-
-## 6. Required KPIs (Detail)
-Siehe `required_kpi_ids` in der Front Matter.
-
-## 7. Data & Modelling Notes
-- FTE-Berechnung und Trainingsstunden mÃ¼ssen organisationsweit abgestimmt sein.
-
-## 8. Page Layout / Storyboard
-- Overview: Trainingsstunden pro FTE nach Org/Role.
-- Drivers: Trainingsarten, Dauer, Zusammenhang zu ProduktivitÃ¤t.
+Bitte nur noch die genannten Dateien pflegen; dieses Dokument bleibt fuer Legacy-Links bestehen.

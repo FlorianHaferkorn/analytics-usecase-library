@@ -90,35 +90,11 @@ model_mapping:
   "Good Units": "fact_production[GoodUnits]"
 ---
 
-# Use Case Fact Sheet
+# Capacity Utilization
 
-## 1. Business Goal
-Increase utilization of production capacity by reducing idle time and balancing workload across lines, while maintaining quality and throughput.
+Dieses FactSheet wurde in separate Business- und Technical-Dokumente aufgeteilt.
 
-## 2. Business Questions
-- What is the current utilization and OEE by plant, line, and shift?
-- Wie viel Zeit geht in geplanten vs. ungeplanten StillstÃ¤nden verloren?
-- Welche Linien haben niedrige VerfÃ¼gbarkeit, Performance oder Quality trotz hoher Nachfrage?
+- [Business_Factsheet.md](./Business_Factsheet.md)
+- [Technical_Factsheet.md](./Technical_Factsheet.md)
 
-## 3. Scope & Assumptions
-- Fokus auf produktiven Fertigungslinien, geplante StillstÃ¤nde (Wartung) werden getrennt betrachtet.
-- IdealCycleTime ist je Produkt/Line gepflegt und stabil.
-
-## 4. Target Users & Decisions
-- Wer: Head of Operations, Plant Manager, Industrial Engineering.
-- Entscheidungen: Schichtplanung, Wartungsfenster, Linien-Balancing, Investitionsbedarf.
-
-## 5. KPIs & Drivers (Overview)
-- OEE % und seine Komponenten Availability %, Performance %, Quality %.
-- Downtime Hours, Planned Hours, Produced Units als operative Treiber.
-
-## 6. Required KPIs (Detail)
-Siehe `required_kpi_ids` und `required_kpis` in der Front Matter.
-
-## 7. Data & Modelling Notes
-- Zeit- und Mengeneinheiten mÃ¼ssen konsistent sein (Stunden, StÃ¼ck).
-- DowntimeHours und PlannedHours mÃ¼ssen sich pro Schicht plausibel ergÃ¤nzen.
-
-## 8. Page Layout / Storyboard
-- Overview: OEE und Utilization Heatmap nach Plant/Line.
-- Drivers: Stillstands-Analyse (Grund, Dauer), Performance & Quality Charts.
+Bitte nur noch die genannten Dateien pflegen; dieses Dokument bleibt fuer Legacy-Links bestehen.

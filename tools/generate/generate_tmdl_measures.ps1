@@ -38,15 +38,24 @@ function Resolve-RepoPath {
 }
 
 function Get-FrontMatterBlock {
-  param([string]$Path)
+  param([string]$Path, [int]$Depth = 0)
+  if (-not (Test-Path $Path)) { return $null }
   $lines = Get-Content -Path $Path
   if ($lines.Count -lt 2 -or $lines[0].Trim() -ne '---') { return $null }
   for ($i = 1; $i -lt $lines.Count; $i++) {
     if ($lines[$i].Trim() -eq '---') {
       if ($i -le 1) { return @{ Text = ""; Lines = @() } }
       $blockLines = $lines[1..($i - 1)]
+      $text = ($blockLines -join [Environment]::NewLine)
+      $pointer = [regex]::Match($text, 'business_factsheet\s*:\s*"([^"]+)"')
+      if ($pointer.Success -and $Depth -lt 5) {
+        $target = Join-Path -Path (Split-Path -Parent $Path) -ChildPath $pointer.Groups[1].Value
+        if (Test-Path $target) {
+          return Get-FrontMatterBlock -Path $target -Depth ($Depth + 1)
+        }
+      }
       return @{
-        Text  = ($blockLines -join [Environment]::NewLine)
+        Text  = $text
         Lines = $blockLines
       }
     }
@@ -57,13 +66,40 @@ function Get-FrontMatterBlock {
 function Parse-IdsFromFrontMatter {
   param([string]$FrontMatter,[string]$Field)
   if (-not $FrontMatter) { return @() }
-  $regex = [regex]::Match($FrontMatter, ($Field + '\s*:\s*\[(.*?)\]'), 'Singleline')
-  if (-not $regex.Success) { return @() }
+  $escaped = [regex]::Escape($Field)
+  $inline = [regex]::Match($FrontMatter, "^\s*$escaped\s*:\s*\[(.*?)\]", 'Multiline,Singleline')
   $items = @()
-  foreach ($match in [regex]::Matches($regex.Groups[1].Value, '"([^"]+)"')) {
-    $items += $match.Groups[1].Value
+  if ($inline.Success) {
+    foreach ($match in [regex]::Matches($inline.Groups[1].Value, '"([^"]+)"|''([^'']+)''|([^,\s\]]+)')) {
+      $value = if ($match.Groups[1].Success) { $match.Groups[1].Value }
+               elseif ($match.Groups[2].Success) { $match.Groups[2].Value }
+               else { $match.Groups[3].Value }
+      if ($value) { $items += $value }
+    }
+    return $items
   }
-  return $items
+  $block = [regex]::Match($FrontMatter, "(?ms)^\s*$escaped\s*:\s*(?:#.*)?\r?\n(?<body>(?:\s{2,}-\s*[^\r\n]*\r?\n?)+)")
+  if ($block.Success) {
+    foreach ($line in ($block.Groups['body'].Value -split "\r?\n")) {
+      $trimmed = $line.Trim()
+      if (-not $trimmed) { continue }
+      if ($trimmed -match '^\s*-\s*(.*)$') {
+        $value = $matches[1].Trim()
+      } else {
+        continue
+      }
+      if (-not $value) { continue }
+      if ($value -match '^(?<val>[^#]+)\s*(#.*)?$') { $value = $matches['val'].TrimEnd() }
+      if ($value.StartsWith('"') -and $value.EndsWith('"')) {
+        $value = $value.Trim('"')
+      } elseif ($value.StartsWith("'") -and $value.EndsWith("'")) {
+        $value = $value.Trim("'")
+      }
+      if ($value) { $items += $value }
+    }
+    return $items
+  }
+  return @()
 }
 
 function Get-ScalarValue {

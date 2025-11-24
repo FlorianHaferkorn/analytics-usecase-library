@@ -62,31 +62,11 @@ model_mapping:
   "Energy Cost Amount": "fact_energy[EnergyCostAmount]"
 ---
 
-# Use Case Fact Sheet
+# Energy Efficiency Optimization
 
-## 1. Business Goal
-Energieverbrauch und -kosten senken und gleichzeitig den Anteil erneuerbarer Energie erhÃ¶hen.
+Dieses FactSheet wurde in separate Business- und Technical-Dokumente aufgeteilt.
 
-## 2. Business Questions
-- Welche Sites haben den hÃ¶chsten Energieverbrauch und die schlechteste Effizienz?
-- Wie hoch ist der Anteil erneuerbarer Energie, und wo gibt es Potenzial?
+- [Business_Factsheet.md](./Business_Factsheet.md)
+- [Technical_Factsheet.md](./Technical_Factsheet.md)
 
-## 3. Scope & Assumptions
-- Nur Standorte mit vollstÃ¤ndigem ZÃ¤hler- und Kosten-Setup werden berÃ¼cksichtigt.
-
-## 4. Target Users & Decisions
-- Zielgruppe: Sustainability, Operations, Facility Management.
-- Entscheidungen: EffizienzmaÃŸnahmen, Contracting, Investitionen in erneuerbare Energie.
-
-## 5. KPIs & Drivers (Overview)
-- Renewable Energy (kWh), Total Energy (kWh), Energy Cost per Unit, Carbon Intensity.
-
-## 6. Required KPIs (Detail)
-Siehe `required_kpi_ids` in der Front Matter.
-
-## 7. Data & Modelling Notes
-- Energie- und Kostendaten mÃ¼ssen mit Finance abgeglichen sein.
-
-## 8. Page Layout / Storyboard
-- Overview: Energieverbrauch, Kosten und Intensity nach Site.
-- Drivers: Quelle/Carrier, Zeitverlauf, EffizienzmaÃŸnahmen.
+Bitte nur noch die genannten Dateien pflegen; dieses Dokument bleibt fuer Legacy-Links bestehen.

@@ -99,47 +99,11 @@ model_mapping:
   "Period": "dim_period[PeriodKey]"
 ---
 
-# Use Case Fact Sheet
+# Customer Lifetime Value Analysis
 
-## 1. Business Goal
-Quantify and compare the long-term economic value of customers and segments to focus acquisition, retention, and service investments on those that drive the highest contribution to margin.
+Dieses FactSheet wurde in separate Business- und Technical-Dokumente aufgeteilt.
 
-## 2. Business Questions
-- What is the current distribution of CLV across customers, segments, and regions?
-- Which customers combine high CLV with strong recent margin contribution, and which are at risk?
-- How do retention, churn, and reactivation dynamics impact CLV over time?
-- Which levers (pricing, mix, engagement) can increase CLV for specific segments?
+- [Business_Factsheet.md](./Business_Factsheet.md)
+- [Technical_Factsheet.md](./Technical_Factsheet.md)
 
-## 3. Scope & Assumptions
-- CLV is defined as discounted gross margin over a defined time horizon per customer.
-- Only customers with sufficient transaction history are included in CLV calculation.
-- Status flags (active, lost, reactivated, at-risk) are derived from transaction patterns and scoring models.
-
-## 4. Target Users & Decisions
-- Target users: CRM teams, Marketing Analytics, Sales and Customer Success.
-- Decisions:
-  - Prioritize retention and upsell activities for high-CLV customers.
-  - Identify low-CLV or negative-margin customers for repricing or service adjustment.
-  - Design campaigns to increase lifetime value in target segments.
-
-## 5. KPIs & Drivers (Overview)
-- Strategic KPIs:
-  - Customer Lifetime Value (CLV)
-  - Customer Retention %
-  - Churn %, Reactivation Rate %, At-Risk Share %
-- Analytical drivers:
-  - Active customers (start/end), churned and reactivated customers.
-  - Margin Amount and Net Sales Amount by customer and segment.
-
-## 6. Required KPIs (Detail)
-See `required_kpi_ids` and `required_kpis` in the front matter for the exact KPI IDs and labels used for implementation.
-
-## 7. Data & Modelling Notes
-- CLV model assumptions (discount rate, horizon, churn model) must be documented and versioned.
-- Customer and period keys must be stable and consistent across facts and dimensions.
-- Margin allocation to customers must reconcile to overall gross margin within tolerance thresholds.
-
-## 8. Page Layout / Storyboard
-- Overview: CLV distribution by customer segment and region, with top/bottom lists.
-- Drivers: Retention/churn/reactivation views to explain CLV differences.
-- Actions: Segment-level recommendations for campaigns and account management.
+Bitte nur noch die genannten Dateien pflegen; dieses Dokument bleibt fuer Legacy-Links bestehen.

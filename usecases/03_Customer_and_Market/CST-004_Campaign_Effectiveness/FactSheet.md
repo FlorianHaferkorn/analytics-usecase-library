@@ -80,35 +80,11 @@ model_mapping:
   "Campaign Revenue": "fact_campaign[RevenueAmount]"
 ---
 
-# Use Case Fact Sheet
+# Campaign Effectiveness
 
-## 1. Business Goal
-Bewerten, welche Kampagnen wirklich ROI und Conversion liefern, um Budgets in die effektivsten MaÃŸnahmen zu verlagern.
+Dieses FactSheet wurde in separate Business- und Technical-Dokumente aufgeteilt.
 
-## 2. Business Questions
-- Welche Kampagnen liefern den hÃ¶chsten ROI und die beste Conversion?
-- Welche Segmente und KanÃ¤le reagieren am stÃ¤rksten?
-- Wie beeinflussen Kampagnen Retention, Reaktivierung und At-Risk-Anteil?
+- [Business_Factsheet.md](./Business_Factsheet.md)
+- [Technical_Factsheet.md](./Technical_Factsheet.md)
 
-## 3. Scope & Assumptions
-- Betrachtet werden nur Kampagnen mit eindeutigem Spend und zuordenbarem Revenue.
-- Attribution erfolgt im ersten Schritt nach Last-Touch je Kampagne.
-
-## 4. Target Users & Decisions
-- Zielgruppe: Marketing, CRM, Kampagnenmanager.
-- Entscheidungen: Budgetverteilung, Kanal-/Segmentfokus, Abschalten schwacher Kampagnen.
-
-## 5. KPIs & Drivers (Overview)
-- Campaign ROI %, Uplift % vs. Baseline, Conversion Rate %.
-- Reaktivierungs- und Retentions-KPIs auf Kampagnenkohorten.
-
-## 6. Required KPIs (Detail)
-Siehe `required_kpi_ids` in der Front Matter.
-
-## 7. Data & Modelling Notes
-- Spend und Revenue pro Kampagne mÃ¼ssen mit Finance abgestimmt sein.
-- Response- und Conversion-Flags sollten sauber definiert sein.
-
-## 8. Page Layout / Storyboard
-- Overview: Kampagnenportfolio mit ROI und Conversion.
-- Drivers: Segment- und Kanalansicht, KohortenverlÃ¤ufe (Retention, Reaktivierung).
+Bitte nur noch die genannten Dateien pflegen; dieses Dokument bleibt fuer Legacy-Links bestehen.

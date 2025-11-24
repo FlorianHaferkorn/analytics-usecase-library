@@ -62,32 +62,11 @@ model_mapping:
   "Net Sales Amount": "fact_sales[NetSalesAmount]"
 ---
 
-# Use Case Fact Sheet
+# Innovation Pipeline Performance
 
-## 1. Business Goal
-Performance der Innovationspipeline messen, von Idee bis umgesetztem Produkt, und Beitrag neuer Produkte zum Umsatz sichtbar machen.
+Dieses FactSheet wurde in separate Business- und Technical-Dokumente aufgeteilt.
 
-## 2. Business Questions
-- Wie viele Ideen befinden sich in welcher Stage?
-- Wie hoch ist die Conversion von Idee zu umgesetzt?
-- Wie hoch ist der Umsatzanteil neuer Produkte?
+- [Business_Factsheet.md](./Business_Factsheet.md)
+- [Technical_Factsheet.md](./Technical_Factsheet.md)
 
-## 3. Scope & Assumptions
-- Ideen und Projekte werden im zentralen Innovationstool erfasst und gepflegt.
-
-## 4. Target Users & Decisions
-- Zielgruppe: Strategy & Innovation, Product Management.
-- Entscheidungen: Pipeline-Balancing, Priorisierung, Investitionsentscheidungen.
-
-## 5. KPIs & Drivers (Overview)
-- New Product Share %, Idea-to-Implementation Conversion %, Pipeline-Throughput.
-
-## 6. Required KPIs (Detail)
-Siehe `required_kpi_ids` in der Front Matter.
-
-## 7. Data & Modelling Notes
-- IsNewProduct-Flag und ProduktumsÃ¤tze mÃ¼ssen konsistent gepflegt sein.
-
-## 8. Page Layout / Storyboard
-- Overview: Funnel von Idee bis Launch.
-- Drivers: Umsatz neuer Produkte, Kategorie/Region.
+Bitte nur noch die genannten Dateien pflegen; dieses Dokument bleibt fuer Legacy-Links bestehen.

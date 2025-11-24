@@ -79,35 +79,11 @@ model_mapping:
   "Customer": "dim_customer[CustomerID]"
 ---
 
-# Use Case Fact Sheet
+# NPS Analysis
 
-## 1. Business Goal
-NPS und Kundenfeedback strukturiert analysieren, um schnell die wichtigsten Pain Points und Promoter-Treiber zu identifizieren.
+Dieses FactSheet wurde in separate Business- und Technical-Dokumente aufgeteilt.
 
-## 2. Business Questions
-- Wie entwickelt sich NPS Ã¼ber Zeit, Segmente und KanÃ¤le?
-- Welche Themen und Touchpoints treiben detractor vs. promoter Feedback?
-- Wie hÃ¤ngen NPS, Retention und Churn zusammen?
+- [Business_Factsheet.md](./Business_Factsheet.md)
+- [Technical_Factsheet.md](./Technical_Factsheet.md)
 
-## 3. Scope & Assumptions
-- Es werden standardisierte NPS-Surveys (Skala 0–10) genutzt.
-- Kommentare sind unstrukturiert, kÃ¶nnen aber fÃ¼r Text-Mining genutzt werden.
-
-## 4. Target Users & Decisions
-- Zielgruppe: Customer Experience, CRM, Service- und Produktverantwortliche.
-- Entscheidungen: Journey-Verbesserungen, Priorisierung von MaÃŸnahmen, Follow-up mit Detractors.
-
-## 5. KPIs & Drivers (Overview)
-- NPS Index, Response Rate, Retention %, Churn %.
-- Treiber: Segment, Kanal, Touchpoint, Themen aus Kommentaren.
-
-## 6. Required KPIs (Detail)
-Siehe `required_kpi_ids` in der Front Matter.
-
-## 7. Data & Modelling Notes
-- Response-Stichprobe muss ausreichend groÃŸ und reprÃ¤sentativ sein.
-- Kundenstatus und NPS-Response mÃ¼ssen sauber verknÃ¼pft sein.
-
-## 8. Page Layout / Storyboard
-- Overview: NPS Scorecards, Zeitreihe, Segment/Kanal-Matrix.
-- Drivers: Verteilungen (Promoter/Passive/Detractor), Drill-down nach Touchpoint und Kommentar-Themen.
+Bitte nur noch die genannten Dateien pflegen; dieses Dokument bleibt fuer Legacy-Links bestehen.

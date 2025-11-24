@@ -99,48 +99,11 @@ model_mapping:
   "Customer": "dim_customer[CustomerID]"
 ---
 
-# Use Case Fact Sheet
+# Customer Profitability
 
-## 1. Business Goal
-Provide a transparent view of profitability by customer and customer segment to focus commercial efforts on the right accounts, improve mix, and address loss-making relationships.
+Dieses FactSheet wurde in separate Business- und Technical-Dokumente aufgeteilt.
 
-## 2. Business Questions
-- Which customers and segments contribute most to total gross margin and CLV?
-- Which customers generate high revenue but low or negative margin?
-- How concentrated is our margin contribution (e.g., Top 10 / Top 20 % of customers)?
-- How does customer profitability evolve over time and across regions/channels?
+- [Business_Factsheet.md](./Business_Factsheet.md)
+- [Technical_Factsheet.md](./Technical_Factsheet.md)
 
-## 3. Scope & Assumptions
-- Scope: All invoiced sales to external customers (B2B/B2C) included in `fact_sales`.
-- Profitability is measured at gross margin level (Net Sales - COGS), excluding rebates not captured in `fact_sales`.
-- CLV % is interpreted via contribution to long-term margin, not full lifetime model if not implemented yet.
-- Returns and credit notes are included in Net Sales Amount and impact customer margin.
-
-## 4. Target Users & Decisions
-- Target users: Sales Controlling, Key Account Management, Commercial Directors.
-- Decisions:
-  - Reprioritize customer segmentation and service levels based on profitability tiers.
-  - Negotiate price, discount and terms with low-margin customers.
-  - Focus growth initiatives on high-margin / high-CLV customers.
-
-## 5. KPIs & Drivers (Overview)
-- Strategic KPIs:
-  - Gross Margin %
-  - Customer Lifetime Value (via margin contribution per customer)
-- Analytical KPIs:
-  - Customer Margin Amount and %
-  - Revenue share per customer / segment
-  - Margin concentration (e.g., Top-N share)
-
-## 6. Required KPIs (Detail)
-See `required_kpi_ids` and `required_kpis` in the front matter for the exact KPI IDs and labels used for implementation.
-
-## 7. Data & Modelling Notes
-- CustomerID must uniquely identify a customer across regions and channels.
-- COGS Amount must be consistently allocated to invoice lines to avoid misleading margin.
-- Where CLV models are available, they can be joined via `dim_customer`.
-
-## 8. Page Layout / Storyboard
-- Overview: Customer profitability heatmap (GM % vs Revenue) with segmentation and filters.
-- Drivers: Detail table with Net Sales, COGS, GM Amount and GM % by customer / segment.
-- Concentration: Top-N view of customers by margin contribution and cumulative share curve.
+Bitte nur noch die genannten Dateien pflegen; dieses Dokument bleibt fuer Legacy-Links bestehen.

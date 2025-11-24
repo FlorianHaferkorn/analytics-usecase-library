@@ -22,11 +22,28 @@ function Resolve-RepoPath {
 }
 
 function Get-FrontMatter {
-  param([string]$Path)
+  param(
+    [string]$Path,
+    [int]$Depth = 0
+  )
+  if (-not (Test-Path $Path)) { return $null }
   $content = Get-Content -Raw -Path $Path
   $match = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---")
-  if ($match.Success) { return $match.Groups[1].Value }
-  return $null
+  if (-not $match.Success) { return $null }
+  $block = $match.Groups[1].Value
+  $pointer = [regex]::Match($block, 'business_factsheet\s*:\s*"([^"]+)"')
+  if ($pointer.Success -and $Depth -lt 5) {
+    $parent = Split-Path -Parent $Path
+    $target = Join-Path -Path $parent -ChildPath $pointer.Groups[1].Value
+    if (Test-Path $target) {
+      $resolved = Resolve-Path -Path $target
+      return Get-FrontMatter -Path $resolved.Path -Depth ($Depth + 1)
+    }
+  }
+  return [pscustomobject]@{
+    Text   = $block
+    Source = (Resolve-Path -Path $Path).Path
+  }
 }
 
 function Has-Field {
@@ -37,10 +54,42 @@ function Has-Field {
 
 function Parse-ListField {
   param([string]$FrontMatter,[string]$Field)
+  if (-not $FrontMatter) { return @() }
   $escaped = [regex]::Escape($Field)
-  $match = [regex]::Match($FrontMatter, "^\s*$escaped\s*:\s*\[(.*?)\]", 'Multiline,Singleline')
-  if (-not $match.Success) { return @() }
-  return ([regex]::Matches($match.Groups[1].Value, '"([^"]+)"') | ForEach-Object { $_.Groups[1].Value })
+  $inline = [regex]::Match($FrontMatter, "^\s*$escaped\s*:\s*\[(.*?)\]", 'Multiline,Singleline')
+  if ($inline.Success) {
+    $items = @()
+    foreach ($token in [regex]::Matches($inline.Groups[1].Value, '"([^"]+)"|''([^'']+)''|([^,\s\]]+)')) {
+      $value = if ($token.Groups[1].Success) { $token.Groups[1].Value }
+               elseif ($token.Groups[2].Success) { $token.Groups[2].Value }
+               else { $token.Groups[3].Value }
+      if ($value) { $items += $value }
+    }
+    return $items
+  }
+  $block = [regex]::Match($FrontMatter, "(?ms)^\s*$escaped\s*:\s*(?:#.*)?\r?\n(?<body>(?:\s{2,}-\s*[^\r\n]*\r?\n?)+)")
+  if ($block.Success) {
+    $results = @()
+    foreach ($rawLine in ($block.Groups['body'].Value -split "\r?\n")) {
+      $line = $rawLine.Trim()
+      if (-not $line) { continue }
+      if ($line -match '^\s*-\s*(.*)$') {
+        $value = $matches[1].Trim()
+      } else {
+        continue
+      }
+      if (-not $value) { continue }
+      if ($value -match '^(?<val>[^#]+)\s*(#.*)?$') { $value = $matches['val'].TrimEnd() }
+      if ($value.StartsWith('"') -and $value.EndsWith('"')) {
+        $value = $value.Trim('"')
+      } elseif ($value.StartsWith("'") -and $value.EndsWith("'")) {
+        $value = $value.Trim("'")
+      }
+      if ($value) { $results += $value }
+    }
+    return $results
+  }
+  return @()
 }
 
 function Get-MapField {
@@ -84,31 +133,32 @@ $errors = @(); $warnings = @()
 
 Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'FactSheet.md' | ForEach-Object {
   $fm = Get-FrontMatter -Path $_.FullName
-  if (-not $fm) {
+  if (-not ($fm -and $fm.Text)) {
     $errors += "Missing front-matter in $($_.FullName)"
     return
   }
+  $text = $fm.Text
   foreach ($field in $requiredScalarFields) {
-    if (-not (Has-Field -FrontMatter $fm -Field $field)) {
+    if (-not (Has-Field -FrontMatter $text -Field $field)) {
       $errors += "$($_.FullName): missing field '$field'"
     }
   }
   foreach ($field in $requiredListFields) {
-    $values = Parse-ListField -FrontMatter $fm -Field $field
+    $values = Parse-ListField -FrontMatter $text -Field $field
     if ($values.Count -eq 0) { $errors += "$($_.FullName): list '$field' missing or empty" }
   }
-  if (-not (Has-Field -FrontMatter $fm -Field 'required_kpis')) {
+  if (-not (Has-Field -FrontMatter $text -Field 'required_kpis')) {
     $errors += "$($_.FullName): missing 'required_kpis' map"
   } else {
-    $ids = Parse-ListField -FrontMatter $fm -Field 'required_kpi_ids'
-    $map = Get-MapField -FrontMatter $fm -Field 'required_kpis'
+    $ids = Parse-ListField -FrontMatter $text -Field 'required_kpi_ids'
+    $map = Get-MapField -FrontMatter $text -Field 'required_kpis'
     foreach ($id in $ids) {
       if (-not $map.Contains($id)) { $errors += "$($_.FullName): required_kpis missing label for '$id'" }
     }
   }
-  if (-not (Has-Field -FrontMatter $fm -Field 'data_requirements')) { $warnings += "$($_.FullName): missing data_requirements block" }
-  if (-not (Has-Field -FrontMatter $fm -Field 'model_mapping')) { $warnings += "$($_.FullName): missing model_mapping block" }
-  if (-not (Has-Field -FrontMatter $fm -Field 'qa_asserts')) { $warnings += "$($_.FullName): missing qa_asserts" }
+  if (-not (Has-Field -FrontMatter $text -Field 'data_requirements')) { $warnings += "$($_.FullName): missing data_requirements block" }
+  if (-not (Has-Field -FrontMatter $text -Field 'model_mapping')) { $warnings += "$($_.FullName): missing model_mapping block" }
+  if (-not (Has-Field -FrontMatter $text -Field 'qa_asserts')) { $warnings += "$($_.FullName): missing qa_asserts" }
 }
 
 if ($warnings.Count -gt 0) {

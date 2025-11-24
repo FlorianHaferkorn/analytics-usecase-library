@@ -80,32 +80,11 @@ model_mapping:
   "ESG-Aligned Revenue Amount": "fact_sales[ESGAlignedRevenueAmount]"
 ---
 
-# Use Case Fact Sheet
+# Emission Tracking & Reporting
 
-## 1. Business Goal
-Gesamt-CO2e-Emissionen und Carbon Intensity transparent machen, um regulatorische Anforderungen zu erfÃ¼llen und ReduktionsmaÃŸnahmen zu priorisieren.
+Dieses FactSheet wurde in separate Business- und Technical-Dokumente aufgeteilt.
 
-## 2. Business Questions
-- Wie entwickeln sich Emissionen nach Scope, Region und Site?
-- Wie verÃ¤ndert sich die Carbon Intensity im Zeitverlauf?
-- Welcher Anteil des Umsatzes ist ESG-aligned?
+- [Business_Factsheet.md](./Business_Factsheet.md)
+- [Technical_Factsheet.md](./Technical_Factsheet.md)
 
-## 3. Scope & Assumptions
-- Scopes 1–3 gemäß GHG-Protocol, konsistente Methodik und Emissionsfaktoren.
-
-## 4. Target Users & Decisions
-- Zielgruppe: Sustainability, Finance, Operations.
-- Entscheidungen: Priorisierung von Reduktionsprojekten, Standort- und Portfolioentscheidungen.
-
-## 5. KPIs & Drivers (Overview)
-- Total CO2 Emissions (tCO2e), Carbon Emission Intensity, ESG-Aligned Revenue %.
-
-## 6. Required KPIs (Detail)
-Siehe `required_kpi_ids` in der Front Matter.
-
-## 7. Data & Modelling Notes
-- Emissionsdaten mÃ¼ssen mit Sustainability-Plattform abgestimmt sein.
-
-## 8. Page Layout / Storyboard
-- Overview: Emissions- und Intensity-Entwicklung.
-- Drivers: Breakdown nach Scope, Region, Site, Activity.
+Bitte nur noch die genannten Dateien pflegen; dieses Dokument bleibt fuer Legacy-Links bestehen.
