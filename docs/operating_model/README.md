@@ -1,24 +1,25 @@
 ﻿# operating_model
 
 Purpose:
-Explain the HOW: governance, semantic layer, measures, UX, distribution, SLAs, AI readiness.
+Define the HOW: governance, semantic layer, measures, UX, distribution, SLAs, AI readiness.
 
 Scope:
-- Data governance and policies
-- Semantic layer blueprints and measure system
-- UX standards and distribution patterns
-- Ops/SLA monitoring and AI readiness
-- Not: Company strategy narratives
-- Individual use case specs
-- Low-level code or templates
+- Data governance
+- Semantic layer blueprint
+- Measure system
+- UX design system (3-30-300)
+- Distribution/ops/AI readiness
+- Not: Business strategy narratives
+- Platform-specific playbooks
+- Raw templates
 
 Structure:
-Contains topic-specific guides: governance, semantic_layer, measure system, UX standards, distribution, operations, AI readiness.
+data_governance.md, semantic_layer.md, measure_system.md, ux_design_system_3-30-300.md, distribution_architecture.md, operations_sla_monitoring.md, ai_readiness.md.
 
 Usage:
-- Use as playbook for delivery teams
-- Reference before designing models or reports
-- Align changes with company layer and frameworks
+- Use as playbook before building models/reports
+- Keep aligned with company layer and framework standards
+- Update when governance or architecture changes
 
 Relations:
-Layer 2 (HOW) connecting strategy to implementation (Layers 3+4).
+Layer 2 (HOW); feeds framework, semantic_models, usecases, showcases.

@@ -5,16 +5,16 @@ Domain-level data contracts and schemas.
 
 Scope:
 - Domain fact/dim contracts
-- Quality and RI expectations
-- Not: Raw exploratory notes
+- Quality/RI expectations
+- Not: Exploratory notes
 
 Structure:
-One contract file per domain.
+One contract per domain when available.
 
 Usage:
-- Add/update contracts per domain
-- Ensure alignment with KPI catalog and models
+- Add/update per domain
+- Align with KPI catalog and models
 - Track approvals
 
 Relations:
-Supports Layer 3 data contracts for domains.
+HOW/PATTERNS supporting semantic models and usecases.

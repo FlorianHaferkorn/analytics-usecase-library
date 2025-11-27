@@ -1,21 +1,21 @@
 ﻿# semantic_models
 
 Purpose:
-Home for semantic model blueprints and delivered models.
+Technical backbone of the ActionReady Analytics Framework semantic layer.
 
 Scope:
 - Core action-ready model
-- Domain-specific models
+- Domain models
 - Not: Raw data contracts
 - Report templates
 
 Structure:
-core_action_ready/ holds the canonical model; domain-specific model folders (e.g., CustomerValue, Efficiency, ESG, etc.) capture variants and metadata.
+core_action_ready/ and domains/ subtrees.
 
 Usage:
-- Document model structure and ownership
-- Link to KPIs and data contracts
-- Keep aligned with operating_model semantic guidance
+- Document models and ownership
+- Link to KPI catalog and data contracts
+- Keep aligned with operating_model
 
 Relations:
-Layer 3 implementation assets built on Layer 2 standards.
+WITH WHAT/HOW; supports usecases and showcases.

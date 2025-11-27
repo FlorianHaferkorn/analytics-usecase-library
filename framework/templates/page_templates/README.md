@@ -1,22 +1,22 @@
 ﻿# page_templates
 
 Purpose:
-Pattern library for report/page layouts and UX rules.
+Reusable page/UX patterns (3-30-300 design system).
 
 Scope:
-- 3-30-300 layouts
-- Slot maps and visual whitelists
-- Page-specific design guides
+- Overview/Insights/Explorer templates
+- Slot maps and layout rules
+- Visual/interaction guidelines
 - Not: Unvetted mockups
-- Platform deployment steps
+- Platform build scripts
 
 Structure:
-Contains layout markdown/JSON (e.g., T1/T2 pages, slot maps, visual rules).
+overview_page_template.md, insights_page_template.md, explorer_page_template.md
 
 Usage:
-- Pick a template before designing a report
-- Keep mappings to action codes and use cases in sync
-- Mark experiments as archive if not adopted
+- Select a template before designing reports
+- Keep mappings to action codes/use cases aligned
+- Flag experiments as draft until approved
 
 Relations:
-Layer 4 (PATTERNS) linked to operating_model UX standards and action codes.
+Layer PATTERNS linked to operating_model UX and action_codes/usecases.

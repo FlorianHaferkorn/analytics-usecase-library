@@ -1,21 +1,22 @@
 ﻿# usecases
 
 Purpose:
-Entry point for all use case specs.
+Home for the Use Case Library (WHAT) under the ActionReady Analytics Framework.
 
 Scope:
-- Domain-organized use cases (Commercial, OPS, CST, COR, ESG, GOV, INN/HR)
-- Mappings to action codes and page templates
+- Domain use cases
+- UseCase_Inventory
+- Templates
 - Not: Platform deployment details
-- Raw data contracts
+- Data contracts
 
 Structure:
-Domain folders under usecases/; each use case keeps Business/Technical factsheets and a legacy stub.
+Domain folders (01_…, etc.) plus templates/ and inventory/mappings.
 
 Usage:
-- Add new use cases in the correct domain folder
-- Keep links to action codes, KPIs, and templates in sync
-- Move outdated artifacts to archive
+- Add/maintain use cases with business/technical split
+- Align with action codes and KPIs
+- Move legacy to archive when superseded
 
 Relations:
-Layer 3 content, driven by Layer 1/2 and using Layer 4 patterns.
+Layer PATTERNS/WHAT; informed by docs/company & operating_model; uses framework assets.

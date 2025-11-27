@@ -1,21 +1,22 @@
 ﻿# templates
 
 Purpose:
-Central hub for reusable page templates and UX rules.
+Pattern library for reusable templates (pages, measures, data contracts).
 
 Scope:
-- Page templates and slot maps
-- Visual/layout rules
-- Not: Platform-specific config
+- Page templates
+- Measure templates
+- Data contract templates
+- Not: Platform-specific configs
 - Business strategy docs
 
 Structure:
-Subfolder page_templates/ holds layouts, slot maps, and visual rules.
+page_templates/, measure_templates/, data_contract_templates/
 
 Usage:
-- Reuse templates before inventing new ones
+- Start from a template before inventing new
 - Document deviations explicitly
-- Archive outdated templates to /archive
+- Archive outdated templates promptly
 
 Relations:
-Layer 4 (PATTERNS) enabling consistent delivery of Layer 3 assets.
+Layer PATTERNS supporting framework and usecases/semantic_models.

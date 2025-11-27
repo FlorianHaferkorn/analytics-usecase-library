@@ -1,24 +1,24 @@
 ﻿# company
 
 Purpose:
-Capture the WHY: business context, strategy, domains, KPIs, and key questions.
+Capture the WHY: business context, strategy, domains, KPIs, and key questions for ActionReady Analytics Framework.
 
 Scope:
-- Business strategy and narrative
+- Business strategy
+- Domains and ownership
 - Strategic KPIs and key questions
-- Domain definitions and ownership
-- Executive-facing context
+- Design principles
 - Not: Technical implementation guides
-- Semantic model specs
-- Templates or code
+- Data contracts or code
+- Platform configs
 
 Structure:
-company/ groups core business direction docs such as strategy, domains, KPIs, and questions.
+business_strategy.md, domains.md, strategic_kpis.md, key_questions.md, reporting_design_principles.md.
 
 Usage:
-- Keep this concise and executive-ready
-- Update when strategy or priorities change
-- Link to operating_model for delivery and governance
+- Align stakeholders on WHY before design/build
+- Update when strategy or priorities shift
+- Reference for usecase scoping and KPI selection
 
 Relations:
-Anchors Layer 1 (WHY). Feeds Layer 2 (HOW) and informs usecases and semantic_models.
+Layer 1 (WHY); informs operating_model, framework, usecases, and showcases.

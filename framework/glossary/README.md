@@ -4,19 +4,18 @@ Purpose:
 Shared language for business and technical terms.
 
 Scope:
-- Business glossary
-- Technical glossary
-- Cross-links to KPIs/actions
+- business_glossary.md
+- technical_glossary.md
 - Not: Platform configs
 - Use-case drafts
 
 Structure:
-Contains business_glossary.md and technical_glossary.md.
+Two glossaries cross-link to KPIs/actions.
 
 Usage:
 - Define terms once and reuse
-- Cross-check KPI names against glossary
-- Update with governance cycles
+- Cross-check naming with KPI/action codes
+- Review regularly
 
 Relations:
-Supports all layers; foundational shared language.
+Supports all layers; foundation for clarity.

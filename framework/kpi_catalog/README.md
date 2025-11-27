@@ -1,22 +1,21 @@
 ﻿# kpi_catalog
 
 Purpose:
-Central catalog of KPIs and measure dictionary across domains.
+Central catalog of KPIs and measure dictionary references across domains.
 
 Scope:
 - Domain KPI catalogs
-- Measure dictionary
-- Schema/README for authors
-- Not: Use-case stubs or drafts
-- Platform-specific code
+- Domain measure dictionary index
+- Not: Use-case stubs
+- Platform code
 
 Structure:
-Domain catalogs and dictionary files under this folder.
+domain_kpi_catalog.md and domain_measure_dictionary.md link to domain dictionaries.
 
 Usage:
-- Add/maintain KPIs with stable IDs
-- Keep alignment with usecases and semantic_models
-- Archive duplicates to /archive
+- Maintain stable IDs
+- Cross-check usecases/semantic_models
+- Archive duplicates
 
 Relations:
-Layer 3 (WITH WHAT) feeding measures and usecases; governed by operating_model.
+WITH WHAT; feeds semantic_models and usecases; governed by operating_model.

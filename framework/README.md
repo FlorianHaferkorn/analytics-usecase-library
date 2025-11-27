@@ -1,24 +1,25 @@
 ﻿# framework
 
 Purpose:
-Provide reusable assets, catalogs, and guides to deliver analytics consistently.
+Provide standards, catalogs, templates, and guides (WITH WHAT/TEMPLATES) for ActionReady Analytics Framework.
 
 Scope:
-- Implementation guides by platform
-- Templates for pages, measures, data contracts
-- Action codes portfolio and usage
-- KPI catalog and glossary
+- Implementation guides
+- Templates (pages/measures/contracts)
+- Action codes portfolio
+- KPI catalog
+- Glossary
 - Not: Company strategy docs
-- Raw use case content
-- Environment-specific secrets
+- Raw customer data
+- Unapproved drafts
 
 Structure:
-Houses implementation_guides, templates, action_codes, kpi_catalog, glossary.
+implementation_guides/, templates/, action_codes/, kpi_catalog/, glossary/
 
 Usage:
-- Start here for reusable standards
-- Reference before creating new assets
-- Keep one canonical version; archive older variants
+- Reuse standards before creating new assets
+- Keep one canonical version and archive legacy
+- Align delivery teams on names/IDs
 
 Relations:
-Supports Layer 3 (WITH WHAT) and Layer 4 (PATTERNS); consumes HOW from operating_model.
+Layers WITH WHAT and PATTERNS; consumes HOW; supports usecases/semantic_models/showcases.

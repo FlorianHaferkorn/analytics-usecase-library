@@ -1,21 +1,21 @@
 ﻿# action_codes
 
 Purpose:
-Single source for action code portfolio and guidance.
+Single source for Action Codes portfolio and guidance.
 
 Scope:
-- ActionCodes_v2_Portfolio.md (canonical)
-- How-to guidance
-- Mappings to templates/use cases
-- Not: Old, conflicting action code lists
+- ActionCodes_Portfolio.md (canonical)
+- how_to_use_action_codes.md
+- ActionCodes_legacy.md if present
+- Not: Conflicting action lists
 
 Structure:
-Canonical portfolio plus guidance; ActionCodes_v2_Portfolio.md is the single source of truth; legacy variants are parked in /archive/legacy.
+Canonical portfolio plus guidance; legacy parked separately.
 
 Usage:
-- Use only the v2 portfolio for projects
-- Document mappings into usecases and templates
-- Archive any new experiments until approved
+- Use only the portfolio as truth
+- Map use cases/templates to action codes
+- Archive or flag experiments
 
 Relations:
-Supports HOW/WITH WHAT linking actions to KPIs and page templates.
+WITH WHAT/PATTERNS; links to usecases, templates, KPI triggers.

@@ -4,20 +4,21 @@ Purpose:
 Platform-specific guidance to implement the operating model.
 
 Scope:
-- Fabric/Power BI guidance
-- Databricks, Snowflake/Tableau, Looker patterns
-- Environment setup and deployment steps
+- fabric_powerbi.md
+- databricks.md
+- snowflake_tableau.md
+- looker.md
 - Not: Business strategy
-- KPI catalogs
+- Raw KPIs
 - Use case specs
 
 Structure:
-One file per platform under implementation_guides/ (fabric_powerbi.md, databricks.md, etc.).
+One file per platform with setup and deployment guidance.
 
 Usage:
-- Follow the relevant guide before building
-- Align naming/config with templates
-- Contribute improvements as patterns mature
+- Pick the relevant guide before building
+- Align naming/config with templates and catalogs
+- Contribute improvements once battle-tested
 
 Relations:
-Layer 3 (WITH WHAT) aligned to Layer 2 standards and Layer 4 templates.
+Layer WITH WHAT; implements operating_model standards; used by semantic_models/usecases/showcases.
