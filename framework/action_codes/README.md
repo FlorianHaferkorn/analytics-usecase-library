@@ -6,7 +6,7 @@ Single source for Action Codes portfolio and guidance.
 Scope:
 - ActionCodes_Portfolio.md (canonical)
 - how_to_use_action_codes.md
-- ActionCodes_legacy.md if present
+- ActionCodes_legacy.md (legacy/archive)
 - Not: Conflicting action lists
 
 Structure:
@@ -19,3 +19,4 @@ Usage:
 
 Relations:
 WITH WHAT/PATTERNS; links to usecases, templates, KPI triggers.
+
