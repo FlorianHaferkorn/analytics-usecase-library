@@ -1,0 +1,1062 @@
+version: 1.0
+company: Aurora Group SE
+description: >
+  Synthetic data contract for the Aurora Group backbone model.
+  Defines dimensions, facts, grain, keys, columns and QA rules
+  for all tables used across the analytics-usecase-library.
+
+settings:
+  timezone: Europe/Berlin
+  fiscal_year_start: 01-01
+  default_currency: EUR
+
+dimensions:
+  - name: dim_date
+    purpose: Calendar and fiscal date dimension for all time-based analysis.
+    definition: >
+      One row per calendar date; includes Gregorian and fiscal attributes.
+      Used as the central date table for all facts.
+    grain: date
+    key: DateKey
+    columns:
+      - name: DateKey
+        type: int
+        role: key
+        description: Surrogate key for the date.
+        agg: none
+        format: "0"
+        is_hidden: false
+      - name: Date
+        type: date
+        description: Calendar date.
+        agg: none
+        format: dd.MM.yyyy
+        is_hidden: false
+      - name: Year
+        type: int
+        description: Calendar year (YYYY).
+        agg: none
+        format: "0"
+        is_hidden: false
+      - name: Month
+        type: int
+        description: Calendar month number (1-12).
+        agg: none
+        format: "0"
+        is_hidden: false
+      - name: Month Name
+        type: text
+        description: Month name (localized).
+        agg: none
+        is_hidden: false
+        sort_by: Month
+      - name: Quarter
+        type: int
+        description: Calendar quarter (1-4).
+        agg: none
+        format: "0"
+        is_hidden: false
+      - name: Fiscal Year
+        type: int
+        description: Fiscal year based on Aurora Group rules.
+        agg: none
+        format: "0"
+        is_hidden: false
+      - name: Fiscal Period
+        type: text
+        description: Fiscal period code (e.g., FY2025-P03).
+        agg: none
+        is_hidden: false
+    qa:
+      - "Continuous date range without gaps for the defined period."
+      - "Fiscal mapping verified against fiscal_year_start."
+
+  - name: dim_org
+    purpose: Organizational hierarchy for Aurora Group (Retail, E-Com, Logistics, HQ, ESG sites).
+    definition: >
+      One row per organizational node (Group, Region, Country, District,
+      Store, Distribution Center, Hub, Office, ESG Site).
+      Used for RLS, aggregation and KPI ownership.
+    grain: org_node
+    key: OrgKey
+    columns:
+      - name: OrgKey
+        type: int
+        role: key
+        description: Surrogate key for the org node.
+        agg: none
+        format: "0"
+        is_hidden: false
+      - name: OrgCode
+        type: text
+        description: Business code of the org node.
+        agg: none
+        is_hidden: false
+      - name: OrgName
+        type: text
+        description: Display name of the org node.
+        agg: none
+        is_hidden: false
+      - name: OrgLevel
+        type: text
+        description: Level in the hierarchy (Group/Region/Country/District/Store/DC/HQ/ESG).
+        agg: none
+        is_hidden: false
+      - name: ParentOrgKey
+        type: int
+        description: Parent org node key in the hierarchy.
+        agg: none
+        is_hidden: false
+      - name: Country
+        type: text
+        description: Country of the org node (ISO country name).
+        agg: none
+        data_category: Country
+        is_hidden: false
+      - name: Currency Code
+        type: text
+        description: Default local currency code (ISO 4217).
+        agg: none
+        is_hidden: false
+      - name: OrgType
+        type: text
+        description: Type of org node (Store, DC, Hub, HQ, ESG Site).
+        agg: none
+        is_hidden: false
+      - name: Open DateKey
+        type: int
+        description: DateKey of opening date (inclusive).
+        agg: none
+        is_hidden: false
+      - name: Close DateKey
+        type: int
+        description: DateKey of closing date (inclusive, null if still open).
+        agg: none
+        is_hidden: false
+    qa:
+      - "ParentOrgKey must reference a valid OrgKey or be null for top-level nodes."
+      - "Open DateKey <= Close DateKey when Close DateKey is not null."
+
+  - name: dim_product
+    purpose: Product classification for sales, inventory and margin analysis.
+    definition: >
+      One row per sellable product across all Aurora Group assortments
+      (Fashion, Home & Living, Consumer Electronics).
+    grain: product
+    key: ProductKey
+    columns:
+      - name: ProductKey
+        type: int
+        role: key
+        description: Surrogate key for the product.
+        agg: none
+        format: "0"
+        is_hidden: false
+      - name: ProductCode
+        type: text
+        description: Business product code (SKU/Article).
+        agg: none
+        is_hidden: false
+      - name: ProductName
+        type: text
+        description: Product display name.
+        agg: none
+        is_hidden: false
+      - name: Category
+        type: text
+        description: Top-level product category (Fashion/Home/Electronics).
+        agg: none
+        is_hidden: false
+      - name: Subcategory
+        type: text
+        description: Subcategory within the main category.
+        agg: none
+        is_hidden: false
+      - name: Brand
+        type: text
+        description: Product brand.
+        agg: none
+        is_hidden: false
+      - name: Lifecycle Status
+        type: text
+        description: Lifecycle stage (Intro/Growth/Mature/End-of-life).
+        agg: none
+        is_hidden: false
+      - name: List Price Amount
+        type: currency
+        description: Standard list price in default currency.
+        agg: none
+        format: "#,0.00"
+        is_hidden: false
+    qa:
+      - "Unique ProductKey, no duplicates."
+      - "List Price Amount >= 0."
+
+  - name: dim_customer
+    purpose: Customer dimension for segmentation and journey analysis, PII-free.
+    definition: >
+      One row per aggregated synthetic customer representing typical behavior and segment.
+    grain: customer
+    key: CustomerKey
+    columns:
+      - name: CustomerKey
+        type: int
+        role: key
+        description: Surrogate key for the customer.
+        agg: none
+        is_hidden: false
+      - name: CustomerCode
+        type: text
+        description: Synthetic code identifying the customer.
+        agg: none
+        is_hidden: false
+      - name: CustomerName
+        type: text
+        description: Synthetic display name (may be generic).
+        agg: none
+        is_hidden: true
+      - name: Segment
+        type: text
+        description: Customer segment (Loyalty/New/Occasional/High-Value/Churn-Risk).
+        agg: none
+        is_hidden: false
+      - name: Channel Preference
+        type: text
+        description: Preferred channel (Store/E-Com/Mixed).
+        agg: none
+        is_hidden: false
+      - name: Tenure Bucket
+        type: text
+        description: Tenure category (e.g., <1Y, 1-3Y, >3Y).
+        agg: none
+        is_hidden: false
+    qa:
+      - "Unique CustomerKey, no duplicates."
+      - "Segments distributed across defined buckets."
+
+  - name: dim_promo
+    purpose: Promotion master data for linking sales to campaigns.
+    definition: >
+      One row per promotion campaign, including timing and discount parameters.
+    grain: promo
+    key: PromoKey
+    columns:
+      - name: PromoKey
+        type: int
+        role: key
+        description: Surrogate key for the promotion.
+        agg: none
+        is_hidden: false
+      - name: PromoCode
+        type: text
+        description: Short code identifying the promotion.
+        agg: none
+        is_hidden: false
+      - name: PromoName
+        type: text
+        description: Promotion display name.
+        agg: none
+        is_hidden: false
+      - name: Promo Type
+        type: text
+        description: Promotion type (Discount/Bundle/Multi-buy).
+        agg: none
+        is_hidden: false
+      - name: Promo Mechanic
+        type: text
+        description: Mechanic description (PercentOff/MultiBuy/FixedPrice).
+        agg: none
+        is_hidden: false
+      - name: Start DateKey
+        type: int
+        description: DateKey of promo start (inclusive).
+        agg: none
+        is_hidden: false
+      - name: End DateKey
+        type: int
+        description: DateKey of promo end (inclusive).
+        agg: none
+        is_hidden: false
+      - name: Discount %
+        type: number
+        description: Nominal discount percentage.
+        agg: none
+        format: "0.0%"
+        is_hidden: false
+    qa:
+      - "Start DateKey <= End DateKey."
+      - "Discount % in [0%; 80%]."
+
+  - name: dim_currency
+    purpose: Currency dimension for multi-currency support.
+    definition: One row per currency used in Aurora Group reporting.
+    grain: currency
+    key: Currency Code
+    columns:
+      - name: Currency Code
+        type: text
+        role: key
+        description: ISO 4217 currency code.
+        agg: none
+        is_hidden: false
+      - name: Currency Name
+        type: text
+        description: Currency display name.
+        agg: none
+        is_hidden: false
+    qa:
+      - "Unique Currency Code."
+
+  - name: dim_account
+    purpose: GL account dimension for financial and corporate reporting.
+    definition: One row per GL account used in the chart of accounts.
+    grain: account
+    key: AccountKey
+    columns:
+      - name: AccountKey
+        type: int
+        role: key
+        description: Surrogate key for the GL account.
+        agg: none
+        is_hidden: false
+      - name: AccountCode
+        type: text
+        description: GL account code.
+        agg: none
+        is_hidden: false
+      - name: AccountName
+        type: text
+        description: GL account name.
+        agg: none
+        is_hidden: false
+      - name: AccountType
+        type: text
+        description: Account type (Revenue/COGS/Opex/Asset/Liability).
+        agg: none
+        is_hidden: false
+      - name: Statement Type
+        type: text
+        description: Statement classification (P&L/Balance Sheet).
+        agg: none
+        is_hidden: false
+    qa:
+      - "Unique AccountKey."
+      - "Statement Type consistent with AccountType."
+
+  - name: dim_employee
+    purpose: Employee dimension for HR and People analytics.
+    definition: One row per employee, synthetic and PII-free.
+    grain: employee
+    key: EmployeeKey
+    columns:
+      - name: EmployeeKey
+        type: int
+        role: key
+        description: Surrogate key for the employee.
+        agg: none
+        is_hidden: false
+      - name: EmployeeID
+        type: text
+        description: Synthetic employee identifier.
+        agg: none
+        is_hidden: false
+      - name: OrgKey
+        type: int
+        description: Current main org assignment.
+        agg: none
+        is_hidden: false
+      - name: JobRole
+        type: text
+        description: Role title / position.
+        agg: none
+        is_hidden: false
+      - name: Grade
+        type: text
+        description: Job grade or band.
+        agg: none
+        is_hidden: false
+      - name: Hire DateKey
+        type: int
+        description: DateKey of hire date.
+        agg: none
+        is_hidden: false
+      - name: Exit DateKey
+        type: int
+        description: DateKey of exit date (null if active).
+        agg: none
+        is_hidden: false
+    qa:
+      - "Unique EmployeeKey."
+      - "Hire DateKey <= Exit DateKey when Exit DateKey is not null."
+
+  - name: dim_esg_site
+    purpose: Site information for ESG reporting (Stores, DCs, Offices).
+    definition: One row per ESG-relevant site.
+    grain: esg_site
+    key: ESGSiteKey
+    columns:
+      - name: ESGSiteKey
+        type: int
+        role: key
+        description: Surrogate key for the ESG site.
+        agg: none
+        is_hidden: false
+      - name: OrgKey
+        type: int
+        description: Related organizational node.
+        agg: none
+        is_hidden: false
+      - name: SiteType
+        type: text
+        description: Site type (Store/DC/Office).
+        agg: none
+        is_hidden: false
+      - name: Energy Mix
+        type: text
+        description: Simplified energy mix classification.
+        agg: none
+        is_hidden: false
+    qa:
+      - "ESGSiteKey unique."
+      - "OrgKey references a valid dim_org entry."
+
+facts:
+  - name: fact_sales
+    purpose: Unified sales backbone for stores, e-commerce, marketplaces and wholesale.
+    grain: "1 row = invoice line"
+    keys:
+      - InvoiceLineID
+    refs:
+      - column: DateKey
+        dim: dim_date
+      - column: OrgKey
+        dim: dim_org
+      - column: ProductKey
+        dim: dim_product
+      - column: CustomerKey
+        dim: dim_customer
+      - column: PromoKey
+        dim: dim_promo
+      - column: Currency Code
+        dim: dim_currency
+    columns:
+      - name: InvoiceLineID
+        type: text
+        description: Unique identifier of the invoice line.
+        agg: none
+        is_hidden: true
+      - name: DateKey
+        type: int
+        description: Date of the transaction.
+        agg: none
+        is_hidden: false
+      - name: OrgKey
+        type: int
+        description: Selling org (store, e-com, marketplace org).
+        agg: none
+        is_hidden: false
+      - name: ProductKey
+        type: int
+        description: Sold product.
+        agg: none
+        is_hidden: false
+      - name: CustomerKey
+        type: int
+        description: Buying customer (nullable for anonymous).
+        agg: none
+        is_hidden: false
+      - name: PromoKey
+        type: int
+        description: Linked promotion (nullable).
+        agg: none
+        is_hidden: false
+      - name: Channel
+        type: text
+        description: Sales channel (Store/E-Com/Marketplace/Wholesale).
+        agg: none
+        is_hidden: false
+      - name: Currency Code
+        type: text
+        description: Transaction currency.
+        agg: none
+        is_hidden: false
+      - name: Quantity Qty
+        type: number
+        description: Sold units.
+        agg: sum
+        format: "#,0"
+        is_hidden: false
+      - name: Gross Sales Amount
+        type: currency
+        description: Gross revenue before discount.
+        agg: sum
+        format: "#,0.00"
+        is_hidden: false
+      - name: Discount Amount
+        type: currency
+        description: Discount value granted on the line.
+        agg: sum
+        format: "#,0.00"
+        is_hidden: false
+      - name: Net Sales Amount
+        type: currency
+        description: Net revenue after discount.
+        agg: sum
+        format: "#,0.00"
+        is_hidden: false
+      - name: COGS Amount
+        type: currency
+        description: Cost of goods sold.
+        agg: sum
+        format: "#,0.00"
+        is_hidden: false
+    default_measures:
+      - Net Sales Amount
+    qa:
+      - "Net Sales Amount = Gross Sales Amount - Discount Amount within tolerance."
+      - "COGS Amount <= Gross Sales Amount."
+      - "Referential integrity to dim_date, dim_org, dim_product >= 99.9%."
+
+  - name: fact_inventory_snapshot
+    purpose: Daily on-hand stock by store and product.
+    grain: "1 row = store-product-day snapshot"
+    keys:
+      - DateKey
+      - OrgKey
+      - ProductKey
+    refs:
+      - column: DateKey
+        dim: dim_date
+      - column: OrgKey
+        dim: dim_org
+      - column: ProductKey
+        dim: dim_product
+    columns:
+      - name: DateKey
+        type: int
+        description: Snapshot date.
+        agg: none
+        is_hidden: false
+      - name: OrgKey
+        type: int
+        description: Store or warehouse org.
+        agg: none
+        is_hidden: false
+      - name: ProductKey
+        type: int
+        description: Product in stock.
+        agg: none
+        is_hidden: false
+      - name: Stock Qty
+        type: number
+        description: On-hand stock quantity at end of day.
+        agg: sum
+        format: "#,0"
+        is_hidden: false
+      - name: Stock Value Amount
+        type: currency
+        description: Stock value at end of day in local currency.
+        agg: sum
+        format: "#,0.00"
+        is_hidden: false
+      - name: Safety Stock Qty
+        type: number
+        description: Target safety stock level.
+        agg: sum
+        format: "#,0"
+        is_hidden: false
+    default_measures:
+      - Stock Qty
+      - Stock Value Amount
+    qa:
+      - "Stock Qty >= 0."
+      - "Stock Value Amount >= 0."
+
+  - name: fact_sales_budget
+    purpose: Budgeted sales and COGS for variance analysis.
+    grain: "1 row = org-product-month-version"
+    keys:
+      - MonthEnd DateKey
+      - OrgKey
+      - ProductKey
+      - Version
+    refs:
+      - column: MonthEnd DateKey
+        dim: dim_date
+      - column: OrgKey
+        dim: dim_org
+      - column: ProductKey
+        dim: dim_product
+    columns:
+      - name: MonthEnd DateKey
+        type: int
+        description: DateKey representing the month end.
+        agg: none
+        is_hidden: false
+      - name: OrgKey
+        type: int
+        description: Org node for the budget.
+        agg: none
+        is_hidden: false
+      - name: ProductKey
+        type: int
+        description: Product for the budget.
+        agg: none
+        is_hidden: false
+      - name: Version
+        type: text
+        description: Budget version (Original/Revised/Forecast).
+        agg: none
+        is_hidden: false
+      - name: Budget Sales Amount
+        type: currency
+        description: Budgeted net sales.
+        agg: sum
+        format: "#,0.00"
+        is_hidden: false
+      - name: Budget COGS Amount
+        type: currency
+        description: Budgeted cost of goods sold.
+        agg: sum
+        format: "#,0.00"
+        is_hidden: false
+      - name: Budget Units Qty
+        type: number
+        description: Planned sales quantity.
+        agg: sum
+        format: "#,0"
+        is_hidden: false
+    default_measures:
+      - Budget Sales Amount
+    qa:
+      - "Budget Sales Amount >= 0."
+      - "Budget COGS Amount >= 0."
+
+  - name: fact_working_capital
+    purpose: Working capital view by org and period (AR, AP, Inventory).
+    grain: "1 row = org-period-end"
+    keys:
+      - MonthEnd DateKey
+      - OrgKey
+    refs:
+      - column: MonthEnd DateKey
+        dim: dim_date
+      - column: OrgKey
+        dim: dim_org
+    columns:
+      - name: MonthEnd DateKey
+        type: int
+        description: Month end date for the working capital snapshot.
+        agg: none
+        is_hidden: false
+      - name: OrgKey
+        type: int
+        description: Org node.
+        agg: none
+        is_hidden: false
+      - name: AR Balance Amount
+        type: currency
+        description: Accounts receivable balance.
+        agg: sum
+        format: "#,0.00"
+        is_hidden: false
+      - name: AP Balance Amount
+        type: currency
+        description: Accounts payable balance.
+        agg: sum
+        format: "#,0.00"
+        is_hidden: false
+      - name: Inventory Value Amount
+        type: currency
+        description: Inventory value.
+        agg: sum
+        format: "#,0.00"
+        is_hidden: false
+      - name: Period Net Sales Amount
+        type: currency
+        description: Net sales in the period.
+        agg: sum
+        format: "#,0.00"
+        is_hidden: false
+      - name: Period COGS Amount
+        type: currency
+        description: COGS in the period.
+        agg: sum
+        format: "#,0.00"
+        is_hidden: false
+      - name: Days In Period Count
+        type: number
+        description: Number of days in the period.
+        agg: sum
+        format: "#,0"
+        is_hidden: false
+    default_measures:
+      - AR Balance Amount
+      - AP Balance Amount
+      - Inventory Value Amount
+    qa:
+      - "AR/AP/Inventory values >= 0."
+
+  - name: fact_gl_journal
+    purpose: Financial journal lines for corporate and strategy reporting.
+    grain: "1 row = journal line"
+    keys:
+      - JournalLineID
+    refs:
+      - column: DateKey
+        dim: dim_date
+      - column: OrgKey
+        dim: dim_org
+      - column: AccountKey
+        dim: dim_account
+    columns:
+      - name: JournalLineID
+        type: text
+        description: Unique identifier of the journal line.
+        agg: none
+        is_hidden: true
+      - name: DateKey
+        type: int
+        description: Posting date.
+        agg: none
+        is_hidden: false
+      - name: OrgKey
+        type: int
+        description: Posting org.
+        agg: none
+        is_hidden: false
+      - name: AccountKey
+        type: int
+        description: GL account.
+        agg: none
+        is_hidden: false
+      - name: Amount
+        type: currency
+        description: Journal amount.
+        agg: sum
+        format: "#,0.00"
+        is_hidden: false
+      - name: Currency Code
+        type: text
+        description: Currency of the transaction.
+        agg: none
+        is_hidden: false
+      - name: PostingType
+        type: text
+        description: Debit/Credit or other classification.
+        agg: none
+        is_hidden: false
+    default_measures:
+      - Amount
+    qa:
+      - "Sum of amounts by document balanced by accounting rules."
+
+  - name: fact_customer_interactions
+    purpose: Customer interaction events for funnel and engagement analysis.
+    grain: "1 row = interaction event"
+    keys:
+      - InteractionID
+    refs:
+      - column: DateKey
+        dim: dim_date
+      - column: CustomerKey
+        dim: dim_customer
+      - column: OrgKey
+        dim: dim_org
+    columns:
+      - name: InteractionID
+        type: text
+        description: Unique identifier of the interaction event.
+        agg: none
+        is_hidden: true
+      - name: DateKey
+        type: int
+        description: Date of the interaction.
+        agg: none
+        is_hidden: false
+      - name: CustomerKey
+        type: int
+        description: Customer involved in the interaction.
+        agg: none
+        is_hidden: false
+      - name: OrgKey
+        type: int
+        description: Org context (store/site/online region).
+        agg: none
+        is_hidden: false
+      - name: Channel
+        type: text
+        description: Interaction channel (Store/Web/App/CallCenter).
+        agg: none
+        is_hidden: false
+      - name: Interaction Type
+        type: text
+        description: Type of interaction (Visit/Click/AddToCart/Support/Purchase).
+        agg: none
+        is_hidden: false
+      - name: Interaction Count
+        type: number
+        description: Count used for aggregation.
+        agg: sum
+        format: "#,0"
+        is_hidden: false
+    default_measures:
+      - Interaction Count
+    qa:
+      - "Interaction Count >= 1 for each event."
+
+  - name: fact_nps
+    purpose: Net Promoter Score survey responses.
+    grain: "1 row = survey response"
+    keys:
+      - ResponseID
+    refs:
+      - column: DateKey
+        dim: dim_date
+      - column: CustomerKey
+        dim: dim_customer
+      - column: OrgKey
+        dim: dim_org
+    columns:
+      - name: ResponseID
+        type: text
+        description: Unique identifier of the survey response.
+        agg: none
+        is_hidden: true
+      - name: DateKey
+        type: int
+        description: Date of the response.
+        agg: none
+        is_hidden: false
+      - name: CustomerKey
+        type: int
+        description: Responding customer (optional).
+        agg: none
+        is_hidden: false
+      - name: OrgKey
+        type: int
+        description: Org context (store/region).
+        agg: none
+        is_hidden: false
+      - name: NPS Score
+        type: number
+        description: Score from 0 to 10.
+        agg: average
+        format: "0"
+        is_hidden: false
+      - name: Is Promoter
+        type: bool
+        description: Flag for promoter (9-10).
+        agg: none
+        is_hidden: false
+      - name: Is Detractor
+        type: bool
+        description: Flag for detractor (0-6).
+        agg: none
+        is_hidden: false
+    default_measures:
+      - NPS Score
+    qa:
+      - "NPS Score in [0;10]."
+      - "Is Promoter and Is Detractor mutually exclusive."
+
+  - name: fact_esg_emissions
+    purpose: ESG emissions and energy consumption by site, scope and period.
+    grain: "1 row = site-scope-month"
+    keys:
+      - MonthEnd DateKey
+      - ESGSiteKey
+      - Scope
+    refs:
+      - column: MonthEnd DateKey
+        dim: dim_date
+      - column: ESGSiteKey
+        dim: dim_esg_site
+    columns:
+      - name: MonthEnd DateKey
+        type: int
+        description: Month end date.
+        agg: none
+        is_hidden: false
+      - name: ESGSiteKey
+        type: int
+        description: ESG-relevant site.
+        agg: none
+        is_hidden: false
+      - name: Scope
+        type: text
+        description: Emission scope (1/2/3).
+        agg: none
+        is_hidden: false
+      - name: Emission tCO2e
+        type: number
+        description: Emissions in tons of CO2 equivalent.
+        agg: sum
+        format: "#,0.0"
+        is_hidden: false
+      - name: Energy kWh
+        type: number
+        description: Energy consumption in kWh.
+        agg: sum
+        format: "#,0"
+        is_hidden: false
+    default_measures:
+      - Emission tCO2e
+      - Energy kWh
+    qa:
+      - "Emission tCO2e >= 0."
+      - "Energy kWh >= 0."
+
+  - name: fact_employee_snapshot
+    purpose: Monthly employee status for HR and People analytics.
+    grain: "1 row = employee-month"
+    keys:
+      - MonthEnd DateKey
+      - EmployeeKey
+    refs:
+      - column: MonthEnd DateKey
+        dim: dim_date
+      - column: EmployeeKey
+        dim: dim_employee
+      - column: OrgKey
+        dim: dim_org
+    columns:
+      - name: MonthEnd DateKey
+        type: int
+        description: Month end date.
+        agg: none
+        is_hidden: false
+      - name: EmployeeKey
+        type: int
+        description: Employee.
+        agg: none
+        is_hidden: false
+      - name: OrgKey
+        type: int
+        description: Org assignment for the month.
+        agg: none
+        is_hidden: false
+      - name: FTE Count
+        type: number
+        description: Full-time equivalent value.
+        agg: sum
+        format: "0.0"
+        is_hidden: false
+      - name: Cost Amount
+        type: currency
+        description: Personnel cost in the period.
+        agg: sum
+        format: "#,0.00"
+        is_hidden: false
+      - name: Is Attrition
+        type: bool
+        description: Flag if the employee left in this period.
+        agg: none
+        is_hidden: false
+    default_measures:
+      - FTE Count
+      - Cost Amount
+    qa:
+      - "FTE Count in [0;1.5] per employee-month."
+
+  - name: fact_innovation_pipeline
+    purpose: Innovation project pipeline and performance.
+    grain: "1 row = project-month"
+    keys:
+      - MonthEnd DateKey
+      - ProjectKey
+    refs:
+      - column: MonthEnd DateKey
+        dim: dim_date
+      - column: OrgKey
+        dim: dim_org
+    columns:
+      - name: MonthEnd DateKey
+        type: int
+        description: Month end date.
+        agg: none
+        is_hidden: false
+      - name: ProjectKey
+        type: int
+        description: Synthetic project identifier.
+        agg: none
+        is_hidden: false
+      - name: OrgKey
+        type: int
+        description: Org responsible for the project.
+        agg: none
+        is_hidden: false
+      - name: Stage
+        type: text
+        description: Stage in the innovation funnel (Idea/MVP/Rollout/Closed).
+        agg: none
+        is_hidden: false
+      - name: Spend Amount
+        type: currency
+        description: Cumulative spend in the period.
+        agg: sum
+        format: "#,0.00"
+        is_hidden: false
+      - name: Expected Impact Amount
+        type: currency
+        description: Expected annual benefit at steady state.
+        agg: sum
+        format: "#,0.00"
+        is_hidden: false
+      - name: Status
+        type: text
+        description: Status (On-Track/Delayed/Stopped).
+        agg: none
+        is_hidden: false
+    default_measures:
+      - Spend Amount
+      - Expected Impact Amount
+    qa:
+      - "Spend Amount >= 0."
+      - "Expected Impact Amount >= 0."
+
+  - name: fact_action_log
+    purpose: Logged actions taken from analytics insights (Action Codes).
+    grain: "1 row = action event"
+    keys:
+      - ActionID
+    refs:
+      - column: DateKey
+        dim: dim_date
+      - column: OrgKey
+        dim: dim_org
+    columns:
+      - name: ActionID
+        type: text
+        description: Unique action identifier.
+        agg: none
+        is_hidden: true
+      - name: DateKey
+        type: int
+        description: Date of the action.
+        agg: none
+        is_hidden: false
+      - name: OrgKey
+        type: int
+        description: Org context of the action.
+        agg: none
+        is_hidden: false
+      - name: UseCaseID
+        type: text
+        description: Use Case that generated the action.
+        agg: none
+        is_hidden: false
+      - name: Action Type
+        type: text
+        description: Type of action (PriceChange/Reallocation/PromoChange/etc.).
+        agg: none
+        is_hidden: false
+      - name: Action Outcome
+        type: text
+        description: Outcome classification (Success/Neutral/Failed) if known.
+        agg: none
+        is_hidden: false
+    default_measures:
+      - ActionID
+    qa:
+      - "Each ActionID unique."

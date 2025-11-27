@@ -1,0 +1,142 @@
+company: Aurora Group SE
+description: >
+  Core v1 scope for synthetic data generation in Aurora Group.
+  Covers the most important Core Use Cases every company needs,
+  backed by the Lakehouse backbone model.
+
+time:
+  facts_start: 2020-01-01
+  facts_end: 2024-12-31
+
+core_usecases:
+  - COM-001  # Sales Performance vs Plan & LY
+  - COM-002  # Gross Margin Analysis
+  - COM-004  # Price-Volume-Mix Bridge (Δ Net Sales & Δ Gross Margin)
+  - COR-001  # Working Capital & CCC
+  - COR-004  # Strategic KPI Dashboard (Enterprise Performance Overview)
+  - COR-005  # Profitability Overview (EBITDA & Net Margin)
+  - OPS-001  # Cash Conversion Cycle
+  - OPS-002  # Inventory Health & Stock-Out Prevention
+  - CST-001  # Customer Retention & Churn Analysis
+  - CST-005  # NPS Analysis
+  - ESG-001  # Emission Tracking & Reporting
+  - INN-001  # Innovation Pipeline Performance
+
+datasets:
+  # Core dimensions
+  - table: dim_date
+    status: planned
+    period:
+      start: 2018-01-01
+      end: 2028-12-31
+    notes: Calendar and fiscal dates for all core facts.
+    covers_usecases: [COM-001, COM-002, COM-004, COR-001, COR-004, COR-005, OPS-001, OPS-002, CST-001, CST-005, ESG-001, INN-001]
+
+  - table: dim_org
+    status: planned
+    notes: Org hierarchy for all regions, channels and sites.
+    covers_usecases: [COM-001, COM-002, COM-004, COR-001, COR-004, COR-005, OPS-001, OPS-002, CST-001, CST-005, ESG-001, INN-001]
+
+  - table: dim_product
+    status: planned
+    notes: Product master for all commercial and operational use cases.
+    covers_usecases: [COM-001, COM-002, COM-004, OPS-001, OPS-002]
+
+  - table: dim_customer
+    status: planned
+    notes: PII-free customer segmentation.
+    covers_usecases: [CST-001, CST-005]
+
+  - table: dim_promo
+    status: planned
+    notes: Promotion master linked to fact_sales.
+    covers_usecases: [COM-001, COM-002, COM-004]
+
+  - table: dim_currency
+    status: planned
+    notes: Multi-currency dimension for all financial use cases.
+    covers_usecases: [COM-001, COM-002, COR-001, COR-004, COR-005, OPS-001, OPS-002]
+
+  - table: dim_account
+    status: planned
+    notes: Chart of accounts for profitability and corporate reporting.
+    covers_usecases: [COR-001, COR-004, COR-005]
+
+  - table: dim_esg_site
+    status: planned
+    notes: ESG-relevant sites for emission tracking.
+    covers_usecases: [ESG-001]
+
+  # Core facts
+  - table: fact_sales
+    status: planned
+    period:
+      start: 2020-01-01
+      end: 2024-12-31
+    volume_hint: "~ 30-80 million invoice_line rows"
+    notes: Core sales backbone for Commercial and Corporate use cases.
+    covers_usecases: [COM-001, COM-002, COM-004, COR-001, COR-004, COR-005, OPS-001, OPS-002, CST-001]
+
+  - table: fact_sales_budget
+    status: planned
+    period:
+      start: 2020-01-01
+      end: 2024-12-31
+    notes: Sales budget for plan vs actual comparisons.
+    covers_usecases: [COM-001, COR-004, COR-005]
+
+  - table: fact_inventory_snapshot
+    status: planned
+    period:
+      start: 2020-01-01
+      end: 2024-12-31
+    notes: Inventory backbone for store/DC product snapshots.
+    covers_usecases: [OPS-001, OPS-002, COR-001]
+
+  - table: fact_working_capital
+    status: planned
+    period:
+      start: 2020-01-01
+      end: 2024-12-31
+    notes: Working capital (AR, AP, Inventory) for CCC and strategic KPIs.
+    covers_usecases: [COR-001, OPS-001, COR-004]
+
+  - table: fact_gl_journal
+    status: planned
+    period:
+      start: 2020-01-01
+      end: 2024-12-31
+    notes: GL journal lines for profitability and strategic reporting.
+    covers_usecases: [COR-004, COR-005]
+
+  - table: fact_customer_interactions
+    status: planned
+    period:
+      start: 2020-01-01
+      end: 2024-12-31
+    notes: Customer interaction backbone (visits, clicks, purchases, support).
+    covers_usecases: [CST-001]
+
+  - table: fact_nps
+    status: planned
+    period:
+      start: 2020-01-01
+      end: 2024-12-31
+    notes: NPS survey responses.
+    covers_usecases: [CST-005]
+
+  - table: fact_esg_emissions
+    status: planned
+    period:
+      start: 2020-01-01
+      end: 2024-12-31
+    notes: Emissions and energy consumption by site and scope.
+    covers_usecases: [ESG-001]
+
+  - table: fact_innovation_pipeline
+    status: planned
+    period:
+      start: 2020-01-01
+      end: 2024-12-31
+    notes: Innovation project pipeline data.
+    covers_usecases: [INN-001]

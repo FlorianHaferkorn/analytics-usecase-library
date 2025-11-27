@@ -1,0 +1,155 @@
+company: Aurora Group SE
+description: >
+  Synthetic configuration for Aurora Group Core Use Cases (v1).
+  Defines time ranges, organization, product, customer and business drivers
+  used by the generators to populate the backbone tables.
+
+random_seed: 12345
+
+time:
+  dim_date_start: 2018-01-01
+  dim_date_end: 2028-12-31
+  facts_start: 2020-01-01
+  facts_end: 2024-12-31
+
+lakehouse:
+  name: "lh_aurora_backbone"
+  schema: "gold"
+  tables:
+    dim_date: "gold.dim_date"
+    dim_org: "gold.dim_org"
+    dim_product: "gold.dim_product"
+    dim_customer: "gold.dim_customer"
+    dim_promo: "gold.dim_promo"
+    dim_currency: "gold.dim_currency"
+    dim_account: "gold.dim_account"
+    dim_esg_site: "gold.dim_esg_site"
+    fact_sales: "gold.fact_sales"
+    fact_sales_budget: "gold.fact_sales_budget"
+    fact_inventory_snapshot: "gold.fact_inventory_snapshot"
+    fact_working_capital: "gold.fact_working_capital"
+    fact_gl_journal: "gold.fact_gl_journal"
+    fact_customer_interactions: "gold.fact_customer_interactions"
+    fact_nps: "gold.fact_nps"
+    fact_esg_emissions: "gold.fact_esg_emissions"
+    fact_innovation_pipeline: "gold.fact_innovation_pipeline"
+
+org:
+  regions:
+    - id: "DACH"
+      weight: 0.35
+      countries: ["DE", "AT", "CH"]
+      store_count: 180
+      dc_count: 2
+    - id: "Benelux"
+      weight: 0.15
+      countries: ["NL", "BE", "LU"]
+      store_count: 80
+      dc_count: 1
+    - id: "Nordics"
+      weight: 0.15
+      countries: ["SE", "NO", "DK"]
+      store_count: 80
+      dc_count: 1
+    - id: "SouthernEurope"
+      weight: 0.20
+      countries: ["ES", "IT", "PT"]
+      store_count: 100
+      dc_count: 1
+    - id: "CEE"
+      weight: 0.15
+      countries: ["PL", "CZ", "HU"]
+      store_count: 60
+      dc_count: 1
+
+  channels_mix:
+    Store: 0.55
+    ECom: 0.30
+    Marketplace: 0.10
+    Wholesale: 0.05
+
+products:
+  categories:
+    - name: "Fashion"
+      share_of_revenue: 0.45
+      product_count: 2500
+      gross_margin_range: [0.45, 0.65]
+    - name: "Home & Living"
+      share_of_revenue: 0.30
+      product_count: 1500
+      gross_margin_range: [0.35, 0.55]
+    - name: "Consumer Electronics"
+      share_of_revenue: 0.25
+      product_count: 1000
+      gross_margin_range: [0.20, 0.40]
+
+  price_points:
+    min_list_price: 5
+    max_list_price: 2500
+
+customers:
+  total_customers: 2000000
+  segment_shares:
+    Loyalty: 0.25
+    Occasional: 0.40
+    New: 0.20
+    HighValue: 0.10
+    ChurnRisk: 0.05
+
+seasonality:
+  month_index:
+    "01": 0.85
+    "02": 0.90
+    "03": 1.00
+    "04": 1.05
+    "05": 1.00
+    "06": 1.05
+    "07": 1.10
+    "08": 0.95
+    "09": 1.05
+    "10": 1.10
+    "11": 1.40   # peak season start
+    "12": 1.60   # strongest month
+  weekday_index:
+    Mon: 0.95
+    Tue: 1.00
+    Wed: 1.05
+    Thu: 1.10
+    Fri: 1.20
+    Sat: 1.30
+    Sun: 0.40   # assume reduced trading
+
+promotions:
+  share_of_revenue: 0.25
+  avg_discount_pct_range: [0.10, 0.30]
+  uplift_range_qty: [0.20, 0.80]
+  avg_campaign_duration_days: 14
+  max_parallel_campaigns_per_org: 5
+
+sales_generation:
+  base_daily_sales_per_store_eur_range: [5000, 15000]
+  volatility_std_pct: 0.15
+
+inventory:
+  target_dio_range: [45, 75]
+  min_stock_coverage_days: 15
+  max_stock_coverage_days: 120
+
+working_capital:
+  ar_days_range: [20, 45]
+  ap_days_range: [30, 60]
+  target_ccc_days_range: [45, 75]
+
+nps:
+  score_distribution:
+    promoter: 0.45
+    passive: 0.35
+    detractor: 0.20
+
+esg:
+  emission_intensity_kg_per_eur_range: [0.20, 1.50]
+  energy_intensity_kwh_per_m2_range: [50, 350]
+
+innovation:
+  active_projects_range: [20, 80]
+  avg_project_duration_months_range: [6, 24]

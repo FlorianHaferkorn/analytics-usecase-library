@@ -28,7 +28,7 @@ The Library operationalizes the Reporting Framework defined in `./docs/Reporting
 |----------|------|---------|
 | Reporting Strategy | Levels (Strategic, Tactical, Operational) and analytics maturity (Descriptive -> Prescriptive) | `./docs/Reporting_Strategy.md` |
 | Cluster (Domain) | Groups related business topics | `./usecases/01_Commercial/` |
-| Use Case | One analytical question with KPIs and actions | `./usecases/01_Commercial/COM-001_Sales_Performance/FactSheet.md` |
+| Use Case | One analytical question with KPIs and actions | `./usecases/01_Commercial/COM-001_Sales_Performance/Business_Factsheet.md` |
 | KPI Catalog & Action Codes | Shared semantics and operational levers | `./_includes/kpi_catalog/README.md`, `./_includes/ActionCodes.md` |
 
 Each Use Case is classified by:
@@ -50,48 +50,18 @@ analytics-usecase-library/
   usecases/
     01_Commercial/
       COM-001_Sales_Performance/
-        FactSheet.md
+        Business_Factsheet.md   # front-matter + business narrative
+        Technical_Factsheet.md  # data contract, semantic model, KPIs
+        FactSheet.md            # legacy stub pointing to the two files
         README.md
       COM-002_Gross_Margin_Analysis/
+        Business_Factsheet.md
+        Technical_Factsheet.md
         FactSheet.md
         README.md
       COM-003_Promotion_Effectiveness/
-        FactSheet.md
-        README.md
-      COM-004_Price_Volume_Mix_Bridge/
-        FactSheet.md
-        README.md
-    02_Operational_Efficiency/
-      OPS-001_Cash_Conversion_Cycle/
-        FactSheet.md
-        README.md
-      OPS-002_Inventory_Health/
-        FactSheet.md
-        README.md
-      OPS-003_Purchase_Price_Variance/
-        FactSheet.md
-        README.md
-      OPS-004_Replenishment_Optimization/
-        FactSheet.md
-        README.md
-    03_Customer_and_Market/
-      CST-001_Customer_Retention_and_Churn/
-        FactSheet.md
-        README.md
-      CST-002_Product_Lifecycle_Performance/
-        FactSheet.md
-        README.md
-    04_Corporate_and_Strategy/
-      COR-001_Project_ROI_and_Benefit_Tracking/
-        FactSheet.md
-        README.md
-      COR-002_Workforce_Productivity_and_Turnover/
-        FactSheet.md
-        README.md
-      COR-003_ESG_and_Compliance_Monitoring/
-        FactSheet.md
-        README.md
-      COR-004_Strategic_KPI_Dashboard/
+        Business_Factsheet.md
+        Technical_Factsheet.md
         FactSheet.md
         README.md
   _includes/
@@ -124,7 +94,7 @@ analytics-usecase-library/
       generate_tmdl_measures.ps1
 ```
 
-Last updated: 04.11.2025
+Last updated: 27.11.2025
 
 ---
 
@@ -139,9 +109,9 @@ From the repo root:
 ```
 
 This runs:
-- `tools/coverage/validate_factsheets.ps1` – checks FactSheet frontmatter/schema.
-- `tools/coverage/validate_kpi_catalog.ps1` – validates KPI catalog blocks.
-- `tools/coverage/check_factsheet_vs_kpi.ps1` – verifies that all `required_kpi_ids` exist in the KPI catalogs.
+- `tools/coverage/validate_factsheets.ps1` - checks Business factsheet frontmatter/schema (via the FactSheet stub pointers).
+- `tools/coverage/validate_kpi_catalog.ps1` - validates KPI catalog blocks.
+- `tools/coverage/check_factsheet_vs_kpi.ps1` - verifies that all `required_kpi_ids` exist in the KPI catalogs.
 
 Use this after edits to Use Cases or KPI catalogs.
 
@@ -153,7 +123,7 @@ From the repo root:
 ./tools/generate/generate_tmdl_measures.ps1 -UseCase COM-001
 ```
 
-- Reads `required_kpi_ids` from `usecases/.../COM-001*/FactSheet.md`.
+- Reads `required_kpi_ids` from `usecases/.../COM-001*/Business_Factsheet.md` (or follows the `FactSheet.md` pointer).
 - Looks up KPI metadata in `_includes/kpi_catalog/*.md`.
 - Writes/overwrites `dist/COM-001/.../_Measures.tmdl` and `measures_manifest.json`.
 
