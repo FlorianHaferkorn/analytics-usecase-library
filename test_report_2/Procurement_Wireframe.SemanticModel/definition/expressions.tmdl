@@ -1,7 +1,0 @@
-expression Source = "C:\Users\florianhaferkorn\OneDrive - Nagarro\Desktop\Power BI - Architecture\powerbi_einkauf_sampledata.xlsx" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
-	lineageTag: 6c0e81b3-b276-45c5-8aaa-80859ecc8e2a
-
-	annotation PBI_NavigationStepName = Navigation
-
-	annotation PBI_ResultType = Text
-

@@ -26,7 +26,7 @@ function Resolve-RepoPath {
 
 function Split-KpiChunks {
   param([string]$Block)
-  $listMatches = [regex]::Matches($Block, '(?m)^\s*-\s*kpi_id\s*:\s*"([^"]+)"')
+  $listMatches = [regex]::Matches($Block, '(?m)^\s*-\s*kpi_id\s*:\s*"?([^"\r\n]+)"?')
   $chunks = @()
   if ($listMatches.Count -gt 0) {
     for ($i = 0; $i -lt $listMatches.Count; $i++) {
@@ -43,7 +43,7 @@ function Split-KpiChunks {
 
 function Parse-KpiRecord {
   param([string]$Chunk)
-  $idMatch = [regex]::Match($Chunk, '(?m)^\s*-?\s*kpi_id\s*:\s*"([^"]+)"')
+  $idMatch = [regex]::Match($Chunk, '(?m)^\s*-?\s*kpi_id\s*:\s*"?([^"\r\n]+)"?')
   if (-not $idMatch.Success) { return $null }
   return $idMatch.Groups[1].Value
 }
@@ -74,6 +74,10 @@ Write-Host "  Dist root:      $resolvedDistRoot" -ForegroundColor DarkGray
 Write-Host "  KPI catalog:    $resolvedKpiRoot" -ForegroundColor DarkGray
 
 $kpiIndex = Load-KpiCatalogIndex -Root $resolvedKpiRoot
+if (-not $kpiIndex) {
+  # Defensive fallback so the script does not break when catalog parsing yields no IDs
+  $kpiIndex = New-Object System.Collections.Generic.HashSet[string]
+}
 
 $measuresFiles = Get-ChildItem -Path $resolvedDistRoot -Recurse -Filter '_Measures.tmdl'
 if ($measuresFiles.Count -eq 0) {

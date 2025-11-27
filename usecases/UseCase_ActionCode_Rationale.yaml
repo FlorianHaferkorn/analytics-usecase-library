@@ -1,0 +1,901 @@
+use_cases:
+  COM-001:
+    C-P1.1:
+      driver: This action code targets a key driver of 'Price Realization %' within 'Sales Performance vs Plan & LY'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Correct Price Leakage (Micro Adjustments) is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Volume Growth %, Price Realization %."
+      data_trigger: "Trigger example: when Price Realization % deviates negatively from target or plan beyond a defined threshold."
+    C-P1.2:
+      driver: This action code targets a key driver of 'Discount Rate %' within 'Sales Performance vs Plan & LY'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Tighten Discount Policy is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Volume Growth %, Price Realization %."
+      data_trigger: "Trigger example: when Discount Rate % deviates negatively from target or plan beyond a defined threshold."
+    C-P1.3:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Sales Performance vs Plan & LY'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Strategic Repricing is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Volume Growth %, Price Realization %."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+  COM-002:
+    C-M1.1:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Gross Margin Analysis'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, Revenue Growth %."
+      business_logic: Product Mix Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: COGS Amount, Product Mix %."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+    C-M1.2:
+      driver: This action code targets a key driver of 'Promo ROI %' within 'Gross Margin Analysis'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, Revenue Growth %."
+      business_logic: Promotion ROI Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: COGS Amount, Product Mix %."
+      data_trigger: "Trigger example: when Promo ROI % deviates negatively from target or plan beyond a defined threshold."
+    C-P1.3:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Gross Margin Analysis'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, Revenue Growth %."
+      business_logic: Strategic Repricing is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: COGS Amount, Product Mix %."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+  COM-003:
+    C-M1.1:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Product Mix & Contribution'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, Revenue Growth %."
+      business_logic: Product Mix Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Product Mix %, Contribution Margin %."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+    C-M1.2:
+      driver: This action code targets a key driver of 'Promo ROI %' within 'Product Mix & Contribution'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, Revenue Growth %."
+      business_logic: Promotion ROI Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Product Mix %, Contribution Margin %."
+      data_trigger: "Trigger example: when Promo ROI % deviates negatively from target or plan beyond a defined threshold."
+    C-P1.3:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Product Mix & Contribution'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, Revenue Growth %."
+      business_logic: Strategic Repricing is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Product Mix %, Contribution Margin %."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+  COM-004:
+    C-P1.1:
+      driver: This action code targets a key driver of 'Price Realization %' within 'Price-Volume-Mix Bridge (Δ Net Sales & Δ Gross Margin)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Correct Price Leakage (Micro Adjustments) is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Effect, Volume Effect, Mix Effect."
+      data_trigger: "Trigger example: when Price Realization % deviates negatively from target or plan beyond a defined threshold."
+    C-P1.2:
+      driver: This action code targets a key driver of 'Discount Rate %' within 'Price-Volume-Mix Bridge (Δ Net Sales & Δ Gross Margin)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Tighten Discount Policy is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Effect, Volume Effect, Mix Effect."
+      data_trigger: "Trigger example: when Discount Rate % deviates negatively from target or plan beyond a defined threshold."
+    C-M1.1:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Price-Volume-Mix Bridge (Δ Net Sales & Δ Gross Margin)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Product Mix Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Effect, Volume Effect, Mix Effect."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+    C-M1.2:
+      driver: This action code targets a key driver of 'Promo ROI %' within 'Price-Volume-Mix Bridge (Δ Net Sales & Δ Gross Margin)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Promotion ROI Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Effect, Volume Effect, Mix Effect."
+      data_trigger: "Trigger example: when Promo ROI % deviates negatively from target or plan beyond a defined threshold."
+    C-P1.3:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Price-Volume-Mix Bridge (Δ Net Sales & Δ Gross Margin)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Strategic Repricing is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Effect, Volume Effect, Mix Effect."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+  COM-005:
+    C-M1.1:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Promotion ROI & Effectiveness'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, Revenue Growth %."
+      business_logic: Product Mix Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Promo ROI %, Incremental Sales %."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+    C-M1.2:
+      driver: This action code targets a key driver of 'Promo ROI %' within 'Promotion ROI & Effectiveness'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, Revenue Growth %."
+      business_logic: Promotion ROI Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Promo ROI %, Incremental Sales %."
+      data_trigger: "Trigger example: when Promo ROI % deviates negatively from target or plan beyond a defined threshold."
+    C-P1.3:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Promotion ROI & Effectiveness'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, Revenue Growth %."
+      business_logic: Strategic Repricing is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Promo ROI %, Incremental Sales %."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+  COM-006:
+    C-P1.3:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Customer Profitability'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, CLV %."
+      business_logic: Strategic Repricing is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Customer Margin %, Volume %."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+  COM-007:
+    C-P1.1:
+      driver: This action code targets a key driver of 'Price Realization %' within 'Price–Volume–Mix Bridge (Portfolio & Strategic View)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Correct Price Leakage (Micro Adjustments) is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Effect, Volume Effect, Mix Effect."
+      data_trigger: "Trigger example: when Price Realization % deviates negatively from target or plan beyond a defined threshold."
+    C-P1.2:
+      driver: This action code targets a key driver of 'Discount Rate %' within 'Price–Volume–Mix Bridge (Portfolio & Strategic View)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Tighten Discount Policy is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Effect, Volume Effect, Mix Effect."
+      data_trigger: "Trigger example: when Discount Rate % deviates negatively from target or plan beyond a defined threshold."
+    C-M1.1:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Price–Volume–Mix Bridge (Portfolio & Strategic View)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Product Mix Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Effect, Volume Effect, Mix Effect."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+    C-M1.2:
+      driver: This action code targets a key driver of 'Promo ROI %' within 'Price–Volume–Mix Bridge (Portfolio & Strategic View)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Promotion ROI Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Effect, Volume Effect, Mix Effect."
+      data_trigger: "Trigger example: when Promo ROI % deviates negatively from target or plan beyond a defined threshold."
+    C-P1.3:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Price–Volume–Mix Bridge (Portfolio & Strategic View)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Strategic Repricing is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Effect, Volume Effect, Mix Effect."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+  COM-008:
+    C-M1.1:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Sales Forecast Accuracy'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Working Capital %."
+      business_logic: Product Mix Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Forecast Accuracy %, MAPE, Bias %."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+    C-M1.2:
+      driver: This action code targets a key driver of 'Promo ROI %' within 'Sales Forecast Accuracy'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Working Capital %."
+      business_logic: Promotion ROI Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Forecast Accuracy %, MAPE, Bias %."
+      data_trigger: "Trigger example: when Promo ROI % deviates negatively from target or plan beyond a defined threshold."
+  COM-009:
+    C-M1.1:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Channel Mix Performance'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Product Mix Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Channel Mix %, Channel Margin %."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+    C-M1.2:
+      driver: This action code targets a key driver of 'Promo ROI %' within 'Channel Mix Performance'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Promotion ROI Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Channel Mix %, Channel Margin %."
+      data_trigger: "Trigger example: when Promo ROI % deviates negatively from target or plan beyond a defined threshold."
+    C-P1.3:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Channel Mix Performance'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Strategic Repricing is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Channel Mix %, Channel Margin %."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+  COM-010:
+    C-P1.3:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Sales Funnel & Win–Loss Analysis'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Customer Retention %."
+      business_logic: Strategic Repricing is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Win Rate %, Stage Conversion %."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+    C-M1.1:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Sales Funnel & Win–Loss Analysis'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Customer Retention %."
+      business_logic: Product Mix Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Win Rate %, Stage Conversion %."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+  COM-011:
+    C-P1.3:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Innovation Revenue Contribution'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Innovation Rate %."
+      business_logic: Strategic Repricing is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: New Product Revenue %, Innovation Rate %."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+    C-M1.1:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Innovation Revenue Contribution'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Innovation Rate %."
+      business_logic: Product Mix Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: New Product Revenue %, Innovation Rate %."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+  COM-012:
+    C-P1.1:
+      driver: This action code targets a key driver of 'Price Realization %' within 'Dynamic Pricing Optimization'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Correct Price Leakage (Micro Adjustments) is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Realization %, Promo Uplift %, Elasticity."
+      data_trigger: "Trigger example: when Price Realization % deviates negatively from target or plan beyond a defined threshold."
+    C-P1.2:
+      driver: This action code targets a key driver of 'Discount Rate %' within 'Dynamic Pricing Optimization'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Tighten Discount Policy is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Realization %, Promo Uplift %, Elasticity."
+      data_trigger: "Trigger example: when Discount Rate % deviates negatively from target or plan beyond a defined threshold."
+    C-M1.1:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Dynamic Pricing Optimization'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Product Mix Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Realization %, Promo Uplift %, Elasticity."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+    C-M1.2:
+      driver: This action code targets a key driver of 'Promo ROI %' within 'Dynamic Pricing Optimization'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Promotion ROI Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Realization %, Promo Uplift %, Elasticity."
+      data_trigger: "Trigger example: when Promo ROI % deviates negatively from target or plan beyond a defined threshold."
+    C-P1.3:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Dynamic Pricing Optimization'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %."
+      business_logic: Strategic Repricing is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Realization %, Promo Uplift %, Elasticity."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+  COM-014:
+    C-P1.3:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Markdown Optimization'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, Revenue Growth %, Working Capital %."
+      business_logic: Strategic Repricing is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Markdown %, Sell-Through %, DIO."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+  COM-015:
+    C-P1.3:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Innovation Launch Tracking'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Innovation Rate %."
+      business_logic: Strategic Repricing is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Distribution %, Trial Rate, Repeat Rate."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+    C-M1.1:
+      driver: This action code targets a key driver of 'Gross Margin %' within 'Innovation Launch Tracking'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Innovation Rate %."
+      business_logic: Product Mix Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Commercial', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Distribution %, Trial Rate, Repeat Rate."
+      data_trigger: "Trigger example: when Gross Margin % deviates negatively from target or plan beyond a defined threshold."
+  COR-001:
+    CS-W1.1:
+      driver: This action code targets a key driver of 'DSO' within 'Working Capital & CCC'.
+      kpi_link: "Directly linked to strategic KPI: Working Capital %, CCC Days."
+      business_logic: Reduce Days Sales Outstanding (DSO) is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: DSO, DPO, Inventory Days."
+      data_trigger: "Trigger example: when DSO deviates negatively from target or plan beyond a defined threshold."
+  COR-002:
+    CS-F1.1:
+      driver: This action code targets a key driver of 'Forecast Accuracy %' within 'Cash Flow Forecast Accuracy'.
+      kpi_link: "Directly linked to strategic KPI: Cash Flow Accuracy %, Liquidity %."
+      business_logic: Forecast Accuracy Improvement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Forecast Accuracy %, Cash Flow Variance."
+      data_trigger: "Trigger example: when Forecast Accuracy % deviates negatively from target or plan beyond a defined threshold."
+  COR-003:
+    CS-F1.1:
+      driver: This action code targets a key driver of 'Forecast Accuracy %' within 'Financial Closing Timeliness'.
+      kpi_link: "Directly linked to strategic KPI: Data Quality %, Reporting Timeliness %."
+      business_logic: Forecast Accuracy Improvement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Days to Close, Error Rate %."
+      data_trigger: "Trigger example: when Forecast Accuracy % deviates negatively from target or plan beyond a defined threshold."
+    CS-W1.1:
+      driver: This action code targets a key driver of 'DSO' within 'Financial Closing Timeliness'.
+      kpi_link: "Directly linked to strategic KPI: Data Quality %, Reporting Timeliness %."
+      business_logic: Reduce Days Sales Outstanding (DSO) is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Days to Close, Error Rate %."
+      data_trigger: "Trigger example: when DSO deviates negatively from target or plan beyond a defined threshold."
+  COR-004:
+    CS-F1.1:
+      driver: This action code targets a key driver of 'Forecast Accuracy %' within 'Strategic KPI Dashboard (Enterprise Performance Overview)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %, Cash Conversion Cycle, ESG-Aligned Revenue %, Turnover %, Project ROI %."
+      business_logic: Forecast Accuracy Improvement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Net Sales Δ%, GM %, CCC Days, ESG Share %, Turnover Rate %, Project ROI %."
+      data_trigger: "Trigger example: when Forecast Accuracy % deviates negatively from target or plan beyond a defined threshold."
+    CS-W1.1:
+      driver: This action code targets a key driver of 'DSO' within 'Strategic KPI Dashboard (Enterprise Performance Overview)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %, Cash Conversion Cycle, ESG-Aligned Revenue %, Turnover %, Project ROI %."
+      business_logic: Reduce Days Sales Outstanding (DSO) is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Net Sales Δ%, GM %, CCC Days, ESG Share %, Turnover Rate %, Project ROI %."
+      data_trigger: "Trigger example: when DSO deviates negatively from target or plan beyond a defined threshold."
+  COR-005:
+    CS-E1.1:
+      driver: This action code targets a key driver of 'SG&A Ratio %' within 'Profitability Overview (EBITDA & Net Margin)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %, EBITDA Margin %."
+      business_logic: SG&A Ratio Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Net Sales, COGS, OpEx, EBITDA."
+      data_trigger: "Trigger example: when SG&A Ratio % deviates negatively from target or plan beyond a defined threshold."
+  COR-006:
+    CS-F1.1:
+      driver: This action code targets a key driver of 'Forecast Accuracy %' within 'Headcount Efficiency & Revenue per FTE'.
+      kpi_link: "Directly linked to strategic KPI: Revenue per FTE, Personnel Cost Ratio %."
+      business_logic: Forecast Accuracy Improvement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: FTE Count, Personnel Cost Amount."
+      data_trigger: "Trigger example: when Forecast Accuracy % deviates negatively from target or plan beyond a defined threshold."
+    CS-W1.1:
+      driver: This action code targets a key driver of 'DSO' within 'Headcount Efficiency & Revenue per FTE'.
+      kpi_link: "Directly linked to strategic KPI: Revenue per FTE, Personnel Cost Ratio %."
+      business_logic: Reduce Days Sales Outstanding (DSO) is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: FTE Count, Personnel Cost Amount."
+      data_trigger: "Trigger example: when DSO deviates negatively from target or plan beyond a defined threshold."
+  COR-007:
+    CS-F1.1:
+      driver: This action code targets a key driver of 'Forecast Accuracy %' within 'Employee Turnover & Retention'.
+      kpi_link: "Directly linked to strategic KPI: Employee Turnover %, Absenteeism %."
+      business_logic: Forecast Accuracy Improvement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Leavers, Absence Hours, Tenure Bands."
+      data_trigger: "Trigger example: when Forecast Accuracy % deviates negatively from target or plan beyond a defined threshold."
+    CS-W1.1:
+      driver: This action code targets a key driver of 'DSO' within 'Employee Turnover & Retention'.
+      kpi_link: "Directly linked to strategic KPI: Employee Turnover %, Absenteeism %."
+      business_logic: Reduce Days Sales Outstanding (DSO) is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Leavers, Absence Hours, Tenure Bands."
+      data_trigger: "Trigger example: when DSO deviates negatively from target or plan beyond a defined threshold."
+  COR-008:
+    CS-F1.1:
+      driver: This action code targets a key driver of 'Forecast Accuracy %' within 'Cybersecurity Incident Monitoring'.
+      kpi_link: "Directly linked to strategic KPI: Cyber Incident Count, Compliance Incidents."
+      business_logic: Forecast Accuracy Improvement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Incident Volume, Severity, MTTR."
+      data_trigger: "Trigger example: when Forecast Accuracy % deviates negatively from target or plan beyond a defined threshold."
+    CS-W1.1:
+      driver: This action code targets a key driver of 'DSO' within 'Cybersecurity Incident Monitoring'.
+      kpi_link: "Directly linked to strategic KPI: Cyber Incident Count, Compliance Incidents."
+      business_logic: Reduce Days Sales Outstanding (DSO) is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Incident Volume, Severity, MTTR."
+      data_trigger: "Trigger example: when DSO deviates negatively from target or plan beyond a defined threshold."
+  COR-009:
+    CS-C1.1:
+      driver: This action code targets a key driver of 'CapEx Allocation Efficiency' within 'Investment & CapEx Tracking'.
+      kpi_link: "Directly linked to strategic KPI: CapEx Ratio %, Free Cash Flow."
+      business_logic: CapEx Prioritization Review is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: CapEx Amount, OCF Amount."
+      data_trigger: "Trigger example: when CapEx Allocation Efficiency deviates negatively from target or plan beyond a defined threshold."
+  COR-010:
+    CS-W1.1:
+      driver: This action code targets a key driver of 'DSO' within 'Enterprise Performance Cockpit'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %, Working Capital %, CCC Days, Customer Retention %, Revenue per FTE, ESG-Aligned Revenue %."
+      business_logic: Reduce Days Sales Outstanding (DSO) is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Net Sales, GM %, CCC Days, Inventory Turnover, Retention %, CLV, Revenue per FTE, ESG Share %."
+      data_trigger: "Trigger example: when DSO deviates negatively from target or plan beyond a defined threshold."
+  COR-011:
+    CS-F1.1:
+      driver: This action code targets a key driver of 'Forecast Accuracy %' within 'Integrated Sales & Operations Planning (S&OP)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, GM %, Working Capital %, CCC Days."
+      business_logic: Forecast Accuracy Improvement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Forecast Accuracy %, Bias %, Capacity Utilization %, Inventory Days."
+      data_trigger: "Trigger example: when Forecast Accuracy % deviates negatively from target or plan beyond a defined threshold."
+    CS-W1.1:
+      driver: This action code targets a key driver of 'DSO' within 'Integrated Sales & Operations Planning (S&OP)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, GM %, Working Capital %, CCC Days."
+      business_logic: Reduce Days Sales Outstanding (DSO) is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Forecast Accuracy %, Bias %, Capacity Utilization %, Inventory Days."
+      data_trigger: "Trigger example: when DSO deviates negatively from target or plan beyond a defined threshold."
+  COR-012:
+    CS-F1.1:
+      driver: This action code targets a key driver of 'Forecast Accuracy %' within 'Commercial & Supply Chain Reconciliation'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, GM %, CCC Days."
+      business_logic: Forecast Accuracy Improvement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Promo ROI %, Stockout %, Inventory Days."
+      data_trigger: "Trigger example: when Forecast Accuracy % deviates negatively from target or plan beyond a defined threshold."
+  COR-013:
+    CS-F1.1:
+      driver: This action code targets a key driver of 'Forecast Accuracy %' within 'Customer Profitability Across Lifecycle'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, CLV %, Customer Retention %."
+      business_logic: Forecast Accuracy Improvement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: CLV Amount, CAC, Churn %, Complaint Rate %."
+      data_trigger: "Trigger example: when Forecast Accuracy % deviates negatively from target or plan beyond a defined threshold."
+    CS-W1.1:
+      driver: This action code targets a key driver of 'DSO' within 'Customer Profitability Across Lifecycle'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, CLV %, Customer Retention %."
+      business_logic: Reduce Days Sales Outstanding (DSO) is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: CLV Amount, CAC, Churn %, Complaint Rate %."
+      data_trigger: "Trigger example: when DSO deviates negatively from target or plan beyond a defined threshold."
+  COR-014:
+    CS-F1.1:
+      driver: This action code targets a key driver of 'Forecast Accuracy %' within 'Integrated Margin Bridge (P&L Driver Tree)'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, EBITDA Margin %."
+      business_logic: Forecast Accuracy Improvement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Effect, Volume Effect, Mix Effect, COGS."
+      data_trigger: "Trigger example: when Forecast Accuracy % deviates negatively from target or plan beyond a defined threshold."
+    CS-W1.1:
+      driver: This action code targets a key driver of 'DSO' within 'Integrated Margin Bridge (P&L Driver Tree)'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, EBITDA Margin %."
+      business_logic: Reduce Days Sales Outstanding (DSO) is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Price Effect, Volume Effect, Mix Effect, COGS."
+      data_trigger: "Trigger example: when DSO deviates negatively from target or plan beyond a defined threshold."
+  COR-015:
+    CS-F1.1:
+      driver: This action code targets a key driver of 'Forecast Accuracy %' within 'Forecast Reconciliation (Bottom-Up ↔ Top-Down)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Working Capital %."
+      business_logic: Forecast Accuracy Improvement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Forecast Accuracy %, Bias %, Forecast Gap BU vs TD."
+      data_trigger: "Trigger example: when Forecast Accuracy % deviates negatively from target or plan beyond a defined threshold."
+    CS-W1.1:
+      driver: This action code targets a key driver of 'DSO' within 'Forecast Reconciliation (Bottom-Up ↔ Top-Down)'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Working Capital %."
+      business_logic: Reduce Days Sales Outstanding (DSO) is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Forecast Accuracy %, Bias %, Forecast Gap BU vs TD."
+      data_trigger: "Trigger example: when DSO deviates negatively from target or plan beyond a defined threshold."
+  COR-016:
+    CS-C1.1:
+      driver: This action code targets a key driver of 'CapEx Allocation Efficiency' within 'Credit Risk Scorecard'.
+      kpi_link: "Directly linked to strategic KPI: PD %, LGD %, EAD Amount."
+      business_logic: CapEx Prioritization Review is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Corporate & Strategy', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Risk Score, Collateral, Overdue Status."
+      data_trigger: "Trigger example: when CapEx Allocation Efficiency deviates negatively from target or plan beyond a defined threshold."
+  CST-001:
+    CM-R1.1:
+      driver: This action code targets a key driver of 'Churn %' within 'Customer Retention & Churn Analysis'.
+      kpi_link: "Directly linked to strategic KPI: Customer Retention %, CLV %, Revenue Growth %."
+      business_logic: Early Churn Signal Intervention is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Churn Rate %, Frequency, Basket Size."
+      data_trigger: "Trigger example: when Churn % deviates negatively from target or plan beyond a defined threshold."
+    CM-R1.2:
+      driver: This action code targets a key driver of 'Retention %' within 'Customer Retention & Churn Analysis'.
+      kpi_link: "Directly linked to strategic KPI: Customer Retention %, CLV %, Revenue Growth %."
+      business_logic: Win-Back Campaign is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Churn Rate %, Frequency, Basket Size."
+      data_trigger: "Trigger example: when Retention % deviates negatively from target or plan beyond a defined threshold."
+  CST-002:
+    CM-R1.1:
+      driver: This action code targets a key driver of 'Churn %' within 'Product Lifecycle Performance'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %, Innovation Revenue %."
+      business_logic: Early Churn Signal Intervention is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Lifecycle Stage Mix, GM %, Volume."
+      data_trigger: "Trigger example: when Churn % deviates negatively from target or plan beyond a defined threshold."
+    CM-N1.1:
+      driver: This action code targets a key driver of 'Complaint Rate %' within 'Product Lifecycle Performance'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Gross Margin %, Innovation Revenue %."
+      business_logic: Complaint Reduction Initiative is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Lifecycle Stage Mix, GM %, Volume."
+      data_trigger: "Trigger example: when Complaint Rate % deviates negatively from target or plan beyond a defined threshold."
+  CST-003:
+    CM-R1.1:
+      driver: This action code targets a key driver of 'Churn %' within 'Customer Lifetime Value Analysis'.
+      kpi_link: "Directly linked to strategic KPI: CLV %, Gross Margin %, Customer Retention %."
+      business_logic: Early Churn Signal Intervention is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: CLV, Margin, Retention %."
+      data_trigger: "Trigger example: when Churn % deviates negatively from target or plan beyond a defined threshold."
+    CM-R1.2:
+      driver: This action code targets a key driver of 'Retention %' within 'Customer Lifetime Value Analysis'.
+      kpi_link: "Directly linked to strategic KPI: CLV %, Gross Margin %, Customer Retention %."
+      business_logic: Win-Back Campaign is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: CLV, Margin, Retention %."
+      data_trigger: "Trigger example: when Retention % deviates negatively from target or plan beyond a defined threshold."
+  CST-004:
+    CM-R1.1:
+      driver: This action code targets a key driver of 'Churn %' within 'Campaign Effectiveness'.
+      kpi_link: "Directly linked to strategic KPI: Marketing ROI %, Conversion Rate %, Customer Retention %."
+      business_logic: Early Churn Signal Intervention is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: ROI %, Conversion %, Retention %."
+      data_trigger: "Trigger example: when Churn % deviates negatively from target or plan beyond a defined threshold."
+    CM-R1.2:
+      driver: This action code targets a key driver of 'Retention %' within 'Campaign Effectiveness'.
+      kpi_link: "Directly linked to strategic KPI: Marketing ROI %, Conversion Rate %, Customer Retention %."
+      business_logic: Win-Back Campaign is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: ROI %, Conversion %, Retention %."
+      data_trigger: "Trigger example: when Retention % deviates negatively from target or plan beyond a defined threshold."
+  CST-005:
+    CM-R1.1:
+      driver: This action code targets a key driver of 'Churn %' within 'NPS Analysis'.
+      kpi_link: "Directly linked to strategic KPI: NPS %, Customer Retention %."
+      business_logic: Early Churn Signal Intervention is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: NPS, Complaint Rate %."
+      data_trigger: "Trigger example: when Churn % deviates negatively from target or plan beyond a defined threshold."
+    CM-R1.2:
+      driver: This action code targets a key driver of 'Retention %' within 'NPS Analysis'.
+      kpi_link: "Directly linked to strategic KPI: NPS %, Customer Retention %."
+      business_logic: Win-Back Campaign is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: NPS, Complaint Rate %."
+      data_trigger: "Trigger example: when Retention % deviates negatively from target or plan beyond a defined threshold."
+    CM-N1.1:
+      driver: This action code targets a key driver of 'Complaint Rate %' within 'NPS Analysis'.
+      kpi_link: "Directly linked to strategic KPI: NPS %, Customer Retention %."
+      business_logic: Complaint Reduction Initiative is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: NPS, Complaint Rate %."
+      data_trigger: "Trigger example: when Complaint Rate % deviates negatively from target or plan beyond a defined threshold."
+  CST-006:
+    CM-M1.1:
+      driver: This action code targets a key driver of 'Channel Sales %' within 'Market Share & Competitive Position'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Market Share %."
+      business_logic: Channel Performance Boost is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Company vs Market vs Competitor Sales."
+      data_trigger: "Trigger example: when Channel Sales % deviates negatively from target or plan beyond a defined threshold."
+    CM-S1.1:
+      driver: This action code targets a key driver of 'Market Share %' within 'Market Share & Competitive Position'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, Market Share %."
+      business_logic: Market Share Stabilization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Company vs Market vs Competitor Sales."
+      data_trigger: "Trigger example: when Market Share % deviates negatively from target or plan beyond a defined threshold."
+  CST-007:
+    CM-R1.1:
+      driver: This action code targets a key driver of 'Churn %' within 'Complaint Rate & Service Quality'.
+      kpi_link: "Directly linked to strategic KPI: Complaint Rate %, Customer Retention %."
+      business_logic: Early Churn Signal Intervention is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Complaint Volume, Severity, Reasons."
+      data_trigger: "Trigger example: when Churn % deviates negatively from target or plan beyond a defined threshold."
+    CM-R1.2:
+      driver: This action code targets a key driver of 'Retention %' within 'Complaint Rate & Service Quality'.
+      kpi_link: "Directly linked to strategic KPI: Complaint Rate %, Customer Retention %."
+      business_logic: Win-Back Campaign is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Complaint Volume, Severity, Reasons."
+      data_trigger: "Trigger example: when Retention % deviates negatively from target or plan beyond a defined threshold."
+    CM-N1.1:
+      driver: This action code targets a key driver of 'Complaint Rate %' within 'Complaint Rate & Service Quality'.
+      kpi_link: "Directly linked to strategic KPI: Complaint Rate %, Customer Retention %."
+      business_logic: Complaint Reduction Initiative is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Complaint Volume, Severity, Reasons."
+      data_trigger: "Trigger example: when Complaint Rate % deviates negatively from target or plan beyond a defined threshold."
+  CST-008:
+    CM-R1.1:
+      driver: This action code targets a key driver of 'Churn %' within 'Cross-Sell & Basket Analysis'.
+      kpi_link: "Directly linked to strategic KPI: Cross-Sell Ratio %, CLV %."
+      business_logic: Early Churn Signal Intervention is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Basket Size, Co-purchase Patterns."
+      data_trigger: "Trigger example: when Churn % deviates negatively from target or plan beyond a defined threshold."
+    CM-N1.1:
+      driver: This action code targets a key driver of 'Complaint Rate %' within 'Cross-Sell & Basket Analysis'.
+      kpi_link: "Directly linked to strategic KPI: Cross-Sell Ratio %, CLV %."
+      business_logic: Complaint Reduction Initiative is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Basket Size, Co-purchase Patterns."
+      data_trigger: "Trigger example: when Complaint Rate % deviates negatively from target or plan beyond a defined threshold."
+  CST-009:
+    CM-N1.1:
+      driver: This action code targets a key driver of 'Complaint Rate %' within 'Brand Equity & Awareness'.
+      kpi_link: "Directly linked to strategic KPI: Brand Awareness %, NPS."
+      business_logic: Complaint Reduction Initiative is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Awareness %, Preference %, NPS."
+      data_trigger: "Trigger example: when Complaint Rate % deviates negatively from target or plan beyond a defined threshold."
+  CST-010:
+    CM-R1.1:
+      driver: This action code targets a key driver of 'Churn %' within 'Acquisition Funnel Performance'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, New Customer Count %."
+      business_logic: Early Churn Signal Intervention is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Leads, Conversions, Conversion Rate %, CAC."
+      data_trigger: "Trigger example: when Churn % deviates negatively from target or plan beyond a defined threshold."
+    CM-N1.1:
+      driver: This action code targets a key driver of 'Complaint Rate %' within 'Acquisition Funnel Performance'.
+      kpi_link: "Directly linked to strategic KPI: Revenue Growth %, New Customer Count %."
+      business_logic: Complaint Reduction Initiative is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Leads, Conversions, Conversion Rate %, CAC."
+      data_trigger: "Trigger example: when Complaint Rate % deviates negatively from target or plan beyond a defined threshold."
+  CST-011:
+    CM-R1.1:
+      driver: This action code targets a key driver of 'Churn %' within 'Segment Profitability'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, CLV %."
+      business_logic: Early Churn Signal Intervention is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Segment Margin %, CLV, Retention."
+      data_trigger: "Trigger example: when Churn % deviates negatively from target or plan beyond a defined threshold."
+    CM-R1.2:
+      driver: This action code targets a key driver of 'Retention %' within 'Segment Profitability'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, CLV %."
+      business_logic: Win-Back Campaign is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Segment Margin %, CLV, Retention."
+      data_trigger: "Trigger example: when Retention % deviates negatively from target or plan beyond a defined threshold."
+  CST-012:
+    CM-R1.1:
+      driver: This action code targets a key driver of 'Churn %' within 'Next-Best-Action Customer (NBA)'.
+      kpi_link: "Directly linked to strategic KPI: Customer Retention %, CLV %."
+      business_logic: Early Churn Signal Intervention is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: CLV Amount, Churn %, Cross-Sell Ratio %, Basket Size."
+      data_trigger: "Trigger example: when Churn % deviates negatively from target or plan beyond a defined threshold."
+    CM-R1.2:
+      driver: This action code targets a key driver of 'Retention %' within 'Next-Best-Action Customer (NBA)'.
+      kpi_link: "Directly linked to strategic KPI: Customer Retention %, CLV %."
+      business_logic: Win-Back Campaign is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: CLV Amount, Churn %, Cross-Sell Ratio %, Basket Size."
+      data_trigger: "Trigger example: when Retention % deviates negatively from target or plan beyond a defined threshold."
+  CST-014:
+    CM-R1.1:
+      driver: This action code targets a key driver of 'Churn %' within 'Subscription Churn & Next-Best-Action'.
+      kpi_link: "Directly linked to strategic KPI: Churn %, CLV %."
+      business_logic: Early Churn Signal Intervention is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Churn Risk Score, CLV, Usage Patterns."
+      data_trigger: "Trigger example: when Churn % deviates negatively from target or plan beyond a defined threshold."
+    CM-R1.2:
+      driver: This action code targets a key driver of 'Retention %' within 'Subscription Churn & Next-Best-Action'.
+      kpi_link: "Directly linked to strategic KPI: Churn %, CLV %."
+      business_logic: Win-Back Campaign is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Churn Risk Score, CLV, Usage Patterns."
+      data_trigger: "Trigger example: when Retention % deviates negatively from target or plan beyond a defined threshold."
+  CST-014:
+    CM-R1.1:
+      driver: This action code targets a key driver of 'Churn %' within 'Subscription Churn & Next-Best-Action'.
+      kpi_link: "Directly linked to strategic KPI: Churn %, CLV %."
+      business_logic: Early Churn Signal Intervention is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Churn Risk Score, CLV, Usage Patterns."
+      data_trigger: "Trigger example: when Churn % deviates negatively from target or plan beyond a defined threshold."
+    CM-R1.2:
+      driver: This action code targets a key driver of 'Retention %' within 'Subscription Churn & Next-Best-Action'.
+      kpi_link: "Directly linked to strategic KPI: Churn %, CLV %."
+      business_logic: Win-Back Campaign is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Customer & Market', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Churn Risk Score, CLV, Usage Patterns."
+      data_trigger: "Trigger example: when Retention % deviates negatively from target or plan beyond a defined threshold."
+  ESG-001:
+    ESG-E1.1:
+      driver: This action code targets a key driver of 'CO2 Intensity' within 'Emission Tracking & Reporting'.
+      kpi_link: "Directly linked to strategic KPI: Carbon Intensity (tCO₂e/€), ESG-Aligned Revenue %."
+      business_logic: CO₂ Intensity Reduction is a suitable lever to address gaps identified in this use case. It belongs to the domain 'ESG', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Scope 1–3 Emissions, Energy Use."
+      data_trigger: "Trigger example: when CO2 Intensity deviates negatively from target or plan beyond a defined threshold."
+    ESG-R1.1:
+      driver: This action code targets a key driver of 'Renewable Energy Share %' within 'Emission Tracking & Reporting'.
+      kpi_link: "Directly linked to strategic KPI: Carbon Intensity (tCO₂e/€), ESG-Aligned Revenue %."
+      business_logic: Increase Renewable Energy Share is a suitable lever to address gaps identified in this use case. It belongs to the domain 'ESG', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Scope 1–3 Emissions, Energy Use."
+      data_trigger: "Trigger example: when Renewable Energy Share % deviates negatively from target or plan beyond a defined threshold."
+  ESG-002:
+    ESG-R1.1:
+      driver: This action code targets a key driver of 'Renewable Energy Share %' within 'Energy Efficiency Optimization'.
+      kpi_link: "Directly linked to strategic KPI: Energy Efficiency %, CO₂ Intensity %."
+      business_logic: Increase Renewable Energy Share is a suitable lever to address gaps identified in this use case. It belongs to the domain 'ESG', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Energy Consumption, Cost per Unit."
+      data_trigger: "Trigger example: when Renewable Energy Share % deviates negatively from target or plan beyond a defined threshold."
+  GOV-001:
+    G-D1.1:
+      driver: This action code targets a key driver of 'Data Quality Score' within 'Data Quality Monitoring'.
+      kpi_link: "Directly linked to strategic KPI: Data Quality %, Governance Score."
+      business_logic: Data Quality Improvement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Governance & Compliance', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Valid %, Timeliness %, Consistency %."
+      data_trigger: "Trigger example: when Data Quality Score deviates negatively from target or plan beyond a defined threshold."
+  GOV-002:
+    G-C1.1:
+      driver: This action code targets a key driver of 'Compliance Rate %' within 'Access & Compliance Review'.
+      kpi_link: "Directly linked to strategic KPI: Governance Score, Audit Findings %."
+      business_logic: Compliance Breach Mitigation is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Governance & Compliance', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Access Review %, Violation Count."
+      data_trigger: "Trigger example: when Compliance Rate % deviates negatively from target or plan beyond a defined threshold."
+    G-S1.1:
+      driver: This action code targets a key driver of 'Access Violations Count' within 'Access & Compliance Review'.
+      kpi_link: "Directly linked to strategic KPI: Governance Score, Audit Findings %."
+      business_logic: Access Rights Optimization is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Governance & Compliance', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Access Review %, Violation Count."
+      data_trigger: "Trigger example: when Access Violations Count deviates negatively from target or plan beyond a defined threshold."
+  GOV-003:
+    G-C1.1:
+      driver: This action code targets a key driver of 'Compliance Rate %' within 'Risk & Control Testing'.
+      kpi_link: "Directly linked to strategic KPI: Governance Score %, Audit Finding Severity %."
+      business_logic: Compliance Breach Mitigation is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Governance & Compliance', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Control Pass %, Finding Count."
+      data_trigger: "Trigger example: when Compliance Rate % deviates negatively from target or plan beyond a defined threshold."
+    G-D1.1:
+      driver: This action code targets a key driver of 'Data Quality Score' within 'Risk & Control Testing'.
+      kpi_link: "Directly linked to strategic KPI: Governance Score %, Audit Finding Severity %."
+      business_logic: Data Quality Improvement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Governance & Compliance', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Control Pass %, Finding Count."
+      data_trigger: "Trigger example: when Data Quality Score deviates negatively from target or plan beyond a defined threshold."
+  GOV-004:
+    G-D1.1:
+      driver: This action code targets a key driver of 'Data Quality Score' within 'Audit Findings Management'.
+      kpi_link: "Directly linked to strategic KPI: Governance Score %, Data Quality %."
+      business_logic: Data Quality Improvement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Governance & Compliance', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Findings Closed %, Open Issues."
+      data_trigger: "Trigger example: when Data Quality Score deviates negatively from target or plan beyond a defined threshold."
+  HR-001:
+    IP-E1.1:
+      driver: This action code targets a key driver of 'Engagement Score' within 'Employee Development & Learning'.
+      kpi_link: "Directly linked to strategic KPI: Employee Engagement %, Productivity per FTE."
+      business_logic: Engagement Pulse Intervention is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Innovation & People', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Training Hours per FTE, Completion %."
+      data_trigger: "Trigger example: when Engagement Score deviates negatively from target or plan beyond a defined threshold."
+    IP-T1.1:
+      driver: This action code targets a key driver of 'Training Hours per FTE' within 'Employee Development & Learning'.
+      kpi_link: "Directly linked to strategic KPI: Employee Engagement %, Productivity per FTE."
+      business_logic: Targeted Skill Development Plan is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Innovation & People', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Training Hours per FTE, Completion %."
+      data_trigger: "Trigger example: when Training Hours per FTE deviates negatively from target or plan beyond a defined threshold."
+  HR-002:
+    IP-E1.1:
+      driver: This action code targets a key driver of 'Engagement Score' within 'Workforce Productivity'.
+      kpi_link: "Directly linked to strategic KPI: Productivity per FTE, Absence %."
+      business_logic: Engagement Pulse Intervention is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Innovation & People', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Hours Worked, Output Units."
+      data_trigger: "Trigger example: when Engagement Score deviates negatively from target or plan beyond a defined threshold."
+    IP-I1.1:
+      driver: This action code targets a key driver of 'Digital Adoption Rate %' within 'Workforce Productivity'.
+      kpi_link: "Directly linked to strategic KPI: Productivity per FTE, Absence %."
+      business_logic: Digital Adoption Enhancement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Innovation & People', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Hours Worked, Output Units."
+      data_trigger: "Trigger example: when Digital Adoption Rate % deviates negatively from target or plan beyond a defined threshold."
+  INN-001:
+    IP-E1.1:
+      driver: This action code targets a key driver of 'Engagement Score' within 'Innovation Pipeline Performance'.
+      kpi_link: "Directly linked to strategic KPI: Innovation Rate %, New Product Revenue %."
+      business_logic: Engagement Pulse Intervention is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Innovation & People', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Idea Count, Conversion %."
+      data_trigger: "Trigger example: when Engagement Score deviates negatively from target or plan beyond a defined threshold."
+    IP-I1.1:
+      driver: This action code targets a key driver of 'Digital Adoption Rate %' within 'Innovation Pipeline Performance'.
+      kpi_link: "Directly linked to strategic KPI: Innovation Rate %, New Product Revenue %."
+      business_logic: Digital Adoption Enhancement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Innovation & People', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Idea Count, Conversion %."
+      data_trigger: "Trigger example: when Digital Adoption Rate % deviates negatively from target or plan beyond a defined threshold."
+  INN-002:
+    IP-I1.1:
+      driver: This action code targets a key driver of 'Digital Adoption Rate %' within 'Digital Adoption Index'.
+      kpi_link: "Directly linked to strategic KPI: Digital Adoption Rate %, Automation Rate %."
+      business_logic: Digital Adoption Enhancement is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Innovation & People', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Adoption %, Digital Process Count."
+      data_trigger: "Trigger example: when Digital Adoption Rate % deviates negatively from target or plan beyond a defined threshold."
+  OPS-001:
+    O-I1.1:
+      driver: This action code targets a key driver of 'DIO' within 'Cash Conversion Cycle'.
+      kpi_link: "Directly linked to strategic KPI: Working Capital %, CCC Days."
+      business_logic: Inventory Policy Adjustment is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: DSO, DPO, DIO."
+      data_trigger: "Trigger example: when DIO deviates negatively from target or plan beyond a defined threshold."
+  OPS-002:
+    O-I1.1:
+      driver: This action code targets a key driver of 'DIO' within 'Inventory Health & Stock-Out Prevention'.
+      kpi_link: "Directly linked to strategic KPI: Working Capital %, Stock-Out Rate %."
+      business_logic: Inventory Policy Adjustment is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Inventory Days, Stock-Out %, OTIF %."
+      data_trigger: "Trigger example: when DIO deviates negatively from target or plan beyond a defined threshold."
+  OPS-003:
+    O-E1.1:
+      driver: This action code targets a key driver of 'OEE' within 'Purchase Price Variance (PPV) & Supplier Performance'.
+      kpi_link: "Directly linked to strategic KPI: COGS % of Sales, Gross Margin %, Supplier OTIF %."
+      business_logic: Reduce Unplanned Downtime via Maintenance Planning is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: PPV %, OTIF %, Contract Compliance %."
+      data_trigger: "Trigger example: when OEE deviates negatively from target or plan beyond a defined threshold."
+    O-I1.1:
+      driver: This action code targets a key driver of 'DIO' within 'Purchase Price Variance (PPV) & Supplier Performance'.
+      kpi_link: "Directly linked to strategic KPI: COGS % of Sales, Gross Margin %, Supplier OTIF %."
+      business_logic: Inventory Policy Adjustment is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: PPV %, OTIF %, Contract Compliance %."
+      data_trigger: "Trigger example: when DIO deviates negatively from target or plan beyond a defined threshold."
+  OPS-004:
+    O-I1.1:
+      driver: This action code targets a key driver of 'DIO' within 'Replenishment Optimization & Service Level Management'.
+      kpi_link: "Directly linked to strategic KPI: Service Level %, Stock-Out Rate %, Inventory Days."
+      business_logic: Inventory Policy Adjustment is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: OTIF %, Stock-Out %, Inventory Days."
+      data_trigger: "Trigger example: when DIO deviates negatively from target or plan beyond a defined threshold."
+  OPS-005:
+    O-E1.1:
+      driver: This action code targets a key driver of 'OEE' within 'Capacity Utilization'.
+      kpi_link: "Directly linked to strategic KPI: OEE %, Productivity %."
+      business_logic: Reduce Unplanned Downtime via Maintenance Planning is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Availability %, Performance %, Quality %, Hours."
+      data_trigger: "Trigger example: when OEE deviates negatively from target or plan beyond a defined threshold."
+    O-E1.2:
+      driver: This action code targets a key driver of 'Throughput' within 'Capacity Utilization'.
+      kpi_link: "Directly linked to strategic KPI: OEE %, Productivity %."
+      business_logic: Throughput Balancing is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Availability %, Performance %, Quality %, Hours."
+      data_trigger: "Trigger example: when Throughput deviates negatively from target or plan beyond a defined threshold."
+  OPS-006:
+    O-I1.1:
+      driver: This action code targets a key driver of 'DIO' within 'Inventory Turnover & Days in Inventory (DIO)'.
+      kpi_link: "Directly linked to strategic KPI: Working Capital %, DIO Days."
+      business_logic: Inventory Policy Adjustment is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: COGS, Average Inventory Value."
+      data_trigger: "Trigger example: when DIO deviates negatively from target or plan beyond a defined threshold."
+  OPS-007:
+    O-I1.1:
+      driver: This action code targets a key driver of 'DIO' within 'Stockout & Service Level'.
+      kpi_link: "Directly linked to strategic KPI: Service Level %, Stock-Out Rate %, Working Capital %."
+      business_logic: Inventory Policy Adjustment is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: OTIF %, Stock-Out %, Order Accuracy %."
+      data_trigger: "Trigger example: when DIO deviates negatively from target or plan beyond a defined threshold."
+  OPS-008:
+    O-E1.1:
+      driver: This action code targets a key driver of 'OEE' within 'Unit Cost & COGS Drivers'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, COGS % of Sales."
+      business_logic: Reduce Unplanned Downtime via Maintenance Planning is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Material, Labor, Energy, Other Costs."
+      data_trigger: "Trigger example: when OEE deviates negatively from target or plan beyond a defined threshold."
+    O-I1.1:
+      driver: This action code targets a key driver of 'DIO' within 'Unit Cost & COGS Drivers'.
+      kpi_link: "Directly linked to strategic KPI: Gross Margin %, COGS % of Sales."
+      business_logic: Inventory Policy Adjustment is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Material, Labor, Energy, Other Costs."
+      data_trigger: "Trigger example: when DIO deviates negatively from target or plan beyond a defined threshold."
+  OPS-009:
+    O-E1.1:
+      driver: This action code targets a key driver of 'OEE' within 'Logistics Cost Ratio'.
+      kpi_link: "Directly linked to strategic KPI: Operating Cost Ratio %, Working Capital %."
+      business_logic: Reduce Unplanned Downtime via Maintenance Planning is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Transport, Warehouse, Handling Cost; Volume."
+      data_trigger: "Trigger example: when OEE deviates negatively from target or plan beyond a defined threshold."
+    O-I1.1:
+      driver: This action code targets a key driver of 'DIO' within 'Logistics Cost Ratio'.
+      kpi_link: "Directly linked to strategic KPI: Operating Cost Ratio %, Working Capital %."
+      business_logic: Inventory Policy Adjustment is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Transport, Warehouse, Handling Cost; Volume."
+      data_trigger: "Trigger example: when DIO deviates negatively from target or plan beyond a defined threshold."
+  OPS-010:
+    O-I1.1:
+      driver: This action code targets a key driver of 'DIO' within 'Replenishment & Safety Stock'.
+      kpi_link: "Directly linked to strategic KPI: Service Level %, Inventory Days, Stock-Out Rate %."
+      business_logic: Inventory Policy Adjustment is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Inventory Days, Stock-Out %, OTIF %."
+      data_trigger: "Trigger example: when DIO deviates negatively from target or plan beyond a defined threshold."
+    O-C1.1:
+      driver: This action code targets a key driver of 'Cost per Unit' within 'Replenishment & Safety Stock'.
+      kpi_link: "Directly linked to strategic KPI: Service Level %, Inventory Days, Stock-Out Rate %."
+      business_logic: Process Simplification is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Inventory Days, Stock-Out %, OTIF %."
+      data_trigger: "Trigger example: when Cost per Unit deviates negatively from target or plan beyond a defined threshold."
+  OPS-011:
+    O-E1.1:
+      driver: This action code targets a key driver of 'OEE' within 'Warehouse Productivity & Picking Efficiency'.
+      kpi_link: "Directly linked to strategic KPI: OEE %, Productivity %."
+      business_logic: Reduce Unplanned Downtime via Maintenance Planning is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Lines per Hour, Picks per Hour, Cost per Line."
+      data_trigger: "Trigger example: when OEE deviates negatively from target or plan beyond a defined threshold."
+    O-I1.1:
+      driver: This action code targets a key driver of 'DIO' within 'Warehouse Productivity & Picking Efficiency'.
+      kpi_link: "Directly linked to strategic KPI: OEE %, Productivity %."
+      business_logic: Inventory Policy Adjustment is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Lines per Hour, Picks per Hour, Cost per Line."
+      data_trigger: "Trigger example: when DIO deviates negatively from target or plan beyond a defined threshold."
+  OPS-012:
+    O-I1.1:
+      driver: This action code targets a key driver of 'DIO' within 'Auto-Replenishment Engine'.
+      kpi_link: "Directly linked to strategic KPI: Working Capital %, CCC Days, Service Level %."
+      business_logic: Inventory Policy Adjustment is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: DIO, Inventory Turnover, Stock-Out %, Forecast Accuracy %."
+      data_trigger: "Trigger example: when DIO deviates negatively from target or plan beyond a defined threshold."
+  OPS-013:
+    O-E1.1:
+      driver: This action code targets a key driver of 'OEE' within 'Predictive Maintenance & Auto-Dispatch'.
+      kpi_link: "Directly linked to strategic KPI: OEE %, Productivity %."
+      business_logic: Reduce Unplanned Downtime via Maintenance Planning is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Availability %, Downtime Hours, Machine Downtime %."
+      data_trigger: "Trigger example: when OEE deviates negatively from target or plan beyond a defined threshold."
+  OPS-014:
+    O-E1.1:
+      driver: This action code targets a key driver of 'OEE' within 'On-Shelf Availability & Stockout Root Causes'.
+      kpi_link: "Directly linked to strategic KPI: Service Level %, Stock-Out Rate %, Revenue Growth %."
+      business_logic: Reduce Unplanned Downtime via Maintenance Planning is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: OTIF %, Stock-Out %, Order Accuracy %, Shelf Availability %."
+      data_trigger: "Trigger example: when OEE deviates negatively from target or plan beyond a defined threshold."
+    O-I1.1:
+      driver: This action code targets a key driver of 'DIO' within 'On-Shelf Availability & Stockout Root Causes'.
+      kpi_link: "Directly linked to strategic KPI: Service Level %, Stock-Out Rate %, Revenue Growth %."
+      business_logic: Inventory Policy Adjustment is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: OTIF %, Stock-Out %, Order Accuracy %, Shelf Availability %."
+      data_trigger: "Trigger example: when DIO deviates negatively from target or plan beyond a defined threshold."
+  OPS-015:
+    O-E1.1:
+      driver: This action code targets a key driver of 'OEE' within 'OEE Advanced & Root Causes'.
+      kpi_link: "Directly linked to strategic KPI: OEE %, Productivity %."
+      business_logic: Reduce Unplanned Downtime via Maintenance Planning is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Availability %, Performance %, Quality %, Downtime Hours."
+      data_trigger: "Trigger example: when OEE deviates negatively from target or plan beyond a defined threshold."
+  OPS-016:
+    O-E1.2:
+      driver: This action code targets a key driver of 'Throughput' within 'Bottleneck & Throughput Analysis (TOC)'.
+      kpi_link: "Directly linked to strategic KPI: OEE %, Productivity %, Lead Time."
+      business_logic: Throughput Balancing is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Bottleneck Utilization %, Queue Time, Throughput Units/h."
+      data_trigger: "Trigger example: when Throughput deviates negatively from target or plan beyond a defined threshold."
+    O-C1.1:
+      driver: This action code targets a key driver of 'Cost per Unit' within 'Bottleneck & Throughput Analysis (TOC)'.
+      kpi_link: "Directly linked to strategic KPI: OEE %, Productivity %, Lead Time."
+      business_logic: Process Simplification is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Bottleneck Utilization %, Queue Time, Throughput Units/h."
+      data_trigger: "Trigger example: when Cost per Unit deviates negatively from target or plan beyond a defined threshold."
+  OPS-017:
+    O-I1.1:
+      driver: This action code targets a key driver of 'DIO' within 'OTIF Root Cause Analysis'.
+      kpi_link: "Directly linked to strategic KPI: Service Level %, OTIF %, Working Capital %."
+      business_logic: Inventory Policy Adjustment is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: OTIF %, Order Accuracy %, Stock-Out %, Lead Time."
+      data_trigger: "Trigger example: when DIO deviates negatively from target or plan beyond a defined threshold."
+    O-C1.1:
+      driver: This action code targets a key driver of 'Cost per Unit' within 'OTIF Root Cause Analysis'.
+      kpi_link: "Directly linked to strategic KPI: Service Level %, OTIF %, Working Capital %."
+      business_logic: Process Simplification is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: OTIF %, Order Accuracy %, Stock-Out %, Lead Time."
+      data_trigger: "Trigger example: when Cost per Unit deviates negatively from target or plan beyond a defined threshold."
+  OPS-018:
+    O-E1.1:
+      driver: This action code targets a key driver of 'OEE' within 'Route Optimization & Transport Cost Modeling'.
+      kpi_link: "Directly linked to strategic KPI: Operating Cost Ratio %, Service Level %."
+      business_logic: Reduce Unplanned Downtime via Maintenance Planning is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Transport Cost per Unit, Distance, Load Utilization."
+      data_trigger: "Trigger example: when OEE deviates negatively from target or plan beyond a defined threshold."
+    O-I1.1:
+      driver: This action code targets a key driver of 'DIO' within 'Route Optimization & Transport Cost Modeling'.
+      kpi_link: "Directly linked to strategic KPI: Operating Cost Ratio %, Service Level %."
+      business_logic: Inventory Policy Adjustment is a suitable lever to address gaps identified in this use case. It belongs to the domain 'Operational Efficiency', which aligns with the business focus of the use case.
+      strategic_alignment: "Supports the impact described for the use case: Transport Cost per Unit, Distance, Load Utilization."
+      data_trigger: "Trigger example: when DIO deviates negatively from target or plan beyond a defined threshold."
