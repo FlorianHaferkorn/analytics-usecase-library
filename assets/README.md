@@ -1,22 +1,45 @@
-﻿# assets
+﻿# Assets
 
-Purpose:
-Central place for shared assets (brand, org, value chain).
+## Purpose
+Provide **generic visual assets** used by the ActionReady Analytics Framework.  
+These assets are **not showcase- or customer-specific**.  
+They support documentation, UX standards, and presentations.
 
-Scope:
-- Branding files
-- Org structure visuals
-- Value chain diagrams
-- Not: Data or code
-- Internal drafts unrelated to assets
+---
 
-Structure:
-Subfolders branding/, org/, value_chain/ store respective assets.
+## Scope
 
-Usage:
-- Use approved assets in customer-facing decks
-- Keep versions minimal and current
-- Archive outdated visuals
+Included (generic only):
+- Neutral branding elements
+- Generic value-chain templates
+- Generic org-structure diagrams
+- Generic navigation & UX mockups
+- Placeholder visuals for documentation
 
-Relations:
-Supports all layers with presentation assets.
+Not included:
+- Aurora Group content
+- Customer-specific visuals
+- Showcase assets
+
+---
+
+## Structure
+
+```
+assets/
+  branding/         → generic branding assets
+  org/              → generic org-structure visuals
+  value_chain/      → generic value-chain templates
+  reporting/ (opt.) → generic UI mockups
+```
+
+---
+
+## Usage
+- Use for framework-wide documentation
+- Replace with client branding when needed
+- Do not store showcase/company content here
+
+---
+
+**Location:** `assets/README.md`

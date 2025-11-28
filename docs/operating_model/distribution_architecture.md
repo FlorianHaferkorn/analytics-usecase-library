@@ -1,6 +1,4 @@
-﻿Status: Draft (Internal)
-
-# Reporting Strategy
+﻿# Reporting Strategy
 _Version 2.0 | Last updated: 12.10.2025_
 
 ---
@@ -110,6 +108,7 @@ Strategic KPI → Business Driver → Use Case → Action Code → Business Impa
 - Use the same logic in dashboards, performance reviews, and AI Copilot prompts.
 
 > “When business goals, KPIs, and analytics move together, the organization learns faster.”
+
 
 
 

@@ -1,20 +1,26 @@
-﻿# value_chain
+﻿# Value Chain Assets (Generic)
 
-Purpose:
-Value chain visuals per industry/domain.
+## Purpose
+Provide **generic value-chain templates** for illustrating business processes and analytical domain mapping.
 
-Scope:
-- Value chain diagrams
-- Process overviews
-- Not: Detailed SOPs
+---
 
-Structure:
-Contains value_chain_retail.png placeholder.
+## Scope
+Included:
+- Generic process flow diagrams
+- Neutral value-chain illustrations
+- Templates for workshops
 
-Usage:
-- Use to contextualize use cases
-- Keep versions per industry if needed
-- Replace placeholders with approved visuals
+Not included:
+- Aurora value chain
+- Customer-specific flows
 
-Relations:
-Supports Layer 1/2 storytelling.
+---
+
+## Usage
+- Use as templates during domain design workshops
+- Customise for customers in their own project repos
+
+---
+
+**Location:** `assets/value_chain/`

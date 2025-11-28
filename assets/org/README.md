@@ -1,20 +1,25 @@
-﻿# org
+﻿# Org Structure Assets (Generic)
 
-Purpose:
-Organizational charts and role visuals.
+## Purpose
+Provide **generic organizational structure diagrams** for framework-level explanation.
 
-Scope:
-- Org charts
-- Role mappings
-- Not: HR-sensitive data beyond agreed scope
+---
 
-Structure:
-Holds org_chart.svg placeholder.
+## Scope
+Included:
+- Neutral hierarchy templates
+- Generic org charts for conceptual explanation
 
-Usage:
-- Use sanitized org views for docs
-- Update when org changes
-- Archive outdated charts
+Not included:
+- Aurora org charts
+- Customer-specific org structures
 
-Relations:
-Supports governance/operating model narratives.
+---
+
+## Usage
+- Use templates when illustrating domain ownership or reporting lines
+- Use showcase/company folders for real org structures
+
+---
+
+**Location:** `assets/org/`

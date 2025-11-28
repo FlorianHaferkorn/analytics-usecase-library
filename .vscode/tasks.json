@@ -9,7 +9,7 @@
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
-        "./tools/run_all_checks.ps1"
+        "./_internal/tools/run_all_checks.ps1"
       ],
       "group": "test",
       "problemMatcher": []
@@ -22,7 +22,7 @@
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
-        "./tools/generate/generate_tmdl_measures.ps1",
+        "./_internal/tools/generation/generate_tmdl_measures.ps1",
         "-UseCase",
         "${input:usecaseId}",
         "-OverwriteExisting"
@@ -38,7 +38,7 @@
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
-        "./tools/generate_all_measures.ps1",
+        "./_internal/tools/generation/generate_all_measures.ps1",
         "-StubOnly"
       ],
       "group": "build",
@@ -52,7 +52,7 @@
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
-        "./tools/generate_all_measures.ps1"
+        "./_internal/tools/generation/generate_all_measures.ps1"
       ],
       "group": "build",
       "problemMatcher": []
@@ -66,7 +66,7 @@
         "-ExecutionPolicy",
         "Bypass",
         "-Command",
-        "./tools/generate_all_measures.ps1; ./tools/run_all_checks.ps1"
+        "./_internal/tools/generation/generate_all_measures.ps1; ./_internal/tools/run_all_checks.ps1"
       ],
       "group": "build",
       "problemMatcher": []
@@ -76,7 +76,7 @@
     {
       "id": "usecaseId",
       "type": "promptString",
-      "description": "Use Case ID (z.B. COM-001, OPS-002, ...)"
+      "description": "Use Case ID (e.g. COM-001, OPS-002, ...)"
     }
   ]
 }

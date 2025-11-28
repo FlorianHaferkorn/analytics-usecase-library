@@ -1,21 +1,27 @@
-﻿# branding
+﻿# Branding Assets (Generic)
 
-Purpose:
-Approved branding assets.
+## Purpose
+Provide **generic branding visuals** used across framework documentation.  
+These are neutral templates and do **not** contain Aurora- or customer-specific branding.
 
-Scope:
-- Logos
-- Brand marks
-- Not: Unapproved drafts
-- Code/notes
+---
 
-Structure:
-Contains aurora_logo.png placeholder.
+## Scope
+Included:
+- Neutral framework icons or placeholder logos
+- Generic branding elements used in diagrams
 
-Usage:
-- Use only approved logos
-- Replace placeholder with final asset when available
-- Keep vector/hi-res in source control if allowed
+Not included:
+- Aurora logos
+- Customer logos
+- Showcase-specific branding
 
-Relations:
-Supports presentation across layers.
+---
+
+## Usage
+- Use in documentation requiring brand-neutral visuals
+- Replace with customer logos when implementing the framework
+
+---
+
+**Location:** `assets/branding/`
