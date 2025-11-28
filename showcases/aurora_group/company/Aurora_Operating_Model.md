@@ -27,18 +27,18 @@ Note: This file was moved to /archive because it does not fit the current target
 7. Innovation & People
 
 ### KPI Ownership
-Commercial â†’ CCO  
-Operations â†’ COO  
-Customer â†’ CMO  
-Corporate â†’ CFO  
-ESG â†’ CSO  
-Governance â†’ CRO  
-People â†’ CHRO
+Commercial → CCO  
+Operations → COO  
+Customer → CMO  
+Corporate → CFO  
+ESG → CSO  
+Governance → CRO  
+People → CHRO
 
 ### RLS Relevance
-Region Manager â†’ region  
-Store Manager â†’ store  
-Logistics Manager â†’ DC  
-Function Heads â†’ function  
-Executive â†’ global
+Region Manager → region  
+Store Manager → store  
+Logistics Manager → DC  
+Function Heads → function  
+Executive → global
 

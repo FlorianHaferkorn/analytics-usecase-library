@@ -1,21 +1,16 @@
 # Action-Ready Semantic Model – Full Blueprint
 
-Status: Draft (Internal)  
-Purpose: Reference blueprint for the Action-Ready Semantic Model used by all downstream semantic_models.  
-Defines mandatory layers, aggregates, grains, and relationships required to operationalize Action Codes and AI‑ready analytics.
+Purpose:
+- Reference blueprint for the ActionReady Semantic Model used by downstream semantic_models.
+- Defines mandatory layers, aggregates, grains, and relationships required to operationalize Action Codes and AI-ready analytics.
 
----
+Core Principles:
+- Stable domain aggregates at clear business grains.
+- Action-specific aggregates for triggers and root causes.
+- Action execution tracking to measure impact.
+- AI-ready star schema with governed metadata.
 
-## 1. Core Principles
-- Stable domain aggregates  
-- Action-specific aggregates  
-- Action execution tracking  
-- AI‑ready star schema  
-
----
-
-## 2. Domain Data Aggregates (Blueprint)
-
+Domain Data Aggregates (conceptual YAML):
 ```yaml
 dimension:
   - name: dim_date
@@ -49,10 +44,7 @@ fact:
       - {name: Discount %, type: number}
 ```
 
----
-
-## 3. Action Aggregates
-
+Action Aggregates (examples):
 ```yaml
 fact:
   - name: agg_price_leakage
@@ -78,10 +70,7 @@ fact:
       - {name: L3_Flag, type: boolean}
 ```
 
----
-
-## 4. Action Execution Layer
-
+Action Execution Layer:
 ```yaml
 fact:
   - name: fact_action_execution
@@ -101,10 +90,7 @@ fact:
       - {name: Notes, type: text}
 ```
 
----
-
-## 5. Semantic Model Blueprint (Visual)
-
+Pattern (illustrative):
 ```
 dim_product ----
                  dim_customer ----- fact_pricing_agg ---- agg_price_leakage ---- fact_action_execution
@@ -112,10 +98,7 @@ dim_product ----
 dim_date --------
 ```
 
----
-
-## 6. Notes for Implementation
-- All measures follow ActionReady naming conventions.  
-- Dimensions remain conformed across all domains.  
-- Action aggregates must support multi-level triggering (L1–L3).  
-- Execution layer must support before/after analysis for 7/30/60 days.  
+Notes for implementation:
+- Measures follow framework naming/formatting; dimensions are conformed across domains.
+- Action aggregates support multi-level triggers (L1–L3); execution layer supports before/after (7/30/60d).
+- Align to semantic layer standards and lint rules (`_internal/tools/linters`).

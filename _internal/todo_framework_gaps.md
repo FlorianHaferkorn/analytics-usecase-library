@@ -1,14 +1,7 @@
-﻿C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\archive\legacy\Concept_and_Conventions.md
+﻿C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\_internal\archive\legacy\Concept_and_Conventions.md
 C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\assets\branding\README.md
-C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\assets\org\README.md
-C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\assets\value_chain\README.md
+C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\assets\README.md
 C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\docs\company\business_strategy.md
-C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\docs\operating_model\ActionReady_SemanticModel_Blueprint.md
-C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\glossary\technical_glossary.md
-C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\implementation_guides\fabric_powerbi.md
-C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\templates\page_templates\explorer_page_template.md
-C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\templates\page_templates\insights_page_template.md
-C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\templates\page_templates\overview_page_template.md
 C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\02_Operational_Efficiency\OPS-001_Cash_Conversion_Cycle\Technical_Factsheet.md
 C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\02_Operational_Efficiency\OPS-003_Purchase_Price_Variance\Technical_Factsheet.md
 C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\README.md

@@ -1,7 +1,4 @@
-﻿Status: Draft (Internal)  
-Purpose: Reference blueprint for the Action-Ready Semantic Model used by all downstream semantic_models.
-
-# Action-Ready Semantic Layer
+﻿# Action-Ready Semantic Layer
 
 ## 1. Role in the Operating Model
 
@@ -239,3 +236,4 @@ They are **internal-only** and not exposed to customers, but all customer models
 
 **Location:**  
 `docs/operating_model/semantic_layer.md`
+
