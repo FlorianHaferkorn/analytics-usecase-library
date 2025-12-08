@@ -1,9 +1,0 @@
-﻿C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\_internal\archive\legacy\Concept_and_Conventions.md
-C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\assets\branding\README.md
-C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\assets\README.md
-C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\docs\company\business_strategy.md
-C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\02_Operational_Efficiency\OPS-001_Cash_Conversion_Cycle\Technical_Factsheet.md
-C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\02_Operational_Efficiency\OPS-003_Purchase_Price_Variance\Technical_Factsheet.md
-C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\README.md
-C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\extended\README.md
-C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\industry\README.md
