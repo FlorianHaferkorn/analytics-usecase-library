@@ -1,4 +1,4 @@
-# FIN-001 – Technical Factsheet (Cash Liquidity Performance)
+# FIN-001 – Technical Factsheet
 
 ## 0. Model References
 - **Data Contract:** `data_contracts/domains/finance_cash_liquidity.yaml`

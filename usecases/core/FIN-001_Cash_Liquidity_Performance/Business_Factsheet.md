@@ -1,4 +1,4 @@
-# FIN-001 – Cash Liquidity Performance – Business Factsheet
+# FIN-001 – Business Factsheet
 
 ## 1. Summary
 - **Business Goal:** Monitor and optimize short-term liquidity by tracking cash position, working capital drivers (AR, AP, Inventory), and key liquidity ratios.
