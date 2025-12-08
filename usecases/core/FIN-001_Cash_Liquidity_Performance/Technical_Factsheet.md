@@ -1,15 +1,20 @@
 # FIN-001 – Technical Factsheet
 
 ## 0. Model References
-- **Data Contract:** `data_contracts/domains/finance_cash_liquidity.yaml`
-- **Semantic Model:** `semantic_models/core_action_ready/finance_cash/model_definition.yaml`
-- **KPI Catalog:** `framework/kpi_catalog/domain_kpi_catalog.md`
-- **Measure Dictionary:** `framework/kpi_catalog/domain_measure_dictionary.md`
-- **Use Case Inventory:** FIN-001
+- **Data Contract:**  
+  `data_contracts/domains/finance.yaml`
+- **Semantic Model Definition:**  
+  `semantic_models/domains/finance/model_definition.yaml`
+- **KPI Catalog:**  
+  `framework/kpi_catalog/domain_kpi_catalog.md`
+- **Measure Dictionary:**  
+  `framework/kpi_catalog/domain_measure_dictionary.md`
+- **Use Case Inventory:**  
+  `usecases/UseCase_Inventory.md` (ID: FIN-001)
 
 ---
 
-## 1. Data Contract Scope
+## 1. Data Contract (YAML – FIN-001 Scope)
 
 ```yaml
 dimension:
@@ -17,190 +22,165 @@ dimension:
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
-      - {name: MonthNumber, type: int}
-      - {name: Month, type: text}
       - {name: Year, type: int}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
+      - {name: Quarter, type: text}
 
   - name: dim_org
     columns:
       - {name: OrgKey, type: int, role: key}
+      - {name: OrgCode, type: text}
       - {name: OrgName, type: text}
       - {name: Region, type: text}
       - {name: Country, type: text}
+      - {name: BU, type: text}
 
 fact:
-  - name: fact_ar
-    grain: customer_day
-    columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: CustomerKey, type: int}
-      - {name: AR Amount, type: currency, agg: sum}
-      - {name: AR Aging Bucket, type: text}
-
-  - name: fact_ap
-    grain: supplier_day
-    columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: SupplierKey, type: int}
-      - {name: AP Amount, type: currency, agg: sum}
-      - {name: AP Aging Bucket, type: text}
-
-  - name: fact_inventory
-    grain: product_day
-    columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: ProductKey, type: int}
-      - {name: Inventory Amount, type: currency, agg: sum}
-      - {name: Inventory Qty, type: number, agg: sum}
-
   - name: fact_cash
-    grain: org_day
+    grain: org_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
-      - {name: Cash Position Amount, type: currency, agg: sum}
+      - {name: Cash Balance Amount, type: currency, agg: sum}
+      - {name: Operating Cash Flow Amount, type: currency, agg: sum}
+      - {name: CapEx Amount, type: currency, agg: sum}
+      - {name: Financing Flow Amount, type: currency, agg: sum}
+      - {name: Cash Plan Amount, type: currency, agg: sum}
+
+  - name: fact_wc
+    grain: org_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: DSO Days, type: number, agg: avg}
+      - {name: DIO Days, type: number, agg: avg}
+      - {name: DPO Days, type: number, agg: avg}
 
 settings:
   timezone: Europe/Berlin
   fiscal_year_start: 01-01
 ```
 
+### Source Mapping (Physical Layer)
+- fact_cash → `lh_finance.fact_cash`
+- fact_wc → `lh_finance.fact_working_capital`
+- dim_date → `lh_shared.dim_date`
+- dim_org → `lh_shared.dim_org`
+
 ---
 
 ## 2. Semantic Model Requirements
 
+### Model Name
+`finance_cash_liquidity`
+
 ### Tables
-- fact_ar  
-- fact_ap  
-- fact_inventory  
 - fact_cash  
+- fact_wc  
 - dim_date  
 - dim_org  
 
 ### Relationships
-- All fact tables link DateKey → dim_date  
-- All fact tables link OrgKey → dim_org  
+- fact_cash[DateKey] → dim_date[DateKey] (1:* | single)
+- fact_cash[OrgKey] → dim_org[OrgKey] (1:* | single)
+- fact_wc[DateKey] → dim_date[DateKey] (1:* | single)
+- fact_wc[OrgKey] → dim_org[OrgKey] (1:* | single)
 
 ### Hierarchies
-- Date: Year → Month → Date  
-- Org: Region → Country → OrgName  
-
-### Sort-by
-- Month → MonthNumber  
+- Org: Region → Country → BU → OrgName
+- Date: Year → Quarter → Month
 
 ---
 
-## 3. Measure Inventory
+## 3. Measure Inventory (KPI + Supporting)
 
-| Measure Name            | kpi_id                           | Folder         | Type        | Format   |
-|-------------------------|-----------------------------------|----------------|-------------|----------|
-| AR Amount               | fin.ar.amount                    | 01_AR          | Supporting  | €#,0.00  |
-| AP Amount               | fin.ap.amount                    | 02_AP          | Supporting  | €#,0.00  |
-| Inventory Amount        | fin.inventory.amount             | 03_Inventory   | Supporting  | €#,0.00  |
-| Cash Position Amount    | fin.cash.position.amount         | 04_Cash        | KPI         | €#,0.00  |
-| Working Capital Amount  | fin.wc.amount                    | 05_WC          | KPI         | €#,0.00  |
-| DSO                     | fin.wc.dso.days                  | 05_WC          | KPI         | #,0      |
-| DPO                     | fin.wc.dpo.days                  | 05_WC          | KPI         | #,0      |
-| DIO                     | fin.wc.dio.days                  | 05_WC          | KPI         | #,0      |
-| Cash Conversion Cycle   | fin.wc.ccc.days                  | 05_WC          | KPI         | #,0      |
+| Measure Name             | kpi_id                       | Type        | Folder      | Format   |
+|--------------------------|------------------------------|-------------|-------------|----------|
+| Cash Balance             | fin.cash.balance             | KPI         | 01_Cash     | €#,0.0   |
+| Operating Cash Flow      | fin.cash.ocf                 | KPI         | 01_Cash     | €#,0.0   |
+| Liquidity vs Plan %      | fin.cash.vs_plan.pct         | KPI         | 01_Cash     | 0.0 %    |
+| Cash Conversion Cycle    | wc.ccc.days                  | KPI         | 02_WC       | #,0      |
+| DSO / DIO / DPO          | wc.dso.days / wc.dio.days / wc.dpo.days | KPI | 02_WC | #,0 |
 
 ---
 
 ## 4. Measures (DAX)
 
-### Core amounts
-
 ```DAX
-AR Amount =
-    SUM ( fact_ar[AR Amount] )
+Cash Balance =
+    SUM ( fact_cash[Cash Balance Amount] )
 ```
 
 ```DAX
-AP Amount =
-    SUM ( fact_ap[AP Amount] )
+Operating Cash Flow =
+    SUM ( fact_cash[Operating Cash Flow Amount] )
 ```
 
 ```DAX
-Inventory Amount =
-    SUM ( fact_inventory[Inventory Amount] )
+Liquidity vs Plan % =
+    DIVIDE ( [Cash Balance] - SUM ( fact_cash[Cash Plan Amount] ),
+             SUM ( fact_cash[Cash Plan Amount] ) )
 ```
 
 ```DAX
-Cash Position Amount =
-    SUM ( fact_cash[Cash Position Amount] )
+DSO Days = AVERAGE ( fact_wc[DSO Days] )
 ```
-
-### Working Capital
 
 ```DAX
-Working Capital Amount =
-    [AR Amount] + [Inventory Amount] - [AP Amount]
+DIO Days = AVERAGE ( fact_wc[DIO Days] )
 ```
-
-### DSO
 
 ```DAX
-DSO =
-    VAR daily_sales =
-        DIVIDE ( [AR Amount], [Net Sales Amount LY Basis Placeholder] )
-    RETURN daily_sales
+DPO Days = AVERAGE ( fact_wc[DPO Days] )
 ```
-
-*(You will replace the placeholder with your actual sales fact source.)*
-
-### DPO
-
-```DAX
-DPO =
-    VAR daily_cogs =
-        DIVIDE ( [AP Amount], [COGS Amount LY Basis Placeholder] )
-    RETURN daily_cogs
-```
-
-### DIO
-
-```DAX
-DIO =
-    VAR daily_cogs =
-        DIVIDE ( [Inventory Amount], [COGS Amount LY Basis Placeholder] )
-    RETURN daily_cogs
-```
-
-### Cash Conversion Cycle
 
 ```DAX
 Cash Conversion Cycle =
-    [DSO] + [DIO] - [DPO]
+    [DSO Days] + [DIO Days] - [DPO Days]
 ```
 
 ---
 
-## 5. Formatting
-- € Amounts: `€#,0.00`
-- Days: `#,0`
+## 5. Defaults & Formatting
+
+| Field/Measure | Format  | Summarization | Display Folder |
+|---------------|---------|---------------|----------------|
+| Amounts       | €#,0.0  | Sum           | Cash           |
+| Percentages   | 0.0 %   | None          | Cash           |
+| Days          | #,0     | Average       | WorkingCapital |
 
 ---
 
-## 6. RLS
+## 6. RLS / OLS
 
+- Org-based RLS (Region/Country/BU) via dim_org.  
+- Optional OLS to hide cash balance for restricted roles; show CCC/DSO/DIO/DPO only.
+
+Example RLS:
 ```DAX
 dim_org[Region] IN
     CALCULATETABLE (
-        VALUES ( dim_org[Region] ),
-        dim_org[UserPrincipalName] = USERPRINCIPALNAME ()
+        VALUES ( security_user_org[Region] ),
+        security_user_org[UserPrincipalName] = USERPRINCIPALNAME ()
     )
 ```
 
 ---
 
-## 7. QA Rules
+## 7. Performance & Refresh
 
-| Check                        | Threshold |
-|------------------------------|-----------|
-| AR/AP/Inventory RI           | ≥ 99.9 %  |
-| WC = AR + Inventory – AP     | exact     |
-| DSO/DPO/DIO plausibility     | manual    |
-| Cash Position reconciliation | ±0.5 %    |
+- Storage: Import; incremental by month (36–60 months).  
+- Month-grain facts only; no daily granularity required.  
+- Hide technical columns; no calculated columns.
+
+---
+
+## 8. QA & Validation
+
+| Check Type              | Object                  | Rule                                   | Tolerance |
+|-------------------------|-------------------------|----------------------------------------|-----------|
+| Referential Integrity   | fact tables → dims      | ≥ 99.9 % matched keys                  | 0.1 %     |
+| Cash Reconciliation     | Cash Balance            | Matches GL/bank statements             | ±0.5 %    |
+| OCF Reconciliation      | OCF                     | Matches cash flow statement            | ±0.5 %    |
+| CCC Calculation         | DSO+DIO-DPO             | Aligns with WC reporting               | ±1 day    |

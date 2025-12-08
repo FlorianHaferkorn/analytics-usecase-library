@@ -1,199 +1,165 @@
-# <UC-ID> – Technical Factsheet
-
-## 0. Model References
-- **Data Contract:**  
-  `data_contracts/domains/<domain_file>.yaml`
-- **Semantic Model Definition:**  
-  `semantic_models/<model_path>/model_definition.yaml`
-- **KPI Catalog:**  
-  `framework/kpi_catalog/domain_kpi_catalog.md`
-- **Measure Dictionary:**  
-  `framework/kpi_catalog/domain_measure_dictionary.md`
-- **Use Case Inventory:**  
-  `usecases/UseCase_Inventory.md` (ID: <UC-ID>)
+# <USE CASE ID> – <USE CASE NAME>  
 
 ---
 
-## 1. Data Contract (YAML – <UC-ID> Scope)
+## 0. Metadata (Mandatory)
+- **Domain:** <Commercial / Finance / Operations / …>  
+- **Technical Owner:** <Role / Name>  
+- **Data Product / Model ID:** <semantic model name / ID>  
+- **Source Systems:** <ERP / CRM / DWH / …>  
+- **Use Case Business Factsheet:** <relative path to Business_Factsheet.md>  
+
+---
+
+## 1. Model References
+- **Data Contract (Domain):** <path/to/data_contracts/domains/...yaml>  
+- **Data Contract (Sources):** <path/to/data_contracts/sources/...yaml>  
+- **Semantic Model Definition:** <path/to/semantic_models/.../model_definition.yaml>  
+- **KPI Catalog:** <path/to/framework/kpi_catalog/domain_kpi_catalog.md>  
+- **Measure Dictionary:** <path/to/framework/kpi_catalog/domain_measure_dictionary.md>  
+
+---
+
+## 2. Data Contract Scope (YAML)
+Describe the subset of the domain contract relevant for this use case.
 
 ```yaml
 dimension:
-  - name: dim_<dimension>
+  - name: <dim_x>
     columns:
-      - {name: <Column>, type: <type>, role: <key/attribute>}
-      # add additional columns as needed
-
-  # repeat dim blocks as needed
-
-  - name: security_user_org    # only if RLS Enterprise is required
-    columns:
-      - {name: UserPrincipalName, type: text}
-      - {name: Region, type: text}
-      - {name: Country, type: text}
-      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: <Key>, type: int, role: key}
+      - {name: <BusinessCode>, type: text}
+      - {name: <Name>, type: text}
+      - {name: <Attribute>, type: text}
 
 fact:
-  - name: fact_<factname>
-    grain: <grain>
+  - name: <fact_x>
+    grain: <invoice_line / customer_day / asset_day / ...>
     columns:
-      - {name: <Column>, type: <type>, ref: <dimension>}
-      # add fact columns as required
+      - {name: <Measure 1>, type: currency, agg: sum, unit: EUR}
+      - {name: <Measure 2>, type: number, agg: sum, unit: pcs}
+      - {name: <Status>, type: text, agg: none}
+      - …
 
 settings:
   timezone: Europe/Berlin
   fiscal_year_start: 01-01
 ```
 
-### Source Mapping (Physical Layer)
-- fact_<fact> → `lh_<domain>.fact_<fact>`  
-- dim_<dimension> → `lh_shared.dim_<dimension>`  
-- security_user_org → `lh_security.security_user_org` (falls benötigt)
+> Do: refer back to domain-level contracts.  
+> Don’t: definieren dieselbe Logik mehrfach pro Use Case.
 
 ---
 
-## 2. Semantic Model Requirements
+## 3. Semantic Model Requirements
 
-### Model Name
-`<model_name>`
+### 3.1 Tables
+List all tables used in the semantic model for this use case.
 
-### Tables
-- fact_<fact>  
-- dim_<dimension>  
-- weitere dims abhängig vom UC  
-- security_user_org (hidden, optional)
+- fact_<...>  
+- dim_<...>  
+- security_<...> (if used)  
 
-### Relationships
-- fact_<fact>[<Key>] → dim_<dimension>[<Key>] (1:* | single direction)
-- mindestens eine DateKey-Beziehung  
-- alle konformen Dimensionen verwenden Surrogate Keys
+### 3.2 Relationships
+Define all relationships and rules.
 
-### Hierarchies
-- Org, Product, Date oder UC-spezifische Hierarchien  
-- Beispiel:
-  - Org: Region → Country → OrgName  
-  - Date: Year → Quarter → Month → Date  
+- fact → dim on surrogate keys only  
+- direction: Single, from dimension to fact  
+- no bidirectional relationships  
+- no ambiguous relationship paths  
 
-### Sort-by Columns
+### 3.3 Hierarchies
+List hierarchies that must be created.
+
+- Date: Year → Quarter → Month → Date  
+- Org: Region → Country → OrgName  
+- Product/Customer/etc.: …  
+
+### 3.4 Sort-by Columns
 - Month → MonthNumber  
-- Produktname → Produktcode  
-- <weitere UC-spezifische SortBy-Felder>
+- Name → Code (if required)  
+
+### 3.5 Modeling Rules (Mandatory)
+- No calculated columns (business logic in measures or ETL)  
+- Measures > calculated columns  
+- Default summarization set correctly  
+- Technical columns hidden by default  
+- Display folders aligned with domain conventions  
+- Naming conventions (Amount/Qty/%/Rate etc.) enforced  
 
 ---
 
-## 3. Measure Inventory (KPI + Supporting)
+## 4. Measure Inventory
+Every measure references a KPI ID or is a supporting measure.
 
-| Measure Name      | kpi_id                    | Type        | Folder               | Format     |
-|-------------------|---------------------------|------------|----------------------|-----------|
-| <Measure>         | <kpi_id>                  | KPI        | <Folder>             | <Format>  |
-| <Measure>         | <kpi_id>                  | Supporting | <Folder>             | <Format>  |
-| ...               | ...                       | ...        | ...                  | ...       |
+| Measure Name | KPI ID (or Supporting) | Purpose | Display Folder | Format | Type (KPI/Supporting) |
+|--------------|------------------------|---------|----------------|--------|------------------------|
+| <Measure> | <kpi_id or Supporting> | <why> | <01_Sales / 02_Margin / …> | <€, %, days> | <KPI/Supporting> |
+| … | … | … | … | … | … |
 
-### PEVM (optional)
-Falls Price/Volume/Mix benötigt wird:
-
-- Template:  
-  `framework/templates/measure_templates/pevm_sales_delta.md`
-
-- QA:  
-  *Price + Volume + Mix ≈ Δ Sales (±1 %).*
+> Do: keep the list the single source of truth for measures.  
+> Don’t: implement measures, die hier nicht dokumentiert sind.
 
 ---
 
-## 4. Measures (DAX)
+## 5. Measures (DAX)
+List all measures relevant for this use case.  
+Each measure must be documented with Copilot-ready comments.
 
 ```DAX
+/// <kpi_id or Supporting> – <short purpose>
 <Measure Name> =
-    <DAX Expression>
+    <DAX expression>
 ```
 
-```DAX
-<Measure Name> =
-    <DAX Expression>
-```
-
-*Hinweis:*  
-UC-spezifische Measures vollständig dokumentieren.  
-Wiederverwendbare Standard-Patterns nur verlinken.
+> Do: reuse Supporting Measures for repeated logic.  
+> Don’t: verschachtelte KPI-Monsterformeln ohne Supporting Layers.
 
 ---
 
-## 5. Defaults & Formatting
+## 6. Formatting
+Define formats consistent with your global conventions:
 
-| Field/Measure | Format   | Summarization | Display Folder        |
-|---------------|----------|---------------|------------------------|
-| Amounts       | €#,0.00  | Sum           | <Folder>               |
-| Percentages   | 0.0 %    | None          | <Folder>               |
-| Qty           | #,0      | Sum           | <Folder>               |
-| ...           | ...      | ...           | ...                    |
-
----
-
-## 6. Visual Requirements (Technical)
-
-### KPI Cards
-- <KPI 1>  
-- <KPI 2>  
-- <KPI 3>  
-
-### Trend (Line Chart)
-- Axis: dim_date[Month]
-- Values: <Measures>
-
-### Contribution (Waterfall)
-- optional: Price/Volume/Mix
-
-### Ranking
-- Horizontal Bar (Region / Channel / Product)
-
-### Detail (Matrix)
-- Dimension-Hierarchien (Region → Country → ...)
-- Export enabled
+- Currency: `€#,0.00`  
+- Percent: `0.0 %`  
+- Quantity / Count: `#,0`  
+- Days: `#,0`  
+- Scores / Index: `0.00`  
 
 ---
 
-## 7. RLS / OLS
+## 7. RLS / OLS Rules
 
-### Demo RLS (falls Security Table fehlt)
-```DAX
-dim_org[Region] = "Europe"
-```
+### 7.1 RLS Pattern (Mandatory)
+- RLS always applied on dimension or security table.  
+- No hard-coded usernames, always via security table.
 
-### Enterprise RLS (empfohlen)
-Requires: `security_user_org`
+Example:
 
 ```DAX
 dim_org[Region] IN
-    CALCULATETABLE (
-        VALUES ( security_user_org[Region] ),
-        security_user_org[UserPrincipalName] = USERPRINCIPALNAME ()
+    CALCULATETABLE(
+        VALUES(security_user_org[Region]),
+        security_user_org[UserPrincipalName] = USERPRINCIPALNAME()
     )
 ```
 
-### Optional OLS
-- Sensitive fields über Rollen ausblenden.
+### 7.2 OLS (Optional)
+- Define if sensitive measures require OLS (e.g. salary, cost, margin).  
+- Describe which roles see which measures.
 
 ---
 
-## 8. Performance & Refresh
+## 8. QA & Validation Rules
+Define checks that can be automated or at least systematically validated.
 
-- Storage Mode: Import oder Direct Lake  
-- Incremental Refresh:
-  - Monthly partitions
-  - History: 24–36 Monate
-- Page Load Targets:
-  - KPI Page < 2s  
-  - Detail Page < 3s  
-- Technical columns hidden  
-- No calculated columns  
-- Aggregations optional
+| Check Name | Object | Rule | Threshold | Automated (Y/N) | Owner |
+|------------|--------|------|-----------|------------------|-------|
+| RI Check | facts vs dims | referential integrity ≥ 99.9 % | 99.9 % | Y | Data Engineer |
+| KPI Reconciliation | [Net Sales Amount] vs source | Δ ≤ 0.5 % | 0.5 % | Y | Controller |
+| Decomposition Check | Drivers sum to Δ KPI | | 1.0 % | Y | BI Dev |
+| Outlier Check | key KPI | within business-defined range | domain-specific | N | Business Owner |
 
----
+> Do: define wenigstens 3–5 harte Regeln pro Use Case.  
+> Don’t: “QA: manual only” ohne Spezifikation.
 
-## 9. QA & Validation
-
-| Check Type              | Object             | Rule                           | Tolerance |
-|-------------------------|--------------------|--------------------------------|-----------|
-| Referential Integrity   | fact → dims        | ≥ 99.9 %                       | 0.1 %     |
-| Reconciliation          | KPIs vs Source     | Match Source                   | ±0.5 %    |
-| Variance Consistency    | Δ-KPIs             | Sum(Driver KPIs) ≈ Δ KPI       | ±1 %      |
-| Plausibility Checks     | UC-spezifisch      | industry/logic dependent       | manual    |

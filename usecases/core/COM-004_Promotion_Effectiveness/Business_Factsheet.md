@@ -65,7 +65,7 @@
 - Promotion indicator (PromoID or PromoFlag) required.
 - Baseline model must be available (simple or advanced).
 - Promo Cost needed for ROI.
-- Price, discount and mix-related data from COM-001/002 improve interpretation.
+- Price, discount and mix-related fields required to interpret uplift and leakage.
 
 ## 8. Success Criteria
 - Fewer negative-ROI promotions.
