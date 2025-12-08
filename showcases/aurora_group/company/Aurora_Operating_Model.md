@@ -4,12 +4,12 @@ Note: This file was moved to /archive because it does not fit the current target
 # Aurora Operating Model
 
 ### Value Chain
-1. Plan â€“ Financial Planning, Category Strategy, Demand Planning  
-2. Source â€“ Procurement, Supplier Management  
-3. Make/Move â€“ Allocation, DC Operations, Transport, Last Mile  
-4. Sell â€“ Stores, E-Commerce, Marketplaces, Wholesale  
-5. Serve â€“ Customer Service, Returns, After-Sales  
-6. Govern & Enable â€“ Finance, HR, ESG, IT, Data, Compliance
+1. Plan - Financial Planning, Category Strategy, Demand Planning  
+2. Source - Procurement, Supplier Management  
+3. Make/Move - Allocation, DC Operations, Transport, Last Mile  
+4. Sell - Stores, E-Commerce, Marketplaces, Wholesale  
+5. Serve - Customer Service, Returns, After-Sales  
+6. Govern & Enable - Finance, HR, ESG, IT, Data, Compliance
 
 ### Organizational Structure
 - Group Level: CEO, CFO, CHRO, CCO, COO, CIO, CSO  

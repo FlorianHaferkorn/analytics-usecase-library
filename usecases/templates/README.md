@@ -6,7 +6,6 @@ Reusable use case templates for business/technical factsheets and blueprints.
 Scope:
 - usecase_factsheet_business.md
 - usecase_factsheet_technical.md
-- usecase_blueprint.md
 - Not: Platform configs
 - Data contracts
 
