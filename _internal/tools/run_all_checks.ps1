@@ -21,7 +21,7 @@ function Resolve-RepoPath {
     $fallback = Join-Path -Path $repo -ChildPath $DefaultRelative
     if (Test-Path $fallback) { return (Resolve-Path -Path $fallback).Path }
   }
-  return $repo
+  return $null
 }
 
 $repoRoot = (Get-Location).Path
