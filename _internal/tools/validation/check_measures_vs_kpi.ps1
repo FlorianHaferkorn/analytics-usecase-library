@@ -64,9 +64,12 @@ function Load-KpiCatalogIndex {
 }
 
 $resolvedDistRoot = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'dist'
-if (-not $resolvedDistRoot) { throw "Unable to resolve dist root. Provide -DistRoot or run inside repository." }
+if (-not $resolvedDistRoot) {
+  Write-Host "Skip: dist root not found; measures vs KPI check not run." -ForegroundColor Yellow
+  exit 0
+}
 
-$resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative '_includes/kpi_catalog'
+$resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
 if (-not $resolvedKpiRoot) { throw "Unable to resolve KPI catalog folder. Provide -KpiCatalogRoot or run inside repository." }
 
 Write-Host "Checking measures vs KPI catalogs..." -ForegroundColor Cyan

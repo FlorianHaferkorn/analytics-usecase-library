@@ -1,75 +1,107 @@
-# COM-003 – Customer Value – Business Factsheet
+# COM-003 – Customer Value (Business Factsheet)
+
+## 0. Metadata (Mandatory)
+- **Use Case ID:** COM-003
+- **Domain:** Commercial
+- **Owner (Business):** CCO / Sales Ops / Marketing Lead
+- **Reporting Level:** Tactical
+- **Analytics Stage:** Diagnostic / Predictive
+- **Related Data Contract:** data_contracts/domains/commercial_sales.yaml
+- **Related Semantic Model:** semantic_models/core_action_ready/commercial_sales/model_definition.yaml
+
+---
 
 ## 1. Summary
-- **Business Goal:** Identify high-value, at-risk, and low-potential customers to optimize retention, pricing, service levels, and commercial focus.
-- **Target Audience:** CCO, CRM, Sales Management, Key Account Management, Commercial Excellence.
-- **Business Priority:** High (Customer Value drives growth, margin, and retention).
-- **Expected Impact:** Higher CLV, improved retention of profitable customers, reduced churn, and better prioritization of sales/marketing resources.
+**Purpose:** Grow customer lifetime value by focusing on profitable segments and reducing churn.  
+**Business Value:** Higher CLV and margin, reduced churn, better allocation of sales/marketing spend.  
+**Out of Scope:** Detailed campaign attribution (covered in campaign UC), pricing strategy (COM-002).
+
+---
 
 ## 2. Core Questions
-- Who are our most valuable customers (revenue, margin, CLV)?
-- Which customers show declining behavior or are at risk of churn?
-- Which segments (value tiers) require different pricing or service strategies?
-- How does customer value differ across regions, channels, categories?
-- Which actions (pricing, service, retention) increase Customer Lifetime Value?
+- Which customers/segments deliver the highest contribution and CLV?
+- Where do we see churn risk or declining engagement?
+- Which products/offers lift margin per customer?
+- How should we prioritize retention vs acquisition spend?
+- Which actions raise CLV fastest?
+
+**Example Queries:**  
+- “Which segments have CLV decline with flat revenue?”  
+- “Where is churn rising with low GM per customer?”  
+- “Which cross-sell offers improve CLV and GM %?”  
+
+---
 
 ## 3. KPI Set (Business View)
 
-| KPI Name                | Purpose                                    | Definition                                                   | Interpretation                                  | Decision Relevance                  |
-|-------------------------|----------------------------------------------|---------------------------------------------------------------|--------------------------------------------------|--------------------------------------|
-| Customer Value Score    | Composite measure of economic value          | weighted index of sales, margin, recency, frequency, CLV      | high = strategic customer                        | segmentation & resource allocation   |
-| Customer Lifetime Value | long-term economic value                     | discounted net margin contribution over horizon               | low = risk or low potential                      | retention & pricing strategy         |
-| Gross Margin %          | profitability per customer                   | (Sales – COGS) / Sales                                       | low = discount/mix/cost issue                    | pricing & commercial decisions       |
-| Revenue Growth %        | change in spend per customer                 | (NS – NS ly) / NS ly                                         | decline = early churn indicator                  | early warning                        |
-| Churn Risk Score        | likelihood of churn                          | behavioral model (recency, decline, frequency)               | high = action needed                             | retention actions                    |
+| KPI Name                  | KPI ID (mandatory)          | Purpose                           | Definition (short)                         | Unit / Format | Target / Threshold     | Interpretation                  |
+|---------------------------|-----------------------------|-----------------------------------|--------------------------------------------|---------------|------------------------|---------------------------------|
+| Customer Lifetime Value   | crm.clv.amount              | Profitability over lifecycle      | Margin per customer over expected lifetime | €             | ↑ vs plan/LY          | Higher = better ROI             |
+| Gross Margin per Customer | margin.customer.amount      | Margin quality by customer        | GM / Active Customers                      | €             | ≥ target band         | Margin health per customer      |
+| Retention Rate %          | crm.retention.pct           | Stickiness/loyalty                | Retained / Starting customers              | %             | >92–95 %              | Lower = churn risk              |
+| Churn Rate %              | crm.churn.pct               | Loss indicator                    | Lost customers / Starting customers        | %             | <8 % (segment-based)  | High churn = leakage            |
+| Revenue per Customer      | sales.customer.revenue.amount | Monetization level              | Net Sales / Active Customers               | €             | ↑ vs plan/LY          | Growth vs LY signals upsell     |
+
+> Do: keep KPI IDs and targets/bands; no technical fields as KPIs.
+
+---
 
 ## 4. Business Logic & Thresholds
-- Value Tiering:  
-  - Tier A = top 10–20 % CLV  
-  - Tier B = next 30–40 %  
-  - Tier C = remaining 40–60 %  
-- Churn Risk Score > 0.7 = high-risk customer.
-- GM % structurally low = pricing review or value destruction.
-- Declining frequency/volume in last 3–6 months = early churn risk.
-- High Value + High Risk = mandatory retention actions.
+- Retention Rate <92 % for 2 periods → churn program.
+- CLV declining with stable revenue → margin leakage.
+- GM per Customer down >5 % → price/discount review.
+- High churn + low revenue/customer in a segment → deprioritize spend.
+
+**Trigger (formal):**
+```
+WHEN crm.retention.pct < 92
+OR   margin.customer.amount < target - 5 %
+OR   crm.churn.pct > 8
+THEN propose C1/P2/M3/D2 as applicable
+```
+
+---
 
 ## 5. Action Codes
 
-| Code | Name                 | Description                                    | Trigger                                 | Expected Effect                 |
-|------|-----------------------|------------------------------------------------|------------------------------------------|---------------------------------|
-| C1   | Retention Outreach    | direct intervention (call, service review)     | high churn risk                           | reduced churn                   |
-| P1   | Price Review          | adjust price logic for high-value customers    | low GM %, high discounting                | improved profitability           |
-| S1   | Service Enhancement   | improve service level for Tier A/B customers   | complaints, delivery issues               | stabilize value                  |
-| M1   | Mix Optimization      | promote higher-margin products                 | low GM %, skewed mix                      | higher GM %                      |
+| Code | Name                  | Trigger (formal, KPIs)                  | Description (business action)                   | Expected KPI Impact          |
+|------|-----------------------|-----------------------------------------|-------------------------------------------------|------------------------------|
+| C1   | Retention Play        | retention.pct < target or churn rising  | Targeted outreach/incentives                    | +2–4 pp retention            |
+| P2   | Price/Discount Review | margin.customer.amount ↓                | Align price to value; reduce leakage            | +0.5–1.0 pp GM %             |
+| M3   | Mix Shift             | CLV stagnating, mix weak                | Promote higher-margin SKUs to key segments      | +5–10 % CLV                  |
+| D2   | Targeted Campaign     | revenue/customer flat                   | Upsell/cross-sell to precise segments           | +3–5 % revenue/customer      |
+
+> Do: use ActionCodes_Portfolio; keep KPI-based triggers.
+
+---
 
 ## 6. 3–30–300 Page Layout
 
-### **6.1 3-Second Layer**
-- Customer Value Score  
-- CLV  
-- Churn Risk Score  
-- Revenue Growth %  
-- Gross Margin %  
+### 6.1 3-Second Layer (KPI Cards – mandatory)
+- CLV | Retention % | Churn % | GM/Customer | Revenue/Customer
 
-### **6.2 30-Second Layer**
-- Value Tier distribution (A/B/C)
-- Customer Segmentation Bar Chart (Region/Channel)
-- Churn Risk Funnel
-- GM % vs Value scatter (identify value destroyers)
+### 6.2 30-Second Layer (Main Visuals – mandatory)
+| Visual Name            | Type  | X-Axis / Category      | Y-Axis / Value                           | Segment / Legend | Filters         |
+|------------------------|-------|------------------------|------------------------------------------|------------------|-----------------|
+| CLV & Retention Trend  | Line  | dim_date[Month]        | [CLV], [Retention %], [Churn %]          | Segment/Region   | Last 12–24M     |
+| Segment Ranking        | Bar   | dim_customer[Segment]  | [CLV], [GM/Customer], [Retention %]      | Region/Channel   | Top/Bottom N    |
+| CLV Driver Bridge      | Waterfall | Drivers (Price, Mix, Tenure, Cross-Sell) | Δ CLV vs Plan/LY                     | n/a              | Period selector |
+| Detail Matrix          | Matrix| Segment → Customer     | CLV, GM/Customer, Churn flag, basket mix | Segment/Region   | Export enabled  |
 
-### **6.3 300-Second Layer**
-- Customer-level matrix (Value, GM %, Revenue Trend, Churn Risk)
-- Customer History (sales, margin, interactions)
-- Export list for CRM/KAM actions
+### 6.3 300-Second Layer (Diagnostics & Detail)
+- Drill: Segment → Customer; product mix per segment; churn/retention cohorts.
+- Export: customer list for campaign activation with KPIs/flags.
 
-## 7. Dependencies & Constraints
-- Customer-level transactional data (sales, margin, frequency)
-- Clean customer master data (ID, segmentation, channel)
-- Optional: behavioral events (visits, tickets, complaints)
-- Optional: predictive churn model inputs
+---
+
+## 7. Dependencies, Assumptions & Constraints
+- Data: Customer master with segment tags; tenure/lifecycle events; discount/rebate mapping per customer; product mix and margin by customer.
+- Assumptions: Retention/churn definitions consistent; CLV calc method agreed (horizon, discount rate).
+- Constraints: Missing churn flags or tenure reduce quality; ensure privacy where needed.
+
+---
 
 ## 8. Success Criteria
-- Increased retention of Tier A customers
-- Reduction in high-risk customers
-- More profitable customer mix
-- >80 % usage in CRM/KAM reviews
+- Leading: >80 % usage in monthly Sales/Marketing/CS reviews; campaign lists consumed.
+- Lagging: CLV uplift in priority segments; retention +2–4 pp in at-risk cohorts; GM/Customer up with stable/lower discount rate.
+- Cadence/Quality: Monthly review; no KPI definition conflicts.

@@ -1,64 +1,111 @@
-# OPS-003 – Business Factsheet
+# OPS-003 – Quality & Yield (Business Factsheet)
+
+## 0. Metadata (Mandatory)
+- **Use Case ID:** OPS-003
+- **Domain:** Operations / Quality
+- **Owner (Business):** COO / Head of Quality / Production Lead
+- **Reporting Level:** Tactical / Operational
+- **Analytics Stage:** Diagnostic / Prescriptive
+- **Related Data Contract:** data_contracts/domains/operations.yaml
+- **Related Semantic Model:** semantic_models/domains/scm/model_definition.yaml
+
+---
 
 ## 1. Summary
-- **Business Goal:** Improve first-pass yield and reduce scrap/rework to lower cost and protect service levels.
-- **Target Audience:** COO, Quality, Production, Continuous Improvement.
-- **Business Priority:** High.
-- **Expected Impact:** -10–20 % scrap, higher FPY, lower complaints and rework cost.
+**Purpose:** Improve first-pass yield and reduce scrap/rework to lower cost and protect service levels.  
+**Business Value:** Lower cost of poor quality, fewer complaints, higher throughput and stability.  
+**Out of Scope:** Supplier audit program (handled in procurement/quality sourcing).
+
+---
 
 ## 2. Core Questions
 - Where do scrap and rework concentrate (lines, products, shifts)?
-- Which defect categories drive the largest losses?
-- How do quality issues impact unit cost and service?
-- Which corrective actions and control points are most effective?
+- Which defect categories drive the largest losses and cost?
+- How do quality issues impact unit cost, service levels, and customer complaints?
+- Which corrective actions are most effective and repeatable?
+- Where can best-practice settings be replicated?
+
+**Example Queries:**
+- “Which top 5 lines caused 80% of scrap last month and why?”
+- “What is the FPY and scrap trend by shift for Product Family A?”
+
+---
 
 ## 3. KPI Set (Business View)
 
-| KPI Name          | Purpose                        | Business Definition                      | Interpretation                     | Decision Relevance    |
-|-------------------|--------------------------------|------------------------------------------|------------------------------------|-----------------------|
-| First Pass Yield %| Process quality                | Good Units / (Good + Rework + Scrap)     | Core quality indicator             | Focus processes       |
-| Scrap Rate %      | Waste level                    | Scrap Units / Total Units                | Waste/leakage                      | Cost focus            |
-| Rework Rate %     | Stability/efficiency           | Rework Units / Total Units               | Hidden cost of poor quality        | Process fix           |
-| Cost of Poor Quality| Financial impact             | Scrap + Rework Cost                      | € view of quality losses           | Prioritize actions    |
-| Complaint Rate %  | Customer impact                | Complaints / Shipments                   | External quality perception        | Escalate/containment  |
+| KPI Name             | KPI ID (mandatory)       | Purpose                     | Definition (short)                              | Unit / Format | Target / Threshold      | Interpretation                   |
+|----------------------|--------------------------|-----------------------------|-------------------------------------------------|---------------|-------------------------|----------------------------------|
+| First Pass Yield %   | quality.fpy.pct          | Process quality             | Good Units / (Good + Rework + Scrap)            | %             | ≥ 95–98 %               | Core quality indicator           |
+| Scrap Rate %         | quality.scrap.pct        | Waste level                 | Scrap Units / Total Units                       | %             | ≤ 2 % (critical lines)  | Waste/leakage                    |
+| Rework Rate %        | quality.rework.pct       | Stability/efficiency        | Rework Units / Total Units                      | %             | ≤ 3 %                   | Hidden cost of poor quality      |
+| Cost of Poor Quality | quality.copq.amount      | Financial impact            | Scrap Cost + Rework Cost                        | currency      | ↓ vs prior period       | Financial leakage                |
+| Complaint Rate %     | quality.complaint.pct    | Customer impact             | Complaints / Shipments                          | %             | ≤ 0.5–1.0 %             | External quality perception      |
+| Defect Density       | quality.defect_density   | Defect intensity            | Defects / 1k units                              | count/1k      | ↓ trend                 | Process health                   |
+
+> Use KPI IDs from the catalog; targets vary by line/product criticality.
+
+---
 
 ## 4. Business Logic & Thresholds
-- FPY < 95 % or downward trend = immediate containment.
-- Scrap Rate > 2 % for priority products = root cause deep-dive.
-- Rework Rate > 3 % with high labor cost = process standardization.
-- Complaints trending up = supplier/process audit.
+- FPY % < target or downward trend for 2 periods → containment and RCA.
+- Scrap Rate % > 2 % for priority products → root cause deep-dive and CAPA.
+- Rework Rate % > 3 % with rising labor cost → standardise process and training.
+- Complaint Rate % uptrend → supplier/process audit and customer containment.
+- COPQ rising while volume flat → immediate corrective actions.
 
-## 5. Action Codes (Business Perspective)
+**Trigger Logic (formal, for automation):**
+```
+WHEN quality.fpy.pct < target_line
+OR   quality.scrap.pct > 2
+OR   quality.rework.pct > 3
+OR   quality.complaint.pct > 1
+THEN propose O2 (process improvement), M2 (maintenance fix), PC2 (supplier quality), L2 (training/SOP)
+```
 
-| Code | Name                     | Business Description                     | Typical Trigger              | Expected Effect            |
-|------|--------------------------|------------------------------------------|------------------------------|----------------------------|
-| O2   | Process Improvement      | Standardize/POKA-YOKE to cut defects     | High scrap/rework            | -10–20 % scrap             |
-| M2   | Maintenance Optimization | Address equipment-related defects        | Defects linked to assets     | Higher FPY                 |
-| PC2  | Supplier Quality Fix     | Tighten specs, incoming inspection       | Supplier-related defects     | Lower incoming defects     |
-| L2   | Training/Work Standards  | Upskill and enforce standard work        | Human error defects          | Higher FPY, lower rework   |
+---
 
-## 6. 3-30-300 Page Layout
+## 5. Action Codes
 
-### 6.1 3-Second Layer (Insight)
-- KPI cards: FPY %, Scrap %, Rework %, COPQ, Complaint Rate %.
+| Code | Name                         | Trigger (formal, KPIs)                                 | Description (business action)                    | Expected KPI Impact             |
+|------|------------------------------|--------------------------------------------------------|--------------------------------------------------|---------------------------------|
+| O2   | Process Improvement          | scrap.pct > 2 % OR rework.pct > 3 %                    | Poka-Yoke, parameter tuning, standard work       | -10–20 % scrap/rework           |
+| M2   | Maintenance Optimisation     | defects linked to equipment failures                   | Maintenance/Calibration to stabilise equipment   | Higher FPY, lower scrap         |
+| PC2  | Supplier Quality Fix         | defect reasons tied to incoming material               | Tighten specs, incoming inspection, supplier CAPA| Fewer incoming defects          |
+| L2   | Training / Work Standards    | human-error defects, shift-specific scrap spikes       | Training, SOP reinforcement, certification       | Higher FPY, lower rework        |
 
-### 6.2 30-Second Layer (Story)
-- Pareto: Scrap by defect category.
-- Bar: FPY by line/product/shift.
-- Line: FPY and Scrap trend.
+> Use ActionCodes_Portfolio; ensure triggers reference KPIs.
 
-### 6.3 300-Second Layer (Detail)
-- Matrix: Line → Product → Shift with FPY, Scrap, Rework, COPQ.
-- Drill: defect reasons, supplier vs process vs equipment split.
-- Export action list with owners.
+---
 
-## 7. Dependencies & Constraints
-- Robust defect coding and linkage to product/line/shift.
-- Cost mapping for scrap and rework (material, labor, overhead).
-- Complaint data tied to shipments.
+## 6. 3–30–300 Page Layout
+
+### 6.1 3-Second Layer (KPI Cards)
+- FPY %, Scrap %, Rework %, COPQ, Complaint Rate %, Defect Density.
+
+### 6.2 30-Second Layer (Main Visuals)
+| Visual Name           | Type   | X-Axis / Category                | Y-Axis / Value                             | Segment / Legend | Filters / Defaults |
+|-----------------------|--------|----------------------------------|--------------------------------------------|------------------|--------------------|
+| FPY & Scrap Trend     | Line   | dim_date[Month]                  | [FPY %], [Scrap %], [Rework %]             | Product/Line     | Last 12–18 months  |
+| Scrap Pareto          | Bar    | dim_defect[DefectReason]         | [Scrap Units], [Scrap %]                   | DefectCategory   | Current period     |
+| FPY by Line/Shift     | Column | dim_org[Line] or dim_date[Shift] | [FPY %], [Scrap %]                         | ProductCategory  | Last 30–90 days    |
+| COPQ by Driver        | Column | Driver (Scrap, Rework, Complaints)| [COPQ Amount]                              | Product/Line     | Current period     |
+| Complaints Trend      | Line   | dim_date[Month]                  | [Complaint Rate %]                         | Region/Channel   | Last 12 months     |
+| Quality Detail Matrix | Matrix | Region > Plant > Line > Product  | FPY %, Scrap %, Rework %, COPQ, Defect Density | Region | Export enabled |
+
+### 6.3 300-Second Layer (Diagnostics & Detail)
+- Drill: Region → Plant → Line → Shift → Defect Reason; link to asset and supplier where captured.
+- Export: action list with owner, due date, KPI impact; defect log with cost and responsible function.
+
+---
+
+## 7. Dependencies, Assumptions & Constraints
+- Data: good/rework/scrap units, cost of scrap/rework, defect codes with category/reason, complaint records linked to shipments, org/product hierarchies, shift calendar.
+- Assumptions: Targets per line/product maintained; defect coding standardised; COPQ mapping includes material + labor + overhead.
+- Constraints: Missing defect codes reduce insight; incomplete cost mapping understates COPQ; late complaint capture hides issues.
+
+---
 
 ## 8. Success Criteria
-- FPY rising, scrap/rework declining.
-- COPQ reduction visible in cost KPIs.
-- Complaints reduced or stable at low level.
-- Factsheet used in daily quality and weekly ops reviews.
+- Leading: >80 % usage in daily/weekly quality reviews; action log maintained; defect coding completeness ≥95 %.
+- Lagging: FPY rising toward target; Scrap/Rework % declining; COPQ down while volume flat; complaints stable or declining.
+- Cadence/Quality: Daily ops view, weekly quality review; consistent KPI definitions across plants.

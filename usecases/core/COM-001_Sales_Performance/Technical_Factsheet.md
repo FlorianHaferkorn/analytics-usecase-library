@@ -1,20 +1,24 @@
 # COM-001 – Technical Factsheet
 
-## 0. Model References
-- **Data Contract:**  
-  `data_contracts/domains/commercial_sales.yaml`
-- **Semantic Model Definition:**  
-  `semantic_models/core_action_ready/commercial_sales/model_definition.yaml`
-- **KPI Catalog:**  
-  `framework/kpi_catalog/domain_kpi_catalog.md`
-- **Measure Dictionary:**  
-  `framework/kpi_catalog/domain_measure_dictionary.md`
-- **Use Case Inventory:**  
-  `usecases/UseCase_Inventory.md` (ID: COM-001)
+## 0. Metadata (Mandatory)
+- **Domain:** Commercial
+- **Technical Owner:** Sales BI Lead
+- **Data Product / Model ID:** `commercial_sales_performance`
+- **Source Systems:** ERP (sales), DWH
+- **Use Case Business Factsheet:** `usecases/core/COM-001_Sales_Performance/Business_Factsheet.md`
 
 ---
 
-## 1. Data Contract Scope (COM-001)
+## 1. Model References
+- **Data Contract (Domain):** `data_contracts/domains/commercial_sales.yaml`
+- **Data Contract (Sources):** `data_contracts/sources/commercial.yaml` (if available)
+- **Semantic Model Definition:** `semantic_models/core_action_ready/commercial_sales/model_definition.yaml`
+- **KPI Catalog:** `framework/kpi_catalog/domain_kpi_catalog.md`
+- **Measure Dictionary:** `framework/kpi_catalog/domain_measure_dictionary.md`
+
+---
+
+## 2. Data Contract Scope (YAML – COM-001)
 
 ```yaml
 dimension:
@@ -43,8 +47,9 @@ dimension:
       - {name: ProductName, type: text}
       - {name: Category, type: text}
       - {name: Subcategory, type: text}
+      - {name: Brand, type: text}
 
-  - name: security_user_org
+  - name: security_user_org   # RLS
     columns:
       - {name: UserPrincipalName, type: text}
       - {name: Region, type: text}
@@ -58,128 +63,147 @@ fact:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: ProductKey, type: int, ref: dim_product}
-      - {name: CustomerKey, type: int}
       - {name: Net Sales Amount, type: currency, agg: sum}
-      - {name: COGS Amount, type: currency, agg: sum}
       - {name: Quantity Qty, type: number, agg: sum}
+      - {name: List Price Amount, type: currency, agg: sum}
+      - {name: Net Price Amount, type: currency, agg: sum}
       - {name: Plan Sales Amount, type: currency, agg: sum}
+      - {name: COGS Amount, type: currency, agg: sum}
+
 settings:
   timezone: Europe/Berlin
   fiscal_year_start: 01-01
 ```
 
-### Physical Layer
-- `lh_commercial_sales.fact_sales`  
-- shared dims under `lh_shared.*`  
-- security table under `lh_security.*`
+### Source Mapping (Physical Layer)
+- fact_sales → `lh_commercial_sales.fact_sales`
+- dim_date → `lh_shared.dim_date`
+- dim_org → `lh_shared.dim_org`
+- dim_product → `lh_shared.dim_product`
+- security_user_org → `lh_security.security_user_org`
 
 ---
 
-## 2. Semantic Model Requirements
+## 3. Semantic Model Requirements
 
-### Tables
+### 3.1 Tables
 - fact_sales  
 - dim_date  
 - dim_org  
 - dim_product  
-- security_user_org (hidden)
+- security_user_org (RLS)
 
-### Relationships
-- fact_sales[DateKey] → dim_date[DateKey]  
-- fact_sales[OrgKey] → dim_org[OrgKey]  
-- fact_sales[ProductKey] → dim_product[ProductKey]  
+### 3.2 Relationships
+- fact_sales[DateKey] → dim_date[DateKey] (1:* | single)
+- fact_sales[OrgKey] → dim_org[OrgKey] (1:* | single)
+- fact_sales[ProductKey] → dim_product[ProductKey] (1:* | single)
 
-### Hierarchies
-- Org: Region → Country → OrgName  
-- Product: Category → Subcategory → ProductName  
-- Date: Year → Quarter → Month → Date  
+### 3.3 Hierarchies
+- Org: Region → Country → Channel → OrgName
+- Product: Category → Subcategory → ProductName
+- Date: Year → Quarter → Month → Date
 
-### Sort By
-- Month → MonthNumber  
-- ProductName → ProductCode  
-- OrgName → OrgCode  
+### 3.4 Sort-by Columns
+- Month → MonthNumber
+- ProductName → ProductCode
+- OrgName → OrgCode
 
----
-
-## 3. Measure Inventory
-
-| Measure Name        | kpi_id                     | Folder       | Type        |
-|---------------------|-----------------------------|--------------|-------------|
-| Net Sales Amount    | sales.net.amount           | 01_Sales     | Supporting  |
-| COGS Amount         | margin.cogs.amount         | 02_Margin    | Supporting  |
-| Revenue Growth %    | sales.growth.pct           | 01_Sales     | KPI         |
-| Sales vs Plan %     | sales.vs_plan.pct          | 01_Sales     | KPI         |
-| Price Effect Amount | sales.driver.price.amount  | 03_Drivers   | KPI         |
-| Volume Effect Qty   | sales.driver.volume.qty    | 03_Drivers   | KPI         |
-| Mix Effect Amount   | sales.driver.mix.amount    | 03_Drivers   | KPI         |
+### 3.5 Modeling Rules
+- No calculated columns; business logic in measures/ETL.
+- Default summarization set; technical fields hidden.
+- Display folders: 01_Sales, 02_Margin, 03_PVM, 04_Plan.
 
 ---
 
-## 4. Measures (DAX)
+## 4. Measure Inventory
+
+| Measure Name           | KPI ID / Supporting            | Purpose               | Display Folder | Format   | Type |
+|------------------------|--------------------------------|-----------------------|----------------|----------|------|
+| Net Sales Amount       | sales.net.amount               | Sales base            | 01_Sales       | €#,0.00  | KPI  |
+| Net Sales Amount LY    | sales.net.amount.ly            | Sales LY              | 01_Sales       | €#,0.00  | Supporting |
+| Revenue Growth %       | growth.sales.yoy.pct           | YoY growth            | 01_Sales       | 0.0 %    | KPI  |
+| Plan Sales Amount      | sales.net.plan.amount          | Plan                  | 04_Plan        | €#,0.00  | Supporting |
+| Sales vs Plan %        | growth.sales.vs_plan.pct       | Plan attainment       | 04_Plan        | 0.0 %    | KPI  |
+| COGS Amount            | margin.cogs.amount             | Cost base             | 02_Margin      | €#,0.00  | Supporting |
+| Gross Margin %         | margin.gm.pct                  | Margin quality        | 02_Margin      | 0.0 %    | KPI  |
+| Quantity Qty           | sales.qty.total                | Volume                | 01_Sales       | #,0      | Supporting |
+| Price Effect Amount    | sales.price_effect.amount      | PVM                   | 03_PVM         | €#,0.00  | KPI  |
+| Volume Effect Amount   | sales.volume_effect.amount     | PVM                   | 03_PVM         | €#,0.00  | KPI  |
+| Mix Effect Amount      | sales.mix_effect.amount        | PVM                   | 03_PVM         | €#,0.00  | KPI  |
+
+---
+
+## 5. Measures (DAX)
 
 ```DAX
+/// sales.net.amount – Sales base
 Net Sales Amount =
     SUM ( fact_sales[Net Sales Amount] )
 ```
 
 ```DAX
-COGS Amount =
-    SUM ( fact_sales[COGS Amount] )
+/// sales.net.amount.ly – Sales LY
+Net Sales Amount LY =
+    CALCULATE ( [Net Sales Amount], DATEADD ( dim_date[Date], -1, YEAR ) )
 ```
 
 ```DAX
+/// growth.sales.yoy.pct – YoY growth
 Revenue Growth % =
-    DIVIDE (
-        [Net Sales Amount] - CALCULATE ( [Net Sales Amount], DATEADD ( dim_date[Date], -1, YEAR ) ),
-        CALCULATE ( [Net Sales Amount], DATEADD ( dim_date[Date], -1, YEAR ) )
-    )
+    DIVIDE ( [Net Sales Amount] - [Net Sales Amount LY], [Net Sales Amount LY] )
 ```
 
 ```DAX
+/// sales.net.plan.amount – Plan
+Plan Sales Amount =
+    SUM ( fact_sales[Plan Sales Amount] )
+```
+
+```DAX
+/// growth.sales.vs_plan.pct – Plan attainment
 Sales vs Plan % =
-    DIVIDE (
-        [Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] ),
-        SUM ( fact_sales[Plan Sales Amount] )
-    )
-```
-
-*Drivers (simplified template logic, depending on data availability):*
-
-```DAX
-Price Effect Amount =
-    ([Net Sales Amount] / [Quantity Qty])
-        - CALCULATE ([Net Sales Amount] / [Quantity Qty], DATEADD ( dim_date[Date], -1, YEAR ))
+    DIVIDE ( [Net Sales Amount] - [Plan Sales Amount], [Plan Sales Amount] )
 ```
 
 ```DAX
-Volume Effect Qty =
-    [Quantity Qty]
-        - CALCULATE ( [Quantity Qty], DATEADD ( dim_date[Date], -1, YEAR ) )
+/// margin.gm.pct – Margin quality
+Gross Margin % =
+    DIVIDE ( [Net Sales Amount] - [COGS Amount], [Net Sales Amount] )
 ```
 
 ```DAX
-Mix Effect Amount =
-    [Net Sales Amount]
-        - ([Price Effect Amount] + [Volume Effect Qty] * CALCULATE ([Net Sales Amount] / [Quantity Qty], DATEADD ( dim_date[Date], -1, YEAR )))
+/// PVM effects (template-based)
+Price Effect Amount = <per PEVM template>
+Volume Effect Amount = <per PEVM template>
+Mix Effect Amount = <per PEVM template>
 ```
+
+> PVM implementation per `framework/templates/measure_templates/pevm_sales_delta.md` (price + volume + mix ≈ Δ Net Sales, tolerance ±1 %).
 
 ---
 
-## 5. Formatting
-
-| Measure              | Format    |
-|----------------------|-----------|
-| Net Sales Amount     | €#,0.00   |
-| Revenue Growth %     | 0.0 %     |
-| Sales vs Plan %      | 0.0 %     |
-| Price Effect Amount  | €#,0.00   |
-| Volume Effect Qty    | #,0       |
-| Mix Effect Amount    | €#,0.00   |
+## 6. Defaults & Formatting
+- Currency: `€#,0.00` | Percent: `0.0 %` | Qty: `#,0`
+- Summarization: Amounts = Sum; Percent = None; Qty = Sum.
+- Display folders: 01_Sales, 02_Margin, 03_PVM, 04_Plan.
 
 ---
 
-## 6. RLS
+## 7. Visual Requirements
 
+| Visual Name         | Type      | X-Axis / Category   | Y-Axis / Value                          | Segment / Legend | Filters          |
+|---------------------|-----------|---------------------|-----------------------------------------|------------------|------------------|
+| Sales Trend vs Plan | Line      | dim_date[Month]     | [Net Sales Amount], Plan, LY            | Region/Channel   | Last 12–24M      |
+| PVM Waterfall       | Waterfall | Drivers (Price, Volume, Mix) | Δ Net Sales vs Plan/LY                | n/a              | Period selector  |
+| Ranking (Top/Bottom)| Bar       | Region/Channel/Product | [Net Sales Amount], [Sales vs Plan %], [GM %] | Region/Channel | Top/Bottom N     |
+| Detail Matrix       | Matrix    | Region → Country → Customer / Category → Product | NS, Growth, Plan %, GM %, PVM | Channel/Region | Export enabled   |
+
+---
+
+## 8. RLS / OLS Rules
+
+### 8.1 RLS Pattern
+Region/Channel-based RLS via security table:
 ```DAX
 dim_org[Region] IN
     CALCULATETABLE (
@@ -188,13 +212,24 @@ dim_org[Region] IN
     )
 ```
 
+### 8.2 OLS (optional)
+- Hide cost fields (COGS, GM) for non-finance roles; show sales only.
+
 ---
 
-## 7. QA Rules
+## 9. Performance & Refresh
+- Storage Mode: Import.
+- Partitioning: monthly; history 24–36 months.
+- No calculated columns; technical fields hidden; optional aggregations for large volumes.
 
-| Check                     | Threshold |
-|---------------------------|-----------|
-| RI dim_org/dim_product    | ≥ 99.9 %  |
-| Net Sales reconciliation  | ±0.5 %    |
-| Driver decomposition      | sum(price+vol+mix) ≈ ΔSales | ±1 % |
+---
 
+## 10. QA & Validation Rules
+
+| Check Name              | Object                      | Rule                                      | Threshold | Automated | Owner          |
+|-------------------------|-----------------------------|-------------------------------------------|-----------|-----------|----------------|
+| RI Check                | fact → dims                 | ≥ 99.9 % matched keys                     | 99.9 %    | Y         | Data Engineer  |
+| Sales Reconciliation    | Net Sales Amount            | Matches source                            | ±0.5 %    | Y         | Controller     |
+| Plan Reconciliation     | Plan Sales Amount           | Matches planning system                   | ±0.5 %    | Y         | Controller     |
+| PVM Consistency         | Price+Volume+Mix            | ≈ Δ Net Sales within tolerance            | ±1.0 %    | Y         | BI Dev         |
+| Margin Plausibility     | Gross Margin %              | In expected range; flag outliers          | rule-based| Y         | BI Dev         |

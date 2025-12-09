@@ -1,9 +1,9 @@
 Param(
-  [string]$KpiCatalogRoot = "analytics-usecase-library/_includes/kpi_catalog",
+  [string]$KpiCatalogRoot = "framework/kpi_catalog",
   [switch]$FailOnError
 )
 
-$script:RepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+$script:RepoRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
 
 function Resolve-RepoPath {
   param(
@@ -42,10 +42,10 @@ function Get-KpiBlocks {
 $errors = @(); $warnings = @(); $seenIds = @{}
 
 # Path to Use Case FactSheets (for required KPI IDs)
-$resolvedCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative '_includes/kpi_catalog'
+$resolvedCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
 if (-not $resolvedCatalogRoot) { throw "Unable to resolve KPI catalog root. Provide -KpiCatalogRoot or run inside repository." }
 
-$UseCasesRoot = Resolve-RepoPath -ProvidedPath "analytics-usecase-library/usecases" -DefaultRelative 'usecases'
+$UseCasesRoot = Resolve-RepoPath -ProvidedPath "usecases" -DefaultRelative 'usecases'
 
 function Get-FrontMatter {
   param(

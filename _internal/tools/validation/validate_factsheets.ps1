@@ -3,7 +3,7 @@ Param(
   [switch]$FailOnError
 )
 
-$script:RepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+$script:RepoRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
 
 function Resolve-RepoPath {
   param([string]$ProvidedPath,[string]$DefaultRelative)

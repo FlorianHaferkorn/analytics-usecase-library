@@ -1,20 +1,24 @@
 # COM-002 – Technical Factsheet
 
-## 0. Model References
-- **Data Contract:**  
-  `data_contracts/domains/commercial_sales.yaml`
-- **Semantic Model Definition:**  
-  `semantic_models/core_action_ready/commercial_sales/model_definition.yaml`
-- **KPI Catalog:**  
-  `framework/kpi_catalog/domain_kpi_catalog.md`
-- **Measure Dictionary:**  
-  `framework/kpi_catalog/domain_measure_dictionary.md`
-- **Use Case Inventory:**  
-  `usecases/UseCase_Inventory.md` (ID: COM-002)
+## 0. Metadata (Mandatory)
+- **Domain:** Commercial
+- **Technical Owner:** Pricing / BI Lead
+- **Data Product / Model ID:** `commercial_margin_performance`
+- **Source Systems:** ERP (sales, pricing), DWH
+- **Use Case Business Factsheet:** `usecases/core/COM-002_Margin_Price_Performance/Business_Factsheet.md`
 
 ---
 
-## 1. Data Contract (YAML – COM-002 Scope)
+## 1. Model References
+- **Data Contract (Domain):** `data_contracts/domains/commercial_sales.yaml`
+- **Data Contract (Sources):** `data_contracts/sources/commercial.yaml` (if available)
+- **Semantic Model Definition:** `semantic_models/core_action_ready/commercial_sales/model_definition.yaml`
+- **KPI Catalog:** `framework/kpi_catalog/domain_kpi_catalog.md`
+- **Measure Dictionary:** `framework/kpi_catalog/domain_measure_dictionary.md`
+
+---
+
+## 2. Data Contract Scope (YAML – COM-002)
 
 ```yaml
 dimension:
@@ -46,6 +50,13 @@ dimension:
       - {name: Brand, type: text}
       - {name: UoM, type: text}
 
+  - name: security_user_org   # RLS
+    columns:
+      - {name: UserPrincipalName, type: text}
+      - {name: Region, type: text}
+      - {name: Country, type: text}
+      - {name: OrgKey, type: int, ref: dim_org}
+
 fact:
   - name: fact_margin
     grain: invoice_line
@@ -73,104 +84,126 @@ settings:
 - dim_date → `lh_shared.dim_date`
 - dim_org → `lh_shared.dim_org`
 - dim_product → `lh_shared.dim_product`
+- security_user_org → `lh_security.security_user_org`
 
 ---
 
-## 2. Semantic Model Requirements
+## 3. Semantic Model Requirements
 
-### Model Name
-`commercial_margin_performance`
-
-### Tables
+### 3.1 Tables
 - fact_margin  
 - dim_date  
 - dim_org  
 - dim_product  
+- security_user_org (RLS)
 
-### Relationships
+### 3.2 Relationships
 - fact_margin[DateKey] → dim_date[DateKey] (1:* | single)
 - fact_margin[OrgKey] → dim_org[OrgKey] (1:* | single)
 - fact_margin[ProductKey] → dim_product[ProductKey] (1:* | single)
 
-### Hierarchies
+### 3.3 Hierarchies
 - Org: Region → Country → Channel → OrgName
 - Product: Category → Subcategory → Brand → ProductName
 - Date: Year → Quarter → Month → Date
 
----
+### 3.4 Sort-by Columns
+- Month → MonthNumber
+- OrgName → OrgCode
+- ProductName → ProductCode
 
-## 3. Measure Inventory (KPI + Supporting)
-
-| Measure Name          | kpi_id                        | Type        | Folder              | Format    |
-|-----------------------|-------------------------------|-------------|---------------------|-----------|
-| Gross Margin %        | margin.gm.pct                 | KPI         | 01_Margin           | 0.0 %     |
-| Gross Margin Amount   | margin.gm.amount              | KPI         | 01_Margin           | €#,0.00   |
-| Price Realization %   | sales.price.realization_pct   | KPI         | 02_Price            | 0.0 %     |
-| Discount %            | sales.discount.pct            | Supporting  | 02_Price            | 0.0 %     |
-| Mix Effect Amount     | sales.mix_effect.amount       | KPI         | 03_Mix              | €#,0.00   |
-| COGS per Unit         | cost.cogs_per_unit.amount     | KPI         | 04_Cost             | €#,0.000  |
-| GM vs Plan %          | margin.gm.vs_plan.pct         | KPI         | 01_Margin           | 0.0 %     |
+### 3.5 Modeling Rules
+- No calculated columns; keep logic in measures/ETL.
+- Default summarization set; technical fields hidden.
+- Display folders: 01_Margin, 02_Price, 03_Cost, 04_Plan.
 
 ---
 
-## 4. Measures (DAX)
+## 4. Measure Inventory
+
+| Measure Name          | KPI ID / Supporting          | Purpose                  | Display Folder | Format  | Type |
+|-----------------------|------------------------------|--------------------------|----------------|---------|------|
+| Gross Margin %        | margin.gm.pct                | Margin quality           | 01_Margin      | 0.0 %   | KPI  |
+| Gross Margin Amount   | margin.gm.amount             | Margin value             | 01_Margin      | €#,0.00 | KPI  |
+| Price Realization %   | sales.price.realization_pct  | Discount discipline      | 02_Price       | 0.0 %   | KPI  |
+| Discount %            | sales.discount.pct           | Discount rate            | 02_Price       | 0.0 %   | Supporting |
+| Mix Effect Amount     | sales.mix_effect.amount      | Portfolio quality        | 01_Margin      | €#,0.00 | KPI  |
+| COGS per Unit         | cost.cogs_per_unit.amount    | Cost efficiency          | 03_Cost        | €#,0.000| KPI  |
+| GM vs Plan %          | margin.gm.vs_plan.pct        | Target attainment        | 04_Plan        | 0.0 %   | KPI  |
+
+---
+
+## 5. Measures (DAX)
 
 ```DAX
+/// margin.gm.amount – Margin value
 Gross Margin Amount =
     [Net Sales Amount] - [COGS Amount]
 ```
 
 ```DAX
+/// margin.gm.pct – Margin quality
 Gross Margin % =
     DIVIDE ( [Gross Margin Amount], [Net Sales Amount] )
 ```
 
 ```DAX
+/// sales.price.realization_pct – Discount discipline
 Price Realization % =
     DIVIDE ( [Net Price Amount], [List Price Amount] )
 ```
 
 ```DAX
+/// sales.discount.pct – Discount rate
 Discount % =
     1 - [Price Realization %]
 ```
 
 ```DAX
+/// cost.cogs_per_unit.amount – Unit cost
 COGS per Unit =
     DIVIDE ( [COGS Amount], [Quantity Qty] )
 ```
 
 ```DAX
+/// margin.gm.vs_plan.pct – Gap to plan
 GM vs Plan % =
     DIVIDE ( [Gross Margin Amount] - SUM ( fact_margin[Plan GM Amount] ),
              SUM ( fact_margin[Plan GM Amount] ) )
 ```
 
 ```DAX
+/// sales.mix_effect.amount – Mix impact (via PVM template)
 Mix Effect Amount =
     CALCULATE ( [Gross Margin Amount] ) - [Price Effect Amount] - [Volume Effect Amount]
 ```
 
-*(Price/Volume/Mix pattern per `framework/templates/measure_templates/pevm_sales_delta.md`.)*
+> Price/Volume/Mix implementation per `framework/templates/measure_templates/pevm_sales_delta.md`.
 
 ---
 
-## 5. Defaults & Formatting
-
-| Field/Measure | Format   | Summarization | Display Folder |
-|---------------|----------|---------------|----------------|
-| Amounts       | €#,0.00  | Sum           | Margin/Price   |
-| Percentages   | 0.0 %    | None          | KPI folders    |
-| Qty           | #,0      | Sum           | Volume         |
+## 6. Defaults & Formatting
+- Currency: `€#,0.00` | Percent: `0.0 %` | Qty: `#,0` | Unit Cost: `€#,0.000`
+- Summarization: Amounts = Sum; Percent = None; Unit Cost = None; Qty = Sum.
+- Display folders: 01_Margin, 02_Price, 03_Cost, 04_Plan.
 
 ---
 
-## 6. RLS / OLS
+## 7. Visual Requirements
 
-- **Org-based RLS:** Region/Country/Channel/Org via dim_org.  
-- **Optional OLS:** Hide cost fields (COGS, GM) for non-finance roles; expose only price/volume.
+| Visual Name          | Type      | X-Axis / Category        | Y-Axis / Value                              | Segment / Legend | Filters / Defaults |
+|----------------------|-----------|--------------------------|---------------------------------------------|------------------|--------------------|
+| GM Trend vs Plan     | Line      | dim_date[Month]          | [Gross Margin %], [GM vs Plan %], Plan      | Region/Channel   | Last 12–24M        |
+| GM by Product/Ch     | Bar       | dim_product[Category] / dim_org[Channel] | [Gross Margin %], [Price Realization %] | Region           | Top/Bottom N       |
+| Margin Variance Bridge | Waterfall | Drivers (Price, Volume, Mix, Cost) | Δ GM vs Plan/LY                         | n/a              | Period selector    |
+| Detail Matrix        | Matrix    | Region → Channel → Product | GM %, Price Realization %, COGS/Unit, Mix Effect | Region/Channel | Export enabled    |
 
-Example RLS (region-based):
+---
+
+## 8. RLS / OLS Rules
+
+### 8.1 RLS Pattern
+Region/Channel-based RLS via security table:
 ```DAX
 dim_org[Region] IN
     CALCULATETABLE (
@@ -179,21 +212,24 @@ dim_org[Region] IN
     )
 ```
 
----
-
-## 7. Performance & Refresh
-
-- Storage: Import; incremental by month (24–36 months).  
-- Pre-aggregate very granular invoice data if needed.  
-- No calculated columns; hide technical fields.
+### 8.2 OLS (optional)
+- Hide cost fields (COGS, GM) for non-finance roles; keep price/volume visible.
 
 ---
 
-## 8. QA & Validation
+## 9. Performance & Refresh
+- Storage Mode: Import.
+- Partitioning: monthly; history 24–36 months.
+- No calculated columns; technical fields hidden; optional aggregations for large invoice volumes.
 
-| Check Type              | Object               | Rule                                   | Tolerance |
-|-------------------------|----------------------|----------------------------------------|-----------|
-| Referential Integrity   | fact → dims          | ≥ 99.9 % matched keys                  | 0.1 %     |
-| Margin Reconciliation   | GM Amount            | Matches source within tolerance        | ±0.5 %    |
-| Plan Reconciliation     | Plan GM vs planning  | Matches planning system                | ±0.5 %    |
-| PVM Consistency         | Price+Volume+Mix     | ≈ Δ GM within rounding                 | ±1.0 %    |
+---
+
+## 10. QA & Validation Rules
+
+| Check Name            | Object               | Rule                                    | Threshold | Automated | Owner          |
+|-----------------------|----------------------|-----------------------------------------|-----------|-----------|----------------|
+| RI Check              | fact_margin → dims   | ≥ 99.9 % matched keys                   | 99.9 %    | Y         | Data Engineer  |
+| Margin Reconciliation | Gross Margin Amount  | vs source within tolerance              | ±0.5 %    | Y         | Controller     |
+| Plan Reconciliation   | Plan GM vs planning  | Matches planning system                 | ±0.5 %    | Y         | Controller     |
+| PVM Consistency       | Price+Volume+Mix     | ≈ Δ GM within rounding                  | ±1.0 %    | Y         | BI Dev         |
+| Price Realization     | Net/List consistency | Net ≤ List unless surcharge; flag breaks | rule-based| Y         | BI Dev         |

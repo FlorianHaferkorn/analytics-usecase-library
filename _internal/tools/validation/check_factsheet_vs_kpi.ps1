@@ -5,7 +5,7 @@ Param(
 )
 
 $ScriptToolsRoot = Split-Path -Parent $PSScriptRoot
-$RepoRoot = Split-Path -Parent $ScriptToolsRoot
+$RepoRoot = Split-Path -Parent (Split-Path -Parent $ScriptToolsRoot)
 
 function Resolve-RepoPath {
   param(
@@ -27,7 +27,7 @@ function Resolve-RepoPath {
 $UseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'usecases'
 if (-not $UseCasesRoot) { throw "Unable to resolve UseCases root folder. Provide -UseCasesRoot or run inside repository." }
 
-$KpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative '_includes/kpi_catalog'
+$KpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
 if (-not $KpiCatalogRoot) { throw "Unable to resolve KPI catalog folder. Provide -KpiCatalogRoot or run inside repository." }
 
 function Get-FrontMatter {

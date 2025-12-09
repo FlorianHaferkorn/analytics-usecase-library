@@ -2,26 +2,28 @@ Param()
 
 $ErrorActionPreference = "Stop"
 
-$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path   # .../tools/maintenance
-$toolsRoot  = Split-Path -Parent $scriptRoot                    # .../tools
-$repoRoot   = Split-Path -Parent $toolsRoot                     # repo root
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path   # .../_internal/tools/maintenance
+$toolsRoot  = Split-Path -Parent $scriptRoot                    # .../_internal/tools
+$repoRoot   = Split-Path -Parent (Split-Path -Parent $toolsRoot) # repo root
 
 Write-Host "Checking documentation and tooling references..." -ForegroundColor Cyan
 
 $items = @(
-  @{ Path = "docs/Concept_and_Conventions.md";       Kind = "file"; Description = "Concept & Conventions" },
-  @{ Path = "docs/Business_Playbook.md";             Kind = "file"; Description = "Business Playbook" },
-  @{ Path = "docs/Quickstart_1-Pager.md";            Kind = "file"; Description = "Quickstart 1-Pager" },
-  @{ Path = "docs/Instructions.md";                  Kind = "file"; Description = "Instructions" },
-  @{ Path = "usecases/UC-000_Template.md";           Kind = "file"; Description = "Use Case template" },
-  @{ Path = "_includes/UseCase_Inventory.md";        Kind = "file"; Description = "Use Case Inventory" },
-  @{ Path = "_includes/Strategic_KPIs.md";           Kind = "file"; Description = "Strategic KPIs" },
-  @{ Path = "_includes/Strategic_Alignment_Map.md";  Kind = "file"; Description = "Strategic Alignment Map" },
-  @{ Path = "_includes/kpi_catalog/SCHEMA.md";       Kind = "file"; Description = "KPI Catalog Schema" },
-  @{ Path = "tools/run_all_checks.ps1";              Kind = "file"; Description = "Run all checks script" },
-  @{ Path = "tools/new_usecase.ps1";                 Kind = "file"; Description = "New usecase helper" },
-  @{ Path = "tools/generate/generate_tmdl_measures.ps1"; Kind = "file"; Description = "TMDL measures generator" },
-  @{ Path = "tools/generate_all_measures.ps1";       Kind = "file"; Description = "Generate all measures wrapper" }
+  @{ Path = "docs/README.md";                                    Kind = "file"; Description = "Docs overview" },
+  @{ Path = "docs/company/business_strategy.md";                 Kind = "file"; Description = "Business Strategy" },
+  @{ Path = "docs/company/strategic_kpis.md";                    Kind = "file"; Description = "Strategic KPIs" },
+  @{ Path = "docs/company/strategic_alignment_map.md";           Kind = "file"; Description = "Strategic Alignment Map" },
+  @{ Path = "docs/operating_model/semantic_layer.md";            Kind = "file"; Description = "Semantic Layer blueprint" },
+  @{ Path = "docs/operating_model/distribution_architecture.md"; Kind = "file"; Description = "Distribution architecture" },
+  @{ Path = "usecases/templates/usecase_factsheet_business.md";  Kind = "file"; Description = "Use Case factsheet (business) template" },
+  @{ Path = "usecases/templates/usecase_factsheet_technical.md"; Kind = "file"; Description = "Use Case factsheet (technical) template" },
+  @{ Path = "usecases/UseCase_Inventory.md";                     Kind = "file"; Description = "Use Case Inventory" },
+  @{ Path = "framework/kpi_catalog/SCHEMA.md";                   Kind = "file"; Description = "KPI Catalog Schema" },
+  @{ Path = "framework/kpi_catalog/README.md";                   Kind = "file"; Description = "KPI Catalog overview" },
+  @{ Path = "_internal/tools/run_all_checks.ps1";                Kind = "file"; Description = "Run all checks script" },
+  @{ Path = "_internal/tools/generation/new_usecase.ps1";        Kind = "file"; Description = "New usecase helper" },
+  @{ Path = "_internal/tools/generation/generate_tmdl_measures.ps1"; Kind = "file"; Description = "TMDL measures generator" },
+  @{ Path = "_internal/tools/generation/generate_all_measures.ps1";  Kind = "file"; Description = "Generate all measures wrapper" }
 )
 
 $missing = @()

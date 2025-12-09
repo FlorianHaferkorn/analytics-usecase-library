@@ -1,74 +1,107 @@
-# COM-004 – Business Factsheet
+# COM-004 – Promotion Effectiveness (Business Factsheet)
+
+## 0. Metadata (Mandatory)
+- **Use Case ID:** COM-004
+- **Domain:** Commercial
+- **Owner (Business):** CMO / Trade Marketing / Revenue Growth Mgmt
+- **Reporting Level:** Tactical
+- **Analytics Stage:** Diagnostic / Prescriptive
+- **Related Data Contract:** data_contracts/domains/commercial_sales.yaml
+- **Related Semantic Model:** semantic_models/core_action_ready/commercial_sales/model_definition.yaml
+
+---
 
 ## 1. Summary
-- **Business Goal:** Measure the effectiveness and profitability of promotions by quantifying uplift, baseline vs promo performance and promo ROI.
-- **Target Audience:** CCO, Category Management, Trade Marketing, Key Account Management, Controlling.
-- **Business Priority:** High (promotion spend is one of the largest commercial cost blocks).
-- **Expected Impact:** Fewer ineffective promotions, optimized budget allocation, improved promo profitability and better mechanism selection.
+**Purpose:** Improve promotion ROI by measuring incremental sales and margin impact.  
+**Business Value:** Fewer unprofitable promos, higher incremental GM, better channel/product targeting.  
+**Out of Scope:** Long-term pricing strategy (COM-002); assortment optimization (separate UC).
+
+---
 
 ## 2. Core Questions
-- Which promotions deliver real incremental value?
-- How much sales/volume would we have generated without the promotion?
-- What is the actual uplift vs the modeled baseline?
-- How do promotions affect GM %, discount levels and price realization?
-- Which mechanics (price cuts, multi-buy, flyer, display) perform best?
-- Which retailers/channels over- or underperform in promotions?
+- Which promotions generated true incremental sales and margin?
+- Which channels/products deliver the highest promo ROI?
+- How much did discounts erode price realization and GM?
+- What depth/timing/mechanics should future promotions follow?
+- Where do cannibalization or leakage offset uplift?
+
+**Example Queries:**  
+- “Which top-10 promos by channel delivered ROI >120 % and uplift >5 %?”  
+- “Which mechanics drive lowest leakage and best ROI for category X?”  
+
+---
 
 ## 3. KPI Set (Business View)
 
-| KPI Name               | Purpose                                   | Definition                                                     | Interpretation                          | Decision Relevance           |
-|------------------------|---------------------------------------------|----------------------------------------------------------------|------------------------------------------|------------------------------|
-| Promo Uplift Qty       | Incremental volume                          | Promo Qty – Baseline Qty                                       | positive = added demand                  | enable mechanism decision    |
-| Promo Uplift Amount    | Incremental revenue                         | Promo Sales – Baseline Sales                                   | business value of promotion              | budget allocation            |
-| Baseline Sales Amount  | Expected sales without promotion            | Modeled baseline (historic/seasonal model)                     | separates natural trend vs promo effect   | control group logic          |
-| Promo ROI              | Profitability of promotion                  | (Uplift Amount – Promo Cost) / Promo Cost                      | >0 = profitable                          | continue/stop decision       |
-| Promo GM %             | Margin quality during promotion             | (Promo Sales – Promo COGS) / Promo Sales                       | low = over-discounting                   | pricing & mechanics review   |
-| Promo Leakage Amount   | Margin loss driven by promotion            | (Baseline GM % – Promo GM %) × Promo Sales                     | quantifies economic loss                 | corrective actions           |
+| KPI Name             | KPI ID (mandatory)              | Purpose                          | Definition (short)                          | Unit / Format | Target / Threshold          | Interpretation                 |
+|----------------------|---------------------------------|----------------------------------|---------------------------------------------|---------------|-----------------------------|--------------------------------|
+| Promo ROI %          | sales.promo.roi.pct             | Profitability of promotion       | (Incremental Margin – Promo Spend) / Spend  | %             | >100 %; ≥120 % ideal        | Value-creating promo           |
+| Incremental Sales %  | sales.promo.incremental.pct     | Demand lift                      | (Promo – Baseline) / Baseline               | %             | >5 % (segment-specific)     | Positive = uplift              |
+| Gross Margin %       | margin.promo.gm.pct             | Margin quality during promo      | (Promo Sales – COGS) / Promo Sales          | %             | ≥ target band               | Detect leakage                 |
+| Price Realization %  | sales.price.realization_pct     | Discount discipline              | Net Price / List Price                      | %             | ≥90–95 %                    | Over-discounting if too low    |
+| Cannibalization %    | sales.promo.cannibalization.pct | Impact on non-promoted items     | Sales loss in related items / Promo uplift  | %             | <30 % of uplift             | High = counterproductive       |
+
+> Do: ensure KPI IDs/targets set; avoid non-KPI fields.
+
+---
 
 ## 4. Business Logic & Thresholds
-- Promo ROI < 0 = economically negative promotion.
-- Promo Uplift Qty < +5 % = ineffective.
-- Promo GM % significantly below normal GM % = risk of over-discounting.
-- High Leakage Amount = priority for redesign or elimination.
-- Repeated negative promotions = mandatory stop/redesign.
+- Promo ROI <100 % = stop or redesign.
+- Incremental Sales % <5 % with GM drop = avoid repeating.
+- Price Realization % <90 % = depth too high.
+- Cannibalization >30 % of uplift = redesign assortment/promo set.
+
+**Trigger (formal):**
+```
+WHEN sales.promo.roi.pct < 100
+OR   sales.promo.incremental.pct < 5
+OR   sales.price.realization_pct < 90
+OR   sales.promo.cannibalization.pct > 30
+THEN propose D2/P2/M3/D1 as applicable
+```
+
+---
 
 ## 5. Action Codes
 
-| Code | Name                   | Description                                 | Trigger                               | Expected Effect            |
-|------|------------------------|---------------------------------------------|----------------------------------------|----------------------------|
-| P2   | Discount Optimization  | Reduce/restructure discounts                | high discount %, low Promo GM %        | reduce leakage             |
-| M1   | Mix Optimization       | Shift toward high-margin items              | weak mix                               | improve Promo GM %         |
-| T1   | Promo Redesign         | Adjust mechanic (e.g., flyer → display)     | low uplift, low ROI                     | higher effectiveness       |
-| T2   | Promo Termination      | Stop ineffective promotions                 | repeated negative ROI                   | protect budget             |
-| C1   | Cost Review            | Validate cost-increase impact               | GM drop not driven by discount/mix      | stabilize GM %             |
+| Code | Name                     | Trigger (formal, KPIs)               | Description (business action)                 | Expected KPI Impact          |
+|------|--------------------------|--------------------------------------|-----------------------------------------------|------------------------------|
+| D2   | Promo Redesign           | ROI <100 % or low uplift             | Adjust mechanics, depth, timing               | Higher ROI, less leakage     |
+| P2   | Price/Discount Guardrail | Price Realization % <90–95 %         | Enforce floor prices and caps                 | +0.3–0.7 pp GM %             |
+| M3   | Assortment Focus         | High cannibalization, low GM         | Promote high-margin SKUs                      | Better promo mix             |
+| D1   | Demand Boost Targeted    | Strong ROI in select segments        | Scale positive promos to good segments        | Preserve ROI, grow NS        |
+
+> Do: use ActionCodes_Portfolio; keep triggers KPI-based.
+
+---
 
 ## 6. 3–30–300 Page Layout
 
-### **6.1 3-Second Layer**
-- Promo Uplift Qty  
-- Promo Uplift Amount  
-- Promo ROI  
-- Promo GM %  
-- Promo Leakage Amount  
+### 6.1 3-Second Layer (KPI Cards – mandatory)
+- Promo ROI %, Incremental Sales %, GM %, Price Realization %, Cannibalization %.
 
-### **6.2 30-Second Layer**
-- Ranking: uplifts, leakage, ROI
-- Trend: ROI and GM % by month or by mechanic
-- Decomposition: Promo Uplift vs Leakage vs Promo Cost
+### 6.2 30-Second Layer (Main Visuals – mandatory)
+| Visual Name          | Type      | X-Axis / Category | Y-Axis / Value                           | Segment / Legend | Filters            |
+|----------------------|-----------|-------------------|------------------------------------------|------------------|--------------------|
+| Promo ROI & GM Trend | Line      | dim_date[Month]   | [Promo ROI %], [Promo GM %], [Uplift %]  | Channel/Region   | Last 12–24M        |
+| ROI by Promo/Ch/Prod | Bar       | dim_promo[PromoName] / dim_org[Channel] / dim_product[Category] | [Promo ROI %], [Uplift %] | Region | Top/Bottom N |
+| Promo Variance Bridge| Waterfall | Drivers (Price, Volume, Mix, Spend)  | Δ Promo GM vs Baseline                    | n/a              | Period selector    |
+| Detail Matrix        | Matrix    | Promo → Product/Channel              | ROI %, Uplift %, GM %, Cannibalization %  | Channel/Region   | Export enabled     |
 
-### **6.3 300-Second Layer**
-- Detail Matrix by Promotion → Mechanic → Product
-- Scatter: Discount % vs Promo ROI (outlier detection)
-- Export view for Trade Marketing and KAM
+### 6.3 300-Second Layer (Diagnostics & Detail)
+- Drill: Promo → Product/Channel; basket and halo analysis.
+- Export: best/worst promo list with mechanics, ROI, leakage.
 
-## 7. Dependencies & Constraints
-- Promotion indicator (PromoID or PromoFlag) required.
-- Baseline model must be available (simple or advanced).
-- Promo Cost needed for ROI.
-- Price, discount and mix-related fields required to interpret uplift and leakage.
+---
+
+## 7. Dependencies, Assumptions & Constraints
+- Data: Promo ID/flag, mechanics, spend, baseline sales/qty, list/net price, discounts, COGS; cannibalization measurement rules.
+- Assumptions: Baseline method agreed (pre/post or modeled); spend captured; price/discount fields reliable.
+- Constraints: Missing baseline or spend reduces ROI quality; ensure COGS/price alignment with product hierarchy.
+
+---
 
 ## 8. Success Criteria
-- Fewer negative-ROI promotions.
-- Higher average Promo GM % and Promo ROI.
-- Better promotional mechanics and retailer/channel selection.
-- Regular use in category/trade/retailer reviews (>80 % adoption).
+- Leading: >80 % usage in trade/marketing reviews; action list maintained.
+- Lagging: Increase share of ROI >120 % promos; reduce unprofitable promos by >30 %; GM % during promos improves while uplift stable.
+- Cadence/Quality: Monthly review; no KPI-definition conflicts.

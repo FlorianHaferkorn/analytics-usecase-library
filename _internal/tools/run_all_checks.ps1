@@ -1,6 +1,7 @@
 Param(
-  [string]$UseCasesRoot = "usecases",
-  [string]$KpiCatalogRoot = "_includes/kpi_catalog"
+  [string]$UseCasesRoot   = "usecases",
+  [string]$KpiCatalogRoot = "framework/kpi_catalog",
+  [string]$DistRoot       = "dist"
 )
 
 $ErrorActionPreference = "Stop"
@@ -26,7 +27,8 @@ function Resolve-RepoPath {
 $repoRoot = (Get-Location).Path
 
 $useCasesRoot   = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'usecases'
-$kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative '_includes/kpi_catalog'
+$kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
+$distRoot       = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'dist'
 
 Write-Host "Running analytics-usecase-library checks..." -ForegroundColor Cyan
 Write-Host "UseCases:   $useCasesRoot" -ForegroundColor DarkGray
@@ -53,20 +55,18 @@ function Invoke-LocalScript {
 }
 
 # 1) Validate FactSheets
-Invoke-LocalScript -RelativePath "tools/coverage/validate_factsheets.ps1" -Arguments @("-UseCasesRoot", $useCasesRoot)
+Invoke-LocalScript -RelativePath "_internal/tools/validation/validate_factsheets.ps1" -Arguments @("-UseCasesRoot", $useCasesRoot)
 
 # 2) Validate KPI catalogs
-Invoke-LocalScript -RelativePath "tools/coverage/validate_kpi_catalog.ps1" -Arguments @("-KpiCatalogRoot", $kpiCatalogRoot)
+Invoke-LocalScript -RelativePath "_internal/tools/validation/validate_kpi_catalog.ps1" -Arguments @("-KpiCatalogRoot", $kpiCatalogRoot)
 
 # 3) Check coverage FactSheet vs KPI catalog
-# Let the script resolve roots itself based on repository layout.
-Invoke-LocalScript -RelativePath "tools/coverage/check_factsheet_vs_kpi.ps1" -Arguments @()
+Invoke-LocalScript -RelativePath "_internal/tools/validation/check_factsheet_vs_kpi.ps1" -Arguments @("-UseCasesRoot", $useCasesRoot, "-KpiCatalogRoot", $kpiCatalogRoot)
 
 # 4) Check measures vs KPI catalog
-# Let the script use its own defaults (dist and _includes/kpi_catalog).
-Invoke-LocalScript -RelativePath "tools/coverage/check_measures_vs_kpi.ps1" -Arguments @()
+Invoke-LocalScript -RelativePath "_internal/tools/validation/check_measures_vs_kpi.ps1" -Arguments @("-DistRoot", $distRoot, "-KpiCatalogRoot", $kpiCatalogRoot)
 
 # 5) Sanity-check docs and tooling references
-Invoke-LocalScript -RelativePath "tools/maintenance/check_docs_refs.ps1" -Arguments @()
+Invoke-LocalScript -RelativePath "_internal/tools/maintenance/check_docs_refs.ps1" -Arguments @()
 
 Write-Host "All checks invoked. Review messages above for warnings or errors." -ForegroundColor Green
