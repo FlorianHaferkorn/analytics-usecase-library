@@ -1,212 +1,272 @@
-# OPS-001 – Operations Performance (Technical Factsheet)
-
-## 0. Model References
-- **Data Contract:** `data_contracts/domains/operations.yaml`
-- **Semantic Model Definition:** `semantic_models/domains/scm/model_definition.yaml`
-- **KPI Catalog:** `framework/kpi_catalog/domain_kpi_catalog.md`
-- **Measure Dictionary:** `framework/kpi_catalog/domain_measure_dictionary.md`
-- **Use Case Inventory:** `usecases/UseCase_Inventory.md` (ID: OPS-001)
+# OPS-001 — Operations Performance  
+## Technical Factsheet (v1.2)
 
 ---
 
-## 1. Data Contract (Scope for OPS-001)
+## 0. Metadata (Mandatory)
+- **Domain:** Operations
+- **Technical Owner:** Ops BI Lead / Plant Analytics
+- **Model ID:** ops_performance
+- **Source Systems:** MES/SCADA, ERP (production orders), DWH
+- **Business Factsheet:** usecases/core/OPS-001_Operations_Performance/Business_Factsheet.md
 
+---
+
+## 1. Model References
+- **Domain Data Contract:** data_contracts/domains/operations.yaml
+- **Source Data Contract:** data_contracts/sources/operations.yaml (if present)
+- **Semantic Model Definition:** semantic_models/domains/scm/model_definition.yaml
+- **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
+- **Measure Dictionary:** framework/kpi_catalog/domain_measure_dictionary.md
+- **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
+
+---
+
+## 2. Required KPIs → Measure Mapping (Mandatory)
+```yaml
+kpi_to_measure_mapping:
+  - kpi_id: ops.oee.pct
+    kpi_name: OEE %
+    measure_name: [OEE %]
+    format: 0.0%
+    folder: 05_Ops
+  - kpi_id: ops.availability.pct
+    kpi_name: Availability %
+    measure_name: [Availability %]
+    format: 0.0%
+    folder: 05_Ops
+  - kpi_id: ops.performance.pct
+    kpi_name: Performance %
+    measure_name: [Performance %]
+    format: 0.0%
+    folder: 05_Ops
+  - kpi_id: ops.quality.pct
+    kpi_name: Quality %
+    measure_name: [Quality %]
+    format: 0.0%
+    folder: 05_Ops
+  - kpi_id: ops.throughput.units
+    kpi_name: Throughput Units
+    measure_name: [Throughput Units]
+    format: #,0
+    folder: 01_Output
+  - kpi_id: ops.downtime.pct
+    kpi_name: Downtime %
+    measure_name: [Downtime %]
+    format: 0.0%
+    folder: 05_Ops
+```
+
+---
+
+## 3. Data Contract Scope (Subset YAML)
 ```yaml
 dimension:
   - name: dim_date
     columns:
-      - { name: DateKey, type: int, role: key }
-      - { name: Date, type: date }
-      - { name: Year, type: int }
-      - { name: Quarter, type: text }
-      - { name: Month, type: text }
-      - { name: MonthNumber, type: int }
-      - { name: Week, type: int }
-      - { name: Shift, type: text }
+      - {name: DateKey, type: int, role: key}
+      - {name: Date, type: date}
+      - {name: Year, type: int}
+      - {name: Quarter, type: text}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
+      - {name: Week, type: text, nullable: true}
 
   - name: dim_org
     columns:
-      - { name: OrgKey, type: int, role: key }
-      - { name: Region, type: text }
-      - { name: Country, type: text }
-      - { name: Plant, type: text }
-      - { name: Line, type: text }
+      - {name: OrgKey, type: int, role: key}
+      - {name: Plant, type: text}
+      - {name: Line, type: text}
+      - {name: Shift, type: text, nullable: true}
+      - {name: Region, type: text, nullable: true}
+      - {name: Country, type: text, nullable: true}
 
-  - name: dim_product
+  - name: dim_product   # optional if needed
     columns:
-      - { name: ProductKey, type: int, role: key }
-      - { name: ProductCode, type: text }
-      - { name: ProductName, type: text }
-      - { name: Category, type: text }
-      - { name: UoM, type: text }
+      - {name: ProductKey, type: int, role: key}
+      - {name: ProductCode, type: text}
+      - {name: ProductName, type: text}
+      - {name: Category, type: text}
 
-  - name: dim_downtime_reason
+  - name: security_user_org   # canonical RLS
     columns:
-      - { name: DowntimeReasonKey, type: int, role: key }
-      - { name: DowntimeReason, type: text }
-      - { name: DowntimeCategory, type: text }
-
-  - name: security_user_org
-    columns:
-      - { name: UserObjectId, type: string, role: rls }
-      - { name: Region, type: text }
-      - { name: Country, type: text }
-      - { name: Plant, type: text }
-      - { name: Line, type: text }
+      - {name: UserPrincipalName, type: string, role: rls}
+      - {name: Region, type: text, nullable: true}
+      - {name: Country, type: text, nullable: true}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: Plant, type: text, nullable: true}
+      - {name: Line, type: text, nullable: true}
+      - {name: Channel, type: text, nullable: true}
 
 fact:
-  - name: fact_production
-    grain: line_shift_product
+  - name: fact_ops
+    grain: line_day
     columns:
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: OrgKey, type: int, ref: dim_org }
-      - { name: ProductKey, type: int, ref: dim_product }
-      - { name: DowntimeReasonKey, type: int, ref: dim_downtime_reason }
-      - { name: PlannedTimeMinutes, type: number, agg: sum }
-      - { name: RunTimeMinutes, type: number, agg: sum }
-      - { name: DowntimeMinutes, type: number, agg: sum }
-      - { name: GoodUnits, type: number, agg: sum }
-      - { name: ScrapUnits, type: number, agg: sum }
-      - { name: IdealRateUnitsPerMin, type: number, agg: avg }
-
-settings:
-  timezone: Europe/Berlin
-  fiscal_year_start: 01-01
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: Planned Time Minutes, type: decimal, agg: sum}
+      - {name: Run Time Minutes, type: decimal, agg: sum}
+      - {name: Downtime Minutes, type: decimal, agg: sum}
+      - {name: Output Units, type: decimal, agg: sum}
+      - {name: Good Units, type: decimal, agg: sum}
+      - {name: Scrap Units, type: decimal, agg: sum}
+      - {name: Standard Rate Units Per Minute, type: decimal}
+      - {name: Cause Code, type: text, nullable: true}
 ```
 
-### Source Mapping (Physical Layer)
-- fact_production → `ops.fact_production`
-- dim_date → `shared.dim_date`
-- dim_org → `shared.dim_org`
-- dim_product → `shared.dim_product`
-- dim_downtime_reason → `ops.dim_downtime_reason`
-- security_user_org → `sec.security_user_org`
+---
+
+## 4. Semantic Model Requirements
+
+### 4.1 Tables
+- fact_ops  
+- dim_date  
+- dim_org  
+- dim_product (optional)  
+- security_user_org (RLS)
+
+### 4.2 Relationships (Mandatory)
+- dim_date (1) → fact_ops on DateKey  
+- dim_org (1) → fact_ops on OrgKey  
+- dim_product (1) → fact_ops on ProductKey (if modeled)  
+- security_user_org filters dim_org → cascades to fact_ops  
+- Single direction; no ambiguous paths; no bi-dir except RLS bridge.
+
+### 4.3 Hierarchies
+- Date: Year → Quarter → Month → Week  
+- Org: Plant → Line → Shift
+- Product (if used): Category → ProductName
+
+### 4.4 Sort-by Columns
+- Month → MonthNumber  
+- Week → DateKey  
+
+### 4.5 Modeling Constraints
+- No calculated columns; no implicit measures.  
+- Default summarization set; technical columns hidden; folders per dictionary.  
+- Surrogate keys mandatory; avoid M2M.
 
 ---
 
-## 2. Semantic Model Requirements
+## 5. Measures (DAX)
 
-**Model Name:** `operations_oee`
+### 5.1 Measure Inventory
+| Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
+|--------------|---------------------|---------|--------|--------|------|
+| OEE % | ops.oee.pct | Overall effectiveness | 05_Ops | 0.0% | KPI |
+| Availability % | ops.availability.pct | Uptime | 05_Ops | 0.0% | KPI |
+| Performance % | ops.performance.pct | Speed vs standard | 05_Ops | 0.0% | KPI |
+| Quality % | ops.quality.pct | First pass yield | 05_Ops | 0.0% | KPI |
+| Throughput Units | ops.throughput.units | Output volume | 01_Output | #,0 | KPI |
+| Downtime % | ops.downtime.pct | Unplanned loss | 05_Ops | 0.0% | KPI |
+| Downtime Minutes | Supporting | Loss quantification | 05_Ops | #,0 | Supporting |
+| Standard Output Units | Supporting | Theoretical output | 05_Ops | #,0 | Supporting |
 
-**Tables:** fact_production, dim_date, dim_org, dim_product, dim_downtime_reason, security_user_org (RLS only)
-
-**Relationships**
-- fact_production[DateKey] → dim_date[DateKey] (1:* | single)
-- fact_production[OrgKey] → dim_org[OrgKey] (1:* | single)
-- fact_production[ProductKey] → dim_product[ProductKey] (1:* | single)
-- fact_production[DowntimeReasonKey] → dim_downtime_reason[DowntimeReasonKey] (1:* | single)
-- security_user_org attribute join to dim_org by Region/Country/Plant/Line (RLS mapping)
-
-**Hierarchies**
-- Org: Region > Country > Plant > Line
-- Date: Year > Quarter > Month > Date > Shift
-- Product: Category > ProductName
-
-**Display Folders**
-- 01_OEE: OEE %, Availability %, Performance %, Quality %
-- 02_Output: Throughput Units, Good Units, Scrap Units
-- 03_Downtime: Downtime Minutes, Downtime Minutes %
-
----
-
-## 3. Measure Inventory
-
-| Measure Name       | kpi_id                | Type       | Folder      | Format |
-|--------------------|-----------------------|------------|-------------|--------|
-| OEE %              | ops.oee.pct           | KPI        | 01_OEE      | 0.0 % |
-| Availability %     | ops.availability.pct  | KPI        | 01_OEE      | 0.0 % |
-| Performance %      | ops.performance.pct   | KPI        | 01_OEE      | 0.0 % |
-| Quality %          | ops.quality.pct       | KPI        | 01_OEE      | 0.0 % |
-| Throughput Units   | ops.throughput.units  | Supporting | 02_Output   | #,0   |
-| Downtime Minutes   | ops.downtime.minutes  | Supporting | 03_Downtime | #,0   |
-| Downtime Minutes % | ops.downtime.pct      | Supporting | 03_Downtime | 0.0 % |
-
----
-
-## 4. Measures (DAX)
-
+### 5.2 DAX Definitions
 ```DAX
-Availability % =
-DIVIDE (
-    SUM ( fact_production[RunTimeMinutes] ),
-    SUM ( fact_production[PlannedTimeMinutes] )
-)
-```
+/// Supporting — Base times
+Planned Time :=
+    SUM ( fact_ops[Planned Time Minutes] )
 
-```DAX
-Performance % =
-DIVIDE (
-    SUM ( fact_production[GoodUnits] ),
-    SUM ( fact_production[RunTimeMinutes] ) * AVERAGE ( fact_production[IdealRateUnitsPerMin] )
-)
-```
+Run Time :=
+    SUM ( fact_ops[Run Time Minutes] )
 
-```DAX
-Quality % =
-DIVIDE (
-    SUM ( fact_production[GoodUnits] ),
-    SUM ( fact_production[GoodUnits] ) + SUM ( fact_production[ScrapUnits] )
-)
-```
+Downtime Minutes :=
+    SUM ( fact_ops[Downtime Minutes] )
 
-```DAX
-OEE % = [Availability %] * [Performance %] * [Quality %]
-```
+/// ops.availability.pct — Uptime
+Availability % :=
+    DIVIDE ( [Run Time], [Planned Time] )
 
-```DAX
-Throughput Units = SUM ( fact_production[GoodUnits] )
-```
+/// Supporting — Output
+Output Units :=
+    SUM ( fact_ops[Output Units] )
 
-```DAX
-Downtime Minutes = SUM ( fact_production[DowntimeMinutes] )
-```
+Good Units :=
+    SUM ( fact_ops[Good Units] )
 
-```DAX
-Downtime Minutes % =
-DIVIDE ( [Downtime Minutes], SUM ( fact_production[PlannedTimeMinutes] ) )
+Scrap Units :=
+    SUM ( fact_ops[Scrap Units] )
+
+Standard Output Units :=
+    SUMX ( fact_ops, fact_ops[Planned Time Minutes] * fact_ops[Standard Rate Units Per Minute] )
+
+/// ops.performance.pct — Speed vs standard
+Performance % :=
+    DIVIDE ( [Output Units], [Standard Output Units] )
+
+/// ops.quality.pct — First pass yield
+Quality % :=
+    DIVIDE ( [Good Units], [Output Units] )
+
+/// ops.oee.pct — Overall effectiveness
+OEE % :=
+    [Availability %] * [Performance %] * [Quality %]
+
+/// ops.throughput.units — Volume
+Throughput Units :=
+    [Output Units]
+
+/// ops.downtime.pct — Downtime share
+Downtime % :=
+    DIVIDE ( [Downtime Minutes], [Planned Time] )
 ```
 
 ---
 
-## 5. Defaults & Formatting
+## 6. RLS / OLS Requirements
 
-| Field/Measure | Format | Summarization | Display Folder |
-|---------------|--------|---------------|----------------|
-| OEE %, Availability %, Performance %, Quality %, Downtime Minutes % | 0.0 % | None | 01_OEE / 03_Downtime |
-| Throughput Units, Good Units, Scrap Units, Downtime Minutes | #,0 | Sum | 02_Output / 03_Downtime |
-| Time fields (minutes) | #,0 | Sum | 03_Downtime |
+### 6.1 Security Table Pattern
+```yaml
+security_table:
+  name: security_user_org
+  keys:
+    - UserPrincipalName
+    - Region
+    - Country
+    - OrgKey
+    - Plant
+    - Line
+  mapping_target: dim_org[OrgKey]
+  fallback_behavior: deny_all_if_no_match
+```
 
----
+### 6.2 RLS Rule (Fabric / Power BI)
+```DAX
+dim_org[OrgKey] IN
+    CALCULATETABLE (
+        VALUES ( security_user_org[OrgKey] ),
+        security_user_org[UserPrincipalName] = USERPRINCIPALNAME()
+    )
+```
 
-## 6. Visual Requirements (Technical)
-- KPI cards: OEE %, Availability %, Performance %, Quality %.
-- Trend line: OEE %, Availability %, Performance %, Quality % by dim_date[Month].
-- Pareto bar: Downtime Minutes by dim_downtime_reason[DowntimeReason] (Top N, filterable by Plant/Line).
-- Bar/Column: OEE % by dim_org[Plant] and [Line]; cross-filter with downtime reasons.
-- Matrix: Region > Plant > Line > Shift with OEE %, Availability %, Performance %, Quality %, Throughput Units; export enabled.
-
----
-
-## 7. RLS / OLS
-- RLS: security_user_org filtered by UserObjectId; enforce Region/Country/Plant/Line filters on dim_org and propagate to fact_production.
-- OLS (optional): hide downtime reason columns for external partners; deny dim_downtime_reason[DowntimeReason] and [DowntimeCategory] for restricted roles.
-
----
-
-## 8. Performance & Refresh
-- Storage: Import; incremental refresh by month, retain 36 months.
-- Partition by dim_date[Month]; filter out open production days until closed to avoid churn.
-- Avoid calculated columns; pre-calculate IdealRate in source if static.
-- Consider monthly aggregation table by Plant/Line for OEE and Throughput if >50M rows.
+### 6.3 OLS (optional)
+- None required; consider masking cost/scrap € if added.
 
 ---
 
-## 9. QA & Validation
+## 7. Technical Assumptions
+- Standard rates maintained; downtime causes coded; shift data available where used.
+- Data latency ≤24h; time zone consistent.
+- OneLake canonical dims used (dim_date, dim_org, security_user_org; dim_product optional).
 
-| Check Type                | Object                            | Rule                                           | Tolerance |
-|---------------------------|-----------------------------------|------------------------------------------------|-----------|
-| Referential Integrity     | fact_production → dimensions      | ≥ 99.9 % matched keys                          | 0.1 %     |
-| OEE Consistency           | OEE % vs component product        | Difference < 0.1 pp                            | ±0.1 pp   |
-| Time Balance              | Run + Downtime vs Planned Time    | Difference < 1 %                               | ±1.0 %    |
-| Throughput Reconciliation | GoodUnits vs production log       | Match on daily grain                           | ±0.5 %    |
-| Downtime Capture          | DowntimeMinutes coverage          | Logged minutes / Planned minutes               | ≥ 98 %    |
+---
+
+## 8. Deployment Requirements
+- Mode: DirectLake or Import depending on MES connectivity; prefer DirectLake if Fabric connectors stable.  
+- Incremental refresh: yes, partition by DateKey (e.g., last 12–24 months).  
+- Aggregations: optional for high-frequency data (use day-level aggregates for speed).  
+- Workspace/naming: `ARF – Operations` dataset/model naming per governance.
+
+---
+
+## 9. QA & Validation Rules
+| Check | Rule | Threshold | Automated Y/N | Owner |
+|-------|------|-----------|---------------|-------|
+| Referential Integrity | Date/Org keys non-null in fact_ops | 100% | Y | Data Engineering |
+| Time Balancing | Run Time + Downtime ≤ Planned Time | 100% | Y | BI |
+| OEE Consistency | OEE = A×P×Q recomputes | Exact | Y | BI |
+| Performance Reasonability | Performance % within 0–1.2 range | Exceptions <0.5% | Y | BI |
+| Quality Reasonability | Quality % within 0–1.0 range | Exceptions <0.5% | Y | Quality |
+| RLS Coverage | Users see only authorised plants/lines | 0 leaks | Y | Security |
+| Performance | Main visuals <2s on representative sample | <2s | Y | BI |

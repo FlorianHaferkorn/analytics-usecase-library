@@ -1,262 +1,328 @@
-# SCM-001 – Inventory Performance (Technical Factsheet)
-
-## 0. Model References
-- **Data Contract:** `data_contracts/domains/supply_chain.yaml`
-- **Semantic Model Definition:** `semantic_models/domains/scm/model_definition.yaml`
-- **KPI Catalog:** `framework/kpi_catalog/domain_kpi_catalog.md`
-- **Measure Dictionary:** `framework/kpi_catalog/domain_measure_dictionary.md`
-- **Use Case Inventory:** `usecases/UseCase_Inventory.md` (ID: SCM-001)
+﻿# SCM-001 â€” Inventory Performance  
+## Technical Factsheet (v1.2)
 
 ---
 
-## 1. Data Contract (Scope for SCM-001)
+## 0. Metadata (Mandatory)
+- **Domain:** Supply Chain
+- **Technical Owner:** Supply Chain BI Lead
+- **Model ID:** scm_inventory_performance
+- **Source Systems:** ERP/WMS, OMS, Forecasting, DWH
+- **Business Factsheet:** usecases/core/SCM-001_Inventory_Performance/Business_Factsheet.md
 
+---
+
+## 1. Model References
+- **Domain Data Contract:** data_contracts/domains/supply_chain.yaml
+- **Source Data Contract:** data_contracts/sources/supply_chain.yaml (if present)
+- **Semantic Model Definition:** semantic_models/domains/scm/model_definition.yaml
+- **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
+- **Measure Dictionary:** framework/kpi_catalog/domain_measure_dictionary.md
+- **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
+
+---
+
+## 2. Required KPIs â†’ Measure Mapping (Mandatory)
+```yaml
+kpi_to_measure_mapping:
+  - kpi_id: inv.dio.days
+    kpi_name: Days in Inventory (DIO)
+    measure_name: [Days in Inventory]
+    format: #,0.0
+    folder: 08_SCM_Inventory
+  - kpi_id: inv.turnover
+    kpi_name: Inventory Turnover
+    measure_name: [Inventory Turnover]
+    format: #,0.0
+    folder: 08_SCM_Inventory
+  - kpi_id: inv.stockout.pct
+    kpi_name: Stockout Rate %
+    measure_name: [Stockout Rate %]
+    format: 0.0%
+    folder: 08_SCM_Service
+  - kpi_id: supply.otif.pct
+    kpi_name: OTIF %
+    measure_name: [OTIF %]
+    format: 0.0%
+    folder: 08_SCM_Service
+  - kpi_id: inv.obsolete.pct
+    kpi_name: Obsolete Inventory %
+    measure_name: [Obsolete Inventory %]
+    format: 0.0%
+    folder: 08_SCM_Inventory
+  - kpi_id: plan.forecast.accuracy.pct
+    kpi_name: Forecast Accuracy %
+    measure_name: [Forecast Accuracy %]
+    format: 0.0%
+    folder: 09_Planning
+```
+
+---
+
+## 3. Data Contract Scope (Subset YAML)
 ```yaml
 dimension:
   - name: dim_date
     columns:
-      - { name: DateKey, type: int, role: key }
-      - { name: Date, type: date }
-      - { name: Year, type: int }
-      - { name: Quarter, type: text }
-      - { name: Month, type: text }
-      - { name: MonthNumber, type: int }
-      - { name: Week, type: int }
+      - {name: DateKey, type: int, role: key}
+      - {name: Date, type: date}
+      - {name: Year, type: int}
+      - {name: Quarter, type: text}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
+      - {name: Week, type: text, nullable: true}
 
   - name: dim_org
     columns:
-      - { name: OrgKey, type: int, role: key }
-      - { name: Region, type: text }
-      - { name: Country, type: text }
-      - { name: Location, type: text }
+      - {name: OrgKey, type: int, role: key}
+      - {name: Location, type: text}
+      - {name: Region, type: text, nullable: true}
+      - {name: Channel, type: text, nullable: true}
 
   - name: dim_product
     columns:
-      - { name: ProductKey, type: int, role: key }
-      - { name: SKU, type: text }
-      - { name: ProductName, type: text }
-      - { name: Category, type: text }
-      - { name: Subcategory, type: text }
-      - { name: Class, type: text }      # ABC/XYZ if available
-      - { name: UoM, type: text }
+      - {name: ProductKey, type: int, role: key}
+      - {name: ProductCode, type: text}
+      - {name: ProductName, type: text}
+      - {name: Category, type: text}
+      - {name: Subcategory, type: text, nullable: true}
+      - {name: ABC_Class, type: text, nullable: true}
+      - {name: XYZ_Class, type: text, nullable: true}
 
-  - name: security_user_org
+  - name: security_user_org   # canonical RLS
     columns:
-      - { name: UserObjectId, type: string, role: rls }
-      - { name: Region, type: text }
-      - { name: Country, type: text }
-      - { name: Location, type: text }
+      - {name: UserPrincipalName, type: string, role: rls}
+      - {name: Region, type: text, nullable: true}
+      - {name: Country, type: text, nullable: true}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: Plant, type: text, nullable: true}
+      - {name: Line, type: text, nullable: true}
+      - {name: Channel, type: text, nullable: true}
 
 fact:
-  - name: fact_inventory_snapshot
-    grain: sku_location_day
+  - name: fact_inventory
+    grain: location_sku_month
     columns:
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: OrgKey, type: int, ref: dim_org }
-      - { name: ProductKey, type: int, ref: dim_product }
-      - { name: OnHandQty, type: number, agg: avg }
-      - { name: OnHandValue, type: currency, agg: avg }
-      - { name: AgingBucket, type: text }
-      - { name: ObsoleteFlag, type: boolean }
-      - { name: SafetyStockQty, type: number, agg: avg }
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: Average Inventory Amount, type: currency, agg: sum}
+      - {name: Average Inventory Units, type: decimal, agg: sum}
+      - {name: Obsolete Inventory Amount, type: currency, agg: sum, nullable: true}
+      - {name: Obsolete Inventory Units, type: decimal, agg: sum, nullable: true}
 
-  - name: fact_orders
-    grain: order_line
+  - name: fact_cogs
+    grain: location_sku_month
     columns:
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: OrgKey, type: int, ref: dim_org }
-      - { name: ProductKey, type: int, ref: dim_product }
-      - { name: OrderQty, type: number, agg: sum }
-      - { name: DeliveredQty, type: number, agg: sum }
-      - { name: StockoutFlag, type: boolean }
-      - { name: OTIFFlag, type: boolean }
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: COGS Amount, type: currency, agg: sum}
 
-  - name: fact_cogs_monthly
-    grain: sku_location_month
+  - name: fact_fulfillment
+    grain: order
     columns:
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: OrgKey, type: int, ref: dim_org }
-      - { name: ProductKey, type: int, ref: dim_product }
-      - { name: COGSAmount, type: currency, agg: sum }
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: OTIF Flag, type: boolean}
+      - {name: Order Qty, type: decimal, agg: sum}
+
+  - name: fact_stockout
+    grain: location_sku_day
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: Stockout Flag, type: boolean}
+      - {name: Demand Occurrences, type: int, agg: sum}
 
   - name: fact_forecast
-    grain: sku_location_month_version
+    grain: sku_month
     columns:
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: OrgKey, type: int, ref: dim_org }
-      - { name: ProductKey, type: int, ref: dim_product }
-      - { name: ForecastQty, type: number, agg: sum }
-      - { name: ForecastVersion, type: text }
-      - { name: CreatedAt, type: datetime }
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: Forecast Units, type: decimal, agg: sum}
 
-settings:
-  timezone: Europe/Berlin
-  fiscal_year_start: 01-01
+  - name: fact_sales
+    grain: sku_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: Sales Units, type: decimal, agg: sum}
 ```
 
-### Source Mapping (Physical Layer)
-- fact_inventory_snapshot → `scm.fact_inventory_snapshot`
-- fact_orders → `scm.fact_orders`
-- fact_cogs_monthly → `fin.fact_cogs_monthly`
-- fact_forecast → `scm.fact_forecast`
-- dim_date → `shared.dim_date`
-- dim_org → `shared.dim_org`
-- dim_product → `shared.dim_product`
-- security_user_org → `sec.security_user_org`
+---
+
+## 4. Semantic Model Requirements
+
+### 4.1 Tables
+- fact_inventory  
+- fact_cogs  
+- fact_fulfillment  
+- fact_stockout  
+- fact_forecast  
+- fact_sales  
+- dim_date  
+- dim_org  
+- dim_product  
+- security_user_org (RLS)
+
+### 4.2 Relationships (Mandatory)
+- dim_date (1) â†’ all facts on DateKey  
+- dim_org (1) â†’ fact_inventory/fact_cogs/fact_fulfillment/fact_stockout on OrgKey  
+- dim_product (1) â†’ all product-bearing facts on ProductKey  
+- security_user_org filters dim_org â†’ cascades to facts  
+- Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
+
+### 4.3 Hierarchies
+- Date: Year â†’ Quarter â†’ Month â†’ Week  
+- Org: Region â†’ Location â†’ Channel  
+- Product: Category â†’ Subcategory â†’ ProductName
+
+### 4.4 Sort-by Columns
+- Month â†’ MonthNumber  
+- ProductName â†’ ProductCode
+
+### 4.5 Modeling Constraints
+- No calculated columns; no implicit measures.  
+- Default summarization set; technical columns hidden; folders per dictionary.  
+- Surrogate keys mandatory; avoid M2M.
 
 ---
 
-## 2. Semantic Model Requirements
+## 5. Measures (DAX)
 
-**Model Name:** `scm_inventory_performance`
+### 5.1 Measure Inventory
+| Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
+|--------------|---------------------|---------|--------|--------|------|
+| Days in Inventory | inv.dio.days | Working capital | 08_SCM_Inventory | #,0.0 | KPI |
+| Inventory Turnover | inv.turnover | Velocity | 08_SCM_Inventory | #,0.0 | KPI |
+| Stockout Rate % | inv.stockout.pct | Service risk | 08_SCM_Service | 0.0% | KPI |
+| OTIF % | supply.otif.pct | Service level | 08_SCM_Service | 0.0% | KPI |
+| Obsolete Inventory % | inv.obsolete.pct | Obsolescence | 08_SCM_Inventory | 0.0% | KPI |
+| Forecast Accuracy % | plan.forecast.accuracy.pct | Planning quality | 09_Planning | 0.0% | KPI |
+| Avg Inventory Amount | Supporting | DIO base | 08_SCM_Inventory | â‚¬#,0 | Supporting |
+| COGS Amount | Supporting | DIO/turnover base | 08_SCM_Inventory | â‚¬#,0 | Supporting |
+| On-Time In-Full Orders | Supporting | OTIF numerator | 08_SCM_Service | #,0 | Supporting |
+| Total Orders | Supporting | OTIF denominator | 08_SCM_Service | #,0 | Supporting |
+| Demand Occurrences | Supporting | Stockout denominator | 08_SCM_Service | #,0 | Supporting |
+| Stockout Count | Supporting | Stockout numerator | 08_SCM_Service | #,0 | Supporting |
 
-**Tables:** fact_inventory_snapshot, fact_orders, fact_cogs_monthly, fact_forecast, dim_date, dim_org, dim_product, security_user_org (RLS only)
-
-**Relationships**
-- fact_inventory_snapshot[DateKey] → dim_date[DateKey] (1:* | single)
-- fact_inventory_snapshot[OrgKey] → dim_org[OrgKey] (1:* | single)
-- fact_inventory_snapshot[ProductKey] → dim_product[ProductKey] (1:* | single)
-- fact_orders[DateKey] → dim_date[DateKey]; fact_orders[OrgKey] → dim_org[OrgKey]; fact_orders[ProductKey] → dim_product[ProductKey] (1:* | single)
-- fact_cogs_monthly[DateKey] → dim_date[DateKey]; fact_cogs_monthly[OrgKey] → dim_org[OrgKey]; fact_cogs_monthly[ProductKey] → dim_product[ProductKey] (1:* | single)
-- fact_forecast[DateKey] → dim_date[DateKey]; fact_forecast[OrgKey] → dim_org[OrgKey]; fact_forecast[ProductKey] → dim_product[ProductKey] (1:* | single)
-- security_user_org attribute join to dim_org by Region/Country/Location (RLS mapping)
-
-**Hierarchies**
-- Org: Region > Country > Location
-- Product: Category > Subcategory > SKU
-- Date: Year > Quarter > Month > Date
-
-**Display Folders**
-- 01_Inventory: DIO, Inventory Turnover, OnHandValue
-- 02_Service: Stockout %, OTIF %
-- 03_Risk: Obsolescence %
-- 04_Forecast: Forecast Accuracy %
-
----
-
-## 3. Measure Inventory
-
-| Measure Name            | kpi_id                       | Type       | Folder        | Format  |
-|-------------------------|------------------------------|------------|---------------|---------|
-| Days in Inventory       | inv.dio.days                 | KPI        | 01_Inventory  | #,0    |
-| Inventory Turnover      | inv.turnover                 | KPI        | 01_Inventory  | #,0.0  |
-| Stockout Rate %         | inv.stockout.pct             | KPI        | 02_Service    | 0.0 %  |
-| OTIF %                  | supply.otif.pct              | KPI        | 02_Service    | 0.0 %  |
-| Obsolescence Risk %     | inv.obsolete.pct             | KPI        | 03_Risk       | 0.0 %  |
-| Forecast Accuracy %     | plan.forecast.accuracy.pct   | KPI        | 04_Forecast   | 0.0 %  |
-| On Hand Value           | inv.onhand.value             | Supporting | 01_Inventory  | €#,0.00|
-| Average Inventory Value | inv.avg_inventory.value      | Supporting | 01_Inventory  | €#,0.00|
-| COGS Amount             | inv.cogs.amount              | Supporting | 01_Inventory  | €#,0.00|
-
----
-
-## 4. Measures (DAX)
-
+### 5.2 DAX Definitions
 ```DAX
-On Hand Value =
-    AVERAGE ( fact_inventory_snapshot[OnHandValue] )
+/// Supporting â€” Inventory bases
+Avg Inventory Amount :=
+    SUM ( fact_inventory[Average Inventory Amount] )
+
+COGS Amount :=
+    SUM ( fact_cogs[COGS Amount] )
+
+/// inv.dio.days â€” Days in Inventory
+Days in Inventory :=
+    VAR Days = 30  // adjust to period if needed
+    RETURN DIVIDE ( [Avg Inventory Amount], [COGS Amount] ) * Days
+
+/// inv.turnover â€” Inventory Turnover
+Inventory Turnover :=
+    DIVIDE ( [COGS Amount], [Avg Inventory Amount] )
+
+/// inv.obsolete.pct â€” Obsolete %
+Obsolete Inventory % :=
+    DIVIDE ( SUM ( fact_inventory[Obsolete Inventory Amount] ), [Avg Inventory Amount] )
+
+/// supply.otif.pct â€” OTIF
+On-Time In-Full Orders :=
+    SUMX ( fact_fulfillment, IF ( fact_fulfillment[OTIF Flag], fact_fulfillment[Order Qty], 0 ) )
+
+Total Orders :=
+    SUM ( fact_fulfillment[Order Qty] )
+
+OTIF % :=
+    DIVIDE ( [On-Time In-Full Orders], [Total Orders] )
+
+/// inv.stockout.pct â€” Stockout rate
+Stockout Count :=
+    SUMX ( fact_stockout, IF ( fact_stockout[Stockout Flag], fact_stockout[Demand Occurrences], 0 ) )
+
+Demand Occurrences :=
+    SUM ( fact_stockout[Demand Occurrences] )
+
+Stockout Rate % :=
+    DIVIDE ( [Stockout Count], [Demand Occurrences] )
+
+/// plan.forecast.accuracy.pct â€” Forecast accuracy
+Forecast Accuracy % :=
+    VAR Forecast = SUM ( fact_forecast[Forecast Units] )
+    VAR Actual   = SUM ( fact_sales[Sales Units] )
+    VAR AbsErr   = ABS ( Forecast - Actual )
+    RETURN 1 - DIVIDE ( AbsErr, Actual )
 ```
 
+---
+
+## 6. RLS / OLS Requirements
+
+### 6.1 Security Table Pattern
+```yaml
+security_table:
+  name: security_user_org
+  keys:
+    - UserPrincipalName
+    - Region
+    - Country
+    - OrgKey
+    - Channel
+  mapping_target: dim_org[OrgKey]
+  fallback_behavior: deny_all_if_no_match
+```
+
+### 6.2 RLS Rule (Fabric / Power BI)
 ```DAX
-Average Inventory Value =
-    CALCULATE (
-        AVERAGE ( fact_inventory_snapshot[OnHandValue] ),
-        ALL ( dim_date[Date] )
+dim_org[OrgKey] IN
+    CALCULATETABLE (
+        VALUES ( security_user_org[OrgKey] ),
+        security_user_org[UserPrincipalName] = USERPRINCIPALNAME()
     )
 ```
 
-```DAX
-COGS Amount = SUM ( fact_cogs_monthly[COGSAmount] )
-```
-
-```DAX
-Inventory Turnover =
-DIVIDE ( [COGS Amount], [Average Inventory Value] )
-```
-
-```DAX
-Days in Inventory =
-DIVIDE ( 365, [Inventory Turnover] )
-```
-
-```DAX
-Stockout Rate % =
-DIVIDE (
-    SUMX ( fact_orders, IF ( fact_orders[StockoutFlag], fact_orders[OrderQty], 0 ) ),
-    SUM ( fact_orders[OrderQty] )
-)
-```
-
-```DAX
-OTIF % =
-DIVIDE (
-    SUMX ( fact_orders, IF ( fact_orders[OTIFFlag], 1, 0 ) ),
-    COUNTROWS ( fact_orders )
-)
-```
-
-```DAX
-Obsolescence Risk % =
-DIVIDE (
-    SUMX ( fact_inventory_snapshot, IF ( fact_inventory_snapshot[ObsoleteFlag], fact_inventory_snapshot[OnHandValue], 0 ) ),
-    SUM ( fact_inventory_snapshot[OnHandValue] )
-)
-```
-
-```DAX
-Forecast Accuracy % =
-VAR ActualQty =
-    SUM ( fact_orders[DeliveredQty] )
-VAR FcstQty =
-    CALCULATE ( SUM ( fact_forecast[ForecastQty] ), KEEPFILTERS ( VALUES ( fact_forecast[ForecastVersion] ) ) )
-RETURN
-    1 - ABS ( DIVIDE ( ActualQty - FcstQty, ActualQty ) )
-```
+### 6.3 OLS (optional)
+- None required; inventory values can be sensitive — mask if client requests (TODO).
 
 ---
 
-## 5. Defaults & Formatting
-
-| Field/Measure                                        | Format  | Summarization | Display Folder |
-|------------------------------------------------------|---------|---------------|----------------|
-| Percentages (Stockout %, OTIF %, Obsolescence %, Forecast Accuracy %) | 0.0 % | None | 02_Service / 03_Risk / 04_Forecast |
-| DIO, Turnover                                        | #,0 / #,0.0 | None       | 01_Inventory   |
-| Value measures (On Hand, Avg Inventory, COGS)        | €#,0.00 | Sum/Avg      | 01_Inventory   |
-| Quantities                                           | #,0     | Sum          | 02_Service     |
+## 7. Technical Assumptions
+- Inventory snapshots consistent; COGS aligned to same SKU/location/time as inventory.
+- Stockout events captured; OTIF flag present; forecast/actual aligned to SKU and month.
+- Data latency <=24h; currency EUR.
+- OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org).
 
 ---
 
-## 6. Visual Requirements (Technical)
-- KPI cards: DIO, Inventory Turnover, Stockout %, OTIF %, Obsolescence %, Forecast Accuracy %.
-- Column: DIO and Turnover by dim_org[Location] and dim_product[Category/Subcategory].
-- Line: Stockout % and OTIF % trend by dim_date[Month].
-- Pareto: Obsolescence value by dim_product[SKU].
-- Column: Forecast Accuracy % by dim_product[SKU] (filter A/B class).
-- Matrix: Region > Location > Category > SKU with KPIs and aging buckets; export enabled.
+## 8. Deployment Requirements
+- Mode: DirectLake or Import (prefer DirectLake if Fabric); ensure incremental refresh on month partitions.  
+- Aggregations: optional for large order/stockout tables (weekly/monthly).  
+- Workspace/naming: ARF - Supply Chain dataset/model per governance.
 
 ---
 
-## 7. RLS / OLS
-- RLS: security_user_org filtered by UserObjectId; enforce Region/Country/Location filters on dim_org and propagate to fact tables.
-- OLS (optional): hide value fields (OnHandValue, COGS) for external partners; keep quantity and KPI percentages visible.
+## 9. QA & Validation Rules
+| Check | Rule | Threshold | Automated Y/N | Owner |
+|-------|------|-----------|---------------|-------|
+| Referential Integrity | Date/Org/Product keys non-null in facts | 100% | Y | Data Engineering |
+| DIO/Turnover Integrity | Inventory and COGS alignment; no div-by-zero | 0 errors | Y | BI |
+| OTIF Coverage | OTIF flag coverage on orders | 100% orders | Y | Ops |
+| Stockout Coverage | Stockout flag coverage on demand occurrences | 100% | Y | Ops |
+| Forecast Accuracy | Forecast vs actual available for target SKUs | 100% target scope | Y | Planning |
+| RLS Coverage | Users see only authorised locations/channels | 0 leaks | Y | Security |
+| Performance | Main visuals <2s on representative sample | <2s | Y | BI |
 
----
-
-## 8. Performance & Refresh
-- Storage: Import; incremental by month, retain 36 months; for daily inventory, aggregate to month for history beyond 6–12 months.
-- Partition fact_inventory_snapshot and fact_orders by Month; keep forecast latest version flag in source to avoid complex DAX.
-- Avoid calculated columns; pre-calculate aging bucket and obsolete flag upstream.
-- Consider aggregation table Month x Location x Category for inventory value if volume >50M rows.
-
----
-
-## 9. QA & Validation
-
-| Check Type                | Object                                    | Rule                                                | Tolerance |
-|---------------------------|-------------------------------------------|-----------------------------------------------------|-----------|
-| Referential Integrity     | facts → dimensions                        | ≥ 99.9 % matched keys                               | 0.1 %     |
-| DIO vs Turnover           | DIO and Turnover relationship             | |365 / Turnover - DIO| < 0.5 days                    | 0.5 days  |
-| Stockout Calculation      | StockoutFlag capture                      | Stockout lines / total lines matches source         | ±1.0 pp   |
-| OTIF Calculation          | OTIFFlag capture                          | Matches logistics SLA reporting                     | ±1.0 pp   |
-| Aging Coverage            | AgingBucket completeness                  | ≥ 95 % of inventory rows with valid bucket          | 5 % gap   |
-| Forecast Alignment        | Forecast vs DeliveredQty denominators     | No division by zero; version filter applied         | n/a       |
+| Check | Rule | Threshold | Automated Y/N | Owner |
+|-------|------|-----------|---------------|-------|
+| Referential Integrity | Date/Org/Product keys non-null in facts | 100% | Y | Data Engineering |
+| DIO/Turnover Integrity | Inventory and COGS alignment; no div-by-zero | 0 errors | Y | BI |
+| OTIF Coverage | OTIF flag coverage on orders | 100% orders | Y | Ops |
+| Stockout Coverage | Stockout flag coverage on demand occurrences | 100% | Y | Ops |
+| Forecast Accuracy | Forecast vs actual available for target SKUs | 100% target scope | Y | Planning |
+| RLS Coverage | Users see only authorised locations/channels | 0 leaks | Y | Security |
+| Performance | Main visuals <2s on representative sample | <2s | Y | BI |

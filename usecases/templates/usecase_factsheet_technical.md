@@ -1,171 +1,169 @@
-# <USE CASE ID> – <USE CASE NAME>
+# <USE CASE ID> – <USE CASE NAME>  
+## Technical Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
-- **Domain:** <Commercial / Finance / Operations / …>
-- **Technical Owner:** <Role / Name>
-- **Data Product / Model ID:** <semantic model name / ID>
-- **Source Systems:** <ERP / CRM / DWH / …>
-- **Use Case Business Factsheet:** <relative path to Business_Factsheet.md>
+- **Domain:** <Commercial / Finance / Ops / SCM / XD>
+- **Technical Owner:** <Role>
+- **Model ID:** <model name>
+- **Source Systems:** <ERP / CRM / POS / DWH>
+- **Business Factsheet:** <relative path>
 
 ---
 
 ## 1. Model References
-- **Data Contract (Domain):** <path/to/data_contracts/domains/...yaml>
-- **Data Contract (Sources):** <path/to/data_contracts/sources/...yaml>
-- **Semantic Model Definition:** <path/to/semantic_models/.../model_definition.yaml>
-- **KPI Catalog:** <path/to/framework/kpi_catalog/domain_kpi_catalog.md>
-- **Measure Dictionary:** <path/to/framework/kpi_catalog/domain_measure_dictionary.md>
+- **Domain Data Contract:** <path>
+- **Source Data Contract:** <path>
+- **Semantic Model Definition:** <path>
+- **KPI Catalog:** <path>
+- **Measure Dictionary:** <path>
+- **Action Codes:** <path>
 
 ---
 
-## 2. Data Contract Scope (YAML)
-Describe the relevant slice, incl. security table, keys, and required fields.
+## 2. Required KPIs → Measure Mapping (Mandatory)
+```yaml
+kpi_to_measure_mapping:
+  - kpi_id: <domain.topic.metric>
+    kpi_name: <KPI Name>
+    measure_name: <Measure Name>
+    format: <€, %, #, days>
+    folder: <01_Sales / 02_Margin / ...>
+    notes: <optional>
+  - ...
+```
 
+---
+
+## 3. Data Contract Scope (Subset YAML)
 ```yaml
 dimension:
   - name: <dim_x>
     columns:
-      - {name: <Key>, type: int, role: key}
+      - {name: <Key>, role: key, type: int}
       - {name: <BusinessCode>, type: text}
       - {name: <Name>, type: text}
       - {name: <Attribute>, type: text}
 
-  - name: security_user_org   # if RLS needed
-    columns:
-      - {name: UserPrincipalName, type: text}
-      - {name: Region, type: text}
-      - {name: Country, type: text}
-      - {name: OrgKey, type: int, ref: dim_org}
-
 fact:
-  - name: <fact_x>
-    grain: <invoice_line / customer_day / asset_day / ...>
+  - name: <fact>
+    grain: <invoice_line / asset_day / customer_day>
     columns:
-      - {name: <Measure 1>, type: currency, agg: sum, unit: EUR}
-      - {name: <Measure 2>, type: number, agg: sum, unit: pcs}
-      - {name: <Status>, type: text, agg: none}
-      - …
+      - {name: <Amount>, type: currency, unit: EUR, agg: sum}
+      - {name: <Qty>, type: number, agg: sum}
+      - {name: <Status>, type: text}
 
 settings:
   timezone: Europe/Berlin
   fiscal_year_start: 01-01
 ```
 
-### Source Mapping (Physical Layer)
-- fact_<...> → `<physical_db.schema.table_or_view>`
-- dim_<...> → `<physical_db.schema.table_or_view>`
-- security_<...> → `<physical_db.schema.table_or_view>`
-
-> Do: refer back to domain-level contracts.  
-> Don’t: redefine the same logic per Use Case.
-
 ---
 
-## 3. Semantic Model Requirements
+## 4. Semantic Model Requirements
 
-### 3.1 Tables
-- fact_<...>
-- dim_<...>
-- security_<...> (if used)
+### 4.1 Tables
+- fact_<...>  
+- dim_<...>  
+- security_<...> (if applicable)
 
-### 3.2 Relationships
-- fact ↔ dim only via surrogate keys (1:* | single to fact)
-- No bidirectional or ambiguous paths
+### 4.2 Relationships (Mandatory)
+- single direction  
+- dim → fact  
+- no bi-directional relationships  
+- no ambiguous paths  
+- no M2M unless explicitly permitted
 
-### 3.3 Hierarchies
-- Date: Year → Quarter → Month → Date
-- Org: Region → Country → OrgName (or Plant/BU/…)
-- Product/Customer/etc.: <hierarchy>
+### 4.3 Hierarchies
+- Date: Year → Quarter → Month → Day  
+- Org: Region → Country → Store  
+- Product/Customer hierarchies (if needed)
 
-### 3.4 Sort-by Columns
-- Month → MonthNumber
-- Name → Code (if needed)
+### 4.4 Sort-by Columns
+- Month → MonthNumber  
+- Name → Code  
 
-### 3.5 Modeling Rules (Mandatory)
-- No calculated columns (business logic in ETL or measures)
-- Default summarization set correctly; technical fields hidden
-- Display folders aligned with domain conventions
-- Naming conventions (Amount/Qty/%/Rate etc.) enforced
-
----
-
-## 4. Measure Inventory
-Every measure has a KPI ID or is Supporting. Single source of truth.
-
-| Measure Name | KPI ID (or Supporting) | Purpose | Display Folder | Format | Type (KPI/Supporting) |
-|--------------|------------------------|---------|----------------|--------|-----------------------|
-| <Measure> | <kpi_id or Supporting> | <why> | <01_Sales / 02_Margin / …> | <€, %, days> | <KPI/Supporting> |
-| … | … | … | … | … | … |
+### 4.5 Modeling Constraints
+- no calculated columns  
+- no implicit measures  
+- default summarization set  
+- all technical columns hidden  
+- display folders consistent with dictionary  
+- surrogate keys mandatory  
 
 ---
 
 ## 5. Measures (DAX)
-List all measures with short comments.
 
+### 5.1 Measure Inventory
+| Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
+|--------------|---------------------|---------|--------|--------|-------|
+| <Measure> | <kpi_id> | <why> | 01_Sales | €#,0.00 | KPI |
+| … | … | … | … | … | … |
+
+### 5.2 DAX Definitions
 ```DAX
 /// <kpi_id or Supporting> – <short purpose>
 <Measure Name> =
     <DAX expression>
 ```
 
-> Do: reuse supporting measures; link to templates (PVM/PEVM/Accuracy/Bias) where applicable.  
-> Don’t: build monolithic KPI formulas without supporting layers.
-
 ---
 
-## 6. Defaults & Formatting
-- Currency: `€,#,0.00` | Percent: `0.0 %` | Qty/Count: `#,0` | Days: `#,0` | Score/Index: `0.00`
-- Summarization: Amounts/Qtys = Sum; Percent/Rate = None/Average (choose explicitly); Date fields = None.
+## 6. RLS / OLS Requirements
 
----
-
-## 7. Visual Requirements
-Required visuals with fields/axes (no TBD).
-
-| Visual Name | Type | X-Axis / Category | Y-Axis / Value | Segment / Legend | Filters / Defaults |
-|-------------|------|-------------------|----------------|------------------|--------------------|
-| <Trend> | Line | dim_date[Month] | <KPI/Measure> | <Region/Channel> | Last 12–24M |
-| <Ranking> | Bar | <Dim> | <KPI> | <Segment> | Top/Bottom N |
-| <Waterfall/Bridge> | Waterfall | <Category> | <Variance drivers> | n/a | <Period> |
-| <Matrix> | Table/Matrix | <Dim drill path> | KPIs | <Segment> | Export enabled |
-
----
-
-## 8. RLS / OLS Rules
-
-### 8.1 RLS Pattern (mandatory if sensitive)
-Standard: security table + DAX filter, no hardcoded users.
-
-```DAX
-dim_org[Region] IN
-    CALCULATETABLE(
-        VALUES(security_user_org[Region]),
-        security_user_org[UserPrincipalName] = USERPRINCIPALNAME()
-    )
+### 6.1 Security Table Pattern
+```yaml
+security_table:
+  name: security_user_org
+  keys:
+    - UserPrincipalName
+    - OrgKey
+  mapping_target: dim_org[OrgKey]
+  fallback_behavior: <deny all / limited>
 ```
 
-### 8.2 OLS (optional)
-- Which measures/fields are hidden per role?
+### 6.2 RLS Rule (Fabric / Power BI)
+```DAX
+dim_org[OrgKey] IN
+  CALCULATETABLE(
+    VALUES(security_user_org[OrgKey]),
+    security_user_org[UserPrincipalName] = USERPRINCIPALNAME()
+  )
+```
+
+### 6.3 OLS (optional)
+- Sensitive measures: <list>
+- Visibility rules per role.
 
 ---
 
-## 9. Performance & Refresh
-- Storage Mode: <Import / Direct Lake / …>
-- Partitioning: <grain, history e.g., 24–36M>
-- No calculated columns; technical fields hidden; consider aggregations/MVs for long history.
+## 7. Technical Assumptions
+- data latency  
+- refresh cadence  
+- missing data handling  
+- currency conversion  
+- plan/forecast rules
 
 ---
 
-## 10. QA & Validation Rules
-At least 3–5 hard rules with tolerances.
+## 8. Deployment Requirements
+- DirectLake / Import / Hybrid  
+- Incremental refresh required? <Y/N>  
+- Aggregations? <Y/N>  
+- Workspace standards  
+- Naming standards  
 
-| Check Name | Object | Rule | Threshold | Automated (Y/N) | Owner |
-|------------|--------|------|-----------|------------------|-------|
-| RI Check | facts vs dims | ≥ 99.9 % matched keys | 99.9 % | Y | Data Engineer |
-| KPI Reconciliation | <KPI> vs source | Δ ≤ 0.5 % | 0.5 % | Y | Controller |
-| Decomposition Check | Drivers sum to Δ KPI | | 1.0 % | Y | BI Dev |
-| Outlier Check | key KPI | within business-defined range | domain-specific | N | Business Owner |
+---
 
-> Do: specify concrete tolerances; Don’t: leave QA as “manual” only.
+## 9. QA & Validation Rules
+| Check | Rule | Threshold | Automated Y/N | Owner |
+|-------|------|-----------|----------------|--------|
+| RI Check | Refer. integrity | ≥ 99.9 % | Y | DE |
+| KPI Match | KPI → measure present | 100 % | Y | BI |
+| Outlier Check | KPI in valid range | domain-specific | Y/N | Analyst |
+| Performance Check | Visual < 2s | 2s | Y | BI |
+
+---
+

@@ -1,25 +1,60 @@
-# COM-003 – Technical Factsheet
+# COM-003 — Customer Value  
+## Technical Factsheet (v1.2)
+
+---
 
 ## 0. Metadata (Mandatory)
 - **Domain:** Commercial
-- **Technical Owner:** Sales Ops / BI Lead
-- **Data Product / Model ID:** `commercial_customer_value`
+- **Technical Owner:** Sales Ops BI Lead
+- **Model ID:** commercial_customer_value
 - **Source Systems:** ERP/CRM, DWH
-- **Use Case Business Factsheet:** `usecases/core/COM-003_Customer_Value/Business_Factsheet.md`
+- **Business Factsheet:** usecases/core/COM-003_Customer_Value/Business_Factsheet.md
 
 ---
 
 ## 1. Model References
-- **Data Contract (Domain):** `data_contracts/domains/commercial_sales.yaml`
-- **Data Contract (Sources):** `data_contracts/sources/commercial.yaml` (if available)
-- **Semantic Model Definition:** `semantic_models/core_action_ready/commercial_sales/model_definition.yaml`
-- **KPI Catalog:** `framework/kpi_catalog/domain_kpi_catalog.md`
-- **Measure Dictionary:** `framework/kpi_catalog/domain_measure_dictionary.md`
+- **Domain Data Contract:** data_contracts/domains/commercial_sales.yaml
+- **Source Data Contract:** data_contracts/sources/commercial.yaml
+- **Semantic Model Definition:** semantic_models/core_action_ready/commercial_sales/model_definition.yaml
+- **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
+- **Measure Dictionary:** framework/kpi_catalog/domain_measure_dictionary.md
+- **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
 
 ---
 
-## 2. Data Contract Scope (YAML – COM-003)
+## 2. Required KPIs → Measure Mapping (Mandatory)
+```yaml
+kpi_to_measure_mapping:
+  - kpi_id: crm.clv.amount
+    kpi_name: Customer Lifetime Value
+    measure_name: [Customer Lifetime Value]
+    format: €#,0
+    folder: 04_Customer
+  - kpi_id: margin.customer.amount
+    kpi_name: Customer Margin Amount
+    measure_name: [Customer Margin Amount]
+    format: €#,0
+    folder: 02_Margin
+  - kpi_id: crm.retention.pct
+    kpi_name: Retention Rate %
+    measure_name: [Retention %]
+    format: 0.0%
+    folder: 04_Customer
+  - kpi_id: crm.churn.pct
+    kpi_name: Churn Rate %
+    measure_name: [Churn %]
+    format: 0.0%
+    folder: 04_Customer
+  - kpi_id: sales.customer.revenue.amount
+    kpi_name: Customer Revenue Amount
+    measure_name: [Customer Revenue Amount]
+    format: €#,0
+    folder: 01_Revenue
+```
 
+---
+
+## 3. Data Contract Scope (Subset YAML)
 ```yaml
 dimension:
   - name: dim_date
@@ -27,8 +62,18 @@ dimension:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
       - {name: Year, type: int}
+      - {name: Quarter, type: text}
       - {name: Month, type: text}
       - {name: MonthNumber, type: int}
+
+  - name: dim_org
+    columns:
+      - {name: OrgKey, type: int, role: key}
+      - {name: OrgCode, type: text}
+      - {name: OrgName, type: text}
+      - {name: Region, type: text}
+      - {name: Country, type: text}
+      - {name: Channel, type: text}
 
   - name: dim_customer
     columns:
@@ -36,11 +81,8 @@ dimension:
       - {name: CustomerCode, type: text}
       - {name: CustomerName, type: text}
       - {name: Segment, type: text}
-      - {name: Region, type: text}
-      - {name: Country, type: text}
       - {name: Channel, type: text}
-      - {name: TenureStartDate, type: date}
-      - {name: ChurnFlag, type: boolean}
+      - {name: Region, type: text}
 
   - name: dim_product
     columns:
@@ -49,176 +91,197 @@ dimension:
       - {name: ProductName, type: text}
       - {name: Category, type: text}
       - {name: Subcategory, type: text}
-      - {name: UoM, type: text}
+      - {name: Brand, type: text}
 
-  - name: security_user_org   # RLS (segment/region-based if needed)
+  - name: security_user_org   # canonical RLS
     columns:
-      - {name: UserPrincipalName, type: text}
+      - {name: UserPrincipalName, type: string, role: rls}
       - {name: Region, type: text}
       - {name: Country, type: text}
-      - {name: OrgKey, type: int}  # optional link if sales org used
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: Plant, type: text, nullable: true}
+      - {name: Line, type: text, nullable: true}
+      - {name: Channel, type: text, nullable: true}
 
 fact:
-  - name: fact_customer_margin
+  - name: fact_sales
+    grain: invoice_line
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: CustomerKey, type: int, ref: dim_customer}
+      - {name: Net Sales Amount, type: currency, agg: sum}
+      - {name: Quantity, type: decimal, agg: sum}
+      - {name: Cost of Goods Sold Amount, type: currency, agg: sum}
+
+  - name: fact_customer_activity
     grain: customer_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: CustomerKey, type: int, ref: dim_customer}
-      - {name: ProductKey, type: int, ref: dim_product}
-      - {name: Net Sales Amount, type: currency, agg: sum}
-      - {name: COGS Amount, type: currency, agg: sum}
-      - {name: Discount Amount, type: currency, agg: sum}
-      - {name: Quantity Qty, type: number, agg: sum}
-      - {name: Gross Margin Amount, type: currency, agg: sum}
-      - {name: CLV Amount, type: currency, agg: sum}
+      - {name: Active Flag, type: boolean}
       - {name: Churn Flag, type: boolean}
+
+  - name: fact_customer_value   # if separate CLV calc
+    grain: customer
+    columns:
+      - {name: CustomerKey, type: int, ref: dim_customer}
+      - {name: CLV Amount, type: currency}
+      - {name: Horizon Months, type: int, nullable: true}
 
 settings:
   timezone: Europe/Berlin
   fiscal_year_start: 01-01
 ```
 
-### Source Mapping (Physical Layer)
-- fact_customer_margin → `lh_commercial_sales.fact_customer_margin`
-- dim_date → `lh_shared.dim_date`
-- dim_customer → `lh_shared.dim_customer`
-- dim_product → `lh_shared.dim_product`
-- security_user_org → `lh_security.security_user_org`
-
 ---
 
-## 3. Semantic Model Requirements
+## 4. Semantic Model Requirements
 
-### 3.1 Tables
-- fact_customer_margin  
+### 4.1 Tables
+- fact_sales  
+- fact_customer_activity  
+- fact_customer_value (if present)  
 - dim_date  
+- dim_org  
 - dim_customer  
 - dim_product  
-- security_user_org (optional RLS)
+- security_user_org (RLS)
 
-### 3.2 Relationships
-- fact_customer_margin[DateKey] → dim_date[DateKey] (1:* | single)
-- fact_customer_margin[CustomerKey] → dim_customer[CustomerKey] (1:* | single)
-- fact_customer_margin[ProductKey] → dim_product[ProductKey] (1:* | single)
+### 4.2 Relationships (Mandatory)
+- dim_date (1) → fact_sales / fact_customer_activity / fact_customer_value on DateKey (where applicable)  
+- dim_org (1) → fact_sales on OrgKey  
+- dim_customer (1) → fact_sales / fact_customer_activity / fact_customer_value on CustomerKey  
+- dim_product (1) → fact_sales on ProductKey  
+- security_user_org filters dim_org (Region/Country/Channel/OrgKey) → cascades to fact_sales; if needed, map dim_customer to dim_org via a bridge or ensure org attribution on customer.
+- Single direction; no ambiguous paths; no bi-dir except RLS bridge.
 
-### 3.3 Hierarchies
-- Customer: Region → Country → Channel → Segment → Customer
+### 4.3 Hierarchies
+- Date: Year → Quarter → Month  
+- Org: Region → Country → Channel → OrgName  
+- Customer: Segment → CustomerName  
 - Product: Category → Subcategory → ProductName
-- Date: Year → Quarter → Month
 
-### 3.4 Sort-by Columns
-- Month → MonthNumber
+### 4.4 Sort-by Columns
+- Month → MonthNumber  
+- CustomerName → CustomerCode  
 - ProductName → ProductCode
-- CustomerName → CustomerCode
 
-### 3.5 Modeling Rules
-- No calculated columns; logic in measures/ETL.
-- Default summarization set; hide technical fields.
-- Display folders: 01_Customer, 02_Margin, 03_Retention.
-
----
-
-## 4. Measure Inventory
-
-| Measure Name              | KPI ID / Supporting        | Purpose                          | Display Folder | Format | Type |
-|---------------------------|----------------------------|----------------------------------|----------------|--------|------|
-| Customer Lifetime Value   | crm.clv.amount             | Lifecycle profitability          | 01_Customer    | €#,0.00| KPI  |
-| Gross Margin per Customer | margin.customer.amount     | Margin quality per customer      | 01_Customer    | €#,0.00| KPI  |
-| Retention Rate %          | crm.retention.pct          | Loyalty/stickiness               | 03_Retention   | 0.0 %  | KPI  |
-| Churn Rate %              | crm.churn.pct              | Loss indicator                   | 03_Retention   | 0.0 %  | KPI  |
-| Revenue per Customer      | sales.customer.revenue.amount | Monetization level            | 01_Customer    | €#,0.00| Supporting |
-| Churn Flag                | Supporting                 | Flag for churned customers       | 03_Retention   | Bool   | Supporting |
-| GM Amount                 | margin.gm.amount           | Margin value                     | 02_Margin      | €#,0.00| Supporting |
+### 4.5 Modeling Constraints
+- No calculated columns; no implicit measures.  
+- Default summarization set; technical columns hidden; display folders per dictionary.  
+- Surrogate keys mandatory; avoid M2M; use bridge if customer-org mapping needed.
 
 ---
 
 ## 5. Measures (DAX)
 
-```DAX
-/// crm.clv.amount – Lifecycle profitability
-Customer Lifetime Value =
-    SUM ( fact_customer_margin[CLV Amount] )
-```
+### 5.1 Measure Inventory
+| Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
+|--------------|---------------------|---------|--------|--------|------|
+| Customer Lifetime Value | crm.clv.amount | CLV | 04_Customer | €#,0 | KPI |
+| Customer Margin Amount | margin.customer.amount | Margin | 02_Margin | €#,0 | KPI |
+| Retention % | crm.retention.pct | Retention | 04_Customer | 0.0% | KPI |
+| Churn % | crm.churn.pct | Churn | 04_Customer | 0.0% | KPI |
+| Customer Revenue Amount | sales.customer.revenue.amount | Revenue | 01_Revenue | €#,0 | KPI |
+| Net Sales Amount | Supporting | Revenue base | 01_Revenue | €#,0 | Supporting |
+| COGS Amount | Supporting | Cost base | 02_Margin | €#,0 | Supporting |
+| Active Customers | Supporting | Retention denominator | 04_Customer | #,0 | Supporting |
+| Churned Customers | Supporting | Churn numerator | 04_Customer | #,0 | Supporting |
 
+### 5.2 DAX Definitions
 ```DAX
-/// margin.customer.amount – Margin per customer
-Gross Margin per Customer =
-    DIVIDE ( SUM ( fact_customer_margin[Gross Margin Amount] ),
-             DISTINCTCOUNT ( dim_customer[CustomerKey] ) )
-```
+/// Supporting — Revenue
+Net Sales Amount :=
+    SUM ( fact_sales[Net Sales Amount] )
 
-```DAX
-/// crm.retention.pct – Loyalty/stickiness
-Retention Rate % =
-    1 - [Churn Rate %]
-```
+/// Supporting — Cost
+COGS Amount :=
+    SUM ( fact_sales[Cost of Goods Sold Amount] )
 
-```DAX
-/// crm.churn.pct – Loss indicator
-Churn Rate % =
-    DIVIDE (
-        CALCULATE ( DISTINCTCOUNT ( fact_customer_margin[CustomerKey] ),
-                    fact_customer_margin[Churn Flag] = TRUE() ),
-        DISTINCTCOUNT ( fact_customer_margin[CustomerKey] )
-    )
-```
+/// sales.customer.revenue.amount — Customer revenue
+Customer Revenue Amount :=
+    CALCULATE ( [Net Sales Amount], ALLEXCEPT ( dim_customer, dim_customer[CustomerKey] ) )
 
-```DAX
-/// sales.customer.revenue.amount – Monetization level
-Revenue per Customer =
-    DIVIDE ( SUM ( fact_customer_margin[Net Sales Amount] ),
-             DISTINCTCOUNT ( fact_customer_margin[CustomerKey] ) )
+/// margin.customer.amount — Customer margin
+Customer Margin Amount :=
+    CALCULATE ( [Net Sales Amount] - [COGS Amount], ALLEXCEPT ( dim_customer, dim_customer[CustomerKey] ) )
+
+/// Supporting — Active and churned counts
+Active Customers :=
+    CALCULATE ( DISTINCTCOUNT ( dim_customer[CustomerKey] ), fact_customer_activity[Active Flag] = TRUE )
+
+Churned Customers :=
+    CALCULATE ( DISTINCTCOUNT ( dim_customer[CustomerKey] ), fact_customer_activity[Churn Flag] = TRUE )
+
+/// crm.retention.pct — Retention
+Retention % :=
+    DIVIDE ( [Active Customers], [Active Customers] + [Churned Customers] )
+
+/// crm.churn.pct — Churn
+Churn % :=
+    DIVIDE ( [Churned Customers], [Active Customers] + [Churned Customers] )
+
+/// crm.clv.amount — CLV (placeholder if precomputed)
+Customer Lifetime Value :=
+    SUM ( fact_customer_value[CLV Amount] )
 ```
 
 ---
 
-## 6. Defaults & Formatting
-- Currency: `€#,0.00` | Percent: `0.0 %` | Qty: `#,0` | Flags: Boolean
-- Summarization: Amounts = Sum; Percent = None; Flags = None.
-- Display folders: 01_Customer, 02_Margin, 03_Retention.
+## 6. RLS / OLS Requirements
 
----
+### 6.1 Security Table Pattern
+```yaml
+security_table:
+  name: security_user_org
+  keys:
+    - UserPrincipalName
+    - Region
+    - Country
+    - OrgKey
+    - Channel
+  mapping_target: dim_org[OrgKey]
+  fallback_behavior: deny_all_if_no_match
+```
 
-## 7. Visual Requirements
-
-| Visual Name           | Type      | X-Axis / Category     | Y-Axis / Value                         | Segment / Legend | Filters / Defaults |
-|-----------------------|-----------|-----------------------|----------------------------------------|------------------|--------------------|
-| CLV & Retention Trend | Line      | dim_date[Month]       | [CLV], [Retention %], [Churn %]        | Segment/Region   | Last 12–24M        |
-| Segment Ranking       | Bar       | dim_customer[Segment] | [CLV], [GM/Customer], [Retention %]    | Region/Channel   | Top/Bottom N       |
-| CLV Driver Bridge     | Waterfall | Drivers               | Δ CLV vs Plan/LY                       | n/a              | Period selector    |
-| Detail Matrix         | Matrix    | Segment → Customer    | CLV, GM/Customer, Churn flag, basket mix| Segment/Region  | Export enabled     |
-
----
-
-## 8. RLS / OLS Rules
-
-### 8.1 RLS Pattern
-Region/Channel-based RLS via security table (if required):
+### 6.2 RLS Rule (Fabric / Power BI)
 ```DAX
-dim_customer[Region] IN
+dim_org[OrgKey] IN
     CALCULATETABLE (
-        VALUES ( security_user_org[Region] ),
-        security_user_org[UserPrincipalName] = USERPRINCIPALNAME ()
+        VALUES ( security_user_org[OrgKey] ),
+        security_user_org[UserPrincipalName] = USERPRINCIPALNAME()
     )
 ```
 
-### 8.2 OLS (optional)
-- Hide customer names for external roles; show segment/region only.
+### 6.3 OLS (optional)
+- None required; CLV may be sensitive—consider masking for roles if needed (TODO if client requires).
 
 ---
 
-## 9. Performance & Refresh
-- Storage Mode: Import.
-- Partitioning: monthly; history 24–36 months.
-- No calculated columns; technical fields hidden; optional aggregations for long history.
+## 7. Technical Assumptions
+- Churn/retention flags supplied in fact_customer_activity; definition consistent across channels.
+- CLV either precomputed (preferred) or computed upstream; if computed in model, align methodology with finance.
+- Data latency ≤24h; currency EUR.
+- Customer-to-org mapping available for RLS alignment.
 
 ---
 
-## 10. QA & Validation Rules
+## 8. Deployment Requirements
+- Mode: DirectLake or Import (prefer DirectLake if Fabric).  
+- Incremental refresh: yes, for fact_sales and fact_customer_activity (e.g., last 24 months).  
+- Aggregations: optional for large sales volume tables.  
+- Workspace/naming: `ARF – Commercial` dataset/model naming per governance.
 
-| Check Name              | Object                        | Rule                                     | Threshold | Automated | Owner         |
-|-------------------------|-------------------------------|------------------------------------------|-----------|-----------|---------------|
-| RI Check                | fact → dims                   | ≥ 99.9 % matched keys                    | 99.9 %    | Y         | Data Engineer |
-| CLV Reconciliation      | CLV Amount                    | Matches source calculation               | ±0.5 %    | Y         | Controller    |
-| Retention/Churn Capture | Churn flags                   | Coverage of churn flags ≥ 95 %           | 95 %      | Y         | BI Dev        |
-| GM Reconciliation       | Gross Margin Amount           | Matches finance margin reporting         | ±0.5 %    | Y         | Controller    |
+---
+
+## 9. QA & Validation Rules
+| Check | Rule | Threshold | Automated Y/N | Owner |
+|-------|------|-----------|---------------|-------|
+| Referential Integrity | Date/Org/Customer/Product keys non-null in facts | 100% | Y | Data Engineering |
+| Revenue/Cost Balancing | Net Sales and COGS match source per month | ±0.1% | Y | Controlling |
+| Retention/Churn Consistency | Active + Churned reconciles to prior base | Exact | Y | BI |
+| CLV Availability | CLV present for top segments | 100% of priority segments | Y | BI/Finance |
+| RLS Coverage | Users see only authorised regions/channels/customers (if mapped) | 0 leaks | Y | Security |
+| Performance | Main visuals <2s on 24M row sample | <2s | Y | BI |

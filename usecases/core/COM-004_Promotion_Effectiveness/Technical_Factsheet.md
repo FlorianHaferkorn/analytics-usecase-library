@@ -1,25 +1,60 @@
-# COM-004 – Technical Factsheet
+# COM-004 — Promotion Effectiveness  
+## Technical Factsheet (v1.2)
+
+---
 
 ## 0. Metadata (Mandatory)
 - **Domain:** Commercial
 - **Technical Owner:** Trade Marketing / BI Lead
-- **Data Product / Model ID:** `promotion_effectiveness`
+- **Model ID:** promotion_effectiveness
 - **Source Systems:** ERP (sales), Promo Mgmt, DWH
-- **Use Case Business Factsheet:** `usecases/core/COM-004_Promotion_Effectiveness/Business_Factsheet.md`
+- **Business Factsheet:** usecases/core/COM-004_Promotion_Effectiveness/Business_Factsheet.md
 
 ---
 
 ## 1. Model References
-- **Data Contract (Domain):** `data_contracts/domains/commercial_sales.yaml`
-- **Data Contract (Sources):** `data_contracts/sources/commercial.yaml` (if available)
-- **Semantic Model Definition:** `semantic_models/core_action_ready/commercial_sales/model_definition.yaml`
-- **KPI Catalog:** `framework/kpi_catalog/domain_kpi_catalog.md`
-- **Measure Dictionary:** `framework/kpi_catalog/domain_measure_dictionary.md`
+- **Domain Data Contract:** data_contracts/domains/commercial_sales.yaml
+- **Source Data Contract:** data_contracts/sources/commercial.yaml (promo details if present)
+- **Semantic Model Definition:** semantic_models/core_action_ready/commercial_sales/model_definition.yaml
+- **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
+- **Measure Dictionary:** framework/kpi_catalog/domain_measure_dictionary.md
+- **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
 
 ---
 
-## 2. Data Contract Scope (YAML – COM-004)
+## 2. Required KPIs → Measure Mapping (Mandatory)
+```yaml
+kpi_to_measure_mapping:
+  - kpi_id: sales.promo.roi.pct
+    kpi_name: Promotion ROI %
+    measure_name: [Promotion ROI %]
+    format: 0.0%
+    folder: 04_Promo
+  - kpi_id: sales.promo.incremental.amount
+    kpi_name: Incremental Sales Amount
+    measure_name: [Incremental Sales Amount]
+    format: €#,0
+    folder: 04_Promo
+  - kpi_id: margin.promo.gm.pct
+    kpi_name: Promo Gross Margin %
+    measure_name: [Promo Gross Margin %]
+    format: 0.0%
+    folder: 02_Margin
+  - kpi_id: sales.price.realization_pct
+    kpi_name: Price Realization %
+    measure_name: [Price Realization %]
+    format: 0.0%
+    folder: 03_Pricing
+  - kpi_id: sales.promo.cannibalization.pct
+    kpi_name: Cannibalization %
+    measure_name: [Cannibalization %]
+    format: 0.0%
+    folder: 04_Promo
+```
 
+---
+
+## 3. Data Contract Scope (Subset YAML)
 ```yaml
 dimension:
   - name: dim_date
@@ -27,12 +62,15 @@ dimension:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
       - {name: Year, type: int}
+      - {name: Quarter, type: text}
       - {name: Month, type: text}
       - {name: MonthNumber, type: int}
 
   - name: dim_org
     columns:
       - {name: OrgKey, type: int, role: key}
+      - {name: OrgCode, type: text}
+      - {name: OrgName, type: text}
       - {name: Region, type: text}
       - {name: Country, type: text}
       - {name: Channel, type: text}
@@ -40,7 +78,7 @@ dimension:
   - name: dim_product
     columns:
       - {name: ProductKey, type: int, role: key}
-      - {name: SKU, type: text}
+      - {name: ProductCode, type: text}
       - {name: ProductName, type: text}
       - {name: Category, type: text}
       - {name: Subcategory, type: text}
@@ -49,188 +87,188 @@ dimension:
   - name: dim_promo
     columns:
       - {name: PromoKey, type: int, role: key}
-      - {name: PromoCode, type: text}
-      - {name: PromoName, type: text}
+      - {name: Promotion, type: text}
       - {name: PromoType, type: text}
-      - {name: StartDate, type: date}
-      - {name: EndDate, type: date}
       - {name: Mechanic, type: text}
-      - {name: Retailer, type: text}
+      - {name: StartDateKey, type: int, ref: dim_date}
+      - {name: EndDateKey, type: int, ref: dim_date}
+      - {name: FundedByVendor, type: boolean, nullable: true}
 
-  - name: security_user_org   # RLS
+  - name: security_user_org   # canonical RLS
     columns:
-      - {name: UserPrincipalName, type: text}
+      - {name: UserPrincipalName, type: string, role: rls}
       - {name: Region, type: text}
       - {name: Country, type: text}
-      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: Plant, type: text, nullable: true}
+      - {name: Line, type: text, nullable: true}
+      - {name: Channel, type: text, nullable: true}
 
 fact:
-  - name: fact_promo_performance
-    grain: promo_sku_channel_period
+  - name: fact_sales
+    grain: invoice_line
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: ProductKey, type: int, ref: dim_product}
+      - {name: PromoKey, type: int, ref: dim_promo, nullable: true}
+      - {name: Net Sales Amount, type: currency, agg: sum}
+      - {name: Quantity, type: decimal, agg: sum}
+      - {name: List Price Amount, type: currency, agg: sum}
+      - {name: Net Price Amount, type: currency, agg: sum}
+      - {name: Discount Amount, type: currency, agg: sum}
+      - {name: Cost of Goods Sold Amount, type: currency, agg: sum}
+      - {name: Promo Flag, type: boolean}
+
+  - name: fact_promo
+    grain: promotion
+    columns:
       - {name: PromoKey, type: int, ref: dim_promo}
-      - {name: Baseline Sales Amount, type: currency, agg: sum}
-      - {name: Baseline Qty, type: number, agg: sum}
-      - {name: Promo Sales Amount, type: currency, agg: sum}
-      - {name: Promo Qty, type: number, agg: sum}
-      - {name: Promo Spend Amount, type: currency, agg: sum}
-      - {name: COGS Amount, type: currency, agg: sum}
-      - {name: Cannibalization Amount, type: currency, agg: sum}
-
-settings:
-  timezone: Europe/Berlin
-  fiscal_year_start: 01-01
+      - {name: Promo Cost, type: currency}
+      - {name: Funding Amount, type: currency, nullable: true}
+      - {name: Baseline Sales Amount, type: currency, nullable: true}
+      - {name: Baseline Quantity, type: decimal, nullable: true}
 ```
-
-### Source Mapping (Physical Layer)
-- fact_promo_performance → `lh_commercial_sales.fact_promo_performance`
-- dim_date → `lh_shared.dim_date`
-- dim_org → `lh_shared.dim_org`
-- dim_product → `lh_shared.dim_product`
-- dim_promo → `lh_commercial_sales.dim_promo`
-- security_user_org → `lh_security.security_user_org`
 
 ---
 
-## 3. Semantic Model Requirements
+## 4. Semantic Model Requirements
 
-### 3.1 Tables
-- fact_promo_performance  
+### 4.1 Tables
+- fact_sales  
+- fact_promo  
 - dim_date  
 - dim_org  
 - dim_product  
 - dim_promo  
 - security_user_org (RLS)
 
-### 3.2 Relationships
-- fact_promo_performance[DateKey] → dim_date[DateKey] (1:* | single)
-- fact_promo_performance[OrgKey] → dim_org[OrgKey] (1:* | single)
-- fact_promo_performance[ProductKey] → dim_product[ProductKey] (1:* | single)
-- fact_promo_performance[PromoKey] → dim_promo[PromoKey] (1:* | single)
+### 4.2 Relationships (Mandatory)
+- dim_date (1) → fact_sales on DateKey; dim_date (1) → dim_promo on Start/End if modeled; use role-played date if needed.  
++- dim_org (1) → fact_sales on OrgKey  
+- dim_product (1) → fact_sales on ProductKey  
+- dim_promo (1) → fact_sales on PromoKey  
+- fact_promo (1) → dim_promo on PromoKey  
+- security_user_org filters dim_org (Region/Country/Channel/OrgKey) → cascades to fact_sales; use same filter context for promo views.
+- Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
-### 3.3 Hierarchies
-- Org: Region → Country → Channel
-- Product: Category → Subcategory → SKU
-- Date: Year → Quarter → Month
-- Promo: PromoType → PromoName
+### 4.3 Hierarchies
+- Date: Year → Quarter → Month  
+- Org: Region → Country → Channel → OrgName  
+- Product: Category → Subcategory → ProductName  
+- Promo: PromoType → Mechanic → Promotion
 
-### 3.4 Sort-by Columns
-- Month → MonthNumber
-- ProductName → ProductCode
-- PromoName → PromoCode
+### 4.4 Sort-by Columns
+- Month → MonthNumber  
+- Promotion → PromoKey (or StartDate)  
 
-### 3.5 Modeling Rules
-- No calculated columns; use measures/ETL.
-- Default summarization set; technical fields hidden.
-- Display folders: 01_Promo, 02_Margin, 03_Price, 04_Risk.
-
----
-
-## 4. Measure Inventory
-
-| Measure Name            | KPI ID / Supporting           | Purpose                      | Display Folder | Format   | Type |
-|-------------------------|-------------------------------|------------------------------|----------------|----------|------|
-| Promo ROI %             | sales.promo.roi.pct           | Promo profitability          | 01_Promo       | 0.0 %    | KPI  |
-| Incremental Sales %     | sales.promo.incremental.pct   | Demand lift                  | 01_Promo       | 0.0 %    | KPI  |
-| Gross Margin %          | margin.promo.gm.pct           | Margin quality during promo  | 02_Margin      | 0.0 %    | KPI  |
-| Price Realization %     | sales.price.realization_pct   | Discount discipline          | 03_Price       | 0.0 %    | Supporting |
-| Cannibalization %       | sales.promo.cannibalization.pct | Impact on related items    | 04_Risk        | 0.0 %    | KPI  |
-| Incremental Sales Amount| Supporting                    | Value of uplift              | 01_Promo       | €#,0.00  | Supporting |
-| Promo Uplift Qty        | Supporting                    | Volume uplift                | 01_Promo       | #,0      | Supporting |
+### 4.5 Modeling Constraints
+- No calculated columns; no implicit measures.  
+- Default summarization set; technical columns hidden; folders per dictionary.  
+- Surrogate keys mandatory; handle many-to-many only via bridge if needed (avoid).
 
 ---
 
 ## 5. Measures (DAX)
 
+### 5.1 Measure Inventory
+| Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
+|--------------|---------------------|---------|--------|--------|------|
+| Promotion ROI % | sales.promo.roi.pct | Promo profitability | 04_Promo | 0.0% | KPI |
+| Incremental Sales Amount | sales.promo.incremental.amount | Uplift sizing | 04_Promo | €#,0 | KPI |
+| Promo Gross Margin % | margin.promo.gm.pct | Profit quality | 02_Margin | 0.0% | KPI |
+| Price Realization % | sales.price.realization_pct | Discount discipline | 03_Pricing | 0.0% | KPI |
+| Cannibalization % | sales.promo.cannibalization.pct | Net effect | 04_Promo | 0.0% | KPI |
+| Net Sales Amount | Supporting | Revenue base | 01_Revenue | €#,0 | Supporting |
+| Gross Margin Amount | Supporting | Margin base | 02_Margin | €#,0 | Supporting |
+
+### 5.2 DAX Definitions
 ```DAX
-/// sales.promo.incremental.pct – Demand lift
-Incremental Sales Amount =
-    [Promo Sales Amount] - [Baseline Sales Amount]
+/// Supporting — Revenue
+Net Sales Amount :=
+    SUM ( fact_sales[Net Sales Amount] )
 
-Incremental Sales % =
-    DIVIDE ( [Incremental Sales Amount], [Baseline Sales Amount] )
+/// Supporting — Gross margin
+Gross Margin Amount :=
+    SUM ( fact_sales[Net Sales Amount] ) - SUM ( fact_sales[Cost of Goods Sold Amount] )
+
+/// margin.promo.gm.pct — Promo GM%
+Promo Gross Margin % :=
+    DIVIDE ( [Gross Margin Amount], [Net Sales Amount] )
+
+/// sales.price.realization_pct — During promo
+Price Realization % :=
+    DIVIDE ( SUM ( fact_sales[Net Price Amount] ), SUM ( fact_sales[List Price Amount] ) )
+
+/// sales.promo.incremental.amount — Uplift vs baseline (placeholder if baseline provided)
+Incremental Sales Amount :=
+    SUM ( fact_sales[Net Sales Amount] ) - SUM ( fact_promo[Baseline Sales Amount] )
+
+/// sales.promo.roi.pct — ROI
+Promotion ROI % :=
+    DIVIDE ( [Gross Margin Amount] - SUM ( fact_promo[Baseline Sales Amount] - fact_promo[Promo Cost] ), SUM ( fact_promo[Promo Cost] ) )
+
+/// sales.promo.cannibalization.pct — Cannibalization (placeholder)
+Cannibalization % :=
+    // TODO: requires baseline and related-item mapping
+    BLANK ()
 ```
-
-```DAX
-/// margin.promo.gm.pct – Margin quality during promo
-Promo GM % =
-    DIVIDE (
-        [Promo Sales Amount] - SUM ( fact_promo_performance[COGS Amount] ),
-        [Promo Sales Amount]
-    )
-```
-
-```DAX
-/// sales.promo.roi.pct – Promo profitability
-Promo ROI % =
-    DIVIDE (
-        [Incremental Sales Amount] - SUM ( fact_promo_performance[Promo Spend Amount] ),
-        SUM ( fact_promo_performance[Promo Spend Amount] )
-    )
-```
-
-```DAX
-/// sales.promo.cannibalization.pct – Cannibalization
-Cannibalization % =
-    DIVIDE ( SUM ( fact_promo_performance[Cannibalization Amount] ),
-             [Incremental Sales Amount] )
-```
-
-> Baseline method (pre/post or modeled) must be consistent across Promos.
 
 ---
 
-## 6. Defaults & Formatting
-- Currency: `€#,0.00` | Percent: `0.0 %` | Qty: `#,0`
-- Summarization: Amounts = Sum; Percent = None; Qty = Sum.
-- Display folders: 01_Promo, 02_Margin, 03_Price, 04_Risk.
+## 6. RLS / OLS Requirements
 
----
+### 6.1 Security Table Pattern
+```yaml
+security_table:
+  name: security_user_org
+  keys:
+    - UserPrincipalName
+    - Region
+    - Country
+    - OrgKey
+    - Channel
+  mapping_target: dim_org[OrgKey]
+  fallback_behavior: deny_all_if_no_match
+```
 
-## 7. Visual Requirements
-
-| Visual Name          | Type      | X-Axis / Category | Y-Axis / Value                           | Segment / Legend | Filters / Defaults |
-|----------------------|-----------|-------------------|------------------------------------------|------------------|--------------------|
-| Promo ROI & GM Trend | Line      | dim_date[Month]   | [Promo ROI %], [Promo GM %], [Uplift %]  | Channel/Region   | Last 12–24M        |
-| ROI by Promo/Ch/Prod | Bar       | Promo / Channel / Category | [Promo ROI %], [Incremental Sales %]    | Region           | Top/Bottom N       |
-| Promo Variance Bridge| Waterfall | Drivers (Price, Volume, Mix, Spend)  | Δ Promo GM vs Baseline                    | n/a              | Period selector    |
-| Detail Matrix        | Matrix    | Promo → Product/Channel | ROI %, Uplift %, GM %, Cannibalization % | Channel/Region   | Export enabled     |
-
----
-
-## 8. RLS / OLS Rules
-
-### 8.1 RLS Pattern
-Region/Channel-based RLS via security table:
+### 6.2 RLS Rule (Fabric / Power BI)
 ```DAX
-dim_org[Region] IN
+dim_org[OrgKey] IN
     CALCULATETABLE (
-        VALUES ( security_user_org[Region] ),
-        security_user_org[UserPrincipalName] = USERPRINCIPALNAME ()
+        VALUES ( security_user_org[OrgKey] ),
+        security_user_org[UserPrincipalName] = USERPRINCIPALNAME()
     )
 ```
 
-### 8.2 OLS (optional)
-- Hide spend or GM for external roles; show uplift metrics only.
+### 6.3 OLS (optional)
+- None required; consider masking promo cost if sensitive (TODO based on client policy).
 
 ---
 
-## 9. Performance & Refresh
-- Storage Mode: Import.
-- Partitioning: monthly; history 12–24 months.
-- No calculated columns; technical fields hidden; consider weekly aggregation for high volume.
+## 7. Technical Assumptions
+- Baseline/uplift logic provided or computed upstream; cannibalization requires related-item mapping.
+- Promo cost/funding captured; price realization fields populated.
+- Data latency ≤24h; currency EUR.
+- OneLake canonical dims used; promo calendar consistent with date dimension.
 
 ---
 
-## 10. QA & Validation Rules
+## 8. Deployment Requirements
+- Mode: DirectLake or Import (prefer DirectLake if Fabric).  
+- Incremental refresh: yes, monthly partitions for last 24 months.  
+- Aggregations: optional for large volumes.  
+- Workspace/naming: `ARF – Commercial` dataset/model per governance.
 
-| Check Name              | Object                       | Rule                                    | Threshold | Automated | Owner          |
-|-------------------------|------------------------------|-----------------------------------------|-----------|-----------|----------------|
-| RI Check                | fact → dims                  | ≥ 99.9 % matched keys                   | 99.9 %    | Y         | Data Engineer  |
-| ROI Calculation         | ROI vs source                | ROI formula consistent                  | ±0.5 pp   | Y         | BI Dev         |
-| Baseline Accuracy       | Baseline Sales/Qty           | Matches agreed baseline method          | manual    | N/Y*      | BI Dev         |
-| Cannibalization Capture | Cannibalization Amount       | Captured for affected SKUs              | coverage  | Y         | BI Dev         |
-| Price Realization Check | Net/List consistency         | Net ≤ List unless surcharge             | rule-based| Y         | BI Dev         |
+---
+
+## 9. QA & Validation Rules
+| Check | Rule | Threshold | Automated Y/N | Owner |
+|-------|------|-----------|---------------|-------|
+| Referential Integrity | Date/Org/Product/Promo keys non-null in facts | 100% | Y | Data Engineering |
+| ROI Integrity | Promo ROI calc reconciles GM uplift vs promo cost | Residual < 0.5% | Y | BI |
+| Baseline Consistency | Baseline present for all measured promos | 100% measured promos | Y | BI |
+| Price Realization | Net Price within policy bands vs List | ≤0.5% exceptions | Y | BI |
+| Cannibalization | Calculation coverage for related items | TODO coverage target | N (baseline dependency) | BI |
+| RLS Coverage | Users see only authorised regions/channels | 0 leaks | Y | Security |
+| Performance | Main visuals <2s on representative sample | <2s | Y | BI |

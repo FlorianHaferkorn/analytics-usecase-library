@@ -1,9 +1,14 @@
-# SCM-002 – Supply Reliability & OTIF (Business Factsheet)
+# SCM-002 — Supply Reliability & OTIF  
+## Business Factsheet (v1.2)
+
+---
 
 ## 0. Metadata (Mandatory)
 - **Use Case ID:** SCM-002
 - **Domain:** Supply Chain
-- **Owner (Business):** Head of Supply Chain / Logistics / Procurement
+- **Business Owner:** Head of Supply Chain / Logistics
+- **KPI Owner:** Supply Chain Controlling / Logistics Performance
+- **Decision Owner:** Supply Chain Leadership
 - **Reporting Level:** Tactical
 - **Analytics Stage:** Diagnostic / Prescriptive
 - **Related Data Contract:** data_contracts/domains/supply_chain.yaml
@@ -11,99 +16,207 @@
 
 ---
 
-## 1. Summary
-**Purpose:** Improve supply reliability and OTIF to protect service and reduce penalties/expedites.  
-**Business Value:** OTIF ≥97%, fewer chargebacks and expedites, lower buffer stock, stable service.  
-**Out of Scope:** Long-term vendor sourcing decisions (procurement strategy).
+## 1. Business Summary
+**Purpose:** Improve supply reliability by raising On-Time In-Full (OTIF), reducing stockout impact, and lowering penalties/expedites.  
+**Business Value:** Higher service level, fewer penalties/expedites, better customer satisfaction, and more stable inventory.  
+**Out of Scope:** Inventory optimization specifics (SCM-001); forecast accuracy deep dive (SCM-003); promo effects (COM-004).
 
 ---
 
-## 2. Core Questions
-- Which suppliers/lanes/DCs drive OTIF misses and why?
-- Are misses driven by On-Time, In-Full, or both?
-- How do OTIF issues translate into stockouts, lost sales, or penalties?
-- Which corrective actions and SLAs fix OTIF fastest?
+## 2. Core Business Questions
+- Where is OTIF below target by lane/DC/channel/product?
+- What are the main drivers of late or incomplete deliveries?
+- How much do stockouts, penalties, and expedites cost?
+- Which corrective actions improve OTIF fastest without excessive cost?
 
-**Example Queries:**
-- “Top 10 suppliers by OTIF gap and related penalties last month?”
-- “Which lanes show On-Time <95% while In-Full is ok (transport issue)?”
+**Example Query Patterns (optional):**
+- “Which lanes have OTIF <97% in the last 8 weeks and what are the top delay reasons?”
+- “What is the stockout impact and penalty cost by channel?”
 
 ---
 
-## 3. KPI Set (Business View)
+## 3. Required KPIs (Mandatory)
+All KPIs must exist in the KPI Catalog.
 
-| KPI Name          | KPI ID (mandatory)      | Purpose                      | Definition (short)                              | Unit / Format | Target / Threshold        | Interpretation                    |
-|-------------------|-------------------------|------------------------------|-------------------------------------------------|---------------|---------------------------|-----------------------------------|
-| OTIF %            | supply.otif.pct         | Supply reliability           | On-Time AND In-Full lines / total lines         | %             | ≥ 97%                     | Core reliability indicator        |
-| On-Time %         | supply.on_time.pct      | Punctuality                  | On-time lines / total lines                     | %             | ≥ 95%                     | Transport/schedule adherence      |
-| In-Full %         | supply.in_full.pct      | Completeness                 | Complete lines / total lines                    | %             | ≥ 97%                     | Picking/inventory reliability     |
-| Stockout Impact % | supply.stockout_impact.pct | Service risk              | Lines with stockout due to supply / total lines | %             | ≤ 3%                      | Service exposure                  |
-| Penalties Amount  | supply.penalty.amount   | Financial leakage            | Chargebacks/penalties linked to OTIF            | currency      | ↓ vs prior period         | Cost of misses                    |
-| Expedite Cost     | supply.expedite.amount  | Cost of mitigation           | Expedite cost to fix misses                     | currency      | ↓ vs prior period         | Cost to protect service           |
-
-> KPI IDs must match the catalog; targets per lane/supplier class where needed.
+```yaml
+required_kpis:
+  - id: supply.otif.pct
+    name: OTIF %
+    purpose: Service level delivered
+    definition_short: On-Time In-Full orders / total orders
+    unit: %
+    grain: order
+    agg: avg
+    target: ≥ 97–99%
+    interpretation: Low OTIF signals service failure
+    lineage: fact_fulfillment[OTIF Flag]
+  - id: supply.on_time.pct
+    name: On-Time %
+    purpose: Timeliness
+    definition_short: On-time deliveries / total deliveries
+    unit: %
+    grain: shipment
+    agg: avg
+    target: ≥ 97–99%
+    interpretation: Low on-time signals delay issues
+    lineage: fact_fulfillment[On-Time Flag]
+  - id: supply.in_full.pct
+    name: In-Full %
+    purpose: Completeness
+    definition_short: In-full deliveries / total deliveries
+    unit: %
+    grain: shipment
+    agg: avg
+    target: ≥ 97–99%
+    interpretation: Low in-full signals quantity issues
+    lineage: fact_fulfillment[In-Full Flag]
+  - id: supply.stockout_impact.pct
+    name: Stockout Impact %
+    purpose: Service loss
+    definition_short: Lost demand due to stockout / total demand
+    unit: %
+    grain: location_sku_day
+    agg: avg
+    target: ≤ target
+    interpretation: High impact shows service gaps
+    lineage: fact_stockout[Lost Demand], fact_stockout[Demand]
+  - id: supply.penalty.amount
+    name: Penalty Amount
+    purpose: Financial impact of service failures
+    definition_short: Penalties incurred for service misses
+    unit: €
+    grain: order
+    agg: sum
+    target: Reduce to target
+    interpretation: High penalties indicate systemic issues
+    lineage: fact_fulfillment[Penalty Amount]
+  - id: supply.expedite.amount
+    name: Expedite Cost Amount
+    purpose: Cost to recover service
+    definition_short: Additional cost for expedited shipping
+    unit: €
+    grain: shipment
+    agg: sum
+    target: Reduce to target
+    interpretation: High expedites show plan/fulfillment gaps
+    lineage: fact_fulfillment[Expedite Cost]
+```
 
 ---
 
 ## 4. Business Logic & Thresholds
-- OTIF % < 97% or downward trend → supplier/logistics escalation.
-- On-Time % < 95% but In-Full high → transport/scheduling issue.
-- In-Full % < 97% → picking/inventory accuracy issue.
-- Stockout Impact % > 3% → immediate mitigation (buffer/replan).
-- Penalties/Expedites rising → enforce SLA and root-cause actions.
+Formal rules that define performance and action triggers.
 
-**Trigger Logic (formal, for automation):**
-```
-WHEN supply.otif.pct < 97
-OR   supply.on_time.pct < 95
-OR   supply.in_full.pct < 97
-OR   supply.stockout_impact.pct > 3
-THEN propose PC4 (supplier/logistics fix), O2 (process improvement), I1 (buffering/rebalance), SP1 (plan alignment)
+### 4.1 Logic Description
+- Flag lanes/products with OTIF below target for 2 consecutive periods.
+- Flag high stockout impact % by channel/location.
+- Flag penalties/expedites above materiality thresholds.
+- Identify on-time or in-full components failing most.
+
+### 4.2 Formal Trigger Rules (Machine-Readable)
+```yaml
+triggers:
+  - kpi: supply.otif.pct
+    condition: <
+    threshold: otif_target
+    scope: lane_dc_channel
+    exclusion: force_majeure
+    action_code: O2
+  - kpi: supply.stockout_impact.pct
+    condition: >
+    threshold: stockout_target
+    scope: location_channel
+    exclusion: planned_outages
+    action_code: I2
+  - kpi: supply.penalty.amount
+    condition: >
+    threshold: penalty_materiality
+    scope: customer_channel
+    exclusion: negotiated_penalties
+    action_code: D1
+  - kpi: supply.expedite.amount
+    condition: >
+    threshold: expedite_materiality
+    scope: lane_dc_channel
+    exclusion: crisis
+    action_code: O2
 ```
 
 ---
 
-## 5. Action Codes
+## 5. Action Codes (Mandatory)
+Link business behavior to measurable outcomes.
 
-| Code | Name                          | Trigger (formal, KPIs)                       | Description (business action)                     | Expected KPI Impact        |
-|------|-------------------------------|----------------------------------------------|---------------------------------------------------|----------------------------|
-| PC4  | Supplier/Logistics Fix        | otif.pct < 97 OR on_time.pct < 95            | Enforce SLA, stabilize lead times, route redesign | +1–3 pp OTIF               |
-| O2   | Process Improvement           | in_full.pct < 97 or picking errors           | Improve ASN/picking/pack accuracy                 | Higher In-Full %           |
-| I1   | Inventory Rebalance / Buffer  | stockout_impact.pct > 3                      | Temporary buffer on critical SKUs/locations       | Lower stockout impact      |
-| SP1  | Forecast/Plan Alignment       | recurring misses from plan mismatch          | Align plan/capacity; lock windows                 | Fewer re-plans, higher OTIF|
-
-> Use ActionCodes_Portfolio; keep triggers KPI-based and formal.
+| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
+|-------------|------|------------------|-------------|---------------------|------------------|-------|
+| O2 | Operations Stabilisation | supply.otif.pct < target OR expedite/penalty high | Fix root causes (supplier, transport, DC process), re-sequence orders | Improve OTIF %, reduce expedites/penalties | L2 | Supply/Logistics |
+| I2 | Stockout Prevention | supply.stockout_impact.pct > target | Improve safety stock/replenishment, expedite critical items | Reduce stockout impact, improve OTIF | L2 | Supply Planning |
+| D1 | Cost Take-Out | Penalties/expedites above materiality | Reduce penalties/expedites via SLA adherence and planning fixes | Lower costs, improve service stability | L2 | Procurement / Logistics |
+| O2 (Planning variant) | Forecast/process stabilisation | plan/actual variance causing service misses | Improve plan, align supply with demand | Improve OTIF, reduce expedites | L2 | S&OP |
 
 ---
 
-## 6. 3–30–300 Page Layout
+## 6. 3–30–300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
-- OTIF %, On-Time %, In-Full %, Stockout Impact %, Penalties, Expedite Cost.
+- OTIF %  
+- On-Time %  
+- In-Full %  
+- Stockout Impact %  
+- Penalty Amount / Expedite Cost  
 
 ### 6.2 30-Second Layer (Main Visuals)
-| Visual Name              | Type   | X-Axis / Category            | Y-Axis / Value                         | Segment / Legend | Filters / Defaults |
-|--------------------------|--------|------------------------------|----------------------------------------|------------------|--------------------|
-| OTIF Trend               | Line   | dim_date[Week/Month]         | [OTIF %], Targets                      | Supplier/Lane    | Last 12–18 months  |
-| On-Time vs In-Full Split | Column | dim_supplier[SupplierName]   | [On-Time %], [In-Full %]               | Region           | Top/Bottom N       |
-| Root Cause Pareto        | Bar    | fact_shipments[RootCause]    | [Shipment Lines], [OTIF % variance]    | CauseCategory    | Current period     |
-| Cost of Misses           | Column | dim_supplier[SupplierName]   | [Penalties Amount], [Expedite Cost]    | Region           | Current period     |
-| Detail Matrix            | Matrix | Supplier > Lane > DC > SKU   | OTIF %, On-Time %, In-Full %, Stockout Impact %, Penalties | Region | Export enabled |
+| Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
+|-------------|-------------|--------|--------|---------|----------------|-------|
+| OTIF vs Target by Lane/DC | Column | dim_lane[Lane/DC] | [OTIF %], [Target] | Channel | Current quarter | Core ranking |
+| On-Time vs In-Full Components | Column clustered | dim_lane[Lane/DC] | [On-Time %], [In-Full %] | Channel | Current quarter | Component view |
+| Penalty & Expedite Cost by Customer/Channel | Bar (horizontal) | dim_org[Customer/Channel] | [Penalty Amount], [Expedite Cost] | Region | Current quarter | Cost impact |
+| Stockout Impact Trend | Line | dim_date[Week] | [Stockout Impact %] | Location/Channel | L12W | Service stability |
 
-### 6.3 300-Second Layer (Diagnostics & Detail)
-- Drill: Supplier → Lane → DC → SKU → shipment lines with timestamps and ASN status.
-- Export: action list per supplier/lane with owner, due date, SLA target.
-
----
-
-## 7. Dependencies, Assumptions & Constraints
-- Data: shipment lines with promised vs actual timestamps, quantities, OTIF flags, root cause coding; mapping to supplier, lane, DC, SKU; penalties/expedite costs; stockout linkage to orders.
-- Assumptions: SLA targets per lane/supplier maintained; ASN quality captured; lead times stable.
-- Constraints: Missing root cause coding reduces diagnostics; poor linkage to stockouts understates impact.
+### 6.3 Required Slicers (Mandatory)
+- Date (Week/Month)  
+- Lane / DC / Channel  
+- Customer / Region  
+- Product / Category (if relevant)  
 
 ---
 
-## 8. Success Criteria
-- Leading: >80% usage in weekly supplier/logistics reviews; action log maintained; root cause coding ≥90%.
-- Lagging: OTIF ≥ target; penalties/expedites trending down; Stockout Impact % ≤ 3%.
-- Cadence/Quality: Weekly review; consistent KPI definitions; SLA master kept current.
+## 7. Data Requirements Summary
+```yaml
+required_facts:
+  - fact_fulfillment (OTIF, penalties, expedites)
+  - fact_stockout (stockout impact)
+  - fact_forecast (variance drivers, if used)
+required_dimensions:
+  - dim_date
+  - dim_org (customer/channel/DC)
+  - dim_product (if needed)
+  - dim_lane (if modeled for transport lanes)
+  - security_user_org
+required_grain: order for OTIF/penalties; location_sku_day for stockouts
+required_time_range: 12–24 months history
+required_slicers: Date, Lane/DC/Channel, Customer/Region, Product/Category (optional)
+```
+
+---
+
+## 8. Dependencies, Assumptions & Constraints
+- OTIF flags consistent; on-time and in-full flags available; penalties/expedites captured.
+- Stockout impact measured; lane/DC structure available.
+- Forecast/plan variance may be needed to explain service misses.
+- OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org); dim_lane optional if defined.
+
+---
+
+## 9. Success Criteria
+- Impact: OTIF raised to target; penalties/expedites reduced; stockout impact reduced.  
+- Adoption: Used in weekly supply/logistics reviews; action codes triggered with <5% false positives.  
+- Quality: KPI definitions consistent across SCM UCs; reconciled to source totals.  
+- Decision Frequency: Weekly supply/logistics review.
+
+---
+
+## 10. Risks & Wrong Interpretations (Short)
+- Misapplied force majeure exclusions inflating OTIF.  
+- Missing penalty/expedite capture understates cost.  
+- Stockout impact misread if demand not captured consistently.  

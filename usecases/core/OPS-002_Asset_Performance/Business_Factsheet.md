@@ -1,9 +1,14 @@
-# OPS-002 – Asset Performance (Business Factsheet)
+# OPS-002 — Asset Performance  
+## Business Factsheet (v1.2)
+
+---
 
 ## 0. Metadata (Mandatory)
 - **Use Case ID:** OPS-002
 - **Domain:** Operations
-- **Owner (Business):** COO / Head of Maintenance / Reliability Engineering
+- **Business Owner:** COO / Head of Maintenance / Reliability Engineering Lead
+- **KPI Owner:** Maintenance Controlling / Reliability
+- **Decision Owner:** Operations & Maintenance Leadership
 - **Reporting Level:** Tactical
 - **Analytics Stage:** Diagnostic / Prescriptive
 - **Related Data Contract:** data_contracts/domains/operations.yaml
@@ -11,101 +16,212 @@
 
 ---
 
-## 1. Summary
-**Purpose:** Increase asset uptime and reliability while controlling maintenance and spare-parts cost.  
-**Business Value:** Higher availability, fewer breakdowns, lower MTTR/maintenance spend, better service adherence.  
-**Out of Scope:** Long-term capex portfolio decisions (handled in finance/capex processes).
+## 1. Business Summary
+**Purpose:** Improve asset reliability and availability by reducing unplanned downtime and optimizing preventive maintenance.  
+**Business Value:** Higher availability, fewer breakdowns, lower maintenance cost from better PM compliance and spare-part readiness.  
+**Out of Scope:** Predictive maintenance algorithms (OPS-013); production throughput optimization (OPS-001); logistics/warehouse (OPS-011).
 
 ---
 
-## 2. Core Questions
-- Which assets show the highest downtime and failure frequency?
-- What are the root causes and patterns behind unplanned downtime?
-- How effective are preventive plans vs corrective work?
-- Where do spare parts stockouts create MTTR spikes?
-- Which assets need overhaul, redesign, or replacement?
+## 2. Core Business Questions
+- Which assets/lines have the highest unplanned downtime and what are the root causes?
+- How do MTBF/MTTR trend by asset class and site?
+- Is preventive maintenance executed on time and effective?
+- Where do spare-part stockouts create maintenance risk?
+- Which actions reduce downtime fastest with acceptable cost?
 
-**Example Queries:**
-- “Which top 10 assets by criticality drove 80% of downtime last month?”
-- “How does MTBF trend by asset class vs PM compliance?”
+**Example Query Patterns (optional):**
+- “Which assets have MTBF below target and MTTR above target in the last 90 days?”
+- “Where is PM compliance < target and unplanned downtime rising?”
 
 ---
 
-## 3. KPI Set (Business View)
+## 3. Required KPIs (Mandatory)
+All KPIs must exist in the KPI Catalog.
 
-| KPI Name              | KPI ID (mandatory)           | Purpose                        | Definition (short)                   | Unit / Format | Target / Threshold            | Interpretation                    |
-|-----------------------|------------------------------|--------------------------------|--------------------------------------|---------------|-------------------------------|-----------------------------------|
-| Availability %        | ops.availability.pct         | Uptime performance             | Run Time / Planned Time              | %             | ≥ 95 % (critical assets)      | Overall uptime                    |
-| MTBF (hours)          | ops.mtbf.hours               | Reliability                    | Mean time between failures           | hours         | ↑ vs prior period             | Reliability trend                 |
-| MTTR (hours)          | ops.mttr.hours               | Repair efficiency              | Mean time to repair                  | hours         | ↓ vs prior period             | Recovery speed                    |
-| Unplanned Downtime %  | ops.downtime.unplanned.pct   | Stability                      | Unplanned Downtime / Total Downtime  | %             | ≤ 30–40 %                     | Control of unexpected events      |
-| Spare Parts Stockout %| ops.spare_parts.stockout.pct | Readiness                      | Stockout events / Parts requests     | %             | ≤ 2–3 % for critical parts    | Parts readiness risk              |
-| PM Compliance %       | ops.pm_compliance.pct        | Preventive discipline          | Completed PM / Planned PM            | %             | ≥ 90 %                        | Preventive execution              |
-
-> Keep KPI IDs aligned to the catalog; set thresholds per asset criticality.
+```yaml
+required_kpis:
+  - id: ops.availability.pct
+    name: Availability %
+    purpose: Asset uptime
+    definition_short: Run Time / Planned Time
+    unit: %
+    grain: asset_day
+    agg: avg
+    target: ≥ 90% (context-specific)
+    interpretation: Low availability shows downtime issues
+    lineage: fact_ops[Run Time], fact_ops[Planned Time]
+  - id: ops.mtbf.hours
+    name: MTBF (hours)
+    purpose: Reliability
+    definition_short: Operating time between failures
+    unit: hours
+    grain: asset
+    agg: avg
+    target: Asset-class target
+    interpretation: Lower than target indicates frequent failures
+    lineage: fact_ops_failures[Failure Start/End], uptime calc
+  - id: ops.mttr.hours
+    name: MTTR (hours)
+    purpose: Maintainability
+    definition_short: Average repair time per failure
+    unit: hours
+    grain: asset
+    agg: avg
+    target: Asset-class target
+    interpretation: High MTTR prolongs downtime
+    lineage: fact_ops_failures[Repair Duration]
+  - id: ops.downtime.unplanned.pct
+    name: Unplanned Downtime %
+    purpose: Unplanned loss
+    definition_short: Unplanned downtime / Planned Time
+    unit: %
+    grain: asset_day
+    agg: avg
+    target: ≤ target (e.g., <5%)
+    interpretation: High values indicate reliability issues
+    lineage: fact_ops[Unplanned Downtime], fact_ops[Planned Time]
+  - id: ops.spare_parts.stockout.pct
+    name: Spare Parts Stockout %
+    purpose: Maintenance readiness
+    definition_short: Maintenance orders delayed due to missing parts / total orders
+    unit: %
+    grain: month
+    agg: avg
+    target: ≤ target (e.g., <2%)
+    interpretation: High stockouts create MTTR risk
+    lineage: fact_maintenance[Orders Delayed], fact_maintenance[Orders]
+  - id: ops.pm_compliance.pct
+    name: PM Compliance %
+    purpose: Preventive maintenance discipline
+    definition_short: PM orders on time / planned PM orders
+    unit: %
+    grain: month
+    agg: avg
+    target: ≥ 95%
+    interpretation: Low compliance increases failure risk
+    lineage: fact_maintenance[PM On Time], fact_maintenance[PM Planned]
+```
 
 ---
 
 ## 4. Business Logic & Thresholds
-- Availability % < 95 % for critical assets → reliability program.
-- MTBF decreasing AND MTTR increasing → asset health degradation, escalate.
-- Unplanned Downtime % > 40 % → redesign maintenance schedule/root cause program.
-- Spare Parts Stockout % > 3 % on critical parts → adjust safety stock and supplier SLAs.
-- PM Compliance % < 90 % → enforce scheduling and crew productivity.
+Formal rules that define performance and action triggers.
 
-**Trigger Logic (formal, for automation):**
-```
-WHEN ops.availability.pct < target_asset
-OR   ops.downtime.unplanned.pct > 40
-OR   ops.mtbf.hours declines 3 periods in a row
-OR   ops.spare_parts.stockout.pct > 3
-THEN propose M2 (maintenance optimisation), O2 (root-cause program), PC4 (spare-parts policy)
+### 4.1 Logic Description
+- Flag assets with MTBF below target and MTTR above target.
+- Escalate unplanned downtime % above threshold for 2 consecutive periods.
+- Flag PM compliance below target and correlate with downtime trend.
+- Flag spare-part stockouts above threshold for critical assets.
+
+### 4.2 Formal Trigger Rules (Machine-Readable)
+```yaml
+triggers:
+  - kpi: ops.mtbf.hours
+    condition: <
+    threshold: asset_target
+    scope: asset_month
+    exclusion: ramp-up assets
+    action_code: O2
+  - kpi: ops.mttr.hours
+    condition: >
+    threshold: asset_target
+    scope: asset_month
+    exclusion: major_overhauls
+    action_code: L2
+  - kpi: ops.downtime.unplanned.pct
+    condition: >
+    threshold: 0.05
+    scope: last_2_periods
+    exclusion: planned_shutdowns
+    action_code: O2
+  - kpi: ops.pm_compliance.pct
+    condition: <
+    threshold: 0.95
+    scope: month
+    exclusion: deferred_by_design
+    action_code: O2
+  - kpi: ops.spare_parts.stockout.pct
+    condition: >
+    threshold: 0.02
+    scope: critical_assets
+    exclusion: none
+    action_code: D1
 ```
 
 ---
 
-## 5. Action Codes
+## 5. Action Codes (Mandatory)
+Link business behavior to measurable outcomes.
 
-| Code | Name                            | Trigger (formal, KPIs)                         | Description (business action)                       | Expected KPI Impact        |
-|------|---------------------------------|------------------------------------------------|-----------------------------------------------------|----------------------------|
-| M2   | Maintenance Optimisation        | availability.pct < target AND unplanned.pct > 40| Rebalance PM/CM mix, schedule by criticality        | +1–3 pp Availability %     |
-| O2   | Root Cause Elimination          | recurring failures, falling MTBF               | RCA, redesign, Poka-Yoke                            | Higher MTBF, lower MTTR    |
-| PC4  | Spare-Parts Policy Tuning       | stockout.pct > 3 % critical parts              | Adjust safety stock, supplier SLAs, reorder points  | Lower MTTR, fewer stockouts|
-| L2   | Field Crew Productivity         | rising MTTR without new failures               | Improve dispatching, skills, and SOPs               | Lower MTTR                 |
-
-> Use ActionCodes_Portfolio as single source; keep triggers KPI-based.
+| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
+|-------------|------|------------------|-------------|---------------------|------------------|-------|
+| O2 | Operations Stabilisation | Unplanned downtime %, MTBF/MTTR off target | Address root causes, improve maintenance scheduling | Improve availability, reduce unplanned downtime | L2 | Ops Excellence / Maintenance |
+| L2 | Quality & Yield (repurposed for maintainability) | MTTR above target | Standardize repair procedures, tooling | Reduce MTTR, improve availability | L2 | Maintenance |
+| D1 | Cost Take-Out / Parts Readiness | Spare-part stockouts > threshold | Improve spare-part planning, vendor SLAs | Reduce stockouts, improve MTTR/availability | L2 | Maintenance / Procurement |
+| M2 | Performance Uplift | Performance losses linked to maintenance issues | Optimize setups, reduce micro-stops | Improve performance %, throughput | L2 | Production / Maintenance |
 
 ---
 
-## 6. 3–30–300 Page Layout
+## 6. 3–30–300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
-- Availability %, MTBF, MTTR, Unplanned Downtime %, Spare Parts Stockout %, PM Compliance %.
+- Availability %  
+- MTBF (hours)  
+- MTTR (hours)  
+- Unplanned Downtime %  
+- PM Compliance %  
 
 ### 6.2 30-Second Layer (Main Visuals)
-| Visual Name               | Type   | X-Axis / Category           | Y-Axis / Value                                  | Segment / Legend | Filters / Defaults  |
-|---------------------------|--------|-----------------------------|-------------------------------------------------|------------------|---------------------|
-| Availability Trend        | Line   | dim_date[Month]             | [Availability %], Target                        | Plant/AssetClass | Last 12–24 months   |
-| Reliability Trend         | Line   | dim_date[Month]             | [MTBF (hours)], [MTTR (hours)]                  | AssetClass       | Last 12–24 months   |
-| Downtime Pareto           | Bar    | dim_failure[FailureReason]  | [Downtime Minutes]                              | FailureCategory  | Current period      |
-| Asset Uptime Ranking      | Column | dim_asset[AssetName]        | [Availability %], [Unplanned Downtime %]        | Plant            | Top/Bottom N        |
-| PM Compliance by Plant    | Column | dim_org[Plant]              | [PM Compliance %]                               | Region           | Last full month     |
-| Spare Parts Stockouts     | Column | dim_part[PartCategory]      | [Spare Parts Stockout %]                        | Criticality      | Last 90 days        |
+| Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
+|-------------|-------------|--------|--------|---------|----------------|-------|
+| Availability vs Target by Asset | Column | dim_asset[Asset] | [Availability %], [Target] | Plant | Current month | Core ranking |
+| MTBF / MTTR Trend | Line | dim_date[Month] | [MTBF], [MTTR] | Asset Class | L12M | Reliability view |
+| Unplanned Downtime by Cause | Bar (horizontal) | fact_ops_failures[Cause] | [Unplanned Downtime Minutes] | Asset | Last 3 months | Pareto |
+| PM Compliance vs Downtime | Scatter | [PM Compliance %] | [Unplanned Downtime %] | Asset | Current quarter | Correlation |
 
-### 6.3 300-Second Layer (Diagnostics & Detail)
-- Matrix: Region > Plant > AssetClass > Asset with Availability %, MTBF, MTTR, Unplanned Downtime %, PM Compliance %, Stockout %; export enabled.
-- Drill: Asset → Work Orders → Failure Reason → Part usage; pre-filter by criticality.
-
----
-
-## 7. Dependencies, Assumptions & Constraints
-- Data: CMMS/EAM work orders with failure reason, timestamps, downtime, repair time; asset hierarchy and criticality; PM schedule and completion; spare parts stock levels and requests.
-- Assumptions: Targets per asset class maintained; PM completion timestamps captured; failure coding standardised.
-- Constraints: Missing failure codes limit root-cause analytics; poor part-master mapping hides stockout root causes.
+### 6.3 Required Slicers (Mandatory)
+- Date (Month/Quarter)  
+- Plant / Asset / Asset Class  
+- Criticality / Maintenance Type  
 
 ---
 
-## 8. Success Criteria
-- Leading: >80 % usage in weekly maintenance reviews; action log maintained with owner and due date.
-- Lagging: Availability % moves toward target; MTBF rising, MTTR falling; unplanned downtime share dropping; stockouts declining for critical parts.
-- Cadence/Quality: Weekly review; consistent KPI definitions across plants; failure coding completeness ≥95 %.
+## 7. Data Requirements Summary
+```yaml
+required_facts:
+  - fact_ops (availability/downtime)
+  - fact_ops_failures (MTBF/MTTR with causes)
+  - fact_maintenance (PM compliance, orders)
+required_dimensions:
+  - dim_date
+  - dim_org (plant/line/asset)
+  - dim_asset (if separate from org)
+  - security_user_org
+required_grain: asset_day for availability; failure event for MTBF/MTTR; month for PM compliance
+required_time_range: 12–24 months history
+required_slicers: Date, Plant/Asset, Asset Class/Criticality
+```
+
+---
+
+## 8. Dependencies, Assumptions & Constraints
+- Failure events accurately timestamped; planned vs unplanned downtime coded.
+- PM schedule exists; compliance measured; asset hierarchy stable.
+- Spare-part stockouts recorded; critical assets flagged.
+- OneLake canonical dims used (dim_date, dim_org/security_user_org; dim_asset if separate).
+
+---
+
+## 9. Success Criteria
+- Impact: Reduce unplanned downtime % below target; MTBF improves to targets; MTTR reduced; PM compliance ≥ target; stockouts reduced.  
+- Adoption: Used in weekly maintenance/reliability reviews; action codes triggered with <5% false positives.  
+- Quality: Cause coding coverage high; KPI definitions consistent across ops UCs.  
+- Decision Frequency: Weekly maintenance and monthly reliability review.
+
+---
+
+## 10. Risks & Wrong Interpretations (Short)
+- Misclassified planned vs unplanned downtime skews availability.  
+- MTBF/MTTR distorted by missing or merged failure events.  
+- PM compliance percentages misleading if plan not realistic or if deferrals aren’t flagged.  

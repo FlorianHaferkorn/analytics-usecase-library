@@ -1,4 +1,4 @@
-# Domain Measure Dictionary Schema
+﻿# Domain Measure Dictionary Schema
 
 Purpose: Define a consistent structure for documenting all measures  
 (base, supporting, KPI-implementing measures) inside a **Domain Semantic Model**.
@@ -24,8 +24,8 @@ Each measure is a YAML object with the following fields.
   Name of the measure in the semantic model (exact DAX name).
 
 - `is_kpi_measure` (required, bool)  
-  - `true` → this measure directly implements a KPI from the KPI Catalog.  
-  - `false` → base/supporting/time-intelligence/helper measure.
+  - `true` â†’ this measure directly implements a KPI from the KPI Catalog.  
+  - `false` â†’ base/supporting/time-intelligence/helper measure.
 
 - `kpi_id_ref` (optional, string)  
   `kpi_id` from the KPI Catalog, if `is_kpi_measure = true`.  
@@ -52,7 +52,7 @@ Each measure is a YAML object with the following fields.
 
 - `expression.formatString` (required, string)  
   Power BI format string, e.g.:
-  - `"€ #,0.00"`
+  - `"â‚¬ #,0.00"`
   - `"0.0 %"`
   - `"#,0"`
 
@@ -104,7 +104,7 @@ Each measure is a YAML object with the following fields.
 
   expression:
     dax: "SUM(fact_sales[Net Sales Amount])"
-    formatString: "€ #,0.00"
+    formatString: "â‚¬ #,0.00"
 
   documentation:
     description: "Base measure summing Net Sales Amount from fact_sales."
@@ -157,7 +157,7 @@ Each measure is a YAML object with the following fields.
 
 - Jede Domain hat genau ein Measure Dictionary (eine MD-Datei pro Semantic Model).
 
-- Alle DAX-Ausdrücke stehen im Measure Dictionary oder direkt im TMDL, nicht im KPI-Katalog.
+- Alle DAX-AusdrÃ¼cke stehen im Measure Dictionary oder direkt im TMDL, nicht im KPI-Katalog.
 
 - is_kpi_measure = true nur dort, wo das Measure direkt eine KPI aus dem KPI-Katalog implementiert.
 

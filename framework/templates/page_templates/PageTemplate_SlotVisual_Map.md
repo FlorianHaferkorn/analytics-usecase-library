@@ -1,153 +1,154 @@
-# Page Template – Slot to Visual Mapping
-
-This document defines which Power BI visuals are used for each page slot in the Aurora Template Factory.  
-It is the reference for report designers, automation scripts (PBIP/TMDL), and AI agents.
-
-- Scope: Core templates T1–T4, all use cases in `UseCase_PageTemplate_Map_3-30-300.yaml`.
-- Basis: Visual whitelist, 3-30-300 concept, Apple/iOS design principles.
-
-> Note: Only visuals from the official Visual Whitelist are allowed.  
-> Detailed list: see `Visual_Whitelist.md`.
-
----
-
-## 1. Slot to Visual Mapping (Global)
-
-The table below defines the primary visual for each slot and, where useful, an allowed alternative.
-
-| Slot                | Primary visual                 | Alternative visual         | Usage notes                                                                 |
-|---------------------|--------------------------------|----------------------------|------------------------------------------------------------------------------|
-| `needs_trend`       | `lineChart`                   | `clusteredColumnChart`     | Time axis (Date) on X, 1–2 measures, 12–24 periods max. No area charts.     |
-| `needs_variance`    | `waterfallChart`              | –                          | 3–7 steps, clear labels (Plan, FX, Price, Volume, Mix, Other, Actual).      |
-| `needs_ranking`     | `clusteredBarChart`           | –                          | Horizontal bar, Top/Bottom 5–10, single measure per visual.                 |
-| `needs_mix`         | `hundredPercentStackedBarChart` | –                        | Max 6 categories, always sorted, used for share-of and mix analyses.        |
-| `needs_exceptions`  | `tableEx`                     | –                          | Conditional formatting for L1–L3 thresholds, sort by severity first.        |
-| `needs_detail_matrix` | `tableEx` / `pivotTable`    | –                          | Main 300s layer. Hierarchies, drill, export. No heavy formatting.           |
-| `needs_root_cause`  | `tableEx` + `clusteredBarChart` | –                        | Combination: matrix for breakdown + focused ranking on key driver.          |
-| `needs_funnel`      | `tableEx` + `lineChart`       | –                          | No funnel visual. Use stage table + trend of key conversion metric.         |
-| `needs_prescriptive`| `tableEx`                     | `scatterChart`             | Table for recommended actions; scatter only for T4 driver/relationship view.|
-
-All other slot-specific behavior (tooltips, reference lines, conditional formatting) is defined in the page templates (T1–T4) and follows the same mapping.
-
----
-
-## 2. Layer-Specific Guidance (3-30-300)
-
-Slots are used differently across the 3-30-300 layers:
-
-### 2.1 Overview layer (3 + 30 seconds)
-
-- Pages: `layer: [3, 30]` in `UseCase_PageTemplate_Map_3-30-300.yaml`
-- Goal: fast understanding of status and main drivers.
-- Recommended slot usage:
-  - `needs_trend`: active where time evolution matters (trend line or daily/weekly columns).
-  - `needs_variance`: active for gap-/bridge-focused use cases (waterfall).
-  - `needs_ranking`: almost always active (Top/Bottom bar).
-  - `needs_mix`: only if mix or share-of is part of the core question.
-  - `needs_exceptions`: only small, focused lists (Top N issues), not full incident logs.
-  - `needs_detail_matrix`: disabled on overview pages (matrix belongs to 300s).
-
-Visual density rule:
-- Max 4 data visuals (excluding slicers, cards, textboxes).
-- Max 3 slicers.
-
-### 2.2 Detail layer (300 seconds)
-
-- Pages: `layer: [300]` in `UseCase_PageTemplate_Map_3-30-300.yaml`
-- Goal: drill into details, export, and root-cause analysis.
-- Recommended slot usage:
-  - `needs_detail_matrix`: always `true`, main visual (tableEx/pivotTable).
-  - `needs_exceptions`: extended exception lists, including filters for severity, region, product, etc.
-  - `needs_root_cause`: optional, as additional matrix + ranking combo.
-  - `needs_ranking`: can stay active for segmented breakdowns.
-  - `needs_trend`, `needs_variance`, `needs_mix`, `needs_funnel`: normally `false` on detail-only pages to avoid clutter.
-
----
-
-## 3. Template-Specific Notes (T1–T4)
-
-The same slots behave slightly differently per template type:
-
-### 3.1 T1 – Strategic View
-
-- Typical layers:
-  - `overview` → [3, 30]
-  - `detail` → [300] (optional)
-- Slot emphasis:
-  - Strong focus on `needs_trend` and `needs_ranking`.
-  - `needs_variance` optional (only for high-level bridges).
-  - `needs_detail_matrix` usually only on a separate detail page.
-- Visual pattern overview:
-  - Top: card visuals (3–5 KPIs).
-  - Middle: `lineChart` + `clusteredBarChart`.
-  - Bottom (optional): small matrix.
-
-### 3.2 T2 – Tactical Variance View
-
-- Typical layers:
-  - `overview` → [3, 30] with strong variance focus.
-  - `detail` → [300] with matrix + exceptions.
-- Slot emphasis:
-  - `needs_variance` + `needs_ranking` meist aktiv.
-  - `needs_mix` aktiv für share-of / mix KPIs.
-  - `needs_exceptions` nur wenn Ausreißer relevant.
-- Visual pattern overview:
-  - Top: KPI cards.
-  - Middle: `waterfallChart` (Plan/Forecast vs Actual).
-  - Right/Bottom: `clusteredBarChart` (Top/Bottom dimensions).
-
-### 3.3 T3 – Operational Exception View
-
-- Typical layers:
-  - `overview` → [3, 30] mit Fokus auf heutige/aktuelle Probleme.
-  - `detail` → [300] mit vollständiger Exception-Matrix.
-- Slot emphasis:
-  - `needs_trend`: kurz, aber meist aktiv (last 7–30 days).
-  - `needs_exceptions`: klar aktiv.
-  - `needs_root_cause`: optional, falls Use Case es fordert.
-- Visual pattern overview:
-  - Top: KPIs (today vs target).
-  - Middle: daily `clusteredColumnChart` + exception list.
-  - Detail: full incident matrix.
-
-### 3.4 T4 – Prescriptive / Next-Best-Action View
-
-- Typical layers:
-  - `overview` → [3, 30] with KPIs and high-level explanation of model outputs.
-  - `detail` → [300] with recommended actions table and optional driver views.
-- Slot emphasis:
-  - `needs_prescriptive`: always `true`.
-  - `needs_ranking`: ranking of recommendations or entities.
-  - `needs_trend` optional, `needs_variance` rarely needed.
-- Visual pattern:
-  - Overview: cards, short trend, ranking of entities by opportunity.
-  - Detail: `tableEx` for recommendations + optional `scatterChart` for driver relationships.
-
----
-
-## 4. Implementation Notes
-
-1. The actual slot configuration per use case and page is defined in  
-   `UseCase_PageTemplate_Map_3-30-300.yaml`.
-2. This document defines only **which visual type** is used when a slot is `true`.
-3. Visual styling (theme, colors, fonts) is provided by the custom Power BI theme:
-   - cards, charts, tables, slicers styled centrally
-   - no local overrides unless strictly necessary.
-4. New slots must be:
-   - added to `UseCase_PageTemplate_Map_3-30-300.yaml`,
-   - mapped in this file,
-   - and aligned with the Visual Whitelist.
-
----
-
-## 5. Maintenance
-
-- Owner: Template Factory / BI Design Lead.
-- Update rules:
-  - Only extend slots if a new analytic pattern cannot be expressed with existing ones.
-  - Avoid introducing new visual types outside of the Visual Whitelist.
-  - Review this mapping when:
-    - new T-templates are added, or
-    - new Action Code patterns require different visual treatment.
-
-This mapping is the single source of truth for slot-to-visual choices in all Aurora Group template-based reports.
+﻿-#- -P-a-g-e- -T-e-m-p-l-a-t-e- -â-€-“- -S-l-o-t- -t-o- -V-i-s-u-a-l- -M-a-p-p-i-n-g--
+--
+-T-h-i-s- -d-o-c-u-m-e-n-t- -d-e-f-i-n-e-s- -w-h-i-c-h- -P-o-w-e-r- -B-I- -v-i-s-u-a-l-s- -a-r-e- -u-s-e-d- -f-o-r- -e-a-c-h- -p-a-g-e- -s-l-o-t- -i-n- -t-h-e- -A-u-r-o-r-a- -T-e-m-p-l-a-t-e- -F-a-c-t-o-r-y-.- - --
+-I-t- -i-s- -t-h-e- -r-e-f-e-r-e-n-c-e- -f-o-r- -r-e-p-o-r-t- -d-e-s-i-g-n-e-r-s-,- -a-u-t-o-m-a-t-i-o-n- -s-c-r-i-p-t-s- -(-P-B-I-P-/-T-M-D-L-)-,- -a-n-d- -A-I- -a-g-e-n-t-s-.--
+--
+--- -S-c-o-p-e-:- -C-o-r-e- -t-e-m-p-l-a-t-e-s- -T-1-â-€-“-T-4-,- -a-l-l- -u-s-e- -c-a-s-e-s- -i-n- -`-U-s-e-C-a-s-e-_-P-a-g-e-T-e-m-p-l-a-t-e-_-M-a-p-_-3---3-0---3-0-0-.-y-a-m-l-`-.--
+--- -B-a-s-i-s-:- -V-i-s-u-a-l- -w-h-i-t-e-l-i-s-t-,- -3---3-0---3-0-0- -c-o-n-c-e-p-t-,- -A-p-p-l-e-/-i-O-S- -d-e-s-i-g-n- -p-r-i-n-c-i-p-l-e-s-.--
+--
+->- -N-o-t-e-:- -O-n-l-y- -v-i-s-u-a-l-s- -f-r-o-m- -t-h-e- -o-f-f-i-c-i-a-l- -V-i-s-u-a-l- -W-h-i-t-e-l-i-s-t- -a-r-e- -a-l-l-o-w-e-d-.- - --
+->- -D-e-t-a-i-l-e-d- -l-i-s-t-:- -s-e-e- -`-V-i-s-u-a-l-_-W-h-i-t-e-l-i-s-t-.-m-d-`-.--
+--
+--------
+--
+-#-#- -1-.- -S-l-o-t- -t-o- -V-i-s-u-a-l- -M-a-p-p-i-n-g- -(-G-l-o-b-a-l-)--
+--
+-T-h-e- -t-a-b-l-e- -b-e-l-o-w- -d-e-f-i-n-e-s- -t-h-e- -p-r-i-m-a-r-y- -v-i-s-u-a-l- -f-o-r- -e-a-c-h- -s-l-o-t- -a-n-d-,- -w-h-e-r-e- -u-s-e-f-u-l-,- -a-n- -a-l-l-o-w-e-d- -a-l-t-e-r-n-a-t-i-v-e-.--
+--
+-|- -S-l-o-t- - - - - - - - - - - - - - - - -|- -P-r-i-m-a-r-y- -v-i-s-u-a-l- - - - - - - - - - - - - - - - - -|- -A-l-t-e-r-n-a-t-i-v-e- -v-i-s-u-a-l- - - - - - - - - -|- -U-s-a-g-e- -n-o-t-e-s- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|--
+-|-------------------------------------------|-----------------------------------------------------------------|---------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|--
+-|- -`-n-e-e-d-s-_-t-r-e-n-d-`- - - - - - - -|- -`-l-i-n-e-C-h-a-r-t-`- - - - - - - - - - - - - - - - - - - -|- -`-c-l-u-s-t-e-r-e-d-C-o-l-u-m-n-C-h-a-r-t-`- - - - - -|- -T-i-m-e- -a-x-i-s- -(-D-a-t-e-)- -o-n- -X-,- -1-â-€-“-2- -m-e-a-s-u-r-e-s-,- -1-2-â-€-“-2-4- -p-e-r-i-o-d-s- -m-a-x-.- -N-o- -a-r-e-a- -c-h-a-r-t-s-.- - - - - -|--
+-|- -`-n-e-e-d-s-_-v-a-r-i-a-n-c-e-`- - - - -|- -`-w-a-t-e-r-f-a-l-l-C-h-a-r-t-`- - - - - - - - - - - - - - -|- -â-€-“- - - - - - - - - - - - - - - - - - - - - - - - - - -|- -3-â-€-“-7- -s-t-e-p-s-,- -c-l-e-a-r- -l-a-b-e-l-s- -(-P-l-a-n-,- -F-X-,- -P-r-i-c-e-,- -V-o-l-u-m-e-,- -M-i-x-,- -O-t-h-e-r-,- -A-c-t-u-a-l-)-.- - - - - - -|--
+-|- -`-n-e-e-d-s-_-r-a-n-k-i-n-g-`- - - - - -|- -`-c-l-u-s-t-e-r-e-d-B-a-r-C-h-a-r-t-`- - - - - - - - - - - -|- -â-€-“- - - - - - - - - - - - - - - - - - - - - - - - - - -|- -H-o-r-i-z-o-n-t-a-l- -b-a-r-,- -T-o-p-/-B-o-t-t-o-m- -5-â-€-“-1-0-,- -s-i-n-g-l-e- -m-e-a-s-u-r-e- -p-e-r- -v-i-s-u-a-l-.- - - - - - - - - - - - - - - - - -|--
+-|- -`-n-e-e-d-s-_-m-i-x-`- - - - - - - - - -|- -`-h-u-n-d-r-e-d-P-e-r-c-e-n-t-S-t-a-c-k-e-d-B-a-r-C-h-a-r-t-`- -|- -â-€-“- - - - - - - - - - - - - - - - - - - - - - - - -|- -M-a-x- -6- -c-a-t-e-g-o-r-i-e-s-,- -a-l-w-a-y-s- -s-o-r-t-e-d-,- -u-s-e-d- -f-o-r- -s-h-a-r-e---o-f- -a-n-d- -m-i-x- -a-n-a-l-y-s-e-s-.- - - - - - - - -|--
+-|- -`-n-e-e-d-s-_-e-x-c-e-p-t-i-o-n-s-`- - -|- -`-t-a-b-l-e-E-x-`- - - - - - - - - - - - - - - - - - - - - -|- -â-€-“- - - - - - - - - - - - - - - - - - - - - - - - - - -|- -C-o-n-d-i-t-i-o-n-a-l- -f-o-r-m-a-t-t-i-n-g- -f-o-r- -L-1-â-€-“-L-3- -t-h-r-e-s-h-o-l-d-s-,- -s-o-r-t- -b-y- -s-e-v-e-r-i-t-y- -f-i-r-s-t-.- - - - - - - - -|--
+-|- -`-n-e-e-d-s-_-d-e-t-a-i-l-_-m-a-t-r-i-x-`- -|- -`-t-a-b-l-e-E-x-`- -/- -`-p-i-v-o-t-T-a-b-l-e-`- - - - -|- -â-€-“- - - - - - - - - - - - - - - - - - - - - - - - - - -|- -M-a-i-n- -3-0-0-s- -l-a-y-e-r-.- -H-i-e-r-a-r-c-h-i-e-s-,- -d-r-i-l-l-,- -e-x-p-o-r-t-.- -N-o- -h-e-a-v-y- -f-o-r-m-a-t-t-i-n-g-.- - - - - - - - - - - -|--
+-|- -`-n-e-e-d-s-_-r-o-o-t-_-c-a-u-s-e-`- - -|- -`-t-a-b-l-e-E-x-`- -+- -`-c-l-u-s-t-e-r-e-d-B-a-r-C-h-a-r-t-`- -|- -â-€-“- - - - - - - - - - - - - - - - - - - - - - - - -|- -C-o-m-b-i-n-a-t-i-o-n-:- -m-a-t-r-i-x- -f-o-r- -b-r-e-a-k-d-o-w-n- -+- -f-o-c-u-s-e-d- -r-a-n-k-i-n-g- -o-n- -k-e-y- -d-r-i-v-e-r-.- - - - - - - - - - -|--
+-|- -`-n-e-e-d-s-_-f-u-n-n-e-l-`- - - - - - -|- -`-t-a-b-l-e-E-x-`- -+- -`-l-i-n-e-C-h-a-r-t-`- - - - - - - -|- -â-€-“- - - - - - - - - - - - - - - - - - - - - - - - - - -|- -N-o- -f-u-n-n-e-l- -v-i-s-u-a-l-.- -U-s-e- -s-t-a-g-e- -t-a-b-l-e- -+- -t-r-e-n-d- -o-f- -k-e-y- -c-o-n-v-e-r-s-i-o-n- -m-e-t-r-i-c-.- - - - - - - - - -|--
+-|- -`-n-e-e-d-s-_-p-r-e-s-c-r-i-p-t-i-v-e-`-|- -`-t-a-b-l-e-E-x-`- - - - - - - - - - - - - - - - - - - - - -|- -`-s-c-a-t-t-e-r-C-h-a-r-t-`- - - - - - - - - - - - - -|- -T-a-b-l-e- -f-o-r- -r-e-c-o-m-m-e-n-d-e-d- -a-c-t-i-o-n-s-;- -s-c-a-t-t-e-r- -o-n-l-y- -f-o-r- -T-4- -d-r-i-v-e-r-/-r-e-l-a-t-i-o-n-s-h-i-p- -v-i-e-w-.-|--
+--
+-A-l-l- -o-t-h-e-r- -s-l-o-t---s-p-e-c-i-f-i-c- -b-e-h-a-v-i-o-r- -(-t-o-o-l-t-i-p-s-,- -r-e-f-e-r-e-n-c-e- -l-i-n-e-s-,- -c-o-n-d-i-t-i-o-n-a-l- -f-o-r-m-a-t-t-i-n-g-)- -i-s- -d-e-f-i-n-e-d- -i-n- -t-h-e- -p-a-g-e- -t-e-m-p-l-a-t-e-s- -(-T-1-â-€-“-T-4-)- -a-n-d- -f-o-l-l-o-w-s- -t-h-e- -s-a-m-e- -m-a-p-p-i-n-g-.--
+--
+--------
+--
+-#-#- -2-.- -L-a-y-e-r---S-p-e-c-i-f-i-c- -G-u-i-d-a-n-c-e- -(-3---3-0---3-0-0-)--
+--
+-S-l-o-t-s- -a-r-e- -u-s-e-d- -d-i-f-f-e-r-e-n-t-l-y- -a-c-r-o-s-s- -t-h-e- -3---3-0---3-0-0- -l-a-y-e-r-s-:--
+--
+-#-#-#- -2-.-1- -O-v-e-r-v-i-e-w- -l-a-y-e-r- -(-3- -+- -3-0- -s-e-c-o-n-d-s-)--
+--
+--- -P-a-g-e-s-:- -`-l-a-y-e-r-:- -[-3-,- -3-0-]-`- -i-n- -`-U-s-e-C-a-s-e-_-P-a-g-e-T-e-m-p-l-a-t-e-_-M-a-p-_-3---3-0---3-0-0-.-y-a-m-l-`--
+--- -G-o-a-l-:- -f-a-s-t- -u-n-d-e-r-s-t-a-n-d-i-n-g- -o-f- -s-t-a-t-u-s- -a-n-d- -m-a-i-n- -d-r-i-v-e-r-s-.--
+--- -R-e-c-o-m-m-e-n-d-e-d- -s-l-o-t- -u-s-a-g-e-:--
+- - --- -`-n-e-e-d-s-_-t-r-e-n-d-`-:- -a-c-t-i-v-e- -w-h-e-r-e- -t-i-m-e- -e-v-o-l-u-t-i-o-n- -m-a-t-t-e-r-s- -(-t-r-e-n-d- -l-i-n-e- -o-r- -d-a-i-l-y-/-w-e-e-k-l-y- -c-o-l-u-m-n-s-)-.--
+- - --- -`-n-e-e-d-s-_-v-a-r-i-a-n-c-e-`-:- -a-c-t-i-v-e- -f-o-r- -g-a-p---/-b-r-i-d-g-e---f-o-c-u-s-e-d- -u-s-e- -c-a-s-e-s- -(-w-a-t-e-r-f-a-l-l-)-.--
+- - --- -`-n-e-e-d-s-_-r-a-n-k-i-n-g-`-:- -a-l-m-o-s-t- -a-l-w-a-y-s- -a-c-t-i-v-e- -(-T-o-p-/-B-o-t-t-o-m- -b-a-r-)-.--
+- - --- -`-n-e-e-d-s-_-m-i-x-`-:- -o-n-l-y- -i-f- -m-i-x- -o-r- -s-h-a-r-e---o-f- -i-s- -p-a-r-t- -o-f- -t-h-e- -c-o-r-e- -q-u-e-s-t-i-o-n-.--
+- - --- -`-n-e-e-d-s-_-e-x-c-e-p-t-i-o-n-s-`-:- -o-n-l-y- -s-m-a-l-l-,- -f-o-c-u-s-e-d- -l-i-s-t-s- -(-T-o-p- -N- -i-s-s-u-e-s-)-,- -n-o-t- -f-u-l-l- -i-n-c-i-d-e-n-t- -l-o-g-s-.--
+- - --- -`-n-e-e-d-s-_-d-e-t-a-i-l-_-m-a-t-r-i-x-`-:- -d-i-s-a-b-l-e-d- -o-n- -o-v-e-r-v-i-e-w- -p-a-g-e-s- -(-m-a-t-r-i-x- -b-e-l-o-n-g-s- -t-o- -3-0-0-s-)-.--
+--
+-V-i-s-u-a-l- -d-e-n-s-i-t-y- -r-u-l-e-:--
+--- -M-a-x- -4- -d-a-t-a- -v-i-s-u-a-l-s- -(-e-x-c-l-u-d-i-n-g- -s-l-i-c-e-r-s-,- -c-a-r-d-s-,- -t-e-x-t-b-o-x-e-s-)-.--
+--- -M-a-x- -3- -s-l-i-c-e-r-s-.--
+--
+-#-#-#- -2-.-2- -D-e-t-a-i-l- -l-a-y-e-r- -(-3-0-0- -s-e-c-o-n-d-s-)--
+--
+--- -P-a-g-e-s-:- -`-l-a-y-e-r-:- -[-3-0-0-]-`- -i-n- -`-U-s-e-C-a-s-e-_-P-a-g-e-T-e-m-p-l-a-t-e-_-M-a-p-_-3---3-0---3-0-0-.-y-a-m-l-`--
+--- -G-o-a-l-:- -d-r-i-l-l- -i-n-t-o- -d-e-t-a-i-l-s-,- -e-x-p-o-r-t-,- -a-n-d- -r-o-o-t---c-a-u-s-e- -a-n-a-l-y-s-i-s-.--
+--- -R-e-c-o-m-m-e-n-d-e-d- -s-l-o-t- -u-s-a-g-e-:--
+- - --- -`-n-e-e-d-s-_-d-e-t-a-i-l-_-m-a-t-r-i-x-`-:- -a-l-w-a-y-s- -`-t-r-u-e-`-,- -m-a-i-n- -v-i-s-u-a-l- -(-t-a-b-l-e-E-x-/-p-i-v-o-t-T-a-b-l-e-)-.--
+- - --- -`-n-e-e-d-s-_-e-x-c-e-p-t-i-o-n-s-`-:- -e-x-t-e-n-d-e-d- -e-x-c-e-p-t-i-o-n- -l-i-s-t-s-,- -i-n-c-l-u-d-i-n-g- -f-i-l-t-e-r-s- -f-o-r- -s-e-v-e-r-i-t-y-,- -r-e-g-i-o-n-,- -p-r-o-d-u-c-t-,- -e-t-c-.--
+- - --- -`-n-e-e-d-s-_-r-o-o-t-_-c-a-u-s-e-`-:- -o-p-t-i-o-n-a-l-,- -a-s- -a-d-d-i-t-i-o-n-a-l- -m-a-t-r-i-x- -+- -r-a-n-k-i-n-g- -c-o-m-b-o-.--
+- - --- -`-n-e-e-d-s-_-r-a-n-k-i-n-g-`-:- -c-a-n- -s-t-a-y- -a-c-t-i-v-e- -f-o-r- -s-e-g-m-e-n-t-e-d- -b-r-e-a-k-d-o-w-n-s-.--
+- - --- -`-n-e-e-d-s-_-t-r-e-n-d-`-,- -`-n-e-e-d-s-_-v-a-r-i-a-n-c-e-`-,- -`-n-e-e-d-s-_-m-i-x-`-,- -`-n-e-e-d-s-_-f-u-n-n-e-l-`-:- -n-o-r-m-a-l-l-y- -`-f-a-l-s-e-`- -o-n- -d-e-t-a-i-l---o-n-l-y- -p-a-g-e-s- -t-o- -a-v-o-i-d- -c-l-u-t-t-e-r-.--
+--
+--------
+--
+-#-#- -3-.- -T-e-m-p-l-a-t-e---S-p-e-c-i-f-i-c- -N-o-t-e-s- -(-T-1-â-€-“-T-4-)--
+--
+-T-h-e- -s-a-m-e- -s-l-o-t-s- -b-e-h-a-v-e- -s-l-i-g-h-t-l-y- -d-i-f-f-e-r-e-n-t-l-y- -p-e-r- -t-e-m-p-l-a-t-e- -t-y-p-e-:--
+--
+-#-#-#- -3-.-1- -T-1- -â-€-“- -S-t-r-a-t-e-g-i-c- -V-i-e-w--
+--
+--- -T-y-p-i-c-a-l- -l-a-y-e-r-s-:--
+- - --- -`-o-v-e-r-v-i-e-w-`- -â-†-’- -[-3-,- -3-0-]--
+- - --- -`-d-e-t-a-i-l-`- -â-†-’- -[-3-0-0-]- -(-o-p-t-i-o-n-a-l-)--
+--- -S-l-o-t- -e-m-p-h-a-s-i-s-:--
+- - --- -S-t-r-o-n-g- -f-o-c-u-s- -o-n- -`-n-e-e-d-s-_-t-r-e-n-d-`- -a-n-d- -`-n-e-e-d-s-_-r-a-n-k-i-n-g-`-.--
+- - --- -`-n-e-e-d-s-_-v-a-r-i-a-n-c-e-`- -o-p-t-i-o-n-a-l- -(-o-n-l-y- -f-o-r- -h-i-g-h---l-e-v-e-l- -b-r-i-d-g-e-s-)-.--
+- - --- -`-n-e-e-d-s-_-d-e-t-a-i-l-_-m-a-t-r-i-x-`- -u-s-u-a-l-l-y- -o-n-l-y- -o-n- -a- -s-e-p-a-r-a-t-e- -d-e-t-a-i-l- -p-a-g-e-.--
+--- -V-i-s-u-a-l- -p-a-t-t-e-r-n- -o-v-e-r-v-i-e-w-:--
+- - --- -T-o-p-:- -c-a-r-d- -v-i-s-u-a-l-s- -(-3-â-€-“-5- -K-P-I-s-)-.--
+- - --- -M-i-d-d-l-e-:- -`-l-i-n-e-C-h-a-r-t-`- -+- -`-c-l-u-s-t-e-r-e-d-B-a-r-C-h-a-r-t-`-.--
+- - --- -B-o-t-t-o-m- -(-o-p-t-i-o-n-a-l-)-:- -s-m-a-l-l- -m-a-t-r-i-x-.--
+--
+-#-#-#- -3-.-2- -T-2- -â-€-“- -T-a-c-t-i-c-a-l- -V-a-r-i-a-n-c-e- -V-i-e-w--
+--
+--- -T-y-p-i-c-a-l- -l-a-y-e-r-s-:--
+- - --- -`-o-v-e-r-v-i-e-w-`- -â-†-’- -[-3-,- -3-0-]- -w-i-t-h- -s-t-r-o-n-g- -v-a-r-i-a-n-c-e- -f-o-c-u-s-.--
+- - --- -`-d-e-t-a-i-l-`- -â-†-’- -[-3-0-0-]- -w-i-t-h- -m-a-t-r-i-x- -+- -e-x-c-e-p-t-i-o-n-s-.--
+--- -S-l-o-t- -e-m-p-h-a-s-i-s-:--
+- - --- -`-n-e-e-d-s-_-v-a-r-i-a-n-c-e-`- -+- -`-n-e-e-d-s-_-r-a-n-k-i-n-g-`- -m-e-i-s-t- -a-k-t-i-v-.--
+- - --- -`-n-e-e-d-s-_-m-i-x-`- -a-k-t-i-v- -f-Ã-¼-r- -s-h-a-r-e---o-f- -/- -m-i-x- -K-P-I-s-.--
+- - --- -`-n-e-e-d-s-_-e-x-c-e-p-t-i-o-n-s-`- -n-u-r- -w-e-n-n- -A-u-s-r-e-i-Ã-Ÿ-e-r- -r-e-l-e-v-a-n-t-.--
+--- -V-i-s-u-a-l- -p-a-t-t-e-r-n- -o-v-e-r-v-i-e-w-:--
+- - --- -T-o-p-:- -K-P-I- -c-a-r-d-s-.--
+- - --- -M-i-d-d-l-e-:- -`-w-a-t-e-r-f-a-l-l-C-h-a-r-t-`- -(-P-l-a-n-/-F-o-r-e-c-a-s-t- -v-s- -A-c-t-u-a-l-)-.--
+- - --- -R-i-g-h-t-/-B-o-t-t-o-m-:- -`-c-l-u-s-t-e-r-e-d-B-a-r-C-h-a-r-t-`- -(-T-o-p-/-B-o-t-t-o-m- -d-i-m-e-n-s-i-o-n-s-)-.--
+--
+-#-#-#- -3-.-3- -T-3- -â-€-“- -O-p-e-r-a-t-i-o-n-a-l- -E-x-c-e-p-t-i-o-n- -V-i-e-w--
+--
+--- -T-y-p-i-c-a-l- -l-a-y-e-r-s-:--
+- - --- -`-o-v-e-r-v-i-e-w-`- -â-†-’- -[-3-,- -3-0-]- -m-i-t- -F-o-k-u-s- -a-u-f- -h-e-u-t-i-g-e-/-a-k-t-u-e-l-l-e- -P-r-o-b-l-e-m-e-.--
+- - --- -`-d-e-t-a-i-l-`- -â-†-’- -[-3-0-0-]- -m-i-t- -v-o-l-l-s-t-Ã-¤-n-d-i-g-e-r- -E-x-c-e-p-t-i-o-n---M-a-t-r-i-x-.--
+--- -S-l-o-t- -e-m-p-h-a-s-i-s-:--
+- - --- -`-n-e-e-d-s-_-t-r-e-n-d-`-:- -k-u-r-z-,- -a-b-e-r- -m-e-i-s-t- -a-k-t-i-v- -(-l-a-s-t- -7-â-€-“-3-0- -d-a-y-s-)-.--
+- - --- -`-n-e-e-d-s-_-e-x-c-e-p-t-i-o-n-s-`-:- -k-l-a-r- -a-k-t-i-v-.--
+- - --- -`-n-e-e-d-s-_-r-o-o-t-_-c-a-u-s-e-`-:- -o-p-t-i-o-n-a-l-,- -f-a-l-l-s- -U-s-e- -C-a-s-e- -e-s- -f-o-r-d-e-r-t-.--
+--- -V-i-s-u-a-l- -p-a-t-t-e-r-n- -o-v-e-r-v-i-e-w-:--
+- - --- -T-o-p-:- -K-P-I-s- -(-t-o-d-a-y- -v-s- -t-a-r-g-e-t-)-.--
+- - --- -M-i-d-d-l-e-:- -d-a-i-l-y- -`-c-l-u-s-t-e-r-e-d-C-o-l-u-m-n-C-h-a-r-t-`- -+- -e-x-c-e-p-t-i-o-n- -l-i-s-t-.--
+- - --- -D-e-t-a-i-l-:- -f-u-l-l- -i-n-c-i-d-e-n-t- -m-a-t-r-i-x-.--
+--
+-#-#-#- -3-.-4- -T-4- -â-€-“- -P-r-e-s-c-r-i-p-t-i-v-e- -/- -N-e-x-t---B-e-s-t---A-c-t-i-o-n- -V-i-e-w--
+--
+--- -T-y-p-i-c-a-l- -l-a-y-e-r-s-:--
+- - --- -`-o-v-e-r-v-i-e-w-`- -â-†-’- -[-3-,- -3-0-]- -w-i-t-h- -K-P-I-s- -a-n-d- -h-i-g-h---l-e-v-e-l- -e-x-p-l-a-n-a-t-i-o-n- -o-f- -m-o-d-e-l- -o-u-t-p-u-t-s-.--
+- - --- -`-d-e-t-a-i-l-`- -â-†-’- -[-3-0-0-]- -w-i-t-h- -r-e-c-o-m-m-e-n-d-e-d- -a-c-t-i-o-n-s- -t-a-b-l-e- -a-n-d- -o-p-t-i-o-n-a-l- -d-r-i-v-e-r- -v-i-e-w-s-.--
+--- -S-l-o-t- -e-m-p-h-a-s-i-s-:--
+- - --- -`-n-e-e-d-s-_-p-r-e-s-c-r-i-p-t-i-v-e-`-:- -a-l-w-a-y-s- -`-t-r-u-e-`-.--
+- - --- -`-n-e-e-d-s-_-r-a-n-k-i-n-g-`-:- -r-a-n-k-i-n-g- -o-f- -r-e-c-o-m-m-e-n-d-a-t-i-o-n-s- -o-r- -e-n-t-i-t-i-e-s-.--
+- - --- -`-n-e-e-d-s-_-t-r-e-n-d-`- -o-p-t-i-o-n-a-l-,- -`-n-e-e-d-s-_-v-a-r-i-a-n-c-e-`- -r-a-r-e-l-y- -n-e-e-d-e-d-.--
+--- -V-i-s-u-a-l- -p-a-t-t-e-r-n-:--
+- - --- -O-v-e-r-v-i-e-w-:- -c-a-r-d-s-,- -s-h-o-r-t- -t-r-e-n-d-,- -r-a-n-k-i-n-g- -o-f- -e-n-t-i-t-i-e-s- -b-y- -o-p-p-o-r-t-u-n-i-t-y-.--
+- - --- -D-e-t-a-i-l-:- -`-t-a-b-l-e-E-x-`- -f-o-r- -r-e-c-o-m-m-e-n-d-a-t-i-o-n-s- -+- -o-p-t-i-o-n-a-l- -`-s-c-a-t-t-e-r-C-h-a-r-t-`- -f-o-r- -d-r-i-v-e-r- -r-e-l-a-t-i-o-n-s-h-i-p-s-.--
+--
+--------
+--
+-#-#- -4-.- -I-m-p-l-e-m-e-n-t-a-t-i-o-n- -N-o-t-e-s--
+--
+-1-.- -T-h-e- -a-c-t-u-a-l- -s-l-o-t- -c-o-n-f-i-g-u-r-a-t-i-o-n- -p-e-r- -u-s-e- -c-a-s-e- -a-n-d- -p-a-g-e- -i-s- -d-e-f-i-n-e-d- -i-n- - --
+- - - -`-U-s-e-C-a-s-e-_-P-a-g-e-T-e-m-p-l-a-t-e-_-M-a-p-_-3---3-0---3-0-0-.-y-a-m-l-`-.--
+-2-.- -T-h-i-s- -d-o-c-u-m-e-n-t- -d-e-f-i-n-e-s- -o-n-l-y- -*-*-w-h-i-c-h- -v-i-s-u-a-l- -t-y-p-e-*-*- -i-s- -u-s-e-d- -w-h-e-n- -a- -s-l-o-t- -i-s- -`-t-r-u-e-`-.--
+-3-.- -V-i-s-u-a-l- -s-t-y-l-i-n-g- -(-t-h-e-m-e-,- -c-o-l-o-r-s-,- -f-o-n-t-s-)- -i-s- -p-r-o-v-i-d-e-d- -b-y- -t-h-e- -c-u-s-t-o-m- -P-o-w-e-r- -B-I- -t-h-e-m-e-:--
+- - - --- -c-a-r-d-s-,- -c-h-a-r-t-s-,- -t-a-b-l-e-s-,- -s-l-i-c-e-r-s- -s-t-y-l-e-d- -c-e-n-t-r-a-l-l-y--
+- - - --- -n-o- -l-o-c-a-l- -o-v-e-r-r-i-d-e-s- -u-n-l-e-s-s- -s-t-r-i-c-t-l-y- -n-e-c-e-s-s-a-r-y-.--
+-4-.- -N-e-w- -s-l-o-t-s- -m-u-s-t- -b-e-:--
+- - - --- -a-d-d-e-d- -t-o- -`-U-s-e-C-a-s-e-_-P-a-g-e-T-e-m-p-l-a-t-e-_-M-a-p-_-3---3-0---3-0-0-.-y-a-m-l-`-,--
+- - - --- -m-a-p-p-e-d- -i-n- -t-h-i-s- -f-i-l-e-,--
+- - - --- -a-n-d- -a-l-i-g-n-e-d- -w-i-t-h- -t-h-e- -V-i-s-u-a-l- -W-h-i-t-e-l-i-s-t-.--
+--
+--------
+--
+-#-#- -5-.- -M-a-i-n-t-e-n-a-n-c-e--
+--
+--- -O-w-n-e-r-:- -T-e-m-p-l-a-t-e- -F-a-c-t-o-r-y- -/- -B-I- -D-e-s-i-g-n- -L-e-a-d-.--
+--- -U-p-d-a-t-e- -r-u-l-e-s-:--
+- - --- -O-n-l-y- -e-x-t-e-n-d- -s-l-o-t-s- -i-f- -a- -n-e-w- -a-n-a-l-y-t-i-c- -p-a-t-t-e-r-n- -c-a-n-n-o-t- -b-e- -e-x-p-r-e-s-s-e-d- -w-i-t-h- -e-x-i-s-t-i-n-g- -o-n-e-s-.--
+- - --- -A-v-o-i-d- -i-n-t-r-o-d-u-c-i-n-g- -n-e-w- -v-i-s-u-a-l- -t-y-p-e-s- -o-u-t-s-i-d-e- -o-f- -t-h-e- -V-i-s-u-a-l- -W-h-i-t-e-l-i-s-t-.--
+- - --- -R-e-v-i-e-w- -t-h-i-s- -m-a-p-p-i-n-g- -w-h-e-n-:--
+- - - - --- -n-e-w- -T---t-e-m-p-l-a-t-e-s- -a-r-e- -a-d-d-e-d-,- -o-r--
+- - - - --- -n-e-w- -A-c-t-i-o-n- -C-o-d-e- -p-a-t-t-e-r-n-s- -r-e-q-u-i-r-e- -d-i-f-f-e-r-e-n-t- -v-i-s-u-a-l- -t-r-e-a-t-m-e-n-t-.--
+--
+-T-h-i-s- -m-a-p-p-i-n-g- -i-s- -t-h-e- -s-i-n-g-l-e- -s-o-u-r-c-e- -o-f- -t-r-u-t-h- -f-o-r- -s-l-o-t---t-o---v-i-s-u-a-l- -c-h-o-i-c-e-s- -i-n- -a-l-l- -A-u-r-o-r-a- -G-r-o-u-p- -t-e-m-p-l-a-t-e---b-a-s-e-d- -r-e-p-o-r-t-s-.--
+-

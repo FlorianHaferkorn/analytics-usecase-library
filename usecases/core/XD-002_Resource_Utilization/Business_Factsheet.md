@@ -1,9 +1,14 @@
-# XD-002 – Resource Utilization (Business Factsheet)
+# XD-002 — Resource Utilization  
+## Business Factsheet (v1.2)
+
+---
 
 ## 0. Metadata (Mandatory)
 - **Use Case ID:** XD-002
-- **Domain:** Customer Experience / Operations
-- **Owner (Business):** Head of Customer Service / Workforce Management
+- **Domain:** Experience / Service
+- **Business Owner:** Head of Customer Service / Workforce Management
+- **KPI Owner:** Service Operations / Workforce Planning
+- **Decision Owner:** CX/Service Leadership
 - **Reporting Level:** Tactical / Operational
 - **Analytics Stage:** Diagnostic / Prescriptive
 - **Related Data Contract:** data_contracts/domains/experience.yaml
@@ -11,99 +16,203 @@
 
 ---
 
-## 1. Summary
-**Purpose:** Optimize workforce utilization and staffing to hit service targets at minimal cost.  
-**Business Value:** Lower overtime and idle cost, higher SLA attainment, better agent productivity and quality.  
-**Out of Scope:** Long-term hiring strategy; labor relations topics.
+## 1. Business Summary
+**Purpose:** Optimize resource utilization and occupancy while protecting SLA and customer experience.  
+**Business Value:** Better staffing efficiency, reduced overtime/shrinkage costs, and controlled backlog without SLA degradation.  
+**Out of Scope:** Detailed SLA performance drivers (XD-001); sales pipeline; field service dispatching.
 
 ---
 
-## 2. Core Questions
-- Are we over- or under-staffed by channel/queue/interval?
-- Where do occupancy and utilization drift from targets?
-- How do staffing gaps impact SLA, backlog, and quality (AHT/FCR)?
-- Which shifts/skills need rebalancing or cross-training?
+## 2. Core Business Questions
+- What are utilization and occupancy by channel/queue/region vs targets?
+- How do overtime and shrinkage affect SLA attainment and backlog?
+- Where do staffing imbalances create SLA risk or idle capacity?
+- Which actions improve utilization without harming quality?
 
-**Example Queries:**
-- “Which queues had occupancy >90% and still missed SLA last week?”
-- “Where can we reassign capacity to reduce backlog fastest?”
+**Example Query Patterns (optional):**
+- “Which queues have utilization below target and SLA/backlog risk?”
+- “Where is overtime rising while shrinkage is high?”
 
 ---
 
-## 3. KPI Set (Business View)
+## 3. Required KPIs (Mandatory)
+All KPIs must exist in the KPI Catalog.
 
-| KPI Name           | KPI ID (mandatory)          | Purpose                        | Definition (short)                                | Unit / Format | Target / Threshold       | Interpretation                  |
-|--------------------|-----------------------------|--------------------------------|---------------------------------------------------|---------------|--------------------------|---------------------------------|
-| Utilization %      | res.utilization.pct         | Productivity                   | Work time / Paid time                             | %             | 75–85% (by channel)      | Capacity use                    |
-| Occupancy %        | res.occupancy.pct           | Load vs availability           | Handle + Wrap / Logged-in                         | %             | 80–90%                   | Real-time load                  |
-| SLA Attainment %   | svc.sla.attainment.pct      | Service reliability            | % interactions meeting SLA                        | %             | ≥ 95%                    | Outcome                         |
-| Overtime %         | res.overtime.pct            | Cost and sustainability        | Overtime hours / total hours                      | %             | ≤ 5%                     | Cost/strain indicator           |
-| Shrinkage %        | res.shrinkage.pct           | Plan realism                   | Non-productive time / paid time                   | %             | ≤ plan                   | Planning quality                |
-| Backlog Volume     | svc.backlog.count           | Work pressure                 | Open cases/tickets                                | count         | Trend ↓                  | Service risk                    |
-
-> Align KPI IDs to catalog; targets vary by channel/skill.
+```yaml
+required_kpis:
+  - id: res.utilization.pct
+    name: Utilization %
+    purpose: Productive time vs paid time
+    definition_short: (Talk/Work Time) / Paid Time
+    unit: %
+    grain: agent_day or queue_day
+    agg: avg
+    target: ≥ target band
+    interpretation: Low utilization shows underuse; too high risks quality
+    lineage: fact_wfm[Work Time], fact_wfm[Paid Time]
+  - id: res.occupancy.pct
+    name: Occupancy %
+    purpose: Active time vs available time
+    definition_short: (Talk + Wrap) / (Talk + Wrap + Idle)
+    unit: %
+    grain: agent_day or queue_day
+    agg: avg
+    target: Target band
+    interpretation: Too high occupancy risks burnout/AHT; too low wastes capacity
+    lineage: fact_wfm[Talk], fact_wfm[Wrap], fact_wfm[Idle]
+  - id: svc.sla.attainment.pct
+    name: SLA Attainment %
+    purpose: Service level compliance
+    definition_short: Cases meeting SLA / total cases
+    unit: %
+    grain: day_queue
+    agg: avg
+    target: ≥ target
+    interpretation: Low attainment signals service failure
+    lineage: fact_cases[SLA Met Flag]
+  - id: res.overtime.pct
+    name: Overtime %
+    purpose: Cost and fatigue
+    definition_short: Overtime hours / Total hours
+    unit: %
+    grain: agent_day or region_week
+    agg: avg
+    target: ≤ target
+    interpretation: High overtime signals staffing gaps
+    lineage: fact_wfm[Overtime Hours], fact_wfm[Total Hours]
+  - id: res.shrinkage.pct
+    name: Shrinkage %
+    purpose: Non-productive time
+    definition_short: Non-productive time / Paid time
+    unit: %
+    grain: agent_day
+    agg: avg
+    target: Within target band
+    interpretation: High shrinkage reduces available capacity
+    lineage: fact_wfm[Shrinkage], fact_wfm[Paid Time]
+  - id: svc.backlog.count
+    name: Backlog Count
+    purpose: Workload risk
+    definition_short: Open cases not resolved
+    unit: count
+    grain: day_queue
+    agg: sum
+    target: Reduce vs target
+    interpretation: Rising backlog risks SLA failure
+    lineage: fact_cases[Backlog Flag/Open Cases]
+```
 
 ---
 
 ## 4. Business Logic & Thresholds
-- Utilization < 70% with SLA met → overstaffing; reassign or reduce planned hours.
-- Occupancy > 90% with SLA misses → add capacity or deflect demand.
-- Overtime % > 5% for 2 periods → schedule fix/cross-training.
-- Shrinkage above plan → investigate absenteeism/planning accuracy.
+Formal rules that define performance and action triggers.
 
-**Trigger Logic (formal, for automation):**
-```
-WHEN res.utilization.pct < 70 AND svc.sla.attainment.pct >= 95
-OR   res.occupancy.pct > 90 AND svc.sla.attainment.pct < 95
-OR   res.overtime.pct > 5
-OR   res.shrinkage.pct > plan_shrinkage
-THEN propose L2 (staffing/routing), D1 (demand deflection), O2 (process efficiency), PC4 (schedule optimization)
+### 4.1 Logic Description
+- Flag utilization/occupancy outside target bands (too low or too high).
+- Flag rising overtime and shrinkage; correlate with SLA and backlog.
+- Identify queues/regions with backlog risk due to capacity gaps.
+
+### 4.2 Formal Trigger Rules (Machine-Readable)
+```yaml
+triggers:
+  - kpi: res.utilization.pct
+    condition: outside
+    threshold: [util_lower, util_upper]
+    scope: queue_region_channel
+    exclusion: training/new hires
+    action_code: O2
+  - kpi: res.occupancy.pct
+    condition: outside
+    threshold: [occ_lower, occ_upper]
+    scope: queue_region_channel
+    exclusion: training/new hires
+    action_code: O2
+  - kpi: res.overtime.pct
+    condition: >
+    threshold: overtime_target
+    scope: queue_region
+    exclusion: crisis
+    action_code: M2
+  - kpi: res.shrinkage.pct
+    condition: >
+    threshold: shrinkage_target
+    scope: queue_region
+    exclusion: planned_absences
+    action_code: O2
 ```
 
 ---
 
-## 5. Action Codes
+## 5. Action Codes (Mandatory)
+Link business behavior to measurable outcomes.
 
-| Code | Name                           | Trigger (formal, KPIs)                         | Description (business action)                     | Expected KPI Impact                |
-|------|--------------------------------|------------------------------------------------|---------------------------------------------------|------------------------------------|
-| L2   | Staffing / Routing Optimise    | occupancy.pct > 90 OR utilization.pct < 70     | Rebalance shifts/queues; dynamic routing          | Higher SLA, balanced utilization   |
-| PC4  | Schedule Optimisation          | overtime.pct > 5 OR shrinkage > plan           | Fix schedules, breaks, adherence                   | Lower overtime, better occupancy   |
-| O2   | Process Efficiency             | aht above target impacting occupancy           | SOP/automation to reduce AHT                       | Lower AHT, improved utilization    |
-| D1   | Demand Management              | volume surge drives SLA/occupancy issues       | Deflect/shift demand to digital/self-service       | Lower load, better SLA             |
-
-> Use ActionCodes_Portfolio; ensure KPI-based triggers.
+| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
+|-------------|------|------------------|-------------|---------------------|------------------|-------|
+| O2 | Operations Stabilisation | Utilization/Occupancy outside band; backlog risk | Rebalance staffing, reforecast WFM, adjust routing | Improve SLA, balance utilization | L2 | Service Ops / WFM |
+| M2 | Performance Uplift | Overtime high | Shift mix, cross-train, automation to reduce overtime | Reduce overtime, stabilize SLA | L2 | WFM / Service Ops |
+| L2 | Quality & Yield | High shrinkage or low FCR tied to resource issues | Training/coaching, process fixes | Reduce shrinkage, improve FCR/SLA | L2 | CX/Training |
+| D1 | Cost Take-Out | Excess capacity/inefficient shift mix | Optimize staffing, reduce idle time | Reduce cost-to-serve | L2 | Service Ops / Finance |
 
 ---
 
-## 6. 3–30–300 Page Layout
+## 6. 3–30–300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
-- Utilization %, Occupancy %, SLA %, Overtime %, Shrinkage %, Backlog.
+- Utilization %  
+- Occupancy %  
+- Overtime %  
+- Shrinkage %  
+- SLA % / Backlog Count  
 
 ### 6.2 30-Second Layer (Main Visuals)
-| Visual Name               | Type   | X-Axis / Category          | Y-Axis / Value                            | Segment / Legend | Filters / Defaults |
-|---------------------------|--------|----------------------------|-------------------------------------------|------------------|--------------------|
-| Utilization vs Target     | Column | dim_queue[Queue]           | [Utilization %], Target                   | Channel/Region   | Current period     |
-| Occupancy Trend           | Line   | dim_date[Week/Day]         | [Occupancy %], [SLA %]                    | Channel/Queue    | Last 4–8 weeks     |
-| Overtime & Shrinkage      | Column | dim_date[Week]             | [Overtime %], [Shrinkage %]               | Region           | Last 8 weeks       |
-| Backlog by Queue          | Column | dim_queue[Queue]           | [Backlog Count]                           | Priority         | Current period     |
-| Capacity vs Demand        | Line   | dim_date[Interval/Hour]    | Planned FTE vs Actual Volume/Workload     | Channel          | Last 7–30 days     |
-| Detail Matrix             | Matrix | Region > Channel > Queue   | Utilization %, Occupancy %, SLA %, Overtime %, Shrinkage %, Backlog | Region | Export enabled |
+| Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
+|-------------|-------------|--------|--------|---------|----------------|-------|
+| Utilization vs Band by Queue | Column | dim_org[Queue] | [Utilization %], Band | Channel/Region | Current month | Core ranking |
+| Occupancy vs Band | Column | dim_org[Queue] | [Occupancy %], Band | Channel/Region | Current month | Balance view |
+| Overtime & Shrinkage Trend | Line | dim_date[Week] | [Overtime %], [Shrinkage %] | Region/Channel | L12W | Capacity health |
+| SLA vs Backlog | Scatter | [SLA %] | [Backlog Count] | Queue/Region | Current quarter | Service risk |
 
-### 6.3 300-Second Layer (Diagnostics & Detail)
-- Drill: Region → Channel → Queue → Interval → Agent; show adherence, absenteeism, AHT, SLA.
-- Export: staffing plan vs actual, overtime drivers, backlog age by priority.
-
----
-
-## 7. Dependencies, Assumptions & Constraints
-- Data: WFM schedules, logged-in time, handle/wrap time, paid hours, overtime, shrinkage codes, volume by interval, SLA outcomes, backlog by queue/priority.
-- Assumptions: Targets by queue/channel; adherence captured; shrinkage categories defined.
-- Constraints: Missing adherence/shrinkage reduces accuracy; inconsistent timezones skew occupancy.
+### 6.3 Required Slicers (Mandatory)
+- Date (Week/Month)  
+- Region / Channel / Queue  
+- Agent Group / Skill (if available)  
 
 ---
 
-## 8. Success Criteria
-- Leading: >80% usage in weekly WFM/ops reviews; schedule adherence tracked; action log maintained.
-- Lagging: SLA at/above target with lower overtime; utilization/occupancy within bands; backlog stable/down.
-- Cadence/Quality: Weekly ops review; daily monitoring; KPI definitions consistent across regions/channels.
+## 7. Data Requirements Summary
+```yaml
+required_facts:
+  - fact_wfm (work/idle/wrap/overtime/shrinkage)
+  - fact_cases (SLA, backlog)
+required_dimensions:
+  - dim_date
+  - dim_org (region/channel/queue)
+  - dim_queue (if separate)
+  - security_user_org
+required_grain: agent_day or queue_day; week/month for trends
+required_time_range: 12–24 months history
+required_slicers: Date, Region/Channel/Queue, Agent Group/Skill (if available)
+```
+
+---
+
+## 8. Dependencies, Assumptions & Constraints
+- WFM data includes work/idle/wrap, overtime, shrinkage; SLA/backlog available from cases.
+- Target bands defined for utilization/occupancy; exclusions for training/ramp-up.
+- OneLake canonical dims used (dim_date, dim_org, security_user_org).
+- Data latency ≤24h.
+
+---
+
+## 9. Success Criteria
+- Impact: Utilization/occupancy within bands; overtime/shrinkage reduced; SLA stable/improved; backlog controlled.  
+- Adoption: Used in weekly WFM/service ops reviews; action codes triggered with <5% false positives.  
+- Quality: KPI definitions consistent across XD-001/002; reconciled to source totals.  
+- Decision Frequency: Weekly and daily staffing reviews.
+
+---
+
+## 10. Risks & Wrong Interpretations (Short)
+- Overdriving utilization causing quality decline.  
+- Misclassifying shrinkage leading to wrong capacity view.  
+- Ignoring seasonality causing false alarms on utilization/occupancy.  

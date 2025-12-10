@@ -69,7 +69,17 @@ if (-not $resolvedDistRoot) {
   exit 0
 }
 
-$resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
+$resolvedKpiRoot = $null
+if ($KpiCatalogRoot -and (Test-Path $KpiCatalogRoot)) {
+  $resolvedKpiRoot = (Resolve-Path -Path $KpiCatalogRoot).Path
+} else {
+  $resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
+}
+# Defensive: if KPI root resolves identisch zu Dist root, fallback auf framework/kpi_catalog
+if ($resolvedKpiRoot -and $resolvedDistRoot -and ($resolvedKpiRoot -eq $resolvedDistRoot)) {
+  $fallback = Resolve-RepoPath -ProvidedPath 'framework/kpi_catalog' -DefaultRelative 'framework/kpi_catalog'
+  if ($fallback) { $resolvedKpiRoot = $fallback }
+}
 if (-not $resolvedKpiRoot) { throw "Unable to resolve KPI catalog folder. Provide -KpiCatalogRoot or run inside repository." }
 
 Write-Host "Checking measures vs KPI catalogs..." -ForegroundColor Cyan

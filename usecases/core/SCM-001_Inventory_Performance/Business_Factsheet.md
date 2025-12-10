@@ -1,9 +1,14 @@
-# SCM-001 – Inventory Performance (Business Factsheet)
+# SCM-001 — Inventory Performance  
+## Business Factsheet (v1.2)
+
+---
 
 ## 0. Metadata (Mandatory)
 - **Use Case ID:** SCM-001
 - **Domain:** Supply Chain
-- **Owner (Business):** COO / Head of Supply Chain / Demand Planning Lead
+- **Business Owner:** COO / Head of Supply Chain
+- **KPI Owner:** Supply Chain Controlling / Inventory Mgmt Lead
+- **Decision Owner:** Supply Chain Leadership
 - **Reporting Level:** Tactical
 - **Analytics Stage:** Diagnostic / Prescriptive
 - **Related Data Contract:** data_contracts/domains/supply_chain.yaml
@@ -11,98 +16,208 @@
 
 ---
 
-## 1. Summary
-**Purpose:** Optimize inventory while protecting service, reducing working capital and write-offs.  
-**Business Value:** Lower DIO and obsolescence, higher turns, fewer stockouts, improved OTIF.  
-**Out of Scope:** Long-term network redesign; vendor selection (handled in procurement).
+## 1. Business Summary
+**Purpose:** Optimize inventory by balancing availability (service level) and working capital, reducing excess, stockouts, and obsolescence.  
+**Business Value:** Lower working capital, fewer stockouts, higher OTIF, and reduced write-offs.  
+**Out of Scope:** Detailed demand planning algorithm tuning (SCM-003); promotion-specific effects (COM-004); transport cost optimization (OPS-018).
 
 ---
 
-## 2. Core Questions
-- Where are DIO and Inventory Turnover off target by SKU/location/channel?
-- Which SKUs carry high obsolescence or expiry risk?
-- How do forecast accuracy and OTIF drive stockouts or excess?
-- Which policy levers (safety stock, MOQ, lead time) fix the biggest gaps fastest?
+## 2. Core Business Questions
+- Where are inventory days and turnover off target by location/channel/category?
+- Which items drive stockouts and OTIF misses?
+- Where is excess/obsolete inventory accumulating?
+- Which actions reduce inventory without hurting service level?
+- How does forecast accuracy impact inventory KPIs?
 
-**Example Queries:**
-- “Which top 20 SKUs drive 80% of excess inventory value this month?”
-- “Which locations have Stockout % >3% with stable demand?”
+**Example Query Patterns (optional):**
+- “Which DCs have DIO above target and stockout > target in the last 8 weeks?”
+- “Where is forecast accuracy low and driving excess or stockouts?”
 
 ---
 
-## 3. KPI Set (Business View)
+## 3. Required KPIs (Mandatory)
+All KPIs must exist in the KPI Catalog.
 
-| KPI Name               | KPI ID (mandatory)  | Purpose                      | Definition (short)                               | Unit / Format | Target / Threshold            | Interpretation                  |
-|------------------------|---------------------|------------------------------|--------------------------------------------------|---------------|-------------------------------|---------------------------------|
-| Days in Inventory      | inv.dio.days        | Inventory efficiency         | 365 / Inventory Turnover                         | days          | ≤ target by segment           | Speed of rotation               |
-| Inventory Turnover     | inv.turnover        | Rotation speed               | COGS / Avg Inventory Value                       | turns         | ≥ target                      | Capital productivity            |
-| Stockout Rate %        | inv.stockout.pct    | Service risk                 | Stockout lines / total order lines               | %             | ≤ 3% core SKUs                | Service leakage                 |
-| OTIF %                 | supply.otif.pct     | Supply reliability           | On-Time In-Full lines / total lines              | %             | ≥ 97%                         | Supplier/logistics performance  |
-| Obsolescence Risk %    | inv.obsolete.pct    | Write-off risk               | Obsolete/aging value / total inventory value     | %             | ≤ 8% value                    | Clearance/phase-out need        |
-| Forecast Accuracy %    | plan.forecast.accuracy.pct | Demand signal quality | 1 - |Actual - Forecast| / Actual               | %             | ≥ 80–90% by class             | Demand signal health            |
-
-> Use KPI IDs from the catalog; set targets by product class and location criticality.
+```yaml
+required_kpis:
+  - id: inv.dio.days
+    name: Days in Inventory (DIO)
+    purpose: Working capital efficiency
+    definition_short: (Avg Inventory / COGS) × Days
+    unit: days
+    grain: location_sku_month
+    agg: avg
+    target: ≤ target (e.g., category/location specific)
+    interpretation: High DIO indicates excess inventory
+    lineage: fact_inventory[Avg Inventory], fact_cogs[COGS]
+  - id: inv.turnover
+    name: Inventory Turnover
+    purpose: Velocity
+    definition_short: COGS / Avg Inventory
+    unit: x
+    grain: location_sku_month
+    agg: avg
+    target: ≥ target
+    interpretation: Low turnover indicates slow-moving stock
+    lineage: fact_inventory[Avg Inventory], fact_cogs[COGS]
+  - id: inv.stockout.pct
+    name: Stockout Rate %
+    purpose: Service risk
+    definition_short: Stockout occurrences / demand occurrences
+    unit: %
+    grain: location_sku_day
+    agg: avg
+    target: ≤ target
+    interpretation: High rate signals availability issues
+    lineage: fact_inventory[Stockout Flag], demand events
+  - id: supply.otif.pct
+    name: OTIF %
+    purpose: Service level fulfillment
+    definition_short: On-Time In-Full orders / total orders
+    unit: %
+    grain: order
+    agg: avg
+    target: ≥ 97–99% (context)
+    interpretation: Low OTIF reflects fulfillment issues
+    lineage: fact_fulfillment[OTIF Flag]
+  - id: inv.obsolete.pct
+    name: Obsolete Inventory %
+    purpose: Write-off risk
+    definition_short: Obsolete stock / total stock
+    unit: %
+    grain: location_sku_month
+    agg: avg
+    target: ≤ target
+    interpretation: High obsolete % indicates aging/excess
+    lineage: fact_inventory[Obsolete Stock], fact_inventory[Total Stock]
+  - id: plan.forecast.accuracy.pct
+    name: Forecast Accuracy %
+    purpose: Planning quality
+    definition_short: 1 – |Forecast – Actual| / Actual
+    unit: %
+    grain: sku_month
+    agg: avg
+    target: ≥ target
+    interpretation: Low accuracy drives excess/stockouts
+    lineage: fact_forecast[Forecast], fact_sales[Actual]
+```
 
 ---
 
 ## 4. Business Logic & Thresholds
-- DIO > target by >10% for 2 periods → policy review and rebalancing.
-- Stockout Rate % > 3% with OTIF < 97% → supply/lead-time escalation.
-- Obsolescence Risk % > 8% of inventory value → markdown/phase-out.
-- Forecast Accuracy % < 80% on A-items → segmentation and safety stock review.
+Formal rules that define performance and action triggers.
 
-**Trigger Logic (formal, for automation):**
-```
-WHEN inv.dio.days > target_dio_segment
-OR   inv.stockout.pct > 3
-OR   inv.obsolete.pct > 8
-OR   plan.forecast.accuracy.pct < 80
-THEN propose I1 (rebalance), I2 (policy tuning), PC4 (supplier/logistics fix), D1 (demand signal response)
+### 4.1 Logic Description
+- Flag locations/categories with DIO above target and OTIF/stockout below target.
+- Highlight obsolete inventory % above threshold.
+- Flag forecast accuracy below target for items with excess or stockouts.
+
+### 4.2 Formal Trigger Rules (Machine-Readable)
+```yaml
+triggers:
+  - kpi: inv.dio.days
+    condition: >
+    threshold: dio_target
+    scope: location_category
+    exclusion: new_items
+    action_code: I1
+  - kpi: inv.stockout.pct
+    condition: >
+    threshold: stockout_target
+    scope: location_category
+    exclusion: force_majeure
+    action_code: I2
+  - kpi: inv.obsolete.pct
+    condition: >
+    threshold: obsolete_target
+    scope: location_category
+    exclusion: end_of_life_planned
+    action_code: D1
+  - kpi: plan.forecast.accuracy.pct
+    condition: <
+    threshold: forecast_target
+    scope: top_variance_skus
+    exclusion: launch_items
+    action_code: O2
 ```
 
 ---
 
-## 5. Action Codes
+## 5. Action Codes (Mandatory)
+Link business behavior to measurable outcomes.
 
-| Code | Name                        | Trigger (formal, KPIs)                           | Description (business action)                      | Expected KPI Impact             |
-|------|-----------------------------|--------------------------------------------------|----------------------------------------------------|---------------------------------|
-| I1   | Inventory Rebalance         | dio.days > target AND stockout.pct > 0           | Reallocate stock across locations                  | Lower stockouts, lower DIO      |
-| I2   | Policy Tuning               | dio.days > target OR stockout.pct > 3            | Adjust safety stock, MOQ, lead time, reorder point | Better service, lower WC        |
-| PC4  | Supplier/Logistics Fix      | supply.otif.pct < 97 OR lead time variance high  | Enforce SLAs, stabilize lead time                  | Higher OTIF, fewer stockouts    |
-| D1   | Demand Signal Response      | forecast accuracy < 80 for A-items               | Improve signal (POS/market), adjust forecast       | Lower excess/stockouts          |
-
-> Use ActionCodes_Portfolio as the single source; triggers must reference KPIs.
+| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
+|-------------|------|------------------|-------------|---------------------|------------------|-------|
+| I1 | Inventory Rightsizing | inv.dio.days > target | Reduce safety stock/lot sizes; clearance for excess | Lower DIO, improve turnover | L2 | Supply Planning |
+| I2 | Stockout Prevention | inv.stockout.pct > target OR OTIF < target | Fix replenishment parameters, expedite shipments | Reduce stockouts, improve OTIF | L2 | Supply & Logistics |
+| D1 | Cost Take-Out / Obsolescence | inv.obsolete.pct > target | Liquidate obsolete stock, prevent rebuys | Reduce obsolete %, DIO | L2 | Inventory Mgmt / Finance |
+| O2 | Operations Stabilisation (Forecast/Process) | plan.forecast.accuracy.pct < target | Improve forecast, align plan with supply | Reduce variance-driven excess/stockouts | L2 | Demand/S&OP |
 
 ---
 
-## 6. 3–30–300 Page Layout
+## 6. 3–30–300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
-- DIO, Inventory Turnover, Stockout %, OTIF %, Obsolescence Risk %, Forecast Accuracy %.
+- DIO (days)  
+- Inventory Turnover (x)  
+- Stockout Rate %  
+- OTIF %  
+- Obsolete Inventory %  
 
 ### 6.2 30-Second Layer (Main Visuals)
-| Visual Name              | Type    | X-Axis / Category           | Y-Axis / Value                                   | Segment / Legend | Filters / Defaults |
-|--------------------------|---------|-----------------------------|--------------------------------------------------|------------------|--------------------|
-| DIO & Turnover by Node   | Column  | dim_org[Location]           | [Days in Inventory], [Inventory Turnover]        | Region/Country   | Current / last month |
-| Stockout & OTIF Trend    | Line    | dim_date[Month]             | [Stockout %], [OTIF %]                           | Channel          | Last 12–18 months  |
-| Obsolescence Pareto      | Bar     | dim_product[SKU]            | [Obsolete Value]                                 | Category         | Top/Bottom N       |
-| Forecast Accuracy by SKU | Column  | dim_product[SKU]            | [Forecast Accuracy %]                            | Class            | A/B items          |
-| Detail Matrix            | Matrix  | Region > Location > Category > SKU | DIO, Turnover, Stockout %, OTIF %, Obsolescence %, Forecast Accuracy % | Region | Export enabled |
+| Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
+|-------------|-------------|--------|--------|---------|----------------|-------|
+| DIO vs Target by Location/Category | Column | dim_org[Location] | [DIO], [Target] | Category | Current quarter | Core ranking |
+| Stockout & OTIF Trend | Line | dim_date[Week] | [Stockout %], [OTIF %] | Location/Channel | L12W | Service stability |
+| Obsolete Inventory by Category | Bar (horizontal) | dim_product[Category] | [Obsolete %] | Location | Current quarter | Excess risk |
+| Forecast Accuracy vs DIO | Scatter | [Forecast Accuracy %] | [DIO] | Category | Current quarter | Planning impact |
 
-### 6.3 300-Second Layer (Diagnostics & Detail)
-- Drill: Region → Location → SKU → aging bucket and orders.
-- Export: action list (rebalance, markdown, policy change) with owner and due date.
-
----
-
-## 7. Dependencies, Assumptions & Constraints
-- Data: daily inventory snapshots with quantity/value/aging, demand/orders with stockout flags, OTIF events, forecast data by SKU/location/channel, COGS for turnover.
-- Assumptions: Targets per segment maintained; aging buckets standardized; lead times and safety stock parameters available.
-- Constraints: Missing COGS or aging reduces DIO and obsolescence quality; poor forecast versioning lowers signal quality.
+### 6.3 Required Slicers (Mandatory)
+- Date (Week/Month)  
+- Location / DC / Channel  
+- Category / Product  
+- ABC/XYZ (if available)
 
 ---
 
-## 8. Success Criteria
-- Leading: >80% usage in weekly S&OP/WC huddles; action log maintained; forecast accuracy tracked for A-items.
-- Lagging: DIO reduces vs target; Stockout % ≤ 3%; OTIF ≥ 97%; obsolescence % declines without hurting service.
-- Cadence/Quality: Weekly review; consistent KPI definitions across locations; aging coverage ≥95%.
+## 7. Data Requirements Summary
+```yaml
+required_facts:
+  - fact_inventory
+  - fact_cogs (or fact_sales for COGS proxy)
+  - fact_fulfillment (OTIF)
+  - fact_forecast
+  - fact_sales (actuals for accuracy)
+required_dimensions:
+  - dim_date
+  - dim_org (location/DC/channel)
+  - dim_product
+  - security_user_org
+required_grain: location_sku_month for inventory; order for OTIF; day for stockouts
+required_time_range: 12–24 months history
+required_slicers: Date, Location/DC/Channel, Category/Product, ABC/XYZ
+```
+
+---
+
+## 8. Dependencies, Assumptions & Constraints
+- COGS/actuals available to compute DIO/turnover; inventory snapshots consistent.
+- Stockout and OTIF flags available; forecast and actual aligned by SKU/location/time.
+- Obsolescence flagged; ABC/XYZ classification optional but recommended.
+- OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org).
+
+---
+
+## 9. Success Criteria
+- Impact: Lower DIO/raise turnover to targets; reduce stockouts and OTIF misses; reduce obsolete %.  
+- Adoption: Used in monthly S&OP/inventory reviews; action codes triggered with <5% false positives.  
+- Quality: KPI definitions consistent across SCM UCs; reconciled to source totals.  
+- Decision Frequency: Monthly S&OP and weekly inventory reviews.
+
+---
+
+## 10. Risks & Wrong Interpretations (Short)
+- Misstated DIO if COGS or inventory snapshots misaligned.  
+- Stockout flags incomplete, underreporting availability risk.  
+- Forecast accuracy misread without considering promotions or launches.  

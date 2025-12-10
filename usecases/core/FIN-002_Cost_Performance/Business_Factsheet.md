@@ -1,9 +1,14 @@
-# FIN-002 – Cost Performance (Business Factsheet)
+# FIN-002 — Cost Performance  
+## Business Factsheet (v1.2)
+
+---
 
 ## 0. Metadata (Mandatory)
 - **Use Case ID:** FIN-002
 - **Domain:** Finance / Operations
-- **Owner (Business):** CFO / Ops Finance / Plant Controllers
+- **Business Owner:** CFO / Ops Finance Lead
+- **KPI Owner:** Plant/Ops Controllers
+- **Decision Owner:** Finance & Operations Leadership
 - **Reporting Level:** Tactical
 - **Analytics Stage:** Diagnostic / Prescriptive
 - **Related Data Contract:** data_contracts/domains/finance.yaml
@@ -11,95 +16,198 @@
 
 ---
 
-## 1. Summary
-**Purpose:** Improve operating profit by reducing unit cost and controlling OpEx vs Plan.  
-**Business Value:** -2–4 % unit cost, better OpEx discipline, higher GM/EBITDA.  
-**Out of Scope:** Strategic sourcing roadmap (handled separately).
+## 1. Business Summary
+**Purpose:** Reduce unit cost and improve margin by controlling material, labor, and OpEx vs plan.  
+**Business Value:** Better cost competitiveness, margin protection, and more efficient operations without sacrificing throughput/quality.  
+**Out of Scope:** Detailed OEE/performance tuning (OPS-001); supplier PPV specifics (OPS-002); logistics cost ratio (OPS-009).
 
 ---
 
-## 2. Core Questions
-- Which plants/lines/products have the highest unit cost and why?
-- Where does OpEx deviate vs Plan and LY?
-- Which suppliers, materials, or processes drive cost variance?
-- Which actions will move GM/EBITDA fastest?
+## 2. Core Business Questions
+- What is unit cost vs plan/LY by plant/line/product?
+- Which cost buckets (material, labor, overhead/OpEx) drive variance?
+- Where is COGS % rising and margin eroding?
+- Which actions reduce cost fastest without harming service/quality?
 
-**Example Queries:**  
-- “Which top-20 SKUs drive +>3 % unit cost vs Plan?”  
-- “Where are material costs up with flat volume?”  
+**Example Query Patterns (optional):**
+- “Which plants have unit cost above plan and margin below target in the last quarter?”
+- “Which products show highest material cost % variance?”
 
 ---
 
-## 3. KPI Set (Business View)
+## 3. Required KPIs (Mandatory)
+All KPIs must exist in the KPI Catalog.
 
-| KPI Name             | KPI ID (mandatory)          | Purpose                     | Definition (short)                | Unit / Format | Target / Threshold   | Interpretation               |
-|----------------------|-----------------------------|-----------------------------|-----------------------------------|---------------|----------------------|------------------------------|
-| Unit Cost            | cost.unit.amount            | Cost efficiency             | Total Cost / Units produced/sold  | €             | ≤ Plan               | Lower = more efficient       |
-| COGS % of Sales      | margin.cogs.pct             | Margin quality              | COGS / Net Sales                  | %             | ≤ Plan               | Margin pressure indicator    |
-| OpEx vs Plan %       | cost.opex.vs_plan.pct       | Spend control               | (OpEx – Plan) / Plan              | %             | ± band; >0 flag      | Gap to plan                  |
-| Material Cost %      | cost.material.pct           | Direct material pressure    | Material Cost / Net Sales         | %             | ≤ Plan               | Procurement lever            |
-| Labor Productivity % | ops.labor.productivity.pct  | Workforce efficiency        | Output / Labor hours or cost      | %             | ↑ vs Plan/LY         | Lower = utilization issue    |
-
-> Do: set KPI IDs/targets; no technical fields as KPIs.
+```yaml
+required_kpis:
+  - id: cost.unit.amount
+    name: Unit Cost Amount
+    purpose: Cost efficiency
+    definition_short: Total COGS / Units produced or sold
+    unit: €/unit
+    grain: product_line_month
+    agg: avg
+    target: ≤ plan target
+    interpretation: Higher than plan signals cost pressure
+    lineage: fact_cost[COGS], fact_output[Units]
+  - id: margin.cogs.pct
+    name: COGS % of Sales
+    purpose: Cost share
+    definition_short: COGS / Net Sales
+    unit: %
+    grain: month
+    agg: avg
+    target: ≤ target
+    interpretation: Rising % erodes margin
+    lineage: fact_finance[COGS], fact_finance[Net Sales]
+  - id: cost.opex.vs_plan.pct
+    name: OpEx vs Plan %
+    purpose: Overhead control
+    definition_short: (OpEx – Plan) / Plan
+    unit: %
+    grain: month
+    agg: avg
+    target: ≤ 0
+    interpretation: Positive variance indicates overspend
+    lineage: fact_opex[OpEx], plan_opex
+  - id: cost.material.pct
+    name: Material Cost %
+    purpose: Material efficiency
+    definition_short: Material cost / Net Sales
+    unit: %
+    grain: month
+    agg: avg
+    target: ≤ target
+    interpretation: High material share signals price/usage issues
+    lineage: fact_cost[Material Cost], fact_finance[Net Sales]
+  - id: ops.labor.productivity.pct
+    name: Labor Productivity %
+    purpose: Labor efficiency
+    definition_short: Output vs labor hours (or revenue per labor hour)
+    unit: index/%
+    grain: month
+    agg: avg
+    target: ≥ target
+    interpretation: Low productivity increases unit cost
+    lineage: fact_output[Units], fact_labor[Labor Hours]
+```
 
 ---
 
 ## 4. Business Logic & Thresholds
-- Unit Cost > Plan by >3 % for 2 periods → action required.
-- COGS % of Sales up >1 pp with flat volume → pricing or procurement issue.
-- OpEx vs Plan % > +5 % → discretionary spend review.
-- Material Cost % rise >2 pp → supplier/BOM renegotiation.
+Formal rules that define performance and action triggers.
 
-**Trigger (formal):**
+### 4.1 Logic Description
+- Flag unit cost above plan and margin/COGS % off target.
+- Flag material cost % above target; investigate mix/price/usage.
+- Flag labor productivity below target.
+- Flag OpEx variance above 0 for 2 consecutive periods.
+
+### 4.2 Formal Trigger Rules (Machine-Readable)
+```yaml
+triggers:
+  - kpi: cost.unit.amount
+    condition: >
+    threshold: plan_target
+    scope: plant_line_product
+    exclusion: ramp-up runs
+    action_code: D1
+  - kpi: cost.material.pct
+    condition: >
+    threshold: material_target
+    scope: plant_line_product
+    exclusion: launch_items
+    action_code: PC2
+  - kpi: ops.labor.productivity.pct
+    condition: <
+    threshold: productivity_target
+    scope: plant_line
+    exclusion: training_periods
+    action_code: M2
+  - kpi: cost.opex.vs_plan.pct
+    condition: >
+    threshold: 0
+    scope: entity
+    exclusion: approved_variances
+    action_code: D1
 ```
-WHEN cost.unit.amount > plan + 3 %
-OR   margin.cogs.pct > plan + 1 pp
-OR   cost.opex.vs_plan.pct > 5 %
-THEN propose PC2/O2/M1/L2
+
+---
+
+## 5. Action Codes (Mandatory)
+Link business behavior to measurable outcomes.
+
+| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
+|-------------|------|------------------|-------------|---------------------|------------------|-------|
+| D1 | Cost Take-Out | cost.unit.amount > target OR OpEx variance > 0 | Remove waste, optimize processes, renegotiate costs | Reduce unit cost/OpEx, improve margin | L2 | Finance / Ops |
+| PC2 | Promo/Price Discipline (material cost guardrail) | cost.material.pct > target | Tighten pricing/usage, supplier/material changes | Reduce material cost %, improve margin | L2 | Procurement / Ops |
+| M2 | Performance Uplift | ops.labor.productivity.pct < target | Improve labor efficiency, balance lines | Raise productivity, reduce unit cost | L2 | Production / Ops |
+| W1 | Working Capital Improvement | margin/COGS % off target, cost pressure on CCC | Address inventory/AP levers | Improve COGS%, CCC | L2 | Finance / Supply |
+
+---
+
+## 6. 3–30–300 Page Layout (Mandatory)
+
+### 6.1 3-Second Layer (KPI Cards)
+- Unit Cost Amount  
+- COGS % of Sales  
+- OpEx vs Plan %  
+- Material Cost %  
+- Labor Productivity %  
+
+### 6.2 30-Second Layer (Main Visuals)
+| Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
+|-------------|-------------|--------|--------|---------|----------------|-------|
+| Unit Cost vs Plan by Plant/Line | Column | dim_org[Plant/Line] | [Unit Cost], [Plan] | Product | Current quarter | Core ranking |
+| COGS % vs Target | Column | dim_org[Entity] | [COGS %], [Target] | Region | Current quarter | Margin driver |
+| Material Cost % Trend | Line | dim_date[Month] | [Material Cost %] | Plant/Category | L12M | Efficiency trend |
+| OpEx vs Plan | Column | dim_org[Entity] | [OpEx vs Plan %] | Region | Current quarter | Overhead control |
+
+### 6.3 Required Slicers (Mandatory)
+- Date (Month/Quarter)  
+- Entity / Plant / Line  
+- Product / Category  
+- Cost bucket (Material/Labor/OpEx)
+
+---
+
+## 7. Data Requirements Summary
+```yaml
+required_facts:
+  - fact_cost (COGS, material)
+  - fact_output (units)
+  - fact_finance (Net Sales/COGS for COGS %)
+  - fact_opex (OpEx vs Plan)
+  - fact_labor (labor hours/productivity)
+required_dimensions:
+  - dim_date
+  - dim_org (entity/plant/line)
+  - dim_product
+  - security_user_org
+required_grain: plant_line_product_month for unit cost; month/entity for OpEx
+required_time_range: 12–24 months history + plan
+required_slicers: Date, Entity/Plant/Line, Product/Category, Cost bucket
 ```
 
 ---
 
-## 5. Action Codes
-
-| Code | Name                      | Trigger (formal, KPIs)             | Description (business action)             | Expected KPI Impact      |
-|------|---------------------------|------------------------------------|-------------------------------------------|--------------------------|
-| PC2  | Cost Out / Re-Negotiate   | cost.unit.amount > plan            | Revisit supplier terms/BOM/logistics      | -2–4 % unit cost         |
-| O2   | Process Improvement       | margin.cogs.pct rising, low OEE    | Lean/Six Sigma to remove waste            | -1–3 % unit cost         |
-| M1   | Make/Buy Optimization     | capacity/cost imbalance            | Shift to optimal sourcing mix             | Lower conversion cost    |
-| L2   | Productivity Boost        | labor productivity down vs Plan    | Productivity programs (shifts, training)  | +3–8 % productivity      |
-
-> Do: use ActionCodes_Portfolio; KPI-based triggers.
+## 8. Dependencies, Assumptions & Constraints
+- Plan vs actual available for unit cost and OpEx; cost buckets aligned to same period.
+- Allocation rules for overhead clear; labor hours available; material costs separated.
+- OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org).
+- Data latency ≤24h; currency EUR.
 
 ---
 
-## 6. 3–30–300 Page Layout
-
-### 6.1 3-Second Layer (KPI Cards – mandatory)
-- Unit Cost | COGS % of Sales | OpEx vs Plan % | Material Cost % | Labor Productivity %
-
-### 6.2 30-Second Layer (Main Visuals – mandatory)
-| Visual Name         | Type      | X-Axis / Category | Y-Axis / Value                              | Segment / Legend | Filters          |
-|---------------------|-----------|-------------------|---------------------------------------------|------------------|------------------|
-| Unit Cost Trend     | Line      | dim_date[Month]   | [Unit Cost], [Unit Cost vs Plan %]          | Plant/BU         | Last 12–24M      |
-| Cost Variance Bridge| Waterfall | Drivers (Material, Labor, Energy, Overhead, OpEx) | Δ Cost vs Plan | n/a | Period selector |
-| Cost by Plant/Line  | Bar       | dim_org[Plant]/[Line] | [Unit Cost], [Material %, Labor %, Overhead %] | Region/BU   | Top/Bottom N     |
-| Detail Matrix       | Matrix    | Plant → Line → Product | Unit Cost, Material %, Labor %, Overhead %, OpEx | Region/BU | Export enabled |
-
-### 6.3 300-Second Layer (Diagnostics & Detail)
-- Drill: Plant → Line → Product; supplier/material contribution.
-- Export: action list per plant/owner with variances.
+## 9. Success Criteria
+- Impact: Reduced unit cost vs plan; improved COGS %; material cost % lowered; productivity improved.  
+- Adoption: Used in monthly ops/finance reviews; action codes triggered with <5% false positives.  
+- Quality: KPI definitions consistent across finance/ops; reconciled to source totals.  
+- Decision Frequency: Monthly and weekly cost reviews.
 
 ---
 
-## 7. Dependencies, Assumptions & Constraints
-- Data: BOM and routing accurate; UoM consistent; plan cost and OpEx available; supplier/material master.
-- Assumptions: Plan values frozen post-close; overhead allocation consistent.
-- Constraints: Missing plan/target fields reduce insight; high granularity may need aggregation.
-
----
-
-## 8. Success Criteria
-- Leading: >80 % use in monthly cost/performance reviews; action list maintained.
-- Lagging: Sustained reduction in Unit Cost/COGS %; OpEx within plan tolerance (<2–3 % variance); productivity improving with stable quality.
-- Cadence/Quality: Monthly review; no KPI-definition conflicts.
+## 10. Risks & Wrong Interpretations (Short)
+- Misallocation of overhead distorting unit cost.  
+- Material cost % misread if price/volume/mix effects not separated.  
+- Productivity dips during planned training/ramp-up misinterpreted.  

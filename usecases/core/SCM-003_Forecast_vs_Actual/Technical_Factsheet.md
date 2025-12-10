@@ -1,221 +1,281 @@
-# SCM-003 – Forecast vs Actual (Technical Factsheet)
-
-## 0. Model References
-- **Data Contract:** `data_contracts/domains/supply_chain.yaml`
-- **Semantic Model Definition:** `semantic_models/domains/scm/model_definition.yaml`
-- **KPI Catalog:** `framework/kpi_catalog/domain_kpi_catalog.md`
-- **Measure Dictionary:** `framework/kpi_catalog/domain_measure_dictionary.md`
-- **Use Case Inventory:** `usecases/UseCase_Inventory.md` (ID: SCM-003)
+# SCM-003 — Forecast vs Actual  
+## Technical Factsheet (v1.2)
 
 ---
 
-## 1. Data Contract (Scope for SCM-003)
+## 0. Metadata (Mandatory)
+- **Domain:** Supply Chain / Planning
+- **Technical Owner:** Planning / S&OP BI Lead
+- **Model ID:** scm_forecast_vs_actual
+- **Source Systems:** Forecasting system, ERP (actuals), OMS/WMS (service), DWH
+- **Business Factsheet:** usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md
 
+---
+
+## 1. Model References
+- **Domain Data Contract:** data_contracts/domains/supply_chain.yaml
+- **Source Data Contract:** data_contracts/sources/supply_chain.yaml (if present)
+- **Semantic Model Definition:** semantic_models/domains/scm/model_definition.yaml
+- **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
+- **Measure Dictionary:** framework/kpi_catalog/domain_measure_dictionary.md
+- **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
+
+---
+
+## 2. Required KPIs → Measure Mapping (Mandatory)
+```yaml
+kpi_to_measure_mapping:
+  - kpi_id: plan.forecast.accuracy.pct
+    kpi_name: Forecast Accuracy %
+    measure_name: [Forecast Accuracy %]
+    format: 0.0%
+    folder: 09_Planning
+  - kpi_id: plan.forecast.mape.pct
+    kpi_name: MAPE %
+    measure_name: [MAPE %]
+    format: 0.0%
+    folder: 09_Planning
+  - kpi_id: plan.forecast.bias.pct
+    kpi_name: Bias %
+    measure_name: [Bias %]
+    format: 0.0%
+    folder: 09_Planning
+  - kpi_id: plan.forecast.service_impact.pct
+    kpi_name: Service Impact %
+    measure_name: [Service Impact %]
+    format: 0.0%
+    folder: 08_SCM_Service
+  - kpi_id: plan.replan.count
+    kpi_name: Re-Plan Count
+    measure_name: [Re-Plan Count]
+    format: #,0
+    folder: 09_Planning
+```
+
+---
+
+## 3. Data Contract Scope (Subset YAML)
 ```yaml
 dimension:
   - name: dim_date
     columns:
-      - { name: DateKey, type: int, role: key }
-      - { name: Date, type: date }
-      - { name: Year, type: int }
-      - { name: Quarter, type: text }
-      - { name: Month, type: text }
-      - { name: MonthNumber, type: int }
+      - {name: DateKey, type: int, role: key}
+      - {name: Date, type: date}
+      - {name: Year, type: int}
+      - {name: Quarter, type: text}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
 
   - name: dim_org
     columns:
-      - { name: OrgKey, type: int, role: key }
-      - { name: Region, type: text }
-      - { name: Country, type: text }
-      - { name: Channel, type: text }
+      - {name: OrgKey, type: int, role: key}
+      - {name: Region, type: text, nullable: true}
+      - {name: Channel, type: text, nullable: true}
+      - {name: Location, type: text, nullable: true}
 
   - name: dim_product
     columns:
-      - { name: ProductKey, type: int, role: key }
-      - { name: SKU, type: text }
-      - { name: ProductName, type: text }
-      - { name: Category, type: text }
-      - { name: Subcategory, type: text }
-      - { name: Class, type: text }   # ABC/XYZ
+      - {name: ProductKey, type: int, role: key}
+      - {name: ProductCode, type: text}
+      - {name: ProductName, type: text}
+      - {name: Category, type: text}
+      - {name: Subcategory, type: text, nullable: true}
+      - {name: ABC_Class, type: text, nullable: true}
+      - {name: XYZ_Class, type: text, nullable: true}
 
-  - name: dim_forecast_version
+  - name: security_user_org   # canonical RLS
     columns:
-      - { name: ForecastVersion, type: text, role: key }
-      - { name: CreatedAt, type: datetime }
-      - { name: Horizon, type: text }   # e.g., M+1, M+3
-
-  - name: security_user_org
-    columns:
-      - { name: UserObjectId, type: string, role: rls }
-      - { name: Region, type: text }
-      - { name: Country, type: text }
-      - { name: Channel, type: text }
+      - {name: UserPrincipalName, type: string, role: rls}
+      - {name: Region, type: text, nullable: true}
+      - {name: Country, type: text, nullable: true}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: Channel, type: text, nullable: true}
 
 fact:
   - name: fact_forecast
-    grain: sku_channel_month_version
+    grain: sku_month
     columns:
-      - { name: DateKey, type: int, ref: dim_date }     # period
-      - { name: OrgKey, type: int, ref: dim_org }
-      - { name: ProductKey, type: int, ref: dim_product }
-      - { name: ForecastVersion, type: text, ref: dim_forecast_version }
-      - { name: ForecastQty, type: number, agg: sum }
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: Forecast Units, type: decimal, agg: sum}
+      - {name: Forecast Version, type: text, nullable: true}
 
-  - name: fact_actuals
-    grain: sku_channel_month
+  - name: fact_sales
+    grain: sku_month
     columns:
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: OrgKey, type: int, ref: dim_org }
-      - { name: ProductKey, type: int, ref: dim_product }
-      - { name: ActualQty, type: number, agg: sum }
-      - { name: StockoutFlag, type: boolean }
-      - { name: ExpediteFlag, type: boolean }
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: Actual Units, type: decimal, agg: sum}
 
-settings:
-  timezone: Europe/Berlin
-  fiscal_year_start: 01-01
-```
+  - name: fact_fulfillment   # for service impact linkage
+    grain: order
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: ProductKey, type: int, ref: dim_product, nullable: true}
+      - {name: OTIF Flag, type: boolean, nullable: true}
 
-### Source Mapping (Physical Layer)
-- fact_forecast → `scm.fact_forecast`
-- fact_actuals → `scm.fact_actuals`
-- dim_forecast_version → `scm.dim_forecast_version`
-- dim_date → `shared.dim_date`
-- dim_org → `shared.dim_org`
-- dim_product → `shared.dim_product`
-- security_user_org → `sec.security_user_org`
+  - name: fact_stockout      # for service impact linkage
+    grain: location_sku_day
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: Stockout Flag, type: boolean}
+      - {name: Lost Demand Units, type: decimal, agg: sum, nullable: true}
+      - {name: Demand Units, type: decimal, agg: sum}
 
----
-
-## 2. Semantic Model Requirements
-
-**Model Name:** `scm_forecast_vs_actual`
-
-**Tables:** fact_forecast, fact_actuals, dim_date, dim_org, dim_product, dim_forecast_version, security_user_org (RLS only)
-
-**Relationships**
-- fact_forecast[DateKey] → dim_date[DateKey] (1:* | single)
-- fact_actuals[DateKey] → dim_date[DateKey] (1:* | single)
-- fact_forecast[OrgKey] → dim_org[OrgKey] (1:* | single)
-- fact_actuals[OrgKey] → dim_org[OrgKey] (1:* | single)
-- fact_forecast[ProductKey] → dim_product[ProductKey] (1:* | single)
-- fact_actuals[ProductKey] → dim_product[ProductKey] (1:* | single)
-- fact_forecast[ForecastVersion] → dim_forecast_version[ForecastVersion] (1:* | single)
-- security_user_org attribute join to dim_org by Region/Country/Channel (RLS mapping)
-
-**Hierarchies**
-- Org: Region > Country > Channel
-- Product: Category > Subcategory > SKU
-- Date: Year > Quarter > Month
-
-**Display Folders**
-- 01_Forecast: Forecast Accuracy %, MAPE %, Bias %
-- 02_Service: Service Impact %
-- 03_Process: Re-plan Count
-
----
-
-## 3. Measure Inventory
-
-| Measure Name           | kpi_id                             | Type       | Folder       | Format |
-|------------------------|------------------------------------|------------|--------------|--------|
-| Forecast Accuracy %    | plan.forecast.accuracy.pct         | KPI        | 01_Forecast  | 0.0 % |
-| MAPE %                 | plan.forecast.mape.pct             | KPI        | 01_Forecast  | 0.0 % |
-| Bias %                 | plan.forecast.bias.pct             | KPI        | 01_Forecast  | 0.0 % |
-| Service Impact %       | plan.forecast.service_impact.pct   | KPI        | 02_Service   | 0.0 % |
-| Re-plan Frequency      | plan.replan.count                  | KPI        | 03_Process   | #,0   |
-| Forecast Qty           | plan.forecast.qty                  | Supporting | 01_Forecast  | #,0   |
-| Actual Qty             | plan.actual.qty                    | Supporting | 01_Forecast  | #,0   |
-
----
-
-## 4. Measures (DAX)
-
-```DAX
-Forecast Qty = SUM ( fact_forecast[ForecastQty] )
-```
-
-```DAX
-Actual Qty = SUM ( fact_actuals[ActualQty] )
-```
-
-```DAX
-Forecast Error % =
-DIVIDE ( [Actual Qty] - [Forecast Qty], [Actual Qty] )
-```
-
-```DAX
-Forecast Accuracy % = 1 - ABS ( [Forecast Error %] )
-```
-
-```DAX
-MAPE % =
-AVERAGEX (
-    VALUES ( dim_product[ProductKey] ),
-    ABS ( [Forecast Error %] )
-)
-```
-
-```DAX
-Bias % =
-DIVIDE ( [Forecast Qty] - [Actual Qty], [Actual Qty] )
-```
-
-```DAX
-Service Impact % =
-DIVIDE (
-    SUMX ( fact_actuals, IF ( fact_actuals[StockoutFlag] || fact_actuals[ExpediteFlag], fact_actuals[ActualQty], 0 ) ),
-    SUM ( fact_actuals[ActualQty] )
-)
-```
-
-```DAX
-Re-plan Frequency =
-DISTINCTCOUNT ( fact_forecast[ForecastVersion] )
+  - name: fact_replan   # if available
+    grain: month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: Re-Plan Count, type: int, agg: sum}
 ```
 
 ---
 
-## 5. Defaults & Formatting
+## 4. Semantic Model Requirements
 
-| Field/Measure                   | Format | Summarization | Display Folder |
-|---------------------------------|--------|---------------|----------------|
-| Forecast Accuracy %, MAPE %, Bias %, Service Impact % | 0.0 % | None | 01_Forecast / 02_Service |
-| Re-plan Frequency               | #,0    | Count         | 03_Process     |
-| Quantities (Forecast/Actual)    | #,0    | Sum           | 01_Forecast    |
+### 4.1 Tables
+- fact_forecast  
+- fact_sales  
+- fact_fulfillment  
+- fact_stockout  
+- fact_replan (if present)  
+- dim_date  
+- dim_org  
+- dim_product  
+- security_user_org (RLS)
+
+### 4.2 Relationships (Mandatory)
+- dim_date (1) → all facts on DateKey  
+- dim_org (1) → fact_forecast/fact_sales/fact_fulfillment/fact_stockout on OrgKey  
+- dim_product (1) → fact_forecast/fact_sales/fact_fulfillment/fact_stockout on ProductKey  
+- security_user_org filters dim_org → cascades to facts  
+- Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
+
+### 4.3 Hierarchies
+- Date: Year → Quarter → Month  
+- Org: Region → Channel → Location  
+- Product: Category → Subcategory → ProductName
+
+### 4.4 Sort-by Columns
+- Month → MonthNumber  
+- ProductName → ProductCode
+
+### 4.5 Modeling Constraints
+- No calculated columns; no implicit measures.  
+- Default summarization set; technical columns hidden; folders per dictionary.  
+- Surrogate keys mandatory; avoid M2M.
 
 ---
 
-## 6. Visual Requirements (Technical)
-- KPI cards: Forecast Accuracy %, MAPE %, Bias %, Service Impact %, Re-plan Frequency.
-- Trend line: Accuracy % and Bias % by dim_date[Month]; slicer for class and channel.
-- Column: Accuracy % and MAPE % by dim_product[SKU] (focus A/B class); optional by dim_org[Channel].
-- Bias distribution: Column showing Bias % by SKU/Channel; filter for over-/under-forecasting.
-- Service Impact Pareto: impacted quantity by SKU/channel (from StockoutFlag/ExpediteFlag).
-- Matrix: Region > Channel > SKU with Accuracy %, MAPE %, Bias %, Service Impact %, Re-plan Frequency; export enabled.
+## 5. Measures (DAX)
+
+### 5.1 Measure Inventory
+| Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
+|--------------|---------------------|---------|--------|--------|------|
+| Forecast Accuracy % | plan.forecast.accuracy.pct | Planning quality | 09_Planning | 0.0% | KPI |
+| MAPE % | plan.forecast.mape.pct | Error magnitude | 09_Planning | 0.0% | KPI |
+| Bias % | plan.forecast.bias.pct | Error direction | 09_Planning | 0.0% | KPI |
+| Service Impact % | plan.forecast.service_impact.pct | Service linkage | 08_SCM_Service | 0.0% | KPI |
+| Re-Plan Count | plan.replan.count | Stability | 09_Planning | #,0 | KPI |
+| Forecast Units | Supporting | Forecast base | 09_Planning | #,0 | Supporting |
+| Actual Units | Supporting | Actual base | 09_Planning | #,0 | Supporting |
+| Absolute Error | Supporting | Error magnitude | 09_Planning | #,0 | Supporting |
+
+### 5.2 DAX Definitions
+```DAX
+/// Supporting — Bases
+Forecast Units :=
+    SUM ( fact_forecast[Forecast Units] )
+
+Actual Units :=
+    SUM ( fact_sales[Actual Units] )
+
+Absolute Error :=
+    ABS ( [Forecast Units] - [Actual Units] )
+
+/// plan.forecast.accuracy.pct — Accuracy
+Forecast Accuracy % :=
+    VAR AbsErr = [Absolute Error]
+    VAR Actual = [Actual Units]
+    RETURN 1 - DIVIDE ( AbsErr, Actual )
+
+/// plan.forecast.mape.pct — MAPE
+MAPE % :=
+    DIVIDE ( [Absolute Error], [Actual Units] )
+
+/// plan.forecast.bias.pct — Bias
+Bias % :=
+    DIVIDE ( [Forecast Units] - [Actual Units], [Actual Units] )
+
+/// plan.forecast.service_impact.pct — Service impact (placeholder linkage)
+Service Impact % :=
+    // TODO: requires linkage from forecast error to OTIF/stockout impact
+    BLANK ()
+
+/// plan.replan.count — Re-plans
+Re-Plan Count :=
+    SUM ( fact_replan[Re-Plan Count] )
+```
 
 ---
 
-## 7. RLS / OLS
-- RLS: security_user_org filtered by UserObjectId; enforce Region/Country/Channel filters on dim_org and propagate to facts.
-- OLS (optional): hide ForecastVersion details for external viewers; restrict access to class or product groups if required.
+## 6. RLS / OLS Requirements
+
+### 6.1 Security Table Pattern
+```yaml
+security_table:
+  name: security_user_org
+  keys:
+    - UserPrincipalName
+    - Region
+    - Country
+    - OrgKey
+    - Channel
+  mapping_target: dim_org[OrgKey]
+  fallback_behavior: deny_all_if_no_match
+```
+
+### 6.2 RLS Rule (Fabric / Power BI)
+```DAX
+dim_org[OrgKey] IN
+    CALCULATETABLE (
+        VALUES ( security_user_org[OrgKey] ),
+        security_user_org[UserPrincipalName] = USERPRINCIPALNAME()
+    )
+```
+
+### 6.3 OLS (optional)
+- None required; mask cost fields if added (TODO if client requires).
 
 ---
 
-## 8. Performance & Refresh
-- Storage: Import; incremental by month, retain 36 months of forecast/actuals.
-- Partition by dim_date[Month]; keep only selected/latest forecast versions or flag the “latest” version in source to reduce DAX complexity.
-- Avoid calculated columns; pre-clean forecast versions and ensure ActualQty and ForecastQty share grain.
-- If volume high, aggregate older history to Month x Channel x Category for MAPE/Bias trending.
+## 7. Technical Assumptions
+- Forecast and actual data aligned by SKU/location/time; versions managed.
+- Service impact linkage requires OTIF/stockout mapping to forecast error (TODO).
+- Data latency ≤24h; currency not needed unless financial metrics added.
+- OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org).
 
 ---
 
-## 9. QA & Validation
+## 8. Deployment Requirements
+- Mode: DirectLake or Import (prefer DirectLake if Fabric).  
+- Incremental refresh: yes, partition by Month (e.g., last 24 months).  
+- Aggregations: optional for large order/stockout linkage tables.  
+- Workspace/naming: `ARF – Supply Chain` dataset/model per governance.
 
-| Check Type                  | Object                               | Rule                                        | Tolerance |
-|-----------------------------|--------------------------------------|---------------------------------------------|-----------|
-| Referential Integrity       | facts → dimensions                   | ≥ 99.9 % matched keys                       | 0.1 %     |
-| Version Integrity           | fact_forecast vs dim_forecast_version| Latest version flag set; no orphan versions | n/a       |
-| Accuracy/Bias Calculation   | Error measures                       | Matches planning system definitions         | ±0.5 pp   |
-| Service Impact Calculation  | Stockout/Expedite flag coverage      | Coverage ≥ 95 %                             | 5 % gap   |
-| Class Coverage              | dim_product[Class] completeness      | ≥ 95 % populated                            | 5 % gap   |
+---
+
+## 9. QA & Validation Rules
+| Check | Rule | Threshold | Automated Y/N | Owner |
+|-------|------|-----------|---------------|-------|
+| Referential Integrity | Date/Org/Product keys non-null in facts | 100% | Y | Data Engineering |
+| Accuracy/Bias Validity | No divide-by-zero on actuals; bias within plausible range | 0 errors | Y | BI |
+| Forecast Versioning | Correct version used for comparison window | 100% in scope | Y | Planning |
+| Service Impact Coverage | Linkage to OTIF/stockout populated if used | TODO coverage target | N (if manual) | BI/Planning |
+| RLS Coverage | Users see only authorised locations/channels | 0 leaks | Y | Security |
+| Performance | Main visuals <2s on representative sample | <2s | Y | BI |

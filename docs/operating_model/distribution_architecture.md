@@ -11,9 +11,9 @@ Every report must connect **data to decision** and **insight to impact**.
 
 ---
 
-## 2. Reporting Layers Overview (Ebenenachse)
+## 2. Reporting Layers Overview (Layer Axis)
 
-We distinguish three reporting levels – this is the **Ebenenachse** and wird im FactSheet als `reporting_level` gepflegt.
+We distinguish three reporting levels – this is the **Layer Axis** and wird im FactSheet als `reporting_level` gepflegt.
 
 | Level        | Purpose                                                | Example Use Case                    |
 |--------------|--------------------------------------------------------|-------------------------------------|
@@ -24,16 +24,15 @@ We distinguish three reporting levels – this is the **Ebenenachse** and wird i
 Each layer builds on the previous one. Tactical reports explain *why* strategic KPIs move, and operational reports show *how* execution delivers the result.
 
 In the Use Case FactSheet:
-- `reporting_level: Strategic` → board/management view on Strategic KPIs.  
-- `reporting_level: Tactical` → cluster/segment view explaining KPI movements.  
-- `reporting_level: Operational` → process/line-level view for daily execution.
+- `reporting_level: Strategic` — board/management view on Strategic KPIs.  
+- `reporting_level: Tactical` — cluster/segment view explaining KPI movements.  
+- `reporting_level: Operational` — process/line-level view for daily execution.
 
 ---
 
-## 3. Analytics Stages (Analytics-Achse)
+## 3. Analytics Stages (Analytics Axis)
 
-Orthogonal zu den Reporting Levels unterscheiden wir **Analytics-Stufen**.  
-Diese werden im FactSheet als `analytics_stage` gepflegt.
+Orthogonal to the reporting levels we distinguish **analytics stages**. These are captured in the FactSheet as `analytics_stage`.
 
 | Stage         | Question Type                  | Examples in this library                  |
 |---------------|--------------------------------|-------------------------------------------|
@@ -43,8 +42,8 @@ Diese werden im FactSheet als `analytics_stage` gepflegt.
 | **Prescriptive**| What should we do next?        | OPS-004 Replenishment Optimization (target policy) |
 
 Guidance for FactSheets:
-- Start mit `analytics_stage: Descriptive` oder `Diagnostic` für die meisten Use Cases.  
-- Nutze `Predictive` / `Prescriptive` bewusst, wenn Modelle/Optimierungslogik tatsächlich im Scope sind.  
+- Start with `analytics_stage: Descriptive` or `Diagnostic` for most use cases.  
+- Use `Predictive` / `Prescriptive` intentionally when models/optimization are truly in scope.  
 - Auch ein strategischer Use Case kann „nur“ descriptive sein – und umgekehrt kann ein operativer Use Case prescriptive Logik enthalten.
 
 ---

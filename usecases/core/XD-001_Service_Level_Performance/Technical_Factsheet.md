@@ -1,242 +1,280 @@
-# XD-001 – Service Level Performance (Technical Factsheet)
-
-## 0. Model References
-- **Data Contract:** `data_contracts/domains/experience.yaml`
-- **Semantic Model Definition:** `semantic_models/domains/experience/model_definition.yaml`
-- **KPI Catalog:** `framework/kpi_catalog/domain_kpi_catalog.md`
-- **Measure Dictionary:** `framework/kpi_catalog/domain_measure_dictionary.md`
-- **Use Case Inventory:** `usecases/UseCase_Inventory.md` (ID: XD-001)
+# XD-001 — Service Level Performance  
+## Technical Factsheet (v1.2)
 
 ---
 
-## 1. Data Contract (Scope for XD-001)
+## 0. Metadata (Mandatory)
+- **Domain:** Experience / Service
+- **Technical Owner:** Service Ops / CX BI Lead
+- **Model ID:** experience_service_level
+- **Source Systems:** CRM/Service Desk, Telephony/CCaaS, Survey (NPS), DWH
+- **Business Factsheet:** usecases/core/XD-001_Service_Level_Performance/Business_Factsheet.md
 
+---
+
+## 1. Model References
+- **Domain Data Contract:** data_contracts/domains/experience.yaml
+- **Source Data Contract:** data_contracts/sources/experience.yaml (if present)
+- **Semantic Model Definition:** semantic_models/domains/experience/model_definition.yaml
+- **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
+- **Measure Dictionary:** framework/kpi_catalog/domain_measure_dictionary.md
+- **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
+
+---
+
+## 2. Required KPIs → Measure Mapping (Mandatory)
+```yaml
+kpi_to_measure_mapping:
+  - kpi_id: svc.sla.attainment.pct
+    kpi_name: SLA Attainment %
+    measure_name: [SLA Attainment %]
+    format: 0.0%
+    folder: 11_Service
+  - kpi_id: svc.fcr.pct
+    kpi_name: First Contact Resolution %
+    measure_name: [FCR %]
+    format: 0.0%
+    folder: 11_Service
+  - kpi_id: svc.aht.minutes
+    kpi_name: Average Handling Time (minutes)
+    measure_name: [AHT Minutes]
+    format: 0.0
+    folder: 11_Service
+  - kpi_id: svc.backlog.count
+    kpi_name: Backlog Count
+    measure_name: [Backlog Count]
+    format: #,0
+    folder: 11_Service
+  - kpi_id: svc.nps.index
+    kpi_name: NPS Index
+    measure_name: [NPS Index]
+    format: #,0
+    folder: 11_Service
+  - kpi_id: svc.escalation.pct
+    kpi_name: Escalation %
+    measure_name: [Escalation %]
+    format: 0.0%
+    folder: 11_Service
+```
+
+---
+
+## 3. Data Contract Scope (Subset YAML)
 ```yaml
 dimension:
   - name: dim_date
     columns:
-      - { name: DateKey, type: int, role: key }
-      - { name: Date, type: date }
-      - { name: Year, type: int }
-      - { name: Quarter, type: text }
-      - { name: Month, type: text }
-      - { name: Week, type: int }
-      - { name: DayOfWeek, type: text }
+      - {name: DateKey, type: int, role: key}
+      - {name: Date, type: date}
+      - {name: Year, type: int}
+      - {name: Quarter, type: text}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
+      - {name: Week, type: text, nullable: true}
 
   - name: dim_org
     columns:
-      - { name: OrgKey, type: int, role: key }
-      - { name: Region, type: text }
-      - { name: Country, type: text }
+      - {name: OrgKey, type: int, role: key}
+      - {name: Region, type: text, nullable: true}
+      - {name: Channel, type: text, nullable: true}
+      - {name: Queue, type: text, nullable: true}
 
-  - name: dim_channel
+  - name: dim_queue    # optional if separate
     columns:
-      - { name: ChannelKey, type: int, role: key }
-      - { name: Channel, type: text }          # Phone, Chat, Email, Social, App
+      - {name: QueueKey, type: int, role: key}
+      - {name: QueueName, type: text}
+      - {name: Channel, type: text, nullable: true}
+      - {name: Region, type: text, nullable: true}
 
-  - name: dim_queue
+  - name: dim_issue    # optional
     columns:
-      - { name: QueueKey, type: int, role: key }
-      - { name: QueueName, type: text }
-      - { name: Priority, type: text }
-      - { name: Product, type: text }
-      - { name: Segment, type: text }
+      - {name: IssueKey, type: int, role: key}
+      - {name: IssueType, type: text}
+      - {name: Severity, type: text, nullable: true}
 
-  - name: dim_agent
+  - name: security_user_org   # canonical RLS
     columns:
-      - { name: AgentKey, type: int, role: key }
-      - { name: AgentName, type: text }
-      - { name: SkillGroup, type: text }
-
-  - name: dim_sla
-    columns:
-      - { name: SLAKey, type: int, role: key }
-      - { name: QueueKey, type: int }
-      - { name: SLA_Target_Minutes, type: number }
-      - { name: SLA_Type, type: text }      # response / resolution
-
-  - name: security_user_org
-    columns:
-      - { name: UserObjectId, type: string, role: rls }
-      - { name: Region, type: text }
-      - { name: Country, type: text }
+      - {name: UserPrincipalName, type: string, role: rls}
+      - {name: Region, type: text, nullable: true}
+      - {name: Country, type: text, nullable: true}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: Channel, type: text, nullable: true}
 
 fact:
-  - name: fact_interaction
-    grain: interaction
+  - name: fact_cases
+    grain: case
     columns:
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: OrgKey, type: int, ref: dim_org }
-      - { name: ChannelKey, type: int, ref: dim_channel }
-      - { name: QueueKey, type: int, ref: dim_queue }
-      - { name: AgentKey, type: int, ref: dim_agent, nullable: true }
-      - { name: SLAKey, type: int, ref: dim_sla, nullable: true }
-      - { name: IsWithinSLA, type: boolean }
-      - { name: IsResolved, type: boolean }
-      - { name: IsEscalated, type: boolean }
-      - { name: HandleTimeMinutes, type: number, agg: sum }
-      - { name: WaitTimeMinutes, type: number, agg: sum }
-      - { name: Volume, type: int, agg: sum }
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: QueueKey, type: int, ref: dim_queue, nullable: true}
+      - {name: IssueKey, type: int, ref: dim_issue, nullable: true}
+      - {name: SLA Met Flag, type: boolean}
+      - {name: FCR Flag, type: boolean}
+      - {name: Handle Time Minutes, type: decimal}
+      - {name: Escalation Flag, type: boolean}
+      - {name: Backlog Flag, type: boolean}
+      - {name: Open Case Flag, type: boolean}
 
-  - name: fact_backlog
-    grain: queue_day
-    columns:
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: QueueKey, type: int, ref: dim_queue }
-      - { name: BacklogCount, type: int, agg: avg }
-
-  - name: fact_experience
+  - name: fact_nps
     grain: survey
     columns:
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: OrgKey, type: int, ref: dim_org }
-      - { name: ChannelKey, type: int, ref: dim_channel }
-      - { name: QueueKey, type: int, ref: dim_queue }
-      - { name: NPSIndex, type: number, agg: avg }
-      - { name: CSATScore, type: number, agg: avg }
-
-settings:
-  timezone: Europe/Berlin
-  fiscal_year_start: 01-01
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: QueueKey, type: int, ref: dim_queue, nullable: true}
+      - {name: NPS Score, type: int}
 ```
 
-### Source Mapping (Physical Layer)
-- fact_interaction → `exp.fact_interaction`
-- fact_backlog → `exp.fact_backlog`
-- fact_experience → `exp.fact_experience`
-- dim_* → corresponding shared/exp dimensions
-- security_user_org → `sec.security_user_org`
+---
+
+## 4. Semantic Model Requirements
+
+### 4.1 Tables
+- fact_cases  
+- fact_nps  
+- dim_date  
+- dim_org  
+- dim_queue (optional)  
+- dim_issue (optional)  
+- security_user_org (RLS)
+
+### 4.2 Relationships (Mandatory)
+- dim_date (1) → fact_cases/fact_nps on DateKey  
+- dim_org (1) → fact_cases/fact_nps on OrgKey  
+- dim_queue (1) → fact_cases/fact_nps on QueueKey (if used)  
+- dim_issue (1) → fact_cases on IssueKey (if used)  
+- security_user_org filters dim_org → cascades to facts; use channel/region as needed.  
+- Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
+
+### 4.3 Hierarchies
+- Date: Year → Quarter → Month → Week  
+- Org: Region → Channel → Queue  
+- Queue: Channel → QueueName (if separate)
+
+### 4.4 Sort-by Columns
+- Month → MonthNumber  
+- QueueName → QueueKey
+
+### 4.5 Modeling Constraints
+- No calculated columns; no implicit measures.  
+- Default summarization set; technical columns hidden; folders per dictionary.  
+- Surrogate keys mandatory; avoid M2M.
 
 ---
 
-## 2. Semantic Model Requirements
+## 5. Measures (DAX)
 
-**Model Name:** `experience_service_performance`
+### 5.1 Measure Inventory
+| Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
+|--------------|---------------------|---------|--------|--------|------|
+| SLA Attainment % | svc.sla.attainment.pct | Service level | 11_Service | 0.0% | KPI |
+| FCR % | svc.fcr.pct | Quality/Efficiency | 11_Service | 0.0% | KPI |
+| AHT Minutes | svc.aht.minutes | Efficiency | 11_Service | 0.0 | KPI |
+| Backlog Count | svc.backlog.count | Workload | 11_Service | #,0 | KPI |
+| NPS Index | svc.nps.index | Experience | 11_Service | #,0 | KPI |
+| Escalation % | svc.escalation.pct | Quality/risk | 11_Service | 0.0% | KPI |
+| Cases Resolved | Supporting | SLA/FCR denominators | 11_Service | #,0 | Supporting |
+| Escalated Cases | Supporting | Escalation numerator | 11_Service | #,0 | Supporting |
+| Backlog Cases | Supporting | Backlog count | 11_Service | #,0 | Supporting |
 
-**Tables:** fact_interaction, fact_backlog, fact_experience, dim_date, dim_org, dim_channel, dim_queue, dim_agent, dim_sla, security_user_org (RLS only)
-
-**Relationships**
-- fact_interaction[DateKey] → dim_date[DateKey]; fact_backlog[DateKey] → dim_date[DateKey]; fact_experience[DateKey] → dim_date[DateKey]
-- fact_interaction[OrgKey] → dim_org[OrgKey]; fact_experience[OrgKey] → dim_org[OrgKey]
-- fact_interaction[ChannelKey] → dim_channel[ChannelKey]; fact_experience[ChannelKey] → dim_channel[ChannelKey]
-- fact_interaction[QueueKey] → dim_queue[QueueKey]; fact_backlog[QueueKey] → dim_queue[QueueKey]; fact_experience[QueueKey] → dim_queue[QueueKey]
-- fact_interaction[AgentKey] → dim_agent[AgentKey] (optional)
-- fact_interaction[SLAKey] → dim_sla[SLAKey] (optional)
-- security_user_org attribute join to dim_org by Region/Country (RLS mapping)
-
-**Hierarchies**
-- Org: Region > Country
-- Queue: Segment > QueueName > Priority
-- Date: Year > Quarter > Month > Week > Date
-- Channel: Channel
-
-**Display Folders**
-- 01_SLA: SLA Attainment %, Wait/Handle times
-- 02_Quality: FCR %, Escalation %
-- 03_Capacity: Backlog, Volume
-- 04_Experience: NPS/CSAT
-
----
-
-## 3. Measure Inventory
-
-| Measure Name               | kpi_id                        | Type       | Folder       | Format  |
-|----------------------------|-------------------------------|------------|--------------|---------|
-| SLA Attainment %           | svc.sla.attainment.pct        | KPI        | 01_SLA       | 0.0 %  |
-| First Contact Resolution % | svc.fcr.pct                   | KPI        | 02_Quality   | 0.0 %  |
-| Escalation Rate %          | svc.escalation.pct            | KPI        | 02_Quality   | 0.0 %  |
-| Average Handle Time (min)  | svc.aht.minutes               | KPI        | 01_SLA       | #,0.0  |
-| Backlog Count              | svc.backlog.count             | KPI        | 03_Capacity  | #,0    |
-| NPS Index                  | svc.nps.index                 | KPI        | 04_Experience| #,0.0  |
-| Volume                     | svc.volume.count              | Supporting | 03_Capacity  | #,0    |
-
----
-
-## 4. Measures (DAX)
-
+### 5.2 DAX Definitions
 ```DAX
-SLA Attainment % =
-DIVIDE (
-    SUMX ( fact_interaction, IF ( fact_interaction[IsWithinSLA], fact_interaction[Volume], 0 ) ),
-    SUM ( fact_interaction[Volume] )
-)
-```
+/// Supporting — Counts
+Cases Resolved :=
+    COUNTROWS ( fact_cases )
 
-```DAX
-First Contact Resolution % =
-DIVIDE (
-    SUMX ( fact_interaction, IF ( fact_interaction[IsResolved], fact_interaction[Volume], 0 ) ),
-    SUM ( fact_interaction[Volume] )
-)
-```
+Cases SLA Met :=
+    CALCULATE ( COUNTROWS ( fact_cases ), fact_cases[SLA Met Flag] = TRUE )
 
-```DAX
-Escalation Rate % =
-DIVIDE (
-    SUMX ( fact_interaction, IF ( fact_interaction[IsEscalated], fact_interaction[Volume], 0 ) ),
-    SUM ( fact_interaction[Volume] )
-)
-```
+Cases FCR :=
+    CALCULATE ( COUNTROWS ( fact_cases ), fact_cases[FCR Flag] = TRUE )
 
-```DAX
-Average Handle Time (min) =
-DIVIDE ( SUM ( fact_interaction[HandleTimeMinutes] ), SUM ( fact_interaction[Volume] ) )
-```
+Escalated Cases :=
+    CALCULATE ( COUNTROWS ( fact_cases ), fact_cases[Escalation Flag] = TRUE )
 
-```DAX
-Backlog Count = AVERAGE ( fact_backlog[BacklogCount] )
-```
+Backlog Cases :=
+    CALCULATE ( COUNTROWS ( fact_cases ), fact_cases[Backlog Flag] = TRUE )
 
-```DAX
-NPS Index = AVERAGE ( fact_experience[NPSIndex] )
-```
+Total Handle Time Minutes :=
+    SUM ( fact_cases[Handle Time Minutes] )
 
-```DAX
-Volume = SUM ( fact_interaction[Volume] )
+/// svc.sla.attainment.pct — SLA
+SLA Attainment % :=
+    DIVIDE ( [Cases SLA Met], [Cases Resolved] )
+
+/// svc.fcr.pct — FCR
+FCR % :=
+    DIVIDE ( [Cases FCR], [Cases Resolved] )
+
+/// svc.aht.minutes — AHT
+AHT Minutes :=
+    DIVIDE ( [Total Handle Time Minutes], [Cases Resolved] )
+
+/// svc.backlog.count — Backlog
+Backlog Count :=
+    [Backlog Cases]
+
+/// svc.escalation.pct — Escalations
+Escalation % :=
+    DIVIDE ( [Escalated Cases], [Cases Resolved] )
+
+/// svc.nps.index — NPS
+NPS Index :=
+    AVERAGE ( fact_nps[NPS Score] )
 ```
 
 ---
 
-## 5. Defaults & Formatting
+## 6. RLS / OLS Requirements
 
-| Field/Measure                              | Format | Summarization | Display Folder  |
-|--------------------------------------------|--------|---------------|-----------------|
-| SLA %, FCR %, Escalation %                 | 0.0 %  | None          | 01_SLA / 02_Quality |
-| AHT (minutes)                              | #,0.0  | Average       | 01_SLA          |
-| Backlog Count, Volume                      | #,0    | Sum/Avg       | 03_Capacity     |
-| NPS Index                                  | #,0.0  | Average       | 04_Experience   |
+### 6.1 Security Table Pattern
+```yaml
+security_table:
+  name: security_user_org
+  keys:
+    - UserPrincipalName
+    - Region
+    - Country
+    - OrgKey
+    - Channel
+  mapping_target: dim_org[OrgKey]
+  fallback_behavior: deny_all_if_no_match
+```
 
----
+### 6.2 RLS Rule (Fabric / Power BI)
+```DAX
+dim_org[OrgKey] IN
+    CALCULATETABLE (
+        VALUES ( security_user_org[OrgKey] ),
+        security_user_org[UserPrincipalName] = USERPRINCIPALNAME()
+    )
+```
 
-## 6. Visual Requirements (Technical)
-- KPI cards: SLA %, FCR %, AHT, Backlog, NPS, Escalation %.
-- Trend: SLA %, FCR %, AHT by dim_date[Week/Month].
-- Bar: SLA %, FCR %, Escalation % by dim_queue[QueueName]/dim_channel[Channel].
-- Scatter: AHT vs Volume by channel/queue.
-- Matrix: Region > Channel > Queue with SLA %, FCR %, AHT, Backlog, NPS; export enabled.
-
----
-
-## 7. RLS / OLS
-- RLS: security_user_org filtered by UserObjectId; apply Region/Country filters on dim_org and propagate to facts.
-- OLS (optional): hide AgentName for privacy in external views; restrict NPS verbatim if added later.
-
----
-
-## 8. Performance & Refresh
-- Storage: Import; incremental by day/week; aggregate older history weekly.
-- Partition fact_interaction by Date; pre-calculate SLA target match in source if possible.
-- Avoid calculated columns; maintain SLA mapping table upstream.
-- Consider summarised table by Week x Queue for long history if >50M rows.
+### 6.3 OLS (optional)
+- None required; consider masking NPS verbatims/sensitive attributes if added (TODO per client).
 
 ---
 
-## 9. QA & Validation
+## 7. Technical Assumptions
+- SLA, FCR, AHT flags/times captured; backlog/escalation flags available.
+- NPS survey data aligned by channel/period; queue/channel mapping consistent.
+- Data latency ≤24h; OneLake canonical dims (dim_date, dim_org, security_user_org) used.
 
-| Check Type                  | Object                         | Rule                                        | Tolerance |
-|-----------------------------|--------------------------------|---------------------------------------------|-----------|
-| Referential Integrity       | facts → dimensions             | ≥ 99.9 % matched keys                       | 0.1 %     |
-| SLA Calculation             | IsWithinSLA flag accuracy      | Matches operational SLA reporting           | ±1.0 pp   |
-| FCR Calculation             | Resolved vs Volume             | Consistent with process definition          | ±1.0 pp   |
-| Backlog Consistency         | Backlog vs arrivals/completions| Balance within tolerance                    | ±2 %      |
-| Survey Coverage             | NPS/CSAT sampling              | Coverage rate tracked; warn if < target     | informational |
+---
+
+## 8. Deployment Requirements
+- Mode: DirectLake or Import (prefer DirectLake if Fabric).  
+- Incremental refresh: yes, by Month/Week.  
+- Aggregations: optional for high-volume case data.  
+- Workspace/naming: `ARF – Experience` dataset/model per governance.
+
+---
+
+## 9. QA & Validation Rules
+| Check | Rule | Threshold | Automated Y/N | Owner |
+|-------|------|-----------|---------------|-------|
+| Referential Integrity | Date/Org keys non-null in facts | 100% | Y | Data Engineering |
+| SLA/FCR Integrity | SLA/FCR flags populated | 100% of cases | Y | Service Ops |
+| AHT Validity | Handle time >0 and within plausible bounds | Exceptions <0.5% | Y | BI |
+| NPS Coverage | NPS scores present for survey periods | 100% in-scope surveys | Y | CX |
+| RLS Coverage | Users see only authorised regions/channels/queues | 0 leaks | Y | Security |
+| Performance | Main visuals <2s on representative sample | <2s | Y | BI |

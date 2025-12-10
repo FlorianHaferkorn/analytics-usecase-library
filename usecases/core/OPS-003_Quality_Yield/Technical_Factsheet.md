@@ -1,250 +1,302 @@
-# OPS-003 – Quality & Yield (Technical Factsheet)
-
-## 0. Model References
-- **Data Contract:** `data_contracts/domains/operations.yaml`
-- **Semantic Model Definition:** `semantic_models/domains/scm/model_definition.yaml`
-- **KPI Catalog:** `framework/kpi_catalog/domain_kpi_catalog.md`
-- **Measure Dictionary:** `framework/kpi_catalog/domain_measure_dictionary.md`
-- **Use Case Inventory:** `usecases/UseCase_Inventory.md` (ID: OPS-003)
+# OPS-003 — Quality & Yield  
+## Technical Factsheet (v1.2)
 
 ---
 
-## 1. Data Contract (Scope for OPS-003)
+## 0. Metadata (Mandatory)
+- **Domain:** Operations
+- **Technical Owner:** Quality Analytics / Ops BI Lead
+- **Model ID:** ops_quality_yield
+- **Source Systems:** MES/SCADA, QMS/LIMS, ERP (production/complaints), DWH
+- **Business Factsheet:** usecases/core/OPS-003_Quality_Yield/Business_Factsheet.md
 
+---
+
+## 1. Model References
+- **Domain Data Contract:** data_contracts/domains/operations.yaml
+- **Source Data Contract:** data_contracts/sources/operations.yaml (if present)
+- **Semantic Model Definition:** semantic_models/domains/scm/model_definition.yaml
+- **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
+- **Measure Dictionary:** framework/kpi_catalog/domain_measure_dictionary.md
+- **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
+
+---
+
+## 2. Required KPIs → Measure Mapping (Mandatory)
+```yaml
+kpi_to_measure_mapping:
+  - kpi_id: quality.fpy.pct
+    kpi_name: First Pass Yield %
+    measure_name: [First Pass Yield %]
+    format: 0.0%
+    folder: 07_Quality
+  - kpi_id: quality.scrap.pct
+    kpi_name: Scrap Rate %
+    measure_name: [Scrap Rate %]
+    format: 0.0%
+    folder: 07_Quality
+  - kpi_id: quality.rework.pct
+    kpi_name: Rework Rate %
+    measure_name: [Rework Rate %]
+    format: 0.0%
+    folder: 07_Quality
+  - kpi_id: quality.copq.amount
+    kpi_name: Cost of Poor Quality
+    measure_name: [Cost of Poor Quality]
+    format: €#,0
+    folder: 07_Quality
+  - kpi_id: quality.complaint.pct
+    kpi_name: Complaint Rate %
+    measure_name: [Complaint Rate %]
+    format: 0.0%
+    folder: 07_Quality
+  - kpi_id: quality.defect_density
+    kpi_name: Defect Density
+    measure_name: [Defect Density]
+    format: #,0.00
+    folder: 07_Quality
+```
+
+---
+
+## 3. Data Contract Scope (Subset YAML)
 ```yaml
 dimension:
   - name: dim_date
     columns:
-      - { name: DateKey, type: int, role: key }
-      - { name: Date, type: date }
-      - { name: Year, type: int }
-      - { name: Quarter, type: text }
-      - { name: Month, type: text }
-      - { name: MonthNumber, type: int }
-      - { name: Week, type: int }
-      - { name: Shift, type: text }
+      - {name: DateKey, type: int, role: key}
+      - {name: Date, type: date}
+      - {name: Year, type: int}
+      - {name: Quarter, type: text}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
+      - {name: Week, type: text, nullable: true}
 
   - name: dim_org
     columns:
-      - { name: OrgKey, type: int, role: key }
-      - { name: Region, type: text }
-      - { name: Country, type: text }
-      - { name: Plant, type: text }
-      - { name: Line, type: text }
+      - {name: OrgKey, type: int, role: key}
+      - {name: Plant, type: text}
+      - {name: Line, type: text}
+      - {name: Shift, type: text, nullable: true}
+      - {name: Region, type: text, nullable: true}
+      - {name: Country, type: text, nullable: true}
 
   - name: dim_product
     columns:
-      - { name: ProductKey, type: int, role: key }
-      - { name: ProductCode, type: text }
-      - { name: ProductName, type: text }
-      - { name: Category, type: text }
-      - { name: Subcategory, type: text }
-      - { name: UoM, type: text }
+      - {name: ProductKey, type: int, role: key}
+      - {name: ProductCode, type: text}
+      - {name: ProductName, type: text}
+      - {name: Category, type: text}
+      - {name: ProductFamily, type: text, nullable: true}
 
-  - name: dim_defect
+  - name: security_user_org   # canonical RLS
     columns:
-      - { name: DefectKey, type: int, role: key }
-      - { name: DefectCategory, type: text }
-      - { name: DefectReason, type: text }
-      - { name: SourceType, type: text } # process, equipment, supplier, handling
-
-  - name: security_user_org
-    columns:
-      - { name: UserObjectId, type: string, role: rls }
-      - { name: Region, type: text }
-      - { name: Country, type: text }
-      - { name: Plant, type: text }
-      - { name: Line, type: text }
+      - {name: UserPrincipalName, type: string, role: rls}
+      - {name: Region, type: text, nullable: true}
+      - {name: Country, type: text, nullable: true}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: Plant, type: text, nullable: true}
+      - {name: Line, type: text, nullable: true}
 
 fact:
   - name: fact_quality
-    grain: line_shift_product
+    grain: line_day
     columns:
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: OrgKey, type: int, ref: dim_org }
-      - { name: ProductKey, type: int, ref: dim_product }
-      - { name: DefectKey, type: int, ref: dim_defect, nullable: true }
-      - { name: GoodUnits, type: number, agg: sum }
-      - { name: ReworkUnits, type: number, agg: sum }
-      - { name: ScrapUnits, type: number, agg: sum }
-      - { name: ScrapCostAmount, type: currency, agg: sum }
-      - { name: ReworkCostAmount, type: currency, agg: sum }
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: Total Units, type: decimal, agg: sum}
+      - {name: Good Units, type: decimal, agg: sum}
+      - {name: Scrap Units, type: decimal, agg: sum}
+      - {name: Rework Units, type: decimal, agg: sum}
+      - {name: Defect Count, type: decimal, agg: sum}
+
+  - name: fact_quality_costs
+    grain: month_product or line_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: COPQ Amount, type: currency, agg: sum}
 
   - name: fact_complaints
     grain: complaint
     columns:
-      - { name: ComplaintId, type: text, role: key }
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: OrgKey, type: int, ref: dim_org }
-      - { name: ProductKey, type: int, ref: dim_product }
-      - { name: ComplaintCount, type: int, agg: sum }
-      - { name: ShipmentCount, type: int, agg: sum }
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: Complaint Count, type: int, agg: sum}
+      - {name: Severity, type: text, nullable: true}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
 
-settings:
-  timezone: Europe/Berlin
-  fiscal_year_start: 01-01
-```
-
-### Source Mapping (Physical Layer)
-- fact_quality → `ops.fact_quality`
-- fact_complaints → `ops.fact_complaints`
-- dim_date → `shared.dim_date`
-- dim_org → `shared.dim_org`
-- dim_product → `shared.dim_product`
-- dim_defect → `ops.dim_defect`
-- security_user_org → `sec.security_user_org`
-
----
-
-## 2. Semantic Model Requirements
-
-**Model Name:** `operations_quality_yield`
-
-**Tables:** fact_quality, fact_complaints, dim_date, dim_org, dim_product, dim_defect, security_user_org (RLS only)
-
-**Relationships**
-- fact_quality[DateKey] → dim_date[DateKey] (1:* | single)
-- fact_quality[OrgKey] → dim_org[OrgKey] (1:* | single)
-- fact_quality[ProductKey] → dim_product[ProductKey] (1:* | single)
-- fact_quality[DefectKey] → dim_defect[DefectKey] (1:* | single, optional)
-- fact_complaints[DateKey] → dim_date[DateKey] (1:* | single)
-- fact_complaints[OrgKey] → dim_org[OrgKey] (1:* | single)
-- fact_complaints[ProductKey] → dim_product[ProductKey] (1:* | single)
-- security_user_org attribute join to dim_org by Region/Country/Plant/Line (RLS mapping)
-
-**Hierarchies**
-- Org: Region > Country > Plant > Line
-- Product: Category > Subcategory > ProductName
-- Date: Year > Quarter > Month > Date > Shift
-- Defect: Category > Reason
-
-**Display Folders**
-- 01_Quality: FPY, Scrap %, Rework %, Defect Density
-- 02_Cost: Cost of Poor Quality, Scrap/Rework Costs
-- 03_Complaints: Complaint Rate %, Complaint Counts
-
----
-
-## 3. Measure Inventory
-
-| Measure Name           | kpi_id                      | Type       | Folder       | Format  |
-|------------------------|-----------------------------|------------|--------------|---------|
-| First Pass Yield %     | quality.fpy.pct             | KPI        | 01_Quality   | 0.0 %  |
-| Scrap Rate %           | quality.scrap.pct           | KPI        | 01_Quality   | 0.0 %  |
-| Rework Rate %          | quality.rework.pct          | KPI        | 01_Quality   | 0.0 %  |
-| Cost of Poor Quality   | quality.copq.amount         | KPI        | 02_Cost      | €#,0.00|
-| Complaint Rate %       | quality.complaint.pct       | KPI        | 03_Complaints| 0.0 %  |
-| Defect Density         | quality.defect_density      | KPI        | 01_Quality   | #,0.0  |
-| Scrap Units            | quality.scrap.units         | Supporting | 01_Quality   | #,0    |
-| Complaints Count       | quality.complaint.count     | Supporting | 03_Complaints| #,0    |
-
----
-
-## 4. Measures (DAX)
-
-```DAX
-First Pass Yield % =
-DIVIDE (
-    SUM ( fact_quality[GoodUnits] ),
-    SUM ( fact_quality[GoodUnits] ) +
-    SUM ( fact_quality[ReworkUnits] ) +
-    SUM ( fact_quality[ScrapUnits] )
-)
-```
-
-```DAX
-Scrap Rate % =
-DIVIDE (
-    SUM ( fact_quality[ScrapUnits] ),
-    SUM ( fact_quality[GoodUnits] ) +
-    SUM ( fact_quality[ReworkUnits] ) +
-    SUM ( fact_quality[ScrapUnits] )
-)
-```
-
-```DAX
-Rework Rate % =
-DIVIDE (
-    SUM ( fact_quality[ReworkUnits] ),
-    SUM ( fact_quality[GoodUnits] ) +
-    SUM ( fact_quality[ReworkUnits] ) +
-    SUM ( fact_quality[ScrapUnits] )
-)
-```
-
-```DAX
-Cost of Poor Quality =
-SUM ( fact_quality[ScrapCostAmount] ) + SUM ( fact_quality[ReworkCostAmount] )
-```
-
-```DAX
-Complaint Rate % =
-DIVIDE (
-    SUM ( fact_complaints[ComplaintCount] ),
-    SUM ( fact_complaints[ShipmentCount] )
-)
-```
-
-```DAX
-Defect Density =
-DIVIDE (
-    SUM ( fact_quality[ScrapUnits] ) + SUM ( fact_quality[ReworkUnits] ),
-    SUM ( fact_quality[GoodUnits] )
-) * 1000
-```
-
-```DAX
-Scrap Units = SUM ( fact_quality[ScrapUnits] )
-```
-
-```DAX
-Complaints Count = SUM ( fact_complaints[ComplaintCount] )
+  - name: fact_shipments
+    grain: shipment_line
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: Shipped Units, type: decimal, agg: sum}
 ```
 
 ---
 
-## 5. Defaults & Formatting
+## 4. Semantic Model Requirements
 
-| Field/Measure                 | Format  | Summarization | Display Folder  |
-|-------------------------------|---------|---------------|-----------------|
-| FPY %, Scrap %, Rework %, Complaint Rate % | 0.0 % | None | 01_Quality / 03_Complaints |
-| Cost of Poor Quality, ScrapCostAmount, ReworkCostAmount | €#,0.00 | Sum | 02_Cost |
-| Defect Density                | #,0.0   | None          | 01_Quality      |
-| Units (Good, Scrap, Rework)   | #,0     | Sum           | 01_Quality      |
+### 4.1 Tables
+- fact_quality  
+- fact_quality_costs  
+- fact_complaints  
+- fact_shipments  
+- dim_date  
+- dim_org  
+- dim_product  
+- security_user_org (RLS)
+
+### 4.2 Relationships (Mandatory)
+- dim_date (1) → all facts on DateKey  
+- dim_org (1) → fact_quality/fact_quality_costs/fact_complaints/fact_shipments on OrgKey (where present)  
+- dim_product (1) → all product-bearing facts on ProductKey  
+- security_user_org filters dim_org → cascades to facts  
+- Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
+
+### 4.3 Hierarchies
+- Date: Year → Quarter → Month → Week  
+- Org: Plant → Line → Shift  
+- Product: ProductFamily → Category → ProductName
+
+### 4.4 Sort-by Columns
+- Month → MonthNumber  
+- ProductName → ProductCode
+
+### 4.5 Modeling Constraints
+- No calculated columns; no implicit measures.  
+- Default summarization set; technical columns hidden; folders per dictionary.  
+- Surrogate keys mandatory; avoid M2M.
 
 ---
 
-## 6. Visual Requirements (Technical)
-- KPI cards: FPY %, Scrap %, Rework %, COPQ, Complaint Rate %, Defect Density.
-- Trend line: FPY %, Scrap %, Rework % by dim_date[Month]; Complaint Rate % by Month.
-- Pareto bar: Scrap Units by dim_defect[DefectReason] with DefectCategory legend.
-- Column: FPY % and Scrap % by dim_org[Line] and dim_date[Shift].
-- COPQ bar: by driver (scrap, rework, complaints) and by dim_product[Category].
-- Matrix: Region > Plant > Line > Product with FPY %, Scrap %, Rework %, COPQ, Complaint Rate %; export enabled.
-- Optional scatter: FPY % vs Volume (GoodUnits) by Line to spot stability issues.
+## 5. Measures (DAX)
+
+### 5.1 Measure Inventory
+| Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
+|--------------|---------------------|---------|--------|--------|------|
+| First Pass Yield % | quality.fpy.pct | FPY | 07_Quality | 0.0% | KPI |
+| Scrap Rate % | quality.scrap.pct | Scrap | 07_Quality | 0.0% | KPI |
+| Rework Rate % | quality.rework.pct | Rework | 07_Quality | 0.0% | KPI |
+| Cost of Poor Quality | quality.copq.amount | COPQ | 07_Quality | €#,0 | KPI |
+| Complaint Rate % | quality.complaint.pct | Complaints | 07_Quality | 0.0% | KPI |
+| Defect Density | quality.defect_density | Defect conc. | 07_Quality | #,0.00 | KPI |
+| Total Units | Supporting | Volume base | 07_Quality | #,0 | Supporting |
+| Good Units | Supporting | FPY base | 07_Quality | #,0 | Supporting |
+| Scrap Units | Supporting | Waste | 07_Quality | #,0 | Supporting |
+| Rework Units | Supporting | Rework | 07_Quality | #,0 | Supporting |
+| Complaint Count | Supporting | Complaints | 07_Quality | #,0 | Supporting |
+| Shipped Units | Supporting | Denominator for complaint rate | 07_Quality | #,0 | Supporting |
+
+### 5.2 DAX Definitions
+```DAX
+/// Supporting — Volume
+Total Units :=
+    SUM ( fact_quality[Total Units] )
+
+Good Units :=
+    SUM ( fact_quality[Good Units] )
+
+Scrap Units :=
+    SUM ( fact_quality[Scrap Units] )
+
+Rework Units :=
+    SUM ( fact_quality[Rework Units] )
+
+Defect Count :=
+    SUM ( fact_quality[Defect Count] )
+
+/// quality.fpy.pct — FPY
+First Pass Yield % :=
+    DIVIDE ( [Good Units], [Total Units] )
+
+/// quality.scrap.pct — Scrap
+Scrap Rate % :=
+    DIVIDE ( [Scrap Units], [Total Units] )
+
+/// quality.rework.pct — Rework
+Rework Rate % :=
+    DIVIDE ( [Rework Units], [Total Units] )
+
+/// quality.copq.amount — COPQ
+Cost of Poor Quality :=
+    SUM ( fact_quality_costs[COPQ Amount] )
+
+/// Supporting — Complaints
+Complaint Count :=
+    SUM ( fact_complaints[Complaint Count] )
+
+Shipped Units :=
+    SUM ( fact_shipments[Shipped Units] )
+
+/// quality.complaint.pct — Complaint rate
+Complaint Rate % :=
+    DIVIDE ( [Complaint Count], [Shipped Units] )
+
+/// quality.defect_density — Defects per 1k units
+Defect Density :=
+    DIVIDE ( [Defect Count], [Total Units] ) * 1000
+```
 
 ---
 
-## 7. RLS / OLS
-- RLS: security_user_org filtered by UserObjectId; apply Region/Country/Plant/Line filters on dim_org and propagate to fact tables.
-- OLS (optional): hide defect reason text for external users; hide complaint details for restricted roles.
+## 6. RLS / OLS Requirements
+
+### 6.1 Security Table Pattern
+```yaml
+security_table:
+  name: security_user_org
+  keys:
+    - UserPrincipalName
+    - Region
+    - Country
+    - OrgKey
+    - Plant
+    - Line
+  mapping_target: dim_org[OrgKey]
+  fallback_behavior: deny_all_if_no_match
+```
+
+### 6.2 RLS Rule (Fabric / Power BI)
+```DAX
+dim_org[OrgKey] IN
+    CALCULATETABLE (
+        VALUES ( security_user_org[OrgKey] ),
+        security_user_org[UserPrincipalName] = USERPRINCIPALNAME()
+    )
+```
+
+### 6.3 OLS (optional)
+- None required; COPQ can be sensitive—mask if client requests (TODO if needed).
 
 ---
 
-## 8. Performance & Refresh
-- Storage: Import; incremental by month, retain 36 months.
-- Partition by dim_date[Month]; summarise fact_quality older than 18 months to Month x Line x Product.
-- Avoid calculated columns for costs; ensure scrap and rework costs provided at source.
-- Maintain small target table per line/product for FPY/Scrap thresholds (do not hardcode in DAX).
+## 7. Technical Assumptions
+- Quality events captured at line/day with good/scrap/rework counts; defect codes provided.
+- COPQ costs available or allocated to product/line/month; complaints linked to shipments.
+- Data latency ≤24h; timezone consistent.
+- OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org).
 
 ---
 
-## 9. QA & Validation
+## 8. Deployment Requirements
+- Mode: DirectLake or Import depending on MES/QMS connectivity; prefer DirectLake if stable.  
+- Incremental refresh: yes, partition by DateKey (e.g., last 12–24 months).  
+- Aggregations: optional; day-level aggregates for speed.  
+- Workspace/naming: `ARF – Operations` dataset/model per governance.
 
-| Check Type                | Object                                   | Rule                                          | Tolerance |
-|---------------------------|------------------------------------------|-----------------------------------------------|-----------|
-| Referential Integrity     | fact_quality/fact_complaints → dimensions| ≥ 99.9 % matched keys                         | 0.1 %     |
-| FPY/Scrap/Rework Balance  | Good + Rework + Scrap                    | Total units accounted; difference < 0.1 %     | ±0.1 %    |
-| COPQ Reconciliation       | Scrap + Rework cost vs source            | Matches finance/production cost records       | ±0.5 %    |
-| Complaint Rate Calculation| Complaints vs Shipments                  | Valid denominator; shipment count > 0         | n/a       |
-| Defect Coding Coverage    | fact_quality rows with DefectKey         | Coverage ≥ 95 %                               | 5 % gap   |
+---
+
+## 9. QA & Validation Rules
+| Check | Rule | Threshold | Automated Y/N | Owner |
+|-------|------|-----------|---------------|-------|
+| Referential Integrity | Date/Org/Product keys non-null in facts | 100% | Y | Data Engineering |
+| FPY/Scrap/Rework Consistency | Good + Scrap + Rework = Total Units | 100% | Y | BI/Quality |
+| Complaint Rate Coverage | Complaints and shipments linked by product/period | 100% linkage | Y | BI |
+| COPQ Coverage | COPQ populated for priority lines/products | 100% priority scope | Y | Quality/Finance |
+| RLS Coverage | Users see only authorised plants/lines | 0 leaks | Y | Security |
+| Performance | Main visuals <2s on representative sample | <2s | Y | BI |

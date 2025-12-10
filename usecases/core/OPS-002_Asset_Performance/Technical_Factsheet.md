@@ -1,265 +1,292 @@
-# OPS-002 – Asset Performance (Technical Factsheet)
-
-## 0. Model References
-- **Data Contract:** `data_contracts/domains/operations.yaml`
-- **Semantic Model Definition:** `semantic_models/domains/scm/model_definition.yaml`
-- **KPI Catalog:** `framework/kpi_catalog/domain_kpi_catalog.md`
-- **Measure Dictionary:** `framework/kpi_catalog/domain_measure_dictionary.md`
-- **Use Case Inventory:** `usecases/UseCase_Inventory.md` (ID: OPS-002)
+# OPS-002 — Asset Performance  
+## Technical Factsheet (v1.2)
 
 ---
 
-## 1. Data Contract (Scope for OPS-002)
+## 0. Metadata (Mandatory)
+- **Domain:** Operations
+- **Technical Owner:** Maintenance / Reliability BI Lead
+- **Model ID:** ops_asset_performance
+- **Source Systems:** MES/SCADA, CMMS/EAM, ERP (maintenance), DWH
+- **Business Factsheet:** usecases/core/OPS-002_Asset_Performance/Business_Factsheet.md
 
+---
+
+## 1. Model References
+- **Domain Data Contract:** data_contracts/domains/operations.yaml
+- **Source Data Contract:** data_contracts/sources/operations.yaml (if present)
+- **Semantic Model Definition:** semantic_models/domains/scm/model_definition.yaml
+- **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
+- **Measure Dictionary:** framework/kpi_catalog/domain_measure_dictionary.md
+- **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
+
+---
+
+## 2. Required KPIs → Measure Mapping (Mandatory)
+```yaml
+kpi_to_measure_mapping:
+  - kpi_id: ops.availability.pct
+    kpi_name: Availability %
+    measure_name: [Availability %]
+    format: 0.0%
+    folder: 05_Ops
+  - kpi_id: ops.mtbf.hours
+    kpi_name: MTBF (hours)
+    measure_name: [MTBF (hours)]
+    format: #,0.0
+    folder: 05_Ops
+  - kpi_id: ops.mttr.hours
+    kpi_name: MTTR (hours)
+    measure_name: [MTTR (hours)]
+    format: #,0.0
+    folder: 05_Ops
+  - kpi_id: ops.downtime.unplanned.pct
+    kpi_name: Unplanned Downtime %
+    measure_name: [Unplanned Downtime %]
+    format: 0.0%
+    folder: 05_Ops
+  - kpi_id: ops.spare_parts.stockout.pct
+    kpi_name: Spare Parts Stockout %
+    measure_name: [Spare Parts Stockout %]
+    format: 0.0%
+    folder: 06_Maintenance
+  - kpi_id: ops.pm_compliance.pct
+    kpi_name: PM Compliance %
+    measure_name: [PM Compliance %]
+    format: 0.0%
+    folder: 06_Maintenance
+```
+
+---
+
+## 3. Data Contract Scope (Subset YAML)
 ```yaml
 dimension:
   - name: dim_date
     columns:
-      - { name: DateKey, type: int, role: key }
-      - { name: Date, type: date }
-      - { name: Year, type: int }
-      - { name: Quarter, type: text }
-      - { name: Month, type: text }
-      - { name: MonthNumber, type: int }
-      - { name: Week, type: int }
-      - { name: Shift, type: text }
-
-  - name: dim_asset
-    columns:
-      - { name: AssetKey, type: int, role: key }
-      - { name: AssetId, type: text }
-      - { name: AssetName, type: text }
-      - { name: AssetClass, type: text }
-      - { name: Criticality, type: text }
-      - { name: Plant, type: text }
+      - {name: DateKey, type: int, role: key}
+      - {name: Date, type: date}
+      - {name: Year, type: int}
+      - {name: Quarter, type: text}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
+      - {name: Week, type: text, nullable: true}
 
   - name: dim_org
     columns:
-      - { name: OrgKey, type: int, role: key }
-      - { name: Region, type: text }
-      - { name: Country, type: text }
-      - { name: Plant, type: text }
+      - {name: OrgKey, type: int, role: key}
+      - {name: Plant, type: text}
+      - {name: Line, type: text}
+      - {name: Region, type: text, nullable: true}
+      - {name: Country, type: text, nullable: true}
 
-  - name: dim_failure
+  - name: dim_asset
     columns:
-      - { name: FailureKey, type: int, role: key }
-      - { name: FailureCategory, type: text }
-      - { name: FailureReason, type: text }
+      - {name: AssetKey, type: int, role: key}
+      - {name: AssetCode, type: text}
+      - {name: AssetName, type: text}
+      - {name: AssetClass, type: text}
+      - {name: Criticality, type: text, nullable: true}
+      - {name: OrgKey, type: int, ref: dim_org}
 
-  - name: dim_part
+  - name: security_user_org   # canonical RLS
     columns:
-      - { name: PartKey, type: int, role: key }
-      - { name: PartNumber, type: text }
-      - { name: PartName, type: text }
-      - { name: PartCategory, type: text }
-      - { name: Criticality, type: text }
-
-  - name: security_user_org
-    columns:
-      - { name: UserObjectId, type: string, role: rls }
-      - { name: Region, type: text }
-      - { name: Country, type: text }
-      - { name: Plant, type: text }
+      - {name: UserPrincipalName, type: string, role: rls}
+      - {name: Region, type: text, nullable: true}
+      - {name: Country, type: text, nullable: true}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: Plant, type: text, nullable: true}
+      - {name: Line, type: text, nullable: true}
 
 fact:
-  - name: fact_workorder
-    grain: workorder
-    columns:
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: AssetKey, type: int, ref: dim_asset }
-      - { name: OrgKey, type: int, ref: dim_org }
-      - { name: FailureKey, type: int, ref: dim_failure, nullable: true }
-      - { name: WorkOrderId, type: text }
-      - { name: WorkOrderType, type: text }          # PM / CM
-      - { name: DowntimeMinutes, type: number, agg: sum }
-      - { name: RepairMinutes, type: number, agg: sum }
-      - { name: LaborHours, type: number, agg: sum }
-      - { name: PartsCost, type: currency, agg: sum }
-      - { name: ServiceCost, type: currency, agg: sum }
-
-  - name: fact_asset_runtime
+  - name: fact_ops
     grain: asset_day
     columns:
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: AssetKey, type: int, ref: dim_asset }
-      - { name: PlannedTimeMinutes, type: number, agg: sum }
-      - { name: RunTimeMinutes, type: number, agg: sum }
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: AssetKey, type: int, ref: dim_asset}
+      - {name: Planned Time Minutes, type: decimal, agg: sum}
+      - {name: Run Time Minutes, type: decimal, agg: sum}
+      - {name: Unplanned Downtime Minutes, type: decimal, agg: sum}
+      - {name: Planned Downtime Minutes, type: decimal, agg: sum, nullable: true}
+      - {name: Output Units, type: decimal, agg: sum, nullable: true}
 
-  - name: fact_parts_stock
-    grain: part_day
+  - name: fact_ops_failures
+    grain: failure_event
     columns:
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: PartKey, type: int, ref: dim_part }
-      - { name: OnHandQty, type: number, agg: avg }
-      - { name: StockoutFlag, type: boolean, agg: max }
+      - {name: AssetKey, type: int, ref: dim_asset}
+      - {name: Failure Start DateTime, type: datetime}
+      - {name: Failure End DateTime, type: datetime}
+      - {name: Repair Duration Hours, type: decimal}
+      - {name: Downtime Minutes, type: decimal}
+      - {name: Cause Code, type: text, nullable: true}
 
-settings:
-  timezone: Europe/Berlin
-  fiscal_year_start: 01-01
-```
-
-### Source Mapping (Physical Layer)
-- fact_workorder → `ops.fact_workorder`
-- fact_asset_runtime → `ops.fact_asset_runtime`
-- fact_parts_stock → `ops.fact_parts_stock`
-- dim_date → `shared.dim_date`
-- dim_asset → `ops.dim_asset`
-- dim_org → `shared.dim_org`
-- dim_failure → `ops.dim_failure`
-- dim_part → `ops.dim_part`
-- security_user_org → `sec.security_user_org`
-
----
-
-## 2. Semantic Model Requirements
-
-**Model Name:** `operations_asset_performance`
-
-**Tables:** fact_workorder, fact_asset_runtime, fact_parts_stock, dim_date, dim_asset, dim_org, dim_failure, dim_part, security_user_org (RLS only)
-
-**Relationships**
-- fact_workorder[DateKey] → dim_date[DateKey] (1:* | single)
-- fact_workorder[AssetKey] → dim_asset[AssetKey] (1:* | single)
-- fact_workorder[OrgKey] → dim_org[OrgKey] (1:* | single)
-- fact_workorder[FailureKey] → dim_failure[FailureKey] (1:* | single, nullable)
-- fact_asset_runtime[AssetKey] → dim_asset[AssetKey] (1:* | single)
-- fact_asset_runtime[DateKey] → dim_date[DateKey] (1:* | single)
-- fact_parts_stock[PartKey] → dim_part[PartKey] (1:* | single)
-- fact_parts_stock[DateKey] → dim_date[DateKey] (1:* | single)
-- security_user_org attribute join to dim_org by Region/Country/Plant (RLS mapping)
-
-**Hierarchies**
-- Org: Region > Country > Plant
-- Asset: Plant > AssetClass > AssetName
-- Date: Year > Quarter > Month > Date > Shift
-- Failure: Category > Reason
-- Part: Category > PartName
-
-**Display Folders**
-- 01_Reliability: Availability %, MTBF, MTTR
-- 02_Downtime: Downtime Minutes, Unplanned Downtime %, Failure breakdown
-- 03_Spares: Spare Parts Stockout %, Parts Cost
-- 04_Maintenance: PM Compliance %, Work Order counts
-
----
-
-## 3. Measure Inventory
-
-| Measure Name               | kpi_id                          | Type       | Folder        | Format  |
-|----------------------------|---------------------------------|------------|---------------|---------|
-| Availability %             | ops.availability.pct            | KPI        | 01_Reliability| 0.0 %  |
-| MTBF (hours)               | ops.mtbf.hours                  | KPI        | 01_Reliability| #,0.0  |
-| MTTR (hours)               | ops.mttr.hours                  | KPI        | 01_Reliability| #,0.0  |
-| Unplanned Downtime %       | ops.downtime.unplanned.pct      | KPI        | 02_Downtime   | 0.0 %  |
-| Spare Parts Stockout %     | ops.spare_parts.stockout.pct    | KPI        | 03_Spares     | 0.0 %  |
-| PM Compliance %            | ops.pm_compliance.pct           | KPI        | 04_Maintenance| 0.0 %  |
-| Downtime Minutes           | ops.downtime.minutes            | Supporting | 02_Downtime   | #,0    |
-| Work Orders                | ops.workorders.count            | Supporting | 04_Maintenance| #,0    |
-
----
-
-## 4. Measures (DAX)
-
-```DAX
-Availability % =
-DIVIDE (
-    SUM ( fact_asset_runtime[RunTimeMinutes] ),
-    SUM ( fact_asset_runtime[PlannedTimeMinutes] )
-)
-```
-
-```DAX
-MTBF (hours) =
-DIVIDE (
-    SUM ( fact_asset_runtime[RunTimeMinutes] ) / 60,
-    CALCULATE ( DISTINCTCOUNT ( fact_workorder[WorkOrderId] ), fact_workorder[WorkOrderType] = "CM" )
-)
-```
-
-```DAX
-MTTR (hours) =
-DIVIDE (
-    SUM ( fact_workorder[RepairMinutes] ),
-    CALCULATE ( DISTINCTCOUNT ( fact_workorder[WorkOrderId] ), fact_workorder[WorkOrderType] = "CM" )
-) / 60
-```
-
-```DAX
-Unplanned Downtime % =
-DIVIDE (
-    CALCULATE ( SUM ( fact_workorder[DowntimeMinutes] ), fact_workorder[WorkOrderType] = "CM" ),
-    SUM ( fact_workorder[DowntimeMinutes] )
-)
-```
-
-```DAX
-Spare Parts Stockout % =
-DIVIDE (
-    CALCULATE ( COUNTROWS ( fact_parts_stock ), fact_parts_stock[StockoutFlag] = TRUE () ),
-    COUNTROWS ( fact_parts_stock )
-)
-```
-
-```DAX
-PM Compliance % =
-DIVIDE (
-    CALCULATE ( COUNTROWS ( fact_workorder ), fact_workorder[WorkOrderType] = "PM" && fact_workorder[RepairMinutes] >= 0 ),
-    CALCULATE ( COUNTROWS ( fact_workorder ), fact_workorder[WorkOrderType] = "PM" )
-)
-```
-
-```DAX
-Downtime Minutes = SUM ( fact_workorder[DowntimeMinutes] )
-```
-
-```DAX
-Work Orders = DISTINCTCOUNT ( fact_workorder[WorkOrderId] )
+  - name: fact_maintenance
+    grain: maintenance_order
+    columns:
+      - {name: AssetKey, type: int, ref: dim_asset}
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: Order Type, type: text}            # PM / CM
+      - {name: Order Status, type: text}
+      - {name: On Time Flag, type: boolean, nullable: true}
+      - {name: Delayed Reason, type: text, nullable: true}
+      - {name: Parts Stockout Flag, type: boolean, nullable: true}
 ```
 
 ---
 
-## 5. Defaults & Formatting
+## 4. Semantic Model Requirements
 
-| Field/Measure                                    | Format  | Summarization | Display Folder  |
-|--------------------------------------------------|---------|---------------|-----------------|
-| Availability %, Unplanned Downtime %, Stockout %, PM Compliance % | 0.0 % | None          | 01/02/03/04     |
-| MTBF (hours), MTTR (hours)                       | #,0.0   | Average       | 01_Reliability  |
-| Downtime Minutes, Work Orders                    | #,0     | Sum           | 02_Downtime/04  |
-| Costs (PartsCost, ServiceCost)                   | €#,0.00 | Sum           | 03_Spares       |
+### 4.1 Tables
+- fact_ops  
+- fact_ops_failures  
+- fact_maintenance  
+- dim_date  
+- dim_org  
+- dim_asset  
+- security_user_org (RLS)
 
----
+### 4.2 Relationships (Mandatory)
+- dim_date (1) → fact_ops on DateKey; dim_date (1) → fact_maintenance on DateKey  
+- dim_org (1) → fact_ops on OrgKey  
+- dim_asset (1) → fact_ops / fact_ops_failures / fact_maintenance on AssetKey  
+- security_user_org filters dim_org → cascades via dim_asset to facts (ensure asset has OrgKey)  
+- Single direction; no ambiguous paths; avoid bi-dir except RLS bridge.
 
-## 6. Visual Requirements (Technical)
-- KPI cards: Availability %, MTBF, MTTR, Unplanned Downtime %, Spare Parts Stockout %, PM Compliance %.
-- Trend lines: Availability %, MTBF, MTTR by dim_date[Month] (with targets).
-- Pareto: Downtime Minutes by dim_failure[FailureReason] and by dim_asset[AssetName].
-- Column: Availability % and Unplanned Downtime % by dim_asset[AssetName] with dim_asset[Criticality] filter.
-- PM Compliance: Column by dim_org[Plant] and dim_asset[AssetClass].
-- Parts: Stockout % by dim_part[PartCategory]; link to MTTR impact where possible.
-- Matrix: Region > Plant > AssetClass > Asset with KPIs; export enabled.
+### 4.3 Hierarchies
+- Date: Year → Quarter → Month → Week  
+- Org: Plant → Line  
+- Asset: AssetClass → AssetName (or by criticality)
 
----
+### 4.4 Sort-by Columns
+- Month → MonthNumber  
+- AssetName → AssetCode
 
-## 7. RLS / OLS
-- RLS: security_user_org filtered by UserObjectId; enforce Region/Country/Plant filters on dim_org and propagate to fact_workorder/fact_asset_runtime.
-- OLS (optional): hide cost fields (PartsCost, ServiceCost) for external roles; restrict dim_failure details for vendors.
-
----
-
-## 8. Performance & Refresh
-- Storage: Import; incremental refresh by month, 36 months retained.
-- Partition by dim_date[Month]; consider summarising fact_workorder older than 18 months to monthly grain by Asset and FailureCategory.
-- Ensure WorkOrderType is encoded in source (no string parsing); pre-clean failure codes.
-- Maintain small helper table for targets per asset class; do not hardcode in DAX.
+### 4.5 Modeling Constraints
+- No calculated columns; no implicit measures.  
+- Default summarization set; technical columns hidden; display folders per dictionary.  
+- Surrogate keys mandatory; avoid M2M; handle time intelligence with date dimension.
 
 ---
 
-## 9. QA & Validation
+## 5. Measures (DAX)
 
-| Check Type                  | Object                                   | Rule                                           | Tolerance |
-|-----------------------------|------------------------------------------|------------------------------------------------|-----------|
-| Referential Integrity       | fact_workorder/runtime/parts → dimensions| ≥ 99.9 % matched keys                          | 0.1 %     |
-| Availability Balance        | RunTime + Downtime vs PlannedTime        | Difference < 1 %                               | ±1.0 %    |
-| MTBF/MTTR Consistency       | CM workorders vs runtime and repair time | MTBF/MTTR recomputed within band               | ±5 %      |
-| PM Compliance Calculation   | PM completed vs planned                  | Matches schedule counts                        | ±2 %      |
-| Stockout Coverage           | StockoutFlag completeness                | Coverage ≥ 98 % for critical parts             | 2 % gap   |
+### 5.1 Measure Inventory
+| Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
+|--------------|---------------------|---------|--------|--------|------|
+| Availability % | ops.availability.pct | Uptime | 05_Ops | 0.0% | KPI |
+| MTBF (hours) | ops.mtbf.hours | Reliability | 05_Ops | #,0.0 | KPI |
+| MTTR (hours) | ops.mttr.hours | Maintainability | 05_Ops | #,0.0 | KPI |
+| Unplanned Downtime % | ops.downtime.unplanned.pct | Unplanned loss | 05_Ops | 0.0% | KPI |
+| Spare Parts Stockout % | ops.spare_parts.stockout.pct | Parts readiness | 06_Maintenance | 0.0% | KPI |
+| PM Compliance % | ops.pm_compliance.pct | PM discipline | 06_Maintenance | 0.0% | KPI |
+| Run Time Minutes | Supporting | Base time | 05_Ops | #,0 | Supporting |
+| Unplanned Downtime Minutes | Supporting | Loss time | 05_Ops | #,0 | Supporting |
+| Failure Count | Supporting | MTBF/MTTR calc | 05_Ops | #,0 | Supporting |
+
+### 5.2 DAX Definitions
+```DAX
+/// Supporting — Time
+Planned Time :=
+    SUM ( fact_ops[Planned Time Minutes] )
+
+Run Time :=
+    SUM ( fact_ops[Run Time Minutes] )
+
+Unplanned Downtime Minutes :=
+    SUM ( fact_ops[Unplanned Downtime Minutes] )
+
+Failure Count :=
+    DISTINCTCOUNT ( fact_ops_failures[Failure Start DateTime] )
+
+/// ops.availability.pct — Uptime
+Availability % :=
+    DIVIDE ( [Run Time], [Planned Time] )
+
+/// ops.downtime.unplanned.pct — Unplanned downtime share
+Unplanned Downtime % :=
+    DIVIDE ( [Unplanned Downtime Minutes], [Planned Time] )
+
+/// ops.mtbf.hours — Reliability (hours between failures)
+MTBF (hours) :=
+    VAR TotalRunHours = DIVIDE ( [Run Time], 60 )
+    RETURN DIVIDE ( TotalRunHours, [Failure Count] )
+
+/// ops.mttr.hours — Maintainability
+MTTR (hours) :=
+    AVERAGEX ( fact_ops_failures, fact_ops_failures[Repair Duration Hours] )
+
+/// ops.spare_parts.stockout.pct — Parts readiness
+Spare Parts Stockout % :=
+    DIVIDE (
+        CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Parts Stockout Flag] = TRUE ),
+        COUNTROWS ( fact_maintenance )
+    )
+
+/// ops.pm_compliance.pct — PM discipline
+PM Compliance % :=
+    DIVIDE (
+        CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order Type] = "PM", fact_maintenance[On Time Flag] = TRUE ),
+        CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order Type] = "PM" )
+    )
+```
+
+---
+
+## 6. RLS / OLS Requirements
+
+### 6.1 Security Table Pattern
+```yaml
+security_table:
+  name: security_user_org
+  keys:
+    - UserPrincipalName
+    - Region
+    - Country
+    - OrgKey
+    - Plant
+    - Line
+  mapping_target: dim_org[OrgKey]
+  fallback_behavior: deny_all_if_no_match
+```
+
+### 6.2 RLS Rule (Fabric / Power BI)
+```DAX
+dim_org[OrgKey] IN
+    CALCULATETABLE (
+        VALUES ( security_user_org[OrgKey] ),
+        security_user_org[UserPrincipalName] = USERPRINCIPALNAME()
+    )
+```
+
+### 6.3 OLS (optional)
+- None required; parts cost could be masked if added (TODO per client).
+
+---
+
+## 7. Technical Assumptions
+- Failure events timestamped; repair duration provided; planned vs unplanned flagged.
+- PM plan exists and on-time flags populated; parts stockout flags available.
+- Data latency ≤24h; timezone consistent.
+- OneLake canonical dims used (dim_date, dim_org, dim_asset, security_user_org).
+
+---
+
+## 8. Deployment Requirements
+- Mode: DirectLake or Import depending on MES/CMMS connectors; prefer DirectLake if stable.  
+- Incremental refresh: yes, partition by DateKey (e.g., last 12–24 months).  
+- Aggregations: optional for high-frequency events.  
+- Workspace/naming: `ARF – Operations` dataset/model per governance.
+
+---
+
+## 9. QA & Validation Rules
+| Check | Rule | Threshold | Automated Y/N | Owner |
+|-------|------|-----------|---------------|-------|
+| Referential Integrity | Date/Org/Asset keys non-null in facts | 100% | Y | Data Engineering |
+| Time Balancing | Run Time + Unplanned + Planned ≤ Planned Time | 100% | Y | BI |
+| MTBF/MTTR Validity | No zero/negative durations | 0 exceptions | Y | BI |
+| PM Compliance | PM denominator/flags present | 100% PM orders | Y | Maintenance |
+| Stockout Flagging | Stockout flag coverage on maintenance orders | 100% | Y | Maintenance |
+| RLS Coverage | Users see only authorised plants/lines/assets | 0 leaks | Y | Security |
+| Performance | Main visuals <2s on representative sample | <2s | Y | BI |

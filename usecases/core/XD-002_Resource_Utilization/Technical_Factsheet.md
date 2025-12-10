@@ -1,233 +1,286 @@
-# XD-002 – Resource Utilization (Technical Factsheet)
-
-## 0. Model References
-- **Data Contract:** `data_contracts/domains/experience.yaml`
-- **Semantic Model Definition:** `semantic_models/domains/experience/model_definition.yaml`
-- **KPI Catalog:** `framework/kpi_catalog/domain_kpi_catalog.md`
-- **Measure Dictionary:** `framework/kpi_catalog/domain_measure_dictionary.md`
-- **Use Case Inventory:** `usecases/UseCase_Inventory.md` (ID: XD-002)
+# XD-002 — Resource Utilization  
+## Technical Factsheet (v1.2)
 
 ---
 
-## 1. Data Contract (Scope for XD-002)
+## 0. Metadata (Mandatory)
+- **Domain:** Experience / Service
+- **Technical Owner:** Workforce Management / Service Ops BI Lead
+- **Model ID:** experience_resource_utilization
+- **Source Systems:** WFM/Telephony/CCaaS, CRM/Service Desk, DWH
+- **Business Factsheet:** usecases/core/XD-002_Resource_Utilization/Business_Factsheet.md
 
+---
+
+## 1. Model References
+- **Domain Data Contract:** data_contracts/domains/experience.yaml
+- **Source Data Contract:** data_contracts/sources/experience.yaml (if present)
+- **Semantic Model Definition:** semantic_models/domains/experience/model_definition.yaml
+- **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
+- **Measure Dictionary:** framework/kpi_catalog/domain_measure_dictionary.md
+- **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
+
+---
+
+## 2. Required KPIs → Measure Mapping (Mandatory)
+```yaml
+kpi_to_measure_mapping:
+  - kpi_id: res.utilization.pct
+    kpi_name: Utilization %
+    measure_name: [Utilization %]
+    format: 0.0%
+    folder: 11_Service
+  - kpi_id: res.occupancy.pct
+    kpi_name: Occupancy %
+    measure_name: [Occupancy %]
+    format: 0.0%
+    folder: 11_Service
+  - kpi_id: svc.sla.attainment.pct
+    kpi_name: SLA Attainment %
+    measure_name: [SLA Attainment %]
+    format: 0.0%
+    folder: 11_Service
+  - kpi_id: res.overtime.pct
+    kpi_name: Overtime %
+    measure_name: [Overtime %]
+    format: 0.0%
+    folder: 11_Service
+  - kpi_id: res.shrinkage.pct
+    kpi_name: Shrinkage %
+    measure_name: [Shrinkage %]
+    format: 0.0%
+    folder: 11_Service
+  - kpi_id: svc.backlog.count
+    kpi_name: Backlog Count
+    measure_name: [Backlog Count]
+    format: #,0
+    folder: 11_Service
+```
+
+---
+
+## 3. Data Contract Scope (Subset YAML)
 ```yaml
 dimension:
   - name: dim_date
     columns:
-      - { name: DateKey, type: int, role: key }
-      - { name: Date, type: date }
-      - { name: Year, type: int }
-      - { name: Month, type: text }
-      - { name: Week, type: int }
-      - { name: Day, type: int }
-      - { name: Interval, type: text }   # e.g., HH:MM block
+      - {name: DateKey, type: int, role: key}
+      - {name: Date, type: date}
+      - {name: Year, type: int}
+      - {name: Quarter, type: text}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
+      - {name: Week, type: text, nullable: true}
 
   - name: dim_org
     columns:
-      - { name: OrgKey, type: int, role: key }
-      - { name: Region, type: text }
-      - { name: Country, type: text }
+      - {name: OrgKey, type: int, role: key}
+      - {name: Region, type: text, nullable: true}
+      - {name: Channel, type: text, nullable: true}
+      - {name: Queue, type: text, nullable: true}
+      - {name: Agent Group, type: text, nullable: true}
 
-  - name: dim_channel
+  - name: dim_queue    # optional
     columns:
-      - { name: ChannelKey, type: int, role: key }
-      - { name: Channel, type: text }
+      - {name: QueueKey, type: int, role: key}
+      - {name: QueueName, type: text}
+      - {name: Channel, type: text, nullable: true}
+      - {name: Region, type: text, nullable: true}
 
-  - name: dim_queue
+  - name: security_user_org   # canonical RLS
     columns:
-      - { name: QueueKey, type: int, role: key }
-      - { name: QueueName, type: text }
-      - { name: Priority, type: text }
-      - { name: Product, type: text }
-      - { name: Segment, type: text }
-
-  - name: dim_agent
-    columns:
-      - { name: AgentKey, type: int, role: key }
-      - { name: AgentName, type: text }
-      - { name: SkillGroup, type: text }
-
-  - name: security_user_org
-    columns:
-      - { name: UserObjectId, type: string, role: rls }
-      - { name: Region, type: text }
-      - { name: Country, type: text }
+      - {name: UserPrincipalName, type: string, role: rls}
+      - {name: Region, type: text, nullable: true}
+      - {name: Country, type: text, nullable: true}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: Channel, type: text, nullable: true}
 
 fact:
-  - name: fact_wfm_schedule
-    grain: agent_interval
+  - name: fact_wfm
+    grain: agent_day
     columns:
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: OrgKey, type: int, ref: dim_org }
-      - { name: ChannelKey, type: int, ref: dim_channel }
-      - { name: QueueKey, type: int, ref: dim_queue }
-      - { name: AgentKey, type: int, ref: dim_agent }
-      - { name: PaidMinutes, type: number, agg: sum }
-      - { name: PlannedWorkMinutes, type: number, agg: sum }
-      - { name: OvertimeMinutes, type: number, agg: sum }
-      - { name: ShrinkageMinutes, type: number, agg: sum }
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: QueueKey, type: int, ref: dim_queue, nullable: true}
+      - {name: Work Time Minutes, type: decimal, agg: sum}
+      - {name: Paid Time Minutes, type: decimal, agg: sum}
+      - {name: Talk Time Minutes, type: decimal, agg: sum}
+      - {name: Wrap Time Minutes, type: decimal, agg: sum}
+      - {name: Idle Time Minutes, type: decimal, agg: sum}
+      - {name: Overtime Minutes, type: decimal, agg: sum, nullable: true}
+      - {name: Shrinkage Minutes, type: decimal, agg: sum, nullable: true}
 
-  - name: fact_wfm_actuals
-    grain: agent_interval
+  - name: fact_cases
+    grain: case
     columns:
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: OrgKey, type: int, ref: dim_org }
-      - { name: ChannelKey, type: int, ref: dim_channel }
-      - { name: QueueKey, type: int, ref: dim_queue }
-      - { name: AgentKey, type: int, ref: dim_agent }
-      - { name: LoggedInMinutes, type: number, agg: sum }
-      - { name: HandleMinutes, type: number, agg: sum }
-      - { name: WrapMinutes, type: number, agg: sum }
-      - { name: IdleMinutes, type: number, agg: sum }
-
-  - name: fact_workload
-    grain: queue_interval
-    columns:
-      - { name: DateKey, type: int, ref: dim_date }
-      - { name: OrgKey, type: int, ref: dim_org }
-      - { name: ChannelKey, type: int, ref: dim_channel }
-      - { name: QueueKey, type: int, ref: dim_queue }
-      - { name: Volume, type: int, agg: sum }
-      - { name: SLA_Attained, type: int, agg: sum }
-      - { name: SLA_Target, type: int, agg: sum }
-      - { name: BacklogCount, type: int, agg: avg }
-
-settings:
-  timezone: Europe/Berlin
-  fiscal_year_start: 01-01
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: QueueKey, type: int, ref: dim_queue, nullable: true}
+      - {name: SLA Met Flag, type: boolean}
+      - {name: Backlog Flag, type: boolean}
 ```
 
-### Source Mapping (Physical Layer)
-- fact_wfm_schedule → `exp.fact_wfm_schedule`
-- fact_wfm_actuals → `exp.fact_wfm_actuals`
-- fact_workload → `exp.fact_workload`
-- dim_* → shared/experience dimensions
-- security_user_org → `sec.security_user_org`
+---
+
+## 4. Semantic Model Requirements
+
+### 4.1 Tables
+- fact_wfm  
+- fact_cases  
+- dim_date  
+- dim_org  
+- dim_queue (optional)  
+- security_user_org (RLS)
+
+### 4.2 Relationships (Mandatory)
+- dim_date (1) → fact_wfm/fact_cases on DateKey  
+- dim_org (1) → fact_wfm/fact_cases on OrgKey  
+- dim_queue (1) → fact_wfm/fact_cases on QueueKey (if used)  
+- security_user_org filters dim_org → cascades to facts  
+- Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
+
+### 4.3 Hierarchies
+- Date: Year → Quarter → Month → Week  
+- Org: Region → Channel → Queue → Agent Group
+
+### 4.4 Sort-by Columns
+- Month → MonthNumber  
+- QueueName → QueueKey
+
+### 4.5 Modeling Constraints
+- No calculated columns; no implicit measures.  
+- Default summarization set; technical columns hidden; folders per dictionary.  
+- Surrogate keys mandatory; avoid M2M.
 
 ---
 
-## 2. Semantic Model Requirements
+## 5. Measures (DAX)
 
-**Model Name:** `experience_resource_utilization`
+### 5.1 Measure Inventory
+| Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
+|--------------|---------------------|---------|--------|--------|------|
+| Utilization % | res.utilization.pct | Productive vs paid | 11_Service | 0.0% | KPI |
+| Occupancy % | res.occupancy.pct | Active vs available | 11_Service | 0.0% | KPI |
+| SLA Attainment % | svc.sla.attainment.pct | Service level | 11_Service | 0.0% | KPI |
+| Overtime % | res.overtime.pct | Cost/fatigue | 11_Service | 0.0% | KPI |
+| Shrinkage % | res.shrinkage.pct | Non-productive | 11_Service | 0.0% | KPI |
+| Backlog Count | svc.backlog.count | Workload | 11_Service | #,0 | KPI |
+| Work Time Minutes | Supporting | Productive time | 11_Service | #,0.0 | Supporting |
+| Paid Time Minutes | Supporting | Denominator | 11_Service | #,0.0 | Supporting |
+| Talk+Wrap Minutes | Supporting | Active time | 11_Service | #,0.0 | Supporting |
+| Idle Time Minutes | Supporting | Idle | 11_Service | #,0.0 | Supporting |
+| Overtime Minutes | Supporting | Overtime | 11_Service | #,0.0 | Supporting |
+| Shrinkage Minutes | Supporting | Shrinkage | 11_Service | #,0.0 | Supporting |
+| Backlog Cases | Supporting | Backlog | 11_Service | #,0 | Supporting |
 
-**Tables:** fact_wfm_schedule, fact_wfm_actuals, fact_workload, dim_date, dim_org, dim_channel, dim_queue, dim_agent, security_user_org (RLS only)
-
-**Relationships**
-- fact_wfm_schedule/actuals/workload[DateKey] → dim_date[DateKey] (1:* | single)
-- fact_*[OrgKey] → dim_org[OrgKey]; fact_*[ChannelKey] → dim_channel[ChannelKey]; fact_*[QueueKey] → dim_queue[QueueKey]
-- fact_*[AgentKey] → dim_agent[AgentKey] (schedule/actuals only)
-- security_user_org attribute join to dim_org by Region/Country (RLS mapping)
-
-**Hierarchies**
-- Org: Region > Country
-- Queue: Segment > QueueName > Priority
-- Date: Year > Month > Week > Date > Interval
-- Channel: Channel
-
-**Display Folders**
-- 01_Productivity: Utilization %, Occupancy %, AHT
-|- 02_Cost: Overtime %, Shrinkage %
-|- 03_Service: SLA %, Backlog
-
----
-
-## 3. Measure Inventory
-
-| Measure Name        | kpi_id                   | Type       | Folder           | Format |
-|---------------------|--------------------------|------------|------------------|--------|
-| Utilization %       | res.utilization.pct      | KPI        | 01_Productivity  | 0.0 % |
-| Occupancy %         | res.occupancy.pct        | KPI        | 01_Productivity  | 0.0 % |
-| Overtime %          | res.overtime.pct         | KPI        | 02_Cost          | 0.0 % |
-| Shrinkage %         | res.shrinkage.pct        | KPI        | 02_Cost          | 0.0 % |
-| SLA Attainment %    | svc.sla.attainment.pct   | KPI        | 03_Service       | 0.0 % |
-| Backlog Count       | svc.backlog.count        | KPI        | 03_Service       | #,0   |
-| Volume              | svc.volume.count         | Supporting | 03_Service       | #,0   |
-
----
-
-## 4. Measures (DAX)
-
+### 5.2 DAX Definitions
 ```DAX
-Utilization % =
-DIVIDE (
-    SUM ( fact_wfm_actuals[HandleMinutes] ) + SUM ( fact_wfm_actuals[WrapMinutes] ),
-    SUM ( fact_wfm_schedule[PaidMinutes] )
-)
-```
+/// Supporting — Time components
+Work Time Minutes :=
+    SUM ( fact_wfm[Work Time Minutes] )
 
-```DAX
-Occupancy % =
-DIVIDE (
-    SUM ( fact_wfm_actuals[HandleMinutes] ) + SUM ( fact_wfm_actuals[WrapMinutes] ),
-    SUM ( fact_wfm_actuals[LoggedInMinutes] )
-)
-```
+Paid Time Minutes :=
+    SUM ( fact_wfm[Paid Time Minutes] )
 
-```DAX
-Overtime % =
-DIVIDE ( SUM ( fact_wfm_schedule[OvertimeMinutes] ), SUM ( fact_wfm_schedule[PaidMinutes] ) )
-```
+Talk Wrap Minutes :=
+    SUM ( fact_wfm[Talk Time Minutes] ) + SUM ( fact_wfm[Wrap Time Minutes] )
 
-```DAX
-Shrinkage % =
-DIVIDE ( SUM ( fact_wfm_schedule[ShrinkageMinutes] ), SUM ( fact_wfm_schedule[PaidMinutes] ) )
-```
+Idle Time Minutes :=
+    SUM ( fact_wfm[Idle Time Minutes] )
 
-```DAX
-SLA Attainment % =
-DIVIDE ( SUM ( fact_workload[SLA_Attained] ), SUM ( fact_workload[SLA_Target] ) )
-```
+Overtime Minutes :=
+    SUM ( fact_wfm[Overtime Minutes] )
 
-```DAX
-Backlog Count = AVERAGE ( fact_workload[BacklogCount] )
-```
+Shrinkage Minutes :=
+    SUM ( fact_wfm[Shrinkage Minutes] )
 
-```DAX
-Volume = SUM ( fact_workload[Volume] )
+Backlog Cases :=
+    CALCULATE ( COUNTROWS ( fact_cases ), fact_cases[Backlog Flag] = TRUE )
+
+/// res.utilization.pct — Utilization
+Utilization % :=
+    DIVIDE ( [Work Time Minutes], [Paid Time Minutes] )
+
+/// res.occupancy.pct — Occupancy
+Occupancy % :=
+    DIVIDE ( [Talk Wrap Minutes], [Talk Wrap Minutes] + [Idle Time Minutes] )
+
+/// svc.sla.attainment.pct — SLA (reuse from cases)
+Cases SLA Met :=
+    CALCULATE ( COUNTROWS ( fact_cases ), fact_cases[SLA Met Flag] = TRUE )
+
+Cases Resolved :=
+    COUNTROWS ( fact_cases )
+
+SLA Attainment % :=
+    DIVIDE ( [Cases SLA Met], [Cases Resolved] )
+
+/// res.overtime.pct — Overtime
+Overtime % :=
+    DIVIDE ( [Overtime Minutes], [Paid Time Minutes] )
+
+/// res.shrinkage.pct — Shrinkage
+Shrinkage % :=
+    DIVIDE ( [Shrinkage Minutes], [Paid Time Minutes] )
+
+/// svc.backlog.count — Backlog
+Backlog Count :=
+    [Backlog Cases]
 ```
 
 ---
 
-## 5. Defaults & Formatting
+## 6. RLS / OLS Requirements
 
-| Field/Measure                           | Format | Summarization | Display Folder   |
-|-----------------------------------------|--------|---------------|------------------|
-| Utilization %, Occupancy %, Overtime %, Shrinkage %, SLA % | 0.0 % | None | 01/02/03       |
-| Backlog Count, Volume                   | #,0    | Sum/Avg       | 03_Service       |
-| Time fields (minutes)                   | #,0.0  | Sum           | 01_Productivity  |
+### 6.1 Security Table Pattern
+```yaml
+security_table:
+  name: security_user_org
+  keys:
+    - UserPrincipalName
+    - Region
+    - Country
+    - OrgKey
+    - Channel
+  mapping_target: dim_org[OrgKey]
+  fallback_behavior: deny_all_if_no_match
+```
 
----
+### 6.2 RLS Rule (Fabric / Power BI)
+```DAX
+dim_org[OrgKey] IN
+    CALCULATETABLE (
+        VALUES ( security_user_org[OrgKey] ),
+        security_user_org[UserPrincipalName] = USERPRINCIPALNAME()
+    )
+```
 
-## 6. Visual Requirements (Technical)
-- KPI cards: Utilization %, Occupancy %, SLA %, Overtime %, Shrinkage %, Backlog.
-- Trend: Occupancy %, Utilization %, SLA % by dim_date[Week/Day]; slicer by Channel/Queue.
-|- Column: Utilization % vs target by Queue; Overtime % by Week.
-|- Backlog by Queue/Priority; Capacity vs Volume by interval.
-|- Matrix: Region > Channel > Queue > Interval with Utilization %, Occupancy %, SLA %, Backlog; export enabled.
-
----
-
-## 7. RLS / OLS
-- RLS: security_user_org filtered by UserObjectId; apply Region/Country filters on dim_org and propagate to facts.
-- OLS (optional): hide AgentName for privacy; restrict overtime details for external viewers.
-
----
-
-## 8. Performance & Refresh
-- Storage: Import; incremental by day/week; archive granular intervals older than 90 days to weekly aggregates.
-- Partition fact_wfm_actuals/schedule by Date; pre-calc interval buckets in source.
-- Avoid calculated columns; maintain targets and interval calendars upstream.
-- Consider aggregation table Week x Queue x Channel for long history if >50M rows.
+### 6.3 OLS (optional)
+- None required; consider masking agent-level details if client requires (TODO).
 
 ---
 
-## 9. QA & Validation
+## 7. Technical Assumptions
+- WFM data contains work/idle/wrap, paid time, overtime, shrinkage at agent/queue level.
+- SLA/backlog flags available from cases; queue/channel mapping consistent.
+- Data latency ≤24h; OneLake canonical dims used (dim_date, dim_org, security_user_org).
 
-| Check Type                  | Object                         | Rule                                         | Tolerance |
-|-----------------------------|--------------------------------|----------------------------------------------|-----------|
-| Referential Integrity       | facts → dimensions             | ≥ 99.9 % matched keys                        | 0.1 %     |
-| Utilization/Occupancy Calc  | Minutes balance                | Paid vs Logged vs Handle/Wrap/Idle balance   | ±2 %      |
-| SLA Calculation             | SLA_Attained vs SLA_Target     | Matches operational SLA reporting            | ±1.0 pp   |
-| Overtime Capture            | OvertimeMinutes completeness   | Coverage ≥ 98 %                              | 2 % gap   |
-| Interval Coverage           | Intervals per day              | No gaps for open hours                       | informational |
+---
+
+## 8. Deployment Requirements
+- Mode: DirectLake or Import (prefer DirectLake if Fabric).  
+- Incremental refresh: yes, by Month/Week.  
+- Aggregations: optional for high-volume agent/day data.  
+- Workspace/naming: `ARF – Experience` dataset/model per governance.
+
+---
+
+## 9. QA & Validation Rules
+| Check | Rule | Threshold | Automated Y/N | Owner |
+|-------|------|-----------|---------------|-------|
+| Referential Integrity | Date/Org keys non-null in facts | 100% | Y | Data Engineering |
+| Utilization/Occupancy Validity | No div-by-zero; within plausible bands | 0 errors | Y | BI |
+| Overtime/Shrinkage Coverage | Fields populated where applicable | 100% | Y | WFM |
+| SLA Coverage | SLA flags populated for cases | 100% | Y | Service Ops |
+| RLS Coverage | Users see only authorised regions/channels/queues | 0 leaks | Y | Security |
+| Performance | Main visuals <2s on representative sample | <2s | Y | BI |
