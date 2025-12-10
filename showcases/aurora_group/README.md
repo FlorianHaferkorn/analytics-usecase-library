@@ -1,124 +1,34 @@
-﻿# Aurora Group Showcase
+# Aurora Group Showcase
 
-## Purpose
-The Aurora Group Showcase demonstrates the **ActionReady Analytics Framework** in a fully realized, end‑to‑end example.  
-It shows customers exactly how strategy, data contracts, semantic models, UX standards, and use cases come together in practice.
+Purpose:
+Demonstrate the ActionReady Analytics Framework end-to-end with a realistic synthetic company.
 
-This is the “walking, talking” proof of what the framework delivers.
-
----
-
-## What the Showcase Contains
-
+What’s inside
 ```
 aurora_group/
-  company/                → Business context, value chain, org charts
-  data/                   → Sample data & contracts for demonstration
-  semantic_model/         → Aurora semantic model (ActionReady‑compliant)
-  usecases/               → Core example use cases implemented for Aurora
-  reporting/              → Page layouts, screenshots, navigation flows
+  company/          # Profile, operating model, org/value chain
+  data/             # Synthetic contracts and sample extracts
+  models/           # Sample semantic model for Aurora
+  usecases/         # Demo core use cases (links to canonical factsheets)
+  reporting/        # PBIP layouts and screenshots (3–30–300)
 ```
 
-### company/
-Provides the business narrative behind Aurora Group:
-- Value chain & operating model  
-- Organizational structure (reporting lines, functional groups)  
-- Strategic goals  
-- Decision landscape that drives analytics  
-- Domain mapping (Finance, Sales, SCM, ESG)
+How to use
+- Start with `company/Aurora_Group_Profile.md` and `company/Aurora_Operating_Model.md`.
+- Load sample data per `data/sample_data/README.md` using contracts in `data/sample_data_contracts/`.
+- Build the model from `models/core_action_ready_model.yaml` using the OneLake-conform contracts.
+- Implement pages following `framework/templates/page_templates/*` and `reporting/pbip_layouts.md`.
+- Align use cases with the canonical factsheets in `usecases/core/` (references to main library).
 
-### data/
-Includes synthetic or example data contracts that map Aurora’s operations into a clean, analytics‑ready structure.
+Scope for the demo
+- COM-001, COM-002, COM-003
+- OPS-001
+- SCM-001
+- FIN-001
+See `usecases/core/*.md` in this folder for demo-specific pointers to canonical factsheets, data, and layouts.
 
-### semantic_model/
-Shows how the ActionReady Semantic Layer principles apply to a real company:
-- Shared dimensions  
-- Domain models  
-- Action aggregates  
-- Execution layer  
-- Measure dictionaries  
-- Naming conventions & metadata
-
-### usecases/
-Full examples of core use cases:
-- Aligned to strategic KPIs  
-- Documented with business & technical factsheets  
-- Mapped to Action Codes  
-- Structured according to the page layout templates
-
-### reporting/
-Provides the visual demonstration:
-- Overview → Insights → Explorer (3‑30‑300)  
-- Page screenshots  
-- Navigation blueprint  
-- Example UX flows  
-- KPI cards, trends, rankings, explorers
-
----
-
-## Why This Showcase Matters
-
-- **Makes the framework real.**  
-  Customers instantly see how all components fit together.
-
-- **Accelerates implementation.**  
-  Aurora serves as a baseline and reference model for new customers.
-
-- **Ensures consistency.**  
-  Delivery teams can copy patterns 1:1 and adapt them to client specifics.
-
-- **Differentiates your offering.**  
-  Most frameworks stop at theory.  
-  Aurora proves execution quality and design excellence.
-
----
-
-## How Customers Should Use the Showcase
-
-- As a **reference model** when designing their own analytics landscape.  
-- To align internal stakeholders on reporting UX and data strategy.  
-- To evaluate the gap between “current state” and ActionReady standards.  
-- To understand what “good” looks like across:
-  - KPIs  
-  - Use cases  
-  - Semantic models  
-  - Operational setup  
-  - UX & page design  
-
----
-
-## How Delivery Teams Should Use the Showcase
-
-- Use Aurora as the **template** for all new client implementations.  
-- Reuse:
-  - Data contracts  
-  - Domain model structures  
-  - ActionReady aggregates  
-  - Measure documentation patterns  
-  - Page layouts  
-- Mirror Aurora’s folder structure inside future client projects.
-
----
-
-## Relations to the Framework
-
-- **WHY →** Aurora mirrors the company strategy and domains defined in the Company Layer.
-- **HOW →** Aurora implements the full Operating Model: semantics, UX, operations, AI‑readiness.
-- **WITH WHAT →** Aurora uses Action Codes, KPI catalog, naming rules, templates.
-- **TEMPLATES →** All patterns in `framework/templates` are applied and visible here.
-
----
-
-## Next Step
-
-To understand how Aurora is constructed, start with:
-
-1. `company/profile.md`  
-2. `semantic_model/model_definition.yaml`  
-3. `usecases/core/…`  
-4. `reporting/navigation_map.png`
-
----
-
-**Location to place this file:**  
-`showcases/aurora_group/README.md`
+Relations
+- WHY: mirrors Aurora strategy and org in `company/`.
+- HOW: uses operating-model rules from `docs/operating_model/semantic_layer.md` and `data_governance.md`.
+- WITH WHAT: relies on Action Codes, KPI catalog, measure dictionary.
+- PATTERNS: applies the 3–30–300 templates from `framework/templates/page_templates/`.

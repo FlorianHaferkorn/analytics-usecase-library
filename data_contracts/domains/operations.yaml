@@ -1,0 +1,116 @@
+domain: operations
+version: v1.2
+owner: Operations Data Product
+
+dimension:
+  - name: dim_date
+    columns:
+      - {name: DateKey, type: int, role: key}
+      - {name: Date, type: date}
+      - {name: Year, type: int}
+      - {name: Quarter, type: text}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
+      - {name: Week, type: text, nullable: true}
+
+  - name: dim_org
+    columns:
+      - {name: OrgKey, type: int, role: key}
+      - {name: Plant, type: text}
+      - {name: Line, type: text}
+      - {name: Shift, type: text, nullable: true}
+      - {name: Region, type: text, nullable: true}
+      - {name: Country, type: text, nullable: true}
+
+  - name: dim_asset
+    columns:
+      - {name: AssetKey, type: int, role: key}
+      - {name: AssetCode, type: text}
+      - {name: AssetName, type: text}
+      - {name: AssetClass, type: text}
+      - {name: Criticality, type: text, nullable: true}
+      - {name: OrgKey, type: int, ref: dim_org}
+
+  - name: dim_product
+    columns:
+      - {name: ProductKey, type: int, role: key}
+      - {name: ProductCode, type: text}
+      - {name: ProductName, type: text}
+      - {name: Category, type: text}
+      - {name: Subcategory, type: text, nullable: true}
+
+fact:
+  - name: fact_ops
+    grain: line_day
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: AssetKey, type: int, ref: dim_asset, nullable: true}
+      - {name: Planned Time Minutes, type: decimal, agg: sum}
+      - {name: Run Time Minutes, type: decimal, agg: sum}
+      - {name: Downtime Minutes, type: decimal, agg: sum}
+      - {name: Output Units, type: decimal, agg: sum}
+      - {name: Good Units, type: decimal, agg: sum}
+      - {name: Scrap Units, type: decimal, agg: sum}
+      - {name: Standard Rate Units Per Minute, type: decimal}
+
+  - name: fact_ops_failures
+    grain: failure_event
+    columns:
+      - {name: AssetKey, type: int, ref: dim_asset}
+      - {name: Failure Start DateTime, type: datetime}
+      - {name: Failure End DateTime, type: datetime}
+      - {name: Repair Duration Hours, type: decimal}
+      - {name: Downtime Minutes, type: decimal}
+      - {name: Cause Code, type: text, nullable: true}
+
+  - name: fact_maintenance
+    grain: maintenance_order
+    columns:
+      - {name: AssetKey, type: int, ref: dim_asset}
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: Order Type, type: text}            # PM / CM
+      - {name: Order Status, type: text}
+      - {name: On Time Flag, type: boolean, nullable: true}
+      - {name: Parts Stockout Flag, type: boolean, nullable: true}
+
+  - name: fact_quality
+    grain: line_day
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product, nullable: true}
+      - {name: Total Units, type: decimal, agg: sum}
+      - {name: Good Units, type: decimal, agg: sum}
+      - {name: Scrap Units, type: decimal, agg: sum}
+      - {name: Rework Units, type: decimal, agg: sum}
+      - {name: Defect Count, type: decimal, agg: sum, nullable: true}
+
+  - name: fact_quality_costs
+    grain: month_product
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product, nullable: true}
+      - {name: COPQ Amount, type: currency, agg: sum}
+
+  - name: fact_complaints
+    grain: complaint
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: Complaint Count, type: int, agg: sum}
+      - {name: Severity, type: text, nullable: true}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+
+  - name: fact_shipments
+    grain: shipment_line
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: Shipped Units, type: decimal, agg: sum}
+
+settings:
+  timezone: Europe/Berlin
+  fiscal_year_start: 01-01

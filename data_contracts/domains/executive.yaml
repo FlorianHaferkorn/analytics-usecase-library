@@ -1,0 +1,43 @@
+domain: executive
+version: v1.2
+owner: Executive Data Product
+
+# Executive layer consumes curated aggregates from finance, commercial, supply chain, and HR.
+# This contract defines the minimal conformed structures expected for the executive cockpit.
+
+dimension:
+  - name: dim_date
+    columns:
+      - {name: DateKey, type: int, role: key}
+      - {name: Date, type: date}
+      - {name: Year, type: int}
+      - {name: Quarter, type: text}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
+
+  - name: dim_org
+    columns:
+      - {name: OrgKey, type: int, role: key}
+      - {name: Entity, type: text}
+      - {name: Region, type: text, nullable: true}
+      - {name: Country, type: text, nullable: true}
+      - {name: Segment, type: text, nullable: true}
+
+fact:
+  - name: fact_exec_summary
+    grain: entity_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: Revenue Amount, type: currency, agg: sum}
+      - {name: Gross Margin Amount, type: currency, agg: sum}
+      - {name: EBITDA Amount, type: currency, agg: sum}
+      - {name: DSO Days, type: decimal, nullable: true}
+      - {name: DIO Days, type: decimal, nullable: true}
+      - {name: DPO Days, type: decimal, nullable: true}
+      - {name: OTIF %, type: decimal, nullable: true}
+      - {name: Turnover %, type: decimal, nullable: true}
+
+settings:
+  timezone: Europe/Berlin
+  fiscal_year_start: 01-01

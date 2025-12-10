@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "3-30-300 Layout",
+  "type": "object",
+  "required": ["kpi_cards", "visuals_30s", "diagnostics_300s", "slicers", "tooltips"],
+  "properties": {
+    "kpi_cards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kpi_id", "visual_type"],
+        "properties": {
+          "kpi_id": {"type": "string"},
+          "visual_type": {"type": "string"},
+          "sparkline_field": {"type": "string"},
+          "comparison": {"type": "string"},
+          "status_logic": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "visuals_30s": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "visual_type", "x_axis", "y_axis"],
+        "properties": {
+          "name": {"type": "string"},
+          "visual_type": {"type": "string"},
+          "x_axis": {"type": "string"},
+          "y_axis": {"type": "string"},
+          "segment": {"type": "string"},
+          "default_filters": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "diagnostics_300s": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "visual_type"],
+        "properties": {
+          "name": {"type": "string"},
+          "visual_type": {"type": "string"},
+          "columns": {"type": "array", "items": {"type": "string"}},
+          "sort_by": {"type": "string"},
+          "limit": {"type": "integer"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "slicers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["field", "type"],
+        "properties": {
+          "field": {"type": "string"},
+          "type": {"type": "string"},
+          "default": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "tooltips": {
+      "type": "object",
+      "properties": {
+        "fields": {"type": "array", "items": {"type": "string"}},
+        "notes": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

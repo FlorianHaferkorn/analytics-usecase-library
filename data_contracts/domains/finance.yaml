@@ -1,0 +1,126 @@
+domain: finance
+version: v1.2
+owner: Finance Data Product
+
+dimension:
+  - name: dim_date
+    columns:
+      - {name: DateKey, type: int, role: key}
+      - {name: Date, type: date}
+      - {name: Year, type: int}
+      - {name: Quarter, type: text}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
+
+  - name: dim_org
+    columns:
+      - {name: OrgKey, type: int, role: key}
+      - {name: Entity, type: text}
+      - {name: Region, type: text, nullable: true}
+      - {name: Country, type: text, nullable: true}
+
+  - name: dim_customer
+    columns:
+      - {name: CustomerKey, type: int, role: key}
+      - {name: CustomerCode, type: text}
+      - {name: CustomerName, type: text}
+      - {name: Region, type: text, nullable: true}
+
+  - name: dim_supplier
+    columns:
+      - {name: SupplierKey, type: int, role: key}
+      - {name: SupplierCode, type: text}
+      - {name: SupplierName, type: text}
+      - {name: Region, type: text, nullable: true}
+
+  - name: dim_product
+    columns:
+      - {name: ProductKey, type: int, role: key}
+      - {name: ProductCode, type: text}
+      - {name: ProductName, type: text}
+      - {name: Category, type: text}
+
+fact:
+  - name: fact_cash
+    grain: day
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: Cash Balance Amount, type: currency, agg: sum}
+      - {name: Plan Cash Amount, type: currency, agg: sum, nullable: true}
+
+  - name: fact_cashflow
+    grain: month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: Operating Cash Flow Amount, type: currency, agg: sum}
+      - {name: Plan OCF Amount, type: currency, agg: sum, nullable: true}
+
+  - name: fact_ar
+    grain: month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: CustomerKey, type: int, ref: dim_customer, nullable: true}
+      - {name: AR Amount, type: currency, agg: sum}
+      - {name: Revenue Amount, type: currency, agg: sum}
+
+  - name: fact_ap
+    grain: month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: SupplierKey, type: int, ref: dim_supplier, nullable: true}
+      - {name: AP Amount, type: currency, agg: sum}
+      - {name: COGS Amount, type: currency, agg: sum}
+
+  - name: fact_inventory
+    grain: month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product, nullable: true}
+      - {name: Inventory Amount, type: currency, agg: sum}
+      - {name: COGS Amount, type: currency, agg: sum}
+
+  - name: fact_finance
+    grain: entity_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: Net Sales Amount, type: currency, agg: sum}
+      - {name: COGS Amount, type: currency, agg: sum}
+      - {name: EBITDA Amount, type: currency, agg: sum}
+      - {name: Material Cost Amount, type: currency, agg: sum, nullable: true}
+      - {name: OpEx Amount, type: currency, agg: sum, nullable: true}
+      - {name: Plan OpEx Amount, type: currency, agg: sum, nullable: true}
+
+  - name: fact_cost
+    grain: plant_line_product_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: COGS Amount, type: currency, agg: sum}
+      - {name: Material Cost Amount, type: currency, agg: sum, nullable: true}
+      - {name: Overhead Amount, type: currency, agg: sum, nullable: true}
+
+  - name: fact_output
+    grain: plant_line_product_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: Output Units, type: decimal, agg: sum}
+
+  - name: fact_labor
+    grain: plant_line_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: Labor Hours, type: decimal, agg: sum}
+
+settings:
+  timezone: Europe/Berlin
+  fiscal_year_start: 01-01

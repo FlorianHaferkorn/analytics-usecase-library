@@ -1,0 +1,82 @@
+domain: commercial_sales
+version: v1.2
+owner: Commercial Data Product
+
+dimension:
+  - name: dim_date
+    columns:
+      - {name: DateKey, type: int, role: key}
+      - {name: Date, type: date}
+      - {name: Year, type: int}
+      - {name: Quarter, type: text}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
+      - {name: Week, type: text, nullable: true}
+
+  - name: dim_org
+    columns:
+      - {name: OrgKey, type: int, role: key}
+      - {name: OrgCode, type: text}
+      - {name: OrgName, type: text}
+      - {name: Region, type: text}
+      - {name: Country, type: text}
+      - {name: Channel, type: text}
+
+  - name: dim_product
+    columns:
+      - {name: ProductKey, type: int, role: key}
+      - {name: ProductCode, type: text}
+      - {name: ProductName, type: text}
+      - {name: Category, type: text}
+      - {name: Subcategory, type: text}
+      - {name: Brand, type: text}
+
+  - name: dim_customer
+    columns:
+      - {name: CustomerKey, type: int, role: key}
+      - {name: CustomerCode, type: text}
+      - {name: CustomerName, type: text}
+      - {name: Segment, type: text, nullable: true}
+      - {name: Channel, type: text, nullable: true}
+      - {name: Region, type: text, nullable: true}
+
+  - name: dim_promo
+    columns:
+      - {name: PromoKey, type: int, role: key}
+      - {name: Promotion, type: text}
+      - {name: PromoType, type: text, nullable: true}
+      - {name: Mechanic, type: text, nullable: true}
+      - {name: StartDateKey, type: int, ref: dim_date, nullable: true}
+      - {name: EndDateKey, type: int, ref: dim_date, nullable: true}
+
+fact:
+  - name: fact_sales
+    grain: invoice_line
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: CustomerKey, type: int, ref: dim_customer, nullable: true}
+      - {name: PromoKey, type: int, ref: dim_promo, nullable: true}
+      - {name: Net Sales Amount, type: currency, agg: sum}
+      - {name: Quantity, type: decimal, agg: sum}
+      - {name: Plan Quantity, type: decimal, agg: sum, nullable: true}
+      - {name: List Price Amount, type: currency, agg: sum}
+      - {name: Net Price Amount, type: currency, agg: sum}
+      - {name: Discount Amount, type: currency, agg: sum, nullable: true}
+      - {name: Plan Sales Amount, type: currency, agg: sum, nullable: true}
+      - {name: Last Year Sales Amount, type: currency, agg: sum, nullable: true}
+      - {name: Cost of Goods Sold Amount, type: currency, agg: sum}
+
+  - name: fact_promo
+    grain: promotion
+    columns:
+      - {name: PromoKey, type: int, ref: dim_promo}
+      - {name: Promo Cost, type: currency, agg: sum}
+      - {name: Funding Amount, type: currency, agg: sum, nullable: true}
+      - {name: Baseline Sales Amount, type: currency, agg: sum, nullable: true}
+      - {name: Baseline Quantity, type: decimal, agg: sum, nullable: true}
+
+settings:
+  timezone: Europe/Berlin
+  fiscal_year_start: 01-01

@@ -1,0 +1,104 @@
+domain: supply_chain
+version: v1.2
+owner: Supply Chain Data Product
+
+dimension:
+  - name: dim_date
+    columns:
+      - {name: DateKey, type: int, role: key}
+      - {name: Date, type: date}
+      - {name: Year, type: int}
+      - {name: Quarter, type: text}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
+      - {name: Week, type: text, nullable: true}
+
+  - name: dim_org
+    columns:
+      - {name: OrgKey, type: int, role: key}
+      - {name: Location, type: text}
+      - {name: Region, type: text, nullable: true}
+      - {name: Channel, type: text, nullable: true}
+      - {name: Customer, type: text, nullable: true}
+
+  - name: dim_product
+    columns:
+      - {name: ProductKey, type: int, role: key}
+      - {name: ProductCode, type: text}
+      - {name: ProductName, type: text}
+      - {name: Category, type: text}
+      - {name: Subcategory, type: text, nullable: true}
+      - {name: ABC_Class, type: text, nullable: true}
+      - {name: XYZ_Class, type: text, nullable: true}
+
+  - name: dim_lane
+    columns:
+      - {name: LaneKey, type: int, role: key}
+      - {name: Origin, type: text}
+      - {name: Destination, type: text}
+      - {name: Mode, type: text, nullable: true}
+
+fact:
+  - name: fact_inventory
+    grain: location_sku_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: Average Inventory Amount, type: currency, agg: sum}
+      - {name: Average Inventory Units, type: decimal, agg: sum}
+      - {name: Obsolete Inventory Amount, type: currency, agg: sum, nullable: true}
+      - {name: Obsolete Inventory Units, type: decimal, agg: sum, nullable: true}
+
+  - name: fact_cogs
+    grain: location_sku_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: COGS Amount, type: currency, agg: sum}
+
+  - name: fact_fulfillment
+    grain: order
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product, nullable: true}
+      - {name: LaneKey, type: int, ref: dim_lane, nullable: true}
+      - {name: OTIF Flag, type: boolean}
+      - {name: On-Time Flag, type: boolean, nullable: true}
+      - {name: In-Full Flag, type: boolean, nullable: true}
+      - {name: Order Qty, type: decimal, agg: sum}
+      - {name: Penalty Amount, type: currency, agg: sum, nullable: true}
+      - {name: Expedite Cost, type: currency, agg: sum, nullable: true}
+
+  - name: fact_stockout
+    grain: location_sku_day
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: Stockout Flag, type: boolean}
+      - {name: Lost Demand Units, type: decimal, agg: sum, nullable: true}
+      - {name: Demand Units, type: decimal, agg: sum}
+
+  - name: fact_forecast
+    grain: sku_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: Forecast Units, type: decimal, agg: sum}
+      - {name: Forecast Version, type: text, nullable: true}
+
+  - name: fact_sales
+    grain: sku_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: Sales Units, type: decimal, agg: sum}
+
+settings:
+  timezone: Europe/Berlin
+  fiscal_year_start: 01-01

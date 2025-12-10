@@ -10,7 +10,7 @@ It serves as the single source of truth for generating consistent, scalable and 
 The synthetic data layer provides:
 - A stable backbone for all 73 Use Cases.  
 - Deterministic and reproducible datasets for demos, development and testing.  
-- A domainâ€‘driven structure aligned with the semantic model and naming conventions.  
+- A domain driven structure aligned with the semantic model and naming conventions.  
 - A foundation for AI agents and Copilot to provide consistent answers.
 
 ---
@@ -50,7 +50,7 @@ This is the **evolution plan** for the synthetic data landscape.
 
 3. **Implement in the generator**  
    - Synthetic data notebooks/scripts read the Contract.  
-   - They fill the Scope with â€œgeneratedâ€ datasets.
+   - They fill the Scope with generated datasets.
 
 4. **Validate using QA rules**  
    - Referential integrity  
@@ -79,9 +79,9 @@ This keeps design, implementation and samples cleanly separated.
 ## 5. Versioning rules
 
 - Contract changes require version increments.  
-- Additive changes (new columns, new tables) â†’ minor version.  
-- Structural changes (grain, keys) â†’ major version.  
-- Scope changes (status, periods) â†’ no version bump.
+- Additive changes (new columns, new tables) → minor version.  
+- Structural changes (grain, keys) → major version.  
+- Scope changes (status, periods) → no version bump.
 
 ---
 
@@ -91,7 +91,7 @@ To enable consistent Copilot/Agent answers:
 - All tables and columns must include **Purpose**, **Definition**, **Grain**, **Unit**, **Lineage**, **QA**.  
 - The contract acts as the semantic grounding layer.  
 - No definitions outside the Contract.  
-- No hidden business logic in code or notebooksâ€”only in the Contract.
+- No hidden business logic in code or notebooks only in the Contract.
 
 Later we will add:
 - `usecase_dictionary.yaml`  

@@ -10,7 +10,7 @@ This folder helps illustrate how real data maps into the ActionReady domain cont
 ## Scope
 
 Included:
-- Metadata describing source → contract mappings  
+- Metadata describing source ↔ contract mappings  
 - Synthetic datasets for development or demos  
 - Sample parquet/csv files used for the Aurora Showcase  
 - Data profiling summaries (optional)
@@ -29,7 +29,12 @@ sources/
   synthetic/
     *.parquet
     metadata.json
-  README.md ← this file
+  commercial.yaml
+  operations.yaml
+  supply_chain.yaml
+  finance.yaml
+  experience.yaml
+  README.md  # this file
 ```
 
 ### synthetic/
@@ -66,10 +71,10 @@ Used primarily for:
 
 ## Relations
 
-- **WHY →** Synthetic datasets illustrate business processes from `docs/company`  
-- **HOW →** Contracts and semantic rules from the Operating Model validate data  
-- **WITH WHAT →** Measures, KPIs, and Action Codes rely on this mapping  
-- **TEMPLATES →** Data contract templates define how source fields map to domain fields  
+- **WHY Synthetic datasets illustrate business processes from `docs/company`  
+- **HOW Contracts and semantic rules from the Operating Model validate data  
+- **WITH WHAT Measures, KPIs, and Action Codes rely on this mapping  
+- **TEMPLATES Data contract TEMPLATES define HOW source fields map to domain fields  
 
 ---
 

@@ -1,0 +1,43 @@
+source_system: CCaaS / CRM / WFM
+domain: experience
+version: v1.2
+
+tables:
+  - name: cases
+    target: fact_cases
+    grain: case
+    columns:
+      - {name: date, maps_to: DateKey}
+      - {name: org_code, maps_to: OrgKey}
+      - {name: queue_code, maps_to: QueueKey}
+      - {name: issue_code, maps_to: IssueKey}
+      - {name: sla_met_flag, maps_to: SLA Met Flag}
+      - {name: fcr_flag, maps_to: FCR Flag}
+      - {name: handle_time_minutes, maps_to: Handle Time Minutes}
+      - {name: escalation_flag, maps_to: Escalation Flag}
+      - {name: backlog_flag, maps_to: Backlog Flag}
+      - {name: open_case_flag, maps_to: Open Case Flag}
+
+  - name: wfm_time
+    target: fact_wfm
+    grain: agent_day
+    columns:
+      - {name: date, maps_to: DateKey}
+      - {name: org_code, maps_to: OrgKey}
+      - {name: queue_code, maps_to: QueueKey}
+      - {name: work_time_minutes, maps_to: Work Time Minutes}
+      - {name: paid_time_minutes, maps_to: Paid Time Minutes}
+      - {name: talk_time_minutes, maps_to: Talk Time Minutes}
+      - {name: wrap_time_minutes, maps_to: Wrap Time Minutes}
+      - {name: idle_time_minutes, maps_to: Idle Time Minutes}
+      - {name: overtime_minutes, maps_to: Overtime Minutes}
+      - {name: shrinkage_minutes, maps_to: Shrinkage Minutes}
+
+  - name: nps_surveys
+    target: fact_nps
+    grain: survey
+    columns:
+      - {name: date, maps_to: DateKey}
+      - {name: org_code, maps_to: OrgKey}
+      - {name: queue_code, maps_to: QueueKey}
+      - {name: nps_score, maps_to: NPS Score}

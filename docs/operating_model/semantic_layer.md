@@ -234,6 +234,59 @@ They are **internal-only** and not exposed to customers, but all customer models
 
 ---
 
+## 10. Detailed Modeling Rules (v1.2)
+
+1) **Role-Playing Dimensions**  
+   - Use a single conformed `dim_date` and create role-playing views (e.g., Order Date, Ship Date) via relationships, not duplicated tables.  
+   - Apply the same for `dim_org` and other shared dims if multiple roles are needed (e.g., Selling Org vs. Fulfillment Org).  
+   - Keep only one physical dimension; role-playing is achieved by relationships and perspective/fields.
+
+2) **Surrogate Key Standards**  
+   - Every dimension and fact has a single surrogate key (`<Entity>Key`, integer).  
+   - Natural keys are stored as attributes (`Code`, `Name`) and should not be used for relationships.  
+   - Composite business keys are resolved upstream into a surrogate key column.
+
+3) **Composite Key Fallback**  
+   - If a surrogate key cannot be provided, define a deterministic composite key column upstream and treat it as the surrogate (hash of business keys).  
+   - Document the composite in the data contract and keep relationship columns single-field in the model.
+
+4) **Fact-to-Fact Bridge Rules**  
+   - Avoid direct fact-to-fact relationships.  
+   - If unavoidable (e.g., allocations), use a bridge table with surrogate keys to both facts and enforce single-direction filters from dimensions into each fact.  
+   - Never enable bi-directional filters between facts.
+
+5) **Conformed Dimension Rules**  
+   - `dim_date`, `dim_org`, `dim_product`, `dim_customer` (and `security_user_org`) are canonical across domains.  
+   - Do not duplicate conformed dims per domain; reuse the same tables with strict keys.  
+   - Hierarchies and sort-by columns must be identical wherever reused.
+
+6) **Aggregation Table Policies**  
+   - Optional aggregation tables must:  
+     - Use the same conformed dimension keys.  
+     - Be strictly additive to their detailed fact grain.  
+     - Be hidden from end users if not needed; exposed via composite models/agg settings only.  
+   - Do not store business logic in agg tables; measures remain in the semantic layer.
+
+7) **Cardinality & Direction (Strict)**  
+   - Relationships: single-direction, dim → fact.  
+   - Cardinality: 1-* (or many-to-many only via bridge with strict keys).  
+   - No bi-directional filters except RLS/security bridge patterns.  
+   - Disable auto-detect relationships; define explicitly.
+
+8) **Security (RLS/OLS) Pattern**  
+   - RLS via `security_user_org` filtering `dim_org` (and cascades to facts).  
+   - OLS only via measure groups or perspectives; do not hide columns ad-hoc.  
+   - Default deny if no match in security table.
+
+9) **Metadata & Descriptions**  
+   - Every table, column, and measure has a clear description aligned to the KPI catalog and data contract.  
+   - Use measure_system.md for naming, folders, and formats.
+
+10) **Data Types & Formats**  
+    - Currency: fixed decimals, currency type; % with proper format strings; qty as decimal; dates as date; keys as int.  
+    - No implicit measures; no calculated columns for business logic.
+
+---
+
 **Location:**  
 `docs/operating_model/semantic_layer.md`
-

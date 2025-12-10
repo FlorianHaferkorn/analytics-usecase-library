@@ -85,8 +85,6 @@ use_cases:
     action_codes: [CM-R1.1, CM-R1.2]
   CST-014:
     action_codes: [CM-R1.1, CM-R1.2]
-  CST-014:
-    action_codes: [CM-R1.1, CM-R1.2]
   ESG-001:
     action_codes: [ESG-E1.1, ESG-R1.1]
   ESG-002:

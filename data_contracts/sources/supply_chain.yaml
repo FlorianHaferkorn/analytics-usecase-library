@@ -1,0 +1,70 @@
+source_system: ERP / WMS / TMS / Forecasting
+domain: supply_chain
+version: v1.2
+
+tables:
+  - name: inventory_snapshots
+    target: fact_inventory
+    grain: location_sku_month
+    columns:
+      - {name: date, maps_to: DateKey}
+      - {name: location_code, maps_to: OrgKey}
+      - {name: product_code, maps_to: ProductKey}
+      - {name: avg_inventory_amount, maps_to: Average Inventory Amount}
+      - {name: avg_inventory_units, maps_to: Average Inventory Units}
+      - {name: obsolete_inventory_amount, maps_to: Obsolete Inventory Amount}
+      - {name: obsolete_inventory_units, maps_to: Obsolete Inventory Units}
+
+  - name: cogs_monthly
+    target: fact_cogs
+    grain: location_sku_month
+    columns:
+      - {name: date, maps_to: DateKey}
+      - {name: location_code, maps_to: OrgKey}
+      - {name: product_code, maps_to: ProductKey}
+      - {name: cogs_amount, maps_to: COGS Amount}
+
+  - name: fulfillment_orders
+    target: fact_fulfillment
+    grain: order
+    columns:
+      - {name: date, maps_to: DateKey}
+      - {name: location_code, maps_to: OrgKey}
+      - {name: product_code, maps_to: ProductKey}
+      - {name: lane_code, maps_to: LaneKey}
+      - {name: otif_flag, maps_to: OTIF Flag}
+      - {name: on_time_flag, maps_to: On-Time Flag}
+      - {name: in_full_flag, maps_to: In-Full Flag}
+      - {name: order_qty, maps_to: Order Qty}
+      - {name: penalty_amount, maps_to: Penalty Amount}
+      - {name: expedite_cost, maps_to: Expedite Cost}
+
+  - name: stockout_events
+    target: fact_stockout
+    grain: location_sku_day
+    columns:
+      - {name: date, maps_to: DateKey}
+      - {name: location_code, maps_to: OrgKey}
+      - {name: product_code, maps_to: ProductKey}
+      - {name: stockout_flag, maps_to: Stockout Flag}
+      - {name: lost_demand_units, maps_to: Lost Demand Units}
+      - {name: demand_units, maps_to: Demand Units}
+
+  - name: forecasts
+    target: fact_forecast
+    grain: sku_month
+    columns:
+      - {name: date, maps_to: DateKey}
+      - {name: product_code, maps_to: ProductKey}
+      - {name: location_code, maps_to: OrgKey}
+      - {name: forecast_units, maps_to: Forecast Units}
+      - {name: forecast_version, maps_to: Forecast Version}
+
+  - name: actual_sales
+    target: fact_sales
+    grain: sku_month
+    columns:
+      - {name: date, maps_to: DateKey}
+      - {name: product_code, maps_to: ProductKey}
+      - {name: location_code, maps_to: OrgKey}
+      - {name: sales_units, maps_to: Sales Units}

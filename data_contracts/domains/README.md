@@ -34,11 +34,13 @@ Not included:
 ```
 data_contracts/
   domains/
-    sales.yaml
+    commercial_sales.yaml
     finance.yaml
-    scm.yaml
-    esg.yaml
-    README.md ← this file
+    supply_chain.yaml
+    operations.yaml
+    experience.yaml
+    executive.yaml
+    README.md  # this file
 ```
 
 Each domain file contains:
@@ -66,7 +68,7 @@ fact:
 ### For Customers
 - Validate whether existing systems can supply the required data  
 - Understand what “good” analytical data looks like per domain  
-- Support IT → BI alignment through clear contracts
+- Support IT ↔ BI alignment through clear contracts
 
 ### For Delivery Teams
 - Use domain contracts as stable input for ingestion layers  
@@ -81,10 +83,10 @@ fact:
 
 ## Relations
 
-- **WHY →** Contracts derive from domain definitions in `docs/company/domains.md`  
-- **HOW →** Semantic layer rules enforce contracts during modeling  
-- **WITH WHAT →** Measure templates, naming rules, and KPI Catalog rely on contract structure  
-- **TEMPLATES →** Fact and dimension templates live under `framework/templates/data_contract_templates/`
+- **WHY Contracts derive from domain definitions in `docs/company/domains.md`  
+- **HOW Semantic layer rules enforce contracts during modeling  
+- **WITH WHAT Measure TEMPLATES, naming rules, and KPI Catalog rely on contract structure  
+- **TEMPLATES Fact and dimension TEMPLATES live under `framework/TEMPLATES/data_contract_TEMPLATES/`
 
 ---
 

@@ -1,79 +1,42 @@
-﻿# Data Contracts
+# Data Contracts
 
-## Purpose
-Define the formal, stable interface between operational data sources and the ActionReady Analytics Framework.  
-Data Contracts ensure consistent schemas, grains, units, and lineage across all domains and use cases.
+Purpose:
+Define the governed interface between operational sources and the ActionReady Analytics Framework. Contracts fix schemas, grains, units, and lineage so semantic models and use cases stay consistent.
 
----
+Scope:
+- Domain contracts (commercial_sales, operations, supply_chain, finance, experience, executive)
+- Source contracts (including synthetic backbone)
+- Keys, grains, units, aggregation rules, ownership metadata
+- Excludes ETL code and customer-specific storage formats
 
-## Scope
-
-Included:
-- Domain-level data contracts (Sales, Finance, SCM, ESG)
-- Source mappings and metadata
-- Required fields, data types, keys, grains, units
-- Validation rules and ownership model
-
-Not included:
-- ETL / ingestion pipelines
-- Physical storage formats
-- Customer-specific datasets
-
----
-
-## Structure
-
+Structure:
 ```
 data_contracts/
   domains/
-    sales.yaml
+    commercial_sales.yaml
+    operations.yaml
+    supply_chain.yaml
     finance.yaml
-    scm.yaml
-    esg.yaml
+    experience.yaml
+    executive.yaml
   sources/
+    commercial.yaml
+    operations.yaml
+    supply_chain.yaml
+    finance.yaml
+    experience.yaml
     synthetic/
-      *.parquet
-      metadata.json
+      synthetic_data_contract.yaml
+      synthetic_config_core_v1.yaml
 ```
 
-### domains/
-Contains canonical YAML-based contracts per domain.  
-Each contract defines:
-- Dimensions (keys, business codes, hierarchies)
-- Facts (grain, metrics, units)
-- Referential integrity expectations
-- Lineage and ownership
+Usage:
+- Customers: validate existing systems against these requirements; align IT and business on ownership and data quality.
+- Delivery teams: model and ingestion specs start here; keep semantic assumptions identical to these contracts.
+- Framework evolution: extend contracts carefully and version changes; preserve conformed dimensions (dim_date, dim_org, dim_product, dim_customer, security_user_org).
 
-### sources/
-Holds synthetic/demo data and metadata for examples (e.g., Aurora Group Showcase).
-
----
-
-## Usage
-
-### For Customers
-- Understand what data is required for analytics.
-- Validate existing systems against contract requirements.
-- Facilitate alignment between IT, analysts, and business owners.
-
-### For Delivery Teams
-- Use contracts as upstream specification for modeling & ingestion.
-- Validate semantic model assumptions (keys, grains, measures).
-- Ensure reproducible onboarding across clients.
-
-### For Framework Evolution
-- Extend contracts when domains evolve.
-- Maintain backward compatibility where possible.
-
----
-
-## Relations
-
-- **WHY →** Derived from domains and KPIs in the Company Layer.
-- **HOW →** Enforced by semantic layer rules in the Operating Model.
-- **WITH WHAT →** Templates guide structure; semantic models rely on them.
-- **TEMPLATES →** Fact & Dim contract templates define consistent patterns.
-
----
-
-**Location:** `data_contracts/README.md`
+Relations:
+- WHY: derived from domains and KPIs in `docs/company/`.
+- HOW: enforced by `docs/operating_model/semantic_layer.md` and `data_governance.md`.
+- WITH WHAT: templates in `framework/templates/data_contract_templates/` guide structure.
+- WHAT: semantic_models and usecases depend on these schemas.

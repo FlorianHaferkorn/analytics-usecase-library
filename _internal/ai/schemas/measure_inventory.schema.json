@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Measure Inventory",
+  "type": "object",
+  "required": ["measures"],
+  "properties": {
+    "measures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["measure_name", "kpi_id", "purpose", "folder", "format", "type"],
+        "properties": {
+          "measure_name": {"type": "string"},
+          "kpi_id": {"type": "string"},
+          "purpose": {"type": "string"},
+          "folder": {"type": "string"},
+          "format": {"type": "string"},
+          "type": {"type": "string"},
+          "dependencies": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

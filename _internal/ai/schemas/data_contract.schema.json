@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Data Contract",
+  "type": "object",
+  "required": ["domain", "version", "owner", "dimension", "fact"],
+  "properties": {
+    "domain": {"type": "string"},
+    "version": {"type": "string"},
+    "owner": {"type": "string"},
+    "dimension": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "columns"],
+        "properties": {
+          "name": {"type": "string"},
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "type"],
+              "properties": {
+                "name": {"type": "string"},
+                "type": {"type": "string"},
+                "role": {"type": "string"},
+                "ref": {"type": "string"},
+                "nullable": {"type": "boolean"}
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "fact": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "grain", "columns"],
+        "properties": {
+          "name": {"type": "string"},
+          "grain": {"type": "string"},
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "type"],
+              "properties": {
+                "name": {"type": "string"},
+                "type": {"type": "string"},
+                "agg": {"type": "string"},
+                "ref": {"type": "string"},
+                "nullable": {"type": "boolean"}
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "grain_rules": {"type": "string"},
+        "naming": {"type": "string"},
+        "currency": {"type": "string"},
+        "time_zone": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Action Code Definition",
+  "type": "object",
+  "required": ["code", "name", "trigger", "expected_impact", "level", "owner"],
+  "properties": {
+    "code": {"type": "string"},
+    "name": {"type": "string"},
+    "trigger": {"type": "string"},
+    "expected_impact": {"type": "string"},
+    "level": {"type": "string"},
+    "owner": {"type": "string"},
+    "linked_kpis": {"type": "array", "items": {"type": "string"}},
+    "linked_use_cases": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

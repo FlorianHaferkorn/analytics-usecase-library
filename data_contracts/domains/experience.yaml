@@ -1,0 +1,76 @@
+domain: experience
+version: v1.2
+owner: Experience / Service Data Product
+
+dimension:
+  - name: dim_date
+    columns:
+      - {name: DateKey, type: int, role: key}
+      - {name: Date, type: date}
+      - {name: Year, type: int}
+      - {name: Quarter, type: text}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
+      - {name: Week, type: text, nullable: true}
+
+  - name: dim_org
+    columns:
+      - {name: OrgKey, type: int, role: key}
+      - {name: Region, type: text, nullable: true}
+      - {name: Channel, type: text, nullable: true}
+      - {name: Queue, type: text, nullable: true}
+      - {name: Agent Group, type: text, nullable: true}
+
+  - name: dim_queue
+    columns:
+      - {name: QueueKey, type: int, role: key}
+      - {name: QueueName, type: text}
+      - {name: Channel, type: text, nullable: true}
+      - {name: Region, type: text, nullable: true}
+
+  - name: dim_issue
+    columns:
+      - {name: IssueKey, type: int, role: key}
+      - {name: IssueType, type: text}
+      - {name: Severity, type: text, nullable: true}
+
+fact:
+  - name: fact_cases
+    grain: case
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: QueueKey, type: int, ref: dim_queue, nullable: true}
+      - {name: IssueKey, type: int, ref: dim_issue, nullable: true}
+      - {name: SLA Met Flag, type: boolean}
+      - {name: FCR Flag, type: boolean}
+      - {name: Handle Time Minutes, type: decimal}
+      - {name: Escalation Flag, type: boolean}
+      - {name: Backlog Flag, type: boolean}
+      - {name: Open Case Flag, type: boolean}
+
+  - name: fact_wfm
+    grain: agent_day
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: QueueKey, type: int, ref: dim_queue, nullable: true}
+      - {name: Work Time Minutes, type: decimal, agg: sum}
+      - {name: Paid Time Minutes, type: decimal, agg: sum}
+      - {name: Talk Time Minutes, type: decimal, agg: sum}
+      - {name: Wrap Time Minutes, type: decimal, agg: sum}
+      - {name: Idle Time Minutes, type: decimal, agg: sum}
+      - {name: Overtime Minutes, type: decimal, agg: sum, nullable: true}
+      - {name: Shrinkage Minutes, type: decimal, agg: sum, nullable: true}
+
+  - name: fact_nps
+    grain: survey
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: QueueKey, type: int, ref: dim_queue, nullable: true}
+      - {name: NPS Score, type: int}
+
+settings:
+  timezone: Europe/Berlin
+  fiscal_year_start: 01-01
