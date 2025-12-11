@@ -288,3 +288,11 @@ dim_org[OrgKey] IN
 | COGS per Unit Stability | Variance vs Plan within ±2% except flagged SKUs | ±2% | Y | Controlling |
 | RLS Coverage | Users only see authorised regions/channels | 0 leaks in test | Y | Security |
 | Performance | Main visuals render < 2s on 24M row sample | <2s | Y | BI |
+
+agent_hooks:
+  validate: true
+  generate_measures: true
+  recommend_actions: true
+  paths:
+    business_factsheet: ./Business_Factsheet.md
+    technical_factsheet: ./Technical_Factsheet.md

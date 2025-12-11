@@ -17,8 +17,8 @@ Global slot mapping:
 | needs_mix | hundredPercentStackedBarChart | hundredPercentStackedColumnChart | Max 6 categories; sorted; share-of analysis |
 | needs_exceptions | tableEx | – | Conditional formatting for L1–L3 thresholds; sort by severity |
 | needs_detail_matrix | tableEx / pivotTable | – | 300s layer; hierarchies, drill, export-friendly |
-| needs_root_cause | tableEx + clusteredBarChart | – | Matrix for breakdown + focused ranking on key driver |
-| needs_funnel | tableEx + lineChart | – | Stage table + trend of key conversion metric; no funnel visual |
+| needs_root_cause | tableEx + clusteredBarChart | — | Matrix for breakdown + focused ranking on key driver |
+| needs_funnel | tableEx + lineChart | — | Stage table + trend of key conversion metric; no funnel visual |
 | needs_prescriptive | tableEx | scatterChart (T4 only) | Table for recommended actions; scatter only for driver view |
 
 Layer-specific guidance (3–30–300):
@@ -30,3 +30,21 @@ Tooltip and formatting rules:
 - Use standard tooltip fields: KPI value, Δ vs Plan/LY, segment, action hint when thresholds hit.
 - Use domain color rules (green positive, red negative; invert where applicable).
 - Keep axes labeled; avoid clutter; no pie/donut/funnel visuals.
+
+### XD-003 Executive KPI Overview
+
+**T1 Strategic Overview**
+- Slot 1: KPI Card – Net Sales Growth %
+- Slot 2: KPI Card – Gross Margin %
+- Slot 3: KPI Card – Customer Lifetime Value
+- Slot 4: KPI Card – Service Level %
+- Slot 5: KPI Card – OTIF %
+- Slot 6: KPI Card – CCC Days
+- Slot 7: KPI Card – Digital Adoption %
+- Slot 8: KPI Card – Attrition Risk %
+
+**T2 Tactical Variance**
+- Slot A: Trend Chart (12–24M)
+- Slot B: Driver Variance Bar Chart
+- Slot C: Domain Navigation Panel
+- Slot D: Action Code Recommendation Panel

@@ -1,4 +1,4 @@
-﻿# SCM-001 â€” Inventory Performance  
+# SCM-001 — Inventory Performance  
 ## Technical Factsheet (v1.2)
 
 ---
@@ -22,7 +22,7 @@
 
 ---
 
-## 2. Required KPIs â†’ Measure Mapping (Mandatory)
+## 2. Required KPIs → Measure Mapping (Mandatory)
 ```yaml
 kpi_to_measure_mapping:
   - kpi_id: inv.dio.days
@@ -169,20 +169,20 @@ fact:
 - security_user_org (RLS)
 
 ### 4.2 Relationships (Mandatory)
-- dim_date (1) â†’ all facts on DateKey  
-- dim_org (1) â†’ fact_inventory/fact_cogs/fact_fulfillment/fact_stockout on OrgKey  
-- dim_product (1) â†’ all product-bearing facts on ProductKey  
-- security_user_org filters dim_org â†’ cascades to facts  
+- dim_date (1) → all facts on DateKey  
+- dim_org (1) → fact_inventory/fact_cogs/fact_fulfillment/fact_stockout on OrgKey  
+- dim_product (1) → all product-bearing facts on ProductKey  
+- security_user_org filters dim_org → cascades to facts  
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
-- Date: Year â†’ Quarter â†’ Month â†’ Week  
-- Org: Region â†’ Location â†’ Channel  
-- Product: Category â†’ Subcategory â†’ ProductName
+- Date: Year → Quarter → Month → Week  
+- Org: Region → Location → Channel  
+- Product: Category → Subcategory → ProductName
 
 ### 4.4 Sort-by Columns
-- Month â†’ MonthNumber  
-- ProductName â†’ ProductCode
+- Month → MonthNumber  
+- ProductName → ProductCode
 
 ### 4.5 Modeling Constraints
 - No calculated columns; no implicit measures.  
@@ -202,8 +202,8 @@ fact:
 | OTIF % | supply.otif.pct | Service level | 08_SCM_Service | 0.0% | KPI |
 | Obsolete Inventory % | inv.obsolete.pct | Obsolescence | 08_SCM_Inventory | 0.0% | KPI |
 | Forecast Accuracy % | plan.forecast.accuracy.pct | Planning quality | 09_Planning | 0.0% | KPI |
-| Avg Inventory Amount | Supporting | DIO base | 08_SCM_Inventory | â‚¬#,0 | Supporting |
-| COGS Amount | Supporting | DIO/turnover base | 08_SCM_Inventory | â‚¬#,0 | Supporting |
+| Avg Inventory Amount | Supporting | DIO base | 08_SCM_Inventory | €#,0 | Supporting |
+| COGS Amount | Supporting | DIO/turnover base | 08_SCM_Inventory | €#,0 | Supporting |
 | On-Time In-Full Orders | Supporting | OTIF numerator | 08_SCM_Service | #,0 | Supporting |
 | Total Orders | Supporting | OTIF denominator | 08_SCM_Service | #,0 | Supporting |
 | Demand Occurrences | Supporting | Stockout denominator | 08_SCM_Service | #,0 | Supporting |
@@ -211,27 +211,27 @@ fact:
 
 ### 5.2 DAX Definitions
 ```DAX
-/// Supporting â€” Inventory bases
+/// Supporting — Inventory bases
 Avg Inventory Amount :=
     SUM ( fact_inventory[Average Inventory Amount] )
 
 COGS Amount :=
     SUM ( fact_cogs[COGS Amount] )
 
-/// inv.dio.days â€” Days in Inventory
+/// inv.dio.days — Days in Inventory
 Days in Inventory :=
     VAR Days = 30  // adjust to period if needed
     RETURN DIVIDE ( [Avg Inventory Amount], [COGS Amount] ) * Days
 
-/// inv.turnover â€” Inventory Turnover
+/// inv.turnover — Inventory Turnover
 Inventory Turnover :=
     DIVIDE ( [COGS Amount], [Avg Inventory Amount] )
 
-/// inv.obsolete.pct â€” Obsolete %
+/// inv.obsolete.pct — Obsolete %
 Obsolete Inventory % :=
     DIVIDE ( SUM ( fact_inventory[Obsolete Inventory Amount] ), [Avg Inventory Amount] )
 
-/// supply.otif.pct â€” OTIF
+/// supply.otif.pct — OTIF
 On-Time In-Full Orders :=
     SUMX ( fact_fulfillment, IF ( fact_fulfillment[OTIF Flag], fact_fulfillment[Order Qty], 0 ) )
 
@@ -241,7 +241,7 @@ Total Orders :=
 OTIF % :=
     DIVIDE ( [On-Time In-Full Orders], [Total Orders] )
 
-/// inv.stockout.pct â€” Stockout rate
+/// inv.stockout.pct — Stockout rate
 Stockout Count :=
     SUMX ( fact_stockout, IF ( fact_stockout[Stockout Flag], fact_stockout[Demand Occurrences], 0 ) )
 
@@ -251,7 +251,7 @@ Demand Occurrences :=
 Stockout Rate % :=
     DIVIDE ( [Stockout Count], [Demand Occurrences] )
 
-/// plan.forecast.accuracy.pct â€” Forecast accuracy
+/// plan.forecast.accuracy.pct — Forecast accuracy
 Forecast Accuracy % :=
     VAR Forecast = SUM ( fact_forecast[Forecast Units] )
     VAR Actual   = SUM ( fact_sales[Sales Units] )
@@ -287,7 +287,7 @@ dim_org[OrgKey] IN
 ```
 
 ### 6.3 OLS (optional)
-- None required; inventory values can be sensitive — mask if client requests (TODO).
+- None required; inventory values can be sensitive � mask if client requests (TODO).
 
 ---
 
@@ -326,3 +326,11 @@ dim_org[OrgKey] IN
 | Forecast Accuracy | Forecast vs actual available for target SKUs | 100% target scope | Y | Planning |
 | RLS Coverage | Users see only authorised locations/channels | 0 leaks | Y | Security |
 | Performance | Main visuals <2s on representative sample | <2s | Y | BI |
+
+agent_hooks:
+  validate: true
+  generate_measures: true
+  recommend_actions: true
+  paths:
+    business_factsheet: ./Business_Factsheet.md
+    technical_factsheet: ./Technical_Factsheet.md

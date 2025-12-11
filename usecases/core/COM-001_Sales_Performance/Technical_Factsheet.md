@@ -295,3 +295,11 @@ dim_org[OrgKey] IN
 | GM Consistency | GM % recomputes from GM Amount/Net Sales | Exact | Y | BI |
 | RLS Coverage | Users only see authorised regions/channels | 0 leaks in test | Y | Security |
 | Performance | Main visuals render < 2s on 24M row sample | <2s | Y | BI |
+
+agent_hooks:
+  validate: true
+  generate_measures: true
+  recommend_actions: true
+  paths:
+    business_factsheet: ./Business_Factsheet.md
+    technical_factsheet: ./Technical_Factsheet.md

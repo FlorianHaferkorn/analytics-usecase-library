@@ -290,3 +290,11 @@ dim_org[OrgKey] IN
 | Stockout Flagging | Stockout flag coverage on maintenance orders | 100% | Y | Maintenance |
 | RLS Coverage | Users see only authorised plants/lines/assets | 0 leaks | Y | Security |
 | Performance | Main visuals <2s on representative sample | <2s | Y | BI |
+
+agent_hooks:
+  validate: true
+  generate_measures: true
+  recommend_actions: true
+  paths:
+    business_factsheet: ./Business_Factsheet.md
+    technical_factsheet: ./Technical_Factsheet.md

@@ -325,3 +325,11 @@ dim_org[OrgKey] IN
 | CCC Consistency | CCC recomputes from DSO/DIO/DPO | Exact | Y | BI |
 | RLS Coverage | Users see only authorised entities | 0 leaks | Y | Security |
 | Performance | Main visuals <2s on representative sample | <2s | Y | BI |
+
+agent_hooks:
+  validate: true
+  generate_measures: true
+  recommend_actions: true
+  paths:
+    business_factsheet: ./Business_Factsheet.md
+    technical_factsheet: ./Technical_Factsheet.md

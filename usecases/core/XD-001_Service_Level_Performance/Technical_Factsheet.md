@@ -278,3 +278,11 @@ dim_org[OrgKey] IN
 | NPS Coverage | NPS scores present for survey periods | 100% in-scope surveys | Y | CX |
 | RLS Coverage | Users see only authorised regions/channels/queues | 0 leaks | Y | Security |
 | Performance | Main visuals <2s on representative sample | <2s | Y | BI |
+
+agent_hooks:
+  validate: true
+  generate_measures: true
+  recommend_actions: true
+  paths:
+    business_factsheet: ./Business_Factsheet.md
+    technical_factsheet: ./Technical_Factsheet.md

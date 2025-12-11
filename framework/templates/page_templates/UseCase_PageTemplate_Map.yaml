@@ -2129,3 +2129,6 @@ use_cases:
           needs_root_cause: false
           needs_prescriptive: true
           needs_funnel: false
+  XD-003_Executive_KPI_Overview:
+    primary_template: T1_Strategic_Overview
+    secondary_template: T2_Tactical_Variance

@@ -1,4 +1,4 @@
-# KPI Catalog - Efficiency
+﻿# KPI Catalog - Efficiency
 
 ---
 
@@ -714,6 +714,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     validation_process: manual review
     qa_rules:
     - DSO bounded between 0 and 180 days; reconciles to AR and revenue balances within +/- 1 day.
+    note: Cross-domain view. Canonical definition in KPI_Catalog_Liquidity.
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
@@ -740,6 +741,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   governance:
     business_owner: Head of Supply Chain
     data_owner: Finance BI
+    note: Cross-domain view. Canonical definition in KPI_Catalog_Liquidity.
+    note: Cross-domain view. Canonical definition in KPI_Catalog_Liquidity.
     steward: Inventory Analyst
     review_cycle: quarterly
     validation_process: manual review
@@ -771,6 +774,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   governance:
     business_owner: Head of Procurement Controlling
     data_owner: Finance BI
+    note: Cross-domain view. Canonical definition in KPI_Catalog_Liquidity.
+    note: Cross-domain view. Canonical definition in KPI_Catalog_Liquidity.
     steward: Working Capital Analyst
     review_cycle: quarterly
     validation_process: manual review
@@ -802,6 +807,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     lineage: []
   governance:
     business_owner: Head of Treasury
+    note: Cross-domain view. Canonical definition in KPI_Catalog_Liquidity.
+    note: Cross-domain view. Canonical definition in KPI_Catalog_Liquidity.
     data_owner: Finance BI
     steward: Working Capital Analyst
     review_cycle: monthly
@@ -1279,4 +1286,36 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+- kpi_id: plan.forecast.service_impact.pct
+  kpi_key: Service Impact %
+  kpi_type: percentage
+  impact_dimension: Efficiency
+  domain_tag:
+    - Forecast Planning
+  use_case_ref:
+    - SCM-003
+    - SCM-002
+    - SCM-001
+  business:
+    purpose: Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast under-coverage.
+    definition: Service Impact % = Stockout Impact % x (Under-Forecast Lost Demand / Total Lost Demand). Under-forecast is defined as a negative forecast error below a configurable threshold.
+    grain_scope: Calculated at location_sku_day or sku_week; reported at sku_month aggregated by Date, Org, Product.
+    unit_format: "%"
+    qa:
+      - KPI only valid when Total Demand Qty > 0.
+      - Service Impact % must be <= Stockout Impact %.
+      - Under-Forecast Lost Demand Share must be between 0 % and 100 %.
+  technical:
+    required_columns:
+      - fact_forecast[Forecast Qty]
+      - fact_demand[Actual Demand Qty]
+      - fact_stockout[Lost Demand Qty]
+      - fact_stockout[Demand Qty]
+      - fact_stockout[Stockout Flag] or fact_otif[OTIF Flag]
+    lineage: fact_forecast, fact_demand or sales, fact_stockout/fact_fulfillment.
+    formatString: "0.0 %"
+  governance:
+    owner: Supply Chain Planning
+    certified: false
+    last_review: TBD
 ```

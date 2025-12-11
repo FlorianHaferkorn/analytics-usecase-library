@@ -1,4 +1,4 @@
-# Measure Dictionary - Efficiency
+﻿# Measure Dictionary - Efficiency
 
 Schema: see `/_includes/kpi_catalog/Domain_Measure_Dictionary_Schema.md`
 
@@ -382,7 +382,7 @@ Schema: see `/_includes/kpi_catalog/Domain_Measure_Dictionary_Schema.md`
     formatString: '0'
   documentation:
     description: Days Sales Outstanding derived from AR balance and revenue.
-    notes: ''
+    notes: Cross-domain view; the canonical Working Capital definition is maintained in Measure_Dictionary_Liquidity.
   governance:
     owner: Finance BI
     status: active
@@ -399,7 +399,7 @@ Schema: see `/_includes/kpi_catalog/Domain_Measure_Dictionary_Schema.md`
     formatString: '0'
   documentation:
     description: Days Inventory Outstanding derived from inventory balance and COGS.
-    notes: ''
+    notes: Cross-domain view; the canonical Working Capital definition is maintained in Measure_Dictionary_Liquidity.
   governance:
     owner: Finance BI
     status: active
@@ -416,7 +416,7 @@ Schema: see `/_includes/kpi_catalog/Domain_Measure_Dictionary_Schema.md`
     formatString: '0'
   documentation:
     description: Days Payables Outstanding derived from AP balances and cost of goods sold.
-    notes: ''
+    notes: Cross-domain view; the canonical Working Capital definition is maintained in Measure_Dictionary_Liquidity.
   governance:
     owner: Finance BI
     status: active
@@ -433,7 +433,7 @@ Schema: see `/_includes/kpi_catalog/Domain_Measure_Dictionary_Schema.md`
     formatString: '0'
   documentation:
     description: Aggregated cash conversion cycle derived from DSO, DIO, and DPO measures.
-    notes: ''
+    notes: Cross-domain view; the canonical Working Capital definition is maintained in Measure_Dictionary_Liquidity.
   governance:
     owner: Finance BI
     status: active
@@ -706,4 +706,83 @@ Schema: see `/_includes/kpi_catalog/Domain_Measure_Dictionary_Schema.md`
     columns:
     - fact_warehouse.CostAmount
     - fact_warehouse.OrderLinesProcessed
+- measure_name: Forecast Error Qty
+  is_kpi_measure: false
+  semantic_model: Efficiency_SemanticModel
+  category: Supporting
+  expression:
+    dax: '// TODO: add expression'
+    formatString: '0'
+  documentation:
+    description: Forecast Error Qty = Forecast Qty − Actual Demand Qty.
+    notes: Calculated at location_sku_day or sku_week; aggregated to sku_month.
+  governance:
+    owner: Supply Chain BI
+    status: draft
+    version: v0.1
+  display_folder: 08_SCM_Service
+  dependencies:
+    columns:
+    - fact_forecast.Forecast Qty
+    - fact_demand.Actual Demand Qty
+- measure_name: Under-Forecast Lost Demand Qty
+  is_kpi_measure: false
+  semantic_model: Efficiency_SemanticModel
+  category: Supporting
+  expression:
+    dax: '// TODO: add expression'
+    formatString: '0'
+  documentation:
+    description: Lost demand attributable to forecast under-coverage below threshold.
+    notes: Aggregated to sku_month.
+  governance:
+    owner: Supply Chain BI
+    status: draft
+    version: v0.1
+  display_folder: 08_SCM_Service
+  dependencies:
+    measures:
+    - Forecast Error Qty
+    columns:
+    - fact_stockout.Lost Demand Qty
+- measure_name: Under-Forecast Lost Demand Share %
+  is_kpi_measure: false
+  semantic_model: Efficiency_SemanticModel
+  category: Supporting
+  expression:
+    dax: '// TODO: add expression'
+    formatString: 0.0 %
+  documentation:
+    description: Under-Forecast Lost Demand Qty / Stockout Lost Demand Qty.
+    notes: sku_month aggregated by Date, Org, Product.
+  governance:
+    owner: Supply Chain BI
+    status: draft
+    version: v0.1
+  display_folder: 08_SCM_Service
+  dependencies:
+    measures:
+    - Under-Forecast Lost Demand Qty
+    columns:
+    - fact_stockout.Lost Demand Qty
+- measure_name: Service Impact %
+  is_kpi_measure: true
+  kpi_id_ref: plan.forecast.service_impact.pct
+  semantic_model: Efficiency_SemanticModel
+  category: KPI
+  expression:
+    dax: '// TODO: add expression'
+    formatString: 0.0 %
+  documentation:
+    description: Service Impact % = Stockout Impact % x Under-Forecast Lost Demand Share %.
+    notes: sku_month aggregated by Date, Org, Product.
+  governance:
+    owner: Supply Chain BI
+    status: draft
+    version: v0.1
+  display_folder: 08_SCM_Service
+  dependencies:
+    measures:
+    - Under-Forecast Lost Demand Share %
+    - Stockout Impact %
 ```

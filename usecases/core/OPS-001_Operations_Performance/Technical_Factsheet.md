@@ -270,3 +270,11 @@ dim_org[OrgKey] IN
 | Quality Reasonability | Quality % within 0–1.0 range | Exceptions <0.5% | Y | Quality |
 | RLS Coverage | Users see only authorised plants/lines | 0 leaks | Y | Security |
 | Performance | Main visuals <2s on representative sample | <2s | Y | BI |
+
+agent_hooks:
+  validate: true
+  generate_measures: true
+  recommend_actions: true
+  paths:
+    business_factsheet: ./Business_Factsheet.md
+    technical_factsheet: ./Technical_Factsheet.md

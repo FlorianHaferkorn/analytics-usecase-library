@@ -222,6 +222,37 @@ Re-Plan Count :=
     SUM ( fact_replan[Re-Plan Count] )
 ```
 
+### 5.3 Service Impact % – Supporting Measures
+```DAX
+// Forecast Error Qty
+[Forecast Error Qty] =
+[Forecast Qty] - [Actual Demand Qty]
+
+
+// Under-Forecast Lost Demand Qty
+[Under-Forecast Lost Demand Qty] =
+VAR ThresholdPct = 0.05   // configurable threshold
+RETURN
+SUMX (
+    FILTER (
+        fact_stockout,
+        fact_stockout[Stockout Flag] = TRUE()
+            && [Forecast Error Qty] < - ThresholdPct * [Actual Demand Qty]
+    ),
+    fact_stockout[Lost Demand Qty]
+)
+
+
+// Under-Forecast Lost Demand Share %
+[Under-Forecast Lost Demand Share %] =
+DIVIDE ( [Under-Forecast Lost Demand Qty], [Stockout Lost Demand Qty] )
+
+
+// Service Impact %
+[Service Impact %] =
+[Stockout Impact %] * [Under-Forecast Lost Demand Share %]
+```
+
 ---
 
 ## 6. RLS / OLS Requirements
@@ -279,3 +310,11 @@ dim_org[OrgKey] IN
 | Service Impact Coverage | Linkage to OTIF/stockout populated if used | TODO coverage target | N (if manual) | BI/Planning |
 | RLS Coverage | Users see only authorised locations/channels | 0 leaks | Y | Security |
 | Performance | Main visuals <2s on representative sample | <2s | Y | BI |
+
+agent_hooks:
+  validate: true
+  generate_measures: true
+  recommend_actions: true
+  paths:
+    business_factsheet: ./Business_Factsheet.md
+    technical_factsheet: ./Technical_Factsheet.md

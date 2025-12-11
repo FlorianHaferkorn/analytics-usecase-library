@@ -62,7 +62,7 @@ Schema: see `/_includes/kpi_catalog/Domain_Measure_Dictionary_Schema.md`
     formatString: '0'
   documentation:
     description: (Accounts Receivable / Net Sales) x Days in Period
-    notes: ''
+    notes: Canonical Working Capital metric; cross-domain views should reference this definition.
   governance:
     owner: Finance BI
     status: active
@@ -94,7 +94,7 @@ Schema: see `/_includes/kpi_catalog/Domain_Measure_Dictionary_Schema.md`
     formatString: '0'
   documentation:
     description: (Inventory / COGS) x Days in Period
-    notes: ''
+    notes: Canonical Working Capital metric; cross-domain views should reference this definition.
   governance:
     owner: Finance BI
     status: active
@@ -110,7 +110,7 @@ Schema: see `/_includes/kpi_catalog/Domain_Measure_Dictionary_Schema.md`
     formatString: '0'
   documentation:
     description: (Accounts Payable / COGS) x Days in Period
-    notes: ''
+    notes: Canonical Working Capital metric; cross-domain views should reference this definition.
   governance:
     owner: Finance BI
     status: active
@@ -126,7 +126,7 @@ Schema: see `/_includes/kpi_catalog/Domain_Measure_Dictionary_Schema.md`
     formatString: '0'
   documentation:
     description: DSO + DIO - DPO
-    notes: ''
+    notes: Canonical Working Capital metric; cross-domain views should reference this definition.
   governance:
     owner: Finance BI
     status: active

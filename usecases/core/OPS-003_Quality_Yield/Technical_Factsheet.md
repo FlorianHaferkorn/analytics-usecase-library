@@ -300,3 +300,11 @@ dim_org[OrgKey] IN
 | COPQ Coverage | COPQ populated for priority lines/products | 100% priority scope | Y | Quality/Finance |
 | RLS Coverage | Users see only authorised plants/lines | 0 leaks | Y | Security |
 | Performance | Main visuals <2s on representative sample | <2s | Y | BI |
+
+agent_hooks:
+  validate: true
+  generate_measures: true
+  recommend_actions: true
+  paths:
+    business_factsheet: ./Business_Factsheet.md
+    technical_factsheet: ./Technical_Factsheet.md

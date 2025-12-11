@@ -284,3 +284,11 @@ dim_org[OrgKey] IN
 | SLA Coverage | SLA flags populated for cases | 100% | Y | Service Ops |
 | RLS Coverage | Users see only authorised regions/channels/queues | 0 leaks | Y | Security |
 | Performance | Main visuals <2s on representative sample | <2s | Y | BI |
+
+agent_hooks:
+  validate: true
+  generate_measures: true
+  recommend_actions: true
+  paths:
+    business_factsheet: ./Business_Factsheet.md
+    technical_factsheet: ./Technical_Factsheet.md

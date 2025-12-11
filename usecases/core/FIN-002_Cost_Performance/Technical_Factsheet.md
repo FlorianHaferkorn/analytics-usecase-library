@@ -286,3 +286,11 @@ dim_org[OrgKey] IN
 | Material Share Integrity | Material cost populated where applicable | 100% | Y | Finance |
 | RLS Coverage | Users see only authorised entities/plants/lines | 0 leaks | Y | Security |
 | Performance | Main visuals <2s on representative sample | <2s | Y | BI |
+
+agent_hooks:
+  validate: true
+  generate_measures: true
+  recommend_actions: true
+  paths:
+    business_factsheet: ./Business_Factsheet.md
+    technical_factsheet: ./Technical_Factsheet.md
