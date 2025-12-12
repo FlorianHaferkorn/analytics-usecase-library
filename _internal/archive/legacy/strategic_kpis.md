@@ -1,4 +1,8 @@
-﻿# Strategic KPI Framework
+﻿> Status: Archived  
+> Reason: Content consolidated into `docs/company/company_strategy.md`.  
+> This document is kept for historical reference only and must not be used as a primary source.
+
+# Strategic KPI Framework
 
 For a business overview of how Strategic KPIs connect to Use Cases and how the Agent/MCP consumes this framework, see: `../docs/Business_Playbook.md`.
 

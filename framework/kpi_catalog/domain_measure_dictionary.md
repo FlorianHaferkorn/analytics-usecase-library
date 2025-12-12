@@ -7,24 +7,23 @@ Columns: `kpi_id | measure_name | domain | folder | format | notes`
 ---
 
 ## Commercial
-| kpi_id | measure_name | domain | folder | format | notes |
-|--------|--------------|--------|--------|--------|-------|
-| sales.net_sales.amount | [Net Sales Amount] | Commercial | 01_Revenue | €#,0 | KPI |
+| kpi_id | measure_name | domain | folder | format | type |
+|--------|---------------|--------|--------|--------|------|
+| sales.net_sales.amount | [Net Sales Amount] | Commercial | 01_Revenue | EUR #,0 | KPI |
 | sales.net_sales.delta_pct.plan | [Net Sales % vs Plan] | Commercial | 01_Revenue | 0.0% | KPI |
 | sales.net_sales.delta_pct.ly | [Net Sales % vs LY] | Commercial | 01_Revenue | 0.0% | KPI |
 | margin.gm.pct | [Gross Margin %] | Commercial | 02_Margin | 0.0% | KPI |
-| margin.gm.amount | [Gross Margin Amount] | Commercial | 02_Margin | €#,0 | KPI |
-| margin.gm.vs_plan.pct | [Gross Margin % vs Plan] | Commercial | 02_Margin | 0.0 pp | KPI |
-| sales.pvm.price_effect.amount | [Price Effect Amount] | Commercial | 03_PVM | €#,0 | Driver |
-| sales.pvm.volume_effect.amount | [Volume Effect Amount] | Commercial | 03_PVM | €#,0 | Driver |
-| sales.pvm.mix_effect.amount | [Mix Effect Amount] | Commercial | 03_PVM | €#,0 | Driver |
+| margin.gm.amount | [Gross Margin Amount] | Commercial | 02_Margin | EUR #,0 | KPI |
+| margin.gm.vs_plan.pct | [Gross Margin % vs Plan] | Commercial | 02_Margin | 0.0 percentage-point | KPI |
+| sales.pvm.price_effect.amount | [Price Effect Amount] | Commercial | 03_PVM | EUR #,0 | Driver |
+| sales.pvm.volume_effect.amount | [Volume Effect Amount] | Commercial | 03_PVM | EUR #,0 | Driver |
+| sales.pvm.mix_effect.amount | [Mix Effect Amount] | Commercial | 03_PVM | EUR #,0 | Driver |
 | sales.price.realization_pct | [Price Realization %] | Commercial | 03_Pricing | 0.0% | KPI |
 | sales.promo.roi.pct | [Promotion ROI %] | Commercial | 04_Promo | 0.0% | KPI |
-| sales.promo.incremental.amount | [Incremental Sales Amount] | Commercial | 04_Promo | €#,0 | KPI |
+| sales.promo.incremental.amount | [Incremental Sales Amount] | Commercial | 04_Promo | EUR #,0 | KPI |
 | sales.promo.cannibalization.pct | [Cannibalization %] | Commercial | 04_Promo | 0.0% | KPI |
 | margin.promo.gm.pct | [Promo Gross Margin %] | Commercial | 02_Margin | 0.0% | KPI |
-| cost.cogs_per_unit.amount | [COGS per Unit] | Commercial | 02_Margin | €#,0.00 | KPI |
-
+| cost.cogs_per_unit.amount | [COGS per Unit] | Commercial | 02_Margin | EUR #,0.00 | KPI |
 ## Customer / CRM
 | kpi_id | measure_name | domain | folder | format | notes |
 |--------|--------------|--------|--------|--------|-------|
@@ -116,3 +115,4 @@ Notes:
 - Formats follow measure_system.md conventions (currency with €#,0 or €#,0.00; % with one decimal where applicable).
 - Folder names align with semantic model patterns used in Technical Factsheets.
 - If a KPI requires supporting measures (e.g., denominators), define them in the domain semantic model with the same folder and clear naming. TODO markers should be added in the domain dictionaries if any supporting measure is missing in implementation.
+

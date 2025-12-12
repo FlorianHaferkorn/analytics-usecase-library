@@ -1,3 +1,7 @@
+> Status: Archived  
+> Reason: Content consolidated into `docs/company/company_strategy.md`.  
+> This document is kept for historical reference only and must not be used as a primary source.
+
 # Key Questions
 
 Purpose:

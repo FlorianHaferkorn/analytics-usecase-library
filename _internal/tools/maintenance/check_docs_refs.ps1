@@ -10,9 +10,7 @@ Write-Host "Checking documentation and tooling references..." -ForegroundColor C
 
 $items = @(
   @{ Path = "docs/README.md";                                    Kind = "file"; Description = "Docs overview" },
-  @{ Path = "docs/company/business_strategy.md";                 Kind = "file"; Description = "Business Strategy" },
-  @{ Path = "docs/company/strategic_kpis.md";                    Kind = "file"; Description = "Strategic KPIs" },
-  @{ Path = "docs/company/strategic_alignment_map.md";           Kind = "file"; Description = "Strategic Alignment Map" },
+  @{ Path = "docs/company/company_strategy.md";                  Kind = "file"; Description = "Business Strategy / Strategic KPIs / Alignment Map (canonical)" },
   @{ Path = "docs/operating_model/semantic_layer.md";            Kind = "file"; Description = "Semantic Layer blueprint" },
   @{ Path = "docs/operating_model/distribution_architecture.md"; Kind = "file"; Description = "Distribution architecture" },
   @{ Path = "usecases/templates/usecase_factsheet_business.md";  Kind = "file"; Description = "Use Case factsheet (business) template" },

@@ -1,4 +1,4 @@
-# COM-001 — Sales Performance vs Plan & LY  
+# COM-001 - Sales Performance vs Plan & LY  
 ## Business Factsheet (v1.2)
 
 ---
@@ -30,10 +30,6 @@
 - Which actions (pricing, mix, volume activation) close the largest gaps fastest?
 - How persistent are the gaps over the last 3 months and current quarter?
 
-**Example Query Patterns (optional):**
-- “How did Net Sales vs Plan develop across Region/Channel over the last 3 months?”
-- “How much of the Net Sales gap is price vs volume vs mix by region?”
-
 ---
 
 ## 3. Required KPIs (Mandatory)
@@ -45,70 +41,70 @@ required_kpis:
     name: Net Sales Amount
     purpose: Core revenue control
     definition_short: Sum of net sales after discounts
-    unit: €
+    unit: "EUR"
     grain: month
     agg: sum
     target: Meet/beat Plan and LY
     interpretation: Negative gap signals revenue risk
     lineage: fact_sales[Net Sales Amount] x dim_date, dim_org, dim_product
   - id: sales.net_sales.delta_pct.plan
-    name: Net Sales Δ% vs Plan
+    name: Net Sales % vs Plan
     purpose: Execution vs Plan
     definition_short: (Net Sales - Plan) / Plan
-    unit: %
+    unit: "%"
     grain: month
     agg: avg
-    target: ≥ -2%
+    target: >= -2% guardrail
     interpretation: Below guardrail shows miss vs Plan
     lineage: fact_sales[Net Sales Amount], fact_sales[Plan Sales Amount]
   - id: sales.net_sales.delta_pct.ly
-    name: Net Sales Δ% vs LY
+    name: Net Sales % vs LY
     purpose: Growth vs LY
     definition_short: (Net Sales - LY) / LY
-    unit: %
+    unit: "%"
     grain: month
     agg: avg
-    target: ≥ +3–5%
+    target: +3% to +5%
     interpretation: Negative YoY signals deterioration
     lineage: fact_sales[Net Sales Amount], fact_sales[Last Year Sales Amount]
   - id: margin.gm.pct
     name: Gross Margin %
     purpose: Profitability quality
     definition_short: Gross Margin / Net Sales
-    unit: %
+    unit: "%"
     grain: month
     agg: avg
-    target: ≥ 25%
+    target: >= 25%
     interpretation: Compression shows price/mix pressure
     lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount]
   - id: sales.pvm.price_effect.amount
-    name: Price Effect
+    name: Price Effect Amount
     purpose: Driver analysis
     definition_short: Net Sales impact from price change
-    unit: €
+    unit: "EUR"
     grain: month
     agg: sum
     target: 0 unless price change
     interpretation: Negative implies price dilution
     lineage: fact_sales[Net Price Amount], fact_sales[Plan Sales Amount], fact_sales[Quantity]
   - id: sales.pvm.volume_effect.amount
-    name: Volume Effect
+    name: Volume Effect Amount
     purpose: Driver analysis
     definition_short: Net Sales impact from volume change
-    unit: €
+    unit: "EUR"
     grain: month
     agg: sum
     target: 0 unless volume change
     interpretation: Negative implies demand/availability issue
     lineage: fact_sales[Quantity], fact_sales[Plan Sales Amount]
   - id: sales.pvm.mix_effect.amount
-    name: Mix Effect
+    name: Mix Effect Amount
     purpose: Driver analysis
     definition_short: Net Sales impact from mix change
-    unit: €
+    unit: "EUR"
     grain: month
     agg: sum
-    target: ≥ 0
+    target: >= 0
     interpretation: Negative implies adverse mix
     lineage: fact_sales[Net Sales Amount], PVM decomposition residual
 ```
@@ -116,78 +112,79 @@ required_kpis:
 ---
 
 ## 4. Business Logic & Thresholds
-Formal rules that define performance and action triggers.
+- Flag regions/channels with Net Sales % vs Plan below guardrail for 2 consecutive months.
+- Escalate where Net Sales % vs LY is negative and GM % below target.
+- Use PVM drivers to isolate whether price, volume, or mix is the primary gap driver.
+- Apply pricing/mix actions only where GM % guardrails hold.
 
-### 4.1 Logic Description
-- Flag if Net Sales Δ% vs Plan < -2% for 2 consecutive months.
-- Escalate if Net Sales Δ% vs LY < 0 for current quarter in top 5 regions.
-- Flag GM % < 25% combined with negative Price Effect.
-- Prioritise mix remediation when Mix Effect < 0 for top 5 regions/channels.
-
-### 4.2 Formal Trigger Rules (Machine-Readable)
 ```yaml
 triggers:
   - kpi: sales.net_sales.delta_pct.plan
-    condition: <
+    condition: below_guardrail
     threshold: -0.02
-    scope: last_2_months
+    scope: Region/Channel, Month
     exclusion: none
+    action_code: P4
+  - kpi: margin.gm.pct
+    condition: below_target
+    threshold: 0.25
+    scope: Region/Channel, Month
+    exclusion: approved promos
     action_code: P2
-  - kpi: sales.net_sales.delta_pct.plan
-    condition: <
-    threshold: -0.02
-    scope: top5_regions
-    exclusion: none
-    action_code: V1
   - kpi: sales.pvm.price_effect.amount
-    condition: <
+    condition: negative
     threshold: 0
-    scope: current_quarter
+    scope: Region/Channel
     exclusion: none
     action_code: P2
   - kpi: sales.pvm.mix_effect.amount
-    condition: <
+    condition: negative
     threshold: 0
-    scope: top5_regions_channels
-    exclusion: none
+    scope: Region/Channel
+    exclusion: strategic SKUs
     action_code: M3
 ```
 
 ---
 
 ## 5. Action Codes (Mandatory)
-Link business behavior to measurable outcomes.
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|-----------------|-------------|---------------------|------------------|-------|
-| P2 | Price Realisation Guardrails | sales.pvm.price_effect.amount < 0 AND margin.gm.pct < 0.25 | Tighten discounting, enforce floors and approvals | Improve Price Effect, stabilise GM % | L2 | Sales Ops / Pricing |
-| V1 | Volume Activation | sales.pvm.volume_effect.amount < 0 AND sales.net_sales.delta_pct.plan < -0.02 | Targeted campaigns, fix stock availability | Increase Volume Effect, close Net Sales gap | L2 | Sales & Supply |
-| M3 | Mix Optimisation | sales.pvm.mix_effect.amount < 0 | Shift to higher-margin SKUs/regions; adjust assortment | Improve Mix Effect, GM % | L2 | Category Mgmt |
-| PC2 | Promo Calendar Discipline | sales.net_sales.delta_pct.plan < 0 AND promo ROI low | Reduce low-ROI promos; re-sequence calendar | Stabilise GM %, protect Net Sales | L2 | Trade Marketing |
+|-------------|------|------------------|-------------|---------------------|------------------|-------|
+| P2 | Margin Leakage Correction | GM % below target or price effect negative | Tighten discounting, enforce floors/approvals | Improve GM %, stabilise revenue | L2 | Pricing / Sales Ops |
+| P4 | Price Repositioning | Net Sales % vs Plan below guardrail | Adjust price/pack/discount to recover growth without eroding margin | Increase Net Sales %, stable GM % | L2 | Commercial |
+| M3 | Mix Optimisation | Mix effect negative | Shift to higher-margin SKUs/bundles | Improve GM % and Net Sales | L2 | Category Mgmt |
+| D1 | Cost Take-Out / COGS Control | Margin erosion due to COGS | Negotiate terms, switch inputs/logistics | Improve GM % | L2 | Procurement / Ops |
 
 ---
 
-## 6. 3–30–300 Page Layout (Mandatory)
+## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
 - Net Sales Amount  
-- Net Sales Δ% vs Plan  
-- Net Sales Δ% vs LY  
+- Net Sales % vs Plan  
+- Net Sales % vs LY  
 - Gross Margin %  
-- Price/Volume/Mix Effects (delta summary)
+- Price/Volume/Mix Effects (cards or mini-tiles)  
 
 ### 6.2 30-Second Layer (Main Visuals)
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
-| Net Sales vs Plan/LY Trend | Line | dim_date[Month] | [Net Sales Amount], [Plan], [LY] | Region/Channel | Last 12–24 months | Core trend |
-| PVM Bridge | Waterfall | Driver (Price/Volume/Mix) | [Net Sales Impact] | Region | Current period | Drill by Region/Channel |
-| GM % Ranking | Bar (horizontal) | dim_org[Channel] | [Gross Margin %] | Region | None | Top/Bottom N |
-| Gap Heatmap | Matrix | dim_org[Region] | [Net Sales Δ% Plan], [GM %] | Channel | Current quarter | Focus by geography |
+| Net Sales vs Plan/LY | Line + area band | Date[Month] | Net Sales, Plan, LY | Region/Channel | L12M | Show gaps |
+| PVM Bridge | Waterfall | Drivers | P, V, M impact | Region/Channel | Current Q | Link to COM-002 |
+| GM % by Region/Channel | Column | Region/Channel | GM % | Product Tier | Current Q | Guardrails |
+| Top/Bottom Segments | Bar (rank) | Region/Channel/Segment | Net Sales Gap | Product | Current Q | Focus list |
 
 ### 6.3 Required Slicers (Mandatory)
 - Date (Month/Quarter)  
-- Region / Country / Channel  
-- Product Category / Subcategory  
+- Region / Channel  
+- Product Category  
+- Customer Segment (optional)
+
+### 6.4 300-Second Layer (Diagnostics)
+- PVM decomposition by Region/Channel/Product.
+- Margin guardrail table (GM %, discount discipline).
+- Top-N accounts/products with adverse price/mix effects.
 
 ---
 
@@ -200,30 +197,32 @@ required_dimensions:
   - dim_org
   - dim_product
   - security_user_org
-required_grain: invoice_line
-required_time_range: 24 months history + Plan/LY snapshots
-required_slicers: Date, Region/Country/Channel, Product Category/Subcategory
+required_grain: invoice_line (aggregated to month for KPIs)
+required_time_range: 24 months history with Plan and LY
+required_slicers: Date, Region/Channel, Product Category, Customer Segment (optional)
 ```
 
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
-- Plan and LY snapshots frozen at month-end; consistent currency.
-- PVM decomposition requires stable product hierarchy and price logic.
-- Channel/Region definitions aligned to dim_org; promotions aligned to COM-004.
-- Data latency ≤24h; alignment with OneLake canonical dims (dim_date, dim_org, dim_product, security_user_org).
+- Plan and LY fields must be populated in fact_sales (Plan Sales Amount, Last Year Sales Amount).
+- PVM requires Net Price Amount, Plan Sales Amount, Quantity and residual logic alignment with COM-002.
+- Gross Margin uses COGS; returns/credit notes handled upstream.
+- Conformed dims (Date, Org, Product, security_user_org) required.
 
 ---
 
 ## 9. Success Criteria
-- Impact: Reduce negative Net Sales vs Plan gaps by >50% within 2 quarters in top regions; improve GM % by ≥1.5 pp where price effect was negative.
-- Adoption: Used in monthly commercial reviews in all regions (>80% attendance); Action Codes triggered with <5% false positives.
-- Quality: No KPI-definition conflicts; refreshed monthly with <24h latency.
-- Decision Frequency: Monthly and quarterly business reviews.
+- Impact: Net Sales vs Plan/LY gaps reduced; GM % at or above target.
+- Adoption: Used in monthly sales performance reviews; actions tracked via Action Codes.
+- Quality: PVM residual within tolerance; reconciled to source totals; definitions consistent with COM-002/004.
+- Decision Frequency: Monthly/Quarterly.
 
 ---
 
 ## 10. Risks & Wrong Interpretations (Short)
-- Misreading price effect when promotions are not properly flagged (see COM-004).
-- Attribution errors if Plan/LY versions are not frozen consistently.
-- Overreacting to short-term mix swings; apply rolling view and materiality thresholds.
+- Misstated Plan/LY leading to false gaps.
+- PVM residual too high due to inconsistent plan price or quantity.
+- Over-reacting on price without GM guardrails can erode margin.
+
+---

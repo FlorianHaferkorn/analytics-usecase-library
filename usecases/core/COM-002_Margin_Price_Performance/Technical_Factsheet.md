@@ -1,4 +1,4 @@
-# COM-002 — Margin & Price Performance  
+# COM-002 - Margin & Price Performance  
 ## Technical Factsheet (v1.2)
 
 ---
@@ -8,7 +8,7 @@
 - **Technical Owner:** Commercial BI / Pricing Analytics Lead
 - **Model ID:** commercial_margin_price
 - **Source Systems:** ERP (sales, cost), DWH
-- **Business Factsheet:** usecases/core/COM-002_Margin_Price_Performance/Business_Factsheet.md
+- **Business Factsheet:** ./Business_Factsheet.md
 
 ---
 
@@ -17,43 +17,43 @@
 - **Source Data Contract:** data_contracts/sources/commercial.yaml
 - **Semantic Model Definition:** semantic_models/core_action_ready/commercial_sales/model_definition.yaml
 - **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
-- **Measure Dictionary:** framework/kpi_catalog/domain_measure_dictionary.md
+- **Measure Dictionary:** semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md
 - **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
 
 ---
 
-## 2. Required KPIs → Measure Mapping (Mandatory)
+## 2. KPI to Measure Mapping (Mandatory)
 ```yaml
 kpi_to_measure_mapping:
   - kpi_id: margin.gm.pct
     kpi_name: Gross Margin %
-    measure_name: [Gross Margin %]
-    format: 0.0%
+    measure_name: Gross Margin %
+    format: "0.0%"
     folder: 02_Margin
   - kpi_id: margin.gm.amount
     kpi_name: Gross Margin Amount
-    measure_name: [Gross Margin Amount]
-    format: €#,0
+    measure_name: Gross Margin Amount
+    format: "EUR #,0"
     folder: 02_Margin
   - kpi_id: sales.price.realization_pct
     kpi_name: Price Realization %
-    measure_name: [Price Realization %]
-    format: 0.0%
+    measure_name: Price Realization %
+    format: "0.0%"
     folder: 03_Pricing
   - kpi_id: sales.pvm.mix_effect.amount
     kpi_name: Mix Effect Amount
-    measure_name: [Mix Effect Amount]
-    format: €#,0
+    measure_name: Mix Effect Amount
+    format: "EUR #,0"
     folder: 03_PVM
   - kpi_id: cost.cogs_per_unit.amount
     kpi_name: COGS per Unit
-    measure_name: [COGS per Unit]
-    format: €#,0.00
+    measure_name: COGS per Unit
+    format: "EUR #,0.00"
     folder: 02_Margin
   - kpi_id: margin.gm.vs_plan.pct
     kpi_name: Gross Margin % vs Plan
-    measure_name: [Gross Margin % vs Plan]
-    format: 0.0 pp
+    measure_name: Gross Margin % vs Plan
+    format: "0.0 pp"
     folder: 02_Margin
 ```
 
@@ -95,8 +95,6 @@ dimension:
       - {name: Region, type: text}
       - {name: Country, type: text}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true}
-      - {name: Plant, type: text, nullable: true}
-      - {name: Line, type: text, nullable: true}
       - {name: Channel, type: text, nullable: true}
 
 fact:
@@ -106,22 +104,20 @@ fact:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: ProductKey, type: int, ref: dim_product}
+      - {name: CustomerKey, type: int, ref: dim_customer, nullable: true}
+      - {name: PromoKey, type: int, ref: dim_promo, nullable: true}
       - {name: Net Sales Amount, type: currency, agg: sum}
       - {name: Quantity, type: decimal, agg: sum}
-      - {name: Plan Quantity, type: decimal, agg: sum}
+      - {name: Plan Quantity, type: decimal, agg: sum, nullable: true}
       - {name: List Price Amount, type: currency, agg: sum}
       - {name: Net Price Amount, type: currency, agg: sum}
-      - {name: Discount Amount, type: currency, agg: sum}
+      - {name: Discount Amount, type: currency, agg: sum, nullable: true}
       - {name: Rebate Amount, type: currency, agg: sum, nullable: true}
       - {name: Surcharge Amount, type: currency, agg: sum, nullable: true}
-      - {name: Plan Sales Amount, type: currency, agg: sum}
-      - {name: Last Year Sales Amount, type: currency, agg: sum}
+      - {name: Plan Sales Amount, type: currency, agg: sum, nullable: true}
+      - {name: Last Year Sales Amount, type: currency, agg: sum, nullable: true}
       - {name: Cost of Goods Sold Amount, type: currency, agg: sum}
-      - {name: Plan COGS Amount, type: currency, agg: sum}
-
-settings:
-  timezone: Europe/Berlin
-  fiscal_year_start: 01-01
+      - {name: Plan COGS Amount, type: currency, agg: sum, nullable: true}
 ```
 
 ---
@@ -129,105 +125,113 @@ settings:
 ## 4. Semantic Model Requirements
 
 ### 4.1 Tables
-- fact_sales  
-- dim_date  
-- dim_org  
-- dim_product  
-- security_user_org (RLS)
+- dim_date, dim_org, dim_product, security_user_org, dim_customer (nullable on fact), dim_promo (optional)
+- fact_sales (including plan/LY, price components, discounts/rebates/surcharges, COGS, plan COGS)
 
 ### 4.2 Relationships (Mandatory)
-- dim_date (1) → fact_sales on DateKey  
-- dim_org (1) → fact_sales on OrgKey  
-- dim_product (1) → fact_sales on ProductKey  
-- security_user_org filters dim_org (Region/Country/Channel/OrgKey) → cascades to fact_sales  
-- Single direction; no bi-directional except RLS bridge; no ambiguous paths.
+- dim_date (1) -> fact_sales on DateKey  
+- dim_org (1) -> fact_sales on OrgKey  
+- dim_product (1) -> fact_sales on ProductKey  
+- dim_promo (1) -> fact_sales on PromoKey (if used)  
+- dim_customer (1) -> fact_sales on CustomerKey (nullable)  
+- security_user_org filters dim_org -> cascades to fact_sales  
+- Single direction; avoid ambiguous paths; no bi-directional except RLS bridge if required.
 
 ### 4.3 Hierarchies
-- Date: Year → Quarter → Month  
-- Org: Region → Country → Channel → OrgName  
-- Product: Category → Subcategory → ProductName
+- Date: Year -> Quarter -> Month  
+- Org: Region -> Country -> Channel -> OrgName  
+- Product: Category -> Subcategory -> ProductName  
 
 ### 4.4 Sort-by Columns
-- Month → MonthNumber  
-- OrgName → OrgCode  
-- ProductName → ProductCode
+- Month -> MonthNumber  
+- ProductName -> ProductCode  
 
 ### 4.5 Modeling Constraints
 - No calculated columns; no implicit measures.  
 - Default summarization set; technical columns hidden; display folders per dictionary.  
-- Surrogate keys mandatory; no M2M relationships.
+- Surrogate keys mandatory; avoid M2M; plan price/quantity and plan COGS required for variance logic.  
 
 ---
 
-## 5. Measures (DAX)
+## 5. Measures
 
 ### 5.1 Measure Inventory
 | Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
 |--------------|---------------------|---------|--------|--------|------|
-| Gross Margin Amount | margin.gm.amount | Profit pool | 02_Margin | €#,0 | KPI |
-| Gross Margin % | margin.gm.pct | Profitability | 02_Margin | 0.0% | KPI |
-| Gross Margin % vs Plan | margin.gm.vs_plan.pct | Plan comparison | 02_Margin | 0.0 pp | KPI |
+| Gross Margin % | margin.gm.pct | Profitability quality | 02_Margin | 0.0% | KPI |
+| Gross Margin Amount | margin.gm.amount | Profit pool | 02_Margin | EUR #,0 | KPI |
 | Price Realization % | sales.price.realization_pct | Discount discipline | 03_Pricing | 0.0% | KPI |
-| Mix Effect Amount | sales.pvm.mix_effect.amount | Mix driver | 03_PVM | €#,0 | Supporting |
-| COGS per Unit | cost.cogs_per_unit.amount | Unit cost | 02_Margin | €#,0.00 | KPI |
-| Net Sales Amount | Supporting | Revenue base | 01_Revenue | €#,0 | Supporting |
+| Mix Effect Amount | sales.pvm.mix_effect.amount | Mix driver | 03_PVM | EUR #,0 | KPI/Supporting |
+| COGS per Unit | cost.cogs_per_unit.amount | Unit cost control | 02_Margin | EUR #,0.00 | KPI |
+| Gross Margin % vs Plan | margin.gm.vs_plan.pct | Performance vs plan | 02_Margin | 0.0 pp | KPI |
+| Net Sales Amount | Supporting | Revenue base | 01_Revenue | EUR #,0 | Supporting |
+| Plan Sales Amount | Supporting | Plan base | 01_Revenue | EUR #,0 | Supporting |
+| Last Year Sales Amount | Supporting | LY base | 01_Revenue | EUR #,0 | Supporting |
+| Cost of Goods Sold Amount | Supporting | Cost base | 02_Margin | EUR #,0 | Supporting |
+| Plan COGS Amount | Supporting | Cost plan | 02_Margin | EUR #,0 | Supporting |
+| Net Price Amount | Supporting | Pricing input | 03_Pricing | EUR #,0 | Supporting |
+| List Price Amount | Supporting | Pricing input | 03_Pricing | EUR #,0 | Supporting |
+| Quantity | Supporting | Volume input | 03_PVM | #,0 | Supporting |
+| Plan Quantity | Supporting | Volume plan | 03_PVM | #,0 | Supporting |
+| Discount Amount | Supporting | Discount input | 03_Pricing | EUR #,0 | Supporting |
+| Rebate Amount | Supporting | Rebate input | 03_Pricing | EUR #,0 | Supporting |
+| Surcharge Amount | Supporting | Surcharge input | 03_Pricing | EUR #,0 | Supporting |
 
 ### 5.2 DAX Definitions
 ```DAX
-/// Supporting — Revenue
-Net Sales Amount :=
-    SUM ( fact_sales[Net Sales Amount] )
+/// margin.gm.pct – Profitability quality
+[Gross Margin %] =
+DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
 
-/// Supporting — Plan revenue
-Plan Sales Amount :=
-    SUM ( fact_sales[Plan Sales Amount] )
+/// margin.gm.amount – Profit pool
+[Gross Margin Amount] =
+[Net Sales Amount] - [Cost of Goods Sold Amount]
 
-/// Supporting — Cost
-COGS Amount :=
-    SUM ( fact_sales[Cost of Goods Sold Amount] )
+/// sales.price.realization_pct – Discount discipline
+[Price Realization %] =
+DIVIDE ( [Net Price Amount], [List Price Amount] )
 
-/// margin.gm.amount — Profit pool
-Gross Margin Amount :=
-    [Net Sales Amount] - [COGS Amount]
+/// sales.pvm.mix_effect.amount – Mix residual (PVM)
+[Mix Effect Amount] =
+[Net Sales Amount]
+    - SUM ( fact_sales[Plan Sales Amount] )
+    - [Price Effect Amount]
+    - [Volume Effect Amount]
 
-/// margin.gm.pct — Profitability
-Gross Margin % :=
-    DIVIDE ( [Gross Margin Amount], [Net Sales Amount] )
+/// cost.cogs_per_unit.amount – Unit cost control
+[COGS per Unit] =
+DIVIDE ( [Cost of Goods Sold Amount], SUM ( fact_sales[Quantity] ) )
 
-/// margin.gm.vs_plan.pct — Plan comparison (pp)
-Gross Margin % vs Plan :=
-    DIVIDE ( [Gross Margin %] - DIVIDE ( [Plan Sales Amount] - SUM ( fact_sales[Plan COGS Amount] ), [Plan Sales Amount] ), 1 )
+/// margin.gm.vs_plan.pct – Performance vs plan
+[Gross Margin % vs Plan] =
+VAR GMAct =
+    DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
+VAR GMPlan =
+    DIVIDE ( SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] ),
+             SUM ( fact_sales[Plan Sales Amount] ) )
+RETURN
+    DIVIDE ( GMAct - GMPlan, GMPlan )
 
-/// sales.price.realization_pct — Discount discipline
-Price Realization % :=
-    DIVIDE ( SUM ( fact_sales[Net Price Amount] ), SUM ( fact_sales[List Price Amount] ) )
+// Supporting PVM effects
+[Net Sales Amount] =
+SUM ( fact_sales[Net Sales Amount] )
 
-/// sales.pvm.mix_effect.amount — Mix driver (residual)
-Mix Effect Amount :=
-    VAR PVM_Total =
-        [Net Sales Amount] - [Plan Sales Amount]
-    VAR PriceEffect =
-        SUMX (
-            fact_sales,
-            VAR ActualQty = fact_sales[Quantity]
-            VAR PlanQty   = fact_sales[Plan Quantity]
-            VAR ActualPrice = DIVIDE ( fact_sales[Net Price Amount], ActualQty )
-            VAR PlanPrice   = DIVIDE ( fact_sales[Plan Sales Amount], PlanQty )
-            RETURN ( ActualPrice - PlanPrice ) * ActualQty
-        )
-    VAR VolumeEffect =
-        SUMX (
-            fact_sales,
-            VAR ActualQty = fact_sales[Quantity]
-            VAR PlanQty   = fact_sales[Plan Quantity]
-            VAR PlanPrice = DIVIDE ( fact_sales[Plan Sales Amount], PlanQty )
-            RETURN ( ActualQty - PlanQty ) * PlanPrice
-        )
-    RETURN PVM_Total - PriceEffect - VolumeEffect
+[Price Effect Amount] =
+SUMX (
+    fact_sales,
+    VAR ActualPrice = DIVIDE ( fact_sales[Net Sales Amount], fact_sales[Quantity] )
+    VAR PlanPrice   = DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] )
+    RETURN ( ActualPrice - PlanPrice ) * fact_sales[Quantity]
+)
 
-/// cost.cogs_per_unit.amount — Unit cost
-COGS per Unit :=
-    DIVIDE ( [COGS Amount], SUM ( fact_sales[Quantity] ) )
+[Volume Effect Amount] =
+SUMX (
+    fact_sales,
+    VAR ActualQty = fact_sales[Quantity]
+    VAR PlanQty   = fact_sales[Plan Quantity]
+    VAR PlanPrice = DIVIDE ( fact_sales[Plan Sales Amount], PlanQty )
+    RETURN ( ActualQty - PlanQty ) * PlanPrice
+)
 ```
 
 ---
@@ -258,23 +262,23 @@ dim_org[OrgKey] IN
 ```
 
 ### 6.3 OLS (optional)
-- None required; all measures visible to authorised users.
+- None required; monetary columns visible to authorised users.
 
 ---
 
 ## 7. Technical Assumptions
-- Data latency ≤24h; plan and LY snapshots stored monthly at invoice_line grain.
-- Currency EUR; no FX conversion inside the model.
-- Pricing elements (list, net, discounts, rebates, surcharges) populated from source.
-- PVM logic harmonised with COM-001/004; shared calc layer to avoid divergence.
+- Plan/LY fields populated (Plan Sales/COGS, LY Sales) at the same grain as actuals.
+- Discount/Net/List price, rebates, surcharges complete for price realization.
+- PVM logic consistent with COM-001; shared calc layer recommended.
+- Currency EUR; returns/credit notes handled upstream.
 
 ---
 
 ## 8. Deployment Requirements
-- Mode: DirectLake or Import (prefer DirectLake where available).
-- Incremental refresh: yes, monthly partitions for last 24 months.
-- Aggregations: optional if >24M rows; consider monthly aggregates for GM trends.
-- Workspace/naming: `ARF – Commercial` dataset/model naming per governance.
+- Mode: DirectLake or Import; prefer DirectLake if available.
+- Incremental refresh: partition by Month for last 24 months.
+- Aggregations optional for large volumes; avoid grain distortion.
+- Workspace/naming per governance; display folders per dictionary.
 
 ---
 
@@ -282,12 +286,13 @@ dim_org[OrgKey] IN
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org/Product keys non-null in fact_sales | 100% | Y | Data Engineering |
-| GM Reconciliation | GM Amount = Net Sales – COGS | Exact | Y | BI |
-| PVM Integrity | Price + Volume + Mix = Net Sales Δ vs Plan | Residual < 0.5% | Y | BI |
-| Price Realization | Net Price ≤ List Price within tolerance | ≤0.5% exceptions | Y | BI |
-| COGS per Unit Stability | Variance vs Plan within ±2% except flagged SKUs | ±2% | Y | Controlling |
-| RLS Coverage | Users only see authorised regions/channels | 0 leaks in test | Y | Security |
-| Performance | Main visuals render < 2s on 24M row sample | <2s | Y | BI |
+| GM Recompute | GM % recomputes from amounts | Exact | Y | BI |
+| Plan Alignment | Plan Sales/COGS populated for plan periods | 100% for plan scope | Y | Controlling |
+| PVM Residual | Price + Volume + Mix = Net Sales gap vs Plan | Residual < 0.5% of Net Sales | Y | BI |
+| RLS Coverage | Users only see authorised regions/channels | 0 leaks | Y | Security |
+| Performance | Main visuals <2s on representative sample | <2s | Y | BI |
+
+---
 
 agent_hooks:
   validate: true

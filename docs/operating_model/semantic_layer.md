@@ -13,6 +13,8 @@ It answers:
 - How do Action Codes connect to KPIs and facts?
 - Which patterns must every domain follow?
 
+> Tenant-agnostic principle: The core ActionReady semantic layer is neutral to any specific company. Aurora Group artifacts under `showcases/aurora_group` are synthetic and illustrative only; any customer deployment instantiates the same blueprint with that customer’s domains, contracts, and conformed dimensions.
+
 ---
 
 ## 2. Core Principles

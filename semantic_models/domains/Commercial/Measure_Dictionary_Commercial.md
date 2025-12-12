@@ -1,0 +1,607 @@
+# Measure Dictionary - Commercial
+
+Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
+
+```yaml
+- measure_name: "Net Sales Amount"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.net_sales.amount"
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "01_Revenue"
+  category: "KPI"
+  expression:
+    dax: "SUM(fact_sales[Net Sales Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Sum of net sales after discounts and rebates."
+    notes: |
+      Grain: invoice_line, reported monthly. Unit: EUR.
+      Lineage: fact_sales[Net Sales Amount].
+      QA: Excludes VAT/returns; currency conversion handled upstream.
+  dependencies:
+    columns:
+      - "fact_sales[Net Sales Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Net Sales % vs Plan"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.net_sales.delta_pct.plan"
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "01_Revenue"
+  category: "KPI"
+  expression:
+    dax: "DIVIDE([Net Sales Amount] - [Plan Sales Amount], [Plan Sales Amount])"
+    formatString: "0.0%"
+  documentation:
+    description: "Variance of net sales versus plan as a percentage."
+    notes: |
+      Grain: month. Unit: %.
+      Lineage: [Net Sales Amount], fact_sales[Plan Sales Amount].
+      QA: Plan Sales Amount must be populated for the same grain; DIVIDE protects divide-by-zero.
+  dependencies:
+    measures:
+      - "[Net Sales Amount]"
+      - "[Plan Sales Amount]"
+    columns:
+      - "fact_sales[Plan Sales Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Net Sales % vs LY"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.net_sales.delta_pct.ly"
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "01_Revenue"
+  category: "KPI"
+  expression:
+    dax: "DIVIDE([Net Sales Amount] - [Last Year Sales Amount], [Last Year Sales Amount])"
+    formatString: "0.0%"
+  documentation:
+    description: "Variance of net sales versus last year as a percentage."
+    notes: |
+      Grain: month. Unit: %.
+      Lineage: [Net Sales Amount], fact_sales[Last Year Sales Amount].
+      QA: Requires aligned last-year calendar mapping; DIVIDE protects divide-by-zero.
+  dependencies:
+    measures:
+      - "[Net Sales Amount]"
+      - "[Last Year Sales Amount]"
+    columns:
+      - "fact_sales[Last Year Sales Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Gross Margin Amount"
+  is_kpi_measure: true
+  kpi_id_ref: "margin.gm.amount"
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "02_Margin"
+  category: "KPI"
+  expression:
+    dax: "[Net Sales Amount] - [Cost of Goods Sold Amount]"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Profit pool calculated as net sales minus cost of goods sold."
+    notes: |
+      Grain: invoice_line, reported monthly. Unit: EUR.
+      Lineage: [Net Sales Amount], fact_sales[Cost of Goods Sold Amount].
+      QA: COGS must align to sales grain; currency handled upstream.
+  dependencies:
+    measures:
+      - "[Net Sales Amount]"
+    columns:
+      - "fact_sales[Cost of Goods Sold Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Gross Margin %"
+  is_kpi_measure: true
+  kpi_id_ref: "margin.gm.pct"
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "02_Margin"
+  category: "KPI"
+  expression:
+    dax: "DIVIDE([Gross Margin Amount], [Net Sales Amount])"
+    formatString: "0.0%"
+  documentation:
+    description: "Gross margin rate as a share of net sales."
+    notes: |
+      Grain: month. Unit: %.
+      Lineage: [Gross Margin Amount], [Net Sales Amount].
+      QA: DIVIDE protects divide-by-zero; ensure sales not zero for meaningful result.
+  dependencies:
+    measures:
+      - "[Gross Margin Amount]"
+      - "[Net Sales Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Gross Margin % vs Plan"
+  is_kpi_measure: true
+  kpi_id_ref: "margin.gm.vs_plan.pct"
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "02_Margin"
+  category: "KPI"
+  expression:
+    dax: |
+      VAR GMAct =
+          DIVIDE([Gross Margin Amount], [Net Sales Amount])
+      VAR GMPlan =
+          DIVIDE([Plan Gross Margin Amount], [Plan Sales Amount])
+      RETURN DIVIDE(GMAct - GMPlan, GMPlan)
+    formatString: "0.0 percentage-point"
+  documentation:
+    description: "Relative variance of gross margin rate versus plan."
+    notes: |
+      Grain: month. Unit: percentage-point.
+      Lineage: [Gross Margin Amount], [Net Sales Amount], [Plan Gross Margin Amount], [Plan Sales Amount].
+      QA: Requires plan sales and plan COGS populated; DIVIDE protects divide-by-zero.
+  dependencies:
+    measures:
+      - "[Gross Margin Amount]"
+      - "[Net Sales Amount]"
+      - "[Plan Gross Margin Amount]"
+      - "[Plan Sales Amount]"
+    columns:
+      - "fact_sales[Plan COGS Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Price Effect Amount"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.pvm.price_effect.amount"
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "03_PVM"
+  category: "Driver"
+  expression:
+    dax: |
+      SUMX(
+        fact_sales,
+        VAR ActualPrice = DIVIDE(fact_sales[Net Sales Amount], fact_sales[Quantity])
+        VAR PlanPrice   = DIVIDE(fact_sales[Plan Sales Amount], fact_sales[Plan Quantity])
+        RETURN (ActualPrice - PlanPrice) * fact_sales[Quantity]
+      )
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "PVM driver quantifying the net sales impact from price change."
+    notes: |
+      Grain: invoice_line aggregated monthly. Unit: EUR.
+      Lineage: fact_sales[Net Sales Amount], fact_sales[Plan Sales Amount], fact_sales[Quantity], fact_sales[Plan Quantity].
+      QA: Plan quantities/prices must be available; watch for zero quantities.
+  dependencies:
+    columns:
+      - "fact_sales[Net Sales Amount]"
+      - "fact_sales[Plan Sales Amount]"
+      - "fact_sales[Quantity]"
+      - "fact_sales[Plan Quantity]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Volume Effect Amount"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.pvm.volume_effect.amount"
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "03_PVM"
+  category: "Driver"
+  expression:
+    dax: |
+      SUMX(
+        fact_sales,
+        VAR ActualQty = fact_sales[Quantity]
+        VAR PlanQty   = fact_sales[Plan Quantity]
+        VAR PlanPrice = DIVIDE(fact_sales[Plan Sales Amount], PlanQty)
+        RETURN (ActualQty - PlanQty) * PlanPrice
+      )
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "PVM driver quantifying the net sales impact from volume change."
+    notes: |
+      Grain: invoice_line aggregated monthly. Unit: EUR.
+      Lineage: fact_sales[Quantity], fact_sales[Plan Quantity], fact_sales[Plan Sales Amount].
+      QA: Relies on plan quantities and plan prices at the same grain; watch for zero quantities.
+  dependencies:
+    columns:
+      - "fact_sales[Quantity]"
+      - "fact_sales[Plan Quantity]"
+      - "fact_sales[Plan Sales Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Mix Effect Amount"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.pvm.mix_effect.amount"
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "03_PVM"
+  category: "Driver"
+  expression:
+    dax: |
+      [Net Sales Amount]
+        - [Price Effect Amount]
+        - [Volume Effect Amount]
+        - [Plan Sales Amount]
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Residual PVM driver capturing mix impact after price and volume effects."
+    notes: |
+      Grain: month. Unit: EUR.
+      Lineage: [Net Sales Amount], [Price Effect Amount], [Volume Effect Amount], [Plan Sales Amount].
+      QA: Uses plan sales as baseline; ensure consistent grain.
+  dependencies:
+    measures:
+      - "[Net Sales Amount]"
+      - "[Price Effect Amount]"
+      - "[Volume Effect Amount]"
+      - "[Plan Sales Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Price Realization %"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.price.realization_pct"
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "03_Pricing"
+  category: "KPI"
+  expression:
+    dax: "DIVIDE([Net Price Amount], [List Price Amount])"
+    formatString: "0.0%"
+  documentation:
+    description: "Discount discipline metric comparing net price to list price."
+    notes: |
+      Grain: month or promo. Unit: %.
+      Lineage: fact_sales[Net Price Amount], fact_sales[List Price Amount].
+      QA: List price must exclude temporary surcharges and taxes; DIVIDE protects divide-by-zero.
+  dependencies:
+    columns:
+      - "fact_sales[Net Price Amount]"
+      - "fact_sales[List Price Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Promotion ROI %"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.promo.roi.pct"
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "04_Promo"
+  category: "KPI"
+  expression:
+    dax: "DIVIDE([Promo Gross Margin Uplift Amount], [Promo Cost])"
+    formatString: "0.0%"
+  documentation:
+    description: "Return on promotion investment based on incremental gross margin versus promo cost."
+    notes: |
+      Grain: promotion. Unit: %.
+      Lineage: [Promo Gross Margin Uplift Amount], fact_promo[Promo Cost].
+      QA: Promo Gross Margin Uplift Amount derived from incremental sales/COGS; relies on promo cost completeness; DIVIDE protects divide-by-zero.
+  dependencies:
+    measures:
+      - "[Promo Gross Margin Uplift Amount]"
+    columns:
+      - "fact_promo[Promo Cost]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Incremental Sales Amount"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.promo.incremental.amount"
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "04_Promo"
+  category: "KPI"
+  expression:
+    dax: "SUM(fact_sales[Net Sales Amount]) - SUM(fact_promo[Baseline Sales Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Incremental sales generated by promotion versus baseline sales."
+    notes: |
+      Grain: promotion. Unit: EUR.
+      Lineage: fact_sales[Net Sales Amount], fact_promo[Baseline Sales Amount].
+      QA: Baseline sales captured in fact_promo; ensure promo scoping applied.
+  dependencies:
+    columns:
+      - "fact_sales[Net Sales Amount]"
+      - "fact_promo[Baseline Sales Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Cannibalization %"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.promo.cannibalization.pct"
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "04_Promo"
+  category: "KPI"
+  expression:
+    dax: |
+      VAR ActualNonPromoSales =
+          CALCULATE (
+              SUM ( fact_sales[Net Sales Amount] ),
+              fact_sales[Promo Flag] = FALSE ()
+          )
+      VAR BaselineNonPromoSales =
+          SUM ( fact_promo[Baseline Non-Promo Sales Amount] )
+      VAR LostNonPromo =
+          MAX ( 0, BaselineNonPromoSales - ActualNonPromoSales )
+      RETURN
+          DIVIDE ( LostNonPromo, [Incremental Sales Amount] )
+    formatString: "0.0%"
+  documentation:
+    description: "Share of promotional uplift offset by losses in non-promoted items."
+    notes: |
+      Grain: promotion. Unit: %.
+      Lineage: fact_sales[Net Sales Amount], fact_sales[Promo Flag], fact_promo[Baseline Non-Promo Sales Amount], dim_product[ProductFamily].
+      QA: Requires clear promo flagging, non-promo baseline for comparable items, grouping via ProductFamily; DIVIDE protects divide-by-zero; lost non-promo is floored at 0.
+  dependencies:
+    measures:
+      - "[Incremental Sales Amount]"
+    columns:
+      - "fact_sales[Net Sales Amount]"
+      - "fact_sales[Promo Flag]"
+      - "fact_promo[Baseline Non-Promo Sales Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Promo Gross Margin %"
+  is_kpi_measure: true
+  kpi_id_ref: "margin.promo.gm.pct"
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "02_Margin"
+  category: "KPI"
+  expression:
+    dax: |
+      VAR PromoNetSales = SUM(fact_sales[Net Sales Amount])
+      VAR PromoCOGS     = SUM(fact_sales[Cost of Goods Sold Amount])
+      RETURN DIVIDE(PromoNetSales - PromoCOGS, PromoNetSales)
+    formatString: "0.0%"
+  documentation:
+    description: "Gross margin rate during promotions."
+    notes: |
+      Grain: promotion. Unit: %.
+      Lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount].
+      QA: Filter context must include only promotional transactions; DIVIDE protects divide-by-zero.
+  dependencies:
+    columns:
+      - "fact_sales[Net Sales Amount]"
+      - "fact_sales[Cost of Goods Sold Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "COGS per Unit"
+  is_kpi_measure: true
+  kpi_id_ref: "cost.cogs_per_unit.amount"
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "02_Margin"
+  category: "KPI"
+  expression:
+    dax: "DIVIDE([Cost of Goods Sold Amount], SUM(fact_sales[Quantity]))"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Unit cost calculated as COGS divided by quantity sold."
+    notes: |
+      Grain: invoice_line, reported monthly. Unit: EUR per unit.
+      Lineage: [Cost of Goods Sold Amount], fact_sales[Quantity].
+      QA: DIVIDE protects divide-by-zero; quantity must be positive.
+  dependencies:
+    measures:
+      - "[Cost of Goods Sold Amount]"
+    columns:
+      - "fact_sales[Quantity]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+# Supporting base measures
+- measure_name: "Plan Sales Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "01_Revenue"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_sales[Plan Sales Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Plan net sales amount for variance calculations."
+    notes: |
+      Grain: invoice_line aggregated monthly. Unit: EUR.
+      Lineage: fact_sales[Plan Sales Amount].
+      QA: Ensure plan data is complete for variance logic.
+  dependencies:
+    columns:
+      - "fact_sales[Plan Sales Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Last Year Sales Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "01_Revenue"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_sales[Last Year Sales Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Net sales amount from the comparable prior-year period."
+    notes: |
+      Grain: invoice_line aggregated monthly. Unit: EUR.
+      Lineage: fact_sales[Last Year Sales Amount].
+      QA: Ensure prior-year calendar alignment.
+  dependencies:
+    columns:
+      - "fact_sales[Last Year Sales Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Plan Gross Margin Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "02_Margin"
+  category: "Base"
+  expression:
+    dax: "[Plan Sales Amount] - SUM(fact_sales[Plan COGS Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Planned gross margin amount for variance logic."
+    notes: |
+      Grain: month. Unit: EUR.
+      Lineage: [Plan Sales Amount], fact_sales[Plan COGS Amount].
+      QA: Requires complete plan COGS and sales.
+  dependencies:
+    measures:
+      - "[Plan Sales Amount]"
+    columns:
+      - "fact_sales[Plan COGS Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Net Price Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "03_Pricing"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_sales[Net Price Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Aggregated net price amount for pricing metrics."
+    notes: |
+      Grain: invoice_line aggregated monthly. Unit: EUR.
+      Lineage: fact_sales[Net Price Amount].
+      QA: Validate price derivations upstream.
+  dependencies:
+    columns:
+      - "fact_sales[Net Price Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "List Price Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "03_Pricing"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_sales[List Price Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Aggregated list price amount for pricing metrics."
+    notes: |
+      Grain: invoice_line aggregated monthly. Unit: EUR.
+      Lineage: fact_sales[List Price Amount].
+      QA: List price should exclude taxes/surcharges.
+  dependencies:
+    columns:
+      - "fact_sales[List Price Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Promo Gross Margin Uplift Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "04_Promo"
+  category: "Supporting"
+  expression:
+    dax: "[Incremental Sales Amount] - SUM(fact_sales[Cost of Goods Sold Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Gross margin uplift attributable to promotions."
+    notes: |
+      Grain: promotion. Unit: EUR.
+      Lineage: [Incremental Sales Amount], fact_sales[Cost of Goods Sold Amount].
+      QA: Assumes COGS aligned to promotional scope; ensure promo filter context.
+  dependencies:
+    measures:
+      - "[Incremental Sales Amount]"
+    columns:
+      - "fact_sales[Cost of Goods Sold Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Promo Cost"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "04_Promo"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_promo[Promo Cost])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Total promotion cost captured in promo systems."
+    notes: |
+      Grain: promotion. Unit: EUR.
+      Lineage: fact_promo[Promo Cost].
+      QA: Validate funding and cost completeness.
+  dependencies:
+    columns:
+      - "fact_promo[Promo Cost]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+```

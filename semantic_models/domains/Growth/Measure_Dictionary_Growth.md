@@ -1,385 +1,278 @@
 # Measure Dictionary - Growth
 
-Schema: see `/_includes/kpi_catalog/Domain_Measure_Dictionary_Schema.md`
+Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
-- measure_name: Revenue Growth %
+- measure_name: "Revenue Growth %"
   is_kpi_measure: true
-  kpi_id_ref: sales.revenue.growth_pct
-  semantic_model: Growth_SemanticModel
-  category: KPI
+  kpi_id_ref: "sales.revenue.growth_pct"
+  semantic_model: "Growth_SemanticModel"
+  display_folder: "01_Growth"
+  category: "KPI"
   expression:
-    dax: DIVIDE([Delta Net Sales Amount],[Net Sales Amount LY])
-    formatString: 0.0 %
+    dax: "/* TODO: implement Revenue Growth % ((Net Sales - LY) / LY) */"
+    formatString: "0.0%"
   documentation:
-    description: Growth rate vs last year revenue.
-    notes: ''
-  governance:
-    owner: BI Engineering
-    status: active
-    version: v2.0
-    last_review: 03.11.2025
-  dependencies:
-    measures:
-    - Î” Net Sales Amount
-    - Net Sales Amount LY
-    columns:
-    - fact_sales.Net Sales Amount
-    - fact_sales.Net Sales Amount LY
-- measure_name: Net Sales Amount
-  is_kpi_measure: true
-  kpi_id_ref: sales.net_sales.amount
-  semantic_model: Growth_SemanticModel
-  category: KPI
-  expression:
-    dax: SUM(fact_sales[Net Sales Amount])
-    formatString: '#,0.00'
-  documentation:
-    description: 'Purpose: total invoiced sales excluding returns and taxes. Definition: sum of invoice line amounts net of
-      VAT/returns. Grain & Scope: invoice_line aggregated to reporting period by Date/Org/Product. Unit/Format: EUR #,0.00.
-      Lineage: fact_sales[Net Sales Amount]. QA: reconciles with P&L revenue within 0.1%.'
-    notes: ''
-  governance:
-    owner: BI Engineering
-    status: active
-    version: v2.0
-    last_review: 03.11.2025
-  display_folder: 01_Sales
-  dependencies:
-    measures:
-    - Net Sales Amount
-    columns:
-    - fact_sales.Net Sales Amount
-- measure_name: Net Sales Amount LY
-  is_kpi_measure: true
-  kpi_id_ref: sales.net_sales.amount.ly
-  semantic_model: Growth_SemanticModel
-  category: KPI
-  expression:
-    dax: CALCULATE([Net Sales Amount], SAMEPERIODLASTYEAR('Date'[Date]))
-    formatString: '#,0.00'
-  documentation:
-    description: 'Purpose: prior year reference for revenue comparison. Definition: [Net Sales Amount] shifted by SAMEPERIODLASTYEAR.
-      Grain & Scope: period-level. Unit/Format: EUR #,0.00. Lineage: fact_sales[Net Sales Amount], dim_date[Date]. QA: reconciles
-      to prior year totals within 0.1%.'
-    notes: ''
-  governance:
-    owner: BI Engineering
-    status: active
-    version: v2.0
-    last_review: 03.11.2025
-  display_folder: 01_Sales
-  dependencies:
-    measures:
-    - Î” Net Sales Amount
-    columns:
-    - fact_sales.Net Sales Amount
-    - dim_date.Date
-- measure_name: Delta Net Sales Amount
-  is_kpi_measure: true
-  kpi_id_ref: sales.net_sales.delta_amount.ly
-  semantic_model: Growth_SemanticModel
-  category: KPI
-  expression:
-    dax: '[Net Sales Amount] - [Net Sales Amount LY]'
-    formatString: '#,0.00'
-  documentation:
-    description: 'Purpose: absolute variance of revenue vs LY. Definition: [Net Sales Amount]-[Net Sales Amount LY]. Grain
-      & Scope: period-level. Unit/Format: EUR #,0.00. Lineage: measures above. QA: variance reconciliation within 0.1 pp.'
-    notes: ''
-  governance:
-    owner: BI Engineering
-    status: active
-    version: v2.0
-    last_review: 03.11.2025
-  display_folder: 01_Sales
-  dependencies:
-    measures:
-    - Î” Net Sales Amount
-    - Net Sales Amount LY
-    columns:
-    - fact_sales.Net Sales Amount
-- measure_name: Promo Uplift %
-  is_kpi_measure: true
-  kpi_id_ref: sales.promo.uplift_pct
-  semantic_model: Growth_SemanticModel
-  category: KPI
-  expression:
-    dax: DIVIDE([Promo Sales Amount]-[Baseline Sales Amount],[Baseline Sales Amount])
-    formatString: 0.0 %
-  documentation:
-    description: Relative uplift of promo sales versus baseline volume.
-    notes: ''
-  governance:
-    owner: BI Engineering
-    status: active
-    version: v1.1
-    last_review: 11.11.2025
-  display_folder: 03_Price_Promo
+    description: "Top-line momentum vs last year."
+    notes: |
+      Grain: month. Unit: %.
+      Lineage: fact_sales[Net Sales Amount], fact_sales[Net Sales Amount LY].
+      QA: LY mapping consistent; DIVIDE guard.
   dependencies:
     columns:
-    - fact_sales.Promo Sales Amount
-    - fact_sales.Baseline Sales Amount
-- measure_name: Delta% Net Sales
-  is_kpi_measure: true
-  kpi_id_ref: sales.net_sales.delta_pct.ly
-  semantic_model: Growth_SemanticModel
-  category: KPI
-  expression:
-    dax: DIVIDE([Delta Net Sales Amount],[Net Sales Amount LY])
-    formatString: 0.0 %
-  documentation:
-    description: 'Delta Net Sales / LY. Grain & Scope: period-level. Unit/Format: 0.0 %.'
-    notes: ''
+      - "fact_sales[Net Sales Amount]"
+      - "fact_sales[Net Sales Amount LY]"
   governance:
-    owner: Commercial BI
-    status: active
-    version: v1.0
-    last_review: 04.11.2025
-  display_folder: 01_Sales
-  dependencies:
-    measures:
-    - Î” Net Sales Amount
-    - Net Sales Amount LY
-    columns:
-    - fact_sales.Net Sales Amount
-- measure_name: Price Realization %
+    owner: "Growth Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Net Sales Amount"
   is_kpi_measure: true
-  kpi_id_ref: sales.price.realization_pct
-  semantic_model: Growth_SemanticModel
-  category: KPI
+  kpi_id_ref: "sales.net_sales.amount"
+  semantic_model: "Growth_SemanticModel"
+  display_folder: "01_Growth"
+  category: "KPI"
   expression:
-    dax: DIVIDE([Net Sales Amount],[List Price Amount])
-    formatString: 0.0 %
+    dax: "SUM(fact_sales[Net Sales Amount])"
+    formatString: "EUR #,0"
   documentation:
-    description: Net price versus list price to monitor discount discipline.
-    notes: ''
-  governance:
-    owner: Pricing Team
-    status: active
-    version: v1.1
-    last_review: 11.11.2025
-  display_folder: 03_Price_Promo
+    description: "Sum of net sales after discounts."
+    notes: |
+      Grain: invoice_line / month. Unit: EUR.
+      Lineage: fact_sales[Net Sales Amount].
+      QA: Excludes VAT/returns; currency conversion upstream.
   dependencies:
     columns:
-    - fact_sales.Net Sales Amount
-    - fact_sales.List Price Amount
-- measure_name: List Price Amount
-  is_kpi_measure: true
-  kpi_id_ref: sales.list_price.amount
-  semantic_model: Growth_SemanticModel
-  category: KPI
-  expression:
-    dax: '// TODO: add expression'
-    formatString: '#,0.00'
-  documentation:
-    description: List price value for invoiced units in the selected context.
-    notes: ''
+      - "fact_sales[Net Sales Amount]"
   governance:
-    owner: Commercial BI
-    status: active
-    version: v1.0
-    last_review: 06.11.2025
+    owner: "Growth Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Net Sales Delta % vs LY"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.net_sales.delta_pct.ly"
+  semantic_model: "Growth_SemanticModel"
+  display_folder: "01_Growth"
+  category: "KPI"
+  expression:
+    dax: "/* TODO: implement Net Sales Delta % vs LY */"
+    formatString: "0.0%"
+  documentation:
+    description: "Relative growth vs last year."
+    notes: |
+      Grain: month. Unit: %.
+      Lineage: fact_sales[Net Sales Amount], fact_sales[Net Sales Amount LY].
+      QA: DIVIDE guard; LY alignment.
   dependencies:
     columns:
-    - fact_sales.List Price Amount
-- measure_name: Price Effect Amount
-  is_kpi_measure: true
-  kpi_id_ref: sales.pvm.price_effect.amount
-  semantic_model: Growth_SemanticModel
-  category: KPI
-  expression:
-    dax: ([Actual Unit Price]-[Plan Unit Price]) * [Actual Units Qty]
-    formatString: 'EUR #,0.00'
-  documentation:
-    description: Isolates the price component of variance using plan vs actual unit price.
-    notes: ''
+      - "fact_sales[Net Sales Amount]"
+      - "fact_sales[Net Sales Amount LY]"
   governance:
-    owner: BI Engineering
-    status: active
-    version: v1.1
-    last_review: 11.11.2025
-  display_folder: 04_PVM
-- measure_name: Volume Effect Amount
+    owner: "Growth Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Net Sales Delta Amount vs LY"
   is_kpi_measure: true
-  kpi_id_ref: sales.pvm.volume_effect.amount
-  semantic_model: Growth_SemanticModel
-  category: KPI
+  kpi_id_ref: "sales.net_sales.delta_amount.ly"
+  semantic_model: "Growth_SemanticModel"
+  display_folder: "01_Growth"
+  category: "KPI"
   expression:
-    dax: ([Actual Units Qty]-[Plan Units Qty]) * [Plan Unit Price]
-    formatString: 'EUR #,0.00'
+    dax: "/* TODO: implement Net Sales Delta Amount vs LY */"
+    formatString: "EUR #,0"
   documentation:
-    description: Pure volume contribution within the PVM variance bridge.
-    notes: ''
-  governance:
-    owner: BI Engineering
-    status: active
-    version: v1.1
-    last_review: 11.11.2025
-  display_folder: 04_PVM
-- measure_name: Mix Effect Amount
-  is_kpi_measure: true
-  kpi_id_ref: sales.pvm.mix_effect.amount
-  semantic_model: Growth_SemanticModel
-  category: KPI
-  expression:
-    dax: '[Delta Net Sales Amount] - [Price Effect Amount] - [Volume Effect Amount]'
-    formatString: 'EUR #,0.00'
-  documentation:
-    description: Residual mix contribution in the PVM bridge.
-    notes: ''
-  governance:
-    owner: BI Engineering
-    status: active
-    version: v1.1
-    last_review: 11.11.2025
-  display_folder: 04_PVM
-- measure_name: Promo Sales Amount
-  is_kpi_measure: true
-  kpi_id_ref: sales.promo.amount
-  semantic_model: Growth_SemanticModel
-  category: KPI
-  expression:
-    dax: '// TODO: add expression'
-    formatString: 'EUR #,0.00'
-  documentation:
-    description: Revenue during promotional period
-    notes: ''
-  governance:
-    owner: Commercial BI
-    status: active
-    version: v1.0
-    last_review: 21.11.2025
-- measure_name: Baseline Sales Amount
-  is_kpi_measure: true
-  kpi_id_ref: sales.baseline.amount
-  semantic_model: Growth_SemanticModel
-  category: KPI
-  expression:
-    dax: '// TODO: add expression'
-    formatString: 'EUR #,0.00'
-  documentation:
-    description: Expected sales without promotion, used as baseline for promo uplift.
-    notes: ''
-  governance:
-    owner: Commercial BI
-    status: active
-    version: v1.0
-    last_review: 21.11.2025
-- measure_name: Net Sales Amount (Forecast)
-  is_kpi_measure: true
-  kpi_id_ref: sales.net_sales.amount.forecast
-  semantic_model: Growth_SemanticModel
-  category: KPI
-  expression:
-    dax: '// TODO: add expression'
-    formatString: 'EUR #,0.00'
-  documentation:
-    description: Forecasted Net Sales Amount used for forecast accuracy and bias calculations.
-    notes: ''
-  governance:
-    owner: Commercial BI
-    status: draft
-    version: v0.1
-    last_review: 19.11.2025
-  display_folder: 02_Forecast
+    description: "Absolute growth vs last year."
+    notes: |
+      Grain: month. Unit: EUR.
+      Lineage: fact_sales[Net Sales Amount], fact_sales[Net Sales Amount LY].
+      QA: LY alignment; currency conversion upstream.
   dependencies:
-    measures:
-    - Net Sales Amount
     columns:
-    - fact_forecast.Net Sales Amount
-- measure_name: Forecast Accuracy (MAPE %)
-  is_kpi_measure: true
-  kpi_id_ref: sales.forecast.mape_pct
-  semantic_model: Growth_SemanticModel
-  category: KPI
-  expression:
-    dax: '// TODO: add expression'
-    formatString: 0.0 %
-  documentation:
-    description: Mean absolute percentage error of Net Sales Forecast versus actual Net Sales.
-    notes: ''
+      - "fact_sales[Net Sales Amount]"
+      - "fact_sales[Net Sales Amount LY]"
   governance:
-    owner: Commercial BI
-    status: draft
-    version: v0.1
-    last_review: 19.11.2025
-  display_folder: 02_Forecast
-  dependencies:
-    measures:
-    - Net Sales Amount
-    - Net Sales Amount (Forecast)
-    columns:
-    - fact_sales.Net Sales Amount
-    - fact_forecast.Net Sales Amount
-- measure_name: Forecast Bias %
+    owner: "Growth Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Channel Revenue Share %"
   is_kpi_measure: true
-  kpi_id_ref: sales.forecast.bias_pct
-  semantic_model: Growth_SemanticModel
-  category: KPI
+  kpi_id_ref: "sales.net_sales.channel_share.pct"
+  semantic_model: "Growth_SemanticModel"
+  display_folder: "02_Mix"
+  category: "KPI"
   expression:
-    dax: '// TODO: add expression'
-    formatString: 0.0 %
+    dax: "/* TODO: implement Channel Revenue Share % */"
+    formatString: "0.0%"
   documentation:
-    description: Systematic forecast bias of Net Sales, as percentage of actual Net Sales.
-    notes: ''
-  governance:
-    owner: Commercial BI
-    status: draft
-    version: v0.1
-    last_review: 19.11.2025
-  display_folder: 02_Forecast
+    description: "Channel revenue / total revenue."
+    notes: |
+      Grain: month. Unit: %.
+      Lineage: fact_sales[Net Sales Amount], dim_org[Channel].
+      QA: Channel mapping complete; total revenue > 0.
   dependencies:
-    measures:
-    - Net Sales Amount
-    - Net Sales Amount (Forecast)
     columns:
-    - fact_sales.Net Sales Amount
-    - fact_forecast.Net Sales Amount
-- measure_name: Channel Net Sales Share %
+      - "fact_sales[Net Sales Amount]"
+      - "dim_org[Channel]"
+  governance:
+    owner: "Growth Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Channel Gross Margin Contribution"
   is_kpi_measure: true
-  kpi_id_ref: sales.net_sales.channel_share.pct
-  semantic_model: Growth_SemanticModel
-  category: KPI
+  kpi_id_ref: "margin.gm.channel_contribution.amount"
+  semantic_model: "Growth_SemanticModel"
+  display_folder: "02_Mix"
+  category: "KPI"
   expression:
-    dax: '// TODO: add expression'
-    formatString: 0.0 %
+    dax: "/* TODO: implement Channel GM Contribution */"
+    formatString: "EUR #,0"
   documentation:
-    description: Share of total Net Sales attributable to a given channel.
-    notes: ''
-  governance:
-    owner: Commercial BI
-    status: draft
-    version: v0.1
-    last_review: 19.11.2025
-  display_folder: 01_Sales
+    description: "Gross margin by channel."
+    notes: |
+      Grain: month. Unit: EUR.
+      Lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount], dim_org[Channel].
+      QA: Channel mapping; COGS alignment.
   dependencies:
-    measures:
-    - Net Sales Amount
     columns:
-    - fact_sales.Net Sales Amount
-    - dim_channel.Channel
-- measure_name: Channel Gross Margin Contribution Amount
+      - "fact_sales[Net Sales Amount]"
+      - "fact_sales[Cost of Goods Sold Amount]"
+      - "dim_org[Channel]"
+  governance:
+    owner: "Growth Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Price Realization %"
   is_kpi_measure: true
-  kpi_id_ref: margin.gm.channel_contribution.amount
-  semantic_model: Growth_SemanticModel
-  category: KPI
+  kpi_id_ref: "sales.price.realization_pct"
+  semantic_model: "Growth_SemanticModel"
+  display_folder: "03_Pricing"
+  category: "KPI"
   expression:
-    dax: '// TODO: add expression'
-    formatString: 'EUR #,0.00'
+    dax: "/* TODO: implement Price Realization % */"
+    formatString: "0.0%"
   documentation:
-    description: Gross Margin Amount by channel for profitability contribution analysis.
-    notes: ''
-  governance:
-    owner: Commercial BI
-    status: draft
-    version: v0.1
-    last_review: 19.11.2025
-  display_folder: 02_Margin
+    description: "Net Price / List Price."
+    notes: |
+      Grain: month. Unit: %.
+      Lineage: fact_sales[Net Price Amount], fact_sales[List Price Amount].
+      QA: List price excludes taxes; DIVIDE guard.
   dependencies:
-    measures:
-    - Gross Margin Amount
     columns:
-    - fact_sales.Gross Margin Amount
-    - dim_channel.Channel
+      - "fact_sales[Net Price Amount]"
+      - "fact_sales[List Price Amount]"
+  governance:
+    owner: "Growth Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Baseline Sales Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Growth_SemanticModel"
+  display_folder: "04_Promo"
+  category: "Base"
+  expression:
+    dax: "/* TODO: implement Baseline Sales Amount */"
+    formatString: "EUR #,0"
+  documentation:
+    description: "Baseline sales amount for promo comparison."
+    notes: |
+      Grain: promotion. Unit: EUR.
+      Lineage: fact_promo[Baseline Sales Amount].
+      QA: Baseline definition consistent; promo scoping applied.
+  dependencies:
+    columns:
+      - "fact_promo[Baseline Sales Amount]"
+  governance:
+    owner: "Growth Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Forecast Net Sales Amount"
+  is_kpi_measure: false
+  kpi_id_ref: "sales.net_sales.amount.forecast"
+  semantic_model: "Growth_SemanticModel"
+  display_folder: "05_Forecast"
+  category: "Base"
+  expression:
+    dax: "/* TODO: implement Forecast Net Sales Amount */"
+    formatString: "EUR #,0"
+  documentation:
+    description: "Forecasted net sales amount."
+    notes: |
+      Grain: sku_month or org_month. Unit: EUR.
+      Lineage: fact_forecast[Forecast Net Sales Amount].
+      QA: Versioned forecast; calendar alignment.
+  dependencies:
+    columns:
+      - "fact_forecast[Forecast Net Sales Amount]"
+  governance:
+    owner: "Growth Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Forecast MAPE %"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.forecast.mape_pct"
+  semantic_model: "Growth_SemanticModel"
+  display_folder: "05_Forecast"
+  category: "KPI"
+  expression:
+    dax: "/* TODO: implement Forecast MAPE % */"
+    formatString: "0.0%"
+  documentation:
+    description: "Mean absolute percentage error for sales forecast."
+    notes: |
+      Grain: sku_month. Unit: %.
+      Lineage: fact_forecast vs fact_sales.
+      QA: Actual > 0; outlier handling; DIVIDE guard.
+  dependencies:
+    columns:
+      - "fact_forecast[Forecast]"
+      - "fact_sales[Actual]"
+  governance:
+    owner: "Growth Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Forecast Bias %"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.forecast.bias_pct"
+  semantic_model: "Growth_SemanticModel"
+  display_folder: "05_Forecast"
+  category: "KPI"
+  expression:
+    dax: "/* TODO: implement Forecast Bias % */"
+    formatString: "0.0%"
+  documentation:
+    description: "Bias of sales forecast: (Forecast - Actual) / Actual."
+    notes: |
+      Grain: sku_month. Unit: %.
+      Lineage: fact_forecast vs fact_sales.
+      QA: Actual > 0; bias band defined.
+  dependencies:
+    columns:
+      - "fact_forecast[Forecast]"
+      - "fact_sales[Actual]"
+  governance:
+    owner: "Growth Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
 ```

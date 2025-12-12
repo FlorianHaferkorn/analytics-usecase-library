@@ -1,32 +1,142 @@
-# ActionReady Analytics Framework
+# Analytics Strategy-to-Action Framework
 
-Purpose:
-Actionable, governed, and reusable analytics architecture that turns strategy (WHY) into operating standards (HOW), implementation assets (WITH WHAT), and customer-grade use cases (WHAT).
+A pragmatic, scalable framework to translate **business strategy into action-ready analytics**.
 
-Four-layer model:
-```
-WHY      docs/company
-HOW      docs/operating_model
-WITH WHAT framework/ (templates, KPI catalog, Action Codes, guides)
-WHAT     usecases/ + semantic_models/ + data_contracts/ + showcases/
-```
+This repository provides a complete, enterprise-grade blueprint to move from
+**strategic objectives → KPIs → insights → decisions → actions** — consistently and sustainably.
 
-Getting started:
-1) Read `docs/company/` for domains, strategic KPIs, and key questions.  
-2) Apply `docs/operating_model/semantic_layer.md` and `measure_system.md` when building models.  
-3) Use `framework/templates/` and `framework/kpi_catalog/` to design reports and measures.  
-4) Implement or reuse core use cases in `usecases/core/` (Business/Technical Factsheets v1.2).  
-5) See the end-to-end Aurora example in `showcases/aurora_group/`.
+---
 
-Quality & governance:
-- KPI catalog and measure dictionary are the canonical sources; every measure maps to a `kpi_id`.
-- Data contracts → semantic models → measures → visuals must stay consistent with the operating model.
-- Action Codes drive “now-what”; every trigger references a KPI and measure.
-- UX follows the 3–30–300 patterns in `framework/templates/page_templates/`.
-- Validation tools live in `_internal/tools/validation/` (factsheets vs KPI, measures vs catalog, etc.).
+## Why this framework exists
 
-What “good” looks like:
-- OneLake-aligned data contracts with conformed dimensions (dim_date, dim_org, dim_product, dim_customer, security_user_org).
-- Semantic models with single-direction relationships, governed folders, and RLS/OLS per `data_governance.md`.
-- Business and Technical Factsheets that are automation-ready and AI-friendly.
-- Aurora showcase proving the patterns end to end.
+Most organizations struggle with:
+- Tool-driven dashboards instead of decision-driven analytics
+- Inconsistent KPIs across teams and domains
+- Analytics that explain *what happened* but not *what to do*
+- High effort, low trust, and limited business impact
+
+This framework addresses these problems by design.
+
+**Goal:**  
+Enable **strategy-driven, action-oriented, and AI-ready analytics** — not just reporting.
+
+---
+
+## What makes this framework different
+
+- **Strategy-to-Action Golden Thread**  
+  Every report, KPI, and model traces back to a strategic objective.
+
+- **Action-Ready Semantic Model**  
+  KPIs are designed to trigger actions, not just describe performance.
+
+- **Use Case–Driven Analytics**  
+  Analytics is organized around business decisions, not dashboards.
+
+- **Single Source of Truth by Design**  
+  Governed KPI catalogs, measure systems, and semantic standards.
+
+- **Automation & AI Ready**  
+  Structured metadata enables automation, Copilot, and AI agents without rework.
+
+---
+
+## How to get started (recommended path)
+
+### 1. Understand the Strategy Context (WHY)
+Start here to understand what the organization wants to achieve.
+
+- `docs/company/company_strategy.md`
+- `docs/company/reporting_principles.md`
+
+---
+
+### 2. Understand the Operating Model (HOW)
+Learn how strategy is translated into analytics and actions.
+
+Start with:
+- `docs/operating_model/operating_model_overview.md`
+- `docs/operating_model/golden_thread_strategy_to_action.md`
+
+---
+
+### 3. Explore the Core Use Cases (WHAT)
+See how strategic questions are translated into concrete analytics use cases.
+
+- `usecases/core/`
+- `usecases/UseCase_Inventory.md`
+
+Each use case contains:
+- Business intent and decision context
+- Required KPIs and actions
+- Technical blueprint for implementation
+
+---
+
+## Repository Structure (high level)
+
+docs/
+company/ # Strategy, principles, domains
+operating_model/ # Analytics operating model (HOW)
+
+usecases/
+core/ # Core cross-industry use cases
+extended/ # Advanced use cases
+industry/ # Industry-specific use cases
+
+framework/
+kpi_catalog/ # Governed KPI definitions
+action_codes/ # Action logic and thresholds
+templates/ # Page, measure, and data contract templates
+
+semantic_models/
+core_action_ready/ # Reference semantic model blueprint
+
+data_contracts/
+domains/ # Domain-level data contracts
+sources/ # Source-level mappings
+
+_internal/
+tools/ # Validation, generation, automation
+ai/ # Schemas for AI and automation
+
+---
+
+## Who this is for
+
+- **Executives**  
+  Clear linkage between strategy, KPIs, and outcomes.
+
+- **Business & Domain Leads**  
+  Decision-oriented analytics instead of ad-hoc reporting.
+
+- **Data & Analytics Teams**  
+  Clear standards, reduced rework, scalable architecture.
+
+- **Enterprise Architects**  
+  Governance without bureaucracy, platform-agnostic by design.
+
+---
+
+## Platform & Implementation
+
+This framework is **platform-agnostic by design**.  
+Platform-specific implementation guides (e.g. Fabric / Power BI) live under:
+
+- `framework/implementation_guides/`
+
+---
+
+## Status & Next Steps
+
+- Conceptually **customer-ready**
+- Core use cases defined
+- Templates, standards, and validation in place
+
+Next step:
+- Implement a concrete showcase (Aurora Group) to demonstrate end-to-end execution.
+
+---
+
+**This is not a dashboard library.  
+It is an operating system for analytics-driven decision-making.**

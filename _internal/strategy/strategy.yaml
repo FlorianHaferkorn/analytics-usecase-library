@@ -1,0 +1,118 @@
+﻿status: derived
+canonical_source: docs/company/company_strategy.md
+scope: internal
+version: v2
+last_updated: 2025-10-12
+
+# ------------------------------------------------------------------------------
+# Strategic KPI Index
+# - Machine-readable representation of the company strategy
+# - References canonical KPI definitions from framework/kpi_catalog
+# - Contains no textual definitions and no implementation details
+# ------------------------------------------------------------------------------
+
+strategic_kpis:
+  - id: SKPI_GROWTH_REVENUE
+    kpi_ref: growth.revenue.pct
+    dimension: Growth
+    primary_domain: Commercial
+    owner_role: commercial_domain_owner
+    review_cycle: quarterly
+
+  - id: SKPI_PROFIT_GM
+    kpi_ref: profitability.gross_margin.pct
+    dimension: Profitability
+    primary_domain: Commercial
+    owner_role: controlling_domain_owner
+    review_cycle: quarterly
+
+  - id: SKPI_LIQUIDITY_CCC
+    kpi_ref: liquidity.cash_conversion_cycle.days
+    dimension: Liquidity
+    primary_domain: Finance
+    owner_role: treasury_domain_owner
+    review_cycle: quarterly
+
+  - id: SKPI_SERVICE_LEVEL
+    kpi_ref: service.service_level.pct
+    dimension: Efficiency
+    primary_domain: SupplyChain
+    owner_role: operations_domain_owner
+    review_cycle: monthly
+
+  - id: SKPI_CUSTOMER_RETENTION
+    kpi_ref: customer.retention.pct
+    dimension: CustomerValue
+    primary_domain: CustomerValue
+    owner_role: customer_value_domain_owner
+    review_cycle: quarterly
+
+  - id: SKPI_ESG_ALIGNED_REVENUE
+    kpi_ref: esg.aligned_revenue.pct
+    dimension: ESG
+    primary_domain: ESG
+    owner_role: esg_domain_owner
+    review_cycle: semi_annual
+
+  - id: SKPI_PROJECT_ROI
+    kpi_ref: corporate.project_roi.pct
+    dimension: CorporateStrategy
+    primary_domain: Finance
+    owner_role: pmo_domain_owner
+    review_cycle: monthly
+
+# ------------------------------------------------------------------------------
+# Strategic Influence Graph
+# - Expresses directional influence between strategic KPIs and analytical domains
+# - Operates strictly at KPI / domain level (no measures, no DAX, no visuals)
+# ------------------------------------------------------------------------------
+
+influence_graph:
+  - from_kpi: growth.revenue.pct
+    influences_domains:
+      - Commercial
+      - Pricing
+      - Promotions
+
+  - from_kpi: profitability.gross_margin.pct
+    influences_domains:
+      - Commercial
+      - Operations
+      - SupplyChain
+
+  - from_kpi: liquidity.cash_conversion_cycle.days
+    influences_domains:
+      - Finance
+      - SupplyChain
+
+  - from_kpi: service.service_level.pct
+    influences_domains:
+      - SupplyChain
+      - Operations
+
+  - from_kpi: customer.retention.pct
+    influences_domains:
+      - CustomerValue
+      - Experience
+
+  - from_kpi: esg.aligned_revenue.pct
+    influences_domains:
+      - ESG
+      - Operations
+      - SupplyChain
+
+  - from_kpi: corporate.project_roi.pct
+    influences_domains:
+      - Finance
+      - Governance
+
+# ------------------------------------------------------------------------------
+# Graph semantics
+# ------------------------------------------------------------------------------
+
+graph_semantics:
+  level: strategic_kpi_and_domain
+  purpose: >
+    Defines directional influence between strategic KPIs and analytical domains.
+    This graph is used for validation, prioritization, and AI-assisted reasoning.
+    It must not reference measures, calculations, or implementation artifacts.

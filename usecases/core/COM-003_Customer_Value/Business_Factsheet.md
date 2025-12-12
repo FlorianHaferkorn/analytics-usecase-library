@@ -1,11 +1,11 @@
-# COM-003 — Customer Value  
+# COM-003 - Customer Value  
 ## Business Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
 - **Use Case ID:** COM-003
-- **Domain:** Commercial
+- **Domain:** Commercial / CustomerValue
 - **Business Owner:** CCO / Head of Sales Ops / Marketing Lead
 - **KPI Owner:** Commercial Controlling Lead
 - **Decision Owner:** Sales & Marketing Leadership
@@ -30,10 +30,6 @@
 - How concentrated is revenue/margin across the base (top-N analysis)?
 - Which products/channels deliver the best CLV uplift opportunities?
 
-**Example Query Patterns (optional):**
-- “Which top 20 customers by revenue have CLV declining vs last year?”
-- “Where is churn > target and GM % below threshold by segment/channel?”
-
 ---
 
 ## 3. Required KPIs (Mandatory)
@@ -41,121 +37,155 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
-  - id: crm.clv.amount
-    name: Customer Lifetime Value
-    purpose: Long-term profitability per customer
-    definition_short: Present value of expected customer margin over horizon
-    unit: €
+  - id: customer.value.clv.amount
+    name: Customer Lifetime Value Amount
+    purpose: Long-term economic value per customer
+    definition_short: Present value of expected future contribution margin per customer
+    unit: "EUR"
+    grain: customer_month
+    agg: sum
+    target: Grow in priority segments
+    interpretation: Higher is better; declining CLV signals retention/upsell action
+    lineage: fact_customer_value[CLV Amount]
+  - id: customer.value.lifetime_revenue.amount
+    name: Customer Lifetime Revenue Amount
+    purpose: Realised revenue across lifecycle
+    definition_short: Sum of revenue from first purchase to date
+    unit: "EUR"
     grain: customer
     agg: sum
-    target: Grow CLV in priority segments
-    interpretation: Higher is better; focus on profitable retention
-    lineage: fact_customer_value[CLV Amount], dim_customer x dim_org
-  - id: margin.customer.amount
-    name: Customer Margin Amount
-    purpose: Current margin pool per customer
-    definition_short: Net Sales – COGS per customer
-    unit: €
-    grain: customer_month
-    agg: sum
-    target: Improve vs Plan/LY
-    interpretation: Low margin signals price/mix/cost issues
-    lineage: fact_customer_value[Margin Amount] or fact_sales aggregated by customer
-  - id: crm.retention.pct
-    name: Retention Rate %
+    target: Grow revenue base with margin discipline
+    interpretation: Base for concentration and CLV inputs
+    lineage: fact_sales[Net Sales Amount], dim_customer[CustomerKey]
+  - id: customer.loyalty.retention.pct
+    name: Customer Retention %
     purpose: Retain profitable customers
-    definition_short: Retained customers / Active prior period
-    unit: %
+    definition_short: Retained Customers ÷ Active Customers at period start
+    unit: "%"
     grain: month
     agg: avg
-    target: ≥ target per segment
-    interpretation: Low retention drives CLV erosion
-    lineage: fact_customer_activity[Active Flag], dim_customer
-  - id: crm.churn.pct
-    name: Churn Rate %
-    purpose: Control loss of customers
-    definition_short: Churned customers / Active prior period
-    unit: %
+    target: Meet segment retention targets
+    interpretation: Lower retention drives CLV erosion
+    lineage: fact_customer_events[Customer Status]
+  - id: customer.loyalty.churned.count
+    name: Churned Customers Count
+    purpose: Quantify customers lost in period
+    definition_short: Count of customers with churn flag = 1
+    unit: count
     grain: month
-    agg: avg
-    target: ≤ target per segment
-    interpretation: High churn destroys CLV and revenue stability
-    lineage: fact_customer_activity[Churn Flag], dim_customer
-  - id: sales.customer.revenue.amount
-    name: Customer Revenue Amount
-    purpose: Revenue base per customer
-    definition_short: Net Sales per customer
-    unit: €
-    grain: customer_month
     agg: sum
-    target: Grow with margin discipline
-    interpretation: High revenue with low margin needs action
-    lineage: fact_sales[Net Sales Amount] grouped by customer
+    target: Minimise churn volume
+    interpretation: Rising churn indicates urgent retention playbooks
+    lineage: fact_customer_events[Churn Flag]
+  - id: customer.loyalty.revenue_at_risk.amount
+    name: Revenue at Risk Amount
+    purpose: Size revenue exposure from churn-risk customers
+    definition_short: CLV remaining × Attrition Risk %
+    unit: "EUR"
+    grain: month
+    agg: sum
+    target: Reduce exposure vs tolerance
+    interpretation: High exposure prioritises retention actions
+    lineage: fact_customer_value[CLV Remaining Amount], customer.loyalty.attrition_risk.pct
+  - id: customer.loyalty.active_customers.count
+    name: Active Customers Count
+    purpose: Base for retention/churn KPIs
+    definition_short: Distinct customers with activity > 0 in period
+    unit: count
+    grain: month
+    agg: sum
+    target: Maintain stable active base
+    interpretation: Denominator for retention/churn; falling base signals broader risk
+    lineage: fact_customer_events[Activity Flag]
+  - id: customer.experience.nps.score
+    name: NPS Score
+    purpose: Measure advocacy and experience quality
+    definition_short: %Promoters − %Detractors
+    unit: score
+    grain: month
+    agg: avg
+    target: Meet CX target
+    interpretation: Higher is better; track with complaints and churn
+    lineage: fact_nps[NPS Score]
+  - id: customer.experience.complaint.count
+    name: Customer Complaints Count
+    purpose: Volume of customer complaints
+    definition_short: Count of complaint events
+    unit: count
+    grain: month
+    agg: sum
+    target: Reduce complaints vs baseline
+    interpretation: Rising complaints signal service/quality issues affecting churn
+    lineage: fact_experience[Complaint ID]
 ```
 
 ---
 
 ## 4. Business Logic & Thresholds
-Formal rules that define performance and action triggers.
+- Flag segments with retention below target or churned count rising for 2 consecutive months.
+- Prioritise high revenue-at-risk segments for retention playbooks.
+- Target top-N customers with declining CLV and rising complaints.
+- Price/mix changes applied only where margin guardrails hold (via COM-002/P2).
 
-### 4.1 Logic Description
-- Flag segments with Churn % above target or Retention % below target for 2 consecutive months.
-- Prioritise customers with high revenue but low margin for price/mix actions.
-- Focus on top-N customers with declining CLV and margin.
-
-### 4.2 Formal Trigger Rules (Machine-Readable)
 ```yaml
 triggers:
-  - kpi: crm.churn.pct
-    condition: >
-    threshold: segment_target
+  - kpi: customer.loyalty.retention.pct
+    condition: below_target
+    threshold: retention_target_pct
     scope: segment_channel
     exclusion: new_customers < 3 months
     action_code: C1
-  - kpi: margin.customer.amount
-    condition: <
-    threshold: margin_floor
-    scope: top_revenue_customers
+  - kpi: customer.loyalty.churned.count
+    condition: above_target
+    threshold: churn_volume_target
+    scope: segment_channel
     exclusion: strategic_accounts
-    action_code: P2
-  - kpi: crm.clv.amount
-    condition: <
+    action_code: C1
+  - kpi: customer.value.clv.amount
+    condition: below_target
     threshold: clv_target
     scope: priority_segments
     exclusion: none
     action_code: M3
+  - kpi: customer.loyalty.revenue_at_risk.amount
+    condition: above_target
+    threshold: risk_tolerance_amount
+    scope: segment_channel
+    exclusion: none
+    action_code: C1
 ```
 
 ---
 
 ## 5. Action Codes (Mandatory)
-Link business behavior to measurable outcomes.
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
 |-------------|------|------------------|-------------|---------------------|------------------|-------|
-| C1 | Retention Playbook | crm.churn.pct > target | Targeted retention offers/CSM outreach | Reduce churn %, lift retention | L2 | Sales / CS |
-| P2 | Price Realisation Guardrails | margin.customer.amount below floor | Tighten discounting, enforce floors/approvals | Improve margin amount and GM % | L2 | Pricing / Sales Ops |
-| M3 | Mix Optimisation | crm.clv.amount < target in priority segments | Shift to higher-margin SKUs/bundles | Improve CLV and margin | L2 | Category Mgmt |
+| C1 | Retention Playbook | retention below target or churn above target | Targeted retention offers/CSM outreach | Reduce churn, lift retention | L2 | Sales / CS |
+| P2 | Margin Realisation Guardrails | margin guardrails required for offers | Tighten discounting, enforce floors/approvals | Improve margin, stabilise CLV | L2 | Pricing / Sales Ops |
+| M3 | Mix Optimisation | CLV below target in priority segments | Shift to higher-margin SKUs/bundles | Improve CLV and margin | L2 | Category Mgmt |
 | D1 | Cost Take-Out / COGS Control | Margin erosion due to COGS for key customers | Negotiate terms, switch inputs/logistics | Improve margin amount | L2 | Procurement / Ops |
 
 ---
 
-## 6. 3–30–300 Page Layout (Mandatory)
+## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
-- Customer Lifetime Value  
-- Retention Rate %  
-- Churn Rate %  
-- Customer Margin Amount  
-- Customer Revenue Amount  
+- Customer Lifetime Value Amount  
+- Customer Retention %  
+- Churned Customers Count  
+- Revenue at Risk Amount  
+- Active Customers Count  
+- NPS Score  
+- Customer Complaints Count  
 
 ### 6.2 30-Second Layer (Main Visuals)
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
-| CLV by Segment/Channel | Column | dim_customer[Segment] | [CLV Amount] | Channel | Current quarter | Identify low CLV |
-| Churn vs Target by Segment | Column | dim_customer[Segment] | [Churn %], [Target] | Channel | L6M | Highlight risk |
-| Margin vs Revenue Quadrant | Scatter | [Revenue] | [Margin Amount] | Segment | Top customers | Flag high-revenue low-margin |
-| Retention Trend | Line | dim_date[Month] | [Retention %] | Segment | L12M | Trend on retention |
+| CLV by Segment/Channel | Column | dim_customer[Segment] | [Customer Lifetime Value Amount] | Channel | Current quarter | Identify low CLV |
+| Retention & Churn vs Target | Column | dim_customer[Segment] | [Customer Retention %], target | Channel | L6M | Highlight risk |
+| Revenue at Risk | Column | dim_customer[Segment] | [Revenue at Risk Amount] | Region/Channel | Current quarter | Prioritise retention |
+| Complaints vs NPS | Scatter | dim_customer[Segment] | [Customer Complaints Count] | NPS as color | Current quarter | CX risk signals |
 
 ### 6.3 Required Slicers (Mandatory)
 - Date (Month/Quarter)  
@@ -163,21 +193,29 @@ Link business behavior to measurable outcomes.
 - Customer Segment  
 - Product Category (optional)
 
+### 6.4 300-Second Layer (Diagnostics)
+- Top-N customers by revenue at risk and declining CLV.
+- Cohort trend tables (retention, churned count, active base).
+- Complaint root-cause table (category, product, channel) linked to NPS.
+- Price/mix and COGS views for margin guardrails (link to COM-002 action P2).
+
 ---
 
 ## 7. Data Requirements Summary
 ```yaml
 required_facts:
   - fact_sales
-  - fact_customer_activity
-  - fact_customer_value (if separate CLV calc)
+  - fact_customer_events
+  - fact_customer_value
+  - fact_experience
+  - fact_nps
 required_dimensions:
   - dim_date
   - dim_org
   - dim_customer
   - dim_product
   - security_user_org
-required_grain: customer_month (for retention/churn), invoice_line for revenue/margin
+required_grain: customer_month (for retention/churn/risk), invoice_line for revenue/margin
 required_time_range: 24 months history
 required_slicers: Date, Region/Channel, Customer Segment, Product Category
 ```
@@ -203,4 +241,6 @@ required_slicers: Date, Region/Channel, Customer Segment, Product Category
 ## 10. Risks & Wrong Interpretations (Short)
 - Misclassifying churn due to timing of inactivity flags.  
 - Over-discounting to “save” churn without margin guardrails.  
-- Using inconsistent CLV models across segments leading to false comparisons.  
+- Using inconsistent CLV models across segments leading to false comparisons.
+
+---

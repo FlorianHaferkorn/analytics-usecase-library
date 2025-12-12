@@ -1,14 +1,14 @@
-# COM-003 — Customer Value  
+# COM-003 - Customer Value  
 ## Technical Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
-- **Domain:** Commercial
+- **Domain:** Commercial / CustomerValue
 - **Technical Owner:** Sales Ops BI Lead
 - **Model ID:** commercial_customer_value
 - **Source Systems:** ERP/CRM, DWH
-- **Business Factsheet:** usecases/core/COM-003_Customer_Value/Business_Factsheet.md
+- **Business Factsheet:** ./Business_Factsheet.md
 
 ---
 
@@ -16,46 +16,69 @@
 - **Domain Data Contract:** data_contracts/domains/commercial_sales.yaml
 - **Source Data Contract:** data_contracts/sources/commercial.yaml
 - **Semantic Model Definition:** semantic_models/core_action_ready/commercial_sales/model_definition.yaml
-- **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
-- **Measure Dictionary:** framework/kpi_catalog/domain_measure_dictionary.md
+- **KPI Catalog:** framework/kpi_catalog/KPI_Catalog_CustomerValue.md
+- **Measure Dictionary:** semantic_models/domains/CustomerValue/Measure_Dictionary_CustomerValue.md
 - **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
 
 ---
 
-## 2. Required KPIs → Measure Mapping (Mandatory)
+## 2. KPI → Measure Mapping (Mandatory)
 ```yaml
 kpi_to_measure_mapping:
-  - kpi_id: crm.clv.amount
-    kpi_name: Customer Lifetime Value
-    measure_name: [Customer Lifetime Value]
-    format: €#,0
+  - kpi_id: customer.value.clv.amount
+    measure_name: Customer Lifetime Value Amount
+    format: "EUR #,0"
     folder: 04_Customer
-  - kpi_id: margin.customer.amount
-    kpi_name: Customer Margin Amount
-    measure_name: [Customer Margin Amount]
-    format: €#,0
-    folder: 02_Margin
-  - kpi_id: crm.retention.pct
-    kpi_name: Retention Rate %
-    measure_name: [Retention %]
-    format: 0.0%
-    folder: 04_Customer
-  - kpi_id: crm.churn.pct
-    kpi_name: Churn Rate %
-    measure_name: [Churn %]
-    format: 0.0%
-    folder: 04_Customer
-  - kpi_id: sales.customer.revenue.amount
-    kpi_name: Customer Revenue Amount
-    measure_name: [Customer Revenue Amount]
-    format: €#,0
+  - kpi_id: customer.value.lifetime_revenue.amount
+    measure_name: Customer Lifetime Revenue Amount
+    format: "EUR #,0"
     folder: 01_Revenue
+  - kpi_id: customer.loyalty.retention.pct
+    measure_name: Customer Retention %
+    format: "0.0%"
+    folder: 01_Retention
+  - kpi_id: customer.loyalty.churned.count
+    measure_name: Churned Customers Count
+    format: "#,0"
+    folder: 01_Retention
+  - kpi_id: customer.loyalty.revenue_at_risk.amount
+    measure_name: Revenue at Risk Amount
+    format: "EUR #,0"
+    folder: 01_Retention
+  - kpi_id: customer.loyalty.active_customers.count
+    measure_name: Active Customers Count
+    format: "#,0"
+    folder: 01_Retention
+  - kpi_id: customer.experience.nps.score
+    measure_name: NPS Score
+    format: "0"
+    folder: 02_CX
+  - kpi_id: customer.experience.complaint.count
+    measure_name: Customer Complaints Count
+    format: "#,0"
+    folder: 02_CX
 ```
 
 ---
 
 ## 3. Data Contract Scope (Subset YAML)
 ```yaml
+required_facts:
+  - fact_sales
+  - fact_customer_events
+  - fact_customer_value
+  - fact_experience
+  - fact_nps
+required_dimensions:
+  - dim_date
+  - dim_org
+  - dim_customer
+  - dim_product
+  - security_user_org
+required_grain: customer_month (for retention/churn/risk), invoice_line for revenue/margin
+required_time_range: 24 months history
+required_slicers: Date, Region/Channel, Customer Segment, Product Category
+
 dimension:
   - name: dim_date
     columns:
@@ -99,8 +122,6 @@ dimension:
       - {name: Region, type: text}
       - {name: Country, type: text}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true}
-      - {name: Plant, type: text, nullable: true}
-      - {name: Line, type: text, nullable: true}
       - {name: Channel, type: text, nullable: true}
 
 fact:
@@ -115,20 +136,37 @@ fact:
       - {name: Quantity, type: decimal, agg: sum}
       - {name: Cost of Goods Sold Amount, type: currency, agg: sum}
 
-  - name: fact_customer_activity
+  - name: fact_customer_events
     grain: customer_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: CustomerKey, type: int, ref: dim_customer}
-      - {name: Active Flag, type: boolean}
+      - {name: Activity Flag, type: boolean}
       - {name: Churn Flag, type: boolean}
+      - {name: Attrition Risk %, type: decimal, nullable: true}
 
-  - name: fact_customer_value   # if separate CLV calc
-    grain: customer
+  - name: fact_customer_value   # CLV / revenue at risk
+    grain: customer_month
     columns:
+      - {name: DateKey, type: int, ref: dim_date}
       - {name: CustomerKey, type: int, ref: dim_customer}
       - {name: CLV Amount, type: currency}
-      - {name: Horizon Months, type: int, nullable: true}
+      - {name: CLV Remaining Amount, type: currency, nullable: true}
+
+  - name: fact_experience
+    grain: customer_event
+    columns:
+      - {name: Complaint ID, type: text}
+      - {name: CustomerKey, type: int, ref: dim_customer}
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: Severity, type: text, nullable: true}
+
+  - name: fact_nps
+    grain: customer_event
+    columns:
+      - {name: CustomerKey, type: int, ref: dim_customer}
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: NPS Score, type: int}
 
 settings:
   timezone: Europe/Berlin
@@ -138,153 +176,86 @@ settings:
 ---
 
 ## 4. Semantic Model Requirements
+- Use certified monthly aggregates for retention/churn/CLV/risk; fact tables at customer_month where possible.
+- Depend on conformed dimensions (Date, Org, Customer, Product); no local dimension copies.
+- No new measures introduced locally; use certified dictionary names.
+- Facts for customer events, customer value, experience, and NPS are defined in the domain contract to satisfy KPIs.
 
 ### 4.1 Tables
-- fact_sales  
-- fact_customer_activity  
-- fact_customer_value (if present)  
-- dim_date  
-- dim_org  
-- dim_customer  
-- dim_product  
-- security_user_org (RLS)
+- dim_date, dim_org, dim_customer, dim_product, security_user_org  
+- fact_sales, fact_customer_events, fact_customer_value, fact_experience, fact_nps
 
 ### 4.2 Relationships (Mandatory)
-- dim_date (1) → fact_sales / fact_customer_activity / fact_customer_value on DateKey (where applicable)  
-- dim_org (1) → fact_sales on OrgKey  
-- dim_customer (1) → fact_sales / fact_customer_activity / fact_customer_value on CustomerKey  
-- dim_product (1) → fact_sales on ProductKey  
-- security_user_org filters dim_org (Region/Country/Channel/OrgKey) → cascades to fact_sales; if needed, map dim_customer to dim_org via a bridge or ensure org attribution on customer.
-- Single direction; no ambiguous paths; no bi-dir except RLS bridge.
+- dim_date (1) -> all facts on DateKey  
+- dim_org (1) -> fact_sales on OrgKey  
+- dim_customer (1) -> all customer-facing facts on CustomerKey  
+- dim_product (1) -> fact_sales on ProductKey  
+- security_user_org filters dim_org -> cascades to facts  
+- Single direction; avoid ambiguous paths; no bi-directional except RLS bridge if required.
 
 ### 4.3 Hierarchies
-- Date: Year → Quarter → Month  
-- Org: Region → Country → Channel → OrgName  
-- Customer: Segment → CustomerName  
-- Product: Category → Subcategory → ProductName
+- Date: Year -> Quarter -> Month  
+- Org: Region -> Country -> Channel -> OrgName  
+- Customer: Segment -> CustomerName  
+- Product: Category -> Subcategory -> ProductName
 
 ### 4.4 Sort-by Columns
-- Month → MonthNumber  
-- CustomerName → CustomerCode  
-- ProductName → ProductCode
+- Month -> MonthNumber  
+- CustomerName -> CustomerCode  
+- ProductName -> ProductCode
 
 ### 4.5 Modeling Constraints
 - No calculated columns; no implicit measures.  
 - Default summarization set; technical columns hidden; display folders per dictionary.  
-- Surrogate keys mandatory; avoid M2M; use bridge if customer-org mapping needed.
+- Surrogate keys mandatory; avoid M2M; use conformed dimensions; aggregation tables optional but must retain grain integrity.
 
 ---
 
-## 5. Measures (DAX)
+## 5. Measures
 
 ### 5.1 Measure Inventory
-| Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
-|--------------|---------------------|---------|--------|--------|------|
-| Customer Lifetime Value | crm.clv.amount | CLV | 04_Customer | €#,0 | KPI |
-| Customer Margin Amount | margin.customer.amount | Margin | 02_Margin | €#,0 | KPI |
-| Retention % | crm.retention.pct | Retention | 04_Customer | 0.0% | KPI |
-| Churn % | crm.churn.pct | Churn | 04_Customer | 0.0% | KPI |
-| Customer Revenue Amount | sales.customer.revenue.amount | Revenue | 01_Revenue | €#,0 | KPI |
-| Net Sales Amount | Supporting | Revenue base | 01_Revenue | €#,0 | Supporting |
-| COGS Amount | Supporting | Cost base | 02_Margin | €#,0 | Supporting |
-| Active Customers | Supporting | Retention denominator | 04_Customer | #,0 | Supporting |
-| Churned Customers | Supporting | Churn numerator | 04_Customer | #,0 | Supporting |
+- Customer Lifetime Value Amount
+- Customer Lifetime Revenue Amount
+- Customer Retention %
+- Churned Customers Count
+- Revenue at Risk Amount
+- Active Customers Count
+- NPS Score
+- Customer Complaints Count
 
 ### 5.2 DAX Definitions
-```DAX
-/// Supporting — Revenue
-Net Sales Amount :=
-    SUM ( fact_sales[Net Sales Amount] )
-
-/// Supporting — Cost
-COGS Amount :=
-    SUM ( fact_sales[Cost of Goods Sold Amount] )
-
-/// sales.customer.revenue.amount — Customer revenue
-Customer Revenue Amount :=
-    CALCULATE ( [Net Sales Amount], ALLEXCEPT ( dim_customer, dim_customer[CustomerKey] ) )
-
-/// margin.customer.amount — Customer margin
-Customer Margin Amount :=
-    CALCULATE ( [Net Sales Amount] - [COGS Amount], ALLEXCEPT ( dim_customer, dim_customer[CustomerKey] ) )
-
-/// Supporting — Active and churned counts
-Active Customers :=
-    CALCULATE ( DISTINCTCOUNT ( dim_customer[CustomerKey] ), fact_customer_activity[Active Flag] = TRUE )
-
-Churned Customers :=
-    CALCULATE ( DISTINCTCOUNT ( dim_customer[CustomerKey] ), fact_customer_activity[Churn Flag] = TRUE )
-
-/// crm.retention.pct — Retention
-Retention % :=
-    DIVIDE ( [Active Customers], [Active Customers] + [Churned Customers] )
-
-/// crm.churn.pct — Churn
-Churn % :=
-    DIVIDE ( [Churned Customers], [Active Customers] + [Churned Customers] )
-
-/// crm.clv.amount — CLV (placeholder if precomputed)
-Customer Lifetime Value :=
-    SUM ( fact_customer_value[CLV Amount] )
-```
+No local DAX added; measures sourced from certified semantic model. Existing certified expressions apply.
 
 ---
 
 ## 6. RLS / OLS Requirements
-
-### 6.1 Security Table Pattern
-```yaml
-security_table:
-  name: security_user_org
-  keys:
-    - UserPrincipalName
-    - Region
-    - Country
-    - OrgKey
-    - Channel
-  mapping_target: dim_org[OrgKey]
-  fallback_behavior: deny_all_if_no_match
-```
-
-### 6.2 RLS Rule (Fabric / Power BI)
-```DAX
-dim_org[OrgKey] IN
-    CALCULATETABLE (
-        VALUES ( security_user_org[OrgKey] ),
-        security_user_org[UserPrincipalName] = USERPRINCIPALNAME()
-    )
-```
-
-### 6.3 OLS (optional)
-- None required; CLV may be sensitive—consider masking for roles if needed (TODO if client requires).
+- Executives and commercial leaders require correct region/channel scoping; apply existing Org-hierarchy RLS (security_user_org) cascading to facts.
+- No new RLS rules created for this use case; reuse canonical pattern.
 
 ---
 
 ## 7. Technical Assumptions
-- Churn/retention flags supplied in fact_customer_activity; definition consistent across channels.
-- CLV either precomputed (preferred) or computed upstream; if computed in model, align methodology with finance.
-- Data latency ≤24h; currency EUR.
-- Customer-to-org mapping available for RLS alignment.
+- Churn/retention flags and attrition risk available in fact_customer_events.
+- CLV and CLV Remaining provided upstream via fact_customer_value.
+- Complaint events captured in fact_experience; NPS scores available in fact_nps.
+- Currency/fiscal settings per data governance.
+- Attrition Risk % delivered as 0–100; model scales to 0–1 for calculations. CLV/Remaining follow finance-approved discount rate and CLV horizon (WACC and agreed horizon).
 
 ---
 
 ## 8. Deployment Requirements
-- Mode: DirectLake or Import (prefer DirectLake if Fabric).  
-- Incremental refresh: yes, for fact_sales and fact_customer_activity (e.g., last 24 months).  
-- Aggregations: optional for large sales volume tables.  
-- Workspace/naming: `ARF – Commercial` dataset/model naming per governance.
+- Mode: DirectLake or Import depending on SLA; incremental refresh by Month.
+- Aggregations optional for long history; avoid grain distortion.
+- Workspace and naming per governance; display folders per measure dictionary.
 
 ---
 
 ## 9. QA & Validation Rules
-| Check | Rule | Threshold | Automated Y/N | Owner |
-|-------|------|-----------|---------------|-------|
-| Referential Integrity | Date/Org/Customer/Product keys non-null in facts | 100% | Y | Data Engineering |
-| Revenue/Cost Balancing | Net Sales and COGS match source per month | ±0.1% | Y | Controlling |
-| Retention/Churn Consistency | Active + Churned reconciles to prior base | Exact | Y | BI |
-| CLV Availability | CLV present for top segments | 100% of priority segments | Y | BI/Finance |
-| RLS Coverage | Users see only authorised regions/channels/customers (if mapped) | 0 leaks | Y | Security |
-| Performance | Main visuals <2s on 24M row sample | <2s | Y | BI |
+- KPIs must reconcile with domain reports (sales/churn/CLV/CX).
+- Only certified measures allowed; no local KPI calculations.
+- Active/churned bases must reconcile to customer events; CLV/risk reconcile to upstream mart; NPS/complaints reconcile to CX sources.
+
+---
 
 agent_hooks:
   validate: true

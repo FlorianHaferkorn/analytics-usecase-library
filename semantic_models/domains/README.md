@@ -14,6 +14,7 @@ Usage:
 - Add domain models/dictionaries here
 - Link from KPI catalog index
 - Keep aligned with data contracts
+- Commercial reference: semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md
 
 Relations:
 WITH WHAT/HOW; supports usecases.

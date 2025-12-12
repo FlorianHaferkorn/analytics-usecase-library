@@ -30,6 +30,7 @@ dimension:
       - {name: Category, type: text}
       - {name: Subcategory, type: text}
       - {name: Brand, type: text}
+      - {name: ProductFamily, type: text, nullable: true}   # for comparable item grouping (cannibalization)
 
   - name: dim_customer
     columns:
@@ -58,6 +59,7 @@ fact:
       - {name: ProductKey, type: int, ref: dim_product}
       - {name: CustomerKey, type: int, ref: dim_customer, nullable: true}
       - {name: PromoKey, type: int, ref: dim_promo, nullable: true}
+      - {name: Promo Flag, type: boolean, nullable: true}   # identifies promotional transactions
       - {name: Net Sales Amount, type: currency, agg: sum}
       - {name: Quantity, type: decimal, agg: sum}
       - {name: Plan Quantity, type: decimal, agg: sum, nullable: true}
@@ -76,6 +78,54 @@ fact:
       - {name: Funding Amount, type: currency, agg: sum, nullable: true}
       - {name: Baseline Sales Amount, type: currency, agg: sum, nullable: true}
       - {name: Baseline Quantity, type: decimal, agg: sum, nullable: true}
+      - {name: Baseline Non-Promo Sales Amount, type: currency, agg: sum, nullable: true}   # for cannibalization calculations
+
+  - name: fact_customer_events
+    grain: customer_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: CustomerKey, type: int, ref: dim_customer}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: Activity Flag, type: boolean}
+      - {name: Churn Flag, type: boolean}
+      - {name: Attrition Risk %, type: decimal, nullable: true}
+    qa:
+      - "Activity and Churn flags mutually consistent per customer-month."
+      - "Attrition Risk % within [0;1] when present."
+
+  - name: fact_customer_value
+    grain: customer_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: CustomerKey, type: int, ref: dim_customer}
+      - {name: CLV Amount, type: currency}
+      - {name: CLV Remaining Amount, type: currency, nullable: true}
+    qa:
+      - "CLV Amount >= 0; Remaining Amount >= 0 when present."
+
+  - name: fact_experience
+    grain: customer_event
+    columns:
+      - {name: Complaint ID, type: text, role: key}
+      - {name: CustomerKey, type: int, ref: dim_customer}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: Severity, type: text, nullable: true}
+    qa:
+      - "Complaint ID unique per event."
+
+  - name: fact_nps
+    grain: customer_event
+    columns:
+      - {name: ResponseID, type: text, role: key}
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: CustomerKey, type: int, ref: dim_customer, nullable: true}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: NPS Score, type: number}
+      - {name: Is Promoter, type: bool, nullable: true}
+      - {name: Is Detractor, type: bool, nullable: true}
+    qa:
+      - "NPS Score in [0;10]; Promoter/Detractor flags mutually exclusive."
 
 settings:
   timezone: Europe/Berlin

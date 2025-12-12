@@ -1,4 +1,4 @@
-# COM-002 — Margin & Price Performance  
+# COM-002 - Margin & Price Performance  
 ## Business Factsheet (v1.2)
 
 ---
@@ -30,10 +30,6 @@
 - Which cost components or suppliers dilute margin?
 - Which actions move gross margin fastest with lowest risk?
 
-**Example Query Patterns (optional):**
-- “Which top-10 SKUs by channel drive the biggest GM vs Plan gap?”
-- “Where is price realization <95% with stable volume?”
-
 ---
 
 ## 3. Required KPIs (Mandatory)
@@ -45,17 +41,17 @@ required_kpis:
     name: Gross Margin %
     purpose: Profitability quality
     definition_short: Gross Margin / Net Sales
-    unit: %
+    unit: "%"
     grain: month
     agg: avg
-    target: ≥ 25%
+    target: >= 25%
     interpretation: Compression signals price/mix/cost pressure
     lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount]
   - id: margin.gm.amount
     name: Gross Margin Amount
     purpose: Profit pool sizing
-    definition_short: Net Sales Amount – COGS Amount
-    unit: €
+    definition_short: Net Sales Amount - COGS Amount
+    unit: "EUR"
     grain: month
     agg: sum
     target: Improve vs Plan and LY
@@ -65,27 +61,27 @@ required_kpis:
     name: Price Realization %
     purpose: Discount discipline
     definition_short: Net Price / List Price
-    unit: %
+    unit: "%"
     grain: month
     agg: avg
-    target: ≥ 95%
+    target: >= 95%
     interpretation: Low values imply discount leakage
     lineage: fact_sales[Net Price Amount], fact_sales[List Price Amount]
   - id: sales.pvm.mix_effect.amount
     name: Mix Effect Amount
     purpose: Mix quality
     definition_short: Net Sales impact from mix change
-    unit: €
+    unit: "EUR"
     grain: month
     agg: sum
-    target: ≥ 0
+    target: >= 0
     interpretation: Negative implies adverse mix
     lineage: fact_sales[Net Sales Amount], PVM decomposition residual
   - id: cost.cogs_per_unit.amount
     name: COGS per Unit
     purpose: Unit cost control
     definition_short: COGS Amount / Quantity
-    unit: €
+    unit: "EUR"
     grain: month
     agg: avg
     target: Stable or improving vs Plan/LY
@@ -94,11 +90,11 @@ required_kpis:
   - id: margin.gm.vs_plan.pct
     name: Gross Margin % vs Plan
     purpose: Performance vs Plan
-    definition_short: (GM % – Plan GM %) / Plan GM %
-    unit: pp
+    definition_short: (GM % - Plan GM %) / Plan GM %
+    unit: "pp"
     grain: month
     agg: avg
-    target: ≥ 0 pp
+    target: >= 0 pp
     interpretation: Negative variance shows miss vs Plan
     lineage: GM %, Plan GM %
 ```
@@ -106,38 +102,34 @@ required_kpis:
 ---
 
 ## 4. Business Logic & Thresholds
-Formal rules that define performance and action triggers.
-
-### 4.1 Logic Description
 - Flag if Price Realization % < 95% with GM % < 25%.
 - Flag if Mix Effect Amount < 0 in top 5 regions/channels.
 - Escalate if GM % vs Plan < 0 for 2 consecutive months.
 - Highlight if COGS per Unit rising >2% vs Plan for top SKUs.
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
 ```yaml
 triggers:
   - kpi: sales.price.realization_pct
-    condition: <
+    condition: below_target
     threshold: 0.95
     scope: region_channel
     exclusion: low-volume SKUs
     action_code: P2
   - kpi: sales.pvm.mix_effect.amount
-    condition: <
+    condition: negative
     threshold: 0
     scope: top5_regions_channels
     exclusion: none
     action_code: M3
   - kpi: margin.gm.vs_plan.pct
-    condition: <
+    condition: below_target
     threshold: 0
     scope: last_2_months
     exclusion: none
     action_code: P2
   - kpi: cost.cogs_per_unit.amount
-    condition: >
-    threshold: 0.02
+    condition: above_threshold
+    threshold: 0.02   # +2% vs plan/LY
     scope: top_skus
     exclusion: new launches
     action_code: D1
@@ -146,7 +138,6 @@ triggers:
 ---
 
 ## 5. Action Codes (Mandatory)
-Link business behavior to measurable outcomes.
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
 |-------------|------|------------------|-------------|---------------------|------------------|-------|
@@ -157,7 +148,7 @@ Link business behavior to measurable outcomes.
 
 ---
 
-## 6. 3–30–300 Page Layout (Mandatory)
+## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
 - Gross Margin %  
@@ -169,16 +160,21 @@ Link business behavior to measurable outcomes.
 ### 6.2 30-Second Layer (Main Visuals)
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
-| GM % vs Plan Trend | Line | dim_date[Month] | [GM %], [Plan GM %] | Region/Channel | Last 12–24 months | Core trend |
-| Price Realization by Channel | Column | dim_org[Channel] | [Price Realization %] | Region | Current quarter | Highlight low channels |
-| Mix Effect Bridge | Waterfall | Driver (Mix) | [Mix Effect Amount] | Region/Channel | Current period | PVM mix focus |
-| COGS per Unit vs Plan | Column | dim_product[Category] | [COGS per Unit], [Plan COGS per Unit] | Region | Current quarter | Watch unit cost drift |
+| GM % vs Plan Trend | Line | dim_date[Month] | GM %, Plan GM % | Region/Channel | L12–24M | Core trend |
+| Price Realization by Channel | Column | dim_org[Channel] | Price Realization % | Region | Current quarter | Highlight low channels |
+| Mix Effect Bridge | Waterfall | Driver (Mix) | Mix Effect Amount | Region/Channel | Current period | PVM mix focus |
+| COGS per Unit vs Plan | Column | dim_product[Category] | COGS per Unit, Plan COGS per Unit | Region | Current quarter | Watch unit cost drift |
 
 ### 6.3 Required Slicers (Mandatory)
 - Date (Month/Quarter)  
 - Region / Country / Channel  
 - Product Category / Subcategory  
-- Customer (optional if available)
+- Customer (optional)
+
+### 6.4 300-Second Layer (Diagnostics)
+- Price realization ladder (List → Net) with discount/rebate/surcharge.
+- Mix decomposition by Region/Channel/Product.
+- Unit cost variance by supplier/plant/SKU.
 
 ---
 
@@ -191,7 +187,7 @@ required_dimensions:
   - dim_org
   - dim_product
   - security_user_org
-required_grain: invoice_line
+required_grain: invoice_line (aggregated to month for KPIs)
 required_time_range: 24 months history + Plan/LY snapshots
 required_slicers: Date, Region/Country/Channel, Product Category/Subcategory
 ```
@@ -200,9 +196,9 @@ required_slicers: Date, Region/Country/Channel, Product Category/Subcategory
 
 ## 8. Dependencies, Assumptions & Constraints
 - Plan and LY snapshots frozen monthly; currency aligned.
-- Pricing elements (list price, discounts, rebates) must be complete for realization.
+- Pricing elements (list price, discounts, rebates, surcharges) must be complete for realization.
 - PVM logic aligned with COM-001/004; cost attribution stable.
-- Data latency ≤24h; OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org).
+- Conformed dims (Date, Org, Product, security_user_org) required.
 
 ---
 
@@ -217,4 +213,6 @@ required_slicers: Date, Region/Country/Channel, Product Category/Subcategory
 ## 10. Risks & Wrong Interpretations (Short)
 - Misstating realization if promo flags are missing (see COM-004).  
 - Misattributing mix when hierarchy changes mid-period.  
-- Ignoring cost timing effects (e.g., accruals) when reading COGS/unit trends.  
+- Ignoring cost timing effects (e.g., accruals) when reading COGS/unit trends.
+
+---

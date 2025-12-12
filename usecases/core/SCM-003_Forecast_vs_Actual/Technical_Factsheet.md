@@ -17,7 +17,7 @@
 - **Source Data Contract:** data_contracts/sources/supply_chain.yaml (if present)
 - **Semantic Model Definition:** semantic_models/domains/scm/model_definition.yaml
 - **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
-- **Measure Dictionary:** framework/kpi_catalog/domain_measure_dictionary.md
+- **Measure Dictionary:** semantic_models/domains/SupplyChain/Measure_Dictionary_SupplyChain.md
 - **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
 
 ---
@@ -318,3 +318,4 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+

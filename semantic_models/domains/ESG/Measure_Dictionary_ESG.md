@@ -1,124 +1,152 @@
 # Measure Dictionary - ESG
 
-Schema: see `/_includes/kpi_catalog/Domain_Measure_Dictionary_Schema.md`
+Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
-- measure_name: Carbon Emission Intensity
+- measure_name: "Carbon Emission Intensity"
   is_kpi_measure: true
-  kpi_id_ref: esg.carbon_intensity.tco2e_per_revenue
-  semantic_model: ESG_SemanticModel
-  category: KPI
+  kpi_id_ref: "esg.carbon_intensity.tco2e_per_revenue"
+  semantic_model: "ESG_SemanticModel"
+  display_folder: "01_Carbon"
+  category: "KPI"
   expression:
-    dax: DIVIDE([Total CO Emissions (tCO2)],[Net Sales Amount])
-    formatString: '0.00'
+    dax: "/* TODO: implement Carbon Emission Intensity */"
+    formatString: "0.000 tCO2e per revenue"
   documentation:
-    description: Total greenhouse gas emissions divided by revenue for the selected period (carbon intensity).
-    notes: ''
-  governance:
-    owner: ESG BI
-    status: active
-    version: v2.0
-    last_review: 12.10.2025
+    description: "Total CO2e emissions per revenue."
+    notes: |
+      Grain: quarter. Unit: tCO2e per revenue.
+      Lineage: fact_sustainability[CO2 Emissions], fact_sales[Net Sales Amount].
+      QA: Scope coverage complete; revenue consistent; DIVIDE guard.
   dependencies:
-    measures:
-    - Net Sales Amount
     columns:
-    - fact_sustainability.CO2_Emissions
-    - fact_sales.Net Sales Amount
-- measure_name: ESG-Aligned Revenue %
-  is_kpi_measure: true
-  kpi_id_ref: esg.aligned_revenue.pct
-  semantic_model: ESG_SemanticModel
-  category: KPI
-  expression:
-    dax: DIVIDE([ESG-Aligned Revenue Amount],[Net Sales Amount])
-    formatString: 0.0 %
-  documentation:
-    description: Share of revenue that meets EU Taxonomy criteria.
-    notes: ''
+      - "fact_sustainability[CO2 Emissions]"
+      - "fact_sales[Net Sales Amount]"
   governance:
-    owner: Finance Reporting
-    status: active
-    version: v1.0
-    last_review: 11.11.2025
-  display_folder: 01_Strategy
+    owner: "Sustainability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "ESG-Aligned Revenue %"
+  is_kpi_measure: true
+  kpi_id_ref: "esg.aligned_revenue.pct"
+  semantic_model: "ESG_SemanticModel"
+  display_folder: "02_Revenue"
+  category: "KPI"
+  expression:
+    dax: "/* TODO: implement ESG-Aligned Revenue % */"
+    formatString: "0.0%"
+  documentation:
+    description: "Share of revenue classified as ESG-aligned."
+    notes: |
+      Grain: quarter. Unit: %.
+      Lineage: fact_sales[ESG Aligned Revenue], fact_sales[Net Sales Amount].
+      QA: Classification rules documented; Net Sales > 0.
   dependencies:
-    measures:
-    - ESG-Aligned Revenue Amount
-    - Net Sales Amount
     columns:
-    - fact_esg.RevenueAligned
-    - fact_sales.Net Sales Amount
-- measure_name: Renewable Energy (kWh)
-  is_kpi_measure: true
-  kpi_id_ref: esg.energy.renewable_kwh
-  semantic_model: ESG_SemanticModel
-  category: KPI
-  expression:
-    dax: '// TODO: add expression'
-    formatString: '#,0'
-  documentation:
-    description: Total renewable energy consumption
-    notes: ''
+      - "fact_sales[ESG Aligned Revenue]"
+      - "fact_sales[Net Sales Amount]"
   governance:
-    owner: Sustainability Data Team
-    status: active
-    version: v1.0
-    last_review: 04.11.2025
-- measure_name: Total Energy (kWh)
+    owner: "Sustainability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Renewable Energy kWh"
   is_kpi_measure: true
-  kpi_id_ref: esg.energy.total_kwh
-  semantic_model: ESG_SemanticModel
-  category: KPI
+  kpi_id_ref: "esg.energy.renewable_kwh"
+  semantic_model: "ESG_SemanticModel"
+  display_folder: "03_Energy"
+  category: "KPI"
   expression:
-    dax: '// TODO: add expression'
-    formatString: '#,0'
+    dax: "SUM(fact_energy[Renewable kWh])"
+    formatString: "#,0 kWh"
   documentation:
-    description: Total energy consumption
-    notes: ''
-  governance:
-    owner: Sustainability Data Team
-    status: active
-    version: v1.0
-    last_review: 04.11.2025
-- measure_name: Total CO2 Emissions (tCO2e)
-  is_kpi_measure: true
-  kpi_id_ref: esg.co2.total.tco2e
-  semantic_model: ESG_SemanticModel
-  category: KPI
-  expression:
-    dax: '// TODO: add expression'
-    formatString: '#,0'
-  documentation:
-    description: Aggregated Scope 1-3 CO2e
-    notes: ''
-  governance:
-    owner: Sustainability Data Team
-    status: active
-    version: v1.0
-    last_review: 04.11.2025
-- measure_name: LTIFR
-  is_kpi_measure: true
-  kpi_id_ref: esg.ltifr.rate
-  semantic_model: ESG_SemanticModel
-  category: KPI
-  expression:
-    dax: DIVIDE([Lost Time Injuries],[Hours Worked]) * 1000000
-    formatString: '0.00'
-  documentation:
-    description: Lost Time Injury Frequency Rate.
-    notes: ''
-  governance:
-    owner: Safety Office
-    status: active
-    version: v1.0
-    last_review: 11.11.2025
-  display_folder: 02_Safety
+    description: "Renewable energy consumed."
+    notes: |
+      Grain: month. Unit: kWh.
+      Lineage: fact_energy[Renewable kWh].
+      QA: Metering completeness; avoid duplicates.
   dependencies:
-    measures:
-    - Lost Time Injuries
-    - Hours Worked
     columns:
-    - fact_safety.LostTimeInjuries
-    - fact_hr.HoursWorked
+      - "fact_energy[Renewable kWh]"
+  governance:
+    owner: "Sustainability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Total Energy kWh"
+  is_kpi_measure: true
+  kpi_id_ref: "esg.energy.total_kwh"
+  semantic_model: "ESG_SemanticModel"
+  display_folder: "03_Energy"
+  category: "KPI"
+  expression:
+    dax: "SUM(fact_energy[Total kWh])"
+    formatString: "#,0 kWh"
+  documentation:
+    description: "Total energy consumed."
+    notes: |
+      Grain: month. Unit: kWh.
+      Lineage: fact_energy[Total kWh].
+      QA: Metering completeness; consistent units.
+  dependencies:
+    columns:
+      - "fact_energy[Total kWh]"
+  governance:
+    owner: "Sustainability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Total CO2 Emissions"
+  is_kpi_measure: true
+  kpi_id_ref: "esg.co2.total.tco2e"
+  semantic_model: "ESG_SemanticModel"
+  display_folder: "01_Carbon"
+  category: "KPI"
+  expression:
+    dax: "SUM(fact_sustainability[CO2 Emissions])"
+    formatString: "#,0.0 tCO2e"
+  documentation:
+    description: "Total CO2 equivalent emissions."
+    notes: |
+      Grain: month. Unit: tCO2e.
+      Lineage: fact_sustainability[CO2 Emissions].
+      QA: Scopes complete; factors documented.
+  dependencies:
+    columns:
+      - "fact_sustainability[CO2 Emissions]"
+  governance:
+    owner: "Sustainability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "LTIFR"
+  is_kpi_measure: true
+  kpi_id_ref: "esg.ltifr.rate"
+  semantic_model: "ESG_SemanticModel"
+  display_folder: "04_Safety"
+  category: "KPI"
+  expression:
+    dax: "/* TODO: implement LTIFR */"
+    formatString: "0.000"
+  documentation:
+    description: "Lost time injuries per million hours worked."
+    notes: |
+      Grain: month. Unit: rate.
+      Lineage: fact_safety[LTIs], fact_safety[Hours Worked].
+      QA: Hours > 0; injury classification consistent.
+  dependencies:
+    columns:
+      - "fact_safety[LTIs]"
+      - "fact_safety[Hours Worked]"
+  governance:
+    owner: "Sustainability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
 ```

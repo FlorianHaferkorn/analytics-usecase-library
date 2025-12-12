@@ -16,6 +16,7 @@ Usage:
 - Review before use; nothing here is final
 - Delete or migrate once classified
 - Keep notes on why items are archived
+- Contoso- or vendor-specific references here are legacy only and not part of the current, tenant-agnostic ActionReady blueprint or the Aurora showcase.
 
 Relations:
 Outside the 4 layers; staging for cleanup.
