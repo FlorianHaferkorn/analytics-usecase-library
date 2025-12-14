@@ -16,8 +16,8 @@
 - **Domain Data Contract:** data_contracts/domains/experience.yaml
 - **Source Data Contract:** data_contracts/sources/experience.yaml (if present)
 - **Semantic Model Definition:** semantic_models/domains/experience/model_definition.yaml
-- **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
-- **Measure Dictionary:** framework/kpi_catalog/domain_measure_dictionary.md
+- **KPI Catalog:** framework/kpi_catalog/KPI_Catalog_Service.md
+- **Measure Dictionary:** semantic_models/domains/Service/Measure_Dictionary_Service.md
 - **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
 
 ---

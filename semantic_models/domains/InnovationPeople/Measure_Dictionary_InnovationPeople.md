@@ -10,7 +10,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Innovation"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement New Product Share % */"
+    dax: |
+      VAR NewRev   = SUM ( fact_sales[New Product Revenue] )
+      VAR TotalRev = SUM ( fact_sales[Net Sales Amount] )
+      RETURN DIVIDE ( NewRev, TotalRev )
     formatString: "0.0%"
   documentation:
     description: "Revenue from recently launched products divided by total revenue."
@@ -35,7 +38,11 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Innovation"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Innovation Rate % */"
+    dax: |
+      VAR NewCount =
+          COUNTROWS ( FILTER ( dim_product, dim_product[Lifecycle Phase] = "New" ) )
+      VAR TotalCount = COUNTROWS ( dim_product )
+      RETURN DIVIDE ( NewCount, TotalCount )
     formatString: "0.0%"
   documentation:
     description: "New launches as a share of total portfolio."
@@ -60,7 +67,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_Digital"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Digital Adoption % */"
+    dax: |
+      VAR Users = SUM ( fact_it[Digital Users] )
+      VAR Heads = SUM ( fact_hr[Headcount] )
+      RETURN DIVIDE ( Users, Heads )
     formatString: "0.0%"
   documentation:
     description: "Digital tool users divided by total employees."
@@ -85,7 +95,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Product"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Product Contribution Margin % */"
+    dax: |
+      VAR Revenue = SUM ( fact_sales[Net Sales Amount] )
+      VAR Cogs    = SUM ( fact_sales[Cost of Goods Sold Amount] )
+      RETURN DIVIDE ( Revenue - Cogs, Revenue )
     formatString: "0.0%"
   documentation:
     description: "Contribution margin by product."
@@ -110,7 +123,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Product"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Product Lifecycle Age */"
+    dax: |
+      VAR LaunchDate = MIN ( dim_product[Launch Date] )
+      VAR TodayDate  = MAX ( dim_date[Date] )
+      RETURN DATEDIFF ( LaunchDate, TodayDate, MONTH )
     formatString: "0"
   documentation:
     description: "Age of product in months since launch."
@@ -134,7 +150,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Product"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Product Lifecycle Phase Distribution % */"
+    dax: |
+      VAR PhaseCount = COUNTROWS ( dim_product )
+      VAR TotalCount = CALCULATE ( COUNTROWS ( dim_product ), ALL ( dim_product ) )
+      RETURN DIVIDE ( PhaseCount, TotalCount )
     formatString: "0.0%"
   documentation:
     description: "Share of products by lifecycle phase."
@@ -158,7 +177,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Product"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Product ROI % */"
+    dax: |
+      VAR Benefit = SUM ( fact_sales[Contribution Margin Amount] )
+      VAR Cost    = SUM ( fact_sales[Product Investment Amount] )
+      RETURN DIVIDE ( Benefit - Cost, Cost )
     formatString: "0.0%"
   documentation:
     description: "ROI per product."
@@ -183,7 +205,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_People"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Gross Margin per FTE */"
+    dax: |
+      VAR GM  = SUM ( fact_sales[Net Sales Amount] ) - SUM ( fact_sales[Cost of Goods Sold Amount] )
+      VAR FTE = SUM ( fact_hr[FTE] )
+      RETURN DIVIDE ( GM, FTE )
     formatString: "EUR #,0.00"
   documentation:
     description: "Gross margin per FTE."
@@ -209,7 +234,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_People"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Personnel Cost Ratio % */"
+    dax: |
+      VAR Cost  = SUM ( fact_hr[Personnel Cost] )
+      VAR Rev   = SUM ( fact_finance[Revenue] )
+      RETURN DIVIDE ( Cost, Rev )
     formatString: "0.0%"
   documentation:
     description: "Personnel cost / revenue."

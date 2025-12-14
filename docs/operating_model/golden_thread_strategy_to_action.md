@@ -1,8 +1,14 @@
 # Golden Thread – From Strategy to Action
 
-Purpose  
-This document explains how business strategy is translated into actionable analytics in a consistent, scalable, and governance-safe way.  
-It is the conceptual backbone of the Analytics Framework.
+Most analytics landscapes implicitly assume a link between strategy, KPIs, insights, and actions.
+
+In reality, this link is often fragmented:
+- Strategy is defined, but not operationalized
+- KPIs exist, but are not action-oriented
+- Insights are generated, but not executed
+- Actions happen, but are not measured
+
+The purpose of the Golden Thread is to make this connection explicit, traceable, and operational across the entire analytics lifecycle.
 
 ---
 

@@ -10,14 +10,17 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Margin"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Gross Margin % */"
+    dax: |
+      VAR NetSales = SUM ( fact_sales[Net Sales Amount] )
+      VAR Cogs     = SUM ( fact_sales[Cost of Goods Sold Amount] )
+      RETURN DIVIDE ( NetSales - Cogs, NetSales )
     formatString: "0.0%"
   documentation:
     description: "Gross margin divided by net sales."
     notes: |
-      Grain: month. Unit: %.
+      Grain: month (aggregated from invoice_line). Unit: %.
       Lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount].
-      QA: Net Sales > 0; currency alignment.
+      QA: Net Sales > 0; currency alignment; exclusions (returns) consistent.
   dependencies:
     columns:
       - "fact_sales[Net Sales Amount]"
@@ -60,7 +63,11 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Margin"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Gross Margin Delta Amount */"
+    dax: |
+      VAR GM = [Gross Margin Amount]
+      VAR GM_Base =
+          COALESCE ( [Plan Gross Margin Amount], [Gross Margin Amount LY] )
+      RETURN GM - GM_Base
     formatString: "EUR #,0"
   documentation:
     description: "Absolute change in gross margin vs baseline."
@@ -84,7 +91,11 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Margin"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Gross Margin Delta % */"
+    dax: |
+      VAR GM_Pct = [Gross Margin %]
+      VAR GM_Pct_Base =
+          COALESCE ( [Plan Gross Margin %], [Gross Margin % LY] )
+      RETURN DIVIDE ( GM_Pct - GM_Pct_Base, GM_Pct_Base )
     formatString: "0.0%"
   documentation:
     description: "Relative change in gross margin rate vs baseline."
@@ -108,7 +119,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Margin"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Gross Margin % vs Plan */"
+    dax: |
+      VAR GM_Pct = [Gross Margin %]
+      VAR GM_Pct_Plan = [Plan Gross Margin %]
+      RETURN DIVIDE ( GM_Pct - GM_Pct_Plan, GM_Pct_Plan )
     formatString: "0.0 percentage-point"
   documentation:
     description: "Relative variance of GM% versus plan."
@@ -132,7 +146,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_Profit"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement EBITDA Margin */"
+    dax: |
+      VAR Ebitda = SUM ( fact_finance[EBITDA] )
+      VAR NetSales = SUM ( fact_finance[Net Sales] )
+      RETURN DIVIDE ( Ebitda, NetSales )
     formatString: "0.0%"
   documentation:
     description: "EBITDA divided by net sales."
@@ -181,7 +198,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_Promo"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Promotion ROI % */"
+    dax: |
+      VAR IncrementalGM = [Incremental GM Amount]
+      VAR PromoCost     = [Promo Cost Amount]
+      RETURN DIVIDE ( IncrementalGM, PromoCost )
     formatString: "0.0%"
   documentation:
     description: "Incremental GM divided by promo cost."
@@ -193,6 +213,231 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     columns:
       - "fact_sales[Incremental GM]"
       - "fact_promo[Promo Cost]"
+  governance:
+    owner: "Profitability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+# Supporting / Diagnostic Measures
+
+- measure_name: "Net Sales Amount"
+  is_kpi_measure: false
+  kpi_id_ref: null
+  semantic_model: "Profitability_SemanticModel"
+  display_folder: "00_Sales"
+  category: "Supporting"
+  expression:
+    dax: "SUM ( fact_sales[Net Sales Amount] )"
+    formatString: "EUR #,0"
+  documentation:
+    description: "Total net sales after discounts."
+    notes: |
+      Grain: invoice_line / month. Unit: EUR.
+      QA: Align with finance net revenue; currency alignment.
+  dependencies:
+    columns:
+      - "fact_sales[Net Sales Amount]"
+  governance:
+    owner: "Profitability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Gross Margin Amount LY"
+  is_kpi_measure: false
+  kpi_id_ref: null
+  semantic_model: "Profitability_SemanticModel"
+  display_folder: "01_Margin"
+  category: "Supporting"
+  expression:
+    dax: |
+      CALCULATE ( [Gross Margin Amount], DATEADD ( dim_date[Date], -1, YEAR ) )
+    formatString: "EUR #,0"
+  documentation:
+    description: "Last year gross margin for variance bridges."
+    notes: |
+      Grain: month. Unit: EUR.
+      QA: Calendar alignment; identical filters except date shift.
+  dependencies:
+    measures:
+      - "[Gross Margin Amount]"
+  governance:
+    owner: "Profitability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Gross Margin % LY"
+  is_kpi_measure: false
+  kpi_id_ref: null
+  semantic_model: "Profitability_SemanticModel"
+  display_folder: "01_Margin"
+  category: "Supporting"
+  expression:
+    dax: |
+      CALCULATE ( [Gross Margin %], DATEADD ( dim_date[Date], -1, YEAR ) )
+    formatString: "0.0%"
+  documentation:
+    description: "Last year gross margin rate for variance analysis."
+    notes: |
+      Grain: month. Unit: %.
+      QA: Calendar alignment; filters identical except date shift.
+  dependencies:
+    measures:
+      - "[Gross Margin %]"
+  governance:
+    owner: "Profitability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Plan Gross Margin Amount"
+  is_kpi_measure: false
+  kpi_id_ref: null
+  semantic_model: "Profitability_SemanticModel"
+  display_folder: "01_Margin"
+  category: "Supporting"
+  expression:
+    dax: "/* TODO: bring in plan GM from plan fact */"
+    formatString: "EUR #,0"
+  documentation:
+    description: "Planned gross margin for variance vs plan."
+    notes: |
+      Grain: month. Unit: EUR.
+      Lineage: plan fact (e.g., fact_plan_sales[Plan Gross Margin Amount]).
+      QA: Plan versioning and currency alignment required.
+  dependencies:
+    columns:
+      - "fact_plan_sales[Plan Gross Margin Amount]"
+  governance:
+    owner: "Profitability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Plan Gross Margin %"
+  is_kpi_measure: false
+  kpi_id_ref: null
+  semantic_model: "Profitability_SemanticModel"
+  display_folder: "01_Margin"
+  category: "Supporting"
+  expression:
+    dax: "/* TODO: plan GM% derived from plan sales and plan COGS */"
+    formatString: "0.0%"
+  documentation:
+    description: "Planned gross margin rate for variance vs plan."
+    notes: |
+      Grain: month. Unit: %.
+      QA: Plan net sales > 0; versioning documented.
+  dependencies:
+    columns:
+      - "fact_plan_sales[Plan Gross Margin Amount]"
+      - "fact_plan_sales[Plan Net Sales Amount]"
+  governance:
+    owner: "Profitability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Promo Cost Amount"
+  is_kpi_measure: false
+  kpi_id_ref: "sales.promo.cost.amount"
+  semantic_model: "Profitability_SemanticModel"
+  display_folder: "04_Promo"
+  category: "Supporting"
+  expression:
+    dax: "SUM ( fact_sales[Promo Cost Amount] )"
+    formatString: "EUR #,0"
+  documentation:
+    description: "Total promo spend for a promotion."
+    notes: |
+      Grain: promotion / product. Unit: EUR.
+      QA: Align with marketing accruals; promo flag logic consistent.
+  dependencies:
+    columns:
+      - "fact_sales[Promo Cost Amount]"
+  governance:
+    owner: "Profitability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Promo COGS Amount"
+  is_kpi_measure: false
+  kpi_id_ref: "cost.cogs.promo.amount"
+  semantic_model: "Profitability_SemanticModel"
+  display_folder: "04_Promo"
+  category: "Supporting"
+  expression:
+    dax: |
+      CALCULATE ( SUM ( fact_sales[Cost of Goods Sold Amount] ), fact_sales[Promo Flag] = TRUE () )
+    formatString: "EUR #,0"
+  documentation:
+    description: "COGS limited to promo periods/products."
+    notes: |
+      Grain: promotion / product. Unit: EUR.
+      QA: Promo flag accurate; currency alignment.
+  dependencies:
+    columns:
+      - "fact_sales[Cost of Goods Sold Amount]"
+      - "fact_sales[Promo Flag]"
+  governance:
+    owner: "Profitability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Incremental Sales Amount"
+  is_kpi_measure: false
+  kpi_id_ref: "sales.promo.incremental.amount"
+  semantic_model: "Profitability_SemanticModel"
+  display_folder: "04_Promo"
+  category: "Supporting"
+  expression:
+    dax: |
+      VAR PromoSales = CALCULATE ( SUM ( fact_sales[Net Sales Amount] ), fact_sales[Promo Flag] = TRUE () )
+      VAR Baseline   = CALCULATE ( SUM ( fact_sales[Baseline Non-Promo Sales Amount] ), fact_sales[Promo Flag] = TRUE () )
+      RETURN PromoSales - Baseline
+    formatString: "EUR #,0"
+  documentation:
+    description: "Additional sales due to promotion vs baseline."
+    notes: |
+      Grain: promotion / product. Unit: EUR.
+      QA: Baseline logic documented; avoid double counting overlaps.
+  dependencies:
+    columns:
+      - "fact_sales[Net Sales Amount]"
+      - "fact_sales[Baseline Non-Promo Sales Amount]"
+      - "fact_sales[Promo Flag]"
+  governance:
+    owner: "Profitability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Incremental GM Amount"
+  is_kpi_measure: false
+  kpi_id_ref: "margin.promo.incremental.amount"
+  semantic_model: "Profitability_SemanticModel"
+  display_folder: "04_Promo"
+  category: "Supporting"
+  expression:
+    dax: |
+      VAR PromoGM =
+          CALCULATE ( [Gross Margin Amount], fact_sales[Promo Flag] = TRUE () )
+      VAR BaselineGM =
+          CALCULATE ( [Gross Margin Amount], fact_sales[Promo Flag] = FALSE () )
+      RETURN PromoGM - BaselineGM
+    formatString: "EUR #,0"
+  documentation:
+    description: "Incremental gross margin during promotion vs non-promo baseline."
+    notes: |
+      Grain: promotion / product. Unit: EUR.
+      QA: Baseline window defined; check for mix shifts.
+  dependencies:
+    measures:
+      - "[Gross Margin Amount]"
   governance:
     owner: "Profitability Analytics"
     status: "draft"

@@ -79,3 +79,19 @@
 | hr.turnover.pct | Employee Turnover % | Innovation & People | People stability | Leavers / avg headcount | % | month | avg | <= target | fact_hr[Leavers], fact_hr[Headcount] |
 | hr.gm_per_fte.amount | GM per FTE Amount | Innovation & People | Productivity | Gross margin / FTE | EUR | month | avg | Increase vs target | fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount], fact_hr[FTE] |
 | hr.personnel_cost_ratio.pct | Personnel Cost Ratio % | Innovation & People | Cost share | Personnel cost / revenue | % | month | avg | <= target | fact_hr[Personnel Cost], fact_finance[Revenue] |
+
+---
+
+## Service & Experience
+| kpi_id | name | domain | purpose | definition_short | unit | grain | agg | target | lineage |
+|--------|------|--------|---------|------------------|------|-------|-----|--------|---------|
+| svc.sla.attainment.pct | SLA Attainment % | Service | SLA compliance | Cases meeting SLA / total cases | % | day_queue / month | avg | >= target | fact_cases[SLA Met Flag] |
+| svc.fcr.pct | First Contact Resolution % | Service | One-touch resolution | First contact resolved cases / total cases | % | day_queue / month | avg | >= target | fact_cases[FCR Flag] |
+| svc.aht.minutes | Average Handling Time (minutes) | Service | Efficiency per contact | Avg handling time per case | minutes | day_queue / month | avg | <= target | fact_cases[Handle Time] |
+| svc.backlog.count | Backlog Count | Service | Work in queue | Open cases not resolved | count | day_queue / month | sum | Controlled backlog | fact_cases[Backlog Flag] |
+| svc.nps.index | NPS Index | Service | Experience quality | %Promoters - %Detractors | index | month | avg | Improve vs target | fact_nps[NPS Score] |
+| svc.escalation.pct | Escalation % | Service | Escalation rate | Escalated cases / total cases | % | day_queue / month | avg | <= target | fact_cases[Escalation Flag] |
+| res.utilization.pct | Utilization % | Service | Productive use of time | Productive time / paid time | % | agent_day / queue_day | avg | 75-85% typical | fact_wfm[Work Time], fact_wfm[Paid Time] |
+| res.occupancy.pct | Occupancy % | Service | Active vs idle | (Talk + Wrap) / (Talk + Wrap + Idle) | % | agent_day / queue_day | avg | Balanced vs SLA | fact_wfm[Talk], fact_wfm[Wrap], fact_wfm[Idle] |
+| res.overtime.pct | Overtime % | Service | Overtime share | Overtime hours / total hours | % | agent_day / region_week | avg | <= target | fact_wfm[Overtime Hours], fact_wfm[Total Hours] |
+| res.shrinkage.pct | Shrinkage % | Service | Non-productive share | Non-productive time / paid time | % | agent_day | avg | <= target | fact_wfm[Shrinkage], fact_wfm[Paid Time] |

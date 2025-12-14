@@ -10,14 +10,17 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Carbon"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Carbon Emission Intensity */"
+    dax: |
+      VAR Emissions = SUM ( fact_sustainability[CO2 Emissions] )
+      VAR Revenue   = SUM ( fact_sales[Net Sales Amount] )
+      RETURN DIVIDE ( Emissions, Revenue )
     formatString: "0.000 tCO2e per revenue"
   documentation:
     description: "Total CO2e emissions per revenue."
     notes: |
-      Grain: quarter. Unit: tCO2e per revenue.
+      Grain: quarter (aggregated from month). Unit: tCO2e per revenue.
       Lineage: fact_sustainability[CO2 Emissions], fact_sales[Net Sales Amount].
-      QA: Scope coverage complete; revenue consistent; DIVIDE guard.
+      QA: Scope coverage complete; revenue consistent; DIVIDE guard; currency alignment.
   dependencies:
     columns:
       - "fact_sustainability[CO2 Emissions]"
@@ -35,14 +38,17 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_Revenue"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement ESG-Aligned Revenue % */"
+    dax: |
+      VAR Aligned = SUM ( fact_sales[ESG Aligned Revenue] )
+      VAR Revenue = SUM ( fact_sales[Net Sales Amount] )
+      RETURN DIVIDE ( Aligned, Revenue )
     formatString: "0.0%"
   documentation:
     description: "Share of revenue classified as ESG-aligned."
     notes: |
-      Grain: quarter. Unit: %.
+      Grain: quarter (aggregated from month). Unit: %.
       Lineage: fact_sales[ESG Aligned Revenue], fact_sales[Net Sales Amount].
-      QA: Classification rules documented; Net Sales > 0.
+      QA: Classification rules documented; Net Sales > 0; taxonomy version tracked.
   dependencies:
     columns:
       - "fact_sales[ESG Aligned Revenue]"
@@ -132,14 +138,17 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_Safety"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement LTIFR */"
+    dax: |
+      VAR Injuries = SUM ( fact_safety[LTIs] )
+      VAR Hours    = SUM ( fact_safety[Hours Worked] )
+      RETURN DIVIDE ( Injuries, Hours ) * 1000000
     formatString: "0.000"
   documentation:
     description: "Lost time injuries per million hours worked."
     notes: |
       Grain: month. Unit: rate.
       Lineage: fact_safety[LTIs], fact_safety[Hours Worked].
-      QA: Hours > 0; injury classification consistent.
+      QA: Hours > 0; injury classification consistent; include contractors per policy.
   dependencies:
     columns:
       - "fact_safety[LTIs]"

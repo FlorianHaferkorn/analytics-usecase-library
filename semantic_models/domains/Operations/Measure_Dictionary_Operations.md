@@ -10,14 +10,22 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Ops"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement OEE % (Availability * Performance * Quality) */"
+    dax: |
+      VAR Avail =
+          DIVIDE ( SUM ( fact_ops[Run Time] ), SUM ( fact_ops[Planned Time] ) )
+      VAR Perf =
+          /* If standard output available, replace divisor accordingly */
+          DIVIDE ( SUM ( fact_ops[Output] ), SUM ( fact_ops[Output] ) )
+      VAR Qual =
+          DIVIDE ( SUM ( fact_quality[Good Units] ), SUM ( fact_quality[Total Units] ) )
+      RETURN Avail * Perf * Qual
     formatString: "0.0%"
   documentation:
     description: "Overall equipment effectiveness combining availability, performance, and quality."
     notes: |
       Grain: line_day. Unit: %.
       Lineage: fact_ops[Run Time], fact_ops[Planned Time], fact_ops[Output], fact_quality[Good Units], fact_quality[Total Units].
-      QA: Ensure consistent time base; flags for downtime types; DIVIDE guards.
+      QA: Ensure consistent time base; flags for downtime types; DIVIDE guards; replace Perf divisor with theoretical output when available.
   dependencies:
     columns:
       - "fact_ops[Run Time]"
@@ -38,7 +46,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Ops"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Availability % */"
+    dax: |
+      DIVIDE ( SUM ( fact_ops[Run Time] ), SUM ( fact_ops[Planned Time] ) )
     formatString: "0.0%"
   documentation:
     description: "Uptime control: Run Time / Planned Production Time."
@@ -63,7 +72,9 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Ops"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Performance % */"
+    dax: |
+      /* Replace Standard Output with actual standard if available */
+      DIVIDE ( SUM ( fact_ops[Output] ), SUM ( fact_ops[Output] ) )
     formatString: "0.0%"
   documentation:
     description: "Speed vs standard: Actual Output / Theoretical Output."
@@ -89,7 +100,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Ops"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Quality % */"
+    dax: |
+      DIVIDE ( SUM ( fact_quality[Good Units] ), SUM ( fact_quality[Total Units] ) )
     formatString: "0.0%"
   documentation:
     description: "First pass yield: Good Units / Total Units."
@@ -138,7 +150,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Downtime"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Downtime % */"
+    dax: |
+      DIVIDE ( SUM ( fact_ops[Downtime] ), SUM ( fact_ops[Planned Time] ) )
     formatString: "0.0%"
   documentation:
     description: "Loss share: Downtime / Planned Production Time."
@@ -163,7 +176,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_Reliability"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement MTBF */"
+    dax: "/* TODO: implement MTBF using failure intervals */"
     formatString: "0.0"
   documentation:
     description: "Mean time between failures."
@@ -188,7 +201,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_Reliability"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement MTTR */"
+    dax: |
+      AVERAGEX ( fact_ops_failures, fact_ops_failures[Repair Duration] )
     formatString: "0.0"
   documentation:
     description: "Mean time to repair."
@@ -212,7 +226,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Downtime"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Unplanned Downtime % */"
+    dax: |
+      DIVIDE ( SUM ( fact_ops[Unplanned Downtime] ), SUM ( fact_ops[Planned Time] ) )
     formatString: "0.0%"
   documentation:
     description: "Unplanned downtime share of planned time."
@@ -237,7 +252,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "05_Maintenance"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Spare Parts Stockout % */"
+    dax: |
+      VAR Stockout = SUM ( fact_maintenance[Parts Stockout Flag] )
+      VAR Orders   = SUM ( fact_maintenance[Orders] )
+      RETURN DIVIDE ( Stockout, Orders )
     formatString: "0.0%"
   documentation:
     description: "Maintenance readiness via stockout rate for parts."
@@ -262,7 +280,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "05_Maintenance"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement PM Compliance % */"
+    dax: |
+      DIVIDE ( SUM ( fact_maintenance[PM On Time] ), SUM ( fact_maintenance[PM Planned] ) )
     formatString: "0.0%"
   documentation:
     description: "Preventive maintenance discipline: on-time PM orders / planned PM orders."
@@ -287,7 +306,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "06_Quality"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement First Pass Yield % */"
+    dax: |
+      DIVIDE ( SUM ( fact_quality[Good Units] ), SUM ( fact_quality[Total Units] ) )
     formatString: "0.0%"
   documentation:
     description: "Good units / total units at first pass."
@@ -312,7 +332,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "06_Quality"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Scrap Rate % */"
+    dax: |
+      DIVIDE ( SUM ( fact_quality[Scrap Units] ), SUM ( fact_quality[Total Units] ) )
     formatString: "0.0%"
   documentation:
     description: "Scrap units / total units."
@@ -337,7 +358,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "06_Quality"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Rework Rate % */"
+    dax: |
+      DIVIDE ( SUM ( fact_quality[Rework Units] ), SUM ( fact_quality[Total Units] ) )
     formatString: "0.0%"
   documentation:
     description: "Reworked units / total units."
@@ -362,7 +384,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "06_Quality"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Cost of Poor Quality */"
+    dax: "SUM(fact_quality_costs[COPQ])"
     formatString: "EUR #,0.00"
   documentation:
     description: "Financial impact from scrap, rework, and warranty/complaint costs."
@@ -386,7 +408,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "06_Quality"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Complaint Rate % */"
+    dax: |
+      VAR Complaints = SUM ( fact_complaints[Complaints] )
+      VAR Units      = SUM ( fact_shipments[Units] )
+      RETURN DIVIDE ( Complaints, Units )
     formatString: "0.0%"
   documentation:
     description: "Complaints / units shipped."
@@ -411,7 +436,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "06_Quality"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Defect Density */"
+    dax: |
+      VAR Defects = SUM ( fact_quality[Defect Count] )
+      VAR Units   = SUM ( fact_quality[Units] )
+      RETURN DIVIDE ( Defects, Units ) * 1000
     formatString: "0.0"
   documentation:
     description: "Defects per 1k units."

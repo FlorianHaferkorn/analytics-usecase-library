@@ -6,7 +6,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 ## KPIs - Strategic
 ```yaml
-[]
+- use_case_ref: []
 ```
 
 ## KPIs - Supporting / Diagnostic
@@ -31,7 +31,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       and capital calculations.
   technical:
     dax_name: PD %
-    depends_on_measures: []
+    depends_on_measures: - use_case_ref: []
     lineage:
     - fact_credit_risk.PD
   governance:
@@ -65,7 +65,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher LGD indicates lower recovery and higher loss severity; interpret together with PD % and EAD Amount.
   technical:
     dax_name: LGD %
-    depends_on_measures: []
+    depends_on_measures: - use_case_ref: []
     lineage:
     - fact_credit_risk.LGD
   governance:
@@ -99,7 +99,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher EAD increases expected loss and capital requirements; interpret with PD % and LGD %.
   technical:
     dax_name: EAD Amount
-    depends_on_measures: []
+    depends_on_measures: - use_case_ref: []
     lineage:
     - fact_credit_risk.EAD
   governance:

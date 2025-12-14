@@ -10,7 +10,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Growth"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Revenue Growth % ((Net Sales - LY) / LY) */"
+    dax: |
+      VAR Curr = SUM ( fact_sales[Net Sales Amount] )
+      VAR Ly   = SUM ( fact_sales[Net Sales Amount LY] )
+      RETURN DIVIDE ( Curr - Ly, Ly )
     formatString: "0.0%"
   documentation:
     description: "Top-line momentum vs last year."
@@ -59,7 +62,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Growth"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Net Sales Delta % vs LY */"
+    dax: |
+      VAR Curr = SUM ( fact_sales[Net Sales Amount] )
+      VAR Ly   = SUM ( fact_sales[Net Sales Amount LY] )
+      RETURN DIVIDE ( Curr - Ly, Ly )
     formatString: "0.0%"
   documentation:
     description: "Relative growth vs last year."
@@ -84,7 +90,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Growth"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Net Sales Delta Amount vs LY */"
+    dax: |
+      VAR Curr = SUM ( fact_sales[Net Sales Amount] )
+      VAR Ly   = SUM ( fact_sales[Net Sales Amount LY] )
+      RETURN Curr - Ly
     formatString: "EUR #,0"
   documentation:
     description: "Absolute growth vs last year."
@@ -109,7 +118,11 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_Mix"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Channel Revenue Share % */"
+    dax: |
+      VAR ChannelSales = SUM ( fact_sales[Net Sales Amount] )
+      VAR TotalSales   =
+          CALCULATE ( SUM ( fact_sales[Net Sales Amount] ), ALL ( dim_org[Channel] ) )
+      RETURN DIVIDE ( ChannelSales, TotalSales )
     formatString: "0.0%"
   documentation:
     description: "Channel revenue / total revenue."

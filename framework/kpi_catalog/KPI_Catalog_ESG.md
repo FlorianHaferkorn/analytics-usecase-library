@@ -7,7 +7,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ## KPIs - Strategic
 ```yaml
 - kpi_id: esg.carbon_intensity.tco2e_per_revenue
-  kpi_key: Carbon Emission Intensity (tCO2 / Delta Revenue)
+  kpi_key: Carbon Emission Intensity (tCO2e per revenue)
   kpi_type: strategic
   impact_dimension: ESG
   domain_tag:
@@ -17,9 +17,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   calc_type: ratio
   business:
     purpose: Measures greenhouse gas emissions relative to revenue.
-    definition: Total CO Emissions / Net Sales Amount
-    grain_scope: Company level, aggregated quarterly.
-    unit_format: tCO2 / m
+    definition: Total CO2e Emissions / Net Sales Amount.
+    grain_scope: Company level, aggregated quarterly (scopes 1-3).
+    unit_format: tCO2e per revenue
     interpretation: Lower values indicate improved carbon efficiency.
   technical:
     dax_name: Carbon Emission Intensity
@@ -35,7 +35,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     review_cycle: semi-annual
     validation_process: manual review
     qa_rules:
-    - Scopes 1â€“3 fully reported for all sites
+    - Scopes 1-3 fully reported for all sites; revenue currency aligned
     version: v2.0
   metadata_quality:
     completeness_score: 0.95
@@ -93,11 +93,12 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Total renewable energy consumed in the period (e.g., solar, wind, certified green electricity).
     grain_scope: Site/region; aggregated monthly or yearly.
     unit_format: kWh
-    interpretation: TODO - add interpretation.
+    interpretation: Higher share supports ESG alignment and lower carbon intensity.
   technical:
     dax_name: Renewable Energy (kWh)
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_energy.Renewable kWh
   governance:
     business_owner: Head of Sustainability
     data_owner: Sustainability Data Team
@@ -123,11 +124,12 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Total energy consumed in the period across all sources.
     grain_scope: Site/region; aggregated monthly or yearly.
     unit_format: kWh
-    interpretation: TODO - add interpretation.
+    interpretation: Monitor trend; input to carbon intensity calculations.
   technical:
     dax_name: Total Energy (kWh)
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_energy.Total kWh
   governance:
     business_owner: Head of Sustainability
     data_owner: Sustainability Data Team
@@ -153,11 +155,12 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Sum of Scope 1, Scope 2 and relevant Scope 3 emissions expressed in tCO2e.
     grain_scope: Company/site/region; aggregated monthly or yearly.
     unit_format: tCO2e
-    interpretation: TODO - add interpretation.
+    interpretation: Higher share supports ESG alignment and lower carbon intensity.
   technical:
     dax_name: Total CO2 Emissions (tCO2e)
     depends_on_measures: []
-    lineage: []
+    lineage:
+    - fact_energy.Renewable kWh
   governance:
     business_owner: Head of Sustainability
     data_owner: Sustainability Data Team

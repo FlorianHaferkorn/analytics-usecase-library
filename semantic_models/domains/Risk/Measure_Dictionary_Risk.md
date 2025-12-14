@@ -10,14 +10,15 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_CreditRisk"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement PD % */"
+    dax: |
+      AVERAGEX ( VALUES ( fact_credit_risk[Exposure ID] ), fact_credit_risk[PD] )
     formatString: "0.0%"
   documentation:
     description: "Default probability over a defined horizon."
     notes: |
       Grain: exposure/month. Unit: %.
       Lineage: fact_credit_risk[PD].
-      QA: PD within 0-100%; model version documented.
+      QA: PD within 0-100%; model version documented; horizon (e.g., 12M) documented.
   dependencies:
     columns:
       - "fact_credit_risk[PD]"
@@ -34,14 +35,15 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_CreditRisk"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement LGD % */"
+    dax: |
+      AVERAGEX ( VALUES ( fact_credit_risk[Exposure ID] ), fact_credit_risk[LGD] )
     formatString: "0.0%"
   documentation:
     description: "Loss severity on default."
     notes: |
       Grain: exposure/month. Unit: %.
       Lineage: fact_credit_risk[LGD].
-      QA: LGD within 0-100%; assumptions documented.
+      QA: LGD within 0-100%; assumptions documented; scenario/version tracked.
   dependencies:
     columns:
       - "fact_credit_risk[LGD]"
@@ -65,7 +67,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     notes: |
       Grain: exposure/month. Unit: EUR.
       Lineage: fact_credit_risk[EAD].
-      QA: Currency alignment; EAD definition consistent.
+      QA: Currency alignment; EAD definition consistent; conversion factors applied.
   dependencies:
     columns:
       - "fact_credit_risk[EAD]"

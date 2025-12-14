@@ -10,7 +10,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Data"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Data Quality % */"
+    dax: |
+      VAR Valid = SUM ( fact_dq[Valid Records] )
+      VAR Total = SUM ( fact_dq[Total Records] )
+      RETURN DIVIDE ( Valid, Total )
     formatString: "0.0%"
   documentation:
     description: "Valid records divided by total records."
@@ -83,7 +86,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_Compliance"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Compliance Incidents Count */"
+    dax: "SUM ( fact_compliance[Incidents] )"
     formatString: "#,0"
   documentation:
     description: "Number of compliance incidents."
@@ -107,7 +110,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_Compliance"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Compliance Breach Count */"
+    dax: "SUM ( fact_compliance[Breaches] )"
     formatString: "#,0"
   documentation:
     description: "Number of compliance breaches."
@@ -131,7 +134,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Audit"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Audit Findings Count */"
+    dax: "COUNTROWS ( fact_audit )"
     formatString: "#,0"
   documentation:
     description: "Total audit findings."
@@ -155,7 +158,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Audit"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Open Audit Findings Count */"
+    dax: "SUM ( fact_audit[Open Findings] )"
     formatString: "#,0"
   documentation:
     description: "Open audit findings."
@@ -179,7 +182,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_Portfolio"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Project ROI % */"
+    dax: |
+      VAR Benefit = SUM ( fact_projects[Benefit] )
+      VAR Cost    = SUM ( fact_projects[Cost] )
+      RETURN DIVIDE ( Benefit - Cost, Cost )
     formatString: "0.0%"
   documentation:
     description: "Project ROI."
@@ -204,7 +210,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_Portfolio"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Benefit Realization % */"
+    dax: |
+      VAR Realized = SUM ( fact_projects[Benefit] )
+      VAR Plan     = SUM ( fact_projects[Planned Benefit] )
+      RETURN DIVIDE ( Realized, Plan )
     formatString: "0.0%"
   documentation:
     description: "Realized benefit / planned benefit."
@@ -229,7 +238,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_Portfolio"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Budget Adherence % */"
+    dax: |
+      VAR Actual = SUM ( fact_projects[Actual Cost] )
+      VAR Budget = SUM ( fact_projects[Budget] )
+      RETURN DIVIDE ( Actual, Budget )
     formatString: "0.0%"
   documentation:
     description: "Actual vs budget for projects."
@@ -254,7 +266,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_Portfolio"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Schedule Adherence % */"
+    dax: |
+      VAR OnTime = SUM ( fact_projects[Milestone On Time] )
+      VAR Total  = SUM ( fact_projects[Milestone Total] )
+      RETURN DIVIDE ( OnTime, Total )
     formatString: "0.0%"
   documentation:
     description: "On-time milestones / total milestones."
@@ -279,7 +294,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_Portfolio"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Payback Period (months) */"
+    dax: "/* TODO: implement Payback Period (months) via cashflow schedule */"
     formatString: "0"
   documentation:
     description: "Months to recover investment."

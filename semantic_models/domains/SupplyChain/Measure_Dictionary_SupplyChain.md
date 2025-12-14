@@ -10,14 +10,21 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Inventory"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement DIO */"
+    dax: |
+      VAR AvgInv = SUM ( fact_inventory[Avg Inventory] )
+      VAR CogsPerDay =
+          DIVIDE (
+              SUM ( fact_cogs[COGS] ),
+              365
+          )
+      RETURN DIVIDE ( AvgInv, CogsPerDay )
     formatString: "0 days"
   documentation:
     description: "Working capital efficiency via inventory days."
     notes: |
       Grain: location_sku_month. Unit: days.
       Lineage: fact_inventory[Avg Inventory], fact_cogs[COGS].
-      QA: Align with COGS and inventory valuation; DIVIDE guard.
+      QA: COGS aligned to same period; DIVIDE guard for zero COGS/day.
   dependencies:
     columns:
       - "fact_inventory[Avg Inventory]"
@@ -35,14 +42,17 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Inventory"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Inventory Turnover */"
+    dax: |
+      VAR AvgInv = SUM ( fact_inventory[Avg Inventory] )
+      VAR Cogs   = SUM ( fact_cogs[COGS] )
+      RETURN DIVIDE ( Cogs, AvgInv )
     formatString: "0.0"
   documentation:
-    description: "Velocity of inventory via COGS / Avg Inventory."
+    description: "Velocity of inventory: COGS / Avg Inventory."
     notes: |
       Grain: location_sku_month. Unit: x.
       Lineage: fact_inventory[Avg Inventory], fact_cogs[COGS].
-      QA: Inventory > 0; COGS completeness.
+      QA: Avg Inventory > 0; COGS completeness.
   dependencies:
     columns:
       - "fact_inventory[Avg Inventory]"
@@ -60,7 +70,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_Service"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Stockout Rate % */"
+    dax: |
+      VAR StockoutEvents = SUM ( fact_stockout[Stockout Flag] )
+      VAR DemandEvents   = COUNTROWS ( fact_stockout )
+      RETURN DIVIDE ( StockoutEvents, DemandEvents )
     formatString: "0.0%"
   documentation:
     description: "Service risk from stockout occurrences."
@@ -84,14 +97,17 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_Service"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement OTIF % */"
+    dax: |
+      VAR Orders = COUNTROWS ( fact_fulfillment )
+      VAR Otif   = SUM ( fact_fulfillment[OTIF Flag] )
+      RETURN DIVIDE ( Otif, Orders )
     formatString: "0.0%"
   documentation:
     description: "On-Time In-Full orders share."
     notes: |
       Grain: order. Unit: %.
       Lineage: fact_fulfillment[OTIF Flag].
-      QA: Flag consistency, one row per order.
+      QA: One row per order; flag consistency.
   dependencies:
     columns:
       - "fact_fulfillment[OTIF Flag]"
@@ -108,7 +124,11 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Inventory"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Obsolete Inventory % */"
+    dax: |
+      DIVIDE (
+        SUM ( fact_inventory[Obsolete Stock] ),
+        SUM ( fact_inventory[Total Stock] )
+      )
     formatString: "0.0%"
   documentation:
     description: "Share of obsolete stock vs total stock."
@@ -133,14 +153,18 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Forecast"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Forecast Accuracy % */"
+    dax: |
+      VAR Forecast = SUM ( fact_forecast[Forecast] )
+      VAR Actual   = SUM ( fact_sales[Actual] )
+      VAR AbsErr   = ABS ( Forecast - Actual )
+      RETURN 1 - DIVIDE ( AbsErr, Actual )
     formatString: "0.0%"
   documentation:
-    description: "Planning quality via 1 - |Forecast - Actual| / Actual."
+    description: "Planning quality: 1 - |Forecast - Actual| / Actual."
     notes: |
       Grain: sku_month. Unit: %.
       Lineage: fact_forecast[Forecast], fact_sales[Actual].
-      QA: Actual > 0; consistent calendars.
+      QA: Actual > 0; consistent calendars; cap at [0;1] if needed.
   dependencies:
     columns:
       - "fact_forecast[Forecast]"
@@ -183,14 +207,17 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Forecast"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Forecast Bias % */"
+    dax: |
+      VAR Forecast = SUM ( fact_forecast[Forecast] )
+      VAR Actual   = SUM ( fact_sales[Actual] )
+      RETURN DIVIDE ( Forecast - Actual, Actual )
     formatString: "0.0%"
   documentation:
     description: "Forecast error direction (Forecast - Actual) / Actual."
     notes: |
       Grain: sku_month. Unit: %.
       Lineage: fact_forecast vs fact_sales.
-      QA: Bias within tolerance band; Actual > 0.
+      QA: Bias band defined; Actual > 0; DIVIDE guard.
   dependencies:
     columns:
       - "fact_forecast[Forecast]"
@@ -233,7 +260,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Forecast"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Re-Plan Count */"
+    dax: "SUM(fact_planning[Replan Count])"
     formatString: "#,0"
   documentation:
     description: "Number of re-plans within period."
@@ -257,7 +284,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_Service"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement On-Time % */"
+    dax: |
+      VAR Shipments = COUNTROWS ( fact_fulfillment )
+      VAR OnTime    = SUM ( fact_fulfillment[On-Time Flag] )
+      RETURN DIVIDE ( OnTime, Shipments )
     formatString: "0.0%"
   documentation:
     description: "On-time deliveries share."
@@ -281,7 +311,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_Service"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement In-Full % */"
+    dax: |
+      VAR Shipments = COUNTROWS ( fact_fulfillment )
+      VAR InFull    = SUM ( fact_fulfillment[In-Full Flag] )
+      RETURN DIVIDE ( InFull, Shipments )
     formatString: "0.0%"
   documentation:
     description: "In-full deliveries share."
@@ -305,14 +338,17 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_Service"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Stockout Impact % */"
+    dax: |
+      VAR Lost    = SUM ( fact_stockout[Lost Demand] )
+      VAR Demand  = SUM ( fact_stockout[Demand] )
+      RETURN DIVIDE ( Lost, Demand )
     formatString: "0.0%"
   documentation:
     description: "Lost demand share due to stockout."
     notes: |
       Grain: location_sku_day. Unit: %.
       Lineage: fact_stockout[Lost Demand], fact_stockout[Demand].
-      QA: Demand > 0; flag accuracy; align with service metrics.
+      QA: Demand > 0; align with service metrics.
   dependencies:
     columns:
       - "fact_stockout[Lost Demand]"

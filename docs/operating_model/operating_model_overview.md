@@ -1,5 +1,19 @@
 # Analytics Operating Model (HOW)
 
+Without an explicit analytics operating model, reporting inevitably becomes tool-driven.
+
+In such setups:
+- KPIs are defined implicitly instead of intentionally
+- Semantic models evolve organically instead of systematically
+- Reporting grows faster than governance
+- Automation and AI remain isolated initiatives
+
+Over time, this leads to loss of trust, slower decision-making, and analytics being perceived as a cost rather than a capability.
+
+This operating model exists to make analytics execution predictable, repeatable, and aligned with business intent — independent of tools or platforms.
+
+---
+
 Purpose:
 This document defines **how analytics is organized, governed, built, and operated** across the organization.
 It is the **single entry point** for understanding the Analytics Operating Model and replaces the need to read multiple standalone documents.
@@ -10,6 +24,18 @@ Scope:
 - Defines governance, quality, and lifecycle management.
 - Defines how analytics is distributed, consumed, and scaled.
 - Does NOT define company strategy or individual use case content.
+
+How to read this document:
+
+- Sections 1–3 explain the conceptual foundation of the operating model.
+- Sections 4–6 describe how this foundation is governed and operationalized.
+- Sections 7–8 explain how the model scales through automation and change management.
+- Section 10 summarizes what changes when the model is applied.
+
+Not every reader needs every section:
+- Executives typically focus on Sections 1, 3, and 10.
+- Analytics leads focus on Sections 2–6.
+- Architects and platform teams focus on Sections 3–8.
 
 ---
 
@@ -31,6 +57,8 @@ The Analytics Operating Model is built on five principles:
 
 5. **Automation-ready**  
    Standards, metadata, and validation enable scalable delivery.
+
+Together, these principles ensure that analytics decisions are driven by intent, not by tools or organizational silos.
 
 ---
 

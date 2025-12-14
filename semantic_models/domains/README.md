@@ -8,13 +8,15 @@ Scope:
 - Not: Core model
 
 Structure:
-Subfolders per domain (sales/finance/scm/esg, or existing domain folders).
+Subfolders per domain (e.g., Commercial, CustomerValue, SupplyChain, Operations, Finance, Service/Experience, ESG, Governance, Risk, Innovation & People).
 
 Usage:
-- Add domain models/dictionaries here
-- Link from KPI catalog index
-- Keep aligned with data contracts
-- Commercial reference: semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md
+- Add domain models/dictionaries here.
+- Link from KPI catalog index.
+- Keep aligned with data contracts.
+- Examples:
+  - Commercial reference: semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md
+  - Service reference: semantic_models/domains/Service/Measure_Dictionary_Service.md
 
 Relations:
 WITH WHAT/HOW; supports usecases.

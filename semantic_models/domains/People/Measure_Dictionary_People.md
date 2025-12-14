@@ -10,7 +10,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_People"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Employee Turnover % */"
+    dax: |
+      VAR Leavers = SUM ( fact_hr[Leavers] )
+      VAR AvgHC   = AVERAGEX ( VALUES ( dim_date[MonthKey] ), SUM ( fact_hr[Headcount] ) )
+      RETURN DIVIDE ( Leavers, AvgHC )
     formatString: "0.0%"
   documentation:
     description: "Leavers divided by average headcount."
@@ -35,7 +38,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_People"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Absenteeism % */"
+    dax: |
+      VAR Absent   = SUM ( fact_hr[Absent Hours] )
+      VAR Scheduled = SUM ( fact_hr[Scheduled Hours] )
+      RETURN DIVIDE ( Absent, Scheduled )
     formatString: "0.0%"
   documentation:
     description: "Absent hours divided by scheduled hours."
@@ -60,7 +66,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_Productivity"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement GM per FTE Amount */"
+    dax: |
+      VAR GM  = SUM ( fact_sales[Net Sales Amount] ) - SUM ( fact_sales[Cost of Goods Sold Amount] )
+      VAR FTE = SUM ( fact_hr[FTE] )
+      RETURN DIVIDE ( GM, FTE )
     formatString: "EUR #,0.00"
   documentation:
     description: "Gross margin divided by FTE."
@@ -86,7 +95,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_Productivity"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Personnel Cost Ratio % */"
+    dax: |
+      VAR Cost = SUM ( fact_hr[Personnel Cost] )
+      VAR Rev  = SUM ( fact_finance[Revenue] )
+      RETURN DIVIDE ( Cost, Rev )
     formatString: "0.0%"
   documentation:
     description: "Personnel cost divided by revenue."
@@ -111,7 +123,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_Productivity"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Revenue per FTE Amount */"
+    dax: |
+      VAR Rev = SUM ( fact_sales[Net Sales Amount] )
+      VAR FTE = SUM ( fact_hr[FTE] )
+      RETURN DIVIDE ( Rev, FTE )
     formatString: "EUR #,0.00"
   documentation:
     description: "Revenue divided by FTE."
@@ -136,7 +151,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Digital"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Digital Adoption % */"
+    dax: |
+      VAR Users = SUM ( fact_it[Digital Users] )
+      VAR Heads = SUM ( fact_hr[Headcount] )
+      RETURN DIVIDE ( Users, Heads )
     formatString: "0.0%"
   documentation:
     description: "Digital tool users divided by total employees."

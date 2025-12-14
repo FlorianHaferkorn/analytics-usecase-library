@@ -58,7 +58,9 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Liquidity"
   category: "KPI"
   expression:
-    dax: "DIVIDE([Cash Balance] - [Plan Cash Balance], [Plan Cash Balance])"
+    dax: |
+      VAR PlanCash = SUM ( plan_cash[Cash Balance] )
+      RETURN DIVIDE ( [Cash Balance] - PlanCash, PlanCash )
     formatString: "0.0%"
   documentation:
     description: "Performance vs plan for cash position."
@@ -110,7 +112,11 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_WorkingCapital"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement DSO */"
+    dax: |
+      VAR AR      = SUM ( fact_ar[AR] )
+      VAR Revenue = SUM ( fact_sales[Net Sales Amount] )
+      VAR RevenuePerDay = DIVIDE ( Revenue, 365 )
+      RETURN DIVIDE ( AR, RevenuePerDay )
     formatString: "0"
   documentation:
     description: "Receivables efficiency: AR / (Revenue/365)."
@@ -135,7 +141,11 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_WorkingCapital"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement DIO */"
+    dax: |
+      VAR Inv       = SUM ( fact_inventory[Inventory] )
+      VAR Cogs      = SUM ( fact_cogs[COGS] )
+      VAR CogsPerDay = DIVIDE ( Cogs, 365 )
+      RETURN DIVIDE ( Inv, CogsPerDay )
     formatString: "0"
   documentation:
     description: "Inventory efficiency: Inventory / (COGS/365)."
@@ -160,7 +170,11 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_WorkingCapital"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement DPO */"
+    dax: |
+      VAR AP       = SUM ( fact_ap[AP] )
+      VAR Cogs     = SUM ( fact_cogs[COGS] )
+      VAR CogsPerDay = DIVIDE ( Cogs, 365 )
+      RETURN DIVIDE ( AP, CogsPerDay )
     formatString: "0"
   documentation:
     description: "Payables efficiency: AP / (COGS/365)."
@@ -185,7 +199,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Cost"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Unit Cost Amount */"
+    dax: |
+      VAR Cogs  = SUM ( fact_cost[COGS] )
+      VAR Units = SUM ( fact_output[Units] )
+      RETURN DIVIDE ( Cogs, Units )
     formatString: "EUR per unit"
   documentation:
     description: "Total COGS / units produced or sold."
@@ -210,7 +227,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Cost"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement COGS % of Sales */"
+    dax: |
+      VAR Cogs      = SUM ( fact_finance[COGS] )
+      VAR NetSales  = SUM ( fact_finance[Net Sales] )
+      RETURN DIVIDE ( Cogs, NetSales )
     formatString: "0.0%"
   documentation:
     description: "Cost share: COGS / Net Sales."
@@ -235,7 +255,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_OpEx"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement OpEx vs Plan % */"
+    dax: |
+      VAR OpExPlan = SUM ( plan_opex[Plan OpEx] )
+      VAR OpExAct  = SUM ( fact_opex[OpEx] )
+      RETURN DIVIDE ( OpExAct - OpExPlan, OpExPlan )
     formatString: "0.0%"
   documentation:
     description: "Overhead control: (OpEx - Plan) / Plan."
@@ -260,7 +283,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Cost"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Material Cost % */"
+    dax: |
+      VAR MatCost = SUM ( fact_cost[Material Cost] )
+      VAR NetSales = SUM ( fact_finance[Net Sales] )
+      RETURN DIVIDE ( MatCost, NetSales )
     formatString: "0.0%"
   documentation:
     description: "Material cost / Net Sales."
@@ -285,7 +311,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "05_Productivity"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Labor Productivity % */"
+    dax: |
+      VAR Output = SUM ( fact_output[Units] )
+      VAR Hours  = SUM ( fact_labor[Labor Hours] )
+      RETURN DIVIDE ( Output, Hours )
     formatString: "0.0%"
   documentation:
     description: "Output vs labor hours (or revenue per labor hour)."
@@ -310,7 +339,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "06_Profitability"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement EBITDA Margin */"
+    dax: |
+      VAR Ebitda   = SUM ( fact_finance[EBITDA] )
+      VAR NetSales = SUM ( fact_finance[Net Sales] )
+      RETURN DIVIDE ( Ebitda, NetSales )
     formatString: "0.0%"
   documentation:
     description: "EBITDA / Net Sales."
