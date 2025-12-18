@@ -1,0 +1,222 @@
+schema_version: "1.1"
+
+id: "O-Q3.4"
+name: "COPQ Reduction"
+owner_domain: "Quality / Finance"
+impact_dimension: "Profitability"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Cost of Quality Control"
+  theme: "Eliminate Financially Material Quality Losses"
+
+tags: ["copq", "cost-of-quality", "profitability"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "quality.copq.amount"
+      role: "primary"
+    - id: "quality.scrap.pct"
+      role: "secondary"
+  decisions_enabled:
+    - "Prioritise quality actions by financial impact"
+    - "Redirect quality effort to top COPQ drivers"
+  non_goals:
+    - "General cost cutting programs"
+    - "Supplier price negotiations"
+    - "Accounting policy changes"
+
+use_case_links:
+  core_use_cases:
+    - "OPS-003"
+  related_use_cases:
+    - "FIN-002"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "quality.copq.amount"
+      label: "Cost of Poor Quality Amount"
+      semantic_ref:
+        model_domain: "Quality"
+        measure: "COPQ Amount"
+  guardrail_kpis:
+    - kpi_id: "quality.fpy.pct"
+      label: "First Pass Yield %"
+      semantic_ref:
+        model_domain: "Quality"
+        measure: "First Pass Yield %"
+  outcome_kpis:
+    - kpi_id: "quality.copq.amount"
+      label: "Cost of Poor Quality Amount"
+      semantic_ref:
+        model_domain: "Quality"
+        measure: "COPQ Amount"
+
+scope:
+  default_grain: "plant_month"
+  default_perspective: ["Plant"]
+  supported_slices:
+    - "COPQ Category"
+    - "Cost Driver"
+  exclusions:
+    - "Immaterial COPQ items below threshold"
+    - "One-off extraordinary quality costs"
+    - "Warranty programs managed externally"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "plant_month"
+    window:
+      kind: "rolling"
+      length: 2
+      unit: "periods"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 1
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "quality.copq.amount"
+        comparator: "gte"
+        value: 100000
+        unit: "currency"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "quality.copq.amount"
+        comparator: "gt"
+        threshold:
+          basis: "relative"
+          value: 0.10
+          unit: "%"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "quality.copq.amount"
+        comparator: "gt"
+        threshold:
+          basis: "relative"
+          value: 0.25
+          unit: "%"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "quality.copq.amount"
+        comparator: "gt"
+        threshold:
+          basis: "relative"
+          value: 0.40
+          unit: "%"
+        filters: []
+  gating_rules:
+    - "Trigger only if COPQ increase is structurally recurring"
+    - "Do not trigger if COPQ spike is driven by isolated recall events"
+    - "Exclude plants with active defect elimination actions dominating COPQ"
+
+impact:
+  category: "High"
+  expected_range:
+    metric_kpi_id: "quality.copq.amount"
+    value_low: -10.0
+    value_high: -30.0
+    unit: "%"
+    time_to_effect:
+      min_periods: 2
+      max_periods: 4
+  mechanism:
+    - "Financial prioritisation of quality loss drivers"
+    - "Focused execution on high-impact cost sources"
+  confidence:
+    level: "Medium"
+    rationale:
+      - "COPQ concentration typically follows Pareto logic"
+      - "Financial lens improves focus but execution varies"
+
+operational_execution:
+  primary_owner_role: "Head of Quality"
+  stakeholders:
+    - "Plant Manager"
+    - "Finance Business Partner"
+    - "Production"
+  prerequisites:
+    - "Reliable COPQ attribution by category"
+    - "Alignment on financial materiality thresholds"
+  steps:
+    - "Identify plants with rising COPQ"
+    - "Rank COPQ drivers by financial impact"
+    - "Activate targeted quality actions on top drivers"
+    - "Review COPQ trend monthly"
+  effort:
+    level: "Medium"
+    typical_duration_days: 90
+  risks_and_tradeoffs:
+    - "Financial focus overshadowing early quality signals"
+    - "Delayed impact due to lagging cost recognition"
+
+data_requirements:
+  required_entities:
+    - "Plant"
+  semantic_dependencies:
+    measures:
+      - "COPQ Amount"
+      - "Scrap %"
+      - "First Pass Yield %"
+    tables:
+      - "fact_quality"
+      - "fact_finance_copq"
+      - "dim_plant"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "monthly"
+    output: "Plants with structurally elevated COPQ"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "COPQ driver prioritisation and action focus"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "Plant"
+      - "TriggerLevel"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_COPQ_Amount"
+      - "Post_COPQ_Amount_120d"
+
+governance:
+  approvals_required:
+    - "CFO"
+    - "Head of Quality"
+  rollback_plan:
+    - "Suspend COPQ-driven prioritisation if FPY deteriorates materially"
+  documentation_links:
+    - "usecases/core/OPS-003/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

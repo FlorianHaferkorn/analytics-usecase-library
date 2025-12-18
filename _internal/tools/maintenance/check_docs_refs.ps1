@@ -16,7 +16,7 @@ $items = @(
   @{ Path = "usecases/templates/usecase_factsheet_business.md";  Kind = "file"; Description = "Use Case factsheet (business) template" },
   @{ Path = "usecases/templates/usecase_factsheet_technical.md"; Kind = "file"; Description = "Use Case factsheet (technical) template" },
   @{ Path = "usecases/UseCase_Inventory.md";                     Kind = "file"; Description = "Use Case Inventory" },
-  @{ Path = "framework/kpi_catalog/SCHEMA.md";                   Kind = "file"; Description = "KPI Catalog Schema" },
+  @{ Path = "framework/templates/KPI_Catalog_templates/KPI_Catalog_SCHEMA.md"; Kind = "file"; Description = "KPI Catalog Schema (canonical)" },
   @{ Path = "framework/kpi_catalog/README.md";                   Kind = "file"; Description = "KPI Catalog overview" },
   @{ Path = "_internal/tools/run_all_checks.ps1";                Kind = "file"; Description = "Run all checks script" },
   @{ Path = "_internal/tools/generation/new_usecase.ps1";        Kind = "file"; Description = "New usecase helper" },

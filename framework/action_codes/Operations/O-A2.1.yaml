@@ -1,0 +1,230 @@
+schema_version: "1.1"
+
+id: "O-A2.1"
+name: "Reliability Orchestration"
+owner_domain: "Operations / Maintenance Leadership"
+impact_dimension: "Availability"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Reliability Governance"
+  theme: "Coordinate Asset Reliability Interventions"
+
+tags: ["reliability", "orchestration", "availability"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "ops.availability.pct"
+      role: "primary"
+    - id: "ops.downtime.unplanned.pct"
+      role: "secondary"
+  decisions_enabled:
+    - "Select dominant reliability lever per asset (MTBF, MTTR, PM, Parts)"
+    - "Sequence maintenance actions to avoid parallel disruption"
+  non_goals:
+    - "Executing maintenance actions directly"
+    - "Predictive maintenance model development"
+    - "Production throughput optimisation"
+
+use_case_links:
+  core_use_cases:
+    - "OPS-002"
+  related_use_cases:
+    - "OPS-001"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "ops.availability.pct"
+      label: "Availability %"
+      semantic_ref:
+        model_domain: "Operations"
+        measure: "Availability %"
+    - kpi_id: "ops.downtime.unplanned.pct"
+      label: "Unplanned Downtime %"
+      semantic_ref:
+        model_domain: "Operations"
+        measure: "Unplanned Downtime %"
+  guardrail_kpis:
+    - kpi_id: "ops.pm_compliance.pct"
+      label: "PM Compliance %"
+      semantic_ref:
+        model_domain: "Operations"
+        measure: "PM Compliance %"
+  outcome_kpis:
+    - kpi_id: "ops.availability.pct"
+      label: "Availability %"
+      semantic_ref:
+        model_domain: "Operations"
+        measure: "Availability %"
+
+scope:
+  default_grain: "asset_month"
+  default_perspective: ["Plant", "Asset"]
+  supported_slices:
+    - "Failure Category"
+  exclusions:
+    - "Assets under planned overhaul programs"
+    - "Newly commissioned assets (<90 days)"
+    - "Downtime driven by upstream production constraints"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "asset_month"
+    window:
+      kind: "rolling"
+      length: 2
+      unit: "periods"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 1
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "ops.planned_runtime.hours"
+        comparator: "gte"
+        value: 120
+        unit: "hours"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "ops.availability.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 92.0
+          unit: "%"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "ops.availability.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 88.0
+          unit: "%"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "ops.availability.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 84.0
+          unit: "%"
+        filters: []
+  gating_rules:
+    - "Trigger only if unplanned downtime is the dominant availability loss driver"
+    - "Do not trigger if availability loss is driven by production scheduling"
+    - "Exclude assets with active execution Action Codes already in progress"
+
+impact:
+  category: "High"
+  expected_range:
+    metric_kpi_id: "ops.availability.pct"
+    value_low: 2.0
+    value_high: 6.0
+    unit: "pp"
+    time_to_effect:
+      min_periods: 1
+      max_periods: 3
+  mechanism:
+    - "Focused activation of dominant reliability lever"
+    - "Avoidance of parallel maintenance disruptions"
+  confidence:
+    level: "High"
+    rationale:
+      - "Clear coordination improves execution effectiveness"
+      - "Availability loss typically concentrated in few assets"
+
+operational_execution:
+  primary_owner_role: "Maintenance Manager"
+  stakeholders:
+    - "Plant Manager"
+    - "Reliability Engineering"
+  prerequisites:
+    - "Asset-level downtime and failure transparency"
+    - "Clear ownership of execution Action Codes"
+  steps:
+    - "Detect sustained availability deterioration"
+    - "Diagnose dominant reliability driver (MTBF, MTTR, PM, Parts)"
+    - "Activate corresponding execution Action Code"
+    - "Review availability recovery monthly"
+  effort:
+    level: "Low"
+    typical_duration_days: 30
+  risks_and_tradeoffs:
+    - "Delayed execution if root cause misidentified"
+    - "Underreaction to multi-driver reliability issues"
+
+data_requirements:
+  required_entities:
+    - "Asset"
+    - "Plant"
+  semantic_dependencies:
+    measures:
+      - "Availability %"
+      - "Unplanned Downtime %"
+      - "PM Compliance %"
+      - "Planned Runtime Hours"
+    tables:
+      - "fact_ops_runtime"
+      - "fact_ops_downtime"
+      - "fact_ops_maintenance"
+      - "dim_asset"
+      - "dim_plant"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "monthly"
+    output: "Assets with sustained availability loss"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "Recommended reliability lever activation"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "Asset"
+      - "Plant"
+      - "TriggerLevel"
+      - "ActivatedLever"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_Availability_Pct"
+      - "Post_Availability_Pct_60d"
+
+governance:
+  approvals_required:
+    - "Plant Manager"
+  rollback_plan:
+    - "Suspend orchestration if execution actions conflict or stall"
+  documentation_links:
+    - "usecases/core/OPS-002/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

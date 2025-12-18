@@ -1,17 +1,82 @@
-﻿# 
+﻿# Dimension Data Contract Template (Final 10/10)
 
-Purpose:
+# This template defines the authoritative, governed declaration of a dimension.
+# PII handling follows a default-and-override principle:
+# - All attributes are NON-PII by default.
+# - Only attributes that contain PII must explicitly declare PII metadata.
 
+dimension:
+  name: dim_<domain>_<entity>            # e.g. dim_commercial_customer
+  description: >
+    Descriptive dimension providing contextual attributes
+    for analytical evaluation across domains.
 
-Scope:
-- 
-- Not: 
+  ownership:
+    business_owner: <role or team>       # e.g. Head of Sales
+    data_owner: <role or team>           # e.g. Analytics Platform Team
 
-Structure:
+  keys:
+    surrogate_key: <EntityKey>           # e.g. CustomerKey
+    business_key: <NaturalKey>           # e.g. CustomerID
 
+  # Default privacy assumptions applied to all attributes
+  # unless explicitly overridden at attribute level.
+  privacy_defaults:
+    pii_type: none                       # none | indirect | direct
+    sensitivity: low                     # low | medium | high
 
-Usage:
-- 
+  attributes:
+    - name: <AttributeName>              # e.g. CustomerName
+      type: string
+      description: <Business meaning>
+      nullable: true
+      hidden: false
 
-Relations:
+      # OPTIONAL: PII override block.
+      # Only use if attribute deviates from privacy_defaults.
+      pii:
+        pii_type: direct                 # indirect | direct
+        sensitivity: high                # medium | high
 
+  hierarchies:
+    - name: <HierarchyName>              # e.g. Customer Hierarchy
+      levels:
+        - <Level1>                       # e.g. Region
+        - <Level2>                       # e.g. Country
+
+  usage:
+    used_by_domains:
+      - <Commercial>
+      - <Finance>
+
+  governance:
+    scd_type: 1                          # 0 | 1 | 2
+    scd_rationale: >
+      Explain why historical tracking is or is not required
+      for KPI interpretation and time-based analysis.
+    referential_integrity_required: true
+
+  relationships:
+    default_behavior: filter             # filter | describe | security
+    role_playing:
+      supported: false
+      roles: []                          # e.g. [Invoice Date, Delivery Date]
+
+  security:
+    rls_relevant: false                  # true if used for access control
+    security_role: none                  # e.g. org_security_bridge
+
+  # Dimension-level privacy summary (MANDATORY if any attribute has PII)
+  privacy:
+    contains_pii: true
+    highest_sensitivity: high
+    masking_required: true
+    allowed_usage:
+      analytics: true
+      ai_copilot: false
+
+# Rules:
+# - Attributes without a 'pii' block inherit privacy_defaults.
+# - The 'pii' block is OPTIONAL and only used for overrides.
+# - If any attribute defines a 'pii' block, privacy.contains_pii must be true.
+# - This contract is the authoritative source for RLS/OLS and AI exposure decisions.

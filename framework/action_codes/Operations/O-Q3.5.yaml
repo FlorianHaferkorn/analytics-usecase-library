@@ -1,0 +1,225 @@
+schema_version: "1.1"
+
+id: "O-Q3.5"
+name: "Complaint-Driven Stabilisation"
+owner_domain: "Quality / Operations Excellence"
+impact_dimension: "Customer Impact"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "External Quality Control"
+  theme: "Stabilise Processes Driving Customer Complaints"
+
+tags: ["complaints", "external-quality", "stabilisation"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "quality.complaint.pct"
+      role: "primary"
+    - id: "quality.copq.amount"
+      role: "secondary"
+  decisions_enabled:
+    - "Prioritise process stabilisation based on customer complaint signals"
+    - "Prevent recurrence of externally visible quality defects"
+  non_goals:
+    - "Customer service workflow optimisation"
+    - "Compensation, refunds, or goodwill handling"
+    - "Supplier complaint management"
+
+use_case_links:
+  core_use_cases:
+    - "OPS-003"
+  related_use_cases:
+    - "XD-001"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "quality.complaint.pct"
+      label: "Customer Complaint Rate %"
+      semantic_ref:
+        model_domain: "Quality"
+        measure: "Complaint Rate %"
+  guardrail_kpis:
+    - kpi_id: "quality.fpy.pct"
+      label: "First Pass Yield %"
+      semantic_ref:
+        model_domain: "Quality"
+        measure: "First Pass Yield %"
+  outcome_kpis:
+    - kpi_id: "quality.complaint.pct"
+      label: "Customer Complaint Rate %"
+      semantic_ref:
+        model_domain: "Quality"
+        measure: "Complaint Rate %"
+
+scope:
+  default_grain: "product_month"
+  default_perspective: ["Plant", "Product"]
+  supported_slices:
+    - "Complaint Category"
+    - "Defect Type"
+  exclusions:
+    - "Isolated customer misuse cases"
+    - "Complaints linked to logistics or delivery issues"
+    - "Products in early market launch phase"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "product_month"
+    window:
+      kind: "rolling"
+      length: 2
+      unit: "periods"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 5
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "sales.units"
+        comparator: "gte"
+        value: 10000
+        unit: "units"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "quality.complaint.pct"
+        comparator: "gt"
+        threshold:
+          basis: "absolute"
+          value: 0.30
+          unit: "%"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "quality.complaint.pct"
+        comparator: "gt"
+        threshold:
+          basis: "absolute"
+          value: 0.60
+          unit: "%"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "quality.complaint.pct"
+        comparator: "gt"
+        threshold:
+          basis: "absolute"
+          value: 1.00
+          unit: "%"
+        filters: []
+  gating_rules:
+    - "Trigger only if complaint trend is structurally increasing"
+    - "Do not trigger if complaints are driven by distribution or service issues"
+    - "Exclude products with active recall or field action programs"
+
+impact:
+  category: "High"
+  expected_range:
+    metric_kpi_id: "quality.complaint.pct"
+    value_low: -20.0
+    value_high: -50.0
+    unit: "%"
+    time_to_effect:
+      min_periods: 1
+      max_periods: 4
+  mechanism:
+    - "Rapid stabilisation of externally visible defect drivers"
+    - "Containment and corrective action at source"
+  confidence:
+    level: "Medium"
+    rationale:
+      - "Complaint signals are strong but lagging"
+      - "Impact depends on root-cause clarity"
+
+operational_execution:
+  primary_owner_role: "Quality Manager"
+  stakeholders:
+    - "Operations Excellence"
+    - "Production"
+    - "Customer Quality"
+  prerequisites:
+    - "Complaint-to-process mapping"
+    - "Timely complaint classification"
+  steps:
+    - "Identify products with rising complaint rates"
+    - "Map complaints to production defects and processes"
+    - "Execute stabilisation and containment actions"
+    - "Monitor complaint trend monthly"
+  effort:
+    level: "Medium"
+    typical_duration_days: 90
+  risks_and_tradeoffs:
+    - "Overreaction to noisy complaint signals"
+    - "Misattribution of root cause to production"
+
+data_requirements:
+  required_entities:
+    - "Product"
+    - "Plant"
+  semantic_dependencies:
+    measures:
+      - "Complaint Rate %"
+      - "First Pass Yield %"
+      - "Sales Units"
+    tables:
+      - "fact_quality_complaints"
+      - "fact_quality"
+      - "fact_sales"
+      - "dim_product"
+      - "dim_plant"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "monthly"
+    output: "Products with sustained complaint increases"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "Complaint-driven stabilisation actions"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "Product"
+      - "Plant"
+      - "TriggerLevel"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_Complaint_Pct"
+      - "Post_Complaint_Pct_120d"
+
+governance:
+  approvals_required:
+    - "Head of Quality"
+  rollback_plan:
+    - "Suspend stabilisation if FPY or throughput deteriorates materially"
+  documentation_links:
+    - "usecases/core/OPS-003/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

@@ -1,0 +1,224 @@
+schema_version: "1.1"
+
+id: "F-K2.4"
+name: "OpEx Spend Control"
+owner_domain: "Finance / Ops Controlling"
+impact_dimension: "Profitability"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Overhead Cost Control"
+  theme: "Protect Margin via OpEx Discipline"
+
+tags: ["opex", "overhead", "cost-control"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "cost.opex.vs_plan.pct"
+      role: "primary"
+    - id: "cost.unit.amount"
+      role: "secondary"
+  decisions_enabled:
+    - "Freeze, defer, or re-approve discretionary OpEx"
+    - "Reallocate overhead budgets within guardrails"
+  non_goals:
+    - "Headcount restructuring"
+    - "Long-term shared-service redesign"
+    - "CapEx substitution decisions"
+
+use_case_links:
+  core_use_cases:
+    - "FIN-002"
+  related_use_cases:
+    - "FIN-001"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "cost.opex.vs_plan.pct"
+      label: "OpEx vs Plan %"
+      semantic_ref:
+        model_domain: "Finance"
+        measure: "OpEx vs Plan %"
+  guardrail_kpis:
+    - kpi_id: "ops.service_level.pct"
+      label: "Operational Service Level %"
+      semantic_ref:
+        model_domain: "Operations"
+        measure: "Service Level %"
+  outcome_kpis:
+    - kpi_id: "cost.opex.vs_plan.pct"
+      label: "OpEx vs Plan %"
+      semantic_ref:
+        model_domain: "Finance"
+        measure: "OpEx vs Plan %"
+    - kpi_id: "cost.unit.amount"
+      label: "Unit Cost Amount"
+      semantic_ref:
+        model_domain: "Finance"
+        measure: "Unit Cost Amount"
+
+scope:
+  default_grain: "month"
+  default_perspective: ["Cost Center"]
+  supported_slices:
+    - "Region"
+    - "Function"
+  exclusions:
+    - "Legally committed spend"
+    - "Approved strategic initiatives"
+    - "IT or transformation programs with board approval"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "month"
+    window:
+      kind: "rolling"
+      length: 2
+      unit: "periods"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 1
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "cost.opex.base.amount"
+        comparator: "gte"
+        value: 200000
+        unit: "amount"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "cost.opex.vs_plan.pct"
+        comparator: "gt"
+        threshold:
+          basis: "absolute"
+          value: 2.0
+          unit: "pp"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "cost.opex.vs_plan.pct"
+        comparator: "gt"
+        threshold:
+          basis: "absolute"
+          value: 5.0
+          unit: "pp"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "cost.opex.vs_plan.pct"
+        comparator: "gt"
+        threshold:
+          basis: "absolute"
+          value: 8.0
+          unit: "pp"
+        filters: []
+  gating_rules:
+    - "Trigger only if service levels remain within agreed thresholds"
+    - "Do not trigger for costs already approved by executive committee"
+    - "Exclude OpEx driven by regulatory or safety requirements"
+
+impact:
+  category: "Medium"
+  expected_range:
+    metric_kpi_id: "cost.opex.vs_plan.pct"
+    value_low: 2.0
+    value_high: 6.0
+    unit: "pp"
+    time_to_effect:
+      min_periods: 1
+      max_periods: 2
+  mechanism:
+    - "Immediate freeze or deferral of discretionary spend"
+    - "Stricter re-approval of overhead expenses"
+  confidence:
+    level: "High"
+    rationale:
+      - "Fastest overhead cost lever"
+      - "Clear financial governance control"
+
+operational_execution:
+  primary_owner_role: "Head of Controlling"
+  stakeholders:
+    - "Cost Center Owners"
+    - "Finance Business Partners"
+  prerequisites:
+    - "Clear classification of discretionary vs committed OpEx"
+    - "Enforced approval workflows"
+  steps:
+    - "Identify cost centers exceeding OpEx plan"
+    - "Classify spend by discretionary vs committed"
+    - "Freeze, defer, or re-approve expenses"
+    - "Review OpEx trend monthly"
+  effort:
+    level: "Low"
+    typical_duration_days: 30
+  risks_and_tradeoffs:
+    - "Short-term productivity or morale impact"
+    - "Deferred spend accumulation risk"
+
+data_requirements:
+  required_entities:
+    - "Cost Center"
+  semantic_dependencies:
+    measures:
+      - "OpEx vs Plan %"
+      - "Unit Cost Amount"
+      - "Operational Service Level %"
+    tables:
+      - "fact_cost"
+      - "dim_cost_center"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "monthly"
+    output: "Cost centers exceeding OpEx plan"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "Spend freeze or re-approval candidates"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "CostCenter"
+      - "TriggerLevel"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_OpExVsPlan_Pct"
+      - "Post_OpExVsPlan_Pct_60d"
+
+governance:
+  approvals_required:
+    - "CFO"
+  rollback_plan:
+    - "Lift spend freeze if service levels or strategic KPIs deteriorate"
+  documentation_links:
+    - "usecases/core/FIN-002/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

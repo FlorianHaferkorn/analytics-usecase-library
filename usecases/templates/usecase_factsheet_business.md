@@ -86,6 +86,9 @@ Link business behavior to measurable outcomes.
 | AC-XX | <Name> | From section 4 | <What happens> | <+%, -%, stabilise> | L1 | <Team> |
 | … | … | … | … | … | … | … |
 
+All referenced Action Codes must comply with the Prescriptive Standard
+(Trigger, Interpretation, Prescriptive Actions, Expected Impact, Risk).
+
 ---
 
 ## 6. 3–30–300 Page Layout (Mandatory)

@@ -1,0 +1,232 @@
+schema_version: "1.1"
+
+id: "S-R2.5"
+name: "Planning & Execution Alignment"
+owner_domain: "S&OP / Supply Chain Planning"
+impact_dimension: "Stability"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Plan–Execute Governance"
+  theme: "Align Short-Term Plans with Operational Execution to Protect OTIF"
+
+tags: ["sop", "planning", "execution-alignment", "otif"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "supply.otif.pct"
+      role: "primary"
+    - id: "supply.expedite.amount"
+      role: "secondary"
+  decisions_enabled:
+    - "Correct plan–execution mismatches causing repeated service failures"
+    - "Stabilise short-term planning cadence and freeze windows"
+  non_goals:
+    - "Forecast model or algorithm tuning"
+    - "Long-term capacity or sourcing strategy changes"
+    - "Inventory buffer redesign"
+
+use_case_links:
+  core_use_cases:
+    - "SCM-002"
+  related_use_cases:
+    - "SCM-003"
+    - "SCM-001"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "supply.otif.pct"
+      label: "OTIF %"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "OTIF %"
+    - kpi_id: "supply.expedite.amount"
+      label: "Expedite Cost Amount"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "Expedite Cost Amount"
+  guardrail_kpis:
+    - kpi_id: "inv.dio.days"
+      label: "Days Inventory Outstanding"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "DIO (Days)"
+  outcome_kpis:
+    - kpi_id: "supply.otif.pct"
+      label: "OTIF %"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "OTIF %"
+
+scope:
+  default_grain: "sop_cycle_week"
+  default_perspective: ["S&OP Cycle", "Region"]
+  supported_slices:
+    - "Planning Horizon"
+    - "Execution Window"
+  exclusions:
+    - "Forecast-driven structural demand shifts"
+    - "One-off crisis or recovery planning cycles"
+    - "SKUs under promotion programs (COM-004)"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "sop_cycle_week"
+    window:
+      kind: "rolling"
+      length: 4
+      unit: "periods"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 2
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "shipments.count"
+        comparator: "gte"
+        value: 500
+        unit: "count"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "supply.expedite.amount"
+        comparator: "gt"
+        threshold:
+          basis: "relative"
+          value: 0.10
+          unit: "%"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "supply.expedite.amount"
+        comparator: "gt"
+        threshold:
+          basis: "relative"
+          value: 0.25
+          unit: "%"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "supply.expedite.amount"
+        comparator: "gt"
+        threshold:
+          basis: "relative"
+          value: 0.40
+          unit: "%"
+        filters: []
+  gating_rules:
+    - "Trigger only if expedites are caused by planning overrides or late changes"
+    - "Do not trigger if expedites are driven by external disruptions"
+    - "Exclude cycles with active fulfillment or transport stabilisation actions"
+
+impact:
+  category: "Medium"
+  expected_range:
+    metric_kpi_id: "supply.otif.pct"
+    value_low: 1.0
+    value_high: 3.0
+    unit: "pp"
+    time_to_effect:
+      min_periods: 2
+      max_periods: 6
+  mechanism:
+    - "Reduced late plan changes and execution churn"
+    - "Clear freeze windows improving execution reliability"
+  confidence:
+    level: "Medium"
+    rationale:
+      - "Governance changes take time"
+      - "Effectiveness depends on adherence discipline"
+
+operational_execution:
+  primary_owner_role: "S&OP Lead"
+  stakeholders:
+    - "Supply Planning"
+    - "Logistics"
+    - "Sales Operations"
+  prerequisites:
+    - "Clear S&OP cadence and decision rights"
+    - "Visibility of plan changes vs execution impact"
+  steps:
+    - "Identify cycles with repeated last-minute plan changes"
+    - "Analyse root causes of plan–execution mismatch"
+    - "Enforce freeze windows and escalation rules"
+    - "Review OTIF and expedite trends per cycle"
+  effort:
+    level: "Medium"
+    typical_duration_days: 120
+  risks_and_tradeoffs:
+    - "Reduced flexibility for late customer changes"
+    - "Resistance to stricter governance"
+
+data_requirements:
+  required_entities:
+    - "S&OP Cycle"
+    - "Region"
+  semantic_dependencies:
+    measures:
+      - "OTIF %"
+      - "Expedite Cost Amount"
+      - "DIO (Days)"
+      - "Shipments Count"
+    tables:
+      - "fact_shipments"
+      - "fact_logistics_cost"
+      - "fact_sop_changes"
+      - "dim_region"
+      - "dim_sop_cycle"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "monthly"
+    output: "S&OP cycles with repeated plan–execution mismatches"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "Planning governance and freeze-window enforcement actions"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "SOPCycle"
+      - "Region"
+      - "TriggerLevel"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_OTIF_Pct"
+      - "Post_OTIF_Pct_180d"
+
+governance:
+  approvals_required:
+    - "VP Supply Chain"
+  rollback_plan:
+    - "Relax freeze windows if customer service deteriorates materially"
+  documentation_links:
+    - "usecases/core/SCM-002/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

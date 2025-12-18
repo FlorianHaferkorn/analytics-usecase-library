@@ -1,0 +1,229 @@
+schema_version: "1.1"
+
+id: "C-M2.1"
+name: "Price Realization Guardrails"
+owner_domain: "Commercial"
+impact_dimension: "Profitability"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Pricing Governance"
+  theme: "Stop Discount Leakage"
+
+tags: ["price-realization", "discount-control", "margin-guardrail"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "sales.price.realization_pct"
+      role: "primary"
+    - id: "margin.gm.pct"
+      role: "secondary"
+  decisions_enabled:
+    - "Enforce discount floors"
+    - "Require approvals for price exceptions"
+  non_goals:
+    - "List price strategy redesign"
+    - "Promotion ROI optimization"
+    - "Channel mix strategy"
+
+use_case_links:
+  core_use_cases:
+    - "COM-002"
+  related_use_cases:
+    - "COM-001"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "sales.price.realization_pct"
+      label: "Price Realization %"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Price Realization %"
+  guardrail_kpis:
+    - kpi_id: "margin.gm.pct"
+      label: "Gross Margin %"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Gross Margin %"
+  outcome_kpis:
+    - kpi_id: "sales.price.realization_pct"
+      label: "Price Realization %"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Price Realization %"
+    - kpi_id: "margin.gm.pct"
+      label: "Gross Margin %"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Gross Margin %"
+
+scope:
+  default_grain: "month"
+  default_perspective: ["Region", "Channel"]
+  supported_slices:
+    - "Product Category"
+    - "SKU"
+  exclusions:
+    - "Low-volume SKUs"
+    - "Approved strategic pricing exceptions"
+    - "Active promotion periods (handled in COM-004)"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "month"
+    window:
+      kind: "rolling"
+      length: 2
+      unit: "periods"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 1
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "margin.gm.amount"
+        comparator: "gte"
+        value: 50000
+        unit: "amount"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "sales.price.realization_pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 0.95
+          unit: "%"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "sales.price.realization_pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 0.92
+          unit: "%"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "sales.price.realization_pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 0.90
+          unit: "%"
+        filters: []
+  gating_rules:
+    - "Trigger only if Gross Margin % < 25%"
+    - "Do not trigger if mix effect is primary negative driver"
+    - "Exclude periods flagged as promotion-heavy"
+
+impact:
+  category: "High"
+  expected_range:
+    metric_kpi_id: "sales.price.realization_pct"
+    value_low: 1.0
+    value_high: 3.0
+    unit: "pp"
+    time_to_effect:
+      min_periods: 1
+      max_periods: 2
+  mechanism:
+    - "Reduced discount depth"
+    - "Tighter exception governance"
+  confidence:
+    level: "High"
+    rationale:
+      - "Direct control lever with short feedback loop"
+      - "Historically low execution risk"
+
+operational_execution:
+  primary_owner_role: "Pricing Lead"
+  stakeholders:
+    - "Sales Operations"
+    - "Commercial Controlling"
+  prerequisites:
+    - "Defined discount floors by category/SKU"
+    - "Approval workflow for pricing exceptions"
+  steps:
+    - "Identify Region/Channel/SKU combinations below realization threshold"
+    - "Freeze discretionary discounts"
+    - "Enforce approval for price exceptions"
+    - "Review realization recovery monthly"
+  effort:
+    level: "Low"
+    typical_duration_days: 30
+  risks_and_tradeoffs:
+    - "Short-term volume pressure in price-sensitive segments"
+    - "Sales friction if governance not clearly communicated"
+
+data_requirements:
+  required_entities:
+    - "Region"
+    - "Channel"
+    - "Product"
+  semantic_dependencies:
+    measures:
+      - "Price Realization %"
+      - "Gross Margin %"
+      - "Gross Margin Amount"
+    tables:
+      - "fact_sales"
+      - "dim_org"
+      - "dim_product"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "monthly"
+    output: "Flagged Region/Channel/SKU combinations breaching realization guardrails"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "SKU-level discount floor enforcement list"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "TriggerLevel"
+      - "Region"
+      - "Channel"
+      - "Product"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_PriceRealization_Pct"
+      - "Post_PriceRealization_Pct_30d"
+
+governance:
+  approvals_required:
+    - "Commercial Controlling Lead"
+  rollback_plan:
+    - "Relax discount floors if Net Sales decline exceeds tolerance"
+  documentation_links:
+    - "usecases/core/COM-002/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

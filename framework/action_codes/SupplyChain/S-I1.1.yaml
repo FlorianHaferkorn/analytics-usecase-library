@@ -1,0 +1,234 @@
+schema_version: "1.1"
+
+id: "S-I1.1"
+name: "Inventory Orchestration"
+owner_domain: "Supply Chain Leadership"
+impact_dimension: "Working Capital & Service Balance"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Inventory Governance"
+  theme: "Coordinate Inventory Levers Without Service Degradation"
+
+tags: ["inventory", "orchestration", "working-capital", "service-level"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "inv.dio.days"
+      role: "primary"
+    - id: "inv.stockout.pct"
+      role: "secondary"
+    - id: "supply.otif.pct"
+      role: "secondary"
+  decisions_enabled:
+    - "Select dominant inventory lever per SKU/location (rightsizing, stockout prevention, obsolescence, planning)"
+    - "Sequence inventory actions to avoid capital vs service conflicts"
+  non_goals:
+    - "Executing inventory actions directly"
+    - "Demand forecasting model tuning"
+    - "Network or transport redesign"
+
+use_case_links:
+  core_use_cases:
+    - "SCM-001"
+  related_use_cases:
+    - "SCM-002"
+    - "FIN-001"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "inv.dio.days"
+      label: "Days Inventory Outstanding"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "DIO (Days)"
+    - kpi_id: "inv.stockout.pct"
+      label: "Stockout %"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "Stockout %"
+  guardrail_kpis:
+    - kpi_id: "supply.otif.pct"
+      label: "OTIF %"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "OTIF %"
+  outcome_kpis:
+    - kpi_id: "inv.dio.days"
+      label: "Days Inventory Outstanding"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "DIO (Days)"
+
+scope:
+  default_grain: "sku_location_month"
+  default_perspective: ["SKU", "Location"]
+  supported_slices:
+    - "Product Category"
+    - "Planning Group"
+  exclusions:
+    - "SKUs under end-of-life programs"
+    - "Inventory constrained by regulatory or safety stock mandates"
+    - "Promotional stock governed by COM-004"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "sku_location_month"
+    window:
+      kind: "rolling"
+      length: 2
+      unit: "periods"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 1
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "sales.units"
+        comparator: "gte"
+        value: 5000
+        unit: "units"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "inv.dio.days"
+        comparator: "gt"
+        threshold:
+          basis: "relative"
+          value: 0.10
+          unit: "%"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "inv.dio.days"
+        comparator: "gt"
+        threshold:
+          basis: "relative"
+          value: 0.25
+          unit: "%"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "inv.dio.days"
+        comparator: "gt"
+        threshold:
+          basis: "relative"
+          value: 0.40
+          unit: "%"
+        filters: []
+  gating_rules:
+    - "Trigger only if OTIF remains within agreed tolerance"
+    - "Do not trigger if DIO increase is driven by approved buffer build-up"
+    - "Exclude SKUs with active execution Action Codes already in progress"
+
+impact:
+  category: "High"
+  expected_range:
+    metric_kpi_id: "inv.dio.days"
+    value_low: -5.0
+    value_high: -15.0
+    unit: "days"
+    time_to_effect:
+      min_periods: 1
+      max_periods: 3
+  mechanism:
+    - "Focused activation of the dominant inventory lever"
+    - "Prevention of contradictory stock actions"
+  confidence:
+    level: "High"
+    rationale:
+      - "DIO is highly sensitive to targeted rightsizing"
+      - "Central coordination improves execution quality"
+
+operational_execution:
+  primary_owner_role: "Head of Supply Chain"
+  stakeholders:
+    - "Demand Planning"
+    - "Supply Planning"
+    - "Inventory Controlling"
+  prerequisites:
+    - "Reliable SKU-location inventory visibility"
+    - "Clear ownership of execution Action Codes"
+  steps:
+    - "Detect sustained DIO deviation"
+    - "Diagnose dominant inventory driver (excess, stockout, obsolescence, planning)"
+    - "Activate corresponding execution Action Code"
+    - "Review inventory recovery monthly"
+  effort:
+    level: "Low"
+    typical_duration_days: 30
+  risks_and_tradeoffs:
+    - "Delayed execution if diagnosis is incorrect"
+    - "Underreaction to multi-driver inventory issues"
+
+data_requirements:
+  required_entities:
+    - "SKU"
+    - "Location"
+  semantic_dependencies:
+    measures:
+      - "DIO (Days)"
+      - "Stockout %"
+      - "OTIF %"
+      - "Sales Units"
+    tables:
+      - "fact_inventory"
+      - "fact_sales"
+      - "dim_product"
+      - "dim_location"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "monthly"
+    output: "SKU-locations with sustained inventory imbalance"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "Recommended inventory lever activation"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "SKU"
+      - "Location"
+      - "TriggerLevel"
+      - "ActivatedLever"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_DIO_Days"
+      - "Post_DIO_Days_60d"
+
+governance:
+  approvals_required:
+    - "VP Supply Chain"
+  rollback_plan:
+    - "Suspend orchestration if service KPIs deteriorate"
+  documentation_links:
+    - "usecases/core/SCM-001/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

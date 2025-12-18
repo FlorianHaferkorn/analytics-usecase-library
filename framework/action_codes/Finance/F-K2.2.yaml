@@ -1,0 +1,230 @@
+schema_version: "1.1"
+
+id: "F-K2.2"
+name: "Material Cost Discipline"
+owner_domain: "Procurement / Operations"
+impact_dimension: "Profitability"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Material Cost Control"
+  theme: "Stabilize and Reduce Material Cost per Unit"
+
+tags: ["material-cost", "cogs", "procurement"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "cost.material.pct"
+      role: "primary"
+    - id: "cost.unit.amount"
+      role: "secondary"
+  decisions_enabled:
+    - "Tighten material usage and scrap control"
+    - "Activate sourcing and spec-discipline corrections"
+  non_goals:
+    - "Supplier PPV deep-dive programs (OPS-002)"
+    - "Long-term supplier strategy changes"
+    - "Pricing or promotion interventions"
+
+use_case_links:
+  core_use_cases:
+    - "FIN-002"
+  related_use_cases:
+    - "OPS-002"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "cost.material.pct"
+      label: "Material Cost %"
+      semantic_ref:
+        model_domain: "Finance"
+        measure: "Material Cost %"
+  guardrail_kpis:
+    - kpi_id: "ops.yield.pct"
+      label: "Yield %"
+      semantic_ref:
+        model_domain: "Operations"
+        measure: "Yield %"
+  outcome_kpis:
+    - kpi_id: "cost.material.pct"
+      label: "Material Cost %"
+      semantic_ref:
+        model_domain: "Finance"
+        measure: "Material Cost %"
+    - kpi_id: "cost.unit.amount"
+      label: "Unit Cost Amount"
+      semantic_ref:
+        model_domain: "Finance"
+        measure: "Unit Cost Amount"
+
+scope:
+  default_grain: "month"
+  default_perspective: ["Plant", "Product Category"]
+  supported_slices:
+    - "Supplier"
+  exclusions:
+    - "Approved spec changes and engineering trials"
+    - "One-off material price spikes with approved pass-through"
+    - "Low-volume pilot products"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "month"
+    window:
+      kind: "rolling"
+      length: 2
+      unit: "periods"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 1
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "cost.base_volume.amount"
+        comparator: "gte"
+        value: 300000
+        unit: "amount"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "cost.material.pct"
+        comparator: "gt"
+        threshold:
+          basis: "relative"
+          value: 0.02
+          unit: "%"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "cost.material.pct"
+        comparator: "gt"
+        threshold:
+          basis: "relative"
+          value: 0.05
+          unit: "%"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "cost.material.pct"
+        comparator: "gt"
+        threshold:
+          basis: "relative"
+          value: 0.08
+          unit: "%"
+        filters: []
+  gating_rules:
+    - "Trigger only if yield remains within guardrails"
+    - "Do not trigger if unit cost increase is labor-driven"
+    - "Exclude plants under approved material transition programs"
+
+impact:
+  category: "Medium"
+  expected_range:
+    metric_kpi_id: "cost.material.pct"
+    value_low: 1.0
+    value_high: 4.0
+    unit: "%"
+    time_to_effect:
+      min_periods: 2
+      max_periods: 4
+  mechanism:
+    - "Reduced scrap and rework"
+    - "Spec and sourcing discipline corrections"
+  confidence:
+    level: "Medium"
+    rationale:
+      - "Depends on process stability and supplier responsiveness"
+      - "Guarded by yield constraints"
+
+operational_execution:
+  primary_owner_role: "Head of Procurement"
+  stakeholders:
+    - "Plant Management"
+    - "Quality"
+    - "Ops Controlling"
+  prerequisites:
+    - "Material usage and scrap transparency"
+    - "Clear escalation paths for spec deviations"
+  steps:
+    - "Identify plants/products with rising material cost share"
+    - "Analyze scrap, yield, and spec adherence"
+    - "Implement corrective sourcing or usage actions"
+    - "Review material cost trend monthly"
+  effort:
+    level: "Medium"
+    typical_duration_days: 90
+  risks_and_tradeoffs:
+    - "Quality risk if spec discipline is over-tightened"
+    - "Supplier friction during corrective actions"
+
+data_requirements:
+  required_entities:
+    - "Plant"
+    - "Product"
+    - "Supplier"
+  semantic_dependencies:
+    measures:
+      - "Material Cost %"
+      - "Unit Cost Amount"
+      - "Yield %"
+    tables:
+      - "fact_cost"
+      - "fact_ops"
+      - "dim_supplier"
+      - "dim_plant"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "monthly"
+    output: "Plants/products with material cost deviations"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "Material usage and sourcing correction candidates"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "Plant"
+      - "ProductCategory"
+      - "TriggerLevel"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_MaterialCost_Pct"
+      - "Post_MaterialCost_Pct_90d"
+
+governance:
+  approvals_required:
+    - "Head of Procurement"
+    - "COO"
+  rollback_plan:
+    - "Pause corrective actions if yield or quality deteriorates"
+  documentation_links:
+    - "usecases/core/FIN-002/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

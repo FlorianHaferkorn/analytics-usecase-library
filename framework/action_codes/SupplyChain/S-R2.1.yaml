@@ -1,0 +1,234 @@
+schema_version: "1.1"
+
+id: "S-R2.1"
+name: "OTIF Orchestration"
+owner_domain: "Supply Chain Leadership"
+impact_dimension: "Service Reliability"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Service Reliability Governance"
+  theme: "Coordinate OTIF Improvement Levers Without Masking Root Causes"
+
+tags: ["otif", "service-reliability", "orchestration"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "supply.otif.pct"
+      role: "primary"
+    - id: "supply.on_time.pct"
+      role: "secondary"
+    - id: "supply.in_full.pct"
+      role: "secondary"
+  decisions_enabled:
+    - "Select dominant OTIF lever (transport, in-full, cost containment, planning alignment)"
+    - "Sequence actions to avoid expedites masking structural failures"
+  non_goals:
+    - "Executing logistics or planning actions directly"
+    - "Inventory buffer changes"
+    - "Network or carrier strategy redesign"
+
+use_case_links:
+  core_use_cases:
+    - "SCM-002"
+  related_use_cases:
+    - "SCM-001"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "supply.otif.pct"
+      label: "OTIF %"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "OTIF %"
+    - kpi_id: "supply.expedite.amount"
+      label: "Expedite Cost Amount"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "Expedite Cost Amount"
+  guardrail_kpis:
+    - kpi_id: "inv.dio.days"
+      label: "Days Inventory Outstanding"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "DIO (Days)"
+  outcome_kpis:
+    - kpi_id: "supply.otif.pct"
+      label: "OTIF %"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "OTIF %"
+
+scope:
+  default_grain: "lane_dc_week"
+  default_perspective: ["Lane", "Distribution Center"]
+  supported_slices:
+    - "Customer Channel"
+  exclusions:
+    - "Service degradation caused by force majeure"
+    - "Contractually approved service exceptions"
+    - "SKUs under promotion programs (COM-004)"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "lane_dc_week"
+    window:
+      kind: "rolling"
+      length: 3
+      unit: "periods"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 2
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "shipments.count"
+        comparator: "gte"
+        value: 100
+        unit: "count"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "supply.otif.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 96.0
+          unit: "%"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "supply.otif.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 93.0
+          unit: "%"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "supply.otif.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 90.0
+          unit: "%"
+        filters: []
+  gating_rules:
+    - "Trigger only if service deterioration is structurally recurring"
+    - "Do not trigger if OTIF loss is fully explained by inventory shortages"
+    - "Exclude lanes with active execution Action Codes in progress"
+
+impact:
+  category: "High"
+  expected_range:
+    metric_kpi_id: "supply.otif.pct"
+    value_low: 1.0
+    value_high: 4.0
+    unit: "pp"
+    time_to_effect:
+      min_periods: 1
+      max_periods: 3
+  mechanism:
+    - "Focused activation of the dominant OTIF improvement lever"
+    - "Avoidance of conflicting expedites and root-cause actions"
+  confidence:
+    level: "High"
+    rationale:
+      - "OTIF failures are typically concentrated by lane/DC"
+      - "Central coordination improves execution effectiveness"
+
+operational_execution:
+  primary_owner_role: "Head of Supply Chain"
+  stakeholders:
+    - "Logistics"
+    - "Supply Planning"
+    - "Customer Operations"
+  prerequisites:
+    - "Reliable OTIF decomposition (on-time vs in-full)"
+    - "Clear ownership of execution Action Codes"
+  steps:
+    - "Detect sustained OTIF deterioration"
+    - "Diagnose dominant OTIF loss driver"
+    - "Activate corresponding execution Action Code"
+    - "Review OTIF recovery weekly"
+  effort:
+    level: "Low"
+    typical_duration_days: 21
+  risks_and_tradeoffs:
+    - "Delayed execution if root cause is misclassified"
+    - "Underreaction to multi-driver service failures"
+
+data_requirements:
+  required_entities:
+    - "Lane"
+    - "Distribution Center"
+  semantic_dependencies:
+    measures:
+      - "OTIF %"
+      - "On-Time %"
+      - "In-Full %"
+      - "Expedite Cost Amount"
+      - "DIO (Days)"
+    tables:
+      - "fact_shipments"
+      - "fact_logistics_cost"
+      - "fact_inventory"
+      - "dim_lane"
+      - "dim_distribution_center"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "weekly"
+    output: "Lane-DC combinations with sustained OTIF deterioration"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "Recommended OTIF lever activation"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "Lane"
+      - "DistributionCenter"
+      - "TriggerLevel"
+      - "ActivatedLever"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_OTIF_Pct"
+      - "Post_OTIF_Pct_30d"
+
+governance:
+  approvals_required:
+    - "VP Supply Chain"
+  rollback_plan:
+    - "Suspend orchestration if service actions conflict or mask root causes"
+  documentation_links:
+    - "usecases/core/SCM-002/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

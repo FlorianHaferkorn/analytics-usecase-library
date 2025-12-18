@@ -1,0 +1,231 @@
+schema_version: "1.1"
+
+id: "C-P4.4"
+name: "Promo Cost & COGS Discipline"
+owner_domain: "Procurement / Operations"
+impact_dimension: "Profitability"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Promotion Cost Control"
+  theme: "Protect Promo GM via Cost Discipline"
+
+tags: ["promotion", "cogs", "funding", "cost-control"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "margin.promo.gm.pct"
+      role: "primary"
+    - id: "sales.promo.roi.pct"
+      role: "secondary"
+  decisions_enabled:
+    - "Correct promo-specific cost leakage (COGS, logistics, funding)"
+    - "Adjust funding or mechanics when cost-driven margin erosion occurs"
+  non_goals:
+    - "Long-term supplier strategy or footprint changes"
+    - "Pricing or discount guardrails (handled by C-P4.2)"
+    - "Promotion calendar decisions (handled by C-P4.1)"
+
+use_case_links:
+  core_use_cases:
+    - "COM-004"
+  related_use_cases:
+    - "COM-002"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "margin.promo.gm.pct"
+      label: "Promo Gross Margin %"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Promo Gross Margin %"
+  guardrail_kpis:
+    - kpi_id: "sales.price.realization_pct"
+      label: "Price Realization %"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Price Realization %"
+  outcome_kpis:
+    - kpi_id: "margin.promo.gm.pct"
+      label: "Promo Gross Margin %"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Promo Gross Margin %"
+    - kpi_id: "sales.promo.roi.pct"
+      label: "Promotion ROI %"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Promotion ROI %"
+
+scope:
+  default_grain: "promotion"
+  default_perspective: ["Region", "Channel"]
+  supported_slices:
+    - "Product Category"
+    - "PromoType"
+  exclusions:
+    - "Promotions without incremental sales baseline"
+    - "Strategic brand campaigns with approved GM override"
+    - "One-off logistics incidents already approved"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "promotion"
+    window:
+      kind: "rolling"
+      length: 2
+      unit: "executions"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 2
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "sales.promo.incremental.amount"
+        comparator: "gte"
+        value: 100000
+        unit: "amount"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "margin.promo.gm.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 0.20
+          unit: "%"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "margin.promo.gm.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 0.15
+          unit: "%"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "margin.promo.gm.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 0.10
+          unit: "%"
+        filters: []
+  gating_rules:
+    - "Trigger only if price realization remains within promo guardrails"
+    - "Do not trigger if negative ROI is driven by cannibalization (handled by C-P4.3)"
+    - "Exclude promotions flagged as strategic branding with approved override"
+
+impact:
+  category: "Medium"
+  expected_range:
+    metric_kpi_id: "margin.promo.gm.pct"
+    value_low: 0.5
+    value_high: 1.5
+    unit: "pp"
+    time_to_effect:
+      min_periods: 1
+      max_periods: 3
+  mechanism:
+    - "Reduction of promo-specific COGS and logistics costs"
+    - "Improved funding efficiency"
+  confidence:
+    level: "Medium"
+    rationale:
+      - "Effectiveness depends on supplier and logistics flexibility"
+      - "Short to mid-term impact window"
+
+operational_execution:
+  primary_owner_role: "Procurement Lead"
+  stakeholders:
+    - "Operations"
+    - "Trade Marketing"
+    - "Commercial Controlling"
+  prerequisites:
+    - "Promo-level cost transparency (COGS, funding, logistics)"
+    - "Approved corrective levers for promo execution"
+  steps:
+    - "Identify promotions with repeated low Promo GM %"
+    - "Decompose margin erosion into cost drivers"
+    - "Renegotiate funding or adjust logistics/COGS levers"
+    - "Validate GM recovery post-execution"
+  effort:
+    level: "Medium"
+    typical_duration_days: 60
+  risks_and_tradeoffs:
+    - "Supplier pushback on short-term cost changes"
+    - "Operational complexity during promo execution"
+
+data_requirements:
+  required_entities:
+    - "Promotion"
+    - "Product"
+    - "Org"
+  semantic_dependencies:
+    measures:
+      - "Promo Gross Margin %"
+      - "Promotion ROI %"
+      - "Incremental Sales Amount"
+      - "Promo Cost"
+    tables:
+      - "fact_sales"
+      - "fact_promo"
+      - "dim_promo"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "per_promotion"
+    output: "Promotions with cost-driven margin erosion"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "Cost driver breakdown and corrective options"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "Promotion"
+      - "TriggerLevel"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Promotion"
+      - "Pre_PromoGM_Pct"
+      - "Post_PromoGM_Pct"
+
+governance:
+  approvals_required:
+    - "Head of Procurement"
+    - "Commercial Controlling Lead"
+  rollback_plan:
+    - "Suspend corrective actions if supply continuity is at risk"
+  documentation_links:
+    - "usecases/core/COM-004/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

@@ -1,0 +1,227 @@
+schema_version: "1.1"
+
+id: "C-S1.2"
+name: "Sales Gap Recovery via Price & Pack Adjustment"
+owner_domain: "Commercial"
+impact_dimension: "Growth"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Revenue Recovery"
+  theme: "Close Plan Gaps Without Margin Erosion"
+
+tags: ["sales-gap", "pricing", "pack-adjustment"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "sales.net_sales.delta_pct.plan"
+      role: "primary"
+    - id: "sales.net_sales.amount"
+      role: "secondary"
+  decisions_enabled:
+    - "Adjust price corridors within GM guardrails"
+    - "Introduce tactical pack-size or price-point adjustments"
+  non_goals:
+    - "Promotion ROI optimization"
+    - "Long-term list price strategy redesign"
+    - "Margin recovery through cost measures"
+
+use_case_links:
+  core_use_cases:
+    - "COM-001"
+  related_use_cases:
+    - "COM-002"
+    - "COM-004"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "sales.net_sales.delta_pct.plan"
+      label: "Net Sales % vs Plan"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Net Sales % vs Plan"
+  guardrail_kpis:
+    - kpi_id: "margin.gm.pct"
+      label: "Gross Margin %"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Gross Margin %"
+  outcome_kpis:
+    - kpi_id: "sales.net_sales.amount"
+      label: "Net Sales Amount"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Net Sales Amount"
+
+scope:
+  default_grain: "month"
+  default_perspective: ["Region", "Channel"]
+  supported_slices:
+    - "Product Category"
+    - "Customer Segment"
+  exclusions:
+    - "Approved promotions"
+    - "Strategic SKUs with fixed pricing policy"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "month"
+    window:
+      kind: "rolling"
+      length: 2
+      unit: "periods"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 1
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "sales.net_sales.amount"
+        comparator: "gte"
+        value: 200000
+        unit: "amount"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "sales.net_sales.delta_pct.plan"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: -0.02
+          unit: "%"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "sales.net_sales.delta_pct.plan"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: -0.05
+          unit: "%"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "sales.net_sales.delta_pct.plan"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: -0.08
+          unit: "%"
+        filters: []
+  gating_rules:
+    - "Trigger only if Gross Margin % >= 25%"
+    - "Do not trigger if price effect is structurally negative for 3+ months (hand over to COM-002)"
+    - "Do not trigger during approved campaign periods"
+
+impact:
+  category: "Medium"
+  expected_range:
+    metric_kpi_id: "sales.net_sales.amount"
+    value_low: 1.0
+    value_high: 3.0
+    unit: "%"
+    time_to_effect:
+      min_periods: 1
+      max_periods: 2
+  mechanism:
+    - "Improved price-point attractiveness"
+    - "Reduced entry barriers via pack sizing"
+  confidence:
+    level: "Medium"
+    rationale:
+      - "Observed elasticity effects in comparable periods"
+      - "Guardrails prevent margin dilution"
+
+operational_execution:
+  primary_owner_role: "Sales Director"
+  stakeholders:
+    - "Pricing Manager"
+    - "Category Management"
+  prerequisites:
+    - "Defined GM guardrails by category"
+    - "Pack-size flexibility approved by Category Management"
+  steps:
+    - "Identify regions/channels breaching plan thresholds"
+    - "Select eligible products within GM guardrails"
+    - "Apply temporary price or pack adjustments"
+    - "Review Net Sales uplift after one cycle"
+  effort:
+    level: "Medium"
+    typical_duration_days: 45
+  risks_and_tradeoffs:
+    - "Temporary customer price anchoring"
+    - "Operational complexity from pack variants"
+
+data_requirements:
+  required_entities:
+    - "Region"
+    - "Channel"
+    - "Product"
+    - "Customer Segment"
+  semantic_dependencies:
+    measures:
+      - "Net Sales % vs Plan"
+      - "Gross Margin %"
+      - "Net Sales Amount"
+    tables:
+      - "fact_sales"
+      - "dim_org"
+      - "dim_product"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "monthly"
+    output: "Region/Channel/Product combinations eligible for gap recovery"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "Candidate price corridors"
+      - "Eligible pack-size adjustments"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "TriggerLevel"
+      - "Region"
+      - "Channel"
+      - "Product"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_NetSales"
+      - "Post_NetSales_30d"
+
+governance:
+  approvals_required:
+    - "Commercial Controlling Lead"
+    - "Category Management Lead"
+  rollback_plan:
+    - "Revert price or pack changes if GM % falls below guardrail"
+  documentation_links:
+    - "usecases/core/COM-001/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

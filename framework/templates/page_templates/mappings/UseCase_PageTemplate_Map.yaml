@@ -1,0 +1,2181 @@
+templates:
+  T1:
+    name: Strategic Overview
+    file: T1_Strategic_Overview.md
+  T2:
+    name: Tactical Variance
+    file: T2_Tactical_Variance.md
+  T3:
+    name: Operational Monitoring
+    file: T3_Operational_Monitoring.md
+  T4:
+    name: Prescriptive Recommendation
+    file: T4_Prescriptive_Recommendation.md
+
+# Rules:
+# - template must be one of: T1, T2, T3, T4
+# - page name must be: overview or detail
+# - if slots.needs_prescriptive = true -> template must be T4
+# - if slots.needs_detail_matrix = true -> layer must include 300
+
+use_cases:
+  COM-001:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COM-002:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COM-003:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: true
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COM-004:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: true
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COM-005:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COM-006:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COM-007:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T1
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: true
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T1
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COM-008:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COM-009:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: true
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COM-010:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: true
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COM-011:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T1
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T1
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COM-012:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T4
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T4
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+  COM-014:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T4
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T4
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+  COM-015:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COR-001:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COR-002:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COR-003:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COR-004:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T1
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T1
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COR-005:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T1
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T1
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COR-006:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T1
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T1
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COR-007:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T1
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T1
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COR-008:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T1
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T1
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COR-009:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T1
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T1
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COR-010:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T1
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T1
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COR-011:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COR-012:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COR-013:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COR-014:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T1
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T1
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  COR-015:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T4
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T4
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+  COR-016:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  CST-001:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  CST-002:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  CST-003:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T4
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T4
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+  CST-004:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  CST-005:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  CST-006:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T1
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T1
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  CST-007:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T3
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T3
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  CST-008:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  CST-009:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T1
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T1
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  CST-010:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: true
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  CST-011:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  CST-012:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T4
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T4
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+  CST-014:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T4
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T4
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+  ESG-001:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T1
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T1
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  ESG-002:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T4
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T4
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+  GOV-001:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T3
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T3
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  GOV-002:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  GOV-003:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  GOV-004:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  HR-001:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  HR-002:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  INN-001:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  INN-002:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  OPS-001:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T3
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T3
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  OPS-002:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T3
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T3
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  OPS-003:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  OPS-004:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T4
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T4
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+  OPS-005:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T3
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T3
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  OPS-006:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T3
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T3
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  OPS-007:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T3
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T3
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  OPS-008:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  OPS-009:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  OPS-010:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T4
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T4
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+  OPS-011:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T3
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T3
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+  OPS-012:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T4
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T4
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+  OPS-013:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T4
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T4
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+  OPS-014:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T3
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: false
+          needs_root_cause: true
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T3
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: true
+          needs_detail_matrix: true
+          needs_root_cause: true
+          needs_prescriptive: false
+          needs_funnel: false
+  OPS-015:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T3
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: true
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T3
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: true
+          needs_prescriptive: false
+          needs_funnel: false
+  OPS-016:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: true
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: true
+          needs_prescriptive: false
+          needs_funnel: false
+  OPS-017:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T2
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: true
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: true
+          needs_prescriptive: false
+          needs_funnel: false
+  OPS-018:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T4
+        needs_action_panel: true
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T4
+        needs_action_panel: false
+        slots:
+          needs_trend: false
+          needs_variance: false
+          needs_ranking: false
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: true
+          needs_funnel: false
+  XD-003_Executive_KPI_Overview:
+    pages:
+      - name: overview
+        layer: [3, 30]
+        template: T1
+        needs_action_panel: true
+        slots:
+          needs_trend: true
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: false
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false
+      - name: detail
+        layer: [300]
+        template: T2
+        needs_action_panel: false
+        slots:
+          needs_trend: true
+          needs_variance: true
+          needs_ranking: true
+          needs_mix: false
+          needs_exceptions: false
+          needs_detail_matrix: true
+          needs_root_cause: false
+          needs_prescriptive: false
+          needs_funnel: false

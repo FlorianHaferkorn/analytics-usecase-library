@@ -1,0 +1,229 @@
+schema_version: "1.1"
+
+id: "O-A2.4"
+name: "Preventive Maintenance Discipline"
+owner_domain: "Maintenance Planning"
+impact_dimension: "Reliability"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Preventive Maintenance Control"
+  theme: "Enforce PM Compliance to Prevent Failures"
+
+tags: ["preventive-maintenance", "pm-compliance", "reliability"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "ops.pm_compliance.pct"
+      role: "primary"
+    - id: "ops.mtbf.hours"
+      role: "secondary"
+  decisions_enabled:
+    - "Enforce on-time execution of preventive maintenance"
+    - "Rebalance PM backlog and maintenance capacity"
+  non_goals:
+    - "Redesign of PM strategy or task content"
+    - "Predictive maintenance or condition-based monitoring"
+    - "Maintenance outsourcing decisions"
+
+use_case_links:
+  core_use_cases:
+    - "OPS-002"
+  related_use_cases:
+    - "OPS-001"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "ops.pm_compliance.pct"
+      label: "PM Compliance %"
+      semantic_ref:
+        model_domain: "Operations"
+        measure: "PM Compliance %"
+  guardrail_kpis:
+    - kpi_id: "ops.availability.pct"
+      label: "Availability %"
+      semantic_ref:
+        model_domain: "Operations"
+        measure: "Availability %"
+  outcome_kpis:
+    - kpi_id: "ops.pm_compliance.pct"
+      label: "PM Compliance %"
+      semantic_ref:
+        model_domain: "Operations"
+        measure: "PM Compliance %"
+    - kpi_id: "ops.mtbf.hours"
+      label: "Mean Time Between Failures (Hours)"
+      semantic_ref:
+        model_domain: "Operations"
+        measure: "MTBF (Hours)"
+
+scope:
+  default_grain: "asset_month"
+  default_perspective: ["Plant", "Asset"]
+  supported_slices:
+    - "Maintenance Plan"
+    - "Maintenance Team"
+  exclusions:
+    - "Assets under major overhaul programs"
+    - "Newly commissioned assets (<90 days)"
+    - "PM tasks deferred due to approved production constraints"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "asset_month"
+    window:
+      kind: "rolling"
+      length: 2
+      unit: "periods"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 1
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "ops.pm.task.count"
+        comparator: "gte"
+        value: 5
+        unit: "count"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "ops.pm_compliance.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 95.0
+          unit: "%"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "ops.pm_compliance.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 90.0
+          unit: "%"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "ops.pm_compliance.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 85.0
+          unit: "%"
+        filters: []
+  gating_rules:
+    - "Trigger only if PM backlog is structural, not one-off"
+    - "Do not trigger if PM deferrals are approved by operations leadership"
+    - "Exclude assets with active MTBF or MTTR execution actions"
+
+impact:
+  category: "Medium"
+  expected_range:
+    metric_kpi_id: "ops.pm_compliance.pct"
+    value_low: 5.0
+    value_high: 10.0
+    unit: "pp"
+    time_to_effect:
+      min_periods: 2
+      max_periods: 4
+  mechanism:
+    - "Improved planning discipline and execution follow-up"
+    - "Reduced PM backlog and deferrals"
+  confidence:
+    level: "Medium"
+    rationale:
+      - "Effectiveness depends on capacity discipline"
+      - "MTBF impact is lagging"
+
+operational_execution:
+  primary_owner_role: "Maintenance Planner"
+  stakeholders:
+    - "Maintenance Manager"
+    - "Production Planning"
+  prerequisites:
+    - "Clear PM schedule and priorities"
+    - "Transparent backlog tracking"
+  steps:
+    - "Identify assets with declining PM compliance"
+    - "Analyse backlog causes and capacity constraints"
+    - "Rebalance PM schedule and resources"
+    - "Review compliance monthly"
+  effort:
+    level: "Low to Medium"
+    typical_duration_days: 60
+  risks_and_tradeoffs:
+    - "Short-term production disruption"
+    - "Maintenance capacity overload"
+
+data_requirements:
+  required_entities:
+    - "Asset"
+    - "Plant"
+  semantic_dependencies:
+    measures:
+      - "PM Compliance %"
+      - "MTBF (Hours)"
+      - "Availability %"
+      - "PM Task Count"
+    tables:
+      - "fact_ops_maintenance"
+      - "fact_ops_runtime"
+      - "dim_asset"
+      - "dim_plant"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "monthly"
+    output: "Assets with sustained PM compliance gaps"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "PM backlog recovery and scheduling actions"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "Asset"
+      - "Plant"
+      - "TriggerLevel"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_PM_Compliance_Pct"
+      - "Post_PM_Compliance_Pct_120d"
+
+governance:
+  approvals_required:
+    - "Maintenance Manager"
+  rollback_plan:
+    - "Reprioritise PM if availability drops below tolerance"
+  documentation_links:
+    - "usecases/core/OPS-002/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

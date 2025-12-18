@@ -39,6 +39,9 @@ A core use case’s **Business Factsheet** is considered done when:
   - **Triggers & Action Codes**:
     - Action Codes exist in `framework/action_codes/ActionCodes_Portfolio.md`.
     - Rationale is documented in `usecases/UseCase_ActionCode_Rationale.yaml`.
+    - All Action Codes are prescriptive (Do / Stop / Shift).
+    - No diagnostic-only or interpretive Action Codes remain.
+    - Expected impact and risks are explicitly stated.
   - **Page Layout (3–30–300)**:
     - 3s / 30s / 300s views are described and mapped to existing page templates.
   - **Data Requirements, Risks & Assumptions**:

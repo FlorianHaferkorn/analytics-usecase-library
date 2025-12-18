@@ -1,5 +1,9 @@
 ﻿# Implementation Guides
 
+These guides are optional.
+They explain how to implement the framework on specific platforms.
+They are not required to understand or use the framework.
+
 ## Purpose
 Translate the **ActionReady Operating Model** (semantics, UX, governance, AI-readiness)  
 into concrete, platform-specific implementation practices.

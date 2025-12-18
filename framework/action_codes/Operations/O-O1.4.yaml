@@ -1,0 +1,222 @@
+schema_version: "1.1"
+
+id: "O-O1.4"
+name: "Throughput Constraint Resolution"
+owner_domain: "Operations Leadership"
+impact_dimension: "Output"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Throughput Control"
+  theme: "Resolve System Constraints Blocking Output"
+
+tags: ["throughput", "constraints", "bottleneck"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "ops.throughput.units"
+      role: "primary"
+    - id: "ops.oee.pct"
+      role: "secondary"
+  decisions_enabled:
+    - "Identify and resolve dominant throughput constraints"
+    - "Coordinate availability, performance, and quality actions"
+  non_goals:
+    - "Capital expansion or new line investments"
+    - "Long-term network or footprint redesign"
+    - "Detailed scheduling optimization algorithms"
+
+use_case_links:
+  core_use_cases:
+    - "OPS-001"
+  related_use_cases:
+    - "FIN-002"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "ops.throughput.units"
+      label: "Throughput Units"
+      semantic_ref:
+        model_domain: "Operations"
+        measure: "Throughput Units"
+  guardrail_kpis:
+    - kpi_id: "ops.oee.pct"
+      label: "Overall Equipment Effectiveness %"
+      semantic_ref:
+        model_domain: "Operations"
+        measure: "OEE %"
+  outcome_kpis:
+    - kpi_id: "ops.throughput.units"
+      label: "Throughput Units"
+      semantic_ref:
+        model_domain: "Operations"
+        measure: "Throughput Units"
+
+scope:
+  default_grain: "plant_month"
+  default_perspective: ["Plant"]
+  supported_slices:
+    - "Production Line"
+    - "Shift"
+  exclusions:
+    - "Plants under planned capacity expansion"
+    - "One-off demand shocks approved by S&OP"
+    - "Throughput loss fully explained by availability, performance, or quality actions already active"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "plant_month"
+    window:
+      kind: "rolling"
+      length: 2
+      unit: "periods"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 1
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "ops.planned_output.units"
+        comparator: "gte"
+        value: 50000
+        unit: "units"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "ops.throughput.units"
+        comparator: "lt"
+        threshold:
+          basis: "relative"
+          value: 0.05
+          unit: "%"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "ops.throughput.units"
+        comparator: "lt"
+        threshold:
+          basis: "relative"
+          value: 0.10
+          unit: "%"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "ops.throughput.units"
+        comparator: "lt"
+        threshold:
+          basis: "relative"
+          value: 0.15
+          unit: "%"
+        filters: []
+  gating_rules:
+    - "Trigger only if OEE components are within acceptable range"
+    - "Do not trigger if throughput miss is demand-driven"
+    - "Exclude plants with active stabilization or recovery actions dominating output"
+
+impact:
+  category: "High"
+  expected_range:
+    metric_kpi_id: "ops.throughput.units"
+    value_low: 3.0
+    value_high: 10.0
+    unit: "%"
+    time_to_effect:
+      min_periods: 1
+      max_periods: 3
+  mechanism:
+    - "Constraint identification and focused resolution"
+    - "Better coordination of line-level actions"
+  confidence:
+    level: "Medium"
+    rationale:
+      - "Depends on clarity of dominant constraint"
+      - "Coordination lever rather than direct execution"
+
+operational_execution:
+  primary_owner_role: "Operations Director"
+  stakeholders:
+    - "Plant Managers"
+    - "Production Planning"
+    - "Ops Excellence"
+  prerequisites:
+    - "Reliable throughput vs plan tracking"
+    - "Clear ownership of line-level actions"
+  steps:
+    - "Identify plants missing throughput plan"
+    - "Diagnose dominant constraint (availability, performance, quality, mix, staffing)"
+    - "Activate or reprioritise relevant execution Action Codes"
+    - "Review throughput recovery bi-weekly"
+  effort:
+    level: "Low"
+    typical_duration_days: 30
+  risks_and_tradeoffs:
+    - "Misidentification of true bottleneck"
+    - "Over-coordination delaying execution"
+
+data_requirements:
+  required_entities:
+    - "Plant"
+  semantic_dependencies:
+    measures:
+      - "Throughput Units"
+      - "OEE %"
+      - "Planned Output Units"
+    tables:
+      - "fact_ops_output"
+      - "fact_ops_runtime"
+      - "dim_plant"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "monthly"
+    output: "Plants with sustained throughput shortfall"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "Constraint diagnosis and action prioritization"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "Plant"
+      - "TriggerLevel"
+      - "ActivatedConstraint"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_Throughput_Units"
+      - "Post_Throughput_Units_60d"
+
+governance:
+  approvals_required:
+    - "COO"
+  rollback_plan:
+    - "Suspend coordination if execution actions stall without impact"
+  documentation_links:
+    - "usecases/core/OPS-001/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

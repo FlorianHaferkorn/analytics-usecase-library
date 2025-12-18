@@ -1,0 +1,228 @@
+schema_version: "1.1"
+
+id: "C-P4.1"
+name: "Promo Calendar Discipline"
+owner_domain: "Trade Marketing"
+impact_dimension: "Profitability"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Promotion Governance"
+  theme: "Eliminate Structurally Unprofitable Promotions"
+
+tags: ["promotion", "roi", "calendar"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "sales.promo.roi.pct"
+      role: "primary"
+    - id: "margin.promo.gm.pct"
+      role: "secondary"
+  decisions_enabled:
+    - "Stop or replace low-ROI promotions"
+    - "Resequence promotion calendar to higher-quality mechanics"
+  non_goals:
+    - "Brand halo measurement without ROI override"
+    - "Long-term promotion strategy redesign"
+    - "Pricing strategy changes outside promo context"
+
+use_case_links:
+  core_use_cases:
+    - "COM-004"
+  related_use_cases:
+    - "COM-002"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "sales.promo.roi.pct"
+      label: "Promotion ROI %"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Promotion ROI %"
+  guardrail_kpis:
+    - kpi_id: "margin.promo.gm.pct"
+      label: "Promo Gross Margin %"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Promo Gross Margin %"
+  outcome_kpis:
+    - kpi_id: "sales.promo.roi.pct"
+      label: "Promotion ROI %"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Promotion ROI %"
+    - kpi_id: "margin.promo.gm.pct"
+      label: "Promo Gross Margin %"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Promo Gross Margin %"
+
+scope:
+  default_grain: "promotion"
+  default_perspective: ["Region", "Channel"]
+  supported_slices:
+    - "Product Category"
+    - "PromoType"
+  exclusions:
+    - "Strategic brand-building campaigns with approved ROI override"
+    - "Legally or contractually fixed promotions"
+    - "First-time pilot mechanics (<1 execution)"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "promotion"
+    window:
+      kind: "rolling"
+      length: 3
+      unit: "executions"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 2
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "sales.promo.incremental.amount"
+        comparator: "gte"
+        value: 100000
+        unit: "amount"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "sales.promo.roi.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 0.0
+          unit: "%"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "sales.promo.roi.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: -5.0
+          unit: "%"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "sales.promo.roi.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: -10.0
+          unit: "%"
+        filters: []
+  gating_rules:
+    - "Trigger only if baseline quality checks pass (baseline sales/qty present)"
+    - "Do not trigger if Promo Gross Margin % remains above target"
+    - "Exclude promotions flagged as strategic branding with approved override"
+
+impact:
+  category: "High"
+  expected_range:
+    metric_kpi_id: "sales.promo.roi.pct"
+    value_low: 5.0
+    value_high: 20.0
+    unit: "pp"
+    time_to_effect:
+      min_periods: 1
+      max_periods: 2
+  mechanism:
+    - "Removal of structurally loss-making promotions"
+    - "Reallocation toward higher-ROI mechanics"
+  confidence:
+    level: "High"
+    rationale:
+      - "Direct stop/continue lever"
+      - "Short feedback loop per promotion cycle"
+
+operational_execution:
+  primary_owner_role: "Trade Marketing Lead"
+  stakeholders:
+    - "Commercial Controlling"
+    - "Category Management"
+  prerequisites:
+    - "Promotion ROI calculation validated"
+    - "Clear classification of strategic vs tactical promotions"
+  steps:
+    - "Identify promotions with repeated negative ROI"
+    - "Review mechanics and baseline assumptions"
+    - "Stop, replace, or resequence promotions"
+    - "Validate ROI improvement in next cycle"
+  effort:
+    level: "Low"
+    typical_duration_days: 30
+  risks_and_tradeoffs:
+    - "Short-term volume dip from promo removal"
+    - "Channel pushback on reduced promo intensity"
+
+data_requirements:
+  required_entities:
+    - "Promotion"
+    - "Product"
+    - "Org"
+  semantic_dependencies:
+    measures:
+      - "Promotion ROI %"
+      - "Promo Gross Margin %"
+      - "Incremental Sales Amount"
+    tables:
+      - "fact_sales"
+      - "fact_promo"
+      - "dim_promo"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "per_promotion"
+    output: "Promotion list with repeated negative ROI"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "Stop/replace/resequence recommendation"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "Promotion"
+      - "TriggerLevel"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Promotion"
+      - "Pre_ROI_Pct"
+      - "Post_ROI_Pct"
+
+governance:
+  approvals_required:
+    - "Head of Trade Marketing"
+  rollback_plan:
+    - "Reintroduce promotion if strategic KPI deviation exceeds tolerance"
+  documentation_links:
+    - "usecases/core/COM-004/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

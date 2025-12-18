@@ -25,34 +25,6 @@ Not included:
 
 ---
 
-## Structure
-
-```
-kpi_catalog/
-  domain_kpi_catalog.md        → KPI overview across domains
-  domain_measure_dictionary.md → Index linking to semantic model dictionaries
-  README.md                    → This file
-```
-
-### domain_kpi_catalog.md
-High-level KPI list across all domains:
-- Strategic KPIs  
-- Operational KPIs  
-- KPI ownership  
-- KPI → Domain → Use Case mapping  
-- KPI → Action Code triggering relevance  
-
-Serves as the **business-facing entry point** into the catalog.
-
-### domain_measure_dictionary.md
-Technical entry point:
-- Links to every domain’s measure dictionary in `/semantic_models/domains/`
-- Provides naming rules, formats, and category definitions
-
-This keeps definitions centralized while avoiding duplication.
-
----
-
 ## Usage
 
 ### For Customers
@@ -86,14 +58,6 @@ This keeps definitions centralized while avoiding duplication.
 - **HOW →** Semantic Layer & Measure System govern design, naming, and logic.  
 - **WITH WHAT →** Action Codes and Templates use this catalog as input.  
 - **TEMPLATES →** Factsheet templates reference KPIs directly.
-
----
-
-## Next Step
-Review:
-1. `domain_kpi_catalog.md`  
-2. Then follow links to each domain’s measure dictionary inside:  
-   `semantic_models/domains/<domain>/measure_dictionary_<domain>.md`
 
 ---
 

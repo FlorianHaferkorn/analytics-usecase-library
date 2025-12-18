@@ -1,21 +1,61 @@
-﻿# measure_templates
+﻿# Measure Templates
 
-Purpose:
-Reusable measure patterns and naming/formatting conventions.
+## Purpose
 
-Scope:
-- Measure_template.md
-- Naming/formatting rules
-- Not: Platform deployment scripts
-- Use-case specific KPIs
+This folder contains the **standard template for defining semantic model measures**
+in the Analytics Use Case Library.
 
-Structure:
-measure_template.md as starter.
+It ensures that measures are:
+- reusable
+- governed
+- KPI-aligned
+- AI / Copilot ready
 
-Usage:
-- Base new measures on the template
-- Align IDs with KPI catalog
-- Extend only after review
+---
 
-Relations:
-Layer PATTERNS supporting semantic_models and KPI catalog.
+## Core Principle
+
+> **All business logic lives in measures.**
+
+Measures are the **single execution layer** for KPIs, Action Codes, and reports.
+
+---
+
+## Usage Rules (Mandatory)
+
+- Every KPI Measure must:
+  - reference a `kpi_id` from the KPI Catalog
+  - include a business description
+  - define grain and lineage
+- Supporting Measures must:
+  - be reusable
+  - be hidden by default
+  - not duplicate KPI logic
+- Calculated columns are avoided except for technical necessities
+
+---
+
+## What belongs here
+
+- The canonical **Measure Template**
+- Rules for measure documentation and structure
+
+## What does NOT belong here
+
+- KPI definitions (see KPI Catalog)
+- Business interpretation (see Use Cases)
+- Tool-specific implementation guides
+
+---
+
+## Relations
+
+- **KPI Catalog:** Defines *what* is measured
+- **Measure Template:** Defines *how* it is calculated
+- **Semantic Model:** Implements the template
+- **Action Codes:** Consume measure outputs
+
+---
+
+**Location:**  
+`framework/templates/measure_templates/`

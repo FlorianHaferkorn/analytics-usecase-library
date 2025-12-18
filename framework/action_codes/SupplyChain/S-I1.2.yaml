@@ -1,0 +1,236 @@
+schema_version: "1.1"
+
+id: "S-I1.2"
+name: "Inventory Rightsizing"
+owner_domain: "Supply Planning / Inventory Management"
+impact_dimension: "Working Capital"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Inventory Level Control"
+  theme: "Reduce Excess Inventory While Protecting Service"
+
+tags: ["inventory", "rightsizing", "dio", "working-capital"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "inv.dio.days"
+      role: "primary"
+    - id: "inv.turnover"
+      role: "secondary"
+  decisions_enabled:
+    - "Adjust safety stock and reorder parameters for excess SKUs"
+    - "Initiate clearance, rebalance, or lot-size corrections"
+  non_goals:
+    - "Promotion-driven sell-out actions (COM-004)"
+    - "Network footprint or warehouse consolidation"
+    - "Forecast algorithm tuning"
+
+use_case_links:
+  core_use_cases:
+    - "SCM-001"
+  related_use_cases:
+    - "FIN-001"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "inv.dio.days"
+      label: "Days Inventory Outstanding"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "DIO (Days)"
+  guardrail_kpis:
+    - kpi_id: "inv.stockout.pct"
+      label: "Stockout %"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "Stockout %"
+    - kpi_id: "supply.otif.pct"
+      label: "OTIF %"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "OTIF %"
+  outcome_kpis:
+    - kpi_id: "inv.dio.days"
+      label: "Days Inventory Outstanding"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "DIO (Days)"
+    - kpi_id: "inv.turnover"
+      label: "Inventory Turnover"
+      semantic_ref:
+        model_domain: "SupplyChain"
+        measure: "Inventory Turnover"
+
+scope:
+  default_grain: "sku_location_month"
+  default_perspective: ["SKU", "Location"]
+  supported_slices:
+    - "Product Category"
+    - "ABC Class"
+  exclusions:
+    - "SKUs under promotion or launch programs"
+    - "Strategic buffer stock approved by S&OP"
+    - "End-of-life inventory managed separately"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "sku_location_month"
+    window:
+      kind: "rolling"
+      length: 2
+      unit: "periods"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 1
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "sales.units"
+        comparator: "gte"
+        value: 3000
+        unit: "units"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "inv.dio.days"
+        comparator: "gt"
+        threshold:
+          basis: "absolute"
+          value: 20
+          unit: "days"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "inv.dio.days"
+        comparator: "gt"
+        threshold:
+          basis: "absolute"
+          value: 40
+          unit: "days"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "inv.dio.days"
+        comparator: "gt"
+        threshold:
+          basis: "absolute"
+          value: 60
+          unit: "days"
+        filters: []
+  gating_rules:
+    - "Trigger only if stockout rate remains below tolerance"
+    - "Do not trigger if OTIF deterioration is observed"
+    - "Exclude SKUs with active stockout prevention actions"
+
+impact:
+  category: "High"
+  expected_range:
+    metric_kpi_id: "inv.dio.days"
+    value_low: -10.0
+    value_high: -30.0
+    unit: "days"
+    time_to_effect:
+      min_periods: 1
+      max_periods: 4
+  mechanism:
+    - "Reduction of safety stock and excess buffers"
+    - "Improved lot-sizing and replenishment discipline"
+  confidence:
+    level: "Medium"
+    rationale:
+      - "Effectiveness depends on demand stability"
+      - "Guarded by service KPIs"
+
+operational_execution:
+  primary_owner_role: "Inventory Manager"
+  stakeholders:
+    - "Supply Planning"
+    - "Demand Planning"
+    - "Finance"
+  prerequisites:
+    - "Accurate on-hand and demand data"
+    - "Clear parameter ownership"
+  steps:
+    - "Identify SKUs with structurally high DIO"
+    - "Adjust safety stock and reorder parameters"
+    - "Execute rebalancing or clearance actions"
+    - "Review DIO and turnover monthly"
+  effort:
+    level: "Medium"
+    typical_duration_days: 90
+  risks_and_tradeoffs:
+    - "Over-reduction leading to stockouts"
+    - "Short-term service volatility"
+
+data_requirements:
+  required_entities:
+    - "SKU"
+    - "Location"
+  semantic_dependencies:
+    measures:
+      - "DIO (Days)"
+      - "Inventory Turnover"
+      - "Stockout %"
+      - "OTIF %"
+      - "Sales Units"
+    tables:
+      - "fact_inventory"
+      - "fact_sales"
+      - "dim_product"
+      - "dim_location"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "monthly"
+    output: "SKU-locations with excess inventory"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "Safety stock and lot-size adjustment candidates"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "SKU"
+      - "Location"
+      - "TriggerLevel"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_DIO_Days"
+      - "Post_DIO_Days_90d"
+
+governance:
+  approvals_required:
+    - "Head of Supply Planning"
+  rollback_plan:
+    - "Reinstate buffers if service KPIs breach tolerance"
+  documentation_links:
+    - "usecases/core/SCM-001/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

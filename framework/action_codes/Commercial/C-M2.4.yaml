@@ -1,0 +1,224 @@
+schema_version: "1.1"
+
+id: "C-M2.4"
+name: "Promotion Margin Discipline"
+owner_domain: "Commercial / Trade Marketing"
+impact_dimension: "Profitability"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Promotion Governance"
+  theme: "Protect Margin During Promotions"
+
+tags: ["promotion", "margin", "price-realization"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "margin.gm.vs_plan.pct"
+      role: "primary"
+    - id: "margin.gm.pct"
+      role: "secondary"
+  decisions_enabled:
+    - "De-prioritize or stop margin-dilutive promotions"
+    - "Resequence or downscale promotion calendar"
+  non_goals:
+    - "Detailed promotion ROI optimization"
+    - "Campaign effectiveness benchmarking"
+    - "Long-term trade strategy redesign"
+
+use_case_links:
+  core_use_cases:
+    - "COM-002"
+  related_use_cases:
+    - "COM-004"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "margin.gm.vs_plan.pct"
+      label: "Gross Margin % vs Plan"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Gross Margin % vs Plan"
+  guardrail_kpis:
+    - kpi_id: "sales.price.realization_pct"
+      label: "Price Realization %"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Price Realization %"
+  outcome_kpis:
+    - kpi_id: "margin.gm.pct"
+      label: "Gross Margin %"
+      semantic_ref:
+        model_domain: "Commercial"
+        measure: "Gross Margin %"
+
+scope:
+  default_grain: "month"
+  default_perspective: ["Region", "Channel"]
+  supported_slices:
+    - "Product Category"
+    - "Promotion"
+  exclusions:
+    - "Strategic brand campaigns"
+    - "Legally or contractually fixed promotions"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "month"
+    window:
+      kind: "rolling"
+      length: 2
+      unit: "periods"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 1
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "margin.gm.amount"
+        comparator: "gte"
+        value: 40000
+        unit: "amount"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "margin.gm.vs_plan.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: 0
+          unit: "pp"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "margin.gm.vs_plan.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: -1.0
+          unit: "pp"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "margin.gm.vs_plan.pct"
+        comparator: "lt"
+        threshold:
+          basis: "absolute"
+          value: -2.0
+          unit: "pp"
+        filters: []
+  gating_rules:
+    - "Trigger only during periods with active promotions"
+    - "Do not trigger if price realization guardrails already violated (handled by C-M2.1)"
+    - "Exclude campaigns classified as strategic branding"
+
+impact:
+  category: "Medium"
+  expected_range:
+    metric_kpi_id: "margin.gm.pct"
+    value_low: 0.2
+    value_high: 0.8
+    unit: "pp"
+    time_to_effect:
+      min_periods: 1
+      max_periods: 2
+  mechanism:
+    - "Removal of margin-dilutive promotions"
+    - "Tighter promo depth and timing control"
+  confidence:
+    level: "Medium"
+    rationale:
+      - "Promotions have immediate margin impact"
+      - "Effectiveness depends on calendar flexibility"
+
+operational_execution:
+  primary_owner_role: "Trade Marketing Lead"
+  stakeholders:
+    - "Pricing Lead"
+    - "Commercial Controlling"
+  prerequisites:
+    - "Clear promotion flagging in sales data"
+    - "Defined promotion classification (strategic vs tactical)"
+  steps:
+    - "Identify promotions active during GM vs Plan decline"
+    - "Rank promotions by margin dilution"
+    - "Stop, shorten, or resequence low-quality promotions"
+    - "Re-evaluate margin impact in next cycle"
+  effort:
+    level: "Low to Medium"
+    typical_duration_days: 45
+  risks_and_tradeoffs:
+    - "Short-term volume impact"
+    - "Channel relationship friction"
+
+data_requirements:
+  required_entities:
+    - "Region"
+    - "Channel"
+    - "Promotion"
+  semantic_dependencies:
+    measures:
+      - "Gross Margin % vs Plan"
+      - "Gross Margin %"
+      - "Price Realization %"
+    tables:
+      - "fact_sales"
+      - "dim_org"
+      - "dim_promo"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "monthly"
+    output: "Promotion-period GM variance alerts"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "Promotion stop/resequence candidate list"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "TriggerLevel"
+      - "Region"
+      - "Channel"
+      - "Promotion"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_GM_Pct"
+      - "Post_GM_Pct_30d"
+
+governance:
+  approvals_required:
+    - "Head of Trade Marketing"
+    - "Commercial Controlling Lead"
+  rollback_plan:
+    - "Reinstate promotion if volume loss exceeds tolerance"
+  documentation_links:
+    - "usecases/core/COM-002/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."
