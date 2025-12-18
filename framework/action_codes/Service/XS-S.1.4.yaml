@@ -1,0 +1,229 @@
+schema_version: "1.1"
+
+id: "X-S1.4"
+name: "Handling Time & Flow Efficiency"
+owner_domain: "Service Operations"
+impact_dimension: "Efficiency"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Service Flow Control"
+  theme: "Reduce Handling Time Without Degrading Resolution Quality"
+
+tags: ["aht", "flow", "efficiency"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "svc.aht.minutes"
+      role: "primary"
+    - id: "svc.sla.attainment.pct"
+      role: "secondary"
+  decisions_enabled:
+    - "Remove handling-time drivers that throttle throughput"
+    - "Stabilise service flow across queues and channels"
+  non_goals:
+    - "Automation or AI deflection programs"
+    - "CRM workflow redesign"
+    - "Incentive or compensation changes"
+
+use_case_links:
+  core_use_cases:
+    - "XD-001"
+  related_use_cases:
+    - "XD-002"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "svc.aht.minutes"
+      label: "Average Handle Time (min)"
+      semantic_ref:
+        model_domain: "Service"
+        measure: "AHT (Minutes)"
+  guardrail_kpis:
+    - kpi_id: "svc.fcr.pct"
+      label: "First Contact Resolution %"
+      semantic_ref:
+        model_domain: "Service"
+        measure: "First Contact Resolution %"
+  outcome_kpis:
+    - kpi_id: "svc.aht.minutes"
+      label: "Average Handle Time (min)"
+      semantic_ref:
+        model_domain: "Service"
+        measure: "AHT (Minutes)"
+    - kpi_id: "svc.sla.attainment.pct"
+      label: "SLA Attainment %"
+      semantic_ref:
+        model_domain: "Service"
+        measure: "SLA Attainment %"
+
+scope:
+  default_grain: "queue_week"
+  default_perspective: ["Queue", "Channel"]
+  supported_slices:
+    - "Issue Category"
+    - "Agent Group"
+  exclusions:
+    - "Low-volume expert queues"
+    - "Regulatory-mandated handling steps"
+    - "Queues under active quality remediation"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "queue_week"
+    window:
+      kind: "rolling"
+      length: 4
+      unit: "weeks"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 2
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "svc.tickets.closed.count"
+        comparator: "gte"
+        value: 300
+        unit: "count"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "svc.aht.minutes"
+        comparator: "gt"
+        threshold:
+          basis: "relative"
+          value: 0.10
+          unit: "%"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "svc.aht.minutes"
+        comparator: "gt"
+        threshold:
+          basis: "relative"
+          value: 0.25
+          unit: "%"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "svc.aht.minutes"
+        comparator: "gt"
+        threshold:
+          basis: "relative"
+          value: 0.40
+          unit: "%"
+        filters: []
+  gating_rules:
+    - "Trigger only if AHT increase is not quality-driven"
+    - "Do not trigger if AHT rise is caused by training or onboarding"
+    - "Exclude queues with active capacity stabilisation actions"
+
+impact:
+  category: "Medium"
+  expected_range:
+    metric_kpi_id: "svc.aht.minutes"
+    value_low: -5.0
+    value_high: -15.0
+    unit: "%"
+    time_to_effect:
+      min_periods: 2
+      max_periods: 6
+  mechanism:
+    - "Workflow simplification and flow tuning"
+    - "Reduction of non-value-adding handling steps"
+  confidence:
+    level: "Medium"
+    rationale:
+      - "Efficiency gains depend on issue mix"
+      - "Sustained impact requires discipline"
+
+operational_execution:
+  primary_owner_role: "Service Operations Manager"
+  stakeholders:
+    - "Team Leads"
+    - "Quality Management"
+  prerequisites:
+    - "Accurate handle-time component tracking"
+    - "Issue categorisation discipline"
+  steps:
+    - "Identify queues with rising AHT"
+    - "Analyse top handling-time drivers"
+    - "Remove or streamline non-value steps"
+    - "Monitor AHT and FCR weekly"
+  effort:
+    level: "Medium"
+    typical_duration_days: 90
+  risks_and_tradeoffs:
+    - "Speed optimisation harming resolution quality"
+    - "Local improvements not scaling globally"
+
+data_requirements:
+  required_entities:
+    - "Queue"
+    - "Channel"
+  semantic_dependencies:
+    measures:
+      - "AHT (Minutes)"
+      - "SLA Attainment %"
+      - "First Contact Resolution %"
+      - "Tickets Closed Count"
+    tables:
+      - "fact_service_tickets"
+      - "fact_service_events"
+      - "dim_queue"
+      - "dim_channel"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "weekly"
+    output: "Queues with sustained AHT inflation"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "Flow and handling-time optimisation actions"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "Queue"
+      - "Channel"
+      - "TriggerLevel"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_AHT_Min"
+      - "Post_AHT_Min_90d"
+
+governance:
+  approvals_required:
+    - "Head of Service Operations"
+  rollback_plan:
+    - "Revert flow changes if FCR deteriorates"
+  documentation_links:
+    - "usecases/core/XD-001/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

@@ -1,155 +1,196 @@
-# Framework (WITH WHAT)
+# Action Codes
 
 ## Purpose
 
-This folder contains the **reusable, governed building blocks** of the Analytics Use Case Library.
+Action Codes define **standardised, reusable decision and steering logic** that translates KPI deviations into concrete management actions.
 
-It defines *what* is used to build analytics solutions — independent of a specific customer, project, or dataset.
+They are **not reports**, **not dashboards**, and **not Use Cases**.
+Action Codes represent the **execution and governance layer** between insight and action.
 
-The framework is intentionally **opinionated, minimal, and scalable**. Every artifact exists to reduce ambiguity, accelerate delivery, and enable automation.
-
----
-
-## What the Framework Is
-
-The framework provides:
-
-* Standardized **templates** for reports, pages, measures, and data contracts
-* A governed **KPI catalog** with clear business meaning and actionability
-* A prescriptive **Action Code system** to move from insight to decision
-* Shared **glossaries** to align business and technical language
-* Platform-specific **implementation guides** (optional, non-binding)
-
-All assets are designed to be:
-
-* Human-readable and machine-readable
-* Reusable across domains and use cases
-* Suitable for manual delivery *and* agent-based automation
+Their primary goal is to ensure that analytics consistently leads to **decisions, accountability, and measurable outcomes**.
 
 ---
 
-## What the Framework Is Not
+## Core Principle (Non-Negotiable)
 
-The framework deliberately does **not** include:
+> **Use Cases consume Action Codes. Action Codes never belong to Use Cases.**
 
-* Customer-specific implementations
-* Project delivery plans or timelines
-* Operational processes or roles
-* Tool configuration beyond reusable patterns
+This separation is mandatory to ensure:
 
-These topics belong to:
-
-* `docs/company/` (WHY)
-* `docs/operating_model/` (HOW)
+* Reusability across multiple Use Cases
+* Clear ownership and governance
+* Long-term scalability of the Analytics Framework
 
 ---
 
-## Folder Structure
+## Conceptual Separation
+
+### Use Case
+
+A Use Case defines:
+
+* *Why* a business question matters
+* *Which KPIs* are relevant
+* *Which decisions* must be enabled
+
+A Use Case **never** contains execution logic.
+
+Example:
+
+> `COM-002 — Margin & Price Performance`
+
+### Action Code
+
+An Action Code defines:
+
+* *What to do* when KPIs deviate
+* *When to act* (trigger logic L1–L3)
+* *Which guardrails apply*
+* *How outcomes are evaluated*
+
+Action Codes can be referenced by **multiple Use Cases** and remain stable over time.
+
+Example:
+
+> `C-M2.3 — Price Leakage Containment`
+
+---
+
+## Architecture & Ownership
+
+Action Codes are **standalone, domain- or governance-owned assets**.
+
+They are deliberately **decoupled from Use Cases** to avoid:
+
+* Duplication
+* Conflicting ownership
+* Tight coupling between analytics and execution
+
+Ownership principles:
+
+* **Domain Action Codes** are owned by the respective business domain
+* **Enterprise Action Codes** are owned by executive governance functions
+* A Use Case may reference an Action Code, but never owns it
+
+This design enables:
+
+* Cross-use-case reuse
+* Executive orchestration across domains
+* Stable governance even as new Use Cases are added
+
+---
+
+## Folder Structure (Source of Truth)
+
+Action Codes are organised by **domain or governance layer**, never by Use Case.
 
 ```
-framework/
-  templates/               Reusable build artifacts (SSOT)
-  action_codes/            Prescriptive Action Codes portfolio
-  kpi_catalog/             Domain KPI catalogs (Markdown + embedded YAML)
-  glossary/                Business and technical terminology
-  implementation_guides/   Optional platform-specific guidance
+framework/action_codes/
+├─ Commercial/
+├─ Finance/
+├─ Operations/
+├─ People/
+├─ Service/
+├─ SupplyChain/
+└─ Enterprise/
 ```
 
-### templates/
+### Domain folders
 
-Single Source of Truth for all **build-time artifacts**.
+Contain **execution-level Action Codes** owned by a business domain.
 
-Includes:
+Examples:
 
-* Page templates (T1–T4) and governance
-* Measure templates and naming conventions
-* Data contract templates (dimensions, facts)
-* Reusable components (e.g. Action Panel spec)
+* Commercial → pricing, margin, customer actions
+* SupplyChain → inventory, OTIF, forecast actions
+* Service → SLA, backlog, quality actions
 
-Templates define *structure and rules*, not customer content.
+### Enterprise folder
 
-### action_codes/
+Contains **meta-level governance Action Codes** that:
 
-The **prescriptive layer** of the framework.
+* Orchestrate
+* Prioritise
+* Route
+* Govern outcomes
 
-Action Codes define:
+Enterprise Action Codes **never execute domain logic themselves**.
 
-* When an action should be triggered
-* Who owns the decision
-* What the recommended next step is
+Examples:
 
-They are mandatory for prescriptive analytics (T4) and optional elsewhere.
-
-### kpi_catalog/
-
-The **business meaning layer**.
-
-Each domain has its own KPI catalog:
-
-* Markdown document with embedded YAML (single source of truth)
-* Clear ownership, impact dimension, and actionability
-* Designed for reuse across use cases
-
-There are no duplicate YAML files.
-
-### glossary/
-
-Shared language for consistency:
-
-* Business glossary (terms, definitions)
-* Technical glossary (analytics, data, BI terms)
-
-Glossaries reduce misinterpretation and onboarding effort.
-
-### implementation_guides/
-
-Optional, **non-normative** guidance for specific platforms (e.g. Fabric / Power BI).
-
-They explain *how* the framework can be implemented — not *what* must be done.
+* `X-E3.1 — Executive Performance Orchestration`
+* `X-E3.2 — Cross-Domain Risk Prioritisation`
+* `X-E3.3 — Action Follow-up & Outcome Governance`
 
 ---
 
-## How the Framework Is Used
+## Binding Action Codes to Use Cases
 
-### For Customers
+The **only allowed coupling** between Use Cases and Action Codes is via:
 
-* Understand what is standardized vs. flexible
-* Reuse proven patterns instead of starting from scratch
-* Know what must be maintained when extending analytics
+```
+usecases/core/<USECASE_ID>/actioncodes_map.yaml
+```
 
-### For Delivery Teams
+Example:
 
-* Always start from framework templates
-* Treat KPI catalogs and Action Codes as governed assets
-* Avoid project-specific reinvention
+```yaml
+use_case: XD-003
+action_codes:
+  - X-E3.1
+  - X-E3.2
+  - X-E3.3
+```
 
-### For Automation / Agents
+Rules:
 
-* Deterministic structure
-* Clear Single Sources of Truth
-* No redundant or ambiguous artifacts
-
----
-
-## Design Principles
-
-* **Ease of use over theoretical purity**
-* **Single Source of Truth over convenience copies**
-* **Prescriptive over descriptive where meaningful**
-* **Minimal surface area for customers**
-
-If an artifact increases maintenance effort without clear benefit, it does not belong in the framework.
+* No Action Code may exist outside `framework/action_codes/`
+* No Action Code may be duplicated per Use Case
+* All mappings must be explicit and auditable
 
 ---
 
-## Relation to Other Layers
+## Reuse & Scalability Guarantee
 
-* **WHY** → `docs/company/`
-* **HOW** → `docs/operating_model/`
-* **WITH WHAT** → `framework/`
+Because Action Codes are **decoupled from Use Cases**:
 
-Framework assets are consumed by:
+* New Use Cases can reuse existing Action Codes without refactoring
+* Executive Use Cases can orchestrate across multiple domains
+* Governance and ownership remain stable as the framework grows
 
-* `usecases/`
-* `semantic_models/`
-* `data_contracts/`
+Example:
+A future Use Case `ESG-001 — Supplier Risk` may reuse:
+
+* `S-S2.3 — Supply Risk Containment`
+* `X-E3.2 — Cross-Domain Risk Prioritisation`
+
+No duplication. No rework. No ambiguity.
+
+---
+
+## Anti-Patterns (Explicitly Forbidden)
+
+The following patterns are **not allowed**:
+
+* Storing Action Codes under `/usecases/`
+* Creating "Executive versions" of existing domain Action Codes
+* Duplicating Action Codes for different Use Cases
+* Embedding execution logic directly into dashboards
+
+---
+
+## Definition of Done for Action Codes
+
+An Action Code is considered **valid** only if:
+
+* It is stored in the correct domain or Enterprise folder
+* It follows the canonical ActionCode template
+* It is referenced by at least one `actioncodes_map.yaml`
+* Ownership, trigger logic, guardrails, and outcomes are explicit
+
+---
+
+## Key Takeaway
+
+> **Action Codes are reusable, domain-owned steering assets.**
+> **Use Cases reference them to turn insight into action — never the other way around.**

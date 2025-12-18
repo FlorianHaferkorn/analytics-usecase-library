@@ -1,0 +1,225 @@
+schema_version: "1.1"
+
+id: "X-R2.4"
+name: "Overtime & Fatigue Containment"
+owner_domain: "Service Operations / HR"
+impact_dimension: "Sustainability"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Workforce Sustainability Control"
+  theme: "Contain Structural Overtime Without Degrading Service Levels"
+
+tags: ["overtime", "fatigue", "sustainability", "wfm"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "res.overtime.pct"
+      role: "primary"
+    - id: "res.utilization.pct"
+      role: "secondary"
+  decisions_enabled:
+    - "Identify and contain structural overtime drivers"
+    - "Stabilise workload without increasing burnout risk"
+  non_goals:
+    - "Cost cutting as a standalone objective"
+    - "Headcount reductions or hiring programs"
+    - "Incentive or compensation redesign"
+
+use_case_links:
+  core_use_cases:
+    - "XD-002"
+  related_use_cases:
+    - "XD-001"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "res.overtime.pct"
+      label: "Overtime %"
+      semantic_ref:
+        model_domain: "Workforce"
+        measure: "Overtime %"
+  guardrail_kpis:
+    - kpi_id: "svc.sla.attainment.pct"
+      label: "SLA Attainment %"
+      semantic_ref:
+        model_domain: "Service"
+        measure: "SLA Attainment %"
+  outcome_kpis:
+    - kpi_id: "res.overtime.pct"
+      label: "Overtime %"
+      semantic_ref:
+        model_domain: "Workforce"
+        measure: "Overtime %"
+
+scope:
+  default_grain: "queue_month"
+  default_perspective: ["Queue", "Region"]
+  supported_slices:
+    - "Agent Group"
+    - "Channel"
+  exclusions:
+    - "Approved temporary surge coverage"
+    - "Seasonal peaks with executive approval"
+    - "On-call or standby contractual overtime"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "queue_month"
+    window:
+      kind: "rolling"
+      length: 3
+      unit: "months"
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 1
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "svc.tickets.created.count"
+        comparator: "gte"
+        value: 500
+        unit: "count"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "res.overtime.pct"
+        comparator: "gt"
+        threshold:
+          basis: "absolute"
+          value: 8.0
+          unit: "%"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "res.overtime.pct"
+        comparator: "gt"
+        threshold:
+          basis: "absolute"
+          value: 12.0
+          unit: "%"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "res.overtime.pct"
+        comparator: "gt"
+        threshold:
+          basis: "absolute"
+          value: 18.0
+          unit: "%"
+        filters: []
+  gating_rules:
+    - "Trigger only if overtime is structurally recurring"
+    - "Do not trigger if overtime is driven by approved peak coverage"
+    - "Exclude queues with active capacity reallocation actions"
+
+impact:
+  category: "Medium"
+  expected_range:
+    metric_kpi_id: "res.overtime.pct"
+    value_low: -2.0
+    value_high: -6.0
+    unit: "pp"
+    time_to_effect:
+      min_periods: 2
+      max_periods: 6
+  mechanism:
+    - "Removal of structural overtime drivers"
+    - "Improved workload distribution and scheduling discipline"
+  confidence:
+    level: "Medium"
+    rationale:
+      - "Overtime often masks planning inefficiencies"
+      - "Change requires coordination across teams"
+
+operational_execution:
+  primary_owner_role: "Service Operations Manager"
+  stakeholders:
+    - "Workforce Management"
+    - "HR Operations"
+  prerequisites:
+    - "Clear overtime approval and attribution rules"
+    - "Visibility into overtime drivers by queue"
+  steps:
+    - "Identify queues with recurring overtime"
+    - "Analyse root causes (demand spikes, misallocation, shrinkage)"
+    - "Adjust schedules, reallocate capacity, or correct planning gaps"
+    - "Review overtime and SLA monthly"
+  effort:
+    level: "Medium"
+    typical_duration_days: 120
+  risks_and_tradeoffs:
+    - "Short-term capacity gaps if overtime is reduced too aggressively"
+    - "Hidden workload surfacing as backlog"
+
+data_requirements:
+  required_entities:
+    - "Queue"
+    - "Region"
+  semantic_dependencies:
+    measures:
+      - "Overtime %"
+      - "Utilization %"
+      - "SLA Attainment %"
+      - "Tickets Created Count"
+    tables:
+      - "fact_workforce"
+      - "fact_service_tickets"
+      - "dim_queue"
+      - "dim_region"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "monthly"
+    output: "Queues with structurally elevated overtime"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "Overtime containment and workload rebalancing actions"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "Queue"
+      - "Region"
+      - "TriggerLevel"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_Overtime_Pct"
+      - "Post_Overtime_Pct_180d"
+
+governance:
+  approvals_required:
+    - "VP Service Operations"
+    - "HR Business Partner"
+  rollback_plan:
+    - "Allow controlled overtime if SLA deterioration exceeds tolerance"
+  documentation_links:
+    - "usecases/core/XD-002/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."

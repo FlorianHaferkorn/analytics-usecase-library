@@ -1,148 +1,107 @@
-# Action Code Template — Authoring & Governance Guide
+# Action Code Templates
 
-This document defines the **non-negotiable rules** for authoring Action Codes
-based on the canonical `ActionCode_TEMPLATE.md`.
+## Purpose
+This directory contains **templates** related to Action Codes.
+Templates are used to **create, instantiate, and govern** Action Codes and their contextual configuration in a controlled and scalable way.
 
-The goal is absolute consistency, scalability, and automation readiness.
-
-Action Codes are **prescriptive control mechanisms** that connect:
-Strategic KPIs → Use Cases → Decisions → Execution → Measured Outcomes.
-
-This guide applies to **all domains** and **all Core Use Cases**.
+Templates are **not executable framework assets**.
 
 ---
 
-## 1. What an Action Code Is (and Is Not)
+## Scope of This Folder
 
-### Action Code IS
-- A **prescriptive decision artifact**
-- Triggered by **measurable KPI signals**
-- Executable by **real roles in real organizations**
-- Measurable in terms of **outcome and effectiveness**
-- Reusable across **reports, domains, and time**
+This folder may contain:
+- `ActionCode_TEMPLATE.md` – canonical template for authoring Action Codes
+- `ActionCode_KPI_Trigger_Map.yaml` – **reference template** for contextual trigger mappings
 
-### Action Code IS NOT
-- A KPI explanation
-- A generic recommendation
-- A “review / monitor / analyze” suggestion
-- A one-off idea tied to demo data
-- A consultant narrative
-
-If it does not result in a **clear decision and action**, it is **not an Action Code**.
+Files in this folder exist to:
+- provide structure and guidance
+- enable automation and agent-based instantiation
+- prevent business logic from leaking into the framework core
 
 ---
 
-## 2. Canonical File Structure (Mandatory)
+## Core Principle (Non-Negotiable)
 
-Each Action Code MUST be stored as:
+> **Nothing under `framework/templates/` is production configuration.**
 
-framework/action_codes/<domain>/<ACTIONCODE_ID>_<slug>.md
-
-Example:
-framework/action_codes/commercial/C-P1.1_correct_price_leakage.md
-
-### File rules
-- Exactly **one YAML block**
-- YAML block is the **single source of truth**
-- Markdown outside YAML is optional and non-binding
-- IDs are **immutable** once created
+Templates may include examples, placeholders, and reference values.
+They must never be interpreted as active or executable logic.
 
 ---
 
-## 3. Canonical Template Usage
+## Trigger Mapping Templates (Contextual, Non-Executable)
 
-All Action Codes MUST conform to:
+Trigger Mapping templates define **when** an Action Code becomes decision-relevant in a specific context.
 
-framework/templates/action_codes/ActionCode_TEMPLATE.md
+They do **not** define:
+- execution logic
+- remediation steps
+- KPI ownership
+- cross-domain optimisation
 
-Rules:
-- No fields may be removed
-- No fields may be renamed
-- Optional fields may only be omitted if explicitly marked optional
-- No free-text logic outside defined fields
-
----
-
-## 4. Strategic KPI Anchoring (Critical)
-
-Every Action Code MUST:
-- Support **at least one Strategic KPI**
-- Be triggered by **defined KPI signals**
-- Contribute to **measurable KPI movement**
-
-Action Codes do **not** define KPI targets.
-Targets belong to KPI Catalogs and strategy documents.
+They exist solely to control **surfacing and attention**.
 
 ---
 
-## 5. Trigger Design Rules
+## What Trigger Mapping Templates ARE
 
-Triggers must be deterministic, machine-readable, time-aware, and unambiguous.
-
-### Trigger Levels
-- **L1 — Early Signal**
-- **L2 — Required Intervention**
-- **L3 — Prescriptive Execution**
-
-Free-text conditions like “if relevant” are not allowed.
+- Contextual configuration examples
+- Scaffolding for customer-, tenant-, or environment-specific deployments
+- Input for automation and AI-assisted instantiation
+- A controlled place for example thresholds and scopes
 
 ---
 
-## 6. KPI Roles (Strict Separation)
+## What Trigger Mapping Templates ARE NOT
 
-Each Action Code distinguishes:
-- Trigger KPIs
-- Guardrail KPIs
-- Outcome KPIs
-
----
-
-## 7. Impact Definition Rules
-
-Impact must be expressed as ranges, never point estimates.
-Confidence must be justified.
+- They do **not** override Action Code L1–L3 trigger logic
+- They do **not** introduce new Action Codes
+- They do **not** execute actions
+- They do **not** replace governance decisions
+- They do **not** represent production-ready configuration
 
 ---
 
-## 8. Operational Execution Requirements
+## Mandatory Lifecycle & Workflow
 
-Every Action Code must specify:
-- Real roles
-- Concrete steps
-- Effort
-- Risks
+1. **Template authoring**
+   - Templates may contain placeholders and examples
+   - No real business thresholds required
 
----
+2. **Instantiation**
+   - Templates are copied into a deployment-specific location, e.g.:
+     ```
+     deployments/<customer>/actioncode_trigger_map.yaml
+     ```
 
-## 9. Tracking & Learning (Mandatory)
+3. **Contextualisation**
+   - Placeholders are replaced with:
+     - concrete KPI IDs
+     - thresholds
+     - scopes
 
-Action Codes support execution tracking and outcome evaluation
-via customer-owned tables.
+4. **Governance approval**
+   - Review by Analytics / Business Governance
+   - Only then may `status: approved` be set
 
----
-
-## 10. Relationship to Use Cases & Reports
-
-Action Codes are derived from Core Use Cases.
-Reports surface Action Codes but do not redefine them.
-
----
-
-## 11. Quality Gate (10/10 Check)
-
-An Action Code is final only if it:
-- Conforms to the template
-- Supports a Strategic KPI
-- Is executable without consultants
-- Is measurable
-- Is reusable
+5. **Consumption**
+   - Reports, pages, and agents read these mappings
+   - They never modify them
 
 ---
 
-## 12. Design Principles
+## Explicit Non-Goals
 
-- Fewer Action Codes, higher quality
-- Precision over completeness
-- Determinism over explanation
-- Scalability over showcase value
-- Customer operability over theoretical purity
+This folder must never be used to:
+- store active Action Codes
+- store customer-specific configuration
+- bypass governance
+- experiment with execution logic
+
+---
+
+## Key Takeaway
+
+> **Templates explain *how* to configure Action Codes.**
+> **They never decide *when* or *what* to execute in production.**

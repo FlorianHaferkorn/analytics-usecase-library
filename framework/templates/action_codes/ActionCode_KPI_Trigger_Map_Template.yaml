@@ -1,14 +1,15 @@
 # ActionCode ↔ KPI Trigger Mapping
-
-# Purpose
-# - Define **when** an Action Code becomes decision-relevant
-# - Keep Action Codes stable and use-case-agnostic
-# - Centralize KPI targets and thresholds for simple maintenance
+# Canonical YAML – Source of Truth
 #
-# Important Clarifications
-# - A trigger indicates **decision relevance**, not mandatory execution.
-# - Final decisions are made on **T4 – Prescriptive Recommendation** pages.
-# - This file configures *context-specific measurement*, not business logic.
+# Purpose:
+# - Define WHEN an Action Code becomes decision-relevant
+# - Keep Action Codes stable and use-case-agnostic
+# - Externalize context-specific thresholds without duplicating Action Codes
+#
+# Non-negotiable:
+# - This file never defines execution logic
+# - This file never overrides Action Code L1–L3 triggers
+# - Cross-domain orchestration is handled only by XD-003 Action Codes
 
 settings:
   timezone: Europe/Berlin
@@ -16,81 +17,68 @@ settings:
   evaluation_default_window: "1–3 periods"
 
 governance:
-  status: approved                    # draft | approved | deprecated
+  status: approved            # draft | approved | deprecated
   owner: Analytics Governance
-  last_reviewed: <DD.MM.YYYY>
-  change_notes: <optional>
+  last_reviewed: 18.12.2025
+  change_notes: null
 
-# Optional scopes allow different thresholds by business context
-# without duplicating Action Codes.
+# Contextual scopes for threshold variation
 scopes:
   - scope_id: GLOBAL
-    description: "Default thresholds for all organizations."
+    description: "Default thresholds for all entities."
     filters: {}
 
+# Action Code ↔ KPI trigger bindings
+# Each mapping configures surfacing relevance only
 mappings:
-  - mapping_id: ACMAP-<DOMAIN>-<NNN>
-    action_code_id: AC-<DOMAIN>-<NNN>
-    domain: <Commercial | Finance | Ops | Cross>
+  # Example mapping (reference only – can be removed)
+  - mapping_id: ACMAP-ENTERPRISE-001
+    action_code_id: X-E3.1
+    owner_domain: Enterprise
+    scope_id: GLOBAL
 
-    # Surfacing controls *attention*, not business priority.
     surfacing:
       primary_page_type: T4
       secondary_page_types: [T3]
       attention_priority: high        # low | medium | high | critical
       needs_action_panel: true
 
-    scope_id: GLOBAL
-
-    # Trigger logic defines the measurable signal pattern
-    # that makes the Action Code relevant.
     trigger:
-      trigger_type: variance          # variance | trend | threshold | anomaly
+      trigger_type: composite         # variance | trend | threshold | anomaly | composite
 
       persistence:
         periods: 2
         period_grain: monthly
+
       cooldown:
         periods: 1
         period_grain: monthly
 
       conditions:
         - id: C1
-          kpi: <KPI_Name>
-          target: <Target_Name>
+          kpi_id: sales.net_sales_growth.pct
           comparator: "<"
-          value: -0.05
-          unit: percent
-          calc: variance_pct
-          description: "Primary KPI deviation exceeds threshold."
-        - id: C2
-          kpi: <Optional_KPI_Name>
-          comparator: ">="
           value: 0.00
           unit: percent
-          calc: trend_pct
-          description: "Context condition to avoid false positives."
+          calc: variance_pct
+          description: "Growth below target."
 
-      suppress_if:
-        - id: S1
-          description: "Known business exception or data quality issue."
-          condition_ref: <optional>
+      suppress_if: []
 
-    # Outcome tracking maps the generic Action Code evaluation
-    # to concrete KPIs in this specific context.
     evaluation_tracking:
       evaluation_window: "1–3 periods"
+
       leading_indicators:
-        - kpi: <KPI_Name>
+        - kpi_id: sales.net_sales_growth.pct
           expected_direction: up
           tolerance: 0.01
-      lagging_indicators:
-        - kpi: <KPI_Name>
-          expected_direction: up
-          tolerance: 0.005
+
+      lagging_indicators: []
+
       success_rule: >
-        Define success based on measurable improvement of the expected outcome.
+        KPI trajectory improves within the evaluation window
+        without violating Action Code guardrails.
 
     operational_metadata:
-      escalation_path: <optional>
-      notes: <optional>
+      escalation_path: null
+      notes: null

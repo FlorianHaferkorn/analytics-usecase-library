@@ -1,0 +1,231 @@
+schema_version: "1.1"
+
+id: "X-R2.2"
+name: "Capacity Reallocation & Load Balancing"
+owner_domain: "Workforce Management"
+impact_dimension: "Allocation Efficiency"
+
+status: "active"
+lifecycle:
+  introduced_date: "2025-12-18"
+  deprecated_date: null
+  replaced_by: null
+  change_notes: []
+
+category:
+  group: "Capacity Allocation Control"
+  theme: "Rebalance Capacity Across Queues and Time Windows"
+
+tags: ["capacity", "load-balancing", "wfm"]
+
+strategic_alignment:
+  strategic_kpis:
+    - id: "res.utilization.pct"
+      role: "primary"
+    - id: "res.occupancy.pct"
+      role: "secondary"
+  decisions_enabled:
+    - "Shift staffing between queues, channels, and regions"
+    - "Smooth short-term demand–capacity mismatches"
+  non_goals:
+    - "Permanent staffing changes"
+    - "Headcount hiring or reductions"
+    - "Long-term schedule redesign"
+
+use_case_links:
+  core_use_cases:
+    - "XD-002"
+  related_use_cases:
+    - "XD-001"
+
+kpis:
+  trigger_kpis:
+    - kpi_id: "res.utilization.pct"
+      label: "Resource Utilization %"
+      semantic_ref:
+        model_domain: "Workforce"
+        measure: "Utilization %"
+    - kpi_id: "res.occupancy.pct"
+      label: "Occupancy %"
+      semantic_ref:
+        model_domain: "Workforce"
+        measure: "Occupancy %"
+  guardrail_kpis:
+    - kpi_id: "svc.sla.attainment.pct"
+      label: "SLA Attainment %"
+      semantic_ref:
+        model_domain: "Service"
+        measure: "SLA Attainment %"
+  outcome_kpis:
+    - kpi_id: "res.utilization.pct"
+      label: "Resource Utilization %"
+      semantic_ref:
+        model_domain: "Workforce"
+        measure: "Utilization %"
+
+scope:
+  default_grain: "queue_day"
+  default_perspective: ["Queue", "Channel"]
+  supported_slices:
+    - "Region"
+    - "Agent Group"
+  exclusions:
+    - "Low-volume specialist queues"
+    - "Queues under active quality remediation"
+    - "Training-only schedules"
+
+trigger:
+  type: "Deviation"
+  evaluation:
+    grain: "queue_day"
+    window:
+      kind: "rolling"
+      length: 5
+      unit: "days"
+    persistence:
+      required: true
+      min_consecutive_periods: 3
+    minimum_data:
+      min_observations: 3
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: "svc.tickets.created.count"
+        comparator: "gte"
+        value: 150
+        unit: "count"
+  levels:
+    L1:
+      severity: "EarlyWarning"
+      condition:
+        metric_kpi_id: "res.utilization.pct"
+        comparator: "lt_or_gt_band"
+        threshold:
+          basis: "band"
+          lower: 72.0
+          upper: 85.0
+          unit: "%"
+        filters: []
+    L2:
+      severity: "RequiredIntervention"
+      condition:
+        metric_kpi_id: "res.utilization.pct"
+        comparator: "lt_or_gt_band"
+        threshold:
+          basis: "band"
+          lower: 68.0
+          upper: 90.0
+          unit: "%"
+        filters: []
+    L3:
+      severity: "PrescriptiveExecution"
+      condition:
+        metric_kpi_id: "res.utilization.pct"
+        comparator: "lt_or_gt_band"
+        threshold:
+          basis: "band"
+          lower: 63.0
+          upper: 95.0
+          unit: "%"
+        filters: []
+  gating_rules:
+    - "Trigger only if imbalance is queue-structural, not individual"
+    - "Do not trigger if imbalance is caused by approved surge coverage"
+    - "Exclude queues with active overtime containment actions"
+
+impact:
+  category: "High"
+  expected_range:
+    metric_kpi_id: "res.utilization.pct"
+    value_low: 4.0
+    value_high: 10.0
+    unit: "pp"
+    time_to_effect:
+      min_periods: 1
+      max_periods: 2
+  mechanism:
+    - "Short-term staffing shifts"
+    - "Cross-queue and cross-channel load balancing"
+  confidence:
+    level: "High"
+    rationale:
+      - "Utilization gaps are structurally uneven"
+      - "WFM levers are immediately available"
+
+operational_execution:
+  primary_owner_role: "Workforce Management Lead"
+  stakeholders:
+    - "Service Operations"
+    - "Team Leads"
+  prerequisites:
+    - "Flexible skill coverage matrix"
+    - "Near-real-time queue volume visibility"
+  steps:
+    - "Identify queues with sustained utilization imbalance"
+    - "Reallocate staffing across queues or channels"
+    - "Validate SLA and backlog impact daily"
+  effort:
+    level: "Low to Medium"
+    typical_duration_days: 14
+  risks_and_tradeoffs:
+    - "Skill mismatch reducing quality"
+    - "Local optimisation creating downstream gaps"
+
+data_requirements:
+  required_entities:
+    - "Queue"
+    - "Channel"
+  semantic_dependencies:
+    measures:
+      - "Utilization %"
+      - "Occupancy %"
+      - "SLA Attainment %"
+      - "Tickets Created Count"
+    tables:
+      - "fact_workforce"
+      - "fact_service_tickets"
+      - "dim_queue"
+      - "dim_channel"
+
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: "daily"
+    output: "Queues with sustained utilization imbalance"
+  suggested_actions:
+    enabled: true
+    outputs:
+      - "Capacity reallocation recommendations"
+  copilot_prompts: []
+
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: "fact_action_execution"
+    minimum_fields:
+      - "ActionCode"
+      - "Queue"
+      - "Channel"
+      - "TriggerLevel"
+      - "ExecutedDate"
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: "fact_action_outcome"
+    minimum_fields:
+      - "ActionCode"
+      - "Pre_Utilization_Pct"
+      - "Post_Utilization_Pct_14d"
+
+governance:
+  approvals_required:
+    - "Head of Workforce Management"
+  rollback_plan:
+    - "Revert reallocation if SLA or quality deteriorates"
+  documentation_links:
+    - "usecases/core/XD-002/Business_Factsheet.md"
+
+quality_rules:
+  - "All kpi_id values must exist in KPI catalog."
+  - "Trigger severity must be strictly increasing from L1 to L3."
+  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
+  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "No free-text trigger notes: use gating_rules and structured filters."
