@@ -1,0 +1,105 @@
+schema_version: "1.0"
+
+id: "DEC-SPINE-PRICING-DISCIPLINE"
+name: "Pricing Discipline & Margin Protection"
+owner_domains: ["Commercial", "Enterprise"]
+impact_dimension: "Profitability"
+
+purpose:
+  intent: >
+    Enforce disciplined pricing behavior to protect gross margin by correcting
+    price realization leakages that are not driven by structural demand or
+    strategic intent.
+
+decision_context:
+  decision_type: "Prescriptive"
+  primary_question: >
+    Should price flexibility be restricted or enforced to protect margin without
+    causing structural volume damage?
+  decision_owner_roles:
+    - "Pricing Manager"
+    - "Commercial Controlling Lead"
+
+causal_model:
+  hypothesis: >
+    Margin erosion is primarily caused by discretionary discounting and
+    uncontrolled price exceptions rather than demand-side effects.
+  leading_indicators:
+    - "Price Effect Amount"
+    - "Net Price Realization %"
+  lagging_indicators:
+    - "Gross Margin %"
+    - "Gross Margin Amount"
+  non_causal_signals:
+    - "Volume-driven Net Sales decline"
+    - "Structural demand shocks"
+
+decision_tradeoffs:
+  improves:
+    - "Gross Margin %"
+    - "Net Price Realization"
+  risks:
+    - "Short-term volume loss"
+    - "Sales resistance to reduced flexibility"
+  acceptable_tradeoffs:
+    - "Temporary volume decline if margin recovery is material"
+
+when_not_to_act:
+  conditions:
+    - description: "Structural demand collapse"
+      signal: "Net Sales % vs Plan < -10%"
+    - description: "Strategic price investment"
+      signal: "SKU or customer flagged as strategic"
+    - description: "Promotion-led price reduction"
+      signal: "Approved promotion active"
+
+typical_levers:
+  enforcement:
+    - "Discount floor enforcement"
+    - "Exception approval requirements"
+  controls:
+    - "Temporary freeze of discretionary discounts"
+    - "Price corridor tightening"
+  monitoring:
+    - "Weekly net price realization review"
+
+escalation_logic:
+  principle: "Escalate from guidance to enforcement as margin impact persists"
+  escalation_path:
+    - level: "EarlyWarning"
+      action: "Visibility & monitoring"
+    - level: "RequiredIntervention"
+      action: "Approval gates & discount controls"
+    - level: "PrescriptiveExecution"
+      action: "Mandatory enforcement & rollback of flexibility"
+
+decision_confidence:
+  level: "High"
+  rationale:
+    - "Direct controllability of pricing levers"
+    - "Short feedback loops in monthly cycles"
+    - "Clear separation from demand-side drivers"
+
+learning_hooks:
+  post_action_evaluation:
+    metrics:
+      - "Gross Margin % change after 30 days"
+      - "Net Sales volume impact"
+  adaptation_rules:
+    - "Relax enforcement if volume loss exceeds expected tolerance"
+    - "Strengthen thresholds if repeated breaches occur"
+
+governance:
+  ownership:
+    accountable_role: "Commercial Controlling Lead"
+    consulted_roles:
+      - "Sales Operations"
+      - "Regional Sales Leads"
+  change_policy:
+    - "Spine changes require cross-domain sign-off"
+    - "All dependent Action Codes inherit changes automatically"
+
+quality_rules:
+  - "No thresholds allowed in decision spine."
+  - "No KPI IDs defined here; Action Codes must reference concrete KPIs."
+  - "Spine must remain domain-agnostic and reusable."
