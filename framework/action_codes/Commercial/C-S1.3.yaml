@@ -1,5 +1,7 @@
 schema_version: "1.1"
 
+inherits_decision_spine: "pricing_discipline"
+
 id: "C-S1.3"
 name: "Mix Steering to Margin-Safe Growth"
 owner_domain: "Commercial"
@@ -158,9 +160,6 @@ operational_execution:
   effort:
     level: "Medium"
     typical_duration_days: 60
-  risks_and_tradeoffs:
-    - "Potential short-term volume decline"
-    - "Sales resistance to deprioritizing familiar SKUs"
 
 data_requirements:
   required_entities:

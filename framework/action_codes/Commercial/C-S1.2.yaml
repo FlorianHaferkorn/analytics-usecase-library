@@ -1,5 +1,7 @@
 schema_version: "1.1"
 
+inherits_decision_spine: "pricing_discipline"
+
 id: "C-S1.2"
 name: "Sales Gap Recovery via Price & Pack Adjustment"
 owner_domain: "Commercial"

@@ -1,5 +1,7 @@
 schema_version: "1.1"
 
+inherits_decision_spine: "pricing_discipline"
+
 id: "C-S1.1"
 name: "Price Discipline Enforcement"
 owner_domain: "Commercial"
@@ -135,14 +137,8 @@ impact:
     time_to_effect:
       min_periods: 1
       max_periods: 3
-  mechanism:
-    - "Reduced discount depth"
-    - "Improved net price realization"
   confidence:
     level: "High"
-    rationale:
-      - "Direct price control lever"
-      - "Observed short feedback loop in monthly cycles"
 
 operational_execution:
   primary_owner_role: "Pricing Manager"
@@ -160,9 +156,6 @@ operational_execution:
   effort:
     level: "Low"
     typical_duration_days: 30
-  risks_and_tradeoffs:
-    - "Short-term volume loss in price-sensitive segments"
-    - "Sales pushback on discount restrictions"
 
 data_requirements:
   required_entities:
