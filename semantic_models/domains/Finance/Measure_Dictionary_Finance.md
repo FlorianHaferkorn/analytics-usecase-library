@@ -79,14 +79,14 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "TBD"
 
-- measure_name: "Cash Conversion Cycle (days)"
+- measure_name: "CCC Days"
   is_kpi_measure: true
   kpi_id_ref: "wc.ccc.days"
   semantic_model: "Finance_SemanticModel"
   display_folder: "02_WorkingCapital"
   category: "KPI"
   expression:
-    dax: "[DSO (days)] + [DIO (days)] - [DPO (days)]"
+    dax: "[DSO Days] + [DIO Days] - [DPO Days]"
     formatString: "0"
   documentation:
     description: "Working capital cycle time."
@@ -105,7 +105,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "TBD"
 
-- measure_name: "DSO (days)"
+- measure_name: "DSO Days"
   is_kpi_measure: true
   kpi_id_ref: "wc.dso.days"
   semantic_model: "Finance_SemanticModel"
@@ -134,7 +134,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "TBD"
 
-- measure_name: "DIO (days)"
+- measure_name: "DIO Days"
   is_kpi_measure: true
   kpi_id_ref: "wc.dio.days"
   semantic_model: "Finance_SemanticModel"
@@ -163,7 +163,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "TBD"
 
-- measure_name: "DPO (days)"
+- measure_name: "DPO Days"
   is_kpi_measure: true
   kpi_id_ref: "wc.dpo.days"
   semantic_model: "Finance_SemanticModel"
@@ -186,6 +186,237 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     columns:
       - "fact_ap[AP]"
       - "fact_cogs[COGS]"
+  governance:
+    owner: "Finance Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "AR Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Finance_SemanticModel"
+  display_folder: "02_WorkingCapital"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_ar[AR Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Accounts receivable balance for DSO calculations."
+    notes: "Source: fact_ar. Aligns to revenue period."
+  dependencies:
+    columns:
+      - "fact_ar[AR Amount]"
+  governance:
+    owner: "Finance Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Revenue Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Finance_SemanticModel"
+  display_folder: "02_WorkingCapital"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_ar[Revenue Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Revenue base used in DSO calculations."
+    notes: "Source: fact_ar."
+  dependencies:
+    columns:
+      - "fact_ar[Revenue Amount]"
+  governance:
+    owner: "Finance Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "AP Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Finance_SemanticModel"
+  display_folder: "02_WorkingCapital"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_ap[AP Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Accounts payable balance for DPO calculations."
+    notes: "Source: fact_ap."
+  dependencies:
+    columns:
+      - "fact_ap[AP Amount]"
+  governance:
+    owner: "Finance Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Inventory Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Finance_SemanticModel"
+  display_folder: "02_WorkingCapital"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_inventory[Inventory Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Inventory balance used in DIO calculations."
+    notes: "Source: fact_inventory."
+  dependencies:
+    columns:
+      - "fact_inventory[Inventory Amount]"
+  governance:
+    owner: "Finance Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Net Sales Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Finance_SemanticModel"
+  display_folder: "03_Cost"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_finance[Net Sales Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Net sales base for cost ratios."
+    notes: "Source: fact_finance."
+  dependencies:
+    columns:
+      - "fact_finance[Net Sales Amount]"
+  governance:
+    owner: "Finance Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "COGS Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Finance_SemanticModel"
+  display_folder: "03_Cost"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_finance[COGS Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Cost of goods sold base for cost ratios."
+    notes: "Source: fact_finance."
+  dependencies:
+    columns:
+      - "fact_finance[COGS Amount]"
+  governance:
+    owner: "Finance Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Material Cost Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Finance_SemanticModel"
+  display_folder: "03_Cost"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_finance[Material Cost Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Material cost base for material share calculations."
+    notes: "Source: fact_finance."
+  dependencies:
+    columns:
+      - "fact_finance[Material Cost Amount]"
+  governance:
+    owner: "Finance Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "OpEx Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Finance_SemanticModel"
+  display_folder: "04_OpEx"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_finance[OpEx Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Operating expenses base."
+    notes: "Source: fact_finance."
+  dependencies:
+    columns:
+      - "fact_finance[OpEx Amount]"
+  governance:
+    owner: "Finance Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Plan OpEx Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Finance_SemanticModel"
+  display_folder: "04_OpEx"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_finance[Plan OpEx Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Planned operating expenses base."
+    notes: "Source: fact_finance."
+  dependencies:
+    columns:
+      - "fact_finance[Plan OpEx Amount]"
+  governance:
+    owner: "Finance Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Output Units"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Finance_SemanticModel"
+  display_folder: "05_Productivity"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_output[Output Units])"
+    formatString: "#,0"
+  documentation:
+    description: "Output units for productivity and unit cost metrics."
+    notes: "Source: fact_output."
+  dependencies:
+    columns:
+      - "fact_output[Output Units]"
+  governance:
+    owner: "Finance Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Labor Hours"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Finance_SemanticModel"
+  display_folder: "05_Productivity"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_labor[Labor Hours])"
+    formatString: "#,0"
+  documentation:
+    description: "Labor hours for productivity calculations."
+    notes: "Source: fact_labor."
+  dependencies:
+    columns:
+      - "fact_labor[Labor Hours]"
   governance:
     owner: "Finance Analytics"
     status: "draft"

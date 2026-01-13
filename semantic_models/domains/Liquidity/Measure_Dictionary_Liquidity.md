@@ -1,6 +1,6 @@
 # Measure Dictionary - Liquidity
 
-Schema: see `/_includes/kpi_catalog/Domain_Measure_Dictionary_Schema.md`
+Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
 - measure_name: Working Capital %

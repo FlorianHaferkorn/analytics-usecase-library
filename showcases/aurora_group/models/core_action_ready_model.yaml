@@ -37,5 +37,5 @@ relationships:
 
 notes:
   - Conformed dimensions reuse the domain data contracts in data_contracts/domains/.
-  - Measures should be taken from framework/kpi_catalog/domain_measure_dictionary.md to stay consistent.
+  - Measures should be taken from semantic_models/domains/Measure_Dictionary_*.md to stay consistent.
   - RLS follows security_user_org with UserPrincipalName filter as defined in data_governance.md.

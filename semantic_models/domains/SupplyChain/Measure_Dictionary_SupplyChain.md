@@ -3,7 +3,7 @@
 Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
-- measure_name: "Days in Inventory (DIO)"
+- measure_name: "Days in Inventory"
   is_kpi_measure: true
   kpi_id_ref: "inv.dio.days"
   semantic_model: "SupplyChain_SemanticModel"
@@ -11,10 +11,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   category: "KPI"
   expression:
     dax: |
-      VAR AvgInv = SUM ( fact_inventory[Avg Inventory] )
+      VAR AvgInv = [Avg Inventory Amount]
       VAR CogsPerDay =
           DIVIDE (
-              SUM ( fact_cogs[COGS] ),
+              [COGS Amount],
               365
           )
       RETURN DIVIDE ( AvgInv, CogsPerDay )
@@ -27,8 +27,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
       QA: COGS aligned to same period; DIVIDE guard for zero COGS/day.
   dependencies:
     columns:
-      - "fact_inventory[Avg Inventory]"
-      - "fact_cogs[COGS]"
+      - "fact_inventory[Average Inventory Amount]"
+      - "fact_cogs[COGS Amount]"
   governance:
     owner: "Supply Chain Analytics"
     status: "draft"
@@ -43,8 +43,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   category: "KPI"
   expression:
     dax: |
-      VAR AvgInv = SUM ( fact_inventory[Avg Inventory] )
-      VAR Cogs   = SUM ( fact_cogs[COGS] )
+      VAR AvgInv = [Avg Inventory Amount]
+      VAR Cogs   = [COGS Amount]
       RETURN DIVIDE ( Cogs, AvgInv )
     formatString: "0.0"
   documentation:
@@ -55,8 +55,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
       QA: Avg Inventory > 0; COGS completeness.
   dependencies:
     columns:
-      - "fact_inventory[Avg Inventory]"
-      - "fact_cogs[COGS]"
+      - "fact_inventory[Average Inventory Amount]"
+      - "fact_cogs[COGS Amount]"
   governance:
     owner: "Supply Chain Analytics"
     status: "draft"
@@ -200,7 +200,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "TBD"
 
-- measure_name: "Forecast Bias %"
+- measure_name: "Bias %"
   is_kpi_measure: true
   kpi_id_ref: "plan.forecast.bias.pct"
   semantic_model: "SupplyChain_SemanticModel"
@@ -401,6 +401,306 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   dependencies:
     columns:
       - "fact_fulfillment[Expedite Cost]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Avg Inventory Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "01_Inventory"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_inventory[Average Inventory Amount] )"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Average inventory value used as base for DIO and turnover."
+    notes: "Source: fact_inventory[Average Inventory Amount]."
+  dependencies:
+    columns:
+      - "fact_inventory[Average Inventory Amount]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "COGS Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "01_Inventory"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_cogs[COGS Amount] )"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "COGS base for inventory turnover and DIO."
+    notes: "Source: fact_cogs[COGS Amount]."
+  dependencies:
+    columns:
+      - "fact_cogs[COGS Amount]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "On-Time In-Full Orders"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "02_Service"
+  category: "Base"
+  expression:
+    dax: "SUMX ( fact_fulfillment, IF ( fact_fulfillment[OTIF Flag], fact_fulfillment[Order Qty], 0 ) )"
+    formatString: "#,0"
+  documentation:
+    description: "OTIF order quantity used as numerator for OTIF %."
+    notes: "Source: fact_fulfillment[OTIF Flag], [Order Qty]."
+  dependencies:
+    columns:
+      - "fact_fulfillment[OTIF Flag]"
+      - "fact_fulfillment[Order Qty]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "OTIF Orders"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "02_Service"
+  category: "Base"
+  expression:
+    dax: "SUMX ( fact_fulfillment, IF ( fact_fulfillment[OTIF Flag], fact_fulfillment[Order Qty], 0 ) )"
+    formatString: "#,0"
+  documentation:
+    description: "OTIF order quantity used for OTIF %."
+    notes: "Same base as On-Time In-Full Orders."
+  dependencies:
+    columns:
+      - "fact_fulfillment[OTIF Flag]"
+      - "fact_fulfillment[Order Qty]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Total Orders"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "02_Service"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_fulfillment[Order Qty] )"
+    formatString: "#,0"
+  documentation:
+    description: "Total order quantity used as denominator for OTIF, on-time, and in-full."
+    notes: "Source: fact_fulfillment[Order Qty]."
+  dependencies:
+    columns:
+      - "fact_fulfillment[Order Qty]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "On-Time Deliveries"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "02_Service"
+  category: "Base"
+  expression:
+    dax: "SUMX ( fact_fulfillment, IF ( fact_fulfillment[On-Time Flag], fact_fulfillment[Order Qty], 0 ) )"
+    formatString: "#,0"
+  documentation:
+    description: "On-time delivery quantity used as numerator for On-Time %."
+    notes: "Source: fact_fulfillment[On-Time Flag], [Order Qty]."
+  dependencies:
+    columns:
+      - "fact_fulfillment[On-Time Flag]"
+      - "fact_fulfillment[Order Qty]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "In-Full Deliveries"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "02_Service"
+  category: "Base"
+  expression:
+    dax: "SUMX ( fact_fulfillment, IF ( fact_fulfillment[In-Full Flag], fact_fulfillment[Order Qty], 0 ) )"
+    formatString: "#,0"
+  documentation:
+    description: "In-full delivery quantity used as numerator for In-Full %."
+    notes: "Source: fact_fulfillment[In-Full Flag], [Order Qty]."
+  dependencies:
+    columns:
+      - "fact_fulfillment[In-Full Flag]"
+      - "fact_fulfillment[Order Qty]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Demand Occurrences"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "02_Service"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_stockout[Demand Occurrences] )"
+    formatString: "#,0"
+  documentation:
+    description: "Demand occurrences used as denominator for stockout rate."
+    notes: "Source: fact_stockout[Demand Occurrences]."
+  dependencies:
+    columns:
+      - "fact_stockout[Demand Occurrences]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Stockout Count"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "02_Service"
+  category: "Base"
+  expression:
+    dax: "SUMX ( fact_stockout, IF ( fact_stockout[Stockout Flag], fact_stockout[Demand Occurrences], 0 ) )"
+    formatString: "#,0"
+  documentation:
+    description: "Stockout occurrences used as numerator for stockout rate."
+    notes: "Source: fact_stockout[Stockout Flag], [Demand Occurrences]."
+  dependencies:
+    columns:
+      - "fact_stockout[Stockout Flag]"
+      - "fact_stockout[Demand Occurrences]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Lost Demand Units"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "02_Service"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_stockout[Lost Demand Units] )"
+    formatString: "#,0"
+  documentation:
+    description: "Lost demand units used for stockout impact."
+    notes: "Source: fact_stockout[Lost Demand Units]."
+  dependencies:
+    columns:
+      - "fact_stockout[Lost Demand Units]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Demand Units"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "02_Service"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_stockout[Demand Units] )"
+    formatString: "#,0"
+  documentation:
+    description: "Demand units used as denominator for stockout impact."
+    notes: "Source: fact_stockout[Demand Units]."
+  dependencies:
+    columns:
+      - "fact_stockout[Demand Units]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Forecast Units"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "03_Forecast"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_forecast[Forecast Units] )"
+    formatString: "#,0"
+  documentation:
+    description: "Forecast quantity base for planning KPIs."
+    notes: "Source: fact_forecast[Forecast Units]."
+  dependencies:
+    columns:
+      - "fact_forecast[Forecast Units]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Actual Units"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "03_Forecast"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_sales[Actual Units] )"
+    formatString: "#,0"
+  documentation:
+    description: "Actual quantity base for planning KPIs."
+    notes: "Source: fact_sales[Actual Units]."
+  dependencies:
+    columns:
+      - "fact_sales[Actual Units]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Absolute Error"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "03_Forecast"
+  category: "Base"
+  expression:
+    dax: "ABS ( [Forecast Units] - [Actual Units] )"
+    formatString: "#,0"
+  documentation:
+    description: "Absolute forecast error used for accuracy and MAPE."
+    notes: "Derived from Forecast Units and Actual Units."
+  dependencies:
+    measures:
+      - "[Forecast Units]"
+      - "[Actual Units]"
   governance:
     owner: "Supply Chain Analytics"
     status: "draft"

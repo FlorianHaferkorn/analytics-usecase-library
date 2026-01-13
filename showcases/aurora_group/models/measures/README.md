@@ -1,7 +1,7 @@
 # Aurora Measures (Demo)
 
 Purpose:
-Placeholder for sample measure definitions if needed for PBIP demos. Use the canonical measure names and formats from `framework/kpi_catalog/domain_measure_dictionary.md`.
+Placeholder for sample measure definitions if needed for PBIP demos. Use the canonical measure names and formats from `semantic_models/domains/Measure_Dictionary_*.md`.
 
 Notes:
 

@@ -555,6 +555,174 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "TBD"
 
+- measure_name: "Cost of Goods Sold Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "02_Margin"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_sales[Cost of Goods Sold Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Total cost of goods sold aligned to sales grain."
+    notes: |
+      Grain: invoice_line aggregated monthly. Unit: EUR.
+      Lineage: fact_sales[Cost of Goods Sold Amount].
+      QA: COGS aligns to sales postings and currency rules.
+  dependencies:
+    columns:
+      - "fact_sales[Cost of Goods Sold Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Plan COGS Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "02_Margin"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_sales[Plan COGS Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Planned cost of goods sold for variance logic."
+    notes: |
+      Grain: invoice_line aggregated monthly. Unit: EUR.
+      Lineage: fact_sales[Plan COGS Amount].
+      QA: Plan COGS available for the same plan horizon as sales.
+  dependencies:
+    columns:
+      - "fact_sales[Plan COGS Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Quantity"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "01_Revenue"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_sales[Quantity])"
+    formatString: "#,0"
+  documentation:
+    description: "Total quantity sold."
+    notes: |
+      Grain: invoice_line aggregated monthly. Unit: units.
+      Lineage: fact_sales[Quantity].
+      QA: Quantity must align to sales transactions.
+  dependencies:
+    columns:
+      - "fact_sales[Quantity]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Plan Quantity"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "01_Revenue"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_sales[Plan Quantity])"
+    formatString: "#,0"
+  documentation:
+    description: "Planned quantity sold for variance logic."
+    notes: |
+      Grain: invoice_line aggregated monthly. Unit: units.
+      Lineage: fact_sales[Plan Quantity].
+      QA: Plan quantity aligned to plan sales.
+  dependencies:
+    columns:
+      - "fact_sales[Plan Quantity]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Discount Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "03_Pricing"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_sales[Discount Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Total discount amount applied to sales."
+    notes: |
+      Grain: invoice_line aggregated monthly. Unit: EUR.
+      Lineage: fact_sales[Discount Amount].
+      QA: Discount rules align to pricing policy.
+  dependencies:
+    columns:
+      - "fact_sales[Discount Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Rebate Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "03_Pricing"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_sales[Rebate Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Total rebate amount applied to sales."
+    notes: |
+      Grain: invoice_line aggregated monthly. Unit: EUR.
+      Lineage: fact_sales[Rebate Amount].
+      QA: Rebates follow contractual terms and cut-off rules.
+  dependencies:
+    columns:
+      - "fact_sales[Rebate Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Surcharge Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "03_Pricing"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_sales[Surcharge Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Total surcharge amount applied to sales."
+    notes: |
+      Grain: invoice_line aggregated monthly. Unit: EUR.
+      Lineage: fact_sales[Surcharge Amount].
+      QA: Surcharges must be consistent with pricing rules.
+  dependencies:
+    columns:
+      - "fact_sales[Surcharge Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
 - measure_name: "Promo Gross Margin Uplift Amount"
   is_kpi_measure: false
   kpi_id_ref: ""
@@ -575,6 +743,78 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
       - "[Incremental Sales Amount]"
     columns:
       - "fact_sales[Cost of Goods Sold Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Baseline Sales Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "04_Promo"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_promo[Baseline Sales Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Baseline sales amount for promotion uplift calculations."
+    notes: |
+      Grain: promotion. Unit: EUR.
+      Lineage: fact_promo[Baseline Sales Amount].
+      QA: Baseline method aligned to promo planning.
+  dependencies:
+    columns:
+      - "fact_promo[Baseline Sales Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Baseline Quantity"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "04_Promo"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_promo[Baseline Quantity])"
+    formatString: "#,0"
+  documentation:
+    description: "Baseline quantity for promotion uplift calculations."
+    notes: |
+      Grain: promotion. Unit: units.
+      Lineage: fact_promo[Baseline Quantity].
+      QA: Baseline quantity aligned to baseline sales.
+  dependencies:
+    columns:
+      - "fact_promo[Baseline Quantity]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Funding Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "04_Promo"
+  category: "Base"
+  expression:
+    dax: "SUM(fact_promo[Funding Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Total funding amount for promotions."
+    notes: |
+      Grain: promotion. Unit: EUR.
+      Lineage: fact_promo[Funding Amount].
+      QA: Funding aligns to promo program agreements.
+  dependencies:
+    columns:
+      - "fact_promo[Funding Amount]"
   governance:
     owner: "Commercial BI"
     status: "active"

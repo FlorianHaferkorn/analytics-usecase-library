@@ -18,11 +18,9 @@
 
 - **Domain Data Contract:** data_contracts/domains/executive.yaml
 - **Source Data Contracts:** data_contracts/domains/finance.yaml; data_contracts/domains/supply_chain.yaml; data_contracts/domains/hr.yaml; data_contracts/domains/commercial_sales.yaml
-- **Semantic Model Definition:** semantic_models/domains/executive/model_definition.yaml
-- **Semantic Model ID:** core_action_ready
 - **Semantic Model Definition (core):** ../../../semantic_models/core_action_ready/model_definition.yaml
 - **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
-- **Measure Dictionary:** framework/kpi_catalog/domain_measure_dictionary.md
+- **Measure Dictionaries:** semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md; semantic_models/domains/Profitability/Measure_Dictionary_Profitability.md; semantic_models/domains/CustomerValue/Measure_Dictionary_CustomerValue.md; semantic_models/domains/Service/Measure_Dictionary_Service.md; semantic_models/domains/SupplyChain/Measure_Dictionary_SupplyChain.md; semantic_models/domains/Efficiency/Measure_Dictionary_Efficiency.md; semantic_models/domains/InnovationPeople/Measure_Dictionary_InnovationPeople.md
 - **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
 
 ---

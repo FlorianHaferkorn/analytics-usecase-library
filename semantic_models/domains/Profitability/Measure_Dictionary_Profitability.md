@@ -1,6 +1,6 @@
 # Measure Dictionary - Profitability
 
-Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
+Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
 - measure_name: "Gross Margin %"
@@ -17,6 +17,34 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     formatString: "0.0%"
   documentation:
     description: "Gross margin divided by net sales."
+    notes: |
+      Grain: month (aggregated from invoice_line). Unit: %.
+      Lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount].
+      QA: Net Sales > 0; currency alignment; exclusions (returns) consistent.
+  dependencies:
+    columns:
+      - "fact_sales[Net Sales Amount]"
+      - "fact_sales[Cost of Goods Sold Amount]"
+  governance:
+    owner: "Profitability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Gross Margin %"
+  is_kpi_measure: true
+  kpi_id_ref: "profit.gross_margin"
+  semantic_model: "Profitability_SemanticModel"
+  display_folder: "01_Margin"
+  category: "KPI"
+  expression:
+    dax: |
+      VAR NetSales = SUM ( fact_sales[Net Sales Amount] )
+      VAR Cogs     = SUM ( fact_sales[Cost of Goods Sold Amount] )
+      RETURN DIVIDE ( NetSales - Cogs, NetSales )
+    formatString: "0.0%"
+  documentation:
+    description: "Strategic gross margin KPI; same DAX as operational GM %."
     notes: |
       Grain: month (aggregated from invoice_line). Unit: %.
       Lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount].
@@ -147,20 +175,21 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   category: "KPI"
   expression:
     dax: |
-      VAR Ebitda = SUM ( fact_finance[EBITDA] )
-      VAR NetSales = SUM ( fact_finance[Net Sales] )
-      RETURN DIVIDE ( Ebitda, NetSales )
+      DIVIDE ( [EBITDA Amount], [Net Sales Amount] )
     formatString: "0.0%"
   documentation:
     description: "EBITDA divided by net sales."
     notes: |
       Grain: month. Unit: %.
-      Lineage: fact_finance[EBITDA], fact_finance[Net Sales].
+      Lineage: fact_finance[EBITDA Amount], fact_sales[Net Sales Amount].
       QA: Net Sales > 0; EBITDA definition aligned to P&L.
   dependencies:
+    measures:
+      - "[EBITDA Amount]"
+      - "[Net Sales Amount]"
     columns:
-      - "fact_finance[EBITDA]"
-      - "fact_finance[Net Sales]"
+      - "fact_finance[EBITDA Amount]"
+      - "fact_sales[Net Sales Amount]"
   governance:
     owner: "Profitability Analytics"
     status: "draft"
@@ -293,11 +322,11 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 - measure_name: "Plan Gross Margin Amount"
-  is_kpi_measure: false
-  kpi_id_ref: null
+  is_kpi_measure: true
+  kpi_id_ref: "margin.gm.plan.amount"
   semantic_model: "Profitability_SemanticModel"
   display_folder: "01_Margin"
-  category: "Supporting"
+  category: "KPI"
   expression:
     dax: "/* TODO: bring in plan GM from plan fact */"
     formatString: "EUR #,0"
@@ -310,6 +339,87 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   dependencies:
     columns:
       - "fact_plan_sales[Plan Gross Margin Amount]"
+  governance:
+    owner: "Profitability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "EBITDA Amount"
+  is_kpi_measure: true
+  kpi_id_ref: "fin.ebitda.amount"
+  semantic_model: "Profitability_SemanticModel"
+  display_folder: "02_Profit"
+  category: "KPI"
+  expression:
+    dax: "SUM ( fact_finance[EBITDA Amount] )"
+    formatString: "EUR #,0"
+  documentation:
+    description: "EBITDA for the reporting period."
+    notes: |
+      Grain: month. Unit: EUR.
+      Lineage: fact_finance[EBITDA Amount].
+      QA: Reconcile to P&L; currency alignment.
+  dependencies:
+    columns:
+      - "fact_finance[EBITDA Amount]"
+  governance:
+    owner: "Profitability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Customer Margin Amount"
+  is_kpi_measure: true
+  kpi_id_ref: "margin.customer.amount"
+  semantic_model: "Profitability_SemanticModel"
+  display_folder: "01_Margin"
+  category: "KPI"
+  expression:
+    dax: "[Net Sales Amount] - [COGS Amount]"
+    formatString: "EUR #,0"
+  documentation:
+    description: "Gross margin amount by customer."
+    notes: |
+      Grain: customer / period. Unit: EUR.
+      Lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount].
+      QA: Customer mapping consistent with sales and COGS.
+  dependencies:
+    measures:
+      - "[Net Sales Amount]"
+      - "[COGS Amount]"
+    columns:
+      - "fact_sales[Net Sales Amount]"
+      - "fact_sales[Cost of Goods Sold Amount]"
+      - "dim_customer[CustomerID]"
+  governance:
+    owner: "Profitability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Customer Margin %"
+  is_kpi_measure: true
+  kpi_id_ref: "margin.customer.pct"
+  semantic_model: "Profitability_SemanticModel"
+  display_folder: "01_Margin"
+  category: "KPI"
+  expression:
+    dax: "DIVIDE ( [Customer Margin Amount], [Net Sales Amount] )"
+    formatString: "0.0%"
+  documentation:
+    description: "Gross margin rate by customer."
+    notes: |
+      Grain: customer / period. Unit: %.
+      QA: Net Sales > 0; customer filters aligned.
+  dependencies:
+    measures:
+      - "[Customer Margin Amount]"
+      - "[Net Sales Amount]"
+    columns:
+      - "fact_sales[Net Sales Amount]"
+      - "fact_sales[Cost of Goods Sold Amount]"
+      - "dim_customer[CustomerID]"
   governance:
     owner: "Profitability Analytics"
     status: "draft"

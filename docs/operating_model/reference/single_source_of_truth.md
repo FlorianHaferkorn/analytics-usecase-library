@@ -49,7 +49,7 @@ Scope:
 | KPI catalog schema | `framework/kpi_catalog/SCHEMA.md` | `_internal/ai/measure_inventory.schema.json` | SCHEMA.md governs catalog authoring; AI schema supports validation/agents. |
 | KPI catalogs (detail) | `framework/kpi_catalog/KPI_Catalog_*.md` | `framework/kpi_catalog/domain_kpi_catalog.md` | Catalogs are detailed truth; domain_kpi_catalog is an executive lens only. |
 | Domain KPI overview (executive lens) | `framework/kpi_catalog/domain_kpi_catalog.md` | XD-003 | Must be explicitly “derived view”, not redefining KPIs. |
-| Domain measure overview (high-level) | `framework/kpi_catalog/domain_measure_dictionary.md` | `semantic_models/domains/Measure_Dictionary_*.md` | domain_measure_dictionary is a summary; domain dictionaries contain implementation-ready detail. |
+| Domain measure dictionary schema | `semantic_models/domains/Domain_Measure_Dictionary_Schema.md` | `semantic_models/domains/Measure_Dictionary_*.md` | Schema defines structure; domain dictionaries contain implementation-ready detail. |
 | Domain measure dictionaries (implementation-ready) | `semantic_models/domains/Measure_Dictionary_*.md` | — | This is the canonical “how to implement measures” reference per domain. |
 | Core semantic model definition (baseline) | `semantic_models/core_action_ready/model_definition.yaml` | `docs/operating_model/ActionReady_SemanticModel_Blueprint.md` | YAML is the canonical short definition; blueprint is the detailed narrative. |
 | Domain semantic model READMEs | `semantic_models/domains/*/README.md` | — | Must reference the blueprint + relevant measure dictionary + data contracts. |

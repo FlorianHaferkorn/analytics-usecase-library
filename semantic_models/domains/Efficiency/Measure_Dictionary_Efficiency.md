@@ -1,6 +1,6 @@
 ﻿# Measure Dictionary - Efficiency
 
-Schema: see `/_includes/kpi_catalog/Domain_Measure_Dictionary_Schema.md`
+Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
 - measure_name: OEE %
@@ -67,6 +67,22 @@ Schema: see `/_includes/kpi_catalog/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.0
     last_review: 04.11.2025
+- measure_name: Inventory Obsolescence %
+  is_kpi_measure: true
+  kpi_id_ref: ops.inventory.obsolescence.pct
+  semantic_model: Efficiency_SemanticModel
+  category: KPI
+  expression:
+    dax: '// TODO: add expression'
+    formatString: 0.0 %
+  documentation:
+    description: Obsolete inventory value / total inventory value.
+    notes: ''
+  governance:
+    owner: Supply Chain BI
+    status: active
+    version: v1.0
+    last_review: 27.11.2025
 - measure_name: Capacity Utilization %
   is_kpi_measure: true
   kpi_id_ref: ops.capacity.utilization.pct

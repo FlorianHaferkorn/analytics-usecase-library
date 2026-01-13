@@ -1,6 +1,6 @@
 # Measure Dictionary - Growth
 
-Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
+Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
 - measure_name: "Revenue Growth %"
@@ -192,11 +192,11 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 - measure_name: "Baseline Sales Amount"
-  is_kpi_measure: false
-  kpi_id_ref: ""
+  is_kpi_measure: true
+  kpi_id_ref: "sales.baseline.amount"
   semantic_model: "Growth_SemanticModel"
   display_folder: "04_Promo"
-  category: "Base"
+  category: "KPI"
   expression:
     dax: "/* TODO: implement Baseline Sales Amount */"
     formatString: "EUR #,0"
@@ -209,6 +209,101 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   dependencies:
     columns:
       - "fact_promo[Baseline Sales Amount]"
+  governance:
+    owner: "Growth Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Net Sales Amount LY"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.net_sales.amount.ly"
+  semantic_model: "Growth_SemanticModel"
+  display_folder: "01_Growth"
+  category: "KPI"
+  expression:
+    dax: "SUM ( fact_sales[Net Sales Amount LY] )"
+    formatString: "EUR #,0"
+  documentation:
+    description: "Net sales for the same period last year."
+    notes: |
+      Grain: month. Unit: EUR.
+      Lineage: fact_sales[Net Sales Amount LY].
+      QA: LY mapping aligned to fiscal calendar.
+  dependencies:
+    columns:
+      - "fact_sales[Net Sales Amount LY]"
+  governance:
+    owner: "Growth Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "List Price Amount"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.list_price.amount"
+  semantic_model: "Growth_SemanticModel"
+  display_folder: "03_Pricing"
+  category: "KPI"
+  expression:
+    dax: "SUM ( fact_sales[List Price Amount] )"
+    formatString: "EUR #,0"
+  documentation:
+    description: "List price value before discounts."
+    notes: |
+      Grain: invoice_line / month. Unit: EUR.
+      Lineage: fact_sales[List Price Amount].
+      QA: Excludes taxes; list price versioning documented.
+  dependencies:
+    columns:
+      - "fact_sales[List Price Amount]"
+  governance:
+    owner: "Growth Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Promo Amount"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.promo.amount"
+  semantic_model: "Growth_SemanticModel"
+  display_folder: "04_Promo"
+  category: "KPI"
+  expression:
+    dax: "SUM ( fact_promo[Promo Amount] )"
+    formatString: "EUR #,0"
+  documentation:
+    description: "Total promotional spend or discount amount."
+    notes: |
+      Grain: promotion / period. Unit: EUR.
+      Lineage: fact_promo[Promo Amount].
+      QA: Promo scoping and attribution documented.
+  dependencies:
+    columns:
+      - "fact_promo[Promo Amount]"
+  governance:
+    owner: "Growth Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Promo Uplift %"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.promo.uplift_pct"
+  semantic_model: "Growth_SemanticModel"
+  display_folder: "04_Promo"
+  category: "KPI"
+  expression:
+    dax: "/* TODO: promo uplift vs baseline */"
+    formatString: "0.0%"
+  documentation:
+    description: "Relative uplift of promo sales vs baseline."
+    notes: |
+      Grain: promotion / period. Unit: %.
+      QA: Baseline definition consistent; DIVIDE guard.
+  dependencies:
+    measures:
+      - "Baseline Sales Amount"
   governance:
     owner: "Growth Analytics"
     status: "draft"

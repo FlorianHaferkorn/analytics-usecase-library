@@ -11,9 +11,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   category: "KPI"
   expression:
     dax: |
-      VAR Cases = COUNTROWS ( fact_cases )
-      VAR Met   = SUM ( fact_cases[SLA Met Flag] )
-      RETURN DIVIDE ( Met, Cases )
+      DIVIDE ( [Cases SLA Met], [Cases Resolved] )
     formatString: "0.0%"
   documentation:
     description: "Cases meeting SLA divided by total cases."
@@ -24,13 +22,16 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   dependencies:
     columns:
       - "fact_cases[SLA Met Flag]"
+    measures:
+      - "Cases SLA Met"
+      - "Cases Resolved"
   governance:
     owner: "Service Analytics"
     status: "draft"
     version: "v1.2"
     last_review: "TBD"
 
-- measure_name: "First Contact Resolution %"
+- measure_name: "FCR %"
   is_kpi_measure: true
   kpi_id_ref: "svc.fcr.pct"
   semantic_model: "Service_SemanticModel"
@@ -38,9 +39,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   category: "KPI"
   expression:
     dax: |
-      VAR Cases = COUNTROWS ( fact_cases )
-      VAR Fcr   = SUM ( fact_cases[FCR Flag] )
-      RETURN DIVIDE ( Fcr, Cases )
+      DIVIDE ( [Cases FCR], [Cases Resolved] )
     formatString: "0.0%"
   documentation:
     description: "Cases resolved on first contact divided by total cases."
@@ -51,13 +50,16 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   dependencies:
     columns:
       - "fact_cases[FCR Flag]"
+    measures:
+      - "Cases FCR"
+      - "Cases Resolved"
   governance:
     owner: "Service Analytics"
     status: "draft"
     version: "v1.2"
     last_review: "TBD"
 
-- measure_name: "Average Handling Time (minutes)"
+- measure_name: "AHT Minutes"
   is_kpi_measure: true
   kpi_id_ref: "svc.aht.minutes"
   semantic_model: "Service_SemanticModel"
@@ -65,17 +67,20 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   category: "KPI"
   expression:
     dax: |
-      DIVIDE ( SUM ( fact_cases[Handle Time] ), COUNTROWS ( fact_cases ) )
+      DIVIDE ( [Total Handle Time Minutes], [Cases Resolved] )
     formatString: "0.0"
   documentation:
     description: "Average handle time per case/contact."
     notes: |
       Grain: day_queue. Unit: minutes.
-      Lineage: fact_cases[Handle Time].
+      Lineage: fact_cases[Handle Time Minutes].
       QA: Include talk + wrap; ensure time unit consistency.
   dependencies:
     columns:
-      - "fact_cases[Handle Time]"
+      - "fact_cases[Handle Time Minutes]"
+    measures:
+      - "Total Handle Time Minutes"
+      - "Cases Resolved"
   governance:
     owner: "Service Analytics"
     status: "draft"
@@ -89,7 +94,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Backlog"
   category: "KPI"
   expression:
-    dax: "SUM(fact_cases[Backlog Flag])"
+    dax: "[Backlog Cases]"
     formatString: "#,0"
   documentation:
     description: "Open cases not resolved."
@@ -98,6 +103,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
       Lineage: fact_cases[Backlog Flag/Open Cases].
       QA: One row per case; status logic consistent.
   dependencies:
+    measures:
+      - "Backlog Cases"
     columns:
       - "fact_cases[Backlog Flag]"
   governance:
@@ -144,9 +151,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   category: "KPI"
   expression:
     dax: |
-      VAR Cases = COUNTROWS ( fact_cases )
-      VAR Escalated = SUM ( fact_cases[Escalation Flag] )
-      RETURN DIVIDE ( Escalated, Cases )
+      DIVIDE ( [Escalated Cases], [Cases Resolved] )
     formatString: "0.0%"
   documentation:
     description: "Escalated cases / total cases."
@@ -157,6 +162,9 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   dependencies:
     columns:
       - "fact_cases[Escalation Flag]"
+    measures:
+      - "Escalated Cases"
+      - "Cases Resolved"
   governance:
     owner: "Service Analytics"
     status: "draft"
@@ -171,20 +179,21 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   category: "KPI"
   expression:
     dax: |
-      VAR Work = SUM ( fact_wfm[Work Time] )
-      VAR Paid = SUM ( fact_wfm[Paid Time] )
-      RETURN DIVIDE ( Work, Paid )
+      DIVIDE ( [Work Time Minutes], [Paid Time Minutes] )
     formatString: "0.0%"
   documentation:
     description: "Productive time vs paid time."
     notes: |
       Grain: agent_day or queue_day. Unit: %.
-      Lineage: fact_wfm[Work Time], fact_wfm[Paid Time].
+      Lineage: fact_wfm[Work Time Minutes], fact_wfm[Paid Time Minutes].
       QA: Paid Time > 0; align time zones.
   dependencies:
     columns:
-      - "fact_wfm[Work Time]"
-      - "fact_wfm[Paid Time]"
+      - "fact_wfm[Work Time Minutes]"
+      - "fact_wfm[Paid Time Minutes]"
+    measures:
+      - "Work Time Minutes"
+      - "Paid Time Minutes"
   governance:
     owner: "Service Analytics"
     status: "draft"
@@ -199,21 +208,22 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   category: "KPI"
   expression:
     dax: |
-      VAR TalkWrap = SUM ( fact_wfm[Talk] ) + SUM ( fact_wfm[Wrap] )
-      VAR Idle    = SUM ( fact_wfm[Idle] )
-      RETURN DIVIDE ( TalkWrap, TalkWrap + Idle )
+      DIVIDE ( [Talk+Wrap Minutes], [Talk+Wrap Minutes] + [Idle Time Minutes] )
     formatString: "0.0%"
   documentation:
     description: "Active vs available time: (Talk + Wrap) / (Talk + Wrap + Idle)."
     notes: |
       Grain: agent_day or queue_day. Unit: %.
-      Lineage: fact_wfm[Talk], fact_wfm[Wrap], fact_wfm[Idle].
+      Lineage: fact_wfm[Talk Time Minutes], fact_wfm[Wrap Time Minutes], fact_wfm[Idle Time Minutes].
       QA: Ensure no double counting; time totals align.
   dependencies:
     columns:
-      - "fact_wfm[Talk]"
-      - "fact_wfm[Wrap]"
-      - "fact_wfm[Idle]"
+      - "fact_wfm[Talk Time Minutes]"
+      - "fact_wfm[Wrap Time Minutes]"
+      - "fact_wfm[Idle Time Minutes]"
+    measures:
+      - "Talk+Wrap Minutes"
+      - "Idle Time Minutes"
   governance:
     owner: "Service Analytics"
     status: "draft"
@@ -228,20 +238,21 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   category: "KPI"
   expression:
     dax: |
-      VAR OT    = SUM ( fact_wfm[Overtime Hours] )
-      VAR Total = SUM ( fact_wfm[Total Hours] )
-      RETURN DIVIDE ( OT, Total )
+      DIVIDE ( [Overtime Minutes], [Paid Time Minutes] )
     formatString: "0.0%"
   documentation:
-    description: "Overtime hours / total hours."
+    description: "Overtime minutes / paid time minutes."
     notes: |
       Grain: agent_day or region_week. Unit: %.
-      Lineage: fact_wfm[Overtime Hours], fact_wfm[Total Hours].
-      QA: Total Hours > 0; overtime rules consistent.
+      Lineage: fact_wfm[Overtime Minutes], fact_wfm[Paid Time Minutes].
+      QA: Paid Time > 0; overtime rules consistent.
   dependencies:
     columns:
-      - "fact_wfm[Overtime Hours]"
-      - "fact_wfm[Total Hours]"
+      - "fact_wfm[Overtime Minutes]"
+      - "fact_wfm[Paid Time Minutes]"
+    measures:
+      - "Overtime Minutes"
+      - "Paid Time Minutes"
   governance:
     owner: "Service Analytics"
     status: "draft"
@@ -256,18 +267,272 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   category: "KPI"
   expression:
     dax: |
-      DIVIDE ( SUM ( fact_wfm[Shrinkage] ), SUM ( fact_wfm[Paid Time] ) )
+      DIVIDE ( [Shrinkage Minutes], [Paid Time Minutes] )
     formatString: "0.0%"
   documentation:
-    description: "Non-productive time / paid time."
+    description: "Shrinkage minutes / paid time minutes."
     notes: |
       Grain: agent_day. Unit: %.
-      Lineage: fact_wfm[Shrinkage], fact_wfm[Paid Time].
+      Lineage: fact_wfm[Shrinkage Minutes], fact_wfm[Paid Time Minutes].
       QA: Paid Time > 0; shrinkage components defined.
   dependencies:
     columns:
-      - "fact_wfm[Shrinkage]"
-      - "fact_wfm[Paid Time]"
+      - "fact_wfm[Shrinkage Minutes]"
+      - "fact_wfm[Paid Time Minutes]"
+    measures:
+      - "Shrinkage Minutes"
+      - "Paid Time Minutes"
+  governance:
+    owner: "Service Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Cases Resolved"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "01_Service"
+  category: "Helper"
+  expression:
+    dax: "COUNTROWS ( fact_cases )"
+    formatString: "#,0"
+  documentation:
+    description: "Total number of cases in scope."
+    notes: |
+      Grain: case. Unit: count.
+  governance:
+    owner: "Service Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Cases SLA Met"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "01_Service"
+  category: "Helper"
+  expression:
+    dax: "CALCULATE ( COUNTROWS ( fact_cases ), fact_cases[SLA Met Flag] = TRUE )"
+    formatString: "#,0"
+  documentation:
+    description: "Cases where SLA was met."
+    notes: ""
+  dependencies:
+    columns:
+      - "fact_cases[SLA Met Flag]"
+  governance:
+    owner: "Service Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Cases FCR"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "01_Service"
+  category: "Helper"
+  expression:
+    dax: "CALCULATE ( COUNTROWS ( fact_cases ), fact_cases[FCR Flag] = TRUE )"
+    formatString: "#,0"
+  documentation:
+    description: "Cases resolved on first contact."
+    notes: ""
+  dependencies:
+    columns:
+      - "fact_cases[FCR Flag]"
+  governance:
+    owner: "Service Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Escalated Cases"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "01_Service"
+  category: "Helper"
+  expression:
+    dax: "CALCULATE ( COUNTROWS ( fact_cases ), fact_cases[Escalation Flag] = TRUE )"
+    formatString: "#,0"
+  documentation:
+    description: "Cases that were escalated."
+    notes: ""
+  dependencies:
+    columns:
+      - "fact_cases[Escalation Flag]"
+  governance:
+    owner: "Service Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Backlog Cases"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "03_Backlog"
+  category: "Helper"
+  expression:
+    dax: "CALCULATE ( COUNTROWS ( fact_cases ), fact_cases[Backlog Flag] = TRUE )"
+    formatString: "#,0"
+  documentation:
+    description: "Open cases not yet resolved."
+    notes: ""
+  dependencies:
+    columns:
+      - "fact_cases[Backlog Flag]"
+  governance:
+    owner: "Service Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Total Handle Time Minutes"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "02_Efficiency"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_cases[Handle Time Minutes] )"
+    formatString: "#,0.0"
+  documentation:
+    description: "Total handle time across cases."
+    notes: ""
+  dependencies:
+    columns:
+      - "fact_cases[Handle Time Minutes]"
+  governance:
+    owner: "Service Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Work Time Minutes"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "05_Workforce"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_wfm[Work Time Minutes] )"
+    formatString: "#,0.0"
+  documentation:
+    description: "Total productive work time."
+    notes: ""
+  dependencies:
+    columns:
+      - "fact_wfm[Work Time Minutes]"
+  governance:
+    owner: "Service Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Paid Time Minutes"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "05_Workforce"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_wfm[Paid Time Minutes] )"
+    formatString: "#,0.0"
+  documentation:
+    description: "Total paid time."
+    notes: ""
+  dependencies:
+    columns:
+      - "fact_wfm[Paid Time Minutes]"
+  governance:
+    owner: "Service Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Talk+Wrap Minutes"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "05_Workforce"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_wfm[Talk Time Minutes] ) + SUM ( fact_wfm[Wrap Time Minutes] )"
+    formatString: "#,0.0"
+  documentation:
+    description: "Total talk plus wrap-up time."
+    notes: ""
+  dependencies:
+    columns:
+      - "fact_wfm[Talk Time Minutes]"
+      - "fact_wfm[Wrap Time Minutes]"
+  governance:
+    owner: "Service Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Idle Time Minutes"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "05_Workforce"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_wfm[Idle Time Minutes] )"
+    formatString: "#,0.0"
+  documentation:
+    description: "Total idle time."
+    notes: ""
+  dependencies:
+    columns:
+      - "fact_wfm[Idle Time Minutes]"
+  governance:
+    owner: "Service Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Overtime Minutes"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "05_Workforce"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_wfm[Overtime Minutes] )"
+    formatString: "#,0.0"
+  documentation:
+    description: "Total overtime minutes."
+    notes: ""
+  dependencies:
+    columns:
+      - "fact_wfm[Overtime Minutes]"
+  governance:
+    owner: "Service Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Shrinkage Minutes"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "05_Workforce"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_wfm[Shrinkage Minutes] )"
+    formatString: "#,0.0"
+  documentation:
+    description: "Total shrinkage minutes."
+    notes: ""
+  dependencies:
+    columns:
+      - "fact_wfm[Shrinkage Minutes]"
   governance:
     owner: "Service Analytics"
     status: "draft"

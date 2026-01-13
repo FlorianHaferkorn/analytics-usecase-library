@@ -12,27 +12,26 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   expression:
     dax: |
       VAR Avail =
-          DIVIDE ( SUM ( fact_ops[Run Time] ), SUM ( fact_ops[Planned Time] ) )
+          DIVIDE ( SUM ( fact_ops[Run Time Minutes] ), SUM ( fact_ops[Planned Time Minutes] ) )
       VAR Perf =
           /* If standard output available, replace divisor accordingly */
-          DIVIDE ( SUM ( fact_ops[Output] ), SUM ( fact_ops[Output] ) )
+          DIVIDE ( SUM ( fact_ops[Output Units] ), SUM ( fact_ops[Output Units] ) )
       VAR Qual =
-          DIVIDE ( SUM ( fact_quality[Good Units] ), SUM ( fact_quality[Total Units] ) )
+          DIVIDE ( SUM ( fact_ops[Good Units] ), SUM ( fact_ops[Output Units] ) )
       RETURN Avail * Perf * Qual
     formatString: "0.0%"
   documentation:
     description: "Overall equipment effectiveness combining availability, performance, and quality."
     notes: |
       Grain: line_day. Unit: %.
-      Lineage: fact_ops[Run Time], fact_ops[Planned Time], fact_ops[Output], fact_quality[Good Units], fact_quality[Total Units].
+      Lineage: fact_ops[Run Time Minutes], fact_ops[Planned Time Minutes], fact_ops[Output Units], fact_ops[Good Units].
       QA: Ensure consistent time base; flags for downtime types; DIVIDE guards; replace Perf divisor with theoretical output when available.
   dependencies:
     columns:
-      - "fact_ops[Run Time]"
-      - "fact_ops[Planned Time]"
-      - "fact_ops[Output]"
-      - "fact_quality[Good Units]"
-      - "fact_quality[Total Units]"
+      - "fact_ops[Run Time Minutes]"
+      - "fact_ops[Planned Time Minutes]"
+      - "fact_ops[Output Units]"
+      - "fact_ops[Good Units]"
   governance:
     owner: "Operations Analytics"
     status: "draft"
@@ -47,18 +46,18 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   category: "KPI"
   expression:
     dax: |
-      DIVIDE ( SUM ( fact_ops[Run Time] ), SUM ( fact_ops[Planned Time] ) )
+      DIVIDE ( SUM ( fact_ops[Run Time Minutes] ), SUM ( fact_ops[Planned Time Minutes] ) )
     formatString: "0.0%"
   documentation:
     description: "Uptime control: Run Time / Planned Production Time."
     notes: |
       Grain: line_day. Unit: %.
-      Lineage: fact_ops[Run Time], fact_ops[Planned Time].
+      Lineage: fact_ops[Run Time Minutes], fact_ops[Planned Time Minutes].
       QA: Planned Time > 0; consistent shift definitions.
   dependencies:
     columns:
-      - "fact_ops[Run Time]"
-      - "fact_ops[Planned Time]"
+      - "fact_ops[Run Time Minutes]"
+      - "fact_ops[Planned Time Minutes]"
   governance:
     owner: "Operations Analytics"
     status: "draft"
@@ -74,17 +73,17 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   expression:
     dax: |
       /* Replace Standard Output with actual standard if available */
-      DIVIDE ( SUM ( fact_ops[Output] ), SUM ( fact_ops[Output] ) )
+      DIVIDE ( SUM ( fact_ops[Output Units] ), SUM ( fact_ops[Output Units] ) )
     formatString: "0.0%"
   documentation:
     description: "Speed vs standard: Actual Output / Theoretical Output."
     notes: |
       Grain: line_day. Unit: %.
-      Lineage: fact_ops[Output], standards.
+      Lineage: fact_ops[Output Units], standards.
       QA: Standards maintained; guard against zero standard.
   dependencies:
     columns:
-      - "fact_ops[Output]"
+      - "fact_ops[Output Units]"
     measures:
       - "[Standard Output]"   # placeholder if modeled as measure
   governance:
@@ -101,18 +100,18 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   category: "KPI"
   expression:
     dax: |
-      DIVIDE ( SUM ( fact_quality[Good Units] ), SUM ( fact_quality[Total Units] ) )
+      DIVIDE ( SUM ( fact_ops[Good Units] ), SUM ( fact_ops[Output Units] ) )
     formatString: "0.0%"
   documentation:
     description: "First pass yield: Good Units / Total Units."
     notes: |
       Grain: line_day. Unit: %.
-      Lineage: fact_quality[Good Units], fact_quality[Total Units].
+      Lineage: fact_ops[Good Units], fact_ops[Output Units].
       QA: Total Units > 0; align with scrap/rework capture.
   dependencies:
     columns:
-      - "fact_quality[Good Units]"
-      - "fact_quality[Total Units]"
+      - "fact_ops[Good Units]"
+      - "fact_ops[Output Units]"
   governance:
     owner: "Operations Analytics"
     status: "draft"
@@ -126,17 +125,17 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_Throughput"
   category: "KPI"
   expression:
-    dax: "SUM(fact_ops[Produced Units])"
+    dax: "SUM(fact_ops[Output Units])"
     formatString: "#,0"
   documentation:
     description: "Volume output over time."
     notes: |
       Grain: line_day. Unit: qty.
-      Lineage: fact_ops[Produced Units].
+      Lineage: fact_ops[Output Units].
       QA: Units consistent with quality measures.
   dependencies:
     columns:
-      - "fact_ops[Produced Units]"
+      - "fact_ops[Output Units]"
   governance:
     owner: "Operations Analytics"
     status: "draft"
@@ -151,18 +150,124 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   category: "KPI"
   expression:
     dax: |
-      DIVIDE ( SUM ( fact_ops[Downtime] ), SUM ( fact_ops[Planned Time] ) )
+      DIVIDE ( SUM ( fact_ops[Downtime Minutes] ), SUM ( fact_ops[Planned Time Minutes] ) )
     formatString: "0.0%"
   documentation:
     description: "Loss share: Downtime / Planned Production Time."
     notes: |
       Grain: line_day. Unit: %.
-      Lineage: fact_ops[Downtime], fact_ops[Planned Time].
+      Lineage: fact_ops[Downtime Minutes], fact_ops[Planned Time Minutes].
       QA: Distinguish planned vs unplanned; Planned Time > 0.
   dependencies:
     columns:
-      - "fact_ops[Downtime]"
-      - "fact_ops[Planned Time]"
+      - "fact_ops[Downtime Minutes]"
+      - "fact_ops[Planned Time Minutes]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Run Time Minutes"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "03_Downtime"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_ops[Run Time Minutes] )"
+    formatString: "#,0"
+  documentation:
+    description: "Total run time in minutes."
+    notes: "Source: fact_ops[Run Time Minutes]."
+  dependencies:
+    columns:
+      - "fact_ops[Run Time Minutes]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Downtime Minutes"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "03_Downtime"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_ops[Downtime Minutes] )"
+    formatString: "#,0"
+  documentation:
+    description: "Total downtime minutes (planned + unplanned if not split)."
+    notes: "Source: fact_ops[Downtime Minutes]."
+  dependencies:
+    columns:
+      - "fact_ops[Downtime Minutes]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Unplanned Downtime Minutes"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "03_Downtime"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_ops[Unplanned Downtime Minutes] )"
+    formatString: "#,0"
+  documentation:
+    description: "Unplanned downtime minutes."
+    notes: "Source: fact_ops[Unplanned Downtime]."
+  dependencies:
+    columns:
+      - "fact_ops[Unplanned Downtime Minutes]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Standard Output Units"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "02_Throughput"
+  category: "Base"
+  expression:
+    dax: "SUMX ( fact_ops, fact_ops[Planned Time Minutes] * fact_ops[Standard Rate Units Per Minute] )"
+    formatString: "#,0"
+  documentation:
+    description: "Theoretical output based on planned time and standard rate."
+    notes: "Source: fact_ops planned time and standard rate."
+  dependencies:
+    columns:
+      - "fact_ops[Planned Time Minutes]"
+      - "fact_ops[Standard Rate Units Per Minute]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Failure Count"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "04_Reliability"
+  category: "Base"
+  expression:
+    dax: "DISTINCTCOUNT ( fact_ops_failures[Failure Start DateTime] )"
+    formatString: "#,0"
+  documentation:
+    description: "Count of failure events."
+    notes: "Source: fact_ops_failures[Failure Start]."
+  dependencies:
+    columns:
+      - "fact_ops_failures[Failure Start DateTime]"
   governance:
     owner: "Operations Analytics"
     status: "draft"
@@ -227,18 +332,18 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   category: "KPI"
   expression:
     dax: |
-      DIVIDE ( SUM ( fact_ops[Unplanned Downtime] ), SUM ( fact_ops[Planned Time] ) )
+      DIVIDE ( SUM ( fact_ops[Unplanned Downtime Minutes] ), SUM ( fact_ops[Planned Time Minutes] ) )
     formatString: "0.0%"
   documentation:
     description: "Unplanned downtime share of planned time."
     notes: |
       Grain: asset_day. Unit: %.
-      Lineage: fact_ops[Unplanned Downtime], fact_ops[Planned Time].
+      Lineage: fact_ops[Unplanned Downtime Minutes], fact_ops[Planned Time Minutes].
       QA: Correct tagging of unplanned events; Planned Time > 0.
   dependencies:
     columns:
-      - "fact_ops[Unplanned Downtime]"
-      - "fact_ops[Planned Time]"
+      - "fact_ops[Unplanned Downtime Minutes]"
+      - "fact_ops[Planned Time Minutes]"
   governance:
     owner: "Operations Analytics"
     status: "draft"
@@ -377,6 +482,90 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "TBD"
 
+- measure_name: "Total Units"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "06_Quality"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_quality[Total Units] )"
+    formatString: "#,0"
+  documentation:
+    description: "Total produced units in the selected context."
+    notes: "Source: fact_quality[Total Units]."
+  dependencies:
+    columns:
+      - "fact_quality[Total Units]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Good Units"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "06_Quality"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_quality[Good Units] )"
+    formatString: "#,0"
+  documentation:
+    description: "Conforming units produced."
+    notes: "Source: fact_quality[Good Units]."
+  dependencies:
+    columns:
+      - "fact_quality[Good Units]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Scrap Units"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "06_Quality"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_quality[Scrap Units] )"
+    formatString: "#,0"
+  documentation:
+    description: "Scrapped units in the selected context."
+    notes: "Source: fact_quality[Scrap Units]."
+  dependencies:
+    columns:
+      - "fact_quality[Scrap Units]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Rework Units"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "06_Quality"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_quality[Rework Units] )"
+    formatString: "#,0"
+  documentation:
+    description: "Reworked units in the selected context."
+    notes: "Source: fact_quality[Rework Units]."
+  dependencies:
+    columns:
+      - "fact_quality[Rework Units]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
 - measure_name: "Cost of Poor Quality"
   is_kpi_measure: true
   kpi_id_ref: "quality.copq.amount"
@@ -423,6 +612,48 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     columns:
       - "fact_complaints[Complaints]"
       - "fact_shipments[Units]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Complaint Count"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "06_Quality"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_complaints[Complaint Count] )"
+    formatString: "#,0"
+  documentation:
+    description: "Number of complaints in the selected context."
+    notes: "Source: fact_complaints[Complaint Count]."
+  dependencies:
+    columns:
+      - "fact_complaints[Complaint Count]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Shipped Units"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "06_Quality"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_shipments[Shipped Units] )"
+    formatString: "#,0"
+  documentation:
+    description: "Units shipped used as denominator for complaint rate."
+    notes: "Source: fact_shipments[Shipped Units]."
+  dependencies:
+    columns:
+      - "fact_shipments[Shipped Units]"
   governance:
     owner: "Operations Analytics"
     status: "draft"
