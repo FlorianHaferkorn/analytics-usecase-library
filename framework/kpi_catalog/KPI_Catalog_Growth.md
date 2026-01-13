@@ -5,6 +5,7 @@
 Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 ## KPIs - Strategic
+
 ```yaml
 - kpi_id: sales.revenue.growth_pct
   kpi_key: Revenue Growth %
@@ -45,6 +46,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ```
 
 ## KPIs - Supporting / Diagnostic
+
 ```yaml
 - kpi_id: sales.net_sales.amount
   kpi_key: Net Sales Amount

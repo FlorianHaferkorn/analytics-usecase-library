@@ -29,6 +29,7 @@ Reference: mappings/UseCase_PageTemplate_Map.yaml
 ## 3. Slot Compliance
 
 For each activated slot:
+
 - [ ] Slot purpose is clearly visible
 - [ ] Slot answers a concrete analytical question
 - [ ] Slot is allowed for the selected page type
@@ -68,6 +69,7 @@ Reference: governance/Visual_Whitelist.md
 ## 7. Action Readiness (if applicable)
 
 If Action Panel is enabled:
+
 - [ ] Page type is T4
 - [ ] Action logic is defined
 - [ ] Ownership of actions is clear

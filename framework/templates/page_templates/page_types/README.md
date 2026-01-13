@@ -20,6 +20,7 @@ Each page type answers exactly one decision question.
 | **T4 – Prescriptive Recommendation** | What is the best next action and with what expected impact? | Decision Owners |
 
 **Rule of thumb**
+
 - If you want **alignment** → T1  
 - If you want **explanation** → T2  
 - If you want **control** → T3  
@@ -41,6 +42,7 @@ Each page type has a **primary decision layer**. Other layers are optional and o
 | **T4 – Prescriptive Recommendation** | 3s, 30s | Clear recommendation with supporting evidence. |
 
 **Important**
+
 - 300s content is only used where **validation is required**
 - No page must contain all three layers
 - Depth serves the decision, never the other way around
@@ -50,12 +52,14 @@ Each page type has a **primary decision layer**. Other layers are optional and o
 ## What Page Templates Are
 
 Page templates define:
+
 - the **decision question** a page must answer
 - the **allowed analytical depth**
 - the **permitted slot types**
 - the **visual and interaction boundaries**
 
 They ensure:
+
 - consistent decision quality
 - predictable user experience
 - scalability across domains
@@ -66,6 +70,7 @@ They ensure:
 ## What Page Templates Are NOT
 
 Page templates are **not**:
+
 - visual design files
 - report themes
 - domain-specific dashboards
@@ -78,6 +83,7 @@ They intentionally limit freedom to **increase clarity and trust**.
 ## Governance Principles
 
 All page templates follow these rules:
+
 - One primary decision question per page
 - Strict separation between T1–T4 responsibilities
 - Slot usage governed via `governance/Slot_Definitions.md`
@@ -91,6 +97,7 @@ If a page violates these rules, it is **not compliant**, regardless of visual qu
 ## Relationship to Other Framework Elements
 
 Page templates work together with:
+
 - **KPI Catalogs** (what is measured)
 - **Action Codes** (what can be done)
 - **Semantic Models** (how data is structured)

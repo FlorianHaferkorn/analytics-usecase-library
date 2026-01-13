@@ -1,6 +1,7 @@
 # Action Code Templates
 
 ## Purpose
+
 This directory contains **templates** related to Action Codes.
 Templates are used to **create, instantiate, and govern** Action Codes and their contextual configuration in a controlled and scalable way.
 
@@ -11,10 +12,12 @@ Templates are **not executable framework assets**.
 ## Scope of This Folder
 
 This folder may contain:
+
 - `ActionCode_TEMPLATE.md` – canonical template for authoring Action Codes
 - `ActionCode_KPI_Trigger_Map.yaml` – **reference template** for contextual trigger mappings
 
 Files in this folder exist to:
+
 - provide structure and guidance
 - enable automation and agent-based instantiation
 - prevent business logic from leaking into the framework core
@@ -35,6 +38,7 @@ They must never be interpreted as active or executable logic.
 Trigger Mapping templates define **when** an Action Code becomes decision-relevant in a specific context.
 
 They do **not** define:
+
 - execution logic
 - remediation steps
 - KPI ownership
@@ -71,6 +75,7 @@ They exist solely to control **surfacing and attention**.
 
 2. **Instantiation**
    - Templates are copied into a deployment-specific location, e.g.:
+
      ```
      deployments/<customer>/actioncode_trigger_map.yaml
      ```
@@ -94,6 +99,7 @@ They exist solely to control **surfacing and attention**.
 ## Explicit Non-Goals
 
 This folder must never be used to:
+
 - store active Action Codes
 - store customer-specific configuration
 - bypass governance

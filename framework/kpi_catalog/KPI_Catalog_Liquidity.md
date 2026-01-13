@@ -5,6 +5,7 @@
 Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 ## KPIs - Strategic
+
 ```yaml
 - kpi_id: fin.liquidity.working_capital
   kpi_key: Working Capital %
@@ -93,11 +94,13 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Net cash inflows from operating activities over the period.
     grain_scope: Company/segment; monthly or quarterly closing.
     unit_format: EUR (2 decimals)
-    interpretation: TODO - add interpretation.
+    interpretation: Positive values improve liquidity; negative values may occur during growth or working-capital buildup.
   technical:
     dax_name: Operating Cash Flow
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Operating Cash Flow Amount
+    lineage:
+    - fact_cashflow.OperatingCashFlow
   governance:
     business_owner: Head of Treasury
     data_owner: Finance BI
@@ -113,6 +116,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ```
 
 ## KPIs - Supporting / Diagnostic
+
 ```yaml
 - kpi_id: fin.liquidity.dso_days_sales_outstanding
   kpi_key: DSO (Days Sales Outstanding)

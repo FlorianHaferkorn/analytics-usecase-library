@@ -1,8 +1,10 @@
 ﻿# Glossary
 
 ## Purpose
+
 Provide a clear, standardized vocabulary for business, technical, and semantic terms used across the **ActionReady Analytics Framework**.  
 A consistent glossary ensures:
+
 - shared understanding across teams,
 - clean metadata for AI/Copilot,
 - alignment in semantic modeling and reporting.
@@ -14,6 +16,7 @@ This is a foundational governance artifact.
 ## Scope
 
 Included:
+
 - Business terminology (KPIs, processes, domains)
 - Technical terminology (facts, dims, grains, keys)
 - Semantic model terminology (aggregates, action layers)
@@ -21,6 +24,7 @@ Included:
 - AI/Copilot meta-definitions
 
 Not included:
+
 - Customer-specific terminology
 - Platform implementation details
 
@@ -36,7 +40,9 @@ glossary/
 ```
 
 ### business_glossary.md
+
 Defines:
+
 - KPI names & meanings  
 - Business processes (Finance, Sales, SCM, ESG)  
 - Domain-specific vocabulary  
@@ -45,7 +51,9 @@ Defines:
 Ideal for onboarding business users and aligning cross-functional teams.
 
 ### technical_glossary.md
+
 Defines:
+
 - Fact, dimension, grain  
 - Surrogate keys, business keys  
 - Semantic layer components  
@@ -59,16 +67,19 @@ Critical for semantic governance and implementation consistency.
 ## Usage
 
 ### For Customers
+
 - Ensures shared terminology across business and analytics teams  
 - Supports guided onboarding and decision-making clarity  
 - Enables consistent KPI interpretation  
 
 ### For Delivery Teams
+
 - Use as reference in workshops, documentation, and semantic model builds  
 - Align language across all model descriptions and measure documentation  
 - Improve metadata quality for Copilot/AI  
 
 ### For AI/Copilot Readiness
+
 - Glossary definitions are used as semantic grounding  
 - Enables accurate natural language interpretation  
 - Ensures consistent responses in Copilot scenarios  
@@ -85,7 +96,9 @@ Critical for semantic governance and implementation consistency.
 ---
 
 ## Next Step
+
 Populate:
+
 1. `business_glossary.md`  
 2. `technical_glossary.md`  
 

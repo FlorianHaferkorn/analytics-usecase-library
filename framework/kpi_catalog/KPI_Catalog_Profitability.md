@@ -5,6 +5,7 @@
 Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 ## KPIs - Strategic
+
 ```yaml
 - kpi_id: profit.gross_margin
   kpi_key: Gross Margin %
@@ -80,6 +81,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ```
 
 ## KPIs - Supporting / Diagnostic
+
 ```yaml
 - kpi_id: cost.cogs.amount
   kpi_key: COGS Amount

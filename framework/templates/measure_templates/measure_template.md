@@ -1,9 +1,11 @@
 ﻿# Measure Template
 
 ## Purpose
+
 Standardized template for defining **semantic model measures** in the Analytics Use Case Library.
 
 This template ensures:
+
 - consistent KPI implementation
 - reuse across reports and use cases
 - AI / Copilot readiness
@@ -14,9 +16,11 @@ This template ensures:
 ## Measure Definition
 
 ### Measure Name
+
 `<Measure Name>`
 
 ### Measure Type
+
 - KPI Measure
 - Supporting Measure
 
@@ -40,11 +44,13 @@ At which level the measure is meaningful
 ## Technical Definition
 
 **DAX Expression**
+
 ```DAX
 <Insert DAX here>
 ```
 
 **Dependencies**
+
 - Tables:
   - `<fact_*>`
   - `<dim_*>`
@@ -72,9 +78,11 @@ At which level the measure is meaningful
 ## Quality & Validation
 
 **Expected Range**
+
 - `<min> – <max>` or `Not applicable`
 
 **QA Rules**
+
 - `<rule 1>`
 - `<rule 2>`
 
@@ -88,6 +96,7 @@ At which level the measure is meaningful
 ---
 
 ## Notes
+
 Optional implementation or interpretation notes.
 
 ---

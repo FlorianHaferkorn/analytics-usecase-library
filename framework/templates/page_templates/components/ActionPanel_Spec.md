@@ -4,6 +4,7 @@ The Action Panel is an optional, standardized component used to support **prescr
 Its purpose is to reduce “analysis paralysis” by translating insights into **concrete, owned actions**.
 
 **Golden rule**
+
 - The full Action Panel is designed for **T4 – Prescriptive Recommendation** pages.
 - T1–T3 pages may only use an **Action Teaser** (short, non-interactive) to avoid turning monitoring pages into task managers.
 
@@ -12,18 +13,23 @@ Its purpose is to reduce “analysis paralysis” by translating insights into *
 ## 1) When to Use the Action Panel
 
 ### Mandatory (T4)
+
 Use the Action Panel when:
+
 - `template = T4`
 - `slots.needs_prescriptive = true`
 - the use case defines at least one **Action Code** (owner + trigger + recommended steps)
 
 ### Optional (T1–T3 Teaser)
+
 T1–T3 pages may show an Action Teaser only when:
+
 - there is a clear “next step” signal (e.g., threshold breach, repeated deviation)
 - the owner is known (role/team)
 - the teaser links to the T4 page or a detail section that contains the recommendation
 
 Not allowed on T1–T3:
+
 - multi-step action workflows
 - action scoring/prioritization
 - assigning tasks or tracking completion (out of scope for Power BI)
@@ -33,11 +39,13 @@ Not allowed on T1–T3:
 ## 2) Component Variants
 
 ### Variant A — Action Panel (Full)
+
 **Allowed pages:** T4 only  
 **Placement:** Right-side panel (fixed width, collapsible)  
 **Behavior:** Updates with current filter context
 
 ### Variant B — Action Teaser (Light)
+
 **Allowed pages:** T1, T2, T3 only  
 **Placement:** Top-right callout or slim right column (non-scroll heavy)  
 **Behavior:** Minimal text + link to recommendation
@@ -49,6 +57,7 @@ Not allowed on T1–T3:
 The Action Panel reads from a curated, governed structure (table, view, or semantic model table).
 
 ### Required fields (minimum viable)
+
 - `ActionCodeId` (text, unique)
 - `ActionTitle` (text)
 - `ActionCategory` (text) — e.g., Pricing, Assortment, Service, Compliance
@@ -64,6 +73,7 @@ The Action Panel reads from a curated, governed structure (table, view, or seman
 - `IsActive` (boolean)
 
 ### Optional fields (recommended)
+
 - `KpiId` (text) — link to KPI catalog
 - `UseCaseId` (text)
 - `EvidenceSummary` (text) — why this action is suggested
@@ -76,6 +86,7 @@ The Action Panel reads from a curated, governed structure (table, view, or seman
 ## 4) Output Requirements (What the User Sees)
 
 ### Full Action Panel (T4)
+
 The panel must show, in this order:
 
 1. **Top Recommendation**
@@ -95,6 +106,7 @@ The panel must show, in this order:
    - “Open process link” (if ActionLink exists)
 
 ### Action Teaser (T1–T3)
+
 - 1 line summary: “Recommended next step: …”
 - OwnerRole
 - Link/button: “View recommendation” (navigates to T4)
@@ -114,11 +126,14 @@ The panel must show, in this order:
 ## 6) Template Integration
 
 ### Mapping Flags
+
 Use case mapping must declare:
+
 - `needs_action_panel: true|false`
 - `slots.needs_prescriptive: true|false`
 
 Rules:
+
 - If `slots.needs_prescriptive = true` ⇒ template must be `T4`
 - If `needs_action_panel = true` on T1–T3 ⇒ only the **Action Teaser** is allowed
 

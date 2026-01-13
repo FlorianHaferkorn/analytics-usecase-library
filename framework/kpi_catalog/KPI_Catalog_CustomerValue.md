@@ -5,6 +5,7 @@
 Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 ## KPIs - Strategic
+
 ```yaml
 - kpi_id: crm.retention.pct
   kpi_key: Customer Retention %
@@ -23,7 +24,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher retention indicates better loyalty and relationship quality; interpret jointly with churn and CLV.
   technical:
     dax_name: Customer Retention %
-    depends_on_measures: []
+    depends_on_measures:
+    - Active Customers Start Count
+    - Active Customers End Count
     lineage:
     - dim_customer.CustomerKey
     - fact_sales.CustomerActivity
@@ -50,11 +53,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - CST-005
   calc_type: rate
   business:
-    purpose: ''
-    definition: ''
-    grain_scope: ''
-    unit_format: ''
-    interpretation: TODO - add interpretation.
+    purpose: Measures customer advocacy and likelihood to recommend.
+    definition: (%Promoters - %Detractors) from survey responses in the period.
+    grain_scope: Survey response aggregated by period, segment, or region.
+    unit_format: Index (-100 to 100)
+    interpretation: >0 is positive, >50 strong advocacy; track trend and segment gaps.
   technical:
     dax_name: NPS Score
     depends_on_measures:
@@ -87,14 +90,16 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - CST-006
   calc_type: rate
   business:
-    purpose: Measure the companyEURs share of total addressable market volume or value.
+    purpose: Measure the company's share of total addressable market volume or value.
     definition: Company sales (volume or value) divided by total market sales in the same scope.
     grain_scope: Market / segment / region; quarterly or annually.
     unit_format: '% (1 decimal)'
     interpretation: Higher share indicates stronger competitive position; track over time and vs key competitors.
   technical:
     dax_name: Total Market Share %
-    depends_on_measures: []
+    depends_on_measures:
+    - Net Sales Amount
+    - Market Revenue Amount
     lineage:
     - fact_sales.Net Sales Amount
     - fact_market.TotalMarketSales
@@ -128,7 +133,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       Brand Preference %.
   technical:
     dax_name: Brand Awareness %
-    depends_on_measures: []
+    depends_on_measures:
+    - Brand Awareness Respondents Count
+    - Total Respondents Count
     lineage:
     - fact_survey.BrandAwarenessFlag
   governance:
@@ -161,7 +168,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       %.
   technical:
     dax_name: Brand Preference %
-    depends_on_measures: []
+    depends_on_measures:
+    - Brand Preference Respondents Count
+    - Total Respondents Count
     lineage:
     - fact_survey.BrandPreferenceFlag
   governance:
@@ -179,6 +188,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ```
 
 ## KPIs - Supporting / Diagnostic
+
 ```yaml
 - kpi_id: crm.churn.pct
   kpi_key: Customer Churn Rate %

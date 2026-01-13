@@ -6,6 +6,7 @@ This folder contains the **standard template for defining semantic model measure
 in the Analytics Use Case Library.
 
 It ensures that measures are:
+
 - reusable
 - governed
 - KPI-aligned

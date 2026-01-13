@@ -5,11 +5,13 @@
 Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 ## KPIs - Strategic
+
 ```yaml
 - use_case_ref: []
 ```
 
 ## KPIs - Supporting / Diagnostic
+
 ```yaml
 - kpi_id: fin.risk.pd.pct
   kpi_key: Probability of Default (PD) %

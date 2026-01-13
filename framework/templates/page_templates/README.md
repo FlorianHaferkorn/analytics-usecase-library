@@ -5,6 +5,7 @@ This folder defines the **only allowed page types** for reports built with the A
 The goal is not design freedom, but **decision clarity, scalability, and reuse**.
 
 If you follow these rules, every report:
+
 - looks familiar to users,
 - answers clear business questions,
 - scales across domains and use cases,
@@ -37,6 +38,7 @@ Only the following page types are allowed.
 | **T4 – Prescriptive Recommendation** | Action & decision | *What should we do next?* | Action-driven analytics |
 
 Each use case is implemented using **exactly two pages**:
+
 - one **Overview** page (3 / 30 layer)
 - one **Detail** page (300 layer)
 
@@ -65,6 +67,7 @@ mappings/UseCase_PageTemplate_Map.yaml
 ```
 
 This file is the **authoritative source** for:
+
 - which template a use case uses,
 - which slots are required,
 - whether an action panel is needed.
@@ -79,6 +82,7 @@ Templates do not define concrete visuals.
 They define **slots** (e.g. Trend, Variance, Ranking).
 
 Slot rules and allowed visuals are defined in:
+
 ```
 governance/Slot_Definitions.md
 ```
@@ -88,11 +92,13 @@ governance/Slot_Definitions.md
 ### 3. Visual Governance
 
 Which visuals are allowed (and where) is defined in:
+
 ```
 governance/Visual_Whitelist.md
 ```
 
 Examples:
+
 - Scatter plots are allowed only in **T3 and T4**
 - Tables/matrices are allowed only on **Detail (300) pages**
 - Funnel charts are non-default and explicitly flagged
@@ -104,6 +110,7 @@ Examples:
 Some pages require an **Action Panel** to support prescriptive analytics.
 
 Rules and structure are defined in:
+
 ```
 components/action_panel/ActionPanel_Spec.md
 ```
@@ -115,6 +122,7 @@ The Action Panel is **optional**, but if enabled, it must follow the spec.
 ## Definition of Done (DoD)
 
 A page is considered complete only if:
+
 - it follows one of the four page types,
 - slot usage matches the mapping,
 - only whitelisted visuals are used,
@@ -122,6 +130,7 @@ A page is considered complete only if:
 - the page answers the template’s core question.
 
 The formal checklist is defined in:
+
 ```
 governance/Page_DoD.md
 ```

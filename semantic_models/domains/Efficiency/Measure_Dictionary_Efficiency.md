@@ -46,10 +46,48 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     last_review: 12.10.2025
   dependencies:
     measures:
-    - ops.total_process_cost.amount
-    - ops.produced_units.qty
+    - Total Process Cost Amount
+    - Produced Units Qty
     columns:
     - fact_costs.TotalProcessCost
+    - fact_production.ProducedUnits
+- measure_name: Total Process Cost Amount
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: Efficiency_SemanticModel
+  category: Base
+  expression:
+    dax: SUM ( fact_costs.TotalProcessCost )
+    formatString: 'EUR #,0.00'
+  documentation:
+    description: Total process cost in the selected context.
+    notes: ''
+  governance:
+    owner: Manufacturing BI
+    status: active
+    version: v2.0
+    last_review: 12.10.2025
+  dependencies:
+    columns:
+    - fact_costs.TotalProcessCost
+- measure_name: Produced Units Qty
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: Efficiency_SemanticModel
+  category: Base
+  expression:
+    dax: SUM ( fact_production.ProducedUnits )
+    formatString: '#,0'
+  documentation:
+    description: Total produced units in the selected context.
+    notes: ''
+  governance:
+    owner: Manufacturing BI
+    status: active
+    version: v2.0
+    last_review: 12.10.2025
+  dependencies:
+    columns:
     - fact_production.ProducedUnits
 - measure_name: Inventory Days
   is_kpi_measure: true

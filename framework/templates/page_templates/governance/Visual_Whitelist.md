@@ -18,6 +18,7 @@ If a visual is not listed here, it is **not allowed**.
 ## Allowed Visuals by Category
 
 ### KPI & Targets
+
 | Visual | Allowed Slots | Allowed Templates |
 |------|---------------|-------------------|
 | KPI Card | All overview slots | T1, T2, T3, T4 |
@@ -26,6 +27,7 @@ If a visual is not listed here, it is **not allowed**.
 ---
 
 ### Time & Development
+
 | Visual | Allowed Slots | Allowed Templates |
 |------|---------------|-------------------|
 | Line Chart | Trend | T1, T2, T3 |
@@ -34,6 +36,7 @@ If a visual is not listed here, it is **not allowed**.
 ---
 
 ### Comparison & Ranking
+
 | Visual | Allowed Slots | Allowed Templates |
 |------|---------------|-------------------|
 | Horizontal Bar Chart | Ranking, Variance | T1, T2, T3 |
@@ -43,6 +46,7 @@ If a visual is not listed here, it is **not allowed**.
 ---
 
 ### Diagnostics & Root Cause
+
 | Visual | Allowed Slots | Allowed Templates |
 |------|---------------|-------------------|
 | Scatter Plot | Root Cause, Prescriptive | T3, T4 |
@@ -50,12 +54,14 @@ If a visual is not listed here, it is **not allowed**.
 | Decomposition Tree | Root Cause | T3 (limited use) |
 
 Rules:
+
 - Scatter plots in T3 require `needs_root_cause = true`
 - Scatter plots in T4 require `needs_prescriptive = true`
 
 ---
 
 ### Prescriptive & Action
+
 | Visual | Allowed Slots | Allowed Templates |
 |------|---------------|-------------------|
 | Recommendation Table | Prescriptive | T4 |
@@ -64,23 +70,27 @@ Rules:
 ---
 
 ### Detail & Validation
+
 | Visual | Allowed Slots | Allowed Templates |
 |------|---------------|-------------------|
 | Table | Detail Matrix | All templates (Detail pages only) |
 | Matrix | Detail Matrix | All templates (Detail pages only) |
 
 Rules:
+
 - Detail visuals are allowed **only on 300-layer pages**
 - They must not be the primary insight driver
 
 ---
 
 ### Process Analysis
+
 | Visual | Allowed Slots | Allowed Templates |
 |------|---------------|-------------------|
 | Funnel Chart | Funnel | T2 only |
 
 Rules:
+
 - Funnel charts are non-default and must be explicitly justified in the use case
 
 ---
@@ -88,6 +98,7 @@ Rules:
 ## Explicitly Disallowed Visuals
 
 The following visuals are **not allowed** under any circumstances:
+
 - Pie / Donut charts
 - Gauge / Speedometer charts
 - Radar charts

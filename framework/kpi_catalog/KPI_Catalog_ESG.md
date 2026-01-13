@@ -5,6 +5,7 @@
 Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 ## KPIs - Strategic
+
 ```yaml
 - kpi_id: esg.carbon_intensity.tco2e_per_revenue
   kpi_key: Carbon Emission Intensity (tCO2e per revenue)
@@ -79,6 +80,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ```
 
 ## KPIs - Supporting / Diagnostic
+
 ```yaml
 - kpi_id: esg.energy.renewable_kwh
   kpi_key: Renewable Energy (kWh)

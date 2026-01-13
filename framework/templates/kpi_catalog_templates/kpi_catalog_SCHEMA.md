@@ -1,6 +1,7 @@
 ﻿# KPI & Measure Schema
 
 Purpose: Single source of truth for the structure of
+
 1) KPI Catalog entries (business-level KPIs)
 2) Domain Measure Dictionary entries (technical measures in semantic models).
 

@@ -14,6 +14,7 @@ It defines **how KPIs must be documented**, not which KPIs exist.
 > Each business domain has exactly **one KPI Catalog**.
 
 That catalog is the **Single Source of Truth** for:
+
 - KPI definitions
 - ownership
 - impact dimension

@@ -84,7 +84,7 @@ This design enables:
 
 Action Codes are organised by **domain or governance layer**, never by Use Case.
 
-```
+```yaml
 framework/action_codes/
 ├─ Commercial/
 ├─ Finance/
@@ -128,7 +128,7 @@ Examples:
 
 The **only allowed coupling** between Use Cases and Action Codes is via:
 
-```
+```yaml
 usecases/core/<USECASE_ID>/actioncodes_map.yaml
 ```
 

@@ -5,10 +5,12 @@ They explain how to implement the framework on specific platforms.
 They are not required to understand or use the framework.
 
 ## Purpose
+
 Translate the **ActionReady Operating Model** (semantics, UX, governance, AI-readiness)  
 into concrete, platform-specific implementation practices.
 
 These guides explain **how** to realize the conceptual framework inside specific analytics platforms such as:
+
 - Microsoft Fabric / Power BI  
 - Databricks  
 - Snowflake + Tableau  
@@ -21,6 +23,7 @@ They ensure that every technical implementation delivers the same high-quality, 
 ## Scope
 
 Included:
+
 - Platform-specific mappings of:
   - Semantic Layer design  
   - Measure System enforcement  
@@ -34,6 +37,7 @@ Included:
 - Best practices for pipelines, orchestration, and refresh
 
 Not included:
+
 - Raw ETL pipelines  
 - Customer-specific provisioning processes  
 - Tool-agnostic operating model principles (see `docs/operating_model/`)
@@ -42,7 +46,7 @@ Not included:
 
 ## Structure
 
-```
+```yaml
 implementation_guides/
   fabric_powerbi.md        → Implementation in Microsoft Fabric + Power BI ecosystem
   databricks.md            → Implementation in Databricks (Unity Catalog, Lakehouse)
@@ -52,7 +56,9 @@ implementation_guides/
 ```
 
 ### fabric_powerbi.md
+
 Covers:
+
 - PBIP structure  
 - Dataset modeling & semantic alignment  
 - Dataflows Gen2 / Lakehouse ingestion  
@@ -62,7 +68,9 @@ Covers:
 - App navigation & UX rules (3-30-300)
 
 ### databricks.md
+
 Covers:
+
 - Delta Lake contracts  
 - Unity Catalog mapping  
 - Semantic consistency between SQL & BI tool  
@@ -70,14 +78,18 @@ Covers:
 - Governance & lineage alignment
 
 ### snowflake_tableau.md
+
 Covers:
+
 - Snowflake schema & scalable warehouse patterns  
 - Custom SQL / Tableau Data Models  
 - Foldering via Tableau Projects  
 - Metric Layer in Tableau (if used)
 
 ### looker.md
+
 Covers:
+
 - LookML views & explores  
 - Metrics standardization  
 - Permissions & governance  
@@ -88,16 +100,19 @@ Covers:
 ## Usage
 
 ### For Customers
+
 - Understand how to realize the ActionReady Operating Model on their chosen platform  
 - Validate readiness of their current architecture  
 - Align internal IT & analytics teams on a common approach  
 
 ### For Delivery Teams
+
 - Implement the same framework consistently across platforms  
 - Use platform guides during solution design & review  
 - Ensure all deliverables match the standards of the Operating Model  
 
 ### For Framework Evolution
+
 - Add new platform guides as adoption expands  
 - Keep platform patterns aligned with the core Operating Model  
 
@@ -113,7 +128,9 @@ Covers:
 ---
 
 ## Next Step
+
 Start with:
+
 - `fabric_powerbi.md` if you are implementing in Microsoft Fabric  
 - Or open the platform guide relevant for your organization
 

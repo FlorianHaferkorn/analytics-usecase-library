@@ -1,11 +1,14 @@
 ﻿# Microsoft Fabric & Power BI Implementation Guide
 
 ## Purpose
+
 Translate the **ActionReady Operating Model** into a precise, repeatable, and scalable implementation within **Microsoft Fabric** and **Power BI**.  
 This guide defines *how* semantics, measure governance, data contracts, Action Codes, and distribution patterns are realized in the Fabric ecosystem.
 
 ## Scope
+
 Included:
+
 - Mapping of Operating Model → Fabric components  
 - Lakehouse & Dataflows Gen2 ingestion patterns  
 - PBIP semantic modeling standards  
@@ -16,6 +19,7 @@ Included:
 - Recommended workspace, folder, and project structure  
 
 Not included:
+
 - Customer-specific provisioning  
 - ETL pipelines beyond standard patterns  
 - Framework-agnostic architecture (see docs/operating_model)
@@ -39,25 +43,30 @@ Not included:
 # 2. Data Ingestion Blueprint
 
 ## 2.1 Lakehouse (preferred)
+
 - Use **Bronze → Silver → Gold** pattern for high-quality ingestion.  
 - Map upstream systems to domain data contracts.  
 - Use **Delta tables** with schema enforcement.  
 - Partition Date-heavy facts by `DateKey`.
 
 ## 2.2 Dataflows Gen2 (when Lakehouse not possible)
+
 - Use Data Contract templates as schema target.  
 - Never merge heavy tables inside Dataflows.  
 - Use only lightweight transformations and load into Lakehouse.
 
 ## 2.3 Naming & Foldering
+
 - Domain-driven folder structure in Lakehouse Files:  
-```
+
+```yaml
 /Sales
 /Finance
 /SCM
 /ESG
 /Shared
 ```
+
 - All tables must follow the naming rule:  
 `fact_<name>` or `dim_<name>`.
 
@@ -66,7 +75,8 @@ Not included:
 # 3. Semantic Layer Implementation (PBIP)
 
 ## 3.1 PBIP Folder Structure
-```
+
+```yaml
 <dataset>/
   definition/
     model.bim
@@ -78,6 +88,7 @@ Not included:
 ```
 
 ## 3.2 Semantic Modeling Rules
+
 - **Star Schema only**.  
 - **Dimensions conformed** across domains.  
 - **Role-playing dates** explicitly defined (Date, Posting Date, Invoice Date, …).  
@@ -85,6 +96,7 @@ Not included:
 - All additive logic implemented as Measures.
 
 ## 3.3 Relationships
+
 - Single direction  
 - Many-to-one  
 - Active only when required  
@@ -95,20 +107,24 @@ Not included:
 # 4. Measure System Enforcement
 
 ## 4.1 `_Measures.tmdl` as Single Source of Truth
+
 - All measures must be defined in `_Measures.tmdl`.  
 - No measures inside table-level TMDLs unless absolutely mandatory.
 
 ## 4.2 Supporting vs KPI Measures
+
 - KPI Measures must map to a `kpi_id` from the KPI Catalog.  
 - Supporting measures must be **hidden**, reusable, and placed in Folder `10_Tech`.
 
 ## 4.3 Naming & Formatting Enforcement
+
 - Follows `measure_system.md`.  
 - Currency formatting via FormatString `"€ #,0.00"` – not in the name.  
 - Percent formatting `"0.0 %"`.
 
 ## 4.4 Folder Structure
-```
+
+```yaml
 00_KPIs
 01_Sales
 02_Finance
@@ -121,20 +137,26 @@ Not included:
 # 5. Action Codes in Power BI
 
 ## 5.1 Action Aggregates
+
 Modeled as separate fact tables:
+
 - `agg_price_leakage`
 - `agg_downtime_rootcause`
 - Domain-specific Action Fact tables.
 
 ## 5.2 Execution Layer
+
 Fact table: `fact_action_execution`
+
 - Captures trigger levels (L1/L2/L3)
 - Pre/Post KPI values  
 - Execution metadata  
 - Notes & tracking
 
 ## 5.3 Trigger Logic
+
 Implemented as Measures:
+
 - `Trigger L1 Flag`
 - `Trigger L2 Flag`
 - `Trigger L3 Flag`
@@ -144,6 +166,7 @@ Implemented as Measures:
 # 6. RLS & OLS Patterns
 
 ## 6.1 RLS (Dimension-Based)
+
 - Always implemented on **dimensions**, never facts.  
 - Recommended patterns:
   - Org-based RLS  
@@ -151,13 +174,17 @@ Implemented as Measures:
   - User → Org mapping table
 
 ## 6.2 OLS (Sensitive Columns)
+
 Use when hiding sensitive data:
+
 - HR metrics  
 - Margin-cost-level metrics  
 - Use `objectLevelSecurity` in PBIP TMDL.
 
 ## 6.3 Least Privilege Pattern
+
 Roles:
+
 - Viewer  
 - Analyst  
 - Admin  
@@ -168,6 +195,7 @@ Roles:
 # 7. Distribution & Navigation
 
 ## 7.1 App Structure
+
 - One app per domain OR one app per persona (depending on org size).  
 - Always include:
   - Landing Page  
@@ -175,18 +203,23 @@ Roles:
   - Glossary & KPI Page  
 
 ## 7.2 Navigation Pattern
+
 3-30-300 UI enforced via:
+
 - Top-level KPIs (3-sec)  
 - Trends/Rankings (30-sec)  
 - Explorer Table (300-sec)  
 
 ## 7.3 Deployment Pipeline
+
 - Workspace separation:
-```
+
+```yaml
 DEV
 TEST
 PROD
 ```
+
 - Use deployment pipelines + rules.
 
 ---
@@ -194,7 +227,9 @@ PROD
 # 8. AI & Copilot Readiness
 
 ## 8.1 Descriptions
+
 Every measure must have:
+
 - Purpose  
 - Definition  
 - Grain  
@@ -203,12 +238,14 @@ Every measure must have:
 - QA  
 
 ## 8.2 Metadata
+
 - Table descriptions  
 - Column descriptions  
 - Folder descriptions  
 - KPI → Glossary mapping  
 
 ## 8.3 Semantic Exposure
+
 - Ensure Copilot sees context via KPI Catalog + Glossary.  
 - No ambiguous names across domains.
 
@@ -217,28 +254,32 @@ Every measure must have:
 # 9. Recommended Workspace Structure
 
 ## 9.1 Data Engineering
-```
+
+```yaml
 DE_Lakehouse
 DE_Dataflows
 DE_Sources
 ```
 
 ## 9.2 Data Models
-```
+
+```yaml
 DM_Core
 DM_Domains
 DM_ActionReady
 ```
 
 ## 9.3 Reporting
-```
+
+```yaml
 BI_Apps
 BI_Reports
 BI_Experiments
 ```
 
 ## 9.4 Shared Assets
-```
+
+```yaml
 Shared_Datasets
 Shared_Parameters
 Shared_Tools
@@ -261,7 +302,7 @@ Shared_Tools
 
 # 11. Minimal Example
 
-```
+```yaml
 dataset/
   definition/
     _Measures.tmdl
@@ -272,7 +313,8 @@ dataset/
 ```
 
 Example KPI Measure snippet:
-```
+
+```yaml
 /// sales.net_sales.amount – Net Sales Amount
 measure Net Sales Amount =
     SUM ( fact_sales[Net Sales Amount] )

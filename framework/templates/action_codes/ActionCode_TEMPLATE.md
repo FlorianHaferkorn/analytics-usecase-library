@@ -2,6 +2,7 @@
 
 This file contains exactly one YAML block that defines a single Action Code.
 It is designed to be:
+
 - human-readable (customer-ready),
 - machine-readable (agent generation & validation),
 - scalable (strict structure, minimal free text),

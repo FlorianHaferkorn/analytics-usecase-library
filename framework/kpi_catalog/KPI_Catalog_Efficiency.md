@@ -5,6 +5,7 @@
 Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 ## KPIs - Strategic
+
 ```yaml
 - kpi_id: ops.oee.pct
   kpi_key: Overall Equipment Effectiveness (OEE) %
@@ -56,13 +57,13 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     purpose: Measures average process cost per produced unit.
     definition: Total Process Cost / Produced Units Qty
     grain_scope: Production site, monthly.
-    unit_format: (2 decimals)
+    unit_format: EUR (2 decimals)
     interpretation: Key indicator for cost efficiency and process optimization.
   technical:
     dax_name: Process Cost per Unit
     depends_on_measures:
-    - ops.total_process_cost.amount
-    - ops.produced_units.qty
+    - Total Process Cost Amount
+    - Produced Units Qty
     lineage:
     - fact_costs.TotalProcessCost
     - fact_production.ProducedUnits
@@ -81,6 +82,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ```
 
 ## KPIs - Supporting / Diagnostic
+
 ```yaml
 - kpi_id: ops.inventory.days
   kpi_key: Inventory Days
