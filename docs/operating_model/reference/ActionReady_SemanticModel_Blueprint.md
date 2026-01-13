@@ -1,16 +1,19 @@
 # Action-Ready Semantic Model – Full Blueprint
 
 Purpose:
+
 - Reference blueprint for the ActionReady Semantic Model used by downstream semantic_models.
 - Defines mandatory layers, aggregates, grains, and relationships required to operationalize Action Codes and AI-ready analytics.
 
 Core Principles:
+
 - Stable domain aggregates at clear business grains.
 - Action-specific aggregates for triggers and root causes.
 - Action execution tracking to measure impact.
 - AI-ready star schema with governed metadata.
 
 Domain Data Aggregates (conceptual YAML):
+
 ```yaml
 dimension:
   - name: dim_date
@@ -45,6 +48,7 @@ fact:
 ```
 
 Action Aggregates (examples):
+
 ```yaml
 fact:
   - name: agg_price_leakage
@@ -71,6 +75,7 @@ fact:
 ```
 
 Action Execution Layer:
+
 ```yaml
 fact:
   - name: fact_action_execution
@@ -91,7 +96,8 @@ fact:
 ```
 
 Pattern (illustrative):
-```
+
+```yaml
 dim_product ----
                  dim_customer ----- fact_pricing_agg ---- agg_price_leakage ---- fact_action_execution
                  //
@@ -99,6 +105,7 @@ dim_date --------
 ```
 
 Notes for implementation:
+
 - Measures follow framework naming/formatting; dimensions are conformed across domains.
 - Action aggregates support multi-level triggers (L1–L3); execution layer supports before/after (7/30/60d).
 - Align to semantic layer standards and lint rules (`_internal/tools/linters`).

@@ -3,12 +3,14 @@
 ## 1. Role in the Operating Model
 
 The **semantic layer** is the central contract between:
+
 - business intent (strategic KPIs, domains, use cases) and  
 - technical implementation (data contracts, models, measures, reports).
 
 This document defines the **conceptual blueprint** for the ActionReady semantic model and how it is implemented in tools such as Microsoft Fabric / Power BI using TMDL/PBIP.
 
 It answers:
+
 - Which tables and grains are required?
 - How do Action Codes connect to KPIs and facts?
 - Which patterns must every domain follow?
@@ -81,6 +83,7 @@ fact:
 ```
 
 This pattern should be adapted per domain (Sales, Margin, Inventory, SCM, ESG, …) but follow the same logic:
+
 - clear grain,
 - clear key references to dimensions,
 - measures separated from structure via the measure system.
@@ -118,6 +121,7 @@ fact:
 ```
 
 Flags (L1/L2/L3) are linked to Action Codes and drive:
+
 - alerting,
 - root cause analysis,
 - and recommended next-best-actions.
@@ -148,6 +152,7 @@ fact:
 ```
 
 This table allows:
+
 - measuring action effectiveness,
 - attributing impact to Action Codes,
 - and learning which interventions work best.
@@ -167,6 +172,7 @@ dim_date -------
 ```
 
 Across domains, the same pattern applies:
+
 - shared dimensions,
 - domain fact tables,
 - action aggregates,
@@ -187,6 +193,7 @@ Two companion documents define the **technical constraints**:
   → links to the official Microsoft documentation and references for TMDL/PBIP.
 
 **Location:**
+
 - `docs/operating_model/tmdl_allowed_subset.md`
 - `docs/operating_model/tmdl_official_refs.md`
 
@@ -207,6 +214,7 @@ _internal/tools/linters/
 ```
 
 These configurations support:
+
 - measure naming & foldering validation,
 - description & metadata checks,
 - report layout best practices,
@@ -219,6 +227,7 @@ They are **internal-only** and not exposed to customers, but all customer models
 ## 9. How to Use This Blueprint
 
 ### For Domain Semantic Models
+
 - Start from this pattern when designing `semantic_models/domains/<domain>/…`.
 - Reuse:
   - shared dimensions (dim_date, dim_org, dim_product, dim_customer, …),
@@ -226,11 +235,13 @@ They are **internal-only** and not exposed to customers, but all customer models
   - the action execution layer when Action Codes are in scope.
 
 ### For New Customers
+
 - Map customer data contracts to this semantic pattern.
 - Implement the model in PBIP/TMDL under the constraints from `tmdl_allowed_subset.md`.
 - Use BPA/lint rules from `_internal/tools/linters` to validate quality.
 
 ### For the Aurora Group Showcase
+
 - The Aurora semantic model is a **concrete realization** of this blueprint:
   - see `showcases/aurora_group/semantic_model/`.
 

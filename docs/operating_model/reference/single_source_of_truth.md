@@ -4,6 +4,7 @@ Purpose:
 This document defines which artifacts are canonical (“single source of truth”) for each concept in the framework. It prevents duplication, drift, and conflicting definitions across folders.
 
 Scope:
+
 - Defines the authoritative location for strategy, KPIs, measures, use cases, action codes, data contracts, templates, and tooling.
 - Defines how to reference non-canonical artifacts (link-back pattern).
 - Does NOT define business content itself (that stays in the referenced artifacts).

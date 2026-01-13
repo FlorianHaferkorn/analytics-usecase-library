@@ -40,11 +40,13 @@ Those topics are handled in downstream layers.
 ## Primary entry points (start here)
 
 ### 1. Company Strategy & Strategic Alignment
+
 **`company_strategy.md`**
 
 This is the **primary business entry point** for executives and decision-makers.
 
 It defines:
+
 - Strategic objectives and focus areas
 - The canonical set of Strategic KPIs
 - Executive key questions
@@ -56,11 +58,13 @@ It defines:
 ---
 
 ### 2. Reporting Principles & Design Standards
+
 **`reporting_principles.md`**
 
 Defines the **non-negotiable principles** for how reporting is designed and consumed.
 
 It explains:
+
 - Reporting as a decision instrument
 - Actionability and progressive disclosure (3–30–300)
 - Cognitive simplicity and consistency
@@ -71,9 +75,11 @@ This document defines the **reporting DNA** of the organization.
 ---
 
 ### 3. Domains
+
 **`domains.md`**
 
 Defines:
+
 - Business domains and their scope
 - Ownership boundaries
 - How domains structure analytics responsibility
@@ -105,6 +111,7 @@ If a KPI, use case, report, or action cannot be linked back to this layer,
 it should be questioned.
 
 This layer ensures that analytics remains:
+
 - Strategy-driven
 - Decision-oriented
 - Consistent across the organization

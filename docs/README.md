@@ -4,6 +4,7 @@ Purpose:
 Orient readers to the four-layer model (WHY, HOW, WITH WHAT, WHAT) and point to the authoritative documents for each layer.
 
 Navigate in this order:
+
 1) Company layer (WHY): `docs/company/`
 2) Operating model (HOW): `docs/operating_model/`
 3) Framework standards (WITH WHAT): `framework/` (templates, KPI catalog, Action Codes, glossaries)
@@ -11,7 +12,8 @@ Navigate in this order:
 5) End-to-end example: `showcases/aurora_group/`
 
 ASCII map:
-```
+
+```yaml
 docs/
   company/         -> strategy, domains, KPIs, key questions
   operating_model/ -> semantics, UX (3–30–300), governance, AI readiness
@@ -25,6 +27,7 @@ _internal/         -> automation, validation, archive (internal only)
 ```
 
 How customers should use:
+
 - Align on strategy and KPIs in `docs/company/`.
 - Adopt semantic/UX/governance standards from `docs/operating_model/`.
 - Build reports with the templates and catalogs in `framework/`.
@@ -32,6 +35,7 @@ How customers should use:
 - Validate against the Aurora showcase to see “done” quality.
 
 How delivery teams should use:
+
 - Mirror this structure for client projects.
 - Reuse templates; never fork KPI or measure definitions.
 - Keep Action Codes and layouts consistent with the canonical files.

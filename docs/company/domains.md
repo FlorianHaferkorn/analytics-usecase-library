@@ -11,6 +11,7 @@ Domains are **business constructs**, not technical layers.
 ## 1. Why Domains Exist
 
 As analytics scales, organizations typically encounter:
+
 - overlapping KPIs with conflicting definitions,
 - unclear ownership for metrics and insights,
 - slow decision-making due to cross-functional ambiguity.
@@ -75,6 +76,7 @@ Each domain defines **what it owns** and **what it explicitly does not own**.
 Example:
 
 **Customer Value**
+
 - In scope:
   - Customer lifetime value
   - Churn and retention
@@ -93,12 +95,14 @@ Explicit boundaries are mandatory to avoid overlaps and KPI conflicts.
 Each domain has a **Domain Owner**.
 
 The Domain Owner is responsible for:
+
 - Business definitions of domain KPIs
 - Relevance and prioritization of use cases
 - Interpretation logic and thresholds
 - Alignment of Action Codes to business reality
 
 The Domain Owner is **not** responsible for:
+
 - Data ingestion or pipelines
 - Tool configuration
 - Report development
@@ -113,11 +117,13 @@ This separation ensures accountability without technical overload.
 Use cases are the **operational units** of domains.
 
 Rules:
+
 - Every use case belongs to one primary domain.
 - Use cases may reference KPIs from other domains, ownership remains unchanged.
 - Cross-domain use cases still declare a single primary domain.
 
 The domain determines:
+
 - KPI relevance
 - Action applicability
 - Governance responsibility
@@ -129,6 +135,7 @@ The domain determines:
 Executive use cases are **not a separate domain**.
 
 They:
+
 - Aggregate KPIs across domains
 - Do not redefine KPIs
 - Do not introduce new ownership
@@ -157,6 +164,7 @@ All downstream artifacts must be traceable back to a domain.
 ## 9. What Success Looks Like
 
 When domains are applied correctly:
+
 - KPI ownership is undisputed.
 - Cross-functional discussions are faster and factual.
 - Use cases scale without semantic drift.

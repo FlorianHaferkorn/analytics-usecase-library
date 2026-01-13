@@ -6,6 +6,7 @@ This document defines the strategic foundation of the Analytics Framework. It es
 This document is the **primary business entry point** for executives, domain owners, and decision-makers.
 
 Scope:
+
 - Defines the business strategy, strategic focus areas, and success criteria.
 - Defines the canonical set of Strategic KPIs.
 - Defines executive-level key questions.
@@ -61,6 +62,7 @@ They answer the question:
 > “Are we winning or losing at what truly matters?”
 
 Characteristics of Strategic KPIs:
+
 - Few in number
 - Stable over time
 - Clearly owned
@@ -82,12 +84,14 @@ Strategic KPIs alone are not sufficient.
 Executives think in **questions**, not metrics.
 
 Examples:
+
 - *Why is margin deteriorating despite stable revenue?*
 - *Which customers are driving long-term value vs. short-term volume?*
 - *Where is liquidity at risk in the next 90 days?*
 - *Which operational bottlenecks limit growth?*
 
 These **Key Questions**:
+
 - Translate KPIs into decision-oriented thinking.
 - Act as the bridge between strategy and analytics.
 - Define the intent of analytical use cases.
@@ -103,6 +107,7 @@ The canonical set of Key Questions is maintained in:
 To avoid isolated dashboards and disconnected analytics initiatives, the framework enforces explicit strategic alignment.
 
 ### Alignment Principles
+
 - Every analytical use case must support at least one Strategic KPI.
 - Each Strategic KPI is supported by multiple analytical use cases.
 - Use cases are the operationalization of strategy.
@@ -113,6 +118,7 @@ This alignment is explicitly documented and governed through the **Strategic Ali
 > **Canonical source:** `docs/company/strategic_alignment_map.md`
 
 The alignment ensures:
+
 - Transparency from board-level objectives to analytical execution.
 - Prioritization of analytics initiatives based on strategic impact.
 - Avoidance of redundant or low-value reporting.
@@ -131,6 +137,7 @@ The following governance principles apply:
 - KPIs without active use cases are challenged or deprecated.
 
 Ownership is clearly defined:
+
 - Strategic KPIs have executive ownership.
 - Use cases have domain ownership.
 - Actions have operational ownership.
