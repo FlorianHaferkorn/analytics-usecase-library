@@ -6,6 +6,7 @@ Semantic Models define the **computable meaning layer** of analytics.
 They translate business intent, governed KPIs, and data contracts into **stable, reusable, and decision-safe logic** that can be consumed by all use cases and tools.
 
 Semantic Models ensure that:
+
 - KPIs are calculated consistently.
 - Business meaning is separated from data sources.
 - Analytics scales without semantic drift.
@@ -16,12 +17,14 @@ Semantic Models ensure that:
 ## Scope
 
 This layer defines:
+
 - Domain-level semantic cores (“Golden Semantic Models”)
 - Canonical measures and aggregations
 - Explicit analytical assumptions
 - Reusable semantic patterns across use cases
 
 This layer does **not**:
+
 - Define business strategy
 - Introduce new KPIs
 - Contain use-case-specific logic
@@ -39,6 +42,7 @@ Golden Semantic Models define the **canonical, governed meaning layer** for each
 > Use cases consume semantic cores — they do not redefine them.
 
 Golden Semantic Models are:
+
 - Domain-owned
 - Semantically stable
 - Tool-agnostic
@@ -127,11 +131,13 @@ Semantic Models are the **bridge between intent and execution**.
 ## Why This Matters (Customer Perspective)
 
 Without Golden Semantic Models:
+
 - KPIs drift over time.
 - Each new use case increases complexity.
 - Automation and AI amplify inconsistencies.
 
 With Golden Semantic Models:
+
 - New use cases are configuration, not rework.
 - KPIs remain stable even as tools change.
 - AI agents operate on trusted semantics.
@@ -141,6 +147,7 @@ With Golden Semantic Models:
 ## Outcome
 
 When applied correctly:
+
 - Semantic consistency scales with the organization.
 - Analytics remains trustworthy under change.
 - Prescriptive actions are grounded in stable meaning.

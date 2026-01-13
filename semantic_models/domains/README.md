@@ -4,6 +4,7 @@ Purpose:
 Domain-specific semantic model dictionaries.
 
 Scope:
+
 - Domain measure dictionaries
 - Not: Core model
 
@@ -11,6 +12,7 @@ Structure:
 Subfolders per domain (e.g., Commercial, CustomerValue, SupplyChain, Operations, Finance, Service/Experience, ESG, Governance, Risk, Innovation & People).
 
 Usage:
+
 - Add domain models/dictionaries here.
 - Link from KPI catalog index.
 - Keep aligned with data contracts.

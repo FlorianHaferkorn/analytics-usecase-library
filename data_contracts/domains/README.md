@@ -1,11 +1,13 @@
 ﻿# Domain Data Contracts
 
 ## Purpose
+
 Define the **canonical data contracts** for each business domain within the  
 **ActionReady Analytics Framework**.  
 These contracts formalize the structure, grain, units, keys, and lineage expected from upstream data sources.
 
 Domain Data Contracts ensure:
+
 - stable schemas,
 - consistent semantics,
 - predictable ingestion into semantic models,
@@ -16,6 +18,7 @@ Domain Data Contracts ensure:
 ## Scope
 
 Included:
+
 - YAML-based data contracts for Sales, Finance, SCM, ESG, and others  
 - Mandatory fields per fact and dimension  
 - Grain definitions and surrogate key requirements  
@@ -23,6 +26,7 @@ Included:
 - Lineage metadata per field
 
 Not included:
+
 - Transformation logic (ETL/Dataflows/Data Pipelines)  
 - Customer-specific data structures  
 - Semantic model definitions (see `semantic_models/`)  
@@ -44,12 +48,14 @@ data_contracts/
 ```
 
 Each domain file contains:
+
 - **Dimensions** (keys, names, hierarchies)  
 - **Facts** (grain, metrics, units)  
 - **Integrity expectations**  
 - **Lineage metadata**  
 
 Example snippet:
+
 ```yaml
 fact:
   - name: fact_sales
@@ -66,16 +72,19 @@ fact:
 ## Usage
 
 ### For Customers
+
 - Validate whether existing systems can supply the required data  
 - Understand what “good” analytical data looks like per domain  
 - Support IT ↔ BI alignment through clear contracts
 
 ### For Delivery Teams
+
 - Use domain contracts as stable input for ingestion layers  
 - Map customer systems to the standardized domain structure  
 - Guarantee consistent downstream semantic models  
 
 ### For Framework Evolution
+
 - Add new contracts only when domain boundaries expand  
 - Maintain backward compatibility where possible  
 

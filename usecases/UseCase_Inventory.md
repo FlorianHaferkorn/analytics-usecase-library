@@ -1,9 +1,9 @@
 # Analytics Use Case Inventory
-_Version 2.1 | Last updated: 19.11.2025_
 
 ---
 
 ## Purpose
+
 This document provides a **complete inventory of all standardized Use Cases** across all dimensions of the Analytics Framework.  
 Each Use Case contributes directly to one or more **Strategic KPIs** and defines measurable business impact through standardized **Action Codes**.
 
@@ -28,8 +28,6 @@ Each Use Case contributes directly to one or more **Strategic KPIs** and defines
 | **COM-014** | Markdown Optimization | Optimize markdown depth and timing to clear inventory with minimal margin leakage. | Gross Margin %, Revenue Growth %, Working Capital % | Markdown %, Sell-Through %, DIO | M3, P2, D1 | Higher sell-through with reduced margin leakage and lower end-of-season inventory | Tactical | Prescriptive | Idea | Extended |
 | **COM-015** | Innovation Launch Tracking | Track performance of new product launches across distribution, offtake and repeat. | Revenue Growth %, Innovation Rate % | Distribution %, Trial Rate, Repeat Rate | I2, P2, SP1 | Higher share of revenue from successful innovations; faster delisting of weak launches | Tactical | Diagnostic | Idea | Extended |
 
-
-
 ---
 
 ## 2. Corporate Cluster (COR)
@@ -52,7 +50,6 @@ Each Use Case contributes directly to one or more **Strategic KPIs** and defines
 | **COR-014** | Integrated Margin Bridge (P&L Driver Tree) | Explain changes in GM and EBITDA via a reconciled driver tree. | Gross Margin %, EBITDA Margin % | Price Effect, Volume Effect, Mix Effect, COGS | SP1, SP2, M3, O2 | Faster and more focused profit improvement programmes | Strategic | Diagnostic | Idea | Extended |
 | **COR-015** | Forecast Reconciliation (Bottom-Up ↔ Top-Down) | Reconcile bottom-up and top-down forecasts into a single consensus forecast. | Revenue Growth %, Working Capital % | Forecast Accuracy %, Bias %, Forecast Gap BU vs TD | SP1, P2, O2 | Fewer re-plans, less bias, faster agreement on forecast | Tactical | Prescriptive | Idea | Extended |
 | **COR-016** | Credit Risk Scorecard | Provide a PD/LGD/EAD-based view on credit risk for portfolios and segments. | PD %, LGD %, EAD Amount | Risk Score, Collateral, Overdue Status | G1, SP1 | Better risk-adjusted returns; fewer unexpected losses | Tactical | Diagnostic | Idea | Extended |
-
 
 ---
 
@@ -79,8 +76,6 @@ Each Use Case contributes directly to one or more **Strategic KPIs** and defines
 | **OPS-017** | OTIF Root Cause Analysis | Explain OTIF deviations by root cause (planning, picking, transport). | Service Level %, OTIF %, Working Capital % | OTIF %, Order Accuracy %, Stock-Out %, Lead Time | I1, I2, O2, D1 | Higher OTIF at stable cost; fewer service credits and penalties | Tactical | Diagnostic | Idea | Extended |
 | **OPS-018** | Route Optimization & Transport Cost Modeling | Optimize routes and loads to reduce transport cost at stable service. | Operating Cost Ratio %, Service Level % | Transport Cost per Unit, Distance, Load Utilization | O2, I1, PC2 | 5–15 % transport cost reduction at stable OTIF | Tactical | Prescriptive | Idea | Extended |
 
-
-
 ---
 
 ## 4. Customer & Market Cluster (CST)
@@ -101,8 +96,6 @@ Each Use Case contributes directly to one or more **Strategic KPIs** and defines
 | **CST-012** | Next-Best-Action Customer (NBA) | Recommend best next action per customer to maximize CLV and retention. | Customer Retention %, CLV % | CLV Amount, Churn %, Cross-Sell Ratio %, Basket Size | C1, P2, M3, SP1 | Higher retention and CLV with better campaign ROI | Operational | Prescriptive | Idea | Extended |
 | **CST-014** | Subscription Churn & Next-Best-Action | Reduce churn in subscription models through targeted NBA. | Churn %, CLV % | Churn Risk Score, CLV, Usage Patterns | C1, P2, M3, SP1 | 1–2 pp lower churn; significantly higher CLV | Tactical | Prescriptive | Idea | Extended |
 | **CST-014** | Subscription Churn & Next-Best-Action | Reduce churn in subscription models through targeted NBA. | Churn %, CLV % | Churn Risk Score, CLV, Usage Patterns | C1, P2, M3, SP1 | 1–2 pp lower churn; significantly higher CLV | Tactical | Prescriptive | Idea | Extended |
-
-
 
 ---
 
@@ -161,5 +154,4 @@ Each Use Case contributes directly to one or more **Strategic KPIs** and defines
 | **Copilot Ready** | Yes |
 | **Review Frequency** | Quarterly |
 | **Maintainers** | analytics-core-team |
-| **Contact** | analytics-governance@company.com |
-
+| **Contact** | <analytics-governance@company.com> |

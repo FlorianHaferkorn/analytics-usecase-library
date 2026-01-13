@@ -1,6 +1,7 @@
 ﻿# Use Case Library (WHAT)
 
 ## Purpose
+
 The **Use Case Library** documents all business and technical use cases that the  
 **ActionReady Analytics Framework** supports — from strategy‑aligned core use cases to extended and industry‑specific scenarios.
 
@@ -16,6 +17,7 @@ This folder is the bridge between business strategy (WHY) and technical implemen
 ## Scope
 
 Included:
+
 - Core use cases relevant for every organization  
 - Extended use cases for advanced analytics maturity  
 - Industry-specific use cases tailored to vertical needs  
@@ -23,6 +25,7 @@ Included:
 - Use case templates, mappings, and inventories
 
 Not included:
+
 - Semantic model implementation (see `semantic_models/`)  
 - Data contracts (see `data_contracts/`)  
 - Page templates (see `framework/templates/`)  
@@ -45,18 +48,23 @@ usecases/
 ```
 
 ### UseCase_Inventory.md
+
 The single source of truth for all use cases in the framework.  
 Contains IDs, domains, KPIs, action codes, and status.
 
 ### templates/
+
 Reusable templates for consistent documentation:
+
 - Business Factsheet  
 - Technical Factsheet  
 - Use Case Blueprint  
 These ensure every use case meets the same standard.
 
 ### core/
+
 The fundamental use cases every company needs:
+
 - Revenue / Margin performance  
 - Pricing & discounting  
 - Inventory insights  
@@ -65,7 +73,9 @@ The fundamental use cases every company needs:
 Core use cases are tightly coupled with Action Codes and the ActionReady semantic design.
 
 ### extended/
+
 For organizations with higher analytical maturity:
+
 - Customer churn prediction  
 - Marketing attribution  
 - Cashflow forecasting  
@@ -73,7 +83,9 @@ For organizations with higher analytical maturity:
 Extended use cases typically require machine learning or advanced modeling.
 
 ### industry/
+
 Tailored use cases for specific verticals (Retail, Manufacturing, CPG, Logistics…):
+
 - Store clustering  
 - Space productivity  
 - OEE breakdown  
@@ -85,11 +97,13 @@ Tailored use cases for specific verticals (Retail, Manufacturing, CPG, Logistics
 ## Usage
 
 ### For Customers
+
 - Identify which use cases are relevant for their strategy.  
 - Understand how each use case links to KPIs, domains, and actions.  
 - Prioritize a roadmap based on impact vs. complexity.
 
 ### For Delivery Teams
+
 - Use templates to create consistent, actionable use cases.  
 - Sync each use case with:
   - Domain (from Company Layer)  
@@ -100,6 +114,7 @@ Tailored use cases for specific verticals (Retail, Manufacturing, CPG, Logistics
 - Maintain UseCase_Inventory.md as the controlled governance artifact.
 
 ### For Framework Evolution
+
 - Add new use cases only when they provide real cross‑customer value.  
 - Keep industry use cases optional and clearly marked.  
 - Link all use cases to Action Codes for ROI and actionability tracking.

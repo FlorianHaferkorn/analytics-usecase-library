@@ -1,6 +1,7 @@
 ﻿# Showcases
 
 ## Purpose
+
 The **Showcases** folder contains fully realized, end-to-end examples demonstrating how the **ActionReady Analytics Framework** works in practice.  
 These examples allow customers and delivery teams to see the entire methodology — strategy, semantics, UX, use cases, and operations — applied to a real company scenario.
 
@@ -11,6 +12,7 @@ The primary goal is to turn abstract framework concepts into tangible, high-qual
 ## Scope
 
 Included:
+
 - Complete reference implementations (e.g., Aurora Group)
 - Example data contracts and sample datasets
 - Semantic models built according to ActionReady standards
@@ -18,6 +20,7 @@ Included:
 - Report designs, screenshots, and navigation flows
 
 Not included:
+
 - Customer-specific implementations (kept in separate project repositories)
 - Internal drafts, prototypes, or experiments
 - Tool-specific implementation guides (see `framework/implementation_guides/`)
@@ -26,7 +29,7 @@ Not included:
 
 ## Structure
 
-```
+```yaml
 showcases/
   aurora_group/        → Full end-to-end reference implementation
     company/           → Business profile, value chain, org model
@@ -37,8 +40,10 @@ showcases/
 ```
 
 ### aurora_group/
+
 This is the flagship showcase.  
 It demonstrates the entire ActionReady stack:
+
 - Company-layer alignment  
 - Operating model principles  
 - ActionReady semantic layer  
@@ -51,12 +56,14 @@ It demonstrates the entire ActionReady stack:
 ## Usage
 
 ### For Customers
+
 - Understand what a modern analytics framework *looks like when done right*.  
 - Use Aurora as a benchmark for their own future-state vision.  
 - Explore complete examples of KPIs, data products, and report design.  
 - Validate that the methodology is practical, realistic, and scalable.
 
 ### For Delivery Teams
+
 - Use Aurora as the **gold standard** for new client implementations.  
 - Copy patterns for:
   - Data contracts  
@@ -67,6 +74,7 @@ It demonstrates the entire ActionReady stack:
 - Ensure consistent, high-quality delivery across all engagements.
 
 ### For Internal Framework Evolution
+
 - Use Aurora to experiment with improvements before rolling them into the framework.  
 - Maintain Aurora as the “single source of truth” for best practices in action.
 
@@ -89,6 +97,7 @@ It demonstrates the entire ActionReady stack:
 ---
 
 ## Next Step
+
 Start with the flagship example:
 
 `showcases/aurora_group/README.md`

@@ -12,6 +12,7 @@ This repository provides a complete, enterprise-grade blueprint to move from
 Most analytics initiatives fail not because of missing tools, but because of missing structure.
 
 Across organizations, the same patterns repeatedly occur:
+
 - KPIs exist, but their definitions are debated rather than trusted
 - Reports explain deviations, but do not support decisions
 - Business and analytics teams work on different interpretations of the same numbers
@@ -19,6 +20,7 @@ Across organizations, the same patterns repeatedly occur:
 - AI and automation are discussed, but not structurally prepared
 
 When these patterns persist, the consequences are predictable:
+
 - Strategic KPIs lose credibility instead of providing orientation
 - Analytics teams spend more time explaining numbers than improving decisions
 - New requirements slow down instead of accelerating insights
@@ -59,6 +61,7 @@ Doing nothing does not keep the current state — it reinforces it.
 ## How to get started (recommended path)
 
 ### 1. Understand the Strategy Context (WHY)
+
 Start here to understand what the organization wants to achieve.
 
 - `docs/company/company_strategy.md`
@@ -67,21 +70,25 @@ Start here to understand what the organization wants to achieve.
 ---
 
 ### 2. Understand the Operating Model (HOW)
+
 Learn how strategy is translated into analytics and actions.
 
 Start with:
+
 - `docs/operating_model/operating_model_overview.md`
 - `docs/operating_model/golden_thread_strategy_to_action.md`
 
 ---
 
 ### 3. Explore the Core Use Cases (WHAT)
+
 See how strategic questions are translated into concrete analytics use cases.
 
 - `usecases/core/`
 - `usecases/UseCase_Inventory.md`
 
 Each use case contains:
+
 - Business intent and decision context
 - Required KPIs and actions
 - Technical blueprint for implementation
@@ -149,6 +156,7 @@ Platform-specific implementation guides (e.g. Fabric / Power BI) live under:
 - Templates, standards, and validation in place
 
 Next step:
+
 - Implement a concrete showcase (Aurora Group) to demonstrate end-to-end execution.
 
 ---

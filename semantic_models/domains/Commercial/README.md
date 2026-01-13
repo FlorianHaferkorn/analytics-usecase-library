@@ -5,6 +5,7 @@
 The Commercial Golden Semantic Model defines the **canonical meaning of commercial performance** across the enterprise.
 
 It serves as the **single semantic foundation** for all commercial use cases, KPIs, and Action Codes related to:
+
 - Revenue growth
 - Pricing and margin
 - Promotions
@@ -18,12 +19,14 @@ None redefine it.
 ## Scope
 
 This semantic core defines:
+
 - Canonical commercial KPIs
 - Stable grains and aggregation rules
 - Explicit economic assumptions
 - Shared commercial dimensions
 
 It does NOT:
+
 - Encode use-case-specific logic
 - Implement reporting layouts
 - Define operational execution steps
@@ -49,6 +52,7 @@ These dimensions are shared across domains but interpreted **commercially** here
 The Commercial semantic core covers the following KPI families:
 
 ### Growth
+
 - Net Sales Amount
 - Net Sales Amount LY
 - Δ Net Sales Amount
@@ -57,6 +61,7 @@ The Commercial semantic core covers the following KPI families:
 - Price Realization %
 
 ### Profitability
+
 - Gross Margin Amount
 - Gross Margin %
 - Discount %
@@ -65,6 +70,7 @@ The Commercial semantic core covers the following KPI families:
 - Mix Effect Amount
 
 ### Promotion
+
 - Promo Uplift %
 - Incremental Sales Amount
 - Cannibalization %
@@ -89,6 +95,7 @@ These assumptions apply to all consuming use cases and Action Codes.
 ## Relation to Action Codes
 
 All Commercial Action Codes:
+
 - Reference KPIs defined in this semantic model
 - Assume the grains and aggregations defined here
 - Do NOT redefine calculations or interpretations
@@ -100,11 +107,13 @@ Action Codes operate **on top of** the semantic model, never inside it.
 ## Cross-Domain Usage
 
 Commercial KPIs may be used in:
+
 - Executive overviews
 - Customer experience analyses
 - Financial liquidity assessments
 
 Rules:
+
 - Commercial KPIs remain owned by the Commercial domain
 - Cross-domain views consume, but do not reinterpret
 - No KPI logic is duplicated across domains
@@ -114,6 +123,7 @@ Rules:
 ## Definition of Done
 
 The Commercial Golden Semantic Model is considered complete when:
+
 - All Core Commercial Use Cases are fully covered
 - No use case requires custom commercial measures
 - All Action Codes map cleanly to KPIs in this model
@@ -125,6 +135,7 @@ Once complete, the model is **stable and read-only**.
 ## Why This Matters
 
 This model ensures that:
+
 - Commercial decisions are based on one truth
 - New use cases do not increase complexity
 - Prescriptive actions scale consistently
