@@ -364,6 +364,72 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+- kpi_id: crm.lifetime_revenue.amount
+  kpi_key: Customer Lifetime Revenue Amount
+  kpi_type: supporting
+  impact_dimension: Customer
+  domain_tag:
+  - Customer & Market
+  use_case_ref:
+  - COM-003
+  calc_type: amount
+  business:
+    purpose: Sum of realized revenue across the customer lifecycle.
+    definition: Sum of net sales amount from first purchase to date for the customer.
+    grain_scope: Customer/segment; monthly or quarterly.
+    unit_format: EUR (0 decimals)
+    interpretation: Base for concentration and CLV inputs.
+  technical:
+    dax_name: Customer Lifetime Revenue Amount
+    depends_on_measures: []
+    lineage:
+    - fact_sales.Net Sales Amount
+    - dim_customer.CustomerKey
+  governance:
+    business_owner: Head of Marketing
+    data_owner: CRM BI
+    steward: Customer Insights Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Reconciles to customer revenue history within +/- 0.5 %
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+- kpi_id: crm.revenue_at_risk.amount
+  kpi_key: Revenue at Risk Amount
+  kpi_type: diagnostic
+  impact_dimension: Customer
+  domain_tag:
+  - Customer & Market
+  use_case_ref:
+  - COM-003
+  calc_type: amount
+  business:
+    purpose: Quantify revenue exposure from customers flagged as churn-risk.
+    definition: CLV Remaining Amount * Attrition Risk %.
+    grain_scope: Customer/segment; monthly.
+    unit_format: EUR (0 decimals)
+    interpretation: Higher values indicate more revenue at risk; prioritize retention actions.
+  technical:
+    dax_name: Revenue at Risk Amount
+    depends_on_measures: []
+    lineage:
+    - fact_customer_value.CLV Remaining Amount
+    - fact_customer_events.Attrition Risk %
+  governance:
+    business_owner: Head of Marketing
+    data_owner: CRM BI
+    steward: Customer Insights Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - At-risk revenue reconciles to CLV remaining and attrition risk inputs within +/- 1 %
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
 - kpi_id: crm.reactivation.pct
   kpi_key: Reactivation Rate %
   kpi_type: diagnostic

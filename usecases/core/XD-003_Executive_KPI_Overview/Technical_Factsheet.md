@@ -31,28 +31,28 @@
 
 ```yaml
 kpi_to_measure_mapping:
-  - kpi_id: sales.net_sales_growth.pct
-    measure_name: Net Sales Growth %
+  - kpi_id: sales.net_sales.delta_pct.ly
+    measure_name: Net Sales % vs LY
     format: "0.0%"
     folder: 01_Growth
-  - kpi_id: margin.gross_margin.pct
+  - kpi_id: margin.gm.pct
     measure_name: Gross Margin %
     format: "0.0%"
     folder: 02_Margin
-  - kpi_id: customer.value.clv.amount
+  - kpi_id: crm.clv.amount
     measure_name: Customer Lifetime Value Amount
-    format: "€#,0"
+    format: "EUR #,0"
     folder: 03_Customer
-  - kpi_id: service.level_pct
-    measure_name: Service Level %
+  - kpi_id: svc.sla.attainment.pct
+    measure_name: SLA Attainment %
     format: "0.0%"
     folder: 04_Service
-  - kpi_id: supply.otif.pct
+  - kpi_id: ops.otif.pct
     measure_name: OTIF %
     format: "0.0%"
     folder: 04_Service
-  - kpi_id: liquidity.ccc.days
-    measure_name: Cash Conversion Cycle Days
+  - kpi_id: ops.working_capital.ccc.days
+    measure_name: Cash Conversion Cycle (Days)
     format: "#,0.0"
     folder: 05_Liquidity
   - kpi_id: people.digital_adoption.pct
@@ -246,14 +246,16 @@ settings:
 
 ### 5.1 Measure Inventory
 
-- Net Sales Growth %
-- Gross Margin %
-- Customer Lifetime Value Amount
-- Service Level %
-- OTIF %
-- Cash Conversion Cycle Days
-- Digital Adoption %
-- Attrition Risk %
+| Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
+|--------------|---------------------|---------|--------|--------|------|
+| Net Sales % vs LY | sales.net_sales.delta_pct.ly | Growth rate | 01_Growth | 0.0% | KPI |
+| Gross Margin % | margin.gm.pct | Profitability quality | 02_Margin | 0.0% | KPI |
+| Customer Lifetime Value Amount | crm.clv.amount | Customer value base | 03_Customer | EUR #,0 | KPI |
+| SLA Attainment % | svc.sla.attainment.pct | Service performance | 04_Service | 0.0% | KPI |
+| OTIF % | ops.otif.pct | Fulfillment reliability | 04_Service | 0.0% | KPI |
+| Cash Conversion Cycle (Days) | ops.working_capital.ccc.days | Liquidity efficiency | 05_Liquidity | #,0.0 | KPI |
+| Digital Adoption % | people.digital_adoption.pct | Adoption rate | 06_People | 0.0% | KPI |
+| Attrition Risk % | people.attrition_risk.pct | Attrition exposure | 06_People | 0.0% | KPI |
 
 ### 5.2 DAX Definitions
 
@@ -300,3 +302,4 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+

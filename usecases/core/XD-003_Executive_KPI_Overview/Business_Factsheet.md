@@ -44,17 +44,17 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
-  - id: sales.net_sales_growth.pct
-    name: Net Sales Growth %
-    purpose: Show topline growth vs plan and prior year.
-    definition_short: Percentage change in net sales vs plan or prior period.
+  - id: sales.net_sales.delta_pct.ly
+    name: Net Sales % vs LY
+    purpose: Show topline growth vs last year.
+    definition_short: Percentage change in net sales vs last year.
     unit: "%"
     grain: month
     agg: avg
     target: Strategic growth target per entity/region
     interpretation: Higher is better; negative indicates revenue risk.
     lineage: fact_revenue[Net Sales Amount], plan/LY reference in finance data
-  - id: margin.gross_margin.pct
+  - id: margin.gm.pct
     name: Gross Margin %
     purpose: Track profitability after cost of goods sold.
     definition_short: Gross Margin % = Gross Margin Amount / Net Sales Amount.
@@ -64,8 +64,8 @@ required_kpis:
     target: Margin target by entity/region
     interpretation: Higher is better; sustained decline signals margin leakage.
     lineage: fact_finance[Gross Margin Amount], fact_revenue[Net Sales Amount]
-  - id: customer.value.clv.amount
-    name: Customer Lifetime Value
+  - id: crm.clv.amount
+    name: Customer Lifetime Value Amount
     purpose: Measure expected lifetime profit per customer.
     definition_short: Discounted gross profit per customer over expected lifetime.
     unit: "€"
@@ -74,17 +74,17 @@ required_kpis:
     target: Strategic CLV target per segment
     interpretation: Higher indicates stronger customer value creation.
     lineage: fact_customer_value[CLV Amount]
-  - id: service.level_pct
-    name: Service Level %
+  - id: svc.sla.attainment.pct
+    name: SLA Attainment %
     purpose: Reflect service reliability to customers.
-    definition_short: Share of fulfilled demand without stockout at requested time.
+    definition_short: Share of cases/orders meeting SLA in the period.
     unit: "%"
     grain: month
     agg: avg
     target: Service level SLO per channel/region
     interpretation: Higher is better; low values drive churn risk.
-    lineage: fact_service[Service Level %], fact_fulfillment for calculation check
-  - id: supply.otif.pct
+    lineage: fact_service[SLA Attainment %], fact_fulfillment for calculation check
+  - id: ops.otif.pct
     name: OTIF %
     purpose: Measure supply reliability.
     definition_short: Orders delivered on time and in full / total orders.
@@ -94,7 +94,7 @@ required_kpis:
     target: OTIF target per lane/region
     interpretation: Higher is better; low OTIF triggers capacity/root-cause actions.
     lineage: fact_fulfillment[OTIF Flag], fact_fulfillment[Order Qty]
-  - id: liquidity.ccc.days
+  - id: ops.working_capital.ccc.days
     name: Cash Conversion Cycle (Days)
     purpose: Measure working-capital efficiency end-to-end.
     definition_short: CCC = DSO + DIO - DPO.
@@ -140,37 +140,37 @@ required_kpis:
 
 ```yaml
 triggers:
-  - kpi: sales.net_sales_growth.pct
-    condition: below_plan
-    threshold: plan_delta_pct
+  - kpi: sales.net_sales.delta_pct.ly
+    condition: below_target
+    threshold: ly_delta_pct
     scope: Org/Region, Month
     exclusion: none
     action_code: P4 Price Repositioning
-  - kpi: margin.gross_margin.pct
+  - kpi: margin.gm.pct
     condition: below_target
     threshold: margin_target_pct
     scope: Org/Region, Month
     exclusion: promo periods where approved
     action_code: P2 Margin Leakage Correction
-  - kpi: customer.value.clv.amount
+  - kpi: crm.clv.amount
     condition: declining
     threshold: negative_trend_3m
     scope: Segment, Customer
     exclusion: newly onboarded customers (<90 days)
     action_code: C2 Retention Action
-  - kpi: supply.otif.pct
+  - kpi: ops.otif.pct
     condition: below_target
     threshold: otif_sla_pct
     scope: Lane/Region, Month
     exclusion: force majeure
     action_code: S3 Capacity Intervention
-  - kpi: service.level_pct
+  - kpi: svc.sla.attainment.pct
     condition: below_target
     threshold: service_slo_pct
     scope: Channel/Region, Month
     exclusion: planned maintenance windows
     action_code: S3 Capacity Intervention
-  - kpi: liquidity.ccc.days
+  - kpi: ops.working_capital.ccc.days
     condition: above_target
     threshold: ccc_target_days
     scope: Entity, Month
@@ -196,11 +196,11 @@ triggers:
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
 |-------------|------|------------------|-------------|---------------------|------------------|-------|
-| P2 | Margin Leakage Correction | margin.gross_margin.pct below target | Address mix/discounts/leakage to restore margin | Increase GM%, stabilise revenue | L2 | Finance / Sales Ops |
-| P4 | Price Repositioning | sales.net_sales_growth.pct below plan | Adjust price/pack/discount to recover growth without eroding margin | Increase Net Sales Growth %, stable GM% | L2 | Commercial |
-| C2 | Retention Action | customer.value.clv.amount declining OR people.attrition_risk.pct above threshold | Targeted retention playbooks for customers or critical talent | Increase CLV, reduce Attrition Risk | L2 | CX / HR |
-| S3 | Capacity Intervention | supply.otif.pct or service.level_pct below target | Short-term capacity, expediting, rerouting, or supplier escalation | Increase OTIF %, Increase Service Level % | L2 | Supply Chain |
-| F1 | Cash Collection Initiative | liquidity.ccc.days above target | Accelerate receivables, extend payables where possible, optimise inventory | Reduce CCC Days | L2 | Finance |
+| P2 | Margin Leakage Correction | margin.gm.pct below target | Address mix/discounts/leakage to restore margin | Increase GM%, stabilise revenue | L2 | Finance / Sales Ops |
+| P4 | Price Repositioning | sales.net_sales.delta_pct.ly below target | Adjust price/pack/discount to recover growth without eroding margin | Increase Net Sales % vs LY, stable GM% | L2 | Commercial |
+| C2 | Retention Action | crm.clv.amount declining OR people.attrition_risk.pct above threshold | Targeted retention playbooks for customers or critical talent | Increase CLV, reduce Attrition Risk | L2 | CX / HR |
+| S3 | Capacity Intervention | ops.otif.pct or svc.sla.attainment.pct below target | Short-term capacity, expediting, rerouting, or supplier escalation | Increase OTIF %, Increase SLA Attainment % | L2 | Supply Chain |
+| F1 | Cash Collection Initiative | ops.working_capital.ccc.days above target | Accelerate receivables, extend payables where possible, optimise inventory | Reduce CCC Days | L2 | Finance |
 | H1 | Digital Enablement Push | people.digital_adoption.pct below target | Training, comms, incentives to lift active digital usage | Increase Digital Adoption %, Increase productivity | L2 | IT / HR |
 
 ---
@@ -209,11 +209,11 @@ triggers:
 
 ### 6.1 3-Second Layer (KPI Cards)
 
-- Net Sales Growth %
+- Net Sales % vs LY
 - Gross Margin %
-- Customer Lifetime Value
+- Customer Lifetime Value Amount
 - OTIF %
-- Service Level %
+- SLA Attainment %
 - Cash Conversion Cycle (Days)
 - Digital Adoption %
 - Attrition Risk %
@@ -279,7 +279,7 @@ required_slicers: Date, Org/Region/Entity, Product or Customer Segment, Function
 
 ## 9. Success Criteria
 
-- Impact: Net Sales Growth % and Gross Margin % on/above target; CCC Days on/under target.
+- Impact: Net Sales % vs LY and Gross Margin % on/above target; CCC Days on/under target.
 - Adoption: Executive dashboard used in formal exec meeting cadence (weekly/monthly).
 - Quality: 100% KPI certification and plan/LY availability; RLS applied correctly for exec roles.
 - Decision Frequency: At least monthly executive review with documented action-code follow-ups.
@@ -293,3 +293,7 @@ required_slicers: Date, Org/Region/Entity, Product or Customer Segment, Function
 - Over-rotating on single KPIs without cross-checking drivers (e.g., margin vs service) could trigger suboptimal actions.
 
 ---
+
+
+
+

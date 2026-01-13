@@ -42,7 +42,7 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
-  - id: customer.value.clv.amount
+  - id: crm.clv.amount
     name: Customer Lifetime Value Amount
     purpose: Long-term economic value per customer
     definition_short: Present value of expected future contribution margin per customer
@@ -52,7 +52,7 @@ required_kpis:
     target: Grow in priority segments
     interpretation: Higher is better; declining CLV signals retention/upsell action
     lineage: fact_customer_value[CLV Amount]
-  - id: customer.value.lifetime_revenue.amount
+  - id: crm.lifetime_revenue.amount
     name: Customer Lifetime Revenue Amount
     purpose: Realised revenue across lifecycle
     definition_short: Sum of revenue from first purchase to date
@@ -62,17 +62,17 @@ required_kpis:
     target: Grow revenue base with margin discipline
     interpretation: Base for concentration and CLV inputs
     lineage: fact_sales[Net Sales Amount], dim_customer[CustomerKey]
-  - id: customer.loyalty.retention.pct
+  - id: crm.retention.pct
     name: Customer Retention %
     purpose: Retain profitable customers
-    definition_short: Retained Customers ÷ Active Customers at period start
+    definition_short: Retained Customers / Active Customers at period start
     unit: "%"
     grain: month
     agg: avg
     target: Meet segment retention targets
     interpretation: Lower retention drives CLV erosion
     lineage: fact_customer_events[Customer Status]
-  - id: customer.loyalty.churned.count
+  - id: crm.churned_customers.count
     name: Churned Customers Count
     purpose: Quantify customers lost in period
     definition_short: Count of customers with churn flag = 1
@@ -82,17 +82,17 @@ required_kpis:
     target: Minimise churn volume
     interpretation: Rising churn indicates urgent retention playbooks
     lineage: fact_customer_events[Churn Flag]
-  - id: customer.loyalty.revenue_at_risk.amount
+  - id: crm.revenue_at_risk.amount
     name: Revenue at Risk Amount
     purpose: Size revenue exposure from churn-risk customers
-    definition_short: CLV remaining × Attrition Risk %
+    definition_short: CLV remaining * Attrition Risk %
     unit: "EUR"
     grain: month
     agg: sum
     target: Reduce exposure vs tolerance
     interpretation: High exposure prioritises retention actions
-    lineage: fact_customer_value[CLV Remaining Amount], customer.loyalty.attrition_risk.pct
-  - id: customer.loyalty.active_customers.count
+    lineage: fact_customer_value[CLV Remaining Amount], fact_customer_events[Attrition Risk %]
+  - id: crm.active_customers.count
     name: Active Customers Count
     purpose: Base for retention/churn KPIs
     definition_short: Distinct customers with activity > 0 in period
@@ -102,17 +102,17 @@ required_kpis:
     target: Maintain stable active base
     interpretation: Denominator for retention/churn; falling base signals broader risk
     lineage: fact_customer_events[Activity Flag]
-  - id: customer.experience.nps.score
+  - id: crm.nps.index
     name: NPS Score
     purpose: Measure advocacy and experience quality
-    definition_short: %Promoters − %Detractors
+    definition_short: %Promoters - %Detractors
     unit: score
     grain: month
     agg: avg
     target: Meet CX target
     interpretation: Higher is better; track with complaints and churn
     lineage: fact_nps[NPS Score]
-  - id: customer.experience.complaint.count
+  - id: crm.complaint.count
     name: Customer Complaints Count
     purpose: Volume of customer complaints
     definition_short: Count of complaint events
@@ -135,25 +135,25 @@ required_kpis:
 
 ```yaml
 triggers:
-  - kpi: customer.loyalty.retention.pct
+  - kpi: crm.retention.pct
     condition: below_target
     threshold: retention_target_pct
     scope: segment_channel
     exclusion: new_customers < 3 months
     action_code: C1
-  - kpi: customer.loyalty.churned.count
+  - kpi: crm.churned_customers.count
     condition: above_target
     threshold: churn_volume_target
     scope: segment_channel
     exclusion: strategic_accounts
     action_code: C1
-  - kpi: customer.value.clv.amount
+  - kpi: crm.clv.amount
     condition: below_target
     threshold: clv_target
     scope: priority_segments
     exclusion: none
     action_code: M3
-  - kpi: customer.loyalty.revenue_at_risk.amount
+  - kpi: crm.revenue_at_risk.amount
     condition: above_target
     threshold: risk_tolerance_amount
     scope: segment_channel
@@ -258,3 +258,4 @@ required_slicers: Date, Region/Channel, Customer Segment, Product Category
 - Using inconsistent CLV models across segments leading to false comparisons.
 
 ---
+

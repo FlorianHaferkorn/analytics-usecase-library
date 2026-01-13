@@ -146,20 +146,3 @@ This framework is **platform-agnostic by design**.
 Platform-specific implementation guides (e.g. Fabric / Power BI) live under:
 
 - `framework/implementation_guides/`
-
----
-
-## Status & Next Steps
-
-- Conceptually **customer-ready**
-- Core use cases defined
-- Templates, standards, and validation in place
-
-Next step:
-
-- Implement a concrete showcase (Aurora Group) to demonstrate end-to-end execution.
-
----
-
-**This is not a dashboard library.  
-It is an operating system for analytics-driven decision-making.**

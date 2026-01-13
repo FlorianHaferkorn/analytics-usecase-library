@@ -1,23 +1,26 @@
-﻿# core
+# core
 
 Purpose:
-(Optional) curated core use cases if separated from domain tree.
+Canonical set of core, cross-industry use cases with Business and Technical factsheets.
 
 Scope:
 
-- Curated core scenarios
-- Links to domain folders if used
+- Core scenarios used as the default blueprint set
+- Business_Factsheet.md and Technical_Factsheet.md per use case
 - Not: Platform configs
-- Draft experiments
+- Not: Draft experiments
 
 Structure:
-Empty placeholder unless you promote core cases here.
+Each use case has its own folder (e.g., COM-001_*, OPS-002_*) with:
+
+- Business_Factsheet.md
+- Technical_Factsheet.md
 
 Usage:
 
-- Use only if you centralize core set
-- Otherwise keep domain folders as source
-- Mark migrations clearly
+- Start here for the standard, reusable baseline
+- Use `usecases/UseCase_Inventory.md` as the master list and status source
+- Promote extended or industry use cases here only when they become core
 
 Relations:
-PATTERNS/WHAT; only if adopted.
+WHAT layer; uses framework standards and contracts.

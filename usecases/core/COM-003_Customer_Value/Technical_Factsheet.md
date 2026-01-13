@@ -29,35 +29,35 @@
 
 ```yaml
 kpi_to_measure_mapping:
-  - kpi_id: customer.value.clv.amount
+  - kpi_id: crm.clv.amount
     measure_name: Customer Lifetime Value Amount
     format: "EUR #,0"
     folder: 04_Customer
-  - kpi_id: customer.value.lifetime_revenue.amount
+  - kpi_id: crm.lifetime_revenue.amount
     measure_name: Customer Lifetime Revenue Amount
     format: "EUR #,0"
     folder: 01_Revenue
-  - kpi_id: customer.loyalty.retention.pct
+  - kpi_id: crm.retention.pct
     measure_name: Customer Retention %
     format: "0.0%"
     folder: 01_Retention
-  - kpi_id: customer.loyalty.churned.count
+  - kpi_id: crm.churned_customers.count
     measure_name: Churned Customers Count
     format: "#,0"
     folder: 01_Retention
-  - kpi_id: customer.loyalty.revenue_at_risk.amount
+  - kpi_id: crm.revenue_at_risk.amount
     measure_name: Revenue at Risk Amount
     format: "EUR #,0"
     folder: 01_Retention
-  - kpi_id: customer.loyalty.active_customers.count
+  - kpi_id: crm.active_customers.count
     measure_name: Active Customers Count
     format: "#,0"
     folder: 01_Retention
-  - kpi_id: customer.experience.nps.score
+  - kpi_id: crm.nps.index
     measure_name: NPS Score
     format: "0"
     folder: 02_CX
-  - kpi_id: customer.experience.complaint.count
+  - kpi_id: crm.complaint.count
     measure_name: Customer Complaints Count
     format: "#,0"
     folder: 02_CX
@@ -226,14 +226,16 @@ settings:
 
 ### 5.1 Measure Inventory
 
-- Customer Lifetime Value Amount
-- Customer Lifetime Revenue Amount
-- Customer Retention %
-- Churned Customers Count
-- Revenue at Risk Amount
-- Active Customers Count
-- NPS Score
-- Customer Complaints Count
+| Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
+|--------------|---------------------|---------|--------|--------|------|
+| Customer Lifetime Value Amount | crm.clv.amount | Customer value base | 04_Customer | EUR #,0 | KPI |
+| Customer Lifetime Revenue Amount | crm.lifetime_revenue.amount | Lifetime revenue base | 01_Revenue | EUR #,0 | Supporting |
+| Customer Retention % | crm.retention.pct | Retention rate | 01_Retention | 0.0% | KPI |
+| Churned Customers Count | crm.churned_customers.count | Churn volume | 01_Retention | #,0 | Supporting |
+| Revenue at Risk Amount | crm.revenue_at_risk.amount | Revenue exposure | 01_Retention | EUR #,0 | Supporting |
+| Active Customers Count | crm.active_customers.count | Active base | 01_Retention | #,0 | Supporting |
+| NPS Score | crm.nps.index | Experience score | 02_CX | 0 | KPI |
+| Customer Complaints Count | crm.complaint.count | Complaint volume | 02_CX | #,0 | Supporting |
 
 ### 5.2 DAX Definitions
 

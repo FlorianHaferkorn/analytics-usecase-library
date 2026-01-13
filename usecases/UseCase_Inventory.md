@@ -95,7 +95,6 @@ Each Use Case contributes directly to one or more **Strategic KPIs** and defines
 | **CST-011** | Segment Profitability | Steer investments based on segment profitability. | Gross Margin %, CLV % | Segment Margin %, CLV, Retention | P2, M3, D1 | +1–2 pp segment margin % | Tactical | Diagnostic | Idea | Extended |
 | **CST-012** | Next-Best-Action Customer (NBA) | Recommend best next action per customer to maximize CLV and retention. | Customer Retention %, CLV % | CLV Amount, Churn %, Cross-Sell Ratio %, Basket Size | C1, P2, M3, SP1 | Higher retention and CLV with better campaign ROI | Operational | Prescriptive | Idea | Extended |
 | **CST-014** | Subscription Churn & Next-Best-Action | Reduce churn in subscription models through targeted NBA. | Churn %, CLV % | Churn Risk Score, CLV, Usage Patterns | C1, P2, M3, SP1 | 1–2 pp lower churn; significantly higher CLV | Tactical | Prescriptive | Idea | Extended |
-| **CST-014** | Subscription Churn & Next-Best-Action | Reduce churn in subscription models through targeted NBA. | Churn %, CLV % | Churn Risk Score, CLV, Usage Patterns | C1, P2, M3, SP1 | 1–2 pp lower churn; significantly higher CLV | Tactical | Prescriptive | Idea | Extended |
 
 ---
 
@@ -134,14 +133,14 @@ Each Use Case contributes directly to one or more **Strategic KPIs** and defines
 
 | Cluster | Core UCs | Extended UCs | Total |
 |----------|-----------|--------------|--------|
-| Commercial | 3 | 8 | 11 |
-| Corporate | 3 | 6 | 9 |
-| Operations | 3 | 8 | 11 |
-| Customer & Market | 3 | 8 | 11 |
+| Commercial | 3 | 11 | 14 |
+| Corporate | 3 | 13 | 16 |
+| Operations | 2 | 16 | 18 |
+| Customer & Market | 3 | 10 | 13 |
 | ESG | 2 | 0 | 2 |
 | Governance | 2 | 2 | 4 |
 | Innovation & People | 2 | 2 | 4 |
-| **Total** | **18** | **26** | **44 Use Cases** |
+| **Total** | **17** | **54** | **71 Use Cases** |
 
 ---
 
@@ -150,7 +149,7 @@ Each Use Case contributes directly to one or more **Strategic KPIs** and defines
 | Metric | Value |
 |--------|--------|
 | **Total Strategic KPIs Supported** | 8+ |
-| **Total Use Cases** | 45 |
+| **Total Use Cases** | 71 |
 | **Copilot Ready** | Yes |
 | **Review Frequency** | Quarterly |
 | **Maintainers** | analytics-core-team |
