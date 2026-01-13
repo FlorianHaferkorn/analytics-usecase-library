@@ -1,9 +1,11 @@
 # SCM-001 — Inventory Performance  
+
 ## Business Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Use Case ID:** SCM-001
 - **Domain:** Supply Chain
 - **Business Owner:** COO / Head of Supply Chain
@@ -17,6 +19,7 @@
 ---
 
 ## 1. Business Summary
+
 **Purpose:** Optimize inventory by balancing availability (service level) and working capital, reducing excess, stockouts, and obsolescence.  
 **Business Value:** Lower working capital, fewer stockouts, higher OTIF, and reduced write-offs.  
 **Out of Scope:** Detailed demand planning algorithm tuning (SCM-003); promotion-specific effects (COM-004); transport cost optimization (OPS-018).
@@ -24,6 +27,7 @@
 ---
 
 ## 2. Core Business Questions
+
 - Where are inventory days and turnover off target by location/channel/category?
 - Which items drive stockouts and OTIF misses?
 - Where is excess/obsolete inventory accumulating?
@@ -31,12 +35,14 @@
 - How does forecast accuracy impact inventory KPIs?
 
 **Example Query Patterns (optional):**
+
 - “Which DCs have DIO above target and stockout > target in the last 8 weeks?”
 - “Where is forecast accuracy low and driving excess or stockouts?”
 
 ---
 
 ## 3. Required KPIs (Mandatory)
+
 All KPIs must exist in the KPI Catalog.
 
 ```yaml
@@ -106,14 +112,17 @@ required_kpis:
 ---
 
 ## 4. Business Logic & Thresholds
+
 Formal rules that define performance and action triggers.
 
 ### 4.1 Logic Description
+
 - Flag locations/categories with DIO above target and OTIF/stockout below target.
 - Highlight obsolete inventory % above threshold.
 - Flag forecast accuracy below target for items with excess or stockouts.
 
 ### 4.2 Formal Trigger Rules (Machine-Readable)
+
 ```yaml
 triggers:
   - kpi: inv.dio.days
@@ -145,6 +154,7 @@ triggers:
 ---
 
 ## 5. Action Codes (Mandatory)
+
 Link business behavior to measurable outcomes.
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
@@ -159,6 +169,7 @@ Link business behavior to measurable outcomes.
 ## 6. 3–30–300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
+
 - DIO (days)  
 - Inventory Turnover (x)  
 - Stockout Rate %  
@@ -166,6 +177,7 @@ Link business behavior to measurable outcomes.
 - Obsolete Inventory %  
 
 ### 6.2 30-Second Layer (Main Visuals)
+
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
 | DIO vs Target by Location/Category | Column | dim_org[Location] | [DIO], [Target] | Category | Current quarter | Core ranking |
@@ -174,6 +186,7 @@ Link business behavior to measurable outcomes.
 | Forecast Accuracy vs DIO | Scatter | [Forecast Accuracy %] | [DIO] | Category | Current quarter | Planning impact |
 
 ### 6.3 Required Slicers (Mandatory)
+
 - Date (Week/Month)  
 - Location / DC / Channel  
 - Category / Product  
@@ -182,6 +195,7 @@ Link business behavior to measurable outcomes.
 ---
 
 ## 7. Data Requirements Summary
+
 ```yaml
 required_facts:
   - fact_inventory
@@ -202,6 +216,7 @@ required_slicers: Date, Location/DC/Channel, Category/Product, ABC/XYZ
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
+
 - COGS/actuals available to compute DIO/turnover; inventory snapshots consistent.
 - Stockout and OTIF flags available; forecast and actual aligned by SKU/location/time.
 - Obsolescence flagged; ABC/XYZ classification optional but recommended.
@@ -210,6 +225,7 @@ required_slicers: Date, Location/DC/Channel, Category/Product, ABC/XYZ
 ---
 
 ## 9. Success Criteria
+
 - Impact: Lower DIO/raise turnover to targets; reduce stockouts and OTIF misses; reduce obsolete %.  
 - Adoption: Used in monthly S&OP/inventory reviews; action codes triggered with <5% false positives.  
 - Quality: KPI definitions consistent across SCM UCs; reconciled to source totals.  
@@ -218,6 +234,7 @@ required_slicers: Date, Location/DC/Channel, Category/Product, ABC/XYZ
 ---
 
 ## 10. Risks & Wrong Interpretations (Short)
+
 - Misstated DIO if COGS or inventory snapshots misaligned.  
 - Stockout flags incomplete, underreporting availability risk.  
 - Forecast accuracy misread without considering promotions or launches.  

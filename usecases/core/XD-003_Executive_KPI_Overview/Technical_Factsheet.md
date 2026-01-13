@@ -1,9 +1,11 @@
 # XD-003 - Executive KPI Overview  
+
 ## Technical Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Domain:** Executive / Cross-Functional
 - **Technical Owner:** Enterprise BI Lead
 - **Model ID:** executive_kpi_overview
@@ -13,6 +15,7 @@
 ---
 
 ## 1. Model References
+
 - **Domain Data Contract:** data_contracts/domains/executive.yaml
 - **Source Data Contracts:** data_contracts/domains/finance.yaml; data_contracts/domains/supply_chain.yaml; data_contracts/domains/hr.yaml; data_contracts/domains/commercial_sales.yaml
 - **Semantic Model Definition:** semantic_models/domains/executive/model_definition.yaml
@@ -25,6 +28,7 @@
 ---
 
 ## 2. KPI → Measure Mapping (Mandatory)
+
 ```yaml
 kpi_to_measure_mapping:
   - kpi_id: sales.net_sales_growth.pct
@@ -64,6 +68,7 @@ kpi_to_measure_mapping:
 ---
 
 ## 3. Data Contract Scope (Subset YAML)
+
 ```yaml
 required_facts:
   - fact_sales
@@ -197,15 +202,18 @@ settings:
 ---
 
 ## 4. Semantic Model Requirements
+
 - Certified monthly aggregates per KPI; fact tables provide monthly grain or higher with certified calculations upstream.
 - Conformed dimensions (Date, Org, Product, Customer, Employee) required; no local dimension copies.
 - No new measures introduced locally; use certified measures from core_action_ready where available.
 
 ### 4.1 Tables
+
 - dim_date, dim_org, dim_product, dim_customer, dim_employee, security_user_org  
 - fact_revenue, fact_finance, fact_customer_value, fact_service, fact_fulfillment, fact_wc, fact_digital, fact_hr
 
 ### 4.2 Relationships (Mandatory)
+
 - dim_date (1) -> all facts on DateKey  
 - dim_org (1) -> org keys in revenue/finance/service/fulfillment/wc/digital/hr  
 - dim_customer (1) -> fact_customer_value  
@@ -215,16 +223,19 @@ settings:
 - Single direction; avoid ambiguous paths; no bi-directional except RLS bridge if needed.
 
 ### 4.3 Hierarchies
+
 - Date: Year -> Quarter -> Month  
 - Org: Region -> Entity -> Segment  
 - Customer: Segment -> CustomerName
 
 ### 4.4 Sort-by Columns
+
 - Month -> MonthNumber  
 - Entity -> OrgKey  
 - CustomerName -> CustomerCode
 
 ### 4.5 Modeling Constraints
+
 - No calculated columns; no implicit measures.  
 - Default summarization set; technical columns hidden; display folders follow dictionary.  
 - Surrogate keys mandatory; avoid M2M; use conformed dimensions; aggregation tables optional but must retain grain integrity.
@@ -234,6 +245,7 @@ settings:
 ## 5. Measures
 
 ### 5.1 Measure Inventory
+
 - Net Sales Growth %
 - Gross Margin %
 - Customer Lifetime Value Amount
@@ -244,11 +256,13 @@ settings:
 - Attrition Risk %
 
 ### 5.2 DAX Definitions
+
 No local DAX added; measures sourced from certified semantic model. Existing certified expressions apply.
 
 ---
 
 ## 6. RLS / OLS Requirements
+
 - Executives require full-company visibility.
 - If needed, existing Org-hierarchy RLS applies (security_user_org filtering dim_org cascading to facts).
 - No new RLS rules may be created.
@@ -256,6 +270,7 @@ No local DAX added; measures sourced from certified semantic model. Existing cer
 ---
 
 ## 7. Technical Assumptions
+
 - Cross-domain data aligned by entity/region and month; conformed dimensions enforce joins.
 - Plan/LY data available for growth and margin KPIs; CCC provided upstream per liquidity standards.
 - Digital adoption and attrition risk sourced monthly from HR/IT systems; currency/fiscal settings per data governance.
@@ -263,6 +278,7 @@ No local DAX added; measures sourced from certified semantic model. Existing cer
 ---
 
 ## 8. Deployment Requirements
+
 - Mode: DirectLake or Import depending on SLA; incremental refresh by Month.
 - Aggregations optional for long history; avoid grain distortion.
 - Workspace and naming per governance; display folders per measure dictionary.
@@ -270,6 +286,7 @@ No local DAX added; measures sourced from certified semantic model. Existing cer
 ---
 
 ## 9. QA & Validation Rules
+
 - KPIs must reconcile with domain reports.
 - Only certified measures allowed.
 - No local KPI calculations.

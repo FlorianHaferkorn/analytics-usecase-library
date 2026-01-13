@@ -1,9 +1,11 @@
 # COM-003 - Customer Value  
+
 ## Technical Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Domain:** Commercial / CustomerValue
 - **Technical Owner:** Sales Ops BI Lead
 - **Model ID:** commercial_customer_value
@@ -13,6 +15,7 @@
 ---
 
 ## 1. Model References
+
 - **Domain Data Contract:** data_contracts/domains/commercial_sales.yaml
 - **Source Data Contract:** data_contracts/sources/commercial.yaml
 - **Semantic Model Definition:** semantic_models/core_action_ready/commercial_sales/model_definition.yaml
@@ -23,6 +26,7 @@
 ---
 
 ## 2. KPI → Measure Mapping (Mandatory)
+
 ```yaml
 kpi_to_measure_mapping:
   - kpi_id: customer.value.clv.amount
@@ -62,6 +66,7 @@ kpi_to_measure_mapping:
 ---
 
 ## 3. Data Contract Scope (Subset YAML)
+
 ```yaml
 required_facts:
   - fact_sales
@@ -176,16 +181,19 @@ settings:
 ---
 
 ## 4. Semantic Model Requirements
+
 - Use certified monthly aggregates for retention/churn/CLV/risk; fact tables at customer_month where possible.
 - Depend on conformed dimensions (Date, Org, Customer, Product); no local dimension copies.
 - No new measures introduced locally; use certified dictionary names.
 - Facts for customer events, customer value, experience, and NPS are defined in the domain contract to satisfy KPIs.
 
 ### 4.1 Tables
+
 - dim_date, dim_org, dim_customer, dim_product, security_user_org  
 - fact_sales, fact_customer_events, fact_customer_value, fact_experience, fact_nps
 
 ### 4.2 Relationships (Mandatory)
+
 - dim_date (1) -> all facts on DateKey  
 - dim_org (1) -> fact_sales on OrgKey  
 - dim_customer (1) -> all customer-facing facts on CustomerKey  
@@ -194,17 +202,20 @@ settings:
 - Single direction; avoid ambiguous paths; no bi-directional except RLS bridge if required.
 
 ### 4.3 Hierarchies
+
 - Date: Year -> Quarter -> Month  
 - Org: Region -> Country -> Channel -> OrgName  
 - Customer: Segment -> CustomerName  
 - Product: Category -> Subcategory -> ProductName
 
 ### 4.4 Sort-by Columns
+
 - Month -> MonthNumber  
 - CustomerName -> CustomerCode  
 - ProductName -> ProductCode
 
 ### 4.5 Modeling Constraints
+
 - No calculated columns; no implicit measures.  
 - Default summarization set; technical columns hidden; display folders per dictionary.  
 - Surrogate keys mandatory; avoid M2M; use conformed dimensions; aggregation tables optional but must retain grain integrity.
@@ -214,6 +225,7 @@ settings:
 ## 5. Measures
 
 ### 5.1 Measure Inventory
+
 - Customer Lifetime Value Amount
 - Customer Lifetime Revenue Amount
 - Customer Retention %
@@ -224,17 +236,20 @@ settings:
 - Customer Complaints Count
 
 ### 5.2 DAX Definitions
+
 No local DAX added; measures sourced from certified semantic model. Existing certified expressions apply.
 
 ---
 
 ## 6. RLS / OLS Requirements
+
 - Executives and commercial leaders require correct region/channel scoping; apply existing Org-hierarchy RLS (security_user_org) cascading to facts.
 - No new RLS rules created for this use case; reuse canonical pattern.
 
 ---
 
 ## 7. Technical Assumptions
+
 - Churn/retention flags and attrition risk available in fact_customer_events.
 - CLV and CLV Remaining provided upstream via fact_customer_value.
 - Complaint events captured in fact_experience; NPS scores available in fact_nps.
@@ -244,6 +259,7 @@ No local DAX added; measures sourced from certified semantic model. Existing cer
 ---
 
 ## 8. Deployment Requirements
+
 - Mode: DirectLake or Import depending on SLA; incremental refresh by Month.
 - Aggregations optional for long history; avoid grain distortion.
 - Workspace and naming per governance; display folders per measure dictionary.
@@ -251,6 +267,7 @@ No local DAX added; measures sourced from certified semantic model. Existing cer
 ---
 
 ## 9. QA & Validation Rules
+
 - KPIs must reconcile with domain reports (sales/churn/CLV/CX).
 - Only certified measures allowed; no local KPI calculations.
 - Active/churned bases must reconcile to customer events; CLV/risk reconcile to upstream mart; NPS/complaints reconcile to CX sources.

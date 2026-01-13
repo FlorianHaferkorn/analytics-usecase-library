@@ -28,4 +28,4 @@ Not included:
 
 ---
 
-**Location:** `assets/value_chain/`
+**Location:** `_internal/archive/assets/value_chain/`

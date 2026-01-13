@@ -1,9 +1,11 @@
 # OPS-003 — Quality & Yield  
+
 ## Technical Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Domain:** Operations
 - **Technical Owner:** Quality Analytics / Ops BI Lead
 - **Model ID:** ops_quality_yield
@@ -13,6 +15,7 @@
 ---
 
 ## 1. Model References
+
 - **Domain Data Contract:** data_contracts/domains/operations.yaml
 - **Source Data Contract:** data_contracts/sources/operations.yaml (if present)
 - **Semantic Model Definition:** semantic_models/domains/scm/model_definition.yaml
@@ -23,6 +26,7 @@
 ---
 
 ## 2. Required KPIs → Measure Mapping (Mandatory)
+
 ```yaml
 kpi_to_measure_mapping:
   - kpi_id: quality.fpy.pct
@@ -60,6 +64,7 @@ kpi_to_measure_mapping:
 ---
 
 ## 3. Data Contract Scope (Subset YAML)
+
 ```yaml
 dimension:
   - name: dim_date
@@ -142,6 +147,7 @@ fact:
 ## 4. Semantic Model Requirements
 
 ### 4.1 Tables
+
 - fact_quality  
 - fact_quality_costs  
 - fact_complaints  
@@ -152,6 +158,7 @@ fact:
 - security_user_org (RLS)
 
 ### 4.2 Relationships (Mandatory)
+
 - dim_date (1) → all facts on DateKey  
 - dim_org (1) → fact_quality/fact_quality_costs/fact_complaints/fact_shipments on OrgKey (where present)  
 - dim_product (1) → all product-bearing facts on ProductKey  
@@ -159,15 +166,18 @@ fact:
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
+
 - Date: Year → Quarter → Month → Week  
 - Org: Plant → Line → Shift  
 - Product: ProductFamily → Category → ProductName
 
 ### 4.4 Sort-by Columns
+
 - Month → MonthNumber  
 - ProductName → ProductCode
 
 ### 4.5 Modeling Constraints
+
 - No calculated columns; no implicit measures.  
 - Default summarization set; technical columns hidden; folders per dictionary.  
 - Surrogate keys mandatory; avoid M2M.
@@ -177,6 +187,7 @@ fact:
 ## 5. Measures (DAX)
 
 ### 5.1 Measure Inventory
+
 | Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
 |--------------|---------------------|---------|--------|--------|------|
 | First Pass Yield % | quality.fpy.pct | FPY | 07_Quality | 0.0% | KPI |
@@ -193,6 +204,7 @@ fact:
 | Shipped Units | Supporting | Denominator for complaint rate | 07_Quality | #,0 | Supporting |
 
 ### 5.2 DAX Definitions
+
 ```DAX
 /// Supporting — Volume
 Total Units :=
@@ -247,6 +259,7 @@ Defect Density :=
 ## 6. RLS / OLS Requirements
 
 ### 6.1 Security Table Pattern
+
 ```yaml
 security_table:
   name: security_user_org
@@ -262,6 +275,7 @@ security_table:
 ```
 
 ### 6.2 RLS Rule (Fabric / Power BI)
+
 ```DAX
 dim_org[OrgKey] IN
     CALCULATETABLE (
@@ -271,11 +285,13 @@ dim_org[OrgKey] IN
 ```
 
 ### 6.3 OLS (optional)
+
 - None required; COPQ can be sensitive—mask if client requests (TODO if needed).
 
 ---
 
 ## 7. Technical Assumptions
+
 - Quality events captured at line/day with good/scrap/rework counts; defect codes provided.
 - COPQ costs available or allocated to product/line/month; complaints linked to shipments.
 - Data latency ≤24h; timezone consistent.
@@ -284,6 +300,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 8. Deployment Requirements
+
 - Mode: DirectLake or Import depending on MES/QMS connectivity; prefer DirectLake if stable.  
 - Incremental refresh: yes, partition by DateKey (e.g., last 12–24 months).  
 - Aggregations: optional; day-level aggregates for speed.  
@@ -292,6 +309,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 9. QA & Validation Rules
+
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org/Product keys non-null in facts | 100% | Y | Data Engineering |
@@ -308,4 +326,3 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
-

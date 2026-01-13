@@ -27,4 +27,4 @@ Not included:
 
 ---
 
-**Location:** `assets/org/`
+**Location:** `_internal/archive/assets/org/`

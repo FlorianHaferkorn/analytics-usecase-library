@@ -1,9 +1,11 @@
 # XD-003 - Executive KPI Overview
+
 ## Business Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Use Case ID:** XD-003
 - **Domain:** Executive / Cross-Functional
 - **Business Owner:** CEO / CFO / COO
@@ -17,6 +19,7 @@
 ---
 
 ## 1. Business Summary & Business Value
+
 **Purpose:** Provide a unified, enterprise-wide performance cockpit for leadership.  
 **Business Value:** Aggregates critical financial, customer, operational, and people KPIs into one strategic view to assess if the company is on track and to surface cross-domain interventions rapidly via the 3-30-300 navigation.  
 **Out of Scope:** Detailed domain diagnostics; operational incident tracking; standalone domain scorecards without executive alignment.
@@ -24,6 +27,7 @@
 ---
 
 ## 2. Core Business Questions
+
 - Are we growing profitably and in line with the strategic plan?
 - Is margin performance healthy across price, mix, and cost structures?
 - Are we delivering expected value to customers?
@@ -35,6 +39,7 @@
 ---
 
 ## 3. Required KPIs (Mandatory)
+
 All KPIs must exist in the KPI Catalog.
 
 ```yaml
@@ -126,11 +131,13 @@ required_kpis:
 ## 4. Business Logic & Thresholds
 
 ### 4.1 Logic Description
+
 - Flag deviations vs plan/target for growth, margin, service, supply reliability, working capital, digital adoption, and attrition risk.
 - Escalate cross-domain interventions through predefined Action Codes with accountable owners.
 - Prioritise entities/regions with highest value-at-risk and customer impact.
 
 ### 4.2 Formal Trigger Rules (Machine-Readable)
+
 ```yaml
 triggers:
   - kpi: sales.net_sales_growth.pct
@@ -201,6 +208,7 @@ triggers:
 ## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
+
 - Net Sales Growth %
 - Gross Margin %
 - Customer Lifetime Value
@@ -211,18 +219,21 @@ triggers:
 - Attrition Risk %
 
 ### 6.2 30-Second Layer (Main Visuals)
+
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
 | Executive Trend | Line | Date[Month] | All 8 KPI measures | Org / Region | 12-24M | Trend vs Plan/LY bands |
 | Driver Variance | Clustered/Waterfall | Drivers | KPI variance | Org / Segment | Recent period | Focus on growth/margin/service drivers |
 
 ### 6.3 Required Slicers (Mandatory)
+
 - Date (Month/Year)
 - Org / Region / Entity
 - Product or Customer Segment (where relevant)
 - Function / Department (for People KPIs)
 
 ### 6.4 300-Second Layer (Diagnostics)
+
 - Domain drilldowns by Org/Region/Segment with variance decomposition (price, mix, volume, cost, service).
 - Root-cause tables for OTIF/Service failures (lane, supplier, reason code).
 - Working-capital driver table (DSO, DIO, DPO contributors).
@@ -232,6 +243,7 @@ triggers:
 ---
 
 ## 7. Data Requirements Summary
+
 ```yaml
 required_facts:
   - fact_revenue
@@ -256,6 +268,7 @@ required_slicers: Date, Org/Region/Entity, Product or Customer Segment, Function
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
+
 - Executive KPIs align with certified strategic reporting; definitions mirror the KPI Catalog.
 - Plan/LY references must be available for all headline KPIs.
 - Conformed dimensions (Date, Org, Product, Customer, Employee) are mandatory for cross-domain joins.
@@ -265,6 +278,7 @@ required_slicers: Date, Org/Region/Entity, Product or Customer Segment, Function
 ---
 
 ## 9. Success Criteria
+
 - Impact: Net Sales Growth % and Gross Margin % on/above target; CCC Days on/under target.
 - Adoption: Executive dashboard used in formal exec meeting cadence (weekly/monthly).
 - Quality: 100% KPI certification and plan/LY availability; RLS applied correctly for exec roles.
@@ -273,6 +287,7 @@ required_slicers: Date, Org/Region/Entity, Product or Customer Segment, Function
 ---
 
 ## 10. Risks & Wrong Interpretations (Short)
+
 - Misalignment of KPI definitions across domains could lead to conflicting executive narratives.
 - Incomplete plan/LY data would misstate growth and margin performance.
 - Over-rotating on single KPIs without cross-checking drivers (e.g., margin vs service) could trigger suboptimal actions.

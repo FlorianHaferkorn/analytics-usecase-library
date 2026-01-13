@@ -1,9 +1,11 @@
 # OPS-002 — Asset Performance  
+
 ## Technical Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Domain:** Operations
 - **Technical Owner:** Maintenance / Reliability BI Lead
 - **Model ID:** ops_asset_performance
@@ -13,6 +15,7 @@
 ---
 
 ## 1. Model References
+
 - **Domain Data Contract:** data_contracts/domains/operations.yaml
 - **Source Data Contract:** data_contracts/sources/operations.yaml (if present)
 - **Semantic Model Definition:** semantic_models/domains/scm/model_definition.yaml
@@ -23,6 +26,7 @@
 ---
 
 ## 2. Required KPIs → Measure Mapping (Mandatory)
+
 ```yaml
 kpi_to_measure_mapping:
   - kpi_id: ops.availability.pct
@@ -60,6 +64,7 @@ kpi_to_measure_mapping:
 ---
 
 ## 3. Data Contract Scope (Subset YAML)
+
 ```yaml
 dimension:
   - name: dim_date
@@ -138,6 +143,7 @@ fact:
 ## 4. Semantic Model Requirements
 
 ### 4.1 Tables
+
 - fact_ops  
 - fact_ops_failures  
 - fact_maintenance  
@@ -147,6 +153,7 @@ fact:
 - security_user_org (RLS)
 
 ### 4.2 Relationships (Mandatory)
+
 - dim_date (1) → fact_ops on DateKey; dim_date (1) → fact_maintenance on DateKey  
 - dim_org (1) → fact_ops on OrgKey  
 - dim_asset (1) → fact_ops / fact_ops_failures / fact_maintenance on AssetKey  
@@ -154,15 +161,18 @@ fact:
 - Single direction; no ambiguous paths; avoid bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
+
 - Date: Year → Quarter → Month → Week  
 - Org: Plant → Line  
 - Asset: AssetClass → AssetName (or by criticality)
 
 ### 4.4 Sort-by Columns
+
 - Month → MonthNumber  
 - AssetName → AssetCode
 
 ### 4.5 Modeling Constraints
+
 - No calculated columns; no implicit measures.  
 - Default summarization set; technical columns hidden; display folders per dictionary.  
 - Surrogate keys mandatory; avoid M2M; handle time intelligence with date dimension.
@@ -172,6 +182,7 @@ fact:
 ## 5. Measures (DAX)
 
 ### 5.1 Measure Inventory
+
 | Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
 |--------------|---------------------|---------|--------|--------|------|
 | Availability % | ops.availability.pct | Uptime | 05_Ops | 0.0% | KPI |
@@ -185,6 +196,7 @@ fact:
 | Failure Count | Supporting | MTBF/MTTR calc | 05_Ops | #,0 | Supporting |
 
 ### 5.2 DAX Definitions
+
 ```DAX
 /// Supporting — Time
 Planned Time :=
@@ -236,6 +248,7 @@ PM Compliance % :=
 ## 6. RLS / OLS Requirements
 
 ### 6.1 Security Table Pattern
+
 ```yaml
 security_table:
   name: security_user_org
@@ -251,6 +264,7 @@ security_table:
 ```
 
 ### 6.2 RLS Rule (Fabric / Power BI)
+
 ```DAX
 dim_org[OrgKey] IN
     CALCULATETABLE (
@@ -260,11 +274,13 @@ dim_org[OrgKey] IN
 ```
 
 ### 6.3 OLS (optional)
+
 - None required; parts cost could be masked if added (TODO per client).
 
 ---
 
 ## 7. Technical Assumptions
+
 - Failure events timestamped; repair duration provided; planned vs unplanned flagged.
 - PM plan exists and on-time flags populated; parts stockout flags available.
 - Data latency ≤24h; timezone consistent.
@@ -273,6 +289,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 8. Deployment Requirements
+
 - Mode: DirectLake or Import depending on MES/CMMS connectors; prefer DirectLake if stable.  
 - Incremental refresh: yes, partition by DateKey (e.g., last 12–24 months).  
 - Aggregations: optional for high-frequency events.  
@@ -281,6 +298,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 9. QA & Validation Rules
+
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org/Asset keys non-null in facts | 100% | Y | Data Engineering |
@@ -298,4 +316,3 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
-

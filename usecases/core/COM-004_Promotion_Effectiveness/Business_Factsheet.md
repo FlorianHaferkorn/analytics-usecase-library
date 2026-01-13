@@ -1,9 +1,11 @@
 # COM-004 - Promotion Effectiveness  
+
 ## Business Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Use Case ID:** COM-004
 - **Domain:** Commercial
 - **Business Owner:** CMO / Trade Marketing Lead
@@ -17,6 +19,7 @@
 ---
 
 ## 1. Business Summary
+
 **Purpose:** Improve promotion ROI by measuring true incremental sales and margin, controlling leakage, and optimising promo mechanics.  
 **Business Value:** Fewer unprofitable promos; higher incremental GM; better channel/product targeting; reduced cannibalization.  
 **Out of Scope:** Long-term pricing strategy (COM-002); assortment optimisation; omni-channel mix (COM-009).
@@ -24,6 +27,7 @@
 ---
 
 ## 2. Core Business Questions
+
 - Which promotions generated true incremental sales and gross margin?
 - Which channels/products deliver the highest promo ROI and uplift?
 - How much did discounts erode price realization and GM?
@@ -33,6 +37,7 @@
 ---
 
 ## 3. Required KPIs (Mandatory)
+
 All KPIs must exist in the KPI Catalog.
 
 ```yaml
@@ -92,6 +97,7 @@ required_kpis:
 ---
 
 ## 4. Business Logic & Thresholds
+
 - Flag promotions with ROI < 120% or negative incremental GM.
 - Flag excessive discounting: Price Realization % below policy and GM % below target.
 - Flag high cannibalization > 20% of uplift.
@@ -141,6 +147,7 @@ triggers:
 ## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
+
 - Promotion ROI %  
 - Incremental Sales Amount  
 - Promo Gross Margin %  
@@ -148,6 +155,7 @@ triggers:
 - Cannibalization %  
 
 ### 6.2 30-Second Layer (Main Visuals)
+
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
 | Promo ROI by Channel | Column | Channel | Promo ROI % | Region | Current quarter | Rank promos |
@@ -156,12 +164,14 @@ triggers:
 | Cannibalization vs Uplift | Scatter | Cannibalization % | Incremental Sales Amount | Category/Region | Current period | Identify harmful promos |
 
 ### 6.3 Required Slicers (Mandatory)
+
 - Date/Promo period  
 - Region / Channel  
 - Product Category / Subcategory  
 - Promotion Type/Mechanic  
 
 ### 6.4 300-Second Layer (Diagnostics)
+
 - Promo-level GM bridge (uplift vs cost vs leakage).
 - Cannibalization root-cause table (related SKUs, categories).
 - Mechanic depth/timing analysis by channel/category.
@@ -169,6 +179,7 @@ triggers:
 ---
 
 ## 7. Data Requirements Summary
+
 ```yaml
 required_facts:
   - fact_sales
@@ -187,6 +198,7 @@ required_slicers: Date/Promo period, Region/Channel, Product Category/Subcategor
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
+
 - Baseline model for incremental sales defined and stable; uplift calculations align with COM-001/002.
 - Discount components (net/list, rebates, surcharges) available to compute price realization during promos.
 - Cannibalization logic depends on related items/product hierarchy.
@@ -195,6 +207,7 @@ required_slicers: Date/Promo period, Region/Channel, Product Category/Subcategor
 ---
 
 ## 9. Success Criteria
+
 - Impact: Higher promo ROI (>=120%), higher incremental GM, reduced cannibalization.
 - Adoption: Used in promo/post-event reviews; actions logged via Action Codes.
 - Quality: Uplift and ROI reconcile to baseline and costs; definitions aligned with COM-001/002.
@@ -203,6 +216,7 @@ required_slicers: Date/Promo period, Region/Channel, Product Category/Subcategor
 ---
 
 ## 10. Risks & Wrong Interpretations (Short)
+
 - Baseline mis-specified leading to overstated uplift/ROI.
 - Ignoring cannibalization/halo effects distorts net benefit.
 - Over-discounting to lift volume without GM guardrails.

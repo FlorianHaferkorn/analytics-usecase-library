@@ -1,9 +1,11 @@
 # FIN-002 — Cost Performance  
+
 ## Technical Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Domain:** Finance / Operations
 - **Technical Owner:** Finance BI Lead / Ops Finance
 - **Model ID:** finance_cost_performance
@@ -13,6 +15,7 @@
 ---
 
 ## 1. Model References
+
 - **Domain Data Contract:** data_contracts/domains/finance.yaml
 - **Source Data Contract:** data_contracts/sources/finance.yaml (if present)
 - **Semantic Model Definition:** semantic_models/domains/finance/model_definition.yaml
@@ -23,6 +26,7 @@
 ---
 
 ## 2. Required KPIs → Measure Mapping (Mandatory)
+
 ```yaml
 kpi_to_measure_mapping:
   - kpi_id: cost.unit.amount
@@ -55,6 +59,7 @@ kpi_to_measure_mapping:
 ---
 
 ## 3. Data Contract Scope (Subset YAML)
+
 ```yaml
 dimension:
   - name: dim_date
@@ -133,6 +138,7 @@ fact:
 ## 4. Semantic Model Requirements
 
 ### 4.1 Tables
+
 - fact_finance  
 - fact_cost  
 - fact_output  
@@ -143,6 +149,7 @@ fact:
 - security_user_org (RLS)
 
 ### 4.2 Relationships (Mandatory)
+
 - dim_date (1) → all facts on DateKey  
 - dim_org (1) → all facts on OrgKey  
 - dim_product (1) → fact_cost/fact_output on ProductKey  
@@ -150,15 +157,18 @@ fact:
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
+
 - Date: Year → Quarter → Month  
 - Org: Entity → Plant → Line  
 - Product: Category → ProductName
 
 ### 4.4 Sort-by Columns
+
 - Month → MonthNumber  
 - ProductName → ProductCode
 
 ### 4.5 Modeling Constraints
+
 - No calculated columns; no implicit measures.  
 - Default summarization set; technical columns hidden; folders per dictionary.  
 - Surrogate keys mandatory; avoid M2M.
@@ -168,6 +178,7 @@ fact:
 ## 5. Measures (DAX)
 
 ### 5.1 Measure Inventory
+
 | Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
 |--------------|---------------------|---------|--------|--------|------|
 | Unit Cost Amount | cost.unit.amount | Cost efficiency | 10_Finance | €#,0.00 | KPI |
@@ -184,6 +195,7 @@ fact:
 | Labor Hours | Supporting | Productivity denominator | 05_Ops | #,0 | Supporting |
 
 ### 5.2 DAX Definitions
+
 ```DAX
 /// Supporting — Bases
 Net Sales Amount :=
@@ -233,6 +245,7 @@ Labor Productivity % :=
 ## 6. RLS / OLS Requirements
 
 ### 6.1 Security Table Pattern
+
 ```yaml
 security_table:
   name: security_user_org
@@ -248,6 +261,7 @@ security_table:
 ```
 
 ### 6.2 RLS Rule (Fabric / Power BI)
+
 ```DAX
 dim_org[OrgKey] IN
     CALCULATETABLE (
@@ -257,11 +271,13 @@ dim_org[OrgKey] IN
 ```
 
 ### 6.3 OLS (optional)
+
 - None required; cost details could be masked by role if needed (TODO).
 
 ---
 
 ## 7. Technical Assumptions
+
 - Plan vs actual available for OpEx and unit cost; material/labor/overhead separated.
 - Output units provided for denominator; labor hours available for productivity.
 - Data latency ≤24h; currency EUR.
@@ -270,6 +286,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 8. Deployment Requirements
+
 - Mode: DirectLake or Import (prefer DirectLake if Fabric).  
 - Incremental refresh: yes, by Month (and plant_line granularity if needed).  
 - Aggregations: optional; monthly aggregates sufficient for most visuals.  
@@ -278,6 +295,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 9. QA & Validation Rules
+
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org/Product keys non-null in facts | 100% | Y | Data Engineering |
@@ -294,4 +312,3 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
-

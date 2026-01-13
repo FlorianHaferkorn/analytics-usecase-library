@@ -1,9 +1,11 @@
 # XD-002 — Resource Utilization  
+
 ## Business Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Use Case ID:** XD-002
 - **Domain:** Experience / Service
 - **Business Owner:** Head of Customer Service / Workforce Management
@@ -17,6 +19,7 @@
 ---
 
 ## 1. Business Summary
+
 **Purpose:** Optimize resource utilization and occupancy while protecting SLA and customer experience.  
 **Business Value:** Better staffing efficiency, reduced overtime/shrinkage costs, and controlled backlog without SLA degradation.  
 **Out of Scope:** Detailed SLA performance drivers (XD-001); sales pipeline; field service dispatching.
@@ -24,18 +27,21 @@
 ---
 
 ## 2. Core Business Questions
+
 - What are utilization and occupancy by channel/queue/region vs targets?
 - How do overtime and shrinkage affect SLA attainment and backlog?
 - Where do staffing imbalances create SLA risk or idle capacity?
 - Which actions improve utilization without harming quality?
 
 **Example Query Patterns (optional):**
+
 - “Which queues have utilization below target and SLA/backlog risk?”
 - “Where is overtime rising while shrinkage is high?”
 
 ---
 
 ## 3. Required KPIs (Mandatory)
+
 All KPIs must exist in the KPI Catalog.
 
 ```yaml
@@ -105,14 +111,17 @@ required_kpis:
 ---
 
 ## 4. Business Logic & Thresholds
+
 Formal rules that define performance and action triggers.
 
 ### 4.1 Logic Description
+
 - Flag utilization/occupancy outside target bands (too low or too high).
 - Flag rising overtime and shrinkage; correlate with SLA and backlog.
 - Identify queues/regions with backlog risk due to capacity gaps.
 
 ### 4.2 Formal Trigger Rules (Machine-Readable)
+
 ```yaml
 triggers:
   - kpi: res.utilization.pct
@@ -144,6 +153,7 @@ triggers:
 ---
 
 ## 5. Action Codes (Mandatory)
+
 Link business behavior to measurable outcomes.
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
@@ -158,6 +168,7 @@ Link business behavior to measurable outcomes.
 ## 6. 3–30–300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
+
 - Utilization %  
 - Occupancy %  
 - Overtime %  
@@ -165,6 +176,7 @@ Link business behavior to measurable outcomes.
 - SLA % / Backlog Count  
 
 ### 6.2 30-Second Layer (Main Visuals)
+
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
 | Utilization vs Band by Queue | Column | dim_org[Queue] | [Utilization %], Band | Channel/Region | Current month | Core ranking |
@@ -173,6 +185,7 @@ Link business behavior to measurable outcomes.
 | SLA vs Backlog | Scatter | [SLA %] | [Backlog Count] | Queue/Region | Current quarter | Service risk |
 
 ### 6.3 Required Slicers (Mandatory)
+
 - Date (Week/Month)  
 - Region / Channel / Queue  
 - Agent Group / Skill (if available)  
@@ -180,6 +193,7 @@ Link business behavior to measurable outcomes.
 ---
 
 ## 7. Data Requirements Summary
+
 ```yaml
 required_facts:
   - fact_wfm (work/idle/wrap/overtime/shrinkage)
@@ -197,6 +211,7 @@ required_slicers: Date, Region/Channel/Queue, Agent Group/Skill (if available)
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
+
 - WFM data includes work/idle/wrap, overtime, shrinkage; SLA/backlog available from cases.
 - Target bands defined for utilization/occupancy; exclusions for training/ramp-up.
 - OneLake canonical dims used (dim_date, dim_org, security_user_org).
@@ -205,6 +220,7 @@ required_slicers: Date, Region/Channel/Queue, Agent Group/Skill (if available)
 ---
 
 ## 9. Success Criteria
+
 - Impact: Utilization/occupancy within bands; overtime/shrinkage reduced; SLA stable/improved; backlog controlled.  
 - Adoption: Used in weekly WFM/service ops reviews; action codes triggered with <5% false positives.  
 - Quality: KPI definitions consistent across XD-001/002; reconciled to source totals.  
@@ -213,6 +229,7 @@ required_slicers: Date, Region/Channel/Queue, Agent Group/Skill (if available)
 ---
 
 ## 10. Risks & Wrong Interpretations (Short)
+
 - Overdriving utilization causing quality decline.  
 - Misclassifying shrinkage leading to wrong capacity view.  
 - Ignoring seasonality causing false alarms on utilization/occupancy.  

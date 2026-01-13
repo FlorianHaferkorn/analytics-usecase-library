@@ -1,9 +1,11 @@
 # XD-002 — Resource Utilization  
+
 ## Technical Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Domain:** Experience / Service
 - **Technical Owner:** Workforce Management / Service Ops BI Lead
 - **Model ID:** experience_resource_utilization
@@ -13,6 +15,7 @@
 ---
 
 ## 1. Model References
+
 - **Domain Data Contract:** data_contracts/domains/experience.yaml
 - **Source Data Contract:** data_contracts/sources/experience.yaml (if present)
 - **Semantic Model Definition:** semantic_models/domains/experience/model_definition.yaml
@@ -23,6 +26,7 @@
 ---
 
 ## 2. Required KPIs → Measure Mapping (Mandatory)
+
 ```yaml
 kpi_to_measure_mapping:
   - kpi_id: res.utilization.pct
@@ -60,6 +64,7 @@ kpi_to_measure_mapping:
 ---
 
 ## 3. Data Contract Scope (Subset YAML)
+
 ```yaml
 dimension:
   - name: dim_date
@@ -125,6 +130,7 @@ fact:
 ## 4. Semantic Model Requirements
 
 ### 4.1 Tables
+
 - fact_wfm  
 - fact_cases  
 - dim_date  
@@ -133,6 +139,7 @@ fact:
 - security_user_org (RLS)
 
 ### 4.2 Relationships (Mandatory)
+
 - dim_date (1) → fact_wfm/fact_cases on DateKey  
 - dim_org (1) → fact_wfm/fact_cases on OrgKey  
 - dim_queue (1) → fact_wfm/fact_cases on QueueKey (if used)  
@@ -140,14 +147,17 @@ fact:
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
+
 - Date: Year → Quarter → Month → Week  
 - Org: Region → Channel → Queue → Agent Group
 
 ### 4.4 Sort-by Columns
+
 - Month → MonthNumber  
 - QueueName → QueueKey
 
 ### 4.5 Modeling Constraints
+
 - No calculated columns; no implicit measures.  
 - Default summarization set; technical columns hidden; folders per dictionary.  
 - Surrogate keys mandatory; avoid M2M.
@@ -157,6 +167,7 @@ fact:
 ## 5. Measures (DAX)
 
 ### 5.1 Measure Inventory
+
 | Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
 |--------------|---------------------|---------|--------|--------|------|
 | Utilization % | res.utilization.pct | Productive vs paid | 11_Service | 0.0% | KPI |
@@ -174,6 +185,7 @@ fact:
 | Backlog Cases | Supporting | Backlog | 11_Service | #,0 | Supporting |
 
 ### 5.2 DAX Definitions
+
 ```DAX
 /// Supporting — Time components
 Work Time Minutes :=
@@ -233,6 +245,7 @@ Backlog Count :=
 ## 6. RLS / OLS Requirements
 
 ### 6.1 Security Table Pattern
+
 ```yaml
 security_table:
   name: security_user_org
@@ -247,6 +260,7 @@ security_table:
 ```
 
 ### 6.2 RLS Rule (Fabric / Power BI)
+
 ```DAX
 dim_org[OrgKey] IN
     CALCULATETABLE (
@@ -256,11 +270,13 @@ dim_org[OrgKey] IN
 ```
 
 ### 6.3 OLS (optional)
+
 - None required; consider masking agent-level details if client requires (TODO).
 
 ---
 
 ## 7. Technical Assumptions
+
 - WFM data contains work/idle/wrap, paid time, overtime, shrinkage at agent/queue level.
 - SLA/backlog flags available from cases; queue/channel mapping consistent.
 - Data latency ≤24h; OneLake canonical dims used (dim_date, dim_org, security_user_org).
@@ -268,6 +284,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 8. Deployment Requirements
+
 - Mode: DirectLake or Import (prefer DirectLake if Fabric).  
 - Incremental refresh: yes, by Month/Week.  
 - Aggregations: optional for high-volume agent/day data.  
@@ -276,6 +293,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 9. QA & Validation Rules
+
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org keys non-null in facts | 100% | Y | Data Engineering |

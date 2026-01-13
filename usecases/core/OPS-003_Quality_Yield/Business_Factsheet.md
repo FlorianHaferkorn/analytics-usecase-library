@@ -1,9 +1,11 @@
 # OPS-003 — Quality & Yield  
+
 ## Business Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Use Case ID:** OPS-003
 - **Domain:** Operations
 - **Business Owner:** COO / Head of Quality
@@ -17,6 +19,7 @@
 ---
 
 ## 1. Business Summary
+
 **Purpose:** Improve first pass yield and reduce scrap/rework by identifying top defect drivers and cost of poor quality.  
 **Business Value:** Higher yield, lower scrap/rework cost, fewer customer complaints, more stable throughput and margin.  
 **Out of Scope:** Supplier PPV and compliance (OPS-002 scope); predictive maintenance (OPS-013); logistics quality (OPS-011).
@@ -24,18 +27,21 @@
 ---
 
 ## 2. Core Business Questions
+
 - What is FPY and scrap/rework performance by line, product, and shift?
 - Which defect types and steps drive the most quality losses and COPQ?
 - How do complaints correlate with plant/line/product performance?
 - Which actions reduce defects fastest with minimal throughput impact?
 
 **Example Query Patterns (optional):**
+
 - “Which lines have FPY below target and scrap > target in the last 4 weeks?”
 - “What are the top 5 defect causes by cost for product family X?”
 
 ---
 
 ## 3. Required KPIs (Mandatory)
+
 All KPIs must exist in the KPI Catalog.
 
 ```yaml
@@ -105,14 +111,17 @@ required_kpis:
 ---
 
 ## 4. Business Logic & Thresholds
+
 Formal rules that define performance and action triggers.
 
 ### 4.1 Logic Description
+
 - Flag FPY below target or scrap/rework above threshold for 2 consecutive periods.
 - Escalate defect density hotspots and top COPQ contributors.
 - Flag rising complaint rate correlated with specific lines/products.
 
 ### 4.2 Formal Trigger Rules (Machine-Readable)
+
 ```yaml
 triggers:
   - kpi: quality.fpy.pct
@@ -144,6 +153,7 @@ triggers:
 ---
 
 ## 5. Action Codes (Mandatory)
+
 Link business behavior to measurable outcomes.
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
@@ -158,6 +168,7 @@ Link business behavior to measurable outcomes.
 ## 6. 3–30–300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
+
 - First Pass Yield %  
 - Scrap Rate %  
 - Rework Rate %  
@@ -165,6 +176,7 @@ Link business behavior to measurable outcomes.
 - Complaint Rate %  
 
 ### 6.2 30-Second Layer (Main Visuals)
+
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
 | FPY vs Target by Line | Column | dim_org[Line] | [FPY %], [Target] | Plant | Current month | Core ranking |
@@ -173,6 +185,7 @@ Link business behavior to measurable outcomes.
 | Complaint Rate vs FPY | Scatter | [FPY %] | [Complaint %] | Product Family | Current quarter | Field impact |
 
 ### 6.3 Required Slicers (Mandatory)
+
 - Date (Week/Month)  
 - Plant / Line / Shift  
 - Product / Product Family  
@@ -181,6 +194,7 @@ Link business behavior to measurable outcomes.
 ---
 
 ## 7. Data Requirements Summary
+
 ```yaml
 required_facts:
   - fact_quality (units, good, scrap, rework, defects)
@@ -200,6 +214,7 @@ required_slicers: Date, Plant/Line/Shift, Product, Defect Type
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
+
 - Defect and cause coding available; scrap/rework measured at line/product level.
 - Complaint data linked to product and period; shipments available.
 - COPQ captures scrap, rework, warranty/complaint costs.
@@ -208,6 +223,7 @@ required_slicers: Date, Plant/Line/Shift, Product, Defect Type
 ---
 
 ## 9. Success Criteria
+
 - Impact: FPY improves to targets; scrap/rework reduced; COPQ reduced; complaint rate lowered.  
 - Adoption: Used in weekly quality/ops reviews; action codes triggered with <5% false positives.  
 - Quality: Cause coding coverage high; reconciled units with production totals.  
@@ -216,6 +232,7 @@ required_slicers: Date, Plant/Line/Shift, Product, Defect Type
 ---
 
 ## 10. Risks & Wrong Interpretations (Short)
+
 - Misattributing scrap to wrong cause/product due to coding gaps.  
 - Understating complaint rate if shipment linkage is weak.  
 - Overreacting to short-term FPY dips without considering planned trials.  

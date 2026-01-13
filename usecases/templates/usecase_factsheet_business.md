@@ -1,9 +1,11 @@
 # <USE CASE ID> – <USE CASE NAME>  
+
 ## Business Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Use Case ID:** <COM-001 / FIN-001 …>
 - **Domain:** <Commercial / Finance / Operations / Supply Chain / XD>
 - **Business Owner:** <Role>
@@ -17,6 +19,7 @@
 ---
 
 ## 1. Business Summary
+
 **Purpose:** One clear sentence describing the business objective.  
 **Business Value:** 1–2 sentences describing measurable impact (growth, margin, cost, risk, liquidity, customer value).  
 **Out of Scope:** 2–3 bullets.
@@ -24,6 +27,7 @@
 ---
 
 ## 2. Core Business Questions
+
 List the key questions the use case must answer.
 
 - <Question 1>  
@@ -32,12 +36,14 @@ List the key questions the use case must answer.
 - …
 
 **Example Query Patterns (optional):**
+
 - “How did <KPI> vs Plan develop across <dimension> over <period>?”
 - “Which entities contribute most to <KPI deviation>?”
 
 ---
 
 ## 3. Required KPIs (Mandatory)
+
 All KPIs must exist in the KPI Catalog.
 
 ```yaml
@@ -58,13 +64,16 @@ required_kpis:
 ---
 
 ## 4. Business Logic & Thresholds
+
 Formal rules that define performance and action triggers.
 
 ### 4.1 Logic Description
+
 - <Description of performance rules>
 - <Exceptions / Exclusions>
 
 ### 4.2 Formal Trigger Rules (Machine-Readable)
+
 ```yaml
 triggers:
   - kpi: <domain.topic.metric>
@@ -79,6 +88,7 @@ triggers:
 ---
 
 ## 5. Action Codes (Mandatory)
+
 Link business behavior to measurable outcomes.
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
@@ -94,6 +104,7 @@ All referenced Action Codes must comply with the Prescriptive Standard
 ## 6. 3–30–300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
+
 - <KPI 1>
 - <KPI 2>
 - <KPI 3>
@@ -101,6 +112,7 @@ All referenced Action Codes must comply with the Prescriptive Standard
 - <Optional 5>
 
 ### 6.2 30-Second Layer (Main Visuals)
+
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|----------|----------------|--------|
 | <Trend> | Line | Date[Month] | [Net Sales Amount] | Region | L12M | mandatory |
@@ -108,6 +120,7 @@ All referenced Action Codes must comply with the Prescriptive Standard
 | … | … | … | … | … | … | … |
 
 ### 6.3 Required Slicers (Mandatory)
+
 - <Slicer 1>  
 - <Slicer 2>  
 - <Max 3 slicers>
@@ -115,6 +128,7 @@ All referenced Action Codes must comply with the Prescriptive Standard
 ---
 
 ## 7. Data Requirements Summary
+
 ```yaml
 required_facts:
   - <fact_table>
@@ -128,6 +142,7 @@ required_slicers: <e.g., Org, Region, Product>
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
+
 - <Business assumptions>
 - <Data limitations>
 - <Latency rules>
@@ -136,6 +151,7 @@ required_slicers: <e.g., Org, Region, Product>
 ---
 
 ## 9. Success Criteria
+
 - <Impact KPI>
 - <Adoption KPI>
 - <Quality KPI>
@@ -144,6 +160,7 @@ required_slicers: <e.g., Org, Region, Product>
 ---
 
 ## 10. Risks & Wrong Interpretations (Short)
+
 - <Risk 1>
 - <Risk 2>
 - <Misinterpretation to avoid>

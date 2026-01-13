@@ -1,9 +1,11 @@
 # OPS-001 — Operations Performance  
+
 ## Business Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Use Case ID:** OPS-001
 - **Domain:** Operations
 - **Business Owner:** COO / Plant Manager / Ops Excellence Lead
@@ -17,6 +19,7 @@
 ---
 
 ## 1. Business Summary
+
 **Purpose:** Improve overall equipment effectiveness and throughput by addressing availability, performance, and quality losses.  
 **Business Value:** Higher OEE, more stable throughput, reduced downtime, and better cost efficiency without additional CAPEX.  
 **Out of Scope:** Predictive maintenance specifics (OPS-013); logistics/warehouse performance (OPS-011); detailed cost modeling (OPS-008).
@@ -24,18 +27,21 @@
 ---
 
 ## 2. Core Business Questions
+
 - What is OEE and its components (availability, performance, quality) by line/plant?
 - Where are the largest downtime and speed losses, and what are the top causes?
 - How does throughput vary by shift, line, and product mix?
 - Which targeted actions will lift OEE fastest with minimal risk?
 
 **Example Query Patterns (optional):**
+
 - “Which lines have availability < target in the last 4 weeks and what are the top 3 downtime reasons?”
 - “Where is performance loss >5% vs standard for top products?”
 
 ---
 
 ## 3. Required KPIs (Mandatory)
+
 All KPIs must exist in the KPI Catalog.
 
 ```yaml
@@ -105,14 +111,17 @@ required_kpis:
 ---
 
 ## 4. Business Logic & Thresholds
+
 Formal rules that define performance and action triggers.
 
 ### 4.1 Logic Description
+
 - Flag lines with OEE below target or availability/performance/quality below thresholds.
 - Escalate chronic downtime causes exceeding target minutes per week.
 - Highlight lines with throughput shortfall vs plan and correlated performance loss.
 
 ### 4.2 Formal Trigger Rules (Machine-Readable)
+
 ```yaml
 triggers:
   - kpi: ops.oee.pct
@@ -144,6 +153,7 @@ triggers:
 ---
 
 ## 5. Action Codes (Mandatory)
+
 Link business behavior to measurable outcomes.
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
@@ -158,6 +168,7 @@ Link business behavior to measurable outcomes.
 ## 6. 3–30–300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
+
 - OEE %  
 - Availability %  
 - Performance %  
@@ -165,6 +176,7 @@ Link business behavior to measurable outcomes.
 - Downtime %  
 
 ### 6.2 30-Second Layer (Main Visuals)
+
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
 | OEE vs Target by Line | Column | dim_org[Line] | [OEE %], [Target] | Plant | Current month | Core ranking |
@@ -173,6 +185,7 @@ Link business behavior to measurable outcomes.
 | Quality Trend | Line | dim_date[Week] | [Quality %] | Line/Plant | L12W | Stability view |
 
 ### 6.3 Required Slicers (Mandatory)
+
 - Date (Week/Month)  
 - Plant / Line / Shift  
 - Product / Category (if applicable)  
@@ -180,6 +193,7 @@ Link business behavior to measurable outcomes.
 ---
 
 ## 7. Data Requirements Summary
+
 ```yaml
 required_facts:
   - fact_ops (production events/OEE)
@@ -196,6 +210,7 @@ required_slicers: Date, Plant/Line/Shift, Product (optional)
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
+
 - Standard cycle times and planned production time defined; changeovers classified.
 - Downtime coded with cause categories; trial runs flagged.
 - OneLake canonical dims used (dim_date, dim_org, security_user_org; dim_product optional).
@@ -204,6 +219,7 @@ required_slicers: Date, Plant/Line/Shift, Product (optional)
 ---
 
 ## 9. Success Criteria
+
 - Impact: OEE uplift toward target; reduced downtime minutes; improved throughput vs plan.  
 - Adoption: Used in weekly ops reviews; action codes triggered with <5% false positives.  
 - Quality: Cause coding coverage high; KPI definitions consistent across ops UCs.  
@@ -212,6 +228,7 @@ required_slicers: Date, Plant/Line/Shift, Product (optional)
 ---
 
 ## 10. Risks & Wrong Interpretations (Short)
+
 - Misclassified planned vs unplanned downtime distorts availability.  
 - Ignoring product mix/standard rate differences when reading performance %.  
 - Quality issues masked if rework/scrap not fully captured.  

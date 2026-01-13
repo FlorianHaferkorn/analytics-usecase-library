@@ -1,9 +1,11 @@
 # FIN-001 — Cash & Liquidity Performance  
+
 ## Business Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Use Case ID:** FIN-001
 - **Domain:** Finance
 - **Business Owner:** CFO / Treasury Lead
@@ -17,6 +19,7 @@
 ---
 
 ## 1. Business Summary
+
 **Purpose:** Control cash and liquidity by monitoring balances, operating cash flow, and working capital drivers (DSO, DIO, DPO, CCC).  
 **Business Value:** Better liquidity visibility, reduced financing needs, faster cash conversion, and improved resilience.  
 **Out of Scope:** Credit risk scoring (COR-016); investment/CapEx tracking (COR-009); supply chain OTIF specifics (SCM-002).
@@ -24,18 +27,21 @@
 ---
 
 ## 2. Core Business Questions
+
 - What is the cash position vs plan and how is OCF trending?
 - How do DSO, DIO, DPO and CCC develop by region/entity?
 - Which customers/suppliers drive cash conversion issues?
 - What actions improve cash quickly with minimal business risk?
 
 **Example Query Patterns (optional):**
+
 - “Which regions/entities have CCC above target and DSO deteriorating?”  
 - “Where is OCF below plan driven by working capital movements?”
 
 ---
 
 ## 3. Required KPIs (Mandatory)
+
 All KPIs must exist in the KPI Catalog.
 
 ```yaml
@@ -115,14 +121,17 @@ required_kpis:
 ---
 
 ## 4. Business Logic & Thresholds
+
 Formal rules that define performance and action triggers.
 
 ### 4.1 Logic Description
+
 - Flag cash vs plan negative and OCF below plan.
 - Flag CCC above target or deteriorating; drill DSO/DIO/DPO.
 - Highlight entities/regions with high DSO or DIO and low DPO.
 
 ### 4.2 Formal Trigger Rules (Machine-Readable)
+
 ```yaml
 triggers:
   - kpi: fin.cash.vs_plan.pct
@@ -160,6 +169,7 @@ triggers:
 ---
 
 ## 5. Action Codes (Mandatory)
+
 Link business behavior to measurable outcomes.
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
@@ -174,6 +184,7 @@ Link business behavior to measurable outcomes.
 ## 6. 3–30–300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
+
 - Cash Balance  
 - Cash vs Plan %  
 - OCF  
@@ -181,6 +192,7 @@ Link business behavior to measurable outcomes.
 - DSO / DIO / DPO  
 
 ### 6.2 30-Second Layer (Main Visuals)
+
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
 | Cash vs Plan Trend | Line | dim_date[Month] | [Cash], [Plan Cash] | Region/Entity | L12M | Liquidity view |
@@ -189,6 +201,7 @@ Link business behavior to measurable outcomes.
 | OCF vs Plan | Column | dim_date[Month] | [OCF], [Plan OCF] | Region | L12M | Cash generation |
 
 ### 6.3 Required Slicers (Mandatory)
+
 - Date (Month/Quarter)  
 - Region / Entity  
 - Customer / Supplier (for drill)  
@@ -197,6 +210,7 @@ Link business behavior to measurable outcomes.
 ---
 
 ## 7. Data Requirements Summary
+
 ```yaml
 required_facts:
   - fact_cash
@@ -220,6 +234,7 @@ required_slicers: Date, Region/Entity, Customer/Supplier, Product (optional)
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
+
 - Plan and actual cash/OCF available; WC components aligned to same period/entity.
 - AR/AP aging available; disputed receivables flagged; strategic stock flagged.
 - OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org).
@@ -228,6 +243,7 @@ required_slicers: Date, Region/Entity, Customer/Supplier, Product (optional)
 ---
 
 ## 9. Success Criteria
+
 - Impact: Positive cash vs plan; CCC reduced toward target; DSO/DIO down and DPO optimized.  
 - Adoption: Used in monthly treasury/WC reviews; action codes triggered with <5% false positives.  
 - Quality: KPI definitions consistent across finance and supply chain; reconciled to source totals.  
@@ -236,6 +252,7 @@ required_slicers: Date, Region/Entity, Customer/Supplier, Product (optional)
 ---
 
 ## 10. Risks & Wrong Interpretations (Short)
+
 - Misalignment of AR/AP aging with revenue/COGS periods.  
 - DIO misread if inventory/COGS not aligned or strategic stock excluded.  
 - Overextension of DPO harming supplier relationships.  

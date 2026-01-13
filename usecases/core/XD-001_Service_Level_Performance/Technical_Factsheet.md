@@ -1,9 +1,11 @@
 # XD-001 — Service Level Performance  
+
 ## Technical Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Domain:** Experience / Service
 - **Technical Owner:** Service Ops / CX BI Lead
 - **Model ID:** experience_service_level
@@ -13,6 +15,7 @@
 ---
 
 ## 1. Model References
+
 - **Domain Data Contract:** data_contracts/domains/experience.yaml
 - **Source Data Contract:** data_contracts/sources/experience.yaml (if present)
 - **Semantic Model Definition:** semantic_models/domains/experience/model_definition.yaml
@@ -23,6 +26,7 @@
 ---
 
 ## 2. Required KPIs → Measure Mapping (Mandatory)
+
 ```yaml
 kpi_to_measure_mapping:
   - kpi_id: svc.sla.attainment.pct
@@ -60,6 +64,7 @@ kpi_to_measure_mapping:
 ---
 
 ## 3. Data Contract Scope (Subset YAML)
+
 ```yaml
 dimension:
   - name: dim_date
@@ -129,6 +134,7 @@ fact:
 ## 4. Semantic Model Requirements
 
 ### 4.1 Tables
+
 - fact_cases  
 - fact_nps  
 - dim_date  
@@ -138,6 +144,7 @@ fact:
 - security_user_org (RLS)
 
 ### 4.2 Relationships (Mandatory)
+
 - dim_date (1) → fact_cases/fact_nps on DateKey  
 - dim_org (1) → fact_cases/fact_nps on OrgKey  
 - dim_queue (1) → fact_cases/fact_nps on QueueKey (if used)  
@@ -146,15 +153,18 @@ fact:
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
+
 - Date: Year → Quarter → Month → Week  
 - Org: Region → Channel → Queue  
 - Queue: Channel → QueueName (if separate)
 
 ### 4.4 Sort-by Columns
+
 - Month → MonthNumber  
 - QueueName → QueueKey
 
 ### 4.5 Modeling Constraints
+
 - No calculated columns; no implicit measures.  
 - Default summarization set; technical columns hidden; folders per dictionary.  
 - Surrogate keys mandatory; avoid M2M.
@@ -164,6 +174,7 @@ fact:
 ## 5. Measures (DAX)
 
 ### 5.1 Measure Inventory
+
 | Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
 |--------------|---------------------|---------|--------|--------|------|
 | SLA Attainment % | svc.sla.attainment.pct | Service level | 11_Service | 0.0% | KPI |
@@ -177,6 +188,7 @@ fact:
 | Backlog Cases | Supporting | Backlog count | 11_Service | #,0 | Supporting |
 
 ### 5.2 DAX Definitions
+
 ```DAX
 /// Supporting — Counts
 Cases Resolved :=
@@ -227,6 +239,7 @@ NPS Index :=
 ## 6. RLS / OLS Requirements
 
 ### 6.1 Security Table Pattern
+
 ```yaml
 security_table:
   name: security_user_org
@@ -241,6 +254,7 @@ security_table:
 ```
 
 ### 6.2 RLS Rule (Fabric / Power BI)
+
 ```DAX
 dim_org[OrgKey] IN
     CALCULATETABLE (
@@ -250,11 +264,13 @@ dim_org[OrgKey] IN
 ```
 
 ### 6.3 OLS (optional)
+
 - None required; consider masking NPS verbatims/sensitive attributes if added (TODO per client).
 
 ---
 
 ## 7. Technical Assumptions
+
 - SLA, FCR, AHT flags/times captured; backlog/escalation flags available.
 - NPS survey data aligned by channel/period; queue/channel mapping consistent.
 - Data latency ≤24h; OneLake canonical dims (dim_date, dim_org, security_user_org) used.
@@ -262,6 +278,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 8. Deployment Requirements
+
 - Mode: DirectLake or Import (prefer DirectLake if Fabric).  
 - Incremental refresh: yes, by Month/Week.  
 - Aggregations: optional for high-volume case data.  
@@ -270,6 +287,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 9. QA & Validation Rules
+
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org keys non-null in facts | 100% | Y | Data Engineering |

@@ -1,9 +1,11 @@
 # SCM-003 — Forecast vs Actual  
+
 ## Business Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Use Case ID:** SCM-003
 - **Domain:** Supply Chain / Planning
 - **Business Owner:** Head of Demand Planning / S&OP Lead
@@ -17,6 +19,7 @@
 ---
 
 ## 1. Business Summary
+
 **Purpose:** Improve forecast accuracy and bias to stabilize supply, service level, and inventory.  
 **Business Value:** Fewer re-plans, better OTIF/stockout performance, lower working capital driven by better forecast quality.  
 **Out of Scope:** Promotion-specific uplift models (COM-004); portfolio mix strategy (COM-009); detailed inventory optimization (SCM-001).
@@ -24,18 +27,21 @@
 ---
 
 ## 2. Core Business Questions
+
 - Where is forecast accuracy and bias below target by channel/category/location?
 - Which products drive the largest forecast errors and service impact?
 - How often are re-plans triggered and why?
 - Which actions (process, data, parameters) improve forecast quality fastest?
 
 **Example Query Patterns (optional):**
+
 - “Which top 20 SKUs by revenue have forecast accuracy < target and negative bias?”
 - “Where did low accuracy drive OTIF misses or stockouts?”
 
 ---
 
 ## 3. Required KPIs (Mandatory)
+
 All KPIs must exist in the KPI Catalog.
 
 ```yaml
@@ -95,14 +101,17 @@ required_kpis:
 ---
 
 ## 4. Business Logic & Thresholds
+
 Formal rules that define performance and action triggers.
 
 ### 4.1 Logic Description
+
 - Flag accuracy below target and bias outside bands for priority SKUs/locations.
 - Flag high service impact from forecast error.
 - Flag frequent re-plans beyond threshold.
 
 ### 4.2 Formal Trigger Rules (Machine-Readable)
+
 ```yaml
 triggers:
   - kpi: plan.forecast.accuracy.pct
@@ -134,6 +143,7 @@ triggers:
 ---
 
 ## 5. Action Codes (Mandatory)
+
 Link business behavior to measurable outcomes.
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
@@ -147,6 +157,7 @@ Link business behavior to measurable outcomes.
 ## 6. 3–30–300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
+
 - Forecast Accuracy %  
 - MAPE %  
 - Bias %  
@@ -154,6 +165,7 @@ Link business behavior to measurable outcomes.
 - Re-Plan Count  
 
 ### 6.2 30-Second Layer (Main Visuals)
+
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
 | Accuracy vs Target by Category/Location | Column | dim_product[Category] | [Forecast Accuracy %] | Location/Channel | Current quarter | Core ranking |
@@ -162,6 +174,7 @@ Link business behavior to measurable outcomes.
 | Re-Plan Count by Month | Column | dim_date[Month] | [Re-Plan Count] | Region | L12M | Stability |
 
 ### 6.3 Required Slicers (Mandatory)
+
 - Date (Month/Quarter)  
 - Region / Channel / Location  
 - Category / Product  
@@ -170,6 +183,7 @@ Link business behavior to measurable outcomes.
 ---
 
 ## 7. Data Requirements Summary
+
 ```yaml
 required_facts:
   - fact_forecast
@@ -190,6 +204,7 @@ required_slicers: Date, Region/Channel/Location, Category/Product, ABC/XYZ
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
+
 - Forecast/actual aligned by SKU/location/time; promotions/launches flagged to avoid misinterpretation.
 - Re-plan events captured; service impact link to OTIF/stockout available.
 - OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org).
@@ -198,6 +213,7 @@ required_slicers: Date, Region/Channel/Location, Category/Product, ABC/XYZ
 ---
 
 ## 9. Success Criteria
+
 - Impact: Accuracy improves to target; bias within bands; reduced service impact; fewer re-plans.  
 - Adoption: Used in monthly S&OP/planning reviews; action codes triggered with <5% false positives.  
 - Quality: KPI definitions consistent across SCM UCs; reconciled to source totals.  
@@ -206,6 +222,7 @@ required_slicers: Date, Region/Channel/Location, Category/Product, ABC/XYZ
 ---
 
 ## 10. Risks & Wrong Interpretations (Short)
+
 - Misinterpreting bias/accuracy on launch or promo items.  
 - Service impact overstated if OTIF/stockout not properly linked.  
 - Re-plan counts misleading if process changes not tracked.  

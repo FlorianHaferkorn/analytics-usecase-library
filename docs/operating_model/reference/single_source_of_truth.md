@@ -66,7 +66,7 @@ Scope:
 | Internal tooling (validation/generation) | `_internal/tools/*` | — | Canonical scripts for checks & generators. |
 | Internal AI schemas | `_internal/ai/*.schema.json` | — | Canonical machine-readable structure definitions for agents/validators. |
 | Best-practice rules (BPA/linters) | `_internal/tools/linters/*` and/or `schemas/best_practices/*` | — | Canonical location must be referenced from tooling + docs. |
-| Showcase artifacts (Aurora Group etc.) | `showcases/*` | `assets/*` (if kept) | Showcase is never canonical for framework concepts; it is an example implementation. |
+| Showcase artifacts (Aurora Group etc.) | `showcases/*` | none | Showcase is never canonical for framework concepts; it is an example implementation. |
 
 ---
 

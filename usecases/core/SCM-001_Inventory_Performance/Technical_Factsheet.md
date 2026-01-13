@@ -1,9 +1,11 @@
 # SCM-001 — Inventory Performance  
+
 ## Technical Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Domain:** Supply Chain
 - **Technical Owner:** Supply Chain BI Lead
 - **Model ID:** scm_inventory_performance
@@ -13,6 +15,7 @@
 ---
 
 ## 1. Model References
+
 - **Domain Data Contract:** data_contracts/domains/supply_chain.yaml
 - **Source Data Contract:** data_contracts/sources/supply_chain.yaml (if present)
 - **Semantic Model Definition:** semantic_models/domains/scm/model_definition.yaml
@@ -23,6 +26,7 @@
 ---
 
 ## 2. Required KPIs → Measure Mapping (Mandatory)
+
 ```yaml
 kpi_to_measure_mapping:
   - kpi_id: inv.dio.days
@@ -60,6 +64,7 @@ kpi_to_measure_mapping:
 ---
 
 ## 3. Data Contract Scope (Subset YAML)
+
 ```yaml
 dimension:
   - name: dim_date
@@ -157,6 +162,7 @@ fact:
 ## 4. Semantic Model Requirements
 
 ### 4.1 Tables
+
 - fact_inventory  
 - fact_cogs  
 - fact_fulfillment  
@@ -169,6 +175,7 @@ fact:
 - security_user_org (RLS)
 
 ### 4.2 Relationships (Mandatory)
+
 - dim_date (1) → all facts on DateKey  
 - dim_org (1) → fact_inventory/fact_cogs/fact_fulfillment/fact_stockout on OrgKey  
 - dim_product (1) → all product-bearing facts on ProductKey  
@@ -176,15 +183,18 @@ fact:
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
+
 - Date: Year → Quarter → Month → Week  
 - Org: Region → Location → Channel  
 - Product: Category → Subcategory → ProductName
 
 ### 4.4 Sort-by Columns
+
 - Month → MonthNumber  
 - ProductName → ProductCode
 
 ### 4.5 Modeling Constraints
+
 - No calculated columns; no implicit measures.  
 - Default summarization set; technical columns hidden; folders per dictionary.  
 - Surrogate keys mandatory; avoid M2M.
@@ -194,6 +204,7 @@ fact:
 ## 5. Measures (DAX)
 
 ### 5.1 Measure Inventory
+
 | Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
 |--------------|---------------------|---------|--------|--------|------|
 | Days in Inventory | inv.dio.days | Working capital | 08_SCM_Inventory | #,0.0 | KPI |
@@ -210,6 +221,7 @@ fact:
 | Stockout Count | Supporting | Stockout numerator | 08_SCM_Service | #,0 | Supporting |
 
 ### 5.2 DAX Definitions
+
 ```DAX
 /// Supporting — Inventory bases
 Avg Inventory Amount :=
@@ -264,6 +276,7 @@ Forecast Accuracy % :=
 ## 6. RLS / OLS Requirements
 
 ### 6.1 Security Table Pattern
+
 ```yaml
 security_table:
   name: security_user_org
@@ -278,6 +291,7 @@ security_table:
 ```
 
 ### 6.2 RLS Rule (Fabric / Power BI)
+
 ```DAX
 dim_org[OrgKey] IN
     CALCULATETABLE (
@@ -287,11 +301,13 @@ dim_org[OrgKey] IN
 ```
 
 ### 6.3 OLS (optional)
-- None required; inventory values can be sensitive � mask if client requests (TODO).
+
+- None required; inventory values can be sensitive � mask if client requests (TODO).
 
 ---
 
 ## 7. Technical Assumptions
+
 - Inventory snapshots consistent; COGS aligned to same SKU/location/time as inventory.
 - Stockout events captured; OTIF flag present; forecast/actual aligned to SKU and month.
 - Data latency <=24h; currency EUR.
@@ -300,6 +316,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 8. Deployment Requirements
+
 - Mode: DirectLake or Import (prefer DirectLake if Fabric); ensure incremental refresh on month partitions.  
 - Aggregations: optional for large order/stockout tables (weekly/monthly).  
 - Workspace/naming: ARF - Supply Chain dataset/model per governance.
@@ -307,6 +324,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 9. QA & Validation Rules
+
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org/Product keys non-null in facts | 100% | Y | Data Engineering |
@@ -334,4 +352,3 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
-

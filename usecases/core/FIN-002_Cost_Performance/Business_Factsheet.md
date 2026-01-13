@@ -1,9 +1,11 @@
 # FIN-002 — Cost Performance  
+
 ## Business Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Use Case ID:** FIN-002
 - **Domain:** Finance / Operations
 - **Business Owner:** CFO / Ops Finance Lead
@@ -17,6 +19,7 @@
 ---
 
 ## 1. Business Summary
+
 **Purpose:** Reduce unit cost and improve margin by controlling material, labor, and OpEx vs plan.  
 **Business Value:** Better cost competitiveness, margin protection, and more efficient operations without sacrificing throughput/quality.  
 **Out of Scope:** Detailed OEE/performance tuning (OPS-001); supplier PPV specifics (OPS-002); logistics cost ratio (OPS-009).
@@ -24,18 +27,21 @@
 ---
 
 ## 2. Core Business Questions
+
 - What is unit cost vs plan/LY by plant/line/product?
 - Which cost buckets (material, labor, overhead/OpEx) drive variance?
 - Where is COGS % rising and margin eroding?
 - Which actions reduce cost fastest without harming service/quality?
 
 **Example Query Patterns (optional):**
+
 - “Which plants have unit cost above plan and margin below target in the last quarter?”
 - “Which products show highest material cost % variance?”
 
 ---
 
 ## 3. Required KPIs (Mandatory)
+
 All KPIs must exist in the KPI Catalog.
 
 ```yaml
@@ -95,15 +101,18 @@ required_kpis:
 ---
 
 ## 4. Business Logic & Thresholds
+
 Formal rules that define performance and action triggers.
 
 ### 4.1 Logic Description
+
 - Flag unit cost above plan and margin/COGS % off target.
 - Flag material cost % above target; investigate mix/price/usage.
 - Flag labor productivity below target.
 - Flag OpEx variance above 0 for 2 consecutive periods.
 
 ### 4.2 Formal Trigger Rules (Machine-Readable)
+
 ```yaml
 triggers:
   - kpi: cost.unit.amount
@@ -135,6 +144,7 @@ triggers:
 ---
 
 ## 5. Action Codes (Mandatory)
+
 Link business behavior to measurable outcomes.
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
@@ -149,6 +159,7 @@ Link business behavior to measurable outcomes.
 ## 6. 3–30–300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
+
 - Unit Cost Amount  
 - COGS % of Sales  
 - OpEx vs Plan %  
@@ -156,6 +167,7 @@ Link business behavior to measurable outcomes.
 - Labor Productivity %  
 
 ### 6.2 30-Second Layer (Main Visuals)
+
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
 | Unit Cost vs Plan by Plant/Line | Column | dim_org[Plant/Line] | [Unit Cost], [Plan] | Product | Current quarter | Core ranking |
@@ -164,6 +176,7 @@ Link business behavior to measurable outcomes.
 | OpEx vs Plan | Column | dim_org[Entity] | [OpEx vs Plan %] | Region | Current quarter | Overhead control |
 
 ### 6.3 Required Slicers (Mandatory)
+
 - Date (Month/Quarter)  
 - Entity / Plant / Line  
 - Product / Category  
@@ -172,6 +185,7 @@ Link business behavior to measurable outcomes.
 ---
 
 ## 7. Data Requirements Summary
+
 ```yaml
 required_facts:
   - fact_cost (COGS, material)
@@ -192,6 +206,7 @@ required_slicers: Date, Entity/Plant/Line, Product/Category, Cost bucket
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
+
 - Plan vs actual available for unit cost and OpEx; cost buckets aligned to same period.
 - Allocation rules for overhead clear; labor hours available; material costs separated.
 - OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org).
@@ -200,6 +215,7 @@ required_slicers: Date, Entity/Plant/Line, Product/Category, Cost bucket
 ---
 
 ## 9. Success Criteria
+
 - Impact: Reduced unit cost vs plan; improved COGS %; material cost % lowered; productivity improved.  
 - Adoption: Used in monthly ops/finance reviews; action codes triggered with <5% false positives.  
 - Quality: KPI definitions consistent across finance/ops; reconciled to source totals.  
@@ -208,6 +224,7 @@ required_slicers: Date, Entity/Plant/Line, Product/Category, Cost bucket
 ---
 
 ## 10. Risks & Wrong Interpretations (Short)
+
 - Misallocation of overhead distorting unit cost.  
 - Material cost % misread if price/volume/mix effects not separated.  
 - Productivity dips during planned training/ramp-up misinterpreted.  

@@ -1,9 +1,11 @@
 # SCM-002 — Supply Reliability & OTIF  
+
 ## Technical Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Domain:** Supply Chain
 - **Technical Owner:** Logistics / Supply Chain BI Lead
 - **Model ID:** scm_supply_reliability
@@ -13,6 +15,7 @@
 ---
 
 ## 1. Model References
+
 - **Domain Data Contract:** data_contracts/domains/supply_chain.yaml
 - **Source Data Contract:** data_contracts/sources/supply_chain.yaml (if present)
 - **Semantic Model Definition:** semantic_models/domains/scm/model_definition.yaml
@@ -23,6 +26,7 @@
 ---
 
 ## 2. Required KPIs → Measure Mapping (Mandatory)
+
 ```yaml
 kpi_to_measure_mapping:
   - kpi_id: supply.otif.pct
@@ -60,6 +64,7 @@ kpi_to_measure_mapping:
 ---
 
 ## 3. Data Contract Scope (Subset YAML)
+
 ```yaml
 dimension:
   - name: dim_date
@@ -134,6 +139,7 @@ fact:
 ## 4. Semantic Model Requirements
 
 ### 4.1 Tables
+
 - fact_fulfillment  
 - fact_stockout  
 - dim_date  
@@ -143,6 +149,7 @@ fact:
 - security_user_org (RLS)
 
 ### 4.2 Relationships (Mandatory)
+
 - dim_date (1) → fact_fulfillment / fact_stockout on DateKey  
 - dim_org (1) → fact_fulfillment / fact_stockout on OrgKey  
 - dim_product (1) → fact_fulfillment / fact_stockout on ProductKey (if present)  
@@ -151,16 +158,19 @@ fact:
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
+
 - Date: Year → Quarter → Month → Week  
 - Org: Region → Location → Channel → Customer  
 - Product (if used): Category → ProductName  
 - Lane: Origin → Destination (optional)
 
 ### 4.4 Sort-by Columns
+
 - Month → MonthNumber  
 - Customer → OrgKey (or CustomerCode)
 
 ### 4.5 Modeling Constraints
+
 - No calculated columns; no implicit measures.  
 - Default summarization set; technical columns hidden; folders per dictionary.  
 - Surrogate keys mandatory; avoid M2M.
@@ -170,6 +180,7 @@ fact:
 ## 5. Measures (DAX)
 
 ### 5.1 Measure Inventory
+
 | Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
 |--------------|---------------------|---------|--------|--------|------|
 | OTIF % | supply.otif.pct | Service level | 08_SCM_Service | 0.0% | KPI |
@@ -186,6 +197,7 @@ fact:
 | Demand Units | Supporting | Stockout denominator | 08_SCM_Service | #,0 | Supporting |
 
 ### 5.2 DAX Definitions
+
 ```DAX
 /// Supporting — Fulfillment counts
 OTIF Orders :=
@@ -237,6 +249,7 @@ Expedite Cost Amount :=
 ## 6. RLS / OLS Requirements
 
 ### 6.1 Security Table Pattern
+
 ```yaml
 security_table:
   name: security_user_org
@@ -251,6 +264,7 @@ security_table:
 ```
 
 ### 6.2 RLS Rule (Fabric / Power BI)
+
 ```DAX
 dim_org[OrgKey] IN
     CALCULATETABLE (
@@ -260,11 +274,13 @@ dim_org[OrgKey] IN
 ```
 
 ### 6.3 OLS (optional)
+
 - None required; penalty/expedite cost could be masked if client requires (TODO if needed).
 
 ---
 
 ## 7. Technical Assumptions
+
 - OTIF, on-time, in-full flags available and consistent; penalties/expedites captured at order/shipment level.
 - Stockout impact measured via lost demand; demand captured consistently.
 - Data latency ≤24h; currency EUR.
@@ -273,6 +289,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 8. Deployment Requirements
+
 - Mode: DirectLake or Import (prefer DirectLake if Fabric).  
 - Incremental refresh: yes, partition by DateKey (e.g., last 12–24 months).  
 - Aggregations: optional for large order lines; consider weekly aggregates for OTIF.  
@@ -281,6 +298,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 9. QA & Validation Rules
+
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org keys non-null in facts | 100% | Y | Data Engineering |
@@ -297,4 +315,3 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
-

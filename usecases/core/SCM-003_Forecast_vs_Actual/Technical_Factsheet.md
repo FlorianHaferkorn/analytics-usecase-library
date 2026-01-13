@@ -1,9 +1,11 @@
 # SCM-003 — Forecast vs Actual  
+
 ## Technical Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Domain:** Supply Chain / Planning
 - **Technical Owner:** Planning / S&OP BI Lead
 - **Model ID:** scm_forecast_vs_actual
@@ -13,6 +15,7 @@
 ---
 
 ## 1. Model References
+
 - **Domain Data Contract:** data_contracts/domains/supply_chain.yaml
 - **Source Data Contract:** data_contracts/sources/supply_chain.yaml (if present)
 - **Semantic Model Definition:** semantic_models/domains/scm/model_definition.yaml
@@ -23,6 +26,7 @@
 ---
 
 ## 2. Required KPIs → Measure Mapping (Mandatory)
+
 ```yaml
 kpi_to_measure_mapping:
   - kpi_id: plan.forecast.accuracy.pct
@@ -55,6 +59,7 @@ kpi_to_measure_mapping:
 ---
 
 ## 3. Data Contract Scope (Subset YAML)
+
 ```yaml
 dimension:
   - name: dim_date
@@ -139,6 +144,7 @@ fact:
 ## 4. Semantic Model Requirements
 
 ### 4.1 Tables
+
 - fact_forecast  
 - fact_sales  
 - fact_fulfillment  
@@ -150,6 +156,7 @@ fact:
 - security_user_org (RLS)
 
 ### 4.2 Relationships (Mandatory)
+
 - dim_date (1) → all facts on DateKey  
 - dim_org (1) → fact_forecast/fact_sales/fact_fulfillment/fact_stockout on OrgKey  
 - dim_product (1) → fact_forecast/fact_sales/fact_fulfillment/fact_stockout on ProductKey  
@@ -157,15 +164,18 @@ fact:
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
+
 - Date: Year → Quarter → Month  
 - Org: Region → Channel → Location  
 - Product: Category → Subcategory → ProductName
 
 ### 4.4 Sort-by Columns
+
 - Month → MonthNumber  
 - ProductName → ProductCode
 
 ### 4.5 Modeling Constraints
+
 - No calculated columns; no implicit measures.  
 - Default summarization set; technical columns hidden; folders per dictionary.  
 - Surrogate keys mandatory; avoid M2M.
@@ -175,6 +185,7 @@ fact:
 ## 5. Measures (DAX)
 
 ### 5.1 Measure Inventory
+
 | Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
 |--------------|---------------------|---------|--------|--------|------|
 | Forecast Accuracy % | plan.forecast.accuracy.pct | Planning quality | 09_Planning | 0.0% | KPI |
@@ -187,6 +198,7 @@ fact:
 | Absolute Error | Supporting | Error magnitude | 09_Planning | #,0 | Supporting |
 
 ### 5.2 DAX Definitions
+
 ```DAX
 /// Supporting — Bases
 Forecast Units :=
@@ -223,6 +235,7 @@ Re-Plan Count :=
 ```
 
 ### 5.3 Service Impact % – Supporting Measures
+
 ```DAX
 // Forecast Error Qty
 [Forecast Error Qty] =
@@ -258,6 +271,7 @@ DIVIDE ( [Under-Forecast Lost Demand Qty], [Stockout Lost Demand Qty] )
 ## 6. RLS / OLS Requirements
 
 ### 6.1 Security Table Pattern
+
 ```yaml
 security_table:
   name: security_user_org
@@ -272,6 +286,7 @@ security_table:
 ```
 
 ### 6.2 RLS Rule (Fabric / Power BI)
+
 ```DAX
 dim_org[OrgKey] IN
     CALCULATETABLE (
@@ -281,11 +296,13 @@ dim_org[OrgKey] IN
 ```
 
 ### 6.3 OLS (optional)
+
 - None required; mask cost fields if added (TODO if client requires).
 
 ---
 
 ## 7. Technical Assumptions
+
 - Forecast and actual data aligned by SKU/location/time; versions managed.
 - Service impact linkage requires OTIF/stockout mapping to forecast error (TODO).
 - Data latency ≤24h; currency not needed unless financial metrics added.
@@ -294,6 +311,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 8. Deployment Requirements
+
 - Mode: DirectLake or Import (prefer DirectLake if Fabric).  
 - Incremental refresh: yes, partition by Month (e.g., last 24 months).  
 - Aggregations: optional for large order/stockout linkage tables.  
@@ -302,6 +320,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 9. QA & Validation Rules
+
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org/Product keys non-null in facts | 100% | Y | Data Engineering |
@@ -318,4 +337,3 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
-

@@ -1,9 +1,11 @@
 # FIN-001 — Cash & Liquidity Performance  
+
 ## Technical Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Domain:** Finance
 - **Technical Owner:** Treasury / Finance BI Lead
 - **Model ID:** finance_cash_liquidity
@@ -13,6 +15,7 @@
 ---
 
 ## 1. Model References
+
 - **Domain Data Contract:** data_contracts/domains/finance.yaml
 - **Source Data Contract:** data_contracts/sources/finance.yaml (if present)
 - **Semantic Model Definition:** semantic_models/domains/finance/model_definition.yaml
@@ -23,6 +26,7 @@
 ---
 
 ## 2. Required KPIs → Measure Mapping (Mandatory)
+
 ```yaml
 kpi_to_measure_mapping:
   - kpi_id: fin.cash.balance
@@ -65,6 +69,7 @@ kpi_to_measure_mapping:
 ---
 
 ## 3. Data Contract Scope (Subset YAML)
+
 ```yaml
 dimension:
   - name: dim_date
@@ -161,6 +166,7 @@ fact:
 ## 4. Semantic Model Requirements
 
 ### 4.1 Tables
+
 - fact_cash  
 - fact_cashflow  
 - fact_ar  
@@ -174,6 +180,7 @@ fact:
 - security_user_org (RLS)
 
 ### 4.2 Relationships (Mandatory)
+
 - dim_date (1) → all facts on DateKey  
 - dim_org (1) → all facts on OrgKey  
 - dim_customer (1) → fact_ar on CustomerKey  
@@ -183,6 +190,7 @@ fact:
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
+
 - Date: Year → Quarter → Month  
 - Org: Region → Entity  
 - Customer: Region → CustomerName (if used)  
@@ -190,6 +198,7 @@ fact:
 - Product (optional): Category → ProductName
 
 ### 4.4 Sort-by Columns
+
 - Month → MonthNumber  
 - Entity → OrgKey  
 - CustomerName → CustomerCode  
@@ -197,6 +206,7 @@ fact:
 - ProductName → ProductCode
 
 ### 4.5 Modeling Constraints
+
 - No calculated columns; no implicit measures.  
 - Default summarization set; technical columns hidden; folders per dictionary.  
 - Surrogate keys mandatory; avoid M2M.
@@ -206,6 +216,7 @@ fact:
 ## 5. Measures (DAX)
 
 ### 5.1 Measure Inventory
+
 | Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
 |--------------|---------------------|---------|--------|--------|------|
 | Cash Balance | fin.cash.balance | Liquidity | 10_Finance | €#,0 | KPI |
@@ -222,6 +233,7 @@ fact:
 | COGS Amount | Supporting | DIO/DPO denominator | 10_Finance | €#,0 | Supporting |
 
 ### 5.2 DAX Definitions
+
 ```DAX
 /// fin.cash.balance — Liquidity
 Cash Balance :=
@@ -275,6 +287,7 @@ CCC Days :=
 ## 6. RLS / OLS Requirements
 
 ### 6.1 Security Table Pattern
+
 ```yaml
 security_table:
   name: security_user_org
@@ -288,6 +301,7 @@ security_table:
 ```
 
 ### 6.2 RLS Rule (Fabric / Power BI)
+
 ```DAX
 dim_org[OrgKey] IN
     CALCULATETABLE (
@@ -297,11 +311,13 @@ dim_org[OrgKey] IN
 ```
 
 ### 6.3 OLS (optional)
+
 - None required; cash-sensitive details could be masked by role if needed (TODO if client requests).
 
 ---
 
 ## 7. Technical Assumptions
+
 - Plan cash/OCF provided; revenue/COGS aligned by period/entity with AR/AP/Inventory.
 - Data latency ≤24h; currency EUR.
 - OneLake canonical dims used (dim_date, dim_org, dim_customer, dim_supplier, dim_product optional, security_user_org).
@@ -309,6 +325,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 8. Deployment Requirements
+
 - Mode: DirectLake or Import (prefer DirectLake if Fabric).  
 - Incremental refresh: yes, by Month (cash daily if needed).  
 - Aggregations: optional; consider monthly aggregates for large AR/AP detail.  
@@ -317,6 +334,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 9. QA & Validation Rules
+
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org keys non-null in facts | 100% | Y | Data Engineering |
@@ -333,4 +351,3 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
-

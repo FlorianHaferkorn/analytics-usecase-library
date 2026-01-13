@@ -1,9 +1,11 @@
 # COM-001 - Sales Performance vs Plan & LY  
+
 ## Business Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Use Case ID:** COM-001
 - **Domain:** Commercial
 - **Business Owner:** CCO / Head of Sales
@@ -17,6 +19,7 @@
 ---
 
 ## 1. Business Summary
+
 **Purpose:** Explain Net Sales performance vs Plan and vs Last Year by price, volume, mix, and channel/region to protect revenue and margin.  
 **Business Value:** Faster detection of revenue gaps; targeted pricing and mix actions to stabilise gross margin; focus resources on the most material regions/channels.  
 **Out of Scope:** Promotion ROI deep dives (COM-004); detailed margin leakage diagnostics (COM-002); pipeline/win-loss (COM-010).
@@ -24,6 +27,7 @@
 ---
 
 ## 2. Core Business Questions
+
 - Where do Net Sales deviate most vs Plan and vs LY by region, channel, and product hierarchy?
 - What is the contribution of price, volume, and mix to the Net Sales gap?
 - Which customer or product segments drive negative gross margin %?
@@ -33,6 +37,7 @@
 ---
 
 ## 3. Required KPIs (Mandatory)
+
 All KPIs must exist in the KPI Catalog.
 
 ```yaml
@@ -112,6 +117,7 @@ required_kpis:
 ---
 
 ## 4. Business Logic & Thresholds
+
 - Flag regions/channels with Net Sales % vs Plan below guardrail for 2 consecutive months.
 - Escalate where Net Sales % vs LY is negative and GM % below target.
 - Use PVM drivers to isolate whether price, volume, or mix is the primary gap driver.
@@ -161,6 +167,7 @@ triggers:
 ## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
+
 - Net Sales Amount  
 - Net Sales % vs Plan  
 - Net Sales % vs LY  
@@ -168,6 +175,7 @@ triggers:
 - Price/Volume/Mix Effects (cards or mini-tiles)  
 
 ### 6.2 30-Second Layer (Main Visuals)
+
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
 | Net Sales vs Plan/LY | Line + area band | Date[Month] | Net Sales, Plan, LY | Region/Channel | L12M | Show gaps |
@@ -176,12 +184,14 @@ triggers:
 | Top/Bottom Segments | Bar (rank) | Region/Channel/Segment | Net Sales Gap | Product | Current Q | Focus list |
 
 ### 6.3 Required Slicers (Mandatory)
+
 - Date (Month/Quarter)  
 - Region / Channel  
 - Product Category  
 - Customer Segment (optional)
 
 ### 6.4 300-Second Layer (Diagnostics)
+
 - PVM decomposition by Region/Channel/Product.
 - Margin guardrail table (GM %, discount discipline).
 - Top-N accounts/products with adverse price/mix effects.
@@ -189,6 +199,7 @@ triggers:
 ---
 
 ## 7. Data Requirements Summary
+
 ```yaml
 required_facts:
   - fact_sales
@@ -205,6 +216,7 @@ required_slicers: Date, Region/Channel, Product Category, Customer Segment (opti
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
+
 - Plan and LY fields must be populated in fact_sales (Plan Sales Amount, Last Year Sales Amount).
 - PVM requires Net Price Amount, Plan Sales Amount, Quantity and residual logic alignment with COM-002.
 - Gross Margin uses COGS; returns/credit notes handled upstream.
@@ -213,6 +225,7 @@ required_slicers: Date, Region/Channel, Product Category, Customer Segment (opti
 ---
 
 ## 9. Success Criteria
+
 - Impact: Net Sales vs Plan/LY gaps reduced; GM % at or above target.
 - Adoption: Used in monthly sales performance reviews; actions tracked via Action Codes.
 - Quality: PVM residual within tolerance; reconciled to source totals; definitions consistent with COM-002/004.
@@ -221,6 +234,7 @@ required_slicers: Date, Region/Channel, Product Category, Customer Segment (opti
 ---
 
 ## 10. Risks & Wrong Interpretations (Short)
+
 - Misstated Plan/LY leading to false gaps.
 - PVM residual too high due to inconsistent plan price or quantity.
 - Over-reacting on price without GM guardrails can erode margin.

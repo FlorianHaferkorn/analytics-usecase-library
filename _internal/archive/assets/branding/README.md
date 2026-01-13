@@ -29,4 +29,4 @@ Not included:
 
 ---
 
-**Location:** `assets/branding/`
+**Location:** `_internal/archive/assets/branding/`

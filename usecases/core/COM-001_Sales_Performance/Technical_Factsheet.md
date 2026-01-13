@@ -1,9 +1,11 @@
 # COM-001 - Sales Performance vs Plan & LY  
+
 ## Technical Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Domain:** Commercial
 - **Technical Owner:** Sales BI Lead
 - **Model ID:** commercial_sales_performance
@@ -13,6 +15,7 @@
 ---
 
 ## 1. Model References
+
 - **Domain Data Contract:** data_contracts/domains/commercial_sales.yaml
 - **Source Data Contract:** data_contracts/sources/commercial.yaml
 - **Semantic Model Definition:** semantic_models/core_action_ready/commercial_sales/model_definition.yaml
@@ -23,6 +26,7 @@
 ---
 
 ## 2. KPI to Measure Mapping (Mandatory)
+
 ```yaml
 kpi_to_measure_mapping:
   - kpi_id: sales.net_sales.amount
@@ -65,6 +69,7 @@ kpi_to_measure_mapping:
 ---
 
 ## 3. Data Contract Scope (Subset YAML)
+
 ```yaml
 dimension:
   - name: dim_date
@@ -127,10 +132,12 @@ fact:
 ## 4. Semantic Model Requirements
 
 ### 4.1 Tables
+
 - dim_date, dim_org, dim_product, security_user_org, dim_customer (nullable on fact), dim_promo (optional)
 - fact_sales (with plan/LY and pricing fields)
 
 ### 4.2 Relationships (Mandatory)
+
 - dim_date (1) -> fact_sales on DateKey  
 - dim_org (1) -> fact_sales on OrgKey  
 - dim_product (1) -> fact_sales on ProductKey  
@@ -140,15 +147,18 @@ fact:
 - Single direction; no ambiguous paths; no bi-directional except RLS bridge if required.
 
 ### 4.3 Hierarchies
+
 - Date: Year -> Quarter -> Month  
 - Org: Region -> Country -> Channel -> OrgName  
 - Product: Category -> Subcategory -> ProductName  
 
 ### 4.4 Sort-by Columns
+
 - Month -> MonthNumber  
 - ProductName -> ProductCode  
 
 ### 4.5 Modeling Constraints
+
 - No calculated columns; no implicit measures.  
 - Default summarization set; technical columns hidden; display folders per dictionary.  
 - Surrogate keys mandatory; avoid M2M; plan/LY fields required for KPI deltas.  
@@ -158,6 +168,7 @@ fact:
 ## 5. Measures
 
 ### 5.1 Measure Inventory
+
 | Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
 |--------------|---------------------|---------|--------|--------|------|
 | Net Sales Amount | sales.net_sales.amount | Revenue base | 01_Revenue | EUR #,0 | KPI |
@@ -174,6 +185,7 @@ fact:
 | Plan Quantity | Supporting | Volume input | 03_PVM | #,0 | Supporting |
 
 ### 5.2 DAX Definitions
+
 ```DAX
 /// sales.net_sales.amount – Revenue base
 [Net Sales Amount] =
@@ -224,6 +236,7 @@ SUMX (
 ## 6. RLS / OLS Requirements
 
 ### 6.1 Security Table Pattern
+
 ```yaml
 security_table:
   name: security_user_org
@@ -238,6 +251,7 @@ security_table:
 ```
 
 ### 6.2 RLS Rule (Fabric / Power BI)
+
 ```DAX
 dim_org[OrgKey] IN
     CALCULATETABLE (
@@ -247,11 +261,13 @@ dim_org[OrgKey] IN
 ```
 
 ### 6.3 OLS (optional)
+
 - None required; monetary columns visible to authorised users.
 
 ---
 
 ## 7. Technical Assumptions
+
 - Plan and LY fields populated in fact_sales; PVM relies on Plan Sales Amount and Plan Quantity.
 - Returns/credit notes handled upstream; Net Sales already net of discounts.
 - Currency EUR; no FX conversion in model.
@@ -260,6 +276,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 8. Deployment Requirements
+
 - Mode: DirectLake or Import; prefer DirectLake if available.
 - Incremental refresh: partition by Month for last 24 months.
 - Aggregations optional for large volumes; avoid grain distortion.
@@ -268,6 +285,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 9. QA & Validation Rules
+
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org/Product keys non-null in fact_sales | 100% | Y | Data Engineering |

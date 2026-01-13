@@ -1,9 +1,11 @@
 # OPS-002 — Asset Performance  
+
 ## Business Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Use Case ID:** OPS-002
 - **Domain:** Operations
 - **Business Owner:** COO / Head of Maintenance / Reliability Engineering Lead
@@ -17,6 +19,7 @@
 ---
 
 ## 1. Business Summary
+
 **Purpose:** Improve asset reliability and availability by reducing unplanned downtime and optimizing preventive maintenance.  
 **Business Value:** Higher availability, fewer breakdowns, lower maintenance cost from better PM compliance and spare-part readiness.  
 **Out of Scope:** Predictive maintenance algorithms (OPS-013); production throughput optimization (OPS-001); logistics/warehouse (OPS-011).
@@ -24,6 +27,7 @@
 ---
 
 ## 2. Core Business Questions
+
 - Which assets/lines have the highest unplanned downtime and what are the root causes?
 - How do MTBF/MTTR trend by asset class and site?
 - Is preventive maintenance executed on time and effective?
@@ -31,12 +35,14 @@
 - Which actions reduce downtime fastest with acceptable cost?
 
 **Example Query Patterns (optional):**
+
 - “Which assets have MTBF below target and MTTR above target in the last 90 days?”
 - “Where is PM compliance < target and unplanned downtime rising?”
 
 ---
 
 ## 3. Required KPIs (Mandatory)
+
 All KPIs must exist in the KPI Catalog.
 
 ```yaml
@@ -106,15 +112,18 @@ required_kpis:
 ---
 
 ## 4. Business Logic & Thresholds
+
 Formal rules that define performance and action triggers.
 
 ### 4.1 Logic Description
+
 - Flag assets with MTBF below target and MTTR above target.
 - Escalate unplanned downtime % above threshold for 2 consecutive periods.
 - Flag PM compliance below target and correlate with downtime trend.
 - Flag spare-part stockouts above threshold for critical assets.
 
 ### 4.2 Formal Trigger Rules (Machine-Readable)
+
 ```yaml
 triggers:
   - kpi: ops.mtbf.hours
@@ -152,6 +161,7 @@ triggers:
 ---
 
 ## 5. Action Codes (Mandatory)
+
 Link business behavior to measurable outcomes.
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
@@ -166,6 +176,7 @@ Link business behavior to measurable outcomes.
 ## 6. 3–30–300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
+
 - Availability %  
 - MTBF (hours)  
 - MTTR (hours)  
@@ -173,6 +184,7 @@ Link business behavior to measurable outcomes.
 - PM Compliance %  
 
 ### 6.2 30-Second Layer (Main Visuals)
+
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
 | Availability vs Target by Asset | Column | dim_asset[Asset] | [Availability %], [Target] | Plant | Current month | Core ranking |
@@ -181,6 +193,7 @@ Link business behavior to measurable outcomes.
 | PM Compliance vs Downtime | Scatter | [PM Compliance %] | [Unplanned Downtime %] | Asset | Current quarter | Correlation |
 
 ### 6.3 Required Slicers (Mandatory)
+
 - Date (Month/Quarter)  
 - Plant / Asset / Asset Class  
 - Criticality / Maintenance Type  
@@ -188,6 +201,7 @@ Link business behavior to measurable outcomes.
 ---
 
 ## 7. Data Requirements Summary
+
 ```yaml
 required_facts:
   - fact_ops (availability/downtime)
@@ -206,6 +220,7 @@ required_slicers: Date, Plant/Asset, Asset Class/Criticality
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
+
 - Failure events accurately timestamped; planned vs unplanned downtime coded.
 - PM schedule exists; compliance measured; asset hierarchy stable.
 - Spare-part stockouts recorded; critical assets flagged.
@@ -214,6 +229,7 @@ required_slicers: Date, Plant/Asset, Asset Class/Criticality
 ---
 
 ## 9. Success Criteria
+
 - Impact: Reduce unplanned downtime % below target; MTBF improves to targets; MTTR reduced; PM compliance ≥ target; stockouts reduced.  
 - Adoption: Used in weekly maintenance/reliability reviews; action codes triggered with <5% false positives.  
 - Quality: Cause coding coverage high; KPI definitions consistent across ops UCs.  
@@ -222,6 +238,7 @@ required_slicers: Date, Plant/Asset, Asset Class/Criticality
 ---
 
 ## 10. Risks & Wrong Interpretations (Short)
+
 - Misclassified planned vs unplanned downtime skews availability.  
 - MTBF/MTTR distorted by missing or merged failure events.  
 - PM compliance percentages misleading if plan not realistic or if deferrals aren’t flagged.  

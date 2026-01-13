@@ -1,9 +1,11 @@
 # XD-001 — Service Level Performance  
+
 ## Business Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Use Case ID:** XD-001
 - **Domain:** Experience / Service
 - **Business Owner:** Head of Customer Service / CX Lead
@@ -17,6 +19,7 @@
 ---
 
 ## 1. Business Summary
+
 **Purpose:** Improve service level by monitoring SLA attainment, first contact resolution, handling time, backlog, and escalation.  
 **Business Value:** Higher customer satisfaction, lower cost-to-serve, reduced escalations and backlog.  
 **Out of Scope:** Sales pipeline (COM-010); marketing journey analytics; field service parts/ops (scoped separately).
@@ -24,18 +27,21 @@
 ---
 
 ## 2. Core Business Questions
+
 - Where is SLA attainment below target by channel/region/queue?
 - How do FCR and AHT trend, and how do they affect SLA and NPS?
 - Which queues/regions drive backlog and escalations?
 - Which actions improve service level fastest without quality loss?
 
 **Example Query Patterns (optional):**
+
 - “Which queues have SLA < target in the last 4 weeks and rising backlog?”
 - “How does FCR vs AHT impact NPS across channels?”
 
 ---
 
 ## 3. Required KPIs (Mandatory)
+
 All KPIs must exist in the KPI Catalog.
 
 ```yaml
@@ -105,14 +111,17 @@ required_kpis:
 ---
 
 ## 4. Business Logic & Thresholds
+
 Formal rules that define performance and action triggers.
 
 ### 4.1 Logic Description
+
 - Flag SLA attainment below target; correlate with backlog, AHT, FCR.
 - Flag FCR below target or AHT above target bands.
 - Flag high escalation % and rising backlog.
 
 ### 4.2 Formal Trigger Rules (Machine-Readable)
+
 ```yaml
 triggers:
   - kpi: svc.sla.attainment.pct
@@ -144,6 +153,7 @@ triggers:
 ---
 
 ## 5. Action Codes (Mandatory)
+
 Link business behavior to measurable outcomes.
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
@@ -158,6 +168,7 @@ Link business behavior to measurable outcomes.
 ## 6. 3–30–300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
+
 - SLA Attainment %  
 - FCR %  
 - AHT (minutes)  
@@ -165,6 +176,7 @@ Link business behavior to measurable outcomes.
 - Escalation % / NPS Index  
 
 ### 6.2 30-Second Layer (Main Visuals)
+
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
 | SLA vs Target by Queue | Column | dim_queue[Queue] | [SLA %], [Target] | Channel/Region | Current month | Core ranking |
@@ -173,6 +185,7 @@ Link business behavior to measurable outcomes.
 | NPS vs SLA | Scatter | [SLA %] | [NPS Index] | Channel | Current quarter | Experience linkage |
 
 ### 6.3 Required Slicers (Mandatory)
+
 - Date (Week/Month)  
 - Region / Channel / Queue  
 - Issue Type / Severity  
@@ -180,6 +193,7 @@ Link business behavior to measurable outcomes.
 ---
 
 ## 7. Data Requirements Summary
+
 ```yaml
 required_facts:
   - fact_cases (SLA, FCR, AHT, backlog, escalation)
@@ -198,6 +212,7 @@ required_slicers: Date, Region/Channel/Queue, Issue Type/Severity
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
+
 - SLA/FCR/AHT definitions stable; backlog and escalation flags available.
 - NPS survey data linked by channel/period; queue/channel structures consistent.
 - OneLake canonical dims used (dim_date, dim_org, security_user_org; dim_queue optional).
@@ -206,6 +221,7 @@ required_slicers: Date, Region/Channel/Queue, Issue Type/Severity
 ---
 
 ## 9. Success Criteria
+
 - Impact: SLA attainment to target; backlog/escalations reduced; FCR up; NPS improved.  
 - Adoption: Used in weekly service ops reviews; action codes triggered with <5% false positives.  
 - Quality: KPI definitions consistent across service channels; reconciled to source totals.  
@@ -214,6 +230,7 @@ required_slicers: Date, Region/Channel/Queue, Issue Type/Severity
 ---
 
 ## 10. Risks & Wrong Interpretations (Short)
+
 - Misclassified SLA breaches (force majeure vs controllable).  
 - FCR misread on complex/regulatory cases.  
 - NPS shifts not directly attributable without considering channel mix.  

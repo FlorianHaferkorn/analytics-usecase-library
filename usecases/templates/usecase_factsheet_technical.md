@@ -1,9 +1,11 @@
 # <USE CASE ID> – <USE CASE NAME>  
+
 ## Technical Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Domain:** <Commercial / Finance / Ops / SCM / XD>
 - **Technical Owner:** <Role>
 - **Model ID:** <model name>
@@ -13,6 +15,7 @@
 ---
 
 ## 1. Model References
+
 - **Domain Data Contract:** <path>
 - **Source Data Contract:** <path>
 - **Semantic Model Definition:** <path>
@@ -23,6 +26,7 @@
 ---
 
 ## 2. Required KPIs → Measure Mapping (Mandatory)
+
 ```yaml
 kpi_to_measure_mapping:
   - kpi_id: <domain.topic.metric>
@@ -37,6 +41,7 @@ kpi_to_measure_mapping:
 ---
 
 ## 3. Data Contract Scope (Subset YAML)
+
 ```yaml
 dimension:
   - name: <dim_x>
@@ -64,11 +69,13 @@ settings:
 ## 4. Semantic Model Requirements
 
 ### 4.1 Tables
+
 - fact_<...>  
 - dim_<...>  
 - security_<...> (if applicable)
 
 ### 4.2 Relationships (Mandatory)
+
 - single direction  
 - dim → fact  
 - no bi-directional relationships  
@@ -76,15 +83,18 @@ settings:
 - no M2M unless explicitly permitted
 
 ### 4.3 Hierarchies
+
 - Date: Year → Quarter → Month → Day  
 - Org: Region → Country → Store  
 - Product/Customer hierarchies (if needed)
 
 ### 4.4 Sort-by Columns
+
 - Month → MonthNumber  
 - Name → Code  
 
 ### 4.5 Modeling Constraints
+
 - no calculated columns  
 - no implicit measures  
 - default summarization set  
@@ -97,12 +107,14 @@ settings:
 ## 5. Measures (DAX)
 
 ### 5.1 Measure Inventory
+
 | Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
 |--------------|---------------------|---------|--------|--------|-------|
 | <Measure> | <kpi_id> | <why> | 01_Sales | €#,0.00 | KPI |
 | … | … | … | … | … | … |
 
 ### 5.2 DAX Definitions
+
 ```DAX
 /// <kpi_id or Supporting> – <short purpose>
 <Measure Name> =
@@ -114,6 +126,7 @@ settings:
 ## 6. RLS / OLS Requirements
 
 ### 6.1 Security Table Pattern
+
 ```yaml
 security_table:
   name: security_user_org
@@ -125,6 +138,7 @@ security_table:
 ```
 
 ### 6.2 RLS Rule (Fabric / Power BI)
+
 ```DAX
 dim_org[OrgKey] IN
   CALCULATETABLE(
@@ -134,12 +148,14 @@ dim_org[OrgKey] IN
 ```
 
 ### 6.3 OLS (optional)
+
 - Sensitive measures: <list>
 - Visibility rules per role.
 
 ---
 
 ## 7. Technical Assumptions
+
 - data latency  
 - refresh cadence  
 - missing data handling  
@@ -149,6 +165,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 8. Deployment Requirements
+
 - DirectLake / Import / Hybrid  
 - Incremental refresh required? <Y/N>  
 - Aggregations? <Y/N>  
@@ -158,6 +175,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 9. QA & Validation Rules
+
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|----------------|--------|
 | RI Check | Refer. integrity | ≥ 99.9 % | Y | DE |
@@ -166,4 +184,3 @@ dim_org[OrgKey] IN
 | Performance Check | Visual < 2s | 2s | Y | BI |
 
 ---
-

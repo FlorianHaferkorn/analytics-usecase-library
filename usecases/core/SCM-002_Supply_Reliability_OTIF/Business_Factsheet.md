@@ -1,9 +1,11 @@
 # SCM-002 — Supply Reliability & OTIF  
+
 ## Business Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Use Case ID:** SCM-002
 - **Domain:** Supply Chain
 - **Business Owner:** Head of Supply Chain / Logistics
@@ -17,6 +19,7 @@
 ---
 
 ## 1. Business Summary
+
 **Purpose:** Improve supply reliability by raising On-Time In-Full (OTIF), reducing stockout impact, and lowering penalties/expedites.  
 **Business Value:** Higher service level, fewer penalties/expedites, better customer satisfaction, and more stable inventory.  
 **Out of Scope:** Inventory optimization specifics (SCM-001); forecast accuracy deep dive (SCM-003); promo effects (COM-004).
@@ -24,18 +27,21 @@
 ---
 
 ## 2. Core Business Questions
+
 - Where is OTIF below target by lane/DC/channel/product?
 - What are the main drivers of late or incomplete deliveries?
 - How much do stockouts, penalties, and expedites cost?
 - Which corrective actions improve OTIF fastest without excessive cost?
 
 **Example Query Patterns (optional):**
+
 - “Which lanes have OTIF <97% in the last 8 weeks and what are the top delay reasons?”
 - “What is the stockout impact and penalty cost by channel?”
 
 ---
 
 ## 3. Required KPIs (Mandatory)
+
 All KPIs must exist in the KPI Catalog.
 
 ```yaml
@@ -105,15 +111,18 @@ required_kpis:
 ---
 
 ## 4. Business Logic & Thresholds
+
 Formal rules that define performance and action triggers.
 
 ### 4.1 Logic Description
+
 - Flag lanes/products with OTIF below target for 2 consecutive periods.
 - Flag high stockout impact % by channel/location.
 - Flag penalties/expedites above materiality thresholds.
 - Identify on-time or in-full components failing most.
 
 ### 4.2 Formal Trigger Rules (Machine-Readable)
+
 ```yaml
 triggers:
   - kpi: supply.otif.pct
@@ -145,6 +154,7 @@ triggers:
 ---
 
 ## 5. Action Codes (Mandatory)
+
 Link business behavior to measurable outcomes.
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
@@ -159,6 +169,7 @@ Link business behavior to measurable outcomes.
 ## 6. 3–30–300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
+
 - OTIF %  
 - On-Time %  
 - In-Full %  
@@ -166,6 +177,7 @@ Link business behavior to measurable outcomes.
 - Penalty Amount / Expedite Cost  
 
 ### 6.2 30-Second Layer (Main Visuals)
+
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
 | OTIF vs Target by Lane/DC | Column | dim_lane[Lane/DC] | [OTIF %], [Target] | Channel | Current quarter | Core ranking |
@@ -174,6 +186,7 @@ Link business behavior to measurable outcomes.
 | Stockout Impact Trend | Line | dim_date[Week] | [Stockout Impact %] | Location/Channel | L12W | Service stability |
 
 ### 6.3 Required Slicers (Mandatory)
+
 - Date (Week/Month)  
 - Lane / DC / Channel  
 - Customer / Region  
@@ -182,6 +195,7 @@ Link business behavior to measurable outcomes.
 ---
 
 ## 7. Data Requirements Summary
+
 ```yaml
 required_facts:
   - fact_fulfillment (OTIF, penalties, expedites)
@@ -201,6 +215,7 @@ required_slicers: Date, Lane/DC/Channel, Customer/Region, Product/Category (opti
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
+
 - OTIF flags consistent; on-time and in-full flags available; penalties/expedites captured.
 - Stockout impact measured; lane/DC structure available.
 - Forecast/plan variance may be needed to explain service misses.
@@ -209,6 +224,7 @@ required_slicers: Date, Lane/DC/Channel, Customer/Region, Product/Category (opti
 ---
 
 ## 9. Success Criteria
+
 - Impact: OTIF raised to target; penalties/expedites reduced; stockout impact reduced.  
 - Adoption: Used in weekly supply/logistics reviews; action codes triggered with <5% false positives.  
 - Quality: KPI definitions consistent across SCM UCs; reconciled to source totals.  
@@ -217,6 +233,7 @@ required_slicers: Date, Lane/DC/Channel, Customer/Region, Product/Category (opti
 ---
 
 ## 10. Risks & Wrong Interpretations (Short)
+
 - Misapplied force majeure exclusions inflating OTIF.  
 - Missing penalty/expedite capture understates cost.  
 - Stockout impact misread if demand not captured consistently.  

@@ -1,9 +1,11 @@
 # OPS-001 — Operations Performance  
+
 ## Technical Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Domain:** Operations
 - **Technical Owner:** Ops BI Lead / Plant Analytics
 - **Model ID:** ops_performance
@@ -13,6 +15,7 @@
 ---
 
 ## 1. Model References
+
 - **Domain Data Contract:** data_contracts/domains/operations.yaml
 - **Source Data Contract:** data_contracts/sources/operations.yaml (if present)
 - **Semantic Model Definition:** semantic_models/domains/scm/model_definition.yaml
@@ -23,6 +26,7 @@
 ---
 
 ## 2. Required KPIs → Measure Mapping (Mandatory)
+
 ```yaml
 kpi_to_measure_mapping:
   - kpi_id: ops.oee.pct
@@ -60,6 +64,7 @@ kpi_to_measure_mapping:
 ---
 
 ## 3. Data Contract Scope (Subset YAML)
+
 ```yaml
 dimension:
   - name: dim_date
@@ -119,6 +124,7 @@ fact:
 ## 4. Semantic Model Requirements
 
 ### 4.1 Tables
+
 - fact_ops  
 - dim_date  
 - dim_org  
@@ -126,6 +132,7 @@ fact:
 - security_user_org (RLS)
 
 ### 4.2 Relationships (Mandatory)
+
 - dim_date (1) → fact_ops on DateKey  
 - dim_org (1) → fact_ops on OrgKey  
 - dim_product (1) → fact_ops on ProductKey (if modeled)  
@@ -133,15 +140,18 @@ fact:
 - Single direction; no ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
+
 - Date: Year → Quarter → Month → Week  
 - Org: Plant → Line → Shift
 - Product (if used): Category → ProductName
 
 ### 4.4 Sort-by Columns
+
 - Month → MonthNumber  
 - Week → DateKey  
 
 ### 4.5 Modeling Constraints
+
 - No calculated columns; no implicit measures.  
 - Default summarization set; technical columns hidden; folders per dictionary.  
 - Surrogate keys mandatory; avoid M2M.
@@ -151,6 +161,7 @@ fact:
 ## 5. Measures (DAX)
 
 ### 5.1 Measure Inventory
+
 | Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
 |--------------|---------------------|---------|--------|--------|------|
 | OEE % | ops.oee.pct | Overall effectiveness | 05_Ops | 0.0% | KPI |
@@ -163,6 +174,7 @@ fact:
 | Standard Output Units | Supporting | Theoretical output | 05_Ops | #,0 | Supporting |
 
 ### 5.2 DAX Definitions
+
 ```DAX
 /// Supporting — Base times
 Planned Time :=
@@ -217,6 +229,7 @@ Downtime % :=
 ## 6. RLS / OLS Requirements
 
 ### 6.1 Security Table Pattern
+
 ```yaml
 security_table:
   name: security_user_org
@@ -232,6 +245,7 @@ security_table:
 ```
 
 ### 6.2 RLS Rule (Fabric / Power BI)
+
 ```DAX
 dim_org[OrgKey] IN
     CALCULATETABLE (
@@ -241,11 +255,13 @@ dim_org[OrgKey] IN
 ```
 
 ### 6.3 OLS (optional)
+
 - None required; consider masking cost/scrap € if added.
 
 ---
 
 ## 7. Technical Assumptions
+
 - Standard rates maintained; downtime causes coded; shift data available where used.
 - Data latency ≤24h; time zone consistent.
 - OneLake canonical dims used (dim_date, dim_org, security_user_org; dim_product optional).
@@ -253,6 +269,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 8. Deployment Requirements
+
 - Mode: DirectLake or Import depending on MES connectivity; prefer DirectLake if Fabric connectors stable.  
 - Incremental refresh: yes, partition by DateKey (e.g., last 12–24 months).  
 - Aggregations: optional for high-frequency data (use day-level aggregates for speed).  
@@ -261,6 +278,7 @@ dim_org[OrgKey] IN
 ---
 
 ## 9. QA & Validation Rules
+
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org keys non-null in fact_ops | 100% | Y | Data Engineering |
@@ -278,4 +296,3 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
-

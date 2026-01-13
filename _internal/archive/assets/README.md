@@ -26,7 +26,7 @@ Not included:
 ## Structure
 
 ```
-assets/
+_internal/archive/assets/
   branding/         → generic branding assets
   org/              → generic org-structure visuals
   value_chain/      → generic value-chain templates
@@ -42,4 +42,4 @@ assets/
 
 ---
 
-**Location:** `assets/README.md`
+**Location:** `_internal/archive/assets/README.md`

@@ -1,9 +1,11 @@
 # COM-003 - Customer Value  
+
 ## Business Factsheet (v1.2)
 
 ---
 
 ## 0. Metadata (Mandatory)
+
 - **Use Case ID:** COM-003
 - **Domain:** Commercial / CustomerValue
 - **Business Owner:** CCO / Head of Sales Ops / Marketing Lead
@@ -17,6 +19,7 @@
 ---
 
 ## 1. Business Summary
+
 **Purpose:** Maximise customer lifetime value by improving retention, reducing churn, and prioritising profitable segments.  
 **Business Value:** Higher CLV and margin through targeted retention/upsell actions; reduced revenue leakage from churn; better allocation of sales/marketing spend.  
 **Out of Scope:** Promotion ROI deep dives (COM-004); acquisition funnel specifics (CST-010); win-loss pipeline (COM-010).
@@ -24,6 +27,7 @@
 ---
 
 ## 2. Core Business Questions
+
 - Which customers/segments drive the highest and lowest CLV and margin?
 - Where is churn rising and what are the leading indicators?
 - Which actions (retention, upsell, pricing) drive the best improvement in CLV and GM?
@@ -33,6 +37,7 @@
 ---
 
 ## 3. Required KPIs (Mandatory)
+
 All KPIs must exist in the KPI Catalog.
 
 ```yaml
@@ -122,6 +127,7 @@ required_kpis:
 ---
 
 ## 4. Business Logic & Thresholds
+
 - Flag segments with retention below target or churned count rising for 2 consecutive months.
 - Prioritise high revenue-at-risk segments for retention playbooks.
 - Target top-N customers with declining CLV and rising complaints.
@@ -171,6 +177,7 @@ triggers:
 ## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
+
 - Customer Lifetime Value Amount  
 - Customer Retention %  
 - Churned Customers Count  
@@ -180,6 +187,7 @@ triggers:
 - Customer Complaints Count  
 
 ### 6.2 30-Second Layer (Main Visuals)
+
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
 | CLV by Segment/Channel | Column | dim_customer[Segment] | [Customer Lifetime Value Amount] | Channel | Current quarter | Identify low CLV |
@@ -188,12 +196,14 @@ triggers:
 | Complaints vs NPS | Scatter | dim_customer[Segment] | [Customer Complaints Count] | NPS as color | Current quarter | CX risk signals |
 
 ### 6.3 Required Slicers (Mandatory)
+
 - Date (Month/Quarter)  
 - Region / Channel  
 - Customer Segment  
 - Product Category (optional)
 
 ### 6.4 300-Second Layer (Diagnostics)
+
 - Top-N customers by revenue at risk and declining CLV.
 - Cohort trend tables (retention, churned count, active base).
 - Complaint root-cause table (category, product, channel) linked to NPS.
@@ -202,6 +212,7 @@ triggers:
 ---
 
 ## 7. Data Requirements Summary
+
 ```yaml
 required_facts:
   - fact_sales
@@ -223,6 +234,7 @@ required_slicers: Date, Region/Channel, Customer Segment, Product Category
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
+
 - Churn/retention definitions must be consistent (active vs inactive flags).
 - CLV methodology agreed (horizon, discount rate, margin basis).
 - Customer hierarchy/segment stable; new customers excluded from early churn logic.
@@ -231,6 +243,7 @@ required_slicers: Date, Region/Channel, Customer Segment, Product Category
 ---
 
 ## 9. Success Criteria
+
 - Impact: CLV uplift in priority segments; churn reduced vs target; margin improvement on low-margin high-revenue accounts.  
 - Adoption: Used in monthly account/retention reviews; action codes triggered with <5% false positives.  
 - Quality: KPI definitions consistent across COM-001/002/003; reconciled revenue/margin to source totals.  
@@ -239,6 +252,7 @@ required_slicers: Date, Region/Channel, Customer Segment, Product Category
 ---
 
 ## 10. Risks & Wrong Interpretations (Short)
+
 - Misclassifying churn due to timing of inactivity flags.  
 - Over-discounting to “save” churn without margin guardrails.  
 - Using inconsistent CLV models across segments leading to false comparisons.
