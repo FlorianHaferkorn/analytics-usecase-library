@@ -7,7 +7,6 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ## KPIs - Strategic
 
 ```yaml
-
 - kpi_id: people.innovation_rate.pct
   kpi_key: Innovation Rate %
   kpi_type: strategic
@@ -355,7 +354,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Employees with engagement score above the defined 'engaged' threshold in the period.
     grain_scope: Employee/org/segment; measured per survey wave or period.
     unit_format: count
-    interpretation: TODO - add interpretation.
+    interpretation: Higher counts indicate stronger engagement; interpret alongside response rate.
   technical:
     dax_name: Engaged Employees
     depends_on_measures: []
@@ -386,7 +385,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Total number of survey respondents in the period.
     grain_scope: Survey/wave; segmented by org, segment or geography.
     unit_format: count
-    interpretation: TODO - add interpretation.
+    interpretation: Higher counts indicate better survey coverage; compare to target population.
   technical:
     dax_name: Survey Respondents
     depends_on_measures: []
@@ -417,7 +416,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Sum of attended training hours across all employees in the period.
     grain_scope: Employee/org; aggregated monthly or quarterly.
     unit_format: hours
-    interpretation: TODO - add interpretation.
+    interpretation: Higher values indicate greater training investment; evaluate alongside outcomes and headcount.
   technical:
     dax_name: Training Hours
     depends_on_measures: []

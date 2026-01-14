@@ -55,6 +55,7 @@ fact:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: Operating Cash Flow Amount, type: currency, agg: sum}
+      - {name: CapEx Amount, type: currency, agg: sum, nullable: true}
       - {name: Plan OCF Amount, type: currency, agg: sum, nullable: true}
 
   - name: fact_ar

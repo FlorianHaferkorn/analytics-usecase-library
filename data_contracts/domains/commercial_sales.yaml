@@ -70,6 +70,16 @@ fact:
       - {name: Last Year Sales Amount, type: currency, agg: sum, nullable: true}
       - {name: Cost of Goods Sold Amount, type: currency, agg: sum}
 
+  - name: fact_plan_sales
+    grain: product_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: Plan Net Sales Amount, type: currency, agg: sum}
+      - {name: Plan Cost of Goods Sold Amount, type: currency, agg: sum, nullable: true}
+      - {name: Plan Gross Margin Amount, type: currency, agg: sum, nullable: true}
+
   - name: fact_promo
     grain: promotion
     columns:

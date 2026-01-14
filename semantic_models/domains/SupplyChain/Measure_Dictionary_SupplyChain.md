@@ -182,7 +182,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Forecast"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement MAPE % */"
+    dax: |
+      VAR Forecast = [Forecast Units]
+      VAR Actual   = [Actual Units]
+      RETURN DIVIDE ( [Absolute Error], Actual )
     formatString: "0.0%"
   documentation:
     description: "Mean absolute percentage error."
@@ -191,9 +194,13 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
       Lineage: fact_forecast vs fact_sales.
       QA: Actual > 0; outlier handling documented.
   dependencies:
+    measures:
+      - "[Absolute Error]"
+      - "[Forecast Units]"
+      - "[Actual Units]"
     columns:
-      - "fact_forecast[Forecast]"
-      - "fact_sales[Actual]"
+      - "fact_forecast[Forecast Units]"
+      - "fact_sales[Actual Units]"
   governance:
     owner: "Supply Chain Analytics"
     status: "draft"
@@ -235,7 +242,18 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Forecast"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Service Impact % */"
+    dax: |
+      VAR Forecast = [Forecast Units]
+      VAR Actual   = [Actual Units]
+      VAR Lost     = [Lost Demand Units]
+      VAR Demand   = [Demand Units]
+      VAR UnderForecastLost =
+          IF ( Forecast < Actual, MIN ( Lost, Actual - Forecast ), 0 )
+      VAR LostShare =
+          DIVIDE ( UnderForecastLost, Lost )
+      VAR StockoutImpact =
+          DIVIDE ( Lost, Demand )
+      RETURN StockoutImpact * LostShare
     formatString: "0.0%"
   documentation:
     description: "Portion of service misses attributable to forecast error."
@@ -244,9 +262,16 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
       Lineage: forecast error, OTIF/stockout links.
       QA: Align with OTIF and stockout measures; guard divide-by-zero.
   dependencies:
+    measures:
+      - "[Forecast Units]"
+      - "[Actual Units]"
+      - "[Lost Demand Units]"
+      - "[Demand Units]"
     columns:
-      - "fact_forecast[Forecast]"
-      - "fact_sales[Actual]"
+      - "fact_forecast[Forecast Units]"
+      - "fact_sales[Actual Units]"
+      - "fact_stockout[Lost Demand Units]"
+      - "fact_stockout[Demand Units]"
   governance:
     owner: "Supply Chain Analytics"
     status: "draft"

@@ -18,7 +18,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   calc_type: rate
   business:
     purpose: Measures data accuracy and completeness in governed systems.
-    definition: (Valid Records / Total Records)  100
+    definition: (Valid Records / Total Records) * 100
     grain_scope: Dataset level; aggregated monthly.
     unit_format: '% (1 decimal)'
     interpretation: Indicates trustworthiness of analytical data assets.
@@ -37,11 +37,12 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     review_cycle: monthly
     validation_process: automated
     qa_rules:
-    - DQ % â‰¥ 98 % for certified datasets
+    - DQ % >= 98 % for certified datasets
     version: v2.0
   metadata_quality:
     completeness_score: 0.99
     last_review: 12.10.2025
+
 - kpi_id: gov.compliance.breach.count
   kpi_key: Compliance Breach Count
   kpi_type: strategic
@@ -75,6 +76,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.96
     last_review: 12.10.2025
+
 - kpi_id: corp.project.roi.pct
   kpi_key: Project ROI %
   kpi_type: strategic
@@ -112,6 +114,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.85
     last_review: 11.11.2025
+
 - kpi_id: corp.benefit.realization.pct
   kpi_key: Benefit Realization %
   kpi_type: strategic
@@ -187,6 +190,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 11.11.2025
+
 - kpi_id: corp.schedule.adherence.pct
   kpi_key: Schedule Adherence %
   kpi_type: supporting
@@ -221,6 +225,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.78
     last_review: 11.11.2025
+
 - kpi_id: corp.payback.months
   kpi_key: Payback Period (Months)
   kpi_type: supporting
@@ -257,6 +262,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.75
     last_review: 11.11.2025
+
 - kpi_id: gov.compliance.incidents.count
   kpi_key: Compliance Incidents Count
   kpi_type: supporting
@@ -290,6 +296,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.85
     last_review: 11.11.2025
+
 - kpi_id: gov.audit.findings.open.count
   kpi_key: Open Audit Findings Count
   kpi_type: supporting
@@ -323,6 +330,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.97
     last_review: 12.10.2025
+
 - kpi_id: gov.audit.findings.count
   kpi_key: Audit Findings
   kpi_type: supporting
@@ -336,7 +344,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Count of audit findings meeting reporting criteria (e.g., severity threshold).
     grain_scope: Audit report/engagement level; consolidated quarterly.
     unit_format: count
-    interpretation: TODO - add interpretation.
+    interpretation: Higher counts indicate increased control gaps; trend and severity mix matter.
   technical:
     dax_name: Audit Findings
     depends_on_measures: []
@@ -354,6 +362,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: gov.records.total.count
   kpi_key: Total Records Count
   kpi_type: supporting
@@ -367,7 +376,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Row count after ingestion/quality processing for the period.
     grain_scope: Dataset/table level; partitioned by load period.
     unit_format: count
-    interpretation: TODO - add interpretation.
+    interpretation: Baseline for data quality ratios; sudden drops/spikes indicate pipeline or source issues.
   technical:
     dax_name: Total Records Count
     depends_on_measures: []
@@ -385,6 +394,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: gov.valid_records.count
   kpi_key: Valid Records Count
   kpi_type: supporting
@@ -418,6 +428,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 1.0
     last_review: 12.10.2025
+
 - kpi_id: sec.incident.count
   kpi_key: Security Incidents Count
   kpi_type: diagnostic
@@ -451,6 +462,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: sec.incident.critical.count
   kpi_key: Critical Security Incidents Count
   kpi_type: diagnostic
@@ -484,6 +496,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: sec.incident.mttr.hours
   kpi_key: Security Incident MTTR (Hours)
   kpi_type: diagnostic
@@ -519,3 +532,4 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     completeness_score: 0.8
     last_review: 19.11.2025
 ```
+

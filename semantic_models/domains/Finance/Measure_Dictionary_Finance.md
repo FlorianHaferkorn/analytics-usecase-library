@@ -564,8 +564,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 - measure_name: "EBITDA Margin"
-  is_kpi_measure: true
-  kpi_id_ref: "profit.ebitda_margin"
+  is_kpi_measure: false
+  kpi_id_ref: ""
   semantic_model: "Finance_SemanticModel"
   display_folder: "06_Profitability"
   category: "KPI"

@@ -147,7 +147,9 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_Mix"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Channel GM Contribution */"
+    dax: |
+      SUM ( fact_sales[Net Sales Amount] )
+        - SUM ( fact_sales[Cost of Goods Sold Amount] )
     formatString: "EUR #,0"
   documentation:
     description: "Gross margin by channel."
@@ -173,7 +175,10 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Pricing"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Price Realization % */"
+    dax: |
+      VAR NetPrice  = SUM ( fact_sales[Net Price Amount] )
+      VAR ListPrice = SUM ( fact_sales[List Price Amount] )
+      RETURN DIVIDE ( NetPrice, ListPrice )
     formatString: "0.0%"
   documentation:
     description: "Net Price / List Price."
@@ -198,17 +203,17 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_Promo"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Baseline Sales Amount */"
+    dax: "SUM ( fact_sales[Baseline Sales Amount] )"
     formatString: "EUR #,0"
   documentation:
     description: "Baseline sales amount for promo comparison."
     notes: |
       Grain: promotion. Unit: EUR.
-      Lineage: fact_promo[Baseline Sales Amount].
+      Lineage: fact_sales[Baseline Sales Amount].
       QA: Baseline definition consistent; promo scoping applied.
   dependencies:
     columns:
-      - "fact_promo[Baseline Sales Amount]"
+      - "fact_sales[Baseline Sales Amount]"
   governance:
     owner: "Growth Analytics"
     status: "draft"
@@ -294,7 +299,10 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_Promo"
   category: "KPI"
   expression:
-    dax: "/* TODO: promo uplift vs baseline */"
+    dax: |
+      VAR PromoSales = SUM ( fact_sales[Promo Sales Amount] )
+      VAR Baseline   = [Baseline Sales Amount]
+      RETURN DIVIDE ( PromoSales - Baseline, Baseline )
     formatString: "0.0%"
   documentation:
     description: "Relative uplift of promo sales vs baseline."
@@ -304,6 +312,8 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   dependencies:
     measures:
       - "Baseline Sales Amount"
+    columns:
+      - "fact_sales[Promo Sales Amount]"
   governance:
     owner: "Growth Analytics"
     status: "draft"
@@ -312,22 +322,22 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: "Forecast Net Sales Amount"
   is_kpi_measure: false
-  kpi_id_ref: "sales.net_sales.amount.forecast"
+  kpi_id_ref: ""
   semantic_model: "Growth_SemanticModel"
   display_folder: "05_Forecast"
   category: "Base"
   expression:
-    dax: "/* TODO: implement Forecast Net Sales Amount */"
+    dax: "SUM ( fact_forecast[Net Sales Amount] )"
     formatString: "EUR #,0"
   documentation:
     description: "Forecasted net sales amount."
     notes: |
       Grain: sku_month or org_month. Unit: EUR.
-      Lineage: fact_forecast[Forecast Net Sales Amount].
+      Lineage: fact_forecast[Net Sales Amount].
       QA: Versioned forecast; calendar alignment.
   dependencies:
     columns:
-      - "fact_forecast[Forecast Net Sales Amount]"
+      - "fact_forecast[Net Sales Amount]"
   governance:
     owner: "Growth Analytics"
     status: "draft"
@@ -341,7 +351,10 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "05_Forecast"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Forecast MAPE % */"
+    dax: |
+      VAR Forecast = [Forecast Net Sales Amount]
+      VAR Actual   = [Net Sales Amount]
+      RETURN DIVIDE ( ABS ( Forecast - Actual ), Actual )
     formatString: "0.0%"
   documentation:
     description: "Mean absolute percentage error for sales forecast."
@@ -350,9 +363,12 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
       Lineage: fact_forecast vs fact_sales.
       QA: Actual > 0; outlier handling; DIVIDE guard.
   dependencies:
+    measures:
+      - "Forecast Net Sales Amount"
+      - "Net Sales Amount"
     columns:
-      - "fact_forecast[Forecast]"
-      - "fact_sales[Actual]"
+      - "fact_forecast[Net Sales Amount]"
+      - "fact_sales[Net Sales Amount]"
   governance:
     owner: "Growth Analytics"
     status: "draft"
@@ -366,7 +382,10 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "05_Forecast"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Forecast Bias % */"
+    dax: |
+      VAR Forecast = [Forecast Net Sales Amount]
+      VAR Actual   = [Net Sales Amount]
+      RETURN DIVIDE ( Forecast - Actual, Actual )
     formatString: "0.0%"
   documentation:
     description: "Bias of sales forecast: (Forecast - Actual) / Actual."
@@ -375,9 +394,12 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
       Lineage: fact_forecast vs fact_sales.
       QA: Actual > 0; bias band defined.
   dependencies:
+    measures:
+      - "Forecast Net Sales Amount"
+      - "Net Sales Amount"
     columns:
-      - "fact_forecast[Forecast]"
-      - "fact_sales[Actual]"
+      - "fact_forecast[Net Sales Amount]"
+      - "fact_sales[Net Sales Amount]"
   governance:
     owner: "Growth Analytics"
     status: "draft"

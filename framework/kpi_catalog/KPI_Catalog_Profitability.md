@@ -27,6 +27,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: Gross Margin %
     depends_on_measures:
     - Net Sales Amount
+    - COGS Amount
     lineage:
     - fact_sales.Net Sales Amount
     - fact_sales.COGS Amount
@@ -43,6 +44,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.97
     last_review: 12.10.2025
+
 - kpi_id: profit.ebitda_margin
   kpi_key: EBITDA Margin %
   kpi_type: strategic
@@ -116,6 +118,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.99
     last_review: 12.10.2025
+
 - kpi_id: margin.gm.amount
   kpi_key: Gross Margin Amount
   kpi_type: supporting
@@ -151,6 +154,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.98
     last_review: 12.10.2025
+
 - kpi_id: margin.gm.pct
   kpi_key: Gross Margin % (Operational)
   kpi_type: supporting
@@ -190,6 +194,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.9
     last_review: 19.11.2025
+
 - kpi_id: margin.gm.delta_amount
   kpi_key: '? Gross Margin Amount'
   kpi_type: diagnostic
@@ -227,6 +232,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.85
     last_review: 11.11.2025
+
 - kpi_id: margin.gm.delta_pct
   kpi_key: Gross Margin % Delta%
   kpi_type: diagnostic
@@ -260,72 +266,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 06.11.2025
-- kpi_id: sales.promo.cost.amount
-  kpi_key: Promo Cost Amount
-  kpi_type: supporting
-  impact_dimension: Profitability
-  domain_tag:
-  - Commercial
-  use_case_ref:
-  - COM-003
-  calc_type: amount
-  business:
-    purpose: Marketing investment spent on a promotion.
-    definition: Sum of promo fees, discounts, and marketing spend tagged to promotion ID.
-    grain_scope: Promo campaign / product / period.
-    unit_format: EUR (2 decimals)
-    interpretation: Cost basis for promo ROI.
-  technical:
-    dax_name: Promo Cost Amount
-    depends_on_measures: []
-    lineage:
-    - fact_sales.Promo Cost Amount
-  governance:
-    business_owner: Head of Marketing Controlling
-    data_owner: BI Engineering
-    steward: Trade Marketing Analyst
-    review_cycle: quarterly
-    validation_process: manual review
-    qa_rules:
-    - Promo spend reconciles to marketing accruals within +/-2 %
-    version: v1.0
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 11.11.2025
-- kpi_id: cost.cogs.promo.amount
-  kpi_key: Promo COGS Amount
-  kpi_type: supporting
-  impact_dimension: Profitability
-  domain_tag:
-  - Commercial
-  use_case_ref:
-  - COM-003
-  calc_type: amount
-  business:
-    purpose: COGS limited to promo periods.
-    definition: COGS Amount where Promo Flag = true
-    grain_scope: Promo period/product
-    unit_format: EUR (2 decimals)
-    interpretation: Used to compute margin during promo.
-  technical:
-    dax_name: Promo COGS Amount
-    depends_on_measures:
-    - COGS Amount
-    lineage:
-    - fact_sales.COGS Amount
-    - fact_sales.Promo Flag
-  governance:
-    business_owner: Head of Marketing Controlling
-    data_owner: BI Engineering
-    steward: Trade Marketing Analyst
-    review_cycle: quarterly
-    validation_process: manual review
-    qa_rules:
-    - Promo cost allocation consistent with finance
-    version: v2.0
-  metadata_quality:
-    completeness_score: 0.9
-    last_review: 12.10.2025
+
+
 - kpi_id: sales.promo.incremental.amount
   kpi_key: Incremental Sales Amount
   kpi_type: diagnostic
@@ -361,44 +303,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.9
     last_review: 12.10.2025
-- kpi_id: margin.promo.incremental.amount
-  kpi_key: Incremental GM Amount
-  kpi_type: diagnostic
-  impact_dimension: Profitability
-  domain_tag:
-  - Commercial
-  use_case_ref:
-  - COM-003
-  calc_type: amount
-  business:
-    purpose: Additional gross margin due to promotion.
-    definition: (Promo Sales - Promo COGS) - (Baseline Sales - Baseline COGS)
-    grain_scope: Promo period/product
-    unit_format: EUR (2 decimals)
-    interpretation: Margin impact of promotions.
-  technical:
-    dax_name: Incremental GM Amount
-    depends_on_measures:
-    - Promo Sales Amount
-    - Baseline Sales Amount
-    - COGS Amount
-    - Promo COGS Amount
-    lineage:
-    - fact_sales.Net Sales Amount
-    - fact_sales.COGS Amount
-    - fact_sales.Promo Flag
-  governance:
-    business_owner: Head of Marketing Controlling
-    data_owner: BI Engineering
-    steward: Trade Marketing Analyst
-    review_cycle: quarterly
-    validation_process: manual review
-    qa_rules:
-    - Promo vs non-promo allocation documented
-    version: v2.0
-  metadata_quality:
-    completeness_score: 0.9
-    last_review: 12.10.2025
+
 - kpi_id: sales.promo.roi.pct
   kpi_key: Promo ROI %
   kpi_type: diagnostic
@@ -436,6 +341,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.82
     last_review: 11.11.2025
+
 - kpi_id: margin.promo.gm.pct
   kpi_key: GM % During Promo
   kpi_type: diagnostic
@@ -472,6 +378,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.9
     last_review: 12.10.2025
+
 - kpi_id: fin.ebitda.amount
   kpi_key: EBITDA Amount
   kpi_type: supporting
@@ -485,7 +392,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Earnings before interest, taxes, depreciation and amortization for the period.
     grain_scope: Company/segment; monthly or quarterly closing.
     unit_format: EUR (2 decimals)
-    interpretation: TODO - add interpretation.
+    interpretation: Higher EBITDA indicates stronger operating profitability; compare to margin and cash flow trends.
   technical:
     dax_name: EBITDA Amount
     depends_on_measures: []
@@ -502,6 +409,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: margin.gm.plan.amount
   kpi_key: Plan Gross Margin Amount
   kpi_type: supporting
@@ -515,7 +423,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Gross margin amount from approved plan or budget for the period.
     grain_scope: Company/segment/product; aligned with planning hierarchy and calendar.
     unit_format: EUR (2 decimals)
-    interpretation: TODO - add interpretation.
+    interpretation: Baseline for variance analysis; deviations highlight pricing, mix, or cost changes versus plan.
   technical:
     dax_name: Plan Gross Margin Amount
     depends_on_measures: []
@@ -532,6 +440,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: margin.customer.amount
   kpi_key: Customer Margin Amount
   kpi_type: diagnostic
@@ -568,6 +477,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.85
     last_review: 19.11.2025
+
 - kpi_id: margin.customer.pct
   kpi_key: Customer Margin %
   kpi_type: diagnostic
@@ -604,4 +514,229 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.85
     last_review: 19.11.2025
+
+- kpi_id: cost.cogs_per_unit.amount
+  kpi_key: COGS per Unit
+  kpi_type: diagnostic
+  impact_dimension: Profitability
+  domain_tag:
+  - Commercial
+  use_case_ref:
+  - COM-002
+  calc_type: ratio
+  business:
+    purpose: Shows unit cost level relative to sold volume.
+    definition: COGS Amount / Units Sold.
+    grain_scope: Product / period.
+    unit_format: EUR per unit
+    interpretation: Lower is better; rising unit cost erodes margin.
+  technical:
+    dax_name: COGS per Unit
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Controlling
+    data_owner: Finance BI
+    steward: Finance Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Units Sold > 0
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: sales.promo.cannibalization.pct
+  kpi_key: Cannibalization %
+  kpi_type: diagnostic
+  impact_dimension: Profitability
+  domain_tag:
+  - Commercial
+  use_case_ref:
+  - COM-004
+  calc_type: rate
+  business:
+    purpose: Measures share of promo uplift offset by decline in non-promoted sales.
+    definition: Cannibalized Sales / Promo Uplift Sales.
+    grain_scope: Promo campaign / product / period.
+    unit_format: '% (1 decimal)'
+    interpretation: Lower is better; high cannibalization reduces net gain.
+  technical:
+    dax_name: Cannibalization %
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Marketing Controlling
+    data_owner: BI Engineering
+    steward: Trade Marketing Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Promo uplift > 0 for ratio
+    - Value between 0 % and 100 %
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: cost.material.pct
+  kpi_key: Material Cost %
+  kpi_type: diagnostic
+  impact_dimension: Profitability
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref:
+  - FIN-002
+  calc_type: rate
+  business:
+    purpose: Shows material cost share of net sales.
+    definition: Material Cost Amount / Net Sales Amount.
+    grain_scope: Company/segment; monthly close.
+    unit_format: '% (1 decimal)'
+    interpretation: Lower is better; increases indicate supplier or price pressure.
+  technical:
+    dax_name: Material Cost %
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Controlling
+    data_owner: Finance BI
+    steward: Finance Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Value between 0 % and 100 %
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: cost.opex.vs_plan.pct
+  kpi_key: OpEx vs Plan %
+  kpi_type: diagnostic
+  impact_dimension: Profitability
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref:
+  - FIN-002
+  calc_type: rate
+  business:
+    purpose: Measures OpEx variance versus plan.
+    definition: (OpEx Amount - OpEx Plan Amount) / OpEx Plan Amount.
+    grain_scope: Company/segment; monthly close.
+    unit_format: '% (1 decimal)'
+    interpretation: Positive values indicate overspend; negative values indicate savings.
+  technical:
+    dax_name: OpEx vs Plan %
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Controlling
+    data_owner: Finance BI
+    steward: Finance Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - Plan Amount > 0
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: cost.unit.amount
+  kpi_key: Unit Cost Amount
+  kpi_type: diagnostic
+  impact_dimension: Profitability
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref:
+  - FIN-002
+  calc_type: ratio
+  business:
+    purpose: Measures total cost per unit produced or sold.
+    definition: Total Cost Amount / Units Produced or Sold.
+    grain_scope: Product / period.
+    unit_format: EUR per unit
+    interpretation: Lower is better; used to track cost efficiency.
+  technical:
+    dax_name: Unit Cost Amount
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Controlling
+    data_owner: Finance BI
+    steward: Finance Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Units > 0
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: margin.cogs.pct
+  kpi_key: COGS % of Sales
+  kpi_type: diagnostic
+  impact_dimension: Profitability
+  domain_tag:
+  - Commercial
+  use_case_ref:
+  - COM-002
+  calc_type: rate
+  business:
+    purpose: Shows cost share relative to net sales.
+    definition: COGS Amount / Net Sales Amount.
+    grain_scope: Invoice line aggregated to period.
+    unit_format: '% (1 decimal)'
+    interpretation: Lower is better; complements gross margin %.
+  technical:
+    dax_name: COGS % of Sales
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Controlling
+    data_owner: BI Engineering
+    steward: Controlling Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Value between 0 % and 100 %
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: margin.gm.vs_plan.pct
+  kpi_key: Gross Margin % vs Plan
+  kpi_type: diagnostic
+  impact_dimension: Profitability
+  domain_tag:
+  - Commercial
+  use_case_ref:
+  - COM-002
+  calc_type: rate
+  business:
+    purpose: Measures gross margin rate variance versus plan.
+    definition: (Gross Margin % - Plan Gross Margin %) / Plan Gross Margin %.
+    grain_scope: Company/segment; monthly.
+    unit_format: '% (1 decimal)'
+    interpretation: Positive values indicate better-than-plan margin.
+  technical:
+    dax_name: Gross Margin % vs Plan
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Controlling
+    data_owner: BI Engineering
+    steward: Controlling Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Plan GM % available for reported period
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
 ```

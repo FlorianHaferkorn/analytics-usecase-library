@@ -92,12 +92,25 @@ Cross-domain analytics is enabled through **shared dimensions**, not shared KPI 
 - Shared canonical dimensions (Date, Organization, Product, Customer)
 - Side-by-side usage of domain KPIs in cross-domain views
 - Derived comparisons at report level without redefining semantics
+- Alias measures that explicitly reference the canonical KPI without redefining logic
 
 ### Not Allowed
 
 - KPI logic spanning multiple domains
 - Redefining KPIs in consuming domains
 - Use-case-specific extensions inside domain semantic cores
+
+### Alias Strategy (Cross-Domain Use)
+
+When a KPI is needed in multiple domains (e.g., Net Sales for Revenue per FTE), use an **alias measure**:
+
+- The canonical domain keeps the single KPI definition (`is_kpi_measure: true`, `kpi_id_ref` set).
+- Consuming domains create an alias with **no KPI ownership**:
+  - `is_kpi_measure: false`
+  - `kpi_id_ref: ""`
+  - `expression.dax` references the canonical measure (no new logic)
+
+This preserves single ownership while enabling reuse.
 
 > Cross-domain insights emerge from composition, not from new semantic definitions.
 

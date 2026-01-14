@@ -19,6 +19,7 @@ Usage:
 - Examples:
   - Commercial reference: semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md
   - Service reference: semantic_models/domains/Service/Measure_Dictionary_Service.md
+  - Use alias measures for cross-domain KPI usage (see semantic_models/README.md)
 
 Relations:
 WITH WHAT/HOW; supports usecases.

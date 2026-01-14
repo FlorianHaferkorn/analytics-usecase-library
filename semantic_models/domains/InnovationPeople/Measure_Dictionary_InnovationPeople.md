@@ -33,8 +33,8 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 - measure_name: "Digital Adoption %"
-  is_kpi_measure: true
-  kpi_id_ref: "people.digital_adoption.pct"
+  is_kpi_measure: false
+  kpi_id_ref: ""
   semantic_model: "InnovationPeople_SemanticModel"
   display_folder: "02_Digital"
   category: "KPI"
@@ -176,8 +176,8 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 - measure_name: "Gross Margin per FTE Amount"
-  is_kpi_measure: true
-  kpi_id_ref: "hr.gm_per_fte.amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
   semantic_model: "InnovationPeople_SemanticModel"
   display_folder: "04_People"
   category: "KPI"
@@ -201,8 +201,8 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 - measure_name: "Personnel Cost Ratio %"
-  is_kpi_measure: true
-  kpi_id_ref: "hr.personnel_cost_ratio.pct"
+  is_kpi_measure: false
+  kpi_id_ref: ""
   semantic_model: "InnovationPeople_SemanticModel"
   display_folder: "04_People"
   category: "KPI"
@@ -283,8 +283,8 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 - measure_name: "Revenue per FTE"
-  is_kpi_measure: true
-  kpi_id_ref: "hr.revenue_per_fte.amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
   semantic_model: "InnovationPeople_SemanticModel"
   display_folder: "04_People"
   category: "KPI"
@@ -330,8 +330,8 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 - measure_name: "Turnover Rate %"
-  is_kpi_measure: true
-  kpi_id_ref: "hr.turnover.pct"
+  is_kpi_measure: false
+  kpi_id_ref: ""
   semantic_model: "InnovationPeople_SemanticModel"
   display_folder: "04_People"
   category: "KPI"
@@ -354,8 +354,8 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 - measure_name: "Absenteeism %"
-  is_kpi_measure: true
-  kpi_id_ref: "hr.absenteeism.pct"
+  is_kpi_measure: false
+  kpi_id_ref: ""
   semantic_model: "InnovationPeople_SemanticModel"
   display_folder: "04_People"
   category: "KPI"

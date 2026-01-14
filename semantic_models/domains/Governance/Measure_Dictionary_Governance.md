@@ -294,7 +294,26 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_Portfolio"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Payback Period (months) via cashflow schedule */"
+    dax: |
+      VAR CashflowByMonth =
+          SUMMARIZE (
+              fact_projects,
+              dim_date[Date],
+              "Cashflow", SUM ( fact_projects[Cashflows] )
+          )
+      VAR Cumulated =
+          ADDCOLUMNS (
+              CashflowByMonth,
+              "CumCashflow",
+                  SUMX (
+                      FILTER ( CashflowByMonth, dim_date[Date] <= EARLIER ( dim_date[Date] ) ),
+                      [Cashflow]
+                  )
+          )
+      VAR PaybackDate =
+          MINX ( FILTER ( Cumulated, [CumCashflow] >= 0 ), dim_date[Date] )
+      VAR StartDate = MIN ( dim_date[Date] )
+      RETURN IF ( ISBLANK ( PaybackDate ), BLANK (), DATEDIFF ( StartDate, PaybackDate, MONTH ) + 1 )
     formatString: "0"
   documentation:
     description: "Months to recover investment."
@@ -366,7 +385,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "05_Security"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Security MTTR */"
+    dax: "AVERAGE ( fact_security[MTTR] )"
     formatString: "0.0"
   documentation:
     description: "Mean time to recover security incidents."

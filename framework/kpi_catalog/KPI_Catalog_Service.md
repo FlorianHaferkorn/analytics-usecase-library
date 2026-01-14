@@ -26,7 +26,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: SLA Attainment %
     depends_on_measures:
-    - SLA Attainment %
+    - Cases SLA Met
+    - Cases Resolved
     lineage:
     - fact_cases[SLA Met Flag]
   governance:
@@ -60,7 +61,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: FCR %
     depends_on_measures:
-    - First Contact Resolution %
+    - Cases FCR
+    - Cases Resolved
     lineage:
     - fact_cases[FCR Flag]
   governance:
@@ -94,9 +96,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: AHT Minutes
     depends_on_measures:
-    - Average Handling Time (minutes)
+    - Total Handle Time Minutes
+    - Cases Resolved
     lineage:
-    - fact_cases[Handle Time]
+    - fact_cases[Handle Time Minutes]
   governance:
     business_owner: Head of Service
     data_owner: Service Analytics
@@ -119,7 +122,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   use_case_ref:
   - XD-001
   - XD-002
-  calc_type: absolute
+  calc_type: count
   business:
     purpose: Quantifies unresolved work in queue.
     definition: Count of open cases at period end.
@@ -129,7 +132,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Backlog Count
     depends_on_measures:
-    - Backlog Count
+    - Backlog Cases
     lineage:
     - fact_cases[Backlog Flag]
   governance:
@@ -197,7 +200,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Escalation %
     depends_on_measures:
-    - Escalation %
+    - Escalated Cases
+    - Cases Resolved
     lineage:
     - fact_cases[Escalation Flag]
   governance:

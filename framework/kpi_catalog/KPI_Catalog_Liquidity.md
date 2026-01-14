@@ -46,6 +46,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.97
     last_review: 12.10.2025
+
 - kpi_id: fin.liquidity.free_cash_flow
   kpi_key: Free Cash Flow
   kpi_type: strategic
@@ -81,6 +82,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.96
     last_review: 12.10.2025
+
 - kpi_id: fin.liquidity.operating_cash_flow
   kpi_key: Operating Cash Flow
   kpi_type: strategic
@@ -132,7 +134,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: (Accounts Receivable / Net Sales) x Days in Period
     grain_scope: Company/segment; monthly closing.
     unit_format: days
-    interpretation: TODO - add interpretation.
+    interpretation: Higher DSO indicates slower collections and weaker cash conversion; lower is better within credit policy bounds.
   technical:
     dax_name: DSO (Days)
     depends_on_measures: []
@@ -151,6 +153,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: fin.liquidity.dio_days_inventory_outstanding
   kpi_key: DIO (Days Inventory Outstanding)
   kpi_type: diagnostic
@@ -165,7 +168,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: (Inventory / COGS) x Days in Period
     grain_scope: Company/segment; monthly closing.
     unit_format: days
-    interpretation: TODO - add interpretation.
+    interpretation: Higher DIO indicates slower inventory movement and more capital tied up; very low values may raise stockout risk.
   technical:
     dax_name: DIO (Days)
     depends_on_measures: []
@@ -184,6 +187,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: fin.liquidity.dpo_days_payables_outstanding
   kpi_key: DPO (Days Payables Outstanding)
   kpi_type: diagnostic
@@ -198,7 +202,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: (Accounts Payable / COGS) x Days in Period
     grain_scope: Company/segment; monthly closing.
     unit_format: days
-    interpretation: TODO - add interpretation.
+    interpretation: Higher DPO indicates longer payment terms and better cash preservation; too high may strain supplier relationships.
   technical:
     dax_name: DPO (Days)
     depends_on_measures: []
@@ -217,6 +221,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: fin.liquidity.cash_conversion_cycle_days
   kpi_key: Cash Conversion Cycle (Days)
   kpi_type: diagnostic
@@ -231,7 +236,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: DSO + DIO - DPO.
     grain_scope: Company/segment; monthly closing.
     unit_format: days
-    interpretation: TODO - add interpretation.
+    interpretation: Lower CCC indicates faster cash conversion; negative CCC implies customers fund operations.
   technical:
     dax_name: CCC (Days)
     depends_on_measures: []
@@ -250,6 +255,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: fin.liquidity.cash_conversion_cycle.delta_days
   kpi_key: Delta Cash Conversion Cycle (Days)
   kpi_type: diagnostic
@@ -263,7 +269,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: CCC (Days) - baseline CCC (Plan or LY).
     grain_scope: Company/segment; monthly closing.
     unit_format: days
-    interpretation: TODO - add interpretation.
+    interpretation: Positive delta indicates worsening cash conversion; negative delta indicates improvement.
   technical:
     dax_name: Delta CCC (Days)
     depends_on_measures: []
@@ -282,6 +288,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     last_review: 04.11.2025
   aliases:
   - Delta CCC (Days)
+
 - kpi_id: fin.liquidity.capex.amount
   kpi_key: CapEx Amount
   kpi_type: supporting
@@ -295,7 +302,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Total capital expenditure amount for the selected org/time slice.
     grain_scope: Company/segment; monthly or quarterly closing.
     unit_format: EUR (2 decimals)
-    interpretation: TODO - add interpretation.
+    interpretation: Higher values indicate stronger investment activity; compare to budget and cash generation.
   technical:
     dax_name: CapEx Amount
     depends_on_measures: []
@@ -312,6 +319,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: fin.liquidity.inventory.amount
   kpi_key: Inventory Amount
   kpi_type: supporting
@@ -325,7 +333,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Inventory value at period end at reporting valuation (e.g., standard or average cost).
     grain_scope: Company/segment; monthly or quarterly closing.
     unit_format: EUR (2 decimals)
-    interpretation: TODO - add interpretation.
+    interpretation: Higher values increase working capital needs; validate against seasonality and service targets.
   technical:
     dax_name: Inventory Amount
     depends_on_measures: []
@@ -342,6 +350,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: fin.liquidity.payables.amount
   kpi_key: Payables Amount
   kpi_type: supporting
@@ -355,7 +364,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Accounts payable balance at period end.
     grain_scope: Company/segment; monthly or quarterly closing.
     unit_format: EUR (2 decimals)
-    interpretation: TODO - add interpretation.
+    interpretation: Higher balances increase working capital funding but can signal payment delays; compare to terms.
   technical:
     dax_name: Payables Amount
     depends_on_measures: []
@@ -372,6 +381,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: fin.liquidity.capex_ratio.pct
   kpi_key: CapEx to Net Sales Ratio %
   kpi_type: diagnostic
@@ -408,4 +418,260 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
+- kpi_id: fin.cash.balance
+  kpi_key: Cash Balance
+  kpi_type: supporting
+  impact_dimension: Liquidity
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref:
+  - FIN-001
+  calc_type: amount
+  business:
+    purpose: Tracks cash and cash equivalents at period end.
+    definition: Cash and cash equivalents balance.
+    grain_scope: Company/segment; monthly close.
+    unit_format: EUR (2 decimals)
+    interpretation: Higher balance improves liquidity buffer; consider seasonality and debt strategy.
+  technical:
+    dax_name: Cash Balance
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Treasury
+    data_owner: Finance BI
+    steward: Cash Management Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - Reconciles to balance sheet cash accounts within +/- 0.5 %
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: fin.cash.ocf
+  kpi_key: Operating Cash Flow
+  kpi_type: supporting
+  impact_dimension: Liquidity
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref:
+  - FIN-001
+  calc_type: amount
+  business:
+    purpose: Measures cash generated by operating activities.
+    definition: Net cash flows from operations for the period.
+    grain_scope: Company/segment; monthly close.
+    unit_format: EUR (2 decimals)
+    interpretation: Positive values improve liquidity; negative values require investigation.
+  technical:
+    dax_name: Operating Cash Flow
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Treasury
+    data_owner: Finance BI
+    steward: Cash Flow Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - Reconciles to cashflow statement within +/- 1 %
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: fin.cash.vs_plan.pct
+  kpi_key: Cash vs Plan %
+  kpi_type: diagnostic
+  impact_dimension: Liquidity
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref:
+  - FIN-001
+  calc_type: rate
+  business:
+    purpose: Measures deviation of cash balance versus plan.
+    definition: (Cash Balance - Cash Plan) / Cash Plan.
+    grain_scope: Company/segment; monthly close.
+    unit_format: '% (1 decimal)'
+    interpretation: Positive values indicate higher cash than planned.
+  technical:
+    dax_name: Cash vs Plan %
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Treasury
+    data_owner: Finance BI
+    steward: Cash Flow Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - Plan Amount > 0
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: fin.liquidity.receivables.amount
+  kpi_key: Receivables Amount
+  kpi_type: supporting
+  impact_dimension: Liquidity
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref:
+  - FIN-001
+  calc_type: amount
+  business:
+    purpose: Tracks accounts receivable balance at period end.
+    definition: Accounts receivable balance.
+    grain_scope: Company/segment; monthly close.
+    unit_format: EUR (2 decimals)
+    interpretation: Higher balances tie up cash; monitor against DSO targets.
+  technical:
+    dax_name: Receivables Amount
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Treasury
+    data_owner: Finance BI
+    steward: Working Capital Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - Reconciles to AR ledger within +/- 0.5 %
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: wc.dso.days
+  kpi_key: DSO Days
+  kpi_type: diagnostic
+  impact_dimension: Liquidity
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref:
+  - FIN-001
+  calc_type: amount
+  business:
+    purpose: Measures days sales outstanding for receivables.
+    definition: Receivables / (Net Sales / 365).
+    grain_scope: Company/segment; monthly close.
+    unit_format: days
+    interpretation: Lower is better; rising DSO indicates collection issues.
+  technical:
+    dax_name: DSO Days
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Treasury
+    data_owner: Finance BI
+    steward: Working Capital Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - Net Sales > 0
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: wc.dio.days
+  kpi_key: DIO Days
+  kpi_type: diagnostic
+  impact_dimension: Liquidity
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref:
+  - FIN-001
+  calc_type: amount
+  business:
+    purpose: Measures days inventory outstanding.
+    definition: Inventory / (COGS / 365).
+    grain_scope: Company/segment; monthly close.
+    unit_format: days
+    interpretation: Lower is better; high DIO increases cash tied up in stock.
+  technical:
+    dax_name: DIO Days
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Treasury / Supply Chain Finance
+    data_owner: Finance BI
+    steward: Working Capital Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - COGS > 0
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: wc.dpo.days
+  kpi_key: DPO Days
+  kpi_type: diagnostic
+  impact_dimension: Liquidity
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref:
+  - FIN-001
+  calc_type: amount
+  business:
+    purpose: Measures days payables outstanding.
+    definition: Payables / (COGS / 365).
+    grain_scope: Company/segment; monthly close.
+    unit_format: days
+    interpretation: Higher values improve cash but may impact supplier terms.
+  technical:
+    dax_name: DPO Days
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Treasury / Procurement Controlling
+    data_owner: Finance BI
+    steward: Working Capital Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - COGS > 0
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: wc.ccc.days
+  kpi_key: CCC Days
+  kpi_type: diagnostic
+  impact_dimension: Liquidity
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref:
+  - FIN-001
+  calc_type: amount
+  business:
+    purpose: Measures cash conversion cycle length.
+    definition: DSO + DIO - DPO.
+    grain_scope: Company/segment; monthly close.
+    unit_format: days
+    interpretation: Lower values indicate faster cash recovery.
+  technical:
+    dax_name: CCC Days
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Treasury
+    data_owner: Finance BI
+    steward: Working Capital Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - DSO, DIO, DPO available for period
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
 ```

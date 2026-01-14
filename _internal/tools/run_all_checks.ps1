@@ -38,16 +38,29 @@ Write-Host ""
 function Invoke-LocalScript {
   param(
     [string]$RelativePath,
-    [string[]]$Arguments
+    [object]$Arguments
   )
   $full = Join-Path -Path $repoRoot -ChildPath $RelativePath
   if (-not (Test-Path $full)) {
     Write-Host "Skip: $RelativePath (not found)" -ForegroundColor Yellow
     return
   }
-  Write-Host ">> $RelativePath $($Arguments -join ' ')" -ForegroundColor Cyan
+  if ($Arguments -is [hashtable]) {
+    $argText = ($Arguments.GetEnumerator() | ForEach-Object { "-$($_.Key) $($_.Value)" }) -join ' '
+  } elseif ($Arguments -is [string[]]) {
+    $argText = ($Arguments -join ' ')
+  } else {
+    $argText = ""
+  }
+  Write-Host ">> $RelativePath $argText" -ForegroundColor Cyan
   try {
-    & $full @Arguments
+    if ($Arguments -is [hashtable]) {
+      & $full @Arguments
+    } elseif ($Arguments -is [string[]]) {
+      & $full @Arguments
+    } else {
+      & $full
+    }
   } catch {
     Write-Host ("  Error while running {0}:{1}  {2}" -f $RelativePath, [Environment]::NewLine, $_.Exception.Message) -ForegroundColor Red
   }
@@ -68,5 +81,23 @@ Invoke-LocalScript -RelativePath "_internal/tools/validation/check_measures_vs_k
 
 # 5) Sanity-check docs and tooling references
 Invoke-LocalScript -RelativePath "_internal/tools/maintenance/check_docs_refs.ps1" -Arguments @()
+
+# 6) KPI catalog vs Measure Dictionaries
+Invoke-LocalScript -RelativePath "_internal/tools/validation/check_kpi_vs_measure_dictionary.ps1" -Arguments @{
+  KpiCatalogRoot = $kpiCatalogRoot
+  MeasureDictRoot = (Join-Path $repoRoot "semantic_models\domains")
+}
+
+# 7) Measure Dictionaries vs Gold contracts
+Invoke-LocalScript -RelativePath "_internal/tools/validation/check_measure_dictionary_vs_gold.ps1" -Arguments @{
+  MeasureDictRoot = (Join-Path $repoRoot "semantic_models\domains")
+  GoldRoot = (Join-Path $repoRoot "data_contracts\domains")
+}
+
+# 8) TMDL vs Measure Dictionaries (optional if TMDL exists)
+Invoke-LocalScript -RelativePath "_internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1" -Arguments @{
+  MeasureDictRoot = (Join-Path $repoRoot "semantic_models\domains")
+  DistRoot = $distRoot
+}
 
 Write-Host "All checks invoked. Review messages above for warnings or errors." -ForegroundColor Green

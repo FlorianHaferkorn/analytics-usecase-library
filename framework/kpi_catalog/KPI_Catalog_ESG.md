@@ -25,9 +25,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Carbon Emission Intensity
     depends_on_measures:
+    - Total CO2 Emissions
     - Net Sales Amount
     lineage:
-    - fact_sustainability.CO2_Emissions
+    - fact_sustainability.CO2 Emissions
     - fact_sales.Net Sales Amount
   governance:
     business_owner: Head of Sustainability
@@ -41,6 +42,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.95
     last_review: 12.10.2025
+
 - kpi_id: esg.aligned_revenue.pct
   kpi_key: ESG-Aligned Revenue %
   kpi_type: strategic
@@ -97,8 +99,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     unit_format: kWh
     interpretation: Higher share supports ESG alignment and lower carbon intensity.
   technical:
-    dax_name: Renewable Energy (kWh)
-    depends_on_measures: []
+    dax_name: Renewable Energy kWh
+    depends_on_measures:
+    - Renewable Energy kWh
     lineage:
     - fact_energy.Renewable kWh
   governance:
@@ -113,6 +116,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: esg.energy.total_kwh
   kpi_key: Total Energy (kWh)
   kpi_type: supporting
@@ -128,8 +132,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     unit_format: kWh
     interpretation: Monitor trend; input to carbon intensity calculations.
   technical:
-    dax_name: Total Energy (kWh)
-    depends_on_measures: []
+    dax_name: Total Energy kWh
+    depends_on_measures:
+    - Total Energy kWh
     lineage:
     - fact_energy.Total kWh
   governance:
@@ -144,6 +149,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: esg.co2.total.tco2e
   kpi_key: Total CO2 Emissions (tCO2e)
   kpi_type: supporting
@@ -159,10 +165,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     unit_format: tCO2e
     interpretation: Higher share supports ESG alignment and lower carbon intensity.
   technical:
-    dax_name: Total CO2 Emissions (tCO2e)
-    depends_on_measures: []
+    dax_name: Total CO2 Emissions
+    depends_on_measures:
+    - Total CO2 Emissions
     lineage:
-    - fact_energy.Renewable kWh
+    - fact_sustainability.CO2 Emissions
   governance:
     business_owner: Head of Sustainability
     data_owner: Sustainability Data Team
@@ -175,6 +182,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: esg.ltifr.rate
   kpi_key: Lost Time Injury Frequency Rate
   kpi_type: supporting
@@ -196,8 +204,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Lost Time Injuries
     - Hours Worked
     lineage:
-    - fact_safety.LostTimeInjuries
-    - fact_hr.HoursWorked
+    - fact_safety.LTIs
+    - fact_safety.Hours Worked
   governance:
     business_owner: Head of HSE
     data_owner: Safety Office

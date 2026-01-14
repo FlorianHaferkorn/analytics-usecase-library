@@ -179,7 +179,7 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_Engagement"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Employee Engagement % */"
+    dax: "DIVIDE ( SUM ( fact_survey[Engaged Responses] ), SUM ( fact_survey[Total Responses] ) )"
     formatString: "0.0%"
   documentation:
     description: "Share of engaged employees per survey."

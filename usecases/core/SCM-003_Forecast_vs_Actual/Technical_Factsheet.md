@@ -200,7 +200,7 @@ fact:
 ### 5.2 DAX Definitions
 
 ```DAX
-/// Supporting — Bases
+/// Supporting - Units-based bases
 Forecast Units :=
     SUM ( fact_forecast[Forecast Units] )
 
@@ -210,26 +210,26 @@ Actual Units :=
 Absolute Error :=
     ABS ( [Forecast Units] - [Actual Units] )
 
-/// plan.forecast.accuracy.pct — Accuracy
+/// plan.forecast.accuracy.pct - Accuracy (units-based)
 Forecast Accuracy % :=
     VAR AbsErr = [Absolute Error]
     VAR Actual = [Actual Units]
     RETURN 1 - DIVIDE ( AbsErr, Actual )
 
-/// plan.forecast.mape.pct — MAPE
+/// plan.forecast.mape.pct - MAPE (units-based)
 MAPE % :=
     DIVIDE ( [Absolute Error], [Actual Units] )
 
-/// plan.forecast.bias.pct — Bias
+/// plan.forecast.bias.pct - Bias (units-based)
 Bias % :=
     DIVIDE ( [Forecast Units] - [Actual Units], [Actual Units] )
 
-/// plan.forecast.service_impact.pct — Service impact (placeholder linkage)
+/// plan.forecast.service_impact.pct - Service impact (units-based, placeholder linkage)
 Service Impact % :=
     // TODO: requires linkage from forecast error to OTIF/stockout impact
     BLANK ()
 
-/// plan.replan.count — Re-plans
+/// plan.replan.count - Re-plans
 Re-Plan Count :=
     SUM ( fact_replan[Re-Plan Count] )
 ```
@@ -337,3 +337,4 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+

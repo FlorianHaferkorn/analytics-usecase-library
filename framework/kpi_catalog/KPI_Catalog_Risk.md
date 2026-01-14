@@ -7,7 +7,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ## KPIs - Strategic
 
 ```yaml
-- use_case_ref: []
+[]
 ```
 
 ## KPIs - Supporting / Diagnostic
@@ -16,7 +16,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 - kpi_id: fin.risk.pd.pct
   kpi_key: Probability of Default (PD) %
   kpi_type: diagnostic
-  impact_dimension: Governance
+  impact_dimension: Risk
   domain_tag:
   - Corporate & Strategy
   - Financial Services
@@ -32,8 +32,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher PD indicates higher credit risk; interpret together with LGD % and EAD Amount for expected loss
       and capital calculations.
   technical:
-    dax_name: PD %
-    depends_on_measures: - use_case_ref: []
+    dax_name: Probability of Default (PD) %
+    depends_on_measures:
+    - Probability of Default (PD) %
     lineage:
     - fact_credit_risk.PD
   governance:
@@ -48,10 +49,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: fin.risk.lgd.pct
   kpi_key: Loss Given Default (LGD) %
   kpi_type: diagnostic
-  impact_dimension: Governance
+  impact_dimension: Risk
   domain_tag:
   - Corporate & Strategy
   - Financial Services
@@ -66,8 +68,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     unit_format: '% (1 decimal)'
     interpretation: Higher LGD indicates lower recovery and higher loss severity; interpret together with PD % and EAD Amount.
   technical:
-    dax_name: LGD %
-    depends_on_measures: - use_case_ref: []
+    dax_name: Loss Given Default (LGD) %
+    depends_on_measures:
+    - Loss Given Default (LGD) %
     lineage:
     - fact_credit_risk.LGD
   governance:
@@ -82,10 +85,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: fin.risk.ead.amount
   kpi_key: Exposure at Default (EAD) Amount
   kpi_type: diagnostic
-  impact_dimension: Governance
+  impact_dimension: Risk
   domain_tag:
   - Corporate & Strategy
   - Financial Services
@@ -100,8 +104,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     unit_format: EUR (2 decimals)
     interpretation: Higher EAD increases expected loss and capital requirements; interpret with PD % and LGD %.
   technical:
-    dax_name: EAD Amount
-    depends_on_measures: - use_case_ref: []
+    dax_name: Exposure at Default Amount
+    depends_on_measures:
+    - Exposure at Default Amount
     lineage:
     - fact_credit_risk.EAD
   governance:

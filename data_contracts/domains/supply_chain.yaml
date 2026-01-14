@@ -68,6 +68,7 @@ fact:
       - {name: OTIF Flag, type: boolean}
       - {name: On-Time Flag, type: boolean, nullable: true}
       - {name: In-Full Flag, type: boolean, nullable: true}
+      - {name: Order Correct Flag, type: boolean, nullable: true}
       - {name: Order Qty, type: decimal, agg: sum}
       - {name: Penalty Amount, type: currency, agg: sum, nullable: true}
       - {name: Expedite Cost, type: currency, agg: sum, nullable: true}
@@ -98,6 +99,48 @@ fact:
       - {name: ProductKey, type: int, ref: dim_product}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true}
       - {name: Sales Units, type: decimal, agg: sum}
+
+  - name: fact_procurement
+    grain: purchase_order_line
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product, nullable: true}
+      - {name: Purchase Amount, type: currency, agg: sum}
+      - {name: Contracted Amount, type: currency, agg: sum, nullable: true}
+      - {name: Actual Unit Price, type: currency, agg: sum, nullable: true}
+      - {name: Contract Unit Price, type: currency, agg: sum, nullable: true}
+      - {name: Purchase Quantity, type: decimal, agg: sum}
+
+  - name: fact_replenishment
+    grain: location_sku_day
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: Actual Orders, type: decimal, agg: sum}
+      - {name: Target Orders, type: decimal, agg: sum}
+
+  - name: fact_logistics
+    grain: shipment_line
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product, nullable: true}
+      - {name: LaneKey, type: int, ref: dim_lane, nullable: true}
+      - {name: Units Qty, type: decimal, agg: sum}
+      - {name: Cost Amount, type: currency, agg: sum}
+
+  - name: fact_warehouse
+    grain: warehouse_day
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: Order Lines Processed, type: decimal, agg: sum}
+      - {name: Productive Hours, type: decimal, agg: sum}
+      - {name: Picks Count, type: decimal, agg: sum}
+      - {name: Picking Hours, type: decimal, agg: sum, nullable: true}
+      - {name: Cost Amount, type: currency, agg: sum}
 
 settings:
   timezone: Europe/Berlin

@@ -253,7 +253,7 @@ Total Orders :=
 OTIF % :=
     DIVIDE ( [On-Time In-Full Orders], [Total Orders] )
 
-/// inv.stockout.pct — Stockout rate
+/// inv.stockout.pct - Stockout rate
 Stockout Count :=
     SUMX ( fact_stockout, IF ( fact_stockout[Stockout Flag], fact_stockout[Demand Occurrences], 0 ) )
 
@@ -263,7 +263,7 @@ Demand Occurrences :=
 Stockout Rate % :=
     DIVIDE ( [Stockout Count], [Demand Occurrences] )
 
-/// plan.forecast.accuracy.pct — Forecast accuracy
+/// plan.forecast.accuracy.pct - Forecast accuracy (units-based)
 Forecast Accuracy % :=
     VAR Forecast = SUM ( fact_forecast[Forecast Units] )
     VAR Actual   = SUM ( fact_sales[Sales Units] )
@@ -352,3 +352,4 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+

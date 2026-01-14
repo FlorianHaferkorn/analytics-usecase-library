@@ -99,13 +99,13 @@ required_kpis:
     lineage: fact_inventory[Obsolete Stock], fact_inventory[Total Stock]
   - id: plan.forecast.accuracy.pct
     name: Forecast Accuracy %
-    purpose: Planning quality
-    definition_short: 1 – |Forecast – Actual| / Actual
+    purpose: Planning quality (units-based forecast)
+    definition_short: 1 - |Forecast Units - Actual Units| / Actual Units
     unit: %
     grain: sku_month
     agg: avg
-    target: ≥ target
-    interpretation: Low accuracy drives excess/stockouts
+    target: % target
+    interpretation: Low accuracy drives excess/stockouts; units-based (not revenue)
     lineage: fact_forecast[Forecast], fact_sales[Actual]
 ```
 
@@ -238,3 +238,5 @@ required_slicers: Date, Location/DC/Channel, Category/Product, ABC/XYZ
 - Misstated DIO if COGS or inventory snapshots misaligned.  
 - Stockout flags incomplete, underreporting availability risk.  
 - Forecast accuracy misread without considering promotions or launches.  
+
+

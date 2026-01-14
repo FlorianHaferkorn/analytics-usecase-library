@@ -21,14 +21,15 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     last_review: 12.10.2025
   dependencies:
     measures:
+    - Receivables Amount
     - Inventory Amount
     - Payables Amount
     - Net Sales Amount
     columns:
-    - fact_balance.Receivables
-    - fact_balance.Inventory
-    - fact_balance.Payables
-    - fact_sales.Net Sales Amount
+    - fact_ar[AR Amount]
+    - fact_inventory[Inventory Amount]
+    - fact_ap[AP Amount]
+    - fact_finance[Net Sales Amount]
 - measure_name: Free Cash Flow
   is_kpi_measure: true
   kpi_id_ref: fin.liquidity.free_cash_flow
@@ -50,15 +51,19 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - Operating Cash Flow
     - CapEx Amount
     columns:
-    - fact_cashflow.OperatingCashFlow
-    - fact_cashflow.CapEx
+    - fact_cashflow[Operating Cash Flow Amount]
+    - fact_cashflow[CapEx Amount]
 - measure_name: DSO (Days)
   is_kpi_measure: true
   kpi_id_ref: fin.liquidity.dso_days_sales_outstanding
   semantic_model: Liquidity_SemanticModel
   category: KPI
   expression:
-    dax: '// TODO: add expression'
+    dax: |
+      VAR AR      = SUM ( fact_ar[AR Amount] )
+      VAR Revenue = SUM ( fact_finance[Net Sales Amount] )
+      VAR RevenuePerDay = DIVIDE ( Revenue, 365 )
+      RETURN DIVIDE ( AR, RevenuePerDay )
     formatString: '0'
   documentation:
     description: (Accounts Receivable / Net Sales) x Days in Period
@@ -68,13 +73,32 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.0
     last_review: 04.11.2025
+- measure_name: Receivables Amount
+  is_kpi_measure: true
+  kpi_id_ref: fin.liquidity.receivables.amount
+  semantic_model: Liquidity_SemanticModel
+  category: KPI
+  expression:
+    dax: "SUM ( fact_ar[AR Amount] )"
+    formatString: 'EUR #,0.00'
+  documentation:
+    description: Accounts receivable at period end.
+    notes: ''
+  governance:
+    owner: Finance BI
+    status: active
+    version: v1.0
+    last_review: 04.11.2025
+  dependencies:
+    columns:
+    - fact_ar[AR Amount]
 - measure_name: Operating Cash Flow Amount
   is_kpi_measure: false
   kpi_id_ref: ""
   semantic_model: Liquidity_SemanticModel
   category: Base
   expression:
-    dax: "SUM ( fact_cashflow[OperatingCashFlow] )"
+    dax: "SUM ( fact_cashflow[Operating Cash Flow Amount] )"
     formatString: 'EUR #,0.00'
   documentation:
     description: Operating cash flow amount from the cash flow statement.
@@ -86,7 +110,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     last_review: 04.11.2025
   dependencies:
     columns:
-    - fact_cashflow.OperatingCashFlow
+    - fact_cashflow[Operating Cash Flow Amount]
 - measure_name: Operating Cash Flow
   is_kpi_measure: true
   kpi_id_ref: fin.liquidity.operating_cash_flow
@@ -109,7 +133,11 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Liquidity_SemanticModel
   category: KPI
   expression:
-    dax: '// TODO: add expression'
+    dax: |
+      VAR Inv       = SUM ( fact_inventory[Inventory Amount] )
+      VAR Cogs      = SUM ( fact_inventory[COGS Amount] )
+      VAR CogsPerDay = DIVIDE ( Cogs, 365 )
+      RETURN DIVIDE ( Inv, CogsPerDay )
     formatString: '0'
   documentation:
     description: (Inventory / COGS) x Days in Period
@@ -125,7 +153,11 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Liquidity_SemanticModel
   category: KPI
   expression:
-    dax: '// TODO: add expression'
+    dax: |
+      VAR AP       = SUM ( fact_ap[AP Amount] )
+      VAR Cogs     = SUM ( fact_ap[COGS Amount] )
+      VAR CogsPerDay = DIVIDE ( Cogs, 365 )
+      RETURN DIVIDE ( AP, CogsPerDay )
     formatString: '0'
   documentation:
     description: (Accounts Payable / COGS) x Days in Period
@@ -141,7 +173,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Liquidity_SemanticModel
   category: KPI
   expression:
-    dax: '// TODO: add expression'
+    dax: '[DSO (Days)] + [DIO (Days)] - [DPO (Days)]'
     formatString: '0'
   documentation:
     description: DSO + DIO - DPO
@@ -157,7 +189,9 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Liquidity_SemanticModel
   category: KPI
   expression:
-    dax: '// TODO: add expression'
+    dax: |
+      VAR CCC_LY = CALCULATE ( [CCC (Days)], DATEADD ( dim_date[Date], -1, YEAR ) )
+      RETURN [CCC (Days)] - CCC_LY
     formatString: '0'
   documentation:
     description: CCC (Days) - Baseline (Plan or LY)
@@ -173,7 +207,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Liquidity_SemanticModel
   category: KPI
   expression:
-    dax: '// TODO: add expression'
+    dax: "SUM ( fact_cashflow[CapEx Amount] )"
     formatString: 'EUR #,0.00'
   documentation:
     description: Capital expenditures
@@ -189,7 +223,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Liquidity_SemanticModel
   category: KPI
   expression:
-    dax: '// TODO: add expression'
+    dax: "SUM ( fact_inventory[Inventory Amount] )"
     formatString: 'EUR #,0.00'
   documentation:
     description: Inventory value at period end
@@ -205,7 +239,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Liquidity_SemanticModel
   category: KPI
   expression:
-    dax: '// TODO: add expression'
+    dax: "SUM ( fact_ap[AP Amount] )"
     formatString: 'EUR #,0.00'
   documentation:
     description: Accounts payable at period end
@@ -221,7 +255,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Liquidity_SemanticModel
   category: KPI
   expression:
-    dax: '// TODO: add expression'
+    dax: "DIVIDE ( [CapEx Amount], [Net Sales Amount] )"
     formatString: 0.0 %
   documentation:
     description: CapEx as a percentage of Net Sales.
@@ -237,6 +271,6 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - CapEx Amount
     - Net Sales Amount
     columns:
-    - fact_cashflow.CapEx
-    - fact_sales.Net Sales Amount
+    - fact_cashflow[CapEx Amount]
+    - fact_finance[Net Sales Amount]
 ```

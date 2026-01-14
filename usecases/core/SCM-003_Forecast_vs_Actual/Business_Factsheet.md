@@ -48,43 +48,43 @@ All KPIs must exist in the KPI Catalog.
 required_kpis:
   - id: plan.forecast.accuracy.pct
     name: Forecast Accuracy %
-    purpose: Planning quality
-    definition_short: 1 – |Forecast – Actual| / Actual
+    purpose: Planning quality (units-based forecast)
+    definition_short: 1 - |Forecast Units - Actual Units| / Actual Units
     unit: %
     grain: sku_month
     agg: avg
-    target: ≥ target
-    interpretation: Low accuracy drives excess/stockouts
+    target: % target
+    interpretation: Low accuracy drives excess/stockouts; units-based (not revenue)
     lineage: fact_forecast[Forecast], fact_sales[Actual]
   - id: plan.forecast.mape.pct
     name: MAPE %
-    purpose: Error magnitude
-    definition_short: Mean absolute % error
+    purpose: Error magnitude (units-based forecast)
+    definition_short: Mean absolute % error of Forecast Units vs Actual Units
     unit: %
     grain: sku_month
     agg: avg
-    target: ≤ target
-    interpretation: High MAPE indicates poor forecast quality
+    target: % target
+    interpretation: High MAPE indicates poor forecast quality; units-based (not revenue)
     lineage: fact_forecast vs fact_sales
   - id: plan.forecast.bias.pct
     name: Forecast Bias %
-    purpose: Direction of error
-    definition_short: (Forecast – Actual) / Actual
+    purpose: Direction of error (units-based forecast)
+    definition_short: (Forecast Units - Actual Units) / Actual Units
     unit: %
     grain: sku_month
     agg: avg
     target: Near 0 (within bands)
-    interpretation: Positive bias = over-forecast; negative = under-forecast
+    interpretation: Positive bias = over-forecast; negative = under-forecast; units-based (not revenue)
     lineage: fact_forecast vs fact_sales
   - id: plan.forecast.service_impact.pct
     name: Service Impact %
-    purpose: Service effect of forecast error
-    definition_short: Portion of service misses attributable to forecast error
+    purpose: Service effect of forecast error (units-based)
+    definition_short: Portion of service misses attributable to forecast error (units-based)
     unit: %
     grain: sku_month
     agg: avg
     target: Minimize
-    interpretation: High impact shows planning as root cause
+    interpretation: High impact shows planning as root cause; units-based (not revenue)
     lineage: linkage between forecast error and OTIF/stockout
   - id: plan.replan.count
     name: Re-Plan Count
@@ -226,3 +226,4 @@ required_slicers: Date, Region/Channel/Location, Category/Product, ABC/XYZ
 - Misinterpreting bias/accuracy on launch or promo items.  
 - Service impact overstated if OTIF/stockout not properly linked.  
 - Re-plan counts misleading if process changes not tracked.  
+

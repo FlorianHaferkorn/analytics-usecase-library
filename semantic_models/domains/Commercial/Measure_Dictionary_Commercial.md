@@ -4,8 +4,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
 - measure_name: "Net Sales Amount"
-  is_kpi_measure: true
-  kpi_id_ref: "sales.net_sales.amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
   semantic_model: "Commercial_Sales_SemanticModel"
   display_folder: "01_Revenue"
   category: "KPI"
@@ -55,8 +55,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 - measure_name: "Net Sales % vs LY"
-  is_kpi_measure: true
-  kpi_id_ref: "sales.net_sales.delta_pct.ly"
+  is_kpi_measure: false
+  kpi_id_ref: ""
   semantic_model: "Commercial_Sales_SemanticModel"
   display_folder: "01_Revenue"
   category: "KPI"
@@ -82,8 +82,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 - measure_name: "Gross Margin Amount"
-  is_kpi_measure: true
-  kpi_id_ref: "margin.gm.amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
   semantic_model: "Commercial_Sales_SemanticModel"
   display_folder: "02_Margin"
   category: "KPI"
@@ -108,8 +108,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 - measure_name: "Gross Margin %"
-  is_kpi_measure: true
-  kpi_id_ref: "margin.gm.pct"
+  is_kpi_measure: false
+  kpi_id_ref: ""
   semantic_model: "Commercial_Sales_SemanticModel"
   display_folder: "02_Margin"
   category: "KPI"
@@ -133,8 +133,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 - measure_name: "Gross Margin % vs Plan"
-  is_kpi_measure: true
-  kpi_id_ref: "margin.gm.vs_plan.pct"
+  is_kpi_measure: false
+  kpi_id_ref: ""
   semantic_model: "Commercial_Sales_SemanticModel"
   display_folder: "02_Margin"
   category: "KPI"
@@ -264,8 +264,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 - measure_name: "Price Realization %"
-  is_kpi_measure: true
-  kpi_id_ref: "sales.price.realization_pct"
+  is_kpi_measure: false
+  kpi_id_ref: ""
   semantic_model: "Commercial_Sales_SemanticModel"
   display_folder: "03_Pricing"
   category: "KPI"
@@ -289,8 +289,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 - measure_name: "Promotion ROI %"
-  is_kpi_measure: true
-  kpi_id_ref: "sales.promo.roi.pct"
+  is_kpi_measure: false
+  kpi_id_ref: ""
   semantic_model: "Commercial_Sales_SemanticModel"
   display_folder: "04_Promo"
   category: "KPI"
@@ -379,8 +379,8 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 - measure_name: "Promo Gross Margin %"
-  is_kpi_measure: true
-  kpi_id_ref: "margin.promo.gm.pct"
+  is_kpi_measure: false
+  kpi_id_ref: ""
   semantic_model: "Commercial_Sales_SemanticModel"
   display_folder: "02_Margin"
   category: "KPI"

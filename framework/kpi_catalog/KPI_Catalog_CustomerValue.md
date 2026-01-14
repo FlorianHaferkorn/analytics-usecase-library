@@ -43,6 +43,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.97
     last_review: 12.10.2025
+
 - kpi_id: crm.nps.index
   kpi_key: Net Promoter Score (NPS)
   kpi_type: strategic
@@ -80,6 +81,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.95
     last_review: 12.10.2025
+
 - kpi_id: market.share.total.pct
   kpi_key: Total Market Share %
   kpi_type: strategic
@@ -115,6 +117,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: mkt.brand.awareness.pct
   kpi_key: Brand Awareness %
   kpi_type: strategic
@@ -150,6 +153,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: mkt.brand.preference.pct
   kpi_key: Brand Preference %
   kpi_type: strategic
@@ -224,6 +228,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.98
     last_review: 12.10.2025
+
 - kpi_id: crm.active_customers_start.count
   kpi_key: Active Customers Start
   kpi_type: supporting
@@ -237,7 +242,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Distinct active customers at the first day of the period.
     grain_scope: Customer/segment; monthly or quarterly at period start.
     unit_format: count
-    interpretation: TODO - add interpretation.
+    interpretation: Baseline population; changes vs end-of-period indicate net growth or contraction.
   technical:
     dax_name: Active Customers Start
     depends_on_measures: []
@@ -254,6 +259,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: crm.active_customers_end.count
   kpi_key: Active Customers End
   kpi_type: supporting
@@ -267,7 +273,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Distinct active customers at the end of the period.
     grain_scope: Customer/segment; monthly or quarterly at period end.
     unit_format: count
-    interpretation: TODO - add interpretation.
+    interpretation: End-of-period baseline for retention; compare with start to assess net change.
   technical:
     dax_name: Active Customers End
     depends_on_measures: []
@@ -284,6 +290,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: crm.churned_customers.count
   kpi_key: Churned Customers
   kpi_type: supporting
@@ -297,7 +304,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Distinct customers with no qualifying transactions in the current period but active in the look-back window.
     grain_scope: Customer/segment; monthly or quarterly.
     unit_format: count
-    interpretation: TODO - add interpretation.
+    interpretation: Higher counts indicate deteriorating retention; validate against cohort definitions.
   technical:
     dax_name: Churned Customers
     depends_on_measures: []
@@ -314,6 +321,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: crm.reactivated_customers.count
   kpi_key: Reactivated Customers Count
   kpi_type: supporting
@@ -327,7 +335,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Distinct customers with a prior churn status that show qualifying transactions again in the current period.
     grain_scope: Customer/segment; monthly or quarterly.
     unit_format: count
-    interpretation: TODO - add interpretation.
+    interpretation: Higher counts indicate successful win-back programs; review by segment/channel.
   technical:
     dax_name: Reactivated Customers Count
     depends_on_measures: []
@@ -344,6 +352,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: crm.clv.amount
   kpi_key: CLV (Customer Lifetime Value)
   kpi_type: diagnostic
@@ -357,7 +366,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Sum of expected future gross margin per customer discounted over the chosen time horizon.
     grain_scope: Customer level; calculated on cohort or segment basis.
     unit_format: EUR (2 decimals)
-    interpretation: TODO - add interpretation.
+    interpretation: Higher CLV indicates more valuable segments; compare against acquisition cost and churn risk.
   technical:
     dax_name: CLV
     depends_on_measures: []
@@ -374,6 +383,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: crm.lifetime_revenue.amount
   kpi_key: Customer Lifetime Revenue Amount
   kpi_type: supporting
@@ -407,6 +417,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: crm.revenue_at_risk.amount
   kpi_key: Revenue at Risk Amount
   kpi_type: diagnostic
@@ -440,6 +451,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: crm.reactivation.pct
   kpi_key: Reactivation Rate %
   kpi_type: diagnostic
@@ -453,7 +465,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Number of reactivated customers in the period / Number of customers previously classified as lost.
     grain_scope: Customer/segment; monthly or quarterly.
     unit_format: '% (1 decimal)'
-    interpretation: TODO - add interpretation.
+    interpretation: Higher rates indicate effective reactivation programs; validate cohort definitions.
   technical:
     dax_name: Reactivation Rate %
     depends_on_measures: []
@@ -470,6 +482,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: crm.at_risk_share.pct
   kpi_key: At-Risk Share %
   kpi_type: diagnostic
@@ -483,7 +496,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Number of customers with churn-risk flag / Total active customers in the period.
     grain_scope: Customer/segment; monthly or quarterly.
     unit_format: '% (1 decimal)'
-    interpretation: TODO - add interpretation.
+    interpretation: Higher share signals increased retention risk; align with risk thresholds and model calibration.
   technical:
     dax_name: At-Risk Share %
     depends_on_measures: []
@@ -500,6 +513,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: crm.at_risk_customers.count
   kpi_key: At-Risk Customers Count
   kpi_type: supporting
@@ -513,7 +527,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Distinct customers with an at-risk flag based on the churn model in the current period.
     grain_scope: Customer/segment; monthly or quarterly.
     unit_format: count
-    interpretation: TODO - add interpretation.
+    interpretation: Higher counts indicate more customers needing retention actions; verify scoring coverage.
   technical:
     dax_name: At-Risk Customers Count
     depends_on_measures: []
@@ -530,6 +544,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: crm.active_customers.count
   kpi_key: Active Customers
   kpi_type: supporting
@@ -560,6 +575,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
 - kpi_id: sales.customer.revenue_share.pct
   kpi_key: Customer Revenue Share %
   kpi_type: diagnostic
@@ -596,6 +612,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: crm.opportunities.open.amount
   kpi_key: Open Opportunities Amount
   kpi_type: diagnostic
@@ -624,11 +641,12 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     review_cycle: monthly
     validation_process: manual review
     qa_rules:
-    - Exclude closed/won/lost stages from 'open' definition
+    - Exclude non-open stages (e.g., Won/Lost) from "Open" definition
     version: v0.1
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: crm.opportunities.won.amount
   kpi_key: Won Opportunities Amount
   kpi_type: diagnostic
@@ -641,7 +659,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   calc_type: amount
   business:
     purpose: Measure realized pipeline value from closed-won opportunities.
-    definition: Sum of revenue (or booked amount) for all opportunities with status Closed-Won.
+    definition: Sum of revenue (or booked amount) for all opportunities with status Won.
     grain_scope: Opportunity / account / segment; aggregated to org and time period.
     unit_format: EUR (2 decimals)
     interpretation: Indicates how much pipeline has converted into booked business.
@@ -657,11 +675,12 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     review_cycle: monthly
     validation_process: manual review
     qa_rules:
-    - Status mapping (Closed-Won) documented and stable
+    - Status mapping (Won) documented and stable
     version: v0.1
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: crm.opportunities.win_rate.pct
   kpi_key: Opportunity Win Rate %
   kpi_type: diagnostic
@@ -692,11 +711,12 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     review_cycle: monthly
     validation_process: automated
     qa_rules:
-    - Status categories for won/lost consistently mapped
+    - Status categories for Won/Lost consistently mapped
     version: v0.1
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: crm.opportunities.stage_conversion.pct
   kpi_key: Opportunity Stage Conversion %
   kpi_type: diagnostic
@@ -708,7 +728,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - CST-010
   calc_type: rate
   business:
-    purpose: Measure conversion between pipeline stages (e.g., Lead  Qualified  Proposal  Won).
+    purpose: Measure conversion between pipeline stages (e.g., Qualified -> Won).
     definition: Number of opportunities progressing from stage A to stage B divided by total opportunities in stage A.
     grain_scope: Stage / segment / seller; monthly or quarterly.
     unit_format: '% (1 decimal)'
@@ -730,6 +750,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: crm.complaint.rate.pct
   kpi_key: Complaint Rate %
   kpi_type: diagnostic
@@ -763,6 +784,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: crm.complaint.count
   kpi_key: Complaint Count
   kpi_type: supporting
@@ -795,6 +817,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: crm.cross_sell_ratio.pct
   kpi_key: Cross-Sell Ratio %
   kpi_type: diagnostic
@@ -828,6 +851,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: crm.basket_size.amount
   kpi_key: Average Basket Value
   kpi_type: diagnostic
@@ -862,6 +886,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: crm.basket_size.units
   kpi_key: Average Basket Units
   kpi_type: diagnostic
@@ -895,6 +920,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: crm.acquisition.leads.count
   kpi_key: Leads Count
   kpi_type: supporting
@@ -928,6 +954,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: crm.acquisition.conversions.count
   kpi_key: Acquisition Conversions Count
   kpi_type: supporting
@@ -960,6 +987,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: crm.acquisition.conversion_rate.pct
   kpi_key: Acquisition Conversion Rate %
   kpi_type: diagnostic
@@ -994,6 +1022,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: crm.acquisition.cac.amount
   kpi_key: Customer Acquisition Cost (CAC) Amount
   kpi_type: diagnostic
@@ -1027,6 +1056,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
+
 - kpi_id: market.share.relative.pct
   kpi_key: Relative Market Share %
   kpi_type: diagnostic

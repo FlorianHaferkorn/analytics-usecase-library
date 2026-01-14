@@ -290,7 +290,14 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Retention"
   category: "KPI"
   expression:
-    dax: "/* TODO: snapshot active customers at period start */"
+    dax: |
+      VAR StartDate = MIN ( dim_date[Date] )
+      RETURN
+          CALCULATE (
+              DISTINCTCOUNT ( dim_customer[CustomerKey] ),
+              KEEPFILTERS ( fact_customer_events[Activity Flag] = TRUE() ),
+              dim_date[Date] = StartDate
+          )
     formatString: "#,0"
   documentation:
     description: "Active customer base at the start of the period."
@@ -298,6 +305,8 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   dependencies:
     columns:
       - "dim_customer[CustomerKey]"
+      - "fact_customer_events[Activity Flag]"
+      - "dim_date[Date]"
   governance:
     owner: "CRM BI"
     status: "planned"
@@ -311,7 +320,14 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Retention"
   category: "KPI"
   expression:
-    dax: "/* TODO: snapshot active customers at period end */"
+    dax: |
+      VAR EndDate = MAX ( dim_date[Date] )
+      RETURN
+          CALCULATE (
+              DISTINCTCOUNT ( dim_customer[CustomerKey] ),
+              KEEPFILTERS ( fact_customer_events[Activity Flag] = TRUE() ),
+              dim_date[Date] = EndDate
+          )
     formatString: "#,0"
   documentation:
     description: "Active customer base at the end of the period."
@@ -319,6 +335,8 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   dependencies:
     columns:
       - "dim_customer[CustomerKey]"
+      - "fact_customer_events[Activity Flag]"
+      - "dim_date[Date]"
   governance:
     owner: "CRM BI"
     status: "planned"
@@ -354,13 +372,18 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Retention"
   category: "KPI"
   expression:
-    dax: "/* TODO: count customers reactivated in period */"
+    dax: |
+      CALCULATE (
+          DISTINCTCOUNT ( dim_customer[CustomerKey] ),
+          KEEPFILTERS ( fact_customer_events[Reactivation Flag] = TRUE() )
+      )
     formatString: "#,0"
   documentation:
     description: "Customers returning after churn/inactivity."
     notes: "Requires reactivation flag in events."
   dependencies:
     columns:
+      - "dim_customer[CustomerKey]"
       - "fact_customer_events[Reactivation Flag]"
   governance:
     owner: "CRM BI"
@@ -397,13 +420,20 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Retention"
   category: "KPI"
   expression:
-    dax: "/* TODO: count customers above attrition risk threshold */"
+    dax: |
+      VAR Threshold = 0.7
+      RETURN
+          CALCULATE (
+              DISTINCTCOUNT ( dim_customer[CustomerKey] ),
+              KEEPFILTERS ( fact_customer_events[Attrition Risk %] >= Threshold )
+          )
     formatString: "#,0"
   documentation:
     description: "Customers flagged as at-risk based on attrition model."
     notes: "Threshold defined by CRM governance."
   dependencies:
     columns:
+      - "dim_customer[CustomerKey]"
       - "fact_customer_events[Attrition Risk %]"
   governance:
     owner: "CRM BI"
@@ -440,7 +470,10 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Commercial"
   category: "KPI"
   expression:
-    dax: "/* TODO: average order value per transaction */"
+    dax: |
+      VAR TotalSales = SUM ( fact_sales[Net Sales Amount] )
+      VAR TxnCount   = COUNTROWS ( fact_sales )
+      RETURN DIVIDE ( TotalSales, TxnCount )
     formatString: "EUR #,0.00"
   documentation:
     description: "Average basket value per transaction."
@@ -461,7 +494,10 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Commercial"
   category: "KPI"
   expression:
-    dax: "/* TODO: average units per transaction */"
+    dax: |
+      VAR TotalUnits = SUM ( fact_sales[Quantity] )
+      VAR TxnCount   = COUNTROWS ( fact_sales )
+      RETURN DIVIDE ( TotalUnits, TxnCount )
     formatString: "#,0.0"
   documentation:
     description: "Average basket size in units."
@@ -482,14 +518,25 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "03_Commercial"
   category: "KPI"
   expression:
-    dax: "/* TODO: share of customers buying >1 category */"
+    dax: |
+      VAR CustomerCats =
+          SUMMARIZE (
+              fact_sales,
+              dim_customer[CustomerKey],
+              "CatCount", DISTINCTCOUNT ( dim_product[Category] )
+          )
+      VAR MultiCat = COUNTROWS ( FILTER ( CustomerCats, [CatCount] > 1 ) )
+      VAR TotalCust = DISTINCTCOUNT ( dim_customer[CustomerKey] )
+      RETURN DIVIDE ( MultiCat, TotalCust )
     formatString: "0.0 %"
   documentation:
     description: "Share of customers with cross-category purchases."
     notes: "Requires category mapping at transaction level."
   dependencies:
     columns:
+      - "dim_customer[CustomerKey]"
       - "fact_sales[ProductKey]"
+      - "dim_product[Category]"
   governance:
     owner: "CRM BI"
     status: "planned"
@@ -528,7 +575,11 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "05_Pipeline"
   category: "KPI"
   expression:
-    dax: "/* TODO: sum open opportunity amount */"
+    dax: |
+      CALCULATE (
+          SUM ( fact_crm_opportunity[Amount] ),
+          fact_crm_opportunity[Stage] = "Open"
+      )
     formatString: "EUR #,0.00"
   documentation:
     description: "Open opportunity pipeline value."
@@ -550,7 +601,11 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "05_Pipeline"
   category: "KPI"
   expression:
-    dax: "/* TODO: sum won opportunity amount */"
+    dax: |
+      CALCULATE (
+          SUM ( fact_crm_opportunity[Amount] ),
+          fact_crm_opportunity[Stage] = "Won"
+      )
     formatString: "EUR #,0.00"
   documentation:
     description: "Closed-won opportunity value."
@@ -572,7 +627,14 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "05_Pipeline"
   category: "KPI"
   expression:
-    dax: "/* TODO: won opportunities / total opportunities */"
+    dax: |
+      VAR Won =
+          CALCULATE (
+              COUNTROWS ( fact_crm_opportunity ),
+              fact_crm_opportunity[Stage] = "Won"
+          )
+      VAR Total = COUNTROWS ( fact_crm_opportunity )
+      RETURN DIVIDE ( Won, Total )
     formatString: "0.0 %"
   documentation:
     description: "Share of opportunities that are won."
@@ -593,7 +655,20 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "05_Pipeline"
   category: "KPI"
   expression:
-    dax: "/* TODO: stage-to-stage conversion rate */"
+    dax: |
+      VAR FromStage = "Qualified"
+      VAR ToStage   = "Won"
+      VAR FromCount =
+          CALCULATE (
+              COUNTROWS ( fact_crm_opportunity ),
+              fact_crm_opportunity[Stage] = FromStage
+          )
+      VAR ToCount =
+          CALCULATE (
+              COUNTROWS ( fact_crm_opportunity ),
+              fact_crm_opportunity[Stage] = ToStage
+          )
+      RETURN DIVIDE ( ToCount, FromCount )
     formatString: "0.0 %"
   documentation:
     description: "Conversion rate between pipeline stages."
@@ -678,7 +753,9 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "06_Acquisition"
   category: "KPI"
   expression:
-    dax: "/* TODO: acquisition spend / conversions */"
+    dax: |
+      VAR Spend = SUM ( fact_crm_leads[Acquisition Spend Amount] )
+      RETURN DIVIDE ( Spend, [Acquisition Conversions Count] )
     formatString: "EUR #,0.00"
   documentation:
     description: "Customer acquisition cost per converted lead."
@@ -686,6 +763,8 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   dependencies:
     measures:
       - "Acquisition Conversions Count"
+    columns:
+      - "fact_crm_leads[Acquisition Spend Amount]"
   governance:
     owner: "CRM BI"
     status: "planned"
@@ -699,7 +778,10 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "02_CX"
   category: "KPI"
   expression:
-    dax: "/* TODO: complaints / total interactions */"
+    dax: |
+      VAR Complaints = DISTINCTCOUNT ( fact_experience[Complaint ID] )
+      VAR Interactions = DISTINCTCOUNT ( fact_experience[Interaction ID] )
+      RETURN DIVIDE ( Complaints, Interactions )
     formatString: "0.0 %"
   documentation:
     description: "Complaint incidence rate."
@@ -707,6 +789,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   dependencies:
     columns:
       - "fact_experience[Complaint ID]"
+      - "fact_experience[Interaction ID]"
   governance:
     owner: "CX BI"
     status: "planned"
@@ -720,12 +803,17 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "07_Market"
   category: "KPI"
   expression:
-    dax: "/* TODO: company revenue / total market revenue */"
+    dax: |
+      VAR Company = [Net Sales Amount]
+      VAR Market  = SUM ( fact_market[Market Revenue] )
+      RETURN DIVIDE ( Company, Market )
     formatString: "0.0 %"
   documentation:
     description: "Total market share for the selected market."
     notes: "Market sizing source documented."
   dependencies:
+    measures:
+      - "Net Sales Amount"
     columns:
       - "fact_market[Market Revenue]"
   governance:
@@ -741,14 +829,19 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "07_Market"
   category: "KPI"
   expression:
-    dax: "/* TODO: company share vs top competitor share */"
+    dax: |
+      VAR Company = [Net Sales Amount]
+      VAR TopCompetitor = SUM ( fact_market[Top Competitor Revenue] )
+      RETURN DIVIDE ( Company, TopCompetitor )
     formatString: "0.0 %"
   documentation:
     description: "Relative share versus primary competitor."
     notes: "Competitor selection rules documented."
   dependencies:
+    measures:
+      - "Net Sales Amount"
     columns:
-      - "fact_market[Market Revenue]"
+      - "fact_market[Top Competitor Revenue]"
   governance:
     owner: "Market Intelligence"
     status: "planned"
@@ -762,7 +855,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "07_Market"
   category: "KPI"
   expression:
-    dax: "/* TODO: survey awareness % */"
+    dax: "AVERAGE ( fact_brand_survey[Awareness %] )"
     formatString: "0.0 %"
   documentation:
     description: "Brand awareness rate from surveys."
@@ -783,7 +876,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "07_Market"
   category: "KPI"
   expression:
-    dax: "/* TODO: survey preference % */"
+    dax: "AVERAGE ( fact_brand_survey[Preference %] )"
     formatString: "0.0 %"
   documentation:
     description: "Brand preference rate from surveys."

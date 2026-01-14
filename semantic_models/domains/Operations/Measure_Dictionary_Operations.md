@@ -281,7 +281,10 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_Reliability"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement MTBF using failure intervals */"
+    dax: |
+      VAR TotalHours = DIVIDE ( SUM ( fact_ops[Run Time Minutes] ), 60 )
+      VAR Failures   = DISTINCTCOUNT ( fact_ops_failures[Failure Start DateTime] )
+      RETURN DIVIDE ( TotalHours, Failures )
     formatString: "0.0"
   documentation:
     description: "Mean time between failures."

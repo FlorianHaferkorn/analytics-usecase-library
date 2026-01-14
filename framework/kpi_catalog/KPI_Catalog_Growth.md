@@ -18,15 +18,15 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - COM-002
   calc_type: rate
   business:
-    purpose: Measures top-line expansion versus Plan and Last Year.
+    purpose: Measures top-line expansion versus last year.
     definition: ((Net Sales Amount - Net Sales Amount LY) / Net Sales Amount LY)
     grain_scope: Aggregated at month and org level.
     unit_format: '% (1 decimal)'
-    interpretation: Shows revenue momentum and market success.
+    interpretation: Positive values indicate growth; negative values indicate contraction.
   technical:
     dax_name: Revenue Growth %
     depends_on_measures:
-    - Î” Net Sales Amount
+    - Net Sales Amount
     - Net Sales Amount LY
     lineage:
     - fact_sales.Net Sales Amount
@@ -38,7 +38,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     review_cycle: quarterly
     validation_process: dual control
     qa_rules:
-    - Variance within Â±0.1 pp of plan reconciliation
+    - Reconciles to Net Sales and LY within +/- 0.1 pp
     version: v2.0
   metadata_quality:
     completeness_score: 0.96
@@ -80,6 +80,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.98
     last_review: 03.11.2025
+
 - kpi_id: sales.net_sales.amount.ly
   kpi_key: Net Sales Amount LY
   kpi_type: supporting
@@ -98,7 +99,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Net Sales Amount LY
     depends_on_measures:
-    - Î” Net Sales Amount
+    - Net Sales Amount
     lineage:
     - fact_sales.Net Sales Amount
     - dim_date.Date
@@ -113,6 +114,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.96
     last_review: 03.11.2025
+
 - kpi_id: sales.net_sales.delta_amount.ly
   kpi_key: Delta Net Sales Amount
   kpi_type: diagnostic
@@ -132,7 +134,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Delta Net Sales Amount
     depends_on_measures:
-    - Î” Net Sales Amount
+    - Net Sales Amount
     - Net Sales Amount LY
     lineage:
     - fact_sales.Net Sales Amount
@@ -149,7 +151,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     last_review: 03.11.2025
   aliases:
   - Delta Net Sales Amount
-  - Î” Net Sales Amount
+
 - kpi_id: sales.promo.uplift_pct
   kpi_key: Promo Uplift %
   kpi_type: diagnostic
@@ -184,6 +186,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 11.11.2025
+
 - kpi_id: sales.net_sales.delta_pct.ly
   kpi_key: Delta% Net Sales
   kpi_type: diagnostic
@@ -202,7 +205,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Delta% Net Sales
     depends_on_measures:
-    - Î” Net Sales Amount
+    - Net Sales Amount
     - Net Sales Amount LY
     lineage:
     - fact_sales.Net Sales Amount
@@ -220,7 +223,43 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     last_review: 04.11.2025
   aliases:
   - Delta% Net Sales
-  - Î”% Net Sales
+
+- kpi_id: sales.net_sales.delta_pct.plan
+  kpi_key: Net Sales % vs Plan
+  kpi_type: diagnostic
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  use_case_ref:
+  - COM-001
+  calc_type: rate
+  business:
+    purpose: Relative variance of Net Sales vs Plan.
+    definition: (Net Sales Amount - Plan Sales Amount) / Plan Sales Amount
+    grain_scope: Aggregated to reporting period.
+    unit_format: '% (1 decimal)'
+    interpretation: Positive values indicate outperformance vs plan; negative values indicate shortfall.
+  technical:
+    dax_name: Net Sales % vs Plan
+    depends_on_measures:
+    - Net Sales Amount
+    - Plan Sales Amount
+    lineage:
+    - fact_sales.Net Sales Amount
+    - fact_sales.Plan Sales Amount
+  governance:
+    business_owner: Head of Sales Controlling
+    data_owner: Commercial BI
+    steward: Sales Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Reconciles to Net Sales and Plan revenue within +/- 0.1 pp
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
 - kpi_id: sales.price.realization_pct
   kpi_key: Price Realization %
   kpi_type: diagnostic
@@ -234,15 +273,17 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   calc_type: rate
   business:
     purpose: Shows how much of list price is realized after discounts.
-    definition: Net Sales Amount / List Price Amount.
+    definition: Net Price Amount / List Price Amount.
     grain_scope: Invoice line aggregated to reporting period.
     unit_format: '% (1 decimal)'
     interpretation: Values below 100% indicate discounting; values above 100% indicate uplift vs list price.
   technical:
     dax_name: Price Realization %
-    depends_on_measures: []
+    depends_on_measures:
+    - Net Price Amount
+    - List Price Amount
     lineage:
-    - fact_sales.Net Sales Amount
+    - fact_sales.Net Price Amount
     - fact_sales.List Price Amount
   governance:
     business_owner: Head of Sales Controlling
@@ -257,6 +298,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 11.11.2025
+
 - kpi_id: sales.list_price.amount
   kpi_key: List Price Amount
   kpi_type: supporting
@@ -289,37 +331,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 06.11.2025
-- kpi_id: sales.promo.uplift_pct
-  kpi_key: Promo Uplift %
-  kpi_type: diagnostic
-  impact_dimension: null
-  domain_tag:
-  - Commercial
-  use_case_ref:
-  - COM-003
-  calc_type: rate
-  business:
-    purpose: Measure incremental sales impact of promotions versus baseline demand.
-    definition: (Promo Sales Amount - Baseline Sales Amount) / Baseline Sales Amount
-    grain_scope: SKU/channel/period at promo vs baseline windows; aggregated to reporting level.
-    unit_format: '% (1 decimal)'
-    interpretation: TODO - add interpretation.
-  technical:
-    dax_name: Promo Uplift %
-    depends_on_measures: []
-    lineage: []
-  governance:
-    business_owner: Head of Sales Controlling
-    data_owner: Commercial BI
-    steward: Promotion Analyst
-    review_cycle: quarterly
-    validation_process: manual review
-    qa_rules:
-    - Bounds [ -100%; +500% ]; reconcile promo uplift with campaign post-analysis within +/- 1 pp
-    version: v1.0
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+
 - kpi_id: sales.pvm.price_effect.amount
   kpi_key: Price Effect Amount
   kpi_type: diagnostic
@@ -353,6 +365,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 11.11.2025
+
 - kpi_id: sales.pvm.volume_effect.amount
   kpi_key: Volume Effect Amount
   kpi_type: diagnostic
@@ -386,6 +399,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 11.11.2025
+
 - kpi_id: sales.pvm.mix_effect.amount
   kpi_key: Mix Effect Amount
   kpi_type: diagnostic
@@ -418,6 +432,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 11.11.2025
+
 - kpi_id: sales.promo.amount
   kpi_key: Promo Sales Amount
   kpi_type: supporting
@@ -431,7 +446,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Sum of invoice line amount during promo flag/period
     grain_scope: Invoice line
     unit_format: EUR (2 decimals)
-    interpretation: TODO - add interpretation.
+    interpretation: Higher values indicate stronger promo-driven sales; interpret together with baseline and ROI.
   technical:
     dax_name: Promo Sales Amount
     depends_on_measures: []
@@ -448,6 +463,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 21.11.2025
+
 - kpi_id: sales.baseline.amount
   kpi_key: Baseline Sales Amount
   kpi_type: supporting
@@ -478,39 +494,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 21.11.2025
-- kpi_id: sales.net_sales.amount.forecast
-  kpi_key: Net Sales Amount (Forecast)
-  kpi_type: supporting
-  impact_dimension: Growth
-  domain_tag:
-  - Commercial
-  use_case_ref:
-  - COM-008
-  calc_type: amount
-  business:
-    purpose: Provide forecasted net sales for planning and forecast accuracy analysis.
-    definition: Forecasted Net Sales Amount for a given period, channel, and product scope.
-    grain_scope: Forecast line aggregated to reporting period by Org/Channel/Product.
-    unit_format: EUR (2 decimals)
-    interpretation: Used as baseline for forecast accuracy KPIs; compare with actual Net Sales Amount.
-  technical:
-    dax_name: Net Sales Amount (Forecast)
-    depends_on_measures:
-    - Net Sales Amount
-    lineage:
-    - fact_forecast.Net Sales Amount
-  governance:
-    business_owner: Head of Sales Planning
-    data_owner: Commercial BI
-    steward: Sales Planning Analyst
-    review_cycle: quarterly
-    validation_process: manual review
-    qa_rules:
-    - Forecast version frozen before month start
-    version: v0.1
-  metadata_quality:
-    completeness_score: 0.85
-    last_review: 19.11.2025
+
 - kpi_id: sales.forecast.mape_pct
   kpi_key: Forecast Accuracy (MAPE %)
   kpi_type: diagnostic
@@ -521,12 +505,12 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - COM-008
   calc_type: rate
   business:
-    purpose: Quantify average absolute forecast error of net sales versus actuals.
+    purpose: Quantify average absolute forecast error of revenue (Net Sales Amount) versus actuals.
     definition: Mean Absolute Percentage Error between Net Sales Amount and Net Sales Amount (Forecast) for all periods in
-      scope.
+      scope (revenue-based, not units).
     grain_scope: Org/Channel/Product aggregated to month or week.
     unit_format: '% (1 decimal)'
-    interpretation: Lower MAPE % indicates better forecast quality; values above 20EUR30 % typically require forecast model
+    interpretation: Lower MAPE % indicates better forecast quality; values above 2030 % typically require forecast model
       review.
   technical:
     dax_name: Forecast Accuracy (MAPE %)
@@ -548,6 +532,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.85
     last_review: 19.11.2025
+
 - kpi_id: sales.forecast.bias_pct
   kpi_key: Forecast Bias %
   kpi_type: diagnostic
@@ -558,8 +543,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - COM-008
   calc_type: rate
   business:
-    purpose: Indicate systematic over- or under-forecasting of net sales.
-    definition: (Net Sales Amount (Forecast) - Net Sales Amount) / Net Sales Amount.
+    purpose: Indicate systematic over- or under-forecasting of revenue (Net Sales Amount).
+    definition: (Net Sales Amount (Forecast) - Net Sales Amount) / Net Sales Amount (revenue-based, not units).
     grain_scope: Org/Channel/Product aggregated to month or week.
     unit_format: '% (1 decimal)'
     interpretation: Positive values indicate over-forecasting; negative values indicate under-forecasting; values close to
@@ -584,6 +569,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.85
     last_review: 19.11.2025
+
 - kpi_id: sales.net_sales.channel_share.pct
   kpi_key: Channel Net Sales Share %
   kpi_type: diagnostic
@@ -618,6 +604,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.85
     last_review: 19.11.2025
+
 - kpi_id: margin.gm.channel_contribution.amount
   kpi_key: Channel Gross Margin Contribution Amount
   kpi_type: diagnostic
@@ -648,7 +635,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     review_cycle: monthly
     validation_process: automated
     qa_rules:
-    - Channel GM reconciles with total GM within Â±0.5 %
+    - Channel GM reconciles with total GM within +/- 0.5 %
     version: v0.1
   metadata_quality:
     completeness_score: 0.85

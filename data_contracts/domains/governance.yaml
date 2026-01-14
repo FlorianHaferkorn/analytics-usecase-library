@@ -1,0 +1,87 @@
+domain: governance
+version: v1.2
+owner: Governance Data Product
+
+dimension:
+  - name: dim_date
+    columns:
+      - {name: DateKey, type: int, role: key}
+      - {name: Date, type: date}
+      - {name: Year, type: int}
+      - {name: Quarter, type: text}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
+
+  - name: dim_org
+    columns:
+      - {name: OrgKey, type: int, role: key}
+      - {name: Entity, type: text}
+      - {name: Region, type: text, nullable: true}
+      - {name: Country, type: text, nullable: true}
+
+  - name: dim_project
+    columns:
+      - {name: ProjectKey, type: int, role: key}
+      - {name: ProjectCode, type: text}
+      - {name: ProjectName, type: text}
+      - {name: Portfolio, type: text, nullable: true}
+
+  - name: dim_dataset
+    columns:
+      - {name: DatasetKey, type: int, role: key}
+      - {name: DatasetName, type: text}
+
+fact:
+  - name: fact_dq
+    grain: dataset_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: DatasetKey, type: int, ref: dim_dataset}
+      - {name: Valid Records, type: int, agg: sum}
+      - {name: Total Records, type: int, agg: sum}
+
+  - name: fact_compliance
+    grain: month_org
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: Incidents, type: int, agg: sum}
+      - {name: Breaches, type: int, agg: sum}
+
+  - name: fact_audit
+    grain: finding
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: Finding ID, type: text, role: key}
+      - {name: Findings, type: int, agg: sum, nullable: true}
+      - {name: Open Findings, type: int, agg: sum, nullable: true}
+
+  - name: fact_projects
+    grain: project_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: ProjectKey, type: int, ref: dim_project}
+      - {name: Benefit, type: currency, agg: sum, nullable: true}
+      - {name: Planned Benefit, type: currency, agg: sum, nullable: true}
+      - {name: Actual Cost, type: currency, agg: sum, nullable: true}
+      - {name: Cost, type: currency, agg: sum, nullable: true}
+      - {name: Budget, type: currency, agg: sum, nullable: true}
+      - {name: Milestone On Time, type: int, agg: sum, nullable: true}
+      - {name: Milestone Total, type: int, agg: sum, nullable: true}
+      - {name: Cashflows, type: currency, agg: sum, nullable: true}
+
+  - name: fact_security
+    grain: month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: Incidents, type: int, agg: sum}
+      - {name: Critical Incidents, type: int, agg: sum, nullable: true}
+      - {name: MTTR, type: decimal, agg: avg, nullable: true}
+
+settings:
+  timezone: Europe/Berlin
+  fiscal_year_start: 01-01

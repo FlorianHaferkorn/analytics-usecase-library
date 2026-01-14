@@ -236,12 +236,12 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     description: "Incremental GM divided by promo cost."
     notes: |
       Grain: promotion. Unit: %.
-      Lineage: fact_sales[Incremental GM], fact_promo[Promo Cost].
+      Lineage: Incremental GM Amount, Promo Cost Amount.
       QA: Promo cost completeness; incremental GM logic aligned.
   dependencies:
-    columns:
-      - "fact_sales[Incremental GM]"
-      - "fact_promo[Promo Cost]"
+    measures:
+      - "[Incremental GM Amount]"
+      - "[Promo Cost Amount]"
   governance:
     owner: "Profitability Analytics"
     status: "draft"
@@ -252,7 +252,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: "Net Sales Amount"
   is_kpi_measure: false
-  kpi_id_ref: null
+  kpi_id_ref: ""
   semantic_model: "Profitability_SemanticModel"
   display_folder: "00_Sales"
   category: "Supporting"
@@ -275,7 +275,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: "Gross Margin Amount LY"
   is_kpi_measure: false
-  kpi_id_ref: null
+  kpi_id_ref: ""
   semantic_model: "Profitability_SemanticModel"
   display_folder: "01_Margin"
   category: "Supporting"
@@ -299,7 +299,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: "Gross Margin % LY"
   is_kpi_measure: false
-  kpi_id_ref: null
+  kpi_id_ref: ""
   semantic_model: "Profitability_SemanticModel"
   display_folder: "01_Margin"
   category: "Supporting"
@@ -328,7 +328,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "01_Margin"
   category: "KPI"
   expression:
-    dax: "/* TODO: bring in plan GM from plan fact */"
+    dax: "SUM ( fact_plan_sales[Plan Gross Margin Amount] )"
     formatString: "EUR #,0"
   documentation:
     description: "Planned gross margin for variance vs plan."
@@ -428,12 +428,16 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: "Plan Gross Margin %"
   is_kpi_measure: false
-  kpi_id_ref: null
+  kpi_id_ref: ""
   semantic_model: "Profitability_SemanticModel"
   display_folder: "01_Margin"
   category: "Supporting"
   expression:
-    dax: "/* TODO: plan GM% derived from plan sales and plan COGS */"
+    dax: |
+      DIVIDE (
+        SUM ( fact_plan_sales[Plan Gross Margin Amount] ),
+        SUM ( fact_plan_sales[Plan Net Sales Amount] )
+      )
     formatString: "0.0%"
   documentation:
     description: "Planned gross margin rate for variance vs plan."
@@ -452,7 +456,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: "Promo Cost Amount"
   is_kpi_measure: false
-  kpi_id_ref: "sales.promo.cost.amount"
+  kpi_id_ref: ""
   semantic_model: "Profitability_SemanticModel"
   display_folder: "04_Promo"
   category: "Supporting"
@@ -475,7 +479,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: "Promo COGS Amount"
   is_kpi_measure: false
-  kpi_id_ref: "cost.cogs.promo.amount"
+  kpi_id_ref: ""
   semantic_model: "Profitability_SemanticModel"
   display_folder: "04_Promo"
   category: "Supporting"
@@ -500,7 +504,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: "Incremental Sales Amount"
   is_kpi_measure: false
-  kpi_id_ref: "sales.promo.incremental.amount"
+  kpi_id_ref: ""
   semantic_model: "Profitability_SemanticModel"
   display_folder: "04_Promo"
   category: "Supporting"
@@ -528,7 +532,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 - measure_name: "Incremental GM Amount"
   is_kpi_measure: false
-  kpi_id_ref: "margin.promo.incremental.amount"
+  kpi_id_ref: ""
   semantic_model: "Profitability_SemanticModel"
   display_folder: "04_Promo"
   category: "Supporting"
@@ -561,7 +565,12 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: "04_Promo"
   category: "KPI"
   expression:
-    dax: "/* TODO: implement Promo Gross Margin % */"
+    dax: |
+      VAR PromoSales =
+          CALCULATE ( SUM ( fact_sales[Net Sales Amount] ), fact_sales[Promo Flag] = TRUE () )
+      VAR PromoCogs =
+          CALCULATE ( SUM ( fact_sales[Cost of Goods Sold Amount] ), fact_sales[Promo Flag] = TRUE () )
+      RETURN DIVIDE ( PromoSales - PromoCogs, PromoSales )
     formatString: "0.0%"
   documentation:
     description: "GM rate during promotions."
@@ -573,6 +582,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     columns:
       - "fact_sales[Net Sales Amount]"
       - "fact_sales[Cost of Goods Sold Amount]"
+      - "fact_sales[Promo Flag]"
   governance:
     owner: "Profitability Analytics"
     status: "draft"
