@@ -99,6 +99,20 @@ function Get-RequiredIdsFromFrontMatter {
     Where-Object { $_ -and $_.Trim().Length -gt 0 } | Sort-Object -Unique)
 }
 
+function Get-RequiredIdsFromBody {
+  param([string]$Path)
+  $content = Get-Content -Raw -Path $Path
+  $m = [regex]::Match($content, "(?ms)^---\s*\r?\n.*?\r?\n---\s*")
+  $body = if ($m.Success) { $content.Substring($m.Length) } else { $content }
+  $ids = New-Object System.Collections.Generic.List[string]
+  foreach ($line in ($body -split "\r?\n")) {
+    if ($line -match '^\s*-\s*(?:id|kpi_id)\s*:\s*([a-z][a-z0-9_]*(?:\.[a-z0-9_]+)+)') {
+      $ids.Add($matches[1])
+    }
+  }
+  return $ids | Sort-Object -Unique
+}
+
 function Load-KpiCatalogIndex {
   param([string]$Root)
   $index = New-Object System.Collections.Generic.List[string]
@@ -149,10 +163,13 @@ $factsheets = @(
 ) | Sort-Object FullName -Unique
 if ($factsheets.Count -eq 0) { Write-Host "No Business_Factsheet.md or Technical_Factsheet.md files found." -ForegroundColor Yellow; exit 0 }
 
-$missing = @(); $rows = @()
+$missing = @(); $rows = @(); $noKpiRefs = @()
 foreach ($fs in $factsheets) {
   $fm = Get-FrontMatter -Path $fs.FullName
   $reqIds = Get-RequiredIdsFromFrontMatter -FrontMatter $fm
+  if ($reqIds.Count -eq 0) {
+    $reqIds = Get-RequiredIdsFromBody -Path $fs.FullName
+  }
   if ($reqIds.Count -gt 0) {
     foreach ($id in $reqIds) {
       $covered = $false
@@ -166,7 +183,10 @@ foreach ($fs in $factsheets) {
     }
   } else {
     $req = Get-RequiredMeasuresFromFrontMatter -FrontMatter $fm
-    if ($req.Count -eq 0) { $rows += [pscustomobject]@{ UseCase = $fs.Directory.Name; Measure = '(none)'; Covered = $true }; continue }
+    if ($req.Count -eq 0) {
+      $noKpiRefs += $fs.FullName
+      continue
+    }
     foreach ($m in $req) {
       $covered = $false
       if ($catalogNames.ContainsKey($m)) { $covered = $true } else { $covered = Test-MeasureCovered -Measure $m -CatalogRoot $KpiCatalogRoot }
@@ -176,7 +196,11 @@ foreach ($fs in $factsheets) {
   }
 }
 
-$rows | Sort-Object UseCase, Measure | Format-Table -AutoSize | Out-String | Write-Host
+$rows | Sort-Object UseCase, Measure -Unique | Format-Table -AutoSize | Out-String | Write-Host
+if ($noKpiRefs.Count -gt 0) {
+  Write-Host "Factsheets without KPI references in front matter or body:" -ForegroundColor Yellow
+  $noKpiRefs | Sort-Object | ForEach-Object { Write-Host "  - $_" }
+}
 
 if ($missing.Count -gt 0) {
   Write-Host "Missing measures:" -ForegroundColor Red

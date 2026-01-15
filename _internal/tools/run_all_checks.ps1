@@ -41,9 +41,10 @@ if ($reportDir -and -not (Test-Path $reportDir)) {
   New-Item -ItemType Directory -Path $reportDir -Force | Out-Null
 }
 
-$transcriptPath = Resolve-RepoPath -ProvidedPath $TranscriptPath -DefaultRelative $TranscriptPath
-if (-not $transcriptPath) {
-  $transcriptPath = Join-Path -Path $repoRoot -ChildPath $TranscriptPath
+$transcriptPath = if ([System.IO.Path]::IsPathRooted($TranscriptPath)) {
+  $TranscriptPath
+} else {
+  Join-Path -Path $repoRoot -ChildPath $TranscriptPath
 }
 $transcriptDir = Split-Path -Parent $transcriptPath
 if ($transcriptDir -and -not (Test-Path $transcriptDir)) {
@@ -57,7 +58,7 @@ Write-Host "UseCases:   $useCasesRoot" -ForegroundColor DarkGray
 Write-Host "KPI Catalog: $kpiCatalogRoot" -ForegroundColor DarkGray
 Write-Host ""
 
-$checkResults = @()
+$script:checkResults = @()
 
 function Invoke-LocalScript {
   param(
@@ -102,7 +103,7 @@ function Invoke-LocalScript {
   $endedAt = Get-Date
   Write-Host ""
 
-  $checkResults += [PSCustomObject]@{
+  $script:checkResults += [PSCustomObject]@{
     check = $RelativePath
     arguments = $argText
     status = $status
@@ -196,8 +197,8 @@ Invoke-LocalScript -RelativePath "_internal/tools/validation/check_tmdl_vs_measu
 
 Stop-Transcript | Out-Null
 
-$totalChecks = $checkResults.Count
-$failedChecks = ($checkResults | Where-Object { $_.status -ne "ok" }).Count
+$totalChecks = $script:checkResults.Count
+$failedChecks = ($script:checkResults | Where-Object { $_.status -ne "ok" }).Count
 $reportLines = @()
 $reportLines += "# Run All Checks Status"
 $reportLines += ""
@@ -217,7 +218,7 @@ $reportLines += "## Checks"
 $reportLines += ""
 $reportLines += "| Check | Status | Duration (s) | Arguments | Error |"
 $reportLines += "| --- | --- | ---: | --- | --- |"
-foreach ($result in $checkResults) {
+foreach ($result in $script:checkResults) {
   $errorCell = $result.error
   if (-not $errorCell) { $errorCell = "" }
   $reportLines += "| $($result.check) | $($result.status) | $($result.duration_sec) | $($result.arguments) | $errorCell |"

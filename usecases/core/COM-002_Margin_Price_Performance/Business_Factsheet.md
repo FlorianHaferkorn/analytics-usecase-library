@@ -59,6 +59,17 @@ required_kpis:
     interpretation: Compression signals price/mix/cost pressure
     lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount]
 
+  - id: profit.gross_margin
+    name: Gross Margin % (Strategic)
+    purpose: Strategic profitability benchmark
+    definition_short: (Net Sales Amount - COGS Amount) / Net Sales Amount
+    unit: "%"
+    grain: month
+    agg: avg
+    target: >= 25%
+    interpretation: Strategic view of gross margin health
+    lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount]
+
   - id: margin.gm.amount
     name: Gross Margin Amount
     purpose: Profit pool sizing

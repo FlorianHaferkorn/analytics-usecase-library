@@ -101,6 +101,11 @@ if (-not $useCasesRoot) { throw "UseCases root not found. Provide -UseCasesRoot 
 if (-not $kpiCatalogRoot) { throw "KPI catalog root not found. Provide -KpiCatalogRoot or run inside repository." }
 
 Write-Host "KPI Catalog -> Factsheets coverage" -ForegroundColor Cyan
+Write-Host "Note: This list only checks direct mentions in factsheets. It does not consider:" -ForegroundColor DarkGray
+Write-Host "  a) KPIs used as inputs to measures referenced by factsheets," -ForegroundColor DarkGray
+Write-Host "  b) KPIs missing in factsheets but still relevant," -ForegroundColor DarkGray
+Write-Host "  c) KPIs required by Action Codes for core factsheets," -ForegroundColor DarkGray
+Write-Host "  d) KPIs that exist under different names/aliases." -ForegroundColor DarkGray
 $catalogIds = Get-KpiIdsFromCatalog -Root $kpiCatalogRoot
 $factsheetRefs = [System.Collections.Generic.HashSet[string]]::new()
 
