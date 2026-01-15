@@ -12,8 +12,6 @@ What actions it triggers.
 
 This folder is the bridge between business strategy (WHY) and technical implementation (HOW).
 
----
-
 ## Scope
 
 Included:
@@ -31,11 +29,9 @@ Not included:
 - Page templates (see `framework/templates/`)  
 - Customer-specific use cases (kept in separate project repos)
 
----
-
 ## Structure
 
-```
+```yaml
 usecases/
   UseCase_Inventory.md      - Master list of all use cases
   templates/                - Business & technical factsheet templates
@@ -92,8 +88,6 @@ Tailored use cases for specific verticals (Retail, Manufacturing, CPG, Logistics
 - Production scrap analytics  
 - ESG & sustainability scoring
 
----
-
 ## Usage
 
 ### For Customers
@@ -119,16 +113,12 @@ Tailored use cases for specific verticals (Retail, Manufacturing, CPG, Logistics
 - Keep industry use cases optional and clearly marked.  
 - Link all use cases to Action Codes for ROI and actionability tracking.
 
----
-
 ## Relations
 
 - **WHY ->** Use cases originate from key questions and strategic KPIs in the Company Layer.  
 - **HOW ->** Use cases rely on semantic, UX, and operational standards defined in the Operating Model.  
 - **WITH WHAT ->** Action Codes, templates, and KPI Catalog turn use cases into consistent, repeatable assets.  
 - **TEMPLATES ->** Use case templates ensure uniform structure and quality.
-
----
 
 ## Next Step
 
@@ -139,9 +129,3 @@ Start with:
 3. And explore core use cases under `core/`
 
 This establishes a complete understanding of how analytics drives actionability and measurable business impact.
-
----
-
-**Location to place this file:**  
-`usecases/README.md`
-

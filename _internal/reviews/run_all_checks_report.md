@@ -1,6 +1,6 @@
 ﻿# Run All Checks Report
 
-- Timestamp: 2026-01-15T16:56:51
+- Timestamp: 2026-01-15T20:02:20
 - Repo: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library
 - UseCasesRoot: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases
 - FactsheetsRoot: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core
@@ -18,21 +18,21 @@
 
 | Check | Status | Duration (s) | Arguments | Error |
 | --- | --- | ---: | --- | --- |
-| _internal/tools/validation/validate_factsheets.ps1 | ok | 0.16 |  |  |
-| _internal/tools/validation/validate_kpi_catalog.ps1 | ok | 1.06 |  |  |
-| _internal/tools/validation/check_factsheet_vs_kpi.ps1 | ok | 4.7 |  |  |
-| _internal/tools/validation/check_measures_vs_kpi.ps1 | ok | 0.43 |  |  |
-| _internal/tools/maintenance/check_docs_refs.ps1 | ok | 0.17 |  |  |
-| _internal/tools/validation/check_docs_kpi_refs.ps1 | ok | 1.85 |  |  |
-| _internal/tools/validation/check_usecase_inventory_vs_factsheets.ps1 | ok | 0.31 |  |  |
-| _internal/tools/validation/check_kpi_catalog_unused_in_factsheets.ps1 | ok | 4.08 |  |  |
-| _internal/tools/validation/check_docs_usecase_refs.ps1 | ok | 0.55 |  |  |
-| _internal/tools/validation/check_action_codes_vs_kpi.ps1 | ok | 2.03 |  |  |
-| _internal/tools/validation/check_factsheet_action_codes.ps1 | ok | 0.8 |  |  |
-| _internal/tools/validation/check_factsheet_layout.ps1 | ok | 2.93 |  |  |
-| _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 | failed | 1.18 | -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains | Non-zero exit code: 1 |
-| _internal/tools/validation/check_dax_vs_measure_dictionary.ps1 | failed | 0.71 |  | Non-zero exit code: 1 |
-| _internal/tools/validation/check_measure_dictionary_vs_gold.ps1 | ok | 0.34 | -GoldRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\data_contracts\domains -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
+| _internal/tools/validation/validate_factsheets.ps1 | ok | 0.12 |  |  |
+| _internal/tools/validation/validate_kpi_catalog.ps1 | ok | 0.5 |  |  |
+| _internal/tools/validation/check_factsheet_vs_kpi.ps1 | ok | 2.78 |  |  |
+| _internal/tools/validation/check_measures_vs_kpi.ps1 | ok | 0.33 |  |  |
+| _internal/tools/maintenance/check_docs_refs.ps1 | ok | 0.12 |  |  |
+| _internal/tools/validation/check_docs_kpi_refs.ps1 | ok | 0.53 |  |  |
+| _internal/tools/validation/check_usecase_inventory_vs_factsheets.ps1 | ok | 0.24 |  |  |
+| _internal/tools/validation/check_kpi_catalog_unused_in_factsheets.ps1 | ok | 0.98 |  |  |
+| _internal/tools/validation/check_docs_usecase_refs.ps1 | ok | 0.36 |  |  |
+| _internal/tools/validation/check_action_codes_vs_kpi.ps1 | ok | 0.61 |  |  |
+| _internal/tools/validation/check_factsheet_action_codes.ps1 | ok | 0.6 |  |  |
+| _internal/tools/validation/check_factsheet_layout.ps1 | ok | 1.95 |  |  |
+| _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 | failed | 0.62 | -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains | Non-zero exit code: 1 |
+| _internal/tools/validation/check_dax_vs_measure_dictionary.ps1 | failed | 0.61 |  | Non-zero exit code: 1 |
+| _internal/tools/validation/check_measure_dictionary_vs_gold.ps1 | ok | 0.32 | -GoldRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\data_contracts\domains -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
 | _internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1 | ok | 0.12 | -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist |  |
 
 ## Detailed Output
@@ -241,8 +241,8 @@ Coverage counts (unique KPI IDs):
   Factsheets:           104
   Inventory:            81
   Core Action Codes:    55
-  Measure Dictionaries: 104
-  Total covered:        104
+  Measure Dictionaries: 108
+  Total covered:        108
 OK: all KPI IDs are referenced in factsheets.
 
 ```
@@ -286,144 +286,9 @@ OK: all checked documents match their template layout.
 ```text
 KPI Catalog <-> Measure Dictionary consistency
 Missing in KPI catalogs (present in Measure Dictionaries):
-  - corp.benefit.realization.pct
-  - corp.budget.adherence.pct
-  - corp.payback.months
-  - corp.project.roi.pct
-  - corp.schedule.adherence.pct
-  - cost.cogs.amount
-  - crm.acquisition.cac.amount
-  - crm.acquisition.conversion_rate.pct
-  - crm.acquisition.conversions.count
-  - crm.acquisition.leads.count
-  - crm.active_customers_end.count
-  - crm.active_customers_start.count
-  - crm.at_risk_customers.count
-  - crm.at_risk_share.pct
-  - crm.basket_size.amount
-  - crm.basket_size.units
-  - crm.churn.pct
-  - crm.complaint.rate.pct
-  - crm.cross_sell_ratio.pct
-  - crm.opportunities.open.amount
-  - crm.opportunities.stage_conversion.pct
-  - crm.opportunities.win_rate.pct
-  - crm.opportunities.won.amount
-  - crm.reactivated_customers.count
-  - crm.reactivation.pct
-  - esg.aligned_revenue.pct
-  - esg.carbon_intensity.tco2e_per_revenue
-  - esg.co2.total.tco2e
-  - esg.energy.renewable_kwh
-  - esg.energy.total_kwh
-  - esg.ltifr.rate
-  - fin.ebitda.amount
-  - fin.liquidity.capex.amount
-  - fin.liquidity.capex_ratio.pct
-  - fin.liquidity.cash_conversion_cycle.delta_days
-  - fin.liquidity.cash_conversion_cycle_days
-  - fin.liquidity.dio_days_inventory_outstanding
-  - fin.liquidity.dpo_days_payables_outstanding
-  - fin.liquidity.dso_days_sales_outstanding
-  - fin.liquidity.free_cash_flow
   - fin.liquidity.inventory.amount
-  - fin.liquidity.operating_cash_flow
   - fin.liquidity.payables.amount
-  - fin.liquidity.receivables.amount
-  - fin.liquidity.working_capital
-  - fin.risk.ead.amount
-  - fin.risk.lgd.pct
-  - fin.risk.pd.pct
-  - gov.audit.findings.count
-  - gov.audit.findings.open.count
-  - gov.compliance.breach.count
-  - gov.compliance.incidents.count
-  - gov.data_quality.pct
-  - gov.records.total.count
-  - gov.valid_records.count
-  - hr.absent_hours.amount
-  - hr.absenteeism.pct
-  - hr.exits.count
-  - hr.fte.avg
-  - hr.gm.amount
-  - hr.gm_per_fte.amount
-  - hr.headcount.avg
-  - hr.personnel_cost.amount
-  - hr.personnel_cost_ratio.pct
-  - hr.revenue.amount
-  - hr.revenue_per_fte.amount
-  - hr.scheduled_hours.amount
-  - hr.turnover.pct
-  - margin.customer.amount
-  - margin.customer.pct
-  - margin.gm.channel_contribution.amount
-  - margin.gm.delta_amount
-  - margin.gm.delta_pct
-  - margin.gm.plan.amount
-  - market.share.relative.pct
-  - market.share.total.pct
-  - mkt.brand.awareness.pct
-  - mkt.brand.preference.pct
-  - ops.capacity.utilization.pct
-  - ops.contract.compliance.pct
-  - ops.deliveries.otif.count
-  - ops.deliveries.total.count
-  - ops.demand.total.qty
-  - ops.demand.unfulfilled.qty
-  - ops.downtime.hours
-  - ops.inventory.days
-  - ops.inventory.obsolescence.pct
-  - ops.inventory.turnover
-  - ops.logistics.cost_per_unit.amount
-  - ops.logistics.cost_ratio.pct
-  - ops.machine_downtime.pct
-  - ops.order_accuracy.pct
-  - ops.orders.correct.count
-  - ops.orders.total.count
   - ops.planned.hours
-  - ops.ppv.amount
-  - ops.ppv.pct
-  - ops.process.cost_per_unit.amount
-  - ops.purchase.price.actual.amount
-  - ops.purchase.price.contract.amount
-  - ops.purchase.units.qty
-  - ops.purchases.at_contract.amount
-  - ops.purchases.total.amount
-  - ops.replenishment.adherence.pct
-  - ops.stockout.pct
-  - ops.warehouse.cost_per_line.amount
-  - ops.warehouse.lines_per_hour
-  - ops.warehouse.picks_per_hour
-  - ops.working_capital.ccc.delta_days
-  - ops.working_capital.dio.days
-  - ops.working_capital.dpo.days
-  - ops.working_capital.dso.days
-  - people.employee_engagement.pct
-  - people.engaged_employees.count
-  - people.innovation_rate.pct
-  - people.survey_respondents.count
-  - people.training_hours.amount
-  - prod.contribution_margin.excl_mkt.pct
-  - prod.contribution_margin.incl_mkt.pct
-  - prod.lifecycle.age.months
-  - prod.lifecycle.new_share.pct
-  - prod.lifecycle.phase_distribution.pct
-  - prod.roi.pct
-  - profit.ebitda_margin
-  - sales.baseline.amount
-  - sales.customer.revenue_share.pct
-  - sales.forecast.bias_pct
-  - sales.forecast.mape_pct
-  - sales.list_price.amount
-  - sales.net_sales.amount.ly
-  - sales.net_sales.channel_share.pct
-  - sales.net_sales.delta_amount.ly
-  - sales.promo.amount
-  - sales.promo.uplift_pct
-  - sales.revenue.growth_pct
-  - sec.incident.count
-  - sec.incident.critical.count
-  - sec.incident.mttr.hours
 
 ```
 
@@ -450,6 +315,6 @@ No _Measures.tmdl files found under dist. Skipping TMDL check.
 
 **********************
 Ende der Windows PowerShell-Aufzeichnung
-Endzeit: 20260115165651
+Endzeit: 20260115200220
 **********************
 ```

@@ -17,8 +17,6 @@ Its purpose is to ensure that:
 
 All elements described in this document exist to support and preserve the Golden Thread.
 
----
-
 ## 2. Operating Principles
 
 The Operating Model follows a small set of principles that protect the integrity of the Golden Thread in daily operation.
@@ -41,8 +39,6 @@ Governance is lightweight but binding.
 Rules exist to enable speed and consistency, not to introduce overhead.
 
 These principles ensure that analytics remains trustworthy, scalable, and operable as complexity grows.
-
----
 
 ## 3. Ownership and Roles
 
@@ -69,8 +65,6 @@ Ownership remains accountable.
 
 By separating ownership from implementation, the framework remains scalable across teams, domains, and operating models.
 
----
-
 ## 4. Artifact Lifecycle
 
 Artifacts in the Golden Thread are created and evolved along the causal chain.
@@ -94,8 +88,6 @@ By following the causal structure of the Golden Thread, the lifecycle of artifac
 - `docs/operating_model/measure_system.md`
 - `docs/operating_model/reference/ActionReady_SemanticModel_Blueprint.md`
 
----
-
 ## 5. Governance and Quality Gates
 
 Governance exists to preserve consistency and trust in the Golden Thread.
@@ -117,8 +109,6 @@ By focusing governance on meaning and dependencies rather than tooling or proces
 **Reference document:**
 
 - `docs/operating_model/data_governance.md`
-
----
 
 ## 6. Change and Evolution
 
@@ -142,8 +132,6 @@ By anchoring change in causality and ownership, the framework allows analytics t
 
 - `docs/operating_model/distribution_architecture.md`
 
----
-
 ## 7. UX, Design and Interaction Standards
 
 User experience is standardized to ensure consistent interpretation and adoption of analytics.
@@ -165,8 +153,6 @@ Consistent user experience reinforces trust in analytics and supports effective 
 **Reference document:**
 
 - `docs/operating_model/ux_design_system.md`
-
----
 
 ## 8. Tooling, Automation and Enablement
 
@@ -193,8 +179,6 @@ As a result, tooling and automation strengthen the Golden Thread by making its o
 **Reference document:**
 
 - `docs/operating_model/ai_readiness.md`
-
----
 
 ## 9. Operational Outcome
 

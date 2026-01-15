@@ -13,8 +13,6 @@ Domain Data Contracts ensure:
 - predictable ingestion into semantic models,
 - and full cross-domain interoperability.
 
----
-
 ## Scope
 
 Included:
@@ -30,8 +28,6 @@ Not included:
 - Transformation logic (ETL/Dataflows/Data Pipelines)  
 - Customer-specific data structures  
 - Semantic model definitions (see `semantic_models/`)  
-
----
 
 ## Structure
 
@@ -67,8 +63,6 @@ fact:
       - {name: Net Sales Amount, type: currency, agg: sum}
 ```
 
----
-
 ## Usage
 
 ### For Customers
@@ -88,16 +82,12 @@ fact:
 - Add new contracts only when domain boundaries expand  
 - Maintain backward compatibility where possible  
 
----
-
 ## Relations
 
 - **WHY Contracts derive from domain definitions in `docs/company/domains.md`  
 - **HOW Semantic layer rules enforce contracts during modeling  
 - **WITH WHAT Measure TEMPLATES, naming rules, and KPI Catalog rely on contract structure  
 - **TEMPLATES Fact and dimension TEMPLATES live under `framework/TEMPLATES/data_contract_TEMPLATES/`
-
----
 
 **Location:**  
 `data_contracts/domains/README.md`

@@ -24,7 +24,9 @@ function Resolve-RepoPath {
 function Get-KpiIdsFromCatalog {
   param([string]$Root)
   $ids = [System.Collections.Generic.HashSet[string]]::new()
-  Get-ChildItem -Path $Root -Recurse -Filter "KPI_Catalog_*.md" | ForEach-Object {
+  Get-ChildItem -Path $Root -Recurse -Filter "KPI_Catalog_*.md" | Where-Object {
+    $_.FullName -notmatch '\\_internal\\archive\\'
+  } | ForEach-Object {
     Get-Content -Path $_.FullName | ForEach-Object {
       if ($_ -match '^\s*-\s*kpi_id\s*:\s*"?([^"\s]+)"?') {
         $null = $ids.Add($matches[1])
@@ -37,7 +39,9 @@ function Get-KpiIdsFromCatalog {
 function Get-KpiRefsFromDocs {
   param([string]$Root)
   $ids = [System.Collections.Generic.HashSet[string]]::new()
-  Get-ChildItem -Path $Root -Recurse -File | Where-Object { $_.Extension -in @(".md",".yaml",".yml") } | ForEach-Object {
+  Get-ChildItem -Path $Root -Recurse -File | Where-Object {
+    $_.Extension -in @(".md",".yaml",".yml") -and $_.FullName -notmatch '\\_internal\\archive\\'
+  } | ForEach-Object {
     Get-Content -Path $_.FullName | ForEach-Object {
       if ($_ -match '^\s*(kpi_id|kpi|metric_kpi_id)\s*:\s*"?([^"\s]+)"?') {
         $null = $ids.Add($matches[2])

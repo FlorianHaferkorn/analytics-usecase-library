@@ -1,44 +1,55 @@
 # Company Strategy & Strategic Alignment
 
-Purpose:
-This document defines the strategic foundation of the Analytics Framework. It establishes *why* analytics exists, *what* the organization is trying to achieve, and *how* analytical use cases are systematically derived from strategic objectives.
+## 1. Purpose
 
-This document is the **primary business entry point** for executives, domain owners, and decision-makers.
+This document defines the strategic inputs to the Action-Ready Analytics Framework.
 
-Scope:
+It establishes why analytics exists, what the organization is trying to achieve, and which outcomes matter at executive level.
+It does not define analytical logic or implementation.
 
-- Defines the business strategy, strategic focus areas, and success criteria.
-- Defines the canonical set of Strategic KPIs.
-- Defines executive-level key questions.
-- Defines the strategic alignment from KPIs to use cases and actions.
-- Does NOT define technical implementation details (semantic models, measures, tooling).
+The end-to-end causal logic from strategy to action is defined in:
+`docs/operating_model/golden_thread_strategy_to_action.md`
 
----
+This document is the primary business entry point for executives, domain owners, and decision-makers.
 
-## 1. Business Context & Strategic Intent
+## 2. Scope
 
-Modern organizations do not fail due to a lack of data or dashboards.  
-They fail because:
+This document:
 
-- Strategic objectives are not translated into measurable outcomes.
-- KPIs exist without ownership or clear decision relevance.
-- Reporting is tool-driven instead of decision-driven.
-- Actions are reactive, inconsistent, or undocumented.
+- defines strategic objectives and focus areas,
+- defines the canonical set of Strategic KPIs,
+- defines executive-level key questions,
+- and provides the strategic inputs required for analytical use cases.
 
-The Analytics Framework addresses this gap by establishing a **closed-loop system**:
+This document does not define:
 
-> Strategy → KPIs → Use Cases → Actions → Measurable Impact
+- semantic models,
+- measures,
+- tooling,
+- or operational analytics design.
 
-Analytics is treated as a **strategic capability**, not a reporting function.
+## 3. Business Context & Strategic Intent
 
----
+Organizations rarely fail due to missing data or dashboards.
+They fail because strategic intent is not translated into measurable, actionable decision logic.
 
-## 2. Strategic Focus Areas
+Common failure patterns include:
 
-The company strategy is structured around a stable set of strategic focus areas.  
-These focus areas define *what matters* at executive level and remain stable over time, even if individual KPIs or use cases evolve.
+- objectives without measurable outcomes,
+- KPIs without ownership or decision relevance,
+- analytics driven by tools instead of decisions,
+- and actions that are inconsistent or undocumented.
 
-Typical strategic focus areas include:
+The Analytics Framework treats analytics as a strategic capability.
+Its purpose is to translate strategic intent into measurable outcomes and decision-oriented analytics.
+
+## 4. Strategic Focus Areas
+
+Company strategy is structured around a small set of strategic focus areas.
+
+These focus areas define what matters at executive level and remain stable over time, even as individual KPIs or use cases evolve.
+
+Typical focus areas include:
 
 - Growth
 - Profitability
@@ -50,129 +61,97 @@ Typical strategic focus areas include:
 - ESG & Sustainability
 - Innovation & People
 
-Each focus area is represented through a small number of **Strategic KPIs**.
+Each focus area is represented through a limited number of Strategic KPIs.
 
----
+## 5. Strategic KPIs
 
-## 3. Strategic KPIs (Canonical Set)
-
-Strategic KPIs represent the **highest level of measurement** in the organization.
+Strategic KPIs represent the highest level of measurement in the organization.
 
 They answer the question:
-> “Are we winning or losing at what truly matters?”
+“Are we succeeding at what truly matters?”
 
-Characteristics of Strategic KPIs:
+Strategic KPIs are:
 
-- Few in number
-- Stable over time
-- Clearly owned
-- Directly linked to strategic objectives
-- Decision-relevant at executive level
+- few in number,
+- stable over time,
+- clearly owned,
+- and directly linked to strategic objectives.
 
-The canonical definitions of Strategic KPIs are maintained in:
+Strategic KPIs intentionally avoid operational detail.
+Analytical depth is introduced through downstream use cases.
 
-> **Canonical source:** `docs/company/strategic_kpis.md`
+Canonical definitions are maintained in:
+`docs/company/strategic_kpis.md`
 
-Strategic KPIs are intentionally **not overloaded** with operational detail.  
-Operational and analytical depth is introduced through downstream use cases.
+## 6. Executive Key Questions
 
----
+Executives think in questions, not metrics.
 
-## 4. Executive Key Questions
+Key Questions translate Strategic KPIs into decision-oriented thinking.
+They define the intent of analytical use cases and guide analytical depth.
 
-Strategic KPIs alone are not sufficient.  
-Executives think in **questions**, not metrics.
+Examples include:
 
-Examples:
-
-- *Why is margin deteriorating despite stable revenue?*
-- *Which customers are driving long-term value vs. short-term volume?*
-- *Where is liquidity at risk in the next 90 days?*
-- *Which operational bottlenecks limit growth?*
-
-These **Key Questions**:
-
-- Translate KPIs into decision-oriented thinking.
-- Act as the bridge between strategy and analytics.
-- Define the intent of analytical use cases.
+- Why is margin deteriorating despite stable revenue?
+- Which customers drive long-term value?
+- Where is liquidity at risk in the near term?
+- Which operational constraints limit growth?
 
 The canonical set of Key Questions is maintained in:
+`docs/company/key_questions.md`
 
-> **Canonical source:** `docs/company/key_questions.md`
+## 7. Strategic Alignment: Inputs to the Golden Thread
 
----
+To avoid isolated dashboards and disconnected analytics initiatives, strategic alignment is explicit.
 
-## 5. Strategic Alignment: KPIs → Use Cases → Actions
+Strategic KPIs and Key Questions provide the inputs required by the Golden Thread.
+They determine which use cases are relevant and which actions are worth pursuing.
 
-To avoid isolated dashboards and disconnected analytics initiatives, the framework enforces explicit strategic alignment.
+Alignment principles:
 
-### Alignment Principles
+- Every use case supports at least one Strategic KPI.
+- Strategic KPIs are supported by multiple use cases.
+- Actions are derived from use cases, not from metrics alone.
 
-- Every analytical use case must support at least one Strategic KPI.
-- Each Strategic KPI is supported by multiple analytical use cases.
-- Use cases are the operationalization of strategy.
-- Action Codes define how insights are translated into action.
+Alignment is documented through the Strategic Alignment Map:
+`docs/company/strategic_alignment_map.md`
 
-This alignment is explicitly documented and governed through the **Strategic Alignment Map**:
+## 8. Governance & Review Cadence
 
-> **Canonical source:** `docs/company/strategic_alignment_map.md`
+Strategic alignment is reviewed continuously.
 
-The alignment ensures:
-
-- Transparency from board-level objectives to analytical execution.
-- Prioritization of analytics initiatives based on strategic impact.
-- Avoidance of redundant or low-value reporting.
-
----
-
-## 6. Governance & Review Cadence
-
-Strategic alignment is not a one-time exercise.
-
-The following governance principles apply:
-
-- Strategic KPIs are reviewed periodically (e.g., quarterly).
-- Alignment between KPIs and use cases is reviewed as part of portfolio planning.
-- New use cases require explicit linkage to Strategic KPIs.
+- Strategic KPIs are reviewed periodically.
+- Use case portfolios are reviewed for strategic relevance.
 - KPIs without active use cases are challenged or deprecated.
 
-Ownership is clearly defined:
+Ownership is explicit:
 
-- Strategic KPIs have executive ownership.
-- Use cases have domain ownership.
-- Actions have operational ownership.
+- Strategic KPIs are owned at executive level.
+- Use cases are owned by domains.
+- Actions are owned operationally.
 
-Detailed governance mechanics are defined in:
+Governance mechanics are defined in:
+`docs/operating_model/data_governance.md`
 
-> `docs/operating_model/data_governance.md`
+## 9. Relationship to Other Framework Layers
 
----
-
-## 7. Relationship to Other Framework Layers
-
-This document defines the **WHY**.
+This document defines the WHY.
 
 Downstream layers operationalize it:
 
-- **Analytics Operating Model (HOW):**  
-  `docs/operating_model/`
-- **Use Cases (WHAT):**  
-  `usecases/`
-- **Semantic Models, KPIs, Measures (WITH WHAT):**  
-  `framework/` and `semantic_models/`
+- Golden Thread (causal logic): `docs/operating_model/golden_thread_strategy_to_action.md`
+- Operating Model (HOW): `docs/operating_model/`
+- Use Cases (WHAT): `usecases/`
+- Semantic Models & Measures (WITH WHAT): `framework/`, `semantic_models/`
 
-This separation ensures strategic stability while allowing analytical evolution.
+This separation ensures strategic stability while enabling analytical evolution.
 
----
+## 10. Outcome
 
-## 8. What Success Looks Like
+When applied consistently, this strategy layer ensures that:
 
-When this strategy layer is implemented correctly:
+- analytics initiatives are prioritized by business value,
+- KPIs are trusted and undisputed,
+- and actions are aligned with strategic intent.
 
-- Executives trust analytics as a decision instrument.
-- KPIs are no longer debated, only interpreted.
-- Analytics initiatives are prioritized by business value.
-- Actions are consistent, measurable, and reviewable.
-- The organization moves from reactive reporting to proactive steering.
-
-This document is the **anchor** for all analytics activities in the organization.
+This document anchors analytics in business strategy without constraining analytical evolution.

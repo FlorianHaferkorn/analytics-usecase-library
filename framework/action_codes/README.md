@@ -1,161 +1,178 @@
 ﻿# Action Codes
 
-This README explains **what Action Codes are**, **why they exist**, and **how they are used** in the Analytics Use Case Library.
+## Purpose
 
-Action Codes are a core building block of the framework, but they are intentionally **lightweight, stable, and reusable**.
+Action Codes define **standardised, reusable decision and steering logic** that translates KPI deviations into concrete management actions.
 
-They answer one question only:
+They are **not reports**, **not dashboards**, and **not Use Cases**.
+Action Codes represent the **execution and governance layer** between insight and action.
 
-> **What should be done when a certain business situation becomes relevant?**
+Their primary goal is to ensure that analytics consistently leads to **decisions, accountability, and measurable outcomes**.
 
----
+## Core Principle (Non-Negotiable)
 
-## What Action Codes Are (and Are Not)
+> **Use Cases consume Action Codes. Action Codes never belong to Use Cases.**
 
-### Action Codes ARE
-- Prescriptive decision constructs
-- Reusable across use cases, KPIs, and reports
-- Evaluated by **business outcome**
-- Independent of specific KPI thresholds or targets
+This separation is mandatory to ensure:
 
-### Action Codes ARE NOT
-- Task or workflow definitions
-- Jira tickets or execution checklists
-- KPI definitions
-- Customer- or tool-specific configurations
+* Reusability across multiple Use Cases
+* Clear ownership and governance
+* Long-term scalability of the Analytics Framework
 
-This separation is intentional and critical for scalability and low maintenance.
+## Conceptual Separation
 
----
+### Use Case
 
-## Design Principles (Non-Negotiable)
+A Use Case defines:
 
-Action Codes in this framework are intentionally constrained.
+* *Why* a business question matters
+* *Which KPIs* are relevant
+* *Which decisions* must be enabled
 
-They must be:
+A Use Case **never** contains execution logic.
 
-- **Trigger-compatible**  
-  Designed to be activated by KPI-based signals via trigger mappings.
+Example:
 
-- **Prescriptive**  
-  Clearly define what to *do, stop, or change* — not what to review or monitor.
+> `COM-002 — Margin & Price Performance`
 
-- **Decision-focused**  
-  Executable at decision level, without embedding task workflows.
+### Action Code
 
-- **Economically meaningful**  
-  Impact expressed as ranges and directional effects, not fake precision.
+An Action Code defines:
 
-- **Risk-aware**  
-  Trade-offs and side effects are explicitly stated.
+* *What to do* when KPIs deviate
+* *When to act* (trigger logic L1–L3)
+* *Which guardrails apply*
+* *How outcomes are evaluated*
 
-- **Reusable**  
-  Applicable across multiple use cases and domains.
+Action Codes can be referenced by **multiple Use Cases** and remain stable over time.
 
-Action Codes that merely explain KPIs are **not allowed**.
+Example:
 
----
+> `C-M2.3 — Price Leakage Containment`
 
-## Core Artifacts (Single Source of Truth)
+## Architecture & Ownership
 
-The Action Code concept is defined by **exactly two normative artifacts**:
+Action Codes are **standalone, domain- or governance-owned assets**.
 
-```
-framework/templates/action_codes/
-  ActionCode_Canonical_Template.md
-  ActionCode_KPI_Trigger_Map.yaml
-```
+They are deliberately **decoupled from Use Cases** to avoid:
 
-- **ActionCode_Canonical_Template**  
-  Defines *what* an Action Code is, including situation, action, outcome, risks, and evaluation.
+* Duplication
+* Conflicting ownership
+* Tight coupling between analytics and execution
 
-- **ActionCode_KPI_Trigger_Map**  
-  Defines *when* an Action Code becomes decision-relevant, based on KPIs, targets, and signal patterns.
+Ownership principles:
 
-There is deliberately **no separate Action Code portfolio document**.
-This avoids duplication and ongoing maintenance effort.
+* **Domain Action Codes** are owned by the respective business domain
+* **Enterprise Action Codes** are owned by executive governance functions
+* A Use Case may reference an Action Code, but never owns it
 
----
+This design enables:
 
-## Decision Coverage (Orientation Only)
+* Cross-use-case reuse
+* Executive orchestration across domains
+* Stable governance even as new Use Cases are added
 
-The framework supports prescriptive actions across common business situations, for example:
+## Folder Structure (Source of Truth)
 
-- Price or margin erosion without demand decline
-- Cost overruns and efficiency losses
-- Cash and working-capital pressure
-- Service-level or operational performance degradation
-- Strategic KPI deviations requiring escalation
+Action Codes are organised by **domain or governance layer**, never by Use Case.
 
-This list is **illustrative**, not exhaustive.
-Concrete actions are defined via Action Codes and Trigger Mappings.
-
----
-
-## How Action Codes Fit into the Framework
-
-```
-KPI Catalog
-   ↓
-ActionCode_KPI_Trigger_Map   (when relevant)
-   ↓
-Action Codes                (what to do)
-   ↓
-T4 – Prescriptive Pages     (decision & communication)
+```yaml
+framework/action_codes/
+├─ Commercial/
+├─ Finance/
+├─ Operations/
+├─ People/
+├─ Service/
+├─ SupplyChain/
+└─ Enterprise/
 ```
 
-- KPIs remain descriptive and neutral
-- Trigger mappings define relevance
-- Action Codes define decisions
-- T4 pages surface and contextualize actions
+### Domain folders
 
----
+Contain **execution-level Action Codes** owned by a business domain.
 
-## Tracking and Learning
+Examples:
 
-The framework distinguishes between three levels:
+* Commercial → pricing, margin, customer actions
+* SupplyChain → inventory, OTIF, forecast actions
+* Service → SLA, backlog, quality actions
 
-1. **Action Code**  
-   Stable definition of the recommended intervention and expected outcome.
+### Enterprise folder
 
-2. **Action Execution (optional)**  
-   Records that a decision was taken and acted upon in a specific context.
+Contains **meta-level governance Action Codes** that:
 
-3. **Outcome Evaluation (mandatory)**  
-   Measures whether the action had the intended business effect.
+* Orchestrate
+* Prioritise
+* Route
+* Govern outcomes
 
-This enables learning without introducing workflow complexity.
+Enterprise Action Codes **never execute domain logic themselves**.
 
----
+Examples:
 
-## Governance Principles
+* `X-E3.1 — Executive Performance Orchestration`
+* `X-E3.2 — Cross-Domain Risk Prioritisation`
+* `X-E3.3 — Action Follow-up & Outcome Governance`
 
-- Action Codes are few by design
-- IDs are immutable
-- New Action Codes are added only if:
-  - the situation is recurring and economically meaningful
-  - no existing Action Code covers it
-- KPI thresholds and targets must never be embedded in Action Codes
+## Binding Action Codes to Use Cases
 
----
+The **only allowed coupling** between Use Cases and Action Codes is via:
 
-## Why There Is No Action Code Portfolio
+```yaml
+usecases/core/<USECASE_ID>/actioncodes_map.yaml
+```
 
-Every additional document creates long-term maintenance effort.
+Example:
 
-A separate portfolio:
-- would duplicate existing information
-- would not be required for configuration or execution
-- would add governance overhead
+```yaml
+use_case: XD-003
+action_codes:
+  - X-E3.1
+  - X-E3.2
+  - X-E3.3
+```
 
-Therefore, orientation is handled **here**, and all normative logic lives in the two core artifacts.
+Rules:
 
----
+* No Action Code may exist outside `framework/action_codes/`
+* No Action Code may be duplicated per Use Case
+* All mappings must be explicit and auditable
+
+## Reuse & Scalability Guarantee
+
+Because Action Codes are **decoupled from Use Cases**:
+
+* New Use Cases can reuse existing Action Codes without refactoring
+* Executive Use Cases can orchestrate across multiple domains
+* Governance and ownership remain stable as the framework grows
+
+Example:
+A future Use Case `ESG-001 — Supplier Risk` may reuse:
+
+* `S-S2.3 — Supply Risk Containment`
+* `X-E3.2 — Cross-Domain Risk Prioritisation`
+
+No duplication. No rework. No ambiguity.
+
+## Anti-Patterns (Explicitly Forbidden)
+
+The following patterns are **not allowed**:
+
+* Storing Action Codes under `/usecases/`
+* Creating "Executive versions" of existing domain Action Codes
+* Duplicating Action Codes for different Use Cases
+* Embedding execution logic directly into dashboards
+
+## Definition of Done for Action Codes
+
+An Action Code is considered **valid** only if:
+
+* It is stored in the correct domain or Enterprise folder
+* It follows the canonical ActionCode template
+* It is referenced by at least one `actioncodes_map.yaml`
+* Ownership, trigger logic, guardrails, and outcomes are explicit
 
 ## Key Takeaway
 
-> Action Codes turn analytics into decisions,  
-> without turning the framework into a workflow system.
-
-**Location:**  
-`framework/action_codes/README.md`
+> **Action Codes are reusable, domain-owned steering assets.**
+> **Use Cases reference them to turn insight into action — never the other way around.**

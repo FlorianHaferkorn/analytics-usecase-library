@@ -92,7 +92,9 @@ if (-not $kpiIndex) {
   $kpiIndex = New-Object System.Collections.Generic.HashSet[string]
 }
 
-$measuresFiles = Get-ChildItem -Path $resolvedDistRoot -Recurse -Filter '_Measures.tmdl'
+$measuresFiles = Get-ChildItem -Path $resolvedDistRoot -Recurse -Filter '_Measures.tmdl' | Where-Object {
+  $_.FullName -notmatch '\\_internal\\archive\\'
+}
 if ($measuresFiles.Count -eq 0) {
   Write-Host "No _Measures.tmdl files found under dist." -ForegroundColor Yellow
   exit 0

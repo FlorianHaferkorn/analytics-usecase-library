@@ -6,8 +6,6 @@ Provide **source-level metadata** and **synthetic example datasets** required fo
 
 This folder helps illustrate how real data maps into the ActionReady domain contracts — without exposing sensitive customer data.
 
----
-
 ## Scope
 
 Included:
@@ -22,8 +20,6 @@ Not included:
 - Production datasets  
 - Sensitive or identifiable information  
 - ETL scripts (see project repos for customer implementations)
-
----
 
 ## Structure
 
@@ -56,8 +52,6 @@ Used primarily for:
 - sample distributions  
 - lineage to contract fields  
 
----
-
 ## Usage
 
 ### For Customers
@@ -76,16 +70,12 @@ Used primarily for:
 - Keep synthetic data aligned with domain contracts  
 - Update metadata when contracts change  
 
----
-
 ## Relations
 
 - **WHY Synthetic datasets illustrate business processes from `docs/company`  
 - **HOW Contracts and semantic rules from the Operating Model validate data  
 - **WITH WHAT Measures, KPIs, and Action Codes rely on this mapping  
 - **TEMPLATES Data contract TEMPLATES define HOW source fields map to domain fields  
-
----
 
 **Location:**  
 `data_contracts/sources/README.md`

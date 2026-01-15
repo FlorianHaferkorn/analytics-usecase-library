@@ -1,174 +1,159 @@
 # Business Domains & Ownership Model
 
-Purpose:
-This document defines the **business domain structure** used by the Analytics Framework.
+## 1. Purpose
+
+This document defines the business domain structure used by the Analytics Framework.
+
 Domains are introduced to scale and govern the Golden Thread.
-They do not define strategy, KPIs, or use cases, but provide ownership and boundaries as complexity grows.
+They do not define strategy, KPIs, or analytical logic.
+They provide stable ownership and clear boundaries as analytical complexity grows.
 
-Domains are **business constructs**, not technical layers.
+Domains are business constructs, not technical layers.
 
----
+## 2. Why Domains Exist
 
-## 1. Why Domains Exist
-
-As analytics scales, organizations typically encounter:
+As analytics scales, organizations typically encounter recurring challenges:
 
 - overlapping KPIs with conflicting definitions,
 - unclear ownership for metrics and insights,
 - slow decision-making due to cross-functional ambiguity.
 
-Domains address this by introducing **stable, responsibility-driven ownership units** for analytics.
-They create clarity on *who owns what*—independent of tools, data sources, or org charts.
+Domains address these challenges by introducing responsibility-driven ownership units.
+They clarify who owns meaning, prioritization, and interpretation — independent of tools, data sources, or organizational structure.
 
----
+## 3. Domain Design Principles
 
-## 2. Domain Design Principles
+The domain model follows a small set of binding principles.
 
-The domain model follows these non-negotiable principles:
+Domains are business-driven, not data- or tool-driven.
+Each domain has explicit ownership.
+Domains are broader than individual use cases, but narrower than company strategy.
 
-- Domains are **business-driven**, not data- or tool-driven.
-- Each domain has **explicit ownership**.
-- Domains are **broader than use cases**, but **narrower than company strategy**.
-- Every use case belongs to **exactly one primary domain**.
-- Cross-domain references are allowed, ownership is not.
-- Domains remain stable even if implementations change.
+Every use case belongs to exactly one primary domain.
+Cross-domain references are allowed; ownership is not.
 
----
+Domains remain stable even as implementations, tools, or organizational structures change.
 
-## 3. Canonical Domain Set
+## 4. Canonical Domain Set
 
-The framework uses a canonical domain set covering the full decision landscape:
+The framework uses a canonical domain set that covers the full decision landscape.
 
-- **Commercial**  
+The exact composition may vary by organization.
+Any adaptation remains explicit and governed.
+
+Domains include:
+
+- Commercial  
   Revenue, pricing, promotions, margin steering
 
-- **Customer Value**  
+- Customer Value  
   Retention, churn, lifetime value, segmentation
 
-- **Operations**  
+- Operations  
   Capacity, quality, asset performance
 
-- **Supply Chain**  
+- Supply Chain  
   Inventory, service levels, reliability, forecasting
 
-- **Finance**  
+- Finance  
   Liquidity, costs, profitability, financial control
 
-- **Experience & Service**  
+- Experience & Service  
   Service levels, response times, customer experience
 
-- **Governance & Risk**  
+- Governance & Risk  
   Compliance, controls, audit, risk exposure
 
-- **ESG**  
+- ESG  
   Sustainability, emissions, energy, social indicators
 
-- **Innovation & People**  
+- Innovation & People  
   Workforce, learning, innovation capability
 
-The exact set may be adapted, but changes must remain **explicit and governed**.
+## 5. Domain Scope & Boundaries
 
----
+Each domain defines what it owns and what it explicitly does not own.
 
-## 4. Domain Scope & Boundaries
+Explicit scope boundaries are mandatory to prevent overlaps and semantic conflicts.
 
-Each domain defines **what it owns** and **what it explicitly does not own**.
+Example: Customer Value
 
-Example:
+In scope:
 
-**Customer Value**
+- Customer lifetime value
+- Churn and retention
+- Customer segmentation
 
-- In scope:
-  - Customer lifetime value
-  - Churn and retention
-  - Customer segmentation
-- Out of scope:
-  - Pricing logic (Commercial)
-  - Revenue recognition (Finance)
-  - Campaign execution details (Commercial / Experience)
+Out of scope:
 
-Explicit boundaries are mandatory to avoid overlaps and KPI conflicts.
+- Pricing logic (Commercial)
+- Revenue recognition (Finance)
+- Campaign execution details (Commercial / Experience)
 
----
+## 6. Domain Ownership Model
 
-## 5. Domain Ownership Model
+Each domain has a designated Domain Owner.
 
-Each domain has a **Domain Owner**.
+The Domain Owner is accountable for:
 
-The Domain Owner is responsible for:
+- business definitions of domain KPIs,
+- relevance and prioritization of use cases,
+- interpretation logic and thresholds,
+- alignment of Action Codes with business reality.
 
-- Business definitions of domain KPIs
-- Relevance and prioritization of use cases
-- Interpretation logic and thresholds
-- Alignment of Action Codes to business reality
+The Domain Owner is not responsible for:
 
-The Domain Owner is **not** responsible for:
-
-- Data ingestion or pipelines
-- Tool configuration
-- Report development
-- Visual or UX implementation
+- data ingestion or pipelines,
+- tooling configuration,
+- report development,
+- visual or UX implementation.
 
 This separation ensures accountability without technical overload.
 
----
+## 7. Relationship to Use Cases
 
-## 6. Relationship to Use Cases
+Use cases are the operational units of domains.
 
-Use cases are the **operational units** of domains.
+Rules apply consistently:
 
-Rules:
+- every use case belongs to one primary domain,
+- use cases may reference KPIs from other domains without transferring ownership,
+- cross-domain use cases still declare a single primary domain.
 
-- Every use case belongs to one primary domain.
-- Use cases may reference KPIs from other domains, ownership remains unchanged.
-- Cross-domain use cases still declare a single primary domain.
+The domain determines KPI relevance, action applicability, and governance responsibility.
 
-The domain determines:
+## 8. Executive & Cross-Domain Views
 
-- KPI relevance
-- Action applicability
-- Governance responsibility
-
----
-
-## 7. Executive & Cross-Domain Views
-
-Executive use cases are **not a separate domain**.
+Executive views do not constitute a separate domain.
 
 They:
 
-- Aggregate KPIs across domains
-- Do not redefine KPIs
-- Do not introduce new ownership
+- aggregate KPIs across domains,
+- do not redefine KPIs,
+- do not introduce new ownership.
 
-Executive views provide steering transparency, not new semantics.
+Executive views provide steering transparency while preserving domain semantics.
 
----
+## 9. Relationship to Other Framework Layers
 
-## 8. Relationship to Other Framework Layers
+Domains connect strategy to analytical execution.
 
-Domains connect strategy to execution:
+They relate to:
 
-- **Company Strategy (WHY):**  
-  `docs/company/company_strategy.md`
-- **Analytics Operating Model (HOW):**  
-  `docs/operating_model/`
-- **Use Cases (WHAT):**  
-  `usecases/`
-- **Semantic Models & KPIs (WITH WHAT):**  
-  `framework/` and `semantic_models/`
+- Company Strategy (WHY): `docs/company/company_strategy.md`
+- Golden Thread & Operating Model (HOW): `docs/operating_model/`
+- Use Cases (WHAT): `usecases/`
+- Semantic Models & KPIs (WITH WHAT): `framework/`, `semantic_models/`
 
-All downstream artifacts must be traceable back to a domain.
+All downstream artifacts remain traceable to a primary domain.
 
----
+## 10. Outcome
 
-## 9. What Success Looks Like
+When domains are applied consistently:
 
-When domains are applied correctly:
+- KPI ownership is clear and undisputed,
+- cross-functional discussions become faster and factual,
+- use cases scale without semantic drift,
+- analytics reflects responsibility rather than org charts.
 
-- KPI ownership is undisputed.
-- Cross-functional discussions are faster and factual.
-- Use cases scale without semantic drift.
-- Reporting reflects responsibility, not org charts.
-
-Domains are the **structural backbone** of scalable analytics.
+Domains provide the structural backbone for scalable, governed analytics.

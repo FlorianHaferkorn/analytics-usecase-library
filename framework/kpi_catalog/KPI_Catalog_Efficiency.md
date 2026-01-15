@@ -1150,6 +1150,38 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   aliases:
   - ops.inventory.turnover
 
+- kpi_id: ops.inventory.turnover
+  kpi_key: Inventory Turnover
+  kpi_type: diagnostic
+  impact_dimension: Efficiency
+  domain_tag:
+  - Operational Efficiency
+  use_case_ref:
+  - SCM-001
+  calc_type: ratio
+  business:
+    purpose: Measures how often inventory is sold and replaced.
+    definition: COGS / Average Inventory.
+    grain_scope: SKU/location; aggregated monthly.
+    unit_format: turns
+    interpretation: Higher turnover indicates better inventory velocity; too high may risk stockouts.
+  technical:
+    dax_name: Inventory Turnover
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Supply Chain / Logistics
+    data_owner: Supply Chain BI
+    steward: Inventory Planner
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - COGS and inventory reconciled to ledger
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
 - kpi_id: inv.stockout.pct
   kpi_key: Stockout Rate %
   kpi_type: diagnostic

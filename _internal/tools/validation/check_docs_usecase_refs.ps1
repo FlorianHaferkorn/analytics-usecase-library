@@ -37,7 +37,9 @@ function Get-UseCaseIdsFromInventory {
 function Get-UseCaseIdsFromFactsheets {
   param([string]$Root)
   $ids = [System.Collections.Generic.HashSet[string]]::new()
-  Get-ChildItem -Path $Root -Recurse -Filter "*Factsheet*.md" | ForEach-Object {
+  Get-ChildItem -Path $Root -Recurse -Filter "*Factsheet*.md" | Where-Object {
+    $_.FullName -notmatch '\\_internal\\archive\\'
+  } | ForEach-Object {
     $content = Get-Content -Raw -Path $_.FullName
     $match = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---")
     if (-not $match.Success) { return }
@@ -51,7 +53,9 @@ function Get-UseCaseIdsFromFactsheets {
 function Get-UseCaseIdsFromDocs {
   param([string]$Root)
   $ids = [System.Collections.Generic.HashSet[string]]::new()
-  Get-ChildItem -Path $Root -Recurse -File | Where-Object { $_.Extension -in @(".md",".yaml",".yml") } | ForEach-Object {
+  Get-ChildItem -Path $Root -Recurse -File | Where-Object {
+    $_.Extension -in @(".md",".yaml",".yml") -and $_.FullName -notmatch '\\_internal\\archive\\'
+  } | ForEach-Object {
     Get-Content -Path $_.FullName | ForEach-Object {
       foreach ($match in [regex]::Matches($_, '\b[A-Z]{3}-\d{3}\b')) {
         $null = $ids.Add($match.Value)

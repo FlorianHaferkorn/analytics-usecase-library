@@ -1,12 +1,12 @@
 ﻿**********************
 nStart der Windows PowerShell-Aufzeichnung
-Startzeit: 20260115165629
+Startzeit: 20260115200209
 Benutzername: NAGARRO\florianhaferkorn
 RunAs-Benutzer: NAGARRO\florianhaferkorn
 Konfigurationsname: 
 Computer: NES-NBBSTPQ04 (Microsoft Windows NT 10.0.26100.0)
 Hostanwendung: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\_internal\tools\run_all_checks.ps1
-Prozess-ID: 30668
+Prozess-ID: 4796
 PSVersion: 5.1.26100.7462
 PSEdition: Desktop
 PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.7462
@@ -195,8 +195,8 @@ Coverage counts (unique KPI IDs):
   Factsheets:           104
   Inventory:            81
   Core Action Codes:    55
-  Measure Dictionaries: 104
-  Total covered:        104
+  Measure Dictionaries: 108
+  Total covered:        108
 OK: all KPI IDs are referenced in factsheets.
 
 >> _internal/tools/validation/check_docs_usecase_refs.ps1
@@ -220,144 +220,9 @@ OK: all checked documents match their template layout.
 >> _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains
 KPI Catalog <-> Measure Dictionary consistency
 Missing in KPI catalogs (present in Measure Dictionaries):
-  - corp.benefit.realization.pct
-  - corp.budget.adherence.pct
-  - corp.payback.months
-  - corp.project.roi.pct
-  - corp.schedule.adherence.pct
-  - cost.cogs.amount
-  - crm.acquisition.cac.amount
-  - crm.acquisition.conversion_rate.pct
-  - crm.acquisition.conversions.count
-  - crm.acquisition.leads.count
-  - crm.active_customers_end.count
-  - crm.active_customers_start.count
-  - crm.at_risk_customers.count
-  - crm.at_risk_share.pct
-  - crm.basket_size.amount
-  - crm.basket_size.units
-  - crm.churn.pct
-  - crm.complaint.rate.pct
-  - crm.cross_sell_ratio.pct
-  - crm.opportunities.open.amount
-  - crm.opportunities.stage_conversion.pct
-  - crm.opportunities.win_rate.pct
-  - crm.opportunities.won.amount
-  - crm.reactivated_customers.count
-  - crm.reactivation.pct
-  - esg.aligned_revenue.pct
-  - esg.carbon_intensity.tco2e_per_revenue
-  - esg.co2.total.tco2e
-  - esg.energy.renewable_kwh
-  - esg.energy.total_kwh
-  - esg.ltifr.rate
-  - fin.ebitda.amount
-  - fin.liquidity.capex.amount
-  - fin.liquidity.capex_ratio.pct
-  - fin.liquidity.cash_conversion_cycle.delta_days
-  - fin.liquidity.cash_conversion_cycle_days
-  - fin.liquidity.dio_days_inventory_outstanding
-  - fin.liquidity.dpo_days_payables_outstanding
-  - fin.liquidity.dso_days_sales_outstanding
-  - fin.liquidity.free_cash_flow
   - fin.liquidity.inventory.amount
-  - fin.liquidity.operating_cash_flow
   - fin.liquidity.payables.amount
-  - fin.liquidity.receivables.amount
-  - fin.liquidity.working_capital
-  - fin.risk.ead.amount
-  - fin.risk.lgd.pct
-  - fin.risk.pd.pct
-  - gov.audit.findings.count
-  - gov.audit.findings.open.count
-  - gov.compliance.breach.count
-  - gov.compliance.incidents.count
-  - gov.data_quality.pct
-  - gov.records.total.count
-  - gov.valid_records.count
-  - hr.absent_hours.amount
-  - hr.absenteeism.pct
-  - hr.exits.count
-  - hr.fte.avg
-  - hr.gm.amount
-  - hr.gm_per_fte.amount
-  - hr.headcount.avg
-  - hr.personnel_cost.amount
-  - hr.personnel_cost_ratio.pct
-  - hr.revenue.amount
-  - hr.revenue_per_fte.amount
-  - hr.scheduled_hours.amount
-  - hr.turnover.pct
-  - margin.customer.amount
-  - margin.customer.pct
-  - margin.gm.channel_contribution.amount
-  - margin.gm.delta_amount
-  - margin.gm.delta_pct
-  - margin.gm.plan.amount
-  - market.share.relative.pct
-  - market.share.total.pct
-  - mkt.brand.awareness.pct
-  - mkt.brand.preference.pct
-  - ops.capacity.utilization.pct
-  - ops.contract.compliance.pct
-  - ops.deliveries.otif.count
-  - ops.deliveries.total.count
-  - ops.demand.total.qty
-  - ops.demand.unfulfilled.qty
-  - ops.downtime.hours
-  - ops.inventory.days
-  - ops.inventory.obsolescence.pct
-  - ops.inventory.turnover
-  - ops.logistics.cost_per_unit.amount
-  - ops.logistics.cost_ratio.pct
-  - ops.machine_downtime.pct
-  - ops.order_accuracy.pct
-  - ops.orders.correct.count
-  - ops.orders.total.count
   - ops.planned.hours
-  - ops.ppv.amount
-  - ops.ppv.pct
-  - ops.process.cost_per_unit.amount
-  - ops.purchase.price.actual.amount
-  - ops.purchase.price.contract.amount
-  - ops.purchase.units.qty
-  - ops.purchases.at_contract.amount
-  - ops.purchases.total.amount
-  - ops.replenishment.adherence.pct
-  - ops.stockout.pct
-  - ops.warehouse.cost_per_line.amount
-  - ops.warehouse.lines_per_hour
-  - ops.warehouse.picks_per_hour
-  - ops.working_capital.ccc.delta_days
-  - ops.working_capital.dio.days
-  - ops.working_capital.dpo.days
-  - ops.working_capital.dso.days
-  - people.employee_engagement.pct
-  - people.engaged_employees.count
-  - people.innovation_rate.pct
-  - people.survey_respondents.count
-  - people.training_hours.amount
-  - prod.contribution_margin.excl_mkt.pct
-  - prod.contribution_margin.incl_mkt.pct
-  - prod.lifecycle.age.months
-  - prod.lifecycle.new_share.pct
-  - prod.lifecycle.phase_distribution.pct
-  - prod.roi.pct
-  - profit.ebitda_margin
-  - sales.baseline.amount
-  - sales.customer.revenue_share.pct
-  - sales.forecast.bias_pct
-  - sales.forecast.mape_pct
-  - sales.list_price.amount
-  - sales.net_sales.amount.ly
-  - sales.net_sales.channel_share.pct
-  - sales.net_sales.delta_amount.ly
-  - sales.promo.amount
-  - sales.promo.uplift_pct
-  - sales.revenue.growth_pct
-  - sec.incident.count
-  - sec.incident.critical.count
-  - sec.incident.mttr.hours
 
 >> _internal/tools/validation/check_dax_vs_measure_dictionary.ps1
 DAX definitions vs Measure Dictionaries
@@ -372,5 +237,5 @@ No _Measures.tmdl files found under dist. Skipping TMDL check.
 
 **********************
 Ende der Windows PowerShell-Aufzeichnung
-Endzeit: 20260115165651
+Endzeit: 20260115200220
 **********************

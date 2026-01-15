@@ -7,6 +7,38 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ## KPIs - Strategic
 
 ```yaml
+- kpi_id: fin.liquidity.operating_cash_flow
+  kpi_key: Operating Cash Flow
+  kpi_type: strategic
+  impact_dimension: Liquidity
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref: []
+  calc_type: amount
+  business:
+    purpose: Measure cash generated from core operations as basis for liquidity steering.
+    definition: Net cash inflows from operating activities over the period.
+    grain_scope: Company/segment; monthly or quarterly closing.
+    unit_format: EUR (2 decimals)
+    interpretation: Positive values improve liquidity; negative values may occur during growth or working-capital buildup.
+  technical:
+    dax_name: Operating Cash Flow
+    depends_on_measures:
+    - Operating Cash Flow Amount
+    lineage:
+    - fact_cashflow.OperatingCashFlow
+  governance:
+    business_owner: Head of Treasury
+    data_owner: Finance BI
+    steward: Cash Flow Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Operating cash flow reconciles to cash flow statement within +/- 0.5 %.
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
 ```
 
 ## KPIs - Supporting / Diagnostic

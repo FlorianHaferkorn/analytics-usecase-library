@@ -6,8 +6,6 @@ It establishes the strategic context, priorities, and decision logic that all do
 
 This layer is **business-owned** and independent of tools, technologies, or implementation details.
 
----
-
 ## What belongs here
 
 This folder contains the **strategic foundation** of the Analytics Framework:
@@ -21,8 +19,6 @@ This folder contains the **strategic foundation** of the Analytics Framework:
 
 These documents define *what matters* and *why it matters*.
 
----
-
 ## What does NOT belong here
 
 The following topics are intentionally out of scope for this layer:
@@ -34,8 +30,6 @@ The following topics are intentionally out of scope for this layer:
 - Use case implementation details
 
 Those topics are handled in downstream layers.
-
----
 
 ## Primary entry points (start here)
 
@@ -55,8 +49,6 @@ It defines:
 
 > If you read only one document in this folder, read this one.
 
----
-
 ### 2. Reporting Principles & Design Standards
 
 **`reporting_principles.md`**
@@ -72,8 +64,6 @@ It explains:
 
 This document defines the **reporting DNA** of the organization.
 
----
-
 ### 3. Domains
 
 **`domains.md`**
@@ -85,8 +75,6 @@ Defines:
 - How domains structure analytics responsibility
 
 Domains provide the **organizational and semantic structure** for use cases, KPIs, and data contracts.
-
----
 
 ## Relationship to other framework layers
 
@@ -102,8 +90,6 @@ It is operationalized by:
   `framework/` and `semantic_models/`
 
 All downstream artifacts must be traceable back to the documents in this folder.
-
----
 
 ## Guiding principle
 

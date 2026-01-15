@@ -7,8 +7,6 @@ These examples allow customers and delivery teams to see the entire methodology 
 
 The primary goal is to turn abstract framework concepts into tangible, high-quality reference implementations.
 
----
-
 ## Scope
 
 Included:
@@ -24,8 +22,6 @@ Not included:
 - Customer-specific implementations (kept in separate project repositories)
 - Internal drafts, prototypes, or experiments
 - Tool-specific implementation guides (see `framework/implementation_guides/`)
-
----
 
 ## Structure
 
@@ -50,8 +46,6 @@ It demonstrates the entire ActionReady stack:
 - Action Codes in action  
 - KPIs, measures, and reporting design  
 - Page templates (3-30-300) applied in real context  
-
----
 
 ## Usage
 
@@ -78,8 +72,6 @@ It demonstrates the entire ActionReady stack:
 - Use Aurora to experiment with improvements before rolling them into the framework.  
 - Maintain Aurora as the “single source of truth” for best practices in action.
 
----
-
 ## Relations
 
 - **WHY (Company Layer)**  
@@ -94,8 +86,6 @@ It demonstrates the entire ActionReady stack:
 - **TEMPLATES (Pattern Library)**  
   Showcases provide real-world examples built entirely from these templates.
 
----
-
 ## Next Step
 
 Start with the flagship example:
@@ -103,8 +93,3 @@ Start with the flagship example:
 `showcases/aurora_group/README.md`
 
 It provides a complete, guided walkthrough of how the ActionReady Analytics Framework is applied end-to-end.
-
----
-
-**Location to place this file:**  
-`showcases/README.md`

@@ -12,8 +12,6 @@ Semantic Models ensure that:
 - Analytics scales without semantic drift.
 - Automation and AI operate on trusted definitions.
 
----
-
 ## Scope
 
 This layer defines:
@@ -29,8 +27,6 @@ This layer does **not**:
 - Introduce new KPIs
 - Contain use-case-specific logic
 - Implement tool- or report-specific behavior
-
----
 
 ## Golden Semantic Models
 
@@ -50,8 +46,6 @@ Golden Semantic Models are:
 
 They represent the **single source of computable truth** for analytics.
 
----
-
 ## Definition of Done (DoD)
 
 A domain-level Golden Semantic Model is considered **done** when:
@@ -64,8 +58,6 @@ A domain-level Golden Semantic Model is considered **done** when:
 - All measures reference stable identifiers (KPI IDs, Action Codes).
 
 Once done, a Golden Semantic Model becomes **read-only** for use cases.
-
----
 
 ## Domain Scope & Ownership
 
@@ -80,8 +72,6 @@ Once done, a Golden Semantic Model becomes **read-only** for use cases.
 - Each KPI belongs to exactly one domain.
 - Domains may expose KPIs for cross-domain usage but never delegate ownership.
 - Domain KPIs must be sufficient to cover all Core Use Cases of that domain.
-
----
 
 ## Cross-Domain Sharing Rules
 
@@ -114,8 +104,6 @@ This preserves single ownership while enabling reuse.
 
 > Cross-domain insights emerge from composition, not from new semantic definitions.
 
----
-
 ## Anti-Patterns (Explicitly Prohibited)
 
 The following patterns are intentionally not allowed:
@@ -128,8 +116,6 @@ The following patterns are intentionally not allowed:
 
 These patterns undermine trust, scalability, and AI-readiness.
 
----
-
 ## Relationship to Other Framework Layers
 
 - **Framework** defines what KPIs mean and which actions are valid.
@@ -138,8 +124,6 @@ These patterns undermine trust, scalability, and AI-readiness.
 - **Use Cases** define where and why meaning is applied.
 
 Semantic Models are the **bridge between intent and execution**.
-
----
 
 ## Why This Matters (Customer Perspective)
 
@@ -154,8 +138,6 @@ With Golden Semantic Models:
 - New use cases are configuration, not rework.
 - KPIs remain stable even as tools change.
 - AI agents operate on trusted semantics.
-
----
 
 ## Outcome
 

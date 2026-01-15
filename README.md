@@ -5,8 +5,6 @@ A pragmatic, scalable framework to translate **business strategy into action-rea
 This repository provides a complete, enterprise-grade blueprint to move from
 **strategic objectives → KPIs → insights → decisions → actions** — consistently and sustainably.
 
----
-
 ## Why this framework exists
 
 Most analytics initiatives fail not because of missing tools, but because of missing structure.
@@ -37,8 +35,6 @@ The goal is fewer discussions, faster decisions, and measurable impact.
 
 Doing nothing does not keep the current state — it reinforces it.
 
----
-
 ## What makes this framework different
 
 - **Strategy-to-Action Golden Thread**  
@@ -56,8 +52,6 @@ Doing nothing does not keep the current state — it reinforces it.
 - **Automation & AI Ready**  
   Structured metadata enables automation, Copilot, and AI agents without rework.
 
----
-
 ## How to get started (recommended path)
 
 ### 1. Understand the Strategy Context (WHY)
@@ -67,8 +61,6 @@ Start here to understand what the organization wants to achieve.
 - `docs/company/company_strategy.md`
 - `docs/company/reporting_principles.md`
 
----
-
 ### 2. Understand the Operating Model (HOW)
 
 Learn how strategy is translated into analytics and actions.
@@ -77,8 +69,6 @@ Start with:
 
 - `docs/operating_model/operating_model_overview.md`
 - `docs/operating_model/golden_thread_strategy_to_action.md`
-
----
 
 ### 3. Explore the Core Use Cases (WHAT)
 
@@ -93,10 +83,9 @@ Each use case contains:
 - Required KPIs and actions
 - Technical blueprint for implementation
 
----
-
 ## Repository Structure (high level)
 
+```yaml
 docs/
 company/ # Strategy, principles, domains
 operating_model/ # Analytics operating model (HOW)
@@ -121,8 +110,7 @@ sources/ # Source-level mappings
 _internal/
 tools/ # Validation, generation, automation
 ai/ # Schemas for AI and automation
-
----
+```
 
 ## Who this is for
 
@@ -137,8 +125,6 @@ ai/ # Schemas for AI and automation
 
 - **Enterprise Architects**  
   Governance without bureaucracy, platform-agnostic by design.
-
----
 
 ## Platform & Implementation
 

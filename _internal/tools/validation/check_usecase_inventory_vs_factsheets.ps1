@@ -37,7 +37,9 @@ function Get-UseCaseIdsFromInventory {
 function Get-FactsheetIndex {
   param([string]$Root)
   $index = @{}
-  Get-ChildItem -Path $Root -Recurse -Filter "*Factsheet*.md" | ForEach-Object {
+  Get-ChildItem -Path $Root -Recurse -Filter "*Factsheet*.md" | Where-Object {
+    $_.FullName -notmatch '\\_internal\\archive\\'
+  } | ForEach-Object {
     if ($_.FullName -match '\\usecases\\templates\\') { return }
     $content = Get-Content -Raw -Path $_.FullName
     $match = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---")

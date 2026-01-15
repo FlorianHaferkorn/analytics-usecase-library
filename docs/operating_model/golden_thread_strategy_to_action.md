@@ -23,8 +23,6 @@ It defines:
 Its purpose is to ensure that analytics does not stop at reporting,  
 but functions as a **reliable steering capability** across the entire analytics lifecycle.
 
----
-
 ## 1. Business Strategy (WHY)
 
 Business strategy defines **what must be steered**.
@@ -66,8 +64,6 @@ Reference:
 
 - docs/company/company_strategy.md
 
----
-
 ## 2. Strategic KPIs → Key Questions
 
 Strategic KPIs act as **steering signals**.
@@ -100,8 +96,6 @@ The outcome of this step is a set of **decision-oriented questions** that serve 
 Reference:
 
 - docs/company/reporting_principles.md
-
----
 
 ## 3. Key Questions → Use Cases (WHAT)
 
@@ -148,8 +142,6 @@ Reference:
 - usecases/UseCase_Inventory.md
 - usecases/core/
 
----
-
 ## 4. Use Cases → Semantic Model (HOW)
 
 Use Cases define **what decisions must be supported** and which information is required to take them.
@@ -189,8 +181,6 @@ Reference:
 
 - docs/operating_model/semantic_layer.md
 - docs/operating_model/ActionReady_SemanticModel_Blueprint.md
-
----
 
 ## 5. Semantic Model → Measures & KPIs
 
@@ -241,8 +231,6 @@ Reference:
 - docs/operating_model/measure_system.md
 - docs/operating_model/single_source_of_truth.md
 
----
-
 ## 6. Measures → Reports (3–30–300)
 
 Measures implemented in the Semantic Model become actionable only when they are consumed in a way that supports decision-making.
@@ -281,8 +269,6 @@ Reference:
 
 - framework/templates/page_templates/
 - docs/operating_model/ux_design_system.md
-
----
 
 ## 7. Reports → Actions
 
@@ -324,8 +310,6 @@ Reference:
 - framework/action_codes/
 - docs/operating_model/usecase_DoD_Core.md
 
----
-
 ## 8. Automation & AI Readiness
 
 Because all elements are structured and linked:
@@ -344,8 +328,6 @@ The framework is:
 Reference:
 
 - docs/operating_model/ai_readiness.md
-
----
 
 ## 9. Maintaining & Scaling the Golden Thread
 

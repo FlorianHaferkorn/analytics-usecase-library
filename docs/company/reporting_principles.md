@@ -1,191 +1,158 @@
-# Reporting Principles & Design Standards
+# Reporting Principles
 
-Purpose:
-This document defines the core principles that govern how reporting and analytics outputs are designed, structured, and consumed across the organization.
-These principles operationalize the reporting layer of the Golden Thread and ensure consistent decision-oriented consumption of analytics independent of tools or technologies.
+## 1. Purpose
 
-Scope:
+This document defines the binding principles that govern how reporting and analytical outputs are designed and evaluated within the Action-Ready Analytics Framework.
 
-- Defines *what good reporting looks like* from a business and user perspective.
-- Defines non-negotiable design and usage principles.
-- Defines how reporting supports decisions and actions.
-- Does NOT define concrete page layouts or technical implementation details.
+While the Golden Thread defines decision logic, the Operating Model governs delivery, and the UX Design System defines interaction standards, this document defines the cognitive and decision-oriented quality criteria for reporting.
 
----
+It does not define layouts, visual components, or technical implementation.
+It defines what makes reporting effective for decision-making.
 
-## 1. Reporting as a Decision Instrument
+## 2. Scope
+
+This document defines:
+
+- what decision-oriented reporting looks like,
+- non-negotiable principles for analytical consumption,
+- and how reporting supports decisions and actions.
+
+This document does not define:
+
+- page layouts or visual components,
+- tool-specific implementations,
+- or domain-specific content.
+
+## 3. Reporting as a Decision Instrument
 
 Reporting is not an end in itself.
 
 The purpose of reporting is to:
 
-- Support decisions
-- Trigger actions
-- Enable accountability
-- Provide transparency
+- support decisions,
+- enable accountability,
+- trigger actions,
+- and provide transparency.
 
-Dashboards that do not lead to decisions or actions are considered **incomplete**, regardless of visual quality.
+Dashboards that do not lead to decisions or actions are considered incomplete, regardless of visual quality.
 
-Every report must answer at least one of the following:
+Every report must answer at least one of the following questions:
 
-- *What is happening?*
-- *Why is it happening?*
-- *What should we do about it?*
+- What is happening?
+- Why is it happening?
+- What should we do about it?
 
----
+## 4. Principle: Actionability First
 
-## 2. Principle: Actionability First
-
-All reporting outputs must be **action-oriented**.
+All reporting outputs are action-oriented by design.
 
 This means:
 
-- KPIs are presented together with interpretation context.
-- Thresholds, targets, or expectations are visible or clearly defined.
-- Deviations are explicit, not implicit.
-- Actions are either suggested, triggered, or traceable.
+- KPIs are presented together with interpretation context,
+- expectations, targets, or thresholds are explicit,
+- deviations are clearly visible,
+- and potential actions are identifiable or traceable.
 
-Actionability is operationalized through:
+Actionability is enabled through:
 
-- Action Codes
-- Use Case definitions
-- Prescriptive views (where applicable)
+- Action Codes,
+- Use Case definitions,
+- and prescriptive views where appropriate.
 
-A KPI without a possible action is considered **incomplete**.
+A KPI without a potential action is considered incomplete.
 
----
+## 5. Principle: Progressive Disclosure (3–30–300)
 
-## 3. Principle: Progressive Disclosure (3–30–300)
+Reporting follows a structured information hierarchy known as 3–30–300.
 
-Reporting follows a structured information hierarchy known as **3–30–300**:
+3 seconds:
+Immediate orientation through high-level status and signals.
 
-- **3 seconds**  
-  Immediate orientation.  
-  High-level status, trends, and critical signals.
+30 seconds:
+Structured explanation through drivers, comparisons, and segmentation.
 
-- **30 seconds**  
-  Structured explanation.  
-  Key drivers, comparisons, and segmentation.
+300 seconds:
+Analytical depth through drill paths, detailed breakdowns, and validation.
 
-- **300 seconds**  
-  Analytical depth.  
-  Detailed breakdowns, root cause analysis, and drill paths.
+Not every report must implement all three layers.
+Each report must explicitly indicate which layer it primarily serves.
 
-Not every report must implement all three layers, but:
+## 6. Principle: Cognitive Simplicity
 
-- Every report must clearly indicate *which layer it serves*.
-- Mixing layers without intent is discouraged.
-
----
-
-## 4. Principle: Cognitive Simplicity
-
-Reports must minimize cognitive load.
+Reports minimize cognitive load to support fast and confident interpretation.
 
 This includes:
 
-- Limited number of KPIs per page.
-- Clear visual hierarchy.
-- Consistent use of colors, scales, and formats.
-- Avoidance of unnecessary visual decoration.
+- a limited number of KPIs per page,
+- clear visual hierarchy,
+- consistent use of scales and formats,
+- and avoidance of unnecessary visual decoration.
 
-Clarity always has priority over completeness.
+Clarity always takes precedence over completeness.
 
----
+## 7. Principle: Consistency Across Domains
 
-## 5. Principle: Consistency Across Domains
-
-Users must be able to transfer understanding between reports.
+Users must be able to transfer understanding across reports and domains.
 
 Consistency applies to:
 
-- KPI naming and definitions
-- Time comparisons (YoY, MoM, YTD, etc.)
-- Color semantics (e.g., good / neutral / bad)
-- Layout logic and interaction patterns
+- KPI naming and definitions,
+- time comparisons,
+- color semantics,
+- and interaction logic.
 
-Consistency is enforced through:
+Consistency is ensured through:
 
-- KPI catalogs
-- Measure system conventions
-- Page template library
+- KPI catalogs,
+- the Measure System,
+- and shared page templates.
 
----
+## 8. Principle: User-Centric Design
 
-## 6. Principle: User-Centric Design
-
-Reports are designed for **specific roles**, not generic audiences.
+Reports are designed for specific roles and decision responsibilities.
 
 This implies:
 
-- Clear definition of the target user per report or page.
-- Alignment of content depth with user responsibility.
-- Avoidance of “one-size-fits-all” dashboards.
+- a clearly defined target user per report or page,
+- alignment of analytical depth with responsibility,
+- and explicit separation of executive, tactical, and operational views.
 
-Executive, tactical, and operational views must be clearly separated.
+Generic one-size-fits-all dashboards are avoided.
 
----
+## 9. Principle: Transparency Over Perfection
 
-## 7. Principle: Transparency Over Perfection
+Users must understand what the numbers represent and what they do not.
 
-Users must understand:
+Preferred practices include:
 
-- What the numbers represent
-- Where the data comes from
-- What assumptions apply
+- explicit definitions over hidden logic,
+- documented limitations over silent inaccuracies,
+- and traceability over visual polish.
 
-Explicitly preferred:
+Trust is built through transparency, not perfection.
 
-- Clear definitions over hidden logic
-- Documented limitations over silent inaccuracies
-- Traceability over visual polish
+## 10. Relationship to UX System & Templates
 
----
+This document defines principles.
 
-## 8. Relationship to UX System & Templates
+Concrete implementations are defined in:
 
-This document defines **principles**.
-
-Concrete implementations are defined elsewhere:
-
-- UX system and interaction standards:  
+- UX standards and interaction patterns:
   `docs/operating_model/ux_design_system.md`
-- Reusable page layouts and patterns:  
+- Page templates and layout patterns:
   `framework/templates/page_templates/`
-- Visual whitelist and guardrails:  
+- Visual guardrails and whitelists:
   `framework/templates/page_templates/Visual_Whitelist.md`
 
-Principles must always take precedence over templates.
+Principles take precedence over templates.
 
----
+## 11. Outcome
 
-## 9. What Good Looks Like
+When applied consistently, these principles ensure that reporting:
 
-A report that follows these principles:
+- is understood within seconds,
+- explains why changes occur,
+- makes next actions clear,
+- and feels consistent across domains and audiences.
 
-- Can be understood within seconds.
-- Explains *why* something changed.
-- Makes the next action obvious.
-- Feels consistent with other reports.
-- Builds trust instead of debate.
-
-Reporting that does not meet these criteria should be challenged and improved.
-
----
-
-## 10. Relationship to the Overall Framework
-
-This document supports:
-
-- **Company Strategy:**  
-  `docs/company/company_strategy.md`
-- **Analytics Operating Model:**  
-  `docs/operating_model/`
-- **Use Case Design:**  
-  `usecases/`
-
-Together, they ensure that reporting is not isolated, but embedded into a coherent analytics system.
-
----
-
-This document defines the **non-negotiable reporting DNA** of the organization.
+These principles define the non-negotiable decision quality of reporting.

@@ -5,7 +5,9 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$tmdlFiles = Get-ChildItem -Path $DistRoot -Recurse -Filter "*_Measures.tmdl" -ErrorAction SilentlyContinue
+$tmdlFiles = Get-ChildItem -Path $DistRoot -Recurse -Filter "*_Measures.tmdl" -ErrorAction SilentlyContinue | Where-Object {
+  $_.FullName -notmatch '\\_internal\\archive\\'
+}
 if (-not $tmdlFiles -or $tmdlFiles.Count -eq 0) {
   Write-Host "No _Measures.tmdl files found under dist. Skipping TMDL check."
   exit 0
@@ -14,7 +16,9 @@ if (-not $tmdlFiles -or $tmdlFiles.Count -eq 0) {
 function Get-MeasureNamesFromDict {
   param([string]$Root)
   $names = New-Object System.Collections.Generic.HashSet[string]
-  Get-ChildItem -Path $Root -Recurse -Filter "Measure_Dictionary_*.md" | ForEach-Object {
+  Get-ChildItem -Path $Root -Recurse -Filter "Measure_Dictionary_*.md" | Where-Object {
+    $_.FullName -notmatch '\\_internal\\archive\\'
+  } | ForEach-Object {
     Get-Content $_.FullName | ForEach-Object {
       if ($_ -match '^\s*-?\s*measure_name:\s*"?(.+?)"?\s*$') {
         $name = $Matches[1].Trim()

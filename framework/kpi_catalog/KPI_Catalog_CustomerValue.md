@@ -281,4 +281,38 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     completeness_score: 0.8
     last_review: 19.11.2025
 
+- kpi_id: crm.complaint.rate.pct
+  kpi_key: Complaint Rate %
+  kpi_type: diagnostic
+  impact_dimension: Customer
+  domain_tag:
+  - Customer & Market
+  use_case_ref:
+  - CST-007
+  calc_type: rate
+  business:
+    purpose: Measure complaints relative to delivered orders or customers.
+    definition: Complaint Count divided by total orders (or customers) in period.
+    grain_scope: Org / channel / product; monthly.
+    unit_format: '% (1 decimal)'
+    interpretation: Higher complaint rate indicates quality or service issues; target is typically to reduce over time.
+  technical:
+    dax_name: Complaint Rate %
+    depends_on_measures: []
+    lineage:
+    - fact_complaint.ComplaintCount
+    - fact_sales.OrdersCount
+  governance:
+    business_owner: Head of Customer Service
+    data_owner: Service BI
+    steward: Service Quality Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - Complaint categorization and severity mapping documented
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 19.11.2025
+
 ```

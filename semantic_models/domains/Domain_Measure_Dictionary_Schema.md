@@ -12,8 +12,6 @@ This schema is used in files like:
 
 Each file contains a YAML list of measures inside ```yaml code fences.
 
----
-
 ## 1. Fields per Measure
 
 Each measure is a YAML object with the following fields.
@@ -90,8 +88,6 @@ Each measure is a YAML object with the following fields.
 - `governance.last_review` (optional, string, date)  
   Date of last technical review, format `DD.MM.YYYY`.
 
----
-
 ## 2. Example: Base and KPI Measure
 
 ```yaml
@@ -150,8 +146,6 @@ Each measure is a YAML object with the following fields.
     version: "v1.0"
     last_review: "21.11.2025"
 ```
-
----
 
 ## 3. Best Practices
 

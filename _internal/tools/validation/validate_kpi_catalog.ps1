@@ -116,7 +116,9 @@ function Get-RequiredIdsFromFrontMatter {
 # Build set of KPI IDs required by FactSheets
 $requiredSet = New-Object System.Collections.Generic.HashSet[string]
 if ($UseCasesRoot -and (Test-Path $UseCasesRoot)) {
-  Get-ChildItem -Path $UseCasesRoot -Recurse -Filter 'FactSheet.md' | ForEach-Object {
+  Get-ChildItem -Path $UseCasesRoot -Recurse -Filter 'FactSheet.md' | Where-Object {
+    $_.FullName -notmatch '\\_internal\\archive\\'
+  } | ForEach-Object {
     $fm = Get-FrontMatter -Path $_.FullName
     foreach ($rid in (Get-RequiredIdsFromFrontMatter -FrontMatter $fm)) { [void]$requiredSet.Add($rid) }
   }

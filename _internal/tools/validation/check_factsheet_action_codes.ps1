@@ -68,7 +68,9 @@ function Parse-ListField {
 function Get-ActionCodeIds {
   param([string]$Root)
   $ids = [System.Collections.Generic.HashSet[string]]::new()
-  Get-ChildItem -Path $Root -Recurse -File | Where-Object { $_.Extension -in @(".yaml",".yml") } | ForEach-Object {
+  Get-ChildItem -Path $Root -Recurse -File | Where-Object {
+    $_.Extension -in @(".yaml",".yml") -and $_.FullName -notmatch '\\_internal\\archive\\'
+  } | ForEach-Object {
     $basename = [System.IO.Path]::GetFileNameWithoutExtension($_.Name)
     if ($basename) { $null = $ids.Add($basename) }
     Get-Content -Path $_.FullName | ForEach-Object {
@@ -89,7 +91,9 @@ Write-Host "Factsheets -> Action Codes consistency" -ForegroundColor Cyan
 $actionCodeIds = Get-ActionCodeIds -Root $actionCodesRoot
 $missing = @()
 
-Get-ChildItem -Path $useCasesRoot -Recurse -Filter "*Factsheet*.md" | ForEach-Object {
+Get-ChildItem -Path $useCasesRoot -Recurse -Filter "*Factsheet*.md" | Where-Object {
+  $_.FullName -notmatch '\\_internal\\archive\\'
+} | ForEach-Object {
   $fm = Get-FrontMatterText -Path $_.FullName
   if (-not $fm) { return }
   $refs = Parse-ListField -FrontMatter $fm -Field "action_codes"

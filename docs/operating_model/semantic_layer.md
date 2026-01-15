@@ -7,8 +7,6 @@ While the Golden Thread defines which decisions matter and why, and the Operatin
 It does not introduce strategy, KPIs, or actions.
 It enables their consistent implementation across domains, use cases, and tools.
 
----
-
 ## 1. Role in the framework
 
 The semantic layer operationalizes the Golden Thread within analytical models.
@@ -18,8 +16,6 @@ The semantic layer operationalizes the Golden Thread within analytical models.
 - Measures, reports, and actions consume these structures without redefining meaning.
 
 The semantic layer acts as the contract between business meaning and technical implementation.
-
----
 
 ## 2. Core Modeling Principles
 
@@ -33,8 +29,6 @@ Where decision-making requires action-oriented analysis, dedicated aggregates ar
 These aggregates support detection, explanation, and prioritization of actions without enforcing execution.
 
 Explicit metadata enables interpretation, governance, and assisted analytics.
-
----
 
 ## 3. Domain Aggregates
 
@@ -55,8 +49,6 @@ They enable prioritization and root-cause analysis without automating decisions.
 
 Thresholds, flags, and indicators link analytical signals to recommended actions.
 
----
-
 ## 5. Action Execution Layer
 
 Where actions are taken, execution can be recorded explicitly.
@@ -66,8 +58,6 @@ It enables learning, comparison, and evaluation of decision effectiveness over t
 
 Execution tracking supports learning and improvement.
 It does not enforce action.
-
----
 
 ## 6. End-to-End Semantic Pattern
 
@@ -79,8 +69,6 @@ Across domains, the same structural logic applies:
 - and optional execution tracking.
 
 This ensures analytical consistency even as domains, use cases, and tools evolve.
-
----
 
 ## 7. Normative Semantic Modeling Standards
 
@@ -123,8 +111,6 @@ They do not enforce execution.
 All semantic objects require clear naming and descriptive metadata.
 Metadata supports interpretation, governance, and assisted analytics.
 
----
-
 ## 8. Governance and Validation
 
 Semantic standards are enforced through validation and review.
@@ -134,8 +120,6 @@ Governance protects meaning and dependencies rather than enforcing process.
 
 Validation mechanisms support consistency and trust at scale.
 
----
-
 ## 9. Usage Guidance
 
 The semantic layer blueprint serves as a reference for all domain implementations.
@@ -144,8 +128,6 @@ Domains instantiate the pattern using their data contracts and KPIs.
 Use cases and reports consume the semantic layer without redefining structure.
 
 Showcase implementations illustrate the blueprint but do not extend it.
-
----
 
 ## 10. Outcome
 

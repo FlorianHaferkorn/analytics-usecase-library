@@ -1,113 +1,92 @@
-﻿# Reporting Strategy
+﻿# Distribution Architecture
 
----
+The distribution architecture defines how analytical outputs are structured, positioned, and consumed across the organization.
 
-## 1. Purpose & Vision
+While the Golden Thread defines causal logic and the Operating Model governs its operation, the distribution architecture ensures that analytics reaches the right audience at the right level of decision-making.
 
-The **Reporting Strategy** defines how analytics and reporting align with corporate goals.  
-Every report must connect **data to decision** and **insight to impact**.
+It does not define strategy, KPIs, or actions.
+It structures how analytical products are distributed and interpreted.
 
-> “A report is only valuable if it changes a business outcome.”
+## 1. Role in the Framework
 
----
+The distribution architecture operationalizes the consumption and delivery layer of the Golden Thread.
 
-## 2. Reporting Layers Overview (Layer Axis)
+- Strategy, KPIs, and Action Codes define decision intent.
+- Semantic models and measures provide governed analytical meaning.
+- Distribution rules define how this meaning is exposed across strategic, tactical, and operational contexts.
 
-We distinguish three reporting levels – this is the **Layer Axis** and wird im FactSheet als `reporting_level` gepflegt.
+Distribution ensures consistency across audiences without duplicating logic.
 
-| Level          | Purpose                                                | Example Use Case                                                |
-|----------------|--------------------------------------------------------|-----------------------------------------------------------------|
-| **Strategic**  | Measures company performance against long-term goals   | XD-003 Executive KPI Overview                                   |
-| **Tactical**   | Analyzes drivers and accountability for KPIs           | COM-001 Sales Performance, COM-002                              |
-| **Operational**| Supports daily execution and monitoring                | FIN-001 Cash & Liquidity Performance, OPS-002 Asset Performance |
+## 2. Reporting Levels (Decision Horizon)
 
-Each layer builds on the previous one. Tactical reports explain _why_ strategic KPIs move, and operational reports show _how_ execution delivers the result.
+Analytical products are classified by their primary decision horizon.
 
-In the Use Case FactSheet:
+### 2.1. Strategic
 
-- `reporting_level: Strategic` — board/management view on Strategic KPIs.  
-- `reporting_level: Tactical` — cluster/segment view explaining KPI movements.  
-- `reporting_level: Operational` — process/line-level view for daily execution.
+Strategic products measure progress against long-term objectives.
+They provide a consolidated view of strategic KPIs for executive decision-making.
 
----
+### 2.2. Tactical
 
-## 3. Analytics Stages (Analytics Axis)
+Tactical products explain drivers and accountability for KPI movements.
+They support management decisions and performance steering.
 
-Orthogonal to the reporting levels we distinguish **analytics stages**. These are captured in the FactSheet as `analytics_stage`.
+### 2.3. Operational
 
-| Stage           | Question Type                  | Examples in this library                                                    |
-|-----------------|--------------------------------|-----------------------------------------------------------------------------|
-| **Descriptive** | What happened?                 | COM-001 Sales Performance, FIN-001 Cash & Liquidity Performance             |
-| **Diagnostic**  | Why did it happen?             | COM-002 Gross Margin Analysis, COM-004 PVM                                  |
-| **Predictive**  | What is likely to happen?      | COM-003 Customer Value, SCM-003 Forecast vs Actual                          |
-| **Prescriptive**| What should we do next?        | SCM-001 Inventory Performance (target policy)                               |
+Operational products support day-to-day execution and monitoring.
+They enable timely intervention at process or line level.
 
-Guidance for FactSheets:
+Each level builds on the previous one.
+Analytical meaning remains consistent across levels.
 
-- Start with `analytics_stage: Descriptive` or `Diagnostic` for most use cases.  
-- Use `Predictive` / `Prescriptive` intentionally when models/optimization are truly in scope.  
-- Auch ein strategischer Use Case kann „nur“ descriptive sein – und umgekehrt kann ein operativer Use Case prescriptive Logik enthalten.
+## 3. Analytics Stages (Analytical Intent)
 
----
+In addition to decision horizon, analytical products are classified by analytical intent.
 
-## 4. Framework Principles
+- Descriptive: What happened?
+- Diagnostic: Why did it happen?
+- Predictive: What is likely to happen?
+- Prescriptive: What should be done next?
 
-| Principle       | Description                                                   |
-|-----------------|---------------------------------------------------------------|
-| **Consistency** | KPIs and calculations remain identical across layers.         |
-| **Context**     | Every report starts from a defined business question.         |
-| **Clarity**     | 3–30–300 design ensures intuitive user flow and readability.  |
-| **Governance**  | RLS/OLS, lineage, and review cycles ensure trust and control. |
-| **Reusability** | Standardized templates accelerate time-to-insight.            |
+Stages are applied intentionally.
+Not every use case requires predictive or prescriptive logic.
 
----
+## 4. Strategic Alignment
 
-## 5. Strategic Alignment Framework
+Every analytical product is aligned with strategic intent.
 
-### 4.1 Purpose
+Alignment follows a consistent causal structure:
 
-To link corporate objectives, analytical Use Cases, and operational actions into one continuous logic.
+Strategic KPI → Business Driver → Use Case → Action Code → Expected Impact
 
-```yaml
-Strategic KPI → Business Driver → Use Case → Action Code → Business Impact
-```
+Each use case references at least one strategic KPI.
+Expected impact is stated explicitly to support prioritization and evaluation.
 
-### 4.2 Layer Definition
+## 5. Distribution Principles
 
-| Layer                   | Key Question               | Example                                                         |
-|-------------------------|----------------------------|-----------------------------------------------------------------|
-| **Strategic KPI**       | What do we aim to achieve? | Revenue Growth %                                                |
-| **Business Driver**     | What influences it?        | Volume Growth %, DSO, Price Realization %                       |
-| **Analytical Use Case** | Where can analytics help?  | COM-001 Sales Performance, FIN-001 Cash & Liquidity Performance |
-| **Action Code**         | What should be done?       | P2 Tighten Discounts, W1 Accelerate Collections                 |
-| **Impact**              | What will change?          | +3–5 pp Revenue Growth %, −5 days DSO                           |
+Distribution follows a small set of binding principles.
 
-### 4.3 Outcome for Analytics Teams
+Consistency ensures that KPIs and calculations remain identical across contexts.
+Context ensures that every product answers a defined business question.
+Clarity ensures intuitive interpretation and navigation.
+Governance ensures trust, security, and traceability.
+Reusability ensures efficient scale across domains and teams.
 
-- Each Use Case must reference **at least one Strategic KPI**.  
-- Each Use Case must quantify its **expected business impact**.  
-- This linkage is maintained in `/_includes/Strategic_Alignment_Map.md`.
+## 6. Governance and Review
 
----
+Distribution rules are governed to preserve trust and consistency.
 
-## 6. Governance & Review Model
+Access, security, and lineage follow established governance standards.
+Review ensures that analytical products remain aligned with strategic intent and decision context.
 
-| Role                 | Responsibility                               |
-|----------------------|----------------------------------------------|
-| **Business Owner**   | Defines KPI meaning and thresholds.          |
-| **Data Owner**       | Guarantees data quality and lineage.         |
-| **Steward**          | Maintains the KPI and ensures QA compliance. |
-| **Governance Board** | Reviews, approves, and archives KPIs.        |
+Distribution governance focuses on meaning and audience, not on technical delivery.
 
-**Review Frequency:** Quarterly or after each fiscal cycle.  
-**Quality Gate:** IR ≥ 99.9 %, Copilot-ready metadata, lineage verified.
+## 7. Outcome
 
----
+When applied consistently, the distribution architecture ensures that:
 
-## 7. Summary & Next Steps
+- analytics is consumed at the appropriate decision level,
+- insights remain consistent across audiences,
+- and strategic intent is preserved from data to decision.
 
-- Maintain the **Strategic Alignment Map** as a living document.  
-- Validate quarterly that each analytics initiative supports at least one strategic KPI.  
-- Use the same logic in dashboards, performance reviews, and AI Copilot prompts.
-
-> “When business goals, KPIs, and analytics move together, the organization learns faster.”
+The distribution architecture enables impact by aligning analytical delivery with decision-making structure.

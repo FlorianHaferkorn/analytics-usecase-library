@@ -144,7 +144,9 @@ function Test-MeasureCovered {
     [string]$CatalogRoot
   )
   if (-not $Measure) { return $false }
-  $files = Get-ChildItem -Path $CatalogRoot -Filter '*.md' -Recurse
+  $files = Get-ChildItem -Path $CatalogRoot -Filter '*.md' -Recurse | Where-Object {
+    $_.FullName -notmatch '\\_internal\\archive\\'
+  }
   foreach ($file in $files) {
     if (Select-String -Path $file.FullName -Pattern ([regex]::Escape($Measure)) -SimpleMatch -Quiet -ErrorAction SilentlyContinue) {
       return $true
@@ -158,8 +160,12 @@ $catalog = Load-KpiCatalogIndex -Root $KpiCatalogRoot
 $catalogIds = $catalog.ids
 $catalogNames = $catalog.names
 $factsheets = @(
-  Get-ChildItem -Path $UseCasesRoot -Recurse -Filter 'Business_Factsheet.md'
-  Get-ChildItem -Path $UseCasesRoot -Recurse -Filter 'Technical_Factsheet.md'
+  Get-ChildItem -Path $UseCasesRoot -Recurse -Filter 'Business_Factsheet.md' | Where-Object {
+    $_.FullName -notmatch '\\_internal\\archive\\'
+  }
+  Get-ChildItem -Path $UseCasesRoot -Recurse -Filter 'Technical_Factsheet.md' | Where-Object {
+    $_.FullName -notmatch '\\_internal\\archive\\'
+  }
 ) | Sort-Object FullName -Unique
 if ($factsheets.Count -eq 0) { Write-Host "No Business_Factsheet.md or Technical_Factsheet.md files found." -ForegroundColor Yellow; exit 0 }
 

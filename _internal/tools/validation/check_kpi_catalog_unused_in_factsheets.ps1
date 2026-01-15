@@ -108,7 +108,7 @@ function Get-KpiIdsFromCatalog {
   param([string]$Root)
   $ids = [System.Collections.Generic.HashSet[string]]::new()
   Get-ChildItem -Path $Root -Recurse -Filter "KPI_Catalog_*.md" | Where-Object {
-    $_.FullName -notmatch '\\archive\\'
+    $_.FullName -notmatch '\\archive\\' -and $_.FullName -notmatch '\\_internal\\archive\\'
   } | ForEach-Object {
     Get-Content -Path $_.FullName | ForEach-Object {
       if ($_ -match '^\s*-\s*kpi_id\s*:\s*"?([^"\s]+)"?') {
@@ -124,7 +124,9 @@ function Get-CoreUseCaseIds {
   $coreRoot = Join-Path -Path $Root -ChildPath "core"
   if (-not (Test-Path $coreRoot)) { return @() }
   $ids = [System.Collections.Generic.HashSet[string]]::new()
-  Get-ChildItem -Path $coreRoot -Recurse -Filter "*Factsheet*.md" | ForEach-Object {
+  Get-ChildItem -Path $coreRoot -Recurse -Filter "*Factsheet*.md" | Where-Object {
+    $_.FullName -notmatch '\\_internal\\archive\\'
+  } | ForEach-Object {
     $fm = Get-FrontMatterText -Path $_.FullName
     if (-not $fm) { return }
     $match = [regex]::Match($fm, "^\s*id\s*:\s*([A-Z0-9-]+)\s*$", "Multiline")
@@ -162,7 +164,9 @@ function Get-ActionCodesFromFactsheets {
   $coreRoot = Join-Path -Path $Root -ChildPath "core"
   if (-not (Test-Path $coreRoot)) { return @() }
   $codes = [System.Collections.Generic.HashSet[string]]::new()
-  Get-ChildItem -Path $coreRoot -Recurse -Filter "*Factsheet*.md" | ForEach-Object {
+  Get-ChildItem -Path $coreRoot -Recurse -Filter "*Factsheet*.md" | Where-Object {
+    $_.FullName -notmatch '\\_internal\\archive\\'
+  } | ForEach-Object {
     $body = Get-BodyText -Path $_.FullName
     if (-not $body) { return }
     foreach ($match in [regex]::Matches($body, '\b[A-Z]{1,3}-[A-Z][0-9]\.[0-9]\b')) {
@@ -177,7 +181,9 @@ function Get-KpiIdsFromActionCodes {
   $ids = [System.Collections.Generic.HashSet[string]]::new()
   if (-not $ActionCodes -or $ActionCodes.Count -eq 0) { return $ids }
   foreach ($code in $ActionCodes) {
-    $matches = Get-ChildItem -Path $Root -Recurse -Filter "$code.yaml" -File -ErrorAction SilentlyContinue
+    $matches = Get-ChildItem -Path $Root -Recurse -Filter "$code.yaml" -File -ErrorAction SilentlyContinue | Where-Object {
+      $_.FullName -notmatch '\\_internal\\archive\\'
+    }
     if (-not $matches) { continue }
     $path = $matches[0].FullName
     foreach ($line in Get-Content -Path $path) {
@@ -199,7 +205,9 @@ function Get-KpiIdsFromMeasureDictionaries {
   param([string]$Root,[System.Collections.Generic.HashSet[string]]$CatalogIds)
   $ids = [System.Collections.Generic.HashSet[string]]::new()
   if (-not (Test-Path $Root)) { return $ids }
-  Get-ChildItem -Path $Root -Recurse -Filter "Measure_Dictionary_*.md" -File | ForEach-Object {
+  Get-ChildItem -Path $Root -Recurse -Filter "Measure_Dictionary_*.md" -File | Where-Object {
+    $_.FullName -notmatch '\\_internal\\archive\\'
+  } | ForEach-Object {
     foreach ($line in Get-Content -Path $_.FullName) {
       if ($line -match '^\s*kpi_id_ref\s*:\s*"?([^"\s]+)"?') {
         $value = $matches[1]
@@ -232,7 +240,9 @@ foreach ($id in (Get-KpiTokensFromText -Text (Get-Content -Raw -Path $inventoryP
   if ($catalogIds.Contains($id)) { $null = $inventoryRefs.Add($id) }
 }
 
-Get-ChildItem -Path $useCasesRoot -Recurse -Filter "*Factsheet*.md" | ForEach-Object {
+Get-ChildItem -Path $useCasesRoot -Recurse -Filter "*Factsheet*.md" | Where-Object {
+  $_.FullName -notmatch '\\_internal\\archive\\'
+} | ForEach-Object {
   $fm = Get-FrontMatterText -Path $_.FullName
   if (-not $fm) { return }
   foreach ($id in (Parse-ListField -FrontMatter $fm -Field "required_kpi_ids")) { $null = $factsheetRefs.Add($id) }

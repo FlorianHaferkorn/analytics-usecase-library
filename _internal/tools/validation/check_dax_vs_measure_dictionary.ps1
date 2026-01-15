@@ -55,7 +55,9 @@ if (-not $useCasesRoot) { throw "UseCases root not found. Provide -UseCasesRoot 
 Write-Host "DAX definitions vs Measure Dictionaries" -ForegroundColor Cyan
 
 $missingByFile = @()
-Get-ChildItem -Path $useCasesRoot -Recurse -Filter "Technical_Factsheet.md" | ForEach-Object {
+Get-ChildItem -Path $useCasesRoot -Recurse -Filter "Technical_Factsheet.md" | Where-Object {
+  $_.FullName -notmatch '\\_internal\\archive\\'
+} | ForEach-Object {
   $file = $_.FullName
   $daxNames = Get-DaxMeasureNames -Path $file
   if ($daxNames.Count -eq 0) { return }

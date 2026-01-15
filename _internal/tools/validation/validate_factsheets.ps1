@@ -131,7 +131,9 @@ $requiredListFields = @('supports_strategic_kpi','supports_strategic_kpi_ids','a
 
 $errors = @(); $warnings = @()
 
-Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'FactSheet.md' | ForEach-Object {
+Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'FactSheet.md' | Where-Object {
+  $_.FullName -notmatch '\\_internal\\archive\\'
+} | ForEach-Object {
   $fm = Get-FrontMatter -Path $_.FullName
   if (-not ($fm -and $fm.Text)) {
     $errors += "Missing front-matter in $($_.FullName)"

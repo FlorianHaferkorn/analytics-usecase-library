@@ -1,23 +1,10 @@
 # Analytics Operating Model (HOW)
 
-Purpose  
+Purpose:
 This folder defines **how analytics is designed, governed, built, and operated** to consistently translate business strategy into action-ready insights.  
 It is the methodological backbone of the framework.
 
----
-
-## Start Here
-
-If you are new to this framework, start with:
-
-1. `golden_thread_strategy_to_action.md`
-2. `operating_model_overview.md`
-
-These two documents explain the operating model end-to-end without technical detail.
-
----
-
-## Scope
+## 1. Scope
 
 ### What belongs here
 
@@ -28,38 +15,28 @@ These two documents explain the operating model end-to-end without technical det
 - Operational governance (quality, ownership, SLAs)
 - Automation and AI readiness
 
-### What does NOT belong here
+### 2. What does NOT belong here
 
 - Business strategy or KPI definitions
 - Individual use case content
 - Platform-specific implementation details
 - Customer- or showcase-specific examples
 
----
+## 3. Core Concepts
 
-## Core Concepts
-
-### Operating Model Overview
-
-High-level explanation of the analytics operating model, roles, responsibilities, and flows.
-
-File:
-
-- `operating_model_overview.md`
-
----
-
-### Golden Thread – Strategy to Action
+### 3.1 Golden Thread – Strategy to Action
 
 Explains how strategy, KPIs, use cases, semantic models, reports, and actions are logically connected.
 
-File:
+File: `golden_thread_strategy_to_action.md`
 
-- `golden_thread_strategy_to_action.md`
+### 3.2 Operating Model Overview
 
----
+High-level explanation of the analytics operating model, roles, responsibilities, and flows.
 
-### Semantic Layer
+File: `operating_model_overview.md`
+
+### 3.3 Semantic Layer
 
 Defines how analytical models are structured to be scalable, reusable, and action-ready.
 
@@ -70,9 +47,7 @@ Files:
 - `TMDL_Allowed_Subset.md`
 - `TMDL_Official_Refs.md`
 
----
-
-### Measure System & Single Source of Truth
+### 3.4 Measure System & Single Source of Truth
 
 Rules for defining, naming, governing, and validating measures and KPIs.
 
@@ -81,29 +56,19 @@ Files:
 - `measure_system.md`
 - `single_source_of_truth.md`
 
----
-
-### UX & Reporting Standards
+### 3.5 UX & Reporting Standards
 
 Defines how insights are presented consistently using the 3–30–300 principle.
 
-File:
+File: `ux_design_system.md`
 
-- `ux_design_system.md`
-
----
-
-### Distribution Architecture
+### 3.6 Distribution Architecture
 
 How analytics is distributed to users (reports, apps, exports, automation).
 
-File:
+File: `distribution_architecture.md`
 
-- `distribution_architecture.md`
-
----
-
-### Governance & Operations
+### 3.7 Governance & Operations
 
 Defines ownership, quality gates, lifecycle management, and operational monitoring.
 
@@ -113,19 +78,13 @@ Files:
 - `operations_sla_monitoring.md`
 - `usecase_DoD_Core.md`
 
----
-
-### Automation & AI Readiness
+### 3.8 Automation & AI Readiness
 
 Explains how the framework enables automation and AI-driven analytics.
 
-File:
+File: `ai_readiness.md`
 
-- `ai_readiness.md`
-
----
-
-## Usage Guidance
+## 4. Usage Guidance
 
 Use this folder to:
 
@@ -136,9 +95,7 @@ Use this folder to:
 
 This operating model is **platform-agnostic by design**, with platform-specific implementations defined elsewhere.
 
----
-
-## Relation to the Framework
+## 5. Relation to the Framework
 
 Layer mapping:
 

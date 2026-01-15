@@ -8,8 +8,6 @@ This Definition of Done (DoD) applies to all **core use cases** under:
 
 A core use case is considered **build-ready** (ready for semantic model and report implementation) only if all criteria in this document are fulfilled.
 
----
-
 ## 2. Global Preconditions
 
 Before any individual use case can be marked as build-ready:
@@ -20,8 +18,6 @@ Before any individual use case can be marked as build-ready:
   `framework/kpi_catalog/SCHEMA.md` and `run_all_checks.ps1`.
 - Use case templates (business & technical v1.2) are stable and referenced in  
   `usecases/templates/*`.
-
----
 
 ## 3. Business DoD (per Use Case)
 
@@ -46,8 +42,6 @@ A core use case’s **Business Factsheet** is considered done when:
     - 3s / 30s / 300s views are described and mapped to existing page templates.
   - **Data Requirements, Risks & Assumptions**:
     - No open TBD markers in critical fields.
-
----
 
 ## 4. Technical DoD (per Use Case)
 
@@ -76,8 +70,6 @@ A core use case’s **Technical Factsheet** is considered done when:
   - **QA & Validation**:
     - At least basic rules are defined (reconciliation with domain reports, zero-checks, range-checks).
 
----
-
 ## 5. Tooling & Automation DoD
 
 For a core use case to be build-ready:
@@ -92,8 +84,6 @@ For a core use case to be build-ready:
   - `_internal/ai/business_factsheet_v1_2.schema.json`
   - `_internal/ai/technical_factsheet_v1_2.schema.json`  
   are aligned with the current templates.
-
----
 
 ## 6. Build-Ready Status
 
