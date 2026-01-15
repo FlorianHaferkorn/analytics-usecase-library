@@ -217,14 +217,22 @@ Link business behavior to measurable outcomes.
 
 ```yaml
 required_facts:
+
   - fact_fulfillment (OTIF, penalties, expedites)
+
   - fact_stockout (stockout impact)
+
   - fact_forecast (variance drivers, if used)
 required_dimensions:
+
   - dim_date
+
   - dim_org (customer/channel/DC)
+
   - dim_product (if needed)
+
   - dim_lane (if modeled for transport lanes)
+
   - security_user_org
 required_grain: order for OTIF/penalties; location_sku_day for stockouts
 required_time_range: 12-24 months history

@@ -204,15 +204,24 @@ Link business behavior to measurable outcomes.
 
 ```yaml
 required_facts:
+
   - fact_forecast
+
   - fact_sales (actuals)
+
   - fact_fulfillment (for service impact linkage)
+
   - fact_stockout (for service impact linkage)
+
   - fact_replan (if available)
 required_dimensions:
+
   - dim_date
+
   - dim_org (location/channel/region)
+
   - dim_product
+
   - security_user_org
 required_grain: sku_month for accuracy/bias; order/day for service impact; month for replans
 required_time_range: 12-24 months history

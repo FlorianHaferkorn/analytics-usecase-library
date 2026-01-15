@@ -206,15 +206,24 @@ Link business behavior to measurable outcomes.
 
 ```yaml
 required_facts:
+
   - fact_cost (COGS, material)
+
   - fact_output (units)
+
   - fact_finance (Net Sales/COGS for COGS %)
+
   - fact_opex (OpEx vs Plan)
+
   - fact_labor (labor hours/productivity)
 required_dimensions:
+
   - dim_date
+
   - dim_org (entity/plant/line)
+
   - dim_product
+
   - security_user_org
 required_grain: plant_line_product_month for unit cost; month/entity for OpEx
 required_time_range: 12-24 months history + plan

@@ -224,13 +224,20 @@ Link business behavior to measurable outcomes.
 
 ```yaml
 required_facts:
+
   - fact_ops (availability/downtime)
+
   - fact_ops_failures (MTBF/MTTR with causes)
+
   - fact_maintenance (PM compliance, orders)
 required_dimensions:
+
   - dim_date
+
   - dim_org (plant/line/asset)
+
   - dim_asset (if separate from org)
+
   - security_user_org
 required_grain: asset_day for availability; failure event for MTBF/MTTR; month for PM compliance
 required_time_range: 12-24 months history

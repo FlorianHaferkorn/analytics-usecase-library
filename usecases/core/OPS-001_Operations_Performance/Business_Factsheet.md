@@ -215,11 +215,16 @@ Link business behavior to measurable outcomes.
 
 ```yaml
 required_facts:
+
   - fact_ops (production events/OEE)
 required_dimensions:
+
   - dim_date
+
   - dim_org (plant/line/shift)
+
   - dim_product (if needed)
+
   - security_user_org
 required_grain: line_day (or line_shift if available)
 required_time_range: 12-24 months history

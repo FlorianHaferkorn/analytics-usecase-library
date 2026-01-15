@@ -217,15 +217,24 @@ Link business behavior to measurable outcomes.
 
 ```yaml
 required_facts:
+
   - fact_inventory
+
   - fact_cogs (or fact_sales for COGS proxy)
+
   - fact_fulfillment (OTIF)
+
   - fact_forecast
+
   - fact_sales (actuals for accuracy)
 required_dimensions:
+
   - dim_date
+
   - dim_org (location/DC/channel)
+
   - dim_product
+
   - security_user_org
 required_grain: location_sku_month for inventory; order for OTIF; day for stockouts
 required_time_range: 12-24 months history

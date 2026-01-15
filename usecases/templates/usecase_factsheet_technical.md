@@ -36,6 +36,7 @@ kpi_to_measure_mapping:
     format: <EUR, %, #, days>
     folder: <01_Sales / 02_Margin / ...>
     notes: <optional>
+
   - ...
 ```
 

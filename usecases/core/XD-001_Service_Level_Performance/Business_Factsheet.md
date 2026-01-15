@@ -215,13 +215,20 @@ Link business behavior to measurable outcomes.
 
 ```yaml
 required_facts:
+
   - fact_cases (SLA, FCR, AHT, backlog, escalation)
+
   - fact_nps (NPS scores)
 required_dimensions:
+
   - dim_date
+
   - dim_org (region/channel/queue)
+
   - dim_queue (if separate)
+
   - dim_issue (if modeled)
+
   - security_user_org
 required_grain: day_queue for ops metrics; month for NPS
 required_time_range: 12-24 months history

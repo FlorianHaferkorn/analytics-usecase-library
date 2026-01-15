@@ -232,16 +232,26 @@ triggers:
 
 ```yaml
 required_facts:
+
   - fact_sales
+
   - fact_customer_events
+
   - fact_customer_value
+
   - fact_experience
+
   - fact_nps
 required_dimensions:
+
   - dim_date
+
   - dim_org
+
   - dim_customer
+
   - dim_product
+
   - security_user_org
 required_grain: customer_month (for retention/churn/risk), invoice_line for revenue/margin
 required_time_range: 24 months history

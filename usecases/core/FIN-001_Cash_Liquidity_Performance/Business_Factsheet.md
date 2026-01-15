@@ -234,18 +234,30 @@ Link business behavior to measurable outcomes.
 
 ```yaml
 required_facts:
+
   - fact_cash
+
   - fact_cashflow
+
   - fact_ar
+
   - fact_ap
+
   - fact_inventory (for DIO)
+
   - fact_cogs (or sales/COGS for rates)
 required_dimensions:
+
   - dim_date
+
   - dim_org (entity/region)
+
   - dim_customer (for AR/DSO drill)
+
   - dim_supplier (for AP/DPO drill)
+
   - dim_product (for DIO drill)
+
   - security_user_org
 required_grain: day for cash; month for WC metrics; customer/supplier drill for DSO/DPO; location_sku for DIO
 required_time_range: 12-24 months history + plan

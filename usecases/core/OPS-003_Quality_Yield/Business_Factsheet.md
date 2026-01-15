@@ -216,14 +216,22 @@ Link business behavior to measurable outcomes.
 
 ```yaml
 required_facts:
+
   - fact_quality (units, good, scrap, rework, defects)
+
   - fact_quality_costs (COPQ)
+
   - fact_complaints (field complaints)
+
   - fact_shipments (for complaint rate)
 required_dimensions:
+
   - dim_date
+
   - dim_org (plant/line/shift)
+
   - dim_product
+
   - security_user_org
 required_grain: line_day for quality; complaint_month for complaints
 required_time_range: 12-24 months history

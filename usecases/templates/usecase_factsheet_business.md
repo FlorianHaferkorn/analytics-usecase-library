@@ -48,6 +48,7 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
+
   - id: <domain.topic.metric>
     name: <KPI Name>
     purpose: <short purpose>
@@ -76,6 +77,7 @@ Formal rules that define performance and action triggers.
 
 ```yaml
 triggers:
+
   - kpi: <domain.topic.metric>
     condition: <operator>
     threshold: <value>
@@ -136,8 +138,10 @@ All referenced Action Codes must comply with the Prescriptive Standard
 
 ```yaml
 required_facts:
+
   - <fact_table>
 required_dimensions:
+
   - <dim_table>
 required_grain: <invoice_line / customer_day / asset_day / store_day>
 required_time_range: <e.g., 24 months>

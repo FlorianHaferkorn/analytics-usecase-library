@@ -196,13 +196,20 @@ triggers:
 
 ```yaml
 required_facts:
+
   - fact_sales
+
   - fact_promo
 required_dimensions:
+
   - dim_date
+
   - dim_org
+
   - dim_product
+
   - dim_promo
+
   - security_user_org
 required_grain: promotion (with invoice_line base for uplift/realization)
 required_time_range: 12-24 months of promo history with baseline

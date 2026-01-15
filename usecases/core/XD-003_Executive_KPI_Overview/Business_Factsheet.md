@@ -267,19 +267,32 @@ triggers:
 
 ```yaml
 required_facts:
+
   - fact_revenue
+
   - fact_finance
+
   - fact_customer_value
+
   - fact_service
+
   - fact_fulfillment
+
   - fact_wc
+
   - fact_digital
+
   - fact_hr
 required_dimensions:
+
   - dim_date
+
   - dim_org
+
   - dim_product
+
   - dim_customer
+
   - dim_employee
 required_grain: month (with order-level base for OTIF and service where applicable)
 required_time_range: minimum 24 months history with plan/LY references

@@ -218,11 +218,16 @@ triggers:
 
 ```yaml
 required_facts:
+
   - fact_sales
 required_dimensions:
+
   - dim_date
+
   - dim_org
+
   - dim_product
+
   - security_user_org
 required_grain: invoice_line (aggregated to month for KPIs)
 required_time_range: 24 months history with Plan and LY

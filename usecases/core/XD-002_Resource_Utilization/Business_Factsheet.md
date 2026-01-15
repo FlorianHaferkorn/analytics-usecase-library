@@ -215,12 +215,18 @@ Link business behavior to measurable outcomes.
 
 ```yaml
 required_facts:
+
   - fact_wfm (work/idle/wrap/overtime/shrinkage)
+
   - fact_cases (SLA, backlog)
 required_dimensions:
+
   - dim_date
+
   - dim_org (region/channel/queue)
+
   - dim_queue (if separate)
+
   - security_user_org
 required_grain: agent_day or queue_day; week/month for trends
 required_time_range: 12-24 months history
