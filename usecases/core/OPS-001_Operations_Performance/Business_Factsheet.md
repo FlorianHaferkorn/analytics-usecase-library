@@ -117,6 +117,17 @@ required_kpis:
     target: = target (e.g., <5%)
     interpretation: High downtime reduces availability
     lineage: fact_ops[Downtime], fact_ops[Planned Time]
+
+  - id: ops.planned_output.units
+    name: Planned Output Units
+    purpose: Plan baseline
+    definition_short: Planned production output units
+    unit: units
+    grain: line_day
+    agg: sum
+    target: Meet plan
+    interpretation: Planned output baseline for throughput comparison
+    lineage: fact_ops[Planned Output Units]
 ```
 
 ---

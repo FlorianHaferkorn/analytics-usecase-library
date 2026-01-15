@@ -15,11 +15,11 @@ Every report must connect **data to decision** and **insight to impact**.
 
 We distinguish three reporting levels – this is the **Layer Axis** and wird im FactSheet als `reporting_level` gepflegt.
 
-| Level          | Purpose                                                | Example Use Case                      |
-|----------------|--------------------------------------------------------|---------------------------------------|
-| **Strategic**  | Measures company performance against long-term goals   | COR-004 Strategic KPI Dashboard       |
-| **Tactical**   | Analyzes drivers and accountability for KPIs           | COM-001 Sales Performance, COM-002    |
-| **Operational**| Supports daily execution and monitoring                | OPS-001 Cash Conversion Cycle, OPS-005|
+| Level          | Purpose                                                | Example Use Case                                                |
+|----------------|--------------------------------------------------------|-----------------------------------------------------------------|
+| **Strategic**  | Measures company performance against long-term goals   | XD-003 Executive KPI Overview                                   |
+| **Tactical**   | Analyzes drivers and accountability for KPIs           | COM-001 Sales Performance, COM-002                              |
+| **Operational**| Supports daily execution and monitoring                | FIN-001 Cash & Liquidity Performance, OPS-002 Asset Performance |
 
 Each layer builds on the previous one. Tactical reports explain _why_ strategic KPIs move, and operational reports show _how_ execution delivers the result.
 
@@ -35,12 +35,12 @@ In the Use Case FactSheet:
 
 Orthogonal to the reporting levels we distinguish **analytics stages**. These are captured in the FactSheet as `analytics_stage`.
 
-| Stage           | Question Type                  | Examples in this library                           |
-|-----------------|--------------------------------|----------------------------------------------------|
-| **Descriptive** | What happened?                 | COM-001 Sales Performance, OPS-001 CCC             |
-| **Diagnostic**  | Why did it happen?             | COM-002 Gross Margin Analysis, COM-004 PVM         |
-| **Predictive**  | What is likely to happen?      | CST-003 CLV Analysis, INN-001 Innovation Pipeline  |
-| **Prescriptive**| What should we do next?        | OPS-004 Replenishment Optimization (target policy) |
+| Stage           | Question Type                  | Examples in this library                                                    |
+|-----------------|--------------------------------|-----------------------------------------------------------------------------|
+| **Descriptive** | What happened?                 | COM-001 Sales Performance, FIN-001 Cash & Liquidity Performance             |
+| **Diagnostic**  | Why did it happen?             | COM-002 Gross Margin Analysis, COM-004 PVM                                  |
+| **Predictive**  | What is likely to happen?      | COM-003 Customer Value, SCM-003 Forecast vs Actual                          |
+| **Prescriptive**| What should we do next?        | SCM-001 Inventory Performance (target policy)                               |
 
 Guidance for FactSheets:
 
@@ -74,13 +74,13 @@ Strategic KPI → Business Driver → Use Case → Action Code → Business Impa
 
 ### 4.2 Layer Definition
 
-| Layer                   | Key Question               | Example                                            |
-|-------------------------|----------------------------|----------------------------------------------------|
-| **Strategic KPI**       | What do we aim to achieve? | Revenue Growth %                                   |
-| **Business Driver**     | What influences it?        | Volume Growth %, DSO, Price Realization %          |
-| **Analytical Use Case** | Where can analytics help?  | COM-001 Sales Performance, COR-001 Working Capital |
-| **Action Code**         | What should be done?       | P2 Tighten Discounts, W1 Accelerate Collections    |
-| **Impact**              | What will change?          | +3–5 pp Revenue Growth %, −5 days DSO              |
+| Layer                   | Key Question               | Example                                                         |
+|-------------------------|----------------------------|-----------------------------------------------------------------|
+| **Strategic KPI**       | What do we aim to achieve? | Revenue Growth %                                                |
+| **Business Driver**     | What influences it?        | Volume Growth %, DSO, Price Realization %                       |
+| **Analytical Use Case** | Where can analytics help?  | COM-001 Sales Performance, FIN-001 Cash & Liquidity Performance |
+| **Action Code**         | What should be done?       | P2 Tighten Discounts, W1 Accelerate Collections                 |
+| **Impact**              | What will change?          | +3–5 pp Revenue Growth %, −5 days DSO                           |
 
 ### 4.3 Outcome for Analytics Teams
 

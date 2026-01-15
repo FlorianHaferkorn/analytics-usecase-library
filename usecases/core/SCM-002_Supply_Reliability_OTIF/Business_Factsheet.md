@@ -25,9 +25,12 @@ factsheet_type: business
 
 ## 1. Business Summary
 
-**Purpose:** Improve supply reliability by raising On-Time In-Full (OTIF), reducing stockout impact, and lowering penalties/expedites.  
-**Business Value:** Higher service level, fewer penalties/expedites, better customer satisfaction, and more stable inventory.  
-**Out of Scope:** Inventory optimization specifics (SCM-001); forecast accuracy deep dive (SCM-003); promo effects (COM-004).
+**Purpose:** Improve supply reliability by raising On-Time In-Full (OTIF),
+reducing stockout impact, and lowering penalties/expedites.  
+**Business Value:** Higher service level, fewer penalties/expedites, better
+customer satisfaction, and more stable inventory.  
+**Out of Scope:** Inventory optimization specifics (SCM-001); forecast accuracy
+deep dive (SCM-003); promo effects (COM-004).
 
 ---
 
@@ -117,6 +120,28 @@ required_kpis:
     target: Reduce to target
     interpretation: High expedites show plan/fulfillment gaps
     lineage: fact_fulfillment[Expedite Cost]
+
+  - id: order.lines
+    name: Order Lines Count
+    purpose: Volume context
+    definition_short: Count of order line items
+    unit: count
+    grain: order_line
+    agg: sum
+    target: Meet plan
+    interpretation: Volume baseline for service reliability
+    lineage: fact_order_lines[Order Line ID]
+
+  - id: shipments.count
+    name: Shipments Count
+    purpose: Execution volume
+    definition_short: Count of shipments executed
+    unit: count
+    grain: shipment
+    agg: sum
+    target: Meet plan
+    interpretation: Shipment volume context for OTIF performance
+    lineage: fact_shipment[Shipment ID]
 ```
 
 ---
@@ -172,12 +197,34 @@ triggers:
 
 Link business behavior to measurable outcomes.
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| O2 | Operations Stabilisation | supply.otif.pct < target OR expedite/penalty high | Fix root causes (supplier, transport, DC process), re-sequence orders | Improve OTIF %, reduce expedites/penalties | L2 | Supply/Logistics |
-| I2 | Stockout Prevention | supply.stockout_impact.pct > target | Improve safety stock/replenishment, expedite critical items | Reduce stockout impact, improve OTIF | L2 | Supply Planning |
-| D1 | Cost Take-Out | Penalties/expedites above materiality | Reduce penalties/expedites via SLA adherence and planning fixes | Lower costs, improve service stability | L2 | Procurement / Logistics |
-| O2 (Planning variant) | Forecast/process stabilisation | plan/actual variance causing service misses | Improve plan, align supply with demand | Improve OTIF, reduce expedites | L2 | S&OP |
+- **O2 — Operations Stabilisation**
+  - Trigger (formal): supply.otif.pct < target OR expedite/penalty high
+  - Description: Fix root causes (supplier, transport, DC process),
+    re-sequence orders
+  - Expected KPI Impact: Improve OTIF %, reduce expedites/penalties
+  - Level (L1/L2/L3): L2
+  - Owner: Supply/Logistics
+
+- **I2 — Stockout Prevention**
+  - Trigger (formal): supply.stockout_impact.pct > target
+  - Description: Improve safety stock/replenishment, expedite critical items
+  - Expected KPI Impact: Reduce stockout impact, improve OTIF
+  - Level (L1/L2/L3): L2
+  - Owner: Supply Planning
+
+- **D1 — Cost Take-Out**
+  - Trigger (formal): Penalties/expedites above materiality
+  - Description: Reduce penalties/expedites via SLA adherence and planning fixes
+  - Expected KPI Impact: Lower costs, improve service stability
+  - Level (L1/L2/L3): L2
+  - Owner: Procurement / Logistics
+
+- **O2 (Planning variant) — Forecast/process stabilisation**
+  - Trigger (formal): Plan/actual variance causing service misses
+  - Description: Improve plan, align supply with demand
+  - Expected KPI Impact: Improve OTIF, reduce expedites
+  - Level (L1/L2/L3): L2
+  - Owner: S&OP
 
 ---
 
@@ -193,12 +240,37 @@ Link business behavior to measurable outcomes.
 
 ### 6.2 30-Second Layer (Main Visuals)
 
-| Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
-|-------------|-------------|--------|--------|---------|----------------|-------|
-| OTIF vs Target by Lane/DC | Column | dim_lane[Lane/DC] | [OTIF %], [Target] | Channel | Current quarter | Core ranking |
-| On-Time vs In-Full Components | Column clustered | dim_lane[Lane/DC] | [On-Time %], [In-Full %] | Channel | Current quarter | Component view |
-| Penalty & Expedite Cost by Customer/Channel | Bar (horizontal) | dim_org[Customer/Channel] | [Penalty Amount], [Expedite Cost] | Region | Current quarter | Cost impact |
-| Stockout Impact Trend | Line | dim_date[Week] | [Stockout Impact %] | Location/Channel | L12W | Service stability |
+- **OTIF vs Target by Lane/DC**
+  - Visual Type: Column
+  - X-Axis: dim_lane[Lane/DC]
+  - Y-Axis: [OTIF %], [Target]
+  - Segment: Channel
+  - Default Filter: Current quarter
+  - Notes: Core ranking
+
+- **On-Time vs In-Full Components**
+  - Visual Type: Column clustered
+  - X-Axis: dim_lane[Lane/DC]
+  - Y-Axis: [On-Time %], [In-Full %]
+  - Segment: Channel
+  - Default Filter: Current quarter
+  - Notes: Component view
+
+- **Penalty & Expedite Cost by Customer/Channel**
+  - Visual Type: Bar (horizontal)
+  - X-Axis: dim_org[Customer/Channel]
+  - Y-Axis: [Penalty Amount], [Expedite Cost]
+  - Segment: Region
+  - Default Filter: Current quarter
+  - Notes: Cost impact
+
+- **Stockout Impact Trend**
+  - Visual Type: Line
+  - X-Axis: dim_date[Week]
+  - Y-Axis: [Stockout Impact %]
+  - Segment: Location/Channel
+  - Default Filter: L12W
+  - Notes: Service stability
 
 ### 6.3 Required Slicers (Mandatory)
 
@@ -234,27 +306,34 @@ required_dimensions:
   - dim_lane (if modeled for transport lanes)
 
   - security_user_org
-required_grain: order for OTIF/penalties; location_sku_day for stockouts
+required_grain: >
+  order for OTIF/penalties; location_sku_day for stockouts
 required_time_range: 12-24 months history
-required_slicers: Date, Lane/DC/Channel, Customer/Region, Product/Category (optional)
+required_slicers: >
+  Date, Lane/DC/Channel, Customer/Region, Product/Category (optional)
 ```
 
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
 
-- OTIF flags consistent; on-time and in-full flags available; penalties/expedites captured.
+- OTIF flags consistent; on-time and in-full flags available;
+  penalties/expedites captured.
 - Stockout impact measured; lane/DC structure available.
 - Forecast/plan variance may be needed to explain service misses.
-- OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org); dim_lane optional if defined.
+- OneLake canonical dims used (dim_date, dim_org, dim_product,
+  security_user_org); dim_lane optional if defined.
 
 ---
 
 ## 9. Success Criteria
 
-- Impact: OTIF raised to target; penalties/expedites reduced; stockout impact reduced.  
-- Adoption: Used in weekly supply/logistics reviews; action codes triggered with <5% false positives.  
-- Quality: KPI definitions consistent across SCM UCs; reconciled to source totals.  
+- Impact: OTIF raised to target; penalties/expedites reduced; stockout impact
+  reduced.  
+- Adoption: Used in weekly supply/logistics reviews; action codes triggered with
+  <5% false positives.  
+- Quality: KPI definitions consistent across SCM UCs; reconciled to source
+  totals.  
 - Decision Frequency: Weekly supply/logistics review.
 
 ---
@@ -264,5 +343,3 @@ required_slicers: Date, Lane/DC/Channel, Customer/Region, Product/Category (opti
 - Misapplied force majeure exclusions inflating OTIF.  
 - Missing penalty/expedite capture understates cost.  
 - Stockout impact misread if demand not captured consistently.  
-
-

@@ -20,9 +20,9 @@ tags: ["cx", "nps", "complaints", "churn-prevention"]
 
 strategic_alignment:
   strategic_kpis:
-    - id: "customer.experience.complaint.count"
+    - id: "crm.complaint.count"
       role: "primary"
-    - id: "customer.experience.nps.score"
+    - id: "crm.nps.index"
       role: "secondary"
   decisions_enabled:
     - "Escalate service issues for high-value customers"
@@ -39,29 +39,29 @@ use_case_links:
 
 kpis:
   trigger_kpis:
-    - kpi_id: "customer.experience.complaint.count"
+    - kpi_id: "crm.complaint.count"
       label: "Customer Complaints Count"
       semantic_ref:
         model_domain: "CustomerValue"
         measure: "Customer Complaints Count"
-    - kpi_id: "customer.experience.nps.score"
+    - kpi_id: "crm.nps.index"
       label: "Net Promoter Score"
       semantic_ref:
         model_domain: "CustomerValue"
         measure: "NPS Score"
   guardrail_kpis:
-    - kpi_id: "customer.value.clv.amount"
+    - kpi_id: "crm.clv.amount"
       label: "Customer Lifetime Value Amount"
       semantic_ref:
         model_domain: "CustomerValue"
         measure: "Customer Lifetime Value Amount"
   outcome_kpis:
-    - kpi_id: "customer.experience.complaint.count"
+    - kpi_id: "crm.complaint.count"
       label: "Customer Complaints Count"
       semantic_ref:
         model_domain: "CustomerValue"
         measure: "Customer Complaints Count"
-    - kpi_id: "customer.experience.nps.score"
+    - kpi_id: "crm.nps.index"
       label: "Net Promoter Score"
       semantic_ref:
         model_domain: "CustomerValue"
@@ -92,7 +92,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "customer.value.clv.amount"
+        metric_kpi_id: "crm.clv.amount"
         comparator: "gte"
         value: 25000
         unit: "amount"
@@ -100,7 +100,7 @@ trigger:
     L1:
       severity: "EarlyWarning"
       condition:
-        metric_kpi_id: "customer.experience.complaint.count"
+        metric_kpi_id: "crm.complaint.count"
         comparator: "gt"
         threshold:
           basis: "absolute"
@@ -110,7 +110,7 @@ trigger:
     L2:
       severity: "RequiredIntervention"
       condition:
-        metric_kpi_id: "customer.experience.nps.score"
+        metric_kpi_id: "crm.nps.index"
         comparator: "lt"
         threshold:
           basis: "absolute"
@@ -120,7 +120,7 @@ trigger:
     L3:
       severity: "PrescriptiveExecution"
       condition:
-        metric_kpi_id: "customer.experience.complaint.count"
+        metric_kpi_id: "crm.complaint.count"
         comparator: "gt"
         threshold:
           basis: "absolute"
@@ -135,7 +135,7 @@ trigger:
 impact:
   category: "Medium"
   expected_range:
-    metric_kpi_id: "customer.experience.complaint.count"
+    metric_kpi_id: "crm.complaint.count"
     value_low: -10.0
     value_high: -30.0
     unit: "%"
@@ -231,3 +231,4 @@ quality_rules:
   - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
   - "If status=deprecated then lifecycle.replaced_by is required."
   - "No free-text trigger notes: use gating_rules and structured filters."
+

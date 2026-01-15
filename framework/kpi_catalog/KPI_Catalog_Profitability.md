@@ -739,4 +739,69 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
+
+- kpi_id: cost.base_volume.amount
+  kpi_key: Cost Base Volume Amount
+  kpi_type: supporting
+  impact_dimension: Profitability
+  domain_tag:
+  - Finance
+  use_case_ref:
+  - FIN-002
+  - OPS-001
+  - OPS-002
+  calc_type: amount
+  business:
+    purpose: Baseline cost volume used for variance analysis.
+    definition: Baseline amount of cost volume for the selected period.
+    grain_scope: Cost center or product; aggregated by period.
+    unit_format: EUR (2 decimals)
+    interpretation: Provides a stable base for cost variance comparisons.
+  technical:
+    dax_name: Cost Base Volume Amount
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Controlling
+    data_owner: Finance BI
+    steward: Cost Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
+
+- kpi_id: cost.opex.base.amount
+  kpi_key: Opex Base Amount
+  kpi_type: supporting
+  impact_dimension: Profitability
+  domain_tag:
+  - Finance
+  use_case_ref:
+  - FIN-001
+  - FIN-002
+  calc_type: amount
+  business:
+    purpose: Baseline operating expense amount for variance tracking.
+    definition: Baseline operating expense amount for the selected period.
+    grain_scope: Cost center; aggregated by period.
+    unit_format: EUR (2 decimals)
+    interpretation: Used to compare actual Opex against the base.
+  technical:
+    dax_name: Opex Base Amount
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Controlling
+    data_owner: Finance BI
+    steward: Cost Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
 ```

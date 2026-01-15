@@ -357,4 +357,68 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.9
     last_review: TBD
+
+- kpi_id: svc.tickets.created.count
+  kpi_key: Tickets Created Count
+  kpi_type: supporting
+  impact_dimension: Service
+  domain_tag:
+  - Service & Experience
+  use_case_ref:
+  - XD-001
+  - XD-002
+  calc_type: count
+  business:
+    purpose: Counts customer service tickets created in the period.
+    definition: Count of newly created service tickets.
+    grain_scope: Ticket; aggregated by period and channel.
+    unit_format: count
+    interpretation: Higher counts indicate higher inbound demand.
+  technical:
+    dax_name: Tickets Created Count
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Service
+    data_owner: Service Analytics
+    steward: Service Analyst
+    review_cycle: weekly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
+
+- kpi_id: svc.tickets.closed.count
+  kpi_key: Tickets Closed Count
+  kpi_type: supporting
+  impact_dimension: Service
+  domain_tag:
+  - Service & Experience
+  use_case_ref:
+  - XD-001
+  - XD-002
+  calc_type: count
+  business:
+    purpose: Counts customer service tickets closed in the period.
+    definition: Count of closed service tickets.
+    grain_scope: Ticket; aggregated by period and channel.
+    unit_format: count
+    interpretation: Higher counts indicate higher resolution throughput.
+  technical:
+    dax_name: Tickets Closed Count
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Service
+    data_owner: Service Analytics
+    steward: Service Analyst
+    review_cycle: weekly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
 ```

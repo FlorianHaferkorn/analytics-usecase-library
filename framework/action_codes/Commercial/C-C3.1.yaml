@@ -20,9 +20,9 @@ tags: ["retention", "churn", "customer-value"]
 
 strategic_alignment:
   strategic_kpis:
-    - id: "customer.loyalty.retention.pct"
+    - id: "crm.retention.pct"
       role: "primary"
-    - id: "customer.loyalty.revenue_at_risk.amount"
+    - id: "crm.revenue_at_risk.amount"
       role: "secondary"
   decisions_enabled:
     - "Trigger targeted retention outreach"
@@ -40,12 +40,12 @@ use_case_links:
 
 kpis:
   trigger_kpis:
-    - kpi_id: "customer.loyalty.retention.pct"
+    - kpi_id: "crm.retention.pct"
       label: "Customer Retention %"
       semantic_ref:
         model_domain: "CustomerValue"
         measure: "Customer Retention %"
-    - kpi_id: "customer.loyalty.churned.count"
+    - kpi_id: "crm.churned_customers.count"
       label: "Churned Customers Count"
       semantic_ref:
         model_domain: "CustomerValue"
@@ -57,12 +57,12 @@ kpis:
         model_domain: "Commercial"
         measure: "Gross Margin %"
   outcome_kpis:
-    - kpi_id: "customer.loyalty.retention.pct"
+    - kpi_id: "crm.retention.pct"
       label: "Customer Retention %"
       semantic_ref:
         model_domain: "CustomerValue"
         measure: "Customer Retention %"
-    - kpi_id: "customer.loyalty.churned.count"
+    - kpi_id: "crm.churned_customers.count"
       label: "Churned Customers Count"
       semantic_ref:
         model_domain: "CustomerValue"
@@ -93,7 +93,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "customer.loyalty.active_customers.count"
+        metric_kpi_id: "crm.active_customers.count"
         comparator: "gte"
         value: 100
         unit: "count"
@@ -101,7 +101,7 @@ trigger:
     L1:
       severity: "EarlyWarning"
       condition:
-        metric_kpi_id: "customer.loyalty.retention.pct"
+        metric_kpi_id: "crm.retention.pct"
         comparator: "lt"
         threshold:
           basis: "target"
@@ -111,7 +111,7 @@ trigger:
     L2:
       severity: "RequiredIntervention"
       condition:
-        metric_kpi_id: "customer.loyalty.churned.count"
+        metric_kpi_id: "crm.churned_customers.count"
         comparator: "gt"
         threshold:
           basis: "relative"
@@ -121,7 +121,7 @@ trigger:
     L3:
       severity: "PrescriptiveExecution"
       condition:
-        metric_kpi_id: "customer.loyalty.revenue_at_risk.amount"
+        metric_kpi_id: "crm.revenue_at_risk.amount"
         comparator: "gt"
         threshold:
           basis: "absolute"
@@ -136,7 +136,7 @@ trigger:
 impact:
   category: "High"
   expected_range:
-    metric_kpi_id: "customer.loyalty.retention.pct"
+    metric_kpi_id: "crm.retention.pct"
     value_low: 1.0
     value_high: 3.0
     unit: "pp"
@@ -234,3 +234,4 @@ quality_rules:
   - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
   - "If status=deprecated then lifecycle.replaced_by is required."
   - "No free-text trigger notes: use gating_rules and structured filters."
+

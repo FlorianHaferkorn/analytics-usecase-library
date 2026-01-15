@@ -108,6 +108,10 @@ required_kpis:
 
 ## 4. Business Logic & Thresholds
 
+### 4.1 Logic Description
+
+### 4.2 Formal Trigger Rules (Machine-Readable)
+
 - Flag promotions with ROI < 120% or negative incremental GM.
 - Flag excessive discounting: Price Realization % below policy and GM % below target.
 - Flag high cannibalization > 20% of uplift.

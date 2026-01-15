@@ -119,6 +119,10 @@ required_kpis:
 
 ## 4. Business Logic & Thresholds
 
+### 4.1 Logic Description
+
+### 4.2 Formal Trigger Rules (Machine-Readable)
+
 - Flag if Price Realization % < 95% with GM % < 25%.
 - Flag if Mix Effect Amount < 0 in top 5 regions/channels.
 - Escalate if GM % vs Plan < 0 for 2 consecutive months.

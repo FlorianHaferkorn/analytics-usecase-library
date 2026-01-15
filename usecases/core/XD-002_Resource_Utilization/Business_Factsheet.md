@@ -25,9 +25,12 @@ factsheet_type: business
 
 ## 1. Business Summary
 
-**Purpose:** Optimize resource utilization and occupancy while protecting SLA and customer experience.  
-**Business Value:** Better staffing efficiency, reduced overtime/shrinkage costs, and controlled backlog without SLA degradation.  
-**Out of Scope:** Detailed SLA performance drivers (XD-001); sales pipeline; field service dispatching.
+**Purpose:** Optimize resource utilization and occupancy while protecting SLA and
+customer experience.  
+**Business Value:** Better staffing efficiency, reduced overtime/shrinkage costs,
+and controlled backlog without SLA degradation.  
+**Out of Scope:** Detailed SLA performance drivers (XD-001); sales pipeline; field
+service dispatching.
 
 ---
 
@@ -117,6 +120,17 @@ required_kpis:
     target: Reduce vs target
     interpretation: Rising backlog risks SLA failure
     lineage: fact_cases[Backlog Flag/Open Cases]
+
+  - id: svc.tickets.created.count
+    name: Tickets Created Count
+    purpose: Demand volume
+    definition_short: Count of newly created service tickets
+    unit: count
+    grain: day_queue
+    agg: sum
+    target: Monitor trend
+    interpretation: Higher inflow increases staffing pressure
+    lineage: fact_ticket[Ticket ID]
 ```
 
 ---
@@ -171,12 +185,33 @@ triggers:
 
 Link business behavior to measurable outcomes.
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| O2 | Operations Stabilisation | Utilization/Occupancy outside band; backlog risk | Rebalance staffing, reforecast WFM, adjust routing | Improve SLA, balance utilization | L2 | Service Ops / WFM |
-| M2 | Performance Uplift | Overtime high | Shift mix, cross-train, automation to reduce overtime | Reduce overtime, stabilize SLA | L2 | WFM / Service Ops |
-| L2 | Quality & Yield | High shrinkage or low FCR tied to resource issues | Training/coaching, process fixes | Reduce shrinkage, improve FCR/SLA | L2 | CX/Training |
-| D1 | Cost Take-Out | Excess capacity/inefficient shift mix | Optimize staffing, reduce idle time | Reduce cost-to-serve | L2 | Service Ops / Finance |
+- **O2 — Operations Stabilisation**
+  - Trigger (formal): Utilization/Occupancy outside band; backlog risk
+  - Description: Rebalance staffing, reforecast WFM, adjust routing
+  - Expected KPI Impact: Improve SLA, balance utilization
+  - Level (L1/L2/L3): L2
+  - Owner: Service Ops / WFM
+
+- **M2 — Performance Uplift**
+  - Trigger (formal): Overtime high
+  - Description: Shift mix, cross-train, automation to reduce overtime
+  - Expected KPI Impact: Reduce overtime, stabilize SLA
+  - Level (L1/L2/L3): L2
+  - Owner: WFM / Service Ops
+
+- **L2 — Quality & Yield**
+  - Trigger (formal): High shrinkage or low FCR tied to resource issues
+  - Description: Training/coaching, process fixes
+  - Expected KPI Impact: Reduce shrinkage, improve FCR/SLA
+  - Level (L1/L2/L3): L2
+  - Owner: CX/Training
+
+- **D1 — Cost Take-Out**
+  - Trigger (formal): Excess capacity/inefficient shift mix
+  - Description: Optimize staffing, reduce idle time
+  - Expected KPI Impact: Reduce cost-to-serve
+  - Level (L1/L2/L3): L2
+  - Owner: Service Ops / Finance
 
 ---
 
@@ -192,12 +227,37 @@ Link business behavior to measurable outcomes.
 
 ### 6.2 30-Second Layer (Main Visuals)
 
-| Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
-|-------------|-------------|--------|--------|---------|----------------|-------|
-| Utilization vs Band by Queue | Column | dim_org[Queue] | [Utilization %], Band | Channel/Region | Current month | Core ranking |
-| Occupancy vs Band | Column | dim_org[Queue] | [Occupancy %], Band | Channel/Region | Current month | Balance view |
-| Overtime & Shrinkage Trend | Line | dim_date[Week] | [Overtime %], [Shrinkage %] | Region/Channel | L12W | Capacity health |
-| SLA vs Backlog | Scatter | [SLA %] | [Backlog Count] | Queue/Region | Current quarter | Service risk |
+- **Utilization vs Band by Queue**
+  - Visual Type: Column
+  - X-Axis: dim_org[Queue]
+  - Y-Axis: [Utilization %], Band
+  - Segment: Channel/Region
+  - Default Filter: Current month
+  - Notes: Core ranking
+
+- **Occupancy vs Band**
+  - Visual Type: Column
+  - X-Axis: dim_org[Queue]
+  - Y-Axis: [Occupancy %], Band
+  - Segment: Channel/Region
+  - Default Filter: Current month
+  - Notes: Balance view
+
+- **Overtime & Shrinkage Trend**
+  - Visual Type: Line
+  - X-Axis: dim_date[Week]
+  - Y-Axis: [Overtime %], [Shrinkage %]
+  - Segment: Region/Channel
+  - Default Filter: L12W
+  - Notes: Capacity health
+
+- **SLA vs Backlog**
+  - Visual Type: Scatter
+  - X-Axis: [SLA %]
+  - Y-Axis: [Backlog Count]
+  - Segment: Queue/Region
+  - Default Filter: Current quarter
+  - Notes: Service risk
 
 ### 6.3 Required Slicers (Mandatory)
 
@@ -228,17 +288,21 @@ required_dimensions:
   - dim_queue (if separate)
 
   - security_user_org
-required_grain: agent_day or queue_day; week/month for trends
+required_grain: >
+  agent_day or queue_day; week/month for trends
 required_time_range: 12-24 months history
-required_slicers: Date, Region/Channel/Queue, Agent Group/Skill (if available)
+required_slicers: >
+  Date, Region/Channel/Queue, Agent Group/Skill (if available)
 ```
 
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
 
-- WFM data includes work/idle/wrap, overtime, shrinkage; SLA/backlog available from cases.
-- Target bands defined for utilization/occupancy; exclusions for training/ramp-up.
+- WFM data includes work/idle/wrap, overtime, shrinkage; SLA/backlog
+  available from cases.
+- Target bands defined for utilization/occupancy; exclusions for
+  training/ramp-up.
 - OneLake canonical dims used (dim_date, dim_org, security_user_org).
 - Data latency =24h.
 
@@ -246,9 +310,12 @@ required_slicers: Date, Region/Channel/Queue, Agent Group/Skill (if available)
 
 ## 9. Success Criteria
 
-- Impact: Utilization/occupancy within bands; overtime/shrinkage reduced; SLA stable/improved; backlog controlled.  
-- Adoption: Used in weekly WFM/service ops reviews; action codes triggered with <5% false positives.  
-- Quality: KPI definitions consistent across XD-001/002; reconciled to source totals.  
+- Impact: Utilization/occupancy within bands; overtime/shrinkage reduced; SLA
+  stable/improved; backlog controlled.  
+- Adoption: Used in weekly WFM/service ops reviews; action codes triggered with
+  <5% false positives.  
+- Quality: KPI definitions consistent across XD-001/002; reconciled to source
+  totals.  
 - Decision Frequency: Weekly and daily staffing reviews.
 
 ---
@@ -258,5 +325,3 @@ required_slicers: Date, Region/Channel/Queue, Agent Group/Skill (if available)
 - Overdriving utilization causing quality decline.  
 - Misclassifying shrinkage leading to wrong capacity view.  
 - Ignoring seasonality causing false alarms on utilization/occupancy.  
-
-

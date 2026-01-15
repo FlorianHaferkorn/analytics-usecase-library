@@ -1,3 +1,8 @@
+﻿---
+id: <USE CASE ID>
+factsheet_type: business
+---
+
 # <USE CASE ID> - <USE CASE NAME>
 
 ## Business Factsheet (v1.2)
@@ -21,7 +26,8 @@
 ## 1. Business Summary
 
 **Purpose:** One clear sentence describing the business objective.  
-**Business Value:** 1-2 sentences describing measurable impact (growth, margin, cost, risk, liquidity, customer value).  
+**Business Value:** 1-2 sentences describing measurable impact (growth, margin,
+cost, risk, liquidity, customer value).  
 **Out of Scope:** 2-3 bullets.
 
 ---
@@ -59,6 +65,7 @@ required_kpis:
     target: <value or range>
     interpretation: <how to read>
     lineage: <source table/field list>
+
   - ...
 ```
 
@@ -84,6 +91,7 @@ triggers:
     scope: <dimension/filter>
     exclusion: <optional>
     action_code: <AC-XX>
+
   - ...
 ```
 
@@ -93,10 +101,19 @@ triggers:
 
 Link business behavior to measurable outcomes.
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| AC-XX | <Name> | From section 4 | <What happens> | <+%, -%, stabilize> | L1 | <Team> |
-| ... | ... | ... | ... | ... | ... | ... |
+- **AC-XX - <Name>**
+  - Trigger (formal): From section 4
+  - Description: <What happens>
+  - Expected KPI Impact: <+%, -%, stabilize>
+  - Level (L1/L2/L3): L1
+  - Owner: <Team>
+
+- **...**
+  - Trigger (formal): ...
+  - Description: ...
+  - Expected KPI Impact: ...
+  - Level (L1/L2/L3): ...
+  - Owner: ...
 
 All referenced Action Codes must comply with the Prescriptive Standard
 (Trigger, Interpretation, Prescriptive Actions, Expected Impact, Risk).
@@ -115,11 +132,29 @@ All referenced Action Codes must comply with the Prescriptive Standard
 
 ### 6.2 30-Second Layer (Main Visuals)
 
-| Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
-|-------------|-------------|--------|--------|---------|----------------|-------|
-| <Trend> | Line | Date[Month] | [Net Sales Amount] | Region | L12M | mandatory |
-| <Ranking> | Bar (horizontal) | Org[Channel] | [GM %] | Region | none | top/bottom logic |
-| ... | ... | ... | ... | ... | ... | ... |
+- **<Trend>**
+  - Visual Type: Line
+  - X-Axis: Date[Month]
+  - Y-Axis: [Net Sales Amount]
+  - Segment: Region
+  - Default Filter: L12M
+  - Notes: mandatory
+
+- **<Ranking>**
+  - Visual Type: Bar (horizontal)
+  - X-Axis: Org[Channel]
+  - Y-Axis: [GM %]
+  - Segment: Region
+  - Default Filter: none
+  - Notes: top/bottom logic
+
+- **...**
+  - Visual Type: ...
+  - X-Axis: ...
+  - Y-Axis: ...
+  - Segment: ...
+  - Default Filter: ...
+  - Notes: ...
 
 ### 6.3 Required Slicers (Mandatory)
 
@@ -175,3 +210,4 @@ required_slicers: <e.g., Org, Region, Product>
 - <Misinterpretation to avoid>
 
 ---
+

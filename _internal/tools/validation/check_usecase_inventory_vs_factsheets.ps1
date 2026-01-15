@@ -27,7 +27,7 @@ function Get-UseCaseIdsFromInventory {
   if (-not (Test-Path $Path)) { return $ids }
   Get-Content -Path $Path | ForEach-Object {
     $line = $_
-    foreach ($match in [regex]::Matches($line, '\b[A-Z]{3}-\d{3}\b')) {
+    foreach ($match in [regex]::Matches($line, '\b[A-Z]{2,3}-\d{3}\b')) {
       $null = $ids.Add($match.Value)
     }
   }
@@ -38,6 +38,7 @@ function Get-FactsheetIndex {
   param([string]$Root)
   $index = @{}
   Get-ChildItem -Path $Root -Recurse -Filter "*Factsheet*.md" | ForEach-Object {
+    if ($_.FullName -match '\\usecases\\templates\\') { return }
     $content = Get-Content -Raw -Path $_.FullName
     $match = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---")
     if (-not $match.Success) { return }

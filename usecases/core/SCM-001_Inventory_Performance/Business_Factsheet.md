@@ -118,6 +118,17 @@ required_kpis:
     target: % target
     interpretation: Low accuracy drives excess/stockouts; units-based (not revenue)
     lineage: fact_forecast[Forecast], fact_sales[Actual]
+
+  - id: sales.units
+    name: Sales Units
+    purpose: Demand signal
+    definition_short: Units sold in the period
+    unit: units
+    grain: sku_month
+    agg: sum
+    target: Meet plan
+    interpretation: Demand context for inventory levels
+    lineage: fact_sales[Sales Units]
 ```
 
 ---

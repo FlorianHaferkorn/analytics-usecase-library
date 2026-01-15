@@ -25,9 +25,12 @@ factsheet_type: business
 
 ## 1. Business Summary
 
-**Purpose:** Improve service level by monitoring SLA attainment, first contact resolution, handling time, backlog, and escalation.  
-**Business Value:** Higher customer satisfaction, lower cost-to-serve, reduced escalations and backlog.  
-**Out of Scope:** Sales pipeline (COM-010); marketing journey analytics; field service parts/ops (scoped separately).
+**Purpose:** Improve service level by monitoring SLA attainment, first contact
+resolution, handling time, backlog, and escalation.  
+**Business Value:** Higher customer satisfaction, lower cost-to-serve, reduced
+escalations and backlog.  
+**Out of Scope:** Sales pipeline (COM-010); marketing journey analytics; field
+service parts/ops (scoped separately).
 
 ---
 
@@ -117,6 +120,28 @@ required_kpis:
     target: = target
     interpretation: High escalation signals quality/process issues
     lineage: fact_cases[Escalation Flag]
+
+  - id: svc.tickets.created.count
+    name: Tickets Created Count
+    purpose: Demand volume
+    definition_short: Count of newly created service tickets
+    unit: count
+    grain: day_queue
+    agg: sum
+    target: Monitor trend
+    interpretation: Higher volume drives workload and SLA risk
+    lineage: fact_ticket[Ticket ID]
+
+  - id: svc.tickets.closed.count
+    name: Tickets Closed Count
+    purpose: Throughput volume
+    definition_short: Count of closed service tickets
+    unit: count
+    grain: day_queue
+    agg: sum
+    target: Keep pace with inflow
+    interpretation: Lower closures vs created leads to backlog growth
+    lineage: fact_ticket[Tickets Closed Count]
 ```
 
 ---
@@ -171,12 +196,33 @@ triggers:
 
 Link business behavior to measurable outcomes.
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| O2 | Operations Stabilisation | SLA below target; escalations/backlog rising | Rebalance capacity, triage/backlog sweeps, fix process gaps | Improve SLA, reduce backlog/escalations | L2 | Service Ops |
-| L2 | Quality & Yield | FCR below target | Improve knowledge base, scripts, training | Improve FCR, reduce repeat contacts | L2 | CX/Training |
-| M2 | Performance Uplift | AHT above target | Streamline workflows, tools; deflect to self-service | Reduce AHT, improve SLA | L2 | Service Ops |
-| D1 | Cost Take-Out (if cost focus) | Cost per contact high | Optimize staffing/shift mix, automation | Reduce cost-to-serve | L2 | Service Ops / Finance |
+- **O2 — Operations Stabilisation**
+  - Trigger (formal): SLA below target; escalations/backlog rising
+  - Description: Rebalance capacity, triage/backlog sweeps, fix process gaps
+  - Expected KPI Impact: Improve SLA, reduce backlog/escalations
+  - Level (L1/L2/L3): L2
+  - Owner: Service Ops
+
+- **L2 — Quality & Yield**
+  - Trigger (formal): FCR below target
+  - Description: Improve knowledge base, scripts, training
+  - Expected KPI Impact: Improve FCR, reduce repeat contacts
+  - Level (L1/L2/L3): L2
+  - Owner: CX/Training
+
+- **M2 — Performance Uplift**
+  - Trigger (formal): AHT above target
+  - Description: Streamline workflows, tools; deflect to self-service
+  - Expected KPI Impact: Reduce AHT, improve SLA
+  - Level (L1/L2/L3): L2
+  - Owner: Service Ops
+
+- **D1 — Cost Take-Out (if cost focus)**
+  - Trigger (formal): Cost per contact high
+  - Description: Optimize staffing/shift mix, automation
+  - Expected KPI Impact: Reduce cost-to-serve
+  - Level (L1/L2/L3): L2
+  - Owner: Service Ops / Finance
 
 ---
 
@@ -192,12 +238,37 @@ Link business behavior to measurable outcomes.
 
 ### 6.2 30-Second Layer (Main Visuals)
 
-| Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
-|-------------|-------------|--------|--------|---------|----------------|-------|
-| SLA vs Target by Queue | Column | dim_queue[Queue] | [SLA %], [Target] | Channel/Region | Current month | Core ranking |
-| FCR vs AHT | Scatter | [AHT] | [FCR %] | Queue/Channel | Current quarter | Efficiency-quality tradeoff |
-| Backlog & Escalation Trend | Line | dim_date[Week] | [Backlog], [Escalation %] | Region/Channel | L12W | Risk indicator |
-| NPS vs SLA | Scatter | [SLA %] | [NPS Index] | Channel | Current quarter | Experience linkage |
+- **SLA vs Target by Queue**
+  - Visual Type: Column
+  - X-Axis: dim_queue[Queue]
+  - Y-Axis: [SLA %], [Target]
+  - Segment: Channel/Region
+  - Default Filter: Current month
+  - Notes: Core ranking
+
+- **FCR vs AHT**
+  - Visual Type: Scatter
+  - X-Axis: [AHT]
+  - Y-Axis: [FCR %]
+  - Segment: Queue/Channel
+  - Default Filter: Current quarter
+  - Notes: Efficiency-quality tradeoff
+
+- **Backlog & Escalation Trend**
+  - Visual Type: Line
+  - X-Axis: dim_date[Week]
+  - Y-Axis: [Backlog], [Escalation %]
+  - Segment: Region/Channel
+  - Default Filter: L12W
+  - Notes: Risk indicator
+
+- **NPS vs SLA**
+  - Visual Type: Scatter
+  - X-Axis: [SLA %]
+  - Y-Axis: [NPS Index]
+  - Segment: Channel
+  - Default Filter: Current quarter
+  - Notes: Experience linkage
 
 ### 6.3 Required Slicers (Mandatory)
 
@@ -230,9 +301,11 @@ required_dimensions:
   - dim_issue (if modeled)
 
   - security_user_org
-required_grain: day_queue for ops metrics; month for NPS
+required_grain: >
+  day_queue for ops metrics; month for NPS
 required_time_range: 12-24 months history
-required_slicers: Date, Region/Channel/Queue, Issue Type/Severity
+required_slicers: >
+  Date, Region/Channel/Queue, Issue Type/Severity
 ```
 
 ---
@@ -241,16 +314,20 @@ required_slicers: Date, Region/Channel/Queue, Issue Type/Severity
 
 - SLA/FCR/AHT definitions stable; backlog and escalation flags available.
 - NPS survey data linked by channel/period; queue/channel structures consistent.
-- OneLake canonical dims used (dim_date, dim_org, security_user_org; dim_queue optional).
+- OneLake canonical dims used (dim_date, dim_org, security_user_org;
+  dim_queue optional).
 - Data latency =24h.
 
 ---
 
 ## 9. Success Criteria
 
-- Impact: SLA attainment to target; backlog/escalations reduced; FCR up; NPS improved.  
-- Adoption: Used in weekly service ops reviews; action codes triggered with <5% false positives.  
-- Quality: KPI definitions consistent across service channels; reconciled to source totals.  
+- Impact: SLA attainment to target; backlog/escalations reduced; FCR up; NPS
+  improved.  
+- Adoption: Used in weekly service ops reviews; action codes triggered with <5%
+  false positives.  
+- Quality: KPI definitions consistent across service channels; reconciled to
+  source totals.  
 - Decision Frequency: Weekly and daily service reviews.
 
 ---
@@ -260,5 +337,3 @@ required_slicers: Date, Region/Channel/Queue, Issue Type/Severity
 - Misclassified SLA breaches (force majeure vs controllable).  
 - FCR misread on complex/regulatory cases.  
 - NPS shifts not directly attributable without considering channel mix.  
-
-

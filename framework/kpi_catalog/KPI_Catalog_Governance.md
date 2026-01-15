@@ -531,5 +531,66 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
-```
 
+- kpi_id: enterprise.action_routed.count
+  kpi_key: Actions Routed Count
+  kpi_type: supporting
+  impact_dimension: Governance
+  domain_tag:
+  - Governance
+  use_case_ref:
+  - XD-003
+  calc_type: count
+  business:
+    purpose: Counts action codes routed for execution.
+    definition: Count of routed action instances in the period.
+    grain_scope: Action instance; aggregated by period and domain.
+    unit_format: count
+    interpretation: Higher counts indicate more routed actions.
+  technical:
+    dax_name: Actions Routed Count
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Executive Office
+    data_owner: PMO Analytics
+    steward: PMO Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
+
+- kpi_id: enterprise.action_outcome_rate.pct
+  kpi_key: Action Outcome Rate %
+  kpi_type: diagnostic
+  impact_dimension: Governance
+  domain_tag:
+  - Governance
+  use_case_ref:
+  - XD-003
+  calc_type: rate
+  business:
+    purpose: Measures share of actions that achieved the intended outcome.
+    definition: Successful Actions / Routed Actions.
+    grain_scope: Action instance; aggregated by period and domain.
+    unit_format: '% (1 decimal)'
+    interpretation: Higher values indicate better execution effectiveness.
+  technical:
+    dax_name: Action Outcome Rate %
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Executive Office
+    data_owner: PMO Analytics
+    steward: PMO Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
+```

@@ -106,6 +106,39 @@ required_kpis:
     target: Reduce vs baseline
     interpretation: Frequent re-plans indicate unstable process
     lineage: planning system logs
+
+  - id: order.lines
+    name: Order Lines Count
+    purpose: Demand volume
+    definition_short: Count of order line items
+    unit: count
+    grain: order_line
+    agg: sum
+    target: Meet plan
+    interpretation: Volume context for forecast accuracy
+    lineage: fact_order_lines[Order Line ID]
+
+  - id: plans.count
+    name: Plans Count
+    purpose: Planning activity
+    definition_short: Count of plan records or plan versions
+    unit: count
+    grain: month
+    agg: sum
+    target: Stable over time
+    interpretation: Higher counts indicate more planning cycles
+    lineage: fact_plan[Plan ID]
+
+  - id: sales.units
+    name: Sales Units
+    purpose: Actuals baseline
+    definition_short: Units sold in the period
+    unit: units
+    grain: sku_month
+    agg: sum
+    target: Meet plan
+    interpretation: Actual volume for forecast comparison
+    lineage: fact_sales[Sales Units]
 ```
 
 ---

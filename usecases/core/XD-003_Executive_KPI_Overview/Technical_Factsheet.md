@@ -276,6 +276,12 @@ No local DAX added; measures sourced from certified semantic model. Existing cer
 
 ## 6. RLS / OLS Requirements
 
+### 6.1 Security Table Pattern
+
+### 6.2 RLS Rule (Fabric / Power BI)
+
+### 6.3 OLS (optional)
+
 - Executives require full-company visibility.
 - If needed, existing Org-hierarchy RLS applies (security_user_org filtering dim_org cascading to facts).
 - No new RLS rules may be created.

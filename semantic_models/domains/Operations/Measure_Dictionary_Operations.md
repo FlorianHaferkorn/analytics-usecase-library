@@ -773,5 +773,202 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: "draft"
     version: "v1.2"
     last_review: "TBD"
+- measure_name: "Failure Count"
+  is_kpi_measure: true
+  kpi_id_ref: "ops.failure.count"
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "01_Ops"
+  category: "KPI"
+  expression:
+    dax: "SUM ( fact_ops[Failure Count] )"
+    formatString: "#,0"
+  documentation:
+    description: "Count of recorded equipment or process failures."
+    notes: |
+      Grain: asset_day. Unit: count.
+      Lineage: fact_ops[Failure Count].
+      QA: De-duplicate failure events; confirm consistent failure taxonomy.
+  dependencies:
+    columns:
+      - "fact_ops[Failure Count]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
+
+- measure_name: "Planned Output Units"
+  is_kpi_measure: true
+  kpi_id_ref: "ops.planned_output.units"
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "01_Ops"
+  category: "KPI"
+  expression:
+    dax: "SUM ( fact_ops[Planned Output Units] )"
+    formatString: "#,0"
+  documentation:
+    description: "Planned production output units."
+    notes: |
+      Grain: line_day. Unit: units.
+      Lineage: fact_ops[Planned Output Units].
+      QA: Align planning calendar with actuals.
+  dependencies:
+    columns:
+      - "fact_ops[Planned Output Units]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
+
+- measure_name: "Preventive Maintenance Task Count"
+  is_kpi_measure: true
+  kpi_id_ref: "ops.pm.task.count"
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "01_Ops"
+  category: "KPI"
+  expression:
+    dax: "SUM ( fact_maintenance[PM Task Count] )"
+    formatString: "#,0"
+  documentation:
+    description: "Count of preventive maintenance tasks."
+    notes: |
+      Grain: asset_day. Unit: count.
+      Lineage: fact_maintenance[PM Task Count].
+      QA: Distinguish completed vs scheduled if needed.
+  dependencies:
+    columns:
+      - "fact_maintenance[PM Task Count]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
+
+- measure_name: "Production Volume Units"
+  is_kpi_measure: true
+  kpi_id_ref: "ops.production.volume"
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "01_Ops"
+  category: "KPI"
+  expression:
+    dax: "SUM ( fact_ops[Output Units] )"
+    formatString: "#,0"
+  documentation:
+    description: "Total produced units in the period."
+    notes: |
+      Grain: line_day. Unit: units.
+      Lineage: fact_ops[Output Units].
+      QA: Ensure output excludes scrap when required.
+  dependencies:
+    columns:
+      - "fact_ops[Output Units]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
+
+- measure_name: "Quality Defect Rate %"
+  is_kpi_measure: true
+  kpi_id_ref: "ops.quality.defect_rate.pct"
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "04_Quality"
+  category: "KPI"
+  expression:
+    dax: |
+      DIVIDE ( SUM ( fact_quality[Defect Count] ), SUM ( fact_ops[Output Units] ) )
+    formatString: "0.0%"
+  documentation:
+    description: "Defect count divided by total output units."
+    notes: |
+      Grain: line_day. Unit: %.
+      Lineage: fact_quality[Defect Count], fact_ops[Output Units].
+      QA: Output Units > 0; ensure defect definition consistent.
+  dependencies:
+    columns:
+      - "fact_quality[Defect Count]"
+      - "fact_ops[Output Units]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
+
+- measure_name: "Safety Incident Count"
+  is_kpi_measure: true
+  kpi_id_ref: "ops.safety.incident.count"
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "05_Safety"
+  category: "KPI"
+  expression:
+    dax: "SUM ( fact_safety[Incident Count] )"
+    formatString: "#,0"
+  documentation:
+    description: "Count of safety incidents in the period."
+    notes: |
+      Grain: site_day. Unit: count.
+      Lineage: fact_safety[Incident Count].
+      QA: Harmonize incident classification and severity.
+  dependencies:
+    columns:
+      - "fact_safety[Incident Count]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
+
+- measure_name: "Operations Service Level %"
+  is_kpi_measure: true
+  kpi_id_ref: "ops.service_level.pct"
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "02_Service"
+  category: "KPI"
+  expression:
+    dax: |
+      DIVIDE ( SUM ( fact_ops[On Time Deliveries] ), SUM ( fact_ops[Total Deliveries] ) )
+    formatString: "0.0%"
+  documentation:
+    description: "On-time delivery rate for operational fulfillment."
+    notes: |
+      Grain: shipment_day. Unit: %.
+      Lineage: fact_ops[On Time Deliveries], fact_ops[Total Deliveries].
+      QA: Align delivery definitions across sites.
+  dependencies:
+    columns:
+      - "fact_ops[On Time Deliveries]"
+      - "fact_ops[Total Deliveries]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
+
+- measure_name: "Yield %"
+  is_kpi_measure: true
+  kpi_id_ref: "ops.yield.pct"
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "04_Quality"
+  category: "KPI"
+  expression:
+    dax: |
+      DIVIDE ( SUM ( fact_ops[Good Units] ), SUM ( fact_ops[Output Units] ) )
+    formatString: "0.0%"
+  documentation:
+    description: "Good units divided by total output."
+    notes: |
+      Grain: line_day. Unit: %.
+      Lineage: fact_ops[Good Units], fact_ops[Output Units].
+      QA: Output Units > 0; align good vs total unit definitions.
+  dependencies:
+    columns:
+      - "fact_ops[Good Units]"
+      - "fact_ops[Output Units]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
 ```
 

@@ -76,7 +76,7 @@ They exist solely to control **surfacing and attention**.
 2. **Instantiation**
    - Templates are copied into a deployment-specific location, e.g.:
 
-     ```
+     ```yaml
      deployments/<customer>/actioncode_trigger_map.yaml
      ```
 

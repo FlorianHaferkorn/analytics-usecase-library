@@ -123,7 +123,7 @@ Each measure is a YAML object with the following fields.
 
 - measure_name: "Gross Margin %"
   is_kpi_measure: true
-  kpi_id_ref: "margin.gross_margin_pct"
+  kpi_id_ref: "margin.gm.pct"
   semantic_model: "Commercial_SemanticModel"
   display_folder: "02_Margin"
   category: "KPI"

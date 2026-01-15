@@ -89,7 +89,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "inventory.value.amount"
+        metric_kpi_id: "fin.liquidity.inventory.amount"
         comparator: "gte"
         value: 200000
         unit: "amount"

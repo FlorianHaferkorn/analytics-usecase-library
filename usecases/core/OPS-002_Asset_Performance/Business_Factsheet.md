@@ -118,6 +118,50 @@ required_kpis:
     target: = 95%
     interpretation: Low compliance increases failure risk
     lineage: fact_maintenance[PM On Time], fact_maintenance[PM Planned]
+
+  - id: ops.failure.count
+    name: Failure Count
+    purpose: Failure volume
+    definition_short: Count of failure events
+    unit: count
+    grain: asset_month
+    agg: sum
+    target: Reduce vs baseline
+    interpretation: Higher counts indicate lower reliability
+    lineage: fact_ops[Failure Count]
+
+  - id: ops.inventory.value.amount
+    name: Inventory Value Amount
+    purpose: Spare parts guardrail
+    definition_short: Inventory value for spare parts
+    unit: EUR
+    grain: sku_month
+    agg: sum
+    target: Maintain within budget
+    interpretation: Higher values indicate more capital tied in spares
+    lineage: fact_inventory[Inventory Value Amount]
+
+  - id: ops.pm.task.count
+    name: Preventive Maintenance Task Count
+    purpose: PM workload
+    definition_short: Count of PM tasks
+    unit: count
+    grain: asset_month
+    agg: sum
+    target: Meet plan
+    interpretation: Tracks PM execution volume
+    lineage: fact_maintenance[PM Task Count]
+
+  - id: ops.safety.incident.count
+    name: Safety Incident Count
+    purpose: Safety guardrail
+    definition_short: Count of safety incidents
+    unit: count
+    grain: site_month
+    agg: sum
+    target: = 0
+    interpretation: Higher counts indicate elevated safety risk
+    lineage: fact_safety[Incident Count]
 ```
 
 ---

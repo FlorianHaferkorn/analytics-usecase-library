@@ -51,19 +51,19 @@ use_case_links:
 
 kpis:
   trigger_kpis:
-    - kpi_id: "sales.net_sales_growth.pct"
-      label: "Net Sales Growth %"
-      semantic_ref: { model_domain: "Commercial", measure: "Net Sales Growth %" }
-    - kpi_id: "margin.gross_margin.pct"
+    - kpi_id: "sales.revenue.growth_pct"
+      label: "Revenue Growth %"
+      semantic_ref: { model_domain: "Commercial", measure: "Revenue Growth %" }
+    - kpi_id: "margin.gm.pct"
       label: "Gross Margin %"
       semantic_ref: { model_domain: "Commercial", measure: "Gross Margin %" }
-    - kpi_id: "service.level_pct"
-      label: "Service Level %"
-      semantic_ref: { model_domain: "Service", measure: "Service Level %" }
+    - kpi_id: "svc.sla.attainment.pct"
+      label: "SLA Attainment %"
+      semantic_ref: { model_domain: "Service", measure: "SLA Attainment %" }
     - kpi_id: "supply.otif.pct"
       label: "OTIF %"
       semantic_ref: { model_domain: "SupplyChain", measure: "OTIF %" }
-    - kpi_id: "liquidity.ccc.days"
+    - kpi_id: "wc.ccc.days"
       label: "Cash Conversion Cycle (Days)"
       semantic_ref: { model_domain: "Finance", measure: "CCC (Days)" }
     - kpi_id: "people.attrition_risk.pct"

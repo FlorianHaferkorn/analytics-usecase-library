@@ -558,5 +558,52 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: "draft"
     version: "v1.2"
     last_review: "TBD"
+- measure_name: "Tickets Created Count"
+  is_kpi_measure: true
+  kpi_id_ref: "svc.tickets.created.count"
+  semantic_model: "Service_SemanticModel"
+  display_folder: "01_Service"
+  category: "KPI"
+  expression:
+    dax: "COUNTROWS ( fact_ticket )"
+    formatString: "#,0"
+  documentation:
+    description: "Count of newly created service tickets."
+    notes: |
+      Grain: ticket_day. Unit: count.
+      Lineage: fact_ticket[Ticket ID].
+      QA: De-duplicate re-opened tickets if tracked separately.
+  dependencies:
+    columns:
+      - "fact_ticket[Ticket ID]"
+  governance:
+    owner: "Service Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
+
+- measure_name: "Tickets Closed Count"
+  is_kpi_measure: true
+  kpi_id_ref: "svc.tickets.closed.count"
+  semantic_model: "Service_SemanticModel"
+  display_folder: "01_Service"
+  category: "KPI"
+  expression:
+    dax: "SUM ( fact_ticket[Tickets Closed Count] )"
+    formatString: "#,0"
+  documentation:
+    description: "Count of closed service tickets."
+    notes: |
+      Grain: ticket_day. Unit: count.
+      Lineage: fact_ticket[Tickets Closed Count].
+      QA: Closure definition consistent with SLA reporting.
+  dependencies:
+    columns:
+      - "fact_ticket[Tickets Closed Count]"
+  governance:
+    owner: "Service Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
 ```
 

@@ -13,6 +13,8 @@ It is designed to be:
 ```yaml
 schema_version: "1.1"
 
+inherits_decision_spine: null
+
 id: "<e.g. C-P1.1>"
 name: "<Short action name>"
 owner_domain: "<Commercial | SupplyChain | CustomerValue | Liquidity | Operations | Governance_ESG>"

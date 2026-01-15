@@ -20,7 +20,7 @@ tags: ["clv", "mix", "upsell", "bundles"]
 
 strategic_alignment:
   strategic_kpis:
-    - id: "customer.value.clv.amount"
+    - id: "crm.clv.amount"
       role: "primary"
     - id: "margin.gm.pct"
       role: "secondary"
@@ -40,7 +40,7 @@ use_case_links:
 
 kpis:
   trigger_kpis:
-    - kpi_id: "customer.value.clv.amount"
+    - kpi_id: "crm.clv.amount"
       label: "Customer Lifetime Value Amount"
       semantic_ref:
         model_domain: "CustomerValue"
@@ -52,7 +52,7 @@ kpis:
         model_domain: "Commercial"
         measure: "Gross Margin %"
   outcome_kpis:
-    - kpi_id: "customer.value.clv.amount"
+    - kpi_id: "crm.clv.amount"
       label: "Customer Lifetime Value Amount"
       semantic_ref:
         model_domain: "CustomerValue"
@@ -84,7 +84,7 @@ trigger:
       min_observations: 2
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "customer.value.lifetime_revenue.amount"
+        metric_kpi_id: "crm.lifetime_revenue.amount"
         comparator: "gte"
         value: 50000
         unit: "amount"
@@ -92,7 +92,7 @@ trigger:
     L1:
       severity: "EarlyWarning"
       condition:
-        metric_kpi_id: "customer.value.clv.amount"
+        metric_kpi_id: "crm.clv.amount"
         comparator: "lt"
         threshold:
           basis: "target"
@@ -102,7 +102,7 @@ trigger:
     L2:
       severity: "RequiredIntervention"
       condition:
-        metric_kpi_id: "customer.value.clv.amount"
+        metric_kpi_id: "crm.clv.amount"
         comparator: "lt"
         threshold:
           basis: "relative"
@@ -112,7 +112,7 @@ trigger:
     L3:
       severity: "PrescriptiveExecution"
       condition:
-        metric_kpi_id: "customer.value.clv.amount"
+        metric_kpi_id: "crm.clv.amount"
         comparator: "lt"
         threshold:
           basis: "relative"
@@ -127,7 +127,7 @@ trigger:
 impact:
   category: "Medium"
   expected_range:
-    metric_kpi_id: "customer.value.clv.amount"
+    metric_kpi_id: "crm.clv.amount"
     value_low: 5.0
     value_high: 15.0
     unit: "%"
@@ -222,3 +222,4 @@ quality_rules:
   - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
   - "If status=deprecated then lifecycle.replaced_by is required."
   - "No free-text trigger notes: use gating_rules and structured filters."
+

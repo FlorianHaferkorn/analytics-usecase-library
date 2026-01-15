@@ -807,5 +807,125 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: "draft"
     version: "v1.2"
     last_review: "TBD"
+- measure_name: "Inventory Value Amount"
+  is_kpi_measure: true
+  kpi_id_ref: "ops.inventory.value.amount"
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "01_Inventory"
+  category: "KPI"
+  expression:
+    dax: "SUM ( fact_inventory[Inventory Value Amount] )"
+    formatString: "EUR #,0"
+  documentation:
+    description: "Total inventory value in the selected scope."
+    notes: |
+      Grain: location_sku_day. Unit: EUR.
+      Lineage: fact_inventory[Inventory Value Amount].
+      QA: Valuation method consistent with finance policy.
+  dependencies:
+    columns:
+      - "fact_inventory[Inventory Value Amount]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
+
+- measure_name: "Supply Chain Service Level %"
+  is_kpi_measure: true
+  kpi_id_ref: "scm.service_level.pct"
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "02_Service"
+  category: "KPI"
+  expression:
+    dax: |
+      DIVIDE ( SUM ( fact_fulfillment[OTIF Flag] ), COUNTROWS ( fact_fulfillment ) )
+    formatString: "0.0%"
+  documentation:
+    description: "On-time in-full rate for customer fulfillment."
+    notes: |
+      Grain: order_line_day. Unit: %.
+      Lineage: fact_fulfillment[OTIF Flag].
+      QA: OTIF definition aligned to customer policy.
+  dependencies:
+    columns:
+      - "fact_fulfillment[OTIF Flag]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
+
+- measure_name: "Order Lines Count"
+  is_kpi_measure: true
+  kpi_id_ref: "order.lines"
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "02_Service"
+  category: "KPI"
+  expression:
+    dax: "COUNTROWS ( fact_order_lines )"
+    formatString: "#,0"
+  documentation:
+    description: "Count of order line items."
+    notes: |
+      Grain: order_line. Unit: count.
+      Lineage: fact_order_lines[Order Line ID].
+      QA: De-duplicate merged or split lines.
+  dependencies:
+    columns:
+      - "fact_order_lines[Order Line ID]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
+
+- measure_name: "Plans Count"
+  is_kpi_measure: true
+  kpi_id_ref: "plans.count"
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "03_Forecast"
+  category: "KPI"
+  expression:
+    dax: "COUNTROWS ( fact_plan )"
+    formatString: "#,0"
+  documentation:
+    description: "Count of plan records or plan versions."
+    notes: |
+      Grain: plan_version. Unit: count.
+      Lineage: fact_plan[Plan ID].
+      QA: Distinguish baseline vs scenario plans.
+  dependencies:
+    columns:
+      - "fact_plan[Plan ID]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
+
+- measure_name: "Shipments Count"
+  is_kpi_measure: true
+  kpi_id_ref: "shipments.count"
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "02_Service"
+  category: "KPI"
+  expression:
+    dax: "COUNTROWS ( fact_shipment )"
+    formatString: "#,0"
+  documentation:
+    description: "Count of shipments executed."
+    notes: |
+      Grain: shipment. Unit: count.
+      Lineage: fact_shipment[Shipment ID].
+      QA: Exclude canceled shipments.
+  dependencies:
+    columns:
+      - "fact_shipment[Shipment ID]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
 ```
 

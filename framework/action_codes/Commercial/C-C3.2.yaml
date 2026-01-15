@@ -20,9 +20,9 @@ tags: ["revenue-at-risk", "prioritisation", "retention-focus"]
 
 strategic_alignment:
   strategic_kpis:
-    - id: "customer.loyalty.revenue_at_risk.amount"
+    - id: "crm.revenue_at_risk.amount"
       role: "primary"
-    - id: "customer.value.clv.amount"
+    - id: "crm.clv.amount"
       role: "secondary"
   decisions_enabled:
     - "Prioritise retention capacity toward highest value exposure"
@@ -40,7 +40,7 @@ use_case_links:
 
 kpis:
   trigger_kpis:
-    - kpi_id: "customer.loyalty.revenue_at_risk.amount"
+    - kpi_id: "crm.revenue_at_risk.amount"
       label: "Revenue at Risk Amount"
       semantic_ref:
         model_domain: "CustomerValue"
@@ -52,7 +52,7 @@ kpis:
         model_domain: "Commercial"
         measure: "Gross Margin %"
   outcome_kpis:
-    - kpi_id: "customer.loyalty.revenue_at_risk.amount"
+    - kpi_id: "crm.revenue_at_risk.amount"
       label: "Revenue at Risk Amount"
       semantic_ref:
         model_domain: "CustomerValue"
@@ -83,7 +83,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "customer.loyalty.active_customers.count"
+        metric_kpi_id: "crm.active_customers.count"
         comparator: "gte"
         value: 50
         unit: "count"
@@ -91,7 +91,7 @@ trigger:
     L1:
       severity: "EarlyWarning"
       condition:
-        metric_kpi_id: "customer.loyalty.revenue_at_risk.amount"
+        metric_kpi_id: "crm.revenue_at_risk.amount"
         comparator: "gt"
         threshold:
           basis: "relative"
@@ -101,7 +101,7 @@ trigger:
     L2:
       severity: "RequiredIntervention"
       condition:
-        metric_kpi_id: "customer.loyalty.revenue_at_risk.amount"
+        metric_kpi_id: "crm.revenue_at_risk.amount"
         comparator: "gt"
         threshold:
           basis: "relative"
@@ -111,7 +111,7 @@ trigger:
     L3:
       severity: "PrescriptiveExecution"
       condition:
-        metric_kpi_id: "customer.loyalty.revenue_at_risk.amount"
+        metric_kpi_id: "crm.revenue_at_risk.amount"
         comparator: "gt"
         threshold:
           basis: "absolute"
@@ -126,7 +126,7 @@ trigger:
 impact:
   category: "Medium"
   expected_range:
-    metric_kpi_id: "customer.loyalty.revenue_at_risk.amount"
+    metric_kpi_id: "crm.revenue_at_risk.amount"
     value_low: 5.0
     value_high: 15.0
     unit: "%"
@@ -220,3 +220,4 @@ quality_rules:
   - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
   - "If status=deprecated then lifecycle.replaced_by is required."
   - "No free-text trigger notes: use gating_rules and structured filters."
+

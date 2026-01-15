@@ -88,7 +88,7 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "ops.planned_runtime.hours"
+        metric_kpi_id: "ops.planned.hours"
         comparator: "gte"
         value: 120
         unit: "hours"

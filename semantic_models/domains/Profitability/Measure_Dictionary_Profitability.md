@@ -588,4 +588,51 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: "draft"
     version: "v1.2"
     last_review: "TBD"
+- measure_name: "Cost Base Volume Amount"
+  is_kpi_measure: true
+  kpi_id_ref: "cost.base_volume.amount"
+  semantic_model: "Profitability_SemanticModel"
+  display_folder: "02_Cost"
+  category: "KPI"
+  expression:
+    dax: "SUM ( fact_cost[Base Volume Amount] )"
+    formatString: "EUR #,0"
+  documentation:
+    description: "Baseline cost volume amount for variance analysis."
+    notes: |
+      Grain: cost_center_month. Unit: EUR.
+      Lineage: fact_cost[Base Volume Amount].
+      QA: Baseline aligned with planning cycle.
+  dependencies:
+    columns:
+      - "fact_cost[Base Volume Amount]"
+  governance:
+    owner: "Profitability Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
+
+- measure_name: "Opex Base Amount"
+  is_kpi_measure: true
+  kpi_id_ref: "cost.opex.base.amount"
+  semantic_model: "Profitability_SemanticModel"
+  display_folder: "02_Cost"
+  category: "KPI"
+  expression:
+    dax: "SUM ( fact_opex[Opex Base Amount] )"
+    formatString: "EUR #,0"
+  documentation:
+    description: "Baseline operating expense amount."
+    notes: |
+      Grain: cost_center_month. Unit: EUR.
+      Lineage: fact_opex[Opex Base Amount].
+      QA: Baseline aligned with plan version.
+  dependencies:
+    columns:
+      - "fact_opex[Opex Base Amount]"
+  governance:
+    owner: "Profitability Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
 ```

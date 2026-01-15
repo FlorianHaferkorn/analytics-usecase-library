@@ -258,6 +258,12 @@ No local DAX added; measures sourced from certified semantic model. Existing cer
 
 ## 6. RLS / OLS Requirements
 
+### 6.1 Security Table Pattern
+
+### 6.2 RLS Rule (Fabric / Power BI)
+
+### 6.3 OLS (optional)
+
 - Executives and commercial leaders require correct region/channel scoping; apply existing Org-hierarchy RLS (security_user_org) cascading to facts.
 - No new RLS rules created for this use case; reuse canonical pattern.
 

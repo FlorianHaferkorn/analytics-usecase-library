@@ -117,6 +117,28 @@ required_kpis:
     target: = target
     interpretation: High density signals process stability issues
     lineage: fact_quality[Defect Count], fact_quality[Units]
+
+  - id: ops.planned_output.units
+    name: Planned Output Units
+    purpose: Volume baseline
+    definition_short: Planned production output units
+    unit: units
+    grain: line_day
+    agg: sum
+    target: Meet plan
+    interpretation: Planned volume for yield context
+    lineage: fact_ops[Planned Output Units]
+
+  - id: sales.units
+    name: Sales Units
+    purpose: Demand context
+    definition_short: Units sold in the period
+    unit: units
+    grain: month
+    agg: sum
+    target: Meet plan
+    interpretation: Demand context for quality impact
+    lineage: fact_sales[Sales Units]
 ```
 
 ---

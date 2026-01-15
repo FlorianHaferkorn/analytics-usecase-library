@@ -640,4 +640,38 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.85
     last_review: 19.11.2025
+
+- kpi_id: sales.units
+  kpi_key: Sales Units
+  kpi_type: supporting
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  use_case_ref:
+  - OPS-003
+  - SCM-001
+  - SCM-002
+  - SCM-003
+  calc_type: count
+  business:
+    purpose: Measures sold units volume in the period.
+    definition: Sum of sold units across transactions.
+    grain_scope: Transaction line; aggregated by period and segment.
+    unit_format: units
+    interpretation: Higher values indicate higher volume sold.
+  technical:
+    dax_name: Sales Units
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Sales
+    data_owner: Commercial BI
+    steward: Sales Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
 ```

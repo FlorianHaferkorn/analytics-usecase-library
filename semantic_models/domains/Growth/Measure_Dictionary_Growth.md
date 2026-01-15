@@ -405,4 +405,27 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: "draft"
     version: "v1.2"
     last_review: "TBD"
+- measure_name: "Sales Units"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.units"
+  semantic_model: "Growth_SemanticModel"
+  display_folder: "01_Growth"
+  category: "KPI"
+  expression:
+    dax: "SUM ( fact_sales[Sales Units] )"
+    formatString: "#,0"
+  documentation:
+    description: "Total units sold in the period."
+    notes: |
+      Grain: invoice_line. Unit: units.
+      Lineage: fact_sales[Sales Units].
+      QA: Exclude returns when needed; units aligned to product master.
+  dependencies:
+    columns:
+      - "fact_sales[Sales Units]"
+  governance:
+    owner: "Growth Analytics"
+    status: "draft"
+    version: "v0.1"
+    last_review: "TBD"
 ```

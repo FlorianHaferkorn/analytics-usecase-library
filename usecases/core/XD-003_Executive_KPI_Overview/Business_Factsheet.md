@@ -137,6 +137,39 @@ required_kpis:
     target: Risk tolerance per segment
     interpretation: Lower is better; high risk requires retention action.
     lineage: fact_hr[Attrition Risk %], fact_hr[Leavers], fact_hr[Headcount]
+
+  - id: enterprise.action_routed.count
+    name: Actions Routed Count
+    purpose: Execution volume
+    definition_short: Count of routed action instances.
+    unit: count
+    grain: month
+    agg: sum
+    target: Monitor trend
+    interpretation: Higher volume reflects more interventions underway.
+    lineage: fact_action[Action ID]
+
+  - id: enterprise.action_outcome_rate.pct
+    name: Action Outcome Rate %
+    purpose: Execution effectiveness
+    definition_short: Successful actions / routed actions.
+    unit: "%"
+    grain: month
+    agg: avg
+    target: >= target
+    interpretation: Higher is better; low rates indicate weak execution.
+    lineage: fact_action[Outcome Success Flag], fact_action[Action ID]
+
+  - id: enterprise.value_at_risk.index
+    name: Enterprise Value-at-Risk Index
+    purpose: Cross-domain risk concentration
+    definition_short: Weighted index of domain risk signals.
+    unit: index
+    grain: month
+    agg: avg
+    target: <= risk threshold
+    interpretation: Higher index indicates elevated enterprise risk.
+    lineage: fact_risk[Value at Risk Index]
 ```
 
 ---

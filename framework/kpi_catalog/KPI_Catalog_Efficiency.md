@@ -1,4 +1,4 @@
-# KPI Catalog - Efficiency
+﻿# KPI Catalog - Efficiency
 
 ---
 
@@ -80,6 +80,419 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.97
     last_review: 12.10.2025
+    
+- kpi_id: ops.failure.count
+  kpi_key: Failure Count
+  kpi_type: diagnostic
+  impact_dimension: Efficiency
+  domain_tag:
+  - Operational Efficiency
+  use_case_ref:
+  - OPS-002
+  calc_type: count
+  business:
+    purpose: Counts equipment or process failures in the period.
+    definition: Count of recorded failure events.
+    grain_scope: Asset or line; aggregated by period.
+    unit_format: count
+    interpretation: Higher counts indicate lower reliability.
+  technical:
+    dax_name: Failure Count
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Operations
+    data_owner: Operations BI
+    steward: Maintenance Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - Failures reconcile with maintenance logs.
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
+
+- kpi_id: ops.inventory.value.amount
+  kpi_key: Inventory Value Amount
+  kpi_type: diagnostic
+  impact_dimension: Efficiency
+  domain_tag:
+  - Supply Chain
+  use_case_ref:
+  - OPS-002
+  calc_type: amount
+  business:
+    purpose: Tracks inventory value for maintenance-relevant items.
+    definition: Sum of inventory value amount for the selected scope.
+    grain_scope: SKU/location; aggregated by period.
+    unit_format: EUR (2 decimals)
+    interpretation: Higher values indicate more capital tied in spare parts.
+  technical:
+    dax_name: Inventory Value Amount
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Supply Chain
+    data_owner: Supply Chain BI
+    steward: Inventory Planner
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
+
+- kpi_id: ops.planned_output.units
+  kpi_key: Planned Output Units
+  kpi_type: supporting
+  impact_dimension: Efficiency
+  domain_tag:
+  - Operational Efficiency
+  use_case_ref:
+  - OPS-001
+  - OPS-003
+  calc_type: count
+  business:
+    purpose: Captures planned production output volume.
+    definition: Sum of planned output units for the period.
+    grain_scope: Line/site; aggregated by period.
+    unit_format: units
+    interpretation: Baseline for comparing actual throughput.
+  technical:
+    dax_name: Planned Output Units
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Operations
+    data_owner: Operations BI
+    steward: Production Planner
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
+
+- kpi_id: ops.pm.task.count
+  kpi_key: Preventive Maintenance Task Count
+  kpi_type: supporting
+  impact_dimension: Efficiency
+  domain_tag:
+  - Operational Efficiency
+  use_case_ref:
+  - OPS-002
+  calc_type: count
+  business:
+    purpose: Counts preventive maintenance tasks executed or scheduled.
+    definition: Count of PM tasks in the period.
+    grain_scope: Asset; aggregated by period.
+    unit_format: count
+    interpretation: Higher counts indicate more planned maintenance activity.
+  technical:
+    dax_name: Preventive Maintenance Task Count
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Maintenance
+    data_owner: Maintenance BI
+    steward: Maintenance Planner
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
+
+- kpi_id: ops.production.volume
+  kpi_key: Production Volume Units
+  kpi_type: supporting
+  impact_dimension: Efficiency
+  domain_tag:
+  - Operational Efficiency
+  use_case_ref:
+  - FIN-002
+  - OPS-001
+  calc_type: count
+  business:
+    purpose: Measures total produced volume in units.
+    definition: Sum of produced units for the period.
+    grain_scope: Line/site; aggregated by period.
+    unit_format: units
+    interpretation: Higher values indicate higher output.
+  technical:
+    dax_name: Production Volume Units
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Manufacturing
+    data_owner: Manufacturing BI
+    steward: Production Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
+
+- kpi_id: ops.quality.defect_rate.pct
+  kpi_key: Quality Defect Rate %
+  kpi_type: diagnostic
+  impact_dimension: Efficiency
+  domain_tag:
+  - Operational Efficiency
+  use_case_ref:
+  - FIN-002
+  - OPS-001
+  calc_type: rate
+  business:
+    purpose: Measures share of defective units in production.
+    definition: Defective Units / Total Produced Units.
+    grain_scope: Line/shift; aggregated by period.
+    unit_format: '% (1 decimal)'
+    interpretation: Lower values indicate better quality.
+  technical:
+    dax_name: Quality Defect Rate %
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Quality
+    data_owner: Quality BI
+    steward: Quality Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
+
+- kpi_id: ops.safety.incident.count
+  kpi_key: Safety Incident Count
+  kpi_type: diagnostic
+  impact_dimension: Efficiency
+  domain_tag:
+  - Operational Efficiency
+  use_case_ref:
+  - OPS-002
+  calc_type: count
+  business:
+    purpose: Counts safety incidents recorded in the period.
+    definition: Count of recorded safety incidents.
+    grain_scope: Site; aggregated by period.
+    unit_format: count
+    interpretation: Higher counts indicate higher safety risk.
+  technical:
+    dax_name: Safety Incident Count
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: EHS Manager
+    data_owner: EHS BI
+    steward: Safety Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
+
+- kpi_id: ops.service_level.pct
+  kpi_key: Operations Service Level %
+  kpi_type: diagnostic
+  impact_dimension: Efficiency
+  domain_tag:
+  - Operational Efficiency
+  use_case_ref:
+  - FIN-001
+  - FIN-002
+  calc_type: rate
+  business:
+    purpose: Measures on-time or in-full performance for operational delivery.
+    definition: On-Time or In-Full Deliveries / Total Deliveries.
+    grain_scope: Site/product; aggregated by period.
+    unit_format: '% (1 decimal)'
+    interpretation: Higher values indicate better service performance.
+  technical:
+    dax_name: Operations Service Level %
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Operations
+    data_owner: Operations BI
+    steward: Operations Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
+
+- kpi_id: ops.yield.pct
+  kpi_key: Yield %
+  kpi_type: diagnostic
+  impact_dimension: Efficiency
+  domain_tag:
+  - Operational Efficiency
+  use_case_ref:
+  - FIN-002
+  - OPS-002
+  calc_type: rate
+  business:
+    purpose: Measures ratio of good output to total input.
+    definition: Good Units / Total Units Produced.
+    grain_scope: Line/shift; aggregated by period.
+    unit_format: '% (1 decimal)'
+    interpretation: Higher yield indicates better process efficiency.
+  technical:
+    dax_name: Yield %
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Manufacturing
+    data_owner: Manufacturing BI
+    steward: Process Engineer
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
+
+- kpi_id: order.lines
+  kpi_key: Order Lines Count
+  kpi_type: supporting
+  impact_dimension: Efficiency
+  domain_tag:
+  - Supply Chain
+  use_case_ref:
+  - SCM-002
+  - SCM-003
+  calc_type: count
+  business:
+    purpose: Counts order lines processed in the period.
+    definition: Count of order line items.
+    grain_scope: Order line; aggregated by period and channel.
+    unit_format: count
+    interpretation: Higher counts indicate higher order volume.
+  technical:
+    dax_name: Order Lines Count
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Supply Chain
+    data_owner: Supply Chain BI
+    steward: Order Management Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
+
+- kpi_id: plans.count
+  kpi_key: Plans Count
+  kpi_type: supporting
+  impact_dimension: Efficiency
+  domain_tag:
+  - Forecast Planning
+  use_case_ref:
+  - SCM-002
+  - SCM-003
+  calc_type: count
+  business:
+    purpose: Counts planning cycles or plan versions in the period.
+    definition: Count of plan records or plan versions.
+    grain_scope: Plan; aggregated by period.
+    unit_format: count
+    interpretation: Higher counts indicate more planning activity.
+  technical:
+    dax_name: Plans Count
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Supply Planning Lead
+    data_owner: Supply Chain BI
+    steward: Planner
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
+
+- kpi_id: shipments.count
+  kpi_key: Shipments Count
+  kpi_type: supporting
+  impact_dimension: Efficiency
+  domain_tag:
+  - Supply Chain
+  use_case_ref:
+  - SCM-001
+  - SCM-002
+  - SCM-003
+  calc_type: count
+  business:
+    purpose: Counts shipments executed in the period.
+    definition: Count of shipment records.
+    grain_scope: Shipment; aggregated by period and carrier.
+    unit_format: count
+    interpretation: Higher counts indicate higher fulfillment activity.
+  technical:
+    dax_name: Shipments Count
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Logistics
+    data_owner: Logistics BI
+    steward: Logistics Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
+
+- kpi_id: scm.service_level.pct
+  kpi_key: Supply Chain Service Level %
+  kpi_type: diagnostic
+  impact_dimension: Efficiency
+  domain_tag:
+  - Supply Chain
+  use_case_ref:
+  - FIN-001
+  calc_type: rate
+  business:
+    purpose: Measures supply chain service level performance.
+    definition: On-Time In-Full Orders / Total Orders.
+    grain_scope: Customer/order; aggregated by period.
+    unit_format: '% (1 decimal)'
+    interpretation: Higher values indicate better service reliability.
+  technical:
+    dax_name: Supply Chain Service Level %
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Supply Chain
+    data_owner: Supply Chain BI
+    steward: Service Level Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules: []
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.6
+    last_review: TBD
 ```
 
 ## KPIs - Supporting / Diagnostic
@@ -733,10 +1146,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     data_owner: Finance BI
     steward: Working Capital Analyst
     review_cycle: quarterly
-    validation_process: manual review
+    validation_process: manual review; cross-domain view (canonical definition in KPI_Catalog_Liquidity).; cross-domain view (canonical definition in KPI_Catalog_Liquidity).; cross-domain view (canonical definition in KPI_Catalog_Liquidity).
     qa_rules:
     - DSO bounded between 0 and 180 days; reconciles to AR and revenue balances within +/- 1 day.
-    note: Cross-domain view. Canonical definition in KPI_Catalog_Liquidity.
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
@@ -764,11 +1176,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   governance:
     business_owner: Head of Supply Chain
     data_owner: Finance BI
-    note: Cross-domain view. Canonical definition in KPI_Catalog_Liquidity.
-    note: Cross-domain view. Canonical definition in KPI_Catalog_Liquidity.
     steward: Inventory Analyst
     review_cycle: quarterly
-    validation_process: manual review
+    validation_process: manual review; cross-domain view (canonical definition in KPI_Catalog_Liquidity).; cross-domain view (canonical definition in KPI_Catalog_Liquidity).
     qa_rules:
     - DIO bounded between 0 and 365 days; reconciles to inventory and COGS balances within +/- 1 day.
     version: v1.0
@@ -798,11 +1208,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   governance:
     business_owner: Head of Procurement Controlling
     data_owner: Finance BI
-    note: Cross-domain view. Canonical definition in KPI_Catalog_Liquidity.
-    note: Cross-domain view. Canonical definition in KPI_Catalog_Liquidity.
     steward: Working Capital Analyst
     review_cycle: quarterly
-    validation_process: manual review
+    validation_process: manual review; cross-domain view (canonical definition in KPI_Catalog_Liquidity).; cross-domain view (canonical definition in KPI_Catalog_Liquidity).
     qa_rules:
     - DPO bounded between 0 and 180 days; reconciles to AP and COGS balances within +/- 1 day.
     version: v1.0
@@ -832,8 +1240,6 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     lineage: []
   governance:
     business_owner: Head of Treasury
-    note: Cross-domain view. Canonical definition in KPI_Catalog_Liquidity.
-    note: Cross-domain view. Canonical definition in KPI_Catalog_Liquidity.
     data_owner: Finance BI
     steward: Working Capital Analyst
     review_cycle: monthly
@@ -2244,7 +2650,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: plan.forecast.service_impact.pct
   kpi_key: Service Impact %
-  kpi_type: percentage
+  kpi_type: diagnostic
   impact_dimension: Efficiency
   domain_tag:
     - Forecast Planning
@@ -2252,26 +2658,36 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - SCM-003
     - SCM-002
     - SCM-001
+  calc_type: rate
   business:
     purpose: Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast under-coverage (units-based demand forecast).
     definition: Service Impact % = Stockout Impact % x (Under-Forecast Lost Demand / Total Lost Demand). Under-forecast is defined as a negative forecast error below a configurable threshold; all inputs are unit-based (qty), not revenue.
     grain_scope: Calculated at location_sku_day or sku_week; reported at sku_month aggregated by Date, Org, Product.
     unit_format: "%"
-    qa:
+    interpretation: Lower values are better; high impact indicates forecast under-coverage driving service loss.
+  technical:
+    dax_name: Service Impact %
+    depends_on_measures:
+      - Stockout Impact %
+      - Under-Forecast Lost Demand Share
+    lineage:
+      - fact_forecast.Forecast Qty
+      - fact_demand.Actual Demand Qty
+      - fact_stockout.Lost Demand Qty
+      - fact_stockout.Demand Qty
+      - fact_stockout.Stockout Flag (or fact_otif.OTIF Flag)
+  governance:
+    business_owner: Head of Supply Chain Planning
+    data_owner: Supply Chain BI
+    steward: Demand Planner
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
       - KPI only valid when Total Demand Qty > 0.
       - Service Impact % must be <= Stockout Impact %.
       - Under-Forecast Lost Demand Share must be between 0 % and 100 %.
-  technical:
-    required_columns:
-      - fact_forecast[Forecast Qty]
-      - fact_demand[Actual Demand Qty]
-      - fact_stockout[Lost Demand Qty]
-      - fact_stockout[Demand Qty]
-      - fact_stockout[Stockout Flag] or fact_otif[OTIF Flag]
-    lineage: fact_forecast, fact_demand or sales, fact_stockout/fact_fulfillment.
-    formatString: "0.0 %"
-  governance:
-    owner: Supply Chain Planning
-    certified: false
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.7
     last_review: TBD
 ```

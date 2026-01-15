@@ -144,12 +144,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     data_owner: Finance BI
     steward: Working Capital Analyst
     review_cycle: quarterly
-    validation_process: manual review
-      qa_rules:
-      - DSO bounded between 0 and 180 days; reconciles to AR and revenue balances within +/- 1 day.
-      canonical: true
-      note: Canonical Working Capital KPI; cross-domain views in other domains must reference this definition.
-      version: v1.0
+    validation_process: manual review; canonical working capital KPI; cross-domain views must reference this definition.
+    qa_rules:
+    - DSO bounded between 0 and 180 days; reconciles to AR and revenue balances within +/- 1 day.
+    version: v1.0
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
@@ -178,12 +176,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     data_owner: Finance BI
     steward: Working Capital Analyst
     review_cycle: quarterly
-    validation_process: manual review
-      qa_rules:
-      - DIO bounded between 0 and 365 days; reconciles to inventory and COGS balances within +/- 1 day.
-      canonical: true
-      note: Canonical Working Capital KPI; cross-domain views in other domains must reference this definition.
-      version: v1.0
+    validation_process: manual review; canonical working capital KPI; cross-domain views must reference this definition.
+    qa_rules:
+    - DIO bounded between 0 and 365 days; reconciles to inventory and COGS balances within +/- 1 day.
+    version: v1.0
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
@@ -212,12 +208,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     data_owner: Finance BI
     steward: Working Capital Analyst
     review_cycle: quarterly
-    validation_process: manual review
-      qa_rules:
-      - DPO bounded between 0 and 180 days; reconciles to AP and COGS balances within +/- 1 day.
-      canonical: true
-      note: Canonical Working Capital KPI; cross-domain views in other domains must reference this definition.
-      version: v1.0
+    validation_process: manual review; canonical working capital KPI; cross-domain views must reference this definition.
+    qa_rules:
+    - DPO bounded between 0 and 180 days; reconciles to AP and COGS balances within +/- 1 day.
+    version: v1.0
   metadata_quality:
     completeness_score: 0.8
     last_review: 04.11.2025
@@ -246,11 +240,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     data_owner: Finance BI
     steward: Working Capital Analyst
     review_cycle: quarterly
-    validation_process: manual review
-      qa_rules:
-      - CCC bounded within plausible range; reconciles to constituent DSO/DIO/DPO values.
-      canonical: true
-      note: Canonical Working Capital KPI; cross-domain views in other domains must reference this definition.
+    validation_process: manual review; canonical working capital KPI; cross-domain views must reference this definition.
+    qa_rules:
+    - CCC bounded within plausible range; reconciles to constituent DSO/DIO/DPO values.
     version: v1.0
   metadata_quality:
     completeness_score: 0.8

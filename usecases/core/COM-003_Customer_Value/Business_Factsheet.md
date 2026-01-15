@@ -141,6 +141,10 @@ required_kpis:
 
 ## 4. Business Logic & Thresholds
 
+### 4.1 Logic Description
+
+### 4.2 Formal Trigger Rules (Machine-Readable)
+
 - Flag segments with retention below target or churned count rising for 2 consecutive months.
 - Prioritise high revenue-at-risk segments for retention playbooks.
 - Target top-N customers with declining CLV and rising complaints.

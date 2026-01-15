@@ -106,6 +106,72 @@ required_kpis:
     target: = target
     interpretation: Low productivity increases unit cost
     lineage: fact_output[Units], fact_labor[Labor Hours]
+
+  - id: cost.base_volume.amount
+    name: Cost Base Volume Amount
+    purpose: Variance baseline
+    definition_short: Baseline cost volume amount
+    unit: EUR
+    grain: cost_center_month
+    agg: sum
+    target: = baseline
+    interpretation: Baseline for cost variance comparisons
+    lineage: fact_cost[Base Volume Amount]
+
+  - id: cost.opex.base.amount
+    name: Opex Base Amount
+    purpose: OpEx baseline
+    definition_short: Baseline operating expense amount
+    unit: EUR
+    grain: cost_center_month
+    agg: sum
+    target: = baseline
+    interpretation: Baseline for OpEx variance tracking
+    lineage: fact_opex[Opex Base Amount]
+
+  - id: ops.production.volume
+    name: Production Volume Units
+    purpose: Output baseline
+    definition_short: Total produced units
+    unit: units
+    grain: line_month
+    agg: sum
+    target: Meet plan
+    interpretation: Volume context for unit cost movements
+    lineage: fact_ops[Output Units]
+
+  - id: ops.quality.defect_rate.pct
+    name: Quality Defect Rate %
+    purpose: Quality cost driver
+    definition_short: Defect Units / Output Units
+    unit: %
+    grain: line_month
+    agg: avg
+    target: <= target
+    interpretation: Higher defect rates raise rework and unit cost
+    lineage: fact_quality[Defect Count], fact_ops[Output Units]
+
+  - id: ops.service_level.pct
+    name: Operations Service Level %
+    purpose: Service guardrail
+    definition_short: On-Time Deliveries / Total Deliveries
+    unit: %
+    grain: shipment_month
+    agg: avg
+    target: >= service target
+    interpretation: Cost actions should not reduce service
+    lineage: fact_ops[On Time Deliveries], fact_ops[Total Deliveries]
+
+  - id: ops.yield.pct
+    name: Yield %
+    purpose: Process efficiency
+    definition_short: Good Units / Output Units
+    unit: %
+    grain: line_month
+    agg: avg
+    target: >= target
+    interpretation: Low yield increases scrap and unit cost
+    lineage: fact_ops[Good Units], fact_ops[Output Units]
 ```
 
 ---

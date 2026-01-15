@@ -25,9 +25,12 @@ factsheet_type: business
 
 ## 1. Business Summary
 
-**Purpose:** Control cash and liquidity by monitoring balances, operating cash flow, and working capital drivers (DSO, DIO, DPO, CCC).  
-**Business Value:** Better liquidity visibility, reduced financing needs, faster cash conversion, and improved resilience.  
-**Out of Scope:** Credit risk scoring (COR-016); investment/CapEx tracking (COR-009); supply chain OTIF specifics (SCM-002).
+**Purpose:** Control cash and liquidity by monitoring balances, operating cash
+flow, and working capital drivers (DSO, DIO, DPO, CCC).  
+**Business Value:** Better liquidity visibility, reduced financing needs, faster
+cash conversion, and improved resilience.  
+**Out of Scope:** Credit risk scoring (COR-016); investment/CapEx tracking
+(COR-009); supply chain OTIF specifics (SCM-002).
 
 ---
 
@@ -128,6 +131,28 @@ required_kpis:
     target: Optimise vs terms and risk
     interpretation: Higher DPO improves cash, but watch supplier risk
     lineage: fact_ap[AP], COGS
+
+  - id: scm.service_level.pct
+    name: Supply Chain Service Level %
+    purpose: Service guardrail
+    definition_short: OTIF Orders / Total Orders
+    unit: %
+    grain: order_month
+    agg: avg
+    target: >= service target
+    interpretation: Low service level constrains inventory reductions
+    lineage: fact_fulfillment[OTIF Flag]
+
+  - id: scm.supplier_risk.score
+    name: Supplier Risk Score
+    purpose: Supplier stability guardrail
+    definition_short: Composite supplier risk score
+    unit: score
+    grain: supplier_month
+    agg: avg
+    target: <= risk threshold
+    interpretation: Higher scores signal higher supplier risk
+    lineage: fact_supplier_risk[Risk Score]
 ```
 
 ---
@@ -189,12 +214,33 @@ triggers:
 
 Link business behavior to measurable outcomes.
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| W1 | Working Capital Improvement | fin.cash.vs_plan.pct < 0 OR CCC > target | Drive AR/Inventory/AP actions to improve CCC | Improve cash vs plan, reduce CCC | L2 | Finance / Ops |
-| C1 | Collections Acceleration | wc.dso.days > target | Accelerate collections, reduce disputes, enforce terms | Reduce DSO, improve cash | L2 | Credit/Collections |
-| I1 | Inventory Rightsizing | wc.dio.days > target | Reduce inventory, improve replenishment, liquidation | Reduce DIO, improve CCC | L2 | Supply/Inventory |
-| W2 | Payables Optimisation | wc.dpo.days < floor | Negotiate terms, extend where feasible | Improve DPO, CCC | L2 | Procurement/AP |
+- **W1 — Working Capital Improvement**
+  - Trigger (formal): fin.cash.vs_plan.pct < 0 OR CCC > target
+  - Description: Drive AR/Inventory/AP actions to improve CCC
+  - Expected KPI Impact: Improve cash vs plan, reduce CCC
+  - Level (L1/L2/L3): L2
+  - Owner: Finance / Ops
+
+- **C1 — Collections Acceleration**
+  - Trigger (formal): wc.dso.days > target
+  - Description: Accelerate collections, reduce disputes, enforce terms
+  - Expected KPI Impact: Reduce DSO, improve cash
+  - Level (L1/L2/L3): L2
+  - Owner: Credit/Collections
+
+- **I1 — Inventory Rightsizing**
+  - Trigger (formal): wc.dio.days > target
+  - Description: Reduce inventory, improve replenishment, liquidation
+  - Expected KPI Impact: Reduce DIO, improve CCC
+  - Level (L1/L2/L3): L2
+  - Owner: Supply/Inventory
+
+- **W2 — Payables Optimisation**
+  - Trigger (formal): wc.dpo.days < floor
+  - Description: Negotiate terms, extend where feasible
+  - Expected KPI Impact: Improve DPO, CCC
+  - Level (L1/L2/L3): L2
+  - Owner: Procurement/AP
 
 ---
 
@@ -210,12 +256,37 @@ Link business behavior to measurable outcomes.
 
 ### 6.2 30-Second Layer (Main Visuals)
 
-| Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
-|-------------|-------------|--------|--------|---------|----------------|-------|
-| Cash vs Plan Trend | Line | dim_date[Month] | [Cash], [Plan Cash] | Region/Entity | L12M | Liquidity view |
-| CCC vs Target by Entity | Column | dim_org[Entity] | [CCC], [Target] | Region | Current quarter | Decompose CCC |
-| DSO/DIO/DPO by Region | Column clustered | dim_org[Region] | [DSO], [DIO], [DPO] | Entity | Current quarter | Driver view |
-| OCF vs Plan | Column | dim_date[Month] | [OCF], [Plan OCF] | Region | L12M | Cash generation |
+- **Cash vs Plan Trend**
+  - Visual Type: Line
+  - X-Axis: dim_date[Month]
+  - Y-Axis: [Cash], [Plan Cash]
+  - Segment: Region/Entity
+  - Default Filter: L12M
+  - Notes: Liquidity view
+
+- **CCC vs Target by Entity**
+  - Visual Type: Column
+  - X-Axis: dim_org[Entity]
+  - Y-Axis: [CCC], [Target]
+  - Segment: Region
+  - Default Filter: Current quarter
+  - Notes: Decompose CCC
+
+- **DSO/DIO/DPO by Region**
+  - Visual Type: Column clustered
+  - X-Axis: dim_org[Region]
+  - Y-Axis: [DSO], [DIO], [DPO]
+  - Segment: Entity
+  - Default Filter: Current quarter
+  - Notes: Driver view
+
+- **OCF vs Plan**
+  - Visual Type: Column
+  - X-Axis: dim_date[Month]
+  - Y-Axis: [OCF], [Plan OCF]
+  - Segment: Region
+  - Default Filter: L12M
+  - Notes: Cash generation
 
 ### 6.3 Required Slicers (Mandatory)
 
@@ -259,27 +330,35 @@ required_dimensions:
   - dim_product (for DIO drill)
 
   - security_user_org
-required_grain: day for cash; month for WC metrics; customer/supplier drill for DSO/DPO; location_sku for DIO
+required_grain: >
+  day for cash; month for WC metrics; customer/supplier drill for DSO/DPO;
+  location_sku for DIO
 required_time_range: 12-24 months history + plan
-required_slicers: Date, Region/Entity, Customer/Supplier, Product (optional)
+required_slicers: >
+  Date, Region/Entity, Customer/Supplier, Product (optional)
 ```
 
 ---
 
 ## 8. Dependencies, Assumptions & Constraints
 
-- Plan and actual cash/OCF available; WC components aligned to same period/entity.
+- Plan and actual cash/OCF available; WC components aligned to same
+  period/entity.
 - AR/AP aging available; disputed receivables flagged; strategic stock flagged.
-- OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org).
+- OneLake canonical dims used (dim_date, dim_org, dim_product,
+  security_user_org).
 - Data latency =24h; currency EUR.
 
 ---
 
 ## 9. Success Criteria
 
-- Impact: Positive cash vs plan; CCC reduced toward target; DSO/DIO down and DPO optimized.  
-- Adoption: Used in monthly treasury/WC reviews; action codes triggered with <5% false positives.  
-- Quality: KPI definitions consistent across finance and supply chain; reconciled to source totals.  
+- Impact: Positive cash vs plan; CCC reduced toward target; DSO/DIO down and DPO
+  optimized.  
+- Adoption: Used in monthly treasury/WC reviews; action codes triggered with <5%
+  false positives.  
+- Quality: KPI definitions consistent across finance and supply chain;
+  reconciled to source totals.  
 - Decision Frequency: Monthly and weekly liquidity reviews.
 
 ---
@@ -289,5 +368,3 @@ required_slicers: Date, Region/Entity, Customer/Supplier, Product (optional)
 - Misalignment of AR/AP aging with revenue/COGS periods.  
 - DIO misread if inventory/COGS not aligned or strategic stock excluded.  
 - Overextension of DPO harming supplier relationships.  
-
-
