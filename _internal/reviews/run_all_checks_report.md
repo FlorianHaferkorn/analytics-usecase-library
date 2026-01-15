@@ -1,33 +1,59 @@
-﻿**********************
-nStart der Windows PowerShell-Aufzeichnung
-Startzeit: 20260115165629
-Benutzername: NAGARRO\florianhaferkorn
-RunAs-Benutzer: NAGARRO\florianhaferkorn
-Konfigurationsname: 
-Computer: NES-NBBSTPQ04 (Microsoft Windows NT 10.0.26100.0)
-Hostanwendung: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\_internal\tools\run_all_checks.ps1
-Prozess-ID: 30668
-PSVersion: 5.1.26100.7462
-PSEdition: Desktop
-PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.7462
-BuildVersion: 10.0.26100.7462
-CLRVersion: 4.0.30319.42000
-WSManStackVersion: 3.0
-PSRemotingProtocolVersion: 2.3
-SerializationVersion: 1.1.0.1
-**********************
-Running analytics-usecase-library checks...
-UseCases:   C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases
-Factsheets: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core
-KPI Catalog: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog
+﻿# Run All Checks Report
 
->> _internal/tools/validation/validate_factsheets.ps1
+- Timestamp: 2026-01-15T16:56:51
+- Repo: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library
+- UseCasesRoot: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases
+- FactsheetsRoot: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core
+- KpiCatalogRoot: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog
+- DistRoot: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist
+- Status Report: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\_internal\reviews\run_all_checks_status.md
+- Transcript: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\_internal\reviews\run_all_checks_transcript.txt
+
+## Summary
+
+- Total checks: 16
+- Failed checks: 2
+
+## Checks
+
+| Check | Status | Duration (s) | Arguments | Error |
+| --- | --- | ---: | --- | --- |
+| _internal/tools/validation/validate_factsheets.ps1 | ok | 0.16 |  |  |
+| _internal/tools/validation/validate_kpi_catalog.ps1 | ok | 1.06 |  |  |
+| _internal/tools/validation/check_factsheet_vs_kpi.ps1 | ok | 4.7 |  |  |
+| _internal/tools/validation/check_measures_vs_kpi.ps1 | ok | 0.43 |  |  |
+| _internal/tools/maintenance/check_docs_refs.ps1 | ok | 0.17 |  |  |
+| _internal/tools/validation/check_docs_kpi_refs.ps1 | ok | 1.85 |  |  |
+| _internal/tools/validation/check_usecase_inventory_vs_factsheets.ps1 | ok | 0.31 |  |  |
+| _internal/tools/validation/check_kpi_catalog_unused_in_factsheets.ps1 | ok | 4.08 |  |  |
+| _internal/tools/validation/check_docs_usecase_refs.ps1 | ok | 0.55 |  |  |
+| _internal/tools/validation/check_action_codes_vs_kpi.ps1 | ok | 2.03 |  |  |
+| _internal/tools/validation/check_factsheet_action_codes.ps1 | ok | 0.8 |  |  |
+| _internal/tools/validation/check_factsheet_layout.ps1 | ok | 2.93 |  |  |
+| _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 | failed | 1.18 | -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains | Non-zero exit code: 1 |
+| _internal/tools/validation/check_dax_vs_measure_dictionary.ps1 | failed | 0.71 |  | Non-zero exit code: 1 |
+| _internal/tools/validation/check_measure_dictionary_vs_gold.ps1 | ok | 0.34 | -GoldRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\data_contracts\domains -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
+| _internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1 | ok | 0.12 | -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist |  |
+
+## Detailed Output
+
+### _internal/tools/validation/validate_factsheets.ps1
+
+```text
 FactSheet validation passed.
 
->> _internal/tools/validation/validate_kpi_catalog.ps1
+```
+
+### _internal/tools/validation/validate_kpi_catalog.ps1
+
+```text
 KPI Catalog validation passed.
 
->> _internal/tools/validation/check_factsheet_vs_kpi.ps1
+```
+
+### _internal/tools/validation/check_factsheet_vs_kpi.ps1
+
+```text
 Scanning Business/Technical Factsheets in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases ...
 
 UseCase                            Measure                            Covered
@@ -155,13 +181,21 @@ XD-003_Executive_KPI_Overview      sales.net_sales.delta_pct.ly          True
 XD-003_Executive_KPI_Overview      svc.sla.attainment.pct                True
 All required measures are covered in KPI Catalog.
 
->> _internal/tools/validation/check_measures_vs_kpi.ps1
+```
+
+### _internal/tools/validation/check_measures_vs_kpi.ps1
+
+```text
 Checking measures vs KPI catalogs...
   Dist root:      C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist
   KPI catalog:    C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog
 No _Measures.tmdl files found under dist.
 
->> _internal/tools/maintenance/check_docs_refs.ps1
+```
+
+### _internal/tools/maintenance/check_docs_refs.ps1
+
+```text
 Checking documentation and tooling references...
   OK   docs/README.md (Docs overview)
   OK   docs/company/company_strategy.md (Business Strategy / Strategic KPIs / Alignment Map (canonical))
@@ -179,15 +213,27 @@ Checking documentation and tooling references...
 
 Documentation and tooling references look consistent.
 
->> _internal/tools/validation/check_docs_kpi_refs.ps1
+```
+
+### _internal/tools/validation/check_docs_kpi_refs.ps1
+
+```text
 Docs -> KPI Catalog consistency
 OK: docs KPI references are consistent.
 
->> _internal/tools/validation/check_usecase_inventory_vs_factsheets.ps1
+```
+
+### _internal/tools/validation/check_usecase_inventory_vs_factsheets.ps1
+
+```text
 UseCase Inventory <-> Factsheets consistency
 OK: inventory and factsheets are consistent.
 
->> _internal/tools/validation/check_kpi_catalog_unused_in_factsheets.ps1
+```
+
+### _internal/tools/validation/check_kpi_catalog_unused_in_factsheets.ps1
+
+```text
 KPI Catalog -> Factsheets coverage
 Note: This list checks core factsheets, core action codes, inventory mentions, and measure dictionaries.
 It does not consider KPI aliases or KPIs used only as intermediate inputs.
@@ -199,25 +245,45 @@ Coverage counts (unique KPI IDs):
   Total covered:        104
 OK: all KPI IDs are referenced in factsheets.
 
->> _internal/tools/validation/check_docs_usecase_refs.ps1
+```
+
+### _internal/tools/validation/check_docs_usecase_refs.ps1
+
+```text
 Docs -> UseCase references consistency
 OK: docs use case references are consistent.
 
->> _internal/tools/validation/check_action_codes_vs_kpi.ps1
+```
+
+### _internal/tools/validation/check_action_codes_vs_kpi.ps1
+
+```text
 Action Codes -> KPI Catalog consistency
 OK: action code KPI references are consistent.
 
->> _internal/tools/validation/check_factsheet_action_codes.ps1
+```
+
+### _internal/tools/validation/check_factsheet_action_codes.ps1
+
+```text
 Factsheets -> Action Codes consistency
 OK: factsheet action codes are consistent.
 
->> _internal/tools/validation/check_factsheet_layout.ps1
+```
+
+### _internal/tools/validation/check_factsheet_layout.ps1
+
+```text
 Template layout checks
 Note: no measure documents found for template at C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\templates\measure_templates\measure_template.md (no instances under semantic_models/measures).
 Note: no page instance documents found for templates under C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\templates\page_templates\page_types.
 OK: all checked documents match their template layout.
 
->> _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains
+```
+
+### _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1
+
+```text
 KPI Catalog <-> Measure Dictionary consistency
 Missing in KPI catalogs (present in Measure Dictionaries):
   - corp.benefit.realization.pct
@@ -359,18 +425,31 @@ Missing in KPI catalogs (present in Measure Dictionaries):
   - sec.incident.critical.count
   - sec.incident.mttr.hours
 
->> _internal/tools/validation/check_dax_vs_measure_dictionary.ps1
+```
+
+### _internal/tools/validation/check_dax_vs_measure_dictionary.ps1
+
+```text
 DAX definitions vs Measure Dictionaries
 OK: all DAX measures are present in their Measure Dictionaries.
 
->> _internal/tools/validation/check_measure_dictionary_vs_gold.ps1 -GoldRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\data_contracts\domains -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains
+```
+
+### _internal/tools/validation/check_measure_dictionary_vs_gold.ps1
+
+```text
 Measure Dictionary -> Gold Data Contracts consistency
 OK: all referenced tables/columns exist in gold contracts.
 
->> _internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1 -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist
+```
+
+### _internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1
+
+```text
 No _Measures.tmdl files found under dist. Skipping TMDL check.
 
 **********************
 Ende der Windows PowerShell-Aufzeichnung
 Endzeit: 20260115165651
 **********************
+```

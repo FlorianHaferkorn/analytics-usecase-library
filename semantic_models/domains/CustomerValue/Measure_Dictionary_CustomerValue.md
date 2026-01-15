@@ -24,6 +24,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "12.12.2025"
 
+
 - measure_name: "Customer Lifetime Value Amount"
   is_kpi_measure: true
   kpi_id_ref: "crm.clv.amount"
@@ -44,6 +45,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: "active"
     version: "v1.2"
     last_review: "12.12.2025"
+
 
 - measure_name: "Customer Lifetime Revenue Amount"
   is_kpi_measure: true
@@ -67,6 +69,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: "active"
     version: "v1.2"
     last_review: "12.12.2025"
+
 
 - measure_name: "Active Customers Count"
   is_kpi_measure: true
@@ -94,6 +97,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "12.12.2025"
 
+
 - measure_name: "Churned Customers Count"
   is_kpi_measure: true
   kpi_id_ref: "crm.churned_customers.count"
@@ -120,6 +124,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "12.12.2025"
 
+
 - measure_name: "Customer Retention %"
   is_kpi_measure: true
   kpi_id_ref: "crm.retention.pct"
@@ -144,6 +149,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: "active"
     version: "v1.2"
     last_review: "12.12.2025"
+
 
 - measure_name: "Revenue at Risk Amount"
   is_kpi_measure: true
@@ -176,6 +182,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "12.12.2025"
 
+
 - measure_name: "NPS Score"
   is_kpi_measure: true
   kpi_id_ref: "crm.nps.index"
@@ -196,6 +203,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: "active"
     version: "v1.2"
     last_review: "12.12.2025"
+
 
 - measure_name: "Customer Complaints Count"
   is_kpi_measure: true
@@ -218,6 +226,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "12.12.2025"
 
+
 - measure_name: "COGS Amount"
   is_kpi_measure: false
   kpi_id_ref: ""
@@ -238,6 +247,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: "active"
     version: "v1.2"
     last_review: "12.12.2025"
+
 
 - measure_name: "Margin Amount"
   is_kpi_measure: false
@@ -261,6 +271,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "12.12.2025"
 
+
 - measure_name: "Gross Margin %"
   is_kpi_measure: false
   kpi_id_ref: ""
@@ -283,493 +294,6 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "12.12.2025"
 
-- measure_name: "Active Customers Start Count"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.active_customers_start.count"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "01_Retention"
-  category: "KPI"
-  expression:
-    dax: |
-      VAR StartDate = MIN ( dim_date[Date] )
-      RETURN
-          CALCULATE (
-              DISTINCTCOUNT ( dim_customer[CustomerKey] ),
-              KEEPFILTERS ( fact_customer_events[Activity Flag] = TRUE() ),
-              dim_date[Date] = StartDate
-          )
-    formatString: "#,0"
-  documentation:
-    description: "Active customer base at the start of the period."
-    notes: "Uses period start snapshot or opening balance logic."
-  dependencies:
-    columns:
-      - "dim_customer[CustomerKey]"
-      - "fact_customer_events[Activity Flag]"
-      - "dim_date[Date]"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Active Customers End Count"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.active_customers_end.count"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "01_Retention"
-  category: "KPI"
-  expression:
-    dax: |
-      VAR EndDate = MAX ( dim_date[Date] )
-      RETURN
-          CALCULATE (
-              DISTINCTCOUNT ( dim_customer[CustomerKey] ),
-              KEEPFILTERS ( fact_customer_events[Activity Flag] = TRUE() ),
-              dim_date[Date] = EndDate
-          )
-    formatString: "#,0"
-  documentation:
-    description: "Active customer base at the end of the period."
-    notes: "Uses period end snapshot or closing balance logic."
-  dependencies:
-    columns:
-      - "dim_customer[CustomerKey]"
-      - "fact_customer_events[Activity Flag]"
-      - "dim_date[Date]"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Churn %"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.churn.pct"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "01_Retention"
-  category: "KPI"
-  expression:
-    dax: "DIVIDE ( [Churned Customers Count], [Active Customers Start Count] )"
-    formatString: "0.0 %"
-  documentation:
-    description: "Churned customers as share of starting active base."
-    notes: "Aligns with retention definition; uses opening base."
-  dependencies:
-    measures:
-      - "Churned Customers Count"
-      - "Active Customers Start Count"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Reactivated Customers Count"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.reactivated_customers.count"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "01_Retention"
-  category: "KPI"
-  expression:
-    dax: |
-      CALCULATE (
-          DISTINCTCOUNT ( dim_customer[CustomerKey] ),
-          KEEPFILTERS ( fact_customer_events[Reactivation Flag] = TRUE() )
-      )
-    formatString: "#,0"
-  documentation:
-    description: "Customers returning after churn/inactivity."
-    notes: "Requires reactivation flag in events."
-  dependencies:
-    columns:
-      - "dim_customer[CustomerKey]"
-      - "fact_customer_events[Reactivation Flag]"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Reactivation %"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.reactivation.pct"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "01_Retention"
-  category: "KPI"
-  expression:
-    dax: "DIVIDE ( [Reactivated Customers Count], [Churned Customers Count] )"
-    formatString: "0.0 %"
-  documentation:
-    description: "Share of churned customers that are reactivated."
-    notes: "Defines reactivation window (e.g., 6-12 months)."
-  dependencies:
-    measures:
-      - "Reactivated Customers Count"
-      - "Churned Customers Count"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "At-Risk Customers Count"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.at_risk_customers.count"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "01_Retention"
-  category: "KPI"
-  expression:
-    dax: |
-      VAR Threshold = 0.7
-      RETURN
-          CALCULATE (
-              DISTINCTCOUNT ( dim_customer[CustomerKey] ),
-              KEEPFILTERS ( fact_customer_events[Attrition Risk %] >= Threshold )
-          )
-    formatString: "#,0"
-  documentation:
-    description: "Customers flagged as at-risk based on attrition model."
-    notes: "Threshold defined by CRM governance."
-  dependencies:
-    columns:
-      - "dim_customer[CustomerKey]"
-      - "fact_customer_events[Attrition Risk %]"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "At-Risk Share %"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.at_risk_share.pct"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "01_Retention"
-  category: "KPI"
-  expression:
-    dax: "DIVIDE ( [At-Risk Customers Count], [Active Customers Count] )"
-    formatString: "0.0 %"
-  documentation:
-    description: "At-risk customers as a share of active base."
-    notes: "Uses active base in current context."
-  dependencies:
-    measures:
-      - "At-Risk Customers Count"
-      - "Active Customers Count"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Basket Size Amount"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.basket_size.amount"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "03_Commercial"
-  category: "KPI"
-  expression:
-    dax: |
-      VAR TotalSales = SUM ( fact_sales[Net Sales Amount] )
-      VAR TxnCount   = COUNTROWS ( fact_sales )
-      RETURN DIVIDE ( TotalSales, TxnCount )
-    formatString: "EUR #,0.00"
-  documentation:
-    description: "Average basket value per transaction."
-    notes: "Order/transaction grain required."
-  dependencies:
-    columns:
-      - "fact_sales[Net Sales Amount]"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Basket Size Units"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.basket_size.units"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "03_Commercial"
-  category: "KPI"
-  expression:
-    dax: |
-      VAR TotalUnits = SUM ( fact_sales[Quantity] )
-      VAR TxnCount   = COUNTROWS ( fact_sales )
-      RETURN DIVIDE ( TotalUnits, TxnCount )
-    formatString: "#,0.0"
-  documentation:
-    description: "Average basket size in units."
-    notes: "Order/transaction grain required."
-  dependencies:
-    columns:
-      - "fact_sales[Quantity]"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Cross-Sell Ratio %"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.cross_sell_ratio.pct"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "03_Commercial"
-  category: "KPI"
-  expression:
-    dax: |
-      VAR CustomerCats =
-          SUMMARIZE (
-              fact_sales,
-              dim_customer[CustomerKey],
-              "CatCount", DISTINCTCOUNT ( dim_product[Category] )
-          )
-      VAR MultiCat = COUNTROWS ( FILTER ( CustomerCats, [CatCount] > 1 ) )
-      VAR TotalCust = DISTINCTCOUNT ( dim_customer[CustomerKey] )
-      RETURN DIVIDE ( MultiCat, TotalCust )
-    formatString: "0.0 %"
-  documentation:
-    description: "Share of customers with cross-category purchases."
-    notes: "Requires category mapping at transaction level."
-  dependencies:
-    columns:
-      - "dim_customer[CustomerKey]"
-      - "fact_sales[ProductKey]"
-      - "dim_product[Category]"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Customer Revenue Share %"
-  is_kpi_measure: true
-  kpi_id_ref: "sales.customer.revenue_share.pct"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "03_Commercial"
-  category: "KPI"
-  expression:
-    dax: |
-      VAR CustRev = SUM ( fact_sales[Net Sales Amount] )
-      VAR TotalRev = CALCULATE ( SUM ( fact_sales[Net Sales Amount] ), ALL ( dim_customer ) )
-      RETURN DIVIDE ( CustRev, TotalRev )
-    formatString: "0.0 %"
-  documentation:
-    description: "Revenue contribution of a customer or segment."
-    notes: "Use with customer/segment filters."
-  dependencies:
-    columns:
-      - "fact_sales[Net Sales Amount]"
-      - "dim_customer[CustomerKey]"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Opportunities Open Amount"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.opportunities.open.amount"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "05_Pipeline"
-  category: "KPI"
-  expression:
-    dax: |
-      CALCULATE (
-          SUM ( fact_crm_opportunity[Amount] ),
-          fact_crm_opportunity[Stage] = "Open"
-      )
-    formatString: "EUR #,0.00"
-  documentation:
-    description: "Open opportunity pipeline value."
-    notes: "Open stage logic defined by CRM."
-  dependencies:
-    columns:
-      - "fact_crm_opportunity[Amount]"
-      - "fact_crm_opportunity[Stage]"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Opportunities Won Amount"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.opportunities.won.amount"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "05_Pipeline"
-  category: "KPI"
-  expression:
-    dax: |
-      CALCULATE (
-          SUM ( fact_crm_opportunity[Amount] ),
-          fact_crm_opportunity[Stage] = "Won"
-      )
-    formatString: "EUR #,0.00"
-  documentation:
-    description: "Closed-won opportunity value."
-    notes: "Won stage logic defined by CRM."
-  dependencies:
-    columns:
-      - "fact_crm_opportunity[Amount]"
-      - "fact_crm_opportunity[Stage]"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Opportunity Win Rate %"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.opportunities.win_rate.pct"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "05_Pipeline"
-  category: "KPI"
-  expression:
-    dax: |
-      VAR Won =
-          CALCULATE (
-              COUNTROWS ( fact_crm_opportunity ),
-              fact_crm_opportunity[Stage] = "Won"
-          )
-      VAR Total = COUNTROWS ( fact_crm_opportunity )
-      RETURN DIVIDE ( Won, Total )
-    formatString: "0.0 %"
-  documentation:
-    description: "Share of opportunities that are won."
-    notes: "Use consistent stage mapping."
-  dependencies:
-    columns:
-      - "fact_crm_opportunity[Stage]"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Opportunity Stage Conversion %"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.opportunities.stage_conversion.pct"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "05_Pipeline"
-  category: "KPI"
-  expression:
-    dax: |
-      VAR FromStage = "Qualified"
-      VAR ToStage   = "Won"
-      VAR FromCount =
-          CALCULATE (
-              COUNTROWS ( fact_crm_opportunity ),
-              fact_crm_opportunity[Stage] = FromStage
-          )
-      VAR ToCount =
-          CALCULATE (
-              COUNTROWS ( fact_crm_opportunity ),
-              fact_crm_opportunity[Stage] = ToStage
-          )
-      RETURN DIVIDE ( ToCount, FromCount )
-    formatString: "0.0 %"
-  documentation:
-    description: "Conversion rate between pipeline stages."
-    notes: "Define stage path and conversion logic."
-  dependencies:
-    columns:
-      - "fact_crm_opportunity[Stage]"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Acquisition Leads Count"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.acquisition.leads.count"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "06_Acquisition"
-  category: "KPI"
-  expression:
-    dax: "SUM ( fact_crm_leads[Leads] )"
-    formatString: "#,0"
-  documentation:
-    description: "Total leads acquired in period."
-    notes: "Lead definition aligned with CRM."
-  dependencies:
-    columns:
-      - "fact_crm_leads[Leads]"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Acquisition Conversions Count"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.acquisition.conversions.count"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "06_Acquisition"
-  category: "KPI"
-  expression:
-    dax: "SUM ( fact_crm_leads[Conversions] )"
-    formatString: "#,0"
-  documentation:
-    description: "Converted leads in period."
-    notes: "Conversion logic aligned with CRM."
-  dependencies:
-    columns:
-      - "fact_crm_leads[Conversions]"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Acquisition Conversion Rate %"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.acquisition.conversion_rate.pct"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "06_Acquisition"
-  category: "KPI"
-  expression:
-    dax: "DIVIDE ( [Acquisition Conversions Count], [Acquisition Leads Count] )"
-    formatString: "0.0 %"
-  documentation:
-    description: "Conversions divided by leads."
-    notes: "Guard for zero leads."
-  dependencies:
-    measures:
-      - "Acquisition Conversions Count"
-      - "Acquisition Leads Count"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Acquisition CAC Amount"
-  is_kpi_measure: true
-  kpi_id_ref: "crm.acquisition.cac.amount"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "06_Acquisition"
-  category: "KPI"
-  expression:
-    dax: |
-      VAR Spend = SUM ( fact_crm_leads[Acquisition Spend Amount] )
-      RETURN DIVIDE ( Spend, [Acquisition Conversions Count] )
-    formatString: "EUR #,0.00"
-  documentation:
-    description: "Customer acquisition cost per converted lead."
-    notes: "Requires acquisition spend allocation."
-  dependencies:
-    measures:
-      - "Acquisition Conversions Count"
-    columns:
-      - "fact_crm_leads[Acquisition Spend Amount]"
-  governance:
-    owner: "CRM BI"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
 
 - measure_name: "Complaint Rate %"
   is_kpi_measure: true
@@ -795,98 +319,5 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: "planned"
     version: "v1.0"
     last_review: "TBD"
-
-- measure_name: "Market Share %"
-  is_kpi_measure: true
-  kpi_id_ref: "market.share.total.pct"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "07_Market"
-  category: "KPI"
-  expression:
-    dax: |
-      VAR Company = [Net Sales Amount]
-      VAR Market  = SUM ( fact_market[Market Revenue] )
-      RETURN DIVIDE ( Company, Market )
-    formatString: "0.0 %"
-  documentation:
-    description: "Total market share for the selected market."
-    notes: "Market sizing source documented."
-  dependencies:
-    measures:
-      - "Net Sales Amount"
-    columns:
-      - "fact_market[Market Revenue]"
-  governance:
-    owner: "Market Intelligence"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Relative Market Share %"
-  is_kpi_measure: true
-  kpi_id_ref: "market.share.relative.pct"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "07_Market"
-  category: "KPI"
-  expression:
-    dax: |
-      VAR Company = [Net Sales Amount]
-      VAR TopCompetitor = SUM ( fact_market[Top Competitor Revenue] )
-      RETURN DIVIDE ( Company, TopCompetitor )
-    formatString: "0.0 %"
-  documentation:
-    description: "Relative share versus primary competitor."
-    notes: "Competitor selection rules documented."
-  dependencies:
-    measures:
-      - "Net Sales Amount"
-    columns:
-      - "fact_market[Top Competitor Revenue]"
-  governance:
-    owner: "Market Intelligence"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Brand Awareness %"
-  is_kpi_measure: true
-  kpi_id_ref: "mkt.brand.awareness.pct"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "07_Market"
-  category: "KPI"
-  expression:
-    dax: "AVERAGE ( fact_brand_survey[Awareness %] )"
-    formatString: "0.0 %"
-  documentation:
-    description: "Brand awareness rate from surveys."
-    notes: "Survey methodology documented."
-  dependencies:
-    columns:
-      - "fact_brand_survey[Awareness %]"
-  governance:
-    owner: "Market Intelligence"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
-
-- measure_name: "Brand Preference %"
-  is_kpi_measure: true
-  kpi_id_ref: "mkt.brand.preference.pct"
-  semantic_model: "CustomerValue_SemanticModel"
-  display_folder: "07_Market"
-  category: "KPI"
-  expression:
-    dax: "AVERAGE ( fact_brand_survey[Preference %] )"
-    formatString: "0.0 %"
-  documentation:
-    description: "Brand preference rate from surveys."
-    notes: "Survey methodology documented."
-  dependencies:
-    columns:
-      - "fact_brand_survey[Preference %]"
-  governance:
-    owner: "Market Intelligence"
-    status: "planned"
-    version: "v1.0"
-    last_review: "TBD"
 ```
+

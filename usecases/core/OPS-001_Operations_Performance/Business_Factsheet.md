@@ -134,7 +134,7 @@ required_kpis:
 
 ## 4. Business Logic & Thresholds
 
-Formal rules that define performance and action triggers.
+Formal rules that define performance and action codes.
 
 ### 4.1 Logic Description
 
@@ -142,54 +142,49 @@ Formal rules that define performance and action triggers.
 - Escalate chronic downtime causes exceeding target minutes per week.
 - Highlight lines with throughput shortfall vs plan and correlated performance loss.
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
+### 4.2 Formal Action Code Rules (Machine-Readable)
 
 ```yaml
-triggers:
+action_codes:
 
   - kpi: ops.oee.pct
     condition: <
     threshold: line_target
     scope: line_week
     exclusion: ramp-up lines
-    action_code: O2
+    action_code: O-O1.1
 
   - kpi: ops.availability.pct
     condition: <
     threshold: 0.9
     scope: line_week
     exclusion: planned_shutdowns
-    action_code: O2
+    action_code: O-O1.1
 
   - kpi: ops.performance.pct
     condition: <
     threshold: 0.95
     scope: line_week
     exclusion: changeover windows
-    action_code: M2
+    action_code: O-O1.2
 
   - kpi: ops.quality.pct
     condition: <
     threshold: 0.98
     scope: line_week
     exclusion: trial_runs
-    action_code: L2
+    action_code: O-O1.3
 ```
 
 ---
 
 ## 5. Action Codes (Mandatory)
 
-Link business behavior to measurable outcomes.
-
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
 |-------------|------|------------------|-------------|---------------------|------------------|-------|
-| O2 | Operations Stabilisation | ops.oee.pct < target OR availability < 90% | Address top downtime causes, standardise maintenance | Improve OEE, availability | L2 | Ops Excellence / Maintenance |
-| M2 | Performance Uplift | ops.performance.pct < 95% | Fix speed losses, optimize setups, balance lines | Improve performance %, throughput | L2 | Production |
-| L2 | Quality & Yield | ops.quality.pct < 98% | Reduce scrap/rework, tighten process control | Improve quality %, reduce waste | L2 | Quality / Production |
-| D1 | Cost Take-Out / COGS Control | cost-driven losses | Address cost of downtime/inefficiency | Reduce loss, improve OEE impact | L2 | Ops / Finance |
-
----
+| O-O1.1 | Operations Stabilisation | ops.availability.pct < 0.9; ops.oee.pct < line_target | Prioritise and eliminate chronic downtime drivers; Stabilise basic operating conditions on lines and plants | ops.availability.pct +3.0-8.0 pp (1-3 periods) | L2 | Operations Excellence / Maintenance |
+| O-O1.2 | Performance Uplift | ops.performance.pct < 0.95 | Recover speed losses versus standard rate; Reduce micro-stops and suboptimal line balance | ops.performance.pct +2.0-6.0 pp (1-2 periods) | L1 | Production |
+| O-O1.3 | Quality & Yield Recovery | ops.quality.pct < 0.98 | Prioritise root-cause correction for quality losses; Stabilise process capability on critical lines | ops.quality.pct +1.0-3.0 pp (1-3 periods) | L2 | Quality / Production |
 
 ## 6. 3-30-300 Page Layout (Mandatory)
 

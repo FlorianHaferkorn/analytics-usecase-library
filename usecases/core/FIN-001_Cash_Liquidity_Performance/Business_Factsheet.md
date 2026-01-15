@@ -159,7 +159,7 @@ required_kpis:
 
 ## 4. Business Logic & Thresholds
 
-Formal rules that define performance and action triggers.
+Formal rules that define performance and action codes.
 
 ### 4.1 Logic Description
 
@@ -167,82 +167,57 @@ Formal rules that define performance and action triggers.
 - Flag CCC above target or deteriorating; drill DSO/DIO/DPO.
 - Highlight entities/regions with high DSO or DIO and low DPO.
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
+### 4.2 Formal Action Code Rules (Machine-Readable)
 
 ```yaml
-triggers:
+action_codes:
 
   - kpi: fin.cash.vs_plan.pct
     condition: <
     threshold: 0
     scope: entity_region
     exclusion: none
-    action_code: W1
+    action_code: F-C1.1
 
   - kpi: wc.ccc.days
     condition: >
     threshold: ccc_target
     scope: entity_region
     exclusion: none
-    action_code: W1
+    action_code: F-C1.1
 
   - kpi: wc.dso.days
     condition: >
     threshold: dso_target
     scope: entity_region
     exclusion: disputed_receivables
-    action_code: C1
+    action_code: F-C1.2
 
   - kpi: wc.dio.days
     condition: >
     threshold: dio_target
     scope: entity_region
     exclusion: strategic_stock
-    action_code: I1
+    action_code: F-C1.3
 
   - kpi: wc.dpo.days
     condition: <
     threshold: dpo_floor
     scope: entity_region
     exclusion: strict_terms
-    action_code: W1
+    action_code: F-C1.4
 ```
 
 ---
 
 ## 5. Action Codes (Mandatory)
 
-Link business behavior to measurable outcomes.
-
-- **W1 — Working Capital Improvement**
-  - Trigger (formal): fin.cash.vs_plan.pct < 0 OR CCC > target
-  - Description: Drive AR/Inventory/AP actions to improve CCC
-  - Expected KPI Impact: Improve cash vs plan, reduce CCC
-  - Level (L1/L2/L3): L2
-  - Owner: Finance / Ops
-
-- **C1 — Collections Acceleration**
-  - Trigger (formal): wc.dso.days > target
-  - Description: Accelerate collections, reduce disputes, enforce terms
-  - Expected KPI Impact: Reduce DSO, improve cash
-  - Level (L1/L2/L3): L2
-  - Owner: Credit/Collections
-
-- **I1 — Inventory Rightsizing**
-  - Trigger (formal): wc.dio.days > target
-  - Description: Reduce inventory, improve replenishment, liquidation
-  - Expected KPI Impact: Reduce DIO, improve CCC
-  - Level (L1/L2/L3): L2
-  - Owner: Supply/Inventory
-
-- **W2 — Payables Optimisation**
-  - Trigger (formal): wc.dpo.days < floor
-  - Description: Negotiate terms, extend where feasible
-  - Expected KPI Impact: Improve DPO, CCC
-  - Level (L1/L2/L3): L2
-  - Owner: Procurement/AP
-
----
+| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
+|-------------|------|------------------|-------------|---------------------|------------------|-------|
+| F-C1.1 | Working Capital Improvement | fin.cash.vs_plan.pct < 0; wc.ccc.days > ccc_target | Determine which working capital lever to activate (DSO, DIO, DPO); Escalate liquidity pressure to execution domains | Impact: High | L1 | Finance |
+| F-C1.2 | Collections Acceleration | wc.dso.days > dso_target | Prioritise collection efforts on overdue and high-exposure receivables; Escalate enforcement actions within policy guardrails | Impact: High | L2 | Finance / Credit & Collections |
+| F-C1.3 | Inventory Rightsizing | wc.dio.days > dio_target | Reduce excess and slow-moving inventory; Adjust replenishment parameters for cash release | Impact: Medium | L2 | Supply Chain / Inventory Management |
+| F-C1.4 | Payables Optimisation | wc.dpo.days < dpo_floor | Optimise payment timing within contractual terms; Renegotiate payment terms where feasible and approved | wc.dpo.days +2-6 days (1-3 periods) | L1 | Procurement / Accounts Payable |
 
 ## 6. 3-30-300 Page Layout (Mandatory)
 

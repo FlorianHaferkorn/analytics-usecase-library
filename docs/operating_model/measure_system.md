@@ -1,76 +1,125 @@
 # Measure System
 
-Purpose:
+The Measure System ensures that KPI definitions remain stable, consistent, and reusable within the semantic layer.
 
-- Define a consistent, governed system for all measures in the ActionReady Analytics Framework.
+While the Golden Thread defines which KPIs exist and why they matter, the Measure System governs how these KPIs are implemented and protected from semantic drift over time.
+It does not introduce new business meaning.
+It preserves existing meaning as analytics evolves.
 
-Scope:
+The Measure System is part of the Analytics Operating Model.
+It operationalizes semantic consistency within the semantic layer and supports scalable reuse across use cases, reports, and domains.
 
-- Measure taxonomy and naming conventions
-- KPI ID scheme vs. measure names
-- Formatting standards (currency, %, counts, deltas)
-- DisplayFolder conventions
-- Supporting vs. KPI measures
-- Documentation standard (Copilot-ready)
-- Validation and quality checks
+---
 
-Position in the framework:
+## 1. Position in the framework
 
-- WHY (company layer) sets strategic KPIs and questions.
-- HOW (operating model) implements logic via semantic layer + measure system.
-- WITH WHAT/PATTERNS (framework) catalogs and templates reference measures.
-- WHAT (usecases) consume governed measures by `kpi_id`.
+The Measure System is explicitly derived from the Golden Thread and the Operating Model.
 
-Measure taxonomy:
+- The Golden Thread defines which KPIs exist and what they represent.
+- The Operating Model governs how analytical logic is maintained and evolved.
+- The Measure System applies these rules to measures within the semantic layer.
+- Use cases and reports consume governed measures without redefining logic.
 
-- Amount (currency), Qty, Count/Distinct Count, %, Rate, Variance/Variance %, Time Intelligence.
-- One primary type per measure; qualifiers (YoY, MTD, etc.) via naming suffixes.
+---
 
-KPI IDs vs. Measure Names:
+## 2. Purpose
 
-- `kpi_id`: stable ASCII ID in KPI Catalog (`<domain>.<topic>.<measure>.(amount|pct|count|days|...)`).
-- Measure names: user-facing with symbols (Δ for variances, % suffix); currency handled via `formatString`, not in names.
+The purpose of the Measure System is to prevent semantic drift as analytics scales.
 
-Formatting standards:
+As new use cases emerge and models evolve, calculation logic tends to fragment.
+The Measure System ensures that KPIs remain singular, identifiable, and reusable, even as supporting logic changes.
 
-- Currency: `"€ #,0.00"` (or `"€ #,0"` for large aggregates)
-- Percent: `"0.0 %"` (or `"0.00 %"` when needed)
-- Counts/Qty: `#,0`; durations with decimals only if needed.
+By separating business meaning from technical implementation, the Measure System allows analytics to evolve without redefining intent.
 
-DisplayFolders (examples):
+---
 
-- Commercial: `01_Sales`, `02_Margin`, `03_Price_Promo`, `03_Customer`
-- Operations: `01_Capacity`, `02_Inventory`, `03_SupplyChain`
-- Corporate/Governance: `01_Strategy`, `01_Workforce`, `01_DataQuality`, `01_Compliance`, `01_RiskControl`, `01_Audit`
-- ESG: `01_ESG`, `01_Energy`
-- Technical/supporting measures may use a technical folder (e.g. `10_Tech`) and be hidden.
+## 3. KPI Identity and Measure Implementation
 
-KPI vs. Supporting Measures:
+Business meaning is anchored through stable KPI identifiers.
 
-- KPI measures map 1:1 to `kpi_id`, exposed to users, fully documented.
-- Supporting measures implement reusable logic; hidden where possible.
-- KPI measures orchestrate supporting measures, not deep nested logic reused elsewhere.
+Each KPI is defined once in the KPI Catalog and referenced through a unique identifier.
+Measures implement these definitions within the semantic model.
 
-Documentation (Copilot-ready):
+Measure names may evolve.
+KPI identifiers do not.
 
-- Purpose, Definition (logic, numerator/denominator), Grain & Scope, Unit/Format, Lineage, QA.
-- Supporting measures at least: Purpose, Definition, Lineage.
+This separation ensures that business meaning remains stable even as implementations change.
 
-Authoring & Governance Flow:
+---
 
-1) Use case lists `required_kpi_ids`.
-2) KPI Catalog holds canonical definition for each `kpi_id`.
-3) Semantic model exposes exactly one KPI measure per `kpi_id`; formatting/foldering from catalog.
-4) Validation ensures IDs exist, measures match catalog, naming/formatting/folders comply, descriptions exist.
+## 4. Measure Types
 
-Quality & Performance:
+Measures are classified by their role within the semantic model.
 
-- Reuse supporting measures; avoid repeated heavy logic.
-- Prefer measures over calculated columns; keep star-schema-friendly.
-- Run lint/BPA checks (see `_internal/tools/linters`) before release.
+KPI measures represent decision-relevant metrics defined in the KPI Catalog.
+Supporting measures provide reusable calculation logic.
+Technical measures exist to support implementation and are not exposed to users.
 
-Cleaning & Best Practices:
+This classification ensures clarity, reuse, and controlled evolution of analytical logic.
 
-- No TBD in catalogs/models; use conservative definitions if unsure.
-- Strict consistency: every `required_kpi_id` must exist in catalog and in the semantic model.
-- No uncontrolled cross-use-case measures; shared logic lives in catalogs + domain dictionaries.
+---
+
+## 5. Normative Measure Standards
+
+The Measure System defines binding standards for all measures in the semantic layer.
+
+These standards exist to ensure semantic clarity, consistency, and reuse across domains and use cases.
+They are normative, not instructional.
+
+### 5.1 Measure Types
+
+Measures are classified by their semantic role:
+
+- KPI Measures represent decision-relevant metrics defined in the KPI Catalog.
+- Supporting Measures encapsulate reusable calculation logic.
+- Technical Measures support implementation and are not exposed to users.
+
+### 5.2 Naming Conventions
+
+Measure names follow standardized suffixes to indicate semantic intent, such as:
+
+- Amount
+- Qty
+- Count
+- %
+- Variance
+
+Naming reflects business meaning rather than technical implementation.
+
+### 5.3 Structure and Visibility
+
+Measures are organized using display folders and visibility rules.
+Technical measures are hidden from consumption.
+Only KPI measures are exposed to users.
+
+### 5.4 Formatting and Metadata
+
+Formatting reflects semantic intent and business expectations.
+Descriptions are mandatory to preserve meaning and enable governance and assisted analytics.
+
+---
+
+## 6. Validation and Consistency
+
+Validation ensures alignment with the Golden Thread and the Operating Model.
+
+Measures are checked for:
+
+- correct reference to KPI definitions,
+- compliance with Measure System rules,
+- and consistency within the semantic layer.
+
+Validation protects meaning.
+It does not enforce process.
+
+---
+
+## 7. Outcome
+
+When applied consistently, the Measure System ensures that:
+
+- KPIs remain trusted and undisputed,
+- analytical logic is reused rather than duplicated,
+- semantic models remain maintainable as complexity grows.
+
+The Measure System enables scale by preserving meaning, not by introducing control.

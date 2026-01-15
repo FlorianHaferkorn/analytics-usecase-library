@@ -145,7 +145,7 @@ required_kpis:
 
 ## 4. Business Logic & Thresholds
 
-Formal rules that define performance and action triggers.
+Formal rules that define performance and action codes.
 
 ### 4.1 Logic Description
 
@@ -153,53 +153,49 @@ Formal rules that define performance and action triggers.
 - Flag high service impact from forecast error.
 - Flag frequent re-plans beyond threshold.
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
+### 4.2 Formal Action Code Rules (Machine-Readable)
 
 ```yaml
-triggers:
+action_codes:
 
   - kpi: plan.forecast.accuracy.pct
     condition: <
     threshold: accuracy_target
     scope: sku_location
     exclusion: launch_items
-    action_code: O2
+    action_code: S-F3.1
 
   - kpi: plan.forecast.bias.pct
     condition: outside
     threshold: [-0.05, 0.05]
     scope: sku_location
     exclusion: launch_items
-    action_code: O2
+    action_code: S-F3.2
 
   - kpi: plan.forecast.service_impact.pct
     condition: >
     threshold: impact_target
     scope: sku_location
     exclusion: force_majeure
-    action_code: O2
+    action_code: S-F3.3
 
   - kpi: plan.replan.count
     condition: >
     threshold: replan_limit
     scope: month
     exclusion: major events
-    action_code: O2
+    action_code: S-F3.1
 ```
 
 ---
 
 ## 5. Action Codes (Mandatory)
 
-Link business behavior to measurable outcomes.
-
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
 |-------------|------|------------------|-------------|---------------------|------------------|-------|
-| O2 | Operations/Planning Stabilisation | plan.forecast.accuracy.pct < target OR bias outside band | Improve forecast process, parameters, data quality | Improve accuracy, reduce bias, lower service impact | L2 | Planning / S&OP |
-| I2 | Stockout Prevention | plan.forecast.service_impact.pct high causing stockouts | Adjust safety stock/replenishment for at-risk SKUs | Reduce stockout impact, improve OTIF | L2 | Supply Planning |
-| D1 | Cost Take-Out | Excess re-plans/expedites due to forecast error | Reduce replans/expedites with better plan stability | Lower cost, improve service | L2 | Planning / Logistics |
-
----
+| S-F3.1 | Forecast Quality Orchestration | plan.forecast.accuracy.pct < accuracy_target; plan.replan.count > replan_limit | Select dominant forecast-quality lever per SKU/location (bias correction, containment, replan discipline); Sequence corrective actions to avoid parallel, conflicting planning fixes | plan.forecast.accuracy.pct +5.0-12.0 pp (2-5 periods) | L1 | S&OP Leadership |
+| S-F3.2 | Forecast Bias & Accuracy Correction | plan.forecast.bias.pct outside | Correct systematic over-/under-forecasting; Reduce forecast error via disciplined overrides and data hygiene | plan.forecast.accuracy.pct +4.0-10.0 pp (2-5 periods) | L2 | Demand Planning |
+| S-F3.3 | Service Impact Containment | plan.forecast.service_impact.pct > impact_target | Contain service loss while forecast quality is being corrected; Prioritise short-term planning adjustments to protect OTIF | Impact: High | L1 | Supply Planning |
 
 ## 6. 3-30-300 Page Layout (Mandatory)
 

@@ -182,10 +182,10 @@ required_kpis:
 - Escalate cross-domain interventions through predefined Action Codes with accountable owners.
 - Prioritise entities/regions with highest value-at-risk and customer impact.
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
+### 4.2 Formal Action Code Rules (Machine-Readable)
 
 ```yaml
-triggers:
+action_codes:
 
   - kpi: sales.net_sales.delta_pct.ly
     condition: below_target
@@ -250,14 +250,6 @@ triggers:
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
 |-------------|------|------------------|-------------|---------------------|------------------|-------|
-| P2 | Margin Leakage Correction | margin.gm.pct below target | Address mix/discounts/leakage to restore margin | Increase GM%, stabilise revenue | L2 | Finance / Sales Ops |
-| P4 | Price Repositioning | sales.net_sales.delta_pct.ly below target | Adjust price/pack/discount to recover growth without eroding margin | Increase Net Sales % vs LY, stable GM% | L2 | Commercial |
-| C2 | Retention Action | crm.clv.amount declining OR people.attrition_risk.pct above threshold | Targeted retention playbooks for customers or critical talent | Increase CLV, reduce Attrition Risk | L2 | CX / HR |
-| S3 | Capacity Intervention | ops.otif.pct or svc.sla.attainment.pct below target | Short-term capacity, expediting, rerouting, or supplier escalation | Increase OTIF %, Increase SLA Attainment % | L2 | Supply Chain |
-| F1 | Cash Collection Initiative | ops.working_capital.ccc.days above target | Accelerate receivables, extend payables where possible, optimise inventory | Reduce CCC Days | L2 | Finance |
-| H1 | Digital Enablement Push | people.digital_adoption.pct below target | Training, comms, incentives to lift active digital usage | Increase Digital Adoption %, Increase productivity | L2 | IT / HR |
-
----
 
 ## 6. 3-30-300 Page Layout (Mandatory)
 

@@ -2,8 +2,7 @@
 
 Purpose:
 This document defines the core principles that govern how reporting and analytics outputs are designed, structured, and consumed across the organization.
-
-It ensures that reporting is **decision-oriented, consistent, and actionable**, independent of tools or technologies.
+These principles operationalize the reporting layer of the Golden Thread and ensure consistent decision-oriented consumption of analytics independent of tools or technologies.
 
 Scope:
 

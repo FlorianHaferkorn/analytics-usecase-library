@@ -178,7 +178,7 @@ required_kpis:
 
 ## 4. Business Logic & Thresholds
 
-Formal rules that define performance and action triggers.
+Formal rules that define performance and action codes.
 
 ### 4.1 Logic Description
 
@@ -187,54 +187,49 @@ Formal rules that define performance and action triggers.
 - Flag labor productivity below target.
 - Flag OpEx variance above 0 for 2 consecutive periods.
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
+### 4.2 Formal Action Code Rules (Machine-Readable)
 
 ```yaml
-triggers:
+action_codes:
 
   - kpi: cost.unit.amount
     condition: >
     threshold: plan_target
     scope: plant_line_product
     exclusion: ramp-up runs
-    action_code: D1
+    action_code: F-K2.1
 
   - kpi: cost.material.pct
     condition: >
     threshold: material_target
     scope: plant_line_product
     exclusion: launch_items
-    action_code: PC2
+    action_code: F-K2.2
 
   - kpi: ops.labor.productivity.pct
     condition: <
     threshold: productivity_target
     scope: plant_line
     exclusion: training_periods
-    action_code: M2
+    action_code: F-K2.3
 
   - kpi: cost.opex.vs_plan.pct
     condition: >
     threshold: 0
     scope: entity
     exclusion: approved_variances
-    action_code: D1
+    action_code: F-K2.1
 ```
 
 ---
 
 ## 5. Action Codes (Mandatory)
 
-Link business behavior to measurable outcomes.
-
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
 |-------------|------|------------------|-------------|---------------------|------------------|-------|
-| D1 | Cost Take-Out | cost.unit.amount > target OR OpEx variance > 0 | Remove waste, optimize processes, renegotiate costs | Reduce unit cost/OpEx, improve margin | L2 | Finance / Ops |
-| PC2 | Promo/Price Discipline (material cost guardrail) | cost.material.pct > target | Tighten pricing/usage, supplier/material changes | Reduce material cost %, improve margin | L2 | Procurement / Ops |
-| M2 | Performance Uplift | ops.labor.productivity.pct < target | Improve labor efficiency, balance lines | Raise productivity, reduce unit cost | L2 | Production / Ops |
-| W1 | Working Capital Improvement | margin/COGS % off target, cost pressure on CCC | Address inventory/AP levers | Improve COGS%, CCC | L2 | Finance / Supply |
-
----
+| F-K2.1 | Cost Take-Out Orchestration | cost.opex.vs_plan.pct > 0; cost.unit.amount > plan_target | Select dominant cost lever to activate (Material, Labor, OpEx); Sequence cost actions to avoid overlap and conflict | cost.unit.amount +2.0-6.0 % (1-3 periods) | L1 | Finance / Operations |
+| F-K2.2 | Material Cost Discipline | cost.material.pct > material_target | Tighten material usage and scrap control; Activate sourcing and spec-discipline corrections | cost.material.pct +1.0-4.0 % (2-4 periods) | L2 | Procurement / Operations |
+| F-K2.3 | Labor Productivity Recovery | ops.labor.productivity.pct < productivity_target | Correct staffing and shift imbalances; Stabilize line productivity and utilization | ops.labor.productivity.pct +3.0-8.0 pp (1-3 periods) | L2 | Operations / Production |
 
 ## 6. 3-30-300 Page Layout (Mandatory)
 

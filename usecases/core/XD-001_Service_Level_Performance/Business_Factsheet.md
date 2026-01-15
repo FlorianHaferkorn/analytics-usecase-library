@@ -148,7 +148,7 @@ required_kpis:
 
 ## 4. Business Logic & Thresholds
 
-Formal rules that define performance and action triggers.
+Formal rules that define performance and action codes.
 
 ### 4.1 Logic Description
 
@@ -156,75 +156,49 @@ Formal rules that define performance and action triggers.
 - Flag FCR below target or AHT above target bands.
 - Flag high escalation % and rising backlog.
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
+### 4.2 Formal Action Code Rules (Machine-Readable)
 
 ```yaml
-triggers:
+action_codes:
 
   - kpi: svc.sla.attainment.pct
     condition: <
     threshold: sla_target
     scope: queue_region_channel
     exclusion: force_majeure
-    action_code: O2
+    action_code: X-S1.1
 
   - kpi: svc.fcr.pct
     condition: <
     threshold: fcr_target
     scope: queue_region_channel
     exclusion: complex_cases
-    action_code: L2
+    action_code: X-S1.3
 
   - kpi: svc.aht.minutes
     condition: >
     threshold: aht_target
     scope: queue_region_channel
     exclusion: complex_cases
-    action_code: M2
+    action_code: X-S1.4
 
   - kpi: svc.escalation.pct
     condition: >
     threshold: escalation_target
     scope: queue_region_channel
     exclusion: regulated_cases
-    action_code: O2
+    action_code: X-S1.3
 ```
 
 ---
 
 ## 5. Action Codes (Mandatory)
 
-Link business behavior to measurable outcomes.
-
-- **O2 — Operations Stabilisation**
-  - Trigger (formal): SLA below target; escalations/backlog rising
-  - Description: Rebalance capacity, triage/backlog sweeps, fix process gaps
-  - Expected KPI Impact: Improve SLA, reduce backlog/escalations
-  - Level (L1/L2/L3): L2
-  - Owner: Service Ops
-
-- **L2 — Quality & Yield**
-  - Trigger (formal): FCR below target
-  - Description: Improve knowledge base, scripts, training
-  - Expected KPI Impact: Improve FCR, reduce repeat contacts
-  - Level (L1/L2/L3): L2
-  - Owner: CX/Training
-
-- **M2 — Performance Uplift**
-  - Trigger (formal): AHT above target
-  - Description: Streamline workflows, tools; deflect to self-service
-  - Expected KPI Impact: Reduce AHT, improve SLA
-  - Level (L1/L2/L3): L2
-  - Owner: Service Ops
-
-- **D1 — Cost Take-Out (if cost focus)**
-  - Trigger (formal): Cost per contact high
-  - Description: Optimize staffing/shift mix, automation
-  - Expected KPI Impact: Reduce cost-to-serve
-  - Level (L1/L2/L3): L2
-  - Owner: Service Ops / Finance
-
----
+| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
+|-------------|------|------------------|-------------|---------------------|------------------|-------|
+| X-S1.1 | Service Level Orchestration | svc.sla.attainment.pct < sla_target | Select dominant service lever per queue/region (capacity, backlog, quality, flow); Sequence service actions to avoid speed–quality trade-offs | svc.sla.attainment.pct +3.0-8.0 pp (1-3 periods) | L1 | Service / CX Leadership |
+| X-S1.3 | Quality & First-Contact Resolution Uplift | svc.escalation.pct > escalation_target; svc.fcr.pct < fcr_target | Select quality uplift levers (knowledge gaps, coaching, scripts); Prioritise queues where quality drives backlog and SLA erosion | svc.fcr.pct +5.0-12.0 pp (2-6 periods) | L2 | CX / Quality Management |
+| X-S1.4 | Handling Time & Flow Efficiency | svc.aht.minutes > aht_target | Remove handling-time drivers that throttle throughput; Stabilise service flow across queues and channels | Impact: Medium | L2 | Service Operations |
 
 ## 6. 3-30-300 Page Layout (Mandatory)
 

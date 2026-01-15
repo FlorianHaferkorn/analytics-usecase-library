@@ -132,7 +132,7 @@ required_kpis:
 
 ### 4.1 Logic Description
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
+### 4.2 Formal Action Code Rules (Machine-Readable)
 
 - Flag if Price Realization % < 95% with GM % < 25%.
 - Flag if Mix Effect Amount < 0 in top 5 regions/channels.
@@ -140,35 +140,35 @@ required_kpis:
 - Highlight if COGS per Unit rising >2% vs Plan for top SKUs.
 
 ```yaml
-triggers:
+action_codes:
 
   - kpi: sales.price.realization_pct
     condition: below_target
     threshold: 0.95
     scope: region_channel
     exclusion: low-volume SKUs
-    action_code: P2
+    action_code: C-M2.1
 
   - kpi: sales.pvm.mix_effect.amount
     condition: negative
     threshold: 0
     scope: top5_regions_channels
     exclusion: none
-    action_code: M3
+    action_code: C-M2.2
 
   - kpi: margin.gm.vs_plan.pct
     condition: below_target
     threshold: 0
     scope: last_2_months
     exclusion: none
-    action_code: P2
+    action_code: C-M2.4
 
   - kpi: cost.cogs_per_unit.amount
     condition: above_threshold
     threshold: 0.02   # +2% vs plan/LY
     scope: top_skus
     exclusion: new launches
-    action_code: D1
+    action_code: C-M2.3
 ```
 
 ---
@@ -177,12 +177,10 @@ triggers:
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
 |-------------|------|------------------|-------------|---------------------|------------------|-------|
-| P2 | Price Realisation Guardrails | sales.price.realization_pct < 0.95 AND margin.gm.pct < 0.25 | Tighten discounting, enforce floor prices, approvals | Improve Price Realization %, GM % | L2 | Pricing / Sales Ops |
-| M3 | Mix Optimisation | sales.pvm.mix_effect.amount < 0 | Shift to higher-margin SKUs/regions, adjust assortment | Improve Mix Effect, GM % | L2 | Category Mgmt |
-| D1 | Cost Take-Out / COGS Control | cost.cogs_per_unit.amount > Plan +2% | Negotiate supplier terms, switch inputs, optimize production costs | Reduce COGS/unit, lift GM % | L2 | Procurement / Ops |
-| PC2 | Promo Calendar Discipline | GM % vs Plan negative with promo ROI low | Reduce low-ROI promos, re-sequence calendar | Stabilise GM %, protect price realization | L2 | Trade Marketing |
-
----
+| C-M2.1 | Price Realization Guardrails | sales.price.realization_pct below_target 0.95 | Enforce discount floors; Require approvals for price exceptions | sales.price.realization_pct +1.0-3.0 pp (1-2 periods) | L1 | Commercial |
+| C-M2.2 | Mix Optimization (Margin-Driven) | sales.pvm.mix_effect.amount negative 0 | Shift sales focus toward higher-margin SKUs and regions; Deprioritize structurally margin-dilutive mix components | margin.gm.pct +0.3-1.2 pp (1-3 periods) | L2 | Commercial |
+| C-M2.3 | Unit Cost Leakage Correction | cost.cogs_per_unit.amount above_threshold | Initiate supplier renegotiation or sourcing actions; Correct production or logistics cost deviations | cost.cogs_per_unit.amount +1.0-4.0 % (2-6 periods) | L2 | Operations / Procurement |
+| C-M2.4 | Promotion Margin Discipline | margin.gm.vs_plan.pct below_target 0 | De-prioritize or stop margin-dilutive promotions; Resequence or downscale promotion calendar | margin.gm.pct +0.2-0.8 pp (1-2 periods) | L1 | Commercial / Trade Marketing |
 
 ## 6. 3-30-300 Page Layout (Mandatory)
 

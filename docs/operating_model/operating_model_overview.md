@@ -1,145 +1,118 @@
 # Analytics Operating Model (HOW)
 
-Without an explicit analytics operating model, reporting inevitably becomes tool-driven.
+## 1. Purpose and Scope
 
-In such setups:
+This document defines how the Golden Thread is operated in practice.
 
-- KPIs are defined implicitly instead of intentionally
-- Semantic models evolve organically instead of systematically
-- Reporting grows faster than governance
-- Automation and AI remain isolated initiatives
+While the Golden Thread describes the causal logic from strategy to action, the Operating Model ensures that this logic can be built, maintained, governed, and scaled over time.
 
-Over time, this leads to loss of trust, slower decision-making, and analytics being perceived as a cost rather than a capability.
+The Operating Model does not introduce new analytical concepts.
+It translates the Golden Thread into clear responsibilities, lifecycle rules, and quality mechanisms.
 
-This operating model exists to make analytics execution predictable, repeatable, and aligned with business intent — independent of tools or platforms.
+Its purpose is to ensure that:
 
----
+- analytical logic remains consistent as change occurs,
+- ownership and decision rights are clear,
+- and the framework remains operable as complexity grows.
 
-Purpose:
-This document defines **how analytics is organized, governed, built, and operated** across the organization.
-It is the **single entry point** for understanding the Analytics Operating Model and replaces the need to read multiple standalone documents.
-
-Scope:
-
-- Defines roles, responsibilities, and decision rights.
-- Defines how strategy is operationalized through semantic models and measures.
-- Defines governance, quality, and lifecycle management.
-- Defines how analytics is distributed, consumed, and scaled.
-- Does NOT define company strategy or individual use case content.
-
-How to read this document:
-
-- Sections 1–3 explain the conceptual foundation of the operating model.
-- Sections 4–6 describe how this foundation is governed and operationalized.
-- Sections 7–8 explain how the model scales through automation and change management.
-- Section 10 summarizes what changes when the model is applied.
-
-Not every reader needs every section:
-
-- Executives typically focus on Sections 1, 3, and 10.
-- Analytics leads focus on Sections 2–6.
-- Architects and platform teams focus on Sections 3–8.
+All elements described in this document exist to support and preserve the Golden Thread.
 
 ---
 
-## 1. Operating Model Principles
+## 2. Operating Principles
 
-The Analytics Operating Model is built on five principles:
+The Operating Model follows a small set of principles that protect the integrity of the Golden Thread in daily operation.
 
-1. **Strategy-driven**  
-   All analytics artifacts must trace back to company strategy and domains.
+Analytical logic is defined once and reused.
+Analytical outputs are designed to support decisions and actions.
+Business meaning is not reinterpreted at the point of consumption.
 
-2. **Domain-owned**  
-   Business domains own meaning, priorities, and actions—not tools.
+Changes are introduced deliberately and along the existing causal chain.
+New requirements extend existing logic rather than duplicating it.
 
-3. **Semantically stable**  
-   KPIs and measures are governed through a shared semantic layer.
+Ownership is explicit.
+Every artifact has a responsible owner who governs meaning, quality, and evolution.
 
-4. **Action-oriented**  
-   Insights must enable or trigger concrete actions.
+Separation of concerns is enforced.
+This creates the structural preconditions for automation and assisted analytics.
+Strategy, decision logic, semantics, and presentation are handled at their respective layers.
 
-5. **Automation-ready**  
-   Standards, metadata, and validation enable scalable delivery.
+Governance is lightweight but binding.
+Rules exist to enable speed and consistency, not to introduce overhead.
 
-Together, these principles ensure that analytics decisions are driven by intent, not by tools or organizational silos.
-
----
-
-## 2. Roles & Responsibilities
-
-The operating model separates **business accountability** from **technical execution**.
-
-### Business Roles
-
-- **Domain Owner**
-  - Owns KPI definitions and interpretation
-  - Prioritizes use cases
-  - Validates business relevance
-
-- **Use Case Owner**
-  - Defines analytical questions
-  - Validates outcomes and actions
-  - Accepts delivered analytics
-
-### Analytics & Platform Roles
-
-- **Analytics Architect**
-  - Designs semantic models and measure systems
-  - Enforces standards and patterns
-
-- **Analytics Engineer**
-  - Implements data models and measures
-  - Ensures performance and quality
-
-- **Platform Owner**
-  - Owns infrastructure, access, and operations
-
-Governance is enforced through clear ownership—not committees.
+These principles ensure that analytics remains trustworthy, scalable, and operable as complexity grows.
 
 ---
 
-## 3. Semantic Layer & Measure System
+## 3. Ownership and Roles
 
-The semantic layer is the **single source of truth** for analytics.
+Clear ownership is required to preserve the integrity of the Golden Thread.
 
-It ensures:
+Ownership in the Operating Model is defined per artifact type, not per organizational unit.
+Roles exist to govern meaning, quality, and evolution — not to execute technical tasks.
 
-- Consistent KPI definitions
-- Reusable measures
-- Clear aggregation and grain
-- Separation of business meaning from data sources
+Each core artifact has an explicit owner:
 
-### Core Components
+- Strategy and Strategic KPIs are owned by the business.
+- Use Cases and Action Codes are owned jointly by business and analytics.
+- Semantic Models, Measures, and Data Contracts are owned by analytics.
+- Governance rules are owned centrally to ensure consistency.
 
-- Action-ready semantic model blueprint
-- Domain-level semantic models
-- Canonical KPI catalog
-- Measure dictionaries and templates
+Owners are responsible for:
+
+- defining and maintaining meaning,
+- approving changes,
+- and ensuring alignment with the Golden Thread.
+
+Execution may be delegated.
+Ownership remains accountable.
+
+By separating ownership from implementation, the framework remains scalable across teams, domains, and operating models.
+
+---
+
+## 4. Artifact Lifecycle
+
+Artifacts in the Golden Thread are created and evolved along the causal chain.
+
+A new artifact is introduced only when it is required to express a change in meaning, decision logic, or scope.
+Existing artifacts are extended or adjusted whenever possible.
+
+Changes propagate deliberately.
+A change in strategy may affect KPIs and use cases.
+A change in a KPI may affect measures and reports.
+Downstream artifacts adapt only when their meaning or dependencies are impacted.
+
+Artifacts move through a controlled lifecycle from creation to review.
+Explicit versioning and validation ensure that change remains intentional and traceable.
+
+By following the causal structure of the Golden Thread, the lifecycle of artifacts remains controlled, transparent, and scalable.
 
 **Reference documents:**
 
 - `docs/operating_model/semantic_layer.md`
 - `docs/operating_model/measure_system.md`
-- `docs/operating_model/ActionReady_SemanticModel_Blueprint.md`
+- `docs/operating_model/reference/ActionReady_SemanticModel_Blueprint.md`
 
 ---
 
-## 4. Data Governance & Quality
+## 5. Governance and Quality Gates
 
-Governance focuses on **control without friction**.
+Governance exists to preserve consistency and trust in the Golden Thread.
 
-Key elements:
+It ensures that changes do not silently alter meaning, break dependencies, or introduce inconsistent logic.
+Governance is applied where semantic stability matters, not everywhere.
 
-- Canonical KPI ownership
-- Explicit data contracts
-- Validation and quality checks
-- Change transparency and traceability
+Quality gates are used to validate:
 
-Governance is:
+- consistency with the Golden Thread,
+- correctness of definitions and calculations,
+- and alignment with ownership and principles.
 
-- Domain-driven
-- Enforced via standards and tooling
-- Automated where possible
+Governance does not aim to slow down delivery.
+It provides clarity on when review is required and when teams can move independently.
+
+By focusing governance on meaning and dependencies rather than tooling or process, the framework remains reliable without becoming rigid.
 
 **Reference document:**
 
@@ -147,21 +120,23 @@ Governance is:
 
 ---
 
-## 5. Distribution & Consumption
+## 6. Change and Evolution
 
-Analytics is delivered through **role-specific, decision-oriented views**.
+Change is an expected condition of the analytics system.
 
-Distribution principles:
+Strategic priorities evolve, KPIs are refined, new use cases emerge, and data landscapes change.
+The Operating Model ensures that such change is absorbed without breaking the Golden Thread.
 
-- Separation of strategic, tactical, and operational views
-- Progressive disclosure (3–30–300)
-- Clear ownership of reports and audiences
-- Controlled access and sharing
+Changes follow the existing causal structure.
+Only artifacts whose meaning or dependencies are affected are adjusted.
+Unrelated elements remain stable.
 
-Distribution architecture is:
+Evolution is incremental.
+New requirements extend existing logic rather than replacing it.
 
-- Tool-agnostic by design
-- Optimized for scalability and governance
+Automation and validation support change without introducing friction or uncontrolled drift.
+
+By anchoring change in causality and ownership, the framework allows analytics to evolve continuously while preserving consistency and trust.
 
 **Reference document:**
 
@@ -169,18 +144,23 @@ Distribution architecture is:
 
 ---
 
-## 6. UX, Design & Interaction Standards
+## 7. UX, Design and Interaction Standards
 
-User experience is standardized to reduce cognitive load and increase adoption.
+User experience is standardized to ensure consistent interpretation and adoption of analytics.
 
-Principles:
+Because analytical logic is governed centrally, interaction and presentation must not introduce ambiguity or unnecessary cognitive load.
+Users should recognize structure, intent, and decision context across reports and use cases.
 
-- Consistent interaction patterns
-- Limited visual complexity
-- Clear hierarchy and focus
-- Action-oriented layouts
+UX standards ensure that:
 
-Concrete UX rules and templates are defined outside this document.
+- analytical outputs are easy to interpret,
+- attention is directed toward decisions and actions,
+- and interaction patterns remain consistent across domains and teams.
+
+UX rules and templates are defined outside this document.
+They operationalize these standards without redefining analytical logic.
+
+Consistent user experience reinforces trust in analytics and supports effective decision-making at scale.
 
 **Reference document:**
 
@@ -188,20 +168,27 @@ Concrete UX rules and templates are defined outside this document.
 
 ---
 
-## 7. AI & Automation Readiness
+## 8. Tooling, Automation and Enablement
 
-The operating model is designed to support:
+Tools and platforms exist to support the operation of the Golden Thread.
 
-- Automation of repetitive tasks
-- AI-assisted analysis and validation
-- Metadata-driven generation and checks
+They do not define analytical logic, business meaning, or decision intent.
+These are established by the Golden Thread and governed through the Operating Model.
 
-This is enabled by:
+Tooling is used to:
 
-- Structured factsheets
-- Machine-readable contracts
-- Canonical identifiers
-- Explicit lineage
+- reduce manual effort in creating and maintaining artifacts,
+- enforce consistency through standardization,
+- and support collaboration across teams and domains.
+
+Automation and AI act as accelerators.
+They assist in creating, validating, and evolving artifacts based on existing definitions and rules.
+They do not introduce new business logic or replace ownership.
+
+Because artifacts are explicit and structured, assisted operation becomes possible.
+This enables the framework to scale without increasing operational overhead.
+
+As a result, tooling and automation strengthen the Golden Thread by making its operation efficient, repeatable, and sustainable.
 
 **Reference document:**
 
@@ -209,52 +196,8 @@ This is enabled by:
 
 ---
 
-## 8. Lifecycle & Change Management
+## 9. Operational Outcome
 
-Analytics artifacts follow a clear lifecycle:
+When the Operating Model is applied consistently, analytical logic remains stable as scale and complexity increase.
 
-- Design → Build → Validate → Deploy → Review
-
-Changes are managed through:
-
-- Versioned artifacts
-- Impact-aware updates
-- Explicit ownership
-- Automated validation
-
-This ensures stability without slowing innovation.
-
----
-
-## 9. Relationship to Other Framework Layers
-
-This document defines the **HOW**.
-
-It operationalizes:
-
-- **Company Strategy (WHY):**  
-  `docs/company/company_strategy.md`
-
-It enables:
-
-- **Use Cases (WHAT):**  
-  `usecases/`
-
-It is implemented through:
-
-- **Framework & Semantic Models (WITH WHAT):**  
-  `framework/`, `semantic_models/`
-
----
-
-## 10. What Success Looks Like
-
-When the Operating Model is applied correctly:
-
-- Analytics delivery scales without chaos.
-- KPIs are trusted and undisputed.
-- Business and analytics collaborate efficiently.
-- Actions are consistent and measurable.
-- Tool changes do not break semantics.
-
-This document is the **anchor** for sustainable, enterprise-grade analytics operations.
+The model enables collaboration between business and analytics, preserves semantic consistency, and supports reliable decision-making independent of tooling choices.

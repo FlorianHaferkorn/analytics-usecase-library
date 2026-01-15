@@ -148,7 +148,7 @@ required_kpis:
 
 ## 4. Business Logic & Thresholds
 
-Formal rules that define performance and action triggers.
+Formal rules that define performance and action codes.
 
 ### 4.1 Logic Description
 
@@ -157,76 +157,49 @@ Formal rules that define performance and action triggers.
 - Flag penalties/expedites above materiality thresholds.
 - Identify on-time or in-full components failing most.
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
+### 4.2 Formal Action Code Rules (Machine-Readable)
 
 ```yaml
-triggers:
+action_codes:
 
   - kpi: supply.otif.pct
     condition: <
     threshold: otif_target
     scope: lane_dc_channel
     exclusion: force_majeure
-    action_code: O2
+    action_code: S-R2.1
 
   - kpi: supply.stockout_impact.pct
     condition: >
     threshold: stockout_target
     scope: location_channel
     exclusion: planned_outages
-    action_code: I2
+    action_code: S-R2.3
 
   - kpi: supply.penalty.amount
     condition: >
     threshold: penalty_materiality
     scope: customer_channel
     exclusion: negotiated_penalties
-    action_code: D1
+    action_code: S-R2.4
 
   - kpi: supply.expedite.amount
     condition: >
     threshold: expedite_materiality
     scope: lane_dc_channel
     exclusion: crisis
-    action_code: O2
+    action_code: S-R2.1
 ```
 
 ---
 
 ## 5. Action Codes (Mandatory)
 
-Link business behavior to measurable outcomes.
-
-- **O2 — Operations Stabilisation**
-  - Trigger (formal): supply.otif.pct < target OR expedite/penalty high
-  - Description: Fix root causes (supplier, transport, DC process),
-    re-sequence orders
-  - Expected KPI Impact: Improve OTIF %, reduce expedites/penalties
-  - Level (L1/L2/L3): L2
-  - Owner: Supply/Logistics
-
-- **I2 — Stockout Prevention**
-  - Trigger (formal): supply.stockout_impact.pct > target
-  - Description: Improve safety stock/replenishment, expedite critical items
-  - Expected KPI Impact: Reduce stockout impact, improve OTIF
-  - Level (L1/L2/L3): L2
-  - Owner: Supply Planning
-
-- **D1 — Cost Take-Out**
-  - Trigger (formal): Penalties/expedites above materiality
-  - Description: Reduce penalties/expedites via SLA adherence and planning fixes
-  - Expected KPI Impact: Lower costs, improve service stability
-  - Level (L1/L2/L3): L2
-  - Owner: Procurement / Logistics
-
-- **O2 (Planning variant) — Forecast/process stabilisation**
-  - Trigger (formal): Plan/actual variance causing service misses
-  - Description: Improve plan, align supply with demand
-  - Expected KPI Impact: Improve OTIF, reduce expedites
-  - Level (L1/L2/L3): L2
-  - Owner: S&OP
-
----
+| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
+|-------------|------|------------------|-------------|---------------------|------------------|-------|
+| S-R2.1 | OTIF Orchestration | supply.expedite.amount > expedite_materiality; supply.otif.pct < otif_target | Select dominant OTIF lever (transport, in-full, cost containment, planning alignment); Sequence actions to avoid expedites masking structural failures | supply.otif.pct +1.0-4.0 pp (1-3 periods) | L1 | Supply Chain Leadership |
+| S-R2.3 | In-Full & Stockout Impact Reduction | supply.stockout_impact.pct > stockout_target | Stabilise short-term supply allocation to protect in-full delivery; Prioritise constrained supply to highest service impact lanes | Impact: High | L1 | Supply Planning |
+| S-R2.4 | Penalty & Expedite Cost Control | supply.penalty.amount > penalty_materiality | Identify structurally avoidable service-failure costs; Differentiate justified expedites from systemic inefficiencies | Impact: Medium | L2 | Logistics / Procurement |
 
 ## 6. 3-30-300 Page Layout (Mandatory)
 

@@ -137,7 +137,7 @@ required_kpis:
 
 ## 4. Business Logic & Thresholds
 
-Formal rules that define performance and action triggers.
+Formal rules that define performance and action codes.
 
 ### 4.1 Logic Description
 
@@ -145,75 +145,49 @@ Formal rules that define performance and action triggers.
 - Flag rising overtime and shrinkage; correlate with SLA and backlog.
 - Identify queues/regions with backlog risk due to capacity gaps.
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
+### 4.2 Formal Action Code Rules (Machine-Readable)
 
 ```yaml
-triggers:
+action_codes:
 
   - kpi: res.utilization.pct
     condition: outside
     threshold: [util_lower, util_upper]
     scope: queue_region_channel
     exclusion: training/new hires
-    action_code: O2
+    action_code: X-R2.1
 
   - kpi: res.occupancy.pct
     condition: outside
     threshold: [occ_lower, occ_upper]
     scope: queue_region_channel
     exclusion: training/new hires
-    action_code: O2
+    action_code: X-R2.2
 
   - kpi: res.overtime.pct
     condition: >
     threshold: overtime_target
     scope: queue_region
     exclusion: crisis
-    action_code: M2
+    action_code: X-R2.1
 
   - kpi: res.shrinkage.pct
     condition: >
     threshold: shrinkage_target
     scope: queue_region
     exclusion: planned_absences
-    action_code: O2
+    action_code: X-R2.3
 ```
 
 ---
 
 ## 5. Action Codes (Mandatory)
 
-Link business behavior to measurable outcomes.
-
-- **O2 — Operations Stabilisation**
-  - Trigger (formal): Utilization/Occupancy outside band; backlog risk
-  - Description: Rebalance staffing, reforecast WFM, adjust routing
-  - Expected KPI Impact: Improve SLA, balance utilization
-  - Level (L1/L2/L3): L2
-  - Owner: Service Ops / WFM
-
-- **M2 — Performance Uplift**
-  - Trigger (formal): Overtime high
-  - Description: Shift mix, cross-train, automation to reduce overtime
-  - Expected KPI Impact: Reduce overtime, stabilize SLA
-  - Level (L1/L2/L3): L2
-  - Owner: WFM / Service Ops
-
-- **L2 — Quality & Yield**
-  - Trigger (formal): High shrinkage or low FCR tied to resource issues
-  - Description: Training/coaching, process fixes
-  - Expected KPI Impact: Reduce shrinkage, improve FCR/SLA
-  - Level (L1/L2/L3): L2
-  - Owner: CX/Training
-
-- **D1 — Cost Take-Out**
-  - Trigger (formal): Excess capacity/inefficient shift mix
-  - Description: Optimize staffing, reduce idle time
-  - Expected KPI Impact: Reduce cost-to-serve
-  - Level (L1/L2/L3): L2
-  - Owner: Service Ops / Finance
-
----
+| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
+|-------------|------|------------------|-------------|---------------------|------------------|-------|
+| X-R2.1 | Resource Utilization Orchestration | res.overtime.pct > overtime_target; res.utilization.pct outside | Select dominant utilization lever (reallocation, shrinkage control, overtime containment); Sequence utilization actions to avoid overload or idle pockets | res.utilization.pct +3.0-8.0 pp (1-3 periods) | L1 | Service Operations / Workforce Management Leadership |
+| X-R2.2 | Capacity Reallocation & Load Balancing | res.occupancy.pct outside | Shift staffing between queues, channels, and regions; Smooth short-term demand–capacity mismatches | res.utilization.pct +4.0-10.0 pp (1-2 periods) | L1 | Workforce Management |
+| X-R2.3 | Shrinkage & Productive Time Control | res.shrinkage.pct > shrinkage_target | Identify and reduce structural non-productive time drivers; Stabilise productive time without overloading agents | Impact: Medium | L2 | Service Operations / CX |
 
 ## 6. 3-30-300 Page Layout (Mandatory)
 

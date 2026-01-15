@@ -135,7 +135,7 @@ required_kpis:
 
 ## 4. Business Logic & Thresholds
 
-Formal rules that define performance and action triggers.
+Formal rules that define performance and action codes.
 
 ### 4.1 Logic Description
 
@@ -143,54 +143,49 @@ Formal rules that define performance and action triggers.
 - Highlight obsolete inventory % above threshold.
 - Flag forecast accuracy below target for items with excess or stockouts.
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
+### 4.2 Formal Action Code Rules (Machine-Readable)
 
 ```yaml
-triggers:
+action_codes:
 
   - kpi: inv.dio.days
     condition: >
     threshold: dio_target
     scope: location_category
     exclusion: new_items
-    action_code: I1
+    action_code: S-I1.1
 
   - kpi: inv.stockout.pct
     condition: >
     threshold: stockout_target
     scope: location_category
     exclusion: force_majeure
-    action_code: I2
+    action_code: S-I1.1
 
   - kpi: inv.obsolete.pct
     condition: >
     threshold: obsolete_target
     scope: location_category
     exclusion: end_of_life_planned
-    action_code: D1
+    action_code: S-I1.4
 
   - kpi: plan.forecast.accuracy.pct
     condition: <
     threshold: forecast_target
     scope: top_variance_skus
     exclusion: launch_items
-    action_code: O2
+    action_code: S-I1.5
 ```
 
 ---
 
 ## 5. Action Codes (Mandatory)
 
-Link business behavior to measurable outcomes.
-
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
 |-------------|------|------------------|-------------|---------------------|------------------|-------|
-| I1 | Inventory Rightsizing | inv.dio.days > target | Reduce safety stock/lot sizes; clearance for excess | Lower DIO, improve turnover | L2 | Supply Planning |
-| I2 | Stockout Prevention | inv.stockout.pct > target OR OTIF < target | Fix replenishment parameters, expedite shipments | Reduce stockouts, improve OTIF | L2 | Supply & Logistics |
-| D1 | Cost Take-Out / Obsolescence | inv.obsolete.pct > target | Liquidate obsolete stock, prevent rebuys | Reduce obsolete %, DIO | L2 | Inventory Mgmt / Finance |
-| O2 | Operations Stabilisation (Forecast/Process) | plan.forecast.accuracy.pct < target | Improve forecast, align plan with supply | Reduce variance-driven excess/stockouts | L2 | Demand/S&OP |
-
----
+| S-I1.1 | Inventory Orchestration | inv.dio.days > dio_target; inv.stockout.pct > stockout_target | Select dominant inventory lever per SKU/location (rightsizing, stockout prevention, obsolescence, planning); Sequence inventory actions to avoid capital vs service conflicts | Impact: High | L1 | Supply Chain Leadership |
+| S-I1.4 | Obsolescence & Excess Reduction | inv.obsolete.pct > obsolete_target | Identify and liquidate obsolete or slow-moving inventory; Block replenishment of structurally obsolete SKUs | Impact: Medium | L2 | Inventory Management / Finance |
+| S-I1.5 | Forecast & Planning Stabilisation | plan.forecast.accuracy.pct < forecast_target | Stabilise planning parameters and governance where forecast error drives inventory imbalance; Escalate structurally unstable demand-planning processes | plan.forecast.accuracy.pct +5.0-15.0 pp (2-6 periods) | L2 | Demand Planning / S&OP |
 
 ## 6. 3-30-300 Page Layout (Mandatory)
 

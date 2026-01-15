@@ -10,8 +10,8 @@ It is the methodological backbone of the framework.
 
 If you are new to this framework, start with:
 
-1. `operating_model_overview.md`
-2. `golden_thread_strategy_to_action.md`
+1. `golden_thread_strategy_to_action.md`
+2. `operating_model_overview.md`
 
 These two documents explain the operating model end-to-end without technical detail.
 

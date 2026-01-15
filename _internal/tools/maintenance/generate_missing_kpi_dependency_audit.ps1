@@ -1,11 +1,10 @@
 Param(
   [string]$UseCasesRoot = "usecases",
   [string]$KpiCatalogRoot = "framework/kpi_catalog",
-  [string]$InventoryPath = "usecases/UseCase_Inventory.md",
   [string]$ActionCodesRoot = "framework/action_codes",
   [string]$UseCaseActionCodeMapPath = "usecases/UseCase_ActionCode_Map.yaml",
   [string]$MeasureDictRoot = "semantic_models/domains",
-  [switch]$FailOnError
+  [string]$OutputPath = "_internal/reviews/missing_kpi_dependency_audit.md"
 )
 
 $ErrorActionPreference = "Stop"
@@ -28,7 +27,7 @@ function Resolve-RepoPath {
 function Get-FrontMatterText {
   param([string]$Path)
   $content = Get-Content -Raw -Path $Path
-  $match = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---")
+  $match = [regex]::Match($content, '(?ms)^---\s*\r?\n(.*?)\r?\n---')
   if (-not $match.Success) { return $null }
   return $match.Groups[1].Value
 }
@@ -37,7 +36,7 @@ function Get-BodyText {
   param([string]$Path)
   $content = Get-Content -Raw -Path $Path
   if (-not $content) { return "" }
-  $withoutFrontMatter = [regex]::Replace($content, "(?ms)^---\s*\r?\n.*?\r?\n---\s*", "")
+  $withoutFrontMatter = [regex]::Replace($content, '(?ms)^---\s*\r?\n.*?\r?\n---\s*', '')
   return $withoutFrontMatter
 }
 
@@ -59,7 +58,7 @@ function Parse-ListField {
   $block = [regex]::Match($FrontMatter, "(?ms)^\s*$escaped\s*:\s*(?:#.*)?\r?\n(?<body>(?:\s{2,}-\s*[^\r\n]*\r?\n?)+)")
   if ($block.Success) {
     $results = @()
-    foreach ($rawLine in ($block.Groups['body'].Value -split "\r?\n")) {
+    foreach ($rawLine in ($block.Groups['body'].Value -split '\r?\n')) {
       $line = $rawLine.Trim()
       if (-not $line) { continue }
       if ($line -match '^\s*-\s*(.*)$') { $value = $matches[1].Trim() } else { continue }
@@ -84,11 +83,11 @@ function Get-MapKeys {
   if (-not $match.Success) { return @() }
   $keys = @()
   $startIndex = $match.Index + $match.Length
-  $lines = $FrontMatter.Substring($startIndex) -split "\r?\n"
+  $lines = $FrontMatter.Substring($startIndex) -split '\r?\n'
   foreach ($line in $lines) {
     if ($line.Trim().Length -eq 0) { continue }
     if ($line -notmatch "^\s+") { break }
-    $kv = [regex]::Match($line, "^\s*([^:]+):\s*[`"'](.*?)[`"']\s*$")
+    $kv = [regex]::Match($line, '^\s*([^:]+):\s*"(.*?)"\s*$')
     if ($kv.Success) { $keys += $kv.Groups[1].Value.Trim() }
   }
   return $keys
@@ -195,53 +194,86 @@ function Get-KpiIdsFromActionCodes {
   return $ids
 }
 
-function Get-KpiIdsFromMeasureDictionaries {
-  param([string]$Root,[System.Collections.Generic.HashSet[string]]$CatalogIds)
-  $ids = [System.Collections.Generic.HashSet[string]]::new()
-  if (-not (Test-Path $Root)) { return $ids }
-  Get-ChildItem -Path $Root -Recurse -Filter "Measure_Dictionary_*.md" -File | ForEach-Object {
-    foreach ($line in Get-Content -Path $_.FullName) {
-      if ($line -match '^\s*kpi_id_ref\s*:\s*"?([^"\s]+)"?') {
-        $value = $matches[1]
-        if ($value -and $CatalogIds.Contains($value)) { $null = $ids.Add($value) }
+function Parse-MeasureDictionary {
+  param([string]$Path)
+  $content = Get-Content -Raw -Path $Path
+  $match = [regex]::Match($content, '(?ms)```yaml\s*\r?\n(.*?)\r?\n```')
+  if (-not $match.Success) { return @() }
+  $lines = $match.Groups[1].Value -split '\r?\n'
+  $measures = @()
+  $current = $null
+  $inDaxBlock = $false
+  $daxIndent = 0
+  foreach ($line in $lines) {
+    if ($line -match '^\s*-\s*measure_name\s*:\s*"?([^"]+)"?\s*$') {
+      if ($current) { $measures += $current }
+      $current = [PSCustomObject]@{
+        measure_name = $matches[1].Trim()
+        kpi_id_ref = ""
+        is_kpi_measure = $false
+        dax = ""
       }
+      $inDaxBlock = $false
+      continue
+    }
+    if (-not $current) { continue }
+    if ($line -match '^\s*is_kpi_measure\s*:\s*(true|false)\s*$') {
+      $current.is_kpi_measure = ($matches[1] -eq "true")
+      continue
+    }
+    if ($line -match '^\s*kpi_id_ref\s*:\s*"?([^"\s]+)"?\s*$') {
+      $current.kpi_id_ref = $matches[1].Trim()
+      continue
+    }
+    if ($line -match '^\s*dax\s*:\s*(.*)$') {
+      $value = $matches[1].Trim()
+      $value = $value.Trim('"')
+      $current.dax = $value
+      if ($value -eq "" -or $value -eq "|" -or $value -eq ">") {
+        $inDaxBlock = $true
+        $daxIndent = ($line.Length - $line.TrimStart().Length) + 2
+        $current.dax = ""
+      }
+      continue
+    }
+    if ($inDaxBlock) {
+      $indent = $line.Length - $line.TrimStart().Length
+      if ($indent -lt $daxIndent) {
+        $inDaxBlock = $false
+        continue
+      }
+      $current.dax += ($line.Substring($daxIndent) + "`n")
+      continue
     }
   }
-  return $ids
+  if ($current) { $measures += $current }
+  return $measures
+}
+
+function Get-MeasureRefsFromDax {
+  param([string]$Dax,[System.Collections.Generic.HashSet[string]]$KnownMeasures)
+  $refs = [System.Collections.Generic.HashSet[string]]::new()
+  if (-not $Dax) { return $refs }
+  foreach ($match in [regex]::Matches($Dax, '\[([^\]]+)\]')) {
+    $name = $match.Groups[1].Value.Trim()
+    if ($KnownMeasures.Contains($name)) { $null = $refs.Add($name) }
+  }
+  return $refs
 }
 
 $useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "usecases"
 $kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative "framework/kpi_catalog"
-$inventoryPath = Resolve-RepoPath -ProvidedPath $InventoryPath -DefaultRelative "usecases/UseCase_Inventory.md"
 $actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "framework/action_codes"
 $actionCodeMapPath = Resolve-RepoPath -ProvidedPath $UseCaseActionCodeMapPath -DefaultRelative "usecases/UseCase_ActionCode_Map.yaml"
 $measureDictRoot = Resolve-RepoPath -ProvidedPath $MeasureDictRoot -DefaultRelative "semantic_models/domains"
-if (-not $useCasesRoot) { throw "UseCases root not found. Provide -UseCasesRoot or run inside repository." }
-if (-not $kpiCatalogRoot) { throw "KPI catalog root not found. Provide -KpiCatalogRoot or run inside repository." }
+$outputPath = Resolve-RepoPath -ProvidedPath $OutputPath -DefaultRelative "_internal/reviews/missing_kpi_dependency_audit.md"
 
-Write-Host "KPI Catalog -> Factsheets coverage" -ForegroundColor Cyan
-Write-Host "Note: This list checks core factsheets, core action codes, inventory mentions, and measure dictionaries." -ForegroundColor DarkGray
-Write-Host "It does not consider KPI aliases or KPIs used only as intermediate inputs." -ForegroundColor DarkGray
+if (-not $useCasesRoot) { throw "UseCases root not found." }
+if (-not $kpiCatalogRoot) { throw "KPI catalog root not found." }
+if (-not $measureDictRoot) { throw "Measure dictionary root not found." }
+if (-not $outputPath) { $outputPath = (Join-Path -Path (Get-Location).Path -ChildPath "_internal/reviews/missing_kpi_dependency_audit.md") }
+
 $catalogIds = Get-KpiIdsFromCatalog -Root $kpiCatalogRoot
-$inventoryRefs = [System.Collections.Generic.HashSet[string]]::new()
-$factsheetRefs = [System.Collections.Generic.HashSet[string]]::new()
-$actionCodeRefs = [System.Collections.Generic.HashSet[string]]::new()
-$measureDictRefs = [System.Collections.Generic.HashSet[string]]::new()
-$allRefs = [System.Collections.Generic.HashSet[string]]::new()
-foreach ($id in (Get-KpiTokensFromText -Text (Get-Content -Raw -Path $inventoryPath -ErrorAction SilentlyContinue))) {
-  if ($catalogIds.Contains($id)) { $null = $inventoryRefs.Add($id) }
-}
-
-Get-ChildItem -Path $useCasesRoot -Recurse -Filter "*Factsheet*.md" | ForEach-Object {
-  $fm = Get-FrontMatterText -Path $_.FullName
-  if (-not $fm) { return }
-  foreach ($id in (Parse-ListField -FrontMatter $fm -Field "required_kpi_ids")) { $null = $factsheetRefs.Add($id) }
-  foreach ($id in (Parse-ListField -FrontMatter $fm -Field "supports_strategic_kpi_ids")) { $null = $factsheetRefs.Add($id) }
-  foreach ($id in (Get-MapKeys -FrontMatter $fm -Field "required_kpis")) { $null = $factsheetRefs.Add($id) }
-  foreach ($id in (Get-KpiTokensFromText -Text (Get-BodyText -Path $_.FullName))) {
-    if ($catalogIds.Contains($id)) { $null = $factsheetRefs.Add($id) }
-  }
-}
 
 $coreUseCaseIds = Get-CoreUseCaseIds -Root $useCasesRoot
 $actionCodes = [System.Collections.Generic.HashSet[string]]::new()
@@ -253,37 +285,113 @@ if ($coreUseCaseIds.Count -gt 0 -and $actionCodesRoot -and $actionCodeMapPath) {
 foreach ($code in (Get-ActionCodesFromFactsheets -Root $useCasesRoot)) {
   $null = $actionCodes.Add($code)
 }
+
+$coreKpiIds = [System.Collections.Generic.HashSet[string]]::new()
+Get-ChildItem -Path (Join-Path $useCasesRoot "core") -Recurse -Filter "*Factsheet*.md" | ForEach-Object {
+  $fm = Get-FrontMatterText -Path $_.FullName
+  if (-not $fm) { return }
+  foreach ($id in (Parse-ListField -FrontMatter $fm -Field "required_kpi_ids")) {
+    if ($catalogIds.Contains($id)) { $null = $coreKpiIds.Add($id) }
+  }
+  foreach ($id in (Parse-ListField -FrontMatter $fm -Field "supports_strategic_kpi_ids")) {
+    if ($catalogIds.Contains($id)) { $null = $coreKpiIds.Add($id) }
+  }
+  foreach ($id in (Get-MapKeys -FrontMatter $fm -Field "required_kpis")) {
+    if ($catalogIds.Contains($id)) { $null = $coreKpiIds.Add($id) }
+  }
+  foreach ($id in (Get-KpiTokensFromText -Text (Get-BodyText -Path $_.FullName))) {
+    if ($catalogIds.Contains($id)) { $null = $coreKpiIds.Add($id) }
+  }
+}
+
 if ($actionCodesRoot) {
   foreach ($id in (Get-KpiIdsFromActionCodes -Root $actionCodesRoot -ActionCodes $actionCodes -CatalogIds $catalogIds)) {
-    $null = $actionCodeRefs.Add($id)
+    $null = $coreKpiIds.Add($id)
   }
 }
 
-if ($measureDictRoot) {
-  foreach ($id in (Get-KpiIdsFromMeasureDictionaries -Root $measureDictRoot -CatalogIds $catalogIds)) {
-    $null = $measureDictRefs.Add($id)
+$allMeasures = @()
+Get-ChildItem -Path $measureDictRoot -Recurse -Filter "Measure_Dictionary_*.md" -File | Where-Object {
+  $_.FullName -notmatch '\\archive\\' -and $_.Name -notmatch '_Archive\.md$'
+} | ForEach-Object {
+  $allMeasures += (Parse-MeasureDictionary -Path $_.FullName)
+}
+
+$measureNameSet = [System.Collections.Generic.HashSet[string]]::new()
+$measureByName = @{}
+foreach ($measure in $allMeasures) {
+  if (-not $measure.measure_name) { continue }
+  $null = $measureNameSet.Add($measure.measure_name)
+  if (-not $measureByName.ContainsKey($measure.measure_name)) {
+    $measureByName[$measure.measure_name] = New-Object System.Collections.Generic.List[object]
+  }
+  $measureByName[$measure.measure_name].Add($measure) | Out-Null
+}
+
+$missingById = @{}
+foreach ($measure in $allMeasures) {
+  if (-not $measure.is_kpi_measure) { continue }
+  if (-not $measure.kpi_id_ref) { continue }
+  if ($catalogIds.Contains($measure.kpi_id_ref)) { continue }
+  if (-not $missingById.ContainsKey($measure.kpi_id_ref)) {
+    $missingById[$measure.kpi_id_ref] = New-Object System.Collections.Generic.List[string]
+  }
+  if (-not $missingById[$measure.kpi_id_ref].Contains($measure.measure_name)) {
+    $missingById[$measure.kpi_id_ref].Add($measure.measure_name) | Out-Null
   }
 }
 
-foreach ($id in $inventoryRefs) { $null = $allRefs.Add($id) }
-foreach ($id in $factsheetRefs) { $null = $allRefs.Add($id) }
-foreach ($id in $actionCodeRefs) { $null = $allRefs.Add($id) }
-foreach ($id in $measureDictRefs) { $null = $allRefs.Add($id) }
-
-Write-Host "Coverage counts (unique KPI IDs):" -ForegroundColor DarkGray
-Write-Host ("  Factsheets:           {0}" -f $factsheetRefs.Count) -ForegroundColor DarkGray
-Write-Host ("  Inventory:            {0}" -f $inventoryRefs.Count) -ForegroundColor DarkGray
-Write-Host ("  Core Action Codes:    {0}" -f $actionCodeRefs.Count) -ForegroundColor DarkGray
-Write-Host ("  Measure Dictionaries: {0}" -f $measureDictRefs.Count) -ForegroundColor DarkGray
-Write-Host ("  Total covered:        {0}" -f $allRefs.Count) -ForegroundColor DarkGray
-
-$unused = $catalogIds | Where-Object { -not $allRefs.Contains($_) } | Sort-Object
-
-if ($unused.Count -gt 0) {
-  Write-Host "KPI IDs not referenced in factsheets:" -ForegroundColor Yellow
-  $unused | ForEach-Object { Write-Host "  - $_" }
-  if ($FailOnError) { exit 1 }
-  exit 0
+$dependencies = @{}
+foreach ($measure in $allMeasures) {
+  $refs = Get-MeasureRefsFromDax -Dax $measure.dax -KnownMeasures $measureNameSet
+  $dependencies[$measure.measure_name] = $refs
 }
 
-Write-Host "OK: all KPI IDs are referenced in factsheets." -ForegroundColor Green
+$requiredMissing = [System.Collections.Generic.HashSet[string]]::new()
+$visited = [System.Collections.Generic.HashSet[string]]::new()
+$queue = New-Object System.Collections.Generic.Queue[string]
+foreach ($name in $measureByName.Keys) {
+  foreach ($entry in $measureByName[$name]) {
+    if ($entry.kpi_id_ref -and $coreKpiIds.Contains($entry.kpi_id_ref)) {
+      $queue.Enqueue($name)
+      break
+    }
+  }
+}
+
+while ($queue.Count -gt 0) {
+  $current = $queue.Dequeue()
+  if ($visited.Contains($current)) { continue }
+  $null = $visited.Add($current)
+  if ($measureByName.ContainsKey($current)) {
+    foreach ($entry in $measureByName[$current]) {
+      if ($entry.kpi_id_ref -and $missingById.ContainsKey($entry.kpi_id_ref)) {
+        $null = $requiredMissing.Add($entry.kpi_id_ref)
+      }
+    }
+  }
+  if ($dependencies.ContainsKey($current)) {
+    foreach ($next in $dependencies[$current]) { $queue.Enqueue($next) }
+  }
+}
+
+$lines = @()
+$lines += "# Missing KPI Dependency Audit"
+$lines += ""
+$lines += ("- Timestamp: {0}" -f (Get-Date -Format "yyyy-MM-ddTHH:mm:ss"))
+$lines += ("- Core KPI ids (factsheets + action codes): {0}" -f $coreKpiIds.Count)
+$lines += ("- Missing KPI ids (measure dictionaries not in KPI catalogs): {0}" -f $missingById.Keys.Count)
+$lines += ""
+$lines += "| Missing KPI ID | Measure Name(s) | Required for Core KPIs? |"
+$lines += "|---|---|---|"
+foreach ($id in ($missingById.Keys | Sort-Object)) {
+  $names = ($missingById[$id] | Sort-Object) -join ", "
+  $required = if ($requiredMissing.Contains($id)) { "yes" } else { "no" }
+  $lines += ("| {0} | {1} | {2} |" -f $id, $names, $required)
+}
+
+$dir = Split-Path -Path $outputPath -Parent
+if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
+$lines | Set-Content -Path $outputPath
+
+Write-Host ("Wrote audit: {0}" -f $outputPath) -ForegroundColor Green

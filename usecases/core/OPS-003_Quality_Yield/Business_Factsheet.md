@@ -145,7 +145,7 @@ required_kpis:
 
 ## 4. Business Logic & Thresholds
 
-Formal rules that define performance and action triggers.
+Formal rules that define performance and action codes.
 
 ### 4.1 Logic Description
 
@@ -153,54 +153,49 @@ Formal rules that define performance and action triggers.
 - Escalate defect density hotspots and top COPQ contributors.
 - Flag rising complaint rate correlated with specific lines/products.
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
+### 4.2 Formal Action Code Rules (Machine-Readable)
 
 ```yaml
-triggers:
+action_codes:
 
   - kpi: quality.fpy.pct
     condition: <
     threshold: line_target
     scope: line_week
     exclusion: ramp-up runs
-    action_code: L2
+    action_code: O-Q3.1
 
   - kpi: quality.scrap.pct
     condition: >
     threshold: 0.02
     scope: line_week
     exclusion: trial_runs
-    action_code: L2
+    action_code: O-Q3.1
 
   - kpi: quality.copq.amount
     condition: >
     threshold: copq_materiality
     scope: product_family
     exclusion: none
-    action_code: D1
+    action_code: O-Q3.4
 
   - kpi: quality.complaint.pct
     condition: >
     threshold: target
     scope: product_family
     exclusion: none
-    action_code: O2
+    action_code: O-Q3.5
 ```
 
 ---
 
 ## 5. Action Codes (Mandatory)
 
-Link business behavior to measurable outcomes.
-
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
 |-------------|------|------------------|-------------|---------------------|------------------|-------|
-| L2 | Quality & Yield | FPY below target or scrap/rework above threshold | Fix defect causes, tighten process controls, adjust parameters | Improve FPY, reduce scrap/rework | L2 | Quality / Production |
-| O2 | Operations Stabilisation | Complaint rate high linked to process instability | Stabilise process, address variation | Reduce complaints, improve FPY | L2 | Ops Excellence |
-| D1 | Cost Take-Out / COPQ Reduction | COPQ above materiality | Remove waste, improve supplier/material/process controls | Reduce COPQ, scrap | L2 | Quality / Procurement |
-| M2 | Performance Uplift | Performance loss tied to rework loops | Reduce rework loops to free capacity | Improve performance, FPY | L2 | Production |
-
----
+| O-Q3.1 | Quality & Yield Orchestration | quality.fpy.pct < line_target; quality.scrap.pct > 0.02 | Select dominant quality lever (defects, scrap, rework, COPQ, complaints); Sequence quality actions to avoid parallel disruption | quality.fpy.pct +1.0-3.0 pp (1-3 periods) | L1 | Quality / Operations Leadership |
+| O-Q3.4 | COPQ Reduction | quality.copq.amount > copq_materiality | Prioritise quality actions by financial impact; Redirect quality effort to top COPQ drivers | Impact: High | L2 | Quality / Finance |
+| O-Q3.5 | Complaint-Driven Stabilisation | quality.complaint.pct > target | Prioritise process stabilisation based on customer complaint signals; Prevent recurrence of externally visible quality defects | Impact: High | L2 | Quality / Operations Excellence |
 
 ## 6. 3-30-300 Page Layout (Mandatory)
 

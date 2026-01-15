@@ -137,7 +137,7 @@ required_kpis:
 
 ### 4.1 Logic Description
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
+### 4.2 Formal Action Code Rules (Machine-Readable)
 
 - Flag regions/channels with Net Sales % vs Plan below guardrail for 2
   consecutive months.
@@ -146,71 +146,46 @@ required_kpis:
 - Apply pricing/mix actions only where GM % guardrails hold.
 
 ```yaml
-triggers:
+action_codes:
 
   - kpi: sales.net_sales.delta_pct.plan
     condition: below_guardrail
     threshold: -0.02
     scope: Region/Channel, Month
     exclusion: none
-    action_code: P4
+    action_code: C-S1.2
 
   - kpi: margin.gm.pct
     condition: below_target
     threshold: 0.25
     scope: Region/Channel, Month
     exclusion: approved promos
-    action_code: P2
+    action_code: C-S1.1
 
   - kpi: sales.pvm.price_effect.amount
     condition: negative
     threshold: 0
     scope: Region/Channel
     exclusion: none
-    action_code: P2
+    action_code: C-S1.1
 
   - kpi: sales.pvm.mix_effect.amount
     condition: negative
     threshold: 0
     scope: Region/Channel
     exclusion: strategic SKUs
-    action_code: M3
+    action_code: C-S1.3
 ```
 
 ---
 
 ## 5. Action Codes (Mandatory)
 
-- **P2 — Margin Leakage Correction**
-  - Trigger (formal): GM % below target or price effect negative
-  - Description: Tighten discounting, enforce floors/approvals
-  - Expected KPI Impact: Improve GM %, stabilise revenue
-  - Level (L1/L2/L3): L2
-  - Owner: Pricing / Sales Ops
-
-- **P4 — Price Repositioning**
-  - Trigger (formal): Net Sales % vs Plan below guardrail
-  - Description: Adjust price/pack/discount to recover growth without eroding
-    margin
-  - Expected KPI Impact: Increase Net Sales %, stable GM %
-  - Level (L1/L2/L3): L2
-  - Owner: Commercial
-
-- **M3 — Mix Optimisation**
-  - Trigger (formal): Mix effect negative
-  - Description: Shift to higher-margin SKUs/bundles
-  - Expected KPI Impact: Improve GM % and Net Sales
-  - Level (L1/L2/L3): L2
-  - Owner: Category Mgmt
-
-- **D1 — Cost Take-Out / COGS Control**
-  - Trigger (formal): Margin erosion due to COGS
-  - Description: Negotiate terms, switch inputs/logistics
-  - Expected KPI Impact: Improve GM %
-  - Level (L1/L2/L3): L2
-  - Owner: Procurement / Ops
-
----
+| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
+|-------------|------|------------------|-------------|---------------------|------------------|-------|
+| C-S1.1 | Price Discipline Enforcement | margin.gm.pct below_target 0.25; sales.pvm.price_effect.amount negative 0 | Enforce discount floors; Require approval for price exceptions | margin.gm.pct +0.5-1.5 pp (1-3 periods) | L1 | Commercial |
+| C-S1.2 | Sales Gap Recovery via Price & Pack Adjustment | sales.net_sales.delta_pct.plan below_guardrail -0.02 | Adjust price corridors within GM guardrails; Introduce tactical pack-size or price-point adjustments | sales.net_sales.amount +1.0-3.0 % (1-2 periods) | L2 | Commercial |
+| C-S1.3 | Mix Steering to Margin-Safe Growth | sales.pvm.mix_effect.amount negative 0 | Prioritize higher-margin SKUs in sales focus; Deprioritize low-margin volume drivers | margin.gm.pct +0.3-1.0 pp (1-3 periods) | L2 | Commercial |
 
 ## 6. 3-30-300 Page Layout (Mandatory)
 

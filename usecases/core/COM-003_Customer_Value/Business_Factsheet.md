@@ -143,7 +143,7 @@ required_kpis:
 
 ### 4.1 Logic Description
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
+### 4.2 Formal Action Code Rules (Machine-Readable)
 
 - Flag segments with retention below target or churned count rising for 2 consecutive months.
 - Prioritise high revenue-at-risk segments for retention playbooks.
@@ -151,35 +151,35 @@ required_kpis:
 - Price/mix changes applied only where margin guardrails hold (via COM-002/P2).
 
 ```yaml
-triggers:
+action_codes:
 
   - kpi: crm.retention.pct
     condition: below_target
     threshold: retention_target_pct
     scope: segment_channel
     exclusion: new_customers < 3 months
-    action_code: C1
+    action_code: C-C3.1
 
   - kpi: crm.churned_customers.count
     condition: above_target
     threshold: churn_volume_target
     scope: segment_channel
     exclusion: strategic_accounts
-    action_code: C1
+    action_code: C-C3.1
 
   - kpi: crm.clv.amount
     condition: below_target
     threshold: clv_target
     scope: priority_segments
     exclusion: none
-    action_code: M3
+    action_code: C-C3.3
 
   - kpi: crm.revenue_at_risk.amount
     condition: above_target
     threshold: risk_tolerance_amount
     scope: segment_channel
     exclusion: none
-    action_code: C1
+    action_code: C-C3.2
 ```
 
 ---
@@ -188,12 +188,9 @@ triggers:
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
 |-------------|------|------------------|-------------|---------------------|------------------|-------|
-| C1 | Retention Playbook | retention below target or churn above target | Targeted retention offers/CSM outreach | Reduce churn, lift retention | L2 | Sales / CS |
-| P2 | Margin Realisation Guardrails | margin guardrails required for offers | Tighten discounting, enforce floors/approvals | Improve margin, stabilise CLV | L2 | Pricing / Sales Ops |
-| M3 | Mix Optimisation | CLV below target in priority segments | Shift to higher-margin SKUs/bundles | Improve CLV and margin | L2 | Category Mgmt |
-| D1 | Cost Take-Out / COGS Control | Margin erosion due to COGS for key customers | Negotiate terms, switch inputs/logistics | Improve margin amount | L2 | Procurement / Ops |
-
----
+| C-C3.1 | Retention Playbook Activation | crm.churned_customers.count above_target churn_volume_target; crm.retention.pct below_target retention_target_pct | Trigger targeted retention outreach; Escalate high-risk accounts to Customer Success | crm.retention.pct +1.0-3.0 pp (1-3 periods) | L2 | Commercial / Customer Success |
+| C-C3.2 | High-Risk Revenue Prioritisation | crm.revenue_at_risk.amount above_target risk_tolerance_amount | Prioritise retention capacity toward highest value exposure; Sequence outreach by risk-weighted value | crm.revenue_at_risk.amount +5.0-15.0 % (1-3 periods) | L1 | Commercial / Sales Ops |
+| C-C3.3 | Customer Value Mix Steering | crm.clv.amount below_target clv_target | Steer customers toward higher-margin products and bundles; Prioritise upsell paths with positive CLV contribution | crm.clv.amount +5.0-15.0 % (2-6 periods) | L2 | Commercial / Category Management |
 
 ## 6. 3-30-300 Page Layout (Mandatory)
 

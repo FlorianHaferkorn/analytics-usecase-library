@@ -2,7 +2,8 @@
 
 Purpose:
 This document defines the **business domain structure** used by the Analytics Framework.
-Domains establish clear ownership, prevent KPI drift, and enable scalable analytics without increasing coordination overhead.
+Domains are introduced to scale and govern the Golden Thread.
+They do not define strategy, KPIs, or use cases, but provide ownership and boundaries as complexity grows.
 
 Domains are **business constructs**, not technical layers.
 

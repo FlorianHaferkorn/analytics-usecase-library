@@ -168,7 +168,7 @@ required_kpis:
 
 ## 4. Business Logic & Thresholds
 
-Formal rules that define performance and action triggers.
+Formal rules that define performance and action codes.
 
 ### 4.1 Logic Description
 
@@ -177,61 +177,58 @@ Formal rules that define performance and action triggers.
 - Flag PM compliance below target and correlate with downtime trend.
 - Flag spare-part stockouts above threshold for critical assets.
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
+### 4.2 Formal Action Code Rules (Machine-Readable)
 
 ```yaml
-triggers:
+action_codes:
 
   - kpi: ops.mtbf.hours
     condition: <
     threshold: asset_target
     scope: asset_month
     exclusion: ramp-up assets
-    action_code: O2
+    action_code: O-A2.2
 
   - kpi: ops.mttr.hours
     condition: >
     threshold: asset_target
     scope: asset_month
     exclusion: major_overhauls
-    action_code: L2
+    action_code: O-A2.3
 
   - kpi: ops.downtime.unplanned.pct
     condition: >
     threshold: 0.05
     scope: last_2_periods
     exclusion: planned_shutdowns
-    action_code: O2
+    action_code: O-A2.1
 
   - kpi: ops.pm_compliance.pct
     condition: <
     threshold: 0.95
     scope: month
     exclusion: deferred_by_design
-    action_code: O2
+    action_code: O-A2.4
 
   - kpi: ops.spare_parts.stockout.pct
     condition: >
     threshold: 0.02
     scope: critical_assets
     exclusion: none
-    action_code: D1
+    action_code: O-A2.5
 ```
 
 ---
 
 ## 5. Action Codes (Mandatory)
 
-Link business behavior to measurable outcomes.
-
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
 |-------------|------|------------------|-------------|---------------------|------------------|-------|
-| O2 | Operations Stabilisation | Unplanned downtime %, MTBF/MTTR off target | Address root causes, improve maintenance scheduling | Improve availability, reduce unplanned downtime | L2 | Ops Excellence / Maintenance |
-| L2 | Quality & Yield (repurposed for maintainability) | MTTR above target | Standardize repair procedures, tooling | Reduce MTTR, improve availability | L2 | Maintenance |
-| D1 | Cost Take-Out / Parts Readiness | Spare-part stockouts > threshold | Improve spare-part planning, vendor SLAs | Reduce stockouts, improve MTTR/availability | L2 | Maintenance / Procurement |
-| M2 | Performance Uplift | Performance losses linked to maintenance issues | Optimize setups, reduce micro-stops | Improve performance %, throughput | L2 | Production / Maintenance |
-
----
+| O-A2.1 | Reliability Orchestration | ops.downtime.unplanned.pct > 0.05 | Select dominant reliability lever per asset (MTBF, MTTR, PM, Parts); Sequence maintenance actions to avoid parallel disruption | ops.availability.pct +2.0-6.0 pp (1-3 periods) | L1 | Operations / Maintenance Leadership |
+| O-A2.2 | Failure Reduction (MTBF Improvement) | ops.mtbf.hours < asset_target | Prioritise dominant failure modes for elimination; Stabilise asset operating conditions to prevent recurrence | ops.mtbf.hours +10.0-30.0 % (2-6 periods) | L2 | Reliability Engineering / Maintenance |
+| O-A2.3 | Repair Time Reduction (MTTR Control) | ops.mttr.hours > asset_target | Accelerate fault diagnosis and repair execution; Standardise repair procedures for critical assets | Impact: Medium | L2 | Maintenance |
+| O-A2.4 | Preventive Maintenance Discipline | ops.pm_compliance.pct < 0.95 | Enforce on-time execution of preventive maintenance; Rebalance PM backlog and maintenance capacity | ops.pm_compliance.pct +5.0-10.0 pp (2-4 periods) | L1 | Maintenance Planning |
+| O-A2.5 | Spare Parts Readiness | ops.spare_parts.stockout.pct > 0.02 | Prioritise critical spare parts to prevent repair delays; Correct stocking and replenishment gaps for maintenance-critical items | Impact: Medium | L1 | Maintenance / Procurement |
 
 ## 6. 3-30-300 Page Layout (Mandatory)
 

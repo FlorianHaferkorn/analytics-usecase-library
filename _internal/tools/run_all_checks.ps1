@@ -3,7 +3,8 @@ Param(
   [string]$KpiCatalogRoot = "framework/kpi_catalog",
   [string]$DistRoot       = "dist",
   [string]$StatusReportPath = "_internal/reviews/run_all_checks_status.md",
-  [string]$TranscriptPath   = "_internal/reviews/run_all_checks_transcript.txt"
+  [string]$TranscriptPath   = "_internal/reviews/run_all_checks_transcript.txt",
+  [string]$ReportPath       = "_internal/reviews/run_all_checks_report.md"
 )
 
 $ErrorActionPreference = "Stop"
@@ -31,12 +32,17 @@ $repoRoot = (Get-Location).Path
 $useCasesRoot   = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'usecases'
 $kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
 $distRoot       = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'dist'
-
-$reportPath = Resolve-RepoPath -ProvidedPath $StatusReportPath -DefaultRelative $StatusReportPath
-if (-not $reportPath) {
-  $reportPath = Join-Path -Path $repoRoot -ChildPath $StatusReportPath
+$factsheetsRoot = $useCasesRoot
+$coreRoot = Join-Path -Path $useCasesRoot -ChildPath 'core'
+if (Test-Path $coreRoot) {
+  $factsheetsRoot = $coreRoot
 }
-$reportDir = Split-Path -Parent $reportPath
+
+$statusPath = Resolve-RepoPath -ProvidedPath $StatusReportPath -DefaultRelative $StatusReportPath
+if (-not $statusPath) {
+  $statusPath = Join-Path -Path $repoRoot -ChildPath $StatusReportPath
+}
+$reportDir = Split-Path -Parent $statusPath
 if ($reportDir -and -not (Test-Path $reportDir)) {
   New-Item -ItemType Directory -Path $reportDir -Force | Out-Null
 }
@@ -55,6 +61,7 @@ Start-Transcript -Path $transcriptPath -Force | Out-Null
 
 Write-Host "Running analytics-usecase-library checks..." -ForegroundColor Cyan
 Write-Host "UseCases:   $useCasesRoot" -ForegroundColor DarkGray
+Write-Host "Factsheets: $factsheetsRoot" -ForegroundColor DarkGray
 Write-Host "KPI Catalog: $kpiCatalogRoot" -ForegroundColor DarkGray
 Write-Host ""
 
@@ -114,13 +121,13 @@ function Invoke-LocalScript {
 }
 
 # 1) Validate FactSheets
-Invoke-LocalScript -RelativePath "_internal/tools/validation/validate_factsheets.ps1" -Arguments @("-UseCasesRoot", $useCasesRoot)
+Invoke-LocalScript -RelativePath "_internal/tools/validation/validate_factsheets.ps1" -Arguments @("-UseCasesRoot", $factsheetsRoot)
 
 # 2) Validate KPI catalogs
 Invoke-LocalScript -RelativePath "_internal/tools/validation/validate_kpi_catalog.ps1" -Arguments @("-KpiCatalogRoot", $kpiCatalogRoot)
 
 # 3) Check coverage FactSheet vs KPI catalog
-Invoke-LocalScript -RelativePath "_internal/tools/validation/check_factsheet_vs_kpi.ps1" -Arguments @("-UseCasesRoot", $useCasesRoot, "-KpiCatalogRoot", $kpiCatalogRoot)
+Invoke-LocalScript -RelativePath "_internal/tools/validation/check_factsheet_vs_kpi.ps1" -Arguments @("-UseCasesRoot", $factsheetsRoot, "-KpiCatalogRoot", $kpiCatalogRoot)
 
 # 4) Check measures vs KPI catalog
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_measures_vs_kpi.ps1" -Arguments @("-DistRoot", $distRoot, "-KpiCatalogRoot", $kpiCatalogRoot)
@@ -136,13 +143,13 @@ Invoke-LocalScript -RelativePath "_internal/tools/validation/check_docs_kpi_refs
 
 # 7) UseCase inventory vs Factsheets
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_usecase_inventory_vs_factsheets.ps1" -Arguments @(
-  "-UseCasesRoot", $useCasesRoot,
+  "-UseCasesRoot", $factsheetsRoot,
   "-InventoryPath", (Join-Path $repoRoot "usecases\UseCase_Inventory.md")
 )
 
 # 8) KPI catalog unused in Factsheets (warning by default)
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_kpi_catalog_unused_in_factsheets.ps1" -Arguments @(
-  "-UseCasesRoot", $useCasesRoot,
+  "-UseCasesRoot", $factsheetsRoot,
   "-KpiCatalogRoot", $kpiCatalogRoot
 )
 
@@ -161,13 +168,13 @@ Invoke-LocalScript -RelativePath "_internal/tools/validation/check_action_codes_
 
 # 11) Factsheets -> Action Codes existence
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_factsheet_action_codes.ps1" -Arguments @(
-  "-UseCasesRoot", $useCasesRoot,
+  "-UseCasesRoot", $factsheetsRoot,
   "-ActionCodesRoot", (Join-Path $repoRoot "framework\action_codes")
 )
 
 # 12) Factsheet layout vs templates
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_factsheet_layout.ps1" -Arguments @(
-  "-UseCasesRoot", $useCasesRoot,
+  "-UseCasesRoot", $factsheetsRoot,
   "-BusinessTemplate", (Join-Path $repoRoot "usecases\templates\usecase_factsheet_business.md"),
   "-TechnicalTemplate", (Join-Path $repoRoot "usecases\templates\usecase_factsheet_technical.md")
 )
@@ -180,7 +187,7 @@ Invoke-LocalScript -RelativePath "_internal/tools/validation/check_kpi_vs_measur
 
 # 14) DAX definitions vs Measure Dictionaries
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_dax_vs_measure_dictionary.ps1" -Arguments @(
-  "-UseCasesRoot", $useCasesRoot
+  "-UseCasesRoot", $factsheetsRoot
 )
 
 # 15) Measure Dictionaries vs Gold contracts
@@ -205,6 +212,7 @@ $reportLines += ""
 $reportLines += "- Timestamp: $(Get-Date -Format 's')"
 $reportLines += "- Repo: $repoRoot"
 $reportLines += "- UseCasesRoot: $useCasesRoot"
+$reportLines += "- FactsheetsRoot: $factsheetsRoot"
 $reportLines += "- KpiCatalogRoot: $kpiCatalogRoot"
 $reportLines += "- DistRoot: $distRoot"
 $reportLines += "- Transcript: $transcriptPath"
@@ -224,7 +232,81 @@ foreach ($result in $script:checkResults) {
   $reportLines += "| $($result.check) | $($result.status) | $($result.duration_sec) | $($result.arguments) | $errorCell |"
 }
 
-Set-Content -Path $reportPath -Value $reportLines -Encoding UTF8
+Set-Content -Path $statusPath -Value $reportLines -Encoding UTF8
+
+$consolidatedPath = Resolve-RepoPath -ProvidedPath $ReportPath -DefaultRelative $ReportPath
+if (-not $consolidatedPath) {
+  $consolidatedPath = Join-Path -Path $repoRoot -ChildPath $ReportPath
+}
+$consolidatedDir = Split-Path -Parent $consolidatedPath
+if ($consolidatedDir -and -not (Test-Path $consolidatedDir)) {
+  New-Item -ItemType Directory -Path $consolidatedDir -Force | Out-Null
+}
+
+$transcriptLines = @()
+if (Test-Path $transcriptPath) {
+  $transcriptLines = Get-Content -Path $transcriptPath
+}
+$sections = @{}
+$currentKey = $null
+$currentLines = New-Object 'System.Collections.Generic.List[string]'
+foreach ($line in $transcriptLines) {
+  if ($line -match '^\>\>\s*(.+)$') {
+    if ($currentKey) { $sections[$currentKey] = $currentLines.ToArray() }
+    $currentKey = $matches[1].Trim()
+    $currentLines = New-Object 'System.Collections.Generic.List[string]'
+    continue
+  }
+  if ($currentKey) { $currentLines.Add($line) | Out-Null }
+}
+if ($currentKey) { $sections[$currentKey] = $currentLines.ToArray() }
+
+$consolidated = @()
+$consolidated += "# Run All Checks Report"
+$consolidated += ""
+$consolidated += "- Timestamp: $(Get-Date -Format 's')"
+$consolidated += "- Repo: $repoRoot"
+$consolidated += "- UseCasesRoot: $useCasesRoot"
+$consolidated += "- FactsheetsRoot: $factsheetsRoot"
+$consolidated += "- KpiCatalogRoot: $kpiCatalogRoot"
+$consolidated += "- DistRoot: $distRoot"
+$consolidated += "- Status Report: $statusPath"
+$consolidated += "- Transcript: $transcriptPath"
+$consolidated += ""
+$consolidated += "## Summary"
+$consolidated += ""
+$consolidated += "- Total checks: $totalChecks"
+$consolidated += "- Failed checks: $failedChecks"
+$consolidated += ""
+$consolidated += "## Checks"
+$consolidated += ""
+$consolidated += "| Check | Status | Duration (s) | Arguments | Error |"
+$consolidated += "| --- | --- | ---: | --- | --- |"
+foreach ($result in $script:checkResults) {
+  $errorCell = $result.error
+  if (-not $errorCell) { $errorCell = "" }
+  $consolidated += "| $($result.check) | $($result.status) | $($result.duration_sec) | $($result.arguments) | $errorCell |"
+}
+
+$consolidated += ""
+$consolidated += "## Detailed Output"
+foreach ($result in $script:checkResults) {
+  $key = ($result.check + ' ' + $result.arguments).Trim()
+  $consolidated += ""
+  $consolidated += "### $($result.check)"
+  if ($sections.ContainsKey($key)) {
+    $consolidated += ""
+    $consolidated += '```text'
+    $consolidated += $sections[$key]
+    $consolidated += '```'
+  } else {
+    $consolidated += ""
+    $consolidated += "_No transcript output captured for this check._"
+  }
+}
+
+Set-Content -Path $consolidatedPath -Value $consolidated -Encoding UTF8
 
 Write-Host "All checks invoked. Review messages above for warnings or errors." -ForegroundColor Green
-Write-Host "Status report written to: $reportPath" -ForegroundColor DarkGray
+Write-Host "Status report written to: $statusPath" -ForegroundColor DarkGray
+Write-Host "Consolidated report written to: $consolidatedPath" -ForegroundColor DarkGray

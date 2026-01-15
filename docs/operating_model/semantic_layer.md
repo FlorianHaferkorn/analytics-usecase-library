@@ -1,305 +1,158 @@
-﻿# Action-Ready Semantic Layer
+﻿# Semantic Layer
 
-## 1. Role in the Operating Model
+The semantic layer is the structural foundation that connects business intent with analytical execution.
 
-The **semantic layer** is the central contract between:
+While the Golden Thread defines which decisions matter and why, and the Operating Model governs how analytical logic is maintained, the semantic layer provides the stable structure in which this logic is expressed.
 
-- business intent (strategic KPIs, domains, use cases) and  
-- technical implementation (data contracts, models, measures, reports).
-
-This document defines the **conceptual blueprint** for the ActionReady semantic model and how it is implemented in tools such as Microsoft Fabric / Power BI using TMDL/PBIP.
-
-It answers:
-
-- Which tables and grains are required?
-- How do Action Codes connect to KPIs and facts?
-- Which patterns must every domain follow?
-
-> Tenant-agnostic principle: The core ActionReady semantic layer is neutral to any specific company. Aurora Group artifacts under `showcases/aurora_group` are synthetic and illustrative only; any customer deployment instantiates the same blueprint with that customer’s domains, contracts, and conformed dimensions.
+It does not introduce strategy, KPIs, or actions.
+It enables their consistent implementation across domains, use cases, and tools.
 
 ---
 
-## 2. Core Principles
+## 1. Role in the framework
 
-Every ActionReady semantic model must follow these principles:
+The semantic layer operationalizes the Golden Thread within analytical models.
 
-1. **Star Schema First**  
-   - Facts at clearly defined business grains  
-   - Shared, conformed dimensions across domains  
+- Strategy, KPIs, and use cases define intent and decision logic.
+- The semantic layer translates this intent into governed analytical structures.
+- Measures, reports, and actions consume these structures without redefining meaning.
 
-2. **Stable Domain Aggregates**  
-   - Domain facts modeled at repeatable, auditable grains (e.g. product_customer_week).  
-
-3. **Action-Specific Aggregates**  
-   - Separate aggregation tables for Action Codes (leakage, root causes, uplift, etc.).  
-
-4. **Action Execution Tracking**  
-   - Dedicated fact table tracking which actions were executed, by whom, and with what effect.  
-
-5. **Measure-Driven (Not Column-Driven)**  
-   - Business logic is implemented as measures (see `measure_system.md`), not as calculated columns.  
-
-6. **AI-Ready Metadata**  
-   - Tables, columns, and measures must carry descriptions suitable for Copilot/AI usage.  
+The semantic layer acts as the contract between business meaning and technical implementation.
 
 ---
 
-## 3. Domain Data Aggregates (Example Blueprint)
+## 2. Core Modeling Principles
 
-This section shows a **conceptual YAML blueprint** for domain aggregates.  
-Each implementation can extend this pattern, but the structure should remain consistent.
+The semantic layer follows a small set of structural principles to ensure consistency and scalability.
 
-```yaml
-dimension:
-  - name: dim_date
-    columns:
-      - {name: DateKey, type: date_key, role: key}
-      - {name: Date, type: date}
-      - {name: Week, type: int}
-      - {name: Month, type: text}
-      - {name: Year, type: int}
+Facts are modeled at explicit business grains.
+Dimensions are shared and conformed across domains.
+Business logic is implemented through measures rather than calculated columns.
 
-  - name: dim_product
-    columns:
-      - {name: ProductKey, type: int, role: key}
-      - {name: ProductName, type: text}
-      - {name: Category, type: text}
+Where decision-making requires action-oriented analysis, dedicated aggregates are introduced.
+These aggregates support detection, explanation, and prioritization of actions without enforcing execution.
 
-  - name: dim_customer
-    columns:
-      - {name: CustomerKey, type: int, role: key}
-      - {name: Segment, type: text}
-      - {name: ChurnRiskLevel, type: text}
-
-fact:
-  - name: fact_pricing_agg
-    grain: product_customer_week
-    columns:
-      - {name: Price Realization %, type: number}
-      - {name: Gross Margin %, type: number}
-      - {name: Actual Price, type: number}
-      - {name: List Price, type: number}
-      - {name: Discount %, type: number}
-```
-
-This pattern should be adapted per domain (Sales, Margin, Inventory, SCM, ESG, …) but follow the same logic:
-
-- clear grain,
-- clear key references to dimensions,
-- measures separated from structure via the measure system.
+Explicit metadata enables interpretation, governance, and assisted analytics.
 
 ---
+
+## 3. Domain Aggregates
+
+Each domain semantic model follows a consistent structural pattern.
+
+Domain aggregates represent stable business facts at auditable grains.
+They are designed to support analytical consumption across multiple use cases.
+
+Shared dimensions provide consistent slicing and alignment across domains.
+This allows domains to evolve independently while remaining analytically compatible.
 
 ## 4. Action Aggregates
 
-ActionReady models introduce **action-centric aggregates** aligned with Action Codes.  
-These tables are used to flag where interventions are needed and quantify impact potential.
+Action-oriented analysis is supported through dedicated aggregates aligned with Action Codes.
 
-```yaml
-fact:
-  - name: agg_price_leakage
-    grain: product_customer_week
-    columns:
-      - {name: Leakage %, type: number}
-      - {name: Margin Loss Amount, type: currency}
-      - {name: Target Price, type: number}
-      - {name: Required Correction %, type: number}
-      - {name: L1_Flag, type: boolean}
-      - {name: L2_Flag, type: boolean}
-      - {name: L3_Flag, type: boolean}
+These aggregates quantify deviation, impact, and intervention potential.
+They enable prioritization and root-cause analysis without automating decisions.
 
-  - name: agg_downtime_rootcause
-    grain: asset_day
-    columns:
-      - {name: Failure Count, type: int}
-      - {name: Failure Duration Min, type: int}
-      - {name: OEE Loss %, type: number}
-      - {name: Primary Root Cause, type: text}
-      - {name: L1_Flag, type: boolean}
-      - {name: L2_Flag, type: boolean}
-      - {name: L3_Flag, type: boolean}
-```
-
-Flags (L1/L2/L3) are linked to Action Codes and drive:
-
-- alerting,
-- root cause analysis,
-- and recommended next-best-actions.
+Thresholds, flags, and indicators link analytical signals to recommended actions.
 
 ---
 
 ## 5. Action Execution Layer
 
-The **Action Execution Layer** closes the loop between analytics and realized business actions.
+Where actions are taken, execution can be recorded explicitly.
 
-```yaml
-fact:
-  - name: fact_action_execution
-    grain: action_event
-    columns:
-      - {name: ActionExecutionKey, type: int, role: key}
-      - {name: ActionCode, type: text}
-      - {name: TriggerLevel, type: text}
-      - {name: ExecutedByUser, type: text}
-      - {name: ExecutedDate, type: date}
-      - {name: Domain, type: text}
-      - {name: Pre_KPI_Value, type: number}
-      - {name: Post_KPI_Value_7d, type: number}
-      - {name: Post_KPI_Value_30d, type: number}
-      - {name: Post_KPI_Value_60d, type: number}
-      - {name: Action Success %, type: number}
-      - {name: Notes, type: text}
-```
+The action execution layer links analytical insight to observed outcomes.
+It enables learning, comparison, and evaluation of decision effectiveness over time.
 
-This table allows:
-
-- measuring action effectiveness,
-- attributing impact to Action Codes,
-- and learning which interventions work best.
+Execution tracking supports learning and improvement.
+It does not enforce action.
 
 ---
 
-## 6. End-to-End Semantic Model Pattern
+## 6. End-to-End Semantic Pattern
 
-At a high level, the ActionReady model can be illustrated as:
+Across domains, the same structural logic applies:
 
-```text
-dim_product ----
-                \
-dim_customer ---- fact_pricing_agg ---- agg_price_leakage ---- fact_action_execution
-                //
-dim_date -------
-```
+- conformed dimensions,
+- domain aggregates,
+- action-oriented aggregates,
+- and optional execution tracking.
 
-Across domains, the same pattern applies:
-
-- shared dimensions,
-- domain fact tables,
-- action aggregates,
-- and one shared action execution fact.
+This ensures analytical consistency even as domains, use cases, and tools evolve.
 
 ---
 
-## 7. TMDL Standards & Allowed Subset
+## 7. Normative Semantic Modeling Standards
 
-The conceptual model above is implemented in Microsoft Fabric / Power BI using **PBIP + TMDL**.
+The semantic layer defines binding structural standards for all analytical models.
 
-Two companion documents define the **technical constraints**:
+These standards exist to ensure analytical consistency, comparability, and scalability across domains.
+They are normative, not instructional.
 
-- `tmdl_allowed_subset.md`  
-  → defines the allowed TMDL subset (naming, data types, RLS, descriptions, object types).  
+### 7.1 Fact Modeling
 
-- `tmdl_official_refs.md`  
-  → links to the official Microsoft documentation and references for TMDL/PBIP.
+Facts are modeled at explicit, auditable business grains.
+Each fact table represents a single, well-defined business process or aggregate.
+Grain ambiguity is not permitted.
 
-**Location:**
+### 7.2 Dimension Modeling
 
-- `docs/operating_model/tmdl_allowed_subset.md`
-- `docs/operating_model/tmdl_official_refs.md`
+Dimensions are conformed and reused across domains.
+Shared dimensions represent common business concepts and must not be redefined locally.
+Role-playing dimensions are explicitly modeled.
 
-The semantic layer must always comply with these constraints.
+### 7.3 Relationships
 
----
+Relationships follow a star-schema pattern.
+Many-to-many relationships are avoided unless required by business logic and explicitly documented.
+Bridge tables are introduced only when semantic clarity cannot be achieved otherwise.
 
-## 8. Governance & Linters
+### 7.4 Business Logic
 
-To enforce semantic standards, internal linting & BPA rules are maintained under:
+Business logic is implemented through measures, not calculated columns.
+Calculated columns are limited to technical or classification purposes.
 
-```text
-_internal/tools/linters/
-  lint.rules.yaml
-  bpa-rules-dax.json
-  bpa-rules-report.json
-  bpa-rules-semanticmodel.json
-```
+### 7.5 Action-Oriented Structures
 
-These configurations support:
+Action-oriented aggregates follow the same structural standards as analytical facts.
+They quantify deviation, impact, and prioritization potential.
+They do not enforce execution.
 
-- measure naming & foldering validation,
-- description & metadata checks,
-- report layout best practices,
-- semantic model integrity rules.
+### 7.6 Metadata and Documentation
 
-They are **internal-only** and not exposed to customers, but all customer models should pass these checks before being considered production-ready.
-
----
-
-## 9. How to Use This Blueprint
-
-### For Domain Semantic Models
-
-- Start from this pattern when designing `semantic_models/domains/<domain>/…`.
-- Reuse:
-  - shared dimensions (dim_date, dim_org, dim_product, dim_customer, …),
-  - action aggregates where relevant,
-  - the action execution layer when Action Codes are in scope.
-
-### For New Customers
-
-- Map customer data contracts to this semantic pattern.
-- Implement the model in PBIP/TMDL under the constraints from `tmdl_allowed_subset.md`.
-- Use BPA/lint rules from `_internal/tools/linters` to validate quality.
-
-### For the Aurora Group Showcase
-
-- The Aurora semantic model is a **concrete realization** of this blueprint:
-  - see `showcases/aurora_group/semantic_model/`.
+All semantic objects require clear naming and descriptive metadata.
+Metadata supports interpretation, governance, and assisted analytics.
 
 ---
 
-## 10. Detailed Modeling Rules (v1.2)
+## 8. Governance and Validation
 
-1) **Role-Playing Dimensions**  
-   - Use a single conformed `dim_date` and create role-playing views (e.g., Order Date, Ship Date) via relationships, not duplicated tables.  
-   - Apply the same for `dim_org` and other shared dims if multiple roles are needed (e.g., Selling Org vs. Fulfillment Org).  
-   - Keep only one physical dimension; role-playing is achieved by relationships and perspective/fields.
+Semantic standards are enforced through validation and review.
 
-2) **Surrogate Key Standards**  
-   - Every dimension and fact has a single surrogate key (`<Entity>Key`, integer).  
-   - Natural keys are stored as attributes (`Code`, `Name`) and should not be used for relationships.  
-   - Composite business keys are resolved upstream into a surrogate key column.
+Checks ensure alignment with the Golden Thread, the Operating Model, and the Measure System.
+Governance protects meaning and dependencies rather than enforcing process.
 
-3) **Composite Key Fallback**  
-   - If a surrogate key cannot be provided, define a deterministic composite key column upstream and treat it as the surrogate (hash of business keys).  
-   - Document the composite in the data contract and keep relationship columns single-field in the model.
-
-4) **Fact-to-Fact Bridge Rules**  
-   - Avoid direct fact-to-fact relationships.  
-   - If unavoidable (e.g., allocations), use a bridge table with surrogate keys to both facts and enforce single-direction filters from dimensions into each fact.  
-   - Never enable bi-directional filters between facts.
-
-5) **Conformed Dimension Rules**  
-   - `dim_date`, `dim_org`, `dim_product`, `dim_customer` (and `security_user_org`) are canonical across domains.  
-   - Do not duplicate conformed dims per domain; reuse the same tables with strict keys.  
-   - Hierarchies and sort-by columns must be identical wherever reused.
-
-6) **Aggregation Table Policies**  
-   - Optional aggregation tables must:  
-     - Use the same conformed dimension keys.  
-     - Be strictly additive to their detailed fact grain.  
-     - Be hidden from end users if not needed; exposed via composite models/agg settings only.  
-   - Do not store business logic in agg tables; measures remain in the semantic layer.
-
-7) **Cardinality & Direction (Strict)**  
-   - Relationships: single-direction, dim → fact.  
-   - Cardinality: 1-* (or many-to-many only via bridge with strict keys).  
-   - No bi-directional filters except RLS/security bridge patterns.  
-   - Disable auto-detect relationships; define explicitly.
-
-8) **Security (RLS/OLS) Pattern**  
-   - RLS via `security_user_org` filtering `dim_org` (and cascades to facts).  
-   - OLS only via measure groups or perspectives; do not hide columns ad-hoc.  
-   - Default deny if no match in security table.
-
-9) **Metadata & Descriptions**  
-   - Every table, column, and measure has a clear description aligned to the KPI catalog and data contract.  
-   - Use measure_system.md for naming, folders, and formats.
-
-10) **Data Types & Formats**  
-    - Currency: fixed decimals, currency type; % with proper format strings; qty as decimal; dates as date; keys as int.  
-    - No implicit measures; no calculated columns for business logic.
+Validation mechanisms support consistency and trust at scale.
 
 ---
 
-**Location:**  
-`docs/operating_model/semantic_layer.md`
+## 9. Usage Guidance
+
+The semantic layer blueprint serves as a reference for all domain implementations.
+
+Domains instantiate the pattern using their data contracts and KPIs.
+Use cases and reports consume the semantic layer without redefining structure.
+
+Showcase implementations illustrate the blueprint but do not extend it.
+
+---
+
+## 10. Outcome
+
+When applied consistently, the semantic layer ensures that:
+
+- business meaning is preserved across analytical assets,
+- domains scale without fragmentation,
+- and action-oriented analytics remains interpretable and governed.
+
+The semantic layer enables decision intelligence by providing structure, not control.

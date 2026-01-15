@@ -80,7 +80,7 @@ Formal rules that define performance and action triggers.
 - <Description of performance rules>
 - <Exceptions / Exclusions>
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
+### 4.2 Formal Action Code Rules (Machine-Readable)
 
 ```yaml
 triggers:

@@ -1,6 +1,6 @@
-﻿# KPI Unused Audit (a-d)
+# KPI Unused Audit (a-d)
 
-Generated: 2026-01-15 12:14:06
+Generated: 2026-01-15 14:52:18
 
 Criteria:
 - a) Needed for measures referenced in core factsheets (via measure dependencies)
@@ -8,8 +8,8 @@ Criteria:
 - c) Required by Action Codes referenced in core factsheets
 - d) Likely duplicate/alias of a KPI already used in factsheets
 
-Total unused KPIs (not in factsheets): 138
-A: 0 | B: 132 | C: 0 | D: 6
+Total unused KPIs (not in factsheets): 104
+A: 0 | B: 7 | C: 97 | D: 7
 
 ## A) Needed for measures referenced in factsheets
 
@@ -17,153 +17,124 @@ A: 0 | B: 132 | C: 0 | D: 6
 
 ## B) Missing in factsheets / review relevance
 
-- corp.benefit.realization.pct
-- corp.budget.adherence.pct
-- corp.payback.months
-- corp.project.roi.pct
-- corp.schedule.adherence.pct
-- cost.cogs.amount
-- crm.acquisition.cac.amount
-- crm.acquisition.conversion_rate.pct
-- crm.acquisition.conversions.count
-- crm.acquisition.leads.count
-- crm.active_customers_end.count
-- crm.active_customers_start.count
-- crm.at_risk_customers.count
-- crm.at_risk_share.pct
-- crm.basket_size.amount
-- crm.basket_size.units
-- crm.churn.pct
-- crm.cross_sell_ratio.pct
-- crm.opportunities.open.amount
-- crm.opportunities.stage_conversion.pct
-- crm.opportunities.win_rate.pct
-- crm.opportunities.won.amount
-- crm.reactivated_customers.count
-- crm.reactivation.pct
-- esg.aligned_revenue.pct
-- esg.carbon_intensity.tco2e_per_revenue
-- esg.co2.total.tco2e
-- esg.energy.renewable_kwh
-- esg.energy.total_kwh
-- esg.ltifr.rate
-- fin.ebitda.amount
-- fin.liquidity.capex.amount
-- fin.liquidity.capex_ratio.pct
-- fin.liquidity.cash_conversion_cycle.delta_days
-- fin.liquidity.dio_days_inventory_outstanding
-- fin.liquidity.dpo_days_payables_outstanding
-- fin.liquidity.dso_days_sales_outstanding
-- fin.liquidity.free_cash_flow
-- fin.liquidity.inventory.amount
-- fin.liquidity.payables.amount
-- fin.liquidity.receivables.amount
-- fin.liquidity.working_capital
-- fin.risk.ead.amount
-- fin.risk.lgd.pct
-- fin.risk.pd.pct
-- gov.audit.findings.count
-- gov.audit.findings.open.count
-- gov.compliance.breach.count
-- gov.compliance.incidents.count
-- gov.data_quality.pct
-- gov.records.total.count
-- gov.valid_records.count
-- hr.absent_hours.amount
-- hr.absenteeism.pct
-- hr.exits.count
-- hr.fte.avg
-- hr.gm_per_fte.amount
-- hr.headcount.avg
-- hr.personnel_cost.amount
-- hr.personnel_cost_ratio.pct
-- hr.revenue.amount
-- hr.revenue_per_fte.amount
-- hr.scheduled_hours.amount
-- hr.turnover.pct
-- margin.customer.amount
-- margin.customer.pct
-- margin.gm.channel_contribution.amount
-- margin.gm.delta_amount
-- margin.gm.delta_pct
-- margin.gm.plan.amount
-- market.share.relative.pct
-- market.share.total.pct
-- mkt.brand.awareness.pct
-- mkt.brand.preference.pct
-- ops.capacity.utilization.pct
-- ops.contract.compliance.pct
-- ops.deliveries.otif.count
-- ops.deliveries.total.count
-- ops.demand.total.qty
-- ops.demand.unfulfilled.qty
-- ops.downtime.hours
-- ops.inventory.days
-- ops.inventory.obsolescence.pct
-- ops.logistics.cost_per_unit.amount
-- ops.logistics.cost_ratio.pct
-- ops.machine_downtime.pct
-- ops.order_accuracy.pct
-- ops.orders.correct.count
-- ops.orders.total.count
-- ops.planned.hours
-- ops.ppv.amount
-- ops.ppv.pct
-- ops.process.cost_per_unit.amount
-- ops.purchase.price.actual.amount
-- ops.purchase.price.contract.amount
-- ops.purchase.units.qty
-- ops.purchases.at_contract.amount
-- ops.purchases.total.amount
-- ops.replenishment.adherence.pct
-- ops.stockout.pct
-- ops.warehouse.cost_per_line.amount
-- ops.warehouse.lines_per_hour
-- ops.warehouse.picks_per_hour
-- ops.working_capital.ccc.delta_days
-- ops.working_capital.dio.days
-- ops.working_capital.dpo.days
-- ops.working_capital.dso.days
-- people.employee_engagement.pct
-- people.engaged_employees.count
-- people.innovation_rate.pct
-- people.survey_respondents.count
-- people.training_hours.amount
-- prod.contribution_margin.excl_mkt.pct
-- prod.contribution_margin.incl_mkt.pct
-- prod.lifecycle.age.months
-- prod.lifecycle.new_share.pct
-- prod.lifecycle.phase_distribution.pct
-- prod.roi.pct
-- profit.ebitda_margin
-- sales.baseline.amount
-- sales.customer.revenue_share.pct
-- sales.forecast.mape_pct
-- sales.list_price.amount
-- sales.net_sales.amount.ly
-- sales.net_sales.channel_share.pct
-- sales.net_sales.delta_amount.ly
-- sales.promo.amount
-- sales.promo.uplift_pct
-- sales.revenue.growth_pct
-- sec.incident.count
-- sec.incident.critical.count
-- sec.incident.mttr.hours
-
-## B1) B items referenced in any Action Codes
-
-- (none)
+- margin.cogs.pct
+- ops.otif.pct
+- ops.working_capital.ccc.days
+- people.digital_adoption.pct
+- profit.gross_margin
+- sales.pvm.volume_effect.amount
+- svc.nps.index
 
 ## C) Required by Action Codes used in core factsheets
 
-- (none)
+- cost.base_volume.amount
+- cost.cogs_per_unit.amount
+- cost.material.pct
+- cost.opex.base.amount
+- cost.opex.vs_plan.pct
+- cost.unit.amount
+- crm.active_customers.count
+- crm.churned_customers.count
+- crm.clv.amount
+- crm.complaint.count
+- crm.lifetime_revenue.amount
+- crm.nps.index
+- crm.retention.pct
+- crm.revenue_at_risk.amount
+- enterprise.action_outcome_rate.pct
+- enterprise.action_routed.count
+- enterprise.value_at_risk.index
+- fin.cash.balance
+- fin.cash.ocf
+- fin.cash.vs_plan.pct
+- inv.dio.days
+- inv.obsolete.pct
+- inv.stockout.pct
+- inv.turnover
+- margin.gm.amount
+- margin.gm.pct
+- margin.gm.vs_plan.pct
+- margin.promo.gm.pct
+- ops.availability.pct
+- ops.downtime.pct
+- ops.downtime.unplanned.pct
+- ops.failure.count
+- ops.inventory.value.amount
+- ops.labor.productivity.pct
+- ops.mtbf.hours
+- ops.mttr.hours
+- ops.oee.pct
+- ops.performance.pct
+- ops.planned_output.units
+- ops.pm.task.count
+- ops.pm_compliance.pct
+- ops.production.volume
+- ops.quality.defect_rate.pct
+- ops.quality.pct
+- ops.safety.incident.count
+- ops.service_level.pct
+- ops.spare_parts.stockout.pct
+- ops.throughput.units
+- ops.yield.pct
+- order.lines
+- people.attrition_risk.pct
+- plan.forecast.accuracy.pct
+- plan.forecast.bias.pct
+- plan.forecast.mape.pct
+- plan.forecast.service_impact.pct
+- plan.replan.count
+- plans.count
+- quality.complaint.pct
+- quality.copq.amount
+- quality.defect_density
+- quality.fpy.pct
+- quality.rework.pct
+- quality.scrap.pct
+- res.occupancy.pct
+- res.overtime.pct
+- res.shrinkage.pct
+- res.utilization.pct
+- sales.net_sales.amount
+- sales.net_sales.delta_pct.ly
+- sales.net_sales.delta_pct.plan
+- sales.price.realization_pct
+- sales.promo.cannibalization.pct
+- sales.promo.incremental.amount
+- sales.promo.roi.pct
+- sales.pvm.mix_effect.amount
+- sales.pvm.price_effect.amount
+- sales.units
+- scm.service_level.pct
+- scm.supplier_risk.score
+- shipments.count
+- supply.expedite.amount
+- supply.in_full.pct
+- supply.on_time.pct
+- supply.otif.pct
+- supply.penalty.amount
+- supply.stockout_impact.pct
+- svc.aht.minutes
+- svc.backlog.count
+- svc.escalation.pct
+- svc.fcr.pct
+- svc.sla.attainment.pct
+- svc.tickets.closed.count
+- svc.tickets.created.count
+- wc.ccc.days
+- wc.dio.days
+- wc.dpo.days
+- wc.dso.days
 
 ## D) Likely duplicates / aliases of used KPIs
 
 - crm.complaint.rate.pct -> quality.complaint.pct
+- Delta% Net Sales -> sales.net_sales.delta_pct.ly
 - fin.liquidity.cash_conversion_cycle_days -> ops.working_capital.ccc.days
 - fin.liquidity.operating_cash_flow -> fin.cash.ocf
 - hr.gm.amount -> margin.gm.amount
 - ops.inventory.turnover -> inv.turnover
 - sales.forecast.bias_pct -> plan.forecast.bias.pct
 
+Notes:
+- Section C uses all Action Codes (not only those referenced by core factsheets).
+- Section D lists alias mappings from KPI catalogs (alias -> kpi_id).

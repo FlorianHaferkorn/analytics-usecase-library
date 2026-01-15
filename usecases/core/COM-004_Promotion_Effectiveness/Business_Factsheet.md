@@ -110,7 +110,7 @@ required_kpis:
 
 ### 4.1 Logic Description
 
-### 4.2 Formal Trigger Rules (Machine-Readable)
+### 4.2 Formal Action Code Rules (Machine-Readable)
 
 - Flag promotions with ROI < 120% or negative incremental GM.
 - Flag excessive discounting: Price Realization % below policy and GM % below target.
@@ -118,35 +118,35 @@ required_kpis:
 - Prioritize stop/replace actions for mechanics with repeated underperformance.
 
 ```yaml
-triggers:
+action_codes:
 
   - kpi: sales.promo.roi.pct
     condition: below_target
     threshold: 1.2
     scope: promotion
     exclusion: strategic_brand_building
-    action_code: PC2
+    action_code: C-P4.1
 
   - kpi: sales.price.realization_pct
     condition: below_target
     threshold: 0.9
     scope: promotion
     exclusion: none
-    action_code: P2
+    action_code: C-P4.2
 
   - kpi: sales.promo.cannibalization.pct
     condition: above_target
     threshold: 0.2
     scope: promotion
     exclusion: halo/brand_build exceptions
-    action_code: M3
+    action_code: C-P4.3
 
   - kpi: margin.promo.gm.pct
     condition: below_target
     threshold: category_target
     scope: promotion
     exclusion: approved strategic promos
-    action_code: D1
+    action_code: C-P4.4
 ```
 
 ---
@@ -155,12 +155,10 @@ triggers:
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
 |-------------|------|------------------|-------------|---------------------|------------------|-------|
-| PC2 | Promo Calendar Discipline | ROI < target or repeated underperformance | Reduce low-ROI promos, re-sequence calendar | Improve ROI, protect GM | L2 | Trade Marketing |
-| P2 | Margin Realisation Guardrails | Price Realization % below policy | Tighten discounting, enforce floor prices/approvals | Improve Price Realization %, GM % | L2 | Pricing / Sales Ops |
-| M3 | Mix Optimisation | Cannibalization high or adverse mix | Shift to higher-margin SKUs/regions, adjust assortment | Improve Mix Effect, GM % | L2 | Category Mgmt |
-| D1 | Cost Take-Out / COGS Control | Promo GM % below target due to cost | Negotiate supplier terms, optimise logistics | Improve Promo GM % | L2 | Procurement / Ops |
-
----
+| C-P4.1 | Promo Calendar Discipline | sales.promo.roi.pct below_target 1.2 | Stop or replace low-ROI promotions; Resequence promotion calendar to higher-quality mechanics | sales.promo.roi.pct +5.0-20.0 pp (1-2 periods) | L1 | Trade Marketing |
+| C-P4.2 | Promotion Price & Discount Guardrails | sales.price.realization_pct below_target 0.9 | Enforce discount floors during promotions; Require approval for promo price exceptions | margin.promo.gm.pct +0.5-2.0 pp (0-1 periods) | L1 | Pricing / Sales Operations |
+| C-P4.3 | Cannibalization & Mix Control | sales.promo.cannibalization.pct above_target 0.2 | Adjust promo SKU scope and mechanics to reduce cannibalization; Exclude or swap SKUs causing net value destruction | Impact: Medium | L1 | Category Management |
+| C-P4.4 | Promo Cost & COGS Discipline | margin.promo.gm.pct below_target category_target | Correct promo-specific cost leakage (COGS, logistics, funding); Adjust funding or mechanics when cost-driven margin erosion occurs | margin.promo.gm.pct +0.5-1.5 pp (1-3 periods) | L2 | Procurement / Operations |
 
 ## 6. 3-30-300 Page Layout (Mandatory)
 
