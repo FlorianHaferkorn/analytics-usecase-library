@@ -31,7 +31,7 @@ Not included:
 
 ## Structure
 
-```
+```yaml
 data_contracts/
   domains/
     commercial_sales.yaml

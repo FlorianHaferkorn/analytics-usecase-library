@@ -20,4 +20,3 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     version: v1.0
     last_review: 04.11.2025
 ```
-
