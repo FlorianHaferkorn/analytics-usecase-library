@@ -1,4 +1,9 @@
-# SCM-001 — Inventory Performance  
+---
+id: SCM-001
+factsheet_type: technical
+---
+
+# SCM-001 - Inventory Performance  
 
 ## Technical Factsheet (v1.2)
 
@@ -25,35 +30,41 @@
 
 ---
 
-## 2. Required KPIs → Measure Mapping (Mandatory)
+## 2. Required KPIs - Measure Mapping (Mandatory)
 
 ```yaml
 kpi_to_measure_mapping:
+
   - kpi_id: inv.dio.days
     kpi_name: Days in Inventory (DIO)
     measure_name: [Days in Inventory]
     format: #,0.0
     folder: 08_SCM_Inventory
+
   - kpi_id: inv.turnover
     kpi_name: Inventory Turnover
     measure_name: [Inventory Turnover]
     format: #,0.0
     folder: 08_SCM_Inventory
+
   - kpi_id: inv.stockout.pct
     kpi_name: Stockout Rate %
     measure_name: [Stockout Rate %]
     format: 0.0%
     folder: 08_SCM_Service
+
   - kpi_id: supply.otif.pct
     kpi_name: OTIF %
     measure_name: [OTIF %]
     format: 0.0%
     folder: 08_SCM_Service
+
   - kpi_id: inv.obsolete.pct
     kpi_name: Obsolete Inventory %
     measure_name: [Obsolete Inventory %]
     format: 0.0%
     folder: 08_SCM_Inventory
+
   - kpi_id: plan.forecast.accuracy.pct
     kpi_name: Forecast Accuracy %
     measure_name: [Forecast Accuracy %]
@@ -176,22 +187,22 @@ fact:
 
 ### 4.2 Relationships (Mandatory)
 
-- dim_date (1) → all facts on DateKey  
-- dim_org (1) → fact_inventory/fact_cogs/fact_fulfillment/fact_stockout on OrgKey  
-- dim_product (1) → all product-bearing facts on ProductKey  
-- security_user_org filters dim_org → cascades to facts  
+- dim_date (1) -> all facts on DateKey  
+- dim_org (1) -> fact_inventory/fact_cogs/fact_fulfillment/fact_stockout on OrgKey  
+- dim_product (1) -> all product-bearing facts on ProductKey  
+- security_user_org filters dim_org -> cascades to facts  
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
 
-- Date: Year → Quarter → Month → Week  
-- Org: Region → Location → Channel  
-- Product: Category → Subcategory → ProductName
+- Date: Year -> Quarter -> Month -> Week  
+- Org: Region -> Location -> Channel  
+- Product: Category -> Subcategory -> ProductName
 
 ### 4.4 Sort-by Columns
 
-- Month → MonthNumber  
-- ProductName → ProductCode
+- Month -> MonthNumber  
+- ProductName -> ProductCode
 
 ### 4.5 Modeling Constraints
 
@@ -213,8 +224,8 @@ fact:
 | OTIF % | supply.otif.pct | Service level | 08_SCM_Service | 0.0% | KPI |
 | Obsolete Inventory % | inv.obsolete.pct | Obsolescence | 08_SCM_Inventory | 0.0% | KPI |
 | Forecast Accuracy % | plan.forecast.accuracy.pct | Planning quality | 09_Planning | 0.0% | KPI |
-| Avg Inventory Amount | Supporting | DIO base | 08_SCM_Inventory | €#,0 | Supporting |
-| COGS Amount | Supporting | DIO/turnover base | 08_SCM_Inventory | €#,0 | Supporting |
+| Avg Inventory Amount | Supporting | DIO base | 08_SCM_Inventory | EUR#,0 | Supporting |
+| COGS Amount | Supporting | DIO/turnover base | 08_SCM_Inventory | EUR#,0 | Supporting |
 | On-Time In-Full Orders | Supporting | OTIF numerator | 08_SCM_Service | #,0 | Supporting |
 | Total Orders | Supporting | OTIF denominator | 08_SCM_Service | #,0 | Supporting |
 | Demand Occurrences | Supporting | Stockout denominator | 08_SCM_Service | #,0 | Supporting |
@@ -223,33 +234,36 @@ fact:
 ### 5.2 DAX Definitions
 
 ```DAX
-/// Supporting — Inventory bases
+/// Supporting - Inventory bases
 Avg Inventory Amount :=
     SUM ( fact_inventory[Average Inventory Amount] )
 
+/// Supporting - COGS Amount
 COGS Amount :=
     SUM ( fact_cogs[COGS Amount] )
 
-/// inv.dio.days — Days in Inventory
+/// inv.dio.days - Days in Inventory
 Days in Inventory :=
     VAR Days = 30  // adjust to period if needed
     RETURN DIVIDE ( [Avg Inventory Amount], [COGS Amount] ) * Days
 
-/// inv.turnover — Inventory Turnover
+/// inv.turnover - Inventory Turnover
 Inventory Turnover :=
     DIVIDE ( [COGS Amount], [Avg Inventory Amount] )
 
-/// inv.obsolete.pct — Obsolete %
+/// inv.obsolete.pct - Obsolete %
 Obsolete Inventory % :=
     DIVIDE ( SUM ( fact_inventory[Obsolete Inventory Amount] ), [Avg Inventory Amount] )
 
-/// supply.otif.pct — OTIF
+/// supply.otif.pct - OTIF
 On-Time In-Full Orders :=
     SUMX ( fact_fulfillment, IF ( fact_fulfillment[OTIF Flag], fact_fulfillment[Order Qty], 0 ) )
 
+/// Supporting - Total Orders
 Total Orders :=
     SUM ( fact_fulfillment[Order Qty] )
 
+/// Supporting - OTIF %
 OTIF % :=
     DIVIDE ( [On-Time In-Full Orders], [Total Orders] )
 
@@ -257,9 +271,11 @@ OTIF % :=
 Stockout Count :=
     SUMX ( fact_stockout, IF ( fact_stockout[Stockout Flag], fact_stockout[Demand Occurrences], 0 ) )
 
+/// Supporting - Demand Occurrences
 Demand Occurrences :=
     SUM ( fact_stockout[Demand Occurrences] )
 
+/// Supporting - Stockout Rate %
 Stockout Rate % :=
     DIVIDE ( [Stockout Count], [Demand Occurrences] )
 
@@ -302,7 +318,7 @@ dim_org[OrgKey] IN
 
 ### 6.3 OLS (optional)
 
-- None required; inventory values can be sensitive � mask if client requests (TODO).
+- None required; inventory values can be sensitive EUR mask if client requests (TODO).
 
 ---
 
@@ -352,4 +368,5 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 

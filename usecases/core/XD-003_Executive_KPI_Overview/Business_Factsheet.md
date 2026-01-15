@@ -1,3 +1,8 @@
+---
+id: XD-003
+factsheet_type: business
+---
+
 # XD-003 - Executive KPI Overview
 
 ## Business Factsheet (v1.2)
@@ -18,7 +23,7 @@
 
 ---
 
-## 1. Business Summary & Business Value
+## 1. Business Summary
 
 **Purpose:** Provide a unified, enterprise-wide performance cockpit for leadership.  
 **Business Value:** Aggregates critical financial, customer, operational, and people KPIs into one strategic view to assess if the company is on track and to surface cross-domain interventions rapidly via the 3-30-300 navigation.  
@@ -44,6 +49,7 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
+
   - id: sales.net_sales.delta_pct.ly
     name: Net Sales % vs LY
     purpose: Show topline growth vs last year.
@@ -54,6 +60,7 @@ required_kpis:
     target: Strategic growth target per entity/region
     interpretation: Higher is better; negative indicates revenue risk.
     lineage: fact_revenue[Net Sales Amount], plan/LY reference in finance data
+
   - id: margin.gm.pct
     name: Gross Margin %
     purpose: Track profitability after cost of goods sold.
@@ -64,16 +71,18 @@ required_kpis:
     target: Margin target by entity/region
     interpretation: Higher is better; sustained decline signals margin leakage.
     lineage: fact_finance[Gross Margin Amount], fact_revenue[Net Sales Amount]
+
   - id: crm.clv.amount
     name: Customer Lifetime Value Amount
     purpose: Measure expected lifetime profit per customer.
     definition_short: Discounted gross profit per customer over expected lifetime.
-    unit: "€"
+    unit: "EUR"
     grain: month (reported), customer-level calculation upstream
     agg: avg
     target: Strategic CLV target per segment
     interpretation: Higher indicates stronger customer value creation.
     lineage: fact_customer_value[CLV Amount]
+
   - id: svc.sla.attainment.pct
     name: SLA Attainment %
     purpose: Reflect service reliability to customers.
@@ -84,6 +93,7 @@ required_kpis:
     target: Service level SLO per channel/region
     interpretation: Higher is better; low values drive churn risk.
     lineage: fact_service[SLA Attainment %], fact_fulfillment for calculation check
+
   - id: ops.otif.pct
     name: OTIF %
     purpose: Measure supply reliability.
@@ -94,6 +104,7 @@ required_kpis:
     target: OTIF target per lane/region
     interpretation: Higher is better; low OTIF triggers capacity/root-cause actions.
     lineage: fact_fulfillment[OTIF Flag], fact_fulfillment[Order Qty]
+
   - id: ops.working_capital.ccc.days
     name: Cash Conversion Cycle (Days)
     purpose: Measure working-capital efficiency end-to-end.
@@ -104,6 +115,7 @@ required_kpis:
     target: CCC target per entity
     interpretation: Lower is better; rising CCC signals cash risk.
     lineage: fact_wc[CCC Days] derived from AR/AP/Inventory facts
+
   - id: people.digital_adoption.pct
     name: Digital Adoption %
     purpose: Track active usage of core digital tools.
@@ -114,6 +126,7 @@ required_kpis:
     target: Adoption target per function
     interpretation: Higher is better; low adoption blocks scaling of efficiencies.
     lineage: fact_digital[Active Users], fact_digital[Eligible Users]
+
   - id: people.attrition_risk.pct
     name: Attrition Risk %
     purpose: Monitor risk of losing key talent.
@@ -140,48 +153,56 @@ required_kpis:
 
 ```yaml
 triggers:
+
   - kpi: sales.net_sales.delta_pct.ly
     condition: below_target
     threshold: ly_delta_pct
     scope: Org/Region, Month
     exclusion: none
     action_code: P4 Price Repositioning
+
   - kpi: margin.gm.pct
     condition: below_target
     threshold: margin_target_pct
     scope: Org/Region, Month
     exclusion: promo periods where approved
     action_code: P2 Margin Leakage Correction
+
   - kpi: crm.clv.amount
     condition: declining
     threshold: negative_trend_3m
     scope: Segment, Customer
     exclusion: newly onboarded customers (<90 days)
     action_code: C2 Retention Action
+
   - kpi: ops.otif.pct
     condition: below_target
     threshold: otif_sla_pct
     scope: Lane/Region, Month
     exclusion: force majeure
     action_code: S3 Capacity Intervention
+
   - kpi: svc.sla.attainment.pct
     condition: below_target
     threshold: service_slo_pct
     scope: Channel/Region, Month
     exclusion: planned maintenance windows
     action_code: S3 Capacity Intervention
+
   - kpi: ops.working_capital.ccc.days
     condition: above_target
     threshold: ccc_target_days
     scope: Entity, Month
     exclusion: none
     action_code: F1 Cash Collection Initiative
+
   - kpi: people.digital_adoption.pct
     condition: below_target
     threshold: adoption_target_pct
     scope: Function/Region, Month
     exclusion: newly deployed tools (<30 days)
     action_code: H1 Digital Enablement Push
+
   - kpi: people.attrition_risk.pct
     condition: above_threshold
     threshold: attrition_risk_tolerance_pct
@@ -293,6 +314,7 @@ required_slicers: Date, Org/Region/Entity, Product or Customer Segment, Function
 - Over-rotating on single KPIs without cross-checking drivers (e.g., margin vs service) could trigger suboptimal actions.
 
 ---
+
 
 
 

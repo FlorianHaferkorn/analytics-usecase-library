@@ -1,3 +1,8 @@
+---
+id: COM-004
+factsheet_type: business
+---
+
 # COM-004 - Promotion Effectiveness  
 
 ## Business Factsheet (v1.2)
@@ -42,6 +47,7 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
+
   - id: sales.promo.roi.pct
     name: Promotion ROI %
     purpose: Profitability of promotions
@@ -52,6 +58,7 @@ required_kpis:
     target: >= 120%
     interpretation: Below target implies unprofitable promo
     lineage: fact_sales[Incremental GM], fact_promo[Promo Cost]
+
   - id: sales.promo.incremental.amount
     name: Incremental Sales Amount
     purpose: Uplift sizing
@@ -62,6 +69,7 @@ required_kpis:
     target: Positive with ROI on/above target
     interpretation: Must offset discounts and cannibalization
     lineage: fact_sales[Net Sales Amount], baseline model
+
   - id: margin.promo.gm.pct
     name: Promo Gross Margin %
     purpose: Profit quality during promos
@@ -69,9 +77,10 @@ required_kpis:
     unit: "%"
     grain: promotion
     agg: avg
-    target: Category target (e.g., 20–25%)
+    target: Category target (e.g., 20-25%)
     interpretation: Low indicates price/mix leakage
     lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount], promo flag
+
   - id: sales.price.realization_pct
     name: Price Realization %
     purpose: Discount discipline
@@ -79,9 +88,10 @@ required_kpis:
     unit: "%"
     grain: promotion
     agg: avg
-    target: 90–95% depending on policy
+    target: 90-95% depending on policy
     interpretation: Low shows excessive discounting
     lineage: fact_sales[Net Price Amount], fact_sales[List Price Amount]
+
   - id: sales.promo.cannibalization.pct
     name: Cannibalization %
     purpose: Net effect on portfolio
@@ -105,24 +115,28 @@ required_kpis:
 
 ```yaml
 triggers:
+
   - kpi: sales.promo.roi.pct
     condition: below_target
     threshold: 1.2
     scope: promotion
     exclusion: strategic_brand_building
     action_code: PC2
+
   - kpi: sales.price.realization_pct
     condition: below_target
     threshold: 0.9
     scope: promotion
     exclusion: none
     action_code: P2
+
   - kpi: sales.promo.cannibalization.pct
     condition: above_target
     threshold: 0.2
     scope: promotion
     exclusion: halo/brand_build exceptions
     action_code: M3
+
   - kpi: margin.promo.gm.pct
     condition: below_target
     threshold: category_target
@@ -191,7 +205,7 @@ required_dimensions:
   - dim_promo
   - security_user_org
 required_grain: promotion (with invoice_line base for uplift/realization)
-required_time_range: 12–24 months of promo history with baseline
+required_time_range: 12-24 months of promo history with baseline
 required_slicers: Date/Promo period, Region/Channel, Product Category/Subcategory, Mechanic
 ```
 
@@ -222,3 +236,4 @@ required_slicers: Date/Promo period, Region/Channel, Product Category/Subcategor
 - Over-discounting to lift volume without GM guardrails.
 
 ---
+

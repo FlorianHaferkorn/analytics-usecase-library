@@ -1,3 +1,8 @@
+---
+id: XD-003
+factsheet_type: technical
+---
+
 # XD-003 - Executive KPI Overview  
 
 ## Technical Factsheet (v1.2)
@@ -25,38 +30,46 @@
 
 ---
 
-## 2. KPI → Measure Mapping (Mandatory)
+## 2. Required KPIs - Measure Mapping (Mandatory)
 
 ```yaml
 kpi_to_measure_mapping:
+
   - kpi_id: sales.net_sales.delta_pct.ly
     measure_name: Net Sales % vs LY
     format: "0.0%"
     folder: 01_Growth
+
   - kpi_id: margin.gm.pct
     measure_name: Gross Margin %
     format: "0.0%"
     folder: 02_Margin
+
   - kpi_id: crm.clv.amount
     measure_name: Customer Lifetime Value Amount
     format: "EUR #,0"
     folder: 03_Customer
+
   - kpi_id: svc.sla.attainment.pct
     measure_name: SLA Attainment %
     format: "0.0%"
     folder: 04_Service
+
   - kpi_id: ops.otif.pct
     measure_name: OTIF %
     format: "0.0%"
     folder: 04_Service
+
   - kpi_id: ops.working_capital.ccc.days
     measure_name: Cash Conversion Cycle (Days)
     format: "#,0.0"
     folder: 05_Liquidity
+
   - kpi_id: people.digital_adoption.pct
     measure_name: Digital Adoption %
     format: "0.0%"
     folder: 06_People
+
   - kpi_id: people.attrition_risk.pct
     measure_name: Attrition Risk %
     format: "0.0%"
@@ -240,7 +253,7 @@ settings:
 
 ---
 
-## 5. Measures
+## 5. Measures (DAX)
 
 ### 5.1 Measure Inventory
 
@@ -300,4 +313,5 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 

@@ -1,4 +1,9 @@
-# OPS-001 — Operations Performance  
+---
+id: OPS-001
+factsheet_type: business
+---
+
+# OPS-001 - Operations Performance  
 
 ## Business Factsheet (v1.2)
 
@@ -35,8 +40,8 @@
 
 **Example Query Patterns (optional):**
 
-- “Which lines have availability < target in the last 4 weeks and what are the top 3 downtime reasons?”
-- “Where is performance loss >5% vs standard for top products?”
+- "Which lines have availability < target in the last 4 weeks and what are the top 3 downtime reasons?"
+- "Where is performance loss >5% vs standard for top products?"
 
 ---
 
@@ -46,16 +51,18 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
+
   - id: ops.oee.pct
     name: Overall Equipment Effectiveness %
     purpose: Combined availability, performance, quality
-    definition_short: Availability % × Performance % × Quality %
+    definition_short: Availability % x Performance % x Quality %
     unit: %
     grain: line_day
     agg: avg
-    target: ≥ site/line target (e.g., 85%+)
+    target: = site/line target (e.g., 85%+)
     interpretation: Core effectiveness; low values indicate combined losses
     lineage: fact_ops[Availability %], fact_ops[Performance %], fact_ops[Quality %]
+
   - id: ops.availability.pct
     name: Availability %
     purpose: Uptime control
@@ -63,9 +70,10 @@ required_kpis:
     unit: %
     grain: line_day
     agg: avg
-    target: ≥ 90% (context-specific)
+    target: = 90% (context-specific)
     interpretation: Low availability signals downtime issues
     lineage: fact_ops[Run Time], fact_ops[Planned Time]
+
   - id: ops.performance.pct
     name: Performance %
     purpose: Speed vs standard
@@ -73,9 +81,10 @@ required_kpis:
     unit: %
     grain: line_day
     agg: avg
-    target: ≥ 95% (context-specific)
+    target: = 95% (context-specific)
     interpretation: Low performance shows speed losses
     lineage: fact_ops[Output], standards
+
   - id: ops.quality.pct
     name: Quality %
     purpose: First pass yield
@@ -83,9 +92,10 @@ required_kpis:
     unit: %
     grain: line_day
     agg: avg
-    target: ≥ 98% (context-specific)
+    target: = 98% (context-specific)
     interpretation: Low quality shows scrap/rework issues
     lineage: fact_ops[Good Units], fact_ops[Total Units]
+
   - id: ops.throughput.units
     name: Throughput Units
     purpose: Volume output
@@ -96,6 +106,7 @@ required_kpis:
     target: Meet plan
     interpretation: Volume realization vs plan
     lineage: fact_ops[Produced Units]
+
   - id: ops.downtime.pct
     name: Downtime %
     purpose: Unplanned loss
@@ -103,7 +114,7 @@ required_kpis:
     unit: %
     grain: line_day
     agg: avg
-    target: ≤ target (e.g., <5%)
+    target: = target (e.g., <5%)
     interpretation: High downtime reduces availability
     lineage: fact_ops[Downtime], fact_ops[Planned Time]
 ```
@@ -124,24 +135,28 @@ Formal rules that define performance and action triggers.
 
 ```yaml
 triggers:
+
   - kpi: ops.oee.pct
     condition: <
     threshold: line_target
     scope: line_week
     exclusion: ramp-up lines
     action_code: O2
+
   - kpi: ops.availability.pct
     condition: <
     threshold: 0.9
     scope: line_week
     exclusion: planned_shutdowns
     action_code: O2
+
   - kpi: ops.performance.pct
     condition: <
     threshold: 0.95
     scope: line_week
     exclusion: changeover windows
     action_code: M2
+
   - kpi: ops.quality.pct
     condition: <
     threshold: 0.98
@@ -165,7 +180,7 @@ Link business behavior to measurable outcomes.
 
 ---
 
-## 6. 3–30–300 Page Layout (Mandatory)
+## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
 
@@ -192,6 +207,10 @@ Link business behavior to measurable outcomes.
 
 ---
 
+### 6.4 300-Second Layer (Diagnostics)
+
+- (optional)
+
 ## 7. Data Requirements Summary
 
 ```yaml
@@ -203,7 +222,7 @@ required_dimensions:
   - dim_product (if needed)
   - security_user_org
 required_grain: line_day (or line_shift if available)
-required_time_range: 12–24 months history
+required_time_range: 12-24 months history
 required_slicers: Date, Plant/Line/Shift, Product (optional)
 ```
 
@@ -214,7 +233,7 @@ required_slicers: Date, Plant/Line/Shift, Product (optional)
 - Standard cycle times and planned production time defined; changeovers classified.
 - Downtime coded with cause categories; trial runs flagged.
 - OneLake canonical dims used (dim_date, dim_org, security_user_org; dim_product optional).
-- Data latency ≤24h; plan vs actual for throughput if used.
+- Data latency =24h; plan vs actual for throughput if used.
 
 ---
 
@@ -232,3 +251,5 @@ required_slicers: Date, Plant/Line/Shift, Product (optional)
 - Misclassified planned vs unplanned downtime distorts availability.  
 - Ignoring product mix/standard rate differences when reading performance %.  
 - Quality issues masked if rework/scrap not fully captured.  
+
+

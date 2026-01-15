@@ -590,4 +590,25 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: "draft"
     version: "v1.2"
     last_review: "TBD"
+- measure_name: "COGS Amount (AP)"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Finance_SemanticModel"
+  display_folder: "02_WorkingCapital"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_ap[COGS Amount] )"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "COGS amount used as AP base for DPO calculations."
+    notes: "Source: fact_ap[COGS Amount]."
+  dependencies:
+    columns:
+      - "fact_ap[COGS Amount]"
+  governance:
+    owner: "Finance Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
 ```
+

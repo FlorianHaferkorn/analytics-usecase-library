@@ -1,3 +1,8 @@
+---
+id: COM-003
+factsheet_type: business
+---
+
 # COM-003 - Customer Value  
 
 ## Business Factsheet (v1.2)
@@ -42,6 +47,7 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
+
   - id: crm.clv.amount
     name: Customer Lifetime Value Amount
     purpose: Long-term economic value per customer
@@ -52,6 +58,7 @@ required_kpis:
     target: Grow in priority segments
     interpretation: Higher is better; declining CLV signals retention/upsell action
     lineage: fact_customer_value[CLV Amount]
+
   - id: crm.lifetime_revenue.amount
     name: Customer Lifetime Revenue Amount
     purpose: Realised revenue across lifecycle
@@ -62,6 +69,7 @@ required_kpis:
     target: Grow revenue base with margin discipline
     interpretation: Base for concentration and CLV inputs
     lineage: fact_sales[Net Sales Amount], dim_customer[CustomerKey]
+
   - id: crm.retention.pct
     name: Customer Retention %
     purpose: Retain profitable customers
@@ -72,6 +80,7 @@ required_kpis:
     target: Meet segment retention targets
     interpretation: Lower retention drives CLV erosion
     lineage: fact_customer_events[Customer Status]
+
   - id: crm.churned_customers.count
     name: Churned Customers Count
     purpose: Quantify customers lost in period
@@ -82,6 +91,7 @@ required_kpis:
     target: Minimise churn volume
     interpretation: Rising churn indicates urgent retention playbooks
     lineage: fact_customer_events[Churn Flag]
+
   - id: crm.revenue_at_risk.amount
     name: Revenue at Risk Amount
     purpose: Size revenue exposure from churn-risk customers
@@ -92,6 +102,7 @@ required_kpis:
     target: Reduce exposure vs tolerance
     interpretation: High exposure prioritises retention actions
     lineage: fact_customer_value[CLV Remaining Amount], fact_customer_events[Attrition Risk %]
+
   - id: crm.active_customers.count
     name: Active Customers Count
     purpose: Base for retention/churn KPIs
@@ -102,6 +113,7 @@ required_kpis:
     target: Maintain stable active base
     interpretation: Denominator for retention/churn; falling base signals broader risk
     lineage: fact_customer_events[Activity Flag]
+
   - id: crm.nps.index
     name: NPS Score
     purpose: Measure advocacy and experience quality
@@ -112,6 +124,7 @@ required_kpis:
     target: Meet CX target
     interpretation: Higher is better; track with complaints and churn
     lineage: fact_nps[NPS Score]
+
   - id: crm.complaint.count
     name: Customer Complaints Count
     purpose: Volume of customer complaints
@@ -135,24 +148,28 @@ required_kpis:
 
 ```yaml
 triggers:
+
   - kpi: crm.retention.pct
     condition: below_target
     threshold: retention_target_pct
     scope: segment_channel
     exclusion: new_customers < 3 months
     action_code: C1
+
   - kpi: crm.churned_customers.count
     condition: above_target
     threshold: churn_volume_target
     scope: segment_channel
     exclusion: strategic_accounts
     action_code: C1
+
   - kpi: crm.clv.amount
     condition: below_target
     threshold: clv_target
     scope: priority_segments
     exclusion: none
     action_code: M3
+
   - kpi: crm.revenue_at_risk.amount
     condition: above_target
     threshold: risk_tolerance_amount
@@ -254,8 +271,9 @@ required_slicers: Date, Region/Channel, Customer Segment, Product Category
 ## 10. Risks & Wrong Interpretations (Short)
 
 - Misclassifying churn due to timing of inactivity flags.  
-- Over-discounting to “save” churn without margin guardrails.  
+- Over-discounting to "save" churn without margin guardrails.  
 - Using inconsistent CLV models across segments leading to false comparisons.
 
 ---
+
 

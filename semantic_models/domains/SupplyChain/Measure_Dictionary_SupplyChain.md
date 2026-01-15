@@ -731,4 +731,81 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: "draft"
     version: "v1.2"
     last_review: "TBD"
+- measure_name: "Forecast Error Qty"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "03_Forecast"
+  category: "Base"
+  expression:
+    dax: "[Forecast Units] - [Actual Units]"
+    formatString: "#,0"
+  documentation:
+    description: "Forecast units minus actual units."
+    notes: "Derived from Forecast Units and Actual Units."
+  dependencies:
+    measures:
+      - "[Forecast Units]"
+      - "[Actual Units]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Under-Forecast Lost Demand Qty"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "03_Forecast"
+  category: "Base"
+  expression:
+    dax: |
+      VAR ThresholdPct = 0.05
+      RETURN
+      SUMX (
+          FILTER (
+              fact_stockout,
+              [Forecast Error Qty] < - ThresholdPct * [Actual Units]
+          ),
+          fact_stockout[Lost Demand Units]
+      )
+    formatString: "#,0"
+  documentation:
+    description: "Lost demand units attributable to under-forecasting beyond threshold."
+    notes: "Requires Lost Demand Units and forecast error logic."
+  dependencies:
+    columns:
+      - "fact_stockout[Lost Demand Units]"
+    measures:
+      - "[Forecast Error Qty]"
+      - "[Actual Units]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Under-Forecast Lost Demand Share %"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "03_Forecast"
+  category: "Base"
+  expression:
+    dax: "DIVIDE ( [Under-Forecast Lost Demand Qty], [Stockout Lost Demand Qty] )"
+    formatString: "0.0%"
+  documentation:
+    description: "Share of stockout lost demand attributable to under-forecasting."
+    notes: "Derived from Under-Forecast Lost Demand Qty and Stockout Lost Demand Qty."
+  dependencies:
+    measures:
+      - "[Under-Forecast Lost Demand Qty]"
+      - "[Stockout Lost Demand Qty]"
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
 ```
+

@@ -1,3 +1,8 @@
+---
+id: COM-002
+factsheet_type: technical
+---
+
 # COM-002 - Margin & Price Performance  
 
 ## Technical Factsheet (v1.2)
@@ -25,35 +30,41 @@
 
 ---
 
-## 2. KPI to Measure Mapping (Mandatory)
+## 2. Required KPIs - Measure Mapping (Mandatory)
 
 ```yaml
 kpi_to_measure_mapping:
+
   - kpi_id: margin.gm.pct
     kpi_name: Gross Margin %
     measure_name: Gross Margin %
     format: "0.0%"
     folder: 02_Margin
+
   - kpi_id: margin.gm.amount
     kpi_name: Gross Margin Amount
     measure_name: Gross Margin Amount
     format: "EUR #,0"
     folder: 02_Margin
+
   - kpi_id: sales.price.realization_pct
     kpi_name: Price Realization %
     measure_name: Price Realization %
     format: "0.0%"
     folder: 03_Pricing
+
   - kpi_id: sales.pvm.mix_effect.amount
     kpi_name: Mix Effect Amount
     measure_name: Mix Effect Amount
     format: "EUR #,0"
     folder: 03_PVM
+
   - kpi_id: cost.cogs_per_unit.amount
     kpi_name: COGS per Unit
     measure_name: COGS per Unit
     format: "EUR #,0.00"
     folder: 02_Margin
+
   - kpi_id: margin.gm.vs_plan.pct
     kpi_name: Gross Margin % vs Plan
     measure_name: Gross Margin % vs Plan
@@ -163,7 +174,7 @@ fact:
 
 ---
 
-## 5. Measures
+## 5. Measures (DAX)
 
 ### 5.1 Measure Inventory
 
@@ -191,31 +202,31 @@ fact:
 ### 5.2 DAX Definitions
 
 ```DAX
-/// margin.gm.pct – Profitability quality
-[Gross Margin %] =
+/// margin.gm.pct - Profitability quality
+Gross Margin % =
 DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
 
-/// margin.gm.amount – Profit pool
-[Gross Margin Amount] =
+/// margin.gm.amount - Profit pool
+Gross Margin Amount =
 [Net Sales Amount] - [Cost of Goods Sold Amount]
 
-/// sales.price.realization_pct – Discount discipline
-[Price Realization %] =
+/// sales.price.realization_pct - Discount discipline
+Price Realization % =
 DIVIDE ( [Net Price Amount], [List Price Amount] )
 
-/// sales.pvm.mix_effect.amount – Mix residual (PVM)
-[Mix Effect Amount] =
+/// sales.pvm.mix_effect.amount - Mix residual (PVM)
+Mix Effect Amount =
 [Net Sales Amount]
     - SUM ( fact_sales[Plan Sales Amount] )
     - [Price Effect Amount]
     - [Volume Effect Amount]
 
-/// cost.cogs_per_unit.amount – Unit cost control
-[COGS per Unit] =
+/// cost.cogs_per_unit.amount - Unit cost control
+COGS per Unit =
 DIVIDE ( [Cost of Goods Sold Amount], SUM ( fact_sales[Quantity] ) )
 
-/// margin.gm.vs_plan.pct – Performance vs plan
-[Gross Margin % vs Plan] =
+/// margin.gm.vs_plan.pct - Performance vs plan
+Gross Margin % vs Plan =
 VAR GMAct =
     DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
 VAR GMPlan =
@@ -225,10 +236,12 @@ RETURN
     DIVIDE ( GMAct - GMPlan, GMPlan )
 
 // Supporting PVM effects
-[Net Sales Amount] =
+/// Supporting - Net Sales Amount
+Net Sales Amount =
 SUM ( fact_sales[Net Sales Amount] )
 
-[Price Effect Amount] =
+/// Supporting - Price Effect Amount
+Price Effect Amount =
 SUMX (
     fact_sales,
     VAR ActualPrice = DIVIDE ( fact_sales[Net Sales Amount], fact_sales[Quantity] )
@@ -236,7 +249,8 @@ SUMX (
     RETURN ( ActualPrice - PlanPrice ) * fact_sales[Quantity]
 )
 
-[Volume Effect Amount] =
+/// Supporting - Volume Effect Amount
+Volume Effect Amount =
 SUMX (
     fact_sales,
     VAR ActualQty = fact_sales[Quantity]
@@ -319,3 +333,4 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+

@@ -1,3 +1,8 @@
+---
+id: COM-002
+factsheet_type: business
+---
+
 # COM-002 - Margin & Price Performance  
 
 ## Business Factsheet (v1.2)
@@ -21,7 +26,7 @@
 ## 1. Business Summary
 
 **Purpose:** Protect and improve gross margin by explaining leakage across price realization, mix, and unit cost.  
-**Business Value:** +0.5–1.5 pp GM%, tighter discount discipline, clearer mix levers, faster correction of cost leakage.  
+**Business Value:** +0.5-1.5 pp GM%, tighter discount discipline, clearer mix levers, faster correction of cost leakage.  
 **Out of Scope:** Long-term list price strategy; promo ROI (COM-004); channel mix strategy (COM-009).
 
 ---
@@ -42,6 +47,7 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
+
   - id: margin.gm.pct
     name: Gross Margin %
     purpose: Profitability quality
@@ -52,6 +58,7 @@ required_kpis:
     target: >= 25%
     interpretation: Compression signals price/mix/cost pressure
     lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount]
+
   - id: margin.gm.amount
     name: Gross Margin Amount
     purpose: Profit pool sizing
@@ -62,6 +69,7 @@ required_kpis:
     target: Improve vs Plan and LY
     interpretation: Negative gap erodes profitability
     lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount]
+
   - id: sales.price.realization_pct
     name: Price Realization %
     purpose: Discount discipline
@@ -72,6 +80,7 @@ required_kpis:
     target: >= 95%
     interpretation: Low values imply discount leakage
     lineage: fact_sales[Net Price Amount], fact_sales[List Price Amount]
+
   - id: sales.pvm.mix_effect.amount
     name: Mix Effect Amount
     purpose: Mix quality
@@ -82,6 +91,7 @@ required_kpis:
     target: >= 0
     interpretation: Negative implies adverse mix
     lineage: fact_sales[Net Sales Amount], PVM decomposition residual
+
   - id: cost.cogs_per_unit.amount
     name: COGS per Unit
     purpose: Unit cost control
@@ -92,6 +102,7 @@ required_kpis:
     target: Stable or improving vs Plan/LY
     interpretation: Increases signal cost leakage
     lineage: fact_sales[Cost of Goods Sold Amount], fact_sales[Quantity]
+
   - id: margin.gm.vs_plan.pct
     name: Gross Margin % vs Plan
     purpose: Performance vs Plan
@@ -115,24 +126,28 @@ required_kpis:
 
 ```yaml
 triggers:
+
   - kpi: sales.price.realization_pct
     condition: below_target
     threshold: 0.95
     scope: region_channel
     exclusion: low-volume SKUs
     action_code: P2
+
   - kpi: sales.pvm.mix_effect.amount
     condition: negative
     threshold: 0
     scope: top5_regions_channels
     exclusion: none
     action_code: M3
+
   - kpi: margin.gm.vs_plan.pct
     condition: below_target
     threshold: 0
     scope: last_2_months
     exclusion: none
     action_code: P2
+
   - kpi: cost.cogs_per_unit.amount
     condition: above_threshold
     threshold: 0.02   # +2% vs plan/LY
@@ -168,7 +183,7 @@ triggers:
 
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
-| GM % vs Plan Trend | Line | dim_date[Month] | GM %, Plan GM % | Region/Channel | L12–24M | Core trend |
+| GM % vs Plan Trend | Line | dim_date[Month] | GM %, Plan GM % | Region/Channel | L12-24M | Core trend |
 | Price Realization by Channel | Column | dim_org[Channel] | Price Realization % | Region | Current quarter | Highlight low channels |
 | Mix Effect Bridge | Waterfall | Driver (Mix) | Mix Effect Amount | Region/Channel | Current period | PVM mix focus |
 | COGS per Unit vs Plan | Column | dim_product[Category] | COGS per Unit, Plan COGS per Unit | Region | Current quarter | Watch unit cost drift |
@@ -182,7 +197,7 @@ triggers:
 
 ### 6.4 300-Second Layer (Diagnostics)
 
-- Price realization ladder (List → Net) with discount/rebate/surcharge.
+- Price realization ladder (List -> Net) with discount/rebate/surcharge.
 - Mix decomposition by Region/Channel/Product.
 - Unit cost variance by supplier/plant/SKU.
 
@@ -216,7 +231,7 @@ required_slicers: Date, Region/Country/Channel, Product Category/Subcategory
 
 ## 9. Success Criteria
 
-- Impact: +0.5–1.5 pp GM % improvement in targeted channels/SKUs; price realization uplift to ≥95%.  
+- Impact: +0.5-1.5 pp GM % improvement in targeted channels/SKUs; price realization uplift to =95%.  
 - Adoption: Used in monthly pricing reviews; action codes triggered with <5% false positives.  
 - Quality: Variance bridge reconciles to 100% of GM gap; no KPI-definition conflicts.  
 - Decision Frequency: Monthly pricing and margin review.
@@ -230,3 +245,4 @@ required_slicers: Date, Region/Country/Channel, Product Category/Subcategory
 - Ignoring cost timing effects (e.g., accruals) when reading COGS/unit trends.
 
 ---
+

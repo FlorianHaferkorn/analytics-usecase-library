@@ -1,4 +1,9 @@
-# SCM-003 — Forecast vs Actual  
+---
+id: SCM-003
+factsheet_type: technical
+---
+
+# SCM-003 - Forecast vs Actual  
 
 ## Technical Factsheet (v1.2)
 
@@ -25,30 +30,35 @@
 
 ---
 
-## 2. Required KPIs → Measure Mapping (Mandatory)
+## 2. Required KPIs - Measure Mapping (Mandatory)
 
 ```yaml
 kpi_to_measure_mapping:
+
   - kpi_id: plan.forecast.accuracy.pct
     kpi_name: Forecast Accuracy %
     measure_name: [Forecast Accuracy %]
     format: 0.0%
     folder: 09_Planning
+
   - kpi_id: plan.forecast.mape.pct
     kpi_name: MAPE %
     measure_name: [MAPE %]
     format: 0.0%
     folder: 09_Planning
+
   - kpi_id: plan.forecast.bias.pct
     kpi_name: Bias %
     measure_name: [Bias %]
     format: 0.0%
     folder: 09_Planning
+
   - kpi_id: plan.forecast.service_impact.pct
     kpi_name: Service Impact %
     measure_name: [Service Impact %]
     format: 0.0%
     folder: 08_SCM_Service
+
   - kpi_id: plan.replan.count
     kpi_name: Re-Plan Count
     measure_name: [Re-Plan Count]
@@ -157,22 +167,22 @@ fact:
 
 ### 4.2 Relationships (Mandatory)
 
-- dim_date (1) → all facts on DateKey  
-- dim_org (1) → fact_forecast/fact_sales/fact_fulfillment/fact_stockout on OrgKey  
-- dim_product (1) → fact_forecast/fact_sales/fact_fulfillment/fact_stockout on ProductKey  
-- security_user_org filters dim_org → cascades to facts  
+- dim_date (1) -> all facts on DateKey  
+- dim_org (1) -> fact_forecast/fact_sales/fact_fulfillment/fact_stockout on OrgKey  
+- dim_product (1) -> fact_forecast/fact_sales/fact_fulfillment/fact_stockout on ProductKey  
+- security_user_org filters dim_org -> cascades to facts  
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
 
-- Date: Year → Quarter → Month  
-- Org: Region → Channel → Location  
-- Product: Category → Subcategory → ProductName
+- Date: Year -> Quarter -> Month  
+- Org: Region -> Channel -> Location  
+- Product: Category -> Subcategory -> ProductName
 
 ### 4.4 Sort-by Columns
 
-- Month → MonthNumber  
-- ProductName → ProductCode
+- Month -> MonthNumber  
+- ProductName -> ProductCode
 
 ### 4.5 Modeling Constraints
 
@@ -204,9 +214,11 @@ fact:
 Forecast Units :=
     SUM ( fact_forecast[Forecast Units] )
 
+/// Supporting - Actual Units
 Actual Units :=
     SUM ( fact_sales[Actual Units] )
 
+/// Supporting - Absolute Error
 Absolute Error :=
     ABS ( [Forecast Units] - [Actual Units] )
 
@@ -234,16 +246,16 @@ Re-Plan Count :=
     SUM ( fact_replan[Re-Plan Count] )
 ```
 
-### 5.3 Service Impact % – Supporting Measures
-
 ```DAX
 // Forecast Error Qty
-[Forecast Error Qty] =
+/// Supporting - Forecast Error Qty
+Forecast Error Qty =
 [Forecast Qty] - [Actual Demand Qty]
 
 
 // Under-Forecast Lost Demand Qty
-[Under-Forecast Lost Demand Qty] =
+/// Supporting - Under-Forecast Lost Demand Qty
+Under-Forecast Lost Demand Qty =
 VAR ThresholdPct = 0.05   // configurable threshold
 RETURN
 SUMX (
@@ -257,12 +269,14 @@ SUMX (
 
 
 // Under-Forecast Lost Demand Share %
-[Under-Forecast Lost Demand Share %] =
+/// Supporting - Under-Forecast Lost Demand Share %
+Under-Forecast Lost Demand Share % =
 DIVIDE ( [Under-Forecast Lost Demand Qty], [Stockout Lost Demand Qty] )
 
 
 // Service Impact %
-[Service Impact %] =
+/// Supporting - Service Impact %
+Service Impact % =
 [Stockout Impact %] * [Under-Forecast Lost Demand Share %]
 ```
 
@@ -305,7 +319,7 @@ dim_org[OrgKey] IN
 
 - Forecast and actual data aligned by SKU/location/time; versions managed.
 - Service impact linkage requires OTIF/stockout mapping to forecast error (TODO).
-- Data latency ≤24h; currency not needed unless financial metrics added.
+- Data latency <=24h; currency not needed unless financial metrics added.
 - OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org).
 
 ---
@@ -315,7 +329,7 @@ dim_org[OrgKey] IN
 - Mode: DirectLake or Import (prefer DirectLake if Fabric).  
 - Incremental refresh: yes, partition by Month (e.g., last 24 months).  
 - Aggregations: optional for large order/stockout linkage tables.  
-- Workspace/naming: `ARF – Supply Chain` dataset/model per governance.
+- Workspace/naming: `ARF - Supply Chain` dataset/model per governance.
 
 ---
 
@@ -337,4 +351,5 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 

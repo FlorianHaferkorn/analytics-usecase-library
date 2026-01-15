@@ -1,4 +1,9 @@
-# OPS-002 — Asset Performance  
+---
+id: OPS-002
+factsheet_type: business
+---
+
+# OPS-002 - Asset Performance  
 
 ## Business Factsheet (v1.2)
 
@@ -36,8 +41,8 @@
 
 **Example Query Patterns (optional):**
 
-- “Which assets have MTBF below target and MTTR above target in the last 90 days?”
-- “Where is PM compliance < target and unplanned downtime rising?”
+- "Which assets have MTBF below target and MTTR above target in the last 90 days?"
+- "Where is PM compliance < target and unplanned downtime rising?"
 
 ---
 
@@ -47,6 +52,7 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
+
   - id: ops.availability.pct
     name: Availability %
     purpose: Asset uptime
@@ -54,9 +60,10 @@ required_kpis:
     unit: %
     grain: asset_day
     agg: avg
-    target: ≥ 90% (context-specific)
+    target: = 90% (context-specific)
     interpretation: Low availability shows downtime issues
     lineage: fact_ops[Run Time], fact_ops[Planned Time]
+
   - id: ops.mtbf.hours
     name: MTBF (hours)
     purpose: Reliability
@@ -67,6 +74,7 @@ required_kpis:
     target: Asset-class target
     interpretation: Lower than target indicates frequent failures
     lineage: fact_ops_failures[Failure Start/End], uptime calc
+
   - id: ops.mttr.hours
     name: MTTR (hours)
     purpose: Maintainability
@@ -77,6 +85,7 @@ required_kpis:
     target: Asset-class target
     interpretation: High MTTR prolongs downtime
     lineage: fact_ops_failures[Repair Duration]
+
   - id: ops.downtime.unplanned.pct
     name: Unplanned Downtime %
     purpose: Unplanned loss
@@ -84,9 +93,10 @@ required_kpis:
     unit: %
     grain: asset_day
     agg: avg
-    target: ≤ target (e.g., <5%)
+    target: = target (e.g., <5%)
     interpretation: High values indicate reliability issues
     lineage: fact_ops[Unplanned Downtime], fact_ops[Planned Time]
+
   - id: ops.spare_parts.stockout.pct
     name: Spare Parts Stockout %
     purpose: Maintenance readiness
@@ -94,9 +104,10 @@ required_kpis:
     unit: %
     grain: month
     agg: avg
-    target: ≤ target (e.g., <2%)
+    target: = target (e.g., <2%)
     interpretation: High stockouts create MTTR risk
     lineage: fact_maintenance[Orders Delayed], fact_maintenance[Orders]
+
   - id: ops.pm_compliance.pct
     name: PM Compliance %
     purpose: Preventive maintenance discipline
@@ -104,7 +115,7 @@ required_kpis:
     unit: %
     grain: month
     agg: avg
-    target: ≥ 95%
+    target: = 95%
     interpretation: Low compliance increases failure risk
     lineage: fact_maintenance[PM On Time], fact_maintenance[PM Planned]
 ```
@@ -126,30 +137,35 @@ Formal rules that define performance and action triggers.
 
 ```yaml
 triggers:
+
   - kpi: ops.mtbf.hours
     condition: <
     threshold: asset_target
     scope: asset_month
     exclusion: ramp-up assets
     action_code: O2
+
   - kpi: ops.mttr.hours
     condition: >
     threshold: asset_target
     scope: asset_month
     exclusion: major_overhauls
     action_code: L2
+
   - kpi: ops.downtime.unplanned.pct
     condition: >
     threshold: 0.05
     scope: last_2_periods
     exclusion: planned_shutdowns
     action_code: O2
+
   - kpi: ops.pm_compliance.pct
     condition: <
     threshold: 0.95
     scope: month
     exclusion: deferred_by_design
     action_code: O2
+
   - kpi: ops.spare_parts.stockout.pct
     condition: >
     threshold: 0.02
@@ -173,7 +189,7 @@ Link business behavior to measurable outcomes.
 
 ---
 
-## 6. 3–30–300 Page Layout (Mandatory)
+## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
 
@@ -200,6 +216,10 @@ Link business behavior to measurable outcomes.
 
 ---
 
+### 6.4 300-Second Layer (Diagnostics)
+
+- (optional)
+
 ## 7. Data Requirements Summary
 
 ```yaml
@@ -213,7 +233,7 @@ required_dimensions:
   - dim_asset (if separate from org)
   - security_user_org
 required_grain: asset_day for availability; failure event for MTBF/MTTR; month for PM compliance
-required_time_range: 12–24 months history
+required_time_range: 12-24 months history
 required_slicers: Date, Plant/Asset, Asset Class/Criticality
 ```
 
@@ -230,7 +250,7 @@ required_slicers: Date, Plant/Asset, Asset Class/Criticality
 
 ## 9. Success Criteria
 
-- Impact: Reduce unplanned downtime % below target; MTBF improves to targets; MTTR reduced; PM compliance ≥ target; stockouts reduced.  
+- Impact: Reduce unplanned downtime % below target; MTBF improves to targets; MTTR reduced; PM compliance = target; stockouts reduced.  
 - Adoption: Used in weekly maintenance/reliability reviews; action codes triggered with <5% false positives.  
 - Quality: Cause coding coverage high; KPI definitions consistent across ops UCs.  
 - Decision Frequency: Weekly maintenance and monthly reliability review.
@@ -241,4 +261,6 @@ required_slicers: Date, Plant/Asset, Asset Class/Criticality
 
 - Misclassified planned vs unplanned downtime skews availability.  
 - MTBF/MTTR distorted by missing or merged failure events.  
-- PM compliance percentages misleading if plan not realistic or if deferrals aren’t flagged.  
+- PM compliance percentages misleading if plan not realistic or if deferrals aren't flagged.  
+
+

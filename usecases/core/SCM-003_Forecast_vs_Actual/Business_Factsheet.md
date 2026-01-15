@@ -1,4 +1,9 @@
-# SCM-003 — Forecast vs Actual  
+---
+id: SCM-003
+factsheet_type: business
+---
+
+# SCM-003 - Forecast vs Actual  
 
 ## Business Factsheet (v1.2)
 
@@ -35,8 +40,8 @@
 
 **Example Query Patterns (optional):**
 
-- “Which top 20 SKUs by revenue have forecast accuracy < target and negative bias?”
-- “Where did low accuracy drive OTIF misses or stockouts?”
+- "Which top 20 SKUs by revenue have forecast accuracy < target and negative bias?"
+- "Where did low accuracy drive OTIF misses or stockouts?"
 
 ---
 
@@ -46,6 +51,7 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
+
   - id: plan.forecast.accuracy.pct
     name: Forecast Accuracy %
     purpose: Planning quality (units-based forecast)
@@ -56,6 +62,7 @@ required_kpis:
     target: % target
     interpretation: Low accuracy drives excess/stockouts; units-based (not revenue)
     lineage: fact_forecast[Forecast], fact_sales[Actual]
+
   - id: plan.forecast.mape.pct
     name: MAPE %
     purpose: Error magnitude (units-based forecast)
@@ -66,6 +73,7 @@ required_kpis:
     target: % target
     interpretation: High MAPE indicates poor forecast quality; units-based (not revenue)
     lineage: fact_forecast vs fact_sales
+
   - id: plan.forecast.bias.pct
     name: Forecast Bias %
     purpose: Direction of error (units-based forecast)
@@ -76,6 +84,7 @@ required_kpis:
     target: Near 0 (within bands)
     interpretation: Positive bias = over-forecast; negative = under-forecast; units-based (not revenue)
     lineage: fact_forecast vs fact_sales
+
   - id: plan.forecast.service_impact.pct
     name: Service Impact %
     purpose: Service effect of forecast error (units-based)
@@ -86,6 +95,7 @@ required_kpis:
     target: Minimize
     interpretation: High impact shows planning as root cause; units-based (not revenue)
     lineage: linkage between forecast error and OTIF/stockout
+
   - id: plan.replan.count
     name: Re-Plan Count
     purpose: Planning stability
@@ -114,24 +124,28 @@ Formal rules that define performance and action triggers.
 
 ```yaml
 triggers:
+
   - kpi: plan.forecast.accuracy.pct
     condition: <
     threshold: accuracy_target
     scope: sku_location
     exclusion: launch_items
     action_code: O2
+
   - kpi: plan.forecast.bias.pct
     condition: outside
     threshold: [-0.05, 0.05]
     scope: sku_location
     exclusion: launch_items
     action_code: O2
+
   - kpi: plan.forecast.service_impact.pct
     condition: >
     threshold: impact_target
     scope: sku_location
     exclusion: force_majeure
     action_code: O2
+
   - kpi: plan.replan.count
     condition: >
     threshold: replan_limit
@@ -154,7 +168,7 @@ Link business behavior to measurable outcomes.
 
 ---
 
-## 6. 3–30–300 Page Layout (Mandatory)
+## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
 
@@ -182,6 +196,10 @@ Link business behavior to measurable outcomes.
 
 ---
 
+### 6.4 300-Second Layer (Diagnostics)
+
+- (optional)
+
 ## 7. Data Requirements Summary
 
 ```yaml
@@ -197,7 +215,7 @@ required_dimensions:
   - dim_product
   - security_user_org
 required_grain: sku_month for accuracy/bias; order/day for service impact; month for replans
-required_time_range: 12–24 months history
+required_time_range: 12-24 months history
 required_slicers: Date, Region/Channel/Location, Category/Product, ABC/XYZ
 ```
 
@@ -208,7 +226,7 @@ required_slicers: Date, Region/Channel/Location, Category/Product, ABC/XYZ
 - Forecast/actual aligned by SKU/location/time; promotions/launches flagged to avoid misinterpretation.
 - Re-plan events captured; service impact link to OTIF/stockout available.
 - OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org).
-- Data latency ≤24h; plan versions stored.
+- Data latency =24h; plan versions stored.
 
 ---
 
@@ -226,4 +244,6 @@ required_slicers: Date, Region/Channel/Location, Category/Product, ABC/XYZ
 - Misinterpreting bias/accuracy on launch or promo items.  
 - Service impact overstated if OTIF/stockout not properly linked.  
 - Re-plan counts misleading if process changes not tracked.  
+
+
 

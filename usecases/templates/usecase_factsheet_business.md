@@ -1,4 +1,4 @@
-# <USE CASE ID> – <USE CASE NAME>  
+# <USE CASE ID> - <USE CASE NAME>
 
 ## Business Factsheet (v1.2)
 
@@ -6,7 +6,7 @@
 
 ## 0. Metadata (Mandatory)
 
-- **Use Case ID:** <COM-001 / FIN-001 …>
+- **Use Case ID:** <COM-001 / FIN-001 ...>
 - **Domain:** <Commercial / Finance / Operations / Supply Chain / XD>
 - **Business Owner:** <Role>
 - **KPI Owner:** <Role>
@@ -21,8 +21,8 @@
 ## 1. Business Summary
 
 **Purpose:** One clear sentence describing the business objective.  
-**Business Value:** 1–2 sentences describing measurable impact (growth, margin, cost, risk, liquidity, customer value).  
-**Out of Scope:** 2–3 bullets.
+**Business Value:** 1-2 sentences describing measurable impact (growth, margin, cost, risk, liquidity, customer value).  
+**Out of Scope:** 2-3 bullets.
 
 ---
 
@@ -33,12 +33,12 @@ List the key questions the use case must answer.
 - <Question 1>  
 - <Question 2>  
 - <Question 3>  
-- …
+- ...
 
 **Example Query Patterns (optional):**
 
-- “How did <KPI> vs Plan develop across <dimension> over <period>?”
-- “Which entities contribute most to <KPI deviation>?”
+- "How did <KPI> vs Plan develop across <dimension> over <period>?"
+- "Which entities contribute most to <KPI deviation>?"
 
 ---
 
@@ -52,7 +52,7 @@ required_kpis:
     name: <KPI Name>
     purpose: <short purpose>
     definition_short: <business definition>
-    unit: <€, %, qty, days, index>
+    unit: <EUR, %, qty, days, index>
     grain: <day/week/month>
     agg: <sum/avg/lnb>
     target: <value or range>
@@ -92,16 +92,16 @@ triggers:
 Link business behavior to measurable outcomes.
 
 | Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|-------|-----------------|-------------|----------------------|------------------|--------|
-| AC-XX | <Name> | From section 4 | <What happens> | <+%, -%, stabilise> | L1 | <Team> |
-| … | … | … | … | … | … | … |
+|-------------|------|------------------|-------------|---------------------|------------------|-------|
+| AC-XX | <Name> | From section 4 | <What happens> | <+%, -%, stabilize> | L1 | <Team> |
+| ... | ... | ... | ... | ... | ... | ... |
 
 All referenced Action Codes must comply with the Prescriptive Standard
 (Trigger, Interpretation, Prescriptive Actions, Expected Impact, Risk).
 
 ---
 
-## 6. 3–30–300 Page Layout (Mandatory)
+## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
 
@@ -114,16 +114,21 @@ All referenced Action Codes must comply with the Prescriptive Standard
 ### 6.2 30-Second Layer (Main Visuals)
 
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
-|-------------|-------------|--------|--------|----------|----------------|--------|
+|-------------|-------------|--------|--------|---------|----------------|-------|
 | <Trend> | Line | Date[Month] | [Net Sales Amount] | Region | L12M | mandatory |
 | <Ranking> | Bar (horizontal) | Org[Channel] | [GM %] | Region | none | top/bottom logic |
-| … | … | … | … | … | … | … |
+| ... | ... | ... | ... | ... | ... | ... |
 
 ### 6.3 Required Slicers (Mandatory)
 
 - <Slicer 1>  
 - <Slicer 2>  
 - <Max 3 slicers>
+
+### 6.4 300-Second Layer (Diagnostics)
+
+- <Diagnostic view 1>
+- <Diagnostic view 2>
 
 ---
 

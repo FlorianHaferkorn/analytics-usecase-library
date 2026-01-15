@@ -1,4 +1,9 @@
-# XD-001 — Service Level Performance  
+---
+id: XD-001
+factsheet_type: technical
+---
+
+# XD-001 - Service Level Performance  
 
 ## Technical Factsheet (v1.2)
 
@@ -25,35 +30,41 @@
 
 ---
 
-## 2. Required KPIs → Measure Mapping (Mandatory)
+## 2. Required KPIs - Measure Mapping (Mandatory)
 
 ```yaml
 kpi_to_measure_mapping:
+
   - kpi_id: svc.sla.attainment.pct
     kpi_name: SLA Attainment %
     measure_name: [SLA Attainment %]
     format: 0.0%
     folder: 11_Service
+
   - kpi_id: svc.fcr.pct
     kpi_name: First Contact Resolution %
     measure_name: [FCR %]
     format: 0.0%
     folder: 11_Service
+
   - kpi_id: svc.aht.minutes
     kpi_name: Average Handling Time (minutes)
     measure_name: [AHT Minutes]
     format: 0.0
     folder: 11_Service
+
   - kpi_id: svc.backlog.count
     kpi_name: Backlog Count
     measure_name: [Backlog Count]
     format: #,0
     folder: 11_Service
+
   - kpi_id: svc.nps.index
     kpi_name: NPS Index
     measure_name: [NPS Index]
     format: #,0
     folder: 11_Service
+
   - kpi_id: svc.escalation.pct
     kpi_name: Escalation %
     measure_name: [Escalation %]
@@ -145,23 +156,23 @@ fact:
 
 ### 4.2 Relationships (Mandatory)
 
-- dim_date (1) → fact_cases/fact_nps on DateKey  
-- dim_org (1) → fact_cases/fact_nps on OrgKey  
-- dim_queue (1) → fact_cases/fact_nps on QueueKey (if used)  
-- dim_issue (1) → fact_cases on IssueKey (if used)  
-- security_user_org filters dim_org → cascades to facts; use channel/region as needed.  
+- dim_date (1) -> fact_cases/fact_nps on DateKey  
+- dim_org (1) -> fact_cases/fact_nps on OrgKey  
+- dim_queue (1) -> fact_cases/fact_nps on QueueKey (if used)  
+- dim_issue (1) -> fact_cases on IssueKey (if used)  
+- security_user_org filters dim_org -> cascades to facts; use channel/region as needed.  
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
 
-- Date: Year → Quarter → Month → Week  
-- Org: Region → Channel → Queue  
-- Queue: Channel → QueueName (if separate)
+- Date: Year -> Quarter -> Month -> Week  
+- Org: Region -> Channel -> Queue  
+- Queue: Channel -> QueueName (if separate)
 
 ### 4.4 Sort-by Columns
 
-- Month → MonthNumber  
-- QueueName → QueueKey
+- Month -> MonthNumber  
+- QueueName -> QueueKey
 
 ### 4.5 Modeling Constraints
 
@@ -190,46 +201,51 @@ fact:
 ### 5.2 DAX Definitions
 
 ```DAX
-/// Supporting — Counts
+/// Supporting - Counts
 Cases Resolved :=
     COUNTROWS ( fact_cases )
 
+/// Supporting - Cases SLA Met
 Cases SLA Met :=
     CALCULATE ( COUNTROWS ( fact_cases ), fact_cases[SLA Met Flag] = TRUE )
 
+/// Supporting - Cases FCR
 Cases FCR :=
     CALCULATE ( COUNTROWS ( fact_cases ), fact_cases[FCR Flag] = TRUE )
 
+/// Supporting - Escalated Cases
 Escalated Cases :=
     CALCULATE ( COUNTROWS ( fact_cases ), fact_cases[Escalation Flag] = TRUE )
 
+/// Supporting - Backlog Cases
 Backlog Cases :=
     CALCULATE ( COUNTROWS ( fact_cases ), fact_cases[Backlog Flag] = TRUE )
 
+/// Supporting - Total Handle Time Minutes
 Total Handle Time Minutes :=
     SUM ( fact_cases[Handle Time Minutes] )
 
-/// svc.sla.attainment.pct — SLA
+/// svc.sla.attainment.pct - SLA
 SLA Attainment % :=
     DIVIDE ( [Cases SLA Met], [Cases Resolved] )
 
-/// svc.fcr.pct — FCR
+/// svc.fcr.pct - FCR
 FCR % :=
     DIVIDE ( [Cases FCR], [Cases Resolved] )
 
-/// svc.aht.minutes — AHT
+/// svc.aht.minutes - AHT
 AHT Minutes :=
     DIVIDE ( [Total Handle Time Minutes], [Cases Resolved] )
 
-/// svc.backlog.count — Backlog
+/// svc.backlog.count - Backlog
 Backlog Count :=
     [Backlog Cases]
 
-/// svc.escalation.pct — Escalations
+/// svc.escalation.pct - Escalations
 Escalation % :=
     DIVIDE ( [Escalated Cases], [Cases Resolved] )
 
-/// svc.nps.index — NPS
+/// svc.nps.index - NPS
 NPS Index :=
     AVERAGE ( fact_nps[NPS Score] )
 ```
@@ -273,7 +289,7 @@ dim_org[OrgKey] IN
 
 - SLA, FCR, AHT flags/times captured; backlog/escalation flags available.
 - NPS survey data aligned by channel/period; queue/channel mapping consistent.
-- Data latency ≤24h; OneLake canonical dims (dim_date, dim_org, security_user_org) used.
+- Data latency <=24h; OneLake canonical dims (dim_date, dim_org, security_user_org) used.
 
 ---
 
@@ -282,7 +298,7 @@ dim_org[OrgKey] IN
 - Mode: DirectLake or Import (prefer DirectLake if Fabric).  
 - Incremental refresh: yes, by Month/Week.  
 - Aggregations: optional for high-volume case data.  
-- Workspace/naming: `ARF – Experience` dataset/model per governance.
+- Workspace/naming: `ARF - Experience` dataset/model per governance.
 
 ---
 
@@ -304,3 +320,4 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+

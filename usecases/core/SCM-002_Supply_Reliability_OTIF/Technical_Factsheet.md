@@ -1,4 +1,9 @@
-# SCM-002 — Supply Reliability & OTIF  
+---
+id: SCM-002
+factsheet_type: technical
+---
+
+# SCM-002 - Supply Reliability & OTIF  
 
 ## Technical Factsheet (v1.2)
 
@@ -25,39 +30,45 @@
 
 ---
 
-## 2. Required KPIs → Measure Mapping (Mandatory)
+## 2. Required KPIs - Measure Mapping (Mandatory)
 
 ```yaml
 kpi_to_measure_mapping:
+
   - kpi_id: supply.otif.pct
     kpi_name: OTIF %
     measure_name: [OTIF %]
     format: 0.0%
     folder: 08_SCM_Service
+
   - kpi_id: supply.on_time.pct
     kpi_name: On-Time %
     measure_name: [On-Time %]
     format: 0.0%
     folder: 08_SCM_Service
+
   - kpi_id: supply.in_full.pct
     kpi_name: In-Full %
     measure_name: [In-Full %]
     format: 0.0%
     folder: 08_SCM_Service
+
   - kpi_id: supply.stockout_impact.pct
     kpi_name: Stockout Impact %
     measure_name: [Stockout Impact %]
     format: 0.0%
     folder: 08_SCM_Service
+
   - kpi_id: supply.penalty.amount
     kpi_name: Penalty Amount
     measure_name: [Penalty Amount]
-    format: €#,0
+    format: EUR#,0
     folder: 08_SCM_Cost
+
   - kpi_id: supply.expedite.amount
     kpi_name: Expedite Cost Amount
     measure_name: [Expedite Cost Amount]
-    format: €#,0
+    format: EUR#,0
     folder: 08_SCM_Cost
 ```
 
@@ -150,24 +161,24 @@ fact:
 
 ### 4.2 Relationships (Mandatory)
 
-- dim_date (1) → fact_fulfillment / fact_stockout on DateKey  
-- dim_org (1) → fact_fulfillment / fact_stockout on OrgKey  
-- dim_product (1) → fact_fulfillment / fact_stockout on ProductKey (if present)  
-- dim_lane (1) → fact_fulfillment on LaneKey (if used)  
-- security_user_org filters dim_org → cascades to facts  
+- dim_date (1) -> fact_fulfillment / fact_stockout on DateKey  
+- dim_org (1) -> fact_fulfillment / fact_stockout on OrgKey  
+- dim_product (1) -> fact_fulfillment / fact_stockout on ProductKey (if present)  
+- dim_lane (1) -> fact_fulfillment on LaneKey (if used)  
+- security_user_org filters dim_org -> cascades to facts  
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
 
-- Date: Year → Quarter → Month → Week  
-- Org: Region → Location → Channel → Customer  
-- Product (if used): Category → ProductName  
-- Lane: Origin → Destination (optional)
+- Date: Year -> Quarter -> Month -> Week  
+- Org: Region -> Location -> Channel -> Customer  
+- Product (if used): Category -> ProductName  
+- Lane: Origin -> Destination (optional)
 
 ### 4.4 Sort-by Columns
 
-- Month → MonthNumber  
-- Customer → OrgKey (or CustomerCode)
+- Month -> MonthNumber  
+- Customer -> OrgKey (or CustomerCode)
 
 ### 4.5 Modeling Constraints
 
@@ -187,8 +198,8 @@ fact:
 | On-Time % | supply.on_time.pct | Timeliness | 08_SCM_Service | 0.0% | KPI |
 | In-Full % | supply.in_full.pct | Completeness | 08_SCM_Service | 0.0% | KPI |
 | Stockout Impact % | supply.stockout_impact.pct | Service loss | 08_SCM_Service | 0.0% | KPI |
-| Penalty Amount | supply.penalty.amount | Service failure cost | 08_SCM_Cost | €#,0 | KPI |
-| Expedite Cost Amount | supply.expedite.amount | Recovery cost | 08_SCM_Cost | €#,0 | KPI |
+| Penalty Amount | supply.penalty.amount | Service failure cost | 08_SCM_Cost | EUR#,0 | KPI |
+| Expedite Cost Amount | supply.expedite.amount | Recovery cost | 08_SCM_Cost | EUR#,0 | KPI |
 | OTIF Orders | Supporting | OTIF numerator | 08_SCM_Service | #,0 | Supporting |
 | Total Orders | Supporting | OTIF denominator | 08_SCM_Service | #,0 | Supporting |
 | On-Time Deliveries | Supporting | On-time numerator | 08_SCM_Service | #,0 | Supporting |
@@ -199,47 +210,51 @@ fact:
 ### 5.2 DAX Definitions
 
 ```DAX
-/// Supporting — Fulfillment counts
+/// Supporting - Fulfillment counts
 OTIF Orders :=
     SUMX ( fact_fulfillment, IF ( fact_fulfillment[OTIF Flag], fact_fulfillment[Order Qty], 0 ) )
 
+/// Supporting - Total Orders
 Total Orders :=
     SUM ( fact_fulfillment[Order Qty] )
 
+/// Supporting - On-Time Deliveries
 On-Time Deliveries :=
     SUMX ( fact_fulfillment, IF ( fact_fulfillment[On-Time Flag], fact_fulfillment[Order Qty], 0 ) )
 
+/// Supporting - In-Full Deliveries
 In-Full Deliveries :=
     SUMX ( fact_fulfillment, IF ( fact_fulfillment[In-Full Flag], fact_fulfillment[Order Qty], 0 ) )
 
-/// supply.otif.pct — OTIF %
+/// supply.otif.pct - OTIF %
 OTIF % :=
     DIVIDE ( [OTIF Orders], [Total Orders] )
 
-/// supply.on_time.pct — On-Time %
+/// supply.on_time.pct - On-Time %
 On-Time % :=
     DIVIDE ( [On-Time Deliveries], [Total Orders] )
 
-/// supply.in_full.pct — In-Full %
+/// supply.in_full.pct - In-Full %
 In-Full % :=
     DIVIDE ( [In-Full Deliveries], [Total Orders] )
 
-/// Supporting — Stockout
+/// Supporting - Stockout
 Lost Demand Units :=
     SUM ( fact_stockout[Lost Demand Units] )
 
+/// Supporting - Demand Units
 Demand Units :=
     SUM ( fact_stockout[Demand Units] )
 
-/// supply.stockout_impact.pct — Stockout impact %
+/// supply.stockout_impact.pct - Stockout impact %
 Stockout Impact % :=
     DIVIDE ( [Lost Demand Units], [Demand Units] )
 
-/// supply.penalty.amount — Penalty
+/// supply.penalty.amount - Penalty
 Penalty Amount :=
     SUM ( fact_fulfillment[Penalty Amount] )
 
-/// supply.expedite.amount — Expedite cost
+/// supply.expedite.amount - Expedite cost
 Expedite Cost Amount :=
     SUM ( fact_fulfillment[Expedite Cost] )
 ```
@@ -283,7 +298,7 @@ dim_org[OrgKey] IN
 
 - OTIF, on-time, in-full flags available and consistent; penalties/expedites captured at order/shipment level.
 - Stockout impact measured via lost demand; demand captured consistently.
-- Data latency ≤24h; currency EUR.
+- Data latency <=24h; currency EUR.
 - OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org; dim_lane optional).
 
 ---
@@ -291,9 +306,9 @@ dim_org[OrgKey] IN
 ## 8. Deployment Requirements
 
 - Mode: DirectLake or Import (prefer DirectLake if Fabric).  
-- Incremental refresh: yes, partition by DateKey (e.g., last 12–24 months).  
+- Incremental refresh: yes, partition by DateKey (e.g., last 12-24 months).  
 - Aggregations: optional for large order lines; consider weekly aggregates for OTIF.  
-- Workspace/naming: `ARF – Supply Chain` dataset/model per governance.
+- Workspace/naming: `ARF - Supply Chain` dataset/model per governance.
 
 ---
 
@@ -302,7 +317,7 @@ dim_org[OrgKey] IN
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org keys non-null in facts | 100% | Y | Data Engineering |
-| OTIF/On-Time/In-Full Integrity | OTIF ≤ On-Time and In-Full within tolerance | 100% | Y | BI |
+| OTIF/On-Time/In-Full Integrity | OTIF <= On-Time and In-Full within tolerance | 100% | Y | BI |
 | Stockout Coverage | Lost demand and demand populated where stockout flag true | 100% flagged scope | Y | Ops |
 | Penalty/Expedite Coverage | Penalty/expedite captured for service failures | 100% expected scope | Y | Ops/Finance |
 | RLS Coverage | Users see only authorised locations/channels | 0 leaks | Y | Security |
@@ -315,3 +330,4 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+

@@ -1,9 +1,9 @@
-﻿# Use Case Library (WHAT)
+# Use Case Library (WHAT)
 
 ## Purpose
 
 The **Use Case Library** documents all business and technical use cases that the  
-**ActionReady Analytics Framework** supports — from strategy‑aligned core use cases to extended and industry‑specific scenarios.
+**ActionReady Analytics Framework** supports - from strategy-aligned core use cases to extended and industry-specific scenarios.
 
 It represents the *WHAT*:  
 What analytics delivers.  
@@ -37,14 +37,14 @@ Not included:
 
 ```
 usecases/
-  UseCase_Inventory.md      → Master list of all use cases
-  templates/                → Business & technical factsheet templates
+  UseCase_Inventory.md      - Master list of all use cases
+  templates/                - Business & technical factsheet templates
     usecase_factsheet_business.md
     usecase_factsheet_technical.md
     usecase_blueprint.md
-  core/                     → Core use cases (universal)
-  extended/                 → Advanced / extended use cases
-  industry/                 → Industry-specific scenarios
+  core/                     - Core use cases (universal)
+  extended/                 - Advanced / extended use cases
+  industry/                 - Industry-specific scenarios
 ```
 
 ### UseCase_Inventory.md
@@ -84,7 +84,7 @@ Extended use cases typically require machine learning or advanced modeling.
 
 ### industry/
 
-Tailored use cases for specific verticals (Retail, Manufacturing, CPG, Logistics…):
+Tailored use cases for specific verticals (Retail, Manufacturing, CPG, Logistics):
 
 - Store clustering  
 - Space productivity  
@@ -110,12 +110,12 @@ Tailored use cases for specific verticals (Retail, Manufacturing, CPG, Logistics
   - Data Contract  
   - Semantic Model  
   - Action Codes  
-  - Page Template (3‑30‑300)  
+  - Page Template (3-30-300)  
 - Maintain UseCase_Inventory.md as the controlled governance artifact.
 
 ### For Framework Evolution
 
-- Add new use cases only when they provide real cross‑customer value.  
+- Add new use cases only when they provide real cross-customer value.  
 - Keep industry use cases optional and clearly marked.  
 - Link all use cases to Action Codes for ROI and actionability tracking.
 
@@ -123,10 +123,10 @@ Tailored use cases for specific verticals (Retail, Manufacturing, CPG, Logistics
 
 ## Relations
 
-- **WHY →** Use cases originate from key questions and strategic KPIs in the Company Layer.  
-- **HOW →** Use cases rely on semantic, UX, and operational standards defined in the Operating Model.  
-- **WITH WHAT →** Action Codes, templates, and KPI Catalog turn use cases into consistent, repeatable assets.  
-- **TEMPLATES →** Use case templates ensure uniform structure and quality.
+- **WHY ->** Use cases originate from key questions and strategic KPIs in the Company Layer.  
+- **HOW ->** Use cases rely on semantic, UX, and operational standards defined in the Operating Model.  
+- **WITH WHAT ->** Action Codes, templates, and KPI Catalog turn use cases into consistent, repeatable assets.  
+- **TEMPLATES ->** Use case templates ensure uniform structure and quality.
 
 ---
 
@@ -144,3 +144,4 @@ This establishes a complete understanding of how analytics drives actionability 
 
 **Location to place this file:**  
 `usecases/README.md`
+

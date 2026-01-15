@@ -1,4 +1,9 @@
-# XD-001 — Service Level Performance  
+---
+id: XD-001
+factsheet_type: business
+---
+
+# XD-001 - Service Level Performance  
 
 ## Business Factsheet (v1.2)
 
@@ -35,8 +40,8 @@
 
 **Example Query Patterns (optional):**
 
-- “Which queues have SLA < target in the last 4 weeks and rising backlog?”
-- “How does FCR vs AHT impact NPS across channels?”
+- "Which queues have SLA < target in the last 4 weeks and rising backlog?"
+- "How does FCR vs AHT impact NPS across channels?"
 
 ---
 
@@ -46,6 +51,7 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
+
   - id: svc.sla.attainment.pct
     name: SLA Attainment %
     purpose: Service level compliance
@@ -53,9 +59,10 @@ required_kpis:
     unit: %
     grain: day_queue
     agg: avg
-    target: ≥ target
+    target: = target
     interpretation: Low attainment signals service failure
     lineage: fact_cases[SLA Met Flag]
+
   - id: svc.fcr.pct
     name: First Contact Resolution %
     purpose: Quality/efficiency
@@ -63,9 +70,10 @@ required_kpis:
     unit: %
     grain: day_queue
     agg: avg
-    target: ≥ target
+    target: = target
     interpretation: Low FCR drives repeat contacts/backlog
     lineage: fact_cases[FCR Flag]
+
   - id: svc.aht.minutes
     name: Average Handling Time (minutes)
     purpose: Efficiency
@@ -73,9 +81,10 @@ required_kpis:
     unit: minutes
     grain: day_queue
     agg: avg
-    target: ≤ target band
+    target: = target band
     interpretation: High AHT slows throughput
     lineage: fact_cases[Handle Time]
+
   - id: svc.backlog.count
     name: Backlog Count
     purpose: Workload risk
@@ -86,6 +95,7 @@ required_kpis:
     target: Reduce vs target
     interpretation: Rising backlog risks SLA failure
     lineage: fact_cases[Backlog Flag/Open Cases]
+
   - id: svc.nps.index
     name: NPS Index
     purpose: Customer satisfaction
@@ -93,9 +103,10 @@ required_kpis:
     unit: index
     grain: month
     agg: avg
-    target: ≥ target
+    target: = target
     interpretation: Lower NPS signals experience issues
     lineage: fact_nps[NPS Score]
+
   - id: svc.escalation.pct
     name: Escalation %
     purpose: Quality/risk
@@ -103,7 +114,7 @@ required_kpis:
     unit: %
     grain: day_queue
     agg: avg
-    target: ≤ target
+    target: = target
     interpretation: High escalation signals quality/process issues
     lineage: fact_cases[Escalation Flag]
 ```
@@ -124,24 +135,28 @@ Formal rules that define performance and action triggers.
 
 ```yaml
 triggers:
+
   - kpi: svc.sla.attainment.pct
     condition: <
     threshold: sla_target
     scope: queue_region_channel
     exclusion: force_majeure
     action_code: O2
+
   - kpi: svc.fcr.pct
     condition: <
     threshold: fcr_target
     scope: queue_region_channel
     exclusion: complex_cases
     action_code: L2
+
   - kpi: svc.aht.minutes
     condition: >
     threshold: aht_target
     scope: queue_region_channel
     exclusion: complex_cases
     action_code: M2
+
   - kpi: svc.escalation.pct
     condition: >
     threshold: escalation_target
@@ -165,7 +180,7 @@ Link business behavior to measurable outcomes.
 
 ---
 
-## 6. 3–30–300 Page Layout (Mandatory)
+## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
 
@@ -192,6 +207,10 @@ Link business behavior to measurable outcomes.
 
 ---
 
+### 6.4 300-Second Layer (Diagnostics)
+
+- (optional)
+
 ## 7. Data Requirements Summary
 
 ```yaml
@@ -205,7 +224,7 @@ required_dimensions:
   - dim_issue (if modeled)
   - security_user_org
 required_grain: day_queue for ops metrics; month for NPS
-required_time_range: 12–24 months history
+required_time_range: 12-24 months history
 required_slicers: Date, Region/Channel/Queue, Issue Type/Severity
 ```
 
@@ -216,7 +235,7 @@ required_slicers: Date, Region/Channel/Queue, Issue Type/Severity
 - SLA/FCR/AHT definitions stable; backlog and escalation flags available.
 - NPS survey data linked by channel/period; queue/channel structures consistent.
 - OneLake canonical dims used (dim_date, dim_org, security_user_org; dim_queue optional).
-- Data latency ≤24h.
+- Data latency =24h.
 
 ---
 
@@ -234,3 +253,5 @@ required_slicers: Date, Region/Channel/Queue, Issue Type/Severity
 - Misclassified SLA breaches (force majeure vs controllable).  
 - FCR misread on complex/regulatory cases.  
 - NPS shifts not directly attributable without considering channel mix.  
+
+

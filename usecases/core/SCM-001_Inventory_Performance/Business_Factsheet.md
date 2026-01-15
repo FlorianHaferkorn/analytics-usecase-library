@@ -1,4 +1,9 @@
-# SCM-001 — Inventory Performance  
+---
+id: SCM-001
+factsheet_type: business
+---
+
+# SCM-001 - Inventory Performance  
 
 ## Business Factsheet (v1.2)
 
@@ -36,8 +41,8 @@
 
 **Example Query Patterns (optional):**
 
-- “Which DCs have DIO above target and stockout > target in the last 8 weeks?”
-- “Where is forecast accuracy low and driving excess or stockouts?”
+- "Which DCs have DIO above target and stockout > target in the last 8 weeks?"
+- "Where is forecast accuracy low and driving excess or stockouts?"
 
 ---
 
@@ -47,16 +52,18 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
+
   - id: inv.dio.days
     name: Days in Inventory (DIO)
     purpose: Working capital efficiency
-    definition_short: (Avg Inventory / COGS) × Days
+    definition_short: (Avg Inventory / COGS) x Days
     unit: days
     grain: location_sku_month
     agg: avg
-    target: ≤ target (e.g., category/location specific)
+    target: = target (e.g., category/location specific)
     interpretation: High DIO indicates excess inventory
     lineage: fact_inventory[Avg Inventory], fact_cogs[COGS]
+
   - id: inv.turnover
     name: Inventory Turnover
     purpose: Velocity
@@ -64,9 +71,10 @@ required_kpis:
     unit: x
     grain: location_sku_month
     agg: avg
-    target: ≥ target
+    target: = target
     interpretation: Low turnover indicates slow-moving stock
     lineage: fact_inventory[Avg Inventory], fact_cogs[COGS]
+
   - id: inv.stockout.pct
     name: Stockout Rate %
     purpose: Service risk
@@ -74,9 +82,10 @@ required_kpis:
     unit: %
     grain: location_sku_day
     agg: avg
-    target: ≤ target
+    target: = target
     interpretation: High rate signals availability issues
     lineage: fact_inventory[Stockout Flag], demand events
+
   - id: supply.otif.pct
     name: OTIF %
     purpose: Service level fulfillment
@@ -84,9 +93,10 @@ required_kpis:
     unit: %
     grain: order
     agg: avg
-    target: ≥ 97–99% (context)
+    target: = 97-99% (context)
     interpretation: Low OTIF reflects fulfillment issues
     lineage: fact_fulfillment[OTIF Flag]
+
   - id: inv.obsolete.pct
     name: Obsolete Inventory %
     purpose: Write-off risk
@@ -94,9 +104,10 @@ required_kpis:
     unit: %
     grain: location_sku_month
     agg: avg
-    target: ≤ target
+    target: = target
     interpretation: High obsolete % indicates aging/excess
     lineage: fact_inventory[Obsolete Stock], fact_inventory[Total Stock]
+
   - id: plan.forecast.accuracy.pct
     name: Forecast Accuracy %
     purpose: Planning quality (units-based forecast)
@@ -125,24 +136,28 @@ Formal rules that define performance and action triggers.
 
 ```yaml
 triggers:
+
   - kpi: inv.dio.days
     condition: >
     threshold: dio_target
     scope: location_category
     exclusion: new_items
     action_code: I1
+
   - kpi: inv.stockout.pct
     condition: >
     threshold: stockout_target
     scope: location_category
     exclusion: force_majeure
     action_code: I2
+
   - kpi: inv.obsolete.pct
     condition: >
     threshold: obsolete_target
     scope: location_category
     exclusion: end_of_life_planned
     action_code: D1
+
   - kpi: plan.forecast.accuracy.pct
     condition: <
     threshold: forecast_target
@@ -166,7 +181,7 @@ Link business behavior to measurable outcomes.
 
 ---
 
-## 6. 3–30–300 Page Layout (Mandatory)
+## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
 
@@ -194,6 +209,10 @@ Link business behavior to measurable outcomes.
 
 ---
 
+### 6.4 300-Second Layer (Diagnostics)
+
+- (optional)
+
 ## 7. Data Requirements Summary
 
 ```yaml
@@ -209,7 +228,7 @@ required_dimensions:
   - dim_product
   - security_user_org
 required_grain: location_sku_month for inventory; order for OTIF; day for stockouts
-required_time_range: 12–24 months history
+required_time_range: 12-24 months history
 required_slicers: Date, Location/DC/Channel, Category/Product, ABC/XYZ
 ```
 
@@ -238,5 +257,7 @@ required_slicers: Date, Location/DC/Channel, Category/Product, ABC/XYZ
 - Misstated DIO if COGS or inventory snapshots misaligned.  
 - Stockout flags incomplete, underreporting availability risk.  
 - Forecast accuracy misread without considering promotions or launches.  
+
+
 
 

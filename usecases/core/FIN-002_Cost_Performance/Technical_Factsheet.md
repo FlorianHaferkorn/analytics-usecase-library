@@ -1,4 +1,9 @@
-# FIN-002 — Cost Performance  
+---
+id: FIN-002
+factsheet_type: technical
+---
+
+# FIN-002 - Cost Performance  
 
 ## Technical Factsheet (v1.2)
 
@@ -25,30 +30,35 @@
 
 ---
 
-## 2. Required KPIs → Measure Mapping (Mandatory)
+## 2. Required KPIs - Measure Mapping (Mandatory)
 
 ```yaml
 kpi_to_measure_mapping:
+
   - kpi_id: cost.unit.amount
     kpi_name: Unit Cost Amount
     measure_name: [Unit Cost Amount]
-    format: €#,0.00
+    format: EUR#,0.00
     folder: 10_Finance
+
   - kpi_id: margin.cogs.pct
     kpi_name: COGS % of Sales
     measure_name: [COGS % of Sales]
     format: 0.0%
     folder: 10_Finance
+
   - kpi_id: cost.opex.vs_plan.pct
     kpi_name: OpEx vs Plan %
     measure_name: [OpEx vs Plan %]
     format: 0.0%
     folder: 10_Finance
+
   - kpi_id: cost.material.pct
     kpi_name: Material Cost %
     measure_name: [Material Cost %]
     format: 0.0%
     folder: 10_Finance
+
   - kpi_id: ops.labor.productivity.pct
     kpi_name: Labor Productivity %
     measure_name: [Labor Productivity %]
@@ -150,22 +160,22 @@ fact:
 
 ### 4.2 Relationships (Mandatory)
 
-- dim_date (1) → all facts on DateKey  
-- dim_org (1) → all facts on OrgKey  
-- dim_product (1) → fact_cost/fact_output on ProductKey  
-- security_user_org filters dim_org → cascades to facts  
+- dim_date (1) -> all facts on DateKey  
+- dim_org (1) -> all facts on OrgKey  
+- dim_product (1) -> fact_cost/fact_output on ProductKey  
+- security_user_org filters dim_org -> cascades to facts  
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
 
-- Date: Year → Quarter → Month  
-- Org: Entity → Plant → Line  
-- Product: Category → ProductName
+- Date: Year -> Quarter -> Month  
+- Org: Entity -> Plant -> Line  
+- Product: Category -> ProductName
 
 ### 4.4 Sort-by Columns
 
-- Month → MonthNumber  
-- ProductName → ProductCode
+- Month -> MonthNumber  
+- ProductName -> ProductCode
 
 ### 4.5 Modeling Constraints
 
@@ -181,61 +191,67 @@ fact:
 
 | Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
 |--------------|---------------------|---------|--------|--------|------|
-| Unit Cost Amount | cost.unit.amount | Cost efficiency | 10_Finance | €#,0.00 | KPI |
+| Unit Cost Amount | cost.unit.amount | Cost efficiency | 10_Finance | EUR#,0.00 | KPI |
 | COGS % of Sales | margin.cogs.pct | Margin impact | 10_Finance | 0.0% | KPI |
 | OpEx vs Plan % | cost.opex.vs_plan.pct | Overhead control | 10_Finance | 0.0% | KPI |
 | Material Cost % | cost.material.pct | Material efficiency | 10_Finance | 0.0% | KPI |
 | Labor Productivity % | ops.labor.productivity.pct | Labor efficiency | 05_Ops | 0.0% | KPI |
-| Net Sales Amount | Supporting | Revenue base | 10_Finance | €#,0 | Supporting |
-| COGS Amount | Supporting | Cost base | 10_Finance | €#,0 | Supporting |
-| OpEx Amount | Supporting | Overhead | 10_Finance | €#,0 | Supporting |
-| Plan OpEx Amount | Supporting | Plan | 10_Finance | €#,0 | Supporting |
+| Net Sales Amount | Supporting | Revenue base | 10_Finance | EUR#,0 | Supporting |
+| COGS Amount | Supporting | Cost base | 10_Finance | EUR#,0 | Supporting |
+| OpEx Amount | Supporting | Overhead | 10_Finance | EUR#,0 | Supporting |
+| Plan OpEx Amount | Supporting | Plan | 10_Finance | EUR#,0 | Supporting |
 | Output Units | Supporting | Unit cost denominator | 10_Finance | #,0 | Supporting |
-| Material Cost Amount | Supporting | Material share | 10_Finance | €#,0 | Supporting |
+| Material Cost Amount | Supporting | Material share | 10_Finance | EUR#,0 | Supporting |
 | Labor Hours | Supporting | Productivity denominator | 05_Ops | #,0 | Supporting |
 
 ### 5.2 DAX Definitions
 
 ```DAX
-/// Supporting — Bases
+/// Supporting - Bases
 Net Sales Amount :=
     SUM ( fact_finance[Net Sales Amount] )
 
+/// Supporting - COGS Amount
 COGS Amount :=
     SUM ( fact_finance[COGS Amount] )
 
+/// Supporting - Material Cost Amount
 Material Cost Amount :=
     SUM ( fact_finance[Material Cost Amount] )
 
+/// Supporting - OpEx Amount
 OpEx Amount :=
     SUM ( fact_finance[OpEx Amount] )
 
+/// Supporting - Plan OpEx Amount
 Plan OpEx Amount :=
     SUM ( fact_finance[Plan OpEx Amount] )
 
+/// Supporting - Output Units
 Output Units :=
     SUM ( fact_output[Output Units] )
 
+/// Supporting - Labor Hours
 Labor Hours :=
     SUM ( fact_labor[Labor Hours] )
 
-/// cost.unit.amount — Unit cost
+/// cost.unit.amount - Unit cost
 Unit Cost Amount :=
     DIVIDE ( SUM ( fact_cost[COGS Amount] ), [Output Units] )
 
-/// margin.cogs.pct — COGS share
+/// margin.cogs.pct - COGS share
 COGS % of Sales :=
     DIVIDE ( [COGS Amount], [Net Sales Amount] )
 
-/// cost.opex.vs_plan.pct — OpEx variance
+/// cost.opex.vs_plan.pct - OpEx variance
 OpEx vs Plan % :=
     DIVIDE ( [OpEx Amount] - [Plan OpEx Amount], [Plan OpEx Amount] )
 
-/// cost.material.pct — Material share
+/// cost.material.pct - Material share
 Material Cost % :=
     DIVIDE ( [Material Cost Amount], [Net Sales Amount] )
 
-/// ops.labor.productivity.pct — Labor efficiency (simple)
+/// ops.labor.productivity.pct - Labor efficiency (simple)
 Labor Productivity % :=
     DIVIDE ( [Output Units], [Labor Hours] )
 ```
@@ -280,7 +296,7 @@ dim_org[OrgKey] IN
 
 - Plan vs actual available for OpEx and unit cost; material/labor/overhead separated.
 - Output units provided for denominator; labor hours available for productivity.
-- Data latency ≤24h; currency EUR.
+- Data latency <=24h; currency EUR.
 - OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org).
 
 ---
@@ -290,7 +306,7 @@ dim_org[OrgKey] IN
 - Mode: DirectLake or Import (prefer DirectLake if Fabric).  
 - Incremental refresh: yes, by Month (and plant_line granularity if needed).  
 - Aggregations: optional; monthly aggregates sufficient for most visuals.  
-- Workspace/naming: `ARF – Finance` dataset/model per governance.
+- Workspace/naming: `ARF - Finance` dataset/model per governance.
 
 ---
 
@@ -312,3 +328,4 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+

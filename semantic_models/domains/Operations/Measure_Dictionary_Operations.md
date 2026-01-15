@@ -690,4 +690,88 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: "draft"
     version: "v1.2"
     last_review: "TBD"
+- measure_name: "Planned Time"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "03_Downtime"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_ops[Planned Time Minutes] )"
+    formatString: "#,0"
+  documentation:
+    description: "Total planned production time in minutes."
+    notes: "Source: fact_ops[Planned Time Minutes]."
+  dependencies:
+    columns:
+      - "fact_ops[Planned Time Minutes]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Run Time"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "03_Downtime"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_ops[Run Time Minutes] )"
+    formatString: "#,0"
+  documentation:
+    description: "Total run time in minutes."
+    notes: "Source: fact_ops[Run Time Minutes]."
+  dependencies:
+    columns:
+      - "fact_ops[Run Time Minutes]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Output Units"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "01_Ops"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_ops[Output Units] )"
+    formatString: "#,0"
+  documentation:
+    description: "Total output units."
+    notes: "Source: fact_ops[Output Units]."
+  dependencies:
+    columns:
+      - "fact_ops[Output Units]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Defect Count"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "04_Quality"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_quality[Defect Count] )"
+    formatString: "#,0"
+  documentation:
+    description: "Total defect count."
+    notes: "Source: fact_quality[Defect Count]."
+  dependencies:
+    columns:
+      - "fact_quality[Defect Count]"
+  governance:
+    owner: "Operations Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
 ```
+

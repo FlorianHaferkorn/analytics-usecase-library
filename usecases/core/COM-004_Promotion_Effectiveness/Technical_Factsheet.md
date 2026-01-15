@@ -1,3 +1,8 @@
+---
+id: COM-004
+factsheet_type: technical
+---
+
 # COM-004 - Promotion Effectiveness  
 
 ## Technical Factsheet (v1.2)
@@ -25,30 +30,35 @@
 
 ---
 
-## 2. KPI to Measure Mapping (Mandatory)
+## 2. Required KPIs - Measure Mapping (Mandatory)
 
 ```yaml
 kpi_to_measure_mapping:
+
   - kpi_id: sales.promo.roi.pct
     kpi_name: Promotion ROI %
     measure_name: Promotion ROI %
     format: "0.0%"
     folder: 03_Promo
+
   - kpi_id: sales.promo.incremental.amount
     kpi_name: Incremental Sales Amount
     measure_name: Incremental Sales Amount
     format: "EUR #,0"
     folder: 03_Promo
+
   - kpi_id: margin.promo.gm.pct
     kpi_name: Promo Gross Margin %
     measure_name: Promo Gross Margin %
     format: "0.0%"
     folder: 03_Promo
+
   - kpi_id: sales.price.realization_pct
     kpi_name: Price Realization %
     measure_name: Price Realization %
     format: "0.0%"
     folder: 03_Pricing
+
   - kpi_id: sales.promo.cannibalization.pct
     kpi_name: Cannibalization %
     measure_name: Cannibalization %
@@ -171,7 +181,7 @@ fact:
 
 ---
 
-## 5. Measures
+## 5. Measures (DAX)
 
 ### 5.1 Measure Inventory
 
@@ -194,24 +204,24 @@ fact:
 ### 5.2 DAX Definitions
 
 ```DAX
-/// sales.promo.roi.pct – Promo profitability
-[Promotion ROI %] =
+/// sales.promo.roi.pct - Promo profitability
+Promotion ROI % =
 DIVIDE ( [Incremental Gross Margin Amount], [Promo Cost] )
 
-/// sales.promo.incremental.amount – Uplift sizing
-[Incremental Sales Amount] =
+/// sales.promo.incremental.amount - Uplift sizing
+Incremental Sales Amount =
 [Net Sales Amount] - [Baseline Sales Amount]
 
-/// margin.promo.gm.pct – Profit quality during promo
-[Promo Gross Margin %] =
+/// margin.promo.gm.pct - Profit quality during promo
+Promo Gross Margin % =
 DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
 
-/// sales.price.realization_pct – Discount discipline
-[Price Realization %] =
+/// sales.price.realization_pct - Discount discipline
+Price Realization % =
 DIVIDE ( [Net Price Amount], [List Price Amount] )
 
-/// sales.promo.cannibalization.pct – Net effect on portfolio
-[Cannibalization %] =
+/// sales.promo.cannibalization.pct - Net effect on portfolio
+Cannibalization % =
 DIVIDE ( [Cannibalized Sales Amount], [Incremental Sales Amount] )
 ```
 
@@ -262,7 +272,7 @@ dim_org[OrgKey] IN
 ## 8. Deployment Requirements
 
 - Mode: DirectLake or Import; prefer DirectLake if available.
-- Incremental refresh: by Month for last 12–24 months.
+- Incremental refresh: by Month for last 12-24 months.
 - Aggregations optional; avoid grain distortion.
 - Workspace/naming per governance; display folders per dictionary.
 
@@ -288,3 +298,4 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+

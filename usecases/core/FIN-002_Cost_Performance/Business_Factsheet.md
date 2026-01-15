@@ -1,4 +1,9 @@
-# FIN-002 — Cost Performance  
+---
+id: FIN-002
+factsheet_type: business
+---
+
+# FIN-002 - Cost Performance  
 
 ## Business Factsheet (v1.2)
 
@@ -35,8 +40,8 @@
 
 **Example Query Patterns (optional):**
 
-- “Which plants have unit cost above plan and margin below target in the last quarter?”
-- “Which products show highest material cost % variance?”
+- "Which plants have unit cost above plan and margin below target in the last quarter?"
+- "Which products show highest material cost % variance?"
 
 ---
 
@@ -46,16 +51,18 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
+
   - id: cost.unit.amount
     name: Unit Cost Amount
     purpose: Cost efficiency
     definition_short: Total COGS / Units produced or sold
-    unit: €/unit
+    unit: EUR/unit
     grain: product_line_month
     agg: avg
-    target: ≤ plan target
+    target: = plan target
     interpretation: Higher than plan signals cost pressure
     lineage: fact_cost[COGS], fact_output[Units]
+
   - id: margin.cogs.pct
     name: COGS % of Sales
     purpose: Cost share
@@ -63,19 +70,21 @@ required_kpis:
     unit: %
     grain: month
     agg: avg
-    target: ≤ target
+    target: = target
     interpretation: Rising % erodes margin
     lineage: fact_finance[COGS], fact_finance[Net Sales]
+
   - id: cost.opex.vs_plan.pct
     name: OpEx vs Plan %
     purpose: Overhead control
-    definition_short: (OpEx – Plan) / Plan
+    definition_short: (OpEx - Plan) / Plan
     unit: %
     grain: month
     agg: avg
-    target: ≤ 0
+    target: = 0
     interpretation: Positive variance indicates overspend
     lineage: fact_opex[OpEx], plan_opex
+
   - id: cost.material.pct
     name: Material Cost %
     purpose: Material efficiency
@@ -83,9 +92,10 @@ required_kpis:
     unit: %
     grain: month
     agg: avg
-    target: ≤ target
+    target: = target
     interpretation: High material share signals price/usage issues
     lineage: fact_cost[Material Cost], fact_finance[Net Sales]
+
   - id: ops.labor.productivity.pct
     name: Labor Productivity %
     purpose: Labor efficiency
@@ -93,7 +103,7 @@ required_kpis:
     unit: index/%
     grain: month
     agg: avg
-    target: ≥ target
+    target: = target
     interpretation: Low productivity increases unit cost
     lineage: fact_output[Units], fact_labor[Labor Hours]
 ```
@@ -115,24 +125,28 @@ Formal rules that define performance and action triggers.
 
 ```yaml
 triggers:
+
   - kpi: cost.unit.amount
     condition: >
     threshold: plan_target
     scope: plant_line_product
     exclusion: ramp-up runs
     action_code: D1
+
   - kpi: cost.material.pct
     condition: >
     threshold: material_target
     scope: plant_line_product
     exclusion: launch_items
     action_code: PC2
+
   - kpi: ops.labor.productivity.pct
     condition: <
     threshold: productivity_target
     scope: plant_line
     exclusion: training_periods
     action_code: M2
+
   - kpi: cost.opex.vs_plan.pct
     condition: >
     threshold: 0
@@ -156,7 +170,7 @@ Link business behavior to measurable outcomes.
 
 ---
 
-## 6. 3–30–300 Page Layout (Mandatory)
+## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
 
@@ -184,6 +198,10 @@ Link business behavior to measurable outcomes.
 
 ---
 
+### 6.4 300-Second Layer (Diagnostics)
+
+- (optional)
+
 ## 7. Data Requirements Summary
 
 ```yaml
@@ -199,7 +217,7 @@ required_dimensions:
   - dim_product
   - security_user_org
 required_grain: plant_line_product_month for unit cost; month/entity for OpEx
-required_time_range: 12–24 months history + plan
+required_time_range: 12-24 months history + plan
 required_slicers: Date, Entity/Plant/Line, Product/Category, Cost bucket
 ```
 
@@ -210,7 +228,7 @@ required_slicers: Date, Entity/Plant/Line, Product/Category, Cost bucket
 - Plan vs actual available for unit cost and OpEx; cost buckets aligned to same period.
 - Allocation rules for overhead clear; labor hours available; material costs separated.
 - OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org).
-- Data latency ≤24h; currency EUR.
+- Data latency =24h; currency EUR.
 
 ---
 
@@ -228,3 +246,5 @@ required_slicers: Date, Entity/Plant/Line, Product/Category, Cost bucket
 - Misallocation of overhead distorting unit cost.  
 - Material cost % misread if price/volume/mix effects not separated.  
 - Productivity dips during planned training/ramp-up misinterpreted.  
+
+

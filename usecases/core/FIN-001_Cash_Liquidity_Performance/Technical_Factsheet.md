@@ -1,4 +1,9 @@
-# FIN-001 — Cash & Liquidity Performance  
+---
+id: FIN-001
+factsheet_type: technical
+---
+
+# FIN-001 - Cash & Liquidity Performance  
 
 ## Technical Factsheet (v1.2)
 
@@ -25,40 +30,47 @@
 
 ---
 
-## 2. Required KPIs → Measure Mapping (Mandatory)
+## 2. Required KPIs - Measure Mapping (Mandatory)
 
 ```yaml
 kpi_to_measure_mapping:
+
   - kpi_id: fin.cash.balance
     kpi_name: Cash Balance
     measure_name: [Cash Balance]
-    format: €#,0
+    format: EUR#,0
     folder: 10_Finance
+
   - kpi_id: fin.cash.ocf
     kpi_name: Operating Cash Flow
     measure_name: [Operating Cash Flow]
-    format: €#,0
+    format: EUR#,0
     folder: 10_Finance
+
   - kpi_id: fin.cash.vs_plan.pct
     kpi_name: Cash vs Plan %
     measure_name: [Cash vs Plan %]
     format: 0.0%
     folder: 10_Finance
+
   - kpi_id: wc.ccc.days
     kpi_name: Cash Conversion Cycle (days)
     measure_name: [CCC Days]
     format: #,0.0
     folder: 10_Finance
+
   - kpi_id: wc.dso.days
     kpi_name: DSO (days)
     measure_name: [DSO Days]
     format: #,0.0
     folder: 10_Finance
+
   - kpi_id: wc.dio.days
     kpi_name: DIO (days)
     measure_name: [DIO Days]
     format: #,0.0
     folder: 10_Finance
+
   - kpi_id: wc.dpo.days
     kpi_name: DPO (days)
     measure_name: [DPO Days]
@@ -181,29 +193,29 @@ fact:
 
 ### 4.2 Relationships (Mandatory)
 
-- dim_date (1) → all facts on DateKey  
-- dim_org (1) → all facts on OrgKey  
-- dim_customer (1) → fact_ar on CustomerKey  
-- dim_supplier (1) → fact_ap on SupplierKey  
-- dim_product (1) → fact_inventory on ProductKey (if used)  
-- security_user_org filters dim_org → cascades to facts  
+- dim_date (1) -> all facts on DateKey  
+- dim_org (1) -> all facts on OrgKey  
+- dim_customer (1) -> fact_ar on CustomerKey  
+- dim_supplier (1) -> fact_ap on SupplierKey  
+- dim_product (1) -> fact_inventory on ProductKey (if used)  
+- security_user_org filters dim_org -> cascades to facts  
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
 
-- Date: Year → Quarter → Month  
-- Org: Region → Entity  
-- Customer: Region → CustomerName (if used)  
-- Supplier: Region → SupplierName (if used)  
-- Product (optional): Category → ProductName
+- Date: Year -> Quarter -> Month  
+- Org: Region -> Entity  
+- Customer: Region -> CustomerName (if used)  
+- Supplier: Region -> SupplierName (if used)  
+- Product (optional): Category -> ProductName
 
 ### 4.4 Sort-by Columns
 
-- Month → MonthNumber  
-- Entity → OrgKey  
-- CustomerName → CustomerCode  
-- SupplierName → SupplierCode  
-- ProductName → ProductCode
+- Month -> MonthNumber  
+- Entity -> OrgKey  
+- CustomerName -> CustomerCode  
+- SupplierName -> SupplierCode  
+- ProductName -> ProductCode
 
 ### 4.5 Modeling Constraints
 
@@ -219,65 +231,71 @@ fact:
 
 | Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
 |--------------|---------------------|---------|--------|--------|------|
-| Cash Balance | fin.cash.balance | Liquidity | 10_Finance | €#,0 | KPI |
+| Cash Balance | fin.cash.balance | Liquidity | 10_Finance | EUR#,0 | KPI |
 | Cash vs Plan % | fin.cash.vs_plan.pct | Plan comparison | 10_Finance | 0.0% | KPI |
-| Operating Cash Flow | fin.cash.ocf | Cash generation | 10_Finance | €#,0 | KPI |
+| Operating Cash Flow | fin.cash.ocf | Cash generation | 10_Finance | EUR#,0 | KPI |
 | CCC Days | wc.ccc.days | WC cycle | 10_Finance | #,0.0 | KPI |
 | DSO Days | wc.dso.days | Receivables efficiency | 10_Finance | #,0.0 | KPI |
 | DIO Days | wc.dio.days | Inventory efficiency | 10_Finance | #,0.0 | KPI |
 | DPO Days | wc.dpo.days | Payables efficiency | 10_Finance | #,0.0 | KPI |
-| AR Amount | Supporting | DSO numerator | 10_Finance | €#,0 | Supporting |
-| AP Amount | Supporting | DPO numerator | 10_Finance | €#,0 | Supporting |
-| Inventory Amount | Supporting | DIO numerator | 10_Finance | €#,0 | Supporting |
-| Revenue Amount | Supporting | DSO denominator | 10_Finance | €#,0 | Supporting |
-| COGS Amount | Supporting | DIO/DPO denominator | 10_Finance | €#,0 | Supporting |
+| AR Amount | Supporting | DSO numerator | 10_Finance | EUR#,0 | Supporting |
+| AP Amount | Supporting | DPO numerator | 10_Finance | EUR#,0 | Supporting |
+| Inventory Amount | Supporting | DIO numerator | 10_Finance | EUR#,0 | Supporting |
+| Revenue Amount | Supporting | DSO denominator | 10_Finance | EUR#,0 | Supporting |
+| COGS Amount | Supporting | DIO/DPO denominator | 10_Finance | EUR#,0 | Supporting |
 
 ### 5.2 DAX Definitions
 
 ```DAX
-/// fin.cash.balance — Liquidity
+/// fin.cash.balance - Liquidity
 Cash Balance :=
     SUM ( fact_cash[Cash Balance Amount] )
 
-/// fin.cash.vs_plan.pct — Plan comparison
+/// fin.cash.vs_plan.pct - Plan comparison
 Cash vs Plan % :=
     DIVIDE ( [Cash Balance] - SUM ( fact_cash[Plan Cash Amount] ), SUM ( fact_cash[Plan Cash Amount] ) )
 
-/// fin.cash.ocf — Operating Cash Flow
+/// fin.cash.ocf - Operating Cash Flow
 Operating Cash Flow :=
     SUM ( fact_cashflow[Operating Cash Flow Amount] )
 
-/// wc.dso.days — DSO
+/// wc.dso.days - DSO
 AR Amount :=
     SUM ( fact_ar[AR Amount] )
 
+/// Supporting - Revenue Amount
 Revenue Amount :=
     SUM ( fact_ar[Revenue Amount] )
 
+/// Supporting - DSO Days
 DSO Days :=
     DIVIDE ( [AR Amount], DIVIDE ( [Revenue Amount], 365 ) )
 
-/// wc.dio.days — DIO
+/// wc.dio.days - DIO
 Inventory Amount :=
     SUM ( fact_inventory[Inventory Amount] )
 
+/// Supporting - COGS Amount
 COGS Amount :=
     SUM ( fact_inventory[COGS Amount] )
 
+/// Supporting - DIO Days
 DIO Days :=
     DIVIDE ( [Inventory Amount], DIVIDE ( [COGS Amount], 365 ) )
 
-/// wc.dpo.days — DPO
+/// wc.dpo.days - DPO
 AP Amount :=
     SUM ( fact_ap[AP Amount] )
 
+/// Supporting - COGS Amount (AP)
 COGS Amount (AP) :=
     SUM ( fact_ap[COGS Amount] )
 
+/// Supporting - DPO Days
 DPO Days :=
     DIVIDE ( [AP Amount], DIVIDE ( [COGS Amount (AP)], 365 ) )
 
-/// wc.ccc.days — CCC
+/// wc.ccc.days - CCC
 CCC Days :=
     [DSO Days] + [DIO Days] - [DPO Days]
 ```
@@ -319,7 +337,7 @@ dim_org[OrgKey] IN
 ## 7. Technical Assumptions
 
 - Plan cash/OCF provided; revenue/COGS aligned by period/entity with AR/AP/Inventory.
-- Data latency ≤24h; currency EUR.
+- Data latency <=24h; currency EUR.
 - OneLake canonical dims used (dim_date, dim_org, dim_customer, dim_supplier, dim_product optional, security_user_org).
 
 ---
@@ -329,7 +347,7 @@ dim_org[OrgKey] IN
 - Mode: DirectLake or Import (prefer DirectLake if Fabric).  
 - Incremental refresh: yes, by Month (cash daily if needed).  
 - Aggregations: optional; consider monthly aggregates for large AR/AP detail.  
-- Workspace/naming: `ARF – Finance` dataset/model per governance.
+- Workspace/naming: `ARF - Finance` dataset/model per governance.
 
 ---
 
@@ -351,3 +369,4 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+

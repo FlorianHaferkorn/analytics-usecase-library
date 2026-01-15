@@ -1,4 +1,9 @@
-# SCM-002 — Supply Reliability & OTIF  
+---
+id: SCM-002
+factsheet_type: business
+---
+
+# SCM-002 - Supply Reliability & OTIF  
 
 ## Business Factsheet (v1.2)
 
@@ -35,8 +40,8 @@
 
 **Example Query Patterns (optional):**
 
-- “Which lanes have OTIF <97% in the last 8 weeks and what are the top delay reasons?”
-- “What is the stockout impact and penalty cost by channel?”
+- "Which lanes have OTIF <97% in the last 8 weeks and what are the top delay reasons?"
+- "What is the stockout impact and penalty cost by channel?"
 
 ---
 
@@ -46,6 +51,7 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
+
   - id: supply.otif.pct
     name: OTIF %
     purpose: Service level delivered
@@ -53,9 +59,10 @@ required_kpis:
     unit: %
     grain: order
     agg: avg
-    target: ≥ 97–99%
+    target: = 97-99%
     interpretation: Low OTIF signals service failure
     lineage: fact_fulfillment[OTIF Flag]
+
   - id: supply.on_time.pct
     name: On-Time %
     purpose: Timeliness
@@ -63,9 +70,10 @@ required_kpis:
     unit: %
     grain: shipment
     agg: avg
-    target: ≥ 97–99%
+    target: = 97-99%
     interpretation: Low on-time signals delay issues
     lineage: fact_fulfillment[On-Time Flag]
+
   - id: supply.in_full.pct
     name: In-Full %
     purpose: Completeness
@@ -73,9 +81,10 @@ required_kpis:
     unit: %
     grain: shipment
     agg: avg
-    target: ≥ 97–99%
+    target: = 97-99%
     interpretation: Low in-full signals quantity issues
     lineage: fact_fulfillment[In-Full Flag]
+
   - id: supply.stockout_impact.pct
     name: Stockout Impact %
     purpose: Service loss
@@ -83,24 +92,26 @@ required_kpis:
     unit: %
     grain: location_sku_day
     agg: avg
-    target: ≤ target
+    target: = target
     interpretation: High impact shows service gaps
     lineage: fact_stockout[Lost Demand], fact_stockout[Demand]
+
   - id: supply.penalty.amount
     name: Penalty Amount
     purpose: Financial impact of service failures
     definition_short: Penalties incurred for service misses
-    unit: €
+    unit: EUR
     grain: order
     agg: sum
     target: Reduce to target
     interpretation: High penalties indicate systemic issues
     lineage: fact_fulfillment[Penalty Amount]
+
   - id: supply.expedite.amount
     name: Expedite Cost Amount
     purpose: Cost to recover service
     definition_short: Additional cost for expedited shipping
-    unit: €
+    unit: EUR
     grain: shipment
     agg: sum
     target: Reduce to target
@@ -125,24 +136,28 @@ Formal rules that define performance and action triggers.
 
 ```yaml
 triggers:
+
   - kpi: supply.otif.pct
     condition: <
     threshold: otif_target
     scope: lane_dc_channel
     exclusion: force_majeure
     action_code: O2
+
   - kpi: supply.stockout_impact.pct
     condition: >
     threshold: stockout_target
     scope: location_channel
     exclusion: planned_outages
     action_code: I2
+
   - kpi: supply.penalty.amount
     condition: >
     threshold: penalty_materiality
     scope: customer_channel
     exclusion: negotiated_penalties
     action_code: D1
+
   - kpi: supply.expedite.amount
     condition: >
     threshold: expedite_materiality
@@ -166,7 +181,7 @@ Link business behavior to measurable outcomes.
 
 ---
 
-## 6. 3–30–300 Page Layout (Mandatory)
+## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
 
@@ -194,6 +209,10 @@ Link business behavior to measurable outcomes.
 
 ---
 
+### 6.4 300-Second Layer (Diagnostics)
+
+- (optional)
+
 ## 7. Data Requirements Summary
 
 ```yaml
@@ -208,7 +227,7 @@ required_dimensions:
   - dim_lane (if modeled for transport lanes)
   - security_user_org
 required_grain: order for OTIF/penalties; location_sku_day for stockouts
-required_time_range: 12–24 months history
+required_time_range: 12-24 months history
 required_slicers: Date, Lane/DC/Channel, Customer/Region, Product/Category (optional)
 ```
 
@@ -237,3 +256,5 @@ required_slicers: Date, Lane/DC/Channel, Customer/Region, Product/Category (opti
 - Misapplied force majeure exclusions inflating OTIF.  
 - Missing penalty/expedite capture understates cost.  
 - Stockout impact misread if demand not captured consistently.  
+
+

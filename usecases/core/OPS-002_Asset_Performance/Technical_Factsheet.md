@@ -1,4 +1,9 @@
-# OPS-002 — Asset Performance  
+---
+id: OPS-002
+factsheet_type: technical
+---
+
+# OPS-002 - Asset Performance  
 
 ## Technical Factsheet (v1.2)
 
@@ -25,35 +30,41 @@
 
 ---
 
-## 2. Required KPIs → Measure Mapping (Mandatory)
+## 2. Required KPIs - Measure Mapping (Mandatory)
 
 ```yaml
 kpi_to_measure_mapping:
+
   - kpi_id: ops.availability.pct
     kpi_name: Availability %
     measure_name: [Availability %]
     format: 0.0%
     folder: 05_Ops
+
   - kpi_id: ops.mtbf.hours
     kpi_name: MTBF (hours)
     measure_name: [MTBF (hours)]
     format: #,0.0
     folder: 05_Ops
+
   - kpi_id: ops.mttr.hours
     kpi_name: MTTR (hours)
     measure_name: [MTTR (hours)]
     format: #,0.0
     folder: 05_Ops
+
   - kpi_id: ops.downtime.unplanned.pct
     kpi_name: Unplanned Downtime %
     measure_name: [Unplanned Downtime %]
     format: 0.0%
     folder: 05_Ops
+
   - kpi_id: ops.spare_parts.stockout.pct
     kpi_name: Spare Parts Stockout %
     measure_name: [Spare Parts Stockout %]
     format: 0.0%
     folder: 06_Maintenance
+
   - kpi_id: ops.pm_compliance.pct
     kpi_name: PM Compliance %
     measure_name: [PM Compliance %]
@@ -154,22 +165,22 @@ fact:
 
 ### 4.2 Relationships (Mandatory)
 
-- dim_date (1) → fact_ops on DateKey; dim_date (1) → fact_maintenance on DateKey  
-- dim_org (1) → fact_ops on OrgKey  
-- dim_asset (1) → fact_ops / fact_ops_failures / fact_maintenance on AssetKey  
-- security_user_org filters dim_org → cascades via dim_asset to facts (ensure asset has OrgKey)  
+- dim_date (1) -> fact_ops on DateKey; dim_date (1) -> fact_maintenance on DateKey  
+- dim_org (1) -> fact_ops on OrgKey  
+- dim_asset (1) -> fact_ops / fact_ops_failures / fact_maintenance on AssetKey  
+- security_user_org filters dim_org -> cascades via dim_asset to facts (ensure asset has OrgKey)  
 - Single direction; no ambiguous paths; avoid bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
 
-- Date: Year → Quarter → Month → Week  
-- Org: Plant → Line  
-- Asset: AssetClass → AssetName (or by criticality)
+- Date: Year -> Quarter -> Month -> Week  
+- Org: Plant -> Line  
+- Asset: AssetClass -> AssetName (or by criticality)
 
 ### 4.4 Sort-by Columns
 
-- Month → MonthNumber  
-- AssetName → AssetCode
+- Month -> MonthNumber  
+- AssetName -> AssetCode
 
 ### 4.5 Modeling Constraints
 
@@ -198,44 +209,47 @@ fact:
 ### 5.2 DAX Definitions
 
 ```DAX
-/// Supporting — Time
+/// Supporting - Time
 Planned Time :=
     SUM ( fact_ops[Planned Time Minutes] )
 
+/// Supporting - Run Time
 Run Time :=
     SUM ( fact_ops[Run Time Minutes] )
 
+/// Supporting - Unplanned Downtime Minutes
 Unplanned Downtime Minutes :=
     SUM ( fact_ops[Unplanned Downtime Minutes] )
 
+/// Supporting - Failure Count
 Failure Count :=
     DISTINCTCOUNT ( fact_ops_failures[Failure Start DateTime] )
 
-/// ops.availability.pct — Uptime
+/// ops.availability.pct - Uptime
 Availability % :=
     DIVIDE ( [Run Time], [Planned Time] )
 
-/// ops.downtime.unplanned.pct — Unplanned downtime share
+/// ops.downtime.unplanned.pct - Unplanned downtime share
 Unplanned Downtime % :=
     DIVIDE ( [Unplanned Downtime Minutes], [Planned Time] )
 
-/// ops.mtbf.hours — Reliability (hours between failures)
+/// ops.mtbf.hours - Reliability (hours between failures)
 MTBF (hours) :=
     VAR TotalRunHours = DIVIDE ( [Run Time], 60 )
     RETURN DIVIDE ( TotalRunHours, [Failure Count] )
 
-/// ops.mttr.hours — Maintainability
+/// ops.mttr.hours - Maintainability
 MTTR (hours) :=
     AVERAGEX ( fact_ops_failures, fact_ops_failures[Repair Duration Hours] )
 
-/// ops.spare_parts.stockout.pct — Parts readiness
+/// ops.spare_parts.stockout.pct - Parts readiness
 Spare Parts Stockout % :=
     DIVIDE (
         CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Parts Stockout Flag] = TRUE ),
         COUNTROWS ( fact_maintenance )
     )
 
-/// ops.pm_compliance.pct — PM discipline
+/// ops.pm_compliance.pct - PM discipline
 PM Compliance % :=
     DIVIDE (
         CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order Type] = "PM", fact_maintenance[On Time Flag] = TRUE ),
@@ -283,7 +297,7 @@ dim_org[OrgKey] IN
 
 - Failure events timestamped; repair duration provided; planned vs unplanned flagged.
 - PM plan exists and on-time flags populated; parts stockout flags available.
-- Data latency ≤24h; timezone consistent.
+- Data latency <=24h; timezone consistent.
 - OneLake canonical dims used (dim_date, dim_org, dim_asset, security_user_org).
 
 ---
@@ -291,9 +305,9 @@ dim_org[OrgKey] IN
 ## 8. Deployment Requirements
 
 - Mode: DirectLake or Import depending on MES/CMMS connectors; prefer DirectLake if stable.  
-- Incremental refresh: yes, partition by DateKey (e.g., last 12–24 months).  
+- Incremental refresh: yes, partition by DateKey (e.g., last 12-24 months).  
 - Aggregations: optional for high-frequency events.  
-- Workspace/naming: `ARF – Operations` dataset/model per governance.
+- Workspace/naming: `ARF - Operations` dataset/model per governance.
 
 ---
 
@@ -302,7 +316,7 @@ dim_org[OrgKey] IN
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org/Asset keys non-null in facts | 100% | Y | Data Engineering |
-| Time Balancing | Run Time + Unplanned + Planned ≤ Planned Time | 100% | Y | BI |
+| Time Balancing | Run Time + Unplanned + Planned <= Planned Time | 100% | Y | BI |
 | MTBF/MTTR Validity | No zero/negative durations | 0 exceptions | Y | BI |
 | PM Compliance | PM denominator/flags present | 100% PM orders | Y | Maintenance |
 | Stockout Flagging | Stockout flag coverage on maintenance orders | 100% | Y | Maintenance |
@@ -316,3 +330,4 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+

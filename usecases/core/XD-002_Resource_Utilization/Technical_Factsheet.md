@@ -1,4 +1,9 @@
-# XD-002 — Resource Utilization  
+---
+id: XD-002
+factsheet_type: technical
+---
+
+# XD-002 - Resource Utilization  
 
 ## Technical Factsheet (v1.2)
 
@@ -25,35 +30,41 @@
 
 ---
 
-## 2. Required KPIs → Measure Mapping (Mandatory)
+## 2. Required KPIs - Measure Mapping (Mandatory)
 
 ```yaml
 kpi_to_measure_mapping:
+
   - kpi_id: res.utilization.pct
     kpi_name: Utilization %
     measure_name: [Utilization %]
     format: 0.0%
     folder: 11_Service
+
   - kpi_id: res.occupancy.pct
     kpi_name: Occupancy %
     measure_name: [Occupancy %]
     format: 0.0%
     folder: 11_Service
+
   - kpi_id: svc.sla.attainment.pct
     kpi_name: SLA Attainment %
     measure_name: [SLA Attainment %]
     format: 0.0%
     folder: 11_Service
+
   - kpi_id: res.overtime.pct
     kpi_name: Overtime %
     measure_name: [Overtime %]
     format: 0.0%
     folder: 11_Service
+
   - kpi_id: res.shrinkage.pct
     kpi_name: Shrinkage %
     measure_name: [Shrinkage %]
     format: 0.0%
     folder: 11_Service
+
   - kpi_id: svc.backlog.count
     kpi_name: Backlog Count
     measure_name: [Backlog Count]
@@ -140,21 +151,21 @@ fact:
 
 ### 4.2 Relationships (Mandatory)
 
-- dim_date (1) → fact_wfm/fact_cases on DateKey  
-- dim_org (1) → fact_wfm/fact_cases on OrgKey  
-- dim_queue (1) → fact_wfm/fact_cases on QueueKey (if used)  
-- security_user_org filters dim_org → cascades to facts  
+- dim_date (1) -> fact_wfm/fact_cases on DateKey  
+- dim_org (1) -> fact_wfm/fact_cases on OrgKey  
+- dim_queue (1) -> fact_wfm/fact_cases on QueueKey (if used)  
+- security_user_org filters dim_org -> cascades to facts  
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
 
-- Date: Year → Quarter → Month → Week  
-- Org: Region → Channel → Queue → Agent Group
+- Date: Year -> Quarter -> Month -> Week  
+- Org: Region -> Channel -> Queue -> Agent Group
 
 ### 4.4 Sort-by Columns
 
-- Month → MonthNumber  
-- QueueName → QueueKey
+- Month -> MonthNumber  
+- QueueName -> QueueKey
 
 ### 4.5 Modeling Constraints
 
@@ -187,55 +198,63 @@ fact:
 ### 5.2 DAX Definitions
 
 ```DAX
-/// Supporting — Time components
+/// Supporting - Time components
 Work Time Minutes :=
     SUM ( fact_wfm[Work Time Minutes] )
 
+/// Supporting - Paid Time Minutes
 Paid Time Minutes :=
     SUM ( fact_wfm[Paid Time Minutes] )
 
+/// Supporting - Talk Wrap Minutes
 Talk Wrap Minutes :=
     SUM ( fact_wfm[Talk Time Minutes] ) + SUM ( fact_wfm[Wrap Time Minutes] )
 
+/// Supporting - Idle Time Minutes
 Idle Time Minutes :=
     SUM ( fact_wfm[Idle Time Minutes] )
 
+/// Supporting - Overtime Minutes
 Overtime Minutes :=
     SUM ( fact_wfm[Overtime Minutes] )
 
+/// Supporting - Shrinkage Minutes
 Shrinkage Minutes :=
     SUM ( fact_wfm[Shrinkage Minutes] )
 
+/// Supporting - Backlog Cases
 Backlog Cases :=
     CALCULATE ( COUNTROWS ( fact_cases ), fact_cases[Backlog Flag] = TRUE )
 
-/// res.utilization.pct — Utilization
+/// res.utilization.pct - Utilization
 Utilization % :=
     DIVIDE ( [Work Time Minutes], [Paid Time Minutes] )
 
-/// res.occupancy.pct — Occupancy
+/// res.occupancy.pct - Occupancy
 Occupancy % :=
     DIVIDE ( [Talk Wrap Minutes], [Talk Wrap Minutes] + [Idle Time Minutes] )
 
-/// svc.sla.attainment.pct — SLA (reuse from cases)
+/// svc.sla.attainment.pct - SLA (reuse from cases)
 Cases SLA Met :=
     CALCULATE ( COUNTROWS ( fact_cases ), fact_cases[SLA Met Flag] = TRUE )
 
+/// Supporting - Cases Resolved
 Cases Resolved :=
     COUNTROWS ( fact_cases )
 
+/// Supporting - SLA Attainment %
 SLA Attainment % :=
     DIVIDE ( [Cases SLA Met], [Cases Resolved] )
 
-/// res.overtime.pct — Overtime
+/// res.overtime.pct - Overtime
 Overtime % :=
     DIVIDE ( [Overtime Minutes], [Paid Time Minutes] )
 
-/// res.shrinkage.pct — Shrinkage
+/// res.shrinkage.pct - Shrinkage
 Shrinkage % :=
     DIVIDE ( [Shrinkage Minutes], [Paid Time Minutes] )
 
-/// svc.backlog.count — Backlog
+/// svc.backlog.count - Backlog
 Backlog Count :=
     [Backlog Cases]
 ```
@@ -279,7 +298,7 @@ dim_org[OrgKey] IN
 
 - WFM data contains work/idle/wrap, paid time, overtime, shrinkage at agent/queue level.
 - SLA/backlog flags available from cases; queue/channel mapping consistent.
-- Data latency ≤24h; OneLake canonical dims used (dim_date, dim_org, security_user_org).
+- Data latency <=24h; OneLake canonical dims used (dim_date, dim_org, security_user_org).
 
 ---
 
@@ -288,7 +307,7 @@ dim_org[OrgKey] IN
 - Mode: DirectLake or Import (prefer DirectLake if Fabric).  
 - Incremental refresh: yes, by Month/Week.  
 - Aggregations: optional for high-volume agent/day data.  
-- Workspace/naming: `ARF – Experience` dataset/model per governance.
+- Workspace/naming: `ARF - Experience` dataset/model per governance.
 
 ---
 
@@ -310,3 +329,4 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+

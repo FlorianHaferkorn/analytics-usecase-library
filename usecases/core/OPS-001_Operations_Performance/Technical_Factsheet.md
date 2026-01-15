@@ -1,4 +1,9 @@
-# OPS-001 — Operations Performance  
+---
+id: OPS-001
+factsheet_type: technical
+---
+
+# OPS-001 - Operations Performance  
 
 ## Technical Factsheet (v1.2)
 
@@ -25,35 +30,41 @@
 
 ---
 
-## 2. Required KPIs → Measure Mapping (Mandatory)
+## 2. Required KPIs - Measure Mapping (Mandatory)
 
 ```yaml
 kpi_to_measure_mapping:
+
   - kpi_id: ops.oee.pct
     kpi_name: OEE %
     measure_name: [OEE %]
     format: 0.0%
     folder: 05_Ops
+
   - kpi_id: ops.availability.pct
     kpi_name: Availability %
     measure_name: [Availability %]
     format: 0.0%
     folder: 05_Ops
+
   - kpi_id: ops.performance.pct
     kpi_name: Performance %
     measure_name: [Performance %]
     format: 0.0%
     folder: 05_Ops
+
   - kpi_id: ops.quality.pct
     kpi_name: Quality %
     measure_name: [Quality %]
     format: 0.0%
     folder: 05_Ops
+
   - kpi_id: ops.throughput.units
     kpi_name: Throughput Units
     measure_name: [Throughput Units]
     format: #,0
     folder: 01_Output
+
   - kpi_id: ops.downtime.pct
     kpi_name: Downtime %
     measure_name: [Downtime %]
@@ -133,22 +144,22 @@ fact:
 
 ### 4.2 Relationships (Mandatory)
 
-- dim_date (1) → fact_ops on DateKey  
-- dim_org (1) → fact_ops on OrgKey  
-- dim_product (1) → fact_ops on ProductKey (if modeled)  
-- security_user_org filters dim_org → cascades to fact_ops  
+- dim_date (1) -> fact_ops on DateKey  
+- dim_org (1) -> fact_ops on OrgKey  
+- dim_product (1) -> fact_ops on ProductKey (if modeled)  
+- security_user_org filters dim_org -> cascades to fact_ops  
 - Single direction; no ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
 
-- Date: Year → Quarter → Month → Week  
-- Org: Plant → Line → Shift
-- Product (if used): Category → ProductName
+- Date: Year -> Quarter -> Month -> Week  
+- Org: Plant -> Line -> Shift
+- Product (if used): Category -> ProductName
 
 ### 4.4 Sort-by Columns
 
-- Month → MonthNumber  
-- Week → DateKey  
+- Month -> MonthNumber  
+- Week -> DateKey  
 
 ### 4.5 Modeling Constraints
 
@@ -176,50 +187,55 @@ fact:
 ### 5.2 DAX Definitions
 
 ```DAX
-/// Supporting — Base times
+/// Supporting - Base times
 Planned Time :=
     SUM ( fact_ops[Planned Time Minutes] )
 
+/// Supporting - Run Time
 Run Time :=
     SUM ( fact_ops[Run Time Minutes] )
 
+/// Supporting - Downtime Minutes
 Downtime Minutes :=
     SUM ( fact_ops[Downtime Minutes] )
 
-/// ops.availability.pct — Uptime
+/// ops.availability.pct - Uptime
 Availability % :=
     DIVIDE ( [Run Time], [Planned Time] )
 
-/// Supporting — Output
+/// Supporting - Output
 Output Units :=
     SUM ( fact_ops[Output Units] )
 
+/// Supporting - Good Units
 Good Units :=
     SUM ( fact_ops[Good Units] )
 
+/// Supporting - Scrap Units
 Scrap Units :=
     SUM ( fact_ops[Scrap Units] )
 
+/// Supporting - Standard Output Units
 Standard Output Units :=
     SUMX ( fact_ops, fact_ops[Planned Time Minutes] * fact_ops[Standard Rate Units Per Minute] )
 
-/// ops.performance.pct — Speed vs standard
+/// ops.performance.pct - Speed vs standard
 Performance % :=
     DIVIDE ( [Output Units], [Standard Output Units] )
 
-/// ops.quality.pct — First pass yield
+/// ops.quality.pct - First pass yield
 Quality % :=
     DIVIDE ( [Good Units], [Output Units] )
 
-/// ops.oee.pct — Overall effectiveness
+/// ops.oee.pct - Overall effectiveness
 OEE % :=
     [Availability %] * [Performance %] * [Quality %]
 
-/// ops.throughput.units — Volume
+/// ops.throughput.units - Volume
 Throughput Units :=
     [Output Units]
 
-/// ops.downtime.pct — Downtime share
+/// ops.downtime.pct - Downtime share
 Downtime % :=
     DIVIDE ( [Downtime Minutes], [Planned Time] )
 ```
@@ -256,14 +272,14 @@ dim_org[OrgKey] IN
 
 ### 6.3 OLS (optional)
 
-- None required; consider masking cost/scrap € if added.
+- None required; consider masking cost/scrap EUR if added.
 
 ---
 
 ## 7. Technical Assumptions
 
 - Standard rates maintained; downtime causes coded; shift data available where used.
-- Data latency ≤24h; time zone consistent.
+- Data latency <=24h; time zone consistent.
 - OneLake canonical dims used (dim_date, dim_org, security_user_org; dim_product optional).
 
 ---
@@ -271,9 +287,9 @@ dim_org[OrgKey] IN
 ## 8. Deployment Requirements
 
 - Mode: DirectLake or Import depending on MES connectivity; prefer DirectLake if Fabric connectors stable.  
-- Incremental refresh: yes, partition by DateKey (e.g., last 12–24 months).  
+- Incremental refresh: yes, partition by DateKey (e.g., last 12-24 months).  
 - Aggregations: optional for high-frequency data (use day-level aggregates for speed).  
-- Workspace/naming: `ARF – Operations` dataset/model naming per governance.
+- Workspace/naming: `ARF - Operations` dataset/model naming per governance.
 
 ---
 
@@ -282,10 +298,10 @@ dim_org[OrgKey] IN
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org keys non-null in fact_ops | 100% | Y | Data Engineering |
-| Time Balancing | Run Time + Downtime ≤ Planned Time | 100% | Y | BI |
-| OEE Consistency | OEE = A×P×Q recomputes | Exact | Y | BI |
-| Performance Reasonability | Performance % within 0–1.2 range | Exceptions <0.5% | Y | BI |
-| Quality Reasonability | Quality % within 0–1.0 range | Exceptions <0.5% | Y | Quality |
+| Time Balancing | Run Time + Downtime <= Planned Time | 100% | Y | BI |
+| OEE Consistency | OEE = AxPxQ recomputes | Exact | Y | BI |
+| Performance Reasonability | Performance % within 0-1.2 range | Exceptions <0.5% | Y | BI |
+| Quality Reasonability | Quality % within 0-1.0 range | Exceptions <0.5% | Y | Quality |
 | RLS Coverage | Users see only authorised plants/lines | 0 leaks | Y | Security |
 | Performance | Main visuals <2s on representative sample | <2s | Y | BI |
 
@@ -296,3 +312,4 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+

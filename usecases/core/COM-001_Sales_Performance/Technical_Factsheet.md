@@ -1,3 +1,8 @@
+---
+id: COM-001
+factsheet_type: technical
+---
+
 # COM-001 - Sales Performance vs Plan & LY  
 
 ## Technical Factsheet (v1.2)
@@ -25,40 +30,47 @@
 
 ---
 
-## 2. KPI to Measure Mapping (Mandatory)
+## 2. Required KPIs - Measure Mapping (Mandatory)
 
 ```yaml
 kpi_to_measure_mapping:
+
   - kpi_id: sales.net_sales.amount
     kpi_name: Net Sales Amount
     measure_name: Net Sales Amount
     format: "EUR #,0"
     folder: 01_Revenue
+
   - kpi_id: sales.net_sales.delta_pct.plan
     kpi_name: Net Sales % vs Plan
     measure_name: Net Sales % vs Plan
     format: "0.0%"
     folder: 01_Revenue
+
   - kpi_id: sales.net_sales.delta_pct.ly
     kpi_name: Net Sales % vs LY
     measure_name: Net Sales % vs LY
     format: "0.0%"
     folder: 01_Revenue
+
   - kpi_id: margin.gm.pct
     kpi_name: Gross Margin %
     measure_name: Gross Margin %
     format: "0.0%"
     folder: 02_Margin
+
   - kpi_id: sales.pvm.price_effect.amount
     kpi_name: Price Effect Amount
     measure_name: Price Effect Amount
     format: "EUR #,0"
     folder: 03_PVM
+
   - kpi_id: sales.pvm.volume_effect.amount
     kpi_name: Volume Effect Amount
     measure_name: Volume Effect Amount
     format: "EUR #,0"
     folder: 03_PVM
+
   - kpi_id: sales.pvm.mix_effect.amount
     kpi_name: Mix Effect Amount
     measure_name: Mix Effect Amount
@@ -165,7 +177,7 @@ fact:
 
 ---
 
-## 5. Measures
+## 5. Measures (DAX)
 
 ### 5.1 Measure Inventory
 
@@ -187,28 +199,28 @@ fact:
 ### 5.2 DAX Definitions
 
 ```DAX
-/// sales.net_sales.amount – Revenue base
-[Net Sales Amount] =
+/// sales.net_sales.amount - Revenue base
+Net Sales Amount =
 SUM ( fact_sales[Net Sales Amount] )
 
-/// sales.net_sales.delta_pct.plan – Gap to plan
-[Net Sales % vs Plan] =
+/// sales.net_sales.delta_pct.plan - Gap to plan
+Net Sales % vs Plan =
 VAR Actual = [Net Sales Amount]
 VAR Plan   = SUM ( fact_sales[Plan Sales Amount] )
 RETURN DIVIDE ( Actual - Plan, Plan )
 
-/// sales.net_sales.delta_pct.ly – Gap to LY
-[Net Sales % vs LY] =
+/// sales.net_sales.delta_pct.ly - Gap to LY
+Net Sales % vs LY =
 VAR Actual = [Net Sales Amount]
 VAR LY     = SUM ( fact_sales[Last Year Sales Amount] )
 RETURN DIVIDE ( Actual - LY, LY )
 
-/// margin.gm.pct – Profitability quality
-[Gross Margin %] =
+/// margin.gm.pct - Profitability quality
+Gross Margin % =
 DIVIDE ( [Net Sales Amount] - SUM ( fact_sales[Cost of Goods Sold Amount] ), [Net Sales Amount] )
 
-/// sales.pvm.price_effect.amount – Price impact vs Plan
-[Price Effect Amount] =
+/// sales.pvm.price_effect.amount - Price impact vs Plan
+Price Effect Amount =
 SUMX (
     fact_sales,
     VAR ActualPrice = DIVIDE ( fact_sales[Net Sales Amount], fact_sales[Quantity] )
@@ -216,8 +228,8 @@ SUMX (
     RETURN ( ActualPrice - PlanPrice ) * fact_sales[Quantity]
 )
 
-/// sales.pvm.volume_effect.amount – Volume impact vs Plan
-[Volume Effect Amount] =
+/// sales.pvm.volume_effect.amount - Volume impact vs Plan
+Volume Effect Amount =
 SUMX (
     fact_sales,
     VAR ActualQty = fact_sales[Quantity]
@@ -226,8 +238,8 @@ SUMX (
     RETURN ( ActualQty - PlanQty ) * PlanPrice
 )
 
-/// sales.pvm.mix_effect.amount – Mix residual
-[Mix Effect Amount] =
+/// sales.pvm.mix_effect.amount - Mix residual
+Mix Effect Amount =
 [Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] ) - [Price Effect Amount] - [Volume Effect Amount]
 ```
 
@@ -289,7 +301,7 @@ dim_org[OrgKey] IN
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org/Product keys non-null in fact_sales | 100% | Y | Data Engineering |
-| Balancing | Net Sales Amount matches source totals per month | ±0.1% | Y | Controlling |
+| Balancing | Net Sales Amount matches source totals per month | �0.1% | Y | Controlling |
 | PVM Integrity | Price + Volume + Mix = Net Sales gap vs Plan | Residual < 0.5% of Net Sales | Y | BI |
 | GM Consistency | GM % recomputes from GM Amount/Net Sales | Exact | Y | BI |
 | RLS Coverage | Users only see authorised regions/channels | 0 leaks in test | Y | Security |
@@ -304,3 +316,4 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+

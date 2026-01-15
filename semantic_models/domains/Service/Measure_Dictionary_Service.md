@@ -538,4 +538,25 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: "draft"
     version: "v1.2"
     last_review: "TBD"
+- measure_name: "Talk Wrap Minutes"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Service_SemanticModel"
+  display_folder: "05_Workforce"
+  category: "Base"
+  expression:
+    dax: "SUM ( fact_wfm[Talk Wrap Minutes] )"
+    formatString: "#,0.0"
+  documentation:
+    description: "Total talk + wrap time in minutes."
+    notes: "Source: fact_wfm[Talk Wrap Minutes]."
+  dependencies:
+    columns:
+      - "fact_wfm[Talk Wrap Minutes]"
+  governance:
+    owner: "Service Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
 ```
+

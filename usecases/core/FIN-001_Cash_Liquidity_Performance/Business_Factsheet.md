@@ -1,4 +1,9 @@
-# FIN-001 — Cash & Liquidity Performance  
+---
+id: FIN-001
+factsheet_type: business
+---
+
+# FIN-001 - Cash & Liquidity Performance  
 
 ## Business Factsheet (v1.2)
 
@@ -35,8 +40,8 @@
 
 **Example Query Patterns (optional):**
 
-- “Which regions/entities have CCC above target and DSO deteriorating?”  
-- “Where is OCF below plan driven by working capital movements?”
+- "Which regions/entities have CCC above target and DSO deteriorating?"  
+- "Where is OCF below plan driven by working capital movements?"
 
 ---
 
@@ -46,46 +51,51 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
+
   - id: fin.cash.balance
     name: Cash Balance
     purpose: Liquidity level
     definition_short: Cash and cash equivalents
-    unit: €
+    unit: EUR
     grain: day
     agg: sum
     target: Meet/beat plan and minimum liquidity buffer
     interpretation: Low balance signals liquidity risk
     lineage: fact_cash[Cash Balance]
+
   - id: fin.cash.ocf
     name: Operating Cash Flow
     purpose: Cash generation
     definition_short: Cash from operating activities
-    unit: €
+    unit: EUR
     grain: month
     agg: sum
     target: Meet/beat plan
     interpretation: Negative or below plan signals cash pressure
     lineage: fact_cashflow[OCF]
+
   - id: fin.cash.vs_plan.pct
     name: Cash vs Plan %
     purpose: Performance vs plan
-    definition_short: (Cash – Plan) / Plan
+    definition_short: (Cash - Plan) / Plan
     unit: %
     grain: month
     agg: avg
-    target: ≥ 0
+    target: = 0
     interpretation: Negative variance shows liquidity shortfall vs plan
     lineage: fact_cash[Cash], plan_cash
+
   - id: wc.ccc.days
     name: Cash Conversion Cycle (days)
     purpose: Working capital cycle
-    definition_short: DSO + DIO – DPO
+    definition_short: DSO + DIO - DPO
     unit: days
     grain: month
     agg: avg
     target: Reduce to target
     interpretation: Higher CCC means slower cash conversion
     lineage: DSO/DIO/DPO measures
+
   - id: wc.dso.days
     name: DSO (days)
     purpose: Receivables efficiency
@@ -96,6 +106,7 @@ required_kpis:
     target: Reduce to target
     interpretation: High DSO slows cash collection
     lineage: fact_ar[AR], revenue
+
   - id: wc.dio.days
     name: DIO (days)
     purpose: Inventory efficiency
@@ -106,6 +117,7 @@ required_kpis:
     target: Reduce to target
     interpretation: High DIO ties up cash
     lineage: fact_inventory[Inventory], COGS
+
   - id: wc.dpo.days
     name: DPO (days)
     purpose: Payables efficiency
@@ -134,30 +146,35 @@ Formal rules that define performance and action triggers.
 
 ```yaml
 triggers:
+
   - kpi: fin.cash.vs_plan.pct
     condition: <
     threshold: 0
     scope: entity_region
     exclusion: none
     action_code: W1
+
   - kpi: wc.ccc.days
     condition: >
     threshold: ccc_target
     scope: entity_region
     exclusion: none
     action_code: W1
+
   - kpi: wc.dso.days
     condition: >
     threshold: dso_target
     scope: entity_region
     exclusion: disputed_receivables
     action_code: C1
+
   - kpi: wc.dio.days
     condition: >
     threshold: dio_target
     scope: entity_region
     exclusion: strategic_stock
     action_code: I1
+
   - kpi: wc.dpo.days
     condition: <
     threshold: dpo_floor
@@ -181,7 +198,7 @@ Link business behavior to measurable outcomes.
 
 ---
 
-## 6. 3–30–300 Page Layout (Mandatory)
+## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
 
@@ -209,6 +226,10 @@ Link business behavior to measurable outcomes.
 
 ---
 
+### 6.4 300-Second Layer (Diagnostics)
+
+- (optional)
+
 ## 7. Data Requirements Summary
 
 ```yaml
@@ -227,7 +248,7 @@ required_dimensions:
   - dim_product (for DIO drill)
   - security_user_org
 required_grain: day for cash; month for WC metrics; customer/supplier drill for DSO/DPO; location_sku for DIO
-required_time_range: 12–24 months history + plan
+required_time_range: 12-24 months history + plan
 required_slicers: Date, Region/Entity, Customer/Supplier, Product (optional)
 ```
 
@@ -238,7 +259,7 @@ required_slicers: Date, Region/Entity, Customer/Supplier, Product (optional)
 - Plan and actual cash/OCF available; WC components aligned to same period/entity.
 - AR/AP aging available; disputed receivables flagged; strategic stock flagged.
 - OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org).
-- Data latency ≤24h; currency EUR.
+- Data latency =24h; currency EUR.
 
 ---
 
@@ -256,3 +277,5 @@ required_slicers: Date, Region/Entity, Customer/Supplier, Product (optional)
 - Misalignment of AR/AP aging with revenue/COGS periods.  
 - DIO misread if inventory/COGS not aligned or strategic stock excluded.  
 - Overextension of DPO harming supplier relationships.  
+
+

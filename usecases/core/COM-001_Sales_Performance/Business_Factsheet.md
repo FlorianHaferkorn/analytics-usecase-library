@@ -1,3 +1,8 @@
+---
+id: COM-001
+factsheet_type: business
+---
+
 # COM-001 - Sales Performance vs Plan & LY  
 
 ## Business Factsheet (v1.2)
@@ -42,6 +47,7 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
+
   - id: sales.net_sales.amount
     name: Net Sales Amount
     purpose: Core revenue control
@@ -52,6 +58,7 @@ required_kpis:
     target: Meet/beat Plan and LY
     interpretation: Negative gap signals revenue risk
     lineage: fact_sales[Net Sales Amount] x dim_date, dim_org, dim_product
+
   - id: sales.net_sales.delta_pct.plan
     name: Net Sales % vs Plan
     purpose: Execution vs Plan
@@ -62,6 +69,7 @@ required_kpis:
     target: >= -2% guardrail
     interpretation: Below guardrail shows miss vs Plan
     lineage: fact_sales[Net Sales Amount], fact_sales[Plan Sales Amount]
+
   - id: sales.net_sales.delta_pct.ly
     name: Net Sales % vs LY
     purpose: Growth vs LY
@@ -72,6 +80,7 @@ required_kpis:
     target: +3% to +5%
     interpretation: Negative YoY signals deterioration
     lineage: fact_sales[Net Sales Amount], fact_sales[Last Year Sales Amount]
+
   - id: margin.gm.pct
     name: Gross Margin %
     purpose: Profitability quality
@@ -82,6 +91,7 @@ required_kpis:
     target: >= 25%
     interpretation: Compression shows price/mix pressure
     lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount]
+
   - id: sales.pvm.price_effect.amount
     name: Price Effect Amount
     purpose: Driver analysis
@@ -92,6 +102,7 @@ required_kpis:
     target: 0 unless price change
     interpretation: Negative implies price dilution
     lineage: fact_sales[Net Price Amount], fact_sales[Plan Sales Amount], fact_sales[Quantity]
+
   - id: sales.pvm.volume_effect.amount
     name: Volume Effect Amount
     purpose: Driver analysis
@@ -102,6 +113,7 @@ required_kpis:
     target: 0 unless volume change
     interpretation: Negative implies demand/availability issue
     lineage: fact_sales[Quantity], fact_sales[Plan Sales Amount]
+
   - id: sales.pvm.mix_effect.amount
     name: Mix Effect Amount
     purpose: Driver analysis
@@ -125,24 +137,28 @@ required_kpis:
 
 ```yaml
 triggers:
+
   - kpi: sales.net_sales.delta_pct.plan
     condition: below_guardrail
     threshold: -0.02
     scope: Region/Channel, Month
     exclusion: none
     action_code: P4
+
   - kpi: margin.gm.pct
     condition: below_target
     threshold: 0.25
     scope: Region/Channel, Month
     exclusion: approved promos
     action_code: P2
+
   - kpi: sales.pvm.price_effect.amount
     condition: negative
     threshold: 0
     scope: Region/Channel
     exclusion: none
     action_code: P2
+
   - kpi: sales.pvm.mix_effect.amount
     condition: negative
     threshold: 0
@@ -240,3 +256,4 @@ required_slicers: Date, Region/Channel, Product Category, Customer Segment (opti
 - Over-reacting on price without GM guardrails can erode margin.
 
 ---
+

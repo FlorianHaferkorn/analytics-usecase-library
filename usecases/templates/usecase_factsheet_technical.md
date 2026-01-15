@@ -1,4 +1,4 @@
-# <USE CASE ID> – <USE CASE NAME>  
+# <USE CASE ID> - <USE CASE NAME>
 
 ## Technical Factsheet (v1.2)
 
@@ -25,14 +25,15 @@
 
 ---
 
-## 2. Required KPIs → Measure Mapping (Mandatory)
+## 2. Required KPIs - Measure Mapping (Mandatory)
 
 ```yaml
 kpi_to_measure_mapping:
+
   - kpi_id: <domain.topic.metric>
     kpi_name: <KPI Name>
     measure_name: <Measure Name>
-    format: <€, %, #, days>
+    format: <EUR, %, #, days>
     folder: <01_Sales / 02_Margin / ...>
     notes: <optional>
   - ...
@@ -77,21 +78,21 @@ settings:
 ### 4.2 Relationships (Mandatory)
 
 - single direction  
-- dim → fact  
+- dim -> fact  
 - no bi-directional relationships  
 - no ambiguous paths  
 - no M2M unless explicitly permitted
 
 ### 4.3 Hierarchies
 
-- Date: Year → Quarter → Month → Day  
-- Org: Region → Country → Store  
+- Date: Year -> Quarter -> Month -> Day  
+- Org: Region -> Country -> Store  
 - Product/Customer hierarchies (if needed)
 
 ### 4.4 Sort-by Columns
 
-- Month → MonthNumber  
-- Name → Code  
+- Month -> MonthNumber  
+- Name -> Code  
 
 ### 4.5 Modeling Constraints
 
@@ -109,14 +110,14 @@ settings:
 ### 5.1 Measure Inventory
 
 | Measure Name | KPI ID / Supporting | Purpose | Folder | Format | Type |
-|--------------|---------------------|---------|--------|--------|-------|
-| <Measure> | <kpi_id> | <why> | 01_Sales | €#,0.00 | KPI |
-| … | … | … | … | … | … |
+|--------------|---------------------|---------|--------|--------|------|
+| <Measure> | <kpi_id> | <why> | 01_Sales | EUR#,0.00 | KPI |
+| ... | ... | ... | ... | ... | ... |
 
 ### 5.2 DAX Definitions
 
 ```DAX
-/// <kpi_id or Supporting> – <short purpose>
+/// <kpi_id or Supporting> - <short purpose>
 <Measure Name> =
     <DAX expression>
 ```
@@ -177,9 +178,9 @@ dim_org[OrgKey] IN
 ## 9. QA & Validation Rules
 
 | Check | Rule | Threshold | Automated Y/N | Owner |
-|-------|------|-----------|----------------|--------|
-| RI Check | Refer. integrity | ≥ 99.9 % | Y | DE |
-| KPI Match | KPI → measure present | 100 % | Y | BI |
+|-------|------|-----------|---------------|-------|
+| RI Check | Refer. integrity | >= 99.9 % | Y | DE |
+| KPI Match | KPI - measure present | 100 % | Y | BI |
 | Outlier Check | KPI in valid range | domain-specific | Y/N | Analyst |
 | Performance Check | Visual < 2s | 2s | Y | BI |
 

@@ -1,4 +1,9 @@
-# OPS-003 — Quality & Yield  
+---
+id: OPS-003
+factsheet_type: business
+---
+
+# OPS-003 - Quality & Yield  
 
 ## Business Factsheet (v1.2)
 
@@ -35,8 +40,8 @@
 
 **Example Query Patterns (optional):**
 
-- “Which lines have FPY below target and scrap > target in the last 4 weeks?”
-- “What are the top 5 defect causes by cost for product family X?”
+- "Which lines have FPY below target and scrap > target in the last 4 weeks?"
+- "What are the top 5 defect causes by cost for product family X?"
 
 ---
 
@@ -46,6 +51,7 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
+
   - id: quality.fpy.pct
     name: First Pass Yield %
     purpose: Process quality
@@ -53,9 +59,10 @@ required_kpis:
     unit: %
     grain: line_day
     agg: avg
-    target: ≥ site/line target (e.g., 98%+)
+    target: = site/line target (e.g., 98%+)
     interpretation: Low FPY indicates rework/scrap issues
     lineage: fact_quality[Good Units], fact_quality[Total Units]
+
   - id: quality.scrap.pct
     name: Scrap Rate %
     purpose: Waste reduction
@@ -63,9 +70,10 @@ required_kpis:
     unit: %
     grain: line_day
     agg: avg
-    target: ≤ target (e.g., <2%)
+    target: = target (e.g., <2%)
     interpretation: High scrap signals process defects
     lineage: fact_quality[Scrap Units], fact_quality[Total Units]
+
   - id: quality.rework.pct
     name: Rework Rate %
     purpose: Rework burden
@@ -73,19 +81,21 @@ required_kpis:
     unit: %
     grain: line_day
     agg: avg
-    target: ≤ target
+    target: = target
     interpretation: High rework inflates cost and reduces capacity
     lineage: fact_quality[Rework Units], fact_quality[Total Units]
+
   - id: quality.copq.amount
     name: Cost of Poor Quality (COPQ)
     purpose: Financial impact
     definition_short: Scrap + rework + warranty/complaint cost
-    unit: €
+    unit: EUR
     grain: month
     agg: sum
     target: Reduce vs baseline
     interpretation: High COPQ signals material loss and customer risk
     lineage: fact_quality_costs[COPQ], fact_quality
+
   - id: quality.complaint.pct
     name: Complaint Rate %
     purpose: Customer impact
@@ -93,9 +103,10 @@ required_kpis:
     unit: %
     grain: month
     agg: avg
-    target: ≤ target
+    target: = target
     interpretation: High complaints indicate field quality issues
     lineage: fact_complaints[Complaints], fact_shipments[Units]
+
   - id: quality.defect_density
     name: Defect Density
     purpose: Defect concentration
@@ -103,7 +114,7 @@ required_kpis:
     unit: defects/1k units
     grain: line_day
     agg: avg
-    target: ≤ target
+    target: = target
     interpretation: High density signals process stability issues
     lineage: fact_quality[Defect Count], fact_quality[Units]
 ```
@@ -124,24 +135,28 @@ Formal rules that define performance and action triggers.
 
 ```yaml
 triggers:
+
   - kpi: quality.fpy.pct
     condition: <
     threshold: line_target
     scope: line_week
     exclusion: ramp-up runs
     action_code: L2
+
   - kpi: quality.scrap.pct
     condition: >
     threshold: 0.02
     scope: line_week
     exclusion: trial_runs
     action_code: L2
+
   - kpi: quality.copq.amount
     condition: >
     threshold: copq_materiality
     scope: product_family
     exclusion: none
     action_code: D1
+
   - kpi: quality.complaint.pct
     condition: >
     threshold: target
@@ -165,14 +180,14 @@ Link business behavior to measurable outcomes.
 
 ---
 
-## 6. 3–30–300 Page Layout (Mandatory)
+## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
 
 - First Pass Yield %  
 - Scrap Rate %  
 - Rework Rate %  
-- COPQ (€)  
+- COPQ (EUR)  
 - Complaint Rate %  
 
 ### 6.2 30-Second Layer (Main Visuals)
@@ -193,6 +208,10 @@ Link business behavior to measurable outcomes.
 
 ---
 
+### 6.4 300-Second Layer (Diagnostics)
+
+- (optional)
+
 ## 7. Data Requirements Summary
 
 ```yaml
@@ -207,7 +226,7 @@ required_dimensions:
   - dim_product
   - security_user_org
 required_grain: line_day for quality; complaint_month for complaints
-required_time_range: 12–24 months history
+required_time_range: 12-24 months history
 required_slicers: Date, Plant/Line/Shift, Product, Defect Type
 ```
 
@@ -236,3 +255,5 @@ required_slicers: Date, Plant/Line/Shift, Product, Defect Type
 - Misattributing scrap to wrong cause/product due to coding gaps.  
 - Understating complaint rate if shipment linkage is weak.  
 - Overreacting to short-term FPY dips without considering planned trials.  
+
+

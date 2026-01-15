@@ -1,4 +1,9 @@
-# OPS-003 — Quality & Yield  
+---
+id: OPS-003
+factsheet_type: technical
+---
+
+# OPS-003 - Quality & Yield  
 
 ## Technical Factsheet (v1.2)
 
@@ -25,35 +30,41 @@
 
 ---
 
-## 2. Required KPIs → Measure Mapping (Mandatory)
+## 2. Required KPIs - Measure Mapping (Mandatory)
 
 ```yaml
 kpi_to_measure_mapping:
+
   - kpi_id: quality.fpy.pct
     kpi_name: First Pass Yield %
     measure_name: [First Pass Yield %]
     format: 0.0%
     folder: 07_Quality
+
   - kpi_id: quality.scrap.pct
     kpi_name: Scrap Rate %
     measure_name: [Scrap Rate %]
     format: 0.0%
     folder: 07_Quality
+
   - kpi_id: quality.rework.pct
     kpi_name: Rework Rate %
     measure_name: [Rework Rate %]
     format: 0.0%
     folder: 07_Quality
+
   - kpi_id: quality.copq.amount
     kpi_name: Cost of Poor Quality
     measure_name: [Cost of Poor Quality]
-    format: €#,0
+    format: EUR#,0
     folder: 07_Quality
+
   - kpi_id: quality.complaint.pct
     kpi_name: Complaint Rate %
     measure_name: [Complaint Rate %]
     format: 0.0%
     folder: 07_Quality
+
   - kpi_id: quality.defect_density
     kpi_name: Defect Density
     measure_name: [Defect Density]
@@ -159,22 +170,22 @@ fact:
 
 ### 4.2 Relationships (Mandatory)
 
-- dim_date (1) → all facts on DateKey  
-- dim_org (1) → fact_quality/fact_quality_costs/fact_complaints/fact_shipments on OrgKey (where present)  
-- dim_product (1) → all product-bearing facts on ProductKey  
-- security_user_org filters dim_org → cascades to facts  
+- dim_date (1) -> all facts on DateKey  
+- dim_org (1) -> fact_quality/fact_quality_costs/fact_complaints/fact_shipments on OrgKey (where present)  
+- dim_product (1) -> all product-bearing facts on ProductKey  
+- security_user_org filters dim_org -> cascades to facts  
 - Single direction; avoid ambiguous paths; no bi-dir except RLS bridge.
 
 ### 4.3 Hierarchies
 
-- Date: Year → Quarter → Month → Week  
-- Org: Plant → Line → Shift  
-- Product: ProductFamily → Category → ProductName
+- Date: Year -> Quarter -> Month -> Week  
+- Org: Plant -> Line -> Shift  
+- Product: ProductFamily -> Category -> ProductName
 
 ### 4.4 Sort-by Columns
 
-- Month → MonthNumber  
-- ProductName → ProductCode
+- Month -> MonthNumber  
+- ProductName -> ProductCode
 
 ### 4.5 Modeling Constraints
 
@@ -193,7 +204,7 @@ fact:
 | First Pass Yield % | quality.fpy.pct | FPY | 07_Quality | 0.0% | KPI |
 | Scrap Rate % | quality.scrap.pct | Scrap | 07_Quality | 0.0% | KPI |
 | Rework Rate % | quality.rework.pct | Rework | 07_Quality | 0.0% | KPI |
-| Cost of Poor Quality | quality.copq.amount | COPQ | 07_Quality | €#,0 | KPI |
+| Cost of Poor Quality | quality.copq.amount | COPQ | 07_Quality | EUR#,0 | KPI |
 | Complaint Rate % | quality.complaint.pct | Complaints | 07_Quality | 0.0% | KPI |
 | Defect Density | quality.defect_density | Defect conc. | 07_Quality | #,0.00 | KPI |
 | Total Units | Supporting | Volume base | 07_Quality | #,0 | Supporting |
@@ -206,50 +217,55 @@ fact:
 ### 5.2 DAX Definitions
 
 ```DAX
-/// Supporting — Volume
+/// Supporting - Volume
 Total Units :=
     SUM ( fact_quality[Total Units] )
 
+/// Supporting - Good Units
 Good Units :=
     SUM ( fact_quality[Good Units] )
 
+/// Supporting - Scrap Units
 Scrap Units :=
     SUM ( fact_quality[Scrap Units] )
 
+/// Supporting - Rework Units
 Rework Units :=
     SUM ( fact_quality[Rework Units] )
 
+/// Supporting - Defect Count
 Defect Count :=
     SUM ( fact_quality[Defect Count] )
 
-/// quality.fpy.pct — FPY
+/// quality.fpy.pct - FPY
 First Pass Yield % :=
     DIVIDE ( [Good Units], [Total Units] )
 
-/// quality.scrap.pct — Scrap
+/// quality.scrap.pct - Scrap
 Scrap Rate % :=
     DIVIDE ( [Scrap Units], [Total Units] )
 
-/// quality.rework.pct — Rework
+/// quality.rework.pct - Rework
 Rework Rate % :=
     DIVIDE ( [Rework Units], [Total Units] )
 
-/// quality.copq.amount — COPQ
+/// quality.copq.amount - COPQ
 Cost of Poor Quality :=
     SUM ( fact_quality_costs[COPQ Amount] )
 
-/// Supporting — Complaints
+/// Supporting - Complaints
 Complaint Count :=
     SUM ( fact_complaints[Complaint Count] )
 
+/// Supporting - Shipped Units
 Shipped Units :=
     SUM ( fact_shipments[Shipped Units] )
 
-/// quality.complaint.pct — Complaint rate
+/// quality.complaint.pct - Complaint rate
 Complaint Rate % :=
     DIVIDE ( [Complaint Count], [Shipped Units] )
 
-/// quality.defect_density — Defects per 1k units
+/// quality.defect_density - Defects per 1k units
 Defect Density :=
     DIVIDE ( [Defect Count], [Total Units] ) * 1000
 ```
@@ -286,7 +302,7 @@ dim_org[OrgKey] IN
 
 ### 6.3 OLS (optional)
 
-- None required; COPQ can be sensitive—mask if client requests (TODO if needed).
+- None required; COPQ can be sensitive-mask if client requests (TODO if needed).
 
 ---
 
@@ -294,7 +310,7 @@ dim_org[OrgKey] IN
 
 - Quality events captured at line/day with good/scrap/rework counts; defect codes provided.
 - COPQ costs available or allocated to product/line/month; complaints linked to shipments.
-- Data latency ≤24h; timezone consistent.
+- Data latency <=24h; timezone consistent.
 - OneLake canonical dims used (dim_date, dim_org, dim_product, security_user_org).
 
 ---
@@ -302,9 +318,9 @@ dim_org[OrgKey] IN
 ## 8. Deployment Requirements
 
 - Mode: DirectLake or Import depending on MES/QMS connectivity; prefer DirectLake if stable.  
-- Incremental refresh: yes, partition by DateKey (e.g., last 12–24 months).  
+- Incremental refresh: yes, partition by DateKey (e.g., last 12-24 months).  
 - Aggregations: optional; day-level aggregates for speed.  
-- Workspace/naming: `ARF – Operations` dataset/model per governance.
+- Workspace/naming: `ARF - Operations` dataset/model per governance.
 
 ---
 
@@ -326,3 +342,4 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+

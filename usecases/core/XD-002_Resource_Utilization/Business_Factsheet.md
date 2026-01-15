@@ -1,4 +1,9 @@
-# XD-002 — Resource Utilization  
+---
+id: XD-002
+factsheet_type: business
+---
+
+# XD-002 - Resource Utilization  
 
 ## Business Factsheet (v1.2)
 
@@ -35,8 +40,8 @@
 
 **Example Query Patterns (optional):**
 
-- “Which queues have utilization below target and SLA/backlog risk?”
-- “Where is overtime rising while shrinkage is high?”
+- "Which queues have utilization below target and SLA/backlog risk?"
+- "Where is overtime rising while shrinkage is high?"
 
 ---
 
@@ -46,6 +51,7 @@ All KPIs must exist in the KPI Catalog.
 
 ```yaml
 required_kpis:
+
   - id: res.utilization.pct
     name: Utilization %
     purpose: Productive time vs paid time
@@ -53,9 +59,10 @@ required_kpis:
     unit: %
     grain: agent_day or queue_day
     agg: avg
-    target: ≥ target band
+    target: = target band
     interpretation: Low utilization shows underuse; too high risks quality
     lineage: fact_wfm[Work Time], fact_wfm[Paid Time]
+
   - id: res.occupancy.pct
     name: Occupancy %
     purpose: Active time vs available time
@@ -66,6 +73,7 @@ required_kpis:
     target: Target band
     interpretation: Too high occupancy risks burnout/AHT; too low wastes capacity
     lineage: fact_wfm[Talk], fact_wfm[Wrap], fact_wfm[Idle]
+
   - id: svc.sla.attainment.pct
     name: SLA Attainment %
     purpose: Service level compliance
@@ -73,9 +81,10 @@ required_kpis:
     unit: %
     grain: day_queue
     agg: avg
-    target: ≥ target
+    target: = target
     interpretation: Low attainment signals service failure
     lineage: fact_cases[SLA Met Flag]
+
   - id: res.overtime.pct
     name: Overtime %
     purpose: Cost and fatigue
@@ -83,9 +92,10 @@ required_kpis:
     unit: %
     grain: agent_day or region_week
     agg: avg
-    target: ≤ target
+    target: = target
     interpretation: High overtime signals staffing gaps
     lineage: fact_wfm[Overtime Hours], fact_wfm[Total Hours]
+
   - id: res.shrinkage.pct
     name: Shrinkage %
     purpose: Non-productive time
@@ -96,6 +106,7 @@ required_kpis:
     target: Within target band
     interpretation: High shrinkage reduces available capacity
     lineage: fact_wfm[Shrinkage], fact_wfm[Paid Time]
+
   - id: svc.backlog.count
     name: Backlog Count
     purpose: Workload risk
@@ -124,24 +135,28 @@ Formal rules that define performance and action triggers.
 
 ```yaml
 triggers:
+
   - kpi: res.utilization.pct
     condition: outside
     threshold: [util_lower, util_upper]
     scope: queue_region_channel
     exclusion: training/new hires
     action_code: O2
+
   - kpi: res.occupancy.pct
     condition: outside
     threshold: [occ_lower, occ_upper]
     scope: queue_region_channel
     exclusion: training/new hires
     action_code: O2
+
   - kpi: res.overtime.pct
     condition: >
     threshold: overtime_target
     scope: queue_region
     exclusion: crisis
     action_code: M2
+
   - kpi: res.shrinkage.pct
     condition: >
     threshold: shrinkage_target
@@ -165,7 +180,7 @@ Link business behavior to measurable outcomes.
 
 ---
 
-## 6. 3–30–300 Page Layout (Mandatory)
+## 6. 3-30-300 Page Layout (Mandatory)
 
 ### 6.1 3-Second Layer (KPI Cards)
 
@@ -192,6 +207,10 @@ Link business behavior to measurable outcomes.
 
 ---
 
+### 6.4 300-Second Layer (Diagnostics)
+
+- (optional)
+
 ## 7. Data Requirements Summary
 
 ```yaml
@@ -204,7 +223,7 @@ required_dimensions:
   - dim_queue (if separate)
   - security_user_org
 required_grain: agent_day or queue_day; week/month for trends
-required_time_range: 12–24 months history
+required_time_range: 12-24 months history
 required_slicers: Date, Region/Channel/Queue, Agent Group/Skill (if available)
 ```
 
@@ -215,7 +234,7 @@ required_slicers: Date, Region/Channel/Queue, Agent Group/Skill (if available)
 - WFM data includes work/idle/wrap, overtime, shrinkage; SLA/backlog available from cases.
 - Target bands defined for utilization/occupancy; exclusions for training/ramp-up.
 - OneLake canonical dims used (dim_date, dim_org, security_user_org).
-- Data latency ≤24h.
+- Data latency =24h.
 
 ---
 
@@ -233,3 +252,5 @@ required_slicers: Date, Region/Channel/Queue, Agent Group/Skill (if available)
 - Overdriving utilization causing quality decline.  
 - Misclassifying shrinkage leading to wrong capacity view.  
 - Ignoring seasonality causing false alarms on utilization/occupancy.  
+
+
