@@ -119,17 +119,18 @@ Examples:
 The **only allowed coupling** between Use Cases and Action Codes is via:
 
 ```yaml
-usecases/core/<USECASE_ID>/actioncodes_map.yaml
+usecases/UseCase_ActionCode_Map.yaml
 ```
 
 Example:
 
 ```yaml
-use_case: XD-003
-action_codes:
-  - X-E3.1
-  - X-E3.2
-  - X-E3.3
+use_cases:
+  XD-003:
+    action_codes:
+      - X-E3.1
+      - X-E3.2
+      - X-E3.3
 ```
 
 Rules:

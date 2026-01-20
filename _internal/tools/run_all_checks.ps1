@@ -2,7 +2,6 @@ Param(
   [string]$UseCasesRoot   = "usecases",
   [string]$KpiCatalogRoot = "framework/kpi_catalog",
   [string]$DistRoot       = "dist",
-  [string]$StatusReportPath = "_internal/reviews/run_all_checks_status.md",
   [string]$TranscriptPath   = "_internal/reviews/run_all_checks_transcript.txt",
   [string]$ReportPath       = "_internal/reviews/run_all_checks_report.md"
 )
@@ -38,11 +37,7 @@ if (Test-Path $coreRoot) {
   $factsheetsRoot = $coreRoot
 }
 
-$statusPath = Resolve-RepoPath -ProvidedPath $StatusReportPath -DefaultRelative $StatusReportPath
-if (-not $statusPath) {
-  $statusPath = Join-Path -Path $repoRoot -ChildPath $StatusReportPath
-}
-$reportDir = Split-Path -Parent $statusPath
+$reportDir = Split-Path -Parent (Join-Path -Path $repoRoot -ChildPath $ReportPath)
 if ($reportDir -and -not (Test-Path $reportDir)) {
   New-Item -ItemType Directory -Path $reportDir -Force | Out-Null
 }
@@ -172,31 +167,44 @@ Invoke-LocalScript -RelativePath "_internal/tools/validation/check_factsheet_act
   "-ActionCodesRoot", (Join-Path $repoRoot "framework\action_codes")
 )
 
-# 12) Factsheet layout vs templates
+# 12) UseCase ActionCode map consistency
+Invoke-LocalScript -RelativePath "_internal/tools/validation/check_usecase_actioncode_map.ps1" -Arguments @(
+  "-UseCasesRoot", $useCasesRoot,
+  "-MapPath", (Join-Path $repoRoot "usecases\UseCase_ActionCode_Map.yaml"),
+  "-ActionCodesRoot", (Join-Path $repoRoot "framework\action_codes")
+)
+
+# 13) Factsheet action_codes vs UseCase map
+Invoke-LocalScript -RelativePath "_internal/tools/validation/check_factsheet_actioncode_map.ps1" -Arguments @(
+  "-UseCasesRoot", $useCasesRoot,
+  "-MapPath", (Join-Path $repoRoot "usecases\UseCase_ActionCode_Map.yaml")
+)
+
+# 14) Factsheet layout vs templates
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_factsheet_layout.ps1" -Arguments @(
   "-UseCasesRoot", $factsheetsRoot,
   "-BusinessTemplate", (Join-Path $repoRoot "usecases\templates\usecase_factsheet_business.md"),
   "-TechnicalTemplate", (Join-Path $repoRoot "usecases\templates\usecase_factsheet_technical.md")
 )
 
-# 13) KPI catalog vs Measure Dictionaries
+# 15) KPI catalog vs Measure Dictionaries
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_kpi_vs_measure_dictionary.ps1" -Arguments @{
   KpiCatalogRoot = $kpiCatalogRoot
   MeasureDictRoot = (Join-Path $repoRoot "semantic_models\domains")
 }
 
-# 14) DAX definitions vs Measure Dictionaries
+# 16) DAX definitions vs Measure Dictionaries
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_dax_vs_measure_dictionary.ps1" -Arguments @(
   "-UseCasesRoot", $factsheetsRoot
 )
 
-# 15) Measure Dictionaries vs Gold contracts
+# 17) Measure Dictionaries vs Gold contracts
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_measure_dictionary_vs_gold.ps1" -Arguments @{
   MeasureDictRoot = (Join-Path $repoRoot "semantic_models\domains")
   GoldRoot = (Join-Path $repoRoot "data_contracts\domains")
 }
 
-# 16) TMDL vs Measure Dictionaries (optional if TMDL exists)
+# 18) TMDL vs Measure Dictionaries (optional if TMDL exists)
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1" -Arguments @{
   MeasureDictRoot = (Join-Path $repoRoot "semantic_models\domains")
   DistRoot = $distRoot
@@ -206,34 +214,6 @@ Stop-Transcript | Out-Null
 
 $totalChecks = $script:checkResults.Count
 $failedChecks = ($script:checkResults | Where-Object { $_.status -ne "ok" }).Count
-$reportLines = @()
-$reportLines += "# Run All Checks Status"
-$reportLines += ""
-$reportLines += "- Timestamp: $(Get-Date -Format 's')"
-$reportLines += "- Repo: $repoRoot"
-$reportLines += "- UseCasesRoot: $useCasesRoot"
-$reportLines += "- FactsheetsRoot: $factsheetsRoot"
-$reportLines += "- KpiCatalogRoot: $kpiCatalogRoot"
-$reportLines += "- DistRoot: $distRoot"
-$reportLines += "- Transcript: $transcriptPath"
-$reportLines += ""
-$reportLines += "## Summary"
-$reportLines += ""
-$reportLines += "- Total checks: $totalChecks"
-$reportLines += "- Failed checks: $failedChecks"
-$reportLines += ""
-$reportLines += "## Checks"
-$reportLines += ""
-$reportLines += "| Check | Status | Duration (s) | Arguments | Error |"
-$reportLines += "| --- | --- | ---: | --- | --- |"
-foreach ($result in $script:checkResults) {
-  $errorCell = $result.error
-  if (-not $errorCell) { $errorCell = "" }
-  $reportLines += "| $($result.check) | $($result.status) | $($result.duration_sec) | $($result.arguments) | $errorCell |"
-}
-
-Set-Content -Path $statusPath -Value $reportLines -Encoding UTF8
-
 $consolidatedPath = Resolve-RepoPath -ProvidedPath $ReportPath -DefaultRelative $ReportPath
 if (-not $consolidatedPath) {
   $consolidatedPath = Join-Path -Path $repoRoot -ChildPath $ReportPath
@@ -270,7 +250,6 @@ $consolidated += "- UseCasesRoot: $useCasesRoot"
 $consolidated += "- FactsheetsRoot: $factsheetsRoot"
 $consolidated += "- KpiCatalogRoot: $kpiCatalogRoot"
 $consolidated += "- DistRoot: $distRoot"
-$consolidated += "- Status Report: $statusPath"
 $consolidated += "- Transcript: $transcriptPath"
 $consolidated += ""
 $consolidated += "## Summary"
@@ -308,5 +287,4 @@ foreach ($result in $script:checkResults) {
 Set-Content -Path $consolidatedPath -Value $consolidated -Encoding UTF8
 
 Write-Host "All checks invoked. Review messages above for warnings or errors." -ForegroundColor Green
-Write-Host "Status report written to: $statusPath" -ForegroundColor DarkGray
-Write-Host "Consolidated report written to: $consolidatedPath" -ForegroundColor DarkGray
+Write-Host "Report written to: $consolidatedPath" -ForegroundColor DarkGray

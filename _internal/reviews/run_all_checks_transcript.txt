@@ -1,12 +1,12 @@
 ﻿**********************
 nStart der Windows PowerShell-Aufzeichnung
-Startzeit: 20260115200209
+Startzeit: 20260120113716
 Benutzername: NAGARRO\florianhaferkorn
 RunAs-Benutzer: NAGARRO\florianhaferkorn
 Konfigurationsname: 
 Computer: NES-NBBSTPQ04 (Microsoft Windows NT 10.0.26100.0)
 Hostanwendung: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\_internal\tools\run_all_checks.ps1
-Prozess-ID: 4796
+Prozess-ID: 27736
 PSVersion: 5.1.26100.7462
 PSEdition: Desktop
 PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.7462
@@ -219,10 +219,7 @@ OK: all checked documents match their template layout.
 
 >> _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains
 KPI Catalog <-> Measure Dictionary consistency
-Missing in KPI catalogs (present in Measure Dictionaries):
-  - fin.liquidity.inventory.amount
-  - fin.liquidity.payables.amount
-  - ops.planned.hours
+OK: KPI IDs are consistent.
 
 >> _internal/tools/validation/check_dax_vs_measure_dictionary.ps1
 DAX definitions vs Measure Dictionaries
@@ -237,5 +234,5 @@ No _Measures.tmdl files found under dist. Skipping TMDL check.
 
 **********************
 Ende der Windows PowerShell-Aufzeichnung
-Endzeit: 20260115200220
+Endzeit: 20260120113725
 **********************

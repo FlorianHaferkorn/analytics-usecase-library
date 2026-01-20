@@ -57,7 +57,7 @@ Every analytical product is aligned with strategic intent.
 
 Alignment follows a consistent causal structure:
 
-Strategic KPI → Business Driver → Use Case → Action Code → Expected Impact
+Strategic KPI -> Business Driver -> Use Case -> Action Code -> Expected Impact
 
 Each use case references at least one strategic KPI.
 Expected impact is stated explicitly to support prioritization and evaluation.

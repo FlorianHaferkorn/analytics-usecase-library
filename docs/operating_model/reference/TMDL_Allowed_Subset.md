@@ -13,11 +13,11 @@ Scope: Applies to all semantic models in this repo (PBIP layout). Desktop is pre
 - **RLS/OLS only on dimensions**; never on facts.
 - **Measures > calculated columns**; role-playing date dimensions allowed.
 - **Naming/format (US spelling, EU number format)**:
-  - Currency → suffix `Amount` (format `€ #,0.00`, default summarization **Sum**).
-  - Quantity → suffix `Qty` (integer, **Sum**).
-  - Counts → suffix `Count` / `Distinct Count` (integer, **Sum** / **DistinctCount**).
-  - Percent/rates → suffix `%` or `Rate` (format `0.0 %`, default summarization **None**).
-  - Time variants → suffixes `YTD`, `MTD`, `QTD`, `YoY`, `MoM`.
+  - Currency -> suffix `Amount` (format `EUR #,0.00`, default summarization **Sum**).
+  - Quantity -> suffix `Qty` (integer, **Sum**).
+  - Counts -> suffix `Count` / `Distinct Count` (integer, **Sum** / **DistinctCount**).
+  - Percent/rates -> suffix `%` or `Rate` (format `0.0 %`, default summarization **None**).
+  - Time variants -> suffixes `YTD`, `MTD`, `QTD`, `YoY`, `MoM`.
 - **Technical columns hidden** (`isHidden: true`), default summarization set explicitly.
 - DAX does **not** support the assignment operator `:=` (use `=`).
 
@@ -29,13 +29,13 @@ Allowed `dataType` values and their defaults (PBIP/TMDL):
 
 | dataType   | Use case                            | Default summarization | Format (if applicable) |
 |------------|-------------------------------------|-----------------------|------------------------|
-| `int64`    | surrogate keys, counts, qty         | Sum (except keys)     | —                      |
-| `double`   | amounts, ratios (when needed)       | Sum (amounts)         | `€ #,0.00` or `0.0 %`  |
-| `decimal`  | amounts with fixed precision        | Sum                   | `€ #,0.00`             |
-| `string`   | labels, codes                       | None                  | —                      |
+| `int64`    | surrogate keys, counts, qty         | Sum (except keys)     | -                      |
+| `double`   | amounts, ratios (when needed)       | Sum (amounts)         | `EUR #,0.00` or `0.0 %`  |
+| `decimal`  | amounts with fixed precision        | Sum                   | `EUR #,0.00`             |
+| `string`   | labels, codes                       | None                  | -                      |
 | `date`     | calendar date                       | None                  | dd.MM.yyyy             |
 | `datetime` | timestamps                          | None                  | dd.MM.yyyy HH:mm       |
-| `boolean`  | flags                               | None                  | —                      |
+| `boolean`  | flags                               | None                  | -                      |
 
 Rules:
 
@@ -76,14 +76,14 @@ Constraint:
 
 - `description: string` (**mandatory by policy**)
 - `isHidden: boolean`
-- `partitions: Partition[]` (see Â§7)
+- `partitions: Partition[]` (see 7)
 - `measures: []` (prefer separate files under `/measures/...`)
 
 Policies:
 
 - Dimension keys are numeric (`int64`) surrogate keys; business keys may be stored as `string`.
 - Technical keys (`*Key`, `*_id`) are `isHidden: true`.
-- Table description must include: Purpose Â· Grain & Scope Â· Lineage Â· QA note.
+- Table description must include: Purpose - Grain & Scope - Lineage - QA note.
 
 Example (excerpt):
 
@@ -121,7 +121,7 @@ Example (excerpt):
 Policies:
 
 - Label columns must define `sortByColumn` if natural sort is not lexical (e.g., month names).
-- Geo and currency columns must set `dataCategory` appropriately (see Â§9).
+- Geo and currency columns must set `dataCategory` appropriately (see 9).
 - Default summarization set consistently (keys = None, labels = None).
 
 ---
@@ -143,7 +143,7 @@ Policies:
 Policies:
 
 - Provide `displayFolder` and `formatString` for every measure.
-- Base measures first; derived measures (`Δ`, `%`) build on base measures.
+- Base measures first; derived measures (`Delta`, `%`) build on base measures.
 - No calculated tables for KPI engines; prefer measures.
 - Example:
 
@@ -190,8 +190,8 @@ Example (partition excerpt):
 
 Policies:
 
-- Cardinality: Many-to-One from fact→dimension.
-- Default filtering: **single** direction (dim→fact). `both` only by exception and documented.
+- Cardinality: Many-to-One from fact->dimension.
+- Default filtering: **single** direction (dim->fact). `both` only by exception and documented.
 - Inactive relationships allowed only with rationale; role-playing dates encouraged.
 
 Example:
@@ -232,7 +232,7 @@ Columns typically **no** folders; hide technical columns.
 
 ## 11) Format Strings & Locale
 
-- Currency: `€ #,0.00` (EU punctuation; use project theme locale for visuals).
+- Currency: `EUR #,0.00` (EU punctuation; use project theme locale for visuals).
 - Percent: `0.0 %` (always explicit).
 - Integers: `#,0` (no decimals).
 - Dates: `dd.MM.yyyy` as display (storage remains date/datetime).
@@ -241,13 +241,13 @@ Columns typically **no** folders; hide technical columns.
 
 ## 12) Sort-By-Column Policy (examples)
 
-- Month label (`MMM` or localized name) → `sortByColumn: MonthNumber`.
-- Product name → `sortByColumn: SortOrder` when required.
+- Month label (`MMM` or localized name) -> `sortByColumn: MonthNumber`.
+- Product name -> `sortByColumn: SortOrder` when required.
 - Any non-lexical label must declare its sorter column (hidden).
 
 ---
 
-## 13) Descriptions — Required Template
+## 13) Descriptions - Required Template
 
 For every Table/Column/Measure, descriptions must follow this mini-template (one paragraph):
 
@@ -318,9 +318,9 @@ Example (measure description inside JSON as string):
 {
   "name": "Net Sales Amount",
   "expression": "SUM ( fact_sales[Net Sales Amount] )",
-  "formatString": "€ #,0.00",
+  "formatString": "EUR #,0.00",
   "displayFolder": "01_Sales",
-  "description": "Purpose: net sales in reporting currency. Definition: sum of fact_sales[Net Sales Amount]; excludes returns if already net. Grain: invoice line aggregated. Unit: currency. Lineage: fact_sales. QA: reconciles to P&L within ±0.1%."
+  "description": "Purpose: net sales in reporting currency. Definition: sum of fact_sales[Net Sales Amount]; excludes returns if already net. Grain: invoice line aggregated. Unit: currency. Lineage: fact_sales. QA: reconciles to P&L within +/-0.1%."
 }
 ```
 
@@ -338,3 +338,4 @@ Example (measure description inside JSON as string):
 ---
 
 **End of Allowed Subset**
+

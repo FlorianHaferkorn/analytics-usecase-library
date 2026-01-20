@@ -1,4 +1,4 @@
-# Golden Thread – From Strategy to Action
+﻿# Golden Thread EUR" From Strategy to Action
 
 Most analytics landscapes implicitly assume a connection between strategy, KPIs, insights, and actions.
 
@@ -11,7 +11,7 @@ In practice, this connection is rarely explicit or stable:
 
 The Golden Thread exists to address this problem.
 
-It describes a **closed, causal system** that connects business strategy with decisions, actions, and measurable impact — in a way that remains **operable, maintainable, and scalable over time**.
+It describes a **closed, causal system** that connects business strategy with decisions, actions, and measurable impact EUR" in a way that remains **operable, maintainable, and scalable over time**.
 
 The Golden Thread is not a sequence of tools or documents.  
 It defines:
@@ -46,7 +46,7 @@ Without a clear strategic anchor:
 Example:
 
 A business strategy may state:
-> “We want to improve profitability by increasing margin quality rather than maximizing revenue growth.”
+> EURoeWe want to improve profitability by increasing margin quality rather than maximizing revenue growth.EUR
 
 This is not a reporting strategy.
 It does not define dashboards, charts, or tools.
@@ -64,7 +64,7 @@ Reference:
 
 - docs/company/company_strategy.md
 
-## 2. Strategic KPIs → Key Questions
+## 2. Strategic KPIs ->' Key Questions
 
 Strategic KPIs act as **steering signals**.
 
@@ -97,7 +97,7 @@ Reference:
 
 - docs/company/reporting_principles.md
 
-## 3. Key Questions → Use Cases (WHAT)
+## 3. Key Questions ->' Use Cases (WHAT)
 
 Key Questions describe where clarity is required.
 They do not yet define how decisions are made or which actions are possible.
@@ -142,7 +142,7 @@ Reference:
 - usecases/UseCase_Inventory.md
 - usecases/core/
 
-## 4. Use Cases → Semantic Model (HOW)
+## 4. Use Cases ->' Semantic Model (HOW)
 
 Use Cases define **what decisions must be supported** and which information is required to take them.
 To make these decisions reliable and repeatable, their logic must be executed consistently.
@@ -180,15 +180,15 @@ The outcome of this step is a **stable semantic execution layer** that can be co
 Reference:
 
 - docs/operating_model/semantic_layer.md
-- docs/operating_model/ActionReady_SemanticModel_Blueprint.md
+- docs/operating_model/reference/ActionReady_SemanticModel_Blueprint.md
 
-## 5. Semantic Model → Measures & KPIs
+## 5. Semantic Model ->' Measures & KPIs
 
 KPIs are defined conceptually in the **KPI Catalog**.
 They express business meaning, ownership, and intent.
 
 To be usable in analytics, KPIs must be implemented as **Measures** within the Semantic Model.
-These measures are the executable representation of KPI definitions — not their source.
+These measures are the executable representation of KPI definitions EUR" not their source.
 
 The Semantic Model provides the structural context for measures.
 However, structure alone is not sufficient to keep KPI logic stable over time.
@@ -229,16 +229,16 @@ Reference:
 
 - framework/kpi_catalog/
 - docs/operating_model/measure_system.md
-- docs/operating_model/single_source_of_truth.md
+- docs/operating_model/reference/single_source_of_truth.md
 
-## 6. Measures → Reports (3–30–300)
+## 6. Measures ->' Reports (3EUR"30EUR"300)
 
 Measures implemented in the Semantic Model become actionable only when they are consumed in a way that supports decision-making.
 
 Reports are therefore not the end result of analytics.
 They are the **primary interface** between governed semantics and human decisions.
 
-To ensure consistent orientation and avoid information overload, the framework applies the **3–30–300 principle**:
+To ensure consistent orientation and avoid information overload, the framework applies the **3EUR"30EUR"300 principle**:
 
 - **3 seconds**: strategic overview  
   A small number of key KPIs provides immediate orientation on whether steering is required.
@@ -270,7 +270,7 @@ Reference:
 - framework/templates/page_templates/
 - docs/operating_model/ux_design_system.md
 
-## 7. Reports → Actions
+## 7. Reports ->' Actions
 
 Analytics creates value only when it leads to action.
 
@@ -297,7 +297,7 @@ By linking reports to Action Codes, the framework ensures that:
 - and a foundation is created for tracking, evaluation, and organizational learning.
 
 This creates a closed loop:
-**signal → decision → action → outcome → learning**.
+**signal ->' decision ->' action ->' outcome ->' learning**.
 
 Without explicit actions and impact tracking:
 
@@ -308,7 +308,7 @@ Without explicit actions and impact tracking:
 Reference:
 
 - framework/action_codes/
-- docs/operating_model/usecase_DoD_Core.md
+- usecases/Usecase_DoD_Core.md
 
 ## 8. Automation & AI Readiness
 
@@ -349,3 +349,4 @@ Because all artifacts are explicit and machine-readable, maintenance and extensi
 AI can support identification, reuse, and creation of artifacts within the defined structure, accelerating change without introducing new business logic.
 
 As a result, the Golden Thread remains stable, understandable, and scalable over time.
+

@@ -1,4 +1,4 @@
-# Company Strategy & Strategic Alignment
+﻿# Company Strategy & Strategic Alignment
 
 ## 1. Purpose
 
@@ -68,7 +68,7 @@ Each focus area is represented through a limited number of Strategic KPIs.
 Strategic KPIs represent the highest level of measurement in the organization.
 
 They answer the question:
-“Are we succeeding at what truly matters?”
+EURoeAre we succeeding at what truly matters?EUR
 
 Strategic KPIs are:
 
@@ -81,7 +81,7 @@ Strategic KPIs intentionally avoid operational detail.
 Analytical depth is introduced through downstream use cases.
 
 Canonical definitions are maintained in:
-`docs/company/strategic_kpis.md`
+[Section 5 - Strategic KPIs](#5-strategic-kpis)
 
 ## 6. Executive Key Questions
 
@@ -98,7 +98,7 @@ Examples include:
 - Which operational constraints limit growth?
 
 The canonical set of Key Questions is maintained in:
-`docs/company/key_questions.md`
+[Section 6 - Executive Key Questions](#6-executive-key-questions)
 
 ## 7. Strategic Alignment: Inputs to the Golden Thread
 
@@ -114,7 +114,7 @@ Alignment principles:
 - Actions are derived from use cases, not from metrics alone.
 
 Alignment is documented through the Strategic Alignment Map:
-`docs/company/strategic_alignment_map.md`
+[Section 7 - Strategic Alignment: Inputs to the Golden Thread](#7-strategic-alignment-inputs-to-the-golden-thread)
 
 ## 8. Governance & Review Cadence
 
@@ -155,3 +155,4 @@ When applied consistently, this strategy layer ensures that:
 - and actions are aligned with strategic intent.
 
 This document anchors analytics in business strategy without constraining analytical evolution.
+

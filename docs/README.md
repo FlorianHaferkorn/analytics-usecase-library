@@ -1,4 +1,4 @@
-# ActionReady Analytics Framework – Documentation Hub
+﻿# ActionReady Analytics Framework EUR" Documentation Hub
 
 Purpose:
 Provide a single navigation entry point into the Action-Ready Analytics Framework.
@@ -19,10 +19,10 @@ ASCII map:
 ```yaml
 docs/
   company/         -> strategy, domains, KPIs, key questions
-  operating_model/ -> semantics, UX (3–30–300), governance, AI readiness
+  operating_model/ -> semantics, UX (3EUR"30EUR"300), governance, AI readiness
 
 framework/         -> templates, Action Codes, KPI catalog, glossaries
-usecases/          -> core/extended/industry factsheets (Business & Technical v1.2)
+usecases/          -> core factsheets (Business & Technical v1.2); extended/industry planned
 data_contracts/    -> domain + source contracts (OneLake-aligned)
 semantic_models/   -> core model + domain dictionaries
 showcases/         -> Aurora Group reference implementation
@@ -35,8 +35,8 @@ How customers should use:
 - Align on strategy and KPIs in `docs/company/`.
 - Adopt semantic/UX/governance standards from `docs/operating_model/`.
 - Build reports with the templates and catalogs in `framework/`.
-- Implement use cases using the Business/Technical Factsheets in `usecases/`.
-- Validate against the Aurora showcase to see “done” quality.
+- Implement use cases using the Business/Technical Factsheets in `usecases/` (core now; extended/industry planned).
+- Validate against the Aurora showcase to see EURoedoneEUR quality.
 
 How delivery teams should use:
 
@@ -44,3 +44,4 @@ How delivery teams should use:
 - Reuse templates; never fork KPI or measure definitions.
 - Keep Action Codes and layouts consistent with the canonical files.
 - Run validation tools in `_internal/tools/validation/` before delivery.
+

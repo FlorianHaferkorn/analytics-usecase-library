@@ -49,9 +49,10 @@ They enable prioritization and root-cause analysis without automating decisions.
 
 Thresholds, flags, and indicators link analytical signals to recommended actions.
 
-## 5. Action Execution Layer
+## 5. Action Execution Layer (Optional / Future)
 
 Where actions are taken, execution can be recorded explicitly.
+This layer is optional and intended for later phases once action outcome tracking is in scope.
 
 The action execution layer links analytical insight to observed outcomes.
 It enables learning, comparison, and evaluation of decision effectiveness over time.

@@ -1,4 +1,4 @@
-# Analytics Operating Model (HOW)
+﻿# Analytics Operating Model (HOW)
 
 ## 1. Purpose and Scope
 
@@ -45,7 +45,7 @@ These principles ensure that analytics remains trustworthy, scalable, and operab
 Clear ownership is required to preserve the integrity of the Golden Thread.
 
 Ownership in the Operating Model is defined per artifact type, not per organizational unit.
-Roles exist to govern meaning, quality, and evolution — not to execute technical tasks.
+Roles exist to govern meaning, quality, and evolution EUR" not to execute technical tasks.
 
 Each core artifact has an explicit owner:
 
@@ -185,3 +185,4 @@ As a result, tooling and automation strengthen the Golden Thread by making its o
 When the Operating Model is applied consistently, analytical logic remains stable as scale and complexity increase.
 
 The model enables collaboration between business and analytics, preserves semantic consistency, and supports reliable decision-making independent of tooling choices.
+

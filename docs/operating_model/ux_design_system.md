@@ -39,9 +39,9 @@ Consistency ensures recognizability across domains and products.
 Clarity supports intuitive navigation and interpretation.
 Predictability enables confident interaction without re-learning.
 
-## 4. The 3–30–300 Design Model
+## 4. The 3-30-300 Design Model
 
-The 3–30–300 model structures analytical consumption by decision horizon.
+The 3-30-300 model structures analytical consumption by decision horizon.
 
 ### 4.1. 3 Seconds
 
@@ -96,3 +96,4 @@ When applied consistently, the UX Design System ensures that:
 - and adoption remains high across users and domains.
 
 The UX Design System enables action by reducing cognitive friction, not by adding visual complexity.
+

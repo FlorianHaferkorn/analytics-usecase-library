@@ -1,4 +1,4 @@
-# Business Domains & Ownership Model
+﻿# Business Domains & Ownership Model
 
 ## 1. Purpose
 
@@ -19,7 +19,7 @@ As analytics scales, organizations typically encounter recurring challenges:
 - slow decision-making due to cross-functional ambiguity.
 
 Domains address these challenges by introducing responsibility-driven ownership units.
-They clarify who owns meaning, prioritization, and interpretation — independent of tools, data sources, or organizational structure.
+They clarify who owns meaning, prioritization, and interpretation EUR" independent of tools, data sources, or organizational structure.
 
 ## 3. Domain Design Principles
 
@@ -157,3 +157,4 @@ When domains are applied consistently:
 - analytics reflects responsibility rather than org charts.
 
 Domains provide the structural backbone for scalable, governed analytics.
+

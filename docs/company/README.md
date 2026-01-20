@@ -1,4 +1,4 @@
-# Company Layer (WHY)
+﻿# Company Layer (WHY)
 
 Purpose:
 The Company layer defines **why analytics exists** in the organization.  
@@ -58,7 +58,7 @@ Defines the **non-negotiable principles** for how reporting is designed and cons
 It explains:
 
 - Reporting as a decision instrument
-- Actionability and progressive disclosure (3–30–300)
+- Actionability and progressive disclosure (3EUR"30EUR"300)
 - Cognitive simplicity and consistency
 - User-centric design and transparency
 
@@ -101,3 +101,4 @@ This layer ensures that analytics remains:
 - Strategy-driven
 - Decision-oriented
 - Consistent across the organization
+

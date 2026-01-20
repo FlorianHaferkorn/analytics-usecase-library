@@ -1,4 +1,4 @@
-# Reporting Principles
+﻿# Reporting Principles
 
 ## 1. Purpose
 
@@ -61,9 +61,9 @@ Actionability is enabled through:
 
 A KPI without a potential action is considered incomplete.
 
-## 5. Principle: Progressive Disclosure (3–30–300)
+## 5. Principle: Progressive Disclosure (3EUR"30EUR"300)
 
-Reporting follows a structured information hierarchy known as 3–30–300.
+Reporting follows a structured information hierarchy known as 3EUR"30EUR"300.
 
 3 seconds:
 Immediate orientation through high-level status and signals.
@@ -156,3 +156,4 @@ When applied consistently, these principles ensure that reporting:
 - and feels consistent across domains and audiences.
 
 These principles define the non-negotiable decision quality of reporting.
+

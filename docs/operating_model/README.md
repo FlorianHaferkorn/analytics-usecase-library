@@ -1,4 +1,4 @@
-# Analytics Operating Model (HOW)
+﻿# Analytics Operating Model (HOW)
 
 Purpose:
 This folder defines **how analytics is designed, governed, built, and operated** to consistently translate business strategy into action-ready insights.  
@@ -12,7 +12,7 @@ It is the methodological backbone of the framework.
 - Semantic modeling principles and standards
 - Measure governance and single source of truth
 - Distribution, UX, and reporting standards
-- Operational governance (quality, ownership, SLAs)
+- Operational governance (quality, ownership)
 - Automation and AI readiness
 
 ### 2. What does NOT belong here
@@ -24,7 +24,7 @@ It is the methodological backbone of the framework.
 
 ## 3. Core Concepts
 
-### 3.1 Golden Thread – Strategy to Action
+### 3.1 Golden Thread EUR" Strategy to Action
 
 Explains how strategy, KPIs, use cases, semantic models, reports, and actions are logically connected.
 
@@ -43,9 +43,9 @@ Defines how analytical models are structured to be scalable, reusable, and actio
 Files:
 
 - `semantic_layer.md`
-- `ActionReady_SemanticModel_Blueprint.md`
-- `TMDL_Allowed_Subset.md`
-- `TMDL_Official_Refs.md`
+- `reference/ActionReady_SemanticModel_Blueprint.md`
+- `reference/TMDL_Allowed_Subset.md`
+- `reference/TMDL_Official_Refs.md`
 
 ### 3.4 Measure System & Single Source of Truth
 
@@ -54,11 +54,11 @@ Rules for defining, naming, governing, and validating measures and KPIs.
 Files:
 
 - `measure_system.md`
-- `single_source_of_truth.md`
+- `reference/single_source_of_truth.md`
 
 ### 3.5 UX & Reporting Standards
 
-Defines how insights are presented consistently using the 3–30–300 principle.
+Defines how insights are presented consistently using the 3EUR"30EUR"300 principle.
 
 File: `ux_design_system.md`
 
@@ -75,8 +75,7 @@ Defines ownership, quality gates, lifecycle management, and operational monitori
 Files:
 
 - `data_governance.md`
-- `operations_sla_monitoring.md`
-- `usecase_DoD_Core.md`
+- `usecases/Usecase_DoD_Core.md`
 
 ### 3.8 Automation & AI Readiness
 
@@ -99,9 +98,10 @@ This operating model is **platform-agnostic by design**, with platform-specific 
 
 Layer mapping:
 
-- WHY → `docs/company/`
-- HOW → `docs/operating_model/`
-- WHAT → `usecases/`
-- TEMPLATES → `framework/templates/`
+- WHY ->' `docs/company/`
+- HOW ->' `docs/operating_model/`
+- WHAT ->' `usecases/`
+- TEMPLATES ->' `framework/templates/`
 
 The operating model connects strategy with execution.
+
