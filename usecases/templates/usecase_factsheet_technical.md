@@ -1,16 +1,21 @@
+---
+id: <USE CASE ID>
+factsheet_type: technical
+---
+
 # <USE CASE ID> - <USE CASE NAME>
 
-## Technical Factsheet (v1.2)
+## Technical Factsheet
 
 ---
 
 ## 0. Metadata (Mandatory)
 
-- **Domain:** <Commercial / Finance / Ops / SCM / XD>
+- **Domain:** <Commercial / Finance / Operations / Supply Chain / XD>
 - **Technical Owner:** <Role>
-- **Model ID:** <model name>
-- **Source Systems:** <ERP / CRM / POS / DWH>
-- **Business Factsheet:** <relative path>
+- **Model ID:** <model_id>
+- **Source Systems:** <ERP / DWH / ...>
+- **Business Factsheet:** <path/to/Business_Factsheet.md>
 
 ---
 

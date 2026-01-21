@@ -5,7 +5,7 @@ factsheet_type: business
 
 # OPS-003 - Quality & Yield  
 
-## Business Factsheet (v1.2)
+## Business Factsheet
 
 ---
 
@@ -143,63 +143,79 @@ required_kpis:
 
 ---
 
-## 4. Business Logic & Thresholds
+## 4. Action Codes (Summary)
 
-Formal rules that define performance and action codes.
-
-### 4.1 Logic Description
-
-- Flag FPY below target or scrap/rework above threshold for 2 consecutive periods.
-- Escalate defect density hotspots and top COPQ contributors.
-- Flag rising complaint rate correlated with specific lines/products.
-
-### 4.2 Formal Action Code Rules (Machine-Readable)
+Structured summary of action codes (definitions remain in YAML).
 
 ```yaml
 action_codes:
 
-  - kpi: quality.fpy.pct
-    condition: <
-    threshold: line_target
-    scope: line_week
-    exclusion: ramp-up runs
-    action_code: O-Q3.1
+  - id: O-Q3.1
+    name: Quality & Yield Orchestration
+    purpose: Coordinate Quality and Yield Improvement Actions
+    status: active
+    owner: Head of Quality
+    trigger_kpis: [quality.fpy.pct, quality.scrap.pct]
+    guardrail_kpis: [ops.throughput.units]
+    outcome_kpis: [quality.fpy.pct]
+    impact_range: quality.fpy.pct: 1.0-3.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Operations\O-Q3.1.yaml
 
-  - kpi: quality.scrap.pct
-    condition: >
-    threshold: 0.02
-    scope: line_week
-    exclusion: trial_runs
-    action_code: O-Q3.1
+  - id: O-Q3.2
+    name: Process Defect Elimination
+    purpose: Eliminate Dominant Process Defects
+    status: active
+    owner: Quality Engineer
+    trigger_kpis: [quality.defect_density]
+    guardrail_kpis: [ops.availability.pct]
+    outcome_kpis: [quality.defect_density, quality.fpy.pct]
+    impact_range: quality.defect_density: -20.0--50.0 %
+    levels: L1-L3
+    definition: framework\action_codes\Operations\O-Q3.2.yaml
 
-  - kpi: quality.copq.amount
-    condition: >
-    threshold: copq_materiality
-    scope: product_family
-    exclusion: none
-    action_code: O-Q3.4
+  - id: O-Q3.3
+    name: Scrap & Rework Reduction
+    purpose: Reduce Internal Scrap and Rework Loops
+    status: active
+    owner: Production Manager
+    trigger_kpis: [quality.scrap.pct, quality.rework.pct]
+    guardrail_kpis: [quality.fpy.pct]
+    outcome_kpis: [quality.scrap.pct, quality.rework.pct]
+    impact_range: quality.scrap.pct: -0.5--2.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Operations\O-Q3.3.yaml
 
-  - kpi: quality.complaint.pct
-    condition: >
-    threshold: target
-    scope: product_family
-    exclusion: none
-    action_code: O-Q3.5
+  - id: O-Q3.4
+    name: COPQ Reduction
+    purpose: Eliminate Financially Material Quality Losses
+    status: active
+    owner: Head of Quality
+    trigger_kpis: [quality.copq.amount]
+    guardrail_kpis: [quality.fpy.pct]
+    outcome_kpis: [quality.copq.amount]
+    impact_range: quality.copq.amount: -10.0--30.0 %
+    levels: L1-L3
+    definition: framework\action_codes\Operations\O-Q3.4.yaml
+
+  - id: O-Q3.5
+    name: Complaint-Driven Stabilisation
+    purpose: Stabilise Processes Driving Customer Complaints
+    status: active
+    owner: Quality Manager
+    trigger_kpis: [quality.complaint.pct]
+    guardrail_kpis: [quality.fpy.pct]
+    outcome_kpis: [quality.complaint.pct]
+    impact_range: quality.complaint.pct: -20.0--50.0 %
+    levels: L1-L3
+    definition: framework\action_codes\Operations\O-Q3.5.yaml
 ```
 
 ---
 
-## 5. Action Codes (Mandatory)
+## 5. 3-30-300 Page Layout (Mandatory)
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| O-Q3.1 | Quality & Yield Orchestration | quality.fpy.pct < line_target; quality.scrap.pct > 0.02 | Select dominant quality lever (defects, scrap, rework, COPQ, complaints); Sequence quality actions to avoid parallel disruption | quality.fpy.pct +1.0-3.0 pp (1-3 periods) | L1 | Quality / Operations Leadership |
-| O-Q3.4 | COPQ Reduction | quality.copq.amount > copq_materiality | Prioritise quality actions by financial impact; Redirect quality effort to top COPQ drivers | Impact: High | L2 | Quality / Finance |
-| O-Q3.5 | Complaint-Driven Stabilisation | quality.complaint.pct > target | Prioritise process stabilisation based on customer complaint signals; Prevent recurrence of externally visible quality defects | Impact: High | L2 | Quality / Operations Excellence |
-
-## 6. 3-30-300 Page Layout (Mandatory)
-
-### 6.1 3-Second Layer (KPI Cards)
+### 5.1 3-Second Layer (KPI Cards)
 
 - First Pass Yield %  
 - Scrap Rate %  
@@ -207,7 +223,7 @@ action_codes:
 - COPQ (EUR)  
 - Complaint Rate %  
 
-### 6.2 30-Second Layer (Main Visuals)
+### 5.2 30-Second Layer (Main Visuals)
 
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
@@ -216,7 +232,7 @@ action_codes:
 | COPQ by Cause/Product | Bar (horizontal) | fact_quality_costs[Cause/Product] | [COPQ] | Line/Plant | Last quarter | Pareto |
 | Complaint Rate vs FPY | Scatter | [FPY %] | [Complaint %] | Product Family | Current quarter | Field impact |
 
-### 6.3 Required Slicers (Mandatory)
+### 5.3 Required Slicers (Mandatory)
 
 - Date (Week/Month)  
 - Plant / Line / Shift  
@@ -225,11 +241,11 @@ action_codes:
 
 ---
 
-### 6.4 300-Second Layer (Diagnostics)
+### 5.4 300-Second Layer (Diagnostics)
 
 - (optional)
 
-## 7. Data Requirements Summary
+## 6. Data Requirements Summary
 
 ```yaml
 required_facts:
@@ -257,7 +273,7 @@ required_slicers: Date, Plant/Line/Shift, Product, Defect Type
 
 ---
 
-## 8. Dependencies, Assumptions & Constraints
+## 7. Dependencies, Assumptions & Constraints
 
 - Defect and cause coding available; scrap/rework measured at line/product level.
 - Complaint data linked to product and period; shipments available.
@@ -266,7 +282,7 @@ required_slicers: Date, Plant/Line/Shift, Product, Defect Type
 
 ---
 
-## 9. Success Criteria
+## 8. Success Criteria
 
 - Impact: FPY improves to targets; scrap/rework reduced; COPQ reduced; complaint rate lowered.  
 - Adoption: Used in weekly quality/ops reviews; action codes triggered with <5% false positives.  
@@ -275,10 +291,11 @@ required_slicers: Date, Plant/Line/Shift, Product, Defect Type
 
 ---
 
-## 10. Risks & Wrong Interpretations (Short)
+## 9. Risks & Wrong Interpretations (Short)
 
 - Misattributing scrap to wrong cause/product due to coding gaps.  
 - Understating complaint rate if shipment linkage is weak.  
 - Overreacting to short-term FPY dips without considering planned trials.  
+
 
 

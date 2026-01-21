@@ -5,7 +5,7 @@ factsheet_type: technical
 
 # SCM-002 - Supply Reliability & OTIF  
 
-## Technical Factsheet (v1.2)
+## Technical Factsheet
 
 ---
 
@@ -330,4 +330,5 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 

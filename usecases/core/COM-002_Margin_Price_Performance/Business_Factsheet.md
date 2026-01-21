@@ -5,7 +5,7 @@ factsheet_type: business
 
 # COM-002 - Margin & Price Performance  
 
-## Business Factsheet (v1.2)
+## Business Factsheet
 
 ---
 
@@ -128,63 +128,55 @@ required_kpis:
 
 ---
 
-## 4. Business Logic & Thresholds
+## 4. Action Codes (Summary)
 
-### 4.1 Logic Description
-
-### 4.2 Formal Action Code Rules (Machine-Readable)
-
-- Flag if Price Realization % < 95% with GM % < 25%.
-- Flag if Mix Effect Amount < 0 in top 5 regions/channels.
-- Escalate if GM % vs Plan < 0 for 2 consecutive months.
-- Highlight if COGS per Unit rising >2% vs Plan for top SKUs.
+Structured summary of action codes (definitions remain in YAML).
 
 ```yaml
 action_codes:
 
-  - kpi: sales.price.realization_pct
-    condition: below_target
-    threshold: 0.95
-    scope: region_channel
-    exclusion: low-volume SKUs
-    action_code: C-M2.1
+  - id: C-M2.2
+    name: Mix Optimization (Margin-Driven)
+    purpose: Improve Margin via Sales Mix Quality
+    status: active
+    owner: Category Manager
+    trigger_kpis: [sales.pvm.mix_effect.amount]
+    guardrail_kpis: [margin.gm.pct]
+    outcome_kpis: [margin.gm.pct, sales.pvm.mix_effect.amount]
+    impact_range: margin.gm.pct: 0.3-1.2 pp
+    levels: L1-L3
+    definition: framework\action_codes\Commercial\C-M2.2.yaml
 
-  - kpi: sales.pvm.mix_effect.amount
-    condition: negative
-    threshold: 0
-    scope: top5_regions_channels
-    exclusion: none
-    action_code: C-M2.2
+  - id: C-P4.1
+    name: Promo Calendar Discipline
+    purpose: Eliminate Structurally Unprofitable Promotions
+    status: active
+    owner: Trade Marketing Lead
+    trigger_kpis: [sales.promo.roi.pct]
+    guardrail_kpis: [margin.promo.gm.pct]
+    outcome_kpis: [sales.promo.roi.pct, margin.promo.gm.pct]
+    impact_range: sales.promo.roi.pct: 5.0-20.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Commercial\C-P4.1.yaml
 
-  - kpi: margin.gm.vs_plan.pct
-    condition: below_target
-    threshold: 0
-    scope: last_2_months
-    exclusion: none
-    action_code: C-M2.4
-
-  - kpi: cost.cogs_per_unit.amount
-    condition: above_threshold
-    threshold: 0.02   # +2% vs plan/LY
-    scope: top_skus
-    exclusion: new launches
-    action_code: C-M2.3
+  - id: C-S1.2
+    name: Sales Gap Recovery via Price & Pack Adjustment
+    purpose: Close Plan Gaps Without Margin Erosion
+    status: active
+    owner: Sales Director
+    trigger_kpis: [sales.net_sales.delta_pct.plan]
+    guardrail_kpis: [margin.gm.pct]
+    outcome_kpis: [sales.net_sales.amount]
+    impact_range: sales.net_sales.amount: 1.0-3.0 %
+    levels: L1-L3
+    definition: framework\action_codes\Commercial\C-S1.2.yaml
 ```
 
 ---
 
-## 5. Action Codes (Mandatory)
+## 5. 3-30-300 Page Layout (Mandatory)
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| C-M2.1 | Price Realization Guardrails | sales.price.realization_pct below_target 0.95 | Enforce discount floors; Require approvals for price exceptions | sales.price.realization_pct +1.0-3.0 pp (1-2 periods) | L1 | Commercial |
-| C-M2.2 | Mix Optimization (Margin-Driven) | sales.pvm.mix_effect.amount negative 0 | Shift sales focus toward higher-margin SKUs and regions; Deprioritize structurally margin-dilutive mix components | margin.gm.pct +0.3-1.2 pp (1-3 periods) | L2 | Commercial |
-| C-M2.3 | Unit Cost Leakage Correction | cost.cogs_per_unit.amount above_threshold | Initiate supplier renegotiation or sourcing actions; Correct production or logistics cost deviations | cost.cogs_per_unit.amount +1.0-4.0 % (2-6 periods) | L2 | Operations / Procurement |
-| C-M2.4 | Promotion Margin Discipline | margin.gm.vs_plan.pct below_target 0 | De-prioritize or stop margin-dilutive promotions; Resequence or downscale promotion calendar | margin.gm.pct +0.2-0.8 pp (1-2 periods) | L1 | Commercial / Trade Marketing |
-
-## 6. 3-30-300 Page Layout (Mandatory)
-
-### 6.1 3-Second Layer (KPI Cards)
+### 5.1 3-Second Layer (KPI Cards)
 
 - Gross Margin %  
 - Gross Margin Amount  
@@ -192,7 +184,7 @@ action_codes:
 - Mix Effect Amount  
 - COGS per Unit  
 
-### 6.2 30-Second Layer (Main Visuals)
+### 5.2 30-Second Layer (Main Visuals)
 
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
@@ -201,14 +193,14 @@ action_codes:
 | Mix Effect Bridge | Waterfall | Driver (Mix) | Mix Effect Amount | Region/Channel | Current period | PVM mix focus |
 | COGS per Unit vs Plan | Column | dim_product[Category] | COGS per Unit, Plan COGS per Unit | Region | Current quarter | Watch unit cost drift |
 
-### 6.3 Required Slicers (Mandatory)
+### 5.3 Required Slicers (Mandatory)
 
 - Date (Month/Quarter)  
 - Region / Country / Channel  
 - Product Category / Subcategory  
 - Customer (optional)
 
-### 6.4 300-Second Layer (Diagnostics)
+### 5.4 300-Second Layer (Diagnostics)
 
 - Price realization ladder (List -> Net) with discount/rebate/surcharge.
 - Mix decomposition by Region/Channel/Product.
@@ -216,7 +208,7 @@ action_codes:
 
 ---
 
-## 7. Data Requirements Summary
+## 6. Data Requirements Summary
 
 ```yaml
 required_facts:
@@ -238,7 +230,7 @@ required_slicers: Date, Region/Country/Channel, Product Category/Subcategory
 
 ---
 
-## 8. Dependencies, Assumptions & Constraints
+## 7. Dependencies, Assumptions & Constraints
 
 - Plan and LY snapshots frozen monthly; currency aligned.
 - Pricing elements (list price, discounts, rebates, surcharges) must be complete for realization.
@@ -247,7 +239,7 @@ required_slicers: Date, Region/Country/Channel, Product Category/Subcategory
 
 ---
 
-## 9. Success Criteria
+## 8. Success Criteria
 
 - Impact: +0.5-1.5 pp GM % improvement in targeted channels/SKUs; price realization uplift to =95%.  
 - Adoption: Used in monthly pricing reviews; action codes triggered with <5% false positives.  
@@ -256,11 +248,12 @@ required_slicers: Date, Region/Country/Channel, Product Category/Subcategory
 
 ---
 
-## 10. Risks & Wrong Interpretations (Short)
+## 9. Risks & Wrong Interpretations (Short)
 
 - Misstating realization if promo flags are missing (see COM-004).  
 - Misattributing mix when hierarchy changes mid-period.  
 - Ignoring cost timing effects (e.g., accruals) when reading COGS/unit trends.
 
 ---
+
 

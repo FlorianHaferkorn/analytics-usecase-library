@@ -5,7 +5,7 @@ factsheet_type: business
 
 # SCM-001 - Inventory Performance  
 
-## Business Factsheet (v1.2)
+## Business Factsheet
 
 ---
 
@@ -133,63 +133,79 @@ required_kpis:
 
 ---
 
-## 4. Business Logic & Thresholds
+## 4. Action Codes (Summary)
 
-Formal rules that define performance and action codes.
-
-### 4.1 Logic Description
-
-- Flag locations/categories with DIO above target and OTIF/stockout below target.
-- Highlight obsolete inventory % above threshold.
-- Flag forecast accuracy below target for items with excess or stockouts.
-
-### 4.2 Formal Action Code Rules (Machine-Readable)
+Structured summary of action codes (definitions remain in YAML).
 
 ```yaml
 action_codes:
 
-  - kpi: inv.dio.days
-    condition: >
-    threshold: dio_target
-    scope: location_category
-    exclusion: new_items
-    action_code: S-I1.1
+  - id: S-I1.1
+    name: Inventory Orchestration
+    purpose: Coordinate Inventory Levers Without Service Degradation
+    status: active
+    owner: Head of Supply Chain
+    trigger_kpis: [inv.dio.days, inv.stockout.pct]
+    guardrail_kpis: [supply.otif.pct]
+    outcome_kpis: [inv.dio.days]
+    impact_range: inv.dio.days: -5.0--15.0 days
+    levels: L1-L3
+    definition: framework\action_codes\SupplyChain\S-I1.1.yaml
 
-  - kpi: inv.stockout.pct
-    condition: >
-    threshold: stockout_target
-    scope: location_category
-    exclusion: force_majeure
-    action_code: S-I1.1
+  - id: S-I1.2
+    name: Inventory Rightsizing
+    purpose: Reduce Excess Inventory While Protecting Service
+    status: active
+    owner: Inventory Manager
+    trigger_kpis: [inv.dio.days]
+    guardrail_kpis: [inv.stockout.pct, supply.otif.pct]
+    outcome_kpis: [inv.dio.days, inv.turnover]
+    impact_range: inv.dio.days: -10.0--30.0 days
+    levels: L1-L3
+    definition: framework\action_codes\SupplyChain\S-I1.2.yaml
 
-  - kpi: inv.obsolete.pct
-    condition: >
-    threshold: obsolete_target
-    scope: location_category
-    exclusion: end_of_life_planned
-    action_code: S-I1.4
+  - id: S-I1.3
+    name: Stockout Prevention
+    purpose: Prevent Stockouts and Protect OTIF
+    status: active
+    owner: Supply Planner
+    trigger_kpis: [inv.stockout.pct]
+    guardrail_kpis: [inv.dio.days]
+    outcome_kpis: [inv.stockout.pct, supply.otif.pct]
+    impact_range: inv.stockout.pct: -1.0--5.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\SupplyChain\S-I1.3.yaml
 
-  - kpi: plan.forecast.accuracy.pct
-    condition: <
-    threshold: forecast_target
-    scope: top_variance_skus
-    exclusion: launch_items
-    action_code: S-I1.5
+  - id: S-I1.4
+    name: Obsolescence & Excess Reduction
+    purpose: Prevent and Reduce Obsolete and Excess Stock
+    status: active
+    owner: Inventory Controller
+    trigger_kpis: [inv.obsolete.pct]
+    guardrail_kpis: [inv.stockout.pct]
+    outcome_kpis: [inv.obsolete.pct, inv.dio.days]
+    impact_range: inv.obsolete.pct: -2.0--8.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\SupplyChain\S-I1.4.yaml
+
+  - id: S-I1.5
+    name: Forecast & Planning Stabilisation
+    purpose: Stabilise Planning Processes Driving Inventory Imbalance
+    status: active
+    owner: Head of Demand Planning
+    trigger_kpis: [plan.forecast.accuracy.pct]
+    guardrail_kpis: [inv.dio.days]
+    outcome_kpis: [plan.forecast.accuracy.pct]
+    impact_range: plan.forecast.accuracy.pct: 5.0-15.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\SupplyChain\S-I1.5.yaml
 ```
 
 ---
 
-## 5. Action Codes (Mandatory)
+## 5. 3-30-300 Page Layout (Mandatory)
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| S-I1.1 | Inventory Orchestration | inv.dio.days > dio_target; inv.stockout.pct > stockout_target | Select dominant inventory lever per SKU/location (rightsizing, stockout prevention, obsolescence, planning); Sequence inventory actions to avoid capital vs service conflicts | Impact: High | L1 | Supply Chain Leadership |
-| S-I1.4 | Obsolescence & Excess Reduction | inv.obsolete.pct > obsolete_target | Identify and liquidate obsolete or slow-moving inventory; Block replenishment of structurally obsolete SKUs | Impact: Medium | L2 | Inventory Management / Finance |
-| S-I1.5 | Forecast & Planning Stabilisation | plan.forecast.accuracy.pct < forecast_target | Stabilise planning parameters and governance where forecast error drives inventory imbalance; Escalate structurally unstable demand-planning processes | plan.forecast.accuracy.pct +5.0-15.0 pp (2-6 periods) | L2 | Demand Planning / S&OP |
-
-## 6. 3-30-300 Page Layout (Mandatory)
-
-### 6.1 3-Second Layer (KPI Cards)
+### 5.1 3-Second Layer (KPI Cards)
 
 - DIO (days)  
 - Inventory Turnover (x)  
@@ -197,7 +213,7 @@ action_codes:
 - OTIF %  
 - Obsolete Inventory %  
 
-### 6.2 30-Second Layer (Main Visuals)
+### 5.2 30-Second Layer (Main Visuals)
 
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
@@ -206,7 +222,7 @@ action_codes:
 | Obsolete Inventory by Category | Bar (horizontal) | dim_product[Category] | [Obsolete %] | Location | Current quarter | Excess risk |
 | Forecast Accuracy vs DIO | Scatter | [Forecast Accuracy %] | [DIO] | Category | Current quarter | Planning impact |
 
-### 6.3 Required Slicers (Mandatory)
+### 5.3 Required Slicers (Mandatory)
 
 - Date (Week/Month)  
 - Location / DC / Channel  
@@ -215,11 +231,11 @@ action_codes:
 
 ---
 
-### 6.4 300-Second Layer (Diagnostics)
+### 5.4 300-Second Layer (Diagnostics)
 
 - (optional)
 
-## 7. Data Requirements Summary
+## 6. Data Requirements Summary
 
 ```yaml
 required_facts:
@@ -249,7 +265,7 @@ required_slicers: Date, Location/DC/Channel, Category/Product, ABC/XYZ
 
 ---
 
-## 8. Dependencies, Assumptions & Constraints
+## 7. Dependencies, Assumptions & Constraints
 
 - COGS/actuals available to compute DIO/turnover; inventory snapshots consistent.
 - Stockout and OTIF flags available; forecast and actual aligned by SKU/location/time.
@@ -258,7 +274,7 @@ required_slicers: Date, Location/DC/Channel, Category/Product, ABC/XYZ
 
 ---
 
-## 9. Success Criteria
+## 8. Success Criteria
 
 - Impact: Lower DIO/raise turnover to targets; reduce stockouts and OTIF misses; reduce obsolete %.  
 - Adoption: Used in monthly S&OP/inventory reviews; action codes triggered with <5% false positives.  
@@ -267,11 +283,12 @@ required_slicers: Date, Location/DC/Channel, Category/Product, ABC/XYZ
 
 ---
 
-## 10. Risks & Wrong Interpretations (Short)
+## 9. Risks & Wrong Interpretations (Short)
 
 - Misstated DIO if COGS or inventory snapshots misaligned.  
 - Stockout flags incomplete, underreporting availability risk.  
 - Forecast accuracy misread without considering promotions or launches.  
+
 
 
 

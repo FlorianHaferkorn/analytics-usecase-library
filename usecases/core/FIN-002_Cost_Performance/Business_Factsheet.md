@@ -5,7 +5,7 @@ factsheet_type: business
 
 # FIN-002 - Cost Performance  
 
-## Business Factsheet (v1.2)
+## Business Factsheet
 
 ---
 
@@ -176,64 +176,67 @@ required_kpis:
 
 ---
 
-## 4. Business Logic & Thresholds
+## 4. Action Codes (Summary)
 
-Formal rules that define performance and action codes.
-
-### 4.1 Logic Description
-
-- Flag unit cost above plan and margin/COGS % off target.
-- Flag material cost % above target; investigate mix/price/usage.
-- Flag labor productivity below target.
-- Flag OpEx variance above 0 for 2 consecutive periods.
-
-### 4.2 Formal Action Code Rules (Machine-Readable)
+Structured summary of action codes (definitions remain in YAML).
 
 ```yaml
 action_codes:
 
-  - kpi: cost.unit.amount
-    condition: >
-    threshold: plan_target
-    scope: plant_line_product
-    exclusion: ramp-up runs
-    action_code: F-K2.1
+  - id: F-K2.1
+    name: Cost Take-Out Orchestration
+    purpose: Integrated Cost Take-Out Control
+    status: active
+    owner: Finance Director
+    trigger_kpis: [cost.unit.amount, cost.opex.vs_plan.pct]
+    guardrail_kpis: [ops.labor.productivity.pct]
+    outcome_kpis: [cost.unit.amount]
+    impact_range: cost.unit.amount: 2.0-6.0 %
+    levels: L1-L3
+    definition: framework\action_codes\Finance\F-K2.1.yaml
 
-  - kpi: cost.material.pct
-    condition: >
-    threshold: material_target
-    scope: plant_line_product
-    exclusion: launch_items
-    action_code: F-K2.2
+  - id: F-K2.2
+    name: Material Cost Discipline
+    purpose: Stabilize and Reduce Material Cost per Unit
+    status: active
+    owner: Head of Procurement
+    trigger_kpis: [cost.material.pct]
+    guardrail_kpis: [ops.yield.pct]
+    outcome_kpis: [cost.material.pct, cost.unit.amount]
+    impact_range: cost.material.pct: 1.0-4.0 %
+    levels: L1-L3
+    definition: framework\action_codes\Finance\F-K2.2.yaml
 
-  - kpi: ops.labor.productivity.pct
-    condition: <
-    threshold: productivity_target
-    scope: plant_line
-    exclusion: training_periods
-    action_code: F-K2.3
+  - id: F-K2.3
+    name: Labor Productivity Recovery
+    purpose: Recover Productivity to Reduce Unit Cost
+    status: active
+    owner: Plant Manager
+    trigger_kpis: [ops.labor.productivity.pct]
+    guardrail_kpis: [ops.quality.defect_rate.pct]
+    outcome_kpis: [ops.labor.productivity.pct, cost.unit.amount]
+    impact_range: ops.labor.productivity.pct: 3.0-8.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Finance\F-K2.3.yaml
 
-  - kpi: cost.opex.vs_plan.pct
-    condition: >
-    threshold: 0
-    scope: entity
-    exclusion: approved_variances
-    action_code: F-K2.1
+  - id: F-K2.4
+    name: OpEx Discipline
+    purpose: Protect Margin via OpEx Discipline
+    status: active
+    owner: Head of Controlling
+    trigger_kpis: [cost.opex.vs_plan.pct]
+    guardrail_kpis: [ops.service_level.pct]
+    outcome_kpis: [cost.opex.vs_plan.pct, cost.unit.amount]
+    impact_range: cost.opex.vs_plan.pct: 2.0-6.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Finance\F-K2.4.yaml
 ```
 
 ---
 
-## 5. Action Codes (Mandatory)
+## 5. 3-30-300 Page Layout (Mandatory)
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| F-K2.1 | Cost Take-Out Orchestration | cost.opex.vs_plan.pct > 0; cost.unit.amount > plan_target | Select dominant cost lever to activate (Material, Labor, OpEx); Sequence cost actions to avoid overlap and conflict | cost.unit.amount +2.0-6.0 % (1-3 periods) | L1 | Finance / Operations |
-| F-K2.2 | Material Cost Discipline | cost.material.pct > material_target | Tighten material usage and scrap control; Activate sourcing and spec-discipline corrections | cost.material.pct +1.0-4.0 % (2-4 periods) | L2 | Procurement / Operations |
-| F-K2.3 | Labor Productivity Recovery | ops.labor.productivity.pct < productivity_target | Correct staffing and shift imbalances; Stabilize line productivity and utilization | ops.labor.productivity.pct +3.0-8.0 pp (1-3 periods) | L2 | Operations / Production |
-
-## 6. 3-30-300 Page Layout (Mandatory)
-
-### 6.1 3-Second Layer (KPI Cards)
+### 5.1 3-Second Layer (KPI Cards)
 
 - Unit Cost Amount  
 - COGS % of Sales  
@@ -241,7 +244,7 @@ action_codes:
 - Material Cost %  
 - Labor Productivity %  
 
-### 6.2 30-Second Layer (Main Visuals)
+### 5.2 30-Second Layer (Main Visuals)
 
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
@@ -250,7 +253,7 @@ action_codes:
 | Material Cost % Trend | Line | dim_date[Month] | [Material Cost %] | Plant/Category | L12M | Efficiency trend |
 | OpEx vs Plan | Column | dim_org[Entity] | [OpEx vs Plan %] | Region | Current quarter | Overhead control |
 
-### 6.3 Required Slicers (Mandatory)
+### 5.3 Required Slicers (Mandatory)
 
 - Date (Month/Quarter)  
 - Entity / Plant / Line  
@@ -259,11 +262,11 @@ action_codes:
 
 ---
 
-### 6.4 300-Second Layer (Diagnostics)
+### 5.4 300-Second Layer (Diagnostics)
 
 - (optional)
 
-## 7. Data Requirements Summary
+## 6. Data Requirements Summary
 
 ```yaml
 required_facts:
@@ -293,7 +296,7 @@ required_slicers: Date, Entity/Plant/Line, Product/Category, Cost bucket
 
 ---
 
-## 8. Dependencies, Assumptions & Constraints
+## 7. Dependencies, Assumptions & Constraints
 
 - Plan vs actual available for unit cost and OpEx; cost buckets aligned to same period.
 - Allocation rules for overhead clear; labor hours available; material costs separated.
@@ -302,7 +305,7 @@ required_slicers: Date, Entity/Plant/Line, Product/Category, Cost bucket
 
 ---
 
-## 9. Success Criteria
+## 8. Success Criteria
 
 - Impact: Reduced unit cost vs plan; improved COGS %; material cost % lowered; productivity improved.  
 - Adoption: Used in monthly ops/finance reviews; action codes triggered with <5% false positives.  
@@ -311,10 +314,11 @@ required_slicers: Date, Entity/Plant/Line, Product/Category, Cost bucket
 
 ---
 
-## 10. Risks & Wrong Interpretations (Short)
+## 9. Risks & Wrong Interpretations (Short)
 
 - Misallocation of overhead distorting unit cost.  
 - Material cost % misread if price/volume/mix effects not separated.  
 - Productivity dips during planned training/ramp-up misinterpreted.  
+
 
 

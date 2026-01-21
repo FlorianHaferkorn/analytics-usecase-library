@@ -5,7 +5,7 @@ factsheet_type: business
 
 # XD-001 - Service Level Performance  
 
-## Business Factsheet (v1.2)
+## Business Factsheet
 
 ---
 
@@ -146,63 +146,67 @@ required_kpis:
 
 ---
 
-## 4. Business Logic & Thresholds
+## 4. Action Codes (Summary)
 
-Formal rules that define performance and action codes.
-
-### 4.1 Logic Description
-
-- Flag SLA attainment below target; correlate with backlog, AHT, FCR.
-- Flag FCR below target or AHT above target bands.
-- Flag high escalation % and rising backlog.
-
-### 4.2 Formal Action Code Rules (Machine-Readable)
+Structured summary of action codes (definitions remain in YAML).
 
 ```yaml
 action_codes:
 
-  - kpi: svc.sla.attainment.pct
-    condition: <
-    threshold: sla_target
-    scope: queue_region_channel
-    exclusion: force_majeure
-    action_code: X-S1.1
+  - id: X-S1.1
+    name: Service Level Orchestration
+    purpose: Coordinate Service Levers Without Degrading Quality or Cost-to-Serve
+    status: active
+    owner: Head of Service Operations
+    trigger_kpis: [svc.sla.attainment.pct, svc.backlog.count]
+    guardrail_kpis: [svc.fcr.pct]
+    outcome_kpis: [svc.sla.attainment.pct]
+    impact_range: svc.sla.attainment.pct: 3.0-8.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Service\XS-S.1.1.yaml
 
-  - kpi: svc.fcr.pct
-    condition: <
-    threshold: fcr_target
-    scope: queue_region_channel
-    exclusion: complex_cases
-    action_code: X-S1.3
+  - id: X-S1.2
+    name: Capacity & Backlog Stabilisation
+    purpose: Stabilise Backlog to Protect SLA Attainment
+    status: active
+    owner: Service Operations Manager
+    trigger_kpis: [svc.backlog.count]
+    guardrail_kpis: [svc.fcr.pct]
+    outcome_kpis: [svc.backlog.count, svc.sla.attainment.pct]
+    impact_range: svc.backlog.count: -15.0--35.0 %
+    levels: L1-L3
+    definition: framework\action_codes\Service\XS-S.1.2.yaml
 
-  - kpi: svc.aht.minutes
-    condition: >
-    threshold: aht_target
-    scope: queue_region_channel
-    exclusion: complex_cases
-    action_code: X-S1.4
+  - id: X-S1.3
+    name: Quality & First-Contact Resolution Uplift
+    purpose: Increase Resolution Quality to Reduce Repeat Contacts and Escalations
+    status: active
+    owner: Quality & Training Lead
+    trigger_kpis: [svc.fcr.pct, svc.escalation.pct]
+    guardrail_kpis: [svc.aht.minutes]
+    outcome_kpis: [svc.fcr.pct, svc.escalation.pct]
+    impact_range: svc.fcr.pct: 5.0-12.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Service\XS-S.1.3.yaml
 
-  - kpi: svc.escalation.pct
-    condition: >
-    threshold: escalation_target
-    scope: queue_region_channel
-    exclusion: regulated_cases
-    action_code: X-S1.3
+  - id: X-S1.4
+    name: Handling Time & Flow Efficiency
+    purpose: Reduce Handling Time Without Degrading Resolution Quality
+    status: active
+    owner: Service Operations Manager
+    trigger_kpis: [svc.aht.minutes]
+    guardrail_kpis: [svc.fcr.pct]
+    outcome_kpis: [svc.aht.minutes, svc.sla.attainment.pct]
+    impact_range: svc.aht.minutes: -5.0--15.0 %
+    levels: L1-L3
+    definition: framework\action_codes\Service\XS-S.1.4.yaml
 ```
 
 ---
 
-## 5. Action Codes (Mandatory)
+## 5. 3-30-300 Page Layout (Mandatory)
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| X-S1.1 | Service Level Orchestration | svc.sla.attainment.pct < sla_target | Select dominant service lever per queue/region (capacity, backlog, quality, flow); Sequence service actions to avoid speed–quality trade-offs | svc.sla.attainment.pct +3.0-8.0 pp (1-3 periods) | L1 | Service / CX Leadership |
-| X-S1.3 | Quality & First-Contact Resolution Uplift | svc.escalation.pct > escalation_target; svc.fcr.pct < fcr_target | Select quality uplift levers (knowledge gaps, coaching, scripts); Prioritise queues where quality drives backlog and SLA erosion | svc.fcr.pct +5.0-12.0 pp (2-6 periods) | L2 | CX / Quality Management |
-| X-S1.4 | Handling Time & Flow Efficiency | svc.aht.minutes > aht_target | Remove handling-time drivers that throttle throughput; Stabilise service flow across queues and channels | Impact: Medium | L2 | Service Operations |
-
-## 6. 3-30-300 Page Layout (Mandatory)
-
-### 6.1 3-Second Layer (KPI Cards)
+### 5.1 3-Second Layer (KPI Cards)
 
 - SLA Attainment %  
 - FCR %  
@@ -210,7 +214,7 @@ action_codes:
 - Backlog Count  
 - Escalation % / NPS Index  
 
-### 6.2 30-Second Layer (Main Visuals)
+### 5.2 30-Second Layer (Main Visuals)
 
 - **SLA vs Target by Queue**
   - Visual Type: Column
@@ -244,7 +248,7 @@ action_codes:
   - Default Filter: Current quarter
   - Notes: Experience linkage
 
-### 6.3 Required Slicers (Mandatory)
+### 5.3 Required Slicers (Mandatory)
 
 - Date (Week/Month)  
 - Region / Channel / Queue  
@@ -252,11 +256,11 @@ action_codes:
 
 ---
 
-### 6.4 300-Second Layer (Diagnostics)
+### 5.4 300-Second Layer (Diagnostics)
 
 - (optional)
 
-## 7. Data Requirements Summary
+## 6. Data Requirements Summary
 
 ```yaml
 required_facts:
@@ -284,7 +288,7 @@ required_slicers: >
 
 ---
 
-## 8. Dependencies, Assumptions & Constraints
+## 7. Dependencies, Assumptions & Constraints
 
 - SLA/FCR/AHT definitions stable; backlog and escalation flags available.
 - NPS survey data linked by channel/period; queue/channel structures consistent.
@@ -294,7 +298,7 @@ required_slicers: >
 
 ---
 
-## 9. Success Criteria
+## 8. Success Criteria
 
 - Impact: SLA attainment to target; backlog/escalations reduced; FCR up; NPS
   improved.  
@@ -306,8 +310,9 @@ required_slicers: >
 
 ---
 
-## 10. Risks & Wrong Interpretations (Short)
+## 9. Risks & Wrong Interpretations (Short)
 
 - Misclassified SLA breaches (force majeure vs controllable).  
 - FCR misread on complex/regulatory cases.  
 - NPS shifts not directly attributable without considering channel mix.  
+

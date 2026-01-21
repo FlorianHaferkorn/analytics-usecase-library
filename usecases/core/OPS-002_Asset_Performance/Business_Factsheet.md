@@ -5,7 +5,7 @@ factsheet_type: business
 
 # OPS-002 - Asset Performance  
 
-## Business Factsheet (v1.2)
+## Business Factsheet
 
 ---
 
@@ -166,73 +166,79 @@ required_kpis:
 
 ---
 
-## 4. Business Logic & Thresholds
+## 4. Action Codes (Summary)
 
-Formal rules that define performance and action codes.
-
-### 4.1 Logic Description
-
-- Flag assets with MTBF below target and MTTR above target.
-- Escalate unplanned downtime % above threshold for 2 consecutive periods.
-- Flag PM compliance below target and correlate with downtime trend.
-- Flag spare-part stockouts above threshold for critical assets.
-
-### 4.2 Formal Action Code Rules (Machine-Readable)
+Structured summary of action codes (definitions remain in YAML).
 
 ```yaml
 action_codes:
 
-  - kpi: ops.mtbf.hours
-    condition: <
-    threshold: asset_target
-    scope: asset_month
-    exclusion: ramp-up assets
-    action_code: O-A2.2
+  - id: O-A2.1
+    name: Reliability Orchestration
+    purpose: Coordinate Asset Reliability Interventions
+    status: active
+    owner: Maintenance Manager
+    trigger_kpis: [ops.availability.pct, ops.downtime.unplanned.pct]
+    guardrail_kpis: [ops.pm_compliance.pct]
+    outcome_kpis: [ops.availability.pct]
+    impact_range: ops.availability.pct: 2.0-6.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Operations\O-A2.1.yaml
 
-  - kpi: ops.mttr.hours
-    condition: >
-    threshold: asset_target
-    scope: asset_month
-    exclusion: major_overhauls
-    action_code: O-A2.3
+  - id: O-A2.2
+    name: Failure Reduction (MTBF Improvement)
+    purpose: Reduce Failure Frequency and Improve MTBF
+    status: active
+    owner: Reliability Engineer
+    trigger_kpis: [ops.mtbf.hours]
+    guardrail_kpis: [ops.pm_compliance.pct]
+    outcome_kpis: [ops.mtbf.hours, ops.availability.pct]
+    impact_range: ops.mtbf.hours: 10.0-30.0 %
+    levels: L1-L3
+    definition: framework\action_codes\Operations\O-A2.2.yaml
 
-  - kpi: ops.downtime.unplanned.pct
-    condition: >
-    threshold: 0.05
-    scope: last_2_periods
-    exclusion: planned_shutdowns
-    action_code: O-A2.1
+  - id: O-A2.3
+    name: Repair Time Reduction (MTTR Control)
+    purpose: Reduce Mean Time to Repair for Faster Recovery
+    status: active
+    owner: Maintenance Supervisor
+    trigger_kpis: [ops.mttr.hours]
+    guardrail_kpis: [ops.safety.incident.count]
+    outcome_kpis: [ops.mttr.hours, ops.availability.pct]
+    impact_range: ops.mttr.hours: -10.0--30.0 %
+    levels: L1-L3
+    definition: framework\action_codes\Operations\O-A2.3.yaml
 
-  - kpi: ops.pm_compliance.pct
-    condition: <
-    threshold: 0.95
-    scope: month
-    exclusion: deferred_by_design
-    action_code: O-A2.4
+  - id: O-A2.4
+    name: Preventive Maintenance Discipline
+    purpose: Enforce PM Compliance to Prevent Failures
+    status: active
+    owner: Maintenance Planner
+    trigger_kpis: [ops.pm_compliance.pct]
+    guardrail_kpis: [ops.availability.pct]
+    outcome_kpis: [ops.pm_compliance.pct, ops.mtbf.hours]
+    impact_range: ops.pm_compliance.pct: 5.0-10.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Operations\O-A2.4.yaml
 
-  - kpi: ops.spare_parts.stockout.pct
-    condition: >
-    threshold: 0.02
-    scope: critical_assets
-    exclusion: none
-    action_code: O-A2.5
+  - id: O-A2.5
+    name: Spare Parts Readiness
+    purpose: Eliminate Repair Delays from Missing Spare Parts
+    status: active
+    owner: Maintenance Supply Coordinator
+    trigger_kpis: [ops.spare_parts.stockout.pct]
+    guardrail_kpis: [ops.inventory.value.amount]
+    outcome_kpis: [ops.spare_parts.stockout.pct, ops.mttr.hours]
+    impact_range: ops.spare_parts.stockout.pct: -5.0--15.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Operations\O-A2.5.yaml
 ```
 
 ---
 
-## 5. Action Codes (Mandatory)
+## 5. 3-30-300 Page Layout (Mandatory)
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| O-A2.1 | Reliability Orchestration | ops.downtime.unplanned.pct > 0.05 | Select dominant reliability lever per asset (MTBF, MTTR, PM, Parts); Sequence maintenance actions to avoid parallel disruption | ops.availability.pct +2.0-6.0 pp (1-3 periods) | L1 | Operations / Maintenance Leadership |
-| O-A2.2 | Failure Reduction (MTBF Improvement) | ops.mtbf.hours < asset_target | Prioritise dominant failure modes for elimination; Stabilise asset operating conditions to prevent recurrence | ops.mtbf.hours +10.0-30.0 % (2-6 periods) | L2 | Reliability Engineering / Maintenance |
-| O-A2.3 | Repair Time Reduction (MTTR Control) | ops.mttr.hours > asset_target | Accelerate fault diagnosis and repair execution; Standardise repair procedures for critical assets | Impact: Medium | L2 | Maintenance |
-| O-A2.4 | Preventive Maintenance Discipline | ops.pm_compliance.pct < 0.95 | Enforce on-time execution of preventive maintenance; Rebalance PM backlog and maintenance capacity | ops.pm_compliance.pct +5.0-10.0 pp (2-4 periods) | L1 | Maintenance Planning |
-| O-A2.5 | Spare Parts Readiness | ops.spare_parts.stockout.pct > 0.02 | Prioritise critical spare parts to prevent repair delays; Correct stocking and replenishment gaps for maintenance-critical items | Impact: Medium | L1 | Maintenance / Procurement |
-
-## 6. 3-30-300 Page Layout (Mandatory)
-
-### 6.1 3-Second Layer (KPI Cards)
+### 5.1 3-Second Layer (KPI Cards)
 
 - Availability %  
 - MTBF (hours)  
@@ -240,7 +246,7 @@ action_codes:
 - Unplanned Downtime %  
 - PM Compliance %  
 
-### 6.2 30-Second Layer (Main Visuals)
+### 5.2 30-Second Layer (Main Visuals)
 
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
@@ -249,7 +255,7 @@ action_codes:
 | Unplanned Downtime by Cause | Bar (horizontal) | fact_ops_failures[Cause] | [Unplanned Downtime Minutes] | Asset | Last 3 months | Pareto |
 | PM Compliance vs Downtime | Scatter | [PM Compliance %] | [Unplanned Downtime %] | Asset | Current quarter | Correlation |
 
-### 6.3 Required Slicers (Mandatory)
+### 5.3 Required Slicers (Mandatory)
 
 - Date (Month/Quarter)  
 - Plant / Asset / Asset Class  
@@ -257,11 +263,11 @@ action_codes:
 
 ---
 
-### 6.4 300-Second Layer (Diagnostics)
+### 5.4 300-Second Layer (Diagnostics)
 
 - (optional)
 
-## 7. Data Requirements Summary
+## 6. Data Requirements Summary
 
 ```yaml
 required_facts:
@@ -287,7 +293,7 @@ required_slicers: Date, Plant/Asset, Asset Class/Criticality
 
 ---
 
-## 8. Dependencies, Assumptions & Constraints
+## 7. Dependencies, Assumptions & Constraints
 
 - Failure events accurately timestamped; planned vs unplanned downtime coded.
 - PM schedule exists; compliance measured; asset hierarchy stable.
@@ -296,7 +302,7 @@ required_slicers: Date, Plant/Asset, Asset Class/Criticality
 
 ---
 
-## 9. Success Criteria
+## 8. Success Criteria
 
 - Impact: Reduce unplanned downtime % below target; MTBF improves to targets; MTTR reduced; PM compliance = target; stockouts reduced.  
 - Adoption: Used in weekly maintenance/reliability reviews; action codes triggered with <5% false positives.  
@@ -305,10 +311,11 @@ required_slicers: Date, Plant/Asset, Asset Class/Criticality
 
 ---
 
-## 10. Risks & Wrong Interpretations (Short)
+## 9. Risks & Wrong Interpretations (Short)
 
 - Misclassified planned vs unplanned downtime skews availability.  
 - MTBF/MTTR distorted by missing or merged failure events.  
 - PM compliance percentages misleading if plan not realistic or if deferrals aren't flagged.  
+
 
 

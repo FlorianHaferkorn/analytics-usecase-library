@@ -5,7 +5,7 @@ factsheet_type: business
 
 # SCM-003 - Forecast vs Actual  
 
-## Business Factsheet (v1.2)
+## Business Factsheet
 
 ---
 
@@ -143,63 +143,67 @@ required_kpis:
 
 ---
 
-## 4. Business Logic & Thresholds
+## 4. Action Codes (Summary)
 
-Formal rules that define performance and action codes.
-
-### 4.1 Logic Description
-
-- Flag accuracy below target and bias outside bands for priority SKUs/locations.
-- Flag high service impact from forecast error.
-- Flag frequent re-plans beyond threshold.
-
-### 4.2 Formal Action Code Rules (Machine-Readable)
+Structured summary of action codes (definitions remain in YAML).
 
 ```yaml
 action_codes:
 
-  - kpi: plan.forecast.accuracy.pct
-    condition: <
-    threshold: accuracy_target
-    scope: sku_location
-    exclusion: launch_items
-    action_code: S-F3.1
+  - id: S-F3.1
+    name: Forecast Quality Orchestration
+    purpose: Coordinate Forecast Quality Levers Without Conflicting Fixes
+    status: active
+    owner: S&OP Lead
+    trigger_kpis: [plan.forecast.accuracy.pct, plan.replan.count]
+    guardrail_kpis: [plan.forecast.service_impact.pct]
+    outcome_kpis: [plan.forecast.accuracy.pct]
+    impact_range: plan.forecast.accuracy.pct: 5.0-12.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\SupplyChain\S-F.3.1.yaml
 
-  - kpi: plan.forecast.bias.pct
-    condition: outside
-    threshold: [-0.05, 0.05]
-    scope: sku_location
-    exclusion: launch_items
-    action_code: S-F3.2
+  - id: S-F3.2
+    name: Forecast Bias & Accuracy Correction
+    purpose: Correct Systematic Forecast Bias and Accuracy Gaps
+    status: active
+    owner: Demand Planning Manager
+    trigger_kpis: [plan.forecast.bias.pct, plan.forecast.mape.pct]
+    guardrail_kpis: [plan.replan.count]
+    outcome_kpis: [plan.forecast.accuracy.pct, plan.forecast.bias.pct]
+    impact_range: plan.forecast.accuracy.pct: 4.0-10.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\SupplyChain\S-F.3.2.yaml
 
-  - kpi: plan.forecast.service_impact.pct
-    condition: >
-    threshold: impact_target
-    scope: sku_location
-    exclusion: force_majeure
-    action_code: S-F3.3
+  - id: S-F3.3
+    name: Service Impact Containment
+    purpose: Limit Downstream Service Damage Caused by Forecast Error
+    status: active
+    owner: Supply Planning Manager
+    trigger_kpis: [plan.forecast.service_impact.pct]
+    guardrail_kpis: [inv.dio.days]
+    outcome_kpis: [plan.forecast.service_impact.pct, supply.otif.pct]
+    impact_range: plan.forecast.service_impact.pct: -1.0--4.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\SupplyChain\S-F.3.3.yaml
 
-  - kpi: plan.replan.count
-    condition: >
-    threshold: replan_limit
-    scope: month
-    exclusion: major events
-    action_code: S-F3.1
+  - id: S-F3.4
+    name: Re-Plan Discipline & Stability
+    purpose: Reduce Unnecessary Re-Plans and Planning Churn
+    status: active
+    owner: Planning Excellence Lead
+    trigger_kpis: [plan.replan.count]
+    guardrail_kpis: [supply.otif.pct]
+    outcome_kpis: [plan.replan.count, plan.forecast.accuracy.pct]
+    impact_range: plan.replan.count: -20.0--50.0 %
+    levels: L1-L3
+    definition: framework\action_codes\SupplyChain\S-F3.4.yaml
 ```
 
 ---
 
-## 5. Action Codes (Mandatory)
+## 5. 3-30-300 Page Layout (Mandatory)
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| S-F3.1 | Forecast Quality Orchestration | plan.forecast.accuracy.pct < accuracy_target; plan.replan.count > replan_limit | Select dominant forecast-quality lever per SKU/location (bias correction, containment, replan discipline); Sequence corrective actions to avoid parallel, conflicting planning fixes | plan.forecast.accuracy.pct +5.0-12.0 pp (2-5 periods) | L1 | S&OP Leadership |
-| S-F3.2 | Forecast Bias & Accuracy Correction | plan.forecast.bias.pct outside | Correct systematic over-/under-forecasting; Reduce forecast error via disciplined overrides and data hygiene | plan.forecast.accuracy.pct +4.0-10.0 pp (2-5 periods) | L2 | Demand Planning |
-| S-F3.3 | Service Impact Containment | plan.forecast.service_impact.pct > impact_target | Contain service loss while forecast quality is being corrected; Prioritise short-term planning adjustments to protect OTIF | Impact: High | L1 | Supply Planning |
-
-## 6. 3-30-300 Page Layout (Mandatory)
-
-### 6.1 3-Second Layer (KPI Cards)
+### 5.1 3-Second Layer (KPI Cards)
 
 - Forecast Accuracy %  
 - MAPE %  
@@ -207,7 +211,7 @@ action_codes:
 - Service Impact %  
 - Re-Plan Count  
 
-### 6.2 30-Second Layer (Main Visuals)
+### 5.2 30-Second Layer (Main Visuals)
 
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
@@ -216,7 +220,7 @@ action_codes:
 | Service Impact Trend | Line | dim_date[Month] | [Service Impact %] | Channel | L12M | Service linkage |
 | Re-Plan Count by Month | Column | dim_date[Month] | [Re-Plan Count] | Region | L12M | Stability |
 
-### 6.3 Required Slicers (Mandatory)
+### 5.3 Required Slicers (Mandatory)
 
 - Date (Month/Quarter)  
 - Region / Channel / Location  
@@ -225,11 +229,11 @@ action_codes:
 
 ---
 
-### 6.4 300-Second Layer (Diagnostics)
+### 5.4 300-Second Layer (Diagnostics)
 
 - (optional)
 
-## 7. Data Requirements Summary
+## 6. Data Requirements Summary
 
 ```yaml
 required_facts:
@@ -259,7 +263,7 @@ required_slicers: Date, Region/Channel/Location, Category/Product, ABC/XYZ
 
 ---
 
-## 8. Dependencies, Assumptions & Constraints
+## 7. Dependencies, Assumptions & Constraints
 
 - Forecast/actual aligned by SKU/location/time; promotions/launches flagged to avoid misinterpretation.
 - Re-plan events captured; service impact link to OTIF/stockout available.
@@ -268,7 +272,7 @@ required_slicers: Date, Region/Channel/Location, Category/Product, ABC/XYZ
 
 ---
 
-## 9. Success Criteria
+## 8. Success Criteria
 
 - Impact: Accuracy improves to target; bias within bands; reduced service impact; fewer re-plans.  
 - Adoption: Used in monthly S&OP/planning reviews; action codes triggered with <5% false positives.  
@@ -277,11 +281,12 @@ required_slicers: Date, Region/Channel/Location, Category/Product, ABC/XYZ
 
 ---
 
-## 10. Risks & Wrong Interpretations (Short)
+## 9. Risks & Wrong Interpretations (Short)
 
 - Misinterpreting bias/accuracy on launch or promo items.  
 - Service impact overstated if OTIF/stockout not properly linked.  
 - Re-plan counts misleading if process changes not tracked.  
+
 
 
 

@@ -5,7 +5,7 @@ factsheet_type: business
 
 # XD-003 - Executive KPI Overview
 
-## Business Factsheet (v1.2)
+## Business Factsheet
 
 ---
 
@@ -174,86 +174,43 @@ required_kpis:
 
 ---
 
-## 4. Business Logic & Thresholds
+## 4. Action Codes (Summary)
 
-### 4.1 Logic Description
-
-- Flag deviations vs plan/target for growth, margin, service, supply reliability, working capital, digital adoption, and attrition risk.
-- Escalate cross-domain interventions through predefined Action Codes with accountable owners.
-- Prioritise entities/regions with highest value-at-risk and customer impact.
-
-### 4.2 Formal Action Code Rules (Machine-Readable)
+Structured summary of action codes (definitions remain in YAML).
 
 ```yaml
 action_codes:
 
-  - kpi: sales.net_sales.delta_pct.ly
-    condition: below_target
-    threshold: ly_delta_pct
-    scope: Org/Region, Month
-    exclusion: none
-    action_code: P4 Price Repositioning
+  - id: X-E3.2
+    name: Cross-Domain Risk Prioritisation
+    purpose: Prioritise Cross-Domain Performance Risk by Value-at-Risk
+    status: active
+    owner: Head of Enterprise Controlling
+    trigger_kpis: [sales.revenue.growth_pct, margin.gm.pct, svc.sla.attainment.pct, supply.otif.pct, wc.ccc.days, people.attrition_risk.pct]
+    guardrail_kpis: []
+    outcome_kpis: [enterprise.value_at_risk.index]
+    impact_range: enterprise.value_at_risk.index: -10.0--30.0 %
+    levels: L1-L3
+    definition: framework\action_codes\Enterprise\X-E3.2.yaml
 
-  - kpi: margin.gm.pct
-    condition: below_target
-    threshold: margin_target_pct
-    scope: Org/Region, Month
-    exclusion: promo periods where approved
-    action_code: P2 Margin Leakage Correction
-
-  - kpi: crm.clv.amount
-    condition: declining
-    threshold: negative_trend_3m
-    scope: Segment, Customer
-    exclusion: newly onboarded customers (<90 days)
-    action_code: C2 Retention Action
-
-  - kpi: ops.otif.pct
-    condition: below_target
-    threshold: otif_sla_pct
-    scope: Lane/Region, Month
-    exclusion: force majeure
-    action_code: S3 Capacity Intervention
-
-  - kpi: svc.sla.attainment.pct
-    condition: below_target
-    threshold: service_slo_pct
-    scope: Channel/Region, Month
-    exclusion: planned maintenance windows
-    action_code: S3 Capacity Intervention
-
-  - kpi: ops.working_capital.ccc.days
-    condition: above_target
-    threshold: ccc_target_days
-    scope: Entity, Month
-    exclusion: none
-    action_code: F1 Cash Collection Initiative
-
-  - kpi: people.digital_adoption.pct
-    condition: below_target
-    threshold: adoption_target_pct
-    scope: Function/Region, Month
-    exclusion: newly deployed tools (<30 days)
-    action_code: H1 Digital Enablement Push
-
-  - kpi: people.attrition_risk.pct
-    condition: above_threshold
-    threshold: attrition_risk_tolerance_pct
-    scope: Critical Roles/Region, Month
-    exclusion: seasonal/temporary workforce
-    action_code: C2 Retention Action
+  - id: X-E3.3
+    name: Action Follow-up & Outcome Governance
+    purpose: Ensure Routed Actions Are Executed and Outcomes Measured
+    status: active
+    owner: Chief of Staff / PMO Lead
+    trigger_kpis: [enterprise.action_routed.count]
+    guardrail_kpis: []
+    outcome_kpis: [enterprise.action_outcome_rate.pct]
+    impact_range: enterprise.action_outcome_rate.pct: 10.0-25.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Enterprise\X-E3.3.yaml
 ```
 
 ---
 
-## 5. Action Codes (Mandatory)
+## 5. 3-30-300 Page Layout (Mandatory)
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-
-## 6. 3-30-300 Page Layout (Mandatory)
-
-### 6.1 3-Second Layer (KPI Cards)
+### 5.1 3-Second Layer (KPI Cards)
 
 - Net Sales % vs LY
 - Gross Margin %
@@ -264,21 +221,21 @@ action_codes:
 - Digital Adoption %
 - Attrition Risk %
 
-### 6.2 30-Second Layer (Main Visuals)
+### 5.2 30-Second Layer (Main Visuals)
 
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
 | Executive Trend | Line | Date[Month] | All 8 KPI measures | Org / Region | 12-24M | Trend vs Plan/LY bands |
 | Driver Variance | Clustered/Waterfall | Drivers | KPI variance | Org / Segment | Recent period | Focus on growth/margin/service drivers |
 
-### 6.3 Required Slicers (Mandatory)
+### 5.3 Required Slicers (Mandatory)
 
 - Date (Month/Year)
 - Org / Region / Entity
 - Product or Customer Segment (where relevant)
 - Function / Department (for People KPIs)
 
-### 6.4 300-Second Layer (Diagnostics)
+### 5.4 300-Second Layer (Diagnostics)
 
 - Domain drilldowns by Org/Region/Segment with variance decomposition (price, mix, volume, cost, service).
 - Root-cause tables for OTIF/Service failures (lane, supplier, reason code).
@@ -288,7 +245,7 @@ action_codes:
 
 ---
 
-## 7. Data Requirements Summary
+## 6. Data Requirements Summary
 
 ```yaml
 required_facts:
@@ -326,7 +283,7 @@ required_slicers: Date, Org/Region/Entity, Product or Customer Segment, Function
 
 ---
 
-## 8. Dependencies, Assumptions & Constraints
+## 7. Dependencies, Assumptions & Constraints
 
 - Executive KPIs align with certified strategic reporting; definitions mirror the KPI Catalog.
 - Plan/LY references must be available for all headline KPIs.
@@ -336,7 +293,7 @@ required_slicers: Date, Org/Region/Entity, Product or Customer Segment, Function
 
 ---
 
-## 9. Success Criteria
+## 8. Success Criteria
 
 - Impact: Net Sales % vs LY and Gross Margin % on/above target; CCC Days on/under target.
 - Adoption: Executive dashboard used in formal exec meeting cadence (weekly/monthly).
@@ -345,15 +302,9 @@ required_slicers: Date, Org/Region/Entity, Product or Customer Segment, Function
 
 ---
 
-## 10. Risks & Wrong Interpretations (Short)
+## 9. Risks & Wrong Interpretations (Short)
 
 - Misalignment of KPI definitions across domains could lead to conflicting executive narratives.
 - Incomplete plan/LY data would misstate growth and margin performance.
 - Over-rotating on single KPIs without cross-checking drivers (e.g., margin vs service) could trigger suboptimal actions.
-
----
-
-
-
-
 

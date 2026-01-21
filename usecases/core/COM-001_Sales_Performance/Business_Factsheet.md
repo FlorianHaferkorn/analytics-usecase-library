@@ -4,7 +4,7 @@ factsheet_type: business
 ---
 # COM-001 - Sales Performance vs Plan & LY  
 
-## Business Factsheet (v1.2)
+## Business Factsheet
 
 ---
 
@@ -133,63 +133,55 @@ required_kpis:
 
 ---
 
-## 4. Business Logic & Thresholds
+## 4. Action Codes (Summary)
 
-### 4.1 Logic Description
-
-### 4.2 Formal Action Code Rules (Machine-Readable)
-
-- Flag regions/channels with Net Sales % vs Plan below guardrail for 2
-  consecutive months.
-- Escalate where Net Sales % vs LY is negative and GM % below target.
-- Use PVM drivers to isolate whether price, volume, or mix is the primary gap driver.
-- Apply pricing/mix actions only where GM % guardrails hold.
+Structured summary of action codes (definitions remain in YAML).
 
 ```yaml
 action_codes:
 
-  - kpi: sales.net_sales.delta_pct.plan
-    condition: below_guardrail
-    threshold: -0.02
-    scope: Region/Channel, Month
-    exclusion: none
-    action_code: C-S1.2
+  - id: C-M2.1
+    name: Price Realization Guardrails
+    purpose: Stop Discount Leakage
+    status: active
+    owner: Pricing Lead
+    trigger_kpis: [sales.price.realization_pct]
+    guardrail_kpis: [margin.gm.pct]
+    outcome_kpis: [sales.price.realization_pct, margin.gm.pct]
+    impact_range: sales.price.realization_pct: 1.0-3.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Commercial\C-M2.1.yaml
 
-  - kpi: margin.gm.pct
-    condition: below_target
-    threshold: 0.25
-    scope: Region/Channel, Month
-    exclusion: approved promos
-    action_code: C-S1.1
+  - id: C-S1.1
+    name: Price Discipline Enforcement
+    purpose: Protect Gross Margin
+    status: active
+    owner: Pricing Manager
+    trigger_kpis: [margin.gm.pct, sales.pvm.price_effect.amount]
+    guardrail_kpis: [sales.net_sales.delta_pct.plan]
+    outcome_kpis: [margin.gm.pct]
+    impact_range: margin.gm.pct: 0.5-1.5 pp
+    levels: L1-L3
+    definition: framework\action_codes\Commercial\C-S1.1.yaml
 
-  - kpi: sales.pvm.price_effect.amount
-    condition: negative
-    threshold: 0
-    scope: Region/Channel
-    exclusion: none
-    action_code: C-S1.1
-
-  - kpi: sales.pvm.mix_effect.amount
-    condition: negative
-    threshold: 0
-    scope: Region/Channel
-    exclusion: strategic SKUs
-    action_code: C-S1.3
+  - id: C-S1.2
+    name: Sales Gap Recovery via Price & Pack Adjustment
+    purpose: Close Plan Gaps Without Margin Erosion
+    status: active
+    owner: Sales Director
+    trigger_kpis: [sales.net_sales.delta_pct.plan]
+    guardrail_kpis: [margin.gm.pct]
+    outcome_kpis: [sales.net_sales.amount]
+    impact_range: sales.net_sales.amount: 1.0-3.0 %
+    levels: L1-L3
+    definition: framework\action_codes\Commercial\C-S1.2.yaml
 ```
 
 ---
 
-## 5. Action Codes (Mandatory)
+## 5. 3-30-300 Page Layout (Mandatory)
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| C-S1.1 | Price Discipline Enforcement | margin.gm.pct below_target 0.25; sales.pvm.price_effect.amount negative 0 | Enforce discount floors; Require approval for price exceptions | margin.gm.pct +0.5-1.5 pp (1-3 periods) | L1 | Commercial |
-| C-S1.2 | Sales Gap Recovery via Price & Pack Adjustment | sales.net_sales.delta_pct.plan below_guardrail -0.02 | Adjust price corridors within GM guardrails; Introduce tactical pack-size or price-point adjustments | sales.net_sales.amount +1.0-3.0 % (1-2 periods) | L2 | Commercial |
-| C-S1.3 | Mix Steering to Margin-Safe Growth | sales.pvm.mix_effect.amount negative 0 | Prioritize higher-margin SKUs in sales focus; Deprioritize low-margin volume drivers | margin.gm.pct +0.3-1.0 pp (1-3 periods) | L2 | Commercial |
-
-## 6. 3-30-300 Page Layout (Mandatory)
-
-### 6.1 3-Second Layer (KPI Cards)
+### 5.1 3-Second Layer (KPI Cards)
 
 - Net Sales Amount  
 - Net Sales % vs Plan  
@@ -197,7 +189,7 @@ action_codes:
 - Gross Margin %  
 - Price/Volume/Mix Effects (cards or mini-tiles)  
 
-### 6.2 30-Second Layer (Main Visuals)
+### 5.2 30-Second Layer (Main Visuals)
 
 - **Net Sales vs Plan/LY**
   - Visual Type: Line + area band
@@ -231,14 +223,14 @@ action_codes:
   - Default Filter: Current Q
   - Notes: Focus list
 
-### 6.3 Required Slicers (Mandatory)
+### 5.3 Required Slicers (Mandatory)
 
 - Date (Month/Quarter)  
 - Region / Channel  
 - Product Category  
 - Customer Segment (optional)
 
-### 6.4 300-Second Layer (Diagnostics)
+### 5.4 300-Second Layer (Diagnostics)
 
 - PVM decomposition by Region/Channel/Product.
 - Margin guardrail table (GM %, discount discipline).
@@ -246,7 +238,7 @@ action_codes:
 
 ---
 
-## 7. Data Requirements Summary
+## 6. Data Requirements Summary
 
 ```yaml
 required_facts:
@@ -270,7 +262,7 @@ required_slicers: >
 
 ---
 
-## 8. Dependencies, Assumptions & Constraints
+## 7. Dependencies, Assumptions & Constraints
 
 - Plan and LY fields must be populated in fact_sales (Plan Sales Amount,
   Last Year Sales Amount).
@@ -281,7 +273,7 @@ required_slicers: >
 
 ---
 
-## 9. Success Criteria
+## 8. Success Criteria
 
 - Impact: Net Sales vs Plan/LY gaps reduced; GM % at or above target.
 - Adoption: Used in monthly sales performance reviews; actions tracked via
@@ -292,10 +284,11 @@ required_slicers: >
 
 ---
 
-## 10. Risks & Wrong Interpretations (Short)
+## 9. Risks & Wrong Interpretations (Short)
 
 - Misstated Plan/LY leading to false gaps.
 - PVM residual too high due to inconsistent plan price or quantity.
 - Over-reacting on price without GM guardrails can erode margin.
 
 ---
+

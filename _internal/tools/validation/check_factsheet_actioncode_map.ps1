@@ -21,50 +21,6 @@ function Resolve-RepoPath {
   return $null
 }
 
-function Get-FrontMatterText {
-  param([string]$Path)
-  $content = Get-Content -Raw -Path $Path
-  $match = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---")
-  if (-not $match.Success) { return $null }
-  return $match.Groups[1].Value
-}
-
-function Parse-ListField {
-  param([string]$FrontMatter,[string]$Field)
-  if (-not $FrontMatter) { return @() }
-  $escaped = [regex]::Escape($Field)
-  $inline = [regex]::Match($FrontMatter, "^\s*$escaped\s*:\s*\[(.*?)\]", 'Multiline,Singleline')
-  if ($inline.Success) {
-    $items = @()
-    foreach ($token in [regex]::Matches($inline.Groups[1].Value, '"([^"]+)"|''([^'']+)''|([^,\s\]]+)')) {
-      $value = if ($token.Groups[1].Success) { $token.Groups[1].Value }
-               elseif ($token.Groups[2].Success) { $token.Groups[2].Value }
-               else { $token.Groups[3].Value }
-      if ($value) { $items += $value }
-    }
-    return $items
-  }
-  $block = [regex]::Match($FrontMatter, "(?ms)^\s*$escaped\s*:\s*(?:#.*)?\r?\n(?<body>(?:\s{2,}-\s*[^\r\n]*\r?\n?)+)")
-  if ($block.Success) {
-    $results = @()
-    foreach ($rawLine in ($block.Groups['body'].Value -split "\r?\n")) {
-      $line = $rawLine.Trim()
-      if (-not $line) { continue }
-      if ($line -match '^\s*-\s*(.*)$') { $value = $matches[1].Trim() } else { continue }
-      if (-not $value) { continue }
-      if ($value -match '^(?<val>[^#]+)\s*(#.*)?$') { $value = $matches['val'].TrimEnd() }
-      if ($value.StartsWith('"') -and $value.EndsWith('"')) {
-        $value = $value.Trim('"')
-      } elseif ($value.StartsWith("'") -and $value.EndsWith("'")) {
-        $value = $value.Trim("'")
-      }
-      if ($value) { $results += $value }
-    }
-    return $results
-  }
-  return @()
-}
-
 function Get-MapEntries {
   param([string]$Path)
   $lines = Get-Content -Path $Path
@@ -85,11 +41,30 @@ function Get-MapEntries {
 }
 
 function Get-FrontMatterId {
-  param([string]$FrontMatter)
-  if (-not $FrontMatter) { return $null }
-  $match = [regex]::Match($FrontMatter, '^\s*id\s*:\s*([A-Z]{2,3}-\d{3})\s*$', 'Multiline')
-  if ($match.Success) { return $match.Groups[1].Value }
+  param([string]$Content)
+  if (-not $Content) { return $null }
+  $match = [regex]::Match($Content, "(?ms)^---\s*\r?\n(.*?)\r?\n---")
+  if (-not $match.Success) { return $null }
+  $fm = $match.Groups[1].Value
+  $idMatch = [regex]::Match($fm, '^\s*id\s*:\s*([A-Z]{2,3}-\d{3})\s*$', 'Multiline')
+  if ($idMatch.Success) { return $idMatch.Groups[1].Value }
   return $null
+}
+
+function Get-BodyActionCodes {
+  param([string]$Content)
+  if (-not $Content) { return @() }
+  $section = [regex]::Match($Content, "(?ms)^## 4\\. Action Codes \\(Summary\\).*?```yaml(?<yaml>.*?)```")
+  if (-not $section.Success) { return @() }
+  $yaml = $section.Groups['yaml'].Value
+  if (-not ($yaml -match "(?ms)action_codes\\s*:")) { return @() }
+  $codes = @()
+  foreach ($line in ($yaml -split "`r?`n")) {
+    if ($line -match '^\s*-\s*id:\s*\"?([^\"\\s]+)\"?\s*$') {
+      $codes += $matches[1]
+    }
+  }
+  return $codes
 }
 
 $useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "usecases"
@@ -104,8 +79,8 @@ $issues = @()
 Get-ChildItem -Path (Join-Path $useCasesRoot "core") -Recurse -Filter "Business_Factsheet.md" | Where-Object {
   $_.FullName -notmatch '\\_internal\\archive\\'
 } | ForEach-Object {
-  $fm = Get-FrontMatterText -Path $_.FullName
-  $id = Get-FrontMatterId -FrontMatter $fm
+  $content = Get-Content -Raw -Path $_.FullName
+  $id = Get-FrontMatterId -Content $content
   if (-not $id) {
     $issues += "$($_.FullName): missing id in front matter"
     return
@@ -115,9 +90,9 @@ Get-ChildItem -Path (Join-Path $useCasesRoot "core") -Recurse -Filter "Business_
     return
   }
   $expected = $mapEntries[$id] | Sort-Object -Unique
-  $actual = (Parse-ListField -FrontMatter $fm -Field "action_codes") | Sort-Object -Unique
+  $actual = (Get-BodyActionCodes -Content $content) | Sort-Object -Unique
   if ($actual.Count -eq 0) {
-    $issues += "$($_.FullName): action_codes missing in front matter"
+    $issues += "$($_.FullName): action_codes missing in body"
     return
   }
   $missing = $expected | Where-Object { $_ -notin $actual }

@@ -5,7 +5,7 @@ factsheet_type: business
 
 # OPS-001 - Operations Performance  
 
-## Business Factsheet (v1.2)
+## Business Factsheet
 
 ---
 
@@ -132,63 +132,67 @@ required_kpis:
 
 ---
 
-## 4. Business Logic & Thresholds
+## 4. Action Codes (Summary)
 
-Formal rules that define performance and action codes.
-
-### 4.1 Logic Description
-
-- Flag lines with OEE below target or availability/performance/quality below thresholds.
-- Escalate chronic downtime causes exceeding target minutes per week.
-- Highlight lines with throughput shortfall vs plan and correlated performance loss.
-
-### 4.2 Formal Action Code Rules (Machine-Readable)
+Structured summary of action codes (definitions remain in YAML).
 
 ```yaml
 action_codes:
 
-  - kpi: ops.oee.pct
-    condition: <
-    threshold: line_target
-    scope: line_week
-    exclusion: ramp-up lines
-    action_code: O-O1.1
+  - id: O-O1.1
+    name: Operations Stabilisation
+    purpose: Eliminate Chronic Downtime and Stabilise Operations
+    status: active
+    owner: Maintenance Manager
+    trigger_kpis: [ops.availability.pct, ops.downtime.pct]
+    guardrail_kpis: [ops.quality.pct]
+    outcome_kpis: [ops.availability.pct, ops.oee.pct]
+    impact_range: ops.availability.pct: 3.0-8.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Operations\O-O1.1.yaml
 
-  - kpi: ops.availability.pct
-    condition: <
-    threshold: 0.9
-    scope: line_week
-    exclusion: planned_shutdowns
-    action_code: O-O1.1
+  - id: O-O1.2
+    name: Performance Uplift
+    purpose: Recover Line Speed and Output vs Standard
+    status: active
+    owner: Production Manager
+    trigger_kpis: [ops.performance.pct]
+    guardrail_kpis: [ops.availability.pct]
+    outcome_kpis: [ops.performance.pct, ops.throughput.units]
+    impact_range: ops.performance.pct: 2.0-6.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Operations\O-O1.2.yaml
 
-  - kpi: ops.performance.pct
-    condition: <
-    threshold: 0.95
-    scope: line_week
-    exclusion: changeover windows
-    action_code: O-O1.2
+  - id: O-O1.3
+    name: Quality & Yield Recovery
+    purpose: Stabilise First-Pass Yield and Reduce Scrap
+    status: active
+    owner: Quality Manager
+    trigger_kpis: [ops.quality.pct]
+    guardrail_kpis: [ops.availability.pct]
+    outcome_kpis: [ops.quality.pct, ops.oee.pct]
+    impact_range: ops.quality.pct: 1.0-3.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Operations\O-O1.3.yaml
 
-  - kpi: ops.quality.pct
-    condition: <
-    threshold: 0.98
-    scope: line_week
-    exclusion: trial_runs
-    action_code: O-O1.3
+  - id: O-O1.4
+    name: Throughput Constraint Resolution
+    purpose: Resolve System Constraints Blocking Output
+    status: active
+    owner: Operations Director
+    trigger_kpis: [ops.throughput.units]
+    guardrail_kpis: [ops.oee.pct]
+    outcome_kpis: [ops.throughput.units]
+    impact_range: ops.throughput.units: 3.0-10.0 %
+    levels: L1-L3
+    definition: framework\action_codes\Operations\O-O1.4.yaml
 ```
 
 ---
 
-## 5. Action Codes (Mandatory)
+## 5. 3-30-300 Page Layout (Mandatory)
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| O-O1.1 | Operations Stabilisation | ops.availability.pct < 0.9; ops.oee.pct < line_target | Prioritise and eliminate chronic downtime drivers; Stabilise basic operating conditions on lines and plants | ops.availability.pct +3.0-8.0 pp (1-3 periods) | L2 | Operations Excellence / Maintenance |
-| O-O1.2 | Performance Uplift | ops.performance.pct < 0.95 | Recover speed losses versus standard rate; Reduce micro-stops and suboptimal line balance | ops.performance.pct +2.0-6.0 pp (1-2 periods) | L1 | Production |
-| O-O1.3 | Quality & Yield Recovery | ops.quality.pct < 0.98 | Prioritise root-cause correction for quality losses; Stabilise process capability on critical lines | ops.quality.pct +1.0-3.0 pp (1-3 periods) | L2 | Quality / Production |
-
-## 6. 3-30-300 Page Layout (Mandatory)
-
-### 6.1 3-Second Layer (KPI Cards)
+### 5.1 3-Second Layer (KPI Cards)
 
 - OEE %  
 - Availability %  
@@ -196,7 +200,7 @@ action_codes:
 - Quality %  
 - Downtime %  
 
-### 6.2 30-Second Layer (Main Visuals)
+### 5.2 30-Second Layer (Main Visuals)
 
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
@@ -205,7 +209,7 @@ action_codes:
 | Performance Loss vs Standard | Column | dim_org[Line] | [Performance %] | Shift | Last 4 weeks | Speed losses |
 | Quality Trend | Line | dim_date[Week] | [Quality %] | Line/Plant | L12W | Stability view |
 
-### 6.3 Required Slicers (Mandatory)
+### 5.3 Required Slicers (Mandatory)
 
 - Date (Week/Month)  
 - Plant / Line / Shift  
@@ -213,11 +217,11 @@ action_codes:
 
 ---
 
-### 6.4 300-Second Layer (Diagnostics)
+### 5.4 300-Second Layer (Diagnostics)
 
 - (optional)
 
-## 7. Data Requirements Summary
+## 6. Data Requirements Summary
 
 ```yaml
 required_facts:
@@ -239,7 +243,7 @@ required_slicers: Date, Plant/Line/Shift, Product (optional)
 
 ---
 
-## 8. Dependencies, Assumptions & Constraints
+## 7. Dependencies, Assumptions & Constraints
 
 - Standard cycle times and planned production time defined; changeovers classified.
 - Downtime coded with cause categories; trial runs flagged.
@@ -248,7 +252,7 @@ required_slicers: Date, Plant/Line/Shift, Product (optional)
 
 ---
 
-## 9. Success Criteria
+## 8. Success Criteria
 
 - Impact: OEE uplift toward target; reduced downtime minutes; improved throughput vs plan.  
 - Adoption: Used in weekly ops reviews; action codes triggered with <5% false positives.  
@@ -257,10 +261,11 @@ required_slicers: Date, Plant/Line/Shift, Product (optional)
 
 ---
 
-## 10. Risks & Wrong Interpretations (Short)
+## 9. Risks & Wrong Interpretations (Short)
 
 - Misclassified planned vs unplanned downtime distorts availability.  
 - Ignoring product mix/standard rate differences when reading performance %.  
 - Quality issues masked if rework/scrap not fully captured.  
+
 
 

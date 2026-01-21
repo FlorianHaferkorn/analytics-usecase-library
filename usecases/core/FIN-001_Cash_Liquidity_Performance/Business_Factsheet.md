@@ -5,7 +5,7 @@ factsheet_type: business
 
 # FIN-001 - Cash & Liquidity Performance  
 
-## Business Factsheet (v1.2)
+## Business Factsheet
 
 ---
 
@@ -157,71 +157,67 @@ required_kpis:
 
 ---
 
-## 4. Business Logic & Thresholds
+## 4. Action Codes (Summary)
 
-Formal rules that define performance and action codes.
-
-### 4.1 Logic Description
-
-- Flag cash vs plan negative and OCF below plan.
-- Flag CCC above target or deteriorating; drill DSO/DIO/DPO.
-- Highlight entities/regions with high DSO or DIO and low DPO.
-
-### 4.2 Formal Action Code Rules (Machine-Readable)
+Structured summary of action codes (definitions remain in YAML).
 
 ```yaml
 action_codes:
 
-  - kpi: fin.cash.vs_plan.pct
-    condition: <
-    threshold: 0
-    scope: entity_region
-    exclusion: none
-    action_code: F-C1.1
+  - id: F-C1.1
+    name: Working Capital Improvement
+    purpose: Integrated Working Capital Control
+    status: active
+    owner: Finance Director
+    trigger_kpis: [wc.ccc.days, fin.cash.vs_plan.pct]
+    guardrail_kpis: [fin.cash.balance]
+    outcome_kpis: [wc.ccc.days]
+    impact_range: wc.ccc.days: -3--10 days
+    levels: L1-L3
+    definition: framework\action_codes\Finance\F-C1.1.yaml
 
-  - kpi: wc.ccc.days
-    condition: >
-    threshold: ccc_target
-    scope: entity_region
-    exclusion: none
-    action_code: F-C1.1
+  - id: F-C1.2
+    name: Collections Acceleration
+    purpose: Accelerate Cash Inflow
+    status: active
+    owner: Head of Credit & Collections
+    trigger_kpis: [wc.dso.days]
+    guardrail_kpis: [fin.cash.balance]
+    outcome_kpis: [wc.dso.days, fin.cash.ocf]
+    impact_range: wc.dso.days: -2--6 days
+    levels: L1-L3
+    definition: framework\action_codes\Finance\F-C1.2.yaml
 
-  - kpi: wc.dso.days
-    condition: >
-    threshold: dso_target
-    scope: entity_region
-    exclusion: disputed_receivables
-    action_code: F-C1.2
+  - id: F-C1.3
+    name: Inventory Rightsizing
+    purpose: Release Cash from Excess Inventory
+    status: active
+    owner: Inventory Manager
+    trigger_kpis: [wc.dio.days]
+    guardrail_kpis: [scm.service_level.pct]
+    outcome_kpis: [wc.dio.days, fin.cash.ocf]
+    impact_range: wc.dio.days: -3--8 days
+    levels: L1-L3
+    definition: framework\action_codes\Finance\F-C1.3.yaml
 
-  - kpi: wc.dio.days
-    condition: >
-    threshold: dio_target
-    scope: entity_region
-    exclusion: strategic_stock
-    action_code: F-C1.3
-
-  - kpi: wc.dpo.days
-    condition: <
-    threshold: dpo_floor
-    scope: entity_region
-    exclusion: strict_terms
-    action_code: F-C1.4
+  - id: F-C1.4
+    name: Payables Optimisation
+    purpose: Improve Cash via Payment Term and Execution Discipline
+    status: active
+    owner: Head of Accounts Payable
+    trigger_kpis: [wc.dpo.days]
+    guardrail_kpis: [scm.supplier_risk.score]
+    outcome_kpis: [wc.dpo.days, fin.cash.ocf]
+    impact_range: wc.dpo.days: 2-6 days
+    levels: L1-L3
+    definition: framework\action_codes\Finance\F-C1.4.yaml
 ```
 
 ---
 
-## 5. Action Codes (Mandatory)
+## 5. 3-30-300 Page Layout (Mandatory)
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| F-C1.1 | Working Capital Improvement | fin.cash.vs_plan.pct < 0; wc.ccc.days > ccc_target | Determine which working capital lever to activate (DSO, DIO, DPO); Escalate liquidity pressure to execution domains | Impact: High | L1 | Finance |
-| F-C1.2 | Collections Acceleration | wc.dso.days > dso_target | Prioritise collection efforts on overdue and high-exposure receivables; Escalate enforcement actions within policy guardrails | Impact: High | L2 | Finance / Credit & Collections |
-| F-C1.3 | Inventory Rightsizing | wc.dio.days > dio_target | Reduce excess and slow-moving inventory; Adjust replenishment parameters for cash release | Impact: Medium | L2 | Supply Chain / Inventory Management |
-| F-C1.4 | Payables Optimisation | wc.dpo.days < dpo_floor | Optimise payment timing within contractual terms; Renegotiate payment terms where feasible and approved | wc.dpo.days +2-6 days (1-3 periods) | L1 | Procurement / Accounts Payable |
-
-## 6. 3-30-300 Page Layout (Mandatory)
-
-### 6.1 3-Second Layer (KPI Cards)
+### 5.1 3-Second Layer (KPI Cards)
 
 - Cash Balance  
 - Cash vs Plan %  
@@ -229,7 +225,7 @@ action_codes:
 - CCC (days)  
 - DSO / DIO / DPO  
 
-### 6.2 30-Second Layer (Main Visuals)
+### 5.2 30-Second Layer (Main Visuals)
 
 - **Cash vs Plan Trend**
   - Visual Type: Line
@@ -263,7 +259,7 @@ action_codes:
   - Default Filter: L12M
   - Notes: Cash generation
 
-### 6.3 Required Slicers (Mandatory)
+### 5.3 Required Slicers (Mandatory)
 
 - Date (Month/Quarter)  
 - Region / Entity  
@@ -272,11 +268,11 @@ action_codes:
 
 ---
 
-### 6.4 300-Second Layer (Diagnostics)
+### 5.4 300-Second Layer (Diagnostics)
 
 - (optional)
 
-## 7. Data Requirements Summary
+## 6. Data Requirements Summary
 
 ```yaml
 required_facts:
@@ -315,7 +311,7 @@ required_slicers: >
 
 ---
 
-## 8. Dependencies, Assumptions & Constraints
+## 7. Dependencies, Assumptions & Constraints
 
 - Plan and actual cash/OCF available; WC components aligned to same
   period/entity.
@@ -326,7 +322,7 @@ required_slicers: >
 
 ---
 
-## 9. Success Criteria
+## 8. Success Criteria
 
 - Impact: Positive cash vs plan; CCC reduced toward target; DSO/DIO down and DPO
   optimized.  
@@ -338,8 +334,9 @@ required_slicers: >
 
 ---
 
-## 10. Risks & Wrong Interpretations (Short)
+## 9. Risks & Wrong Interpretations (Short)
 
 - Misalignment of AR/AP aging with revenue/COGS periods.  
 - DIO misread if inventory/COGS not aligned or strategic stock excluded.  
 - Overextension of DPO harming supplier relationships.  
+

@@ -5,7 +5,7 @@ factsheet_type: technical
 
 # COM-003 - Customer Value  
 
-## Technical Factsheet (v1.2)
+## Technical Factsheet
 
 ---
 
@@ -302,4 +302,5 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 

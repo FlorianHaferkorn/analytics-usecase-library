@@ -1,11 +1,11 @@
-﻿---
+---
 id: <USE CASE ID>
 factsheet_type: business
 ---
 
 # <USE CASE ID> - <USE CASE NAME>
 
-## Business Factsheet (v1.2)
+## Business Factsheet
 
 ---
 
@@ -71,58 +71,33 @@ required_kpis:
 
 ---
 
-## 4. Business Logic & Thresholds
+## 4. Action Codes (Summary)
 
-Formal rules that define performance and action triggers.
-
-### 4.1 Logic Description
-
-- <Description of performance rules>
-- <Exceptions / Exclusions>
-
-### 4.2 Formal Action Code Rules (Machine-Readable)
+Structured summary of action codes (definitions remain in YAML).
 
 ```yaml
-triggers:
+action_codes:
 
-  - kpi: <domain.topic.metric>
-    condition: <operator>
-    threshold: <value>
-    scope: <dimension/filter>
-    exclusion: <optional>
-    action_code: <AC-XX>
+  - id: <AC-XX>
+    name: <Action Code Name>
+    purpose: <short purpose>
+    status: <active | planned>
+    owner: <Role>
+    trigger_kpis: [<kpi_id_1>, <kpi_id_2>]
+    guardrail_kpis: [<kpi_id_1>, <kpi_id_2>]
+    outcome_kpis: [<kpi_id_1>, <kpi_id_2>]
+    impact_range: <kpi_id: range>
+    levels: <L1-L3>
+    definition: <framework/action_codes/...yaml>
 
   - ...
 ```
 
 ---
 
-## 5. Action Codes (Mandatory)
+## 5. 3-30-300 Page Layout (Mandatory)
 
-Link business behavior to measurable outcomes.
-
-- **AC-XX - <Name>**
-  - Trigger (formal): From section 4
-  - Description: <What happens>
-  - Expected KPI Impact: <+%, -%, stabilize>
-  - Level (L1/L2/L3): L1
-  - Owner: <Team>
-
-- **...**
-  - Trigger (formal): ...
-  - Description: ...
-  - Expected KPI Impact: ...
-  - Level (L1/L2/L3): ...
-  - Owner: ...
-
-All referenced Action Codes must comply with the Prescriptive Standard
-(Trigger, Interpretation, Prescriptive Actions, Expected Impact, Risk).
-
----
-
-## 6. 3-30-300 Page Layout (Mandatory)
-
-### 6.1 3-Second Layer (KPI Cards)
+### 5.1 3-Second Layer (KPI Cards)
 
 - <KPI 1>
 - <KPI 2>
@@ -130,7 +105,7 @@ All referenced Action Codes must comply with the Prescriptive Standard
 - <KPI 4>
 - <Optional 5>
 
-### 6.2 30-Second Layer (Main Visuals)
+### 5.2 30-Second Layer (Main Visuals)
 
 - **<Trend>**
   - Visual Type: Line
@@ -156,20 +131,20 @@ All referenced Action Codes must comply with the Prescriptive Standard
   - Default Filter: ...
   - Notes: ...
 
-### 6.3 Required Slicers (Mandatory)
+### 5.3 Required Slicers (Mandatory)
 
 - <Slicer 1>  
 - <Slicer 2>  
 - <Max 3 slicers>
 
-### 6.4 300-Second Layer (Diagnostics)
+### 5.4 300-Second Layer (Diagnostics)
 
 - <Diagnostic view 1>
 - <Diagnostic view 2>
 
 ---
 
-## 7. Data Requirements Summary
+## 6. Data Requirements Summary
 
 ```yaml
 required_facts:
@@ -185,7 +160,7 @@ required_slicers: <e.g., Org, Region, Product>
 
 ---
 
-## 8. Dependencies, Assumptions & Constraints
+## 7. Dependencies, Assumptions & Constraints
 
 - <Business assumptions>
 - <Data limitations>
@@ -194,7 +169,7 @@ required_slicers: <e.g., Org, Region, Product>
 
 ---
 
-## 9. Success Criteria
+## 8. Success Criteria
 
 - <Impact KPI>
 - <Adoption KPI>
@@ -203,7 +178,7 @@ required_slicers: <e.g., Org, Region, Product>
 
 ---
 
-## 10. Risks & Wrong Interpretations (Short)
+## 9. Risks & Wrong Interpretations (Short)
 
 - <Risk 1>
 - <Risk 2>

@@ -5,7 +5,7 @@ factsheet_type: business
 
 # COM-003 - Customer Value  
 
-## Business Factsheet (v1.2)
+## Business Factsheet
 
 ---
 
@@ -139,62 +139,55 @@ required_kpis:
 
 ---
 
-## 4. Business Logic & Thresholds
+## 4. Action Codes (Summary)
 
-### 4.1 Logic Description
-
-### 4.2 Formal Action Code Rules (Machine-Readable)
-
-- Flag segments with retention below target or churned count rising for 2 consecutive months.
-- Prioritise high revenue-at-risk segments for retention playbooks.
-- Target top-N customers with declining CLV and rising complaints.
-- Price/mix changes applied only where margin guardrails hold (via COM-002/P2).
+Structured summary of action codes (definitions remain in YAML).
 
 ```yaml
 action_codes:
 
-  - kpi: crm.retention.pct
-    condition: below_target
-    threshold: retention_target_pct
-    scope: segment_channel
-    exclusion: new_customers < 3 months
-    action_code: C-C3.1
+  - id: C-M2.2
+    name: Mix Optimization (Margin-Driven)
+    purpose: Improve Margin via Sales Mix Quality
+    status: active
+    owner: Category Manager
+    trigger_kpis: [sales.pvm.mix_effect.amount]
+    guardrail_kpis: [margin.gm.pct]
+    outcome_kpis: [margin.gm.pct, sales.pvm.mix_effect.amount]
+    impact_range: margin.gm.pct: 0.3-1.2 pp
+    levels: L1-L3
+    definition: framework\action_codes\Commercial\C-M2.2.yaml
 
-  - kpi: crm.churned_customers.count
-    condition: above_target
-    threshold: churn_volume_target
-    scope: segment_channel
-    exclusion: strategic_accounts
-    action_code: C-C3.1
+  - id: C-P4.1
+    name: Promo Calendar Discipline
+    purpose: Eliminate Structurally Unprofitable Promotions
+    status: active
+    owner: Trade Marketing Lead
+    trigger_kpis: [sales.promo.roi.pct]
+    guardrail_kpis: [margin.promo.gm.pct]
+    outcome_kpis: [sales.promo.roi.pct, margin.promo.gm.pct]
+    impact_range: sales.promo.roi.pct: 5.0-20.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Commercial\C-P4.1.yaml
 
-  - kpi: crm.clv.amount
-    condition: below_target
-    threshold: clv_target
-    scope: priority_segments
-    exclusion: none
-    action_code: C-C3.3
-
-  - kpi: crm.revenue_at_risk.amount
-    condition: above_target
-    threshold: risk_tolerance_amount
-    scope: segment_channel
-    exclusion: none
-    action_code: C-C3.2
+  - id: C-S1.2
+    name: Sales Gap Recovery via Price & Pack Adjustment
+    purpose: Close Plan Gaps Without Margin Erosion
+    status: active
+    owner: Sales Director
+    trigger_kpis: [sales.net_sales.delta_pct.plan]
+    guardrail_kpis: [margin.gm.pct]
+    outcome_kpis: [sales.net_sales.amount]
+    impact_range: sales.net_sales.amount: 1.0-3.0 %
+    levels: L1-L3
+    definition: framework\action_codes\Commercial\C-S1.2.yaml
 ```
 
 ---
 
-## 5. Action Codes (Mandatory)
+## 5. 3-30-300 Page Layout (Mandatory)
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| C-C3.1 | Retention Playbook Activation | crm.churned_customers.count above_target churn_volume_target; crm.retention.pct below_target retention_target_pct | Trigger targeted retention outreach; Escalate high-risk accounts to Customer Success | crm.retention.pct +1.0-3.0 pp (1-3 periods) | L2 | Commercial / Customer Success |
-| C-C3.2 | High-Risk Revenue Prioritisation | crm.revenue_at_risk.amount above_target risk_tolerance_amount | Prioritise retention capacity toward highest value exposure; Sequence outreach by risk-weighted value | crm.revenue_at_risk.amount +5.0-15.0 % (1-3 periods) | L1 | Commercial / Sales Ops |
-| C-C3.3 | Customer Value Mix Steering | crm.clv.amount below_target clv_target | Steer customers toward higher-margin products and bundles; Prioritise upsell paths with positive CLV contribution | crm.clv.amount +5.0-15.0 % (2-6 periods) | L2 | Commercial / Category Management |
-
-## 6. 3-30-300 Page Layout (Mandatory)
-
-### 6.1 3-Second Layer (KPI Cards)
+### 5.1 3-Second Layer (KPI Cards)
 
 - Customer Lifetime Value Amount  
 - Customer Retention %  
@@ -204,7 +197,7 @@ action_codes:
 - NPS Score  
 - Customer Complaints Count  
 
-### 6.2 30-Second Layer (Main Visuals)
+### 5.2 30-Second Layer (Main Visuals)
 
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
@@ -213,14 +206,14 @@ action_codes:
 | Revenue at Risk | Column | dim_customer[Segment] | [Revenue at Risk Amount] | Region/Channel | Current quarter | Prioritise retention |
 | Complaints vs NPS | Scatter | dim_customer[Segment] | [Customer Complaints Count] | NPS as color | Current quarter | CX risk signals |
 
-### 6.3 Required Slicers (Mandatory)
+### 5.3 Required Slicers (Mandatory)
 
 - Date (Month/Quarter)  
 - Region / Channel  
 - Customer Segment  
 - Product Category (optional)
 
-### 6.4 300-Second Layer (Diagnostics)
+### 5.4 300-Second Layer (Diagnostics)
 
 - Top-N customers by revenue at risk and declining CLV.
 - Cohort trend tables (retention, churned count, active base).
@@ -229,7 +222,7 @@ action_codes:
 
 ---
 
-## 7. Data Requirements Summary
+## 6. Data Requirements Summary
 
 ```yaml
 required_facts:
@@ -261,7 +254,7 @@ required_slicers: Date, Region/Channel, Customer Segment, Product Category
 
 ---
 
-## 8. Dependencies, Assumptions & Constraints
+## 7. Dependencies, Assumptions & Constraints
 
 - Churn/retention definitions must be consistent (active vs inactive flags).
 - CLV methodology agreed (horizon, discount rate, margin basis).
@@ -270,7 +263,7 @@ required_slicers: Date, Region/Channel, Customer Segment, Product Category
 
 ---
 
-## 9. Success Criteria
+## 8. Success Criteria
 
 - Impact: CLV uplift in priority segments; churn reduced vs target; margin improvement on low-margin high-revenue accounts.  
 - Adoption: Used in monthly account/retention reviews; action codes triggered with <5% false positives.  
@@ -279,12 +272,13 @@ required_slicers: Date, Region/Channel, Customer Segment, Product Category
 
 ---
 
-## 10. Risks & Wrong Interpretations (Short)
+## 9. Risks & Wrong Interpretations (Short)
 
 - Misclassifying churn due to timing of inactivity flags.  
 - Over-discounting to "save" churn without margin guardrails.  
 - Using inconsistent CLV models across segments leading to false comparisons.
 
 ---
+
 
 

@@ -5,7 +5,7 @@ factsheet_type: business
 
 # COM-004 - Promotion Effectiveness  
 
-## Business Factsheet (v1.2)
+## Business Factsheet
 
 ---
 
@@ -106,63 +106,79 @@ required_kpis:
 
 ---
 
-## 4. Business Logic & Thresholds
+## 4. Action Codes (Summary)
 
-### 4.1 Logic Description
-
-### 4.2 Formal Action Code Rules (Machine-Readable)
-
-- Flag promotions with ROI < 120% or negative incremental GM.
-- Flag excessive discounting: Price Realization % below policy and GM % below target.
-- Flag high cannibalization > 20% of uplift.
-- Prioritize stop/replace actions for mechanics with repeated underperformance.
+Structured summary of action codes (definitions remain in YAML).
 
 ```yaml
 action_codes:
 
-  - kpi: sales.promo.roi.pct
-    condition: below_target
-    threshold: 1.2
-    scope: promotion
-    exclusion: strategic_brand_building
-    action_code: C-P4.1
+  - id: C-M2.1
+    name: Price Realization Guardrails
+    purpose: Stop Discount Leakage
+    status: active
+    owner: Pricing Lead
+    trigger_kpis: [sales.price.realization_pct]
+    guardrail_kpis: [margin.gm.pct]
+    outcome_kpis: [sales.price.realization_pct, margin.gm.pct]
+    impact_range: sales.price.realization_pct: 1.0-3.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Commercial\C-M2.1.yaml
 
-  - kpi: sales.price.realization_pct
-    condition: below_target
-    threshold: 0.9
-    scope: promotion
-    exclusion: none
-    action_code: C-P4.2
+  - id: C-S1.1
+    name: Price Discipline Enforcement
+    purpose: Protect Gross Margin
+    status: active
+    owner: Pricing Manager
+    trigger_kpis: [margin.gm.pct, sales.pvm.price_effect.amount]
+    guardrail_kpis: [sales.net_sales.delta_pct.plan]
+    outcome_kpis: [margin.gm.pct]
+    impact_range: margin.gm.pct: 0.5-1.5 pp
+    levels: L1-L3
+    definition: framework\action_codes\Commercial\C-S1.1.yaml
 
-  - kpi: sales.promo.cannibalization.pct
-    condition: above_target
-    threshold: 0.2
-    scope: promotion
-    exclusion: halo/brand_build exceptions
-    action_code: C-P4.3
+  - id: C-M2.2
+    name: Mix Optimization (Margin-Driven)
+    purpose: Improve Margin via Sales Mix Quality
+    status: active
+    owner: Category Manager
+    trigger_kpis: [sales.pvm.mix_effect.amount]
+    guardrail_kpis: [margin.gm.pct]
+    outcome_kpis: [margin.gm.pct, sales.pvm.mix_effect.amount]
+    impact_range: margin.gm.pct: 0.3-1.2 pp
+    levels: L1-L3
+    definition: framework\action_codes\Commercial\C-M2.2.yaml
 
-  - kpi: margin.promo.gm.pct
-    condition: below_target
-    threshold: category_target
-    scope: promotion
-    exclusion: approved strategic promos
-    action_code: C-P4.4
+  - id: C-P4.1
+    name: Promo Calendar Discipline
+    purpose: Eliminate Structurally Unprofitable Promotions
+    status: active
+    owner: Trade Marketing Lead
+    trigger_kpis: [sales.promo.roi.pct]
+    guardrail_kpis: [margin.promo.gm.pct]
+    outcome_kpis: [sales.promo.roi.pct, margin.promo.gm.pct]
+    impact_range: sales.promo.roi.pct: 5.0-20.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\Commercial\C-P4.1.yaml
+
+  - id: C-S1.2
+    name: Sales Gap Recovery via Price & Pack Adjustment
+    purpose: Close Plan Gaps Without Margin Erosion
+    status: active
+    owner: Sales Director
+    trigger_kpis: [sales.net_sales.delta_pct.plan]
+    guardrail_kpis: [margin.gm.pct]
+    outcome_kpis: [sales.net_sales.amount]
+    impact_range: sales.net_sales.amount: 1.0-3.0 %
+    levels: L1-L3
+    definition: framework\action_codes\Commercial\C-S1.2.yaml
 ```
 
 ---
 
-## 5. Action Codes (Mandatory)
+## 5. 3-30-300 Page Layout (Mandatory)
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| C-P4.1 | Promo Calendar Discipline | sales.promo.roi.pct below_target 1.2 | Stop or replace low-ROI promotions; Resequence promotion calendar to higher-quality mechanics | sales.promo.roi.pct +5.0-20.0 pp (1-2 periods) | L1 | Trade Marketing |
-| C-P4.2 | Promotion Price & Discount Guardrails | sales.price.realization_pct below_target 0.9 | Enforce discount floors during promotions; Require approval for promo price exceptions | margin.promo.gm.pct +0.5-2.0 pp (0-1 periods) | L1 | Pricing / Sales Operations |
-| C-P4.3 | Cannibalization & Mix Control | sales.promo.cannibalization.pct above_target 0.2 | Adjust promo SKU scope and mechanics to reduce cannibalization; Exclude or swap SKUs causing net value destruction | Impact: Medium | L1 | Category Management |
-| C-P4.4 | Promo Cost & COGS Discipline | margin.promo.gm.pct below_target category_target | Correct promo-specific cost leakage (COGS, logistics, funding); Adjust funding or mechanics when cost-driven margin erosion occurs | margin.promo.gm.pct +0.5-1.5 pp (1-3 periods) | L2 | Procurement / Operations |
-
-## 6. 3-30-300 Page Layout (Mandatory)
-
-### 6.1 3-Second Layer (KPI Cards)
+### 5.1 3-Second Layer (KPI Cards)
 
 - Promotion ROI %  
 - Incremental Sales Amount  
@@ -170,7 +186,7 @@ action_codes:
 - Price Realization %  
 - Cannibalization %  
 
-### 6.2 30-Second Layer (Main Visuals)
+### 5.2 30-Second Layer (Main Visuals)
 
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
@@ -179,14 +195,14 @@ action_codes:
 | Price Realization Ladder | Waterfall | Price components | Net vs List | Channel | Current quarter | Show discount/rebate/surcharge |
 | Cannibalization vs Uplift | Scatter | Cannibalization % | Incremental Sales Amount | Category/Region | Current period | Identify harmful promos |
 
-### 6.3 Required Slicers (Mandatory)
+### 5.3 Required Slicers (Mandatory)
 
 - Date/Promo period  
 - Region / Channel  
 - Product Category / Subcategory  
 - Promotion Type/Mechanic  
 
-### 6.4 300-Second Layer (Diagnostics)
+### 5.4 300-Second Layer (Diagnostics)
 
 - Promo-level GM bridge (uplift vs cost vs leakage).
 - Cannibalization root-cause table (related SKUs, categories).
@@ -194,7 +210,7 @@ action_codes:
 
 ---
 
-## 7. Data Requirements Summary
+## 6. Data Requirements Summary
 
 ```yaml
 required_facts:
@@ -220,7 +236,7 @@ required_slicers: Date/Promo period, Region/Channel, Product Category/Subcategor
 
 ---
 
-## 8. Dependencies, Assumptions & Constraints
+## 7. Dependencies, Assumptions & Constraints
 
 - Baseline model for incremental sales defined and stable; uplift calculations align with COM-001/002.
 - Discount components (net/list, rebates, surcharges) available to compute price realization during promos.
@@ -229,7 +245,7 @@ required_slicers: Date/Promo period, Region/Channel, Product Category/Subcategor
 
 ---
 
-## 9. Success Criteria
+## 8. Success Criteria
 
 - Impact: Higher promo ROI (>=120%), higher incremental GM, reduced cannibalization.
 - Adoption: Used in promo/post-event reviews; actions logged via Action Codes.
@@ -238,11 +254,12 @@ required_slicers: Date/Promo period, Region/Channel, Product Category/Subcategor
 
 ---
 
-## 10. Risks & Wrong Interpretations (Short)
+## 9. Risks & Wrong Interpretations (Short)
 
 - Baseline mis-specified leading to overstated uplift/ROI.
 - Ignoring cannibalization/halo effects distorts net benefit.
 - Over-discounting to lift volume without GM guardrails.
 
 ---
+
 

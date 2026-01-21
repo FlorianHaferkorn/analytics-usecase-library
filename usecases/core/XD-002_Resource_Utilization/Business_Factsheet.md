@@ -5,7 +5,7 @@ factsheet_type: business
 
 # XD-002 - Resource Utilization  
 
-## Business Factsheet (v1.2)
+## Business Factsheet
 
 ---
 
@@ -135,63 +135,67 @@ required_kpis:
 
 ---
 
-## 4. Business Logic & Thresholds
+## 4. Action Codes (Summary)
 
-Formal rules that define performance and action codes.
-
-### 4.1 Logic Description
-
-- Flag utilization/occupancy outside target bands (too low or too high).
-- Flag rising overtime and shrinkage; correlate with SLA and backlog.
-- Identify queues/regions with backlog risk due to capacity gaps.
-
-### 4.2 Formal Action Code Rules (Machine-Readable)
+Structured summary of action codes (definitions remain in YAML).
 
 ```yaml
 action_codes:
 
-  - kpi: res.utilization.pct
-    condition: outside
-    threshold: [util_lower, util_upper]
-    scope: queue_region_channel
-    exclusion: training/new hires
-    action_code: X-R2.1
+  - id: X-R2.1
+    name: Resource Utilization Orchestration
+    purpose: Coordinate Utilization Levers Without Overloading or Idling Capacity
+    status: active
+    owner: Head of Workforce Management
+    trigger_kpis: [res.utilization.pct, res.overtime.pct]
+    guardrail_kpis: [svc.sla.attainment.pct]
+    outcome_kpis: [res.utilization.pct]
+    impact_range: res.utilization.pct: 3.0-8.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\People\X-R2.1.yaml
 
-  - kpi: res.occupancy.pct
-    condition: outside
-    threshold: [occ_lower, occ_upper]
-    scope: queue_region_channel
-    exclusion: training/new hires
-    action_code: X-R2.2
+  - id: X-R2.2
+    name: Capacity Reallocation & Load Balancing
+    purpose: Rebalance Capacity Across Queues and Time Windows
+    status: active
+    owner: Workforce Management Lead
+    trigger_kpis: [res.utilization.pct, res.occupancy.pct]
+    guardrail_kpis: [svc.sla.attainment.pct]
+    outcome_kpis: [res.utilization.pct]
+    impact_range: res.utilization.pct: 4.0-10.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\People\X-R2.2.yaml
 
-  - kpi: res.overtime.pct
-    condition: >
-    threshold: overtime_target
-    scope: queue_region
-    exclusion: crisis
-    action_code: X-R2.1
+  - id: X-R2.3
+    name: Shrinkage & Productive Time Control
+    purpose: Reduce Non-Productive Time Without Increasing Load
+    status: active
+    owner: Service Operations Manager
+    trigger_kpis: [res.shrinkage.pct]
+    guardrail_kpis: [svc.sla.attainment.pct]
+    outcome_kpis: [res.shrinkage.pct, res.utilization.pct]
+    impact_range: res.shrinkage.pct: -3.0--8.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\People\X-R2.3.yaml
 
-  - kpi: res.shrinkage.pct
-    condition: >
-    threshold: shrinkage_target
-    scope: queue_region
-    exclusion: planned_absences
-    action_code: X-R2.3
+  - id: X-R2.4
+    name: Overtime & Fatigue Containment
+    purpose: Contain Structural Overtime Without Degrading Service Levels
+    status: active
+    owner: Service Operations Manager
+    trigger_kpis: [res.overtime.pct]
+    guardrail_kpis: [svc.sla.attainment.pct]
+    outcome_kpis: [res.overtime.pct]
+    impact_range: res.overtime.pct: -2.0--6.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\People\X-R2.4.yaml
 ```
 
 ---
 
-## 5. Action Codes (Mandatory)
+## 5. 3-30-300 Page Layout (Mandatory)
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| X-R2.1 | Resource Utilization Orchestration | res.overtime.pct > overtime_target; res.utilization.pct outside | Select dominant utilization lever (reallocation, shrinkage control, overtime containment); Sequence utilization actions to avoid overload or idle pockets | res.utilization.pct +3.0-8.0 pp (1-3 periods) | L1 | Service Operations / Workforce Management Leadership |
-| X-R2.2 | Capacity Reallocation & Load Balancing | res.occupancy.pct outside | Shift staffing between queues, channels, and regions; Smooth short-term demand–capacity mismatches | res.utilization.pct +4.0-10.0 pp (1-2 periods) | L1 | Workforce Management |
-| X-R2.3 | Shrinkage & Productive Time Control | res.shrinkage.pct > shrinkage_target | Identify and reduce structural non-productive time drivers; Stabilise productive time without overloading agents | Impact: Medium | L2 | Service Operations / CX |
-
-## 6. 3-30-300 Page Layout (Mandatory)
-
-### 6.1 3-Second Layer (KPI Cards)
+### 5.1 3-Second Layer (KPI Cards)
 
 - Utilization %  
 - Occupancy %  
@@ -199,7 +203,7 @@ action_codes:
 - Shrinkage %  
 - SLA % / Backlog Count  
 
-### 6.2 30-Second Layer (Main Visuals)
+### 5.2 30-Second Layer (Main Visuals)
 
 - **Utilization vs Band by Queue**
   - Visual Type: Column
@@ -233,7 +237,7 @@ action_codes:
   - Default Filter: Current quarter
   - Notes: Service risk
 
-### 6.3 Required Slicers (Mandatory)
+### 5.3 Required Slicers (Mandatory)
 
 - Date (Week/Month)  
 - Region / Channel / Queue  
@@ -241,11 +245,11 @@ action_codes:
 
 ---
 
-### 6.4 300-Second Layer (Diagnostics)
+### 5.4 300-Second Layer (Diagnostics)
 
 - (optional)
 
-## 7. Data Requirements Summary
+## 6. Data Requirements Summary
 
 ```yaml
 required_facts:
@@ -271,7 +275,7 @@ required_slicers: >
 
 ---
 
-## 8. Dependencies, Assumptions & Constraints
+## 7. Dependencies, Assumptions & Constraints
 
 - WFM data includes work/idle/wrap, overtime, shrinkage; SLA/backlog
   available from cases.
@@ -282,7 +286,7 @@ required_slicers: >
 
 ---
 
-## 9. Success Criteria
+## 8. Success Criteria
 
 - Impact: Utilization/occupancy within bands; overtime/shrinkage reduced; SLA
   stable/improved; backlog controlled.  
@@ -294,7 +298,7 @@ required_slicers: >
 
 ---
 
-## 10. Risks & Wrong Interpretations (Short)
+## 9. Risks & Wrong Interpretations (Short)
 
 - Overdriving utilization causing quality decline.  
 - Misclassifying shrinkage leading to wrong capacity view.  

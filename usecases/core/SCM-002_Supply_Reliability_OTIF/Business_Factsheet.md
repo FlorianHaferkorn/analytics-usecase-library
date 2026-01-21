@@ -5,7 +5,7 @@ factsheet_type: business
 
 # SCM-002 - Supply Reliability & OTIF  
 
-## Business Factsheet (v1.2)
+## Business Factsheet
 
 ---
 
@@ -146,64 +146,79 @@ required_kpis:
 
 ---
 
-## 4. Business Logic & Thresholds
+## 4. Action Codes (Summary)
 
-Formal rules that define performance and action codes.
-
-### 4.1 Logic Description
-
-- Flag lanes/products with OTIF below target for 2 consecutive periods.
-- Flag high stockout impact % by channel/location.
-- Flag penalties/expedites above materiality thresholds.
-- Identify on-time or in-full components failing most.
-
-### 4.2 Formal Action Code Rules (Machine-Readable)
+Structured summary of action codes (definitions remain in YAML).
 
 ```yaml
 action_codes:
 
-  - kpi: supply.otif.pct
-    condition: <
-    threshold: otif_target
-    scope: lane_dc_channel
-    exclusion: force_majeure
-    action_code: S-R2.1
+  - id: S-R2.1
+    name: OTIF Orchestration
+    purpose: Coordinate OTIF Improvement Levers Without Masking Root Causes
+    status: active
+    owner: Head of Supply Chain
+    trigger_kpis: [supply.otif.pct, supply.expedite.amount]
+    guardrail_kpis: [inv.dio.days]
+    outcome_kpis: [supply.otif.pct]
+    impact_range: supply.otif.pct: 1.0-4.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\SupplyChain\S-R2.1.yaml
 
-  - kpi: supply.stockout_impact.pct
-    condition: >
-    threshold: stockout_target
-    scope: location_channel
-    exclusion: planned_outages
-    action_code: S-R2.3
+  - id: S-R2.2
+    name: Fulfillment & Transport Stabilisation
+    purpose: Stabilise On-Time Delivery Performance
+    status: active
+    owner: Logistics Manager
+    trigger_kpis: [supply.on_time.pct]
+    guardrail_kpis: [supply.expedite.amount]
+    outcome_kpis: [supply.on_time.pct, supply.otif.pct]
+    impact_range: supply.on_time.pct: 2.0-5.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\SupplyChain\S-R2.2.yaml
 
-  - kpi: supply.penalty.amount
-    condition: >
-    threshold: penalty_materiality
-    scope: customer_channel
-    exclusion: negotiated_penalties
-    action_code: S-R2.4
+  - id: S-R2.3
+    name: In-Full & Stockout Impact Reduction
+    purpose: Prevent Partial Deliveries and Lost Demand
+    status: active
+    owner: Supply Planner
+    trigger_kpis: [supply.stockout_impact.pct]
+    guardrail_kpis: [inv.dio.days]
+    outcome_kpis: [supply.stockout_impact.pct, supply.in_full.pct]
+    impact_range: supply.stockout_impact.pct: -1.0--4.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\SupplyChain\S-R2.3.yaml
 
-  - kpi: supply.expedite.amount
-    condition: >
-    threshold: expedite_materiality
-    scope: lane_dc_channel
-    exclusion: crisis
-    action_code: S-R2.1
+  - id: S-R2.4
+    name: Penalty & Expedite Cost Control
+    purpose: Reduce Avoidable Penalties and Expedite Spend Without Masking OTIF Issues
+    status: active
+    owner: Logistics Cost Manager
+    trigger_kpis: [supply.penalty.amount, supply.expedite.amount]
+    guardrail_kpis: [supply.otif.pct]
+    outcome_kpis: [supply.penalty.amount, supply.expedite.amount]
+    impact_range: supply.penalty.amount: -10.0--30.0 %
+    levels: L1-L3
+    definition: framework\action_codes\SupplyChain\S-R2.4.yaml
+
+  - id: S-R2.5
+    name: Planning & Execution Alignment
+    purpose: Align Short-Term Plans with Operational Execution to Protect OTIF
+    status: active
+    owner: S&OP Lead
+    trigger_kpis: [supply.otif.pct, supply.expedite.amount]
+    guardrail_kpis: [inv.dio.days]
+    outcome_kpis: [supply.otif.pct]
+    impact_range: supply.otif.pct: 1.0-3.0 pp
+    levels: L1-L3
+    definition: framework\action_codes\SupplyChain\S-R2.5.yaml
 ```
 
 ---
 
-## 5. Action Codes (Mandatory)
+## 5. 3-30-300 Page Layout (Mandatory)
 
-| Action Code | Name | Trigger (formal) | Description | Expected KPI Impact | Level (L1/L2/L3) | Owner |
-|-------------|------|------------------|-------------|---------------------|------------------|-------|
-| S-R2.1 | OTIF Orchestration | supply.expedite.amount > expedite_materiality; supply.otif.pct < otif_target | Select dominant OTIF lever (transport, in-full, cost containment, planning alignment); Sequence actions to avoid expedites masking structural failures | supply.otif.pct +1.0-4.0 pp (1-3 periods) | L1 | Supply Chain Leadership |
-| S-R2.3 | In-Full & Stockout Impact Reduction | supply.stockout_impact.pct > stockout_target | Stabilise short-term supply allocation to protect in-full delivery; Prioritise constrained supply to highest service impact lanes | Impact: High | L1 | Supply Planning |
-| S-R2.4 | Penalty & Expedite Cost Control | supply.penalty.amount > penalty_materiality | Identify structurally avoidable service-failure costs; Differentiate justified expedites from systemic inefficiencies | Impact: Medium | L2 | Logistics / Procurement |
-
-## 6. 3-30-300 Page Layout (Mandatory)
-
-### 6.1 3-Second Layer (KPI Cards)
+### 5.1 3-Second Layer (KPI Cards)
 
 - OTIF %  
 - On-Time %  
@@ -211,7 +226,7 @@ action_codes:
 - Stockout Impact %  
 - Penalty Amount / Expedite Cost  
 
-### 6.2 30-Second Layer (Main Visuals)
+### 5.2 30-Second Layer (Main Visuals)
 
 - **OTIF vs Target by Lane/DC**
   - Visual Type: Column
@@ -245,7 +260,7 @@ action_codes:
   - Default Filter: L12W
   - Notes: Service stability
 
-### 6.3 Required Slicers (Mandatory)
+### 5.3 Required Slicers (Mandatory)
 
 - Date (Week/Month)  
 - Lane / DC / Channel  
@@ -254,11 +269,11 @@ action_codes:
 
 ---
 
-### 6.4 300-Second Layer (Diagnostics)
+### 5.4 300-Second Layer (Diagnostics)
 
 - (optional)
 
-## 7. Data Requirements Summary
+## 6. Data Requirements Summary
 
 ```yaml
 required_facts:
@@ -288,7 +303,7 @@ required_slicers: >
 
 ---
 
-## 8. Dependencies, Assumptions & Constraints
+## 7. Dependencies, Assumptions & Constraints
 
 - OTIF flags consistent; on-time and in-full flags available;
   penalties/expedites captured.
@@ -299,7 +314,7 @@ required_slicers: >
 
 ---
 
-## 9. Success Criteria
+## 8. Success Criteria
 
 - Impact: OTIF raised to target; penalties/expedites reduced; stockout impact
   reduced.  
@@ -311,8 +326,9 @@ required_slicers: >
 
 ---
 
-## 10. Risks & Wrong Interpretations (Short)
+## 9. Risks & Wrong Interpretations (Short)
 
 - Misapplied force majeure exclusions inflating OTIF.  
 - Missing penalty/expedite capture understates cost.  
 - Stockout impact misread if demand not captured consistently.  
+

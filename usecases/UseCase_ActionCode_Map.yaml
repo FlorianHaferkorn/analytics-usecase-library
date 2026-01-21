@@ -1,143 +1,31 @@
 use_cases:
   COM-001:
-    action_codes: [C-P1.1, C-P1.2, C-P1.3]
+    action_codes: [C-M2.1, C-S1.1, C-S1.2]
   COM-002:
-    action_codes: [C-M1.1, C-M1.2, C-P1.3]
+    action_codes: [C-M2.2, C-P4.1, C-S1.2]
   COM-003:
-    action_codes: [C-M1.1, C-M1.2, C-P1.3]
+    action_codes: [C-M2.2, C-P4.1, C-S1.2]
   COM-004:
-    action_codes: [C-P1.1, C-P1.2, C-M1.1, C-M1.2, C-P1.3]
-  COM-005:
-    action_codes: [C-M1.1, C-M1.2, C-P1.3]
-  COM-006:
-    action_codes: [C-P1.3]
-  COM-007:
-    action_codes: [C-P1.1, C-P1.2, C-M1.1, C-M1.2, C-P1.3]
-  COM-008:
-    action_codes: [C-M1.1, C-M1.2]
-  COM-009:
-    action_codes: [C-M1.1, C-M1.2, C-P1.3]
-  COM-010:
-    action_codes: [C-P1.3, C-M1.1]
-  COM-011:
-    action_codes: [C-P1.3, C-M1.1]
-  COM-012:
-    action_codes: [C-P1.1, C-P1.2, C-M1.1, C-M1.2, C-P1.3]
-  COM-014:
-    action_codes: [C-P1.3]
-  COM-015:
-    action_codes: [C-P1.3, C-M1.1]
-  COR-001:
-    action_codes: [CS-W1.1]
-  COR-002:
-    action_codes: [CS-F1.1]
-  COR-003:
-    action_codes: [CS-F1.1, CS-W1.1]
-  COR-004:
-    action_codes: [CS-F1.1, CS-W1.1]
-  COR-005:
-    action_codes: [CS-E1.1]
-  COR-006:
-    action_codes: [CS-F1.1, CS-W1.1]
-  COR-007:
-    action_codes: [CS-F1.1, CS-W1.1]
-  COR-008:
-    action_codes: [CS-F1.1, CS-W1.1]
-  COR-009:
-    action_codes: [CS-C1.1]
-  COR-010:
-    action_codes: [CS-W1.1]
-  COR-011:
-    action_codes: [CS-F1.1, CS-W1.1]
-  COR-012:
-    action_codes: [CS-F1.1]
-  COR-013:
-    action_codes: [CS-F1.1, CS-W1.1]
-  COR-014:
-    action_codes: [CS-F1.1, CS-W1.1]
-  COR-015:
-    action_codes: [CS-F1.1, CS-W1.1]
-  COR-016:
-    action_codes: [CS-C1.1]
-  CST-001:
-    action_codes: [CM-R1.1, CM-R1.2]
-  CST-002:
-    action_codes: [CM-R1.1, CM-N1.1]
-  CST-003:
-    action_codes: [CM-R1.1, CM-R1.2]
-  CST-004:
-    action_codes: [CM-R1.1, CM-R1.2]
-  CST-005:
-    action_codes: [CM-R1.1, CM-R1.2, CM-N1.1]
-  CST-006:
-    action_codes: [CM-M1.1, CM-S1.1]
-  CST-007:
-    action_codes: [CM-R1.1, CM-R1.2, CM-N1.1]
-  CST-008:
-    action_codes: [CM-R1.1, CM-N1.1]
-  CST-009:
-    action_codes: [CM-N1.1]
-  CST-010:
-    action_codes: [CM-R1.1, CM-N1.1]
-  CST-011:
-    action_codes: [CM-R1.1, CM-R1.2]
-  CST-012:
-    action_codes: [CM-R1.1, CM-R1.2]
-  CST-014:
-    action_codes: [CM-R1.1, CM-R1.2]
-  ESG-001:
-    action_codes: [ESG-E1.1, ESG-R1.1]
-  ESG-002:
-    action_codes: [ESG-R1.1]
-  GOV-001:
-    action_codes: [G-D1.1]
-  GOV-002:
-    action_codes: [G-C1.1, G-S1.1]
-  GOV-003:
-    action_codes: [G-C1.1, G-D1.1]
-  GOV-004:
-    action_codes: [G-D1.1]
-  HR-001:
-    action_codes: [IP-E1.1, IP-T1.1]
-  HR-002:
-    action_codes: [IP-E1.1, IP-I1.1]
-  INN-001:
-    action_codes: [IP-E1.1, IP-I1.1]
-  INN-002:
-    action_codes: [IP-I1.1]
+    action_codes: [C-M2.1, C-S1.1, C-M2.2, C-P4.1, C-S1.2]
+  FIN-001:
+    action_codes: [F-C1.1, F-C1.2, F-C1.3, F-C1.4]
+  FIN-002:
+    action_codes: [F-K2.1, F-K2.2, F-K2.3, F-K2.4]
   OPS-001:
-    action_codes: [O-I1.1]
+    action_codes: [O-O1.1, O-O1.2, O-O1.3, O-O1.4]
   OPS-002:
-    action_codes: [O-I1.1]
+    action_codes: [O-A2.1, O-A2.2, O-A2.3, O-A2.4, O-A2.5]
   OPS-003:
-    action_codes: [O-E1.1, O-I1.1]
-  OPS-004:
-    action_codes: [O-I1.1]
-  OPS-005:
-    action_codes: [O-E1.1, O-E1.2]
-  OPS-006:
-    action_codes: [O-I1.1]
-  OPS-007:
-    action_codes: [O-I1.1]
-  OPS-008:
-    action_codes: [O-E1.1, O-I1.1]
-  OPS-009:
-    action_codes: [O-E1.1, O-I1.1]
-  OPS-010:
-    action_codes: [O-I1.1, O-C1.1]
-  OPS-011:
-    action_codes: [O-E1.1, O-I1.1]
-  OPS-012:
-    action_codes: [O-I1.1]
-  OPS-013:
-    action_codes: [O-E1.1]
-  OPS-014:
-    action_codes: [O-E1.1, O-I1.1]
-  OPS-015:
-    action_codes: [O-E1.1]
-  OPS-016:
-    action_codes: [O-E1.2, O-C1.1]
-  OPS-017:
-    action_codes: [O-I1.1, O-C1.1]
-  OPS-018:
-    action_codes: [O-E1.1, O-I1.1]
+    action_codes: [O-Q3.1, O-Q3.2, O-Q3.3, O-Q3.4, O-Q3.5]
+  SCM-001:
+    action_codes: [S-I1.1, S-I1.2, S-I1.3, S-I1.4, S-I1.5]
+  SCM-002:
+    action_codes: [S-R2.1, S-R2.2, S-R2.3, S-R2.4, S-R2.5]
+  SCM-003:
+    action_codes: [S-F3.1, S-F3.2, S-F3.3, S-F3.4]
+  XD-001:
+    action_codes: [X-S1.1, X-S1.2, X-S1.3, X-S1.4]
+  XD-002:
+    action_codes: [X-R2.1, X-R2.2, X-R2.3, X-R2.4]
+  XD-003:
+    action_codes: [X-E3.2, X-E3.3]

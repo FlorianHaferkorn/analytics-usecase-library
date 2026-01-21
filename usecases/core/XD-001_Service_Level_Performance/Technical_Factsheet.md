@@ -5,7 +5,7 @@ factsheet_type: technical
 
 # XD-001 - Service Level Performance  
 
-## Technical Factsheet (v1.2)
+## Technical Factsheet
 
 ---
 
@@ -320,4 +320,5 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 
