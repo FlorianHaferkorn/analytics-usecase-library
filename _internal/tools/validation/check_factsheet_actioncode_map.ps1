@@ -54,14 +54,29 @@ function Get-FrontMatterId {
 function Get-BodyActionCodes {
   param([string]$Content)
   if (-not $Content) { return @() }
-  $section = [regex]::Match($Content, "(?ms)^## 4\\. Action Codes \\(Summary\\).*?```yaml(?<yaml>.*?)```")
-  if (-not $section.Success) { return @() }
-  $yaml = $section.Groups['yaml'].Value
-  if (-not ($yaml -match "(?ms)action_codes\\s*:")) { return @() }
   $codes = @()
-  foreach ($line in ($yaml -split "`r?`n")) {
-    if ($line -match '^\s*-\s*id:\s*\"?([^\"\\s]+)\"?\s*$') {
+  $inYaml = $false
+  $inActionCodes = $false
+  foreach ($line in ([regex]::Split($Content, "\r?\n"))) {
+    if ($line -match '^\s*```yaml\s*$') { $inYaml = $true; $inActionCodes = $false; continue }
+    if ($line -match '^\s*```\s*$') { $inYaml = $false; $inActionCodes = $false; continue }
+    if (-not $inYaml) { continue }
+    if ($line -match '^\s*action_codes\s*:\s*$') { $inActionCodes = $true; continue }
+    if (-not $inActionCodes) { continue }
+    if ($line -match '^\s*-\s*id:\s*([A-Z][A-Z0-9\.-]+)\s*$') {
       $codes += $matches[1]
+    }
+  }
+  if ($codes.Count -eq 0) {
+    $sectionPattern = '^## 4\. Action Codes \(Summary\)(?<section>.*?)^## 5\.'
+    $options = [Text.RegularExpressions.RegexOptions]::Singleline -bor [Text.RegularExpressions.RegexOptions]::Multiline
+    $section = [regex]::Match($Content, $sectionPattern, $options)
+    if ($section.Success) {
+      foreach ($line in ([regex]::Split($section.Groups['section'].Value, "\r?\n"))) {
+        if ($line -match '^\s*-\s*id:\s*([A-Z][A-Z0-9\.-]+)\s*$') {
+          $codes += $matches[1]
+        }
+      }
     }
   }
   return $codes

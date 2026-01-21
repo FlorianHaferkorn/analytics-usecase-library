@@ -1,6 +1,6 @@
 ﻿# Run All Checks Report
 
-- Timestamp: 2026-01-21T14:57:36
+- Timestamp: 2026-01-21T16:23:37
 - Repo: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library
 - UseCasesRoot: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases
 - FactsheetsRoot: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core
@@ -17,24 +17,24 @@
 
 | Check | Status | Duration (s) | Arguments | Error |
 | --- | --- | ---: | --- | --- |
-| _internal/tools/validation/validate_factsheets.ps1 | ok | 0.09 |  |  |
-| _internal/tools/validation/validate_kpi_catalog.ps1 | ok | 0.6 |  |  |
-| _internal/tools/validation/check_factsheet_vs_kpi.ps1 | ok | 2.65 |  |  |
-| _internal/tools/validation/check_measures_vs_kpi.ps1 | ok | 0.24 |  |  |
-| _internal/tools/maintenance/check_docs_refs.ps1 | ok | 0.09 |  |  |
-| _internal/tools/validation/check_docs_kpi_refs.ps1 | ok | 0.91 |  |  |
-| _internal/tools/validation/check_usecase_inventory_vs_factsheets.ps1 | ok | 0.19 |  |  |
-| _internal/tools/validation/check_kpi_catalog_unused_in_factsheets.ps1 | ok | 3.08 |  |  |
-| _internal/tools/validation/check_docs_usecase_refs.ps1 | ok | 0.27 |  |  |
-| _internal/tools/validation/check_action_codes_vs_kpi.ps1 | ok | 1.1 |  |  |
-| _internal/tools/validation/check_factsheet_action_codes.ps1 | ok | 0.54 |  |  |
-| _internal/tools/validation/check_usecase_actioncode_map.ps1 | ok | 2.44 |  |  |
-| _internal/tools/validation/check_factsheet_actioncode_map.ps1 | ok | 0.45 |  |  |
-| _internal/tools/validation/check_factsheet_layout.ps1 | ok | 9.64 |  |  |
-| _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 | ok | 2.4 | -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
-| _internal/tools/validation/check_dax_vs_measure_dictionary.ps1 | ok | 2.35 |  |  |
-| _internal/tools/validation/check_measure_dictionary_vs_gold.ps1 | ok | 0.73 | -GoldRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\data_contracts\domains -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
-| _internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1 | ok | 0.21 | -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist |  |
+| _internal/tools/validation/validate_factsheets.ps1 | ok | 0.1 |  |  |
+| _internal/tools/validation/validate_kpi_catalog.ps1 | ok | 0.37 |  |  |
+| _internal/tools/validation/check_factsheet_vs_kpi.ps1 | ok | 2.62 |  |  |
+| _internal/tools/validation/check_measures_vs_kpi.ps1 | ok | 0.2 |  |  |
+| _internal/tools/maintenance/check_docs_refs.ps1 | ok | 0.07 |  |  |
+| _internal/tools/validation/check_docs_kpi_refs.ps1 | ok | 0.42 |  |  |
+| _internal/tools/validation/check_usecase_inventory_vs_factsheets.ps1 | ok | 0.18 |  |  |
+| _internal/tools/validation/check_kpi_catalog_unused_in_factsheets.ps1 | ok | 1.1 |  |  |
+| _internal/tools/validation/check_docs_usecase_refs.ps1 | ok | 0.28 |  |  |
+| _internal/tools/validation/check_action_codes_vs_kpi.ps1 | ok | 0.68 |  |  |
+| _internal/tools/validation/check_factsheet_action_codes.ps1 | ok | 0.67 |  |  |
+| _internal/tools/validation/check_usecase_actioncode_map.ps1 | ok | 0.54 |  |  |
+| _internal/tools/validation/check_factsheet_actioncode_map.ps1 | ok | 0.27 |  |  |
+| _internal/tools/validation/check_factsheet_layout.ps1 | ok | 1.77 |  |  |
+| _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 | ok | 0.56 | -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
+| _internal/tools/validation/check_dax_vs_measure_dictionary.ps1 | ok | 0.54 |  |  |
+| _internal/tools/validation/check_measure_dictionary_vs_gold.ps1 | ok | 0.2 | -GoldRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\data_contracts\domains -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
+| _internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1 | ok | 0.05 | -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist |  |
 
 ## Detailed Output
 
@@ -284,22 +284,7 @@ OK: UseCase ActionCode map is consistent with core and action codes.
 
 ```text
 Factsheets -> ActionCode map alignment
-Factsheet action_codes mismatch:
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-001_Sales_Performance\Business_Factsheet.md: action_codes missing in front matter
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-002_Margin_Price_Performance\Business_Factsheet.md: action_codes missing in front matter
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-003_Customer_Value\Business_Factsheet.md: action_codes missing in front matter
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-004_Promotion_Effectiveness\Business_Factsheet.md: action_codes missing in front matter
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\FIN-001_Cash_Liquidity_Performance\Business_Factsheet.md: action_codes missing in front matter
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\FIN-002_Cost_Performance\Business_Factsheet.md: action_codes missing in front matter
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\OPS-001_Operations_Performance\Business_Factsheet.md: action_codes missing in front matter
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\OPS-002_Asset_Performance\Business_Factsheet.md: action_codes missing in front matter
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\OPS-003_Quality_Yield\Business_Factsheet.md: action_codes missing in front matter
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\SCM-001_Inventory_Performance\Business_Factsheet.md: action_codes missing in front matter
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\SCM-002_Supply_Reliability_OTIF\Business_Factsheet.md: action_codes missing in front matter
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\SCM-003_Forecast_vs_Actual\Business_Factsheet.md: action_codes missing in front matter
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\XD-001_Service_Level_Performance\Business_Factsheet.md: action_codes missing in front matter
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\XD-002_Resource_Utilization\Business_Factsheet.md: action_codes missing in front matter
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\XD-003_Executive_KPI_Overview\Business_Factsheet.md: action_codes missing in front matter
+OK: factsheet action_codes align with the UseCase ActionCode map.
 
 ```
 
@@ -309,97 +294,7 @@ Factsheet action_codes mismatch:
 Template layout checks
 Note: no measure documents found for template at C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\templates\measure_templates\measure_template.md (no instances under semantic_models/measures).
 Note: no page instance documents found for templates under C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\templates\page_templates\page_types.
-Layout mismatches found:
-- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-001_Sales_Performance\Business_Factsheet.md
-  Missing: ## Business Factsheet
-  Extra: ## Business Factsheet (v1.2)
-- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-002_Margin_Price_Performance\Business_Factsheet.md
-  Missing: ## Business Factsheet
-  Extra: ## Business Factsheet (v1.2)
-- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-003_Customer_Value\Business_Factsheet.md
-  Missing: ## Business Factsheet
-  Extra: ## Business Factsheet (v1.2)
-- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-004_Promotion_Effectiveness\Business_Factsheet.md
-  Missing: ## Business Factsheet
-  Extra: ## Business Factsheet (v1.2)
-- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\FIN-001_Cash_Liquidity_Performance\Business_Factsheet.md
-  Missing: ## Business Factsheet
-  Extra: ## Business Factsheet (v1.2)
-- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\FIN-002_Cost_Performance\Business_Factsheet.md
-  Missing: ## Business Factsheet
-  Extra: ## Business Factsheet (v1.2)
-- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\OPS-001_Operations_Performance\Business_Factsheet.md
-  Missing: ## Business Factsheet
-  Extra: ## Business Factsheet (v1.2)
-- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\OPS-002_Asset_Performance\Business_Factsheet.md
-  Missing: ## Business Factsheet
-  Extra: ## Business Factsheet (v1.2)
-- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\OPS-003_Quality_Yield\Business_Factsheet.md
-  Missing: ## Business Factsheet
-  Extra: ## Business Factsheet (v1.2)
-- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\SCM-001_Inventory_Performance\Business_Factsheet.md
-  Missing: ## Business Factsheet
-  Extra: ## Business Factsheet (v1.2)
-- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\SCM-002_Supply_Reliability_OTIF\Business_Factsheet.md
-  Missing: ## Business Factsheet
-  Extra: ## Business Factsheet (v1.2)
-- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\SCM-003_Forecast_vs_Actual\Business_Factsheet.md
-  Missing: ## Business Factsheet
-  Extra: ## Business Factsheet (v1.2)
-- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\XD-001_Service_Level_Performance\Business_Factsheet.md
-  Missing: ## Business Factsheet
-  Extra: ## Business Factsheet (v1.2)
-- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\XD-002_Resource_Utilization\Business_Factsheet.md
-  Missing: ## Business Factsheet
-  Extra: ## Business Factsheet (v1.2)
-- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\XD-003_Executive_KPI_Overview\Business_Factsheet.md
-  Missing: ## Business Factsheet
-  Extra: ## Business Factsheet (v1.2)
-- [technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-001_Sales_Performance\Technical_Factsheet.md
-  Missing: ## Technical Factsheet
-  Extra: ## Technical Factsheet (v1.2)
-- [technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-002_Margin_Price_Performance\Technical_Factsheet.md
-  Missing: ## Technical Factsheet
-  Extra: ## Technical Factsheet (v1.2)
-- [technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-003_Customer_Value\Technical_Factsheet.md
-  Missing: ## Technical Factsheet
-  Extra: ## Technical Factsheet (v1.2)
-- [technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-004_Promotion_Effectiveness\Technical_Factsheet.md
-  Missing: ## Technical Factsheet
-  Extra: ## Technical Factsheet (v1.2)
-- [technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\FIN-001_Cash_Liquidity_Performance\Technical_Factsheet.md
-  Missing: ## Technical Factsheet
-  Extra: ## Technical Factsheet (v1.2)
-- [technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\FIN-002_Cost_Performance\Technical_Factsheet.md
-  Missing: ## Technical Factsheet
-  Extra: ## Technical Factsheet (v1.2)
-- [technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\OPS-001_Operations_Performance\Technical_Factsheet.md
-  Missing: ## Technical Factsheet
-  Extra: ## Technical Factsheet (v1.2)
-- [technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\OPS-002_Asset_Performance\Technical_Factsheet.md
-  Missing: ## Technical Factsheet
-  Extra: ## Technical Factsheet (v1.2)
-- [technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\OPS-003_Quality_Yield\Technical_Factsheet.md
-  Missing: ## Technical Factsheet
-  Extra: ## Technical Factsheet (v1.2)
-- [technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\SCM-001_Inventory_Performance\Technical_Factsheet.md
-  Missing: ## Technical Factsheet
-  Extra: ## Technical Factsheet (v1.2)
-- [technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\SCM-002_Supply_Reliability_OTIF\Technical_Factsheet.md
-  Missing: ## Technical Factsheet
-  Extra: ## Technical Factsheet (v1.2)
-- [technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\SCM-003_Forecast_vs_Actual\Technical_Factsheet.md
-  Missing: ## Technical Factsheet
-  Extra: ## Technical Factsheet (v1.2)
-- [technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\XD-001_Service_Level_Performance\Technical_Factsheet.md
-  Missing: ## Technical Factsheet
-  Extra: ## Technical Factsheet (v1.2)
-- [technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\XD-002_Resource_Utilization\Technical_Factsheet.md
-  Missing: ## Technical Factsheet
-  Extra: ## Technical Factsheet (v1.2)
-- [technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\XD-003_Executive_KPI_Overview\Technical_Factsheet.md
-  Missing: ## Technical Factsheet
-  Extra: ## Technical Factsheet (v1.2)
+OK: all checked documents match their template layout.
 
 ```
 
@@ -434,6 +329,6 @@ No _Measures.tmdl files found under dist. Skipping TMDL check.
 
 **********************
 Ende der Windows PowerShell-Aufzeichnung
-Endzeit: 20260121145736
+Endzeit: 20260121162337
 **********************
 ```
