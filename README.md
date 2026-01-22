@@ -98,6 +98,15 @@ cd _internal\tools\validation
 npm ci
 ```
 
+## Stage 2 Soft Review (planned)
+
+Non-blocking, tool-agnostic review guidance for changed docs only.
+Guidance only; it does not represent approval or rejection.
+Spec and contracts:
+- `_internal/ci/stage2_soft_review.md`
+- `_internal/tools/stage2_review/stage2_review.contract.json`
+- `_internal/tools/stage2_review/stage2_findings.schema.json`
+
 ## Repository Structure (high level)
 
 ```yaml

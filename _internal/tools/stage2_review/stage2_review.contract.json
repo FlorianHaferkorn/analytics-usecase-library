@@ -1,0 +1,29 @@
+{
+  "name": "stage2_soft_review",
+  "version": "v1",
+  "inputs": {
+    "diff.patch": {
+      "required": true,
+      "description": "Unified diff containing only changed files."
+    },
+    "context_files": {
+      "required": false,
+      "max_items": 4,
+      "description": "Optional fixed reference files for context."
+    },
+    "file_filters": {
+      "required": false,
+      "description": "Include/exclude path rules for diff scanning."
+    },
+    "max_findings": {
+      "required": false,
+      "default": 10,
+      "description": "Maximum number of findings."
+    }
+  },
+  "notes": [
+    "Stage 2 is non-blocking by design.",
+    "finding_id should be deterministic (e.g., hash of file + category + snippet).",
+    "No provider is selected or integrated here."
+  ]
+}

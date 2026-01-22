@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Stage 2 Soft Review Findings",
+  "type": "object",
+  "required": ["summary", "findings"],
+  "properties": {
+    "summary": {
+      "type": "string",
+      "maxLength": 400
+    },
+    "findings": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": [
+          "finding_id",
+          "severity",
+          "category",
+          "file",
+          "evidence",
+          "risk",
+          "suggested_fix"
+        ],
+        "properties": {
+          "finding_id": { "type": "string" },
+          "severity": { "type": "string", "enum": ["high", "medium", "low"] },
+          "category": { "type": "string", "enum": ["consistency", "authority", "drift", "wording"] },
+          "file": { "type": "string" },
+          "location": { "type": "string" },
+          "evidence": { "type": "string", "maxLength": 200 },
+          "risk": { "type": "string", "maxLength": 200 },
+          "suggested_fix": { "type": "string", "maxLength": 200 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
