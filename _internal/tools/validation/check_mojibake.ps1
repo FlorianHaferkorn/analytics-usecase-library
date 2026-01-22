@@ -1,4 +1,4 @@
-Param(
+﻿Param(
   [string]$Root = ".",
   [string[]]$Extensions = @("md","yaml","yml","ps1","txt"),
   [string[]]$ExcludeDirs = @(".git","node_modules","dist","_internal\\archive"),
@@ -39,14 +39,14 @@ $rootPath = Resolve-RepoPath -ProvidedPath $Root -DefaultRelative "."
 if (-not $rootPath) { throw "Root path not found." }
 
 $patterns = @(
-  "Ã",
-  "Â",
-  "â€“",
-  "â€”",
-  "â€™",
-  "â€œ",
-  "â€",
-  "ƒ?"
+  ([string][char]0x00C3),
+  ([string][char]0x00C2),
+  ([string]::Concat([char]0x00E2,[char]0x0080,[char]0x0093)),
+  ([string]::Concat([char]0x00E2,[char]0x0080,[char]0x0094)),
+  ([string]::Concat([char]0x00E2,[char]0x0080,[char]0x0099)),
+  ([string]::Concat([char]0x00E2,[char]0x0080,[char]0x009C)),
+  ([string]::Concat([char]0x00E2,[char]0x0080)),
+  ([string]::Concat([char]0x00C6,[char]0x0092,[char]0x003F))
 )
 
 $hadIssues = $false
@@ -80,3 +80,5 @@ if ($hadIssues) {
 }
 
 Write-Host "OK: No mojibake patterns detected." -ForegroundColor Green
+
+

@@ -34,11 +34,40 @@ function Is-ExcludedPath {
   return $false
 }
 
-function Get-PythonCommand {
+function Get-PythonInfo {
   $cmd = Get-Command python -ErrorAction SilentlyContinue
-  if ($cmd) { return $cmd.Source }
+  if ($cmd) {
+    try {
+      & $cmd.Source -c "import yaml" 2>$null
+      if ($LASTEXITCODE -eq 0) {
+        return @{ Command = $cmd.Source; Args = @(); CanImport = $true }
+      }
+      return @{ Command = $cmd.Source; Args = @(); CanImport = $false }
+    } catch {
+      return @{ Command = $cmd.Source; Args = @(); CanImport = $false }
+    }
+  }
   $cmd = Get-Command py -ErrorAction SilentlyContinue
-  if ($cmd) { return $cmd.Source }
+  if ($cmd) {
+    $candidates = @(
+      @("-3.13"),
+      @("-3.12"),
+      @("-3.11"),
+      @("-3"),
+      @()
+    )
+    foreach ($args in $candidates) {
+      try {
+        & $cmd.Source @args -c "import yaml" 2>$null
+        if ($LASTEXITCODE -eq 0) {
+          return @{ Command = $cmd.Source; Args = $args; CanImport = $true }
+        }
+      } catch {
+        continue
+      }
+    }
+    return @{ Command = $cmd.Source; Args = @("-3"); CanImport = $false }
+  }
   return $null
 }
 
@@ -47,23 +76,15 @@ if (-not $rootPath) { throw "Root path not found." }
 
 Write-Host "YAML format check" -ForegroundColor Cyan
 
-$python = Get-PythonCommand
-if (-not $python) {
+$pythonInfo = Get-PythonInfo
+if (-not $pythonInfo) {
   Write-Host "Python not found. Skipping YAML format check." -ForegroundColor Yellow
   exit 0
 }
 
-$canImportYaml = $false
-try {
-  & $python -c "import yaml" 2>$null
-  if ($LASTEXITCODE -eq 0) { $canImportYaml = $true }
-} catch {
-  $canImportYaml = $false
-}
-
-if (-not $canImportYaml) {
-  Write-Host "PyYAML not available. Skipping YAML format check." -ForegroundColor Yellow
-  exit 0
+if (-not $pythonInfo.CanImport) {
+  Write-Host "PyYAML not available. Install with: py -3 -m pip install pyyaml" -ForegroundColor Red
+  exit 1
 }
 
 $files = Get-ChildItem -Path $rootPath -Recurse -File | Where-Object {
@@ -74,7 +95,7 @@ $hadIssues = $false
 foreach ($file in $files) {
   $rel = $file.FullName.Substring($rootPath.Length).TrimStart('\')
   try {
-    & $python -c "import sys,yaml; yaml.safe_load(open(sys.argv[1], 'rb'))" $file.FullName 2>$null
+    & $pythonInfo.Command @($pythonInfo.Args) -c "import sys,yaml; yaml.safe_load(open(sys.argv[1], 'rb'))" $file.FullName 2>$null
     if ($LASTEXITCODE -ne 0) {
       $hadIssues = $true
       Write-Host "Invalid YAML: $rel" -ForegroundColor Red

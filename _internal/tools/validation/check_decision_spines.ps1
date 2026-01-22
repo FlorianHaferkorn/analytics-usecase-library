@@ -1,4 +1,4 @@
-Param(
+﻿Param(
   [string]$UseCasesRoot = "usecases",
   [string]$MapPath = "framework/action_codes/decision_spines/DecisionSpine_UseCase_Map.yaml",
   [string]$DecisionSpinesRoot = "framework/action_codes/decision_spines",
@@ -42,7 +42,7 @@ function Get-CoreUseCaseIds {
     }
     if ($id) { $null = $ids.Add($id) }
   }
-  return $ids.ToArray() | Sort-Object
+  return $ids | Sort-Object
 }
 
 function Get-DecisionSpineMap {
@@ -57,7 +57,7 @@ function Get-DecisionSpineMap {
       continue
     }
     if (-not $inSection) { continue }
-    if ($line -match '^\s{2}([A-Z0-9-]+):\s*$') {
+    if ($line -match '^\s{2}([A-Z0-9-_]+):\s*$') {
       $current = $matches[1]
       continue
     }
@@ -84,7 +84,7 @@ function Get-DecisionSpineIds {
 
 function Get-Indent {
   param([string]$Line)
-  if ($Line -match '^(\\s*)') { return $matches[1].Length }
+  if ($Line -match '^(\s*)') { return $matches[1].Length }
   return 0
 }
 
@@ -97,10 +97,10 @@ function SectionHasList {
     if ($Lines[$i] -match $KeyPattern) {
       $baseIndent = Get-Indent -Line $Lines[$i]
       for ($j = $i + 1; $j -lt $Lines.Count; $j++) {
-        if ($Lines[$j] -match '^\\s*$') { continue }
+        if ($Lines[$j] -match '^\s*$') { continue }
         $indent = Get-Indent -Line $Lines[$j]
         if ($indent -le $baseIndent) { break }
-        if ($Lines[$j] -match '^\\s*-\\s+.+') { return $true }
+        if ($Lines[$j] -match '^\s*-\s+.+') { return $true }
       }
       return $false
     }
@@ -115,7 +115,7 @@ function Get-EscalationLevels {
   $baseIndent = 0
   for ($i = 0; $i -lt $Lines.Count; $i++) {
     $line = $Lines[$i]
-    if ($line -match '^\\s*escalation_path:\\s*$') {
+    if ($line -match '^\s*escalation_path:\s*$') {
       $inEscalationPath = $true
       $baseIndent = Get-Indent -Line $line
       continue
@@ -123,7 +123,7 @@ function Get-EscalationLevels {
     if ($inEscalationPath) {
       $indent = Get-Indent -Line $line
       if ($indent -le $baseIndent) { break }
-      if ($line -match '^\\s*-\\s*level:\\s*\"?([^\"\\s]+)\"?') {
+      if ($line -match '^\s*-\s*level:\s*\"?([^\"\s]+)\"?') {
         $levels += $matches[1]
       }
     }
@@ -208,33 +208,33 @@ if ($duplicateUseCases.Count -gt 0) {
 
 Write-Host "Decision Spine content validation" -ForegroundColor Cyan
 $requiredScalarPatterns = @(
-  '^\\s*schema_version:\\s*\"?([^\"\\s]+)\"?',
-  '^\\s*id:\\s*\"?([^\"\\s]+)\"?',
-  '^\\s*name:\\s*\"?(.+?)\"?\\s*$',
-  '^\\s*impact_dimension:\\s*\"?(.+?)\"?\\s*$'
+  '^\s*schema_version:\s*\"?([^\"\s]+)\"?',
+  '^\s*id:\s*\"?([^\"\s]+)\"?',
+  '^\s*name:\s*\"?(.+?)\"?\s*$',
+  '^\s*impact_dimension:\s*\"?(.+?)\"?\s*$'
 )
 
 $requiredSectionPatterns = @(
-  '^\\s*purpose:\\s*$',
-  '^\\s*decision_context:\\s*$',
-  '^\\s*decision_tradeoffs:\\s*$',
-  '^\\s*when_not_to_act:\\s*$',
-  '^\\s*escalation_logic:\\s*$',
-  '^\\s*decision_confidence:\\s*$',
-  '^\\s*governance:\\s*$',
-  '^\\s*quality_rules:\\s*$'
+  '^\s*purpose:\s*$',
+  '^\s*decision_context:\s*$',
+  '^\s*decision_tradeoffs:\s*$',
+  '^\s*when_not_to_act:\s*$',
+  '^\s*escalation_logic:\s*$',
+  '^\s*decision_confidence:\s*$',
+  '^\s*governance:\s*$',
+  '^\s*quality_rules:\s*$'
 )
 
 $requiredListKeys = @(
-  '^\\s*decision_owner_roles:\\s*$',
-  '^\\s*improves:\\s*$',
-  '^\\s*risks:\\s*$',
-  '^\\s*conditions:\\s*$',
-  '^\\s*escalation_path:\\s*$',
-  '^\\s*rationale:\\s*$',
-  '^\\s*consulted_roles:\\s*$',
-  '^\\s*change_policy:\\s*$',
-  '^\\s*quality_rules:\\s*$'
+  '^\s*decision_owner_roles:\s*$',
+  '^\s*improves:\s*$',
+  '^\s*risks:\s*$',
+  '^\s*conditions:\s*$',
+  '^\s*escalation_path:\s*$',
+  '^\s*rationale:\s*$',
+  '^\s*consulted_roles:\s*$',
+  '^\s*change_policy:\s*$',
+  '^\s*quality_rules:\s*$'
 )
 
 $expectedEscalationLevels = @("EarlyWarning","RequiredIntervention","PrescriptiveExecution")
@@ -267,19 +267,19 @@ Get-ChildItem -Path $decisionSpinesRoot -File | Where-Object {
     }
   }
 
-  $idValue = Get-ScalarValue -Lines $lines -KeyPattern '^\\s*id:\\s*\"?([^\"\\s]+)\"?'
+  $idValue = Get-ScalarValue -Lines $lines -KeyPattern '^\s*id:\s*\"?([^\"\s]+)\"?'
   if ($idValue -and $idValue -ne $fileId) {
     $hadIssues = $true
     Write-Host "ID mismatch in $($_.Name): id='$idValue' expected '$fileId'" -ForegroundColor Red
   }
 
-  $decisionType = Get-ScalarValue -Lines $lines -KeyPattern '^\\s*decision_type:\\s*\"?([^\"\\s]+)\"?'
+  $decisionType = Get-ScalarValue -Lines $lines -KeyPattern '^\s*decision_type:\s*\"?([^\"\s]+)\"?'
   if ($decisionType -and ($decisionType -notin $allowedDecisionTypes)) {
     $hadIssues = $true
     Write-Host "Invalid decision_type in $($_.Name): $decisionType" -ForegroundColor Red
   }
 
-  $ownerDomainsInline = $lines | Where-Object { $_ -match '^\\s*owner_domains:\\s*\\[.+\\]' }
+  $ownerDomainsInline = $lines | Where-Object { $_ -match '^\s*owner_domains:\s*\[.+\]' }
   if (-not $ownerDomainsInline) {
     $hadIssues = $true
     Write-Host "owner_domains must be a non-empty list in $($_.Name)" -ForegroundColor Red
@@ -291,7 +291,7 @@ Get-ChildItem -Path $decisionSpinesRoot -File | Where-Object {
     Write-Host "Invalid escalation_path levels in $($_.Name): $($levels -join ', ')" -ForegroundColor Red
   }
 
-  if ($content -match '\\bkpi_id\\b' -or $content -match '\\bkpi_id_ref\\b') {
+  if ($content -match '\bkpi_id\b' -or $content -match '\bkpi_id_ref\b') {
     $hadIssues = $true
     Write-Host "KPI ID references detected in $($_.Name) (not allowed)" -ForegroundColor Red
   }
@@ -303,3 +303,5 @@ if ($hadIssues) {
 }
 
 Write-Host "OK: Decision Spines map matches core use cases and files." -ForegroundColor Green
+
+
