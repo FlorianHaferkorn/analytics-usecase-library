@@ -53,92 +53,45 @@ All KPIs must exist in the KPI Catalog.
 required_kpis:
 
   - id: quality.fpy.pct
+    kpi_catalog_id: Efficiency
     name: First Pass Yield %
     purpose: Process quality
-    definition_short: Good units / Total units at first pass
-    unit: %
-    grain: line_day
     agg: avg
-    target: = site/line target (e.g., 98%+)
-    interpretation: Low FPY indicates rework/scrap issues
-    lineage: fact_quality[Good Units], fact_quality[Total Units]
 
   - id: quality.scrap.pct
     name: Scrap Rate %
     purpose: Waste reduction
-    definition_short: Scrap units / Total units
-    unit: %
-    grain: line_day
     agg: avg
-    target: = target (e.g., <2%)
-    interpretation: High scrap signals process defects
-    lineage: fact_quality[Scrap Units], fact_quality[Total Units]
 
   - id: quality.rework.pct
     name: Rework Rate %
     purpose: Rework burden
-    definition_short: Reworked units / Total units
-    unit: %
-    grain: line_day
     agg: avg
-    target: = target
-    interpretation: High rework inflates cost and reduces capacity
-    lineage: fact_quality[Rework Units], fact_quality[Total Units]
 
   - id: quality.copq.amount
     name: Cost of Poor Quality (COPQ)
     purpose: Financial impact
-    definition_short: Scrap + rework + warranty/complaint cost
-    unit: EUR
-    grain: month
     agg: sum
-    target: Reduce vs baseline
-    interpretation: High COPQ signals material loss and customer risk
-    lineage: fact_quality_costs[COPQ], fact_quality
 
   - id: quality.complaint.pct
     name: Complaint Rate %
     purpose: Customer impact
-    definition_short: Complaints / Units shipped
-    unit: %
-    grain: month
     agg: avg
-    target: = target
-    interpretation: High complaints indicate field quality issues
-    lineage: fact_complaints[Complaints], fact_shipments[Units]
 
   - id: quality.defect_density
     name: Defect Density
     purpose: Defect concentration
-    definition_short: Defects per 1k units
-    unit: defects/1k units
-    grain: line_day
     agg: avg
-    target: = target
-    interpretation: High density signals process stability issues
-    lineage: fact_quality[Defect Count], fact_quality[Units]
 
   - id: ops.planned_output.units
     name: Planned Output Units
     purpose: Volume baseline
-    definition_short: Planned production output units
-    unit: units
-    grain: line_day
     agg: sum
-    target: Meet plan
-    interpretation: Planned volume for yield context
-    lineage: fact_ops[Planned Output Units]
 
   - id: sales.units
     name: Sales Units
     purpose: Demand context
-    definition_short: Units sold in the period
-    unit: units
-    grain: month
     agg: sum
-    target: Meet plan
-    interpretation: Demand context for quality impact
-    lineage: fact_sales[Sales Units]
 ```
 
 ---
@@ -160,7 +113,6 @@ action_codes:
     outcome_kpis: [quality.fpy.pct]
     impact_range: quality.fpy.pct: 1.0-3.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Operations\O-Q3.1.yaml
 
   - id: O-Q3.2
     name: Process Defect Elimination
@@ -172,7 +124,6 @@ action_codes:
     outcome_kpis: [quality.defect_density, quality.fpy.pct]
     impact_range: quality.defect_density: -20.0--50.0 %
     levels: L1-L3
-    definition: framework\action_codes\Operations\O-Q3.2.yaml
 
   - id: O-Q3.3
     name: Scrap & Rework Reduction
@@ -184,7 +135,6 @@ action_codes:
     outcome_kpis: [quality.scrap.pct, quality.rework.pct]
     impact_range: quality.scrap.pct: -0.5--2.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Operations\O-Q3.3.yaml
 
   - id: O-Q3.4
     name: COPQ Reduction
@@ -196,7 +146,6 @@ action_codes:
     outcome_kpis: [quality.copq.amount]
     impact_range: quality.copq.amount: -10.0--30.0 %
     levels: L1-L3
-    definition: framework\action_codes\Operations\O-Q3.4.yaml
 
   - id: O-Q3.5
     name: Complaint-Driven Stabilisation
@@ -208,7 +157,6 @@ action_codes:
     outcome_kpis: [quality.complaint.pct]
     impact_range: quality.complaint.pct: -20.0--50.0 %
     levels: L1-L3
-    definition: framework\action_codes\Operations\O-Q3.5.yaml
 ```
 
 ---
@@ -296,6 +244,8 @@ required_slicers: Date, Plant/Line/Shift, Product, Defect Type
 - Misattributing scrap to wrong cause/product due to coding gaps.  
 - Understating complaint rate if shipment linkage is weak.  
 - Overreacting to short-term FPY dips without considering planned trials.  
+
+
 
 
 

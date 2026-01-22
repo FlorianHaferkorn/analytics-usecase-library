@@ -121,7 +121,6 @@ dimension:
 
 fact:
   - name: fact_fulfillment
-    grain: order
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -135,7 +134,6 @@ fact:
       - {name: Expedite Cost, type: currency, agg: sum, nullable: true}
 
   - name: fact_stockout
-    grain: location_sku_day
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -330,5 +328,6 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 
 

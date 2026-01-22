@@ -107,7 +107,6 @@ dimension:
 
 fact:
   - name: fact_finance
-    grain: entity_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -118,7 +117,6 @@ fact:
       - {name: Plan OpEx Amount, type: currency, agg: sum, nullable: true}
 
   - name: fact_cost
-    grain: plant_line_product_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -128,7 +126,6 @@ fact:
       - {name: Overhead Amount, type: currency, agg: sum, nullable: true}
 
   - name: fact_output
-    grain: plant_line_product_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -136,7 +133,6 @@ fact:
       - {name: Output Units, type: decimal, agg: sum}
 
   - name: fact_labor
-    grain: plant_line_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -328,5 +324,6 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 
 

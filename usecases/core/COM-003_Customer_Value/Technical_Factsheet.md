@@ -144,7 +144,6 @@ dimension:
 
 fact:
   - name: fact_sales
-    grain: invoice_line
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -155,7 +154,6 @@ fact:
       - {name: Cost of Goods Sold Amount, type: currency, agg: sum}
 
   - name: fact_customer_events
-    grain: customer_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: CustomerKey, type: int, ref: dim_customer}
@@ -164,7 +162,6 @@ fact:
       - {name: Attrition Risk %, type: decimal, nullable: true}
 
   - name: fact_customer_value   # CLV / revenue at risk
-    grain: customer_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: CustomerKey, type: int, ref: dim_customer}
@@ -172,7 +169,6 @@ fact:
       - {name: CLV Remaining Amount, type: currency, nullable: true}
 
   - name: fact_experience
-    grain: customer_event
     columns:
       - {name: Complaint ID, type: text}
       - {name: CustomerKey, type: int, ref: dim_customer}
@@ -180,7 +176,6 @@ fact:
       - {name: Severity, type: text, nullable: true}
 
   - name: fact_nps
-    grain: customer_event
     columns:
       - {name: CustomerKey, type: int, ref: dim_customer}
       - {name: DateKey, type: int, ref: dim_date}
@@ -302,5 +297,6 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 
 

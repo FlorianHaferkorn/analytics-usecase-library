@@ -49,81 +49,40 @@ All KPIs must exist in the KPI Catalog.
 required_kpis:
 
   - id: margin.gm.pct
+    kpi_catalog_id: Profitability
     name: Gross Margin %
     purpose: Profitability quality
-    definition_short: Gross Margin / Net Sales
-    unit: "%"
-    grain: month
     agg: avg
-    target: >= 25%
-    interpretation: Compression signals price/mix/cost pressure
-    lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount]
 
   - id: profit.gross_margin
     name: Gross Margin % (Strategic)
     purpose: Strategic profitability benchmark
-    definition_short: (Net Sales Amount - COGS Amount) / Net Sales Amount
-    unit: "%"
-    grain: month
     agg: avg
-    target: >= 25%
-    interpretation: Strategic view of gross margin health
-    lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount]
 
   - id: margin.gm.amount
     name: Gross Margin Amount
     purpose: Profit pool sizing
-    definition_short: Net Sales Amount - COGS Amount
-    unit: "EUR"
-    grain: month
     agg: sum
-    target: Improve vs Plan and LY
-    interpretation: Negative gap erodes profitability
-    lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount]
 
   - id: sales.price.realization_pct
     name: Price Realization %
     purpose: Discount discipline
-    definition_short: Net Price / List Price
-    unit: "%"
-    grain: month
     agg: avg
-    target: >= 95%
-    interpretation: Low values imply discount leakage
-    lineage: fact_sales[Net Price Amount], fact_sales[List Price Amount]
 
   - id: sales.pvm.mix_effect.amount
     name: Mix Effect Amount
     purpose: Mix quality
-    definition_short: Net Sales impact from mix change
-    unit: "EUR"
-    grain: month
     agg: sum
-    target: >= 0
-    interpretation: Negative implies adverse mix
-    lineage: fact_sales[Net Sales Amount], PVM decomposition residual
 
   - id: cost.cogs_per_unit.amount
     name: COGS per Unit
     purpose: Unit cost control
-    definition_short: COGS Amount / Quantity
-    unit: "EUR"
-    grain: month
     agg: avg
-    target: Stable or improving vs Plan/LY
-    interpretation: Increases signal cost leakage
-    lineage: fact_sales[Cost of Goods Sold Amount], fact_sales[Quantity]
 
   - id: margin.gm.vs_plan.pct
     name: Gross Margin % vs Plan
     purpose: Performance vs Plan
-    definition_short: (GM % - Plan GM %) / Plan GM %
-    unit: "pp"
-    grain: month
     agg: avg
-    target: >= 0 pp
-    interpretation: Negative variance shows miss vs Plan
-    lineage: GM %, Plan GM %
 ```
 
 ---
@@ -145,7 +104,6 @@ action_codes:
     outcome_kpis: [margin.gm.pct, sales.pvm.mix_effect.amount]
     impact_range: margin.gm.pct: 0.3-1.2 pp
     levels: L1-L3
-    definition: framework\action_codes\Commercial\C-M2.2.yaml
 
   - id: C-P4.1
     name: Promo Calendar Discipline
@@ -157,7 +115,6 @@ action_codes:
     outcome_kpis: [sales.promo.roi.pct, margin.promo.gm.pct]
     impact_range: sales.promo.roi.pct: 5.0-20.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Commercial\C-P4.1.yaml
 
   - id: C-S1.2
     name: Sales Gap Recovery via Price & Pack Adjustment
@@ -169,7 +126,6 @@ action_codes:
     outcome_kpis: [sales.net_sales.amount]
     impact_range: sales.net_sales.amount: 1.0-3.0 %
     levels: L1-L3
-    definition: framework\action_codes\Commercial\C-S1.2.yaml
 ```
 
 ---
@@ -255,5 +211,7 @@ required_slicers: Date, Region/Country/Channel, Product Category/Subcategory
 - Ignoring cost timing effects (e.g., accruals) when reading COGS/unit trends.
 
 ---
+
+
 
 

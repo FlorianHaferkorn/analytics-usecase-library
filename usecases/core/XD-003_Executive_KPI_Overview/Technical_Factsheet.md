@@ -145,14 +145,12 @@ dimension:
 
 fact:
   - name: fact_revenue
-    grain: entity_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: Net Sales Amount, type: currency, agg: sum}
 
   - name: fact_finance
-    grain: entity_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -160,21 +158,18 @@ fact:
       - {name: EBITDA Amount, type: currency, agg: sum}
 
   - name: fact_customer_value
-    grain: customer_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: CustomerKey, type: int, ref: dim_customer}
       - {name: CLV Amount, type: currency, agg: sum}
 
   - name: fact_service
-    grain: entity_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: Service Level %, type: decimal, agg: avg}
 
   - name: fact_fulfillment
-    grain: order
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -182,14 +177,12 @@ fact:
       - {name: Order Qty, type: decimal, agg: sum}
 
   - name: fact_wc
-    grain: entity_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: CCC Days, type: decimal}
 
   - name: fact_digital
-    grain: user_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -197,7 +190,6 @@ fact:
       - {name: Eligible Users, type: int, agg: sum}
 
   - name: fact_hr
-    grain: month_entity
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -319,3 +311,4 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+

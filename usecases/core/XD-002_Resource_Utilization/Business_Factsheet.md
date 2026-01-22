@@ -56,81 +56,40 @@ All KPIs must exist in the KPI Catalog.
 required_kpis:
 
   - id: res.utilization.pct
+    kpi_catalog_id: Service
     name: Utilization %
     purpose: Productive time vs paid time
-    definition_short: (Talk/Work Time) / Paid Time
-    unit: %
-    grain: agent_day or queue_day
     agg: avg
-    target: = target band
-    interpretation: Low utilization shows underuse; too high risks quality
-    lineage: fact_wfm[Work Time], fact_wfm[Paid Time]
 
   - id: res.occupancy.pct
     name: Occupancy %
     purpose: Active time vs available time
-    definition_short: (Talk + Wrap) / (Talk + Wrap + Idle)
-    unit: %
-    grain: agent_day or queue_day
     agg: avg
-    target: Target band
-    interpretation: Too high occupancy risks burnout/AHT; too low wastes capacity
-    lineage: fact_wfm[Talk], fact_wfm[Wrap], fact_wfm[Idle]
 
   - id: svc.sla.attainment.pct
     name: SLA Attainment %
     purpose: Service level compliance
-    definition_short: Cases meeting SLA / total cases
-    unit: %
-    grain: day_queue
     agg: avg
-    target: = target
-    interpretation: Low attainment signals service failure
-    lineage: fact_cases[SLA Met Flag]
 
   - id: res.overtime.pct
     name: Overtime %
     purpose: Cost and fatigue
-    definition_short: Overtime hours / Total hours
-    unit: %
-    grain: agent_day or region_week
     agg: avg
-    target: = target
-    interpretation: High overtime signals staffing gaps
-    lineage: fact_wfm[Overtime Hours], fact_wfm[Total Hours]
 
   - id: res.shrinkage.pct
     name: Shrinkage %
     purpose: Non-productive time
-    definition_short: Non-productive time / Paid time
-    unit: %
-    grain: agent_day
     agg: avg
-    target: Within target band
-    interpretation: High shrinkage reduces available capacity
-    lineage: fact_wfm[Shrinkage], fact_wfm[Paid Time]
 
   - id: svc.backlog.count
     name: Backlog Count
     purpose: Workload risk
-    definition_short: Open cases not resolved
-    unit: count
-    grain: day_queue
     agg: sum
-    target: Reduce vs target
-    interpretation: Rising backlog risks SLA failure
-    lineage: fact_cases[Backlog Flag/Open Cases]
 
   - id: svc.tickets.created.count
     name: Tickets Created Count
     purpose: Demand volume
-    definition_short: Count of newly created service tickets
-    unit: count
-    grain: day_queue
     agg: sum
-    target: Monitor trend
-    interpretation: Higher inflow increases staffing pressure
-    lineage: fact_ticket[Ticket ID]
 ```
 
 ---
@@ -152,7 +111,6 @@ action_codes:
     outcome_kpis: [res.utilization.pct]
     impact_range: res.utilization.pct: 3.0-8.0 pp
     levels: L1-L3
-    definition: framework\action_codes\People\X-R2.1.yaml
 
   - id: X-R2.2
     name: Capacity Reallocation & Load Balancing
@@ -164,7 +122,6 @@ action_codes:
     outcome_kpis: [res.utilization.pct]
     impact_range: res.utilization.pct: 4.0-10.0 pp
     levels: L1-L3
-    definition: framework\action_codes\People\X-R2.2.yaml
 
   - id: X-R2.3
     name: Shrinkage & Productive Time Control
@@ -176,7 +133,6 @@ action_codes:
     outcome_kpis: [res.shrinkage.pct, res.utilization.pct]
     impact_range: res.shrinkage.pct: -3.0--8.0 pp
     levels: L1-L3
-    definition: framework\action_codes\People\X-R2.3.yaml
 
   - id: X-R2.4
     name: Overtime & Fatigue Containment
@@ -188,7 +144,6 @@ action_codes:
     outcome_kpis: [res.overtime.pct]
     impact_range: res.overtime.pct: -2.0--6.0 pp
     levels: L1-L3
-    definition: framework\action_codes\People\X-R2.4.yaml
 ```
 
 ---
@@ -303,3 +258,5 @@ required_slicers: >
 - Overdriving utilization causing quality decline.  
 - Misclassifying shrinkage leading to wrong capacity view.  
 - Ignoring seasonality causing false alarms on utilization/occupancy.  
+
+

@@ -54,114 +54,55 @@ All KPIs must exist in the KPI Catalog.
 required_kpis:
 
   - id: ops.availability.pct
+    kpi_catalog_id: Efficiency
     name: Availability %
     purpose: Asset uptime
-    definition_short: Run Time / Planned Time
-    unit: %
-    grain: asset_day
     agg: avg
-    target: = 90% (context-specific)
-    interpretation: Low availability shows downtime issues
-    lineage: fact_ops[Run Time], fact_ops[Planned Time]
 
   - id: ops.mtbf.hours
     name: MTBF (hours)
     purpose: Reliability
-    definition_short: Operating time between failures
-    unit: hours
-    grain: asset
     agg: avg
-    target: Asset-class target
-    interpretation: Lower than target indicates frequent failures
-    lineage: fact_ops_failures[Failure Start/End], uptime calc
 
   - id: ops.mttr.hours
     name: MTTR (hours)
     purpose: Maintainability
-    definition_short: Average repair time per failure
-    unit: hours
-    grain: asset
     agg: avg
-    target: Asset-class target
-    interpretation: High MTTR prolongs downtime
-    lineage: fact_ops_failures[Repair Duration]
 
   - id: ops.downtime.unplanned.pct
     name: Unplanned Downtime %
     purpose: Unplanned loss
-    definition_short: Unplanned downtime / Planned Time
-    unit: %
-    grain: asset_day
     agg: avg
-    target: = target (e.g., <5%)
-    interpretation: High values indicate reliability issues
-    lineage: fact_ops[Unplanned Downtime], fact_ops[Planned Time]
 
   - id: ops.spare_parts.stockout.pct
     name: Spare Parts Stockout %
     purpose: Maintenance readiness
-    definition_short: Maintenance orders delayed due to missing parts / total orders
-    unit: %
-    grain: month
     agg: avg
-    target: = target (e.g., <2%)
-    interpretation: High stockouts create MTTR risk
-    lineage: fact_maintenance[Orders Delayed], fact_maintenance[Orders]
 
   - id: ops.pm_compliance.pct
     name: PM Compliance %
     purpose: Preventive maintenance discipline
-    definition_short: PM orders on time / planned PM orders
-    unit: %
-    grain: month
     agg: avg
-    target: = 95%
-    interpretation: Low compliance increases failure risk
-    lineage: fact_maintenance[PM On Time], fact_maintenance[PM Planned]
 
   - id: ops.failure.count
     name: Failure Count
     purpose: Failure volume
-    definition_short: Count of failure events
-    unit: count
-    grain: asset_month
     agg: sum
-    target: Reduce vs baseline
-    interpretation: Higher counts indicate lower reliability
-    lineage: fact_ops[Failure Count]
 
   - id: ops.inventory.value.amount
     name: Inventory Value Amount
     purpose: Spare parts guardrail
-    definition_short: Inventory value for spare parts
-    unit: EUR
-    grain: sku_month
     agg: sum
-    target: Maintain within budget
-    interpretation: Higher values indicate more capital tied in spares
-    lineage: fact_inventory[Inventory Value Amount]
 
   - id: ops.pm.task.count
     name: Preventive Maintenance Task Count
     purpose: PM workload
-    definition_short: Count of PM tasks
-    unit: count
-    grain: asset_month
     agg: sum
-    target: Meet plan
-    interpretation: Tracks PM execution volume
-    lineage: fact_maintenance[PM Task Count]
 
   - id: ops.safety.incident.count
     name: Safety Incident Count
     purpose: Safety guardrail
-    definition_short: Count of safety incidents
-    unit: count
-    grain: site_month
     agg: sum
-    target: = 0
-    interpretation: Higher counts indicate elevated safety risk
-    lineage: fact_safety[Incident Count]
 ```
 
 ---
@@ -183,7 +124,6 @@ action_codes:
     outcome_kpis: [ops.availability.pct]
     impact_range: ops.availability.pct: 2.0-6.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Operations\O-A2.1.yaml
 
   - id: O-A2.2
     name: Failure Reduction (MTBF Improvement)
@@ -195,7 +135,6 @@ action_codes:
     outcome_kpis: [ops.mtbf.hours, ops.availability.pct]
     impact_range: ops.mtbf.hours: 10.0-30.0 %
     levels: L1-L3
-    definition: framework\action_codes\Operations\O-A2.2.yaml
 
   - id: O-A2.3
     name: Repair Time Reduction (MTTR Control)
@@ -207,7 +146,6 @@ action_codes:
     outcome_kpis: [ops.mttr.hours, ops.availability.pct]
     impact_range: ops.mttr.hours: -10.0--30.0 %
     levels: L1-L3
-    definition: framework\action_codes\Operations\O-A2.3.yaml
 
   - id: O-A2.4
     name: Preventive Maintenance Discipline
@@ -219,7 +157,6 @@ action_codes:
     outcome_kpis: [ops.pm_compliance.pct, ops.mtbf.hours]
     impact_range: ops.pm_compliance.pct: 5.0-10.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Operations\O-A2.4.yaml
 
   - id: O-A2.5
     name: Spare Parts Readiness
@@ -231,7 +168,6 @@ action_codes:
     outcome_kpis: [ops.spare_parts.stockout.pct, ops.mttr.hours]
     impact_range: ops.spare_parts.stockout.pct: -5.0--15.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Operations\O-A2.5.yaml
 ```
 
 ---
@@ -316,6 +252,8 @@ required_slicers: Date, Plant/Asset, Asset Class/Criticality
 - Misclassified planned vs unplanned downtime skews availability.  
 - MTBF/MTTR distorted by missing or merged failure events.  
 - PM compliance percentages misleading if plan not realistic or if deferrals aren't flagged.  
+
+
 
 
 

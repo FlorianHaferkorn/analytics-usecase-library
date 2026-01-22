@@ -1,0 +1,11 @@
+﻿{
+  "name": "aurora-stage1-schema-validation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Stage 1 schema validation tooling (Ajv + YAML)",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "ajv": "8.12.0",
+    "yaml": "2.4.2"
+  }
+}

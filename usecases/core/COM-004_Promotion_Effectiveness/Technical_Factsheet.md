@@ -118,7 +118,6 @@ dimension:
 
 fact:
   - name: fact_sales
-    grain: invoice_line
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -132,7 +131,6 @@ fact:
       - {name: List Price Amount, type: currency, agg: sum}
 
   - name: fact_promo
-    grain: promotion
     columns:
       - {name: PromoKey, type: int, ref: dim_promo}
       - {name: Promo Cost, type: currency, agg: sum}
@@ -298,5 +296,6 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 
 

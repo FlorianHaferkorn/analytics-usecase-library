@@ -53,81 +53,40 @@ All KPIs must exist in the KPI Catalog.
 required_kpis:
 
   - id: ops.oee.pct
+    kpi_catalog_id: Efficiency
     name: Overall Equipment Effectiveness %
     purpose: Combined availability, performance, quality
-    definition_short: Availability % x Performance % x Quality %
-    unit: %
-    grain: line_day
     agg: avg
-    target: = site/line target (e.g., 85%+)
-    interpretation: Core effectiveness; low values indicate combined losses
-    lineage: fact_ops[Availability %], fact_ops[Performance %], fact_ops[Quality %]
 
   - id: ops.availability.pct
     name: Availability %
     purpose: Uptime control
-    definition_short: Run Time / Planned Production Time
-    unit: %
-    grain: line_day
     agg: avg
-    target: = 90% (context-specific)
-    interpretation: Low availability signals downtime issues
-    lineage: fact_ops[Run Time], fact_ops[Planned Time]
 
   - id: ops.performance.pct
     name: Performance %
     purpose: Speed vs standard
-    definition_short: Actual Output / Theoretical Output at standard rate
-    unit: %
-    grain: line_day
     agg: avg
-    target: = 95% (context-specific)
-    interpretation: Low performance shows speed losses
-    lineage: fact_ops[Output], standards
 
   - id: ops.quality.pct
     name: Quality %
     purpose: First pass yield
-    definition_short: Good Units / Total Units
-    unit: %
-    grain: line_day
     agg: avg
-    target: = 98% (context-specific)
-    interpretation: Low quality shows scrap/rework issues
-    lineage: fact_ops[Good Units], fact_ops[Total Units]
 
   - id: ops.throughput.units
     name: Throughput Units
     purpose: Volume output
-    definition_short: Units produced over time
-    unit: qty
-    grain: line_day
     agg: sum
-    target: Meet plan
-    interpretation: Volume realization vs plan
-    lineage: fact_ops[Produced Units]
 
   - id: ops.downtime.pct
     name: Downtime %
     purpose: Unplanned loss
-    definition_short: Downtime / Planned Production Time
-    unit: %
-    grain: line_day
     agg: avg
-    target: = target (e.g., <5%)
-    interpretation: High downtime reduces availability
-    lineage: fact_ops[Downtime], fact_ops[Planned Time]
 
   - id: ops.planned_output.units
     name: Planned Output Units
     purpose: Plan baseline
-    definition_short: Planned production output units
-    unit: units
-    grain: line_day
     agg: sum
-    target: Meet plan
-    interpretation: Planned output baseline for throughput comparison
-    lineage: fact_ops[Planned Output Units]
 ```
 
 ---
@@ -149,7 +108,6 @@ action_codes:
     outcome_kpis: [ops.availability.pct, ops.oee.pct]
     impact_range: ops.availability.pct: 3.0-8.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Operations\O-O1.1.yaml
 
   - id: O-O1.2
     name: Performance Uplift
@@ -161,7 +119,6 @@ action_codes:
     outcome_kpis: [ops.performance.pct, ops.throughput.units]
     impact_range: ops.performance.pct: 2.0-6.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Operations\O-O1.2.yaml
 
   - id: O-O1.3
     name: Quality & Yield Recovery
@@ -173,7 +130,6 @@ action_codes:
     outcome_kpis: [ops.quality.pct, ops.oee.pct]
     impact_range: ops.quality.pct: 1.0-3.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Operations\O-O1.3.yaml
 
   - id: O-O1.4
     name: Throughput Constraint Resolution
@@ -185,7 +141,6 @@ action_codes:
     outcome_kpis: [ops.throughput.units]
     impact_range: ops.throughput.units: 3.0-10.0 %
     levels: L1-L3
-    definition: framework\action_codes\Operations\O-O1.4.yaml
 ```
 
 ---
@@ -266,6 +221,8 @@ required_slicers: Date, Plant/Line/Shift, Product (optional)
 - Misclassified planned vs unplanned downtime distorts availability.  
 - Ignoring product mix/standard rate differences when reading performance %.  
 - Quality issues masked if rework/scrap not fully captured.  
+
+
 
 
 

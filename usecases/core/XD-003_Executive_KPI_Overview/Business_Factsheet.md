@@ -51,125 +51,60 @@ All KPIs must exist in the KPI Catalog.
 required_kpis:
 
   - id: sales.net_sales.delta_pct.ly
+    kpi_catalog_id: Growth
     name: Net Sales % vs LY
     purpose: Show topline growth vs last year.
-    definition_short: Percentage change in net sales vs last year.
-    unit: "%"
-    grain: month
     agg: avg
-    target: Strategic growth target per entity/region
-    interpretation: Higher is better; negative indicates revenue risk.
-    lineage: fact_revenue[Net Sales Amount], plan/LY reference in finance data
 
   - id: margin.gm.pct
     name: Gross Margin %
     purpose: Track profitability after cost of goods sold.
-    definition_short: Gross Margin % = Gross Margin Amount / Net Sales Amount.
-    unit: "%"
-    grain: month
     agg: avg
-    target: Margin target by entity/region
-    interpretation: Higher is better; sustained decline signals margin leakage.
-    lineage: fact_finance[Gross Margin Amount], fact_revenue[Net Sales Amount]
 
   - id: crm.clv.amount
     name: Customer Lifetime Value Amount
     purpose: Measure expected lifetime profit per customer.
-    definition_short: Discounted gross profit per customer over expected lifetime.
-    unit: "EUR"
-    grain: month (reported), customer-level calculation upstream
     agg: avg
-    target: Strategic CLV target per segment
-    interpretation: Higher indicates stronger customer value creation.
-    lineage: fact_customer_value[CLV Amount]
 
   - id: svc.sla.attainment.pct
     name: SLA Attainment %
     purpose: Reflect service reliability to customers.
-    definition_short: Share of cases/orders meeting SLA in the period.
-    unit: "%"
-    grain: month
     agg: avg
-    target: Service level SLO per channel/region
-    interpretation: Higher is better; low values drive churn risk.
-    lineage: fact_service[SLA Attainment %], fact_fulfillment for calculation check
 
   - id: ops.otif.pct
     name: OTIF %
     purpose: Measure supply reliability.
-    definition_short: Orders delivered on time and in full / total orders.
-    unit: "%"
-    grain: month (order-level base)
     agg: avg
-    target: OTIF target per lane/region
-    interpretation: Higher is better; low OTIF triggers capacity/root-cause actions.
-    lineage: fact_fulfillment[OTIF Flag], fact_fulfillment[Order Qty]
 
   - id: ops.working_capital.ccc.days
     name: Cash Conversion Cycle (Days)
     purpose: Measure working-capital efficiency end-to-end.
-    definition_short: CCC = DSO + DIO - DPO.
-    unit: days
-    grain: month
     agg: avg
-    target: CCC target per entity
-    interpretation: Lower is better; rising CCC signals cash risk.
-    lineage: fact_wc[CCC Days] derived from AR/AP/Inventory facts
 
   - id: people.digital_adoption.pct
     name: Digital Adoption %
     purpose: Track active usage of core digital tools.
-    definition_short: Active users / eligible users for core digital tools.
-    unit: "%"
-    grain: month
     agg: avg
-    target: Adoption target per function
-    interpretation: Higher is better; low adoption blocks scaling of efficiencies.
-    lineage: fact_digital[Active Users], fact_digital[Eligible Users]
 
   - id: people.attrition_risk.pct
     name: Attrition Risk %
     purpose: Monitor risk of losing key talent.
-    definition_short: Probability of attrition across key roles or segments.
-    unit: "%"
-    grain: month
     agg: avg
-    target: Risk tolerance per segment
-    interpretation: Lower is better; high risk requires retention action.
-    lineage: fact_hr[Attrition Risk %], fact_hr[Leavers], fact_hr[Headcount]
 
   - id: enterprise.action_routed.count
     name: Actions Routed Count
     purpose: Execution volume
-    definition_short: Count of routed action instances.
-    unit: count
-    grain: month
     agg: sum
-    target: Monitor trend
-    interpretation: Higher volume reflects more interventions underway.
-    lineage: fact_action[Action ID]
 
   - id: enterprise.action_outcome_rate.pct
     name: Action Outcome Rate %
     purpose: Execution effectiveness
-    definition_short: Successful actions / routed actions.
-    unit: "%"
-    grain: month
     agg: avg
-    target: >= target
-    interpretation: Higher is better; low rates indicate weak execution.
-    lineage: fact_action[Outcome Success Flag], fact_action[Action ID]
 
   - id: enterprise.value_at_risk.index
     name: Enterprise Value-at-Risk Index
     purpose: Cross-domain risk concentration
-    definition_short: Weighted index of domain risk signals.
-    unit: index
-    grain: month
     agg: avg
-    target: <= risk threshold
-    interpretation: Higher index indicates elevated enterprise risk.
-    lineage: fact_risk[Value at Risk Index]
 ```
 
 ---
@@ -191,7 +126,6 @@ action_codes:
     outcome_kpis: [enterprise.value_at_risk.index]
     impact_range: enterprise.value_at_risk.index: -10.0--30.0 %
     levels: L1-L3
-    definition: framework\action_codes\Enterprise\X-E3.2.yaml
 
   - id: X-E3.3
     name: Action Follow-up & Outcome Governance
@@ -203,7 +137,6 @@ action_codes:
     outcome_kpis: [enterprise.action_outcome_rate.pct]
     impact_range: enterprise.action_outcome_rate.pct: 10.0-25.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Enterprise\X-E3.3.yaml
 ```
 
 ---
@@ -307,4 +240,6 @@ required_slicers: Date, Org/Region/Entity, Product or Customer Segment, Function
 - Misalignment of KPI definitions across domains could lead to conflicting executive narratives.
 - Incomplete plan/LY data would misstate growth and margin performance.
 - Over-rotating on single KPIs without cross-checking drivers (e.g., margin vs service) could trigger suboptimal actions.
+
+
 

@@ -1,4 +1,7 @@
-Param()
+Param(
+  [string]$Root = ".",
+  [string[]]$ExcludeDirs = @(".git","node_modules","dist","_internal\\archive","_internal\\reviews")
+)
 
 $ErrorActionPreference = "Stop"
 
@@ -37,9 +40,97 @@ foreach ($item in $items) {
   }
 }
 
+function Is-ExcludedPath {
+  param([string]$Path,[string[]]$Exclude)
+  $normPath = $Path.ToLowerInvariant().Replace('/', '\')
+  foreach ($dir in $Exclude) {
+    $normDir = "\" + ($dir.ToLowerInvariant().Replace('/', '\').Trim('\','/')) + "\"
+    if ($normPath.Contains($normDir)) { return $true }
+  }
+  return $false
+}
+
+function Resolve-RepoPath {
+  param([string]$ProvidedPath,[string]$DefaultRelative)
+  if ($ProvidedPath) {
+    if (Test-Path $ProvidedPath) { return (Resolve-Path -Path $ProvidedPath).Path }
+    $candidate = Join-Path -Path $repoRoot -ChildPath $ProvidedPath
+    if (Test-Path $candidate) { return (Resolve-Path -Path $candidate).Path }
+  }
+  if ($DefaultRelative) {
+    $fallback = Join-Path -Path $repoRoot -ChildPath $DefaultRelative
+    if (Test-Path $fallback) { return (Resolve-Path -Path $fallback).Path }
+  }
+  return $null
+}
+
+function Test-RelativePath {
+  param([string]$BasePath,[string]$Target)
+  if (-not $Target) { return $true }
+  if ($Target -match '^(https?://|mailto:|#)') { return $true }
+  $clean = $Target.Split('#')[0].Trim()
+  if (-not $clean) { return $true }
+  $full = Join-Path -Path (Split-Path -Parent $BasePath) -ChildPath $clean
+  return (Test-Path $full)
+}
+
+function Get-MarkdownLinks {
+  param([string]$Content)
+  $links = @()
+  foreach ($m in [regex]::Matches($Content, '\[[^\]]*\]\(([^)]+)\)')) {
+    $links += $m.Groups[1].Value.Trim()
+  }
+  return $links
+}
+
+function Get-YamlPathRefs {
+  param([string]$Content)
+  $refs = @()
+  foreach ($line in ($Content -split "\r?\n")) {
+    if ($line -match '^\s*([A-Za-z0-9_]+_path)\s*:\s*"?([^"\s#]+)"?\s*$') {
+      $value = $matches[2]
+      if (-not $value) { continue }
+      if ($value -match '^(null|~)$') { continue }
+      $refs += $value
+    }
+  }
+  return $refs
+}
+
+$rootPath = Resolve-RepoPath -ProvidedPath $Root -DefaultRelative "."
+if (-not $rootPath) { throw "Root path not found." }
+
+$brokenRefs = @()
+
+Get-ChildItem -Path $rootPath -Recurse -File | Where-Object {
+  ($_.Extension -in @(".md",".yaml",".yml")) -and -not (Is-ExcludedPath -Path $_.FullName -Exclude $ExcludeDirs)
+} | ForEach-Object {
+  $content = Get-Content -Raw -Path $_.FullName
+  if ($_.Extension -eq ".md") {
+    foreach ($link in (Get-MarkdownLinks -Content $content)) {
+      if (-not (Test-RelativePath -BasePath $_.FullName -Target $link)) {
+        $brokenRefs += "$($_.FullName): $link"
+      }
+    }
+  } else {
+    foreach ($ref in (Get-YamlPathRefs -Content $content)) {
+      if (-not (Test-RelativePath -BasePath $_.FullName -Target $ref)) {
+        $brokenRefs += "$($_.FullName): $ref"
+      }
+    }
+  }
+}
+
 if ($missing.Count -gt 0) {
   Write-Host ""
   Write-Host "Documentation/tooling references out of sync. See missing items above." -ForegroundColor Red
+  exit 1
+}
+
+if ($brokenRefs.Count -gt 0) {
+  Write-Host ""
+  Write-Host "Broken relative references detected:" -ForegroundColor Red
+  $brokenRefs | Sort-Object | ForEach-Object { Write-Host "  - $_" }
   exit 1
 }
 

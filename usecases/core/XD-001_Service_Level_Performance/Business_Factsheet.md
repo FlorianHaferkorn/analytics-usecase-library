@@ -56,92 +56,45 @@ All KPIs must exist in the KPI Catalog.
 required_kpis:
 
   - id: svc.sla.attainment.pct
+    kpi_catalog_id: Service
     name: SLA Attainment %
     purpose: Service level compliance
-    definition_short: Cases meeting SLA / total cases
-    unit: %
-    grain: day_queue
     agg: avg
-    target: = target
-    interpretation: Low attainment signals service failure
-    lineage: fact_cases[SLA Met Flag]
 
   - id: svc.fcr.pct
     name: First Contact Resolution %
     purpose: Quality/efficiency
-    definition_short: Cases resolved on first contact / total cases
-    unit: %
-    grain: day_queue
     agg: avg
-    target: = target
-    interpretation: Low FCR drives repeat contacts/backlog
-    lineage: fact_cases[FCR Flag]
 
   - id: svc.aht.minutes
     name: Average Handling Time (minutes)
     purpose: Efficiency
-    definition_short: Avg handle time per case/contact
-    unit: minutes
-    grain: day_queue
     agg: avg
-    target: = target band
-    interpretation: High AHT slows throughput
-    lineage: fact_cases[Handle Time]
 
   - id: svc.backlog.count
     name: Backlog Count
     purpose: Workload risk
-    definition_short: Open cases not resolved
-    unit: count
-    grain: day_queue
     agg: sum
-    target: Reduce vs target
-    interpretation: Rising backlog risks SLA failure
-    lineage: fact_cases[Backlog Flag/Open Cases]
 
   - id: svc.nps.index
     name: NPS Index
     purpose: Customer satisfaction
-    definition_short: NPS score from surveys
-    unit: index
-    grain: month
     agg: avg
-    target: = target
-    interpretation: Lower NPS signals experience issues
-    lineage: fact_nps[NPS Score]
 
   - id: svc.escalation.pct
     name: Escalation %
     purpose: Quality/risk
-    definition_short: Escalated cases / total cases
-    unit: %
-    grain: day_queue
     agg: avg
-    target: = target
-    interpretation: High escalation signals quality/process issues
-    lineage: fact_cases[Escalation Flag]
 
   - id: svc.tickets.created.count
     name: Tickets Created Count
     purpose: Demand volume
-    definition_short: Count of newly created service tickets
-    unit: count
-    grain: day_queue
     agg: sum
-    target: Monitor trend
-    interpretation: Higher volume drives workload and SLA risk
-    lineage: fact_ticket[Ticket ID]
 
   - id: svc.tickets.closed.count
     name: Tickets Closed Count
     purpose: Throughput volume
-    definition_short: Count of closed service tickets
-    unit: count
-    grain: day_queue
     agg: sum
-    target: Keep pace with inflow
-    interpretation: Lower closures vs created leads to backlog growth
-    lineage: fact_ticket[Tickets Closed Count]
 ```
 
 ---
@@ -163,7 +116,6 @@ action_codes:
     outcome_kpis: [svc.sla.attainment.pct]
     impact_range: svc.sla.attainment.pct: 3.0-8.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Service\XS-S.1.1.yaml
 
   - id: X-S1.2
     name: Capacity & Backlog Stabilisation
@@ -175,7 +127,6 @@ action_codes:
     outcome_kpis: [svc.backlog.count, svc.sla.attainment.pct]
     impact_range: svc.backlog.count: -15.0--35.0 %
     levels: L1-L3
-    definition: framework\action_codes\Service\XS-S.1.2.yaml
 
   - id: X-S1.3
     name: Quality & First-Contact Resolution Uplift
@@ -187,7 +138,6 @@ action_codes:
     outcome_kpis: [svc.fcr.pct, svc.escalation.pct]
     impact_range: svc.fcr.pct: 5.0-12.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Service\XS-S.1.3.yaml
 
   - id: X-S1.4
     name: Handling Time & Flow Efficiency
@@ -199,7 +149,6 @@ action_codes:
     outcome_kpis: [svc.aht.minutes, svc.sla.attainment.pct]
     impact_range: svc.aht.minutes: -5.0--15.0 %
     levels: L1-L3
-    definition: framework\action_codes\Service\XS-S.1.4.yaml
 ```
 
 ---
@@ -315,4 +264,6 @@ required_slicers: >
 - Misclassified SLA breaches (force majeure vs controllable).  
 - FCR misread on complex/regulatory cases.  
 - NPS shifts not directly attributable without considering channel mix.  
+
+
 

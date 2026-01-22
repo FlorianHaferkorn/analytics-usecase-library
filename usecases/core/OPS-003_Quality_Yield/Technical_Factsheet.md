@@ -116,7 +116,6 @@ dimension:
 
 fact:
   - name: fact_quality
-    grain: line_day
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -128,7 +127,6 @@ fact:
       - {name: Defect Count, type: decimal, agg: sum}
 
   - name: fact_quality_costs
-    grain: month_product or line_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -136,7 +134,6 @@ fact:
       - {name: COPQ Amount, type: currency, agg: sum}
 
   - name: fact_complaints
-    grain: complaint
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: ProductKey, type: int, ref: dim_product}
@@ -145,7 +142,6 @@ fact:
       - {name: OrgKey, type: int, ref: dim_org, nullable: true}
 
   - name: fact_shipments
-    grain: shipment_line
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: ProductKey, type: int, ref: dim_product}
@@ -342,5 +338,6 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 
 

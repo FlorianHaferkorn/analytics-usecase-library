@@ -117,7 +117,6 @@ dimension:
 
 fact:
   - name: fact_inventory
-    grain: location_sku_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -128,7 +127,6 @@ fact:
       - {name: Obsolete Inventory Units, type: decimal, agg: sum, nullable: true}
 
   - name: fact_cogs
-    grain: location_sku_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -136,7 +134,6 @@ fact:
       - {name: COGS Amount, type: currency, agg: sum}
 
   - name: fact_fulfillment
-    grain: order
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -145,7 +142,6 @@ fact:
       - {name: Order Qty, type: decimal, agg: sum}
 
   - name: fact_stockout
-    grain: location_sku_day
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -154,14 +150,12 @@ fact:
       - {name: Demand Occurrences, type: int, agg: sum}
 
   - name: fact_forecast
-    grain: sku_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: ProductKey, type: int, ref: dim_product}
       - {name: Forecast Units, type: decimal, agg: sum}
 
   - name: fact_sales
-    grain: sku_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: ProductKey, type: int, ref: dim_product}
@@ -368,6 +362,7 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 
 
 

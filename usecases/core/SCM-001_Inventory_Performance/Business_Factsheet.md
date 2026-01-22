@@ -54,81 +54,40 @@ All KPIs must exist in the KPI Catalog.
 required_kpis:
 
   - id: inv.dio.days
+    kpi_catalog_id: Efficiency
     name: Days in Inventory (DIO)
     purpose: Working capital efficiency
-    definition_short: (Avg Inventory / COGS) x Days
-    unit: days
-    grain: location_sku_month
     agg: avg
-    target: = target (e.g., category/location specific)
-    interpretation: High DIO indicates excess inventory
-    lineage: fact_inventory[Avg Inventory], fact_cogs[COGS]
 
   - id: inv.turnover
     name: Inventory Turnover
     purpose: Velocity
-    definition_short: COGS / Avg Inventory
-    unit: x
-    grain: location_sku_month
     agg: avg
-    target: = target
-    interpretation: Low turnover indicates slow-moving stock
-    lineage: fact_inventory[Avg Inventory], fact_cogs[COGS]
 
   - id: inv.stockout.pct
     name: Stockout Rate %
     purpose: Service risk
-    definition_short: Stockout occurrences / demand occurrences
-    unit: %
-    grain: location_sku_day
     agg: avg
-    target: = target
-    interpretation: High rate signals availability issues
-    lineage: fact_inventory[Stockout Flag], demand events
 
   - id: supply.otif.pct
     name: OTIF %
     purpose: Service level fulfillment
-    definition_short: On-Time In-Full orders / total orders
-    unit: %
-    grain: order
     agg: avg
-    target: = 97-99% (context)
-    interpretation: Low OTIF reflects fulfillment issues
-    lineage: fact_fulfillment[OTIF Flag]
 
   - id: inv.obsolete.pct
     name: Obsolete Inventory %
     purpose: Write-off risk
-    definition_short: Obsolete stock / total stock
-    unit: %
-    grain: location_sku_month
     agg: avg
-    target: = target
-    interpretation: High obsolete % indicates aging/excess
-    lineage: fact_inventory[Obsolete Stock], fact_inventory[Total Stock]
 
   - id: plan.forecast.accuracy.pct
     name: Forecast Accuracy %
     purpose: Planning quality (units-based forecast)
-    definition_short: 1 - |Forecast Units - Actual Units| / Actual Units
-    unit: %
-    grain: sku_month
     agg: avg
-    target: % target
-    interpretation: Low accuracy drives excess/stockouts; units-based (not revenue)
-    lineage: fact_forecast[Forecast], fact_sales[Actual]
 
   - id: sales.units
     name: Sales Units
     purpose: Demand signal
-    definition_short: Units sold in the period
-    unit: units
-    grain: sku_month
     agg: sum
-    target: Meet plan
-    interpretation: Demand context for inventory levels
-    lineage: fact_sales[Sales Units]
 ```
 
 ---
@@ -150,7 +109,6 @@ action_codes:
     outcome_kpis: [inv.dio.days]
     impact_range: inv.dio.days: -5.0--15.0 days
     levels: L1-L3
-    definition: framework\action_codes\SupplyChain\S-I1.1.yaml
 
   - id: S-I1.2
     name: Inventory Rightsizing
@@ -162,7 +120,6 @@ action_codes:
     outcome_kpis: [inv.dio.days, inv.turnover]
     impact_range: inv.dio.days: -10.0--30.0 days
     levels: L1-L3
-    definition: framework\action_codes\SupplyChain\S-I1.2.yaml
 
   - id: S-I1.3
     name: Stockout Prevention
@@ -174,7 +131,6 @@ action_codes:
     outcome_kpis: [inv.stockout.pct, supply.otif.pct]
     impact_range: inv.stockout.pct: -1.0--5.0 pp
     levels: L1-L3
-    definition: framework\action_codes\SupplyChain\S-I1.3.yaml
 
   - id: S-I1.4
     name: Obsolescence & Excess Reduction
@@ -186,7 +142,6 @@ action_codes:
     outcome_kpis: [inv.obsolete.pct, inv.dio.days]
     impact_range: inv.obsolete.pct: -2.0--8.0 pp
     levels: L1-L3
-    definition: framework\action_codes\SupplyChain\S-I1.4.yaml
 
   - id: S-I1.5
     name: Forecast & Planning Stabilisation
@@ -198,7 +153,6 @@ action_codes:
     outcome_kpis: [plan.forecast.accuracy.pct]
     impact_range: plan.forecast.accuracy.pct: 5.0-15.0 pp
     levels: L1-L3
-    definition: framework\action_codes\SupplyChain\S-I1.5.yaml
 ```
 
 ---
@@ -288,6 +242,8 @@ required_slicers: Date, Location/DC/Channel, Category/Product, ABC/XYZ
 - Misstated DIO if COGS or inventory snapshots misaligned.  
 - Stockout flags incomplete, underreporting availability risk.  
 - Forecast accuracy misread without considering promotions or launches.  
+
+
 
 
 

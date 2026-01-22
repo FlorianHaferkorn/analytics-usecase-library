@@ -21,6 +21,8 @@ Scope:
    Strategy KPI ->' Use Case ->' required_kpi_ids ->' KPI Catalog ->' Measure Dictionary ->' Data Contract ->' Semantic Model blueprint.
 5. If the canonical source changes, derived views must be updated in the same PR.
 
+Use Cases contain only references to KPIs: required_kpi_ids (IDs; in factsheets represented as required_kpis[].id) and kpi_catalog_id (file-based reference); no KPI semantics (definitions, lineage, targets, units) belong in use case artifacts.
+
 ---
 
 ## Canonical sources

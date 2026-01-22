@@ -113,7 +113,6 @@ dimension:
 
 fact:
   - name: fact_wfm
-    grain: agent_day
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -127,7 +126,6 @@ fact:
       - {name: Shrinkage Minutes, type: decimal, agg: sum, nullable: true}
 
   - name: fact_cases
-    grain: case
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -329,5 +327,6 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 
 

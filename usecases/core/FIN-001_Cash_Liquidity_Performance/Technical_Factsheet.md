@@ -130,7 +130,6 @@ dimension:
 
 fact:
   - name: fact_cash
-    grain: day
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -138,7 +137,6 @@ fact:
       - {name: Plan Cash Amount, type: currency, agg: sum, nullable: true}
 
   - name: fact_cashflow
-    grain: month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -146,7 +144,6 @@ fact:
       - {name: Plan OCF Amount, type: currency, agg: sum, nullable: true}
 
   - name: fact_ar
-    grain: month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -155,7 +152,6 @@ fact:
       - {name: Revenue Amount, type: currency, agg: sum}
 
   - name: fact_ap
-    grain: month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -164,7 +160,6 @@ fact:
       - {name: COGS Amount, type: currency, agg: sum}
 
   - name: fact_inventory
-    grain: month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -369,5 +364,6 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 
 

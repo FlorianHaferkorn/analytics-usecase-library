@@ -53,125 +53,60 @@ All KPIs must exist in the KPI Catalog.
 required_kpis:
 
   - id: cost.unit.amount
+    kpi_catalog_id: Profitability
     name: Unit Cost Amount
     purpose: Cost efficiency
-    definition_short: Total COGS / Units produced or sold
-    unit: EUR/unit
-    grain: product_line_month
     agg: avg
-    target: = plan target
-    interpretation: Higher than plan signals cost pressure
-    lineage: fact_cost[COGS], fact_output[Units]
 
   - id: margin.cogs.pct
     name: COGS % of Sales
     purpose: Cost share
-    definition_short: COGS / Net Sales
-    unit: %
-    grain: month
     agg: avg
-    target: = target
-    interpretation: Rising % erodes margin
-    lineage: fact_finance[COGS], fact_finance[Net Sales]
 
   - id: cost.opex.vs_plan.pct
     name: OpEx vs Plan %
     purpose: Overhead control
-    definition_short: (OpEx - Plan) / Plan
-    unit: %
-    grain: month
     agg: avg
-    target: = 0
-    interpretation: Positive variance indicates overspend
-    lineage: fact_opex[OpEx], plan_opex
 
   - id: cost.material.pct
     name: Material Cost %
     purpose: Material efficiency
-    definition_short: Material cost / Net Sales
-    unit: %
-    grain: month
     agg: avg
-    target: = target
-    interpretation: High material share signals price/usage issues
-    lineage: fact_cost[Material Cost], fact_finance[Net Sales]
 
   - id: ops.labor.productivity.pct
     name: Labor Productivity %
     purpose: Labor efficiency
-    definition_short: Output vs labor hours (or revenue per labor hour)
-    unit: index/%
-    grain: month
     agg: avg
-    target: = target
-    interpretation: Low productivity increases unit cost
-    lineage: fact_output[Units], fact_labor[Labor Hours]
 
   - id: cost.base_volume.amount
     name: Cost Base Volume Amount
     purpose: Variance baseline
-    definition_short: Baseline cost volume amount
-    unit: EUR
-    grain: cost_center_month
     agg: sum
-    target: = baseline
-    interpretation: Baseline for cost variance comparisons
-    lineage: fact_cost[Base Volume Amount]
 
   - id: cost.opex.base.amount
     name: Opex Base Amount
     purpose: OpEx baseline
-    definition_short: Baseline operating expense amount
-    unit: EUR
-    grain: cost_center_month
     agg: sum
-    target: = baseline
-    interpretation: Baseline for OpEx variance tracking
-    lineage: fact_opex[Opex Base Amount]
 
   - id: ops.production.volume
     name: Production Volume Units
     purpose: Output baseline
-    definition_short: Total produced units
-    unit: units
-    grain: line_month
     agg: sum
-    target: Meet plan
-    interpretation: Volume context for unit cost movements
-    lineage: fact_ops[Output Units]
 
   - id: ops.quality.defect_rate.pct
     name: Quality Defect Rate %
     purpose: Quality cost driver
-    definition_short: Defect Units / Output Units
-    unit: %
-    grain: line_month
     agg: avg
-    target: <= target
-    interpretation: Higher defect rates raise rework and unit cost
-    lineage: fact_quality[Defect Count], fact_ops[Output Units]
 
   - id: ops.service_level.pct
     name: Operations Service Level %
     purpose: Service guardrail
-    definition_short: On-Time Deliveries / Total Deliveries
-    unit: %
-    grain: shipment_month
     agg: avg
-    target: >= service target
-    interpretation: Cost actions should not reduce service
-    lineage: fact_ops[On Time Deliveries], fact_ops[Total Deliveries]
 
   - id: ops.yield.pct
     name: Yield %
     purpose: Process efficiency
-    definition_short: Good Units / Output Units
-    unit: %
-    grain: line_month
     agg: avg
-    target: >= target
-    interpretation: Low yield increases scrap and unit cost
-    lineage: fact_ops[Good Units], fact_ops[Output Units]
 ```
 
 ---
@@ -193,7 +128,6 @@ action_codes:
     outcome_kpis: [cost.unit.amount]
     impact_range: cost.unit.amount: 2.0-6.0 %
     levels: L1-L3
-    definition: framework\action_codes\Finance\F-K2.1.yaml
 
   - id: F-K2.2
     name: Material Cost Discipline
@@ -205,7 +139,6 @@ action_codes:
     outcome_kpis: [cost.material.pct, cost.unit.amount]
     impact_range: cost.material.pct: 1.0-4.0 %
     levels: L1-L3
-    definition: framework\action_codes\Finance\F-K2.2.yaml
 
   - id: F-K2.3
     name: Labor Productivity Recovery
@@ -217,7 +150,6 @@ action_codes:
     outcome_kpis: [ops.labor.productivity.pct, cost.unit.amount]
     impact_range: ops.labor.productivity.pct: 3.0-8.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Finance\F-K2.3.yaml
 
   - id: F-K2.4
     name: OpEx Discipline
@@ -229,7 +161,6 @@ action_codes:
     outcome_kpis: [cost.opex.vs_plan.pct, cost.unit.amount]
     impact_range: cost.opex.vs_plan.pct: 2.0-6.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Finance\F-K2.4.yaml
 ```
 
 ---
@@ -319,6 +250,8 @@ required_slicers: Date, Entity/Plant/Line, Product/Category, Cost bucket
 - Misallocation of overhead distorting unit cost.  
 - Material cost % misread if price/volume/mix effects not separated.  
 - Productivity dips during planned training/ramp-up misinterpreted.  
+
+
 
 
 

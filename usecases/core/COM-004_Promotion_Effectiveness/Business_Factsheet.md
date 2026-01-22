@@ -49,59 +49,30 @@ All KPIs must exist in the KPI Catalog.
 required_kpis:
 
   - id: sales.promo.roi.pct
+    kpi_catalog_id: Profitability
     name: Promotion ROI %
     purpose: Profitability of promotions
-    definition_short: Incremental GM / Promo Cost
-    unit: "%"
-    grain: promotion
     agg: avg
-    target: >= 120%
-    interpretation: Below target implies unprofitable promo
-    lineage: fact_sales[Incremental GM], fact_promo[Promo Cost]
 
   - id: sales.promo.incremental.amount
     name: Incremental Sales Amount
     purpose: Uplift sizing
-    definition_short: Sales with promo - baseline sales
-    unit: "EUR"
-    grain: promotion
     agg: sum
-    target: Positive with ROI on/above target
-    interpretation: Must offset discounts and cannibalization
-    lineage: fact_sales[Net Sales Amount], baseline model
 
   - id: margin.promo.gm.pct
     name: Promo Gross Margin %
     purpose: Profit quality during promos
-    definition_short: Gross Margin / Net Sales during promo
-    unit: "%"
-    grain: promotion
     agg: avg
-    target: Category target (e.g., 20-25%)
-    interpretation: Low indicates price/mix leakage
-    lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount], promo flag
 
   - id: sales.price.realization_pct
     name: Price Realization %
     purpose: Discount discipline
-    definition_short: Net Price / List Price
-    unit: "%"
-    grain: promotion
     agg: avg
-    target: 90-95% depending on policy
-    interpretation: Low shows excessive discounting
-    lineage: fact_sales[Net Price Amount], fact_sales[List Price Amount]
 
   - id: sales.promo.cannibalization.pct
     name: Cannibalization %
     purpose: Net effect on portfolio
-    definition_short: (Sales lost in non-promoted items) / Promo uplift
-    unit: "%"
-    grain: promotion
     agg: avg
-    target: <= 20%
-    interpretation: High cannibalization reduces net benefit
-    lineage: baseline vs promo comparison across related items
 ```
 
 ---
@@ -123,7 +94,6 @@ action_codes:
     outcome_kpis: [sales.price.realization_pct, margin.gm.pct]
     impact_range: sales.price.realization_pct: 1.0-3.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Commercial\C-M2.1.yaml
 
   - id: C-S1.1
     name: Price Discipline Enforcement
@@ -135,7 +105,6 @@ action_codes:
     outcome_kpis: [margin.gm.pct]
     impact_range: margin.gm.pct: 0.5-1.5 pp
     levels: L1-L3
-    definition: framework\action_codes\Commercial\C-S1.1.yaml
 
   - id: C-M2.2
     name: Mix Optimization (Margin-Driven)
@@ -147,7 +116,6 @@ action_codes:
     outcome_kpis: [margin.gm.pct, sales.pvm.mix_effect.amount]
     impact_range: margin.gm.pct: 0.3-1.2 pp
     levels: L1-L3
-    definition: framework\action_codes\Commercial\C-M2.2.yaml
 
   - id: C-P4.1
     name: Promo Calendar Discipline
@@ -159,7 +127,6 @@ action_codes:
     outcome_kpis: [sales.promo.roi.pct, margin.promo.gm.pct]
     impact_range: sales.promo.roi.pct: 5.0-20.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Commercial\C-P4.1.yaml
 
   - id: C-S1.2
     name: Sales Gap Recovery via Price & Pack Adjustment
@@ -171,7 +138,6 @@ action_codes:
     outcome_kpis: [sales.net_sales.amount]
     impact_range: sales.net_sales.amount: 1.0-3.0 %
     levels: L1-L3
-    definition: framework\action_codes\Commercial\C-S1.2.yaml
 ```
 
 ---
@@ -261,5 +227,7 @@ required_slicers: Date/Promo period, Region/Channel, Product Category/Subcategor
 - Over-discounting to lift volume without GM guardrails.
 
 ---
+
+
 
 

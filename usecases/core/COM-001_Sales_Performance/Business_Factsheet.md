@@ -54,81 +54,40 @@ All KPIs must exist in the KPI Catalog.
 required_kpis:
 
   - id: sales.net_sales.amount
+    kpi_catalog_id: Growth
     name: Net Sales Amount
     purpose: Core revenue control
-    definition_short: Sum of net sales after discounts
-    unit: "EUR"
-    grain: month
     agg: sum
-    target: Meet/beat Plan and LY
-    interpretation: Negative gap signals revenue risk
-    lineage: fact_sales[Net Sales Amount] x dim_date, dim_org, dim_product
 
   - id: sales.net_sales.delta_pct.plan
     name: Net Sales % vs Plan
     purpose: Execution vs Plan
-    definition_short: (Net Sales - Plan) / Plan
-    unit: "%"
-    grain: month
     agg: avg
-    target: >= -2% guardrail
-    interpretation: Below guardrail shows miss vs Plan
-    lineage: fact_sales[Net Sales Amount], fact_sales[Plan Sales Amount]
 
   - id: sales.net_sales.delta_pct.ly
     name: Net Sales % vs LY
     purpose: Growth vs LY
-    definition_short: (Net Sales - LY) / LY
-    unit: "%"
-    grain: month
     agg: avg
-    target: +3% to +5%
-    interpretation: Negative YoY signals deterioration
-    lineage: fact_sales[Net Sales Amount], fact_sales[Last Year Sales Amount]
 
   - id: margin.gm.pct
     name: Gross Margin %
     purpose: Profitability quality
-    definition_short: Gross Margin / Net Sales
-    unit: "%"
-    grain: month
     agg: avg
-    target: >= 25%
-    interpretation: Compression shows price/mix pressure
-    lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount]
 
   - id: sales.pvm.price_effect.amount
     name: Price Effect Amount
     purpose: Driver analysis
-    definition_short: Net Sales impact from price change
-    unit: "EUR"
-    grain: month
     agg: sum
-    target: 0 unless price change
-    interpretation: Negative implies price dilution
-    lineage: fact_sales[Net Price Amount], fact_sales[Plan Sales Amount], fact_sales[Quantity]
 
   - id: sales.pvm.volume_effect.amount
     name: Volume Effect Amount
     purpose: Driver analysis
-    definition_short: Net Sales impact from volume change
-    unit: "EUR"
-    grain: month
     agg: sum
-    target: 0 unless volume change
-    interpretation: Negative implies demand/availability issue
-    lineage: fact_sales[Quantity], fact_sales[Plan Sales Amount]
 
   - id: sales.pvm.mix_effect.amount
     name: Mix Effect Amount
     purpose: Driver analysis
-    definition_short: Net Sales impact from mix change
-    unit: "EUR"
-    grain: month
     agg: sum
-    target: >= 0
-    interpretation: Negative implies adverse mix
-    lineage: fact_sales[Net Sales Amount], PVM decomposition residual
 ```
 
 ---
@@ -150,7 +109,6 @@ action_codes:
     outcome_kpis: [sales.price.realization_pct, margin.gm.pct]
     impact_range: sales.price.realization_pct: 1.0-3.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Commercial\C-M2.1.yaml
 
   - id: C-S1.1
     name: Price Discipline Enforcement
@@ -162,7 +120,6 @@ action_codes:
     outcome_kpis: [margin.gm.pct]
     impact_range: margin.gm.pct: 0.5-1.5 pp
     levels: L1-L3
-    definition: framework\action_codes\Commercial\C-S1.1.yaml
 
   - id: C-S1.2
     name: Sales Gap Recovery via Price & Pack Adjustment
@@ -174,7 +131,6 @@ action_codes:
     outcome_kpis: [sales.net_sales.amount]
     impact_range: sales.net_sales.amount: 1.0-3.0 %
     levels: L1-L3
-    definition: framework\action_codes\Commercial\C-S1.2.yaml
 ```
 
 ---
@@ -291,4 +247,6 @@ required_slicers: >
 - Over-reacting on price without GM guardrails can erode margin.
 
 ---
+
+
 

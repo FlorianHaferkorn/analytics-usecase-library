@@ -1,6 +1,6 @@
 schema_version: "1.1"
 
-id: "X-E3.2"
+id: "X-E3.1"
 name: "Cross-Domain Risk Prioritisation"
 owner_domain: "Strategy / Enterprise Controlling"
 impact_dimension: "Risk Management"

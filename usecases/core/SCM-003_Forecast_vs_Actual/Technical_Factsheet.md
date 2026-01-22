@@ -108,7 +108,6 @@ dimension:
 
 fact:
   - name: fact_forecast
-    grain: sku_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true}
@@ -117,7 +116,6 @@ fact:
       - {name: Forecast Version, type: text, nullable: true}
 
   - name: fact_sales
-    grain: sku_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true}
@@ -125,7 +123,6 @@ fact:
       - {name: Actual Units, type: decimal, agg: sum}
 
   - name: fact_fulfillment   # for service impact linkage
-    grain: order
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true}
@@ -133,7 +130,6 @@ fact:
       - {name: OTIF Flag, type: boolean, nullable: true}
 
   - name: fact_stockout      # for service impact linkage
-    grain: location_sku_day
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -143,7 +139,6 @@ fact:
       - {name: Demand Units, type: decimal, agg: sum}
 
   - name: fact_replan   # if available
-    grain: month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: Re-Plan Count, type: int, agg: sum}
@@ -351,6 +346,7 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 
 
 

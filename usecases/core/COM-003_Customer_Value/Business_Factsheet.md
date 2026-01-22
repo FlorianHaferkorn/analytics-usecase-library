@@ -49,92 +49,45 @@ All KPIs must exist in the KPI Catalog.
 required_kpis:
 
   - id: crm.clv.amount
+    kpi_catalog_id: CustomerValue
     name: Customer Lifetime Value Amount
     purpose: Long-term economic value per customer
-    definition_short: Present value of expected future contribution margin per customer
-    unit: "EUR"
-    grain: customer_month
     agg: sum
-    target: Grow in priority segments
-    interpretation: Higher is better; declining CLV signals retention/upsell action
-    lineage: fact_customer_value[CLV Amount]
 
   - id: crm.lifetime_revenue.amount
     name: Customer Lifetime Revenue Amount
     purpose: Realised revenue across lifecycle
-    definition_short: Sum of revenue from first purchase to date
-    unit: "EUR"
-    grain: customer
     agg: sum
-    target: Grow revenue base with margin discipline
-    interpretation: Base for concentration and CLV inputs
-    lineage: fact_sales[Net Sales Amount], dim_customer[CustomerKey]
 
   - id: crm.retention.pct
     name: Customer Retention %
     purpose: Retain profitable customers
-    definition_short: Retained Customers / Active Customers at period start
-    unit: "%"
-    grain: month
     agg: avg
-    target: Meet segment retention targets
-    interpretation: Lower retention drives CLV erosion
-    lineage: fact_customer_events[Customer Status]
 
   - id: crm.churned_customers.count
     name: Churned Customers Count
     purpose: Quantify customers lost in period
-    definition_short: Count of customers with churn flag = 1
-    unit: count
-    grain: month
     agg: sum
-    target: Minimise churn volume
-    interpretation: Rising churn indicates urgent retention playbooks
-    lineage: fact_customer_events[Churn Flag]
 
   - id: crm.revenue_at_risk.amount
     name: Revenue at Risk Amount
     purpose: Size revenue exposure from churn-risk customers
-    definition_short: CLV remaining * Attrition Risk %
-    unit: "EUR"
-    grain: month
     agg: sum
-    target: Reduce exposure vs tolerance
-    interpretation: High exposure prioritises retention actions
-    lineage: fact_customer_value[CLV Remaining Amount], fact_customer_events[Attrition Risk %]
 
   - id: crm.active_customers.count
     name: Active Customers Count
     purpose: Base for retention/churn KPIs
-    definition_short: Distinct customers with activity > 0 in period
-    unit: count
-    grain: month
     agg: sum
-    target: Maintain stable active base
-    interpretation: Denominator for retention/churn; falling base signals broader risk
-    lineage: fact_customer_events[Activity Flag]
 
   - id: crm.nps.index
     name: NPS Score
     purpose: Measure advocacy and experience quality
-    definition_short: %Promoters - %Detractors
-    unit: score
-    grain: month
     agg: avg
-    target: Meet CX target
-    interpretation: Higher is better; track with complaints and churn
-    lineage: fact_nps[NPS Score]
 
   - id: crm.complaint.count
     name: Customer Complaints Count
     purpose: Volume of customer complaints
-    definition_short: Count of complaint events
-    unit: count
-    grain: month
     agg: sum
-    target: Reduce complaints vs baseline
-    interpretation: Rising complaints signal service/quality issues affecting churn
-    lineage: fact_experience[Complaint ID]
 ```
 
 ---
@@ -156,7 +109,6 @@ action_codes:
     outcome_kpis: [margin.gm.pct, sales.pvm.mix_effect.amount]
     impact_range: margin.gm.pct: 0.3-1.2 pp
     levels: L1-L3
-    definition: framework\action_codes\Commercial\C-M2.2.yaml
 
   - id: C-P4.1
     name: Promo Calendar Discipline
@@ -168,7 +120,6 @@ action_codes:
     outcome_kpis: [sales.promo.roi.pct, margin.promo.gm.pct]
     impact_range: sales.promo.roi.pct: 5.0-20.0 pp
     levels: L1-L3
-    definition: framework\action_codes\Commercial\C-P4.1.yaml
 
   - id: C-S1.2
     name: Sales Gap Recovery via Price & Pack Adjustment
@@ -180,7 +131,6 @@ action_codes:
     outcome_kpis: [sales.net_sales.amount]
     impact_range: sales.net_sales.amount: 1.0-3.0 %
     levels: L1-L3
-    definition: framework\action_codes\Commercial\C-S1.2.yaml
 ```
 
 ---
@@ -279,6 +229,8 @@ required_slicers: Date, Region/Channel, Customer Segment, Product Category
 - Using inconsistent CLV models across segments leading to false comparisons.
 
 ---
+
+
 
 
 

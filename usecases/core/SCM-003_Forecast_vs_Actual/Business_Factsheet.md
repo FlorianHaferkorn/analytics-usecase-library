@@ -53,92 +53,45 @@ All KPIs must exist in the KPI Catalog.
 required_kpis:
 
   - id: plan.forecast.accuracy.pct
+    kpi_catalog_id: Efficiency
     name: Forecast Accuracy %
     purpose: Planning quality (units-based forecast)
-    definition_short: 1 - |Forecast Units - Actual Units| / Actual Units
-    unit: %
-    grain: sku_month
     agg: avg
-    target: % target
-    interpretation: Low accuracy drives excess/stockouts; units-based (not revenue)
-    lineage: fact_forecast[Forecast], fact_sales[Actual]
 
   - id: plan.forecast.mape.pct
     name: MAPE %
     purpose: Error magnitude (units-based forecast)
-    definition_short: Mean absolute % error of Forecast Units vs Actual Units
-    unit: %
-    grain: sku_month
     agg: avg
-    target: % target
-    interpretation: High MAPE indicates poor forecast quality; units-based (not revenue)
-    lineage: fact_forecast vs fact_sales
 
   - id: plan.forecast.bias.pct
     name: Forecast Bias %
     purpose: Direction of error (units-based forecast)
-    definition_short: (Forecast Units - Actual Units) / Actual Units
-    unit: %
-    grain: sku_month
     agg: avg
-    target: Near 0 (within bands)
-    interpretation: Positive bias = over-forecast; negative = under-forecast; units-based (not revenue)
-    lineage: fact_forecast vs fact_sales
 
   - id: plan.forecast.service_impact.pct
     name: Service Impact %
     purpose: Service effect of forecast error (units-based)
-    definition_short: Portion of service misses attributable to forecast error (units-based)
-    unit: %
-    grain: sku_month
     agg: avg
-    target: Minimize
-    interpretation: High impact shows planning as root cause; units-based (not revenue)
-    lineage: linkage between forecast error and OTIF/stockout
 
   - id: plan.replan.count
     name: Re-Plan Count
     purpose: Planning stability
-    definition_short: Number of re-plans within period
-    unit: count
-    grain: month
     agg: sum
-    target: Reduce vs baseline
-    interpretation: Frequent re-plans indicate unstable process
-    lineage: planning system logs
 
   - id: order.lines
     name: Order Lines Count
     purpose: Demand volume
-    definition_short: Count of order line items
-    unit: count
-    grain: order_line
     agg: sum
-    target: Meet plan
-    interpretation: Volume context for forecast accuracy
-    lineage: fact_order_lines[Order Line ID]
 
   - id: plans.count
     name: Plans Count
     purpose: Planning activity
-    definition_short: Count of plan records or plan versions
-    unit: count
-    grain: month
     agg: sum
-    target: Stable over time
-    interpretation: Higher counts indicate more planning cycles
-    lineage: fact_plan[Plan ID]
 
   - id: sales.units
     name: Sales Units
     purpose: Actuals baseline
-    definition_short: Units sold in the period
-    unit: units
-    grain: sku_month
     agg: sum
-    target: Meet plan
-    interpretation: Actual volume for forecast comparison
-    lineage: fact_sales[Sales Units]
 ```
 
 ---
@@ -160,7 +113,6 @@ action_codes:
     outcome_kpis: [plan.forecast.accuracy.pct]
     impact_range: plan.forecast.accuracy.pct: 5.0-12.0 pp
     levels: L1-L3
-    definition: framework\action_codes\SupplyChain\S-F.3.1.yaml
 
   - id: S-F3.2
     name: Forecast Bias & Accuracy Correction
@@ -172,7 +124,6 @@ action_codes:
     outcome_kpis: [plan.forecast.accuracy.pct, plan.forecast.bias.pct]
     impact_range: plan.forecast.accuracy.pct: 4.0-10.0 pp
     levels: L1-L3
-    definition: framework\action_codes\SupplyChain\S-F.3.2.yaml
 
   - id: S-F3.3
     name: Service Impact Containment
@@ -184,7 +135,6 @@ action_codes:
     outcome_kpis: [plan.forecast.service_impact.pct, supply.otif.pct]
     impact_range: plan.forecast.service_impact.pct: -1.0--4.0 pp
     levels: L1-L3
-    definition: framework\action_codes\SupplyChain\S-F.3.3.yaml
 
   - id: S-F3.4
     name: Re-Plan Discipline & Stability
@@ -196,7 +146,6 @@ action_codes:
     outcome_kpis: [plan.replan.count, plan.forecast.accuracy.pct]
     impact_range: plan.replan.count: -20.0--50.0 %
     levels: L1-L3
-    definition: framework\action_codes\SupplyChain\S-F3.4.yaml
 ```
 
 ---
@@ -286,6 +235,8 @@ required_slicers: Date, Region/Channel/Location, Category/Product, ABC/XYZ
 - Misinterpreting bias/accuracy on launch or promo items.  
 - Service impact overstated if OTIF/stockout not properly linked.  
 - Re-plan counts misleading if process changes not tracked.  
+
+
 
 
 

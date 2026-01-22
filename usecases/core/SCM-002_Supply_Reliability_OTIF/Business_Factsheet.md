@@ -56,92 +56,45 @@ All KPIs must exist in the KPI Catalog.
 required_kpis:
 
   - id: supply.otif.pct
+    kpi_catalog_id: Efficiency
     name: OTIF %
     purpose: Service level delivered
-    definition_short: On-Time In-Full orders / total orders
-    unit: %
-    grain: order
     agg: avg
-    target: = 97-99%
-    interpretation: Low OTIF signals service failure
-    lineage: fact_fulfillment[OTIF Flag]
 
   - id: supply.on_time.pct
     name: On-Time %
     purpose: Timeliness
-    definition_short: On-time deliveries / total deliveries
-    unit: %
-    grain: shipment
     agg: avg
-    target: = 97-99%
-    interpretation: Low on-time signals delay issues
-    lineage: fact_fulfillment[On-Time Flag]
 
   - id: supply.in_full.pct
     name: In-Full %
     purpose: Completeness
-    definition_short: In-full deliveries / total deliveries
-    unit: %
-    grain: shipment
     agg: avg
-    target: = 97-99%
-    interpretation: Low in-full signals quantity issues
-    lineage: fact_fulfillment[In-Full Flag]
 
   - id: supply.stockout_impact.pct
     name: Stockout Impact %
     purpose: Service loss
-    definition_short: Lost demand due to stockout / total demand
-    unit: %
-    grain: location_sku_day
     agg: avg
-    target: = target
-    interpretation: High impact shows service gaps
-    lineage: fact_stockout[Lost Demand], fact_stockout[Demand]
 
   - id: supply.penalty.amount
     name: Penalty Amount
     purpose: Financial impact of service failures
-    definition_short: Penalties incurred for service misses
-    unit: EUR
-    grain: order
     agg: sum
-    target: Reduce to target
-    interpretation: High penalties indicate systemic issues
-    lineage: fact_fulfillment[Penalty Amount]
 
   - id: supply.expedite.amount
     name: Expedite Cost Amount
     purpose: Cost to recover service
-    definition_short: Additional cost for expedited shipping
-    unit: EUR
-    grain: shipment
     agg: sum
-    target: Reduce to target
-    interpretation: High expedites show plan/fulfillment gaps
-    lineage: fact_fulfillment[Expedite Cost]
 
   - id: order.lines
     name: Order Lines Count
     purpose: Volume context
-    definition_short: Count of order line items
-    unit: count
-    grain: order_line
     agg: sum
-    target: Meet plan
-    interpretation: Volume baseline for service reliability
-    lineage: fact_order_lines[Order Line ID]
 
   - id: shipments.count
     name: Shipments Count
     purpose: Execution volume
-    definition_short: Count of shipments executed
-    unit: count
-    grain: shipment
     agg: sum
-    target: Meet plan
-    interpretation: Shipment volume context for OTIF performance
-    lineage: fact_shipment[Shipment ID]
 ```
 
 ---
@@ -163,7 +116,6 @@ action_codes:
     outcome_kpis: [supply.otif.pct]
     impact_range: supply.otif.pct: 1.0-4.0 pp
     levels: L1-L3
-    definition: framework\action_codes\SupplyChain\S-R2.1.yaml
 
   - id: S-R2.2
     name: Fulfillment & Transport Stabilisation
@@ -175,7 +127,6 @@ action_codes:
     outcome_kpis: [supply.on_time.pct, supply.otif.pct]
     impact_range: supply.on_time.pct: 2.0-5.0 pp
     levels: L1-L3
-    definition: framework\action_codes\SupplyChain\S-R2.2.yaml
 
   - id: S-R2.3
     name: In-Full & Stockout Impact Reduction
@@ -187,7 +138,6 @@ action_codes:
     outcome_kpis: [supply.stockout_impact.pct, supply.in_full.pct]
     impact_range: supply.stockout_impact.pct: -1.0--4.0 pp
     levels: L1-L3
-    definition: framework\action_codes\SupplyChain\S-R2.3.yaml
 
   - id: S-R2.4
     name: Penalty & Expedite Cost Control
@@ -199,7 +149,6 @@ action_codes:
     outcome_kpis: [supply.penalty.amount, supply.expedite.amount]
     impact_range: supply.penalty.amount: -10.0--30.0 %
     levels: L1-L3
-    definition: framework\action_codes\SupplyChain\S-R2.4.yaml
 
   - id: S-R2.5
     name: Planning & Execution Alignment
@@ -211,7 +160,6 @@ action_codes:
     outcome_kpis: [supply.otif.pct]
     impact_range: supply.otif.pct: 1.0-3.0 pp
     levels: L1-L3
-    definition: framework\action_codes\SupplyChain\S-R2.5.yaml
 ```
 
 ---
@@ -331,4 +279,6 @@ required_slicers: >
 - Misapplied force majeure exclusions inflating OTIF.  
 - Missing penalty/expedite capture understates cost.  
 - Stockout impact misread if demand not captured consistently.  
+
+
 

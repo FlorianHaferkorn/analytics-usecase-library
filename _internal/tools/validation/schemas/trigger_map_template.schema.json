@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["settings","governance","scopes","mappings"],
+  "properties": {
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["timezone","currency_default","evaluation_default_window"],
+      "properties": {
+        "timezone": { "type": "string" },
+        "currency_default": { "type": "string" },
+        "evaluation_default_window": { "type": "string" }
+      }
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status","owner","last_reviewed","change_notes"],
+      "properties": {
+        "status": { "type": "string" },
+        "owner": { "type": "string" },
+        "last_reviewed": { "type": "string" },
+        "change_notes": { "type": ["string","null"] }
+      }
+    },
+    "scopes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["scope_id","description","filters"],
+        "properties": {
+          "scope_id": { "type": "string" },
+          "description": { "type": "string" },
+          "filters": { "type": "object" }
+        }
+      }
+    },
+    "mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["mapping_id","action_code_id","owner_domain","scope_id","surfacing","trigger","evaluation_tracking","operational_metadata"],
+        "properties": {
+          "mapping_id": { "type": "string" },
+          "action_code_id": { "type": "string" },
+          "owner_domain": { "type": "string" },
+          "scope_id": { "type": "string" },
+          "surfacing": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["primary_page_type","secondary_page_types","attention_priority","needs_action_panel"],
+            "properties": {
+              "primary_page_type": { "type": "string" },
+              "secondary_page_types": { "type": "array", "items": { "type": "string" } },
+              "attention_priority": { "type": "string" },
+              "needs_action_panel": { "type": "boolean" }
+            }
+          },
+          "trigger": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["trigger_type","persistence","cooldown","conditions","suppress_if"],
+            "properties": {
+              "trigger_type": { "type": "string" },
+              "persistence": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["periods","period_grain"],
+                "properties": {
+                  "periods": { "type": "number" },
+                  "period_grain": { "type": "string" }
+                }
+              },
+              "cooldown": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["periods","period_grain"],
+                "properties": {
+                  "periods": { "type": "number" },
+                  "period_grain": { "type": "string" }
+                }
+              },
+              "conditions": { "type": "array", "items": { "type": "object" } },
+              "suppress_if": { "type": "array", "items": { "type": "string" } }
+            }
+          },
+          "evaluation_tracking": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["evaluation_window","leading_indicators","lagging_indicators","success_rule"],
+            "properties": {
+              "evaluation_window": { "type": "string" },
+              "leading_indicators": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["kpi_id","expected_direction","tolerance"],
+                  "properties": {
+                    "kpi_id": { "type": "string" },
+                    "expected_direction": { "type": "string" },
+                    "tolerance": { "type": "number" }
+                  }
+                }
+              },
+              "lagging_indicators": { "type": "array", "items": { "type": "string" } },
+              "success_rule": { "type": "string" }
+            }
+          },
+          "operational_metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["escalation_path","notes"],
+            "properties": {
+              "escalation_path": { "type": ["string","null"] },
+              "notes": { "type": ["string","null"] }
+            }
+          }
+        }
+      }
+    }
+  }
+}

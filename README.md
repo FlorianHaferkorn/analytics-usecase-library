@@ -83,6 +83,21 @@ Each use case contains:
 - Required KPIs and actions
 - Technical blueprint for implementation
 
+## Stage 1 CI Gate (local / CI)
+
+Canonical command (run from repo root):
+
+```
+.\_internal\tools\run_stage1_checks.ps1
+```
+
+Prerequisite (one-time, for schema validation):
+
+```
+cd _internal\tools\validation
+npm ci
+```
+
 ## Repository Structure (high level)
 
 ```yaml

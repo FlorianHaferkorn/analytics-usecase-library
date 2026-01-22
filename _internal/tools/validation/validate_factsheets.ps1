@@ -70,7 +70,7 @@ function Parse-ListField {
   $block = [regex]::Match($FrontMatter, "(?ms)^\s*$escaped\s*:\s*(?:#.*)?\r?\n(?<body>(?:\s{2,}-\s*[^\r\n]*\r?\n?)+)")
   if ($block.Success) {
     $results = @()
-    foreach ($rawLine in ($block.Groups['body'].Value -split "\r?\n")) {
+    foreach ($rawLine in ($block.Groups['body'].Value -split '\r?\n')) {
       $line = $rawLine.Trim()
       if (-not $line) { continue }
       if ($line -match '^\s*-\s*(.*)$') {
@@ -99,12 +99,15 @@ function Get-MapField {
   if (-not $match.Success) { return @{} }
   $map = [ordered]@{}
   $startIndex = $match.Index + $match.Length
-  $lines = $FrontMatter.Substring($startIndex) -split "\r?\n"
+  $lines = $FrontMatter.Substring($startIndex) -split '\r?\n'
   foreach ($line in $lines) {
     if ($line.Trim().Length -eq 0) { continue }
     if ($line -notmatch "^\s+") { break }
-    $kv = [regex]::Match($line, "^\s*([^:]+):\s*[`"'](.*?)[`"']\s*$")
-    if ($kv.Success) { $map[$kv.Groups[1].Value.Trim()] = $kv.Groups[2].Value }
+    $kv = [regex]::Match($line, '^\s*([^:]+):\s*(.+?)\s*$')
+    if ($kv.Success) {
+      $value = $kv.Groups[2].Value.Trim().Trim('"').Trim("'")
+      $map[$kv.Groups[1].Value.Trim()] = $value
+    }
   }
   return $map
 }
@@ -112,55 +115,89 @@ function Get-MapField {
 $resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'usecases'
 if (-not $resolvedUseCasesRoot) { throw "Unable to resolve UseCases root. Provide -UseCasesRoot or run inside repository." }
 
-$requiredScalarFields = @(
-  'id',
-  'title',
-  'domain',
-  'owner',
-  'impact',
-  'status',
-  'last_update',
-  'reporting_level',
-  'analytics_stage',
-  'maturity',
-  'dataset_model',
-  'page_template',
-  'expected_impact'
-)
-$requiredListFields = @('supports_strategic_kpi','supports_strategic_kpi_ids','action_codes','segments','filters_default','required_kpi_ids')
-
 $errors = @(); $warnings = @()
 
-Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'FactSheet.md' | Where-Object {
+function Get-ContentBody {
+  param([string]$Path)
+  $content = Get-Content -Raw -Path $Path
+  $match = [regex]::Match($content, "(?ms)^---\s*\r?\n.*?\r?\n---\s*")
+  if ($match.Success) { return $content.Substring($match.Length) }
+  return $content
+}
+
+function Get-MetadataValue {
+  param([string]$Body,[string]$Label)
+  $pattern = '^\s*-\s*\*\*' + [regex]::Escape($Label) + ':\*\*\s*(.+?)\s*$'
+  foreach ($line in ($Body -split '\r?\n')) {
+    if ($line -match $pattern) { return $matches[1].Trim() }
+  }
+  return $null
+}
+
+function Get-YamlBlock {
+  param([string]$Body,[string]$Key)
+  $pattern = '(?ms)```yaml\s*(?<block>.*?)\s*```'
+  foreach ($m in [regex]::Matches($Body, $pattern)) {
+    $keyPattern = '^\s*' + [regex]::Escape($Key) + '\s*:'
+    if ($m.Groups['block'].Value -match $keyPattern) { return $m.Groups['block'].Value }
+  }
+  return $null
+}
+
+function Count-ListItems {
+  param([string]$YamlBlock,[string]$ItemKey)
+  if (-not $YamlBlock) { return 0 }
+  $count = 0
+  foreach ($line in ($YamlBlock -split '\r?\n')) {
+    if ($line -match ('^\s*-\s*' + [regex]::Escape($ItemKey) + '\s*:\s*.+$')) { $count++ }
+  }
+  return $count
+}
+
+function Require-TechnicalRefs {
+  param([string]$Body,[string]$Path)
+  $techFields = @(
+    "Domain Data Contract",
+    "Source Data Contract",
+    "Semantic Model Definition",
+    "KPI Catalog",
+    "Measure Dictionary",
+    "Action Codes"
+  )
+  foreach ($label in $techFields) {
+    $value = Get-MetadataValue -Body $Body -Label $label
+    if (-not $value) { $errors += "${Path}: missing '$label' reference" }
+  }
+}
+
+Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Business_Factsheet.md' | Where-Object {
   $_.FullName -notmatch '\\_internal\\archive\\'
 } | ForEach-Object {
   $fm = Get-FrontMatter -Path $_.FullName
-  if (-not ($fm -and $fm.Text)) {
-    $errors += "Missing front-matter in $($_.FullName)"
-    return
+  if (-not ($fm -and $fm.Text)) { $errors += "Missing front-matter in $($_.FullName)"; return }
+  $body = Get-ContentBody -Path $_.FullName
+
+  $domain = Get-MetadataValue -Body $body -Label "Domain"
+  if (-not $domain) { $errors += "$($_.FullName): missing Domain" }
+
+  $reqBlock = Get-YamlBlock -Body $body -Key "required_kpis"
+  if ((Count-ListItems -YamlBlock $reqBlock -ItemKey "id") -lt 1) {
+    $errors += "$($_.FullName): required_kpis missing or empty"
   }
-  $text = $fm.Text
-  foreach ($field in $requiredScalarFields) {
-    if (-not (Has-Field -FrontMatter $text -Field $field)) {
-      $errors += "$($_.FullName): missing field '$field'"
-    }
+
+  $acBlock = Get-YamlBlock -Body $body -Key "action_codes"
+  if ((Count-ListItems -YamlBlock $acBlock -ItemKey "id") -lt 1) {
+    $errors += "$($_.FullName): action_codes missing or empty"
   }
-  foreach ($field in $requiredListFields) {
-    $values = Parse-ListField -FrontMatter $text -Field $field
-    if ($values.Count -eq 0) { $errors += "$($_.FullName): list '$field' missing or empty" }
-  }
-  if (-not (Has-Field -FrontMatter $text -Field 'required_kpis')) {
-    $errors += "$($_.FullName): missing 'required_kpis' map"
-  } else {
-    $ids = Parse-ListField -FrontMatter $text -Field 'required_kpi_ids'
-    $map = Get-MapField -FrontMatter $text -Field 'required_kpis'
-    foreach ($id in $ids) {
-      if (-not $map.Contains($id)) { $errors += "$($_.FullName): required_kpis missing label for '$id'" }
-    }
-  }
-  if (-not (Has-Field -FrontMatter $text -Field 'data_requirements')) { $warnings += "$($_.FullName): missing data_requirements block" }
-  if (-not (Has-Field -FrontMatter $text -Field 'model_mapping')) { $warnings += "$($_.FullName): missing model_mapping block" }
-  if (-not (Has-Field -FrontMatter $text -Field 'qa_asserts')) { $warnings += "$($_.FullName): missing qa_asserts" }
+}
+
+Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Technical_Factsheet.md' | Where-Object {
+  $_.FullName -notmatch '\\_internal\\archive\\'
+} | ForEach-Object {
+  $fm = Get-FrontMatter -Path $_.FullName
+  if (-not ($fm -and $fm.Text)) { $errors += "Missing front-matter in $($_.FullName)"; return }
+  $body = Get-ContentBody -Path $_.FullName
+  Require-TechnicalRefs -Body $body -Path $_.FullName
 }
 
 if ($warnings.Count -gt 0) {
@@ -175,4 +212,4 @@ if ($errors.Count -gt 0) {
   exit 0
 }
 
-Write-Host "FactSheet validation passed." -ForegroundColor Green
+Write-Host 'FactSheet validation passed.' -ForegroundColor Green

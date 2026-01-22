@@ -116,7 +116,6 @@ dimension:
 
 fact:
   - name: fact_ops
-    grain: asset_day
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -128,7 +127,6 @@ fact:
       - {name: Output Units, type: decimal, agg: sum, nullable: true}
 
   - name: fact_ops_failures
-    grain: failure_event
     columns:
       - {name: AssetKey, type: int, ref: dim_asset}
       - {name: Failure Start DateTime, type: datetime}
@@ -138,7 +136,6 @@ fact:
       - {name: Cause Code, type: text, nullable: true}
 
   - name: fact_maintenance
-    grain: maintenance_order
     columns:
       - {name: AssetKey, type: int, ref: dim_asset}
       - {name: DateKey, type: int, ref: dim_date}
@@ -330,5 +327,6 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 
 

@@ -56,103 +56,50 @@ All KPIs must exist in the KPI Catalog.
 required_kpis:
 
   - id: fin.cash.balance
+    kpi_catalog_id: Liquidity
     name: Cash Balance
     purpose: Liquidity level
-    definition_short: Cash and cash equivalents
-    unit: EUR
-    grain: day
     agg: sum
-    target: Meet/beat plan and minimum liquidity buffer
-    interpretation: Low balance signals liquidity risk
-    lineage: fact_cash[Cash Balance]
 
   - id: fin.cash.ocf
     name: Operating Cash Flow
     purpose: Cash generation
-    definition_short: Cash from operating activities
-    unit: EUR
-    grain: month
     agg: sum
-    target: Meet/beat plan
-    interpretation: Negative or below plan signals cash pressure
-    lineage: fact_cashflow[OCF]
 
   - id: fin.cash.vs_plan.pct
     name: Cash vs Plan %
     purpose: Performance vs plan
-    definition_short: (Cash - Plan) / Plan
-    unit: %
-    grain: month
     agg: avg
-    target: = 0
-    interpretation: Negative variance shows liquidity shortfall vs plan
-    lineage: fact_cash[Cash], plan_cash
 
   - id: wc.ccc.days
     name: Cash Conversion Cycle (days)
     purpose: Working capital cycle
-    definition_short: DSO + DIO - DPO
-    unit: days
-    grain: month
     agg: avg
-    target: Reduce to target
-    interpretation: Higher CCC means slower cash conversion
-    lineage: DSO/DIO/DPO measures
 
   - id: wc.dso.days
     name: DSO (days)
     purpose: Receivables efficiency
-    definition_short: AR / (Revenue/365)
-    unit: days
-    grain: month
     agg: avg
-    target: Reduce to target
-    interpretation: High DSO slows cash collection
-    lineage: fact_ar[AR], revenue
 
   - id: wc.dio.days
     name: DIO (days)
     purpose: Inventory efficiency
-    definition_short: Inventory / (COGS/365)
-    unit: days
-    grain: month
     agg: avg
-    target: Reduce to target
-    interpretation: High DIO ties up cash
-    lineage: fact_inventory[Inventory], COGS
 
   - id: wc.dpo.days
     name: DPO (days)
     purpose: Payables efficiency
-    definition_short: AP / (COGS/365)
-    unit: days
-    grain: month
     agg: avg
-    target: Optimise vs terms and risk
-    interpretation: Higher DPO improves cash, but watch supplier risk
-    lineage: fact_ap[AP], COGS
 
   - id: scm.service_level.pct
     name: Supply Chain Service Level %
     purpose: Service guardrail
-    definition_short: OTIF Orders / Total Orders
-    unit: %
-    grain: order_month
     agg: avg
-    target: >= service target
-    interpretation: Low service level constrains inventory reductions
-    lineage: fact_fulfillment[OTIF Flag]
 
   - id: scm.supplier_risk.score
     name: Supplier Risk Score
     purpose: Supplier stability guardrail
-    definition_short: Composite supplier risk score
-    unit: score
-    grain: supplier_month
     agg: avg
-    target: <= risk threshold
-    interpretation: Higher scores signal higher supplier risk
-    lineage: fact_supplier_risk[Risk Score]
 ```
 
 ---
@@ -174,7 +121,6 @@ action_codes:
     outcome_kpis: [wc.ccc.days]
     impact_range: wc.ccc.days: -3--10 days
     levels: L1-L3
-    definition: framework\action_codes\Finance\F-C1.1.yaml
 
   - id: F-C1.2
     name: Collections Acceleration
@@ -186,7 +132,6 @@ action_codes:
     outcome_kpis: [wc.dso.days, fin.cash.ocf]
     impact_range: wc.dso.days: -2--6 days
     levels: L1-L3
-    definition: framework\action_codes\Finance\F-C1.2.yaml
 
   - id: F-C1.3
     name: Inventory Rightsizing
@@ -198,7 +143,6 @@ action_codes:
     outcome_kpis: [wc.dio.days, fin.cash.ocf]
     impact_range: wc.dio.days: -3--8 days
     levels: L1-L3
-    definition: framework\action_codes\Finance\F-C1.3.yaml
 
   - id: F-C1.4
     name: Payables Optimisation
@@ -210,7 +154,6 @@ action_codes:
     outcome_kpis: [wc.dpo.days, fin.cash.ocf]
     impact_range: wc.dpo.days: 2-6 days
     levels: L1-L3
-    definition: framework\action_codes\Finance\F-C1.4.yaml
 ```
 
 ---
@@ -339,4 +282,6 @@ required_slicers: >
 - Misalignment of AR/AP aging with revenue/COGS periods.  
 - DIO misread if inventory/COGS not aligned or strategic stock excluded.  
 - Overextension of DPO harming supplier relationships.  
+
+
 

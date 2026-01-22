@@ -118,7 +118,6 @@ dimension:
 
 fact:
   - name: fact_cases
-    grain: case
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
@@ -132,7 +131,6 @@ fact:
       - {name: Open Case Flag, type: boolean}
 
   - name: fact_nps
-    grain: survey
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true}
@@ -320,5 +318,6 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 
 

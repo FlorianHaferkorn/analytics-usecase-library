@@ -58,7 +58,7 @@ required_kpis:
 
   - id: <domain.topic.metric>
     name: <KPI Name>
-    catalog_ref: <framework/kpi_catalog/KPI_Catalog_*.md>
+    kpi_catalog_id: <Growth | Profitability | Liquidity | CustomerValue | Service | Efficiency | Risk | Governance | ESG | InnovationPeople>
 
   - ...
 ```
