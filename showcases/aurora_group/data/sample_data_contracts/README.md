@@ -1,4 +1,4 @@
-# Sample Data Contracts (Aurora)
+﻿# Sample Data Contracts (Aurora)
 
 Purpose:
 Minimal references to the synthetic data contracts used for the Aurora Group showcase.
@@ -18,3 +18,4 @@ Usage:
   - `fact_inventory` (product/org/day)
   - `fact_finance` (org/month)
   - `fact_service` (customer/org/day)
+

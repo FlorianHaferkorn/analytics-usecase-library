@@ -1,4 +1,4 @@
-schema_version: "1.1"
+﻿schema_version: "1.1"
 
 id: "X-S1.1"
 name: "Service Level Orchestration"
@@ -232,3 +232,4 @@ quality_rules:
   - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
   - "If status=deprecated then lifecycle.replaced_by is required."
   - "No free-text trigger notes: use gating_rules and structured filters."
+

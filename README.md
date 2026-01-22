@@ -1,4 +1,4 @@
-# Analytics Strategy-to-Action Framework
+﻿# Analytics Strategy-to-Action Framework
 
 A pragmatic, scalable framework to translate **business strategy into action-ready analytics**.
 
@@ -132,3 +132,4 @@ This framework is **platform-agnostic by design**.
 Platform-specific implementation guides (e.g. Fabric / Power BI) live under:
 
 - `framework/implementation_guides/`
+

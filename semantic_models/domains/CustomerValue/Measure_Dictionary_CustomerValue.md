@@ -1,4 +1,4 @@
-# Measure Dictionary - CustomerValue
+﻿# Measure Dictionary - CustomerValue
 
 Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
@@ -320,4 +320,5 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     version: "v1.0"
     last_review: "TBD"
 ```
+
 

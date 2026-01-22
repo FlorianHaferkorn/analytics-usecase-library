@@ -1,4 +1,4 @@
-# Slot Definitions – Page Template Governance
+﻿# Slot Definitions – Page Template Governance
 
 Slots define **what kind of analytical content** a page may contain.
 They are **semantic placeholders**, not visuals.
@@ -247,3 +247,4 @@ Provide detailed records for validation and drill-down.
 
 > **Slots enforce thinking before visualizing.**  
 > If a slot cannot be justified, it must be removed.
+

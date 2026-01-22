@@ -1,4 +1,4 @@
-company: Aurora Group SE
+﻿company: Aurora Group SE
 description: Use Case Dictionary template for all standard Aurora Group analytics
   use cases. Each entry links business questions, KPIs and semantic model objects
   (facts/dimensions) to enable deterministic, AI-ready behavior.

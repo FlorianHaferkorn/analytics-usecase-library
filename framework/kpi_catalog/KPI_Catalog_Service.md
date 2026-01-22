@@ -1,4 +1,4 @@
-# KPI Catalog - Service & Experience
+﻿# KPI Catalog - Service & Experience
 
 ---
 
@@ -422,3 +422,4 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     completeness_score: 0.6
     last_review: TBD
 ```
+

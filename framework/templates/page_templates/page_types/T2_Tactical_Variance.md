@@ -1,4 +1,4 @@
-# T2 – Tactical Variance & Drivers
+﻿# T2 – Tactical Variance & Drivers
 
 ## Purpose
 
@@ -158,3 +158,4 @@ A T2 page is complete when:
 > **T2 answers “Why are we off target?” – not “Who failed?” and not “What should we do?”**
 
 If the page drifts into operational blame or prescriptive actions, it is no longer tactical.
+

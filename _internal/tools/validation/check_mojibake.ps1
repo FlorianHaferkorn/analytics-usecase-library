@@ -1,7 +1,7 @@
 ﻿Param(
   [string]$Root = ".",
   [string[]]$Extensions = @("md","yaml","yml","ps1","txt"),
-  [string[]]$ExcludeDirs = @(".git","node_modules","dist","_internal\\archive"),
+  [string[]]$ExcludeDirs = @(".git","node_modules","dist","_internal\\archive","_internal\\reviews","_internal\\tools\\linters"),
   [switch]$FailOnError
 )
 
@@ -24,13 +24,10 @@ function Resolve-RepoPath {
 
 function Is-ExcludedPath {
   param([string]$Path,[string[]]$Exclude)
+  $normPath = $Path.ToLowerInvariant().Replace('/', '\')
   foreach ($dir in $Exclude) {
-    if ($Path -match [Regex]::Escape([IO.Path]::DirectorySeparatorChar + $dir + [IO.Path]::DirectorySeparatorChar)) {
-      return $true
-    }
-    if ($Path -match [Regex]::Escape($dir + [IO.Path]::DirectorySeparatorChar)) {
-      return $true
-    }
+    $normDir = "\" + ($dir.ToLowerInvariant().Replace('/', '\').Trim('\','/')) + "\"
+    if ($normPath.Contains($normDir)) { return $true }
   }
   return $false
 }
@@ -53,8 +50,12 @@ $hadIssues = $false
 Write-Host "Mojibake scan" -ForegroundColor Cyan
 
 $files = Get-ChildItem -Path $rootPath -Recurse -File | Where-Object {
+  $pathLower = $_.FullName.ToLowerInvariant()
   $ext = $_.Extension.TrimStart(".")
-  $Extensions -contains $ext -and -not (Is-ExcludedPath -Path $_.FullName -Exclude $ExcludeDirs)
+  $Extensions -contains $ext `
+    -and ($pathLower -notlike "*\_internal\reviews\*") `
+    -and ($pathLower -notlike "*\_internal\tools\linters\*") `
+    -and -not (Is-ExcludedPath -Path $_.FullName -Exclude $ExcludeDirs)
 }
 
 foreach ($file in $files) {

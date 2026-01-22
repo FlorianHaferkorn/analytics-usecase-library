@@ -51,20 +51,14 @@ List the key questions the use case must answer.
 ## 3. Required KPIs (Mandatory)
 
 All KPIs must exist in the KPI Catalog.
+Use case factsheets may reference KPIs but must not redefine KPI meaning, targets, or lineage.
 
 ```yaml
 required_kpis:
 
   - id: <domain.topic.metric>
     name: <KPI Name>
-    purpose: <short purpose>
-    definition_short: <business definition>
-    unit: <EUR, %, qty, days, index>
-    grain: <day/week/month>
-    agg: <sum/avg/lnb>
-    target: <value or range>
-    interpretation: <how to read>
-    lineage: <source table/field list>
+    catalog_ref: <framework/kpi_catalog/KPI_Catalog_*.md>
 
   - ...
 ```

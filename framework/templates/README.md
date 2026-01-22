@@ -97,8 +97,8 @@ These support consistent upstream modeling across all domains.
 
 ### For Framework Evolution
 
-- Extend or improve templates based on real project outcomes.  
-- Keep changes minimal and backward-compatible.  
+- V1 is a fixed baseline; templates are instantiated, not extended.  
+- Any changes require explicit framework governance outside customer projects.  
 
 ---
 

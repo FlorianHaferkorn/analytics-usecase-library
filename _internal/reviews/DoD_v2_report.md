@@ -1,4 +1,4 @@
-# Definition of Done v2 – Compliance Report (Task 10)
+﻿# Definition of Done v2 – Compliance Report (Task 10)
 
 Date: <!-- Placeholder – content will be added in upcoming sprints. -->
 Scope: Core framework, catalogs, data contracts, semantic layer, UX templates, Action Codes, core use cases, Aurora showcase.
@@ -37,3 +37,4 @@ Scope: Core framework, catalogs, data contracts, semantic layer, UX templates, A
 ## Notes
 
 - No domain semantics were altered during Task 10; this report documents current compliance and remaining operational steps.
+

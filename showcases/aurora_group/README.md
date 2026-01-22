@@ -1,4 +1,4 @@
-# Aurora Group Showcase
+﻿# Aurora Group Showcase
 
 Purpose:
 Demonstrate the ActionReady Analytics Framework end-to-end with a realistic synthetic company.
@@ -36,3 +36,4 @@ Relations
 - HOW: uses operating-model rules from `docs/operating_model/semantic_layer.md` and `data_governance.md`.
 - WITH WHAT: relies on Action Codes, KPI catalog, measure dictionary.
 - PATTERNS: applies the 3–30–300 templates from `framework/templates/page_templates/`.
+

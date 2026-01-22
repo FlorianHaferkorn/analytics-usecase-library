@@ -113,7 +113,7 @@ Examples:
 * `X-E3.2 - Cross-Domain Risk Prioritisation`
 * `X-E3.3 - Action Follow-up & Outcome Governance`
 
-## Decision Spines (Optional Governance Layer)
+## Decision Spines (Mandatory for Core Use Cases)
 
 Decision Spines define the **decision field** for a group of Use Cases
 and provide a stable anchor for governance and reuse.
@@ -134,6 +134,7 @@ Rules:
 
 * Every core Use Case must be linked to exactly one Decision Spine
 * Each Decision Spine must have a corresponding YAML file
+* Extended / industry use cases may link to spines but are not required to do so
 
 ## Binding Action Codes to Use Cases
 

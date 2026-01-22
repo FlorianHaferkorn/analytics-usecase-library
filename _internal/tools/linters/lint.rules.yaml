@@ -1,4 +1,4 @@
-# Lint/Style Rules for TMDL (machine-checked in CI)
+﻿# Lint/Style Rules for TMDL (machine-checked in CI)
 # Scope: enforce our Allowed Subset and house style. Adjust safely via PRs.
 
 requireDescriptions:
@@ -57,3 +57,4 @@ partitions:
 ci:
   failOnWarning: true
   minReferentialIntegrity: 0.999    # target ≥ 99.9%
+

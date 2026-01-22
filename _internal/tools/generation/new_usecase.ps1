@@ -1,4 +1,4 @@
-Param(
+﻿Param(
   [Parameter(Mandatory = $true)]
   [string]$Id,
   [Parameter(Mandatory = $true)]
@@ -99,7 +99,7 @@ $businessContent = @(
 
 $technicalBody = Read-TemplateRaw -Path $technicalTemplatePath
 if (-not $technicalBody) {
-  $technicalBody = "# $Id – Technical Factsheet`n`nTODO: Fill out the technical template."
+  $technicalBody = "# $Id - Technical Factsheet`n`nTODO: Fill out the technical template."
 } else {
   $technicalBody = $technicalBody -replace '<UC-ID>', $Id
 }
@@ -138,3 +138,4 @@ Write-Host "  2) Complete the Technical factsheet:" -ForegroundColor DarkGray
 Write-Host "       $clusterRel/$folderName/Technical_Factsheet.md" -ForegroundColor DarkGray
 Write-Host "  3) Keep FactSheet.md as stub (already wired to the new files)." -ForegroundColor DarkGray
 Write-Host "  4) Add $Id to _includes/UseCase_Inventory.md and ensure referenced KPIs exist." -ForegroundColor DarkGray
+

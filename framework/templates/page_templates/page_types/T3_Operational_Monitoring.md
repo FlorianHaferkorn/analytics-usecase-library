@@ -1,4 +1,4 @@
-# T3 – Operational Monitoring & Exceptions
+﻿# T3 – Operational Monitoring & Exceptions
 
 ## Purpose
 
@@ -170,3 +170,4 @@ A T3 page is complete when:
 > **T3 answers “Where is execution breaking right now?” – nothing else.**
 
 If the page starts explaining *why* or recommending *how*, it is no longer operational.
+

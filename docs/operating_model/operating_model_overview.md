@@ -52,6 +52,9 @@ Each core artifact has an explicit owner:
 - Strategy and Strategic KPIs are owned by the business.
 - Use Cases and Action Codes are owned jointly by business and analytics.
 - Semantic Models, Measures, and Data Contracts are owned by analytics.
+- Reports and page implementations are owned by analytics, with business accountable for decision intent.
+- Use case ↔ Action Code mappings and page template mappings are owned by analytics governance.
+- Trigger maps are owned by analytics governance.
 - Governance rules are owned centrally to ensure consistency.
 
 Owners are responsible for:

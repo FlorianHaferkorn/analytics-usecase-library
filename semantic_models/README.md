@@ -1,4 +1,4 @@
-# Semantic Models
+﻿# Semantic Models
 
 ## Purpose
 
@@ -150,3 +150,4 @@ When applied correctly:
 
 Semantic Models are not an implementation detail.  
 They are the **foundation of sustainable, enterprise-grade analytics**.
+

@@ -1,4 +1,4 @@
-# Core Use Case Definition of Done (DoD)
+﻿# Core Use Case Definition of Done (DoD)
 
 ## 1. Scope
 
@@ -15,7 +15,7 @@ Before any individual use case can be marked as build-ready:
 - Strategic KPIs and key questions are defined in `docs/company/*`.
 - Action Codes portfolio and rationale are defined in `framework/action_codes/*`.
 - KPI catalogs and schema are valid according to  
-  `framework/kpi_catalog/SCHEMA.md` and `run_all_checks.ps1`.
+  `framework/templates/KPI_Catalog_templates/KPI_Catalog_SCHEMA.md` and `run_all_checks.ps1`.
 - Use case templates (business & technical v1.2) are stable and referenced in  
   `usecases/templates/*`.
 
@@ -33,7 +33,7 @@ A core use case’s **Business Factsheet** is considered done when:
     - All `required_kpi_ids` exist in `framework/kpi_catalog/*`.
     - No placeholder IDs remain.
   - **Triggers & Action Codes**:
-    - Action Codes exist in `framework/action_codes/ActionCodes_Portfolio.md`.
+    - Action Codes exist in `framework/action_codes/README.md`.
     - Rationale is documented in `usecases/UseCase_ActionCode_Rationale.yaml`.
     - All Action Codes are prescriptive (Do / Stop / Shift).
     - No diagnostic-only or interpretive Action Codes remain.
@@ -103,3 +103,4 @@ and handed over to:
 - automation/agents for measure generation and validation.
 
 No report implementation should start before the use case is build-ready according to this DoD.
+

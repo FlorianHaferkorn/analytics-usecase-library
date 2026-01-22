@@ -1,4 +1,4 @@
-# T4 – Prescriptive Recommendation
+﻿# T4 – Prescriptive Recommendation
 
 ## Purpose
 
@@ -171,3 +171,4 @@ A T4 page is complete when:
 > **T4 answers “What should we do now?” – and commits to it.**
 
 If the page hesitates to recommend, it is not prescriptive.
+

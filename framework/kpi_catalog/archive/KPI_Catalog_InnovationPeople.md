@@ -1,4 +1,4 @@
-# Archived KPIs - KPI_Catalog_InnovationPeople  ```yaml
+﻿# Archived KPIs - KPI_Catalog_InnovationPeople  ```yaml
 - kpi_id: people.innovation_rate.pct
   kpi_key: Innovation Rate %
   kpi_type: strategic
@@ -65,7 +65,7 @@
     review_cycle: annual
     validation_process: manual review
     qa_rules:
-    - Survey participation â‰¥ 70 %
+    - Survey participation ≥ 70 %
     version: v2.0
   metadata_quality:
     completeness_score: 0.95
@@ -855,3 +855,4 @@
     last_review: 04.11.2025
 
 ```
+

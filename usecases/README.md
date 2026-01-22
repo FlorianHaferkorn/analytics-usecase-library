@@ -1,4 +1,4 @@
-# Use Case Library (WHAT)
+﻿# Use Case Library (WHAT)
 
 ## Purpose
 
@@ -37,7 +37,6 @@ usecases/
   templates/                - Business & technical factsheet templates
     usecase_factsheet_business.md
     usecase_factsheet_technical.md
-    usecase_blueprint.md
   core/                     - Core use cases (universal)
   extended/                 - Advanced / extended use cases
   industry/                 - Industry-specific scenarios
@@ -46,7 +45,8 @@ usecases/
 ### UseCase_Inventory.md
 
 The single source of truth for all use cases in the framework.  
-Contains IDs, domains, KPIs, action codes, and status.
+Contains IDs, domains, KPIs, and status.  
+Use Case ↔ Action Code assignments are canonical only in `usecases/UseCase_ActionCode_Map.yaml`.
 
 ### templates/
 
@@ -54,7 +54,6 @@ Reusable templates for consistent documentation:
 
 - Business Factsheet  
 - Technical Factsheet  
-- Use Case Blueprint  
 These ensure every use case meets the same standard.
 
 ### core/
@@ -103,7 +102,7 @@ Tailored use cases for specific verticals (Retail, Manufacturing, CPG, Logistics
   - Domain (from Company Layer)  
   - Data Contract  
   - Semantic Model  
-  - Action Codes  
+  - Action Codes (assignment via `usecases/UseCase_ActionCode_Map.yaml`)  
   - Page Template (3-30-300)  
 - Maintain UseCase_Inventory.md as the controlled governance artifact.
 
@@ -129,3 +128,4 @@ Start with:
 3. And explore core use cases under `core/`
 
 This establishes a complete understanding of how analytics drives actionability and measurable business impact.
+

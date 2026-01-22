@@ -1,4 +1,4 @@
-# Page Template – Definition of Done (DoD)
+﻿# Page Template – Definition of Done (DoD)
 
 A page is considered complete only if **all checks below are fulfilled**.
 If one check fails, the page must not be released.
@@ -90,3 +90,4 @@ Reference: components/action_panel/ActionPanel_Spec.md
 
 > If a page technically works but fails one DoD check,
 > it is **not** considered done.
+

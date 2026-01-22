@@ -1,4 +1,4 @@
-company: Aurora Group SE
+﻿company: Aurora Group SE
 description: >
   Core v1 scope for synthetic data generation in Aurora Group.
   Covers the most important Core Use Cases every company needs,
@@ -140,3 +140,4 @@ datasets:
       end: 2024-12-31
     notes: Innovation project pipeline data.
     covers_usecases: [INN-001]
+

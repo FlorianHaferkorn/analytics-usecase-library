@@ -37,6 +37,7 @@ They must never be interpreted as active or executable logic.
 ## Trigger Mapping Templates (Contextual, Non-Executable)
 
 Trigger Mapping templates define **when** an Action Code becomes decision-relevant in a specific context.
+They are for contextual surfacing only and are not a source of trigger logic.
 
 They do **not** define:
 

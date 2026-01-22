@@ -1,4 +1,4 @@
-# Page Templates
+﻿# Page Templates
 
 This directory defines the **standardized page types** used across the Analytics Use Case Library.
 Page templates are not visual themes or report layouts – they are **decision templates**.
@@ -88,7 +88,7 @@ All page templates follow these rules:
 - Strict separation between T1–T4 responsibilities
 - Slot usage governed via `governance/Slot_Definitions.md`
 - Visuals restricted via `governance/Visual_Whitelist.md`
-- Completion criteria defined via `governance/DoD_PageTemplates.md`
+- Completion criteria defined via `governance/Page_DoD.md`
 
 If a page violates these rules, it is **not compliant**, regardless of visual quality.
 
@@ -112,3 +112,4 @@ They define **how decisions are presented**.
 
 > Page templates exist to reduce cognitive load and increase decision confidence.  
 > If a page does not clearly support a decision, it is using the wrong template.
+

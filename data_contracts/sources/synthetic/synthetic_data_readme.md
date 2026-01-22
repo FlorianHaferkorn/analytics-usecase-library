@@ -1,7 +1,7 @@
-﻿# Synthetic Data Design â€“ README
+﻿# Synthetic Data Design – README
 
 This folder defines the design principles, contracts and scope for all synthetic data used in the analytics-usecase-library.  
-It serves as the single source of truth for generating consistent, scalable and AIâ€‘ready data for the Aurora Group.
+It serves as the single source of truth for generating consistent, scalable and AI-ready data for the Aurora Group.
 
 ---
 
@@ -25,7 +25,7 @@ Defines the **full data model**, including:
 - Naming conventions (Amount, Qty, %, Rate, DateKey)  
 - Semantic best practices (Star Schema, conformed dimensions)
 
-It enforces how tables must be built and prevents inconsistent or adâ€‘hoc structures.
+It enforces how tables must be built and prevents inconsistent or ad-hoc structures.
 
 ### 2.2 `synthetic_data_scope.yaml`
 Specifies:
@@ -55,7 +55,7 @@ This is the **evolution plan** for the synthetic data landscape.
 4. **Validate using QA rules**  
    - Referential integrity  
    - Numeric ranges  
-   - Business plausibility (e.g., margin bands, stock â‰¥ 0)
+   - Business plausibility (e.g., margin bands, stock ≥ 0)
 
 ---
 
@@ -85,7 +85,7 @@ This keeps design, implementation and samples cleanly separated.
 
 ---
 
-## 6. AIâ€‘Readiness Notes
+## 6. AI-Readiness Notes
 
 To enable consistent Copilot/Agent answers:
 - All tables and columns must include **Purpose**, **Definition**, **Grain**, **Unit**, **Lineage**, **QA**.  
@@ -121,6 +121,7 @@ This ensures every data artifact stays consistent with the entire ecosystem.
 
 This documentation is part of the *analytics-usecase-library*.  
 All decisions follow the Aurora Group domain model and the 73 Use Case definitions.
+
 
 
 

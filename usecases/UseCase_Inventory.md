@@ -1,9 +1,10 @@
-# Analytics Use Case Inventory
+﻿# Analytics Use Case Inventory
 
 ## Purpose
 
 This document provides a **complete inventory of all implemented Use Cases** in the Analytics Framework.
 Each Use Case links to standardized KPI catalogs and domain measure dictionaries.
+Use Case ↔ Action Code assignments are canonical only in `usecases/UseCase_ActionCode_Map.yaml`.
 
 ## Commercial Cluster (COM)
 
@@ -66,3 +67,4 @@ Each Use Case links to standardized KPI catalogs and domain measure dictionaries
 | **Review Frequency** | Quarterly |
 | **Maintainers** | analytics-core-team |
 | **Contact** | <analytics-governance@company.com> |
+

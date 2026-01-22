@@ -1,4 +1,4 @@
-# Technical Glossary
+﻿# Technical Glossary
 
 ## Purpose
 
@@ -156,3 +156,4 @@ A security mechanism controlling visibility of tables, columns, or measures.
 
 **Location:**  
 `framework/glossary/technical_glossary.md`
+

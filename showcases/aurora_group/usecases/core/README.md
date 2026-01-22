@@ -1,4 +1,4 @@
-# Aurora Core Use Cases (Demo)
+﻿# Aurora Core Use Cases (Demo)
 
 This folder mirrors the core ActionReady use cases implemented for Aurora Group. Business/Technical factsheets live in the main library and are referenced here for convenience.
 
@@ -22,3 +22,4 @@ Build guidance:
 - Use Aurora synthetic datasets under `showcases/aurora_group/data/`.
 - Use the Aurora semantic model in `showcases/aurora_group/models/core_action_ready_model.yaml`.
 - Apply the 3–30–300 layouts from `framework/templates/page_templates/`.
+

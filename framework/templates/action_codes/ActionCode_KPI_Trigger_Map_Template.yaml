@@ -1,5 +1,5 @@
-# ActionCode ↔ KPI Trigger Mapping
-# Canonical YAML – Source of Truth
+﻿# ActionCode ↔ KPI Trigger Mapping
+# Canonical template for contextual surfacing only (not trigger authority)
 #
 # Purpose:
 # - Define WHEN an Action Code becomes decision-relevant
@@ -8,7 +8,7 @@
 #
 # Non-negotiable:
 # - This file never defines execution logic
-# - This file never overrides Action Code L1–L3 triggers
+# - This file never defines or overrides Action Code L1–L3 trigger logic
 # - Cross-domain orchestration is handled only by XD-003 Action Codes
 
 settings:
@@ -82,3 +82,4 @@ mappings:
     operational_metadata:
       escalation_path: null
       notes: null
+

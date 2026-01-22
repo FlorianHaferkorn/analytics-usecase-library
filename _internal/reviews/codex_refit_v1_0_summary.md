@@ -1,4 +1,4 @@
-# Codex Refit v1.0 Summary
+﻿# Codex Refit v1.0 Summary
 
 Scope:
 
@@ -23,3 +23,4 @@ Remaining issues (require human/consulting input):
 Notes:
 
 - No KPIs, Action Codes, measures, or business text were changed.
+

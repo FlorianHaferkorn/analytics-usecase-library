@@ -1,4 +1,4 @@
-# Page Templates
+﻿# Page Templates
 
 This folder defines the **only allowed page types** for reports built with the Analytics Use Case Library.
 
@@ -157,3 +157,4 @@ They are kept only for reference.
 If you feel the need to break these rules,
 the problem is usually **upstream** (use case definition, KPIs, or actions),
 not the page template.
+

@@ -1,4 +1,4 @@
-# Golden Semantic Model – Commercial
+﻿# Golden Semantic Model – Commercial
 
 ## Purpose
 
@@ -142,3 +142,4 @@ This model ensures that:
 - Automation and AI operate safely
 
 This is the foundation for scalable, enterprise-grade commercial analytics.
+

@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 
 param(
   [string]$StrategyPath = "..\..\_includes\strategy.yaml",
@@ -56,7 +56,7 @@ foreach($k in $kpis){
   $out += "## $k"
   if ($supportMap.ContainsKey($k)){
     foreach($uc in $supportMap[$k]){
-      $out += "- ${($uc.id)} — ${($uc.title)}"
+      $out += "- ${($uc.id)} - ${($uc.title)}"
     }
   } else {
     $out += "- (no linked use cases found)"
@@ -68,3 +68,4 @@ $dir = Split-Path -Path $OutputPath -Parent
 if (!(Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null }
 $out -join "`n" | Set-Content -Path $OutputPath -Encoding UTF8
 Write-Host "Alignment map written to: $OutputPath" -ForegroundColor Green
+

@@ -1,4 +1,4 @@
-# Action Panel Spec – Page Templates
+﻿# Action Panel Spec – Page Templates
 
 The Action Panel is an optional, standardized component used to support **prescriptive analytics**.
 Its purpose is to reduce “analysis paralysis” by translating insights into **concrete, owned actions**.
@@ -117,6 +117,7 @@ The panel must show, in this order:
 
 - The Action Panel must never suggest actions without an accountable owner role.
 - Recommendations must be based on governed Action Codes (no free-form “AI suggestions”).
+- Trigger conditions and recommendations must be derived from Action Codes; no new decision logic is allowed here.
 - If `IsActive = false` or outside ValidFrom/ValidTo, the action must not appear.
 - The Action Panel must respect RLS/OLS. If data is not visible, recommendations must not leak information.
 - Keep it short: the panel must fit without excessive scrolling.
@@ -155,3 +156,5 @@ Rules:
 - Evidence is understandable in under 10 seconds
 - Navigation to detail/recommendation works
 - Works with RLS and export does not leak restricted details
+
+

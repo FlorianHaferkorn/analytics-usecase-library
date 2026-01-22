@@ -1,4 +1,4 @@
-# org_units:
+﻿# org_units:
 
 ## Executive Board ----------------------------------------------------------
 
@@ -128,7 +128,7 @@
     reports_to: CIO
 
 - id: DATA_AI
-    name: Dilan Yılmaz
+    name: Dilan YÄ±lmaz
     role_title: VP Data, Analytics & AI
     level: Function
     org_unit: Data, Analytics & AI
@@ -209,3 +209,5 @@
     org_unit: Region Central & Eastern Europe
     reports_to: COO
     markets: [Poland, Czech Republic, Hungary, Slovakia]
+
+

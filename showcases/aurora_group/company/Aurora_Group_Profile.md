@@ -42,7 +42,7 @@ Over 20 million active customers across Europe.
 ## Supply Chain
 
 Inbound: Sea, Road, Air.  
-Outbound: DC â†’ Hub â†’ Store / Customer Delivery.
+Outbound: DC → Hub → Store / Customer Delivery.
 
 ## Corporate Functions
 
@@ -55,3 +55,4 @@ Scope 1/2/3 emissions, energy consumption, waste & packaging, supplier ESG scori
 ## Purpose in Project
 
 Aurora Group provides the synthetic business context for all 73 Use Cases and underpins the domain models, synthetic data and AI-ready semantic structure.
+

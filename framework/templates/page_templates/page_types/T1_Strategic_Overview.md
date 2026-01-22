@@ -1,4 +1,4 @@
-# T1 – Strategic Overview
+﻿# T1 – Strategic Overview
 
 ## Purpose
 
@@ -154,3 +154,4 @@ A T1 page is complete when:
 > **T1 answers “Are we on track?” – nothing else.**
 
 If the page tries to explain *why* or *what to do*, it is no longer strategic.
+
