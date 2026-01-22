@@ -76,16 +76,15 @@ This design enables:
 
 Action Codes are organised by **domain or governance layer**, never by Use Case.
 
-```yaml
 framework/action_codes/
-├─ Commercial/
-├─ Finance/
-├─ Operations/
-├─ People/
-├─ Service/
-├─ SupplyChain/
-└─ Enterprise/
-```
+├── Commercial/
+├── Finance/
+├── Operations/
+├── People/
+├── Service/
+├── SupplyChain/
+├── Enterprise/
+└── decision_spines/
 
 ### Domain folders
 
@@ -93,9 +92,9 @@ Contain **execution-level Action Codes** owned by a business domain.
 
 Examples:
 
-* Commercial → pricing, margin, customer actions
-* SupplyChain → inventory, OTIF, forecast actions
-* Service → SLA, backlog, quality actions
+* Commercial - pricing, margin, customer actions
+* SupplyChain - inventory, OTIF, forecast actions
+* Service - SLA, backlog, quality actions
 
 ### Enterprise folder
 
@@ -110,9 +109,31 @@ Enterprise Action Codes **never execute domain logic themselves**.
 
 Examples:
 
-* `X-E3.1 — Executive Performance Orchestration`
-* `X-E3.2 — Cross-Domain Risk Prioritisation`
-* `X-E3.3 — Action Follow-up & Outcome Governance`
+* `X-E3.1 - Executive Performance Orchestration`
+* `X-E3.2 - Cross-Domain Risk Prioritisation`
+* `X-E3.3 - Action Follow-up & Outcome Governance`
+
+## Decision Spines (Optional Governance Layer)
+
+Decision Spines define the **decision field** for a group of Use Cases
+and provide a stable anchor for governance and reuse.
+
+They are stored under:
+
+```yaml
+framework/action_codes/decision_spines/
+```
+
+The mapping of Decision Spines to Use Cases lives in:
+
+```yaml
+framework/action_codes/decision_spines/DecisionSpine_UseCase_Map.yaml
+```
+
+Rules:
+
+* Every core Use Case must be linked to exactly one Decision Spine
+* Each Decision Spine must have a corresponding YAML file
 
 ## Binding Action Codes to Use Cases
 

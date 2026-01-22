@@ -1,4 +1,4 @@
-# Action Code Templates
+﻿# Action Code Templates
 
 ## Purpose
 
@@ -13,8 +13,9 @@ Templates are **not executable framework assets**.
 
 This folder may contain:
 
-- `ActionCode_TEMPLATE.md` – canonical template for authoring Action Codes
-- `ActionCode_KPI_Trigger_Map.yaml` – **reference template** for contextual trigger mappings
+- `ActionCode_TEMPLATE.md` - canonical template for authoring Action Codes
+- `ActionCode_KPI_Trigger_Map.yaml` - **reference template** for contextual trigger mappings
+- `DecisionSpine_TEMPLATE.yaml` - canonical template for Decision Spines
 
 Files in this folder exist to:
 
@@ -59,7 +60,7 @@ They exist solely to control **surfacing and attention**.
 
 ## What Trigger Mapping Templates ARE NOT
 
-- They do **not** override Action Code L1–L3 trigger logic
+- They do **not** override Action Code L1-L3 trigger logic
 - They do **not** introduce new Action Codes
 - They do **not** execute actions
 - They do **not** replace governance decisions

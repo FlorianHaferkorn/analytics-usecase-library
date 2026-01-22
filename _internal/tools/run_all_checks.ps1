@@ -174,37 +174,44 @@ Invoke-LocalScript -RelativePath "_internal/tools/validation/check_usecase_actio
   "-ActionCodesRoot", (Join-Path $repoRoot "framework\action_codes")
 )
 
-# 13) Factsheet action_codes vs UseCase map
+# 13) Decision Spines map consistency
+Invoke-LocalScript -RelativePath "_internal/tools/validation/check_decision_spines.ps1" -Arguments @(
+  "-UseCasesRoot", $useCasesRoot,
+  "-MapPath", (Join-Path $repoRoot "framework\action_codes\decision_spines\DecisionSpine_UseCase_Map.yaml"),
+  "-DecisionSpinesRoot", (Join-Path $repoRoot "framework\action_codes\decision_spines")
+)
+
+# 14) Factsheet action_codes vs UseCase map
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_factsheet_actioncode_map.ps1" -Arguments @(
   "-UseCasesRoot", $useCasesRoot,
   "-MapPath", (Join-Path $repoRoot "usecases\UseCase_ActionCode_Map.yaml")
 )
 
-# 14) Factsheet layout vs templates
+# 15) Factsheet layout vs templates
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_factsheet_layout.ps1" -Arguments @(
   "-UseCasesRoot", $factsheetsRoot,
   "-BusinessTemplate", (Join-Path $repoRoot "usecases\templates\usecase_factsheet_business.md"),
   "-TechnicalTemplate", (Join-Path $repoRoot "usecases\templates\usecase_factsheet_technical.md")
 )
 
-# 15) KPI catalog vs Measure Dictionaries
+# 16) KPI catalog vs Measure Dictionaries
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_kpi_vs_measure_dictionary.ps1" -Arguments @{
   KpiCatalogRoot = $kpiCatalogRoot
   MeasureDictRoot = (Join-Path $repoRoot "semantic_models\domains")
 }
 
-# 16) DAX definitions vs Measure Dictionaries
+# 17) DAX definitions vs Measure Dictionaries
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_dax_vs_measure_dictionary.ps1" -Arguments @(
   "-UseCasesRoot", $factsheetsRoot
 )
 
-# 17) Measure Dictionaries vs Gold contracts
+# 18) Measure Dictionaries vs Gold contracts
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_measure_dictionary_vs_gold.ps1" -Arguments @{
   MeasureDictRoot = (Join-Path $repoRoot "semantic_models\domains")
   GoldRoot = (Join-Path $repoRoot "data_contracts\domains")
 }
 
-# 18) TMDL vs Measure Dictionaries (optional if TMDL exists)
+# 19) TMDL vs Measure Dictionaries (optional if TMDL exists)
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1" -Arguments @{
   MeasureDictRoot = (Join-Path $repoRoot "semantic_models\domains")
   DistRoot = $distRoot

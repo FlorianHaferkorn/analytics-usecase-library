@@ -1,4 +1,4 @@
-﻿# Implementation Guides
+# Implementation Guides
 
 These guides are optional.
 They explain how to implement the framework on specific platforms.
@@ -9,14 +9,12 @@ They are not required to understand or use the framework.
 Translate the **ActionReady Operating Model** (semantics, UX, governance, AI-readiness)  
 into concrete, platform-specific implementation practices.
 
-These guides explain **how** to realize the conceptual framework inside specific analytics platforms such as:
+These guides explain **how** to realize the conceptual framework inside specific analytics platforms.
+Currently provided:
 
-- Microsoft Fabric / Power BI  
-- Databricks  
-- Snowflake + Tableau  
-- Looker  
+- Microsoft Fabric / Power BI
 
-They ensure that every technical implementation delivers the same high-quality, governed result — regardless of the underlying technology stack.
+They ensure that every technical implementation delivers the same high-quality, governed result - regardless of the underlying technology stack.
 
 ---
 
@@ -48,11 +46,8 @@ Not included:
 
 ```yaml
 implementation_guides/
-  fabric_powerbi.md        → Implementation in Microsoft Fabric + Power BI ecosystem
-  databricks.md            → Implementation in Databricks (Unity Catalog, Lakehouse)
-  snowflake_tableau.md     → Snowflake Warehouse + Tableau semantic alignment
-  looker.md                → LookML modeling, governance, and KPI mapping
-  README.md                → This file
+  fabric_powerbi.md        - Implementation in Microsoft Fabric + Power BI ecosystem
+  README.md                - This file
 ```
 
 ### fabric_powerbi.md
@@ -67,33 +62,11 @@ Covers:
 - Measure & DisplayFolder enforcement  
 - App navigation & UX rules (3-30-300)
 
-### databricks.md
+### Planned guides (not yet included)
 
-Covers:
-
-- Delta Lake contracts  
-- Unity Catalog mapping  
-- Semantic consistency between SQL & BI tool  
-- Metrics layer definitions  
-- Governance & lineage alignment
-
-### snowflake_tableau.md
-
-Covers:
-
-- Snowflake schema & scalable warehouse patterns  
-- Custom SQL / Tableau Data Models  
-- Foldering via Tableau Projects  
-- Metric Layer in Tableau (if used)
-
-### looker.md
-
-Covers:
-
-- LookML views & explores  
-- Metrics standardization  
-- Permissions & governance  
-- Content navigation rules
+- Databricks (Unity Catalog, Lakehouse)
+- Snowflake + Tableau
+- Looker
 
 ---
 
@@ -120,10 +93,10 @@ Covers:
 
 ## Relations
 
-- **WHY →** Derived from business strategy & domain definitions  
-- **HOW →** Platform-specific realization of the Operating Model  
-- **WITH WHAT →** Implements templates, Action Codes, KPIs, measure system  
-- **TEMPLATES →** Page templates and semantic templates map directly to platform structures
+- **WHY ?** Derived from business strategy & domain definitions  
+- **HOW ?** Platform-specific realization of the Operating Model  
+- **WITH WHAT ?** Implements templates, Action Codes, KPIs, measure system  
+- **TEMPLATES ?** Page templates and semantic templates map directly to platform structures
 
 ---
 

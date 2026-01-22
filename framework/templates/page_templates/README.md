@@ -62,7 +62,7 @@ the **use case is not ready** or not well-defined.
 
 The assignment of use cases to page templates is defined in:
 
-```
+```yaml
 mappings/UseCase_PageTemplate_Map.yaml
 ```
 
@@ -83,7 +83,7 @@ They define **slots** (e.g. Trend, Variance, Ranking).
 
 Slot rules and allowed visuals are defined in:
 
-```
+```yaml
 governance/Slot_Definitions.md
 ```
 
@@ -93,7 +93,7 @@ governance/Slot_Definitions.md
 
 Which visuals are allowed (and where) is defined in:
 
-```
+```yaml
 governance/Visual_Whitelist.md
 ```
 
@@ -111,8 +111,8 @@ Some pages require an **Action Panel** to support prescriptive analytics.
 
 Rules and structure are defined in:
 
-```
-components/action_panel/ActionPanel_Spec.md
+```yaml
+components/ActionPanel_Spec.md
 ```
 
 The Action Panel is **optional**, but if enabled, it must follow the spec.
@@ -131,7 +131,7 @@ A page is considered complete only if:
 
 The formal checklist is defined in:
 
-```
+```yaml
 governance/Page_DoD.md
 ```
 

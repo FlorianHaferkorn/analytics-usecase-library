@@ -1,0 +1,63 @@
+schema_version: "1.0"
+
+id: "DEC-SPINE-FIN-LIQUIDITY"
+name: "Liquidity and Working Capital Discipline"
+owner_domains: ["Finance"]
+impact_dimension: "Liquidity"
+
+purpose:
+  intent: >
+    Stabilize cash position by balancing DSO, DIO, and DPO levers.
+
+decision_context:
+  decision_type: "Prescriptive"
+  primary_question: >
+    Which working-capital lever should be prioritized without harming service?
+  decision_owner_roles:
+    - "Domain Lead"
+    - "Controlling Lead"
+
+decision_tradeoffs:
+  improves:
+    - "Cash"
+    - "Service level"
+    - "Supplier risk"
+  risks:
+    - "Service degradation"
+    - "Supplier disruption"
+
+when_not_to_act:
+  conditions:
+    - description: "Temporary cash buffers"
+      signal: "Defined in Action Codes"
+    - description: "Regulatory payment constraints"
+      signal: "Defined in Action Codes"
+
+escalation_logic:
+  principle: "Escalate as impact persists while guardrails are respected"
+  escalation_path:
+    - level: "EarlyWarning"
+      action: "Visibility and monitoring"
+    - level: "RequiredIntervention"
+      action: "Controlled corrective action"
+    - level: "PrescriptiveExecution"
+      action: "Mandatory enforcement"
+
+decision_confidence:
+  level: "Medium"
+  rationale:
+    - "Depends on signal quality and execution follow-through"
+
+governance:
+  ownership:
+    accountable_role: "Domain Lead"
+    consulted_roles:
+      - "Strategy"
+      - "Analytics"
+  change_policy:
+    - "Spine changes require domain and governance sign-off"
+
+quality_rules:
+  - "No KPI IDs or thresholds are defined in the spine."
+  - "Spine must remain domain-agnostic within its decision field."
+

@@ -1,0 +1,63 @@
+schema_version: "1.0"
+
+id: "DEC-SPINE-SCM-INVENTORY"
+name: "Inventory Balance Discipline"
+owner_domains: ["SupplyChain"]
+impact_dimension: "Working Capital"
+
+purpose:
+  intent: >
+    Balance inventory reduction with service protection.
+
+decision_context:
+  decision_type: "Prescriptive"
+  primary_question: >
+    Which inventory lever should be activated without harming OTIF?
+  decision_owner_roles:
+    - "Domain Lead"
+    - "Controlling Lead"
+
+decision_tradeoffs:
+  improves:
+    - "DIO"
+    - "OTIF"
+    - "Stockouts"
+  risks:
+    - "Service failures"
+    - "Obsolescence write-offs"
+
+when_not_to_act:
+  conditions:
+    - description: "Launch or ramp-up items"
+      signal: "Defined in Action Codes"
+    - description: "Force majeure events"
+      signal: "Defined in Action Codes"
+
+escalation_logic:
+  principle: "Escalate as impact persists while guardrails are respected"
+  escalation_path:
+    - level: "EarlyWarning"
+      action: "Visibility and monitoring"
+    - level: "RequiredIntervention"
+      action: "Controlled corrective action"
+    - level: "PrescriptiveExecution"
+      action: "Mandatory enforcement"
+
+decision_confidence:
+  level: "Medium"
+  rationale:
+    - "Depends on signal quality and execution follow-through"
+
+governance:
+  ownership:
+    accountable_role: "Domain Lead"
+    consulted_roles:
+      - "Strategy"
+      - "Analytics"
+  change_policy:
+    - "Spine changes require domain and governance sign-off"
+
+quality_rules:
+  - "No KPI IDs or thresholds are defined in the spine."
+  - "Spine must remain domain-agnostic within its decision field."
+

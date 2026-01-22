@@ -1,0 +1,65 @@
+schema_version: "1.0"
+
+id: "DEC-SPINE-COM-PRICE_MARGIN"
+name: "Commercial Price and Margin Discipline"
+owner_domains: ["Commercial"]
+impact_dimension: "Profitability"
+
+purpose:
+  intent: >
+    Protect margin and price realization without destroying volume.
+
+decision_context:
+  decision_type: "Prescriptive"
+  primary_question: >
+    Should we tighten pricing discipline or allow flexibility to protect growth?
+  decision_owner_roles:
+    - "Domain Lead"
+    - "Controlling Lead"
+
+decision_tradeoffs:
+  improves:
+    - "Gross Margin %"
+    - "Price Realization"
+    - "Volume"
+  risks:
+    - "Short-term volume loss"
+    - "Sales pushback"
+
+when_not_to_act:
+  conditions:
+    - description: "Strategic price investment"
+      signal: "Defined in Action Codes"
+    - description: "Promo-approved periods"
+      signal: "Defined in Action Codes"
+    - description: "Demand shock"
+      signal: "Defined in Action Codes"
+
+escalation_logic:
+  principle: "Escalate as impact persists while guardrails are respected"
+  escalation_path:
+    - level: "EarlyWarning"
+      action: "Visibility and monitoring"
+    - level: "RequiredIntervention"
+      action: "Controlled corrective action"
+    - level: "PrescriptiveExecution"
+      action: "Mandatory enforcement"
+
+decision_confidence:
+  level: "Medium"
+  rationale:
+    - "Depends on signal quality and execution follow-through"
+
+governance:
+  ownership:
+    accountable_role: "Domain Lead"
+    consulted_roles:
+      - "Strategy"
+      - "Analytics"
+  change_policy:
+    - "Spine changes require domain and governance sign-off"
+
+quality_rules:
+  - "No KPI IDs or thresholds are defined in the spine."
+  - "Spine must remain domain-agnostic within its decision field."
+

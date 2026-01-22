@@ -1,6 +1,6 @@
 ﻿# Run All Checks Report
 
-- Timestamp: 2026-01-21T16:23:37
+- Timestamp: 2026-01-21T17:00:27
 - Repo: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library
 - UseCasesRoot: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases
 - FactsheetsRoot: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core
@@ -17,24 +17,24 @@
 
 | Check | Status | Duration (s) | Arguments | Error |
 | --- | --- | ---: | --- | --- |
-| _internal/tools/validation/validate_factsheets.ps1 | ok | 0.1 |  |  |
-| _internal/tools/validation/validate_kpi_catalog.ps1 | ok | 0.37 |  |  |
-| _internal/tools/validation/check_factsheet_vs_kpi.ps1 | ok | 2.62 |  |  |
-| _internal/tools/validation/check_measures_vs_kpi.ps1 | ok | 0.2 |  |  |
-| _internal/tools/maintenance/check_docs_refs.ps1 | ok | 0.07 |  |  |
-| _internal/tools/validation/check_docs_kpi_refs.ps1 | ok | 0.42 |  |  |
-| _internal/tools/validation/check_usecase_inventory_vs_factsheets.ps1 | ok | 0.18 |  |  |
-| _internal/tools/validation/check_kpi_catalog_unused_in_factsheets.ps1 | ok | 1.1 |  |  |
-| _internal/tools/validation/check_docs_usecase_refs.ps1 | ok | 0.28 |  |  |
-| _internal/tools/validation/check_action_codes_vs_kpi.ps1 | ok | 0.68 |  |  |
-| _internal/tools/validation/check_factsheet_action_codes.ps1 | ok | 0.67 |  |  |
-| _internal/tools/validation/check_usecase_actioncode_map.ps1 | ok | 0.54 |  |  |
-| _internal/tools/validation/check_factsheet_actioncode_map.ps1 | ok | 0.27 |  |  |
-| _internal/tools/validation/check_factsheet_layout.ps1 | ok | 1.77 |  |  |
-| _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 | ok | 0.56 | -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
-| _internal/tools/validation/check_dax_vs_measure_dictionary.ps1 | ok | 0.54 |  |  |
-| _internal/tools/validation/check_measure_dictionary_vs_gold.ps1 | ok | 0.2 | -GoldRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\data_contracts\domains -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
-| _internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1 | ok | 0.05 | -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist |  |
+| _internal/tools/validation/validate_factsheets.ps1 | ok | 0.16 |  |  |
+| _internal/tools/validation/validate_kpi_catalog.ps1 | ok | 1.1 |  |  |
+| _internal/tools/validation/check_factsheet_vs_kpi.ps1 | ok | 4.84 |  |  |
+| _internal/tools/validation/check_measures_vs_kpi.ps1 | ok | 0.35 |  |  |
+| _internal/tools/maintenance/check_docs_refs.ps1 | ok | 0.13 |  |  |
+| _internal/tools/validation/check_docs_kpi_refs.ps1 | ok | 1.79 |  |  |
+| _internal/tools/validation/check_usecase_inventory_vs_factsheets.ps1 | ok | 0.29 |  |  |
+| _internal/tools/validation/check_kpi_catalog_unused_in_factsheets.ps1 | ok | 4.06 |  |  |
+| _internal/tools/validation/check_docs_usecase_refs.ps1 | ok | 0.36 |  |  |
+| _internal/tools/validation/check_action_codes_vs_kpi.ps1 | ok | 2.03 |  |  |
+| _internal/tools/validation/check_factsheet_action_codes.ps1 | ok | 0.77 |  |  |
+| _internal/tools/validation/check_usecase_actioncode_map.ps1 | ok | 0.64 |  |  |
+| _internal/tools/validation/check_factsheet_actioncode_map.ps1 | ok | 0.2 |  |  |
+| _internal/tools/validation/check_factsheet_layout.ps1 | ok | 2.8 |  |  |
+| _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 | ok | 0.61 | -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
+| _internal/tools/validation/check_dax_vs_measure_dictionary.ps1 | ok | 0.74 |  |  |
+| _internal/tools/validation/check_measure_dictionary_vs_gold.ps1 | ok | 0.27 | -GoldRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\data_contracts\domains -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
+| _internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1 | ok | 0.1 | -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist |  |
 
 ## Detailed Output
 
@@ -329,6 +329,6 @@ No _Measures.tmdl files found under dist. Skipping TMDL check.
 
 **********************
 Ende der Windows PowerShell-Aufzeichnung
-Endzeit: 20260121162337
+Endzeit: 20260121170027
 **********************
 ```

@@ -1,0 +1,62 @@
+schema_version: "1.0"
+
+id: "DEC-SPINE-COM-CUSTOMER_VALUE"
+name: "Customer Value and Retention Discipline"
+owner_domains: ["Commercial"]
+impact_dimension: "Customer Value"
+
+purpose:
+  intent: >
+    Improve retention and lifetime value by acting on churn and value signals.
+
+decision_context:
+  decision_type: "Prescriptive"
+  primary_question: >
+    Which customers should we retain, protect, or reprioritize?
+  decision_owner_roles:
+    - "Domain Lead"
+    - "Controlling Lead"
+
+decision_tradeoffs:
+  improves:
+    - "Retention"
+    - "Margin"
+    - "Service cost"
+  risks:
+    - "Over-investment in low-value segments"
+
+when_not_to_act:
+  conditions:
+    - description: "New customers in onboarding"
+      signal: "Defined in Action Codes"
+    - description: "Contractual constraints"
+      signal: "Defined in Action Codes"
+
+escalation_logic:
+  principle: "Escalate as impact persists while guardrails are respected"
+  escalation_path:
+    - level: "EarlyWarning"
+      action: "Visibility and monitoring"
+    - level: "RequiredIntervention"
+      action: "Controlled corrective action"
+    - level: "PrescriptiveExecution"
+      action: "Mandatory enforcement"
+
+decision_confidence:
+  level: "Medium"
+  rationale:
+    - "Depends on signal quality and execution follow-through"
+
+governance:
+  ownership:
+    accountable_role: "Domain Lead"
+    consulted_roles:
+      - "Strategy"
+      - "Analytics"
+  change_policy:
+    - "Spine changes require domain and governance sign-off"
+
+quality_rules:
+  - "No KPI IDs or thresholds are defined in the spine."
+  - "Spine must remain domain-agnostic within its decision field."
+

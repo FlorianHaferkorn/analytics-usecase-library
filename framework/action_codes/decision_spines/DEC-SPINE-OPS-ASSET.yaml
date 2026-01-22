@@ -1,0 +1,63 @@
+schema_version: "1.0"
+
+id: "DEC-SPINE-OPS-ASSET"
+name: "Asset Reliability Discipline"
+owner_domains: ["Operations"]
+impact_dimension: "Reliability"
+
+purpose:
+  intent: >
+    Reduce failures and recover availability without compromising safety.
+
+decision_context:
+  decision_type: "Prescriptive"
+  primary_question: >
+    Which reliability lever should be prioritized: PM, MTBF, MTTR, or spares?
+  decision_owner_roles:
+    - "Domain Lead"
+    - "Controlling Lead"
+
+decision_tradeoffs:
+  improves:
+    - "Availability"
+    - "Maintenance cost"
+    - "Safety"
+  risks:
+    - "Over-maintenance"
+    - "Spare shortages"
+
+when_not_to_act:
+  conditions:
+    - description: "Safety incidents in progress"
+      signal: "Defined in Action Codes"
+    - description: "Regulatory stoppages"
+      signal: "Defined in Action Codes"
+
+escalation_logic:
+  principle: "Escalate as impact persists while guardrails are respected"
+  escalation_path:
+    - level: "EarlyWarning"
+      action: "Visibility and monitoring"
+    - level: "RequiredIntervention"
+      action: "Controlled corrective action"
+    - level: "PrescriptiveExecution"
+      action: "Mandatory enforcement"
+
+decision_confidence:
+  level: "Medium"
+  rationale:
+    - "Depends on signal quality and execution follow-through"
+
+governance:
+  ownership:
+    accountable_role: "Domain Lead"
+    consulted_roles:
+      - "Strategy"
+      - "Analytics"
+  change_policy:
+    - "Spine changes require domain and governance sign-off"
+
+quality_rules:
+  - "No KPI IDs or thresholds are defined in the spine."
+  - "Spine must remain domain-agnostic within its decision field."
+

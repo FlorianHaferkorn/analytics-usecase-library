@@ -47,7 +47,8 @@ Action-oriented analysis is supported through dedicated aggregates aligned with 
 These aggregates quantify deviation, impact, and intervention potential.
 They enable prioritization and root-cause analysis without automating decisions.
 
-Thresholds, flags, and indicators link analytical signals to recommended actions.
+Action aggregates provide signals only. Thresholds, levels (L1-L3), and decision
+rules are defined exclusively in Action Codes.
 
 ## 5. Action Execution Layer (Optional / Future)
 

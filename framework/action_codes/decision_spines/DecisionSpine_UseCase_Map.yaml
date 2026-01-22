@@ -1,0 +1,28 @@
+decision_spines:
+  DEC-SPINE-COM-PRICE_MARGIN:
+    use_cases: [COM-001, COM-002, COM-004]
+  DEC-SPINE-COM-CUSTOMER_VALUE:
+    use_cases: [COM-003]
+  DEC-SPINE-FIN-LIQUIDITY:
+    use_cases: [FIN-001]
+  DEC-SPINE-FIN-COST:
+    use_cases: [FIN-002]
+  DEC-SPINE-OPS-PERFORMANCE:
+    use_cases: [OPS-001]
+  DEC-SPINE-OPS-ASSET:
+    use_cases: [OPS-002]
+  DEC-SPINE-OPS-QUALITY:
+    use_cases: [OPS-003]
+  DEC-SPINE-SCM-INVENTORY:
+    use_cases: [SCM-001]
+  DEC-SPINE-SCM-OTIF:
+    use_cases: [SCM-002]
+  DEC-SPINE-SCM-FORECAST:
+    use_cases: [SCM-003]
+  DEC-SPINE-XD-SERVICE:
+    use_cases: [XD-001]
+  DEC-SPINE-XD-RESOURCE:
+    use_cases: [XD-002]
+  DEC-SPINE-XD-EXEC:
+    use_cases: [XD-003]
+

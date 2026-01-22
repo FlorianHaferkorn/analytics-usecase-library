@@ -1,4 +1,4 @@
-﻿# Templates (Pattern Library)
+# Templates (Pattern Library)
 
 ## Purpose
 
@@ -32,9 +32,11 @@ Not included:
 ```yaml
 templates/
   page_templates/
-    overview_page_template.md
-    insights_page_template.md
-    explorer_page_template.md
+    README.md
+    page_types/
+    mappings/
+    governance/
+    components/
 
   measure_templates/
     measure_template.md
@@ -48,13 +50,14 @@ templates/
 
 ### page_templates/
 
-Defines the canonical page patterns:
+Defines the canonical page types:
 
-- **Overview Page (3-second view)** → KPI Cards + Delta  
-- **Insights Page (30-second view)** → Trends, Rankings, Multiples  
-- **Explorer Page (300-second view)** → Table/Matrix, drill, export  
+- **T1 Strategic Overview**
+- **T2 Tactical Variance**
+- **T3 Operational Monitoring**
+- **T4 Prescriptive Recommendation**
 
-These enforce consistent UX aligned with Apple/iOS-inspired design principles.
+Only these four types are allowed. See `framework/templates/page_templates/README.md`.
 
 ### measure_templates/
 
@@ -101,12 +104,13 @@ These support consistent upstream modeling across all domains.
 
 ## Relations
 
-- **WHY →** Templates reflect the business priorities and KPIs defined in the Company Layer.  
-- **HOW →** Templates enforce the standards defined in the Operating Model.  
-- **WITH WHAT →** Forms the practical toolkit used by delivery teams.  
-- **TEMPLATES →** Core of reproducible use case design.  
+- **WHY ?** Templates reflect the business priorities and KPIs defined in the Company Layer.  
+- **HOW ?** Templates enforce the standards defined in the Operating Model.  
+- **WITH WHAT ?** Forms the practical toolkit used by delivery teams.  
+- **TEMPLATES ?** Core of reproducible use case design.  
 
 ---
 
 **Location:**  
 `framework/templates/README.md`
+
