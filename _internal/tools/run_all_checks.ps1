@@ -217,6 +217,21 @@ Invoke-LocalScript -RelativePath "_internal/tools/validation/check_tmdl_vs_measu
   DistRoot = $distRoot
 }
 
+# 20) Mojibake scan
+Invoke-LocalScript -RelativePath "_internal/tools/validation/check_mojibake.ps1" -Arguments @(
+  "-Root", $repoRoot
+)
+
+# 21) Markdownlint (if available)
+Invoke-LocalScript -RelativePath "_internal/tools/validation/check_markdownlint.ps1" -Arguments @(
+  "-Root", $repoRoot
+)
+
+# 22) YAML format check (if parser available)
+Invoke-LocalScript -RelativePath "_internal/tools/validation/check_yaml_format.ps1" -Arguments @(
+  "-Root", $repoRoot
+)
+
 Stop-Transcript | Out-Null
 
 $totalChecks = $script:checkResults.Count
