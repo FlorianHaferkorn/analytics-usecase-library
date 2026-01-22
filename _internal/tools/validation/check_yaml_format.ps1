@@ -42,9 +42,8 @@ function Get-PythonInfo {
       if ($LASTEXITCODE -eq 0) {
         return @{ Command = $cmd.Source; Args = @(); CanImport = $true }
       }
-      return @{ Command = $cmd.Source; Args = @(); CanImport = $false }
     } catch {
-      return @{ Command = $cmd.Source; Args = @(); CanImport = $false }
+      # fall through to try py
     }
   }
   $cmd = Get-Command py -ErrorAction SilentlyContinue

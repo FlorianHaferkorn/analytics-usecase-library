@@ -10,7 +10,7 @@ lifecycle:
   introduced_date: "2025-12-18"
   deprecated_date: null
   replaced_by: null
- change_notes: []
+  change_notes: []
 
 category:
   group: "Promotion Pricing Control"
