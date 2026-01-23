@@ -159,7 +159,7 @@ function Write-KeyValue {
   $Builder.AppendLine("$indentStr${Key}: $(Format-Scalar $Value)") | Out-Null
 }
 
-$kpiOrder = @('kpi_id','kpi_key','kpi_type','strategic_ref','impact_dimension','domain_tag','use_case_ref','depends_on','depends_on_ids','calc_type','refresh','status','business','technical','governance','metadata_quality','aliases')
+$kpiOrder = @('kpi_id','kpi_key','kpi_type','kpi_role','strategic_ref','impact_dimension','domain_tag','use_case_ref','depends_on','depends_on_ids','calc_type','refresh','status','business','technical','governance','metadata_quality','aliases')
 $businessOrder = @('purpose','definition','grain_scope','unit_format','interpretation')
 $technicalOrder = @('dax_name','dax_expression','displayFolder','formatString','description','lineage','source_grain','source_column_ref','source_system','verified')
 $governanceOrder = @('business_owner','data_owner','steward','review_cycle','validation_process','qa_rules','version','last_review')

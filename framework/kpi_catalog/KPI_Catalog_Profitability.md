@@ -7,123 +7,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ## KPIs - Strategic
 
 ```yaml
-- kpi_id: profit.gross_margin
-  kpi_key: Gross Margin %
-  kpi_type: strategic
-  impact_dimension: Profitability
-  domain_tag:
-  - Commercial
-  use_case_ref:
-  - COM-002
-  - COM-003
-  calc_type: ratio
-  business:
-    purpose: Measures gross margin relative to net sales.
-    definition: (Net Sales Amount - COGS Amount) / Net Sales Amount
-    grain_scope: Invoice line aggregated to Org, Product, Date.
-    unit_format: '% (1 decimal)'
-    interpretation: Core profitability metric showing sales efficiency vs cost.
-  technical:
-    dax_name: Gross Margin %
-    depends_on_measures:
-    - Net Sales Amount
-    - COGS Amount
-    lineage:
-    - fact_sales.Net Sales Amount
-    - fact_sales.COGS Amount
-  governance:
-    business_owner: Head of Controlling
-    data_owner: BI Engineering
-    steward: Controlling Analyst
-    review_cycle: quarterly
-    validation_process: dual control
-    qa_rules:
-    - Value in [-100%; 100%]
-    - Reconcile with P&L Gross Margin +/-0.5 pp
-    version: v2.0
-  metadata_quality:
-    completeness_score: 0.97
-    last_review: 12.10.2025
-
-```
-
-## KPIs - Supporting / Diagnostic
-
-```yaml
-- kpi_id: margin.gm.amount
-  kpi_key: Gross Margin Amount
-  kpi_type: supporting
-  impact_dimension: Profitability
-  domain_tag:
-  - Commercial
-  use_case_ref:
-  - COM-002
-  - COM-004
-  calc_type: amount
-  business:
-    purpose: Absolute gross margin in currency.
-    definition: Net Sales Amount - COGS Amount
-    grain_scope: Aggregated from invoice_line to reporting period.
-    unit_format: EUR (2 decimals)
-    interpretation: Explains profitability magnitude before OpEx.
-  technical:
-    dax_name: Gross Margin Amount
-    depends_on_measures:
-    - Net Sales Amount
-    lineage:
-    - fact_sales.Net Sales Amount
-    - fact_sales.COGS Amount
-  governance:
-    business_owner: Head of Controlling
-    data_owner: BI Engineering
-    steward: Controlling Analyst
-    review_cycle: quarterly
-    validation_process: dual control
-    qa_rules:
-    - Reconcile with P&L GM within +/-0.5%
-    version: v2.0
-  metadata_quality:
-    completeness_score: 0.98
-    last_review: 12.10.2025
-  aliases:
-  - hr.gm.amount
-
-- kpi_id: hr.gm.amount
-  kpi_key: Gross Margin Amount
-  kpi_type: supporting
-  impact_dimension: Profitability
-  domain_tag:
-  - Corporate & Strategy
-  use_case_ref:
-  - COR-002
-  calc_type: amount
-  business:
-    purpose: Provide gross margin as input for workforce productivity analysis.
-    definition: Sum of gross margin amount for the selected period and organizational slice.
-    grain_scope: Org / department; monthly or quarterly closing.
-    unit_format: EUR
-    interpretation: Used for Gross Margin per FTE and related KPIs; interpret primarily in combination with FTE and revenue.
-  technical:
-    dax_name: Gross Margin Amount
-    depends_on_measures: []
-    lineage:
-    - fact_financials.GrossMarginAmount
-  governance:
-    business_owner: Head of Finance Controlling
-    data_owner: People Analytics
-    steward: HR Analyst
-    review_cycle: quarterly
-    validation_process: reconciled against Finance gross margin totals
-    qa_rules:
-    - Gross margin reconciles to Finance P&L innerhalb +/- 0,5 %
-    version: v1.0
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 06.11.2025
-
 - kpi_id: margin.gm.pct
   kpi_key: Gross Margin % (Operational)
-  kpi_type: supporting
+  kpi_type: percentage
+  kpi_role: strategic
   impact_dimension: Profitability
   domain_tag:
   - Commercial
@@ -161,45 +48,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     completeness_score: 0.9
     last_review: 19.11.2025
 
-- kpi_id: sales.promo.incremental.amount
-  kpi_key: Incremental Sales Amount
-  kpi_type: diagnostic
-  impact_dimension: Profitability
-  domain_tag:
-  - Commercial
-  use_case_ref:
-  - COM-003
-  calc_type: amount
-  business:
-    purpose: Additional sales due to promotion.
-    definition: Promo Sales Amount - Baseline Sales Amount
-    grain_scope: Promo period/product
-    unit_format: EUR (2 decimals)
-    interpretation: Input to promo ROI.
-  technical:
-    dax_name: Incremental Sales Amount
-    depends_on_measures:
-    - Promo Sales Amount
-    - Baseline Sales Amount
-    lineage:
-    - fact_sales.Net Sales Amount
-    - fact_sales.Promo Flag
-  governance:
-    business_owner: Head of Marketing Controlling
-    data_owner: BI Engineering
-    steward: Trade Marketing Analyst
-    review_cycle: quarterly
-    validation_process: manual review
-    qa_rules:
-    - Baseline method documented; overlap handling
-    version: v2.0
-  metadata_quality:
-    completeness_score: 0.9
-    last_review: 12.10.2025
-
 - kpi_id: sales.promo.roi.pct
   kpi_key: Promo ROI %
-  kpi_type: diagnostic
+  kpi_type: percentage
+  kpi_role: strategic
   impact_dimension: Profitability
   domain_tag:
   - Commercial
@@ -237,7 +89,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: margin.promo.gm.pct
   kpi_key: GM % During Promo
-  kpi_type: diagnostic
+  kpi_type: percentage
+  kpi_role: strategic
   impact_dimension: Profitability
   domain_tag:
   - Commercial
@@ -274,7 +127,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: cost.cogs_per_unit.amount
   kpi_key: COGS per Unit
-  kpi_type: diagnostic
+  kpi_type: rate
+  kpi_role: strategic
   impact_dimension: Profitability
   domain_tag:
   - Commercial
@@ -306,7 +160,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: sales.promo.cannibalization.pct
   kpi_key: Cannibalization %
-  kpi_type: diagnostic
+  kpi_type: percentage
+  kpi_role: strategic
   impact_dimension: Profitability
   domain_tag:
   - Commercial
@@ -339,7 +194,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: cost.material.pct
   kpi_key: Material Cost %
-  kpi_type: diagnostic
+  kpi_type: percentage
+  kpi_role: strategic
   impact_dimension: Profitability
   domain_tag:
   - Corporate & Strategy
@@ -371,7 +227,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: cost.opex.vs_plan.pct
   kpi_key: OpEx vs Plan %
-  kpi_type: diagnostic
+  kpi_type: percentage
+  kpi_role: strategic
   impact_dimension: Profitability
   domain_tag:
   - Corporate & Strategy
@@ -403,7 +260,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: cost.unit.amount
   kpi_key: Unit Cost Amount
-  kpi_type: diagnostic
+  kpi_type: rate
+  kpi_role: strategic
   impact_dimension: Profitability
   domain_tag:
   - Corporate & Strategy
@@ -433,9 +291,163 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     completeness_score: 0.8
     last_review: 04.11.2025
 
+- kpi_id: profit.gross_margin
+  kpi_key: Gross Margin %
+  kpi_type: percentage
+  kpi_role: strategic
+  impact_dimension: Profitability
+  domain_tag:
+  - Commercial
+  use_case_ref:
+  - COM-002
+  - COM-003
+  calc_type: ratio
+  business:
+    purpose: Measures gross margin relative to net sales.
+    definition: (Net Sales Amount - COGS Amount) / Net Sales Amount
+    grain_scope: Invoice line aggregated to Org, Product, Date.
+    unit_format: '% (1 decimal)'
+    interpretation: Core profitability metric showing sales efficiency vs cost.
+  technical:
+    dax_name: Gross Margin %
+    depends_on_measures:
+    - Net Sales Amount
+    - COGS Amount
+    lineage:
+    - fact_sales.Net Sales Amount
+    - fact_sales.COGS Amount
+  governance:
+    business_owner: Head of Controlling
+    data_owner: BI Engineering
+    steward: Controlling Analyst
+    review_cycle: quarterly
+    validation_process: dual control
+    qa_rules:
+    - Value in [-100%; 100%]
+    - Reconcile with P&L Gross Margin +/-0.5 pp
+    version: v2.0
+  metadata_quality:
+    completeness_score: 0.97
+    last_review: 12.10.2025
+```
+
+## KPIs - Supporting / Diagnostic
+
+```yaml
+- kpi_id: margin.gm.amount
+  kpi_key: Gross Margin Amount
+  kpi_type: amount
+  kpi_role: supporting
+  impact_dimension: Profitability
+  domain_tag:
+  - Commercial
+  use_case_ref:
+  - COM-002
+  - COM-004
+  calc_type: amount
+  business:
+    purpose: Absolute gross margin in currency.
+    definition: Net Sales Amount - COGS Amount
+    grain_scope: Aggregated from invoice_line to reporting period.
+    unit_format: EUR (2 decimals)
+    interpretation: Explains profitability magnitude before OpEx.
+  technical:
+    dax_name: Gross Margin Amount
+    depends_on_measures:
+    - Net Sales Amount
+    lineage:
+    - fact_sales.Net Sales Amount
+    - fact_sales.COGS Amount
+  governance:
+    business_owner: Head of Controlling
+    data_owner: BI Engineering
+    steward: Controlling Analyst
+    review_cycle: quarterly
+    validation_process: dual control
+    qa_rules:
+    - Reconcile with P&L GM within +/-0.5%
+    version: v2.0
+  metadata_quality:
+    completeness_score: 0.98
+    last_review: 12.10.2025
+  aliases:
+  - hr.gm.amount
+
+- kpi_id: hr.gm.amount
+  kpi_key: Gross Margin Amount
+  kpi_type: amount
+  kpi_role: supporting
+  impact_dimension: Profitability
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref:
+  - COR-002
+  calc_type: amount
+  business:
+    purpose: Provide gross margin as input for workforce productivity analysis.
+    definition: Sum of gross margin amount for the selected period and organizational slice.
+    grain_scope: Org / department; monthly or quarterly closing.
+    unit_format: EUR
+    interpretation: Used for Gross Margin per FTE and related KPIs; interpret primarily in combination with FTE and revenue.
+  technical:
+    dax_name: Gross Margin Amount
+    depends_on_measures: []
+    lineage:
+    - fact_financials.GrossMarginAmount
+  governance:
+    business_owner: Head of Finance Controlling
+    data_owner: People Analytics
+    steward: HR Analyst
+    review_cycle: quarterly
+    validation_process: reconciled against Finance gross margin totals
+    qa_rules:
+    - Gross margin reconciles to Finance P&L innerhalb +/- 0,5 %
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 06.11.2025
+
+- kpi_id: sales.promo.incremental.amount
+  kpi_key: Incremental Sales Amount
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Profitability
+  domain_tag:
+  - Commercial
+  use_case_ref:
+  - COM-003
+  calc_type: amount
+  business:
+    purpose: Additional sales due to promotion.
+    definition: Promo Sales Amount - Baseline Sales Amount
+    grain_scope: Promo period/product
+    unit_format: EUR (2 decimals)
+    interpretation: Input to promo ROI.
+  technical:
+    dax_name: Incremental Sales Amount
+    depends_on_measures:
+    - Promo Sales Amount
+    - Baseline Sales Amount
+    lineage:
+    - fact_sales.Net Sales Amount
+    - fact_sales.Promo Flag
+  governance:
+    business_owner: Head of Marketing Controlling
+    data_owner: BI Engineering
+    steward: Trade Marketing Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Baseline method documented; overlap handling
+    version: v2.0
+  metadata_quality:
+    completeness_score: 0.9
+    last_review: 12.10.2025
+
 - kpi_id: margin.cogs.pct
   kpi_key: COGS % of Sales
   kpi_type: diagnostic
+  kpi_role: supporting
   impact_dimension: Profitability
   domain_tag:
   - Commercial
@@ -468,6 +480,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 - kpi_id: margin.gm.vs_plan.pct
   kpi_key: Gross Margin % vs Plan
   kpi_type: diagnostic
+  kpi_role: supporting
   impact_dimension: Profitability
   domain_tag:
   - Commercial
@@ -499,7 +512,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: cost.base_volume.amount
   kpi_key: Cost Base Volume Amount
-  kpi_type: supporting
+  kpi_type: amount
+  kpi_role: supporting
   impact_dimension: Profitability
   domain_tag:
   - Finance
@@ -532,7 +546,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: cost.opex.base.amount
   kpi_key: Opex Base Amount
-  kpi_type: supporting
+  kpi_type: amount
+  kpi_role: supporting
   impact_dimension: Profitability
   domain_tag:
   - Finance

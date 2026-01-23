@@ -7,6 +7,79 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ## KPIs - Strategic
 
 ```yaml
+- kpi_id: sales.price.realization_pct
+  kpi_key: Price Realization %
+  kpi_type: percentage
+  kpi_role: strategic
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  use_case_ref:
+  - COM-001
+  - COM-002
+  - COM-003
+  calc_type: rate
+  business:
+    purpose: Shows how much of list price is realized after discounts.
+    definition: Net Price Amount / List Price Amount.
+    grain_scope: Invoice line aggregated to reporting period.
+    unit_format: '% (1 decimal)'
+    interpretation: Values below 100% indicate discounting; values above 100% indicate uplift vs list price.
+  technical:
+    dax_name: Price Realization %
+    depends_on_measures:
+    - Net Price Amount
+    - List Price Amount
+    lineage:
+    - fact_sales.Net Price Amount
+    - fact_sales.List Price Amount
+  governance:
+    business_owner: Head of Sales Controlling
+    data_owner: Pricing Team
+    steward: Pricing Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Bounds [0%; 150%]
+    - List price source reconciled to price books
+    version: v1.1
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 11.11.2025
+
+- kpi_id: sales.pvm.mix_effect.amount
+  kpi_key: Mix Effect Amount
+  kpi_type: amount
+  kpi_role: strategic
+  impact_dimension: Growth
+  domain_tag:
+  - Commercial
+  use_case_ref:
+  - COM-001
+  - COM-004
+  calc_type: amount
+  business:
+    purpose: Captures the residual effect from changes in product, channel, or region mix.
+    definition: Total variance - Price Effect - Volume Effect.
+    grain_scope: Aggregated to reporting period / segment.
+    unit_format: EUR (2 decimals)
+    interpretation: Explains whether composition shifts drive positive or negative outcomes.
+  technical:
+    dax_name: Mix Effect Amount
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Sales Controlling
+    data_owner: BI Engineering
+    steward: Sales Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - Price + Volume + Mix reconcile to total variance
+    version: v1.1
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 11.11.2025
 ```
 
 ## KPIs - Supporting / Diagnostic
@@ -14,7 +87,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ```yaml
 - kpi_id: sales.net_sales.amount
   kpi_key: Net Sales Amount
-  kpi_type: supporting
+  kpi_type: amount
+  kpi_role: supporting
   impact_dimension: Growth
   domain_tag:
   - Commercial
@@ -48,6 +122,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 - kpi_id: sales.net_sales.delta_pct.ly
   kpi_key: Delta% Net Sales
   kpi_type: diagnostic
+  kpi_role: supporting
   impact_dimension: Growth
   domain_tag:
   - Commercial
@@ -85,6 +160,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 - kpi_id: sales.net_sales.delta_pct.plan
   kpi_key: Net Sales % vs Plan
   kpi_type: diagnostic
+  kpi_role: supporting
   impact_dimension: Growth
   domain_tag:
   - Commercial
@@ -118,48 +194,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     completeness_score: 0.8
     last_review: 04.11.2025
 
-- kpi_id: sales.price.realization_pct
-  kpi_key: Price Realization %
-  kpi_type: diagnostic
-  impact_dimension: Growth
-  domain_tag:
-  - Commercial
-  use_case_ref:
-  - COM-001
-  - COM-002
-  - COM-003
-  calc_type: rate
-  business:
-    purpose: Shows how much of list price is realized after discounts.
-    definition: Net Price Amount / List Price Amount.
-    grain_scope: Invoice line aggregated to reporting period.
-    unit_format: '% (1 decimal)'
-    interpretation: Values below 100% indicate discounting; values above 100% indicate uplift vs list price.
-  technical:
-    dax_name: Price Realization %
-    depends_on_measures:
-    - Net Price Amount
-    - List Price Amount
-    lineage:
-    - fact_sales.Net Price Amount
-    - fact_sales.List Price Amount
-  governance:
-    business_owner: Head of Sales Controlling
-    data_owner: Pricing Team
-    steward: Pricing Analyst
-    review_cycle: quarterly
-    validation_process: manual review
-    qa_rules:
-    - Bounds [0%; 150%]
-    - List price source reconciled to price books
-    version: v1.1
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 11.11.2025
-
 - kpi_id: sales.pvm.price_effect.amount
   kpi_key: Price Effect Amount
   kpi_type: diagnostic
+  kpi_role: supporting
   impact_dimension: Growth
   domain_tag:
   - Commercial
@@ -194,6 +232,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 - kpi_id: sales.pvm.volume_effect.amount
   kpi_key: Volume Effect Amount
   kpi_type: diagnostic
+  kpi_role: supporting
   impact_dimension: Growth
   domain_tag:
   - Commercial
@@ -225,42 +264,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     completeness_score: 0.8
     last_review: 11.11.2025
 
-- kpi_id: sales.pvm.mix_effect.amount
-  kpi_key: Mix Effect Amount
-  kpi_type: diagnostic
-  impact_dimension: Growth
-  domain_tag:
-  - Commercial
-  use_case_ref:
-  - COM-001
-  - COM-004
-  calc_type: amount
-  business:
-    purpose: Captures the residual effect from changes in product, channel, or region mix.
-    definition: Total variance - Price Effect - Volume Effect.
-    grain_scope: Aggregated to reporting period / segment.
-    unit_format: EUR (2 decimals)
-    interpretation: Explains whether composition shifts drive positive or negative outcomes.
-  technical:
-    dax_name: Mix Effect Amount
-    depends_on_measures: []
-    lineage: []
-  governance:
-    business_owner: Head of Sales Controlling
-    data_owner: BI Engineering
-    steward: Sales Analyst
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules:
-    - Price + Volume + Mix reconcile to total variance
-    version: v1.1
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 11.11.2025
-
 - kpi_id: sales.units
   kpi_key: Sales Units
-  kpi_type: supporting
+  kpi_type: quantity
+  kpi_role: supporting
   impact_dimension: Growth
   domain_tag:
   - Commercial

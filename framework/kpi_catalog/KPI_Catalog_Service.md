@@ -1,4 +1,4 @@
-﻿# KPI Catalog - Service & Experience
+# KPI Catalog - Service & Experience
 
 ---
 
@@ -9,7 +9,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ```yaml
 - kpi_id: svc.sla.attainment.pct
   kpi_key: SLA Attainment %
-  kpi_type: strategic
+  kpi_type: percentage
+  kpi_role: strategic
   impact_dimension: Service
   domain_tag:
   - Service & Experience
@@ -45,7 +46,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: svc.fcr.pct
   kpi_key: First Contact Resolution %
-  kpi_type: strategic
+  kpi_type: percentage
+  kpi_role: strategic
   impact_dimension: Service
   domain_tag:
   - Service & Experience
@@ -80,7 +82,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: svc.aht.minutes
   kpi_key: Average Handling Time (minutes)
-  kpi_type: strategic
+  kpi_type: diagnostic
+  kpi_role: strategic
   impact_dimension: Service
   domain_tag:
   - Service & Experience
@@ -115,7 +118,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: svc.backlog.count
   kpi_key: Backlog Count
-  kpi_type: strategic
+  kpi_type: count
+  kpi_role: strategic
   impact_dimension: Service
   domain_tag:
   - Service & Experience
@@ -150,7 +154,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: svc.nps.index
   kpi_key: NPS Index
-  kpi_type: strategic
+  kpi_type: index
+  kpi_role: strategic
   impact_dimension: Experience
   domain_tag:
   - Service & Experience
@@ -184,7 +189,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: svc.escalation.pct
   kpi_key: Escalation %
-  kpi_type: strategic
+  kpi_type: percentage
+  kpi_role: strategic
   impact_dimension: Service
   domain_tag:
   - Service & Experience
@@ -219,7 +225,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: res.utilization.pct
   kpi_key: Utilization %
-  kpi_type: strategic
+  kpi_type: percentage
+  kpi_role: strategic
   impact_dimension: Workforce
   domain_tag:
   - Service & Experience
@@ -231,7 +238,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Productive time divided by paid time.
     grain_scope: agent_day or queue_day; aggregated to week/month.
     unit_format: '% (1 decimal)'
-    interpretation: Typical healthy band 75–85%; balance with SLA/NPS.
+    interpretation: Typical healthy band 75�85%; balance with SLA/NPS.
   technical:
     dax_name: Utilization %
     depends_on_measures:
@@ -254,7 +261,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: res.occupancy.pct
   kpi_key: Occupancy %
-  kpi_type: strategic
+  kpi_type: percentage
+  kpi_role: strategic
   impact_dimension: Workforce
   domain_tag:
   - Service & Experience
@@ -290,7 +298,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: res.overtime.pct
   kpi_key: Overtime %
-  kpi_type: strategic
+  kpi_type: percentage
+  kpi_role: strategic
   impact_dimension: Workforce
   domain_tag:
   - Service & Experience
@@ -325,7 +334,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: res.shrinkage.pct
   kpi_key: Shrinkage %
-  kpi_type: strategic
+  kpi_type: percentage
+  kpi_role: strategic
   impact_dimension: Workforce
   domain_tag:
   - Service & Experience
@@ -358,9 +368,15 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     completeness_score: 0.9
     last_review: TBD
 
+```
+
+## KPIs - Supporting / Diagnostic
+
+```yaml
 - kpi_id: svc.tickets.created.count
   kpi_key: Tickets Created Count
-  kpi_type: supporting
+  kpi_type: activity
+  kpi_role: supporting
   impact_dimension: Service
   domain_tag:
   - Service & Experience
@@ -392,7 +408,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: svc.tickets.closed.count
   kpi_key: Tickets Closed Count
-  kpi_type: supporting
+  kpi_type: activity
+  kpi_role: supporting
   impact_dimension: Service
   domain_tag:
   - Service & Experience

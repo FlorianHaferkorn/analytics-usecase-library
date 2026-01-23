@@ -282,8 +282,9 @@ if ($kpiCatalogRoot -and $kpiCatalogSchemaPath) {
       foreach ($entry in $entries) {
         $actualTop = @($entry.top)
         $expectedTop = @()
-        $expectedTop += $mandatoryTop[0..3]
-        $expectedTop += "domain_tag"
+        $expectedTop += $mandatoryTop[0..2]
+        $expectedTop += "kpi_role"
+        $expectedTop += "impact_dimension","domain_tag"
         if ($actualTop -contains "use_case_ref") { $expectedTop += "use_case_ref" }
         $expectedTop += "calc_type","business","technical","governance","metadata_quality"
         if ($actualTop -contains "aliases") { $expectedTop += "aliases" }

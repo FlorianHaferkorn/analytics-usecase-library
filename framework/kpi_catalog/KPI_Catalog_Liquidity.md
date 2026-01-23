@@ -7,9 +7,142 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ## KPIs - Strategic
 
 ```yaml
+- kpi_id: wc.dso.days
+  kpi_key: DSO Days
+  kpi_type: diagnostic
+  kpi_role: strategic
+  impact_dimension: Liquidity
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref:
+  - FIN-001
+  calc_type: amount
+  business:
+    purpose: Measures days sales outstanding for receivables.
+    definition: Receivables / (Net Sales / 365).
+    grain_scope: Company/segment; monthly close.
+    unit_format: days
+    interpretation: Lower is better; rising DSO indicates collection issues.
+  technical:
+    dax_name: DSO Days
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Treasury
+    data_owner: Finance BI
+    steward: Working Capital Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - Net Sales > 0
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: wc.dio.days
+  kpi_key: DIO Days
+  kpi_type: diagnostic
+  kpi_role: strategic
+  impact_dimension: Liquidity
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref:
+  - FIN-001
+  calc_type: amount
+  business:
+    purpose: Measures days inventory outstanding.
+    definition: Inventory / (COGS / 365).
+    grain_scope: Company/segment; monthly close.
+    unit_format: days
+    interpretation: Lower is better; high DIO increases cash tied up in stock.
+  technical:
+    dax_name: DIO Days
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Treasury / Supply Chain Finance
+    data_owner: Finance BI
+    steward: Working Capital Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - COGS > 0
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: wc.dpo.days
+  kpi_key: DPO Days
+  kpi_type: diagnostic
+  kpi_role: strategic
+  impact_dimension: Liquidity
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref:
+  - FIN-001
+  calc_type: amount
+  business:
+    purpose: Measures days payables outstanding.
+    definition: Payables / (COGS / 365).
+    grain_scope: Company/segment; monthly close.
+    unit_format: days
+    interpretation: Higher values improve cash but may impact supplier terms.
+  technical:
+    dax_name: DPO Days
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Treasury / Procurement Controlling
+    data_owner: Finance BI
+    steward: Working Capital Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - COGS > 0
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: wc.ccc.days
+  kpi_key: CCC Days
+  kpi_type: diagnostic
+  kpi_role: strategic
+  impact_dimension: Liquidity
+  domain_tag:
+  - Corporate & Strategy
+  use_case_ref:
+  - FIN-001
+  calc_type: amount
+  business:
+    purpose: Measures cash conversion cycle length.
+    definition: DSO + DIO - DPO.
+    grain_scope: Company/segment; monthly close.
+    unit_format: days
+    interpretation: Lower values indicate faster cash recovery.
+  technical:
+    dax_name: CCC Days
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of Treasury
+    data_owner: Finance BI
+    steward: Working Capital Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - DSO, DIO, DPO available for period
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
 - kpi_id: fin.liquidity.operating_cash_flow
   kpi_key: Operating Cash Flow
-  kpi_type: strategic
+  kpi_type: amount
+  kpi_role: strategic
   impact_dimension: Liquidity
   domain_tag:
   - Corporate & Strategy
@@ -46,7 +179,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ```yaml
 - kpi_id: fin.cash.balance
   kpi_key: Cash Balance
-  kpi_type: supporting
+  kpi_type: amount
+  kpi_role: supporting
   impact_dimension: Liquidity
   domain_tag:
   - Corporate & Strategy
@@ -78,7 +212,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: fin.cash.ocf
   kpi_key: Operating Cash Flow
-  kpi_type: supporting
+  kpi_type: amount
+  kpi_role: supporting
   impact_dimension: Liquidity
   domain_tag:
   - Corporate & Strategy
@@ -113,6 +248,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 - kpi_id: fin.cash.vs_plan.pct
   kpi_key: Cash vs Plan %
   kpi_type: diagnostic
+  kpi_role: supporting
   impact_dimension: Liquidity
   domain_tag:
   - Corporate & Strategy
@@ -137,134 +273,6 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     validation_process: manual review
     qa_rules:
     - Plan Amount > 0
-    version: v1.0
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
-
-- kpi_id: wc.dso.days
-  kpi_key: DSO Days
-  kpi_type: diagnostic
-  impact_dimension: Liquidity
-  domain_tag:
-  - Corporate & Strategy
-  use_case_ref:
-  - FIN-001
-  calc_type: amount
-  business:
-    purpose: Measures days sales outstanding for receivables.
-    definition: Receivables / (Net Sales / 365).
-    grain_scope: Company/segment; monthly close.
-    unit_format: days
-    interpretation: Lower is better; rising DSO indicates collection issues.
-  technical:
-    dax_name: DSO Days
-    depends_on_measures: []
-    lineage: []
-  governance:
-    business_owner: Head of Treasury
-    data_owner: Finance BI
-    steward: Working Capital Analyst
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules:
-    - Net Sales > 0
-    version: v1.0
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
-
-- kpi_id: wc.dio.days
-  kpi_key: DIO Days
-  kpi_type: diagnostic
-  impact_dimension: Liquidity
-  domain_tag:
-  - Corporate & Strategy
-  use_case_ref:
-  - FIN-001
-  calc_type: amount
-  business:
-    purpose: Measures days inventory outstanding.
-    definition: Inventory / (COGS / 365).
-    grain_scope: Company/segment; monthly close.
-    unit_format: days
-    interpretation: Lower is better; high DIO increases cash tied up in stock.
-  technical:
-    dax_name: DIO Days
-    depends_on_measures: []
-    lineage: []
-  governance:
-    business_owner: Head of Treasury / Supply Chain Finance
-    data_owner: Finance BI
-    steward: Working Capital Analyst
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules:
-    - COGS > 0
-    version: v1.0
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
-
-- kpi_id: wc.dpo.days
-  kpi_key: DPO Days
-  kpi_type: diagnostic
-  impact_dimension: Liquidity
-  domain_tag:
-  - Corporate & Strategy
-  use_case_ref:
-  - FIN-001
-  calc_type: amount
-  business:
-    purpose: Measures days payables outstanding.
-    definition: Payables / (COGS / 365).
-    grain_scope: Company/segment; monthly close.
-    unit_format: days
-    interpretation: Higher values improve cash but may impact supplier terms.
-  technical:
-    dax_name: DPO Days
-    depends_on_measures: []
-    lineage: []
-  governance:
-    business_owner: Head of Treasury / Procurement Controlling
-    data_owner: Finance BI
-    steward: Working Capital Analyst
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules:
-    - COGS > 0
-    version: v1.0
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
-
-- kpi_id: wc.ccc.days
-  kpi_key: CCC Days
-  kpi_type: diagnostic
-  impact_dimension: Liquidity
-  domain_tag:
-  - Corporate & Strategy
-  use_case_ref:
-  - FIN-001
-  calc_type: amount
-  business:
-    purpose: Measures cash conversion cycle length.
-    definition: DSO + DIO - DPO.
-    grain_scope: Company/segment; monthly close.
-    unit_format: days
-    interpretation: Lower values indicate faster cash recovery.
-  technical:
-    dax_name: CCC Days
-    depends_on_measures: []
-    lineage: []
-  governance:
-    business_owner: Head of Treasury
-    data_owner: Finance BI
-    steward: Working Capital Analyst
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules:
-    - DSO, DIO, DPO available for period
     version: v1.0
   metadata_quality:
     completeness_score: 0.8

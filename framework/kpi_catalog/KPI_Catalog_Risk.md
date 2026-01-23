@@ -7,7 +7,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ## KPIs - Strategic
 
 ```yaml
-[]
+
 ```
 
 ## KPIs - Supporting / Diagnostic
@@ -16,6 +16,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 - kpi_id: enterprise.value_at_risk.index
   kpi_key: Enterprise Value-at-Risk Index
   kpi_type: diagnostic
+  kpi_role: supporting
   impact_dimension: Risk
   domain_tag:
   - Corporate & Strategy
@@ -47,6 +48,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 - kpi_id: scm.supplier_risk.score
   kpi_key: Supplier Risk Score
   kpi_type: diagnostic
+  kpi_role: supporting
   impact_dimension: Risk
   domain_tag:
   - Supply Chain

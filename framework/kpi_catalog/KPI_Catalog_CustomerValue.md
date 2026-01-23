@@ -7,9 +7,111 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ## KPIs - Strategic
 
 ```yaml
+- kpi_id: crm.clv.amount
+  kpi_key: CLV (Customer Lifetime Value)
+  kpi_type: amount
+  kpi_role: strategic
+  impact_dimension: Customer
+  domain_tag:
+  - Customer & Market
+  use_case_ref: []
+  calc_type: amount
+  business:
+    purpose: Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
+    definition: Sum of expected future gross margin per customer discounted over the chosen time horizon.
+    grain_scope: Customer level; calculated on cohort or segment basis.
+    unit_format: EUR (2 decimals)
+    interpretation: Higher CLV indicates more valuable segments; compare against acquisition cost and churn risk.
+  technical:
+    dax_name: CLV
+    depends_on_measures: []
+    lineage: []
+  governance:
+    business_owner: Head of CRM / Marketing Analytics
+    data_owner: CRM BI
+    steward: Customer Insights Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - Reconciles to CLV model outputs within an agreed tolerance
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: crm.revenue_at_risk.amount
+  kpi_key: Revenue at Risk Amount
+  kpi_type: amount
+  kpi_role: strategic
+  impact_dimension: Customer
+  domain_tag:
+  - Customer & Market
+  use_case_ref:
+  - COM-003
+  calc_type: amount
+  business:
+    purpose: Quantify revenue exposure from customers flagged as churn-risk.
+    definition: CLV Remaining Amount * Attrition Risk %.
+    grain_scope: Customer/segment; monthly.
+    unit_format: EUR (0 decimals)
+    interpretation: Higher values indicate more revenue at risk; prioritize retention actions.
+  technical:
+    dax_name: Revenue at Risk Amount
+    depends_on_measures: []
+    lineage:
+    - fact_customer_value.CLV Remaining Amount
+    - fact_customer_events.Attrition Risk %
+  governance:
+    business_owner: Head of Marketing
+    data_owner: CRM BI
+    steward: Customer Insights Analyst
+    review_cycle: quarterly
+    validation_process: manual review
+    qa_rules:
+    - At-risk revenue reconciles to CLV remaining and attrition risk inputs within +/- 1 %
+    version: v1.0
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 04.11.2025
+
+- kpi_id: crm.complaint.count
+  kpi_key: Complaint Count
+  kpi_type: activity
+  kpi_role: strategic
+  impact_dimension: Customer
+  domain_tag:
+  - Customer & Market
+  use_case_ref:
+  - CST-007
+  calc_type: count
+  business:
+    purpose: Provide the absolute number of logged complaints.
+    definition: Count of complaint records in the complaint/service system.
+    grain_scope: Complaint / ticket; aggregated to org / channel / product / period.
+    unit_format: count
+    interpretation: Higher values indicate more issues; interpret with Complaint Rate % to normalize by volume.
+  technical:
+    dax_name: Complaint Count
+    depends_on_measures: []
+    lineage:
+    - fact_complaint.ComplaintID
+  governance:
+    business_owner: Head of Customer Service
+    data_owner: Service BI
+    steward: Service Quality Analyst
+    review_cycle: monthly
+    validation_process: manual review
+    qa_rules:
+    - Complaints reconciled to service desk reports
+    version: v0.1
+  metadata_quality:
+    completeness_score: 0.8
+    last_review: 19.11.2025
+
 - kpi_id: crm.retention.pct
   kpi_key: Customer Retention %
-  kpi_type: strategic
+  kpi_type: percentage
+  kpi_role: strategic
   impact_dimension: customer
   domain_tag:
   - Customer & Market
@@ -46,7 +148,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 - kpi_id: crm.nps.index
   kpi_key: Net Promoter Score (NPS)
-  kpi_type: strategic
+  kpi_type: index
+  kpi_role: strategic
   impact_dimension: Customer
   domain_tag:
   - Customer & Market
@@ -81,7 +184,6 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.95
     last_review: 12.10.2025
-
 ```
 
 ## KPIs - Supporting / Diagnostic
@@ -89,7 +191,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 ```yaml
 - kpi_id: crm.churned_customers.count
   kpi_key: Churned Customers
-  kpi_type: supporting
+  kpi_type: count
+  kpi_role: supporting
   impact_dimension: Customer
   domain_tag:
   - Customer & Market
@@ -118,40 +221,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     completeness_score: 0.8
     last_review: 04.11.2025
 
-- kpi_id: crm.clv.amount
-  kpi_key: CLV (Customer Lifetime Value)
-  kpi_type: diagnostic
-  impact_dimension: Customer
-  domain_tag:
-  - Customer & Market
-  use_case_ref: []
-  calc_type: amount
-  business:
-    purpose: Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
-    definition: Sum of expected future gross margin per customer discounted over the chosen time horizon.
-    grain_scope: Customer level; calculated on cohort or segment basis.
-    unit_format: EUR (2 decimals)
-    interpretation: Higher CLV indicates more valuable segments; compare against acquisition cost and churn risk.
-  technical:
-    dax_name: CLV
-    depends_on_measures: []
-    lineage: []
-  governance:
-    business_owner: Head of CRM / Marketing Analytics
-    data_owner: CRM BI
-    steward: Customer Insights Analyst
-    review_cycle: quarterly
-    validation_process: manual review
-    qa_rules:
-    - Reconciles to CLV model outputs within an agreed tolerance
-    version: v1.0
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
-
 - kpi_id: crm.lifetime_revenue.amount
   kpi_key: Customer Lifetime Revenue Amount
-  kpi_type: supporting
+  kpi_type: amount
+  kpi_role: supporting
   impact_dimension: Customer
   domain_tag:
   - Customer & Market
@@ -183,43 +256,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     completeness_score: 0.8
     last_review: 04.11.2025
 
-- kpi_id: crm.revenue_at_risk.amount
-  kpi_key: Revenue at Risk Amount
-  kpi_type: diagnostic
-  impact_dimension: Customer
-  domain_tag:
-  - Customer & Market
-  use_case_ref:
-  - COM-003
-  calc_type: amount
-  business:
-    purpose: Quantify revenue exposure from customers flagged as churn-risk.
-    definition: CLV Remaining Amount * Attrition Risk %.
-    grain_scope: Customer/segment; monthly.
-    unit_format: EUR (0 decimals)
-    interpretation: Higher values indicate more revenue at risk; prioritize retention actions.
-  technical:
-    dax_name: Revenue at Risk Amount
-    depends_on_measures: []
-    lineage:
-    - fact_customer_value.CLV Remaining Amount
-    - fact_customer_events.Attrition Risk %
-  governance:
-    business_owner: Head of Marketing
-    data_owner: CRM BI
-    steward: Customer Insights Analyst
-    review_cycle: quarterly
-    validation_process: manual review
-    qa_rules:
-    - At-risk revenue reconciles to CLV remaining and attrition risk inputs within +/- 1 %
-    version: v1.0
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
-
 - kpi_id: crm.active_customers.count
   kpi_key: Active Customers
-  kpi_type: supporting
+  kpi_type: count
+  kpi_role: supporting
   impact_dimension: Customer
   domain_tag:
   - Customer & Market
@@ -248,42 +288,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     completeness_score: 0.8
     last_review: 04.11.2025
 
-- kpi_id: crm.complaint.count
-  kpi_key: Complaint Count
-  kpi_type: supporting
-  impact_dimension: Customer
-  domain_tag:
-  - Customer & Market
-  use_case_ref:
-  - CST-007
-  calc_type: count
-  business:
-    purpose: Provide the absolute number of logged complaints.
-    definition: Count of complaint records in the complaint/service system.
-    grain_scope: Complaint / ticket; aggregated to org / channel / product / period.
-    unit_format: count
-    interpretation: Higher values indicate more issues; interpret with Complaint Rate % to normalize by volume.
-  technical:
-    dax_name: Complaint Count
-    depends_on_measures: []
-    lineage:
-    - fact_complaint.ComplaintID
-  governance:
-    business_owner: Head of Customer Service
-    data_owner: Service BI
-    steward: Service Quality Analyst
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules:
-    - Complaints reconciled to service desk reports
-    version: v0.1
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 19.11.2025
-
 - kpi_id: crm.complaint.rate.pct
   kpi_key: Complaint Rate %
   kpi_type: diagnostic
+  kpi_role: supporting
   impact_dimension: Customer
   domain_tag:
   - Customer & Market
@@ -314,5 +322,4 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   metadata_quality:
     completeness_score: 0.8
     last_review: 19.11.2025
-
 ```
