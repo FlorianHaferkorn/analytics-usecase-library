@@ -1,4 +1,4 @@
-﻿# Archived KPIs - KPI_Catalog_InnovationPeople  ```yaml
+# Archived KPIs - KPI_Catalog_InnovationPeople  ```yaml
 - kpi_id: people.innovation_rate.pct
   kpi_key: Innovation Rate %
   kpi_type: strategic
@@ -65,7 +65,7 @@
     review_cycle: annual
     validation_process: manual review
     qa_rules:
-    - Survey participation ≥ 70 %
+    - Survey participation = 70 %
     version: v2.0
   metadata_quality:
     completeness_score: 0.95
@@ -460,40 +460,6 @@
     validation_process: reconciled against Finance revenue totals
     qa_rules:
     - Revenue reconciles to Finance P&L innerhalb +/- 0,5 %
-    version: v1.0
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 06.11.2025
-
-
-- kpi_id: hr.gm.amount
-  kpi_key: Gross Margin Amount
-  kpi_type: supporting
-  impact_dimension: profitability
-  domain_tag:
-  - Corporate & Strategy
-  use_case_ref:
-  - COR-002
-  calc_type: amount
-  business:
-    purpose: Provide gross margin as input for workforce productivity analysis.
-    definition: Sum of gross margin amount for the selected period and organizational slice.
-    grain_scope: Org / department; monthly or quarterly closing.
-    unit_format: EUR
-    interpretation: Used for Gross Margin per FTE and related KPIs; interpret primarily in combination with FTE and revenue.
-  technical:
-    dax_name: Gross Margin Amount
-    depends_on_measures: []
-    lineage:
-    - fact_financials.GrossMarginAmount
-  governance:
-    business_owner: Head of Finance Controlling
-    data_owner: People Analytics
-    steward: HR Analyst
-    review_cycle: quarterly
-    validation_process: reconciled against Finance gross margin totals
-    qa_rules:
-    - Gross margin reconciles to Finance P&L innerhalb +/- 0,5 %
     version: v1.0
   metadata_quality:
     completeness_score: 0.8

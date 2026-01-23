@@ -17,10 +17,13 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   use_case_ref:
   - COM-001
   - COM-002
+  - COM-003
   - COM-004
-  - COM-006
-  - COR-004
-  action_code_ref: []
+  - XD-003
+  action_code_ref:
+  - C-M2.1
+  - C-M2.2
+  - C-S1.1
   calc_type: ratio
   business:
     purpose: Provide the Gross Margin % used in commercial and management reporting at the same granularity as Net Sales.
@@ -57,8 +60,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Commercial
   use_case_ref:
+  - COM-002
   - COM-003
-  action_code_ref: []
+  - COM-004
+  action_code_ref:
+  - C-P4.1
   calc_type: ratio
   business:
     purpose: Measures profitability of promotions relative to spend.
@@ -97,8 +103,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Commercial
   use_case_ref:
+  - COM-002
   - COM-003
-  action_code_ref: []
+  - COM-004
+  action_code_ref:
+  - C-P4.1
   calc_type: ratio
   business:
     purpose: Gross margin rate during promo periods.
@@ -206,7 +215,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Corporate & Strategy
   use_case_ref:
   - FIN-002
-  action_code_ref: []
+  action_code_ref:
+  - F-K2.2
   calc_type: rate
   business:
     purpose: Shows material cost share of net sales.
@@ -240,7 +250,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Corporate & Strategy
   use_case_ref:
   - FIN-002
-  action_code_ref: []
+  action_code_ref:
+  - F-K2.4
   calc_type: rate
   business:
     purpose: Measures OpEx variance versus plan.
@@ -274,7 +285,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Corporate & Strategy
   use_case_ref:
   - FIN-002
-  action_code_ref: []
+  action_code_ref:
+  - F-K2.1
+  - F-K2.2
+  - F-K2.3
+  - F-K2.4
   calc_type: ratio
   business:
     purpose: Measures total cost per unit produced or sold.
@@ -308,7 +323,6 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Commercial
   use_case_ref:
   - COM-002
-  - COM-003
   action_code_ref: []
   calc_type: ratio
   business:
@@ -351,9 +365,13 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Commercial
   use_case_ref:
+  - COM-001
   - COM-002
+  - COM-003
   - COM-004
-  action_code_ref: []
+  action_code_ref:
+  - C-M2.1
+  - C-M2.2
   calc_type: amount
   business:
     purpose: Absolute gross margin in currency.
@@ -383,41 +401,6 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   aliases:
   - hr.gm.amount
 
-- kpi_id: hr.gm.amount
-  kpi_key: Gross Margin Amount
-  kpi_type: amount
-  kpi_role: supporting
-  impact_dimension: Profitability
-  domain_tag:
-  - Corporate & Strategy
-  use_case_ref:
-  - COR-002
-  action_code_ref: []
-  calc_type: amount
-  business:
-    purpose: Provide gross margin as input for workforce productivity analysis.
-    definition: Sum of gross margin amount for the selected period and organizational slice.
-    grain_scope: Org / department; monthly or quarterly closing.
-    unit_format: EUR
-    interpretation: Used for Gross Margin per FTE and related KPIs; interpret primarily in combination with FTE and revenue.
-  technical:
-    dax_name: Gross Margin Amount
-    depends_on_measures: []
-    lineage:
-    - fact_financials.GrossMarginAmount
-  governance:
-    business_owner: Head of Finance Controlling
-    data_owner: People Analytics
-    steward: HR Analyst
-    review_cycle: quarterly
-    validation_process: reconciled against Finance gross margin totals
-    qa_rules:
-    - Gross margin reconciles to Finance P&L innerhalb +/- 0,5 %
-    version: v1.0
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 06.11.2025
-
 - kpi_id: sales.promo.incremental.amount
   kpi_key: Incremental Sales Amount
   kpi_type: diagnostic
@@ -426,8 +409,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Commercial
   use_case_ref:
+  - COM-002
   - COM-003
-  action_code_ref: []
+  - COM-004
+  action_code_ref:
+  - C-P4.1
   calc_type: amount
   business:
     purpose: Additional sales due to promotion.
@@ -464,8 +450,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Commercial
   use_case_ref:
-  - COM-002
-  action_code_ref: []
+  - FIN-002
+  action_code_ref:
+  - F-K2.1
   calc_type: rate
   business:
     purpose: Shows cost share relative to net sales.
@@ -533,9 +520,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Finance
   use_case_ref:
   - FIN-002
-  - OPS-001
-  - OPS-002
-  action_code_ref: []
+  action_code_ref:
+  - F-K2.1
+  - F-K2.2
   calc_type: amount
   business:
     purpose: Baseline cost volume used for variance analysis.
@@ -567,9 +554,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Finance
   use_case_ref:
-  - FIN-001
   - FIN-002
-  action_code_ref: []
+  action_code_ref:
+  - F-K2.4
   calc_type: amount
   business:
     purpose: Baseline operating expense amount for variance tracking.

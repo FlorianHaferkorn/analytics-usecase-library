@@ -14,7 +14,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   impact_dimension: Customer
   domain_tag:
   - Customer & Market
-  use_case_ref: []
+  use_case_ref:
+  - COM-003
+  - XD-003
   action_code_ref: []
   calc_type: amount
   business:
@@ -84,7 +86,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Customer & Market
   use_case_ref:
-  - CST-007
+  - COM-003
   action_code_ref: []
   calc_type: count
   business:
@@ -119,7 +121,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Customer & Market
   use_case_ref:
-  - CST-001
+  - COM-003
   action_code_ref: []
   calc_type: rate
   business:
@@ -158,7 +160,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Customer & Market
   use_case_ref:
-  - CST-005
+  - COM-003
   action_code_ref: []
   calc_type: rate
   business:
@@ -166,7 +168,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: (%Promoters - %Detractors) from survey responses in the period.
     grain_scope: Survey response aggregated by period, segment, or region.
     unit_format: Index (-100 to 100)
-    interpretation: >0 is positive, >50 strong advocacy; track trend and segment gaps.
+    interpretation: '>0 is positive, >50 strong advocacy; track trend and segment gaps.'
   technical:
     dax_name: NPS Score
     depends_on_measures:
@@ -201,7 +203,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   impact_dimension: Customer
   domain_tag:
   - Customer & Market
-  use_case_ref: []
+  use_case_ref:
+  - COM-003
   action_code_ref: []
   calc_type: count
   business:
@@ -270,7 +273,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   impact_dimension: Customer
   domain_tag:
   - Customer & Market
-  use_case_ref: []
+  use_case_ref:
+  - COM-003
   action_code_ref: []
   calc_type: count
   business:
@@ -296,39 +300,4 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     completeness_score: 0.8
     last_review: 04.11.2025
 
-- kpi_id: crm.complaint.rate.pct
-  kpi_key: Complaint Rate %
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: Customer
-  domain_tag:
-  - Customer & Market
-  use_case_ref:
-  - CST-007
-  action_code_ref: []
-  calc_type: rate
-  business:
-    purpose: Measure complaints relative to delivered orders or customers.
-    definition: Complaint Count divided by total orders (or customers) in period.
-    grain_scope: Org / channel / product; monthly.
-    unit_format: '% (1 decimal)'
-    interpretation: Higher complaint rate indicates quality or service issues; target is typically to reduce over time.
-  technical:
-    dax_name: Complaint Rate %
-    depends_on_measures: []
-    lineage:
-    - fact_complaint.ComplaintCount
-    - fact_sales.OrdersCount
-  governance:
-    business_owner: Head of Customer Service
-    data_owner: Service BI
-    steward: Service Quality Analyst
-    review_cycle: monthly
-    validation_process: manual review
-    qa_rules:
-    - Complaint categorization and severity mapping documented
-    version: v0.1
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 19.11.2025
 ```

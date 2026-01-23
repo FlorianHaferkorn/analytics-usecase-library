@@ -22,7 +22,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Corporate & Strategy
   use_case_ref:
   - XD-003
-  action_code_ref: []
+  action_code_ref:
+  - X-E3.2
   calc_type: ratio
   business:
     purpose: Aggregates downside risk across domains into a single index.
@@ -55,7 +56,6 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Supply Chain
   use_case_ref:
   - FIN-001
-  - SCM-002
   action_code_ref: []
   calc_type: ratio
   business:

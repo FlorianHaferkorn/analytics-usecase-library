@@ -39,6 +39,29 @@ function Get-KpiBlocks {
   }
 }
 
+$entryRegex = '(?ms)^\s*-\s*kpi_id\s*:\s*.*?(?=^\s*-\s*kpi_id\s*:|\z)'
+
+function Has-NonEmptyList {
+  param([string]$Entry,[string]$Key)
+  $emptyInline = [regex]::Match($Entry, "(?m)^\s*$Key\s*:\s*\[\s*\]\s*$")
+  if ($emptyInline.Success) { return $false }
+  $inline = [regex]::Match($Entry, "(?m)^\s*$Key\s*:\s*\[(?<inner>[^\]]*)\]")
+  if ($inline.Success) {
+    $inner = $inline.Groups['inner'].Value
+    if ($inner -match '\S') { return $true }
+    return $false
+  }
+  $block = [regex]::Match($Entry, "(?m)^\s*$Key\s*:\s*$")
+  if ($block.Success) {
+    $items = [regex]::Matches($Entry, "(?m)^\s{2,}-\s*(\S+)")
+    foreach ($m in $items) {
+      if ($m.Groups[1].Value -notmatch '^kpi_id\s*:') { return $true }
+    }
+    return $false
+  }
+  return $false
+}
+
 $errors = @(); $warnings = @(); $seenIds = @{}
 
 # Path to Use Case FactSheets (for required KPI IDs)
@@ -130,54 +153,62 @@ Get-ChildItem -Path $resolvedCatalogRoot -Filter '*.md' | Where-Object { $_.Name
 
 Get-KpiBlocks -Root $resolvedCatalogRoot | ForEach-Object {
   $file = $_.File; $b = $_.Block
-  $id  = ([regex]::Match($b, 'kpi_id\s*:\s*"([^"]+)"')).Groups[1].Value
-  $typ = ([regex]::Match($b, 'kpi_type\s*:\s*"([^"]+)"')).Groups[1].Value.ToLower()
-  $calc= ([regex]::Match($b, 'calc_type\s*:\s*"([^"]+)"')).Groups[1].Value.ToLower()
-  $impact = ([regex]::Match($b, 'impact_dimension\s*:\s*"([^"]+)"')).Groups[1].Value.ToLower()
-  $hasBiz = $b -match '(?m)^\s*business\s*:\s*'
-  $hasTec = $b -match '(?m)^\s*technical\s*:\s*'
-  $hasGov = $b -match '(?m)^\s*governance\s*:\s*'
-  $bizPurpose = $b -match '(?m)^\s*purpose\s*:\s*"'
-  $bizDef     = $b -match '(?m)^\s*definition\s*:\s*"'
-  $bizGrain   = $b -match '(?m)^\s*grain_scope\s*:\s*"'
-  $bizUnit    = $b -match '(?m)^\s*unit_format\s*:\s*"'
-  $tecName    = $b -match '(?m)^\s*dax_name\s*:\s*"'
-  $tecFmt     = $b -match '(?m)^\s*formatString\s*:\s*"'
-  $tecDesc    = $b -match '(?m)^\s*description\s*:\s*"'
-  $govBOwner  = $b -match '(?m)^\s*business_owner\s*:\s*"'
-  $govDOwner  = $b -match '(?m)^\s*data_owner\s*:\s*"'
-  $domTagOk   = $b -match '(?m)^\s*domain_tag\s*:\s*\[[^\]]*\]'
-  if (-not $id) { return }
-  if ($seenIds.ContainsKey($id)) { $errors += "duplicate kpi_id: $id ($file)" } else { $seenIds[$id]=$true }
-  if ($typ -and ($allowedTypes -notcontains $typ)) { $errors += "invalid kpi_type '$typ' for $id ($file)" }
-  if ($calc -and ($allowedCalc -notcontains $calc)) { $errors += "invalid calc_type '$calc' for $id ($file)" }
-  if ($impact -and ($allowedImpact -notcontains $impact)) { $errors += "invalid impact_dimension '$impact' for $id ($file)" }
-  if (-not $domTagOk) { $warnings += "missing or invalid domain_tag for $id ($file)" }
-  $requireFull = ($typ -eq 'strategic') -or ($requiredSet.Contains($id))
-  if ($requireFull) {
-    if (-not $hasBiz) { $errors += "missing business block for $id ($file)" }
-    if (-not $hasTec) { $errors += "missing technical block for $id ($file)" }
-    if (-not $hasGov) { $errors += "missing governance block for $id ($file)" }
-    if ($hasBiz -and (-not ($bizPurpose -and $bizDef -and $bizGrain -and $bizUnit))) { $errors += "incomplete business block for $id ($file)" }
-    if ($hasTec -and (-not ($tecName -and $tecFmt -and $tecDesc))) { $errors += "incomplete technical block for $id ($file)" }
-    if ($hasGov -and (-not ($govBOwner -and $govDOwner))) { $errors += "incomplete governance block for $id ($file)" }
-  } else {
-    if (-not $hasTec) { $warnings += "technical block recommended for $id ($file)" }
-    if (-not $hasBiz) { $warnings += "business block recommended for $id ($file)" }
-    if (-not $hasGov) { $warnings += "governance block recommended for $id ($file)" }
-  }
-  if ($id -notmatch $idRegex) { $errors += "invalid kpi_id format: $id ($file)" }
+  foreach ($entry in [regex]::Matches($b, $entryRegex)) {
+    $chunk = $entry.Value
+    $id  = ([regex]::Match($chunk, 'kpi_id\s*:\s*([^\s]+)')).Groups[1].Value
+    if (-not $id) { continue }
+    $typ = ([regex]::Match($chunk, 'kpi_type\s*:\s*([^\s]+)')).Groups[1].Value.ToLower()
+    $calc= ([regex]::Match($chunk, 'calc_type\s*:\s*([^\s]+)')).Groups[1].Value.ToLower()
+    $impact = ([regex]::Match($chunk, 'impact_dimension\s*:\s*([^\s]+)')).Groups[1].Value.ToLower()
+    $hasBiz = $chunk -match '(?m)^\s*business\s*:\s*'
+    $hasTec = $chunk -match '(?m)^\s*technical\s*:\s*'
+    $hasGov = $chunk -match '(?m)^\s*governance\s*:\s*'
+    $bizPurpose = $chunk -match '(?m)^\s*purpose\s*:\s*"'
+    $bizDef     = $chunk -match '(?m)^\s*definition\s*:\s*"'
+    $bizGrain   = $chunk -match '(?m)^\s*grain_scope\s*:\s*"'
+    $bizUnit    = $chunk -match '(?m)^\s*unit_format\s*:\s*"'
+    $tecName    = $chunk -match '(?m)^\s*dax_name\s*:\s*"'
+    $tecFmt     = $chunk -match '(?m)^\s*formatString\s*:\s*"'
+    $tecDesc    = $chunk -match '(?m)^\s*description\s*:\s*"'
+    $govBOwner  = $chunk -match '(?m)^\s*business_owner\s*:\s*"'
+    $govDOwner  = $chunk -match '(?m)^\s*data_owner\s*:\s*"'
+    $domTagOk   = $chunk -match '(?m)^\s*domain_tag\s*:\s*\[[^\]]*\]'
 
-  # Composite dependency integrity
-  $hasDepends = $b -match '(?m)^\s*depends_on\s*:\s*\[(?<inner>[^\]]*)\]'
-  $hasDependsIds = $b -match '(?m)^\s*depends_on_ids\s*:\s*\[(?<inner>[^\]]*)\]'
-  if ($hasDepends) {
-    if (-not $hasDependsIds) { $warnings += "missing depends_on_ids for $id ($file)" }
-    else {
-      foreach($mm in [regex]::Matches($b,'(?m)^\s*depends_on_ids\s*:\s*\[(?<inner>[^\]]*)\]')){
-        foreach($q in [regex]::Matches($mm.Groups['inner'].Value,'"([^"]+)"')){
-          $depId = $q.Groups[1].Value
-          if(-not $allIds.Contains($depId)){ $errors += "depends_on_ids references unknown id '$depId' for $id ($file)" }
+    if ($seenIds.ContainsKey($id)) { $errors += "duplicate kpi_id: $id ($file)" } else { $seenIds[$id]=$true }
+    if ($typ -and ($allowedTypes -notcontains $typ)) { $errors += "invalid kpi_type '$typ' for $id ($file)" }
+    if ($calc -and ($allowedCalc -notcontains $calc)) { $errors += "invalid calc_type '$calc' for $id ($file)" }
+    if ($impact -and ($allowedImpact -notcontains $impact)) { $errors += "invalid impact_dimension '$impact' for $id ($file)" }
+    if (-not $domTagOk) { $warnings += "missing or invalid domain_tag for $id ($file)" }
+    $requireFull = ($typ -eq 'strategic') -or ($requiredSet.Contains($id))
+    if ($requireFull) {
+      if (-not $hasBiz) { $errors += "missing business block for $id ($file)" }
+      if (-not $hasTec) { $errors += "missing technical block for $id ($file)" }
+      if (-not $hasGov) { $errors += "missing governance block for $id ($file)" }
+      if ($hasBiz -and (-not ($bizPurpose -and $bizDef -and $bizGrain -and $bizUnit))) { $errors += "incomplete business block for $id ($file)" }
+      if ($hasTec -and (-not ($tecName -and $tecFmt -and $tecDesc))) { $errors += "incomplete technical block for $id ($file)" }
+      if ($hasGov -and (-not ($govBOwner -and $govDOwner))) { $errors += "incomplete governance block for $id ($file)" }
+    } else {
+      if (-not $hasTec) { $warnings += "technical block recommended for $id ($file)" }
+      if (-not $hasBiz) { $warnings += "business block recommended for $id ($file)" }
+      if (-not $hasGov) { $warnings += "governance block recommended for $id ($file)" }
+    }
+    if ($id -notmatch $idRegex) { $errors += "invalid kpi_id format: $id ($file)" }
+
+    $hasUse = Has-NonEmptyList -Entry $chunk -Key 'use_case_ref'
+    $hasAct = Has-NonEmptyList -Entry $chunk -Key 'action_code_ref'
+    if (-not ($hasUse -or $hasAct)) { $errors += "use_case_ref and action_code_ref both empty for $id ($file)" }
+
+    # Composite dependency integrity
+    $hasDepends = $chunk -match '(?m)^\s*depends_on\s*:\s*\[(?<inner>[^\]]*)\]'
+    $hasDependsIds = $chunk -match '(?m)^\s*depends_on_ids\s*:\s*\[(?<inner>[^\]]*)\]'
+    if ($hasDepends) {
+      if (-not $hasDependsIds) { $warnings += "missing depends_on_ids for $id ($file)" }
+      else {
+        foreach($mm in [regex]::Matches($chunk,'(?m)^\s*depends_on_ids\s*:\s*\[(?<inner>[^\]]*)\]')){
+          foreach($q in [regex]::Matches($mm.Groups['inner'].Value,'"([^"]+)"')){
+            $depId = $q.Groups[1].Value
+            if(-not $allIds.Contains($depId)){ $errors += "depends_on_ids references unknown id '$depId' for $id ($file)" }
+          }
         }
       }
     }

@@ -1,0 +1,13 @@
+Scope check summary
+- Total KPIs in catalogs: 108
+- Direct Use Case KPIs (A): 104
+- Action Codes in Core Use Cases (from map + YAML): 51
+- KPIs used by Action Codes in core use cases (C): 79
+- Included (A ? C): 107
+- Outside scope: 4
+
+Outside scope (not in A or C)
+- crm.complaint.rate.pct [C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_CustomerValue.md]
+- fin.liquidity.operating_cash_flow [C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Liquidity.md]
+- hr.gm.amount [C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md]
+- ops.inventory.turnover [C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md]

@@ -17,7 +17,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   use_case_ref:
   - XD-001
   - XD-002
-  action_code_ref: []
+  - XD-003
+  action_code_ref:
+  - X-S1.1
+  - X-S1.2
+  - X-S1.4
   calc_type: ratio
   business:
     purpose: Measures how many cases meet the committed SLA.
@@ -54,7 +58,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Service & Experience
   use_case_ref:
   - XD-001
-  action_code_ref: []
+  action_code_ref:
+  - X-S1.3
   calc_type: ratio
   business:
     purpose: Shows the share of cases solved on first contact.
@@ -91,7 +96,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Service & Experience
   use_case_ref:
   - XD-001
-  action_code_ref: []
+  action_code_ref:
+  - X-S1.4
   calc_type: ratio
   business:
     purpose: Measures average time to handle a contact.
@@ -129,7 +135,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   use_case_ref:
   - XD-001
   - XD-002
-  action_code_ref: []
+  action_code_ref:
+  - X-S1.1
+  - X-S1.2
   calc_type: count
   business:
     purpose: Quantifies unresolved work in queue.
@@ -201,7 +209,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Service & Experience
   use_case_ref:
   - XD-001
-  action_code_ref: []
+  action_code_ref:
+  - X-S1.1
+  - X-S1.3
   calc_type: ratio
   business:
     purpose: Measures frequency of escalated cases.
@@ -238,7 +248,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Service & Experience
   use_case_ref:
   - XD-002
-  action_code_ref: []
+  action_code_ref:
+  - X-R2.1
+  - X-R2.2
+  - X-R2.3
+  - X-R2.4
   calc_type: ratio
   business:
     purpose: Measures productive time versus paid time for agents.
@@ -275,7 +289,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Service & Experience
   use_case_ref:
   - XD-002
-  action_code_ref: []
+  action_code_ref:
+  - X-R2.1
+  - X-R2.2
   calc_type: ratio
   business:
     purpose: Measures active vs idle share of time.
@@ -313,7 +329,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Service & Experience
   use_case_ref:
   - XD-002
-  action_code_ref: []
+  action_code_ref:
+  - X-R2.1
+  - X-R2.4
   calc_type: ratio
   business:
     purpose: Shows overtime share of total hours.
@@ -350,7 +368,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Service & Experience
   use_case_ref:
   - XD-002
-  action_code_ref: []
+  action_code_ref:
+  - X-R2.3
   calc_type: ratio
   business:
     purpose: Measures non-productive share of paid time.
@@ -393,7 +412,13 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   use_case_ref:
   - XD-001
   - XD-002
-  action_code_ref: []
+  action_code_ref:
+  - X-R2.1
+  - X-R2.2
+  - X-R2.3
+  - X-R2.4
+  - X-S1.1
+  - X-S1.2
   calc_type: count
   business:
     purpose: Counts customer service tickets created in the period.
@@ -426,8 +451,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Service & Experience
   use_case_ref:
   - XD-001
-  - XD-002
-  action_code_ref: []
+  action_code_ref:
+  - X-S1.3
+  - X-S1.4
   calc_type: count
   business:
     purpose: Counts customer service tickets closed in the period.

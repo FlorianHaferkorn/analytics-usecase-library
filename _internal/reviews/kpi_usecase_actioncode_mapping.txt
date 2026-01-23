@@ -1,0 +1,108 @@
+KPI -> Use Case/Action Code mapping (A/C, Use Case IDs include Action Code usage)
+
+Columns: kpi_id | use_case_ids(A or via Action Codes) | action_codes(C) | catalogs
+
+cost.base_volume.amount | FIN-002 | F-K2.1, F-K2.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+cost.cogs_per_unit.amount | COM-002 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+cost.material.pct | FIN-002 | F-K2.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+cost.opex.base.amount | FIN-002 | F-K2.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+cost.opex.vs_plan.pct | FIN-002 | F-K2.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+cost.unit.amount | FIN-002 | F-K2.1, F-K2.2, F-K2.3, F-K2.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+crm.active_customers.count | COM-003 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_CustomerValue.md
+crm.churned_customers.count | COM-003 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_CustomerValue.md
+crm.clv.amount | COM-003, XD-003 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_CustomerValue.md
+crm.complaint.count | COM-003 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_CustomerValue.md
+crm.lifetime_revenue.amount | COM-003 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_CustomerValue.md
+crm.nps.index | COM-003 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_CustomerValue.md
+crm.retention.pct | COM-003 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_CustomerValue.md
+crm.revenue_at_risk.amount | COM-003 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_CustomerValue.md
+enterprise.action_outcome_rate.pct | XD-003 | X-E3.3 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Governance.md
+enterprise.action_routed.count | XD-003 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Governance.md
+enterprise.value_at_risk.index | XD-003 | X-E3.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Risk.md
+fin.cash.balance | FIN-001 | F-C1.1, F-C1.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Liquidity.md
+fin.cash.ocf | FIN-001 | F-C1.2, F-C1.3, F-C1.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Liquidity.md
+fin.cash.vs_plan.pct | FIN-001 | F-C1.1 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Liquidity.md
+inv.dio.days | SCM-001 | S-I1.1, S-I1.2, S-I1.4, S-I1.5 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+inv.obsolete.pct | SCM-001 | S-I1.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+inv.stockout.pct | SCM-001 | S-I1.1, S-I1.3, S-I1.5 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+inv.turnover | SCM-001 | S-I1.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+margin.cogs.pct | FIN-002 | F-K2.1 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+margin.gm.amount | COM-001, COM-002, COM-003, COM-004 | C-M2.1, C-M2.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+margin.gm.pct | COM-001, COM-002, COM-003, COM-004, XD-003 | C-M2.1, C-M2.2, C-S1.1 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+margin.gm.vs_plan.pct | COM-002 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+margin.promo.gm.pct | COM-002, COM-003, COM-004 | C-P4.1 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+ops.availability.pct | OPS-001, OPS-002 | O-A2.1, O-A2.3, O-O1.1 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.downtime.pct | OPS-001 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.downtime.unplanned.pct | OPS-002 | O-A2.1, O-A2.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.failure.count | OPS-002 | O-A2.2, O-A2.3, O-A2.5 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.inventory.value.amount | OPS-002 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.labor.productivity.pct | FIN-002 | F-K2.3 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.mtbf.hours | OPS-002 | O-A2.2, O-A2.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.mttr.hours | OPS-002 | O-A2.3, O-A2.5 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.oee.pct | OPS-001 | O-O1.1, O-O1.3, O-O1.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.otif.pct | XD-003 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.performance.pct | OPS-001 | O-O1.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.planned_output.units | OPS-001, OPS-003 | O-O1.4, O-Q3.1, O-Q3.2, O-Q3.3 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.pm.task.count | OPS-002 | O-A2.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.pm_compliance.pct | OPS-002 | O-A2.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.production.volume | FIN-002 | F-K2.3 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.quality.defect_rate.pct | FIN-002 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.quality.pct | OPS-001 | O-O1.3 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.safety.incident.count | OPS-002 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.service_level.pct | FIN-002 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.spare_parts.stockout.pct | OPS-002 | O-A2.5 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.throughput.units | OPS-001 | O-O1.2, O-O1.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.working_capital.ccc.days | XD-003 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+ops.yield.pct | FIN-002 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+order.lines | SCM-002, SCM-003 | S-F3.3, S-R2.3 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+people.attrition_risk.pct | XD-003 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_InnovationPeople.md
+people.digital_adoption.pct | XD-003 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_InnovationPeople.md
+plan.forecast.accuracy.pct | SCM-001, SCM-003 | S-F3.1, S-F3.2, S-F3.4, S-I1.5 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+plan.forecast.bias.pct | SCM-003 | S-F3.1, S-F3.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+plan.forecast.mape.pct | SCM-003 | S-F3.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+plan.forecast.service_impact.pct | SCM-003 | S-F3.3 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+plan.replan.count | SCM-003 | S-F3.1, S-F3.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+plans.count | SCM-003 | S-F3.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+profit.gross_margin | COM-002 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+quality.complaint.pct | OPS-003 | O-Q3.5 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+quality.copq.amount | OPS-003 | O-Q3.4, O-Q3.5 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+quality.defect_density | OPS-003 | O-Q3.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+quality.fpy.pct | OPS-003 | O-Q3.1, O-Q3.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+quality.rework.pct | OPS-003 | O-Q3.1, O-Q3.3 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+quality.scrap.pct | OPS-003 | O-Q3.1, O-Q3.3, O-Q3.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+res.occupancy.pct | XD-002 | X-R2.1, X-R2.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Service.md
+res.overtime.pct | XD-002 | X-R2.1, X-R2.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Service.md
+res.shrinkage.pct | XD-002 | X-R2.3 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Service.md
+res.utilization.pct | XD-002 | X-R2.1, X-R2.2, X-R2.3, X-R2.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Service.md
+sales.net_sales.amount | COM-001, COM-002, COM-003, COM-004 | C-S1.1, C-S1.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Growth.md
+sales.net_sales.delta_pct.ly | COM-001, XD-003 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Growth.md
+sales.net_sales.delta_pct.plan | COM-001, COM-002, COM-003, COM-004 | C-S1.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Growth.md
+sales.price.realization_pct | COM-001, COM-002, COM-004 | C-M2.1 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Growth.md
+sales.promo.cannibalization.pct | COM-004 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+sales.promo.incremental.amount | COM-002, COM-003, COM-004 | C-P4.1 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+sales.promo.roi.pct | COM-002, COM-003, COM-004 | C-P4.1 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+sales.pvm.mix_effect.amount | COM-001, COM-002, COM-003, COM-004 | C-M2.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Growth.md
+sales.pvm.price_effect.amount | COM-001, COM-004 | C-S1.1 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Growth.md
+sales.pvm.volume_effect.amount | COM-001 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Growth.md
+sales.units | OPS-003, SCM-001, SCM-003 | O-Q3.5, S-F3.1, S-F3.2, S-I1.1, S-I1.2, S-I1.3, S-I1.5 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Growth.md
+scm.service_level.pct | FIN-001 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+scm.supplier_risk.score | FIN-001 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Risk.md
+shipments.count | SCM-002 | S-R2.1, S-R2.2, S-R2.4, S-R2.5 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+supply.expedite.amount | SCM-002 | S-R2.4, S-R2.5 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+supply.in_full.pct | SCM-002 | S-R2.1, S-R2.3 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+supply.on_time.pct | SCM-002 | S-R2.1, S-R2.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+supply.otif.pct | SCM-001, SCM-002, SCM-003 | S-F3.3, S-I1.1, S-I1.3, S-R2.1, S-R2.2, S-R2.5 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+supply.penalty.amount | SCM-002 | S-R2.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+supply.stockout_impact.pct | SCM-002 | S-R2.3 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+svc.aht.minutes | XD-001 | X-S1.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Service.md
+svc.backlog.count | XD-001, XD-002 | X-S1.1, X-S1.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Service.md
+svc.escalation.pct | XD-001 | X-S1.1, X-S1.3 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Service.md
+svc.fcr.pct | XD-001 | X-S1.3 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Service.md
+svc.nps.index | XD-001 |  | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Service.md
+svc.sla.attainment.pct | XD-001, XD-002, XD-003 | X-S1.1, X-S1.2, X-S1.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Service.md
+svc.tickets.closed.count | XD-001 | X-S1.3, X-S1.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Service.md
+svc.tickets.created.count | XD-001, XD-002 | X-R2.1, X-R2.2, X-R2.3, X-R2.4, X-S1.1, X-S1.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Service.md
+wc.ccc.days | FIN-001 | F-C1.1 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Liquidity.md
+wc.dio.days | FIN-001 | F-C1.3 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Liquidity.md
+wc.dpo.days | FIN-001 | F-C1.4 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Liquidity.md
+wc.dso.days | FIN-001 | F-C1.2 | C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Liquidity.md

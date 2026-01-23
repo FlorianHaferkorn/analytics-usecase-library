@@ -13,18 +13,14 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
 
 ```yaml
 - kpi_id: people.digital_adoption.pct
-
   kpi_key: Digital Adoption Rate %
-
   kpi_type: percentage
-
   kpi_role: strategic
-
   impact_dimension: Innovation & People
   domain_tag:
   - Corporate & Strategy
   use_case_ref:
-  - INN-002
+  - XD-003
   action_code_ref: []
   calc_type: ratio
   business:

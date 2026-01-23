@@ -16,6 +16,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Governance
   use_case_ref:
   - XD-003
+  action_code_ref:
+  - X-E3.3
   calc_type: rate
   business:
     purpose: Measures share of actions that achieved the intended outcome.
@@ -52,6 +54,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Governance
   use_case_ref:
   - XD-003
+  action_code_ref: []
   calc_type: count
   business:
     purpose: Counts action codes routed for execution.

@@ -17,8 +17,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   use_case_ref:
   - COM-001
   - COM-002
-  - COM-003
-  action_code_ref: []
+  - COM-004
+  action_code_ref:
+  - C-M2.1
   calc_type: rate
   business:
     purpose: Shows how much of list price is realized after discounts.
@@ -57,8 +58,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Commercial
   use_case_ref:
   - COM-001
+  - COM-002
+  - COM-003
   - COM-004
-  action_code_ref: []
+  action_code_ref:
+  - C-M2.2
   calc_type: amount
   business:
     purpose: Captures the residual effect from changes in product, channel, or region mix.
@@ -96,7 +100,12 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Commercial
   use_case_ref:
   - COM-001
-  action_code_ref: []
+  - COM-002
+  - COM-003
+  - COM-004
+  action_code_ref:
+  - C-S1.1
+  - C-S1.2
   calc_type: amount
   business:
     purpose: Total invoiced revenue net of discounts and returns.
@@ -131,6 +140,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Commercial
   use_case_ref:
   - COM-001
+  - XD-003
   action_code_ref: []
   calc_type: rate
   business:
@@ -170,7 +180,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Commercial
   use_case_ref:
   - COM-001
-  action_code_ref: []
+  - COM-002
+  - COM-003
+  - COM-004
+  action_code_ref:
+  - C-S1.2
   calc_type: rate
   business:
     purpose: Relative variance of Net Sales vs Plan.
@@ -209,7 +223,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   use_case_ref:
   - COM-001
   - COM-004
-  action_code_ref: []
+  action_code_ref:
+  - C-S1.1
   calc_type: amount
   business:
     purpose: Quantifies the pure price impact in the PVM bridge.
@@ -244,7 +259,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Commercial
   use_case_ref:
   - COM-001
-  - COM-004
+  action_code_ref: []
   calc_type: amount
   business:
     purpose: Measures the variance caused purely by quantity changes at plan price.
@@ -280,8 +295,15 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   use_case_ref:
   - OPS-003
   - SCM-001
-  - SCM-002
   - SCM-003
+  action_code_ref:
+  - O-Q3.5
+  - S-F3.1
+  - S-F3.2
+  - S-I1.1
+  - S-I1.2
+  - S-I1.3
+  - S-I1.5
   calc_type: count
   business:
     purpose: Measures sold units volume in the period.

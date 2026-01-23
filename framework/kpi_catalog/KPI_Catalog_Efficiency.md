@@ -14,8 +14,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   impact_dimension: Efficiency
   domain_tag:
   - Operational Efficiency
-  use_case_ref: []
-  action_code_ref: []
+  use_case_ref:
+  - OPS-001
+  action_code_ref:
+  - O-O1.2
   calc_type: rate
   business:
     purpose: Throughput speed versus theoretical maximum.
@@ -47,8 +49,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   impact_dimension: Efficiency
   domain_tag:
   - Operational Efficiency
-  use_case_ref: []
-  action_code_ref: []
+  use_case_ref:
+  - OPS-001
+  action_code_ref:
+  - O-O1.3
   calc_type: rate
   business:
     purpose: Yield of conforming units relative to total units produced.
@@ -81,8 +85,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Operational Efficiency
   use_case_ref:
-  - OPS-001
-  action_code_ref: []
+  - FIN-002
+  action_code_ref:
+  - F-K2.3
   calc_type: rate
   business:
     purpose: Shows output efficiency relative to labor input.
@@ -117,7 +122,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - OPS-002
-  action_code_ref: []
+  action_code_ref:
+  - O-A2.2
+  - O-A2.4
   calc_type: amount
   business:
     purpose: Measures average operating time between failures.
@@ -151,7 +158,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - OPS-002
-  action_code_ref: []
+  action_code_ref:
+  - O-A2.3
+  - O-A2.5
   calc_type: amount
   business:
     purpose: Measures average repair time after failures.
@@ -185,7 +194,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - OPS-002
-  action_code_ref: []
+  action_code_ref:
+  - O-A2.4
   calc_type: rate
   business:
     purpose: Tracks adherence to preventive maintenance plan.
@@ -220,7 +230,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - OPS-002
-  action_code_ref: []
+  action_code_ref:
+  - O-A2.5
   calc_type: rate
   business:
     purpose: Measures stockout frequency for critical spare parts.
@@ -255,7 +266,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - OPS-001
-  action_code_ref: []
+  action_code_ref:
+  - O-O1.2
+  - O-O1.4
   calc_type: count
   business:
     purpose: Measures total output volume in units.
@@ -289,7 +302,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - OPS-003
-  action_code_ref: []
+  action_code_ref:
+  - O-Q3.1
+  - O-Q3.2
   calc_type: rate
   business:
     purpose: Measures share of units produced without rework or scrap.
@@ -324,7 +339,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - OPS-003
-  action_code_ref: []
+  action_code_ref:
+  - O-Q3.1
+  - O-Q3.3
+  - O-Q3.4
   calc_type: rate
   business:
     purpose: Measures share of units scrapped in production.
@@ -359,7 +377,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - OPS-003
-  action_code_ref: []
+  action_code_ref:
+  - O-Q3.1
+  - O-Q3.3
   calc_type: rate
   business:
     purpose: Measures share of units requiring rework.
@@ -394,7 +414,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - OPS-003
-  action_code_ref: []
+  action_code_ref:
+  - O-Q3.4
+  - O-Q3.5
   calc_type: amount
   business:
     purpose: Captures financial impact of scrap, rework, and warranty/complaints.
@@ -428,7 +450,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - OPS-003
-  action_code_ref: []
+  action_code_ref:
+  - O-Q3.5
   calc_type: rate
   business:
     purpose: Measures customer complaints relative to shipped units.
@@ -465,7 +488,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - OPS-003
-  action_code_ref: []
+  action_code_ref:
+  - O-Q3.2
   calc_type: rate
   business:
     purpose: Measures defect count per 1,000 units produced.
@@ -500,7 +524,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - SCM-001
-  action_code_ref: []
+  action_code_ref:
+  - S-I1.1
+  - S-I1.2
+  - S-I1.4
+  - S-I1.5
   calc_type: amount
   business:
     purpose: Measures inventory holding period in days.
@@ -534,7 +562,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - SCM-001
-  action_code_ref: []
+  action_code_ref:
+  - S-I1.1
+  - S-I1.3
+  - S-I1.5
   calc_type: rate
   business:
     purpose: Measures how often inventory is unavailable when demanded.
@@ -569,7 +600,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - SCM-001
-  action_code_ref: []
+  action_code_ref:
+  - S-I1.4
   calc_type: rate
   business:
     purpose: Measures share of inventory considered obsolete.
@@ -603,8 +635,13 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Operational Efficiency
   use_case_ref:
+  - SCM-001
   - SCM-003
-  action_code_ref: []
+  action_code_ref:
+  - S-F3.1
+  - S-F3.2
+  - S-F3.4
+  - S-I1.5
   calc_type: rate
   business:
     purpose: Measures how close forecasted demand is to actual demand.
@@ -639,7 +676,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - SCM-003
-  action_code_ref: []
+  action_code_ref:
+  - S-F3.1
+  - S-F3.2
   calc_type: rate
   business:
     purpose: Measures systematic over- or under-forecasting.
@@ -676,7 +715,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - SCM-003
-  action_code_ref: []
+  action_code_ref:
+  - S-F3.1
+  - S-F3.4
   calc_type: count
   business:
     purpose: Counts number of replanning cycles in a period.
@@ -709,8 +750,16 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Operational Efficiency
   use_case_ref:
+  - SCM-001
   - SCM-002
-  action_code_ref: []
+  - SCM-003
+  action_code_ref:
+  - S-F3.3
+  - S-I1.1
+  - S-I1.3
+  - S-R2.1
+  - S-R2.2
+  - S-R2.5
   calc_type: rate
   business:
     purpose: Measures share of orders delivered on time and in full.
@@ -745,7 +794,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - SCM-002
-  action_code_ref: []
+  action_code_ref:
+  - S-R2.1
+  - S-R2.2
   calc_type: rate
   business:
     purpose: Measures share of deliveries arriving on time.
@@ -780,7 +831,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - SCM-002
-  action_code_ref: []
+  action_code_ref:
+  - S-R2.3
   calc_type: rate
   business:
     purpose: Measures lost demand share due to stockouts.
@@ -815,7 +867,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - SCM-002
-  action_code_ref: []
+  action_code_ref:
+  - S-R2.4
+  - S-R2.5
   calc_type: amount
   business:
     purpose: Captures additional cost for expedited shipments.
@@ -849,7 +903,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - SCM-002
-  action_code_ref: []
+  action_code_ref:
+  - S-R2.4
   calc_type: amount
   business:
     purpose: Captures penalties for service level breaches.
@@ -881,10 +936,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   impact_dimension: Efficiency
   domain_tag:
   use_case_ref:
-  - SCM-001
-  - SCM-002
   - SCM-003
-  action_code_ref: []
+  action_code_ref:
+  - S-F3.3
   calc_type: rate
   business:
     purpose: Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast under-coverage (units-based demand forecast).
@@ -927,7 +981,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - OPS-001
-  action_code_ref: []
+  action_code_ref:
+  - O-O1.1
+  - O-O1.3
+  - O-O1.4
   calc_type: ratio
   business:
     purpose: Measures manufacturing performance combining availability, performance, and quality.
@@ -971,7 +1028,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - OPS-002
-  action_code_ref: []
+  action_code_ref:
+  - O-A2.2
+  - O-A2.3
+  - O-A2.5
   calc_type: count
   business:
     purpose: Counts equipment or process failures in the period.
@@ -1039,7 +1099,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   use_case_ref:
   - OPS-001
   - OPS-003
-  action_code_ref: []
+  action_code_ref:
+  - O-O1.4
+  - O-Q3.1
+  - O-Q3.2
+  - O-Q3.3
   calc_type: count
   business:
     purpose: Captures planned production output volume.
@@ -1072,7 +1136,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - OPS-002
-  action_code_ref: []
+  action_code_ref:
+  - O-A2.4
   calc_type: count
   business:
     purpose: Counts preventive maintenance tasks executed or scheduled.
@@ -1105,8 +1170,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - FIN-002
-  - OPS-001
-  action_code_ref: []
+  action_code_ref:
+  - F-K2.3
   calc_type: count
   business:
     purpose: Measures total produced volume in units.
@@ -1139,7 +1204,6 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - FIN-002
-  - OPS-001
   action_code_ref: []
   calc_type: rate
   business:
@@ -1205,7 +1269,6 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Operational Efficiency
   use_case_ref:
-  - FIN-001
   - FIN-002
   action_code_ref: []
   calc_type: rate
@@ -1240,7 +1303,6 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - FIN-002
-  - OPS-002
   action_code_ref: []
   calc_type: rate
   business:
@@ -1275,7 +1337,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   use_case_ref:
   - SCM-002
   - SCM-003
-  action_code_ref: []
+  action_code_ref:
+  - S-F3.3
+  - S-R2.3
   calc_type: count
   business:
     purpose: Counts order lines processed in the period.
@@ -1307,9 +1371,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Forecast Planning
   use_case_ref:
-  - SCM-002
   - SCM-003
-  action_code_ref: []
+  action_code_ref:
+  - S-F3.4
   calc_type: count
   business:
     purpose: Counts planning cycles or plan versions in the period.
@@ -1341,10 +1405,12 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Supply Chain
   use_case_ref:
-  - SCM-001
   - SCM-002
-  - SCM-003
-  action_code_ref: []
+  action_code_ref:
+  - S-R2.1
+  - S-R2.2
+  - S-R2.4
+  - S-R2.5
   calc_type: count
   business:
     purpose: Counts shipments executed in the period.
@@ -1408,8 +1474,13 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   impact_dimension: Efficiency
   domain_tag:
   - Operational Efficiency
-  use_case_ref: []
-  action_code_ref: []
+  use_case_ref:
+  - OPS-001
+  - OPS-002
+  action_code_ref:
+  - O-A2.1
+  - O-A2.3
+  - O-O1.1
   calc_type: rate
   business:
     purpose: Uptime share relative to planned production time.
@@ -1441,7 +1512,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   impact_dimension: null
   domain_tag:
   - Operational Efficiency
-  use_case_ref: []
+  use_case_ref:
+  - XD-003
   action_code_ref: []
   calc_type: rate
   business:
@@ -1478,8 +1550,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Operational Efficiency
   use_case_ref:
-  - COR-004
-  - OPS-001
+  - XD-003
   action_code_ref: []
   calc_type: amount
   business:
@@ -1515,7 +1586,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Operational Efficiency
   use_case_ref:
-  - OPS-002
+  - OPS-001
   action_code_ref: []
   calc_type: rate
   business:
@@ -1551,7 +1622,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - OPS-002
-  action_code_ref: []
+  action_code_ref:
+  - O-A2.1
+  - O-A2.2
   calc_type: rate
   business:
     purpose: Measures unplanned downtime share of planned time.
@@ -1586,7 +1659,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - SCM-001
-  action_code_ref: []
+  action_code_ref:
+  - S-I1.2
   calc_type: ratio
   business:
     purpose: Measures how often inventory is sold and replaced.
@@ -1613,40 +1687,6 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   aliases:
   - ops.inventory.turnover
 
-- kpi_id: ops.inventory.turnover
-  kpi_key: Inventory Turnover
-  kpi_type: diagnostic
-  kpi_role: supporting
-  impact_dimension: Efficiency
-  domain_tag:
-  - Operational Efficiency
-  use_case_ref:
-  - SCM-001
-  action_code_ref: []
-  calc_type: ratio
-  business:
-    purpose: Measures how often inventory is sold and replaced.
-    definition: COGS / Average Inventory.
-    grain_scope: SKU/location; aggregated monthly.
-    unit_format: turns
-    interpretation: Higher turnover indicates better inventory velocity; too high may risk stockouts.
-  technical:
-    dax_name: Inventory Turnover
-    depends_on_measures: []
-    lineage: []
-  governance:
-    business_owner: Head of Supply Chain / Logistics
-    data_owner: Supply Chain BI
-    steward: Inventory Planner
-    review_cycle: quarterly
-    validation_process: manual review
-    qa_rules:
-    - COGS and inventory reconciled to ledger
-    version: v1.0
-  metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
-
 - kpi_id: plan.forecast.mape.pct
   kpi_key: Forecast MAPE %
   kpi_type: diagnostic
@@ -1656,7 +1696,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - SCM-003
-  action_code_ref: []
+  action_code_ref:
+  - S-F3.2
   calc_type: rate
   business:
     purpose: Measures mean absolute percentage error in forecast.
@@ -1691,7 +1732,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Operational Efficiency
   use_case_ref:
   - SCM-002
-  action_code_ref: []
+  action_code_ref:
+  - S-R2.1
+  - S-R2.3
   calc_type: rate
   business:
     purpose: Measures share of deliveries with complete quantities.
