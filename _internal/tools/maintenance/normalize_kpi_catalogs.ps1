@@ -224,7 +224,7 @@ function Convert-YamlBlock {
 $resolvedCatalogRoot = Resolve-RepoPath -ProvidedPath $CatalogRoot -DefaultRelative '_includes/kpi_catalog'
 $fenceOpen = (New-Object string([char]0x60,3)) + "yaml"
 $fenceClose = New-Object string([char]0x60,3)
-$catalogFiles = Get-ChildItem -Path $resolvedCatalogRoot -Filter 'KPI_Catalog_*.md'
+$catalogFiles = Get-ChildItem -Path $resolvedCatalogRoot -Filter 'KPI_Catalog.md'
 if ($catalogFiles.Count -eq 0) { Write-Warning "No catalog files found."; return }
 
 foreach ($file in $catalogFiles) {
@@ -249,3 +249,4 @@ foreach ($file in $catalogFiles) {
   $message = 'Normalized {0}' -f $file.Name
   Write-Host $message
 }
+

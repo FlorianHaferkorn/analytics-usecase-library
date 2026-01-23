@@ -107,7 +107,7 @@ function Get-KpiTokensFromText {
 function Get-KpiIdsFromCatalog {
   param([string]$Root)
   $ids = [System.Collections.Generic.HashSet[string]]::new()
-  Get-ChildItem -Path $Root -Recurse -Filter "KPI_Catalog_*.md" | Where-Object {
+  Get-ChildItem -Path $Root -Recurse -Filter "KPI_Catalog.md" | Where-Object {
     $_.FullName -notmatch '\\archive\\' -and $_.FullName -notmatch '\\_internal\\archive\\'
   } | ForEach-Object {
     Get-Content -Path $_.FullName | ForEach-Object {
@@ -297,3 +297,4 @@ if ($unused.Count -gt 0) {
 }
 
 Write-Host "OK: all KPI IDs are referenced in factsheets." -ForegroundColor Green
+

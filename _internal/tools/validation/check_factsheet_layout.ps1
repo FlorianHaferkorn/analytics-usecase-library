@@ -5,7 +5,7 @@ Param(
   [string]$ActionCodesRoot = "framework/action_codes",
   [string]$ActionCodeTemplate = "framework/templates/action_codes/ActionCode_TEMPLATE.md",
   [string]$KpiCatalogRoot = "framework/kpi_catalog",
-  [string]$KpiCatalogSchema = "framework/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md",
+  [string]$KpiCatalogSchema = "framework/templates/kpi_catalog_templates/KPI_Catalog_SCHEMA.md",
   [string]$DataContractsRoot = "data_contracts/domains",
   [string]$FactTemplate = "framework/templates/data_contract_templates/fact_template.yaml",
   [string]$DimTemplate = "framework/templates/data_contract_templates/dim_template.yaml",
@@ -187,7 +187,7 @@ $technicalTemplatePath = Resolve-RepoPath -ProvidedPath $TechnicalTemplate -Defa
 $actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "framework/action_codes"
 $actionCodeTemplatePath = Resolve-RepoPath -ProvidedPath $ActionCodeTemplate -DefaultRelative "framework/templates/action_codes/ActionCode_TEMPLATE.md"
 $kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative "framework/kpi_catalog"
-$kpiCatalogSchemaPath = Resolve-RepoPath -ProvidedPath $KpiCatalogSchema -DefaultRelative "framework/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md"
+$kpiCatalogSchemaPath = Resolve-RepoPath -ProvidedPath $KpiCatalogSchema -DefaultRelative "framework/templates/kpi_catalog_templates/KPI_Catalog_SCHEMA.md"
 $dataContractsRoot = Resolve-RepoPath -ProvidedPath $DataContractsRoot -DefaultRelative "data_contracts/domains"
 $factTemplatePath = Resolve-RepoPath -ProvidedPath $FactTemplate -DefaultRelative "framework/templates/data_contract_templates/fact_template.yaml"
 $dimTemplatePath = Resolve-RepoPath -ProvidedPath $DimTemplate -DefaultRelative "framework/templates/data_contract_templates/dim_template.yaml"
@@ -266,7 +266,7 @@ if ($actionCodesRoot -and $actionCodeTemplatePath) {
 }
 
 if ($kpiCatalogRoot -and $kpiCatalogSchemaPath) {
-  $kpiFiles = Get-ChildItem -Path $kpiCatalogRoot -Filter "KPI_Catalog_*.md"
+  $kpiFiles = Get-ChildItem -Path $kpiCatalogRoot -Filter "KPI_Catalog.md"
   if ($kpiFiles.Count -eq 0) {
     Write-Host "Note: no KPI Catalog files found under $kpiCatalogRoot." -ForegroundColor Yellow
   } else {
@@ -418,3 +418,4 @@ if ($issues.Count -gt 0) {
 }
 
 Write-Host "OK: all checked documents match their template layout." -ForegroundColor Green
+

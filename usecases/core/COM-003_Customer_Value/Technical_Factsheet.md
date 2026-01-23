@@ -24,7 +24,7 @@ factsheet_type: technical
 - **Domain Data Contract:** data_contracts/domains/commercial_sales.yaml
 - **Source Data Contract:** data_contracts/sources/commercial.yaml
 - **Semantic Model Definition:** semantic_models/core_action_ready/commercial_sales/model_definition.yaml
-- **KPI Catalog:** framework/kpi_catalog/KPI_Catalog_CustomerValue.md
+- **KPI Catalog:** framework/kpi_catalog/KPI_Catalog.md
 - **Measure Dictionary:** semantic_models/domains/CustomerValue/Measure_Dictionary_CustomerValue.md
 - **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
 
@@ -297,6 +297,7 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 
 
 

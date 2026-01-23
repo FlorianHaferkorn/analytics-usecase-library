@@ -116,7 +116,7 @@ function Build-Block {
   return $block
 }
 
-$catalogFiles = Get-ChildItem -Path framework\kpi_catalog -Filter "KPI_Catalog_*.md" -File
+$catalogFiles = Get-ChildItem -Path framework\kpi_catalog -Filter "KPI_Catalog.md" -File
 foreach ($file in $catalogFiles) {
   $lines = Get-Content $file.FullName
   $hasSupportingHeader = $lines | Where-Object { $_.Trim() -eq '## KPIs - Supporting / Diagnostic' }
@@ -193,7 +193,7 @@ foreach ($file in $catalogFiles) {
   }
 }
 
-$esgPath = 'framework\kpi_catalog\KPI_Catalog_ESG.md'
+$esgPath = 'framework\kpi_catalog\KPI_Catalog.md'
 if (Test-Path $esgPath) {
   $lines = Get-Content $esgPath
   $note = 'This catalog currently contains no strategic KPIs. Any KPIs listed below are supporting/diagnostic and serve explanatory purposes only.'
@@ -209,3 +209,4 @@ if (Test-Path $esgPath) {
     Set-Content -Path $esgPath -Value $out
   }
 }
+

@@ -1,4 +1,4 @@
-ï»¿# KPI & Measure Schema
+# KPI & Measure Schema
 
 Purpose: Single source of truth for the structure of
 
@@ -12,7 +12,7 @@ The Measure Dictionary is TECHNICAL truth (how we calculate it).
 
 ## 1. KPI Catalog Schema
 
-Each KPI is a YAML object inside a list (typically in `KPI_Catalog_*.md`
+Each KPI is a YAML object inside a list (typically in `KPI_Catalog.md`
 inside ```yaml code fences).
 
 ### 1.1 Fields (KPI)
@@ -50,7 +50,7 @@ Section `business` (required):
 - `business.grain_scope` (required, string)  
   Aggregation grain and scope, e.g. `Invoice line aggregated by Month, Org, Product`.
 - `business.unit_format` (required, string)  
-  Unit and format, e.g. `â‚¬ (0â€“2 decimals)`, `% (1 decimal)`, `pcs`.
+  Unit and format, e.g. `€ (0–2 decimals)`, `% (1 decimal)`, `pcs`.
 - `business.interpretation` (required, string)  
   How to interpret the KPI (good/bad range, typical values, caveats).
 
@@ -123,7 +123,7 @@ Optional:
   calc_type: "ratio"
   business:
     purpose: "Measures profitability relative to net sales."
-    definition: "(Net Sales Amount âˆ’ COGS Amount) / Net Sales Amount."
+    definition: "(Net Sales Amount - COGS Amount) / Net Sales Amount."
     grain_scope: "Invoice line aggregated by Date, Org, Product, Channel."
     unit_format: "% (1 decimal)"
     interpretation: "Higher is better; negative values indicate loss-making segments."
@@ -143,7 +143,7 @@ Optional:
     validation_process: "Reconcile with P&L gross margin during month-end close."
     qa_rules:
       - "Value must be between -100 % and 100 %."
-      - "Reconcile with official P&L within Â±0.5 pp at company level."
+      - "Reconcile with official P&L within ±0.5 pp at company level."
     version: "v1.0"
   metadata_quality:
     completeness_score: 0.95
@@ -166,3 +166,5 @@ Optional:
 - `action_code_ref` is required (list; empty list allowed).
 - All referenced KPI IDs must exist.
 - No tool-specific syntax in KPI Catalog entries.
+
+

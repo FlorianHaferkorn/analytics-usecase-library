@@ -24,7 +24,7 @@ function Resolve-RepoPath {
 function Get-KpiIdsFromCatalog {
   param([string]$Root)
   $ids = [System.Collections.Generic.HashSet[string]]::new()
-  Get-ChildItem -Path $Root -Recurse -Filter "KPI_Catalog_*.md" | Where-Object {
+  Get-ChildItem -Path $Root -Recurse -Filter "KPI_Catalog.md" | Where-Object {
     $_.FullName -notmatch '\\_internal\\archive\\'
   } | ForEach-Object {
     Get-Content -Path $_.FullName | ForEach-Object {
@@ -70,3 +70,4 @@ if ($missing.Count -gt 0) {
 }
 
 Write-Host "OK: action code KPI references are consistent." -ForegroundColor Green
+

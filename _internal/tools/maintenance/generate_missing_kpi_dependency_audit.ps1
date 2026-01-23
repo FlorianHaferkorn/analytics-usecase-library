@@ -106,7 +106,7 @@ function Get-KpiTokensFromText {
 function Get-KpiIdsFromCatalog {
   param([string]$Root)
   $ids = [System.Collections.Generic.HashSet[string]]::new()
-  Get-ChildItem -Path $Root -Recurse -Filter "KPI_Catalog_*.md" | Where-Object {
+  Get-ChildItem -Path $Root -Recurse -Filter "KPI_Catalog.md" | Where-Object {
     $_.FullName -notmatch '\\archive\\'
   } | ForEach-Object {
     Get-Content -Path $_.FullName | ForEach-Object {
@@ -395,3 +395,4 @@ if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir | Out-Null 
 $lines | Set-Content -Path $outputPath
 
 Write-Host ("Wrote audit: {0}" -f $outputPath) -ForegroundColor Green
+

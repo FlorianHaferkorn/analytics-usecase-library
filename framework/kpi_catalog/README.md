@@ -18,7 +18,7 @@ Included:
 - Measure dictionary references
 - Calculation logic, naming rules, formats
 - KPI -> Domain -> Use Case -> Action Code mapping (see usecases/UseCase_ActionCode_Map.yaml and usecases/UseCase_ActionCode_Rationale.yaml)
-- Canonical definitions required for AI/Copilot
+- Authoritative definitions required for AI/Copilot
 
 Not included:
 
@@ -69,3 +69,4 @@ Not included:
 
 **Location:**  
 `framework/kpi_catalog/README.md`
+

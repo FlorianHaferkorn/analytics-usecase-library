@@ -24,7 +24,7 @@ factsheet_type: technical
 - **Domain Data Contract:** data_contracts/domains/experience.yaml
 - **Source Data Contract:** data_contracts/sources/experience.yaml (if present)
 - **Semantic Model Definition:** semantic_models/domains/experience/model_definition.yaml
-- **KPI Catalog:** framework/kpi_catalog/KPI_Catalog_Service.md
+- **KPI Catalog:** framework/kpi_catalog/KPI_Catalog.md
 - **Measure Dictionary:** semantic_models/domains/Service/Measure_Dictionary_Service.md
 - **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
 
@@ -318,6 +318,7 @@ agent_hooks:
   paths:
     business_factsheet: ./Business_Factsheet.md
     technical_factsheet: ./Technical_Factsheet.md
+
 
 
 

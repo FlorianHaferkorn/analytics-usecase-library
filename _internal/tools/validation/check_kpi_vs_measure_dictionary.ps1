@@ -8,7 +8,7 @@ $ErrorActionPreference = "Stop"
 function Get-KpiIdsFromCatalog {
   param([string]$Root)
   $ids = New-Object System.Collections.Generic.List[string]
-  Get-ChildItem -Path $Root -Filter "KPI_Catalog_*.md" | ForEach-Object {
+  Get-ChildItem -Path $Root -Filter "KPI_Catalog.md" | ForEach-Object {
     Get-Content $_.FullName | ForEach-Object {
       if ($_ -match '^\s*-\s*kpi_id:\s*"?([A-Za-z0-9_.-]+)"?\s*$') {
         $ids.Add($Matches[1]) | Out-Null
@@ -112,3 +112,4 @@ if ($missingInCatalog.Count -gt 0) {
 }
 
 exit 1
+

@@ -1,4 +1,4 @@
-﻿# Single Source of Truth (SSOT)
+# Single Source of Truth (SSOT)
 
 Purpose:
 This document defines which artifacts are canonical (EURoesingle source of truthEUR) for each concept in the framework. It prevents duplication, drift, and conflicting definitions across folders.
@@ -49,7 +49,7 @@ Use Cases contain only references to KPIs: required_kpi_ids (IDs; in factsheets 
 | Use case templates | `usecases/templates/*` | EUR" | Factsheets must follow these templates. |
 | Use case canonical docs | `usecases/core/*/(Business_Factsheet.md, Technical_Factsheet.md)` | EUR" | Business/Technical are the canonical per-use-case docs. |
 | KPI catalog schema | `framework/templates/KPI_Catalog_templates/KPI_Catalog_SCHEMA.md` | `_internal/ai/measure_inventory.schema.json` | Schema governs catalog authoring; AI schema supports validation/agents. |
-| KPI catalogs (detail) | `framework/kpi_catalog/KPI_Catalog_*.md` | `framework/kpi_catalog/README.md` | Catalogs are detailed truth; README is a navigational view. |
+| KPI catalog (SSOT) | `framework/kpi_catalog/KPI_Catalog.md` | `framework/kpi_catalog/README.md` | Single authoritative catalog; README is navigational only. |
 | Domain KPI overview (executive lens) | `usecases/core/XD-003_Executive_KPI_Overview/Business_Factsheet.md` | XD-003 | Must be explicitly EURoederived viewEUR, not redefining KPIs. |
 | Domain measure dictionary schema | `semantic_models/domains/Domain_Measure_Dictionary_Schema.md` | `semantic_models/domains/Measure_Dictionary_*.md` | Schema defines structure; domain dictionaries contain implementation-ready detail. |
 | Domain measure dictionaries (implementation-ready) | `semantic_models/domains/Measure_Dictionary_*.md` | EUR" | This is the canonical EURoehow to implement measuresEUR reference per domain. |
@@ -102,4 +102,5 @@ Use relative links where possible.
   - A folder is renamed/moved,
   - Validation tooling starts using a different canonical reference.
 - Review SSOT in every release candidate / customer-ready milestone.
+
 

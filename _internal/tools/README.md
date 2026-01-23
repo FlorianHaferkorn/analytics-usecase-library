@@ -120,7 +120,6 @@ Run whenever KPI catalogs or factsheets change.
 - `check_docs_refs.ps1`
 - `convert_kpi_catalogs.py`
 - `normalize_kpi_catalogs.ps1`
-- `rebuild_kpis_and_measures.py`
 
 **Usage:**  
 Used during major framework updates or structural refactoring.

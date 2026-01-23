@@ -12,7 +12,7 @@ from typing import Dict, List
 
 import yaml
 
-CATALOG_PATTERN = "KPI_Catalog_*.md"
+CATALOG_PATTERN = "KPI_Catalog.md"
 SCHEMA_FILENAME = "KPI_Catalog_SCHEMA.md"
 
 BUSINESS_KEYS = {"purpose", "definition", "grain_scope", "unit_format", "interpretation"}
@@ -300,7 +300,7 @@ def main() -> None:
     parser.add_argument(
         "--catalog",
         action="append",
-        help="Specific KPI catalog file to convert (e.g., KPI_Catalog_Efficiency.md)",
+        help="Specific KPI catalog file to convert (e.g., KPI_Catalog.md)",
     )
     parser.add_argument(
         "--all",
@@ -320,3 +320,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
