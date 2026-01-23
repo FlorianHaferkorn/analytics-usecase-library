@@ -33,8 +33,12 @@ Top-level:
   Impact dimension this KPI belongs to, e.g. `Growth`, `Profitability`.
 - `domain_tag` (required, list<string>)  
   1..n domain tags, e.g. `["Commercial"]`, `["SupplyChain","Retail"]`.
-- `use_case_ref` (optional, list<string>)  
-  IDs of use cases where this KPI is central, e.g. `["COM-001","COM-004"]`.
+- `use_case_ref` (required, list<string>)  
+  IDs of use cases where this KPI is central, e.g. `["COM-001","COM-004"]`.  
+  Use an explicit empty list if none apply.
+- `action_code_ref` (required, list<string>)  
+  IDs of Action Codes that reference this KPI, e.g. `["C-M2.1","C-P4.1"]`.  
+  Use an explicit empty list if none apply.
 - `calc_type` (required, enum)  
   Calculation type: `amount`, `rate`, `ratio`, `count`.
 
@@ -113,6 +117,9 @@ Optional:
   use_case_ref:
     - "COM-001"
     - "COM-004"
+  action_code_ref:
+    - "C-M2.1"
+    - "C-P4.1"
   calc_type: "ratio"
   business:
     purpose: "Measures profitability relative to net sales."
@@ -155,5 +162,7 @@ Optional:
 - Every `kpi_id` is unique across all KPI catalogs.
 - `kpi_role` SHOULD be added to KPI entries once layout checks allow it.
 - Supporting KPIs must not be Action Code triggers.
+- `use_case_ref` is required (list; empty list allowed).
+- `action_code_ref` is required (list; empty list allowed).
 - All referenced KPI IDs must exist.
 - No tool-specific syntax in KPI Catalog entries.

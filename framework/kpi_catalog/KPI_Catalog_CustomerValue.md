@@ -15,6 +15,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Customer & Market
   use_case_ref: []
+  action_code_ref: []
   calc_type: amount
   business:
     purpose: Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
@@ -48,6 +49,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Customer & Market
   use_case_ref:
   - COM-003
+  action_code_ref: []
   calc_type: amount
   business:
     purpose: Quantify revenue exposure from customers flagged as churn-risk.
@@ -83,6 +85,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Customer & Market
   use_case_ref:
   - CST-007
+  action_code_ref: []
   calc_type: count
   business:
     purpose: Provide the absolute number of logged complaints.
@@ -117,6 +120,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Customer & Market
   use_case_ref:
   - CST-001
+  action_code_ref: []
   calc_type: rate
   business:
     purpose: Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
@@ -155,6 +159,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Customer & Market
   use_case_ref:
   - CST-005
+  action_code_ref: []
   calc_type: rate
   business:
     purpose: Measures customer advocacy and likelihood to recommend.
@@ -197,6 +202,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Customer & Market
   use_case_ref: []
+  action_code_ref: []
   calc_type: count
   business:
     purpose: Count customers that have stopped purchasing in the observation window as basis for churn calculations.
@@ -230,6 +236,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Customer & Market
   use_case_ref:
   - COM-003
+  action_code_ref: []
   calc_type: amount
   business:
     purpose: Sum of realized revenue across the customer lifecycle.
@@ -264,6 +271,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   domain_tag:
   - Customer & Market
   use_case_ref: []
+  action_code_ref: []
   calc_type: count
   business:
     purpose: Number of unique active customers in the reporting period.
@@ -297,6 +305,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Customer & Market
   use_case_ref:
   - CST-007
+  action_code_ref: []
   calc_type: rate
   business:
     purpose: Measure complaints relative to delivered orders or customers.

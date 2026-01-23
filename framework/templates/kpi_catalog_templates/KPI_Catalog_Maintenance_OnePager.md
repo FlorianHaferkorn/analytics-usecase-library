@@ -10,7 +10,7 @@ Purpose: Keep the KPI Catalog customer-ready, tool-agnostic, and consistent with
 ## 2) Minimal required fields
 
 Each KPI entry must include:
-- `kpi_id`, `kpi_key`, `kpi_type`, `impact_dimension`, `domain_tag`, `calc_type`
+- `kpi_id`, `kpi_key`, `kpi_type`, `impact_dimension`, `domain_tag`, `use_case_ref`, `action_code_ref`, `calc_type`
 - `business` section (purpose, definition, grain_scope, unit_format, interpretation)
 - `technical` section (semantic measure name, dependencies, lineage)
 - `governance` section (owners, review_cycle, validation, qa_rules, version)
@@ -19,6 +19,7 @@ Each KPI entry must include:
 ## 3) Golden Thread alignment
 
 Each KPI must trace to at least one use case and fit its impact dimension and domain tags.
+Keep `use_case_ref` aligned with the Use Cases that reference the Action Codes listed in `action_code_ref`.
 Do not redefine KPI meaning outside the catalog.
 
 ## 4) Change and review (lightweight)

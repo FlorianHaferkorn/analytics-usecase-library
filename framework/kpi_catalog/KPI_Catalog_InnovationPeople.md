@@ -21,70 +21,37 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   kpi_role: strategic
 
   impact_dimension: Innovation & People
-
   domain_tag:
-
   - Corporate & Strategy
-
   use_case_ref:
-
   - INN-002
-
+  action_code_ref: []
   calc_type: ratio
-
   business:
-
     purpose: Measure how much of all eligible process transactions are executed via digital tools instead of manual channels.
-
     definition: Digital Transactions Count / Total Transactions Count for eligible processes.
-
     grain_scope: Process area / org; aggregated monthly or quarterly.
-
     unit_format: '% (1 decimal)'
-
-    interpretation: Higher values indicate greater adoption of digital processes; low values show manual work and automation
-
-      potential.
-
+    interpretation: Higher values indicate greater adoption of digital processes; low values show manual work and automation potential.
   technical:
-
     dax_name: Digital Adoption Rate %
-
     depends_on_measures:
-
     - Digital Transactions Count
-
     - Total Transactions Count
-
     lineage:
-
     - fact_digital_usage.TransactionsCount
-
   governance:
-
     business_owner: Head of Digital Transformation
-
     data_owner: Corporate BI
-
     steward: Digital Adoption Analyst
-
     review_cycle: quarterly
-
     validation_process: comparison with process mining and application telemetry
-
     qa_rules:
-
     - Eligible processes flagged correctly; adoption bounded between 0 % and 100 %
-
     version: v1.0
-
   metadata_quality:
-
     completeness_score: 0.85
-
     last_review: 19.11.2025
-
-
 
 - kpi_id: people.attrition_risk.pct
   kpi_key: Attrition Risk %
@@ -95,6 +62,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Human Resources
   use_case_ref:
   - XD-003
+  action_code_ref: []
   calc_type: rate
   business:
     purpose: Monitor risk of employee attrition across key roles and segments.

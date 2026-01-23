@@ -1,0 +1,156 @@
+Missing use_case_ref
+Count: 97
+
+C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_CustomerValue.md
+  - crm.revenue_at_risk.amount
+  - crm.complaint.count
+  - crm.retention.pct
+  - crm.nps.index
+  - crm.lifetime_revenue.amount
+  - crm.complaint.rate.pct
+
+C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+  - ops.labor.productivity.pct
+  - ops.mtbf.hours
+  - ops.mttr.hours
+  - ops.pm_compliance.pct
+  - ops.spare_parts.stockout.pct
+  - ops.throughput.units
+  - quality.fpy.pct
+  - quality.scrap.pct
+  - quality.rework.pct
+  - quality.copq.amount
+  - quality.complaint.pct
+  - quality.defect_density
+  - inv.dio.days
+  - inv.stockout.pct
+  - inv.obsolete.pct
+  - plan.forecast.accuracy.pct
+  - plan.forecast.bias.pct
+  - plan.replan.count
+  - supply.otif.pct
+  - supply.on_time.pct
+  - supply.stockout_impact.pct
+  - supply.expedite.amount
+  - supply.penalty.amount
+  - ops.oee.pct
+  - ops.failure.count
+  - ops.inventory.value.amount
+  - ops.planned_output.units
+  - ops.pm.task.count
+  - ops.production.volume
+  - ops.quality.defect_rate.pct
+  - ops.safety.incident.count
+  - ops.service_level.pct
+  - ops.yield.pct
+  - order.lines
+  - plans.count
+  - shipments.count
+  - scm.service_level.pct
+  - ops.working_capital.ccc.days
+  - ops.downtime.pct
+  - ops.downtime.unplanned.pct
+  - inv.turnover
+  - ops.inventory.turnover
+  - plan.forecast.mape.pct
+  - supply.in_full.pct
+
+C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Governance.md
+  - enterprise.action_outcome_rate.pct
+  - enterprise.action_routed.count
+
+C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Growth.md
+  - sales.price.realization_pct
+  - sales.pvm.mix_effect.amount
+  - sales.net_sales.amount
+  - sales.net_sales.delta_pct.ly
+  - sales.net_sales.delta_pct.plan
+  - sales.pvm.price_effect.amount
+  - sales.pvm.volume_effect.amount
+  - sales.units
+
+C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Liquidity.md
+  - wc.dso.days
+  - wc.dio.days
+  - wc.dpo.days
+  - wc.ccc.days
+  - fin.cash.balance
+  - fin.cash.ocf
+  - fin.cash.vs_plan.pct
+
+C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+  - margin.gm.pct
+  - sales.promo.roi.pct
+  - margin.promo.gm.pct
+  - cost.cogs_per_unit.amount
+  - sales.promo.cannibalization.pct
+  - cost.material.pct
+  - cost.opex.vs_plan.pct
+  - cost.unit.amount
+  - profit.gross_margin
+  - margin.gm.amount
+  - hr.gm.amount
+  - sales.promo.incremental.amount
+  - margin.cogs.pct
+  - margin.gm.vs_plan.pct
+  - cost.base_volume.amount
+  - cost.opex.base.amount
+
+C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Risk.md
+  - enterprise.value_at_risk.index
+  - scm.supplier_risk.score
+
+C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Service.md
+  - svc.sla.attainment.pct
+  - svc.fcr.pct
+  - svc.aht.minutes
+  - svc.backlog.count
+  - svc.nps.index
+  - svc.escalation.pct
+  - res.utilization.pct
+  - res.occupancy.pct
+  - res.overtime.pct
+  - res.shrinkage.pct
+  - svc.tickets.created.count
+  - svc.tickets.closed.count
+
+Missing technical.depends_on_measures
+Count: 25
+
+C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_CustomerValue.md
+  - crm.retention.pct
+  - crm.nps.index
+
+C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Efficiency.md
+  - ops.oee.pct
+  - ops.otif.pct
+
+C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Growth.md
+  - sales.price.realization_pct
+  - sales.net_sales.amount
+  - sales.net_sales.delta_pct.ly
+  - sales.net_sales.delta_pct.plan
+
+C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Liquidity.md
+  - fin.liquidity.operating_cash_flow
+
+C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Profitability.md
+  - margin.gm.pct
+  - sales.promo.roi.pct
+  - margin.promo.gm.pct
+  - profit.gross_margin
+  - margin.gm.amount
+  - sales.promo.incremental.amount
+
+C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog_Service.md
+  - svc.sla.attainment.pct
+  - svc.fcr.pct
+  - svc.aht.minutes
+  - svc.backlog.count
+  - svc.nps.index
+  - svc.escalation.pct
+  - res.utilization.pct
+  - res.occupancy.pct
+  - res.overtime.pct
+  - res.shrinkage.pct
+

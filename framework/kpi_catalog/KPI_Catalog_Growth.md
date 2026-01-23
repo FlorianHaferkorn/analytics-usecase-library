@@ -18,6 +18,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - COM-001
   - COM-002
   - COM-003
+  action_code_ref: []
   calc_type: rate
   business:
     purpose: Shows how much of list price is realized after discounts.
@@ -57,6 +58,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   use_case_ref:
   - COM-001
   - COM-004
+  action_code_ref: []
   calc_type: amount
   business:
     purpose: Captures the residual effect from changes in product, channel, or region mix.
@@ -94,6 +96,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Commercial
   use_case_ref:
   - COM-001
+  action_code_ref: []
   calc_type: amount
   business:
     purpose: Total invoiced revenue net of discounts and returns.
@@ -128,6 +131,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Commercial
   use_case_ref:
   - COM-001
+  action_code_ref: []
   calc_type: rate
   business:
     purpose: Relative variance of Net Sales vs Last Year.
@@ -166,6 +170,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - Commercial
   use_case_ref:
   - COM-001
+  action_code_ref: []
   calc_type: rate
   business:
     purpose: Relative variance of Net Sales vs Plan.
@@ -204,6 +209,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   use_case_ref:
   - COM-001
   - COM-004
+  action_code_ref: []
   calc_type: amount
   business:
     purpose: Quantifies the pure price impact in the PVM bridge.

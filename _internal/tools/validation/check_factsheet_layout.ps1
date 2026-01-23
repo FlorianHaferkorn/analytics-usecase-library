@@ -270,8 +270,8 @@ if ($kpiCatalogRoot -and $kpiCatalogSchemaPath) {
   if ($kpiFiles.Count -eq 0) {
     Write-Host "Note: no KPI Catalog files found under $kpiCatalogRoot." -ForegroundColor Yellow
   } else {
-    $mandatoryTop = @("kpi_id","kpi_key","kpi_type","impact_dimension","domain_tag","calc_type","business","technical","governance","metadata_quality")
-    $optionalTop = @("use_case_ref","aliases")
+    $mandatoryTop = @("kpi_id","kpi_key","kpi_type","impact_dimension","domain_tag","use_case_ref","action_code_ref","calc_type","business","technical","governance","metadata_quality")
+    $optionalTop = @("aliases")
     $expectedBusiness = @("purpose","definition","grain_scope","unit_format","interpretation")
     $expectedTechnical = @("dax_name","depends_on_measures","lineage")
     $expectedMeta = @("completeness_score","last_review")
@@ -284,8 +284,7 @@ if ($kpiCatalogRoot -and $kpiCatalogSchemaPath) {
         $expectedTop = @()
         $expectedTop += $mandatoryTop[0..2]
         $expectedTop += "kpi_role"
-        $expectedTop += "impact_dimension","domain_tag"
-        if ($actualTop -contains "use_case_ref") { $expectedTop += "use_case_ref" }
+        $expectedTop += "impact_dimension","domain_tag","use_case_ref","action_code_ref"
         $expectedTop += "calc_type","business","technical","governance","metadata_quality"
         if ($actualTop -contains "aliases") { $expectedTop += "aliases" }
 
