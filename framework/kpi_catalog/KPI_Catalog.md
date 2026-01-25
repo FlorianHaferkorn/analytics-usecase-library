@@ -27,8 +27,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher CLV indicates more valuable segments; compare against acquisition cost and churn risk.
   technical:
     dax_name: CLV
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Customer Lifetime Value Amount
+    lineage:
+    - fact_customer_value.CLV Amount
   governance:
     business_owner: Head of CRM / Marketing Analytics
     data_owner: CRM BI
@@ -39,8 +41,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Reconciles to CLV model outputs within an agreed tolerance
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: crm.revenue_at_risk.amount
   kpi_key: Revenue at Risk Amount
@@ -61,11 +63,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher values indicate more revenue at risk; prioritize retention actions.
   technical:
     dax_name: Revenue at Risk Amount
-    depends_on_measures: []
+    depends_on_measures:
+    - Revenue at Risk Amount
     lineage:
-    - fact_customer_value.CLV Remaining Amount
     - fact_customer_events.Attrition Risk %
-  governance:
+    - fact_customer_value.CLV Remaining Amount
     business_owner: Head of Marketing
     data_owner: CRM BI
     steward: Customer Insights Analyst
@@ -75,8 +77,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - At-risk revenue reconciles to CLV remaining and attrition risk inputs within +/- 1 %
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: crm.complaint.count
   kpi_key: Complaint Count
@@ -97,10 +99,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher values indicate more issues; interpret with Complaint Rate % to normalize by volume.
   technical:
     dax_name: Complaint Count
-    depends_on_measures: []
+    depends_on_measures:
+    - Customer Complaints Count
     lineage:
-    - fact_complaint.ComplaintID
-  governance:
+    - fact_experience.Complaint ID
     business_owner: Head of Customer Service
     data_owner: Service BI
     steward: Service Quality Analyst
@@ -110,8 +112,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Complaints reconciled to service desk reports
     version: v0.1
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 19.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: crm.retention.pct
   kpi_key: Customer Retention %
@@ -133,11 +135,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Customer Retention %
     depends_on_measures:
-    - Active Customers Start Count
-    - Active Customers End Count
-    lineage:
-    - dim_customer.CustomerKey
-    - fact_sales.CustomerActivity
+    - Customer Retention %
+    lineage: []
   governance:
     business_owner: Head of Marketing
     data_owner: CRM BI
@@ -150,7 +149,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v2.0
   metadata_quality:
     completeness_score: 0.97
-    last_review: 12.10.2025
+    last_review: 23.01.2026
 
 - kpi_id: crm.nps.index
   kpi_key: Net Promoter Score (NPS)
@@ -172,13 +171,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: NPS Score
     depends_on_measures:
-    - Promoters Count
-    - Detractors Count
-    - Total Respondents
+    - NPS Score
     lineage:
-    - fact_survey.Promoters
-    - fact_survey.Detractors
-    - fact_survey.Respondents
+    - fact_nps.NPS Score
   governance:
     business_owner: Head of Customer Experience
     data_owner: CX BI
@@ -189,8 +184,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Valid responses >= 80% of surveyed population
     version: v2.0
   metadata_quality:
-    completeness_score: 0.95
-    last_review: 12.10.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: crm.churned_customers.count
   kpi_key: Churned Customers
@@ -211,8 +206,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher counts indicate deteriorating retention; validate against cohort definitions.
   technical:
     dax_name: Churned Customers
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Churned Customers Count
+    lineage:
+    - dim_customer.CustomerKey
+    - fact_customer_events.Churn Flag
   governance:
     business_owner: Head of CRM / Marketing Analytics
     data_owner: CRM BI
@@ -223,8 +221,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Reconciles to churn cohort counts within +/- 0.5 %
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: crm.lifetime_revenue.amount
   kpi_key: Customer Lifetime Revenue Amount
@@ -245,11 +243,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Base for concentration and CLV inputs.
   technical:
     dax_name: Customer Lifetime Revenue Amount
-    depends_on_measures: []
+    depends_on_measures:
+    - Customer Lifetime Revenue Amount
     lineage:
-    - fact_sales.Net Sales Amount
     - dim_customer.CustomerKey
-  governance:
     business_owner: Head of Marketing
     data_owner: CRM BI
     steward: Customer Insights Analyst
@@ -259,8 +256,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Reconciles to customer revenue history within +/- 0.5 %
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: crm.active_customers.count
   kpi_key: Active Customers
@@ -281,8 +278,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Base for retention, churn and at-risk share calculations.
   technical:
     dax_name: Active Customers
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Active Customers Count
+    lineage:
+    - dim_customer.CustomerKey
+    - fact_customer_events.Activity Flag
   governance:
     business_owner: Head of CRM / Marketing Analytics
     data_owner: CRM BI
@@ -293,8 +293,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Reconciles to monthly active customer stats within +/- 0.5 %
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: ops.performance.pct
   kpi_key: Performance %
@@ -316,8 +316,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher performance indicates faster throughput; values above 100 % require validation of standard rates.
   technical:
     dax_name: Performance %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Performance %
+    lineage:
+    - fact_ops.Output Units
   governance:
     business_owner: Head of Manufacturing
     data_owner: Manufacturing BI
@@ -328,8 +330,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Performance % bounded between 0 % and 150 %; investigate values outside expected range by line.
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: ops.quality.pct
   kpi_key: Quality %
@@ -351,8 +353,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher quality means fewer defects; low values indicate scrap/rework issues.
   technical:
     dax_name: Quality %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Quality %
+    lineage:
+    - fact_ops.Good Units
+    - fact_ops.Output Units
   governance:
     business_owner: Head of Manufacturing
     data_owner: Manufacturing BI
@@ -363,8 +368,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Quality % bounded between 0 % and 100 %; reconcile to scrap/rework reporting within +/- 1 pp.
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: ops.labor.productivity.pct
   kpi_key: Labor Productivity %
@@ -386,8 +391,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher values indicate better labor efficiency; validate against mix effects.
   technical:
     dax_name: Labor Productivity %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Labor Productivity %
+    lineage:
+    - fact_labor.Labor Hours
   governance:
     business_owner: Head of Operations
     data_owner: Operations BI
@@ -399,8 +406,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Outliers reviewed for mix/shift effects
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: ops.mtbf.hours
   kpi_key: MTBF (hours)
@@ -423,7 +430,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher is better; declining MTBF indicates reliability issues.
   technical:
     dax_name: MTBF (hours)
-    depends_on_measures: []
+    depends_on_measures:
+    - MTBF (hours)
     lineage: []
   governance:
     business_owner: Head of Operations
@@ -436,7 +444,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: ops.mttr.hours
   kpi_key: MTTR (hours)
@@ -459,7 +467,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; high MTTR indicates slow recovery or parts issues.
   technical:
     dax_name: MTTR (hours)
-    depends_on_measures: []
+    depends_on_measures:
+    - MTTR (hours)
     lineage: []
   governance:
     business_owner: Head of Operations
@@ -472,7 +481,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: ops.pm_compliance.pct
   kpi_key: PM Compliance %
@@ -494,7 +503,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher is better; low compliance increases breakdown risk.
   technical:
     dax_name: PM Compliance %
-    depends_on_measures: []
+    depends_on_measures:
+    - PM Compliance %
     lineage: []
   governance:
     business_owner: Head of Maintenance
@@ -508,7 +518,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: ops.spare_parts.stockout.pct
   kpi_key: Spare Parts Stockout %
@@ -530,8 +540,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; stockouts drive downtime and MTTR.
   technical:
     dax_name: Spare Parts Stockout %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Spare Parts Stockout %
+    lineage:
+    - fact_maintenance.Parts Stockout Flag
   governance:
     business_owner: Head of Maintenance
     data_owner: Operations BI
@@ -543,8 +555,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Value between 0 % and 100 %
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: ops.throughput.units
   kpi_key: Throughput Units
@@ -567,8 +579,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher values indicate higher output; analyze against capacity and demand.
   technical:
     dax_name: Throughput Units
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Throughput Units
+    lineage:
+    - fact_ops.Output Units
   governance:
     business_owner: Head of Operations
     data_owner: Operations BI
@@ -579,8 +593,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Output Units >= 0
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: quality.fpy.pct
   kpi_key: First Pass Yield %
@@ -603,8 +617,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher is better; low FPY indicates process instability.
   technical:
     dax_name: First Pass Yield %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - First Pass Yield %
+    lineage:
+    - fact_quality.Good Units
+    - fact_quality.Total Units
   governance:
     business_owner: Head of Quality
     data_owner: Operations BI
@@ -616,8 +633,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Value between 0 % and 100 %
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: quality.scrap.pct
   kpi_key: Scrap Rate %
@@ -641,8 +658,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; rising scrap increases cost and reduces yield.
   technical:
     dax_name: Scrap Rate %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Scrap Rate %
+    lineage:
+    - fact_quality.Scrap Units
+    - fact_quality.Total Units
   governance:
     business_owner: Head of Quality
     data_owner: Operations BI
@@ -654,8 +674,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Value between 0 % and 100 %
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: quality.rework.pct
   kpi_key: Rework Rate %
@@ -678,8 +698,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; high rework impacts throughput and cost.
   technical:
     dax_name: Rework Rate %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Rework Rate %
+    lineage:
+    - fact_quality.Rework Units
+    - fact_quality.Total Units
   governance:
     business_owner: Head of Quality
     data_owner: Operations BI
@@ -691,8 +714,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Value between 0 % and 100 %
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: quality.copq.amount
   kpi_key: Cost of Poor Quality
@@ -715,7 +738,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; high COPQ indicates process and supplier issues.
   technical:
     dax_name: Cost of Poor Quality
-    depends_on_measures: []
+    depends_on_measures:
+    - Cost of Poor Quality
     lineage: []
   governance:
     business_owner: Head of Quality
@@ -728,7 +752,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: quality.complaint.pct
   kpi_key: Complaint Rate %
@@ -750,7 +774,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; spikes indicate quality or service issues.
   technical:
     dax_name: Complaint Rate %
-    depends_on_measures: []
+    depends_on_measures:
+    - Complaint Rate %
     lineage: []
   governance:
     business_owner: Head of Quality
@@ -764,7 +789,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
   aliases:
   - crm.complaint.rate.pct
 
@@ -788,8 +813,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; indicates process stability.
   technical:
     dax_name: Defect Density
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Defect Density
+    lineage:
+    - fact_quality.Defect Count
   governance:
     business_owner: Head of Quality
     data_owner: Operations BI
@@ -801,8 +828,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Defect Count >= 0
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: inv.dio.days
   kpi_key: Days in Inventory
@@ -827,8 +854,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher values indicate slower movement and more cash tied up.
   technical:
     dax_name: Days in Inventory
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Days in Inventory
+    lineage:
+    - fact_cogs.COGS Amount
+    - fact_inventory.Average Inventory Amount
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -839,8 +869,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Inventory and COGS reconciled to ledger
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: inv.stockout.pct
   kpi_key: Stockout Rate %
@@ -864,8 +894,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; high stockout rate impacts service and revenue.
   technical:
     dax_name: Stockout Rate %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Stockout Rate %
+    lineage:
+    - fact_stockout.Stockout Flag
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -877,8 +909,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Value between 0 % and 100 %
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: inv.obsolete.pct
   kpi_key: Obsolete Inventory %
@@ -900,7 +932,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; high obsolescence indicates slow movement or aging.
   technical:
     dax_name: Obsolete Inventory %
-    depends_on_measures: []
+    depends_on_measures:
+    - Obsolete Inventory %
     lineage: []
   governance:
     business_owner: Head of Supply Chain / Logistics
@@ -914,7 +947,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: plan.forecast.accuracy.pct
   kpi_key: Forecast Accuracy %
@@ -940,7 +973,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher is better; low accuracy drives inventory and service issues.
   technical:
     dax_name: Forecast Accuracy %
-    depends_on_measures: []
+    depends_on_measures:
+    - Forecast Accuracy %
     lineage: []
   governance:
     business_owner: Supply Planning Lead
@@ -954,7 +988,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: plan.forecast.bias.pct
   kpi_key: Forecast Bias %
@@ -977,7 +1011,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Values near 0 are best; positive bias indicates over-forecasting.
   technical:
     dax_name: Forecast Bias %
-    depends_on_measures: []
+    depends_on_measures:
+    - Bias %
     lineage: []
   governance:
     business_owner: Supply Planning Lead
@@ -991,7 +1026,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
   aliases:
   - sales.forecast.bias_pct
 
@@ -1016,7 +1051,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: High values indicate planning instability or frequent disruptions.
   technical:
     dax_name: Re-Plan Count
-    depends_on_measures: []
+    depends_on_measures:
+    - Re-Plan Count
     lineage: []
   governance:
     business_owner: Supply Planning Lead
@@ -1029,7 +1065,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: supply.otif.pct
   kpi_key: OTIF %
@@ -1058,8 +1094,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher is better; key service level indicator.
   technical:
     dax_name: OTIF %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - OTIF %
+    lineage:
+    - fact_fulfillment.OTIF Flag
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -1071,8 +1109,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Value between 0 % and 100 %
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: supply.on_time.pct
   kpi_key: On-Time %
@@ -1095,8 +1133,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher is better; analyze by carrier and lane.
   technical:
     dax_name: On-Time %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - On-Time %
+    lineage:
+    - fact_fulfillment.On-Time Flag
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -1108,8 +1148,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Value between 0 % and 100 %
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: supply.stockout_impact.pct
   kpi_key: Stockout Impact %
@@ -1131,7 +1171,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; ties inventory and service performance.
   technical:
     dax_name: Stockout Impact %
-    depends_on_measures: []
+    depends_on_measures:
+    - Stockout Impact %
     lineage: []
   governance:
     business_owner: Head of Supply Chain / Logistics
@@ -1145,7 +1186,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: supply.expedite.amount
   kpi_key: Expedite Cost Amount
@@ -1168,8 +1209,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; high values indicate planning or supply issues.
   technical:
     dax_name: Expedite Cost Amount
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Expedite Cost Amount
+    lineage:
+    - fact_fulfillment.Expedite Cost
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -1180,8 +1223,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Expedite costs reconciled to logistics ledger
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: supply.penalty.amount
   kpi_key: Penalty Amount
@@ -1203,8 +1246,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; high penalties signal delivery or quality issues.
   technical:
     dax_name: Penalty Amount
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Penalty Amount
+    lineage:
+    - fact_fulfillment.Penalty Amount
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -1215,8 +1260,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Penalties reconciled to claims ledger
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: plan.forecast.service_impact.pct
   kpi_key: Service Impact %
@@ -1238,14 +1283,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Service Impact %
     depends_on_measures:
-      - Stockout Impact %
-      - Under-Forecast Lost Demand Share
+    - Service Impact %
     lineage:
-      - fact_forecast.Forecast Qty
-      - fact_demand.Actual Demand Qty
-      - fact_stockout.Lost Demand Qty
-      - fact_stockout.Demand Qty
-      - fact_stockout.Stockout Flag (or fact_otif.OTIF Flag)
+    - fact_forecast.Forecast Units
+    - fact_stockout.Demand Units
+    - fact_stockout.Lost Demand Units
   governance:
     business_owner: Head of Supply Chain Planning
     data_owner: Supply Chain BI
@@ -1258,8 +1300,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       - Under-Forecast Lost Demand Share must be between 0 % and 100 %.
     version: v1.0
   metadata_quality:
-    completeness_score: 0.7
-    last_review: TBD
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: ops.oee.pct
   kpi_key: Overall Equipment Effectiveness (OEE) %
@@ -1284,13 +1326,12 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: OEE %
     depends_on_measures:
-    - Availability %
-    - Performance %
-    - Quality %
+    - OEE %
     lineage:
-    - fact_mes.Availability
-    - fact_mes.Performance
-    - fact_mes.Quality
+    - fact_ops.Good Units
+    - fact_ops.Output Units
+    - fact_ops.Planned Time Minutes
+    - fact_ops.Run Time Minutes
   governance:
     business_owner: Head of Manufacturing
     data_owner: Manufacturing BI
@@ -1301,8 +1342,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Subcomponents validated against MES feed; OEE = 100 %
     version: v2.0
   metadata_quality:
-    completeness_score: 0.98
-    last_review: 12.10.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: ops.failure.count
   kpi_key: Failure Count
@@ -1326,7 +1367,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher counts indicate lower reliability.
   technical:
     dax_name: Failure Count
-    depends_on_measures: []
+    depends_on_measures:
+    - Failure Count
     lineage: []
   governance:
     business_owner: Head of Operations
@@ -1339,7 +1381,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
+    last_review: 23.01.2026
 
 - kpi_id: ops.inventory.value.amount
   kpi_key: Inventory Value Amount
@@ -1360,7 +1402,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher values indicate more capital tied in spare parts.
   technical:
     dax_name: Inventory Value Amount
-    depends_on_measures: []
+    depends_on_measures:
+    - Inventory Value Amount
     lineage: []
   governance:
     business_owner: Head of Supply Chain
@@ -1372,7 +1415,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
+    last_review: 23.01.2026
 
 - kpi_id: ops.planned_output.units
   kpi_key: Planned Output Units
@@ -1398,7 +1441,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Baseline for comparing actual throughput.
   technical:
     dax_name: Planned Output Units
-    depends_on_measures: []
+    depends_on_measures:
+    - Planned Output Units
     lineage: []
   governance:
     business_owner: Head of Operations
@@ -1410,7 +1454,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
+    last_review: 23.01.2026
 
 - kpi_id: ops.pm.task.count
   kpi_key: Preventive Maintenance Task Count
@@ -1432,7 +1476,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher counts indicate more planned maintenance activity.
   technical:
     dax_name: Preventive Maintenance Task Count
-    depends_on_measures: []
+    depends_on_measures:
+    - Preventive Maintenance Task Count
     lineage: []
   governance:
     business_owner: Head of Maintenance
@@ -1444,7 +1489,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
+    last_review: 23.01.2026
 
 - kpi_id: ops.production.volume
   kpi_key: Production Volume Units
@@ -1466,8 +1511,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher values indicate higher output.
   technical:
     dax_name: Production Volume Units
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Production Volume Units
+    lineage:
+    - fact_ops.Output Units
   governance:
     business_owner: Head of Manufacturing
     data_owner: Manufacturing BI
@@ -1477,8 +1524,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     qa_rules: []
     version: v0.1
   metadata_quality:
-    completeness_score: 0.6
-    last_review: TBD
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: ops.quality.defect_rate.pct
   kpi_key: Quality Defect Rate %
@@ -1499,8 +1546,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower values indicate better quality.
   technical:
     dax_name: Quality Defect Rate %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Quality Defect Rate %
+    lineage:
+    - fact_ops.Output Units
+    - fact_quality.Defect Count
   governance:
     business_owner: Head of Quality
     data_owner: Quality BI
@@ -1510,8 +1560,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     qa_rules: []
     version: v0.1
   metadata_quality:
-    completeness_score: 0.6
-    last_review: TBD
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: ops.safety.incident.count
   kpi_key: Safety Incident Count
@@ -1532,7 +1582,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher counts indicate higher safety risk.
   technical:
     dax_name: Safety Incident Count
-    depends_on_measures: []
+    depends_on_measures:
+    - Safety Incident Count
     lineage: []
   governance:
     business_owner: EHS Manager
@@ -1544,7 +1595,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
+    last_review: 23.01.2026
 
 - kpi_id: ops.service_level.pct
   kpi_key: Operations Service Level %
@@ -1565,7 +1616,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher values indicate better service performance.
   technical:
     dax_name: Operations Service Level %
-    depends_on_measures: []
+    depends_on_measures:
+    - Operations Service Level %
     lineage: []
   governance:
     business_owner: Head of Operations
@@ -1577,7 +1629,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
+    last_review: 23.01.2026
 
 - kpi_id: ops.yield.pct
   kpi_key: Yield %
@@ -1598,8 +1650,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher yield indicates better process efficiency.
   technical:
     dax_name: Yield %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Yield %
+    lineage:
+    - fact_ops.Good Units
+    - fact_ops.Output Units
   governance:
     business_owner: Head of Manufacturing
     data_owner: Manufacturing BI
@@ -1609,8 +1664,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     qa_rules: []
     version: v0.1
   metadata_quality:
-    completeness_score: 0.6
-    last_review: TBD
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: order.lines
   kpi_key: Order Lines Count
@@ -1634,7 +1689,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher counts indicate higher order volume.
   technical:
     dax_name: Order Lines Count
-    depends_on_measures: []
+    depends_on_measures:
+    - Order Lines Count
     lineage: []
   governance:
     business_owner: Head of Supply Chain
@@ -1646,7 +1702,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
+    last_review: 23.01.2026
 
 - kpi_id: plans.count
   kpi_key: Plans Count
@@ -1668,7 +1724,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher counts indicate more planning activity.
   technical:
     dax_name: Plans Count
-    depends_on_measures: []
+    depends_on_measures:
+    - Plans Count
     lineage: []
   governance:
     business_owner: Supply Planning Lead
@@ -1680,7 +1737,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
+    last_review: 23.01.2026
 
 - kpi_id: shipments.count
   kpi_key: Shipments Count
@@ -1705,7 +1762,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher counts indicate higher fulfillment activity.
   technical:
     dax_name: Shipments Count
-    depends_on_measures: []
+    depends_on_measures:
+    - Shipments Count
     lineage: []
   governance:
     business_owner: Head of Logistics
@@ -1717,7 +1775,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
+    last_review: 23.01.2026
 
 - kpi_id: scm.service_level.pct
   kpi_key: Supply Chain Service Level %
@@ -1738,8 +1796,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher values indicate better service reliability.
   technical:
     dax_name: Supply Chain Service Level %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Supply Chain Service Level %
+    lineage:
+    - fact_fulfillment.OTIF Flag
   governance:
     business_owner: Head of Supply Chain
     data_owner: Supply Chain BI
@@ -1749,8 +1809,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     qa_rules: []
     version: v0.1
   metadata_quality:
-    completeness_score: 0.6
-    last_review: TBD
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: ops.availability.pct
   kpi_key: Availability %
@@ -1775,8 +1835,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher availability indicates less downtime; low values typically reflect maintenance or scheduling issues.
   technical:
     dax_name: Availability %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Availability %
+    lineage:
+    - fact_ops.Planned Time Minutes
+    - fact_ops.Run Time Minutes
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -1787,8 +1850,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Availability % bounded between 0 % and 100 %; reconciles to planned/available time from MES within +/- 1 pp.
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: ops.otif.pct
   kpi_key: OTIF %
@@ -1810,8 +1873,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: OTIF %
     depends_on_measures:
-    - OTIF Deliveries Count
-    - Total Deliveries Count
+    - OTIF %
     lineage: []
   governance:
     business_owner: Head of Supply Chain / Finance
@@ -1825,7 +1887,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: ops.working_capital.ccc.days
   kpi_key: Cash Conversion Cycle (Days)
@@ -1846,7 +1908,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower CCC means faster cash conversion and lower working capital.
   technical:
     dax_name: Cash Conversion Cycle (Days)
-    depends_on_measures: []
+    depends_on_measures:
+    - Cash Conversion Cycle (Days)
     lineage: []
   governance:
     business_owner: Head of Treasury
@@ -1859,7 +1922,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.1
   metadata_quality:
     completeness_score: 0.8
-    last_review: 11.11.2025
+    last_review: 23.01.2026
   aliases:
   - fin.liquidity.cash_conversion_cycle_days
 
@@ -1882,8 +1945,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; analyze downtime drivers and loss categories.
   technical:
     dax_name: Downtime %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Downtime %
+    lineage:
+    - fact_ops.Downtime Minutes
+    - fact_ops.Planned Time Minutes
   governance:
     business_owner: Head of Operations
     data_owner: Operations BI
@@ -1895,8 +1961,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Value between 0 % and 100 %
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: ops.downtime.unplanned.pct
   kpi_key: Unplanned Downtime %
@@ -1919,8 +1985,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; track reliability and maintenance effectiveness.
   technical:
     dax_name: Unplanned Downtime %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Unplanned Downtime %
+    lineage:
+    - fact_ops.Planned Time Minutes
   governance:
     business_owner: Head of Operations
     data_owner: Operations BI
@@ -1932,8 +2000,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Value between 0 % and 100 %
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: inv.turnover
   kpi_key: Inventory Turnover
@@ -1955,8 +2023,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher turnover indicates better inventory velocity; too high may risk stockouts.
   technical:
     dax_name: Inventory Turnover
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Inventory Turnover
+    lineage:
+    - fact_cogs.COGS Amount
+    - fact_inventory.Average Inventory Amount
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -1967,8 +2038,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - COGS and inventory reconciled to ledger
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
   aliases:
   - ops.inventory.turnover
 
@@ -1992,8 +2063,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; high MAPE indicates unstable demand or poor model fit.
   technical:
     dax_name: Forecast MAPE %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - MAPE %
+    lineage:
+    - fact_forecast.Forecast Units
   governance:
     business_owner: Supply Planning Lead
     data_owner: Supply Chain BI
@@ -2005,8 +2078,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Review outliers for promotions or anomalies
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: supply.in_full.pct
   kpi_key: In-Full %
@@ -2029,8 +2102,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher is better; low values indicate allocation or stock issues.
   technical:
     dax_name: In-Full %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - In-Full %
+    lineage:
+    - fact_fulfillment.In-Full Flag
   governance:
     business_owner: Head of Supply Chain / Logistics
     data_owner: Supply Chain BI
@@ -2042,8 +2117,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Value between 0 % and 100 %
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: enterprise.action_outcome_rate.pct
   kpi_key: Action Outcome Rate %
@@ -2065,7 +2140,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher values indicate better execution effectiveness.
   technical:
     dax_name: Action Outcome Rate %
-    depends_on_measures: []
+    depends_on_measures:
+    - Action Outcome Rate %
     lineage: []
   governance:
     business_owner: Executive Office
@@ -2077,7 +2153,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
+    last_review: 23.01.2026
 
 - kpi_id: enterprise.action_routed.count
   kpi_key: Actions Routed Count
@@ -2098,7 +2174,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher counts indicate more routed actions.
   technical:
     dax_name: Actions Routed Count
-    depends_on_measures: []
+    depends_on_measures:
+    - Actions Routed Count
     lineage: []
   governance:
     business_owner: Executive Office
@@ -2110,7 +2187,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
+    last_review: 23.01.2026
 
 - kpi_id: sales.price.realization_pct
   kpi_key: Price Realization %
@@ -2135,11 +2212,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Price Realization %
     depends_on_measures:
-    - Net Price Amount
-    - List Price Amount
+    - Price Realization %
     lineage:
-    - fact_sales.Net Price Amount
     - fact_sales.List Price Amount
+    - fact_sales.Net Price Amount
   governance:
     business_owner: Head of Sales Controlling
     data_owner: Pricing Team
@@ -2151,8 +2227,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - List price source reconciled to price books
     version: v1.1
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 11.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: sales.pvm.mix_effect.amount
   kpi_key: Mix Effect Amount
@@ -2177,7 +2253,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Explains whether composition shifts drive positive or negative outcomes.
   technical:
     dax_name: Mix Effect Amount
-    depends_on_measures: []
+    depends_on_measures:
+    - Mix Effect Amount
     lineage: []
   governance:
     business_owner: Head of Sales Controlling
@@ -2190,7 +2267,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.1
   metadata_quality:
     completeness_score: 0.8
-    last_review: 11.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: sales.net_sales.amount
   kpi_key: Net Sales Amount
@@ -2229,8 +2306,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     qa_rules: []
     version: v2.0
   metadata_quality:
-    completeness_score: 0.98
-    last_review: 03.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: sales.net_sales.delta_pct.ly
   kpi_key: Delta% Net Sales
@@ -2253,8 +2330,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Delta% Net Sales
     depends_on_measures:
-    - Net Sales Amount
-    - Net Sales Amount LY
+    - Net Sales Delta % vs LY
     lineage:
     - fact_sales.Net Sales Amount
   governance:
@@ -2267,8 +2343,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Reconciles to Net Sales and LY revenue within +/- 0.1 pp
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
   aliases:
   - Delta% Net Sales
 
@@ -2296,10 +2372,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Net Sales % vs Plan
     depends_on_measures:
-    - Net Sales Amount
-    - Plan Sales Amount
+    - Net Sales % vs Plan
     lineage:
-    - fact_sales.Net Sales Amount
     - fact_sales.Plan Sales Amount
   governance:
     business_owner: Head of Sales Controlling
@@ -2311,8 +2385,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Reconciles to Net Sales and Plan revenue within +/- 0.1 pp
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: sales.pvm.price_effect.amount
   kpi_key: Price Effect Amount
@@ -2335,8 +2409,13 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Positive values indicate price gains; negative values represent price pressure.
   technical:
     dax_name: Price Effect Amount
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Price Effect Amount
+    lineage:
+    - fact_sales.Net Sales Amount
+    - fact_sales.Plan Quantity
+    - fact_sales.Plan Sales Amount
+    - fact_sales.Quantity
   governance:
     business_owner: Head of Sales Controlling
     data_owner: BI Engineering
@@ -2348,8 +2427,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Exclude items without plan price
     version: v1.1
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 11.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: sales.pvm.volume_effect.amount
   kpi_key: Volume Effect Amount
@@ -2370,8 +2449,12 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Positive values indicate higher volume than plan; negative values indicate volume shortfalls.
   technical:
     dax_name: Volume Effect Amount
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Volume Effect Amount
+    lineage:
+    - fact_sales.Plan Quantity
+    - fact_sales.Plan Sales Amount
+    - fact_sales.Quantity
   governance:
     business_owner: Head of Sales Controlling
     data_owner: BI Engineering
@@ -2383,8 +2466,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Exclude negative plan quantities
     version: v1.1
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 11.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: sales.units
   kpi_key: Sales Units
@@ -2414,8 +2497,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher values indicate higher volume sold.
   technical:
     dax_name: Sales Units
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Sales Units
+    lineage:
+    - fact_sales.Sales Units
   governance:
     business_owner: Head of Sales
     data_owner: Commercial BI
@@ -2425,8 +2510,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     qa_rules: []
     version: v0.1
   metadata_quality:
-    completeness_score: 0.6
-    last_review: TBD
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: people.digital_adoption.pct
   kpi_key: Digital Adoption Rate %
@@ -2448,10 +2533,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Digital Adoption Rate %
     depends_on_measures:
-    - Digital Transactions Count
-    - Total Transactions Count
+    - Digital Adoption %
     lineage:
-    - fact_digital_usage.TransactionsCount
+    - fact_hr.Headcount
+    - fact_it.Digital Users
   governance:
     business_owner: Head of Digital Transformation
     data_owner: Corporate BI
@@ -2462,8 +2547,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Eligible processes flagged correctly; adoption bounded between 0 % and 100 %
     version: v1.0
   metadata_quality:
-    completeness_score: 0.85
-    last_review: 19.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: people.attrition_risk.pct
   kpi_key: Attrition Risk %
@@ -2484,12 +2569,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher values signal retention risk and require targeted actions.
   technical:
     dax_name: Attrition Risk %
-    depends_on_measures: []
-    lineage:
-    - fact_hr.Attrition Risk %
-    - fact_hr.Headcount
-    - fact_hr.Leavers
-  governance:
+    depends_on_measures:
+    - Attrition Risk %
+    lineage: []
     business_owner: Head of HR
     data_owner: People Analytics
     steward: HR Analyst
@@ -2501,7 +2583,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: wc.dso.days
   kpi_key: DSO Days
@@ -2523,8 +2605,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; rising DSO indicates collection issues.
   technical:
     dax_name: DSO Days
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - DSO Days
+    lineage:
+    - fact_sales.Net Sales Amount
   governance:
     business_owner: Head of Treasury
     data_owner: Finance BI
@@ -2535,8 +2619,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Net Sales > 0
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: wc.dio.days
   kpi_key: DIO Days
@@ -2558,7 +2642,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; high DIO increases cash tied up in stock.
   technical:
     dax_name: DIO Days
-    depends_on_measures: []
+    depends_on_measures:
+    - DIO Days
     lineage: []
   governance:
     business_owner: Head of Treasury / Supply Chain Finance
@@ -2571,7 +2656,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: wc.dpo.days
   kpi_key: DPO Days
@@ -2593,7 +2678,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher values improve cash but may impact supplier terms.
   technical:
     dax_name: DPO Days
-    depends_on_measures: []
+    depends_on_measures:
+    - DPO Days
     lineage: []
   governance:
     business_owner: Head of Treasury / Procurement Controlling
@@ -2606,7 +2692,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: wc.ccc.days
   kpi_key: CCC Days
@@ -2628,7 +2714,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower values indicate faster cash recovery.
   technical:
     dax_name: CCC Days
-    depends_on_measures: []
+    depends_on_measures:
+    - CCC Days
     lineage: []
   governance:
     business_owner: Head of Treasury
@@ -2641,7 +2728,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: fin.cash.balance
   kpi_key: Cash Balance
@@ -2664,7 +2751,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher balance improves liquidity buffer; consider seasonality and debt strategy.
   technical:
     dax_name: Cash Balance
-    depends_on_measures: []
+    depends_on_measures:
+    - Cash Balance
     lineage: []
   governance:
     business_owner: Head of Treasury
@@ -2677,7 +2765,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: fin.cash.ocf
   kpi_key: Operating Cash Flow
@@ -2701,7 +2789,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Positive values improve liquidity; negative values require investigation.
   technical:
     dax_name: Operating Cash Flow
-    depends_on_measures: []
+    depends_on_measures:
+    - Operating Cash Flow
     lineage: []
   governance:
     business_owner: Head of Treasury
@@ -2714,7 +2803,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
   aliases:
   - fin.liquidity.operating_cash_flow
 
@@ -2738,7 +2827,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Positive values indicate higher cash than planned.
   technical:
     dax_name: Cash vs Plan %
-    depends_on_measures: []
+    depends_on_measures:
+    - Cash vs Plan %
     lineage: []
   governance:
     business_owner: Head of Treasury
@@ -2751,7 +2841,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: margin.gm.pct
   kpi_key: Gross Margin % (Operational)
@@ -2780,11 +2870,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Gross Margin %
     depends_on_measures:
-    - Net Sales Amount
-    - COGS Amount
+    - Gross Margin %
     lineage:
+    - fact_sales.Cost of Goods Sold Amount
     - fact_sales.Net Sales Amount
-    - fact_sales.COGS Amount
   governance:
     business_owner: Head of Controlling
     data_owner: BI Engineering
@@ -2795,8 +2884,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Reconciles to strategic Gross Margin % within +/- 0.1 pp for the same slice
     version: v1.0
   metadata_quality:
-    completeness_score: 0.9
-    last_review: 19.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: sales.promo.roi.pct
   kpi_key: Promo ROI %
@@ -2821,12 +2910,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Promo ROI %
     depends_on_measures:
-    - Incremental GM Amount
-    - Promo Cost Amount
-    lineage:
-    - fact_sales.Net Sales Amount
-    - fact_sales.COGS Amount
-    - fact_sales.Promo Cost Amount
+    - Promotion ROI %
+    lineage: []
   governance:
     business_owner: Head of Marketing Controlling
     data_owner: BI Engineering
@@ -2839,7 +2924,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.82
-    last_review: 11.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: margin.promo.gm.pct
   kpi_key: GM % During Promo
@@ -2864,11 +2949,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: GM % During Promo
     depends_on_measures:
-    - Promo Sales Amount
-    - Promo COGS Amount
+    - Promo Gross Margin %
     lineage:
+    - fact_sales.Cost of Goods Sold Amount
     - fact_sales.Net Sales Amount
-    - fact_sales.COGS Amount
     - fact_sales.Promo Flag
   governance:
     business_owner: Head of Marketing Controlling
@@ -2880,8 +2964,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Promo mapping consistent with finance
     version: v2.0
   metadata_quality:
-    completeness_score: 0.9
-    last_review: 12.10.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: cost.cogs_per_unit.amount
   kpi_key: COGS per Unit
@@ -2902,8 +2986,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; rising unit cost erodes margin.
   technical:
     dax_name: COGS per Unit
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - COGS per Unit
+    lineage:
+    - fact_sales.Quantity
   governance:
     business_owner: Head of Controlling
     data_owner: Finance BI
@@ -2914,8 +3000,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Units Sold > 0
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: sales.promo.cannibalization.pct
   kpi_key: Cannibalization %
@@ -2936,8 +3022,12 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; high cannibalization reduces net gain.
   technical:
     dax_name: Cannibalization %
-    depends_on_measures: []
-    lineage: []
+    depends_on_measures:
+    - Cannibalization %
+    lineage:
+    - fact_promo.Baseline Non-Promo Sales Amount
+    - fact_sales.Net Sales Amount
+    - fact_sales.Promo Flag
   governance:
     business_owner: Head of Marketing Controlling
     data_owner: BI Engineering
@@ -2949,8 +3039,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Value between 0 % and 100 %
     version: v1.0
   metadata_quality:
-    completeness_score: 0.8
-    last_review: 04.11.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: cost.material.pct
   kpi_key: Material Cost %
@@ -2972,7 +3062,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; increases indicate supplier or price pressure.
   technical:
     dax_name: Material Cost %
-    depends_on_measures: []
+    depends_on_measures:
+    - Material Cost %
     lineage: []
   governance:
     business_owner: Head of Controlling
@@ -2985,7 +3076,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: cost.opex.vs_plan.pct
   kpi_key: OpEx vs Plan %
@@ -3007,7 +3098,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Positive values indicate overspend; negative values indicate savings.
   technical:
     dax_name: OpEx vs Plan %
-    depends_on_measures: []
+    depends_on_measures:
+    - OpEx vs Plan %
     lineage: []
   governance:
     business_owner: Head of Controlling
@@ -3020,7 +3112,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: cost.unit.amount
   kpi_key: Unit Cost Amount
@@ -3045,7 +3137,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; used to track cost efficiency.
   technical:
     dax_name: Unit Cost Amount
-    depends_on_measures: []
+    depends_on_measures:
+    - Unit Cost Amount
     lineage: []
   governance:
     business_owner: Head of Controlling
@@ -3058,7 +3151,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: profit.gross_margin
   kpi_key: Gross Margin %
@@ -3080,11 +3173,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Gross Margin %
     depends_on_measures:
-    - Net Sales Amount
-    - COGS Amount
+    - Gross Margin %
     lineage:
+    - fact_sales.Cost of Goods Sold Amount
     - fact_sales.Net Sales Amount
-    - fact_sales.COGS Amount
   governance:
     business_owner: Head of Controlling
     data_owner: BI Engineering
@@ -3096,8 +3188,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Reconcile with P&L Gross Margin +/-0.5 pp
     version: v2.0
   metadata_quality:
-    completeness_score: 0.97
-    last_review: 12.10.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: margin.gm.amount
   kpi_key: Gross Margin Amount
@@ -3124,10 +3216,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Gross Margin Amount
     depends_on_measures:
-    - Net Sales Amount
+    - Gross Margin Amount
     lineage:
+    - fact_sales.Cost of Goods Sold Amount
     - fact_sales.Net Sales Amount
-    - fact_sales.COGS Amount
   governance:
     business_owner: Head of Controlling
     data_owner: BI Engineering
@@ -3138,8 +3230,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Reconcile with P&L GM within +/-0.5%
     version: v2.0
   metadata_quality:
-    completeness_score: 0.98
-    last_review: 12.10.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
   aliases:
   - hr.gm.amount
 
@@ -3166,11 +3258,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Incremental Sales Amount
     depends_on_measures:
-    - Promo Sales Amount
-    - Baseline Sales Amount
+    - Incremental Sales Amount
     lineage:
+    - fact_promo.Baseline Sales Amount
     - fact_sales.Net Sales Amount
-    - fact_sales.Promo Flag
   governance:
     business_owner: Head of Marketing Controlling
     data_owner: BI Engineering
@@ -3181,8 +3272,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Baseline method documented; overlap handling
     version: v2.0
   metadata_quality:
-    completeness_score: 0.9
-    last_review: 12.10.2025
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: margin.cogs.pct
   kpi_key: COGS % of Sales
@@ -3204,7 +3295,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Lower is better; complements gross margin %.
   technical:
     dax_name: COGS % of Sales
-    depends_on_measures: []
+    depends_on_measures:
+    - COGS % of Sales
     lineage: []
   governance:
     business_owner: Head of Controlling
@@ -3217,7 +3309,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: margin.gm.vs_plan.pct
   kpi_key: Gross Margin % vs Plan
@@ -3238,7 +3330,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Positive values indicate better-than-plan margin.
   technical:
     dax_name: Gross Margin % vs Plan
-    depends_on_measures: []
+    depends_on_measures:
+    - Gross Margin % vs Plan
     lineage: []
   governance:
     business_owner: Head of Controlling
@@ -3251,7 +3344,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v1.0
   metadata_quality:
     completeness_score: 0.8
-    last_review: 04.11.2025
+    last_review: 23.01.2026
 
 - kpi_id: cost.base_volume.amount
   kpi_key: Cost Base Volume Amount
@@ -3274,7 +3367,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Provides a stable base for cost variance comparisons.
   technical:
     dax_name: Cost Base Volume Amount
-    depends_on_measures: []
+    depends_on_measures:
+    - Cost Base Volume Amount
     lineage: []
   governance:
     business_owner: Head of Controlling
@@ -3286,7 +3380,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
+    last_review: 23.01.2026
 
 - kpi_id: cost.opex.base.amount
   kpi_key: Opex Base Amount
@@ -3308,7 +3402,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Used to compare actual Opex against the base.
   technical:
     dax_name: Opex Base Amount
-    depends_on_measures: []
+    depends_on_measures:
+    - Opex Base Amount
     lineage: []
   governance:
     business_owner: Head of Controlling
@@ -3320,7 +3415,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
+    last_review: 23.01.2026
 
 - kpi_id: enterprise.value_at_risk.index
   kpi_key: Enterprise Value-at-Risk Index
@@ -3342,7 +3437,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher index indicates higher enterprise risk exposure.
   technical:
     dax_name: Enterprise Value-at-Risk Index
-    depends_on_measures: []
+    depends_on_measures:
+    - Enterprise Value-at-Risk Index
     lineage: []
   governance:
     business_owner: Chief Risk Officer
@@ -3354,7 +3450,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
+    last_review: 23.01.2026
 
 - kpi_id: scm.supplier_risk.score
   kpi_key: Supplier Risk Score
@@ -3375,7 +3471,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher scores indicate higher supplier risk.
   technical:
     dax_name: Supplier Risk Score
-    depends_on_measures: []
+    depends_on_measures:
+    - Supplier Risk Score
     lineage: []
   governance:
     business_owner: Head of Procurement
@@ -3387,7 +3484,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
+    last_review: 23.01.2026
 
 - kpi_id: svc.sla.attainment.pct
   kpi_key: SLA Attainment %
@@ -3414,10 +3511,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: SLA Attainment %
     depends_on_measures:
-    - Cases SLA Met
-    - Cases Resolved
+    - SLA Attainment %
     lineage:
-    - fact_cases[SLA Met Flag]
+    - fact_cases.SLA Met Flag
   governance:
     business_owner: Head of Service
     data_owner: Service Analytics
@@ -3428,8 +3524,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Total cases > 0 for reported slice
     version: v1.0
   metadata_quality:
-    completeness_score: 0.9
-    last_review: TBD
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: svc.fcr.pct
   kpi_key: First Contact Resolution %
@@ -3452,10 +3548,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: FCR %
     depends_on_measures:
-    - Cases FCR
-    - Cases Resolved
+    - FCR %
     lineage:
-    - fact_cases[FCR Flag]
+    - fact_cases.FCR Flag
   governance:
     business_owner: Head of Service
     data_owner: Service Analytics
@@ -3466,8 +3561,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Total cases > 0; reopened cases handled per policy
     version: v1.0
   metadata_quality:
-    completeness_score: 0.9
-    last_review: TBD
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: svc.aht.minutes
   kpi_key: Average Handling Time (minutes)
@@ -3490,10 +3585,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: AHT Minutes
     depends_on_measures:
-    - Total Handle Time Minutes
-    - Cases Resolved
+    - AHT Minutes
     lineage:
-    - fact_cases[Handle Time Minutes]
+    - fact_cases.Handle Time Minutes
   governance:
     business_owner: Head of Service
     data_owner: Service Analytics
@@ -3504,8 +3598,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Handle time unit consistent; exclude outliers per policy
     version: v1.0
   metadata_quality:
-    completeness_score: 0.9
-    last_review: TBD
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: svc.backlog.count
   kpi_key: Backlog Count
@@ -3530,9 +3624,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Backlog Count
     depends_on_measures:
-    - Backlog Cases
+    - Backlog Count
     lineage:
-    - fact_cases[Backlog Flag]
+    - fact_cases.Backlog Flag
   governance:
     business_owner: Head of Service
     data_owner: Service Analytics
@@ -3543,8 +3637,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Status logic consistent; one row per case
     version: v1.0
   metadata_quality:
-    completeness_score: 0.9
-    last_review: TBD
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: svc.nps.index
   kpi_key: NPS Index
@@ -3568,7 +3662,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     depends_on_measures:
     - NPS Index
     lineage:
-    - fact_nps[NPS Score]
+    - fact_nps.NPS Score
   governance:
     business_owner: Head of Service
     data_owner: Service Analytics
@@ -3579,8 +3673,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Score in [-100;100]; promoter/detractor thresholds documented
     version: v1.0
   metadata_quality:
-    completeness_score: 0.9
-    last_review: TBD
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: svc.escalation.pct
   kpi_key: Escalation %
@@ -3604,10 +3698,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: Escalation %
     depends_on_measures:
-    - Escalated Cases
-    - Cases Resolved
+    - Escalation %
     lineage:
-    - fact_cases[Escalation Flag]
+    - fact_cases.Escalation Flag
   governance:
     business_owner: Head of Service
     data_owner: Service Analytics
@@ -3618,8 +3711,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Total cases > 0; escalation definition consistent
     version: v1.0
   metadata_quality:
-    completeness_score: 0.9
-    last_review: TBD
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: res.utilization.pct
   kpi_key: Utilization %
@@ -3641,14 +3734,14 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     definition: Productive time divided by paid time.
     grain_scope: agent_day or queue_day; aggregated to week/month.
     unit_format: '% (1 decimal)'
-    interpretation: Typical healthy band 75�85%; balance with SLA/NPS.
+    interpretation: Typical healthy band 75?85%; balance with SLA/NPS.
   technical:
     dax_name: Utilization %
     depends_on_measures:
     - Utilization %
     lineage:
-    - fact_wfm[Work Time]
-    - fact_wfm[Paid Time]
+    - fact_wfm.Paid Time Minutes
+    - fact_wfm.Work Time Minutes
   governance:
     business_owner: Head of Service
     data_owner: WFM Analytics
@@ -3659,8 +3752,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Paid Time > 0; time zones consistent
     version: v1.0
   metadata_quality:
-    completeness_score: 0.9
-    last_review: TBD
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: res.occupancy.pct
   kpi_key: Occupancy %
@@ -3686,9 +3779,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     depends_on_measures:
     - Occupancy %
     lineage:
-    - fact_wfm[Talk]
-    - fact_wfm[Wrap]
-    - fact_wfm[Idle]
+    - fact_wfm.Idle Time Minutes
+    - fact_wfm.Talk Time Minutes
+    - fact_wfm.Wrap Time Minutes
   governance:
     business_owner: Head of Service
     data_owner: WFM Analytics
@@ -3699,8 +3792,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Time totals align; no double counting
     version: v1.0
   metadata_quality:
-    completeness_score: 0.9
-    last_review: TBD
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: res.overtime.pct
   kpi_key: Overtime %
@@ -3726,8 +3819,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     depends_on_measures:
     - Overtime %
     lineage:
-    - fact_wfm[Overtime Hours]
-    - fact_wfm[Total Hours]
+    - fact_wfm.Overtime Minutes
+    - fact_wfm.Paid Time Minutes
   governance:
     business_owner: Head of Service
     data_owner: WFM Analytics
@@ -3738,8 +3831,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Total Hours > 0
     version: v1.0
   metadata_quality:
-    completeness_score: 0.9
-    last_review: TBD
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: res.shrinkage.pct
   kpi_key: Shrinkage %
@@ -3764,8 +3857,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     depends_on_measures:
     - Shrinkage %
     lineage:
-    - fact_wfm[Shrinkage]
-    - fact_wfm[Paid Time]
+    - fact_wfm.Paid Time Minutes
+    - fact_wfm.Shrinkage Minutes
   governance:
     business_owner: Head of Service
     data_owner: WFM Analytics
@@ -3776,9 +3869,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     - Paid Time > 0; components of shrinkage defined
     version: v1.0
   metadata_quality:
-    completeness_score: 0.9
-    last_review: TBD
-    
+    completeness_score: 1.0
+    last_review: 23.01.2026
+
 - kpi_id: svc.tickets.created.count
   kpi_key: Tickets Created Count
   kpi_type: activity
@@ -3805,7 +3898,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher counts indicate higher inbound demand.
   technical:
     dax_name: Tickets Created Count
-    depends_on_measures: []
+    depends_on_measures:
+    - Tickets Created Count
     lineage: []
   governance:
     business_owner: Head of Service
@@ -3817,7 +3911,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
+    last_review: 23.01.2026
 
 - kpi_id: svc.tickets.closed.count
   kpi_key: Tickets Closed Count
@@ -3840,7 +3934,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: Higher counts indicate higher resolution throughput.
   technical:
     dax_name: Tickets Closed Count
-    depends_on_measures: []
+    depends_on_measures:
+    - Tickets Closed Count
     lineage: []
   governance:
     business_owner: Head of Service
@@ -3852,5 +3947,5 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: v0.1
   metadata_quality:
     completeness_score: 0.6
-    last_review: TBD
-`\n
+    last_review: 23.01.2026
+```
