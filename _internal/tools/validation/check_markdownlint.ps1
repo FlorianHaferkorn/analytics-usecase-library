@@ -43,6 +43,7 @@ Write-Host "Markdownlint check" -ForegroundColor Cyan
 
 $args = @(
   "--ignore", ".git",
+  "--ignore", "**/node_modules/**",
   "--ignore", "node_modules",
   "--ignore", "dist",
   "--ignore", "_internal\\archive"

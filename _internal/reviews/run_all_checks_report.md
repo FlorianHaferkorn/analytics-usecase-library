@@ -1,6 +1,6 @@
 ﻿# Run All Checks Report
 
-- Timestamp: 2026-01-27T09:56:49
+- Timestamp: 2026-01-27T11:44:26
 - Repo: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library
 - UseCasesRoot: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases
 - FactsheetsRoot: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core
@@ -17,32 +17,32 @@
 
 | Check | Status | Duration (s) | Arguments | Error |
 | --- | --- | ---: | --- | --- |
-| _internal/tools/validation/validate_factsheets.ps1 | ok | 0.42 |  |  |
-| _internal/tools/validation/validate_kpi_catalog.ps1 | ok | 0.33 |  |  |
-| _internal/tools/validation/check_factsheet_vs_kpi.ps1 | ok | 1.1 |  |  |
-| _internal/tools/validation/check_measures_vs_kpi.ps1 | ok | 0.24 |  |  |
-| _internal/tools/maintenance/check_docs_refs.ps1 | ok | 8 |  |  |
-| _internal/tools/validation/check_docs_kpi_refs.ps1 | ok | 0.26 |  |  |
-| _internal/tools/validation/check_usecase_inventory_vs_factsheets.ps1 | ok | 0.17 |  |  |
-| _internal/tools/validation/check_kpi_catalog_unused_in_factsheets.ps1 | ok | 1.11 |  |  |
-| _internal/tools/validation/check_duplicate_ids.ps1 | ok | 0.66 |  |  |
-| _internal/tools/validation/check_forbidden_content.ps1 | ok | 0.36 |  |  |
-| _internal/tools/validation/check_ssot_markers.ps1 | ok | 2.5 |  |  |
-| _internal/tools/validation/check_docs_usecase_refs.ps1 | ok | 0.26 |  |  |
-| _internal/tools/validation/check_action_codes_vs_kpi.ps1 | ok | 0.53 |  |  |
-| _internal/tools/validation/check_factsheet_action_codes.ps1 | ok | 0.53 |  |  |
-| _internal/tools/validation/check_usecase_actioncode_map.ps1 | ok | 0.5 |  |  |
-| _internal/tools/validation/check_decision_spines.ps1 | ok | 0.43 |  |  |
-| _internal/tools/validation/check_factsheet_actioncode_map.ps1 | ok | 0.16 |  |  |
-| _internal/tools/validation/check_factsheet_layout.ps1 | ok | 1.47 |  |  |
-| _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 | ok | 0.39 | -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
-| _internal/tools/validation/check_dax_vs_measure_dictionary.ps1 | ok | 0.53 |  |  |
-| _internal/tools/validation/check_measure_dictionary_vs_gold.ps1 | ok | 0.15 | -GoldRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\data_contracts\domains -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
-| _internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1 | ok | 0.06 | -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist |  |
-| _internal/tools/validation/check_mojibake.ps1 | ok | 4.65 |  |  |
-| _internal/tools/validation/check_markdownlint.ps1 | ok | 1.8 |  |  |
-| _internal/tools/validation/check_yaml_format.ps1 | ok | 18.82 |  |  |
-| _internal/tools/validation/check_schema_validation.ps1 | ok | 1.64 |  |  |
+| _internal/tools/validation/validate_factsheets.ps1 | ok | 1.57 |  |  |
+| _internal/tools/validation/validate_kpi_catalog.ps1 | ok | 0.44 |  |  |
+| _internal/tools/validation/check_factsheet_vs_kpi.ps1 | ok | 1.08 |  |  |
+| _internal/tools/validation/check_measures_vs_kpi.ps1 | ok | 0.23 |  |  |
+| _internal/tools/maintenance/check_docs_refs.ps1 | ok | 11.23 |  |  |
+| _internal/tools/validation/check_docs_kpi_refs.ps1 | ok | 0.24 |  |  |
+| _internal/tools/validation/check_usecase_inventory_vs_factsheets.ps1 | ok | 0.15 |  |  |
+| _internal/tools/validation/check_kpi_catalog_unused_in_factsheets.ps1 | ok | 0.82 |  |  |
+| _internal/tools/validation/check_duplicate_ids.ps1 | ok | 0.53 |  |  |
+| _internal/tools/validation/check_forbidden_content.ps1 | ok | 0.38 |  |  |
+| _internal/tools/validation/check_ssot_markers.ps1 | ok | 1.89 |  |  |
+| _internal/tools/validation/check_docs_usecase_refs.ps1 | ok | 0.22 |  |  |
+| _internal/tools/validation/check_action_codes_vs_kpi.ps1 | ok | 0.49 |  |  |
+| _internal/tools/validation/check_factsheet_action_codes.ps1 | ok | 0.5 |  |  |
+| _internal/tools/validation/check_usecase_actioncode_map.ps1 | ok | 0.44 |  |  |
+| _internal/tools/validation/check_decision_spines.ps1 | ok | 0.36 |  |  |
+| _internal/tools/validation/check_factsheet_actioncode_map.ps1 | ok | 0.14 |  |  |
+| _internal/tools/validation/check_factsheet_layout.ps1 | ok | 1.56 |  |  |
+| _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 | ok | 0.35 | -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
+| _internal/tools/validation/check_dax_vs_measure_dictionary.ps1 | ok | 0.56 |  |  |
+| _internal/tools/validation/check_measure_dictionary_vs_gold.ps1 | ok | 0.19 | -GoldRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\data_contracts\domains -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
+| _internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1 | ok | 0.08 | -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist |  |
+| _internal/tools/validation/check_mojibake.ps1 | ok | 4.46 |  |  |
+| _internal/tools/validation/check_markdownlint.ps1 | ok | 1.41 |  |  |
+| _internal/tools/validation/check_yaml_format.ps1 | ok | 17.3 |  |  |
+| _internal/tools/validation/check_schema_validation.ps1 | ok | 1.62 |  |  |
 
 ## Detailed Output
 
@@ -379,7 +379,8 @@ OK: No mojibake patterns detected.
 
 ```text
 Markdownlint check
-PS>TerminatingError(node.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: _internal/tools/validation/node_modules/ajv/README.md:1 error MD041/first-line-heading/first-line-h1 First line in a file should be a top-level heading [Context: "<img align="right" alt="Ajv lo..."]."
+OK: markdownlint clean.
+
 ```
 
 ### _internal/tools/validation/check_yaml_format.ps1
@@ -399,6 +400,6 @@ OK: schema validation passed.
 
 **********************
 Ende der Windows PowerShell-Aufzeichnung
-Endzeit: 20260127095649
+Endzeit: 20260127114425
 **********************
 ```

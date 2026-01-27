@@ -1,6 +1,6 @@
 ﻿**********************
 nStart der Windows PowerShell-Aufzeichnung
-Startzeit: 20260127095601
+Startzeit: 20260127114337
 Benutzername: NAGARRO\florianhaferkorn
 RunAs-Benutzer: NAGARRO\florianhaferkorn
 Konfigurationsname: 
@@ -260,8 +260,7 @@ OK: No mojibake patterns detected.
 
 >> _internal/tools/validation/check_markdownlint.ps1
 Markdownlint check
-PS>TerminatingError(node.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: _internal/tools/validation/node_modules/ajv/README.md:1 error MD041/first-line-heading/first-line-h1 First line in a file should be a top-level heading [Context: "<img align="right" alt="Ajv lo..."]."
->> TerminatingError(node.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: _internal/tools/validation/node_modules/ajv/README.md:1 error MD041/first-line-heading/first-line-h1 First line in a file should be a top-level heading [Context: "<img align="right" alt="Ajv lo..."]."
+OK: markdownlint clean.
 
 >> _internal/tools/validation/check_yaml_format.ps1
 YAML format check
@@ -274,5 +273,5 @@ OK: schema validation passed.
 
 **********************
 Ende der Windows PowerShell-Aufzeichnung
-Endzeit: 20260127095649
+Endzeit: 20260127114425
 **********************
