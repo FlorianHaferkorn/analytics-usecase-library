@@ -24,10 +24,9 @@ function Resolve-RepoPath {
 function Get-KpiIdsFromCatalog {
   param([string]$Root)
   $ids = [System.Collections.Generic.HashSet[string]]::new()
-  Get-ChildItem -Path $Root -Recurse -Filter "KPI_Catalog.md" | Where-Object {
-    $_.FullName -notmatch '\\_internal\\archive\\'
-  } | ForEach-Object {
-    Get-Content -Path $_.FullName | ForEach-Object {
+  $catalogPath = Join-Path -Path $Root -ChildPath "KPI_Catalog.md"
+  if (Test-Path $catalogPath) {
+    Get-Content -Path $catalogPath | ForEach-Object {
       if ($_ -match '^\s*-\s*kpi_id\s*:\s*"?([^"\s]+)"?') {
         $null = $ids.Add($matches[1])
       }

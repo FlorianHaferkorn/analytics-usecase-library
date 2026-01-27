@@ -25,8 +25,8 @@ function Resolve-RepoPath {
 }
 
 $allowedTypes = @('strategic','diagnostic','supporting')
-$allowedCalc  = @('amount','rate','ratio','count')
-$allowedImpact = @('growth','profitability','liquidity','efficiency','customer','esg','governance','innovation & people')
+$allowedCalc  = @('amount','rate','ratio','count','percentage','quantity','index')
+$allowedImpact = @('growth','profitability','liquidity','efficiency','customer','esg','governance','innovation & people','service','workforce','experience','risk','innovation','people')
 $idRegex = '^[a-z0-9]+(\.[a-z0-9_]+)*$'
 
 function Get-KpiBlocks {

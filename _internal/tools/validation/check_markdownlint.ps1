@@ -1,6 +1,7 @@
 Param(
   [string]$Root = ".",
   [string[]]$ExcludeDirs = @(".git","node_modules","dist","_internal\\archive"),
+  [switch]$Fix,
   [switch]$FailOnError
 )
 
@@ -44,9 +45,15 @@ $args = @(
   "--ignore", ".git",
   "--ignore", "node_modules",
   "--ignore", "dist",
-  "--ignore", "_internal\\archive",
-  $rootPath
+  "--ignore", "_internal\\archive"
 )
+
+if ($Fix) {
+  $args += "--fix"
+  Write-Host "Auto-fixing markdown issues..." -ForegroundColor Yellow
+}
+
+$args += $rootPath
 
 try {
   & $markdownlint @args

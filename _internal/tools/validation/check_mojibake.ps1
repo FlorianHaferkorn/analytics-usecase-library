@@ -51,6 +51,8 @@ Write-Host "Mojibake scan" -ForegroundColor Cyan
 
 $files = Get-ChildItem -Path $rootPath -Recurse -File | Where-Object {
   $pathLower = $_.FullName.ToLowerInvariant()
+  # Performance: skip node_modules, .git, dist, archive
+  if ($pathLower -match '(\\node_modules\\|\\.git\\|\\dist\\|_archive\\)') { return $false }
   $ext = $_.Extension.TrimStart(".")
   $Extensions -contains $ext `
     -and ($pathLower -notlike "*\_internal\reviews\*") `

@@ -148,6 +148,21 @@ Invoke-LocalScript -RelativePath "_internal/tools/validation/check_kpi_catalog_u
   "-KpiCatalogRoot", $kpiCatalogRoot
 )
 
+# 8a) Check for duplicate IDs (Action Codes, Use Cases, KPIs)
+Invoke-LocalScript -RelativePath "_internal/tools/validation/check_duplicate_ids.ps1" -Arguments @(
+  "-Root", $repoRoot
+)
+
+# 8b) Check for forbidden content (KPI definitions in factsheets)
+Invoke-LocalScript -RelativePath "_internal/tools/validation/check_forbidden_content.ps1" -Arguments @(
+  "-Root", $repoRoot
+)
+
+# 8c) Check for SSOT markers outside allowlist
+Invoke-LocalScript -RelativePath "_internal/tools/validation/check_ssot_markers.ps1" -Arguments @(
+  "-Root", $repoRoot
+)
+
 # 9) Docs -> UseCase references
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_docs_usecase_refs.ps1" -Arguments @(
   "-DocsRoot", (Join-Path $repoRoot "docs"),
@@ -222,13 +237,18 @@ Invoke-LocalScript -RelativePath "_internal/tools/validation/check_mojibake.ps1"
   "-Root", $repoRoot
 )
 
-# 21) Markdownlint (if available)
+# 21) Markdownlint (if available) - Auto-fix enabled
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_markdownlint.ps1" -Arguments @(
-  "-Root", $repoRoot
+  "-Root", $repoRoot, "-Fix"
 )
 
 # 22) YAML format check (if parser available)
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_yaml_format.ps1" -Arguments @(
+  "-Root", $repoRoot
+)
+
+# 23) Schema validation (Action Codes, Maps) via JSON Schema
+Invoke-LocalScript -RelativePath "_internal/tools/validation/check_schema_validation.ps1" -Arguments @(
   "-Root", $repoRoot
 )
 

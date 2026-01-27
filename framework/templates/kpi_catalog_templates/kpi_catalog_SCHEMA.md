@@ -50,7 +50,7 @@ Section `business` (required):
 - `business.grain_scope` (required, string)  
   Aggregation grain and scope, e.g. `Invoice line aggregated by Month, Org, Product`.
 - `business.unit_format` (required, string)  
-  Unit and format, e.g. `€ (0–2 decimals)`, `% (1 decimal)`, `pcs`.
+  Unit and format, e.g. `ï¿½ (0ï¿½2 decimals)`, `% (1 decimal)`, `pcs`.
 - `business.interpretation` (required, string)  
   How to interpret the KPI (good/bad range, typical values, caveats).
 
@@ -58,6 +58,10 @@ Section `technical` (required):
 - `technical.dax_name` (required, string)  
   Semantic measure name in the implementation tool.  
   Field name remains for compatibility; actual measure names vary by tool.
+- `technical.formatString` (required, string)  
+  DAX format string for display formatting, e.g. `"#,0"`, `"#,0.0%"`, `"â‚¬#,0.00"`.
+- `technical.description` (required, string)  
+  One-sentence technical description of the measure calculation.
 - `technical.depends_on_measures` (required, list<string>)  
   Measure names this KPI depends on, e.g. `["Net Sales Amount","COGS Amount"]`.  
   **No DAX expression here.**
@@ -143,21 +147,21 @@ Optional:
     validation_process: "Reconcile with P&L gross margin during month-end close."
     qa_rules:
       - "Value must be between -100 % and 100 %."
-      - "Reconcile with official P&L within ±0.5 pp at company level."
+      - "Reconcile with official P&L within ï¿½0.5 pp at company level."
     version: "v1.0"
   metadata_quality:
     completeness_score: 0.95
     last_review: "21.11.2025"
 ```
 
-### What does NOT belong in the KPI Catalog
+### 1.5 What does NOT belong in the KPI Catalog
 
 - Tool-specific logic or expressions (DAX/SQL/etc.)
 - Helper or performance-only measures
 - Technical optimization notes
 - Report/UI-specific calculations
 
-### Validation Rules (declarative)
+### 1.6 Validation Rules (declarative)
 
 - Every `kpi_id` is unique across all KPI catalogs.
 - `kpi_role` SHOULD be added to KPI entries once layout checks allow it.
@@ -166,5 +170,8 @@ Optional:
 - `action_code_ref` is required (list; empty list allowed).
 - All referenced KPI IDs must exist.
 - No tool-specific syntax in KPI Catalog entries.
+- **String values in business, technical, and governance blocks MUST use double quotes.**
+- **Strategic KPIs require complete business, technical, and governance blocks with quoted fields.**
+- **formatString and description are required in technical blocks for all KPIs.**
 
 
