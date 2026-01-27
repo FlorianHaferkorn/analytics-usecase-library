@@ -39,6 +39,40 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.0
     last_review: 04.11.2025
+
+- measure_name: Inventory Amount
+  is_kpi_measure: true
+  kpi_id_ref: fin.liquidity.inventory.amount
+  semantic_model: Liquidity_SemanticModel
+  category: KPI
+  expression:
+    dax: 'SUM ( fact_inventory[Inventory Value] )'
+    formatString: 'EUR #,0.00'
+  documentation:
+    description: Inventory value at period end
+    notes: 'Used for working capital and liquidity calculations'
+  governance:
+    owner: Finance BI
+    status: active
+    version: v1.0
+    last_review: 27.01.2026
+
+- measure_name: Payables Amount
+  is_kpi_measure: true
+  kpi_id_ref: fin.liquidity.payables.amount
+  semantic_model: Liquidity_SemanticModel
+  category: KPI
+  expression:
+    dax: 'SUM ( fact_payables[Payables Balance] )'
+    formatString: 'EUR #,0.00'
+  documentation:
+    description: Accounts payable balance at period end
+    notes: 'Used for DPO and working capital analysis'
+  governance:
+    owner: Finance BI
+    status: active
+    version: v1.0
+    last_review: 27.01.2026
 ```
 
 

@@ -92,6 +92,32 @@ Schema: see `/semantic_models/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "TBD"
 
+- measure_name: "Planned Hours"
+  is_kpi_measure: true
+  kpi_id_ref: "ops.planned.hours"
+  semantic_model: "Operations_SemanticModel"
+  display_folder: "01_Ops"
+  category: "KPI"
+  expression:
+    dax: |
+      SUM ( fact_ops[Planned Hours] )
+    formatString: "#,0.0"
+  documentation:
+    description: "Scheduled production time allocated for machines/lines."
+    notes: |
+      Grain: machine/line level per shift/day.
+      Unit: hours.
+      Lineage: fact_ops[Planned Hours].
+      QA: Non-negative; reconcile to planning system within +/- 0.1 h.
+  dependencies:
+    columns:
+      - "fact_ops[Planned Hours]"
+  governance:
+    owner: "Supply Chain BI"
+    status: "active"
+    version: "v1.0"
+    last_review: "27.01.2026"
+
 - measure_name: "Quality %"
   is_kpi_measure: true
   kpi_id_ref: "ops.quality.pct"

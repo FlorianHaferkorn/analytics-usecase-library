@@ -1,4 +1,4 @@
-# KPI Catalog
+﻿# KPI Catalog
 
 ---
 
@@ -26,8 +26,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher CLV indicates more valuable segments; compare against acquisition cost and churn risk."
   technical:
     dax_name: "CLV"
+    formatString: "#,0.00"
+    description: "Estimate long-term value of a customer to prioritize retention, acquisition, and service investme..."
     depends_on_measures:
-    - Customer Lifetime Value Amount
+    - crm.clv.amount
     lineage:
     - fact_customer_value.CLV Amount
   governance:
@@ -64,7 +66,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     formatString: "#,0"
     description: "Revenue exposure from churn-risk customers"
     depends_on_measures:
-    - Revenue at Risk Amount
+    - crm.revenue_at_risk.amount
     lineage:
     - fact_customer_events.Attrition Risk %
     - fact_customer_value.CLV Remaining Amount
@@ -102,7 +104,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     formatString: "#,0"
     description: "Count of logged customer complaints"
     depends_on_measures:
-    - Customer Complaints Count
+    - crm.complaint.count
     lineage:
     - fact_experience.Complaint ID
   governance:
@@ -136,8 +138,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher retention indicates better loyalty and relationship quality; interpret jointly with churn and CLV."
   technical:
     dax_name: "Customer Retention %"
+    formatString: "0.0%"
+    description: "Measure the share of customers that remain active from one period to the next, as a core loyalty ..."
     depends_on_measures:
-    - Customer Retention %
+    - crm.retention.pct
     lineage: []
   governance:
     business_owner: "Head of Marketing"
@@ -171,8 +175,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "'>0 is positive, >50 strong advocacy; track trend and segment gaps.'"
   technical:
     dax_name: "NPS Score"
+    formatString: "#,0"
+    description: "Measures customer advocacy and likelihood to recommend."
     depends_on_measures:
-    - NPS Score
+    - crm.nps.index
     lineage:
     - fact_nps.NPS Score
   governance:
@@ -206,8 +212,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher counts indicate deteriorating retention; validate against cohort definitions."
   technical:
     dax_name: "Churned Customers"
+    formatString: "#,0"
+    description: "Count customers that have stopped purchasing in the observation window as basis for churn calcula..."
     depends_on_measures:
-    - Churned Customers Count
+    - crm.churned_customers.count
     lineage:
     - dim_customer.CustomerKey
     - fact_customer_events.Churn Flag
@@ -245,7 +253,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     formatString: "#,0"
     description: "Sum of realized revenue across customer lifecycle"
     depends_on_measures:
-    - Customer Lifetime Revenue Amount
+    - crm.lifetime_revenue.amount
     lineage:
     - dim_customer.CustomerKey
   governance:
@@ -279,8 +287,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Base for retention, churn and at-risk share calculations."
   technical:
     dax_name: "Active Customers"
+    formatString: "#,0"
+    description: "Number of unique active customers in the reporting period."
     depends_on_measures:
-    - Active Customers Count
+    - crm.active_customers.count
     lineage:
     - dim_customer.CustomerKey
     - fact_customer_events.Activity Flag
@@ -317,8 +327,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher performance indicates faster throughput; values above 100 % require validation of standard rates."
   technical:
     dax_name: "Performance %"
+    formatString: "0.0%"
+    description: "Throughput speed versus theoretical maximum."
     depends_on_measures:
-    - Performance %
+    - ops.performance.pct
     lineage:
     - fact_ops.Output Units
   governance:
@@ -354,8 +366,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher quality means fewer defects; low values indicate scrap/rework issues."
   technical:
     dax_name: "Quality %"
+    formatString: "0.0%"
+    description: "Yield of conforming units relative to total units produced."
     depends_on_measures:
-    - Quality %
+    - ops.quality.pct
     lineage:
     - fact_ops.Good Units
     - fact_ops.Output Units
@@ -392,8 +406,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher values indicate better labor efficiency; validate against mix effects."
   technical:
     dax_name: "Labor Productivity %"
+    formatString: "0.0%"
+    description: "Shows output efficiency relative to labor input."
     depends_on_measures:
-    - Labor Productivity %
+    - ops.labor.productivity.pct
     lineage:
     - fact_labor.Labor Hours
   governance:
@@ -431,8 +447,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher is better; declining MTBF indicates reliability issues."
   technical:
     dax_name: "MTBF (hours)"
+    formatString: "0"
+    description: "Measures average operating time between failures."
     depends_on_measures:
-    - MTBF (hours)
+    - ops.mtbf.hours
     lineage: []
   governance:
     business_owner: "Head of Operations"
@@ -468,8 +486,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; high MTTR indicates slow recovery or parts issues."
   technical:
     dax_name: "MTTR (hours)"
+    formatString: "0"
+    description: "Measures average repair time after failures."
     depends_on_measures:
-    - MTTR (hours)
+    - ops.mttr.hours
     lineage: []
   governance:
     business_owner: "Head of Operations"
@@ -504,8 +524,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher is better; low compliance increases breakdown risk."
   technical:
     dax_name: "PM Compliance %"
+    formatString: "0.0%"
+    description: "Tracks adherence to preventive maintenance plan."
     depends_on_measures:
-    - PM Compliance %
+    - ops.pm_compliance.pct
     lineage: []
   governance:
     business_owner: "Head of Maintenance"
@@ -541,8 +563,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; stockouts drive downtime and MTTR."
   technical:
     dax_name: "Spare Parts Stockout %"
+    formatString: "0.0%"
+    description: "Measures stockout frequency for critical spare parts."
     depends_on_measures:
-    - Spare Parts Stockout %
+    - ops.spare_parts.stockout.pct
     lineage:
     - fact_maintenance.Parts Stockout Flag
   governance:
@@ -580,8 +604,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher values indicate higher output; analyze against capacity and demand."
   technical:
     dax_name: "Throughput Units"
+    formatString: "#,0"
+    description: "Measures total output volume in units."
     depends_on_measures:
-    - Throughput Units
+    - ops.throughput.units
     lineage:
     - fact_ops.Output Units
   governance:
@@ -618,8 +644,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher is better; low FPY indicates process instability."
   technical:
     dax_name: "First Pass Yield %"
+    formatString: "0.0%"
+    description: "Measures share of units produced without rework or scrap."
     depends_on_measures:
-    - First Pass Yield %
+    - quality.fpy.pct
     lineage:
     - fact_quality.Good Units
     - fact_quality.Total Units
@@ -659,8 +687,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; rising scrap increases cost and reduces yield."
   technical:
     dax_name: "Scrap Rate %"
+    formatString: "0.0%"
+    description: "Measures share of units scrapped in production."
     depends_on_measures:
-    - Scrap Rate %
+    - quality.scrap.pct
     lineage:
     - fact_quality.Scrap Units
     - fact_quality.Total Units
@@ -699,8 +729,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; high rework impacts throughput and cost."
   technical:
     dax_name: "Rework Rate %"
+    formatString: "0.0%"
+    description: "Measures share of units requiring rework."
     depends_on_measures:
-    - Rework Rate %
+    - quality.rework.pct
     lineage:
     - fact_quality.Rework Units
     - fact_quality.Total Units
@@ -739,8 +771,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; high COPQ indicates process and supplier issues."
   technical:
     dax_name: "Cost of Poor Quality"
+    formatString: "#,0.00"
+    description: "Captures financial impact of scrap, rework, and warranty/complaints."
     depends_on_measures:
-    - Cost of Poor Quality
+    - quality.copq.amount
     lineage: []
   governance:
     business_owner: "Head of Quality"
@@ -775,8 +809,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; spikes indicate quality or service issues."
   technical:
     dax_name: "Complaint Rate %"
+    formatString: "0.0%"
+    description: "Measures customer complaints relative to shipped units."
     depends_on_measures:
-    - Complaint Rate %
+    - quality.complaint.pct
     lineage: []
   governance:
     business_owner: "Head of Quality"
@@ -814,8 +850,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; indicates process stability."
   technical:
     dax_name: "Defect Density"
+    formatString: "#,0"
+    description: "Measures defect count per 1,000 units produced."
     depends_on_measures:
-    - Defect Density
+    - quality.defect_density
     lineage:
     - fact_quality.Defect Count
   governance:
@@ -855,8 +893,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher values indicate slower movement and more cash tied up."
   technical:
     dax_name: "Days in Inventory"
+    formatString: "0"
+    description: "Measures inventory holding period in days."
     depends_on_measures:
-    - Days in Inventory
+    - inv.dio.days
     lineage:
     - fact_cogs.COGS Amount
     - fact_inventory.Average Inventory Amount
@@ -895,8 +935,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; high stockout rate impacts service and revenue."
   technical:
     dax_name: "Stockout Rate %"
+    formatString: "0.0%"
+    description: "Measures how often inventory is unavailable when demanded."
     depends_on_measures:
-    - Stockout Rate %
+    - inv.stockout.pct
     lineage:
     - fact_stockout.Stockout Flag
   governance:
@@ -933,8 +975,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; high obsolescence indicates slow movement or aging."
   technical:
     dax_name: "Obsolete Inventory %"
+    formatString: "0.0%"
+    description: "Measures share of inventory considered obsolete."
     depends_on_measures:
-    - Obsolete Inventory %
+    - inv.obsolete.pct
     lineage: []
   governance:
     business_owner: "Head of Supply Chain / Logistics"
@@ -974,8 +1018,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher is better; low accuracy drives inventory and service issues."
   technical:
     dax_name: "Forecast Accuracy %"
+    formatString: "0.0%"
+    description: "Measures how close forecasted demand is to actual demand."
     depends_on_measures:
-    - Forecast Accuracy %
+    - plan.forecast.accuracy.pct
     lineage: []
   governance:
     business_owner: "Supply Planning Lead"
@@ -1012,8 +1058,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Values near 0 are best; positive bias indicates over-forecasting."
   technical:
     dax_name: "Forecast Bias %"
+    formatString: "0.0%"
+    description: "Measures systematic over- or under-forecasting."
     depends_on_measures:
-    - Bias %
+    - plan.forecast.bias.pct
     lineage: []
   governance:
     business_owner: "Supply Planning Lead"
@@ -1052,8 +1100,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "High values indicate planning instability or frequent disruptions."
   technical:
     dax_name: "Re-Plan Count"
+    formatString: "#,0"
+    description: "Counts number of replanning cycles in a period."
     depends_on_measures:
-    - Re-Plan Count
+    - plan.replan.count
     lineage: []
   governance:
     business_owner: "Supply Planning Lead"
@@ -1095,8 +1145,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher is better; key service level indicator."
   technical:
     dax_name: "OTIF %"
+    formatString: "0.0%"
+    description: "Measures share of orders delivered on time and in full."
     depends_on_measures:
-    - OTIF %
+    - supply.otif.pct
     lineage:
     - fact_fulfillment.OTIF Flag
   governance:
@@ -1134,8 +1186,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher is better; analyze by carrier and lane."
   technical:
     dax_name: "On-Time %"
+    formatString: "0.0%"
+    description: "Measures share of deliveries arriving on time."
     depends_on_measures:
-    - On-Time %
+    - supply.on_time.pct
     lineage:
     - fact_fulfillment.On-Time Flag
   governance:
@@ -1172,8 +1226,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; ties inventory and service performance."
   technical:
     dax_name: "Stockout Impact %"
+    formatString: "0.0%"
+    description: "Measures lost demand share due to stockouts."
     depends_on_measures:
-    - Stockout Impact %
+    - supply.stockout_impact.pct
     lineage: []
   governance:
     business_owner: "Head of Supply Chain / Logistics"
@@ -1210,8 +1266,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; high values indicate planning or supply issues."
   technical:
     dax_name: "Expedite Cost Amount"
+    formatString: "#,0.00"
+    description: "Captures additional cost for expedited shipments."
     depends_on_measures:
-    - Expedite Cost Amount
+    - supply.expedite.amount
     lineage:
     - fact_fulfillment.Expedite Cost
   governance:
@@ -1247,8 +1305,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; high penalties signal delivery or quality issues."
   technical:
     dax_name: "Penalty Amount"
+    formatString: "#,0.00"
+    description: "Captures penalties for service level breaches."
     depends_on_measures:
-    - Penalty Amount
+    - supply.penalty.amount
     lineage:
     - fact_fulfillment.Penalty Amount
   governance:
@@ -1283,8 +1343,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower values are better; high impact indicates forecast under-coverage driving service loss."
   technical:
     dax_name: "Service Impact %"
+    formatString: "0.0%"
+    description: "Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast un..."
     depends_on_measures:
-    - Service Impact %
+    - plan.forecast.service_impact.pct
     lineage:
     - fact_forecast.Forecast Units
     - fact_stockout.Demand Units
@@ -1326,8 +1388,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher OEE indicates better utilization; capped at 100 %."
   technical:
     dax_name: "OEE %"
+    formatString: "0.0%"
+    description: "Measures manufacturing performance combining availability, performance, and quality."
     depends_on_measures:
-    - OEE %
+    - ops.oee.pct
     lineage:
     - fact_ops.Good Units
     - fact_ops.Output Units
@@ -1368,8 +1432,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher counts indicate lower reliability."
   technical:
     dax_name: "Failure Count"
+    formatString: "#,0"
+    description: "Counts equipment or process failures in the period."
     depends_on_measures:
-    - Failure Count
+    - ops.failure.count
     lineage: []
   governance:
     business_owner: "Head of Operations"
@@ -1403,8 +1469,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher values indicate more capital tied in spare parts."
   technical:
     dax_name: "Inventory Value Amount"
+    formatString: "#,0.00"
+    description: "Tracks inventory value for maintenance-relevant items."
     depends_on_measures:
-    - Inventory Value Amount
+    - ops.inventory.value.amount
     lineage: []
   governance:
     business_owner: "Head of Supply Chain"
@@ -1442,8 +1510,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Baseline for comparing actual throughput."
   technical:
     dax_name: "Planned Output Units"
+    formatString: "#,0"
+    description: "Captures planned production output volume."
     depends_on_measures:
-    - Planned Output Units
+    - ops.planned_output.units
     lineage: []
   governance:
     business_owner: "Head of Operations"
@@ -1477,8 +1547,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher counts indicate more planned maintenance activity."
   technical:
     dax_name: "Preventive Maintenance Task Count"
+    formatString: "#,0"
+    description: "Counts preventive maintenance tasks executed or scheduled."
     depends_on_measures:
-    - Preventive Maintenance Task Count
+    - ops.pm.task.count
     lineage: []
   governance:
     business_owner: "Head of Maintenance"
@@ -1512,8 +1584,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher values indicate higher output."
   technical:
     dax_name: "Production Volume Units"
+    formatString: "#,0"
+    description: "Measures total produced volume in units."
     depends_on_measures:
-    - Production Volume Units
+    - ops.production.volume
     lineage:
     - fact_ops.Output Units
   governance:
@@ -1547,8 +1621,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower values indicate better quality."
   technical:
     dax_name: "Quality Defect Rate %"
+    formatString: "0.0%"
+    description: "Measures share of defective units in production."
     depends_on_measures:
-    - Quality Defect Rate %
+    - ops.quality.defect_rate.pct
     lineage:
     - fact_ops.Output Units
     - fact_quality.Defect Count
@@ -1583,8 +1659,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher counts indicate higher safety risk."
   technical:
     dax_name: "Safety Incident Count"
+    formatString: "#,0"
+    description: "Counts safety incidents recorded in the period."
     depends_on_measures:
-    - Safety Incident Count
+    - ops.safety.incident.count
     lineage: []
   governance:
     business_owner: "EHS Manager"
@@ -1617,8 +1695,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher values indicate better service performance."
   technical:
     dax_name: "Operations Service Level %"
+    formatString: "0.0%"
+    description: "Measures on-time or in-full performance for operational delivery."
     depends_on_measures:
-    - Operations Service Level %
+    - ops.service_level.pct
     lineage: []
   governance:
     business_owner: "Head of Operations"
@@ -1651,8 +1731,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher yield indicates better process efficiency."
   technical:
     dax_name: "Yield %"
+    formatString: "0.0%"
+    description: "Measures ratio of good output to total input."
     depends_on_measures:
-    - Yield %
+    - ops.yield.pct
     lineage:
     - fact_ops.Good Units
     - fact_ops.Output Units
@@ -1690,8 +1772,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher counts indicate higher order volume."
   technical:
     dax_name: "Order Lines Count"
+    formatString: "#,0"
+    description: "Counts order lines processed in the period."
     depends_on_measures:
-    - Order Lines Count
+    - order.lines
     lineage: []
   governance:
     business_owner: "Head of Supply Chain"
@@ -1725,8 +1809,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher counts indicate more planning activity."
   technical:
     dax_name: "Plans Count"
+    formatString: "#,0"
+    description: "Counts planning cycles or plan versions in the period."
     depends_on_measures:
-    - Plans Count
+    - plans.count
     lineage: []
   governance:
     business_owner: "Supply Planning Lead"
@@ -1762,8 +1848,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher counts indicate higher fulfillment activity."
   technical:
     dax_name: "Shipments Count"
+    formatString: "#,0"
+    description: "Counts shipments executed in the period."
     depends_on_measures:
-    - Shipments Count
+    - shipments.count
     lineage: []
   governance:
     business_owner: "Head of Logistics"
@@ -1795,8 +1883,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher values indicate better service reliability."
   technical:
     dax_name: "Supply Chain Service Level %"
+    formatString: "0.0%"
+    description: "Measures supply chain service level performance."
     depends_on_measures:
-    - Supply Chain Service Level %
+    - scm.service_level.pct
     lineage:
     - fact_fulfillment.OTIF Flag
   governance:
@@ -1834,8 +1924,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher availability indicates less downtime; low values typically reflect maintenance or scheduling issues."
   technical:
     dax_name: "Availability %"
+    formatString: "0.0%"
+    description: "Uptime share relative to planned production time."
     depends_on_measures:
-    - Availability %
+    - ops.availability.pct
     lineage:
     - fact_ops.Planned Time Minutes
     - fact_ops.Run Time Minutes
@@ -1871,8 +1963,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher OTIF indicates better delivery reliability; low values reflect service and execution issues."
   technical:
     dax_name: "OTIF %"
+    formatString: "0.0%"
+    description: "Delivery reliability measured by orders delivered on-time and in-full."
     depends_on_measures:
-    - OTIF %
+    - supply.otif.pct
     lineage: []
   governance:
     business_owner: "Head of Supply Chain / Finance"
@@ -1907,8 +2001,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower CCC means faster cash conversion and lower working capital."
   technical:
     dax_name: "Cash Conversion Cycle (Days)"
+    formatString: "0"
+    description: "Combines receivables, inventory, and payables days to show cash efficiency."
     depends_on_measures:
-    - Cash Conversion Cycle (Days)
+    - ops.working_capital.ccc.days
     lineage: []
   governance:
     business_owner: "Head of Treasury"
@@ -1944,8 +2040,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; analyze downtime drivers and loss categories."
   technical:
     dax_name: "Downtime %"
+    formatString: "0.0%"
+    description: "Measures share of planned production time lost to downtime."
     depends_on_measures:
-    - Downtime %
+    - ops.downtime.pct
     lineage:
     - fact_ops.Downtime Minutes
     - fact_ops.Planned Time Minutes
@@ -1984,8 +2082,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; track reliability and maintenance effectiveness."
   technical:
     dax_name: "Unplanned Downtime %"
+    formatString: "0.0%"
+    description: "Measures unplanned downtime share of planned time."
     depends_on_measures:
-    - Unplanned Downtime %
+    - ops.downtime.unplanned.pct
     lineage:
     - fact_ops.Planned Time Minutes
   governance:
@@ -2022,8 +2122,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher turnover indicates better inventory velocity; too high may risk stockouts."
   technical:
     dax_name: "Inventory Turnover"
+    formatString: "#,0"
+    description: "Measures how often inventory is sold and replaced."
     depends_on_measures:
-    - Inventory Turnover
+    - inv.turnover
     lineage:
     - fact_cogs.COGS Amount
     - fact_inventory.Average Inventory Amount
@@ -2062,8 +2164,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; high MAPE indicates unstable demand or poor model fit."
   technical:
     dax_name: "Forecast MAPE %"
+    formatString: "0.0%"
+    description: "Measures mean absolute percentage error in forecast."
     depends_on_measures:
-    - MAPE %
+    - plan.forecast.mape.pct
     lineage:
     - fact_forecast.Forecast Units
   governance:
@@ -2101,8 +2205,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher is better; low values indicate allocation or stock issues."
   technical:
     dax_name: "In-Full %"
+    formatString: "0.0%"
+    description: "Measures share of deliveries with complete quantities."
     depends_on_measures:
-    - In-Full %
+    - supply.in_full.pct
     lineage:
     - fact_fulfillment.In-Full Flag
   governance:
@@ -2139,8 +2245,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher values indicate better execution effectiveness."
   technical:
     dax_name: "Action Outcome Rate %"
+    formatString: "0.0%"
+    description: "Measures share of actions that achieved the intended outcome."
     depends_on_measures:
-    - Action Outcome Rate %
+    - enterprise.action_outcome_rate.pct
     lineage: []
   governance:
     business_owner: "Executive Office"
@@ -2173,8 +2281,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher counts indicate more routed actions."
   technical:
     dax_name: "Actions Routed Count"
+    formatString: "#,0"
+    description: "Counts action codes routed for execution."
     depends_on_measures:
-    - Actions Routed Count
+    - enterprise.action_routed.count
     lineage: []
   governance:
     business_owner: "Executive Office"
@@ -2209,8 +2319,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Values below 100% indicate discounting; values above 100% indicate uplift vs list price."
   technical:
     dax_name: "Price Realization %"
+    formatString: "0.0%"
+    description: "Shows how much of list price is realized after discounts."
     depends_on_measures:
-    - Price Realization %
+    - sales.price.realization_pct
     lineage:
     - fact_sales.List Price Amount
     - fact_sales.Net Price Amount
@@ -2250,8 +2362,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Explains whether composition shifts drive positive or negative outcomes."
   technical:
     dax_name: "Mix Effect Amount"
+    formatString: "#,0.00"
+    description: "Captures the residual effect from changes in product, channel, or region mix."
     depends_on_measures:
-    - Mix Effect Amount
+    - sales.pvm.mix_effect.amount
     lineage: []
   governance:
     business_owner: "Head of Sales Controlling"
@@ -2289,8 +2403,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Represents total top-line sales."
   technical:
     dax_name: "Net Sales Amount"
+    formatString: "#,0.00"
+    description: "Total invoiced revenue net of discounts and returns."
     depends_on_measures:
-    - Net Sales Amount
+    - sales.net_sales.amount
     lineage:
     - fact_sales.Net Sales Amount
   governance:
@@ -2324,8 +2440,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Shows growth rate vs prior year."
   technical:
     dax_name: "Delta% Net Sales"
+    formatString: "0.0%"
+    description: "Relative variance of Net Sales vs Last Year."
     depends_on_measures:
-    - Net Sales Delta % vs LY
+    - sales.net_sales.delta_pct.ly
     lineage:
     - fact_sales.Net Sales Amount
   governance:
@@ -2365,8 +2483,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Positive values indicate outperformance vs plan; negative values indicate shortfall."
   technical:
     dax_name: "Net Sales % vs Plan"
+    formatString: "0.0%"
+    description: "Relative variance of Net Sales vs Plan."
     depends_on_measures:
-    - Net Sales % vs Plan
+    - sales.net_sales.delta_pct.plan
     lineage:
     - fact_sales.Plan Sales Amount
   governance:
@@ -2402,8 +2522,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Positive values indicate price gains; negative values represent price pressure."
   technical:
     dax_name: "Price Effect Amount"
+    formatString: "#,0.00"
+    description: "Quantifies the pure price impact in the PVM bridge."
     depends_on_measures:
-    - Price Effect Amount
+    - sales.pvm.price_effect.amount
     lineage:
     - fact_sales.Net Sales Amount
     - fact_sales.Plan Quantity
@@ -2441,8 +2563,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Positive values indicate higher volume than plan; negative values indicate volume shortfalls."
   technical:
     dax_name: "Volume Effect Amount"
+    formatString: "#,0.00"
+    description: "Measures the variance caused purely by quantity changes at plan price."
     depends_on_measures:
-    - Volume Effect Amount
+    - sales.pvm.volume_effect.amount
     lineage:
     - fact_sales.Plan Quantity
     - fact_sales.Plan Sales Amount
@@ -2488,8 +2612,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher values indicate higher volume sold."
   technical:
     dax_name: "Sales Units"
+    formatString: "#,0"
+    description: "Measures sold units volume in the period."
     depends_on_measures:
-    - Sales Units
+    - sales.units
     lineage:
     - fact_sales.Sales Units
   governance:
@@ -2523,8 +2649,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher values indicate greater adoption of digital processes; low values show manual work and automation potential."
   technical:
     dax_name: "Digital Adoption Rate %"
+    formatString: "0.0%"
+    description: "Measure how much of all eligible process transactions are executed via digital tools instead of m..."
     depends_on_measures:
-    - Digital Adoption %
+    - people.digital_adoption.pct
     lineage:
     - fact_hr.Headcount
     - fact_it.Digital Users
@@ -2562,7 +2690,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     formatString: "0.0%"
     description: "Probability of employee attrition"
     depends_on_measures:
-    - Attrition Risk %
+    - people.attrition_risk.pct
     lineage: []
   governance:
     business_owner: "Head of HR"
@@ -2598,8 +2726,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; rising DSO indicates collection issues."
   technical:
     dax_name: "DSO Days"
+    formatString: "0"
+    description: "Measures days sales outstanding for receivables."
     depends_on_measures:
-    - DSO Days
+    - wc.dso.days
     lineage:
     - fact_sales.Net Sales Amount
   governance:
@@ -2637,7 +2767,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     formatString: "#,0"
     description: "Net cash inflows from operating activities"
     depends_on_measures:
-    - Operating Cash Flow Amount
+    - fin.liquidity.operating_cash_flow
     lineage:
     - fact_cashflow.OperatingCashFlow
   governance:
@@ -2781,8 +2911,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     formatString: "0.0%"
     description: "Complaints normalized by customer base"
     depends_on_measures:
-    - Customer Complaints Count
-    - Active Customers Count
+    - crm.complaint.count
+    - crm.active_customers.count
     lineage:
     - fact_experience.Complaint ID
     - dim_customer.CustomerKey
@@ -2820,7 +2950,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     formatString: "#,0.00"
     description: "Gross margin attributed to HR segments"
     depends_on_measures:
-    - Net Sales Amount
+    - sales.net_sales.amount
     - COGS Amount
     lineage:
     - fact_sales.Net Sales Amount
@@ -2896,8 +3026,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; high DIO increases cash tied up in stock."
   technical:
     dax_name: "DIO Days"
+    formatString: "0"
+    description: "Measures days inventory outstanding."
     depends_on_measures:
-    - DIO Days
+    - wc.dio.days
     lineage: []
   governance:
     business_owner: "Head of Treasury / Supply Chain Finance"
@@ -2932,8 +3064,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher values improve cash but may impact supplier terms."
   technical:
     dax_name: "DPO Days"
+    formatString: "0"
+    description: "Measures days payables outstanding."
     depends_on_measures:
-    - DPO Days
+    - wc.dpo.days
     lineage: []
   governance:
     business_owner: "Head of Treasury / Procurement Controlling"
@@ -2968,8 +3102,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower values indicate faster cash recovery."
   technical:
     dax_name: "CCC Days"
+    formatString: "0"
+    description: "Measures cash conversion cycle length."
     depends_on_measures:
-    - CCC Days
+    - wc.ccc.days
     lineage: []
   governance:
     business_owner: "Head of Treasury"
@@ -3005,8 +3141,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher balance improves liquidity buffer; consider seasonality and debt strategy."
   technical:
     dax_name: "Cash Balance"
+    formatString: "#,0.00"
+    description: "Tracks cash and cash equivalents at period end."
     depends_on_measures:
-    - Cash Balance
+    - fin.cash.balance
     lineage: []
   governance:
     business_owner: "Head of Treasury"
@@ -3043,8 +3181,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Positive values improve liquidity; negative values require investigation."
   technical:
     dax_name: "Operating Cash Flow"
+    formatString: "#,0.00"
+    description: "Measures cash generated by operating activities."
     depends_on_measures:
-    - Operating Cash Flow
+    - fin.liquidity.operating_cash_flow
     lineage: []
   governance:
     business_owner: "Head of Treasury"
@@ -3081,8 +3221,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Positive values indicate higher cash than planned."
   technical:
     dax_name: "Cash vs Plan %"
+    formatString: "0.0%"
+    description: "Measures deviation of cash balance versus plan."
     depends_on_measures:
-    - Cash vs Plan %
+    - fin.cash.vs_plan.pct
     lineage: []
   governance:
     business_owner: "Head of Treasury"
@@ -3123,8 +3265,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Values above 0 % indicate positive gross profit; trend over time shows structural profitability changes."
   technical:
     dax_name: "Gross Margin %"
+    formatString: "0.0%"
+    description: "Provide the Gross Margin % used in commercial and management reporting at the same granularity as..."
     depends_on_measures:
-    - Gross Margin %
+    - margin.gm.pct
     lineage:
     - fact_sales.Cost of Goods Sold Amount
     - fact_sales.Net Sales Amount
@@ -3162,8 +3306,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Values > 0 indicate promotions adding value."
   technical:
     dax_name: "Promo ROI %"
+    formatString: "0.0%"
+    description: "Measures profitability of promotions relative to spend."
     depends_on_measures:
-    - Promotion ROI %
+    - sales.promo.roi.pct
     lineage: []
   governance:
     business_owner: "Head of Marketing Controlling"
@@ -3201,8 +3347,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Profitability of promotions."
   technical:
     dax_name: "GM % During Promo"
+    formatString: "0.0%"
+    description: "Gross margin rate during promo periods."
     depends_on_measures:
-    - Promo Gross Margin %
+    - margin.promo.gm.pct
     lineage:
     - fact_sales.Cost of Goods Sold Amount
     - fact_sales.Net Sales Amount
@@ -3239,8 +3387,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; rising unit cost erodes margin."
   technical:
     dax_name: "COGS per Unit"
+    formatString: "#,0"
+    description: "Shows unit cost level relative to sold volume."
     depends_on_measures:
-    - COGS per Unit
+    - cost.cogs_per_unit.amount
     lineage:
     - fact_sales.Quantity
   governance:
@@ -3274,8 +3424,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; high cannibalization reduces net gain."
   technical:
     dax_name: "Cannibalization %"
+    formatString: "0.0%"
+    description: "Measures share of promo uplift offset by decline in non-promoted sales."
     depends_on_measures:
-    - Cannibalization %
+    - sales.promo.cannibalization.pct
     lineage:
     - fact_promo.Baseline Non-Promo Sales Amount
     - fact_sales.Net Sales Amount
@@ -3314,8 +3466,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; increases indicate supplier or price pressure."
   technical:
     dax_name: "Material Cost %"
+    formatString: "0.0%"
+    description: "Shows material cost share of net sales."
     depends_on_measures:
-    - Material Cost %
+    - cost.material.pct
     lineage: []
   governance:
     business_owner: "Head of Controlling"
@@ -3350,8 +3504,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Positive values indicate overspend; negative values indicate savings."
   technical:
     dax_name: "OpEx vs Plan %"
+    formatString: "0.0%"
+    description: "Measures OpEx variance versus plan."
     depends_on_measures:
-    - OpEx vs Plan %
+    - cost.opex.vs_plan.pct
     lineage: []
   governance:
     business_owner: "Head of Controlling"
@@ -3389,8 +3545,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; used to track cost efficiency."
   technical:
     dax_name: "Unit Cost Amount"
+    formatString: "#,0"
+    description: "Measures total cost per unit produced or sold."
     depends_on_measures:
-    - Unit Cost Amount
+    - cost.unit.amount
     lineage: []
   governance:
     business_owner: "Head of Controlling"
@@ -3424,8 +3582,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Core profitability metric showing sales efficiency vs cost."
   technical:
     dax_name: "Gross Margin %"
+    formatString: "0.0%"
+    description: "Measures gross margin relative to net sales."
     depends_on_measures:
-    - Gross Margin %
+    - margin.gm.pct
     lineage:
     - fact_sales.Cost of Goods Sold Amount
     - fact_sales.Net Sales Amount
@@ -3467,8 +3627,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Explains profitability magnitude before OpEx."
   technical:
     dax_name: "Gross Margin Amount"
+    formatString: "#,0.00"
+    description: "Absolute gross margin in currency."
     depends_on_measures:
-    - Gross Margin Amount
+    - margin.gm.amount
     lineage:
     - fact_sales.Cost of Goods Sold Amount
     - fact_sales.Net Sales Amount
@@ -3508,8 +3670,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Input to promo ROI."
   technical:
     dax_name: "Incremental Sales Amount"
+    formatString: "#,0.00"
+    description: "Additional sales due to promotion."
     depends_on_measures:
-    - Incremental Sales Amount
+    - sales.promo.incremental.amount
     lineage:
     - fact_promo.Baseline Sales Amount
     - fact_sales.Net Sales Amount
@@ -3546,8 +3710,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; complements gross margin %."
   technical:
     dax_name: "COGS % of Sales"
+    formatString: "0.0%"
+    description: "Shows cost share relative to net sales."
     depends_on_measures:
-    - COGS % of Sales
+    - margin.cogs.pct
     lineage: []
   governance:
     business_owner: "Head of Controlling"
@@ -3581,8 +3747,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Positive values indicate better-than-plan margin."
   technical:
     dax_name: "Gross Margin % vs Plan"
+    formatString: "0.0%"
+    description: "Measures gross margin rate variance versus plan."
     depends_on_measures:
-    - Gross Margin % vs Plan
+    - margin.gm.vs_plan.pct
     lineage: []
   governance:
     business_owner: "Head of Controlling"
@@ -3617,8 +3785,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Provides a stable base for cost variance comparisons."
   technical:
     dax_name: "Cost Base Volume Amount"
+    formatString: "#,0.00"
+    description: "Baseline cost volume used for variance analysis."
     depends_on_measures:
-    - Cost Base Volume Amount
+    - cost.base_volume.amount
     lineage: []
   governance:
     business_owner: "Head of Controlling"
@@ -3651,8 +3821,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Used to compare actual Opex against the base."
   technical:
     dax_name: "Opex Base Amount"
+    formatString: "#,0.00"
+    description: "Baseline operating expense amount for variance tracking."
     depends_on_measures:
-    - Opex Base Amount
+    - cost.opex.base.amount
     lineage: []
   governance:
     business_owner: "Head of Controlling"
@@ -3686,8 +3858,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher index indicates higher enterprise risk exposure."
   technical:
     dax_name: "Enterprise Value-at-Risk Index"
+    formatString: "0"
+    description: "Aggregates downside risk across domains into a single index."
     depends_on_measures:
-    - Enterprise Value-at-Risk Index
+    - enterprise.value_at_risk.index
     lineage: []
   governance:
     business_owner: "Chief Risk Officer"
@@ -3719,8 +3893,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher scores indicate higher supplier risk."
   technical:
     dax_name: "Supplier Risk Score"
+    formatString: "0"
+    description: "Rates suppliers based on risk indicators."
     depends_on_measures:
-    - Supplier Risk Score
+    - scm.supplier_risk.score
     lineage: []
   governance:
     business_owner: "Head of Procurement"
@@ -3757,8 +3933,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher is better; interpret jointly with backlog and escalation %."
   technical:
     dax_name: "SLA Attainment %"
+    formatString: "0.0%"
+    description: "Measures how many cases meet the committed SLA."
     depends_on_measures:
-    - SLA Attainment %
+    - svc.sla.attainment.pct
     lineage:
     - fact_cases.SLA Met Flag
   governance:
@@ -3793,8 +3971,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher is better; keep in balance with AHT and escalation %."
   technical:
     dax_name: "FCR %"
+    formatString: "0.0%"
+    description: "Shows the share of cases solved on first contact."
     depends_on_measures:
-    - FCR %
+    - svc.fcr.pct
     lineage:
     - fact_cases.FCR Flag
   governance:
@@ -3829,8 +4009,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better, but balance with FCR and NPS."
   technical:
     dax_name: "AHT Minutes"
+    formatString: "#,0"
+    description: "Measures average time to handle a contact."
     depends_on_measures:
-    - AHT Minutes
+    - svc.aht.minutes
     lineage:
     - fact_cases.Handle Time Minutes
   governance:
@@ -3867,8 +4049,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; assess with SLA attainment and staffing KPIs."
   technical:
     dax_name: "Backlog Count"
+    formatString: "#,0"
+    description: "Quantifies unresolved work in queue."
     depends_on_measures:
-    - Backlog Count
+    - svc.backlog.count
     lineage:
     - fact_cases.Backlog Flag
   governance:
@@ -3902,8 +4086,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher is better; explain shifts with FCR, AHT, escalation %."
   technical:
     dax_name: "NPS Index"
+    formatString: "#,0"
+    description: "Measures customer advocacy and experience quality."
     depends_on_measures:
-    - NPS Index
+    - svc.nps.index
     lineage:
     - fact_nps.NPS Score
   governance:
@@ -3939,8 +4125,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; balance with FCR and SLA."
   technical:
     dax_name: "Escalation %"
+    formatString: "0.0%"
+    description: "Measures frequency of escalated cases."
     depends_on_measures:
-    - Escalation %
+    - svc.escalation.pct
     lineage:
     - fact_cases.Escalation Flag
   governance:
@@ -3979,8 +4167,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Typical healthy band 75?85%; balance with SLA/NPS."
   technical:
     dax_name: "Utilization %"
+    formatString: "0.0%"
+    description: "Measures productive time versus paid time for agents."
     depends_on_measures:
-    - Utilization %
+    - res.utilization.pct
     lineage:
     - fact_wfm.Paid Time Minutes
     - fact_wfm.Work Time Minutes
@@ -4018,8 +4208,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Balanced occupancy supports SLA and quality."
   technical:
     dax_name: "Occupancy %"
+    formatString: "0.0%"
+    description: "Measures active vs idle share of time."
     depends_on_measures:
-    - Occupancy %
+    - res.occupancy.pct
     lineage:
     - fact_wfm.Idle Time Minutes
     - fact_wfm.Talk Time Minutes
@@ -4058,8 +4250,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; monitor sustainability and cost."
   technical:
     dax_name: "Overtime %"
+    formatString: "0.0%"
+    description: "Shows overtime share of total hours."
     depends_on_measures:
-    - Overtime %
+    - res.overtime.pct
     lineage:
     - fact_wfm.Overtime Minutes
     - fact_wfm.Paid Time Minutes
@@ -4096,8 +4290,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Lower is better; compare vs plan."
   technical:
     dax_name: "Shrinkage %"
+    formatString: "0.0%"
+    description: "Measures non-productive share of paid time."
     depends_on_measures:
-    - Shrinkage %
+    - res.shrinkage.pct
     lineage:
     - fact_wfm.Paid Time Minutes
     - fact_wfm.Shrinkage Minutes
@@ -4139,8 +4335,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher counts indicate higher inbound demand."
   technical:
     dax_name: "Tickets Created Count"
+    formatString: "#,0"
+    description: "Counts customer service tickets created in the period."
     depends_on_measures:
-    - Tickets Created Count
+    - svc.tickets.created.count
     lineage: []
   governance:
     business_owner: "Head of Service"
@@ -4174,8 +4372,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     interpretation: "Higher counts indicate higher resolution throughput."
   technical:
     dax_name: "Tickets Closed Count"
+    formatString: "#,0"
+    description: "Counts customer service tickets closed in the period."
     depends_on_measures:
-    - Tickets Closed Count
+    - svc.tickets.closed.count
     lineage: []
   governance:
     business_owner: "Head of Service"

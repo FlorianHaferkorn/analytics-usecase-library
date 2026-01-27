@@ -273,7 +273,7 @@ if ($kpiCatalogRoot -and $kpiCatalogSchemaPath) {
     $mandatoryTop = @("kpi_id","kpi_key","kpi_type","impact_dimension","domain_tag","use_case_ref","action_code_ref","calc_type","business","technical","governance","metadata_quality")
     $optionalTop = @("aliases")
     $expectedBusiness = @("purpose","definition","grain_scope","unit_format","interpretation")
-    $expectedTechnical = @("dax_name","depends_on_measures","lineage")
+    $expectedTechnical = @("dax_name","formatString","description","depends_on_measures","lineage")
     $expectedMeta = @("completeness_score","last_review")
 
     $kpiFiles | ForEach-Object {

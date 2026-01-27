@@ -1,4 +1,4 @@
-# KPI & Measure Schema
+﻿# KPI & Measure Schema
 
 Purpose: Single source of truth for the structure of
 
@@ -63,7 +63,8 @@ Section `technical` (required):
 - `technical.description` (required, string)  
   One-sentence technical description of the measure calculation.
 - `technical.depends_on_measures` (required, list<string>)  
-  Measure names this KPI depends on, e.g. `["Net Sales Amount","COGS Amount"]`.  
+  **KPI IDs** this KPI depends on, e.g. `["sales.net_sales.amount","cost.cogs.amount"]`.  
+  Use stable kpi_id references for traceability. Base measures without KPI ID should use descriptive names.  
   **No DAX expression here.**
 - `technical.lineage` (required, list<string>)  
   Source tables/columns, e.g. `fact_sales.Net Sales Amount`.

@@ -1,6 +1,6 @@
 ﻿# Run All Checks Report
 
-- Timestamp: 2026-01-27T08:09:06
+- Timestamp: 2026-01-27T09:56:49
 - Repo: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library
 - UseCasesRoot: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases
 - FactsheetsRoot: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core
@@ -11,38 +11,38 @@
 ## Summary
 
 - Total checks: 26
-- Failed checks: 2
+- Failed checks: 0
 
 ## Checks
 
 | Check | Status | Duration (s) | Arguments | Error |
 | --- | --- | ---: | --- | --- |
-| _internal/tools/validation/validate_factsheets.ps1 | ok | 1.01 |  |  |
-| _internal/tools/validation/validate_kpi_catalog.ps1 | ok | 0.35 |  |  |
-| _internal/tools/validation/check_factsheet_vs_kpi.ps1 | ok | 1.52 |  |  |
-| _internal/tools/validation/check_measures_vs_kpi.ps1 | ok | 0.22 |  |  |
-| _internal/tools/maintenance/check_docs_refs.ps1 | ok | 7.24 |  |  |
-| _internal/tools/validation/check_docs_kpi_refs.ps1 | ok | 0.25 |  |  |
-| _internal/tools/validation/check_usecase_inventory_vs_factsheets.ps1 | ok | 0.13 |  |  |
-| _internal/tools/validation/check_kpi_catalog_unused_in_factsheets.ps1 | ok | 1.09 |  |  |
-| _internal/tools/validation/check_duplicate_ids.ps1 | ok | 0.59 |  |  |
-| _internal/tools/validation/check_forbidden_content.ps1 | ok | 0.37 |  |  |
-| _internal/tools/validation/check_ssot_markers.ps1 | ok | 2.27 |  |  |
+| _internal/tools/validation/validate_factsheets.ps1 | ok | 0.42 |  |  |
+| _internal/tools/validation/validate_kpi_catalog.ps1 | ok | 0.33 |  |  |
+| _internal/tools/validation/check_factsheet_vs_kpi.ps1 | ok | 1.1 |  |  |
+| _internal/tools/validation/check_measures_vs_kpi.ps1 | ok | 0.24 |  |  |
+| _internal/tools/maintenance/check_docs_refs.ps1 | ok | 8 |  |  |
+| _internal/tools/validation/check_docs_kpi_refs.ps1 | ok | 0.26 |  |  |
+| _internal/tools/validation/check_usecase_inventory_vs_factsheets.ps1 | ok | 0.17 |  |  |
+| _internal/tools/validation/check_kpi_catalog_unused_in_factsheets.ps1 | ok | 1.11 |  |  |
+| _internal/tools/validation/check_duplicate_ids.ps1 | ok | 0.66 |  |  |
+| _internal/tools/validation/check_forbidden_content.ps1 | ok | 0.36 |  |  |
+| _internal/tools/validation/check_ssot_markers.ps1 | ok | 2.5 |  |  |
 | _internal/tools/validation/check_docs_usecase_refs.ps1 | ok | 0.26 |  |  |
-| _internal/tools/validation/check_action_codes_vs_kpi.ps1 | ok | 0.55 |  |  |
-| _internal/tools/validation/check_factsheet_action_codes.ps1 | ok | 0.55 |  |  |
-| _internal/tools/validation/check_usecase_actioncode_map.ps1 | ok | 0.52 |  |  |
-| _internal/tools/validation/check_decision_spines.ps1 | ok | 0.47 |  |  |
-| _internal/tools/validation/check_factsheet_actioncode_map.ps1 | ok | 0.14 |  |  |
-| _internal/tools/validation/check_factsheet_layout.ps1 | ok | 1.79 |  |  |
-| _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 | failed | 0.43 | -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains | Non-zero exit code: 1 |
-| _internal/tools/validation/check_dax_vs_measure_dictionary.ps1 | failed | 0.55 |  | Non-zero exit code: 1 |
-| _internal/tools/validation/check_measure_dictionary_vs_gold.ps1 | ok | 0.17 | -GoldRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\data_contracts\domains -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
-| _internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1 | ok | 0.04 | -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist |  |
-| _internal/tools/validation/check_mojibake.ps1 | ok | 4.04 |  |  |
-| _internal/tools/validation/check_markdownlint.ps1 | ok | 1.89 |  |  |
-| _internal/tools/validation/check_yaml_format.ps1 | ok | 21.22 |  |  |
-| _internal/tools/validation/check_schema_validation.ps1 | ok | 1.84 |  |  |
+| _internal/tools/validation/check_action_codes_vs_kpi.ps1 | ok | 0.53 |  |  |
+| _internal/tools/validation/check_factsheet_action_codes.ps1 | ok | 0.53 |  |  |
+| _internal/tools/validation/check_usecase_actioncode_map.ps1 | ok | 0.5 |  |  |
+| _internal/tools/validation/check_decision_spines.ps1 | ok | 0.43 |  |  |
+| _internal/tools/validation/check_factsheet_actioncode_map.ps1 | ok | 0.16 |  |  |
+| _internal/tools/validation/check_factsheet_layout.ps1 | ok | 1.47 |  |  |
+| _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 | ok | 0.39 | -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
+| _internal/tools/validation/check_dax_vs_measure_dictionary.ps1 | ok | 0.53 |  |  |
+| _internal/tools/validation/check_measure_dictionary_vs_gold.ps1 | ok | 0.15 | -GoldRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\data_contracts\domains -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains |  |
+| _internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1 | ok | 0.06 | -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist |  |
+| _internal/tools/validation/check_mojibake.ps1 | ok | 4.65 |  |  |
+| _internal/tools/validation/check_markdownlint.ps1 | ok | 1.8 |  |  |
+| _internal/tools/validation/check_yaml_format.ps1 | ok | 18.82 |  |  |
+| _internal/tools/validation/check_schema_validation.ps1 | ok | 1.64 |  |  |
 
 ## Detailed Output
 
@@ -250,7 +250,7 @@ Coverage counts (unique KPI IDs):
   Factsheets:           104
   Inventory:            81
   Core Action Codes:    61
-  Measure Dictionaries: 108
+  Measure Dictionaries: 111
   Total covered:        111
 OK: all KPI IDs are referenced in factsheets.
 
@@ -332,29 +332,7 @@ OK: factsheet action_codes align with the UseCase ActionCode map.
 Template layout checks
 Note: no measure documents found for template at C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\templates\measure_templates\measure_template.md (no instances under semantic_models/measures).
 Note: no page instance documents found for templates under C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\templates\page_templates\page_types.
-Layout mismatches found:
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
+OK: all checked documents match their template layout.
 
 ```
 
@@ -362,10 +340,7 @@ Layout mismatches found:
 
 ```text
 KPI Catalog <-> Measure Dictionary consistency
-Missing in Measure Dictionaries (present in KPI catalogs):
-  - fin.liquidity.inventory.amount
-  - fin.liquidity.payables.amount
-  - ops.planned.hours
+OK: KPI IDs are consistent.
 
 ```
 
@@ -396,30 +371,7 @@ No _Measures.tmdl files found under dist. Skipping TMDL check.
 
 ```text
 Mojibake scan
-Potential mojibake found:
-  - framework\templates\kpi_catalog_templates\kpi_catalog_SCHEMA.md:62: DAX format string for display formatting, e.g. `"#,0"`, `"#,0.0%"`, `"â‚¬#,0.00"`.
-  - _internal\tools\maintenance\add_missing_kpis.ps1:253: # Finde EinfÃ¼gepunkt (nach wc.dso.days)
-  - _internal\tools\maintenance\add_missing_kpis.ps1:258: # Finde das Ende des wc.dso.days Blocks (nÃ¤chstes "- kpi_id:" oder Ende)
-  - _internal\tools\maintenance\add_missing_kpis.ps1:266: # Am Ende einfÃ¼gen
-  - _internal\tools\maintenance\add_missing_metadata.ps1:92: # Regex Pattern fÃ¼r diesen KPI Block
-  - _internal\vision\framework_evolution.md:10: Define the long-term direction of the Analytics Framework and the smallest, pragmatic steps to reach itâ€”without creating customer-facing promises or locking into specific tools.
-  - _internal\vision\framework_evolution.md:73: ### V1 â€” Foundation (Current Baseline)
-  - _internal\vision\framework_evolution.md:77: - Core framework artifacts exist (strategy â†’ KPIs â†’ use cases â†’ action codes â†’ templates).
-  - _internal\vision\framework_evolution.md:92: ### V2 â€” Assisted Quality (Soft Review + Authoring Assist)
-  - _internal\vision\framework_evolution.md:114: ### V3 â€” Guided Automation (Template Instantiation + Partial Closed Loop)
-  - _internal\vision\framework_evolution.md:137: ### V4 â€” Assisted Operations (Observability + Recommendations at Scale)
-  - _internal\vision\framework_evolution.md:154: ### V5 â€” Assisted Consumption (Conversational Layer on Semantic)
-  - _internal\vision\framework_evolution.md:160: - guided exploration (â€œwhy did margin drop?â€) using governed measures only
-  - _internal\vision\framework_evolution.md:168: - â€œExplainabilityâ€ remains aligned with governed artifacts.
-  - _internal\vision\framework_evolution.md:172: ### V6 â€” Orchestrated Autonomy (Vision)
-  - _internal\vision\framework_evolution.md:189: ## Practical â€œHow We Get Thereâ€ (Concrete Steps)
-  - _internal\vision\framework_evolution.md:191: ### Step 1 â€” Freeze V1 + Deliver Aurora Group
-  - _internal\vision\framework_evolution.md:196: ### Step 2 â€” Introduce Stage 2 Soft Review as a Non-Blocker
-  - _internal\vision\framework_evolution.md:197: - Start with â€œdiff-onlyâ€ and â€œmax 10 findingsâ€.
-  - _internal\vision\framework_evolution.md:200: ### Step 3 â€” Automate Scaffolding, Not Decisions
-  - _internal\vision\framework_evolution.md:204: ### Step 4 â€” Standardize Operations Before AI Consumption
-  - _internal\vision\framework_evolution.md:208: ### Step 5 â€” Add Conversational Consumption Only After Semantic Maturity
-  - _internal\vision\framework_evolution.md:210: - No â€œcreative analyticsâ€ in production contexts.
+OK: No mojibake patterns detected.
 
 ```
 
@@ -427,8 +379,7 @@ Potential mojibake found:
 
 ```text
 Markdownlint check
-
-
+PS>TerminatingError(node.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: _internal/tools/validation/node_modules/ajv/README.md:1 error MD041/first-line-heading/first-line-h1 First line in a file should be a top-level heading [Context: "<img align="right" alt="Ajv lo..."]."
 ```
 
 ### _internal/tools/validation/check_yaml_format.ps1
@@ -436,122 +387,6 @@ Markdownlint check
 ```text
 YAML format check
 PS>TerminatingError(python.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Python wurde nicht gefunden; ohne Argumente ausf³hren, um aus dem Microsoft Store zu installieren, oder deaktivieren Sie diese Verkn³pfung unter "Einstellungen > Apps > Erweiterte App-Einstellungen > App-Ausf³hrungsaliase".."
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 OK: All YAML files parsed successfully.
 
 ```
@@ -560,13 +395,10 @@ OK: All YAML files parsed successfully.
 
 ```text
 Schema validation
-
-
-
 OK: schema validation passed.
 
 **********************
 Ende der Windows PowerShell-Aufzeichnung
-Endzeit: 20260127080905
+Endzeit: 20260127095649
 **********************
 ```

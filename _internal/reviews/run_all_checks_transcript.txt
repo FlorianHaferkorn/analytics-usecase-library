@@ -1,6 +1,6 @@
 ﻿**********************
 nStart der Windows PowerShell-Aufzeichnung
-Startzeit: 20260127080816
+Startzeit: 20260127095601
 Benutzername: NAGARRO\florianhaferkorn
 RunAs-Benutzer: NAGARRO\florianhaferkorn
 Konfigurationsname: 
@@ -195,7 +195,7 @@ Coverage counts (unique KPI IDs):
   Factsheets:           104
   Inventory:            81
   Core Action Codes:    61
-  Measure Dictionaries: 108
+  Measure Dictionaries: 111
   Total covered:        111
 OK: all KPI IDs are referenced in factsheets.
 
@@ -237,36 +237,11 @@ OK: factsheet action_codes align with the UseCase ActionCode map.
 Template layout checks
 Note: no measure documents found for template at C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\templates\measure_templates\measure_template.md (no instances under semantic_models/measures).
 Note: no page instance documents found for templates under C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\templates\page_templates\page_types.
-Layout mismatches found:
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
-- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
-  Extra: formatString; description
+OK: all checked documents match their template layout.
 
 >> _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains
 KPI Catalog <-> Measure Dictionary consistency
-Missing in Measure Dictionaries (present in KPI catalogs):
-  - fin.liquidity.inventory.amount
-  - fin.liquidity.payables.amount
-  - ops.planned.hours
+OK: KPI IDs are consistent.
 
 >> _internal/tools/validation/check_dax_vs_measure_dictionary.ps1
 DAX definitions vs Measure Dictionaries
@@ -281,164 +256,23 @@ No _Measures.tmdl files found under dist. Skipping TMDL check.
 
 >> _internal/tools/validation/check_mojibake.ps1
 Mojibake scan
-Potential mojibake found:
-  - framework\templates\kpi_catalog_templates\kpi_catalog_SCHEMA.md:62: DAX format string for display formatting, e.g. `"#,0"`, `"#,0.0%"`, `"â‚¬#,0.00"`.
-  - _internal\tools\maintenance\add_missing_kpis.ps1:253: # Finde EinfÃ¼gepunkt (nach wc.dso.days)
-  - _internal\tools\maintenance\add_missing_kpis.ps1:258: # Finde das Ende des wc.dso.days Blocks (nÃ¤chstes "- kpi_id:" oder Ende)
-  - _internal\tools\maintenance\add_missing_kpis.ps1:266: # Am Ende einfÃ¼gen
-  - _internal\tools\maintenance\add_missing_metadata.ps1:92: # Regex Pattern fÃ¼r diesen KPI Block
-  - _internal\vision\framework_evolution.md:10: Define the long-term direction of the Analytics Framework and the smallest, pragmatic steps to reach itâ€”without creating customer-facing promises or locking into specific tools.
-  - _internal\vision\framework_evolution.md:73: ### V1 â€” Foundation (Current Baseline)
-  - _internal\vision\framework_evolution.md:77: - Core framework artifacts exist (strategy â†’ KPIs â†’ use cases â†’ action codes â†’ templates).
-  - _internal\vision\framework_evolution.md:92: ### V2 â€” Assisted Quality (Soft Review + Authoring Assist)
-  - _internal\vision\framework_evolution.md:114: ### V3 â€” Guided Automation (Template Instantiation + Partial Closed Loop)
-  - _internal\vision\framework_evolution.md:137: ### V4 â€” Assisted Operations (Observability + Recommendations at Scale)
-  - _internal\vision\framework_evolution.md:154: ### V5 â€” Assisted Consumption (Conversational Layer on Semantic)
-  - _internal\vision\framework_evolution.md:160: - guided exploration (â€œwhy did margin drop?â€) using governed measures only
-  - _internal\vision\framework_evolution.md:168: - â€œExplainabilityâ€ remains aligned with governed artifacts.
-  - _internal\vision\framework_evolution.md:172: ### V6 â€” Orchestrated Autonomy (Vision)
-  - _internal\vision\framework_evolution.md:189: ## Practical â€œHow We Get Thereâ€ (Concrete Steps)
-  - _internal\vision\framework_evolution.md:191: ### Step 1 â€” Freeze V1 + Deliver Aurora Group
-  - _internal\vision\framework_evolution.md:196: ### Step 2 â€” Introduce Stage 2 Soft Review as a Non-Blocker
-  - _internal\vision\framework_evolution.md:197: - Start with â€œdiff-onlyâ€ and â€œmax 10 findingsâ€.
-  - _internal\vision\framework_evolution.md:200: ### Step 3 â€” Automate Scaffolding, Not Decisions
-  - _internal\vision\framework_evolution.md:204: ### Step 4 â€” Standardize Operations Before AI Consumption
-  - _internal\vision\framework_evolution.md:208: ### Step 5 â€” Add Conversational Consumption Only After Semantic Maturity
-  - _internal\vision\framework_evolution.md:210: - No â€œcreative analyticsâ€ in production contexts.
+OK: No mojibake patterns detected.
 
 >> _internal/tools/validation/check_markdownlint.ps1
 Markdownlint check
-
+PS>TerminatingError(node.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: _internal/tools/validation/node_modules/ajv/README.md:1 error MD041/first-line-heading/first-line-h1 First line in a file should be a top-level heading [Context: "<img align="right" alt="Ajv lo..."]."
+>> TerminatingError(node.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: _internal/tools/validation/node_modules/ajv/README.md:1 error MD041/first-line-heading/first-line-h1 First line in a file should be a top-level heading [Context: "<img align="right" alt="Ajv lo..."]."
 
 >> _internal/tools/validation/check_yaml_format.ps1
 YAML format check
 PS>TerminatingError(python.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Python wurde nicht gefunden; ohne Argumente ausf³hren, um aus dem Microsoft Store zu installieren, oder deaktivieren Sie diese Verkn³pfung unter "Einstellungen > Apps > Erweiterte App-Einstellungen > App-Ausf³hrungsaliase".."
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 OK: All YAML files parsed successfully.
 
 >> _internal/tools/validation/check_schema_validation.ps1
 Schema validation
-
-
-
 OK: schema validation passed.
 
 **********************
 Ende der Windows PowerShell-Aufzeichnung
-Endzeit: 20260127080905
+Endzeit: 20260127095649
 **********************

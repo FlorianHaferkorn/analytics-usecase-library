@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Define the long-term direction of the Analytics Framework and the smallest, pragmatic steps to reach it—without creating customer-facing promises or locking into specific tools.
+Define the long-term direction of the Analytics Framework and the smallest, pragmatic steps to reach it - without creating customer-facing promises or locking into specific tools.
 
 ---
 
@@ -70,11 +70,11 @@ Humans remain accountable for decisions; automation increases only when governan
 
 ## Versioned Path (How We Reach It Step by Step)
 
-### V1 — Foundation (Current Baseline)
+### V1 - Foundation (Current Baseline)
 **Goal:** Repeatable, governed delivery without AI in the customer experience.
 
 **Delivered / required outcomes**
-- Core framework artifacts exist (strategy → KPIs → use cases → action codes → templates).
+- Core framework artifacts exist (strategy -> KPIs -> use cases -> action codes -> templates).
 - Aurora Group reference implementation demonstrates:
   - core use cases end-to-end
   - report templates + layout standards
@@ -89,7 +89,7 @@ Humans remain accountable for decisions; automation increases only when governan
 
 ---
 
-### V2 — Assisted Quality (Soft Review + Authoring Assist)
+### V2 - Assisted Quality (Soft Review + Authoring Assist)
 **Goal:** Increase quality and consistency with minimal process overhead.
 
 **What changes**
@@ -111,7 +111,7 @@ Humans remain accountable for decisions; automation increases only when governan
 
 ---
 
-### V3 — Guided Automation (Template Instantiation + Partial Closed Loop)
+### V3 - Guided Automation (Template Instantiation + Partial Closed Loop)
 **Goal:** Reduce manual build effort while keeping governance deterministic.
 
 **What changes**
@@ -134,7 +134,7 @@ Humans remain accountable for decisions; automation increases only when governan
 
 ---
 
-### V4 — Assisted Operations (Observability + Recommendations at Scale)
+### V4 - Assisted Operations (Observability + Recommendations at Scale)
 **Goal:** Operate many deployments with consistent health and low effort.
 
 **What changes**
@@ -151,13 +151,13 @@ Humans remain accountable for decisions; automation increases only when governan
 
 ---
 
-### V5 — Assisted Consumption (Conversational Layer on Semantic)
+### V5 - Assisted Consumption (Conversational Layer on Semantic)
 **Goal:** Add a conversational consumer experience safely.
 
 **What changes**
 - AI consumes the semantic layer and produces:
   - explanations of KPIs and deltas
-  - guided exploration (“why did margin drop?”) using governed measures only
+  - guided exploration ("why did margin drop?") using governed measures only
   - suggested actions mapped to governed action codes
 - Strict constraints:
   - no new measures defined at runtime
@@ -165,11 +165,11 @@ Humans remain accountable for decisions; automation increases only when governan
 
 **Exit criteria**
 - Customers can explore insights conversationally without inconsistent definitions.
-- “Explainability” remains aligned with governed artifacts.
+- "Explainability" remains aligned with governed artifacts.
 
 ---
 
-### V6 — Orchestrated Autonomy (Vision)
+### V6 - Orchestrated Autonomy (Vision)
 **Goal:** AI proposes and orchestrates; humans approve.
 
 **What changes**
@@ -186,28 +186,28 @@ Humans remain accountable for decisions; automation increases only when governan
 
 ---
 
-## Practical “How We Get There” (Concrete Steps)
+## Practical "How We Get There" (Concrete Steps)
 
-### Step 1 — Freeze V1 + Deliver Aurora Group
+### Step 1 - Freeze V1 + Deliver Aurora Group
 - Finish the Aurora Group reference as a tactile demo.
 - Ensure Stage 1 is stable and mandatory.
 - Keep documentation minimal and consistent.
 
-### Step 2 — Introduce Stage 2 Soft Review as a Non-Blocker
-- Start with “diff-only” and “max 10 findings”.
+### Step 2 - Introduce Stage 2 Soft Review as a Non-Blocker
+- Start with "diff-only" and "max 10 findings".
 - Iterate until noise is low and signal is high.
 
-### Step 3 — Automate Scaffolding, Not Decisions
+### Step 3 - Automate Scaffolding, Not Decisions
 - Generate skeletons (contracts, model scaffolds, page scaffolds).
 - Keep decision logic (KPI meaning, triggers) governed and human-owned.
 
-### Step 4 — Standardize Operations Before AI Consumption
+### Step 4 - Standardize Operations Before AI Consumption
 - Add health/observability conventions first.
 - Then use AI for triage and recommendations.
 
-### Step 5 — Add Conversational Consumption Only After Semantic Maturity
+### Step 5 - Add Conversational Consumption Only After Semantic Maturity
 - AI uses governed measures only.
-- No “creative analytics” in production contexts.
+- No "creative analytics" in production contexts.
 
 ---
 

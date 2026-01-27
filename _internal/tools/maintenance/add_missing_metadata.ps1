@@ -1,4 +1,4 @@
-Param(
+﻿Param(
   [string]$CatalogPath = "framework\kpi_catalog\KPI_Catalog.md"
 )
 
