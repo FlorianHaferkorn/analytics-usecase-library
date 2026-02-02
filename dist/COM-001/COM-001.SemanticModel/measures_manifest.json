@@ -1,0 +1,65 @@
+{
+    "usecase_id":  "COM-001",
+    "title":  null,
+    "dataset_model":  "COM-001.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\core\\COM-001_Sales_Performance\\FactSheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "sales.net_sales.amount",
+                         "name":  "sales.net_sales.amount",
+                         "missing":  true,
+                         "purpose":  null,
+                         "description":  null,
+                         "dax_expression":  null
+                     },
+                     {
+                         "kpi_id":  "sales.net_sales.delta_pct.plan",
+                         "name":  "sales.net_sales.delta_pct.plan",
+                         "missing":  true,
+                         "purpose":  null,
+                         "description":  null,
+                         "dax_expression":  null
+                     },
+                     {
+                         "kpi_id":  "sales.net_sales.delta_pct.ly",
+                         "name":  "sales.net_sales.delta_pct.ly",
+                         "missing":  true,
+                         "purpose":  null,
+                         "description":  null,
+                         "dax_expression":  null
+                     },
+                     {
+                         "kpi_id":  "margin.gm.pct",
+                         "name":  "margin.gm.pct",
+                         "missing":  true,
+                         "purpose":  null,
+                         "description":  null,
+                         "dax_expression":  null
+                     },
+                     {
+                         "kpi_id":  "sales.pvm.price_effect.amount",
+                         "name":  "sales.pvm.price_effect.amount",
+                         "missing":  true,
+                         "purpose":  null,
+                         "description":  null,
+                         "dax_expression":  null
+                     },
+                     {
+                         "kpi_id":  "sales.pvm.volume_effect.amount",
+                         "name":  "sales.pvm.volume_effect.amount",
+                         "missing":  true,
+                         "purpose":  null,
+                         "description":  null,
+                         "dax_expression":  null
+                     },
+                     {
+                         "kpi_id":  "sales.pvm.mix_effect.amount",
+                         "name":  "sales.pvm.mix_effect.amount",
+                         "missing":  true,
+                         "purpose":  null,
+                         "description":  null,
+                         "dax_expression":  null
+                     }
+                 ]
+}

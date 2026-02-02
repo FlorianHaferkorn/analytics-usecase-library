@@ -1,3 +1,12 @@
 {
-    "sarif-viewer.connectToGithubCodeScanning": "off"
+    "sarif-viewer.connectToGithubCodeScanning": "off",
+    "chat.tools.terminal.autoApprove": {
+        "py": true,
+        "Get-Process": true,
+        "/^\\.\\\\_internal\\\\tools\\\\powerbi_mcp\\\\orchestrate_full_model\\.ps1 -UseCase \"COM-001\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "git checkout": true
+    }
 }

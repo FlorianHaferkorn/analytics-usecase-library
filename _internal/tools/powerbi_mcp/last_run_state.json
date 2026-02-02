@@ -1,0 +1,27 @@
+{
+    "errors":  [
+
+               ],
+    "scopeType":  "UseCase",
+    "iteration":  4,
+    "warnings":  [
+
+                 ],
+    "measuresFile":  "dist\\COM-001\\COM-001.SemanticModel\\definition\\tables\\_Measures.tmdl",
+    "scopeName":  "COM-001",
+    "completed":  [
+                      "Check Aurora Data",
+                      "Generate UseCase Measures",
+                      "Validate TMDL Syntax",
+                      "Import Measures to Model",
+                      "Create Tables from Contracts",
+                      "Create Relationships",
+                      "Run Quality Checks"
+                  ],
+    "phase":  "validation",
+    "startTime":  {
+                      "value":  "\/Date(1770045815996)\/",
+                      "DisplayHint":  2,
+                      "DateTime":  "Montag, 2. Februar 2026 16:23:35"
+                  }
+}

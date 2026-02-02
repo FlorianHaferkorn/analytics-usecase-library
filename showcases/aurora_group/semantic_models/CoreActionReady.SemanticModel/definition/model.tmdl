@@ -1,0 +1,7 @@
+model Model
+	culture: de-DE
+	defaultPowerBIDataSourceVersion: PowerBI_V3
+	defaultMode: import
+
+
+annotation PBI_ProTooling = ["TMDL-Extension"]

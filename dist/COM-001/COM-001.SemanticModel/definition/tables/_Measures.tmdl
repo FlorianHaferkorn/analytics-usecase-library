@@ -1,0 +1,44 @@
+/// COM-001 Measures
+table _Measures
+
+    /// sales.net_sales.amount - sales.net_sales.amount
+    /// MISSING in KPI catalog: sales.net_sales.amount
+    measure 'sales.net_sales.amount' =
+            // TODO
+            BLANK()
+
+    /// sales.net_sales.delta_pct.plan - sales.net_sales.delta_pct.plan
+    /// MISSING in KPI catalog: sales.net_sales.delta_pct.plan
+    measure 'sales.net_sales.delta_pct.plan' =
+            // TODO
+            BLANK()
+
+    /// sales.net_sales.delta_pct.ly - sales.net_sales.delta_pct.ly
+    /// MISSING in KPI catalog: sales.net_sales.delta_pct.ly
+    measure 'sales.net_sales.delta_pct.ly' =
+            // TODO
+            BLANK()
+
+    /// margin.gm.pct - margin.gm.pct
+    /// MISSING in KPI catalog: margin.gm.pct
+    measure 'margin.gm.pct' =
+            // TODO
+            BLANK()
+
+    /// sales.pvm.price_effect.amount - sales.pvm.price_effect.amount
+    /// MISSING in KPI catalog: sales.pvm.price_effect.amount
+    measure 'sales.pvm.price_effect.amount' =
+            // TODO
+            BLANK()
+
+    /// sales.pvm.volume_effect.amount - sales.pvm.volume_effect.amount
+    /// MISSING in KPI catalog: sales.pvm.volume_effect.amount
+    measure 'sales.pvm.volume_effect.amount' =
+            // TODO
+            BLANK()
+
+    /// sales.pvm.mix_effect.amount - sales.pvm.mix_effect.amount
+    /// MISSING in KPI catalog: sales.pvm.mix_effect.amount
+    measure 'sales.pvm.mix_effect.amount' =
+            // TODO
+            BLANK()

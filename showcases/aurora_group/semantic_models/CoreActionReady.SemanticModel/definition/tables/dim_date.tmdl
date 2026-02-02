@@ -1,0 +1,40 @@
+table dim_date
+	 lineageTag: ef5816f6-16fe-4dd5-9d71-20835fbf02b7
+
+	 column DateKey
+		 dataType: Int64
+		 sourceColumn: DateKey
+		 isHidden
+
+	 column Date
+		 dataType: DateTime
+		 sourceColumn: Date
+
+	 column Year
+		 dataType: Int64
+		 sourceColumn: Year
+
+	 column Quarter
+		 dataType: String
+		 sourceColumn: Quarter
+
+	 column Month
+		 dataType: String
+		 sourceColumn: Month
+
+	 column MonthNumber
+		 dataType: Int64
+		 sourceColumn: MonthNumber
+
+	 column Week
+		 dataType: String
+		 sourceColumn: Week
+
+	 partition dim_date = m
+		 mode: import
+		 source =
+			 let
+				 Source = AuroraGoldLayer{[Schema="dbo",Item="dim_date"]}[Data]
+			 in
+				 Source
+

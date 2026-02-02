@@ -1,0 +1,71 @@
+table fact_sales
+	 lineageTag: 4abd72a9-83bb-4ea9-9fa8-36b5196ee5ed
+
+	 column DateKey
+		 dataType: Int64
+		 sourceColumn: DateKey
+
+	 column OrgKey
+		 dataType: Int64
+		 sourceColumn: OrgKey
+
+	 column ProductKey
+		 dataType: Int64
+		 sourceColumn: ProductKey
+
+	 column CustomerKey
+		 dataType: Int64
+		 sourceColumn: CustomerKey
+
+	 column PromoKey
+		 dataType: Int64
+		 sourceColumn: PromoKey
+
+	 column Promo Flag
+		 dataType: String
+		 sourceColumn: Promo Flag
+
+	 column Net Sales Amount
+		 dataType: String
+		 sourceColumn: Net Sales Amount
+
+	 column Quantity
+		 dataType: Decimal
+		 sourceColumn: Quantity
+
+	 column Plan Quantity
+		 dataType: Decimal
+		 sourceColumn: Plan Quantity
+
+	 column List Price Amount
+		 dataType: String
+		 sourceColumn: List Price Amount
+
+	 column Net Price Amount
+		 dataType: String
+		 sourceColumn: Net Price Amount
+
+	 column Discount Amount
+		 dataType: String
+		 sourceColumn: Discount Amount
+
+	 column Plan Sales Amount
+		 dataType: String
+		 sourceColumn: Plan Sales Amount
+
+	 column Last Year Sales Amount
+		 dataType: String
+		 sourceColumn: Last Year Sales Amount
+
+	 column Cost of Goods Sold Amount
+		 dataType: String
+		 sourceColumn: Cost of Goods Sold Amount
+
+	 partition fact_sales = m
+		 mode: import
+		 source =
+			 let
+				 Source = AuroraGoldLayer{[Schema="dbo",Item="fact_sales"]}[Data]
+			 in
+				 Source
+

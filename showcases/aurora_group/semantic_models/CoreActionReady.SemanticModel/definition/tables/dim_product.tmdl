@@ -1,0 +1,40 @@
+table dim_product
+	 lineageTag: 8530689b-b546-4cd1-87b0-d53af6e033a1
+
+	 column ProductKey
+		 dataType: Int64
+		 sourceColumn: ProductKey
+		 isHidden
+
+	 column ProductCode
+		 dataType: String
+		 sourceColumn: ProductCode
+
+	 column ProductName
+		 dataType: String
+		 sourceColumn: ProductName
+
+	 column Category
+		 dataType: String
+		 sourceColumn: Category
+
+	 column Subcategory
+		 dataType: String
+		 sourceColumn: Subcategory
+
+	 column Brand
+		 dataType: String
+		 sourceColumn: Brand
+
+	 column ProductFamily
+		 dataType: String
+		 sourceColumn: ProductFamily
+
+	 partition dim_product = m
+		 mode: import
+		 source =
+			 let
+				 Source = AuroraGoldLayer{[Schema="dbo",Item="dim_product"]}[Data]
+			 in
+				 Source
+

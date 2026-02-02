@@ -1,12 +1,12 @@
 ﻿**********************
 nStart der Windows PowerShell-Aufzeichnung
-Startzeit: 20260127114337
+Startzeit: 20260202162337
 Benutzername: NAGARRO\florianhaferkorn
 RunAs-Benutzer: NAGARRO\florianhaferkorn
 Konfigurationsname: 
 Computer: NES-NBBSTPQ04 (Microsoft Windows NT 10.0.26100.0)
 Hostanwendung: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\florianhaferkorn\AppData\Local\Programs\Microsoft VS Code\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
-Prozess-ID: 3012
+Prozess-ID: 4640
 PSVersion: 5.1.26100.7462
 PSEdition: Desktop
 PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.7462
@@ -159,7 +159,7 @@ All required measures are covered in KPI Catalog.
 Checking measures vs KPI catalogs...
   Dist root:      C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist
   KPI catalog:    C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog
-No _Measures.tmdl files found under dist.
+All KPI references in _Measures.tmdl files exist in KPI catalogs.
 
 >> _internal/tools/maintenance/check_docs_refs.ps1
 Checking documentation and tooling references...
@@ -177,7 +177,13 @@ Checking documentation and tooling references...
   OK   _internal/tools/generation/generate_tmdl_measures.ps1 (TMDL measures generator)
   OK   _internal/tools/generation/generate_all_measures.ps1 (Generate all measures wrapper)
 
-Documentation and tooling references look consistent.
+Broken relative references detected:
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\_internal\reviews\aurora_data_gap_analysis.md: semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\_internal\reviews\aurora_data_gap_analysis.md: semantic_models/domains/CustomerValue/Measure_Dictionary_CustomerValue.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\_internal\tools\tmp\TMDL_Testing_Guide.md: ../docs/operating_model/measure_system.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\_internal\tools\tmp\TMDL_Testing_Guide.md: ../docs/operating_model/reference/TMDL_Allowed_Subset.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\_internal\tools\tmp\TMDL_Testing_Guide.md: ../docs/operating_model/reference/TMDL_Official_Refs.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\_internal\tools\tmp\TMDL_Testing_Guide.md: ../framework/kpi_catalog/KPI_Catalog.md
 
 >> _internal/tools/validation/check_docs_kpi_refs.ps1
 Docs -> KPI Catalog consistency
@@ -200,7 +206,11 @@ Coverage counts (unique KPI IDs):
 OK: all KPI IDs are referenced in factsheets.
 
 >> _internal/tools/validation/check_duplicate_ids.ps1
-OK: no duplicate IDs detected.
+Duplicate ID checks failed:
+  - Duplicate factsheet id 'COM-001' for type 'business' in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-001_Sales_Performance\FactSheet.md and C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-001_Sales_Performance\Business_Factsheet.md
+  - Duplicate factsheet id 'COM-002' for type 'business' in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-002_Margin_Price_Performance\FactSheet.md and C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-002_Margin_Price_Performance\Business_Factsheet.md
+  - Duplicate factsheet id 'COM-003' for type 'business' in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-003_Customer_Value\FactSheet.md and C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-003_Customer_Value\Business_Factsheet.md
+  - Duplicate factsheet id 'COM-004' for type 'business' in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-004_Promotion_Effectiveness\FactSheet.md and C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-004_Promotion_Effectiveness\Business_Factsheet.md
 
 >> _internal/tools/validation/check_forbidden_content.ps1
 OK: no forbidden content detected.
@@ -252,19 +262,405 @@ Measure Dictionary -> Gold Data Contracts consistency
 OK: all referenced tables/columns exist in gold contracts.
 
 >> _internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1 -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist
-No _Measures.tmdl files found under dist. Skipping TMDL check.
+TMDL <-> Measure Dictionary consistency
+Missing in TMDL (present in Measure Dictionaries):
+  - Absenteeism %
+  - Absolute Error
+  - Action Outcome Rate %
+  - Actions Routed Count
+  - Active Customers Count
+  - Actual Units
+  - AHT Minutes
+  - AP Amount
+  - AR Amount
+  - Attrition Risk %
+  - Availability %
+  - Avg Inventory Amount
+  - Backlog Cases
+  - Backlog Count
+  - Baseline Quantity
+  - Baseline Sales Amount
+  - Bias %
+  - Cannibalization %
+  - Cases FCR
+  - Cases Resolved
+  - Cases SLA Met
+  - Cash Balance
+  - Cash Conversion Cycle (Days)
+  - Cash vs Plan %
+  - CCC Days
+  - Churned Customers Count
+  - COGS % of Sales
+  - COGS Amount
+  - COGS Amount (AP)
+  - COGS per Unit
+  - Complaint Count
+  - Complaint Rate %
+  - Cost Base Volume Amount
+  - Cost of Goods Sold Amount
+  - Cost of Poor Quality
+  - Customer Complaints Count
+  - Customer Lifetime Revenue Amount
+  - Customer Lifetime Value Amount
+  - Customer Retention %
+  - Days in Inventory
+  - Defect Count
+  - Defect Density
+  - Demand Occurrences
+  - Demand Units
+  - Digital Adoption %
+  - DIO Days
+  - Discount Amount
+  - Downtime %
+  - Downtime Minutes
+  - DPO Days
+  - DSO Days
+  - EBITDA Margin
+  - Enterprise Value-at-Risk Index
+  - Escalated Cases
+  - Escalation %
+  - Expedite Cost Amount
+  - Failure Count
+  - FCR %
+  - First Pass Yield %
+  - Forecast Accuracy %
+  - Forecast Error Qty
+  - Forecast Net Sales Amount
+  - Forecast Units
+  - Funding Amount
+  - Good Units
+  - Gross Margin % LY
+  - Gross Margin % vs Plan
+  - Gross Margin Amount
+  - Gross Margin Amount LY
+  - Gross Margin per FTE Amount
+  - Idle Time Minutes
+  - Incremental GM Amount
+  - Incremental Sales Amount
+  - In-Full %
+  - In-Full Deliveries
+  - Inventory Amount
+  - Inventory Turnover
+  - Inventory Value Amount
+  - Labor Hours
+  - Labor Productivity %
+  - Last Year Sales Amount
+  - List Price Amount
+  - Lost Demand Units
+  - MAPE %
+  - Margin Amount
+  - Material Cost %
+  - Material Cost Amount
+  - Mix Effect Amount
+  - MTBF (hours)
+  - MTTR (hours)
+  - Net Price Amount
+  - Net Sales % vs LY
+  - Net Sales % vs Plan
+  - Net Sales Amount
+  - Net Sales Delta % vs LY
+  - NPS Index
+  - NPS Score
+  - Obsolete Inventory %
+  - Occupancy %
+  - OEE %
+  - On-Time %
+  - On-Time Deliveries
+  - On-Time In-Full Orders
+  - Operating Cash Flow
+  - Operating Cash Flow Amount
+  - Operations Service Level %
+  - OpEx Amount
+  - Opex Base Amount
+  - OpEx vs Plan %
+  - Order Lines Count
+  - OTIF %
+  - OTIF Orders
+  - Output Units
+  - Overtime %
+  - Overtime Minutes
+  - Paid Time Minutes
+  - Payables Amount
+  - Penalty Amount
+  - Performance %
+  - Personnel Cost Ratio %
+  - Plan COGS Amount
+  - Plan Gross Margin %
+  - Plan Gross Margin Amount
+  - Plan OpEx Amount
+  - Plan Quantity
+  - Plan Sales Amount
+  - Planned Hours
+  - Planned Output Units
+  - Planned Time
+  - Plans Count
+  - PM Compliance %
+  - Preventive Maintenance Task Count
+  - Price Effect Amount
+  - Price Realization %
+  - Produced Units Qty
+  - Production Volume Units
+  - Promo COGS Amount
+  - Promo Cost
+  - Promo Cost Amount
+  - Promo Gross Margin %
+  - Promo Gross Margin Uplift Amount
+  - Promotion ROI %
+  - Quality %
+  - Quality Defect Rate %
+  - Quantity
+  - Rebate Amount
+  - Re-Plan Count
+  - Revenue Amount
+  - Revenue at Risk Amount
+  - Revenue per FTE
+  - Rework Rate %
+  - Rework Units
+  - Run Time
+  - Run Time Minutes
+  - Safety Incident Count
+  - Sales Units
+  - Scrap Rate %
+  - Scrap Units
+  - Service Impact %
+  - Shipments Count
+  - Shipped Units
+  - Shrinkage %
+  - Shrinkage Minutes
+  - SLA Attainment %
+  - Spare Parts Stockout %
+  - Standard Output Units
+  - Stockout Count
+  - Stockout Impact %
+  - Stockout Rate %
+  - Supplier Risk Score
+  - Supply Chain Service Level %
+  - Surcharge Amount
+  - Talk Wrap Minutes
+  - Talk+Wrap Minutes
+  - Throughput Units
+  - Tickets Closed Count
+  - Tickets Created Count
+  - Total Handle Time Minutes
+  - Total Orders
+  - Total Process Cost Amount
+  - Total Units
+  - Turnover Rate %
+  - Under-Forecast Lost Demand Qty
+  - Under-Forecast Lost Demand Share %
+  - Unit Cost Amount
+  - Unplanned Downtime %
+  - Unplanned Downtime Minutes
+  - Utilization %
+  - Volume Effect Amount
+  - Work Time Minutes
+  - Yield %
+Missing in Measure Dictionaries (present in TMDL):
+  - margin.gm.pct
+  - Net Sales
+  - sales.net_sales.amount
+  - sales.net_sales.delta_pct.ly
+  - sales.net_sales.delta_pct.plan
+  - sales.pvm.mix_effect.amount
+  - sales.pvm.price_effect.amount
+  - sales.pvm.volume_effect.amount
 
 >> _internal/tools/validation/check_mojibake.ps1
 Mojibake scan
-OK: No mojibake patterns detected.
+Potential mojibake found:
+  - docs\operating_model\lakehouse_architecture.md:70: â”œâ”€ dim_time/           # Fiscal + calendar hierarchies
+  - docs\operating_model\lakehouse_architecture.md:71: â”œâ”€ dim_product/        # Product catalog + hierarchies
+  - docs\operating_model\lakehouse_architecture.md:72: â”œâ”€ dim_customer/       # Customer master + hierarchies
+  - docs\operating_model\lakehouse_architecture.md:73: â”œâ”€ dim_supplier/       # Supplier master
+  - docs\operating_model\lakehouse_architecture.md:74: â”œâ”€ dim_organization/   # Org structure + cost centers
+  - docs\operating_model\lakehouse_architecture.md:75: â””â”€ dim_geography/      # Location hierarchies
+  - docs\operating_model\lakehouse_architecture.md:92: â”œâ”€ fact_sales/              # Sales transactions
+  - docs\operating_model\lakehouse_architecture.md:93: â”œâ”€ fact_production/         # Production orders/outputs
+  - docs\operating_model\lakehouse_architecture.md:94: â”œâ”€ fact_inventory/          # Inventory snapshots
+  - docs\operating_model\lakehouse_architecture.md:95: â”œâ”€ fact_financials/         # GL entries/balances
+  - docs\operating_model\lakehouse_architecture.md:96: â”œâ”€ fact_quality/            # Quality events/defects
+  - docs\operating_model\lakehouse_architecture.md:97: â””â”€ fact_supply_deliveries/  # Inbound deliveries
+  - docs\operating_model\lakehouse_architecture.md:114: â”œâ”€ agg_margin_variance/        # Margin deviations by product/time
+  - docs\operating_model\lakehouse_architecture.md:115: â”œâ”€ agg_quality_alerts/         # Quality threshold breaches
+  - docs\operating_model\lakehouse_architecture.md:116: â”œâ”€ agg_forecast_deviation/     # Plan vs actual analysis
+  - docs\operating_model\lakehouse_architecture.md:117: â”œâ”€ agg_inventory_risk/         # Stockout/obsolescence signals
+  - docs\operating_model\lakehouse_architecture.md:118: â””â”€ agg_customer_churn_risk/    # Retention signals
+  - docs\operating_model\lakehouse_architecture.md:203: Detail Layer      â†’ Transaction-level (fact_sales)
+  - docs\operating_model\lakehouse_architecture.md:208: Daily Summary     â†’ Daily aggregates (fact_sales_daily)
+  - docs\operating_model\lakehouse_architecture.md:213: Monthly Summary   â†’ Monthly aggregates (fact_sales_monthly)
+  - docs\operating_model\lakehouse_architecture.md:218: Action Aggregates â†’ Deviation-focused (agg_margin_variance)
+  - docs\operating_model\lakehouse_architecture.md:249: â”œâ”€ Files/
+  - docs\operating_model\lakehouse_architecture.md:250: â”‚  â”œâ”€ dimensions/
+  - docs\operating_model\lakehouse_architecture.md:251: â”‚  â”œâ”€ facts/
+  - docs\operating_model\lakehouse_architecture.md:252: â”‚  â””â”€ action_aggregates/
+  - docs\operating_model\lakehouse_architecture.md:253: â””â”€ Tables/  (Delta Lake metadata)
+  - docs\operating_model\lakehouse_architecture.md:254: â”œâ”€ dim_time
+  - docs\operating_model\lakehouse_architecture.md:255: â”œâ”€ fact_sales
+  - docs\operating_model\lakehouse_architecture.md:256: â””â”€ agg_margin_variance
+  - docs\operating_model\lakehouse_architecture.md:264: - Delta Parquet format âœ“
+  - docs\operating_model\lakehouse_architecture.md:265: - Max 300 columns per table âœ“
+  - docs\operating_model\lakehouse_architecture.md:266: - Partitioning compatible âœ“
+  - docs\operating_model\lakehouse_architecture.md:267: - Auto-compaction enabled âœ“
+  - docs\operating_model\lakehouse_architecture.md:281: â””â”€ Shortcut â†’ External ADLS/S3 (if external sources)
+  - docs\operating_model\lakehouse_architecture.md:284: â””â”€ Shortcut â†’ Lakehouse A/gold/* (consumption layer)
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:3: ## Vision: KPI Catalog â†’ Semantic Model â†’ Reports (Fully Automated)
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:36: - Analysis Services TMDL Extension fÃ¼r VS Code
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:82: Write-Host "âœ“ PBIP structure ready: $modelPath" -ForegroundColor Green
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:101: Write-Host "`nâœ“ Connection saved: $connFile" -ForegroundColor Green
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:209: Write-Host "  âœ“ All required tables present" -ForegroundColor Green
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:229: Write-Host "  âœ“ Measures generated" -ForegroundColor Green
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:239: Write-Host "  âœ“ TMDL syntax valid" -ForegroundColor Green
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:252: # FÃ¼r jede Dimension: Table Operation Ã¼ber MCP
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:275: # FÃ¼r jede Relationship: MCP Operation
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:302: Write-Host "  âœ“ Measures imported" -ForegroundColor Green
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:329: Write-Host "  âœ“ BPA checks passed" -ForegroundColor Green
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:341: Write-Host "  â†’ Auto-fix: Adding default formatString" -ForegroundColor Yellow
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:345: Write-Host "  â†’ Auto-fix: Adding default displayFolder" -ForegroundColor Yellow
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:349: Write-Host "  â†’ Auto-fix: Correcting relationship" -ForegroundColor Yellow
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:353: Write-Host "  â†’ Manual intervention required: $($error.error)" -ForegroundColor Red
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:363: Write-Host "`nâœ— Validation failed after $MaxIterations iterations" -ForegroundColor Red
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:387: Write-Host "  âœ“ Report structure created" -ForegroundColor Green
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:394: Write-Host "âœ“ Model Orchestration Complete!" -ForegroundColor Green
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:425: # Wrapper fÃ¼r mcp_powerbi-model_table_operations
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:426: # Konvertiert Data Contract YAML â†’ TMDL Table Definition
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:523: # Parse _Measures.tmdl â†’ Extract measure blocks â†’ Create via MCP
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:645: # Pattern â†’ Auto-Fix Function
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:799: # 3. Ã–ffne in Power BI Desktop
+  - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:827: 4. **Natural Language Report Builder:** "Create sales report for Q4" â†’ Full report
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:9: - mcp_powerbi-model_table_operations          # Tables erstellen/aktualisieren/lÃ¶schen
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:14: - mcp_powerbi-model_perspective_operations    # Perspectives fÃ¼r Use Cases
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:125: ### Template Structure â†’ PBIR Conversion
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:181: ### 1. KPI Catalog â†’ Measures
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:198: ### 2. Data Contract â†’ Tables
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:225: ### 3. Technical Factsheet â†’ Relationships
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:244: ### 4. Page Template â†’ Report Pages
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:266: âœ“ TMDL Syntax Valid (./_internal/tools/tmp/test_tmdl.ps1)
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:267: âœ“ All Measures Have formatString
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:268: âœ“ All Measures Have displayFolder
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:269: âœ“ All Measures Have /// Description
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:270: âœ“ No := Operator Usage
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:271: âœ“ UTF-8 without BOM
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:274: - Missing formatString â†’ Infer from KPI Catalog dataType
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:275: - Missing displayFolder â†’ Use domain default (e.g., "01_Sales")
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:276: - Missing description â†’ Copy from KPI Catalog purpose
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:283: âœ“ All Tables Exist
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:284: âœ“ All Columns Mapped
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:285: âœ“ Relationships Created
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:286: âœ“ No Ambiguous Paths
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:287: âœ“ Hierarchies Defined
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:288: âœ“ Sort-By Columns Set
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:291: - Ambiguous paths â†’ Set one relationship inactive
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:292: - Missing sort-by â†’ Create from naming convention (*Number, *SortOrder)
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:299: âœ“ No Floating Point DataTypes
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:300: âœ“ IsAvailableInMdx=false on Hidden Columns
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:301: âœ“ No Bi-Directional on High-Cardinality
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:302: âœ“ DAX Fully Qualified Column References
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:303: âœ“ No Circular Dependencies
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:304: âœ“ Format Strings Consistent
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:307: - Float â†’ Decimal conversion
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:308: - IsAvailableInMdx â†’ Set false
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:309: - Bi-directional â†’ Change to single
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:316: âœ“ All Visuals Have Data Bindings
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:317: âœ“ Filters Applied from factsheet.filters_default
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:318: âœ“ Page Navigation Configured
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:319: âœ“ Bookmarks for 3-30-300 Pattern
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:322: - Missing visual â†’ Use default card
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:323: - Missing filter â†’ Apply "Last 12M"
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:333: [âœ“] Phase 1: Data Foundation          - 100% Complete (2.3s)
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:334: [âœ“] Phase 2: Measure Generation        - 100% Complete (5.1s)
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:335: [â†’] Phase 3: Semantic Model Build      - 60% Complete (Tables: 7/12)
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:336: [â¸] Phase 4: Validation                - Waiting...
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:337: [â¸] Phase 5: Report Generation         - Waiting...
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:340: Iteration 1: 3 errors found â†’ 3 auto-fixed
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:341: Iteration 2: 1 error found â†’ Manual intervention required
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:370: _Measures.tmdl          â† Generated from KPI Catalog
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:372: relationships.tmdl      â† Auto-generated from factsheet
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:377: report.json              â† Generated from page template
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:397: 4. Identify patterns â†’ Improve auto-fix rules
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:401: - Missing KPIs in Catalog â†’ Add to backlog
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:402: - Ambiguous factsheet â†’ Improve template
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:403: - Common DAX errors â†’ Add to linter rules
+  - _internal\tools\powerbi_mcp\IMPLEMENTATION_CHEATSHEET.md:404: - Visual type gaps â†’ Extend template engine
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:3: ## 4 Validation-Ebenen fÃ¼r TMDL-QualitÃ¤tssicherung
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:7: ## âœ… Ebene 1: Syntaktische Validierung (Automatisiert)
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:11: **Was wird geprÃ¼ft:**
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:12: - âœ“ Datei existiert
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:13: - âœ“ UTF-8 ohne BOM (Required fÃ¼r TMDL!)
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:14: - âœ“ Valide TMDL-Struktur (`table` Keyword)
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:15: - âœ“ Measures vorhanden
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:16: - âœ“ Jedes Measure hat `formatString`
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:17: - âœ“ Jedes Measure hat `displayFolder`
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:18: - âœ“ Jedes Measure hat `///` Description-Comment
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:19: - âœ“ Kein `:=` Operator (DAX nutzt `=`)
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:20: - âœ“ Konsistente Indentation
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:22: **AusfÃ¼hrung:**
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:39: âœ“ TMDL validation passed!
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:44: ## âœ… Ebene 2: Best Practice Analyzer (BPA)
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:48: **Was wird geprÃ¼ft:**
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:49: - âœ“ Semantic Model Performance Rules (650+ Zeilen, 40+ Regeln)
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:51: - IsAvailableInMdx auf false fÃ¼r Hidden Columns
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:52: - Bi-Directional Relationships gegen High-Cardinality prÃ¼fen
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:54: - âœ“ DAX Style Guide Rules (74 Zeilen)
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:55: - VAR/RETURN Pattern fÃ¼r komplexe Measures
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:56: - DIVIDE() statt `/` fÃ¼r Divide-by-Zero Schutz
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:59: - IF-Nesting vermeiden â†’ SWITCH(TRUE())
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:60: - âœ“ Report Best Practices
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:65: **AusfÃ¼hrung:**
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:67: # FÃ¼r spezifisches Use Case
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:70: # Ãœber run_all_checks.ps1 (umfassend)
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:81: ## âœ… Ebene 3: VS Code TMDL Extension (Interaktiv)
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:91: **Was wird geprÃ¼ft:**
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:92: - âœ“ Live TMDL Syntax Highlighting
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:93: - âœ“ IntelliSense fÃ¼r TMDL Keywords
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:94: - âœ“ Real-time Error Diagnostics
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:95: - âœ“ Auto-Completion fÃ¼r Tabellen/Columns/Measures
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:96: - âœ“ Hover-Tooltips fÃ¼r Dokumentation
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:99: 1. TMDL-Datei in VS Code Ã¶ffnen
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:110: ## âœ… Ebene 4: Power BI Desktop Integration Test (End-to-End)
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:114: **Was wird geprÃ¼ft:**
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:115: - âœ“ TMDL kann in Power BI Desktop geladen werden
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:116: - âœ“ Measures sind im Model Browser sichtbar
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:117: - âœ“ DAX-Expressions evaluieren korrekt
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:118: - âœ“ Relationships funktionieren
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:119: - âœ“ Visuals kÃ¶nnen auf Measures zugreifen
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:120: - âœ“ Format Strings werden korrekt angewendet
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:145: # 5. In Power BI Desktop Ã¶ffnen
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:150: 1. Power BI Desktop Ã¶ffnen
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:151: 2. File â†’ Open â†’ Browse
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:152: 3. `MyModel.SemanticModel` Ordner auswÃ¤hlen
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:153: 4. View â†’ TMDL View aktivieren
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:155: 6. Save â†’ TMDL wird zurÃ¼ckgeschrieben
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:158: 1. Model View Ã¶ffnen
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:159: 2. _Measures Tabelle prÃ¼fen
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:161: 4. DAX-Expressions prÃ¼fen (Measure auswÃ¤hlen â†’ Formula Bar)
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:162: 5. Report View â†’ Visual erstellen mit Measure
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:163: 6. Format String validieren (WÃ¤hrung, Prozent, etc.)
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:167: | Problem | LÃ¶sung |
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:169: | TMDL View nicht verfÃ¼gbar | Power BI Desktop auf neueste Version updaten (TMDL GA seit Nov 2024) |
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:170: | Syntax Error beim Laden | `test_tmdl.ps1` ausfÃ¼hren fÃ¼r Details |
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:171: | Measure nicht sichtbar | PrÃ¼fe `ref table _Measures` in model.tmdl |
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:172: | Format String ignoriert | PrÃ¼fe Syntax: `formatString: "#,0.00"` (Quotes required) |
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:173: | Description fehlt | `///` Comment-Zeilen Ã¼ber measure Block hinzufÃ¼gen |
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:179: ### 1. WÃ¤hrend der Entwicklung:
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:192: - TMDL-Datei in VS Code mit Extension Ã¶ffnen
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:193: - Live Feedback wÃ¤hrend des Editierens
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:212: # Schritt 3: BPA ausfÃ¼hren
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:215: # Schritt 4: In Power BI Desktop Ã¶ffnen
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:217: # Dann: File â†’ Open â†’ COM-001.SemanticModel in Power BI Desktop
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:222: ## ðŸ” QualitÃ¤tsmetriken
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:226: | 1. Syntaktisch | Struktur, Encoding | < 1s | Basis | âœ… Ja |
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:227: | 2. BPA | Style, Performance | < 5s | Umfassend | âœ… Ja |
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:228: | 3. VS Code | Live Feedback | Real-time | Syntax + IntelliSense | âš ï¸ Interaktiv |
+  - _internal\tools\tmp\TMDL_Testing_Guide.md:229: | 4. Power BI | End-to-End | Manual | VollstÃ¤ndig | âŒ Nein |
 
 >> _internal/tools/validation/check_markdownlint.ps1
 Markdownlint check
-OK: markdownlint clean.
+PS>TerminatingError(node.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: _internal/tools/tmp/TMDL_Testing_Guide.md:105:14 error MD034/no-bare-urls Bare URL used [Context: "https://marketplace.visualstud..."]."
+>> TerminatingError(node.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: _internal/tools/tmp/TMDL_Testing_Guide.md:105:14 error MD034/no-bare-urls Bare URL used [Context: "https://marketplace.visualstud..."]."
 
 >> _internal/tools/validation/check_yaml_format.ps1
 YAML format check
-PS>TerminatingError(python.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Python wurde nicht gefunden; ohne Argumente ausf³hren, um aus dem Microsoft Store zu installieren, oder deaktivieren Sie diese Verkn³pfung unter "Einstellungen > Apps > Erweiterte App-Einstellungen > App-Ausf³hrungsaliase".."
+PS>TerminatingError(python.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Python wurde nicht gefunden; ohne Argumente ausf�hren, um aus dem Microsoft Store zu installieren, oder deaktivieren Sie diese Verkn�pfung unter "Einstellungen > Apps > Erweiterte App-Einstellungen > App-Ausf�hrungsaliase".."
 OK: All YAML files parsed successfully.
 
 >> _internal/tools/validation/check_schema_validation.ps1
@@ -273,5 +669,5 @@ OK: schema validation passed.
 
 **********************
 Ende der Windows PowerShell-Aufzeichnung
-Endzeit: 20260127114425
+Endzeit: 20260202162414
 **********************
