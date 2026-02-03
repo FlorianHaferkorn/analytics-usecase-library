@@ -54,7 +54,6 @@ required_kpis:
     purpose: Profitability quality
     agg: avg
 
-  - id: profit.gross_margin
     name: Gross Margin % (Strategic)
     purpose: Strategic profitability benchmark
     agg: avg

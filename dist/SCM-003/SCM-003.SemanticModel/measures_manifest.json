@@ -1,0 +1,169 @@
+{
+    "usecase_id":  "SCM-003",
+    "title":  null,
+    "dataset_model":  "SCM-003.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\core\\SCM-003_Forecast_vs_Actual\\Technical_Factsheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "plan.forecast.accuracy.pct",
+                         "name":  "Forecast Accuracy %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures how close forecasted demand is to actual demand.",
+                         "description":  "Measures how close forecasted demand is to actual demand.",
+                         "technical_description":  "Measures how close forecasted demand is to actual demand.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Supply Planning Lead",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "plan.forecast.mape.pct",
+                         "name":  "Forecast MAPE %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures mean absolute percentage error in forecast.",
+                         "description":  "Measures mean absolute percentage error in forecast.",
+                         "technical_description":  "Measures mean absolute percentage error in forecast.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Supply Planning Lead",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "plan.forecast.bias.pct",
+                         "name":  "Forecast Bias %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures systematic over- or under-forecasting.",
+                         "description":  "Measures systematic over- or under-forecasting.",
+                         "technical_description":  "Measures systematic over- or under-forecasting.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Supply Planning Lead",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "plan.forecast.service_impact.pct",
+                         "name":  "Service Impact %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast under-coverage (units-based demand forecast).",
+                         "description":  "Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast under-coverage (units-based demand forecast).",
+                         "technical_description":  "Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast un...",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Supply Chain Planning",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Demand Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "plan.replan.count",
+                         "name":  "Re-Plan Count",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0",
+                         "display_folder":  "",
+                         "purpose":  "Counts number of replanning cycles in a period.",
+                         "description":  "Counts number of replanning cycles in a period.",
+                         "technical_description":  "Counts number of replanning cycles in a period.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Supply Planning Lead",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     }
+                 ]
+}

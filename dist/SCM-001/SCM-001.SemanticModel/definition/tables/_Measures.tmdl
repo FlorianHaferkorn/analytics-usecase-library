@@ -1,0 +1,38 @@
+/// SCM-001 Measures
+table _Measures
+
+    /// inv.dio.days - Days in Inventory
+    /// Measures inventory holding period in days.
+    measure 'Days in Inventory' =
+            BLANK()
+        formatString: "0"
+
+    /// inv.turnover - Inventory Turnover
+    /// Measures how often inventory is sold and replaced.
+    measure 'Inventory Turnover' =
+            BLANK()
+        formatString: "#,0"
+
+    /// inv.stockout.pct - Stockout Rate %
+    /// Measures how often inventory is unavailable when demanded.
+    measure 'Stockout Rate %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// supply.otif.pct - OTIF %
+    /// Measures share of orders delivered on time and in full.
+    measure 'OTIF %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// inv.obsolete.pct - Obsolete Inventory %
+    /// Measures share of inventory considered obsolete.
+    measure 'Obsolete Inventory %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// plan.forecast.accuracy.pct - Forecast Accuracy %
+    /// Measures how close forecasted demand is to actual demand.
+    measure 'Forecast Accuracy %' =
+            BLANK()
+        formatString: "0.0%"

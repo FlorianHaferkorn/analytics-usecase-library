@@ -1,0 +1,201 @@
+{
+    "usecase_id":  "OPS-003",
+    "title":  null,
+    "dataset_model":  "OPS-003.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\core\\OPS-003_Quality_Yield\\Technical_Factsheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "quality.fpy.pct",
+                         "name":  "First Pass Yield %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures share of units produced without rework or scrap.",
+                         "description":  "Measures share of units produced without rework or scrap.",
+                         "technical_description":  "Measures share of units produced without rework or scrap.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Quality",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Quality Manager",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "quality.scrap.pct",
+                         "name":  "Scrap Rate %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures share of units scrapped in production.",
+                         "description":  "Measures share of units scrapped in production.",
+                         "technical_description":  "Measures share of units scrapped in production.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Quality",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Quality Manager",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "quality.rework.pct",
+                         "name":  "Rework Rate %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures share of units requiring rework.",
+                         "description":  "Measures share of units requiring rework.",
+                         "technical_description":  "Measures share of units requiring rework.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Quality",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Quality Manager",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "quality.copq.amount",
+                         "name":  "Cost of Poor Quality",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0.00",
+                         "display_folder":  "",
+                         "purpose":  "Captures financial impact of scrap, rework, and warranty/complaints.",
+                         "description":  "Captures financial impact of scrap, rework, and warranty/complaints.",
+                         "technical_description":  "Captures financial impact of scrap, rework, and warranty/complaints.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Quality",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Quality Controller",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "quality.complaint.pct",
+                         "name":  "Complaint Rate %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures customer complaints relative to shipped units.",
+                         "description":  "Measures customer complaints relative to shipped units.",
+                         "technical_description":  "Measures customer complaints relative to shipped units.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Quality",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Quality Manager",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "quality.defect_density",
+                         "name":  "Defect Density",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0",
+                         "display_folder":  "",
+                         "purpose":  "Measures defect count per 1,000 units produced.",
+                         "description":  "Measures defect count per 1,000 units produced.",
+                         "technical_description":  "Measures defect count per 1,000 units produced.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Quality",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Quality Manager",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     }
+                 ]
+}

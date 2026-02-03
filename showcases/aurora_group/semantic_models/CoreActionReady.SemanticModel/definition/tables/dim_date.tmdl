@@ -1,40 +1,42 @@
 table dim_date
-	 lineageTag: ef5816f6-16fe-4dd5-9d71-20835fbf02b7
+	lineageTag: ef5816f6-16fe-4dd5-9d71-20835fbf02b7
 
-	 column DateKey
-		 dataType: Int64
-		 sourceColumn: DateKey
-		 isHidden
+	column DateKey
+		dataType: int64
+		sourceColumn: DateKey
+		isHidden
 
-	 column Date
-		 dataType: DateTime
-		 sourceColumn: Date
+	column Date
+		dataType: dateTime
+		sourceColumn: Date
 
-	 column Year
-		 dataType: Int64
-		 sourceColumn: Year
+	column Year
+		dataType: int64
+		sourceColumn: Year
 
-	 column Quarter
-		 dataType: String
-		 sourceColumn: Quarter
+	column Quarter
+		dataType: string
+		sourceColumn: Quarter
 
-	 column Month
-		 dataType: String
-		 sourceColumn: Month
+	column Month
+		dataType: string
+		sourceColumn: Month
 
-	 column MonthNumber
-		 dataType: Int64
-		 sourceColumn: MonthNumber
+	column MonthNumber
+		dataType: int64
+		sourceColumn: MonthNumber
 
-	 column Week
-		 dataType: String
-		 sourceColumn: Week
+	column Week
+		dataType: string
+		sourceColumn: Week
 
-	 partition dim_date = m
-		 mode: import
-		 source =
-			 let
-				 Source = AuroraGoldLayer{[Schema="dbo",Item="dim_date"]}[Data]
-			 in
-				 Source
-
+	partition dim_date = m
+		mode: import
+		source =
+				let
+					Source = Folder.Files("C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\showcases\aurora_group\data\gold\dimensions\dim_date"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData

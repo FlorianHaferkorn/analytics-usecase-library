@@ -104,27 +104,9 @@ if (-not $technicalBody) {
   $technicalBody = $technicalBody -replace '<UC-ID>', $Id
 }
 
-$today = Get-Date -Format "dd.MM.yyyy"
-$factSheetContent = @(
-  '---'
-  'migrated: true'
-  'business_factsheet: "./Business_Factsheet.md"'
-  'technical_factsheet: "./Technical_Factsheet.md"'
-  ("last_update: ""$today""")
-  '---'
-  ''
-  "# $Title"
-  ''
-  "Dieses FactSheet dient nur noch als Legacy-Stub. Bitte alle inhaltlichen und technischen Informationen direkt in den ausgewiesenen Business- bzw. Technical-Factsheets pflegen."
-  ''
-  '- [Business_Factsheet.md](./Business_Factsheet.md)'
-  '- [Technical_Factsheet.md](./Technical_Factsheet.md)'
-) -join [Environment]::NewLine
-
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText((Join-Path $targetDir "Business_Factsheet.md"), $businessContent, $utf8)
 [System.IO.File]::WriteAllText((Join-Path $targetDir "Technical_Factsheet.md"), $technicalBody, $utf8)
-[System.IO.File]::WriteAllText((Join-Path $targetDir "FactSheet.md"), $factSheetContent, $utf8)
 
 Write-Host "Created new use case scaffold:" -ForegroundColor Green
 Write-Host "  ID:     $Id" -ForegroundColor Green
@@ -136,6 +118,5 @@ Write-Host "  1) Complete the Business factsheet:" -ForegroundColor DarkGray
 Write-Host "       $clusterRel/$folderName/Business_Factsheet.md" -ForegroundColor DarkGray
 Write-Host "  2) Complete the Technical factsheet:" -ForegroundColor DarkGray
 Write-Host "       $clusterRel/$folderName/Technical_Factsheet.md" -ForegroundColor DarkGray
-Write-Host "  3) Keep FactSheet.md as stub (already wired to the new files)." -ForegroundColor DarkGray
-Write-Host "  4) Add $Id to _includes/UseCase_Inventory.md and ensure referenced KPIs exist." -ForegroundColor DarkGray
+Write-Host "  3) Add $Id to _includes/UseCase_Inventory.md and ensure referenced KPIs exist." -ForegroundColor DarkGray
 

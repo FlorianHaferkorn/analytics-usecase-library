@@ -32,35 +32,6 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     last_review: "TBD"
 
 
-- measure_name: "Gross Margin %"
-  is_kpi_measure: true
-  kpi_id_ref: "profit.gross_margin"
-  semantic_model: "Profitability_SemanticModel"
-  display_folder: "01_Margin"
-  category: "KPI"
-  expression:
-    dax: |
-      VAR NetSales = SUM ( fact_sales[Net Sales Amount] )
-      VAR Cogs     = SUM ( fact_sales[Cost of Goods Sold Amount] )
-      RETURN DIVIDE ( NetSales - Cogs, NetSales )
-    formatString: "0.0%"
-  documentation:
-    description: "Strategic gross margin KPI; same DAX as operational GM %."
-    notes: |
-      Grain: month (aggregated from invoice_line). Unit: %.
-      Lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount].
-      QA: Net Sales > 0; currency alignment; exclusions (returns) consistent.
-  dependencies:
-    columns:
-      - "fact_sales[Net Sales Amount]"
-      - "fact_sales[Cost of Goods Sold Amount]"
-  governance:
-    owner: "Profitability Analytics"
-    status: "draft"
-    version: "v1.2"
-    last_review: "TBD"
-
-
 - measure_name: "Gross Margin Amount"
   is_kpi_measure: true
   kpi_id_ref: "margin.gm.amount"

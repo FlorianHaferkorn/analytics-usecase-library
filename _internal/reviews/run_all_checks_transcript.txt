@@ -1,12 +1,12 @@
 ﻿**********************
 nStart der Windows PowerShell-Aufzeichnung
-Startzeit: 20260202162337
+Startzeit: 20260203094405
 Benutzername: NAGARRO\florianhaferkorn
 RunAs-Benutzer: NAGARRO\florianhaferkorn
 Konfigurationsname: 
 Computer: NES-NBBSTPQ04 (Microsoft Windows NT 10.0.26100.0)
 Hostanwendung: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\florianhaferkorn\AppData\Local\Programs\Microsoft VS Code\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
-Prozess-ID: 4640
+Prozess-ID: 39688
 PSVersion: 5.1.26100.7462
 PSEdition: Desktop
 PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.7462
@@ -43,7 +43,6 @@ COM-002_Margin_Price_Performance   cost.cogs_per_unit.amount             True
 COM-002_Margin_Price_Performance   margin.gm.amount                      True
 COM-002_Margin_Price_Performance   margin.gm.pct                         True
 COM-002_Margin_Price_Performance   margin.gm.vs_plan.pct                 True
-COM-002_Margin_Price_Performance   profit.gross_margin                   True
 COM-002_Margin_Price_Performance   sales.price.realization_pct           True
 COM-002_Margin_Price_Performance   sales.pvm.mix_effect.amount           True
 COM-003_Customer_Value             crm.active_customers.count            True
@@ -198,16 +197,15 @@ KPI Catalog -> Factsheets coverage
 Note: This list checks core factsheets, core action codes, inventory mentions, and measure dictionaries.
 It does not consider KPI aliases or KPIs used only as intermediate inputs.
 Coverage counts (unique KPI IDs):
-  Factsheets:           104
+  Factsheets:           103
   Inventory:            81
   Core Action Codes:    61
-  Measure Dictionaries: 111
-  Total covered:        111
+  Measure Dictionaries: 110
+  Total covered:        110
 OK: all KPI IDs are referenced in factsheets.
 
 >> _internal/tools/validation/check_duplicate_ids.ps1
 Duplicate ID checks failed:
-  - Duplicate factsheet id 'COM-001' for type 'business' in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-001_Sales_Performance\FactSheet.md and C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-001_Sales_Performance\Business_Factsheet.md
   - Duplicate factsheet id 'COM-002' for type 'business' in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-002_Margin_Price_Performance\FactSheet.md and C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-002_Margin_Price_Performance\Business_Factsheet.md
   - Duplicate factsheet id 'COM-003' for type 'business' in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-003_Customer_Value\FactSheet.md and C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-003_Customer_Value\Business_Factsheet.md
   - Duplicate factsheet id 'COM-004' for type 'business' in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-004_Promotion_Effectiveness\FactSheet.md and C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-004_Promotion_Effectiveness\Business_Factsheet.md
@@ -270,119 +268,68 @@ Missing in TMDL (present in Measure Dictionaries):
   - Actions Routed Count
   - Active Customers Count
   - Actual Units
-  - AHT Minutes
   - AP Amount
   - AR Amount
-  - Attrition Risk %
-  - Availability %
   - Avg Inventory Amount
   - Backlog Cases
-  - Backlog Count
   - Baseline Quantity
   - Baseline Sales Amount
   - Bias %
-  - Cannibalization %
   - Cases FCR
   - Cases Resolved
   - Cases SLA Met
-  - Cash Balance
-  - Cash Conversion Cycle (Days)
-  - Cash vs Plan %
-  - CCC Days
   - Churned Customers Count
-  - COGS % of Sales
   - COGS Amount
   - COGS Amount (AP)
-  - COGS per Unit
-  - Complaint Count
-  - Complaint Rate %
   - Cost Base Volume Amount
   - Cost of Goods Sold Amount
-  - Cost of Poor Quality
   - Customer Complaints Count
-  - Customer Lifetime Revenue Amount
   - Customer Lifetime Value Amount
-  - Customer Retention %
-  - Days in Inventory
   - Defect Count
-  - Defect Density
   - Demand Occurrences
   - Demand Units
   - Digital Adoption %
-  - DIO Days
   - Discount Amount
-  - Downtime %
   - Downtime Minutes
-  - DPO Days
-  - DSO Days
   - EBITDA Margin
   - Enterprise Value-at-Risk Index
   - Escalated Cases
-  - Escalation %
-  - Expedite Cost Amount
   - Failure Count
-  - FCR %
-  - First Pass Yield %
-  - Forecast Accuracy %
   - Forecast Error Qty
   - Forecast Net Sales Amount
   - Forecast Units
   - Funding Amount
   - Good Units
   - Gross Margin % LY
-  - Gross Margin % vs Plan
-  - Gross Margin Amount
   - Gross Margin Amount LY
   - Gross Margin per FTE Amount
   - Idle Time Minutes
   - Incremental GM Amount
-  - Incremental Sales Amount
-  - In-Full %
   - In-Full Deliveries
   - Inventory Amount
-  - Inventory Turnover
   - Inventory Value Amount
   - Labor Hours
-  - Labor Productivity %
   - Last Year Sales Amount
   - List Price Amount
   - Lost Demand Units
   - MAPE %
   - Margin Amount
-  - Material Cost %
   - Material Cost Amount
-  - Mix Effect Amount
-  - MTBF (hours)
-  - MTTR (hours)
   - Net Price Amount
   - Net Sales % vs LY
-  - Net Sales % vs Plan
-  - Net Sales Amount
   - Net Sales Delta % vs LY
-  - NPS Index
-  - NPS Score
-  - Obsolete Inventory %
-  - Occupancy %
-  - OEE %
-  - On-Time %
   - On-Time Deliveries
   - On-Time In-Full Orders
-  - Operating Cash Flow
   - Operating Cash Flow Amount
   - Operations Service Level %
   - OpEx Amount
   - Opex Base Amount
-  - OpEx vs Plan %
   - Order Lines Count
-  - OTIF %
   - OTIF Orders
   - Output Units
-  - Overtime %
   - Overtime Minutes
   - Paid Time Minutes
   - Payables Amount
-  - Penalty Amount
-  - Performance %
   - Personnel Cost Ratio %
   - Plan COGS Amount
   - Plan Gross Margin %
@@ -394,10 +341,7 @@ Missing in TMDL (present in Measure Dictionaries):
   - Planned Output Units
   - Planned Time
   - Plans Count
-  - PM Compliance %
   - Preventive Maintenance Task Count
-  - Price Effect Amount
-  - Price Realization %
   - Produced Units Qty
   - Production Volume Units
   - Promo COGS Amount
@@ -406,39 +350,27 @@ Missing in TMDL (present in Measure Dictionaries):
   - Promo Gross Margin %
   - Promo Gross Margin Uplift Amount
   - Promotion ROI %
-  - Quality %
   - Quality Defect Rate %
   - Quantity
   - Rebate Amount
-  - Re-Plan Count
   - Revenue Amount
-  - Revenue at Risk Amount
   - Revenue per FTE
-  - Rework Rate %
   - Rework Units
   - Run Time
   - Run Time Minutes
   - Safety Incident Count
   - Sales Units
-  - Scrap Rate %
   - Scrap Units
-  - Service Impact %
   - Shipments Count
   - Shipped Units
-  - Shrinkage %
   - Shrinkage Minutes
-  - SLA Attainment %
-  - Spare Parts Stockout %
   - Standard Output Units
   - Stockout Count
-  - Stockout Impact %
-  - Stockout Rate %
   - Supplier Risk Score
   - Supply Chain Service Level %
   - Surcharge Amount
   - Talk Wrap Minutes
   - Talk+Wrap Minutes
-  - Throughput Units
   - Tickets Closed Count
   - Tickets Created Count
   - Total Handle Time Minutes
@@ -448,22 +380,20 @@ Missing in TMDL (present in Measure Dictionaries):
   - Turnover Rate %
   - Under-Forecast Lost Demand Qty
   - Under-Forecast Lost Demand Share %
-  - Unit Cost Amount
-  - Unplanned Downtime %
   - Unplanned Downtime Minutes
-  - Utilization %
-  - Volume Effect Amount
   - Work Time Minutes
   - Yield %
 Missing in Measure Dictionaries (present in TMDL):
-  - margin.gm.pct
+  - Active Customers
+  - Churned Customers
+  - CLV
+  - Delta% Net Sales
+  - Digital Adoption Rate %
+  - Forecast Bias %
+  - Forecast MAPE %
+  - GM % During Promo
   - Net Sales
-  - sales.net_sales.amount
-  - sales.net_sales.delta_pct.ly
-  - sales.net_sales.delta_pct.plan
-  - sales.pvm.mix_effect.amount
-  - sales.pvm.price_effect.amount
-  - sales.pvm.volume_effect.amount
+  - Promo ROI %
 
 >> _internal/tools/validation/check_mojibake.ps1
 Mojibake scan
@@ -503,6 +433,46 @@ Potential mojibake found:
   - docs\operating_model\lakehouse_architecture.md:267: - Auto-compaction enabled âœ“
   - docs\operating_model\lakehouse_architecture.md:281: â””â”€ Shortcut â†’ External ADLS/S3 (if external sources)
   - docs\operating_model\lakehouse_architecture.md:284: â””â”€ Shortcut â†’ Lakehouse A/gold/* (consumption layer)
+  - framework\implementation_guides\tmdl_best_practices.md:44: lineageTag: ef5816f6-16fe-4dd5-9d71-20835fbf02b7   // âŒ Tab+Space = PARSER ERROR
+  - framework\implementation_guides\tmdl_best_practices.md:56: - âœ… `formatString` - Currency/percent formatting
+  - framework\implementation_guides\tmdl_best_practices.md:57: - âœ… `displayFolder` - Organizational folder
+  - framework\implementation_guides\tmdl_best_practices.md:58: - âœ… `lineageTag` - GUID for tracking
+  - framework\implementation_guides\tmdl_best_practices.md:59: - âœ… `isHidden` - Visibility flag
+  - framework\implementation_guides\tmdl_best_practices.md:60: - âŒ `description` - NOT SUPPORTED (use `///` comments instead)
+  - framework\implementation_guides\tmdl_best_practices.md:63: - âœ… `dataType`, `sourceColumn`, `isHidden`, `isKey`
+  - framework\implementation_guides\tmdl_best_practices.md:64: - âœ… `formatString`, `summarizeBy`, `sortByColumn`
+  - framework\implementation_guides\tmdl_best_practices.md:65: - âœ… `lineageTag`, `annotations`
+  - framework\implementation_guides\tmdl_best_practices.md:66: - âŒ `description` - NOT SUPPORTED
+  - framework\implementation_guides\tmdl_best_practices.md:69: - âœ… `lineageTag`, `annotations`, `isHidden`
+  - framework\implementation_guides\tmdl_best_practices.md:70: - âŒ `description` - NOT SUPPORTED
+  - framework\implementation_guides\tmdl_best_practices.md:95: description: "Total revenue"    // âŒ PARSER ERROR
+  - framework\implementation_guides\tmdl_best_practices.md:141: âŒ **Inline without `let...in`** (causes Composite Model error):
+  - framework\implementation_guides\tmdl_best_practices.md:143: source = #table({"col1", "col2"}, {})    // âŒ ENTITY-BASED QUERY ERROR
+  - framework\implementation_guides\tmdl_best_practices.md:146: âŒ **Incorrect `type table` syntax** (causes M-Engine error):
+  - framework\implementation_guides\tmdl_best_practices.md:148: Source = #table(type table [Col1 = int64], {})    // âŒ Expected comma
+  - framework\implementation_guides\tmdl_best_practices.md:151: âœ… **Correct `type table` syntax**:
+  - framework\implementation_guides\tmdl_best_practices.md:181: | Currency (with symbol) | `â‚¬ #,0.00` | â‚¬ 1,234.56 |
+  - framework\implementation_guides\tmdl_best_practices.md:310: âœ… Use **Power BI MCP** for TMDL generation (avoid manual creation)
+  - framework\implementation_guides\tmdl_best_practices.md:311: âœ… Use **TABS only** for indentation (never spaces)
+  - framework\implementation_guides\tmdl_best_practices.md:312: âœ… Use `let...in` blocks for all M-expressions
+  - framework\implementation_guides\tmdl_best_practices.md:313: âœ… Add `///` comments above measures for documentation
+  - framework\implementation_guides\tmdl_best_practices.md:314: âœ… Test `.pbip` opening in Power BI Desktop before committing
+  - framework\implementation_guides\tmdl_best_practices.md:315: âœ… Use `ExportTMDL` operation to validate syntax
+  - framework\implementation_guides\tmdl_best_practices.md:316: âœ… Follow `fabric_powerbi.md` for high-level structure
+  - framework\implementation_guides\tmdl_best_practices.md:317: âœ… Use `displayFolder` for measure organization
+  - framework\implementation_guides\tmdl_best_practices.md:318: âœ… Use `formatString` for all numeric measures
+  - framework\implementation_guides\tmdl_best_practices.md:322: âŒ Mix Tabs and Spaces in indentation
+  - framework\implementation_guides\tmdl_best_practices.md:323: âŒ Use `description:` property (not supported)
+  - framework\implementation_guides\tmdl_best_practices.md:324: âŒ Create inline M-expressions without `let...in`
+  - framework\implementation_guides\tmdl_best_practices.md:325: âŒ Manually edit TMDL files without MCP validation
+  - framework\implementation_guides\tmdl_best_practices.md:326: âŒ Use incorrect `type table` syntax
+  - framework\implementation_guides\tmdl_best_practices.md:327: âŒ Forget to test in Power BI Desktop after changes
+  - framework\implementation_guides\tmdl_best_practices.md:328: âŒ Create calculated columns for business logic (use measures)
+  - framework\implementation_guides\tmdl_best_practices.md:329: âŒ Hard-code display names in measure names (use `formatString`)
+  - framework\implementation_guides\tmdl_best_practices.md:344: 1. **Design**: Use Case â†’ KPI Catalog â†’ measure_system.md
+  - framework\implementation_guides\tmdl_best_practices.md:345: 2. **Model**: Data Contracts â†’ semantic_layer.md â†’ fabric_powerbi.md
+  - framework\implementation_guides\tmdl_best_practices.md:346: 3. **Implement**: MCP Operations â†’ **tmdl_best_practices.md** â†’ Power BI Desktop
+  - framework\implementation_guides\tmdl_best_practices.md:347: 4. **Validate**: Export TMDL â†’ Test `.pbip` â†’ Commit
   - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:3: ## Vision: KPI Catalog â†’ Semantic Model â†’ Reports (Fully Automated)
   - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:36: - Analysis Services TMDL Extension fÃ¼r VS Code
   - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:82: Write-Host "âœ“ PBIP structure ready: $modelPath" -ForegroundColor Green
@@ -652,6 +622,26 @@ Potential mojibake found:
   - _internal\tools\tmp\TMDL_Testing_Guide.md:227: | 2. BPA | Style, Performance | < 5s | Umfassend | âœ… Ja |
   - _internal\tools\tmp\TMDL_Testing_Guide.md:228: | 3. VS Code | Live Feedback | Real-time | Syntax + IntelliSense | âš ï¸ Interaktiv |
   - _internal\tools\tmp\TMDL_Testing_Guide.md:229: | 4. Power BI | End-to-End | Manual | VollstÃ¤ndig | âŒ Nein |
+  - _internal\tools\validation\README.md:22: - âœ… Pure TAB indentation (no Tab+Space)
+  - _internal\tools\validation\README.md:23: - âœ… /// comments (not description: property)
+  - _internal\tools\validation\README.md:24: - âœ… M-expression let...in blocks
+  - _internal\tools\validation\README.md:25: - âœ… FormatString for numeric measures
+  - _internal\tools\validation\README.md:26: - âœ… DisplayFolder for measures
+  - _internal\tools\validation\README.md:27: - âœ… LineageTag for all objects
+  - _internal\tools\validation\README.md:107: # Before (âŒ)
+  - _internal\tools\validation\README.md:111: # After (âœ…)
+  - _internal\tools\validation\README.md:116: ### TMDL-002: Description Property â†’ /// Comment
+  - _internal\tools\validation\README.md:118: # Before (âŒ)
+  - _internal\tools\validation\README.md:123: # After (âœ…)
+  - _internal\tools\validation\README.md:131: # Before (âŒ)
+  - _internal\tools\validation\README.md:135: # After (âœ…)
+  - _internal\tools\validation\README.md:146: # Before (âŒ)
+  - _internal\tools\validation\README.md:150: # After (âœ…)
+  - _internal\tools\validation\README.md:164: | bpa-rules-tmdl.json | TMDL syntax | High (4/10 rules) | âœ… validate_tmdl.ps1 |
+  - _internal\tools\validation\README.md:165: | bpa-rules-dax.json | DAX expressions | Partial (2/10 rules) | â³ TODO |
+  - _internal\tools\validation\README.md:166: | bpa-rules-report.json | Report visuals | Low | â³ TODO |
+  - _internal\tools\validation\README.md:167: | bpa-rules-semanticmodel.json | Model structure | No | â³ TODO |
+  - _internal\tools\validation\validate_tmdl.ps1:193: Write-Host "  â†» Auto-fixing: $($rule.id) - $($rule.name)" -ForegroundColor Yellow
 
 >> _internal/tools/validation/check_markdownlint.ps1
 Markdownlint check
@@ -660,7 +650,7 @@ PS>TerminatingError(node.exe): "Der ausgeführte Befehl wurde beendet, da die Ei
 
 >> _internal/tools/validation/check_yaml_format.ps1
 YAML format check
-PS>TerminatingError(python.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Python wurde nicht gefunden; ohne Argumente ausf�hren, um aus dem Microsoft Store zu installieren, oder deaktivieren Sie diese Verkn�pfung unter "Einstellungen > Apps > Erweiterte App-Einstellungen > App-Ausf�hrungsaliase".."
+PS>TerminatingError(python.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Python wurde nicht gefunden; ohne Argumente ausf³hren, um aus dem Microsoft Store zu installieren, oder deaktivieren Sie diese Verkn³pfung unter "Einstellungen > Apps > Erweiterte App-Einstellungen > App-Ausf³hrungsaliase".."
 OK: All YAML files parsed successfully.
 
 >> _internal/tools/validation/check_schema_validation.ps1
@@ -669,5 +659,5 @@ OK: schema validation passed.
 
 **********************
 Ende der Windows PowerShell-Aufzeichnung
-Endzeit: 20260202162414
+Endzeit: 20260203094500
 **********************

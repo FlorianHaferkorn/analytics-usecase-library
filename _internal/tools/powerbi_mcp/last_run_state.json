@@ -1,14 +1,28 @@
 {
     "errors":  [
-
+                   {
+                       "phase":  "Validate TMDL Syntax",
+                       "iteration":  4,
+                       "error":  "Der Parameter \"Encoding\" kann nicht gebunden werden. Der Wert \"UTF8NoBOM\" kann nicht in den Typ \"Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding\" konvertiert werden. Fehler: \"Der Bezeichner \"UTF8NoBOM\" kann keinem gültigen Enumeratornamen zugeordnet werden. Geben Sie einen der folgenden Enumeratornamen an, und wiederholen Sie den Vorgang:\r\nUnknown, String, Unicode, Byte, BigEndianUnicode, UTF8, UTF7, UTF32, Ascii, Default, Oem, BigEndianUTF32\""
+                   },
+                   {
+                       "phase":  "Validate TMDL Syntax",
+                       "iteration":  4,
+                       "error":  "Der Parameter \"Encoding\" kann nicht gebunden werden. Der Wert \"UTF8NoBOM\" kann nicht in den Typ \"Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding\" konvertiert werden. Fehler: \"Der Bezeichner \"UTF8NoBOM\" kann keinem gültigen Enumeratornamen zugeordnet werden. Geben Sie einen der folgenden Enumeratornamen an, und wiederholen Sie den Vorgang:\r\nUnknown, String, Unicode, Byte, BigEndianUnicode, UTF8, UTF7, UTF32, Ascii, Default, Oem, BigEndianUTF32\""
+                   },
+                   {
+                       "phase":  "Validate TMDL Syntax",
+                       "iteration":  4,
+                       "error":  "Der Parameter \"Encoding\" kann nicht gebunden werden. Der Wert \"UTF8NoBOM\" kann nicht in den Typ \"Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding\" konvertiert werden. Fehler: \"Der Bezeichner \"UTF8NoBOM\" kann keinem gültigen Enumeratornamen zugeordnet werden. Geben Sie einen der folgenden Enumeratornamen an, und wiederholen Sie den Vorgang:\r\nUnknown, String, Unicode, Byte, BigEndianUnicode, UTF8, UTF7, UTF32, Ascii, Default, Oem, BigEndianUTF32\""
+                   }
                ],
     "scopeType":  "UseCase",
     "iteration":  4,
     "warnings":  [
 
                  ],
-    "measuresFile":  "dist\\COM-001\\COM-001.SemanticModel\\definition\\tables\\_Measures.tmdl",
-    "scopeName":  "COM-001",
+    "measuresFile":  "dist\\COM-002\\COM-002.SemanticModel\\definition\\tables\\_Measures.tmdl",
+    "scopeName":  "COM-002",
     "completed":  [
                       "Check Aurora Data",
                       "Generate UseCase Measures",
@@ -20,8 +34,8 @@
                   ],
     "phase":  "validation",
     "startTime":  {
-                      "value":  "\/Date(1770045815996)\/",
+                      "value":  "\/Date(1770108237820)\/",
                       "DisplayHint":  2,
-                      "DateTime":  "Montag, 2. Februar 2026 16:23:35"
+                      "DateTime":  "Dienstag, 3. Februar 2026 09:43:57"
                   }
 }

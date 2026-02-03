@@ -1,0 +1,169 @@
+{
+    "usecase_id":  "FIN-002",
+    "title":  null,
+    "dataset_model":  "FIN-002.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\core\\FIN-002_Cost_Performance\\Technical_Factsheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "cost.unit.amount",
+                         "name":  "Unit Cost Amount",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0",
+                         "display_folder":  "",
+                         "purpose":  "Measures total cost per unit produced or sold.",
+                         "description":  "Measures total cost per unit produced or sold.",
+                         "technical_description":  "Measures total cost per unit produced or sold.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Controlling",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Finance Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "margin.cogs.pct",
+                         "name":  "COGS % of Sales",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Shows cost share relative to net sales.",
+                         "description":  "Shows cost share relative to net sales.",
+                         "technical_description":  "Shows cost share relative to net sales.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Controlling",
+                         "data_owner":  "BI Engineering",
+                         "steward":  "Controlling Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "cost.opex.vs_plan.pct",
+                         "name":  "OpEx vs Plan %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures OpEx variance versus plan.",
+                         "description":  "Measures OpEx variance versus plan.",
+                         "technical_description":  "Measures OpEx variance versus plan.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Controlling",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Finance Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "cost.material.pct",
+                         "name":  "Material Cost %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Shows material cost share of net sales.",
+                         "description":  "Shows material cost share of net sales.",
+                         "technical_description":  "Shows material cost share of net sales.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Controlling",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Finance Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "ops.labor.productivity.pct",
+                         "name":  "Labor Productivity %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Shows output efficiency relative to labor input.",
+                         "description":  "Shows output efficiency relative to labor input.",
+                         "technical_description":  "Shows output efficiency relative to labor input.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Operations",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Operations Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     }
+                 ]
+}

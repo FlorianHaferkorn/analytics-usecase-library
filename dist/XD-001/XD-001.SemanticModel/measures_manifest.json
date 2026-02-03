@@ -1,0 +1,201 @@
+{
+    "usecase_id":  "XD-001",
+    "title":  null,
+    "dataset_model":  "XD-001.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\core\\XD-001_Service_Level_Performance\\Technical_Factsheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "svc.sla.attainment.pct",
+                         "name":  "SLA Attainment %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures how many cases meet the committed SLA.",
+                         "description":  "Measures how many cases meet the committed SLA.",
+                         "technical_description":  "Measures how many cases meet the committed SLA.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Service",
+                         "data_owner":  "Service Analytics",
+                         "steward":  "Service Ops Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "svc.fcr.pct",
+                         "name":  "FCR %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Shows the share of cases solved on first contact.",
+                         "description":  "Shows the share of cases solved on first contact.",
+                         "technical_description":  "Shows the share of cases solved on first contact.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Service",
+                         "data_owner":  "Service Analytics",
+                         "steward":  "Service Ops Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "svc.aht.minutes",
+                         "name":  "AHT Minutes",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0",
+                         "display_folder":  "",
+                         "purpose":  "Measures average time to handle a contact.",
+                         "description":  "Measures average time to handle a contact.",
+                         "technical_description":  "Measures average time to handle a contact.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Service",
+                         "data_owner":  "Service Analytics",
+                         "steward":  "Service Ops Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "svc.backlog.count",
+                         "name":  "Backlog Count",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0",
+                         "display_folder":  "",
+                         "purpose":  "Quantifies unresolved work in queue.",
+                         "description":  "Quantifies unresolved work in queue.",
+                         "technical_description":  "Quantifies unresolved work in queue.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Service",
+                         "data_owner":  "Service Analytics",
+                         "steward":  "Service Ops Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "svc.nps.index",
+                         "name":  "NPS Index",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0",
+                         "display_folder":  "",
+                         "purpose":  "Measures customer advocacy and experience quality.",
+                         "description":  "Measures customer advocacy and experience quality.",
+                         "technical_description":  "Measures customer advocacy and experience quality.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Service",
+                         "data_owner":  "Service Analytics",
+                         "steward":  "CX Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "svc.escalation.pct",
+                         "name":  "Escalation %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures frequency of escalated cases.",
+                         "description":  "Measures frequency of escalated cases.",
+                         "technical_description":  "Measures frequency of escalated cases.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Service",
+                         "data_owner":  "Service Analytics",
+                         "steward":  "Service Ops Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     }
+                 ]
+}

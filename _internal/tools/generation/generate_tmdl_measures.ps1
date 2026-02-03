@@ -1,7 +1,7 @@
 Param(
   [string[]]$UseCase,
   [string]$UseCasesRoot = "analytics-usecase-library/usecases",
-  [string]$KpiCatalogRoot = "analytics-usecase-library/_includes/kpi_catalog",
+  [string]$KpiCatalogRoot = "analytics-usecase-library/framework/kpi_catalog",
   [string]$DistRoot = "analytics-usecase-library/dist",
   [string]$MeasuresTableName = "_Measures",
   [switch]$SkipManifest,
@@ -45,7 +45,7 @@ function Get-FrontMatterBlock {
   for ($i = 1; $i -lt $lines.Count; $i++) {
     if ($lines[$i].Trim() -eq '---') {
       if ($i -le 1) { return @{ Text = ""; Lines = @() } }
-      $blockLines = $lines[1..($i - 1)]
+      $blockLines = @($lines[1..($i - 1)])
       $text = ($blockLines -join [Environment]::NewLine)
       $pointer = [regex]::Match($text, 'business_factsheet\s*:\s*"([^"]+)"')
       if ($pointer.Success -and $Depth -lt 5) {
@@ -131,6 +131,23 @@ function Parse-StringMap {
   return $map
 }
 
+function Get-YamlBlockIds {
+  param([string]$Path)
+  if (-not (Test-Path $Path)) { return @() }
+  $content = Get-Content -Path $Path -Raw
+  $yamlBlocks = [regex]::Matches($content, '(?s)```yaml\r?\n(.*?)```')
+  $ids = @()
+  foreach ($block in $yamlBlocks) {
+    $yamlContent = $block.Groups[1].Value
+    $mapping = [regex]::Matches($yamlContent, '(?m)^\s*-\s*kpi_id\s*:\s*([^\s#\r\n]+)')
+    foreach ($match in $mapping) {
+      $id = $match.Groups[1].Value.Trim()
+      if ($id -and $ids -notcontains $id) { $ids += $id }
+    }
+  }
+  return $ids
+}
+
 function Get-ChunkValue {
   param([string]$Chunk,[string]$Key)
   $m = [regex]::Match($Chunk, "(?m)^\s*$Key\s*:\s*""([^""]*)""")
@@ -162,7 +179,7 @@ function Get-QARules {
 
 function Split-KpiChunks {
   param([string]$Block)
-  $listMatches = [regex]::Matches($Block, '(?m)^\s*-\s*kpi_id\s*:\s*"([^"]+)"')
+  $listMatches = [regex]::Matches($Block, '(?m)^\s*-\s*kpi_id\s*:\s*([^\s#]+)')
   $chunks = @()
   if ($listMatches.Count -gt 0) {
     for ($i = 0; $i -lt $listMatches.Count; $i++) {
@@ -170,7 +187,7 @@ function Split-KpiChunks {
       $end = if ($i -lt $listMatches.Count - 1) { $listMatches[$i + 1].Index } else { $Block.Length }
       $chunks += $Block.Substring($start, $end - $start)
     }
-  } elseif ([regex]::IsMatch($Block, '(?m)^\s*kpi_id\s*:\s*"([^"]+)"')) {
+  } elseif ([regex]::IsMatch($Block, '(?m)^\s*kpi_id\s*:\s*([^\s#]+)')) {
     $chunks += $Block
   }
   return $chunks
@@ -178,7 +195,7 @@ function Split-KpiChunks {
 
 function Parse-KpiRecord {
   param([string]$Chunk,[string]$SourcePath)
-  $idMatch = [regex]::Match($Chunk, '(?m)^\s*-?\s*kpi_id\s*:\s*"([^"]+)"')
+  $idMatch = [regex]::Match($Chunk, '(?m)^\s*-?\s*kpi_id\s*:\s*([^\s#]+)')
   if (-not $idMatch.Success) { return $null }
   $rec = [ordered]@{}
   $rec.id = $idMatch.Groups[1].Value
@@ -328,7 +345,7 @@ function Build-MeasureObject {
 }
 
 function Build-MeasureBlock {
-  param($Measure)
+  param($Measure, [string]$DefaultDisplayFolder)
   $lines = @()
   if ($Measure.kpi_id -or $Measure.kpi_key) {
     $label = $Measure.kpi_key
@@ -351,7 +368,9 @@ function Build-MeasureBlock {
     $lines += ("            " + $ln)
   }
   if ($Measure.format_string) { $lines += ("        formatString: """ + $Measure.format_string.Replace('"', '\"') + """") }
-  if ($Measure.display_folder) { $lines += ("        displayFolder: """ + $Measure.display_folder.Replace('"', '\"') + """") }
+  # Display folder: Use from catalog, or fall back to UseCase ID folder
+  $displayFolder = if ($Measure.display_folder) { $Measure.display_folder } else { $DefaultDisplayFolder }
+  if ($displayFolder) { $lines += ("        displayFolder: """ + $displayFolder.Replace('"', '\"') + """") }
   $lines += ""
   return $lines
 }
@@ -364,19 +383,28 @@ function Write-Manifest {
 
 $resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'usecases'
 if (-not $resolvedUseCasesRoot) { throw "Unable to resolve UseCases root folder. Provide -UseCasesRoot or run inside repository." }
-$resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative '_includes/kpi_catalog'
+$resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
 if (-not $resolvedKpiRoot) { throw "Unable to resolve KPI catalog root. Provide -KpiCatalogRoot or run inside repository." }
 $resolvedDistRoot = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'dist'
 if (-not $resolvedDistRoot) { throw "Unable to resolve dist root. Provide -DistRoot or run inside repository." }
 
-$factSheets = Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'FactSheet.md'
+$factSheets = Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Technical_Factsheet.md'
 if ($UseCase -and $UseCase.Count -gt 0) {
-  $filters = $UseCase | Where-Object { $_ -and $_.Trim().Length -gt 0 }
+  # Split comma-separated values if passed as single string from CLI
+  $expandedUseCase = @()
+  foreach ($uc in $UseCase) {
+    if ($uc -and $uc.Contains(',')) {
+      $expandedUseCase += $uc -split ',' | Where-Object { $_ -and $_.Trim().Length -gt 0 } | ForEach-Object { $_.Trim() }
+    } elseif ($uc) {
+      $expandedUseCase += $uc.Trim()
+    }
+  }
+  $filters = $expandedUseCase | Where-Object { $_ -and $_.Trim().Length -gt 0 }
   if ($filters.Count -gt 0) {
     $factSheets = foreach ($fs in $factSheets) {
       $frontMatter = Get-FrontMatterBlock -Path $fs.FullName
       if (-not $frontMatter) { continue }
-      $lines = $frontMatter.Lines
+      $lines = @($frontMatter.Lines)
       $useCaseId = Get-ScalarValue -Lines $lines -Key 'id'
       if (-not $useCaseId) { $useCaseId = $fs.Directory.Name.Split('_')[0] }
       if ($filters | Where-Object { $useCaseId -like ($_ + '*') }) { $fs }
@@ -400,21 +428,23 @@ foreach ($fs in $factSheets) {
 
   $useCaseId = Get-ScalarValue -Lines $lines -Key 'id'
   if (-not $useCaseId) { $useCaseId = $fs.Directory.Name.Split('_')[0] }
-  if ($UseCase -and $UseCase.Count -gt 0) {
-    $matchesFilter = $false
-    foreach ($filter in $UseCase) {
-      if ($useCaseId -like ($filter + '*')) { $matchesFilter = $true; break }
-    }
-    if (-not $matchesFilter) { continue }
-  }
+  # Note: Filtering already done above when building $factSheets list
+  # This second check is redundant but kept for backwards compatibility
+  # if ($UseCase -and $UseCase.Count -gt 0) {
+  #   $matchesFilter = $false
+  #   foreach ($filter in $UseCase) {
+  #     if ($useCaseId -like ($filter + '*')) { $matchesFilter = $true; break }
+  #   }
+  #   if (-not $matchesFilter) { continue }
+  # }
 
   $title = Get-ScalarValue -Lines $lines -Key 'title'
   $datasetModel = Get-ScalarValue -Lines $lines -Key 'dataset_model'
   if (-not $datasetModel) { $datasetModel = "$useCaseId.SemanticModel" }
 
-  $targetIds = Parse-IdsFromFrontMatter -FrontMatter $text -Field 'required_kpi_ids'
+  $targetIds = Get-YamlBlockIds -Path $fs.FullName
   if ($targetIds.Count -eq 0) {
-    Write-Host "Skipping $useCaseId - no required_kpi_ids defined." -ForegroundColor Yellow
+    Write-Host "Skipping $useCaseId - no kpi_id entries found in YAML blocks." -ForegroundColor Yellow
     continue
   }
   $labelMap = Parse-StringMap -Lines $lines -Field 'required_kpis'
@@ -457,10 +487,22 @@ foreach ($fs in $factSheets) {
   if ($title) { $header += ("/// $useCaseId Measures ($title)") } else { $header += ("/// $useCaseId Measures") }
   $header += ("table $MeasuresTableName")
   $header += ""
+  $header += ("`tpartition $MeasuresTableName = m")
+  $header += ("`t`tmode: import")
+  $header += ("`t`tsource =")
+  $header += ("`t`t`t`tlet")
+  $header += ("`t`t`t`t    Source = #table(type table[Column1 = text], {})")
+  $header += ("`t`t`t`tin")
+  $header += ("`t`t`t`t    Source")
+  $header += ""
+  $header += ("`tcolumn Column1")
+  $header += ("`t`tisHidden")
+  $header += ("`t`tsummarizeBy: none")
+  $header += ""
 
   $blocks = @()
   foreach ($measure in $manifest.measures) {
-    $blocks += (Build-MeasureBlock -Measure $measure)
+    $blocks += (Build-MeasureBlock -Measure $measure -DefaultDisplayFolder $useCaseId)
   }
 
   $content = ($header + $blocks) -join [Environment]::NewLine

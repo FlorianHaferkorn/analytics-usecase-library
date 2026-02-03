@@ -300,7 +300,7 @@ dim_org[OrgKey] IN
 | Check | Rule | Threshold | Automated Y/N | Owner |
 |-------|------|-----------|---------------|-------|
 | Referential Integrity | Date/Org/Product keys non-null in fact_sales | 100% | Y | Data Engineering |
-| Balancing | Net Sales Amount matches source totals per month | ±0.1% | Y | Controlling |
+| Balancing | Net Sales Amount matches source totals per month | ï¿½0.1% | Y | Controlling |
 | PVM Integrity | Price + Volume + Mix = Net Sales gap vs Plan | Residual < 0.5% of Net Sales | Y | BI |
 | GM Consistency | GM % recomputes from GM Amount/Net Sales | Exact | Y | BI |
 | RLS Coverage | Users only see authorised regions/channels | 0 leaks in test | Y | Security |

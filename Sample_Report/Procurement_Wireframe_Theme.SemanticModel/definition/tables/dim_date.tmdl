@@ -1,0 +1,481 @@
+table dim_date
+	lineageTag: 5b65051e-106b-468b-85ac-e6b4fdcd74c0
+	dataCategory: Time
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: ca2b6a06-db3f-4d2d-bd38-06b191295876
+		summarizeBy: none
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = User
+
+	column 'Start of Year'
+		dataType: dateTime
+		formatString: dd.mm.yyyy
+		lineageTag: fab2140c-59ec-4a2d-96c5-d8824f91a5bc
+		summarizeBy: none
+		sourceColumn: Start of Year
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'End of Year'
+		dataType: dateTime
+		formatString: dd.mm.yyyy
+		lineageTag: 0f680c27-4049-44f7-97cb-2b09e2e85587
+		summarizeBy: none
+		sourceColumn: End of Year
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column Month
+		dataType: int64
+		formatString: 0
+		lineageTag: e37e3d15-6009-4cfd-bde0-59dc54a3f664
+		summarizeBy: none
+		sourceColumn: Month
+
+		annotation SummarizationSetBy = User
+
+	column 'Start of Month'
+		dataType: dateTime
+		formatString: dd.mm.yyyy
+		lineageTag: b5d23a5c-d0f9-45f7-a6e9-f657512073db
+		summarizeBy: none
+		sourceColumn: Start of Month
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'End of Month'
+		dataType: dateTime
+		formatString: dd.mm.yyyy
+		lineageTag: ea1de9c8-8a2d-4c27-8392-f4c01601ca00
+		summarizeBy: none
+		sourceColumn: End of Month
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'Days in Month'
+		dataType: int64
+		formatString: 0
+		lineageTag: 0a893250-2465-403a-be27-87615e7f765e
+		summarizeBy: none
+		sourceColumn: Days in Month
+
+		annotation SummarizationSetBy = User
+
+	column Day
+		dataType: int64
+		formatString: 0
+		lineageTag: df82f871-2937-4084-b7b5-d003bc408e46
+		summarizeBy: none
+		sourceColumn: Day
+
+		annotation SummarizationSetBy = User
+
+	column 'Day Name'
+		dataType: string
+		lineageTag: f416f9ae-39d3-4239-aa17-b8f8939be702
+		summarizeBy: none
+		sourceColumn: Day Name
+		sortByColumn: 'Day of Week'
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day of Week'
+		dataType: int64
+		formatString: 0
+		lineageTag: 3e8bfef6-b89f-41c8-812c-b224de6b5b5d
+		summarizeBy: none
+		sourceColumn: Day of Week
+
+		annotation SummarizationSetBy = User
+
+	column 'Day of Year'
+		dataType: int64
+		formatString: 0
+		lineageTag: f1a76f11-8320-4083-a3c6-dccafcd02e9b
+		summarizeBy: none
+		sourceColumn: Day of Year
+
+		annotation SummarizationSetBy = User
+
+	column 'Month Name'
+		dataType: string
+		lineageTag: 946f4245-0574-4129-b06e-608a323a8618
+		summarizeBy: none
+		sourceColumn: Month Name
+		sortByColumn: Month
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: int64
+		formatString: 0
+		lineageTag: ff66b334-9371-47f5-8126-74b924421675
+		summarizeBy: none
+		sourceColumn: Quarter
+
+		annotation SummarizationSetBy = User
+
+	column 'Start of Quarter'
+		dataType: dateTime
+		formatString: dd.mm.yyyy
+		lineageTag: 2a14679b-229e-4156-8078-72abd245e6d9
+		summarizeBy: none
+		sourceColumn: Start of Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'End of Quarter'
+		dataType: dateTime
+		formatString: dd.mm.yyyy
+		lineageTag: c158e414-2828-4911-901e-acd886238129
+		summarizeBy: none
+		sourceColumn: End of Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'Week of Year'
+		dataType: int64
+		formatString: 0
+		lineageTag: e0aa45e3-8ac7-4807-9b80-6f19f6ea8bb7
+		summarizeBy: none
+		sourceColumn: Week of Year
+
+		annotation SummarizationSetBy = User
+
+	column 'Week of Month'
+		dataType: int64
+		formatString: 0
+		lineageTag: 767d0541-a477-4e63-bf1a-d2ce2b08de6c
+		summarizeBy: none
+		sourceColumn: Week of Month
+
+		annotation SummarizationSetBy = User
+
+	column 'Start of Week'
+		dataType: dateTime
+		formatString: dd.mm.yyyy
+		lineageTag: 17e1d23d-7e4a-4638-bea8-b3b7d7240fd7
+		summarizeBy: none
+		sourceColumn: Start of Week
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'End of Week'
+		dataType: dateTime
+		formatString: dd.mm.yyyy
+		lineageTag: 094b4b9e-5d1e-44cf-bca2-efdf302a93ad
+		summarizeBy: none
+		sourceColumn: End of Week
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'Month Offset'
+		dataType: int64
+		formatString: 0
+		lineageTag: 2c901afb-0334-4c95-a343-96f3ffeae35b
+		summarizeBy: none
+		sourceColumn: Month Offset
+
+		annotation SummarizationSetBy = User
+
+	column 'Year Offset'
+		dataType: int64
+		formatString: 0
+		lineageTag: 1ffe7070-b9f0-4994-b6e5-08e11219c54d
+		summarizeBy: none
+		sourceColumn: Year Offset
+
+		annotation SummarizationSetBy = User
+
+	column 'Quarter Offset'
+		dataType: int64
+		formatString: 0
+		lineageTag: c24465b1-6813-49f6-a9e7-9cb8bb64fc8e
+		summarizeBy: none
+		sourceColumn: Quarter Offset
+
+		annotation SummarizationSetBy = User
+
+	column Year-Month
+		dataType: string
+		lineageTag: 3c8d082b-ae12-4eb8-b978-f7c17e51be51
+		summarizeBy: none
+		sourceColumn: Year-Month
+		sortByColumn: 'Year-Month Code'
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year-Month Code'
+		dataType: int64
+		formatString: 0
+		lineageTag: 15a08dc7-7821-47d0-a11e-29038b83a5df
+		summarizeBy: none
+		sourceColumn: Year-Month Code
+
+		annotation SummarizationSetBy = User
+
+	column 'Month Short'
+		dataType: string
+		lineageTag: bdb98868-b42a-46d5-998e-7cdd9fee7baf
+		summarizeBy: none
+		sourceColumn: Month Short
+		sortByColumn: Month
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Quarter Label'
+		dataType: string
+		lineageTag: ac7c8790-b1e0-4c07-af79-0811d029b75b
+		summarizeBy: none
+		sourceColumn: Quarter Label
+		sortByColumn: Quarter
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		dataType: dateTime
+		isKey
+		formatString: dd.mm.yyyy
+		lineageTag: eec5f158-c8e7-499a-ab43-d3a05da5c932
+		summarizeBy: none
+		sourceColumn: Date
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'Fiscal Year'
+		dataType: int64
+		formatString: 0
+		lineageTag: 80c8b17e-9729-4b2f-8113-07c269f2ae78
+		summarizeBy: none
+		sourceColumn: Fiscal Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fiscal Quarter'
+		dataType: int64
+		formatString: 0
+		lineageTag: 58754c58-a565-4a4b-bf8b-2165564eeb72
+		summarizeBy: none
+		sourceColumn: Fiscal Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fiscal Month'
+		dataType: int64
+		formatString: 0
+		lineageTag: d35db3cd-862e-4899-89a6-f93070e33a9f
+		summarizeBy: none
+		sourceColumn: Fiscal Month
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day Offset'
+		dataType: int64
+		formatString: 0
+		lineageTag: 168177c2-9299-4811-8cb7-f8737cbebdfd
+		summarizeBy: none
+		sourceColumn: Day Offset
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_date = m
+		mode: import
+		source =
+				let
+				  // Konfiguration: Zeitfenster, Kultur, Wochenstart, Fiskaljahr-Startmonat
+				  Today             = Date.From(DateTime.LocalNow()),
+				  FromYear          = Date.Year(Date.AddYears(Today, -2)),   // Beginn: vor 2 Jahren
+				  ToYear            = Date.Year(Today),                      // Ende: aktuelles Jahr
+				  StartofFiscalYear = 7,                                     // 1..12 (z. B. 7 = Juli)
+				  firstDayofWeek    = Day.Monday,                            // Wochenstart = Montag
+				  culture           = "de-DE",                               // für Monatsabkürzungen etc.
+				
+				  // Hilfswerte: Zeitraumgrenzen und verschobener Monat fürs Fiskaljahr
+				  FromDate = #date(FromYear, 1, 1),                          // Startdatum (01.01.FromYear)
+				  ToDate   = #date(ToYear, 12, 31),                          // Enddatum (31.12.ToYear)
+				  FYShift  = Number.Mod(13 - StartofFiscalYear, 12),         // Monatsverschiebung zur Fiskalberechnung
+				
+				  // Datumsreihe erzeugen: alle Tage im Zeitraum (inkl. Enddatum)
+				  Dates = List.Dates(
+				            FromDate,
+				            Duration.Days(ToDate - FromDate) + 1,
+				            #duration(1,0,0,0)
+				          ),
+				
+				  // Pro Datum alle benötigten Attribute berechnen (ein Pass, performant)
+				  Rows  = List.Transform(
+				            Dates,
+				            each
+				              let
+				                d = _,
+				
+				                // Basale Kalenderelemente
+				                y   = Date.Year(d),
+				                m   = Date.Month(d),
+				                q   = Date.QuarterOfYear(d),
+				
+				                // Tages-/Wochen-/Jahresbezug
+				                dow = Date.DayOfWeek(d, firstDayofWeek),
+				                doy = Date.DayOfYear(d),
+				
+				                // Zeitanker für Jahr/Monat/Quartal
+				                startYear   = Date.StartOfYear(d),
+				                endYear     = Date.EndOfYear(d),
+				                startMonth  = Date.StartOfMonth(d),
+				                endMonth    = Date.EndOfMonth(d),
+				                startQ      = Date.StartOfQuarter(d),
+				                endQ        = Date.EndOfQuarter(d),
+				
+				                // Monats-/Tagesdetails und Namen
+				                daysInMonth = Date.DaysInMonth(d),
+				                day         = Date.Day(d),
+				                dayName     = Date.DayOfWeekName(d),
+				                monthName   = Date.MonthName(d),
+				                monthShort  = Date.ToText(d, "MMM", culture), // z. B. „Jan“
+				
+				                // Quartalslabel (Q1..Q4)
+				                quarterLbl  = "Q" & Text.From(q),
+				
+				                // Kalenderwochenbezug (abhängig vom Wochenstart)
+				                woy = Date.WeekOfYear(d, firstDayofWeek),
+				                wom = Date.WeekOfMonth(d, firstDayofWeek),
+				                sow = Date.StartOfWeek(d, firstDayofWeek),
+				                eow = Date.EndOfWeek(d, firstDayofWeek),
+				
+				                // Fiskalberechnung über verschobenes Datum
+				                fiscalBase = Date.AddMonths(d, FYShift),
+				                fy         = Date.Year(fiscalBase),
+				                fq         = Date.QuarterOfYear(fiscalBase),
+				                fm         = Date.Month(fiscalBase),
+				
+				                // Offsets relativ zu „Today“ (für Navigation/Filter)
+				                ageDays       = Duration.Days(d - Today),
+				                monthOffset   = (y - Date.Year(Today)) * 12 + (m - Date.Month(Today)),
+				                yearOffset    = y - Date.Year(Today),
+				                quarterOffset = (y - Date.Year(Today)) * 4 + (q - Date.QuarterOfYear(Today)),
+				
+				                // Formatierte Periodendarstellung
+				                yearMonth     = Date.ToText(d, "MMM yyyy", culture),
+				                yearMonthCode = Number.From(Date.ToText(d, "yyyyMM"))
+				              in
+				                [
+				                  Date = d,
+				                  Year = y,
+				                  #"Start of Year" = startYear,
+				                  #"End of Year" = endYear,
+				                  Month = m,
+				                  #"Start of Month" = startMonth,
+				                  #"End of Month" = endMonth,
+				                  #"Days in Month" = daysInMonth,
+				                  Day = day,
+				                  #"Day Name" = dayName,
+				                  #"Day of Week" = dow,
+				                  #"Day of Year" = doy,
+				                  #"Month Name" = monthName,
+				                  #"Month Short" = monthShort,           // neu: abgekürzter Monatsname
+				                  Quarter = q,
+				                  #"Quarter Label" = quarterLbl,         // neu: "Q1".."Q4"
+				                  #"Start of Quarter" = startQ,
+				                  #"End of Quarter" = endQ,
+				                  #"Week of Year" = woy,
+				                  #"Week of Month" = wom,
+				                  #"Start of Week" = sow,
+				                  #"End of Week" = eow,
+				                  #"Fiscal Year" = fy,
+				                  #"Fiscal Quarter" = fq,
+				                  #"Fiscal Month" = fm,
+				                  #"Day Offset" = ageDays,
+				                  #"Month Offset" = monthOffset,
+				                  #"Year Offset" = yearOffset,
+				                  #"Quarter Offset" = quarterOffset,
+				                  #"Year-Month" = yearMonth,
+				                  #"Year-Month Code" = yearMonthCode
+				                ]
+				          ),
+				
+				  // Liste von Records → Tabelle
+				  ToTable = Table.FromRecords(Rows),
+				
+				  // Einheitliche Typzuweisungen (einmalig, konsistent)
+				  Typed = Table.TransformColumnTypes(ToTable, {
+				      {"Date", type date},
+				      {"Year", Int64.Type},
+				      {"Start of Year", type date}, {"End of Year", type date},
+				      {"Month", Int64.Type},
+				      {"Start of Month", type date}, {"End of Month", type date},
+				      {"Days in Month", Int64.Type},
+				      {"Day", Int64.Type},
+				      {"Day Name", type text},
+				      {"Day of Week", Int64.Type},
+				      {"Day of Year", Int64.Type},
+				      {"Month Name", type text},
+				      {"Month Short", type text},
+				      {"Quarter", Int64.Type},
+				      {"Quarter Label", type text},
+				      {"Start of Quarter", type date}, {"End of Quarter", type date},
+				      {"Week of Year", Int64.Type}, {"Week of Month", Int64.Type},
+				      {"Start of Week", type date}, {"End of Week", type date},
+				      {"Fiscal Year", Int64.Type}, {"Fiscal Quarter", Int64.Type}, {"Fiscal Month", Int64.Type},
+				      {"Day Offset", Int64.Type}, {"Month Offset", Int64.Type}, {"Year Offset", Int64.Type}, {"Quarter Offset", Int64.Type},
+				      {"Year-Month", type text},
+				      {"Year-Month Code", Int64.Type}
+				  })
+				in
+				  Typed
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

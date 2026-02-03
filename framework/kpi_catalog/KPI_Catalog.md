@@ -3240,7 +3240,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     last_review: 23.01.2026
 
 - kpi_id: margin.gm.pct
-  kpi_key: Gross Margin % (Operational)
+  kpi_key: Gross Margin %
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
@@ -3258,17 +3258,16 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - C-S1.1
   calc_type: ratio
   business:
-    purpose: "Provide the Gross Margin % used in commercial and management reporting at the same granularity as Net Sales."
+    purpose: "Gross margin % for commercial/operational reporting and strategic P&L reconciliation."
     definition: "(Net Sales Amount - COGS Amount) / Net Sales Amount"
     grain_scope: "Invoice line aggregated to reporting period, org, customer or product segments."
     unit_format: "'% (1 decimal)'"
-    interpretation: "Values above 0 % indicate positive gross profit; trend over time shows structural profitability changes."
+    interpretation: "Values above 0 % indicate positive gross profit; trend over time shows structural profitability changes. Used for both operational management reporting and P&L reconciliation."
   technical:
     dax_name: "Gross Margin %"
     formatString: "0.0%"
-    description: "Provide the Gross Margin % used in commercial and management reporting at the same granularity as..."
-    depends_on_measures:
-    - margin.gm.pct
+    description: "Gross Margin % used in commercial and management reporting and P&L reconciliation."
+    depends_on_measures: []
     lineage:
     - fact_sales.Cost of Goods Sold Amount
     - fact_sales.Net Sales Amount
@@ -3277,10 +3276,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     data_owner: "BI Engineering"
     steward: "Controlling Analyst"
     review_cycle: "quarterly"
-    validation_process: "manual review"
+    validation_process: "dual control"
     qa_rules:
-    - Reconciles to strategic Gross Margin % within +/- 0.1 pp for the same slice
-    version: "v1.0"
+    - Value in [-100%; 100%]
+    - Reconcile with P&L Gross Margin +/-0.5 pp
+    version: "v2.0"
   metadata_quality:
     completeness_score: 1.0
     last_review: 23.01.2026
@@ -3561,46 +3561,6 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     version: "v1.0"
   metadata_quality:
     completeness_score: 0.8
-    last_review: 23.01.2026
-
-- kpi_id: profit.gross_margin
-  kpi_key: Gross Margin %
-  kpi_type: diagnostic
-  kpi_role: strategic
-  impact_dimension: Profitability
-  domain_tag: [Finance]
-  - Commercial
-  use_case_ref:
-  - COM-002
-  action_code_ref: []
-  calc_type: ratio
-  business:
-    purpose: "Measures gross margin relative to net sales."
-    definition: "(Net Sales Amount - COGS Amount) / Net Sales Amount"
-    grain_scope: "Invoice line aggregated to Org, Product, Date."
-    unit_format: "'% (1 decimal)'"
-    interpretation: "Core profitability metric showing sales efficiency vs cost."
-  technical:
-    dax_name: "Gross Margin %"
-    formatString: "0.0%"
-    description: "Measures gross margin relative to net sales."
-    depends_on_measures:
-    - margin.gm.pct
-    lineage:
-    - fact_sales.Cost of Goods Sold Amount
-    - fact_sales.Net Sales Amount
-  governance:
-    business_owner: "Head of Controlling"
-    data_owner: "BI Engineering"
-    steward: "Controlling Analyst"
-    review_cycle: "quarterly"
-    validation_process: "dual control"
-    qa_rules:
-    - Value in [-100%; 100%]
-    - Reconcile with P&L Gross Margin +/-0.5 pp
-    version: "v2.0"
-  metadata_quality:
-    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: margin.gm.amount

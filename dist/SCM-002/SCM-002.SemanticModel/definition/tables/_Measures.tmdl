@@ -1,0 +1,38 @@
+/// SCM-002 Measures
+table _Measures
+
+    /// supply.otif.pct - OTIF %
+    /// Measures share of orders delivered on time and in full.
+    measure 'OTIF %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// supply.on_time.pct - On-Time %
+    /// Measures share of deliveries arriving on time.
+    measure 'On-Time %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// supply.in_full.pct - In-Full %
+    /// Measures share of deliveries with complete quantities.
+    measure 'In-Full %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// supply.stockout_impact.pct - Stockout Impact %
+    /// Measures lost demand share due to stockouts.
+    measure 'Stockout Impact %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// supply.penalty.amount - Penalty Amount
+    /// Captures penalties for service level breaches.
+    measure 'Penalty Amount' =
+            BLANK()
+        formatString: "#,0.00"
+
+    /// supply.expedite.amount - Expedite Cost Amount
+    /// Captures additional cost for expedited shipments.
+    measure 'Expedite Cost Amount' =
+            BLANK()
+        formatString: "#,0.00"

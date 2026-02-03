@@ -1,0 +1,201 @@
+{
+    "usecase_id":  "OPS-002",
+    "title":  null,
+    "dataset_model":  "OPS-002.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\core\\OPS-002_Asset_Performance\\Technical_Factsheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "ops.availability.pct",
+                         "name":  "Availability %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Uptime share relative to planned production time.",
+                         "description":  "Uptime share relative to planned production time.",
+                         "technical_description":  "Uptime share relative to planned production time.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Supply Chain / Logistics",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Inventory Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "ops.mtbf.hours",
+                         "name":  "MTBF (hours)",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0",
+                         "display_folder":  "",
+                         "purpose":  "Measures average operating time between failures.",
+                         "description":  "Measures average operating time between failures.",
+                         "technical_description":  "Measures average operating time between failures.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Operations",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Reliability Engineer",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "ops.mttr.hours",
+                         "name":  "MTTR (hours)",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0",
+                         "display_folder":  "",
+                         "purpose":  "Measures average repair time after failures.",
+                         "description":  "Measures average repair time after failures.",
+                         "technical_description":  "Measures average repair time after failures.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Operations",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Maintenance Lead",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "ops.downtime.unplanned.pct",
+                         "name":  "Unplanned Downtime %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures unplanned downtime share of planned time.",
+                         "description":  "Measures unplanned downtime share of planned time.",
+                         "technical_description":  "Measures unplanned downtime share of planned time.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Operations",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Maintenance Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "ops.spare_parts.stockout.pct",
+                         "name":  "Spare Parts Stockout %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures stockout frequency for critical spare parts.",
+                         "description":  "Measures stockout frequency for critical spare parts.",
+                         "technical_description":  "Measures stockout frequency for critical spare parts.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Maintenance",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Spare Parts Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "ops.pm_compliance.pct",
+                         "name":  "PM Compliance %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Tracks adherence to preventive maintenance plan.",
+                         "description":  "Tracks adherence to preventive maintenance plan.",
+                         "technical_description":  "Tracks adherence to preventive maintenance plan.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Maintenance",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Maintenance Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     }
+                 ]
+}

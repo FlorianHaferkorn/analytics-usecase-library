@@ -1,0 +1,40 @@
+createOrReplace
+
+    ref table '_All_Measures'
+
+        /// Upward Triangle (iOS style)
+        measure 'Arrow Up (iOS)' =
+				-- Modern iOS-style up indicator
+				"▲"
+			formatString: "Text"
+			displayFolder: "Symbols"
+			lineageTag: "00000000-0000-0000-0000-000000003101"
+
+        /// Downward Triangle (iOS style)
+        measure 'Arrow Down (iOS)' =
+				-- Modern iOS-style down indicator
+				"▼"
+			formatString: "Text"
+			displayFolder: "Symbols"
+			lineageTag: "00000000-0000-0000-0000-000000003102"
+
+        /// Rightward Triangle (iOS style - neutral)
+        measure 'Arrow Flat (iOS)' =
+				-- Modern iOS-style neutral indicator
+				"►"
+			formatString: "Text"
+			displayFolder: "Symbols"
+			lineageTag: "00000000-0000-0000-0000-000000003103"
+
+        /// Dynamic iOS-style arrow based on Ø Price Deviation %
+        measure 'Price Deviation Arrow (iOS)' =
+				-- Returns ▲, ▼ or ► based on value of Ø Price Deviation %
+				SWITCH(
+					TRUE(),
+					[Ø Price Deviation %] > 0.01, "▲",
+					[Ø Price Deviation %] < -0.01, "▼",
+					"►"
+				)
+			formatString: "Text"
+			displayFolder: "Symbols"
+			lineageTag: "00000000-0000-0000-0000-000000003110"

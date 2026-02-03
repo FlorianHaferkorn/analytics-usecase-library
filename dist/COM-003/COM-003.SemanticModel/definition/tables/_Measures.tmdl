@@ -1,0 +1,50 @@
+/// COM-003 Measures
+table _Measures
+
+    /// crm.clv.amount - CLV
+    /// Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
+    measure 'CLV' =
+            BLANK()
+        formatString: "#,0.00"
+
+    /// crm.lifetime_revenue.amount - Customer Lifetime Revenue Amount
+    /// Sum of realized revenue across the customer lifecycle.
+    measure 'Customer Lifetime Revenue Amount' =
+            BLANK()
+        formatString: "#,0"
+
+    /// crm.retention.pct - Customer Retention %
+    /// Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
+    measure 'Customer Retention %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// crm.churned_customers.count - Churned Customers
+    /// Count customers that have stopped purchasing in the observation window as basis for churn calculations.
+    measure 'Churned Customers' =
+            BLANK()
+        formatString: "#,0"
+
+    /// crm.revenue_at_risk.amount - Revenue at Risk Amount
+    /// Quantify revenue exposure from customers flagged as churn-risk.
+    measure 'Revenue at Risk Amount' =
+            BLANK()
+        formatString: "#,0"
+
+    /// crm.active_customers.count - Active Customers
+    /// Number of unique active customers in the reporting period.
+    measure 'Active Customers' =
+            BLANK()
+        formatString: "#,0"
+
+    /// crm.nps.index - NPS Score
+    /// Measures customer advocacy and likelihood to recommend.
+    measure 'NPS Score' =
+            BLANK()
+        formatString: "#,0"
+
+    /// crm.complaint.count - Complaint Count
+    /// Provide the absolute number of logged complaints.
+    measure 'Complaint Count' =
+            BLANK()
+        formatString: "#,0"

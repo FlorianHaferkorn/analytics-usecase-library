@@ -1,0 +1,201 @@
+{
+    "usecase_id":  "SCM-001",
+    "title":  null,
+    "dataset_model":  "SCM-001.SemanticModel",
+    "table_name":  "_Measures",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\core\\SCM-001_Inventory_Performance\\Technical_Factsheet.md",
+    "measures":  [
+                     {
+                         "kpi_id":  "inv.dio.days",
+                         "name":  "Days in Inventory",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0",
+                         "display_folder":  "",
+                         "purpose":  "Measures inventory holding period in days.",
+                         "description":  "Measures inventory holding period in days.",
+                         "technical_description":  "Measures inventory holding period in days.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Supply Chain / Logistics",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Inventory Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "inv.turnover",
+                         "name":  "Inventory Turnover",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0",
+                         "display_folder":  "",
+                         "purpose":  "Measures how often inventory is sold and replaced.",
+                         "description":  "Measures how often inventory is sold and replaced.",
+                         "technical_description":  "Measures how often inventory is sold and replaced.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Supply Chain / Logistics",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Inventory Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "inv.stockout.pct",
+                         "name":  "Stockout Rate %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures how often inventory is unavailable when demanded.",
+                         "description":  "Measures how often inventory is unavailable when demanded.",
+                         "technical_description":  "Measures how often inventory is unavailable when demanded.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Supply Chain / Logistics",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Inventory Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "supply.otif.pct",
+                         "name":  "OTIF %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures share of orders delivered on time and in full.",
+                         "description":  "Measures share of orders delivered on time and in full.",
+                         "technical_description":  "Measures share of orders delivered on time and in full.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Supply Chain / Logistics",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Logistics Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "inv.obsolete.pct",
+                         "name":  "Obsolete Inventory %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures share of inventory considered obsolete.",
+                         "description":  "Measures share of inventory considered obsolete.",
+                         "technical_description":  "Measures share of inventory considered obsolete.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Supply Chain / Logistics",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Inventory Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "plan.forecast.accuracy.pct",
+                         "name":  "Forecast Accuracy %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures how close forecasted demand is to actual demand.",
+                         "description":  "Measures how close forecasted demand is to actual demand.",
+                         "technical_description":  "Measures how close forecasted demand is to actual demand.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Supply Planning Lead",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                     }
+                 ]
+}

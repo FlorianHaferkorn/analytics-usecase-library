@@ -1,0 +1,32 @@
+/// COM-004 Measures
+table _Measures
+
+    /// sales.promo.roi.pct - Promo ROI %
+    /// Measures profitability of promotions relative to spend.
+    measure 'Promo ROI %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// sales.promo.incremental.amount - Incremental Sales Amount
+    /// Additional sales due to promotion.
+    measure 'Incremental Sales Amount' =
+            BLANK()
+        formatString: "#,0.00"
+
+    /// margin.promo.gm.pct - GM % During Promo
+    /// Gross margin rate during promo periods.
+    measure 'GM % During Promo' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// sales.price.realization_pct - Price Realization %
+    /// Shows how much of list price is realized after discounts.
+    measure 'Price Realization %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// sales.promo.cannibalization.pct - Cannibalization %
+    /// Measures share of promo uplift offset by decline in non-promoted sales.
+    measure 'Cannibalization %' =
+            BLANK()
+        formatString: "0.0%"

@@ -11,6 +11,12 @@ Param(
 
 $ErrorActionPreference = "Stop"
 
+# Path Resolution - Calculate before changing location
+$script:ToolsRoot = Split-Path -Parent $PSScriptRoot
+$internalRoot = Split-Path -Parent $script:ToolsRoot
+$script:RepoRoot = Split-Path -Parent $internalRoot
+Push-Location $script:RepoRoot
+
 # Validate input
 if (-not $UseCase -and -not $Domain) {
     throw "Either -UseCase or -Domain must be specified"
@@ -304,14 +310,39 @@ Invoke-WithRetry "Create Relationships" {
 $state.phase = "validation"
 $state.iteration = 4
 
+Invoke-WithRetry "Validate TMDL Syntax" {
+    $tmdlPath = "showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\definition"
+    
+    if (-not (Test-Path $tmdlPath)) {
+        Write-Host "  TMDL definition folder not found, skipping" -ForegroundColor Yellow
+        return
+    }
+    
+    Write-Host "  Validating TMDL files against bpa-rules-tmdl.json..." -ForegroundColor Gray
+    
+    $validatorScript = Join-Path $script:ToolsRoot "validation\validate_tmdl.ps1"
+    
+    & $validatorScript `
+        -TmdlPath $tmdlPath `
+        -AutoFix
+    
+    if ($LASTEXITCODE -ne 0) {
+        throw "TMDL validation failed. Check bpa-rules-tmdl.json for rule violations."
+    }
+    
+    Write-Host "  OK TMDL validation passed (auto-fixed where possible)" -ForegroundColor Green
+}
+
 Invoke-WithRetry "Run Quality Checks" {
-    if (-not (Test-Path ./_internal/tools/run_all_checks.ps1)) {
+    $checksScript = Join-Path $script:ToolsRoot "run_all_checks.ps1"
+    
+    if (-not (Test-Path $checksScript)) {
         Write-Host "  run_all_checks.ps1 not found, skipping" -ForegroundColor Yellow
         return
     }
     
-    $bpaOutput = & ./_internal/tools/run_all_checks.ps1 2>&1 | Out-String
-    $errorLines = $bpaOutput -split "`n" | Where-Object { $_ -match "ERROR|FAIL" }
+    $bpaOutput = & $checksScript 2>&1 | Out-String
+    $errorLines = $bpaOutput -split [Environment]::NewLine | Where-Object { $_ -match "ERROR|FAIL" }
     
     if ($errorLines.Count -gt 0) {
         Write-Host "  Found $($errorLines.Count) warnings" -ForegroundColor Yellow
@@ -323,7 +354,7 @@ Invoke-WithRetry "Run Quality Checks" {
 # FINAL SUMMARY
 $elapsed = ((Get-Date) - $state.startTime).TotalSeconds
 
-Write-Host "`n========================================" -ForegroundColor Green
+Write-Host ([Environment]::NewLine + "========================================") -ForegroundColor Green
 Write-Host "Model Orchestration Complete!" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
 Write-Host "Scope:         $scopeType - $scopeName" -ForegroundColor Gray
@@ -333,23 +364,23 @@ Write-Host "Warnings:      $($state.warnings.Count)" -ForegroundColor Gray
 Write-Host "Errors:        $($state.errors.Count)" -ForegroundColor Gray
 
 if ($state.errors.Count -gt 0) {
-    Write-Host "`nErrors:" -ForegroundColor Yellow
+    Write-Host ([Environment]::NewLine + "Errors:") -ForegroundColor Yellow
     $state.errors | ForEach-Object { Write-Host "  [$($_.phase)] $($_.error)" -ForegroundColor Gray }
 }
 
-Write-Host "`nOutput:" -ForegroundColor Cyan
+Write-Host ([Environment]::NewLine + "Output:") -ForegroundColor Cyan
 $outputModel = "showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel"
 Write-Host "  Model:  $outputModel" -ForegroundColor Gray
 Write-Host "  Measures: $outputModel\definition\tables\_Measures.tmdl" -ForegroundColor Gray
 
-Write-Host "`nNext Steps:" -ForegroundColor Yellow
+Write-Host ([Environment]::NewLine + "Next Steps:") -ForegroundColor Yellow
 Write-Host "  1. Open in Power BI Desktop: explorer $outputModel" -ForegroundColor Gray
 Write-Host "  2. Test with table_ops.ps1, relationship_ops.ps1, measure_ops.ps1" -ForegroundColor Gray
 Write-Host "  3. Build complete domain model with -Domain Commercial" -ForegroundColor Gray
 
 # Export state
-$stateFile = "_internal\tools\powerbi_mcp\last_run_state.json"
+$stateFile = Join-Path $PSScriptRoot "last_run_state.json"
 $stateJson = $state | ConvertTo-Json -Depth 5
 $utf8 = New-Object System.Text.UTF8Encoding $false
 [System.IO.File]::WriteAllText($stateFile, $stateJson, $utf8)
-Write-Host "`nState saved: $stateFile" -ForegroundColor Green
+Write-Host ([Environment]::NewLine + "State saved: $stateFile") -ForegroundColor Green

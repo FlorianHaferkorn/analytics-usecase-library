@@ -1,0 +1,38 @@
+/// XD-001 Measures
+table _Measures
+
+    /// svc.sla.attainment.pct - SLA Attainment %
+    /// Measures how many cases meet the committed SLA.
+    measure 'SLA Attainment %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// svc.fcr.pct - FCR %
+    /// Shows the share of cases solved on first contact.
+    measure 'FCR %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// svc.aht.minutes - AHT Minutes
+    /// Measures average time to handle a contact.
+    measure 'AHT Minutes' =
+            BLANK()
+        formatString: "#,0"
+
+    /// svc.backlog.count - Backlog Count
+    /// Quantifies unresolved work in queue.
+    measure 'Backlog Count' =
+            BLANK()
+        formatString: "#,0"
+
+    /// svc.nps.index - NPS Index
+    /// Measures customer advocacy and experience quality.
+    measure 'NPS Index' =
+            BLANK()
+        formatString: "#,0"
+
+    /// svc.escalation.pct - Escalation %
+    /// Measures frequency of escalated cases.
+    measure 'Escalation %' =
+            BLANK()
+        formatString: "0.0%"

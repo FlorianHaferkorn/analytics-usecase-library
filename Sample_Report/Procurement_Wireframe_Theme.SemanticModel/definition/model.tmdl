@@ -1,0 +1,27 @@
+model Model
+	culture: de-DE
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: de-DE
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["fact_contractdetails","dim_contracts","dim_index","dim_parts","fact_transactions","dim_suppliers","dim_date","_All_Measures","Source"]
+
+annotation PBI_ProTooling = ["TMDLView_Desktop","CalcGroup","DevMode"]
+
+ref table fact_contractdetails
+ref table dim_contracts
+ref table dim_index
+ref table dim_parts
+ref table fact_transactions
+ref table dim_suppliers
+ref table dim_date
+ref table _All_Measures
+ref table 'Time Intelligence'
+
+ref cultureInfo de-DE
+

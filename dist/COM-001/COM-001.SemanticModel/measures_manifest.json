@@ -3,63 +3,231 @@
     "title":  null,
     "dataset_model":  "COM-001.SemanticModel",
     "table_name":  "_Measures",
-    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\core\\COM-001_Sales_Performance\\FactSheet.md",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\core\\COM-001_Sales_Performance\\Technical_Factsheet.md",
     "measures":  [
                      {
                          "kpi_id":  "sales.net_sales.amount",
-                         "name":  "sales.net_sales.amount",
-                         "missing":  true,
-                         "purpose":  null,
-                         "description":  null,
-                         "dax_expression":  null
+                         "name":  "Net Sales Amount",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0.00",
+                         "display_folder":  "",
+                         "purpose":  "Total invoiced revenue net of discounts and returns.",
+                         "description":  "Total invoiced revenue net of discounts and returns.",
+                         "technical_description":  "Total invoiced revenue net of discounts and returns.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sales",
+                         "data_owner":  "BI Engineering",
+                         "steward":  "Sales Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "sales.net_sales.delta_pct.plan",
-                         "name":  "sales.net_sales.delta_pct.plan",
-                         "missing":  true,
-                         "purpose":  null,
-                         "description":  null,
-                         "dax_expression":  null
+                         "name":  "Net Sales % vs Plan",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Relative variance of Net Sales vs Plan.",
+                         "description":  "Relative variance of Net Sales vs Plan.",
+                         "technical_description":  "Relative variance of Net Sales vs Plan.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sales Controlling",
+                         "data_owner":  "Commercial BI",
+                         "steward":  "Sales Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "sales.net_sales.delta_pct.ly",
-                         "name":  "sales.net_sales.delta_pct.ly",
-                         "missing":  true,
-                         "purpose":  null,
-                         "description":  null,
-                         "dax_expression":  null
+                         "name":  "Delta% Net Sales",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Relative variance of Net Sales vs Last Year.",
+                         "description":  "Relative variance of Net Sales vs Last Year.",
+                         "technical_description":  "Relative variance of Net Sales vs Last Year.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sales Controlling",
+                         "data_owner":  "Commercial BI",
+                         "steward":  "Sales Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "margin.gm.pct",
-                         "name":  "margin.gm.pct",
-                         "missing":  true,
-                         "purpose":  null,
-                         "description":  null,
-                         "dax_expression":  null
+                         "name":  "Gross Margin %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Gross margin % for commercial/operational reporting and strategic P\u0026L reconciliation.",
+                         "description":  "Gross margin % for commercial/operational reporting and strategic P\u0026L reconciliation.",
+                         "technical_description":  "Gross Margin % used in commercial and management reporting and P\u0026L reconciliation.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Controlling",
+                         "data_owner":  "BI Engineering",
+                         "steward":  "Controlling Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "sales.pvm.price_effect.amount",
-                         "name":  "sales.pvm.price_effect.amount",
-                         "missing":  true,
-                         "purpose":  null,
-                         "description":  null,
-                         "dax_expression":  null
+                         "name":  "Price Effect Amount",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0.00",
+                         "display_folder":  "",
+                         "purpose":  "Quantifies the pure price impact in the PVM bridge.",
+                         "description":  "Quantifies the pure price impact in the PVM bridge.",
+                         "technical_description":  "Quantifies the pure price impact in the PVM bridge.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sales Controlling",
+                         "data_owner":  "BI Engineering",
+                         "steward":  "Sales Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "sales.pvm.volume_effect.amount",
-                         "name":  "sales.pvm.volume_effect.amount",
-                         "missing":  true,
-                         "purpose":  null,
-                         "description":  null,
-                         "dax_expression":  null
+                         "name":  "Volume Effect Amount",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0.00",
+                         "display_folder":  "",
+                         "purpose":  "Measures the variance caused purely by quantity changes at plan price.",
+                         "description":  "Measures the variance caused purely by quantity changes at plan price.",
+                         "technical_description":  "Measures the variance caused purely by quantity changes at plan price.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sales Controlling",
+                         "data_owner":  "BI Engineering",
+                         "steward":  "Sales Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "sales.pvm.mix_effect.amount",
-                         "name":  "sales.pvm.mix_effect.amount",
-                         "missing":  true,
-                         "purpose":  null,
-                         "description":  null,
-                         "dax_expression":  null
+                         "name":  "Mix Effect Amount",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0.00",
+                         "display_folder":  "",
+                         "purpose":  "Captures the residual effect from changes in product, channel, or region mix.",
+                         "description":  "Captures the residual effect from changes in product, channel, or region mix.",
+                         "technical_description":  "Captures the residual effect from changes in product, channel, or region mix.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sales Controlling",
+                         "data_owner":  "BI Engineering",
+                         "steward":  "Sales Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
                      }
                  ]
 }

@@ -1,36 +1,34 @@
 table dim_customer
-	 lineageTag: 1370d216-3ab9-4e0b-92d6-98fe7b5d50b1
+	lineageTag: 89e25678-1234-5678-9abc-def012345678
 
-	 column CustomerKey
-		 dataType: Int64
-		 sourceColumn: CustomerKey
-		 isHidden
+	column CustomerKey
+		dataType: int64
+		sourceColumn: CustomerKey
+		isHidden
 
-	 column CustomerCode
-		 dataType: String
-		 sourceColumn: CustomerCode
+	column CustomerName
+		dataType: string
+		sourceColumn: CustomerName
 
-	 column CustomerName
-		 dataType: String
-		 sourceColumn: CustomerName
+	column Segment
+		dataType: string
+		sourceColumn: Segment
 
-	 column Segment
-		 dataType: String
-		 sourceColumn: Segment
+	column Country
+		dataType: string
+		sourceColumn: Country
 
-	 column Channel
-		 dataType: String
-		 sourceColumn: Channel
+	column Region
+		dataType: string
+		sourceColumn: Region
 
-	 column Region
-		 dataType: String
-		 sourceColumn: Region
-
-	 partition dim_customer = m
-		 mode: import
-		 source =
-			 let
-				 Source = AuroraGoldLayer{[Schema="dbo",Item="dim_customer"]}[Data]
-			 in
-				 Source
-
+	partition dim_customer = m
+		mode: import
+		source =
+				let
+					Source = Folder.Files("C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\showcases\aurora_group\data\gold\dimensions\dim_customer"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData

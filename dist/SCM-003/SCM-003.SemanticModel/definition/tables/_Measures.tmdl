@@ -1,0 +1,32 @@
+/// SCM-003 Measures
+table _Measures
+
+    /// plan.forecast.accuracy.pct - Forecast Accuracy %
+    /// Measures how close forecasted demand is to actual demand.
+    measure 'Forecast Accuracy %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// plan.forecast.mape.pct - Forecast MAPE %
+    /// Measures mean absolute percentage error in forecast.
+    measure 'Forecast MAPE %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// plan.forecast.bias.pct - Forecast Bias %
+    /// Measures systematic over- or under-forecasting.
+    measure 'Forecast Bias %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// plan.forecast.service_impact.pct - Service Impact %
+    /// Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast under-coverage (units-based demand forecast).
+    measure 'Service Impact %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// plan.replan.count - Re-Plan Count
+    /// Counts number of replanning cycles in a period.
+    measure 'Re-Plan Count' =
+            BLANK()
+        formatString: "#,0"

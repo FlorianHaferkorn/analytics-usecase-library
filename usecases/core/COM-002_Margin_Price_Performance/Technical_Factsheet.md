@@ -41,7 +41,6 @@ kpi_to_measure_mapping:
     format: "0.0%"
     folder: 02_Margin
 
-  - kpi_id: profit.gross_margin
     kpi_name: Gross Margin % (Strategic)
     measure_name: Gross Margin %
     format: "0.0%"

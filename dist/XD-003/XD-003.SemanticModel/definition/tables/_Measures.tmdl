@@ -1,0 +1,50 @@
+/// XD-003 Measures
+table _Measures
+
+    /// sales.net_sales.delta_pct.ly - Delta% Net Sales
+    /// Relative variance of Net Sales vs Last Year.
+    measure 'Delta% Net Sales' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// margin.gm.pct - Gross Margin %
+    /// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
+    measure 'Gross Margin %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// crm.clv.amount - CLV
+    /// Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
+    measure 'CLV' =
+            BLANK()
+        formatString: "#,0.00"
+
+    /// svc.sla.attainment.pct - SLA Attainment %
+    /// Measures how many cases meet the committed SLA.
+    measure 'SLA Attainment %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// ops.otif.pct - OTIF %
+    /// Delivery reliability measured by orders delivered on-time and in-full.
+    measure 'OTIF %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// ops.working_capital.ccc.days - Cash Conversion Cycle (Days)
+    /// Combines receivables, inventory, and payables days to show cash efficiency.
+    measure 'Cash Conversion Cycle (Days)' =
+            BLANK()
+        formatString: "0"
+
+    /// people.digital_adoption.pct - Digital Adoption Rate %
+    /// Measure how much of all eligible process transactions are executed via digital tools instead of manual channels.
+    measure 'Digital Adoption Rate %' =
+            BLANK()
+        formatString: "0.0%"
+
+    /// people.attrition_risk.pct - Attrition Risk %
+    /// Monitor risk of employee attrition across key roles and segments.
+    measure 'Attrition Risk %' =
+            BLANK()
+        formatString: "0.0%"
