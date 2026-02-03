@@ -1,0 +1,76 @@
+# Finance Semantic Model - Aurora Group
+#
+# Purpose:
+#   Aurora-specific semantic model blueprint for Finance analytics domain
+#   Covers cash & liquidity, cost performance, working capital
+#
+# Scope:
+#   Use Cases: FIN-001, FIN-002
+#   Data: Aurora synthetic gold layer (fact_finance, fact_gl_journal, fact_working_capital)
+#   Tool: Power BI Semantic Model (TMDL format)
+#
+# Status: PLACEHOLDER - To be implemented after Commercial domain
+
+model_id: aurora_finance
+domain: Finance
+description: >
+  Aurora Group Finance Analytics - Cash & liquidity performance,
+  cost control, and working capital optimization.
+
+use_cases:
+  - id: FIN-001
+    title: "Cash & Liquidity Performance"
+    purpose: "Control cash and liquidity by monitoring balances, operating cash flow, and working capital drivers"
+    strategic_kpis:
+      - fin.cash.balance
+      - fin.cash.ocf
+      - fin.cash.vs_plan.pct
+      - wc.ccc.days
+      - wc.dso.days
+      - wc.dio.days
+      - wc.dpo.days
+    action_codes: [W1, C1, I1, W2]
+    display_folder: "05_Cash & Liquidity"
+    reporting_level: Tactical
+    analytics_stage: Diagnostic / Predictive
+
+  - id: FIN-002
+    title: "Cost Performance"
+    purpose: "Reduce unit cost and improve margin by controlling material, labor, and OpEx vs plan"
+    strategic_kpis:
+      - cost.unit.amount
+      - margin.cogs.pct
+      - cost.opex.vs_plan.pct
+      - cost.material.pct
+      - ops.labor.productivity.pct
+    action_codes: [D1, PC2, M2, W1]
+    display_folder: "06_Cost Performance"
+    reporting_level: Tactical
+    analytics_stage: Diagnostic / Prescriptive
+
+tables:
+  dimensions:
+    - dim_date
+    - dim_org
+    - dim_account
+  facts:
+    - fact_finance
+    - fact_gl_journal
+    - fact_working_capital
+  security:
+    - security_user_org
+
+# TODO: Complete relationships, measures, display folders after Commercial is validated
+# TODO: Add DAX expressions to framework/kpi_catalog/KPI_Catalog.md for FIN use cases
+# TODO: Populate semantic_models/domains/Finance/Measure_Dictionary_Finance.md
+
+notes:
+  - "PLACEHOLDER: Implement after Commercial domain validation"
+  - "Dependencies: fact_finance, fact_gl_journal, fact_working_capital tables"
+  - "Data source: showcases/aurora_group/data/gold/facts/"
+
+governance:
+  business_owner: "CFO"
+  data_owner: "Finance BI Team"
+  version: v0.1-draft
+  last_updated: 2026-01-27

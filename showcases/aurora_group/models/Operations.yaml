@@ -1,0 +1,91 @@
+# Operations Semantic Model - Aurora Group
+#
+# Purpose:
+#   Aurora-specific semantic model blueprint for Operations analytics domain
+#   Covers OEE, asset performance, quality & yield
+#
+# Scope:
+#   Use Cases: OPS-001, OPS-002, OPS-003
+#   Data: Aurora synthetic gold layer (fact_ops, fact_inventory_snapshot)
+#   Tool: Power BI Semantic Model (TMDL format)
+#
+# Status: PLACEHOLDER - To be implemented after Commercial domain
+
+model_id: aurora_operations
+domain: Operations
+description: >
+  Aurora Group Operations Analytics - Overall equipment effectiveness,
+  asset reliability, and quality management.
+
+use_cases:
+  - id: OPS-001
+    title: "Operations Performance"
+    purpose: "Improve overall equipment effectiveness and throughput by addressing availability, performance, and quality losses"
+    strategic_kpis:
+      - ops.oee.pct
+      - ops.availability.pct
+      - ops.performance.pct
+      - ops.quality.pct
+      - ops.throughput.units
+      - ops.downtime.pct
+    action_codes: [O2, M2, L2, D1]
+    display_folder: "07_OEE & Throughput"
+    reporting_level: Tactical / Operational
+    analytics_stage: Diagnostic
+
+  - id: OPS-002
+    title: "Asset Performance"
+    purpose: "Improve asset reliability and availability by reducing unplanned downtime and optimizing preventive maintenance"
+    strategic_kpis:
+      - ops.availability.pct
+      - ops.mtbf.hours
+      - ops.mttr.hours
+      - ops.downtime.unplanned.pct
+      - ops.spare_parts.stockout.pct
+      - ops.pm_compliance.pct
+    action_codes: [O2, L2, D1, M2]
+    display_folder: "08_Asset Reliability"
+    reporting_level: Tactical
+    analytics_stage: Diagnostic / Prescriptive
+
+  - id: OPS-003
+    title: "Quality & Yield"
+    purpose: "Improve first pass yield and reduce scrap/rework by identifying top defect drivers and cost of poor quality"
+    strategic_kpis:
+      - quality.fpy.pct
+      - quality.scrap.pct
+      - quality.rework.pct
+      - quality.copq.amount
+      - quality.complaint.pct
+      - quality.defect_density
+    action_codes: [L2, O2, D1, M2]
+    display_folder: "09_Quality & Yield"
+    reporting_level: Tactical / Operational
+    analytics_stage: Diagnostic / Prescriptive
+
+tables:
+  dimensions:
+    - dim_date
+    - dim_org
+    - dim_asset
+    - dim_product
+  facts:
+    - fact_ops
+    - fact_inventory_snapshot
+  security:
+    - security_user_org
+
+# TODO: Complete relationships, measures, display folders after Commercial is validated
+# TODO: Add DAX expressions to framework/kpi_catalog/KPI_Catalog.md for OPS use cases
+# TODO: Populate semantic_models/domains/Operations/Measure_Dictionary_Operations.md
+
+notes:
+  - "PLACEHOLDER: Implement after Commercial domain validation"
+  - "Dependencies: fact_ops, fact_inventory_snapshot tables"
+  - "Data source: showcases/aurora_group/data/gold/facts/"
+
+governance:
+  business_owner: "COO"
+  data_owner: "Operations BI Team"
+  version: v0.1-draft
+  last_updated: 2026-01-27

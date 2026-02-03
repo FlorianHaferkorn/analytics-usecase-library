@@ -2320,6 +2320,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: "Price Realization %"
     formatString: "0.0%"
+    dax_expression: |
+      DIVIDE ( [Net Price Amount], [List Price Amount] )
     description: "Shows how much of list price is realized after discounts."
     depends_on_measures:
     - sales.price.realization_pct
@@ -2363,6 +2365,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: "Mix Effect Amount"
     formatString: "#,0.00"
+    dax_expression: |
+      [Net Sales Amount]
+          - SUM ( fact_sales[Plan Sales Amount] )
+          - [Price Effect Amount]
+          - [Volume Effect Amount]
     description: "Captures the residual effect from changes in product, channel, or region mix."
     depends_on_measures:
     - sales.pvm.mix_effect.amount
@@ -3266,6 +3273,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: "Gross Margin %"
     formatString: "0.0%"
+    dax_expression: |
+      DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
     description: "Gross Margin % used in commercial and management reporting and P&L reconciliation."
     depends_on_measures: []
     lineage:
@@ -3388,6 +3397,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: "COGS per Unit"
     formatString: "#,0"
+    dax_expression: |
+      DIVIDE ( [Cost of Goods Sold Amount], SUM ( fact_sales[Quantity] ) )
     description: "Shows unit cost level relative to sold volume."
     depends_on_measures:
     - cost.cogs_per_unit.amount
@@ -3588,6 +3599,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: "Gross Margin Amount"
     formatString: "#,0.00"
+    dax_expression: |
+      [Net Sales Amount] - [Cost of Goods Sold Amount]
     description: "Absolute gross margin in currency."
     depends_on_measures:
     - margin.gm.amount
@@ -3708,6 +3721,14 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   technical:
     dax_name: "Gross Margin % vs Plan"
     formatString: "0.0%"
+    dax_expression: |
+      VAR GMAct =
+          DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
+      VAR GMPlan =
+          DIVIDE ( SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] ),
+                   SUM ( fact_sales[Plan Sales Amount] ) )
+      RETURN
+          DIVIDE ( GMAct - GMPlan, GMPlan )
     description: "Measures gross margin rate variance versus plan."
     depends_on_measures:
     - margin.gm.vs_plan.pct

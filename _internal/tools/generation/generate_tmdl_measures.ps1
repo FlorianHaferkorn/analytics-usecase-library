@@ -155,6 +155,49 @@ function Get-ChunkValue {
   return $null
 }
 
+function Get-LiteralBlockValue {
+  param([string]$Chunk,[string]$Key)
+  # Match YAML literal block: "key: |" followed by indented lines
+  # Stop when we hit a line with same or less indentation as the key line
+  $keyPattern = "(?m)^(\s*)$Key\s*:\s*\|\s*\r?\n"
+  $keyMatch = [regex]::Match($Chunk, $keyPattern)
+  if (-not $keyMatch.Success) { return $null }
+  
+  $keyIndent = $keyMatch.Groups[1].Value.Length
+  $startPos = $keyMatch.Index + $keyMatch.Length
+  
+  # Extract lines until we hit a line with same/less indentation
+  $remaining = $Chunk.Substring($startPos)
+  $lines = @()
+  foreach ($line in $remaining -split "\r?\n") {
+    # Stop if line has same or less indentation (and is not empty)
+    if ($line -match '^\s*\S' -and $line -match "^(\s*)") {
+      $lineIndent = $matches[1].Length
+      if ($lineIndent -le $keyIndent) { break }
+    }
+    $lines += $line
+  }
+  
+  if ($lines.Count -eq 0) { return $null }
+  
+  # Find minimum indentation of non-empty lines
+  $nonEmptyLines = $lines | Where-Object { $_ -match '\S' }
+  if ($nonEmptyLines.Count -eq 0) { return $null }
+  
+  $minIndent = ($nonEmptyLines | ForEach-Object { 
+    if ($_ -match '^(\s*)') { $matches[1].Length } else { 0 }
+  } | Measure-Object -Minimum).Minimum
+  
+  # Remove common indentation and join
+  $result = ($lines | ForEach-Object {
+    if ($_ -match "^\s{$minIndent}(.*)$") { $matches[1] }
+    elseif ($_ -match '^\s*$') { "" }
+    else { $_ }
+  }) -join "`n"
+  
+  return $result.TrimEnd()
+}
+
 function Get-ListValue {
   param([string]$Chunk,[string]$Key)
   $m = [regex]::Match($Chunk, "(?m)^\s*$Key\s*:\s*\[(.*?)\]", 'Singleline')
@@ -201,7 +244,11 @@ function Parse-KpiRecord {
   $rec.id = $idMatch.Groups[1].Value
   $rec.kpi_key = Get-ChunkValue -Chunk $Chunk -Key 'kpi_key'
   $rec.dax_name = Get-ChunkValue -Chunk $Chunk -Key 'dax_name'
-  $rec.dax_expression = Get-ChunkValue -Chunk $Chunk -Key 'dax_expression'
+  # Try literal block first (for multi-line DAX), then quoted string
+  $rec.dax_expression = Get-LiteralBlockValue -Chunk $Chunk -Key 'dax_expression'
+  if (-not $rec.dax_expression) {
+    $rec.dax_expression = Get-ChunkValue -Chunk $Chunk -Key 'dax_expression'
+  }
   $fmtMatches = [regex]::Matches($Chunk, '(?m)^\s*formatString\s*:\s*"([^"]*)"')
   $rec.formatString = if ($fmtMatches.Count) { $fmtMatches[$fmtMatches.Count - 1].Groups[1].Value } else { "" }
   $folderMatches = [regex]::Matches($Chunk, '(?m)^\s*displayFolder\s*:\s*"([^"]*)"')
@@ -496,6 +543,8 @@ foreach ($fs in $factSheets) {
   $header += ("`t`t`t`t    Source")
   $header += ""
   $header += ("`tcolumn Column1")
+  $header += ("`t`tdataType: string")
+  $header += ("`t`tsourceColumn: Column1")
   $header += ("`t`tisHidden")
   $header += ("`t`tsummarizeBy: none")
   $header += ""

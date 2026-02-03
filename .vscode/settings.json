@@ -7,6 +7,10 @@
             "approve": true,
             "matchCommandLine": true
         },
-        "git checkout": true
+        "git checkout": true,
+        "/^powershell -NoProfile -ExecutionPolicy Bypass \\./_internal/tools/generation/generate_tmdl_measures\\.ps1 -UseCase COM-002 -UseCasesRoot usecases -KpiCatalogRoot framework/kpi_catalog -DistRoot showcases/aurora_group -OverwriteExisting$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
     }
 }

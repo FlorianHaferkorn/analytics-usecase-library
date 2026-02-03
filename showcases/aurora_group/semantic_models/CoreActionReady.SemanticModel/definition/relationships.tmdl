@@ -1,26 +1,15 @@
-/// Relationships for CoreActionReady Semantic Model
-/// Based on Technical_Factsheet.md for COM-002
+relationship 9f5e45fc-f80f-4cee-bcf2-41ca7f4c6f53
+	fromColumn: fact_sales.DateKey
+	toColumn: dim_date.DateKey
 
-/// Date Dimension -> Fact Sales
-relationship 'dim_date-fact_sales-DateKey' {
-	fromColumn: dim_date.DateKey
-	toColumn: fact_sales.DateKey
-}
+relationship 70d5c67b-5e8a-4a6e-a98e-bc5f21d84b91
+	fromColumn: fact_sales.OrgKey
+	toColumn: dim_org.OrgKey
 
-/// Org Dimension -> Fact Sales
-relationship 'dim_org-fact_sales-OrgKey' {
-	fromColumn: dim_org.OrgKey
-	toColumn: fact_sales.OrgKey
-}
+relationship ae3b90e2-7f41-4d29-b65f-8e2d3c4a9f12
+	fromColumn: fact_sales.ProductKey
+	toColumn: dim_product.ProductKey
 
-/// Product Dimension -> Fact Sales
-relationship 'dim_product-fact_sales-ProductKey' {
-	fromColumn: dim_product.ProductKey
-	toColumn: fact_sales.ProductKey
-}
-
-/// Customer Dimension -> Fact Sales (nullable)
-relationship 'dim_customer-fact_sales-CustomerKey' {
-	fromColumn: dim_customer.CustomerKey
-	toColumn: fact_sales.CustomerKey
-}
+relationship d8f6a1c4-2b93-4e78-9d5a-3f7e6c8d2b41
+	fromColumn: fact_sales.CustomerKey
+	toColumn: dim_customer.CustomerKey

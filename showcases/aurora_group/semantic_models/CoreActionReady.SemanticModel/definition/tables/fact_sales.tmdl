@@ -25,10 +25,6 @@ table fact_sales
 		dataType: string
 		sourceColumn: Promo Flag
 
-	column 'Net Sales Amount'
-		dataType: string
-		sourceColumn: Net Sales Amount
-
 	column Quantity
 		dataType: double
 		sourceColumn: Quantity
@@ -38,28 +34,36 @@ table fact_sales
 		sourceColumn: Plan Quantity
 
 	column 'List Price Amount'
-		dataType: string
+		dataType: double
 		sourceColumn: List Price Amount
 
 	column 'Net Price Amount'
-		dataType: string
+		dataType: double
 		sourceColumn: Net Price Amount
 
 	column 'Discount Amount'
-		dataType: string
+		dataType: double
 		sourceColumn: Discount Amount
 
+	column 'Net Sales Amount'
+		dataType: double
+		sourceColumn: Net Sales Amount
+
 	column 'Plan Sales Amount'
-		dataType: string
+		dataType: double
 		sourceColumn: Plan Sales Amount
 
 	column 'Last Year Sales Amount'
-		dataType: string
+		dataType: double
 		sourceColumn: Last Year Sales Amount
 
 	column 'Cost of Goods Sold Amount'
-		dataType: string
+		dataType: double
 		sourceColumn: Cost of Goods Sold Amount
+
+	column 'Plan COGS Amount'
+		dataType: double
+		sourceColumn: Plan COGS Amount
 
 	partition fact_sales = m
 		mode: import

@@ -550,6 +550,11 @@ class GoldLayerGenerator:
                     net_sales = gross_sales - discount
                     cogs = net_sales * random.uniform(0.55, 0.70)  # 55-70% COGS ratio
                     
+                    # Plan values (for PVM analysis)
+                    plan_quantity = quantity * random.uniform(0.9, 1.1)
+                    plan_sales = plan_quantity * unit_price * random.uniform(0.95, 1.05)
+                    plan_cogs = plan_sales * 0.62
+                    
                     transactions.append({
                         'InvoiceLineID': f'INV-{invoice_line_id:010d}',
                         'DateKey': date_key,
@@ -557,13 +562,17 @@ class GoldLayerGenerator:
                         'ProductKey': product['ProductKey'],
                         'CustomerKey': customer['CustomerKey'],
                         'PromoKey': promo_key,
-                        'Channel': random.choice(['Store', 'Web', 'App']),
-                        'Currency Code': currency,
-                        'Quantity Qty': quantity,
-                        'Gross Sales Amount': round(gross_sales, 2),
+                        'Promo Flag': 'Yes' if has_promo else 'No',
+                        'Quantity': quantity,
+                        'Plan Quantity': round(plan_quantity, 2),
+                        'List Price Amount': round(unit_price, 2),
+                        'Net Price Amount': round(net_sales / quantity, 2) if quantity > 0 else 0,
                         'Discount Amount': round(discount, 2),
                         'Net Sales Amount': round(net_sales, 2),
-                        'COGS Amount': round(cogs, 2),
+                        'Plan Sales Amount': round(plan_sales, 2),
+                        'Last Year Sales Amount': round(net_sales * random.uniform(0.85, 1.15), 2),
+                        'Cost of Goods Sold Amount': round(cogs, 2),
+                        'Plan COGS Amount': round(plan_cogs, 2),
                         'Fiscal Year': fiscal_year,
                         'Fiscal Month': fiscal_month,
                     })
@@ -816,7 +825,7 @@ class GoldLayerGenerator:
                 'DateKey': date_key,
                 'AccountKey': cogs_acc['AccountKey'],
                 'OrgKey': org_key,
-                'Amount': -sale['COGS Amount'],  # Negative for debit
+                'Amount': -sale['Cost of Goods Sold Amount'],  # Negative for debit
                 'Document Number': f'DOC{doc_num}',
                 'Line Description': 'Cost of Goods Sold',
                 'Fiscal Year': fiscal_year,
