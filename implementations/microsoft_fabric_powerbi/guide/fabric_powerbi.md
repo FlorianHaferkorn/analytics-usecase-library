@@ -25,6 +25,14 @@ Not included:
 - ETL pipelines beyond standard patterns  
 - Framework-agnostic architecture (see framework/strategy_operating_model/operating_model)
 
+### Where this fits in the repo
+
+- **Use case factsheets:** `framework/usecases/core/` (e.g. `COM-001_Sales_Performance/` Business and Technical Factsheets).
+- **KPI catalog:** `framework/kpi_catalog/` — source for measure definitions and KPI mapping; used by TMDL generation.
+- **Validation:** `_internal/tools/validation/run_stage1_checks.ps1` (docs/structure); `run_all_checks.ps1` (Stage 1 + Fabric checks).
+- **Fabric checks:** `implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1` — measures vs KPI, TMDL vs measure dictionary, DAX best practices.
+- **TMDL generation:** `_internal/tools/generation/generate_tmdl_measures.ps1` — generates `_Measures.tmdl` from KPI catalog; output to `implementations/microsoft_fabric_powerbi/dist` or a showcase path.
+
 ---
 
 # 1. Operating Model → Fabric Mapping
@@ -307,7 +315,32 @@ Shared_Tools
 
 ---
 
-# 11. Minimal Example
+# 11. Fabric & Power BI best practices and validation
+
+- **TMDL:** Follow `tmdl_best_practices.md` (this guide folder) — tabs only, `///` comments, `displayFolder`/`formatString`, no `description` property, `let...in` for M.
+- **DAX:** Measures are checked against DAX best-practice rules (e.g. avoid `ISERROR`/`IFERROR`, prefer `VAR` over `EARLIER`, no shortened `CALCULATE` syntax, use `DIVIDE(..., BLANK())` for safe division). Rules: `_internal/tools/linters/powerbi/bpa-rules-dax.json`; runner: `implementations/microsoft_fabric_powerbi/validation/check_dax_best_practices.ps1`.
+- **TMDL syntax:** Run `check_tmdl_syntax.ps1` (tabs-only indentation, no `description:` property) as part of `run_fabric_checks.ps1`.
+- **Run Fabric checks:** After changing measures or TMDL, run `implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1` (TMDL syntax, measures vs KPI catalog, TMDL vs measure dictionaries, DAX rules). Fix any failures before commit.
+
+## 11.1 Semantic model and table best practices (Microsoft Learn)
+
+**Star schema:** Use star schema only. Classify tables as dimension (filtering/grouping) or fact (summarization). Table type is determined by relationships: the “one” side is dimension, the “many” side is fact. Avoid mixing both in a single table. Use the right number of tables and relationships; keep fact tables at a consistent grain.
+
+**Explicit measures:** Create explicit DAX measures for business metrics. Avoid relying on implicit measures for KPIs; set correct default summarization on numeric columns. Use explicit measures when report authors use MDX (e.g. Analyze in Excel, paginated reports).
+
+**Naming:** Use clear, business-friendly names for tables, columns, and measures (e.g. “Total Revenue”, “Sales Region”). Avoid codes like `TR_AMT`, `DIM_GEO_01` unless descriptions/synonyms clarify them. Non-descriptive names reduce Copilot/data agent accuracy.
+
+**Descriptions:** Add `///` comments above tables, columns, and measures (TMDL does not support a `description` property). Descriptions improve tooltips and Prep for AI / Copilot interpretation.
+
+**Prep for AI:** Configure AI data schema (subset of tables/columns/measures), verified answers, and AI instructions in Power BI (Desktop or service). Semantic-model-specific guidance belongs in Prep for AI, not in data agent–level instructions.
+
+**Direct Lake:** For Direct Lake semantic models, use tables (not views) from the SQL analytics endpoint; views cause fallback to DirectQuery and slower performance.
+
+**Pitfalls to avoid:** Flat/denormalized or pivoted tables (DAX is optimized for star schema); verified answers that reference hidden columns (they will not work); including unnecessary or duplicate measures in the AI schema; implicit measures for key metrics; ambiguous date fields without AI instructions or verified answers; conflicting AI instructions.
+
+---
+
+# 12. Minimal Example
 
 ```yaml
 dataset/
@@ -328,6 +361,8 @@ measure Net Sales Amount =
 ```
 
 ---
+
+**Sources (Microsoft Learn):** [Semantic model best practices for data agent](https://learn.microsoft.com/en-us/fabric/data-science/semantic-model-best-practices), [Star schema and Power BI](https://learn.microsoft.com/en-us/power-bi/guidance/star-schema), [Develop Direct Lake semantic models](https://learn.microsoft.com/en-us/fabric/fundamentals/direct-lake-develop).
 
 **Location:**  
 `implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md`

@@ -1,38 +1,58 @@
 /// OPS-003 Measures
 table _Measures
 
-    /// quality.fpy.pct - First Pass Yield %
-    /// Measures share of units produced without rework or scrap.
-    measure 'First Pass Yield %' =
-            BLANK()
-        formatString: "0.0%"
+	partition _Measures = m
+		mode: import
+		source =
+				let
+					Source = #table(type table[Column1 = text], {})
+				in
+					Source
 
-    /// quality.scrap.pct - Scrap Rate %
-    /// Measures share of units scrapped in production.
-    measure 'Scrap Rate %' =
-            BLANK()
-        formatString: "0.0%"
+	column Column1
+		dataType: string
+		sourceColumn: Column1
+		isHidden
+		summarizeBy: none
 
-    /// quality.rework.pct - Rework Rate %
-    /// Measures share of units requiring rework.
-    measure 'Rework Rate %' =
-            BLANK()
-        formatString: "0.0%"
+	/// quality.fpy.pct - First Pass Yield %
+	/// Measures share of units produced without rework or scrap.
+	measure 'First Pass Yield %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "OPS-003"
 
-    /// quality.copq.amount - Cost of Poor Quality
-    /// Captures financial impact of scrap, rework, and warranty/complaints.
-    measure 'Cost of Poor Quality' =
-            BLANK()
-        formatString: "#,0.00"
+	/// quality.scrap.pct - Scrap Rate %
+	/// Measures share of units scrapped in production.
+	measure 'Scrap Rate %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "OPS-003"
 
-    /// quality.complaint.pct - Complaint Rate %
-    /// Measures customer complaints relative to shipped units.
-    measure 'Complaint Rate %' =
-            BLANK()
-        formatString: "0.0%"
+	/// quality.rework.pct - Rework Rate %
+	/// Measures share of units requiring rework.
+	measure 'Rework Rate %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "OPS-003"
 
-    /// quality.defect_density - Defect Density
-    /// Measures defect count per 1,000 units produced.
-    measure 'Defect Density' =
-            BLANK()
-        formatString: "#,0"
+	/// quality.copq.amount - Cost of Poor Quality
+	/// Captures financial impact of scrap, rework, and warranty/complaints.
+	measure 'Cost of Poor Quality' =
+			BLANK()
+		formatString: "#,0.00"
+		displayFolder: "OPS-003"
+
+	/// quality.complaint.pct - Complaint Rate %
+	/// Measures customer complaints relative to shipped units.
+	measure 'Complaint Rate %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "OPS-003"
+
+	/// quality.defect_density - Defect Density
+	/// Measures defect count per 1,000 units produced.
+	measure 'Defect Density' =
+			BLANK()
+		formatString: "#,0"
+		displayFolder: "OPS-003"

@@ -1,38 +1,58 @@
 /// XD-002 Measures
 table _Measures
 
-    /// res.utilization.pct - Utilization %
-    /// Measures productive time versus paid time for agents.
-    measure 'Utilization %' =
-            BLANK()
-        formatString: "0.0%"
+	partition _Measures = m
+		mode: import
+		source =
+				let
+					Source = #table(type table[Column1 = text], {})
+				in
+					Source
 
-    /// res.occupancy.pct - Occupancy %
-    /// Measures active vs idle share of time.
-    measure 'Occupancy %' =
-            BLANK()
-        formatString: "0.0%"
+	column Column1
+		dataType: string
+		sourceColumn: Column1
+		isHidden
+		summarizeBy: none
 
-    /// svc.sla.attainment.pct - SLA Attainment %
-    /// Measures how many cases meet the committed SLA.
-    measure 'SLA Attainment %' =
-            BLANK()
-        formatString: "0.0%"
+	/// res.utilization.pct - Utilization %
+	/// Measures productive time versus paid time for agents.
+	measure 'Utilization %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "XD-002"
 
-    /// res.overtime.pct - Overtime %
-    /// Shows overtime share of total hours.
-    measure 'Overtime %' =
-            BLANK()
-        formatString: "0.0%"
+	/// res.occupancy.pct - Occupancy %
+	/// Measures active vs idle share of time.
+	measure 'Occupancy %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "XD-002"
 
-    /// res.shrinkage.pct - Shrinkage %
-    /// Measures non-productive share of paid time.
-    measure 'Shrinkage %' =
-            BLANK()
-        formatString: "0.0%"
+	/// svc.sla.attainment.pct - SLA Attainment %
+	/// Measures how many cases meet the committed SLA.
+	measure 'SLA Attainment %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "XD-002"
 
-    /// svc.backlog.count - Backlog Count
-    /// Quantifies unresolved work in queue.
-    measure 'Backlog Count' =
-            BLANK()
-        formatString: "#,0"
+	/// res.overtime.pct - Overtime %
+	/// Shows overtime share of total hours.
+	measure 'Overtime %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "XD-002"
+
+	/// res.shrinkage.pct - Shrinkage %
+	/// Measures non-productive share of paid time.
+	measure 'Shrinkage %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "XD-002"
+
+	/// svc.backlog.count - Backlog Count
+	/// Quantifies unresolved work in queue.
+	measure 'Backlog Count' =
+			BLANK()
+		formatString: "#,0"
+		displayFolder: "XD-002"

@@ -1,38 +1,58 @@
 /// OPS-001 Measures
 table _Measures
 
-    /// ops.oee.pct - OEE %
-    /// Measures manufacturing performance combining availability, performance, and quality.
-    measure 'OEE %' =
-            BLANK()
-        formatString: "0.0%"
+	partition _Measures = m
+		mode: import
+		source =
+				let
+					Source = #table(type table[Column1 = text], {})
+				in
+					Source
 
-    /// ops.availability.pct - Availability %
-    /// Uptime share relative to planned production time.
-    measure 'Availability %' =
-            BLANK()
-        formatString: "0.0%"
+	column Column1
+		dataType: string
+		sourceColumn: Column1
+		isHidden
+		summarizeBy: none
 
-    /// ops.performance.pct - Performance %
-    /// Throughput speed versus theoretical maximum.
-    measure 'Performance %' =
-            BLANK()
-        formatString: "0.0%"
+	/// ops.oee.pct - OEE %
+	/// Measures manufacturing performance combining availability, performance, and quality.
+	measure 'OEE %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "OPS-001"
 
-    /// ops.quality.pct - Quality %
-    /// Yield of conforming units relative to total units produced.
-    measure 'Quality %' =
-            BLANK()
-        formatString: "0.0%"
+	/// ops.availability.pct - Availability %
+	/// Uptime share relative to planned production time.
+	measure 'Availability %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "OPS-001"
 
-    /// ops.throughput.units - Throughput Units
-    /// Measures total output volume in units.
-    measure 'Throughput Units' =
-            BLANK()
-        formatString: "#,0"
+	/// ops.performance.pct - Performance %
+	/// Throughput speed versus theoretical maximum.
+	measure 'Performance %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "OPS-001"
 
-    /// ops.downtime.pct - Downtime %
-    /// Measures share of planned production time lost to downtime.
-    measure 'Downtime %' =
-            BLANK()
-        formatString: "0.0%"
+	/// ops.quality.pct - Quality %
+	/// Yield of conforming units relative to total units produced.
+	measure 'Quality %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "OPS-001"
+
+	/// ops.throughput.units - Throughput Units
+	/// Measures total output volume in units.
+	measure 'Throughput Units' =
+			BLANK()
+		formatString: "#,0"
+		displayFolder: "OPS-001"
+
+	/// ops.downtime.pct - Downtime %
+	/// Measures share of planned production time lost to downtime.
+	measure 'Downtime %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "OPS-001"

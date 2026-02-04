@@ -118,7 +118,7 @@ Trace from "I want to implement COM-001" to "TMDL generated and Stage 1 passed":
 
 ### 4.3 Implementation guide links
 
-- [implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md](../../implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md): Covers operating model to Fabric mapping, PBIP, measures, action codes, RLS/OLS. Does not link to usecases/, framework/kpi_catalog/, or `_internal/tools` (validation/generation). A delivery team reading only this guide cannot find factsheet or tooling entry points from the same doc.
+- [implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md](../../implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md): **Resolved.** Guide README and fabric_powerbi.md now include "Framework and tooling entry points" (usecases/core, kpi_catalog, run_stage1_checks, run_all_checks, run_fabric_checks, generate_tmdl_measures) and a "Fabric & Power BI best practices and validation" section (TMDL, DAX rules, run_fabric_checks).
 
 ---
 
@@ -161,8 +161,7 @@ Trace from "I want to implement COM-001" to "TMDL generated and Stage 1 passed":
    - Add a fourth step to README "How to get started" (or a linked page): "Implement a use case" with a minimal sequence: pick use case → open Business/Technical factsheets → run generate_tmdl_measures.ps1 (with explicit roots from repo root) → run run_stage1_checks.ps1.  
    - Optionally add a "First 2 hours" checklist (clone, prerequisites, read strategy + golden thread, run Stage 1, generate for one use case).
 
-4. **Align implementation guide with framework entry points (medium)**  
-   - In implementations/microsoft_fabric_powerbi/guide/README.md or fabric_powerbi.md, add pointers: use case factsheets (usecases/core/), KPI catalog (framework/kpi_catalog/), validation and generation (_internal/tools/run_stage1_checks.ps1, generate_tmdl_measures.ps1).
+4. **Align implementation guide with framework entry points (medium)** — **Done.** Guide README has "Framework and tooling entry points" table; fabric_powerbi.md has "Where this fits in the repo" and section 11 "Fabric & Power BI best practices and validation"; tmdl_best_practices.md References updated (framework paths, run_fabric_checks, DAX rules).
 
 5. **UseCase_Inventory vs UseCase_ActionCode_Map (medium)**  
    - Either update the Inventory "Main Action Codes" column to full action code IDs from the map, or document the short codes as aliases and provide a mapping. Prefer aligning the table with the map for single source of truth.

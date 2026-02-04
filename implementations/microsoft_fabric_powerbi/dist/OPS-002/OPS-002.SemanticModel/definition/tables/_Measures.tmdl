@@ -1,38 +1,58 @@
 /// OPS-002 Measures
 table _Measures
 
-    /// ops.availability.pct - Availability %
-    /// Uptime share relative to planned production time.
-    measure 'Availability %' =
-            BLANK()
-        formatString: "0.0%"
+	partition _Measures = m
+		mode: import
+		source =
+				let
+					Source = #table(type table[Column1 = text], {})
+				in
+					Source
 
-    /// ops.mtbf.hours - MTBF (hours)
-    /// Measures average operating time between failures.
-    measure 'MTBF (hours)' =
-            BLANK()
-        formatString: "0"
+	column Column1
+		dataType: string
+		sourceColumn: Column1
+		isHidden
+		summarizeBy: none
 
-    /// ops.mttr.hours - MTTR (hours)
-    /// Measures average repair time after failures.
-    measure 'MTTR (hours)' =
-            BLANK()
-        formatString: "0"
+	/// ops.availability.pct - Availability %
+	/// Uptime share relative to planned production time.
+	measure 'Availability %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "OPS-002"
 
-    /// ops.downtime.unplanned.pct - Unplanned Downtime %
-    /// Measures unplanned downtime share of planned time.
-    measure 'Unplanned Downtime %' =
-            BLANK()
-        formatString: "0.0%"
+	/// ops.mtbf.hours - MTBF (hours)
+	/// Measures average operating time between failures.
+	measure 'MTBF (hours)' =
+			BLANK()
+		formatString: "0"
+		displayFolder: "OPS-002"
 
-    /// ops.spare_parts.stockout.pct - Spare Parts Stockout %
-    /// Measures stockout frequency for critical spare parts.
-    measure 'Spare Parts Stockout %' =
-            BLANK()
-        formatString: "0.0%"
+	/// ops.mttr.hours - MTTR (hours)
+	/// Measures average repair time after failures.
+	measure 'MTTR (hours)' =
+			BLANK()
+		formatString: "0"
+		displayFolder: "OPS-002"
 
-    /// ops.pm_compliance.pct - PM Compliance %
-    /// Tracks adherence to preventive maintenance plan.
-    measure 'PM Compliance %' =
-            BLANK()
-        formatString: "0.0%"
+	/// ops.downtime.unplanned.pct - Unplanned Downtime %
+	/// Measures unplanned downtime share of planned time.
+	measure 'Unplanned Downtime %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "OPS-002"
+
+	/// ops.spare_parts.stockout.pct - Spare Parts Stockout %
+	/// Measures stockout frequency for critical spare parts.
+	measure 'Spare Parts Stockout %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "OPS-002"
+
+	/// ops.pm_compliance.pct - PM Compliance %
+	/// Tracks adherence to preventive maintenance plan.
+	measure 'PM Compliance %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "OPS-002"

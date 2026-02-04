@@ -393,31 +393,35 @@ function Build-MeasureObject {
 
 function Build-MeasureBlock {
   param($Measure, [string]$DefaultDisplayFolder)
+  # TMDL requires tabs only for indentation (tmdl_best_practices.md; check_tmdl_syntax.ps1).
+  $t1 = "`t"
+  $t2 = "`t`t"
+  $t3 = "`t`t`t"
   $lines = @()
   if ($Measure.kpi_id -or $Measure.kpi_key) {
     $label = $Measure.kpi_key
     if (-not $label) { $label = $Measure.name }
-    $lines += ("    /// " + $Measure.kpi_id + " - " + $label)
+    $lines += ($t1 + "/// " + $Measure.kpi_id + " - " + $label)
   }
-  if ($Measure.purpose) { $lines += ("    /// " + $Measure.purpose) }
-  elseif ($Measure.description) { $lines += ("    /// " + $Measure.description) }
+  if ($Measure.purpose) { $lines += ($t1 + "/// " + $Measure.purpose) }
+  elseif ($Measure.description) { $lines += ($t1 + "/// " + $Measure.description) }
   $name = $Measure.name.Replace("'", "''")
   $expressionLines = @()
   if ($Measure.missing) {
-    $lines += ("    /// MISSING in KPI catalog: " + $Measure.kpi_id)
+    $lines += ($t1 + "/// MISSING in KPI catalog: " + $Measure.kpi_id)
     $expressionLines = @("// TODO", "BLANK()")
   } else {
     $expr = if ($Measure.dax_expression) { $Measure.dax_expression } else { "BLANK()" }
     $expressionLines = $expr -split "\r?\n"
   }
-  $lines += ("    measure '$name' =")
+  $lines += ($t1 + "measure '$name' =")
   foreach ($ln in $expressionLines) {
-    $lines += ("            " + $ln)
+    $lines += ($t3 + $ln.TrimStart())
   }
-  if ($Measure.format_string) { $lines += ("        formatString: """ + $Measure.format_string.Replace('"', '\"') + """") }
+  if ($Measure.format_string) { $lines += ($t2 + "formatString: """ + $Measure.format_string.Replace('"', '\"') + """") }
   # Display folder: Use from catalog, or fall back to UseCase ID folder
   $displayFolder = if ($Measure.display_folder) { $Measure.display_folder } else { $DefaultDisplayFolder }
-  if ($displayFolder) { $lines += ("        displayFolder: """ + $displayFolder.Replace('"', '\"') + """") }
+  if ($displayFolder) { $lines += ($t2 + "displayFolder: """ + $displayFolder.Replace('"', '\"') + """") }
   $lines += ""
   return $lines
 }
@@ -538,9 +542,9 @@ foreach ($fs in $factSheets) {
   $header += ("`t`tmode: import")
   $header += ("`t`tsource =")
   $header += ("`t`t`t`tlet")
-  $header += ("`t`t`t`t    Source = #table(type table[Column1 = text], {})")
+  $header += ("`t`t`t`t`tSource = #table(type table[Column1 = text], {})")
   $header += ("`t`t`t`tin")
-  $header += ("`t`t`t`t    Source")
+  $header += ("`t`t`t`t`tSource")
   $header += ""
   $header += ("`tcolumn Column1")
   $header += ("`t`tdataType: string")

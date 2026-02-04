@@ -1,50 +1,79 @@
 /// XD-003 Measures
 table _Measures
 
-    /// sales.net_sales.delta_pct.ly - Delta% Net Sales
-    /// Relative variance of Net Sales vs Last Year.
-    measure 'Delta% Net Sales' =
-            BLANK()
-        formatString: "0.0%"
+	partition _Measures = m
+		mode: import
+		source =
+				let
+					Source = #table(type table[Column1 = text], {})
+				in
+					Source
 
-    /// margin.gm.pct - Gross Margin %
-    /// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
-    measure 'Gross Margin %' =
-            BLANK()
-        formatString: "0.0%"
+	column Column1
+		dataType: string
+		sourceColumn: Column1
+		isHidden
+		summarizeBy: none
 
-    /// crm.clv.amount - CLV
-    /// Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
-    measure 'CLV' =
-            BLANK()
-        formatString: "#,0.00"
+	/// sales.net_sales.delta_pct.ly - Delta% Net Sales
+	/// Relative variance of Net Sales vs Last Year.
+	measure 'Delta% Net Sales' =
+			VAR Actual = [Net Sales Amount]
+			VAR LY     = SUM ( fact_sales[Last Year Sales Amount] )
+			RETURN DIVIDE ( Actual - LY, LY )
+		formatString: "0.0%"
+		displayFolder: "XD-003"
 
-    /// svc.sla.attainment.pct - SLA Attainment %
-    /// Measures how many cases meet the committed SLA.
-    measure 'SLA Attainment %' =
-            BLANK()
-        formatString: "0.0%"
+	/// margin.gm.pct - Gross Margin %
+	/// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
+	measure 'Gross Margin %' =
+			DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
+		formatString: "0.0%"
+		displayFolder: "XD-003"
 
-    /// ops.otif.pct - OTIF %
-    /// Delivery reliability measured by orders delivered on-time and in-full.
-    measure 'OTIF %' =
-            BLANK()
-        formatString: "0.0%"
+	/// crm.clv.amount - CLV
+	/// Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
+	measure 'CLV' =
+			AVERAGEX (
+			VALUES ( fact_sales[CustomerKey] ),
+			CALCULATE (
+			SUM ( fact_sales[Net Sales Amount] ) - SUM ( fact_sales[Cost of Goods Sold Amount] )
+			) * 3
+			)
+		formatString: "#,0.00"
+		displayFolder: "XD-003"
 
-    /// ops.working_capital.ccc.days - Cash Conversion Cycle (Days)
-    /// Combines receivables, inventory, and payables days to show cash efficiency.
-    measure 'Cash Conversion Cycle (Days)' =
-            BLANK()
-        formatString: "0"
+	/// svc.sla.attainment.pct - SLA Attainment %
+	/// Measures how many cases meet the committed SLA.
+	measure 'SLA Attainment %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "XD-003"
 
-    /// people.digital_adoption.pct - Digital Adoption Rate %
-    /// Measure how much of all eligible process transactions are executed via digital tools instead of manual channels.
-    measure 'Digital Adoption Rate %' =
-            BLANK()
-        formatString: "0.0%"
+	/// ops.otif.pct - OTIF %
+	/// Delivery reliability measured by orders delivered on-time and in-full.
+	measure 'OTIF %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "XD-003"
 
-    /// people.attrition_risk.pct - Attrition Risk %
-    /// Monitor risk of employee attrition across key roles and segments.
-    measure 'Attrition Risk %' =
-            BLANK()
-        formatString: "0.0%"
+	/// ops.working_capital.ccc.days - Cash Conversion Cycle (Days)
+	/// Combines receivables, inventory, and payables days to show cash efficiency.
+	measure 'Cash Conversion Cycle (Days)' =
+			BLANK()
+		formatString: "0"
+		displayFolder: "XD-003"
+
+	/// people.digital_adoption.pct - Digital Adoption Rate %
+	/// Measure how much of all eligible process transactions are executed via digital tools instead of manual channels.
+	measure 'Digital Adoption Rate %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "XD-003"
+
+	/// people.attrition_risk.pct - Attrition Risk %
+	/// Monitor risk of employee attrition across key roles and segments.
+	measure 'Attrition Risk %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "XD-003"

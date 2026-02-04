@@ -32,6 +32,7 @@ $validationDir = Join-Path $repoRoot "implementations/microsoft_fabric_powerbi/v
 $checkMeasures = Join-Path $validationDir "check_measures_vs_kpi.ps1"
 $checkTmdl = Join-Path $validationDir "check_tmdl_vs_measure_dictionary.ps1"
 $checkDax = Join-Path $validationDir "check_dax_best_practices.ps1"
+$checkTmdlSyntax = Join-Path $validationDir "check_tmdl_syntax.ps1"
 
 if (-not (Test-Path $checkMeasures)) { Write-Error "Check script not found: $checkMeasures"; exit 1 }
 if (-not (Test-Path $checkTmdl)) { Write-Error "Check script not found: $checkTmdl"; exit 1 }
@@ -40,6 +41,13 @@ Push-Location $repoRoot
 try {
   Write-Host "Fabric/Power BI checks (Dist: $distRootResolved)..." -ForegroundColor Cyan
   $failed = 0
+
+  if (Test-Path $checkTmdlSyntax) {
+    Write-Host ">> check_tmdl_syntax.ps1" -ForegroundColor Cyan
+    & $checkTmdlSyntax -DistRoot $distRootResolved
+    if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
+    Write-Host ""
+  }
 
   Write-Host ">> check_measures_vs_kpi.ps1" -ForegroundColor Cyan
   & $checkMeasures -DistRoot $distRootResolved -KpiCatalogRoot $kpiCatalogResolved

@@ -1,32 +1,51 @@
 /// FIN-002 Measures
 table _Measures
 
-    /// cost.unit.amount - Unit Cost Amount
-    /// Measures total cost per unit produced or sold.
-    measure 'Unit Cost Amount' =
-            BLANK()
-        formatString: "#,0"
+	partition _Measures = m
+		mode: import
+		source =
+				let
+					Source = #table(type table[Column1 = text], {})
+				in
+					Source
 
-    /// margin.cogs.pct - COGS % of Sales
-    /// Shows cost share relative to net sales.
-    measure 'COGS % of Sales' =
-            BLANK()
-        formatString: "0.0%"
+	column Column1
+		dataType: string
+		sourceColumn: Column1
+		isHidden
+		summarizeBy: none
 
-    /// cost.opex.vs_plan.pct - OpEx vs Plan %
-    /// Measures OpEx variance versus plan.
-    measure 'OpEx vs Plan %' =
-            BLANK()
-        formatString: "0.0%"
+	/// cost.unit.amount - Unit Cost Amount
+	/// Measures total cost per unit produced or sold.
+	measure 'Unit Cost Amount' =
+			BLANK()
+		formatString: "#,0"
+		displayFolder: "FIN-002"
 
-    /// cost.material.pct - Material Cost %
-    /// Shows material cost share of net sales.
-    measure 'Material Cost %' =
-            BLANK()
-        formatString: "0.0%"
+	/// margin.cogs.pct - COGS % of Sales
+	/// Shows cost share relative to net sales.
+	measure 'COGS % of Sales' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "FIN-002"
 
-    /// ops.labor.productivity.pct - Labor Productivity %
-    /// Shows output efficiency relative to labor input.
-    measure 'Labor Productivity %' =
-            BLANK()
-        formatString: "0.0%"
+	/// cost.opex.vs_plan.pct - OpEx vs Plan %
+	/// Measures OpEx variance versus plan.
+	measure 'OpEx vs Plan %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "FIN-002"
+
+	/// cost.material.pct - Material Cost %
+	/// Shows material cost share of net sales.
+	measure 'Material Cost %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "FIN-002"
+
+	/// ops.labor.productivity.pct - Labor Productivity %
+	/// Shows output efficiency relative to labor input.
+	measure 'Labor Productivity %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "FIN-002"

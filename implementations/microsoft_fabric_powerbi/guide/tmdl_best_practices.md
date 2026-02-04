@@ -95,6 +95,23 @@ measure 'Net Sales Amount' =
 	description: "Total revenue"    // ❌ PARSER ERROR
 ```
 
+### 1.4 Object names and property delimiters (Microsoft Learn)
+
+- **Object names**: Enclose in single quotes (`'`) if the name contains: dot (`.`), equals (`=`), colon (`:`), single quote, or space. Escape a single quote inside a name with two single quotes.
+- **Property values**: Use colon (`:`) for non-expression properties; use equals (`=`) for expression properties (measure expression, partition source, etc.). Text values: optional leading/trailing double quotes; required if value has leading/trailing whitespace; inside double quotes escape `"` with `""`.
+- **Boolean shortcut**: You can set a boolean property by writing only the property name (e.g. `isHidden`); `true` is implied.
+
+### 1.5 TMDL folder structure and PBIP (Microsoft Learn)
+
+TMDL uses a **folder structure**, not a single file. Default layout:
+
+- **Subfolders** (one level): `cultures/`, `perspectives/`, `roles/`, `tables/` — each contains `.tmdl` files per object.
+- **Root files**: `database.tmdl`, `model.tmdl`, `relationships.tmdl`, `expressions.tmdl`, `dataSources.tmdl`, `functions.tmdl`.
+- **Tables**: One file per table (e.g. `Sales.tmdl`, `Product.tmdl`). All table metadata (columns, measures, partitions, hierarchies) lives in that table’s file. Measures can be defined in the table file or in a **partial declaration** (e.g. a shared `_Measures.tmdl` file that declares measures for multiple tables).
+- **PBIP semantic model folder**: When using TMDL format, the dataset is stored under `definition/` (replacing `model.bim`). Required: `definition.pbism` (version 4.0+ for TMDL). Exclude from source control: `.pbi/localSettings.json`, `.pbi/cache.abf`. Optional: `Copilot/` (Prep for AI schema, verified answers, instructions), `DAXQueries/`, `TMDLScripts/`.
+
+**Source**: [TMDL overview](https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-overview), [Power BI Desktop project semantic model folder](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-dataset).
+
 ---
 
 ## 2. M-Expression Formatting (Partitions)
@@ -303,7 +320,22 @@ Invoke-MCPTool -Tool "measure_operations" -Operation "ExportTMDL" -MeasureName "
 
 ---
 
-## 6. Best Practices Summary
+## 6. Semantic model and AI readiness (Prep for AI)
+
+Power BI **Prep for AI** (and Fabric data agent / Copilot) uses semantic model metadata and configuration. TMDL does not support a `description` property; use **`///` comments** above tables, columns, and measures so that exported metadata and tooltips remain meaningful. Best practices from Microsoft Learn:
+
+- **Descriptions**: Add `///` comments above each measure (and key tables/columns) with a short business purpose. This helps Copilot and data agent interpret the model.
+- **AI data schema**: In Power BI (Desktop or service), configure **Prep for AI > Simplify data schema** to select only the tables, columns, and measures relevant for natural language queries. Reduces ambiguity and improves DAX generation.
+- **Verified answers**: Define verified answers (trigger questions + visual) for frequent or ambiguous questions so the agent returns consistent results.
+- **AI instructions**: In **Prep for AI > Add AI instructions**, add business terminology, default groupings (e.g. fiscal quarter), and metric preferences (e.g. “use Contribution Margin, not Gross Profit”). Keep instructions focused; semantic-model-specific instructions belong in Prep for AI, not in data agent–level instructions.
+- **Naming**: Use clear, business-friendly names for tables, columns, and measures (e.g. “Total Revenue”, “Sales Region”). Avoid codes like `TR_AMT`, `DIM_GEO_01` unless synonyms/instructions clarify them.
+- **Explicit measures**: Rely on explicit DAX measures for business metrics; avoid implicit measures for KPIs. Set correct default summarization on numeric columns.
+
+**Source**: [Semantic model best practices for data agent](https://learn.microsoft.com/en-us/fabric/data-science/semantic-model-best-practices), [Prepare your data for AI in Power BI](https://learn.microsoft.com/en-us/power-bi/create-reports/copilot-prepare-data-ai).
+
+---
+
+## 7. Best Practices Summary
 
 ### 6.1 DO
 
@@ -317,7 +349,7 @@ Invoke-MCPTool -Tool "measure_operations" -Operation "ExportTMDL" -MeasureName "
 ✅ Use `displayFolder` for measure organization
 ✅ Use `formatString` for all numeric measures
 
-### 6.2 DON'T
+### 7.2 DON'T
 
 ❌ Mix Tabs and Spaces in indentation
 ❌ Use `description:` property (not supported)
@@ -330,16 +362,16 @@ Invoke-MCPTool -Tool "measure_operations" -Operation "ExportTMDL" -MeasureName "
 
 ---
 
-## 7. Integration with Framework
+## 8. Integration with Framework
 
-### 7.1 Relationship to Other Documents
+### 8.1 Relationship to Other Documents
 
 - **fabric_powerbi.md**: High-level Fabric/Power BI architecture
 - **semantic_layer.md**: Conceptual modeling principles
 - **measure_system.md**: Business logic and KPI definitions
 - **tmdl_best_practices.md** (THIS): Low-level TMDL syntax rules
 
-### 7.2 Workflow
+### 8.2 Workflow
 
 1. **Design**: Use Case → KPI Catalog → measure_system.md
 2. **Model**: Data Contracts → semantic_layer.md → fabric_powerbi.md
@@ -358,9 +390,9 @@ Invoke-MCPTool -Tool "measure_operations" -Operation "ExportTMDL" -MeasureName "
 
 ---
 
-## 8. Common Pitfalls
+## 9. Common Pitfalls
 
-### 8.1 Parser Errors
+### 9.1 Parser Errors
 
 **Symptom**: `UnknownKeyword` error in Power BI Desktop
 **Cause**: Using unsupported properties (`description:`)
@@ -370,7 +402,7 @@ Invoke-MCPTool -Tool "measure_operations" -Operation "ExportTMDL" -MeasureName "
 **Cause**: Mixed Tab+Space indentation
 **Fix**: Convert all indents to pure TAB characters
 
-### 8.2 M-Expression Errors
+### 9.2 M-Expression Errors
 
 **Symptom**: `Composite Model error: entity-based query sources`
 **Cause**: Inline M-expression without `let...in`
@@ -380,7 +412,7 @@ Invoke-MCPTool -Tool "measure_operations" -Operation "ExportTMDL" -MeasureName "
 **Cause**: Incorrect `type table` syntax (`int64` instead of `Int64.Type`)
 **Fix**: Use correct M type names
 
-### 8.3 Data Loading Errors
+### 9.3 Data Loading Errors
 
 **Symptom**: Table shows "Error" in Power BI
 **Cause**: Parquet file path incorrect or file not found
@@ -396,10 +428,13 @@ Invoke-MCPTool -Tool "measure_operations" -Operation "ExportTMDL" -MeasureName "
 
 ---
 
-## 10. References
+## 11. References
 
 - **Power BI MCP**: `mcp_powerbi-model_*` tools
 - **TMDL Documentation**: [Microsoft Learn - TMDL](https://learn.microsoft.com/analysis-services/tmdl/)
 - **Fabric Implementation**: `implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md`
-- **Semantic Layer**: `docs/operating_model/semantic_layer.md`
-- **Measure System**: `docs/operating_model/measure_system.md`
+- **Semantic Layer**: `framework/strategy_operating_model/operating_model/semantic_layer.md`
+- **Measure System**: `framework/strategy_operating_model/operating_model/measure_system.md`
+- **Fabric checks (measures vs KPI, TMDL vs dictionary, DAX)**: `implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1`
+- **DAX best-practice rules**: `_internal/tools/linters/powerbi/bpa-rules-dax.json` (see `_internal/tools/linters/powerbi/README.md`)
+- **Microsoft Learn**: [TMDL overview](https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-overview), [PBIP semantic model folder](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-dataset), [Semantic model best practices for data agent](https://learn.microsoft.com/en-us/fabric/data-science/semantic-model-best-practices), [Star schema and Power BI](https://learn.microsoft.com/en-us/power-bi/guidance/star-schema)

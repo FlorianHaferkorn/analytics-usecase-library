@@ -42,6 +42,23 @@ Not included:
 
 ---
 
+## Framework and tooling entry points (this repo)
+
+When implementing in Fabric/Power BI, use these in combination with this guide:
+
+| Purpose | Location |
+|--------|----------|
+| Use case factsheets (business/technical) | `framework/usecases/core/` (e.g. `COM-001_Sales_Performance/`) |
+| KPI catalog (measure definitions, mapping) | `framework/kpi_catalog/` |
+| Stage 1 validation (docs, refs, structure) | `_internal/tools/validation/run_stage1_checks.ps1` |
+| Full validation (Stage 1 + Fabric checks) | `_internal/tools/validation/run_all_checks.ps1` |
+| Fabric-only checks (measures vs KPI, TMDL vs dictionary, DAX) | `implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1` |
+| TMDL measure generation from KPI catalog | `_internal/tools/generation/generate_tmdl_measures.ps1` |
+
+Output for generated TMDL: `implementations/microsoft_fabric_powerbi/dist` (or a showcase path such as `showcases/aurora_group/semantic_models/`).
+
+---
+
 ## Structure
 
 ```yaml
@@ -106,8 +123,9 @@ Covers:
 
 Start with:
 
-- `fabric_powerbi.md` if you are implementing in Microsoft Fabric  
-- Or open the platform guide relevant for your organization
+- **`fabric_powerbi.md`** if you are implementing in Microsoft Fabric (operating model mapping, PBIP, measures, RLS, UX).  
+- **`tmdl_best_practices.md`** for TMDL syntax, formatting, and DAX/measure conventions.  
+- Run **`run_fabric_checks.ps1`** (in `implementations/microsoft_fabric_powerbi/tools/`) after changes to measures or TMDL.
 
 ---
 

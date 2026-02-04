@@ -3,7 +3,7 @@
     "title":  null,
     "dataset_model":  "COM-002.SemanticModel",
     "table_name":  "_Measures",
-    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\usecases\\core\\COM-002_Margin_Price_Performance\\Technical_Factsheet.md",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\usecases\\core\\COM-002_Margin_Price_Performance\\Technical_Factsheet.md",
     "measures":  [
                      {
                          "kpi_id":  "margin.gm.pct",
@@ -22,7 +22,7 @@
                          "purpose":  "Gross margin % for commercial/operational reporting and strategic P\u0026L reconciliation.",
                          "description":  "Gross margin % for commercial/operational reporting and strategic P\u0026L reconciliation.",
                          "technical_description":  "Gross Margin % used in commercial and management reporting and P\u0026L reconciliation.",
-                         "dax_expression":  null,
+                         "dax_expression":  "DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )",
                          "depends_on":  [
 
                                         ],
@@ -35,7 +35,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "margin.gm.amount",
@@ -54,7 +54,7 @@
                          "purpose":  "Absolute gross margin in currency.",
                          "description":  "Absolute gross margin in currency.",
                          "technical_description":  "Absolute gross margin in currency.",
-                         "dax_expression":  null,
+                         "dax_expression":  "[Net Sales Amount] - [Cost of Goods Sold Amount]",
                          "depends_on":  [
 
                                         ],
@@ -67,7 +67,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "sales.price.realization_pct",
@@ -86,7 +86,7 @@
                          "purpose":  "Shows how much of list price is realized after discounts.",
                          "description":  "Shows how much of list price is realized after discounts.",
                          "technical_description":  "Shows how much of list price is realized after discounts.",
-                         "dax_expression":  null,
+                         "dax_expression":  "DIVIDE ( [Net Price Amount], [List Price Amount] )",
                          "depends_on":  [
 
                                         ],
@@ -99,7 +99,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "sales.pvm.mix_effect.amount",
@@ -118,7 +118,7 @@
                          "purpose":  "Captures the residual effect from changes in product, channel, or region mix.",
                          "description":  "Captures the residual effect from changes in product, channel, or region mix.",
                          "technical_description":  "Captures the residual effect from changes in product, channel, or region mix.",
-                         "dax_expression":  null,
+                         "dax_expression":  "[Net Sales Amount]\n    - SUM ( fact_sales[Plan Sales Amount] )\n    - [Price Effect Amount]\n    - [Volume Effect Amount]",
                          "depends_on":  [
 
                                         ],
@@ -131,7 +131,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "cost.cogs_per_unit.amount",
@@ -150,7 +150,7 @@
                          "purpose":  "Shows unit cost level relative to sold volume.",
                          "description":  "Shows unit cost level relative to sold volume.",
                          "technical_description":  "Shows unit cost level relative to sold volume.",
-                         "dax_expression":  null,
+                         "dax_expression":  "DIVIDE ( [Cost of Goods Sold Amount], SUM ( fact_sales[Quantity] ) )",
                          "depends_on":  [
 
                                         ],
@@ -163,7 +163,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "margin.gm.vs_plan.pct",
@@ -182,7 +182,7 @@
                          "purpose":  "Measures gross margin rate variance versus plan.",
                          "description":  "Measures gross margin rate variance versus plan.",
                          "technical_description":  "Measures gross margin rate variance versus plan.",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR GMAct =\n    DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )\nVAR GMPlan =\n    DIVIDE ( SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] ),\n             SUM ( fact_sales[Plan Sales Amount] ) )\nRETURN\n    DIVIDE ( GMAct - GMPlan, GMPlan )",
                          "depends_on":  [
 
                                         ],
@@ -195,7 +195,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
                      }
                  ]
 }

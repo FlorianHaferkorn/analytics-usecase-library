@@ -5,9 +5,9 @@ table _Measures
 		mode: import
 		source =
 				let
-				    Source = #table(type table[Column1 = text], {})
+					Source = #table(type table[Column1 = text], {})
 				in
-				    Source
+					Source
 
 	column Column1
 		dataType: string
@@ -15,69 +15,69 @@ table _Measures
 		isHidden
 		summarizeBy: none
 
-    /// sales.net_sales.amount - Net Sales Amount
-    /// Total invoiced revenue net of discounts and returns.
-    measure 'Net Sales Amount' =
-            SUM ( fact_sales[Net Sales Amount] )
-        formatString: "#,0.00"
-        displayFolder: "COM-001"
+	/// sales.net_sales.amount - Net Sales Amount
+	/// Total invoiced revenue net of discounts and returns.
+	measure 'Net Sales Amount' =
+			SUM ( fact_sales[Net Sales Amount] )
+		formatString: "#,0.00"
+		displayFolder: "COM-001"
 
-    /// sales.net_sales.delta_pct.plan - Net Sales % vs Plan
-    /// Relative variance of Net Sales vs Plan.
-    measure 'Net Sales % vs Plan' =
-            VAR Actual = [Net Sales Amount]
-            VAR Plan   = SUM ( fact_sales[Plan Sales Amount] )
-            RETURN DIVIDE ( Actual - Plan, Plan )
-        formatString: "0.0%"
-        displayFolder: "COM-001"
+	/// sales.net_sales.delta_pct.plan - Net Sales % vs Plan
+	/// Relative variance of Net Sales vs Plan.
+	measure 'Net Sales % vs Plan' =
+			VAR Actual = [Net Sales Amount]
+			VAR Plan   = SUM ( fact_sales[Plan Sales Amount] )
+			RETURN DIVIDE ( Actual - Plan, Plan )
+		formatString: "0.0%"
+		displayFolder: "COM-001"
 
-    /// sales.net_sales.delta_pct.ly - Delta% Net Sales
-    /// Relative variance of Net Sales vs Last Year.
-    measure 'Delta% Net Sales' =
-            VAR Actual = [Net Sales Amount]
-            VAR LY     = SUM ( fact_sales[Last Year Sales Amount] )
-            RETURN DIVIDE ( Actual - LY, LY )
-        formatString: "0.0%"
-        displayFolder: "COM-001"
+	/// sales.net_sales.delta_pct.ly - Delta% Net Sales
+	/// Relative variance of Net Sales vs Last Year.
+	measure 'Delta% Net Sales' =
+			VAR Actual = [Net Sales Amount]
+			VAR LY     = SUM ( fact_sales[Last Year Sales Amount] )
+			RETURN DIVIDE ( Actual - LY, LY )
+		formatString: "0.0%"
+		displayFolder: "COM-001"
 
-    /// margin.gm.pct - Gross Margin %
-    /// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
-    measure 'Gross Margin %' =
-            DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
-        formatString: "0.0%"
-        displayFolder: "COM-001"
+	/// margin.gm.pct - Gross Margin %
+	/// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
+	measure 'Gross Margin %' =
+			DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
+		formatString: "0.0%"
+		displayFolder: "COM-001"
 
-    /// sales.pvm.price_effect.amount - Price Effect Amount
-    /// Quantifies the pure price impact in the PVM bridge.
-    measure 'Price Effect Amount' =
-            SUMX (
-                fact_sales,
-                VAR ActualPrice = DIVIDE ( fact_sales[Net Sales Amount], fact_sales[Quantity] )
-                VAR PlanPrice   = DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] )
-                RETURN ( ActualPrice - PlanPrice ) * fact_sales[Quantity]
-            )
-        formatString: "#,0.00"
-        displayFolder: "COM-001"
+	/// sales.pvm.price_effect.amount - Price Effect Amount
+	/// Quantifies the pure price impact in the PVM bridge.
+	measure 'Price Effect Amount' =
+			SUMX (
+			fact_sales,
+			VAR ActualPrice = DIVIDE ( fact_sales[Net Sales Amount], fact_sales[Quantity] )
+			VAR PlanPrice   = DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] )
+			RETURN ( ActualPrice - PlanPrice ) * fact_sales[Quantity]
+			)
+		formatString: "#,0.00"
+		displayFolder: "COM-001"
 
-    /// sales.pvm.volume_effect.amount - Volume Effect Amount
-    /// Measures the variance caused purely by quantity changes at plan price.
-    measure 'Volume Effect Amount' =
-            SUMX (
-                fact_sales,
-                VAR ActualQty = fact_sales[Quantity]
-                VAR PlanQty   = fact_sales[Plan Quantity]
-                VAR PlanPrice = DIVIDE ( fact_sales[Plan Sales Amount], PlanQty )
-                RETURN ( ActualQty - PlanQty ) * PlanPrice
-            )
-        formatString: "#,0.00"
-        displayFolder: "COM-001"
+	/// sales.pvm.volume_effect.amount - Volume Effect Amount
+	/// Measures the variance caused purely by quantity changes at plan price.
+	measure 'Volume Effect Amount' =
+			SUMX (
+			fact_sales,
+			VAR ActualQty = fact_sales[Quantity]
+			VAR PlanQty   = fact_sales[Plan Quantity]
+			VAR PlanPrice = DIVIDE ( fact_sales[Plan Sales Amount], PlanQty )
+			RETURN ( ActualQty - PlanQty ) * PlanPrice
+			)
+		formatString: "#,0.00"
+		displayFolder: "COM-001"
 
-    /// sales.pvm.mix_effect.amount - Mix Effect Amount
-    /// Captures the residual effect from changes in product, channel, or region mix.
-    measure 'Mix Effect Amount' =
-            [Net Sales Amount]
-                - SUM ( fact_sales[Plan Sales Amount] )
-                - [Price Effect Amount]
-                - [Volume Effect Amount]
-        formatString: "#,0.00"
-        displayFolder: "COM-001"
+	/// sales.pvm.mix_effect.amount - Mix Effect Amount
+	/// Captures the residual effect from changes in product, channel, or region mix.
+	measure 'Mix Effect Amount' =
+			[Net Sales Amount]
+			- SUM ( fact_sales[Plan Sales Amount] )
+			- [Price Effect Amount]
+			- [Volume Effect Amount]
+		formatString: "#,0.00"
+		displayFolder: "COM-001"
