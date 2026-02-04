@@ -1,4 +1,4 @@
-﻿# Reporting Principles
+# Reporting Principles
 
 ## 1. Purpose
 
@@ -138,7 +138,7 @@ This document defines principles.
 Concrete implementations are defined in:
 
 - UX standards and interaction patterns:
-  `docs/operating_model/ux_design_system.md`
+  `framework/strategy_operating_model/operating_model/ux_design_system.md`
 - Page templates and layout patterns:
   `framework/templates/page_templates/`
 - Visual guardrails and whitelists:

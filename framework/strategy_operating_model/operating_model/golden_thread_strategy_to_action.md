@@ -1,4 +1,4 @@
-﻿# Golden Thread EUR" From Strategy to Action
+# Golden Thread – From Strategy to Action
 
 Most analytics landscapes implicitly assume a connection between strategy, KPIs, insights, and actions.
 
@@ -11,7 +11,7 @@ In practice, this connection is rarely explicit or stable:
 
 The Golden Thread exists to address this problem.
 
-It describes a **closed, causal system** that connects business strategy with decisions, actions, and measurable impact EUR" in a way that remains **operable, maintainable, and scalable over time**.
+It describes a **closed, causal system** that connects business strategy with decisions, actions, and measurable impact in a way that remains **operable, maintainable, and scalable over time**.
 
 The Golden Thread is not a sequence of tools or documents.  
 It defines:
@@ -46,7 +46,7 @@ Without a clear strategic anchor:
 Example:
 
 A business strategy may state:
-> EURoeWe want to improve profitability by increasing margin quality rather than maximizing revenue growth.EUR
+> "We want to improve profitability by increasing margin quality rather than maximizing revenue growth."
 
 This is not a reporting strategy.
 It does not define dashboards, charts, or tools.
@@ -62,7 +62,7 @@ a small and stable set of **Strategic KPIs** that express what success means for
 
 Reference:
 
-- docs/company/company_strategy.md
+- framework/strategy_operating_model/company/company_strategy.md
 
 ## 2. Strategic KPIs ->' Key Questions
 
@@ -95,7 +95,7 @@ The outcome of this step is a set of **decision-oriented questions** that serve 
 
 Reference:
 
-- docs/company/reporting_principles.md
+- framework/strategy_operating_model/company/reporting_principles.md
 
 ## 3. Key Questions ->' Use Cases (WHAT)
 
@@ -179,8 +179,8 @@ The outcome of this step is a **stable semantic execution layer** that can be co
 
 Reference:
 
-- docs/operating_model/semantic_layer.md
-- docs/operating_model/reference/ActionReady_SemanticModel_Blueprint.md
+- framework/strategy_operating_model/operating_model/semantic_layer.md
+- framework/strategy_operating_model/operating_model/reference/ActionReady_SemanticModel_Blueprint.md
 
 ## 5. Semantic Model ->' Measures & KPIs
 
@@ -188,7 +188,7 @@ KPIs are defined conceptually in the **KPI Catalog**.
 They express business meaning, ownership, and intent.
 
 To be usable in analytics, KPIs must be implemented as **Measures** within the Semantic Model.
-These measures are the executable representation of KPI definitions EUR" not their source.
+These measures are the executable representation of KPI definitions – not their source.
 
 The Semantic Model provides the structural context for measures.
 However, structure alone is not sufficient to keep KPI logic stable over time.
@@ -228,17 +228,17 @@ Without this governance layer, semantic consistency degrades over time and trust
 Reference:
 
 - framework/kpi_catalog/
-- docs/operating_model/measure_system.md
-- docs/operating_model/reference/single_source_of_truth.md
+- framework/strategy_operating_model/operating_model/measure_system.md
+- framework/strategy_operating_model/operating_model/reference/single_source_of_truth.md
 
-## 6. Measures ->' Reports (3EUR"30EUR"300)
+## 6. Measures ->' Reports (3-30-300)
 
 Measures implemented in the Semantic Model become actionable only when they are consumed in a way that supports decision-making.
 
 Reports are therefore not the end result of analytics.
 They are the **primary interface** between governed semantics and human decisions.
 
-To ensure consistent orientation and avoid information overload, the framework applies the **3EUR"30EUR"300 principle**:
+To ensure consistent orientation and avoid information overload, the framework applies the **3-30-300 principle**:
 
 - **3 seconds**: strategic overview  
   A small number of key KPIs provides immediate orientation on whether steering is required.
@@ -268,7 +268,7 @@ By standardizing reporting patterns, the framework ensures that:
 Reference:
 
 - framework/templates/page_templates/
-- docs/operating_model/ux_design_system.md
+- framework/strategy_operating_model/operating_model/ux_design_system.md
 
 ## 7. Reports ->' Actions
 
@@ -327,7 +327,7 @@ The framework is:
 
 Reference:
 
-- docs/operating_model/ai_readiness.md
+- framework/strategy_operating_model/operating_model/ai_readiness.md
 
 ## 9. Maintaining & Scaling the Golden Thread
 

@@ -207,6 +207,54 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "TBD"
 
+- measure_name: "Forecast Bias %"
+  is_kpi_measure: true
+  kpi_id_ref: "plan.forecast.bias.pct"
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "03_Forecast"
+  category: "KPI"
+  expression:
+    dax: |
+      VAR Forecast = SUM ( fact_forecast[Forecast] )
+      VAR Actual   = SUM ( fact_sales[Actual] )
+      RETURN DIVIDE ( Forecast - Actual, Actual )
+    formatString: "0.0%"
+  documentation:
+    description: "Alias for Bias % (TMDL display name). Forecast error direction (Forecast - Actual) / Actual."
+    notes: "Same as Bias %."
+  dependencies:
+    measures: []
+    columns: []
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Forecast MAPE %"
+  is_kpi_measure: true
+  kpi_id_ref: "plan.forecast.mape.pct"
+  semantic_model: "SupplyChain_SemanticModel"
+  display_folder: "03_Forecast"
+  category: "KPI"
+  expression:
+    dax: |
+      VAR Forecast = [Forecast Units]
+      VAR Actual   = [Actual Units]
+      RETURN DIVIDE ( [Absolute Error], Actual )
+    formatString: "0.0%"
+  documentation:
+    description: "Alias for MAPE % (TMDL display name)."
+    notes: "Same as MAPE %."
+  dependencies:
+    measures: []
+    columns: []
+  governance:
+    owner: "Supply Chain Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
 - measure_name: "Bias %"
   is_kpi_measure: true
   kpi_id_ref: "plan.forecast.bias.pct"

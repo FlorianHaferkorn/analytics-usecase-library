@@ -159,7 +159,7 @@ Schema: see `framework/semantic_models/domains/Domain_Measure_Dictionary_Schema.
   category: "KPI"
   expression:
     dax: |
-      // Attrition Risk % expected as 0–100; auto-scales to 0–1 if needed
+      // Attrition Risk % expected as 0ï¿½100; auto-scales to 0ï¿½1 if needed
       VAR RiskPct =
           VAR raw = SELECTEDVALUE ( fact_customer_events[Attrition Risk %] )
           RETURN IF ( raw > 1, raw / 100, raw )
@@ -171,7 +171,7 @@ Schema: see `framework/semantic_models/domains/Domain_Measure_Dictionary_Schema.
     formatString: "EUR #,0.00"
   documentation:
     description: "Exposure sizing from churn-risk customers based on CLV remaining and attrition risk."
-    notes: "Attrition Risk % delivered as 0–100 is auto-scaled to 0–1. CLV and Remaining follow finance-approved discount rate and CLV horizon (use finance WACC and agreed horizon)."
+    notes: "Attrition Risk % delivered as 0ï¿½100 is auto-scaled to 0ï¿½1. CLV and Remaining follow finance-approved discount rate and CLV horizon (use finance WACC and agreed horizon)."
   dependencies:
     columns:
       - "fact_customer_value[CLV Remaining Amount]"
@@ -318,6 +318,67 @@ Schema: see `framework/semantic_models/domains/Domain_Measure_Dictionary_Schema.
     owner: "CX BI"
     status: "planned"
     version: "v1.0"
+    last_review: "TBD"
+
+# TMDL display-name aliases (generated models use these names)
+- measure_name: "Active Customers"
+  is_kpi_measure: true
+  kpi_id_ref: "crm.active_customers.count"
+  semantic_model: "CustomerValue_SemanticModel"
+  display_folder: "01_Retention"
+  category: "KPI"
+  expression:
+    dax: "CALCULATE( DISTINCTCOUNT( dim_customer[CustomerKey] ), KEEPFILTERS( fact_customer_events[Activity Flag] = TRUE() ) )"
+    formatString: "#,0"
+  documentation:
+    description: "Alias for Active Customers Count (TMDL display name)."
+    notes: "Same as Active Customers Count."
+  dependencies:
+    columns: []
+  governance:
+    owner: "CRM BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Churned Customers"
+  is_kpi_measure: true
+  kpi_id_ref: "crm.churned_customers.count"
+  semantic_model: "CustomerValue_SemanticModel"
+  display_folder: "01_Retention"
+  category: "KPI"
+  expression:
+    dax: "CALCULATE( DISTINCTCOUNT( dim_customer[CustomerKey] ), KEEPFILTERS( fact_customer_events[Churn Flag] = TRUE() ) )"
+    formatString: "#,0"
+  documentation:
+    description: "Alias for Churned Customers Count (TMDL display name)."
+    notes: "Same as Churned Customers Count."
+  dependencies:
+    columns: []
+  governance:
+    owner: "CRM BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "CLV"
+  is_kpi_measure: true
+  kpi_id_ref: "crm.clv.amount"
+  semantic_model: "CustomerValue_SemanticModel"
+  display_folder: "04_Customer"
+  category: "KPI"
+  expression:
+    dax: "SUM( fact_customer_value[CLV Amount] )"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Alias for Customer Lifetime Value Amount (TMDL display name)."
+    notes: "Same as Customer Lifetime Value Amount."
+  dependencies:
+    columns: []
+  governance:
+    owner: "CRM BI"
+    status: "active"
+    version: "v1.2"
     last_review: "TBD"
 ```
 

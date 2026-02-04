@@ -1,4 +1,4 @@
-﻿# Synthetic Data Design – README
+# Synthetic Data Design – README
 
 This folder defines the design principles, contracts and scope for all synthetic data used in the analytics-usecase-library.  
 It serves as the single source of truth for generating consistent, scalable and AI-ready data for the Aurora Group.
@@ -59,20 +59,20 @@ This is the **evolution plan** for the synthetic data landscape.
 
 ---
 
-## 4. Folder recommendations
+## 4. Folder structure (this repo)
 
-A recommended structure in the repo:
+In this repo, the synthetic data design lives under:
 
 ```
-/docs/data_design
+framework/data_contracts/sources/synthetic/
     synthetic_data_contract.yaml
     synthetic_data_scope.yaml
-    synthetic_data_readme.md
-    /generators        # Notebooks or scripts
-    /samples           # Optional: CSV samples for inspection
+    synthetic_data_readme.md   # This file
+    *.py                        # Generator scripts (e.g. generate_gold_layer*.py)
+    synthetic_config_*.yaml    # Config and scope
 ```
 
-This keeps design, implementation and samples cleanly separated.
+Optional subfolders for clarity: `generators/` (notebooks or scripts), `samples/` (CSV samples for inspection). Design, implementation and samples stay separated.
 
 ---
 

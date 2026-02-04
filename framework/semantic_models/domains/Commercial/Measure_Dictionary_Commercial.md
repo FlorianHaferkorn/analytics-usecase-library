@@ -844,4 +844,66 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: "active"
     version: "v1.2"
     last_review: "TBD"
+
+# TMDL display-name aliases (generated models use these names)
+- measure_name: "Delta% Net Sales"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "01_Revenue"
+  category: "KPI"
+  expression:
+    dax: "DIVIDE([Net Sales Amount] - [Last Year Sales Amount], [Last Year Sales Amount])"
+    formatString: "0.0%"
+  documentation:
+    description: "Alias for Net Sales % vs LY (TMDL display name)."
+    notes: "Same as Net Sales % vs LY."
+  dependencies:
+    measures: []
+    columns: []
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Net Sales"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "01_Revenue"
+  category: "KPI"
+  expression:
+    dax: "SUM(fact_sales[Net Sales Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Alias for Net Sales Amount (TMDL display name, e.g. test models)."
+    notes: "Same as Net Sales Amount."
+  dependencies:
+    columns: []
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "GM % During Promo"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "02_Margin"
+  category: "KPI"
+  expression:
+    dax: "DIVIDE([Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount])"
+    formatString: "0.0%"
+  documentation:
+    description: "Alias for Promo Gross Margin % (TMDL display name)."
+    notes: "Gross margin % during promotion context."
+  dependencies:
+    columns: []
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
 ```

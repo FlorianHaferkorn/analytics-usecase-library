@@ -84,7 +84,7 @@ fact:
 
 ## Relations
 
-- **WHY Contracts derive from domain definitions in `docs/company/domains.md`  
+- **WHY Contracts derive from domain definitions in `framework/strategy_operating_model/company/domains.md`  
 - **HOW Semantic layer rules enforce contracts during modeling  
 - **WITH WHAT Measure TEMPLATES, naming rules, and KPI Catalog rely on contract structure  
 - **TEMPLATES Fact and dimension TEMPLATES live under `framework/TEMPLATES/data_contract_TEMPLATES/`

@@ -57,19 +57,17 @@ $missingInDict = $tmdlMeasures | Where-Object { $_ -notin $dictMeasures } | Sort
 
 Write-Host "TMDL <-> Measure Dictionary consistency"
 
-if ($missingInTmdl.Count -eq 0 -and $missingInDict.Count -eq 0) {
-  Write-Host "OK: TMDL measures align with Measure Dictionaries."
-  exit 0
+# Fail only when a TMDL measure has no dictionary entry (governance: every emitted measure must be documented).
+# "Missing in TMDL" is informational: dictionary measures not yet implemented in dist are expected.
+if ($missingInDict.Count -gt 0) {
+  Write-Host "Missing in Measure Dictionaries (present in TMDL):" -ForegroundColor Red
+  $missingInDict | ForEach-Object { Write-Host "  - $_" }
+  exit 1
 }
 
 if ($missingInTmdl.Count -gt 0) {
-  Write-Host "Missing in TMDL (present in Measure Dictionaries):"
-  $missingInTmdl | ForEach-Object { Write-Host "  - $_" }
+  Write-Host "Info: Dictionary measures not yet in any TMDL (expected when dist is a subset): $($missingInTmdl.Count) measures."
 }
 
-if ($missingInDict.Count -gt 0) {
-  Write-Host "Missing in Measure Dictionaries (present in TMDL):"
-  $missingInDict | ForEach-Object { Write-Host "  - $_" }
-}
-
-exit 1
+Write-Host "OK: Every TMDL measure has a Measure Dictionary entry."
+exit 0

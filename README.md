@@ -54,6 +54,8 @@ Doing nothing does not keep the current state — it reinforces it.
 
 ## How to get started (recommended path)
 
+**Documentation hub (single navigation entry):** [`framework/strategy_operating_model/README.md`](framework/strategy_operating_model/README.md) — Golden Thread order, layer map, and links to all framework docs.
+
 ### 1. Understand the Strategy Context (WHY)
 
 Start here to understand what the organization wants to achieve.

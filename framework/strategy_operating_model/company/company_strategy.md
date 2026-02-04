@@ -1,4 +1,4 @@
-﻿# Company Strategy & Strategic Alignment
+# Company Strategy & Strategic Alignment
 
 ## 1. Purpose
 
@@ -8,7 +8,7 @@ It establishes why analytics exists, what the organization is trying to achieve,
 It does not define analytical logic or implementation.
 
 The end-to-end causal logic from strategy to action is defined in:
-`docs/operating_model/golden_thread_strategy_to_action.md`
+`framework/strategy_operating_model/operating_model/golden_thread_strategy_to_action.md`
 
 This document is the primary business entry point for executives, domain owners, and decision-makers.
 
@@ -131,7 +131,7 @@ Ownership is explicit:
 - Actions are owned operationally.
 
 Governance mechanics are defined in:
-`docs/operating_model/data_governance.md`
+`framework/strategy_operating_model/operating_model/data_governance.md`
 
 ## 9. Relationship to Other Framework Layers
 
@@ -139,8 +139,8 @@ This document defines the WHY.
 
 Downstream layers operationalize it:
 
-- Golden Thread (causal logic): `docs/operating_model/golden_thread_strategy_to_action.md`
-- Operating Model (HOW): `docs/operating_model/`
+- Golden Thread (causal logic): `framework/strategy_operating_model/operating_model/golden_thread_strategy_to_action.md`
+- Operating Model (HOW): `framework/strategy_operating_model/operating_model/`
 - Use Cases (WHAT): `usecases/`
 - Semantic Models & Measures (WITH WHAT): `framework/`, `semantic_models/`
 

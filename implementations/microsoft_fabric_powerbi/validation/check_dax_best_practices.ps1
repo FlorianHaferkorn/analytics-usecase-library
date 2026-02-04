@@ -43,6 +43,8 @@ function Get-DaxFromTmdl {
   foreach ($m in $pattern.Matches($raw)) {
     $name = $m.Groups[1].Value.Trim()
     $expr = $m.Groups[2].Value.Trim()
+    # Strip TMDL comment lines (///) so they are not treated as DAX and trigger e.g. dax.divide.preferred
+    $expr = ($expr -split "[\r\n]+" | Where-Object { $_ -notmatch '^\s*\/\/\/' }) -join "`n"
     if ($name -and $expr) {
       $items += [PSCustomObject]@{ File = $FilePath; Name = $name; Expr = $expr }
     }

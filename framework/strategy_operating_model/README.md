@@ -38,7 +38,7 @@ How customers should use:
 - Adopt semantic/UX/governance standards from `framework/strategy_operating_model/operating_model/`.
 - Build reports with the templates and catalogs in `framework/`.
 - Implement use cases using the Business/Technical Factsheets in `framework/usecases/` (core now; extended/industry planned).
-- Validate against the Aurora showcase to see EURoedoneEUR quality.
+- Validate against the Aurora showcase to see "done" quality.
 
 How delivery teams should use:
 

@@ -114,6 +114,29 @@ Schema: see `framework/semantic_models/domains/Domain_Measure_Dictionary_Schema.
     version: "v1.2"
     last_review: "TBD"
 
+- measure_name: "Promo ROI %"
+  is_kpi_measure: true
+  kpi_id_ref: "sales.promo.roi.pct"
+  semantic_model: "Profitability_SemanticModel"
+  display_folder: "04_Promo"
+  category: "KPI"
+  expression:
+    dax: |
+      VAR IncrementalGM = [Incremental GM Amount]
+      VAR PromoCost     = [Promo Cost Amount]
+      RETURN DIVIDE ( IncrementalGM, PromoCost )
+    formatString: "0.0%"
+  documentation:
+    description: "Alias for Promotion ROI % (TMDL display name)."
+    notes: "Same as Promotion ROI %."
+  dependencies:
+    measures: []
+  governance:
+    owner: "Profitability Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
 # Supporting / Diagnostic Measures
 
 

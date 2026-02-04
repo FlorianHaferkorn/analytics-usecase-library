@@ -1,4 +1,4 @@
-﻿# Analytics Operating Model (HOW)
+# Analytics Operating Model (HOW)
 
 Purpose:
 This folder defines **how analytics is designed, governed, built, and operated** to consistently translate business strategy into action-ready insights.  
@@ -98,8 +98,8 @@ This operating model is **platform-agnostic by design**, with platform-specific 
 
 Layer mapping:
 
-- WHY ->' `docs/company/`
-- HOW ->' `docs/operating_model/`
+- WHY -> `framework/strategy_operating_model/company/`
+- HOW -> `framework/strategy_operating_model/operating_model/`
 - WHAT ->' `usecases/`
 - TEMPLATES ->' `framework/templates/`
 

@@ -31,6 +31,29 @@ Schema: see `framework/semantic_models/domains/Domain_Measure_Dictionary_Schema.
     version: "v1.2"
     last_review: "TBD"
 
+- measure_name: "Digital Adoption Rate %"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "InnovationPeople_SemanticModel"
+  display_folder: "02_Digital"
+  category: "KPI"
+  expression:
+    dax: |
+      VAR Users = SUM ( fact_it[Digital Users] )
+      VAR Heads = SUM ( fact_hr[Headcount] )
+      RETURN DIVIDE ( Users, Heads )
+    formatString: "0.0%"
+  documentation:
+    description: "Alias for Digital Adoption % (TMDL display name)."
+    notes: "Same as Digital Adoption %."
+  dependencies:
+    columns: []
+  governance:
+    owner: "Innovation Analytics"
+    status: "draft"
+    version: "v1.2"
+    last_review: "TBD"
+
 
 - measure_name: "Gross Margin per FTE Amount"
   is_kpi_measure: false

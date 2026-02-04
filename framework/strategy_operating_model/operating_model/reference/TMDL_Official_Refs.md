@@ -1,4 +1,4 @@
-﻿# TMDL Official References (Canonical)
+# TMDL Official References (Canonical)
 
 Purpose: Single place to reference the authoritative Microsoft docs for Tabular Model Definition Language (TMDL). Use these links when implementing or reviewing anything related to the semantic model. Desktop is preview/canvas-only in our workflow; model authoring happens in TMDL.
 
@@ -19,8 +19,8 @@ Purpose: Single place to reference the authoritative Microsoft docs for Tabular 
 
 ## Internal references (this repo)
 
-- PBIR schema reference - PBIP/PBIR structure and mapping used by our generators  
-  ./../docs/PBIR_Schema_Reference.md
+- PBIP layout and TMDL usage - repo-specific structure and generators  
+  `implementations/microsoft_fabric_powerbi/guide/` (Fabric/Power BI implementation guides; PBIP layout and TMDL authoring)
 
 ## Internal usage note (1-liner)
 

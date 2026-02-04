@@ -4,11 +4,9 @@ table _Measures
     /// sales.net_sales.amount - Net Sales
     /// MISSING in KPI catalog: sales.net_sales.amount
     measure 'Net Sales' =
-            // TODO
             BLANK()
 
     /// margin.gm.pct - Gross Margin %
     /// MISSING in KPI catalog: margin.gm.pct
     measure 'Gross Margin %' =
-            // TODO
             BLANK()

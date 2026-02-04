@@ -40,7 +40,7 @@ Usage:
 
 Relations:
 
-- WHY: derived from domains and KPIs in `docs/company/`.
-- HOW: enforced by `docs/operating_model/semantic_layer.md` and `data_governance.md`.
+- WHY: derived from domains and KPIs in `framework/strategy_operating_model/company/`.
+- HOW: enforced by `framework/strategy_operating_model/operating_model/semantic_layer.md` and `data_governance.md`.
 - WITH WHAT: templates in `framework/templates/data_contract_templates/` guide structure.
 - WHAT: framework/semantic_models and framework/usecases depend on these schemas.

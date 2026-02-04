@@ -1,4 +1,4 @@
-﻿# Analytics Operating Model (HOW)
+# Analytics Operating Model (HOW)
 
 ## 1. Purpose and Scope
 
@@ -87,9 +87,9 @@ By following the causal structure of the Golden Thread, the lifecycle of artifac
 
 **Reference documents:**
 
-- `docs/operating_model/semantic_layer.md`
-- `docs/operating_model/measure_system.md`
-- `docs/operating_model/reference/ActionReady_SemanticModel_Blueprint.md`
+- `framework/strategy_operating_model/operating_model/semantic_layer.md`
+- `framework/strategy_operating_model/operating_model/measure_system.md`
+- `framework/strategy_operating_model/operating_model/reference/ActionReady_SemanticModel_Blueprint.md`
 
 ## 5. Governance and Quality Gates
 
@@ -133,7 +133,7 @@ By anchoring change in causality and ownership, the framework allows analytics t
 
 **Reference document:**
 
-- `docs/operating_model/distribution_architecture.md`
+- `framework/strategy_operating_model/operating_model/distribution_architecture.md`
 
 ## 7. UX, Design and Interaction Standards
 
@@ -181,7 +181,7 @@ As a result, tooling and automation strengthen the Golden Thread by making its o
 
 **Reference document:**
 
-- `docs/operating_model/ai_readiness.md`
+- `framework/strategy_operating_model/operating_model/ai_readiness.md`
 
 ## 9. Operational Outcome
 

@@ -1,4 +1,4 @@
-﻿# Business Domains & Ownership Model
+# Business Domains & Ownership Model
 
 ## 1. Purpose
 
@@ -140,8 +140,8 @@ Domains connect strategy to analytical execution.
 
 They relate to:
 
-- Company Strategy (WHY): `docs/company/company_strategy.md`
-- Golden Thread & Operating Model (HOW): `docs/operating_model/`
+- Company Strategy (WHY): `framework/strategy_operating_model/company/company_strategy.md`
+- Golden Thread & Operating Model (HOW): `framework/strategy_operating_model/operating_model/`
 - Use Cases (WHAT): `usecases/`
 - Semantic Models & KPIs (WITH WHAT): `framework/`, `semantic_models/`
 

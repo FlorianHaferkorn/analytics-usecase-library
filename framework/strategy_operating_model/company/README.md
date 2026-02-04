@@ -1,4 +1,4 @@
-﻿# Company Layer (WHY)
+# Company Layer (WHY)
 
 Purpose:
 The Company layer defines **why analytics exists** in the organization.  
@@ -83,7 +83,7 @@ The Company layer defines the **WHY**.
 It is operationalized by:
 
 - **Analytics Operating Model (HOW):**  
-  `docs/operating_model/`
+  `framework/strategy_operating_model/operating_model/`
 - **Use Cases (WHAT):**  
   `usecases/`
 - **Semantic Models, KPIs, Measures (WITH WHAT):**  
