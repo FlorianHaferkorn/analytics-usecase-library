@@ -15,18 +15,18 @@ factsheet_type: technical
 - **Technical Owner:** Treasury / Finance BI Lead
 - **Model ID:** finance_cash_liquidity
 - **Source Systems:** ERP (FI/CO), Treasury, DWH
-- **Business Factsheet:** usecases/core/FIN-001_Cash_Liquidity_Performance/Business_Factsheet.md
+- **Business Factsheet:** framework/usecases/core/FIN-001_Cash_Liquidity_Performance/Business_Factsheet.md
 
 ---
 
 ## 1. Model References
 
-- **Domain Data Contract:** data_contracts/domains/finance.yaml
-- **Source Data Contract:** data_contracts/sources/finance.yaml (if present)
-- **Semantic Model Definition:** semantic_models/domains/finance/model_definition.yaml
-- **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
-- **Measure Dictionary:** semantic_models/domains/Finance/Measure_Dictionary_Finance.md
-- **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
+- **Domain Data Contract:** framework/framework/framework/data_contracts/domains/finance.yaml
+- **Source Data Contract:** framework/framework/framework/data_contracts/sources/finance.yaml (if present)
+- **Semantic Model Definition:** framework/framework/framework/semantic_models/core_action_ready/model_definition.yaml
+- **KPI Catalog:** framework/kpi_catalog/KPI_Catalog.md
+- **Measure Dictionary:** framework/framework/framework/semantic_models/domains/Finance/Measure_Dictionary_Finance.md
+- **Action Codes:** framework/action_codes/README.md
 
 ---
 

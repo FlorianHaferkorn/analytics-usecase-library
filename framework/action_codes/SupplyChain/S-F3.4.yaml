@@ -218,7 +218,7 @@ governance:
   rollback_plan:
     - "Relax thresholds if service or responsiveness deteriorates"
   documentation_links:
-    - "usecases/core/SCM-003/Business_Factsheet.md"
+    - "framework/usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

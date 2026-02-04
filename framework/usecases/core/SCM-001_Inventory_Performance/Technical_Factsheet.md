@@ -15,18 +15,18 @@ factsheet_type: technical
 - **Technical Owner:** Supply Chain BI Lead
 - **Model ID:** scm_inventory_performance
 - **Source Systems:** ERP/WMS, OMS, Forecasting, DWH
-- **Business Factsheet:** usecases/core/SCM-001_Inventory_Performance/Business_Factsheet.md
+- **Business Factsheet:** framework/usecases/core/SCM-001_Inventory_Performance/Business_Factsheet.md
 
 ---
 
 ## 1. Model References
 
-- **Domain Data Contract:** data_contracts/domains/supply_chain.yaml
-- **Source Data Contract:** data_contracts/sources/supply_chain.yaml (if present)
-- **Semantic Model Definition:** semantic_models/domains/scm/model_definition.yaml
-- **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
-- **Measure Dictionary:** semantic_models/domains/SupplyChain/Measure_Dictionary_SupplyChain.md
-- **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
+- **Domain Data Contract:** framework/framework/framework/data_contracts/domains/supply_chain.yaml
+- **Source Data Contract:** framework/framework/framework/data_contracts/sources/supply_chain.yaml (if present)
+- **Semantic Model Definition:** framework/framework/framework/semantic_models/core_action_ready/model_definition.yaml
+- **KPI Catalog:** framework/kpi_catalog/KPI_Catalog.md
+- **Measure Dictionary:** framework/framework/framework/semantic_models/domains/SupplyChain/Measure_Dictionary_SupplyChain.md
+- **Action Codes:** framework/action_codes/README.md
 
 ---
 

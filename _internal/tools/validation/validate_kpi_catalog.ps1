@@ -68,7 +68,7 @@ $errors = @(); $warnings = @(); $seenIds = @{}
 $resolvedCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
 if (-not $resolvedCatalogRoot) { throw "Unable to resolve KPI catalog root. Provide -KpiCatalogRoot or run inside repository." }
 
-$UseCasesRoot = Resolve-RepoPath -ProvidedPath "usecases" -DefaultRelative 'usecases'
+$UseCasesRoot = Resolve-RepoPath -ProvidedPath "framework/usecases" -DefaultRelative 'framework/usecases'
 
 function Get-FrontMatter {
   param(

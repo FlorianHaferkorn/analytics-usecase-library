@@ -400,6 +400,6 @@ Invoke-MCPTool -Tool "measure_operations" -Operation "ExportTMDL" -MeasureName "
 
 - **Power BI MCP**: `mcp_powerbi-model_*` tools
 - **TMDL Documentation**: [Microsoft Learn - TMDL](https://learn.microsoft.com/analysis-services/tmdl/)
-- **Fabric Implementation**: `framework/implementation_guides/fabric_powerbi.md`
+- **Fabric Implementation**: `implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md`
 - **Semantic Layer**: `docs/operating_model/semantic_layer.md`
 - **Measure System**: `docs/operating_model/measure_system.md`

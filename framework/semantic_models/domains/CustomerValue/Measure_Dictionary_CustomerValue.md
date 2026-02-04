@@ -1,6 +1,6 @@
-ï»¿# Measure Dictionary - CustomerValue
+# Measure Dictionary - CustomerValue
 
-Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
+Schema: see `framework/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
 - measure_name: "Net Sales Amount"
@@ -159,7 +159,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   category: "KPI"
   expression:
     dax: |
-      // Attrition Risk % expected as 0â€“100; auto-scales to 0â€“1 if needed
+      // Attrition Risk % expected as 0–100; auto-scales to 0–1 if needed
       VAR RiskPct =
           VAR raw = SELECTEDVALUE ( fact_customer_events[Attrition Risk %] )
           RETURN IF ( raw > 1, raw / 100, raw )
@@ -171,7 +171,7 @@ Schema: see `/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     formatString: "EUR #,0.00"
   documentation:
     description: "Exposure sizing from churn-risk customers based on CLV remaining and attrition risk."
-    notes: "Attrition Risk % delivered as 0â€“100 is auto-scaled to 0â€“1. CLV and Remaining follow finance-approved discount rate and CLV horizon (use finance WACC and agreed horizon)."
+    notes: "Attrition Risk % delivered as 0–100 is auto-scaled to 0–1. CLV and Remaining follow finance-approved discount rate and CLV horizon (use finance WACC and agreed horizon)."
   dependencies:
     columns:
       - "fact_customer_value[CLV Remaining Amount]"

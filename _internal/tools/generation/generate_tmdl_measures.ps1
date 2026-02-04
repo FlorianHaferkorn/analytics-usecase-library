@@ -1,8 +1,8 @@
 Param(
   [string[]]$UseCase,
-  [string]$UseCasesRoot = "analytics-usecase-library/usecases",
+  [string]$UseCasesRoot = "framework/usecases",
   [string]$KpiCatalogRoot = "analytics-usecase-library/framework/kpi_catalog",
-  [string]$DistRoot = "analytics-usecase-library/dist",
+  [string]$DistRoot = "implementations/microsoft_fabric_powerbi/dist",
   [string]$MeasuresTableName = "_Measures",
   [switch]$SkipManifest,
   # When set, do not overwrite existing _Measures.tmdl files.
@@ -428,11 +428,11 @@ function Write-Manifest {
   Write-Utf8NoBom -Path $Path -Text $json
 }
 
-$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'usecases'
+$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'framework/usecases'
 if (-not $resolvedUseCasesRoot) { throw "Unable to resolve UseCases root folder. Provide -UseCasesRoot or run inside repository." }
 $resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
 if (-not $resolvedKpiRoot) { throw "Unable to resolve KPI catalog root. Provide -KpiCatalogRoot or run inside repository." }
-$resolvedDistRoot = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'dist'
+$resolvedDistRoot = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'implementations/microsoft_fabric_powerbi/dist'
 if (-not $resolvedDistRoot) { throw "Unable to resolve dist root. Provide -DistRoot or run inside repository." }
 
 $factSheets = Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Technical_Factsheet.md'

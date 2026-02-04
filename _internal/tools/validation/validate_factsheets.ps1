@@ -1,5 +1,5 @@
 Param(
-  [string]$UseCasesRoot = "analytics-usecase-library/usecases",
+  [string]$UseCasesRoot = "framework/usecases",
   [switch]$FailOnError
 )
 
@@ -112,7 +112,7 @@ function Get-MapField {
   return $map
 }
 
-$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'usecases'
+$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'framework/usecases'
 if (-not $resolvedUseCasesRoot) { throw "Unable to resolve UseCases root. Provide -UseCasesRoot or run inside repository." }
 
 $errors = @(); $warnings = @()

@@ -1,4 +1,4 @@
-﻿# Internal (Non-Customer-Facing)
+# Internal (Non-Customer-Facing)
 
 ## Purpose
 
@@ -28,9 +28,11 @@ A possible structure (may be refined as tools mature):
 ```yaml
 _internal/
   tools/
-    generate/                  → Generators for measures, contracts, scaffolding
-    validate/                  → Validators for factsheets, KPI catalogs, models
-    qa/                        → BPA config, quality rules, test harnesses
+    generation/                → Generators for measures, scaffolding (maintainer-only)
+    validation/                → Validators for factsheets, KPI catalogs, action codes, maps
+    linters/                   → BPA + style/encoding checks (DAX/TMDL/report)
+    maintenance/               → One-off fixes, migrations, refactors (maintainer-only)
+    powerbi_mcp/               → Power BI MCP automation helpers (maintainer-only)
 
   drafts/
     *.md                       → Concept drafts, spike documents
@@ -51,6 +53,18 @@ Contains automation used to:
   - Use Case Inventory  
   - KPI Catalog  
   - Semantic Models
+
+## Boundary (important)
+
+`_internal/` is **maintainer-only**. It may contain tooling and notes that should not be shipped to customers.
+
+Tool-specific, customer-mirrorable implementation assets should live under:
+- `implementations/` (e.g. `implementations/microsoft_fabric_powerbi/`)
+
+This boundary matters for:
+- product packaging,
+- repeatable customer delivery,
+- and safe AI-assisted automation (clear “allowed surface” vs maintainer internals).
 
 ### drafts/
 

@@ -60,7 +60,7 @@ do {
 
 ```powershell
 # Step 1: Detect from Technical Factsheet
-$factsheet = Get-Content "usecases\core\$UseCase\Technical_Factsheet.md" -Raw
+$factsheet = Get-Content "framework\usecases\core\$UseCase\Technical_Factsheet.md" -Raw
 $relSection = Extract-Section $factsheet "### 4.2 Relationships"
 
 # Step 2: Parse relationship definitions
@@ -188,7 +188,7 @@ Template Sections:
   formatString: "#,0.00"
   displayFolder: "01_Sales"
 
-# To: dist/COM-001/COM-001.SemanticModel/definition/tables/_Measures.tmdl
+# To: implementations/microsoft_fabric_powerbi/dist/COM-001/COM-001.SemanticModel/definition/tables/_Measures.tmdl
 measure 'Net Sales Amount' =
     SUM(fact_sales[Net Sales Amount])
     formatString: "#,0.00"
@@ -198,7 +198,7 @@ measure 'Net Sales Amount' =
 ### 2. Data Contract → Tables
 
 ```yaml
-# From: data_contracts/sources/synthetic/synthetic_data_contract.yaml
+# From: framework/data_contracts/sources/synthetic/synthetic_data_contract.yaml
 tables:
   - name: dim_date
     type: dimension
@@ -225,7 +225,7 @@ mcp_powerbi-model_table_operations -Operation "create" -TableDefinition {
 ### 3. Technical Factsheet → Relationships
 
 ```yaml
-# From: usecases/core/COM-001/Technical_Factsheet.md
+# From: framework/usecases/core/COM-001_Sales_Performance/Technical_Factsheet.md
 ### 4.2 Relationships (Mandatory)
 - dim_date (1) -> fact_sales on DateKey
 - dim_org (1) -> fact_sales on OrgKey

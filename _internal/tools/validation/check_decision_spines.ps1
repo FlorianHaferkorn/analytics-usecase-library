@@ -1,5 +1,5 @@
-﻿Param(
-  [string]$UseCasesRoot = "usecases",
+Param(
+  [string]$UseCasesRoot = "framework/usecases",
   [string]$MapPath = "framework/action_codes/decision_spines/DecisionSpine_UseCase_Map.yaml",
   [string]$DecisionSpinesRoot = "framework/action_codes/decision_spines",
   [switch]$FailOnError
@@ -142,7 +142,7 @@ function Get-ScalarValue {
   return $null
 }
 
-$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "usecases"
+$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "framework/usecases"
 $mapPath = Resolve-RepoPath -ProvidedPath $MapPath -DefaultRelative "framework/action_codes/decision_spines/DecisionSpine_UseCase_Map.yaml"
 $decisionSpinesRoot = Resolve-RepoPath -ProvidedPath $DecisionSpinesRoot -DefaultRelative "framework/action_codes/decision_spines"
 

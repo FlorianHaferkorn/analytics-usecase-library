@@ -215,7 +215,7 @@ governance:
   rollback_plan:
     - "Suspend stabilisation if FPY or throughput deteriorates materially"
   documentation_links:
-    - "usecases/core/OPS-003/Business_Factsheet.md"
+    - "framework/usecases/core/OPS-003_Quality_Yield/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

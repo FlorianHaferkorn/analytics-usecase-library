@@ -138,8 +138,8 @@ Alle generierten Spalten verwenden **Display Names** (mit Leerzeichen, korrekte 
 - XD-003: Referenziert `fact_sales`, `dim_date`, `dim_org`, `dim_product`, `dim_customer`
 
 **Validierung gegen Measure Dictionaries:**
-- [semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md](semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md): Verwendet `fact_sales[Net Sales Amount]` ✅
-- [semantic_models/domains/CustomerValue/Measure_Dictionary_CustomerValue.md](semantic_models/domains/CustomerValue/Measure_Dictionary_CustomerValue.md): Verwendet `fact_sales[Net Sales Amount]`, `[COGS Amount]` ✅
+- [semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md](../../framework/semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md): Verwendet `fact_sales[Net Sales Amount]` ✅
+- [semantic_models/domains/CustomerValue/Measure_Dictionary_CustomerValue.md](../../framework/semantic_models/domains/CustomerValue/Measure_Dictionary_CustomerValue.md): Verwendet `fact_sales[Net Sales Amount]`, `[COGS Amount]` ✅
 
 ---
 
@@ -173,19 +173,19 @@ Alle generierten Spalten verwenden **Display Names** (mit Leerzeichen, korrekte 
 
 ### ⚠️ Teilweise funktionsfähig
 
-7. **COM-004 Promotion Effectiveness**
+1. **COM-004 Promotion Effectiveness**
    - Benötigt: fact_sales, dim_promo ❌
    - Impact: PromoKey immer -1, keine Promotion-Analyse möglich
 
-8. **FIN-001 Cash Flow Management**
+2. **FIN-001 Cash Flow Management**
    - Benötigt: fact_working_capital, fact_gl_journal ❌
    - Impact: AR/AP Aging, Cash Conversion Cycle fehlen
 
-9. **FIN-002 Cost Performance**
+3. **FIN-002 Cost Performance**
    - Benötigt: fact_sales, fact_gl_journal, dim_account ❌
    - Impact: OPEX, Material Cost nur über fact_sales COGS schätzbar
 
-10. **XD-001 Customer Experience**
+4. **XD-001 Customer Experience**
     - Benötigt: fact_customer_interactions, fact_nps ❌
     - Impact: NPS, CSAT, First Response Time fehlen
 
@@ -236,17 +236,17 @@ Alle generierten Spalten verwenden **Display Names** (mit Leerzeichen, korrekte 
 
 ### 🎯 Priorität 2 (für Finance Use Cases)
 
-4. **fact_working_capital generieren**
+1. **fact_working_capital generieren**
    - Funktion: `_generate_fact_working_capital()` mit AR/AP/Inventory Days
    - Use Cases: FIN-001 Cash Flow
 
-5. **fact_gl_journal + dim_account generieren**
+2. **fact_gl_journal + dim_account generieren**
    - Funktionen: `_generate_dim_account()`, `_generate_fact_gl_journal()`
    - Use Cases: FIN-001, FIN-002 OPEX/Material Cost
 
 ### 🎯 Priorität 3 (für Experience Use Cases)
 
-6. **fact_customer_interactions + fact_nps generieren**
+1. **fact_customer_interactions + fact_nps generieren**
    - Funktionen: `_generate_fact_customer_interactions()`, `_generate_fact_nps()`
    - Use Cases: XD-001 Customer Experience
 

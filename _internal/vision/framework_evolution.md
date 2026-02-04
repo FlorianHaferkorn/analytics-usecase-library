@@ -121,8 +121,8 @@ Humans remain accountable for decisions; automation increases only when governan
   - foundation for code-driven architecture (setup/teardown by code where applicable)
 - **Fabric / Power BI development** includes:
   - semantic model generation (TMDL, PBIP), report templates, action code integration
-  - **Power BI Theme Generator** — generates/standardizes report themes from framework conventions; already working; to be refined and documented as part of `framework/implementation_guides/` and Fabric tooling
-  - alignment with `framework/implementation_guides/fabric_powerbi.md` and `_internal/tools/` (validation, generation, Power BI MCP)
+  - **Power BI Theme Generator** (`powerbi-theme/`) — generates/standardizes report themes from framework conventions; already working; to be refined and documented as part of `implementations/microsoft_fabric_powerbi/guide/` and Fabric tooling
+  - alignment with `implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md` and `_internal/tools/` (validation, generation, Power BI MCP)
 - **Stage 1 Hard CI Gate** blocks drift:
   - schema validation, refs, ID integrity, SSOT marker rules, forbidden fields, duplicates
 - Stage 2 is specified (non-blocking), but not required to run.

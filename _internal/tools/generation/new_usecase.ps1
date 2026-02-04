@@ -1,4 +1,4 @@
-﻿Param(
+Param(
   [Parameter(Mandatory = $true)]
   [string]$Id,
   [Parameter(Mandatory = $true)]
@@ -13,15 +13,15 @@ $repoRoot   = Split-Path -Parent $scriptRoot
 function Get-ClusterPath {
   param([string]$UseCaseId)
   switch -Wildcard ($UseCaseId) {
-    "COM-*" { return "usecases/01_Commercial" }
-    "OPS-*" { return "usecases/02_Operational_Efficiency" }
-    "CST-*" { return "usecases/03_Customer_and_Market" }
-    "COR-*" { return "usecases/04_Corporate_and_Strategy" }
-    "ESG-*" { return "usecases/05_ESG" }
-    "GOV-*" { return "usecases/06_Governance" }
-    "INN-*" { return "usecases/07_Innovation_and_People" }
-    "HR-*"  { return "usecases/04_Corporate_and_Strategy" }
-    default { return "usecases" }
+    "COM-*" { return "framework/usecases/core" }
+    "OPS-*" { return "framework/usecases/core" }
+    "CST-*" { return "framework/usecases/core" }
+    "COR-*" { return "framework/usecases/core" }
+    "ESG-*" { return "framework/usecases/core" }
+    "GOV-*" { return "framework/usecases/core" }
+    "INN-*" { return "framework/usecases/core" }
+    "HR-*"  { return "framework/usecases/core" }
+    default { return "framework/usecases" }
   }
 }
 
@@ -68,13 +68,13 @@ if (Test-Path $targetDir) {
   throw "Target use case folder already exists: $folderName"
 }
 
-$legacyTemplatePath = Join-Path $repoRoot "usecases/UC-000_Template.md"
+$legacyTemplatePath = Join-Path $repoRoot "framework/usecases/templates/UC-000_Template.md"
 if (-not (Test-Path $legacyTemplatePath)) {
-  throw "Template not found: usecases/UC-000_Template.md"
+  throw "Template not found: framework/usecases/templates/UC-000_Template.md"
 }
 
-$businessTemplatePath = Join-Path $repoRoot "usecases/Business_Factsheet_Template.md"
-$technicalTemplatePath = Join-Path $repoRoot "usecases/Technical_Factsheet_Template.md"
+$businessTemplatePath = Join-Path $repoRoot "framework/usecases/templates/usecase_factsheet_business.md"
+$technicalTemplatePath = Join-Path $repoRoot "framework/usecases/templates/usecase_factsheet_technical.md"
 
 New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
 

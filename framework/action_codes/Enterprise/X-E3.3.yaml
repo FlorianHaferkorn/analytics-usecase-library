@@ -199,7 +199,7 @@ governance:
   rollback_plan:
     - "Suspend escalations if governance noise outweighs value"
   documentation_links:
-    - "usecases/core/XD-003/Business_Factsheet.md"
+    - "framework/usecases/core/XD-003_Executive_KPI_Overview/Business_Factsheet.md"
 
 quality_rules:
   - "XD-003 Action Codes must not introduce execution logic."

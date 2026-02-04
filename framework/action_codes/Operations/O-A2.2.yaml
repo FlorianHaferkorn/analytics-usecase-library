@@ -221,7 +221,7 @@ governance:
   rollback_plan:
     - "Pause RCA if corrective actions show no effect after review cycle"
   documentation_links:
-    - "usecases/core/OPS-002/Business_Factsheet.md"
+    - "framework/usecases/core/OPS-002_Asset_Performance/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

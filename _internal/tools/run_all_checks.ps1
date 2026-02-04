@@ -1,7 +1,7 @@
 Param(
-  [string]$UseCasesRoot   = "usecases",
+  [string]$UseCasesRoot   = "framework/usecases",
   [string]$KpiCatalogRoot = "framework/kpi_catalog",
-  [string]$DistRoot       = "dist",
+  [string]$DistRoot       = "implementations/microsoft_fabric_powerbi/dist",
   [string]$TranscriptPath   = "_internal/reviews/run_all_checks_transcript.txt",
   [string]$ReportPath       = "_internal/reviews/run_all_checks_report.md"
 )
@@ -28,9 +28,9 @@ function Resolve-RepoPath {
 
 $repoRoot = (Get-Location).Path
 
-$useCasesRoot   = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'usecases'
+$useCasesRoot   = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'framework/usecases'
 $kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
-$distRoot       = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'dist'
+$distRoot       = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'implementations/microsoft_fabric_powerbi/dist'
 $factsheetsRoot = $useCasesRoot
 $coreRoot = Join-Path -Path $useCasesRoot -ChildPath 'core'
 if (Test-Path $coreRoot) {
@@ -124,22 +124,22 @@ Invoke-LocalScript -RelativePath "_internal/tools/validation/validate_kpi_catalo
 # 3) Check coverage FactSheet vs KPI catalog
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_factsheet_vs_kpi.ps1" -Arguments @("-UseCasesRoot", $factsheetsRoot, "-KpiCatalogRoot", $kpiCatalogRoot)
 
-# 4) Check measures vs KPI catalog
-Invoke-LocalScript -RelativePath "_internal/tools/validation/check_measures_vs_kpi.ps1" -Arguments @("-DistRoot", $distRoot, "-KpiCatalogRoot", $kpiCatalogRoot)
+# 4) Check measures vs KPI catalog (Fabric implementation)
+Invoke-LocalScript -RelativePath "implementations/microsoft_fabric_powerbi/validation/check_measures_vs_kpi.ps1" -Arguments @("-DistRoot", $distRoot, "-KpiCatalogRoot", $kpiCatalogRoot)
 
 # 5) Sanity-check docs and tooling references
 Invoke-LocalScript -RelativePath "_internal/tools/maintenance/check_docs_refs.ps1" -Arguments @()
 
 # 6) Docs -> KPI catalog references
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_docs_kpi_refs.ps1" -Arguments @(
-  "-DocsRoot", (Join-Path $repoRoot "docs"),
+  "-DocsRoot", (Join-Path $repoRoot "framework\strategy_operating_model"),
   "-KpiCatalogRoot", $kpiCatalogRoot
 )
 
 # 7) UseCase inventory vs Factsheets
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_usecase_inventory_vs_factsheets.ps1" -Arguments @(
   "-UseCasesRoot", $factsheetsRoot,
-  "-InventoryPath", (Join-Path $repoRoot "usecases\UseCase_Inventory.md")
+  "-InventoryPath", (Join-Path $repoRoot "framework\usecases\UseCase_Inventory.md")
 )
 
 # 8) KPI catalog unused in Factsheets (warning by default)
@@ -165,9 +165,9 @@ Invoke-LocalScript -RelativePath "_internal/tools/validation/check_ssot_markers.
 
 # 9) Docs -> UseCase references
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_docs_usecase_refs.ps1" -Arguments @(
-  "-DocsRoot", (Join-Path $repoRoot "docs"),
+  "-DocsRoot", (Join-Path $repoRoot "framework\strategy_operating_model"),
   "-UseCasesRoot", $useCasesRoot,
-  "-InventoryPath", (Join-Path $repoRoot "usecases\UseCase_Inventory.md")
+  "-InventoryPath", (Join-Path $repoRoot "framework\usecases\UseCase_Inventory.md")
 )
 
 # 10) Action Codes -> KPI catalog references
@@ -185,7 +185,7 @@ Invoke-LocalScript -RelativePath "_internal/tools/validation/check_factsheet_act
 # 12) UseCase ActionCode map consistency
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_usecase_actioncode_map.ps1" -Arguments @(
   "-UseCasesRoot", $useCasesRoot,
-  "-MapPath", (Join-Path $repoRoot "usecases\UseCase_ActionCode_Map.yaml"),
+  "-MapPath", (Join-Path $repoRoot "framework\usecases\UseCase_ActionCode_Map.yaml"),
   "-ActionCodesRoot", (Join-Path $repoRoot "framework\action_codes")
 )
 
@@ -199,20 +199,20 @@ Invoke-LocalScript -RelativePath "_internal/tools/validation/check_decision_spin
 # 14) Factsheet action_codes vs UseCase map
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_factsheet_actioncode_map.ps1" -Arguments @(
   "-UseCasesRoot", $useCasesRoot,
-  "-MapPath", (Join-Path $repoRoot "usecases\UseCase_ActionCode_Map.yaml")
+  "-MapPath", (Join-Path $repoRoot "framework\usecases\UseCase_ActionCode_Map.yaml")
 )
 
 # 15) Factsheet layout vs templates
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_factsheet_layout.ps1" -Arguments @(
   "-UseCasesRoot", $factsheetsRoot,
-  "-BusinessTemplate", (Join-Path $repoRoot "usecases\templates\usecase_factsheet_business.md"),
-  "-TechnicalTemplate", (Join-Path $repoRoot "usecases\templates\usecase_factsheet_technical.md")
+  "-BusinessTemplate", (Join-Path $repoRoot "framework\usecases\templates\usecase_factsheet_business.md"),
+  "-TechnicalTemplate", (Join-Path $repoRoot "framework\usecases\templates\usecase_factsheet_technical.md")
 )
 
 # 16) KPI catalog vs Measure Dictionaries
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_kpi_vs_measure_dictionary.ps1" -Arguments @{
   KpiCatalogRoot = $kpiCatalogRoot
-  MeasureDictRoot = (Join-Path $repoRoot "semantic_models\domains")
+  MeasureDictRoot = (Join-Path $repoRoot "framework\semantic_models\domains")
 }
 
 # 17) DAX definitions vs Measure Dictionaries
@@ -222,15 +222,18 @@ Invoke-LocalScript -RelativePath "_internal/tools/validation/check_dax_vs_measur
 
 # 18) Measure Dictionaries vs Gold contracts
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_measure_dictionary_vs_gold.ps1" -Arguments @{
-  MeasureDictRoot = (Join-Path $repoRoot "semantic_models\domains")
-  GoldRoot = (Join-Path $repoRoot "data_contracts\domains")
+  MeasureDictRoot = (Join-Path $repoRoot "framework\semantic_models\domains")
+  GoldRoot = (Join-Path $repoRoot "framework\data_contracts\domains")
 }
 
-# 19) TMDL vs Measure Dictionaries (optional if TMDL exists)
-Invoke-LocalScript -RelativePath "_internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1" -Arguments @{
-  MeasureDictRoot = (Join-Path $repoRoot "semantic_models\domains")
+# 19) TMDL vs Measure Dictionaries (Fabric implementation; optional if TMDL exists)
+Invoke-LocalScript -RelativePath "implementations/microsoft_fabric_powerbi/validation/check_tmdl_vs_measure_dictionary.ps1" -Arguments @{
+  MeasureDictRoot = (Join-Path $repoRoot "framework\semantic_models\domains")
   DistRoot = $distRoot
 }
+
+# 19a) DAX best practices in TMDL measures (Fabric implementation)
+Invoke-LocalScript -RelativePath "implementations/microsoft_fabric_powerbi/validation/check_dax_best_practices.ps1" -Arguments @("-DistRoot", $distRoot)
 
 # 20) Mojibake scan
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_mojibake.ps1" -Arguments @(

@@ -1,4 +1,4 @@
-﻿# Source Metadata & Synthetic Data
+# Source Metadata & Synthetic Data
 
 ## Purpose
 
@@ -78,4 +78,4 @@ Used primarily for:
 - **TEMPLATES Data contract TEMPLATES define HOW source fields map to domain fields  
 
 **Location:**  
-`data_contracts/sources/README.md`
+`framework/data_contracts/sources/README.md`

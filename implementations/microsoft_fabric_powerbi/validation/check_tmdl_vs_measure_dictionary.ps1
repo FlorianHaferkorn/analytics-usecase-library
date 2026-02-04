@@ -1,15 +1,21 @@
 param(
-  [string]$MeasureDictRoot = (Join-Path $PSScriptRoot "..\..\..\semantic_models\domains"),
-  [string]$DistRoot = (Join-Path $PSScriptRoot "..\..\..\dist")
+  [string]$MeasureDictRoot,
+  [string]$DistRoot
 )
 
 $ErrorActionPreference = "Stop"
+
+# Resolve repo root from script location: implementations/microsoft_fabric_powerbi/validation -> ../../..
+$scriptDir = $PSScriptRoot
+$repoRoot = (Get-Item $scriptDir).Parent.Parent.Parent.FullName
+if (-not $MeasureDictRoot) { $MeasureDictRoot = Join-Path $repoRoot "framework\semantic_models\domains" }
+if (-not $DistRoot) { $DistRoot = Join-Path $repoRoot "implementations\microsoft_fabric_powerbi\dist" }
 
 $tmdlFiles = Get-ChildItem -Path $DistRoot -Recurse -Filter "*_Measures.tmdl" -ErrorAction SilentlyContinue | Where-Object {
   $_.FullName -notmatch '\\_internal\\archive\\'
 }
 if (-not $tmdlFiles -or $tmdlFiles.Count -eq 0) {
-  Write-Host "No _Measures.tmdl files found under dist. Skipping TMDL check."
+  Write-Host "No _Measures.tmdl files found under DistRoot. Skipping TMDL check."
   exit 0
 }
 

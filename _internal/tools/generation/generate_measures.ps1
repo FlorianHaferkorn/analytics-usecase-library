@@ -1,8 +1,8 @@
 Param(
   [string]$UseCase = "",
-  [string]$UseCasesRoot = "analytics-usecase-library/usecases",
+  [string]$UseCasesRoot = "framework/usecases",
   [string]$KpiCatalogRoot = "analytics-usecase-library/_includes/kpi_catalog",
-  [string]$Out = "analytics-usecase-library/dist/dax",
+  [string]$Out = "implementations/microsoft_fabric_powerbi/dist/dax",
   [string]$MeasuresTable = "Measures"
 )
 

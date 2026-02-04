@@ -214,7 +214,7 @@ governance:
   rollback_plan:
     - "Lift spend freeze if service levels or strategic KPIs deteriorate"
   documentation_links:
-    - "usecases/core/FIN-002/Business_Factsheet.md"
+    - "framework/usecases/core/FIN-002_Cost_Performance/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

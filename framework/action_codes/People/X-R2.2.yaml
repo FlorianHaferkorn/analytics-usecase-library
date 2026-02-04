@@ -1,4 +1,4 @@
-﻿schema_version: "1.1"
+schema_version: "1.1"
 
 id: "X-R2.2"
 name: "Capacity Reallocation & Load Balancing"
@@ -26,7 +26,7 @@ strategic_alignment:
       role: "secondary"
   decisions_enabled:
     - "Shift staffing between queues, channels, and regions"
-    - "Smooth short-term demand–capacity mismatches"
+    - "Smooth short-term demand�capacity mismatches"
   non_goals:
     - "Permanent staffing changes"
     - "Headcount hiring or reductions"
@@ -221,7 +221,7 @@ governance:
   rollback_plan:
     - "Revert reallocation if SLA or quality deteriorates"
   documentation_links:
-    - "usecases/core/XD-002/Business_Factsheet.md"
+    - "framework/usecases/core/XD-002_Resource_Utilization/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

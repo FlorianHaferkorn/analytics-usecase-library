@@ -227,7 +227,7 @@ governance:
   rollback_plan:
     - "Relax override constraints if forecast volatility increases"
   documentation_links:
-    - "usecases/core/SCM-003/Business_Factsheet.md"
+    - "framework/usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

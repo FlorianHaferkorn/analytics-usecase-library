@@ -220,7 +220,7 @@ governance:
   rollback_plan:
     - "Suspend liquidation if service KPIs deteriorate"
   documentation_links:
-    - "usecases/core/SCM-001/Business_Factsheet.md"
+    - "framework/usecases/core/SCM-001_Inventory_Performance/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

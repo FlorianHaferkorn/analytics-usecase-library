@@ -1,6 +1,6 @@
 Param(
-  [string]$UseCasesRoot = "usecases",
-  [string]$MapPath = "usecases/UseCase_ActionCode_Map.yaml",
+  [string]$UseCasesRoot = "framework/usecases",
+  [string]$MapPath = "framework/usecases/UseCase_ActionCode_Map.yaml",
   [string]$ActionCodesRoot = "framework/action_codes",
   [switch]$FailOnError
 )
@@ -65,8 +65,8 @@ function Get-CoreUseCaseIds {
   return Get-ChildItem -Path $coreRoot -Directory | ForEach-Object { $_.Name.Split('_')[0] } | Sort-Object -Unique
 }
 
-$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "usecases"
-$mapPath = Resolve-RepoPath -ProvidedPath $MapPath -DefaultRelative "usecases/UseCase_ActionCode_Map.yaml"
+$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "framework/usecases"
+$mapPath = Resolve-RepoPath -ProvidedPath $MapPath -DefaultRelative "framework/usecases/UseCase_ActionCode_Map.yaml"
 $actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "framework/action_codes"
 
 if (-not $useCasesRoot) { throw "UseCases root not found. Provide -UseCasesRoot or run inside repository." }

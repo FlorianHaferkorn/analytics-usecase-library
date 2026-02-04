@@ -1,4 +1,4 @@
-﻿# Domain Data Contracts
+# Domain Data Contracts
 
 ## Purpose
 
@@ -27,12 +27,12 @@ Not included:
 
 - Transformation logic (ETL/Dataflows/Data Pipelines)  
 - Customer-specific data structures  
-- Semantic model definitions (see `semantic_models/`)  
+- Semantic model definitions (see `framework/semantic_models/`)  
 
 ## Structure
 
 ```yaml
-data_contracts/
+framework/data_contracts/
   domains/
     commercial_sales.yaml
     finance.yaml
@@ -90,4 +90,4 @@ fact:
 - **TEMPLATES Fact and dimension TEMPLATES live under `framework/TEMPLATES/data_contract_TEMPLATES/`
 
 **Location:**  
-`data_contracts/domains/README.md`
+`framework/framework/data_contracts/domains/README.md`

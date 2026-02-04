@@ -1,4 +1,4 @@
-﻿# Analytics Strategy-to-Action Framework
+# Analytics Strategy-to-Action Framework
 
 A pragmatic, scalable framework to translate **business strategy into action-ready analytics**.
 
@@ -58,8 +58,8 @@ Doing nothing does not keep the current state — it reinforces it.
 
 Start here to understand what the organization wants to achieve.
 
-- `docs/company/company_strategy.md`
-- `docs/company/reporting_principles.md`
+- `framework/strategy_operating_model/company/company_strategy.md`
+- `framework/strategy_operating_model/company/reporting_principles.md`
 
 ### 2. Understand the Operating Model (HOW)
 
@@ -67,15 +67,15 @@ Learn how strategy is translated into analytics and actions.
 
 Start with:
 
-- `docs/operating_model/operating_model_overview.md`
-- `docs/operating_model/golden_thread_strategy_to_action.md`
+- `framework/strategy_operating_model/operating_model/operating_model_overview.md`
+- `framework/strategy_operating_model/operating_model/golden_thread_strategy_to_action.md`
 
 ### 3. Explore the Core Use Cases (WHAT)
 
 See how strategic questions are translated into concrete analytics use cases.
 
-- `usecases/core/`
-- `usecases/UseCase_Inventory.md`
+- `framework/usecases/core/`
+- `framework/usecases/UseCase_Inventory.md`
 
 Each use case contains:
 
@@ -85,11 +85,13 @@ Each use case contains:
 
 ## Stage 1 CI Gate (local / CI)
 
-Canonical command (run from repo root):
+**Tool-agnostic only** (facts, KPI catalog, action codes, use case map, doc refs; no Fabric/Power BI output). Canonical command (run from repo root):
 
 ```
 .\_internal\tools\run_stage1_checks.ps1
 ```
+
+For Fabric/Power BI output validation (measures vs KPI, TMDL vs measure dictionary, DAX best practices), use `.\_internal\tools\run_all_checks.ps1` or the Fabric-only script: `implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1`.
 
 Prerequisite (one-time, for schema validation):
 
@@ -110,30 +112,31 @@ Spec and contracts:
 ## Repository Structure (high level)
 
 ```yaml
-docs/
-company/ # Strategy, principles, domains
-operating_model/ # Analytics operating model (HOW)
+framework/           # Tool-agnostic: strategy, use cases, KPIs, semantic model, data contracts
+  strategy_operating_model/
+    company/         # Strategy, principles, domains
+    operating_model/ # Analytics operating model (HOW)
+  usecases/
+    core/            # Core cross-industry use cases
+    extended/        # Advanced use cases
+    industry/        # Industry-specific use cases
+  kpi_catalog/       # Governed KPI definitions
+  action_codes/      # Action logic and thresholds
+  semantic_models/   # Measure dictionaries, core blueprint
+  data_contracts/    # Domain- and source-level contracts
+  templates/         # Page, measure, data contract templates
 
-usecases/
-core/ # Core cross-industry use cases
-extended/ # Advanced use cases
-industry/ # Industry-specific use cases
+implementations/    # Tool-specific implementations
+  microsoft_fabric_powerbi/
+    guide/           # Fabric/Power BI implementation guides
+    dist/            # Generated TMDL/artifacts (default output)
+    tools/           # Fabric-specific scripts (e.g. run_fabric_checks.ps1, theme_generator)
 
-framework/
-kpi_catalog/ # Governed KPI definitions
-action_codes/ # Action logic and thresholds
-templates/ # Page, measure, and data contract templates
+showcases/          # Example reports and adoptions (e.g. sample_pbip_report)
 
-semantic_models/
-core_action_ready/ # Reference semantic model blueprint
-
-data_contracts/
-domains/ # Domain-level data contracts
-sources/ # Source-level mappings
-
-_internal/
-tools/ # Validation, generation, automation
-ai/ # Schemas for AI and automation
+_internal/          # Maintainer tooling, CI, schemas
+  tools/             # Validation, generation, automation
+  ai/                # Schemas for AI and automation
 ```
 
 ## Who this is for
@@ -155,5 +158,5 @@ ai/ # Schemas for AI and automation
 This framework is **platform-agnostic by design**.  
 Platform-specific implementation guides (e.g. Fabric / Power BI) live under:
 
-- `framework/implementation_guides/`
+- `implementations/microsoft_fabric_powerbi/guide/` (Fabric/Power BI)
 

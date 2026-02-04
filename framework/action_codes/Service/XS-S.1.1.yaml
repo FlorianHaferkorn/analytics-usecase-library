@@ -1,4 +1,4 @@
-﻿schema_version: "1.1"
+schema_version: "1.1"
 
 id: "X-S1.1"
 name: "Service Level Orchestration"
@@ -28,7 +28,7 @@ strategic_alignment:
       role: "secondary"
   decisions_enabled:
     - "Select dominant service lever per queue/region (capacity, backlog, quality, flow)"
-    - "Sequence service actions to avoid speed–quality trade-offs"
+    - "Sequence service actions to avoid speed�quality trade-offs"
   non_goals:
     - "Executing service actions directly"
     - "CRM or tooling platform changes"
@@ -224,7 +224,7 @@ governance:
   rollback_plan:
     - "Suspend orchestration if quality KPIs deteriorate"
   documentation_links:
-    - "usecases/core/XD-001/Business_Factsheet.md"
+    - "framework/usecases/core/XD-001_Service_Level_Performance/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

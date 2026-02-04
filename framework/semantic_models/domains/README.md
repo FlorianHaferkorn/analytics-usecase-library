@@ -1,4 +1,4 @@
-﻿# domains
+# domains
 
 Purpose:
 Domain-specific semantic model dictionaries.
@@ -17,9 +17,9 @@ Usage:
 - Link from KPI catalog index.
 - Keep aligned with data contracts.
 - Examples:
-  - Commercial reference: semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md
-  - Service reference: semantic_models/domains/Service/Measure_Dictionary_Service.md
-  - Use alias measures for cross-domain KPI usage (see semantic_models/README.md)
+  - Commercial reference: framework/semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md
+  - Service reference: framework/semantic_models/domains/Service/Measure_Dictionary_Service.md
+  - Use alias measures for cross-domain KPI usage (see framework/semantic_models/README.md)
 
 Relations:
 WITH WHAT/HOW; supports usecases.

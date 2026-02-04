@@ -1,6 +1,6 @@
 Param(
-  [string]$UseCasesRoot = "usecases",
-  [string]$MapPath = "usecases/UseCase_ActionCode_Map.yaml",
+  [string]$UseCasesRoot = "framework/usecases",
+  [string]$MapPath = "framework/usecases/UseCase_ActionCode_Map.yaml",
   [switch]$FailOnError
 )
 
@@ -82,8 +82,8 @@ function Get-BodyActionCodes {
   return $codes
 }
 
-$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "usecases"
-$mapPath = Resolve-RepoPath -ProvidedPath $MapPath -DefaultRelative "usecases/UseCase_ActionCode_Map.yaml"
+$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "framework/usecases"
+$mapPath = Resolve-RepoPath -ProvidedPath $MapPath -DefaultRelative "framework/usecases/UseCase_ActionCode_Map.yaml"
 if (-not $useCasesRoot) { throw "UseCases root not found. Provide -UseCasesRoot or run inside repository." }
 if (-not $mapPath) { throw "UseCase ActionCode map not found. Provide -MapPath or run inside repository." }
 

@@ -1,10 +1,10 @@
-﻿Param(
+Param(
   [string]$Root = "."
 )
 
 # Fix common mojibake sequences by replacing with proper UTF-8 characters.
 $docExt = @('.md','.markdown','.yaml','.yml','.txt')
-$excludeDirs = @('.git','node_modules','dist','_internal\\archive','_internal\\reviews')
+$excludeDirs = @('.git','node_modules','_internal\\archive','_internal\\reviews','implementations\\microsoft_fabric_powerbi\\dist')
 
 function Get-MojibakeString([string]$s){
   $utf8 = [System.Text.Encoding]::UTF8

@@ -1,12 +1,12 @@
 ﻿**********************
 nStart der Windows PowerShell-Aufzeichnung
-Startzeit: 20260203094405
+Startzeit: 20260204080137
 Benutzername: NAGARRO\florianhaferkorn
 RunAs-Benutzer: NAGARRO\florianhaferkorn
 Konfigurationsname: 
 Computer: NES-NBBSTPQ04 (Microsoft Windows NT 10.0.26100.0)
-Hostanwendung: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\florianhaferkorn\AppData\Local\Programs\Microsoft VS Code\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
-Prozess-ID: 39688
+Hostanwendung: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -Command cd 'c:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library'; .\_internal\tools\run_all_checks.ps1
+Prozess-ID: 25220
 PSVersion: 5.1.26100.7462
 PSEdition: Desktop
 PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.7462
@@ -17,9 +17,9 @@ PSRemotingProtocolVersion: 2.3
 SerializationVersion: 1.1.0.1
 **********************
 Running analytics-usecase-library checks...
-UseCases:   C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases
-Factsheets: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core
-KPI Catalog: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog
+UseCases:   C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\usecases
+Factsheets: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\usecases\core
+KPI Catalog: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog
 
 >> _internal/tools/validation/validate_factsheets.ps1
 FactSheet validation passed.
@@ -28,7 +28,7 @@ FactSheet validation passed.
 KPI Catalog validation passed.
 
 >> _internal/tools/validation/check_factsheet_vs_kpi.ps1
-Scanning Business/Technical Factsheets in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases ...
+Scanning Business/Technical Factsheets in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\usecases ...
 
 UseCase                            Measure                            Covered
 -------                            -------                            -------
@@ -156,8 +156,8 @@ All required measures are covered in KPI Catalog.
 
 >> _internal/tools/validation/check_measures_vs_kpi.ps1
 Checking measures vs KPI catalogs...
-  Dist root:      C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist
-  KPI catalog:    C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog
+  Dist root:      C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\dist
+  KPI catalog:    C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog
 All KPI references in _Measures.tmdl files exist in KPI catalogs.
 
 >> _internal/tools/maintenance/check_docs_refs.ps1
@@ -177,12 +177,25 @@ Checking documentation and tooling references...
   OK   _internal/tools/generation/generate_all_measures.ps1 (Generate all measures wrapper)
 
 Broken relative references detected:
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\_internal\reviews\aurora_data_gap_analysis.md: semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\_internal\reviews\aurora_data_gap_analysis.md: semantic_models/domains/CustomerValue/Measure_Dictionary_CustomerValue.md
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\_internal\tools\tmp\TMDL_Testing_Guide.md: ../docs/operating_model/measure_system.md
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\_internal\tools\tmp\TMDL_Testing_Guide.md: ../docs/operating_model/reference/TMDL_Allowed_Subset.md
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\_internal\tools\tmp\TMDL_Testing_Guide.md: ../docs/operating_model/reference/TMDL_Official_Refs.md
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\_internal\tools\tmp\TMDL_Testing_Guide.md: ../framework/kpi_catalog/KPI_Catalog.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\reviews\aurora_data_gap_analysis.md: semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\reviews\aurora_data_gap_analysis.md: semantic_models/domains/CustomerValue/Measure_Dictionary_CustomerValue.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\strategy\framework_evaluation_2026-02.md: .vscode/tasks.json
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\strategy\framework_evaluation_2026-02.md: _internal/tools/generation/new_usecase.ps1
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\strategy\framework_evaluation_2026-02.md: docs/README.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\strategy\framework_evaluation_2026-02.md: framework/action_codes/SupplyChain/
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\strategy\framework_evaluation_2026-02.md: framework/action_codes/SupplyChain/S-I1.1.yaml
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\strategy\framework_evaluation_2026-02.md: framework/implementation_guides/fabric_powerbi.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\strategy\framework_evaluation_2026-02.md: framework/implementation_guides/README.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\strategy\framework_evaluation_2026-02.md: framework/templates/kpi_catalog_templates/
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\strategy\framework_evaluation_2026-02.md: README.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\strategy\framework_evaluation_2026-02.md: showcases/aurora_group/README.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\strategy\framework_evaluation_2026-02.md: showcases/aurora_group/README.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\strategy\framework_evaluation_2026-02.md: showcases/aurora_group/usecases/core/COM-001.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\strategy\framework_evaluation_2026-02.md: usecases/usecase_DoD_Core.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\tools\tmp\TMDL_Testing_Guide.md: ../docs/operating_model/measure_system.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\tools\tmp\TMDL_Testing_Guide.md: ../docs/operating_model/reference/TMDL_Allowed_Subset.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\tools\tmp\TMDL_Testing_Guide.md: ../docs/operating_model/reference/TMDL_Official_Refs.md
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\_internal\tools\tmp\TMDL_Testing_Guide.md: ../framework/kpi_catalog/KPI_Catalog.md
 
 >> _internal/tools/validation/check_docs_kpi_refs.ps1
 Docs -> KPI Catalog consistency
@@ -205,10 +218,7 @@ Coverage counts (unique KPI IDs):
 OK: all KPI IDs are referenced in factsheets.
 
 >> _internal/tools/validation/check_duplicate_ids.ps1
-Duplicate ID checks failed:
-  - Duplicate factsheet id 'COM-002' for type 'business' in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-002_Margin_Price_Performance\FactSheet.md and C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-002_Margin_Price_Performance\Business_Factsheet.md
-  - Duplicate factsheet id 'COM-003' for type 'business' in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-003_Customer_Value\FactSheet.md and C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-003_Customer_Value\Business_Factsheet.md
-  - Duplicate factsheet id 'COM-004' for type 'business' in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-004_Promotion_Effectiveness\FactSheet.md and C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\usecases\core\COM-004_Promotion_Effectiveness\Business_Factsheet.md
+OK: no duplicate IDs detected.
 
 >> _internal/tools/validation/check_forbidden_content.ps1
 OK: no forbidden content detected.
@@ -243,11 +253,55 @@ OK: factsheet action_codes align with the UseCase ActionCode map.
 
 >> _internal/tools/validation/check_factsheet_layout.ps1
 Template layout checks
-Note: no measure documents found for template at C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\templates\measure_templates\measure_template.md (no instances under semantic_models/measures).
-Note: no page instance documents found for templates under C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\templates\page_templates\page_types.
-OK: all checked documents match their template layout.
+Note: no measure documents found for template at C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\templates\measure_templates\measure_template.md (no instances under semantic_models/measures).
+Note: no page instance documents found for templates under C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\templates\page_templates\page_types.
+Layout mismatches found:
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
 
->> _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains
+>> _internal/tools/validation/check_kpi_vs_measure_dictionary.ps1 -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\framework\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\semantic_models\domains
 KPI Catalog <-> Measure Dictionary consistency
 OK: KPI IDs are consistent.
 
@@ -255,11 +309,11 @@ OK: KPI IDs are consistent.
 DAX definitions vs Measure Dictionaries
 OK: all DAX measures are present in their Measure Dictionaries.
 
->> _internal/tools/validation/check_measure_dictionary_vs_gold.ps1 -GoldRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\data_contracts\domains -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains
+>> _internal/tools/validation/check_measure_dictionary_vs_gold.ps1 -GoldRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\data_contracts\domains -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\semantic_models\domains
 Measure Dictionary -> Gold Data Contracts consistency
 OK: all referenced tables/columns exist in gold contracts.
 
->> _internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1 -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\dist
+>> _internal/tools/validation/check_tmdl_vs_measure_dictionary.ps1 -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\analytics-usecase-library\dist
 TMDL <-> Measure Dictionary consistency
 Missing in TMDL (present in Measure Dictionaries):
   - Absenteeism %
@@ -398,6 +452,7 @@ Missing in Measure Dictionaries (present in TMDL):
 >> _internal/tools/validation/check_mojibake.ps1
 Mojibake scan
 Potential mojibake found:
+  - AGENTS.md:1: # Agent Instructions â€” Analytics Use Case Library
   - docs\operating_model\lakehouse_architecture.md:70: â”œâ”€ dim_time/           # Fiscal + calendar hierarchies
   - docs\operating_model\lakehouse_architecture.md:71: â”œâ”€ dim_product/        # Product catalog + hierarchies
   - docs\operating_model\lakehouse_architecture.md:72: â”œâ”€ dim_customer/       # Customer master + hierarchies
@@ -433,6 +488,18 @@ Potential mojibake found:
   - docs\operating_model\lakehouse_architecture.md:267: - Auto-compaction enabled âœ“
   - docs\operating_model\lakehouse_architecture.md:281: â””â”€ Shortcut â†’ External ADLS/S3 (if external sources)
   - docs\operating_model\lakehouse_architecture.md:284: â””â”€ Shortcut â†’ Lakehouse A/gold/* (consumption layer)
+  - framework\implementation_guides\fabric_powerbi.md:12: - Mapping of Operating Model â†’ Fabric components
+  - framework\implementation_guides\fabric_powerbi.md:20: - **Report themes and Power BI Theme Generator** â€” standardized report themes aligned with framework conventions; Theme Generator lives in `powerbi-theme/` and is part of Fabric/Power BI development; working, to be refined.
+  - framework\implementation_guides\fabric_powerbi.md:30: # 1. Operating Model â†’ Fabric Mapping
+  - framework\implementation_guides\fabric_powerbi.md:48: - Use **Bronze â†’ Silver â†’ Gold** pattern for high-quality ingestion.
+  - framework\implementation_guides\fabric_powerbi.md:95: - **Role-playing dates** explicitly defined (Date, Posting Date, Invoice Date, â€¦).
+  - framework\implementation_guides\fabric_powerbi.md:123: - Currency formatting via FormatString `"â‚¬ #,0.00"` â€“ not in the name.
+  - framework\implementation_guides\fabric_powerbi.md:175: - User â†’ Org mapping table
+  - framework\implementation_guides\fabric_powerbi.md:203: - Domain Overview â†’ Insights â†’ Explorer
+  - framework\implementation_guides\fabric_powerbi.md:246: - KPI â†’ Glossary mapping
+  - framework\implementation_guides\fabric_powerbi.md:285: - **Power BI Theme Generator** â€” lives in `powerbi-theme/` and generates Power BI themes (JSON) plus documentation (Markdown) from a single color prompt (Light/Dark, multiple concepts). It is part of the Fabric/Power BI development stack.\n+\n+Minimal usage (Windows):\n+\n+```powershell\n+cd powerbi-theme\n+py -m pip install -r tools/theme-agent/requirements.txt\n+\n+# Generate Light+Dark themes + docs\n+./theme.ps1 -Action all -Color '#118DFF' -Concept Monochromatic -Mode Both -Brand 'Generic'\n+```\n+\n+More details: `powerbi-theme/README.md`, `powerbi-theme/USAGE_Agent.md`.
+  - framework\implementation_guides\fabric_powerbi.md:306: - No descriptions â†’ breaks Copilot
+  - framework\implementation_guides\fabric_powerbi.md:325: /// sales.net_sales.amount â€“ Net Sales Amount
   - framework\implementation_guides\tmdl_best_practices.md:44: lineageTag: ef5816f6-16fe-4dd5-9d71-20835fbf02b7   // âŒ Tab+Space = PARSER ERROR
   - framework\implementation_guides\tmdl_best_practices.md:56: - âœ… `formatString` - Currency/percent formatting
   - framework\implementation_guides\tmdl_best_practices.md:57: - âœ… `displayFolder` - Organizational folder
@@ -473,6 +540,115 @@ Potential mojibake found:
   - framework\implementation_guides\tmdl_best_practices.md:345: 2. **Model**: Data Contracts â†’ semantic_layer.md â†’ fabric_powerbi.md
   - framework\implementation_guides\tmdl_best_practices.md:346: 3. **Implement**: MCP Operations â†’ **tmdl_best_practices.md** â†’ Power BI Desktop
   - framework\implementation_guides\tmdl_best_practices.md:347: 4. **Validate**: Export TMDL â†’ Test `.pbip` â†’ Commit
+  - powerbi-theme\Color_Generation_Framework.md:140: - **Center (Light)**: sehr hell-neutral `C = mix_rgb(W, K, 0.06)` (â‰ˆ `#FAFAFA`)
+  - powerbi-theme\Color_Generation_Framework.md:141: - **Center (Dark)**: mittelhell-neutral `C = mix_rgb(W, K, 0.85)` (â‰ˆ `#2A2A2A`)
+  - powerbi-theme\Color_Generation_Framework.md:184: - **RGB aus L:** `gray(L) = (round(255Â·L), round(255Â·L), round(255Â·L))`
+  - powerbi-theme\Color_Generation_Framework.md:273: | Divergent Center | Neutral L | 0.94 (â‰ˆ #FAFAFA) | 0.17–0.20 (â‰ˆ #2A2A2A) |
+  - powerbi-theme\Color_Generation_Framework.md:289: colors = mono_generate(B, mode)     // Â§2
+  - powerbi-theme\Color_Generation_Framework.md:291: colors = analog_generate(B, mode)   // Â§3
+  - powerbi-theme\Color_Generation_Framework.md:293: (colors, anchors) = div_generate(B, mode) // Â§4
+  - powerbi-theme\Color_Generation_Framework.md:295: (colors, anchors) = neutral_accent_generate(B, mode) // Â§5
+  - powerbi-theme\Color_Generation_Framework.md:297: ordered = arrange(colors, mode)        // Â§6
+  - powerbi-theme\README.md:107: - Monochromatic: one hue family with alternating light/dark steps; anchor center â‰ˆ background.
+  - powerbi-theme\README.md:109: - Divergent: two poles (primary/secondary), center â‰ˆ background; minimum from negative pole.
+  - powerbi-theme\themes\Brand_Coral\Analog\dark\Brand Coral__Analog__Dark__#FF6E4A.en.md:148: | Deuteranopia/Protanopia/Tritanopia | 7/7 | â‰¥ 20Â° hue & â‰¥ 0.10 L | 100% | <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:12px;background:#E6F4EA;border:1px solid #A3D4B1;color:#0F5132;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><svg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'><path d='M6.2 10.6L3.6 8l-1.2 1.2 3.8 3.8L13.6 5.6 12.4 4.4z' fill='currentColor'/></svg><span>Pass</span></span> |
+  - powerbi-theme\themes\Brand_Coral\Analog\light\Brand Coral__Analog__Light__#FF6E4A.en.md:148: | Deuteranopia/Protanopia/Tritanopia | 4/7 | â‰¥ 20Â° hue & â‰¥ 0.10 L | 57% | <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:12px;background:#FDE2E1;border:1px solid #EE9994;color:#842029;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><svg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'><path d='M3.5 3.5l9 9m-9 0l9-9' stroke='currentColor' stroke-width='2' stroke-linecap='round'/></svg><span>Fail</span></span> |
+  - powerbi-theme\themes\Brand_Coral\Divergent\dark\Brand Coral__Divergent__Dark__#FF6E4A.en.md:148: | Deuteranopia/Protanopia/Tritanopia | 7/7 | â‰¥ 20Â° hue & â‰¥ 0.10 L | 100% | <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:12px;background:#E6F4EA;border:1px solid #A3D4B1;color:#0F5132;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><svg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'><path d='M6.2 10.6L3.6 8l-1.2 1.2 3.8 3.8L13.6 5.6 12.4 4.4z' fill='currentColor'/></svg><span>Pass</span></span> |
+  - powerbi-theme\themes\Brand_Coral\Divergent\light\Brand Coral__Divergent__Light__#FF6E4A.en.md:148: | Deuteranopia/Protanopia/Tritanopia | 7/7 | â‰¥ 20Â° hue & â‰¥ 0.10 L | 100% | <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:12px;background:#E6F4EA;border:1px solid #A3D4B1;color:#0F5132;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><svg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'><path d='M6.2 10.6L3.6 8l-1.2 1.2 3.8 3.8L13.6 5.6 12.4 4.4z' fill='currentColor'/></svg><span>Pass</span></span> |
+  - powerbi-theme\themes\Brand_Coral\Monochromatic\dark\Brand Coral__Monochromatic__Dark__#FF6E4A.en.md:148: | Deuteranopia/Protanopia/Tritanopia | 7/7 | â‰¥ 20Â° hue & â‰¥ 0.10 L | 100% | <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:12px;background:#E6F4EA;border:1px solid #A3D4B1;color:#0F5132;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><svg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'><path d='M6.2 10.6L3.6 8l-1.2 1.2 3.8 3.8L13.6 5.6 12.4 4.4z' fill='currentColor'/></svg><span>Pass</span></span> |
+  - powerbi-theme\themes\Brand_Coral\Monochromatic\light\Brand Coral__Monochromatic__Light__#FF6E4A.en.md:148: | Deuteranopia/Protanopia/Tritanopia | 3/7 | â‰¥ 20Â° hue & â‰¥ 0.10 L | 43% | <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:12px;background:#FDE2E1;border:1px solid #EE9994;color:#842029;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><svg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'><path d='M3.5 3.5l9 9m-9 0l9-9' stroke='currentColor' stroke-width='2' stroke-linecap='round'/></svg><span>Fail</span></span> |
+  - powerbi-theme\themes\Brand_Coral\NeutralAccent\dark\Brand Coral__NeutralAccent__Dark__#FF6E4A.en.md:148: | Deuteranopia/Protanopia/Tritanopia | 7/7 | â‰¥ 20Â° hue & â‰¥ 0.10 L | 100% | <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:12px;background:#E6F4EA;border:1px solid #A3D4B1;color:#0F5132;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><svg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'><path d='M6.2 10.6L3.6 8l-1.2 1.2 3.8 3.8L13.6 5.6 12.4 4.4z' fill='currentColor'/></svg><span>Pass</span></span> |
+  - powerbi-theme\themes\Brand_Coral\NeutralAccent\light\Brand Coral__NeutralAccent__Light__#FF6E4A.en.md:148: | Deuteranopia/Protanopia/Tritanopia | 4/7 | â‰¥ 20Â° hue & â‰¥ 0.10 L | 57% | <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:12px;background:#FDE2E1;border:1px solid #EE9994;color:#842029;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><svg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'><path d='M3.5 3.5l9 9m-9 0l9-9' stroke='currentColor' stroke-width='2' stroke-linecap='round'/></svg><span>Fail</span></span> |
+  - powerbi-theme\themes\Brand_Mercedes\Analog\dark\Brand Mercedes__Analog__Dark__#00AEEF.en.md:148: | Deuteranopia/Protanopia/Tritanopia | 7/7 | â‰¥ 20Â° hue & â‰¥ 0.10 L | 100% | <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:12px;background:#E6F4EA;border:1px solid #A3D4B1;color:#0F5132;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><svg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'><path d='M6.2 10.6L3.6 8l-1.2 1.2 3.8 3.8L13.6 5.6 12.4 4.4z' fill='currentColor'/></svg><span>Pass</span></span> |
+  - powerbi-theme\themes\Brand_Mercedes\Analog\light\Brand Mercedes__Analog__Light__#00AEEF.en.md:148: | Deuteranopia/Protanopia/Tritanopia | 3/7 | â‰¥ 20Â° hue & â‰¥ 0.10 L | 43% | <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:12px;background:#FDE2E1;border:1px solid #EE9994;color:#842029;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><svg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'><path d='M3.5 3.5l9 9m-9 0l9-9' stroke='currentColor' stroke-width='2' stroke-linecap='round'/></svg><span>Fail</span></span> |
+  - powerbi-theme\themes\Brand_Mercedes\Divergent\dark\Brand Mercedes__Divergent__Dark__#00AEEF.en.md:148: | Deuteranopia/Protanopia/Tritanopia | 7/7 | â‰¥ 20Â° hue & â‰¥ 0.10 L | 100% | <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:12px;background:#E6F4EA;border:1px solid #A3D4B1;color:#0F5132;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><svg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'><path d='M6.2 10.6L3.6 8l-1.2 1.2 3.8 3.8L13.6 5.6 12.4 4.4z' fill='currentColor'/></svg><span>Pass</span></span> |
+  - powerbi-theme\themes\Brand_Mercedes\Divergent\light\Brand Mercedes__Divergent__Light__#00AEEF.en.md:148: | Deuteranopia/Protanopia/Tritanopia | 7/7 | â‰¥ 20Â° hue & â‰¥ 0.10 L | 100% | <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:12px;background:#E6F4EA;border:1px solid #A3D4B1;color:#0F5132;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><svg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'><path d='M6.2 10.6L3.6 8l-1.2 1.2 3.8 3.8L13.6 5.6 12.4 4.4z' fill='currentColor'/></svg><span>Pass</span></span> |
+  - powerbi-theme\themes\Brand_Mercedes\Monochromatic\dark\Brand Mercedes__Monochromatic__Dark__#00AEEF.en.md:148: | Deuteranopia/Protanopia/Tritanopia | 7/7 | â‰¥ 20Â° hue & â‰¥ 0.10 L | 100% | <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:12px;background:#E6F4EA;border:1px solid #A3D4B1;color:#0F5132;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><svg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'><path d='M6.2 10.6L3.6 8l-1.2 1.2 3.8 3.8L13.6 5.6 12.4 4.4z' fill='currentColor'/></svg><span>Pass</span></span> |
+  - powerbi-theme\themes\Brand_Mercedes\Monochromatic\light\Brand Mercedes__Monochromatic__Light__#00AEEF.en.md:148: | Deuteranopia/Protanopia/Tritanopia | 2/7 | â‰¥ 20Â° hue & â‰¥ 0.10 L | 29% | <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:12px;background:#FDE2E1;border:1px solid #EE9994;color:#842029;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><svg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'><path d='M3.5 3.5l9 9m-9 0l9-9' stroke='currentColor' stroke-width='2' stroke-linecap='round'/></svg><span>Fail</span></span> |
+  - powerbi-theme\themes\Brand_Mercedes\NeutralAccent\dark\Brand Mercedes__NeutralAccent__Dark__#00AEEF.en.md:148: | Deuteranopia/Protanopia/Tritanopia | 7/7 | â‰¥ 20Â° hue & â‰¥ 0.10 L | 100% | <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:12px;background:#E6F4EA;border:1px solid #A3D4B1;color:#0F5132;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><svg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'><path d='M6.2 10.6L3.6 8l-1.2 1.2 3.8 3.8L13.6 5.6 12.4 4.4z' fill='currentColor'/></svg><span>Pass</span></span> |
+  - powerbi-theme\themes\Brand_Mercedes\NeutralAccent\light\Brand Mercedes__NeutralAccent__Light__#00AEEF.en.md:148: | Deuteranopia/Protanopia/Tritanopia | 5/7 | â‰¥ 20Â° hue & â‰¥ 0.10 L | 71% | <span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:12px;background:#FDE2E1;border:1px solid #EE9994;color:#842029;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><svg width='12' height='12' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg' aria-hidden='true'><path d='M3.5 3.5l9 9m-9 0l9-9' stroke='currentColor' stroke-width='2' stroke-linecap='round'/></svg><span>Fail</span></span> |
+  - showcases\aurora_group\models\Commercial.yaml:23: # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  - showcases\aurora_group\models\Commercial.yaml:25: # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  - showcases\aurora_group\models\Commercial.yaml:93: # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  - showcases\aurora_group\models\Commercial.yaml:95: # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  - showcases\aurora_group\models\Commercial.yaml:118: description: "Organization hierarchy (Region â†’ Country â†’ Channel â†’ Org)"
+  - showcases\aurora_group\models\Commercial.yaml:189: # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  - showcases\aurora_group\models\Commercial.yaml:191: # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  - showcases\aurora_group\models\Commercial.yaml:234: # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  - showcases\aurora_group\models\Commercial.yaml:236: # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  - showcases\aurora_group\models\Commercial.yaml:291: # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  - showcases\aurora_group\models\Commercial.yaml:293: # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  - showcases\aurora_group\models\Commercial.yaml:305: - security_user_org must be populated with UserPrincipalName â†’ OrgKey mappings
+  - showcases\aurora_group\models\Commercial.yaml:308: # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  - showcases\aurora_group\models\Commercial.yaml:310: # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:3: ## Ãœberblick
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:5: Dieses Semantic Model demonstriert die vollstÃ¤ndige Implementierung von 4 Commercial Use Cases fÃ¼r die Aurora Group:
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:12: **Total: 26 KPIs** mit vollstÃ¤ndigen DAX-AusdrÃ¼cken
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:17: - **LÃ¤nder**: Deutschland, Ã–sterreich, Schweiz, Belgien, Niederlande, Luxemburg, Schweden, DÃ¤nemark, Norwegen, Finnland, Italien, Spanien, Portugal, Griechenland, Polen, Tschechien, Ungarn, Slowakei
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:26: â”œâ”€â”€ definition/
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:27: â”‚   â”œâ”€â”€ model.tmdl                    # Model-Definition
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:28: â”‚   â”œâ”€â”€ relationships.tmdl            # Alle Relationships
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:29: â”‚   â”œâ”€â”€ tables/
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:30: â”‚   â”‚   â”œâ”€â”€ dim_date.tmdl            # âœ… Mit Fiscal Calendar Hierarchy
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:31: â”‚   â”‚   â”œâ”€â”€ dim_org.tmdl             # âœ… Mit Aurora Organization Hierarchy
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:32: â”‚   â”‚   â”œâ”€â”€ dim_product.tmdl         # âœ… Mit Product Hierarchy
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:33: â”‚   â”‚   â”œâ”€â”€ dim_customer.tmdl
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:34: â”‚   â”‚   â”œâ”€â”€ fact_sales.tmdl
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:35: â”‚   â”‚   â”œâ”€â”€ security_user_org.tmdl   # âœ… RLS Security Table
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:36: â”‚   â”‚   â”œâ”€â”€ COM-001_Measures.tmdl    # âœ… Sales Performance (7 measures)
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:37: â”‚   â”‚   â”œâ”€â”€ COM-002_Measures.tmdl    # âœ… Margin Analysis (6 measures)
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:38: â”‚   â”‚   â”œâ”€â”€ COM-003_Measures.tmdl    # âœ… Customer Value (8 measures)
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:39: â”‚   â”‚   â””â”€â”€ COM-004_Measures.tmdl    # âœ… Promotion (5 measures)
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:40: â”‚   â”œâ”€â”€ relationships/
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:41: â”‚   â”‚   â””â”€â”€ security_user_org_dim_org.tmdl  # âœ… RLS Relationship
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:42: â”‚   â””â”€â”€ roles/
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:43: â”‚       â””â”€â”€ Aurora Organization Access.tmdl  # âœ… RLS Role
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:51: â””â”€â”€ Fiscal Quarter
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:52: â””â”€â”€ Fiscal Month (sorted by MonthNumber)
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:53: â””â”€â”€ Date
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:59: â””â”€â”€ Country
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:60: â””â”€â”€ Channel (Retail Stores, E-Commerce, Marketplaces, Wholesale)
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:61: â””â”€â”€ Org Name
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:67: â””â”€â”€ Sub Category
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:68: â””â”€â”€ Brand
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:69: â””â”€â”€ Product Name
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:99: - `security_user_org[OrgKey]` â†’ `dim_org[OrgKey]`
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:114: | **01_Sales Performance** | COM-001 | 7 KPIs | âœ… Komplett |
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:115: | **02_Margin Analysis** | COM-002 | 6 KPIs | âœ… Komplett |
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:116: | **03_Customer Analysis** | COM-003 | 8 KPIs | âœ… Komplett |
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:117: | **04_Promotion Effectiveness** | COM-004 | 5 KPIs | âœ… Komplett |
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:153: 3. **GM % During Promo** - Margin-Rate wÃ¤hrend Promo
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:173: - Jahr â†’ Quartal â†’ Monat â†’ Tag (dim_date)
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:174: - Region â†’ Land â†’ Channel â†’ Org (dim_org)
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:175: - Kategorie â†’ Subkategorie â†’ Brand â†’ Produkt (dim_product)
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:178: - **Power BI Desktop**: "View as Role" â†’ "Aurora Organization Access"
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:185: - Gross Margin %: Zwischen 20-40% fÃ¼r Aurora (realistisch)
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:190: 1. Ã–ffne `CoreActionReady.pbip`
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:196: 1. VerÃ¶ffentliche zu Workspace
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:204: 3. Nutze DirectLake fÃ¼r Performance (falls Lakehouse verfÃ¼gbar)
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:208: âœ… **Hierarchies**: Alle Dimensionen mit Business-Hierarchien
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:209: âœ… **Sort-By Columns**: Month nach MonthNumber sortiert
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:210: âœ… **Hidden Columns**: Surrogate Keys (DateKey, OrgKey, etc.) ausgeblendet
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:211: âœ… **Display Folders**: Business-orientierte Namen statt Use Case IDs
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:212: âœ… **RLS**: Bidirektionale Security mit security_user_org
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:213: âœ… **DAX Best Practices**: VAR-Statements, DIVIDE statt `/`, keine Division durch 0
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:214: âœ… **Aurora Context**: Region-Namen, Channel-Namen aus org_chart.md
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:215: âœ… **Naming Conventions**: Keine technischen PrÃ¤fixe, Business-Namen
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:220: ðŸŸ¡ **COM-004 Promotion**: BenÃ¶tigt fact_promo fÃ¼r Baseline Sales (aktuell Platzhalter-Logik)
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:223: ## NÃ¤chste Schritte
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:228: 4. **Calculation Groups** fÃ¼r Time Intelligence (YTD, QTD, MAT)
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:229: 5. **What-If Parameters** fÃ¼r Scenario Planning
+  - showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\README.md:230: 6. **Aggregations** fÃ¼r groÃŸe Datenvolumen (>1M Zeilen)
+  - _internal\strategy\framework_evaluation_2026-02.md:41: | [docs/README.md](docs/README.md) | Single navigation entry; Golden Thread order | 1) docs/company, 2) docs/operating_model, 3) framework/, 4) usecases/data_contracts/semantic_models, 5) showcases/aurora_group. "Run validation tools in _internal/tools/validation/ before delivery" â€” no script name. |
+  - _internal\strategy\framework_evaluation_2026-02.md:82: | SupplyChain action code filenames | [framework/action_codes/SupplyChain/](framework/action_codes/SupplyChain/): files `S-F.3.1.yaml`, `S-F.3.2.yaml`, `S-F.3.3.yaml` (dot in name) vs `S-F3.4.yaml` (no dot). UseCase_ActionCode_Map and rationale use IDs `S-F3.1`, `S-F3.2`, `S-F3.3`, `S-F3.4`. | Inconsistent naming; tooling that resolves action codes by filename may fail for S-F3.1â€“S-F3.3. |
+  - _internal\strategy\framework_evaluation_2026-02.md:104: 1. **Business Factsheet:** usecases/core/COM-001_Sales_Performance/Business_Factsheet.md â€” required KPIs, layout_330300, action code refs.
+  - _internal\strategy\framework_evaluation_2026-02.md:105: 2. **Technical Factsheet:** usecases/core/COM-001_Sales_Performance/Technical_Factsheet.md â€” kpi_to_measure_mapping, data contract scope.
+  - _internal\strategy\framework_evaluation_2026-02.md:106: 3. **KPI catalog:** framework/kpi_catalog/ â€” all required_kpis must exist here.
+  - _internal\strategy\framework_evaluation_2026-02.md:107: 4. **Action code map:** usecases/UseCase_ActionCode_Map.yaml â€” COM-001 lists C-M2.1, C-S1.1, C-S1.2.
+  - _internal\strategy\framework_evaluation_2026-02.md:144: | UseCase_Inventory | "Main Action Codes" column uses short codes (P2, M3, â€¦) that do not match UseCase_ActionCode_Map (C-M2.1, â€¦). | Inventory and map are out of sync; no documented alias table. |
+  - _internal\strategy\framework_evaluation_2026-02.md:152: - Align SupplyChain action code filenames with map IDs (S-F3.1 â€¦ S-F3.4 consistently).
+  - _internal\strategy\framework_evaluation_2026-02.md:161: - Add a fourth step to README "How to get started" (or a linked page): "Implement a use case" with a minimal sequence: pick use case â†’ open Business/Technical factsheets â†’ run generate_tmdl_measures.ps1 (with explicit roots from repo root) â†’ run run_stage1_checks.ps1.
+  - _internal\strategy\framework_evaluation_2026-02.md:178: - Read README "How to get started" steps 1â€“3 (strategy, operating model, use cases).
   - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:3: ## Vision: KPI Catalog â†’ Semantic Model â†’ Reports (Fully Automated)
   - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:36: - Analysis Services TMDL Extension fÃ¼r VS Code
   - _internal\tools\powerbi_mcp\AUTOMATION_FLOW.md:82: Write-Host "âœ“ PBIP structure ready: $modelPath" -ForegroundColor Green
@@ -642,22 +818,159 @@ Potential mojibake found:
   - _internal\tools\validation\README.md:166: | bpa-rules-report.json | Report visuals | Low | â³ TODO |
   - _internal\tools\validation\README.md:167: | bpa-rules-semanticmodel.json | Model structure | No | â³ TODO |
   - _internal\tools\validation\validate_tmdl.ps1:193: Write-Host "  â†» Auto-fixing: $($rule.id) - $($rule.name)" -ForegroundColor Yellow
+  - _internal\vision\framework_evolution.md:18: - **KPIs exist but are debated, not trusted** â€” definitions and targets are reinterpreted per report or team.
+  - _internal\vision\framework_evolution.md:19: - **Reports explain deviations but do not support decisions** â€” no clear link to actions or ownership.
+  - _internal\vision\framework_evolution.md:22: - **AI and automation are discussed but not structurally prepared** â€” no single semantic interface for humans and AI.
+  - _internal\vision\framework_evolution.md:24: The framework exists to make the path **strategy â†’ KPIs â†’ use cases â†’ semantic models â†’ actions** explicit, governed, and reusable so that analytics becomes a **reliable steering capability**, not a cost center.
+  - _internal\vision\framework_evolution.md:28: - **Fewer debates, faster decisions** â€” one KPI catalog and one measure system; reports and AI use the same definitions.
+  - _internal\vision\framework_evolution.md:29: - **Decision-oriented analytics** â€” organized by use cases and actions (what question, what action), not by "another dashboard."
+  - _internal\vision\framework_evolution.md:30: - **Reuse and speed** â€” new requirements extend existing KPIs and templates instead of reinventing logic.
+  - _internal\vision\framework_evolution.md:31: - **Action-ready** â€” insights connect to governed action codes (triggers, evidence, ownership).
+  - _internal\vision\framework_evolution.md:32: - **Automation- and AI-ready** â€” structured metadata and a single semantic layer enable both "AI helps build/maintain" and "AI consumes data reliably."
+  - _internal\vision\framework_evolution.md:43: 1. **Best-practice semantic modeling and reports** â€” 3-30-300, action codes, standardized report templates; semantic layer as single business interface.
+  - _internal\vision\framework_evolution.md:44: 2. **Best-practice architecture, code-driven** â€” workspace, dataset, lakehouse, and report structure that can be **set up and torn down by code** (e.g. Bicep, Fabric APIs), not only by clicking in the portal.
+  - _internal\vision\framework_evolution.md:45: 3. **Foundation for AI** â€” **AI as builder/maintainer:** metadata and structure enable AI to help create and maintain semantic models and reports in a governed way. **AI as consumer:** the semantic layer is the single, governed interface for querying and explaining data so AI and humans use the same definitions.
+  - _internal\vision\framework_evolution.md:46: 4. **Ease, efficiency, maintainability, scalability** â€” as **easy**, **time- and resource-saving**, and **maintenance-friendly** as possible; **scalable** to more use cases, workspaces, and customers.
+  - _internal\vision\framework_evolution.md:47: 5. **First, pragmatic governance** â€” lightweight but binding: ownership, change flow (e.g. KPI catalog â†’ use cases â†’ semantic model), and quality gates (e.g. Stage 1) without heavy process.
+  - _internal\vision\framework_evolution.md:124: - **Power BI Theme Generator** (`powerbi-theme/`) â€” generates/standardizes report themes from framework conventions; already working; to be refined and documented as part of `framework/implementation_guides/` and Fabric tooling
+  - _internal\vision\framework_evolution.md:129: - **First, pragmatic governance** â€” ownership, change flow, Stage 1 as gate; minimal process.
 
 >> _internal/tools/validation/check_markdownlint.ps1
 Markdownlint check
-PS>TerminatingError(node.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: _internal/tools/tmp/TMDL_Testing_Guide.md:105:14 error MD034/no-bare-urls Bare URL used [Context: "https://marketplace.visualstud..."]."
->> TerminatingError(node.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: _internal/tools/tmp/TMDL_Testing_Guide.md:105:14 error MD034/no-bare-urls Bare URL used [Context: "https://marketplace.visualstud..."]."
+
 
 >> _internal/tools/validation/check_yaml_format.ps1
 YAML format check
 PS>TerminatingError(python.exe): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Python wurde nicht gefunden; ohne Argumente ausf³hren, um aus dem Microsoft Store zu installieren, oder deaktivieren Sie diese Verkn³pfung unter "Einstellungen > Apps > Erweiterte App-Einstellungen > App-Ausf³hrungsaliase".."
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 OK: All YAML files parsed successfully.
 
 >> _internal/tools/validation/check_schema_validation.ps1
 Schema validation
+
+
+
 OK: schema validation passed.
 
 **********************
 Ende der Windows PowerShell-Aufzeichnung
-Endzeit: 20260203094500
+Endzeit: 20260204080333
 **********************

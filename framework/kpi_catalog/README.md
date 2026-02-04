@@ -17,7 +17,7 @@ Included:
 - Strategic and operational KPIs per domain
 - Measure dictionary references
 - Calculation logic, naming rules, formats
-- KPI -> Domain -> Use Case -> Action Code mapping (see usecases/UseCase_ActionCode_Map.yaml and usecases/UseCase_ActionCode_Rationale.yaml)
+- KPI -> Domain -> Use Case -> Action Code mapping (see framework/usecases/UseCase_ActionCode_Map.yaml and framework/usecases/UseCase_ActionCode_Rationale.yaml)
 - Authoritative definitions required for AI/Copilot
 
 Not included:

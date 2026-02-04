@@ -21,12 +21,12 @@ factsheet_type: technical
 
 ## 1. Model References
 
-- **Domain Data Contract:** data_contracts/domains/commercial_sales.yaml
-- **Source Data Contract:** data_contracts/sources/commercial.yaml
-- **Semantic Model Definition:** semantic_models/core_action_ready/commercial_sales/model_definition.yaml
-- **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
-- **Measure Dictionary:** semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md
-- **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
+- **Domain Data Contract:** framework/framework/framework/data_contracts/domains/commercial_sales.yaml
+- **Source Data Contract:** framework/framework/framework/data_contracts/sources/commercial.yaml
+- **Semantic Model Definition:** framework/framework/framework/semantic_models/core_action_ready/commercial_sales/model_definition.yaml
+- **KPI Catalog:** framework/kpi_catalog/KPI_Catalog.md
+- **Measure Dictionary:** framework/framework/framework/semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md
+- **Action Codes:** framework/action_codes/README.md
 
 ---
 

@@ -218,9 +218,9 @@ $state.iteration = 2
 Invoke-WithRetry "Generate TMDL Measures" {
     $result = & ./_internal/tools/generation/generate_tmdl_measures.ps1 `
         -UseCase $UseCase `
-        -UseCasesRoot "usecases/core" `
+        -UseCasesRoot "framework/usecases/core" `
         -KpiCatalogRoot "framework/kpi_catalog" `
-        -DistRoot "dist" `
+        -DistRoot "implementations/microsoft_fabric_powerbi/dist" `
         -OverwriteExisting
     
     if ($LASTEXITCODE -ne 0) {
@@ -247,7 +247,7 @@ $state.iteration = 3
 
 # 3.1 Create Tables from Data Contracts
 Invoke-WithRetry "Create Dimension Tables" {
-    $dataContract = Get-Content "data_contracts\sources\synthetic\synthetic_data_contract.yaml" -Raw | ConvertFrom-Yaml
+    $dataContract = Get-Content "framework\data_contracts\sources\synthetic\synthetic_data_contract.yaml" -Raw | ConvertFrom-Yaml
     
     # Für jede Dimension: Table Operation über MCP
     foreach ($table in $dataContract.tables) {
@@ -291,7 +291,7 @@ Invoke-WithRetry "Create Hierarchies" {
 
 # 3.4 Import Measures
 Invoke-WithRetry "Import Measures to Model" {
-    $measuresFile = "dist\$UseCase\$UseCase.SemanticModel\definition\tables\_Measures.tmdl"
+    $measuresFile = "implementations\microsoft_fabric_powerbi\dist\$UseCase\$UseCase.SemanticModel\definition\tables\_Measures.tmdl"
     
     # Copy measures to working model
     $targetModel = "showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel"
@@ -372,7 +372,7 @@ $state.iteration = 5
 
 Invoke-WithRetry "Generate Report from Template" {
     # Page Template aus Use Case Business Factsheet
-    $factsheet = Get-Content "usecases\core\$UseCase\Business_Factsheet.md" -Raw
+    $factsheet = Get-Content "framework\usecases\core\$UseCase\Business_Factsheet.md" -Raw
     
     # Parse page_template field
     $templateMatch = [regex]::Match($factsheet, 'page_template:\s*"([^"]+)"')

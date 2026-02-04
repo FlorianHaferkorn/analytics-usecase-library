@@ -220,7 +220,7 @@ governance:
   rollback_plan:
     - "Pause corrective actions if yield or quality deteriorates"
   documentation_links:
-    - "usecases/core/FIN-002/Business_Factsheet.md"
+    - "framework/usecases/core/FIN-002_Cost_Performance/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

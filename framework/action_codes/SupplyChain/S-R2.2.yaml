@@ -223,7 +223,7 @@ governance:
   rollback_plan:
     - "Revert corrective actions if cost or service volatility increases"
   documentation_links:
-    - "usecases/core/SCM-002/Business_Factsheet.md"
+    - "framework/usecases/core/SCM-002_Supply_Reliability_OTIF/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

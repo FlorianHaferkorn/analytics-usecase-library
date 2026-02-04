@@ -17,13 +17,13 @@ Included:
 - Distribution & navigation rules  
 - AI/Copilot readiness  
 - Recommended workspace, folder, and project structure  
-- **Report themes and Power BI Theme Generator** — standardized report themes aligned with framework conventions; Theme Generator (dedicated folder, to be documented here once path is fixed) is part of Fabric/Power BI development; working, to be refined.
+- **Report themes and Power BI Theme Generator** — standardized report themes aligned with framework conventions; Theme Generator lives in `implementations/microsoft_fabric_powerbi/tools/theme_generator/` and is part of Fabric/Power BI development; working, to be refined.
 
 Not included:
 
 - Customer-specific provisioning  
 - ETL pipelines beyond standard patterns  
-- Framework-agnostic architecture (see docs/operating_model)
+- Framework-agnostic architecture (see framework/strategy_operating_model/operating_model)
 
 ---
 
@@ -282,7 +282,7 @@ BI_Experiments
 
 - Report themes (JSON) define visual consistency across reports (colors, fonts, layout defaults).
 - The framework uses **BaseThemes** (e.g. `Base_Theme_Template_V1.json`) and derived themes (e.g. per brand or app) under `StaticResources/SharedResources/BaseThemes/` in PBIP report projects.
-- **Power BI Theme Generator** — a dedicated tool (folder/location to be documented in this guide) generates or standardizes report themes from framework conventions. It is part of the Fabric/Power BI development stack, already in use, and will be refined and documented alongside this implementation guide.
+- **Power BI Theme Generator** — lives in `implementations/microsoft_fabric_powerbi/tools/theme_generator/` and generates Power BI themes (JSON) plus documentation (Markdown) from a single color prompt (Light/Dark, multiple concepts). It is part of the Fabric/Power BI development stack.\n+\n+Minimal usage (Windows):\n+\n+```powershell\n+cd implementations/microsoft_fabric_powerbi/tools/theme_generator\n+py -m pip install -r tools/theme-agent/requirements.txt\n+\n+# Generate Light+Dark themes + docs\n+./theme.ps1 -Action all -Color '#118DFF' -Concept Monochromatic -Mode Both -Brand 'Generic'\n+```\n+\n+More details: `implementations/microsoft_fabric_powerbi/tools/theme_generator/README.md`, `implementations/microsoft_fabric_powerbi/tools/theme_generator/USAGE_Agent.md`.
 
 ## 9.5 Shared Assets
 
@@ -330,4 +330,4 @@ measure Net Sales Amount =
 ---
 
 **Location:**  
-`framework/implementation_guides/fabric_powerbi.md`
+`implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md`

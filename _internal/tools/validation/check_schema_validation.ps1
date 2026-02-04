@@ -1,4 +1,4 @@
-﻿Param(
+Param(
   [string]$Root = ".",
   [switch]$FailOnError
 )
@@ -56,7 +56,7 @@ $deployRoot = Join-Path -Path $rootPath -ChildPath "deployments"
 if (Test-Path $deployRoot) {
   $triggerMapDeployFiles += Get-ChildItem -Path $deployRoot -Recurse -Filter "*trigger_map*.yaml"
 }
-$useCaseMap = Join-Path -Path $rootPath -ChildPath "usecases\UseCase_ActionCode_Map.yaml"
+$useCaseMap = Join-Path -Path $rootPath -ChildPath "framework\usecases\UseCase_ActionCode_Map.yaml"
 
 $hadIssues = $false
 

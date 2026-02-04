@@ -21,7 +21,7 @@
     "warnings":  [
 
                  ],
-    "measuresFile":  "dist\\COM-002\\COM-002.SemanticModel\\definition\\tables\\_Measures.tmdl",
+    "measuresFile":  "implementations\\microsoft_fabric_powerbi\\dist\\COM-002\\COM-002.SemanticModel\\definition\\tables\\_Measures.tmdl",
     "scopeName":  "COM-002",
     "completed":  [
                       "Check Aurora Data",

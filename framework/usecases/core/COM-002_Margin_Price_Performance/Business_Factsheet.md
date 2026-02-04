@@ -18,8 +18,8 @@ factsheet_type: business
 - **Decision Owner:** Sales & Pricing Leadership Team
 - **Reporting Level:** Tactical
 - **Analytics Stage:** Diagnostic / Prescriptive
-- **Related Data Contract:** data_contracts/domains/commercial_sales.yaml
-- **Related Semantic Model:** semantic_models/core_action_ready/commercial_sales/model_definition.yaml
+- **Related Data Contract:** framework/framework/framework/data_contracts/domains/commercial_sales.yaml
+- **Related Semantic Model:** framework/framework/framework/semantic_models/core_action_ready/commercial_sales/model_definition.yaml
 
 ---
 
@@ -52,10 +52,6 @@ required_kpis:
     kpi_catalog_id: Profitability
     name: Gross Margin %
     purpose: Profitability quality
-    agg: avg
-
-    name: Gross Margin % (Strategic)
-    purpose: Strategic profitability benchmark
     agg: avg
 
   - id: margin.gm.amount

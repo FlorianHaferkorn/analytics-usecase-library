@@ -1,7 +1,7 @@
 Param(
-  [string]$DocsRoot = "docs",
-  [string]$UseCasesRoot = "usecases",
-  [string]$InventoryPath = "usecases/UseCase_Inventory.md",
+  [string]$DocsRoot = "framework/strategy_operating_model",
+  [string]$UseCasesRoot = "framework/usecases",
+  [string]$InventoryPath = "framework/usecases/UseCase_Inventory.md",
   [switch]$FailOnError
 )
 
@@ -65,9 +65,9 @@ function Get-UseCaseIdsFromDocs {
   return $ids
 }
 
-$docsRoot = Resolve-RepoPath -ProvidedPath $DocsRoot -DefaultRelative "docs"
-$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "usecases"
-$inventoryPath = Resolve-RepoPath -ProvidedPath $InventoryPath -DefaultRelative "usecases/UseCase_Inventory.md"
+$docsRoot = Resolve-RepoPath -ProvidedPath $DocsRoot -DefaultRelative "framework/strategy_operating_model"
+$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "framework/usecases"
+$inventoryPath = Resolve-RepoPath -ProvidedPath $InventoryPath -DefaultRelative "framework/usecases/UseCase_Inventory.md"
 if (-not $docsRoot) { throw "Docs root not found. Provide -DocsRoot or run inside repository." }
 if (-not $useCasesRoot) { throw "UseCases root not found. Provide -UseCasesRoot or run inside repository." }
 if (-not $inventoryPath) { throw "UseCase inventory not found. Provide -InventoryPath or run inside repository." }

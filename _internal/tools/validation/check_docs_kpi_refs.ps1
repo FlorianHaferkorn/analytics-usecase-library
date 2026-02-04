@@ -1,5 +1,5 @@
 Param(
-  [string]$DocsRoot = "docs",
+  [string]$DocsRoot = "framework/strategy_operating_model",
   [string]$KpiCatalogRoot = "framework/kpi_catalog",
   [switch]$FailOnError
 )
@@ -50,7 +50,7 @@ function Get-KpiRefsFromDocs {
   return $ids
 }
 
-$docsRoot = Resolve-RepoPath -ProvidedPath $DocsRoot -DefaultRelative "docs"
+$docsRoot = Resolve-RepoPath -ProvidedPath $DocsRoot -DefaultRelative "framework/strategy_operating_model"
 $kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative "framework/kpi_catalog"
 if (-not $docsRoot) { throw "Docs root not found. Provide -DocsRoot or run inside repository." }
 if (-not $kpiCatalogRoot) { throw "KPI catalog root not found. Provide -KpiCatalogRoot or run inside repository." }

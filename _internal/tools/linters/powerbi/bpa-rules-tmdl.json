@@ -14,7 +14,7 @@
       "pattern": "\\t ",
       "autoFixable": true,
       "fixDescription": "Replace Tab+Space with pure TAB",
-      "reference": "framework/implementation_guides/tmdl_best_practices.md#11-indentation-critical"
+      "reference": "implementations/microsoft_fabric_powerbi/guide/tmdl_best_practices.md#11-indentation-critical"
     },
     {
       "id": "TMDL-002",
@@ -25,7 +25,7 @@
       "pattern": "(?m)^\\s+description:\\s*\"",
       "autoFixable": true,
       "fixDescription": "Convert description: property to /// comment",
-      "reference": "framework/implementation_guides/tmdl_best_practices.md#13-comments-and-documentation",
+      "reference": "implementations/microsoft_fabric_powerbi/guide/tmdl_best_practices.md#13-comments-and-documentation",
       "errorExample": "measure 'Sales' = SUM([Amount])\n  description: \"Total sales\"  // ❌ PARSER ERROR",
       "correctExample": "/// Total sales\nmeasure 'Sales' = SUM([Amount])"
     },
@@ -39,7 +39,7 @@
       "negativePattern": "let\\s+Source",
       "autoFixable": true,
       "fixDescription": "Wrap inline expression in let...in block with type table",
-      "reference": "framework/implementation_guides/tmdl_best_practices.md#21-standard-pattern",
+      "reference": "implementations/microsoft_fabric_powerbi/guide/tmdl_best_practices.md#21-standard-pattern",
       "errorExample": "source = #table({\"col1\"}, {})  // ❌ COMPOSITE MODEL ERROR",
       "correctExample": "source =\n    let\n        Source = #table(type table [], {})\n    in\n        Source"
     },
@@ -52,7 +52,7 @@
       "pattern": "measure\\s+['\"]?[^'\"]+['\"]?\\s*=",
       "negativePattern": "formatString:",
       "autoFixable": false,
-      "reference": "framework/implementation_guides/tmdl_best_practices.md#32-formatstring-patterns"
+      "reference": "implementations/microsoft_fabric_powerbi/guide/tmdl_best_practices.md#32-formatstring-patterns"
     },
     {
       "id": "TMDL-005",
@@ -63,7 +63,7 @@
       "pattern": "measure\\s+['\"]?[^'\"]+['\"]?\\s*=",
       "negativePattern": "displayFolder:",
       "autoFixable": false,
-      "reference": "framework/implementation_guides/fabric_powerbi.md#measure-system-enforcement"
+      "reference": "implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md#measure-system-enforcement"
     },
     {
       "id": "TMDL-006",
@@ -73,7 +73,7 @@
       "description": "All measures should have /// documentation comment on the line before definition for AI/Copilot readiness.",
       "pattern": "(?<!///[^\\n]*\\n)\\s*measure\\s+",
       "autoFixable": false,
-      "reference": "framework/implementation_guides/fabric_powerbi.md#ai-copilot-readiness"
+      "reference": "implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md#ai-copilot-readiness"
     },
     {
       "id": "TMDL-007",
@@ -84,7 +84,7 @@
       "scope": "**/*.tmdl",
       "pattern": "column\\s+['\"]?[^'\"]+['\"]?\\s*=\\s*",
       "autoFixable": false,
-      "reference": "framework/implementation_guides/fabric_powerbi.md#semantic-modeling-rules"
+      "reference": "implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md#semantic-modeling-rules"
     },
     {
       "id": "TMDL-008",
@@ -94,7 +94,7 @@
       "description": "Snowflake relationships (dimension → dimension) should be avoided. Use star schema pattern (fact → dimension only).",
       "scope": "**/relationships/*.tmdl",
       "autoFixable": false,
-      "reference": "framework/implementation_guides/fabric_powerbi.md#semantic-modeling-rules"
+      "reference": "implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md#semantic-modeling-rules"
     },
     {
       "id": "TMDL-009",
@@ -105,7 +105,7 @@
       "scope": "**/relationships/*.tmdl",
       "pattern": "crossFilteringBehavior:\\s*bothDirections",
       "autoFixable": false,
-      "reference": "framework/implementation_guides/fabric_powerbi.md#semantic-modeling-rules"
+      "reference": "implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md#semantic-modeling-rules"
     },
     {
       "id": "TMDL-010",
@@ -117,7 +117,7 @@
       "negativePattern": "lineageTag:",
       "autoFixable": true,
       "fixDescription": "Generate and add GUID lineageTag",
-      "reference": "framework/implementation_guides/tmdl_best_practices.md#11-indentation-critical"
+      "reference": "implementations/microsoft_fabric_powerbi/guide/tmdl_best_practices.md#11-indentation-critical"
     }
   ]
 }

@@ -15,18 +15,18 @@ factsheet_type: technical
 - **Technical Owner:** Planning / S&OP BI Lead
 - **Model ID:** scm_forecast_vs_actual
 - **Source Systems:** Forecasting system, ERP (actuals), OMS/WMS (service), DWH
-- **Business Factsheet:** usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md
+- **Business Factsheet:** framework/usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md
 
 ---
 
 ## 1. Model References
 
-- **Domain Data Contract:** data_contracts/domains/supply_chain.yaml
-- **Source Data Contract:** data_contracts/sources/supply_chain.yaml (if present)
-- **Semantic Model Definition:** semantic_models/domains/scm/model_definition.yaml
-- **KPI Catalog:** framework/kpi_catalog/domain_kpi_catalog.md
-- **Measure Dictionary:** semantic_models/domains/SupplyChain/Measure_Dictionary_SupplyChain.md
-- **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
+- **Domain Data Contract:** framework/framework/framework/data_contracts/domains/supply_chain.yaml
+- **Source Data Contract:** framework/framework/framework/data_contracts/sources/supply_chain.yaml (if present)
+- **Semantic Model Definition:** framework/framework/framework/semantic_models/core_action_ready/model_definition.yaml
+- **KPI Catalog:** framework/kpi_catalog/KPI_Catalog.md
+- **Measure Dictionary:** framework/framework/framework/semantic_models/domains/SupplyChain/Measure_Dictionary_SupplyChain.md
+- **Action Codes:** framework/action_codes/README.md
 
 ---
 

@@ -1,4 +1,4 @@
-﻿# templates
+# templates
 
 Purpose:
 Reusable use case templates for business/technical factsheets and blueprints.
@@ -20,4 +20,4 @@ Usage:
 - Update when standards evolve
 
 Relations:
-PATTERNS supporting usecases and docs/company/operating_model alignment.
+PATTERNS supporting framework/usecases and framework/strategy_operating_model/company and operating_model alignment.

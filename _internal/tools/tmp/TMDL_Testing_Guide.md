@@ -21,7 +21,7 @@
 
 **Ausführung:**
 ```powershell
-./_internal/tools/tmp/test_tmdl.ps1 -TmdlFile "dist\USE-CASE-ID\*.SemanticModel\definition\tables\_Measures.tmdl"
+./_internal/tools/tmp/test_tmdl.ps1 -TmdlFile "implementations\microsoft_fabric_powerbi\dist\USE-CASE-ID\*.SemanticModel\definition\tables\_Measures.tmdl"
 ```
 
 **Beispiel-Output:**
@@ -65,7 +65,7 @@
 **Ausführung:**
 ```powershell
 # Für spezifisches Use Case
-./_internal/tools/linters/run_bpa.ps1 -Root "dist\COM-001\COM-001.SemanticModel"
+./_internal/tools/linters/run_bpa.ps1 -Root "implementations\microsoft_fabric_powerbi\dist\COM-001\COM-001.SemanticModel"
 
 # Über run_all_checks.ps1 (umfassend)
 ./_internal/tools/run_all_checks.ps1
@@ -102,8 +102,8 @@ code --install-extension analysis-services.TMDL
 4. IntelliSense mit `Ctrl+Space`
 
 **Offizielle Doku:**
-- Extension: https://marketplace.visualstudio.com/items?itemName=analysis-services.TMDL
-- TMDL Spec: https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-overview
+- Extension: `https://marketplace.visualstudio.com/items?itemName=analysis-services.TMDL`
+- TMDL Spec: `https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-overview`
 
 ---
 
@@ -132,7 +132,7 @@ mkdir "MyModel.SemanticModel\definition\tables"
 mkdir "MyModel.Report"
 
 # 3. TMDL-Dateien kopieren
-copy "dist\COM-001\COM-001.SemanticModel\definition\tables\*.tmdl" "MyModel.SemanticModel\definition\tables\"
+copy "implementations\microsoft_fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\*.tmdl" "MyModel.SemanticModel\definition\tables\"
 
 # 4. model.tmdl erstellen
 @"
@@ -207,13 +207,13 @@ explorer .
 ./_internal/tools/generation/generate_tmdl_measures.ps1 -UseCase "COM-001" -OverwriteExisting
 
 # Schritt 2: Syntax validieren
-./_internal/tools/tmp/test_tmdl.ps1 -TmdlFile "dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl"
+./_internal/tools/tmp/test_tmdl.ps1 -TmdlFile "implementations\microsoft_fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl"
 
 # Schritt 3: BPA ausführen
 ./_internal/tools/run_all_checks.ps1
 
 # Schritt 4: In Power BI Desktop öffnen
-explorer "dist\COM-001"
+explorer "implementations\microsoft_fabric_powerbi\dist\COM-001"
 # Dann: File → Open → COM-001.SemanticModel in Power BI Desktop
 ```
 
@@ -238,17 +238,17 @@ explorer "dist\COM-001"
 ## 📚 Referenzen
 
 ### Microsoft Official:
-- TMDL Overview: https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-overview
-- TMDL How-To: https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-how-to
-- Power BI TMDL View: https://learn.microsoft.com/en-us/power-bi/transform-model/desktop-tmdl-view
-- PBIP Semantic Model: https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-dataset
-- VS Code Extension: https://marketplace.visualstudio.com/items?itemName=analysis-services.TMDL
+- TMDL Overview: `https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-overview`
+- TMDL How-To: `https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-how-to`
+- Power BI TMDL View: `https://learn.microsoft.com/en-us/power-bi/transform-model/desktop-tmdl-view`
+- PBIP Semantic Model: `https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-dataset`
+- VS Code Extension: `https://marketplace.visualstudio.com/items?itemName=analysis-services.TMDL`
 
 ### Internal:
-- [TMDL Official Refs](../docs/operating_model/reference/TMDL_Official_Refs.md)
-- [TMDL Allowed Subset](../docs/operating_model/reference/TMDL_Allowed_Subset.md)
-- [KPI Catalog](../framework/kpi_catalog/KPI_Catalog.md)
-- [Measure System](../docs/operating_model/measure_system.md)
+- [TMDL Official Refs](../../../framework/strategy_operating_model/operating_model/reference/TMDL_Official_Refs.md)
+- [TMDL Allowed Subset](../../../framework/strategy_operating_model/operating_model/reference/TMDL_Allowed_Subset.md)
+- [KPI Catalog](../../../framework/kpi_catalog/KPI_Catalog.md)
+- [Measure System](../../../framework/strategy_operating_model/operating_model/measure_system.md)
 
 ---
 

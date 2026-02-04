@@ -10,7 +10,7 @@ This folder contains the core assets of the Analytics Use Case Library.
 
 ## Optional
 
-- Implementation guides: `framework/implementation_guides/`
+- Implementation guides: `implementations/microsoft_fabric_powerbi/guide/` (Fabric/Power BI)
 - Glossary: `framework/glossary/`
 
 ## Out of Scope

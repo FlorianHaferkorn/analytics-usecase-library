@@ -13,7 +13,7 @@ Scope:
 Structure:
 
 ```yaml
-data_contracts/
+framework/data_contracts/
   domains/
     commercial_sales.yaml
     operations.yaml
@@ -43,4 +43,4 @@ Relations:
 - WHY: derived from domains and KPIs in `docs/company/`.
 - HOW: enforced by `docs/operating_model/semantic_layer.md` and `data_governance.md`.
 - WITH WHAT: templates in `framework/templates/data_contract_templates/` guide structure.
-- WHAT: semantic_models and usecases depend on these schemas.
+- WHAT: framework/semantic_models and framework/usecases depend on these schemas.

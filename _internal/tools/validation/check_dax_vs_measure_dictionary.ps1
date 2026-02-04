@@ -1,5 +1,5 @@
 Param(
-  [string]$UseCasesRoot = "usecases",
+  [string]$UseCasesRoot = "framework/usecases",
   [switch]$FailOnError
 )
 
@@ -49,7 +49,7 @@ function Get-DaxMeasureNames {
   return $names
 }
 
-$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "usecases"
+$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "framework/usecases"
 if (-not $useCasesRoot) { throw "UseCases root not found. Provide -UseCasesRoot or run inside repository." }
 
 Write-Host "DAX definitions vs Measure Dictionaries" -ForegroundColor Cyan

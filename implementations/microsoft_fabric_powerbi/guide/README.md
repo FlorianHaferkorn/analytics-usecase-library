@@ -38,17 +38,17 @@ Not included:
 
 - Raw ETL pipelines  
 - Customer-specific provisioning processes  
-- Tool-agnostic operating model principles (see `docs/operating_model/`)
+- Tool-agnostic operating model principles (see `framework/strategy_operating_model/operating_model/`)
 
 ---
 
 ## Structure
 
 ```yaml
-implementation_guides/
-  fabric_powerbi.md        - Implementation in Microsoft Fabric + Power BI ecosystem
-  tmdl_best_practices.md   - TMDL formatting and syntax for semantic models
-  README.md                - This file
+implementations/microsoft_fabric_powerbi/guide/
+  fabric_powerbi.md        # Implementation in Microsoft Fabric + Power BI ecosystem
+  tmdl_best_practices.md   # TMDL formatting and syntax for semantic models
+  README.md                # This file
 ```
 
 ### fabric_powerbi.md
@@ -62,7 +62,7 @@ Covers:
 - RLS/OLS patterns  
 - Measure & DisplayFolder enforcement  
 - App navigation & UX rules (3-30-300)
-- Report themes & Power BI Theme Generator (standardized themes; tool to be documented and refined)
+- Report themes & Power BI Theme Generator (standardized themes; tool lives in `implementations/microsoft_fabric_powerbi/tools/theme_generator/` and can be refined)
 
 ### Planned guides (not yet included)
 
@@ -112,4 +112,4 @@ Start with:
 ---
 
 **Location:**  
-`framework/implementation_guides/README.md`
+`implementations/microsoft_fabric_powerbi/guide/README.md`

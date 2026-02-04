@@ -1,6 +1,6 @@
 Param(
   [string]$Root = ".",
-  [string[]]$ExcludeDirs = @(".git","node_modules","dist","_internal\\archive","_internal\\reviews")
+  [string[]]$ExcludeDirs = @(".git","node_modules","_internal\\archive","_internal\\reviews","implementations\\microsoft_fabric_powerbi\\dist")
 )
 
 $ErrorActionPreference = "Stop"
@@ -12,14 +12,14 @@ $repoRoot   = Split-Path -Parent (Split-Path -Parent $toolsRoot) # repo root
 Write-Host "Checking documentation and tooling references..." -ForegroundColor Cyan
 
 $items = @(
-  @{ Path = "docs/README.md";                                    Kind = "file"; Description = "Docs overview" },
-  @{ Path = "docs/company/company_strategy.md";                  Kind = "file"; Description = "Business Strategy / Strategic KPIs / Alignment Map (canonical)" },
-  @{ Path = "docs/operating_model/semantic_layer.md";            Kind = "file"; Description = "Semantic Layer blueprint" },
-  @{ Path = "docs/operating_model/distribution_architecture.md"; Kind = "file"; Description = "Distribution architecture" },
-  @{ Path = "usecases/templates/usecase_factsheet_business.md";  Kind = "file"; Description = "Use Case factsheet (business) template" },
-  @{ Path = "usecases/templates/usecase_factsheet_technical.md"; Kind = "file"; Description = "Use Case factsheet (technical) template" },
-  @{ Path = "usecases/UseCase_Inventory.md";                     Kind = "file"; Description = "Use Case Inventory" },
-  @{ Path = "framework/templates/KPI_Catalog_templates/KPI_Catalog_SCHEMA.md"; Kind = "file"; Description = "KPI Catalog Schema (canonical)" },
+  @{ Path = "framework/strategy_operating_model/README.md";                                    Kind = "file"; Description = "Docs overview" },
+  @{ Path = "framework/strategy_operating_model/company/company_strategy.md";                  Kind = "file"; Description = "Business Strategy / Strategic KPIs / Alignment Map (canonical)" },
+  @{ Path = "framework/strategy_operating_model/operating_model/semantic_layer.md";            Kind = "file"; Description = "Semantic Layer blueprint" },
+  @{ Path = "framework/strategy_operating_model/operating_model/distribution_architecture.md"; Kind = "file"; Description = "Distribution architecture" },
+  @{ Path = "framework/usecases/templates/usecase_factsheet_business.md";  Kind = "file"; Description = "Use Case factsheet (business) template" },
+  @{ Path = "framework/usecases/templates/usecase_factsheet_technical.md"; Kind = "file"; Description = "Use Case factsheet (technical) template" },
+  @{ Path = "framework/usecases/UseCase_Inventory.md";                     Kind = "file"; Description = "Use Case Inventory" },
+  @{ Path = "framework/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md"; Kind = "file"; Description = "KPI Catalog Schema (canonical)" },
   @{ Path = "framework/kpi_catalog/README.md";                   Kind = "file"; Description = "KPI Catalog overview" },
   @{ Path = "_internal/tools/run_all_checks.ps1";                Kind = "file"; Description = "Run all checks script" },
   @{ Path = "_internal/tools/generation/new_usecase.ps1";        Kind = "file"; Description = "New usecase helper" },

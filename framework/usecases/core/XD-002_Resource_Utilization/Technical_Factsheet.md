@@ -15,18 +15,18 @@ factsheet_type: technical
 - **Technical Owner:** Workforce Management / Service Ops BI Lead
 - **Model ID:** experience_resource_utilization
 - **Source Systems:** WFM/Telephony/CCaaS, CRM/Service Desk, DWH
-- **Business Factsheet:** usecases/core/XD-002_Resource_Utilization/Business_Factsheet.md
+- **Business Factsheet:** framework/usecases/core/XD-002_Resource_Utilization/Business_Factsheet.md
 
 ---
 
 ## 1. Model References
 
-- **Domain Data Contract:** data_contracts/domains/experience.yaml
-- **Source Data Contract:** data_contracts/sources/experience.yaml (if present)
-- **Semantic Model Definition:** semantic_models/domains/experience/model_definition.yaml
+- **Domain Data Contract:** framework/framework/framework/data_contracts/domains/experience.yaml
+- **Source Data Contract:** framework/framework/framework/data_contracts/sources/experience.yaml (if present)
+- **Semantic Model Definition:** framework/framework/framework/semantic_models/core_action_ready/model_definition.yaml
 - **KPI Catalog:** framework/kpi_catalog/KPI_Catalog.md
-- **Measure Dictionary:** semantic_models/domains/Service/Measure_Dictionary_Service.md
-- **Action Codes:** framework/action_codes/ActionCodes_v2_Portfolio.md
+- **Measure Dictionary:** framework/framework/framework/semantic_models/domains/Service/Measure_Dictionary_Service.md
+- **Action Codes:** framework/action_codes/README.md
 
 ---
 

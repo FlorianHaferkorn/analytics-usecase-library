@@ -1,4 +1,4 @@
-﻿# Showcases
+# Showcases
 
 ## Purpose
 
@@ -21,7 +21,7 @@ Not included:
 
 - Customer-specific implementations (kept in separate project repositories)
 - Internal drafts, prototypes, or experiments
-- Tool-specific implementation guides (see `framework/implementation_guides/`)
+- Tool-specific implementation guides (see `implementations/microsoft_fabric_powerbi/guide/`)
 
 ## Structure
 
@@ -31,7 +31,7 @@ showcases/
     company/           → Business profile, value chain, org model
     data/              → Sample data contracts and synthetic data
     semantic_model/    → ActionReady semantic model applied to Aurora
-    usecases/          → Core/Extended Aurora use cases
+    usecases/          → Core/Extended Aurora use cases (link to framework/usecases/core)
     reporting/         → Screenshots, navigation map, page flows
 ```
 

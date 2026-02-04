@@ -207,7 +207,7 @@ governance:
   rollback_plan:
     - "Re-enable discount flexibility if Net Sales drop exceeds tolerance"
   documentation_links:
-    - "usecases/core/COM-001/Business_Factsheet.md"
+    - "framework/usecases/core/COM-001_Sales_Performance/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

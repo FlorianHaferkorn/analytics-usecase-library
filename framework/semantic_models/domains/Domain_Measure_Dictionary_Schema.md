@@ -1,14 +1,14 @@
-﻿# Domain Measure Dictionary Schema
+# Domain Measure Dictionary Schema
 
 Purpose: Define a consistent structure for documenting all measures  
 (base, supporting, KPI-implementing measures) inside a **Domain Semantic Model**.
 
 This schema is used in files like:
 
-- `semantic_models/Commercial/Measure_Dictionary_Commercial.md`
-- `semantic_models/Operations/Measure_Dictionary_Operations.md`
-- `semantic_models/Customer/Measure_Dictionary_Customer.md`
-- `semantic_models/Corporate/Measure_Dictionary_Corporate.md`
+- `framework/semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md`
+- `framework/semantic_models/domains/Operations/Measure_Dictionary_Operations.md`
+- `framework/semantic_models/domains/Customer/Measure_Dictionary_Customer.md`
+- `framework/semantic_models/domains/Corporate/Measure_Dictionary_Corporate.md`
 
 Each file contains a YAML list of measures inside ```yaml code fences.
 

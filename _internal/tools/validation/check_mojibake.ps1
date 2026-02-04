@@ -1,7 +1,7 @@
-﻿Param(
+Param(
   [string]$Root = ".",
   [string[]]$Extensions = @("md","yaml","yml","ps1","txt"),
-  [string[]]$ExcludeDirs = @(".git","node_modules","dist","_internal\\archive","_internal\\reviews","_internal\\tools\\linters"),
+  [string[]]$ExcludeDirs = @(".git","node_modules","_internal\\archive","_internal\\reviews","_internal\\tools\\linters","implementations\\microsoft_fabric_powerbi\\dist"),
   [switch]$FailOnError
 )
 
@@ -52,7 +52,7 @@ Write-Host "Mojibake scan" -ForegroundColor Cyan
 $files = Get-ChildItem -Path $rootPath -Recurse -File | Where-Object {
   $pathLower = $_.FullName.ToLowerInvariant()
   # Performance: skip node_modules, .git, dist, archive
-  if ($pathLower -match '(\\node_modules\\|\\.git\\|\\dist\\|_archive\\)') { return $false }
+  if ($pathLower -match '(\\node_modules\\|\\.git\\|_archive\\|\\microsoft_fabric_powerbi\\dist\\)') { return $false }
   $ext = $_.Extension.TrimStart(".")
   $Extensions -contains $ext `
     -and ($pathLower -notlike "*\_internal\reviews\*") `

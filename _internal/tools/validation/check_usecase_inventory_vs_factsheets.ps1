@@ -1,6 +1,6 @@
 Param(
-  [string]$UseCasesRoot = "usecases",
-  [string]$InventoryPath = "usecases/UseCase_Inventory.md",
+  [string]$UseCasesRoot = "framework/usecases",
+  [string]$InventoryPath = "framework/usecases/UseCase_Inventory.md",
   [switch]$FailOnError
 )
 
@@ -40,7 +40,7 @@ function Get-FactsheetIndex {
   Get-ChildItem -Path $Root -Recurse -Filter "*Factsheet*.md" | Where-Object {
     $_.FullName -notmatch '\\_internal\\archive\\'
   } | ForEach-Object {
-    if ($_.FullName -match '\\usecases\\templates\\') { return }
+    if ($_.FullName -match '\\framework\\usecases\\templates\\') { return }
     $content = Get-Content -Raw -Path $_.FullName
     $match = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---")
     if (-not $match.Success) { return }
@@ -56,8 +56,8 @@ function Get-FactsheetIndex {
   return $index
 }
 
-$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "usecases"
-$inventoryPath = Resolve-RepoPath -ProvidedPath $InventoryPath -DefaultRelative "usecases/UseCase_Inventory.md"
+$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "framework/usecases"
+$inventoryPath = Resolve-RepoPath -ProvidedPath $InventoryPath -DefaultRelative "framework/usecases/UseCase_Inventory.md"
 if (-not $useCasesRoot) { throw "UseCases root not found. Provide -UseCasesRoot or run inside repository." }
 if (-not $inventoryPath) { throw "UseCase inventory not found. Provide -InventoryPath or run inside repository." }
 

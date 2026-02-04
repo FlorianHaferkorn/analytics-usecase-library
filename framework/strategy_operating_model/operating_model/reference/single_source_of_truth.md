@@ -43,7 +43,7 @@ Use Cases contain only references to KPIs: required_kpi_ids (IDs; in factsheets 
 | Action-ready semantic model blueprint | `docs/operating_model/reference/ActionReady_SemanticModel_Blueprint.md` | `semantic_models/core_action_ready/*` | Blueprint defines the EURoecontractEUR; semantic_models implements patterns. |
 | Measure system (conventions) | `docs/operating_model/measure_system.md` | `framework/templates/measure_templates/*` | measure_system.md defines naming/taxonomy; templates provide reusable scaffolds. |
 | UX standards & layouts | `docs/operating_model/ux_design_system.md` | `framework/templates/page_templates/*` | UX system is principles; page templates are patterns. |
-| Distribution architecture | `docs/operating_model/distribution_architecture.md` | `framework/implementation_guides/*` | Tool-specific guides implement distribution patterns. |
+| Distribution architecture | `docs/operating_model/distribution_architecture.md` | `implementations/microsoft_fabric_powerbi/guide/*` | Tool-specific guides implement distribution patterns. |
 | AI readiness | `docs/operating_model/ai_readiness.md` | `_internal/ai/*.schema.json` | ai_readiness describes approach; schemas enforce structure. |
 | Use case master list | `usecases/UseCase_Inventory.md` | Strategy alignment map | Inventory is operational truth (status, domain, owners, etc.). |
 | Use case templates | `usecases/templates/*` | EUR" | Factsheets must follow these templates. |

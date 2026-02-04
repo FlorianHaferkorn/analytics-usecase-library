@@ -1,4 +1,4 @@
-﻿Param(
+Param(
   [string]$Root = ".",
   [switch]$EnableUiSpecCheck,
   [switch]$FailOnError
@@ -29,8 +29,8 @@ $issues = @()
 # Use Case factsheets: forbidden KPI definition fields in YAML/front matter
 $forbiddenKeys = @("definition","definition_short","lineage","target","unit","grain","interpretation")
 
-Get-ChildItem -Path (Join-Path $rootPath "usecases") -Recurse -Filter "*Factsheet*.md" | Where-Object {
-  $_.FullName -notmatch '\\_internal\\archive\\' -and $_.FullName -notmatch '\\usecases\\templates\\'
+Get-ChildItem -Path (Join-Path $rootPath "framework\usecases") -Recurse -Filter "*Factsheet*.md" | Where-Object {
+  $_.FullName -notmatch '\\_internal\\archive\\' -and $_.FullName -notmatch '\\framework\\usecases\\templates\\'
 } | ForEach-Object {
   $content = Get-Content -Raw -Path $_.FullName
   $front = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---")

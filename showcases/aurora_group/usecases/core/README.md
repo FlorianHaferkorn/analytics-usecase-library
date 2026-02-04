@@ -1,4 +1,4 @@
-﻿# Aurora Core Use Cases (Demo)
+# Aurora Core Use Cases (Demo)
 
 This folder mirrors the core ActionReady use cases implemented for Aurora Group. Business/Technical factsheets live in the main library and are referenced here for convenience.
 
@@ -13,8 +13,8 @@ Demo scope:
 
 For detailed requirements and measures, use the canonical factsheets:
 
-- `usecases/core/COM-001_Sales_Performance/Business_Factsheet.md`
-- `usecases/core/COM-001_Sales_Performance/Technical_Factsheet.md`
+- `framework/usecases/core/COM-001_Sales_Performance/Business_Factsheet.md`
+- `framework/usecases/core/COM-001_Sales_Performance/Technical_Factsheet.md`
 - ...and equivalent files for each listed use case.
 
 Build guidance:

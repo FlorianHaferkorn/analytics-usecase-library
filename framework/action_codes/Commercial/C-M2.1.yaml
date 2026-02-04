@@ -219,7 +219,7 @@ governance:
   rollback_plan:
     - "Relax discount floors if Net Sales decline exceeds tolerance"
   documentation_links:
-    - "usecases/core/COM-002/Business_Factsheet.md"
+    - "framework/usecases/core/COM-002_Margin_Price_Performance/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

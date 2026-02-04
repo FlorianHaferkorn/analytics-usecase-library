@@ -1,4 +1,4 @@
-﻿# Internal Tools
+# Internal Tools
 
 ## Purpose
 Provide all **automation, validation, linting, generation, and maintenance tools** required to operate and evolve the ActionReady Analytics Framework.  
@@ -80,8 +80,8 @@ Run locally or in CI/CD to ensure semantic and report quality.
 - `validate_factsheets.ps1`
 - `validate_kpi_catalog.ps1`
 - `check_factsheet_vs_kpi.ps1`
-- `check_measures_vs_kpi.ps1`
 - `check_spec_vs_kpi.ps1`
+- (Fabric-specific: `check_measures_vs_kpi.ps1`, `check_tmdl_vs_measure_dictionary.ps1`, `check_dax_best_practices.ps1` live under `implementations/microsoft_fabric_powerbi/validation/`)
 - `add_depends_on_ids.ps1`
 - `list_usecase_levels.ps1`
 

@@ -8,7 +8,7 @@ Use these instructions when editing this repository. Project rules in `.cursor/r
 - Only reference KPIs that exist in `framework/kpi_catalog/`; do not redefine KPI meaning, targets, or lineage in factsheets.
 - Keep `required_kpis` (Business) and `kpi_to_measure_mapping` (Technical) consistent with the KPI catalog and with each other.
 - Keep `layout_330300` (Business) aligned with `_internal/ai/schemas/layout_330300.schema.json` and page templates in `framework/templates/page_templates/`.
-- When adding or changing action code references, update `usecases/UseCase_ActionCode_Map.yaml` so it stays consistent with `framework/action_codes/`.
+- When adding or changing action code references, update `framework/usecases/UseCase_ActionCode_Map.yaml` so it stays consistent with `framework/action_codes/`.
 
 ## Framework (KPI catalog, action codes, templates)
 
@@ -20,8 +20,8 @@ Use these instructions when editing this repository. Project rules in `.cursor/r
 
 - Prefer existing scripts under `_internal/tools/` (validation, generation, maintenance, Power BI MCP).
 - Run PowerShell from the repository root when invoking these scripts.
-- Before committing changes that touch use cases, framework, or data contracts, run Stage 1: `.\_internal\tools\run_stage1_checks.ps1`
-- Schema authority: `_internal/ai/schemas/` for factsheets, action codes, data contracts, layout_330300. Structure and naming authority: `framework/templates/`, `docs/operating_model/`.
+- Before committing changes that touch use cases, framework, or data contracts, run Stage 1: `.\_internal\tools\run_stage1_checks.ps1`. For Fabric/Power BI output validation (measures vs KPI, TMDL vs measure dictionary), run `.\implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1` or full suite `.\_internal\tools\run_all_checks.ps1`.
+- Schema authority: `_internal/ai/schemas/` for factsheets, action codes, data contracts, layout_330300. Structure and naming authority: `framework/templates/`, `framework/strategy_operating_model/operating_model/`.
 
 ## Golden thread
 

@@ -18,8 +18,8 @@ factsheet_type: business
 - **Decision Owner:** CX/Service Leadership
 - **Reporting Level:** Tactical / Operational
 - **Analytics Stage:** Diagnostic / Prescriptive
-- **Related Data Contract:** data_contracts/domains/experience.yaml
-- **Related Semantic Model:** semantic_models/domains/experience/model_definition.yaml
+- **Related Data Contract:** framework/framework/framework/data_contracts/domains/experience.yaml
+- **Related Semantic Model:** framework/framework/framework/semantic_models/core_action_ready/model_definition.yaml
 
 ---
 

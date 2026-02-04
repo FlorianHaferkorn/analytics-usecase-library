@@ -63,7 +63,7 @@ function Load-KpiCatalogIndex {
   return $ids
 }
 
-$resolvedDistRoot = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'dist'
+$resolvedDistRoot = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'implementations/microsoft_fabric_powerbi/dist'
 if (-not $resolvedDistRoot) {
   Write-Host "Skip: dist root not found; measures vs KPI check not run." -ForegroundColor Yellow
   exit 0
@@ -75,7 +75,6 @@ if ($KpiCatalogRoot -and (Test-Path $KpiCatalogRoot)) {
 } else {
   $resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
 }
-# Defensive: if KPI root resolves identisch zu Dist root, fallback auf framework/kpi_catalog
 if ($resolvedKpiRoot -and $resolvedDistRoot -and ($resolvedKpiRoot -eq $resolvedDistRoot)) {
   $fallback = Resolve-RepoPath -ProvidedPath 'framework/kpi_catalog' -DefaultRelative 'framework/kpi_catalog'
   if ($fallback) { $resolvedKpiRoot = $fallback }
@@ -88,7 +87,6 @@ Write-Host "  KPI catalog:    $resolvedKpiRoot" -ForegroundColor DarkGray
 
 $kpiIndex = Load-KpiCatalogIndex -Root $resolvedKpiRoot
 if (-not $kpiIndex) {
-  # Defensive fallback so the script does not break when catalog parsing yields no IDs
   $kpiIndex = New-Object System.Collections.Generic.HashSet[string]
 }
 
@@ -96,7 +94,7 @@ $measuresFiles = Get-ChildItem -Path $resolvedDistRoot -Recurse -Filter '_Measur
   $_.FullName -notmatch '\\_internal\\archive\\'
 }
 if ($measuresFiles.Count -eq 0) {
-  Write-Host "No _Measures.tmdl files found under dist." -ForegroundColor Yellow
+  Write-Host "No _Measures.tmdl files found under DistRoot." -ForegroundColor Yellow
   exit 0
 }
 
@@ -105,11 +103,9 @@ $missing = @()
 foreach ($file in $measuresFiles) {
   $content = Get-Content -Path $file.FullName
   foreach ($line in $content) {
-    # Match lines like: /// margin.gm.pct - Gross Margin %
     $m = [regex]::Match($line, '^\s*///\s+([a-zA-Z0-9_\.]+)\s+-\s+')
     if (-not $m.Success) { continue }
     $id = $m.Groups[1].Value
-    # Skip "Supporting:" comments etc. which do not look like KPI IDs
     if ($id -notlike '*.*') { continue }
     if (-not $kpiIndex.Contains($id)) {
       $missing += [PSCustomObject]@{

@@ -224,7 +224,7 @@ governance:
   rollback_plan:
     - "Relax controls if throughput or FPY deteriorates"
   documentation_links:
-    - "usecases/core/OPS-003/Business_Factsheet.md"
+    - "framework/usecases/core/OPS-003_Quality_Yield/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

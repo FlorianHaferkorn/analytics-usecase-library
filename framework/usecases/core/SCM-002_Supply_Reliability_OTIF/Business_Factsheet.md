@@ -18,8 +18,8 @@ factsheet_type: business
 - **Decision Owner:** Supply Chain Leadership
 - **Reporting Level:** Tactical
 - **Analytics Stage:** Diagnostic / Prescriptive
-- **Related Data Contract:** data_contracts/domains/supply_chain.yaml
-- **Related Semantic Model:** semantic_models/domains/scm/model_definition.yaml
+- **Related Data Contract:** framework/framework/framework/data_contracts/domains/supply_chain.yaml
+- **Related Semantic Model:** framework/framework/framework/semantic_models/core_action_ready/model_definition.yaml
 
 ---
 
