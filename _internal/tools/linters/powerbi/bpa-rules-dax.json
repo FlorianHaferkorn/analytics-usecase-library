@@ -1,8 +1,8 @@
-﻿{
+{
   "$schema": "https://json.schemastore.org/json-schema",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "title": "DAX Style Rules",
-  "description": "Machine-readable DAX best practices derived from the DAX Style Guide.",
+  "description": "Machine-readable DAX best practices. Sources: Microsoft Learn (DAX best practices), SQLBI DAX Style (docs.sqlbi.com/dax-style), DAX.Guide.",
   "rules": [
     {
       "id": "dax.var_return.required",
@@ -68,6 +68,31 @@
       "description": "Use iterators (SUMX/AVERAGEX/MINX/MAXX) only when a row context is required.",
       "matchRegex": "(?i)(SUMX|AVERAGEX|MINX|MAXX)\\s*\\(",
       "allowWhenContains": ["VAR "]
+    },
+    {
+      "id": "dax.errorfunctions.avoid",
+      "severity": "error",
+      "description": "Avoid ISERROR and IFERROR; they increase storage engine scans. Use DIVIDE for division, data quality in Power Query, or IF with logical test (Microsoft Learn: Appropriate use of error functions in DAX).",
+      "forbidRegex": "(?i)(ISERROR|IFERROR)\\s*\\("
+    },
+    {
+      "id": "dax.calculate.shortened.forbidden",
+      "severity": "warn",
+      "description": "Never use shortened CALCULATE syntax [measure](filter). Use full syntax: CALCULATE( [measure], filter ) (SQLBI DAX Format).",
+      "forbidRegex": "\\]\\s*\\("
+    },
+    {
+      "id": "dax.earlier.prefer_var",
+      "severity": "warn",
+      "description": "Prefer VAR over EARLIER/EARLIEST for readability and performance; variables are evaluated once (Microsoft Learn: Use variables; DAX.Guide: EARLIER not recommended).",
+      "matchRegex": "(?i)(EARLIER|EARLIEST)\\s*\\(",
+      "suggest": ["VAR "]
+    },
+    {
+      "id": "dax.divide.avoid_alternate_zero",
+      "severity": "warn",
+      "description": "Prefer DIVIDE without third argument so measure returns BLANK when no meaningful value; DIVIDE(..., 0) forces dense result and can slow visuals (Microsoft Learn: Avoid converting BLANKs to values).",
+      "forbidRegex": "(?i)DIVIDE\\s*\\([^)]+,[^)]+,\\s*0\\s*\\)"
     }
   ]
 }

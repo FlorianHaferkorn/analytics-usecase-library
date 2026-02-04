@@ -35,9 +35,11 @@ Implementation Layer (Tool-Specific):
 
 ### 1. bpa-rules-dax.json
 **Scope**: DAX measure expressions  
-**Purpose**: Enforce DAX Style Guide (VAR/RETURN, DIVIDE, FORMAT prohibition, etc.)  
+**Purpose**: Enforce DAX best practices (VAR/RETURN, DIVIDE, FORMAT prohibition, error functions, BLANK handling, etc.)  
 **Severity**: Error, Warning, Info  
-**Auto-fixable**: Partial (DIVIDE, REMOVEFILTERS)
+**Auto-fixable**: Partial (DIVIDE, REMOVEFILTERS)  
+**Sources**: Microsoft Learn (DAX best practices), SQLBI DAX Style (docs.sqlbi.com/dax-style), DAX.Guide.  
+**v1.1 additions**: Avoid ISERROR/IFERROR; no shortened CALCULATE [m](filter); prefer VAR over EARLIER/EARLIEST; prefer DIVIDE without alternate 0 (return BLANK).
 
 ### 2. bpa-rules-report.json
 **Scope**: Power BI report visuals and pages  

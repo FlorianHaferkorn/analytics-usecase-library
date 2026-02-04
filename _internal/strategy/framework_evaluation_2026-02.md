@@ -39,7 +39,7 @@ How few steps and decisions from "we adopt the framework" to "first use case is 
 |----------|----------|------------------|
 | [README.md](../../README.md) | Strategy-to-action framework; get started in 3 steps | 1) docs/company (strategy, reporting principles), 2) docs/operating_model (overview, golden_thread), 3) usecases/core + UseCase_Inventory; then Stage 1 command + npm ci under validation. Does not link to implementations/microsoft_fabric_powerbi/guide, `_internal/tools/README`, or run_all_checks. |
 | [framework/strategy_operating_model/README.md](../../framework/strategy_operating_model/README.md) | Single navigation entry; Golden Thread order | 1) docs/company, 2) docs/operating_model, 3) framework/, 4) usecases/data_contracts/semantic_models, 5) showcases/aurora_group. \"Run validation tools in `_internal/tools/validation/` before delivery\" — no script name. |
-| [framework/implementations/microsoft_fabric_powerbi/guide/README.md](../../framework/implementations/microsoft_fabric_powerbi/guide/README.md) | Platform-specific implementation (Fabric/Power BI) | fabric_powerbi.md, tmdl_best_practices.md. \"Next Step: fabric_powerbi.md\". No link back to use case factsheets, KPI catalog path, or `_internal/tools`. |
+| [implementations/microsoft_fabric_powerbi/guide/README.md](../../implementations/microsoft_fabric_powerbi/guide/README.md) | Platform-specific implementation (Fabric/Power BI) | fabric_powerbi.md, tmdl_best_practices.md. \"Next Step: fabric_powerbi.md\". No link back to use case factsheets, KPI catalog path, or `_internal/tools`. |
 | [showcases/aurora_group/README.md](../../showcases/aurora_group/README.md) | End-to-end demo with synthetic company | company/, data/, models/, usecases/, reporting/. \"How to use\": company profile, load data per data/sample_data/README.md, build model from models/core_action_ready_model.yaml, implement pages, align with usecases/core/. Does not say \"run X then Y to reproduce\"; no command to generate model or run checks. |
 
 ### 2.2 Single path test
@@ -105,7 +105,7 @@ Trace from "I want to implement COM-001" to "TMDL generated and Stage 1 passed":
 2. **Technical Factsheet:** usecases/core/COM-001_Sales_Performance/Technical_Factsheet.md — kpi_to_measure_mapping, data contract scope.
 3. **KPI catalog:** framework/kpi_catalog/ — all required_kpis must exist here.
 4. **Action code map:** usecases/UseCase_ActionCode_Map.yaml — COM-001 lists C-M2.1, C-S1.1, C-S1.2.
-5. **Generation:** `.\_internal\tools\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseCasesRoot usecases -KpiCatalogRoot framework/kpi_catalog -DistRoot implementations/microsoft_fabric_powerbi/dist` (or DistRoot showcases/aurora_group). Defaults in script use `analytics-usecase-library/usecases` etc., which assume a parent folder; from repo root, explicit UseCasesRoot/KpiCatalogRoot/DistRoot are required.
+5. **Generation:** `.\_internal\tools\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseCasesRoot framework/usecases -KpiCatalogRoot framework/kpi_catalog -DistRoot implementations/microsoft_fabric_powerbi/dist` (or DistRoot showcases/aurora_group/semantic_models for Aurora). Script defaults are framework/usecases, framework/kpi_catalog, implementations/microsoft_fabric_powerbi/dist when run from repo root.
 6. **Validation:** `.\_internal\tools\run_stage1_checks.ps1` from repo root.
 
 **Missing in docs:** No single page or checklist that lists this sequence. README "How to get started" stops at "Explore use cases"; it does not link to generation or implementations/microsoft_fabric_powerbi/guide. Implementation guide (fabric_powerbi.md) does not reference use case factsheets, KPI catalog path, or _internal/tools.
@@ -162,7 +162,7 @@ Trace from "I want to implement COM-001" to "TMDL generated and Stage 1 passed":
    - Optionally add a "First 2 hours" checklist (clone, prerequisites, read strategy + golden thread, run Stage 1, generate for one use case).
 
 4. **Align implementation guide with framework entry points (medium)**  
-   - In framework/implementations/microsoft_fabric_powerbi/guide/README.md or fabric_powerbi.md, add pointers: use case factsheets (usecases/core/), KPI catalog (framework/kpi_catalog/), validation and generation (_internal/tools/run_stage1_checks.ps1, generate_tmdl_measures.ps1).
+   - In implementations/microsoft_fabric_powerbi/guide/README.md or fabric_powerbi.md, add pointers: use case factsheets (usecases/core/), KPI catalog (framework/kpi_catalog/), validation and generation (_internal/tools/run_stage1_checks.ps1, generate_tmdl_measures.ps1).
 
 5. **UseCase_Inventory vs UseCase_ActionCode_Map (medium)**  
    - Either update the Inventory "Main Action Codes" column to full action code IDs from the map, or document the short codes as aliases and provide a mapping. Prefer aligning the table with the map for single source of truth.
@@ -177,8 +177,8 @@ Trace from "I want to implement COM-001" to "TMDL generated and Stage 1 passed":
 - Clone repo; ensure PowerShell and Node available; from repo root run `cd _internal\tools\validation && npm ci`.  
 - Read README "How to get started" steps 1–3 (strategy, operating model, use cases).  
 - Run `.\_internal\tools\run_stage1_checks.ps1` and fix any failures.  
-- Pick one use case (e.g. COM-001); open its Business and Technical factsheets; run `.\_internal\tools\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseCasesRoot usecases -KpiCatalogRoot framework/kpi_catalog -DistRoot implementations/microsoft_fabric_powerbi/dist -OverwriteExisting`; run Stage 1 again.  
-- Skim framework/implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md if implementing in Fabric/Power BI.
+- Pick one use case (e.g. COM-001); open its Business and Technical factsheets; run `.\_internal\tools\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseCasesRoot framework/usecases -KpiCatalogRoot framework/kpi_catalog -DistRoot implementations/microsoft_fabric_powerbi/dist -OverwriteExisting`; run Stage 1 again.  
+- Skim implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md if implementing in Fabric/Power BI.
 
 This flow can be added to README or _internal/strategy once the path and consistency fixes above are in place.
 
