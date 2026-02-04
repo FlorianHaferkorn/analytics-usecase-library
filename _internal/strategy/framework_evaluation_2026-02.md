@@ -90,8 +90,7 @@ From "I am new":
 
 ### 3.3 VSCode tasks
 
-- [`.vscode/tasks.json`](../../.vscode/tasks.json) exposes: \"Run all checks\" (run_all_checks.ps1), \"Generate measures for Use Case\", \"Generate all measures\", \"Generate all & run all checks\".
-- **No task for `run_stage1_checks.ps1`.** README and AGENTS.md designate Stage 1 as the CI-mandated command; new users relying on tasks will not see it.
+- [`.vscode/tasks.json`](../../.vscode/tasks.json): **Resolved.** Task \"Run Stage 1 checks (CI gate)\" added; README and _internal/tools/README now explain Stage 1 vs run_all_checks vs Fabric-only.
 
 ---
 
@@ -145,26 +144,15 @@ Trace from "I want to implement COM-001" to "TMDL generated and Stage 1 passed":
 
 ### 5.3 Prioritized recommendations
 
-1. **Fix path and ID consistency (high)**  
-   - Update new_usecase.ps1 to use `usecases/core` and create `<ID>_<Name>` under it (or document current layout and align script).  
-   - Correct usecase_DoD_Core.md to `framework/templates/kpi_catalog_templates/`.  
-   - Correct action code `governance.documentation_links` to full use case folder names (e.g. SCM-001_Inventory_Performance).  
-   - Align SupplyChain action code filenames with map IDs (S-F3.1 … S-F3.4 consistently).  
-   - Fix Aurora README and showcase use case refs: point to existing data paths (e.g. data/gold) or add sample_data and document; remove or fix sample_data_contracts reference.
+1. **Fix path and ID consistency (high)** — **Done.** new_usecase.ps1 uses `framework/usecases/core` and `<ID>_<Name>`; usecase_DoD_Core.md uses `framework/templates/kpi_catalog_templates/`; action code `documentation_links` use full folder names (e.g. SCM-001_Inventory_Performance); SupplyChain filenames S-F3.1–S-F3.4; Aurora README and COM-001 refs point to data/gold and "To reproduce" added.
 
-2. **Clarify Stage 1 vs run_all_checks and expose Stage 1 (high)**  
-   - Add one short subsection (e.g. in README or _internal/tools/README): "Use run_stage1_checks.ps1 for CI and before merge; use run_all_checks.ps1 for full local validation including linters and PBIP."  
-   - Add a VSCode task for run_stage1_checks.ps1 so the CI-mandated command is discoverable.
+2. **Clarify Stage 1 vs run_all_checks and expose Stage 1 (high)** — **Done.** README "When to use which" subsection; _internal/tools/README "Stage 1 vs run_all_checks" section; VSCode task "Run Stage 1 checks (CI gate)" added.
 
-3. **Single "get started" and "implement one use case" path (high)**  
-   - Add a "Prerequisites" section (PowerShell, Node, repo root, one-time npm ci) in README or a dedicated get-started page.  
-   - Add a fourth step to README "How to get started" (or a linked page): "Implement a use case" with a minimal sequence: pick use case → open Business/Technical factsheets → run generate_tmdl_measures.ps1 (with explicit roots from repo root) → run run_stage1_checks.ps1.  
-   - Optionally add a "First 2 hours" checklist (clone, prerequisites, read strategy + golden thread, run Stage 1, generate for one use case).
+3. **Single "get started" and "implement one use case" path (high)** — **Done.** README: Prerequisites (PowerShell, Node, repo root, npm ci) under "How to get started"; step 4 "Implement a use case" with sequence and command; "First 2 hours" optional checklist.
 
 4. **Align implementation guide with framework entry points (medium)** — **Done.** Guide README has "Framework and tooling entry points" table; fabric_powerbi.md has "Where this fits in the repo" and section 11 "Fabric & Power BI best practices and validation"; tmdl_best_practices.md References updated (framework paths, run_fabric_checks, DAX rules).
 
-5. **UseCase_Inventory vs UseCase_ActionCode_Map (medium)**  
-   - Either update the Inventory "Main Action Codes" column to full action code IDs from the map, or document the short codes as aliases and provide a mapping. Prefer aligning the table with the map for single source of truth.
+5. **UseCase_Inventory vs UseCase_ActionCode_Map (medium)** — **Done.** UseCase_Inventory "Main Action Codes" column updated to full action code IDs from UseCase_ActionCode_Map.yaml (e.g. COM-001: C-M2.1, C-S1.1, C-S1.2; SCM-003: S-F3.1–S-F3.4).
 
 6. **Aurora reproducibility (medium)**  
    - Add explicit "To reproduce" steps: e.g. run Stage 1 from repo root, run generate_tmdl_measures.ps1 for COM-001 (and list other demo use cases) with DistRoot pointing at showcase; fix data path references so they match existing folders or add the missing ones and document.

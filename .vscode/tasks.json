@@ -2,6 +2,19 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Run Stage 1 checks (CI gate)",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "./_internal/tools/run_stage1_checks.ps1"
+      ],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
       "label": "Run all checks",
       "type": "shell",
       "command": "pwsh",

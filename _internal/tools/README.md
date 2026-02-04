@@ -139,9 +139,17 @@ Whenever new use cases or strategic KPIs are added.
 
 ---
 
-# 6. run_all_checks.ps1
+# 6. Stage 1 vs run_all_checks
 
-**Purpose:** Execute all internal checks in correct sequence.
+**Stage 1 (CI gate):** `run_stage1_checks.ps1` — Tool-agnostic only (docs, refs, structure, KPI ↔ use case, action code map). Use for **CI and before merge**; this is the mandated check for merge. Fast, no Fabric/Power BI output required.
+
+**Full validation:** `run_all_checks.ps1` — Runs Stage 1 plus Fabric checks (measures vs KPI, TMDL vs measure dictionary, DAX best practices, TMDL syntax). Use for **full local validation** when you have generated TMDL/measures (e.g. in `implementations/microsoft_fabric_powerbi/dist`). Use before releasing or when changing measures/TMDL.
+
+**Fabric-only:** `implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1` — Fabric checks only (no Stage 1); use when you only need to validate generated TMDL/measures.
+
+# 7. run_all_checks.ps1
+
+**Purpose:** Execute all internal checks in correct sequence (Stage 1 + Fabric checks).
 
 Runs:
 1. KPI catalog validation  
@@ -152,7 +160,7 @@ Runs:
 6. Linter/BPA rule enforcement  
 
 **Usage:**  
-Before every merge into `main` and before exporting templates.
+Before every merge into `main` (prefer `run_stage1_checks.ps1` for CI) and before exporting templates or when validating Fabric/Power BI output.
 
 ---
 
