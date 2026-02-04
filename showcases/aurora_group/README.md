@@ -24,10 +24,16 @@ How to use
 
 To reproduce
 
-1. Clone the repo and open from repo root.
-2. Run framework checks: `_internal/tools/validation/run_all_checks.ps1` (or stage 1 only: `run_stage1_checks.ps1`).
-3. For Fabric/Power BI: run `implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1`; generate TMDL measures into `implementations/microsoft_fabric_powerbi/dist` if needed.
-4. Point the Aurora semantic model/dataset to `showcases/aurora_group/data/gold/` (or your deployed gold path).
+Run from **repo root**:
+
+1. **Prerequisites (one-time):** `cd _internal\tools\validation` then `npm ci`.
+2. **Stage 1 (CI gate):** `.\_internal\tools\run_stage1_checks.ps1` — tool-agnostic checks (docs, refs, KPI ↔ use case). Fix any failures before continuing.
+3. **Generate TMDL measures** for demo use cases (optional; output goes to main dist by default):
+   - Single use case, e.g. COM-001:  
+     `.\_internal\tools\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -OverwriteExisting`
+   - For Aurora demo scope (COM-001, COM-002, COM-003, OPS-001, SCM-001, FIN-001), run the same command for each `-UseCase` (COM-001, COM-002, COM-003, OPS-001, SCM-001, FIN-001). Default output: `implementations/microsoft_fabric_powerbi/dist`. To output under the showcase: add `-DistRoot showcases/aurora_group`.
+4. **Fabric/Power BI checks** (if you have generated TMDL): `.\implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1`.
+5. **Point the Aurora semantic model/dataset** to `showcases/aurora_group/data/gold/` (or your deployed gold path).
 
 Scope for the demo
 

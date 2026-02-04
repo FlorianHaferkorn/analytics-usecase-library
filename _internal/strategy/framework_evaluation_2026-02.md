@@ -111,9 +111,8 @@ Trace from "I want to implement COM-001" to "TMDL generated and Stage 1 passed":
 
 ### 4.2 Aurora showcase
 
-- [showcases/aurora_group/README.md](../../showcases/aurora_group/README.md): **Resolved.** Now points to `data/gold/` and framework data contracts; \"To reproduce\" steps added.
+- [showcases/aurora_group/README.md](../../showcases/aurora_group/README.md): **Resolved.** Now points to `data/gold/` and framework data contracts; \"To reproduce\" lists explicit commands (run_stage1_checks.ps1, generate_tmdl_measures.ps1 per use case, run_fabric_checks.ps1, -DistRoot option).
 - [showcases/aurora_group/usecases/core/COM-001.md](../../showcases/aurora_group/usecases/core/COM-001.md): **Resolved.** Data reference updated to `showcases/aurora_group/data/gold/` (facts/dimensions).
-- No "run X then Y to reproduce" instructions; no reference to generate_tmdl_measures.ps1 or run_stage1_checks.ps1.
 
 ### 4.3 Implementation guide links
 
@@ -154,8 +153,7 @@ Trace from "I want to implement COM-001" to "TMDL generated and Stage 1 passed":
 
 5. **UseCase_Inventory vs UseCase_ActionCode_Map (medium)** — **Done.** UseCase_Inventory "Main Action Codes" column updated to full action code IDs from UseCase_ActionCode_Map.yaml (e.g. COM-001: C-M2.1, C-S1.1, C-S1.2; SCM-003: S-F3.1–S-F3.4).
 
-6. **Aurora reproducibility (medium)**  
-   - Add explicit "To reproduce" steps: e.g. run Stage 1 from repo root, run generate_tmdl_measures.ps1 for COM-001 (and list other demo use cases) with DistRoot pointing at showcase; fix data path references so they match existing folders or add the missing ones and document.
+6. **Aurora reproducibility (medium)** — **Done.** Aurora README "To reproduce" now lists explicit steps from repo root: prerequisites (npm ci), run_stage1_checks.ps1, generate_tmdl_measures.ps1 per use case (COM-001 … FIN-001) with optional -DistRoot showcases/aurora_group, run_fabric_checks.ps1, and point semantic model to data/gold.
 
 ---
 
