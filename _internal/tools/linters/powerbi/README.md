@@ -39,7 +39,7 @@ Implementation Layer (Tool-Specific):
 **Severity**: Error, Warning, Info  
 **Auto-fixable**: Partial (DIVIDE, REMOVEFILTERS)  
 **Sources**: Microsoft Learn (DAX best practices), SQLBI DAX Style (docs.sqlbi.com/dax-style), DAX.Guide.  
-**v1.1 additions**: Avoid ISERROR/IFERROR; no shortened CALCULATE [m](filter); prefer VAR over EARLIER/EARLIEST; prefer DIVIDE without alternate 0 (return BLANK).
+**v1.1 additions**: Avoid ISERROR/IFERROR; no shortened CALCULATE syntax (measure then filter in parentheses); prefer VAR over EARLIER/EARLIEST; prefer DIVIDE without alternate 0 (return BLANK).
 
 ### 2. bpa-rules-report.json
 **Scope**: Power BI report visuals and pages  
