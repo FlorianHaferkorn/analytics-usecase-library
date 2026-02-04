@@ -28,6 +28,13 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "CLV"
     formatString: "#,0.00"
     description: "Estimate long-term value of a customer to prioritize retention, acquisition, and service investme..."
+    dax_expression: |
+      AVERAGEX (
+          VALUES ( fact_sales[CustomerKey] ),
+          CALCULATE (
+              SUM ( fact_sales[Net Sales Amount] ) - SUM ( fact_sales[Cost of Goods Sold Amount] )
+          ) * 3
+      )
     depends_on_measures:
     - crm.clv.amount
     lineage:
@@ -65,6 +72,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Revenue at Risk Amount"
     formatString: "#,0"
     description: "Revenue exposure from churn-risk customers"
+    dax_expression: |
+      VAR ChurnRiskPct = 0.15
+      RETURN [CLV] * ChurnRiskPct
     depends_on_measures:
     - crm.revenue_at_risk.amount
     lineage:
@@ -103,6 +113,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Complaint Count"
     formatString: "#,0"
     description: "Count of logged customer complaints"
+    dax_expression: |
+      COUNTROWS ( fact_experience )
     depends_on_measures:
     - crm.complaint.count
     lineage:
@@ -140,6 +152,18 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Customer Retention %"
     formatString: "0.0%"
     description: "Measure the share of customers that remain active from one period to the next, as a core loyalty ..."
+    dax_expression: |
+      VAR CurrentPeriodCustomers =
+          CALCULATE (
+              DISTINCTCOUNT ( fact_sales[CustomerKey] ),
+              FILTER ( ALLSELECTED ( dim_date ), dim_date[Date] = MAX ( dim_date[Date] ) )
+          )
+      VAR PreviousPeriodCustomers =
+          CALCULATE (
+              DISTINCTCOUNT ( fact_sales[CustomerKey] ),
+              DATEADD ( dim_date[Date], -1, MONTH )
+          )
+      RETURN DIVIDE ( CurrentPeriodCustomers, PreviousPeriodCustomers )
     depends_on_measures:
     - crm.retention.pct
     lineage: []
@@ -214,6 +238,16 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Churned Customers"
     formatString: "#,0"
     description: "Count customers that have stopped purchasing in the observation window as basis for churn calcula..."
+    dax_expression: |
+      VAR PreviousMonthCustomers =
+          CALCULATETABLE (
+              VALUES ( fact_sales[CustomerKey] ),
+              DATEADD ( dim_date[Date], -1, MONTH )
+          )
+      VAR CurrentMonthCustomers =
+          VALUES ( fact_sales[CustomerKey] )
+      RETURN
+          COUNTROWS ( EXCEPT ( PreviousMonthCustomers, CurrentMonthCustomers ) )
     depends_on_measures:
     - crm.churned_customers.count
     lineage:
@@ -252,6 +286,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Customer Lifetime Revenue Amount"
     formatString: "#,0"
     description: "Sum of realized revenue across customer lifecycle"
+    dax_expression: |
+      CALCULATE (
+          SUM ( fact_sales[Net Sales Amount] ),
+          ALLSELECTED ( dim_date )
+      )
     depends_on_measures:
     - crm.lifetime_revenue.amount
     lineage:
@@ -289,6 +328,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Active Customers"
     formatString: "#,0"
     description: "Number of unique active customers in the reporting period."
+    dax_expression: |
+      DISTINCTCOUNT ( fact_sales[CustomerKey] )
     depends_on_measures:
     - crm.active_customers.count
     lineage:
@@ -2412,6 +2453,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Net Sales Amount"
     formatString: "#,0.00"
     description: "Total invoiced revenue net of discounts and returns."
+    dax_expression: |
+      SUM ( fact_sales[Net Sales Amount] )
     depends_on_measures:
     - sales.net_sales.amount
     lineage:
@@ -2449,6 +2492,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Delta% Net Sales"
     formatString: "0.0%"
     description: "Relative variance of Net Sales vs Last Year."
+    dax_expression: |
+      VAR Actual = [Net Sales Amount]
+      VAR LY     = SUM ( fact_sales[Last Year Sales Amount] )
+      RETURN DIVIDE ( Actual - LY, LY )
     depends_on_measures:
     - sales.net_sales.delta_pct.ly
     lineage:
@@ -2492,6 +2539,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Net Sales % vs Plan"
     formatString: "0.0%"
     description: "Relative variance of Net Sales vs Plan."
+    dax_expression: |
+      VAR Actual = [Net Sales Amount]
+      VAR Plan   = SUM ( fact_sales[Plan Sales Amount] )
+      RETURN DIVIDE ( Actual - Plan, Plan )
     depends_on_measures:
     - sales.net_sales.delta_pct.plan
     lineage:
@@ -2531,6 +2582,13 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Price Effect Amount"
     formatString: "#,0.00"
     description: "Quantifies the pure price impact in the PVM bridge."
+    dax_expression: |
+      SUMX (
+          fact_sales,
+          VAR ActualPrice = DIVIDE ( fact_sales[Net Sales Amount], fact_sales[Quantity] )
+          VAR PlanPrice   = DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] )
+          RETURN ( ActualPrice - PlanPrice ) * fact_sales[Quantity]
+      )
     depends_on_measures:
     - sales.pvm.price_effect.amount
     lineage:
@@ -2572,6 +2630,14 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Volume Effect Amount"
     formatString: "#,0.00"
     description: "Measures the variance caused purely by quantity changes at plan price."
+    dax_expression: |
+      SUMX (
+          fact_sales,
+          VAR ActualQty = fact_sales[Quantity]
+          VAR PlanQty   = fact_sales[Plan Quantity]
+          VAR PlanPrice = DIVIDE ( fact_sales[Plan Sales Amount], PlanQty )
+          RETURN ( ActualQty - PlanQty ) * PlanPrice
+      )
     depends_on_measures:
     - sales.pvm.volume_effect.amount
     lineage:
@@ -3317,6 +3383,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Promo ROI %"
     formatString: "0.0%"
     description: "Measures profitability of promotions relative to spend."
+    dax_expression: |
+      DIVIDE ( [Incremental Gross Margin Amount], [Promo Cost] )
     depends_on_measures:
     - sales.promo.roi.pct
     lineage: []
@@ -3358,6 +3426,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "GM % During Promo"
     formatString: "0.0%"
     description: "Gross margin rate during promo periods."
+    dax_expression: |
+      CALCULATE (
+          DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] ),
+          fact_sales[Promo Flag] = "Yes"
+      )
     depends_on_measures:
     - margin.promo.gm.pct
     lineage:
@@ -3437,6 +3510,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Cannibalization %"
     formatString: "0.0%"
     description: "Measures share of promo uplift offset by decline in non-promoted sales."
+    dax_expression: |
+      DIVIDE ( [Cannibalized Sales Amount], [Incremental Sales Amount] )
     depends_on_measures:
     - sales.promo.cannibalization.pct
     lineage:
@@ -3645,6 +3720,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Incremental Sales Amount"
     formatString: "#,0.00"
     description: "Additional sales due to promotion."
+    dax_expression: |
+      [Net Sales Amount] - [Baseline Sales Amount]
     depends_on_measures:
     - sales.promo.incremental.amount
     lineage:
