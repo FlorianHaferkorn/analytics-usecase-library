@@ -9,6 +9,7 @@ Principle:
 ## What belongs here
 
 - **run_fabric_checks.ps1** — runs Fabric-specific validation (measures vs KPI, TMDL vs measure dictionary, DAX best practices in TMDL). Invoke from repo root. Scripts live under `../validation/` (check_measures_vs_kpi.ps1, check_tmdl_vs_measure_dictionary.ps1, check_dax_best_practices.ps1).
+- **test_tmdl.ps1** — single-file TMDL sanity check (file exists, UTF-8 no BOM, table keyword, measures, formatString/displayFolder). Used by powerbi_mcp orchestration; see **TMDL_Testing_Guide.md** for the full 4-level validation workflow.
 - Wrapper scripts for common workflows (generate measures, validate TMDL, validate PBIP, apply theme)
 - \"Reproduce Aurora\" helpers (end-to-end local steps)
 - Non-destructive utilities (format, lint, verify)

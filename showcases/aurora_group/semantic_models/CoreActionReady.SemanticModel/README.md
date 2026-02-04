@@ -33,10 +33,7 @@ CoreActionReady.SemanticModel/
 │   │   ├── dim_customer.tmdl
 │   │   ├── fact_sales.tmdl
 │   │   ├── security_user_org.tmdl   # ✅ RLS Security Table
-│   │   ├── COM-001_Measures.tmdl    # ✅ Sales Performance (7 measures)
-│   │   ├── COM-002_Measures.tmdl    # ✅ Margin Analysis (6 measures)
-│   │   ├── COM-003_Measures.tmdl    # ✅ Customer Value (8 measures)
-│   │   └── COM-004_Measures.tmdl    # ✅ Promotion (5 measures)
+│   │   └── _Measures.tmdl           # ✅ All measures (grouped by display folder)
 │   ├── relationships/
 │   │   └── security_user_org_dim_org.tmdl  # ✅ RLS Relationship
 │   └── roles/
@@ -107,14 +104,14 @@ Die Tabelle `security_user_org` definiert welche User Zugriff auf welche Organis
 
 ## Measures
 
-### Display Folders (Business-orientiert)
+### Display Folders (Use Case IDs)
 
 | Folder | Use Case | Measures | Status |
 |--------|----------|----------|--------|
-| **01_Sales Performance** | COM-001 | 7 KPIs | ✅ Komplett |
-| **02_Margin Analysis** | COM-002 | 6 KPIs | ✅ Komplett |
-| **03_Customer Analysis** | COM-003 | 8 KPIs | ✅ Komplett |
-| **04_Promotion Effectiveness** | COM-004 | 5 KPIs | ✅ Komplett |
+| **COM-001** | COM-001 | 7 KPIs | ✅ Komplett |
+| **COM-002** | COM-002 | 6 KPIs | ✅ Komplett |
+| **COM-003** | COM-003 | 8 KPIs | ✅ Komplett |
+| **COM-004** | COM-004 | 5 KPIs | ✅ Komplett |
 
 ### COM-001: Sales Performance (7 Measures)
 

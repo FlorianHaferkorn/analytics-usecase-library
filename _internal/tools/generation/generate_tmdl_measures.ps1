@@ -10,11 +10,17 @@ Param(
   [switch]$StubOnly,
   # When set, overwrite existing _Measures.tmdl files even if they already exist.
   # Default behaviour without this switch is to skip use cases where a measures file exists.
-  [switch]$OverwriteExisting
+  [switch]$OverwriteExisting,
+  # Write into a shared semantic model (e.g. Aurora showcase). All use cases -> ONE _Measures.tmdl with displayFolder per use case.
+  [string]$TargetTablesDir = "",
+  # Convenience: same as -TargetTablesDir "showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition/tables"
+  # All measures go into ONE _Measures.tmdl file, organized by displayFolder = Use-Case-ID.
+  [switch]$UseAuroraShowcase
 )
 
 $script:ToolRoot = Split-Path -Parent $PSScriptRoot
-$script:RepoRoot = Split-Path -Parent $script:ToolRoot
+# Repo root = three levels up from this script (_internal/tools/generation -> repo root)
+$script:RepoRoot = Split-Path -Parent (Split-Path -Parent $script:ToolRoot)
 
 function Resolve-RepoPath {
   param(
@@ -436,8 +442,27 @@ $resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRel
 if (-not $resolvedUseCasesRoot) { throw "Unable to resolve UseCases root folder. Provide -UseCasesRoot or run inside repository." }
 $resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
 if (-not $resolvedKpiRoot) { throw "Unable to resolve KPI catalog root. Provide -KpiCatalogRoot or run inside repository." }
-$resolvedDistRoot = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'implementations/microsoft_fabric_powerbi/dist'
-if (-not $resolvedDistRoot) { throw "Unable to resolve dist root. Provide -DistRoot or run inside repository." }
+
+# Primary output: shared semantic model (e.g. Aurora showcase). When set, write <UseCase>_Measures.tmdl into this directory.
+$resolvedTablesDir = $null
+if ($UseAuroraShowcase) {
+  $auroraRelative = "showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition/tables"
+  $resolvedTablesDir = if ($script:RepoRoot -and (Test-Path (Join-Path $script:RepoRoot $auroraRelative))) { (Resolve-Path (Join-Path $script:RepoRoot $auroraRelative)).Path } else { $null }
+  if (-not $resolvedTablesDir) { $resolvedTablesDir = Join-Path $script:RepoRoot $auroraRelative; Ensure-Dir (Split-Path -Parent $resolvedTablesDir) | Out-Null; New-Item -ItemType Directory -Path $resolvedTablesDir -Force | Out-Null; $resolvedTablesDir = (Resolve-Path $resolvedTablesDir).Path }
+}
+if ($TargetTablesDir -and $TargetTablesDir.Trim().Length -gt 0) {
+  if (Test-Path $TargetTablesDir) { $resolvedTablesDir = (Resolve-Path $TargetTablesDir).Path }
+  elseif ($script:RepoRoot) {
+    $candidate = Join-Path $script:RepoRoot $TargetTablesDir.Trim()
+    if (Test-Path $candidate) { $resolvedTablesDir = (Resolve-Path $candidate).Path }
+    else { $resolvedTablesDir = $candidate; Ensure-Dir (Split-Path -Parent $resolvedTablesDir) | Out-Null; New-Item -ItemType Directory -Path $resolvedTablesDir -Force | Out-Null; $resolvedTablesDir = (Resolve-Path $resolvedTablesDir).Path }
+  }
+  else { throw "Unable to resolve TargetTablesDir. Provide an absolute path or run from repository root." }
+}
+if (-not $resolvedTablesDir) {
+  $resolvedDistRoot = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'implementations/microsoft_fabric_powerbi/dist'
+  if (-not $resolvedDistRoot) { throw "Unable to resolve dist root. Provide -DistRoot or -UseAuroraShowcase / -TargetTablesDir or run inside repository." }
+}
 
 $factSheets = Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Technical_Factsheet.md'
 if ($UseCase -and $UseCase.Count -gt 0) {
@@ -471,71 +496,57 @@ if ($factSheets.Count -eq 0) {
 $catalog = Load-KpiCatalog -Root $resolvedKpiRoot
 $generated = 0
 
-foreach ($fs in $factSheets) {
-  $frontMatter = Get-FrontMatterBlock -Path $fs.FullName
-  if (-not $frontMatter) { continue }
-  $lines = $frontMatter.Lines
-  $text = $frontMatter.Text
+# ============================================================================
+# MODE: Shared semantic model (Aurora showcase) - ALL measures in ONE _Measures.tmdl
+# ============================================================================
+if ($resolvedTablesDir) {
+  $allMeasureBlocks = @()
+  $processedUseCases = @()
 
-  $useCaseId = Get-ScalarValue -Lines $lines -Key 'id'
-  if (-not $useCaseId) { $useCaseId = $fs.Directory.Name.Split('_')[0] }
-  # Note: Filtering already done above when building $factSheets list
-  # This second check is redundant but kept for backwards compatibility
-  # if ($UseCase -and $UseCase.Count -gt 0) {
-  #   $matchesFilter = $false
-  #   foreach ($filter in $UseCase) {
-  #     if ($useCaseId -like ($filter + '*')) { $matchesFilter = $true; break }
-  #   }
-  #   if (-not $matchesFilter) { continue }
-  # }
+  foreach ($fs in $factSheets) {
+    $frontMatter = Get-FrontMatterBlock -Path $fs.FullName
+    if (-not $frontMatter) { continue }
+    $lines = $frontMatter.Lines
+    $useCaseId = Get-ScalarValue -Lines $lines -Key 'id'
+    if (-not $useCaseId) { $useCaseId = $fs.Directory.Name.Split('_')[0] }
 
-  $title = Get-ScalarValue -Lines $lines -Key 'title'
-  $datasetModel = Get-ScalarValue -Lines $lines -Key 'dataset_model'
-  if (-not $datasetModel) { $datasetModel = "$useCaseId.SemanticModel" }
-
-  $targetIds = Get-YamlBlockIds -Path $fs.FullName
-  if ($targetIds.Count -eq 0) {
-    Write-Host "Skipping $useCaseId - no kpi_id entries found in YAML blocks." -ForegroundColor Yellow
-    continue
-  }
-  $labelMap = Parse-StringMap -Lines $lines -Field 'required_kpis'
-  if (-not $labelMap) { $labelMap = [ordered]@{} }
-
-  $manifest = [ordered]@{
-    usecase_id    = $useCaseId
-    title         = $title
-    dataset_model = $datasetModel
-    table_name    = $MeasuresTableName
-    fact_sheet    = (Resolve-Path -Path $fs.FullName).Path
-    measures      = @()
-  }
-
-  foreach ($id in $targetIds) {
-    $record = if ($catalog.ContainsKey($id)) { $catalog[$id] } else { $null }
-    $measure = Build-MeasureObject -KpiId $id -CatalogRecord $record -LabelMap $labelMap
-    $manifest.measures += $measure
-    if (-not $record) {
-      Write-Host "Warning: KPI '$id' missing in catalog for $useCaseId" -ForegroundColor Yellow
+    $targetIds = Get-YamlBlockIds -Path $fs.FullName
+    if ($targetIds.Count -eq 0) {
+      Write-Host "Skipping $useCaseId - no kpi_id entries found in YAML blocks." -ForegroundColor Yellow
+      continue
     }
+    $labelMap = Parse-StringMap -Lines $lines -Field 'required_kpis'
+    if (-not $labelMap) { $labelMap = [ordered]@{} }
+
+    foreach ($id in $targetIds) {
+      $record = if ($catalog.ContainsKey($id)) { $catalog[$id] } else { $null }
+      $measure = Build-MeasureObject -KpiId $id -CatalogRecord $record -LabelMap $labelMap
+      if (-not $record) {
+        Write-Host "Warning: KPI '$id' missing in catalog for $useCaseId" -ForegroundColor Yellow
+      }
+      # Build measure block with displayFolder = useCaseId
+      $allMeasureBlocks += (Build-MeasureBlock -Measure $measure -DefaultDisplayFolder $useCaseId)
+    }
+    $processedUseCases += $useCaseId
+    Write-Host "Collected measures for $useCaseId" -ForegroundColor Gray
   }
 
-  $caseRoot = Join-Path $resolvedDistRoot $useCaseId
-  $semRoot = Resolve-SemanticModelPath -CaseRoot $caseRoot -DatasetModel $datasetModel -UseCaseId $useCaseId
-  $definitionRoot = Join-Path $semRoot 'definition'
-  $tablesDir = Join-Path $definitionRoot 'tables'
-  Ensure-Dir $tablesDir
+  if ($allMeasureBlocks.Count -eq 0) {
+    Write-Host "No measures collected." -ForegroundColor Yellow
+    exit 0
+  }
 
-  $measuresPath = Join-Path $tablesDir ("$MeasuresTableName.tmdl")
-  $generatedPath = Join-Path $tablesDir ("$MeasuresTableName.generated.tmdl")
-  $modelPath = Join-Path $definitionRoot 'model.tmdl'
+  # Write ALL measures to ONE _Measures.tmdl
+  $measuresPath = Join-Path $resolvedTablesDir "_Measures.tmdl"
+  $generatedPath = Join-Path $resolvedTablesDir "_Measures.generated.tmdl"
 
   if (-not $StubOnly -and -not $OverwriteExisting -and (Test-Path $measuresPath)) {
-    Write-Host "Skipping $useCaseId - measures file already exists (use -OverwriteExisting or -StubOnly)." -ForegroundColor Yellow
-    continue
+    Write-Host "Skipping - _Measures.tmdl already exists (use -OverwriteExisting or -StubOnly)." -ForegroundColor Yellow
+    exit 0
   }
 
   $header = @()
-  if ($title) { $header += ("/// $useCaseId Measures ($title)") } else { $header += ("/// $useCaseId Measures") }
+  $header += ("/// Consolidated Measures for: " + ($processedUseCases -join ", "))
   $header += ("table $MeasuresTableName")
   $header += ""
   $header += ("`tpartition $MeasuresTableName = m")
@@ -553,42 +564,129 @@ foreach ($fs in $factSheets) {
   $header += ("`t`tsummarizeBy: none")
   $header += ""
 
-  $blocks = @()
-  foreach ($measure in $manifest.measures) {
-    $blocks += (Build-MeasureBlock -Measure $measure -DefaultDisplayFolder $useCaseId)
-  }
-
-  $content = ($header + $blocks) -join [Environment]::NewLine
+  $content = ($header + $allMeasureBlocks) -join [Environment]::NewLine
 
   if ($StubOnly) {
     Write-Utf8NoBom -Path $generatedPath -Text $content
+    Write-Host ("Generated stub _Measures.tmdl with measures from: " + ($processedUseCases -join ", ") + " -> " + $generatedPath) -ForegroundColor Green
   } else {
     Write-Utf8NoBom -Path $measuresPath -Text $content
+    Write-Host ("Generated _Measures.tmdl with measures from: " + ($processedUseCases -join ", ") + " -> " + $measuresPath) -ForegroundColor Green
   }
+  $generated = $processedUseCases.Count
+}
+# ============================================================================
+# MODE: Per-use-case output (dist) - one _Measures.tmdl per use case folder
+# ============================================================================
+else {
+  foreach ($fs in $factSheets) {
+    $frontMatter = Get-FrontMatterBlock -Path $fs.FullName
+    if (-not $frontMatter) { continue }
+    $lines = $frontMatter.Lines
+    $text = $frontMatter.Text
 
-  if (-not $StubOnly -and (Test-Path $modelPath)) {
-    $modelRaw = Get-Content -Raw -Path $modelPath
-    if ($modelRaw -notmatch ("(?m)^ref\s+table\s+" + [regex]::Escape($MeasuresTableName) + '\s*$')) {
-      $append = "ref table $MeasuresTableName"
-      if ($modelRaw.TrimEnd().Length -gt 0) {
-        Write-Utf8NoBom -Path $modelPath -Text ($modelRaw.TrimEnd() + [Environment]::NewLine + $append + [Environment]::NewLine)
-      } else {
-        Write-Utf8NoBom -Path $modelPath -Text ($append + [Environment]::NewLine)
+    $useCaseId = Get-ScalarValue -Lines $lines -Key 'id'
+    if (-not $useCaseId) { $useCaseId = $fs.Directory.Name.Split('_')[0] }
+
+    $title = Get-ScalarValue -Lines $lines -Key 'title'
+    $datasetModel = Get-ScalarValue -Lines $lines -Key 'dataset_model'
+    if (-not $datasetModel) { $datasetModel = "$useCaseId.SemanticModel" }
+
+    $targetIds = Get-YamlBlockIds -Path $fs.FullName
+    if ($targetIds.Count -eq 0) {
+      Write-Host "Skipping $useCaseId - no kpi_id entries found in YAML blocks." -ForegroundColor Yellow
+      continue
+    }
+    $labelMap = Parse-StringMap -Lines $lines -Field 'required_kpis'
+    if (-not $labelMap) { $labelMap = [ordered]@{} }
+
+    $manifest = [ordered]@{
+      usecase_id    = $useCaseId
+      title         = $title
+      dataset_model = $datasetModel
+      table_name    = $MeasuresTableName
+      fact_sheet    = (Resolve-Path -Path $fs.FullName).Path
+      measures      = @()
+    }
+
+    foreach ($id in $targetIds) {
+      $record = if ($catalog.ContainsKey($id)) { $catalog[$id] } else { $null }
+      $measure = Build-MeasureObject -KpiId $id -CatalogRecord $record -LabelMap $labelMap
+      $manifest.measures += $measure
+      if (-not $record) {
+        Write-Host "Warning: KPI '$id' missing in catalog for $useCaseId" -ForegroundColor Yellow
       }
     }
-  }
 
-  if (-not $SkipManifest) {
-    $manifestPath = Join-Path $semRoot 'measures_manifest.json'
-    Write-Manifest -Path $manifestPath -Manifest $manifest
-  }
+    $caseRoot = Join-Path $resolvedDistRoot $useCaseId
+    $semRoot = Resolve-SemanticModelPath -CaseRoot $caseRoot -DatasetModel $datasetModel -UseCaseId $useCaseId
+    $definitionRoot = Join-Path $semRoot 'definition'
+    $tablesDir = Join-Path $definitionRoot 'tables'
+    Ensure-Dir $tablesDir
+    $measuresPath = Join-Path $tablesDir ("$MeasuresTableName.tmdl")
+    $generatedPath = Join-Path $tablesDir ("$MeasuresTableName.generated.tmdl")
 
-  if ($StubOnly) {
-    Write-Host ("Generated stub measures for $useCaseId -> " + $generatedPath) -ForegroundColor Green
-  } else {
-    Write-Host ("Generated measures for $useCaseId -> " + $measuresPath) -ForegroundColor Green
+    if (-not $StubOnly -and -not $OverwriteExisting -and (Test-Path $measuresPath)) {
+      Write-Host "Skipping $useCaseId - measures file already exists (use -OverwriteExisting or -StubOnly)." -ForegroundColor Yellow
+      continue
+    }
+
+    $header = @()
+    if ($title) { $header += ("/// $useCaseId Measures ($title)") } else { $header += ("/// $useCaseId Measures") }
+    $header += ("table $MeasuresTableName")
+    $header += ""
+    $header += ("`tpartition $MeasuresTableName = m")
+    $header += ("`t`tmode: import")
+    $header += ("`t`tsource =")
+    $header += ("`t`t`t`tlet")
+    $header += ("`t`t`t`t`tSource = #table(type table[Column1 = text], {})")
+    $header += ("`t`t`t`tin")
+    $header += ("`t`t`t`t`tSource")
+    $header += ""
+    $header += ("`tcolumn Column1")
+    $header += ("`t`tdataType: string")
+    $header += ("`t`tsourceColumn: Column1")
+    $header += ("`t`tisHidden")
+    $header += ("`t`tsummarizeBy: none")
+    $header += ""
+
+    $blocks = @()
+    foreach ($measure in $manifest.measures) {
+      $blocks += (Build-MeasureBlock -Measure $measure -DefaultDisplayFolder $useCaseId)
+    }
+
+    $content = ($header + $blocks) -join [Environment]::NewLine
+
+    if ($StubOnly) {
+      Write-Utf8NoBom -Path $generatedPath -Text $content
+    } else {
+      Write-Utf8NoBom -Path $measuresPath -Text $content
+    }
+
+    $modelPath = Join-Path $definitionRoot 'model.tmdl'
+    if (-not $StubOnly -and (Test-Path $modelPath)) {
+      $modelRaw = Get-Content -Raw -Path $modelPath
+      if ($modelRaw -notmatch ("(?m)^ref\s+table\s+" + [regex]::Escape($MeasuresTableName) + '\s*$')) {
+        $append = "ref table $MeasuresTableName"
+        if ($modelRaw.TrimEnd().Length -gt 0) {
+          Write-Utf8NoBom -Path $modelPath -Text ($modelRaw.TrimEnd() + [Environment]::NewLine + $append + [Environment]::NewLine)
+        } else {
+          Write-Utf8NoBom -Path $modelPath -Text ($append + [Environment]::NewLine)
+        }
+      }
+    }
+    if (-not $SkipManifest) {
+      $manifestPath = Join-Path $semRoot 'measures_manifest.json'
+      Write-Manifest -Path $manifestPath -Manifest $manifest
+    }
+
+    if ($StubOnly) {
+      Write-Host ("Generated stub measures for $useCaseId -> " + $generatedPath) -ForegroundColor Green
+    } else {
+      Write-Host ("Generated measures for $useCaseId -> " + $measuresPath) -ForegroundColor Green
+    }
+    $generated++
   }
-  $generated++
 }
 
 if ($generated -eq 0) {

@@ -95,10 +95,14 @@ To implement one use case end-to-end (e.g. COM-001):
 2. Generate TMDL measures from the KPI catalog (from repo root):
 
    ```
-   .\_internal\tools\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -OverwriteExisting
+   .\_internal\tools\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseAuroraShowcase -OverwriteExisting
    ```
 
-   Default output: `implementations/microsoft_fabric_powerbi/dist`. To output elsewhere (e.g. a showcase), set `-DistRoot` accordingly.
+<<<<<<< Current (Your changes)
+   Primary output: `showcases/aurora_group/semantic_models/.../tables/_Measures.tmdl` (single measures table; measures grouped by display folder). Omit `-UseAuroraShowcase` to write to `implementations/microsoft_fabric_powerbi/dist` instead.
+=======
+   Output: **ONE** `_Measures.tmdl` with all measures, organized by displayFolder per use case. Omit `-UseAuroraShowcase` to write to `implementations/microsoft_fabric_powerbi/dist` instead (one file per use case).
+>>>>>>> Incoming (Background Agent changes)
 3. Run **Stage 1** to ensure framework consistency: `.\_internal\tools\run_stage1_checks.ps1`.
 4. If you have Fabric/Power BI output, run **Fabric checks**: `implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1`.
 

@@ -202,11 +202,11 @@ if ($scopeType -eq "UseCase") {
 }
 
 Invoke-WithRetry "Validate TMDL Syntax" {
-    if (-not (Test-Path ./_internal/tools/tmp/test_tmdl.ps1)) {
+    if (-not (Test-Path ./implementations/microsoft_fabric_powerbi/tools/test_tmdl.ps1)) {
         Write-Host "  test_tmdl.ps1 not found, skipping" -ForegroundColor Yellow
         return
     }
-    & ./_internal/tools/tmp/test_tmdl.ps1 -TmdlFile $state.measuresFile | Out-Null
+    & ./implementations/microsoft_fabric_powerbi/tools/test_tmdl.ps1 -TmdlFile $state.measuresFile | Out-Null
     if ($LASTEXITCODE -ne 0) {
         throw "TMDL validation failed"
     }

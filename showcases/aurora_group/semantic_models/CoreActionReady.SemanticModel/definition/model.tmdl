@@ -4,3 +4,11 @@ model Model
 
 
 annotation PBI_ProTooling = ["TMDL-Extension"]
+
+ref table _Measures
+ref table dim_customer
+ref table dim_date
+ref table dim_org
+ref table dim_product
+ref table fact_sales
+ref table security_user_org

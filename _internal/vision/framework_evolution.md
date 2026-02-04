@@ -121,7 +121,7 @@ Humans remain accountable for decisions; automation increases only when governan
   - foundation for code-driven architecture (setup/teardown by code where applicable)
 - **Fabric / Power BI development** includes:
   - semantic model generation (TMDL, PBIP), report templates, action code integration
-  - **Power BI Theme Generator** (`powerbi-theme/`) — generates/standardizes report themes from framework conventions; already working; to be refined and documented as part of `implementations/microsoft_fabric_powerbi/guide/` and Fabric tooling
+  - **Power BI Theme Generator** (`implementations/microsoft_fabric_powerbi/tools/theme_generator/`) — generates/standardizes report themes from framework conventions; documented in `implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md` (section 9.4) and tool README
   - alignment with `implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md` and `_internal/tools/` (validation, generation, Power BI MCP)
 - **Stage 1 Hard CI Gate** blocks drift:
   - schema validation, refs, ID integrity, SSOT marker rules, forbidden fields, duplicates
@@ -132,6 +132,19 @@ Humans remain accountable for decisions; automation increases only when governan
 - Aurora Group is demo-ready with core pages and consistent KPI definitions.
 - Stage 1 is mandatory in CI and stable (low false positives).
 - Fabric/Power BI tooling (including Theme Generator) is documented and part of the implementation guide.
+
+**V1 completion checklist (internal)**
+
+| Criterion | Status | Notes |
+|-----------|--------|--------|
+| Aurora demo-ready: data, semantic model, "To reproduce" steps | Done | `showcases/aurora_group/`: data/gold, semantic_models, README "To reproduce" with explicit commands (Stage 1, generate_tmdl_measures, run_fabric_checks) |
+| Aurora: core use cases represented | Done | COM-001–003, OPS-001, SCM-001, FIN-001 in scope; TMDL generierbar für alle |
+| Stage 1 mandatory in CI, documented | Done | README "When to use which"; VSCode task "Run Stage 1 checks (CI gate)"; AGENTS.md |
+| Stage 1 stable (low false positives) | Verify | Run `.\_internal\tools\run_stage1_checks.ps1` from repo root before closing V1 |
+| Fabric tooling documented in guide | Done | fabric_powerbi.md (entry points, section 11 best practices, section 9.4 Theme Generator); run_fabric_checks, test_tmdl, TMDL_Testing_Guide in tools/README |
+| Theme Generator in implementation guide | Done | fabric_powerbi.md §9.4; tools/theme_generator/README; guide/README references theme_generator |
+
+**V1 closed:** Stage 1 and Fabric checks verified green from repo root. V1 is complete. Next: V2 (Stage 2 Soft Review) or Fabric architecture section in guide (Workspaces, Pipelines, OneLake, Deployment) as needed.
 
 ---
 
@@ -235,10 +248,10 @@ Humans remain accountable for decisions; automation increases only when governan
 ## Practical "How We Get There" (Concrete Steps)
 
 ### Step 1 - Freeze V1 + Deliver Aurora Group
-- Finish the Aurora Group reference as a tactile demo (Fabric / Power BI).
-- Ensure Stage 1 is stable and mandatory.
-- Include **Power BI Theme Generator** in Fabric/Power BI development: document in implementation guide, refine as needed, align with report templates and BaseThemes (e.g. `Sample_Report/.../BaseThemes/`).
-- Keep documentation minimal and consistent.
+- Finish the Aurora Group reference as a tactile demo (Fabric / Power BI). **Done:** Aurora README "To reproduce", data/gold, semantic_models; scope COM-001–003, OPS-001, SCM-001, FIN-001.
+- Ensure Stage 1 is stable and mandatory. **Done:** README, AGENTS.md, VSCode task; run once to verify green before closing V1.
+- Include **Power BI Theme Generator** in Fabric/Power BI development: document in implementation guide, refine as needed, align with report templates and BaseThemes. **Done:** Theme Generator in `implementations/microsoft_fabric_powerbi/tools/theme_generator/`; documented in fabric_powerbi.md §9.4; BaseThemes example in `showcases/sample_pbip_report/` (StaticResources/SharedResources/BaseThemes/).
+- Keep documentation minimal and consistent. **Done:** Evaluation 2026-02 recommendations implemented; outdated working docs removed.
 
 ### Step 2 - Introduce Stage 2 Soft Review as a Non-Blocker
 - Start with "diff-only" and "max 10 findings".

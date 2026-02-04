@@ -231,7 +231,7 @@ Invoke-WithRetry "Generate TMDL Measures" {
 
 Invoke-WithRetry "Validate TMDL Syntax" {
     $tmdlFile = "dist\$UseCase\$UseCase.SemanticModel\definition\tables\_Measures.tmdl"
-    $result = & ./_internal/tools/tmp/test_tmdl.ps1 -TmdlFile $tmdlFile
+    $result = & ./implementations/microsoft_fabric_powerbi/tools/test_tmdl.ps1 -TmdlFile $tmdlFile
     
     if ($LASTEXITCODE -ne 0) {
         throw "TMDL validation failed"

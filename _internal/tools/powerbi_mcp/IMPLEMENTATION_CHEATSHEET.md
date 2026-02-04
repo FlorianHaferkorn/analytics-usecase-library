@@ -31,7 +31,7 @@ do {
     ./_internal/tools/generation/generate_tmdl_measures.ps1 -UseCase $UseCase
     
     # Validate
-    $result = ./_internal/tools/tmp/test_tmdl.ps1 -TmdlFile $tmdlPath
+    $result = ./implementations/microsoft_fabric_powerbi/tools/test_tmdl.ps1 -TmdlFile $tmdlPath
     
     if ($LASTEXITCODE -eq 0) {
         break  # Success
@@ -263,7 +263,7 @@ Generate-ReportPage -PageName "Overview" -Visuals @(
 
 ```powershell
 Checks:
-  ✓ TMDL Syntax Valid (./_internal/tools/tmp/test_tmdl.ps1)
+  ✓ TMDL Syntax Valid (./implementations/microsoft_fabric_powerbi/tools/test_tmdl.ps1)
   ✓ All Measures Have formatString
   ✓ All Measures Have displayFolder
   ✓ All Measures Have /// Description
