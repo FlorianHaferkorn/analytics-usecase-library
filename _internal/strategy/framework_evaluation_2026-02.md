@@ -79,7 +79,7 @@ From "I am new":
 | new_usecase.ps1 cluster paths | [`_internal/tools/generation/new_usecase.ps1`](../../_internal/tools/generation/new_usecase.ps1): `Get-ClusterPath` returns `usecases/01_Commercial`, `usecases/02_Operational_Efficiency`, etc. Actual structure is `usecases/core/<ID>_<Name>`. Folders `01_Commercial`, `02_Operational_Efficiency` do not exist. | Script throws \"Cluster folder 'usecases/01_Commercial' not found\" for COM-*; unusable for scaffolding new use cases. |
 | usecase_DoD_Core.md KPI template path | [`framework/usecases/usecase_DoD_Core.md`](../../framework/usecases/usecase_DoD_Core.md) section 2: `framework/templates/KPI_Catalog_templates/KPI_Catalog_SCHEMA.md`. Actual folder is `framework/templates/kpi_catalog_templates/` (lowercase `kpi_catalog`). | Broken link / wrong path for schema reference. |
 | Action code documentation_links | Multiple action code YAMLs (e.g. [`framework/action_codes/SupplyChain/S-I1.1.yaml`](../../framework/action_codes/SupplyChain/S-I1.1.yaml)): `governance.documentation_links` use `usecases/core/SCM-001/Business_Factsheet.md`. Actual path is `usecases/core/SCM-001_Inventory_Performance/Business_Factsheet.md`. | Links resolve to wrong or missing path (folder name includes suffix). |
-| SupplyChain action code filenames | [`framework/action_codes/SupplyChain/`](../../framework/action_codes/SupplyChain/): files `S-F.3.1.yaml`, `S-F.3.2.yaml`, `S-F.3.3.yaml` (dot in name) vs `S-F3.4.yaml` (no dot). UseCase_ActionCode_Map and rationale use IDs `S-F3.1`, `S-F3.2`, `S-F3.3`, `S-F3.4`. | Inconsistent naming; tooling that resolves action codes by filename may fail for S-F3.1–S-F3.3. |
+| SupplyChain action code filenames | ~~`S-F.3.1`–`S-F.3.3`~~ **Resolved:** Renamed to `S-F3.1`–`S-F3.3`; rationale references updated. Single convention: `S-F3.x.yaml`. | — |
 
 ### 3.2 UseCase_Inventory vs UseCase_ActionCode_Map
 
@@ -112,8 +112,8 @@ Trace from "I want to implement COM-001" to "TMDL generated and Stage 1 passed":
 
 ### 4.2 Aurora showcase
 
-- [showcases/aurora_group/README.md](../../showcases/aurora_group/README.md): \"Load sample data per data/sample_data/README.md\" and \"contracts in data/sample_data_contracts/\". **These paths do not exist.** Actual structure has `data/gold/` (and no sample_data_contracts at top level).
-- [showcases/aurora_group/usecases/core/COM-001.md](../../showcases/aurora_group/usecases/core/COM-001.md): \"Data: showcases/aurora_group/data/sample_data/\". **Path does not exist.**
+- [showcases/aurora_group/README.md](../../showcases/aurora_group/README.md): **Resolved.** Now points to `data/gold/` and framework data contracts; \"To reproduce\" steps added.
+- [showcases/aurora_group/usecases/core/COM-001.md](../../showcases/aurora_group/usecases/core/COM-001.md): **Resolved.** Data reference updated to `showcases/aurora_group/data/gold/` (facts/dimensions).
 - No "run X then Y to reproduce" instructions; no reference to generate_tmdl_measures.ps1 or run_stage1_checks.ps1.
 
 ### 4.3 Implementation guide links

@@ -291,8 +291,8 @@ use_cases:
       driver: "Action code S-F3.1 (Forecast Quality Orchestration) supports SCM-003."
       kpi_link: "Trigger KPIs: plan.forecast.accuracy.pct, plan.replan.count, plan.forecast.service_impact.pct. Outcome KPIs: plan.forecast.accuracy.pct."
       business_logic: "Aligned with action code purpose: Coordinate Forecast Quality Levers Without Conflicting Fixes."
-      strategic_alignment: "See action code strategic_alignment in framework/action_codes/SupplyChain/S-F.3.1.yaml."
-      data_trigger: "See action code trigger in framework/action_codes/SupplyChain/S-F.3.1.yaml."
+      strategic_alignment: "See action code strategic_alignment in framework/action_codes/SupplyChain/S-F3.1.yaml."
+      data_trigger: "See action code trigger in framework/action_codes/SupplyChain/S-F3.1.yaml."
     S-F3.2:
       driver: "Action code S-F3.2 (Forecast Bias & Accuracy Correction) supports SCM-003."
       kpi_link: "Trigger KPIs: plan.forecast.bias.pct, plan.forecast.mape.pct, plan.replan.count. Outcome KPIs: plan.forecast.accuracy.pct, plan.forecast.bias.pct."
@@ -303,8 +303,8 @@ use_cases:
       driver: "Action code S-F3.3 (Service Impact Containment) supports SCM-003."
       kpi_link: "Trigger KPIs: plan.forecast.service_impact.pct, inv.dio.days. Outcome KPIs: plan.forecast.service_impact.pct, supply.otif.pct."
       business_logic: "Aligned with action code purpose: Limit Downstream Service Damage Caused by Forecast Error."
-      strategic_alignment: "See action code strategic_alignment in framework/action_codes/SupplyChain/S-F.3.3.yaml."
-      data_trigger: "See action code trigger in framework/action_codes/SupplyChain/S-F.3.3.yaml."
+      strategic_alignment: "See action code strategic_alignment in framework/action_codes/SupplyChain/S-F3.3.yaml."
+      data_trigger: "See action code trigger in framework/action_codes/SupplyChain/S-F3.3.yaml."
     S-F3.4:
       driver: "Action code S-F3.4 (Re-Plan Discipline & Stability) supports SCM-003."
       kpi_link: "Trigger KPIs: plan.replan.count, supply.otif.pct. Outcome KPIs: plan.replan.count, plan.forecast.accuracy.pct."

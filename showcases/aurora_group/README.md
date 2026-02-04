@@ -17,10 +17,17 @@ aurora_group/
 How to use
 
 - Start with `company/Aurora_Group_Profile.md` and `company/Aurora_Operating_Model.md`.
-- Load sample data per `data/sample_data/README.md` using contracts in `data/sample_data_contracts/`.
-- Build the model from `models/core_action_ready_model.yaml` using the OneLake-conform contracts.
+- Sample data lives in `data/gold/` (Delta tables: `gold/facts/fact_sales`, `gold/dimensions/dim_*`). Data contracts and source definitions are in `framework/data_contracts/`; this showcase consumes gold-layer outputs.
+- Build the model from `models/core_action_ready_model.yaml` (or use the semantic model in `semantic_models/`).
 - Implement pages following `framework/templates/page_templates/*` and `reporting/pbip_layouts.md`.
 - Align use cases with the canonical factsheets in `framework/usecases/core/` (references to main library).
+
+To reproduce
+
+1. Clone the repo and open from repo root.
+2. Run framework checks: `_internal/tools/validation/run_all_checks.ps1` (or stage 1 only: `run_stage1_checks.ps1`).
+3. For Fabric/Power BI: run `implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1`; generate TMDL measures into `implementations/microsoft_fabric_powerbi/dist` if needed.
+4. Point the Aurora semantic model/dataset to `showcases/aurora_group/data/gold/` (or your deployed gold path).
 
 Scope for the demo
 
