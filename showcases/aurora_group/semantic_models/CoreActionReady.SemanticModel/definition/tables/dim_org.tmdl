@@ -13,6 +13,7 @@ table dim_org
 	column Region
 		dataType: string
 		sourceColumn: Region
+		description: "Aurora Group operates across 5 regions: DACH, Benelux, Nordics, Southern Europe, CEE"
 
 	column Country
 		dataType: string
@@ -21,6 +22,22 @@ table dim_org
 	column Channel
 		dataType: string
 		sourceColumn: Channel
+		description: "Retail Stores, E-Commerce, Marketplaces, Wholesale"
+
+	hierarchy 'Aurora Organization'
+		lineageTag: aurora-org-hierarchy
+
+		level Region
+			column: Region
+
+		level Country
+			column: Country
+
+		level Channel
+			column: Channel
+
+		level 'Org Name'
+			column: OrgName
 
 	partition dim_org = m
 		mode: import

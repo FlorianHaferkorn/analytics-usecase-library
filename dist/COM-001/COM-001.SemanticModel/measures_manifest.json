@@ -22,7 +22,7 @@
                          "purpose":  "Total invoiced revenue net of discounts and returns.",
                          "description":  "Total invoiced revenue net of discounts and returns.",
                          "technical_description":  "Total invoiced revenue net of discounts and returns.",
-                         "dax_expression":  null,
+                         "dax_expression":  "SUM ( fact_sales[Net Sales Amount] )",
                          "depends_on":  [
 
                                         ],
@@ -54,7 +54,7 @@
                          "purpose":  "Relative variance of Net Sales vs Plan.",
                          "description":  "Relative variance of Net Sales vs Plan.",
                          "technical_description":  "Relative variance of Net Sales vs Plan.",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR Actual = [Net Sales Amount]\nVAR Plan   = SUM ( fact_sales[Plan Sales Amount] )\nRETURN DIVIDE ( Actual - Plan, Plan )",
                          "depends_on":  [
 
                                         ],
@@ -86,7 +86,7 @@
                          "purpose":  "Relative variance of Net Sales vs Last Year.",
                          "description":  "Relative variance of Net Sales vs Last Year.",
                          "technical_description":  "Relative variance of Net Sales vs Last Year.",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR Actual = [Net Sales Amount]\nVAR LY     = SUM ( fact_sales[Last Year Sales Amount] )\nRETURN DIVIDE ( Actual - LY, LY )",
                          "depends_on":  [
 
                                         ],
@@ -118,7 +118,7 @@
                          "purpose":  "Gross margin % for commercial/operational reporting and strategic P\u0026L reconciliation.",
                          "description":  "Gross margin % for commercial/operational reporting and strategic P\u0026L reconciliation.",
                          "technical_description":  "Gross Margin % used in commercial and management reporting and P\u0026L reconciliation.",
-                         "dax_expression":  null,
+                         "dax_expression":  "DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )",
                          "depends_on":  [
 
                                         ],
@@ -150,7 +150,7 @@
                          "purpose":  "Quantifies the pure price impact in the PVM bridge.",
                          "description":  "Quantifies the pure price impact in the PVM bridge.",
                          "technical_description":  "Quantifies the pure price impact in the PVM bridge.",
-                         "dax_expression":  null,
+                         "dax_expression":  "SUMX (\n    fact_sales,\n    VAR ActualPrice = DIVIDE ( fact_sales[Net Sales Amount], fact_sales[Quantity] )\n    VAR PlanPrice   = DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] )\n    RETURN ( ActualPrice - PlanPrice ) * fact_sales[Quantity]\n)",
                          "depends_on":  [
 
                                         ],
@@ -182,7 +182,7 @@
                          "purpose":  "Measures the variance caused purely by quantity changes at plan price.",
                          "description":  "Measures the variance caused purely by quantity changes at plan price.",
                          "technical_description":  "Measures the variance caused purely by quantity changes at plan price.",
-                         "dax_expression":  null,
+                         "dax_expression":  "SUMX (\n    fact_sales,\n    VAR ActualQty = fact_sales[Quantity]\n    VAR PlanQty   = fact_sales[Plan Quantity]\n    VAR PlanPrice = DIVIDE ( fact_sales[Plan Sales Amount], PlanQty )\n    RETURN ( ActualQty - PlanQty ) * PlanPrice\n)",
                          "depends_on":  [
 
                                         ],
@@ -214,7 +214,7 @@
                          "purpose":  "Captures the residual effect from changes in product, channel, or region mix.",
                          "description":  "Captures the residual effect from changes in product, channel, or region mix.",
                          "technical_description":  "Captures the residual effect from changes in product, channel, or region mix.",
-                         "dax_expression":  null,
+                         "dax_expression":  "[Net Sales Amount]\n    - SUM ( fact_sales[Plan Sales Amount] )\n    - [Price Effect Amount]\n    - [Volume Effect Amount]",
                          "depends_on":  [
 
                                         ],

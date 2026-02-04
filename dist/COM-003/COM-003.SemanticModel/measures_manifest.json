@@ -22,7 +22,7 @@
                          "purpose":  "Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.",
                          "description":  "Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.",
                          "technical_description":  "Estimate long-term value of a customer to prioritize retention, acquisition, and service investme...",
-                         "dax_expression":  null,
+                         "dax_expression":  "AVERAGEX (\n    VALUES ( fact_sales[CustomerKey] ),\n    CALCULATE (\n        SUM ( fact_sales[Net Sales Amount] ) - SUM ( fact_sales[Cost of Goods Sold Amount] )\n    ) * 3\n)",
                          "depends_on":  [
 
                                         ],
@@ -54,7 +54,7 @@
                          "purpose":  "Sum of realized revenue across the customer lifecycle.",
                          "description":  "Sum of realized revenue across the customer lifecycle.",
                          "technical_description":  "Sum of realized revenue across customer lifecycle",
-                         "dax_expression":  null,
+                         "dax_expression":  "CALCULATE (\n    SUM ( fact_sales[Net Sales Amount] ),\n    ALLSELECTED ( dim_date )\n)",
                          "depends_on":  [
 
                                         ],
@@ -86,7 +86,7 @@
                          "purpose":  "Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.",
                          "description":  "Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.",
                          "technical_description":  "Measure the share of customers that remain active from one period to the next, as a core loyalty ...",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR CurrentPeriodCustomers =\n    CALCULATE (\n        DISTINCTCOUNT ( fact_sales[CustomerKey] ),\n        FILTER ( ALLSELECTED ( dim_date ), dim_date[Date] = MAX ( dim_date[Date] ) )\n    )\nVAR PreviousPeriodCustomers =\n    CALCULATE (\n        DISTINCTCOUNT ( fact_sales[CustomerKey] ),\n        DATEADD ( dim_date[Date], -1, MONTH )\n    )\nRETURN DIVIDE ( CurrentPeriodCustomers, PreviousPeriodCustomers )",
                          "depends_on":  [
 
                                         ],
@@ -118,7 +118,7 @@
                          "purpose":  "Count customers that have stopped purchasing in the observation window as basis for churn calculations.",
                          "description":  "Count customers that have stopped purchasing in the observation window as basis for churn calculations.",
                          "technical_description":  "Count customers that have stopped purchasing in the observation window as basis for churn calcula...",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR PreviousMonthCustomers =\n    CALCULATETABLE (\n        VALUES ( fact_sales[CustomerKey] ),\n        DATEADD ( dim_date[Date], -1, MONTH )\n    )\nVAR CurrentMonthCustomers =\n    VALUES ( fact_sales[CustomerKey] )\nRETURN\n    COUNTROWS ( EXCEPT ( PreviousMonthCustomers, CurrentMonthCustomers ) )",
                          "depends_on":  [
 
                                         ],
@@ -150,7 +150,7 @@
                          "purpose":  "Quantify revenue exposure from customers flagged as churn-risk.",
                          "description":  "Quantify revenue exposure from customers flagged as churn-risk.",
                          "technical_description":  "Revenue exposure from churn-risk customers",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR ChurnRiskPct = 0.15\nRETURN [CLV] * ChurnRiskPct",
                          "depends_on":  [
 
                                         ],
@@ -182,7 +182,7 @@
                          "purpose":  "Number of unique active customers in the reporting period.",
                          "description":  "Number of unique active customers in the reporting period.",
                          "technical_description":  "Number of unique active customers in the reporting period.",
-                         "dax_expression":  null,
+                         "dax_expression":  "DISTINCTCOUNT ( fact_sales[CustomerKey] )",
                          "depends_on":  [
 
                                         ],
@@ -246,7 +246,7 @@
                          "purpose":  "Provide the absolute number of logged complaints.",
                          "description":  "Provide the absolute number of logged complaints.",
                          "technical_description":  "Count of logged customer complaints",
-                         "dax_expression":  null,
+                         "dax_expression":  "COUNTROWS ( fact_experience )",
                          "depends_on":  [
 
                                         ],
