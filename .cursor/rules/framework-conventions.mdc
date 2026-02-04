@@ -1,0 +1,33 @@
+---
+description: Golden thread, SSOT, and framework paths for the Analytics Use Case Library
+alwaysApply: true
+---
+
+# Framework Conventions
+
+## Golden Thread
+
+- **Strategy → KPIs → use cases → action codes → templates → semantic models.** Every artifact traces back; use cases and reports reference governed definitions; they do not define KPI meaning, targets, or lineage.
+- **Single source of truth:** KPI definitions live in `framework/kpi_catalog/`. Action logic and thresholds live in `framework/action_codes/`. Use cases in `usecases/` only reference these; they do not redefine them.
+- **Use cases reference, they do not define.** When editing use cases, link to KPI IDs and action code IDs; do not invent new KPI definitions or trigger logic in factsheets.
+
+## Key Paths
+
+- **Use cases:** `usecases/core/`, `usecases/templates/` — Business_Factsheet.md, Technical_Factsheet.md per use case.
+- **Framework:** `framework/kpi_catalog/`, `framework/action_codes/`, `framework/templates/` — KPI catalog, action code YAML, page/measure/data-contract templates.
+- **Data contracts:** `data_contracts/domains/`, `data_contracts/sources/` — domain and source-level contracts.
+- **Semantic models:** `semantic_models/core_action_ready/`, `semantic_models/domains/` — model definition, measure dictionaries.
+- **Docs:** `docs/company/`, `docs/operating_model/` — strategy and operating model; authority for structure and naming.
+- **Internal:** `_internal/tools/` — validation, generation, maintenance, Power BI MCP; `_internal/ai/schemas/` — JSON schemas for factsheets, action codes, data contracts, layout_330300.
+
+## Naming and IDs
+
+- Use case IDs: `COM-001`, `FIN-001`, `OPS-001`, `SCM-001`, `XD-001`, etc. (prefix + number).
+- Action code IDs: e.g. `C-M2.1`, `F-C1.1`, `O-A2.1` — domain prefix + topic + index.
+- KPI IDs: `domain.topic.metric` (e.g. `sales.price.realization_pct`). Must exist in KPI catalog before referencing in use cases or action codes.
+- Domains: Commercial, Finance, Operations, Supply Chain, XD (Experience/Enterprise).
+
+## Invariants
+
+- Do not add new artifact types without alignment with `_internal/vision/framework_evolution.md`.
+- Automation and generation must produce artifacts that pass Stage 1; prefer existing scripts under `_internal/tools/`.

@@ -1,0 +1,33 @@
+---
+description: Use case factsheet structure and required sections (Business + Technical)
+globs: "**/usecases/**/*.md"
+alwaysApply: false
+---
+
+# Use Case Factsheets
+
+## Structure
+
+- **Frontmatter (mandatory):** YAML with `id` (use case ID) and `factsheet_type` (`business` or `technical`). Must be the first block in the file.
+- **Templates:** `usecases/templates/usecase_factsheet_business.md`, `usecases/templates/usecase_factsheet_technical.md` — follow section order and required fields.
+
+## Business Factsheet
+
+- **Metadata (section 0):** Use Case ID, Domain, Business Owner, KPI Owner, Decision Owner, Reporting Level, Analytics Stage, Related Data Contract, Related Semantic Model.
+- **Required KPIs (section 3):** YAML block `required_kpis` with list of `id`, `name`; all `id` values must exist in `framework/kpi_catalog/`. Do not redefine KPI meaning, targets, or lineage in the factsheet.
+- **Action codes (section):** Reference action code IDs only; do not define trigger logic here.
+- **Layout (layout_330300):** Must conform to schema; reference `_internal/ai/schemas/layout_330300.schema.json` and page templates in `framework/templates/page_templates/`.
+
+## Technical Factsheet
+
+- **Metadata (section 0):** Domain, Technical Owner, Model ID, Source Systems, link to Business Factsheet.
+- **Model references (section 1):** Domain Data Contract, Source Data Contract, Semantic Model Definition, KPI Catalog, Measure Dictionary, Action Codes paths.
+- **KPI-to-measure mapping (section 2):** YAML `kpi_to_measure_mapping` — each `kpi_id` must exist in KPI catalog and match Business Factsheet required KPIs.
+- **Data contract scope (section 3):** Subset YAML (dimension/fact/settings) aligned with data contracts.
+
+## Schemas
+
+- Business factsheet: `_internal/ai/schemas/business_factsheet_v1_2.schema.json`
+- Technical factsheet: `_internal/ai/schemas/technical_factsheet_v1_2.schema.json`
+
+When adding or changing sections or frontmatter, ensure output still validates against these schemas and passes Stage 1 (e.g. `validate_factsheets.ps1`, `check_factsheet_vs_kpi.ps1`).
