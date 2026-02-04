@@ -26,6 +26,21 @@ table dim_product
 		dataType: string
 		sourceColumn: ProductFamily
 
+	hierarchy 'Product Hierarchy'
+		lineageTag: product-hierarchy
+
+		level Category
+			column: Category
+
+		level 'Sub Category'
+			column: SubCategory
+
+		level Brand
+			column: Brand
+
+		level 'Product Name'
+			column: ProductName
+
 	partition dim_product = m
 		mode: import
 		source =

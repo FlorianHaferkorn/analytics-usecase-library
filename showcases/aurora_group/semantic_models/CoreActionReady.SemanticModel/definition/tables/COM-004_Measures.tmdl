@@ -1,7 +1,7 @@
 /// COM-004 Measures
-table _Measures
+table COM-004_Measures
 
-	partition _Measures = m
+	partition COM-004_Measures = m
 		mode: import
 		source =
 				let
@@ -20,14 +20,14 @@ table _Measures
     measure 'Promo ROI %' =
             DIVIDE ( [Incremental Gross Margin Amount], [Promo Cost] )
         formatString: "0.0%"
-        displayFolder: "COM-004"
+        displayFolder: "04_Promotion Effectiveness"
 
     /// sales.promo.incremental.amount - Incremental Sales Amount
     /// Additional sales due to promotion.
     measure 'Incremental Sales Amount' =
             [Net Sales Amount] - [Baseline Sales Amount]
         formatString: "#,0.00"
-        displayFolder: "COM-004"
+        displayFolder: "04_Promotion Effectiveness"
 
     /// margin.promo.gm.pct - GM % During Promo
     /// Gross margin rate during promo periods.
@@ -37,18 +37,18 @@ table _Measures
                 fact_sales[Promo Flag] = "Yes"
             )
         formatString: "0.0%"
-        displayFolder: "COM-004"
+        displayFolder: "04_Promotion Effectiveness"
 
     /// sales.price.realization_pct - Price Realization %
     /// Shows how much of list price is realized after discounts.
     measure 'Price Realization %' =
             DIVIDE ( [Net Price Amount], [List Price Amount] )
         formatString: "0.0%"
-        displayFolder: "COM-004"
+        displayFolder: "04_Promotion Effectiveness"
 
     /// sales.promo.cannibalization.pct - Cannibalization %
     /// Measures share of promo uplift offset by decline in non-promoted sales.
     measure 'Cannibalization %' =
             DIVIDE ( [Cannibalized Sales Amount], [Incremental Sales Amount] )
         formatString: "0.0%"
-        displayFolder: "COM-004"
+        displayFolder: "04_Promotion Effectiveness"

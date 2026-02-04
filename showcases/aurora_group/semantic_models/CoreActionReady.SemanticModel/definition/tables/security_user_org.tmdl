@@ -1,0 +1,57 @@
+table security_user_org
+	lineageTag: security-user-org-rls
+
+	column UserPrincipalName
+		dataType: string
+		sourceColumn: UserPrincipalName
+		description: "User email address (Azure AD / Entra ID)"
+
+	column OrgKey
+		dataType: int64
+		sourceColumn: OrgKey
+		description: "Organization key for Row-Level Security filtering"
+
+	column Region
+		dataType: string
+		sourceColumn: Region
+		description: "Aurora Region: DACH, Benelux, Nordics, Southern Europe, or CEE"
+
+	column Country
+		dataType: string
+		sourceColumn: Country
+		description: "Country within region"
+
+	column Channel
+		dataType: string
+		sourceColumn: Channel
+		description: "Channel access: Retail Stores, E-Commerce, Marketplaces, Wholesale"
+
+	partition security_user_org = m
+		mode: import
+		source =
+				let
+					Source = Table.FromRows(
+						{
+							{"sofia.berger@aurora-group.com", 1, "DACH", "Germany", "Retail Stores"},
+							{"isabella.conti@aurora-group.com", 1, "DACH", "Germany", "E-Commerce"},
+							{"katharina.steiner@aurora-group.com", 100, "DACH", "Germany", "Retail Stores"},
+							{"jeroen.vandijk@aurora-group.com", 200, "Benelux", "Netherlands", "Retail Stores"},
+							{"anneli.virtanen@aurora-group.com", 300, "Nordics", "Sweden", "Retail Stores"},
+							{"marco.santoro@aurora-group.com", 400, "Southern Europe", "Italy", "Retail Stores"},
+							{"petra.kovacs@aurora-group.com", 500, "CEE", "Poland", "Retail Stores"}
+						},
+						type table[
+							UserPrincipalName = text,
+							OrgKey = Int64.Type,
+							Region = text,
+							Country = text,
+							Channel = text
+						]
+					)
+				in
+					Source
+
+	annotation PBI_NavigationStepName = "Source"
+
+	annotation PBI_ResultType = "Table"
+

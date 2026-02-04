@@ -1,7 +1,7 @@
 /// COM-003 Measures
-table _Measures
+table COM-003_Measures
 
-	partition _Measures = m
+	partition COM-003_Measures = m
 		mode: import
 		source =
 				let
@@ -25,7 +25,7 @@ table _Measures
                 ) * 3
             )
         formatString: "#,0.00"
-        displayFolder: "COM-003"
+        displayFolder: "03_Customer Analysis"
 
     /// crm.lifetime_revenue.amount - Customer Lifetime Revenue Amount
     /// Sum of realized revenue across the customer lifecycle.
@@ -35,7 +35,7 @@ table _Measures
                 ALLSELECTED ( dim_date )
             )
         formatString: "#,0"
-        displayFolder: "COM-003"
+        displayFolder: "03_Customer Analysis"
 
     /// crm.retention.pct - Customer Retention %
     /// Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
@@ -52,7 +52,7 @@ table _Measures
                 )
             RETURN DIVIDE ( CurrentPeriodCustomers, PreviousPeriodCustomers )
         formatString: "0.0%"
-        displayFolder: "COM-003"
+        displayFolder: "03_Customer Analysis"
 
     /// crm.churned_customers.count - Churned Customers
     /// Count customers that have stopped purchasing in the observation window as basis for churn calculations.
@@ -67,7 +67,7 @@ table _Measures
             RETURN
                 COUNTROWS ( EXCEPT ( PreviousMonthCustomers, CurrentMonthCustomers ) )
         formatString: "#,0"
-        displayFolder: "COM-003"
+        displayFolder: "03_Customer Analysis"
 
     /// crm.revenue_at_risk.amount - Revenue at Risk Amount
     /// Quantify revenue exposure from customers flagged as churn-risk.
@@ -75,25 +75,25 @@ table _Measures
             VAR ChurnRiskPct = 0.15
             RETURN [CLV] * ChurnRiskPct
         formatString: "#,0"
-        displayFolder: "COM-003"
+        displayFolder: "03_Customer Analysis"
 
     /// crm.active_customers.count - Active Customers
     /// Number of unique active customers in the reporting period.
     measure 'Active Customers' =
             DISTINCTCOUNT ( fact_sales[CustomerKey] )
         formatString: "#,0"
-        displayFolder: "COM-003"
+        displayFolder: "03_Customer Analysis"
 
     /// crm.nps.index - NPS Score
     /// Measures customer advocacy and likelihood to recommend.
     measure 'NPS Score' =
             BLANK()
         formatString: "#,0"
-        displayFolder: "COM-003"
+        displayFolder: "03_Customer Analysis"
 
     /// crm.complaint.count - Complaint Count
     /// Provide the absolute number of logged complaints.
     measure 'Complaint Count' =
             COUNTROWS ( fact_experience )
         formatString: "#,0"
-        displayFolder: "COM-003"
+        displayFolder: "03_Customer Analysis"

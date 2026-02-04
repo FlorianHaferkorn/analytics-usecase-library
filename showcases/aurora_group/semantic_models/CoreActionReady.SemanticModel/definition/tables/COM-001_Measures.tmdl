@@ -1,7 +1,7 @@
 /// COM-001 Measures
-table _Measures
+table COM-001_Measures
 
-	partition _Measures = m
+	partition COM-001_Measures = m
 		mode: import
 		source =
 				let
@@ -20,7 +20,7 @@ table _Measures
     measure 'Net Sales Amount' =
             SUM ( fact_sales[Net Sales Amount] )
         formatString: "#,0.00"
-        displayFolder: "COM-001"
+        displayFolder: "01_Sales Performance"
 
     /// sales.net_sales.delta_pct.plan - Net Sales % vs Plan
     /// Relative variance of Net Sales vs Plan.
@@ -29,7 +29,7 @@ table _Measures
             VAR Plan   = SUM ( fact_sales[Plan Sales Amount] )
             RETURN DIVIDE ( Actual - Plan, Plan )
         formatString: "0.0%"
-        displayFolder: "COM-001"
+        displayFolder: "01_Sales Performance"
 
     /// sales.net_sales.delta_pct.ly - Delta% Net Sales
     /// Relative variance of Net Sales vs Last Year.
@@ -38,14 +38,14 @@ table _Measures
             VAR LY     = SUM ( fact_sales[Last Year Sales Amount] )
             RETURN DIVIDE ( Actual - LY, LY )
         formatString: "0.0%"
-        displayFolder: "COM-001"
+        displayFolder: "01_Sales Performance"
 
     /// margin.gm.pct - Gross Margin %
     /// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
     measure 'Gross Margin %' =
             DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
         formatString: "0.0%"
-        displayFolder: "COM-001"
+        displayFolder: "01_Sales Performance"
 
     /// sales.pvm.price_effect.amount - Price Effect Amount
     /// Quantifies the pure price impact in the PVM bridge.
@@ -57,7 +57,7 @@ table _Measures
                 RETURN ( ActualPrice - PlanPrice ) * fact_sales[Quantity]
             )
         formatString: "#,0.00"
-        displayFolder: "COM-001"
+        displayFolder: "01_Sales Performance"
 
     /// sales.pvm.volume_effect.amount - Volume Effect Amount
     /// Measures the variance caused purely by quantity changes at plan price.
@@ -70,7 +70,7 @@ table _Measures
                 RETURN ( ActualQty - PlanQty ) * PlanPrice
             )
         formatString: "#,0.00"
-        displayFolder: "COM-001"
+        displayFolder: "01_Sales Performance"
 
     /// sales.pvm.mix_effect.amount - Mix Effect Amount
     /// Captures the residual effect from changes in product, channel, or region mix.
@@ -80,4 +80,4 @@ table _Measures
                 - [Price Effect Amount]
                 - [Volume Effect Amount]
         formatString: "#,0.00"
-        displayFolder: "COM-001"
+        displayFolder: "01_Sales Performance"
