@@ -1,0 +1,24 @@
+---
+description: TMDL and DAX rules for Power BI semantic models in the ActionReady Framework
+globs: "**/*.tmdl"
+alwaysApply: false
+---
+
+# TMDL and DAX
+
+## TMDL (Tabular Model Definition Language)
+
+- **Indentation:** Use **TABS only**. Spaces for indentation cause parser errors.
+- **Levels:** Table-level properties = 1 tab; column/measure properties = 2 tabs; nested (annotations, alternateOf, M `let`/`in`) = 3 tabs.
+- **Measures:** Supported properties include `formatString`, `displayFolder`, `lineageTag`, `isHidden`. Do **not** use `description` on measures; use `///` comments for documentation.
+- **Allowed subset:** Follow `docs/operating_model/reference/TMDL_Allowed_Subset.md` and implementation notes in `framework/implementation_guides/tmdl_best_practices.md`.
+- **Validation:** BPA rules in `_internal/tools/linters/powerbi/` (e.g. `bpa-rules-tmdl.json`); run via `_internal/tools/linters/run_bpa.ps1` where applicable.
+
+## DAX
+
+- **Syntax:** DAX does **not** support the `:=` operator. Use `=` for measure definitions.
+- Prefer clean, readable measures; avoid unnecessary complexity. Format and folder conventions should align with measure dictionaries in `semantic_models/domains/`.
+
+## Paths
+
+- TMDL under `dist/<UseCaseID>/`, `Sample_Report/`, or showcase semantic models — respect existing structure and naming (e.g. `_Measures.tmdl` in definition/tables).

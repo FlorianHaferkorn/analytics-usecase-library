@@ -1,0 +1,43 @@
+---
+description: Stage 1 CI checks — run before commit; avoid suggesting changes that break these
+alwaysApply: true
+---
+
+# Stage 1 CI (Hard Gate)
+
+Stage 1 is the mandatory CI gate. All checks must pass before merge. When suggesting edits, ensure they do not violate these checks.
+
+## Canonical command (run from repo root)
+
+```powershell
+.\_internal\tools\run_stage1_checks.ps1
+```
+
+## Checks run (in order)
+
+1. **check_schema_validation.ps1** — Validates artifacts against JSON schemas in `_internal/tools/validation/` and `_internal/ai/schemas/`.
+2. **validate_factsheets.ps1** — Use case factsheets (Business + Technical) structure and content vs schemas.
+3. **check_factsheet_vs_kpi.ps1** — Every KPI referenced in factsheets exists in KPI catalog.
+4. **validate_kpi_catalog.ps1** — KPI catalog structure and rules.
+5. **check_action_codes_vs_kpi.ps1** — Every KPI ID in action codes exists in KPI catalog.
+6. **check_factsheet_action_codes.ps1** — Factsheet action code references vs framework action codes.
+7. **check_usecase_actioncode_map.ps1** — `usecases/UseCase_ActionCode_Map.yaml` consistent with use cases and action code files.
+8. **check_decision_spines.ps1** — Decision spine map and spine files consistent.
+9. **check_duplicate_ids.ps1** — No duplicate IDs across governed artifacts.
+10. **check_ssot_markers.ps1** — Single source of truth markers respected.
+11. **check_docs_refs.ps1** — Doc references valid.
+12. **check_forbidden_content.ps1** — No forbidden content in repo.
+
+## Prerequisite (one-time, for schema validation)
+
+```powershell
+cd _internal\tools\validation
+npm ci
+```
+
+## When suggesting changes
+
+- New or changed KPI references → must exist in `framework/kpi_catalog/`.
+- New or changed action code IDs → must be in `framework/action_codes/` and referenced in `UseCase_ActionCode_Map.yaml` where applicable.
+- Factsheet edits → preserve required frontmatter and sections; keep YAML blocks valid per schemas.
+- Before committing, run Stage 1 from repo root to confirm no regressions.

@@ -1,4 +1,4 @@
-﻿# Microsoft Fabric & Power BI Implementation Guide
+# Microsoft Fabric & Power BI Implementation Guide
 
 ## Purpose
 
@@ -17,6 +17,7 @@ Included:
 - Distribution & navigation rules  
 - AI/Copilot readiness  
 - Recommended workspace, folder, and project structure  
+- **Report themes and Power BI Theme Generator** — standardized report themes aligned with framework conventions; Theme Generator (dedicated folder, to be documented here once path is fixed) is part of Fabric/Power BI development; working, to be refined.
 
 Not included:
 
@@ -277,7 +278,13 @@ BI_Reports
 BI_Experiments
 ```
 
-## 9.4 Shared Assets
+## 9.4 Report Themes and Power BI Theme Generator
+
+- Report themes (JSON) define visual consistency across reports (colors, fonts, layout defaults).
+- The framework uses **BaseThemes** (e.g. `Base_Theme_Template_V1.json`) and derived themes (e.g. per brand or app) under `StaticResources/SharedResources/BaseThemes/` in PBIP report projects.
+- **Power BI Theme Generator** — a dedicated tool (folder/location to be documented in this guide) generates or standardizes report themes from framework conventions. It is part of the Fabric/Power BI development stack, already in use, and will be refined and documented alongside this implementation guide.
+
+## 9.5 Shared Assets
 
 ```yaml
 Shared_Datasets

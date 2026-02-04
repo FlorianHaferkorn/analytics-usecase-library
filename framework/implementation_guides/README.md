@@ -47,6 +47,7 @@ Not included:
 ```yaml
 implementation_guides/
   fabric_powerbi.md        - Implementation in Microsoft Fabric + Power BI ecosystem
+  tmdl_best_practices.md   - TMDL formatting and syntax for semantic models
   README.md                - This file
 ```
 
@@ -61,6 +62,7 @@ Covers:
 - RLS/OLS patterns  
 - Measure & DisplayFolder enforcement  
 - App navigation & UX rules (3-30-300)
+- Report themes & Power BI Theme Generator (standardized themes; tool to be documented and refined)
 
 ### Planned guides (not yet included)
 
