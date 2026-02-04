@@ -21,14 +21,31 @@ table dim_date
 	column Month
 		dataType: string
 		sourceColumn: Month
+		sortByColumn: MonthNumber
 
 	column MonthNumber
 		dataType: int64
 		sourceColumn: MonthNumber
+		isHidden
 
 	column Week
 		dataType: string
 		sourceColumn: Week
+
+	hierarchy 'Fiscal Calendar'
+		lineageTag: fiscal-calendar-hierarchy
+
+		level 'Fiscal Year'
+			column: Year
+
+		level 'Fiscal Quarter'
+			column: Quarter
+
+		level 'Fiscal Month'
+			column: Month
+
+		level Date
+			column: Date
 
 	partition dim_date = m
 		mode: import
