@@ -2,6 +2,8 @@
 
 Evaluation of the Analytics Use Case Library against **ease of use** and **ease of implementation** to support improvement toward best-in-class BI framework adoption.
 
+**Status:** All 6 prioritized recommendations implemented. No open evaluation TODOs.
+
 ---
 
 ## 1. Evaluation dimensions and audiences
@@ -130,7 +132,7 @@ Trace from "I want to implement COM-001" to "TMDL generated and Stage 1 passed":
 - **One reference showcase**: Aurora Group demonstrates end-to-end structure (company, data, models, use cases, reporting) and points to canonical factsheets.
 - **Clear audience framing:** README and docs/README state who the framework is for (executives, business leads, data/analytics teams, architects).
 
-### 5.2 Gaps summary
+### 5.2 Gaps summary (addressed by recommendations 1–6)
 
 | Dimension | Gap | Evidence |
 |-----------|-----|----------|
@@ -165,11 +167,11 @@ Trace from "I want to implement COM-001" to "TMDL generated and Stage 1 passed":
 - Pick one use case (e.g. COM-001); open its Business and Technical factsheets; run `.\_internal\tools\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseCasesRoot framework/usecases -KpiCatalogRoot framework/kpi_catalog -DistRoot implementations/microsoft_fabric_powerbi/dist -OverwriteExisting`; run Stage 1 again.  
 - Skim implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md if implementing in Fabric/Power BI.
 
-This flow can be added to README or _internal/strategy once the path and consistency fixes above are in place.
+This flow is now reflected in README "How to get started" (step 4, "First 2 hours" checklist).
 
 ---
 
 ## 7. Document and location
 
 - **Report:** _internal/strategy/framework_evaluation_2026-02.md  
-- **Next step:** Review this report; implement recommendations in separate tasks. Re-evaluate after changes to close onboarding, implementation path, and consistency gaps.
+- **Next step:** Re-evaluate when repo structure, entry points, or scope change. No open action items from this evaluation.
