@@ -1,0 +1,199 @@
+# Visual-to-Slot Mapping — Framework Governance
+
+## Purpose
+
+This file defines the **mandatory mapping** between semantic slots and Power BI visual types. It ensures consistency across all scaffold-generated pages and serves as the single source of truth for visual type selection.
+
+**Authority:** This file is validated in Stage 1 CI and must be referenced by scaffold generators.
+
+---
+
+## Mapping Rules
+
+### KPI Summary Slot
+
+| Template | Visual Type | Notes |
+|----------|-------------|-------|
+| T1, T2, T3, T4 | KPI Card | Always KPI Card, no exceptions |
+
+**Properties:**
+- Standard size: 280px × 140px
+- Compact size: 200px × 120px (when space constrained)
+- Max per row: 6 cards
+- Formatting: Use theme `good`/`bad`/`neutral` for conditional formatting
+
+---
+
+### Trend Slot
+
+| Template | Preferred Visual | Fallback | Notes |
+|----------|------------------|----------|-------|
+| T1 | Line Chart | Area Chart | Area Chart only if multiple series |
+| T2 | Line Chart | — | Always Line Chart |
+| T3 | Line Chart | — | Always Line Chart |
+
+**Properties:**
+- Minimum size: 800px × 400px (standard), 600px × 300px (compact)
+- Show target line: Yes, if Variance slot exists (use theme `accent` color)
+- Formatting: Use theme `dataColors[0]` for primary series
+
+---
+
+### Variance Slot
+
+| Template | Preferred Visual | Fallback | Notes |
+|----------|------------------|----------|-------|
+| T1 | Waterfall | Horizontal Bar | Waterfall preferred |
+| T2 | Waterfall | — | Always Waterfall, no exceptions |
+
+**Properties:**
+- Minimum size: 800px × 400px (standard), 600px × 300px (compact)
+- Formatting: 
+  - Positive variance: Theme `good` color
+  - Negative variance: Theme `bad` color
+  - Neutral: Theme `neutral` color
+
+---
+
+### Ranking Slot
+
+| Template | Visual Type | Notes |
+|----------|-------------|-------|
+| T1, T2, T3 | Horizontal Bar Chart | Always Horizontal Bar |
+
+**Properties:**
+- Minimum size: 400px × 300px (standard), 300px × 250px (compact)
+- Max items: 20 (paginate if more)
+- Sorting: Descending by value (unless business rule specifies otherwise)
+- Formatting: Use theme `dataColors[0]` through `dataColors[7]` for bars
+
+---
+
+### Mix Slot
+
+| Template | Visual Type | Notes |
+|----------|-------------|-------|
+| T1, T2 | 100% Stacked Bar Chart | Always 100% Stacked Bar |
+
+**Properties:**
+- Minimum size: 400px × 300px (standard), 300px × 250px (compact)
+- Formatting: Use theme `dataColors` for segments
+
+---
+
+### Exceptions Slot
+
+| Template | Visual Type | Notes |
+|----------|-------------|-------|
+| T3 | Table | Always Table, no exceptions |
+
+**Properties:**
+- Full width (minus slicer column if side placement)
+- Minimum height: 400px
+- Max rows: 50 (paginate if more)
+- Formatting:
+  - Critical exceptions: Theme `bad` color background
+  - Warning exceptions: Theme `neutral` color background
+  - Info exceptions: Theme `fourthLevelElements` color background
+
+---
+
+### Root Cause Slot
+
+| Template | Visual Type | Fallback | Notes |
+|----------|-------------|----------|-------|
+| T3 | Scatter Plot | Horizontal Bar | Only if `needs_root_cause = true` |
+| T4 | Scatter Plot | Horizontal Bar | Only if `needs_root_cause = true` |
+
+**Properties:**
+- Minimum size: 600px × 400px
+- Axes: X = Effort, Y = Impact (for Impact-Effort matrix)
+- Quadrants: Labeled (Quick Wins, Major Projects, Fill-ins, Thankless Tasks)
+- Formatting: Use theme `dataColors` for data points, quadrant colors from theme
+
+---
+
+### Prescriptive Slot
+
+| Template | Visual Type | Notes |
+|----------|-------------|-------|
+| T4 | Table (Recommendation) | Always Table, Action Panel mandatory |
+
+**Properties:**
+- Full width (minus Action Panel if present)
+- Minimum height: 400px
+- Max rows: 10 (show top recommendations)
+- Formatting:
+  - Top recommendation: Bold, theme `accent` color highlight
+  - Priority color coding: High = Theme `bad`, Medium = Theme `neutral`, Low = Theme `good`
+
+---
+
+### Funnel Slot
+
+| Template | Visual Type | Notes |
+|----------|-------------|-------|
+| T2 | Funnel Chart | Only if `needs_funnel = true` |
+
+**Properties:**
+- Minimum size: 600px × 400px
+- Max stages: 10 (aggregate if more)
+- Formatting: Use theme `dataColors` gradient (darker at top, lighter at bottom)
+
+---
+
+### Detail Matrix Slot
+
+| Template | Visual Type | Notes |
+|----------|-------------|-------|
+| All (Detail pages only) | Table | Use Table for individual records |
+| All (Detail pages only) | Matrix | Use Matrix for aggregated/hierarchical data |
+
+**Properties:**
+- Full width (minus slicer column if side placement)
+- Minimum height: 300px
+- Formatting: Use theme table formatting (from `visualStyles.tableEx` or `visualStyles.pivotTable`)
+
+**Selection Rule:**
+- Use **Table** when showing individual transaction records (e.g., exceptions, recommendations)
+- Use **Matrix** when showing aggregated data across dimensions (e.g., Sales by Region × Product × Month)
+
+---
+
+## Edge Cases
+
+### Multiple Slots of Same Type
+
+**Rule:** Each slot gets its own visual. Do not combine slots into a single visual.
+
+**Example:** If both Trend and Variance slots exist, create two separate visuals (Line Chart + Waterfall).
+
+### Slot Not Activated
+
+**Rule:** If a slot is not activated (`needs_<slot> = false`), do not create a visual for it.
+
+**Example:** If `needs_trend = false`, do not create a Trend visual, even if the template allows it.
+
+### Slot Conflicts
+
+**Rule:** If slot requirements conflict with template rules, slot requirements take precedence.
+
+**Example:** If T3 template says "no scatter plots" but `needs_root_cause = true`, scatter plot is allowed (per Visual Whitelist).
+
+---
+
+## Validation Rules
+
+1. **Visual type must be in Visual Whitelist** for the given template
+2. **Slot must be activated** (`needs_<slot> = true`) in use case mapping
+3. **Template must allow** the visual type for the slot
+4. **Visual size** must meet minimum requirements
+
+---
+
+## References
+
+- **Visual Whitelist:** `governance/Visual_Whitelist.md`
+- **Slot Definitions:** `governance/Slot_Definitions.md`
+- **Page Templates:** `page_types/T1_Strategic_Overview.md`, etc.
+- **Scaffold Spec:** `implementations/microsoft_fabric_powerbi/tools/page_scaffold_spec.md`

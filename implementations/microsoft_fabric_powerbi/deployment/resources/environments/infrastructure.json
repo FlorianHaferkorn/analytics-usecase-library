@@ -1,0 +1,54 @@
+{
+  "name": "ActionReady - {layer} [{environment}]",
+  "generic": {
+    "capacity_name": "MyCapacity",
+    "permissions": {
+      "Admin": [
+        {"type": "Group", "id": "00000000-0000-0000-0000-000000000000"}
+      ],
+      "Member": [],
+      "Contributor": [],
+      "Viewer": []
+    },
+    "fabric_connections": [
+      {
+        "name": "Connection-DataPipeline [{environment}]",
+        "type": "FabricDataPipelines"
+      },
+      {
+        "name": "Connection-SQL [{environment}]",
+        "type": "FabricSql"
+      }
+    ]
+  },
+  "layers": {
+    "DE": {
+      "items": {
+        "Lakehouse": [
+          {
+            "item_name": "Gold",
+            "skip_item_creation": false
+          }
+        ]
+      }
+    },
+    "DM": {
+      "items": {
+        "SemanticModel": [
+          {
+            "item_name": "CoreActionReady",
+            "skip_item_creation": false
+          }
+        ]
+      }
+    },
+    "BI": {
+      "items": {
+        "Report": []
+      }
+    },
+    "Shared": {
+      "items": {}
+    }
+  }
+}

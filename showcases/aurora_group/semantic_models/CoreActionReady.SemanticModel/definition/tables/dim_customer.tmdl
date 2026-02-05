@@ -1,34 +1,68 @@
+/// Customer dimension (segment, region, country) for CRM and value reporting.
+/// Customer-level analysis, CLV, retention, and segmentation.
 table dim_customer
 	lineageTag: 89e25678-1234-5678-9abc-def012345678
 
 	column CustomerKey
 		dataType: int64
-		sourceColumn: CustomerKey
 		isHidden
+		lineageTag: 829447d7-75d7-4746-b497-f3b6bc5b2ebd
+		summarizeBy: none
+		sourceColumn: CustomerKey
 
 	column CustomerName
 		dataType: string
+		lineageTag: 01094d60-73d9-4c88-be09-8bd84488acf6
 		sourceColumn: CustomerName
 
 	column Segment
 		dataType: string
+		lineageTag: ecfcd0db-95b6-4760-b471-4082b83d31ac
 		sourceColumn: Segment
 
-	column Country
+	column CustomerCode
 		dataType: string
-		sourceColumn: Country
+		lineageTag: ffa09575-0727-40f6-962c-c7d30897d299
+		summarizeBy: none
+		sourceColumn: CustomerCode
 
-	column Region
+		annotation SummarizationSetBy = Automatic
+
+	column 'Channel Preference'
 		dataType: string
-		sourceColumn: Region
+		lineageTag: aebe88ec-0c37-4492-b1a3-87cbe15749cd
+		summarizeBy: none
+		sourceColumn: Channel Preference
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Tenure Bucket'
+		dataType: string
+		lineageTag: b67d2abd-ec5c-45cf-8c34-d7fd6f5552fd
+		summarizeBy: none
+		sourceColumn: Tenure Bucket
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy Customer
+		lineageTag: 36c52390-6104-4e2e-b843-506c180a7cb2
+
+		level Segment
+			lineageTag: 6e39788b-c81f-4867-81c7-cd36ae7dd86a
+			column: Segment
+
+		level 'Customer Name'
+			lineageTag: 5cb82203-2d2e-44da-a693-96ed7462aa20
+			column: CustomerName
 
 	partition dim_customer = m
 		mode: import
 		source =
 				let
-					Source = Folder.Files("C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\showcases\aurora_group\data\gold\dimensions\dim_customer"),
+					Source = Folder.Files(GoldDataPath & "/dimensions/dim_customer"),
 					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
 					FirstFile = FilteredFiles{0}[Content],
 					ParquetData = Parquet.Document(FirstFile)
 				in
 					ParquetData
+

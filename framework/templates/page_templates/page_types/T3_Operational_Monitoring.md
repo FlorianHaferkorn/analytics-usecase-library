@@ -1,4 +1,4 @@
-﻿# T3 – Operational Monitoring & Exceptions
+# T3 – Operational Monitoring & Exceptions
 
 ## Purpose
 
@@ -121,8 +121,10 @@ If recommendations are required, escalate to **T4**.
 Disallowed:
 
 - Waterfall charts
-- Scatter plots (except in T4)
+- Scatter plots (except for Root Cause slot when `needs_root_cause = true`)
 - Exploratory visuals
+
+**Note:** Scatter plots are allowed for Root Cause slot in T3 when explicitly activated (`needs_root_cause = true`), per Visual Whitelist rules.
 
 Visuals must support **control**, not discovery.
 

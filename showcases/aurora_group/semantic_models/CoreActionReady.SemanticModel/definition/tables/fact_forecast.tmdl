@@ -1,0 +1,44 @@
+/// Demand forecast by SKU and month (with version).
+/// Forecast accuracy and planning.
+table fact_forecast
+	lineageTag: 567fbd02-bc68-4ab3-ac97-1640dec173f5
+
+	column DateKey
+		dataType: int64
+		lineageTag: 88bb8ce8-a0e0-4797-ba26-0fb2a9edafed
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column ProductKey
+		dataType: int64
+		lineageTag: 1211a6d1-66f7-4bbf-b589-4c76b51c4a60
+		summarizeBy: none
+		sourceColumn: ProductKey
+
+	column OrgKey
+		dataType: int64
+		lineageTag: 031c1071-2098-45ed-8c55-4e36822075a3
+		summarizeBy: none
+		sourceColumn: OrgKey
+
+	column 'Forecast Units'
+		dataType: double
+		lineageTag: 8bf4bdbb-53ae-4b72-b054-474dd4fbd5ee
+		sourceColumn: Forecast Units
+
+	column 'Forecast Version'
+		dataType: string
+		lineageTag: 4c00c106-355f-447a-9a72-eab9107ec1ab
+		sourceColumn: Forecast Version
+
+	partition fact_forecast = m
+		mode: import
+		source =
+				let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_forecast"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData
+

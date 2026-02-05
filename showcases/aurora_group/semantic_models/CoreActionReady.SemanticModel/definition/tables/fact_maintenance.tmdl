@@ -1,0 +1,48 @@
+/// Maintenance orders (PM/CM) per asset and date with status and on-time flags.
+/// Maintenance compliance and planning.
+table fact_maintenance
+	lineageTag: 7ea6afb8-4f67-4ff6-919f-fb7e5d9a1bbe
+
+	column AssetKey
+		dataType: int64
+		lineageTag: 088d824e-9667-4b29-9229-d565e54b711b
+		summarizeBy: none
+		sourceColumn: AssetKey
+
+	column DateKey
+		dataType: int64
+		lineageTag: e45c90f8-3014-4913-89d0-6dba198dbd39
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column 'Order Type'
+		dataType: string
+		lineageTag: 215db8c2-7aff-4e55-8c05-0e480fb044a6
+		sourceColumn: Order Type
+
+	column 'Order Status'
+		dataType: string
+		lineageTag: 870babeb-33ef-4f2f-b266-e7802fda7ffa
+		sourceColumn: Order Status
+
+	column 'On Time Flag'
+		dataType: boolean
+		lineageTag: 068a9d86-14bc-4169-918d-e151f188e883
+		sourceColumn: On Time Flag
+
+	column 'Parts Stockout Flag'
+		dataType: boolean
+		lineageTag: e7789deb-efa9-4d5a-8e2f-8ea490d0f48a
+		sourceColumn: Parts Stockout Flag
+
+	partition fact_maintenance = m
+		mode: import
+		source =
+				let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_maintenance"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData
+

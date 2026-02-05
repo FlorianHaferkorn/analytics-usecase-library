@@ -1,0 +1,69 @@
+/// Production line-day facts (planned/run/downtime, output, scrap) for OEE.
+/// OEE, availability, performance, and throughput reporting.
+table fact_ops
+	lineageTag: 14b2284e-57cc-42e5-b850-d05b0a02d871
+
+	column DateKey
+		dataType: int64
+		lineageTag: ab600e96-2819-4a2e-947d-fe3f2c1ee236
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column OrgKey
+		dataType: int64
+		lineageTag: f5c7bcbf-d226-44d1-b9cd-dbe865bde87b
+		summarizeBy: none
+		sourceColumn: OrgKey
+
+	column AssetKey
+		dataType: int64
+		lineageTag: 80bcbea6-e6fd-42cb-a575-c0433b6269d3
+		summarizeBy: none
+		sourceColumn: AssetKey
+
+	column 'Planned Time Minutes'
+		dataType: double
+		lineageTag: 97f99e3f-4d3b-48e0-984d-5509c3fb20ce
+		sourceColumn: Planned Time Minutes
+
+	column 'Run Time Minutes'
+		dataType: double
+		lineageTag: dcd08fc3-cd8a-4ad5-b548-b5f00422e9eb
+		sourceColumn: Run Time Minutes
+
+	column 'Downtime Minutes'
+		dataType: double
+		lineageTag: c4e671a7-b0bc-4378-a154-9d03e7e0c2dd
+		sourceColumn: Downtime Minutes
+
+	column 'Output Units'
+		dataType: double
+		lineageTag: 146c2122-eda5-4b15-b986-13f21a29507a
+		sourceColumn: Output Units
+
+	column 'Good Units'
+		dataType: double
+		lineageTag: 704a7f21-3533-4f4a-8c7f-b24226fd7bed
+		sourceColumn: Good Units
+
+	column 'Scrap Units'
+		dataType: double
+		lineageTag: 9d3177ea-dad4-4bf8-9b49-e827ac06c7e4
+		sourceColumn: Scrap Units
+
+	column 'Standard Rate Units Per Minute'
+		dataType: double
+		lineageTag: 58e057bb-3823-47e2-ae36-57f92cd42643
+		sourceColumn: Standard Rate Units Per Minute
+
+	partition fact_ops = m
+		mode: import
+		source =
+				let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_ops"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData
+

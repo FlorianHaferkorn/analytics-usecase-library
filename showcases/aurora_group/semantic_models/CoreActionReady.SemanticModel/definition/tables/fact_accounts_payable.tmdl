@@ -1,0 +1,44 @@
+/// Accounts payable and COGS by entity and supplier per month.
+/// AP aging and payables management.
+table fact_accounts_payable
+	lineageTag: c12f0d9c-3533-4502-93d6-b2b078f2c5b7
+
+	column DateKey
+		dataType: int64
+		lineageTag: ba126032-c1be-41c2-bdbc-2cd727695aa7
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column OrgKey
+		dataType: int64
+		lineageTag: 39540931-fbcf-48d8-bbf6-b8cbd53d4eed
+		summarizeBy: none
+		sourceColumn: OrgKey
+
+	column SupplierKey
+		dataType: int64
+		lineageTag: 136e5229-d8ab-4754-9fec-113e9ee03ef6
+		summarizeBy: none
+		sourceColumn: SupplierKey
+
+	column 'AP Amount'
+		dataType: double
+		lineageTag: e5d58437-bd49-4aa9-8e89-d5a7da729f2b
+		sourceColumn: AP Amount
+
+	column 'COGS Amount'
+		dataType: double
+		lineageTag: c0ed7e28-5552-4633-995f-e3acc8c342a7
+		sourceColumn: COGS Amount
+
+	partition fact_accounts_payable = m
+		mode: import
+		source =
+				let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_accounts_payable"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData
+

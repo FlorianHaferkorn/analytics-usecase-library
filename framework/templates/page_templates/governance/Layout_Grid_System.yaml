@@ -1,0 +1,268 @@
+# Layout Grid System — Framework Governance
+
+## Purpose
+
+This file defines the **systematic layout grid system** for Power BI page scaffolds. It ensures consistent visual positioning, spacing, and alignment across all generated pages.
+
+**Authority:** This file is referenced by scaffold generators to position visuals on pages.
+
+---
+
+## Canvas Standards
+
+### Default Canvas Size
+
+| Mode | Width | Height | Aspect Ratio |
+|------|-------|--------|--------------|
+| **Standard** | 1920px | 1080px | 16:9 (Full HD) |
+| **Minimum** | 1280px | 720px | 16:9 (HD) |
+
+**Rule:** Scaffolds use **1920×1080px** by default. Minimum size (1280×720px) only for mobile-optimized layouts.
+
+---
+
+## Grid System
+
+### Pixel-Based Positioning
+
+**Principle:** Use **pixel-based positioning** (not column-based grid) for precise control.
+
+**Grid Alignment:**
+- **Snap-to-grid:** Enabled (`snapToGrid: true` in page metadata)
+- **Grid spacing:** 10px (visuals align to 10px increments)
+- **Show gridlines:** Optional (for development, disabled in production)
+
+---
+
+## Spacing Rules
+
+### Page Padding
+
+| Edge | Padding |
+|------|---------|
+| **Top** | 20px |
+| **Bottom** | 20px |
+| **Left** | 20px |
+| **Right** | 20px |
+
+**Rule:** All visuals must be positioned at least 20px from page edges.
+
+### Visual Gaps
+
+| Gap Type | Size |
+|----------|------|
+| **Between visuals (horizontal)** | 20px |
+| **Between visuals (vertical)** | 20px |
+| **Between visual groups** | 40px |
+| **Between KPI cards** | 20px |
+
+**Rule:** Consistent 20px gaps between visuals create professional appearance. Use 40px gaps to separate visual groups (e.g., KPI row from main charts).
+
+---
+
+## Row System
+
+### Standard Row Heights
+
+| Row | Y-Position Range | Purpose |
+|-----|------------------|---------|
+| **Row 1** | 0-160px | KPI Cards, Slicers |
+| **Row 2** | 180-580px | Primary visuals (Trend, Variance, Exceptions, Prescriptive) |
+| **Row 3** | 600-900px | Secondary visuals (Ranking, Mix, Root Cause) |
+| **Row 4+** | 920px+ | Detail Matrix (Detail pages only) |
+
+**Rule:** Rows are guidelines, not strict boundaries. Visuals can span multiple rows if needed.
+
+### KPI Cards Row (Row 1)
+
+**Positioning:**
+- **Y:** 0-160px
+- **X:** Start at 20px (left padding)
+- **Width per card:** 280px (standard) or 200px (compact)
+- **Height:** 140px (standard) or 120px (compact)
+- **Gap between cards:** 20px
+- **Max cards per row:** 6 (wrap to row 2 if more)
+
+**Calculation:**
+- Available width: 1920px - 40px (left + right padding) = 1880px
+- With 6 cards (280px each) + 5 gaps (20px each): 6×280 + 5×20 = 1780px
+- Remaining space: 1880px - 1780px = 100px (distributed as left/right margin)
+
+### Primary Visuals Row (Row 2)
+
+**Positioning:**
+- **Y:** 180px (20px gap after KPI row)
+- **Height:** 400px minimum
+- **Width:** Full width (minus slicer column if side placement)
+
+**Visuals:**
+- Trend (Line Chart)
+- Variance (Waterfall)
+- Exceptions (Table, T3)
+- Prescriptive (Table, T4)
+
+### Secondary Visuals Row (Row 3)
+
+**Positioning:**
+- **Y:** 600px (20px gap after Row 2)
+- **Height:** 300px minimum
+- **Width:** Half width (400px+) or full width if no other visual
+
+**Visuals:**
+- Ranking (Horizontal Bar)
+- Mix (100% Stacked Bar)
+- Root Cause (Scatter Plot)
+
+### Detail Matrix Row (Row 4+)
+
+**Positioning:**
+- **Y:** 920px+ (20px gap after Row 3)
+- **Height:** 300px minimum (flexible)
+- **Width:** Full width (minus slicer column if side placement)
+
+**Visuals:**
+- Detail Matrix (Table or Matrix, Detail pages only)
+
+---
+
+## Slicer Placement
+
+### Top Slicers
+
+**Positioning:**
+- **Y:** 0-40px (Row 1, top)
+- **X:** After KPI cards or at start if no KPI cards
+- **Width:** Equal distribution (divide available width by number of slicers)
+- **Height:** 40px
+
+**Rule:** Use top placement for time/date slicers and when filtering affects most visuals.
+
+### Side Slicers
+
+**Positioning:**
+- **X:** Right side, starting at 1570px (1920px - 350px width)
+- **Y:** 0px (full page height)
+- **Width:** 200px
+- **Height:** Full page height (1080px)
+
+**Rule:** Use side placement for categorical slicers (org, product, region) when space allows.
+
+**Visual Resizing:**
+- When side slicers present, reduce visual width by 220px (200px slicer + 20px gap)
+- Available width for visuals: 1920px - 40px (padding) - 220px (slicer) = 1660px
+
+---
+
+## Action Panel Placement (T4)
+
+**Positioning:**
+- **X:** Right side, starting at 1570px (1920px - 350px width)
+- **Y:** 0px (full page height)
+- **Width:** 350px
+- **Height:** Full page height (1080px)
+
+**Visual Resizing:**
+- When Action Panel present, reduce visual width by 370px (350px panel + 20px gap)
+- Available width for visuals: 1920px - 40px (padding) - 370px (panel) = 1510px
+
+**Z-Order:**
+- Action Panel always on top (can overlay visuals if needed, but visuals should resize)
+
+---
+
+## Visual Sizing Standards
+
+### Standard Sizes
+
+| Visual Type | Standard Width | Standard Height | Compact Width | Compact Height |
+|-------------|----------------|-----------------|---------------|----------------|
+| **KPI Card** | 280px | 140px | 200px | 120px |
+| **Trend Chart** | 800px+ | 400px | 600px | 300px |
+| **Variance (Waterfall)** | 800px+ | 400px | 600px | 300px |
+| **Ranking (Bar)** | 400px+ | 300px | 300px | 250px |
+| **Mix (Stacked Bar)** | 400px+ | 300px | 300px | 250px |
+| **Exception Table** | Full width | 400px+ | — | — |
+| **Prescriptive Table** | Full width (minus Action Panel) | 400px+ | — | — |
+| **Scatter Plot** | 600px+ | 400px | — | — |
+| **Funnel Chart** | 600px+ | 400px | — | — |
+| **Detail Matrix** | Full width | 300px+ | — | — |
+
+### Aspect Ratios
+
+**Rule:** Charts maintain **2:1 aspect ratio** (width:height) for readability.
+
+**Examples:**
+- 800px × 400px = 2:1
+- 600px × 300px = 2:1
+- 400px × 200px = 2:1
+
+---
+
+## Responsive Behavior
+
+### Mobile Layouts
+
+**Rule:** Mobile layouts are **separate page definitions**, not responsive transformations.
+
+**Mobile Canvas:**
+- Width: 1280px (minimum)
+- Height: 720px (minimum)
+
+**Mobile Adjustments:**
+- KPI Cards: Compact size (200×120px), max 3 per row
+- Charts: Reduced to minimum sizes (600×300px)
+- Slicers: Responsive (horizontal to vertical layout)
+- Tables: Full width, scrollable
+
+---
+
+## Z-Order Rules
+
+**Priority (highest to lowest):**
+1. **Action Panel** (T4) — Always on top
+2. **Slicers** — Above visuals
+3. **Visuals** — Standard layer
+4. **Background** — Bottom layer
+
+**Rule:** Visuals should not overlap unless explicitly required (e.g., Action Panel overlay).
+
+---
+
+## Examples
+
+### T2 Overview Page (COM-001)
+
+```
+Row 1 (y=0-160):
+  [KPI Card 1] [KPI Card 2] [KPI Card 3] [KPI Card 4] [Slicer: Time] [Slicer: Org]
+
+Row 2 (y=180-580):
+  [Trend Chart - Full Width (1880px × 400px)]
+
+Row 3 (y=600-900):
+  [Variance Waterfall - Full Width (1880px × 400px)]
+
+Row 4 (y=920-1220):
+  [Ranking Bar Chart - Full Width (1880px × 300px)]
+```
+
+### T4 Overview Page (with Action Panel)
+
+```
+Row 1 (y=0-160):
+  [KPI Card 1] [KPI Card 2] [Slicer: Time] [Action Panel - Right Side (350px × 1080px)]
+
+Row 2 (y=180-580):
+  [Prescriptive Table - Left (1510px × 400px)] [Action Panel continues]
+
+Row 3 (y=600-900):
+  [Ranking Bar Chart - Left (1510px × 300px)] [Action Panel continues]
+```
+
+---
+
+## References
+
+- **Scaffold Spec:** `implementations/microsoft_fabric_powerbi/tools/page_scaffold_spec.md`
+- **Best Practices Research:** `implementations/microsoft_fabric_powerbi/tools/V1_BEST_PRACTICES_RESEARCH.md`
+- **Visual-to-Slot Mapping:** `governance/Visual_to_Slot_Mapping.yaml`

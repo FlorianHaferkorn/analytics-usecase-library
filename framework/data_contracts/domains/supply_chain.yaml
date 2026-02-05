@@ -4,6 +4,8 @@ owner: Supply Chain Data Product
 
 dimension:
   - name: dim_date
+    description: "Calendar dimension for time slicing in supply chain."
+    purpose: "Time dimension for inventory, fulfillment, and forecast reporting."
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -14,6 +16,8 @@ dimension:
       - {name: Week, type: text, nullable: true}
 
   - name: dim_org
+    description: "Location/organization dimension (location, region, channel) for supply chain."
+    purpose: "Scoping for inventory, fulfillment, and replenishment."
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Location, type: text}
@@ -22,6 +26,8 @@ dimension:
       - {name: Customer, type: text, nullable: true}
 
   - name: dim_product
+    description: "Product dimension with ABC/XYZ classification for supply chain."
+    purpose: "Product-level inventory, COGS, and fulfillment."
     columns:
       - {name: ProductKey, type: int, role: key}
       - {name: ProductCode, type: text}
@@ -32,6 +38,8 @@ dimension:
       - {name: XYZ_Class, type: text, nullable: true}
 
   - name: dim_lane
+    description: "Transport lane dimension (origin, destination, mode) for fulfillment."
+    purpose: "Lane-level OTIF and logistics analysis."
     columns:
       - {name: LaneKey, type: int, role: key}
       - {name: Origin, type: text}
@@ -40,6 +48,8 @@ dimension:
 
 fact:
   - name: fact_inventory
+    description: "Inventory snapshot (average/obsolete) at location-SKU-month grain."
+    purpose: "Inventory value and obsolescence reporting."
     grain: location_sku_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -51,6 +61,8 @@ fact:
       - {name: Obsolete Inventory Units, type: decimal, agg: sum, nullable: true}
 
   - name: fact_cogs
+    description: "Cost of goods sold at location-SKU-month grain."
+    purpose: "COGS and margin analysis."
     grain: location_sku_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -59,6 +71,8 @@ fact:
       - {name: COGS Amount, type: currency, agg: sum}
 
   - name: fact_fulfillment
+    description: "Order-level fulfillment (OTIF, on-time, in-full, penalties, expedite)."
+    purpose: "Delivery performance and logistics cost."
     grain: order
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -74,6 +88,8 @@ fact:
       - {name: Expedite Cost, type: currency, agg: sum, nullable: true}
 
   - name: fact_stockout
+    description: "Stockout events and lost demand at location-SKU-day."
+    purpose: "Stockout rate and lost sales."
     grain: location_sku_day
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -84,6 +100,8 @@ fact:
       - {name: Demand Units, type: decimal, agg: sum}
 
   - name: fact_forecast
+    description: "Demand forecast by SKU and month (with version)."
+    purpose: "Forecast accuracy and planning."
     grain: sku_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -93,6 +111,8 @@ fact:
       - {name: Forecast Version, type: text, nullable: true}
 
   - name: fact_sales
+    description: "Sales units by SKU and month (supply chain view)."
+    purpose: "Demand and sell-through for SCM."
     grain: sku_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -101,6 +121,8 @@ fact:
       - {name: Sales Units, type: decimal, agg: sum}
 
   - name: fact_procurement
+    description: "Purchase order line facts (amount, quantity, contracted vs actual)."
+    purpose: "Procurement spend and compliance."
     grain: purchase_order_line
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -113,6 +135,8 @@ fact:
       - {name: Purchase Quantity, type: decimal, agg: sum}
 
   - name: fact_replenishment
+    description: "Replenishment events at location-SKU-day."
+    purpose: "Replenishment cycle and fill rate."
     grain: location_sku_day
     columns:
       - {name: DateKey, type: int, ref: dim_date}

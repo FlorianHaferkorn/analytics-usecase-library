@@ -27,6 +27,32 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List
 import argparse
+import sys
+
+# Import shared utilities (adjust path if needed)
+# Assuming script runs from repo root or framework/data_contracts/sources/synthetic/
+_gold_path = Path(__file__).parent.parent.parent.parent / "showcases" / "aurora_group" / "data" / "gold"
+if _gold_path.exists():
+    sys.path.insert(0, str(_gold_path))
+    from _company_profile import get_company_profile
+    from _realistic_names import (
+        generate_product_name,
+        generate_promo_name,
+        generate_org_name,
+        generate_customer_name,
+        generate_asset_name,
+    )
+    from _generator_utils import (
+        get_fact_date_range,
+        get_fact_date_keys,
+        apply_monthly_seasonality,
+        apply_weekly_seasonality,
+        apply_combined_seasonality,
+        FACTS_START,
+        FACTS_END,
+    )
+else:
+    raise ImportError(f"Could not find gold utilities at {_gold_path}")
 
 # Check if Delta Lake is available (optional for local dev)
 try:
@@ -40,10 +66,14 @@ except ImportError:
 class GoldLayerGenerator:
     """Generates synthetic gold layer data conforming to lakehouse architecture."""
     
-    def __init__(self, config_path: str, output_path: str):
+    def __init__(self, config_path: str, output_path: str, company: str = "aurora"):
         self.config = self._load_config(config_path)
         self.output_path = Path(output_path)
         self.random_seed = self.config.get("random_seed", 12345)
+        self.company = company
+        
+        # Load company profile
+        self.profile = get_company_profile(company)
         
         # Set seeds for reproducibility
         random.seed(self.random_seed)
@@ -72,7 +102,7 @@ class GoldLayerGenerator:
         self._generate_facts()
         
         print("\n" + "=" * 80)
-        print("✓ Gold Layer generation complete!")
+        print("[OK] Gold Layer generation complete!")
         print(f"Output location: {self.output_path.absolute()}")
         print("=" * 80)
     
@@ -146,10 +176,21 @@ class GoldLayerGenerator:
             
             # Region
             region_key = org_key
+            region_info = self.profile['regions'].get(region_id, {})
+            region_name = generate_org_name(
+                org_type='Region',
+                region=region_id,
+                country=None,
+                city=None,
+                profile=self.profile,
+                org_key=region_key,
+                seed=self.random_seed,
+            )
+            
             org_nodes.append({
                 'OrgKey': region_key,
                 'OrgCode': f'RGN-{region_id}',
-                'OrgName': f'Region {region_id}',
+                'OrgName': region_name,
                 'OrgLevel': 'Region',
                 'ParentOrgKey': group_key,
                 'Country': pd.NA,
@@ -161,17 +202,37 @@ class GoldLayerGenerator:
             org_key += 1
             
             # Countries
-            for country in region_cfg['countries']:
+            for country_code in region_cfg['countries']:
                 country_key = org_key
-                currency = 'EUR' if country in ['DE', 'AT', 'NL', 'BE', 'LU'] else 'CHF' if country == 'CH' else 'SEK'
+                currency = 'EUR' if country_code in ['DE', 'AT', 'NL', 'BE', 'LU'] else 'CHF' if country_code == 'CH' else 'SEK'
+                
+                # Get country name from profile
+                country_names_map = {
+                    'DE': 'Germany', 'AT': 'Austria', 'CH': 'Switzerland',
+                    'NL': 'Netherlands', 'BE': 'Belgium', 'LU': 'Luxembourg',
+                    'SE': 'Sweden', 'NO': 'Norway', 'DK': 'Denmark', 'FI': 'Finland',
+                    'IT': 'Italy', 'ES': 'Spain', 'PT': 'Portugal', 'GR': 'Greece',
+                    'PL': 'Poland', 'CZ': 'Czech Republic', 'HU': 'Hungary', 'SK': 'Slovakia',
+                }
+                country_name = country_names_map.get(country_code, country_code)
+                
+                country_org_name = generate_org_name(
+                    org_type='Country',
+                    region=region_id,
+                    country=country_name,
+                    city=None,
+                    profile=self.profile,
+                    org_key=country_key,
+                    seed=self.random_seed,
+                )
                 
                 org_nodes.append({
                     'OrgKey': country_key,
-                    'OrgCode': f'CTRY-{country}',
-                    'OrgName': f'Country {country}',
+                    'OrgCode': f'CTRY-{country_code}',
+                    'OrgName': country_org_name,
                     'OrgLevel': 'Country',
                     'ParentOrgKey': region_key,
-                    'Country': country,
+                    'Country': country_code,
                     'Currency Code': currency,
                     'OrgType': 'Country',
                     'Open DateKey': 20180101,
@@ -180,14 +241,28 @@ class GoldLayerGenerator:
                 org_key += 1
                 
                 # Stores
+                cities = region_info.get('cities', [])
                 for store_idx in range(region_cfg['store_count'] // len(region_cfg['countries'])):
+                    # Cycle through cities for store locations
+                    city = cities[store_idx % len(cities)] if cities else f"{country_name} City {store_idx+1}"
+                    
+                    store_name = generate_org_name(
+                        org_type='Store',
+                        region=region_id,
+                        country=country_name,
+                        city=city,
+                        profile=self.profile,
+                        org_key=org_key,
+                        seed=self.random_seed,
+                    )
+                    
                     org_nodes.append({
                         'OrgKey': org_key,
-                        'OrgCode': f'STORE-{country}-{store_idx+1:03d}',
-                        'OrgName': f'Store {country} {store_idx+1}',
+                        'OrgCode': f'STORE-{country_code}-{store_idx+1:03d}',
+                        'OrgName': store_name,
                         'OrgLevel': 'Store',
                         'ParentOrgKey': country_key,
-                        'Country': country,
+                        'Country': country_code,
                         'Currency Code': currency,
                         'OrgType': 'Store',
                         'Open DateKey': 20180101,
@@ -197,13 +272,28 @@ class GoldLayerGenerator:
                 
                 # DCs
                 for dc_idx in range(region_cfg['dc_count']):
+                    # Generate realistic DC name
+                    region_info = self.profile['regions'].get(region_id, {})
+                    cities = region_info.get('cities', [])
+                    city = random.choice(cities) if cities else f"{country_name} City"
+                    
+                    dc_name = generate_org_name(
+                        org_type='DC',
+                        region=region_id,
+                        country=country_name,
+                        city=city,
+                        profile=self.profile,
+                        org_key=org_key,
+                        seed=self.random_seed,
+                    )
+                    
                     org_nodes.append({
                         'OrgKey': org_key,
-                        'OrgCode': f'DC-{country}-{dc_idx+1:02d}',
-                        'OrgName': f'Distribution Center {country} {dc_idx+1}',
+                        'OrgCode': f'DC-{country_code}-{dc_idx+1:02d}',
+                        'OrgName': dc_name,
                         'OrgLevel': 'DC',
                         'ParentOrgKey': country_key,
-                        'Country': country,
+                        'Country': country_code,
                         'Currency Code': currency,
                         'OrgType': 'DC',
                         'Open DateKey': 20180101,
@@ -235,7 +325,15 @@ class GoldLayerGenerator:
             product_count = category_cfg['product_count']
             margin_range = category_cfg['gross_margin_range']
             
-            subcategories = [f'{category} Basic', f'{category} Premium']
+            # Get subcategories from company profile
+            cat_config = self.profile['product_categories'].get(category, {})
+            subcategories_list = cat_config.get('subcategories', [f'{category} Basic', f'{category} Premium'])
+            
+            # If profile has subcategories, use them; otherwise fall back to Basic/Premium
+            if len(subcategories_list) > 0:
+                subcategories = subcategories_list
+            else:
+                subcategories = [f'{category} Basic', f'{category} Premium']
             
             for subcategory in subcategories:
                 for prod_idx in range(product_count // len(subcategories)):
@@ -249,13 +347,22 @@ class GoldLayerGenerator:
                     target_margin = random.uniform(margin_range[0], margin_range[1])
                     standard_cost = list_price * (1 - target_margin)
                     
+                    # Generate realistic product name
+                    product_name = generate_product_name(
+                        category=category,
+                        subcategory=subcategory,
+                        profile=self.profile,
+                        product_key=product_key,
+                        seed=self.random_seed,
+                    )
+                    
                     products.append({
                         'ProductKey': product_key,
                         'ProductCode': f'PRD-{category[:3].upper()}-{product_key:05d}',
-                        'ProductName': f'{subcategory} {prod_idx+1}',
+                        'ProductName': product_name,
                         'Category': category,
                         'Subcategory': subcategory,
-                        'Brand': f'{category} Brand',
+                        'Brand': f'{self.profile["brand_name"]} {category}',
                         'Lifecycle Status': random.choice(['Active', 'Active', 'Active', 'EOL']),
                         'List Price Amount': round(list_price, 2),
                     })
@@ -276,14 +383,29 @@ class GoldLayerGenerator:
         customers = []
         customer_key = 1
         
+        # Get cities for B2B customer names
+        all_cities = []
+        for region_info in self.profile['regions'].values():
+            all_cities.extend(region_info.get('cities', []))
+        
         for segment, share in segment_shares.items():
             count = int(total_customers * share)
             
             for _ in range(count):
+                # Generate realistic customer name
+                city = random.choice(all_cities) if all_cities else None
+                customer_name = generate_customer_name(
+                    segment=segment,
+                    profile=self.profile,
+                    customer_key=customer_key,
+                    city=city,
+                    seed=self.random_seed,
+                )
+                
                 customers.append({
                     'CustomerKey': customer_key,
                     'CustomerCode': f'CUST-{customer_key:08d}',
-                    'CustomerName': f'Customer {customer_key}',
+                    'CustomerName': customer_name,
                     'Segment': segment,
                     'Channel Preference': random.choice(['Store', 'ECom', 'Mixed']),
                     'Tenure Bucket': random.choice(['<1Y', '1-3Y', '>3Y']),
@@ -320,9 +442,12 @@ class GoldLayerGenerator:
         promotions = []
         promo_key = 1
         
-        # Generate ~50 promotions over the fact period
-        fact_start = pd.to_datetime(self.config['time']['facts_start'])
-        fact_end = pd.to_datetime(self.config['time']['facts_end'])
+        # Generate ~50 promotions over the fact period (use standard FACTS_START/END)
+        fact_start = FACTS_START
+        fact_end = FACTS_END
+        
+        # Get categories for category-specific promos
+        categories = list(self.profile['product_categories'].keys())
         
         for i in range(50):
             promo_type = random.choice(promo_types)
@@ -345,10 +470,19 @@ class GoldLayerGenerator:
             
             discount_pct = random.uniform(0.05, 0.40) if promo_type == 'Discount' else 0.0
             
+            # Generate realistic promo name
+            category = random.choice(categories) if random.random() < 0.3 else None  # 30% category-specific
+            promo_name = generate_promo_name(
+                profile=self.profile,
+                promo_key=promo_key,
+                category=category,
+                seed=self.random_seed,
+            )
+            
             promotions.append({
                 'PromoKey': promo_key,
                 'PromoCode': f'PROMO{promo_key:03d}',
-                'PromoName': f'{promo_type} Campaign {promo_key}',
+                'PromoName': promo_name,
                 'Promo Type': promo_type,
                 'Promo Mechanic': mechanic,
                 'Start DateKey': start_datekey,
@@ -441,11 +575,9 @@ class GoldLayerGenerator:
         dim_promo = self.dimensions['dim_promo']
         dim_account = self.dimensions['dim_account']
         
-        # Filter time to facts period
-        facts_start = pd.to_datetime(self.config['time']['facts_start'])
-        facts_end = pd.to_datetime(self.config['time']['facts_end'])
+        # Filter time to facts period (use standard FACTS_START/FACTS_END)
         fact_dates = dim_date[
-            (dim_date['Date'] >= facts_start) & (dim_date['Date'] <= facts_end)
+            (dim_date['Date'] >= FACTS_START) & (dim_date['Date'] <= FACTS_END)
         ]
         
         fact_sales = self._generate_fact_sales(fact_dates, dim_org, dim_product, dim_customer, dim_promo)
@@ -477,6 +609,12 @@ class GoldLayerGenerator:
         # Priority 3: NPS
         fact_nps = self._generate_fact_nps(dim_date, dim_customer, dim_org)
         self._write_table(fact_nps, "facts/fact_nps", partition_by=None)
+
+        # Commercial: fact_experience (COM-003 Complaint Count), fact_promo (COM-004)
+        fact_experience = self._generate_fact_experience(dim_date, dim_customer, dim_org)
+        self._write_table(fact_experience, "facts/fact_experience", partition_by=['Fiscal Year'])
+        fact_promo = self._generate_fact_promo(dim_promo, fact_sales)
+        self._write_table(fact_promo, "facts/fact_promo", partition_by=None)
     
     def _generate_fact_sales(
         self, 
@@ -500,9 +638,9 @@ class GoldLayerGenerator:
         product_list = dim_product.to_dict('records')
         customer_list = dim_customer.to_dict('records')
         promo_list = dim_promo[dim_promo['PromoKey'] != -1].to_dict('records')  # Exclude "No Promotion"
-        date_list = fact_dates.iloc[::30].to_dict('records')  # Every 30 days (monthly)
+        date_list = fact_dates.to_dict('records')  # All dates in fact period
         
-        print(f"     Generating ~{len(date_list) * len(stores_list) * 50:,} transactions (20% stores, monthly sampling)...")
+        print(f"     Generating ~{len(date_list) * len(stores_list) * 50:,} transactions (20% stores, daily)...")
         
         transactions = []
         invoice_line_id = 1
@@ -512,13 +650,26 @@ class GoldLayerGenerator:
         
         for date_row in date_list:
             date_key = date_row['DateKey']
+            date_obj = pd.to_datetime(date_row['Date'])
             fiscal_year = date_row['Fiscal Year']
             fiscal_month = date_row['Month']
+            
+            # Apply seasonality to base transaction count
+            base_transactions = 50
+            seasonality_factor = apply_combined_seasonality(
+                date_obj,
+                base_factor=1.0,
+                monthly_weight=0.6,
+                weekly_weight=0.4,
+                seed=self.random_seed,
+            )
+            avg_transactions_per_day = int(base_transactions * seasonality_factor)
             
             for store in stores_list:
                 org_key = store['OrgKey']
                 currency = store['Currency Code']
-                num_transactions = random.randint(30, 70)
+                # Daily variation around seasonality-adjusted average
+                num_transactions = max(1, int(np.random.normal(avg_transactions_per_day, avg_transactions_per_day * 0.2)))
                 
                 for _ in range(num_transactions):
                     product = product_list[random.randint(0, num_products-1)]
@@ -651,12 +802,10 @@ class GoldLayerGenerator:
         # Only stores for budget
         stores_df = dim_org[dim_org['OrgType'] == 'Store']
         
-        # Month-end dates in fact period
-        fact_start = pd.to_datetime(self.config['time']['facts_start'])
-        fact_end = pd.to_datetime(self.config['time']['facts_end'])
+        # Month-end dates in fact period (use standard FACTS_START/FACTS_END)
         month_ends = dim_date[
-            (dim_date['Date'] >= fact_start) & 
-            (dim_date['Date'] <= fact_end) &
+            (dim_date['Date'] >= FACTS_START) & 
+            (dim_date['Date'] <= FACTS_END) &
             (pd.to_datetime(dim_date['Date']).dt.is_month_end)
         ]
         
@@ -726,12 +875,10 @@ class GoldLayerGenerator:
         """Generate fact_working_capital (CONTRACT: MonthEnd DateKey-OrgKey grain)."""
         print("  -> fact_working_capital")
         
-        # Month-end dates
-        fact_start = pd.to_datetime(self.config['time']['facts_start'])
-        fact_end = pd.to_datetime(self.config['time']['facts_end'])
+        # Month-end dates (use standard FACTS_START/FACTS_END)
         month_ends = dim_date[
-            (dim_date['Date'] >= fact_start) & 
-            (dim_date['Date'] <= fact_end) &
+            (dim_date['Date'] >= FACTS_START) & 
+            (dim_date['Date'] <= FACTS_END) &
             (pd.to_datetime(dim_date['Date']).dt.is_month_end)
         ]
         
@@ -833,12 +980,10 @@ class GoldLayerGenerator:
             journal_line_id += 1
             doc_num += 1
         
-        # Add some OPEX entries (monthly)
-        fact_start = pd.to_datetime(self.config['time']['facts_start'])
-        fact_end = pd.to_datetime(self.config['time']['facts_end'])
+        # Add some OPEX entries (monthly) - use standard FACTS_START/FACTS_END
         month_ends = dim_date[
-            (dim_date['Date'] >= fact_start) & 
-            (dim_date['Date'] <= fact_end) &
+            (dim_date['Date'] >= FACTS_START) & 
+            (dim_date['Date'] <= FACTS_END) &
             (pd.to_datetime(dim_date['Date']).dt.is_month_end)
         ]
         
@@ -882,11 +1027,10 @@ class GoldLayerGenerator:
         """Generate fact_customer_interactions (CONTRACT: InteractionID grain)."""
         print("  -> fact_customer_interactions")
         
-        fact_start = pd.to_datetime(self.config['time']['facts_start'])
-        fact_end = pd.to_datetime(self.config['time']['facts_end'])
+        # Use standard FACTS_START/FACTS_END
         fact_dates = dim_date[
-            (dim_date['Date'] >= fact_start) & 
-            (dim_date['Date'] <= fact_end)
+            (dim_date['Date'] >= FACTS_START) & 
+            (dim_date['Date'] <= FACTS_END)
         ]
         
         channels = ['Store', 'Web', 'App', 'CallCenter']
@@ -950,11 +1094,10 @@ class GoldLayerGenerator:
         """Generate fact_nps (CONTRACT: ResponseID grain)."""
         print("  -> fact_nps")
         
-        fact_start = pd.to_datetime(self.config['time']['facts_start'])
-        fact_end = pd.to_datetime(self.config['time']['facts_end'])
+        # Use standard FACTS_START/FACTS_END
         fact_dates = dim_date[
-            (dim_date['Date'] >= fact_start) & 
-            (dim_date['Date'] <= fact_end)
+            (dim_date['Date'] >= FACTS_START) & 
+            (dim_date['Date'] <= FACTS_END)
         ]
         
         # Sample: 5% of customers, 1% of dates (surveys are infrequent)
@@ -1002,6 +1145,85 @@ class GoldLayerGenerator:
         df = pd.DataFrame(responses)
         print(f"     {len(df):,} NPS responses generated")
         return df
+
+    def _generate_fact_experience(
+        self,
+        dim_date: pd.DataFrame,
+        dim_customer: pd.DataFrame,
+        dim_org: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Generate fact_experience (CONTRACT: Complaint ID grain, COM-003)."""
+        print("  -> fact_experience")
+        # Use standard FACTS_START/FACTS_END
+        fact_dates = dim_date[
+            (dim_date['Date'] >= FACTS_START) & (dim_date['Date'] <= FACTS_END)
+        ]
+        sampled_dates = fact_dates.sample(frac=0.02, random_state=self.random_seed)
+        sampled_customers = dim_customer.sample(frac=0.03, random_state=self.random_seed)
+        stores_df = dim_org[dim_org['OrgType'] == 'Store'].sample(frac=0.3, random_state=self.random_seed)
+        customers_list = sampled_customers.to_dict('records')
+        dates_list = sampled_dates.to_dict('records')
+        stores_list = stores_df.to_dict('records')
+        severities = ['Low', 'Medium', 'High']
+        complaints = []
+        complaint_id = 1
+        for date_row in dates_list:
+            date_key = date_row['DateKey']
+            fiscal_year = date_row['Fiscal Year']
+            for _ in range(random.randint(2, 15)):
+                customer = random.choice(customers_list)
+                store = random.choice(stores_list)
+                complaints.append({
+                    'Complaint ID': f'CMP{complaint_id:08d}',
+                    'CustomerKey': customer['CustomerKey'],
+                    'OrgKey': store['OrgKey'],
+                    'DateKey': date_key,
+                    'Severity': random.choice(severities),
+                    'Fiscal Year': fiscal_year,
+                })
+                complaint_id += 1
+        df = pd.DataFrame(complaints)
+        print(f"     {len(df):,} complaint records generated")
+        return df
+
+    def _generate_fact_promo(
+        self,
+        dim_promo: pd.DataFrame,
+        fact_sales: pd.DataFrame,
+    ) -> pd.DataFrame:
+        """Generate fact_promo (CONTRACT: PromoKey grain, COM-004)."""
+        print("  -> fact_promo")
+        promo_list = dim_promo[dim_promo['PromoKey'] != -1].to_dict('records')
+        if not promo_list:
+            df = pd.DataFrame(columns=[
+                'PromoKey', 'Promo Cost', 'Funding Amount', 'Baseline Sales Amount',
+                'Baseline Quantity', 'Baseline Non-Promo Sales Amount'
+            ])
+            print("     No promotions; empty fact_promo")
+            return df
+        rows = []
+        for promo in promo_list:
+            promo_key = promo['PromoKey']
+            discount_pct = promo.get('Discount %', 0.15)
+            promo_sales = fact_sales[fact_sales['PromoKey'] == promo_key]
+            net_sales = promo_sales['Net Sales Amount'].sum() if len(promo_sales) > 0 else 0.0
+            qty = promo_sales['Quantity'].sum() if 'Quantity' in promo_sales.columns and len(promo_sales) > 0 else 0.0
+            cost_pct = 0.02 + discount_pct * 0.1
+            promo_cost = net_sales * cost_pct if net_sales else random.uniform(500, 5000)
+            baseline_sales = net_sales * (1 - discount_pct) * 0.8 if net_sales else promo_cost * 10
+            baseline_qty = qty * 0.7 if qty else 0
+            cannibalized = baseline_sales * 0.15
+            rows.append({
+                'PromoKey': promo_key,
+                'Promo Cost': round(promo_cost, 2),
+                'Funding Amount': round(promo_cost * 0.5, 2),
+                'Baseline Sales Amount': round(baseline_sales, 2),
+                'Baseline Quantity': round(baseline_qty, 2),
+                'Baseline Non-Promo Sales Amount': round(baseline_sales - cannibalized, 2),
+            })
+        df = pd.DataFrame(rows)
+        print(f"     {len(df):,} fact_promo rows generated")
+        return df
     
     def _generate_fact_action_log(
         self,
@@ -1037,11 +1259,10 @@ class GoldLayerGenerator:
         
         action_outcomes = ['Success', 'Neutral', 'Failed', 'Pending']
         
-        fact_start = pd.to_datetime(self.config['time']['facts_start'])
-        fact_end = pd.to_datetime(self.config['time']['facts_end'])
+        # Use standard FACTS_START/FACTS_END
         fact_dates = dim_date[
-            (dim_date['Date'] >= fact_start) & 
-            (dim_date['Date'] <= fact_end)
+            (dim_date['Date'] >= FACTS_START) & 
+            (dim_date['Date'] <= FACTS_END)
         ]
         
         # Sample: 5% of dates (actions are infrequent)
@@ -1129,7 +1350,7 @@ class GoldLayerGenerator:
                 )
                 format_str = "Parquet"
         
-        print(f"     ✓ Written to {table_path} ({format_str}, {len(df):,} rows)")
+        print(f"     [OK] Written to {table_path} ({format_str}, {len(df):,} rows)")
 
 
 def main():
@@ -1141,15 +1362,19 @@ def main():
     )
     parser.add_argument(
         '--output',
-        default='../../showcases/aurora_group/data/gold',
-        help='Output path for gold layer files'
+        default=None,
+        help='Output path for gold layer files (default: repo showcases/aurora_group/data/gold)'
     )
     
     args = parser.parse_args()
     
     script_dir = Path(__file__).parent
     config_path = script_dir / args.config
-    output_path = Path(args.output)
+    # Default output: repo/showcases/aurora_group/data/gold (relative to this script)
+    if args.output is None:
+        output_path = (script_dir / '..' / '..' / '..' / '..' / 'showcases' / 'aurora_group' / 'data' / 'gold').resolve()
+    else:
+        output_path = Path(args.output)
     
     if not config_path.exists():
         print(f"Error: Config file not found: {config_path}")

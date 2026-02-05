@@ -4,6 +4,8 @@ owner: Commercial Data Product
 
 dimension:
   - name: dim_date
+    description: "Calendar dimension with fiscal hierarchy (Fiscal Year > Quarter > Month > Date)."
+    purpose: "Single source for time slicing and fiscal reporting."
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -14,6 +16,8 @@ dimension:
       - {name: Week, type: text, nullable: true}
 
   - name: dim_org
+    description: "Organization dimension (region, country, channel, org name) for reporting and RLS."
+    purpose: "Scoping and security for entity-level reporting."
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: OrgCode, type: text}
@@ -23,6 +27,8 @@ dimension:
       - {name: Channel, type: text}
 
   - name: dim_product
+    description: "Product dimension with category hierarchy (Category > Sub Category > Brand > Product Name)."
+    purpose: "Product and margin analysis, mix reporting."
     columns:
       - {name: ProductKey, type: int, role: key}
       - {name: ProductCode, type: text}
@@ -33,6 +39,8 @@ dimension:
       - {name: ProductFamily, type: text, nullable: true}   # for comparable item grouping (cannibalization)
 
   - name: dim_customer
+    description: "Customer dimension (segment, region, country) for CRM and value reporting."
+    purpose: "Customer-level analysis, CLV, retention, and segmentation."
     columns:
       - {name: CustomerKey, type: int, role: key}
       - {name: CustomerCode, type: text}
@@ -42,6 +50,8 @@ dimension:
       - {name: Region, type: text, nullable: true}
 
   - name: dim_promo
+    description: "Promotion dimension (type, mechanic, date range) for promo effectiveness."
+    purpose: "Promo ROI, incremental sales, and cannibalization analysis."
     columns:
       - {name: PromoKey, type: int, role: key}
       - {name: Promotion, type: text}
@@ -52,6 +62,8 @@ dimension:
 
 fact:
   - name: fact_sales
+    description: "Invoice-line sales (net sales, quantity, price, COGS) with plan and prior year."
+    purpose: "Core revenue and margin reporting; PVM and variance analysis."
     grain: invoice_line
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -71,6 +83,8 @@ fact:
       - {name: Cost of Goods Sold Amount, type: currency, agg: sum}
 
   - name: fact_plan_sales
+    description: "Planned sales and COGS at product-month grain for variance vs plan."
+    purpose: "Plan vs actual reporting and forecasting alignment."
     grain: product_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -81,6 +95,8 @@ fact:
       - {name: Plan Gross Margin Amount, type: currency, agg: sum, nullable: true}
 
   - name: fact_promo
+    description: "Promotion costs and baseline (sales, quantity, non-promo baseline) per promotion."
+    purpose: "Promo ROI, incremental sales, and cannibalization calculations."
     grain: promotion
     columns:
       - {name: PromoKey, type: int, ref: dim_promo}
@@ -91,6 +107,8 @@ fact:
       - {name: Baseline Non-Promo Sales Amount, type: currency, agg: sum, nullable: true}   # for cannibalization calculations
 
   - name: fact_customer_events
+    description: "Customer activity and churn flags plus attrition risk at customer-month grain."
+    purpose: "Retention, churn, and risk reporting."
     grain: customer_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -104,6 +122,8 @@ fact:
       - "Attrition Risk % within [0;1] when present."
 
   - name: fact_customer_value
+    description: "Customer lifetime value (CLV) and remaining value at customer-month grain."
+    purpose: "CLV reporting and prioritization."
     grain: customer_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -114,6 +134,8 @@ fact:
       - "CLV Amount >= 0; Remaining Amount >= 0 when present."
 
   - name: fact_experience
+    description: "Customer complaint and experience events (customer, org, date, severity)."
+    purpose: "Complaint and experience KPI reporting."
     grain: customer_event
     columns:
       - {name: Complaint ID, type: text, role: key}
@@ -125,6 +147,8 @@ fact:
       - "Complaint ID unique per event."
 
   - name: fact_nps
+    description: "NPS survey responses (score, promoter/detractor flags) per response."
+    purpose: "NPS and advocacy reporting."
     grain: customer_event
     columns:
       - {name: ResponseID, type: text, role: key}

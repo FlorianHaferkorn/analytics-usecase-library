@@ -1,0 +1,54 @@
+/// Inventory snapshot (average/obsolete) at location-SKU-month grain.
+/// Inventory value and obsolescence reporting.
+table fact_inventory
+	lineageTag: ceadfbbb-c805-4ebb-8c61-a2b55a0a7021
+
+	column DateKey
+		dataType: int64
+		lineageTag: 7a14c22d-6050-466b-883a-84266367457c
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column OrgKey
+		dataType: int64
+		lineageTag: 0d0faf49-c496-4a4c-abf0-f11c6b4cf753
+		summarizeBy: none
+		sourceColumn: OrgKey
+
+	column ProductKey
+		dataType: int64
+		lineageTag: bc4d446f-a9e5-4512-87e0-b2d76e5fc227
+		summarizeBy: none
+		sourceColumn: ProductKey
+
+	column 'Average Inventory Amount'
+		dataType: double
+		lineageTag: 947ff0e3-19eb-4543-9546-14f65f7c77fd
+		sourceColumn: Average Inventory Amount
+
+	column 'Average Inventory Units'
+		dataType: double
+		lineageTag: 228a6031-d5d0-4703-bd08-b04e0a5bcea1
+		sourceColumn: Average Inventory Units
+
+	column 'Obsolete Inventory Amount'
+		dataType: double
+		lineageTag: 765925e1-6e59-4e49-beb8-a225c5a40d18
+		sourceColumn: Obsolete Inventory Amount
+
+	column 'Obsolete Inventory Units'
+		dataType: double
+		lineageTag: 32afc314-845c-4fa3-ba5d-3a3bbf6e30bc
+		sourceColumn: Obsolete Inventory Units
+
+	partition fact_inventory = m
+		mode: import
+		source =
+				let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_inventory"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData
+

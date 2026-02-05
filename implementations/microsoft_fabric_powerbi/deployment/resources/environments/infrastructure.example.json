@@ -1,0 +1,67 @@
+{
+  "_comment": "Example infrastructure.json - Base configuration merged with environment-specific files",
+  "name": "ActionReady - {layer} [{environment}]",
+  "_name_note": "Template variables: {layer} = DE/DM/BI/Shared, {environment} = dev/tst/prd",
+  
+  "generic": {
+    "capacity_name": "MyCapacity",
+    "_capacity_note": "Fabric capacity name (must exist in tenant)",
+    
+    "permissions": {
+      "_permissions_note": "Workspace role assignments. Types: Group, User, ServicePrincipal",
+      "Admin": [
+        {"type": "Group", "id": "00000000-0000-0000-0000-000000000000"}
+      ],
+      "Member": [
+        {"type": "Group", "id": "00000000-0000-0000-0000-000000000000"}
+      ],
+      "Contributor": [],
+      "Viewer": []
+    },
+    
+    "fabric_connections": [
+      {
+        "_connection_note": "Fabric connections created and assigned to workspaces",
+        "name": "Connection-DataPipeline [{environment}]",
+        "type": "FabricDataPipelines"
+      },
+      {
+        "name": "Connection-SQL [{environment}]",
+        "type": "FabricSql"
+      }
+    ]
+  },
+  
+  "layers": {
+    "_layers_note": "Workspace layers: DE (Data Engineering), DM (Data Models), BI (Reporting), Shared",
+    "DE": {
+      "items": {
+        "Lakehouse": [
+          {
+            "item_name": "Gold",
+            "skip_item_creation": false,
+            "_skip_note": "If true, workspace created but item not created"
+          }
+        ]
+      }
+    },
+    "DM": {
+      "items": {
+        "SemanticModel": [
+          {
+            "item_name": "CoreActionReady",
+            "skip_item_creation": false
+          }
+        ]
+      }
+    },
+    "BI": {
+      "items": {
+        "Report": []
+      }
+    },
+    "Shared": {
+      "items": {}
+    }
+  }
+}

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Scaffold Preview - COM-001 - overview</title>
+    <style>
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            color: #252423;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #4A4948;
+            margin: 5px 0;
+        }
+        
+        .canvas-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: auto;
+        }
+        
+        .canvas {
+            position: relative;
+            width: 1920px;
+            height: 1080px;
+            background: #FBFBFB;
+            border: 1px solid #E6E6E6;
+            margin: 0 auto;
+        }
+        
+        .canvas.grid::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+        }
+        
+        .visual {
+            position: absolute;
+            border: 2px solid #0078D4;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 4px;
+            padding: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .visual.kpi-card {
+            border-color: #519872;
+            background: rgba(81, 152, 114, 0.1);
+        }
+        
+        .visual.chart {
+            border-color: #0078D4;
+        }
+        
+        .visual.table {
+            border-color: #EC4E20;
+        }
+        
+        .visual.slicer {
+            border-color: #F6AE2D;
+            background: rgba(246, 174, 45, 0.1);
+        }
+        
+        .visual.action-panel {
+            border-color: #2E7D5B;
+            background: rgba(46, 125, 91, 0.1);
+        }
+        
+        .visual-label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #252423;
+            margin-bottom: 4px;
+        }
+        
+        .visual-dims {
+            font-size: 10px;
+            color: #6E6D6B;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .visual-slot {
+            font-size: 10px;
+            color: #939290;
+            font-style: italic;
+            margin-top: 4px;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .controls button {
+            background: #0078D4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .controls button:hover {
+            background: #106EBE;
+        }
+        
+        .visual:hover {
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Page Scaffold Preview</h1>
+        <p><strong>Use Case:</strong> COM-001 | <strong>Page:</strong> overview</p>
+        <p><strong>Canvas:</strong> 1920×1080px</p>
+    </div>
+    <div class="canvas-container">
+        <div class="canvas" id="canvas">
+            
+        <div class="visual kpi-card" style="left: 370.0px; top: 20px; width: 280px; height: 140px;">
+            <div class="visual-label">cardVisual</div>
+            <div class="visual-dims">280×140px</div>
+            <div class="visual-slot">KPI Summary</div>
+        </div>
+        
+        <div class="visual kpi-card" style="left: 670.0px; top: 20px; width: 280px; height: 140px;">
+            <div class="visual-label">cardVisual</div>
+            <div class="visual-dims">280×140px</div>
+            <div class="visual-slot">KPI Summary</div>
+        </div>
+        
+        <div class="visual kpi-card" style="left: 970.0px; top: 20px; width: 280px; height: 140px;">
+            <div class="visual-label">cardVisual</div>
+            <div class="visual-dims">280×140px</div>
+            <div class="visual-slot">KPI Summary</div>
+        </div>
+        
+        <div class="visual kpi-card" style="left: 1270.0px; top: 20px; width: 280px; height: 140px;">
+            <div class="visual-label">cardVisual</div>
+            <div class="visual-dims">280×140px</div>
+            <div class="visual-slot">KPI Summary</div>
+        </div>
+        
+        <div class="visual chart" style="left: 20px; top: 180px; width: 1510px; height: 400px;">
+            <div class="visual-label">lineChart</div>
+            <div class="visual-dims">1510×400px</div>
+            <div class="visual-slot">Trend</div>
+        </div>
+        
+        <div class="visual chart" style="left: 20px; top: 600px; width: 1510px; height: 400px;">
+            <div class="visual-label">waterfallChart</div>
+            <div class="visual-dims">1510×400px</div>
+            <div class="visual-slot">Variance</div>
+        </div>
+        
+        <div class="visual chart" style="left: 20px; top: 600px; width: 1510px; height: 300px;">
+            <div class="visual-label">clusteredBarChart</div>
+            <div class="visual-dims">1510×300px</div>
+            <div class="visual-slot">Ranking</div>
+        </div>
+        
+        <div class="visual action-panel" style="left: 1570px; top: 0px; width: 350px; height: 1080px;">
+            <div class="visual-label">textbox</div>
+            <div class="visual-dims">350×1080px</div>
+            <div class="visual-slot">Action Panel</div>
+        </div>
+        
+        <div class="visual slicer" style="left: 20px; top: 0px; width: 1880.0px; height: 40px;">
+            <div class="visual-label">slicer</div>
+            <div class="visual-dims">1880×40px</div>
+            <div class="visual-slot">Slicer</div>
+        </div>
+        
+        </div>
+    </div>
+    <div class="controls">
+        <button onclick="toggleGrid()">Toggle Grid</button>
+        <button onclick="exportImage()">Export as Image</button>
+    </div>
+    <script>
+        
+        function toggleGrid() {
+            const canvas = document.getElementById('canvas');
+            canvas.classList.toggle('grid');
+        }
+        
+        function exportImage() {
+            const canvas = document.getElementById('canvas');
+            html2canvas(canvas, {
+                backgroundColor: '#FBFBFB',
+                scale: 1
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'page-scaffold-preview.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+        
+    </script>
+</body>
+</html>

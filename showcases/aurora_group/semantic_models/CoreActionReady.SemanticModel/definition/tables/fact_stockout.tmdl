@@ -1,0 +1,49 @@
+/// Stockout events and lost demand at location-SKU-day.
+/// Stockout rate and lost sales.
+table fact_stockout
+	lineageTag: 363db158-661c-45ec-a061-607eb26782de
+
+	column DateKey
+		dataType: int64
+		lineageTag: 7dc42bff-4bc6-4a96-bc0f-34236d532dda
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column OrgKey
+		dataType: int64
+		lineageTag: 12f7478d-d955-4392-abdb-959118fa3e47
+		summarizeBy: none
+		sourceColumn: OrgKey
+
+	column ProductKey
+		dataType: int64
+		lineageTag: 0fc4dff8-277a-4df0-bfc4-94598d15ad4c
+		summarizeBy: none
+		sourceColumn: ProductKey
+
+	column 'Stockout Flag'
+		dataType: boolean
+		lineageTag: f259f345-b601-4970-9513-cf1cfe3fec23
+		sourceColumn: Stockout Flag
+
+	column 'Lost Demand Units'
+		dataType: double
+		lineageTag: 2e516b43-3228-4a73-9e94-8a702b8acf8e
+		sourceColumn: Lost Demand Units
+
+	column 'Demand Units'
+		dataType: double
+		lineageTag: 4eadb426-3584-423f-acc9-190306cfff4c
+		sourceColumn: Demand Units
+
+	partition fact_stockout = m
+		mode: import
+		source =
+				let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_stockout"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData
+

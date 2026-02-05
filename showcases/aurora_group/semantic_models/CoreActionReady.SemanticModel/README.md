@@ -40,6 +40,15 @@ CoreActionReady.SemanticModel/
 │       └── Aurora Organization Access.tmdl  # ✅ RLS Role
 ```
 
+## Gold data path (Parameter)
+
+Partition sources use the **M query parameter** `GoldDataPath`, defined in `definition/expressions.tmdl`. All tables use `Folder.Files(GoldDataPath & "/dimensions/...")` or `Folder.Files(GoldDataPath & "/facts/...")`.
+
+- **Default:** The parameter is set to the repo path to `showcases/aurora_group/data/gold` (edit `expressions.tmdl` to change the default).
+- **In Power BI Desktop:** Nach dem Öffnen des PBIP: **Transform data** (oder **Datentransformation**) öffnen → **Parameter verwalten** → **GoldDataPath** auf deinen lokalen Pfad setzen (z. B. `C:/YourUser/YourRepo/.../showcases/aurora_group/data/gold`). Danach **Alle aktualisieren** ausführen.
+- Beim Klonen des Repos: Entweder `expressions.tmdl` anpassen (Standardwert) oder in Power BI den Parameter einmal setzen.
+- **Fehlende Gold-Daten** (dim_queue, dim_issue, fact_cases, fact_wfm, fact_ap, fact_ar, fact_cash, fact_cashflow) einmalig erzeugen: vom Repo-Root `py showcases/aurora_group/data/scripts/generate_missing_gold_xd_finance.py` ausführen. Danach liegen die Ordner unter `data/gold/dimensions/` bzw. `data/gold/facts/` und das Modell lädt ohne Fehler.
+
 ## Hierarchies
 
 ### 1. Fiscal Calendar (dim_date)

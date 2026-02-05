@@ -1,0 +1,49 @@
+/// Asset or production line dimension (code, name, class, criticality) for OEE and maintenance.
+/// Asset-level performance and downtime analysis.
+table dim_asset
+	lineageTag: 02027ef9-4bb9-4f73-8cc2-e67b56699dde
+
+	column AssetKey
+		dataType: int64
+		isHidden
+		lineageTag: 14a1162d-1b27-4675-a662-deabff46c53b
+		summarizeBy: none
+		sourceColumn: AssetKey
+
+	column AssetCode
+		dataType: string
+		lineageTag: a7fcb537-bdc8-4604-9489-74f0525f7a77
+		sourceColumn: AssetCode
+
+	column AssetName
+		dataType: string
+		lineageTag: c8a24f2b-fbd2-498d-b077-0b30ed167cf1
+		sourceColumn: AssetName
+
+	column AssetClass
+		dataType: string
+		lineageTag: 8058219e-52bb-4b72-971c-738b0dbcc8ab
+		sourceColumn: AssetClass
+
+	column Criticality
+		dataType: string
+		lineageTag: 961b18bd-c00a-406e-afd1-314855755388
+		sourceColumn: Criticality
+
+	column OrgKey
+		dataType: int64
+		lineageTag: 7bc6c424-2129-43d7-8118-0faa154f0156
+		summarizeBy: none
+		sourceColumn: OrgKey
+
+	partition dim_asset = m
+		mode: import
+		source =
+				let
+					Source = Folder.Files(GoldDataPath & "/dimensions/dim_asset"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData
+

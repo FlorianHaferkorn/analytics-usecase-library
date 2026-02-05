@@ -1,0 +1,44 @@
+/// Issue type dimension (type, severity) for case classification.
+/// Issue-type and severity analysis for support.
+table dim_issue_type
+	lineageTag: ccb40f41-1a39-4689-8fe4-f4a50ac80ea2
+
+	column IssueKey
+		dataType: int64
+		isHidden
+		lineageTag: 5bf271f6-96ac-473a-9416-da6c6618fde1
+		summarizeBy: none
+		sourceColumn: IssueKey
+
+	column IssueType
+		dataType: string
+		lineageTag: c007bace-c193-44fc-a15e-d984630c3636
+		sourceColumn: IssueType
+
+	column Severity
+		dataType: string
+		lineageTag: b6ad5ced-d1ea-4395-85ab-d86523cf6f6c
+		sourceColumn: Severity
+
+	hierarchy Issue
+		lineageTag: 78f38e20-914f-4267-bf40-00f163f373bf
+
+		level Severity
+			lineageTag: 250aeed7-77c2-46c1-996d-71e52f04e730
+			column: Severity
+
+		level 'Issue Type'
+			lineageTag: 0a9e7761-3cda-4542-b25e-e1d125dc16fb
+			column: IssueType
+
+	partition dim_issue_type = m
+		mode: import
+		source =
+				let
+					Source = Folder.Files(GoldDataPath & "/dimensions/dim_issue_type"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData
+

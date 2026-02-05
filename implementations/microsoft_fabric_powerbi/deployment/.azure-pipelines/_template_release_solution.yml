@@ -1,0 +1,78 @@
+# Release Solution Template
+# Reusable template for releasing solution to Fabric environment
+# Supports approval gates via Azure DevOps Environments
+#
+# Usage: Include as steps in a deployment job that references an environment
+
+parameters:
+  - name: environment
+    type: string
+    default: 'dev'
+    displayName: 'Target environment'
+  - name: requireManualApproval
+    type: boolean
+    default: false
+    displayName: 'Require manual approval before release (fallback if environment approvals not configured)'
+  - name: approvalTimeoutMinutes
+    type: number
+    default: 1440
+    displayName: 'Approval timeout (minutes)'
+
+steps:
+  - task: ManualValidation@0
+    displayName: 'Manual Approval Gate (Fallback)'
+    condition: and(succeeded(), eq('${{ parameters.requireManualApproval }}', 'true'))
+    inputs:
+      notifyUsers: |
+        $(APPROVAL_NOTIFY_USERS)
+      onTimeout: 'reject'
+      timeoutInMinutes: ${{ parameters.approvalTimeoutMinutes }}
+  
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download automation artifacts'
+    inputs:
+      artifactName: 'automation'
+      targetPath: '$(Pipeline.Workspace)/automation'
+  
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download solution artifacts'
+    inputs:
+      artifactName: 'solution'
+      targetPath: '$(Pipeline.Workspace)/solution'
+  
+  - task: UsePythonVersion@0
+    displayName: 'Set up Python'
+    inputs:
+      versionSpec: '3.12'
+  
+  - script: |
+      python -m pip install --upgrade pip
+      pip install -r $(Pipeline.Workspace)/automation/resources/requirements.txt
+    displayName: 'Install Python dependencies'
+  
+  - script: |
+      python $(Pipeline.Workspace)/automation/scripts/fabric_release.py `
+        --environment ${{ parameters.environment }} `
+        --repo_path "$(Pipeline.Workspace)/solution" `
+        --unpublish_items true
+    displayName: 'Release Fabric items'
+    pwsh: true
+    continueOnError: false
+    env:
+      PYTHONIOENCODING: utf-8
+      PYTHONUNBUFFERED: 1
+      TENANT_ID: $(SPN_TENANT_ID)
+      CLIENT_ID: $(SPN_CLIENT_ID)
+      CLIENT_SECRET: $(SPN_CLIENT_SECRET)
+  
+  - task: PowerShell@2
+    displayName: 'Post-deployment validation'
+    condition: succeeded()
+    inputs:
+      targetType: 'inline'
+      script: |
+        Write-Host "##[section]Post-deployment checks"
+        Write-Host "Environment: ${{ parameters.environment }}"
+        Write-Host "Deployment completed successfully"
+        # Add custom validation logic here if needed
+      pwsh: true

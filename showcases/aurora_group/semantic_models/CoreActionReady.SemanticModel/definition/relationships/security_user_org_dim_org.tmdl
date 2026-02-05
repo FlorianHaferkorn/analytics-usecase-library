@@ -1,6 +1,0 @@
-relationship security_user_org_dim_org
-	fromColumn: security_user_org.OrgKey
-	toColumn: dim_org.OrgKey
-	crossFilteringBehavior: bothDirections
-	securityFilteringBehavior: bothDirections
-

@@ -1,51 +1,103 @@
+/// Organization dimension (region, country, channel, org name) for reporting and RLS.
+/// Scoping and security for entity-level reporting.
 table dim_org
 	lineageTag: 12345678-abcd-efgh-ijkl-mnopqrstuvwx
 
 	column OrgKey
 		dataType: int64
-		sourceColumn: OrgKey
 		isHidden
+		lineageTag: 1a73d425-9f82-4008-ad32-4ce53eb2dd51
+		summarizeBy: none
+		sourceColumn: OrgKey
 
 	column OrgName
 		dataType: string
+		lineageTag: be286648-b798-49fa-918d-c6d62f40aa06
 		sourceColumn: OrgName
-
-	column Region
-		dataType: string
-		sourceColumn: Region
-		description: "Aurora Group operates across 5 regions: DACH, Benelux, Nordics, Southern Europe, CEE"
 
 	column Country
 		dataType: string
+		lineageTag: fa95ec4d-7910-42fd-9b8c-986b8e33b5ce
 		sourceColumn: Country
 
-	column Channel
+	column OrgCode
 		dataType: string
-		sourceColumn: Channel
-		description: "Retail Stores, E-Commerce, Marketplaces, Wholesale"
+		lineageTag: 4cb81bc7-2d08-4b8d-ad48-07d857a71503
+		summarizeBy: none
+		sourceColumn: OrgCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column OrgLevel
+		dataType: string
+		lineageTag: aa5bebfc-f0c2-46cb-9e8d-e91e232744e7
+		summarizeBy: none
+		sourceColumn: OrgLevel
+
+		annotation SummarizationSetBy = Automatic
+
+	column ParentOrgKey
+		dataType: int64
+		formatString: 0
+		lineageTag: c405e2cd-79dc-42ca-abe4-551a4f94b5e8
+		summarizeBy: count
+		sourceColumn: ParentOrgKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Currency Code'
+		dataType: string
+		lineageTag: 46addf6d-e991-4b1f-b733-c76bf18634c8
+		summarizeBy: none
+		sourceColumn: Currency Code
+
+		annotation SummarizationSetBy = Automatic
+
+	column OrgType
+		dataType: string
+		lineageTag: 435b3374-fcfe-4112-92a8-a89db17a022b
+		summarizeBy: none
+		sourceColumn: OrgType
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Open DateKey'
+		dataType: int64
+		formatString: 0
+		lineageTag: 065dd68a-7db6-4a2b-84e1-d7adfe0fa036
+		summarizeBy: count
+		sourceColumn: Open DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Close DateKey'
+		dataType: int64
+		formatString: 0
+		lineageTag: 551fbb38-dffd-4035-acc9-22af153dc9e9
+		summarizeBy: count
+		sourceColumn: Close DateKey
+
+		annotation SummarizationSetBy = Automatic
 
 	hierarchy 'Aurora Organization'
 		lineageTag: aurora-org-hierarchy
 
-		level Region
-			column: Region
-
 		level Country
+			lineageTag: 44811f94-d142-436c-a6db-a51b88471492
 			column: Country
 
-		level Channel
-			column: Channel
-
 		level 'Org Name'
+			lineageTag: 65ea7f74-d6d7-4251-a78f-9ab56f3f3a22
 			column: OrgName
 
 	partition dim_org = m
 		mode: import
 		source =
 				let
-					Source = Folder.Files("C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\showcases\aurora_group\data\gold\dimensions\dim_org"),
+					Source = Folder.Files(GoldDataPath & "/dimensions/dim_org"),
 					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
 					FirstFile = FilteredFiles{0}[Content],
 					ParquetData = Parquet.Document(FirstFile)
 				in
 					ParquetData
+

@@ -1,75 +1,110 @@
+/// Invoice-line sales (net sales, quantity, price, COGS) with plan and prior year.
+/// Core revenue and margin reporting; PVM and variance analysis.
 table fact_sales
 	lineageTag: 4abd72a9-83bb-4ea9-9fa8-36b5196ee5ed
 
 	column DateKey
 		dataType: int64
+		lineageTag: 2d5a215a-5e84-4ff9-a205-22adc6c1094b
+		summarizeBy: none
 		sourceColumn: DateKey
 
 	column OrgKey
 		dataType: int64
+		lineageTag: 32bcba85-5a42-446a-a276-6413f2eb0368
+		summarizeBy: none
 		sourceColumn: OrgKey
 
 	column ProductKey
 		dataType: int64
+		lineageTag: e2e2b9b9-eb29-437f-b7cc-10c5aa92d410
+		summarizeBy: none
 		sourceColumn: ProductKey
 
 	column CustomerKey
 		dataType: int64
+		lineageTag: 20a41dcf-9803-469f-9496-faf6f99e20a9
+		summarizeBy: none
 		sourceColumn: CustomerKey
 
 	column PromoKey
 		dataType: int64
+		lineageTag: 6b301b34-9212-4049-b2c3-cbbf5f6014a9
+		summarizeBy: none
 		sourceColumn: PromoKey
 
 	column 'Promo Flag'
 		dataType: string
+		lineageTag: 01ab0198-7ab3-41ef-acb0-0bf2a971d175
 		sourceColumn: Promo Flag
 
 	column Quantity
-		dataType: double
+		dataType: int64
+		formatString: 0
+		lineageTag: 1146c613-0b02-40f3-a6da-0b169df2bd1e
+		summarizeBy: sum
 		sourceColumn: Quantity
+
+		annotation SummarizationSetBy = Automatic
 
 	column 'Plan Quantity'
 		dataType: double
+		lineageTag: 51f1c19e-3c5f-4825-a7fe-e80e803e9f0c
 		sourceColumn: Plan Quantity
 
 	column 'List Price Amount'
 		dataType: double
+		lineageTag: f1ffee05-da63-4fe2-a8e5-97675ece3751
 		sourceColumn: List Price Amount
 
 	column 'Net Price Amount'
 		dataType: double
+		lineageTag: 575663cc-3cae-477c-85b4-4f7f69b9fbf1
 		sourceColumn: Net Price Amount
 
 	column 'Discount Amount'
 		dataType: double
+		lineageTag: 20d0fb46-a5c5-4065-aaa7-24eacc0776a4
 		sourceColumn: Discount Amount
 
 	column 'Net Sales Amount'
 		dataType: double
+		lineageTag: 8af2c52b-f750-4d83-ae5b-cf2d94bbbff9
 		sourceColumn: Net Sales Amount
 
 	column 'Plan Sales Amount'
 		dataType: double
+		lineageTag: 8ad5513a-eef5-49c3-8dc6-2a3d38583f3d
 		sourceColumn: Plan Sales Amount
 
 	column 'Last Year Sales Amount'
 		dataType: double
+		lineageTag: 9a952222-9c9b-4033-b918-1f67c2159c8a
 		sourceColumn: Last Year Sales Amount
 
 	column 'Cost of Goods Sold Amount'
 		dataType: double
+		lineageTag: 26019f7a-8579-4e9f-bd44-269096c9f062
 		sourceColumn: Cost of Goods Sold Amount
 
 	column 'Plan COGS Amount'
 		dataType: double
+		lineageTag: 0655c801-b243-41b0-a7c8-64772342279f
 		sourceColumn: Plan COGS Amount
+
+	column InvoiceLineID
+		dataType: string
+		lineageTag: 42925bc9-b630-4a0e-9e34-b64333252426
+		summarizeBy: none
+		sourceColumn: InvoiceLineID
+
+		annotation SummarizationSetBy = Automatic
 
 	partition fact_sales = m
 		mode: import
 		source =
 				let
-					Source = Folder.Files("C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\showcases\aurora_group\data\gold\facts\fact_sales"),
+					Source = Folder.Files(GoldDataPath & "/facts/fact_sales"),
 					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
 					FirstFile = FilteredFiles{0}[Content],
 					ParquetData = Parquet.Document(FirstFile)

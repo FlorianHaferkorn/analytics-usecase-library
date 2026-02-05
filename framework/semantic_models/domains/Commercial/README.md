@@ -1,4 +1,4 @@
-﻿# Golden Semantic Model – Commercial
+# Golden Semantic Model – Commercial
 
 ## Purpose
 
@@ -73,7 +73,9 @@ The Commercial semantic core covers the following KPI families:
 
 - Promo Uplift %
 - Incremental Sales Amount
+- Cannibalized Sales Amount
 - Cannibalization %
+- Incremental Gross Margin Amount (supporting Promo ROI %)
 
 Each KPI is defined **once** in the KPI Catalog and referenced here.
 

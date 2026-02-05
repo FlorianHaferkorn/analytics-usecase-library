@@ -339,6 +339,41 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     version: "v1.2"
     last_review: "TBD"
 
+- measure_name: "Cannibalized Sales Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "04_Promo"
+  category: "Supporting"
+  expression:
+    dax: |
+      VAR ActualNonPromoSales =
+          CALCULATE (
+              SUM ( fact_sales[Net Sales Amount] ),
+              fact_sales[Promo Flag] = FALSE ()
+          )
+      VAR BaselineNonPromoSales =
+          SUM ( fact_promo[Baseline Non-Promo Sales Amount] )
+      RETURN
+          MAX ( 0, BaselineNonPromoSales - ActualNonPromoSales )
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Sales amount lost on non-promoted items versus baseline (cannibalization in value)."
+    notes: |
+      Grain: promotion. Unit: EUR.
+      Lineage: fact_sales[Net Sales Amount], fact_sales[Promo Flag], fact_promo[Baseline Non-Promo Sales Amount]. May require related SKU mapping for comparable scope (data prep).
+      QA: Same logic as Cannibalization % numerator; floored at 0.
+  dependencies:
+    columns:
+      - "fact_sales[Net Sales Amount]"
+      - "fact_sales[Promo Flag]"
+      - "fact_promo[Baseline Non-Promo Sales Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
 - measure_name: "Cannibalization %"
   is_kpi_measure: true
   kpi_id_ref: "sales.promo.cannibalization.pct"
@@ -738,6 +773,32 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
       Grain: promotion. Unit: EUR.
       Lineage: [Incremental Sales Amount], fact_sales[Cost of Goods Sold Amount].
       QA: Assumes COGS aligned to promotional scope; ensure promo filter context.
+  dependencies:
+    measures:
+      - "[Incremental Sales Amount]"
+    columns:
+      - "fact_sales[Cost of Goods Sold Amount]"
+  governance:
+    owner: "Commercial BI"
+    status: "active"
+    version: "v1.2"
+    last_review: "TBD"
+
+- measure_name: "Incremental Gross Margin Amount"
+  is_kpi_measure: false
+  kpi_id_ref: ""
+  semantic_model: "Commercial_Sales_SemanticModel"
+  display_folder: "04_Promo"
+  category: "Supporting"
+  expression:
+    dax: "[Incremental Sales Amount] - SUM(fact_sales[Cost of Goods Sold Amount])"
+    formatString: "EUR #,0.00"
+  documentation:
+    description: "Gross margin attributable to incremental promo sales (used e.g. in Promo ROI %). Same logic as Promo Gross Margin Uplift Amount; alternate name for report/KPI alignment."
+    notes: |
+      Grain: promotion. Unit: EUR.
+      Lineage: [Incremental Sales Amount], fact_sales[Cost of Goods Sold Amount].
+      QA: Same as Promo Gross Margin Uplift Amount; ensure promo filter context.
   dependencies:
     measures:
       - "[Incremental Sales Amount]"

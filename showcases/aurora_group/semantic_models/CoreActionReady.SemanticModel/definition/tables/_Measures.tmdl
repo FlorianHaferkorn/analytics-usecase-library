@@ -1,54 +1,49 @@
-/// Measures (Use Cases: COM-001, COM-002, COM-003, COM-004)
+/// Measures (Use Cases: COM-001–COM-004, XD-001, XD-002, XD-003).
+/// KPI-backed and supporting measures; single source in this table.
 table _Measures
+	lineageTag: bd8e5291-a2e8-45c1-9782-db4ae255f7e3
 
-	partition _Measures = m
-		mode: import
-		source =
-				let
-					Source = #table(type table[Column1 = text], {})
-				in
-					Source
+	/// KPI: sales.net_sales.amount — Net Sales Amount
+	/// Description: Total invoiced revenue net of discounts and returns.
+	/// Purpose: Total invoiced revenue net of discounts and returns.
+	measure 'Net Sales Amount' = SUM ( fact_sales[Net Sales Amount] )
+		formatString: #,0.00
+		displayFolder: COM-001
+		lineageTag: f53c3077-ea80-47eb-a284-9a7b2716a488
 
-	column Column1
-		dataType: string
-		sourceColumn: Column1
-		isHidden
-		summarizeBy: none
-
-	/// sales.net_sales.amount - Net Sales Amount
-	/// Total invoiced revenue net of discounts and returns.
-	measure 'Net Sales Amount' =
-			SUM ( fact_sales[Net Sales Amount] )
-		formatString: "#,0.00"
-		displayFolder: "COM-001"
-
-	/// sales.net_sales.delta_pct.plan - Net Sales % vs Plan
-	/// Relative variance of Net Sales vs Plan.
+	/// KPI: sales.net_sales.delta_pct.plan — Net Sales % vs Plan
+	/// Description: Relative variance of Net Sales vs Plan.
+	/// Purpose: Relative variance of Net Sales vs Plan.
 	measure 'Net Sales % vs Plan' =
 			VAR Actual = [Net Sales Amount]
 			VAR Plan   = SUM ( fact_sales[Plan Sales Amount] )
 			RETURN DIVIDE ( Actual - Plan, Plan )
-		formatString: "0.0%"
-		displayFolder: "COM-001"
+		formatString: 0.0%
+		displayFolder: COM-001
+		lineageTag: 4cfc9765-f233-4b2c-8bd0-ed79f6ba2ec9
 
-	/// sales.net_sales.delta_pct.ly - Delta% Net Sales
-	/// Relative variance of Net Sales vs Last Year.
+	/// KPI: sales.net_sales.delta_pct.ly — Delta% Net Sales
+	/// Description: Relative variance of Net Sales vs Last Year.
+	/// Purpose: Relative variance of Net Sales vs Last Year.
 	measure 'Delta% Net Sales' =
 			VAR Actual = [Net Sales Amount]
 			VAR LY     = SUM ( fact_sales[Last Year Sales Amount] )
 			RETURN DIVIDE ( Actual - LY, LY )
-		formatString: "0.0%"
-		displayFolder: "COM-001"
+		formatString: 0.0%
+		displayFolder: COM-001
+		lineageTag: d6e30ce5-3089-444d-bf11-24f2b06da0f2
 
-	/// margin.gm.pct - Gross Margin %
-	/// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
-	measure 'Gross Margin %' =
-			DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
-		formatString: "0.0%"
-		displayFolder: "COM-001"
+	/// KPI: margin.gm.pct — Gross Margin %
+	/// Description: Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
+	/// Purpose: Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
+	measure 'Gross Margin %' = DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
+		formatString: 0.0%
+		displayFolder: COM-001
+		lineageTag: 228c5c1a-26d8-4143-93f4-3f77bcde15dc
 
-	/// sales.pvm.price_effect.amount - Price Effect Amount
-	/// Quantifies the pure price impact in the PVM bridge.
+	/// KPI: sales.pvm.price_effect.amount — Price Effect Amount
+	/// Description: Quantifies the pure price impact in the PVM bridge.
+	/// Purpose: Quantifies the pure price impact in the PVM bridge.
 	measure 'Price Effect Amount' =
 			SUMX (
 			fact_sales,
@@ -56,11 +51,13 @@ table _Measures
 			VAR PlanPrice   = DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] )
 			RETURN ( ActualPrice - PlanPrice ) * fact_sales[Quantity]
 			)
-		formatString: "#,0.00"
-		displayFolder: "COM-001"
+		formatString: #,0.00
+		displayFolder: COM-001
+		lineageTag: 3d95c393-e033-4659-b027-482ab2fef628
 
-	/// sales.pvm.volume_effect.amount - Volume Effect Amount
-	/// Measures the variance caused purely by quantity changes at plan price.
+	/// KPI: sales.pvm.volume_effect.amount — Volume Effect Amount
+	/// Description: Measures the variance caused purely by quantity changes at plan price.
+	/// Purpose: Measures the variance caused purely by quantity changes at plan price.
 	measure 'Volume Effect Amount' =
 			SUMX (
 			fact_sales,
@@ -69,59 +66,73 @@ table _Measures
 			VAR PlanPrice = DIVIDE ( fact_sales[Plan Sales Amount], PlanQty )
 			RETURN ( ActualQty - PlanQty ) * PlanPrice
 			)
-		formatString: "#,0.00"
-		displayFolder: "COM-001"
+		formatString: #,0.00
+		displayFolder: COM-001
+		lineageTag: 957de74b-0394-49e7-8d0c-420dc881d466
 
-	/// sales.pvm.mix_effect.amount - Mix Effect Amount
-	/// Captures the residual effect from changes in product, channel, or region mix.
+	/// KPI: sales.pvm.mix_effect.amount — Mix Effect Amount
+	/// Description: Captures the residual effect from changes in product, channel, or region mix.
+	/// Purpose: Captures the residual effect from changes in product, channel, or region mix.
 	measure 'Mix Effect Amount' =
 			[Net Sales Amount]
 			- SUM ( fact_sales[Plan Sales Amount] )
 			- [Price Effect Amount]
 			- [Volume Effect Amount]
-		formatString: "#,0.00"
-		displayFolder: "COM-001"
+		formatString: #,0.00
+		displayFolder: COM-001
+		lineageTag: be1a726d-2dd2-427b-a89b-1117ea849dcd
 
-	/// margin.gm.pct - Gross Margin %
-	/// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
-	measure 'Gross Margin %' =
-			DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
-		formatString: "0.0%"
-		displayFolder: "COM-002"
+	/// KPI: margin.gm.amount — Gross Margin Amount
+	/// Description: Absolute gross margin in currency.
+	/// Purpose: Absolute gross margin in currency.
+	measure 'Gross Margin Amount' = [Net Sales Amount] - [Cost of Goods Sold Amount]
+		formatString: #,0.00
+		displayFolder: COM-002
+		lineageTag: 49105aa8-80b6-4ccc-a0e5-ab3ca290218f
 
-	/// margin.gm.amount - Gross Margin Amount
-	/// Absolute gross margin in currency.
-	measure 'Gross Margin Amount' =
-			[Net Sales Amount] - [Cost of Goods Sold Amount]
-		formatString: "#,0.00"
-		displayFolder: "COM-002"
+	/// KPI: cost.cogs.amount — Cost of Goods Sold Amount
+	/// Description: Total cost of goods sold (supporting measure for margin calculations).
+	/// Purpose: Total cost of goods sold (supporting measure for margin calculations).
+	measure 'Cost of Goods Sold Amount' = SUM ( fact_sales[Cost of Goods Sold Amount] )
+		formatString: #,0.00
+		displayFolder: COM-002
+		lineageTag: 8bfac931-4d8c-42e0-bc28-e5260a562236
 
-	/// sales.price.realization_pct - Price Realization %
-	/// Shows how much of list price is realized after discounts.
-	measure 'Price Realization %' =
-			DIVIDE ( [Net Price Amount], [List Price Amount] )
-		formatString: "0.0%"
-		displayFolder: "COM-002"
+	/// Supporting: sales.price.net.amount — Net Price Amount
+	/// Description: Net price after discounts (supporting measure for price realization).
+	/// Purpose: Support price realization and discount analysis.
+	measure 'Net Price Amount' = SUM ( fact_sales[Net Price Amount] )
+		formatString: #,0.00
+		displayFolder: COM-002
+		lineageTag: b1abc6da-176b-4121-8d2f-07d17dab53ca
 
-	/// sales.pvm.mix_effect.amount - Mix Effect Amount
-	/// Captures the residual effect from changes in product, channel, or region mix.
-	measure 'Mix Effect Amount' =
-			[Net Sales Amount]
-			- SUM ( fact_sales[Plan Sales Amount] )
-			- [Price Effect Amount]
-			- [Volume Effect Amount]
-		formatString: "#,0.00"
-		displayFolder: "COM-002"
+	/// Supporting: sales.price.list.amount — List Price Amount
+	/// Description: List price before discounts (supporting measure for price realization).
+	/// Purpose: Support price realization and discount analysis.
+	measure 'List Price Amount' = SUM ( fact_sales[List Price Amount] )
+		formatString: #,0.00
+		displayFolder: COM-002
+		lineageTag: 6a54b175-20e8-477a-ad5e-a44d470758e8
 
-	/// cost.cogs_per_unit.amount - COGS per Unit
-	/// Shows unit cost level relative to sold volume.
-	measure 'COGS per Unit' =
-			DIVIDE ( [Cost of Goods Sold Amount], SUM ( fact_sales[Quantity] ) )
-		formatString: "#,0"
-		displayFolder: "COM-002"
+	/// KPI: sales.price.realization_pct — Price Realization %
+	/// Description: Shows how much of list price is realized after discounts.
+	/// Purpose: Shows how much of list price is realized after discounts.
+	measure 'Price Realization %' = DIVIDE ( [Net Price Amount], [List Price Amount] )
+		formatString: 0.0%
+		displayFolder: COM-002
+		lineageTag: e3abde22-ca5c-4123-9853-d551c6a77a68
 
-	/// margin.gm.vs_plan.pct - Gross Margin % vs Plan
-	/// Measures gross margin rate variance versus plan.
+	/// KPI: cost.cogs_per_unit.amount — COGS per Unit
+	/// Description: Shows unit cost level relative to sold volume.
+	/// Purpose: Shows unit cost level relative to sold volume.
+	measure 'COGS per Unit' = DIVIDE ( [Cost of Goods Sold Amount], SUM ( fact_sales[Quantity] ) )
+		formatString: #,0
+		displayFolder: COM-002
+		lineageTag: 73697d29-fe38-4531-afda-a5ce2b29043c
+
+	/// KPI: margin.gm.vs_plan.pct — Gross Margin % vs Plan
+	/// Description: Measures gross margin rate variance versus plan.
+	/// Purpose: Measures gross margin rate variance versus plan.
 	measure 'Gross Margin % vs Plan' =
 			VAR GMAct =
 			DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
@@ -130,33 +141,39 @@ table _Measures
 			SUM ( fact_sales[Plan Sales Amount] ) )
 			RETURN
 			DIVIDE ( GMAct - GMPlan, GMPlan )
-		formatString: "0.0%"
-		displayFolder: "COM-002"
+		formatString: 0.0%
+		displayFolder: COM-002
+		lineageTag: 5f41fbca-a98d-4244-ac1d-4043c2285700
 
-	/// crm.clv.amount - CLV
-	/// Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
-	measure 'CLV' =
+	/// KPI: crm.clv.amount — CLV
+	/// Description: Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
+	/// Purpose: Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
+	measure CLV =
 			AVERAGEX (
 			VALUES ( fact_sales[CustomerKey] ),
 			CALCULATE (
 			SUM ( fact_sales[Net Sales Amount] ) - SUM ( fact_sales[Cost of Goods Sold Amount] )
 			) * 3
 			)
-		formatString: "#,0.00"
-		displayFolder: "COM-003"
+		formatString: #,0.00
+		displayFolder: COM-003
+		lineageTag: 40a9be3a-f2fc-4a0d-9df0-e68deb5ac155
 
-	/// crm.lifetime_revenue.amount - Customer Lifetime Revenue Amount
-	/// Sum of realized revenue across the customer lifecycle.
+	/// KPI: crm.lifetime_revenue.amount — Customer Lifetime Revenue Amount
+	/// Description: Sum of realized revenue across the customer lifecycle.
+	/// Purpose: Sum of realized revenue across the customer lifecycle.
 	measure 'Customer Lifetime Revenue Amount' =
 			CALCULATE (
 			SUM ( fact_sales[Net Sales Amount] ),
 			ALLSELECTED ( dim_date )
 			)
-		formatString: "#,0"
-		displayFolder: "COM-003"
+		formatString: #,0
+		displayFolder: COM-003
+		lineageTag: 4be3ac4f-ff2b-4573-97d0-3cf2fcb62cdf
 
-	/// crm.retention.pct - Customer Retention %
-	/// Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
+	/// KPI: crm.retention.pct — Customer Retention %
+	/// Description: Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
+	/// Purpose: Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
 	measure 'Customer Retention %' =
 			VAR CurrentPeriodCustomers =
 			CALCULATE (
@@ -169,11 +186,13 @@ table _Measures
 			DATEADD ( dim_date[Date], -1, MONTH )
 			)
 			RETURN DIVIDE ( CurrentPeriodCustomers, PreviousPeriodCustomers )
-		formatString: "0.0%"
-		displayFolder: "COM-003"
+		formatString: 0.0%
+		displayFolder: COM-003
+		lineageTag: f39d68b7-9382-4ad4-a107-e2941b01672a
 
-	/// crm.churned_customers.count - Churned Customers
-	/// Count customers that have stopped purchasing in the observation window as basis for churn calculations.
+	/// KPI: crm.churned_customers.count — Churned Customers
+	/// Description: Count customers that have stopped purchasing in the observation window as basis for churn calculations.
+	/// Purpose: Count customers that have stopped purchasing in the observation window as basis for churn calculations.
 	measure 'Churned Customers' =
 			VAR PreviousMonthCustomers =
 			CALCULATETABLE (
@@ -184,51 +203,91 @@ table _Measures
 			VALUES ( fact_sales[CustomerKey] )
 			RETURN
 			COUNTROWS ( EXCEPT ( PreviousMonthCustomers, CurrentMonthCustomers ) )
-		formatString: "#,0"
-		displayFolder: "COM-003"
+		formatString: #,0
+		displayFolder: COM-003
+		lineageTag: 88a7be8d-3890-4004-86fb-d0343c78732e
 
-	/// crm.revenue_at_risk.amount - Revenue at Risk Amount
-	/// Quantify revenue exposure from customers flagged as churn-risk.
+	/// KPI: crm.revenue_at_risk.amount — Revenue at Risk Amount
+	/// Description: Quantify revenue exposure from customers flagged as churn-risk.
+	/// Purpose: Quantify revenue exposure from customers flagged as churn-risk.
 	measure 'Revenue at Risk Amount' =
 			VAR ChurnRiskPct = 0.15
 			RETURN [CLV] * ChurnRiskPct
-		formatString: "#,0"
-		displayFolder: "COM-003"
+		formatString: #,0
+		displayFolder: COM-003
+		lineageTag: f0a75dbc-d719-46e1-a485-d17cbbf1ae18
 
-	/// crm.active_customers.count - Active Customers
-	/// Number of unique active customers in the reporting period.
-	measure 'Active Customers' =
-			DISTINCTCOUNT ( fact_sales[CustomerKey] )
-		formatString: "#,0"
-		displayFolder: "COM-003"
+	/// KPI: crm.active_customers.count — Active Customers
+	/// Description: Number of unique active customers in the reporting period.
+	/// Purpose: Number of unique active customers in the reporting period.
+	measure 'Active Customers' = DISTINCTCOUNT ( fact_sales[CustomerKey] )
+		formatString: #,0
+		displayFolder: COM-003
+		lineageTag: 6a63a5f1-1ba1-4493-b2aa-389d3bb94733
 
-	/// crm.nps.index - NPS Score
-	/// Measures customer advocacy and likelihood to recommend.
-	measure 'NPS Score' =
-			BLANK()
-		formatString: "#,0"
-		displayFolder: "COM-003"
+	/// KPI: crm.nps.index — NPS Score
+	/// Description: Measures customer advocacy and likelihood to recommend.
+	/// Purpose: Measures customer advocacy and likelihood to recommend.
+	measure 'NPS Score' = BLANK()
+		formatString: #,0
+		displayFolder: COM-003
+		lineageTag: b84c65b1-fbe2-487e-af69-448134acf23f
 
-	/// crm.complaint.count - Complaint Count
-	/// Provide the absolute number of logged complaints.
-	measure 'Complaint Count' =
-			COUNTROWS ( fact_experience )
-		formatString: "#,0"
-		displayFolder: "COM-003"
+	/// KPI: crm.complaint.count — Complaint Count
+	/// Description: Provide the absolute number of logged complaints.
+	/// Purpose: Provide the absolute number of logged complaints.
+	measure 'Complaint Count' = COUNTROWS ( fact_experience )
+		formatString: #,0
+		displayFolder: COM-003
+		lineageTag: 23a8b996-f1d8-48f2-bddb-e9845d8d31da
 
-	/// sales.promo.roi.pct - Promo ROI %
-	/// Measures profitability of promotions relative to spend.
-	measure 'Promo ROI %' =
-			DIVIDE ( [Incremental Gross Margin Amount], [Promo Cost] )
-		formatString: "0.0%"
-		displayFolder: "COM-004"
+	/// Supporting: Promo Cost (from fact_promo)
+	/// Description: Sum of promo cost from fact_promo.
+	/// Purpose: COM-004 promo ROI and incremental analysis.
+	measure 'Promo Cost' = SUM ( fact_promo[Promo Cost] )
+		formatString: #,0.00
+		displayFolder: COM-004
+		lineageTag: 53a3d21f-befa-479d-a6b9-85e21053987c
 
-	/// sales.promo.incremental.amount - Incremental Sales Amount
-	/// Additional sales due to promotion.
-	measure 'Incremental Sales Amount' =
-			[Net Sales Amount] - [Baseline Sales Amount]
-		formatString: "#,0.00"
-		displayFolder: "COM-004"
+	/// Supporting: Baseline Sales Amount (from fact_promo)
+	/// Description: Baseline sales amount from fact_promo.
+	/// Purpose: COM-004 promo ROI and cannibalization.
+	measure 'Baseline Sales Amount' = SUM ( fact_promo[Baseline Sales Amount] )
+		formatString: #,0.00
+		displayFolder: COM-004
+		lineageTag: 34721733-39de-4f40-8f8a-38e2a0497670
+
+	/// Supporting: Cannibalized Sales Amount (baseline minus non-promo baseline)
+	/// Description: Sales cannibalized by promotion.
+	/// Purpose: COM-004 cannibalization analysis.
+	measure 'Cannibalized Sales Amount' = SUM ( fact_promo[Baseline Sales Amount] ) - SUM ( fact_promo[Baseline Non-Promo Sales Amount] )
+		formatString: #,0.00
+		displayFolder: COM-004
+		lineageTag: 82389636-7b17-4f96-99a9-f235bf7a2096
+
+	/// Supporting: Incremental Gross Margin Amount (GM on incremental sales)
+	/// Description: Gross margin on incremental sales from promo.
+	/// Purpose: COM-004 promo ROI.
+	measure 'Incremental Gross Margin Amount' = [Incremental Sales Amount] * 0.35
+		formatString: #,0.00
+		displayFolder: COM-004
+		lineageTag: c5f1fe2d-163b-4842-9b3d-b00bcebe5b30
+
+	/// KPI: sales.promo.roi.pct — Promo ROI %
+	/// Description: Measures profitability of promotions relative to spend.
+	/// Purpose: Measures profitability of promotions relative to spend.
+	measure 'Promo ROI %' = DIVIDE ( [Incremental Gross Margin Amount], [Promo Cost] )
+		formatString: 0.0%
+		displayFolder: COM-004
+		lineageTag: 1360afa2-df22-499b-8c4f-4cf3ba19a7a5
+
+	/// KPI: sales.promo.incremental.amount — Incremental Sales Amount
+	/// Description: Additional sales due to promotion.
+	/// Purpose: Additional sales due to promotion.
+	measure 'Incremental Sales Amount' = [Net Sales Amount] - [Baseline Sales Amount]
+		formatString: #,0.00
+		displayFolder: COM-004
+		lineageTag: 77c87164-f561-4935-b38e-ef924d0127ee
 
 	/// margin.promo.gm.pct - GM % During Promo
 	/// Gross margin rate during promo periods.
@@ -237,19 +296,308 @@ table _Measures
 			DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] ),
 			fact_sales[Promo Flag] = "Yes"
 			)
-		formatString: "0.0%"
-		displayFolder: "COM-004"
-
-	/// sales.price.realization_pct - Price Realization %
-	/// Shows how much of list price is realized after discounts.
-	measure 'Price Realization %' =
-			DIVIDE ( [Net Price Amount], [List Price Amount] )
-		formatString: "0.0%"
-		displayFolder: "COM-004"
+		formatString: 0.0%
+		displayFolder: COM-004
+		lineageTag: 0ba2128c-44a9-47a3-838e-c5ec56be6165
 
 	/// sales.promo.cannibalization.pct - Cannibalization %
 	/// Measures share of promo uplift offset by decline in non-promoted sales.
-	measure 'Cannibalization %' =
-			DIVIDE ( [Cannibalized Sales Amount], [Incremental Sales Amount] )
-		formatString: "0.0%"
-		displayFolder: "COM-004"
+	measure 'Cannibalization %' = DIVIDE ( [Cannibalized Sales Amount], [Incremental Sales Amount] )
+		formatString: 0.0%
+		displayFolder: COM-004
+		lineageTag: 3f1b957a-8684-47a1-a8c9-0326cba7b471
+
+	/// XD-001 Service Level Performance
+	/// svc.sla.attainment.pct - SLA Attainment %
+	measure 'SLA Attainment %' = BLANK()
+		formatString: 0.0%
+		displayFolder: XD-001
+		lineageTag: 54e3a067-03f6-4a78-9835-835101d2b66e
+
+	/// svc.fcr.pct - FCR %
+	measure 'FCR %' = BLANK()
+		formatString: 0.0%
+		displayFolder: XD-001
+		lineageTag: 2017bb87-bb67-4a93-a3a0-e905773e24cd
+
+	/// svc.aht.minutes - AHT Minutes
+	measure 'AHT Minutes' = BLANK()
+		formatString: #,0
+		displayFolder: XD-001
+		lineageTag: 83a14fed-83fb-4f19-9c00-2b25d2bd0499
+
+	/// svc.backlog.count - Backlog Count
+	measure 'Backlog Count' = BLANK()
+		formatString: #,0
+		displayFolder: XD-001
+		lineageTag: 8f229e30-4890-406f-b898-ac40facb32f5
+
+	/// svc.nps.index - NPS Index (Experience)
+	measure 'NPS Index' = BLANK()
+		formatString: #,0
+		displayFolder: XD-001
+		lineageTag: 25466a66-f73f-414a-b2a1-8984095dd47b
+
+	/// svc.escalation.pct - Escalation %
+	measure 'Escalation %' = BLANK()
+		formatString: 0.0%
+		displayFolder: XD-001
+		lineageTag: 6ec598ee-9563-41e4-a481-2f221d4f5686
+
+	/// XD-002 Resource Utilization
+	/// res.utilization.pct - Utilization %
+	measure 'Utilization %' = BLANK()
+		formatString: 0.0%
+		displayFolder: XD-002
+		lineageTag: ed0bd88b-2593-4ac2-8d60-375eaddf96b9
+
+	/// res.occupancy.pct - Occupancy %
+	measure 'Occupancy %' = BLANK()
+		formatString: 0.0%
+		displayFolder: XD-002
+		lineageTag: 3f8a4fbd-5ba4-4d79-9613-7636d927b8cb
+
+	/// res.overtime.pct - Overtime %
+	measure 'Overtime %' = BLANK()
+		formatString: 0.0%
+		displayFolder: XD-002
+		lineageTag: 7dc24a8a-30c7-4c30-aa77-c5cdc652f0c9
+
+	/// res.shrinkage.pct - Shrinkage %
+	measure 'Shrinkage %' = BLANK()
+		formatString: 0.0%
+		displayFolder: XD-002
+		lineageTag: dfe6b3e0-903f-4b12-9914-b44ed7193ae9
+
+	/// XD-003 Executive KPI Overview (aggregation; XD-003-specific measures)
+	/// ops.otif.pct - OTIF %
+	measure 'OTIF %' = BLANK()
+		formatString: 0.0%
+		displayFolder: XD-003
+		lineageTag: db3feef7-5041-4aff-9a4f-8b9065a290a8
+
+	/// ops.working_capital.ccc.days - Cash Conversion Cycle (Days)
+	measure 'Cash Conversion Cycle (Days)' = BLANK()
+		formatString: 0
+		displayFolder: XD-003
+		lineageTag: 6289926a-e381-4657-b288-bce9c5093f0f
+
+	/// people.digital_adoption.pct - Digital Adoption Rate %
+	measure 'Digital Adoption Rate %' = BLANK()
+		formatString: 0.0%
+		displayFolder: XD-003
+		lineageTag: 2ee217ac-8650-4600-b567-efba097bdd9e
+
+	/// people.attrition_risk.pct - Attrition Risk %
+	measure 'Attrition Risk %' = BLANK()
+		formatString: 0.0%
+		displayFolder: XD-003
+		lineageTag: 5146e3a8-6b41-476e-bd37-64b9902e4e68
+
+	/// OPS-001 Operations Performance
+	/// ops.oee.pct - OEE %
+	measure 'OEE %' = BLANK()
+		formatString: 0.0%
+		displayFolder: OPS-001
+		lineageTag: fafd9056-5ba5-46cf-afe6-a5e0c845fa0c
+
+	/// ops.availability.pct - Availability %
+	measure 'Availability %' = BLANK()
+		formatString: 0.0%
+		displayFolder: OPS-001
+		lineageTag: 8d892d00-64ca-4f11-bb21-544d230c6ddb
+
+	/// ops.performance.pct - Performance %
+	measure 'Performance %' = BLANK()
+		formatString: 0.0%
+		displayFolder: OPS-001
+		lineageTag: 8817816e-9a62-46e3-8012-a4bbd88d97d6
+
+	/// ops.quality.pct - Quality %
+	measure 'Quality %' = BLANK()
+		formatString: 0.0%
+		displayFolder: OPS-001
+		lineageTag: 8d6de861-bce5-47ad-b75f-70d17c484282
+
+	/// ops.throughput.units - Throughput Units
+	measure 'Throughput Units' = BLANK()
+		formatString: #,0
+		displayFolder: OPS-001
+		lineageTag: 25287336-c344-4566-8d0e-836a6a057530
+
+	/// ops.downtime.pct - Downtime %
+	measure 'Downtime %' = BLANK()
+		formatString: 0.0%
+		displayFolder: OPS-001
+		lineageTag: 02c0e678-32fc-4b4d-95d8-67576a2bcbd2
+
+	/// OPS-002 Asset Performance
+	/// ops.mtbf.hours - MTBF (hours)
+	measure 'MTBF (hours)' = BLANK()
+		formatString: 0
+		displayFolder: OPS-002
+		lineageTag: 9c61081a-9818-475c-be76-f2f0adf567b9
+
+	/// ops.mttr.hours - MTTR (hours)
+	measure 'MTTR (hours)' = BLANK()
+		formatString: 0
+		displayFolder: OPS-002
+		lineageTag: 254411cf-eac4-47d4-9db0-7279b37aa96f
+
+	/// ops.downtime.unplanned.pct - Unplanned Downtime %
+	measure 'Unplanned Downtime %' = BLANK()
+		formatString: 0.0%
+		displayFolder: OPS-002
+		lineageTag: 2782b7ce-1dd1-463a-8419-da9f7dd452a8
+
+	/// ops.spare_parts.stockout.pct - Spare Parts Stockout %
+	measure 'Spare Parts Stockout %' = BLANK()
+		formatString: 0.0%
+		displayFolder: OPS-002
+		lineageTag: 56998b26-9480-4002-9686-e8ed2ca5dc83
+
+	/// ops.pm_compliance.pct - PM Compliance %
+	measure 'PM Compliance %' = BLANK()
+		formatString: 0.0%
+		displayFolder: OPS-002
+		lineageTag: 3868b26b-4a6e-45a0-84bd-8b2c91346714
+
+	/// OPS-003 Quality Yield
+	/// quality.fpy.pct - First Pass Yield %
+	measure 'First Pass Yield %' = BLANK()
+		formatString: 0.0%
+		displayFolder: OPS-003
+		lineageTag: 30e69986-e7d5-4497-98a3-361498f7be90
+
+	/// quality.scrap.pct - Scrap Rate %
+	measure 'Scrap Rate %' = BLANK()
+		formatString: 0.0%
+		displayFolder: OPS-003
+		lineageTag: c22763fb-c5cc-41dc-a572-c33f0093a018
+
+	/// quality.rework.pct - Rework Rate %
+	measure 'Rework Rate %' = BLANK()
+		formatString: 0.0%
+		displayFolder: OPS-003
+		lineageTag: 8effdf48-a874-4b93-b056-24aeda4e733c
+
+	/// quality.copq.amount - Cost of Poor Quality
+	measure 'Cost of Poor Quality' = BLANK()
+		formatString: #,0.00
+		displayFolder: OPS-003
+		lineageTag: f2a40c4d-e4b1-44d7-b96e-4457b64199f3
+
+	/// quality.complaint.pct - Complaint Rate %
+	measure 'Complaint Rate %' = BLANK()
+		formatString: 0.0%
+		displayFolder: OPS-003
+		lineageTag: a753c3da-5d87-48a6-82c2-93ba87972afa
+
+	/// quality.defect_density - Defect Density
+	measure 'Defect Density' = BLANK()
+		formatString: #,0
+		displayFolder: OPS-003
+		lineageTag: 91495403-0bb1-442c-ae6d-82bf6abb05e0
+
+	/// SCM-001 Inventory Performance
+	/// inv.dio.days - Days in Inventory
+	measure 'Days in Inventory' = BLANK()
+		formatString: 0
+		displayFolder: SCM-001
+		lineageTag: 3d851287-c547-4e4c-a6f7-d68aa10daf85
+
+	/// inv.turnover - Inventory Turnover
+	measure 'Inventory Turnover' = BLANK()
+		formatString: #,0
+		displayFolder: SCM-001
+		lineageTag: 7ff59706-9587-4939-b71f-10e3dc74724a
+
+	/// inv.stockout.pct - Stockout Rate %
+	measure 'Stockout Rate %' = BLANK()
+		formatString: 0.0%
+		displayFolder: SCM-001
+		lineageTag: bf617475-4a69-45a3-b56c-82bf37942421
+
+	/// inv.obsolete.pct - Obsolete Inventory %
+	measure 'Obsolete Inventory %' = BLANK()
+		formatString: 0.0%
+		displayFolder: SCM-001
+		lineageTag: f697f2d7-8672-4205-9a90-0fb526fb82b2
+
+	/// plan.forecast.accuracy.pct - Forecast Accuracy %
+	measure 'Forecast Accuracy %' = BLANK()
+		formatString: 0.0%
+		displayFolder: SCM-001
+		lineageTag: 2c8844e4-a3fa-4642-bacc-e96873775801
+
+	/// SCM-002 Supply Reliability OTIF
+	/// supply.on_time.pct - On-Time %
+	measure 'On-Time %' = BLANK()
+		formatString: 0.0%
+		displayFolder: SCM-002
+		lineageTag: 7172fd34-e52b-4a42-b0b1-dab9274b280b
+
+	/// supply.in_full.pct - In-Full %
+	measure 'In-Full %' = BLANK()
+		formatString: 0.0%
+		displayFolder: SCM-002
+		lineageTag: 1bdceaf5-d208-4c67-b7e1-c02d52744716
+
+	/// supply.stockout_impact.pct - Stockout Impact %
+	measure 'Stockout Impact %' = BLANK()
+		formatString: 0.0%
+		displayFolder: SCM-002
+		lineageTag: fa130a66-8a98-494a-8408-bdd0713d0d95
+
+	/// supply.penalty.amount - Penalty Amount
+	measure 'Penalty Amount' = BLANK()
+		formatString: #,0.00
+		displayFolder: SCM-002
+		lineageTag: de3b59d3-dbac-4975-9874-fade2ef31b74
+
+	/// supply.expedite.amount - Expedite Cost Amount
+	measure 'Expedite Cost Amount' = BLANK()
+		formatString: #,0.00
+		displayFolder: SCM-002
+		lineageTag: f0b25cc6-6cdd-4fce-b164-9be3e369bd14
+
+	/// SCM-003 Forecast vs Actual
+	/// plan.forecast.mape.pct - Forecast MAPE %
+	measure 'Forecast MAPE %' = BLANK()
+		formatString: 0.0%
+		displayFolder: SCM-003
+		lineageTag: 239599d0-076f-4b59-a4fd-35912ba06822
+
+	/// plan.forecast.bias.pct - Forecast Bias %
+	measure 'Forecast Bias %' = BLANK()
+		formatString: 0.0%
+		displayFolder: SCM-003
+		lineageTag: 41ced1be-bb93-4a0c-80e6-a2b9cc96bd5a
+
+	/// plan.forecast.service_impact.pct - Service Impact %
+	measure 'Service Impact %' = BLANK()
+		formatString: 0.0%
+		displayFolder: SCM-003
+		lineageTag: 54613259-e274-4ccc-9813-993a85dcdc7a
+
+	/// plan.replan.count - Re-Plan Count
+	measure 'Re-Plan Count' = BLANK()
+		formatString: #,0
+		displayFolder: SCM-003
+		lineageTag: 09dc3ba1-4757-4431-b497-5c926c4bc475
+
+	column Column1
+		dataType: string
+		isHidden
+		lineageTag: ff224837-97a0-49fc-bbae-5eddc6846227
+		summarizeBy: none
+		sourceColumn: Column1
+
+	partition _Measures = m
+		mode: import
+		source =
+				let
+					Source = #table(type table[Column1 = text], {})
+				in
+					Source
+

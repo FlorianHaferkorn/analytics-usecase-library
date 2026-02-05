@@ -13,3 +13,217 @@ relationship ae3b90e2-7f41-4d29-b65f-8e2d3c4a9f12
 relationship d8f6a1c4-2b93-4e78-9d5a-3f7e6c8d2b41
 	fromColumn: fact_sales.CustomerKey
 	toColumn: dim_customer.CustomerKey
+
+relationship a1b2c3d4-e5f6-7890-abcd-ef1234567890
+	fromColumn: fact_sales.PromoKey
+	toColumn: dim_promo.PromoKey
+
+relationship b2c3d4e5-f6a7-8901-bcde-f12345678901
+	fromColumn: fact_experience.CustomerKey
+	toColumn: dim_customer.CustomerKey
+
+relationship c3d4e5f6-a7b8-9012-cdef-123456789012
+	fromColumn: fact_experience.OrgKey
+	toColumn: dim_org.OrgKey
+
+relationship d4e5f6a7-b8c9-0123-def0-234567890123
+	fromColumn: fact_experience.DateKey
+	toColumn: dim_date.DateKey
+
+relationship e5f6a7b8-c9d0-1234-ef01-345678901234
+	fromColumn: fact_promo.PromoKey
+	toColumn: dim_promo.PromoKey
+
+relationship f6a7b8c9-d0e1-2345-f012-456789012345
+	fromColumn: fact_support_cases.DateKey
+	toColumn: dim_date.DateKey
+
+relationship a7b8c9d0-e1f2-3456-0123-567890123456
+	fromColumn: fact_support_cases.OrgKey
+	toColumn: dim_org.OrgKey
+
+relationship b8c9d0e1-f2a3-4567-1234-678901234567
+	fromColumn: fact_support_cases.QueueKey
+	toColumn: dim_case_queue.QueueKey
+
+relationship c9d0e1f2-a3b4-5678-2345-789012345678
+	fromColumn: fact_support_cases.IssueKey
+	toColumn: dim_issue_type.IssueKey
+
+relationship d0e1f2a3-b4c5-6789-3456-890123456789
+	fromColumn: fact_workforce_management.DateKey
+	toColumn: dim_date.DateKey
+
+relationship e1f2a3b4-c5d6-7890-4567-901234567890
+	fromColumn: fact_workforce_management.OrgKey
+	toColumn: dim_org.OrgKey
+
+relationship f2a3b4c5-d6e7-8901-5678-012345678901
+	fromColumn: fact_workforce_management.QueueKey
+	toColumn: dim_case_queue.QueueKey
+
+relationship a3b4c5d6-e7f8-9012-6789-123456789012
+	fromColumn: fact_ops.DateKey
+	toColumn: dim_date.DateKey
+
+relationship b4c5d6e7-f8a9-0123-7890-234567890123
+	fromColumn: fact_ops.OrgKey
+	toColumn: dim_org.OrgKey
+
+relationship c5d6e7f8-a9b0-1234-8901-345678901234
+	fromColumn: fact_ops.AssetKey
+	toColumn: dim_asset.AssetKey
+
+relationship d6e7f8a9-b0c1-2345-9012-456789012345
+	fromColumn: fact_ops_failures.AssetKey
+	toColumn: dim_asset.AssetKey
+
+relationship e7f8a9b0-c1d2-3456-0123-567890123456
+	fromColumn: fact_maintenance.AssetKey
+	toColumn: dim_asset.AssetKey
+
+relationship f8a9b0c1-d2e3-4567-1234-678901234567
+	fromColumn: fact_maintenance.DateKey
+	toColumn: dim_date.DateKey
+
+relationship a9b0c1d2-e3f4-5678-2345-789012345678
+	fromColumn: fact_quality.DateKey
+	toColumn: dim_date.DateKey
+
+relationship b0c1d2e3-f4a5-6789-3456-890123456789
+	fromColumn: fact_quality.OrgKey
+	toColumn: dim_org.OrgKey
+
+relationship c1d2e3f4-a5b6-7890-4567-901234567890
+	fromColumn: fact_quality.ProductKey
+	toColumn: dim_product.ProductKey
+
+relationship d2e3f4a5-b6c7-8901-5678-012345678901
+	fromColumn: fact_inventory.DateKey
+	toColumn: dim_date.DateKey
+
+relationship e3f4a5b6-c7d8-9012-6789-123456789012
+	fromColumn: fact_inventory.OrgKey
+	toColumn: dim_org.OrgKey
+
+relationship f4a5b6c7-d8e9-0123-7890-234567890123
+	fromColumn: fact_inventory.ProductKey
+	toColumn: dim_product.ProductKey
+
+relationship a5b6c7d8-e9f0-1234-8901-345678901234
+	fromColumn: fact_cogs.DateKey
+	toColumn: dim_date.DateKey
+
+relationship b6c7d8e9-f0a1-2345-9012-456789012345
+	fromColumn: fact_cogs.OrgKey
+	toColumn: dim_org.OrgKey
+
+relationship c7d8e9f0-a1b2-3456-0123-567890123456
+	fromColumn: fact_cogs.ProductKey
+	toColumn: dim_product.ProductKey
+
+relationship d8e9f0a1-b2c3-4567-1234-678901234567
+	fromColumn: fact_fulfillment.DateKey
+	toColumn: dim_date.DateKey
+
+relationship e9f0a1b2-c3d4-5678-2345-789012345678
+	fromColumn: fact_fulfillment.OrgKey
+	toColumn: dim_org.OrgKey
+
+relationship f0a1b2c3-d4e5-6789-3456-890123456789
+	fromColumn: fact_fulfillment.ProductKey
+	toColumn: dim_product.ProductKey
+
+relationship a1b2c3d4-e5f6-7890-4567-901234567890
+	fromColumn: fact_fulfillment.LaneKey
+	toColumn: dim_lane.LaneKey
+
+relationship b2c3d4e5-f6a7-8901-5678-012345678901
+	fromColumn: fact_stockout.DateKey
+	toColumn: dim_date.DateKey
+
+relationship c3d4e5f6-a7b8-9012-6789-123456789012
+	fromColumn: fact_stockout.OrgKey
+	toColumn: dim_org.OrgKey
+
+relationship d4e5f6a7-b8c9-0123-7890-234567890123
+	fromColumn: fact_stockout.ProductKey
+	toColumn: dim_product.ProductKey
+
+relationship e5f6a7b8-c9d0-1234-8901-345678901234
+	fromColumn: fact_forecast.DateKey
+	toColumn: dim_date.DateKey
+
+relationship f6a7b8c9-d0e1-2345-9012-456789012345
+	fromColumn: fact_forecast.ProductKey
+	toColumn: dim_product.ProductKey
+
+relationship f7a8b9c0-d1e2-3456-0123-567890123456
+	fromColumn: fact_forecast.OrgKey
+	toColumn: dim_org.OrgKey
+
+relationship g8h9i0j1-e2f3-4567-1234-678901234567
+	fromColumn: fact_working_capital.'MonthEnd DateKey'
+	toColumn: dim_date.DateKey
+
+relationship h9i0j1k2-f3g4-5678-2345-789012345678
+	fromColumn: fact_working_capital.OrgKey
+	toColumn: dim_org.OrgKey
+
+relationship i0j1k2l3-g4h5-6789-3456-890123456789
+	fromColumn: fact_cash_flow.DateKey
+	toColumn: dim_date.DateKey
+
+relationship j1k2l3m4-h5i6-7890-4567-901234567890
+	fromColumn: fact_cash_flow.OrgKey
+	toColumn: dim_org.OrgKey
+
+relationship k2l3m4n5-i6j7-8901-5678-012345678901
+	fromColumn: fact_cash_position.DateKey
+	toColumn: dim_date.DateKey
+
+relationship l3m4n5o6-j7k8-9012-6789-1234-567890123456
+	fromColumn: fact_cash_position.OrgKey
+	toColumn: dim_org.OrgKey
+
+relationship m4n5o6p7-k8l9-0123-7890-2345-678901234567
+	fromColumn: fact_accounts_payable.DateKey
+	toColumn: dim_date.DateKey
+
+relationship n5o6p7q8-l9m0-1234-8901-3456-789012345678
+	fromColumn: fact_accounts_payable.OrgKey
+	toColumn: dim_org.OrgKey
+
+relationship o6p7q8r9-m0n1-2345-9012-4567-890123456789
+	fromColumn: fact_accounts_receivable.DateKey
+	toColumn: dim_date.DateKey
+
+relationship p7q8r9s0-n1o2-3456-0123-5678-901234567890
+	fromColumn: fact_accounts_receivable.OrgKey
+	toColumn: dim_org.OrgKey
+
+relationship q8r9s0t1-o2p3-4567-1234-6789-012345678901
+	fromColumn: fact_accounts_receivable.CustomerKey
+	toColumn: dim_customer.CustomerKey
+
+relationship security_user_org_dim_org
+	crossFilteringBehavior: bothDirections
+	securityFilteringBehavior: oneDirection
+	fromColumn: security_user_org.OrgKey
+	toColumn: dim_org.OrgKey
+
+relationship 3af36c79-bc51-42c1-99b9-207af6b4963a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dim_date.Date
+	toColumn: LocalDateTable_16e50b19-86fc-46b6-967d-e6cefb6e0968.Date
+
+relationship 85b87053-b3af-4256-abe1-197c337f18b0
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fact_ops_failures.'Failure Start DateTime'
+	toColumn: LocalDateTable_fcfd8f32-5c1c-4af8-94a6-a464af76df39.Date
+
+relationship aa897560-2240-43e6-940a-c8df1017e202
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fact_ops_failures.'Failure End DateTime'
+	toColumn: LocalDateTable_eb612d2e-5c00-469e-85d4-7e756fcd3eaf.Date
+

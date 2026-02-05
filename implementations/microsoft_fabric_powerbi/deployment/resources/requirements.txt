@@ -1,0 +1,13 @@
+# Fabric CLI and Azure authentication
+fabric-cli>=1.0.0
+azure-identity>=1.15.0
+
+# Fabric CI/CD library
+fabric-cicd>=0.1.30
+
+# JSON/YAML handling
+pyyaml>=6.0
+ruamel.yaml>=0.18.0
+
+# Utilities
+python-dotenv>=1.0.0

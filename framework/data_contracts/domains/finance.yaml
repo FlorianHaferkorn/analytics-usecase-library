@@ -4,6 +4,8 @@ owner: Finance Data Product
 
 dimension:
   - name: dim_date
+    description: "Calendar dimension for finance reporting."
+    purpose: "Time dimension for P&L, cash flow, and working capital."
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -13,6 +15,8 @@ dimension:
       - {name: MonthNumber, type: int}
 
   - name: dim_org
+    description: "Entity/organization dimension (entity, region, country) for finance."
+    purpose: "Scoping for P&L and balance sheet."
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Entity, type: text}
@@ -20,6 +24,8 @@ dimension:
       - {name: Country, type: text, nullable: true}
 
   - name: dim_customer
+    description: "Customer dimension for AR and revenue attribution."
+    purpose: "Customer-level receivables and revenue."
     columns:
       - {name: CustomerKey, type: int, role: key}
       - {name: CustomerCode, type: text}
@@ -27,6 +33,8 @@ dimension:
       - {name: Region, type: text, nullable: true}
 
   - name: dim_supplier
+    description: "Supplier dimension for AP and procurement attribution."
+    purpose: "Supplier-level payables and COGS."
     columns:
       - {name: SupplierKey, type: int, role: key}
       - {name: SupplierCode, type: text}
@@ -34,6 +42,8 @@ dimension:
       - {name: Region, type: text, nullable: true}
 
   - name: dim_product
+    description: "Product dimension for finance (inventory, COGS, cost)."
+    purpose: "Product-level P&L and working capital."
     columns:
       - {name: ProductKey, type: int, role: key}
       - {name: ProductCode, type: text}
@@ -41,7 +51,9 @@ dimension:
       - {name: Category, type: text}
 
 fact:
-  - name: fact_cash
+  - name: fact_cash_position
+    description: "Daily cash balance and plan cash per entity."
+    purpose: "Cash position and liquidity."
     grain: day
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -49,7 +61,9 @@ fact:
       - {name: Cash Balance Amount, type: currency, agg: sum}
       - {name: Plan Cash Amount, type: currency, agg: sum, nullable: true}
 
-  - name: fact_cashflow
+  - name: fact_cash_flow
+    description: "Monthly operating cash flow, CapEx, and plan OCF per entity."
+    purpose: "Cash flow and liquidity planning."
     grain: month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -58,7 +72,9 @@ fact:
       - {name: CapEx Amount, type: currency, agg: sum, nullable: true}
       - {name: Plan OCF Amount, type: currency, agg: sum, nullable: true}
 
-  - name: fact_ar
+  - name: fact_accounts_receivable
+    description: "Accounts receivable and revenue by entity and customer per month."
+    purpose: "AR aging and revenue recognition."
     grain: month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -67,7 +83,9 @@ fact:
       - {name: AR Amount, type: currency, agg: sum}
       - {name: Revenue Amount, type: currency, agg: sum}
 
-  - name: fact_ap
+  - name: fact_accounts_payable
+    description: "Accounts payable and COGS by entity and supplier per month."
+    purpose: "AP aging and payables management."
     grain: month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -77,6 +95,8 @@ fact:
       - {name: COGS Amount, type: currency, agg: sum}
 
   - name: fact_inventory
+    description: "Inventory and COGS value by entity and product per month (finance view)."
+    purpose: "Working capital and inventory valuation."
     grain: month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -86,6 +106,8 @@ fact:
       - {name: COGS Amount, type: currency, agg: sum}
 
   - name: fact_finance
+    description: "P&L facts (net sales, COGS, EBITDA, OpEx, plan) per entity-month."
+    purpose: "P&L and management reporting."
     grain: entity_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -98,6 +120,8 @@ fact:
       - {name: Plan OpEx Amount, type: currency, agg: sum, nullable: true}
 
   - name: fact_cost
+    description: "Cost breakdown (COGS, material, overhead) per plant-line-product-month."
+    purpose: "Cost analysis and variance."
     grain: plant_line_product_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -108,6 +132,8 @@ fact:
       - {name: Overhead Amount, type: currency, agg: sum, nullable: true}
 
   - name: fact_output
+    description: "Output units per plant-line-product-month."
+    purpose: "Production output for cost per unit."
     grain: plant_line_product_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -116,6 +142,8 @@ fact:
       - {name: Output Units, type: decimal, agg: sum}
 
   - name: fact_labor
+    description: "Labor hours and cost per plant-line-month."
+    purpose: "Labor cost and productivity."
     grain: plant_line_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}

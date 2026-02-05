@@ -4,6 +4,8 @@ owner: Operations Data Product
 
 dimension:
   - name: dim_date
+    description: "Calendar dimension with fiscal hierarchy for time slicing."
+    purpose: "Time dimension for operations reporting."
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -14,6 +16,8 @@ dimension:
       - {name: Week, type: text, nullable: true}
 
   - name: dim_org
+    description: "Organization dimension (plant, line, shift, region) for operations."
+    purpose: "Scoping for production and quality reporting."
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Plant, type: text}
@@ -23,6 +27,8 @@ dimension:
       - {name: Country, type: text, nullable: true}
 
   - name: dim_asset
+    description: "Asset or production line dimension (code, name, class, criticality) for OEE and maintenance."
+    purpose: "Asset-level performance and downtime analysis."
     columns:
       - {name: AssetKey, type: int, role: key}
       - {name: AssetCode, type: text}
@@ -32,6 +38,8 @@ dimension:
       - {name: OrgKey, type: int, ref: dim_org}
 
   - name: dim_product
+    description: "Product dimension for quality and output reporting."
+    purpose: "Product-level quality and throughput."
     columns:
       - {name: ProductKey, type: int, role: key}
       - {name: ProductCode, type: text}
@@ -41,6 +49,8 @@ dimension:
 
 fact:
   - name: fact_ops
+    description: "Production line-day facts (planned/run/downtime, output, scrap) for OEE."
+    purpose: "OEE, availability, performance, and throughput reporting."
     grain: line_day
     columns:
       - {name: DateKey, type: int, ref: dim_date}
@@ -55,6 +65,8 @@ fact:
       - {name: Standard Rate Units Per Minute, type: decimal}
 
   - name: fact_ops_failures
+    description: "Failure events per asset (start/end, repair duration, cause) for MTBF and root cause."
+    purpose: "Reliability and failure analysis."
     grain: failure_event
     columns:
       - {name: AssetKey, type: int, ref: dim_asset}
@@ -65,6 +77,8 @@ fact:
       - {name: Cause Code, type: text, nullable: true}
 
   - name: fact_maintenance
+    description: "Maintenance orders (PM/CM) per asset and date with status and on-time flags."
+    purpose: "Maintenance compliance and planning."
     grain: maintenance_order
     columns:
       - {name: AssetKey, type: int, ref: dim_asset}
@@ -75,6 +89,8 @@ fact:
       - {name: Parts Stockout Flag, type: boolean, nullable: true}
 
   - name: fact_quality
+    description: "Line-day quality facts (total/good/scrap/rework units, defect count) for FPY and COPQ."
+    purpose: "First-pass yield and cost of poor quality."
     grain: line_day
     columns:
       - {name: DateKey, type: int, ref: dim_date}

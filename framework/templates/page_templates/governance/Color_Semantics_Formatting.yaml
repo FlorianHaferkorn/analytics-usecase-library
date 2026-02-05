@@ -1,0 +1,269 @@
+# Color Semantics and Formatting Rules — Framework Governance
+
+## Purpose
+
+This file defines **color semantics** and **formatting rules** for page templates. Colors reference theme roles (`good`/`bad`/`neutral`/`accent`) to ensure consistency and accessibility.
+
+**Authority:** This file is referenced by scaffold generators and report documentation generators.
+
+---
+
+## Color Semantics
+
+### Framework Color Meanings
+
+| Color | Theme Role | Meaning | Usage |
+|-------|------------|---------|-------|
+| **Green** | `good` | Above target, positive variance, good performance | KPI above target, positive variance bars, good status |
+| **Red** | `bad` | Below target, negative variance, critical exception | KPI below target, negative variance bars, critical exceptions |
+| **Yellow/Orange** | `neutral` | Warning, near threshold, caution | KPI near threshold, warning exceptions, caution status |
+| **Gray** | `null` or `fourthLevelElements` | Neutral, no data, inactive | Neutral KPIs, missing data, inactive items |
+| **Blue** | `accent` or `hyperlink` | Baseline, reference, informational | Target lines, reference values, informational context |
+
+**Rule:** Always use theme roles, never hardcode colors. Theme generator provides `good`/`bad`/`neutral` roles that align with these semantics.
+
+---
+
+## KPI Card Formatting
+
+### Required Elements
+
+| Element | Format | Purpose |
+|---------|--------|---------|
+| **KPI Name** | Text, 12pt, theme `firstLevelElements` | Metric name (e.g., "Sales Revenue") |
+| **Current Value** | Number, formatted per metric type | Current period value |
+| **Target Value** | Number, formatted per metric type | Target/goal value |
+| **Variance** | Percentage or absolute | Deviation from target |
+| **Trend Arrow** | Icon (Up/Down/Neutral) | Comparison to previous period |
+
+### Value Formatting
+
+| Metric Type | Format | Example |
+|-------------|--------|---------|
+| **Currency** | $1,234.56 (2 decimal places, thousands separator) | $1,234,567.89 |
+| **Percentage** | 45.2% (1 decimal place) | 45.2% |
+| **Large Numbers** | 1.2M, 45K (K/M/B abbreviations) | 1.2M, 45K, 1.5B |
+| **Counts** | 1,234 (no decimal places, thousands separator) | 1,234,567 |
+
+### Trend Arrows
+
+**Show when:** Comparing to previous period (e.g., "vs Last Month")
+
+**Color Logic:**
+- **Up arrow:** 
+  - Green if positive change (for metrics where increase is good, e.g., Revenue)
+  - Red if positive change (for metrics where increase is bad, e.g., Costs)
+- **Down arrow:**
+  - Red if negative change (for metrics where decrease is bad, e.g., Revenue)
+  - Green if negative change (for metrics where decrease is good, e.g., Costs)
+- **Neutral:** Gray horizontal line (no significant change)
+
+**Rule:** Arrow color depends on metric context (increase = good vs increase = bad).
+
+### Color Coding
+
+| Condition | Color | Theme Role |
+|-----------|-------|------------|
+| **Above target** | Green | `good` |
+| **Below target** | Red | `bad` |
+| **Near target (±5%)** | Yellow/Orange | `neutral` |
+| **No target** | Gray | `fourthLevelElements` |
+
+**Implementation:**
+- Background color or border color based on performance vs target
+- Use theme `good`/`bad`/`neutral` roles for conditional formatting
+
+---
+
+## Chart Formatting
+
+### Default Color Palette
+
+**Data Series:**
+- Use theme `dataColors[0]` through `dataColors[7]` for data series
+- First series: `dataColors[0]` (Base color)
+- Subsequent series: `dataColors[1]` through `dataColors[7]`
+
+**Target Lines:**
+- Use theme `accent` or `hyperlink` color
+- Style: Dashed line, 2px width
+
+### Variance Charts (Waterfall)
+
+| Variance Type | Color | Theme Role |
+|---------------|-------|------------|
+| **Positive variance** | Green | `good` |
+| **Negative variance** | Red | `bad` |
+| **Neutral/Zero** | Gray | `fourthLevelElements` |
+
+### Grid Lines
+
+- **Show:** Yes (subtle)
+- **Color:** Theme `tableAccent` or light gray
+- **Style:** Solid, 1px width
+- **Transparency:** 80% (subtle)
+
+### Axis Labels
+
+- **Font size:** 12pt
+- **Font color:** Theme `secondLevelElements`
+- **Orientation:** Horizontal (rotate only if necessary)
+- **Show:** Yes
+
+### Data Labels
+
+- **Show:** On key points only (not all points)
+- **Font size:** 10-12pt
+- **Font color:** Theme `firstLevelElements`
+- **Background:** Theme `secondaryBackground` with transparency
+
+---
+
+## Table Formatting
+
+### Exception Tables (T3)
+
+**Required Columns:**
+- Entity, Metric, Threshold, Actual, Deviation, Severity, Owner, Last Updated
+
+**Conditional Formatting:**
+
+| Severity | Background Color | Theme Role | Text Color |
+|----------|-----------------|------------|------------|
+| **Critical** | Light Red (#FFE6E6) | `bad` (lightened) | Theme `firstLevelElements` |
+| **Warning** | Light Yellow (#FFF9E6) | `neutral` (lightened) | Theme `firstLevelElements` |
+| **Info** | Light Gray (#F5F5F5) | `fourthLevelElements` (lightened) | Theme `firstLevelElements` |
+
+**Row Formatting:**
+- Alternating row colors: White / Light Gray (theme `secondaryBackground`)
+- Max rows: 50 (paginate if more)
+- Sorting: By severity (Critical > Warning > Info), then by deviation (descending)
+
+### Prescriptive Tables (T4)
+
+**Required Columns:**
+- Action, Owner, Impact, Effort, Priority, Confidence, Due Date, Rationale
+
+**Conditional Formatting:**
+
+| Priority | Background Color | Theme Role | Text Color |
+|----------|-----------------|------------|------------|
+| **High** | Light Red (#FFE6E6) | `bad` (lightened) | Theme `firstLevelElements` |
+| **Medium** | Light Yellow (#FFF9E6) | `neutral` (lightened) | Theme `firstLevelElements` |
+| **Low** | Light Green (#E6F5E6) | `good` (lightened) | Theme `firstLevelElements` |
+
+**Top Recommendation:**
+- **Bold text**
+- **Background:** Theme `accent` color (lightened, ~20% opacity)
+- **Border:** Theme `accent` color, 2px
+
+**Row Formatting:**
+- Alternating row colors: White / Light Gray
+- Max rows: 10 (show top recommendations)
+- Sorting: By priority (High > Medium > Low), then by impact (descending)
+
+---
+
+## Scatter Plot Formatting (Impact-Effort Matrix)
+
+### Axes
+
+| Axis | Dimension | Range | Label |
+|------|-----------|-------|-------|
+| **X-axis** | Effort | 1-10 (or Low/Medium/High) | "Effort Required" |
+| **Y-axis** | Impact | 1-10 (or Low/Medium/High) | "Expected Impact" |
+
+### Quadrants
+
+| Quadrant | Label | Color | Theme Role | Action |
+|----------|-------|-------|------------|--------|
+| **Top-Left** | Quick Wins | Green | `good` | Do First |
+| **Top-Right** | Major Projects | Blue | `accent` | Plan Carefully |
+| **Bottom-Left** | Fill-ins | Gray | `fourthLevelElements` | Do Later |
+| **Bottom-Right** | Thankless Tasks | Red | `bad` | Avoid |
+
+**Quadrant Lines:**
+- Style: Dashed lines at midpoint (5.5 if 1-10 scale)
+- Color: Theme `tableAccent`
+- Width: 1px
+
+**Quadrant Labels:**
+- Position: Center of each quadrant
+- Font: 12pt, theme `firstLevelElements`
+- Background: Theme `secondaryBackground` with transparency
+
+### Data Points
+
+- **Size:** Based on confidence or priority
+- **Color:** By quadrant (use theme roles)
+- **Tooltips:** Show Action, Impact, Effort, Priority, Confidence, Owner
+
+---
+
+## Funnel Chart Formatting
+
+### Color Gradient
+
+- **Top stage:** Darker (theme `dataColors[0]`)
+- **Bottom stage:** Lighter (theme `dataColors[0]` lightened)
+- **Gradient:** Smooth transition from top to bottom
+
+### Labels
+
+- **Show:** Stage name and value on each bar
+- **Font:** 12pt, theme `firstLevelElements`
+- **Percentages:** Show conversion rate from top stage (e.g., "45% of initial leads")
+
+---
+
+## General Formatting Rules
+
+### Fonts
+
+| Element | Font Family | Font Size | Font Weight | Color |
+|---------|-------------|-----------|-------------|-------|
+| **Page Title** | Segoe UI | 16pt | Normal | Theme `firstLevelElements` |
+| **Visual Title** | Segoe UI | 14pt | Normal | Theme `firstLevelElements` |
+| **Axis Labels** | Segoe UI | 12pt | Normal | Theme `secondLevelElements` |
+| **Data Labels** | Segoe UI | 10-12pt | Normal | Theme `firstLevelElements` |
+| **Table Headers** | Segoe UI | 12pt | Bold | Theme `firstLevelElements` |
+| **Table Values** | Segoe UI | 11pt | Normal | Theme `firstLevelElements` |
+
+### Borders
+
+- **Visual borders:** Theme `tableAccent`, 0.5px width, 8px radius
+- **Table borders:** Theme `tableAccent`, 1px width
+- **Grid lines:** Theme `tableAccent`, 1px width, 80% transparency
+
+### Backgrounds
+
+- **Visual background:** Theme `secondaryBackground` (usually white)
+- **Page background:** Theme `background`
+- **Table row alternation:** White / Light Gray (theme `secondaryBackground`)
+
+---
+
+## Accessibility
+
+### Color Contrast
+
+**Rule:** All text must meet WCAG AA contrast requirements:
+- **Normal text:** 4.5:1 contrast ratio
+- **Large text (≥18pt) or bold (≥14pt):** 3.0:1 contrast ratio
+
+**Theme Validation:** Theme generator validates WCAG contrast. Use theme roles to ensure accessibility.
+
+### Color-Blind Friendly
+
+**Rule:** Avoid red-green pairs. Use patterns/textures in addition to color for critical distinctions.
+
+**Theme Validation:** Theme generator validates color-blindness (CVD) scores. Use theme roles to ensure accessibility.
+
+---
+
+## References
+
+- **Theme Generator:** `implementations/microsoft_fabric_powerbi/tools/theme_generator/`
+- **Theme Roles:** Theme JSON `good`/`bad`/`neutral`/`accent` properties
+- **Best Practices Research:** `implementations/microsoft_fabric_powerbi/tools/V1_BEST_PRACTICES_RESEARCH.md`
+- **Visual-to-Slot Mapping:** `governance/Visual_to_Slot_Mapping.yaml`

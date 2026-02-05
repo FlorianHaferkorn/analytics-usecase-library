@@ -1,0 +1,66 @@
+# Parameterization file template for fabric-cicd
+# Place this file in the root of your repository_directory (per workspace/layer)
+# Replace template values with actual IDs from your environments
+
+# Generic find-and-replace operations
+find_replace:
+  # Example: Replace lakehouse ID in notebooks
+  - find_value: "dev-lakehouse-id-guid-here"
+    replace_value:
+      tst: "tst-lakehouse-id-guid-here"
+      prd: "prd-lakehouse-id-guid-here"
+    item_type: "Notebook"
+    item_name: ["MyNotebook"]
+    # Optional: file_path: ["/MyNotebook.Notebook/notebook-content.py"]
+  
+  # Example: Replace workspace ID using dynamic variable
+  - find_value: "dev-workspace-id-guid-here"
+    replace_value:
+      tst: "$workspace.$id"
+      prd: "$workspace.$id"
+    item_type: "Notebook"
+  
+  # Example: Replace lakehouse ID using dynamic variable (regex)
+  - find_value: "#\\s*META\\s+\"default_lakehouse\":\\s*\"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\""
+    replace_value:
+      tst: "$items.Lakehouse.Gold.$id"
+      prd: "$items.Lakehouse.Gold.$id"
+    is_regex: "true"
+    item_type: "Notebook"
+
+# JSON/YAML key-value replacement using JSONPath
+key_value_replace:
+  # Example: Replace connection ID in data pipeline
+  - find_key: "$.properties.activities[?(@.name=='Load Data')].typeProperties.source.datasetSettings.externalReferences.connection"
+    replace_value:
+      tst: "tst-connection-id-guid-here"
+      prd: "prd-connection-id-guid-here"
+    item_type: "DataPipeline"
+  
+  # Example: Enable/disable schedules per environment
+  - find_key: "$.schedules[?(@.jobType=='Execute')].enabled"
+    replace_value:
+      tst: false
+      prd: true
+    file_path: ["**/.schedules"]
+
+# Spark pool parameterization for Environments
+spark_pool:
+  # Example: Map dev Spark pool to environment-specific pools
+  - instance_pool_id: "dev-pool-instance-id-guid-here"
+    replace_value:
+      tst:
+        type: "Capacity"
+        name: "CapacityPool_Medium"
+      prd:
+        type: "Capacity"
+        name: "CapacityPool_Large"
+    item_name: "MyEnvironment"
+
+# Semantic model binding for cloud/on-premises connections
+semantic_model_binding:
+  # Example: Bind semantic model to connection after deployment
+  - connection_id: "connection-id-guid-here"
+    semantic_model_name: "DM_Core"
+    # OR for multiple models:
+    # semantic_model_name: ["DM_Core", "DM_Domains"]

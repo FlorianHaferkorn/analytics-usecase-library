@@ -1,0 +1,75 @@
+/// Order-level fulfillment (OTIF, on-time, in-full, penalties, expedite).
+/// Delivery performance and logistics cost.
+table fact_fulfillment
+	lineageTag: f256ee67-528f-42be-99fd-4076ff3085a2
+
+	column DateKey
+		dataType: int64
+		lineageTag: c290d6c1-c215-43bf-9fc2-11aaceb322a0
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column OrgKey
+		dataType: int64
+		lineageTag: be94c167-2ff5-4720-8da5-850148a2a143
+		summarizeBy: none
+		sourceColumn: OrgKey
+
+	column ProductKey
+		dataType: int64
+		lineageTag: 40593598-ea22-4bce-b52f-aa1e4bb64834
+		summarizeBy: none
+		sourceColumn: ProductKey
+
+	column LaneKey
+		dataType: int64
+		lineageTag: a33f426c-dd65-4b57-8e43-46728caadab9
+		summarizeBy: none
+		sourceColumn: LaneKey
+
+	column 'OTIF Flag'
+		dataType: boolean
+		lineageTag: 615da630-fffe-4e0f-b434-bccea2f387df
+		sourceColumn: OTIF Flag
+
+	column 'On-Time Flag'
+		dataType: boolean
+		lineageTag: 668cff83-e346-4f62-9fe6-a68fc1a59e27
+		sourceColumn: On-Time Flag
+
+	column 'In-Full Flag'
+		dataType: boolean
+		lineageTag: b3a95b75-4f06-45d3-b3e1-3249ba6f6d47
+		sourceColumn: In-Full Flag
+
+	column 'Order Correct Flag'
+		dataType: boolean
+		lineageTag: 173716dc-0110-4087-8f5e-feee121329c2
+		sourceColumn: Order Correct Flag
+
+	column 'Order Qty'
+		dataType: double
+		lineageTag: de71161a-4daf-4180-b314-32cb5a7579db
+		sourceColumn: Order Qty
+
+	column 'Penalty Amount'
+		dataType: double
+		lineageTag: 5b72aa7a-3e86-4c31-8642-0d7581749d99
+		sourceColumn: Penalty Amount
+
+	column 'Expedite Cost'
+		dataType: double
+		lineageTag: 52cc46ec-e9df-4aa8-a138-d614164e824b
+		sourceColumn: Expedite Cost
+
+	partition fact_fulfillment = m
+		mode: import
+		source =
+				let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_fulfillment"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData
+

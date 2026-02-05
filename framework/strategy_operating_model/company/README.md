@@ -64,7 +64,13 @@ It explains:
 
 This document defines the **reporting DNA** of the organization.
 
-### 3. Domains
+### 3. Strategy Patterns
+
+**`strategy_patterns.md`**
+
+Defines **reusable strategy patterns** (Margin-First, Cash-First, Growth-First) that link strategic intent to Strategic KPIs and use-case clusters. Use when scoping which KPIs and use cases to implement first.
+
+### 4. Domains
 
 **`domains.md`**
 

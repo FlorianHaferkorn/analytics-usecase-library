@@ -98,17 +98,14 @@ To implement one use case end-to-end (e.g. COM-001):
    .\_internal\tools\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseAuroraShowcase -OverwriteExisting
    ```
 
-<<<<<<< Current (Your changes)
    Primary output: `showcases/aurora_group/semantic_models/.../tables/_Measures.tmdl` (single measures table; measures grouped by display folder). Omit `-UseAuroraShowcase` to write to `implementations/microsoft_fabric_powerbi/dist` instead.
-=======
-   Output: **ONE** `_Measures.tmdl` with all measures, organized by displayFolder per use case. Omit `-UseAuroraShowcase` to write to `implementations/microsoft_fabric_powerbi/dist` instead (one file per use case).
->>>>>>> Incoming (Background Agent changes)
+
 3. Run **Stage 1** to ensure framework consistency: `.\_internal\tools\run_stage1_checks.ps1`.
 4. If you have Fabric/Power BI output, run **Fabric checks**: `implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1`.
 
 For Fabric/Power BI layout, PBIP, and best practices, see `implementations/microsoft_fabric_powerbi/guide/`.
 
-**First 2 hours (optional checklist):** Clone repo → run Prerequisites (npm ci in _internal/tools/validation) → read strategy + golden thread (steps 1–2) → run Stage 1 → pick one use case and generate measures (step 4 above).
+**First 2 hours (optional checklist):** Clone repo → run Prerequisites (npm ci in _internal/tools/validation) → read strategy + golden thread (steps 1–2) → run Stage 1 → pick one use case and generate measures (step 2 above).
 
 ## Stage 1 CI Gate (local / CI)
 

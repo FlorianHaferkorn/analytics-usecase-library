@@ -1,59 +1,106 @@
+/// Calendar dimension with fiscal hierarchy (Fiscal Year > Quarter > Month > Date).
+/// Single source for time slicing and fiscal reporting.
 table dim_date
 	lineageTag: ef5816f6-16fe-4dd5-9d71-20835fbf02b7
 
 	column DateKey
 		dataType: int64
-		sourceColumn: DateKey
 		isHidden
+		lineageTag: 8f7b1a04-27aa-4d07-a051-16ee9865db5b
+		summarizeBy: none
+		sourceColumn: DateKey
 
 	column Date
 		dataType: dateTime
+		lineageTag: 37a6a965-2996-42fd-89c9-85d896a52ab6
+		summarizeBy: none
 		sourceColumn: Date
+
+		variation Variation
+			isDefault
+			relationship: 3af36c79-bc51-42c1-99b9-207af6b4963a
+			defaultHierarchy: LocalDateTable_16e50b19-86fc-46b6-967d-e6cefb6e0968.Datumshierarchie
+
+		annotation SummarizationSetBy = Automatic
 
 	column Year
 		dataType: int64
+		lineageTag: 68d49fc1-1bed-4a7b-92fd-c11bd580b951
+		summarizeBy: sum
 		sourceColumn: Year
 
+		annotation SummarizationSetBy = Automatic
+
 	column Quarter
-		dataType: string
+		dataType: int64
+		formatString: 0
+		lineageTag: 6f7da1ce-6890-4f5f-a45d-0f53b5d3f40c
+		summarizeBy: sum
 		sourceColumn: Quarter
 
+		annotation SummarizationSetBy = Automatic
+
 	column Month
-		dataType: string
-		sourceColumn: Month
-		sortByColumn: MonthNumber
-
-	column MonthNumber
 		dataType: int64
-		sourceColumn: MonthNumber
-		isHidden
+		formatString: 0
+		lineageTag: a90f8222-fc5c-4157-a2d7-7780111ef5f9
+		summarizeBy: sum
+		sourceColumn: Month
 
-	column Week
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Name'
 		dataType: string
-		sourceColumn: Week
+		lineageTag: eb91ff7d-1691-4ea3-9d1e-e1dcf3e7bee8
+		summarizeBy: none
+		sourceColumn: Month Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fiscal Year'
+		dataType: int64
+		formatString: 0
+		lineageTag: dd74888c-e5fa-4177-989b-ae3268070fe6
+		summarizeBy: sum
+		sourceColumn: Fiscal Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fiscal Period'
+		dataType: string
+		lineageTag: 7872cb44-2d6d-472b-9259-4c2740a4fd9f
+		summarizeBy: none
+		sourceColumn: Fiscal Period
+
+		annotation SummarizationSetBy = Automatic
 
 	hierarchy 'Fiscal Calendar'
 		lineageTag: fiscal-calendar-hierarchy
 
 		level 'Fiscal Year'
+			lineageTag: c7169785-9aff-4ced-85f3-4276dd5336a5
 			column: Year
 
 		level 'Fiscal Quarter'
+			lineageTag: 79b91434-7ccd-4465-8efd-a0811d2639b0
 			column: Quarter
 
 		level 'Fiscal Month'
+			lineageTag: 103f1cae-6fe1-42d8-a888-c3794d1654af
 			column: Month
 
 		level Date
+			lineageTag: 36d99cca-2519-452e-a680-4b75005f5217
 			column: Date
 
 	partition dim_date = m
 		mode: import
 		source =
 				let
-					Source = Folder.Files("C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\showcases\aurora_group\data\gold\dimensions\dim_date"),
+					Source = Folder.Files(GoldDataPath & "/dimensions/dim_date"),
 					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
 					FirstFile = FilteredFiles{0}[Content],
 					ParquetData = Parquet.Document(FirstFile)
 				in
 					ParquetData
+

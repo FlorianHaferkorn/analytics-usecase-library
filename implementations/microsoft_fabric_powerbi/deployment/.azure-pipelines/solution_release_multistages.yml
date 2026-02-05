@@ -1,0 +1,80 @@
+# Multi-Stage Release Pipeline
+# Promotes solution from TEST to PROD with validation gates and approval gates
+#
+# Approval Configuration:
+# 1. Create Azure DevOps Environments: "Fabric-TEST" and "Fabric-PRODUCTION"
+# 2. Configure approvals in Azure DevOps UI:
+#    - Pipelines > Environments > Fabric-TEST > Approvals
+#    - Pipelines > Environments > Fabric-PRODUCTION > Approvals
+# 3. Add approvers (individuals or groups) with timeout policies
+
+trigger:
+  branches:
+    include:
+      - releases/release*
+  paths:
+    include:
+      - implementations/microsoft_fabric_powerbi/**
+      - framework/**
+      - showcases/**
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - implementations/microsoft_fabric_powerbi/**
+      - framework/**
+      - showcases/**
+
+variables:
+  - group: Fabric-Release-Variables  # Variable group for environment-specific settings
+
+stages:
+  - stage: Build
+    displayName: 'Build Solution'
+    jobs:
+      - template: _template_build_solution.yml
+        parameters:
+          environments: 'dev,tst,prd'
+  
+  - stage: ReleaseTest
+    displayName: 'Release to TEST'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - deployment: ReleaseTest
+        displayName: 'Deploy to TEST'
+        pool:
+          vmImage: 'windows-latest'
+        # Environment reference triggers approval gate (if configured in Azure DevOps UI)
+        environment: 'Fabric-TEST'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: _template_release_solution.yml
+                  parameters:
+                    environment: 'tst'
+                    requireManualApproval: false  # Use environment approvals instead
+  
+  - stage: ReleaseProd
+    displayName: 'Release to PRODUCTION'
+    dependsOn: ReleaseTest
+    condition: succeeded()
+    jobs:
+      - deployment: ReleaseProd
+        displayName: 'Deploy to PRODUCTION'
+        pool:
+          vmImage: 'windows-latest'
+        # Environment reference triggers approval gate (if configured in Azure DevOps UI)
+        environment: 'Fabric-PRODUCTION'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: _template_release_solution.yml
+                  parameters:
+                    environment: 'prd'
+                    requireManualApproval: false  # Use environment approvals instead

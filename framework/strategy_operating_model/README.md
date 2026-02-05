@@ -45,5 +45,5 @@ How delivery teams should use:
 - Mirror this structure for client projects.
 - Reuse templates; never fork KPI or measure definitions.
 - Keep Action Codes and layouts consistent with the canonical files.
-- Run validation tools in `_internal/tools/validation/` before delivery.
+- Run validation tools before delivery: `.\_internal\tools\run_stage1_checks.ps1` from repo root (CI gate); full validation: `.\_internal\tools\run_all_checks.ps1`.
 

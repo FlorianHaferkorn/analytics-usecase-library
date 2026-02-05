@@ -4,6 +4,8 @@ owner: Experience / Service Data Product
 
 dimension:
   - name: dim_date
+    description: "Calendar dimension for experience and service reporting."
+    purpose: "Time slicing for cases, WFM, and NPS."
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -14,6 +16,8 @@ dimension:
       - {name: Week, type: text, nullable: true}
 
   - name: dim_org
+    description: "Organization dimension (region, channel, queue, agent group) for experience."
+    purpose: "Scoping for support cases and WFM."
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Region, type: text, nullable: true}
@@ -21,27 +25,33 @@ dimension:
       - {name: Queue, type: text, nullable: true}
       - {name: Agent Group, type: text, nullable: true}
 
-  - name: dim_queue
+  - name: dim_case_queue
+    description: "Support case queue dimension (queue name, channel, region)."
+    purpose: "Queue-level case and WFM analysis."
     columns:
       - {name: QueueKey, type: int, role: key}
       - {name: QueueName, type: text}
       - {name: Channel, type: text, nullable: true}
       - {name: Region, type: text, nullable: true}
 
-  - name: dim_issue
+  - name: dim_issue_type
+    description: "Issue type dimension (type, severity) for case classification."
+    purpose: "Issue-type and severity analysis for support."
     columns:
       - {name: IssueKey, type: int, role: key}
       - {name: IssueType, type: text}
       - {name: Severity, type: text, nullable: true}
 
 fact:
-  - name: fact_cases
+  - name: fact_support_cases
+    description: "Support case facts (SLA, FCR, handle time, escalation, backlog)."
+    purpose: "Case performance and SLA reporting."
     grain: case
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
-      - {name: QueueKey, type: int, ref: dim_queue, nullable: true}
-      - {name: IssueKey, type: int, ref: dim_issue, nullable: true}
+      - {name: QueueKey, type: int, ref: dim_case_queue, nullable: true}
+      - {name: IssueKey, type: int, ref: dim_issue_type, nullable: true}
       - {name: SLA Met Flag, type: boolean}
       - {name: FCR Flag, type: boolean}
       - {name: Handle Time Minutes, type: decimal}
@@ -49,12 +59,14 @@ fact:
       - {name: Backlog Flag, type: boolean}
       - {name: Open Case Flag, type: boolean}
 
-  - name: fact_wfm
+  - name: fact_workforce_management
+    description: "Workforce management facts (work, paid, talk, wrap, idle, overtime, shrinkage) per agent-day."
+    purpose: "WFM utilization and shrinkage reporting."
     grain: agent_day
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org}
-      - {name: QueueKey, type: int, ref: dim_queue, nullable: true}
+      - {name: QueueKey, type: int, ref: dim_case_queue, nullable: true}
       - {name: Work Time Minutes, type: decimal, agg: sum}
       - {name: Paid Time Minutes, type: decimal, agg: sum}
       - {name: Talk Time Minutes, type: decimal, agg: sum}
@@ -64,11 +76,13 @@ fact:
       - {name: Shrinkage Minutes, type: decimal, agg: sum, nullable: true}
 
   - name: fact_nps
+    description: "NPS survey facts (score per survey) for experience metrics."
+    purpose: "Net Promoter Score reporting."
     grain: survey
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: OrgKey, type: int, ref: dim_org, nullable: true}
-      - {name: QueueKey, type: int, ref: dim_queue, nullable: true}
+      - {name: QueueKey, type: int, ref: dim_case_queue, nullable: true}
       - {name: NPS Score, type: int}
 
 settings:

@@ -43,7 +43,9 @@ What's inside
 ```yaml
 aurora_group/
   company/          # Profile, operating model, org/value chain
-  data/             # Synthetic contracts and sample extracts
+  data/             # Synthetic gold layer
+    gold/           # Parquet output (dimensions, facts)
+    scripts/        # Gold data generators (Python); run from repo root — see data/scripts/README.md
   usecases/         # Demo core use cases (links to canonical framework/usecases factsheets)
   reporting/        # PBIP layouts and screenshots (3–30–300)
   semantic_models/  # CoreActionReady.pbip — live PBIP with _Measures.tmdl (all measures, organized by displayFolder)
@@ -52,7 +54,7 @@ aurora_group/
 How to use
 
 - Start with `company/Aurora_Group_Profile.md` and `company/Aurora_Operating_Model.md`.
-- Sample data lives in `data/gold/` (Delta tables: `gold/facts/fact_sales`, `gold/dimensions/dim_*`). Data contracts and source definitions are in `framework/data_contracts/`; this showcase consumes gold-layer outputs.
+- Sample data lives in `data/gold/` (Delta tables: `gold/facts/fact_sales`, `gold/dimensions/dim_*`). To (re)generate gold data, run the Python scripts in `data/scripts/` from repo root (see `data/scripts/README.md`). Data contracts and source definitions are in `framework/data_contracts/`; this showcase consumes gold-layer outputs.
 - Open `semantic_models/CoreActionReady.pbip` in Power BI Desktop; all measures are in `_Measures.tmdl`, organized by displayFolder per use case.
 - Implement pages following `framework/templates/page_templates/*` and `reporting/pbip_layouts.md`.
 - Align use cases with the canonical factsheets in `framework/usecases/core/` (references to main library).
@@ -68,8 +70,9 @@ Run from **repo root**:
    .\_internal\tools\generation\generate_tmdl_measures.ps1 -UseCase COM-001,COM-002,COM-003,COM-004,OPS-001,SCM-001,FIN-001 -UseAuroraShowcase -OverwriteExisting
    ```
    Output: **ONE** `_Measures.tmdl` file with all measures, organized by displayFolder (e.g. `displayFolder: "COM-001"`). For per-use-case dist output, omit `-UseAuroraShowcase`.
-4. **Fabric/Power BI checks** (if you have generated TMDL): `.\implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1`.
-5. **Point the Aurora semantic model/dataset** to `showcases/aurora_group/data/gold/` (or your deployed gold path).
+4. **Fabric/Power BI checks** (if you have generated TMDL): `.\implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1 -AuroraTablesDir "showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition/tables"`.
+5. **Gold data for all PBIP tables** (optional if missing): `py showcases/aurora_group/data/scripts/generate_missing_gold_xd_finance.py` — creates dim_queue, dim_issue, fact_cases, fact_wfm, fact_ap, fact_ar, fact_cash, fact_cashflow so the semantic model loads without path errors.
+6. **Point the Aurora semantic model/dataset** to `showcases/aurora_group/data/gold/` (or your deployed gold path).
 
 Scope for the demo
 

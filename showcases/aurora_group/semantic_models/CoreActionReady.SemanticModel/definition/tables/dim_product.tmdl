@@ -1,53 +1,87 @@
+/// Product dimension with category hierarchy (Category > Sub Category > Brand > Product Name).
+/// Product and margin analysis, mix reporting.
 table dim_product
 	lineageTag: abcdef12-3456-7890-abcd-ef1234567890
 
 	column ProductKey
 		dataType: int64
-		sourceColumn: ProductKey
 		isHidden
+		lineageTag: ab2d8c60-a4be-4907-a901-3fd13ce1521f
+		summarizeBy: none
+		sourceColumn: ProductKey
 
 	column ProductName
 		dataType: string
+		lineageTag: 2cd280f4-ae3b-46b2-b015-54400c7be2b7
 		sourceColumn: ProductName
 
 	column Category
 		dataType: string
+		lineageTag: 6ce6e193-f742-472e-83d3-ace3d24cc07a
 		sourceColumn: Category
-
-	column SubCategory
-		dataType: string
-		sourceColumn: SubCategory
 
 	column Brand
 		dataType: string
+		lineageTag: 73ade9ca-59db-469f-b05d-2c371488c72c
 		sourceColumn: Brand
 
-	column ProductFamily
+	column ProductCode
 		dataType: string
-		sourceColumn: ProductFamily
+		lineageTag: ca830fff-88c7-4bda-88bd-14353491e4e6
+		summarizeBy: none
+		sourceColumn: ProductCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column Subcategory
+		dataType: string
+		lineageTag: d5a93589-03d1-4296-9fbb-c2d6be6d0135
+		summarizeBy: none
+		sourceColumn: Subcategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Lifecycle Status'
+		dataType: string
+		lineageTag: fc5b6f6b-f01f-4173-a6b7-6d5ab0771429
+		summarizeBy: none
+		sourceColumn: Lifecycle Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'List Price Amount'
+		dataType: double
+		lineageTag: df2d8203-6b52-4409-8743-8ef0d9005dfe
+		summarizeBy: sum
+		sourceColumn: List Price Amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	hierarchy 'Product Hierarchy'
 		lineageTag: product-hierarchy
 
 		level Category
+			lineageTag: 7c99d236-7ea2-4b5f-b979-503f4c716c28
 			column: Category
 
-		level 'Sub Category'
-			column: SubCategory
-
 		level Brand
+			lineageTag: 5cf39410-563c-4c66-a3be-422a7b1f27e3
 			column: Brand
 
 		level 'Product Name'
+			lineageTag: 05e55333-643e-4260-911e-411ed717adc9
 			column: ProductName
 
 	partition dim_product = m
 		mode: import
 		source =
 				let
-					Source = Folder.Files("C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\showcases\aurora_group\data\gold\dimensions\dim_product"),
+					Source = Folder.Files(GoldDataPath & "/dimensions/dim_product"),
 					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
 					FirstFile = FilteredFiles{0}[Content],
 					ParquetData = Parquet.Document(FirstFile)
 				in
 					ParquetData
+

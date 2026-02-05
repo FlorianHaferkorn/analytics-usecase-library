@@ -1,57 +1,42 @@
+/// RLS bridge: user to org for row-level security.
+/// Scoping report data by user's assigned org(s).
 table security_user_org
 	lineageTag: security-user-org-rls
 
 	column UserPrincipalName
 		dataType: string
+		lineageTag: a6197642-ea7c-4b11-981e-6c7959b00141
 		sourceColumn: UserPrincipalName
-		description: "User email address (Azure AD / Entra ID)"
 
 	column OrgKey
 		dataType: int64
+		lineageTag: 2f5972ab-d3ef-491e-9bcc-3d37376181b2
+		summarizeBy: none
 		sourceColumn: OrgKey
-		description: "Organization key for Row-Level Security filtering"
 
 	column Region
 		dataType: string
+		lineageTag: 5723ebb2-3942-44f4-85c9-a8e667f80544
 		sourceColumn: Region
-		description: "Aurora Region: DACH, Benelux, Nordics, Southern Europe, or CEE"
 
 	column Country
 		dataType: string
+		lineageTag: 8bf79b76-77dd-489a-bb76-2bfd8a95b0a7
 		sourceColumn: Country
-		description: "Country within region"
 
 	column Channel
 		dataType: string
+		lineageTag: 197047ee-e254-4e15-bb62-0cc2953a7e51
 		sourceColumn: Channel
-		description: "Channel access: Retail Stores, E-Commerce, Marketplaces, Wholesale"
 
 	partition security_user_org = m
 		mode: import
 		source =
 				let
-					Source = Table.FromRows(
-						{
-							{"sofia.berger@aurora-group.com", 1, "DACH", "Germany", "Retail Stores"},
-							{"isabella.conti@aurora-group.com", 1, "DACH", "Germany", "E-Commerce"},
-							{"katharina.steiner@aurora-group.com", 100, "DACH", "Germany", "Retail Stores"},
-							{"jeroen.vandijk@aurora-group.com", 200, "Benelux", "Netherlands", "Retail Stores"},
-							{"anneli.virtanen@aurora-group.com", 300, "Nordics", "Sweden", "Retail Stores"},
-							{"marco.santoro@aurora-group.com", 400, "Southern Europe", "Italy", "Retail Stores"},
-							{"petra.kovacs@aurora-group.com", 500, "CEE", "Poland", "Retail Stores"}
-						},
-						type table[
-							UserPrincipalName = text,
-							OrgKey = Int64.Type,
-							Region = text,
-							Country = text,
-							Channel = text
-						]
-					)
+					Source = Folder.Files(GoldDataPath & "/security_user_org"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
 				in
-					Source
-
-	annotation PBI_NavigationStepName = "Source"
-
-	annotation PBI_ResultType = "Table"
+					ParquetData
 

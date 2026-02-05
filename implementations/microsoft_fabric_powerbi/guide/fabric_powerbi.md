@@ -79,6 +79,24 @@ Not included:
 - All tables must follow the naming rule:  
 `fact_<name>` or `dim_<name>`.
 
+### 2.4 Descriptive table names (best-practice nomenclature)
+
+Table names should be **descriptive** while staying within the `dim_` / `fact_` convention: avoid opaque abbreviations; use clear, domain-understandable terms.
+
+| Short / legacy name | Preferred descriptive name | Domain / meaning |
+|---------------------|----------------------------|------------------|
+| `dim_queue` | `dim_case_queue` or `dim_support_queue` | Case/support queue dimension |
+| `dim_issue` | `dim_issue_type` | Issue type / severity dimension |
+| `fact_cases` | `fact_support_cases` or `fact_customer_cases` | Support case facts |
+| `fact_wfm` | `fact_workforce_management` | Workforce management facts |
+| `fact_ap` | `fact_accounts_payable` | Accounts payable facts |
+| `fact_ar` | `fact_accounts_receivable` | Accounts receivable facts |
+| `fact_cash` | `fact_cash_position` | Cash position / balance facts |
+| `fact_cashflow` | `fact_cash_flow` | Cash flow facts (OCF, CapEx, etc.) |
+
+- **Gold data folders** should match the table name (e.g. `facts/fact_accounts_payable` if the table is `fact_accounts_payable`).
+- **New models and generators** should use the preferred names; existing Aurora CoreActionReady model may keep short names for backward compatibility until a coordinated rename (relationships, measures, and all references must be updated together).
+
 ---
 
 # 3. Semantic Layer Implementation (PBIP)

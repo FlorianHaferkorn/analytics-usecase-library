@@ -65,6 +65,8 @@ table dim_date
 - ✅ `lineageTag`, `annotations`
 - ❌ `description` - NOT SUPPORTED
 
+**Numeric columns (summarizeBy: none):** Set `summarizeBy: none` for **all** numeric columns (`int64`, `int32`, `double`, `decimal`) to prevent unintentional summarization in client tools. Create measures for columns that are supposed to be summarized (e.g. `Net Sales Amount` → measure `[Net Sales Amount] = SUM(fact_sales[Net Sales Amount])`). This applies to keys, IDs, and all fact columns—Power BI should aggregate via measures, not by default summarization of columns.
+
 **Tables**:
 - ✅ `lineageTag`, `annotations`, `isHidden`
 - ❌ `description` - NOT SUPPORTED
@@ -93,6 +95,16 @@ measure 'Net Sales Amount' =
 		SUM(fact_sales[Net Sales Amount])
 	formatString: #,0.00
 	description: "Total revenue"    // ❌ PARSER ERROR
+```
+
+**Measure description block (standard format):**  
+Use a three-line `///` block above each measure: **KPI ID** (or Supporting), **Description**, and **Purpose**. Source: `framework/kpi_catalog/KPI_Catalog.md`. For supporting measures use `/// Supporting: <id> — <Display Name>` and supply Description and Purpose from the measure dictionary or a short formulation.
+
+```tmdl
+/// KPI: sales.net_sales.amount — Net Sales Amount
+/// Description: Total invoiced revenue net of discounts and returns.
+/// Purpose: Total invoiced revenue net of discounts and returns.
+measure 'Net Sales Amount' = ...
 ```
 
 ### 1.4 Object names and property delimiters (Microsoft Learn)
@@ -309,7 +321,20 @@ Invoke-MCPTool -Tool "measure_operations" -Operation "ExportTMDL" -MeasureName "
 2. Verify no parser errors
 3. Test measure calculations
 
-### 5.4 Error Handling
+### 5.4 PBIP load readiness
+
+Before opening the semantic model in Power BI Desktop, run `check_tmdl_pbip_readiness.ps1` (via `run_fabric_checks.ps1`) to avoid load failures:
+
+| Rule | Requirement |
+|------|-------------|
+| **Relationship IDs** | No duplicate relationship GUIDs or names across `relationships.tmdl` and `relationships/*.tmdl`. |
+| **Measure names** | No duplicate `measure 'Name' =` in `_Measures.tmdl` (or across tables). |
+| **RLS** | Security (RLS) relationships must use `securityFilteringBehavior: oneDirection`. |
+| **Partition Source** | Use a Power Query parameter (e.g. `GoldDataPath & "/facts/..."`) in `Folder.Files(...)`; do not hardcode absolute or relative paths. |
+
+Script: `implementations/microsoft_fabric_powerbi/validation/check_tmdl_pbip_readiness.ps1`.
+
+### 5.5 Error Handling
 
 | Error Type | Message Pattern | Root Cause | Solution |
 |------------|----------------|------------|----------|
@@ -418,9 +443,71 @@ Power BI **Prep for AI** (and Fabric data agent / Copilot) uses semantic model m
 **Cause**: Parquet file path incorrect or file not found
 **Fix**: Verify `Folder.Files()` path, check file extension filter
 
+### 9.4 PBIP load failures (self-correcting checklist)
+
+To prevent recurrence of past load errors, ensure:
+
+- **Duplicate relationship IDs**: Each relationship must have a unique GUID or name; merge or rename duplicates.
+- **Duplicate measure names**: Only one definition per measure name in `_Measures.tmdl`; remove or merge duplicates.
+- **RLS direction**: For RLS (e.g. `security_*`), set `securityFilteringBehavior: oneDirection` (not `bothDirections`).
+- **Hardcoded paths**: Use a parameter (e.g. `GoldDataPath`) in partition `Source`; define the parameter in `expressions.tmdl`.
+
+Run `run_fabric_checks.ps1` (includes `check_tmdl_pbip_readiness.ps1`) before committing TMDL changes.
+
 ---
 
-## 9. Version History
+## 10. Model View Layout (diagramLayout.json)
+
+### 10.1 Spaghetti Principle
+
+The **spaghetti principle** ensures all tables in the model view are readable and logically arranged:
+
+- **Top-left anchor:** `_Measures` table at position (x=0, y=0)
+- **Top row (horizontal):** All fact tables arranged in a single horizontal row at y=0, starting at x=280 (immediately to the right of `_Measures`), with 250px spacing between tables (x=280, 530, 780, 1030, 1280, ...)
+- **Left column (vertical):** All dimension tables stacked vertically at x=0, starting at y=120 (below `_Measures`), with 120px spacing between tables (y=120, 240, 360, 480, 600, ...)
+- **Security tables:** Include `security_user_org` and other security/RLS tables in the left column alongside dimensions
+
+### 10.2 Rationale
+
+This layout provides:
+- **Readability:** Facts are visible horizontally at the top; dimensions are accessible vertically on the left
+- **Consistency:** Every semantic model follows the same pattern, making navigation predictable
+- **Scalability:** New facts extend the horizontal row; new dimensions extend the vertical column
+
+### 10.3 Implementation
+
+The `diagramLayout.json` file in each semantic model's root (e.g. `CoreActionReady.SemanticModel/diagramLayout.json`) defines node positions. When creating or updating semantic models:
+
+1. Place `_Measures` at (0, 0)
+2. Arrange all fact tables horizontally at y=0 with x increasing by 250px
+3. Arrange all dimension tables vertically at x=0 with y increasing by 120px (starting at y=120)
+4. Include security tables with dimensions in the left column
+
+**Example structure:**
+```json
+{
+  "nodes": [
+    {"nodeIndex": "_Measures", "location": {"x": 0, "y": 0}},
+    {"nodeIndex": "fact_sales", "location": {"x": 280, "y": 0}},
+    {"nodeIndex": "fact_working_capital", "location": {"x": 530, "y": 0}},
+    {"nodeIndex": "dim_date", "location": {"x": 0, "y": 120}},
+    {"nodeIndex": "dim_org", "location": {"x": 0, "y": 240}},
+    {"nodeIndex": "security_user_org", "location": {"x": 0, "y": 1200}}
+  ]
+}
+```
+
+**Validation:** The spaghetti layout is automatically enforced by `check_diagram_layout.ps1`, which runs as part of `run_fabric_checks.ps1`. The script validates:
+- `_Measures` is at (0, 0)
+- All fact tables are at y=0 with x≥280
+- All dimension tables are at x=0 with y≥120
+- Spacing is approximately 250px (facts) and 120px (dims)
+
+Violations are reported as errors; spacing deviations are warnings.
+
+---
+
+## 11. Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
@@ -428,7 +515,7 @@ Power BI **Prep for AI** (and Fabric data agent / Copilot) uses semantic model m
 
 ---
 
-## 11. References
+## 12. References
 
 - **Power BI MCP**: `mcp_powerbi-model_*` tools
 - **TMDL Documentation**: [Microsoft Learn - TMDL](https://learn.microsoft.com/analysis-services/tmdl/)

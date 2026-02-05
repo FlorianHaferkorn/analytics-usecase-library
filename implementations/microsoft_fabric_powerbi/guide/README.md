@@ -50,8 +50,8 @@ When implementing in Fabric/Power BI, use these in combination with this guide:
 |--------|----------|
 | Use case factsheets (business/technical) | `framework/usecases/core/` (e.g. `COM-001_Sales_Performance/`) |
 | KPI catalog (measure definitions, mapping) | `framework/kpi_catalog/` |
-| Stage 1 validation (docs, refs, structure) | `_internal/tools/validation/run_stage1_checks.ps1` |
-| Full validation (Stage 1 + Fabric checks) | `_internal/tools/validation/run_all_checks.ps1` |
+| Stage 1 validation (docs, refs, structure) | `_internal/tools/run_stage1_checks.ps1` |
+| Full validation (Stage 1 + Fabric checks) | `_internal/tools/run_all_checks.ps1` |
 | Fabric-only checks (measures vs KPI, TMDL vs dictionary, DAX) | `implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1` |
 | TMDL measure generation from KPI catalog | `_internal/tools/generation/generate_tmdl_measures.ps1` |
 
@@ -63,9 +63,10 @@ Output for generated TMDL: `implementations/microsoft_fabric_powerbi/dist` (or a
 
 ```yaml
 implementations/microsoft_fabric_powerbi/guide/
-  fabric_powerbi.md        # Implementation in Microsoft Fabric + Power BI ecosystem
-  tmdl_best_practices.md   # TMDL formatting and syntax for semantic models
-  README.md                # This file
+  fabric_powerbi.md                    # Implementation in Microsoft Fabric + Power BI ecosystem
+  fabric_architecture_best_practices.md # Workspace strategy, CI/CD, Git, governance (framework-fit)
+  tmdl_best_practices.md               # TMDL formatting and syntax for semantic models
+  README.md                            # This file
 ```
 
 ### fabric_powerbi.md
@@ -123,6 +124,7 @@ Covers:
 
 Start with:
 
+- **`fabric_architecture_best_practices.md`** for workspace strategy, CI/CD, Git, and adoption path (easy to set up, framework-fit).
 - **`fabric_powerbi.md`** if you are implementing in Microsoft Fabric (operating model mapping, PBIP, measures, RLS, UX).  
 - **`tmdl_best_practices.md`** for TMDL syntax, formatting, and DAX/measure conventions.  
 - Run **`run_fabric_checks.ps1`** (in `implementations/microsoft_fabric_powerbi/tools/`) after changes to measures or TMDL.
