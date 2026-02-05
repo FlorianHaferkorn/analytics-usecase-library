@@ -5,7 +5,7 @@ Generates HTML/CSS mockups to visualize page layouts.
 """
 
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from .layout_calculator import LayoutCalculator
 
 
@@ -21,21 +21,29 @@ class MockupGenerator:
         page_structure: Dict[str, Any],
         use_case_id: str,
         page_name: str,
-        output_path: Path
+        output_path: Path,
+        page_type: Optional[str] = None,
+        decision_question: Optional[str] = None,
     ):
         """
         Generate HTML mockup.
         
         Args:
-            page_structure: Page structure from scaffold generator
+            page_structure: Page structure from scaffold generator (same layout engine as PBIP)
             use_case_id: Use case ID
             page_name: Page name
             output_path: Output HTML file path
+            page_type: Page type T1/T2/T3/T4 (from scaffold; used for hierarchy/CSS). If None, read from page_structure.
+            decision_question: Optional primary decision question for header/banner
         """
+        if page_type is None:
+            page_type = page_structure.get("page_type") or "T2"
         html_content = self._build_html(
             page_structure=page_structure,
             use_case_id=use_case_id,
-            page_name=page_name
+            page_name=page_name,
+            page_type=page_type,
+            decision_question=decision_question,
         )
         
         with open(output_path, 'w', encoding='utf-8') as f:
@@ -45,9 +53,11 @@ class MockupGenerator:
         self,
         page_structure: Dict[str, Any],
         use_case_id: str,
-        page_name: str
+        page_name: str,
+        page_type: str = "T2",
+        decision_question: Optional[str] = None,
     ) -> str:
-        """Build HTML content."""
+        """Build HTML content. Uses same layout as PBIP (positions from page_structure)."""
         visuals = page_structure.get("visuals", [])
         slicers = page_structure.get("slicers", [])
         
@@ -59,6 +69,9 @@ class MockupGenerator:
         for slicer in slicers:
             visual_html.append(self._render_slicer(slicer))
         
+        decision_html = ""
+        if decision_question:
+            decision_html = f'<p class="decision-question"><strong>Decision question:</strong> {decision_question}</p>'
         html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -69,10 +82,11 @@ class MockupGenerator:
         {self._get_css()}
     </style>
 </head>
-<body>
+<body class="page-type-{page_type.lower()}">
     <div class="header">
         <h1>Page Scaffold Preview</h1>
-        <p><strong>Use Case:</strong> {use_case_id} | <strong>Page:</strong> {page_name}</p>
+        <p><strong>Use Case:</strong> {use_case_id} | <strong>Page:</strong> {page_name} | <strong>Type:</strong> {page_type}</p>
+        {decision_html}
         <p><strong>Canvas:</strong> {self.layout_calculator.CANVAS_WIDTH}×{self.layout_calculator.CANVAS_HEIGHT}px</p>
     </div>
     <div class="canvas-container">

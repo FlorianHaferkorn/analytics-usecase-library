@@ -98,6 +98,21 @@ foreach ($defDir in $definitionDirs) {
       $errors += [PSCustomObject]@{ File = (Join-Path $relPathBase "relationships\$($rf.Name)"); Line = 0; Rule = "pbip.rls.one_direction"; Message = "RLS relationship must use securityFilteringBehavior: oneDirection (found: $($sfMatch.Groups[1].Value))" }
     }
   }
+  # Monolith relationships.tmdl: security_* relationship blocks must have securityFilteringBehavior: oneDirection
+  if (Test-Path $relationshipsFile) {
+    $content = Get-Content -Path $relationshipsFile -Raw
+    $securityBlockPattern = [regex]'(?ms)^relationship\s+(security_\S+)\s*$(.*?)(?=^relationship\s|\z)'
+    foreach ($m in $securityBlockPattern.Matches($content)) {
+      $relName = $m.Groups[1].Value
+      $block = $m.Groups[2].Value
+      $sfMatch = $securityFilterPattern.Match($block)
+      if (-not $sfMatch.Success) {
+        $errors += [PSCustomObject]@{ File = "$relPathBase/relationships.tmdl"; Line = 0; Rule = "pbip.rls.one_direction"; Message = "RLS relationship '$relName' must have securityFilteringBehavior: oneDirection (missing)" }
+      } elseif ($sfMatch.Groups[1].Value -ne "oneDirection") {
+        $errors += [PSCustomObject]@{ File = "$relPathBase/relationships.tmdl"; Line = 0; Rule = "pbip.rls.one_direction"; Message = "RLS relationship '$relName' must use securityFilteringBehavior: oneDirection (found: $($sfMatch.Groups[1].Value))" }
+      }
+    }
+  }
 
   # --- 4) Duplicate measure names (in _Measures.tmdl and any .tmdl under tables) ---
   $allMeasureNames = @()

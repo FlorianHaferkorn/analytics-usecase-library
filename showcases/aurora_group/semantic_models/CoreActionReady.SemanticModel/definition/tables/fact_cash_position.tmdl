@@ -18,11 +18,13 @@ table fact_cash_position
 	column 'Cash Balance Amount'
 		dataType: double
 		lineageTag: cdbad8e4-eb6d-48be-a883-a667d0277090
+		summarizeBy: none
 		sourceColumn: Cash Balance Amount
 
 	column 'Plan Cash Amount'
 		dataType: double
 		lineageTag: 080ea9da-fe4e-4ea4-a978-49eb06aa3ac7
+		summarizeBy: none
 		sourceColumn: Plan Cash Amount
 
 	partition fact_cash_position = m

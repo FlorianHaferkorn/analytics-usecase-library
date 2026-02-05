@@ -24,6 +24,7 @@ table fact_cogs
 	column 'COGS Amount'
 		dataType: double
 		lineageTag: 1ccad5b8-033a-4a48-8b97-915a908474c8
+		summarizeBy: none
 		sourceColumn: COGS Amount
 
 	partition fact_cogs = m

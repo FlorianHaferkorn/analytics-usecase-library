@@ -45,6 +45,7 @@ table dim_promo
 	column 'Discount %'
 		dataType: double
 		lineageTag: 35606087-a7d3-42e6-b343-0658e15fb4d0
+		summarizeBy: none
 		sourceColumn: Discount %
 
 	hierarchy Promo

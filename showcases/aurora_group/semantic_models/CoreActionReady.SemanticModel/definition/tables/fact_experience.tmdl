@@ -31,6 +31,14 @@ table fact_experience
 		lineageTag: 19c1eef5-fb37-43ad-a9be-bcec4565a3d2
 		sourceColumn: Severity
 
+	column 'Complaint Type'
+		dataType: string
+		lineageTag: ae2b3997-8103-4b70-bc2d-0f9b4155ed02
+		summarizeBy: none
+		sourceColumn: Complaint Type
+
+		annotation SummarizationSetBy = Automatic
+
 	partition fact_experience = m
 		mode: import
 		source =

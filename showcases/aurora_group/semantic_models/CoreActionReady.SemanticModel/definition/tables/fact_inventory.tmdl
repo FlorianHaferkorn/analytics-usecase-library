@@ -24,21 +24,25 @@ table fact_inventory
 	column 'Average Inventory Amount'
 		dataType: double
 		lineageTag: 947ff0e3-19eb-4543-9546-14f65f7c77fd
+		summarizeBy: none
 		sourceColumn: Average Inventory Amount
 
 	column 'Average Inventory Units'
 		dataType: double
 		lineageTag: 228a6031-d5d0-4703-bd08-b04e0a5bcea1
+		summarizeBy: none
 		sourceColumn: Average Inventory Units
 
 	column 'Obsolete Inventory Amount'
 		dataType: double
 		lineageTag: 765925e1-6e59-4e49-beb8-a225c5a40d18
+		summarizeBy: none
 		sourceColumn: Obsolete Inventory Amount
 
 	column 'Obsolete Inventory Units'
 		dataType: double
 		lineageTag: 32afc314-845c-4fa3-ba5d-3a3bbf6e30bc
+		summarizeBy: none
 		sourceColumn: Obsolete Inventory Units
 
 	partition fact_inventory = m

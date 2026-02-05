@@ -24,11 +24,13 @@ table fact_accounts_payable
 	column 'AP Amount'
 		dataType: double
 		lineageTag: e5d58437-bd49-4aa9-8e89-d5a7da729f2b
+		summarizeBy: none
 		sourceColumn: AP Amount
 
 	column 'COGS Amount'
 		dataType: double
 		lineageTag: c0ed7e28-5552-4633-995f-e3acc8c342a7
+		summarizeBy: none
 		sourceColumn: COGS Amount
 
 	partition fact_accounts_payable = m

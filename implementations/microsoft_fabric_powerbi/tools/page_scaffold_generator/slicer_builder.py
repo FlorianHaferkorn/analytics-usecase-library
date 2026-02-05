@@ -23,14 +23,20 @@ class SlicerBuilder:
         """Generate unique slicer ID."""
         return uuid.uuid4().hex[:20]
     
-    def _build_base_slicer(self, position: Position, tab_order: int = None) -> Dict[str, Any]:
-        """Build base slicer structure."""
+    def _build_base_slicer(
+        self,
+        position: Position,
+        tab_order: int = None,
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Build base slicer structure. Use speaking name when provided (no hex ID)."""
         if tab_order is None:
             tab_order = self.tab_order_base
-        
+        slicer_name = name if name is not None else self._generate_slicer_id()
+
         return {
             "$schema": self.VISUAL_SCHEMA,
-            "name": self._generate_slicer_id(),
+            "name": slicer_name,
             "position": {
                 "x": position.x,
                 "y": position.y,
@@ -176,18 +182,24 @@ class SlicerBuilder:
             }
         }
     
-    def build_time_slicer(self, position: Position, field: str = "dim_date.Date") -> Dict[str, Any]:
+    def build_time_slicer(
+        self,
+        position: Position,
+        field: str = "dim_date.Date",
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Build time/date slicer.
         
         Args:
             position: Position and size
             field: Date field reference (default: dim_date.Date)
+            name: Speaking name (e.g. Slicer_Date); optional
         
         Returns:
             Slicer JSON structure
         """
-        slicer = self._build_base_slicer(position)
+        slicer = self._build_base_slicer(position, name=name)
         
         # Add date field projection
         entity, property_name = field.split('.') if '.' in field else ("dim_date", "Date")
@@ -211,18 +223,24 @@ class SlicerBuilder:
         
         return slicer
     
-    def build_categorical_slicer(self, position: Position, field: str) -> Dict[str, Any]:
+    def build_categorical_slicer(
+        self,
+        position: Position,
+        field: str,
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Build categorical slicer (org, product, region, etc.).
         
         Args:
             position: Position and size
             field: Field reference (e.g., "dim_org.OrgName")
+            name: Speaking name; optional
         
         Returns:
             Slicer JSON structure
         """
-        slicer = self._build_base_slicer(position)
+        slicer = self._build_base_slicer(position, name=name)
         
         # Add categorical field projection
         entity, property_name = field.split('.') if '.' in field else (field, field)
@@ -246,15 +264,21 @@ class SlicerBuilder:
         
         return slicer
     
-    def build_mode_switch_slicer(self, position: Position, field: str = "dim_scenario.ScenarioName") -> Dict[str, Any]:
+    def build_mode_switch_slicer(
+        self,
+        position: Position,
+        field: str = "dim_scenario.ScenarioName",
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Build 4th slicer for mode switch (scenario, currency, version).
         
         Args:
             position: Position and size
             field: Field reference (default: dim_scenario.ScenarioName)
+            name: Speaking name; optional
         
         Returns:
             Slicer JSON structure
         """
-        return self.build_categorical_slicer(position, field)
+        return self.build_categorical_slicer(position, field, name=name)

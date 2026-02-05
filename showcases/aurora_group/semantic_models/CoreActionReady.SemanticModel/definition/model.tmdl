@@ -6,7 +6,7 @@ model Model
 		legacyRedirects
 		returnErrorValuesAsNull
 
-annotation PBI_ProTooling = ["TMDL-Extension","DevMode"]
+annotation PBI_ProTooling = ["TMDL-Extension","DevMode","TMDLView_Desktop"]
 
 annotation PBI_QueryOrder = ["_Measures","dim_customer","dim_date","dim_org","dim_product","dim_promo","dim_case_queue","dim_issue_type","dim_asset","fact_experience","fact_promo","fact_sales","fact_support_cases","fact_workforce_management","fact_ops","fact_ops_failures","fact_maintenance","fact_quality","dim_lane","fact_inventory","fact_cogs","fact_fulfillment","fact_stockout","fact_forecast","fact_working_capital","fact_cash_flow","fact_cash_position","fact_accounts_payable","fact_accounts_receivable","security_user_org","GoldDataPath"]
 

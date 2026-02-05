@@ -40,7 +40,7 @@ table dim_org
 		dataType: int64
 		formatString: 0
 		lineageTag: c405e2cd-79dc-42ca-abe4-551a4f94b5e8
-		summarizeBy: count
+		summarizeBy: none
 		sourceColumn: ParentOrgKey
 
 		annotation SummarizationSetBy = Automatic
@@ -65,7 +65,7 @@ table dim_org
 		dataType: int64
 		formatString: 0
 		lineageTag: 065dd68a-7db6-4a2b-84e1-d7adfe0fa036
-		summarizeBy: count
+		summarizeBy: none
 		sourceColumn: Open DateKey
 
 		annotation SummarizationSetBy = Automatic
@@ -74,7 +74,7 @@ table dim_org
 		dataType: int64
 		formatString: 0
 		lineageTag: 551fbb38-dffd-4035-acc9-22af153dc9e9
-		summarizeBy: count
+		summarizeBy: none
 		sourceColumn: Close DateKey
 
 		annotation SummarizationSetBy = Automatic

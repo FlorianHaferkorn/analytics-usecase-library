@@ -42,7 +42,7 @@ table fact_sales
 		dataType: int64
 		formatString: 0
 		lineageTag: 1146c613-0b02-40f3-a6da-0b169df2bd1e
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Quantity
 
 		annotation SummarizationSetBy = Automatic
@@ -50,46 +50,55 @@ table fact_sales
 	column 'Plan Quantity'
 		dataType: double
 		lineageTag: 51f1c19e-3c5f-4825-a7fe-e80e803e9f0c
+		summarizeBy: none
 		sourceColumn: Plan Quantity
 
 	column 'List Price Amount'
 		dataType: double
 		lineageTag: f1ffee05-da63-4fe2-a8e5-97675ece3751
+		summarizeBy: none
 		sourceColumn: List Price Amount
 
 	column 'Net Price Amount'
 		dataType: double
 		lineageTag: 575663cc-3cae-477c-85b4-4f7f69b9fbf1
+		summarizeBy: none
 		sourceColumn: Net Price Amount
 
 	column 'Discount Amount'
 		dataType: double
 		lineageTag: 20d0fb46-a5c5-4065-aaa7-24eacc0776a4
+		summarizeBy: none
 		sourceColumn: Discount Amount
 
 	column 'Net Sales Amount'
 		dataType: double
 		lineageTag: 8af2c52b-f750-4d83-ae5b-cf2d94bbbff9
+		summarizeBy: none
 		sourceColumn: Net Sales Amount
 
 	column 'Plan Sales Amount'
 		dataType: double
 		lineageTag: 8ad5513a-eef5-49c3-8dc6-2a3d38583f3d
+		summarizeBy: none
 		sourceColumn: Plan Sales Amount
 
 	column 'Last Year Sales Amount'
 		dataType: double
 		lineageTag: 9a952222-9c9b-4033-b918-1f67c2159c8a
+		summarizeBy: none
 		sourceColumn: Last Year Sales Amount
 
 	column 'Cost of Goods Sold Amount'
 		dataType: double
 		lineageTag: 26019f7a-8579-4e9f-bd44-269096c9f062
+		summarizeBy: none
 		sourceColumn: Cost of Goods Sold Amount
 
 	column 'Plan COGS Amount'
 		dataType: double
 		lineageTag: 0655c801-b243-41b0-a7c8-64772342279f
+		summarizeBy: none
 		sourceColumn: Plan COGS Amount
 
 	column InvoiceLineID

@@ -40,6 +40,7 @@ table fact_support_cases
 	column 'Handle Time Minutes'
 		dataType: double
 		lineageTag: 48082856-7282-4888-a6df-5aa7365bb3cc
+		summarizeBy: none
 		sourceColumn: Handle Time Minutes
 
 	column 'Escalation Flag'

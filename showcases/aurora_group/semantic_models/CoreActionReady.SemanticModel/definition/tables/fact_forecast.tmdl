@@ -24,6 +24,7 @@ table fact_forecast
 	column 'Forecast Units'
 		dataType: double
 		lineageTag: 8bf4bdbb-53ae-4b72-b054-474dd4fbd5ee
+		summarizeBy: none
 		sourceColumn: Forecast Units
 
 	column 'Forecast Version'

@@ -18,16 +18,19 @@ table fact_cash_flow
 	column 'Operating Cash Flow Amount'
 		dataType: double
 		lineageTag: 3b06e31d-f7bc-4d9d-9841-975722ed993c
+		summarizeBy: none
 		sourceColumn: Operating Cash Flow Amount
 
 	column 'CapEx Amount'
 		dataType: double
 		lineageTag: c7ffb9e7-5b32-4a4c-828f-86f2d2ce9c30
+		summarizeBy: none
 		sourceColumn: CapEx Amount
 
 	column 'Plan OCF Amount'
 		dataType: double
 		lineageTag: b2dd8c16-54c5-4875-b912-3d132fed79fc
+		summarizeBy: none
 		sourceColumn: Plan OCF Amount
 
 	partition fact_cash_flow = m

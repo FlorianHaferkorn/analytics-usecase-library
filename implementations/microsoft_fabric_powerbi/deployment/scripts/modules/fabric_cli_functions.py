@@ -8,8 +8,45 @@ import time
 import uuid
 from typing import Optional, Dict, Any, List
 
+from . import retry_logic
 
 EXIT_ON_ERROR = False
+
+# Retry settings for Fabric CLI commands (transient failures)
+DEFAULT_RETRY_MAX = 3
+DEFAULT_RETRY_DELAY = 1.0
+DEFAULT_RETRY_BACKOFF = 2.0
+
+
+def _run_command_impl(command: str) -> str:
+    """Internal: run Fabric CLI command and return stdout. Raises CalledProcessError on failure."""
+    result = subprocess.run(
+        ["fab", "-c", command],
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=120,
+    )
+    output = result.stdout.strip()
+    filtered_lines = [
+        line for line in output.splitlines()
+        if not line.strip().startswith("!") and not line.strip().startswith("'")
+    ]
+    return "\n".join(filtered_lines)
+
+
+@retry_logic.retry(
+    max_retries=DEFAULT_RETRY_MAX,
+    initial_delay=DEFAULT_RETRY_DELAY,
+    backoff_multiplier=DEFAULT_RETRY_BACKOFF,
+    retryable_exceptions=(subprocess.CalledProcessError, TimeoutError, ConnectionError, OSError),
+    retry_condition=lambda e, _: retry_logic.is_transient_failure(
+        e, getattr(e, "stderr", "") or getattr(e, "output", "") or str(e)
+    ),
+)
+def _run_command_with_retry(command: str) -> str:
+    """Run Fabric CLI command with retry on transient failures."""
+    return _run_command_impl(command)
 
 
 def is_guid(value: str) -> bool:
@@ -21,38 +58,36 @@ def is_guid(value: str) -> bool:
         return False
 
 
-def run_command(command: str) -> str:
+def run_command(command: str, use_retry: bool = True) -> str:
     """
     Run Fabric CLI command.
-    
+
+    Uses retry logic for transient failures when use_retry=True (default).
+
     Args:
         command: Fabric CLI command (without 'fab -c' prefix)
-    
+        use_retry: If True, retry on transient failures (default True)
+
     Returns:
         Command output (stdout) or error message (stderr)
     """
     try:
-        result = subprocess.run(
-            ["fab", "-c", command],
-            capture_output=True,
-            text=True,
-            check=EXIT_ON_ERROR
-        )
-        output = result.stdout.strip()
-        
-        # Remove lines starting with ! (debug etc.)
-        filtered_lines = [
-            line for line in output.splitlines()
-            if not line.strip().startswith("!") and not line.strip().startswith("'")
-        ]
-        clean_result = "\n".join(filtered_lines)
-        return clean_result
+        if use_retry:
+            return _run_command_with_retry(command)
+        return _run_command_impl(command)
     except subprocess.CalledProcessError as e:
+        err_msg = (e.stderr or e.stdout or str(e)).strip()
         print(f"Error running Fabric CLI command: {command}")
-        print(f"Error message: {e.stderr.strip()}")
+        print(f"Error message: {err_msg}")
         if EXIT_ON_ERROR:
             raise
-        return e.stderr.strip()
+        return err_msg
+    except (TimeoutError, ConnectionError, OSError) as e:
+        print(f"Error running Fabric CLI command: {command}")
+        print(f"Error message: {e}")
+        if EXIT_ON_ERROR:
+            raise
+        return str(e)
 
 
 def get_item(item_path: str, retry_count: int = 0) -> Optional[Dict[str, Any]]:
@@ -102,6 +137,33 @@ def workspace_exists(workspace_name: str) -> bool:
     """Check if workspace exists."""
     workspace_path = f"{workspace_name}.Workspace"
     return item_exists(workspace_path)
+
+
+def delete_workspace(workspace_id: str) -> bool:
+    """
+    Delete a Fabric workspace by ID (for rollback).
+    Requires admin role on the workspace.
+    """
+    try:
+        response = run_command(f"api -X delete workspaces/{workspace_id}", use_retry=False)
+        result = json.loads(response)
+        return result.get("status_code", 0) in [200, 204]
+    except Exception as e:
+        print(f"Error deleting workspace {workspace_id}: {e}")
+        return False
+
+
+def delete_connection(connection_id: str) -> bool:
+    """
+    Delete a Fabric connection by ID (for rollback).
+    """
+    try:
+        response = run_command(f"api -X delete connections/{connection_id}", use_retry=False)
+        result = json.loads(response)
+        return result.get("status_code", 0) in [200, 204]
+    except Exception as e:
+        print(f"Error deleting connection {connection_id}: {e}")
+        return False
 
 
 def create_workspace(workspace_name: str, capacity_name: str) -> Optional[Dict[str, Any]]:

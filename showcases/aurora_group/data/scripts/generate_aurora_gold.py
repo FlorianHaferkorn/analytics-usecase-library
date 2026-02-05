@@ -20,9 +20,12 @@ import numpy as np
 from pathlib import Path
 from datetime import datetime
 import random
+import subprocess
 import sys
 
 gold = (Path(__file__).resolve().parent.parent / "gold")
+# Repo root (for running standalone scripts that expect cwd=repo root)
+repo_root = gold.parent.parent.parent.parent
 dims = gold / "dimensions"
 facts = gold / "facts"
 
@@ -83,123 +86,20 @@ def _resolve_keys():
     return org_keys, date_keys, product_keys, customer_keys
 
 
-def run_operations(org_keys, date_keys, product_keys):
-    # dim_asset
-    dim_asset_dir = dims / "dim_asset"
-    dim_asset_dir.mkdir(parents=True, exist_ok=True)
-    rows_asset = []
-    for i, ok in enumerate(org_keys[:5]):
-        rows_asset.append({
-            "AssetKey": 1000 + i,
-            "AssetCode": f"A{i+1:03d}",
-            "AssetName": f"Line Asset {i+1}",
-            "AssetClass": "Production Line",
-            "Criticality": "High" if i < 2 else "Medium",
-            "OrgKey": ok,
-        })
-    pd.DataFrame(rows_asset).to_parquet(dim_asset_dir / "part-00000.parquet", index=False)
-    print("Written dim_asset")
-    asset_keys = [r["AssetKey"] for r in rows_asset]
-
-    # fact_ops
-    (facts / "fact_ops").mkdir(parents=True, exist_ok=True)
-    rows_ops = []
-    for dk in date_keys[:6]:
-        for ok in org_keys[:2]:
-            for ak in asset_keys[:2]:
-                rows_ops.append({
-                    "DateKey": dk, "OrgKey": ok, "AssetKey": ak,
-                    "Planned Time Minutes": 480.0, "Run Time Minutes": 420.0, "Downtime Minutes": 60.0,
-                    "Output Units": 5000.0, "Good Units": 4800.0, "Scrap Units": 200.0,
-                    "Standard Rate Units Per Minute": 12.0,
-                })
-    pd.DataFrame(rows_ops).to_parquet(facts / "fact_ops" / "part-00000.parquet", index=False)
-    print("Written fact_ops")
-
-    # fact_ops_failures
-    base_dt = datetime(2024, 1, 15, 8, 0, 0)
-    (facts / "fact_ops_failures").mkdir(parents=True, exist_ok=True)
-    rows_fail = []
-    for i, ak in enumerate(asset_keys[:2]):
-        rows_fail.append({
-            "AssetKey": ak,
-            "Failure Start DateTime": base_dt,
-            "Failure End DateTime": base_dt.replace(hour=10, minute=30),
-            "Repair Duration Hours": 2.5, "Downtime Minutes": 150.0, "Cause Code": "Mechanical",
-        })
-    pd.DataFrame(rows_fail).to_parquet(facts / "fact_ops_failures" / "part-00000.parquet", index=False)
-    print("Written fact_ops_failures")
-
-    # fact_maintenance
-    (facts / "fact_maintenance").mkdir(parents=True, exist_ok=True)
-    rows_maint = []
-    for ak in asset_keys[:3]:
-        for dk in date_keys[:3]:
-            rows_maint.append({
-                "AssetKey": ak, "DateKey": dk,
-                "Order Type": "PM", "Order Status": "Completed", "On Time Flag": True, "Parts Stockout Flag": False,
-            })
-    pd.DataFrame(rows_maint).to_parquet(facts / "fact_maintenance" / "part-00000.parquet", index=False)
-    print("Written fact_maintenance")
-
-    # fact_quality
-    (facts / "fact_quality").mkdir(parents=True, exist_ok=True)
-    rows_qual = []
-    for dk in date_keys[:4]:
-        for ok in org_keys[:2]:
-            for pk in product_keys[:2]:
-                rows_qual.append({
-                    "DateKey": dk, "OrgKey": ok, "ProductKey": pk,
-                    "Total Units": 1000.0, "Good Units": 950.0, "Scrap Units": 30.0,
-                    "Rework Units": 20.0, "Defect Count": 5.0,
-                })
-    pd.DataFrame(rows_qual).to_parquet(facts / "fact_quality" / "part-00000.parquet", index=False)
-    print("Written fact_quality")
+def run_operations(_org_keys, _date_keys, _product_keys):
+    """Delegate to standalone script for consistent quality: realistic asset names, seasonality, variation (2020-2024)."""
+    script = gold / "generate_operations_gold.py"
+    if not script.exists():
+        raise FileNotFoundError(f"Operations generator not found: {script}")
+    subprocess.run([sys.executable, str(script)], cwd=str(repo_root), check=True)
 
 
-def run_supply_chain(org_keys, date_keys, product_keys):
-    # dim_lane
-    (dims / "dim_lane").mkdir(parents=True, exist_ok=True)
-    rows_lane = [
-        {"LaneKey": 1, "Origin": "DC-NL", "Destination": "DE", "Mode": "Road"},
-        {"LaneKey": 2, "Origin": "DC-DE", "Destination": "AT", "Mode": "Road"},
-    ]
-    pd.DataFrame(rows_lane).to_parquet(dims / "dim_lane" / "part-00000.parquet", index=False)
-    print("Written dim_lane")
-    lane_keys = [r["LaneKey"] for r in rows_lane]
-
-    # fact_inventory, fact_cogs, fact_fulfillment, fact_stockout, fact_forecast
-    for name, key_extra, rows_fn in [
-        ("fact_inventory", None, lambda: [
-            {"DateKey": dk, "OrgKey": ok, "ProductKey": pk,
-             "Average Inventory Amount": 50000.0, "Average Inventory Units": 1000.0,
-             "Obsolete Inventory Amount": 1000.0, "Obsolete Inventory Units": 20.0}
-            for dk in date_keys[:6] for ok in org_keys[:2] for pk in product_keys[:3]
-        ]),
-        ("fact_cogs", None, lambda: [
-            {"DateKey": dk, "OrgKey": ok, "ProductKey": pk, "COGS Amount": 40000.0}
-            for dk in date_keys[:6] for ok in org_keys[:2] for pk in product_keys[:3]
-        ]),
-        ("fact_fulfillment", lane_keys, lambda: [
-            {"DateKey": dk, "OrgKey": ok, "ProductKey": pk, "LaneKey": lk,
-             "OTIF Flag": True, "On-Time Flag": True, "In-Full Flag": True, "Order Correct Flag": True,
-             "Order Qty": 100.0, "Penalty Amount": 0.0, "Expedite Cost": 0.0}
-            for dk in date_keys[:4] for ok in org_keys[:2] for pk in product_keys[:2] for lk in (lane_keys[:1])
-        ]),
-        ("fact_stockout", None, lambda: [
-            {"DateKey": dk, "OrgKey": ok, "ProductKey": pk,
-             "Stockout Flag": False, "Lost Demand Units": 0.0, "Demand Units": 500.0}
-            for dk in date_keys[:6] for ok in org_keys[:2] for pk in product_keys[:2]
-        ]),
-        ("fact_forecast", None, lambda: [
-            {"DateKey": dk, "ProductKey": pk, "OrgKey": ok, "Forecast Units": 800.0, "Forecast Version": "v1"}
-            for dk in date_keys[:6] for pk in product_keys[:3] for ok in org_keys[:2]
-        ]),
-    ]:
-        (facts / name).mkdir(parents=True, exist_ok=True)
-        rows = rows_fn()
-        pd.DataFrame(rows).to_parquet(facts / name / "part-00000.parquet", index=False)
-        print(f"Written {name}")
+def run_supply_chain(_org_keys, _date_keys, _product_keys):
+    """Delegate to standalone script for consistent quality: seasonality, org-derived lanes, variation (2020-2024)."""
+    script = gold / "generate_supply_chain_gold.py"
+    if not script.exists():
+        raise FileNotFoundError(f"Supply chain generator not found: {script}")
+    subprocess.run([sys.executable, str(script)], cwd=str(repo_root), check=True)
 
 
 def run_experience_promo(org_keys, date_keys, customer_keys):

@@ -50,16 +50,19 @@ table fact_fulfillment
 	column 'Order Qty'
 		dataType: double
 		lineageTag: de71161a-4daf-4180-b314-32cb5a7579db
+		summarizeBy: none
 		sourceColumn: Order Qty
 
 	column 'Penalty Amount'
 		dataType: double
 		lineageTag: 5b72aa7a-3e86-4c31-8642-0d7581749d99
+		summarizeBy: none
 		sourceColumn: Penalty Amount
 
 	column 'Expedite Cost'
 		dataType: double
 		lineageTag: 52cc46ec-e9df-4aa8-a138-d614164e824b
+		summarizeBy: none
 		sourceColumn: Expedite Cost
 
 	partition fact_fulfillment = m

@@ -52,7 +52,7 @@ table dim_product
 	column 'List Price Amount'
 		dataType: double
 		lineageTag: df2d8203-6b52-4409-8743-8ef0d9005dfe
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: List Price Amount
 
 		annotation SummarizationSetBy = Automatic

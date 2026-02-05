@@ -38,7 +38,7 @@ table fact_ops_failures
 	column 'Repair Duration Hours'
 		dataType: double
 		lineageTag: 8ec9361b-040b-4e2e-99c2-5c2e1e2f7b3a
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Repair Duration Hours
 
 		annotation SummarizationSetBy = Automatic
@@ -46,7 +46,7 @@ table fact_ops_failures
 	column 'Downtime Minutes'
 		dataType: double
 		lineageTag: e1f18446-69a8-4b89-b300-e24dc8dd5562
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Downtime Minutes
 
 		annotation SummarizationSetBy = Automatic

@@ -12,6 +12,7 @@ Usage:
 import os
 import sys
 import io
+import time
 import argparse
 from pathlib import Path
 
@@ -32,6 +33,22 @@ from azure.identity import ClientSecretCredential
 
 import modules.fabric_cli_functions as fabcli
 import modules.misc_functions as misc
+import modules.retry_logic as retry_logic
+
+try:
+    import modules.framework_validator as framework_validator
+except ImportError:
+    framework_validator = None
+
+try:
+    import modules.parameter_validator as parameter_validator
+except ImportError:
+    parameter_validator = None
+
+try:
+    import modules.rollback_manager as rollback
+except ImportError:
+    rollback = None
 
 # Default values
 DEFAULT_ENVIRONMENT = "tst"
@@ -80,29 +97,48 @@ def release_to_workspace(
         misc.print_error(f"Repository directory not found: {repository_directory}")
         return False
     
-    try:
-        target_workspace = FabricWorkspace(
-            workspace_id=workspace_id,
-            environment=environment.upper(),
-            repository_directory=repository_directory,
-            item_type_in_scope=item_types,
-            token_credential=token_credential
-        )
-        
-        misc.print_info(f"  {misc.BULLET} Publishing items from {repository_directory}...", end="")
-        publish_all_items(target_workspace)
-        misc.print_success(f" {misc.CHECKMARK}")
-        
-        if unpublish_orphans:
-            misc.print_info(f"  {misc.BULLET} Unpublishing orphan items...", end="")
-            unpublish_all_orphan_items(target_workspace)
+    target_workspace = FabricWorkspace(
+        workspace_id=workspace_id,
+        environment=environment.upper(),
+        repository_directory=repository_directory,
+        item_type_in_scope=item_types,
+        token_credential=token_credential
+    )
+
+    max_retries = 3
+    last_exc = None
+    for attempt in range(max_retries + 1):
+        try:
+            misc.print_info(f"  {misc.BULLET} Publishing items from {repository_directory}...", end="")
+            publish_all_items(target_workspace)
             misc.print_success(f" {misc.CHECKMARK}")
-        
-        return True
-        
-    except Exception as e:
-        misc.print_error(f" {misc.CROSSMARK} Failed: {e}")
-        return False
+            break
+        except Exception as e:
+            last_exc = e
+            if attempt < max_retries and retry_logic.is_transient_failure(e, str(e)):
+                misc.print_warning(f" Transient failure (attempt {attempt + 1}/{max_retries + 1}), retrying...")
+                time.sleep(2.0 * (2 ** attempt))
+            else:
+                misc.print_error(f" {misc.CROSSMARK} Failed: {e}")
+                return False
+
+    if unpublish_orphans:
+        for attempt in range(max_retries + 1):
+            try:
+                misc.print_info(f"  {misc.BULLET} Unpublishing orphan items...", end="")
+                unpublish_all_orphan_items(target_workspace)
+                misc.print_success(f" {misc.CHECKMARK}")
+                break
+            except Exception as e:
+                last_exc = e
+                if attempt < max_retries and retry_logic.is_transient_failure(e, str(e)):
+                    misc.print_warning(f" Transient failure (attempt {attempt + 1}/{max_retries + 1}), retrying...")
+                    time.sleep(2.0 * (2 ** attempt))
+                else:
+                    misc.print_error(f" {misc.CROSSMARK} Unpublish failed: {e}")
+                    return False
+
+    return True
 
 
 def main():
@@ -174,7 +210,25 @@ Examples:
         default=os.environ.get('CLIENT_SECRET'),
         help="Service principal client secret (or set CLIENT_SECRET env var)"
     )
-    
+
+    parser.add_argument(
+        "--skip-framework-validation",
+        action="store_true",
+        help="Skip Stage 1 and Fabric checks before release (requires repo root and PowerShell when not set)"
+    )
+
+    parser.add_argument(
+        "--validate-parameters",
+        action="store_true",
+        help="Validate parameter.yml in each layer directory before release"
+    )
+
+    parser.add_argument(
+        "--enable-rollback",
+        action="store_true",
+        help="Create snapshot before release; on failure, snapshot is saved for manual rollback or Git redeploy"
+    )
+
     args = parser.parse_args()
     
     # Validate required arguments
@@ -182,7 +236,20 @@ Examples:
         misc.print_error("Error: tenant_id, client_id, and client_secret are required")
         misc.print_info("Set them as arguments or environment variables (TENANT_ID, CLIENT_ID, CLIENT_SECRET)")
         sys.exit(1)
-    
+
+    # Optional: run framework validation (Stage 1 + Fabric checks) before release
+    if not args.skip_framework_validation and framework_validator:
+        misc.print_header("Framework Validation")
+        ok, msg, _ = framework_validator.run_framework_validation(
+            include_stage1=True,
+            include_fabric=True,
+            dry_run=False,
+        )
+        if not ok:
+            misc.print_error(msg)
+            sys.exit(1)
+        misc.print_success(msg)
+
     # Authenticate with Fabric CLI (for workspace lookup)
     misc.print_header("Authenticating with Fabric")
     fabcli.run_command("config set encryption_fallback_enabled true")
@@ -221,7 +288,21 @@ Examples:
     
     success_count = 0
     fail_count = 0
-    
+    enable_rollback = getattr(args, "enable_rollback", False) and rollback
+    release_snapshot_path = None
+
+    if enable_rollback:
+        snap_path, _ = rollback.create_snapshot(
+            args.environment,
+            "release",
+            created_workspaces=[],
+            created_connections=[],
+            items_by_workspace={},
+        )
+        if snap_path:
+            release_snapshot_path = str(snap_path)
+            misc.print_info(f"Rollback snapshot created: {release_snapshot_path}")
+
     # Deploy to each layer
     for layer_name, layer_def in layers.items():
         if layer_name.upper() not in layers_to_deploy:
@@ -246,7 +327,17 @@ Examples:
         # Get Git directory for this layer
         git_directory = layer_def.get("git_directoryName", f"solution/{layer_name.lower()}")
         repository_directory = os.path.join(args.repo_path, git_directory.replace("solution/", ""))
-        
+
+        # Optional parameter validation
+        if getattr(args, "validate_parameters", False) and parameter_validator:
+            ok, errs, _ = parameter_validator.validate_parameter_file_from_repo(
+                args.repo_path,
+                git_directory,
+            )
+            if not ok and errs:
+                misc.print_warning(f"Parameter validation for {layer_name}: {errs[0]}")
+                # Don't fail release; just warn
+
         # Release to workspace
         success = release_to_workspace(
             workspace_name=workspace_name,
@@ -268,6 +359,9 @@ Examples:
     misc.print_info(f"Successfully deployed to {success_count} workspace(s)")
     if fail_count > 0:
         misc.print_error(f"Failed to deploy to {fail_count} workspace(s)")
+        if release_snapshot_path:
+            misc.print_info(f"Rollback snapshot: {release_snapshot_path}")
+            misc.print_info("To roll back: redeploy from Git (e.g. previous commit) or run fabric_rollback.py")
         sys.exit(1)
     else:
         misc.print_success("All deployments completed successfully")

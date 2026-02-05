@@ -24,11 +24,13 @@ table fact_accounts_receivable
 	column 'AR Amount'
 		dataType: double
 		lineageTag: 526d015a-dfd1-4c64-8082-6baaf126891e
+		summarizeBy: none
 		sourceColumn: AR Amount
 
 	column 'Revenue Amount'
 		dataType: double
 		lineageTag: 360bfc95-909a-471c-ba0d-c37f8f135d9d
+		summarizeBy: none
 		sourceColumn: Revenue Amount
 
 	partition fact_accounts_receivable = m

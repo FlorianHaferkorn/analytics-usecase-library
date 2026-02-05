@@ -29,11 +29,13 @@ table fact_stockout
 	column 'Lost Demand Units'
 		dataType: double
 		lineageTag: 2e516b43-3228-4a73-9e94-8a702b8acf8e
+		summarizeBy: none
 		sourceColumn: Lost Demand Units
 
 	column 'Demand Units'
 		dataType: double
 		lineageTag: 4eadb426-3584-423f-acc9-190306cfff4c
+		summarizeBy: none
 		sourceColumn: Demand Units
 
 	partition fact_stockout = m

@@ -12,26 +12,31 @@ table fact_promo
 	column 'Promo Cost'
 		dataType: double
 		lineageTag: f42dc634-1198-4d99-8572-c18b7aa8006d
+		summarizeBy: none
 		sourceColumn: Promo Cost
 
 	column 'Funding Amount'
 		dataType: double
 		lineageTag: 088495fa-1540-4620-bc45-7c29f56bdc73
+		summarizeBy: none
 		sourceColumn: Funding Amount
 
 	column 'Baseline Sales Amount'
 		dataType: double
 		lineageTag: 924bb0fb-6d8d-4906-a495-4aa5668fc59d
+		summarizeBy: none
 		sourceColumn: Baseline Sales Amount
 
 	column 'Baseline Quantity'
 		dataType: double
 		lineageTag: dbf30e9f-1d5c-42a0-8d06-371938d7f414
+		summarizeBy: none
 		sourceColumn: Baseline Quantity
 
 	column 'Baseline Non-Promo Sales Amount'
 		dataType: double
 		lineageTag: 90ea0bc1-3b14-4e94-ad83-c1178ad1ddd2
+		summarizeBy: none
 		sourceColumn: Baseline Non-Promo Sales Amount
 
 	partition fact_promo = m

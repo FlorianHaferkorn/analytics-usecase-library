@@ -30,6 +30,11 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 import modules.misc_functions as misc
 
+try:
+    import modules.parameter_validator as param_validator
+except ImportError:
+    param_validator = None
+
 # Default values
 DEFAULT_ENVIRONMENTS = "dev,tst,prd"
 
@@ -119,7 +124,13 @@ def main():
         required=False,
         help="Output file path (default: stdout)"
     )
-    
+
+    parser.add_argument(
+        "--validate",
+        action="store_true",
+        help="Validate generated or existing parameter file (when --output is set)"
+    )
+
     args = parser.parse_args()
     
     environments = [env.strip() for env in args.environments.split(",")]
@@ -134,7 +145,18 @@ def main():
     misc.print_info(f"Loaded configurations for: {', '.join(configs.keys())}")
     
     parameter_data = generate_parameter_file(configs, args.output)
-    
+
+    if getattr(args, "validate", False) and param_validator and args.output and os.path.isfile(args.output):
+        misc.print_header("Validating Parameter File")
+        ok, errs, _ = param_validator.validate_parameter_file(args.output)
+        if ok:
+            misc.print_success("Parameter file validation passed.")
+        else:
+            for e in errs:
+                misc.print_error(e)
+            misc.print_error("Parameter file validation failed.")
+            sys.exit(1)
+
     misc.print_success("Parameter file generation complete")
     misc.print_info("Note: This is a template generator. Review and update with actual IDs from Fabric.")
 
