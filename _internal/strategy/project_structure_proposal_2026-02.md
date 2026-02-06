@@ -88,6 +88,8 @@ We need a reliable, realistic cost calculation system as a first-class product:
 
 This should be delivered as a product folder with its own semantic model,
 templates, and validation rules, but governed by the same core framework.
+See _internal/strategy/product_costing_model_2026-02.md for the costing and
+effort model.
 
 ### 2.4 World-class quality bar
 
