@@ -24,7 +24,11 @@ products and platforms are added.
 
 ---
 
-## 2) Big picture we are aiming for
+## 2) Big picture we are aiming for (clarified)
+
+World-class quality, fast adoption, and reliable outcomes:
+
+### 2.1 Product vision (end state)
 
 Build a productized "ActionReady Analytics Platform" with clear layers:
 
@@ -48,6 +52,49 @@ Build a productized "ActionReady Analytics Platform" with clear layers:
 This aligns with the "Strategy -> KPIs -> Use Cases -> Action Codes -> Templates
 -> Semantic Models -> Implementation" golden thread and makes productization
 explicit.
+
+### 2.2 Day-1 greenfield capability (within 1 day)
+
+Goal: from a Silver layer input to 1+ working reports and an action-ready
+reporting system within a day, with validation and quality gates.
+
+Required assets (as products or bundles):
+
+- **Silver data contract pack**: domain and source contracts that define the
+  Silver layer inputs for the first use cases.
+- **Core semantic model skeleton**: conformed dimensions, measures table, and
+  a minimal KPI set aligned to the KPI catalog.
+- **Action-ready report scaffold**: page templates, navigation, and a minimal
+  report app consistent with 3-30-300 UX rules.
+- **Automation**: generators for measures and report scaffolds; repeatable
+  validation with Stage 1 and product checks.
+- **Starter use cases**: 1-3 use cases with Business and Technical factsheets
+  that map directly to Silver layer inputs.
+
+Success criteria:
+- Stage 1 passes.
+- Platform checks pass (e.g., Fabric checks when applicable).
+- At least one report is refreshable and action-ready from Silver data.
+
+### 2.3 Proposal costing system (customer proposals)
+
+We need a reliable, realistic cost calculation system as a first-class product:
+
+- **Cost driver catalog**: rates, drivers, and assumptions with versioning.
+- **Allocation and pricing logic**: governed rules with auditability.
+- **Scenario and sensitivity**: parameterized inputs, what-if, margin targets.
+- **Outputs**: cost breakdowns, pricing proposals, and approval trails.
+- **Integration**: ties to KPI catalog and financial domains where relevant.
+
+This should be delivered as a product folder with its own semantic model,
+templates, and validation rules, but governed by the same core framework.
+
+### 2.4 World-class quality bar
+
+- Golden-thread compliance: all outputs trace to core definitions.
+- Automated validation as non-negotiable gate (Stage 1 + product checks).
+- Separation of source vs generated artifacts.
+- Deterministic scaffolding, versioned inputs, and audit-ready calculations.
 
 ---
 
@@ -82,6 +129,13 @@ products/                   # Platform-specific products
     deployment/             # Pipelines, infra, release tooling
     templates/              # Platform templates (PBIP, themes, layouts)
     dist/                   # Generated artifacts (TMDL, PBIP, etc.)
+    tests/
+  proposal_costing/
+    docs/                   # Costing product guide
+    model/                  # Costing semantic model and definitions
+    tooling/                # Costing-specific generators/checks
+    templates/              # Costing templates, rate cards, assumptions
+    dist/                   # Generated artifacts
     tests/
 
 tooling/                    # Cross-platform tooling
@@ -121,6 +175,7 @@ Each product folder must include:
 - `docs/README.md` with scope, prerequisites, and entry points.
 - `tooling/` for platform-specific scripts and checks.
 - `deployment/` for CI/CD templates and infra assets.
+- `model/` for product-specific semantic model or domain logic (if applicable).
 - `dist/` for generated artifacts only (never hand-edited).
 - `templates/` for product templates (themes, layouts, scaffolds).
 
@@ -139,6 +194,7 @@ _internal/ci/                                -> internal/ci/
 _internal/strategy/                          -> internal/strategy/
 _internal/archive/                           -> internal/archive/
 showcases/                                   -> showcases/ (unchanged)
+proposal_costing/                            -> products/proposal_costing/ (new)
 ```
 
 Compatibility: keep shim folders or stub README links during migration to avoid
