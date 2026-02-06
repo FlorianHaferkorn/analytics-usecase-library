@@ -14,6 +14,11 @@ Design specification for Power BI page scaffold mockups and PBIP output. Ensures
 
 ## 2. Research and authority sources
 
+### 3-30-300 rule (SQLBI)
+
+- [Introducing the 3-30-300 rule for better reports](https://www.sqlbi.com/articles/introducing-the-3-30-300-rule-for-better-reports/) (SQLBI): 3 sec = overview in top-left (few cards/line; do not place slicers or buttons there). 30 sec = filter and zoom (slicers, breakdown visuals). 300 sec = details-on-demand (matrix, drillthrough). Authoritative reference for zone order and slicer placement.
+- [Design better dashboards with the 3-30-300 framework](https://timc.eu/design-better-dashboards-with-the-3-30-300-framework) (timc.eu): Additional guidance on applying the rule.
+
 ### Microsoft
 
 - [Tips for designing a great Power BI dashboard](https://learn.microsoft.com/en-us/power-bi/create-reports/service-dashboards-design-tips): most important information top-left, tell a story on one screen, accent the most important (e.g. cards), avoid clutter; consider audience and device.
@@ -60,6 +65,13 @@ Layout rules define **hierarchy and emphasis only**, not a fixed grid. Positions
 - Reserve **slicer area** (top bar or side strip) and **action panel** (right side) when present.
 
 Row boundaries and heights are **computed** from the count and type of visuals, not fixed.
+
+**3-30-300 zone order (authoritative: SQLBI):** Slicers belong to the 30-second layer (filter/zoom), not the 3-second layer. Do not place slicers, buttons, or logos in the top-left; they clutter the 3-second space. Layout order is:
+
+1. **Zone 1 (3 sec):** KPI band only — top of page; no slicers in this zone.
+2. **Zone 2 (30 sec – filter):** Slicer bar — directly below the KPI band.
+3. **Zone 3 (30 sec – drivers):** Primary and secondary visuals (trend, variance, ranking, mix, etc.).
+4. **Zone 4 (300 sec):** Detail matrix at bottom (when present).
 
 ---
 
@@ -124,6 +136,7 @@ Row boundaries and heights are **computed** from the count and type of visuals, 
 
 ## 12. Design references (links)
 
+- [SQLBI: Introducing the 3-30-300 rule for better reports](https://www.sqlbi.com/articles/introducing-the-3-30-300-rule-for-better-reports/) — zone order, slicer placement, overview-first.
 - [Tremor template-dashboard-oss](https://github.com/tremorlabs/template-dashboard-oss) — layout and visual hierarchy.
 - [Tabler layout fluid](https://preview.tabler.io/layout-fluid.html) — fluid grid, dashboard layouts.
 - [Microsoft Power BI design tips](https://learn.microsoft.com/en-us/power-bi/create-reports/service-dashboards-design-tips) — authority guidance.

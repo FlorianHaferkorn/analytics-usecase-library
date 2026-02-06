@@ -3,7 +3,9 @@
   "pageOrder": [
     "3a950e79e4244194aa10",
     "8ea67f983ae8454eb583",
-    "e4c4f82425e247138969"
+    "e4c4f82425e247138969",
+    "Page_COM001_Overview",
+    "Page_COM001_Detail"
   ],
-  "activePageName": "e4c4f82425e247138969"
+  "activePageName": "Page_COM001_Overview"
 }

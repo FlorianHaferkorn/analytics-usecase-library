@@ -59,14 +59,20 @@ table fact_ops_failures
 
 		annotation SummarizationSetBy = Automatic
 
+	column DateKey
+		dataType: int64
+		lineageTag: 723bd3d1-1551-434f-bcf9-4b0beb7ae61c
+		summarizeBy: none
+		sourceColumn: DateKey
+
 	partition fact_ops_failures = m
 		mode: import
 		source =
 				let
 					Source = Folder.Files(GoldDataPath & "/facts/fact_ops_failures"),
 					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-					FirstFile = FilteredFiles{0}[Content],
-					ParquetData = Parquet.Document(FirstFile)
+					ParquetTables = Table.AddColumn(FilteredFiles, "Parquet", each Parquet.Document([Content])),
+					Combined = Table.Combine(ParquetTables[Parquet])
 				in
-					ParquetData
+					Combined
 

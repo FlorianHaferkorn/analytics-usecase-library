@@ -79,13 +79,15 @@ class PageBuilder:
 
         # KPI count (configurable; default 4)
         kpi_count = 4  # Can be made configurable or read from use case config
+        has_top_slicer = not slots.get("exclude_time_slicer", False)
 
-        # Adaptive layout: single source of truth for PBIP and mockup
+        # Adaptive layout: single source of truth for PBIP and mockup (3-30-300: KPI then slicer then drivers)
         layout_bounds = self.layout_calculator.compute_adaptive_bounds(
             slots=slots,
             template=template,
             has_action_panel=has_action_panel,
             kpi_count=kpi_count,
+            has_top_slicer=has_top_slicer,
         )
 
         # Calculate visual positions (using adaptive bounds)
@@ -169,7 +171,8 @@ class PageBuilder:
         if not slots.get('exclude_time_slicer', False):
             slicer_positions = self.layout_calculator.calculate_slicer_positions(
                 slicers=[{"type": "time"}],
-                placement="top"
+                placement="top",
+                y_start=layout_bounds.get("slicer_y_start"),
             )
             if slicer_positions:
                 slicer = self.slicer_builder.build_time_slicer(slicer_positions[0], name="Slicer_Date")

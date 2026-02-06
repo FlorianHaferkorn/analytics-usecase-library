@@ -61,22 +61,30 @@ class LayoutCalculator:
         has_action_panel: bool = False,
         kpi_count: int = 4,
         use_compact_kpi: bool = False,
+        has_top_slicer: bool = True,
     ) -> Dict[str, float]:
         """
         Compute layout bounds that adapt to page type and actual visuals (resize/reflow).
         Single source of truth for both PBIP and mockup.
-        
+        3-30-300: Zone 1 = KPI band; Zone 2 = slicer row (below KPIs); Zone 3 = drivers; Zone 4 = detail.
+
         Returns:
-            Dict with kpi_band_y_end, row_2_y, row_2_height, row_3_y, row_3_height,
-            detail_y, detail_height, and optionally row_2_visual_height (per-visual height when stacked).
+            Dict with kpi_band_y_end, slicer_y_start (when has_top_slicer), row_2_y, row_2_height, etc.
         """
         card_height = self.KPI_CARD_HEIGHT_COMPACT if use_compact_kpi else self.KPI_CARD_HEIGHT_STANDARD
-        # KPI band: 1 row or 2 rows
+        # KPI band: 1 row or 2 rows (Zone 1 - 3 sec)
         if kpi_count <= self.KPI_CARDS_MAX_PER_ROW:
             kpi_band_y_end = self.PADDING + card_height + self.PADDING  # ~180
         else:
             kpi_band_y_end = self.PADDING + card_height + self.GAP_BETWEEN_VISUALS + card_height + self.PADDING  # ~340
-        row_2_y = kpi_band_y_end + self.GAP_BETWEEN_GROUPS
+
+        # Zone 2 (30 sec filter): slicer row below KPI band when present
+        slicer_y_start = None
+        if has_top_slicer:
+            slicer_y_start = kpi_band_y_end + self.GAP_BETWEEN_GROUPS
+            row_2_y = slicer_y_start + self.SLICER_TOP_HEIGHT + self.GAP_BETWEEN_GROUPS
+        else:
+            row_2_y = kpi_band_y_end + self.GAP_BETWEEN_GROUPS
 
         # Count primary and secondary visuals
         primary_count = 0
@@ -127,7 +135,7 @@ class LayoutCalculator:
             detail_y = row_2_y + row_2_height + self.GAP_BETWEEN_GROUPS
         detail_height = self.CANVAS_HEIGHT - detail_y - self.PADDING if has_detail else 0
 
-        return {
+        result = {
             "kpi_band_y_end": kpi_band_y_end,
             "row_2_y": row_2_y,
             "row_2_height": row_2_height,
@@ -138,6 +146,9 @@ class LayoutCalculator:
             "primary_count": primary_count,
             "secondary_count": secondary_count,
         }
+        if slicer_y_start is not None:
+            result["slicer_y_start"] = slicer_y_start
+        return result
     
     def calculate_kpi_card_positions(
         self,
@@ -195,32 +206,37 @@ class LayoutCalculator:
 
         return positions
     
-    def calculate_slicer_positions(self, slicers: List[Dict[str, Any]], placement: str = "top") -> List[Position]:
+    def calculate_slicer_positions(
+        self,
+        slicers: List[Dict[str, Any]],
+        placement: str = "top",
+        y_start: Optional[float] = None,
+    ) -> List[Position]:
         """
         Calculate slicer positions.
-        
+        3-30-300: top slicers sit below the KPI band (y_start from layout_bounds.slicer_y_start).
+
         Args:
             slicers: List of slicer configurations
             placement: "top" or "side"
-        
+            y_start: For placement="top", optional y for the slicer row (default ROW_1_Y_START). Use when slicers are below KPI band.
+
         Returns:
             List of Position objects
         """
         positions = []
-        
+
         if placement == "top":
-            # Top placement: distribute across top row
             slicer_count = len(slicers)
             if slicer_count == 0:
                 return positions
-            
-            # Calculate slicer width (equal distribution)
+
             available_width = self.CANVAS_WIDTH - (2 * self.PADDING)
             slicer_width = (available_width - ((slicer_count - 1) * self.GAP_BETWEEN_VISUALS)) / slicer_count
-            
+
             x = self.PADDING
-            y = self.ROW_1_Y_START
-            
+            y = y_start if y_start is not None else self.ROW_1_Y_START
+
             for i in range(slicer_count):
                 positions.append(Position(
                     x=x,

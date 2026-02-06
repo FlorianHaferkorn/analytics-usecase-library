@@ -142,7 +142,7 @@ class PageScaffoldGenerator:
         if self.page_name == "overview":
             detail_matrix_visuals = [
                 v for v in self.page_structure["visuals"]
-                if "detail_matrix" in str(v).lower()
+                if v.get("name") == "DetailMatrix"
             ]
             if detail_matrix_visuals:
                 errors.append("Detail Matrix should only be on detail pages")
@@ -168,8 +168,8 @@ class PageScaffoldGenerator:
         writer = PBIPWriter(output_path)
         writer.create_pbip_structure()
         
-        # Write report.json
-        writer.write_report_json(theme_name=self.theme_name)
+        # Write report.json with base theme only; when --theme was passed, CLI will call apply_theme() to copy theme and add customTheme + resourcePackages
+        writer.write_report_json(theme_name=None)
         
         # Write pages.json (append if file exists)
         pages_file = writer.pages_path / "pages.json"

@@ -1,4 +1,4 @@
-﻿# Aurora Group Models
+# Aurora Group Models
 
 ## Purpose
 
@@ -40,7 +40,7 @@ Aurora Showcase Layer (tool-specific):
   - Tables: dim_date, dim_org, dim_asset, dim_product, fact_ops, fact_inventory_snapshot
   - Status: **Placeholder** (to be implemented after Commercial validation)
 
-- **`core_action_ready_model.yaml.legacy`** – Original generic cross-domain model (archived)
+- **`core_action_ready_model.yaml.legacy`** – Original generic cross-domain model; archived to `_internal/archive/legacy_aurora_models_2026-02/`
 
 ## Usage
 

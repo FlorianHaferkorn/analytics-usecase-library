@@ -20,6 +20,6 @@ For detailed requirements and measures, use the canonical factsheets:
 Build guidance:
 
 - Use Aurora synthetic datasets under `showcases/aurora_group/data/`.
-- Use the Aurora semantic model in `showcases/aurora_group/models/core_action_ready_model.yaml`.
+- Use the Aurora semantic model blueprints in `showcases/aurora_group/models/` (Commercial.yaml, Finance.yaml, Operations.yaml).
 - Apply the 3–30–300 layouts from `framework/templates/page_templates/`.
 

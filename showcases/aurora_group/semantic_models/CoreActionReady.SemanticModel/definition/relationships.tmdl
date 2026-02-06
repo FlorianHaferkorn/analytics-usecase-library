@@ -78,6 +78,10 @@ relationship d6e7f8a9-b0c1-2345-9012-456789012345
 	fromColumn: fact_ops_failures.AssetKey
 	toColumn: dim_asset.AssetKey
 
+relationship d7e8f9a0-b1c2-3456-0123-567890123456
+	fromColumn: fact_ops_failures.DateKey
+	toColumn: dim_date.DateKey
+
 relationship e7f8a9b0-c1d2-3456-0123-567890123456
 	fromColumn: fact_maintenance.AssetKey
 	toColumn: dim_asset.AssetKey
@@ -208,7 +212,6 @@ relationship q8r9s0t1-o2p3-4567-1234-6789-012345678901
 
 relationship security_user_org_dim_org
 	crossFilteringBehavior: bothDirections
-	securityFilteringBehavior: oneDirection
 	fromColumn: security_user_org.OrgKey
 	toColumn: dim_org.OrgKey
 

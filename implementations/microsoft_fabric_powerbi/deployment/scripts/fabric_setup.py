@@ -519,10 +519,35 @@ Examples:
                 connect_workspaces_to_git(env_definition, created_workspaces, git_connection, args.dry_run)
 
             # Run post-deployment health checks
+            health_checker = None
+            health_results_list = []
             if not args.dry_run:
                 health_checker = health.HealthChecker(args.environment, env_definition, args.dry_run)
-                all_healthy, health_results = health_checker.check_all()
+                all_healthy, health_results_list = health_checker.check_all()
                 health_checker.print_summary()
+
+            if not args.dry_run and report_gen:
+                preflight_dicts = [
+                    {"name": r.name, "passed": r.passed, "message": r.message, **r.details}
+                    for r in checker.results
+                ]
+                health_dicts = [
+                    {"name": r.name, "status": r.status, "message": r.message, **r.details}
+                    for r in health_results_list
+                ]
+                workspace_details = [
+                    {"name": w.get("name"), "id": w.get("id")}
+                    for w in created_workspaces.values() if isinstance(w, dict)
+                ]
+                html_path, json_path = report_gen.write_report(
+                    args.environment,
+                    True,
+                    preflight_results=preflight_dicts,
+                    health_results=health_dicts,
+                    workspace_details=workspace_details,
+                )
+                if html_path:
+                    misc.print_info(f"Deployment report: {html_path}")
 
             if enable_rollback and (created_workspaces_list or created_connections_list):
                 snap_path, _ = rollback.create_snapshot(

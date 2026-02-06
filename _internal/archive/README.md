@@ -1,4 +1,4 @@
-﻿# archive
+# archive
 
 Purpose:
 Historical storage for deprecated content, superseded artifacts, and legacy documentation.
@@ -17,6 +17,7 @@ Dated folders (YYYY-MM) preserve historical context and archival timeline:
 - `legacy_kpi_catalogs_2026-01/` - 9 pre-consolidation KPI catalog files
 - `legacy_measure_dicts_2026-01/` - 2 archived measure dictionary files
 - `legacy_usecases_2026-01/` - 2 superseded use case structures
+- `legacy_aurora_models_2026-02/` - 1 legacy Aurora showcase model (generic cross-domain, superseded by domain-specific blueprints)
 
 Usage:
 - Content is frozen for historical reference only

@@ -50,6 +50,11 @@ try:
 except ImportError:
     rollback = None
 
+try:
+    import modules.report_generator as report_gen
+except ImportError:
+    report_gen = None
+
 # Default values
 DEFAULT_ENVIRONMENT = "tst"
 DEFAULT_REPO_PATH = "./solution"
@@ -357,6 +362,28 @@ Examples:
     # Summary
     misc.print_header("Release Summary")
     misc.print_info(f"Successfully deployed to {success_count} workspace(s)")
+    if report_gen:
+        workspace_details = []
+        for layer_name, layer_def in layers.items():
+            if layer_name.upper() not in layers_to_deploy or not isinstance(layer_def, dict):
+                continue
+            workspace_name = misc.format_workspace_name(
+                solution_name_template, layer_name, environment_name
+            )
+            workspace_id = get_workspace_id(workspace_name)
+            if workspace_id:
+                workspace_details.append({"name": workspace_name, "id": workspace_id})
+        html_path, json_path = report_gen.write_report(
+            args.environment,
+            fail_count == 0,
+            preflight_results=[],
+            workspace_details=workspace_details,
+            errors_warnings=[f"Failed to deploy to {fail_count} workspace(s)"] if fail_count > 0 else [],
+            rollback_snapshot_path=release_snapshot_path,
+        )
+        if html_path:
+            misc.print_info(f"Deployment report: {html_path}")
+
     if fail_count > 0:
         misc.print_error(f"Failed to deploy to {fail_count} workspace(s)")
         if release_snapshot_path:

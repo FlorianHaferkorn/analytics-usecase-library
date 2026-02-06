@@ -159,8 +159,9 @@ class TestMockupGenerator:
         """Test generating HTML mockup."""
         mockup_gen = MockupGenerator()
         
-        # Create sample page structure
+        # Create sample page structure (same shape as scaffold generator output)
         page_structure = {
+            "page_type": "T2",
             "visuals": [
                 {
                     "name": "test_visual",

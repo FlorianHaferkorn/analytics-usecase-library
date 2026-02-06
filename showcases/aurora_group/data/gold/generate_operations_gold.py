@@ -24,6 +24,7 @@ from _generator_utils import (
     get_fact_date_keys,
     apply_monthly_seasonality,
     apply_combined_seasonality,
+    write_fact_delta,
     FACTS_START,
     FACTS_END,
 )
@@ -150,8 +151,9 @@ for date_obj in sampled_dates:
                 "Standard Rate Units Per Minute": round(standard_rate, 2),
             })
 
-pd.DataFrame(rows_ops).to_parquet(fact_ops_dir / "part-00000.parquet", index=False)
-print(f"Written fact_ops ({len(rows_ops):,} records)")
+date_keys_ops = [r["DateKey"] for r in rows_ops]
+fmt = write_fact_delta(fact_ops_dir, pd.DataFrame(rows_ops), partition_by=["Fiscal Year"])
+print(f"Written fact_ops ({len(rows_ops):,} records; DateKey {min(date_keys_ops)}–{max(date_keys_ops)}) [{fmt}]")
 
 # fact_ops_failures (failure_event grain) - Sparse events
 fact_fail_dir = facts / "fact_ops_failures"
@@ -184,6 +186,7 @@ for ak in asset_keys[:10]:  # All assets can have failures
             
             rows_fail.append({
                 "AssetKey": ak,
+                "DateKey": int(start_dt.strftime('%Y%m%d')),
                 "Failure Start DateTime": start_dt,
                 "Failure End DateTime": end_dt,
                 "Repair Duration Hours": round(duration_hours, 2),
@@ -192,8 +195,8 @@ for ak in asset_keys[:10]:  # All assets can have failures
             })
             failure_count += 1
 
-pd.DataFrame(rows_fail).to_parquet(fact_fail_dir / "part-00000.parquet", index=False)
-print(f"Written fact_ops_failures ({len(rows_fail):,} failure events)")
+fmt = write_fact_delta(fact_fail_dir, pd.DataFrame(rows_fail), partition_by=["Fiscal Year"])
+print(f"Written fact_ops_failures ({len(rows_fail):,} failure events) [{fmt}]")
 
 # fact_maintenance (maintenance_order grain) - Monthly PM schedules
 fact_maint_dir = facts / "fact_maintenance"
@@ -235,8 +238,8 @@ for ak in asset_keys[:10]:
                 "Parts Stockout Flag": random.random() < 0.15,
             })
 
-pd.DataFrame(rows_maint).to_parquet(fact_maint_dir / "part-00000.parquet", index=False)
-print(f"Written fact_maintenance ({len(rows_maint):,} maintenance orders)")
+fmt = write_fact_delta(fact_maint_dir, pd.DataFrame(rows_maint), partition_by=["Fiscal Year"])
+print(f"Written fact_maintenance ({len(rows_maint):,} maintenance orders) [{fmt}]")
 
 # fact_quality (line_day grain) - Daily quality metrics with seasonality
 fact_qual_dir = facts / "fact_quality"
@@ -284,7 +287,7 @@ for date_obj in sampled_dates_qual:
                 "Defect Count": float(defect_count),
             })
 
-pd.DataFrame(rows_qual).to_parquet(fact_qual_dir / "part-00000.parquet", index=False)
-print(f"Written fact_quality ({len(rows_qual):,} records)")
+fmt = write_fact_delta(fact_qual_dir, pd.DataFrame(rows_qual), partition_by=["Fiscal Year"])
+print(f"Written fact_quality ({len(rows_qual):,} records) [{fmt}]")
 
 print("\n[OK] Operations gold data generation complete!")

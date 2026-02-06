@@ -113,8 +113,9 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 1. **Pick one use case** from the pack for the first report (e.g. COM-002 Margin & Price Performance).
 2. **Layout:** Follow the use case's **5. 3-30-300 Page Layout** (Business Factsheet): 3-second layer (KPI cards), 30-second layer (main visuals), required slicers, 300-second layer (diagnostics).
 3. **Templates:** Use `framework/templates/page_templates/` and implementation guide (e.g. Fabric report structure, theme) for consistency.
-4. **Action codes:** Ensure the report (or an action panel) can surface which action codes apply when KPIs deviate (trigger levels L1–L3). Definitions stay in `framework/action_codes/`; report only references them.
-5. **Deploy** to a dev or test workspace; validate with business that definitions and layout match expectations.
+4. **Apply standardized theme:** Themes are **applied automatically** when using the page scaffold generator (unless `--no-theme` is set). The generator detects showcase default or framework default from `themes.config.json`. To override: use `--theme <name>` when generating scaffolds. To apply manually: `py implementations/microsoft_fabric_powerbi/tools/apply_report_theme.py path/to/Report --theme-name '<name>'`. Base theme remains fixed; custom theme defines the standardized look. For IBCS styling, use `--theme-name "IBCS_Light"` or set as default via `setup_theme_defaults.py`. Theme schema (optional): run `py implementations/microsoft_fabric_powerbi/tools/theme_generator/tools/theme-agent/fetch_latest_theme_schema.py --update-pin` once or in CI so validation uses the latest schema.
+5. **Action codes:** Ensure the report (or an action panel) can surface which action codes apply when KPIs deviate (trigger levels L1–L3). Definitions stay in `framework/action_codes/`; report only references them.
+6. **Deploy** to a dev or test workspace; validate with business that definitions and layout match expectations.
 
 **Output:** First report (e.g. PBIR in Fabric) consuming the semantic model; optional action layer or drill-through to action code documentation.
 

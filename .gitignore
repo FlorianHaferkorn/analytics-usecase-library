@@ -1,2 +1,6 @@
 **/.pbi/localSettings.json
 **/.pbi/cache.abf
+
+# Deployment generated artifacts (snapshots and reports)
+implementations/microsoft_fabric_powerbi/deployment/snapshots/
+implementations/microsoft_fabric_powerbi/deployment/reports/

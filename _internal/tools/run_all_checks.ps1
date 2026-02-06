@@ -235,6 +235,75 @@ Invoke-LocalScript -RelativePath "implementations/microsoft_fabric_powerbi/valid
 # 19a) DAX best practices in TMDL measures (Fabric implementation)
 Invoke-LocalScript -RelativePath "implementations/microsoft_fabric_powerbi/validation/check_dax_best_practices.ps1" -Arguments @("-DistRoot", $distRoot)
 
+# 19b) Pre-generation DAX check (validate DAX exists before generation)
+# Check core use cases
+$coreUseCases = @("COM-001", "COM-002", "COM-003", "COM-004", "FIN-001", "FIN-002", "OPS-001", "OPS-002", "OPS-003")
+foreach ($useCaseId in $coreUseCases) {
+	Invoke-LocalScript -RelativePath "_internal/tools/validation/check_dax_before_generation.ps1" -Arguments @(
+		"-UseCaseId", $useCaseId,
+		"-UseCasesRoot", $factsheetsRoot,
+		"-KpiCatalogRoot", $kpiCatalogRoot
+	)
+}
+
+# 19c) DAX validation (validate DAX expressions against best practices)
+if ($distRoot -and (Test-Path $distRoot)) {
+	$tmdlPaths = Get-ChildItem -Path $distRoot -Filter "*.SemanticModel" -Directory -Recurse -ErrorAction SilentlyContinue
+	foreach ($tmdlPath in $tmdlPaths) {
+		$definitionPath = Join-Path $tmdlPath.FullName "definition"
+		if (Test-Path $definitionPath) {
+			Invoke-LocalScript -RelativePath "_internal/tools/validation/validate_dax.ps1" -Arguments @(
+				"-TmdlPath", $definitionPath
+			)
+		}
+	}
+}
+
+# 19d) Semantic model structure validation
+if ($distRoot -and (Test-Path $distRoot)) {
+	$tmdlPaths = Get-ChildItem -Path $distRoot -Filter "*.SemanticModel" -Directory -Recurse -ErrorAction SilentlyContinue
+	foreach ($tmdlPath in $tmdlPaths) {
+		$definitionPath = Join-Path $tmdlPath.FullName "definition"
+		if (Test-Path $definitionPath) {
+			Invoke-LocalScript -RelativePath "_internal/tools/validation/validate_semanticmodel.ps1" -Arguments @(
+				"-TmdlPath", $definitionPath
+			)
+		}
+	}
+}
+
+# 19e) Use case → TMDL end-to-end validation
+foreach ($useCaseId in $coreUseCases) {
+	Invoke-LocalScript -RelativePath "_internal/tools/validation/check_usecase_to_tmdl.ps1" -Arguments @(
+		"-UseCaseId", $useCaseId,
+		"-UseCasesRoot", $factsheetsRoot,
+		"-KpiCatalogRoot", $kpiCatalogRoot,
+		"-TmdlPath", $distRoot
+	)
+}
+
+# 19f) Report validation (Power BI report structure)
+if ($distRoot -and (Test-Path $distRoot)) {
+	$reportPaths = Get-ChildItem -Path $distRoot -Filter "*.Report" -Directory -Recurse -ErrorAction SilentlyContinue
+	foreach ($reportPath in $reportPaths) {
+		Invoke-LocalScript -RelativePath "_internal/tools/validation/validate_report.ps1" -Arguments @(
+			"-ReportPath", $reportPath.FullName
+		)
+	}
+}
+
+# 19g) Action code → report validation
+foreach ($useCaseId in $coreUseCases) {
+	$reportPath = Join-Path $distRoot "$useCaseId.Report"
+	if (Test-Path $reportPath) {
+		Invoke-LocalScript -RelativePath "implementations/microsoft_fabric_powerbi/validation/check_actioncode_to_report.ps1" -Arguments @(
+			"-UseCaseId", $useCaseId,
+			"-UseCasesRoot", $factsheetsRoot,
+			"-ReportPath", $reportPath
+		)
+	}
+}
+
 # 20) Mojibake scan
 Invoke-LocalScript -RelativePath "_internal/tools/validation/check_mojibake.ps1" -Arguments @(
   "-Root", $repoRoot
