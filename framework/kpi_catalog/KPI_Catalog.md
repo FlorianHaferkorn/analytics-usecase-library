@@ -35,8 +35,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
               SUM ( fact_sales[Net Sales Amount] ) - SUM ( fact_sales[Cost of Goods Sold Amount] )
           ) * 3
       )
-    depends_on_measures:
-    - crm.clv.amount
+    depends_on_measures: []
     lineage:
     - fact_customer_value.CLV Amount
   governance:
@@ -76,7 +75,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR ChurnRiskPct = 0.15
       RETURN [CLV] * ChurnRiskPct
     depends_on_measures:
-    - crm.revenue_at_risk.amount
+    - crm.clv.amount
     lineage:
     - fact_customer_events.Attrition Risk %
     - fact_customer_value.CLV Remaining Amount
@@ -115,8 +114,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     description: "Count of logged customer complaints"
     dax_expression: |
       COUNTROWS ( fact_experience )
-    depends_on_measures:
-    - crm.complaint.count
+    depends_on_measures: []
     lineage:
     - fact_experience.Complaint ID
   governance:
@@ -164,8 +162,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
               DATEADD ( dim_date[Date], -1, MONTH )
           )
       RETURN DIVIDE ( CurrentPeriodCustomers, PreviousPeriodCustomers )
-    depends_on_measures:
-    - crm.retention.pct
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of Marketing"
@@ -206,10 +203,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR Detractors = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[Is Detractor] = TRUE () )
       VAR Total = COUNTROWS ( fact_nps )
       RETURN DIVIDE ( Promoters - Detractors, Total ) * 100
-    depends_on_measures:
-    - crm.nps.index
+    depends_on_measures: []
     lineage:
-    - fact_nps.NPS Score
     - fact_nps.Is Promoter
     - fact_nps.Is Detractor
   governance:
@@ -255,8 +250,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
           VALUES ( fact_sales[CustomerKey] )
       RETURN
           COUNTROWS ( EXCEPT ( PreviousMonthCustomers, CurrentMonthCustomers ) )
-    depends_on_measures:
-    - crm.churned_customers.count
+    depends_on_measures: []
     lineage:
     - dim_customer.CustomerKey
     - fact_customer_events.Churn Flag
@@ -298,8 +292,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
           SUM ( fact_sales[Net Sales Amount] ),
           ALLSELECTED ( dim_date )
       )
-    depends_on_measures:
-    - crm.lifetime_revenue.amount
+    depends_on_measures: []
     lineage:
     - dim_customer.CustomerKey
   governance:
@@ -337,8 +330,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     description: "Number of unique active customers in the reporting period."
     dax_expression: |
       DISTINCTCOUNT ( fact_sales[CustomerKey] )
-    depends_on_measures:
-    - crm.active_customers.count
+    depends_on_measures: []
     lineage:
     - dim_customer.CustomerKey
     - fact_customer_events.Activity Flag
@@ -383,8 +375,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR StandardRate = AVERAGE ( fact_ops[Standard Rate Units Per Minute] )
       VAR TheoreticalOutput = RunTime * StandardRate
       RETURN DIVIDE ( ActualOutput, TheoreticalOutput )
-    depends_on_measures:
-    - ops.performance.pct
+    depends_on_measures: []
     lineage:
     - fact_ops.Output Units
     - fact_ops.Run Time Minutes
@@ -428,11 +419,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR GoodUnits = SUM ( fact_ops[Good Units] )
       VAR TotalUnits = SUM ( fact_ops[Output Units] )
       RETURN DIVIDE ( GoodUnits, TotalUnits )
-    depends_on_measures:
-    - ops.quality.pct
+    depends_on_measures: []
     lineage:
     - fact_ops.Good Units
-    - fact_ops.Output Units
     - fact_ops.Output Units
   governance:
     business_owner: "Head of Manufacturing"
@@ -474,8 +463,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR LaborHours = SUM ( fact_labor[Labor Hours] )
       VAR BaselineRate = 100.0
       RETURN DIVIDE ( DIVIDE ( OutputUnits, LaborHours ) * 100, BaselineRate )
-    depends_on_measures:
-    - ops.labor.productivity.pct
+    depends_on_measures: []
     lineage:
     - fact_output.Output Units
     - fact_labor.Labor Hours
@@ -518,12 +506,11 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     description: "Measures average operating time between failures."
     dax_expression: |
       VAR FailureCount = COUNTROWS ( fact_ops_failures )
-      VAR OperatingTime = SUMX ( fact_ops, [Run Time Minutes] / 60 )
+      VAR OperatingTime = SUMX ( fact_ops, fact_ops[Run Time Minutes] / 60 )
       RETURN DIVIDE ( OperatingTime, FailureCount )
-    depends_on_measures:
-    - ops.mtbf.hours
+    depends_on_measures: []
     lineage:
-    - fact_ops_failures
+    - fact_ops_failures.Failure Start DateTime
     - fact_ops.Run Time Minutes
   governance:
     business_owner: "Head of Operations"
@@ -565,8 +552,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR FailureCount = COUNTROWS ( fact_ops_failures )
       VAR TotalRepairTime = SUM ( fact_ops_failures[Repair Duration Hours] )
       RETURN DIVIDE ( TotalRepairTime, FailureCount )
-    depends_on_measures:
-    - ops.mttr.hours
+    depends_on_measures: []
     lineage:
     - fact_ops_failures.Repair Duration Hours
   governance:
@@ -608,8 +594,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR CompletedPM = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order Type] = "PM", fact_maintenance[Order Status] = "Completed" )
       VAR PlannedPM = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order Type] = "PM" )
       RETURN DIVIDE ( CompletedPM, PlannedPM )
-    depends_on_measures:
-    - ops.pm_compliance.pct
+    depends_on_measures: []
     lineage:
     - fact_maintenance.Order Type
     - fact_maintenance.Order Status
@@ -653,8 +638,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR StockoutCount = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Parts Stockout Flag] = TRUE () )
       VAR TotalRequests = COUNTROWS ( fact_maintenance )
       RETURN DIVIDE ( StockoutCount, TotalRequests )
-    depends_on_measures:
-    - ops.spare_parts.stockout.pct
+    depends_on_measures: []
     lineage:
     - fact_maintenance.Parts Stockout Flag
   governance:
@@ -696,10 +680,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     description: "Measures total output volume in units."
     dax_expression: |
       SUM ( fact_ops[Output Units] )
-    depends_on_measures:
-    - ops.throughput.units
+    depends_on_measures: []
     lineage:
-    - fact_ops.Output Units
     - fact_ops.Output Units
   governance:
     business_owner: "Head of Operations"
@@ -741,11 +723,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR GoodUnits = SUM ( fact_quality[Good Units] )
       VAR TotalUnits = SUM ( fact_quality[Total Units] )
       RETURN DIVIDE ( GoodUnits, TotalUnits )
-    depends_on_measures:
-    - quality.fpy.pct
+    depends_on_measures: []
     lineage:
-    - fact_quality.Good Units
-    - fact_quality.Total Units
     - fact_quality.Good Units
     - fact_quality.Total Units
   governance:
@@ -790,11 +769,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR ScrapUnits = SUM ( fact_quality[Scrap Units] )
       VAR TotalUnits = SUM ( fact_quality[Total Units] )
       RETURN DIVIDE ( ScrapUnits, TotalUnits )
-    depends_on_measures:
-    - quality.scrap.pct
+    depends_on_measures: []
     lineage:
-    - fact_quality.Scrap Units
-    - fact_quality.Total Units
     - fact_quality.Scrap Units
     - fact_quality.Total Units
   governance:
@@ -838,11 +814,8 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR ReworkUnits = SUM ( fact_quality[Rework Units] )
       VAR TotalUnits = SUM ( fact_quality[Total Units] )
       RETURN DIVIDE ( ReworkUnits, TotalUnits )
-    depends_on_measures:
-    - quality.rework.pct
+    depends_on_measures: []
     lineage:
-    - fact_quality.Rework Units
-    - fact_quality.Total Units
     - fact_quality.Rework Units
     - fact_quality.Total Units
   governance:
@@ -884,8 +857,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     description: "Captures financial impact of scrap, rework, and warranty/complaints."
     dax_expression: |
       SUM ( fact_quality_costs[COPQ Amount] )
-    depends_on_measures:
-    - quality.copq.amount
+    depends_on_measures: []
     lineage:
     - fact_quality_costs.COPQ Amount
   governance:
@@ -927,8 +899,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR Complaints = SUM ( fact_complaints[Complaint Count] )
       VAR ShippedUnits = SUM ( fact_shipments[Shipped Units] )
       RETURN DIVIDE ( Complaints, ShippedUnits )
-    depends_on_measures:
-    - quality.complaint.pct
+    depends_on_measures: []
     lineage:
     - fact_complaints.Complaint Count
     - fact_shipments.Shipped Units
@@ -974,8 +945,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR DefectCount = SUM ( fact_quality[Defect Count] )
       VAR TotalUnits = SUM ( fact_quality[Total Units] )
       RETURN DIVIDE ( DefectCount, TotalUnits ) * 1000
-    depends_on_measures:
-    - quality.defect_density
+    depends_on_measures: []
     lineage:
     - fact_quality.Defect Count
     - fact_quality.Total Units
@@ -1516,11 +1486,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_expression: |
       [Availability %] * [Performance %] * [Quality %]
     depends_on_measures:
-    - ops.oee.pct
+    - ops.availability.pct
+    - ops.performance.pct
+    - ops.quality.pct
     lineage:
-    - [Availability %]
-    - [Performance %]
-    - [Quality %]
     - fact_ops.Good Units
     - fact_ops.Output Units
     - fact_ops.Planned Time Minutes
@@ -1562,8 +1531,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Failure Count"
     formatString: "#,0"
     description: "Counts equipment or process failures in the period."
-    depends_on_measures:
-    - ops.failure.count
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of Operations"
@@ -1599,8 +1567,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Inventory Value Amount"
     formatString: "#,0.00"
     description: "Tracks inventory value for maintenance-relevant items."
-    depends_on_measures:
-    - ops.inventory.value.amount
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of Supply Chain"
@@ -1640,8 +1607,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Planned Output Units"
     formatString: "#,0"
     description: "Captures planned production output volume."
-    depends_on_measures:
-    - ops.planned_output.units
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of Operations"
@@ -2058,15 +2024,14 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR RunTime = SUM ( fact_ops[Run Time Minutes] )
       VAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] )
       RETURN DIVIDE ( RunTime, PlannedTime )
-    depends_on_measures:
-    - ops.availability.pct
+    depends_on_measures: []
     lineage:
     - fact_ops.Run Time Minutes
     - fact_ops.Planned Time Minutes
   governance:
-    business_owner: "Head of Supply Chain / Logistics"
-    data_owner: "Supply Chain BI"
-    steward: "Inventory Planner"
+    business_owner: "Head of Operations"
+    data_owner: "Operations BI"
+    steward: "Operations Analyst"
     review_cycle: "quarterly"
     validation_process: "manual review"
     qa_rules:
@@ -2178,8 +2143,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR Downtime = SUM ( fact_ops[Downtime Minutes] )
       VAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] )
       RETURN DIVIDE ( Downtime, PlannedTime )
-    depends_on_measures:
-    - ops.downtime.pct
+    depends_on_measures: []
     lineage:
     - fact_ops.Downtime Minutes
     - fact_ops.Planned Time Minutes
@@ -2221,14 +2185,12 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     formatString: "0.0%"
     description: "Measures unplanned downtime share of planned time."
     dax_expression: |
-      VAR UnplannedDowntime = SUMX ( fact_ops_failures, [Downtime Minutes] )
+      VAR UnplannedDowntime = SUMX ( fact_ops_failures, fact_ops_failures[Downtime Minutes] )
       VAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] )
       RETURN DIVIDE ( UnplannedDowntime, PlannedTime )
-    depends_on_measures:
-    - ops.downtime.unplanned.pct
+    depends_on_measures: []
     lineage:
     - fact_ops_failures.Downtime Minutes
-    - fact_ops.Planned Time Minutes
     - fact_ops.Planned Time Minutes
   governance:
     business_owner: "Head of Operations"
@@ -2906,8 +2868,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR AR = SUM ( fact_accounts_receivable[AR Amount] )
       VAR NetSales = SUM ( fact_accounts_receivable[Revenue Amount] )
       RETURN DIVIDE ( AR * 365, NetSales )
-    depends_on_measures:
-    - wc.dso.days
+    depends_on_measures: []
     lineage:
     - fact_accounts_receivable.AR Amount
     - fact_accounts_receivable.Revenue Amount
@@ -2945,8 +2906,9 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_name: "Operating Cash Flow"
     formatString: "#,0"
     description: "Net cash inflows from operating activities"
-    depends_on_measures:
-    - fin.liquidity.operating_cash_flow
+    dax_expression: |
+      SUM ( fact_cash_flow[Operating Cash Flow Amount] )
+    depends_on_measures: []
     lineage:
     - fact_cashflow.OperatingCashFlow
   governance:
@@ -3211,8 +3173,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR Inventory = SUM ( fact_inventory[Inventory Amount] )
       VAR COGS = SUM ( fact_inventory[COGS Amount] )
       RETURN DIVIDE ( Inventory * 365, COGS )
-    depends_on_measures:
-    - wc.dio.days
+    depends_on_measures: []
     lineage:
     - fact_inventory.Inventory Amount
     - fact_inventory.COGS Amount
@@ -3255,8 +3216,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR AP = SUM ( fact_accounts_payable[AP Amount] )
       VAR COGS = SUM ( fact_accounts_payable[COGS Amount] )
       RETURN DIVIDE ( AP * 365, COGS )
-    depends_on_measures:
-    - wc.dpo.days
+    depends_on_measures: []
     lineage:
     - fact_accounts_payable.AP Amount
     - fact_accounts_payable.COGS Amount
@@ -3298,11 +3258,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     dax_expression: |
       [DSO Days] + [DIO Days] - [DPO Days]
     depends_on_measures:
-    - wc.ccc.days
-    lineage:
-    - [DSO Days]
-    - [DIO Days]
-    - [DPO Days]
+    - wc.dso.days
+    - wc.dio.days
+    - wc.dpo.days
+    lineage: []
   governance:
     business_owner: "Head of Treasury"
     data_owner: "Finance BI"
@@ -3341,8 +3300,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     description: "Tracks cash and cash equivalents at period end."
     dax_expression: |
       SUM ( fact_cash_position[Cash Balance Amount] )
-    depends_on_measures:
-    - fin.cash.balance
+    depends_on_measures: []
     lineage:
     - fact_cash_position.Cash Balance Amount
   governance:
@@ -3384,8 +3342,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     description: "Measures cash generated by operating activities."
     dax_expression: |
       SUM ( fact_cash_flow[Operating Cash Flow Amount] )
-    depends_on_measures:
-    - fin.cash.ocf
+    depends_on_measures: []
     lineage:
     - fact_cash_flow.Operating Cash Flow Amount
   governance:
@@ -3429,8 +3386,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR Actual = SUM ( fact_cash_position[Cash Balance Amount] )
       VAR Plan = SUM ( fact_cash_position[Plan Cash Amount] )
       RETURN DIVIDE ( Actual - Plan, Plan )
-    depends_on_measures:
-    - fin.cash.vs_plan.pct
+    depends_on_measures: []
     lineage:
     - fact_cash_position.Cash Balance Amount
     - fact_cash_position.Plan Cash Amount
@@ -3784,13 +3740,10 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR TotalCost = SUM ( fact_cost[COGS Amount] )
       VAR OutputUnits = SUM ( fact_output[Output Units] )
       RETURN DIVIDE ( TotalCost, OutputUnits )
-    depends_on_measures:
-    - cost.unit.amount
+    depends_on_measures: []
     lineage:
     - fact_cost.COGS Amount
     - fact_output.Output Units
-    - cost.unit.amount
-    lineage: []
   governance:
     business_owner: "Head of Controlling"
     data_owner: "Finance BI"

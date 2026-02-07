@@ -10,13 +10,14 @@ Base theme stays fixed (e.g. CY25SU10); custom theme is the overlay. Targets PBI
 from __future__ import annotations
 
 import argparse
+import glob
 import json
 import re
 import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 # Repo root (apply_report_theme.py lives in implementations/microsoft_fabric_powerbi/tools/)
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -262,17 +263,129 @@ def apply_theme(
     print("report.json updated (baseTheme + customTheme + resourcePackages).", file=sys.stderr)
 
 
+def _collect_report_paths_batch_showcase(showcase_name: str) -> List[Path]:
+    """Return list of report paths under showcases/<showcase_name>/ (folders containing definition/report.json)."""
+    base = SHOWCASES_DIR / showcase_name
+    if not base.is_dir():
+        return []
+    report_paths: List[Path] = []
+    for path in base.rglob("report.json"):
+        if path.name == "report.json" and path.parent.name == "definition":
+            report_root = path.parent.parent
+            report_paths.append(report_root.resolve())
+    return sorted(set(report_paths))
+
+
+def _collect_report_paths_glob(glob_pattern: str) -> List[Path]:
+    """Return list of report paths matching glob pattern (each must contain definition/report.json)."""
+    resolved: List[Path] = []
+    for p in glob.glob(glob_pattern):
+        path = Path(p).resolve()
+        if path.is_dir() and (path / "definition" / "report.json").exists():
+            resolved.append(path)
+    return sorted(set(resolved))
+
+
+def _collect_report_paths_file(file_path: Path) -> List[Path]:
+    """Read file with one report path per line; return list of existing report roots."""
+    if not file_path.is_file():
+        return []
+    resolved: List[Path] = []
+    for line in file_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        path = (REPO_ROOT / line).resolve() if not Path(line).is_absolute() else Path(line).resolve()
+        if path.is_dir() and (path / "definition" / "report.json").exists():
+            resolved.append(path)
+    return resolved
+
+
+def _run_batch(
+    report_paths: List[Path],
+    theme_path: Optional[Path],
+    theme_name: Optional[str],
+    base_theme_name: str,
+    validate: bool,
+    continue_on_error: bool,
+) -> Tuple[int, int]:
+    """
+    Apply theme to each report. Returns (success_count, failure_count).
+    If theme_path is None, theme_name must be set and we resolve it once (or use default per report).
+    """
+    success = 0
+    failure = 0
+    for report_path in report_paths:
+        path_to_use: Optional[Path] = theme_path
+        name_to_use: Optional[str] = theme_name
+        if path_to_use is None and name_to_use is None:
+            name_to_use = get_default_theme_name(report_path)
+        if path_to_use is None and name_to_use:
+            path_to_use = _find_theme_in_generator(name_to_use)
+        if path_to_use is None:
+            print(f"[FAIL] {report_path}: No theme specified and no default found.", file=sys.stderr)
+            failure += 1
+            if not continue_on_error:
+                return success, failure
+            continue
+        try:
+            apply_theme(
+                report_path=report_path,
+                theme_source_path=path_to_use,
+                custom_theme_name=name_to_use,
+                base_theme_name=base_theme_name,
+                validate=validate,
+            )
+            success += 1
+        except Exception as e:
+            print(f"[FAIL] {report_path}: {e}", file=sys.stderr)
+            failure += 1
+            if not continue_on_error:
+                return success, failure
+    return success, failure
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Apply a custom theme to a PBIP report (definition format). Copies theme to RegisteredResources and updates report.json.",
     )
-    parser.add_argument("report", type=Path, help="Path to PBIP report root (folder containing definition/report.json)")
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--theme-path", type=Path, help="Path to existing theme JSON file")
-    group.add_argument(
+    parser.add_argument(
+        "report",
+        type=Path,
+        nargs="?",
+        default=None,
+        help="Path to PBIP report root (folder containing definition/report.json). Omit when using batch mode.",
+    )
+    batch_group = parser.add_mutually_exclusive_group()
+    batch_group.add_argument(
+        "--batch-showcase",
+        type=str,
+        metavar="NAME",
+        help="Apply theme to all reports under showcases/NAME/ (each folder with definition/report.json).",
+    )
+    batch_group.add_argument(
+        "--batch",
+        type=str,
+        metavar="GLOB",
+        help="Apply theme to all report paths matching GLOB (e.g. showcases/aurora_group/reports/*.Report).",
+    )
+    batch_group.add_argument(
+        "--batch-file",
+        type=Path,
+        metavar="PATH",
+        help="Text file with one report path per line (relative to repo root or absolute).",
+    )
+    theme_group = parser.add_mutually_exclusive_group()
+    theme_group.add_argument("--theme-path", type=Path, help="Path to existing theme JSON file")
+    theme_group.add_argument(
         "--theme-name",
         type=str,
         help="Theme name (e.g. 'Aurora Group__NeutralAccent__Light__#118DFF'); file is looked up under theme_generator/themes/",
+    )
+    theme_group.add_argument(
+        "--use-default",
+        action="store_true",
+        help="Use default theme (showcase or framework). Only valid in batch mode or when report path is under a showcase.",
     )
     parser.add_argument(
         "--run-generator",
@@ -287,21 +400,88 @@ def main() -> int:
     parser.add_argument("--custom-name", type=str, help="Custom theme filename stem in RegisteredResources (default: from theme)")
     parser.add_argument("--base-theme", type=str, default=DEFAULT_BASE_THEME, help=f"Base theme name (default: {DEFAULT_BASE_THEME})")
     parser.add_argument("--no-validate", action="store_true", help="Skip validation against pinned schema")
+    parser.add_argument(
+        "--continue-on-error",
+        action="store_true",
+        help="In batch mode, continue applying to remaining reports after a failure.",
+    )
     args = parser.parse_args()
 
-    theme_path: Optional[Path] = None
-    if args.theme_path:
-        theme_path = Path(args.theme_path).resolve()
-    else:
-        if args.run_generator:
-            _run_theme_generator(args.color, args.concept, args.mode, args.brand, args.secondary)
-        theme_path = _find_theme_in_generator(args.theme_name)
-        if not theme_path:
-            print(
-                f"Theme not found: {args.theme_name}. Run from repo root and ensure theme exists under theme_generator/themes/ or use --theme-path.",
-                file=sys.stderr,
-            )
+    # Batch mode
+    if args.batch_showcase is not None:
+        report_paths = _collect_report_paths_batch_showcase(args.batch_showcase)
+        if not report_paths:
+            print(f"No reports found under showcases/{args.batch_showcase}/", file=sys.stderr)
             return 1
+    elif args.batch is not None:
+        report_paths = _collect_report_paths_glob(args.batch)
+        if not report_paths:
+            print(f"No report folders matching '{args.batch}' (must contain definition/report.json).", file=sys.stderr)
+            return 1
+    elif args.batch_file is not None:
+        report_paths = _collect_report_paths_file(args.batch_file)
+        if not report_paths:
+            print(f"No valid report paths in {args.batch_file}.", file=sys.stderr)
+            return 1
+    else:
+        report_paths = []
+
+    if report_paths:
+        # Batch: resolve theme once if provided
+        theme_path: Optional[Path] = None
+        theme_name: Optional[str] = None
+        if args.theme_path:
+            theme_path = Path(args.theme_path).resolve()
+        elif args.theme_name:
+            if args.run_generator:
+                _run_theme_generator(args.color, args.concept, args.mode, args.brand, args.secondary)
+            theme_path = _find_theme_in_generator(args.theme_name)
+            if theme_path:
+                theme_name = args.theme_name
+            else:
+                print(f"Theme not found: {args.theme_name}.", file=sys.stderr)
+                return 1
+        elif not args.use_default:
+            print("Batch mode requires --theme-name, --theme-path, or --use-default.", file=sys.stderr)
+            return 1
+        success, failure = _run_batch(
+            report_paths=report_paths,
+            theme_path=theme_path,
+            theme_name=theme_name,
+            base_theme_name=args.base_theme,
+            validate=not args.no_validate,
+            continue_on_error=args.continue_on_error,
+        )
+        print(f"Applied theme to {success} report(s). Failed: {failure}.", file=sys.stderr)
+        return 0 if failure == 0 else 1
+
+    # Single-report mode
+    if args.report is None:
+        parser.error("Either provide report path or use --batch-showcase, --batch, or --batch-file.")
+    if args.use_default and not args.theme_path and not args.theme_name:
+        theme_name = get_default_theme_name(args.report)
+        if not theme_name:
+            print("No default theme configured (showcase or framework). Use --theme-name or --theme-path.", file=sys.stderr)
+            return 1
+        theme_path = _find_theme_in_generator(theme_name)
+        if not theme_path:
+            print(f"Default theme '{theme_name}' not found under theme_generator/themes/.", file=sys.stderr)
+            return 1
+    else:
+        if not args.theme_path and not args.theme_name:
+            parser.error("Single-report mode requires --theme-name, --theme-path, or --use-default.")
+        if args.theme_path:
+            theme_path = Path(args.theme_path).resolve()
+        else:
+            if args.run_generator:
+                _run_theme_generator(args.color, args.concept, args.mode, args.brand, args.secondary)
+            theme_path = _find_theme_in_generator(args.theme_name)
+            if not theme_path:
+                print(
+                    f"Theme not found: {args.theme_name}. Run from repo root and ensure theme exists under theme_generator/themes/ or use --theme-path.",
+                    file=sys.stderr,
+                )
+                return 1
 
     try:
         apply_theme(

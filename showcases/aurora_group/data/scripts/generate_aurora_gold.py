@@ -146,8 +146,9 @@ def run_experience_promo(org_keys, date_keys, customer_keys):
             })
             complaint_id += 1
     
-    pd.DataFrame(rows_experience).to_parquet(facts / "fact_experience" / "part-00000.parquet", index=False)
-    print(f"Written fact_experience ({len(rows_experience):,} complaints)")
+    df_experience = pd.DataFrame(rows_experience)
+    fmt = write_fact_delta(facts / "fact_experience", df_experience, partition_by=["Fiscal Year"])
+    print(f"Written fact_experience ({len(rows_experience):,} complaints) [{fmt}]")
 
     # fact_promo - Promotion performance metrics
     (facts / "fact_promo").mkdir(parents=True, exist_ok=True)

@@ -56,6 +56,11 @@ py showcases/aurora_group/data/scripts/generate_aurora_gold.py
 ```powershell
 # Check all facts (rows, dates, format)
 py showcases/aurora_group/data/gold/check_fact_coverage.py
+
+# Full validation: coverage + optional regeneration + Stage 1 (run from repo root)
+.\showcases\aurora_group\data\validate_delta_migration.ps1
+.\showcases\aurora_group\data\validate_delta_migration.ps1 -Regenerate -Domain experience
+.\showcases\aurora_group\data\validate_delta_migration.ps1 -Regenerate -SkipStage1
 ```
 
 ### Verify Delta format manually

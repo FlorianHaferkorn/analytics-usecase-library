@@ -262,7 +262,24 @@ def write_fact_delta(fact_path, df: pd.DataFrame, partition_by: Optional[list] =
         df = df.copy()
         df["Fiscal Year"] = df["DateKey"].astype(str).str[:4]
     if _DELTA_AVAILABLE and partition_by and "Fiscal Year" in df.columns:
-        write_deltalake(str(fact_path), df, mode="overwrite", partition_by=partition_by)
+        import shutil
+        try:
+            write_deltalake(
+                str(fact_path),
+                df,
+                mode="overwrite",
+                partition_by=partition_by,
+                overwrite_schema=True,
+            )
+        except Exception as e:
+            # Schema mismatch (7 vs 6) or overwrite_schema unsupported: remove table and write fresh
+            if "schema" in str(e).lower() or "mismatch" in str(e).lower() or "overwrite_schema" in str(type(e).__name__).lower() or "unexpected keyword" in str(e).lower():
+                if (fact_path / "_delta_log").exists():
+                    shutil.rmtree(fact_path)
+                    fact_path.mkdir(parents=True, exist_ok=True)
+                write_deltalake(str(fact_path), df, mode="overwrite", partition_by=partition_by)
+            else:
+                raise
         return "Delta"
     out = df.drop(columns=["Fiscal Year"], errors="ignore")
     out.to_parquet(fact_path / "part-00000.parquet", index=False)

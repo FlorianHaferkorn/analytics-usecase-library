@@ -40,9 +40,7 @@ def _run_command_impl(command: str) -> str:
     initial_delay=DEFAULT_RETRY_DELAY,
     backoff_multiplier=DEFAULT_RETRY_BACKOFF,
     retryable_exceptions=(subprocess.CalledProcessError, TimeoutError, ConnectionError, OSError),
-    retry_condition=lambda e, _: retry_logic.is_transient_failure(
-        e, getattr(e, "stderr", "") or getattr(e, "output", "") or str(e)
-    ),
+    retry_condition=lambda e, msg: retry_logic.is_transient_failure(e, msg or getattr(e, "stderr", "") or getattr(e, "output", "") or str(e)),
 )
 def _run_command_with_retry(command: str) -> str:
     """Run Fabric CLI command with retry on transient failures."""

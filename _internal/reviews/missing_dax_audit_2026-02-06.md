@@ -1,4 +1,4 @@
-﻿# Missing DAX Expression Audit
+# Missing DAX Expression Audit
 
 Generated: 2026-02-06
 
@@ -29,7 +29,10 @@ Generated: 2026-02-06
 
 - Total KPIs: 8
 - With DAX: 7
-- Missing DAX: 
+- Missing DAX: 1
+
+**Missing DAX:**
+- `crm.nps.index` (missing_dax)
 
 
 ### COM-004

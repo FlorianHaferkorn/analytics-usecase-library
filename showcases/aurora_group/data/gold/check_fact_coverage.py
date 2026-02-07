@@ -22,6 +22,15 @@ RICH_FACTS = frozenset({
     "fact_experience", "fact_sales", "fact_working_capital",
 })
 
+# Date-partitioned facts that are expected to be written as Delta Lake (when deltalake is installed)
+# fact_promo is intentionally Parquet (no date dimension). Dimensions are Parquet.
+DELTA_EXPECTED_FACTS = frozenset({
+    "fact_sales", "fact_accounts_payable", "fact_accounts_receivable", "fact_cash_position",
+    "fact_cash_flow", "fact_inventory", "fact_cogs", "fact_fulfillment", "fact_stockout",
+    "fact_forecast", "fact_ops", "fact_ops_failures", "fact_maintenance", "fact_quality",
+    "fact_experience",
+})
+
 # Date columns to check (first found wins)
 DATE_COLUMNS = ["DateKey", "MonthEnd DateKey", "Start DateKey", "date_key"]
 
@@ -113,12 +122,15 @@ def main():
             notes.append("SPARSE")
         if multi:
             notes.append("MULTI")
+        if name in DELTA_EXPECTED_FACTS and fmt == "Parquet":
+            notes.append("EXPECT_DELTA")
         note_str = ",".join(notes) if notes else "OK"
         print(f"{name:35} {n:>12,} {str(col):18} {str(lo):12} {str(hi):12} {str(extra):>8}  {n_files:>6}  {fmt:>8}  {note_str}")
     print("=" * 100)
     print("SPARSE = few rows for a fact that should have full 2020-2024 (re-run supply_chain or operations).")
     print("MULTI  = multiple parquet files; semantic model must use Table.Combine (e.g. fact_sales, fact_experience).")
     print("Format = Delta Lake (partitioned) or Parquet (single file). Delta facts use Table.Combine in TMDL.")
+    print("EXPECT_DELTA = fact is date-partitioned and should be Delta; install deltalake and regenerate (see README).")
 
 if __name__ == "__main__":
     main()

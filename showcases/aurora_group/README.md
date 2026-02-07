@@ -29,8 +29,8 @@ Use this to confirm the framework delivers data-driven reporting through Aurora:
 
 1. **Stage 1 green** — From repo root: `.\_internal\tools\run_stage1_checks.ps1`. Fix any failures.
 2. **Aurora data** — Gold data present under `showcases/aurora_group/data/gold/` (e.g. fact_sales, dim_*). Semantic model/dataset points to this path (or deployed equivalent).
-3. **Open PBIP** — Open `showcases/aurora_group/semantic_models/CoreActionReady.pbip` in Power BI Desktop (or open the SemanticModel folder as dataset).
-4. **Report loads** — CoreActionReady report opens; visuals use the semantic model; no missing measures or broken refs.
+3. **Open PBIP** — Open `showcases/aurora_group/semantic_models/CoreActionReady.pbip` in Power BI Desktop. This opens the report and the CoreActionReady semantic model together (report references the model via `definition.pbir`).
+4. **Report loads** — CoreActionReady report opens with scaffolded pages (COM-001 Overview/Detail, COM-002 Overview/Detail) in PBIR format under `CoreActionReady.Report/definition/`. Visuals use the semantic model; bind measures in Desktop as needed.
 5. **COM-001 (and scope) represented** — At least one page reflects COM-001 KPIs (and ideally COM-002, COM-003, OPS-001, SCM-001, FIN-001) as per factsheets; measures align with KPI catalog.
 6. **3–30–300 layout** — Overview / Insights / Explorer (or equivalent) follow `framework/templates/page_templates/` and `reporting/pbip_layouts.md`; no ad-hoc calculations.
 

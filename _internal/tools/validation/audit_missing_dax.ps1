@@ -296,9 +296,9 @@ Generated: $dateStr
 "@
 
 foreach ($useCaseId in ($results | Select-Object -ExpandProperty UseCase -Unique | Sort-Object)) {
-  $useCaseResults = $results | Where-Object { $_.UseCase -eq $useCaseId }
-  $missing = $useCaseResults | Where-Object { -not $_.HasDax }
-  $hasDax = $useCaseResults | Where-Object { $_.HasDax }
+  $useCaseResults = @($results | Where-Object { $_.UseCase -eq $useCaseId })
+  $missing = @($useCaseResults | Where-Object { -not $_.HasDax })
+  $hasDax = @($useCaseResults | Where-Object { $_.HasDax })
   
   $report += "`n### $useCaseId`n`n"
   $report += "- Total KPIs: $($useCaseResults.Count)`n"

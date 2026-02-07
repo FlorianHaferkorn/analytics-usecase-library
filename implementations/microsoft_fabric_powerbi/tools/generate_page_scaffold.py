@@ -129,16 +129,18 @@ def main():
             except Exception as e:
                 print(f"[WARN] Could not apply theme: {e}. Report has base theme only.", file=sys.stderr)
 
-        # Generate mockup if requested
+        # Generate mockup if requested (decision question from Business Factsheet for header)
         if args.mockup:
             print(f"Generating HTML mockup to {args.mockup}...")
             mockup_gen = MockupGenerator()
             page_structure = generator.get_page_structure()
+            decision_question = generator.config_loader.get_primary_decision_question(args.use_case)
             mockup_gen.generate_mockup(
                 page_structure=page_structure,
                 use_case_id=args.use_case,
                 page_name=args.page,
-                output_path=args.mockup
+                output_path=args.mockup,
+                decision_question=decision_question,
             )
             print("[OK] HTML mockup generated successfully")
             print(f"  Open {args.mockup} in a browser to preview the layout")

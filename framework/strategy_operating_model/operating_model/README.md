@@ -36,6 +36,12 @@ High-level explanation of the analytics operating model, roles, responsibilities
 
 File: `operating_model_overview.md`
 
+### 3.2a Data Layers Standard (Silver-First)
+
+Standard data layers (4 physical + 1 logical). We **define** Silver via contracts; we **deliver** Gold + Semantics. Staging/Bronze out of scope unless included.
+
+File: `data_layers_standard.md`
+
 ### 3.3 Semantic Layer
 
 Defines how analytical models are structured to be scalable, reusable, and action-ready.

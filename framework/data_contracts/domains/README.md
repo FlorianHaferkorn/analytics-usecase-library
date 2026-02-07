@@ -2,9 +2,7 @@
 
 ## Purpose
 
-Define the **canonical data contracts** for each business domain within the  
-**ActionReady Analytics Framework**.  
-These contracts formalize the structure, grain, units, keys, and lineage expected from upstream data sources.
+Define the **Silver layer** (canonical, conformed domain data) for each business domain within the ActionReady Analytics Framework. These contracts formalize the structure, grain, units, keys, and lineage that **Silver** must satisfy; Gold and semantic models are built from Silver.
 
 Domain Data Contracts ensure:
 

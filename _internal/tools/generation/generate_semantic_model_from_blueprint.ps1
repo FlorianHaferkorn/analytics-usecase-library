@@ -138,15 +138,21 @@ if ($relationshipsSectionMatch.Success) {
 	$relationshipsSection = $relationshipsSectionMatch.Groups[1].Value
 	$relCount = 0
 	
-	foreach ($relMatch in [regex]::Matches($relationshipsSection, '(?m)^\s+-\s+from_table:\s*(\w+)')) {
+	$relMatches = [regex]::Matches($relationshipsSection, '(?m)^\s+-\s+from_table:\s*(\w+)')
+	for ($i = 0; $i -lt $relMatches.Count; $i++) {
+		$relMatch = $relMatches[$i]
 		$relCount++
 		$fromTable = $relMatch.Groups[1].Value
 		
-		# Find corresponding to_table, from_column, to_column in the same block
-		$relBlock = $relMatch.Value
-		$toTableMatch = [regex]::Match($relationshipsSection, "(?s)$([regex]::Escape($relBlock)).*?to_table:\s*(\w+)")
-		$fromColumnMatch = [regex]::Match($relationshipsSection, "(?s)$([regex]::Escape($relBlock)).*?from_column:\s*(\w+)")
-		$toColumnMatch = [regex]::Match($relationshipsSection, "(?s)$([regex]::Escape($relBlock)).*?to_column:\s*(\w+)")
+		# Scope to this relationship block only (from this "- from_table:" to the next one or end)
+		$blockStart = $relMatch.Index
+		$blockEnd = if ($i -lt $relMatches.Count - 1) { $relMatches[$i + 1].Index } else { $relationshipsSection.Length }
+		$blockLength = $blockEnd - $blockStart
+		$relBlockText = $relationshipsSection.Substring($blockStart, $blockLength)
+		
+		$toTableMatch = [regex]::Match($relBlockText, '(?m)to_table:\s*(\w+)')
+		$fromColumnMatch = [regex]::Match($relBlockText, '(?m)from_column:\s*(\w+)')
+		$toColumnMatch = [regex]::Match($relBlockText, '(?m)to_column:\s*(\w+)')
 		
 		if ($toTableMatch.Success -and $fromColumnMatch.Success -and $toColumnMatch.Success) {
 			$toTable = $toTableMatch.Groups[1].Value

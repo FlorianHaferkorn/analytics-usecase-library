@@ -72,14 +72,14 @@ function Get-MeasuresFromTmdl {
 }
 
 # Helper: Auto-fix DIVIDE (replace / with DIVIDE)
+# Operands must be full references: [Measure], table[Column], or identifier; never lone ] or [.
 function Fix-DivideOperator {
 	param([string]$Expression)
 	
 	$fixed = $Expression
 	
-	# Match division operator: number / number (but not in comments or strings)
-	# Simple pattern: avoid / in strings, comments, or already DIVIDE()
-	$pattern = '(\w+|\])\s*/\s*(\w+|\[)'
+	# Match division: left / right where each operand is [Name], table[Column], or \w+
+	$pattern = '(\w+\[[^\]]+\]|\[[^\]]+\]|\w+)\s*/\s*(\w+\[[^\]]+\]|\[[^\]]+\]|\w+)'
 	$fixed = [regex]::Replace($fixed, $pattern, {
 		param($m)
 		$left = $m.Groups[1].Value
