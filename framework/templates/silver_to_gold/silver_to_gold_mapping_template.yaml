@@ -1,0 +1,52 @@
+# Silver → Gold Mapping Template
+# Use one file per domain (e.g. commercial_silver_to_gold.yaml) or one combined file per solution.
+# Ensures the same setup every time: every Gold table has a defined source, grain, and rules.
+# See: framework/strategy_operating_model/operating_model/data_layers_standard.md (§5)
+
+domain: <domain_name>   # e.g. commercial_sales
+version: v1
+
+# Gold dimensions: source Silver dimension(s), optional column subset
+dimensions:
+  - gold_table: dim_date
+    silver_source: dim_date
+    # columns: optional list; omit = all columns. Keys must be present.
+  - gold_table: dim_org
+    silver_source: dim_org
+  - gold_table: dim_product
+    silver_source: dim_product
+  # Conformed dim (multiple Silver sources):
+  # - gold_table: dim_organization
+  #   silver_sources: [dim_org, dim_cost_center]
+  #   conform_rules: <reference to conform logic>
+
+# Gold facts: source Silver fact(s), grain, column/aggregation rules
+facts:
+  - gold_table: fact_sales
+    silver_source: fact_sales
+    grain: invoice_line   # same as Silver, or e.g. product_month
+    # If grain differs, specify aggregation per measure:
+    # measures:
+    #   - {name: Net Sales Amount, agg: sum}
+    #   - {name: Quantity, agg: sum}
+  # - gold_table: fact_sales_monthly
+  #   silver_source: fact_sales
+  #   grain: product_month
+  #   measures:
+  #     - {name: Net Sales Amount, agg: sum}
+  #     - {name: Quantity, agg: sum}
+
+# Gold action aggregates: source fact(s), linked action code(s), key and flag columns
+action_aggregates:
+  - gold_table: agg_margin_variance
+    silver_sources: [fact_sales]   # optional: dimensions for keys
+    action_code_family: C-M2      # or list: [C-M2.1, C-M2.2]
+    grain: product_month
+    key_columns: [DateKey, OrgKey, ProductKey]
+    deviation_columns: [L1_Flag, L2_Flag, L3_Flag, Margin_Deviation_Pct]
+    # Optional: threshold_source (e.g. KPI target) for L1/L2/L3
+
+# Rules:
+# - Every Gold table must have a silver_source (or silver_sources) and grain.
+# - Dimensions: 1:1 or conformed merge. Facts: same or coarser grain; aggregation explicit.
+# - Action aggregates: tied to framework/action_codes/; standard flag and deviation columns.

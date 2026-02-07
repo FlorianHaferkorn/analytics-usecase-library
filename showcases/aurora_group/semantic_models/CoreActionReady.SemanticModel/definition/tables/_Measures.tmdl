@@ -589,34 +589,36 @@ table _Measures
 	/// Transactional detail for fact_ops_failures (Detail Matrix slot).
 	/// Use in Matrix with Failure Start DateTime in rows. Asset, start time, cause, repair duration.
 	measure 'Failure Transaction Details' =
-		IF (
-			ISINSCOPE ( fact_ops_failures['Failure Start DateTime'] ),
-			CONCATENATEX (
-				fact_ops_failures,
-				RELATED ( dim_asset[AssetName] ) & ", " & FORMAT ( fact_ops_failures['Failure Start DateTime'], "yyyy-mm-dd hh:nn" ) & ", " & fact_ops_failures['Cause Code'] & ", " & fact_ops_failures['Repair Duration Hours'] & " hrs",
-				UNICHAR ( 10 )
-			),
-			BLANK ()
-		)
-		formatString: @
-		displayFolder: OPS-002
-		lineageTag: 7a8b9c0d-1e2f-3456-7890-1234567890ab
+			IF (
+				ISINSCOPE ( fact_ops_failures['Failure Start DateTime'] ),
+				CONCATENATEX (
+					fact_ops_failures,
+					RELATED ( dim_asset[AssetName] ) & ", " & FORMAT ( fact_ops_failures['Failure Start DateTime'], "yyyy-mm-dd hh:nn" ) & ", " & fact_ops_failures['Cause Code'] & ", " & fact_ops_failures['Repair Duration Hours'] & " hrs",
+					UNICHAR ( 10 )
+				),
+				BLANK ()
+			)
+			formatString: @
+			displayFolder: OPS-002
+			lineageTag: 7a8b9c0d-1e2f-3456-7890-1234567890ab
+		lineageTag: f22744f1-c34d-4049-9431-406d6f1d81ee
 
 	/// Transactional detail for fact_experience (Detail Matrix slot).
 	/// Use in Matrix with Complaint ID in rows. Customer, org, severity, complaint type.
 	measure 'Complaint Details' =
-		IF (
-			ISINSCOPE ( fact_experience['Complaint ID'] ),
-			CONCATENATEX (
-				fact_experience,
-				RELATED ( dim_customer[CustomerName] ) & ", " & RELATED ( dim_org[OrgName] ) & ", " & fact_experience[Severity] & ", " & fact_experience['Complaint Type'],
-				UNICHAR ( 10 )
-			),
-			BLANK ()
-		)
-		formatString: @
-		displayFolder: COM-003
-		lineageTag: 8b9c0d1e-2f34-5678-9012-345678901234
+			IF (
+				ISINSCOPE ( fact_experience['Complaint ID'] ),
+				CONCATENATEX (
+					fact_experience,
+					RELATED ( dim_customer[CustomerName] ) & ", " & RELATED ( dim_org[OrgName] ) & ", " & fact_experience[Severity] & ", " & fact_experience['Complaint Type'],
+					UNICHAR ( 10 )
+				),
+				BLANK ()
+			)
+			formatString: @
+			displayFolder: COM-003
+			lineageTag: 8b9c0d1e-2f34-5678-9012-345678901234
+		lineageTag: c80d31ca-e61b-437f-bfae-0f0e62b1182e
 
 	column Column1
 		dataType: string

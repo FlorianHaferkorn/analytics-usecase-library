@@ -33,7 +33,11 @@ from azure.identity import ClientSecretCredential
 
 import modules.fabric_cli_functions as fabcli
 import modules.misc_functions as misc
-import modules.retry_logic as retry_logic
+
+try:
+    import modules.retry_logic as retry_logic
+except ImportError:
+    retry_logic = None
 
 try:
     import modules.framework_validator as framework_validator
@@ -120,7 +124,8 @@ def release_to_workspace(
             break
         except Exception as e:
             last_exc = e
-            if attempt < max_retries and retry_logic.is_transient_failure(e, str(e)):
+            is_transient = retry_logic is not None and retry_logic.is_transient_failure(e, str(e))
+            if attempt < max_retries and is_transient:
                 misc.print_warning(f" Transient failure (attempt {attempt + 1}/{max_retries + 1}), retrying...")
                 time.sleep(2.0 * (2 ** attempt))
             else:
@@ -136,7 +141,8 @@ def release_to_workspace(
                 break
             except Exception as e:
                 last_exc = e
-                if attempt < max_retries and retry_logic.is_transient_failure(e, str(e)):
+                is_transient = retry_logic is not None and retry_logic.is_transient_failure(e, str(e))
+                if attempt < max_retries and is_transient:
                     misc.print_warning(f" Transient failure (attempt {attempt + 1}/{max_retries + 1}), retrying...")
                     time.sleep(2.0 * (2 ** attempt))
                 else:

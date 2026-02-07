@@ -3649,8 +3649,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR MaterialCost = SUM ( fact_finance[Material Cost Amount] )
       VAR NetSales = SUM ( fact_finance[Net Sales Amount] )
       RETURN DIVIDE ( MaterialCost, NetSales )
-    depends_on_measures:
-    - cost.material.pct
+    depends_on_measures: []
     lineage:
     - fact_finance.Material Cost Amount
     - fact_finance.Net Sales Amount
@@ -3693,8 +3692,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR Actual = SUM ( fact_finance[OpEx Amount] )
       VAR Plan = SUM ( fact_finance[Plan OpEx Amount] )
       RETURN DIVIDE ( Actual - Plan, Plan )
-    depends_on_measures:
-    - cost.opex.vs_plan.pct
+    depends_on_measures: []
     lineage:
     - fact_finance.OpEx Amount
     - fact_finance.Plan OpEx Amount
@@ -3874,8 +3872,7 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
       VAR COGS = SUM ( fact_finance[COGS Amount] )
       VAR NetSales = SUM ( fact_finance[Net Sales Amount] )
       RETURN DIVIDE ( COGS, NetSales )
-    depends_on_measures:
-    - margin.cogs.pct
+    depends_on_measures: []
     lineage:
     - fact_finance.COGS Amount
     - fact_finance.Net Sales Amount

@@ -44,14 +44,22 @@ function Get-UseCaseKpis {
 	
 	$mappingYaml = $mappingMatch.Groups[1].Value
 	$kpiMappings = @()
-	
-	foreach ($match in [regex]::Matches($mappingYaml, '(?m)^\s*-\s*kpi_id:\s*([^\s\r\n]+)\s*\r?\n\s*measure_name:\s*([^\r\n]+)')) {
-		$kpiMappings += @{
-			kpi_id = $match.Groups[1].Value.Trim()
-			measure_name = $match.Groups[2].Value.Trim() -replace '^\[|\]$', ''
+	# Technical Factsheet YAML has optional kpi_name (and other fields) between kpi_id and measure_name; parse per list item.
+	$items = [regex]::Split($mappingYaml, '(?m)^\s*-\s*kpi_id:')
+	foreach ($item in $items) {
+		if ($item -notmatch '\S') { continue }
+		$block = ('  - kpi_id:' + $item).TrimEnd()
+		$kid = $null
+		$mname = $null
+		if ($block -match '(?m)kpi_id:\s*([^\s\r\n#]+)') { $kid = $matches[1].Trim() }
+		if ($block -match '(?m)measure_name:\s*([^\r\n#]+)') { $mname = ($matches[1].Trim() -replace '^\[|\]$', '').Trim() }
+		if ($kid -and $mname) {
+			$kpiMappings += @{
+				kpi_id = $kid
+				measure_name = $mname
+			}
 		}
 	}
-	
 	return $kpiMappings
 }
 

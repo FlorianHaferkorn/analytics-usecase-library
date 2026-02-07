@@ -1,8 +1,0 @@
-{
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json",
-  "name": "Page_COM002_Detail",
-  "displayName": "Where is gross margin eroding vs Plan and vs LY? Which products/channels/regions drive negative price realization or adverse mix? How do discounts, rebates, surcharges affect realized price? Which cost components dilute margin? Which actions move GM fastest? - Detail",
-  "displayOption": "FitToPage",
-  "height": 1080,
-  "width": 1920
-}

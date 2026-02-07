@@ -110,16 +110,11 @@ if ($calculatedColumns.Count -gt 5) {
 	}
 }
 
-# Rule: Bi-directional relationship limits
-$bidirectionalCount = 0
-foreach ($rel in $relationships) {
-	# Check if relationship is bi-directional (would need to parse TMDL relationship properties)
-	# Simplified check: count relationships
-}
-
-$totalRelationships = $relationships.Count
+# Rule: Bi-directional relationship limits (TMDL: crossFilteringBehavior: bothDirections)
+$bidirectionalCount = ([regex]::Matches($allContent, '(?mi)crossFilteringBehavior:\s*bothDirections')).Count
+$totalRelationships = ([regex]::Matches($allContent, '(?m)^relationship\s+\S+')).Count
 if ($totalRelationships -gt 0) {
-	$bidirectionalPct = ($bidirectionalCount / $totalRelationships) * 100
+	$bidirectionalPct = [math]::Round(($bidirectionalCount / $totalRelationships) * 100, 1)
 	if ($bidirectionalPct -gt 30) {
 		$results.Warnings += @{
 			RuleId = "AVOID_EXCESSIVE_BI-DIRECTIONAL_OR_MANY-TO-MANY_RELATIONSHIPS"
