@@ -1,1 +1,7 @@
-{"$schema":"https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.0.0/schema.json","pageOrder":["acace51fa4cc07dc3900"],"activePageName":"acace51fa4cc07dc3900"}
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.0.0/schema.json",
+  "pageOrder": [
+    "acace51fa4cc07dc3900"
+  ],
+  "activePageName": "acace51fa4cc07dc3900"
+}

@@ -9,35 +9,27 @@ Beim Öffnen des Reports erscheint: **"Fehler beim Rendern des Berichts"** mit J
 
 ## Ursache
 
-Der Report wurde nicht von Power BI Desktop als PBIR gespeichert, sondern die `definition/`-Ordnerstruktur wurde manuell/automatisiert angelegt. Beim Aktivieren der Report-Ansicht erwartet die Desktop-UI pro Seite ein Objekt mit der Eigenschaft `visualContainers`. Die interne Deserialisierung baut diese Struktur offenbar nicht zuverlässig aus der Ordnerstruktur, wenn der Report nie von Desktop geschrieben wurde.
+Die Report-UI erwartet pro Seite ein Objekt mit `visualContainers`. Diese Struktur baut Power BI nur zuverlässig auf, wenn die `definition/`-Seiten **von Desktop erzeugt und gespeichert** wurden. Manuell oder per Tool angelegte PBIR-Seiten führen bei der Deserialisierung oft zu fehlenden `visualContainers`.
 
-## Aktueller Stand (Test)
+## Aktueller Stand (Fix)
 
-Der Report wurde auf **eine Seite** reduziert und die Seite verwendet eine **Desktop-typische 20-Zeichen-ID** (`acace51fa4cc07dc3900`) wie im offiziellen Sample-Report. Damit wird getestet, ob die Exploration-Komponente mit dieser Namensform stabil rendert.
+Die **gesamte** `definition/pages/`-Struktur wurde durch die **von Desktop erstellte** aus dem Sample-Report **Procurement_Wireframe_Theme** ersetzt. Damit ist die Exploration-Struktur identisch mit einem funktionierenden PBIR-Report.
 
-- **Eine Seite:** `definition/pages/acace51fa4cc07dc3900/` (Inhalt = ehemals COM001 Overview)
-- **pages.json:** `pageOrder` und `activePageName` = `acace51fa4cc07dc3900`
-- Die weiteren Seiten (Page_COM001_Detail, Page_COM002_Overview, Page_COM002_Detail) wurden vorübergehend entfernt.
+- **Eine Seite:** `acace51fa4cc07dc3900` (Overview) mit 20 Visuals – ursprünglich Procurement-Inhalt.
+- **Dataset:** Unverändert `definition.pbir` → `../CoreActionReady.SemanticModel` (Aurora).
+- **Report/Theme:** Unverändert `definition/report.json` (Base-Theme CY25SU12, keine Procurement-spezifischen Filter).
 
-Falls der Report so ohne Fehler öffnet, können die anderen Seiten schrittweise mit je eigener 20-Zeichen-ID wieder ergänzt werden. Falls der Fehler bleibt, siehe Workaround unten.
+**Erwartetes Verhalten:**
 
-## Workaround (falls Fehler weiterhin auftritt)
+1. Report öffnet ohne Render-Fehler; du kannst **neue Seiten manuell anlegen** (Plus-Button).
+2. Die erste Seite zeigt die Procurement-Visuals; Felder können fehlen oder leer sein, weil das Modell CoreActionReady (Aurora) ist. Du kannst die Seite umgestalten oder neue Seiten für COM001/COM002 anlegen und nach dem Speichern die gewünschten Visuals einrichten.
 
-1. **Neuen Report von Desktop erzeugen lassen**
-   - Power BI Desktop öffnen, PBIR-Preview aktiviert lassen.
-   - Neues Projekt (PBIP) anlegen oder ein bestehendes leeres Report-Verzeichnis mit `definition.pbir` (Version 4.0, Verweis auf Semantic Model) verwenden.
-   - **Eine** leere Seite anlegen (Name egal), Report einmal **Speichern**.
-   - Dadurch schreibt Desktop die `definition/`-Struktur in dem Format, das es beim Öffnen erwartet.
+## Nächste Schritte
 
-2. **Inhalte übernehmen**
-   - Die von Desktop erzeugten Inhalte unter `definition/pages/` durch die gewünschten Seiten ersetzen (z. B. die bestehenden Page_COM001_Overview, Page_COM001_Detail, … inkl. `page.json` und `visuals/`).
-   - `definition/pages/pages.json` anpassen (`pageOrder`, `activePageName`).
-   - Report erneut in Desktop öffnen und prüfen; bei Bedarf erneut speichern.
-
-3. **Alternativ**
-   - Fehler an Microsoft melden (Frown/Feedback mit Kontext: PBIR mit manuell erstellter `definition/`, mehrere Seiten → beim Aktivieren der Report-Ansicht ist `visualContainers` undefined).
+- **Neue Seite anlegen:** In Desktop „Seite hinzufügen“ nutzen, Report speichern – die neue Seite wird von Desktop korrekt in `definition/pages/` geschrieben.
+- **Aurora-Seiten wiederherstellen:** Die früheren COM001/COM002-Seiten liegen in `showcases/aurora_group/reports/COM-001.Report/` und `COM-002.Report/` (definition/pages/). Nach dem Speichern neuer leerer Seiten in diesem Report kannst du Inhalte von dort übernehmen oder die neuen Seiten in Desktop mit den gewünschten Visuals bestücken.
 
 ## Referenz
 
 - [Power BI Desktop project report folder (PBIR)](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-report)
-- PBIR-Namensregel: Ordnername/`name` = Wortzeichen (Buchstaben, Ziffern, Unterstriche) oder Bindestriche; max. 50 Zeichen für Seitennamen.
+- Sample-Report: `showcases/sample_pbip_report/Procurement_Wireframe_Theme.Report/`
