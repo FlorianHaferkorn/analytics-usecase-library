@@ -111,7 +111,29 @@ effort model.
 
 ---
 
-## 4) Proposed top-level structure (target state)
+## 4) Architecture layers (tool-agnostic standard)
+
+We standardize on **4 physical data layers + 1 logical layer**:
+
+1) **Staging / Landing (physical)**  
+   Transient landing zone for raw extracts. Minimal validation.
+2) **Bronze (physical)**  
+   Persisted raw, source-aligned data with full lineage and history.
+3) **Silver (physical)**  
+   Conformed, validated domain data with standardized keys and types.
+4) **Gold (physical)**  
+   Curated, consumption-ready structures for analytics.
+5) **Semantics (logical, not physical)**  
+   KPI catalog, measure logic, action codes, and semantic model definitions.
+
+Project coverage:
+- We **define** Silver via contracts (domain-level, gold-derived).
+- We **deliver** Gold + Semantics via report packages and semantic models.
+- Staging and Bronze are **out of scope** unless explicitly included.
+
+---
+
+## 5) Proposed top-level structure (target state)
 
 ```yaml
 core/                       # Tool-agnostic framework (SSOT)
@@ -170,7 +192,7 @@ Notes:
 
 ---
 
-## 5) Product folder contract (per product)
+## 6) Product folder contract (per product)
 
 Each product folder must include:
 
@@ -185,7 +207,7 @@ This makes each product portable and easier to onboard.
 
 ---
 
-## 6) Mapping from current to target
+## 7) Mapping from current to target
 
 ```text
 framework/                                   -> core/
@@ -204,7 +226,7 @@ breaking scripts and documentation.
 
 ---
 
-## 7) Migration plan (phased, low risk)
+## 8) Migration plan (phased, low risk)
 
 Phase 0 (now):
 - Approve target structure and publish this proposal.
@@ -222,7 +244,7 @@ Phase 2 (cleanup):
 
 ---
 
-## 8) Non-goals
+## 9) Non-goals
 
 - No changes to schemas, IDs, or governance rules in this proposal.
 - No redefinition of KPI or action logic.
@@ -230,7 +252,7 @@ Phase 2 (cleanup):
 
 ---
 
-## 9) Recommendation
+## 10) Recommendation
 
 Adopt the proposed structure with a phased migration. It keeps the golden
 thread intact, cleanly separates products, and makes the big picture explicit
