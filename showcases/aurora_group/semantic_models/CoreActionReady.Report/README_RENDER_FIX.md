@@ -2,34 +2,44 @@
 
 ## Symptom
 
-Beim Öffnen des Reports erscheint: **"Fehler beim Rendern des Berichts"** mit JavaScript-Fehler:
+**"Fehler beim Rendern des Berichts"** mit:
 
 `Cannot read properties of undefined (reading 'visualContainers')`  
 (DesktopExplorationComponent.onExplorationActivated)
 
-## Ursache
+## Was bereits versucht wurde
 
-Die Report-UI erwartet pro Seite ein Objekt mit `visualContainers`. Diese Struktur baut Power BI nur zuverlässig auf, wenn die `definition/`-Seiten **von Desktop erzeugt und gespeichert** wurden. Manuell oder per Tool angelegte PBIR-Seiten führen bei der Deserialisierung oft zu fehlenden `visualContainers`.
+- Nur Seiten durch Desktop-Sample (Procurement) ersetzt → Fehler bleibt
+- **Komplette** `definition/` von Procurement übernommen (report.json, version.json, pages/) → Fehler kann weiterhin auftreten
 
-## Aktueller Stand (Fix)
+Aurora-Report verwendet jetzt die **exakt gleiche** Definition wie der Sample-Report (ohne Custom-Theme), nur `definition.pbir` verweist auf `../CoreActionReady.SemanticModel`.
 
-Die **gesamte** `definition/pages/`-Struktur wurde durch die **von Desktop erstellte** aus dem Sample-Report **Procurement_Wireframe_Theme** ersetzt. Damit ist die Exploration-Struktur identisch mit einem funktionierenden PBIR-Report.
+## Diagnose: Öffnet der Sample-Report?
 
-- **Eine Seite:** `acace51fa4cc07dc3900` (Overview) mit 20 Visuals – ursprünglich Procurement-Inhalt.
-- **Dataset:** Unverändert `definition.pbir` → `../CoreActionReady.SemanticModel` (Aurora).
-- **Report/Theme:** Unverändert `definition/report.json` (Base-Theme CY25SU12, keine Procurement-spezifischen Filter).
+Bitte testen:
 
-**Erwartetes Verhalten:**
+1. Power BI Desktop **komplett schließen**.
+2. **Procurement-Sample** öffnen:  
+   `showcases/sample_pbip_report/Procurement_Wireframe_Theme.pbip`  
+   (Doppelklick oder Datei > Öffnen)
 
-1. Report öffnet ohne Render-Fehler; du kannst **neue Seiten manuell anlegen** (Plus-Button).
-2. Die erste Seite zeigt die Procurement-Visuals; Felder können fehlen oder leer sein, weil das Modell CoreActionReady (Aurora) ist. Du kannst die Seite umgestalten oder neue Seiten für COM001/COM002 anlegen und nach dem Speichern die gewünschten Visuals einrichten.
+- **Wenn Procurement ebenfalls den Render-Fehler zeigt:**  
+  Wahrscheinlich Umgebung (Desktop-Version, PBIR-Preview, Pfad/Rechte).  
+  Optionen: Desktop neu installieren/reparieren, anderes Verzeichnis (z. B. kurzer Pfad ohne Sonderzeichen), Preview-Feature „Store reports using enhanced metadata format (PBIR)“ prüfen.
 
-## Nächste Schritte
+- **Wenn Procurement ohne Fehler öffnet, Aurora (CoreActionReady.pbip) aber nicht:**  
+  Dann hängt der Fehler mit der **Kombination Report + CoreActionReady-Semantic-Model** zusammen (z. B. andere Modellstruktur, Ladezeit, oder Bug beim Aufbau der Exploration bei diesem Dataset).  
+  In dem Fall: Fehler an Microsoft melden (Frown), mit Hinweis:  
+  „PBIR report opens when using Procurement_Wireframe_Theme.Report; same definition folder fails with visualContainers undefined when report references CoreActionReady.SemanticModel.“
 
-- **Neue Seite anlegen:** In Desktop „Seite hinzufügen“ nutzen, Report speichern – die neue Seite wird von Desktop korrekt in `definition/pages/` geschrieben.
-- **Aurora-Seiten wiederherstellen:** Die früheren COM001/COM002-Seiten liegen in `showcases/aurora_group/reports/COM-001.Report/` und `COM-002.Report/` (definition/pages/). Nach dem Speichern neuer leerer Seiten in diesem Report kannst du Inhalte von dort übernehmen oder die neuen Seiten in Desktop mit den gewünschten Visuals bestücken.
+## Aktueller Stand des Aurora-Reports
+
+- **definition/** = Kopie von Procurement (report.json ohne Custom-Theme, version.json 2.0.0, pages/ unverändert).
+- **definition.pbir** = `version: "4.0"`, `datasetReference: byPath "../CoreActionReady.SemanticModel"`.
+
+Zum Testen: `showcases/aurora_group/semantic_models/CoreActionReady.pbip` erneut öffnen.
 
 ## Referenz
 
 - [Power BI Desktop project report folder (PBIR)](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-report)
-- Sample-Report: `showcases/sample_pbip_report/Procurement_Wireframe_Theme.Report/`
+- Sample: `showcases/sample_pbip_report/Procurement_Wireframe_Theme.pbip`

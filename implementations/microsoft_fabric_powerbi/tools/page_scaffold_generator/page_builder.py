@@ -77,6 +77,10 @@ class PageBuilder:
         # Determine slicer placement (default: top)
         has_side_slicers = False  # Can be made configurable
 
+        # T2 can show Action Teaser (slim textbox); reserve content width 1510 like panel
+        use_teaser = template == "T2" and slots.get("action_teaser", True)
+        effective_has_panel = has_action_panel or use_teaser
+
         # KPI count (configurable; default 4)
         kpi_count = 4  # Can be made configurable or read from use case config
         has_top_slicer = not slots.get("exclude_time_slicer", False)
@@ -85,7 +89,7 @@ class PageBuilder:
         layout_bounds = self.layout_calculator.compute_adaptive_bounds(
             slots=slots,
             template=template,
-            has_action_panel=has_action_panel,
+            has_action_panel=effective_has_panel,
             kpi_count=kpi_count,
             has_top_slicer=has_top_slicer,
         )
@@ -94,7 +98,7 @@ class PageBuilder:
         visual_positions = self.layout_calculator.calculate_visual_positions(
             slots=slots,
             template=template,
-            has_action_panel=has_action_panel,
+            has_action_panel=effective_has_panel,
             has_side_slicers=has_side_slicers,
             layout_bounds=layout_bounds,
         )
@@ -179,9 +183,12 @@ class PageBuilder:
                 slicer["position"]["tabOrder"] = slicer_tab_order
                 slicers.append(slicer)
 
-        # Action Panel placeholder (if T4) — speaking name
+        # Action Panel (T4) or Action Teaser (T2 per ActionPanel_Spec)
         action_panel_visual = None
         if has_action_panel:
+            teaser_text = "'Action Panel Placeholder'"  # T4
+            if template == "T2":
+                teaser_text = "'Key actions from variance → see Detail or T4'"  # T2 Teaser
             action_panel_pos = self.layout_calculator.calculate_action_panel_position()
             action_panel_visual = {
                 "$schema": self.visual_builder.VISUAL_SCHEMA,
@@ -189,14 +196,14 @@ class PageBuilder:
                 "position": {
                     "x": action_panel_pos.x,
                     "y": action_panel_pos.y,
-                    "z": 15000,  # Above other visuals
+                    "z": 15000,
                     "height": action_panel_pos.height,
                     "width": action_panel_pos.width,
                     "tabOrder": 10000
                 },
                 "visual": {
                     "visualType": "textbox",
-                    "query": {},
+                    "query": {"queryState": {"Data": {"projections": []}}},
                     "objects": {
                         "text": [
                             {
@@ -204,7 +211,7 @@ class PageBuilder:
                                     "text": {
                                         "expr": {
                                             "Literal": {
-                                                "Value": "'Action Panel Placeholder'"
+                                                "Value": teaser_text
                                             }
                                         }
                                     }
@@ -215,7 +222,42 @@ class PageBuilder:
                 }
             }
             visuals.append(action_panel_visual)
-        
+        elif template == "T2" and slots.get("action_teaser", True):
+            # T2: slim Action Teaser at same position (content width 1510)
+            action_panel_pos = self.layout_calculator.calculate_action_panel_position()
+            action_panel_visual = {
+                "$schema": self.visual_builder.VISUAL_SCHEMA,
+                "name": "ActionPanel",
+                "position": {
+                    "x": action_panel_pos.x,
+                    "y": action_panel_pos.y,
+                    "z": 15000,
+                    "height": action_panel_pos.height,
+                    "width": action_panel_pos.width,
+                    "tabOrder": 10000
+                },
+                "visual": {
+                    "visualType": "textbox",
+                    "query": {"queryState": {"Data": {"projections": []}}},
+                    "objects": {
+                        "text": [
+                            {
+                                "properties": {
+                                    "text": {
+                                        "expr": {
+                                            "Literal": {
+                                                "Value": "'Key actions from variance → see Detail or T4'"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+            visuals.append(action_panel_visual)
+
         return {
             "visuals": visuals,
             "slicers": slicers,

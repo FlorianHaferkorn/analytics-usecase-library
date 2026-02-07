@@ -9,5 +9,6 @@ Fabric-specific checks run by `run_fabric_checks.ps1` and (Fabric-related steps)
 | `check_measures_vs_kpi.ps1` | KPI IDs referenced in _Measures.tmdl exist in framework/kpi_catalog. |
 | `check_tmdl_vs_measure_dictionary.ps1` | TMDL measure names align with framework semantic_models measure dictionaries. |
 | `check_dax_best_practices.ps1` | DAX in _Measures.tmdl conforms to rules in `_internal/tools/linters/powerbi/bpa-rules-dax.json` (DIVIDE, VAR/RETURN, no FORMAT, etc.). |
+| `check_report_layout.ps1` | Report page visual positions vs Layout_Grid_System (padding 20px, content width, bounds). Use `-ReportPath` to point at a report definition; optional `-PageFilter "COM*"` to validate only matching page displayNames. |
 
 Run from repository root. DistRoot defaults to `implementations/microsoft_fabric_powerbi/dist`.
