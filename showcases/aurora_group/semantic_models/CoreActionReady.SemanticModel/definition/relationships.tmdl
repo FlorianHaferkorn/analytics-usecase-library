@@ -229,4 +229,3 @@ relationship aa897560-2240-43e6-940a-c8df1017e202
 relationship d7e8f9a0-b1c2-3456-0123-567890123456
 	fromColumn: fact_ops_failures.DateKey
 	toColumn: dim_date.DateKey
-
