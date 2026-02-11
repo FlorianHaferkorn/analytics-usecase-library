@@ -13,15 +13,15 @@ $repoRoot   = Split-Path -Parent $scriptRoot
 function Get-ClusterPath {
   param([string]$UseCaseId)
   switch -Wildcard ($UseCaseId) {
-    "COM-*" { return "framework/usecases/core" }
-    "OPS-*" { return "framework/usecases/core" }
-    "CST-*" { return "framework/usecases/core" }
-    "COR-*" { return "framework/usecases/core" }
-    "ESG-*" { return "framework/usecases/core" }
-    "GOV-*" { return "framework/usecases/core" }
-    "INN-*" { return "framework/usecases/core" }
-    "HR-*"  { return "framework/usecases/core" }
-    default { return "framework/usecases" }
+    "COM-*" { return "core/usecases/core" }
+    "OPS-*" { return "core/usecases/core" }
+    "CST-*" { return "core/usecases/core" }
+    "COR-*" { return "core/usecases/core" }
+    "ESG-*" { return "core/usecases/core" }
+    "GOV-*" { return "core/usecases/core" }
+    "INN-*" { return "core/usecases/core" }
+    "HR-*"  { return "core/usecases/core" }
+    default { return "core/usecases" }
   }
 }
 
@@ -68,13 +68,13 @@ if (Test-Path $targetDir) {
   throw "Target use case folder already exists: $folderName"
 }
 
-$legacyTemplatePath = Join-Path $repoRoot "framework/usecases/templates/UC-000_Template.md"
+$legacyTemplatePath = Join-Path $repoRoot "core/usecases/templates/UC-000_Template.md"
 if (-not (Test-Path $legacyTemplatePath)) {
-  throw "Template not found: framework/usecases/templates/UC-000_Template.md"
+  throw "Template not found: core/usecases/templates/UC-000_Template.md"
 }
 
-$businessTemplatePath = Join-Path $repoRoot "framework/usecases/templates/usecase_factsheet_business.md"
-$technicalTemplatePath = Join-Path $repoRoot "framework/usecases/templates/usecase_factsheet_technical.md"
+$businessTemplatePath = Join-Path $repoRoot "core/usecases/templates/usecase_factsheet_business.md"
+$technicalTemplatePath = Join-Path $repoRoot "core/usecases/templates/usecase_factsheet_technical.md"
 
 New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
 

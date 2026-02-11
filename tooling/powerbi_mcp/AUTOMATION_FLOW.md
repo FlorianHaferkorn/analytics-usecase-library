@@ -38,7 +38,7 @@ graph TB
 
 **Connection Setup Script:**
 ```powershell
-# _internal/tools/powerbi_mcp/setup_connection.ps1
+# tooling/powerbi_mcp/setup_connection.ps1
 
 Param(
     [string]$WorkspaceRoot = "showcases/aurora_group/semantic_models",
@@ -88,7 +88,7 @@ Write-Host "  Model Path:      $modelPath" -ForegroundColor Gray
 Write-Host "  Definition Path: $modelPath\definition" -ForegroundColor Gray
 
 # 3. Connection-Datei erstellen
-$connFile = "_internal/tools/powerbi_mcp/connections.json"
+$connFile = "tooling/powerbi_mcp/connections.json"
 $conn = @{
     $ConnectionName = @{
         modelPath = $modelPath
@@ -100,7 +100,7 @@ $conn | ConvertTo-Json -Depth 5 | Out-File -Encoding UTF8NoBOM $connFile
 
 Write-Host "`n✓ Connection saved: $connFile" -ForegroundColor Green
 Write-Host "`nNext Steps:" -ForegroundColor Yellow
-Write-Host "  1. Run: ./_internal/tools/powerbi_mcp/orchestrate_full_model.ps1 -UseCase 'COM-001'" -ForegroundColor Gray
+Write-Host "  1. Run: ./tooling/powerbi_mcp/orchestrate_full_model.ps1 -UseCase 'COM-001'" -ForegroundColor Gray
 ```
 
 ---
@@ -109,7 +109,7 @@ Write-Host "  1. Run: ./_internal/tools/powerbi_mcp/orchestrate_full_model.ps1 -
 
 ### 2.1 Master Orchestrator
 
-**File:** `_internal/tools/powerbi_mcp/orchestrate_full_model.ps1`
+**File:** `tooling/powerbi_mcp/orchestrate_full_model.ps1`
 
 ```powershell
 Param(
@@ -216,11 +216,11 @@ $state.phase = "measure_generation"
 $state.iteration = 2
 
 Invoke-WithRetry "Generate TMDL Measures" {
-    $result = & ./_internal/tools/generation/generate_tmdl_measures.ps1 `
+    $result = & ./tooling/generation/generate_tmdl_measures.ps1 `
         -UseCase $UseCase `
-        -UseCasesRoot "framework/usecases/core" `
-        -KpiCatalogRoot "framework/kpi_catalog" `
-        -DistRoot "implementations/microsoft_fabric_powerbi/dist" `
+        -UseCasesRoot "core/usecases/core" `
+        -KpiCatalogRoot "core/kpi_catalog" `
+        -DistRoot "products/fabric_powerbi/dist" `
         -OverwriteExisting
     
     if ($LASTEXITCODE -ne 0) {
@@ -231,7 +231,7 @@ Invoke-WithRetry "Generate TMDL Measures" {
 
 Invoke-WithRetry "Validate TMDL Syntax" {
     $tmdlFile = "dist\$UseCase\$UseCase.SemanticModel\definition\tables\_Measures.tmdl"
-    $result = & ./implementations/microsoft_fabric_powerbi/tools/test_tmdl.ps1 -TmdlFile $tmdlFile
+    $result = & ./products/fabric_powerbi/tooling/test_tmdl.ps1 -TmdlFile $tmdlFile
     
     if ($LASTEXITCODE -ne 0) {
         throw "TMDL validation failed"
@@ -247,7 +247,7 @@ $state.iteration = 3
 
 # 3.1 Create Tables from Data Contracts
 Invoke-WithRetry "Create Dimension Tables" {
-    $dataContract = Get-Content "framework\data_contracts\sources\synthetic\synthetic_data_contract.yaml" -Raw | ConvertFrom-Yaml
+    $dataContract = Get-Content "core\data_contracts\sources\synthetic\synthetic_data_contract.yaml" -Raw | ConvertFrom-Yaml
     
     # Für jede Dimension: Table Operation über MCP
     foreach ($table in $dataContract.tables) {
@@ -291,7 +291,7 @@ Invoke-WithRetry "Create Hierarchies" {
 
 # 3.4 Import Measures
 Invoke-WithRetry "Import Measures to Model" {
-    $measuresFile = "implementations\microsoft_fabric_powerbi\dist\$UseCase\$UseCase.SemanticModel\definition\tables\_Measures.tmdl"
+    $measuresFile = "products\fabric_powerbi\dist\$UseCase\$UseCase.SemanticModel\definition\tables\_Measures.tmdl"
     
     # Copy measures to working model
     $targetModel = "showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel"
@@ -318,7 +318,7 @@ while (-not $validationPassed -and $iterationCount -lt $MaxIterations) {
     
     # Run BPA
     $bpaResult = Invoke-WithRetry "Run BPA Checks" {
-        $bpaOutput = & ./_internal/tools/run_all_checks.ps1 2>&1
+        $bpaOutput = & ./tooling/run_all_checks.ps1 2>&1
         
         # Parse BPA output for errors
         $errors = $bpaOutput | Select-String -Pattern "ERROR|FAIL" -AllMatches
@@ -372,7 +372,7 @@ $state.iteration = 5
 
 Invoke-WithRetry "Generate Report from Template" {
     # Page Template aus Use Case Business Factsheet
-    $factsheet = Get-Content "framework\usecases\core\$UseCase\Business_Factsheet.md" -Raw
+    $factsheet = Get-Content "core\usecases\core\$UseCase\Business_Factsheet.md" -Raw
     
     # Parse page_template field
     $templateMatch = [regex]::Match($factsheet, 'page_template:\s*"([^"]+)"')
@@ -381,7 +381,7 @@ Invoke-WithRetry "Generate Report from Template" {
     Write-Host "  Using template: $template" -ForegroundColor Gray
     
     # TODO: Report Generation via Page Template
-    # Read framework/templates/page_templates/$template.md
+    # Read core/templates/page_templates/$template.md
     # Generate PBIR with pages, visuals, filters based on template
     
     Write-Host "  ✓ Report structure created" -ForegroundColor Green
@@ -412,7 +412,7 @@ Write-Host "  3. Publish to Fabric Workspace" -ForegroundColor Gray
 
 ### 3.1 Table Operations Wrapper
 
-**File:** `_internal/tools/powerbi_mcp/table_ops.ps1`
+**File:** `tooling/powerbi_mcp/table_ops.ps1`
 
 ```powershell
 Param(
@@ -463,7 +463,7 @@ if ($TableDefinition) {
 
 ### 3.2 Relationship Operations Wrapper
 
-**File:** `_internal/tools/powerbi_mcp/relationship_ops.ps1`
+**File:** `tooling/powerbi_mcp/relationship_ops.ps1`
 
 ```powershell
 # Auto-detect relationships from:
@@ -516,7 +516,7 @@ function Auto-DetectRelationships {
 
 ### 3.3 Measure Operations Wrapper
 
-**File:** `_internal/tools/powerbi_mcp/measure_ops.ps1`
+**File:** `tooling/powerbi_mcp/measure_ops.ps1`
 
 ```powershell
 # Import measures from TMDL into model via MCP
@@ -563,7 +563,7 @@ function Import-MeasuresFromTMDL {
 
 ### 4.1 Page Template Parser
 
-**File:** `_internal/tools/powerbi_mcp/report_generator.ps1`
+**File:** `tooling/powerbi_mcp/report_generator.ps1`
 
 ```powershell
 Param(
@@ -572,7 +572,7 @@ Param(
     [string]$OutputPath
 )
 
-# Parse framework/templates/page_templates/$TemplateName.md
+# Parse core/templates/page_templates/$TemplateName.md
 # Generate PBIR JSON structure
 
 function Parse-PageTemplate {
@@ -622,7 +622,7 @@ function Generate-ReportJSON {
 }
 
 # Execute
-$templatePath = "framework\templates\page_templates\$TemplateName.md"
+$templatePath = "core\templates\page_templates\$TemplateName.md"
 $template = Parse-PageTemplate $templatePath
 $reportJson = Generate-ReportJSON $template $UseCase
 
@@ -639,7 +639,7 @@ $reportJson | Out-File -Encoding UTF8NoBOM "$reportFolder\definition\report.json
 ### 5.1 Error Pattern Recognition
 
 ```powershell
-# _internal/tools/powerbi_mcp/self_healing.ps1
+# tooling/powerbi_mcp/self_healing.ps1
 
 $ErrorPatterns = @{
     # Pattern → Auto-Fix Function
@@ -740,7 +740,7 @@ function Test-QualityGates {
 ### 6.1 Deployment Pipeline
 
 ```powershell
-# _internal/tools/powerbi_mcp/deploy.ps1
+# tooling/powerbi_mcp/deploy.ps1
 
 Param(
     [string]$WorkspaceName = "DM_ActionReady",
@@ -787,12 +787,12 @@ $metrics = @{
 
 ```powershell
 # 1. Setup (einmalig)
-./_internal/tools/powerbi_mcp/setup_connection.ps1 `
+./tooling/powerbi_mcp/setup_connection.ps1 `
     -WorkspaceRoot "showcases/aurora_group/semantic_models" `
     -ModelName "CoreActionReady"
 
 # 2. Generate COM-001 (Sales Performance) komplett
-./_internal/tools/powerbi_mcp/orchestrate_full_model.ps1 `
+./tooling/powerbi_mcp/orchestrate_full_model.ps1 `
     -UseCase "COM-001" `
     -MaxIterations 5
 
@@ -800,7 +800,7 @@ $metrics = @{
 explorer "showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel"
 
 # 4. Deploy to Fabric
-./_internal/tools/powerbi_mcp/deploy.ps1 `
+./tooling/powerbi_mcp/deploy.ps1 `
     -WorkspaceName "DM_ActionReady" `
     -ModelPath "showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel"
 ```

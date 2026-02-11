@@ -4,7 +4,7 @@ Evaluation of the Analytics Use Case Library against **ease of use** and **ease 
 
 **Status:** All 6 prioritized recommendations implemented. No open evaluation TODOs.
 
-**Re-audit (2026-02-05):** Phases A–D re-executed against current repo. Three corrections applied: (1) README merge conflict markers removed; (2) implementation guide README script paths corrected from `_internal/tools/validation/` to `_internal/tools/` for run_stage1_checks.ps1 and run_all_checks.ps1; (3) framework/strategy_operating_model/README.md updated to name run_stage1_checks.ps1 and run_all_checks.ps1 in "Run validation tools before delivery". All other findings and resolution status confirmed.
+**Re-audit (2026-02-05):** Phases A–D re-executed against current repo. Three corrections applied: (1) README merge conflict markers removed; (2) implementation guide README script paths corrected from `tooling/validation/` to `tooling/` for run_stage1_checks.ps1 and run_all_checks.ps1; (3) core/strategy_operating_model/README.md updated to name run_stage1_checks.ps1 and run_all_checks.ps1 in "Run validation tools before delivery". All other findings and resolution status confirmed.
 
 ---
 
@@ -41,18 +41,18 @@ How few steps and decisions from "we adopt the framework" to "first use case is 
 
 | Document | Promises | Sends reader to |
 |----------|----------|------------------|
-| [README.md](../../README.md) | Strategy-to-action framework; get started in 4 steps | 1) framework/strategy_operating_model/company/ (strategy, reporting principles), 2) framework/strategy_operating_model/operating_model/ (overview, golden_thread), 3) framework/usecases/core + UseCase_Inventory, 4) "Implement a use case" (generate_tmdl_measures.ps1, Stage 1, run_fabric_checks); Prerequisites (PowerShell, Node, repo root, npm ci); "When to use which" (Stage 1 vs run_all_checks vs Fabric-only). Links to implementations/microsoft_fabric_powerbi/guide/ in step 4. |
-| [framework/strategy_operating_model/README.md](../../framework/strategy_operating_model/README.md) | Single navigation entry; Golden Thread order | 1) framework/strategy_operating_model/company/, 2) operating_model/, 3) framework/, 4) usecases/data_contracts/semantic_models, 5) showcases/aurora_group. "Run validation tools before delivery: run_stage1_checks.ps1 (CI gate); run_all_checks.ps1 (full validation)" from repo root. Resolved in re-audit. |
-| [implementations/microsoft_fabric_powerbi/guide/README.md](../../implementations/microsoft_fabric_powerbi/guide/README.md) | Platform-specific implementation (Fabric/Power BI) | fabric_powerbi.md, tmdl_best_practices.md; "Framework and tooling entry points" table (usecases/core, kpi_catalog, run_stage1_checks.ps1, run_all_checks.ps1, run_fabric_checks.ps1, generate_tmdl_measures.ps1). Paths corrected to _internal/tools/ (not _internal/tools/validation/) for run_stage1_checks and run_all_checks. |
+| [README.md](../../README.md) | Strategy-to-action framework; get started in 4 steps | 1) core/strategy_operating_model/company/ (strategy, reporting principles), 2) core/strategy_operating_model/operating_model/ (overview, golden_thread), 3) core/usecases/core + UseCase_Inventory, 4) "Implement a use case" (generate_tmdl_measures.ps1, Stage 1, run_fabric_checks); Prerequisites (PowerShell, Node, repo root, npm ci); "When to use which" (Stage 1 vs run_all_checks vs Fabric-only). Links to products/fabric_powerbi/docs/ in step 4. |
+| [core/strategy_operating_model/README.md](../../core/strategy_operating_model/README.md) | Single navigation entry; Golden Thread order | 1) core/strategy_operating_model/company/, 2) operating_model/, 3) core/, 4) usecases/data_contracts/semantic_models, 5) showcases/aurora_group. "Run validation tools before delivery: run_stage1_checks.ps1 (CI gate); run_all_checks.ps1 (full validation)" from repo root. Resolved in re-audit. |
+| [products/fabric_powerbi/docs/README.md](../../products/fabric_powerbi/docs/README.md) | Platform-specific implementation (Fabric/Power BI) | fabric_powerbi.md, tmdl_best_practices.md; "Framework and tooling entry points" table (usecases/core, kpi_catalog, run_stage1_checks.ps1, run_all_checks.ps1, run_fabric_checks.ps1, generate_tmdl_measures.ps1). Paths corrected to tooling/ (not tooling/validation/) for run_stage1_checks and run_all_checks. |
 | [showcases/aurora_group/README.md](../../showcases/aurora_group/README.md) | End-to-end demo with synthetic company | company/, data/gold/, usecases/, reporting/, semantic_models/. "To reproduce" lists explicit commands (npm ci, run_stage1_checks.ps1, generate_tmdl_measures.ps1, run_fabric_checks.ps1). Validation tools and framework paths referenced. |
 
 ### 2.2 Single path test
 
 From "I am new":
 
-- **Strategy to use case:** README gives a clear sequence: framework/strategy_operating_model/company/, then operating_model/, then framework/usecases/core and UseCase_Inventory. No dead end.
-- **Use case to implementation:** README step 4 "Implement a use case" documents: pick use case, run generate_tmdl_measures.ps1, run Stage 1, run_fabric_checks; links to implementations/microsoft_fabric_powerbi/guide/.
-- **Validation:** README "When to use which" explains Stage 1 (CI/merge) vs run_all_checks (full local) vs run_fabric_checks (Fabric-only). usecase_DoD_Core.md still cites run_all_checks.ps1 for Tooling DoD; _internal/tools/README explains Stage 1 vs run_all_checks.
+- **Strategy to use case:** README gives a clear sequence: core/strategy_operating_model/company/, then operating_model/, then core/usecases/core and UseCase_Inventory. No dead end.
+- **Use case to implementation:** README step 4 "Implement a use case" documents: pick use case, run generate_tmdl_measures.ps1, run Stage 1, run_fabric_checks; links to products/fabric_powerbi/docs/.
+- **Validation:** README "When to use which" explains Stage 1 (CI/merge) vs run_all_checks (full local) vs run_fabric_checks (Fabric-only). usecase_DoD_Core.md still cites run_all_checks.ps1 for Tooling DoD; tooling/README explains Stage 1 vs run_all_checks.
 
 **Finding (current state):** Single path exists from strategy to implementation: steps 1–4 in README plus "First 2 hours" checklist. Use case to generation and validation is documented in README step 4.
 
@@ -63,13 +63,13 @@ From "I am new":
 | README.md | `run_stage1_checks.ps1` | "Stage 1 CI Gate (local / CI)" |
 | AGENTS.md | `run_stage1_checks.ps1` | "Before committing ... run Stage 1" |
 | usecases/usecase_DoD_Core.md | `run_all_checks.ps1` | "Tooling & Automation DoD"; lists validate_factsheets, validate_kpi_catalog, check_factsheet_vs_kpi |
-| _internal/tools/README.md | `run_all_checks.ps1` | "Master quality runner"; runs KPI validation, factsheet validation, KPI-use case checks, measure checks, PBIP, linters |
+| tooling/README.md | `run_all_checks.ps1` | "Master quality runner"; runs KPI validation, factsheet validation, KPI-use case checks, measure checks, PBIP, linters |
 
-**Finding (current state):** README "When to use which" and _internal/tools/README "Stage 1 vs run_all_checks" state the distinction. Stage 1 is linked from README get-started flow and from VSCode task "Run Stage 1 checks (CI gate)". Resolved.
+**Finding (current state):** README "When to use which" and tooling/README "Stage 1 vs run_all_checks" state the distinction. Stage 1 is linked from README get-started flow and from VSCode task "Run Stage 1 checks (CI gate)". Resolved.
 
 ### 2.4 Prerequisites
 
-- **Current state:** README "How to get started" lists Prerequisites: PowerShell (or pwsh); Node.js for schema validation; one-time `cd _internal\tools\validation` then `npm ci`; run all commands from repository root. "First 2 hours" checklist reinforces clone, npm ci, run Stage 1, pick use case, generate measures. Resolved.
+- **Current state:** README "How to get started" lists Prerequisites: PowerShell (or pwsh); Node.js for schema validation; one-time `cd tooling\validation` then `npm ci`; run all commands from repository root. "First 2 hours" checklist reinforces clone, npm ci, run Stage 1, pick use case, generate measures. Resolved.
 
 ---
 
@@ -79,11 +79,11 @@ From "I am new":
 
 | Issue | Evidence | Status |
 |-------|----------|--------|
-| new_usecase.ps1 cluster paths | `Get-ClusterPath` now returns `framework/usecases/core` (not 01_Commercial etc.). Script creates `<ID>_<Title>` under framework/usecases/core. | **Resolved.** |
-| usecase_DoD_Core.md KPI template path | DoD section 2 references `framework/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md`. Actual file exists at that path. | **Resolved.** |
-| Action code documentation_links | Action code YAMLs use full paths (e.g. `framework/usecases/core/SCM-001_Inventory_Performance/Business_Factsheet.md`). | **Resolved.** |
+| new_usecase.ps1 cluster paths | `Get-ClusterPath` now returns `core/usecases/core` (not 01_Commercial etc.). Script creates `<ID>_<Title>` under core/usecases/core. | **Resolved.** |
+| usecase_DoD_Core.md KPI template path | DoD section 2 references `core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md`. Actual file exists at that path. | **Resolved.** |
+| Action code documentation_links | Action code YAMLs use full paths (e.g. `core/usecases/core/SCM-001_Inventory_Performance/Business_Factsheet.md`). | **Resolved.** |
 | SupplyChain action code filenames | S-F3.1–S-F3.4; single convention S-F3.x.yaml. | **Resolved.** |
-| Implementation guide script paths | Guide README previously cited `_internal/tools/validation/run_stage1_checks.ps1` and `run_all_checks.ps1`; scripts live under `_internal/tools/`. | **Fixed in re-audit (2026-02-05).** |
+| Implementation guide script paths | Guide README previously cited `tooling/validation/run_stage1_checks.ps1` and `run_all_checks.ps1`; scripts live under `tooling/`. | **Fixed in re-audit (2026-02-05).** |
 
 ### 3.2 UseCase_Inventory vs UseCase_ActionCode_Map
 
@@ -91,7 +91,7 @@ From "I am new":
 
 ### 3.3 VSCode tasks
 
-- [`.vscode/tasks.json`](../../.vscode/tasks.json): **Resolved.** Task \"Run Stage 1 checks (CI gate)\" added; README and _internal/tools/README now explain Stage 1 vs run_all_checks vs Fabric-only.
+- [`.vscode/tasks.json`](../../.vscode/tasks.json): **Resolved.** Task \"Run Stage 1 checks (CI gate)\" added; README and tooling/README now explain Stage 1 vs run_all_checks vs Fabric-only.
 
 ---
 
@@ -103,12 +103,12 @@ Trace from "I want to implement COM-001" to "TMDL generated and Stage 1 passed":
 
 1. **Business Factsheet:** usecases/core/COM-001_Sales_Performance/Business_Factsheet.md — required KPIs, layout_330300, action code refs.
 2. **Technical Factsheet:** usecases/core/COM-001_Sales_Performance/Technical_Factsheet.md — kpi_to_measure_mapping, data contract scope.
-3. **KPI catalog:** framework/kpi_catalog/ — all required_kpis must exist here.
+3. **KPI catalog:** core/kpi_catalog/ — all required_kpis must exist here.
 4. **Action code map:** usecases/UseCase_ActionCode_Map.yaml — COM-001 lists C-M2.1, C-S1.1, C-S1.2.
-5. **Generation:** `.\_internal\tools\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseCasesRoot framework/usecases -KpiCatalogRoot framework/kpi_catalog -DistRoot implementations/microsoft_fabric_powerbi/dist` (or DistRoot showcases/aurora_group/semantic_models for Aurora). Script defaults are framework/usecases, framework/kpi_catalog, implementations/microsoft_fabric_powerbi/dist when run from repo root.
-6. **Validation:** `.\_internal\tools\run_stage1_checks.ps1` from repo root.
+5. **Generation:** `.\tooling\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseCasesRoot core/usecases -KpiCatalogRoot core/kpi_catalog -DistRoot products/fabric_powerbi/dist` (or DistRoot showcases/aurora_group/semantic_models for Aurora). Script defaults are core/usecases, core/kpi_catalog, products/fabric_powerbi/dist when run from repo root.
+6. **Validation:** `.\tooling\run_stage1_checks.ps1` from repo root.
 
-**Current state:** README step 4 "Implement a use case" lists the sequence (pick use case, generate_tmdl_measures.ps1, Stage 1, run_fabric_checks) and links to implementations/microsoft_fabric_powerbi/guide/. fabric_powerbi.md "Where this fits in the repo" references use case factsheets, KPI catalog, validation scripts, TMDL generation. Resolved.
+**Current state:** README step 4 "Implement a use case" lists the sequence (pick use case, generate_tmdl_measures.ps1, Stage 1, run_fabric_checks) and links to products/fabric_powerbi/docs/. fabric_powerbi.md "Where this fits in the repo" references use case factsheets, KPI catalog, validation scripts, TMDL generation. Resolved.
 
 ### 4.2 Aurora showcase
 
@@ -117,7 +117,7 @@ Trace from "I want to implement COM-001" to "TMDL generated and Stage 1 passed":
 
 ### 4.3 Implementation guide links
 
-- [implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md](../../implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md): **Resolved.** Guide README and fabric_powerbi.md now include "Framework and tooling entry points" (usecases/core, kpi_catalog, run_stage1_checks, run_all_checks, run_fabric_checks, generate_tmdl_measures) and a "Fabric & Power BI best practices and validation" section (TMDL, DAX rules, run_fabric_checks).
+- [products/fabric_powerbi/docs/fabric_powerbi.md](../../products/fabric_powerbi/docs/fabric_powerbi.md): **Resolved.** Guide README and fabric_powerbi.md now include "Framework and tooling entry points" (usecases/core, kpi_catalog, run_stage1_checks, run_all_checks, run_fabric_checks, generate_tmdl_measures) and a "Fabric & Power BI best practices and validation" section (TMDL, DAX rules, run_fabric_checks).
 
 ---
 
@@ -127,7 +127,7 @@ Trace from "I want to implement COM-001" to "TMDL generated and Stage 1 passed":
 
 - **Golden thread and SSOT**: Strategy to KPIs to use cases to action codes to templates is clearly articulated in docs and in repo structure. KPI catalog and action codes are the single source of truth; use cases reference them.
 - **Stage 1 CI:** A well-defined fail-fast gate with a single command and a clear list of checks; run_stage1_checks.ps1 is documented in README and AGENTS.md.
-- **Schemas and validation:** `_internal/ai/schemas/` and `_internal/tools/validation/` provide machine-readable rules and automated checks.
+- **Schemas and validation:** `tooling/ai/schemas/` and `tooling/validation/` provide machine-readable rules and automated checks.
 - **One reference showcase**: Aurora Group demonstrates end-to-end structure (company, data, models, use cases, reporting) and points to canonical factsheets.
 - **Clear audience framing:** README and docs/README state who the framework is for (executives, business leads, data/analytics teams, architects).
 
@@ -137,18 +137,18 @@ Trace from "I want to implement COM-001" to "TMDL generated and Stage 1 passed":
 |-----------|--------------|---------------|
 | Onboarding | No single "before you start" list. | README Prerequisites and "First 2 hours" checklist. Resolved. |
 | Implementation path | No documented path from "pick use case" to "generate TMDL and pass Stage 1". | README step 4 and implementation guide entry points. Resolved. |
-| Tooling discoverability | Stage 1 vs run_all_checks not explained; Stage 1 not in VSCode tasks. | README "When to use which"; _internal/tools/README "Stage 1 vs run_all_checks"; VSCode task "Run Stage 1 checks (CI gate)". Resolved. |
+| Tooling discoverability | Stage 1 vs run_all_checks not explained; Stage 1 not in VSCode tasks. | README "When to use which"; tooling/README "Stage 1 vs run_all_checks"; VSCode task "Run Stage 1 checks (CI gate)". Resolved. |
 | Consistency | new_usecase.ps1 cluster paths; DoD KPI path; action code doc links; Aurora data paths; S-F3.x filenames; implementation guide script paths. | All resolved; implementation guide paths fixed in re-audit. |
-| Friction | Ambiguity on which check script to run. | README and _internal/tools/README clarify. Resolved. |
+| Friction | Ambiguity on which check script to run. | README and tooling/README clarify. Resolved. |
 | UseCase_Inventory | Short codes vs UseCase_ActionCode_Map. | Inventory uses full action code IDs. Resolved. |
 
-**Resolved in re-audit:** framework/strategy_operating_model/README.md updated to name run_stage1_checks.ps1 and run_all_checks.ps1 (from repo root).
+**Resolved in re-audit:** core/strategy_operating_model/README.md updated to name run_stage1_checks.ps1 and run_all_checks.ps1 (from repo root).
 
 ### 5.3 Prioritized recommendations
 
-1. **Fix path and ID consistency (high)** — **Done.** new_usecase.ps1 uses `framework/usecases/core` and `<ID>_<Name>`; usecase_DoD_Core.md uses `framework/templates/kpi_catalog_templates/`; action code `documentation_links` use full folder names (e.g. SCM-001_Inventory_Performance); SupplyChain filenames S-F3.1–S-F3.4; Aurora README and COM-001 refs point to data/gold and "To reproduce" added.
+1. **Fix path and ID consistency (high)** — **Done.** new_usecase.ps1 uses `core/usecases/core` and `<ID>_<Name>`; usecase_DoD_Core.md uses `core/templates/kpi_catalog_templates/`; action code `documentation_links` use full folder names (e.g. SCM-001_Inventory_Performance); SupplyChain filenames S-F3.1–S-F3.4; Aurora README and COM-001 refs point to data/gold and "To reproduce" added.
 
-2. **Clarify Stage 1 vs run_all_checks and expose Stage 1 (high)** — **Done.** README "When to use which" subsection; _internal/tools/README "Stage 1 vs run_all_checks" section; VSCode task "Run Stage 1 checks (CI gate)" added.
+2. **Clarify Stage 1 vs run_all_checks and expose Stage 1 (high)** — **Done.** README "When to use which" subsection; tooling/README "Stage 1 vs run_all_checks" section; VSCode task "Run Stage 1 checks (CI gate)" added.
 
 3. **Single "get started" and "implement one use case" path (high)** — **Done.** README: Prerequisites (PowerShell, Node, repo root, npm ci) under "How to get started"; step 4 "Implement a use case" with sequence and command; "First 2 hours" optional checklist.
 
@@ -162,11 +162,11 @@ Trace from "I want to implement COM-001" to "TMDL generated and Stage 1 passed":
 
 ## 6. Optional: "First 2 hours" flow (proposed)
 
-- Clone repo; ensure PowerShell and Node available; from repo root run `cd _internal\tools\validation && npm ci`.  
+- Clone repo; ensure PowerShell and Node available; from repo root run `cd tooling\validation && npm ci`.  
 - Read README "How to get started" steps 1–3 (strategy, operating model, use cases).  
-- Run `.\_internal\tools\run_stage1_checks.ps1` and fix any failures.  
-- Pick one use case (e.g. COM-001); open its Business and Technical factsheets; run `.\_internal\tools\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseCasesRoot framework/usecases -KpiCatalogRoot framework/kpi_catalog -DistRoot implementations/microsoft_fabric_powerbi/dist -OverwriteExisting`; run Stage 1 again.  
-- Skim implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md if implementing in Fabric/Power BI.
+- Run `.\tooling\run_stage1_checks.ps1` and fix any failures.  
+- Pick one use case (e.g. COM-001); open its Business and Technical factsheets; run `.\tooling\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseCasesRoot core/usecases -KpiCatalogRoot core/kpi_catalog -DistRoot products/fabric_powerbi/dist -OverwriteExisting`; run Stage 1 again.  
+- Skim products/fabric_powerbi/docs/fabric_powerbi.md if implementing in Fabric/Power BI.
 
 This flow is now reflected in README "How to get started" (step 4, "First 2 hours" checklist).
 
@@ -174,6 +174,6 @@ This flow is now reflected in README "How to get started" (step 4, "First 2 hour
 
 ## 7. Document and location
 
-- **Report:** _internal/strategy/framework_evaluation_2026-02.md  
+- **Report:** internal/strategy/framework_evaluation_2026-02.md  
 - **Re-audit:** 2026-02-05. Phases A–D re-executed; README merge conflict and implementation guide script paths corrected; all findings and resolution status confirmed.  
 - **Next step:** Re-evaluate when repo structure, entry points, or scope change. No open action items from this evaluation.

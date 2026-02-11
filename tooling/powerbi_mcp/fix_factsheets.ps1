@@ -1,7 +1,7 @@
 # Fix FactSheet.md files - add required_kpi_ids to frontmatter
 # Parses required_kpis YAML blocks and extracts IDs
 
-$ucDirs = Get-ChildItem "framework\usecases\core" -Directory | Where-Object { $_.Name -like "COM-*" }
+$ucDirs = Get-ChildItem "core\usecases\core" -Directory | Where-Object { $_.Name -like "COM-*" }
 
 foreach ($dir in $ucDirs) {
     $businessPath = Join-Path $dir.FullName "Business_Factsheet.md"

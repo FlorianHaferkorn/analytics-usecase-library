@@ -224,7 +224,7 @@ governance:
   rollback_plan:
     - "Pause coaching if AHT degradation exceeds tolerance"
   documentation_links:
-    - "framework/usecases/core/XD-001_Service_Level_Performance/Business_Factsheet.md"
+    - "core/usecases/core/XD-001_Service_Level_Performance/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

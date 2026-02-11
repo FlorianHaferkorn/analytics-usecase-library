@@ -20,4 +20,4 @@ Usage:
 - Update when standards evolve
 
 Relations:
-PATTERNS supporting framework/usecases and framework/strategy_operating_model/company and operating_model alignment.
+PATTERNS supporting core/usecases and core/strategy_operating_model/company and operating_model alignment.

@@ -15,18 +15,18 @@ factsheet_type: technical
 - **Technical Owner:** Quality Analytics / Ops BI Lead
 - **Model ID:** ops_quality_yield
 - **Source Systems:** MES/SCADA, QMS/LIMS, ERP (production/complaints), DWH
-- **Business Factsheet:** framework/usecases/core/OPS-003_Quality_Yield/Business_Factsheet.md
+- **Business Factsheet:** core/usecases/core/OPS-003_Quality_Yield/Business_Factsheet.md
 
 ---
 
 ## 1. Model References
 
-- **Domain Data Contract:** framework/framework/framework/data_contracts/domains/operations.yaml
-- **Source Data Contract:** framework/framework/framework/data_contracts/sources/operations.yaml (if present)
-- **Semantic Model Definition:** framework/framework/framework/semantic_models/core_action_ready/model_definition.yaml
-- **KPI Catalog:** framework/kpi_catalog/KPI_Catalog.md
-- **Measure Dictionary:** framework/framework/framework/semantic_models/domains/Operations/Measure_Dictionary_Operations.md
-- **Action Codes:** framework/action_codes/README.md
+- **Domain Data Contract:** core/core/core/data_contracts/domains/operations.yaml
+- **Source Data Contract:** core/core/core/data_contracts/sources/operations.yaml (if present)
+- **Semantic Model Definition:** core/core/core/semantic_models/core_action_ready/model_definition.yaml
+- **KPI Catalog:** core/kpi_catalog/KPI_Catalog.md
+- **Measure Dictionary:** core/core/core/semantic_models/domains/Operations/Measure_Dictionary_Operations.md
+- **Action Codes:** core/action_codes/README.md
 
 ---
 

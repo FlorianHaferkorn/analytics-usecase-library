@@ -5,11 +5,11 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Resolve repo root from script location: implementations/microsoft_fabric_powerbi/validation -> ../../..
+# Resolve repo root from script location: products/fabric_powerbi/tooling/validation -> ../../..
 $scriptDir = $PSScriptRoot
 $repoRoot = (Get-Item $scriptDir).Parent.Parent.Parent.FullName
-if (-not $MeasureDictRoot) { $MeasureDictRoot = Join-Path $repoRoot "framework\semantic_models\domains" }
-if (-not $DistRoot) { $DistRoot = Join-Path $repoRoot "implementations\microsoft_fabric_powerbi\dist" }
+if (-not $MeasureDictRoot) { $MeasureDictRoot = Join-Path $repoRoot "core\semantic_models\domains" }
+if (-not $DistRoot) { $DistRoot = Join-Path $repoRoot "products\fabric_powerbi\dist" }
 
 $tmdlFiles = Get-ChildItem -Path $DistRoot -Recurse -Filter "*_Measures.tmdl" -ErrorAction SilentlyContinue | Where-Object {
   $_.FullName -notmatch '\\_internal\\archive\\'

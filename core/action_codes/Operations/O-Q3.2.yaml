@@ -221,7 +221,7 @@ governance:
   rollback_plan:
     - "Revert process changes if FPY deteriorates further"
   documentation_links:
-    - "framework/usecases/core/OPS-003_Quality_Yield/Business_Factsheet.md"
+    - "core/usecases/core/OPS-003_Quality_Yield/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

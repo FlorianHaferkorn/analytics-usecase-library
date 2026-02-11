@@ -1,45 +1,18 @@
-﻿# Aurora Operating Model
+# Aurora Group Operating Model (Showcase)
 
-## Value Chain
+## Purpose
 
-1. Plan - Financial Planning, Category Strategy, Demand Planning  
-2. Source - Procurement, Supplier Management  
-3. Make/Move - Allocation, DC Operations, Transport, Last Mile  
-4. Sell - Stores, E-Commerce, Marketplaces, Wholesale  
-5. Serve - Customer Service, Returns, After-Sales  
-6. Govern & Enable - Finance, HR, ESG, IT, Data, Compliance
+Describe the operating assumptions used by the Aurora Group showcase.
 
-## Organizational Structure
+## Scope
 
-- Group Level: CEO, CFO, CHRO, CCO, COO, CIO, CSO  
-- Regions: Regional MDs + Local Finance/HR/Ops  
-- Functions: Category, Logistics, Marketing, Finance, HR, ESG, Tech/Data, Innovation  
-- Sites: Stores, DCs, Hubs, Offices, ESG Sites
+- Demonstration context for strategy-to-action analytics
+- Domain ownership and KPI accountability model
+- Decision cadence assumptions for executive, tactical, and operational levels
 
-## Domain Map
+## Notes
 
-1. Commercial  
-2. Operational Efficiency  
-3. Customer & Market  
-4. Corporate & Strategy  
-5. ESG  
-6. Governance  
-7. Innovation & People
+This is a showcase reference document, not a governed framework definition.
+Canonical framework operating model documents live in:
 
-## KPI Ownership
-
-Commercial → CCO  
-Operations → COO  
-Customer → CMO  
-Corporate → CFO  
-ESG → CSO  
-Governance → CRO  
-People → CHRO
-
-## RLS Relevance
-
-Region Manager → region  
-Store Manager → store  
-Logistics Manager → DC  
-Function Heads → function  
-Executive → global
+- `core/strategy_operating_model/operating_model/`

@@ -55,8 +55,8 @@ $files = Get-ChildItem -Path $rootPath -Recurse -File | Where-Object {
   if ($pathLower -match '(\\node_modules\\|\\.git\\|_archive\\|\\microsoft_fabric_powerbi\\dist\\)') { return $false }
   $ext = $_.Extension.TrimStart(".")
   $Extensions -contains $ext `
-    -and ($pathLower -notlike "*\_internal\reviews\*") `
-    -and ($pathLower -notlike "*\_internal\tools\linters\*") `
+    -and ($pathLower -notlike "*\internal\reviews\*") `
+    -and ($pathLower -notlike "*\tooling\linters\*") `
     -and -not (Is-ExcludedPath -Path $_.FullName -Exclude $ExcludeDirs)
 }
 

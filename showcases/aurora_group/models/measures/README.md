@@ -1,9 +1,8 @@
-# Aurora Measures (Demo)
+# Aurora Measures
 
-Purpose:
-Placeholder for sample measure definitions if needed for PBIP demos. Use the canonical measure names and formats from `semantic_models/domains/Measure_Dictionary_*.md`.
+This folder contains Aurora showcase-specific measure assets and supporting material.
 
-Notes:
+Use this as showcase context only. Governed measure definitions are maintained in:
 
-- Keep KPI IDs and measure names identical to the main catalog.
-- Only add demo-specific stubs if required; otherwise reference the main dictionaries.
+- `core/semantic_models/`
+- `core/kpi_catalog/`

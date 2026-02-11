@@ -3,7 +3,7 @@
     "title":  null,
     "dataset_model":  "XD-001.SemanticModel",
     "table_name":  "_Measures",
-    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\usecases\\core\\XD-001_Service_Level_Performance\\Technical_Factsheet.md",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\usecases\\core\\XD-001_Service_Level_Performance\\Technical_Factsheet.md",
     "measures":  [
                      {
                          "kpi_id":  "svc.sla.attainment.pct",
@@ -35,7 +35,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "svc.fcr.pct",
@@ -67,7 +67,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "svc.aht.minutes",
@@ -99,7 +99,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "svc.backlog.count",
@@ -131,7 +131,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "svc.nps.index",
@@ -163,7 +163,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "svc.escalation.pct",
@@ -195,7 +195,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      }
                  ]
 }

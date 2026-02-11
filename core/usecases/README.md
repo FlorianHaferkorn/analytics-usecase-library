@@ -24,15 +24,15 @@ Included:
 
 Not included:
 
-- Semantic model implementation (see `framework/semantic_models/`)  
-- Data contracts (see `framework/data_contracts/`)  
-- Page templates (see `framework/templates/`)  
+- Semantic model implementation (see `core/semantic_models/`)  
+- Data contracts (see `core/data_contracts/`)  
+- Page templates (see `core/templates/`)  
 - Customer-specific use cases (kept in separate project repos)
 
 ## Structure
 
 ```yaml
-framework/usecases/
+core/usecases/
   UseCase_Inventory.md      - Master list of all use cases
   templates/                - Business & technical factsheet templates
     usecase_factsheet_business.md
@@ -46,7 +46,7 @@ framework/usecases/
 
 The single source of truth for all use cases in the framework.  
 Contains IDs, domains, KPIs, and status.  
-Use Case ↔ Action Code assignments are canonical only in `framework/usecases/UseCase_ActionCode_Map.yaml`.
+Use Case ↔ Action Code assignments are canonical only in `core/usecases/UseCase_ActionCode_Map.yaml`.
 
 ### templates/
 

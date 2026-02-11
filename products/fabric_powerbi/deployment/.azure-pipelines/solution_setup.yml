@@ -47,12 +47,12 @@ stages:
           
           - script: |
               python -m pip install --upgrade pip
-              pip install -r implementations/microsoft_fabric_powerbi/deployment/resources/requirements.txt
+              pip install -r products/fabric_powerbi/deployment/resources/requirements.txt
             displayName: 'Install Python dependencies'
-            workingDirectory: implementations/microsoft_fabric_powerbi/deployment
+            workingDirectory: products/fabric_powerbi/deployment
           
           - script: |
-              python implementations/microsoft_fabric_powerbi/deployment/scripts/fabric_setup.py `
+              python products/fabric_powerbi/deployment/scripts/fabric_setup.py `
                 --environment $(environment) `
                 --action create
             displayName: 'Setup Fabric environment'

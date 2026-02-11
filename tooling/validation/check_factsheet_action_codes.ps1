@@ -1,6 +1,6 @@
 Param(
   [string]$UseCasesRoot = "usecases",
-  [string]$ActionCodesRoot = "framework/action_codes",
+  [string]$ActionCodesRoot = "core/action_codes",
   [switch]$FailOnError
 )
 
@@ -82,8 +82,8 @@ function Get-ActionCodeIds {
   return $ids
 }
 
-$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "framework/usecases"
-$actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "framework/action_codes"
+$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "core/usecases"
+$actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "core/action_codes"
 if (-not $useCasesRoot) { throw "UseCases root not found. Provide -UseCasesRoot or run inside repository." }
 if (-not $actionCodesRoot) { throw "Action codes root not found. Provide -ActionCodesRoot or run inside repository." }
 

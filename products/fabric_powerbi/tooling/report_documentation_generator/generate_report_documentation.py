@@ -20,7 +20,7 @@ _REPO_ROOT = _TOOLS_DIR.parent.parent.parent
 
 
 def _find_repo_root() -> Path:
-    """Return repo root (directory containing framework/usecases)."""
+    """Return repo root (directory containing core/usecases)."""
     p = _TOOLS_DIR
     for _ in range(5):
         if (p / "framework" / "usecases").exists():
@@ -317,10 +317,10 @@ def build_markdown(
     md.append("")
     md.append("## Traceability")
     md.append("")
-    md.append("- **Use case:** `framework/usecases/core/` (Business + Technical Factsheet)")
-    md.append("- **KPI catalog:** `framework/kpi_catalog/`")
-    md.append("- **Action codes:** `framework/action_codes/`")
-    md.append("- **Page templates:** `framework/templates/page_templates/`")
+    md.append("- **Use case:** `core/usecases/core/` (Business + Technical Factsheet)")
+    md.append("- **KPI catalog:** `core/kpi_catalog/`")
+    md.append("- **Action codes:** `core/action_codes/`")
+    md.append("- **Page templates:** `core/templates/page_templates/`")
     ac = _extract_action_codes_summary(content)
     if ac:
         md.append("")

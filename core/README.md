@@ -1,19 +1,25 @@
-# Framework
+# Core Framework (Tool-Agnostic SSOT)
 
-This folder contains the core assets of the Analytics Use Case Library.
+## Purpose
 
-## Core (Mandatory)
+`core/` contains the governed, tool-agnostic source of truth for the ActionReady framework.
 
-- KPI Catalog: `framework/kpi_catalog/`
-- Action Codes: `framework/action_codes/`
-- Templates: `framework/templates/`
+## Includes
 
-## Optional
+- strategy and operating model (`strategy_operating_model/`)
+- use cases and factsheet templates (`usecases/`)
+- KPI catalog (`kpi_catalog/`)
+- action codes and decision spines (`action_codes/`)
+- semantic model definitions (`semantic_models/`)
+- data contracts (`data_contracts/`)
+- reusable templates (`templates/`)
+- glossary (`glossary/`)
+- implementation playbooks (`implementation_guides/`)
 
-- Implementation guides: `implementations/microsoft_fabric_powerbi/guide/` (Fabric/Power BI)
-- Glossary: `framework/glossary/`
+## Boundaries
 
-## Out of Scope
+- `core/` defines meaning and governance.
+- `products/` implements platform-specific products.
+- `tooling/` automates generation and validation.
 
-- `_internal/archive/`
-- Customer-specific extensions
+Use `docs/README.md` as the global entry point.

@@ -148,9 +148,9 @@ Weekly / Monthly (from Business Factsheet)
 
 ## Traceability
 
-- **Use case:** `framework/usecases/core/` (Business + Technical Factsheet)
-- **KPI catalog:** `framework/kpi_catalog/`
-- **Action codes:** `framework/action_codes/`
-- **Page templates:** `framework/templates/page_templates/`
+- **Use case:** `core/usecases/core/` (Business + Technical Factsheet)
+- **KPI catalog:** `core/kpi_catalog/`
+- **Action codes:** `core/action_codes/`
+- **Page templates:** `core/templates/page_templates/`
 
 **Action codes referenced:** C-M2.1, C-S1.1, C-S1.2, X-A, X-A, X-A, X-A

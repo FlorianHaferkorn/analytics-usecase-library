@@ -219,7 +219,7 @@ governance:
   rollback_plan:
     - "Suspend actions if quality or safety incidents increase"
   documentation_links:
-    - "framework/usecases/core/FIN-002_Cost_Performance/Business_Factsheet.md"
+    - "core/usecases/core/FIN-002_Cost_Performance/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

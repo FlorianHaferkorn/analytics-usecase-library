@@ -89,11 +89,11 @@ The Company layer defines the **WHY**.
 It is operationalized by:
 
 - **Analytics Operating Model (HOW):**  
-  `framework/strategy_operating_model/operating_model/`
+  `core/strategy_operating_model/operating_model/`
 - **Use Cases (WHAT):**  
   `usecases/`
 - **Semantic Models, KPIs, Measures (WITH WHAT):**  
-  `framework/` and `semantic_models/`
+  `core/` and `semantic_models/`
 
 All downstream artifacts must be traceable back to the documents in this folder.
 

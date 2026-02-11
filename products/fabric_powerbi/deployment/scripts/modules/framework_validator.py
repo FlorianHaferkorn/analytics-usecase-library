@@ -21,8 +21,8 @@ def get_repo_root() -> Optional[Path]:
     if repo_root and os.path.isdir(repo_root):
         return Path(repo_root)
 
-    # From implementations/microsoft_fabric_powerbi/deployment/scripts/modules/framework_validator.py
-    # -> implementations/microsoft_fabric_powerbi/deployment/scripts/modules
+    # From products/fabric_powerbi/deployment/scripts/modules/framework_validator.py
+    # -> products/fabric_powerbi/deployment/scripts/modules
     # -> ... -> repo root (has _internal, framework)
     this_file = Path(__file__).resolve()
     candidate = this_file.parent

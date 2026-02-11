@@ -220,7 +220,7 @@ governance:
   rollback_plan:
     - "Suspend shrinkage actions if SLA or morale indicators deteriorate"
   documentation_links:
-    - "framework/usecases/core/XD-002_Resource_Utilization/Business_Factsheet.md"
+    - "core/usecases/core/XD-002_Resource_Utilization/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

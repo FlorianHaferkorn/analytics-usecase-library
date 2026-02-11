@@ -1,30 +1,30 @@
 Param(
   [string]$Root = ".",
-  [string[]]$ExcludeDirs = @(".git","node_modules","_internal\\archive","_internal\\reviews","implementations\\microsoft_fabric_powerbi\\dist")
+  [string[]]$ExcludeDirs = @(".git","node_modules","internal\\archive","internal\\reviews","products\\fabric_powerbi\\dist")
 )
 
 $ErrorActionPreference = "Stop"
 
-$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path   # .../_internal/tools/maintenance
-$toolsRoot  = Split-Path -Parent $scriptRoot                    # .../_internal/tools
-$repoRoot   = Split-Path -Parent (Split-Path -Parent $toolsRoot) # repo root
+$scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path   # .../tooling/maintenance
+$toolsRoot  = Split-Path -Parent $scriptRoot                    # .../tooling
+$repoRoot   = Split-Path -Parent $toolsRoot                     # repo root
 
 Write-Host "Checking documentation and tooling references..." -ForegroundColor Cyan
 
 $items = @(
-  @{ Path = "framework/strategy_operating_model/README.md";                                    Kind = "file"; Description = "Docs overview" },
-  @{ Path = "framework/strategy_operating_model/company/company_strategy.md";                  Kind = "file"; Description = "Business Strategy / Strategic KPIs / Alignment Map (canonical)" },
-  @{ Path = "framework/strategy_operating_model/operating_model/semantic_layer.md";            Kind = "file"; Description = "Semantic Layer blueprint" },
-  @{ Path = "framework/strategy_operating_model/operating_model/distribution_architecture.md"; Kind = "file"; Description = "Distribution architecture" },
-  @{ Path = "framework/usecases/templates/usecase_factsheet_business.md";  Kind = "file"; Description = "Use Case factsheet (business) template" },
-  @{ Path = "framework/usecases/templates/usecase_factsheet_technical.md"; Kind = "file"; Description = "Use Case factsheet (technical) template" },
-  @{ Path = "framework/usecases/UseCase_Inventory.md";                     Kind = "file"; Description = "Use Case Inventory" },
-  @{ Path = "framework/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md"; Kind = "file"; Description = "KPI Catalog Schema (canonical)" },
-  @{ Path = "framework/kpi_catalog/README.md";                   Kind = "file"; Description = "KPI Catalog overview" },
-  @{ Path = "_internal/tools/run_all_checks.ps1";                Kind = "file"; Description = "Run all checks script" },
-  @{ Path = "_internal/tools/generation/new_usecase.ps1";        Kind = "file"; Description = "New usecase helper" },
-  @{ Path = "_internal/tools/generation/generate_tmdl_measures.ps1"; Kind = "file"; Description = "TMDL measures generator" },
-  @{ Path = "_internal/tools/generation/generate_all_measures.ps1";  Kind = "file"; Description = "Generate all measures wrapper" }
+  @{ Path = "core/strategy_operating_model/README.md";                                    Kind = "file"; Description = "Docs overview" },
+  @{ Path = "core/strategy_operating_model/company/company_strategy.md";                  Kind = "file"; Description = "Business Strategy / Strategic KPIs / Alignment Map (canonical)" },
+  @{ Path = "core/strategy_operating_model/operating_model/semantic_layer.md";            Kind = "file"; Description = "Semantic Layer blueprint" },
+  @{ Path = "core/strategy_operating_model/operating_model/distribution_architecture.md"; Kind = "file"; Description = "Distribution architecture" },
+  @{ Path = "core/usecases/templates/usecase_factsheet_business.md";  Kind = "file"; Description = "Use Case factsheet (business) template" },
+  @{ Path = "core/usecases/templates/usecase_factsheet_technical.md"; Kind = "file"; Description = "Use Case factsheet (technical) template" },
+  @{ Path = "core/usecases/UseCase_Inventory.md";                     Kind = "file"; Description = "Use Case Inventory" },
+  @{ Path = "core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md"; Kind = "file"; Description = "KPI Catalog Schema (canonical)" },
+  @{ Path = "core/kpi_catalog/README.md";                   Kind = "file"; Description = "KPI Catalog overview" },
+  @{ Path = "tooling/run_all_checks.ps1";                Kind = "file"; Description = "Run all checks script" },
+  @{ Path = "tooling/generation/new_usecase.ps1";        Kind = "file"; Description = "New usecase helper" },
+  @{ Path = "tooling/generation/generate_tmdl_measures.ps1"; Kind = "file"; Description = "TMDL measures generator" },
+  @{ Path = "tooling/generation/generate_all_measures.ps1";  Kind = "file"; Description = "Generate all measures wrapper" }
 )
 
 $missing = @()

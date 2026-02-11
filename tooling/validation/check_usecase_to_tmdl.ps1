@@ -15,7 +15,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $ScriptToolsRoot = Split-Path -Parent $PSScriptRoot
-$RepoRoot = Split-Path -Parent (Split-Path -Parent $ScriptToolsRoot)
+$RepoRoot = Split-Path -Parent $ScriptToolsRoot
 
 function Resolve-RepoPath {
 	param(
@@ -79,9 +79,9 @@ function Get-MeasuresFromTmdl {
 	
 	$measures = @()
 	$pattern = "(?m)^\s*measure\s+['`"]([^'`"]+)['`"]\s*="
-	$matches = [regex]::Matches($TmdlContent, $pattern)
+	$measureMatches = [regex]::Matches($TmdlContent, $pattern)
 	
-	foreach ($match in $matches) {
+	foreach ($match in $measureMatches) {
 		$measures += $match.Groups[1].Value
 	}
 	
@@ -89,10 +89,10 @@ function Get-MeasuresFromTmdl {
 }
 
 # Resolve paths
-$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'framework/usecases'
+$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'core/usecases'
 if (-not $resolvedUseCasesRoot) { throw "Unable to resolve UseCases root folder." }
 
-$resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
+$resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'core/kpi_catalog'
 if (-not $resolvedKpiRoot) { throw "Unable to resolve KPI catalog folder." }
 
 $resolvedTmdlPath = Resolve-RepoPath -ProvidedPath $TmdlPath -DefaultRelative "showcases/aurora_group/semantic_models"
@@ -184,8 +184,8 @@ Write-Host "  Warnings: $($results.Warnings.Count)" -ForegroundColor $(if ($resu
 
 if ($results.Errors.Count -gt 0) {
 	Write-Host "`nErrors:" -ForegroundColor Red
-	foreach ($error in $results.Errors) {
-		Write-Host "  [$($error.Layer)] $($error.KpiId): $($error.Issue)" -ForegroundColor Red
+	foreach ($validationError in $results.Errors) {
+		Write-Host "  [$($validationError.Layer)] $($validationError.KpiId): $($validationError.Issue)" -ForegroundColor Red
 	}
 }
 

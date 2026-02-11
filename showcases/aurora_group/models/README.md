@@ -6,7 +6,7 @@ Models in this folder represent **domain-specific** semantic model blueprints th
 
 - Serve as Aurora-specific model definitions for Power BI / Fabric semantic models
 - Define which use cases, tables, relationships, and measures belong to each domain
-- Drive TMDL generation via `_internal/tools/generation/` scripts
+- Drive TMDL generation via `tooling/generation/` scripts
 - Rely on Aurora synthetic **data contracts** from `data_contracts/domains/`
 
 ## Architecture
@@ -14,7 +14,7 @@ Models in this folder represent **domain-specific** semantic model blueprints th
 ```
 Tool-agnostic Layer:
 ├── data_contracts/domains/           # Table schemas per domain
-├── framework/kpi_catalog/            # KPI definitions with DAX
+├── core/kpi_catalog/            # KPI definitions with DAX
 └── semantic_models/domains/          # Measure dictionaries (conceptual)
 
 Aurora Showcase Layer (tool-specific):
@@ -40,7 +40,7 @@ Aurora Showcase Layer (tool-specific):
   - Tables: dim_date, dim_org, dim_asset, dim_product, fact_ops, fact_inventory_snapshot
   - Status: **Placeholder** (to be implemented after Commercial validation)
 
-- **`core_action_ready_model.yaml.legacy`** – Original generic cross-domain model; archived to `_internal/archive/legacy_aurora_models_2026-02/`
+- **`core_action_ready_model.yaml.legacy`** – Original generic cross-domain model; archived to `internal/archive/legacy_aurora_models_2026-02/`
 
 ## Usage
 
@@ -62,7 +62,7 @@ display_folders: [...]
 
 ```powershell
 # Generate Commercial semantic model from blueprint
-./_internal/tools/generation/generate_semantic_model_from_blueprint.ps1 `
+./tooling/generation/generate_semantic_model_from_blueprint.ps1 `
   -Blueprint "showcases/aurora_group/models/Commercial.yaml" `
   -Output "showcases/aurora_group/semantic_models/Commercial.SemanticModel"
 ```
@@ -70,7 +70,7 @@ display_folders: [...]
 ### 3. Populating Measures
 
 Measures are sourced from:
-- **DAX Expressions**: `framework/kpi_catalog/KPI_Catalog.md` (field: `dax_expression`)
+- **DAX Expressions**: `core/kpi_catalog/KPI_Catalog.md` (field: `dax_expression`)
 - **Display Folders**: `semantic_models/domains/{Domain}/Measure_Dictionary_{Domain}.md`
 
 Ensure KPI Catalog has `dax_expression: |` fields populated before generation.
@@ -119,6 +119,6 @@ Each model blueprint requires:
 - **Maintainers**: aurora-showcase-team
 - **Review Cycle**: Monthly (after each domain completion)
 
-**Note**: This folder is part of the Aurora showcase. For **reusable framework definitions**, refer to `semantic_models/domains/` and `framework/kpi_catalog/`.
+**Note**: This folder is part of the Aurora showcase. For **reusable framework definitions**, refer to `semantic_models/domains/` and `core/kpi_catalog/`.
 
 

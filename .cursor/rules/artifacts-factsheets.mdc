@@ -14,9 +14,9 @@ alwaysApply: false
 ## Business Factsheet
 
 - **Metadata (section 0):** Use Case ID, Domain, Business Owner, KPI Owner, Decision Owner, Reporting Level, Analytics Stage, Related Data Contract, Related Semantic Model.
-- **Required KPIs (section 3):** YAML block `required_kpis` with list of `id`, `name`; all `id` values must exist in `framework/kpi_catalog/`. Do not redefine KPI meaning, targets, or lineage in the factsheet.
+- **Required KPIs (section 3):** YAML block `required_kpis` with list of `id`, `name`; all `id` values must exist in `core/kpi_catalog/`. Do not redefine KPI meaning, targets, or lineage in the factsheet.
 - **Action codes (section):** Reference action code IDs only; do not define trigger logic here.
-- **Layout (layout_330300):** Must conform to schema; reference `_internal/ai/schemas/layout_330300.schema.json` and page templates in `framework/templates/page_templates/`.
+- **Layout (layout_330300):** Must conform to schema; reference `tooling/ai/schemas/layout_330300.schema.json` and page templates in `core/templates/page_templates/`.
 
 ## Technical Factsheet
 
@@ -27,7 +27,7 @@ alwaysApply: false
 
 ## Schemas
 
-- Business factsheet: `_internal/ai/schemas/business_factsheet_v1_2.schema.json`
-- Technical factsheet: `_internal/ai/schemas/technical_factsheet_v1_2.schema.json`
+- Business factsheet: `tooling/ai/schemas/business_factsheet_v1_2.schema.json`
+- Technical factsheet: `tooling/ai/schemas/technical_factsheet_v1_2.schema.json`
 
 When adding or changing sections or frontmatter, ensure output still validates against these schemas and passes Stage 1 (e.g. `validate_factsheets.ps1`, `check_factsheet_vs_kpi.ps1`).

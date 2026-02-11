@@ -2,30 +2,30 @@
 .SYNOPSIS
   Runs Fabric/Power BI-specific validation (measures vs KPI, TMDL vs measure dictionary, DAX best practices).
 .DESCRIPTION
-  Invokes scripts under implementations/microsoft_fabric_powerbi/validation/ against
-  framework paths and implementations/microsoft_fabric_powerbi/dist. Run from repository root.
+  Invokes scripts under products/fabric_powerbi/tooling/validation/ against
+  core paths and products/fabric_powerbi/dist. Run from repository root.
   When -AuroraTablesDir is specified, runs the same checks against the Aurora showcase tables directory
   (e.g. showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition/tables).
 .EXAMPLE
-  .\implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1
+  .\products\fabric_powerbi\tooling\run_fabric_checks.ps1
 .EXAMPLE
-  .\implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1 -AuroraTablesDir "showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition/tables"
+  .\products\fabric_powerbi\tooling\run_fabric_checks.ps1 -AuroraTablesDir "showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition/tables"
 #>
 Param(
-  [string]$DistRoot       = "implementations/microsoft_fabric_powerbi/dist",
-  [string]$KpiCatalogRoot = "framework/kpi_catalog",
-  [string]$MeasureDictRoot = "framework/semantic_models/domains",
+  [string]$DistRoot       = "products/fabric_powerbi/dist",
+  [string]$KpiCatalogRoot = "core/kpi_catalog",
+  [string]$MeasureDictRoot = "core/semantic_models/domains",
   [string]$AuroraTablesDir = ""
 )
 
 $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $PSCommandPath
-# Repo root: implementations/microsoft_fabric_powerbi/tools -> go up 3 levels
+# Repo root: products/fabric_powerbi/tooling -> go up 3 levels
 $repoRoot = (Get-Item $scriptDir).Parent.Parent.Parent.FullName
 
-if (-not (Test-Path (Join-Path $repoRoot "framework"))) {
-  Write-Error "Repository root not found (expected 'framework' under $repoRoot). Run this script from the repository root or ensure path resolution is correct."
+if (-not (Test-Path (Join-Path $repoRoot "core"))) {
+  Write-Error "Repository root not found (expected 'core' under $repoRoot). Run this script from the repository root or ensure path resolution is correct."
   exit 1
 }
 
@@ -44,7 +44,7 @@ if ($AuroraTablesDir -and $AuroraTablesDir.Trim().Length -gt 0) {
 }
 $checkRoot = if ($auroraTablesResolved) { $auroraTablesResolved } else { $distRootResolved }
 
-$validationDir = Join-Path $repoRoot "implementations/microsoft_fabric_powerbi/validation"
+$validationDir = Join-Path $repoRoot "products/fabric_powerbi/tooling/validation"
 $checkMeasures = Join-Path $validationDir "check_measures_vs_kpi.ps1"
 $checkTmdl = Join-Path $validationDir "check_tmdl_vs_measure_dictionary.ps1"
 $checkDax = Join-Path $validationDir "check_dax_best_practices.ps1"

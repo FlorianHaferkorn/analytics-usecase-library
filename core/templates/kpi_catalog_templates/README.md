@@ -34,4 +34,4 @@ That catalog is the **Single Source of Truth** for:
 ---
 
 **Location:**  
-`framework/templates/KPI_Catalog_templates/`
+`core/templates/KPI_Catalog_templates/`

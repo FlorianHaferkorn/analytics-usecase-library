@@ -3,7 +3,7 @@
   Validates report page visual positions against Layout_Grid_System (padding, row bounds, content width).
 .DESCRIPTION
   Reads report definition/pages/*/visuals/*/visual.json and page.json; checks positions against
-  framework/templates/page_templates/governance/Layout_Grid_System.yaml constants.
+  core/templates/page_templates/governance/Layout_Grid_System.yaml constants.
   Use for Aurora or any PBIR report to ensure layout compliance.
 .PARAMETER ReportPath
   Path to report definition folder (e.g. .../CoreActionReady.Report/definition). Default: Aurora report.

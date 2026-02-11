@@ -12,7 +12,7 @@
             "matchCommandLine": true
         },
         "git checkout": true,
-        "/^powershell -NoProfile -ExecutionPolicy Bypass \\./_internal/tools/generation/generate_tmdl_measures\\.ps1 -UseCase COM-002 -UseCasesRoot framework/usecases -KpiCatalogRoot framework/kpi_catalog -DistRoot implementations/microsoft_fabric_powerbi/dist -OverwriteExisting$/": {
+        "/^powershell -NoProfile -ExecutionPolicy Bypass \\./tooling/generation/generate_tmdl_measures\\.ps1 -UseCase COM-002 -UseCasesRoot core/usecases -KpiCatalogRoot core/kpi_catalog -DistRoot products/fabric_powerbi/dist -OverwriteExisting$/": {
             "approve": true,
             "matchCommandLine": true
         }

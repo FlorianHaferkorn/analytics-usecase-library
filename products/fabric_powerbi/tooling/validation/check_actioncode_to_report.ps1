@@ -67,7 +67,7 @@ function Get-ReportPages {
 }
 
 # Resolve paths
-$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'framework/usecases'
+$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'core/usecases'
 if (-not $resolvedUseCasesRoot) { throw "Unable to resolve UseCases root folder." }
 
 $resolvedReportPath = Resolve-RepoPath -ProvidedPath $ReportPath -DefaultRelative "showcases/aurora_group/reports"

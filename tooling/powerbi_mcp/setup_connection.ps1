@@ -1,4 +1,4 @@
-# _internal/tools/powerbi_mcp/setup_connection.ps1
+# tooling/powerbi_mcp/setup_connection.ps1
 
 Param(
     [string]$WorkspaceRoot = "showcases/aurora_group/semantic_models",
@@ -43,7 +43,7 @@ Write-Host "  Model Path:      $modelPath" -ForegroundColor Gray
 Write-Host "  Definition Path: $modelPath\definition" -ForegroundColor Gray
 
 # 3. Connection-Datei erstellen
-$connFile = "_internal/tools/powerbi_mcp/connections.json"
+$connFile = "tooling/powerbi_mcp/connections.json"
 New-Item -ItemType Directory -Path (Split-Path $connFile -Parent) -Force -ErrorAction SilentlyContinue | Out-Null
 
 $conn = @{
@@ -59,4 +59,4 @@ $utf8 = New-Object System.Text.UTF8Encoding $false
 
 Write-Host "`n[OK] Connection saved: $connFile" -ForegroundColor Green
 Write-Host "`nNext Steps:" -ForegroundColor Yellow
-Write-Host "  1. Run: ./_internal/tools/powerbi_mcp/orchestrate_full_model.ps1 -UseCase 'COM-001'" -ForegroundColor Gray
+Write-Host "  1. Run: ./tooling/powerbi_mcp/orchestrate_full_model.ps1 -UseCase 'COM-001'" -ForegroundColor Gray

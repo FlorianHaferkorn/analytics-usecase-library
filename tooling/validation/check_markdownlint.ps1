@@ -45,7 +45,7 @@ $args = @(
   "--ignore", ".git",
   "--ignore", "**/node_modules/**",
   "--ignore", "node_modules",
-  "--ignore", "implementations/microsoft_fabric_powerbi/dist",
+  "--ignore", "products/fabric_powerbi/dist",
   "--ignore", "_internal\\archive"
 )
 

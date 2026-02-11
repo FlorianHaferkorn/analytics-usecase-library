@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 # Simple and robust domain_tag fixer
 
-$catalogPath = Join-Path $PSScriptRoot "..\..\..\framework\kpi_catalog\KPI_Catalog.md"
+$catalogPath = Join-Path $PSScriptRoot "..\..\..\core\kpi_catalog\KPI_Catalog.md"
 $lines = Get-Content -Path $catalogPath
 
 # Domain Mapping

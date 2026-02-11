@@ -13,13 +13,13 @@ Demo scope:
 
 For detailed requirements and measures, use the canonical factsheets:
 
-- `framework/usecases/core/COM-001_Sales_Performance/Business_Factsheet.md`
-- `framework/usecases/core/COM-001_Sales_Performance/Technical_Factsheet.md`
+- `core/usecases/core/COM-001_Sales_Performance/Business_Factsheet.md`
+- `core/usecases/core/COM-001_Sales_Performance/Technical_Factsheet.md`
 - ...and equivalent files for each listed use case.
 
 Build guidance:
 
 - Use Aurora synthetic datasets under `showcases/aurora_group/data/`.
 - Use the Aurora semantic model blueprints in `showcases/aurora_group/models/` (Commercial.yaml, Finance.yaml, Operations.yaml).
-- Apply the 3–30–300 layouts from `framework/templates/page_templates/`.
+- Apply the 3–30–300 layouts from `core/templates/page_templates/`.
 

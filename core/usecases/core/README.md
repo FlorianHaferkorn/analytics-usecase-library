@@ -19,7 +19,7 @@ Each use case has its own folder (e.g., COM-001_*, OPS-002_*) with:
 Usage:
 
 - Start here for the standard, reusable baseline
-- Use `framework/usecases/UseCase_Inventory.md` as the master list and status source
+- Use `core/usecases/UseCase_Inventory.md` as the master list and status source
 - Promote extended or industry use cases here only when they become core
 
 Relations:

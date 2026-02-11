@@ -10,10 +10,10 @@
   (6) table partition Source uses a parameter (e.g. GoldDataPath) instead of hardcoded paths.
   Run from repository root. DistRoot can be a tables dir (e.g. .../definition/tables) or dist root.
 .PARAMETER DistRoot
-  Root path: either .../definition/tables (single semantic model) or implementations/microsoft_fabric_powerbi/dist (multiple).
+  Root path: either .../definition/tables (single semantic model) or products/fabric_powerbi/dist (multiple).
 #>
 Param(
-  [string]$DistRoot = "implementations/microsoft_fabric_powerbi/dist"
+  [string]$DistRoot = "products/fabric_powerbi/dist"
 )
 
 $ErrorActionPreference = "Stop"

@@ -1,7 +1,7 @@
 Param(
-  [string]$UseCasesRoot = "framework/usecases",
-  [string]$MapPath = "framework/action_codes/decision_spines/DecisionSpine_UseCase_Map.yaml",
-  [string]$DecisionSpinesRoot = "framework/action_codes/decision_spines",
+  [string]$UseCasesRoot = "core/usecases",
+  [string]$MapPath = "core/action_codes/decision_spines/DecisionSpine_UseCase_Map.yaml",
+  [string]$DecisionSpinesRoot = "core/action_codes/decision_spines",
   [switch]$FailOnError
 )
 
@@ -142,9 +142,9 @@ function Get-ScalarValue {
   return $null
 }
 
-$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "framework/usecases"
-$mapPath = Resolve-RepoPath -ProvidedPath $MapPath -DefaultRelative "framework/action_codes/decision_spines/DecisionSpine_UseCase_Map.yaml"
-$decisionSpinesRoot = Resolve-RepoPath -ProvidedPath $DecisionSpinesRoot -DefaultRelative "framework/action_codes/decision_spines"
+$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "core/usecases"
+$mapPath = Resolve-RepoPath -ProvidedPath $MapPath -DefaultRelative "core/action_codes/decision_spines/DecisionSpine_UseCase_Map.yaml"
+$decisionSpinesRoot = Resolve-RepoPath -ProvidedPath $DecisionSpinesRoot -DefaultRelative "core/action_codes/decision_spines"
 
 if (-not $useCasesRoot) { throw "UseCases root not found. Provide -UseCasesRoot or run inside repository." }
 if (-not $mapPath) { throw "Decision spine map not found. Provide -MapPath or run inside repository." }

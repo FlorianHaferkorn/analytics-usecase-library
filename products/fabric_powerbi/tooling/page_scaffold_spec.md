@@ -15,11 +15,11 @@ This document defines how to generate **standardized Power BI report pages** (PB
 
 This specification references the following framework governance files:
 
-- **Visual-to-Slot Mapping:** `framework/templates/page_templates/governance/Visual_to_Slot_Mapping.yaml`
-- **Layout Grid System:** `framework/templates/page_templates/governance/Layout_Grid_System.yaml`
-- **Color Semantics & Formatting:** `framework/templates/page_templates/governance/Color_Semantics_Formatting.yaml`
-- **Visual Whitelist:** `framework/templates/page_templates/governance/Visual_Whitelist.md`
-- **Slot Definitions:** `framework/templates/page_templates/governance/Slot_Definitions.md`
+- **Visual-to-Slot Mapping:** `core/templates/page_templates/governance/Visual_to_Slot_Mapping.yaml`
+- **Layout Grid System:** `core/templates/page_templates/governance/Layout_Grid_System.yaml`
+- **Color Semantics & Formatting:** `core/templates/page_templates/governance/Color_Semantics_Formatting.yaml`
+- **Visual Whitelist:** `core/templates/page_templates/governance/Visual_Whitelist.md`
+- **Slot Definitions:** `core/templates/page_templates/governance/Slot_Definitions.md`
 
 ---
 
@@ -53,7 +53,7 @@ Each **slot** from the use case mapping becomes one or more visual placeholders.
 
 **Visual Type Selection (Slot → Visual):**
 
-> **Reference:** See `framework/templates/page_templates/governance/Visual_to_Slot_Mapping.yaml` for complete mapping rules and edge cases.
+> **Reference:** See `core/templates/page_templates/governance/Visual_to_Slot_Mapping.yaml` for complete mapping rules and edge cases.
 
 | Slot | Template | Preferred Visual | Fallback | Notes |
 |------|----------|------------------|----------|-------|
@@ -90,7 +90,7 @@ Each **slot** from the use case mapping becomes one or more visual placeholders.
 
 **Positioning Rules:**
 
-> **Reference:** See `framework/templates/page_templates/governance/Layout_Grid_System.yaml` for complete positioning rules, spacing, and row system.
+> **Reference:** See `core/templates/page_templates/governance/Layout_Grid_System.yaml` for complete positioning rules, spacing, and row system.
 
 - **KPI Cards:** Row 1 (y=0-160px), equal width, max 6 per row (wrap to row 2 if needed)
 - **Trend/Variance:** Row 2 (y=180-580px), full width (minus slicer column if side slicers)
@@ -101,7 +101,7 @@ Each **slot** from the use case mapping becomes one or more visual placeholders.
 
 **Sizing Rules:**
 
-> **Reference:** See `framework/templates/page_templates/governance/Layout_Grid_System.yaml` for complete sizing standards.
+> **Reference:** See `core/templates/page_templates/governance/Layout_Grid_System.yaml` for complete sizing standards.
 
 - KPI Card: 280px width × 140px height (standard), 200px × 120px (compact)
 - Trend/Variance: min 800px width × 400px height (standard), 600px × 300px (compact)
@@ -303,8 +303,8 @@ This metadata can be stored as a JSON sidecar file or embedded in the PBIP struc
 
 ## References
 
-- Page templates: `framework/templates/page_templates/page_types/`
-- Visual Whitelist: `framework/templates/page_templates/governance/Visual_Whitelist.md`
-- Slot Definitions: `framework/templates/page_templates/governance/Slot_Definitions.md`
-- Use Case Mapping: `framework/templates/page_templates/mappings/UseCase_PageTemplate_Map.yaml`
-- Action Panel Spec: `framework/templates/page_templates/components/ActionPanel_Spec.md`
+- Page templates: `core/templates/page_templates/page_types/`
+- Visual Whitelist: `core/templates/page_templates/governance/Visual_Whitelist.md`
+- Slot Definitions: `core/templates/page_templates/governance/Slot_Definitions.md`
+- Use Case Mapping: `core/templates/page_templates/mappings/UseCase_PageTemplate_Map.yaml`
+- Action Panel Spec: `core/templates/page_templates/components/ActionPanel_Spec.md`

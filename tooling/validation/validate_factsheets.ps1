@@ -1,9 +1,9 @@
 Param(
-  [string]$UseCasesRoot = "framework/usecases",
+  [string]$UseCasesRoot = "core/usecases",
   [switch]$FailOnError
 )
 
-$script:RepoRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
+$script:RepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 
 function Resolve-RepoPath {
   param([string]$ProvidedPath,[string]$DefaultRelative)
@@ -112,7 +112,7 @@ function Get-MapField {
   return $map
 }
 
-$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'framework/usecases'
+$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'core/usecases'
 if (-not $resolvedUseCasesRoot) { throw "Unable to resolve UseCases root. Provide -UseCasesRoot or run inside repository." }
 
 $errors = @(); $warnings = @()

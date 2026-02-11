@@ -17,17 +17,17 @@
 
 1. Copy `silver_to_gold_mapping_template.yaml` to your domain or solution (e.g. `commercial_silver_to_gold.yaml`).
 2. Fill in for each Gold table: `silver_source` (or `silver_sources`), `grain`, and for facts/aggregates any `measures` or `deviation_columns`.
-3. Store under `framework/data_contracts/silver_to_gold/` (if framework-wide) or in the solution repo.
+3. Store under `core/data_contracts/silver_to_gold/` (if framework-wide) or in the solution repo.
 4. Use the mapping as input to pipeline generation or as the single source of truth for Silver→Gold transformation.
 
 ## Standard pattern (reference)
 
 - **Dimensions:** 1:1 from Silver or conformed merge; same name unless conformed.
 - **Facts:** One Gold fact per Silver fact at same grain, or one per analytical grain with explicit aggregation.
-- **Action aggregates:** One `agg_*` per action-code family; keys + L1/L2/L3 flags + deviation columns; linked to `framework/action_codes/`.
+- **Action aggregates:** One `agg_*` per action-code family; keys + L1/L2/L3 flags + deviation columns; linked to `core/action_codes/`.
 
-See `framework/strategy_operating_model/operating_model/data_layers_standard.md` (§5).
+See `core/strategy_operating_model/operating_model/data_layers_standard.md` (§5).
 
 ---
 
-**Location:** `framework/templates/silver_to_gold/`
+**Location:** `core/templates/silver_to_gold/`

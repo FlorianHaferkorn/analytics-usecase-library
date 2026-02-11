@@ -18,8 +18,8 @@ factsheet_type: business
 - **Decision Owner:** Finance Leadership Team
 - **Reporting Level:** Tactical
 - **Analytics Stage:** Diagnostic / Predictive
-- **Related Data Contract:** framework/framework/framework/data_contracts/domains/finance.yaml
-- **Related Semantic Model:** framework/framework/framework/semantic_models/core_action_ready/model_definition.yaml
+- **Related Data Contract:** core/core/core/data_contracts/domains/finance.yaml
+- **Related Semantic Model:** core/core/core/semantic_models/core_action_ready/model_definition.yaml
 
 ---
 

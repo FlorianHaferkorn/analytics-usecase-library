@@ -63,7 +63,7 @@ function Load-KpiCatalogIndex {
   return $ids
 }
 
-$resolvedDistRoot = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'implementations/microsoft_fabric_powerbi/dist'
+$resolvedDistRoot = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'products/fabric_powerbi/dist'
 if (-not $resolvedDistRoot) {
   Write-Host "Skip: dist root not found; measures vs KPI check not run." -ForegroundColor Yellow
   exit 0
@@ -73,10 +73,10 @@ $resolvedKpiRoot = $null
 if ($KpiCatalogRoot -and (Test-Path $KpiCatalogRoot)) {
   $resolvedKpiRoot = (Resolve-Path -Path $KpiCatalogRoot).Path
 } else {
-  $resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
+  $resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'core/kpi_catalog'
 }
 if ($resolvedKpiRoot -and $resolvedDistRoot -and ($resolvedKpiRoot -eq $resolvedDistRoot)) {
-  $fallback = Resolve-RepoPath -ProvidedPath 'framework/kpi_catalog' -DefaultRelative 'framework/kpi_catalog'
+  $fallback = Resolve-RepoPath -ProvidedPath 'core/kpi_catalog' -DefaultRelative 'core/kpi_catalog'
   if ($fallback) { $resolvedKpiRoot = $fallback }
 }
 if (-not $resolvedKpiRoot) { throw "Unable to resolve KPI catalog folder. Provide -KpiCatalogRoot or run inside repository." }

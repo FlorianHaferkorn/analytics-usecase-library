@@ -220,7 +220,7 @@ governance:
   rollback_plan:
     - "Remove containment if service prioritisation causes imbalance"
   documentation_links:
-    - "framework/usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md"
+    - "core/usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

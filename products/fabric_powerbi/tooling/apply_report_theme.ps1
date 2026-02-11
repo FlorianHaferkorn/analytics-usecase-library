@@ -1,7 +1,7 @@
 # Apply a custom theme to a PBIP report (wrapper for apply_report_theme.py).
 # Run from repo root. Usage:
-#   .\implementations\microsoft_fabric_powerbi\tools\apply_report_theme.ps1 -Report "path\to\Report" -ThemePath "path\to\theme.json"
-#   .\implementations\microsoft_fabric_powerbi\tools\apply_report_theme.ps1 -Report "path\to\Report" -ThemeName "Aurora Group__NeutralAccent__Light__#118DFF"
+#   .\products\fabric_powerbi\tooling\apply_report_theme.ps1 -Report "path\to\Report" -ThemePath "path\to\theme.json"
+#   .\products\fabric_powerbi\tooling\apply_report_theme.ps1 -Report "path\to\Report" -ThemeName "Aurora Group__NeutralAccent__Light__#118DFF"
 
 param(
     [Parameter(Mandatory = $true)]

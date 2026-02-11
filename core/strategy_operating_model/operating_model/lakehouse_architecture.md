@@ -10,7 +10,7 @@ This architecture enables the Golden Thread and Operating Model to be implemente
 
 The lakehouse architecture operationalizes the data foundation for the semantic layer and measure system.
 
-- **Data contracts define Silver** (conformed, validated domain data); see `framework/data_contracts/`.
+- **Data contracts define Silver** (conformed, validated domain data); see `core/data_contracts/`.
 - The lakehouse implements **Silver → Gold** in a scalable, performant manner.
 - Semantic models consume **Gold** (and thus Silver) without redefining structure or meaning.
 

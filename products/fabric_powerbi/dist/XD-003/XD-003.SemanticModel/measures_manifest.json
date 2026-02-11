@@ -3,7 +3,7 @@
     "title":  null,
     "dataset_model":  "XD-003.SemanticModel",
     "table_name":  "_Measures",
-    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\usecases\\core\\XD-003_Executive_KPI_Overview\\Technical_Factsheet.md",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\usecases\\core\\XD-003_Executive_KPI_Overview\\Technical_Factsheet.md",
     "measures":  [
                      {
                          "kpi_id":  "sales.net_sales.delta_pct.ly",
@@ -35,7 +35,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "margin.gm.pct",
@@ -67,7 +67,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "crm.clv.amount",
@@ -99,7 +99,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "svc.sla.attainment.pct",
@@ -131,7 +131,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "ops.otif.pct",
@@ -163,7 +163,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "ops.working_capital.ccc.days",
@@ -195,7 +195,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "people.digital_adoption.pct",
@@ -227,7 +227,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "people.attrition_risk.pct",
@@ -259,7 +259,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      }
                  ]
 }

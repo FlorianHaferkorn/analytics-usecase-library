@@ -36,14 +36,13 @@ The tools ensure:
 # Directory Structure
 
 ```
-_internal/
-  tools/
-    linters/
-    validation/
-    generation/
-    maintenance/
-    alignment/
-    run_all_checks.ps1
+tooling/
+  linters/
+  validation/
+  generation/
+  maintenance/
+  alignment/
+  run_all_checks.ps1
 ```
 
 Below is the role of each subdirectory.
@@ -81,7 +80,7 @@ Run locally or in CI/CD to ensure semantic and report quality.
 - `validate_kpi_catalog.ps1`
 - `check_factsheet_vs_kpi.ps1`
 - `check_spec_vs_kpi.ps1`
-- (Fabric-specific: `check_measures_vs_kpi.ps1`, `check_tmdl_vs_measure_dictionary.ps1`, `check_dax_best_practices.ps1` live under `implementations/microsoft_fabric_powerbi/validation/`)
+- (Fabric-specific: `check_measures_vs_kpi.ps1`, `check_tmdl_vs_measure_dictionary.ps1`, `check_dax_best_practices.ps1` live under `products/fabric_powerbi/tooling/validation/`)
 - `add_depends_on_ids.ps1`
 - `list_usecase_levels.ps1`
 
@@ -143,9 +142,9 @@ Whenever new use cases or strategic KPIs are added.
 
 **Stage 1 (CI gate):** `run_stage1_checks.ps1` — Tool-agnostic only (docs, refs, structure, KPI ↔ use case, action code map). Use for **CI and before merge**; this is the mandated check for merge. Fast, no Fabric/Power BI output required.
 
-**Full validation:** `run_all_checks.ps1` — Runs Stage 1 plus Fabric checks (measures vs KPI, TMDL vs measure dictionary, DAX best practices, TMDL syntax). Use for **full local validation** when you have generated TMDL/measures (e.g. in `implementations/microsoft_fabric_powerbi/dist`). Use before releasing or when changing measures/TMDL.
+**Full validation:** `run_all_checks.ps1` — Runs Stage 1 plus Fabric checks (measures vs KPI, TMDL vs measure dictionary, DAX best practices, TMDL syntax). Use for **full local validation** when you have generated TMDL/measures (e.g. in `products/fabric_powerbi/dist`). Use before releasing or when changing measures/TMDL.
 
-**Fabric-only:** `implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1` — Fabric checks only (no Stage 1); use when you only need to validate generated TMDL/measures.
+**Fabric-only:** `products/fabric_powerbi/tooling/run_fabric_checks.ps1` — Fabric checks only (no Stage 1); use when you only need to validate generated TMDL/measures.
 
 # 7. run_all_checks.ps1
 
@@ -191,4 +190,4 @@ Before every merge into `main` (prefer `run_stage1_checks.ps1` for CI) and befor
 ---
 
 **Location:**  
-`_internal/tools/README.md`
+`tooling/README.md`

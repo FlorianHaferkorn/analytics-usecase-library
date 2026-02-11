@@ -1,6 +1,6 @@
 # Measure Dictionary - SupplyChain
 
-Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
+Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
 - measure_name: "Days in Inventory"

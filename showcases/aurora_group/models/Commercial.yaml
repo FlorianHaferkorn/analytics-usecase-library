@@ -11,7 +11,7 @@
 #
 # Generation:
 #   This blueprint drives TMDL generation for showcases/aurora_group/semantic_models/Commercial.SemanticModel/
-#   Measures sourced from framework/kpi_catalog/KPI_Catalog.md
+#   Measures sourced from core/kpi_catalog/KPI_Catalog.md
 #   Display folders defined in semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md
 
 model_id: aurora_commercial
@@ -323,12 +323,12 @@ notes:
     - "Delta Lake format (Parquet + _delta_log)"
 
   measure_definitions:
-    - "DAX expressions sourced from framework/kpi_catalog/KPI_Catalog.md"
+    - "DAX expressions sourced from core/kpi_catalog/KPI_Catalog.md"
     - "Display folder mapping in semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md"
-    - "Generator: _internal/tools/generation/generate_tmdl_measures.ps1"
+    - "Generator: tooling/generation/generate_tmdl_measures.ps1"
 
   dependencies:
-    - "Requires: framework/kpi_catalog/KPI_Catalog.md populated with dax_expression for all KPIs"
+    - "Requires: core/kpi_catalog/KPI_Catalog.md populated with dax_expression for all KPIs"
     - "Requires: semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md"
     - "Optional: fact_customer_value, fact_customer_events for COM-003 full implementation"
 

@@ -10,7 +10,7 @@
 
 | Principle | Implication |
 |-----------|-------------|
-| **Framework-first** | Strategy → KPIs → use cases → action codes → semantic model → reports. Fabric is the implementation adapter; framework artifacts in `framework/` are the source of truth. |
+| **Framework-first** | Strategy → KPIs → use cases → action codes → semantic model → reports. Fabric is the implementation adapter; framework artifacts in `core/` are the source of truth. |
 | **Easy to set up** | Parameterized, environment-aware setup (dev/tst/prd). Minimal manual steps; automation where it reduces human error. |
 | **Easy to maintain** | Clear ownership (see operating model RACI). Validation gates (Stage 1 + Fabric checks) catch drift before merge. Single place for workspace and pipeline definitions. |
 | **Git as source of truth** | PBIP (TMDL, report) and pipeline definitions live in Git. Fabric service state is derived from repo + deployment runs. |
@@ -81,11 +81,11 @@ Fabric has four hierarchical levels: **tenant → capacity → workspace → ite
 
 | Location | Content | Deployed to Fabric |
 |----------|---------|--------------------|
-| `framework/` | Use cases, KPI catalog, action codes, data contracts, templates | No (spec only) |
-| `implementations/microsoft_fabric_powerbi/` | Guide, validation, tools, **dist** (generated TMDL per use case) | dist or customer copy |
+| `core/` | Use cases, KPI catalog, action codes, data contracts, templates | No (spec only) |
+| `products/fabric_powerbi/` | Guide, validation, tools, **dist** (generated TMDL per use case) | dist or customer copy |
 | `showcases/aurora_group/` | Reference semantic model (CoreActionReady), gold data, reports | Optional; proof of framework |
 
-**Golden rule:** Use cases and reports **reference** governed definitions; they do **not** define KPI meaning or action logic. Single source of truth for KPIs is `framework/kpi_catalog/`; for semantic output it is generated TMDL and PBIP in `dist/` or showcase.
+**Golden rule:** Use cases and reports **reference** governed definitions; they do **not** define KPI meaning or action logic. Single source of truth for KPIs is `core/kpi_catalog/`; for semantic output it is generated TMDL and PBIP in `dist/` or showcase.
 
 ### 3.2 Branch Strategy (Best Practice for CI/CD and Collaboration)
 
@@ -126,17 +126,17 @@ No direct commits to main; no long-lived branches that bypass validation.
 Run from **repository root**:
 
 1. **Stage 1 (hard gate):**  
-   `.\_internal\tools\run_stage1_checks.ps1`  
+   `.\tooling\run_stage1_checks.ps1`  
    Validates factsheets, KPI catalog, action codes, UseCase_ActionCode_Map, duplicate IDs, SSOT, docs.
 
 2. **Fabric checks (when touching Fabric/Power BI output):**  
-   `.\implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1`  
+   `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1`  
    TMDL syntax, PBIP readiness, measures vs KPI catalog, TMDL vs measure dictionary, DAX best practices.
 
 For the Aurora showcase, add:  
 `-AuroraTablesDir "showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition/tables"` when validating the single _Measures.tmdl there.
 
-**Recommendation:** Run Stage 1 on every PR targeting main. Run Fabric checks on every PR that changes `framework/kpi_catalog/`, `framework/semantic_models/`, `implementations/microsoft_fabric_powerbi/dist/`, or `showcases/aurora_group/.../definition/`.
+**Recommendation:** Run Stage 1 on every PR targeting main. Run Fabric checks on every PR that changes `core/kpi_catalog/`, `core/semantic_models/`, `products/fabric_powerbi/dist/`, or `showcases/aurora_group/.../definition/`.
 
 ### 4.2 Optional: Environment Setup and Release (FabricAutomation Pattern)
 
@@ -152,7 +152,7 @@ To make Fabric **easy to set up and tear down** in a repeatable way:
   - Actions: Publish items from Git (Notebook, Lakehouse, Semantic Model, etc.) into the right workspace; optionally unpublish orphans.  
   - Keep release idempotent and environment-aware.
 
-**Placement:** Such automation can live in `implementations/microsoft_fabric_powerbi/deployment/` (or a separate automation repo that references this repo). Prefer reusing or adapting the [FabricAutomation](https://github.com/peerinsights/FabricAutomation) patterns (solution_setup, solution_release_multistages, parameter files) rather than reinventing.
+**Placement:** Such automation can live in `products/fabric_powerbi/deployment/` (or a separate automation repo that references this repo). Prefer reusing or adapting the [FabricAutomation](https://github.com/peerinsights/FabricAutomation) patterns (solution_setup, solution_release_multistages, parameter files) rather than reinventing.
 
 ### 4.3 Parameterization (Environment-Specific Config)
 
@@ -232,7 +232,7 @@ A phased plan to create this architecture from scratch, adjust it to your org, a
 | 1.2 | **Choose deployment pattern:** Decide monolithic vs multiple workspaces (recommended: Pattern 2 or 3). Define workspace naming: `{Prefix}_{Name} [{env}]` (e.g. DE_Lakehouse [dev], DM_Core [tst], BI_Apps [prd]). | Clear workspace strategy. |
 | 1.3 | **Create workspaces (manual or script):** One set per environment (dev/tst/prd) — e.g. DE_*, DM_*, BI_*, Shared_*. Assign capacity; set Admin/Member/Contributor/Viewer per role. | Workspaces exist; no content yet. |
 | 1.4 | **Repo and branch policy:** Create or adopt repo; protect main; require PRs. Branch strategy: main, feature/*, optional releases/release*. | Git as source of truth; no direct commits to main. |
-| 1.5 | **Framework alignment (this repo):** Clone or fork analytics-usecase-library; run Stage 1 and Fabric checks from repo root. Ensure `framework/` (KPI catalog, use cases, action codes) is the spec; `implementations/microsoft_fabric_powerbi/dist/` or showcase is the Fabric output. | Validation gates in place; framework golden thread respected. |
+| 1.5 | **Framework alignment (this repo):** Clone or fork analytics-usecase-library; run Stage 1 and Fabric checks from repo root. Ensure `core/` (KPI catalog, use cases, action codes) is the spec; `products/fabric_powerbi/dist/` or showcase is the Fabric output. | Validation gates in place; framework golden thread respected. |
 
 **Exit criteria:** Workspaces exist; repo has branch policy; Stage 1 + Fabric checks run and pass (or are configured in CI).
 
@@ -252,7 +252,7 @@ A phased plan to create this architecture from scratch, adjust it to your org, a
 
 | Step | Action | Outcome |
 |------|--------|---------|
-| 3.1 | **Setup automation (optional):** If you need to recreate or clone environments, add setup scripts (e.g. Fabric CLI + Python) and env JSON (e.g. `infrastructure.json`, `infrastructure.dev.json`). Create workspaces, connections, Git connection, role assignments from code. Place in `implementations/microsoft_fabric_powerbi/deployment/` or a dedicated automation repo. | Idempotent, parameterized env creation. |
+| 3.1 | **Setup automation (optional):** If you need to recreate or clone environments, add setup scripts (e.g. Fabric CLI + Python) and env JSON (e.g. `infrastructure.json`, `infrastructure.dev.json`). Create workspaces, connections, Git connection, role assignments from code. Place in `products/fabric_powerbi/deployment/` or a dedicated automation repo. | Idempotent, parameterized env creation. |
 | 3.2 | **Release automation (optional):** Use fabric-cicd or FabricAutomation-style release script to publish items from repo to workspace(s) by env; optionally unpublish orphans. Trigger from CI (e.g. on merge to main for dev; on release branch for tst/prd). | Repeatable deploy from Git without manual "Deploy" in UI. |
 | 3.3 | **Feature branches (optional):** If many developers work in parallel, consider feature-workspace creation on feature/* branch creation (FabricAutomation pattern); tear down on branch delete. | Isolated dev per feature without crowding shared dev workspace. |
 | 3.4 | **Domains and data hub (scale):** As workspace count grows, group workspaces into Fabric domains (e.g. Commercial, Finance). Use OneLake data hub for discovery and certification. | Federated governance; single place to find and govern assets. |
@@ -274,9 +274,9 @@ A phased plan to create this architecture from scratch, adjust it to your org, a
 
 ## 8. References
 
-- **This implementation:** `implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md`, `tmdl_best_practices.md`, `deployment/README.md`.
-- **Framework:** `framework/strategy_operating_model/`, `AGENTS.md`, `.cursor/rules/stage1-awareness.mdc`.
-- **Validation:** `_internal/tools/run_stage1_checks.ps1`, `implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1`.
+- **This implementation:** `products/fabric_powerbi/docs/fabric_powerbi.md`, `tmdl_best_practices.md`, `deployment/README.md`.
+- **Framework:** `core/strategy_operating_model/`, `AGENTS.md`, `.cursor/rules/stage1-awareness.mdc`.
+- **Validation:** `tooling/run_stage1_checks.ps1`, `products/fabric_powerbi/tooling/run_fabric_checks.ps1`.
 - **Microsoft Learn — Best practices for lifecycle management:** [Best practices for lifecycle management in Fabric](https://learn.microsoft.com/en-us/fabric/cicd/best-practices-cicd) (content preparation, dev/test/prod, permissions, parameters, deployment rules, app update).
 - **Microsoft Learn — Fabric deployment patterns:** [Microsoft Fabric deployment patterns](https://learn.microsoft.com/en-us/azure/architecture/analytics/architecture/fabric-deployment-patterns) (tenant/capacity/workspace/item; monolithic vs multiple workspaces vs multiple tenants; domains, OneLake data hub).
 - **Microsoft Learn — Deployment pipelines:** [Introduction to deployment pipelines](https://learn.microsoft.com/en-us/fabric/cicd/deployment-pipelines/intro-to-deployment-pipelines), [Create deployment rules](https://learn.microsoft.com/en-us/fabric/cicd/deployment-pipelines/create-rules), [Pipeline automation (API)](https://learn.microsoft.com/en-us/fabric/cicd/deployment-pipelines/pipeline-automation-fabric).
@@ -289,4 +289,4 @@ A phased plan to create this architecture from scratch, adjust it to your org, a
 
 ---
 
-**Location:** `implementations/microsoft_fabric_powerbi/guide/fabric_architecture_best_practices.md`
+**Location:** `products/fabric_powerbi/docs/fabric_architecture_best_practices.md`

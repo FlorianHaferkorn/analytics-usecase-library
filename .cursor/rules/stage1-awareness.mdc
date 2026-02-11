@@ -10,12 +10,12 @@ Stage 1 is the mandatory CI gate. All checks must pass before merge. When sugges
 ## Canonical command (run from repo root)
 
 ```powershell
-.\_internal\tools\run_stage1_checks.ps1
+.\tooling\run_stage1_checks.ps1
 ```
 
 ## Checks run (in order)
 
-1. **check_schema_validation.ps1** — Validates artifacts against JSON schemas in `_internal/tools/validation/` and `_internal/ai/schemas/`.
+1. **check_schema_validation.ps1** — Validates artifacts against JSON schemas in `tooling/validation/` and `tooling/ai/schemas/`.
 2. **validate_factsheets.ps1** — Use case factsheets (Business + Technical) structure and content vs schemas.
 3. **check_factsheet_vs_kpi.ps1** — Every KPI referenced in factsheets exists in KPI catalog.
 4. **validate_kpi_catalog.ps1** — KPI catalog structure and rules.
@@ -31,13 +31,13 @@ Stage 1 is the mandatory CI gate. All checks must pass before merge. When sugges
 ## Prerequisite (one-time, for schema validation)
 
 ```powershell
-cd _internal\tools\validation
+cd tooling\validation
 npm ci
 ```
 
 ## When suggesting changes
 
-- New or changed KPI references → must exist in `framework/kpi_catalog/`.
-- New or changed action code IDs → must be in `framework/action_codes/` and referenced in `UseCase_ActionCode_Map.yaml` where applicable.
+- New or changed KPI references → must exist in `core/kpi_catalog/`.
+- New or changed action code IDs → must be in `core/action_codes/` and referenced in `UseCase_ActionCode_Map.yaml` where applicable.
 - Factsheet edits → preserve required frontmatter and sections; keep YAML blocks valid per schemas.
 - Before committing, run Stage 1 from repo root to confirm no regressions.

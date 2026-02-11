@@ -1,6 +1,6 @@
 # Pre-Generation DAX Validation Check
 # Purpose: Validate that all KPIs in use case Technical Factsheet have DAX expressions before measure generation
-# Usage: .\check_dax_before_generation.ps1 -UseCaseId "COM-001" -UseCasesRoot "framework/usecases" -KpiCatalogRoot "framework/kpi_catalog"
+# Usage: .\check_dax_before_generation.ps1 -UseCaseId "COM-001" -UseCasesRoot "core/usecases" -KpiCatalogRoot "core/kpi_catalog"
 
 param(
 	[Parameter(Mandatory=$true)]
@@ -14,7 +14,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $ScriptToolsRoot = Split-Path -Parent $PSScriptRoot
-$RepoRoot = Split-Path -Parent (Split-Path -Parent $ScriptToolsRoot)
+$RepoRoot = Split-Path -Parent $ScriptToolsRoot
 
 function Resolve-RepoPath {
 	param(
@@ -143,10 +143,10 @@ function Get-UseCaseKpis {
 }
 
 # Resolve paths
-$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'framework/usecases'
+$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'core/usecases'
 if (-not $resolvedUseCasesRoot) { throw "Unable to resolve UseCases root folder. Provide -UseCasesRoot or run inside repository." }
 
-$resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
+$resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'core/kpi_catalog'
 if (-not $resolvedKpiRoot) { throw "Unable to resolve KPI catalog folder. Provide -KpiCatalogRoot or run inside repository." }
 
 # Find use case directory

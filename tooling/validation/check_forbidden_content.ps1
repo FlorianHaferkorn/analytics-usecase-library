@@ -29,8 +29,8 @@ $issues = @()
 # Use Case factsheets: forbidden KPI definition fields in YAML/front matter
 $forbiddenKeys = @("definition","definition_short","lineage","target","unit","grain","interpretation")
 
-Get-ChildItem -Path (Join-Path $rootPath "framework\usecases") -Recurse -Filter "*Factsheet*.md" | Where-Object {
-  $_.FullName -notmatch '\\_internal\\archive\\' -and $_.FullName -notmatch '\\framework\\usecases\\templates\\'
+Get-ChildItem -Path (Join-Path $rootPath "core\usecases") -Recurse -Filter "*Factsheet*.md" | Where-Object {
+  $_.FullName -notmatch '\\_internal\\archive\\' -and $_.FullName -notmatch '\\core\\usecases\\templates\\'
 } | ForEach-Object {
   $content = Get-Content -Raw -Path $_.FullName
   $front = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---")
@@ -73,7 +73,7 @@ foreach ($file in $triggerFiles) {
 
 # UI/report specs: disabled by default
 if ($EnableUiSpecCheck) {
-  $uiRoot = Join-Path -Path $rootPath -ChildPath "framework\templates\page_templates"
+  $uiRoot = Join-Path -Path $rootPath -ChildPath "core\templates\page_templates"
   if (Test-Path $uiRoot) {
     Get-ChildItem -Path $uiRoot -Recurse -File -Filter "*.md" | ForEach-Object {
       $content = Get-Content -Raw -Path $_.FullName

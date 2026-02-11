@@ -220,7 +220,7 @@ governance:
   rollback_plan:
     - "Suspend corrective actions if throughput drops below tolerance"
   documentation_links:
-    - "framework/usecases/core/OPS-001_Operations_Performance/Business_Factsheet.md"
+    - "core/usecases/core/OPS-001_Operations_Performance/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

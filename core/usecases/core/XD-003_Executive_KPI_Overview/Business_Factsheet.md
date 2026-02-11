@@ -18,8 +18,8 @@ factsheet_type: business
 - **Decision Owner:** Executive Committee
 - **Reporting Level:** Strategic
 - **Analytics Stage:** Descriptive / Diagnostic
-- **Related Data Contract:** framework/framework/framework/data_contracts/domains/executive.yaml
-- **Related Semantic Model:** framework/framework/framework/semantic_models/core_action_ready/model_definition.yaml
+- **Related Data Contract:** core/core/core/data_contracts/domains/executive.yaml
+- **Related Semantic Model:** core/core/core/semantic_models/core_action_ready/model_definition.yaml
 
 ---
 

@@ -9,7 +9,7 @@
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
-        "./_internal/tools/run_stage1_checks.ps1"
+        "./tooling/run_stage1_checks.ps1"
       ],
       "group": "test",
       "problemMatcher": []
@@ -22,7 +22,7 @@
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
-        "./_internal/tools/run_all_checks.ps1"
+        "./tooling/run_all_checks.ps1"
       ],
       "group": "test",
       "problemMatcher": []
@@ -35,7 +35,7 @@
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
-        "./_internal/tools/generation/generate_tmdl_measures.ps1",
+        "./tooling/generation/generate_tmdl_measures.ps1",
         "-UseCase",
         "${input:usecaseId}",
         "-OverwriteExisting"
@@ -51,7 +51,7 @@
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
-        "./_internal/tools/generation/generate_all_measures.ps1",
+        "./tooling/generation/generate_all_measures.ps1",
         "-StubOnly"
       ],
       "group": "build",
@@ -65,7 +65,7 @@
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
-        "./_internal/tools/generation/generate_all_measures.ps1"
+        "./tooling/generation/generate_all_measures.ps1"
       ],
       "group": "build",
       "problemMatcher": []
@@ -79,7 +79,7 @@
         "-ExecutionPolicy",
         "Bypass",
         "-Command",
-        "./_internal/tools/generation/generate_all_measures.ps1; ./_internal/tools/run_all_checks.ps1"
+        "./tooling/generation/generate_all_measures.ps1; ./tooling/run_all_checks.ps1"
       ],
       "group": "build",
       "problemMatcher": []

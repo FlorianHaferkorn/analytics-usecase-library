@@ -14,8 +14,8 @@ trigger:
       - releases/release*
   paths:
     include:
-      - implementations/microsoft_fabric_powerbi/**
-      - framework/**
+      - products/fabric_powerbi/**
+      - core/**
       - showcases/**
 
 pr:
@@ -24,8 +24,8 @@ pr:
       - main
   paths:
     include:
-      - implementations/microsoft_fabric_powerbi/**
-      - framework/**
+      - products/fabric_powerbi/**
+      - core/**
       - showcases/**
 
 variables:

@@ -61,7 +61,7 @@ Create an Azure AD service principal with Fabric API permissions:
 ### 4. Python Environment
 
 - Python 3.9 to 3.12
-- Install dependencies: `pip install -r implementations/microsoft_fabric_powerbi/deployment/resources/requirements.txt`
+- Install dependencies: `pip install -r products/fabric_powerbi/deployment/resources/requirements.txt`
 
 ### 5. Fabric CLI
 
@@ -105,7 +105,7 @@ In Azure DevOps, add pipeline variable group or secrets:
 #### Setup Workspaces
 
 ```powershell
-cd implementations/microsoft_fabric_powerbi/deployment
+cd products/fabric_powerbi/deployment
 
 # Set environment variables
 $env:TENANT_ID = "your-tenant-id"

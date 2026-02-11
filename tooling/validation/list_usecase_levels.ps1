@@ -1,5 +1,5 @@
 param(
-  [string]$UseCasesRoot = "framework/usecases"
+  [string]$UseCasesRoot = "core/usecases"
 )
 
 function Get-FrontMatterBlock {

@@ -11,7 +11,7 @@ Pages:
 
 Notes:
 
-- Visuals map to `framework/templates/page_templates/*`.
+- Visuals map to `core/templates/page_templates/*`.
 - Measures come from the main measure dictionary; no ad-hoc calculations.
 - Screenshots, if produced, belong in `showcases/aurora_group/reporting/screenshots/`.
 

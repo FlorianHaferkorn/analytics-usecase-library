@@ -3,7 +3,7 @@
     "title":  null,
     "dataset_model":  "OPS-003.SemanticModel",
     "table_name":  "_Measures",
-    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\usecases\\core\\OPS-003_Quality_Yield\\Technical_Factsheet.md",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\usecases\\core\\OPS-003_Quality_Yield\\Technical_Factsheet.md",
     "measures":  [
                      {
                          "kpi_id":  "quality.fpy.pct",
@@ -35,7 +35,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "quality.scrap.pct",
@@ -67,7 +67,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "quality.rework.pct",
@@ -99,7 +99,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "quality.copq.amount",
@@ -131,7 +131,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "quality.complaint.pct",
@@ -163,7 +163,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "quality.defect_density",
@@ -195,7 +195,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      }
                  ]
 }

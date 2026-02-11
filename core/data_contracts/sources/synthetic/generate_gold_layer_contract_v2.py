@@ -30,7 +30,7 @@ import argparse
 import sys
 
 # Import shared utilities (adjust path if needed)
-# Assuming script runs from repo root or framework/data_contracts/sources/synthetic/
+# Assuming script runs from repo root or core/data_contracts/sources/synthetic/
 _gold_path = Path(__file__).parent.parent.parent.parent / "showcases" / "aurora_group" / "data" / "gold"
 if _gold_path.exists():
     sys.path.insert(0, str(_gold_path))

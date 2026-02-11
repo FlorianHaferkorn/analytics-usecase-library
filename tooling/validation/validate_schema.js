@@ -1,7 +1,8 @@
-﻿const fs = require('fs');
+const fs = require('fs');
 const path = require('path');
 const yaml = require('yaml');
 const Ajv = require('ajv');
+const Ajv2020 = require('ajv/dist/2020').default;
 
 function loadYaml(filePath) {
   const raw = fs.readFileSync(filePath, 'utf8');
@@ -10,7 +11,8 @@ function loadYaml(filePath) {
 
 function loadSchema(schemaPath) {
   const raw = fs.readFileSync(schemaPath, 'utf8');
-  return JSON.parse(raw);
+  const normalized = raw.replace(/^\uFEFF/, '').replace(/\u0000/g, '');
+  return JSON.parse(normalized);
 }
 
 function validateFile(ajv, schema, targetPath) {
@@ -36,8 +38,12 @@ function main() {
     process.exit(2);
   }
 
-  const ajv = new Ajv({ allErrors: true, strict: true, allowUnionTypes: true });
   const schema = loadSchema(schemaPath);
+  const schemaDraft = typeof schema.$schema === 'string' ? schema.$schema : '';
+  const isDraft2020 = schemaDraft.includes('2020-12');
+  const ajv = isDraft2020
+    ? new Ajv2020({ allErrors: true, strict: true, allowUnionTypes: true })
+    : new Ajv({ allErrors: true, strict: true, allowUnionTypes: true });
 
   const errors = [];
   for (const target of targets) {

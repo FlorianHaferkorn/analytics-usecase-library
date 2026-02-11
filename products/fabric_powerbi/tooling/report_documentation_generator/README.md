@@ -14,10 +14,10 @@ From the repository root or from this directory:
 
 ```powershell
 # From repo root (recommended)
-python implementations/microsoft_fabric_powerbi/tools/report_documentation_generator/generate_report_documentation.py --report showcases/aurora_group/reports/COM-001.Report
+python products/fabric_powerbi/tooling/report_documentation_generator/generate_report_documentation.py --report showcases/aurora_group/reports/COM-001.Report
 
 # With explicit use case and output path
-python implementations/microsoft_fabric_powerbi/tools/report_documentation_generator/generate_report_documentation.py --report path/to/Report --use-case COM-001 --output path/to/Report_Documentation_COM-001.md
+python products/fabric_powerbi/tooling/report_documentation_generator/generate_report_documentation.py --report path/to/Report --use-case COM-001 --output path/to/Report_Documentation_COM-001.md
 ```
 
 **Arguments:**
@@ -42,7 +42,7 @@ The generator produces Markdown containing:
 Inputs are read from:
 
 - PBIP: `definition/report.json`, `definition/pages/pages.json`, each `definition/pages/<PageName>/page.json` and `visuals/*/visual.json`
-- Framework: Business Factsheet (from `framework/usecases/core/<id>_*/Business_Factsheet.md`), `UseCase_PageTemplate_Map.yaml`
+- Framework: Business Factsheet (from `core/usecases/core/<id>_*/Business_Factsheet.md`), `UseCase_PageTemplate_Map.yaml`
 
 ## Where output is stored
 
@@ -52,4 +52,4 @@ Inputs are read from:
 ## See also
 
 - [report_documentation_generator_spec.md](../report_documentation_generator_spec.md) — Full specification
-- [fabric_powerbi.md](../../guide/fabric_powerbi.md) — Implementation guide (section on Report Documentation Generator)
+- [fabric_powerbi.md](../../docs/fabric_powerbi.md) — Implementation guide (section on Report Documentation Generator)

@@ -15,18 +15,18 @@ factsheet_type: technical
 - **Technical Owner:** Service Ops / CX BI Lead
 - **Model ID:** experience_service_level
 - **Source Systems:** CRM/Service Desk, Telephony/CCaaS, Survey (NPS), DWH
-- **Business Factsheet:** framework/usecases/core/XD-001_Service_Level_Performance/Business_Factsheet.md
+- **Business Factsheet:** core/usecases/core/XD-001_Service_Level_Performance/Business_Factsheet.md
 
 ---
 
 ## 1. Model References
 
-- **Domain Data Contract:** framework/framework/framework/data_contracts/domains/experience.yaml
-- **Source Data Contract:** framework/framework/framework/data_contracts/sources/experience.yaml (if present)
-- **Semantic Model Definition:** framework/framework/framework/semantic_models/core_action_ready/model_definition.yaml
-- **KPI Catalog:** framework/kpi_catalog/KPI_Catalog.md
-- **Measure Dictionary:** framework/framework/framework/semantic_models/domains/Service/Measure_Dictionary_Service.md
-- **Action Codes:** framework/action_codes/README.md
+- **Domain Data Contract:** core/core/core/data_contracts/domains/experience.yaml
+- **Source Data Contract:** core/core/core/data_contracts/sources/experience.yaml (if present)
+- **Semantic Model Definition:** core/core/core/semantic_models/core_action_ready/model_definition.yaml
+- **KPI Catalog:** core/kpi_catalog/KPI_Catalog.md
+- **Measure Dictionary:** core/core/core/semantic_models/domains/Service/Measure_Dictionary_Service.md
+- **Action Codes:** core/action_codes/README.md
 
 ---
 

@@ -138,11 +138,11 @@ This document defines principles.
 Concrete implementations are defined in:
 
 - UX standards and interaction patterns:
-  `framework/strategy_operating_model/operating_model/ux_design_system.md`
+  `core/strategy_operating_model/operating_model/ux_design_system.md`
 - Page templates and layout patterns:
-  `framework/templates/page_templates/`
+  `core/templates/page_templates/`
 - Visual guardrails and whitelists:
-  `framework/templates/page_templates/Visual_Whitelist.md`
+  `core/templates/page_templates/Visual_Whitelist.md`
 
 Principles take precedence over templates.
 

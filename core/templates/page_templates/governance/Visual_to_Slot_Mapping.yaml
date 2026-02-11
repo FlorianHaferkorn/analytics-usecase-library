@@ -313,4 +313,4 @@ IF (
 - **Visual Whitelist:** `governance/Visual_Whitelist.md`
 - **Slot Definitions:** `governance/Slot_Definitions.md`
 - **Page Templates:** `page_types/T1_Strategic_Overview.md`, etc.
-- **Scaffold Spec:** `implementations/microsoft_fabric_powerbi/tools/page_scaffold_spec.md`
+- **Scaffold Spec:** `products/fabric_powerbi/tooling/page_scaffold_spec.md`

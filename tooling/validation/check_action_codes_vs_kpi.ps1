@@ -1,6 +1,6 @@
 Param(
-  [string]$ActionCodesRoot = "framework/action_codes",
-  [string]$KpiCatalogRoot = "framework/kpi_catalog",
+  [string]$ActionCodesRoot = "core/action_codes",
+  [string]$KpiCatalogRoot = "core/kpi_catalog",
   [switch]$FailOnError
 )
 
@@ -50,8 +50,8 @@ function Get-KpiIdsFromActionCodes {
   return $ids
 }
 
-$actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "framework/action_codes"
-$kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative "framework/kpi_catalog"
+$actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "core/action_codes"
+$kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative "core/kpi_catalog"
 if (-not $actionCodesRoot) { throw "Action codes root not found. Provide -ActionCodesRoot or run inside repository." }
 if (-not $kpiCatalogRoot) { throw "KPI catalog root not found. Provide -KpiCatalogRoot or run inside repository." }
 

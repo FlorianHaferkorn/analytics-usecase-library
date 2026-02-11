@@ -225,7 +225,7 @@ governance:
   rollback_plan:
     - "Suspend orchestration if planning churn increases"
   documentation_links:
-    - "framework/usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md"
+    - "core/usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

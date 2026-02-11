@@ -70,7 +70,7 @@ This directory contains **validation scripts** for automated quality checks agai
 ### Orchestrator (Automatic)
 ```powershell
 # orchestrate_full_model.ps1 Phase 4
-& _internal/tools/validation/validate_tmdl.ps1 -TmdlPath $definitionPath -AutoFix
+& tooling/validation/validate_tmdl.ps1 -TmdlPath $definitionPath -AutoFix
 
 if ($LASTEXITCODE -ne 0) {
     Write-Error "TMDL validation failed"
@@ -90,7 +90,7 @@ if ($LASTEXITCODE -ne 0) {
 ### CI/CD (Stage 1 Check)
 ```powershell
 # run_all_checks.ps1 integration (TODO)
-$tmdlResults = & _internal/tools/validation/validate_tmdl.ps1 -TmdlPath $modelPath
+$tmdlResults = & tooling/validation/validate_tmdl.ps1 -TmdlPath $modelPath
 
 if ($tmdlResults.Errors.Count -gt 0) {
     Write-Error "TMDL validation failed in CI"
@@ -157,7 +157,7 @@ measure 'Sales' = SUM([Amount])
 
 ## BPA Rules Reference
 
-All validation scripts read from `_internal/tools/linters/powerbi/bpa-rules-*.json`:
+All validation scripts read from `tooling/linters/powerbi/bpa-rules-*.json`:
 
 | Rule File | Scope | Auto-Fixable | Integration |
 |-----------|-------|--------------|-------------|
@@ -201,7 +201,7 @@ All validation scripts return structured results:
 
 To add new validation rules:
 
-1. **Add rule to BPA JSON**: `_internal/tools/linters/powerbi/bpa-rules-tmdl.json`
+1. **Add rule to BPA JSON**: `tooling/linters/powerbi/bpa-rules-tmdl.json`
 2. **Implement auto-fix** (if applicable): Add case in `validate_tmdl.ps1` switch statement
 3. **Test**: Create test TMDL file with intentional violation
 4. **Document**: Update `tmdl_best_practices.md` with new rule

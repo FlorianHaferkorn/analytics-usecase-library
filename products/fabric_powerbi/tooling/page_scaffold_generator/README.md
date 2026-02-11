@@ -19,7 +19,7 @@ Layout is **adaptive** (positions and sizes depend on page type T1–T4 and the 
 ## Installation
 
 ```bash
-cd implementations/microsoft_fabric_powerbi/tools/page_scaffold_generator
+cd products/fabric_powerbi/tooling/page_scaffold_generator
 pip install -r requirements.txt
 ```
 
@@ -129,14 +129,14 @@ Open the generated HTML file in a browser to preview the layout before opening i
 
 The generator reads from these governance files:
 
-- `framework/templates/page_templates/mappings/UseCase_PageTemplate_Map.yaml`
-- `framework/templates/page_templates/governance/Visual_to_Slot_Mapping.yaml`
-- `framework/templates/page_templates/governance/Layout_Grid_System.yaml`
-- `framework/templates/page_templates/governance/Color_Semantics_Formatting.yaml`
+- `core/templates/page_templates/mappings/UseCase_PageTemplate_Map.yaml`
+- `core/templates/page_templates/governance/Visual_to_Slot_Mapping.yaml`
+- `core/templates/page_templates/governance/Layout_Grid_System.yaml`
+- `core/templates/page_templates/governance/Color_Semantics_Formatting.yaml`
 
 ## T2 Action Teaser and layout
 
-- **T2 pages:** By default the generator adds a slim **Action Teaser** textbox at x=1570 (width 350) with text *"Key actions from variance → see Detail or T4"* per [ActionPanel_Spec.md](../../../framework/templates/page_templates/components/ActionPanel_Spec.md). Content area width is 1510. Set `action_teaser: false` in page slots config to omit the teaser.
+- **T2 pages:** By default the generator adds a slim **Action Teaser** textbox at x=1570 (width 350) with text *"Key actions from variance → see Detail or T4"* per [ActionPanel_Spec.md](../../../../core/templates/page_templates/components/ActionPanel_Spec.md). Content area width is 1510. Set `action_teaser: false` in page slots config to omit the teaser.
 - **T4 pages:** Full Action Panel placeholder is emitted when `needs_action_panel` is true.
 - **Measure binding:** Visuals are emitted with empty `queryState` by default. To pre-bind measures (e.g. from use case Technical Factsheet `kpi_to_measure_mapping`), extend the page config or config loader to pass `kpi_measures` and slot-specific `measure_ref`/`category_entity`/`category_property`; `VisualBuilder.build_kpi_card` already accepts optional `measure_ref` and fills Data projections for `_Measures`.
 
@@ -219,7 +219,7 @@ If visuals are positioned incorrectly:
 
 - **Design spec**: [MOCKUP_DESIGN_SPEC.md](MOCKUP_DESIGN_SPEC.md)
 - **Validation checklist**: [VALIDATION_CHECKLIST.md](VALIDATION_CHECKLIST.md)
-- **Governance files**: `framework/templates/page_templates/governance/`
+- **Governance files**: `core/templates/page_templates/governance/`
 - **Example PBIP**: `showcases/sample_pbip_report/Procurement_Wireframe_Theme.Report/`
 
 ### Design references (layout and hierarchy)

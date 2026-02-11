@@ -3,7 +3,7 @@
     "title":  null,
     "dataset_model":  "COM-001.SemanticModel",
     "table_name":  "_Measures",
-    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\usecases\\core\\COM-001_Sales_Performance\\Technical_Factsheet.md",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\usecases\\core\\COM-001_Sales_Performance\\Technical_Factsheet.md",
     "measures":  [
                      {
                          "kpi_id":  "sales.net_sales.amount",
@@ -35,7 +35,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "sales.net_sales.delta_pct.plan",
@@ -67,7 +67,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "sales.net_sales.delta_pct.ly",
@@ -99,7 +99,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "margin.gm.pct",
@@ -131,7 +131,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "sales.pvm.price_effect.amount",
@@ -163,7 +163,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "sales.pvm.volume_effect.amount",
@@ -195,7 +195,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "sales.pvm.mix_effect.amount",
@@ -227,7 +227,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      }
                  ]
 }

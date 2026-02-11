@@ -104,10 +104,10 @@ This operating model is **platform-agnostic by design**, with platform-specific 
 
 Layer mapping:
 
-- WHY -> `framework/strategy_operating_model/company/`
-- HOW -> `framework/strategy_operating_model/operating_model/`
+- WHY -> `core/strategy_operating_model/company/`
+- HOW -> `core/strategy_operating_model/operating_model/`
 - WHAT ->' `usecases/`
-- TEMPLATES ->' `framework/templates/`
+- TEMPLATES ->' `core/templates/`
 
 The operating model connects strategy with execution.
 

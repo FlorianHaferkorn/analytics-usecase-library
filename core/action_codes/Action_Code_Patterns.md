@@ -2,7 +2,7 @@
 
 ## 1. Purpose
 
-Action Code **patterns** are recurring types of management response: they describe *what kind of action* is being taken (e.g. coordinate levers, enforce a control, rebalance capacity). Individual action codes in `framework/action_codes/` implement these patterns with specific triggers, KPIs, and ownership.
+Action Code **patterns** are recurring types of management response: they describe *what kind of action* is being taken (e.g. coordinate levers, enforce a control, rebalance capacity). Individual action codes in `core/action_codes/` implement these patterns with specific triggers, KPIs, and ownership.
 
 Documenting patterns makes the closed loop easier to understand and extend: new action codes can be aligned to an existing pattern for consistent naming and behavior.
 

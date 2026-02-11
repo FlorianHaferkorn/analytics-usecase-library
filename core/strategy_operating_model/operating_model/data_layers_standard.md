@@ -27,7 +27,7 @@
 
 ## 2. Project Coverage (What We Define vs Deliver)
 
-- **We define Silver** via contracts (domain-level; see `framework/data_contracts/domains/`). Contracts specify schemas, grains, keys, and quality expectations for conformed domain data.
+- **We define Silver** via contracts (domain-level; see `core/data_contracts/domains/`). Contracts specify schemas, grains, keys, and quality expectations for conformed domain data.
 - **We deliver Gold + Semantics** via report packages and semantic models. Gold is derived from Silver (consumption-ready). Semantics (measures, KPIs) consume Gold.
 - **Staging and Bronze are out of scope** unless explicitly included (e.g. a customer or engagement adds them).
 
@@ -57,7 +57,7 @@
 | **Schema** | Defined by data contracts (domain grain, full column set, keys, refs). May be normalized or transaction-level. | Star/snowflake schema; may be aggregated, subset of columns, derived tables (e.g. action aggregates). |
 | **Grain** | Contract grain (e.g. invoice line, customer-month). | May match Silver or be coarser (e.g. product-month, week) for performance. |
 | **Content** | Facts and dimensions as per contract; no pre-calculated action flags. | Same or derived facts; conformed dimensions; **action aggregates** (deviation, thresholds) for reporting. |
-| **Defined by** | `framework/data_contracts/domains/*.yaml` (and sources). | Gold schema/layout per `lakehouse_architecture.md`; **Silver→Gold transformation** (mapping, aggregation rules) should be defined per domain or in a standard. |
+| **Defined by** | `core/data_contracts/domains/*.yaml` (and sources). | Gold schema/layout per `lakehouse_architecture.md`; **Silver→Gold transformation** (mapping, aggregation rules) should be defined per domain or in a standard. |
 
 **Transformation:** Silver → Gold is a defined step (ETL/ELT or views): filter columns, change grain, add action aggregates, enforce star layout. That mapping is not yet fully standardized in this repo; it should be documented or versioned per domain so Gold is reproducible from Silver.
 
@@ -81,7 +81,7 @@ Every project uses this layout so tooling and semantics can assume the same stru
 |---------------|------|--------|
 | **Dimensions** | 1:1 from Silver dimensions, or conformed merge from multiple Silver dims. Same name in Gold unless conformed (e.g. `dim_org`). Column list can be subset; keys and refs must be consistent. | No grain change. |
 | **Facts** | One Gold fact per Silver fact **or** one Gold fact per analytical grain (e.g. Silver `fact_sales` at invoice line → Gold `fact_sales` at same grain, or Gold `fact_sales_monthly` at product-month). Explicit: source Silver table(s), grain, column mapping or aggregation. | Document grain and aggregation (sum, avg, etc.) per measure. |
-| **Action aggregates** | One Gold `agg_*` per action-code family or deviation type. Source: Silver facts + (optional) dimensions. Schema: keys (e.g. DateKey, ProductKey), deviation/flag columns (e.g. L1_Flag, L2_Flag), and metrics. Tied to `framework/action_codes/`. | Standard pattern: same key structure as related fact; add threshold flags and deviation amounts. |
+| **Action aggregates** | One Gold `agg_*` per action-code family or deviation type. Source: Silver facts + (optional) dimensions. Schema: keys (e.g. DateKey, ProductKey), deviation/flag columns (e.g. L1_Flag, L2_Flag), and metrics. Tied to `core/action_codes/`. | Standard pattern: same key structure as related fact; add threshold flags and deviation amounts. |
 
 Apply this pattern everywhere so pipelines and semantics know what to expect.
 
@@ -90,7 +90,7 @@ Apply this pattern everywhere so pipelines and semantics know what to expect.
 Define the concrete mapping in **one place per domain** (or per solution) so setup is reproducible:
 
 - **What:** A declarative mapping that lists, for each Gold table: source Silver table(s), grain (if different), column list or aggregation rules, and type (dimension | fact | action_aggregate).
-- **Where:** Use the template `framework/templates/silver_to_gold/silver_to_gold_mapping_template.yaml`; fill one file per domain (e.g. `commercial_silver_to_gold.yaml`) or one combined file. Store under `framework/data_contracts/` (e.g. `data_contracts/silver_to_gold/`) or in the solution repo.
+- **Where:** Use the template `core/templates/silver_to_gold/silver_to_gold_mapping_template.yaml`; fill one file per domain (e.g. `commercial_silver_to_gold.yaml`) or one combined file. Store under `core/data_contracts/` (e.g. `data_contracts/silver_to_gold/`) or in the solution repo.
 - **Use:** ETL/ELT or codegen reads this mapping and generates pipelines or SQL so Gold is always built the same way from Silver.
 
 The template ensures every project has the **same structure** to fill in (dimensions, facts, action_aggregates with source, grain, columns), so setup is identical and tooling can validate or generate from it.
@@ -109,7 +109,7 @@ The template ensures every project has the **same structure** to fill in (dimens
 
 | Link | Standardized? | Where / gap |
 |------|----------------|-------------|
-| **Silver** | Yes | Domain contracts (`framework/data_contracts/domains/*.yaml`) define Silver schema, grain, keys, refs. |
+| **Silver** | Yes | Domain contracts (`core/data_contracts/domains/*.yaml`) define Silver schema, grain, keys, refs. |
 | **Silver → Gold** | Partially | Gold **structure** (folders, format, partitioning) is in `lakehouse_architecture.md`. **Transformation rules** (how Silver maps to Gold: columns, grain, action aggregates) are not yet a single standard; they should be defined so Silver and Gold can legitimately differ in real implementations. |
 | **Gold → Semantics** | By convention | Semantic model (TMDL, blueprint) aligns with Gold table/column names. No single Gold→Semantics interface doc. |
 
@@ -119,12 +119,12 @@ The template ensures every project has the **same structure** to fill in (dimens
 
 ## 7. Relations
 
-- **Silver contracts:** `framework/data_contracts/domains/`, `framework/data_contracts/sources/`
-- **Silver–Gold mapping template:** `framework/templates/silver_to_gold/silver_to_gold_mapping_template.yaml` (repeatable setup)
+- **Silver contracts:** `core/data_contracts/domains/`, `core/data_contracts/sources/`
+- **Silver–Gold mapping template:** `core/templates/silver_to_gold/silver_to_gold_mapping_template.yaml` (repeatable setup)
 - **Lakehouse implementation:** `lakehouse_architecture.md` (Silver → Gold structure, Gold layout and format)
 - **Semantic layer:** `semantic_layer.md`, `measure_system.md`, `reference/ActionReady_SemanticModel_Blueprint.md`
-- **Playbook:** `framework/implementation_guides/playbook_strategy_to_first_report.md` (Step 3: Silver contracts)
+- **Playbook:** `core/implementation_guides/playbook_strategy_to_first_report.md` (Step 3: Silver contracts)
 
 ---
 
-**Location:** `framework/strategy_operating_model/operating_model/data_layers_standard.md`
+**Location:** `core/strategy_operating_model/operating_model/data_layers_standard.md`

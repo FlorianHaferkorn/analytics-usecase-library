@@ -1,4 +1,4 @@
-# _internal/tools/powerbi_mcp/table_ops.ps1
+# tooling/powerbi_mcp/table_ops.ps1
 
 Param(
     [ValidateSet("Create","Update","Delete","Get","List","CreateFromContract")]
@@ -17,7 +17,7 @@ $ErrorActionPreference = "Stop"
 function Get-Connection {
     param([string]$Name)
     
-    $connFile = "_internal/tools/powerbi_mcp/connections.json"
+    $connFile = "tooling/powerbi_mcp/connections.json"
     if (-not (Test-Path $connFile)) {
         throw "Connection file not found: $connFile. Run setup_connection.ps1 first."
     }

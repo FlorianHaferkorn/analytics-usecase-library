@@ -8,7 +8,7 @@ Translate the **ActionReady Operating Model** (semantics, UX, governance, AI-rea
 
 ## Data layers (Silver-first)
 
-We **define Silver** via data contracts; we **deliver** Gold + Semantics. Start from Silver—do not start from Gold-only. See `framework/strategy_operating_model/operating_model/data_layers_standard.md`.
+We **define Silver** via data contracts; we **deliver** Gold + Semantics. Start from Silver—do not start from Gold-only. See `core/strategy_operating_model/operating_model/data_layers_standard.md`.
 
 ---
 
@@ -32,7 +32,7 @@ Not included:
 
 - Raw ETL pipelines  
 - Customer-specific provisioning processes  
-- Tool-agnostic operating model principles (see `framework/strategy_operating_model/operating_model/`)
+- Tool-agnostic operating model principles (see `core/strategy_operating_model/operating_model/`)
 
 ---
 
@@ -42,21 +42,21 @@ When implementing in Fabric/Power BI, use these in combination with this guide:
 
 | Purpose | Location |
 |--------|----------|
-| Use case factsheets (business/technical) | `framework/usecases/core/` (e.g. `COM-001_Sales_Performance/`) |
-| KPI catalog (measure definitions, mapping) | `framework/kpi_catalog/` |
-| Stage 1 validation (docs, refs, structure) | `_internal/tools/run_stage1_checks.ps1` |
-| Full validation (Stage 1 + Fabric checks) | `_internal/tools/run_all_checks.ps1` |
-| Fabric-only checks (measures vs KPI, TMDL vs dictionary, DAX) | `implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1` |
-| TMDL measure generation from KPI catalog | `_internal/tools/generation/generate_tmdl_measures.ps1` |
+| Use case factsheets (business/technical) | `core/usecases/core/` (e.g. `COM-001_Sales_Performance/`) |
+| KPI catalog (measure definitions, mapping) | `core/kpi_catalog/` |
+| Stage 1 validation (docs, refs, structure) | `tooling/run_stage1_checks.ps1` |
+| Full validation (Stage 1 + Fabric checks) | `tooling/run_all_checks.ps1` |
+| Fabric-only checks (measures vs KPI, TMDL vs dictionary, DAX) | `products/fabric_powerbi/tooling/run_fabric_checks.ps1` |
+| TMDL measure generation from KPI catalog | `tooling/generation/generate_tmdl_measures.ps1` |
 
-Output for generated TMDL: `implementations/microsoft_fabric_powerbi/dist` (or a showcase path such as `showcases/aurora_group/semantic_models/`).
+Output for generated TMDL: `products/fabric_powerbi/dist` (or a showcase path such as `showcases/aurora_group/semantic_models/`).
 
 ---
 
 ## Structure
 
 ```yaml
-implementations/microsoft_fabric_powerbi/guide/
+products/fabric_powerbi/docs/
   fabric_powerbi.md                    # Implementation in Microsoft Fabric + Power BI ecosystem
   fabric_architecture_best_practices.md # Workspace strategy, CI/CD, Git, governance (framework-fit)
   tmdl_best_practices.md               # TMDL formatting and syntax for semantic models
@@ -74,7 +74,7 @@ Covers:
 - RLS/OLS patterns  
 - Measure & DisplayFolder enforcement  
 - App navigation & UX rules (3-30-300)
-- Report themes & Power BI Theme Generator (standardized themes; tool lives in `implementations/microsoft_fabric_powerbi/tools/theme_generator/` and can be refined)
+- Report themes & Power BI Theme Generator (standardized themes; tool lives in `products/fabric_powerbi/tooling/theme_generator/` and can be refined)
 
 ### Planned guides (not yet included)
 
@@ -119,9 +119,9 @@ Covers:
 1. **`fabric_architecture_best_practices.md`** — workspace strategy, CI/CD, Git, adoption path.
 2. **`fabric_powerbi.md`** — operating model mapping, PBIP, measures, RLS, UX (Silver → Gold → Semantics).
 3. **`tmdl_best_practices.md`** — TMDL syntax, formatting, DAX/measure conventions.
-4. After changes: run **`run_fabric_checks.ps1`** from repo root (`implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1`).
+4. After changes: run **`run_fabric_checks.ps1`** from repo root (`products/fabric_powerbi/tooling/run_fabric_checks.ps1`).
 
 ---
 
 **Location:**  
-`implementations/microsoft_fabric_powerbi/guide/README.md`
+`products/fabric_powerbi/docs/README.md`

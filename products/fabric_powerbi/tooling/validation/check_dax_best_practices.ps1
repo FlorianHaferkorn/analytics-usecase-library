@@ -3,13 +3,13 @@
   Validates DAX expressions in _Measures.tmdl files against best-practice rules (DIVIDE, VAR/RETURN, no FORMAT, etc.).
 .DESCRIPTION
   Extracts measure definitions from TMDL under DistRoot, then applies rules from bpa-rules-dax.json.
-  Run from repository root. Rules file lives in _internal/tools/linters/powerbi/.
+  Run from repository root. Rules file lives in tooling/linters/powerbi/.
 .PARAMETER FailOnWarning
   If set, exit 1 when any warning-level rule fails (default: only errors fail).
 #>
 Param(
-  [string]$DistRoot = "implementations/microsoft_fabric_powerbi/dist",
-  [string]$RulesPath = "_internal/tools/linters/powerbi/bpa-rules-dax.json",
+  [string]$DistRoot = "products/fabric_powerbi/dist",
+  [string]$RulesPath = "tooling/linters/powerbi/bpa-rules-dax.json",
   [switch]$FailOnWarning
 )
 

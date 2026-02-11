@@ -3,7 +3,7 @@
     "title":  null,
     "dataset_model":  "COM-004.SemanticModel",
     "table_name":  "_Measures",
-    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\usecases\\core\\COM-004_Promotion_Effectiveness\\Technical_Factsheet.md",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\usecases\\core\\COM-004_Promotion_Effectiveness\\Technical_Factsheet.md",
     "measures":  [
                      {
                          "kpi_id":  "sales.promo.roi.pct",
@@ -35,7 +35,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "sales.promo.incremental.amount",
@@ -67,7 +67,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "margin.promo.gm.pct",
@@ -99,7 +99,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "sales.price.realization_pct",
@@ -131,7 +131,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "sales.promo.cannibalization.pct",
@@ -163,7 +163,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\framework\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      }
                  ]
 }

@@ -6,32 +6,32 @@ alwaysApply: false
 
 # YAML Artifacts
 
-## Action codes (`framework/action_codes/`)
+## Action codes (`core/action_codes/`)
 
 - One YAML file per action code; single root object (no multi-document streams for action codes).
 - **Required:** `schema_version`, `id`, `name`, `owner_domain`, `impact_dimension`, `status`, `lifecycle`, `category`, `kpis` (with `trigger_kpis` referencing KPI catalog IDs), `trigger`, `impact`, `operational_execution`, `governance`.
-- **KPI references:** Every `kpi_id` (in `strategic_alignment.strategic_kpis`, `kpis.trigger_kpis`, `kpis.guardrail_kpis`, `kpis.outcome_kpis`, trigger levels) must exist in `framework/kpi_catalog/`.
+- **KPI references:** Every `kpi_id` (in `strategic_alignment.strategic_kpis`, `kpis.trigger_kpis`, `kpis.guardrail_kpis`, `kpis.outcome_kpis`, trigger levels) must exist in `core/kpi_catalog/`.
 - **Use case links:** `use_case_links.core_use_cases` and `related_use_cases` list use case IDs (e.g. `COM-002`).
-- Template: `framework/templates/action_codes/ActionCode_TEMPLATE.md`. Schema: `_internal/ai/schemas/action_code.schema.json`.
+- Template: `core/templates/action_codes/ActionCode_TEMPLATE.md`. Schema: `tooling/ai/schemas/action_code.schema.json`.
 - Do not define new KPI meaning or targets in action code YAML; only reference governed KPI IDs.
 
 ## UseCase_ActionCode_Map
 
 - **Path:** `usecases/UseCase_ActionCode_Map.yaml`
 - **Structure:** `use_cases:` top-level key; each use case ID (e.g. `COM-001`) has `action_codes:` list of action code IDs.
-- Every listed use case ID must exist under `usecases/core/`; every listed action code ID must exist under `framework/action_codes/`.
+- Every listed use case ID must exist under `usecases/core/`; every listed action code ID must exist under `core/action_codes/`.
 - Validated by `check_usecase_actioncode_map.ps1`.
 
 ## Decision spines
 
-- **Path:** `framework/action_codes/decision_spines/` — `DecisionSpine_UseCase_Map.yaml` and per-spine YAML files.
+- **Path:** `core/action_codes/decision_spines/` — `DecisionSpine_UseCase_Map.yaml` and per-spine YAML files.
 - Map and spine files are validated by `check_decision_spines.ps1`; keep references consistent with use cases and action codes.
 
 ## Data contracts
 
 - **Domains:** `data_contracts/domains/*.yaml` — domain-level contract structure.
 - **Sources:** `data_contracts/sources/*.yaml` — source-level mappings.
-- Schema: `_internal/ai/schemas/data_contract.schema.json` (if used for validation).
+- Schema: `tooling/ai/schemas/data_contract.schema.json` (if used for validation).
 
 ## General
 

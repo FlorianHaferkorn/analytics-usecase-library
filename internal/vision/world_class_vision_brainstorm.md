@@ -45,7 +45,7 @@ So the goal is: **the default reference for action-ready, strategy-aligned analy
 
 - **Staged maturity** — e.g. Level 1: Descriptive reporting; Level 2: Diagnostic with clear KPIs; Level 3: Decision-oriented use cases; Level 4: Action codes and closed loop; Level 5: Measured impact and learning. Publish as a one-pager or appendix.
 - **Why:** Gives companies a shared language for "where we are" and "where we want to be." Supports scoping and roadmap discussions.
-- **Step:** Add `_internal/vision/` or `framework/strategy_operating_model/` doc: maturity levels, criteria, and how they map to framework artifacts (use cases, action codes, semantic layer).
+- **Step:** Add `internal/vision/` or `core/strategy_operating_model/` doc: maturity levels, criteria, and how they map to framework artifacts (use cases, action codes, semantic layer).
 
 ### 2.5 Ownership and RACI for the Golden Thread
 
@@ -102,7 +102,7 @@ So the goal is: **the default reference for action-ready, strategy-aligned analy
 
 - **Action patterns** — Recurring action types: "Review and decide," "Escalate," "Replan," "Adjust price," "Schedule maintenance." Document as patterns; action codes implement them. Enables "which actions does the framework support?" and consistent naming.
 - **Why:** Action codes are a differentiator. A clear library and pattern set makes the closed loop understandable and extendable.
-- **Step:** Add a short "Action code patterns" doc in `framework/action_codes/` or operating model; optionally tag action codes with pattern; ensure UseCase_ActionCode_Map and Rationale stay the single source of truth.
+- **Step:** Add a short "Action code patterns" doc in `core/action_codes/` or operating model; optionally tag action codes with pattern; ensure UseCase_ActionCode_Map and Rationale stay the single source of truth.
 
 ### 4.3 Expected Impact and Success Criteria per Use Case
 
@@ -114,7 +114,7 @@ So the goal is: **the default reference for action-ready, strategy-aligned analy
 
 - **Implementation playbooks** — Step-by-step: "Define or choose strategy pattern" → "Select use-case pack" → "Map to data contracts" → "Build semantic model" → "Deploy reports and actions." One playbook per entry path (e.g. "Greenfield," "Existing BI migration").
 - **Why:** Repeatability and speed. World-class means a new team can follow a playbook and reach a consistent outcome.
-- **Step:** Add `framework/implementation_guides/` or extend existing guide with 1–2 playbooks; link to Golden Thread, use cases, and implementation docs.
+- **Step:** Add `core/implementation_guides/` or extend existing guide with 1–2 playbooks; link to Golden Thread, use cases, and implementation docs.
 
 ### 4.5 Benchmarks and Norms (Optional)
 
@@ -126,7 +126,7 @@ So the goal is: **the default reference for action-ready, strategy-aligned analy
 
 - **Lightweight case studies** — 1–2 pages per story: situation, what was implemented (strategy pattern, use cases, actions), outcome (speed, quality, alignment). Aurora Group can be the first "reference implementation story."
 - **Why:** Proof and adoption. "Others achieved X with this approach" supports internal and external adoption.
-- **Step:** Add a "Cases" or "Stories" area (e.g. `showcases/` or `_internal/vision/`); start with Aurora as the first written case; template for future cases.
+- **Step:** Add a "Cases" or "Stories" area (e.g. `showcases/` or `internal/vision/`); start with Aurora as the first written case; template for future cases.
 
 ---
 
@@ -185,7 +185,7 @@ A phased path keeps the vision actionable without committing to dates. Each phas
 - [x] **Decision taxonomy** (Steer, Diagnose, Allocate, Forecast, Intervene) defined and mapped to use cases/action codes: `operating_model/decision_taxonomy.md`.
 - [x] **KPI taxonomy** (`kpi_catalog/KPI_Taxonomy.md`) and **action code patterns** (`action_codes/Action_Code_Patterns.md`) documented.
 - [x] **Maturity model** (five levels, mapping to artifacts): `operating_model/maturity_model_action_ready_analytics.md`.
-- [x] **One implementation playbook** ("From strategy to first report"): `framework/implementation_guides/playbook_strategy_to_first_report.md`.
+- [x] **One implementation playbook** ("From strategy to first report"): `core/implementation_guides/playbook_strategy_to_first_report.md`.
 
 **Exit:** A company can choose a strategy pattern, see which use cases and KPIs apply, and follow a playbook to implement. **Done.**
 
@@ -237,7 +237,7 @@ A phased path keeps the vision actionable without committing to dates. Each phas
 - **V2–V3 (Assisted quality, scaffolding)** ↔ **Phase B–C** — Technical enablement (Stage 2, generation) supports richer content and packs; content work (strategy patterns, playbooks) is independent but parallel.
 - **V4–V6 (Operations, consumption, autonomy)** ↔ **Phase D–E** — Observability and AI consumption support proof (metrics, usage) and recognition (conversational layer, automation within guardrails).
 
-Recommendation: Keep **framework_evolution.md** as the technical and product-version path; add a **"World-class direction"** section (or link to this brainstorm) that summarizes Phases A–E and the main conceptual/domain/content ideas. Optionally move this brainstorm into `_internal/vision/` as a living doc and trim the vision to a short "strategic direction" that points to it.
+Recommendation: Keep **framework_evolution.md** as the technical and product-version path; add a **"World-class direction"** section (or link to this brainstorm) that summarizes Phases A–E and the main conceptual/domain/content ideas. Optionally move this brainstorm into `internal/vision/` as a living doc and trim the vision to a short "strategic direction" that points to it.
 
 ---
 

@@ -64,7 +64,7 @@ This is the **evolution plan** for the synthetic data landscape.
 In this repo, the synthetic data design lives under:
 
 ```
-framework/data_contracts/sources/synthetic/
+core/data_contracts/sources/synthetic/
     synthetic_data_contract.yaml
     synthetic_data_scope.yaml
     synthetic_data_readme.md   # This file

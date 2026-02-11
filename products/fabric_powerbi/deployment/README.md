@@ -4,9 +4,9 @@ Goal: make the Fabric/Power BI implementation **easy to create and delete** (ide
 
 ## Architecture and best practices
 
-**See:** `implementations/microsoft_fabric_powerbi/guide/fabric_architecture_best_practices.md`
+**See:** `products/fabric_powerbi/docs/fabric_architecture_best_practices.md`
 
-That document defines workspace strategy (DE_/DM_/BI_/Shared), repo and Git strategy, CI/CD pipeline design (Stage 1 + Fabric checks; optional setup/release automation), governance, and adoption paths (minimal → standard → full). It aligns with FabCon/FabricAutomation patterns and this framework. **Data model:** Semantic model and reports consume Silver/Gold as defined by framework data contracts (Silver-first; see `framework/strategy_operating_model/operating_model/data_layers_standard.md`).
+That document defines workspace strategy (DE_/DM_/BI_/Shared), repo and Git strategy, CI/CD pipeline design (Stage 1 + Fabric checks; optional setup/release automation), governance, and adoption paths (minimal → standard → full). It aligns with FabCon/FabricAutomation patterns and this framework. **Data model:** Semantic model and reports consume Silver/Gold as defined by framework data contracts (Silver-first; see `core/strategy_operating_model/operating_model/data_layers_standard.md`).
 
 ## Implementation Status
 

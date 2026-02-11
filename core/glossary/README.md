@@ -107,4 +107,4 @@ Use domain KPIs and semantic measures as first input.
 ---
 
 **Location:**  
-`framework/glossary/README.md`
+`core/glossary/README.md`

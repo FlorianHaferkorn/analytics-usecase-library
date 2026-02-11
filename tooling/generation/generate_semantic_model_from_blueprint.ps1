@@ -9,7 +9,7 @@ param(
 	[Parameter(Mandatory=$true)]
 	[string]$Output,
 	
-	[string]$KpiCatalogRoot = "framework/kpi_catalog",
+	[string]$KpiCatalogRoot = "core/kpi_catalog",
 	[switch]$SkipMeasures
 )
 

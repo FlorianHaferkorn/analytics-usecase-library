@@ -18,8 +18,8 @@ factsheet_type: business
 - **Decision Owner:** Operations & Quality Leadership
 - **Reporting Level:** Tactical / Operational
 - **Analytics Stage:** Diagnostic / Prescriptive
-- **Related Data Contract:** framework/framework/framework/data_contracts/domains/operations.yaml
-- **Related Semantic Model:** framework/framework/framework/semantic_models/core_action_ready/model_definition.yaml
+- **Related Data Contract:** core/core/core/data_contracts/domains/operations.yaml
+- **Related Semantic Model:** core/core/core/semantic_models/core_action_ready/model_definition.yaml
 
 ---
 

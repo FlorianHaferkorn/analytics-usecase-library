@@ -215,7 +215,7 @@ governance:
   rollback_plan:
     - "Allow controlled overtime if SLA deterioration exceeds tolerance"
   documentation_links:
-    - "framework/usecases/core/XD-002_Resource_Utilization/Business_Factsheet.md"
+    - "core/usecases/core/XD-002_Resource_Utilization/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

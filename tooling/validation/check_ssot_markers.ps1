@@ -1,7 +1,7 @@
 Param(
   [string]$Root = ".",
   [string[]]$AllowList = @(
-    "framework/strategy_operating_model/operating_model/reference/single_source_of_truth.md"
+    "core/strategy_operating_model/operating_model/reference/single_source_of_truth.md"
   ),
   [switch]$FailOnError
 )

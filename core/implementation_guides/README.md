@@ -1,6 +1,6 @@
 # Implementation Guides
 
-Single entry for the **procedure** from strategy to first report. Data layers: we **define Silver** via contracts; we **deliver** Gold + Semantics. Start from Silver. See `framework/strategy_operating_model/operating_model/data_layers_standard.md`.
+Single entry for the **procedure** from strategy to first report. Data layers: we **define Silver** via contracts; we **deliver** Gold + Semantics. Start from Silver. See `core/strategy_operating_model/operating_model/data_layers_standard.md`.
 
 ## Tool-agnostic playbook
 
@@ -10,6 +10,6 @@ Single entry for the **procedure** from strategy to first report. Data layers: w
 
 Implementation guides for specific platforms live under each platform adapter.
 
-- **Fabric / Power BI:** `implementations/microsoft_fabric_powerbi/guide/`
-  - [fabric_powerbi.md](../../implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md)
-  - [tmdl_best_practices.md](../../implementations/microsoft_fabric_powerbi/guide/tmdl_best_practices.md)
+- **Fabric / Power BI:** `products/fabric_powerbi/docs/`
+  - [fabric_powerbi.md](../../products/fabric_powerbi/docs/fabric_powerbi.md)
+  - [tmdl_best_practices.md](../../products/fabric_powerbi/docs/tmdl_best_practices.md)

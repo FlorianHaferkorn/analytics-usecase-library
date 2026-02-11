@@ -3,12 +3,12 @@
   Validates TMDL files for syntax best practices (tabs-only indentation, no description property).
 .DESCRIPTION
   Scans .tmdl files under DistRoot for: (1) indentation using spaces instead of tabs; (2) forbidden "description:" property.
-  Sources: implementations/microsoft_fabric_powerbi/guide/tmdl_best_practices.md, Microsoft Learn TMDL overview.
+  Sources: products/fabric_powerbi/docs/tmdl_best_practices.md, Microsoft Learn TMDL overview.
 .PARAMETER DistRoot
-  Root path to search for .tmdl files (e.g. implementations/microsoft_fabric_powerbi/dist or a PBIP definition folder).
+  Root path to search for .tmdl files (e.g. products/fabric_powerbi/dist or a PBIP definition folder).
 #>
 Param(
-  [string]$DistRoot = "implementations/microsoft_fabric_powerbi/dist"
+  [string]$DistRoot = "products/fabric_powerbi/dist"
 )
 
 $ErrorActionPreference = "Stop"

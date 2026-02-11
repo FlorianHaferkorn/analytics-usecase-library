@@ -54,16 +54,16 @@ Doing nothing does not keep the current state — it reinforces it.
 
 ## How to get started (recommended path)
 
-**Documentation hub (single navigation entry):** [`framework/strategy_operating_model/README.md`](framework/strategy_operating_model/README.md) — Golden Thread order, layer map, and links to all framework docs.
+**Documentation hub (single navigation entry):** [`core/strategy_operating_model/README.md`](core/strategy_operating_model/README.md) — Golden Thread order, layer map, and links to all framework docs.
 
-**Prerequisites:** PowerShell (or pwsh); Node.js for schema validation. One-time from repo root: `cd _internal\tools\validation` then `npm ci`. Run all commands from the **repository root**.
+**Prerequisites:** PowerShell (or pwsh); Node.js for schema validation. One-time from repo root: `cd tooling\validation` then `npm ci`. Run all commands from the **repository root**.
 
 ### 1. Understand the Strategy Context (WHY)
 
 Start here to understand what the organization wants to achieve.
 
-- `framework/strategy_operating_model/company/company_strategy.md`
-- `framework/strategy_operating_model/company/reporting_principles.md`
+- `core/strategy_operating_model/company/company_strategy.md`
+- `core/strategy_operating_model/company/reporting_principles.md`
 
 ### 2. Understand the Operating Model (HOW)
 
@@ -71,15 +71,15 @@ Learn how strategy is translated into analytics and actions.
 
 Start with:
 
-- `framework/strategy_operating_model/operating_model/operating_model_overview.md`
-- `framework/strategy_operating_model/operating_model/golden_thread_strategy_to_action.md`
+- `core/strategy_operating_model/operating_model/operating_model_overview.md`
+- `core/strategy_operating_model/operating_model/golden_thread_strategy_to_action.md`
 
 ### 3. Explore the Core Use Cases (WHAT)
 
 See how strategic questions are translated into concrete analytics use cases.
 
-- `framework/usecases/core/`
-- `framework/usecases/UseCase_Inventory.md`
+- `core/usecases/core/`
+- `core/usecases/UseCase_Inventory.md`
 
 Each use case contains:
 
@@ -91,50 +91,50 @@ Each use case contains:
 
 To implement one use case end-to-end (e.g. COM-001):
 
-1. Pick a use case (e.g. COM-001) and open its factsheets: `framework/usecases/core/<ID>_<Name>/` (Business_Factsheet.md, Technical_Factsheet.md).
+1. Pick a use case (e.g. COM-001) and open its factsheets: `core/usecases/core/<ID>_<Name>/` (Business_Factsheet.md, Technical_Factsheet.md).
 2. Generate TMDL measures from the KPI catalog (from repo root):
 
    ```
-   .\_internal\tools\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseAuroraShowcase -OverwriteExisting
+   .\tooling\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseAuroraShowcase -OverwriteExisting
    ```
 
-   Primary output: `showcases/aurora_group/semantic_models/.../tables/_Measures.tmdl` (single measures table; measures grouped by display folder). Omit `-UseAuroraShowcase` to write to `implementations/microsoft_fabric_powerbi/dist` instead.
+   Primary output: `showcases/aurora_group/semantic_models/.../tables/_Measures.tmdl` (single measures table; measures grouped by display folder). Omit `-UseAuroraShowcase` to write to `products/fabric_powerbi/dist` instead.
 
-3. Run **Stage 1** to ensure framework consistency: `.\_internal\tools\run_stage1_checks.ps1`.
-4. If you have Fabric/Power BI output, run **Fabric checks**: `implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1`.
-5. **Apply report theme (recommended):** `py implementations/microsoft_fabric_powerbi/tools/apply_report_theme.py path/to/Report --theme-name 'Generic__Monochromatic__Light__#118DFF'` (or your showcase default). When generating scaffolds, use `--theme` so the theme is applied in the same step.
+3. Run **Stage 1** to ensure framework consistency: `.\tooling\run_stage1_checks.ps1`.
+4. If you have Fabric/Power BI output, run **Fabric checks**: `products\fabric_powerbi\tooling\run_fabric_checks.ps1`.
+5. **Apply report theme (recommended):** `py products/fabric_powerbi/tooling/apply_report_theme.py path/to/Report --theme-name 'Generic__Monochromatic__Light__#118DFF'` (or your showcase default). When generating scaffolds, use `--theme` so the theme is applied in the same step.
 
-For Fabric/Power BI layout, PBIP, and best practices, see `implementations/microsoft_fabric_powerbi/guide/`.
+For Fabric/Power BI layout, PBIP, and best practices, see `products/fabric_powerbi/docs/`.
 
-**First 2 hours (optional checklist):** Clone repo → run Prerequisites (npm ci in _internal/tools/validation) → read strategy + golden thread (steps 1–2) → run Stage 1 → pick one use case and generate measures (step 2 above).
+**First 2 hours (optional checklist):** Clone repo → run Prerequisites (npm ci in tooling/validation) → read strategy + golden thread (steps 1–2) → run Stage 1 → pick one use case and generate measures (step 2 above).
 
 ## Stage 1 CI Gate (local / CI)
 
 **Tool-agnostic only** (facts, KPI catalog, action codes, use case map, doc refs; no Fabric/Power BI output). Canonical command (run from repo root):
 
 ```
-.\_internal\tools\run_stage1_checks.ps1
+.\tooling\run_stage1_checks.ps1
 ```
 
 **When to use which:**
 
 - **`run_stage1_checks.ps1`** — Use for **CI and before merge**. Fast, tool-agnostic gate (docs, refs, structure, KPI ↔ use case consistency). This is the mandated check for merge.
 - **`run_all_checks.ps1`** — Use for **full local validation** when you have Fabric/Power BI output: runs Stage 1 plus Fabric checks (measures vs KPI, TMDL vs measure dictionary, DAX best practices, TMDL syntax). Use before releasing or when changing measures/TMDL.
-- **`implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1`** — Fabric-only checks (no Stage 1); use when you only need to validate generated TMDL/measures.
+- **`products\fabric_powerbi\tooling\run_fabric_checks.ps1`** — Fabric-only checks (no Stage 1); use when you only need to validate generated TMDL/measures.
 
 ## Stage 2 Soft Review (planned)
 
 Non-blocking, tool-agnostic review guidance for changed docs only.
 Guidance only; it does not represent approval or rejection.
 Spec and contracts:
-- `_internal/ci/stage2_soft_review.md`
-- `_internal/tools/stage2_review/stage2_review.contract.json`
-- `_internal/tools/stage2_review/stage2_findings.schema.json`
+- `internal/ci/stage2_soft_review.md`
+- `tooling/stage2_review/stage2_review.contract.json`
+- `tooling/stage2_review/stage2_findings.schema.json`
 
 ## Repository Structure (high level)
 
 ```yaml
-framework/           # Tool-agnostic: strategy, use cases, KPIs, semantic model, data contracts
+core/           # Tool-agnostic: strategy, use cases, KPIs, semantic model, data contracts
   strategy_operating_model/
     company/         # Strategy, principles, domains
     operating_model/ # Analytics operating model (HOW)
@@ -180,5 +180,5 @@ _internal/          # Maintainer tooling, CI, schemas
 This framework is **platform-agnostic by design**.  
 Platform-specific implementation guides (e.g. Fabric / Power BI) live under:
 
-- `implementations/microsoft_fabric_powerbi/guide/` (Fabric/Power BI)
+- `products/fabric_powerbi/docs/` (Fabric/Power BI)
 

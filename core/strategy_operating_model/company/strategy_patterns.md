@@ -119,6 +119,6 @@ Companies often combine patterns (e.g. "Margin-first with strong cash discipline
 ## 7. Relationship to Other Artifacts
 
 - **Company strategy:** `company_strategy.md` — defines focus areas and principles; strategy patterns are one way to instantiate them.
-- **KPI Catalog:** All Strategic KPIs listed in patterns must exist in `framework/kpi_catalog/`.
-- **Use Case Inventory:** `framework/usecases/UseCase_Inventory.md` — use-case IDs and Key Questions align with the clusters above.
+- **KPI Catalog:** All Strategic KPIs listed in patterns must exist in `core/kpi_catalog/`.
+- **Use Case Inventory:** `core/usecases/UseCase_Inventory.md` — use-case IDs and Key Questions align with the clusters above.
 - **Golden Thread:** `operating_model/golden_thread_strategy_to_action.md` — strategy patterns feed Step 1 (Business Strategy) and Step 2 (Strategic KPIs → Key Questions).

@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 # Check domain_tag coverage in KPI Catalog
 
-$catalogPath = Join-Path $PSScriptRoot "..\..\..\framework\kpi_catalog\KPI_Catalog.md"
+$catalogPath = Join-Path $PSScriptRoot "..\..\..\core\kpi_catalog\KPI_Catalog.md"
 $content = Get-Content -Path $catalogPath -Raw
 
 # Find all kpi_ids

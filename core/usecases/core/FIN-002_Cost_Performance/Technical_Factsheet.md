@@ -15,18 +15,18 @@ factsheet_type: technical
 - **Technical Owner:** Finance BI Lead / Ops Finance
 - **Model ID:** finance_cost_performance
 - **Source Systems:** ERP (FI/CO), MES/production, DWH
-- **Business Factsheet:** framework/usecases/core/FIN-002_Cost_Performance/Business_Factsheet.md
+- **Business Factsheet:** core/usecases/core/FIN-002_Cost_Performance/Business_Factsheet.md
 
 ---
 
 ## 1. Model References
 
-- **Domain Data Contract:** framework/framework/framework/data_contracts/domains/finance.yaml
-- **Source Data Contract:** framework/framework/framework/data_contracts/sources/finance.yaml (if present)
-- **Semantic Model Definition:** framework/framework/framework/semantic_models/core_action_ready/model_definition.yaml
-- **KPI Catalog:** framework/kpi_catalog/KPI_Catalog.md
-- **Measure Dictionary:** framework/framework/framework/semantic_models/domains/Finance/Measure_Dictionary_Finance.md
-- **Action Codes:** framework/action_codes/README.md
+- **Domain Data Contract:** core/core/core/data_contracts/domains/finance.yaml
+- **Source Data Contract:** core/core/core/data_contracts/sources/finance.yaml (if present)
+- **Semantic Model Definition:** core/core/core/semantic_models/core_action_ready/model_definition.yaml
+- **KPI Catalog:** core/kpi_catalog/KPI_Catalog.md
+- **Measure Dictionary:** core/core/core/semantic_models/domains/Finance/Measure_Dictionary_Finance.md
+- **Action Codes:** core/action_codes/README.md
 
 ---
 

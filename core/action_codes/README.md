@@ -76,7 +76,7 @@ This design enables:
 
 Action Codes are organised by **domain or governance layer**, never by Use Case.
 
-framework/action_codes/
+core/action_codes/
 ├── Commercial/
 ├── Finance/
 ├── Operations/
@@ -121,13 +121,13 @@ and provide a stable anchor for governance and reuse.
 They are stored under:
 
 ```yaml
-framework/action_codes/decision_spines/
+core/action_codes/decision_spines/
 ```
 
 The mapping of Decision Spines to Use Cases lives in:
 
 ```yaml
-framework/action_codes/decision_spines/DecisionSpine_UseCase_Map.yaml
+core/action_codes/decision_spines/DecisionSpine_UseCase_Map.yaml
 ```
 
 Rules:
@@ -157,7 +157,7 @@ use_cases:
 
 Rules:
 
-* No Action Code may exist outside `framework/action_codes/`
+* No Action Code may exist outside `core/action_codes/`
 * No Action Code may be duplicated per Use Case
 * All mappings must be explicit and auditable
 

@@ -28,15 +28,15 @@ jobs:
       
       - script: |
           python -m pip install --upgrade pip
-          pip install -r implementations/microsoft_fabric_powerbi/deployment/resources/requirements.txt
+          pip install -r products/fabric_powerbi/deployment/resources/requirements.txt
         displayName: 'Install Python dependencies'
-        workingDirectory: implementations/microsoft_fabric_powerbi/deployment
+        workingDirectory: products/fabric_powerbi/deployment
       
       - task: PowerShell@2
         displayName: 'Run Stage 1 validation'
         inputs:
           targetType: 'filePath'
-          filePath: '$(System.DefaultWorkingDirectory)/_internal/tools/run_stage1_checks.ps1'
+          filePath: '$(System.DefaultWorkingDirectory)/tooling/run_stage1_checks.ps1'
           pwsh: true
         continueOnError: false
       
@@ -44,13 +44,13 @@ jobs:
         displayName: 'Run Fabric checks'
         inputs:
           targetType: 'filePath'
-          filePath: '$(System.DefaultWorkingDirectory)/implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1'
+          filePath: '$(System.DefaultWorkingDirectory)/products/fabric_powerbi/tooling/run_fabric_checks.ps1'
           pwsh: true
         continueOnError: false
         condition: succeeded()
       
       - script: |
-          python implementations/microsoft_fabric_powerbi/deployment/scripts/utils_build_parameter_file.py --environments ${{ parameters.environments }}
+          python products/fabric_powerbi/deployment/scripts/utils_build_parameter_file.py --environments ${{ parameters.environments }}
         displayName: 'Build parameter files'
         workingDirectory: $(System.DefaultWorkingDirectory)
         condition: succeeded()
@@ -65,6 +65,6 @@ jobs:
       - task: PublishPipelineArtifact@1
         displayName: 'Upload automation artifacts'
         inputs:
-          targetPath: 'implementations/microsoft_fabric_powerbi/deployment'
+          targetPath: 'products/fabric_powerbi/deployment'
           artifactName: 'automation'
           publishLocation: 'pipeline'

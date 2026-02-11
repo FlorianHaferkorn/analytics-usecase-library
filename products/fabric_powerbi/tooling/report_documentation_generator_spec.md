@@ -148,7 +148,7 @@ For each page in the report:
 **Action Panel Behavior:**
 - Updates with current filter context
 - Shows top recommendation first
-- Links to action code definitions in `framework/action_codes/`
+- Links to action code definitions in `core/action_codes/`
 
 </If>
 
@@ -176,7 +176,7 @@ For each page in the report:
 
 **Measure Lineage:**
 - All measures are defined in the semantic model
-- Measures reference KPIs from `framework/kpi_catalog/`
+- Measures reference KPIs from `core/kpi_catalog/`
 - No ad-hoc calculations in visuals
 
 ### Data Contracts
@@ -215,7 +215,7 @@ For each page in the report:
 - Drill-through to action detail pages
 
 **Action Code Definitions:**  
-See `framework/action_codes/` for full definitions and trigger logic.
+See `core/action_codes/` for full definitions and trigger logic.
 ```
 
 ---
@@ -227,7 +227,7 @@ See `framework/action_codes/` for full definitions and trigger logic.
 
 ### Definition of Done Checklist
 
-<From framework/templates/page_templates/governance/Page_DoD.md>
+<From core/templates/page_templates/governance/Page_DoD.md>
 
 - [x] Page uses exactly one allowed page type (T1, T2, T3, or T4)
 - [x] Page exists in UseCase_PageTemplate_Map.yaml
@@ -287,9 +287,9 @@ For testing methodology, see [Alex Badiu's PBI Documentation - Automated Testing
 ### Dependencies
 
 **Depends on:**
-- Use Case: `<Use Case ID>` (`framework/usecases/core/<ID>/`)
+- Use Case: `<Use Case ID>` (`core/usecases/core/<ID>/`)
 - Semantic Model: `<Model Name>`
-- Theme: `<Theme Name>` (`implementations/microsoft_fabric_powerbi/tools/theme_generator/`)
+- Theme: `<Theme Name>` (`products/fabric_powerbi/tooling/theme_generator/`)
 - Action Codes: `<List of Action Code IDs>`
 
 **Used by:**
@@ -401,7 +401,7 @@ Documentation is complete when:
 ### Validation Rules
 
 - Every measure used in visuals must have a KPI ID or be documented as "supporting measure"
-- Every action code referenced must exist in `framework/action_codes/`
+- Every action code referenced must exist in `core/action_codes/`
 - Every page must match a template from `UseCase_PageTemplate_Map.yaml`
 - Every visual must be whitelisted in `Visual_Whitelist.md`
 
@@ -416,8 +416,8 @@ See `showcases/aurora_group/reporting/documentation/COM-001_Report_Documentation
 ## References
 
 - **Best Practice Example:** [Alex Badiu - Automated Testing in Power BI](https://github.com/alexbadiu-insightsinmotion/PBI-Documentation/blob/main/06%20-%20Automated%20Testing%20in%20Power%20BI.md)
-- **Page Templates:** `framework/templates/page_templates/`
-- **Use Case Factsheets:** `framework/usecases/core/`
-- **KPI Catalog:** `framework/kpi_catalog/`
-- **Action Codes:** `framework/action_codes/`
-- **Page DoD:** `framework/templates/page_templates/governance/Page_DoD.md`
+- **Page Templates:** `core/templates/page_templates/`
+- **Use Case Factsheets:** `core/usecases/core/`
+- **KPI Catalog:** `core/kpi_catalog/`
+- **Action Codes:** `core/action_codes/`
+- **Page DoD:** `core/templates/page_templates/governance/Page_DoD.md`

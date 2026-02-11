@@ -224,7 +224,7 @@ governance:
   rollback_plan:
     - "Suspend orchestration if service actions conflict or mask root causes"
   documentation_links:
-    - "framework/usecases/core/SCM-002_Supply_Reliability_OTIF/Business_Factsheet.md"
+    - "core/usecases/core/SCM-002_Supply_Reliability_OTIF/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

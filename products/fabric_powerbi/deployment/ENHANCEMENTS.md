@@ -270,8 +270,8 @@ export SKIP_GIT_CHECK=true
 
 ## References
 
-- [Pre-flight Checks Module](../scripts/modules/preflight_checks.py)
-- [Health Checks Module](../scripts/modules/health_checks.py)
-- [Structured Logging Module](../scripts/modules/structured_logging.py)
-- [Setup Script](../scripts/fabric_setup.py)
-- [Release Script](../scripts/fabric_release.py)
+- [Pre-flight Checks Module](scripts/modules/preflight_checks.py)
+- [Health Checks Module](scripts/modules/health_checks.py)
+- [Structured Logging Module](scripts/modules/structured_logging.py)
+- [Setup Script](scripts/fabric_setup.py)
+- [Release Script](scripts/fabric_release.py)

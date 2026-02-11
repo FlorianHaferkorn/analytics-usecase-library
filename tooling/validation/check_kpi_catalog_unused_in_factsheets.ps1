@@ -1,10 +1,10 @@
 Param(
-  [string]$UseCasesRoot = "framework/usecases",
-  [string]$KpiCatalogRoot = "framework/kpi_catalog",
-  [string]$InventoryPath = "framework/usecases/UseCase_Inventory.md",
-  [string]$ActionCodesRoot = "framework/action_codes",
-  [string]$UseCaseActionCodeMapPath = "framework/usecases/UseCase_ActionCode_Map.yaml",
-  [string]$MeasureDictRoot = "framework/semantic_models/domains",
+  [string]$UseCasesRoot = "core/usecases",
+  [string]$KpiCatalogRoot = "core/kpi_catalog",
+  [string]$InventoryPath = "core/usecases/UseCase_Inventory.md",
+  [string]$ActionCodesRoot = "core/action_codes",
+  [string]$UseCaseActionCodeMapPath = "core/usecases/UseCase_ActionCode_Map.yaml",
+  [string]$MeasureDictRoot = "core/semantic_models/domains",
   [switch]$FailOnError
 )
 
@@ -217,12 +217,12 @@ function Get-KpiIdsFromMeasureDictionaries {
   return $ids
 }
 
-$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "framework/usecases"
-$kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative "framework/kpi_catalog"
-$inventoryPath = Resolve-RepoPath -ProvidedPath $InventoryPath -DefaultRelative "framework/usecases/UseCase_Inventory.md"
-$actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "framework/action_codes"
-$actionCodeMapPath = Resolve-RepoPath -ProvidedPath $UseCaseActionCodeMapPath -DefaultRelative "framework/usecases/UseCase_ActionCode_Map.yaml"
-$measureDictRoot = Resolve-RepoPath -ProvidedPath $MeasureDictRoot -DefaultRelative "framework/semantic_models/domains"
+$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "core/usecases"
+$kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative "core/kpi_catalog"
+$inventoryPath = Resolve-RepoPath -ProvidedPath $InventoryPath -DefaultRelative "core/usecases/UseCase_Inventory.md"
+$actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "core/action_codes"
+$actionCodeMapPath = Resolve-RepoPath -ProvidedPath $UseCaseActionCodeMapPath -DefaultRelative "core/usecases/UseCase_ActionCode_Map.yaml"
+$measureDictRoot = Resolve-RepoPath -ProvidedPath $MeasureDictRoot -DefaultRelative "core/semantic_models/domains"
 if (-not $useCasesRoot) { throw "UseCases root not found. Provide -UseCasesRoot or run inside repository." }
 if (-not $kpiCatalogRoot) { throw "KPI catalog root not found. Provide -KpiCatalogRoot or run inside repository." }
 

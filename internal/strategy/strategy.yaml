@@ -7,7 +7,7 @@ last_updated: 2025-10-12
 # ------------------------------------------------------------------------------
 # Strategic KPI Index
 # - Machine-readable representation of the company strategy
-# - References canonical KPI definitions from framework/kpi_catalog
+# - References canonical KPI definitions from core/kpi_catalog
 # - Contains no textual definitions and no implementation details
 # ------------------------------------------------------------------------------
 

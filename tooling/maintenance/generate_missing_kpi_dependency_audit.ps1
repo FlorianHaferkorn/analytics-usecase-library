@@ -1,10 +1,10 @@
 Param(
   [string]$UseCasesRoot = "usecases",
-  [string]$KpiCatalogRoot = "framework/kpi_catalog",
-  [string]$ActionCodesRoot = "framework/action_codes",
+  [string]$KpiCatalogRoot = "core/kpi_catalog",
+  [string]$ActionCodesRoot = "core/action_codes",
   [string]$UseCaseActionCodeMapPath = "usecases/UseCase_ActionCode_Map.yaml",
   [string]$MeasureDictRoot = "semantic_models/domains",
-  [string]$OutputPath = "_internal/reviews/missing_kpi_dependency_audit.md"
+  [string]$OutputPath = "internal/reviews/missing_kpi_dependency_audit.md"
 )
 
 $ErrorActionPreference = "Stop"
@@ -262,16 +262,16 @@ function Get-MeasureRefsFromDax {
 }
 
 $useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "usecases"
-$kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative "framework/kpi_catalog"
-$actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "framework/action_codes"
+$kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative "core/kpi_catalog"
+$actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "core/action_codes"
 $actionCodeMapPath = Resolve-RepoPath -ProvidedPath $UseCaseActionCodeMapPath -DefaultRelative "usecases/UseCase_ActionCode_Map.yaml"
 $measureDictRoot = Resolve-RepoPath -ProvidedPath $MeasureDictRoot -DefaultRelative "semantic_models/domains"
-$outputPath = Resolve-RepoPath -ProvidedPath $OutputPath -DefaultRelative "_internal/reviews/missing_kpi_dependency_audit.md"
+$outputPath = Resolve-RepoPath -ProvidedPath $OutputPath -DefaultRelative "internal/reviews/missing_kpi_dependency_audit.md"
 
 if (-not $useCasesRoot) { throw "UseCases root not found." }
 if (-not $kpiCatalogRoot) { throw "KPI catalog root not found." }
 if (-not $measureDictRoot) { throw "Measure dictionary root not found." }
-if (-not $outputPath) { $outputPath = (Join-Path -Path (Get-Location).Path -ChildPath "_internal/reviews/missing_kpi_dependency_audit.md") }
+if (-not $outputPath) { $outputPath = (Join-Path -Path (Get-Location).Path -ChildPath "internal/reviews/missing_kpi_dependency_audit.md") }
 
 $catalogIds = Get-KpiIdsFromCatalog -Root $kpiCatalogRoot
 

@@ -28,10 +28,10 @@ Multi-Operations:
 ```powershell
 do {
     # Generate measures
-    ./_internal/tools/generation/generate_tmdl_measures.ps1 -UseCase $UseCase
+    ./tooling/generation/generate_tmdl_measures.ps1 -UseCase $UseCase
     
     # Validate
-    $result = ./implementations/microsoft_fabric_powerbi/tools/test_tmdl.ps1 -TmdlFile $tmdlPath
+    $result = ./products/fabric_powerbi/tooling/test_tmdl.ps1 -TmdlFile $tmdlPath
     
     if ($LASTEXITCODE -eq 0) {
         break  # Success
@@ -60,7 +60,7 @@ do {
 
 ```powershell
 # Step 1: Detect from Technical Factsheet
-$factsheet = Get-Content "framework\usecases\core\$UseCase\Technical_Factsheet.md" -Raw
+$factsheet = Get-Content "core\usecases\core\$UseCase\Technical_Factsheet.md" -Raw
 $relSection = Extract-Section $factsheet "### 4.2 Relationships"
 
 # Step 2: Parse relationship definitions
@@ -125,7 +125,7 @@ if ($cycles.Count -gt 0) {
 ### Template Structure → PBIR Conversion
 
 ```yaml
-# Input: framework/templates/page_templates/overview_drivers_details.md
+# Input: core/templates/page_templates/overview_drivers_details.md
 
 Template Sections:
   ## Page 1: Overview (3 seconds)
@@ -181,14 +181,14 @@ Template Sections:
 ### 1. KPI Catalog → Measures
 
 ```powershell
-# From: framework/kpi_catalog/KPI_Catalog.md
+# From: core/kpi_catalog/KPI_Catalog.md
 - kpi_id: sales.net_sales.amount
   dax_name: "Net Sales Amount"
   dax_expression: "SUM(fact_sales[Net Sales Amount])"
   formatString: "#,0.00"
   displayFolder: "01_Sales"
 
-# To: implementations/microsoft_fabric_powerbi/dist/COM-001/COM-001.SemanticModel/definition/tables/_Measures.tmdl
+# To: products/fabric_powerbi/dist/COM-001/COM-001.SemanticModel/definition/tables/_Measures.tmdl
 measure 'Net Sales Amount' =
     SUM(fact_sales[Net Sales Amount])
     formatString: "#,0.00"
@@ -198,7 +198,7 @@ measure 'Net Sales Amount' =
 ### 2. Data Contract → Tables
 
 ```yaml
-# From: framework/data_contracts/sources/synthetic/synthetic_data_contract.yaml
+# From: core/data_contracts/sources/synthetic/synthetic_data_contract.yaml
 tables:
   - name: dim_date
     type: dimension
@@ -225,7 +225,7 @@ mcp_powerbi-model_table_operations -Operation "create" -TableDefinition {
 ### 3. Technical Factsheet → Relationships
 
 ```yaml
-# From: framework/usecases/core/COM-001_Sales_Performance/Technical_Factsheet.md
+# From: core/usecases/core/COM-001_Sales_Performance/Technical_Factsheet.md
 ### 4.2 Relationships (Mandatory)
 - dim_date (1) -> fact_sales on DateKey
 - dim_org (1) -> fact_sales on OrgKey
@@ -244,7 +244,7 @@ mcp_powerbi-model_relationship_operations -Operation "create" -RelationshipDefin
 ### 4. Page Template → Report Pages
 
 ```markdown
-# From: framework/templates/page_templates/overview_drivers_details.md
+# From: core/templates/page_templates/overview_drivers_details.md
 ## Page 1: Overview (3 seconds)
 - KPI Cards: Net Sales, Gross Margin %
 
@@ -263,7 +263,7 @@ Generate-ReportPage -PageName "Overview" -Visuals @(
 
 ```powershell
 Checks:
-  ✓ TMDL Syntax Valid (./implementations/microsoft_fabric_powerbi/tools/test_tmdl.ps1)
+  ✓ TMDL Syntax Valid (./products/fabric_powerbi/tooling/test_tmdl.ps1)
   ✓ All Measures Have formatString
   ✓ All Measures Have displayFolder
   ✓ All Measures Have /// Description

@@ -2,5 +2,11 @@
 **/.pbi/cache.abf
 
 # Deployment generated artifacts (snapshots and reports)
-implementations/microsoft_fabric_powerbi/deployment/snapshots/
-implementations/microsoft_fabric_powerbi/deployment/reports/
+products/fabric_powerbi/deployment/snapshots/
+products/fabric_powerbi/deployment/reports/
+
+# Generated theme documentation output
+products/fabric_powerbi/tooling/theme_generator/themes/**/*.md
+
+# Generated review outputs
+internal/reviews/*.md

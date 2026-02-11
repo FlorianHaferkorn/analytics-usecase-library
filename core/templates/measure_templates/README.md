@@ -59,4 +59,4 @@ Measures are the **single execution layer** for KPIs, Action Codes, and reports.
 ---
 
 **Location:**  
-`framework/templates/measure_templates/`
+`core/templates/measure_templates/`

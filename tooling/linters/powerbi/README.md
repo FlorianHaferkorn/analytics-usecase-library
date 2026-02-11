@@ -15,16 +15,16 @@ The ActionReady Framework is **tool-agnostic** until the implementation layer:
 
 ```
 Tool-Agnostic Layers:
-├── framework/                     # Business logic, KPIs, domains
+├── core/                     # Business logic, KPIs, domains
 ├── data_contracts/                # Data structure definitions
 ├── usecases/                      # Use case specifications
 └── docs/operating_model/          # Conceptual framework
 
 Implementation Layer (Tool-Specific):
-├── implementations/microsoft_fabric_powerbi/guide/
+├── products/fabric_powerbi/docs/
 │   └── fabric_powerbi.md          # High-level Power BI patterns
 │   └── tmdl_best_practices.md     # TMDL syntax specifications
-└── _internal/tools/linters/powerbi/
+└── tooling/linters/powerbi/
     └── bpa-rules-dax.json         # DAX style rules
     └── bpa-rules-report.json      # Report layout rules
     └── bpa-rules-semanticmodel.json # Semantic model rules
@@ -65,13 +65,13 @@ Implementation Layer (Tool-Specific):
 
 ```powershell
 # Validate all Power BI BPA rules
-& _internal/tools/validation/validate_powerbi.ps1 -PbipPath "showcases/aurora_group/semantic_models/CoreActionReady.pbip"
+& tooling/validation/validate_powerbi.ps1 -PbipPath "showcases/aurora_group/semantic_models/CoreActionReady.pbip"
 
 # Validate TMDL syntax only
-& _internal/tools/validation/validate_tmdl.ps1 -TmdlPath "showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition" -AutoFix
+& tooling/validation/validate_tmdl.ps1 -TmdlPath "showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition" -AutoFix
 
 # Validate DAX measures only
-& _internal/tools/validation/validate_dax.ps1 -MeasuresPath "showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition/tables/_Measures.tmdl"
+& tooling/validation/validate_dax.ps1 -MeasuresPath "showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition/tables/_Measures.tmdl"
 ```
 
 ### Integration in Orchestrator
@@ -90,7 +90,7 @@ if ($LASTEXITCODE -ne 0) {
 
 ```powershell
 # run_all_checks.ps1 Stage 1
-$bpaResults = & _internal/tools/validation/validate_powerbi.ps1 -PbipPath $pbipPath
+$bpaResults = & tooling/validation/validate_powerbi.ps1 -PbipPath $pbipPath
 
 if ($bpaResults.Errors.Count -gt 0) {
     Write-Error "BPA validation failed: $($bpaResults.Errors | ConvertTo-Json)"
@@ -140,21 +140,21 @@ To add new Power BI BPA rules:
      "description": "Detailed description",
      "pattern": "regex pattern",
      "autoFixable": true|false,
-     "reference": "implementations/microsoft_fabric_powerbi/guide/tmdl_best_practices.md#section"
+     "reference": "products/fabric_powerbi/docs/tmdl_best_practices.md#section"
    }
    ```
 
 3. Implement auto-fix logic in `validate_tmdl.ps1` if `autoFixable: true`
 
-4. Add test case in `_internal/tools/validation/tests/`
+4. Add test case in `tooling/validation/tests/`
 
-5. Document in `implementations/microsoft_fabric_powerbi/guide/tmdl_best_practices.md`
+5. Document in `products/fabric_powerbi/docs/tmdl_best_practices.md`
 
 ## References
 
-- **TMDL Best Practices**: `implementations/microsoft_fabric_powerbi/guide/tmdl_best_practices.md`
-- **Fabric/Power BI Implementation**: `implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md`
-- **Validation Scripts**: `_internal/tools/validation/`
+- **TMDL Best Practices**: `products/fabric_powerbi/docs/tmdl_best_practices.md`
+- **Fabric/Power BI Implementation**: `products/fabric_powerbi/docs/fabric_powerbi.md`
+- **Validation Scripts**: `tooling/validation/`
 - **MCP Operations**: `mcp_powerbi-model_*` tools
 
 ## Version History

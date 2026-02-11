@@ -226,7 +226,7 @@ governance:
   rollback_plan:
     - "Reinstate buffers if service KPIs breach tolerance"
   documentation_links:
-    - "framework/usecases/core/SCM-001_Inventory_Performance/Business_Factsheet.md"
+    - "core/usecases/core/SCM-001_Inventory_Performance/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-# Repo root (apply_report_theme.py lives in implementations/microsoft_fabric_powerbi/tools/)
+# Repo root (apply_report_theme.py lives in products/fabric_powerbi/tooling/)
 REPO_ROOT = Path(__file__).resolve().parents[3]
 THEME_GENERATOR_THEMES = REPO_ROOT / "implementations" / "microsoft_fabric_powerbi" / "tools" / "theme_generator" / "themes"
 THEME_GENERATOR_CONFIG = REPO_ROOT / "implementations" / "microsoft_fabric_powerbi" / "tools" / "theme_generator" / "themes.config.json"

@@ -219,7 +219,7 @@ governance:
   rollback_plan:
     - "Reprioritise PM if availability drops below tolerance"
   documentation_links:
-    - "framework/usecases/core/OPS-002_Asset_Performance/Business_Factsheet.md"
+    - "core/usecases/core/OPS-002_Asset_Performance/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

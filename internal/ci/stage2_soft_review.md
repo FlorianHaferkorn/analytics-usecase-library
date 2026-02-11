@@ -25,7 +25,7 @@ Stage 2 consumes only changed files and an optional, fixed context set:
 - `file_filters[]` (optional): include/exclude path rules
 - `max_findings` (optional, default 10)
 
-See: `_internal/tools/stage2_review/stage2_review.contract.json`
+See: `tooling/stage2_review/stage2_review.contract.json`
 
 ## Outputs (stable format)
 
@@ -39,7 +39,7 @@ Stage 2 outputs a capped list of findings using a stable JSON schema:
 - `risk` (1 sentence)
 - `suggested_fix` (1 sentence)
 
-Schema: `_internal/tools/stage2_review/stage2_findings.schema.json`
+Schema: `tooling/stage2_review/stage2_findings.schema.json`
 Severity indicates review attention, not urgency or correctness.
 
 ### Human-readable rendering guideline

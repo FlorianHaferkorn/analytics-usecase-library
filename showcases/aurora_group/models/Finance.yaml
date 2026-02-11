@@ -61,7 +61,7 @@ tables:
     - security_user_org
 
 # TODO: Complete relationships, measures, display folders after Commercial is validated
-# TODO: Add DAX expressions to framework/kpi_catalog/KPI_Catalog.md for FIN use cases
+# TODO: Add DAX expressions to core/kpi_catalog/KPI_Catalog.md for FIN use cases
 # TODO: Populate semantic_models/domains/Finance/Measure_Dictionary_Finance.md
 
 notes:

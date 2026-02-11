@@ -220,7 +220,7 @@ governance:
   rollback_plan:
     - "Restore prior sales focus if revenue decline exceeds tolerance"
   documentation_links:
-    - "framework/usecases/core/COM-002_Margin_Price_Performance/Business_Factsheet.md"
+    - "core/usecases/core/COM-002_Margin_Price_Performance/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

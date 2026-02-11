@@ -140,10 +140,10 @@ Domains connect strategy to analytical execution.
 
 They relate to:
 
-- Company Strategy (WHY): `framework/strategy_operating_model/company/company_strategy.md`
-- Golden Thread & Operating Model (HOW): `framework/strategy_operating_model/operating_model/`
+- Company Strategy (WHY): `core/strategy_operating_model/company/company_strategy.md`
+- Golden Thread & Operating Model (HOW): `core/strategy_operating_model/operating_model/`
 - Use Cases (WHAT): `usecases/`
-- Semantic Models & KPIs (WITH WHAT): `framework/`, `semantic_models/`
+- Semantic Models & KPIs (WITH WHAT): `core/`, `semantic_models/`
 
 All downstream artifacts remain traceable to a primary domain.
 

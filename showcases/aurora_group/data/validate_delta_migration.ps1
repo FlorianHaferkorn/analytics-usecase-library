@@ -115,7 +115,7 @@ if ($wrongFormat.Count -gt 0) {
 if (-not $SkipStage1) {
   Write-Host ""
   Write-Host "Running Stage 1 checks..." -ForegroundColor Cyan
-  $stage1 = Join-Path $repoRoot "_internal\tools\run_stage1_checks.ps1"
+  $stage1 = Join-Path $repoRoot "tooling\run_stage1_checks.ps1"
   if (-not (Test-Path $stage1)) {
     Write-Warning "run_stage1_checks.ps1 not found; skipping Stage 1."
   } else {

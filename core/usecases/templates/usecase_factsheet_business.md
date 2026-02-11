@@ -82,7 +82,7 @@ action_codes:
     outcome_kpis: [<kpi_id_1>, <kpi_id_2>]
     impact_range: <kpi_id: range>
     levels: <L1-L3>
-    definition: <framework/action_codes/...yaml>
+    definition: <core/action_codes/...yaml>
 
   - ...
 ```

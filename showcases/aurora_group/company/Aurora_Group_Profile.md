@@ -1,58 +1,18 @@
-﻿# Aurora Group Profile
+# Aurora Group Profile (Showcase)
 
-## Overview
+## Purpose
 
-Aurora Group SE is a multinational consumer goods & retail company operating across Europe. The company combines brick-and-mortar retail, e-commerce, wholesale and a dedicated logistics network.
+Provide concise company context for the Aurora showcase.
 
-## Industry
+## Profile summary
 
-Omnichannel Consumer Goods & Retail.
+- Fictional industrial enterprise used for end-to-end framework validation
+- Multi-domain operations (Commercial, Finance, Operations, Supply Chain, Experience)
+- Synthetic but governance-aligned datasets
 
-## Markets & Regions
+## Usage
 
-- DACH  
-- Benelux  
-- Nordics  
-- Southern Europe  
-- CEE  
+Use this profile to contextualize showcase reports, semantic models, and use cases.
+Do not treat this file as a core framework authority.
 
-## Sales Channels
-
-- Retail Stores  
-- E-Commerce (Web & App)  
-- Marketplaces  
-- Wholesale
-
-## Physical Footprint
-
-- ~500 Stores  
-- 6 Central Distribution Centers  
-- 40 Cross-Dock Hubs  
-- 3 E-Commerce Fulfillment Centers  
-- HQ: Amsterdam
-
-## Customer Base
-
-Over 20 million active customers across Europe.
-
-## Workforce
-
-~15,000 employees across Retail, Logistics, HQ, Tech and Innovation.
-
-## Supply Chain
-
-Inbound: Sea, Road, Air.  
-Outbound: DC → Hub → Store / Customer Delivery.
-
-## Corporate Functions
-
-Finance, Strategy, HR, ESG, IT, Data, Risk & Compliance.
-
-## ESG Profile
-
-Scope 1/2/3 emissions, energy consumption, waste & packaging, supplier ESG scoring.
-
-## Purpose in Project
-
-Aurora Group provides the synthetic business context for all 73 Use Cases and underpins the domain models, synthetic data and AI-ready semantic structure.
-
+Canonical framework definitions live in `core/`.

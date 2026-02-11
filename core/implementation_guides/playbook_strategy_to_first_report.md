@@ -40,9 +40,9 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 
 **Actions:**
 
-1. Read `framework/strategy_operating_model/company/strategy_patterns.md`.
+1. Read `core/strategy_operating_model/company/strategy_patterns.md`.
 2. Choose one primary pattern (Margin-First, Cash-First, or Growth-First) or blend two (e.g. Margin-First + Cash-First).
-3. List the **top 5–7 Strategic KPIs** from the pattern(s). Confirm each exists in `framework/kpi_catalog/KPI_Catalog.md` (or add to catalog with owner).
+3. List the **top 5–7 Strategic KPIs** from the pattern(s). Confirm each exists in `core/kpi_catalog/KPI_Catalog.md` (or add to catalog with owner).
 4. Confirm **ownership** (who is accountable for each KPI) and document in your governance (see `operating_model/ownership_raci_golden_thread.md`).
 
 **Output:** Document: "We use [pattern(s)]. Our top Strategic KPIs are: [list]. Owners: [roles]."
@@ -58,8 +58,8 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 **Actions:**
 
 1. From the strategy pattern, take the **Priority 1 (and optionally 2) use-case clusters** (see `strategy_patterns.md`).
-2. Open `framework/usecases/UseCase_Inventory.md` and note the use case IDs (e.g. COM-002, FIN-001).
-3. For each selected use case, read the **Business Factsheet** (e.g. `framework/usecases/core/COM-002_Margin_Price_Performance/Business_Factsheet.md`) and confirm:
+2. Open `core/usecases/UseCase_Inventory.md` and note the use case IDs (e.g. COM-002, FIN-001).
+3. For each selected use case, read the **Business Factsheet** (e.g. `core/usecases/core/COM-002_Margin_Price_Performance/Business_Factsheet.md`) and confirm:
    - Required KPIs are in the KPI catalog.
    - Key questions (section 2) are acceptable for your context.
    - Action codes (section 4) are relevant; map is in `UseCase_ActionCode_Map.yaml`.
@@ -73,12 +73,12 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 
 ## 6. Step 3 — Align Data: Silver Contracts and Semantic Requirements
 
-**Goal:** Define or adopt **Silver** (conformed, validated domain data) so Gold and the semantic model can be built. We start from Silver, not Gold. See `framework/strategy_operating_model/operating_model/data_layers_standard.md`.
+**Goal:** Define or adopt **Silver** (conformed, validated domain data) so Gold and the semantic model can be built. We start from Silver, not Gold. See `core/strategy_operating_model/operating_model/data_layers_standard.md`.
 
 **Actions:**
 
 1. For each use case in the pack, read the **Technical Factsheet** (section 6: Data Requirements) — required facts, dimensions, grain, time range.
-2. Check if a **Silver data contract** already exists for the domain (`framework/data_contracts/domains/`, `framework/data_contracts/sources/` or customer equivalent). If not, create a minimal contract (schema, grain, key fields) for the facts and dimensions needed for **Silver**.
+2. Check if a **Silver data contract** already exists for the domain (`core/data_contracts/domains/`, `core/data_contracts/sources/` or customer equivalent). If not, create a minimal contract (schema, grain, key fields) for the facts and dimensions needed for **Silver**.
 3. Confirm **source data** can supply these (e.g. ERP, CRM, data lake). Resolve gaps (new pipeline, staging, or scope reduction). Staging/Bronze are out of scope unless explicitly included.
 4. Document **required entities** for Silver and downstream semantic model: facts, dimensions, grain. This becomes the input for Step 4 (Gold/semantic model built from Silver).
 
@@ -94,9 +94,9 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 
 **Actions:**
 
-1. **Design** the semantic model (tables, relationships, grain) to support the required facts and dimensions from Step 3 (Silver). Use `framework/strategy_operating_model/operating_model/reference/ActionReady_SemanticModel_Blueprint.md` and implementation guide (e.g. Fabric) for patterns.
-2. **Implement measures** for every required KPI in the use-case pack. Use the KPI Catalog and measure system rules (`operating_model/measure_system.md`). For Fabric/Power BI: generate or author TMDL; use `_internal/tools/generation/generate_tmdl_measures.ps1` if applicable.
-3. **Validate:** Run **Stage 1** from repo root: `.\_internal\tools\run_stage1_checks.ps1`. For Fabric: run `.\implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1` (measures vs KPI, TMDL vs measure dictionary). Fix any failures.
+1. **Design** the semantic model (tables, relationships, grain) to support the required facts and dimensions from Step 3 (Silver). Use `core/strategy_operating_model/operating_model/reference/ActionReady_SemanticModel_Blueprint.md` and implementation guide (e.g. Fabric) for patterns.
+2. **Implement measures** for every required KPI in the use-case pack. Use the KPI Catalog and measure system rules (`operating_model/measure_system.md`). For Fabric/Power BI: generate or author TMDL; use `tooling/generation/generate_tmdl_measures.ps1` if applicable.
+3. **Validate:** Run **Stage 1** from repo root: `.\tooling\run_stage1_checks.ps1`. For Fabric: run `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1` (measures vs KPI, TMDL vs measure dictionary). Fix any failures.
 
 **Output:** Semantic model (e.g. TMDL dataset) with measures aligned to KPI catalog; Stage 1 and Fabric checks green.
 
@@ -112,9 +112,9 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 
 1. **Pick one use case** from the pack for the first report (e.g. COM-002 Margin & Price Performance).
 2. **Layout:** Follow the use case's **5. 3-30-300 Page Layout** (Business Factsheet): 3-second layer (KPI cards), 30-second layer (main visuals), required slicers, 300-second layer (diagnostics).
-3. **Templates:** Use `framework/templates/page_templates/` and implementation guide (e.g. Fabric report structure, theme) for consistency.
-4. **Apply standardized theme:** Themes are **applied automatically** when using the page scaffold generator (unless `--no-theme` is set). The generator detects showcase default or framework default from `themes.config.json`. To override: use `--theme <name>` when generating scaffolds. To apply manually: `py implementations/microsoft_fabric_powerbi/tools/apply_report_theme.py path/to/Report --theme-name '<name>'`. Base theme remains fixed; custom theme defines the standardized look. For IBCS styling, use `--theme-name "IBCS_Light"` or set as default via `setup_theme_defaults.py`. Theme schema (optional): run `py implementations/microsoft_fabric_powerbi/tools/theme_generator/tools/theme-agent/fetch_latest_theme_schema.py --update-pin` once or in CI so validation uses the latest schema.
-5. **Action codes:** Ensure the report (or an action panel) can surface which action codes apply when KPIs deviate (trigger levels L1–L3). Definitions stay in `framework/action_codes/`; report only references them.
+3. **Templates:** Use `core/templates/page_templates/` and implementation guide (e.g. Fabric report structure, theme) for consistency.
+4. **Apply standardized theme:** Themes are **applied automatically** when using the page scaffold generator (unless `--no-theme` is set). The generator detects showcase default or framework default from `themes.config.json`. To override: use `--theme <name>` when generating scaffolds. To apply manually: `py products/fabric_powerbi/tooling/apply_report_theme.py path/to/Report --theme-name '<name>'`. Base theme remains fixed; custom theme defines the standardized look. For IBCS styling, use `--theme-name "IBCS_Light"` or set as default via `setup_theme_defaults.py`. Theme schema (optional): run `py products/fabric_powerbi/tooling/theme_generator/tools/theme-agent/fetch_latest_theme_schema.py --update-pin` once or in CI so validation uses the latest schema.
+5. **Action codes:** Ensure the report (or an action panel) can surface which action codes apply when KPIs deviate (trigger levels L1–L3). Definitions stay in `core/action_codes/`; report only references them.
 6. **Deploy** to a dev or test workspace; validate with business that definitions and layout match expectations.
 
 **Output:** First report (e.g. PBIR in Fabric) consuming the semantic model; optional action layer or drill-through to action code documentation.
@@ -129,8 +129,8 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 
 **Actions:**
 
-1. **Run Stage 1** again after any changes to factsheets, KPI catalog, or action codes: `.\_internal\tools\run_stage1_checks.ps1`.
-2. **Run Fabric checks** (if using Fabric): `.\implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1`.
+1. **Run Stage 1** again after any changes to factsheets, KPI catalog, or action codes: `.\tooling\run_stage1_checks.ps1`.
+2. **Run Fabric checks** (if using Fabric): `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1`.
 3. **Review with business:** Confirm key questions are answered by the report; confirm action codes are understandable and owned.
 4. **Iterate:** Add the next use case from the pack; repeat Steps 4–6 as needed. Extend to more domains when ready.
 
@@ -140,8 +140,8 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 - [ ] **Bind visuals** to governed measures only (semantic model); no ad-hoc calculations in the report.
 - [ ] **Apply theme** (Theme Generator or `apply_report_theme`); document theme name and path.
 - [ ] Run **Report Documentation Generator** for the report: `generate_report_documentation.py --report <Report>`; store output in `showcases/<name>/reporting/Report_Documentation_<ID>.md`.
-- [ ] Run **Stage 1**: `.\_internal\tools\run_stage1_checks.ps1`.
-- [ ] Run **Fabric checks**: `.\implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1`.
+- [ ] Run **Stage 1**: `.\tooling\run_stage1_checks.ps1`.
+- [ ] Run **Fabric checks**: `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1`.
 
 **Output:** Stable first report; checklist for adding the next use case; governance (ownership, change flow) in place.
 
@@ -151,19 +151,19 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 
 | Need | Location |
 |------|----------|
-| Data layers (Silver-first) | `framework/strategy_operating_model/operating_model/data_layers_standard.md` |
-| Strategy patterns | `framework/strategy_operating_model/company/strategy_patterns.md` |
-| Golden Thread | `framework/strategy_operating_model/operating_model/golden_thread_strategy_to_action.md` |
-| Use Case Inventory & Key Questions | `framework/usecases/UseCase_Inventory.md` |
-| Use case factsheets | `framework/usecases/core/<ID>_<Name>/` |
-| KPI Catalog | `framework/kpi_catalog/KPI_Catalog.md`, `KPI_Taxonomy.md` |
-| Action codes & patterns | `framework/action_codes/`, `Action_Code_Patterns.md` |
-| Ownership RACI | `framework/strategy_operating_model/operating_model/ownership_raci_golden_thread.md` |
-| Silver data contracts | `framework/data_contracts/` (domains/, sources/) |
-| Page templates | `framework/templates/page_templates/` |
-| Fabric/Power BI implementation | `implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md` |
-| Stage 1 (CI gate) | `_internal/tools/run_stage1_checks.ps1` |
-| Fabric checks | `implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1` |
+| Data layers (Silver-first) | `core/strategy_operating_model/operating_model/data_layers_standard.md` |
+| Strategy patterns | `core/strategy_operating_model/company/strategy_patterns.md` |
+| Golden Thread | `core/strategy_operating_model/operating_model/golden_thread_strategy_to_action.md` |
+| Use Case Inventory & Key Questions | `core/usecases/UseCase_Inventory.md` |
+| Use case factsheets | `core/usecases/core/<ID>_<Name>/` |
+| KPI Catalog | `core/kpi_catalog/KPI_Catalog.md`, `KPI_Taxonomy.md` |
+| Action codes & patterns | `core/action_codes/`, `Action_Code_Patterns.md` |
+| Ownership RACI | `core/strategy_operating_model/operating_model/ownership_raci_golden_thread.md` |
+| Silver data contracts | `core/data_contracts/` (domains/, sources/) |
+| Page templates | `core/templates/page_templates/` |
+| Fabric/Power BI implementation | `products/fabric_powerbi/docs/fabric_powerbi.md` |
+| Stage 1 (CI gate) | `tooling/run_stage1_checks.ps1` |
+| Fabric checks | `products/fabric_powerbi/tooling/run_fabric_checks.ps1` |
 
 ---
 

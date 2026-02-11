@@ -52,4 +52,4 @@ and Action Codes — not how data is ingested or transformed.
 ---
 
 **Location:**  
-`framework/templates/data_contract_templates/`
+`core/templates/data_contract_templates/`

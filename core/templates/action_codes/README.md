@@ -27,7 +27,7 @@ Files in this folder exist to:
 
 ## Core Principle (Non-Negotiable)
 
-> **Nothing under `framework/templates/` is production configuration.**
+> **Nothing under `core/templates/` is production configuration.**
 
 Templates may include examples, placeholders, and reference values.
 They must never be interpreted as active or executable logic.

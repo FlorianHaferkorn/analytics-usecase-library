@@ -220,7 +220,7 @@ governance:
   rollback_plan:
     - "Pause inventory reduction if service level drops below tolerance"
   documentation_links:
-    - "framework/usecases/core/FIN-001_Cash_Liquidity_Performance/Business_Factsheet.md"
+    - "core/usecases/core/FIN-001_Cash_Liquidity_Performance/Business_Factsheet.md"
 
 quality_rules:
   - "All kpi_id values must exist in KPI catalog."

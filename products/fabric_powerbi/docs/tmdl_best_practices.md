@@ -98,7 +98,7 @@ measure 'Net Sales Amount' =
 ```
 
 **Measure description block (standard format):**  
-Use a three-line `///` block above each measure: **KPI ID** (or Supporting), **Description**, and **Purpose**. Source: `framework/kpi_catalog/KPI_Catalog.md`. For supporting measures use `/// Supporting: <id> — <Display Name>` and supply Description and Purpose from the measure dictionary or a short formulation.
+Use a three-line `///` block above each measure: **KPI ID** (or Supporting), **Description**, and **Purpose**. Source: `core/kpi_catalog/KPI_Catalog.md`. For supporting measures use `/// Supporting: <id> — <Display Name>` and supply Description and Purpose from the measure dictionary or a short formulation.
 
 ```tmdl
 /// KPI: sales.net_sales.amount — Net Sales Amount
@@ -332,7 +332,7 @@ Before opening the semantic model in Power BI Desktop, run `check_tmdl_pbip_read
 | **RLS** | Security (RLS) relationships must use `securityFilteringBehavior: oneDirection`. |
 | **Partition Source** | Use a Power Query parameter (e.g. `GoldDataPath & "/facts/..."`) in `Folder.Files(...)`; do not hardcode absolute or relative paths. |
 
-Script: `implementations/microsoft_fabric_powerbi/validation/check_tmdl_pbip_readiness.ps1`.
+Script: `products/fabric_powerbi/tooling/validation/check_tmdl_pbip_readiness.ps1`.
 
 ### 5.5 Error Handling
 
@@ -519,9 +519,9 @@ Violations are reported as errors; spacing deviations are warnings.
 
 - **Power BI MCP**: `mcp_powerbi-model_*` tools
 - **TMDL Documentation**: [Microsoft Learn - TMDL](https://learn.microsoft.com/analysis-services/tmdl/)
-- **Fabric Implementation**: `implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md`
-- **Semantic Layer**: `framework/strategy_operating_model/operating_model/semantic_layer.md`
-- **Measure System**: `framework/strategy_operating_model/operating_model/measure_system.md`
-- **Fabric checks (measures vs KPI, TMDL vs dictionary, DAX)**: `implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1`
-- **DAX best-practice rules**: `_internal/tools/linters/powerbi/bpa-rules-dax.json` (see `_internal/tools/linters/powerbi/README.md`)
+- **Fabric Implementation**: `products/fabric_powerbi/docs/fabric_powerbi.md`
+- **Semantic Layer**: `core/strategy_operating_model/operating_model/semantic_layer.md`
+- **Measure System**: `core/strategy_operating_model/operating_model/measure_system.md`
+- **Fabric checks (measures vs KPI, TMDL vs dictionary, DAX)**: `products/fabric_powerbi/tooling/run_fabric_checks.ps1`
+- **DAX best-practice rules**: `tooling/linters/powerbi/bpa-rules-dax.json` (see `tooling/linters/powerbi/README.md`)
 - **Microsoft Learn**: [TMDL overview](https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-overview), [PBIP semantic model folder](https://learn.microsoft.com/en-us/power-bi/developer/projects/projects-dataset), [Semantic model best practices for data agent](https://learn.microsoft.com/en-us/fabric/data-science/semantic-model-best-practices), [Star schema and Power BI](https://learn.microsoft.com/en-us/power-bi/guidance/star-schema)

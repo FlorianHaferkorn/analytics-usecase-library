@@ -133,4 +133,4 @@ A set of criteria confirming that a KPI or Use Case is complete, validated, and 
 ---
 
 **Location:**  
-`framework/glossary/business_glossary.md`
+`core/glossary/business_glossary.md`

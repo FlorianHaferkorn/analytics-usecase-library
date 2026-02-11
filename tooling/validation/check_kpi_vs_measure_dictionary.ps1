@@ -1,5 +1,5 @@
 param(
-  [string]$KpiCatalogRoot = (Join-Path $PSScriptRoot "..\..\..\framework\kpi_catalog"),
+  [string]$KpiCatalogRoot = (Join-Path $PSScriptRoot "..\..\..\core\kpi_catalog"),
   [string]$MeasureDictRoot = (Join-Path $PSScriptRoot "..\..\..\semantic_models\domains")
 )
 

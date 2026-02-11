@@ -6,10 +6,10 @@
   (3) all dimension tables in vertical column at x=0 starting y=120, (4) spacing approximately 250px (facts) and 120px (dims).
   Run from repository root. DistRoot can be a tables dir (e.g. .../definition/tables) or dist root.
 .PARAMETER DistRoot
-  Root path: either .../definition/tables (single semantic model) or implementations/microsoft_fabric_powerbi/dist (multiple).
+  Root path: either .../definition/tables (single semantic model) or products/fabric_powerbi/dist (multiple).
 #>
 Param(
-  [string]$DistRoot = "implementations/microsoft_fabric_powerbi/dist"
+  [string]$DistRoot = "products/fabric_powerbi/dist"
 )
 
 $ErrorActionPreference = "Stop"

@@ -142,4 +142,4 @@ This document provides a **readable, domain-oriented view** of the KPI Catalog. 
 
 - **Format:** `domain.topic.metric` (e.g. `sales.net_sales.amount`, `inv.dio.days`).
 - **Domains:** sales, margin, cost, crm, fin, wc, ops, quality, inv, supply, plan, svc, res, people.
-- **Source of truth:** `framework/kpi_catalog/KPI_Catalog.md` and schema. This taxonomy is derived and may lag; always validate against the catalog.
+- **Source of truth:** `core/kpi_catalog/KPI_Catalog.md` and schema. This taxonomy is derived and may lag; always validate against the catalog.

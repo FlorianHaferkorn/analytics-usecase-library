@@ -62,7 +62,7 @@ a small and stable set of **Strategic KPIs** that express what success means for
 
 Reference:
 
-- framework/strategy_operating_model/company/company_strategy.md
+- core/strategy_operating_model/company/company_strategy.md
 
 ## 2. Strategic KPIs ->' Key Questions
 
@@ -95,7 +95,7 @@ The outcome of this step is a set of **decision-oriented questions** that serve 
 
 Reference:
 
-- framework/strategy_operating_model/company/reporting_principles.md
+- core/strategy_operating_model/company/reporting_principles.md
 
 ## 3. Key Questions ->' Use Cases (WHAT)
 
@@ -179,8 +179,8 @@ The outcome of this step is a **stable semantic execution layer** that can be co
 
 Reference:
 
-- framework/strategy_operating_model/operating_model/semantic_layer.md
-- framework/strategy_operating_model/operating_model/reference/ActionReady_SemanticModel_Blueprint.md
+- core/strategy_operating_model/operating_model/semantic_layer.md
+- core/strategy_operating_model/operating_model/reference/ActionReady_SemanticModel_Blueprint.md
 
 ## 5. Semantic Model ->' Measures & KPIs
 
@@ -227,9 +227,9 @@ Without this governance layer, semantic consistency degrades over time and trust
 
 Reference:
 
-- framework/kpi_catalog/
-- framework/strategy_operating_model/operating_model/measure_system.md
-- framework/strategy_operating_model/operating_model/reference/single_source_of_truth.md
+- core/kpi_catalog/
+- core/strategy_operating_model/operating_model/measure_system.md
+- core/strategy_operating_model/operating_model/reference/single_source_of_truth.md
 
 ## 6. Measures ->' Reports (3-30-300)
 
@@ -267,8 +267,8 @@ By standardizing reporting patterns, the framework ensures that:
 
 Reference:
 
-- framework/templates/page_templates/
-- framework/strategy_operating_model/operating_model/ux_design_system.md
+- core/templates/page_templates/
+- core/strategy_operating_model/operating_model/ux_design_system.md
 
 ## 7. Reports ->' Actions
 
@@ -307,7 +307,7 @@ Without explicit actions and impact tracking:
 
 Reference:
 
-- framework/action_codes/
+- core/action_codes/
 - usecases/Usecase_DoD_Core.md
 
 ## 8. Automation & AI Readiness
@@ -327,7 +327,7 @@ The framework is:
 
 Reference:
 
-- framework/strategy_operating_model/operating_model/ai_readiness.md
+- core/strategy_operating_model/operating_model/ai_readiness.md
 
 ## 9. Maintaining & Scaling the Golden Thread
 

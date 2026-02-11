@@ -25,12 +25,12 @@ Not included:
 
 - Transformation logic (ETL/Dataflows/Data Pipelines)  
 - Customer-specific data structures  
-- Semantic model definitions (see `framework/semantic_models/`)  
+- Semantic model definitions (see `core/semantic_models/`)  
 
 ## Structure
 
 ```yaml
-framework/data_contracts/
+core/data_contracts/
   domains/
     commercial_sales.yaml
     finance.yaml
@@ -82,10 +82,10 @@ fact:
 
 ## Relations
 
-- **WHY Contracts derive from domain definitions in `framework/strategy_operating_model/company/domains.md`  
+- **WHY Contracts derive from domain definitions in `core/strategy_operating_model/company/domains.md`  
 - **HOW Semantic layer rules enforce contracts during modeling  
 - **WITH WHAT Measure TEMPLATES, naming rules, and KPI Catalog rely on contract structure  
-- **TEMPLATES Fact and dimension TEMPLATES live under `framework/TEMPLATES/data_contract_TEMPLATES/`
+- **TEMPLATES Fact and dimension TEMPLATES live under `core/TEMPLATES/data_contract_TEMPLATES/`
 
 **Location:**  
-`framework/framework/data_contracts/domains/README.md`
+`core/core/data_contracts/domains/README.md`

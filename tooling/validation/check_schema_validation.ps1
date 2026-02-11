@@ -34,29 +34,30 @@ $toolDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $validator = Join-Path -Path $toolDir -ChildPath "validate_schema.js"
 if (-not (Test-Path $validator)) { throw "Schema validator not found: $validator" }
 if (-not (Test-Path (Join-Path $toolDir "node_modules\\ajv")) -or -not (Test-Path (Join-Path $toolDir "node_modules\\yaml"))) {
-  Write-Host "Schema validator dependencies missing. Run 'npm ci' in _internal/tools/validation." -ForegroundColor Red
+  Write-Host "Schema validator dependencies missing. Run 'npm ci' in tooling/validation." -ForegroundColor Red
   if ($FailOnError) { exit 1 }
   exit 0
 }
 
-$schemaDir = Join-Path -Path $toolDir -ChildPath "schemas"
-$actionCodeSchema = Join-Path -Path $schemaDir -ChildPath "action_code.schema.json"
-$triggerMapTemplateSchema = Join-Path -Path $schemaDir -ChildPath "trigger_map_template.schema.json"
-$triggerMapDeploySchema = Join-Path -Path $schemaDir -ChildPath "trigger_map_deploy.schema.json"
-$useCaseMapSchema = Join-Path -Path $schemaDir -ChildPath "usecase_actioncode_map.schema.json"
+$validationSchemaDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\schemas"
+$aiSchemaDir = Join-Path -Path $rootPath -ChildPath "tooling\ai\schemas"
+$actionCodeSchema = Join-Path -Path $validationSchemaDir -ChildPath "action_code.schema.json"
+$triggerMapTemplateSchema = Join-Path -Path $aiSchemaDir -ChildPath "trigger_map_template.schema.json"
+$triggerMapDeploySchema = Join-Path -Path $aiSchemaDir -ChildPath "trigger_map_deploy.schema.json"
+$useCaseMapSchema = Join-Path -Path $aiSchemaDir -ChildPath "usecase_actioncode_map.schema.json"
 
-$actionCodeFiles = Get-ChildItem -Path (Join-Path $rootPath "framework\action_codes") -Recurse -Filter "*.yaml" | Where-Object {
-  $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\_internal\\archive\\'
+$actionCodeFiles = Get-ChildItem -Path (Join-Path $rootPath "core\action_codes") -Recurse -Filter "*.yaml" | Where-Object {
+  $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\internal\\archive\\'
 }
 $triggerMapTemplateFiles = @()
-$triggerTemplate = Join-Path -Path $rootPath -ChildPath "framework\templates\action_codes\ActionCode_KPI_Trigger_Map_Template.yaml"
+$triggerTemplate = Join-Path -Path $rootPath -ChildPath "core\templates\action_codes\ActionCode_KPI_Trigger_Map_Template.yaml"
 if (Test-Path $triggerTemplate) { $triggerMapTemplateFiles += Get-Item $triggerTemplate }
 $triggerMapDeployFiles = @()
 $deployRoot = Join-Path -Path $rootPath -ChildPath "deployments"
 if (Test-Path $deployRoot) {
   $triggerMapDeployFiles += Get-ChildItem -Path $deployRoot -Recurse -Filter "*trigger_map*.yaml"
 }
-$useCaseMap = Join-Path -Path $rootPath -ChildPath "framework\usecases\UseCase_ActionCode_Map.yaml"
+$useCaseMap = Join-Path -Path $rootPath -ChildPath "core\usecases\UseCase_ActionCode_Map.yaml"
 
 $hadIssues = $false
 
@@ -65,7 +66,7 @@ function Invoke-Validation {
   if (-not (Test-Path $Schema)) { throw "Schema not found: $Schema" }
   if (-not $Targets -or $Targets.Count -eq 0) { return }
   & $node.Source $validator $Schema @Targets
-  if ($LASTEXITCODE -ne 0) {
+  if ((-not $?) -or ($LASTEXITCODE -ne 0)) {
     $script:hadIssues = $true
   }
 }

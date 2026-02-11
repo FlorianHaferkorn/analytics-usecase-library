@@ -72,10 +72,10 @@ Used primarily for:
 
 ## Relations
 
-- **WHY Synthetic datasets illustrate business processes from `framework/strategy_operating_model/company/`  
+- **WHY Synthetic datasets illustrate business processes from `core/strategy_operating_model/company/`  
 - **HOW Contracts and semantic rules from the Operating Model validate data  
 - **WITH WHAT Measures, KPIs, and Action Codes rely on this mapping  
 - **TEMPLATES Data contract TEMPLATES define HOW source fields map to domain fields  
 
 **Location:**  
-`framework/data_contracts/sources/README.md`
+`core/data_contracts/sources/README.md`

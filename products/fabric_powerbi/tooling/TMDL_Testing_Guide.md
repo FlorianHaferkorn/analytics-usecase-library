@@ -6,7 +6,7 @@
 
 ## Ebene 1: Syntaktische Validierung (Automatisiert)
 
-**Tool:** `implementations/microsoft_fabric_powerbi/tools/test_tmdl.ps1`
+**Tool:** `products/fabric_powerbi/tooling/test_tmdl.ps1`
 
 **Was wird geprüft:**
 - Datei existiert
@@ -21,7 +21,7 @@
 
 **Ausführung (von Repo-Root):**
 ```powershell
-./implementations/microsoft_fabric_powerbi/tools/test_tmdl.ps1 -TmdlFile "implementations\microsoft_fabric_powerbi\dist\USE-CASE-ID\USE-CASE-ID.SemanticModel\definition\tables\_Measures.tmdl"
+./products/fabric_powerbi/tooling/test_tmdl.ps1 -TmdlFile "products\fabric_powerbi\dist\USE-CASE-ID\USE-CASE-ID.SemanticModel\definition\tables\_Measures.tmdl"
 ```
 
 **Beispiel-Output:**
@@ -43,7 +43,7 @@ TMDL validation passed!
 
 ## Ebene 2: Best Practice Analyzer (BPA)
 
-**Tool:** `_internal/tools/linters/run_bpa.ps1` + JSON-Regelkataloge
+**Tool:** `tooling/linters/run_bpa.ps1` + JSON-Regelkataloge
 
 **Was wird geprüft:**
 - Semantic Model Performance Rules (650+ Zeilen, 40+ Regeln)
@@ -53,16 +53,16 @@ TMDL validation passed!
 **Ausführung (von Repo-Root):**
 ```powershell
 # Für spezifisches Use Case
-./_internal/tools/linters/run_bpa.ps1 -Root "implementations\microsoft_fabric_powerbi\dist\COM-001\COM-001.SemanticModel"
+./tooling/linters/run_bpa.ps1 -Root "products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel"
 
 # Über run_all_checks.ps1 (umfassend)
-./_internal/tools/run_all_checks.ps1
+./tooling/run_all_checks.ps1
 ```
 
 **Regelkataloge:**
-- `_internal/tools/linters/bpa-rules-semanticmodel.json`
-- `_internal/tools/linters/bpa-rules-dax.json`
-- `_internal/tools/linters/bpa-rules-report.json`
+- `tooling/linters/bpa-rules-semanticmodel.json`
+- `tooling/linters/bpa-rules-dax.json`
+- `tooling/linters/bpa-rules-report.json`
 
 ---
 
@@ -94,7 +94,7 @@ code --install-extension analysis-services.TMDL
 **Workflow:**
 1. Power BI Desktop öffnen
 2. File → Open → Browse
-3. `*.SemanticModel` Ordner auswählen (z.B. `implementations/microsoft_fabric_powerbi/dist/COM-001/COM-001.SemanticModel`)
+3. `*.SemanticModel` Ordner auswählen (z.B. `products/fabric_powerbi/dist/COM-001/COM-001.SemanticModel`)
 4. View → TMDL View aktivieren
 5. Measures in `tables/_Measures.tmdl` prüfen
 
@@ -114,31 +114,31 @@ code --install-extension analysis-services.TMDL
 ### 1. Während der Entwicklung:
 ```powershell
 # Quick Syntax Check (von Repo-Root)
-./implementations/microsoft_fabric_powerbi/tools/test_tmdl.ps1 -TmdlFile "path\to\_Measures.tmdl"
+./products/fabric_powerbi/tooling/test_tmdl.ps1 -TmdlFile "path\to\_Measures.tmdl"
 ```
 
 ### 2. Vor Commit:
 ```powershell
 # Fabric-Checks (TMDL Syntax, DAX, Measures vs KPI)
-./implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1
+./products/fabric_powerbi/tooling/run_fabric_checks.ps1
 
 # Oder umfassend inkl. Stage 1
-./_internal/tools/run_all_checks.ps1
+./tooling/run_all_checks.ps1
 ```
 
 ### 3. Beispiel: COM-001 (Sales Performance) testen
 ```powershell
 # Schritt 1: Measures generieren
-./_internal/tools/generation/generate_tmdl_measures.ps1 -UseCase "COM-001" -OverwriteExisting
+./tooling/generation/generate_tmdl_measures.ps1 -UseCase "COM-001" -OverwriteExisting
 
 # Schritt 2: Syntax validieren
-./implementations/microsoft_fabric_powerbi/tools/test_tmdl.ps1 -TmdlFile "implementations\microsoft_fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl"
+./products/fabric_powerbi/tooling/test_tmdl.ps1 -TmdlFile "products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl"
 
 # Schritt 3: Fabric-Checks
-./implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1
+./products/fabric_powerbi/tooling/run_fabric_checks.ps1
 
 # Schritt 4: In Power BI Desktop öffnen
-explorer "implementations\microsoft_fabric_powerbi\dist\COM-001"
+explorer "products\fabric_powerbi\dist\COM-001"
 # Dann: File → Open → COM-001.SemanticModel
 ```
 
@@ -153,6 +153,6 @@ explorer "implementations\microsoft_fabric_powerbi\dist\COM-001"
 - VS Code Extension: https://marketplace.visualstudio.com/items?itemName=analysis-services.TMDL
 
 ### Internal (von Repo-Root):
-- [TMDL Best Practices](../guide/tmdl_best_practices.md)
+- [TMDL Best Practices](../docs/tmdl_best_practices.md)
 - [run_fabric_checks.ps1](run_fabric_checks.ps1) — TMDL Syntax, DAX, Measures vs KPI
-- [framework/kpi_catalog](../../../framework/kpi_catalog/KPI_Catalog.md)
+- [core/kpi_catalog](../../../core/kpi_catalog/KPI_Catalog.md)

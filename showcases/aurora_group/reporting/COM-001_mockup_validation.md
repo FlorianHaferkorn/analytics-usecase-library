@@ -2,7 +2,7 @@
 
 **Mockups:** `COM-001_overview_mockup.html`, `COM-001_detail_mockup.html`  
 **Scaffold:** `COM-001.Report` (Page_COM001_Overview, Page_COM001_Detail)  
-**Checklist:** [VALIDATION_CHECKLIST.md](../../../implementations/microsoft_fabric_powerbi/tools/page_scaffold_generator/VALIDATION_CHECKLIST.md)
+**Checklist:** [VALIDATION_CHECKLIST.md](../../../products/fabric_powerbi/tooling/page_scaffold_generator/VALIDATION_CHECKLIST.md)
 
 ## Verification (layout and structure)
 

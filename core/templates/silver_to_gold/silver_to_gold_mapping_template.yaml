@@ -1,7 +1,7 @@
 # Silver → Gold Mapping Template
 # Use one file per domain (e.g. commercial_silver_to_gold.yaml) or one combined file per solution.
 # Ensures the same setup every time: every Gold table has a defined source, grain, and rules.
-# See: framework/strategy_operating_model/operating_model/data_layers_standard.md (§5)
+# See: core/strategy_operating_model/operating_model/data_layers_standard.md (§5)
 
 domain: <domain_name>   # e.g. commercial_sales
 version: v1
@@ -49,4 +49,4 @@ action_aggregates:
 # Rules:
 # - Every Gold table must have a silver_source (or silver_sources) and grain.
 # - Dimensions: 1:1 or conformed merge. Facts: same or coarser grain; aggregation explicit.
-# - Action aggregates: tied to framework/action_codes/; standard flag and deviation columns.
+# - Action aggregates: tied to core/action_codes/; standard flag and deviation columns.

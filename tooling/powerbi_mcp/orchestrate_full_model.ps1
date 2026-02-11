@@ -1,4 +1,4 @@
-# _internal/tools/powerbi_mcp/orchestrate_full_model.ps1
+# tooling/powerbi_mcp/orchestrate_full_model.ps1
 # Domain-aware Semantic Model Orchestrator
 
 Param(
@@ -123,18 +123,18 @@ if ($scopeType -eq "UseCase") {
         Write-Host "  UseCase: $scopeName" -ForegroundColor Gray
         
         # Find UseCase directory (format: COM-001_Sales_Performance)
-        $ucDir = Get-ChildItem "framework\usecases\core" -Directory | Where-Object { $_.Name -like "$scopeName*" } | Select-Object -First 1
+        $ucDir = Get-ChildItem "core\usecases\core" -Directory | Where-Object { $_.Name -like "$scopeName*" } | Select-Object -First 1
         if (-not $ucDir) {
             throw "UseCase directory not found for: $scopeName"
         }
         Write-Host "  Found: $($ucDir.Name)" -ForegroundColor Gray
         
         # Pass UseCase ID (COM-001) to script, not full directory name
-        & ./_internal/tools/generation/generate_tmdl_measures.ps1 `
+        & ./tooling/generation/generate_tmdl_measures.ps1 `
             -UseCase $scopeName `
-            -UseCasesRoot "framework/usecases/core" `
-            -KpiCatalogRoot "framework/kpi_catalog" `
-            -DistRoot "implementations/microsoft_fabric_powerbi/dist" `
+            -UseCasesRoot "core/usecases/core" `
+            -KpiCatalogRoot "core/kpi_catalog" `
+            -DistRoot "products/fabric_powerbi/dist" `
             -OverwriteExisting | Out-Null
         
         if ($LASTEXITCODE -ne 0) {
@@ -142,7 +142,7 @@ if ($scopeType -eq "UseCase") {
         }
         
         # generate-Script uses UseCase ID (COM-001), not directory name (COM-001_Sales_Performance)
-        $measuresFile = "implementations\microsoft_fabric_powerbi\dist\$scopeName\$scopeName.SemanticModel\definition\tables\_Measures.tmdl"
+        $measuresFile = "products\fabric_powerbi\dist\$scopeName\$scopeName.SemanticModel\definition\tables\_Measures.tmdl"
         if (-not (Test-Path $measuresFile)) {
             throw "Measures file not created"
         }
@@ -166,7 +166,7 @@ if ($scopeType -eq "UseCase") {
             default { $scopeName.Substring(0, 3).ToUpper() }
         }
         
-        $ucDirs = Get-ChildItem "framework\usecases\core" -Directory | Where-Object { $_.Name -like "$domainPrefix-*" }
+        $ucDirs = Get-ChildItem "core\usecases\core" -Directory | Where-Object { $_.Name -like "$domainPrefix-*" }
         if ($ucDirs.Count -eq 0) {
             throw "No Use Cases found for domain: $scopeName (prefix: $domainPrefix)"
         }
@@ -176,21 +176,21 @@ if ($scopeType -eq "UseCase") {
         foreach ($ucDir in $ucDirs) {
             Write-Host "  Generating $($ucDir.Name)..." -ForegroundColor Gray
             
-            & ./_internal/tools/generation/generate_tmdl_measures.ps1 `
+            & ./tooling/generation/generate_tmdl_measures.ps1 `
                 -UseCase $ucDir.Name `
-                -UseCasesRoot "framework/usecases/core" `
-                -KpiCatalogRoot "framework/kpi_catalog" `
-                -DistRoot "implementations/microsoft_fabric_powerbi/dist" `
+                -UseCasesRoot "core/usecases/core" `
+                -KpiCatalogRoot "core/kpi_catalog" `
+                -DistRoot "products/fabric_powerbi/dist" `
                 -OverwriteExisting | Out-Null
             
-            $measuresFile = "implementations\microsoft_fabric_powerbi\dist\$($ucDir.Name)\$($ucDir.Name).SemanticModel\definition\tables\_Measures.tmdl"
+            $measuresFile = "products\fabric_powerbi\dist\$($ucDir.Name)\$($ucDir.Name).SemanticModel\definition\tables\_Measures.tmdl"
             if (Test-Path $measuresFile) {
                 $allMeasures += (Get-Content $measuresFile -Raw)
             }
         }
         
         # Combine all measures
-        $combinedPath = "implementations\microsoft_fabric_powerbi\dist\_domain_$scopeName\_Measures.tmdl"
+        $combinedPath = "products\fabric_powerbi\dist\_domain_$scopeName\_Measures.tmdl"
         New-Item -ItemType Directory -Path (Split-Path $combinedPath -Parent) -Force -ErrorAction SilentlyContinue | Out-Null
         $utf8 = New-Object System.Text.UTF8Encoding $false
         [System.IO.File]::WriteAllText($combinedPath, ($allMeasures -join "`r`n`r`n"), $utf8)
@@ -202,11 +202,11 @@ if ($scopeType -eq "UseCase") {
 }
 
 Invoke-WithRetry "Validate TMDL Syntax" {
-    if (-not (Test-Path ./implementations/microsoft_fabric_powerbi/tools/test_tmdl.ps1)) {
+    if (-not (Test-Path ./products/fabric_powerbi/tooling/test_tmdl.ps1)) {
         Write-Host "  test_tmdl.ps1 not found, skipping" -ForegroundColor Yellow
         return
     }
-    & ./implementations/microsoft_fabric_powerbi/tools/test_tmdl.ps1 -TmdlFile $state.measuresFile | Out-Null
+    & ./products/fabric_powerbi/tooling/test_tmdl.ps1 -TmdlFile $state.measuresFile | Out-Null
     if ($LASTEXITCODE -ne 0) {
         throw "TMDL validation failed"
     }
@@ -237,7 +237,7 @@ Invoke-WithRetry "Import Measures to Model" {
 
 # 3.2 Create Tables from Data Contracts (Aurora Gold Layer)
 Invoke-WithRetry "Create Tables from Contracts" {
-    $goldContract = "framework\data_contracts\domains\commercial_sales.yaml"
+    $goldContract = "core\data_contracts\domains\commercial_sales.yaml"
     
     if (-not (Test-Path $goldContract)) {
         Write-Host "  WARNING: Data contract not found: $goldContract" -ForegroundColor Yellow
@@ -258,7 +258,7 @@ Invoke-WithRetry "Create Tables from Contracts" {
         }
         
         try {
-            & ./_internal/tools/powerbi_mcp/table_ops.ps1 `
+            & ./tooling/powerbi_mcp/table_ops.ps1 `
                 -Operation "CreateFromContract" `
                 -ConnectionName "local_pbip" `
                 -DataContractPath $goldContract `
@@ -277,7 +277,7 @@ Invoke-WithRetry "Create Tables from Contracts" {
 
 # 3.3 Create Relationships from Technical Factsheet
 Invoke-WithRetry "Create Relationships" {
-    $techFactsheet = Get-ChildItem "framework\usecases\core" -Directory | 
+    $techFactsheet = Get-ChildItem "core\usecases\core" -Directory | 
         Where-Object { $_.Name -like "$scopeName*" } | 
         Select-Object -First 1
     
@@ -294,7 +294,7 @@ Invoke-WithRetry "Create Relationships" {
     }
     
     try {
-        & ./_internal/tools/powerbi_mcp/relationship_ops.ps1 `
+        & ./tooling/powerbi_mcp/relationship_ops.ps1 `
             -Operation "CreateFromFactsheet" `
             -ConnectionName "local_pbip" `
             -FactsheetPath $techFactsheetPath `

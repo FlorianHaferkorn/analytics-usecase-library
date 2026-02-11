@@ -1,7 +1,7 @@
 #!/usr/bin/env pwsh
 # Fix domain_tags to use bracket array syntax: domain_tag: [TagName]
 
-$catalogPath = Join-Path $PSScriptRoot "..\..\..\framework\kpi_catalog\KPI_Catalog.md"
+$catalogPath = Join-Path $PSScriptRoot "..\..\..\core\kpi_catalog\KPI_Catalog.md"
 $lines = Get-Content -Path $catalogPath
 
 # Domain Mapping

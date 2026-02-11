@@ -104,7 +104,7 @@
   ],
   "notes": [
     "Visual labels map to slots defined in the page template files.",
-    "Action Codes align with framework/action_codes/ActionCodes_Portfolio.md.",
+    "Action Codes align with core/action_codes/ActionCodes_Portfolio.md.",
     "Extend this graph with remaining use cases and KPIs as catalogs evolve."
   ]
 }

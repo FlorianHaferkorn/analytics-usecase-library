@@ -21,12 +21,12 @@ factsheet_type: technical
 
 ## 1. Model References
 
-- **Domain Data Contract:** framework/framework/framework/data_contracts/domains/executive.yaml
-- **Source Data Contracts:** framework/framework/framework/data_contracts/domains/finance.yaml; framework/framework/framework/data_contracts/domains/supply_chain.yaml; framework/framework/framework/data_contracts/domains/hr.yaml; framework/framework/framework/data_contracts/domains/commercial_sales.yaml
-- **Semantic Model Definition (core):** ../../../framework/framework/framework/semantic_models/core_action_ready/model_definition.yaml
-- **KPI Catalog:** framework/kpi_catalog/KPI_Catalog.md
-- **Measure Dictionaries:** framework/framework/framework/semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md; framework/framework/framework/semantic_models/domains/Profitability/Measure_Dictionary_Profitability.md; framework/framework/framework/semantic_models/domains/CustomerValue/Measure_Dictionary_CustomerValue.md; framework/framework/framework/semantic_models/domains/Service/Measure_Dictionary_Service.md; framework/framework/framework/semantic_models/domains/SupplyChain/Measure_Dictionary_SupplyChain.md; framework/framework/framework/semantic_models/domains/Efficiency/Measure_Dictionary_Efficiency.md; framework/framework/framework/semantic_models/domains/InnovationPeople/Measure_Dictionary_InnovationPeople.md
-- **Action Codes:** framework/action_codes/README.md
+- **Domain Data Contract:** core/core/core/data_contracts/domains/executive.yaml
+- **Source Data Contracts:** core/core/core/data_contracts/domains/finance.yaml; core/core/core/data_contracts/domains/supply_chain.yaml; core/core/core/data_contracts/domains/hr.yaml; core/core/core/data_contracts/domains/commercial_sales.yaml
+- **Semantic Model Definition (core):** ../../../core/core/core/semantic_models/core_action_ready/model_definition.yaml
+- **KPI Catalog:** core/kpi_catalog/KPI_Catalog.md
+- **Measure Dictionaries:** core/core/core/semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md; core/core/core/semantic_models/domains/Profitability/Measure_Dictionary_Profitability.md; core/core/core/semantic_models/domains/CustomerValue/Measure_Dictionary_CustomerValue.md; core/core/core/semantic_models/domains/Service/Measure_Dictionary_Service.md; core/core/core/semantic_models/domains/SupplyChain/Measure_Dictionary_SupplyChain.md; core/core/core/semantic_models/domains/Efficiency/Measure_Dictionary_Efficiency.md; core/core/core/semantic_models/domains/InnovationPeople/Measure_Dictionary_InnovationPeople.md
+- **Action Codes:** core/action_codes/README.md
 
 ---
 

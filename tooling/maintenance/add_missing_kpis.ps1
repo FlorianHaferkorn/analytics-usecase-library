@@ -1,6 +1,6 @@
 ﻿# Script to add missing KPI definitions to catalog
 
-$catalogPath = "framework\kpi_catalog\KPI_Catalog.md"
+$catalogPath = "core\kpi_catalog\KPI_Catalog.md"
 $content = Get-Content -Path $catalogPath -Raw
 
 # Neue KPI Definitionen basierend auf Archiv & Measure Dictionaries

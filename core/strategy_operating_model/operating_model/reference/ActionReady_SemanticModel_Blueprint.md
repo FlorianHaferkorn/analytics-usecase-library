@@ -108,5 +108,5 @@ Notes for implementation:
 
 - Measures follow framework naming/formatting; dimensions are conformed across domains.
 - Action aggregates support multi-level triggers (L1EUR"L3); execution layer supports before/after (7/30/60d).
-- Align to semantic layer standards and lint rules (`_internal/tools/linters`).
+- Align to semantic layer standards and lint rules (`tooling/linters`).
 

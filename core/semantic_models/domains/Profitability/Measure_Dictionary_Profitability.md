@@ -1,6 +1,6 @@
 # Measure Dictionary - Profitability
 
-Schema: see `framework/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
+Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
 - measure_name: "Gross Margin %"

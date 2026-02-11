@@ -15,11 +15,11 @@ Explicit ownership ensures that "governance before automation" and "first, pragm
 | Layer | Artifact / Location | Accountable (A) | Responsible (R) | Consulted (C) | Informed (I) |
 |-------|---------------------|-----------------|-----------------|---------------|--------------|
 | **Strategy** | Company strategy, strategic focus areas, executive key questions | Executive / Strategy Owner | Strategy & Planning; Domain Leads | Domain Owners; Finance | Analytics; Delivery |
-| **Strategic KPIs** | KPI Catalog (`framework/kpi_catalog/`), KPI definitions | Domain Owner (per KPI or domain) | KPI Steward / Controlling Lead | Analytics; Semantic Model Owner | Delivery; Report Owners |
+| **Strategic KPIs** | KPI Catalog (`core/kpi_catalog/`), KPI definitions | Domain Owner (per KPI or domain) | KPI Steward / Controlling Lead | Analytics; Semantic Model Owner | Delivery; Report Owners |
 | **Key Questions** | Company layer (`reporting_principles.md`); Use Case Business Factsheets (Core Business Questions) | Domain Owner (per use case) | Use Case Owner / Business Analyst | Analytics | Delivery |
-| **Use Cases** | Use Case Inventory; Business & Technical Factsheets (`framework/usecases/`) | Domain Owner (primary domain of use case) | Use Case Owner / Product Owner Analytics | KPI Steward; Action Code Owner; Analytics | Delivery; Report Owners |
-| **Action Codes** | Action Code YAML (`framework/action_codes/`) | Domain Owner or Enterprise Governance (per action code) | Action Code Owner / Process Owner | Use Case Owner; Analytics | Delivery; Report Owners |
-| **Data Contracts** | Domain and source contracts (`framework/data_contracts/`) | Data Owner / Domain Owner | Data Engineer; Analytics | Semantic Model Owner | Delivery |
+| **Use Cases** | Use Case Inventory; Business & Technical Factsheets (`core/usecases/`) | Domain Owner (primary domain of use case) | Use Case Owner / Product Owner Analytics | KPI Steward; Action Code Owner; Analytics | Delivery; Report Owners |
+| **Action Codes** | Action Code YAML (`core/action_codes/`) | Domain Owner or Enterprise Governance (per action code) | Action Code Owner / Process Owner | Use Case Owner; Analytics | Delivery; Report Owners |
+| **Data Contracts** | Domain and source contracts (`core/data_contracts/`) | Data Owner / Domain Owner | Data Engineer; Analytics | Semantic Model Owner | Delivery |
 | **Semantic Model** | Model definition, measures, TMDL (implementation-specific) | Semantic Model Owner / Analytics Lead | BI Developer; Analytics | Domain Owner; KPI Steward | Delivery; Report Owners |
 | **Reports (3-30-300)** | Page templates, report definitions (implementation-specific) | Report Owner / Domain or Executive | Report Developer; UX | Use Case Owner; Semantic Model Owner | End Users |
 
@@ -57,8 +57,8 @@ No layer may redefine meaning owned by another layer (e.g. use cases do not defi
 ## 5. Relationship to Other Documents
 
 - **Golden Thread logic:** `golden_thread_strategy_to_action.md`
-- **Domain boundaries and scope:** `framework/strategy_operating_model/company/domains.md`
+- **Domain boundaries and scope:** `core/strategy_operating_model/company/domains.md`
 - **Data governance (quality, lineage, security):** `data_governance.md`
-- **Stage 1 and validation:** `AGENTS.md`, `_internal/tools/run_stage1_checks.ps1`
+- **Stage 1 and validation:** `AGENTS.md`, `tooling/run_stage1_checks.ps1`
 
 This document defines **who** owns each layer; the other documents define **what** and **how**.

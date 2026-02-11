@@ -1,5 +1,5 @@
 Param(
-  [string]$AuditPath = '_internal/reviews/missing_kpi_dependency_audit.md',
+  [string]$AuditPath = 'internal/reviews/missing_kpi_dependency_audit.md',
   [string]$DomainsRoot = 'semantic_models/domains'
 )
 
@@ -56,7 +56,7 @@ function Append-ToArchive {
   Set-Content -Path $ArchivePath -Value $newContent
 }
 
-$auditPath = Resolve-RepoPath -ProvidedPath $AuditPath -DefaultRelative '_internal/reviews/missing_kpi_dependency_audit.md'
+$auditPath = Resolve-RepoPath -ProvidedPath $AuditPath -DefaultRelative 'internal/reviews/missing_kpi_dependency_audit.md'
 $domainsRoot = Resolve-RepoPath -ProvidedPath $DomainsRoot -DefaultRelative 'semantic_models/domains'
 if (-not $auditPath) { throw 'Missing audit file. Provide -AuditPath.' }
 if (-not $domainsRoot) { throw 'Domains root not found. Provide -DomainsRoot.' }

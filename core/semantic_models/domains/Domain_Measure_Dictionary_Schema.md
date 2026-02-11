@@ -5,10 +5,10 @@ Purpose: Define a consistent structure for documenting all measures
 
 This schema is used in files like:
 
-- `framework/semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md`
-- `framework/semantic_models/domains/Operations/Measure_Dictionary_Operations.md`
-- `framework/semantic_models/domains/Customer/Measure_Dictionary_Customer.md`
-- `framework/semantic_models/domains/Corporate/Measure_Dictionary_Corporate.md`
+- `core/semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md`
+- `core/semantic_models/domains/Operations/Measure_Dictionary_Operations.md`
+- `core/semantic_models/domains/Customer/Measure_Dictionary_Customer.md`
+- `core/semantic_models/domains/Corporate/Measure_Dictionary_Corporate.md`
 
 Each file contains a YAML list of measures inside ```yaml code fences.
 

@@ -17,9 +17,9 @@ Usage:
 - Link from KPI catalog index.
 - Keep aligned with data contracts.
 - Examples:
-  - Commercial reference: framework/semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md
-  - Service reference: framework/semantic_models/domains/Service/Measure_Dictionary_Service.md
-  - Use alias measures for cross-domain KPI usage (see framework/semantic_models/README.md)
+  - Commercial reference: core/semantic_models/domains/Commercial/Measure_Dictionary_Commercial.md
+  - Service reference: core/semantic_models/domains/Service/Measure_Dictionary_Service.md
+  - Use alias measures for cross-domain KPI usage (see core/semantic_models/README.md)
 
 Relations:
 WITH WHAT/HOW; supports usecases.

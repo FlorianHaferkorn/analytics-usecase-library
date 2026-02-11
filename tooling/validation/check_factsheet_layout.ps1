@@ -1,18 +1,18 @@
 Param(
-  [string]$UseCasesRoot = "framework/usecases",
-  [string]$BusinessTemplate = "framework/usecases/templates/usecase_factsheet_business.md",
-  [string]$TechnicalTemplate = "framework/usecases/templates/usecase_factsheet_technical.md",
-  [string]$ActionCodesRoot = "framework/action_codes",
-  [string]$ActionCodeTemplate = "framework/templates/action_codes/ActionCode_TEMPLATE.md",
-  [string]$KpiCatalogRoot = "framework/kpi_catalog",
-  [string]$KpiCatalogSchema = "framework/templates/kpi_catalog_templates/KPI_Catalog_SCHEMA.md",
-  [string]$DataContractsRoot = "framework/data_contracts/domains",
-  [string]$FactTemplate = "framework/templates/data_contract_templates/fact_template.yaml",
-  [string]$DimTemplate = "framework/templates/data_contract_templates/dim_template.yaml",
-  [string]$MeasureTemplate = "framework/templates/measure_templates/measure_template.md",
-  [string]$MeasureInstancesRoot = "framework/semantic_models/measures",
-  [string]$PageTemplatesRoot = "framework/templates/page_templates/page_types",
-  [string]$PageInstancesRoot = "framework/page_templates/instances",
+  [string]$UseCasesRoot = "core/usecases",
+  [string]$BusinessTemplate = "core/usecases/templates/usecase_factsheet_business.md",
+  [string]$TechnicalTemplate = "core/usecases/templates/usecase_factsheet_technical.md",
+  [string]$ActionCodesRoot = "core/action_codes",
+  [string]$ActionCodeTemplate = "core/templates/action_codes/ActionCode_TEMPLATE.md",
+  [string]$KpiCatalogRoot = "core/kpi_catalog",
+  [string]$KpiCatalogSchema = "core/templates/kpi_catalog_templates/KPI_Catalog_SCHEMA.md",
+  [string]$DataContractsRoot = "core/data_contracts/domains",
+  [string]$FactTemplate = "core/templates/data_contract_templates/fact_template.yaml",
+  [string]$DimTemplate = "core/templates/data_contract_templates/dim_template.yaml",
+  [string]$MeasureTemplate = "core/templates/measure_templates/measure_template.md",
+  [string]$MeasureInstancesRoot = "core/semantic_models/measures",
+  [string]$PageTemplatesRoot = "core/templates/page_templates/page_types",
+  [string]$PageInstancesRoot = "core/page_templates/instances",
   [switch]$FailOnError
 )
 
@@ -181,19 +181,19 @@ function Get-KpiEntriesKeyOrders {
   return $entries
 }
 
-$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "framework/usecases"
-$businessTemplatePath = Resolve-RepoPath -ProvidedPath $BusinessTemplate -DefaultRelative "framework/usecases/templates/usecase_factsheet_business.md"
-$technicalTemplatePath = Resolve-RepoPath -ProvidedPath $TechnicalTemplate -DefaultRelative "framework/usecases/templates/usecase_factsheet_technical.md"
-$actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "framework/action_codes"
-$actionCodeTemplatePath = Resolve-RepoPath -ProvidedPath $ActionCodeTemplate -DefaultRelative "framework/templates/action_codes/ActionCode_TEMPLATE.md"
-$kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative "framework/kpi_catalog"
-$kpiCatalogSchemaPath = Resolve-RepoPath -ProvidedPath $KpiCatalogSchema -DefaultRelative "framework/templates/kpi_catalog_templates/KPI_Catalog_SCHEMA.md"
-$dataContractsRoot = Resolve-RepoPath -ProvidedPath $DataContractsRoot -DefaultRelative "framework/data_contracts/domains"
-$factTemplatePath = Resolve-RepoPath -ProvidedPath $FactTemplate -DefaultRelative "framework/templates/data_contract_templates/fact_template.yaml"
-$dimTemplatePath = Resolve-RepoPath -ProvidedPath $DimTemplate -DefaultRelative "framework/templates/data_contract_templates/dim_template.yaml"
-$measureTemplatePath = Resolve-RepoPath -ProvidedPath $MeasureTemplate -DefaultRelative "framework/templates/measure_templates/measure_template.md"
+$useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "core/usecases"
+$businessTemplatePath = Resolve-RepoPath -ProvidedPath $BusinessTemplate -DefaultRelative "core/usecases/templates/usecase_factsheet_business.md"
+$technicalTemplatePath = Resolve-RepoPath -ProvidedPath $TechnicalTemplate -DefaultRelative "core/usecases/templates/usecase_factsheet_technical.md"
+$actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "core/action_codes"
+$actionCodeTemplatePath = Resolve-RepoPath -ProvidedPath $ActionCodeTemplate -DefaultRelative "core/templates/action_codes/ActionCode_TEMPLATE.md"
+$kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative "core/kpi_catalog"
+$kpiCatalogSchemaPath = Resolve-RepoPath -ProvidedPath $KpiCatalogSchema -DefaultRelative "core/templates/kpi_catalog_templates/KPI_Catalog_SCHEMA.md"
+$dataContractsRoot = Resolve-RepoPath -ProvidedPath $DataContractsRoot -DefaultRelative "core/data_contracts/domains"
+$factTemplatePath = Resolve-RepoPath -ProvidedPath $FactTemplate -DefaultRelative "core/templates/data_contract_templates/fact_template.yaml"
+$dimTemplatePath = Resolve-RepoPath -ProvidedPath $DimTemplate -DefaultRelative "core/templates/data_contract_templates/dim_template.yaml"
+$measureTemplatePath = Resolve-RepoPath -ProvidedPath $MeasureTemplate -DefaultRelative "core/templates/measure_templates/measure_template.md"
 $measureInstancesRoot = Resolve-RepoPath -ProvidedPath $MeasureInstancesRoot -DefaultRelative $MeasureInstancesRoot
-$pageTemplatesRoot = Resolve-RepoPath -ProvidedPath $PageTemplatesRoot -DefaultRelative "framework/templates/page_templates/page_types"
+$pageTemplatesRoot = Resolve-RepoPath -ProvidedPath $PageTemplatesRoot -DefaultRelative "core/templates/page_templates/page_types"
 $pageInstancesRoot = Resolve-RepoPath -ProvidedPath $PageInstancesRoot -DefaultRelative $PageInstancesRoot
 
 if (-not $useCasesRoot) { throw "UseCases root not found. Provide -UseCasesRoot or run inside repository." }
@@ -395,7 +395,7 @@ if ($dataContractsRoot -and $factTemplatePath -and $dimTemplatePath) {
 
 if ($measureTemplatePath) {
   if (-not $measureInstancesRoot -or -not (Test-Path $measureInstancesRoot)) {
-    Write-Host "Note: no measure documents found for template at $measureTemplatePath (no instances under framework/semantic_models/measures)." -ForegroundColor Yellow
+    Write-Host "Note: no measure documents found for template at $measureTemplatePath (no instances under core/semantic_models/measures)." -ForegroundColor Yellow
   }
 }
 

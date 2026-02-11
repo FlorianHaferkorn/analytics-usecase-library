@@ -1,8 +1,8 @@
 Param(
   [string[]]$UseCase,
-  [string]$UseCasesRoot = "framework/usecases",
-  [string]$KpiCatalogRoot = "framework/kpi_catalog",
-  [string]$DistRoot = "implementations/microsoft_fabric_powerbi/dist",
+  [string]$UseCasesRoot = "core/usecases",
+  [string]$KpiCatalogRoot = "core/kpi_catalog",
+  [string]$DistRoot = "products/fabric_powerbi/dist",
   [string]$MeasuresTableName = "_Measures",
   [switch]$SkipManifest,
   # When set, do not overwrite existing _Measures.tmdl files.
@@ -19,7 +19,7 @@ Param(
 )
 
 $script:ToolRoot = Split-Path -Parent $PSScriptRoot
-# Repo root = three levels up from this script (_internal/tools/generation -> repo root)
+# Repo root = three levels up from this script (tooling/generation -> repo root)
 $script:RepoRoot = Split-Path -Parent (Split-Path -Parent $script:ToolRoot)
 
 function Resolve-RepoPath {
@@ -438,9 +438,9 @@ function Write-Manifest {
   Write-Utf8NoBom -Path $Path -Text $json
 }
 
-$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'framework/usecases'
+$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'core/usecases'
 if (-not $resolvedUseCasesRoot) { throw "Unable to resolve UseCases root folder. Provide -UseCasesRoot or run inside repository." }
-$resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
+$resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'core/kpi_catalog'
 if (-not $resolvedKpiRoot) { throw "Unable to resolve KPI catalog root. Provide -KpiCatalogRoot or run inside repository." }
 
 # Primary output: shared semantic model (e.g. Aurora showcase). When set, write <UseCase>_Measures.tmdl into this directory.
@@ -460,7 +460,7 @@ if ($TargetTablesDir -and $TargetTablesDir.Trim().Length -gt 0) {
   else { throw "Unable to resolve TargetTablesDir. Provide an absolute path or run from repository root." }
 }
 if (-not $resolvedTablesDir) {
-  $resolvedDistRoot = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'implementations/microsoft_fabric_powerbi/dist'
+  $resolvedDistRoot = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'products/fabric_powerbi/dist'
   if (-not $resolvedDistRoot) { throw "Unable to resolve dist root. Provide -DistRoot or -UseAuroraShowcase / -TargetTablesDir or run inside repository." }
 }
 

@@ -2,7 +2,7 @@
 
 **Purpose:** Define the **Silver layer** (conformed, validated domain data) for the ActionReady Analytics Framework. Contracts fix schemas, grains, units, and lineage so Gold and semantic models stay consistent.
 
-**Data layers (standard):** We define **Silver** via contracts. Gold (consumption-ready) is derived from Silver. Staging/Bronze are out of scope unless explicitly included. See `framework/strategy_operating_model/operating_model/data_layers_standard.md`.
+**Data layers (standard):** We define **Silver** via contracts. Gold (consumption-ready) is derived from Silver. Staging/Bronze are out of scope unless explicitly included. See `core/strategy_operating_model/operating_model/data_layers_standard.md`.
 
 **Scope:**
 
@@ -14,7 +14,7 @@
 Structure:
 
 ```yaml
-framework/data_contracts/
+core/data_contracts/
   domains/
     commercial_sales.yaml
     operations.yaml
@@ -41,7 +41,7 @@ Usage:
 
 Relations:
 
-- WHY: derived from domains and KPIs in `framework/strategy_operating_model/company/`.
-- HOW: enforced by `framework/strategy_operating_model/operating_model/semantic_layer.md` and `data_governance.md`.
-- WITH WHAT: templates in `framework/templates/data_contract_templates/` guide structure.
-- WHAT: framework/semantic_models and framework/usecases depend on these schemas.
+- WHY: derived from domains and KPIs in `core/strategy_operating_model/company/`.
+- HOW: enforced by `core/strategy_operating_model/operating_model/semantic_layer.md` and `data_governance.md`.
+- WITH WHAT: templates in `core/templates/data_contract_templates/` guide structure.
+- WHAT: core/semantic_models and core/usecases depend on these schemas.

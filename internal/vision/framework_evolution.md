@@ -177,8 +177,8 @@ Analytics is not one-time delivery. The framework must support the **full BI lif
   - foundation for code-driven architecture (setup/teardown by code where applicable)
 - **Fabric / Power BI development** includes:
   - semantic model generation (TMDL, PBIP), report templates, action code integration
-  - **Power BI Theme Generator** (`implementations/microsoft_fabric_powerbi/tools/theme_generator/`) — generates/standardizes report themes from framework conventions; documented in `implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md` (section 9.4) and tool README
-  - alignment with `implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md` and `_internal/tools/` (validation, generation, Power BI MCP)
+  - **Power BI Theme Generator** (`products/fabric_powerbi/tooling/theme_generator/`) — generates/standardizes report themes from framework conventions; documented in `products/fabric_powerbi/docs/fabric_powerbi.md` (section 9.4) and tool README
+  - alignment with `products/fabric_powerbi/docs/fabric_powerbi.md` and `tooling/` (validation, generation, Power BI MCP)
 - **Stage 1 Hard CI Gate** blocks drift:
   - schema validation, refs, ID integrity, SSOT marker rules, forbidden fields, duplicates
 - Stage 2 is specified (non-blocking), but not required to run.
@@ -196,7 +196,7 @@ Analytics is not one-time delivery. The framework must support the **full BI lif
 | Aurora demo-ready: data, semantic model, "To reproduce" steps | Done | `showcases/aurora_group/`: data/gold, semantic_models, README "To reproduce" with explicit commands (Stage 1, generate_tmdl_measures, run_fabric_checks) |
 | Aurora: core use cases represented | Done | COM-001–003, OPS-001, SCM-001, FIN-001 in scope; TMDL generierbar für alle |
 | Stage 1 mandatory in CI, documented | Done | README "When to use which"; VSCode task "Run Stage 1 checks (CI gate)"; AGENTS.md |
-| Stage 1 stable (low false positives) | Verify | Run `.\_internal\tools\run_stage1_checks.ps1` from repo root before closing V1 |
+| Stage 1 stable (low false positives) | Verify | Run `.\tooling\run_stage1_checks.ps1` from repo root before closing V1 |
 | Fabric tooling documented in guide | Done | fabric_powerbi.md (entry points, section 11 best practices, section 9.4 Theme Generator); run_fabric_checks, test_tmdl, TMDL_Testing_Guide in tools/README |
 | Theme Generator in implementation guide | Done | fabric_powerbi.md §9.4; tools/theme_generator/README; guide/README references theme_generator |
 
@@ -204,7 +204,7 @@ Analytics is not one-time delivery. The framework must support the **full BI lif
 V1 is considered complete only when the following are in place for **one tool (Fabric/Power BI)** end-to-end:
 
 1. **Finalized PBI reports** — For each **core use case** in scope (e.g. COM-001, COM-002, COM-003, OPS-001, SCM-001, FIN-001, and optionally XD-003), the Aurora showcase (or equivalent) contains:
-   - **Finalized report pages** — One or more pages per use case following 3-30-300 and `framework/templates/page_templates/` / `UseCase_PageTemplate_Map.yaml`.
+   - **Finalized report pages** — One or more pages per use case following 3-30-300 and `core/templates/page_templates/` / `UseCase_PageTemplate_Map.yaml`.
    - **Finalized visuals** — Visuals bound to governed measures only; layout and visual types aligned with page templates and `Visual_Whitelist.md`.
    - **Theme** — Report theme applied consistently (Power BI Theme Generator output or equivalent); theme documented and repeatable.
 2. **Report Documentation Generator** — A tool or script that produces **report documentation** from the PBIP/report (e.g. list of pages, visuals per page, theme used, link to use case and action codes). Output is human-readable (e.g. Markdown) and can be stored in the repo or delivered with the report. Purpose: traceability, onboarding, and governance (what this report contains and why).
@@ -224,7 +224,7 @@ Once finalized PBI reports and Report Documentation Generator are done, the **ne
 - **Workspaces** — Structure (e.g. Dev/Test/Prod), naming, and assignment.
 - **Pipelines and OneLake** — Data flow from source/lakehouse to semantic model; parameterized paths; deployment.
 - **Deployment** — Code-driven setup/teardown (e.g. Bicep, Fabric APIs) so that workspace, semantic model, and report can be provisioned in a repeatable way.
-- **Closed loop** — Reports and, where applicable, an action layer or drill-through clearly reference action codes; action code definitions remain in `framework/action_codes/`; traceability from KPI deviation → use case → action code is documented and visible.
+- **Closed loop** — Reports and, where applicable, an action layer or drill-through clearly reference action codes; action code definitions remain in `core/action_codes/`; traceability from KPI deviation → use case → action code is documented and visible.
 
 **V1 closed (full):** Stage 1 and Fabric checks green; finalized PBI reports (pages, visuals, theme) for core use cases; Report Documentation Generator available; Fabric/Power BI Best Practice Architecture section in guide (workspaces, pipelines, OneLake, deployment, closed loop). Then: V2 (Stage 2 Soft Review) or further platform expansion as needed.
 
@@ -375,7 +375,7 @@ All generated output must pass Stage 1 and Fabric checks (including PBIP readine
 ### Step 1 - Finalize V1 (Reports, Theme, Report Doc Generator)
 - Finish the Aurora Group reference as a tactile demo (Fabric / Power BI). **Done:** Aurora README "To reproduce", data/gold, semantic_models; scope COM-001–003, OPS-001, SCM-001, FIN-001.
 - Ensure Stage 1 is stable and mandatory. **Done:** README, AGENTS.md, VSCode task; run once to verify green before closing V1.
-- Include **Power BI Theme Generator** in Fabric/Power BI development: document in implementation guide, refine as needed, align with report templates and BaseThemes. **Done:** Theme Generator in `implementations/microsoft_fabric_powerbi/tools/theme_generator/`; documented in fabric_powerbi.md §9.4; BaseThemes example in `showcases/sample_pbip_report/` (StaticResources/SharedResources/BaseThemes/).
+- Include **Power BI Theme Generator** in Fabric/Power BI development: document in implementation guide, refine as needed, align with report templates and BaseThemes. **Done:** Theme Generator in `products/fabric_powerbi/tooling/theme_generator/`; documented in fabric_powerbi.md §9.4; BaseThemes example in `showcases/sample_pbip_report/` (StaticResources/SharedResources/BaseThemes/).
 - **V1 Finalization (to do):** Deliver **finalized PBI reports** for core use cases (COM-001, COM-002, COM-003, OPS-001, SCM-001, FIN-001, optionally XD-003) with finalized **pages and visuals** (3-30-300, governed measures only), **theme** applied and documented, and a **Report Documentation Generator** (PBIP/report → human-readable report doc: pages, visuals, theme, use case/action code refs).
 - Keep documentation minimal and consistent. **Done:** Evaluation 2026-02 recommendations implemented; outdated working docs removed.
 
@@ -408,19 +408,19 @@ To set the foundation for a world-class framework, the following conceptual and 
 
 **Phase A — Solid foundation**
 
-- **Ownership/RACI for the Golden Thread:** `framework/strategy_operating_model/operating_model/ownership_raci_golden_thread.md` — Who is accountable and responsible for strategy, KPIs, use cases, action codes, semantic model, reports.
-- **Key questions:** Use Case Inventory no longer uses "TBD" for key questions; column "Key Questions (summary)" is populated for all 15 core use cases; full list in section "Key Questions by Use Case" in `framework/usecases/UseCase_Inventory.md`. Business Factsheets already contain "Core Business Questions" (section 2).
+- **Ownership/RACI for the Golden Thread:** `core/strategy_operating_model/operating_model/ownership_raci_golden_thread.md` — Who is accountable and responsible for strategy, KPIs, use cases, action codes, semantic model, reports.
+- **Key questions:** Use Case Inventory no longer uses "TBD" for key questions; column "Key Questions (summary)" is populated for all 15 core use cases; full list in section "Key Questions by Use Case" in `core/usecases/UseCase_Inventory.md`. Business Factsheets already contain "Core Business Questions" (section 2).
 
 **Phase B — Reference content and patterns**
 
-- **Strategy patterns:** `framework/strategy_operating_model/company/strategy_patterns.md` — Margin-First, Cash-First, Growth-First with linked Strategic KPIs and use-case clusters.
-- **Decision taxonomy:** `framework/strategy_operating_model/operating_model/decision_taxonomy.md` — Decision types (Steer, Diagnose, Allocate, Forecast, Intervene) and mapping to use cases and action codes.
-- **KPI taxonomy:** `framework/kpi_catalog/KPI_Taxonomy.md` — Readable, domain-oriented summary of the KPI catalog for discovery and onboarding.
-- **Action code patterns:** `framework/action_codes/Action_Code_Patterns.md` — Recurring action types (Governance, Control, Allocate, Escalate) and mapping to action code groups.
-- **Maturity model:** `framework/strategy_operating_model/operating_model/maturity_model_action_ready_analytics.md` — Five levels from descriptive reporting to measured impact and learning; mapping to framework artifacts.
-- **Implementation playbook:** `framework/implementation_guides/playbook_strategy_to_first_report.md` — Step-by-step from strategy pattern to first report (Greenfield path); references Fabric/Power BI where applicable.
+- **Strategy patterns:** `core/strategy_operating_model/company/strategy_patterns.md` — Margin-First, Cash-First, Growth-First with linked Strategic KPIs and use-case clusters.
+- **Decision taxonomy:** `core/strategy_operating_model/operating_model/decision_taxonomy.md` — Decision types (Steer, Diagnose, Allocate, Forecast, Intervene) and mapping to use cases and action codes.
+- **KPI taxonomy:** `core/kpi_catalog/KPI_Taxonomy.md` — Readable, domain-oriented summary of the KPI catalog for discovery and onboarding.
+- **Action code patterns:** `core/action_codes/Action_Code_Patterns.md` — Recurring action types (Governance, Control, Allocate, Escalate) and mapping to action code groups.
+- **Maturity model:** `core/strategy_operating_model/operating_model/maturity_model_action_ready_analytics.md` — Five levels from descriptive reporting to measured impact and learning; mapping to framework artifacts.
+- **Implementation playbook:** `core/implementation_guides/playbook_strategy_to_first_report.md` — Step-by-step from strategy pattern to first report (Greenfield path); references Fabric/Power BI where applicable.
 
-**Broader vision (conceptual, domain, content):** `_internal/vision/world_class_vision_brainstorm.md` — Phases C–E (breadth, proof, world-class standard) and further ideas for strategy, domains, and content.
+**Broader vision (conceptual, domain, content):** `internal/vision/world_class_vision_brainstorm.md` — Phases C–E (breadth, proof, world-class standard) and further ideas for strategy, domains, and content.
 
 ---
 

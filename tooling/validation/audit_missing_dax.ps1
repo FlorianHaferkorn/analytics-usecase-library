@@ -7,7 +7,7 @@ Param(
 $ErrorActionPreference = "Stop"
 
 $ScriptToolsRoot = Split-Path -Parent $PSScriptRoot
-$RepoRoot = Split-Path -Parent (Split-Path -Parent $ScriptToolsRoot)
+$RepoRoot = Split-Path -Parent $ScriptToolsRoot
 
 function Resolve-RepoPath {
   param(
@@ -203,10 +203,10 @@ function Get-CoreUseCaseIds {
 }
 
 # Resolve paths
-$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'framework/usecases'
+$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'core/usecases'
 if (-not $resolvedUseCasesRoot) { throw "Unable to resolve UseCases root folder. Provide -UseCasesRoot or run inside repository." }
 
-$resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'framework/kpi_catalog'
+$resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'core/kpi_catalog'
 if (-not $resolvedKpiRoot) { throw "Unable to resolve KPI catalog folder. Provide -KpiCatalogRoot or run inside repository." }
 
 # Load KPI catalog
@@ -268,9 +268,9 @@ foreach ($useCaseId in $coreUseCaseIds) {
 # Generate report
 $dateStr = Get-Date -Format "yyyy-MM-dd"
 $outputFile = if ($OutputPath) {
-  Resolve-RepoPath -ProvidedPath $OutputPath -DefaultRelative "_internal/reviews/missing_dax_audit_$dateStr.md"
+  Resolve-RepoPath -ProvidedPath $OutputPath -DefaultRelative "internal/reviews/missing_dax_audit_$dateStr.md"
 } else {
-  Join-Path -Path $RepoRoot -ChildPath "_internal/reviews/missing_dax_audit_$dateStr.md"
+  Join-Path -Path $RepoRoot -ChildPath "internal/reviews/missing_dax_audit_$dateStr.md"
 }
 
 # Ensure output directory exists

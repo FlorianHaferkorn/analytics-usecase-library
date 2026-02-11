@@ -1,5 +1,5 @@
 ﻿Param(
-  [string]$CatalogPath = "framework\kpi_catalog\KPI_Catalog.md"
+  [string]$CatalogPath = "core\kpi_catalog\KPI_Catalog.md"
 )
 
 $ErrorActionPreference = "Stop"

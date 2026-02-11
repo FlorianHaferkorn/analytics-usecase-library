@@ -27,7 +27,7 @@ $issues = @()
 
 # Action Code IDs
 $actionCodeIds = @{}
-Get-ChildItem -Path (Join-Path $rootPath "framework\action_codes") -Recurse -Filter "*.yaml" | Where-Object {
+Get-ChildItem -Path (Join-Path $rootPath "core\action_codes") -Recurse -Filter "*.yaml" | Where-Object {
   $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\_internal\\archive\\'
 } | ForEach-Object {
   $id = $null
@@ -43,7 +43,7 @@ Get-ChildItem -Path (Join-Path $rootPath "framework\action_codes") -Recurse -Fil
 }
 
 # Use Case IDs (inventory)
-$inventoryPath = Join-Path $rootPath "framework\usecases\UseCase_Inventory.md"
+$inventoryPath = Join-Path $rootPath "core\usecases\UseCase_Inventory.md"
 if (Test-Path $inventoryPath) {
   $invCounts = @{}
   Get-Content -Path $inventoryPath | ForEach-Object {
@@ -59,8 +59,8 @@ if (Test-Path $inventoryPath) {
 }
 
 # Factsheet IDs (by type)
-Get-ChildItem -Path (Join-Path $rootPath "framework\usecases") -Recurse -Filter "*Factsheet*.md" | Where-Object {
-  $_.FullName -notmatch '\\_internal\\archive\\' -and $_.FullName -notmatch '\\framework\\usecases\\templates\\'
+Get-ChildItem -Path (Join-Path $rootPath "core\usecases") -Recurse -Filter "*Factsheet*.md" | Where-Object {
+  $_.FullName -notmatch '\\_internal\\archive\\' -and $_.FullName -notmatch '\\core\\usecases\\templates\\'
 } | ForEach-Object {
   $content = Get-Content -Raw -Path $_.FullName
   $match = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---")
@@ -79,7 +79,7 @@ Get-ChildItem -Path (Join-Path $rootPath "framework\usecases") -Recurse -Filter 
 
 # Decision Spine IDs
 $spineIds = @{}
-Get-ChildItem -Path (Join-Path $rootPath "framework\action_codes\decision_spines") -Filter "*.yaml" | Where-Object {
+Get-ChildItem -Path (Join-Path $rootPath "core\action_codes\decision_spines") -Filter "*.yaml" | Where-Object {
   $_.Name -ne "DecisionSpine_UseCase_Map.yaml"
 } | ForEach-Object {
   $id = $null
@@ -95,7 +95,7 @@ Get-ChildItem -Path (Join-Path $rootPath "framework\action_codes\decision_spines
 }
 
 # Data contract table names (per file)
-Get-ChildItem -Path (Join-Path $rootPath "framework\data_contracts\domains") -Recurse -Filter "*.yaml" | Where-Object {
+Get-ChildItem -Path (Join-Path $rootPath "core\data_contracts\domains") -Recurse -Filter "*.yaml" | Where-Object {
   $_.FullName -notmatch '\\_internal\\archive\\'
 } | ForEach-Object {
   $seen = @{}
