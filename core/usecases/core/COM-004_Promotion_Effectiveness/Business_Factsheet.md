@@ -45,35 +45,10 @@ factsheet_type: business
 
 All KPIs must exist in the KPI Catalog.
 
-```yaml
-required_kpis:
 
-  - id: sales.promo.roi.pct
-    kpi_catalog_id: Profitability
-    name: Promotion ROI %
-    purpose: Profitability of promotions
-    agg: avg
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: sales.promo.incremental.amount
-    name: Incremental Sales Amount
-    purpose: Uplift sizing
-    agg: sum
-
-  - id: margin.promo.gm.pct
-    name: Promo Gross Margin %
-    purpose: Profit quality during promos
-    agg: avg
-
-  - id: sales.price.realization_pct
-    name: Price Realization %
-    purpose: Discount discipline
-    agg: avg
-
-  - id: sales.promo.cannibalization.pct
-    name: Cannibalization %
-    purpose: Net effect on portfolio
-    agg: avg
-```
 
 ---
 
@@ -81,64 +56,10 @@ required_kpis:
 
 Structured summary of action codes (definitions remain in YAML).
 
-```yaml
-action_codes:
 
-  - id: C-M2.1
-    name: Price Realization Guardrails
-    purpose: Stop Discount Leakage
-    status: active
-    owner: Pricing Lead
-    trigger_kpis: [sales.price.realization_pct]
-    guardrail_kpis: [margin.gm.pct]
-    outcome_kpis: [sales.price.realization_pct, margin.gm.pct]
-    impact_range: sales.price.realization_pct: 1.0-3.0 pp
-    levels: L1-L3
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: C-S1.1
-    name: Price Discipline Enforcement
-    purpose: Protect Gross Margin
-    status: active
-    owner: Pricing Manager
-    trigger_kpis: [margin.gm.pct, sales.pvm.price_effect.amount]
-    guardrail_kpis: [sales.net_sales.delta_pct.plan]
-    outcome_kpis: [margin.gm.pct]
-    impact_range: margin.gm.pct: 0.5-1.5 pp
-    levels: L1-L3
-
-  - id: C-M2.2
-    name: Mix Optimization (Margin-Driven)
-    purpose: Improve Margin via Sales Mix Quality
-    status: active
-    owner: Category Manager
-    trigger_kpis: [sales.pvm.mix_effect.amount]
-    guardrail_kpis: [margin.gm.pct]
-    outcome_kpis: [margin.gm.pct, sales.pvm.mix_effect.amount]
-    impact_range: margin.gm.pct: 0.3-1.2 pp
-    levels: L1-L3
-
-  - id: C-P4.1
-    name: Promo Calendar Discipline
-    purpose: Eliminate Structurally Unprofitable Promotions
-    status: active
-    owner: Trade Marketing Lead
-    trigger_kpis: [sales.promo.roi.pct]
-    guardrail_kpis: [margin.promo.gm.pct]
-    outcome_kpis: [sales.promo.roi.pct, margin.promo.gm.pct]
-    impact_range: sales.promo.roi.pct: 5.0-20.0 pp
-    levels: L1-L3
-
-  - id: C-S1.2
-    name: Sales Gap Recovery via Price & Pack Adjustment
-    purpose: Close Plan Gaps Without Margin Erosion
-    status: active
-    owner: Sales Director
-    trigger_kpis: [sales.net_sales.delta_pct.plan]
-    guardrail_kpis: [margin.gm.pct]
-    outcome_kpis: [sales.net_sales.amount]
-    impact_range: sales.net_sales.amount: 1.0-3.0 %
-    levels: L1-L3
-```
 
 ---
 

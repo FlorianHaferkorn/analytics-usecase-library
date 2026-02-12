@@ -13,7 +13,7 @@ lifecycle:
   change_notes: []
 
 category:
-  group: "Plan–Execute Governance"
+  group: "Plan-Execute Governance"
   theme: "Align Short-Term Plans with Operational Execution to Protect OTIF"
 
 tags: ["sop", "planning", "execution-alignment", "otif"]
@@ -25,7 +25,7 @@ strategic_alignment:
     - id: "supply.expedite.amount"
       role: "secondary"
   decisions_enabled:
-    - "Correct plan–execution mismatches causing repeated service failures"
+    - "Correct plan-execution mismatches causing repeated service failures"
     - "Stabilise short-term planning cadence and freeze windows"
   non_goals:
     - "Forecast model or algorithm tuning"
@@ -160,7 +160,7 @@ operational_execution:
     - "Visibility of plan changes vs execution impact"
   steps:
     - "Identify cycles with repeated last-minute plan changes"
-    - "Analyse root causes of plan–execution mismatch"
+    - "Analyse root causes of plan-execution mismatch"
     - "Enforce freeze windows and escalation rules"
     - "Review OTIF and expedite trends per cycle"
   effort:
@@ -191,7 +191,7 @@ automation:
   detection:
     enabled: true
     evaluation_frequency: "monthly"
-    output: "S&OP cycles with repeated plan–execution mismatches"
+    output: "S&OP cycles with repeated plan-execution mismatches"
   suggested_actions:
     enabled: true
     outputs:

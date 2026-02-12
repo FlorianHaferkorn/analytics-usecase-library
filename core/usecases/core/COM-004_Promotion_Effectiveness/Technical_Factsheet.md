@@ -32,39 +32,10 @@ factsheet_type: technical
 
 ## 2. Required KPIs - Measure Mapping (Mandatory)
 
-```yaml
-kpi_to_measure_mapping:
 
-  - kpi_id: sales.promo.roi.pct
-    kpi_name: Promotion ROI %
-    measure_name: Promotion ROI %
-    format: "0.0%"
-    folder: 03_Promo
+> Machine-readable KPI-to-Measure mapping is governed by `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on technical context and modeling guidance.
 
-  - kpi_id: sales.promo.incremental.amount
-    kpi_name: Incremental Sales Amount
-    measure_name: Incremental Sales Amount
-    format: "EUR #,0"
-    folder: 03_Promo
-
-  - kpi_id: margin.promo.gm.pct
-    kpi_name: Promo Gross Margin %
-    measure_name: Promo Gross Margin %
-    format: "0.0%"
-    folder: 03_Promo
-
-  - kpi_id: sales.price.realization_pct
-    kpi_name: Price Realization %
-    measure_name: Price Realization %
-    format: "0.0%"
-    folder: 03_Pricing
-
-  - kpi_id: sales.promo.cannibalization.pct
-    kpi_name: Cannibalization %
-    measure_name: Cannibalization %
-    format: "0.0%"
-    folder: 03_Promo
-```
 
 ---
 

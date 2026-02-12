@@ -113,6 +113,33 @@ function Get-RequiredIdsFromBody {
   return $ids | Sort-Object -Unique
 }
 
+function Get-KpiIdsFromUseCaseBracket {
+  param([string]$FactsheetPath)
+  $dir = Split-Path -Parent $FactsheetPath
+  $bracket = Join-Path -Path $dir -ChildPath "UseCase_Bracket.yaml"
+  if (-not (Test-Path $bracket)) { return @() }
+  $lines = Get-Content -Path $bracket
+  $ids = New-Object System.Collections.Generic.List[string]
+
+  foreach ($ln in $lines) {
+    if ($ln -match '^\s*strategic_kpi_id\s*:\s*"?([^"\s#]+)"?') {
+      $ids.Add($matches[1]) | Out-Null
+    }
+  }
+
+  $inInfluencing = $false
+  foreach ($ln in $lines) {
+    if ($ln -match '^\s*influencing_kpi_ids\s*:\s*$') { $inInfluencing = $true; continue }
+    if ($inInfluencing) {
+      if ($ln.Trim().Length -eq 0) { continue }
+      if ($ln -notmatch '^\s{2,}-\s*"?([^"\s#]+)"?') { break }
+      $ids.Add($matches[1]) | Out-Null
+    }
+  }
+
+  return $ids | Where-Object { $_ -and $_.Trim().Length -gt 0 } | Sort-Object -Unique
+}
+
 function Load-KpiCatalogIndex {
   param([string]$Root)
   $index = New-Object System.Collections.Generic.List[string]
@@ -174,6 +201,11 @@ foreach ($fs in $factsheets) {
   $fm = Get-FrontMatter -Path $fs.FullName
   $reqIds = Get-RequiredIdsFromFrontMatter -FrontMatter $fm
   if ($reqIds.Count -eq 0) {
+    # Prefer ontology bracket (SSOT) when present
+    $reqIds = Get-KpiIdsFromUseCaseBracket -FactsheetPath $fs.FullName
+  }
+  if ($reqIds.Count -eq 0) {
+    # Legacy fallback: parse body YAML blocks
     $reqIds = Get-RequiredIdsFromBody -Path $fs.FullName
   }
   if ($reqIds.Count -gt 0) {

@@ -32,39 +32,10 @@ factsheet_type: technical
 
 ## 2. Required KPIs - Measure Mapping (Mandatory)
 
-```yaml
-kpi_to_measure_mapping:
 
-  - kpi_id: cost.unit.amount
-    kpi_name: Unit Cost Amount
-    measure_name: [Unit Cost Amount]
-    format: EUR#,0.00
-    folder: 10_Finance
+> Machine-readable KPI-to-Measure mapping is governed by `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on technical context and modeling guidance.
 
-  - kpi_id: margin.cogs.pct
-    kpi_name: COGS % of Sales
-    measure_name: [COGS % of Sales]
-    format: 0.0%
-    folder: 10_Finance
-
-  - kpi_id: cost.opex.vs_plan.pct
-    kpi_name: OpEx vs Plan %
-    measure_name: [OpEx vs Plan %]
-    format: 0.0%
-    folder: 10_Finance
-
-  - kpi_id: cost.material.pct
-    kpi_name: Material Cost %
-    measure_name: [Material Cost %]
-    format: 0.0%
-    folder: 10_Finance
-
-  - kpi_id: ops.labor.productivity.pct
-    kpi_name: Labor Productivity %
-    measure_name: [Labor Productivity %]
-    format: 0.0%
-    folder: 05_Ops
-```
 
 ---
 

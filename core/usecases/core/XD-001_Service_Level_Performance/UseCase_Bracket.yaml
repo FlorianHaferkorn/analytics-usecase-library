@@ -1,0 +1,44 @@
+schema_version: '2.0'
+id: XD-001
+name: Service Level Performance
+domain: Experience / Service
+governance:
+  owner_role: Service Operations / CX Analytics
+  steward_role: Service Ops / CX BI Lead
+  status: active
+  last_review: '2026-02-12'
+ontology_bracket:
+  strategic_kpi_id: svc.sla.attainment.pct
+  influencing_kpi_ids:
+  - svc.fcr.pct
+  - svc.aht.minutes
+  - svc.backlog.count
+  - svc.nps.index
+  - svc.escalation.pct
+  - svc.tickets.created.count
+  - svc.tickets.closed.count
+  action_code_ids:
+  - X-S1.1
+  - X-S1.2
+  - X-S1.3
+  - X-S1.4
+value_driver_model:
+  description: svc.sla.attainment.pct is driven by influencing KPIs and operational
+    levers.
+  formula: svc.sla.attainment.pct = f(svc.fcr.pct, svc.aht.minutes, svc.backlog.count,
+    svc.nps.index, svc.escalation.pct, svc.tickets.created.count, svc.tickets.closed.count)
+ux_layout_rules:
+  report_structure: 2-Page-Lead
+  page_1_summary_insights:
+    title: Experience / Service Summary & Insights
+    3s_component: 'North Star: svc.sla.attainment.pct'
+    30s_components: []
+  page_2_execution:
+    title: Experience / Service Execution
+    300s_components:
+    - 'Evidence_Table: (define evidence table requirements)'
+    - 'Action_Panel: Integrated Side-Panel for Subscribed Action Codes'
+    - 'Payload_Injection: Show Level (L1-L3) and Steps from Action Code YAML'
+documentation:
+  business_factsheet: ./Business_Factsheet.md
+  technical_factsheet: ./Technical_Factsheet.md

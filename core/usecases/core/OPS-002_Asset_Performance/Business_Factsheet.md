@@ -50,60 +50,10 @@ factsheet_type: business
 
 All KPIs must exist in the KPI Catalog.
 
-```yaml
-required_kpis:
 
-  - id: ops.availability.pct
-    kpi_catalog_id: Efficiency
-    name: Availability %
-    purpose: Asset uptime
-    agg: avg
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: ops.mtbf.hours
-    name: MTBF (hours)
-    purpose: Reliability
-    agg: avg
-
-  - id: ops.mttr.hours
-    name: MTTR (hours)
-    purpose: Maintainability
-    agg: avg
-
-  - id: ops.downtime.unplanned.pct
-    name: Unplanned Downtime %
-    purpose: Unplanned loss
-    agg: avg
-
-  - id: ops.spare_parts.stockout.pct
-    name: Spare Parts Stockout %
-    purpose: Maintenance readiness
-    agg: avg
-
-  - id: ops.pm_compliance.pct
-    name: PM Compliance %
-    purpose: Preventive maintenance discipline
-    agg: avg
-
-  - id: ops.failure.count
-    name: Failure Count
-    purpose: Failure volume
-    agg: sum
-
-  - id: ops.inventory.value.amount
-    name: Inventory Value Amount
-    purpose: Spare parts guardrail
-    agg: sum
-
-  - id: ops.pm.task.count
-    name: Preventive Maintenance Task Count
-    purpose: PM workload
-    agg: sum
-
-  - id: ops.safety.incident.count
-    name: Safety Incident Count
-    purpose: Safety guardrail
-    agg: sum
-```
 
 ---
 
@@ -111,64 +61,10 @@ required_kpis:
 
 Structured summary of action codes (definitions remain in YAML).
 
-```yaml
-action_codes:
 
-  - id: O-A2.1
-    name: Reliability Orchestration
-    purpose: Coordinate Asset Reliability Interventions
-    status: active
-    owner: Maintenance Manager
-    trigger_kpis: [ops.availability.pct, ops.downtime.unplanned.pct]
-    guardrail_kpis: [ops.pm_compliance.pct]
-    outcome_kpis: [ops.availability.pct]
-    impact_range: ops.availability.pct: 2.0-6.0 pp
-    levels: L1-L3
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: O-A2.2
-    name: Failure Reduction (MTBF Improvement)
-    purpose: Reduce Failure Frequency and Improve MTBF
-    status: active
-    owner: Reliability Engineer
-    trigger_kpis: [ops.mtbf.hours]
-    guardrail_kpis: [ops.pm_compliance.pct]
-    outcome_kpis: [ops.mtbf.hours, ops.availability.pct]
-    impact_range: ops.mtbf.hours: 10.0-30.0 %
-    levels: L1-L3
-
-  - id: O-A2.3
-    name: Repair Time Reduction (MTTR Control)
-    purpose: Reduce Mean Time to Repair for Faster Recovery
-    status: active
-    owner: Maintenance Supervisor
-    trigger_kpis: [ops.mttr.hours]
-    guardrail_kpis: [ops.safety.incident.count]
-    outcome_kpis: [ops.mttr.hours, ops.availability.pct]
-    impact_range: ops.mttr.hours: -10.0--30.0 %
-    levels: L1-L3
-
-  - id: O-A2.4
-    name: Preventive Maintenance Discipline
-    purpose: Enforce PM Compliance to Prevent Failures
-    status: active
-    owner: Maintenance Planner
-    trigger_kpis: [ops.pm_compliance.pct]
-    guardrail_kpis: [ops.availability.pct]
-    outcome_kpis: [ops.pm_compliance.pct, ops.mtbf.hours]
-    impact_range: ops.pm_compliance.pct: 5.0-10.0 pp
-    levels: L1-L3
-
-  - id: O-A2.5
-    name: Spare Parts Readiness
-    purpose: Eliminate Repair Delays from Missing Spare Parts
-    status: active
-    owner: Maintenance Supply Coordinator
-    trigger_kpis: [ops.spare_parts.stockout.pct]
-    guardrail_kpis: [ops.inventory.value.amount]
-    outcome_kpis: [ops.spare_parts.stockout.pct, ops.mttr.hours]
-    impact_range: ops.spare_parts.stockout.pct: -5.0--15.0 pp
-    levels: L1-L3
-```
 
 ---
 

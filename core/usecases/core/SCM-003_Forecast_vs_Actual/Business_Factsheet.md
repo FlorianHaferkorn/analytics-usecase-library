@@ -49,50 +49,10 @@ factsheet_type: business
 
 All KPIs must exist in the KPI Catalog.
 
-```yaml
-required_kpis:
 
-  - id: plan.forecast.accuracy.pct
-    kpi_catalog_id: Efficiency
-    name: Forecast Accuracy %
-    purpose: Planning quality (units-based forecast)
-    agg: avg
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: plan.forecast.mape.pct
-    name: MAPE %
-    purpose: Error magnitude (units-based forecast)
-    agg: avg
-
-  - id: plan.forecast.bias.pct
-    name: Forecast Bias %
-    purpose: Direction of error (units-based forecast)
-    agg: avg
-
-  - id: plan.forecast.service_impact.pct
-    name: Service Impact %
-    purpose: Service effect of forecast error (units-based)
-    agg: avg
-
-  - id: plan.replan.count
-    name: Re-Plan Count
-    purpose: Planning stability
-    agg: sum
-
-  - id: order.lines
-    name: Order Lines Count
-    purpose: Demand volume
-    agg: sum
-
-  - id: plans.count
-    name: Plans Count
-    purpose: Planning activity
-    agg: sum
-
-  - id: sales.units
-    name: Sales Units
-    purpose: Actuals baseline
-    agg: sum
-```
 
 ---
 
@@ -100,53 +60,10 @@ required_kpis:
 
 Structured summary of action codes (definitions remain in YAML).
 
-```yaml
-action_codes:
 
-  - id: S-F3.1
-    name: Forecast Quality Orchestration
-    purpose: Coordinate Forecast Quality Levers Without Conflicting Fixes
-    status: active
-    owner: S&OP Lead
-    trigger_kpis: [plan.forecast.accuracy.pct, plan.replan.count]
-    guardrail_kpis: [plan.forecast.service_impact.pct]
-    outcome_kpis: [plan.forecast.accuracy.pct]
-    impact_range: plan.forecast.accuracy.pct: 5.0-12.0 pp
-    levels: L1-L3
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: S-F3.2
-    name: Forecast Bias & Accuracy Correction
-    purpose: Correct Systematic Forecast Bias and Accuracy Gaps
-    status: active
-    owner: Demand Planning Manager
-    trigger_kpis: [plan.forecast.bias.pct, plan.forecast.mape.pct]
-    guardrail_kpis: [plan.replan.count]
-    outcome_kpis: [plan.forecast.accuracy.pct, plan.forecast.bias.pct]
-    impact_range: plan.forecast.accuracy.pct: 4.0-10.0 pp
-    levels: L1-L3
-
-  - id: S-F3.3
-    name: Service Impact Containment
-    purpose: Limit Downstream Service Damage Caused by Forecast Error
-    status: active
-    owner: Supply Planning Manager
-    trigger_kpis: [plan.forecast.service_impact.pct]
-    guardrail_kpis: [inv.dio.days]
-    outcome_kpis: [plan.forecast.service_impact.pct, supply.otif.pct]
-    impact_range: plan.forecast.service_impact.pct: -1.0--4.0 pp
-    levels: L1-L3
-
-  - id: S-F3.4
-    name: Re-Plan Discipline & Stability
-    purpose: Reduce Unnecessary Re-Plans and Planning Churn
-    status: active
-    owner: Planning Excellence Lead
-    trigger_kpis: [plan.replan.count]
-    guardrail_kpis: [supply.otif.pct]
-    outcome_kpis: [plan.replan.count, plan.forecast.accuracy.pct]
-    impact_range: plan.replan.count: -20.0--50.0 %
-    levels: L1-L3
-```
 
 ---
 

@@ -32,45 +32,10 @@ factsheet_type: technical
 
 ## 2. Required KPIs - Measure Mapping (Mandatory)
 
-```yaml
-kpi_to_measure_mapping:
 
-  - kpi_id: svc.sla.attainment.pct
-    kpi_name: SLA Attainment %
-    measure_name: [SLA Attainment %]
-    format: 0.0%
-    folder: 11_Service
+> Machine-readable KPI-to-Measure mapping is governed by `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on technical context and modeling guidance.
 
-  - kpi_id: svc.fcr.pct
-    kpi_name: First Contact Resolution %
-    measure_name: [FCR %]
-    format: 0.0%
-    folder: 11_Service
-
-  - kpi_id: svc.aht.minutes
-    kpi_name: Average Handling Time (minutes)
-    measure_name: [AHT Minutes]
-    format: 0.0
-    folder: 11_Service
-
-  - kpi_id: svc.backlog.count
-    kpi_name: Backlog Count
-    measure_name: [Backlog Count]
-    format: #,0
-    folder: 11_Service
-
-  - kpi_id: svc.nps.index
-    kpi_name: NPS Index
-    measure_name: [NPS Index]
-    format: #,0
-    folder: 11_Service
-
-  - kpi_id: svc.escalation.pct
-    kpi_name: Escalation %
-    measure_name: [Escalation %]
-    format: 0.0%
-    folder: 11_Service
-```
 
 ---
 

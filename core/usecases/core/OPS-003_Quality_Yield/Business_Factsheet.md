@@ -49,50 +49,10 @@ factsheet_type: business
 
 All KPIs must exist in the KPI Catalog.
 
-```yaml
-required_kpis:
 
-  - id: quality.fpy.pct
-    kpi_catalog_id: Efficiency
-    name: First Pass Yield %
-    purpose: Process quality
-    agg: avg
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: quality.scrap.pct
-    name: Scrap Rate %
-    purpose: Waste reduction
-    agg: avg
-
-  - id: quality.rework.pct
-    name: Rework Rate %
-    purpose: Rework burden
-    agg: avg
-
-  - id: quality.copq.amount
-    name: Cost of Poor Quality (COPQ)
-    purpose: Financial impact
-    agg: sum
-
-  - id: quality.complaint.pct
-    name: Complaint Rate %
-    purpose: Customer impact
-    agg: avg
-
-  - id: quality.defect_density
-    name: Defect Density
-    purpose: Defect concentration
-    agg: avg
-
-  - id: ops.planned_output.units
-    name: Planned Output Units
-    purpose: Volume baseline
-    agg: sum
-
-  - id: sales.units
-    name: Sales Units
-    purpose: Demand context
-    agg: sum
-```
 
 ---
 
@@ -100,64 +60,10 @@ required_kpis:
 
 Structured summary of action codes (definitions remain in YAML).
 
-```yaml
-action_codes:
 
-  - id: O-Q3.1
-    name: Quality & Yield Orchestration
-    purpose: Coordinate Quality and Yield Improvement Actions
-    status: active
-    owner: Head of Quality
-    trigger_kpis: [quality.fpy.pct, quality.scrap.pct]
-    guardrail_kpis: [ops.throughput.units]
-    outcome_kpis: [quality.fpy.pct]
-    impact_range: quality.fpy.pct: 1.0-3.0 pp
-    levels: L1-L3
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: O-Q3.2
-    name: Process Defect Elimination
-    purpose: Eliminate Dominant Process Defects
-    status: active
-    owner: Quality Engineer
-    trigger_kpis: [quality.defect_density]
-    guardrail_kpis: [ops.availability.pct]
-    outcome_kpis: [quality.defect_density, quality.fpy.pct]
-    impact_range: quality.defect_density: -20.0--50.0 %
-    levels: L1-L3
-
-  - id: O-Q3.3
-    name: Scrap & Rework Reduction
-    purpose: Reduce Internal Scrap and Rework Loops
-    status: active
-    owner: Production Manager
-    trigger_kpis: [quality.scrap.pct, quality.rework.pct]
-    guardrail_kpis: [quality.fpy.pct]
-    outcome_kpis: [quality.scrap.pct, quality.rework.pct]
-    impact_range: quality.scrap.pct: -0.5--2.0 pp
-    levels: L1-L3
-
-  - id: O-Q3.4
-    name: COPQ Reduction
-    purpose: Eliminate Financially Material Quality Losses
-    status: active
-    owner: Head of Quality
-    trigger_kpis: [quality.copq.amount]
-    guardrail_kpis: [quality.fpy.pct]
-    outcome_kpis: [quality.copq.amount]
-    impact_range: quality.copq.amount: -10.0--30.0 %
-    levels: L1-L3
-
-  - id: O-Q3.5
-    name: Complaint-Driven Stabilisation
-    purpose: Stabilise Processes Driving Customer Complaints
-    status: active
-    owner: Quality Manager
-    trigger_kpis: [quality.complaint.pct]
-    guardrail_kpis: [quality.fpy.pct]
-    outcome_kpis: [quality.complaint.pct]
-    impact_range: quality.complaint.pct: -20.0--50.0 %
-    levels: L1-L3
-```
 
 ---
 

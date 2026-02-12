@@ -32,51 +32,10 @@ factsheet_type: technical
 
 ## 2. Required KPIs - Measure Mapping (Mandatory)
 
-```yaml
-kpi_to_measure_mapping:
 
-  - kpi_id: sales.net_sales.amount
-    kpi_name: Net Sales Amount
-    measure_name: Net Sales Amount
-    format: "EUR #,0"
-    folder: 01_Revenue
+> Machine-readable KPI-to-Measure mapping is governed by `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on technical context and modeling guidance.
 
-  - kpi_id: sales.net_sales.delta_pct.plan
-    kpi_name: Net Sales % vs Plan
-    measure_name: Net Sales % vs Plan
-    format: "0.0%"
-    folder: 01_Revenue
-
-  - kpi_id: sales.net_sales.delta_pct.ly
-    kpi_name: Net Sales % vs LY
-    measure_name: Net Sales % vs LY
-    format: "0.0%"
-    folder: 01_Revenue
-
-  - kpi_id: margin.gm.pct
-    kpi_name: Gross Margin %
-    measure_name: Gross Margin %
-    format: "0.0%"
-    folder: 02_Margin
-
-  - kpi_id: sales.pvm.price_effect.amount
-    kpi_name: Price Effect Amount
-    measure_name: Price Effect Amount
-    format: "EUR #,0"
-    folder: 03_PVM
-
-  - kpi_id: sales.pvm.volume_effect.amount
-    kpi_name: Volume Effect Amount
-    measure_name: Volume Effect Amount
-    format: "EUR #,0"
-    folder: 03_PVM
-
-  - kpi_id: sales.pvm.mix_effect.amount
-    kpi_name: Mix Effect Amount
-    measure_name: Mix Effect Amount
-    format: "EUR #,0"
-    folder: 03_PVM
-```
 
 ---
 

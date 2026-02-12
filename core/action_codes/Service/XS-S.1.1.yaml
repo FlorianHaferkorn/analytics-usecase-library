@@ -28,7 +28,7 @@ strategic_alignment:
       role: "secondary"
   decisions_enabled:
     - "Select dominant service lever per queue/region (capacity, backlog, quality, flow)"
-    - "Sequence service actions to avoid speed–quality trade-offs"
+    - "Sequence service actions to avoid speed-quality trade-offs"
   non_goals:
     - "Executing service actions directly"
     - "CRM or tooling platform changes"

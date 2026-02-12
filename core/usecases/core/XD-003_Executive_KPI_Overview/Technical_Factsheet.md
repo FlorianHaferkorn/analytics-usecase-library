@@ -32,49 +32,10 @@ factsheet_type: technical
 
 ## 2. Required KPIs - Measure Mapping (Mandatory)
 
-```yaml
-kpi_to_measure_mapping:
 
-  - kpi_id: sales.net_sales.delta_pct.ly
-    measure_name: Net Sales % vs LY
-    format: "0.0%"
-    folder: 01_Growth
+> Machine-readable KPI-to-Measure mapping is governed by `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on technical context and modeling guidance.
 
-  - kpi_id: margin.gm.pct
-    measure_name: Gross Margin %
-    format: "0.0%"
-    folder: 02_Margin
-
-  - kpi_id: crm.clv.amount
-    measure_name: Customer Lifetime Value Amount
-    format: "EUR #,0"
-    folder: 03_Customer
-
-  - kpi_id: svc.sla.attainment.pct
-    measure_name: SLA Attainment %
-    format: "0.0%"
-    folder: 04_Service
-
-  - kpi_id: ops.otif.pct
-    measure_name: OTIF %
-    format: "0.0%"
-    folder: 04_Service
-
-  - kpi_id: ops.working_capital.ccc.days
-    measure_name: Cash Conversion Cycle (Days)
-    format: "#,0.0"
-    folder: 05_Liquidity
-
-  - kpi_id: people.digital_adoption.pct
-    measure_name: Digital Adoption %
-    format: "0.0%"
-    folder: 06_People
-
-  - kpi_id: people.attrition_risk.pct
-    measure_name: Attrition Risk %
-    format: "0.0%"
-    folder: 06_People
-```
 
 ---
 

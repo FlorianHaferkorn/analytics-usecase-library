@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "generated_at_utc": "2026-02-12T16:12:25+00:00",
+    "strict_mode": false,
+    "active_use_cases": [
+      "COM-001",
+      "COM-002",
+      "COM-003",
+      "COM-004",
+      "FIN-001",
+      "FIN-002",
+      "OPS-001",
+      "OPS-002",
+      "OPS-003",
+      "SCM-001",
+      "SCM-002",
+      "SCM-003",
+      "XD-001",
+      "XD-002",
+      "XD-003"
+    ]
+  },
+  "orphans": [
+    {
+      "type": "kpi",
+      "id": "crm.complaint.rate.pct",
+      "source": "core/kpi_catalog/KPI_Catalog.md",
+      "line": 3034,
+      "reason": "Not referenced by any active UseCase_Bracket."
+    },
+    {
+      "type": "kpi",
+      "id": "fin.liquidity.inventory.amount",
+      "source": "core/kpi_catalog/KPI_Catalog.md",
+      "line": 2927,
+      "reason": "Not referenced by any active UseCase_Bracket."
+    },
+    {
+      "type": "kpi",
+      "id": "fin.liquidity.operating_cash_flow",
+      "source": "core/kpi_catalog/KPI_Catalog.md",
+      "line": 2889,
+      "reason": "Not referenced by any active UseCase_Bracket."
+    },
+    {
+      "type": "kpi",
+      "id": "fin.liquidity.payables.amount",
+      "source": "core/kpi_catalog/KPI_Catalog.md",
+      "line": 2962,
+      "reason": "Not referenced by any active UseCase_Bracket."
+    },
+    {
+      "type": "kpi",
+      "id": "hr.gm.amount",
+      "source": "core/kpi_catalog/KPI_Catalog.md",
+      "line": 3073,
+      "reason": "Not referenced by any active UseCase_Bracket."
+    },
+    {
+      "type": "kpi",
+      "id": "ops.inventory.turnover",
+      "source": "core/kpi_catalog/KPI_Catalog.md",
+      "line": 3112,
+      "reason": "Not referenced by any active UseCase_Bracket."
+    },
+    {
+      "type": "kpi",
+      "id": "ops.planned.hours",
+      "source": "core/kpi_catalog/KPI_Catalog.md",
+      "line": 2997,
+      "reason": "Not referenced by any active UseCase_Bracket."
+    }
+  ],
+  "counts": {
+    "total": 7,
+    "kpis": 7,
+    "action_codes": 0,
+    "use_cases": 0
+  }
+}

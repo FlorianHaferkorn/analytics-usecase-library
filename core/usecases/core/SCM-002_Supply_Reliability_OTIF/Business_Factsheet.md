@@ -52,50 +52,10 @@ deep dive (SCM-003); promo effects (COM-004).
 
 All KPIs must exist in the KPI Catalog.
 
-```yaml
-required_kpis:
 
-  - id: supply.otif.pct
-    kpi_catalog_id: Efficiency
-    name: OTIF %
-    purpose: Service level delivered
-    agg: avg
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: supply.on_time.pct
-    name: On-Time %
-    purpose: Timeliness
-    agg: avg
-
-  - id: supply.in_full.pct
-    name: In-Full %
-    purpose: Completeness
-    agg: avg
-
-  - id: supply.stockout_impact.pct
-    name: Stockout Impact %
-    purpose: Service loss
-    agg: avg
-
-  - id: supply.penalty.amount
-    name: Penalty Amount
-    purpose: Financial impact of service failures
-    agg: sum
-
-  - id: supply.expedite.amount
-    name: Expedite Cost Amount
-    purpose: Cost to recover service
-    agg: sum
-
-  - id: order.lines
-    name: Order Lines Count
-    purpose: Volume context
-    agg: sum
-
-  - id: shipments.count
-    name: Shipments Count
-    purpose: Execution volume
-    agg: sum
-```
 
 ---
 
@@ -103,64 +63,10 @@ required_kpis:
 
 Structured summary of action codes (definitions remain in YAML).
 
-```yaml
-action_codes:
 
-  - id: S-R2.1
-    name: OTIF Orchestration
-    purpose: Coordinate OTIF Improvement Levers Without Masking Root Causes
-    status: active
-    owner: Head of Supply Chain
-    trigger_kpis: [supply.otif.pct, supply.expedite.amount]
-    guardrail_kpis: [inv.dio.days]
-    outcome_kpis: [supply.otif.pct]
-    impact_range: supply.otif.pct: 1.0-4.0 pp
-    levels: L1-L3
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: S-R2.2
-    name: Fulfillment & Transport Stabilisation
-    purpose: Stabilise On-Time Delivery Performance
-    status: active
-    owner: Logistics Manager
-    trigger_kpis: [supply.on_time.pct]
-    guardrail_kpis: [supply.expedite.amount]
-    outcome_kpis: [supply.on_time.pct, supply.otif.pct]
-    impact_range: supply.on_time.pct: 2.0-5.0 pp
-    levels: L1-L3
-
-  - id: S-R2.3
-    name: In-Full & Stockout Impact Reduction
-    purpose: Prevent Partial Deliveries and Lost Demand
-    status: active
-    owner: Supply Planner
-    trigger_kpis: [supply.stockout_impact.pct]
-    guardrail_kpis: [inv.dio.days]
-    outcome_kpis: [supply.stockout_impact.pct, supply.in_full.pct]
-    impact_range: supply.stockout_impact.pct: -1.0--4.0 pp
-    levels: L1-L3
-
-  - id: S-R2.4
-    name: Penalty & Expedite Cost Control
-    purpose: Reduce Avoidable Penalties and Expedite Spend Without Masking OTIF Issues
-    status: active
-    owner: Logistics Cost Manager
-    trigger_kpis: [supply.penalty.amount, supply.expedite.amount]
-    guardrail_kpis: [supply.otif.pct]
-    outcome_kpis: [supply.penalty.amount, supply.expedite.amount]
-    impact_range: supply.penalty.amount: -10.0--30.0 %
-    levels: L1-L3
-
-  - id: S-R2.5
-    name: Planning & Execution Alignment
-    purpose: Align Short-Term Plans with Operational Execution to Protect OTIF
-    status: active
-    owner: S&OP Lead
-    trigger_kpis: [supply.otif.pct, supply.expedite.amount]
-    guardrail_kpis: [inv.dio.days]
-    outcome_kpis: [supply.otif.pct]
-    impact_range: supply.otif.pct: 1.0-3.0 pp
-    levels: L1-L3
-```
 
 ---
 

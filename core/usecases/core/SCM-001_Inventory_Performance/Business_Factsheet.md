@@ -50,45 +50,10 @@ factsheet_type: business
 
 All KPIs must exist in the KPI Catalog.
 
-```yaml
-required_kpis:
 
-  - id: inv.dio.days
-    kpi_catalog_id: Efficiency
-    name: Days in Inventory (DIO)
-    purpose: Working capital efficiency
-    agg: avg
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: inv.turnover
-    name: Inventory Turnover
-    purpose: Velocity
-    agg: avg
-
-  - id: inv.stockout.pct
-    name: Stockout Rate %
-    purpose: Service risk
-    agg: avg
-
-  - id: supply.otif.pct
-    name: OTIF %
-    purpose: Service level fulfillment
-    agg: avg
-
-  - id: inv.obsolete.pct
-    name: Obsolete Inventory %
-    purpose: Write-off risk
-    agg: avg
-
-  - id: plan.forecast.accuracy.pct
-    name: Forecast Accuracy %
-    purpose: Planning quality (units-based forecast)
-    agg: avg
-
-  - id: sales.units
-    name: Sales Units
-    purpose: Demand signal
-    agg: sum
-```
 
 ---
 
@@ -96,64 +61,10 @@ required_kpis:
 
 Structured summary of action codes (definitions remain in YAML).
 
-```yaml
-action_codes:
 
-  - id: S-I1.1
-    name: Inventory Orchestration
-    purpose: Coordinate Inventory Levers Without Service Degradation
-    status: active
-    owner: Head of Supply Chain
-    trigger_kpis: [inv.dio.days, inv.stockout.pct]
-    guardrail_kpis: [supply.otif.pct]
-    outcome_kpis: [inv.dio.days]
-    impact_range: inv.dio.days: -5.0--15.0 days
-    levels: L1-L3
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: S-I1.2
-    name: Inventory Rightsizing
-    purpose: Reduce Excess Inventory While Protecting Service
-    status: active
-    owner: Inventory Manager
-    trigger_kpis: [inv.dio.days]
-    guardrail_kpis: [inv.stockout.pct, supply.otif.pct]
-    outcome_kpis: [inv.dio.days, inv.turnover]
-    impact_range: inv.dio.days: -10.0--30.0 days
-    levels: L1-L3
-
-  - id: S-I1.3
-    name: Stockout Prevention
-    purpose: Prevent Stockouts and Protect OTIF
-    status: active
-    owner: Supply Planner
-    trigger_kpis: [inv.stockout.pct]
-    guardrail_kpis: [inv.dio.days]
-    outcome_kpis: [inv.stockout.pct, supply.otif.pct]
-    impact_range: inv.stockout.pct: -1.0--5.0 pp
-    levels: L1-L3
-
-  - id: S-I1.4
-    name: Obsolescence & Excess Reduction
-    purpose: Prevent and Reduce Obsolete and Excess Stock
-    status: active
-    owner: Inventory Controller
-    trigger_kpis: [inv.obsolete.pct]
-    guardrail_kpis: [inv.stockout.pct]
-    outcome_kpis: [inv.obsolete.pct, inv.dio.days]
-    impact_range: inv.obsolete.pct: -2.0--8.0 pp
-    levels: L1-L3
-
-  - id: S-I1.5
-    name: Forecast & Planning Stabilisation
-    purpose: Stabilise Planning Processes Driving Inventory Imbalance
-    status: active
-    owner: Head of Demand Planning
-    trigger_kpis: [plan.forecast.accuracy.pct]
-    guardrail_kpis: [inv.dio.days]
-    outcome_kpis: [plan.forecast.accuracy.pct]
-    impact_range: plan.forecast.accuracy.pct: 5.0-15.0 pp
-    levels: L1-L3
-```
 
 ---
 

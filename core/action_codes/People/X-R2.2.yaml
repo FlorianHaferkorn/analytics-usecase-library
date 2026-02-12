@@ -26,7 +26,7 @@ strategic_alignment:
       role: "secondary"
   decisions_enabled:
     - "Shift staffing between queues, channels, and regions"
-    - "Smooth short-term demand–capacity mismatches"
+    - "Smooth short-term demand-capacity mismatches"
   non_goals:
     - "Permanent staffing changes"
     - "Headcount hiring or reductions"

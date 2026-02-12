@@ -32,45 +32,10 @@ factsheet_type: technical
 
 ## 2. Required KPIs - Measure Mapping (Mandatory)
 
-```yaml
-kpi_to_measure_mapping:
 
-  - kpi_id: ops.oee.pct
-    kpi_name: OEE %
-    measure_name: [OEE %]
-    format: 0.0%
-    folder: 05_Ops
+> Machine-readable KPI-to-Measure mapping is governed by `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on technical context and modeling guidance.
 
-  - kpi_id: ops.availability.pct
-    kpi_name: Availability %
-    measure_name: [Availability %]
-    format: 0.0%
-    folder: 05_Ops
-
-  - kpi_id: ops.performance.pct
-    kpi_name: Performance %
-    measure_name: [Performance %]
-    format: 0.0%
-    folder: 05_Ops
-
-  - kpi_id: ops.quality.pct
-    kpi_name: Quality %
-    measure_name: [Quality %]
-    format: 0.0%
-    folder: 05_Ops
-
-  - kpi_id: ops.throughput.units
-    kpi_name: Throughput Units
-    measure_name: [Throughput Units]
-    format: #,0
-    folder: 01_Output
-
-  - kpi_id: ops.downtime.pct
-    kpi_name: Downtime %
-    measure_name: [Downtime %]
-    format: 0.0%
-    folder: 05_Ops
-```
 
 ---
 

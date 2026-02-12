@@ -144,6 +144,56 @@ function Get-YamlBlock {
   return $null
 }
 
+function Get-UseCaseBracketPath {
+  param([string]$FactsheetPath)
+  $dir = Split-Path -Parent $FactsheetPath
+  $bracket = Join-Path -Path $dir -ChildPath "UseCase_Bracket.yaml"
+  if (Test-Path $bracket) { return (Resolve-Path -Path $bracket).Path }
+  return $null
+}
+
+function Test-UseCaseBracket {
+  param([string]$BracketPath,[string]$FactsheetPath)
+  if (-not $BracketPath) { return $false }
+  $lines = Get-Content -Path $BracketPath
+  $text = ($lines -join "`n")
+
+  if ($text -notmatch '(?m)^\s*schema_version\s*:\s*["'']?2\.0["'']?\s*$') {
+    $errors += "$($FactsheetPath): UseCase_Bracket.yaml missing schema_version: ""2.0"" ($BracketPath)"
+    return $false
+  }
+
+  if ($text -notmatch '(?m)^\s*owner_role\s*:\s*\S+') {
+    $errors += "$($FactsheetPath): UseCase_Bracket.yaml missing governance.owner_role ($BracketPath)"
+    return $false
+  }
+  if ($text -notmatch '(?m)^\s*steward_role\s*:\s*\S+') {
+    $errors += "$($FactsheetPath): UseCase_Bracket.yaml missing governance.steward_role ($BracketPath)"
+    return $false
+  }
+  if ($text -notmatch '(?m)^\s*strategic_kpi_id\s*:\s*\S+') {
+    $errors += "$($FactsheetPath): UseCase_Bracket.yaml missing ontology_bracket.strategic_kpi_id ($BracketPath)"
+    return $false
+  }
+
+  # action_code_ids list required (>= 1)
+  $actionCount = 0
+  $inActions = $false
+  foreach ($ln in $lines) {
+    if ($ln -match '^\s*action_code_ids\s*:\s*$') { $inActions = $true; continue }
+    if ($inActions) {
+      if ($ln.Trim().Length -eq 0) { continue }
+      if ($ln -notmatch '^\s{2,}-\s+') { break }
+      $actionCount++
+    }
+  }
+  if ($actionCount -lt 1) {
+    $errors += "$($FactsheetPath): UseCase_Bracket.yaml action_code_ids missing or empty ($BracketPath)"
+    return $false
+  }
+  return $true
+}
+
 function Count-ListItems {
   param([string]$YamlBlock,[string]$ItemKey)
   if (-not $YamlBlock) { return 0 }
@@ -180,14 +230,17 @@ Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Business_Factsheet.m
   $domain = Get-MetadataValue -Body $body -Label "Domain"
   if (-not $domain) { $errors += "$($_.FullName): missing Domain" }
 
-  $reqBlock = Get-YamlBlock -Body $body -Key "required_kpis"
-  if ((Count-ListItems -YamlBlock $reqBlock -ItemKey "id") -lt 1) {
-    $errors += "$($_.FullName): required_kpis missing or empty"
-  }
-
-  $acBlock = Get-YamlBlock -Body $body -Key "action_codes"
-  if ((Count-ListItems -YamlBlock $acBlock -ItemKey "id") -lt 1) {
-    $errors += "$($_.FullName): action_codes missing or empty"
+  $bracketPath = Get-UseCaseBracketPath -FactsheetPath $_.FullName
+  $hasBracket = Test-UseCaseBracket -BracketPath $bracketPath -FactsheetPath $_.FullName
+  if (-not $hasBracket) {
+    $reqBlock = Get-YamlBlock -Body $body -Key "required_kpis"
+    if ((Count-ListItems -YamlBlock $reqBlock -ItemKey "id") -lt 1) {
+      $errors += "$($_.FullName): required_kpis missing or empty (no UseCase_Bracket.yaml found)"
+    }
+    $acBlock = Get-YamlBlock -Body $body -Key "action_codes"
+    if ((Count-ListItems -YamlBlock $acBlock -ItemKey "id") -lt 1) {
+      $errors += "$($_.FullName): action_codes missing or empty (no UseCase_Bracket.yaml found)"
+    }
   }
 }
 

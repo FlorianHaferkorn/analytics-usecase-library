@@ -32,49 +32,10 @@ factsheet_type: technical
 
 ## 2. Required KPIs - Measure Mapping (Mandatory)
 
-```yaml
-kpi_to_measure_mapping:
 
-  - kpi_id: crm.clv.amount
-    measure_name: Customer Lifetime Value Amount
-    format: "EUR #,0"
-    folder: 04_Customer
+> Machine-readable KPI-to-Measure mapping is governed by `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on technical context and modeling guidance.
 
-  - kpi_id: crm.lifetime_revenue.amount
-    measure_name: Customer Lifetime Revenue Amount
-    format: "EUR #,0"
-    folder: 01_Revenue
-
-  - kpi_id: crm.retention.pct
-    measure_name: Customer Retention %
-    format: "0.0%"
-    folder: 01_Retention
-
-  - kpi_id: crm.churned_customers.count
-    measure_name: Churned Customers Count
-    format: "#,0"
-    folder: 01_Retention
-
-  - kpi_id: crm.revenue_at_risk.amount
-    measure_name: Revenue at Risk Amount
-    format: "EUR #,0"
-    folder: 01_Retention
-
-  - kpi_id: crm.active_customers.count
-    measure_name: Active Customers Count
-    format: "#,0"
-    folder: 01_Retention
-
-  - kpi_id: crm.nps.index
-    measure_name: NPS Score
-    format: "0"
-    folder: 02_CX
-
-  - kpi_id: crm.complaint.count
-    measure_name: Customer Complaints Count
-    format: "#,0"
-    folder: 02_CX
-```
 
 ---
 

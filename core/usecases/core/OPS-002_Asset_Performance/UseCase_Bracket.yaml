@@ -1,0 +1,47 @@
+schema_version: '2.0'
+id: OPS-002
+name: Asset Performance
+domain: Operations
+governance:
+  owner_role: Maintenance Controlling / Reliability
+  steward_role: Maintenance / Reliability BI Lead
+  status: active
+  last_review: '2026-02-12'
+ontology_bracket:
+  strategic_kpi_id: ops.mtbf.hours
+  influencing_kpi_ids:
+  - ops.availability.pct
+  - ops.mttr.hours
+  - ops.downtime.unplanned.pct
+  - ops.spare_parts.stockout.pct
+  - ops.pm_compliance.pct
+  - ops.failure.count
+  - ops.inventory.value.amount
+  - ops.pm.task.count
+  - ops.safety.incident.count
+  action_code_ids:
+  - O-A2.1
+  - O-A2.2
+  - O-A2.3
+  - O-A2.4
+  - O-A2.5
+value_driver_model:
+  description: ops.mtbf.hours is driven by influencing KPIs and operational levers.
+  formula: ops.mtbf.hours = f(ops.availability.pct, ops.mttr.hours, ops.downtime.unplanned.pct,
+    ops.spare_parts.stockout.pct, ops.pm_compliance.pct, ops.failure.count, ops.inventory.value.amount,
+    ops.pm.task.count, ops.safety.incident.count)
+ux_layout_rules:
+  report_structure: 2-Page-Lead
+  page_1_summary_insights:
+    title: Operations Summary & Insights
+    3s_component: 'North Star: ops.mtbf.hours'
+    30s_components: []
+  page_2_execution:
+    title: Operations Execution
+    300s_components:
+    - 'Evidence_Table: (define evidence table requirements)'
+    - 'Action_Panel: Integrated Side-Panel for Subscribed Action Codes'
+    - 'Payload_Injection: Show Level (L1-L3) and Steps from Action Code YAML'
+documentation:
+  business_factsheet: ./Business_Factsheet.md
+  technical_factsheet: ./Technical_Factsheet.md

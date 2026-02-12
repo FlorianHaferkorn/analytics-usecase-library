@@ -52,55 +52,10 @@ cash conversion, and improved resilience.
 
 All KPIs must exist in the KPI Catalog.
 
-```yaml
-required_kpis:
 
-  - id: fin.cash.balance
-    kpi_catalog_id: Liquidity
-    name: Cash Balance
-    purpose: Liquidity level
-    agg: sum
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: fin.cash.ocf
-    name: Operating Cash Flow
-    purpose: Cash generation
-    agg: sum
-
-  - id: fin.cash.vs_plan.pct
-    name: Cash vs Plan %
-    purpose: Performance vs plan
-    agg: avg
-
-  - id: wc.ccc.days
-    name: Cash Conversion Cycle (days)
-    purpose: Working capital cycle
-    agg: avg
-
-  - id: wc.dso.days
-    name: DSO (days)
-    purpose: Receivables efficiency
-    agg: avg
-
-  - id: wc.dio.days
-    name: DIO (days)
-    purpose: Inventory efficiency
-    agg: avg
-
-  - id: wc.dpo.days
-    name: DPO (days)
-    purpose: Payables efficiency
-    agg: avg
-
-  - id: scm.service_level.pct
-    name: Supply Chain Service Level %
-    purpose: Service guardrail
-    agg: avg
-
-  - id: scm.supplier_risk.score
-    name: Supplier Risk Score
-    purpose: Supplier stability guardrail
-    agg: avg
-```
 
 ---
 
@@ -108,53 +63,10 @@ required_kpis:
 
 Structured summary of action codes (definitions remain in YAML).
 
-```yaml
-action_codes:
 
-  - id: F-C1.1
-    name: Working Capital Improvement
-    purpose: Integrated Working Capital Control
-    status: active
-    owner: Finance Director
-    trigger_kpis: [wc.ccc.days, fin.cash.vs_plan.pct]
-    guardrail_kpis: [fin.cash.balance]
-    outcome_kpis: [wc.ccc.days]
-    impact_range: wc.ccc.days: -3--10 days
-    levels: L1-L3
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: F-C1.2
-    name: Collections Acceleration
-    purpose: Accelerate Cash Inflow
-    status: active
-    owner: Head of Credit & Collections
-    trigger_kpis: [wc.dso.days]
-    guardrail_kpis: [fin.cash.balance]
-    outcome_kpis: [wc.dso.days, fin.cash.ocf]
-    impact_range: wc.dso.days: -2--6 days
-    levels: L1-L3
-
-  - id: F-C1.3
-    name: Inventory Rightsizing
-    purpose: Release Cash from Excess Inventory
-    status: active
-    owner: Inventory Manager
-    trigger_kpis: [wc.dio.days]
-    guardrail_kpis: [scm.service_level.pct]
-    outcome_kpis: [wc.dio.days, fin.cash.ocf]
-    impact_range: wc.dio.days: -3--8 days
-    levels: L1-L3
-
-  - id: F-C1.4
-    name: Payables Optimisation
-    purpose: Improve Cash via Payment Term and Execution Discipline
-    status: active
-    owner: Head of Accounts Payable
-    trigger_kpis: [wc.dpo.days]
-    guardrail_kpis: [scm.supplier_risk.score]
-    outcome_kpis: [wc.dpo.days, fin.cash.ocf]
-    impact_range: wc.dpo.days: 2-6 days
-    levels: L1-L3
-```
 
 ---
 

@@ -50,45 +50,10 @@ diagnostics (COM-002); pipeline/win-loss (COM-010).
 
 All KPIs must exist in the KPI Catalog.
 
-```yaml
-required_kpis:
 
-  - id: sales.net_sales.amount
-    kpi_catalog_id: Growth
-    name: Net Sales Amount
-    purpose: Core revenue control
-    agg: sum
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: sales.net_sales.delta_pct.plan
-    name: Net Sales % vs Plan
-    purpose: Execution vs Plan
-    agg: avg
-
-  - id: sales.net_sales.delta_pct.ly
-    name: Net Sales % vs LY
-    purpose: Growth vs LY
-    agg: avg
-
-  - id: margin.gm.pct
-    name: Gross Margin %
-    purpose: Profitability quality
-    agg: avg
-
-  - id: sales.pvm.price_effect.amount
-    name: Price Effect Amount
-    purpose: Driver analysis
-    agg: sum
-
-  - id: sales.pvm.volume_effect.amount
-    name: Volume Effect Amount
-    purpose: Driver analysis
-    agg: sum
-
-  - id: sales.pvm.mix_effect.amount
-    name: Mix Effect Amount
-    purpose: Driver analysis
-    agg: sum
-```
 
 ---
 
@@ -96,42 +61,10 @@ required_kpis:
 
 Structured summary of action codes (definitions remain in YAML).
 
-```yaml
-action_codes:
 
-  - id: C-M2.1
-    name: Price Realization Guardrails
-    purpose: Stop Discount Leakage
-    status: active
-    owner: Pricing Lead
-    trigger_kpis: [sales.price.realization_pct]
-    guardrail_kpis: [margin.gm.pct]
-    outcome_kpis: [sales.price.realization_pct, margin.gm.pct]
-    impact_range: sales.price.realization_pct: 1.0-3.0 pp
-    levels: L1-L3
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: C-S1.1
-    name: Price Discipline Enforcement
-    purpose: Protect Gross Margin
-    status: active
-    owner: Pricing Manager
-    trigger_kpis: [margin.gm.pct, sales.pvm.price_effect.amount]
-    guardrail_kpis: [sales.net_sales.delta_pct.plan]
-    outcome_kpis: [margin.gm.pct]
-    impact_range: margin.gm.pct: 0.5-1.5 pp
-    levels: L1-L3
-
-  - id: C-S1.2
-    name: Sales Gap Recovery via Price & Pack Adjustment
-    purpose: Close Plan Gaps Without Margin Erosion
-    status: active
-    owner: Sales Director
-    trigger_kpis: [sales.net_sales.delta_pct.plan]
-    guardrail_kpis: [margin.gm.pct]
-    outcome_kpis: [sales.net_sales.amount]
-    impact_range: sales.net_sales.amount: 1.0-3.0 %
-    levels: L1-L3
-```
 
 ---
 

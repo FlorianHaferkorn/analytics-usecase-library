@@ -32,45 +32,10 @@ factsheet_type: technical
 
 ## 2. Required KPIs - Measure Mapping (Mandatory)
 
-```yaml
-kpi_to_measure_mapping:
 
-  - kpi_id: supply.otif.pct
-    kpi_name: OTIF %
-    measure_name: [OTIF %]
-    format: 0.0%
-    folder: 08_SCM_Service
+> Machine-readable KPI-to-Measure mapping is governed by `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on technical context and modeling guidance.
 
-  - kpi_id: supply.on_time.pct
-    kpi_name: On-Time %
-    measure_name: [On-Time %]
-    format: 0.0%
-    folder: 08_SCM_Service
-
-  - kpi_id: supply.in_full.pct
-    kpi_name: In-Full %
-    measure_name: [In-Full %]
-    format: 0.0%
-    folder: 08_SCM_Service
-
-  - kpi_id: supply.stockout_impact.pct
-    kpi_name: Stockout Impact %
-    measure_name: [Stockout Impact %]
-    format: 0.0%
-    folder: 08_SCM_Service
-
-  - kpi_id: supply.penalty.amount
-    kpi_name: Penalty Amount
-    measure_name: [Penalty Amount]
-    format: EUR#,0
-    folder: 08_SCM_Cost
-
-  - kpi_id: supply.expedite.amount
-    kpi_name: Expedite Cost Amount
-    measure_name: [Expedite Cost Amount]
-    format: EUR#,0
-    folder: 08_SCM_Cost
-```
 
 ---
 

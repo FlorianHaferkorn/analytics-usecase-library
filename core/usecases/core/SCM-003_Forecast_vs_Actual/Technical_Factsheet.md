@@ -32,39 +32,10 @@ factsheet_type: technical
 
 ## 2. Required KPIs - Measure Mapping (Mandatory)
 
-```yaml
-kpi_to_measure_mapping:
 
-  - kpi_id: plan.forecast.accuracy.pct
-    kpi_name: Forecast Accuracy %
-    measure_name: [Forecast Accuracy %]
-    format: 0.0%
-    folder: 09_Planning
+> Machine-readable KPI-to-Measure mapping is governed by `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on technical context and modeling guidance.
 
-  - kpi_id: plan.forecast.mape.pct
-    kpi_name: MAPE %
-    measure_name: [MAPE %]
-    format: 0.0%
-    folder: 09_Planning
-
-  - kpi_id: plan.forecast.bias.pct
-    kpi_name: Bias %
-    measure_name: [Bias %]
-    format: 0.0%
-    folder: 09_Planning
-
-  - kpi_id: plan.forecast.service_impact.pct
-    kpi_name: Service Impact %
-    measure_name: [Service Impact %]
-    format: 0.0%
-    folder: 08_SCM_Service
-
-  - kpi_id: plan.replan.count
-    kpi_name: Re-Plan Count
-    measure_name: [Re-Plan Count]
-    format: #,0
-    folder: 09_Planning
-```
 
 ---
 

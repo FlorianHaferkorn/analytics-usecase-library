@@ -32,45 +32,10 @@ factsheet_type: technical
 
 ## 2. Required KPIs - Measure Mapping (Mandatory)
 
-```yaml
-kpi_to_measure_mapping:
 
-  - kpi_id: ops.availability.pct
-    kpi_name: Availability %
-    measure_name: [Availability %]
-    format: 0.0%
-    folder: 05_Ops
+> Machine-readable KPI-to-Measure mapping is governed by `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on technical context and modeling guidance.
 
-  - kpi_id: ops.mtbf.hours
-    kpi_name: MTBF (hours)
-    measure_name: [MTBF (hours)]
-    format: #,0.0
-    folder: 05_Ops
-
-  - kpi_id: ops.mttr.hours
-    kpi_name: MTTR (hours)
-    measure_name: [MTTR (hours)]
-    format: #,0.0
-    folder: 05_Ops
-
-  - kpi_id: ops.downtime.unplanned.pct
-    kpi_name: Unplanned Downtime %
-    measure_name: [Unplanned Downtime %]
-    format: 0.0%
-    folder: 05_Ops
-
-  - kpi_id: ops.spare_parts.stockout.pct
-    kpi_name: Spare Parts Stockout %
-    measure_name: [Spare Parts Stockout %]
-    format: 0.0%
-    folder: 06_Maintenance
-
-  - kpi_id: ops.pm_compliance.pct
-    kpi_name: PM Compliance %
-    measure_name: [PM Compliance %]
-    format: 0.0%
-    folder: 06_Maintenance
-```
 
 ---
 

@@ -32,51 +32,10 @@ factsheet_type: technical
 
 ## 2. Required KPIs - Measure Mapping (Mandatory)
 
-```yaml
-kpi_to_measure_mapping:
 
-  - kpi_id: fin.cash.balance
-    kpi_name: Cash Balance
-    measure_name: [Cash Balance]
-    format: EUR#,0
-    folder: 10_Finance
+> Machine-readable KPI-to-Measure mapping is governed by `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on technical context and modeling guidance.
 
-  - kpi_id: fin.cash.ocf
-    kpi_name: Operating Cash Flow
-    measure_name: [Operating Cash Flow]
-    format: EUR#,0
-    folder: 10_Finance
-
-  - kpi_id: fin.cash.vs_plan.pct
-    kpi_name: Cash vs Plan %
-    measure_name: [Cash vs Plan %]
-    format: 0.0%
-    folder: 10_Finance
-
-  - kpi_id: wc.ccc.days
-    kpi_name: Cash Conversion Cycle (days)
-    measure_name: [CCC Days]
-    format: #,0.0
-    folder: 10_Finance
-
-  - kpi_id: wc.dso.days
-    kpi_name: DSO (days)
-    measure_name: [DSO Days]
-    format: #,0.0
-    folder: 10_Finance
-
-  - kpi_id: wc.dio.days
-    kpi_name: DIO (days)
-    measure_name: [DIO Days]
-    format: #,0.0
-    folder: 10_Finance
-
-  - kpi_id: wc.dpo.days
-    kpi_name: DPO (days)
-    measure_name: [DPO Days]
-    format: #,0.0
-    folder: 10_Finance
-```
 
 ---
 

@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UseCase Bracket v2.0",
+  "description": "Ontology bracket: the machine-readable SSOT for a use case. Links strategic KPI, influencing KPIs, action codes, governance, and UX layout rules.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "id",
+    "name",
+    "domain",
+    "governance",
+    "ontology_bracket",
+    "value_driver_model",
+    "ux_layout_rules",
+    "documentation"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Z]{2,3}-\\d{3}$",
+      "description": "Use case ID (e.g. COM-001, FIN-002, XD-003)."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Human-readable use case name."
+    },
+    "domain": {
+      "type": "string",
+      "description": "Business domain (Commercial, Finance, Operations, SupplyChain, XD, etc.)."
+    },
+    "governance": {
+      "type": "object",
+      "required": ["owner_role", "steward_role", "status", "last_review"],
+      "additionalProperties": false,
+      "properties": {
+        "owner_role": {
+          "type": "string",
+          "minLength": 2,
+          "description": "Business accountability role."
+        },
+        "steward_role": {
+          "type": "string",
+          "minLength": 2,
+          "description": "Data/definition accountability role."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "draft", "deprecated"]
+        },
+        "last_review": {
+          "type": "string",
+          "description": "Date of last review (YYYY-MM-DD)."
+        }
+      }
+    },
+    "ontology_bracket": {
+      "type": "object",
+      "required": ["strategic_kpi_id", "influencing_kpi_ids", "action_code_ids"],
+      "additionalProperties": false,
+      "properties": {
+        "strategic_kpi_id": {
+          "type": "string",
+          "minLength": 3,
+          "description": "Exactly 1 strategic (North Star) KPI ID from KPI catalog."
+        },
+        "influencing_kpi_ids": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 3},
+          "description": "0..N influencing (lever) KPI IDs from KPI catalog."
+        },
+        "action_code_ids": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 3},
+          "description": "0..N subscribed action code IDs from core/action_codes."
+        }
+      }
+    },
+    "value_driver_model": {
+      "type": "object",
+      "required": ["description"],
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Narrative explanation of how the strategic KPI relates to influencing KPIs."
+        },
+        "formula": {
+          "type": "string",
+          "description": "Optional formal representation: StrategicKPI = f(InfluencingKPIs...)."
+        }
+      }
+    },
+    "ux_layout_rules": {
+      "type": "object",
+      "required": ["report_structure", "page_1_summary_insights", "page_2_execution"],
+      "additionalProperties": false,
+      "properties": {
+        "report_structure": {
+          "type": "string",
+          "description": "Report pattern (e.g. 2-Page-Lead)."
+        },
+        "page_1_summary_insights": {
+          "type": "object",
+          "required": ["title", "3s_component"],
+          "additionalProperties": false,
+          "properties": {
+            "title": {"type": "string"},
+            "3s_component": {"type": "string", "description": "North Star gauge / card specification."},
+            "30s_components": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Diagnostic visuals for the 30-second layer."
+            }
+          }
+        },
+        "page_2_execution": {
+          "type": "object",
+          "required": ["title", "300s_components"],
+          "additionalProperties": false,
+          "properties": {
+            "title": {"type": "string"},
+            "300s_components": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Evidence tables, action panels, payload injection specs."
+            }
+          }
+        }
+      }
+    },
+    "documentation": {
+      "type": "object",
+      "required": ["business_factsheet", "technical_factsheet"],
+      "additionalProperties": false,
+      "properties": {
+        "business_factsheet": {
+          "type": "string",
+          "description": "Relative path to Business_Factsheet.md."
+        },
+        "technical_factsheet": {
+          "type": "string",
+          "description": "Relative path to Technical_Factsheet.md."
+        }
+      }
+    }
+  }
+}

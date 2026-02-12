@@ -52,50 +52,10 @@ service parts/ops (scoped separately).
 
 All KPIs must exist in the KPI Catalog.
 
-```yaml
-required_kpis:
 
-  - id: svc.sla.attainment.pct
-    kpi_catalog_id: Service
-    name: SLA Attainment %
-    purpose: Service level compliance
-    agg: avg
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: svc.fcr.pct
-    name: First Contact Resolution %
-    purpose: Quality/efficiency
-    agg: avg
-
-  - id: svc.aht.minutes
-    name: Average Handling Time (minutes)
-    purpose: Efficiency
-    agg: avg
-
-  - id: svc.backlog.count
-    name: Backlog Count
-    purpose: Workload risk
-    agg: sum
-
-  - id: svc.nps.index
-    name: NPS Index
-    purpose: Customer satisfaction
-    agg: avg
-
-  - id: svc.escalation.pct
-    name: Escalation %
-    purpose: Quality/risk
-    agg: avg
-
-  - id: svc.tickets.created.count
-    name: Tickets Created Count
-    purpose: Demand volume
-    agg: sum
-
-  - id: svc.tickets.closed.count
-    name: Tickets Closed Count
-    purpose: Throughput volume
-    agg: sum
-```
 
 ---
 
@@ -103,53 +63,10 @@ required_kpis:
 
 Structured summary of action codes (definitions remain in YAML).
 
-```yaml
-action_codes:
 
-  - id: X-S1.1
-    name: Service Level Orchestration
-    purpose: Coordinate Service Levers Without Degrading Quality or Cost-to-Serve
-    status: active
-    owner: Head of Service Operations
-    trigger_kpis: [svc.sla.attainment.pct, svc.backlog.count]
-    guardrail_kpis: [svc.fcr.pct]
-    outcome_kpis: [svc.sla.attainment.pct]
-    impact_range: svc.sla.attainment.pct: 3.0-8.0 pp
-    levels: L1-L3
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: X-S1.2
-    name: Capacity & Backlog Stabilisation
-    purpose: Stabilise Backlog to Protect SLA Attainment
-    status: active
-    owner: Service Operations Manager
-    trigger_kpis: [svc.backlog.count]
-    guardrail_kpis: [svc.fcr.pct]
-    outcome_kpis: [svc.backlog.count, svc.sla.attainment.pct]
-    impact_range: svc.backlog.count: -15.0--35.0 %
-    levels: L1-L3
-
-  - id: X-S1.3
-    name: Quality & First-Contact Resolution Uplift
-    purpose: Increase Resolution Quality to Reduce Repeat Contacts and Escalations
-    status: active
-    owner: Quality & Training Lead
-    trigger_kpis: [svc.fcr.pct, svc.escalation.pct]
-    guardrail_kpis: [svc.aht.minutes]
-    outcome_kpis: [svc.fcr.pct, svc.escalation.pct]
-    impact_range: svc.fcr.pct: 5.0-12.0 pp
-    levels: L1-L3
-
-  - id: X-S1.4
-    name: Handling Time & Flow Efficiency
-    purpose: Reduce Handling Time Without Degrading Resolution Quality
-    status: active
-    owner: Service Operations Manager
-    trigger_kpis: [svc.aht.minutes]
-    guardrail_kpis: [svc.fcr.pct]
-    outcome_kpis: [svc.aht.minutes, svc.sla.attainment.pct]
-    impact_range: svc.aht.minutes: -5.0--15.0 %
-    levels: L1-L3
-```
 
 ---
 

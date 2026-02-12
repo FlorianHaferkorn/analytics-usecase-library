@@ -32,45 +32,10 @@ factsheet_type: technical
 
 ## 2. Required KPIs - Measure Mapping (Mandatory)
 
-```yaml
-kpi_to_measure_mapping:
 
-  - kpi_id: quality.fpy.pct
-    kpi_name: First Pass Yield %
-    measure_name: [First Pass Yield %]
-    format: 0.0%
-    folder: 07_Quality
+> Machine-readable KPI-to-Measure mapping is governed by `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on technical context and modeling guidance.
 
-  - kpi_id: quality.scrap.pct
-    kpi_name: Scrap Rate %
-    measure_name: [Scrap Rate %]
-    format: 0.0%
-    folder: 07_Quality
-
-  - kpi_id: quality.rework.pct
-    kpi_name: Rework Rate %
-    measure_name: [Rework Rate %]
-    format: 0.0%
-    folder: 07_Quality
-
-  - kpi_id: quality.copq.amount
-    kpi_name: Cost of Poor Quality
-    measure_name: [Cost of Poor Quality]
-    format: EUR#,0
-    folder: 07_Quality
-
-  - kpi_id: quality.complaint.pct
-    kpi_name: Complaint Rate %
-    measure_name: [Complaint Rate %]
-    format: 0.0%
-    folder: 07_Quality
-
-  - kpi_id: quality.defect_density
-    kpi_name: Defect Density
-    measure_name: [Defect Density]
-    format: #,0.00
-    folder: 07_Quality
-```
 
 ---
 

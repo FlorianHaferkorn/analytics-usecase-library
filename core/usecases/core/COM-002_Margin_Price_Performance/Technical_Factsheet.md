@@ -32,50 +32,10 @@ factsheet_type: technical
 
 ## 2. Required KPIs - Measure Mapping (Mandatory)
 
-```yaml
-kpi_to_measure_mapping:
 
-  - kpi_id: margin.gm.pct
-    kpi_name: Gross Margin %
-    measure_name: Gross Margin %
-    format: "0.0%"
-    folder: 02_Margin
+> Machine-readable KPI-to-Measure mapping is governed by `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on technical context and modeling guidance.
 
-    kpi_name: Gross Margin % (Strategic)
-    measure_name: Gross Margin %
-    format: "0.0%"
-    folder: 02_Margin
-
-  - kpi_id: margin.gm.amount
-    kpi_name: Gross Margin Amount
-    measure_name: Gross Margin Amount
-    format: "EUR #,0"
-    folder: 02_Margin
-
-  - kpi_id: sales.price.realization_pct
-    kpi_name: Price Realization %
-    measure_name: Price Realization %
-    format: "0.0%"
-    folder: 03_Pricing
-
-  - kpi_id: sales.pvm.mix_effect.amount
-    kpi_name: Mix Effect Amount
-    measure_name: Mix Effect Amount
-    format: "EUR #,0"
-    folder: 03_PVM
-
-  - kpi_id: cost.cogs_per_unit.amount
-    kpi_name: COGS per Unit
-    measure_name: COGS per Unit
-    format: "EUR #,0.00"
-    folder: 02_Margin
-
-  - kpi_id: margin.gm.vs_plan.pct
-    kpi_name: Gross Margin % vs Plan
-    measure_name: Gross Margin % vs Plan
-    format: "0.0 pp"
-    folder: 02_Margin
-```
 
 ---
 

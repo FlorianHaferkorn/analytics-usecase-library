@@ -32,45 +32,10 @@ factsheet_type: technical
 
 ## 2. Required KPIs - Measure Mapping (Mandatory)
 
-```yaml
-kpi_to_measure_mapping:
 
-  - kpi_id: inv.dio.days
-    kpi_name: Days in Inventory (DIO)
-    measure_name: [Days in Inventory]
-    format: #,0.0
-    folder: 08_SCM_Inventory
+> Machine-readable KPI-to-Measure mapping is governed by `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on technical context and modeling guidance.
 
-  - kpi_id: inv.turnover
-    kpi_name: Inventory Turnover
-    measure_name: [Inventory Turnover]
-    format: #,0.0
-    folder: 08_SCM_Inventory
-
-  - kpi_id: inv.stockout.pct
-    kpi_name: Stockout Rate %
-    measure_name: [Stockout Rate %]
-    format: 0.0%
-    folder: 08_SCM_Service
-
-  - kpi_id: supply.otif.pct
-    kpi_name: OTIF %
-    measure_name: [OTIF %]
-    format: 0.0%
-    folder: 08_SCM_Service
-
-  - kpi_id: inv.obsolete.pct
-    kpi_name: Obsolete Inventory %
-    measure_name: [Obsolete Inventory %]
-    format: 0.0%
-    folder: 08_SCM_Inventory
-
-  - kpi_id: plan.forecast.accuracy.pct
-    kpi_name: Forecast Accuracy %
-    measure_name: [Forecast Accuracy %]
-    format: 0.0%
-    folder: 09_Planning
-```
 
 ---
 

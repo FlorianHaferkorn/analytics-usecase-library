@@ -45,40 +45,10 @@ factsheet_type: business
 
 All KPIs must exist in the KPI Catalog.
 
-```yaml
-required_kpis:
 
-  - id: margin.gm.pct
-    kpi_catalog_id: Profitability
-    name: Gross Margin %
-    purpose: Profitability quality
-    agg: avg
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: margin.gm.amount
-    name: Gross Margin Amount
-    purpose: Profit pool sizing
-    agg: sum
-
-  - id: sales.price.realization_pct
-    name: Price Realization %
-    purpose: Discount discipline
-    agg: avg
-
-  - id: sales.pvm.mix_effect.amount
-    name: Mix Effect Amount
-    purpose: Mix quality
-    agg: sum
-
-  - id: cost.cogs_per_unit.amount
-    name: COGS per Unit
-    purpose: Unit cost control
-    agg: avg
-
-  - id: margin.gm.vs_plan.pct
-    name: Gross Margin % vs Plan
-    purpose: Performance vs Plan
-    agg: avg
-```
 
 ---
 
@@ -86,42 +56,10 @@ required_kpis:
 
 Structured summary of action codes (definitions remain in YAML).
 
-```yaml
-action_codes:
 
-  - id: C-M2.2
-    name: Mix Optimization (Margin-Driven)
-    purpose: Improve Margin via Sales Mix Quality
-    status: active
-    owner: Category Manager
-    trigger_kpis: [sales.pvm.mix_effect.amount]
-    guardrail_kpis: [margin.gm.pct]
-    outcome_kpis: [margin.gm.pct, sales.pvm.mix_effect.amount]
-    impact_range: margin.gm.pct: 0.3-1.2 pp
-    levels: L1-L3
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: C-P4.1
-    name: Promo Calendar Discipline
-    purpose: Eliminate Structurally Unprofitable Promotions
-    status: active
-    owner: Trade Marketing Lead
-    trigger_kpis: [sales.promo.roi.pct]
-    guardrail_kpis: [margin.promo.gm.pct]
-    outcome_kpis: [sales.promo.roi.pct, margin.promo.gm.pct]
-    impact_range: sales.promo.roi.pct: 5.0-20.0 pp
-    levels: L1-L3
-
-  - id: C-S1.2
-    name: Sales Gap Recovery via Price & Pack Adjustment
-    purpose: Close Plan Gaps Without Margin Erosion
-    status: active
-    owner: Sales Director
-    trigger_kpis: [sales.net_sales.delta_pct.plan]
-    guardrail_kpis: [margin.gm.pct]
-    outcome_kpis: [sales.net_sales.amount]
-    impact_range: sales.net_sales.amount: 1.0-3.0 %
-    levels: L1-L3
-```
 
 ---
 

@@ -49,45 +49,10 @@ factsheet_type: business
 
 All KPIs must exist in the KPI Catalog.
 
-```yaml
-required_kpis:
 
-  - id: ops.oee.pct
-    kpi_catalog_id: Efficiency
-    name: Overall Equipment Effectiveness %
-    purpose: Combined availability, performance, quality
-    agg: avg
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: ops.availability.pct
-    name: Availability %
-    purpose: Uptime control
-    agg: avg
-
-  - id: ops.performance.pct
-    name: Performance %
-    purpose: Speed vs standard
-    agg: avg
-
-  - id: ops.quality.pct
-    name: Quality %
-    purpose: First pass yield
-    agg: avg
-
-  - id: ops.throughput.units
-    name: Throughput Units
-    purpose: Volume output
-    agg: sum
-
-  - id: ops.downtime.pct
-    name: Downtime %
-    purpose: Unplanned loss
-    agg: avg
-
-  - id: ops.planned_output.units
-    name: Planned Output Units
-    purpose: Plan baseline
-    agg: sum
-```
 
 ---
 
@@ -95,53 +60,10 @@ required_kpis:
 
 Structured summary of action codes (definitions remain in YAML).
 
-```yaml
-action_codes:
 
-  - id: O-O1.1
-    name: Operations Stabilisation
-    purpose: Eliminate Chronic Downtime and Stabilise Operations
-    status: active
-    owner: Maintenance Manager
-    trigger_kpis: [ops.availability.pct, ops.downtime.pct]
-    guardrail_kpis: [ops.quality.pct]
-    outcome_kpis: [ops.availability.pct, ops.oee.pct]
-    impact_range: ops.availability.pct: 3.0-8.0 pp
-    levels: L1-L3
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: O-O1.2
-    name: Performance Uplift
-    purpose: Recover Line Speed and Output vs Standard
-    status: active
-    owner: Production Manager
-    trigger_kpis: [ops.performance.pct]
-    guardrail_kpis: [ops.availability.pct]
-    outcome_kpis: [ops.performance.pct, ops.throughput.units]
-    impact_range: ops.performance.pct: 2.0-6.0 pp
-    levels: L1-L3
-
-  - id: O-O1.3
-    name: Quality & Yield Recovery
-    purpose: Stabilise First-Pass Yield and Reduce Scrap
-    status: active
-    owner: Quality Manager
-    trigger_kpis: [ops.quality.pct]
-    guardrail_kpis: [ops.availability.pct]
-    outcome_kpis: [ops.quality.pct, ops.oee.pct]
-    impact_range: ops.quality.pct: 1.0-3.0 pp
-    levels: L1-L3
-
-  - id: O-O1.4
-    name: Throughput Constraint Resolution
-    purpose: Resolve System Constraints Blocking Output
-    status: active
-    owner: Operations Director
-    trigger_kpis: [ops.throughput.units]
-    guardrail_kpis: [ops.oee.pct]
-    outcome_kpis: [ops.throughput.units]
-    impact_range: ops.throughput.units: 3.0-10.0 %
-    levels: L1-L3
-```
 
 ---
 

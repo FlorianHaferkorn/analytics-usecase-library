@@ -47,65 +47,10 @@ factsheet_type: business
 
 All KPIs must exist in the KPI Catalog.
 
-```yaml
-required_kpis:
 
-  - id: sales.net_sales.delta_pct.ly
-    kpi_catalog_id: Growth
-    name: Net Sales % vs LY
-    purpose: Show topline growth vs last year.
-    agg: avg
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: margin.gm.pct
-    name: Gross Margin %
-    purpose: Track profitability after cost of goods sold.
-    agg: avg
-
-  - id: crm.clv.amount
-    name: Customer Lifetime Value Amount
-    purpose: Measure expected lifetime profit per customer.
-    agg: avg
-
-  - id: svc.sla.attainment.pct
-    name: SLA Attainment %
-    purpose: Reflect service reliability to customers.
-    agg: avg
-
-  - id: ops.otif.pct
-    name: OTIF %
-    purpose: Measure supply reliability.
-    agg: avg
-
-  - id: ops.working_capital.ccc.days
-    name: Cash Conversion Cycle (Days)
-    purpose: Measure working-capital efficiency end-to-end.
-    agg: avg
-
-  - id: people.digital_adoption.pct
-    name: Digital Adoption %
-    purpose: Track active usage of core digital tools.
-    agg: avg
-
-  - id: people.attrition_risk.pct
-    name: Attrition Risk %
-    purpose: Monitor risk of losing key talent.
-    agg: avg
-
-  - id: enterprise.action_routed.count
-    name: Actions Routed Count
-    purpose: Execution volume
-    agg: sum
-
-  - id: enterprise.action_outcome_rate.pct
-    name: Action Outcome Rate %
-    purpose: Execution effectiveness
-    agg: avg
-
-  - id: enterprise.value_at_risk.index
-    name: Enterprise Value-at-Risk Index
-    purpose: Cross-domain risk concentration
-    agg: avg
-```
 
 ---
 
@@ -113,31 +58,10 @@ required_kpis:
 
 Structured summary of action codes (definitions remain in YAML).
 
-```yaml
-action_codes:
 
-  - id: X-E3.2
-    name: Cross-Domain Risk Prioritisation
-    purpose: Prioritise Cross-Domain Performance Risk by Value-at-Risk
-    status: active
-    owner: Head of Enterprise Controlling
-    trigger_kpis: [sales.revenue.growth_pct, margin.gm.pct, svc.sla.attainment.pct, supply.otif.pct, wc.ccc.days, people.attrition_risk.pct]
-    guardrail_kpis: []
-    outcome_kpis: [enterprise.value_at_risk.index]
-    impact_range: enterprise.value_at_risk.index: -10.0--30.0 %
-    levels: L1-L3
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: X-E3.3
-    name: Action Follow-up & Outcome Governance
-    purpose: Ensure Routed Actions Are Executed and Outcomes Measured
-    status: active
-    owner: Chief of Staff / PMO Lead
-    trigger_kpis: [enterprise.action_routed.count]
-    guardrail_kpis: []
-    outcome_kpis: [enterprise.action_outcome_rate.pct]
-    impact_range: enterprise.action_outcome_rate.pct: 10.0-25.0 pp
-    levels: L1-L3
-```
 
 ---
 

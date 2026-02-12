@@ -45,50 +45,10 @@ factsheet_type: business
 
 All KPIs must exist in the KPI Catalog.
 
-```yaml
-required_kpis:
 
-  - id: crm.clv.amount
-    kpi_catalog_id: CustomerValue
-    name: Customer Lifetime Value Amount
-    purpose: Long-term economic value per customer
-    agg: sum
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: crm.lifetime_revenue.amount
-    name: Customer Lifetime Revenue Amount
-    purpose: Realised revenue across lifecycle
-    agg: sum
-
-  - id: crm.retention.pct
-    name: Customer Retention %
-    purpose: Retain profitable customers
-    agg: avg
-
-  - id: crm.churned_customers.count
-    name: Churned Customers Count
-    purpose: Quantify customers lost in period
-    agg: sum
-
-  - id: crm.revenue_at_risk.amount
-    name: Revenue at Risk Amount
-    purpose: Size revenue exposure from churn-risk customers
-    agg: sum
-
-  - id: crm.active_customers.count
-    name: Active Customers Count
-    purpose: Base for retention/churn KPIs
-    agg: sum
-
-  - id: crm.nps.index
-    name: NPS Score
-    purpose: Measure advocacy and experience quality
-    agg: avg
-
-  - id: crm.complaint.count
-    name: Customer Complaints Count
-    purpose: Volume of customer complaints
-    agg: sum
-```
 
 ---
 
@@ -96,42 +56,10 @@ required_kpis:
 
 Structured summary of action codes (definitions remain in YAML).
 
-```yaml
-action_codes:
 
-  - id: C-M2.2
-    name: Mix Optimization (Margin-Driven)
-    purpose: Improve Margin via Sales Mix Quality
-    status: active
-    owner: Category Manager
-    trigger_kpis: [sales.pvm.mix_effect.amount]
-    guardrail_kpis: [margin.gm.pct]
-    outcome_kpis: [margin.gm.pct, sales.pvm.mix_effect.amount]
-    impact_range: margin.gm.pct: 0.3-1.2 pp
-    levels: L1-L3
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: C-P4.1
-    name: Promo Calendar Discipline
-    purpose: Eliminate Structurally Unprofitable Promotions
-    status: active
-    owner: Trade Marketing Lead
-    trigger_kpis: [sales.promo.roi.pct]
-    guardrail_kpis: [margin.promo.gm.pct]
-    outcome_kpis: [sales.promo.roi.pct, margin.promo.gm.pct]
-    impact_range: sales.promo.roi.pct: 5.0-20.0 pp
-    levels: L1-L3
-
-  - id: C-S1.2
-    name: Sales Gap Recovery via Price & Pack Adjustment
-    purpose: Close Plan Gaps Without Margin Erosion
-    status: active
-    owner: Sales Director
-    trigger_kpis: [sales.net_sales.delta_pct.plan]
-    guardrail_kpis: [margin.gm.pct]
-    outcome_kpis: [sales.net_sales.amount]
-    impact_range: sales.net_sales.amount: 1.0-3.0 %
-    levels: L1-L3
-```
 
 ---
 

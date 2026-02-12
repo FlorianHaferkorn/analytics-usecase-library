@@ -32,45 +32,10 @@ factsheet_type: technical
 
 ## 2. Required KPIs - Measure Mapping (Mandatory)
 
-```yaml
-kpi_to_measure_mapping:
 
-  - kpi_id: res.utilization.pct
-    kpi_name: Utilization %
-    measure_name: [Utilization %]
-    format: 0.0%
-    folder: 11_Service
+> Machine-readable KPI-to-Measure mapping is governed by `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on technical context and modeling guidance.
 
-  - kpi_id: res.occupancy.pct
-    kpi_name: Occupancy %
-    measure_name: [Occupancy %]
-    format: 0.0%
-    folder: 11_Service
-
-  - kpi_id: svc.sla.attainment.pct
-    kpi_name: SLA Attainment %
-    measure_name: [SLA Attainment %]
-    format: 0.0%
-    folder: 11_Service
-
-  - kpi_id: res.overtime.pct
-    kpi_name: Overtime %
-    measure_name: [Overtime %]
-    format: 0.0%
-    folder: 11_Service
-
-  - kpi_id: res.shrinkage.pct
-    kpi_name: Shrinkage %
-    measure_name: [Shrinkage %]
-    format: 0.0%
-    folder: 11_Service
-
-  - kpi_id: svc.backlog.count
-    kpi_name: Backlog Count
-    measure_name: [Backlog Count]
-    format: #,0
-    folder: 11_Service
-```
 
 ---
 

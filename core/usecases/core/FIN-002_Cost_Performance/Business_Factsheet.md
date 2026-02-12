@@ -49,65 +49,10 @@ factsheet_type: business
 
 All KPIs must exist in the KPI Catalog.
 
-```yaml
-required_kpis:
 
-  - id: cost.unit.amount
-    kpi_catalog_id: Profitability
-    name: Unit Cost Amount
-    purpose: Cost efficiency
-    agg: avg
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: margin.cogs.pct
-    name: COGS % of Sales
-    purpose: Cost share
-    agg: avg
-
-  - id: cost.opex.vs_plan.pct
-    name: OpEx vs Plan %
-    purpose: Overhead control
-    agg: avg
-
-  - id: cost.material.pct
-    name: Material Cost %
-    purpose: Material efficiency
-    agg: avg
-
-  - id: ops.labor.productivity.pct
-    name: Labor Productivity %
-    purpose: Labor efficiency
-    agg: avg
-
-  - id: cost.base_volume.amount
-    name: Cost Base Volume Amount
-    purpose: Variance baseline
-    agg: sum
-
-  - id: cost.opex.base.amount
-    name: Opex Base Amount
-    purpose: OpEx baseline
-    agg: sum
-
-  - id: ops.production.volume
-    name: Production Volume Units
-    purpose: Output baseline
-    agg: sum
-
-  - id: ops.quality.defect_rate.pct
-    name: Quality Defect Rate %
-    purpose: Quality cost driver
-    agg: avg
-
-  - id: ops.service_level.pct
-    name: Operations Service Level %
-    purpose: Service guardrail
-    agg: avg
-
-  - id: ops.yield.pct
-    name: Yield %
-    purpose: Process efficiency
-    agg: avg
-```
 
 ---
 
@@ -115,53 +60,10 @@ required_kpis:
 
 Structured summary of action codes (definitions remain in YAML).
 
-```yaml
-action_codes:
 
-  - id: F-K2.1
-    name: Cost Take-Out Orchestration
-    purpose: Integrated Cost Take-Out Control
-    status: active
-    owner: Finance Director
-    trigger_kpis: [cost.unit.amount, cost.opex.vs_plan.pct]
-    guardrail_kpis: [ops.labor.productivity.pct]
-    outcome_kpis: [cost.unit.amount]
-    impact_range: cost.unit.amount: 2.0-6.0 %
-    levels: L1-L3
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: F-K2.2
-    name: Material Cost Discipline
-    purpose: Stabilize and Reduce Material Cost per Unit
-    status: active
-    owner: Head of Procurement
-    trigger_kpis: [cost.material.pct]
-    guardrail_kpis: [ops.yield.pct]
-    outcome_kpis: [cost.material.pct, cost.unit.amount]
-    impact_range: cost.material.pct: 1.0-4.0 %
-    levels: L1-L3
-
-  - id: F-K2.3
-    name: Labor Productivity Recovery
-    purpose: Recover Productivity to Reduce Unit Cost
-    status: active
-    owner: Plant Manager
-    trigger_kpis: [ops.labor.productivity.pct]
-    guardrail_kpis: [ops.quality.defect_rate.pct]
-    outcome_kpis: [ops.labor.productivity.pct, cost.unit.amount]
-    impact_range: ops.labor.productivity.pct: 3.0-8.0 pp
-    levels: L1-L3
-
-  - id: F-K2.4
-    name: OpEx Discipline
-    purpose: Protect Margin via OpEx Discipline
-    status: active
-    owner: Head of Controlling
-    trigger_kpis: [cost.opex.vs_plan.pct]
-    guardrail_kpis: [ops.service_level.pct]
-    outcome_kpis: [cost.opex.vs_plan.pct, cost.unit.amount]
-    impact_range: cost.opex.vs_plan.pct: 2.0-6.0 pp
-    levels: L1-L3
-```
 
 ---
 

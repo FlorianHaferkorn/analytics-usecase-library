@@ -52,45 +52,10 @@ service dispatching.
 
 All KPIs must exist in the KPI Catalog.
 
-```yaml
-required_kpis:
 
-  - id: res.utilization.pct
-    kpi_catalog_id: Service
-    name: Utilization %
-    purpose: Productive time vs paid time
-    agg: avg
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: res.occupancy.pct
-    name: Occupancy %
-    purpose: Active time vs available time
-    agg: avg
-
-  - id: svc.sla.attainment.pct
-    name: SLA Attainment %
-    purpose: Service level compliance
-    agg: avg
-
-  - id: res.overtime.pct
-    name: Overtime %
-    purpose: Cost and fatigue
-    agg: avg
-
-  - id: res.shrinkage.pct
-    name: Shrinkage %
-    purpose: Non-productive time
-    agg: avg
-
-  - id: svc.backlog.count
-    name: Backlog Count
-    purpose: Workload risk
-    agg: sum
-
-  - id: svc.tickets.created.count
-    name: Tickets Created Count
-    purpose: Demand volume
-    agg: sum
-```
 
 ---
 
@@ -98,53 +63,10 @@ required_kpis:
 
 Structured summary of action codes (definitions remain in YAML).
 
-```yaml
-action_codes:
 
-  - id: X-R2.1
-    name: Resource Utilization Orchestration
-    purpose: Coordinate Utilization Levers Without Overloading or Idling Capacity
-    status: active
-    owner: Head of Workforce Management
-    trigger_kpis: [res.utilization.pct, res.overtime.pct]
-    guardrail_kpis: [svc.sla.attainment.pct]
-    outcome_kpis: [res.utilization.pct]
-    impact_range: res.utilization.pct: 3.0-8.0 pp
-    levels: L1-L3
+> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
+> This factsheet focuses on business context only.
 
-  - id: X-R2.2
-    name: Capacity Reallocation & Load Balancing
-    purpose: Rebalance Capacity Across Queues and Time Windows
-    status: active
-    owner: Workforce Management Lead
-    trigger_kpis: [res.utilization.pct, res.occupancy.pct]
-    guardrail_kpis: [svc.sla.attainment.pct]
-    outcome_kpis: [res.utilization.pct]
-    impact_range: res.utilization.pct: 4.0-10.0 pp
-    levels: L1-L3
-
-  - id: X-R2.3
-    name: Shrinkage & Productive Time Control
-    purpose: Reduce Non-Productive Time Without Increasing Load
-    status: active
-    owner: Service Operations Manager
-    trigger_kpis: [res.shrinkage.pct]
-    guardrail_kpis: [svc.sla.attainment.pct]
-    outcome_kpis: [res.shrinkage.pct, res.utilization.pct]
-    impact_range: res.shrinkage.pct: -3.0--8.0 pp
-    levels: L1-L3
-
-  - id: X-R2.4
-    name: Overtime & Fatigue Containment
-    purpose: Contain Structural Overtime Without Degrading Service Levels
-    status: active
-    owner: Service Operations Manager
-    trigger_kpis: [res.overtime.pct]
-    guardrail_kpis: [svc.sla.attainment.pct]
-    outcome_kpis: [res.overtime.pct]
-    impact_range: res.overtime.pct: -2.0--6.0 pp
-    levels: L1-L3
-```
 
 ---
 
