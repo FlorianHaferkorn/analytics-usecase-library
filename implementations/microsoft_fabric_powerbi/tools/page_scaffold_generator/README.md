@@ -10,6 +10,12 @@ The Page Scaffold Generator creates Power BI report page structures based on:
 - Layout grid system specifications
 - Color semantics and formatting rules
 
+Layout is **adaptive** (positions and sizes depend on page type T1–T4 and the actual visuals for the use case). Pages and visuals use **speaking names** (e.g. `Page_COM001_Overview`, `KPI_1`, `Trend`, `Slicer_Date`) instead of Power BI default hex IDs.
+
+**Design spec:** [MOCKUP_DESIGN_SPEC.md](MOCKUP_DESIGN_SPEC.md) — principles, layout rules per page type, typography, spacing, decision question, accessibility.
+
+**Validation:** [VALIDATION_CHECKLIST.md](VALIDATION_CHECKLIST.md) — checklist for analytics path and UI/UX before treating a layout as done.
+
 ## Installation
 
 ```bash
@@ -75,7 +81,7 @@ mockup_gen.generate_mockup(
 
 ## Output Structure
 
-The generator creates a PBIP folder structure:
+The generator creates a PBIP folder structure with **speaking names** (no hex IDs):
 
 ```
 COM-001.Report/
@@ -84,20 +90,38 @@ COM-001.Report/
     pages.json
     version.json
     pages/
-      {page_id}/
+      Page_COM001_Overview/
         page.json
         visuals/
-          {visual_id}/
+          KPI_1/
             visual.json
+          KPI_2/
+            visual.json
+          Trend/
+            visual.json
+          Variance/
+            visual.json
+          Slicer_Date/
+            visual.json
+          ...
+      Page_COM001_Detail/
+        page.json
+        visuals/
+          KPI_1/
+            ...
+          DetailMatrix/
+            visual.json
+          ...
 ```
 
 ## HTML Mockup
 
-The HTML mockup provides a visual preview of the page layout:
-- Visual placeholders with dimensions
-- Color-coded visual types
-- Grid overlay (toggleable)
-- Export as image option
+The HTML mockup provides a visual preview of the page layout (same layout engine as PBIP):
+- Visual placeholders with **speaking labels** (e.g. KPI_1, Trend, Slicer_Date)
+- Color-coded visual types and CSS variables (see design spec)
+- Page type (T1/T2/T3/T4) and optional decision question in header
+- Grid overlay and "Toggle Dimensions" for developer vs presentation mode
+- Export as image option (requires html2canvas if used)
 
 Open the generated HTML file in a browser to preview the layout before opening in Power BI Desktop.
 
@@ -113,11 +137,13 @@ The generator reads from these governance files:
 ## Validation
 
 The generator validates:
-- Page name pattern
-- Template assignment
+- Speaking page name (e.g. `Page_COM001_Overview`)
+- Template assignment (T1–T4)
 - Slicer count (max 4)
 - Action Panel presence for T4 pages
 - Detail Matrix only on detail pages
+
+For **analytics path and UI/UX**, use [VALIDATION_CHECKLIST.md](VALIDATION_CHECKLIST.md) (stakeholder review).
 
 ## Examples
 
@@ -185,6 +211,13 @@ If visuals are positioned incorrectly:
 
 ## References
 
-- **Specification**: `page_scaffold_spec.md`
-- **Governance Files**: `framework/templates/page_templates/governance/`
+- **Design spec**: [MOCKUP_DESIGN_SPEC.md](MOCKUP_DESIGN_SPEC.md)
+- **Validation checklist**: [VALIDATION_CHECKLIST.md](VALIDATION_CHECKLIST.md)
+- **Governance files**: `framework/templates/page_templates/governance/`
 - **Example PBIP**: `showcases/sample_pbip_report/Procurement_Wireframe_Theme.Report/`
+
+### Design references (layout and hierarchy)
+
+- [Tremor template-dashboard-oss](https://github.com/tremorlabs/template-dashboard-oss) — analytics layout and visual hierarchy
+- [Tabler layout fluid](https://preview.tabler.io/layout-fluid.html) — fluid grid, dashboard layouts
+- [Microsoft Power BI design tips](https://learn.microsoft.com/en-us/power-bi/create-reports/service-dashboards-design-tips) — authority guidance

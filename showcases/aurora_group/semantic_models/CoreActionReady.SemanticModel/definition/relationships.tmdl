@@ -208,7 +208,6 @@ relationship q8r9s0t1-o2p3-4567-1234-6789-012345678901
 
 relationship security_user_org_dim_org
 	crossFilteringBehavior: bothDirections
-	securityFilteringBehavior: oneDirection
 	fromColumn: security_user_org.OrgKey
 	toColumn: dim_org.OrgKey
 
@@ -226,4 +225,8 @@ relationship aa897560-2240-43e6-940a-c8df1017e202
 	joinOnDateBehavior: datePartOnly
 	fromColumn: fact_ops_failures.'Failure End DateTime'
 	toColumn: LocalDateTable_eb612d2e-5c00-469e-85d4-7e756fcd3eaf.Date
+
+relationship d7e8f9a0-b1c2-3456-0123-567890123456
+	fromColumn: fact_ops_failures.DateKey
+	toColumn: dim_date.DateKey
 

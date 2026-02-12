@@ -45,6 +45,10 @@ templates/
     fact_template.yaml
     dim_template.yaml
 
+  silver_to_gold/
+    silver_to_gold_mapping_template.yaml   # Silver→Gold mapping (repeatable setup)
+    README.md
+
   README.md
 ```
 
@@ -78,6 +82,14 @@ Contains standard YAML structures for:
 - Dimension tables (keys, business codes, names, hierarchies)
 
 These support consistent upstream modeling across all domains.
+
+### silver_to_gold/
+
+Declarative mapping template for **Silver → Gold** transformation so setup is repeatable:
+
+- One mapping file per domain (or solution) listing Gold dimensions, facts, and action aggregates with Silver source(s), grain, and column/aggregation rules.
+- Same structure every time; ETL/ELT or codegen can produce Gold from Silver from this spec.
+- See `framework/strategy_operating_model/operating_model/data_layers_standard.md` (§5).
 
 ---
 

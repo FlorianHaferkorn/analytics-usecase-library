@@ -71,30 +71,30 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 
 ---
 
-## 6. Step 3 — Align Data: Contracts and Semantic Requirements
+## 6. Step 3 — Align Data: Silver Contracts and Semantic Requirements
 
-**Goal:** Ensure data is available and defined so the semantic model can be built.
+**Goal:** Define or adopt **Silver** (conformed, validated domain data) so Gold and the semantic model can be built. We start from Silver, not Gold. See `framework/strategy_operating_model/operating_model/data_layers_standard.md`.
 
 **Actions:**
 
 1. For each use case in the pack, read the **Technical Factsheet** (section 6: Data Requirements) — required facts, dimensions, grain, time range.
-2. Check if a **data contract** already exists for the domain (`framework/data_contracts/` or customer equivalent). If not, create a minimal contract (schema, grain, key fields) for the facts and dimensions needed.
-3. Confirm **source data** can supply these (e.g. ERP, CRM, data lake). Resolve gaps (new pipeline, staging, or scope reduction).
-4. Document **required entities** for the semantic model: facts, dimensions, grain. This becomes the input for Step 4.
+2. Check if a **Silver data contract** already exists for the domain (`framework/data_contracts/domains/`, `framework/data_contracts/sources/` or customer equivalent). If not, create a minimal contract (schema, grain, key fields) for the facts and dimensions needed for **Silver**.
+3. Confirm **source data** can supply these (e.g. ERP, CRM, data lake). Resolve gaps (new pipeline, staging, or scope reduction). Staging/Bronze are out of scope unless explicitly included.
+4. Document **required entities** for Silver and downstream semantic model: facts, dimensions, grain. This becomes the input for Step 4 (Gold/semantic model built from Silver).
 
-**Output:** Data contract(s) or contract references; list of required facts/dims; confirmation that source data exists or is planned.
+**Output:** Silver data contract(s) or contract references; list of required facts/dims; confirmation that source data exists or is planned.
 
-**Existing BI:** Document current data sources and mapping to framework entities; identify where contracts are missing or inconsistent.
+**Existing BI:** Map current data to Silver contracts; identify where contracts are missing or inconsistent.
 
 ---
 
 ## 7. Step 4 — Build Semantic Model and Measures
 
-**Goal:** Implement a semantic layer that exposes governed measures for the selected KPIs and use cases.
+**Goal:** Implement a semantic layer that exposes governed measures for the selected KPIs and use cases. Semantic model (and Gold, if used) consume **Silver** as defined in Step 3.
 
 **Actions:**
 
-1. **Design** the semantic model (tables, relationships, grain) to support the required facts and dimensions from Step 3. Use `framework/strategy_operating_model/operating_model/reference/ActionReady_SemanticModel_Blueprint.md` and implementation guide (e.g. Fabric) for patterns.
+1. **Design** the semantic model (tables, relationships, grain) to support the required facts and dimensions from Step 3 (Silver). Use `framework/strategy_operating_model/operating_model/reference/ActionReady_SemanticModel_Blueprint.md` and implementation guide (e.g. Fabric) for patterns.
 2. **Implement measures** for every required KPI in the use-case pack. Use the KPI Catalog and measure system rules (`operating_model/measure_system.md`). For Fabric/Power BI: generate or author TMDL; use `_internal/tools/generation/generate_tmdl_measures.ps1` if applicable.
 3. **Validate:** Run **Stage 1** from repo root: `.\_internal\tools\run_stage1_checks.ps1`. For Fabric: run `.\implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1` (measures vs KPI, TMDL vs measure dictionary). Fix any failures.
 
@@ -113,8 +113,9 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 1. **Pick one use case** from the pack for the first report (e.g. COM-002 Margin & Price Performance).
 2. **Layout:** Follow the use case's **5. 3-30-300 Page Layout** (Business Factsheet): 3-second layer (KPI cards), 30-second layer (main visuals), required slicers, 300-second layer (diagnostics).
 3. **Templates:** Use `framework/templates/page_templates/` and implementation guide (e.g. Fabric report structure, theme) for consistency.
-4. **Action codes:** Ensure the report (or an action panel) can surface which action codes apply when KPIs deviate (trigger levels L1–L3). Definitions stay in `framework/action_codes/`; report only references them.
-5. **Deploy** to a dev or test workspace; validate with business that definitions and layout match expectations.
+4. **Apply standardized theme:** Themes are **applied automatically** when using the page scaffold generator (unless `--no-theme` is set). The generator detects showcase default or framework default from `themes.config.json`. To override: use `--theme <name>` when generating scaffolds. To apply manually: `py implementations/microsoft_fabric_powerbi/tools/apply_report_theme.py path/to/Report --theme-name '<name>'`. Base theme remains fixed; custom theme defines the standardized look. For IBCS styling, use `--theme-name "IBCS_Light"` or set as default via `setup_theme_defaults.py`. Theme schema (optional): run `py implementations/microsoft_fabric_powerbi/tools/theme_generator/tools/theme-agent/fetch_latest_theme_schema.py --update-pin` once or in CI so validation uses the latest schema.
+5. **Action codes:** Ensure the report (or an action panel) can surface which action codes apply when KPIs deviate (trigger levels L1–L3). Definitions stay in `framework/action_codes/`; report only references them.
+6. **Deploy** to a dev or test workspace; validate with business that definitions and layout match expectations.
 
 **Output:** First report (e.g. PBIR in Fabric) consuming the semantic model; optional action layer or drill-through to action code documentation.
 
@@ -133,6 +134,15 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 3. **Review with business:** Confirm key questions are answered by the report; confirm action codes are understandable and owned.
 4. **Iterate:** Add the next use case from the pack; repeat Steps 4–6 as needed. Extend to more domains when ready.
 
+**Checklist for adding the next use case (Fabric/Power BI):**
+
+- [ ] Generate **scaffold** (and optional HTML mockup) for the use case: `generate_page_scaffold.py --use-case <ID> --page overview|detail --output <Report> --mockup <path>`.
+- [ ] **Bind visuals** to governed measures only (semantic model); no ad-hoc calculations in the report.
+- [ ] **Apply theme** (Theme Generator or `apply_report_theme`); document theme name and path.
+- [ ] Run **Report Documentation Generator** for the report: `generate_report_documentation.py --report <Report>`; store output in `showcases/<name>/reporting/Report_Documentation_<ID>.md`.
+- [ ] Run **Stage 1**: `.\_internal\tools\run_stage1_checks.ps1`.
+- [ ] Run **Fabric checks**: `.\implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1`.
+
 **Output:** Stable first report; checklist for adding the next use case; governance (ownership, change flow) in place.
 
 ---
@@ -141,6 +151,7 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 
 | Need | Location |
 |------|----------|
+| Data layers (Silver-first) | `framework/strategy_operating_model/operating_model/data_layers_standard.md` |
 | Strategy patterns | `framework/strategy_operating_model/company/strategy_patterns.md` |
 | Golden Thread | `framework/strategy_operating_model/operating_model/golden_thread_strategy_to_action.md` |
 | Use Case Inventory & Key Questions | `framework/usecases/UseCase_Inventory.md` |
@@ -148,7 +159,7 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 | KPI Catalog | `framework/kpi_catalog/KPI_Catalog.md`, `KPI_Taxonomy.md` |
 | Action codes & patterns | `framework/action_codes/`, `Action_Code_Patterns.md` |
 | Ownership RACI | `framework/strategy_operating_model/operating_model/ownership_raci_golden_thread.md` |
-| Data contracts | `framework/data_contracts/` |
+| Silver data contracts | `framework/data_contracts/` (domains/, sources/) |
 | Page templates | `framework/templates/page_templates/` |
 | Fabric/Power BI implementation | `implementations/microsoft_fabric_powerbi/guide/fabric_powerbi.md` |
 | Stage 1 (CI gate) | `_internal/tools/run_stage1_checks.ps1` |
@@ -160,7 +171,7 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 
 - [ ] Strategy pattern chosen; top Strategic KPIs listed and owned.
 - [ ] Use-case pack selected; key questions and required KPIs confirmed.
-- [ ] Data contract(s) and source data aligned with use-case requirements.
-- [ ] Semantic model built; measures align to KPI catalog; Stage 1 and (if Fabric) Fabric checks pass.
+- [ ] **Silver** data contract(s) and source data aligned with use-case requirements (Silver-first).
+- [ ] Semantic model built from Silver; measures align to KPI catalog; Stage 1 and (if Fabric) Fabric checks pass.
 - [ ] First report built with 3-30-300 layout and linked to action codes.
 - [ ] Business review completed; next use case(s) in pack planned.

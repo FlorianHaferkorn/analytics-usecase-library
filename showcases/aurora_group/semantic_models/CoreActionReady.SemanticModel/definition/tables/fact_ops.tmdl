@@ -24,36 +24,43 @@ table fact_ops
 	column 'Planned Time Minutes'
 		dataType: double
 		lineageTag: 97f99e3f-4d3b-48e0-984d-5509c3fb20ce
+		summarizeBy: none
 		sourceColumn: Planned Time Minutes
 
 	column 'Run Time Minutes'
 		dataType: double
 		lineageTag: dcd08fc3-cd8a-4ad5-b548-b5f00422e9eb
+		summarizeBy: none
 		sourceColumn: Run Time Minutes
 
 	column 'Downtime Minutes'
 		dataType: double
 		lineageTag: c4e671a7-b0bc-4378-a154-9d03e7e0c2dd
+		summarizeBy: none
 		sourceColumn: Downtime Minutes
 
 	column 'Output Units'
 		dataType: double
 		lineageTag: 146c2122-eda5-4b15-b986-13f21a29507a
+		summarizeBy: none
 		sourceColumn: Output Units
 
 	column 'Good Units'
 		dataType: double
 		lineageTag: 704a7f21-3533-4f4a-8c7f-b24226fd7bed
+		summarizeBy: none
 		sourceColumn: Good Units
 
 	column 'Scrap Units'
 		dataType: double
 		lineageTag: 9d3177ea-dad4-4bf8-9b49-e827ac06c7e4
+		summarizeBy: none
 		sourceColumn: Scrap Units
 
 	column 'Standard Rate Units Per Minute'
 		dataType: double
 		lineageTag: 58e057bb-3823-47e2-ae36-57f92cd42643
+		summarizeBy: none
 		sourceColumn: Standard Rate Units Per Minute
 
 	partition fact_ops = m
@@ -62,8 +69,8 @@ table fact_ops
 				let
 					Source = Folder.Files(GoldDataPath & "/facts/fact_ops"),
 					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-					FirstFile = FilteredFiles{0}[Content],
-					ParquetData = Parquet.Document(FirstFile)
+					ParquetTables = Table.AddColumn(FilteredFiles, "Parquet", each Parquet.Document([Content])),
+					Combined = Table.Combine(ParquetTables[Parquet])
 				in
-					ParquetData
+					Combined
 

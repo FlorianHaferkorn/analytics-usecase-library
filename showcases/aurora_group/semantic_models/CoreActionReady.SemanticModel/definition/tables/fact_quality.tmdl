@@ -24,26 +24,31 @@ table fact_quality
 	column 'Total Units'
 		dataType: double
 		lineageTag: 52a22a02-5339-4c37-a462-1c0bfc97fc78
+		summarizeBy: none
 		sourceColumn: Total Units
 
 	column 'Good Units'
 		dataType: double
 		lineageTag: de43df91-ec05-498a-8ab8-cb3413a38d3a
+		summarizeBy: none
 		sourceColumn: Good Units
 
 	column 'Scrap Units'
 		dataType: double
 		lineageTag: ddb9f6ba-bda0-4ecf-a85d-98436481f6eb
+		summarizeBy: none
 		sourceColumn: Scrap Units
 
 	column 'Rework Units'
 		dataType: double
 		lineageTag: 55e7eb84-7960-4206-8d5a-da678c3e5d79
+		summarizeBy: none
 		sourceColumn: Rework Units
 
 	column 'Defect Count'
 		dataType: double
 		lineageTag: cd0dc515-be11-49c5-9e7f-5818d0dae670
+		summarizeBy: none
 		sourceColumn: Defect Count
 
 	partition fact_quality = m
@@ -52,8 +57,8 @@ table fact_quality
 				let
 					Source = Folder.Files(GoldDataPath & "/facts/fact_quality"),
 					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-					FirstFile = FilteredFiles{0}[Content],
-					ParquetData = Parquet.Document(FirstFile)
+					ParquetTables = Table.AddColumn(FilteredFiles, "Parquet", each Parquet.Document([Content])),
+					Combined = Table.Combine(ParquetTables[Parquet])
 				in
-					ParquetData
+					Combined
 

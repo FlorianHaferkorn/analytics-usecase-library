@@ -1,20 +1,14 @@
 # Implementation Guides
 
-These guides are optional.
-They explain how to implement the framework on specific platforms.
-They are not required to understand or use the framework.
+Platform-specific guides to implement the ActionReady framework. **Start here** for Fabric/Power BI.
 
 ## Purpose
 
-Translate the **ActionReady Operating Model** (semantics, UX, governance, AI-readiness)  
-into concrete, platform-specific implementation practices.
+Translate the **ActionReady Operating Model** (semantics, UX, governance, AI-readiness) into concrete, platform-specific implementation practices. Currently provided: **Microsoft Fabric / Power BI**.
 
-These guides explain **how** to realize the conceptual framework inside specific analytics platforms.
-Currently provided:
+## Data layers (Silver-first)
 
-- Microsoft Fabric / Power BI
-
-They ensure that every technical implementation delivers the same high-quality, governed result - regardless of the underlying technology stack.
+We **define Silver** via data contracts; we **deliver** Gold + Semantics. Start from Silver—do not start from Gold-only. See `framework/strategy_operating_model/operating_model/data_layers_standard.md`.
 
 ---
 
@@ -120,14 +114,12 @@ Covers:
 
 ---
 
-## Next Step
+## Next step (single path)
 
-Start with:
-
-- **`fabric_architecture_best_practices.md`** for workspace strategy, CI/CD, Git, and adoption path (easy to set up, framework-fit).
-- **`fabric_powerbi.md`** if you are implementing in Microsoft Fabric (operating model mapping, PBIP, measures, RLS, UX).  
-- **`tmdl_best_practices.md`** for TMDL syntax, formatting, and DAX/measure conventions.  
-- Run **`run_fabric_checks.ps1`** (in `implementations/microsoft_fabric_powerbi/tools/`) after changes to measures or TMDL.
+1. **`fabric_architecture_best_practices.md`** — workspace strategy, CI/CD, Git, adoption path.
+2. **`fabric_powerbi.md`** — operating model mapping, PBIP, measures, RLS, UX (Silver → Gold → Semantics).
+3. **`tmdl_best_practices.md`** — TMDL syntax, formatting, DAX/measure conventions.
+4. After changes: run **`run_fabric_checks.ps1`** from repo root (`implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1`).
 
 ---
 

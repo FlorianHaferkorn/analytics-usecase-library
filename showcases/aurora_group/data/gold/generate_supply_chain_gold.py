@@ -24,6 +24,7 @@ from _generator_utils import (
     apply_monthly_seasonality,
     apply_combined_seasonality,
     get_monthly_date_keys,
+    write_fact_delta,
     FACTS_START,
     FACTS_END,
 )
@@ -148,8 +149,8 @@ for date_obj in month_end_dates:
                 "Obsolete Inventory Units": float(obsolete_units),
             })
 
-pd.DataFrame(rows_inv).to_parquet(fact_inv_dir / "part-00000.parquet", index=False)
-print(f"Written fact_inventory ({len(rows_inv):,} records)")
+fmt = write_fact_delta(fact_inv_dir, pd.DataFrame(rows_inv), partition_by=["Fiscal Year"])
+print(f"Written fact_inventory ({len(rows_inv):,} records) [{fmt}]")
 
 # fact_cogs (location_sku_month) - Monthly COGS with seasonality
 fact_cogs_dir = facts / "fact_cogs"
@@ -180,8 +181,8 @@ for date_obj in month_end_dates:
                 "COGS Amount": round(cogs_amount, 2),
             })
 
-pd.DataFrame(rows_cogs).to_parquet(fact_cogs_dir / "part-00000.parquet", index=False)
-print(f"Written fact_cogs ({len(rows_cogs):,} records)")
+fmt = write_fact_delta(fact_cogs_dir, pd.DataFrame(rows_cogs), partition_by=["Fiscal Year"])
+print(f"Written fact_cogs ({len(rows_cogs):,} records) [{fmt}]")
 
 # fact_fulfillment (order grain) - Daily orders with seasonality
 fact_fulfill_dir = facts / "fact_fulfillment"
@@ -239,8 +240,8 @@ for date_obj in sampled_dates_fulfill:
             "Expedite Cost": round(expedite_cost, 2),
         })
 
-pd.DataFrame(rows_fulfill).to_parquet(fact_fulfill_dir / "part-00000.parquet", index=False)
-print(f"Written fact_fulfillment ({len(rows_fulfill):,} records)")
+fmt = write_fact_delta(fact_fulfill_dir, pd.DataFrame(rows_fulfill), partition_by=["Fiscal Year"])
+print(f"Written fact_fulfillment ({len(rows_fulfill):,} records) [{fmt}]")
 
 # fact_stockout (location_sku_day) - Daily stockout tracking with seasonality
 fact_stock_dir = facts / "fact_stockout"
@@ -281,8 +282,8 @@ for date_obj in sampled_dates_stock:
                 "Demand Units": float(demand_units),
             })
 
-pd.DataFrame(rows_stock).to_parquet(fact_stock_dir / "part-00000.parquet", index=False)
-print(f"Written fact_stockout ({len(rows_stock):,} records)")
+fmt = write_fact_delta(fact_stock_dir, pd.DataFrame(rows_stock), partition_by=["Fiscal Year"])
+print(f"Written fact_stockout ({len(rows_stock):,} records) [{fmt}]")
 
 # fact_forecast (sku_month) - Monthly forecasts for full period with seasonality
 fact_forecast_dir = facts / "fact_forecast"
@@ -323,7 +324,7 @@ for date_obj in month_end_dates:
                     "Forecast Version": version,
                 })
 
-pd.DataFrame(rows_forecast).to_parquet(fact_forecast_dir / "part-00000.parquet", index=False)
-print(f"Written fact_forecast ({len(rows_forecast):,} records)")
+fmt = write_fact_delta(fact_forecast_dir, pd.DataFrame(rows_forecast), partition_by=["Fiscal Year"])
+print(f"Written fact_forecast ({len(rows_forecast):,} records) [{fmt}]")
 
 print("\n[OK] Supply Chain gold data generation complete!")

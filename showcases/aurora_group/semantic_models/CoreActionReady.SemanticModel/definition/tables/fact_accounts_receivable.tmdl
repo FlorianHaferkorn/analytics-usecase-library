@@ -24,11 +24,13 @@ table fact_accounts_receivable
 	column 'AR Amount'
 		dataType: double
 		lineageTag: 526d015a-dfd1-4c64-8082-6baaf126891e
+		summarizeBy: none
 		sourceColumn: AR Amount
 
 	column 'Revenue Amount'
 		dataType: double
 		lineageTag: 360bfc95-909a-471c-ba0d-c37f8f135d9d
+		summarizeBy: none
 		sourceColumn: Revenue Amount
 
 	partition fact_accounts_receivable = m
@@ -37,8 +39,8 @@ table fact_accounts_receivable
 				let
 					Source = Folder.Files(GoldDataPath & "/facts/fact_accounts_receivable"),
 					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-					FirstFile = FilteredFiles{0}[Content],
-					ParquetData = Parquet.Document(FirstFile)
+					ParquetTables = Table.AddColumn(FilteredFiles, "Parquet", each Parquet.Document([Content])),
+					Combined = Table.Combine(ParquetTables[Parquet])
 				in
-					ParquetData
+					Combined
 

@@ -138,7 +138,61 @@ class ConfigLoader:
                 return frontmatter
         
         return None
-    
+
+    def _resolve_business_factsheet_path(self, use_case_id: str) -> Optional[Path]:
+        """Resolve path to Business Factsheet: core/{id}_Name/Business_Factsheet.md or core/{id}_Business_Factsheet.md."""
+        core = self.usecases_root / "core"
+        # Folder per use case: COM-001_Sales_Performance/Business_Factsheet.md
+        if core.exists():
+            for p in core.iterdir():
+                if p.is_dir() and p.name.startswith(f"{use_case_id}_"):
+                    f = p / "Business_Factsheet.md"
+                    if f.exists():
+                        return f
+        # Flat file
+        flat = core / f"{use_case_id}_Business_Factsheet.md"
+        if flat.exists():
+            return flat
+        flat = self.usecases_root / f"{use_case_id}_Business_Factsheet.md"
+        return flat if flat.exists() else None
+
+    def get_primary_decision_question(self, use_case_id: str) -> Optional[str]:
+        """
+        Get the primary decision question (first Core Business Question) from the use case Business Factsheet.
+        Used for mockup header so the analytics path is self-explanatory.
+
+        Args:
+            use_case_id: Use case ID (e.g., "COM-001")
+
+        Returns:
+            First question from section "2. Core Business Questions" or None if not found
+        """
+        factsheet_path = self._resolve_business_factsheet_path(use_case_id)
+        if not factsheet_path:
+            return None
+        with open(factsheet_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        # Find "## 2. Core Business Questions" and take first list item
+        marker = "## 2. Core Business Questions"
+        if marker not in content:
+            return None
+        after = content.split(marker, 1)[1]
+        # Next section starts with ## or end of file; first list item only (with optional continuation lines)
+        lines = after.split("\n")
+        first_text = None
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith("##"):
+                break
+            if stripped.startswith("- ") and len(stripped) > 2:
+                if first_text is not None:
+                    break  # already have first bullet; stop
+                first_text = stripped[2:].strip()
+                continue
+            if first_text is not None and stripped and not stripped.startswith("-"):
+                first_text = f"{first_text} {stripped}"
+        return first_text
+
     def load_use_case_inventory(self) -> Dict[str, Any]:
         """Load UseCase_Inventory.md to get use case titles."""
         inventory_file = self.repo_root / "framework" / "usecases" / "UseCase_Inventory.md"

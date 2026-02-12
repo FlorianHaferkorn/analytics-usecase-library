@@ -25,7 +25,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Net Sales % vs Plan"
   is_kpi_measure: true
@@ -52,7 +52,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Net Sales % vs LY"
   is_kpi_measure: false
@@ -79,7 +79,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Gross Margin Amount"
   is_kpi_measure: false
@@ -105,7 +105,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Gross Margin %"
   is_kpi_measure: false
@@ -130,7 +130,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Gross Margin % vs Plan"
   is_kpi_measure: false
@@ -164,7 +164,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Price Effect Amount"
   is_kpi_measure: true
@@ -197,7 +197,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Volume Effect Amount"
   is_kpi_measure: true
@@ -230,7 +230,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Mix Effect Amount"
   is_kpi_measure: true
@@ -261,7 +261,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Price Realization %"
   is_kpi_measure: false
@@ -286,7 +286,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Promotion ROI %"
   is_kpi_measure: false
@@ -312,7 +312,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Incremental Sales Amount"
   is_kpi_measure: true
@@ -337,7 +337,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Cannibalized Sales Amount"
   is_kpi_measure: false
@@ -372,7 +372,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Cannibalization %"
   is_kpi_measure: true
@@ -411,7 +411,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Promo Gross Margin %"
   is_kpi_measure: false
@@ -439,7 +439,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "COGS per Unit"
   is_kpi_measure: true
@@ -465,7 +465,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 # Supporting base measures
 - measure_name: "Plan Sales Amount"
@@ -490,7 +490,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Last Year Sales Amount"
   is_kpi_measure: false
@@ -514,7 +514,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Plan Gross Margin Amount"
   is_kpi_measure: false
@@ -540,7 +540,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Net Price Amount"
   is_kpi_measure: false
@@ -564,7 +564,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "List Price Amount"
   is_kpi_measure: false
@@ -588,7 +588,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Cost of Goods Sold Amount"
   is_kpi_measure: false
@@ -612,7 +612,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Plan COGS Amount"
   is_kpi_measure: false
@@ -636,7 +636,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Quantity"
   is_kpi_measure: false
@@ -660,7 +660,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Plan Quantity"
   is_kpi_measure: false
@@ -684,7 +684,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Discount Amount"
   is_kpi_measure: false
@@ -708,7 +708,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Rebate Amount"
   is_kpi_measure: false
@@ -732,7 +732,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Surcharge Amount"
   is_kpi_measure: false
@@ -756,7 +756,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Promo Gross Margin Uplift Amount"
   is_kpi_measure: false
@@ -782,7 +782,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Incremental Gross Margin Amount"
   is_kpi_measure: false
@@ -808,7 +808,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Baseline Sales Amount"
   is_kpi_measure: false
@@ -832,7 +832,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Baseline Quantity"
   is_kpi_measure: false
@@ -856,7 +856,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Funding Amount"
   is_kpi_measure: false
@@ -880,7 +880,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Promo Cost"
   is_kpi_measure: false
@@ -904,7 +904,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 # TMDL display-name aliases (generated models use these names)
 - measure_name: "Delta% Net Sales"
@@ -926,7 +926,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "Net Sales"
   is_kpi_measure: false
@@ -946,7 +946,7 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 
 - measure_name: "GM % During Promo"
   is_kpi_measure: false
@@ -966,5 +966,5 @@ Schema: see `framework/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: "Commercial BI"
     status: "active"
     version: "v1.2"
-    last_review: "TBD"
+    last_review: "06.02.2026"
 ```

@@ -2,18 +2,17 @@
 
 The lakehouse architecture defines how analytical data is structured, stored, and consumed in a cloud-native, tool-agnostic manner.
 
-This architecture enables the Golden Thread and Operating Model to be implemented across platforms (Fabric, Databricks, Snowflake) while maintaining consistency and performance.
+**Data layers (entry point):** We start from **Silver** (defined by data contracts). Gold is derived from Silver for consumption. Staging/Bronze are out of scope unless explicitly included. See `data_layers_standard.md`.
 
-It does not define strategy, KPIs, or actions.
-It provides the technical foundation for their analytical execution.
+This architecture enables the Golden Thread and Operating Model to be implemented across platforms (Fabric, Databricks, Snowflake) while maintaining consistency and performance. It does not define strategy, KPIs, or actions; it provides the technical foundation for their analytical execution.
 
 ## 1. Role in the Framework
 
 The lakehouse architecture operationalizes the data foundation for the semantic layer and measure system.
 
-- Data contracts define the expected structure and quality of analytical data.
-- The lakehouse architecture implements these contracts in a scalable, performant manner.
-- Semantic models consume lakehouse tables without redefining structure or meaning.
+- **Data contracts define Silver** (conformed, validated domain data); see `framework/data_contracts/`.
+- The lakehouse implements **Silver → Gold** in a scalable, performant manner.
+- Semantic models consume **Gold** (and thus Silver) without redefining structure or meaning.
 
 The lakehouse acts as the bridge between source systems and analytical consumption.
 
@@ -321,23 +320,15 @@ The lakehouse architecture is designed to work across platforms.
 - Only connection/authentication changes
 - Semantic model logic (DAX/SQL) is preserved
 
-## 8. Data Contracts Alignment
+## 8. Data Contracts and Silver → Gold
 
-The gold layer structure implements data contracts defined in `data_contracts/domains/`.
+**Silver** is defined by data contracts (`data_contracts/domains/`): schema, grain, keys, quality expectations. **Gold** is derived from Silver and may differ (different grain, subset of columns, action aggregates, star layout). See `data_layers_standard.md` (Silver vs Gold).
 
-**Contract Elements:**
-- Schema (columns, types, nullability)
-- Grain (explicit business grain)
-- Relationships (foreign keys)
-- Partitioning (time-based)
-- Quality rules (constraints, ranges)
+**Contract (Silver) elements:** schema (columns, types, nullability), grain, relationships (foreign keys), partitioning, quality rules.
 
-**Validation:**
-- Automated checks ensure gold layer matches contracts
-- Schema drift is detected and alerted
-- Relationship integrity is validated
+**Silver → Gold:** Transformation (mapping, aggregation, action aggregates) should be defined per domain so Gold is reproducible. Gold structure (folders, format) follows this document; transformation rules are not yet a single standard in the repo.
 
-Contracts are the source of truth; the gold layer implements them.
+**Validation:** Automated checks should ensure Silver matches contracts and Gold is consistent with the defined Silver→Gold rules; schema drift and relationship integrity validated.
 
 ## 9. Governance and Validation
 

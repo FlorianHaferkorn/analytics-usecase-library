@@ -102,6 +102,7 @@ To implement one use case end-to-end (e.g. COM-001):
 
 3. Run **Stage 1** to ensure framework consistency: `.\_internal\tools\run_stage1_checks.ps1`.
 4. If you have Fabric/Power BI output, run **Fabric checks**: `implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1`.
+5. **Apply report theme (recommended):** `py implementations/microsoft_fabric_powerbi/tools/apply_report_theme.py path/to/Report --theme-name 'Generic__Monochromatic__Light__#118DFF'` (or your showcase default). When generating scaffolds, use `--theme` so the theme is applied in the same step.
 
 For Fabric/Power BI layout, PBIP, and best practices, see `implementations/microsoft_fabric_powerbi/guide/`.
 

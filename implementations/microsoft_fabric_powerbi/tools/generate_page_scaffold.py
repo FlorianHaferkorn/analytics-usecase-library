@@ -38,7 +38,13 @@ def main():
     parser.add_argument(
         '--theme',
         default=None,
-        help='Theme name (e.g., "Brand Blue__Monochromatic__Light__#118DFF"). Defaults to framework default.'
+        help='Theme name (e.g., "Brand Blue__Monochromatic__Light__#118DFF"). If not provided, uses showcase or framework default.'
+    )
+    
+    parser.add_argument(
+        '--no-theme',
+        action='store_true',
+        help='Skip theme application (opt-out). By default, themes are applied automatically.'
     )
     
     parser.add_argument(
@@ -90,17 +96,51 @@ def main():
         print(f"Writing PBIP structure to {args.output}...")
         generator.write(args.output)
         print("[OK] PBIP structure written successfully")
-        
-        # Generate mockup if requested
+
+        # Apply theme automatically unless --no-theme (opt-out, not opt-in)
+        if not args.no_theme:
+            try:
+                from apply_report_theme import apply_theme, resolve_theme_path, get_default_theme_name
+                report_path = Path(args.output).resolve()
+                
+                # Determine theme: explicit --theme → showcase default → framework default
+                theme_name = args.theme
+                if not theme_name:
+                    theme_name = get_default_theme_name(report_path)
+                
+                if theme_name:
+                    theme_path = resolve_theme_path(theme_name)
+                    if theme_path is not None:
+                        apply_theme(
+                            report_path=report_path,
+                            theme_source_path=theme_path,
+                            custom_theme_name=theme_name,
+                            base_theme_name="CY25SU10",
+                            validate=False,
+                        )
+                        # Silent success for auto-applied themes
+                        source = "explicit" if args.theme else ("showcase default" if "showcases" in str(report_path) else "framework default")
+                        print(f"[OK] Theme applied: {theme_name} (from {source})")
+                    else:
+                        print(f"[WARN] Theme not found under theme_generator/themes/: {theme_name}. Report has base theme only.", file=sys.stderr)
+                else:
+                    # No default configured - this is OK, report has base theme only
+                    pass
+            except Exception as e:
+                print(f"[WARN] Could not apply theme: {e}. Report has base theme only.", file=sys.stderr)
+
+        # Generate mockup if requested (decision question from Business Factsheet for header)
         if args.mockup:
             print(f"Generating HTML mockup to {args.mockup}...")
             mockup_gen = MockupGenerator()
             page_structure = generator.get_page_structure()
+            decision_question = generator.config_loader.get_primary_decision_question(args.use_case)
             mockup_gen.generate_mockup(
                 page_structure=page_structure,
                 use_case_id=args.use_case,
                 page_name=args.page,
-                output_path=args.mockup
+                output_path=args.mockup,
+                decision_question=decision_question,
             )
             print("[OK] HTML mockup generated successfully")
             print(f"  Open {args.mockup} in a browser to preview the layout")

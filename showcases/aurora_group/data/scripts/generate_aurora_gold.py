@@ -20,9 +20,12 @@ import numpy as np
 from pathlib import Path
 from datetime import datetime
 import random
+import subprocess
 import sys
 
 gold = (Path(__file__).resolve().parent.parent / "gold")
+# Repo root (for running standalone scripts that expect cwd=repo root)
+repo_root = gold.parent.parent.parent.parent
 dims = gold / "dimensions"
 facts = gold / "facts"
 
@@ -38,6 +41,7 @@ from _generator_utils import (
     get_fact_date_keys,
     apply_monthly_seasonality,
     apply_combined_seasonality,
+    write_fact_delta,
     FACTS_START,
     FACTS_END,
 )
@@ -83,123 +87,22 @@ def _resolve_keys():
     return org_keys, date_keys, product_keys, customer_keys
 
 
-def run_operations(org_keys, date_keys, product_keys):
-    # dim_asset
-    dim_asset_dir = dims / "dim_asset"
-    dim_asset_dir.mkdir(parents=True, exist_ok=True)
-    rows_asset = []
-    for i, ok in enumerate(org_keys[:5]):
-        rows_asset.append({
-            "AssetKey": 1000 + i,
-            "AssetCode": f"A{i+1:03d}",
-            "AssetName": f"Line Asset {i+1}",
-            "AssetClass": "Production Line",
-            "Criticality": "High" if i < 2 else "Medium",
-            "OrgKey": ok,
-        })
-    pd.DataFrame(rows_asset).to_parquet(dim_asset_dir / "part-00000.parquet", index=False)
-    print("Written dim_asset")
-    asset_keys = [r["AssetKey"] for r in rows_asset]
-
-    # fact_ops
-    (facts / "fact_ops").mkdir(parents=True, exist_ok=True)
-    rows_ops = []
-    for dk in date_keys[:6]:
-        for ok in org_keys[:2]:
-            for ak in asset_keys[:2]:
-                rows_ops.append({
-                    "DateKey": dk, "OrgKey": ok, "AssetKey": ak,
-                    "Planned Time Minutes": 480.0, "Run Time Minutes": 420.0, "Downtime Minutes": 60.0,
-                    "Output Units": 5000.0, "Good Units": 4800.0, "Scrap Units": 200.0,
-                    "Standard Rate Units Per Minute": 12.0,
-                })
-    pd.DataFrame(rows_ops).to_parquet(facts / "fact_ops" / "part-00000.parquet", index=False)
-    print("Written fact_ops")
-
-    # fact_ops_failures
-    base_dt = datetime(2024, 1, 15, 8, 0, 0)
-    (facts / "fact_ops_failures").mkdir(parents=True, exist_ok=True)
-    rows_fail = []
-    for i, ak in enumerate(asset_keys[:2]):
-        rows_fail.append({
-            "AssetKey": ak,
-            "Failure Start DateTime": base_dt,
-            "Failure End DateTime": base_dt.replace(hour=10, minute=30),
-            "Repair Duration Hours": 2.5, "Downtime Minutes": 150.0, "Cause Code": "Mechanical",
-        })
-    pd.DataFrame(rows_fail).to_parquet(facts / "fact_ops_failures" / "part-00000.parquet", index=False)
-    print("Written fact_ops_failures")
-
-    # fact_maintenance
-    (facts / "fact_maintenance").mkdir(parents=True, exist_ok=True)
-    rows_maint = []
-    for ak in asset_keys[:3]:
-        for dk in date_keys[:3]:
-            rows_maint.append({
-                "AssetKey": ak, "DateKey": dk,
-                "Order Type": "PM", "Order Status": "Completed", "On Time Flag": True, "Parts Stockout Flag": False,
-            })
-    pd.DataFrame(rows_maint).to_parquet(facts / "fact_maintenance" / "part-00000.parquet", index=False)
-    print("Written fact_maintenance")
-
-    # fact_quality
-    (facts / "fact_quality").mkdir(parents=True, exist_ok=True)
-    rows_qual = []
-    for dk in date_keys[:4]:
-        for ok in org_keys[:2]:
-            for pk in product_keys[:2]:
-                rows_qual.append({
-                    "DateKey": dk, "OrgKey": ok, "ProductKey": pk,
-                    "Total Units": 1000.0, "Good Units": 950.0, "Scrap Units": 30.0,
-                    "Rework Units": 20.0, "Defect Count": 5.0,
-                })
-    pd.DataFrame(rows_qual).to_parquet(facts / "fact_quality" / "part-00000.parquet", index=False)
-    print("Written fact_quality")
+def run_operations(_org_keys, _date_keys, _product_keys):
+    """Delegate to standalone script for consistent quality: realistic asset names, seasonality, variation (2020-2024 daily)."""
+    script = (gold / "generate_operations_gold.py").resolve()
+    if not script.exists():
+        raise FileNotFoundError(f"Operations generator not found: {script}")
+    print("Delegating operations to generate_operations_gold.py (daily data 2020-2024)...", flush=True)
+    subprocess.run([sys.executable, str(script)], cwd=str(repo_root.resolve()), check=True)
 
 
-def run_supply_chain(org_keys, date_keys, product_keys):
-    # dim_lane
-    (dims / "dim_lane").mkdir(parents=True, exist_ok=True)
-    rows_lane = [
-        {"LaneKey": 1, "Origin": "DC-NL", "Destination": "DE", "Mode": "Road"},
-        {"LaneKey": 2, "Origin": "DC-DE", "Destination": "AT", "Mode": "Road"},
-    ]
-    pd.DataFrame(rows_lane).to_parquet(dims / "dim_lane" / "part-00000.parquet", index=False)
-    print("Written dim_lane")
-    lane_keys = [r["LaneKey"] for r in rows_lane]
-
-    # fact_inventory, fact_cogs, fact_fulfillment, fact_stockout, fact_forecast
-    for name, key_extra, rows_fn in [
-        ("fact_inventory", None, lambda: [
-            {"DateKey": dk, "OrgKey": ok, "ProductKey": pk,
-             "Average Inventory Amount": 50000.0, "Average Inventory Units": 1000.0,
-             "Obsolete Inventory Amount": 1000.0, "Obsolete Inventory Units": 20.0}
-            for dk in date_keys[:6] for ok in org_keys[:2] for pk in product_keys[:3]
-        ]),
-        ("fact_cogs", None, lambda: [
-            {"DateKey": dk, "OrgKey": ok, "ProductKey": pk, "COGS Amount": 40000.0}
-            for dk in date_keys[:6] for ok in org_keys[:2] for pk in product_keys[:3]
-        ]),
-        ("fact_fulfillment", lane_keys, lambda: [
-            {"DateKey": dk, "OrgKey": ok, "ProductKey": pk, "LaneKey": lk,
-             "OTIF Flag": True, "On-Time Flag": True, "In-Full Flag": True, "Order Correct Flag": True,
-             "Order Qty": 100.0, "Penalty Amount": 0.0, "Expedite Cost": 0.0}
-            for dk in date_keys[:4] for ok in org_keys[:2] for pk in product_keys[:2] for lk in (lane_keys[:1])
-        ]),
-        ("fact_stockout", None, lambda: [
-            {"DateKey": dk, "OrgKey": ok, "ProductKey": pk,
-             "Stockout Flag": False, "Lost Demand Units": 0.0, "Demand Units": 500.0}
-            for dk in date_keys[:6] for ok in org_keys[:2] for pk in product_keys[:2]
-        ]),
-        ("fact_forecast", None, lambda: [
-            {"DateKey": dk, "ProductKey": pk, "OrgKey": ok, "Forecast Units": 800.0, "Forecast Version": "v1"}
-            for dk in date_keys[:6] for pk in product_keys[:3] for ok in org_keys[:2]
-        ]),
-    ]:
-        (facts / name).mkdir(parents=True, exist_ok=True)
-        rows = rows_fn()
-        pd.DataFrame(rows).to_parquet(facts / name / "part-00000.parquet", index=False)
-        print(f"Written {name}")
+def run_supply_chain(_org_keys, _date_keys, _product_keys):
+    """Delegate to standalone script for consistent quality: seasonality, org-derived lanes, variation (2020-2024)."""
+    script = (gold / "generate_supply_chain_gold.py").resolve()
+    if not script.exists():
+        raise FileNotFoundError(f"Supply chain generator not found: {script}")
+    print("Delegating supply_chain to generate_supply_chain_gold.py (2020-2024)...", flush=True)
+    subprocess.run([sys.executable, str(script)], cwd=str(repo_root.resolve()), check=True)
 
 
 def run_experience_promo(org_keys, date_keys, customer_keys):
@@ -243,8 +146,9 @@ def run_experience_promo(org_keys, date_keys, customer_keys):
             })
             complaint_id += 1
     
-    pd.DataFrame(rows_experience).to_parquet(facts / "fact_experience" / "part-00000.parquet", index=False)
-    print(f"Written fact_experience ({len(rows_experience):,} complaints)")
+    df_experience = pd.DataFrame(rows_experience)
+    fmt = write_fact_delta(facts / "fact_experience", df_experience, partition_by=["Fiscal Year"])
+    print(f"Written fact_experience ({len(rows_experience):,} complaints) [{fmt}]")
 
     # fact_promo - Promotion performance metrics
     (facts / "fact_promo").mkdir(parents=True, exist_ok=True)
@@ -395,131 +299,91 @@ def run_xd_finance(org_keys, date_keys, customer_keys):
     pd.DataFrame(rows).to_parquet(facts / "fact_workforce_management" / "part-00000.parquet", index=False)
     print(f"Written fact_workforce_management ({len(rows):,} records)")
 
-    # fact_accounts_payable - Monthly AP with seasonality
-    (facts / "fact_accounts_payable").mkdir(parents=True, exist_ok=True)
+    # fact_accounts_payable - Monthly AP with seasonality (Delta, partitioned by Fiscal Year)
     supplier_keys = [1, 2, 3, 4, 5, 6, 7, 8]
     rows = []
-    
     month_end_dates = [d for d in fact_dates if d.is_month_end]
-    
     print(f"Generating fact_accounts_payable for {len(month_end_dates)} months...")
-    
     for date_obj in month_end_dates:
         date_key = int(date_obj.strftime('%Y%m%d'))
-        
-        # AP follows COGS seasonality
-        seasonality_factor = apply_monthly_seasonality(
-            date_obj,
-            base_factor=1.0,
-            seed=RANDOM_SEED,
-        )
-        
+        seasonality_factor = apply_monthly_seasonality(date_obj, base_factor=1.0, seed=RANDOM_SEED)
         for ok in org_keys[:10]:
             for sk in supplier_keys:
                 base_ap = 10000.0 + sk * 1000
                 ap_amount = base_ap * seasonality_factor * random.uniform(0.85, 1.15)
                 cogs_amount = ap_amount * random.uniform(0.75, 0.90)
-                
                 rows.append({
                     "DateKey": date_key, "OrgKey": ok, "SupplierKey": sk,
                     "AP Amount": round(ap_amount, 2), "COGS Amount": round(cogs_amount, 2),
                 })
-    
-    pd.DataFrame(rows).to_parquet(facts / "fact_accounts_payable" / "part-00000.parquet", index=False)
-    print(f"Written fact_accounts_payable ({len(rows):,} records)")
+    df_ap = pd.DataFrame(rows)
+    df_ap["Fiscal Year"] = df_ap["DateKey"].astype(str).str[:4]
+    fmt = write_fact_delta(facts / "fact_accounts_payable", df_ap, partition_by=["Fiscal Year"])
+    print(f"Written fact_accounts_payable ({len(rows):,} records) [{fmt}]")
 
-    # fact_accounts_receivable - Monthly AR with seasonality
-    (facts / "fact_accounts_receivable").mkdir(parents=True, exist_ok=True)
+    # fact_accounts_receivable - Monthly AR with seasonality (Delta, partitioned by Fiscal Year)
     rows = []
-    
     print(f"Generating fact_accounts_receivable for {len(month_end_dates)} months...")
-    
     for date_obj in month_end_dates:
         date_key = int(date_obj.strftime('%Y%m%d'))
-        
-        # AR follows sales seasonality
-        seasonality_factor = apply_monthly_seasonality(
-            date_obj,
-            base_factor=1.0,
-            seed=RANDOM_SEED,
-        )
-        
+        seasonality_factor = apply_monthly_seasonality(date_obj, base_factor=1.0, seed=RANDOM_SEED)
         for ok in org_keys[:10]:
             for ck in customer_keys[:20]:
                 base_ar = 5000.0 + ck * 200
                 ar_amount = base_ar * seasonality_factor * random.uniform(0.85, 1.15)
                 revenue_amount = ar_amount * random.uniform(1.1, 1.3)
-                
                 rows.append({
                     "DateKey": date_key, "OrgKey": ok, "CustomerKey": ck,
                     "AR Amount": round(ar_amount, 2), "Revenue Amount": round(revenue_amount, 2),
                 })
-    
-    pd.DataFrame(rows).to_parquet(facts / "fact_accounts_receivable" / "part-00000.parquet", index=False)
-    print(f"Written fact_accounts_receivable ({len(rows):,} records)")
+    df_ar = pd.DataFrame(rows)
+    df_ar["Fiscal Year"] = df_ar["DateKey"].astype(str).str[:4]
+    fmt = write_fact_delta(facts / "fact_accounts_receivable", df_ar, partition_by=["Fiscal Year"])
+    print(f"Written fact_accounts_receivable ({len(rows):,} records) [{fmt}]")
 
-    # fact_cash_position - Daily cash with seasonality
-    (facts / "fact_cash_position").mkdir(parents=True, exist_ok=True)
+    # fact_cash_position - Daily cash with seasonality (Delta, partitioned by Fiscal Year)
     rows = []
-    
     print(f"Generating fact_cash_position for {len(sampled_dates)} dates...")
-    
     for date_obj in sampled_dates:
         date_key = int(date_obj.strftime('%Y%m%d'))
-        
-        # Cash position varies with seasonality
         seasonality_factor = apply_combined_seasonality(
-            date_obj,
-            base_factor=1.0,
-            monthly_weight=0.6,
-            weekly_weight=0.4,
-            seed=RANDOM_SEED,
+            date_obj, base_factor=1.0, monthly_weight=0.6, weekly_weight=0.4, seed=RANDOM_SEED
         )
-        
         for ok in org_keys[:10]:
             base_cash = 250000.0
             cash_balance = base_cash * seasonality_factor * random.uniform(0.90, 1.10)
             plan_cash = cash_balance * random.uniform(0.92, 0.98)
-            
             rows.append({
                 "DateKey": date_key, "OrgKey": ok,
                 "Cash Balance Amount": round(cash_balance, 2), "Plan Cash Amount": round(plan_cash, 2),
             })
-    
-    pd.DataFrame(rows).to_parquet(facts / "fact_cash_position" / "part-00000.parquet", index=False)
-    print(f"Written fact_cash_position ({len(rows):,} records)")
+    df_cp = pd.DataFrame(rows)
+    df_cp["Fiscal Year"] = df_cp["DateKey"].astype(str).str[:4]
+    fmt = write_fact_delta(facts / "fact_cash_position", df_cp, partition_by=["Fiscal Year"])
+    print(f"Written fact_cash_position ({len(rows):,} records) [{fmt}]")
 
-    # fact_cash_flow - Monthly cash flow with seasonality
-    (facts / "fact_cash_flow").mkdir(parents=True, exist_ok=True)
+    # fact_cash_flow - Monthly cash flow (Delta, partitioned by Fiscal Year)
+    cash_flow_orgs = org_keys[:40] if len(org_keys) > 10 else org_keys
     rows = []
-    
-    print(f"Generating fact_cash_flow for {len(month_end_dates)} months...")
-    
+    print(f"Generating fact_cash_flow for {len(month_end_dates)} months × {len(cash_flow_orgs)} orgs...")
     for date_obj in month_end_dates:
         date_key = int(date_obj.strftime('%Y%m%d'))
-        
-        # Cash flow follows sales seasonality
-        seasonality_factor = apply_monthly_seasonality(
-            date_obj,
-            base_factor=1.0,
-            seed=RANDOM_SEED,
-        )
-        
-        for ok in org_keys[:10]:
-            base_ocf = 50000.0
-            ocf_amount = base_ocf * seasonality_factor * random.uniform(0.85, 1.15)
-            capex_amount = ocf_amount * random.uniform(0.15, 0.25)  # 15-25% of OCF
-            plan_ocf = ocf_amount * random.uniform(0.92, 0.98)
-            
+        seasonality_factor = apply_monthly_seasonality(date_obj, base_factor=1.0, seed=RANDOM_SEED)
+        for ok in cash_flow_orgs:
+            base_ocf = 30000.0 + (ok % 10) * 8000.0
+            ocf_amount = base_ocf * seasonality_factor * random.uniform(0.80, 1.20)
+            capex_amount = ocf_amount * random.uniform(0.12, 0.28)
+            plan_ocf = ocf_amount * random.uniform(0.90, 1.00)
             rows.append({
                 "DateKey": date_key, "OrgKey": ok,
                 "Operating Cash Flow Amount": round(ocf_amount, 2),
                 "CapEx Amount": round(capex_amount, 2),
                 "Plan OCF Amount": round(plan_ocf, 2),
             })
-    
-    pd.DataFrame(rows).to_parquet(facts / "fact_cash_flow" / "part-00000.parquet", index=False)
-    print(f"Written fact_cash_flow ({len(rows):,} records)")
+    df_cf = pd.DataFrame(rows)
+    df_cf["Fiscal Year"] = df_cf["DateKey"].astype(str).str[:4]
+    fmt = write_fact_delta(facts / "fact_cash_flow", df_cf, partition_by=["Fiscal Year"])
+    print(f"Written fact_cash_flow ({len(rows):,} records) [{fmt}]")
 
 
 def main():

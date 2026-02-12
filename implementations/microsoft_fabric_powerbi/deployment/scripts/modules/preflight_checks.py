@@ -16,6 +16,11 @@ from pathlib import Path
 import modules.misc_functions as misc
 import modules.fabric_cli_functions as fabcli
 
+try:
+    import modules.framework_validator as fw_validator
+except ImportError:
+    fw_validator = None
+
 
 class PreflightCheckResult:
     """Result of a pre-flight check."""
@@ -33,37 +38,73 @@ class PreflightCheckResult:
 class PreflightChecker:
     """Performs pre-flight checks before deployment operations."""
     
-    def __init__(self, environment: str, env_definition: Dict[str, Any], dry_run: bool = False):
+    def __init__(
+        self,
+        environment: str,
+        env_definition: Dict[str, Any],
+        dry_run: bool = False,
+        skip_framework_validation: bool = False,
+        include_stage1: bool = True,
+        include_fabric: bool = True,
+    ):
         self.environment = environment
         self.env_definition = env_definition
         self.dry_run = dry_run
+        self.skip_framework_validation = skip_framework_validation
+        self.include_stage1 = include_stage1
+        self.include_fabric = include_fabric
         self.results: List[PreflightCheckResult] = []
-    
+
     def check_all(self) -> Tuple[bool, List[PreflightCheckResult]]:
         """Run all pre-flight checks."""
         self.results = []
-        
+
         # Configuration checks
         self.check_configuration_structure()
         self.check_required_fields()
         self.check_workspace_names()
-        
+
+        # Framework validation (Stage 1 + Fabric checks)
+        if not self.dry_run and not self.skip_framework_validation and fw_validator:
+            self.check_framework_validation()
+
         # Environment checks (skip in dry-run)
         if not self.dry_run:
             self.check_authentication()
             self.check_capacity_access()
             self.check_workspaces_exist()
             self.check_permissions()
-        
+
         # Git checks
         self.check_git_configuration()
-        
+
         # Path checks
         self.check_repository_paths()
-        
+
         # Summary
         all_passed = all(r.passed for r in self.results)
         return all_passed, self.results
+
+    def check_framework_validation(self):
+        """Run Stage 1 and Fabric checks (requires repo root and PowerShell)."""
+        if not fw_validator:
+            self.results.append(PreflightCheckResult(
+                "Framework Validation",
+                True,
+                "Framework validator module not available (skipped)"
+            ))
+            return
+        success, message, details = fw_validator.run_framework_validation(
+            include_stage1=self.include_stage1,
+            include_fabric=self.include_fabric,
+            dry_run=False,
+        )
+        self.results.append(PreflightCheckResult(
+            "Framework Validation",
+            success,
+            message,
+            details
+        ))
     
     def check_configuration_structure(self):
         """Validate JSON configuration structure."""

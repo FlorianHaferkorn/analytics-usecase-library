@@ -98,6 +98,16 @@ try {
     if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
   }
 
+  if ($auroraTablesResolved) {
+    $validateDelta = Join-Path $repoRoot "showcases\aurora_group\data\validate_delta_migration.ps1"
+    if (Test-Path $validateDelta) {
+      Write-Host ""
+      Write-Host ">> validate_delta_migration.ps1 (Aurora gold Delta format)" -ForegroundColor Cyan
+      & $validateDelta -SkipStage1
+      if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
+    }
+  }
+
   if ($failed -gt 0) {
     Write-Host "Fabric checks: $failed failed." -ForegroundColor Red
     exit 1

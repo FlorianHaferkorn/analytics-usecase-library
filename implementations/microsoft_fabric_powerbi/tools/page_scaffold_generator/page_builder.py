@@ -76,108 +76,116 @@ class PageBuilder:
         """
         # Determine slicer placement (default: top)
         has_side_slicers = False  # Can be made configurable
-        
-        # Calculate visual positions
+
+        # KPI count (configurable; default 4)
+        kpi_count = 4  # Can be made configurable or read from use case config
+        has_top_slicer = not slots.get("exclude_time_slicer", False)
+
+        # Adaptive layout: single source of truth for PBIP and mockup (3-30-300: KPI then slicer then drivers)
+        layout_bounds = self.layout_calculator.compute_adaptive_bounds(
+            slots=slots,
+            template=template,
+            has_action_panel=has_action_panel,
+            kpi_count=kpi_count,
+            has_top_slicer=has_top_slicer,
+        )
+
+        # Calculate visual positions (using adaptive bounds)
         visual_positions = self.layout_calculator.calculate_visual_positions(
             slots=slots,
             template=template,
             has_action_panel=has_action_panel,
-            has_side_slicers=has_side_slicers
+            has_side_slicers=has_side_slicers,
+            layout_bounds=layout_bounds,
         )
-        
+
         # Build visuals
         visuals = []
         tab_order = self.visual_builder.tab_order_base
-        
-        # KPI Cards (always present on overview pages, optional on detail)
-        # Determine number of KPI cards from use case (default: 4)
-        kpi_count = 4  # Can be made configurable or read from use case config
+
         kpi_positions = self.layout_calculator.calculate_kpi_card_positions(kpi_count)
         
         for i, pos in enumerate(kpi_positions):
-            visual = self.visual_builder.build_kpi_card(pos)
+            visual = self.visual_builder.build_kpi_card(pos, name=f"KPI_{i + 1}")
             visual["position"]["tabOrder"] = tab_order + i
             visuals.append(visual)
-        
+
         # Trend visual
         if slots.get('needs_trend', False) and 'trend' in visual_positions:
-            visual = self.visual_builder.build_line_chart(visual_positions['trend'])
+            visual = self.visual_builder.build_line_chart(visual_positions['trend'], name="Trend")
             visual["position"]["tabOrder"] = tab_order + 100
             visuals.append(visual)
-        
+
         # Variance visual
         if slots.get('needs_variance', False) and 'variance' in visual_positions:
-            visual = self.visual_builder.build_waterfall(visual_positions['variance'])
+            visual = self.visual_builder.build_waterfall(visual_positions['variance'], name="Variance")
             visual["position"]["tabOrder"] = tab_order + 200
             visuals.append(visual)
-        
+
         # Ranking visual
         if slots.get('needs_ranking', False) and 'ranking' in visual_positions:
-            visual = self.visual_builder.build_horizontal_bar(visual_positions['ranking'])
+            visual = self.visual_builder.build_horizontal_bar(visual_positions['ranking'], name="Ranking")
             visual["position"]["tabOrder"] = tab_order + 300
             visuals.append(visual)
-        
+
         # Mix visual
         if slots.get('needs_mix', False) and 'mix' in visual_positions:
-            visual = self.visual_builder.build_stacked_bar(visual_positions['mix'])
+            visual = self.visual_builder.build_stacked_bar(visual_positions['mix'], name="Mix")
             visual["position"]["tabOrder"] = tab_order + 400
             visuals.append(visual)
-        
+
         # Exceptions visual
         if slots.get('needs_exceptions', False) and 'exceptions' in visual_positions:
-            visual = self.visual_builder.build_table(visual_positions['exceptions'])
+            visual = self.visual_builder.build_table(visual_positions['exceptions'], name="Exceptions")
             visual["position"]["tabOrder"] = tab_order + 500
             visuals.append(visual)
-        
+
         # Prescriptive visual
         if slots.get('needs_prescriptive', False) and 'prescriptive' in visual_positions:
-            visual = self.visual_builder.build_table(visual_positions['prescriptive'])
+            visual = self.visual_builder.build_table(visual_positions['prescriptive'], name="Prescriptive")
             visual["position"]["tabOrder"] = tab_order + 600
             visuals.append(visual)
-        
+
         # Root Cause visual
         if slots.get('needs_root_cause', False) and 'root_cause' in visual_positions:
-            visual = self.visual_builder.build_scatter_plot(visual_positions['root_cause'])
+            visual = self.visual_builder.build_scatter_plot(visual_positions['root_cause'], name="RootCause")
             visual["position"]["tabOrder"] = tab_order + 700
             visuals.append(visual)
-        
+
         # Funnel visual
         if slots.get('needs_funnel', False) and 'funnel' in visual_positions:
-            visual = self.visual_builder.build_funnel(visual_positions['funnel'])
+            visual = self.visual_builder.build_funnel(visual_positions['funnel'], name="Funnel")
             visual["position"]["tabOrder"] = tab_order + 800
             visuals.append(visual)
-        
+
         # Detail Matrix visual
         if slots.get('needs_detail_matrix', False) and 'detail_matrix' in visual_positions:
-            # Use table by default, can be overridden to matrix
-            visual = self.visual_builder.build_table(visual_positions['detail_matrix'])
+            visual = self.visual_builder.build_table(visual_positions['detail_matrix'], name="DetailMatrix")
             visual["position"]["tabOrder"] = tab_order + 900
             visuals.append(visual)
-        
-        # Build slicers (default: time slicer)
+
+        # Build slicers (default: time slicer) — speaking names
         slicers = []
         slicer_tab_order = self.slicer_builder.tab_order_base
-        
-        # Time slicer (always present unless excluded)
+
         if not slots.get('exclude_time_slicer', False):
             slicer_positions = self.layout_calculator.calculate_slicer_positions(
                 slicers=[{"type": "time"}],
-                placement="top"
+                placement="top",
+                y_start=layout_bounds.get("slicer_y_start"),
             )
             if slicer_positions:
-                slicer = self.slicer_builder.build_time_slicer(slicer_positions[0])
+                slicer = self.slicer_builder.build_time_slicer(slicer_positions[0], name="Slicer_Date")
                 slicer["position"]["tabOrder"] = slicer_tab_order
                 slicers.append(slicer)
-        
-        # Action Panel placeholder (if T4)
+
+        # Action Panel placeholder (if T4) — speaking name
         action_panel_visual = None
         if has_action_panel:
             action_panel_pos = self.layout_calculator.calculate_action_panel_position()
-            # Action Panel is a special visual type (textbox or custom)
-            # For now, create a placeholder textbox
             action_panel_visual = {
                 "$schema": self.visual_builder.VISUAL_SCHEMA,
-                "name": self.visual_builder._generate_visual_id(),
+                "name": "ActionPanel",
                 "position": {
                     "x": action_panel_pos.x,
                     "y": action_panel_pos.y,

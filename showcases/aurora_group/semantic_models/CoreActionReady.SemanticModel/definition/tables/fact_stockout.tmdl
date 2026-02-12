@@ -29,11 +29,13 @@ table fact_stockout
 	column 'Lost Demand Units'
 		dataType: double
 		lineageTag: 2e516b43-3228-4a73-9e94-8a702b8acf8e
+		summarizeBy: none
 		sourceColumn: Lost Demand Units
 
 	column 'Demand Units'
 		dataType: double
 		lineageTag: 4eadb426-3584-423f-acc9-190306cfff4c
+		summarizeBy: none
 		sourceColumn: Demand Units
 
 	partition fact_stockout = m
@@ -42,8 +44,8 @@ table fact_stockout
 				let
 					Source = Folder.Files(GoldDataPath & "/facts/fact_stockout"),
 					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-					FirstFile = FilteredFiles{0}[Content],
-					ParquetData = Parquet.Document(FirstFile)
+					ParquetTables = Table.AddColumn(FilteredFiles, "Parquet", each Parquet.Document([Content])),
+					Combined = Table.Combine(ParquetTables[Parquet])
 				in
-					ParquetData
+					Combined
 

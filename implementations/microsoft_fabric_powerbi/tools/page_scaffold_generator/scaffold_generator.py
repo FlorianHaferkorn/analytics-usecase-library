@@ -65,10 +65,12 @@ class PageScaffoldGenerator:
         """Generate page scaffold."""
         if self.config is None:
             self.load_config()
-        
-        # Generate page ID
-        self.page_id = self.page_builder.generate_page_id()
-        
+
+        # Speaking page ID (human-readable; no Power BI default hex IDs)
+        # e.g. Page_COM001_Overview, Page_COM001_Detail
+        uc_normalized = self.use_case_id.replace("-", "")
+        self.page_id = f"Page_{uc_normalized}_{self.page_name.capitalize()}"
+
         # Get display name
         display_name = self.config_loader.get_use_case_display_name(self.use_case_id)
         page_display_name = f"{display_name} - {self.page_name.capitalize()}"
@@ -95,7 +97,8 @@ class PageScaffoldGenerator:
         self.page_structure = {
             "metadata": page_metadata,
             "visuals": page_structure["visuals"],
-            "slicers": page_structure.get("slicers", [])
+            "slicers": page_structure.get("slicers", []),
+            "page_type": template,
         }
     
     def validate(self) -> List[str]:
@@ -111,12 +114,10 @@ class PageScaffoldGenerator:
             errors.append("Page structure not generated. Call generate() first.")
             return errors
         
-        # Validate page name pattern
-        expected_name = f"page_{self.use_case_id}_{self.page_name}"
-        if self.page_structure["metadata"]["name"] != self.page_id:
-            # Page ID is auto-generated, so this is just a warning
-            pass
-        
+        # Validate speaking page name (e.g. Page_COM001_Overview)
+        if not self.page_structure["metadata"]["name"].startswith("Page_"):
+            errors.append("Page name should be speaking (e.g. Page_COM001_Overview)")
+
         # Validate template assignment
         template = self.page_config.get('template')
         if template not in ['T1', 'T2', 'T3', 'T4']:
@@ -141,7 +142,7 @@ class PageScaffoldGenerator:
         if self.page_name == "overview":
             detail_matrix_visuals = [
                 v for v in self.page_structure["visuals"]
-                if "detail_matrix" in str(v).lower()
+                if v.get("name") == "DetailMatrix"
             ]
             if detail_matrix_visuals:
                 errors.append("Detail Matrix should only be on detail pages")
@@ -167,8 +168,8 @@ class PageScaffoldGenerator:
         writer = PBIPWriter(output_path)
         writer.create_pbip_structure()
         
-        # Write report.json
-        writer.write_report_json(theme_name=self.theme_name)
+        # Write report.json with base theme only; when --theme was passed, CLI will call apply_theme() to copy theme and add customTheme + resourcePackages
+        writer.write_report_json(theme_name=None)
         
         # Write pages.json (append if file exists)
         pages_file = writer.pages_path / "pages.json"

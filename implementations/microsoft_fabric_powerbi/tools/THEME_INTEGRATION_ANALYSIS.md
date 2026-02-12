@@ -322,7 +322,7 @@ theme:
 
 - **Theme Generator:** `implementations/microsoft_fabric_powerbi/tools/theme_generator/`
 - **Theme Skeleton:** `Templates/themes/Theme_Skeleton_Light.json`
-- **Color Mapping:** `Light_to_Dark_Color_Role_Mapping.md`
-- **Color Framework:** `Color_Generation_Framework.md`
+- **Color Mapping:** `theme_generator/docs/archive/Light_to_Dark_Color_Role_Mapping.md`
+- **Color Framework:** `theme_generator/docs/archive/Color_Generation_Framework.md`
 - **Best Practices Research:** `V1_BEST_PRACTICES_RESEARCH.md`
 - **Scaffold Spec:** `page_scaffold_spec.md`

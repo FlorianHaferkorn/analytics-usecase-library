@@ -18,3 +18,7 @@ Templates are the fastest way to make implementation:
 - Aurora PBIP assets: `showcases/aurora_group/semantic_models/`
 - Page templates and governance: `framework/templates/page_templates/`
 
+## Themes
+
+Template and sample reports (e.g. `showcases/sample_pbip_report/Procurement_Wireframe_Theme.Report`) **ship with a theme pre-applied**: `definition/report.json` references a base theme and a custom theme in `StaticResources/RegisteredResources/`. Reports created from scaffolds or generated elsewhere can have themes applied via `tools/apply_report_theme.py` (single report or batch: `--batch-showcase`, `--batch`, `--batch-file`; see `tools/README.md`).
+

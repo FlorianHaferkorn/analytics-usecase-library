@@ -308,9 +308,33 @@ BI_Experiments
 
 - Report themes (JSON) define visual consistency across reports (colors, fonts, layout defaults).
 - The framework uses **BaseThemes** (e.g. `Base_Theme_Template_V1.json`) and derived themes (e.g. per brand or app) under `StaticResources/SharedResources/BaseThemes/` in PBIP report projects.
-- **Power BI Theme Generator** — lives in `implementations/microsoft_fabric_powerbi/tools/theme_generator/` and generates Power BI themes (JSON) plus documentation (Markdown) from a single color prompt (Light/Dark, multiple concepts). It is part of the Fabric/Power BI development stack.\n+\n+Minimal usage (Windows):\n+\n+```powershell\n+cd implementations/microsoft_fabric_powerbi/tools/theme_generator\n+py -m pip install -r tools/theme-agent/requirements.txt\n+\n+# Generate Light+Dark themes + docs\n+./theme.ps1 -Action all -Color '#118DFF' -Concept Monochromatic -Mode Both -Brand 'Generic'\n+```\n+\n+More details: `implementations/microsoft_fabric_powerbi/tools/theme_generator/README.md`, `implementations/microsoft_fabric_powerbi/tools/theme_generator/USAGE_Agent.md`.
+- **Power BI Theme Generator** — lives in `implementations/microsoft_fabric_powerbi/tools/theme_generator/` and generates Power BI themes (JSON) plus documentation (Markdown) from a single color prompt (Light/Dark, multiple concepts). It is part of the Fabric/Power BI development stack. Minimal usage (Windows): `cd implementations/microsoft_fabric_powerbi/tools/theme_generator`, `py -m pip install -r tools/theme-agent/requirements.txt`, then `./theme.ps1 -Action all -Color '#118DFF' -Concept Monochromatic -Mode Both -Brand 'Generic'`. More: `theme_generator/README.md`, `theme_generator/USAGE_Agent.md`.
 
-## 9.5 Shared Assets
+**Base vs custom theme:** The base theme is fixed (e.g. in `StaticResources/SharedResources/BaseThemes/`); do not change it. The standardized look is applied via a **custom theme** in `StaticResources/RegisteredResources/`, referenced in report.json as `themeCollection.customTheme` and in `resourcePackages` as type `CustomTheme`. Use **apply_report_theme** to copy a theme into a report and wire base + custom in `definition/report.json` (PBIP definition format only).
+
+**Theme schema (official):** The report theme JSON schema is published by Microsoft in [powerbi-desktop-samples](https://github.com/microsoft/powerbi-desktop-samples) (Report Theme JSON Schema). A pinned version is kept in `theme_generator/themes.config.json` (`reportThemeSchemaVersion`). Run **fetch_latest_theme_schema.py** with `--update-pin` to fetch the latest schema and update the pin; validation and theme generator use the pinned schema. Run from repo root: `py implementations/microsoft_fabric_powerbi/tools/theme_generator/tools/theme-agent/fetch_latest_theme_schema.py --update-pin`.
+
+**Customer rollout:** When rolling the framework out to customers, keep report look consistent: (1) Default theme can come from `theme_generator/themes/` (e.g. Generic or a branded theme). (2) One-time optional: run `fetch_latest_theme_schema.py --update-pin` so validation uses the latest schema. (3) For every new report, use the page scaffold generator with `--theme <name>` so the theme is applied in one step, or run `apply_report_theme` so all reports share the same base + custom theme.
+
+**Theme applied and documented:** For finalized reports, document the **theme name** (e.g. `CY25SU10` or a custom theme from Theme Generator), **path to theme JSON** (e.g. `implementations/microsoft_fabric_powerbi/tools/theme_generator/themes/` or report `StaticResources/RegisteredResources/`), and **how to apply** (run `apply_report_theme.py` from the tools folder, or use the page scaffold generator with `--theme <name>`). See `tools/theme_generator/README.md` and `tools/apply_report_theme.py`.
+
+## 9.5 Report Documentation Generator
+
+A tool that produces **report documentation** (Markdown) from a PBIP report and use case factsheets. Output includes report metadata, business questions answered, strategic alignment (KPIs), per-page documentation (page type, layer, visuals), and traceability to use case factsheets, KPI catalog, and action codes. Spec: `implementations/microsoft_fabric_powerbi/tools/report_documentation_generator_spec.md`.
+
+**How to run (from repo root):**
+
+```powershell
+py implementations/microsoft_fabric_powerbi/tools/report_documentation_generator/generate_report_documentation.py --report showcases/aurora_group/reports/COM-001.Report
+```
+
+Optional: `--use-case COM-001`, `--output path/to/Report_Documentation_COM-001.md`. Use case is inferred from report path or page names if omitted.
+
+**Where output is stored:** By default, output is written to `showcases/<showcase>/reporting/Report_Documentation_<UseCaseId>.md` (e.g. `showcases/aurora_group/reporting/Report_Documentation_COM-001.md`). Override with `--output`.
+
+**When to run:** After finalizing or updating a report (pages/visuals); re-run when the PBIP or use case factsheets change. See `tools/report_documentation_generator/README.md`.
+
+## 9.6 Shared Assets
 
 ```yaml
 Shared_Datasets
@@ -340,7 +364,35 @@ Shared_Tools
 - **TMDL syntax:** Run `check_tmdl_syntax.ps1` (tabs-only indentation, no `description:` property) as part of `run_fabric_checks.ps1`.
 - **Run Fabric checks:** After changing measures or TMDL, run `implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1` (TMDL syntax, measures vs KPI catalog, TMDL vs measure dictionaries, DAX rules). Fix any failures before commit.
 
-## 11.1 Semantic model and table best practices (Microsoft Learn)
+## 11.1 Fabric/Power BI Best Practice Architecture
+
+This section covers a **reference architecture** for delivering core use cases end-to-end on Fabric/Power BI: workspaces, data flow, deployment, and closed loop. Implement as far as needed for your environment; optional automation (Bicep, Fabric APIs) can be added later.
+
+**Workspaces**
+
+- **Structure:** Prefer at least Dev and Prod (optionally Test). Dev for development and CI; Prod for published apps and semantic models consumed by users.
+- **Naming:** Use a consistent prefix (e.g. `BI_Dev`, `BI_Prod`) and align with org standards. Assign workspace to capacity and assign roles (Admin, Member, Contributor) per RACI.
+- **Optional automation:** Bicep or Fabric REST APIs can create workspaces and assign capacity; document the script and parameters in the repo (e.g. under `implementations/microsoft_fabric_powerbi/deployment/`).
+
+**Pipelines and OneLake**
+
+- **Data flow:** Source systems → Lakehouse (Bronze/Silver/Gold) or Dataflows Gen2 → semantic model (Direct Lake or Import). Document the path per domain (e.g. Sales, Finance).
+- **Parameterized paths:** Use parameters (e.g. `GoldDataPath`, environment-specific Lakehouse URL) in semantic model M queries and in pipelines so the same definition works in Dev/Prod.
+- **Deployment steps:** Document the order: (1) Lakehouse / data refresh, (2) semantic model refresh or deployment, (3) report deployment or app update. Use Fabric deployment pipelines or Git-based PBIP deploy as appropriate.
+
+**Deployment (code-driven setup/teardown)**
+
+- **Goal:** Workspace, semantic model, and report can be provisioned (and torn down) in a repeatable way from code or config, not only by manual clicks in the portal.
+- **Options:** Bicep templates for workspace + item deployment; Fabric REST APIs for creating/updating items; Git-backed PBIP with deployment pipeline. Document the chosen approach and where scripts live (e.g. `implementations/microsoft_fabric_powerbi/deployment/`).
+- **Report deployment:** PBIP reports are deployed via pipeline or manual publish; ensure the report points to the correct semantic model (parameter or post-deploy config).
+
+**Closed loop (action codes and traceability)**
+
+- **Reports and action codes:** Reports (and any action layer or drill-through) should reference **action codes** from `framework/action_codes/`. Action code IDs (e.g. C-M2.1, F-C1.1) appear in use case factsheets and in Report Documentation.
+- **Traceability:** Ensure **KPI deviation → use case → action code** is documented and visible: e.g. in Report Documentation (Report_Documentation_<UseCaseId>.md), in action panel or drill-through targets in the report, and in `framework/usecases/UseCase_ActionCode_Map.yaml`.
+- **Action code definitions:** Remain the single source of truth in `framework/action_codes/`; reports and Report Documentation link to them for triggers, evidence, and ownership.
+
+## 11.2 Semantic model and table best practices (Microsoft Learn)
 
 **Star schema:** Use star schema only. Classify tables as dimension (filtering/grouping) or fact (summarization). Table type is determined by relationships: the “one” side is dimension, the “many” side is fact. Avoid mixing both in a single table. Use the right number of tables and relationships; keep fact tables at a consistent grain.
 

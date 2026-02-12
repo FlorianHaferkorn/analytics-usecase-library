@@ -1,69 +1,75 @@
-# Microsoft Fabric / Power BI Implementation (Adapter)
+# Microsoft Fabric / Power BI Implementation
 
-This folder contains the **tool-specific adapter** that implements the tool-agnostic framework artifacts (KPIs, use cases, action codes, templates) on **Microsoft Fabric + Power BI**.
+Tool-specific adapter for the ActionReady Analytics Framework on **Microsoft Fabric + Power BI**. Core framework stays in `framework/`; this folder is the single entry for implementers.
 
-## Scope
+---
 
-Included:
-- Fabric/Power BI architecture patterns (workspaces, lakehouse, semantic model, report distribution)
-- PBIP/TMDL conventions and best practices
-- Deployment-as-code scaffolding (setup/teardown by code)
-- Implementation tooling (validation, linting, generation, report/theme tooling)
+## Start here (single entry)
 
-Not included:
-- Tool-agnostic framework assets (those stay in `framework/` including `framework/strategy_operating_model/`, `framework/usecases/`, `framework/data_contracts/`, `framework/semantic_models/`)
-- Customer-specific provisioning details (handled via parameterization and deployment configuration)
+| Step | Action | Where |
+|------|--------|--------|
+| 1 | Read architecture and data layers (Silver-first) | `guide/README.md` → `guide/fabric_architecture_best_practices.md` |
+| 2 | Align data: **Silver** contracts | `framework/data_contracts/` — we define Silver; Gold + Semantics are built from it |
+| 3 | Implement semantic model and measures | `guide/fabric_powerbi.md`, `guide/tmdl_best_practices.md`; generate TMDL from KPI catalog |
+| 4 | Run validation | From repo root: `.\_internal\tools\run_stage1_checks.ps1` then `.\implementations\microsoft_fabric_powerbi\tools\run_fabric_checks.ps1` |
+| 5 | (Optional) Set up Fabric workspaces and deploy | `deployment/USAGE.md` |
 
-## Current sources of truth (until we migrate content)
+Full procedure: `framework/implementation_guides/playbook_strategy_to_first_report.md`.
 
-Implementation guide(s):
-- `guide/fabric_architecture_best_practices.md` — workspace strategy, CI/CD, Git, governance (framework-fit)
-- `guide/fabric_powerbi.md`
-- `guide/tmdl_best_practices.md`
+---
 
-Tooling (maintainer/internal, may later be mirrored here):
-- `_internal/tools/` (Stage 1, validation, generation, BPA, Power BI MCP)
+## Design principles
 
-Theme tooling:
-- `tools/theme_generator/` (Theme Generator and documentation)
+- **Separation of concerns:** Framework (`framework/`) is tool-agnostic; this implementation consumes it and does not change it.
+- **Stable public API:** Use cases, KPI catalog, data contracts, action codes are the contract; products depend on them.
+- **Generated vs source:** Generated output lives in `dist/` or showcase paths; never mixed with source under `framework/` or `guide/`.
+- **Single entry per audience:** Implementers start here → `guide/` → tools and deployment as needed.
+- **Minimal cross-dependency:** This implementation references `framework/`; framework does not reference implementation.
 
-Aurora reference implementation:
-- `showcases/aurora_group/` (PBIP semantic model + report assets)
+---
 
-## Repo structure and where generated TMDL goes
+## Data layers (Silver-first)
 
-**Three layers:**
+We standardize on **4 physical + 1 logical** layers. See `framework/strategy_operating_model/operating_model/data_layers_standard.md`.
 
-| Layer | Path | Role |
-|-------|------|------|
-| **Framework** | `framework/` | Spec only: use cases, KPI catalog, data contracts, templates. No generated output. |
-| **Implementation** | `implementations/microsoft_fabric_powerbi/` | Adapter: guide, tools, validation. **dist** = output for customer rollout (per-use-case TMDL). |
-| **Showcase** | `showcases/aurora_group/` | Special case to **prove the framework**: company profile, data/gold, **semantic_models/** (CoreActionReady.pbip). Use `-UseAuroraShowcase` to generate into it. |
+- **We define Silver** via data contracts (`framework/data_contracts/domains/`, `sources/`).
+- **We deliver Gold + Semantics** (report packages, semantic models). Gold is derived from Silver.
+- **Staging and Bronze** are out of scope unless explicitly included.
 
-**Two output modes:**
+Procedure: Start from Silver contracts; then build Gold and the semantic layer. Do not start from Gold-only.
 
-1. **Aurora showcase (framework proof):** `-UseAuroraShowcase` → **ONE** `_Measures.tmdl` in `showcases/aurora_group/semantic_models/.../tables/`, all measures organized by `displayFolder` (= Use-Case-ID or catalog-defined folder). This is the primary target for framework validation.
+---
 
-2. **dist (customer rollout / CI):** Without `-UseAuroraShowcase` → one `_Measures.tmdl` **per use case** in `dist/<UseCase>/<UseCase>.SemanticModel/...`. Used for CI validation and as starting point for customer projects.
+## Folder structure (streamlined)
 
-**Summary:** Use `-UseAuroraShowcase` for the framework-proof showcase; omit it to write to dist (customer rollout or CI).
+| Path | Role |
+|------|------|
+| **guide/** | Single entry for reading: architecture, Fabric/Power BI mapping, TMDL. Start with `guide/README.md`. |
+| **tools/** | Validation (`run_fabric_checks.ps1`), theme, page scaffold, apply_report_theme. No framework logic. |
+| **validation/** | Fabric-specific check scripts (measures vs KPI, TMDL, DAX). Invoked via `tools/run_fabric_checks.ps1`. |
+| **deployment/** | Setup and release scripts (workspaces, Git, fabric-cicd). Optional; see `deployment/USAGE.md`. |
+| **dist/** | Generated TMDL per use case (customer rollout). Not mixed with source. |
+| **pbip_templates/** | Canonical PBIP skeletons. References: `showcases/sample_pbip_report/`, `showcases/aurora_group/`. |
 
-## Planned structure
+Framework (`framework/`), Stage 1 and generation (`_internal/tools/`), and showcases (`showcases/`) are outside this folder; this implementation only references them.
 
-```yaml
-implementations/microsoft_fabric_powerbi/
-  dist/                  # output for customer rollout (per-use-case TMDL); Aurora = special case to prove framework
-  deployment/            # IaC + scripts (create/destroy environments)
-  guide/                 # fabric_powerbi.md, tmdl_best_practices.md
-  validation/            # Fabric-specific checks (measures vs KPI, TMDL, DAX)
-  pbip_templates/        # canonical PBIP skeletons (dataset/report)
-  tools/                 # theme_generator, run_fabric_checks, test_tmdl, etc.
-```
+---
 
-## Next step
+## Output modes (generated TMDL)
 
-Start with the guide (in this implementation):
-- `guide/fabric_powerbi.md`
+| Mode | Use | Output |
+|------|-----|--------|
+| **Aurora showcase** | Framework proof, single _Measures.tmdl | `showcases/aurora_group/semantic_models/.../tables/` (use `-UseAuroraShowcase`) |
+| **dist** | Customer rollout / CI, per-use-case TMDL | `dist/<UseCase>/<UseCase>.SemanticModel/...` |
 
-Then use the Aurora showcase as the reference implementation baseline:
-- `showcases/aurora_group/`
+---
+
+## Key references
+
+| Need | Location |
+|------|----------|
+| Data layers (Silver-first) | `framework/strategy_operating_model/operating_model/data_layers_standard.md` |
+| Silver contracts | `framework/data_contracts/` |
+| Playbook (strategy → first report) | `framework/implementation_guides/playbook_strategy_to_first_report.md` |
+| Stage 1 (CI gate) | `_internal/tools/run_stage1_checks.ps1` |
+| Fabric checks | `implementations/microsoft_fabric_powerbi/tools/run_fabric_checks.ps1` |

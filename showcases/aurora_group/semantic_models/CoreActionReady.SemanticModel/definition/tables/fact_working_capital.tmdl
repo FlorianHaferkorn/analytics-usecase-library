@@ -18,33 +18,38 @@ table fact_working_capital
 	column 'AR Balance Amount'
 		dataType: double
 		lineageTag: cb279978-10c7-46ec-8705-9815d586b5ad
+		summarizeBy: none
 		sourceColumn: AR Balance Amount
 
 	column 'AP Balance Amount'
 		dataType: double
 		lineageTag: f0731745-f91c-4067-bf04-9389c6ad9683
+		summarizeBy: none
 		sourceColumn: AP Balance Amount
 
 	column 'Inventory Value Amount'
 		dataType: double
 		lineageTag: fc90ef71-e141-4d48-b462-22413c6dd927
+		summarizeBy: none
 		sourceColumn: Inventory Value Amount
 
 	column 'Period Net Sales Amount'
 		dataType: double
 		lineageTag: c30d7115-0451-4723-a5fd-1b8c93cd0759
+		summarizeBy: none
 		sourceColumn: Period Net Sales Amount
 
 	column 'Period COGS Amount'
 		dataType: double
 		lineageTag: 00335b16-0432-4306-af64-be1de8066ee0
+		summarizeBy: none
 		sourceColumn: Period COGS Amount
 
 	column 'Days In Period Count'
 		dataType: int64
 		formatString: 0
 		lineageTag: e62d26fc-51c4-4561-95d7-2c4dc606fa46
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Days In Period Count
 
 		annotation SummarizationSetBy = Automatic

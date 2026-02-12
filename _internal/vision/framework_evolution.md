@@ -211,10 +211,10 @@ V1 is considered complete only when the following are in place for **one tool (F
 
 | Criterion | Status | Notes |
 |-----------|--------|--------|
-| Finalized pages per core use case | Open | COM-001, COM-002, COM-003, OPS-001, SCM-001, FIN-001 (and optionally XD-003) have at least one page each in Aurora report (PBIP) |
-| Finalized visuals bound to measures only | Open | No ad-hoc calculations in report; visuals use semantic model measures |
-| Theme applied and documented | Open | Theme Generator or equivalent; theme JSON and short doc in repo |
-| Report Documentation Generator | Open | Tool/script: PBIP/report → doc (pages, visuals, theme, use case/action code refs) |
+| Finalized pages per core use case | Open | COM-001, COM-002 scaffolds (overview + detail) in Aurora; COM-003, OPS-001, SCM-001, FIN-001 to be added. Pages follow 3-30-300 and UseCase_PageTemplate_Map. |
+| Finalized visuals bound to measures only | Open | No ad-hoc calculations in report; visuals use semantic model measures (binding in PBI pending for finalized reports) |
+| Theme applied and documented | Done | Theme Generator in tools/theme_generator/; apply_report_theme.py; fabric_powerbi.md §9.4 and §9.4 theme-applied doc |
+| Report Documentation Generator | Done | Tool: `tools/report_documentation_generator/generate_report_documentation.py`; PBIP → Markdown (metadata, questions, pages, visuals, traceability); run for COM-001; output in showcases/aurora_group/reporting/Report_Documentation_COM-001.md; doc in fabric_powerbi.md §9.5 |
 
 **After V1 Finalization: Fabric/Power BI Best Practice Architecture**  
 Once finalized PBI reports and Report Documentation Generator are done, the **next step** is to document and, where possible, automate the **Best Practice Architecture for Fabric/Power BI** so that all core use cases are delivered **end-to-end for one tool**, including action codes (closed loop). This includes:

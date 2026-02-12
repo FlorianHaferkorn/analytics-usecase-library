@@ -1,0 +1,8 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json",
+  "name": "Page_COM001_Overview",
+  "displayName": "Where do Net Sales deviate most vs Plan and vs LY by region, channel, product? What is the contribution of price, volume, and mix to the gap? Which segments drive negative GM %? Which actions close the largest gaps fastest? How persistent are the gaps? - Overview",
+  "displayOption": "FitToPage",
+  "height": 1080,
+  "width": 1920
+}

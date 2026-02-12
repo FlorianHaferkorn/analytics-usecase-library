@@ -34,6 +34,16 @@ import modules.misc_functions as misc
 import modules.preflight_checks as preflight
 import modules.health_checks as health
 
+try:
+    import modules.rollback_manager as rollback
+except ImportError:
+    rollback = None
+
+try:
+    import modules.report_generator as report_gen
+except ImportError:
+    report_gen = None
+
 # Default values
 DEFAULT_ENVIRONMENT = "dev"
 DEFAULT_ACTION = "create"
@@ -405,7 +415,19 @@ Examples:
         default=os.environ.get('GITHUB_PAT'),
         help="GitHub Personal Access Token (or set GITHUB_PAT env var)"
     )
-    
+
+    parser.add_argument(
+        "--skip-framework-validation",
+        action="store_true",
+        help="Skip Stage 1 and Fabric checks (requires repo root and PowerShell when not set)"
+    )
+
+    parser.add_argument(
+        "--enable-rollback",
+        action="store_true",
+        help="On failure, roll back (delete) created workspaces and connections"
+    )
+
     args = parser.parse_args()
     
     # In dry-run mode, skip authentication
@@ -447,7 +469,12 @@ Examples:
     env_definition = misc.merge_json(base_json, env_json)
     
     # Run pre-flight checks
-    checker = preflight.PreflightChecker(args.environment, env_definition, args.dry_run)
+    checker = preflight.PreflightChecker(
+        args.environment,
+        env_definition,
+        args.dry_run,
+        skip_framework_validation=getattr(args, "skip_framework_validation", False),
+    )
     all_checks_passed, check_results = checker.check_all()
     
     checker.print_summary()
@@ -458,37 +485,107 @@ Examples:
         sys.exit(1)
     
     if args.action.lower() == "create":
-        # Setup connections
-        fabric_connections = setup_connections(
-            env_definition, args.tenant_id, args.client_id, args.client_secret, args.github_pat, args.dry_run
-        )
-        
-        # Setup Git connection
-        git_connection = setup_git_connection(
-            env_definition, args.tenant_id, args.client_id, args.client_secret, args.github_pat, args.dry_run
-        )
-        
-        # Setup workspaces
-        capacity_name = env_definition.get("generic", {}).get("capacity_name", "MyCapacity")
-        created_workspaces = setup_workspaces(env_definition, capacity_name, args.dry_run)
-        
-        # Connect workspaces to Git
-        if git_connection:
-            connect_workspaces_to_git(env_definition, created_workspaces, git_connection, args.dry_run)
-        
-        # Run post-deployment health checks
-        if not args.dry_run:
-            health_checker = health.HealthChecker(args.environment, env_definition, args.dry_run)
-            all_healthy, health_results = health_checker.check_all()
-            health_checker.print_summary()
-        
-        misc.print_header("Setup Complete")
-        if args.dry_run:
-            misc.print_success(f"Simulation completed for {args.environment.upper()} environment")
-            misc.print_info("Run without --dry-run to execute actual setup")
-        else:
-            misc.print_success(f"Successfully set up {args.environment.upper()} environment")
-        
+        enable_rollback = getattr(args, "enable_rollback", False) and rollback and not args.dry_run
+        created_workspaces_list = []
+        created_connections_list = []
+
+        try:
+            # Setup connections
+            fabric_connections = setup_connections(
+                env_definition, args.tenant_id, args.client_id, args.client_secret, args.github_pat, args.dry_run
+            )
+            if enable_rollback and fabric_connections:
+                created_connections_list = [
+                    {"id": c.get("id"), "name": c.get("name")}
+                    for c in fabric_connections.values() if isinstance(c, dict)
+                ]
+
+            # Setup Git connection
+            git_connection = setup_git_connection(
+                env_definition, args.tenant_id, args.client_id, args.client_secret, args.github_pat, args.dry_run
+            )
+
+            # Setup workspaces
+            capacity_name = env_definition.get("generic", {}).get("capacity_name", "MyCapacity")
+            created_workspaces = setup_workspaces(env_definition, capacity_name, args.dry_run)
+            if enable_rollback and created_workspaces:
+                created_workspaces_list = [
+                    {"id": w.get("id"), "name": w.get("name")}
+                    for w in created_workspaces.values() if isinstance(w, dict)
+                ]
+
+            # Connect workspaces to Git
+            if git_connection:
+                connect_workspaces_to_git(env_definition, created_workspaces, git_connection, args.dry_run)
+
+            # Run post-deployment health checks
+            health_checker = None
+            health_results_list = []
+            if not args.dry_run:
+                health_checker = health.HealthChecker(args.environment, env_definition, args.dry_run)
+                all_healthy, health_results_list = health_checker.check_all()
+                health_checker.print_summary()
+
+            if not args.dry_run and report_gen:
+                preflight_dicts = [
+                    {"name": r.name, "passed": r.passed, "message": r.message, **r.details}
+                    for r in checker.results
+                ]
+                health_dicts = [
+                    {"name": r.name, "status": r.status, "message": r.message, **r.details}
+                    for r in health_results_list
+                ]
+                workspace_details = [
+                    {"name": w.get("name"), "id": w.get("id")}
+                    for w in created_workspaces.values() if isinstance(w, dict)
+                ]
+                html_path, json_path = report_gen.write_report(
+                    args.environment,
+                    True,
+                    preflight_results=preflight_dicts,
+                    health_results=health_dicts,
+                    workspace_details=workspace_details,
+                )
+                if html_path:
+                    misc.print_info(f"Deployment report: {html_path}")
+
+            if enable_rollback and (created_workspaces_list or created_connections_list):
+                snap_path, _ = rollback.create_snapshot(
+                    args.environment,
+                    "setup",
+                    created_workspaces=created_workspaces_list,
+                    created_connections=created_connections_list,
+                )
+                if snap_path:
+                    misc.print_info(f"Rollback snapshot saved: {snap_path}")
+
+            misc.print_header("Setup Complete")
+            if args.dry_run:
+                misc.print_success(f"Simulation completed for {args.environment.upper()} environment")
+                misc.print_info("Run without --dry-run to execute actual setup")
+            else:
+                misc.print_success(f"Successfully set up {args.environment.upper()} environment")
+
+        except Exception as e:
+            if enable_rollback and (created_workspaces_list or created_connections_list):
+                misc.print_error(f"Setup failed: {e}")
+                misc.print_header("Rolling back created resources")
+                snap_path, _ = rollback.create_snapshot(
+                    args.environment,
+                    "setup",
+                    created_workspaces=created_workspaces_list,
+                    created_connections=created_connections_list,
+                )
+                if snap_path:
+                    success, errs = rollback.execute_rollback_setup(
+                        rollback.load_snapshot(snap_path), dry_run=False
+                    )
+                    if not success:
+                        for err in errs:
+                            misc.print_error(err)
+                raise
+            raise
+
     elif args.action.lower() == "delete":
         misc.print_error("Delete action not yet implemented")
         sys.exit(1)

@@ -23,14 +23,21 @@ class VisualBuilder:
         """Generate unique visual ID."""
         return uuid.uuid4().hex[:20]
     
-    def _build_base_visual(self, visual_type: str, position: Position, tab_order: int = None) -> Dict[str, Any]:
-        """Build base visual structure."""
+    def _build_base_visual(
+        self,
+        visual_type: str,
+        position: Position,
+        tab_order: int = None,
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Build base visual structure. Use speaking name when provided (no hex ID)."""
         if tab_order is None:
             tab_order = self.tab_order_base
-        
+        visual_name = name if name is not None else self._generate_visual_id()
+
         return {
             "$schema": self.VISUAL_SCHEMA,
-            "name": self._generate_visual_id(),
+            "name": visual_name,
             "position": {
                 "x": position.x,
                 "y": position.y,
@@ -53,7 +60,12 @@ class VisualBuilder:
             }
         }
     
-    def build_kpi_card(self, position: Position, measure_ref: Optional[str] = None) -> Dict[str, Any]:
+    def build_kpi_card(
+        self,
+        position: Position,
+        measure_ref: Optional[str] = None,
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Build KPI Card visual placeholder.
         
@@ -64,8 +76,8 @@ class VisualBuilder:
         Returns:
             Visual JSON structure
         """
-        visual = self._build_base_visual("cardVisual", position)
-        
+        visual = self._build_base_visual("cardVisual", position, name=name)
+
         # Add card-specific objects
         visual["visual"]["objects"] = {
             "layout": [
@@ -120,7 +132,12 @@ class VisualBuilder:
         
         return visual
     
-    def build_line_chart(self, position: Position, measures: Optional[list] = None) -> Dict[str, Any]:
+    def build_line_chart(
+        self,
+        position: Position,
+        measures: Optional[list] = None,
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Build Line Chart visual placeholder.
         
@@ -131,8 +148,8 @@ class VisualBuilder:
         Returns:
             Visual JSON structure
         """
-        visual = self._build_base_visual("lineChart", position)
-        
+        visual = self._build_base_visual("lineChart", position, name=name)
+
         # Add line chart-specific objects
         visual["visual"]["objects"] = {
             "legend": [
@@ -159,7 +176,12 @@ class VisualBuilder:
         
         return visual
     
-    def build_waterfall(self, position: Position, measures: Optional[list] = None) -> Dict[str, Any]:
+    def build_waterfall(
+        self,
+        position: Position,
+        measures: Optional[list] = None,
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Build Waterfall Chart visual placeholder.
         
@@ -170,8 +192,8 @@ class VisualBuilder:
         Returns:
             Visual JSON structure
         """
-        visual = self._build_base_visual("waterfallChart", position)
-        
+        visual = self._build_base_visual("waterfallChart", position, name=name)
+
         # Add waterfall-specific objects
         visual["visual"]["objects"] = {
             "categoryAxis": [
@@ -191,7 +213,12 @@ class VisualBuilder:
         
         return visual
     
-    def build_horizontal_bar(self, position: Position, measures: Optional[list] = None) -> Dict[str, Any]:
+    def build_horizontal_bar(
+        self,
+        position: Position,
+        measures: Optional[list] = None,
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Build Horizontal Bar Chart visual placeholder (for Ranking slot).
         
@@ -202,8 +229,8 @@ class VisualBuilder:
         Returns:
             Visual JSON structure
         """
-        visual = self._build_base_visual("clusteredBarChart", position)
-        
+        visual = self._build_base_visual("clusteredBarChart", position, name=name)
+
         # Add bar chart-specific objects
         visual["visual"]["objects"] = {
             "categoryAxis": [
@@ -243,7 +270,12 @@ class VisualBuilder:
         
         return visual
     
-    def build_stacked_bar(self, position: Position, measures: Optional[list] = None) -> Dict[str, Any]:
+    def build_stacked_bar(
+        self,
+        position: Position,
+        measures: Optional[list] = None,
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Build 100% Stacked Bar Chart visual placeholder (for Mix slot).
         
@@ -254,8 +286,8 @@ class VisualBuilder:
         Returns:
             Visual JSON structure
         """
-        visual = self._build_base_visual("hundredPercentStackedBarChart", position)
-        
+        visual = self._build_base_visual("hundredPercentStackedBarChart", position, name=name)
+
         # Add stacked bar chart-specific objects
         visual["visual"]["objects"] = {
             "valueAxis": [
@@ -301,7 +333,12 @@ class VisualBuilder:
         
         return visual
     
-    def build_table(self, position: Position, columns: Optional[list] = None) -> Dict[str, Any]:
+    def build_table(
+        self,
+        position: Position,
+        columns: Optional[list] = None,
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Build Table visual placeholder.
         
@@ -312,8 +349,8 @@ class VisualBuilder:
         Returns:
             Visual JSON structure
         """
-        visual = self._build_base_visual("tableEx", position)
-        
+        visual = self._build_base_visual("tableEx", position, name=name)
+
         # Add table-specific objects
         visual["visual"]["objects"] = {
             "grid": [
@@ -354,7 +391,12 @@ class VisualBuilder:
         
         return visual
     
-    def build_matrix(self, position: Position, columns: Optional[list] = None) -> Dict[str, Any]:
+    def build_matrix(
+        self,
+        position: Position,
+        columns: Optional[list] = None,
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Build Matrix (Pivot Table) visual placeholder.
         
@@ -365,8 +407,8 @@ class VisualBuilder:
         Returns:
             Visual JSON structure
         """
-        visual = self._build_base_visual("pivotTable", position)
-        
+        visual = self._build_base_visual("pivotTable", position, name=name)
+
         # Add matrix-specific objects
         visual["visual"]["objects"] = {
             "grid": [
@@ -400,7 +442,12 @@ class VisualBuilder:
         
         return visual
     
-    def build_scatter_plot(self, position: Position, measures: Optional[list] = None) -> Dict[str, Any]:
+    def build_scatter_plot(
+        self,
+        position: Position,
+        measures: Optional[list] = None,
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Build Scatter Plot visual placeholder.
         
@@ -411,8 +458,8 @@ class VisualBuilder:
         Returns:
             Visual JSON structure
         """
-        visual = self._build_base_visual("scatterChart", position)
-        
+        visual = self._build_base_visual("scatterChart", position, name=name)
+
         # Add scatter plot-specific objects
         visual["visual"]["objects"] = {
             "categoryAxis": [
@@ -500,7 +547,12 @@ class VisualBuilder:
         
         return visual
     
-    def build_funnel(self, position: Position, measures: Optional[list] = None) -> Dict[str, Any]:
+    def build_funnel(
+        self,
+        position: Position,
+        measures: Optional[list] = None,
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Build Funnel Chart visual placeholder.
         
@@ -511,8 +563,8 @@ class VisualBuilder:
         Returns:
             Visual JSON structure
         """
-        visual = self._build_base_visual("funnelChart", position)
-        
+        visual = self._build_base_visual("funnelChart", position, name=name)
+
         # Add funnel-specific objects
         visual["visual"]["objects"] = {}
         
@@ -523,7 +575,8 @@ class VisualBuilder:
         slot_name: str,
         position: Position,
         template: str,
-        visual_slot_mapping: Dict[str, Any]
+        visual_slot_mapping: Dict[str, Any],
+        name: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Build visual for a specific slot based on mapping rules.
@@ -554,5 +607,5 @@ class VisualBuilder:
         method = slot_to_method.get(slot_name)
         if not method:
             raise ValueError(f"Unknown slot: {slot_name}")
-        
-        return method(position)
+
+        return method(position, name=name)

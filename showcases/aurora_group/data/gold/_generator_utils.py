@@ -235,3 +235,52 @@ def get_quarterly_date_keys(year: int, quarter: int) -> list[int]:
         end = datetime(year, month_start + 3, 1) - timedelta(days=1)
     
     return generate_date_keys_for_period(start, end)
+
+
+# ---------------------------------------------------------------------------
+# Delta Lake write (optional)
+# ---------------------------------------------------------------------------
+
+try:
+    from deltalake import write_deltalake
+    _DELTA_AVAILABLE = True
+except ImportError:
+    _DELTA_AVAILABLE = False
+
+
+def write_fact_delta(fact_path, df: pd.DataFrame, partition_by: Optional[list] = None) -> str:
+    """
+    Write fact DataFrame as Delta Lake (partitioned by Fiscal Year) or single parquet.
+    fact_path: pathlib.Path to the fact folder (e.g. facts / "fact_cogs").
+    df must contain DateKey; Fiscal Year is derived and added for partitioning.
+    Returns "Delta" or "Parquet".
+    """
+    from pathlib import Path
+    fact_path = Path(fact_path)
+    fact_path.mkdir(parents=True, exist_ok=True)
+    if "Fiscal Year" not in df.columns and "DateKey" in df.columns:
+        df = df.copy()
+        df["Fiscal Year"] = df["DateKey"].astype(str).str[:4]
+    if _DELTA_AVAILABLE and partition_by and "Fiscal Year" in df.columns:
+        import shutil
+        try:
+            write_deltalake(
+                str(fact_path),
+                df,
+                mode="overwrite",
+                partition_by=partition_by,
+                overwrite_schema=True,
+            )
+        except Exception as e:
+            # Schema mismatch (7 vs 6) or overwrite_schema unsupported: remove table and write fresh
+            if "schema" in str(e).lower() or "mismatch" in str(e).lower() or "overwrite_schema" in str(type(e).__name__).lower() or "unexpected keyword" in str(e).lower():
+                if (fact_path / "_delta_log").exists():
+                    shutil.rmtree(fact_path)
+                    fact_path.mkdir(parents=True, exist_ok=True)
+                write_deltalake(str(fact_path), df, mode="overwrite", partition_by=partition_by)
+            else:
+                raise
+        return "Delta"
+    out = df.drop(columns=["Fiscal Year"], errors="ignore")
+    out.to_parquet(fact_path / "part-00000.parquet", index=False)
+    return "Parquet"

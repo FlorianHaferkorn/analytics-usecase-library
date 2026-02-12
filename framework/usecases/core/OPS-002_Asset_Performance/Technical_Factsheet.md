@@ -162,7 +162,7 @@ fact:
 
 ### 4.2 Relationships (Mandatory)
 
-- dim_date (1) -> fact_ops on DateKey; dim_date (1) -> fact_maintenance on DateKey  
+- dim_date (1) -> fact_ops on DateKey; dim_date (1) -> fact_maintenance on DateKey; dim_date (1) -> fact_ops_failures on DateKey  
 - dim_org (1) -> fact_ops on OrgKey  
 - dim_asset (1) -> fact_ops / fact_ops_failures / fact_maintenance on AssetKey  
 - security_user_org filters dim_org -> cascades via dim_asset to facts (ensure asset has OrgKey)  

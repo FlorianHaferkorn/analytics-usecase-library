@@ -1,12 +1,13 @@
 # Data Contracts
 
-Purpose:
-Define the governed interface between operational sources and the ActionReady Analytics Framework. Contracts fix schemas, grains, units, and lineage so semantic models and use cases stay consistent.
+**Purpose:** Define the **Silver layer** (conformed, validated domain data) for the ActionReady Analytics Framework. Contracts fix schemas, grains, units, and lineage so Gold and semantic models stay consistent.
 
-Scope:
+**Data layers (standard):** We define **Silver** via contracts. Gold (consumption-ready) is derived from Silver. Staging/Bronze are out of scope unless explicitly included. See `framework/strategy_operating_model/operating_model/data_layers_standard.md`.
 
-- Domain contracts (commercial_sales, operations, supply_chain, finance, experience, executive)
-- Source contracts (including synthetic backbone)
+**Scope:**
+
+- Domain contracts (commercial_sales, operations, supply_chain, finance, experience, executive) — **Silver**
+- Source contracts (including synthetic backbone) — map to Silver
 - Keys, grains, units, aggregation rules, ownership metadata
 - Excludes ETL code and customer-specific storage formats
 
