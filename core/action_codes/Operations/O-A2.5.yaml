@@ -1,87 +1,44 @@
-schema_version: "1.1"
-
-id: "O-A2.5"
-name: "Spare Parts Readiness"
-owner_domain: "Maintenance / Procurement"
-impact_dimension: "Availability"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Maintenance Supply Readiness"
-  theme: "Eliminate Repair Delays from Missing Spare Parts"
-
-tags: ["spare-parts", "stockout", "availability", "mttr"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "ops.spare_parts.stockout.pct"
-      role: "primary"
-    - id: "ops.mttr.hours"
-      role: "secondary"
-  decisions_enabled:
-    - "Prioritise critical spare parts to prevent repair delays"
-    - "Correct stocking and replenishment gaps for maintenance-critical items"
-  non_goals:
-    - "Enterprise-wide inventory optimisation programs"
-    - "Commercial purchasing negotiations"
-    - "Capital investment in warehouse automation"
-
+schema_version: "2.0"
+id: O-A2.5
+name: Spare Parts Readiness
+owner_domain: Maintenance / Procurement
+impact_dimension: Availability
+status: active
+owner_role: Maintenance Supply Coordinator
+steward_role: Maintenance / Procurement BI Lead
 use_case_links:
   core_use_cases:
-    - "OPS-002"
+  - OPS-002
   related_use_cases:
-    - "SCM-001"
-
+  - SCM-001
 kpis:
   trigger_kpis:
-    - kpi_id: "ops.spare_parts.stockout.pct"
-      label: "Spare Parts Stockout %"
-      semantic_ref:
-        model_domain: "Operations"
-        measure: "Spare Parts Stockout %"
+  - ops.spare_parts.stockout.pct
   guardrail_kpis:
-    - kpi_id: "ops.inventory.value.amount"
-      label: "Spare Parts Inventory Value"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "Inventory Value Amount"
+  - ops.inventory.value.amount
   outcome_kpis:
-    - kpi_id: "ops.spare_parts.stockout.pct"
-      label: "Spare Parts Stockout %"
-      semantic_ref:
-        model_domain: "Operations"
-        measure: "Spare Parts Stockout %"
-    - kpi_id: "ops.mttr.hours"
-      label: "Mean Time to Repair (Hours)"
-      semantic_ref:
-        model_domain: "Operations"
-        measure: "MTTR (Hours)"
-
+  - ops.spare_parts.stockout.pct
+  - ops.mttr.hours
 scope:
-  default_grain: "asset_month"
-  default_perspective: ["Plant", "Asset"]
+  default_grain: asset_month
+  default_perspective:
+  - Plant
+  - Asset
   supported_slices:
-    - "Spare Part Category"
-    - "Criticality Class"
+  - Spare Part Category
+  - Criticality Class
   exclusions:
-    - "Non-critical consumables"
-    - "Parts with extremely low failure probability"
-    - "One-off emergency purchases already approved"
-
+  - Non-critical consumables
+  - Parts with extremely low failure probability
+  - One-off emergency purchases already approved
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "asset_month"
+    grain: asset_month
     window:
-      kind: "rolling"
+      kind: rolling
       length: 2
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -89,146 +46,138 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "ops.failure.count"
-        comparator: "gte"
+        metric_kpi_id: ops.failure.count
+        comparator: gte
         value: 1
-        unit: "count"
+        unit: count
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "ops.spare_parts.stockout.pct"
-        comparator: "gt"
+        metric_kpi_id: ops.spare_parts.stockout.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 5.0
-          unit: "%"
+          unit: '%'
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "ops.spare_parts.stockout.pct"
-        comparator: "gt"
+        metric_kpi_id: ops.spare_parts.stockout.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 10.0
-          unit: "%"
+          unit: '%'
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "ops.spare_parts.stockout.pct"
-        comparator: "gt"
+        metric_kpi_id: ops.spare_parts.stockout.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 20.0
-          unit: "%"
+          unit: '%'
         filters: []
   gating_rules:
-    - "Trigger only if MTTR impact is observable"
-    - "Do not trigger if stockouts are caused by approved supplier shutdowns"
-    - "Exclude parts with approved alternative sourcing in place"
-
+  - Trigger only if MTTR impact is observable
+  - Do not trigger if stockouts are caused by approved supplier shutdowns
+  - Exclude parts with approved alternative sourcing in place
 impact:
-  category: "Medium"
+  category: Medium
   expected_range:
-    metric_kpi_id: "ops.spare_parts.stockout.pct"
+    metric_kpi_id: ops.spare_parts.stockout.pct
     value_low: -5.0
     value_high: -15.0
-    unit: "pp"
+    unit: pp
     time_to_effect:
       min_periods: 1
       max_periods: 2
   mechanism:
-    - "Improved availability of maintenance-critical parts"
-    - "Faster repair execution due to reduced waiting time"
+  - Improved availability of maintenance-critical parts
+  - Faster repair execution due to reduced waiting time
   confidence:
-    level: "High"
+    level: High
     rationale:
-      - "Direct causal link between stockouts and MTTR"
-      - "Fast corrective levers available"
-
+    - Direct causal link between stockouts and MTTR
+    - Fast corrective levers available
 operational_execution:
-  primary_owner_role: "Maintenance Supply Coordinator"
   stakeholders:
-    - "Maintenance Manager"
-    - "Procurement"
-    - "Warehouse Operations"
+  - Maintenance Manager
+  - Procurement
+  - Warehouse Operations
   prerequisites:
-    - "Criticality classification for spare parts"
-    - "Clear emergency and standard replenishment rules"
+  - Criticality classification for spare parts
+  - Clear emergency and standard replenishment rules
   steps:
-    - "Identify assets impacted by spare part stockouts"
-    - "Classify missing parts by criticality and lead time"
-    - "Correct stocking levels or secure alternative sourcing"
-    - "Monitor stockout and MTTR trends monthly"
+  - Identify assets impacted by spare part stockouts
+  - Classify missing parts by criticality and lead time
+  - Correct stocking levels or secure alternative sourcing
+  - Monitor stockout and MTTR trends monthly
   effort:
-    level: "Low to Medium"
+    level: Low to Medium
     typical_duration_days: 45
   risks_and_tradeoffs:
-    - "Increased inventory value if overcorrected"
-    - "Obsolescence risk for rarely used parts"
-
+  - Increased inventory value if overcorrected
+  - Obsolescence risk for rarely used parts
 data_requirements:
   required_entities:
-    - "Asset"
-    - "Spare Part"
-    - "Plant"
+  - Asset
+  - Spare Part
+  - Plant
   semantic_dependencies:
     measures:
-      - "Spare Parts Stockout %"
-      - "MTTR (Hours)"
-      - "Inventory Value Amount"
-      - "Failure Count"
+    - Spare Parts Stockout %
+    - MTTR (Hours)
+    - Inventory Value Amount
+    - Failure Count
     tables:
-      - "fact_spare_parts"
-      - "fact_ops_failures"
-      - "fact_ops_maintenance"
-      - "dim_asset"
-      - "dim_spare_part"
-      - "dim_plant"
-
+    - fact_spare_parts
+    - fact_ops_failures
+    - fact_ops_maintenance
+    - dim_asset
+    - dim_spare_part
+    - dim_plant
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "monthly"
-    output: "Assets and parts with recurring stockouts"
+    evaluation_frequency: monthly
+    output: Assets and parts with recurring stockouts
   suggested_actions:
     enabled: true
     outputs:
-      - "Critical spare part replenishment actions"
+    - Critical spare part replenishment actions
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "Asset"
-      - "SparePart"
-      - "TriggerLevel"
-      - "ExecutedDate"
+    - ActionCode
+    - Asset
+    - SparePart
+    - TriggerLevel
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_Stockout_Pct"
-      - "Post_Stockout_Pct_60d"
-
+    - ActionCode
+    - Pre_Stockout_Pct
+    - Post_Stockout_Pct_60d
 governance:
   approvals_required:
-    - "Maintenance Manager"
-    - "Procurement Lead"
+  - Maintenance Manager
+  - Procurement Lead
   rollback_plan:
-    - "Revert stocking levels if inventory value exceeds guardrails"
+  - Revert stocking levels if inventory value exceeds guardrails
   documentation_links:
-    - "core/usecases/core/OPS-002_Asset_Performance/Business_Factsheet.md"
-
+  - core/usecases/core/OPS-002_Asset_Performance/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

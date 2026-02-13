@@ -80,7 +80,7 @@ Defines ownership, quality gates, lifecycle management, and operational monitori
 
 Files:
 
-- `data_governance.md`
+- `data_governance.md` — includes artifact design laws (§7), framework audit & registry engine (§8), and trust signals (§9)
 - `usecases/Usecase_DoD_Core.md`
 
 ### 3.8 Automation & AI Readiness

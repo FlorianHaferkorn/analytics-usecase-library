@@ -65,6 +65,34 @@ function Parse-ListField {
   return @()
 }
 
+function Get-BracketActionCodes {
+  <#
+  .SYNOPSIS
+    Fall back to UseCase_Bracket.yaml for action_code_ids when factsheet
+    frontmatter has no action_codes field (SSOT = bracket).
+  #>
+  param([string]$FactsheetPath)
+  $dir = Split-Path -Parent $FactsheetPath
+  $bracketPath = Join-Path -Path $dir -ChildPath "UseCase_Bracket.yaml"
+  if (-not (Test-Path $bracketPath)) { return @() }
+  $ids = @()
+  $inActionCodeIds = $false
+  foreach ($line in (Get-Content -Path $bracketPath)) {
+    if ($line -match '^\s*action_code_ids\s*:') {
+      $inActionCodeIds = $true
+      continue
+    }
+    if ($inActionCodeIds) {
+      if ($line -match '^\s*-\s*"?([^"\s]+)"?') {
+        $ids += $matches[1]
+      } elseif ($line -match '^\S') {
+        break
+      }
+    }
+  }
+  return $ids
+}
+
 function Get-ActionCodeIds {
   param([string]$Root)
   $ids = [System.Collections.Generic.HashSet[string]]::new()
@@ -95,8 +123,14 @@ Get-ChildItem -Path $useCasesRoot -Recurse -Filter "*Factsheet*.md" | Where-Obje
   $_.FullName -notmatch '\\_internal\\archive\\'
 } | ForEach-Object {
   $fm = Get-FrontMatterText -Path $_.FullName
-  if (-not $fm) { return }
-  $refs = Parse-ListField -FrontMatter $fm -Field "action_codes"
+  $refs = @()
+  if ($fm) {
+    $refs = Parse-ListField -FrontMatter $fm -Field "action_codes"
+  }
+  # Bracket fallback: if factsheet has no action_codes, use UseCase_Bracket.yaml (SSOT)
+  if ($refs.Count -eq 0) {
+    $refs = Get-BracketActionCodes -FactsheetPath $_.FullName
+  }
   foreach ($ref in $refs) {
     if (-not $actionCodeIds.Contains($ref)) {
       $missing += "$($_.FullName): $ref"
@@ -105,10 +139,10 @@ Get-ChildItem -Path $useCasesRoot -Recurse -Filter "*Factsheet*.md" | Where-Obje
 }
 
 if ($missing.Count -gt 0) {
-  Write-Host "Missing Action Codes (referenced in factsheets):" -ForegroundColor Red
+  Write-Host "Missing Action Codes (referenced in factsheets or brackets):" -ForegroundColor Red
   $missing | Sort-Object | ForEach-Object { Write-Host "  - $_" }
   if ($FailOnError) { exit 1 }
   exit 0
 }
 
-Write-Host "OK: factsheet action codes are consistent." -ForegroundColor Green
+Write-Host "OK: factsheet/bracket action codes are consistent." -ForegroundColor Green

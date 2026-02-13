@@ -39,16 +39,43 @@ $checks = @(
   @{ Path = "tooling/validation/check_forbidden_content.ps1"; Args = @("-Root", $rootPath, "-FailOnError") }
 )
 
+$resultsDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\results"
+if (-not (Test-Path $resultsDir)) { New-Item -ItemType Directory -Path $resultsDir -Force | Out-Null }
+
+$checkResults = @()
+$overallStatus = "pass"
+
 foreach ($check in $checks) {
   $full = Join-Path -Path $rootPath -ChildPath $check.Path
   if (-not (Test-Path $full)) { throw "Missing check: $($check.Path)" }
   Write-Host "START $($check.Path)"
   & $full @($check.Args)
-  if ($LASTEXITCODE -ne 0) {
-    Write-Host "FAIL $($check.Path) ($LASTEXITCODE)"
-    exit $LASTEXITCODE
+  $exitCode = $LASTEXITCODE
+  $status = if ($exitCode -eq 0) { "pass" } else { "fail" }
+  $checkResults += @{ check = $check.Path; status = $status; exit_code = $exitCode }
+  if ($exitCode -ne 0) {
+    Write-Host "FAIL $($check.Path) ($exitCode)"
+    $overallStatus = "fail"
+    # Write partial results before failing
+    $resultsPayload = @{
+      timestamp = (Get-Date -Format "o")
+      stage = "stage1"
+      overall_status = $overallStatus
+      checks = $checkResults
+    }
+    $resultsPayload | ConvertTo-Json -Depth 4 | Out-File -FilePath (Join-Path $resultsDir "latest_results.json") -Encoding utf8
+    exit $exitCode
   }
   Write-Host "OK $($check.Path)"
 }
 
-Write-Host "Stage 1 checks passed." -ForegroundColor Green
+# Write results on success
+$resultsPayload = @{
+  timestamp = (Get-Date -Format "o")
+  stage = "stage1"
+  overall_status = $overallStatus
+  checks = $checkResults
+}
+$resultsPayload | ConvertTo-Json -Depth 4 | Out-File -FilePath (Join-Path $resultsDir "latest_results.json") -Encoding utf8
+
+Write-Host "Stage 1 checks passed. Results written to tooling/validation/results/latest_results.json" -ForegroundColor Green

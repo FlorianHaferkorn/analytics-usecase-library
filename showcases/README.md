@@ -81,7 +81,7 @@ It demonstrates the entire ActionReady stack:
   All operating-model components (semantics, UX, governance, operations, AI readiness) are *visible in action*.
 
 - **WITH WHAT (Framework Standards)**  
-  Templates, Action Codes, KPI Catalog, Glossary — all applied consistently.
+  Templates, Action Codes, KPI Catalog — all applied consistently.
 
 - **TEMPLATES (Pattern Library)**  
   Showcases provide real-world examples built entirely from these templates.

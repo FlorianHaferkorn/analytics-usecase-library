@@ -1,193 +1,202 @@
 # Internal Tools
 
 ## Purpose
-Provide all **automation, validation, linting, generation, and maintenance tools** required to operate and evolve the ActionReady Analytics Framework.  
+Provide all **automation, validation, linting, generation, governance, and maintenance tools** required to operate and evolve the ActionReady Analytics Framework.
 This directory is **strictly internal** and must never be delivered to, or copied into, customer repositories.
 
 The tools ensure:
-- KPI catalog consistency  
-- Use Case documentation integrity  
-- Accurate and reproducible measure generation  
-- Semantic model (TMDL) compliance  
-- Report & DAX best‑practice enforcement  
-- End‑to‑end framework quality  
+- KPI catalog consistency
+- Use Case documentation integrity
+- Action Code schema compliance (v2.0)
+- Accurate and reproducible measure generation
+- Semantic model (TMDL) compliance
+- Report & DAX best-practice enforcement
+- Continuous governance via registry audit and pre-commit hooks
+- Trust signal production (`trust_score`, `data_contract_risk`)
+- End-to-end framework quality
 
 ---
 
-## Scope
-
-### Included
-- Measure generation (TMDL/KPI‑driven)
-- Validators for factsheets, KPIs, semantic models, PBIP
-- BPA & Linter rule sets
-- Maintenance & migration scripts
-- Alignment map generators
-- Use case scaffolding tools
-- Master quality runner (`run_all_checks.ps1`)
-
-### Not included
-- Customer code  
-- Customer pipelines  
-- Showcase scripts (these live in `showcases/...`)  
-- Framework documentation (`docs/...`)
-
----
-
-# Directory Structure
+## Directory Structure
 
 ```
 tooling/
-  linters/
-  validation/
-  generation/
-  maintenance/
-  alignment/
+  ai/                  # AI/agent schemas (synced from validation/schemas/)
+  alignment/           # Strategic alignment map generators
+  generation/          # Measure & scaffolding generation
+  git-hooks/           # Pre-commit hook + installer
+  linters/             # DAX, semantic model, report, encoding rules
+  maintenance/         # Evolution, migration, docs checks
+  ontology/            # Registry engine (hard audit suite)
+  validation/          # Stage 1 validators, JSON schemas
+  run_stage1_checks.ps1
   run_all_checks.ps1
 ```
 
-Below is the role of each subdirectory.
-
 ---
 
-# 1. linters/
+## 1. validation/
 
-**Purpose:** Enforce framework rules across:
-- DAX  
-- Semantic Models  
-- Report layout  
-- Text encoding
+**Purpose:** Validate the consistency of all governed artifacts.
 
-**Contains:**
-- `lint.rules.yaml`
-- `bpa-rules-dax.json`
-- `bpa-rules-report.json`
-- `bpa-rules-semanticmodel.json`
-- `lint_dax.ps1`
-- `lint_encoding.ps1`
-- `fix_mojibake.ps1`
+**Key scripts:**
+- `validate_factsheets.ps1` — factsheet structure and content
+- `validate_kpi_catalog.ps1` — KPI catalog rules
+- `check_factsheet_vs_kpi.ps1` — factsheet KPI references vs catalog
+- `check_factsheet_action_codes.ps1` — factsheet/bracket action code refs vs framework (falls back to `UseCase_Bracket.yaml`)
+- `check_action_codes_vs_kpi.ps1` — action code KPI IDs vs catalog
+- `check_usecase_actioncode_map.ps1` — map consistency
+- `check_decision_spines.ps1` — decision spine map alignment
+- `check_duplicate_ids.ps1` — no duplicate IDs across artifacts
+- `check_ssot_markers.ps1` — SSOT markers respected
+- `check_schema_validation.ps1` — JSON schema validation (requires `npm ci` in `validation/`)
 
-**Usage:**  
-Run locally or in CI/CD to ensure semantic and report quality.
+**Schemas:** `validation/schemas/` is the **canonical** schema directory.
 
----
+**Outputs:** `validation/results/latest_results.json` — produced by `run_stage1_checks.ps1`, consumed by the registry for trust scoring.
 
-# 2. validation/
-
-**Purpose:** Validate the consistency of all content that flows into the semantic model and reporting layer.
-
-**Contains:**
-- `validate_factsheets.ps1`
-- `validate_kpi_catalog.ps1`
-- `check_factsheet_vs_kpi.ps1`
-- `check_spec_vs_kpi.ps1`
-- (Fabric-specific: `check_measures_vs_kpi.ps1`, `check_tmdl_vs_measure_dictionary.ps1`, `check_dax_best_practices.ps1` live under `products/fabric_powerbi/tooling/validation/`)
-- `add_depends_on_ids.ps1`
-- `list_usecase_levels.ps1`
-
-Subfolder:
-```
-validation/pbip/
-  validate_pbip.ps1
+**Setup (one-time):**
+```powershell
+cd tooling\validation
+npm ci
 ```
 
-**Usage:**  
-Mandatory before merging Use Cases or publishing semantic models.
+---
+
+## 2. ontology/ (Registry Engine)
+
+**Purpose:** Hard audit suite — builds the master object graph, detects orphans, validates governance, and produces trust signals.
+
+**Entrypoint:**
+```powershell
+py -3 tooling/ontology/registry_builder.py --out-dir tooling/ontology/out --strict
+```
+
+**Outputs (generated, not committed):**
+
+| File | Purpose |
+|---|---|
+| `out/master_registry.json` | Complete object graph with resolved links, trust scores, data_contract_risk |
+| `out/orphans_report.json` | Unreferenced KPIs, action codes, and use cases |
+| `out/governance_gaps.json` | Missing/conflicting governance roles |
+| `out/value_map.json` | Impact-path linkage and valuation metadata |
+| `out/action_text_preview.txt` | Human-readable action text for Power BI panels |
+
+**Supporting scripts:**
+- `extract_kpi_orphans.py` — extract & purge KPI orphans from catalog
+- `archive_ghosts.py` — move orphan files to `_legacy_archive/`
+- `preview_action_texts.py` — generate action text preview
 
 ---
 
-# 3. generation/
+## 3. git-hooks/ (Continuous Governance)
+
+**Purpose:** Pre-commit enforcement — runs registry in strict mode before every commit.
+
+**Install:**
+```powershell
+.\tooling\git-hooks\install_precommit.ps1
+```
+
+**Contents:**
+- `pre-commit` — shell hook (runs `registry_builder.py --strict`)
+- `install_precommit.ps1` — copies hook to `.git/hooks/`, validates Python 3
+
+---
+
+## 4. linters/
+
+**Purpose:** Enforce framework rules for DAX, semantic models, report layout, and text encoding.
+
+**Contains:**
+- `lint.rules.yaml`, `bpa-rules-dax.json`, `bpa-rules-report.json`, `bpa-rules-semanticmodel.json`
+- `lint_dax.ps1`, `lint_encoding.ps1`, `fix_mojibake.ps1`
+
+---
+
+## 5. generation/
 
 **Purpose:** Generate or update measures & scaffolding.
 
 **Contains:**
-- `generate_tmdl_measures.ps1`
-- `generate_tmdl_measures_simple.ps1`
-- `generate_measures.ps1`
-- `generate_all_measures.ps1`
+- `generate_tmdl_measures.ps1`, `generate_measures.ps1`, `generate_all_measures.ps1`
 - `new_usecase.ps1`
 
-**Usage:**  
-Run whenever KPI catalogs or factsheets change.
-
 ---
 
-# 4. maintenance/
+## 6. maintenance/
 
-**Purpose:** Support long‑term evolution and consistency.
+**Purpose:** Support long-term evolution, migration, and doc consistency.
 
 **Contains:**
-- `check_docs_refs.ps1`
-- `convert_kpi_catalogs.py`
-- `normalize_kpi_catalogs.ps1`
-
-**Usage:**  
-Used during major framework updates or structural refactoring.
+- `check_docs_refs.ps1` — validate doc cross-references
+- `convert_kpi_catalogs.py`, `normalize_kpi_catalogs.ps1`
+- `migrate_action_codes_v2.py` — Action Code v1.1 -> v2.0 migration
 
 ---
 
-# 5. alignment/
+## 7. alignment/
 
-**Purpose:** Generate strategic alignment maps  
-(KPIs → Use Cases → Action Codes → Page Templates).
+**Purpose:** Generate strategic alignment maps (KPIs -> Use Cases -> Action Codes -> Page Templates).
 
-**Contains:**
-- `build_alignment_map.ps1`
-
-**Usage:**  
-Whenever new use cases or strategic KPIs are added.
+**Contains:** `build_alignment_map.ps1`
 
 ---
 
-# 6. Stage 1 vs run_all_checks
+## 8. ai/ (Agent Schemas)
 
-**Stage 1 (CI gate):** `run_stage1_checks.ps1` — Tool-agnostic only (docs, refs, structure, KPI ↔ use case, action code map). Use for **CI and before merge**; this is the mandated check for merge. Fast, no Fabric/Power BI output required.
+**Purpose:** JSON schemas consumed by AI/agent tooling.
 
-**Full validation:** `run_all_checks.ps1` — Runs Stage 1 plus Fabric checks (measures vs KPI, TMDL vs measure dictionary, DAX best practices, TMDL syntax). Use for **full local validation** when you have generated TMDL/measures (e.g. in `products/fabric_powerbi/dist`). Use before releasing or when changing measures/TMDL.
-
-**Fabric-only:** `products/fabric_powerbi/tooling/run_fabric_checks.ps1` — Fabric checks only (no Stage 1); use when you only need to validate generated TMDL/measures.
-
-# 7. run_all_checks.ps1
-
-**Purpose:** Execute all internal checks in correct sequence (Stage 1 + Fabric checks).
-
-Runs:
-1. KPI catalog validation  
-2. Factsheet validation  
-3. KPI ↔ Use Case consistency checks  
-4. Measure consistency checks  
-5. PBIP validation  
-6. Linter/BPA rule enforcement  
-
-**Usage:**  
-Before every merge into `main` (prefer `run_stage1_checks.ps1` for CI) and before exporting templates or when validating Fabric/Power BI output.
+**Policy:** `ai/schemas/` is a **mirror** of `validation/schemas/`. The canonical source is `validation/schemas/`. To avoid drift:
+- Edit schemas only in `validation/schemas/`.
+- After any schema change, copy the updated file to `ai/schemas/` (or run a future sync script).
+- Stage 1 schema validation runs against `validation/schemas/`.
 
 ---
 
-# Usage Guidelines
+## Quality Gates
+
+**Stage 1 (CI gate):** `run_stage1_checks.ps1`
+Tool-agnostic validation (docs, refs, structure, KPI consistency, action code map, schemas).
+Produces `validation/results/latest_results.json`.
+This is the mandated check before merge.
+
+**Registry audit:** `py -3 tooling/ontology/registry_builder.py --out-dir tooling/ontology/out --strict`
+Referential integrity, transitive linkage, governance gaps, value-driver formulas.
+
+**Full validation:** `run_all_checks.ps1`
+Stage 1 + Fabric checks (measures vs KPI, TMDL, DAX best practices).
+
+**Fabric-only:** `products/fabric_powerbi/tooling/run_fabric_checks.ps1`
+
+---
+
+## Usage Guidelines
 
 ### For Framework Maintainers
 - Do not alter folder structure without updating this README.
 - Add new tools only in the corresponding subfolders.
-- Tools must be platform‑neutral unless explicitly scoped.
+- Tools must be platform-neutral unless explicitly scoped.
+- Schema changes: edit `validation/schemas/` first, then sync `ai/schemas/`.
 
 ### For Delivery Teams
 - Use documented tools only.
 - Do not customize or fork scripts for customers; extend the framework instead.
 
 ### For Customers
-- No access.  
+- No access.
 - All results are delivered by Delivery Teams through governed pipelines.
 
 ---
 
-# Relations
+## Relations
 
-- **Operating Model:** Ensures semantic, metadata, and measure rules are enforced  
-- **Use Case Library:** Validates factsheets & required KPI alignment  
-- **Framework Toolkit:** Generates measures, validates catalogs, enforces ActionReady rules  
+- **Operating Model:** Ensures semantic, metadata, and measure rules are enforced
+- **Use Case Library:** Validates factsheets & required KPI alignment
+- **Framework Toolkit:** Generates measures, validates catalogs, enforces ActionReady rules
+- **Registry Engine:** Builds and validates the master object graph, trust signals, and governance gaps
 - **Showcases:** Built using these tools but do not contain tools themselves
 
 ---
 
-**Location:**  
-`tooling/README.md`
+**Location:** `tooling/README.md`

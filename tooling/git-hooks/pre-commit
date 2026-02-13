@@ -1,0 +1,22 @@
+#!/bin/sh
+# Pre-commit hook: run ontology registry builder in strict mode.
+# Blocks commit if registry exits non-zero.
+# Install via: .\tooling\git-hooks\install_precommit.ps1
+
+set -e
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+# Prefer py -3 (Windows launcher), fallback to python
+if command -v py >/dev/null 2>&1; then
+  PY="py -3"
+elif command -v python3 >/dev/null 2>&1; then
+  PY="python3"
+elif command -v python >/dev/null 2>&1; then
+  PY="python"
+else
+  echo "pre-commit: Python 3 not found. Install Python or run: .\tooling\git-hooks\install_precommit.ps1"
+  exit 1
+fi
+
+exec $PY tooling/ontology/registry_builder.py --out-dir tooling/ontology/out --strict

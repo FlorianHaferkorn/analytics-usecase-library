@@ -1,87 +1,44 @@
-schema_version: "1.1"
-
-id: "F-K2.1"
-name: "Cost Take-Out Orchestration"
-owner_domain: "Finance / Operations"
-impact_dimension: "Profitability"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Cost Governance"
-  theme: "Integrated Cost Take-Out Control"
-
-tags: ["unit-cost", "orchestration", "cost-control"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "cost.unit.amount"
-      role: "primary"
-    - id: "margin.cogs.pct"
-      role: "secondary"
-  decisions_enabled:
-    - "Select dominant cost lever to activate (Material, Labor, OpEx)"
-    - "Sequence cost actions to avoid overlap and conflict"
-  non_goals:
-    - "Executing material, labor, or OpEx actions directly"
-    - "Long-term footprint or capacity redesign"
-    - "Working capital or pricing interventions"
-
+schema_version: "2.0"
+id: F-K2.1
+name: Cost Take-Out Orchestration
+owner_domain: Finance / Operations
+impact_dimension: Profitability
+status: active
+owner_role: Finance Director
+steward_role: Finance BI Lead
 use_case_links:
   core_use_cases:
-    - "FIN-002"
+  - FIN-002
   related_use_cases:
-    - "OPS-001"
-    - "OPS-002"
-
+  - OPS-001
+  - OPS-002
 kpis:
   trigger_kpis:
-    - kpi_id: "cost.unit.amount"
-      label: "Unit Cost Amount"
-      semantic_ref:
-        model_domain: "Finance"
-        measure: "Unit Cost Amount"
-    - kpi_id: "cost.opex.vs_plan.pct"
-      label: "OpEx vs Plan %"
-      semantic_ref:
-        model_domain: "Finance"
-        measure: "OpEx vs Plan %"
+  - cost.unit.amount
+  - cost.opex.vs_plan.pct
   guardrail_kpis:
-    - kpi_id: "ops.labor.productivity.pct"
-      label: "Labor Productivity %"
-      semantic_ref:
-        model_domain: "Operations"
-        measure: "Labor Productivity %"
+  - ops.labor.productivity.pct
   outcome_kpis:
-    - kpi_id: "cost.unit.amount"
-      label: "Unit Cost Amount"
-      semantic_ref:
-        model_domain: "Finance"
-        measure: "Unit Cost Amount"
-
+  - cost.unit.amount
 scope:
-  default_grain: "month"
-  default_perspective: ["Plant", "Cost Center"]
+  default_grain: month
+  default_perspective:
+  - Plant
+  - Cost Center
   supported_slices:
-    - "Product Category"
+  - Product Category
   exclusions:
-    - "One-off approved restructuring costs"
-    - "Temporary cost spikes linked to ramp-ups"
-    - "Sites under strategic transformation programs"
-
+  - One-off approved restructuring costs
+  - Temporary cost spikes linked to ramp-ups
+  - Sites under strategic transformation programs
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "month"
+    grain: month
     window:
-      kind: "rolling"
+      kind: rolling
       length: 2
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -89,143 +46,135 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "cost.base_volume.amount"
-        comparator: "gte"
+        metric_kpi_id: cost.base_volume.amount
+        comparator: gte
         value: 500000
-        unit: "amount"
+        unit: amount
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "cost.unit.amount"
-        comparator: "gt"
+        metric_kpi_id: cost.unit.amount
+        comparator: gt
         threshold:
-          basis: "relative"
+          basis: relative
           value: 0.02
-          unit: "%"
+          unit: '%'
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "cost.unit.amount"
-        comparator: "gt"
+        metric_kpi_id: cost.unit.amount
+        comparator: gt
         threshold:
-          basis: "relative"
+          basis: relative
           value: 0.05
-          unit: "%"
+          unit: '%'
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "cost.unit.amount"
-        comparator: "gt"
+        metric_kpi_id: cost.unit.amount
+        comparator: gt
         threshold:
-          basis: "relative"
+          basis: relative
           value: 0.08
-          unit: "%"
+          unit: '%'
         filters: []
   gating_rules:
-    - "Trigger only if deviation is structural, not volume-mix driven"
-    - "Do not trigger if margin erosion is price-driven (handled in COM-002)"
-    - "Exclude plants with approved cost increase programs"
-
+  - Trigger only if deviation is structural, not volume-mix driven
+  - Do not trigger if margin erosion is price-driven (handled in COM-002)
+  - Exclude plants with approved cost increase programs
 impact:
-  category: "High"
+  category: High
   expected_range:
-    metric_kpi_id: "cost.unit.amount"
+    metric_kpi_id: cost.unit.amount
     value_low: 2.0
     value_high: 6.0
-    unit: "%"
+    unit: '%'
     time_to_effect:
       min_periods: 1
       max_periods: 3
   mechanism:
-    - "Focused activation of dominant cost driver actions"
-    - "Avoidance of parallel, conflicting initiatives"
+  - Focused activation of dominant cost driver actions
+  - Avoidance of parallel, conflicting initiatives
   confidence:
-    level: "High"
+    level: High
     rationale:
-      - "Clear orchestration improves execution effectiveness"
-      - "Short decision loop at management level"
-
+    - Clear orchestration improves execution effectiveness
+    - Short decision loop at management level
 operational_execution:
-  primary_owner_role: "Finance Director"
   stakeholders:
-    - "Operations Management"
-    - "Procurement"
-    - "Ops Controlling"
+  - Operations Management
+  - Procurement
+  - Ops Controlling
   prerequisites:
-    - "Reliable unit cost decomposition by driver"
-    - "Clear ownership of execution Action Codes"
+  - Reliable unit cost decomposition by driver
+  - Clear ownership of execution Action Codes
   steps:
-    - "Detect sustained unit cost deterioration"
-    - "Identify dominant cost driver (Material, Labor, OpEx)"
-    - "Activate corresponding execution Action Code"
-    - "Review impact monthly"
+  - Detect sustained unit cost deterioration
+  - Identify dominant cost driver (Material, Labor, OpEx)
+  - Activate corresponding execution Action Code
+  - Review impact monthly
   effort:
-    level: "Low"
+    level: Low
     typical_duration_days: 30
   risks_and_tradeoffs:
-    - "Delayed execution if ownership unclear"
-    - "Underreaction to multi-driver cost pressure"
-
+  - Delayed execution if ownership unclear
+  - Underreaction to multi-driver cost pressure
 data_requirements:
   required_entities:
-    - "Plant"
-    - "Cost Center"
+  - Plant
+  - Cost Center
   semantic_dependencies:
     measures:
-      - "Unit Cost Amount"
-      - "OpEx vs Plan %"
-      - "Labor Productivity %"
+    - Unit Cost Amount
+    - OpEx vs Plan %
+    - Labor Productivity %
     tables:
-      - "fact_cost"
-      - "fact_ops"
-      - "dim_plant"
-      - "dim_cost_center"
-
+    - fact_cost
+    - fact_ops
+    - dim_plant
+    - dim_cost_center
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "monthly"
-    output: "Plants and cost centers with structural unit cost increase"
+    evaluation_frequency: monthly
+    output: Plants and cost centers with structural unit cost increase
   suggested_actions:
     enabled: true
     outputs:
-      - "Recommended cost lever activation (Material / Labor / OpEx)"
+    - Recommended cost lever activation (Material / Labor / OpEx)
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "Plant"
-      - "CostCenter"
-      - "TriggerLevel"
-      - "ActivatedLever"
-      - "ExecutedDate"
+    - ActionCode
+    - Plant
+    - CostCenter
+    - TriggerLevel
+    - ActivatedLever
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_UnitCost"
-      - "Post_UnitCost_90d"
-
+    - ActionCode
+    - Pre_UnitCost
+    - Post_UnitCost_90d
 governance:
   approvals_required:
-    - "CFO"
-    - "COO"
+  - CFO
+  - COO
   rollback_plan:
-    - "Suspend orchestration if execution domains report conflicting priorities"
+  - Suspend orchestration if execution domains report conflicting priorities
   documentation_links:
-    - "core/usecases/core/FIN-002_Cost_Performance/Business_Factsheet.md"
-
+  - core/usecases/core/FIN-002_Cost_Performance/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

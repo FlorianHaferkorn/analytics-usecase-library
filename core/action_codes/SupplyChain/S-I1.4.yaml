@@ -1,87 +1,44 @@
-schema_version: "1.1"
-
-id: "S-I1.4"
-name: "Obsolescence & Excess Reduction"
-owner_domain: "Inventory Management / Finance"
-impact_dimension: "Capital Efficiency"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Inventory Aging Control"
-  theme: "Prevent and Reduce Obsolete and Excess Stock"
-
-tags: ["obsolescence", "excess-inventory", "aging", "working-capital"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "inv.obsolete.pct"
-      role: "primary"
-    - id: "inv.dio.days"
-      role: "secondary"
-  decisions_enabled:
-    - "Identify and liquidate obsolete or slow-moving inventory"
-    - "Block replenishment of structurally obsolete SKUs"
-  non_goals:
-    - "Planned end-of-life run-out programs"
-    - "Promotion-led clearance campaigns"
-    - "Product portfolio rationalisation"
-
+schema_version: "2.0"
+id: S-I1.4
+name: Obsolescence & Excess Reduction
+owner_domain: Inventory Management / Finance
+impact_dimension: Capital Efficiency
+status: active
+owner_role: Inventory Controller
+steward_role: Finance BI Lead
 use_case_links:
   core_use_cases:
-    - "SCM-001"
+  - SCM-001
   related_use_cases:
-    - "FIN-002"
-
+  - FIN-002
 kpis:
   trigger_kpis:
-    - kpi_id: "inv.obsolete.pct"
-      label: "Obsolete Inventory %"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "Obsolete Inventory %"
+  - inv.obsolete.pct
   guardrail_kpis:
-    - kpi_id: "inv.stockout.pct"
-      label: "Stockout %"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "Stockout %"
+  - inv.stockout.pct
   outcome_kpis:
-    - kpi_id: "inv.obsolete.pct"
-      label: "Obsolete Inventory %"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "Obsolete Inventory %"
-    - kpi_id: "inv.dio.days"
-      label: "Days Inventory Outstanding"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "DIO (Days)"
-
+  - inv.obsolete.pct
+  - inv.dio.days
 scope:
-  default_grain: "sku_location_month"
-  default_perspective: ["SKU", "Location"]
+  default_grain: sku_location_month
+  default_perspective:
+  - SKU
+  - Location
   supported_slices:
-    - "Inventory Age Bucket"
-    - "Product Lifecycle Stage"
+  - Inventory Age Bucket
+  - Product Lifecycle Stage
   exclusions:
-    - "SKUs in approved end-of-life programs"
-    - "Inventory reserved for regulatory or contractual reasons"
-    - "Promotion stock managed by COM-004"
-
+  - SKUs in approved end-of-life programs
+  - Inventory reserved for regulatory or contractual reasons
+  - Promotion stock managed by COM-004
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "sku_location_month"
+    grain: sku_location_month
     window:
-      kind: "rolling"
+      kind: rolling
       length: 2
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -89,142 +46,134 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "fin.liquidity.inventory.amount"
-        comparator: "gte"
+        metric_kpi_id: fin.liquidity.inventory.amount
+        comparator: gte
         value: 50000
-        unit: "currency"
+        unit: currency
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "inv.obsolete.pct"
-        comparator: "gt"
+        metric_kpi_id: inv.obsolete.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 5.0
-          unit: "%"
+          unit: '%'
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "inv.obsolete.pct"
-        comparator: "gt"
+        metric_kpi_id: inv.obsolete.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 10.0
-          unit: "%"
+          unit: '%'
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "inv.obsolete.pct"
-        comparator: "gt"
+        metric_kpi_id: inv.obsolete.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 20.0
-          unit: "%"
+          unit: '%'
         filters: []
   gating_rules:
-    - "Trigger only if items are outside active demand horizon"
-    - "Do not trigger if obsolescence is driven by approved lifecycle transitions"
-    - "Exclude SKUs with active rightsizing or stockout actions"
-
+  - Trigger only if items are outside active demand horizon
+  - Do not trigger if obsolescence is driven by approved lifecycle transitions
+  - Exclude SKUs with active rightsizing or stockout actions
 impact:
-  category: "Medium"
+  category: Medium
   expected_range:
-    metric_kpi_id: "inv.obsolete.pct"
+    metric_kpi_id: inv.obsolete.pct
     value_low: -2.0
     value_high: -8.0
-    unit: "pp"
+    unit: pp
     time_to_effect:
       min_periods: 2
       max_periods: 6
   mechanism:
-    - "Liquidation or disposal of obsolete stock"
-    - "Structural prevention via replenishment blocking"
+  - Liquidation or disposal of obsolete stock
+  - Structural prevention via replenishment blocking
   confidence:
-    level: "Medium"
+    level: Medium
     rationale:
-      - "Impact depends on liquidation options"
-      - "Prevention effect is structurally strong"
-
+    - Impact depends on liquidation options
+    - Prevention effect is structurally strong
 operational_execution:
-  primary_owner_role: "Inventory Controller"
   stakeholders:
-    - "Finance"
-    - "Supply Planning"
-    - "Sales (for disposition channels)"
+  - Finance
+  - Supply Planning
+  - Sales (for disposition channels)
   prerequisites:
-    - "Reliable inventory aging logic"
-    - "Clear write-off and disposal rules"
+  - Reliable inventory aging logic
+  - Clear write-off and disposal rules
   steps:
-    - "Identify obsolete and aging inventory beyond demand horizon"
-    - "Block further replenishment"
-    - "Execute liquidation, return, or disposal actions"
-    - "Monitor obsolete share monthly"
+  - Identify obsolete and aging inventory beyond demand horizon
+  - Block further replenishment
+  - Execute liquidation, return, or disposal actions
+  - Monitor obsolete share monthly
   effort:
-    level: "Medium"
+    level: Medium
     typical_duration_days: 120
   risks_and_tradeoffs:
-    - "Write-off impact on P&L"
-    - "One-time clearance distorting sales signals"
-
+  - Write-off impact on P&L
+  - One-time clearance distorting sales signals
 data_requirements:
   required_entities:
-    - "SKU"
-    - "Location"
+  - SKU
+  - Location
   semantic_dependencies:
     measures:
-      - "Obsolete Inventory %"
-      - "DIO (Days)"
-      - "Stockout %"
-      - "Inventory On-Hand Value"
+    - Obsolete Inventory %
+    - DIO (Days)
+    - Stockout %
+    - Inventory On-Hand Value
     tables:
-      - "fact_inventory"
-      - "dim_product"
-      - "dim_location"
-
+    - fact_inventory
+    - dim_product
+    - dim_location
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "monthly"
-    output: "SKU-locations with structurally obsolete inventory"
+    evaluation_frequency: monthly
+    output: SKU-locations with structurally obsolete inventory
   suggested_actions:
     enabled: true
     outputs:
-      - "Liquidation and replenishment block candidates"
+    - Liquidation and replenishment block candidates
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "SKU"
-      - "Location"
-      - "TriggerLevel"
-      - "ExecutedDate"
+    - ActionCode
+    - SKU
+    - Location
+    - TriggerLevel
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_Obsolete_Pct"
-      - "Post_Obsolete_Pct_180d"
-
+    - ActionCode
+    - Pre_Obsolete_Pct
+    - Post_Obsolete_Pct_180d
 governance:
   approvals_required:
-    - "Head of Inventory Control"
-    - "Finance Business Partner"
+  - Head of Inventory Control
+  - Finance Business Partner
   rollback_plan:
-    - "Suspend liquidation if service KPIs deteriorate"
+  - Suspend liquidation if service KPIs deteriorate
   documentation_links:
-    - "core/usecases/core/SCM-001_Inventory_Performance/Business_Factsheet.md"
-
+  - core/usecases/core/SCM-001_Inventory_Performance/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

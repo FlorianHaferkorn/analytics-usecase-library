@@ -4,5 +4,5 @@ This folder contains architecture-level documents for repository structure, prod
 
 Current key references:
 
-- `internal/vision/framework_evolution.md`
+- `internal/archive/framework_evolution.md`
 - `docs/presentations/framework_overview.md`

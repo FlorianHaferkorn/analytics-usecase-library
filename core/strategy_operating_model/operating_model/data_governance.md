@@ -92,12 +92,131 @@ Only affected assets are reviewed or adjusted.
 
 This prevents silent breakage and uncontrolled drift as analytics evolves.
 
-## 7.Outcome
+## 7. Artifact Design Laws
+
+The framework enforces a small set of non-negotiable design laws across all governed artifacts.
+These laws are derived from the [ActionReady Holistic Manifesto](../../../internal/vision/ACTIONREADY_HOLISTIC_MANIFESTO.md) and apply uniformly.
+
+### 7.1. Separation of Concerns
+
+YAML artifacts are machine-readable configuration.
+Markdown files are human-readable context.
+
+Machine-readable data (KPI subscriptions, action code references, trigger logic) lives exclusively in YAML:
+`UseCase_Bracket.yaml`, Action Code YAMLs, KPI Catalog entries, and Data Contracts.
+
+Markdown factsheets provide narrative context only.
+They must not duplicate machine-readable blocks that exist in YAML.
+
+### 7.2. Single Source of Truth (SSOT)
+
+Each governed concept has exactly one authoritative location:
+
+| Concept | SSOT |
+|---|---|
+| KPI definitions | `core/kpi_catalog/KPI_Catalog.md` |
+| Action logic & triggers | `core/action_codes/**/*.yaml` |
+| Use case subscriptions | `core/usecases/**/UseCase_Bracket.yaml` |
+| Semantic model structure | `semantic_models/` |
+| Data contracts | `data_contracts/` |
+
+Derived outputs (`master_registry.json`, `value_map.json`, measure dictionaries) are generated from these sources.
+They are consumed but never hand-edited.
+
+### 7.3. Transitive Integrity & Orphan Policy
+
+A KPI is considered active if it is referenced by any active `UseCase_Bracket.yaml` or by any Action Code subscribed by an active bracket (transitive linkage).
+
+An artifact that is not reachable through this transitive chain is an orphan.
+Orphans are extracted and archived immediately, not deferred.
+
+### 7.4. Roles, Not Names
+
+Governance ownership is assigned to roles (`owner_role`, `steward_role`), not to named individuals.
+This ensures accountability survives organizational change.
+
+Every governed artifact requires both an `owner_role` (accountable for meaning and targets) and a `steward_role` (accountable for data quality and implementation).
+These roles must not be identical.
+
+### 7.5. Zero-Tolerance Gatekeeping
+
+The Registry Engine (`tooling/ontology/registry_builder.py`) is the automated integrity gate.
+It validates referential integrity, governance completeness, and transitive linkage.
+
+In `--strict` mode, any validation failure blocks the commit (enforced via pre-commit hook).
+Consistency is required; partial correctness is not accepted.
+
+## 8. Framework Audit & Continuous Governance
+
+The framework enforces governance through automated audit rather than manual review.
+
+### 8.1. Registry Engine
+
+The Registry Engine scans all governed artifacts and produces:
+
+| Output | Purpose |
+|---|---|
+| `master_registry.json` | Complete object graph with resolved links and trust scores |
+| `orphans_report.json` | Unreferenced KPIs, action codes, and use cases |
+| `governance_gaps.json` | Missing or conflicting governance roles |
+| `value_map.json` | Impact-path linkage and valuation metadata |
+| `action_text_preview.txt` | Human-readable action text for Power BI panels |
+
+These outputs are generated deterministically from governed sources.
+They are never hand-edited.
+
+### 8.2. Validation Pipeline
+
+Governance is enforced in two stages:
+
+**Stage 1 (CI gate):** `tooling/run_stage1_checks.ps1`
+Schema validation, factsheet integrity, KPI catalog rules, action code consistency, decision spine alignment, duplicate IDs, SSOT markers, and doc references.
+
+**Registry audit:** `tooling/ontology/registry_builder.py --strict`
+Referential integrity, transitive linkage, governance gaps, strategic KPI role checks, value-driver formula validation, and causal link coverage.
+
+Both run as pre-commit hooks for continuous governance.
+
+### 8.3. Pre-Commit Enforcement
+
+A pre-commit hook (`tooling/git-hooks/pre-commit`) runs the Registry Engine in strict mode before every commit.
+Installation: `tooling/git-hooks/install_precommit.ps1`.
+
+Failed validation blocks the commit.
+This ensures the repository never contains broken links or ungoverned artifacts.
+
+## 9. Trust Signals & Data Contract Risk
+
+Trust is quantified, not assumed.
+
+### 9.1. Trust Score
+
+The Registry Engine computes a `trust_score` for each KPI based on:
+- validation results (`tooling/validation/results/latest_results.json`),
+- data contract coverage,
+- and governance completeness.
+
+A `trust_score` of 0 means the KPI is untrusted.
+Consumers (agents, reports) must flag untrusted KPIs and must not claim realized impact.
+
+### 9.2. Data Contract Risk
+
+If a used KPI has no linked domain contract, the registry assigns `data_contract_risk: "high"`.
+
+This signal propagates to consumers:
+- AI agents must label recommendations as "data quality at risk".
+- Reports should surface a data quality warning.
+
+Trust signals are produced automatically during registry builds and are consumed by agents and validation pipelines.
+
+## 10. Outcome
 
 When applied consistently, data governance ensures that:
 
 - analytical results are trusted and explainable,
 - changes do not silently alter meaning,
+- governance is enforced through automation, not manual process,
+- orphans and broken links are detected and resolved immediately,
 - and compliance requirements are met without slowing delivery.
 
 Data governance enables scale by protecting trust, not by enforcing control.

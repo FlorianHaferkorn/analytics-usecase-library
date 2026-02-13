@@ -1,87 +1,44 @@
-schema_version: "1.1"
-
-id: "O-A2.3"
-name: "Repair Time Reduction (MTTR Control)"
-owner_domain: "Maintenance"
-impact_dimension: "Maintainability"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Repair Efficiency"
-  theme: "Reduce Mean Time to Repair for Faster Recovery"
-
-tags: ["mttr", "repair", "maintenance"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "ops.mttr.hours"
-      role: "primary"
-    - id: "ops.availability.pct"
-      role: "secondary"
-  decisions_enabled:
-    - "Accelerate fault diagnosis and repair execution"
-    - "Standardise repair procedures for critical assets"
-  non_goals:
-    - "Asset redesign or replacement"
-    - "Predictive maintenance or condition monitoring"
-    - "Spare parts inventory optimisation (handled separately)"
-
+schema_version: "2.0"
+id: O-A2.3
+name: Repair Time Reduction (MTTR Control)
+owner_domain: Maintenance
+impact_dimension: Maintainability
+status: active
+owner_role: Maintenance Supervisor
+steward_role: Maintenance BI Lead
 use_case_links:
   core_use_cases:
-    - "OPS-002"
+  - OPS-002
   related_use_cases:
-    - "OPS-001"
-
+  - OPS-001
 kpis:
   trigger_kpis:
-    - kpi_id: "ops.mttr.hours"
-      label: "Mean Time to Repair (Hours)"
-      semantic_ref:
-        model_domain: "Operations"
-        measure: "MTTR (Hours)"
+  - ops.mttr.hours
   guardrail_kpis:
-    - kpi_id: "ops.safety.incident.count"
-      label: "Safety Incidents"
-      semantic_ref:
-        model_domain: "Operations"
-        measure: "Safety Incident Count"
+  - ops.safety.incident.count
   outcome_kpis:
-    - kpi_id: "ops.mttr.hours"
-      label: "Mean Time to Repair (Hours)"
-      semantic_ref:
-        model_domain: "Operations"
-        measure: "MTTR (Hours)"
-    - kpi_id: "ops.availability.pct"
-      label: "Availability %"
-      semantic_ref:
-        model_domain: "Operations"
-        measure: "Availability %"
-
+  - ops.mttr.hours
+  - ops.availability.pct
 scope:
-  default_grain: "asset_month"
-  default_perspective: ["Plant", "Asset"]
+  default_grain: asset_month
+  default_perspective:
+  - Plant
+  - Asset
   supported_slices:
-    - "Failure Category"
-    - "Maintenance Team"
+  - Failure Category
+  - Maintenance Team
   exclusions:
-    - "Assets with infrequent failures (<2 events per quarter)"
-    - "Repairs delayed by external contractors only"
-    - "Assets under warranty with mandated repair procedures"
-
+  - Assets with infrequent failures (<2 events per quarter)
+  - Repairs delayed by external contractors only
+  - Assets under warranty with mandated repair procedures
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "asset_month"
+    grain: asset_month
     window:
-      kind: "rolling"
+      kind: rolling
       length: 3
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -89,143 +46,135 @@ trigger:
       min_observations: 2
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "ops.failure.count"
-        comparator: "gte"
+        metric_kpi_id: ops.failure.count
+        comparator: gte
         value: 2
-        unit: "count"
+        unit: count
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "ops.mttr.hours"
-        comparator: "gt"
+        metric_kpi_id: ops.mttr.hours
+        comparator: gt
         threshold:
-          basis: "relative"
-          value: 0.10
-          unit: "%"
+          basis: relative
+          value: 0.1
+          unit: '%'
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "ops.mttr.hours"
-        comparator: "gt"
+        metric_kpi_id: ops.mttr.hours
+        comparator: gt
         threshold:
-          basis: "relative"
+          basis: relative
           value: 0.25
-          unit: "%"
+          unit: '%'
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "ops.mttr.hours"
-        comparator: "gt"
+        metric_kpi_id: ops.mttr.hours
+        comparator: gt
         threshold:
-          basis: "relative"
-          value: 0.40
-          unit: "%"
+          basis: relative
+          value: 0.4
+          unit: '%'
         filters: []
   gating_rules:
-    - "Trigger only if safety incident rate remains within tolerance"
-    - "Do not trigger if MTTR increase is driven by spare parts stockouts"
-    - "Exclude assets with active MTBF improvement actions"
-
+  - Trigger only if safety incident rate remains within tolerance
+  - Do not trigger if MTTR increase is driven by spare parts stockouts
+  - Exclude assets with active MTBF improvement actions
 impact:
-  category: "Medium"
+  category: Medium
   expected_range:
-    metric_kpi_id: "ops.mttr.hours"
+    metric_kpi_id: ops.mttr.hours
     value_low: -10.0
     value_high: -30.0
-    unit: "%"
+    unit: '%'
     time_to_effect:
       min_periods: 1
       max_periods: 3
   mechanism:
-    - "Faster fault isolation and diagnosis"
-    - "Improved repair standard work and readiness"
+  - Faster fault isolation and diagnosis
+  - Improved repair standard work and readiness
   confidence:
-    level: "Medium"
+    level: Medium
     rationale:
-      - "Repair delays often procedural"
-      - "Depends on skill availability and tooling"
-
+    - Repair delays often procedural
+    - Depends on skill availability and tooling
 operational_execution:
-  primary_owner_role: "Maintenance Supervisor"
   stakeholders:
-    - "Maintenance Technicians"
-    - "Operations Supervisors"
-    - "EHS"
+  - Maintenance Technicians
+  - Operations Supervisors
+  - EHS
   prerequisites:
-    - "Documented standard repair procedures"
-    - "Clear on-call and escalation rules"
+  - Documented standard repair procedures
+  - Clear on-call and escalation rules
   steps:
-    - "Identify assets with prolonged repair times"
-    - "Analyse repair steps and waiting times"
-    - "Standardise tools, spares, and procedures"
-    - "Review MTTR trend monthly"
+  - Identify assets with prolonged repair times
+  - Analyse repair steps and waiting times
+  - Standardise tools, spares, and procedures
+  - Review MTTR trend monthly
   effort:
-    level: "Medium"
+    level: Medium
     typical_duration_days: 90
   risks_and_tradeoffs:
-    - "Rushed repairs increasing repeat failures"
-    - "Technician overload during peak periods"
-
+  - Rushed repairs increasing repeat failures
+  - Technician overload during peak periods
 data_requirements:
   required_entities:
-    - "Asset"
-    - "Plant"
+  - Asset
+  - Plant
   semantic_dependencies:
     measures:
-      - "MTTR (Hours)"
-      - "Availability %"
-      - "Failure Count"
-      - "Safety Incident Count"
+    - MTTR (Hours)
+    - Availability %
+    - Failure Count
+    - Safety Incident Count
     tables:
-      - "fact_ops_failures"
-      - "fact_ops_maintenance"
-      - "fact_ops_runtime"
-      - "dim_asset"
-      - "dim_plant"
-
+    - fact_ops_failures
+    - fact_ops_maintenance
+    - fact_ops_runtime
+    - dim_asset
+    - dim_plant
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "monthly"
-    output: "Assets with prolonged repair durations"
+    evaluation_frequency: monthly
+    output: Assets with prolonged repair durations
   suggested_actions:
     enabled: true
     outputs:
-      - "Repair standardisation and readiness actions"
+    - Repair standardisation and readiness actions
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "Asset"
-      - "Plant"
-      - "TriggerLevel"
-      - "ExecutedDate"
+    - ActionCode
+    - Asset
+    - Plant
+    - TriggerLevel
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_MTTR_Hours"
-      - "Post_MTTR_Hours_90d"
-
+    - ActionCode
+    - Pre_MTTR_Hours
+    - Post_MTTR_Hours_90d
 governance:
   approvals_required:
-    - "Maintenance Manager"
+  - Maintenance Manager
   rollback_plan:
-    - "Revert procedural changes if repeat failure rate increases"
+  - Revert procedural changes if repeat failure rate increases
   documentation_links:
-    - "core/usecases/core/OPS-002_Asset_Performance/Business_Factsheet.md"
-
+  - core/usecases/core/OPS-002_Asset_Performance/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

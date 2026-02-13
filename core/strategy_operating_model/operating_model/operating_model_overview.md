@@ -22,11 +22,21 @@ Define how strategy is translated into governed analytics and action at scale.
 
 ## Quality gates
 
-- Stage 1: `tooling/run_stage1_checks.ps1`
+- Stage 1 (CI gate): `tooling/run_stage1_checks.ps1`
+- Registry audit: `tooling/ontology/registry_builder.py --strict`
 - Full checks: `tooling/run_all_checks.ps1`
+- Pre-commit: `tooling/git-hooks/pre-commit` (runs registry in strict mode)
+
+## Artifact design laws
+
+Binding design principles are codified in `data_governance.md` §7:
+Separation of Concerns, SSOT, Transitive Integrity, Roles-Not-Names, Zero-Tolerance Gatekeeping.
+
+Origin: [ActionReady Holistic Manifesto](../../../internal/vision/ACTIONREADY_HOLISTIC_MANIFESTO.md)
 
 ## Related documents
 
 - Data layer standard: `data_layers_standard.md`
 - Single source of truth: `reference/single_source_of_truth.md`
+- Framework audit & trust signals: `data_governance.md` §8–§9
 - Playbook: `core/implementation_guides/playbook_strategy_to_first_report.md`

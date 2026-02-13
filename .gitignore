@@ -10,3 +10,12 @@ products/fabric_powerbi/tooling/theme_generator/themes/**/*.md
 
 # Generated review outputs
 internal/reviews/*.md
+
+# Node.js dependencies (reproducible via npm ci)
+tooling/validation/node_modules/
+
+# Generated validation results (produced by Stage 1 runner)
+tooling/validation/results/
+
+# Generated registry outputs (produced by registry_builder.py)
+tooling/ontology/out/

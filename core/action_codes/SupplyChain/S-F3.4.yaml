@@ -1,87 +1,43 @@
-schema_version: "1.1"
-
-id: "S-F3.4"
-name: "Re-Plan Discipline & Stability"
-owner_domain: "S&OP / Planning Excellence"
-impact_dimension: "Planning Stability"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Planning Governance"
-  theme: "Reduce Unnecessary Re-Plans and Planning Churn"
-
-tags: ["replan", "planning-stability", "governance"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "plan.replan.count"
-      role: "primary"
-    - id: "plan.forecast.accuracy.pct"
-      role: "secondary"
-  decisions_enabled:
-    - "Enforce re-plan thresholds and freeze rules"
-    - "Escalate structurally unstable planning cycles"
-  non_goals:
-    - "Forecast algorithm or parameter tuning"
-    - "Short-term service containment actions"
-    - "Inventory buffer changes"
-
+schema_version: "2.0"
+id: S-F3.4
+name: Re-Plan Discipline & Stability
+owner_domain: S&OP / Planning Excellence
+impact_dimension: Planning Stability
+status: active
+owner_role: Planning Excellence Lead
+steward_role: S&OP / Planning Excellence BI Lead
 use_case_links:
   core_use_cases:
-    - "SCM-003"
+  - SCM-003
   related_use_cases:
-    - "SCM-002"
-
+  - SCM-002
 kpis:
   trigger_kpis:
-    - kpi_id: "plan.replan.count"
-      label: "Re-Plan Count"
-      semantic_ref:
-        model_domain: "Planning"
-        measure: "Re-Plan Count"
+  - plan.replan.count
   guardrail_kpis:
-    - kpi_id: "supply.otif.pct"
-      label: "OTIF %"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "OTIF %"
+  - supply.otif.pct
   outcome_kpis:
-    - kpi_id: "plan.replan.count"
-      label: "Re-Plan Count"
-      semantic_ref:
-        model_domain: "Planning"
-        measure: "Re-Plan Count"
-    - kpi_id: "plan.forecast.accuracy.pct"
-      label: "Forecast Accuracy %"
-      semantic_ref:
-        model_domain: "Planning"
-        measure: "Forecast Accuracy %"
-
+  - plan.replan.count
+  - plan.forecast.accuracy.pct
 scope:
-  default_grain: "sop_cycle_month"
-  default_perspective: ["S&OP Cycle"]
+  default_grain: sop_cycle_month
+  default_perspective:
+  - S&OP Cycle
   supported_slices:
-    - "Planner"
-    - "Region"
+  - Planner
+  - Region
   exclusions:
-    - "Crisis or recovery planning cycles"
-    - "Promotion-driven replans (COM-004)"
-    - "Regulatory or customer-mandated replans"
-
+  - Crisis or recovery planning cycles
+  - Promotion-driven replans (COM-004)
+  - Regulatory or customer-mandated replans
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "sop_cycle_month"
+    grain: sop_cycle_month
     window:
-      kind: "rolling"
+      kind: rolling
       length: 3
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -89,140 +45,132 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "plans.count"
-        comparator: "gte"
+        metric_kpi_id: plans.count
+        comparator: gte
         value: 10
-        unit: "count"
+        unit: count
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "plan.replan.count"
-        comparator: "gt"
+        metric_kpi_id: plan.replan.count
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 3
-          unit: "count"
+          unit: count
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "plan.replan.count"
-        comparator: "gt"
+        metric_kpi_id: plan.replan.count
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 6
-          unit: "count"
+          unit: count
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "plan.replan.count"
-        comparator: "gt"
+        metric_kpi_id: plan.replan.count
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 10
-          unit: "count"
+          unit: count
         filters: []
   gating_rules:
-    - "Trigger only if replans are driven by planning overrides or governance breaches"
-    - "Do not trigger if replans are caused by external disruptions"
-    - "Exclude cycles with active forecast bias correction actions"
-
+  - Trigger only if replans are driven by planning overrides or governance breaches
+  - Do not trigger if replans are caused by external disruptions
+  - Exclude cycles with active forecast bias correction actions
 impact:
-  category: "Medium"
+  category: Medium
   expected_range:
-    metric_kpi_id: "plan.replan.count"
+    metric_kpi_id: plan.replan.count
     value_low: -20.0
     value_high: -50.0
-    unit: "%"
+    unit: '%'
     time_to_effect:
       min_periods: 2
       max_periods: 6
   mechanism:
-    - "Stricter re-plan thresholds and freeze enforcement"
-    - "Reduction of planning noise and churn"
+  - Stricter re-plan thresholds and freeze enforcement
+  - Reduction of planning noise and churn
   confidence:
-    level: "Medium"
+    level: Medium
     rationale:
-      - "Governance changes require adherence"
-      - "Benefits compound over cycles"
-
+    - Governance changes require adherence
+    - Benefits compound over cycles
 operational_execution:
-  primary_owner_role: "Planning Excellence Lead"
   stakeholders:
-    - "Demand Planning"
-    - "Supply Planning"
-    - "Sales Operations"
+  - Demand Planning
+  - Supply Planning
+  - Sales Operations
   prerequisites:
-    - "Transparent re-plan logging"
-    - "Clear decision rights and escalation paths"
+  - Transparent re-plan logging
+  - Clear decision rights and escalation paths
   steps:
-    - "Identify cycles with excessive replans"
-    - "Analyse root causes of re-planning"
-    - "Enforce thresholds, freeze windows, and escalation rules"
-    - "Review re-plan trends per cycle"
+  - Identify cycles with excessive replans
+  - Analyse root causes of re-planning
+  - Enforce thresholds, freeze windows, and escalation rules
+  - Review re-plan trends per cycle
   effort:
-    level: "Medium"
+    level: Medium
     typical_duration_days: 120
   risks_and_tradeoffs:
-    - "Reduced flexibility for late demand changes"
-    - "Resistance to stricter planning discipline"
-
+  - Reduced flexibility for late demand changes
+  - Resistance to stricter planning discipline
 data_requirements:
   required_entities:
-    - "S&OP Cycle"
+  - S&OP Cycle
   semantic_dependencies:
     measures:
-      - "Re-Plan Count"
-      - "Forecast Accuracy %"
-      - "OTIF %"
-      - "Plans Count"
+    - Re-Plan Count
+    - Forecast Accuracy %
+    - OTIF %
+    - Plans Count
     tables:
-      - "fact_sop_changes"
-      - "fact_forecast"
-      - "fact_shipments"
-      - "dim_sop_cycle"
-
+    - fact_sop_changes
+    - fact_forecast
+    - fact_shipments
+    - dim_sop_cycle
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "monthly"
-    output: "S&OP cycles with excessive re-planning"
+    evaluation_frequency: monthly
+    output: S&OP cycles with excessive re-planning
   suggested_actions:
     enabled: true
     outputs:
-      - "Re-plan threshold enforcement actions"
+    - Re-plan threshold enforcement actions
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "SOPCycle"
-      - "TriggerLevel"
-      - "ExecutedDate"
+    - ActionCode
+    - SOPCycle
+    - TriggerLevel
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_Replan_Count"
-      - "Post_Replan_Count_180d"
-
+    - ActionCode
+    - Pre_Replan_Count
+    - Post_Replan_Count_180d
 governance:
   approvals_required:
-    - "VP Supply Chain"
+  - VP Supply Chain
   rollback_plan:
-    - "Relax thresholds if service or responsiveness deteriorates"
+  - Relax thresholds if service or responsiveness deteriorates
   documentation_links:
-    - "core/usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md"
-
+  - core/usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

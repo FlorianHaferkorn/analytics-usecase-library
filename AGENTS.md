@@ -14,7 +14,7 @@ Use these instructions when editing this repository. Project rules in `.cursor/r
 
 - Respect the KPI catalog schema and structure; see `core/kpi_catalog/` and `core/templates/kpi_catalog_templates/`.
 - Action code YAML must follow the structure in `core/templates/action_codes/` and `tooling/ai/schemas/action_code.schema.json`; all `kpi_id` values must exist in the KPI catalog.
-- Do not introduce new artifact types without alignment with `internal/vision/framework_evolution.md`.
+- Do not introduce new artifact types without alignment with `internal/archive/framework_evolution.md`.
 
 ## Scripts and CI
 

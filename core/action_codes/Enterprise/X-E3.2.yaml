@@ -1,99 +1,60 @@
-schema_version: "1.1"
-
-id: "X-E3.2"
-name: "Cross-Domain Risk Prioritisation"
-owner_domain: "Strategy / Enterprise Controlling"
-impact_dimension: "Risk Management"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Enterprise Risk Steering"
-  theme: "Prioritise Cross-Domain Performance Risk by Value-at-Risk"
-
-tags: ["executive", "risk", "prioritisation", "var"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "enterprise.value_at_risk.index"
-      role: "primary"
-  decisions_enabled:
-    - "Rank entities and domains by aggregated downside risk"
-    - "Focus executive attention on top material risks"
-  non_goals:
-    - "Executing mitigation actions"
-    - "Re-defining domain KPIs or targets"
-    - "Local operational threshold setting"
-
+schema_version: "2.0"
+id: X-E3.2
+name: Cross-Domain Risk Prioritisation
+owner_domain: Strategy / Enterprise Controlling
+impact_dimension: Risk Management
+status: active
+owner_role: Head of Enterprise Controlling
+steward_role: Enterprise BI Lead
 use_case_links:
   core_use_cases:
-    - "XD-003"
+  - XD-003
   related_use_cases:
-    - "COM-001"
-    - "COM-002"
-    - "COM-003"
-    - "COM-004"
-    - "FIN-001"
-    - "FIN-002"
-    - "OPS-001"
-    - "OPS-002"
-    - "OPS-003"
-    - "SCM-001"
-    - "SCM-002"
-    - "SCM-003"
-    - "XD-001"
-    - "XD-002"
-
+  - COM-001
+  - COM-002
+  - COM-003
+  - COM-004
+  - FIN-001
+  - FIN-002
+  - OPS-001
+  - OPS-002
+  - OPS-003
+  - SCM-001
+  - SCM-002
+  - SCM-003
+  - XD-001
+  - XD-002
 kpis:
   trigger_kpis:
-    - kpi_id: "sales.revenue.growth_pct"
-      label: "Revenue Growth %"
-      semantic_ref: { model_domain: "Commercial", measure: "Revenue Growth %" }
-    - kpi_id: "margin.gm.pct"
-      label: "Gross Margin %"
-      semantic_ref: { model_domain: "Commercial", measure: "Gross Margin %" }
-    - kpi_id: "svc.sla.attainment.pct"
-      label: "SLA Attainment %"
-      semantic_ref: { model_domain: "Service", measure: "SLA Attainment %" }
-    - kpi_id: "supply.otif.pct"
-      label: "OTIF %"
-      semantic_ref: { model_domain: "SupplyChain", measure: "OTIF %" }
-    - kpi_id: "wc.ccc.days"
-      label: "Cash Conversion Cycle (Days)"
-      semantic_ref: { model_domain: "Finance", measure: "CCC (Days)" }
-    - kpi_id: "people.attrition_risk.pct"
-      label: "Attrition Risk %"
-      semantic_ref: { model_domain: "People", measure: "Attrition Risk %" }
+  - sales.revenue.growth_pct
+  - margin.gm.pct
+  - svc.sla.attainment.pct
+  - supply.otif.pct
+  - wc.ccc.days
+  - people.attrition_risk.pct
   guardrail_kpis: []
   outcome_kpis:
-    - kpi_id: "enterprise.value_at_risk.index"
-      label: "Enterprise Value-at-Risk Index"
-      semantic_ref: { model_domain: "Enterprise", measure: "Value-at-Risk Index" }
-
+  - enterprise.value_at_risk.index
 scope:
-  default_grain: "entity_month"
-  default_perspective: ["Business Unit", "Region"]
+  default_grain: entity_month
+  default_perspective:
+  - Business Unit
+  - Region
   supported_slices:
-    - "Domain"
-    - "Risk Category"
+  - Domain
+  - Risk Category
   exclusions:
-    - "Single-KPI local deviations"
-    - "Domain-specific execution logic"
-    - "Non-material short-term noise"
-
+  - Single-KPI local deviations
+  - Domain-specific execution logic
+  - Non-material short-term noise
 trigger:
-  type: "CompositeDeviation"
+  type: CompositeDeviation
   evaluation:
-    grain: "entity_month"
+    grain: entity_month
     window:
-      kind: "rolling"
+      kind: rolling
       length: 2
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 1
@@ -101,121 +62,113 @@ trigger:
       min_observations: 1
   levels:
     L1:
-      severity: "RiskSignal"
+      severity: RiskSignal
       condition:
         composite_rule:
-          description: "Elevated downside risk in at least one domain"
+          description: Elevated downside risk in at least one domain
         filters: []
     L2:
-      severity: "MaterialRisk"
+      severity: MaterialRisk
       condition:
         composite_rule:
-          description: "Multiple domains contributing to downside risk"
+          description: Multiple domains contributing to downside risk
         filters: []
     L3:
-      severity: "CriticalRisk"
+      severity: CriticalRisk
       condition:
         composite_rule:
-          description: "High aggregated value-at-risk with enterprise impact"
+          description: High aggregated value-at-risk with enterprise impact
         filters: []
   gating_rules:
-    - "Trigger only for entities with cross-domain exposure"
-    - "Limit output to top N risk items per cycle"
-    - "Exclude risks already mitigated by active domain actions"
-
+  - Trigger only for entities with cross-domain exposure
+  - Limit output to top N risk items per cycle
+  - Exclude risks already mitigated by active domain actions
 impact:
-  category: "High"
+  category: High
   expected_range:
-    metric_kpi_id: "enterprise.value_at_risk.index"
+    metric_kpi_id: enterprise.value_at_risk.index
     value_low: -10.0
     value_high: -30.0
-    unit: "%"
+    unit: '%'
     time_to_effect:
       min_periods: 0
       max_periods: 1
   mechanism:
-    - "Aggregation of domain KPI downside into a single prioritisation index"
-    - "Executive focus on the most material risks"
+  - Aggregation of domain KPI downside into a single prioritisation index
+  - Executive focus on the most material risks
   confidence:
-    level: "Medium"
+    level: Medium
     rationale:
-      - "Depends on quality of risk weighting logic"
-      - "Does not rely on execution effectiveness"
-
+    - Depends on quality of risk weighting logic
+    - Does not rely on execution effectiveness
 operational_execution:
-  primary_owner_role: "Head of Enterprise Controlling"
   stakeholders:
-    - "Strategy"
-    - "Finance"
-    - "Domain Leads"
+  - Strategy
+  - Finance
+  - Domain Leads
   prerequisites:
-    - "Approved risk weighting and materiality model"
-    - "Consistent KPI target definitions"
+  - Approved risk weighting and materiality model
+  - Consistent KPI target definitions
   steps:
-    - "Aggregate downside deviation per KPI"
-    - "Weight by financial and strategic materiality"
-    - "Rank entities by total value-at-risk"
-    - "Provide prioritised risk list to executives"
+  - Aggregate downside deviation per KPI
+  - Weight by financial and strategic materiality
+  - Rank entities by total value-at-risk
+  - Provide prioritised risk list to executives
   effort:
-    level: "Low"
+    level: Low
     typical_duration_days: 7
   risks_and_tradeoffs:
-    - "Overweighting financially large but strategically minor risks"
-    - "False precision in composite indices"
-
+  - Overweighting financially large but strategically minor risks
+  - False precision in composite indices
 data_requirements:
   required_entities:
-    - "Business Unit"
-    - "Region"
+  - Business Unit
+  - Region
   semantic_dependencies:
     measures:
-      - "Net Sales Growth %"
-      - "Gross Margin %"
-      - "Service Level %"
-      - "OTIF %"
-      - "CCC (Days)"
-      - "Attrition Risk %"
+    - Net Sales Growth %
+    - Gross Margin %
+    - Service Level %
+    - OTIF %
+    - CCC (Days)
+    - Attrition Risk %
     tables:
-      - "fact_kpi_snapshot"
-      - "fact_risk_weights"
-      - "dim_entity"
-      - "dim_region"
-
+    - fact_kpi_snapshot
+    - fact_risk_weights
+    - dim_entity
+    - dim_region
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "monthly"
-    output: "Ranked list of cross-domain risks by entity"
+    evaluation_frequency: monthly
+    output: Ranked list of cross-domain risks by entity
   suggested_actions:
     enabled: true
     outputs:
-      - "Prioritised entities and domains for executive review"
+    - Prioritised entities and domains for executive review
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_risk_prioritisation"
+    recommended_storage: fact_risk_prioritisation
     minimum_fields:
-      - "ActionCode"
-      - "Entity"
-      - "RiskScore"
-      - "SeverityLevel"
-      - "EvaluationDate"
+    - ActionCode
+    - Entity
+    - RiskScore
+    - SeverityLevel
+    - EvaluationDate
   outcome_evaluation:
     enabled: false
-
 governance:
   approvals_required:
-    - "CFO"
-    - "Chief Strategy Officer"
+  - CFO
+  - Chief Strategy Officer
   rollback_plan:
-    - "Revert to single-domain routing if composite risk logic misleads"
+  - Revert to single-domain routing if composite risk logic misleads
   documentation_links:
-    - "core/usecases/core/XD-003_Executive_KPI_Overview/Business_Factsheet.md"
-
+  - core/usecases/core/XD-003_Executive_KPI_Overview/Business_Factsheet.md
 quality_rules:
-  - "XD-003 Action Codes must not introduce execution logic."
-  - "Risk prioritisation must be based on aggregated KPI signals."
-  - "Composite indices must be transparent and auditable."
-  - "If status=deprecated then lifecycle.replaced_by is required."
+- XD-003 Action Codes must not introduce execution logic.
+- Risk prioritisation must be based on aggregated KPI signals.
+- Composite indices must be transparent and auditable.
+- If status=deprecated then lifecycle.replaced_by is required.

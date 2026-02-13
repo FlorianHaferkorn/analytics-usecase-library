@@ -1,87 +1,44 @@
-schema_version: "1.1"
-
-id: "S-R2.3"
-name: "In-Full & Stockout Impact Reduction"
-owner_domain: "Supply Planning"
-impact_dimension: "Availability"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Service Completeness Control"
-  theme: "Prevent Partial Deliveries and Lost Demand"
-
-tags: ["in-full", "stockout-impact", "availability"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "supply.stockout_impact.pct"
-      role: "primary"
-    - id: "supply.in_full.pct"
-      role: "secondary"
-  decisions_enabled:
-    - "Stabilise short-term supply allocation to protect in-full delivery"
-    - "Prioritise constrained supply to highest service impact lanes"
-  non_goals:
-    - "Inventory rightsizing or buffer increases"
-    - "Long-term sourcing strategy changes"
-    - "Promotion-driven allocation decisions"
-
+schema_version: "2.0"
+id: S-R2.3
+name: In-Full & Stockout Impact Reduction
+owner_domain: Supply Planning
+impact_dimension: Availability
+status: active
+owner_role: Supply Planner
+steward_role: Supply Planning BI Lead
 use_case_links:
   core_use_cases:
-    - "SCM-002"
+  - SCM-002
   related_use_cases:
-    - "SCM-001"
-
+  - SCM-001
 kpis:
   trigger_kpis:
-    - kpi_id: "supply.stockout_impact.pct"
-      label: "Stockout Impact %"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "Stockout Impact %"
+  - supply.stockout_impact.pct
   guardrail_kpis:
-    - kpi_id: "inv.dio.days"
-      label: "Days Inventory Outstanding"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "DIO (Days)"
+  - inv.dio.days
   outcome_kpis:
-    - kpi_id: "supply.stockout_impact.pct"
-      label: "Stockout Impact %"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "Stockout Impact %"
-    - kpi_id: "supply.in_full.pct"
-      label: "In-Full Delivery %"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "In-Full %"
-
+  - supply.stockout_impact.pct
+  - supply.in_full.pct
 scope:
-  default_grain: "sku_lane_week"
-  default_perspective: ["SKU", "Lane"]
+  default_grain: sku_lane_week
+  default_perspective:
+  - SKU
+  - Lane
   supported_slices:
-    - "Customer Priority"
-    - "Channel"
+  - Customer Priority
+  - Channel
   exclusions:
-    - "Approved customer allocation constraints"
-    - "Force majeure supply shortages"
-    - "SKUs under promotion programs (COM-004)"
-
+  - Approved customer allocation constraints
+  - Force majeure supply shortages
+  - SKUs under promotion programs (COM-004)
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "sku_lane_week"
+    grain: sku_lane_week
     window:
-      kind: "rolling"
+      kind: rolling
       length: 3
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -89,142 +46,134 @@ trigger:
       min_observations: 2
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "order.lines"
-        comparator: "gte"
+        metric_kpi_id: order.lines
+        comparator: gte
         value: 200
-        unit: "count"
+        unit: count
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "supply.stockout_impact.pct"
-        comparator: "gt"
+        metric_kpi_id: supply.stockout_impact.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 3.0
-          unit: "%"
+          unit: '%'
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "supply.stockout_impact.pct"
-        comparator: "gt"
+        metric_kpi_id: supply.stockout_impact.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 6.0
-          unit: "%"
+          unit: '%'
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "supply.stockout_impact.pct"
-        comparator: "gt"
+        metric_kpi_id: supply.stockout_impact.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 10.0
-          unit: "%"
+          unit: '%'
         filters: []
   gating_rules:
-    - "Trigger only if in-full failures dominate OTIF loss"
-    - "Do not trigger if issues are transport-driven"
-    - "Exclude SKUs with active inventory rightsizing actions"
-
+  - Trigger only if in-full failures dominate OTIF loss
+  - Do not trigger if issues are transport-driven
+  - Exclude SKUs with active inventory rightsizing actions
 impact:
-  category: "High"
+  category: High
   expected_range:
-    metric_kpi_id: "supply.stockout_impact.pct"
+    metric_kpi_id: supply.stockout_impact.pct
     value_low: -1.0
     value_high: -4.0
-    unit: "pp"
+    unit: pp
     time_to_effect:
       min_periods: 0
       max_periods: 2
   mechanism:
-    - "Short-term allocation and prioritisation corrections"
-    - "Containment of partial shipment behaviour"
+  - Short-term allocation and prioritisation corrections
+  - Containment of partial shipment behaviour
   confidence:
-    level: "High"
+    level: High
     rationale:
-      - "In-full failures have immediate service impact"
-      - "Tactical levers are directly actionable"
-
+    - In-full failures have immediate service impact
+    - Tactical levers are directly actionable
 operational_execution:
-  primary_owner_role: "Supply Planner"
   stakeholders:
-    - "Customer Operations"
-    - "Logistics"
+  - Customer Operations
+  - Logistics
   prerequisites:
-    - "Clear allocation and priority rules"
-    - "Visibility into order line fulfilment"
+  - Clear allocation and priority rules
+  - Visibility into order line fulfilment
   steps:
-    - "Identify SKUs/lanes with rising in-full failures"
-    - "Reallocate constrained supply by service priority"
-    - "Correct partial shipment practices"
-    - "Review in-full performance weekly"
+  - Identify SKUs/lanes with rising in-full failures
+  - Reallocate constrained supply by service priority
+  - Correct partial shipment practices
+  - Review in-full performance weekly
   effort:
-    level: "Low"
+    level: Low
     typical_duration_days: 14
   risks_and_tradeoffs:
-    - "Service improvement for priority customers at expense of others"
-    - "Increased planning complexity"
-
+  - Service improvement for priority customers at expense of others
+  - Increased planning complexity
 data_requirements:
   required_entities:
-    - "SKU"
-    - "Lane"
+  - SKU
+  - Lane
   semantic_dependencies:
     measures:
-      - "Stockout Impact %"
-      - "In-Full %"
-      - "DIO (Days)"
-      - "Order Lines"
+    - Stockout Impact %
+    - In-Full %
+    - DIO (Days)
+    - Order Lines
     tables:
-      - "fact_orders"
-      - "fact_shipments"
-      - "fact_inventory"
-      - "dim_product"
-      - "dim_lane"
-
+    - fact_orders
+    - fact_shipments
+    - fact_inventory
+    - dim_product
+    - dim_lane
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "weekly"
-    output: "SKU-lane combinations with rising in-full failures"
+    evaluation_frequency: weekly
+    output: SKU-lane combinations with rising in-full failures
   suggested_actions:
     enabled: true
     outputs:
-      - "Allocation and partial shipment containment actions"
+    - Allocation and partial shipment containment actions
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "SKU"
-      - "Lane"
-      - "TriggerLevel"
-      - "ExecutedDate"
+    - ActionCode
+    - SKU
+    - Lane
+    - TriggerLevel
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_Stockout_Impact_Pct"
-      - "Post_Stockout_Impact_Pct_30d"
-
+    - ActionCode
+    - Pre_Stockout_Impact_Pct
+    - Post_Stockout_Impact_Pct_30d
 governance:
   approvals_required:
-    - "Head of Supply Planning"
+  - Head of Supply Planning
   rollback_plan:
-    - "Revert allocation rules if service imbalance escalates"
+  - Revert allocation rules if service imbalance escalates
   documentation_links:
-    - "core/usecases/core/SCM-002_Supply_Reliability_OTIF/Business_Factsheet.md"
-
+  - core/usecases/core/SCM-002_Supply_Reliability_OTIF/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

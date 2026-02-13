@@ -1,92 +1,45 @@
-schema_version: "1.1"
-
-id: "O-O1.1"
-name: "Operations Stabilisation"
-owner_domain: "Operations Excellence / Maintenance"
-impact_dimension: "Effectiveness"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Availability Control"
-  theme: "Eliminate Chronic Downtime and Stabilise Operations"
-
-tags: ["availability", "downtime", "oee"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "ops.availability.pct"
-      role: "primary"
-    - id: "ops.oee.pct"
-      role: "secondary"
-  decisions_enabled:
-    - "Prioritise and eliminate chronic downtime drivers"
-    - "Stabilise basic operating conditions on lines and plants"
-  non_goals:
-    - "Predictive maintenance model development"
-    - "Major equipment upgrades or CapEx decisions"
-    - "Long-term automation or line redesign"
-
+schema_version: "2.0"
+id: O-O1.1
+name: Operations Stabilisation
+owner_domain: Operations Excellence / Maintenance
+impact_dimension: Effectiveness
+status: active
+owner_role: Maintenance Manager
+steward_role: Operations BI Lead
 use_case_links:
   core_use_cases:
-    - "OPS-001"
+  - OPS-001
   related_use_cases:
-    - "FIN-002"
-
+  - FIN-002
 kpis:
   trigger_kpis:
-    - kpi_id: "ops.availability.pct"
-      label: "Availability %"
-      semantic_ref:
-        model_domain: "Operations"
-        measure: "Availability %"
-    - kpi_id: "ops.downtime.pct"
-      label: "Downtime %"
-      semantic_ref:
-        model_domain: "Operations"
-        measure: "Downtime %"
+  - ops.availability.pct
+  - ops.downtime.pct
   guardrail_kpis:
-    - kpi_id: "ops.quality.pct"
-      label: "Quality %"
-      semantic_ref:
-        model_domain: "Operations"
-        measure: "Quality %"
+  - ops.quality.pct
   outcome_kpis:
-    - kpi_id: "ops.availability.pct"
-      label: "Availability %"
-      semantic_ref:
-        model_domain: "Operations"
-        measure: "Availability %"
-    - kpi_id: "ops.oee.pct"
-      label: "Overall Equipment Effectiveness %"
-      semantic_ref:
-        model_domain: "Operations"
-        measure: "OEE %"
-
+  - ops.availability.pct
+  - ops.oee.pct
 scope:
-  default_grain: "line_month"
-  default_perspective: ["Plant", "Production Line"]
+  default_grain: line_month
+  default_perspective:
+  - Plant
+  - Production Line
   supported_slices:
-    - "Shift"
-    - "Downtime Category"
+  - Shift
+  - Downtime Category
   exclusions:
-    - "Lines under planned shutdown or overhaul"
-    - "Pilot or test lines"
-    - "Downtime driven solely by approved changeovers"
-
+  - Lines under planned shutdown or overhaul
+  - Pilot or test lines
+  - Downtime driven solely by approved changeovers
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "line_month"
+    grain: line_month
     window:
-      kind: "rolling"
+      kind: rolling
       length: 2
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -94,141 +47,133 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "ops.planned.hours"
-        comparator: "gte"
+        metric_kpi_id: ops.planned.hours
+        comparator: gte
         value: 200
-        unit: "hours"
+        unit: hours
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "ops.availability.pct"
-        comparator: "lt"
+        metric_kpi_id: ops.availability.pct
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 90.0
-          unit: "%"
+          unit: '%'
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "ops.availability.pct"
-        comparator: "lt"
+        metric_kpi_id: ops.availability.pct
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 85.0
-          unit: "%"
+          unit: '%'
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "ops.availability.pct"
-        comparator: "lt"
+        metric_kpi_id: ops.availability.pct
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 80.0
-          unit: "%"
+          unit: '%'
         filters: []
   gating_rules:
-    - "Trigger only if downtime is dominated by recurring failure categories"
-    - "Do not trigger if availability loss is driven by approved changeovers"
-    - "Exclude periods with force majeure events"
-
+  - Trigger only if downtime is dominated by recurring failure categories
+  - Do not trigger if availability loss is driven by approved changeovers
+  - Exclude periods with force majeure events
 impact:
-  category: "High"
+  category: High
   expected_range:
-    metric_kpi_id: "ops.availability.pct"
+    metric_kpi_id: ops.availability.pct
     value_low: 3.0
     value_high: 8.0
-    unit: "pp"
+    unit: pp
     time_to_effect:
       min_periods: 1
       max_periods: 3
   mechanism:
-    - "Removal of chronic downtime causes"
-    - "Stabilisation of maintenance and operating routines"
+  - Removal of chronic downtime causes
+  - Stabilisation of maintenance and operating routines
   confidence:
-    level: "High"
+    level: High
     rationale:
-      - "Availability improvements have immediate OEE impact"
-      - "Chronic downtime is typically concentrated in few causes"
-
+    - Availability improvements have immediate OEE impact
+    - Chronic downtime is typically concentrated in few causes
 operational_execution:
-  primary_owner_role: "Maintenance Manager"
   stakeholders:
-    - "Plant Manager"
-    - "Production Supervisors"
+  - Plant Manager
+  - Production Supervisors
   prerequisites:
-    - "Reliable downtime categorisation"
-    - "Clear ownership of maintenance actions"
+  - Reliable downtime categorisation
+  - Clear ownership of maintenance actions
   steps:
-    - "Identify top recurring downtime categories"
-    - "Prioritise chronic failure modes"
-    - "Execute corrective maintenance and standardisation"
-    - "Monitor availability recovery weekly"
+  - Identify top recurring downtime categories
+  - Prioritise chronic failure modes
+  - Execute corrective maintenance and standardisation
+  - Monitor availability recovery weekly
   effort:
-    level: "Medium"
+    level: Medium
     typical_duration_days: 60
   risks_and_tradeoffs:
-    - "Maintenance overload if too many causes tackled in parallel"
-    - "Short-term disruption during corrective work"
-
+  - Maintenance overload if too many causes tackled in parallel
+  - Short-term disruption during corrective work
 data_requirements:
   required_entities:
-    - "Plant"
-    - "Production Line"
+  - Plant
+  - Production Line
   semantic_dependencies:
     measures:
-      - "Availability %"
-      - "Downtime %"
-      - "OEE %"
-      - "Planned Runtime Hours"
+    - Availability %
+    - Downtime %
+    - OEE %
+    - Planned Runtime Hours
     tables:
-      - "fact_ops_runtime"
-      - "fact_ops_downtime"
-      - "dim_production_line"
-      - "dim_plant"
-
+    - fact_ops_runtime
+    - fact_ops_downtime
+    - dim_production_line
+    - dim_plant
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "monthly"
-    output: "Lines with chronic availability loss"
+    evaluation_frequency: monthly
+    output: Lines with chronic availability loss
   suggested_actions:
     enabled: true
     outputs:
-      - "Top downtime causes and stabilisation actions"
+    - Top downtime causes and stabilisation actions
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "Plant"
-      - "ProductionLine"
-      - "TriggerLevel"
-      - "ExecutedDate"
+    - ActionCode
+    - Plant
+    - ProductionLine
+    - TriggerLevel
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_Availability_Pct"
-      - "Post_Availability_Pct_60d"
-
+    - ActionCode
+    - Pre_Availability_Pct
+    - Post_Availability_Pct_60d
 governance:
   approvals_required:
-    - "Plant Manager"
+  - Plant Manager
   rollback_plan:
-    - "Pause stabilisation actions if quality or safety KPIs deteriorate"
+  - Pause stabilisation actions if quality or safety KPIs deteriorate
   documentation_links:
-    - "core/usecases/core/OPS-001_Operations_Performance/Business_Factsheet.md"
-
+  - core/usecases/core/OPS-001_Operations_Performance/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

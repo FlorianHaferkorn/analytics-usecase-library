@@ -13,8 +13,9 @@
 - semantic model definitions (`semantic_models/`)
 - data contracts (`data_contracts/`)
 - reusable templates (`templates/`)
-- glossary (`glossary/`)
 - implementation playbooks (`implementation_guides/`)
+
+Terminology is grounded in KPI Catalog definitions and semantic metadata; there is no separate glossary SSOT.
 
 ## Boundaries
 

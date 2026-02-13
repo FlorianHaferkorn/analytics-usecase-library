@@ -1,87 +1,44 @@
-schema_version: "1.1"
-
-id: "C-M2.1"
-name: "Price Realization Guardrails"
-owner_domain: "Commercial"
-impact_dimension: "Profitability"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Pricing Governance"
-  theme: "Stop Discount Leakage"
-
-tags: ["price-realization", "discount-control", "margin-guardrail"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "sales.price.realization_pct"
-      role: "primary"
-    - id: "margin.gm.pct"
-      role: "secondary"
-  decisions_enabled:
-    - "Enforce discount floors"
-    - "Require approvals for price exceptions"
-  non_goals:
-    - "List price strategy redesign"
-    - "Promotion ROI optimization"
-    - "Channel mix strategy"
-
+schema_version: "2.0"
+id: C-M2.1
+name: Price Realization Guardrails
+owner_domain: Commercial
+impact_dimension: Profitability
+status: active
+owner_role: Pricing Lead
+steward_role: Commercial BI Lead
 use_case_links:
   core_use_cases:
-    - "COM-002"
+  - COM-002
   related_use_cases:
-    - "COM-001"
-
+  - COM-001
 kpis:
   trigger_kpis:
-    - kpi_id: "sales.price.realization_pct"
-      label: "Price Realization %"
-      semantic_ref:
-        model_domain: "Commercial"
-        measure: "Price Realization %"
+  - sales.price.realization_pct
   guardrail_kpis:
-    - kpi_id: "margin.gm.pct"
-      label: "Gross Margin %"
-      semantic_ref:
-        model_domain: "Commercial"
-        measure: "Gross Margin %"
+  - margin.gm.pct
   outcome_kpis:
-    - kpi_id: "sales.price.realization_pct"
-      label: "Price Realization %"
-      semantic_ref:
-        model_domain: "Commercial"
-        measure: "Price Realization %"
-    - kpi_id: "margin.gm.pct"
-      label: "Gross Margin %"
-      semantic_ref:
-        model_domain: "Commercial"
-        measure: "Gross Margin %"
-
+  - sales.price.realization_pct
+  - margin.gm.pct
 scope:
-  default_grain: "month"
-  default_perspective: ["Region", "Channel"]
+  default_grain: month
+  default_perspective:
+  - Region
+  - Channel
   supported_slices:
-    - "Product Category"
-    - "SKU"
+  - Product Category
+  - SKU
   exclusions:
-    - "Low-volume SKUs"
-    - "Approved strategic pricing exceptions"
-    - "Active promotion periods (handled in COM-004)"
-
+  - Low-volume SKUs
+  - Approved strategic pricing exceptions
+  - Active promotion periods (handled in COM-004)
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "month"
+    grain: month
     window:
-      kind: "rolling"
+      kind: rolling
       length: 2
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -89,141 +46,201 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "margin.gm.amount"
-        comparator: "gte"
+        metric_kpi_id: margin.gm.amount
+        comparator: gte
         value: 50000
-        unit: "amount"
+        unit: amount
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "sales.price.realization_pct"
-        comparator: "lt"
+        metric_kpi_id: sales.price.realization_pct
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 0.95
-          unit: "%"
+          unit: '%'
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "sales.price.realization_pct"
-        comparator: "lt"
+        metric_kpi_id: sales.price.realization_pct
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 0.92
-          unit: "%"
+          unit: '%'
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "sales.price.realization_pct"
-        comparator: "lt"
+        metric_kpi_id: sales.price.realization_pct
+        comparator: lt
         threshold:
-          basis: "absolute"
-          value: 0.90
-          unit: "%"
+          basis: absolute
+          value: 0.9
+          unit: '%'
         filters: []
   gating_rules:
-    - "Trigger only if Gross Margin % < 25%"
-    - "Do not trigger if mix effect is primary negative driver"
-    - "Exclude periods flagged as promotion-heavy"
-
+  - Trigger only if Gross Margin % < 25%
+  - Do not trigger if mix effect is primary negative driver
+  - Exclude periods flagged as promotion-heavy
+impact_valuation:
+  method: DirectMarginImprovement
+  currency: EUR
+  success_window:
+    duration: P14D
+    metric_kpi_id: margin.gm.amount
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P28D
+  calculation_logic:
+    standardized: RealizedEUR = (Post_margin.gm.amount - Pre_margin.gm.amount)
+    latex: EUR = GM_{post} - GM_{pre}
+  required_measures:
+  - Gross Margin Amount
+  - Action Execution Count
 impact:
-  category: "High"
+  category: High
   expected_range:
-    metric_kpi_id: "sales.price.realization_pct"
+    metric_kpi_id: sales.price.realization_pct
     value_low: 1.0
     value_high: 3.0
-    unit: "pp"
+    unit: pp
     time_to_effect:
       min_periods: 1
       max_periods: 2
   mechanism:
-    - "Reduced discount depth"
-    - "Tighter exception governance"
+  - Reduced discount depth
+  - Tighter exception governance
   confidence:
-    level: "High"
+    level: High
     rationale:
-      - "Direct control lever with short feedback loop"
-      - "Historically low execution risk"
-
+    - Direct control lever with short feedback loop
+    - Historically low execution risk
 operational_execution:
-  primary_owner_role: "Pricing Lead"
   stakeholders:
-    - "Sales Operations"
-    - "Commercial Controlling"
+  - Sales Operations
+  - Commercial Controlling
   prerequisites:
-    - "Defined discount floors by category/SKU"
-    - "Approval workflow for pricing exceptions"
+  - Defined discount floors by category/SKU
+  - Approval workflow for pricing exceptions
   steps:
-    - "Identify Region/Channel/SKU combinations below realization threshold"
-    - "Freeze discretionary discounts"
-    - "Enforce approval for price exceptions"
-    - "Review realization recovery monthly"
+  - Identify Region/Channel/SKU combinations below realization threshold
+  - Freeze discretionary discounts
+  - Enforce approval for price exceptions
+  - Review realization recovery monthly
   effort:
-    level: "Low"
+    level: Low
     typical_duration_days: 30
   risks_and_tradeoffs:
-    - "Short-term volume pressure in price-sensitive segments"
-    - "Sales friction if governance not clearly communicated"
-
+  - Short-term volume pressure in price-sensitive segments
+  - Sales friction if governance not clearly communicated
 data_requirements:
   required_entities:
-    - "Region"
-    - "Channel"
-    - "Product"
+  - Region
+  - Channel
+  - Product
   semantic_dependencies:
     measures:
-      - "Price Realization %"
-      - "Gross Margin %"
-      - "Gross Margin Amount"
+    - Price Realization %
+    - Gross Margin %
+    - Gross Margin Amount
     tables:
-      - "fact_sales"
-      - "dim_org"
-      - "dim_product"
-
+    - fact_sales
+    - dim_org
+    - dim_product
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "monthly"
-    output: "Flagged Region/Channel/SKU combinations breaching realization guardrails"
+    evaluation_frequency: monthly
+    output: Flagged Region/Channel/SKU combinations breaching realization guardrails
   suggested_actions:
     enabled: true
     outputs:
-      - "SKU-level discount floor enforcement list"
+    - SKU-level discount floor enforcement list
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "TriggerLevel"
-      - "Region"
-      - "Channel"
-      - "Product"
-      - "ExecutedDate"
+    - ActionCode
+    - TriggerLevel
+    - Region
+    - Channel
+    - Product
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_PriceRealization_Pct"
-      - "Post_PriceRealization_Pct_30d"
-
+    - ActionCode
+    - Pre_PriceRealization_Pct
+    - Post_PriceRealization_Pct_30d
 governance:
   approvals_required:
-    - "Commercial Controlling Lead"
+  - Commercial Controlling Lead
   rollback_plan:
-    - "Relax discount floors if Net Sales decline exceeds tolerance"
+  - Relax discount floors if Net Sales decline exceeds tolerance
   documentation_links:
-    - "core/usecases/core/COM-002_Margin_Price_Performance/Business_Factsheet.md"
-
+  - core/usecases/core/COM-002_Margin_Price_Performance/Business_Factsheet.md
+execution_bridge:
+  type: Webhook
+  mode: dry_run
+  endpoint_template: https://api.company.com/actionready/{environment}/commercial/pricing/guardrails
+  http:
+    method: POST
+    headers_template:
+      Content-Type: application/json
+    timeout_seconds: 20
+    retries:
+      max_attempts: 3
+      backoff_seconds: 5
+  auth_reference:
+    kind: ManagedIdentity
+    reference: actionready-fabric-mi
+  payload_definition:
+    content_type: application/json
+    schema:
+      type: object
+      additionalProperties: false
+      required:
+      - action_code_id
+      - trigger_level
+      - scope
+      - recommended_steps
+      properties:
+        action_code_id:
+          type: string
+        trigger_level:
+          type: string
+        scope:
+          type: object
+          additionalProperties: true
+        recommended_steps:
+          type: array
+          items:
+            type: string
+    template:
+      action_code_id: '{action_code_id}'
+      trigger_level: '{trigger_level}'
+      scope:
+        Region: '{Region}'
+        Channel: '{Channel}'
+        Product: '{Product}'
+      recommended_steps: '{steps}'
+    idempotency_key_template: '{action_code_id}:{trigger_hash}:{as_of}'
+  audit:
+    log_table: fact_action_execution
+    minimum_fields:
+    - ActionCode
+    - TriggerLevel
+    - ExecutedDate
+    - PayloadHash
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

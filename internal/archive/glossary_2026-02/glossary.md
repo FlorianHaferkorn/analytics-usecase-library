@@ -153,4 +153,4 @@ A fact-like structure summarizing KPI deviations, triggers, or root causes used 
 - Operating model rules belong in `core/strategy_operating_model/`.
 - New terms are added only when reused across domains/products.
 
-Location: `core/glossary/glossary.md`
+*(Archived from `core/glossary/glossary.md`. Not SSOT.)*

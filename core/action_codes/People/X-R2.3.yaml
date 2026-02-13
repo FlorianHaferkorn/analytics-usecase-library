@@ -1,87 +1,44 @@
-schema_version: "1.1"
-
-id: "X-R2.3"
-name: "Shrinkage & Productive Time Control"
-owner_domain: "Service Operations / CX"
-impact_dimension: "Productive Capacity"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Utilization Quality Control"
-  theme: "Reduce Non-Productive Time Without Increasing Load"
-
-tags: ["shrinkage", "productive-time", "utilization"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "res.shrinkage.pct"
-      role: "primary"
-    - id: "res.utilization.pct"
-      role: "secondary"
-  decisions_enabled:
-    - "Identify and reduce structural non-productive time drivers"
-    - "Stabilise productive time without overloading agents"
-  non_goals:
-    - "Blame-driven individual performance management"
-    - "Automation or tooling replacement programs"
-    - "Training volume reduction without quality safeguards"
-
+schema_version: "2.0"
+id: X-R2.3
+name: Shrinkage & Productive Time Control
+owner_domain: Service Operations / CX
+impact_dimension: Productive Capacity
+status: active
+owner_role: Service Operations Manager
+steward_role: Operations BI Lead
 use_case_links:
   core_use_cases:
-    - "XD-002"
+  - XD-002
   related_use_cases:
-    - "XD-001"
-
+  - XD-001
 kpis:
   trigger_kpis:
-    - kpi_id: "res.shrinkage.pct"
-      label: "Shrinkage %"
-      semantic_ref:
-        model_domain: "Workforce"
-        measure: "Shrinkage %"
+  - res.shrinkage.pct
   guardrail_kpis:
-    - kpi_id: "svc.sla.attainment.pct"
-      label: "SLA Attainment %"
-      semantic_ref:
-        model_domain: "Service"
-        measure: "SLA Attainment %"
+  - svc.sla.attainment.pct
   outcome_kpis:
-    - kpi_id: "res.shrinkage.pct"
-      label: "Shrinkage %"
-      semantic_ref:
-        model_domain: "Workforce"
-        measure: "Shrinkage %"
-    - kpi_id: "res.utilization.pct"
-      label: "Resource Utilization %"
-      semantic_ref:
-        model_domain: "Workforce"
-        measure: "Utilization %"
-
+  - res.shrinkage.pct
+  - res.utilization.pct
 scope:
-  default_grain: "queue_week"
-  default_perspective: ["Queue", "Agent Group"]
+  default_grain: queue_week
+  default_perspective:
+  - Queue
+  - Agent Group
   supported_slices:
-    - "Shrinkage Category"
-    - "Region"
+  - Shrinkage Category
+  - Region
   exclusions:
-    - "Planned training or onboarding periods"
-    - "Legally mandated absences"
-    - "Incident-driven shrinkage spikes"
-
+  - Planned training or onboarding periods
+  - Legally mandated absences
+  - Incident-driven shrinkage spikes
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "queue_week"
+    grain: queue_week
     window:
-      kind: "rolling"
+      kind: rolling
       length: 4
-      unit: "weeks"
+      unit: weeks
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -89,142 +46,134 @@ trigger:
       min_observations: 2
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "svc.tickets.created.count"
-        comparator: "gte"
+        metric_kpi_id: svc.tickets.created.count
+        comparator: gte
         value: 200
-        unit: "count"
+        unit: count
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "res.shrinkage.pct"
-        comparator: "gt"
+        metric_kpi_id: res.shrinkage.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 25.0
-          unit: "%"
+          unit: '%'
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "res.shrinkage.pct"
-        comparator: "gt"
+        metric_kpi_id: res.shrinkage.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 30.0
-          unit: "%"
+          unit: '%'
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "res.shrinkage.pct"
-        comparator: "gt"
+        metric_kpi_id: res.shrinkage.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 35.0
-          unit: "%"
+          unit: '%'
         filters: []
   gating_rules:
-    - "Trigger only if shrinkage is structurally recurring"
-    - "Do not trigger if increase is driven by approved training plans"
-    - "Exclude queues with active capacity reallocation actions"
-
+  - Trigger only if shrinkage is structurally recurring
+  - Do not trigger if increase is driven by approved training plans
+  - Exclude queues with active capacity reallocation actions
 impact:
-  category: "Medium"
+  category: Medium
   expected_range:
-    metric_kpi_id: "res.shrinkage.pct"
+    metric_kpi_id: res.shrinkage.pct
     value_low: -3.0
     value_high: -8.0
-    unit: "pp"
+    unit: pp
     time_to_effect:
       min_periods: 2
       max_periods: 6
   mechanism:
-    - "Reduction of avoidable non-productive time"
-    - "Improved planning and adherence discipline"
+  - Reduction of avoidable non-productive time
+  - Improved planning and adherence discipline
   confidence:
-    level: "Medium"
+    level: Medium
     rationale:
-      - "Shrinkage drivers are partially controllable"
-      - "Sustained impact requires behavioural change"
-
+    - Shrinkage drivers are partially controllable
+    - Sustained impact requires behavioural change
 operational_execution:
-  primary_owner_role: "Service Operations Manager"
   stakeholders:
-    - "Workforce Management"
-    - "HR Operations"
+  - Workforce Management
+  - HR Operations
   prerequisites:
-    - "Transparent shrinkage categorisation"
-    - "Agreement on controllable vs non-controllable time"
+  - Transparent shrinkage categorisation
+  - Agreement on controllable vs non-controllable time
   steps:
-    - "Identify queues with elevated shrinkage"
-    - "Analyse dominant shrinkage categories"
-    - "Adjust planning, adherence, or scheduling practices"
-    - "Monitor shrinkage and utilization weekly"
+  - Identify queues with elevated shrinkage
+  - Analyse dominant shrinkage categories
+  - Adjust planning, adherence, or scheduling practices
+  - Monitor shrinkage and utilization weekly
   effort:
-    level: "Medium"
+    level: Medium
     typical_duration_days: 90
   risks_and_tradeoffs:
-    - "Employee morale impact if misapplied"
-    - "Underinvestment in necessary training"
-
+  - Employee morale impact if misapplied
+  - Underinvestment in necessary training
 data_requirements:
   required_entities:
-    - "Queue"
-    - "Agent Group"
+  - Queue
+  - Agent Group
   semantic_dependencies:
     measures:
-      - "Shrinkage %"
-      - "Utilization %"
-      - "SLA Attainment %"
-      - "Tickets Created Count"
+    - Shrinkage %
+    - Utilization %
+    - SLA Attainment %
+    - Tickets Created Count
     tables:
-      - "fact_workforce"
-      - "fact_service_tickets"
-      - "dim_queue"
-      - "dim_agent_group"
-
+    - fact_workforce
+    - fact_service_tickets
+    - dim_queue
+    - dim_agent_group
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "weekly"
-    output: "Queues and agent groups with elevated shrinkage"
+    evaluation_frequency: weekly
+    output: Queues and agent groups with elevated shrinkage
   suggested_actions:
     enabled: true
     outputs:
-      - "Shrinkage reduction recommendations"
+    - Shrinkage reduction recommendations
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "Queue"
-      - "AgentGroup"
-      - "TriggerLevel"
-      - "ExecutedDate"
+    - ActionCode
+    - Queue
+    - AgentGroup
+    - TriggerLevel
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_Shrinkage_Pct"
-      - "Post_Shrinkage_Pct_90d"
-
+    - ActionCode
+    - Pre_Shrinkage_Pct
+    - Post_Shrinkage_Pct_90d
 governance:
   approvals_required:
-    - "Head of Service Operations"
-    - "HR Business Partner"
+  - Head of Service Operations
+  - HR Business Partner
   rollback_plan:
-    - "Suspend shrinkage actions if SLA or morale indicators deteriorate"
+  - Suspend shrinkage actions if SLA or morale indicators deteriorate
   documentation_links:
-    - "core/usecases/core/XD-002_Resource_Utilization/Business_Factsheet.md"
-
+  - core/usecases/core/XD-002_Resource_Utilization/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

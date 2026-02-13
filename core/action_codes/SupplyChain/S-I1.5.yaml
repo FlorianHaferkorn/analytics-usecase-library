@@ -1,84 +1,43 @@
-schema_version: "1.1"
-
-id: "S-I1.5"
-name: "Forecast & Planning Stabilisation"
-owner_domain: "Demand Planning / S&OP"
-impact_dimension: "Planning Quality"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Planning Discipline"
-  theme: "Stabilise Planning Processes Driving Inventory Imbalance"
-
-tags: ["forecast", "planning", "sop", "stability"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "plan.forecast.accuracy.pct"
-      role: "primary"
-    - id: "inv.dio.days"
-      role: "secondary"
-    - id: "inv.stockout.pct"
-      role: "secondary"
-  decisions_enabled:
-    - "Stabilise planning parameters and governance where forecast error drives inventory imbalance"
-    - "Escalate structurally unstable demand-planning processes"
-  non_goals:
-    - "Statistical forecast model tuning"
-    - "Algorithm or ML parameter optimisation"
-    - "Promotion or pricing-driven demand shaping"
-
+schema_version: "2.0"
+id: S-I1.5
+name: Forecast & Planning Stabilisation
+owner_domain: Demand Planning / S&OP
+impact_dimension: Planning Quality
+status: active
+owner_role: Head of Demand Planning
+steward_role: Demand Planning / S&OP BI Lead
 use_case_links:
   core_use_cases:
-    - "SCM-001"
+  - SCM-001
   related_use_cases:
-    - "SCM-003"
-
+  - SCM-003
 kpis:
   trigger_kpis:
-    - kpi_id: "plan.forecast.accuracy.pct"
-      label: "Forecast Accuracy %"
-      semantic_ref:
-        model_domain: "Planning"
-        measure: "Forecast Accuracy %"
+  - plan.forecast.accuracy.pct
   guardrail_kpis:
-    - kpi_id: "inv.dio.days"
-      label: "Days Inventory Outstanding"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "DIO (Days)"
+  - inv.dio.days
   outcome_kpis:
-    - kpi_id: "plan.forecast.accuracy.pct"
-      label: "Forecast Accuracy %"
-      semantic_ref:
-        model_domain: "Planning"
-        measure: "Forecast Accuracy %"
-
+  - plan.forecast.accuracy.pct
 scope:
-  default_grain: "sku_location_month"
-  default_perspective: ["SKU", "Location"]
+  default_grain: sku_location_month
+  default_perspective:
+  - SKU
+  - Location
   supported_slices:
-    - "Demand Pattern"
-    - "Planning Cycle"
+  - Demand Pattern
+  - Planning Cycle
   exclusions:
-    - "New product introductions"
-    - "Promotion-driven demand volatility"
-    - "Markets under exceptional events"
-
+  - New product introductions
+  - Promotion-driven demand volatility
+  - Markets under exceptional events
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "sku_location_month"
+    grain: sku_location_month
     window:
-      kind: "rolling"
+      kind: rolling
       length: 3
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -86,142 +45,134 @@ trigger:
       min_observations: 3
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "sales.units"
-        comparator: "gte"
+        metric_kpi_id: sales.units
+        comparator: gte
         value: 3000
-        unit: "units"
+        unit: units
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "plan.forecast.accuracy.pct"
-        comparator: "lt"
+        metric_kpi_id: plan.forecast.accuracy.pct
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 70.0
-          unit: "%"
+          unit: '%'
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "plan.forecast.accuracy.pct"
-        comparator: "lt"
+        metric_kpi_id: plan.forecast.accuracy.pct
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 60.0
-          unit: "%"
+          unit: '%'
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "plan.forecast.accuracy.pct"
-        comparator: "lt"
+        metric_kpi_id: plan.forecast.accuracy.pct
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 50.0
-          unit: "%"
+          unit: '%'
         filters: []
   gating_rules:
-    - "Trigger only if forecast error is structurally recurring"
-    - "Do not trigger if volatility is driven by approved promotions"
-    - "Exclude SKUs with active rightsizing or stockout actions"
-
+  - Trigger only if forecast error is structurally recurring
+  - Do not trigger if volatility is driven by approved promotions
+  - Exclude SKUs with active rightsizing or stockout actions
 impact:
-  category: "Medium"
+  category: Medium
   expected_range:
-    metric_kpi_id: "plan.forecast.accuracy.pct"
+    metric_kpi_id: plan.forecast.accuracy.pct
     value_low: 5.0
     value_high: 15.0
-    unit: "pp"
+    unit: pp
     time_to_effect:
       min_periods: 2
       max_periods: 6
   mechanism:
-    - "Stabilised planning governance and cadence"
-    - "Reduction of manual overrides and planning noise"
+  - Stabilised planning governance and cadence
+  - Reduction of manual overrides and planning noise
   confidence:
-    level: "Medium"
+    level: Medium
     rationale:
-      - "Governance changes take time"
-      - "Effectiveness depends on planning discipline"
-
+    - Governance changes take time
+    - Effectiveness depends on planning discipline
 operational_execution:
-  primary_owner_role: "Head of Demand Planning"
   stakeholders:
-    - "Supply Planning"
-    - "Sales"
-    - "Finance"
+  - Supply Planning
+  - Sales
+  - Finance
   prerequisites:
-    - "Consistent forecast accuracy measurement"
-    - "Clear S&OP cadence and escalation rules"
+  - Consistent forecast accuracy measurement
+  - Clear S&OP cadence and escalation rules
   steps:
-    - "Identify SKUs with persistent forecast instability"
-    - "Review planning inputs, overrides, and cadence"
-    - "Enforce planning governance and parameter discipline"
-    - "Monitor forecast accuracy monthly"
+  - Identify SKUs with persistent forecast instability
+  - Review planning inputs, overrides, and cadence
+  - Enforce planning governance and parameter discipline
+  - Monitor forecast accuracy monthly
   effort:
-    level: "Medium"
+    level: Medium
     typical_duration_days: 120
   risks_and_tradeoffs:
-    - "Reduced flexibility in volatile markets"
-    - "Over-standardisation of planning assumptions"
-
+  - Reduced flexibility in volatile markets
+  - Over-standardisation of planning assumptions
 data_requirements:
   required_entities:
-    - "SKU"
-    - "Location"
+  - SKU
+  - Location
   semantic_dependencies:
     measures:
-      - "Forecast Accuracy %"
-      - "DIO (Days)"
-      - "Stockout %"
-      - "Sales Units"
+    - Forecast Accuracy %
+    - DIO (Days)
+    - Stockout %
+    - Sales Units
     tables:
-      - "fact_forecast"
-      - "fact_sales"
-      - "dim_product"
-      - "dim_location"
-
+    - fact_forecast
+    - fact_sales
+    - dim_product
+    - dim_location
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "monthly"
-    output: "SKU-locations with structurally unstable forecasts"
+    evaluation_frequency: monthly
+    output: SKU-locations with structurally unstable forecasts
   suggested_actions:
     enabled: true
     outputs:
-      - "Planning governance stabilisation actions"
+    - Planning governance stabilisation actions
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "SKU"
-      - "Location"
-      - "TriggerLevel"
-      - "ExecutedDate"
+    - ActionCode
+    - SKU
+    - Location
+    - TriggerLevel
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_Forecast_Accuracy_Pct"
-      - "Post_Forecast_Accuracy_Pct_180d"
-
+    - ActionCode
+    - Pre_Forecast_Accuracy_Pct
+    - Post_Forecast_Accuracy_Pct_180d
 governance:
   approvals_required:
-    - "S&OP Lead"
+  - S&OP Lead
   rollback_plan:
-    - "Relax governance if service or responsiveness deteriorates"
+  - Relax governance if service or responsiveness deteriorates
   documentation_links:
-    - "core/usecases/core/SCM-001_Inventory_Performance/Business_Factsheet.md"
-
+  - core/usecases/core/SCM-001_Inventory_Performance/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

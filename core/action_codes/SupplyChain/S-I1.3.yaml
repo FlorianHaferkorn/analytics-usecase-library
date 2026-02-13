@@ -1,87 +1,44 @@
-schema_version: "1.1"
-
-id: "S-I1.3"
-name: "Stockout Prevention"
-owner_domain: "Supply Planning / Logistics"
-impact_dimension: "Service Level"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Service Availability Control"
-  theme: "Prevent Stockouts and Protect OTIF"
-
-tags: ["stockout", "service-level", "otif", "availability"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "inv.stockout.pct"
-      role: "primary"
-    - id: "supply.otif.pct"
-      role: "secondary"
-  decisions_enabled:
-    - "Stabilise replenishment for at-risk SKUs"
-    - "Trigger short-term expedites or parameter corrections"
-  non_goals:
-    - "Transport network optimisation"
-    - "Long-term demand model tuning"
-    - "Promotion-driven inventory actions"
-
+schema_version: "2.0"
+id: S-I1.3
+name: Stockout Prevention
+owner_domain: Supply Planning / Logistics
+impact_dimension: Service Level
+status: active
+owner_role: Supply Planner
+steward_role: Supply Planning / Logistics BI Lead
 use_case_links:
   core_use_cases:
-    - "SCM-001"
+  - SCM-001
   related_use_cases:
-    - "SCM-002"
-
+  - SCM-002
 kpis:
   trigger_kpis:
-    - kpi_id: "inv.stockout.pct"
-      label: "Stockout %"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "Stockout %"
+  - inv.stockout.pct
   guardrail_kpis:
-    - kpi_id: "inv.dio.days"
-      label: "Days Inventory Outstanding"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "DIO (Days)"
+  - inv.dio.days
   outcome_kpis:
-    - kpi_id: "inv.stockout.pct"
-      label: "Stockout %"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "Stockout %"
-    - kpi_id: "supply.otif.pct"
-      label: "OTIF %"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "OTIF %"
-
+  - inv.stockout.pct
+  - supply.otif.pct
 scope:
-  default_grain: "sku_location_week"
-  default_perspective: ["SKU", "Location"]
+  default_grain: sku_location_week
+  default_perspective:
+  - SKU
+  - Location
   supported_slices:
-    - "Customer Segment"
-    - "Distribution Channel"
+  - Customer Segment
+  - Distribution Channel
   exclusions:
-    - "SKUs intentionally constrained due to allocation policies"
-    - "Stockouts caused by force majeure events"
-    - "Items under promotion managed by COM-004"
-
+  - SKUs intentionally constrained due to allocation policies
+  - Stockouts caused by force majeure events
+  - Items under promotion managed by COM-004
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "sku_location_week"
+    grain: sku_location_week
     window:
-      kind: "rolling"
+      kind: rolling
       length: 3
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -89,141 +46,133 @@ trigger:
       min_observations: 2
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "sales.units"
-        comparator: "gte"
+        metric_kpi_id: sales.units
+        comparator: gte
         value: 500
-        unit: "units"
+        unit: units
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "inv.stockout.pct"
-        comparator: "gt"
+        metric_kpi_id: inv.stockout.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 2.0
-          unit: "%"
+          unit: '%'
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "inv.stockout.pct"
-        comparator: "gt"
+        metric_kpi_id: inv.stockout.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 5.0
-          unit: "%"
+          unit: '%'
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "inv.stockout.pct"
-        comparator: "gt"
+        metric_kpi_id: inv.stockout.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 10.0
-          unit: "%"
+          unit: '%'
         filters: []
   gating_rules:
-    - "Trigger only if DIO is not already above upper tolerance"
-    - "Do not trigger if stockouts are demand-spike driven and approved"
-    - "Exclude SKUs with active inventory rightsizing actions"
-
+  - Trigger only if DIO is not already above upper tolerance
+  - Do not trigger if stockouts are demand-spike driven and approved
+  - Exclude SKUs with active inventory rightsizing actions
 impact:
-  category: "High"
+  category: High
   expected_range:
-    metric_kpi_id: "inv.stockout.pct"
+    metric_kpi_id: inv.stockout.pct
     value_low: -1.0
     value_high: -5.0
-    unit: "pp"
+    unit: pp
     time_to_effect:
       min_periods: 0
       max_periods: 2
   mechanism:
-    - "Parameter correction and expedited replenishment"
-    - "Short-term reallocation across locations"
+  - Parameter correction and expedited replenishment
+  - Short-term reallocation across locations
   confidence:
-    level: "High"
+    level: High
     rationale:
-      - "Direct operational levers available"
-      - "Immediate service impact"
-
+    - Direct operational levers available
+    - Immediate service impact
 operational_execution:
-  primary_owner_role: "Supply Planner"
   stakeholders:
-    - "Logistics"
-    - "Customer Service"
+  - Logistics
+  - Customer Service
   prerequisites:
-    - "Near-real-time inventory and order visibility"
-    - "Clear expedite approval rules"
+  - Near-real-time inventory and order visibility
+  - Clear expedite approval rules
   steps:
-    - "Identify SKUs with rising stockout risk"
-    - "Correct replenishment parameters or trigger expedites"
-    - "Reallocate inventory across locations if needed"
-    - "Review stockout and OTIF weekly"
+  - Identify SKUs with rising stockout risk
+  - Correct replenishment parameters or trigger expedites
+  - Reallocate inventory across locations if needed
+  - Review stockout and OTIF weekly
   effort:
-    level: "Low"
+    level: Low
     typical_duration_days: 14
   risks_and_tradeoffs:
-    - "Increased logistics cost from expedites"
-    - "Inventory imbalance if overcorrected"
-
+  - Increased logistics cost from expedites
+  - Inventory imbalance if overcorrected
 data_requirements:
   required_entities:
-    - "SKU"
-    - "Location"
+  - SKU
+  - Location
   semantic_dependencies:
     measures:
-      - "Stockout %"
-      - "OTIF %"
-      - "DIO (Days)"
-      - "Sales Units"
+    - Stockout %
+    - OTIF %
+    - DIO (Days)
+    - Sales Units
     tables:
-      - "fact_inventory"
-      - "fact_sales"
-      - "dim_product"
-      - "dim_location"
-
+    - fact_inventory
+    - fact_sales
+    - dim_product
+    - dim_location
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "weekly"
-    output: "SKU-locations at risk of stockout"
+    evaluation_frequency: weekly
+    output: SKU-locations at risk of stockout
   suggested_actions:
     enabled: true
     outputs:
-      - "Expedite and reallocation candidates"
+    - Expedite and reallocation candidates
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "SKU"
-      - "Location"
-      - "TriggerLevel"
-      - "ExecutedDate"
+    - ActionCode
+    - SKU
+    - Location
+    - TriggerLevel
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_Stockout_Pct"
-      - "Post_Stockout_Pct_30d"
-
+    - ActionCode
+    - Pre_Stockout_Pct
+    - Post_Stockout_Pct_30d
 governance:
   approvals_required:
-    - "Head of Supply Planning"
+  - Head of Supply Planning
   rollback_plan:
-    - "Cancel expedites if cost or inventory imbalance exceeds guardrails"
+  - Cancel expedites if cost or inventory imbalance exceeds guardrails
   documentation_links:
-    - "core/usecases/core/SCM-001_Inventory_Performance/Business_Factsheet.md"
-
+  - core/usecases/core/SCM-001_Inventory_Performance/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

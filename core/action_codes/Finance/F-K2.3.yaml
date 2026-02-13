@@ -1,86 +1,43 @@
-schema_version: "1.1"
-
-id: "F-K2.3"
-name: "Labor Productivity Recovery"
-owner_domain: "Operations / Production"
-impact_dimension: "Profitability"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Labor Cost Control"
-  theme: "Recover Productivity to Reduce Unit Cost"
-
-tags: ["labor", "productivity", "unit-cost"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "ops.labor.productivity.pct"
-      role: "primary"
-    - id: "cost.unit.amount"
-      role: "secondary"
-  decisions_enabled:
-    - "Correct staffing and shift imbalances"
-    - "Stabilize line productivity and utilization"
-  non_goals:
-    - "Detailed OEE optimization (OPS-001)"
-    - "Long-term workforce restructuring"
-    - "Automation or CapEx decisions"
-
+schema_version: "2.0"
+id: F-K2.3
+name: Labor Productivity Recovery
+owner_domain: Operations / Production
+impact_dimension: Profitability
+status: active
+owner_role: Plant Manager
+steward_role: Operations BI Lead
 use_case_links:
   core_use_cases:
-    - "FIN-002"
+  - FIN-002
   related_use_cases:
-    - "OPS-001"
-
+  - OPS-001
 kpis:
   trigger_kpis:
-    - kpi_id: "ops.labor.productivity.pct"
-      label: "Labor Productivity %"
-      semantic_ref:
-        model_domain: "Operations"
-        measure: "Labor Productivity %"
+  - ops.labor.productivity.pct
   guardrail_kpis:
-    - kpi_id: "ops.quality.defect_rate.pct"
-      label: "Defect Rate %"
-      semantic_ref:
-        model_domain: "Operations"
-        measure: "Defect Rate %"
+  - ops.quality.defect_rate.pct
   outcome_kpis:
-    - kpi_id: "ops.labor.productivity.pct"
-      label: "Labor Productivity %"
-      semantic_ref:
-        model_domain: "Operations"
-        measure: "Labor Productivity %"
-    - kpi_id: "cost.unit.amount"
-      label: "Unit Cost Amount"
-      semantic_ref:
-        model_domain: "Finance"
-        measure: "Unit Cost Amount"
-
+  - ops.labor.productivity.pct
+  - cost.unit.amount
 scope:
-  default_grain: "month"
-  default_perspective: ["Plant", "Production Line"]
+  default_grain: month
+  default_perspective:
+  - Plant
+  - Production Line
   supported_slices:
-    - "Shift"
+  - Shift
   exclusions:
-    - "Planned ramp-ups or ramp-downs"
-    - "Training periods for new hires"
-    - "Lines under major maintenance shutdown"
-
+  - Planned ramp-ups or ramp-downs
+  - Training periods for new hires
+  - Lines under major maintenance shutdown
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "month"
+    grain: month
     window:
-      kind: "rolling"
+      kind: rolling
       length: 2
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -88,142 +45,134 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "ops.production.volume"
-        comparator: "gte"
+        metric_kpi_id: ops.production.volume
+        comparator: gte
         value: 100000
-        unit: "units"
+        unit: units
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "ops.labor.productivity.pct"
-        comparator: "lt"
+        metric_kpi_id: ops.labor.productivity.pct
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: -3.0
-          unit: "pp"
+          unit: pp
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "ops.labor.productivity.pct"
-        comparator: "lt"
+        metric_kpi_id: ops.labor.productivity.pct
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: -6.0
-          unit: "pp"
+          unit: pp
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "ops.labor.productivity.pct"
-        comparator: "lt"
+        metric_kpi_id: ops.labor.productivity.pct
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: -10.0
-          unit: "pp"
+          unit: pp
         filters: []
   gating_rules:
-    - "Trigger only if defect rate remains within guardrails"
-    - "Do not trigger if productivity drop is driven by approved training or ramp-up"
-    - "Exclude lines with unresolved technical downtime issues"
-
+  - Trigger only if defect rate remains within guardrails
+  - Do not trigger if productivity drop is driven by approved training or ramp-up
+  - Exclude lines with unresolved technical downtime issues
 impact:
-  category: "Medium"
+  category: Medium
   expected_range:
-    metric_kpi_id: "ops.labor.productivity.pct"
+    metric_kpi_id: ops.labor.productivity.pct
     value_low: 3.0
     value_high: 8.0
-    unit: "pp"
+    unit: pp
     time_to_effect:
       min_periods: 1
       max_periods: 3
   mechanism:
-    - "Improved staffing and shift alignment"
-    - "Reduction of idle and unproductive labor time"
+  - Improved staffing and shift alignment
+  - Reduction of idle and unproductive labor time
   confidence:
-    level: "Medium"
+    level: Medium
     rationale:
-      - "Execution quality depends on plant discipline"
-      - "Guarded by quality constraints"
-
+    - Execution quality depends on plant discipline
+    - Guarded by quality constraints
 operational_execution:
-  primary_owner_role: "Plant Manager"
   stakeholders:
-    - "Production Supervisors"
-    - "HR Operations"
-    - "Ops Controlling"
+  - Production Supervisors
+  - HR Operations
+  - Ops Controlling
   prerequisites:
-    - "Reliable labor time and output measurement"
-    - "Clear productivity targets by line and shift"
+  - Reliable labor time and output measurement
+  - Clear productivity targets by line and shift
   steps:
-    - "Identify lines and shifts with productivity decline"
-    - "Analyze staffing, shift balance, and idle time"
-    - "Implement corrective scheduling and supervision actions"
-    - "Review productivity trend monthly"
+  - Identify lines and shifts with productivity decline
+  - Analyze staffing, shift balance, and idle time
+  - Implement corrective scheduling and supervision actions
+  - Review productivity trend monthly
   effort:
-    level: "Medium"
+    level: Medium
     typical_duration_days: 60
   risks_and_tradeoffs:
-    - "Employee fatigue or morale impact"
-    - "Short-term disruption during rebalancing"
-
+  - Employee fatigue or morale impact
+  - Short-term disruption during rebalancing
 data_requirements:
   required_entities:
-    - "Plant"
-    - "Production Line"
+  - Plant
+  - Production Line
   semantic_dependencies:
     measures:
-      - "Labor Productivity %"
-      - "Unit Cost Amount"
-      - "Defect Rate %"
-      - "Production Volume"
+    - Labor Productivity %
+    - Unit Cost Amount
+    - Defect Rate %
+    - Production Volume
     tables:
-      - "fact_ops"
-      - "fact_cost"
-      - "dim_plant"
-      - "dim_production_line"
-
+    - fact_ops
+    - fact_cost
+    - dim_plant
+    - dim_production_line
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "monthly"
-    output: "Lines and shifts with sustained productivity decline"
+    evaluation_frequency: monthly
+    output: Lines and shifts with sustained productivity decline
   suggested_actions:
     enabled: true
     outputs:
-      - "Staffing and shift correction recommendations"
+    - Staffing and shift correction recommendations
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "Plant"
-      - "ProductionLine"
-      - "TriggerLevel"
-      - "ExecutedDate"
+    - ActionCode
+    - Plant
+    - ProductionLine
+    - TriggerLevel
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_Productivity_Pct"
-      - "Post_Productivity_Pct_60d"
-
+    - ActionCode
+    - Pre_Productivity_Pct
+    - Post_Productivity_Pct_60d
 governance:
   approvals_required:
-    - "COO"
+  - COO
   rollback_plan:
-    - "Suspend actions if quality or safety incidents increase"
+  - Suspend actions if quality or safety incidents increase
   documentation_links:
-    - "core/usecases/core/FIN-002_Cost_Performance/Business_Factsheet.md"
-
+  - core/usecases/core/FIN-002_Cost_Performance/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

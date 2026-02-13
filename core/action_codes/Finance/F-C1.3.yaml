@@ -1,87 +1,44 @@
-schema_version: "1.1"
-
-id: "F-C1.3"
-name: "Inventory Rightsizing"
-owner_domain: "Supply Chain / Inventory Management"
-impact_dimension: "Liquidity"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Inventory Control"
-  theme: "Release Cash from Excess Inventory"
-
-tags: ["inventory", "dio", "working-capital"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "wc.dio.days"
-      role: "primary"
-    - id: "fin.cash.ocf"
-      role: "secondary"
-  decisions_enabled:
-    - "Reduce excess and slow-moving inventory"
-    - "Adjust replenishment parameters for cash release"
-  non_goals:
-    - "Long-term assortment strategy redesign"
-    - "Service level optimisation (handled in SCM-002)"
-    - "One-off stock write-offs"
-
+schema_version: "2.0"
+id: F-C1.3
+name: Inventory Rightsizing
+owner_domain: Supply Chain / Inventory Management
+impact_dimension: Liquidity
+status: active
+owner_role: Inventory Manager
+steward_role: Supply Chain / Inventory Management BI Lead
 use_case_links:
   core_use_cases:
-    - "FIN-001"
+  - FIN-001
   related_use_cases:
-    - "SCM-001"
-    - "SCM-003"
-
+  - SCM-001
+  - SCM-003
 kpis:
   trigger_kpis:
-    - kpi_id: "wc.dio.days"
-      label: "Days Inventory Outstanding (Days)"
-      semantic_ref:
-        model_domain: "Finance"
-        measure: "DIO (Days)"
+  - wc.dio.days
   guardrail_kpis:
-    - kpi_id: "scm.service_level.pct"
-      label: "Service Level %"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "Service Level %"
+  - scm.service_level.pct
   outcome_kpis:
-    - kpi_id: "wc.dio.days"
-      label: "Days Inventory Outstanding (Days)"
-      semantic_ref:
-        model_domain: "Finance"
-        measure: "DIO (Days)"
-    - kpi_id: "fin.cash.ocf"
-      label: "Operating Cash Flow"
-      semantic_ref:
-        model_domain: "Finance"
-        measure: "Operating Cash Flow"
-
+  - wc.dio.days
+  - fin.cash.ocf
 scope:
-  default_grain: "month"
-  default_perspective: ["Product Category", "Warehouse"]
+  default_grain: month
+  default_perspective:
+  - Product Category
+  - Warehouse
   supported_slices:
-    - "Region"
+  - Region
   exclusions:
-    - "Strategic or safety stock flagged as mandatory"
-    - "Inventory allocated to confirmed customer orders"
-    - "Seasonal inventory within approved build-up window"
-
+  - Strategic or safety stock flagged as mandatory
+  - Inventory allocated to confirmed customer orders
+  - Seasonal inventory within approved build-up window
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "month"
+    grain: month
     window:
-      kind: "rolling"
+      kind: rolling
       length: 2
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -89,142 +46,134 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "fin.liquidity.inventory.amount"
-        comparator: "gte"
+        metric_kpi_id: fin.liquidity.inventory.amount
+        comparator: gte
         value: 200000
-        unit: "amount"
+        unit: amount
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "wc.dio.days"
-        comparator: "gt"
+        metric_kpi_id: wc.dio.days
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 5
-          unit: "days"
+          unit: days
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "wc.dio.days"
-        comparator: "gt"
+        metric_kpi_id: wc.dio.days
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 10
-          unit: "days"
+          unit: days
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "wc.dio.days"
-        comparator: "gt"
+        metric_kpi_id: wc.dio.days
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 15
-          unit: "days"
+          unit: days
         filters: []
   gating_rules:
-    - "Trigger only if Service Level % remains above minimum threshold"
-    - "Do not trigger if DIO increase is driven by approved growth or seasonality"
-    - "Exclude SKUs with supply constraints or long lead times"
-
+  - Trigger only if Service Level % remains above minimum threshold
+  - Do not trigger if DIO increase is driven by approved growth or seasonality
+  - Exclude SKUs with supply constraints or long lead times
 impact:
-  category: "Medium"
+  category: Medium
   expected_range:
-    metric_kpi_id: "wc.dio.days"
+    metric_kpi_id: wc.dio.days
     value_low: -3
     value_high: -8
-    unit: "days"
+    unit: days
     time_to_effect:
       min_periods: 2
       max_periods: 4
   mechanism:
-    - "Reduction of slow-moving inventory"
-    - "Tighter replenishment and stock policies"
+  - Reduction of slow-moving inventory
+  - Tighter replenishment and stock policies
   confidence:
-    level: "Medium"
+    level: Medium
     rationale:
-      - "Cash release depends on demand and liquidation options"
-      - "Guarded by service level constraints"
-
+    - Cash release depends on demand and liquidation options
+    - Guarded by service level constraints
 operational_execution:
-  primary_owner_role: "Inventory Manager"
   stakeholders:
-    - "Supply Planning"
-    - "Finance Controlling"
-    - "Sales Operations"
+  - Supply Planning
+  - Finance Controlling
+  - Sales Operations
   prerequisites:
-    - "Clear classification of strategic vs excess inventory"
-    - "Agreed service level thresholds"
+  - Clear classification of strategic vs excess inventory
+  - Agreed service level thresholds
   steps:
-    - "Identify categories and warehouses driving DIO increase"
-    - "Classify excess and slow-moving inventory"
-    - "Adjust replenishment or liquidation actions"
-    - "Monitor service level and cash impact"
+  - Identify categories and warehouses driving DIO increase
+  - Classify excess and slow-moving inventory
+  - Adjust replenishment or liquidation actions
+  - Monitor service level and cash impact
   effort:
-    level: "Medium"
+    level: Medium
     typical_duration_days: 90
   risks_and_tradeoffs:
-    - "Risk of stock-outs if misclassified"
-    - "Potential margin impact from liquidation"
-
+  - Risk of stock-outs if misclassified
+  - Potential margin impact from liquidation
 data_requirements:
   required_entities:
-    - "Product"
-    - "Warehouse"
+  - Product
+  - Warehouse
   semantic_dependencies:
     measures:
-      - "DIO (Days)"
-      - "Inventory Value Amount"
-      - "Service Level %"
-      - "Operating Cash Flow"
+    - DIO (Days)
+    - Inventory Value Amount
+    - Service Level %
+    - Operating Cash Flow
     tables:
-      - "fact_inventory"
-      - "fact_cash"
-      - "dim_product"
-      - "dim_warehouse"
-
+    - fact_inventory
+    - fact_cash
+    - dim_product
+    - dim_warehouse
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "monthly"
-    output: "Categories and warehouses with excess inventory"
+    evaluation_frequency: monthly
+    output: Categories and warehouses with excess inventory
   suggested_actions:
     enabled: true
     outputs:
-      - "Excess inventory reduction candidates"
+    - Excess inventory reduction candidates
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "ProductCategory"
-      - "Warehouse"
-      - "TriggerLevel"
-      - "ExecutedDate"
+    - ActionCode
+    - ProductCategory
+    - Warehouse
+    - TriggerLevel
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_DIO_Days"
-      - "Post_DIO_Days_90d"
-
+    - ActionCode
+    - Pre_DIO_Days
+    - Post_DIO_Days_90d
 governance:
   approvals_required:
-    - "Head of Supply Chain"
+  - Head of Supply Chain
   rollback_plan:
-    - "Pause inventory reduction if service level drops below tolerance"
+  - Pause inventory reduction if service level drops below tolerance
   documentation_links:
-    - "core/usecases/core/FIN-001_Cash_Liquidity_Performance/Business_Factsheet.md"
-
+  - core/usecases/core/FIN-001_Cash_Liquidity_Performance/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

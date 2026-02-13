@@ -106,4 +106,4 @@ Levels are **cumulative**: each level assumes the previous one is in place.
 - **Golden Thread:** `golden_thread_strategy_to_action.md` — Levels 3–5 assume the full thread is in place or in progress.
 - **Ownership:** `ownership_raci_golden_thread.md` — Level 4+ requires explicit RACI.
 - **Strategy patterns:** `company/strategy_patterns.md` — Level 3+ benefits from choosing or defining a strategy pattern.
-- **Vision:** `internal/vision/framework_evolution.md` — Technical evolution (V1–V6) supports reaching and sustaining these levels.
+- **Vision:** `internal/archive/framework_evolution.md` — Technical evolution (V1–V6) supports reaching and sustaining these levels.

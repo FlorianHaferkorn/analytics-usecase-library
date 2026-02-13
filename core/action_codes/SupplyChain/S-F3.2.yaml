@@ -1,94 +1,45 @@
-schema_version: "1.1"
-
-id: "S-F3.2"
-name: "Forecast Bias & Accuracy Correction"
-owner_domain: "Demand Planning"
-impact_dimension: "Forecast Quality"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Forecast Error Control"
-  theme: "Correct Systematic Forecast Bias and Accuracy Gaps"
-
-tags: ["forecast-bias", "accuracy", "mape"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "plan.forecast.accuracy.pct"
-      role: "primary"
-    - id: "plan.forecast.bias.pct"
-      role: "secondary"
-    - id: "plan.forecast.mape.pct"
-      role: "secondary"
-  decisions_enabled:
-    - "Correct systematic over-/under-forecasting"
-    - "Reduce forecast error via disciplined overrides and data hygiene"
-  non_goals:
-    - "Forecast algorithm or ML model redesign"
-    - "Promotion uplift modelling"
-    - "Inventory buffer redesign"
-
+schema_version: "2.0"
+id: S-F3.2
+name: Forecast Bias & Accuracy Correction
+owner_domain: Demand Planning
+impact_dimension: Forecast Quality
+status: active
+owner_role: Demand Planning Manager
+steward_role: Demand Planning BI Lead
 use_case_links:
   core_use_cases:
-    - "SCM-003"
+  - SCM-003
   related_use_cases:
-    - "SCM-001"
-
+  - SCM-001
 kpis:
   trigger_kpis:
-    - kpi_id: "plan.forecast.bias.pct"
-      label: "Forecast Bias %"
-      semantic_ref:
-        model_domain: "Planning"
-        measure: "Forecast Bias %"
-    - kpi_id: "plan.forecast.mape.pct"
-      label: "Forecast MAPE %"
-      semantic_ref:
-        model_domain: "Planning"
-        measure: "Forecast MAPE %"
+  - plan.forecast.bias.pct
+  - plan.forecast.mape.pct
   guardrail_kpis:
-    - kpi_id: "plan.replan.count"
-      label: "Re-Plan Count"
-      semantic_ref:
-        model_domain: "Planning"
-        measure: "Re-Plan Count"
+  - plan.replan.count
   outcome_kpis:
-    - kpi_id: "plan.forecast.accuracy.pct"
-      label: "Forecast Accuracy %"
-      semantic_ref:
-        model_domain: "Planning"
-        measure: "Forecast Accuracy %"
-    - kpi_id: "plan.forecast.bias.pct"
-      label: "Forecast Bias %"
-      semantic_ref:
-        model_domain: "Planning"
-        measure: "Forecast Bias %"
-
+  - plan.forecast.accuracy.pct
+  - plan.forecast.bias.pct
 scope:
-  default_grain: "sku_location_month"
-  default_perspective: ["SKU", "Location"]
+  default_grain: sku_location_month
+  default_perspective:
+  - SKU
+  - Location
   supported_slices:
-    - "Planner"
-    - "Demand Pattern"
+  - Planner
+  - Demand Pattern
   exclusions:
-    - "New product introductions"
-    - "Promotion-driven demand volatility (COM-004)"
-    - "Exceptional market events"
-
+  - New product introductions
+  - Promotion-driven demand volatility (COM-004)
+  - Exceptional market events
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "sku_location_month"
+    grain: sku_location_month
     window:
-      kind: "rolling"
+      kind: rolling
       length: 3
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -96,142 +47,134 @@ trigger:
       min_observations: 3
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "sales.units"
-        comparator: "gte"
+        metric_kpi_id: sales.units
+        comparator: gte
         value: 3000
-        unit: "units"
+        unit: units
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "plan.forecast.bias.pct"
-        comparator: "abs_gt"
+        metric_kpi_id: plan.forecast.bias.pct
+        comparator: abs_gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 10.0
-          unit: "%"
+          unit: '%'
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "plan.forecast.bias.pct"
-        comparator: "abs_gt"
+        metric_kpi_id: plan.forecast.bias.pct
+        comparator: abs_gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 20.0
-          unit: "%"
+          unit: '%'
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "plan.forecast.bias.pct"
-        comparator: "abs_gt"
+        metric_kpi_id: plan.forecast.bias.pct
+        comparator: abs_gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 30.0
-          unit: "%"
+          unit: '%'
         filters: []
   gating_rules:
-    - "Trigger only if bias direction is consistent across periods"
-    - "Do not trigger if error is driven by one-off demand shocks"
-    - "Exclude SKUs with active service containment actions"
-
+  - Trigger only if bias direction is consistent across periods
+  - Do not trigger if error is driven by one-off demand shocks
+  - Exclude SKUs with active service containment actions
 impact:
-  category: "Medium"
+  category: Medium
   expected_range:
-    metric_kpi_id: "plan.forecast.accuracy.pct"
+    metric_kpi_id: plan.forecast.accuracy.pct
     value_low: 4.0
     value_high: 10.0
-    unit: "pp"
+    unit: pp
     time_to_effect:
       min_periods: 2
       max_periods: 5
   mechanism:
-    - "Reduction of systematic forecast bias"
-    - "Cleaner override discipline and input quality"
+  - Reduction of systematic forecast bias
+  - Cleaner override discipline and input quality
   confidence:
-    level: "Medium"
+    level: Medium
     rationale:
-      - "Bias correction is highly effective when systematic"
-      - "Planner discipline is a critical success factor"
-
+    - Bias correction is highly effective when systematic
+    - Planner discipline is a critical success factor
 operational_execution:
-  primary_owner_role: "Demand Planning Manager"
   stakeholders:
-    - "Sales"
-    - "Supply Planning"
+  - Sales
+  - Supply Planning
   prerequisites:
-    - "Consistent bias and accuracy measurement"
-    - "Transparent forecast override logging"
+  - Consistent bias and accuracy measurement
+  - Transparent forecast override logging
   steps:
-    - "Identify SKUs with persistent forecast bias"
-    - "Correct parameters, overrides, or input data"
-    - "Align planners on bias correction targets"
-    - "Monitor bias and accuracy monthly"
+  - Identify SKUs with persistent forecast bias
+  - Correct parameters, overrides, or input data
+  - Align planners on bias correction targets
+  - Monitor bias and accuracy monthly
   effort:
-    level: "Medium"
+    level: Medium
     typical_duration_days: 90
   risks_and_tradeoffs:
-    - "Overcorrection creating oscillations"
-    - "Planner resistance to override constraints"
-
+  - Overcorrection creating oscillations
+  - Planner resistance to override constraints
 data_requirements:
   required_entities:
-    - "SKU"
-    - "Location"
+  - SKU
+  - Location
   semantic_dependencies:
     measures:
-      - "Forecast Accuracy %"
-      - "Forecast Bias %"
-      - "Forecast MAPE %"
-      - "Re-Plan Count"
-      - "Sales Units"
+    - Forecast Accuracy %
+    - Forecast Bias %
+    - Forecast MAPE %
+    - Re-Plan Count
+    - Sales Units
     tables:
-      - "fact_forecast"
-      - "fact_sales"
-      - "dim_product"
-      - "dim_location"
-
+    - fact_forecast
+    - fact_sales
+    - dim_product
+    - dim_location
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "monthly"
-    output: "SKU-locations with persistent forecast bias"
+    evaluation_frequency: monthly
+    output: SKU-locations with persistent forecast bias
   suggested_actions:
     enabled: true
     outputs:
-      - "Bias correction and override discipline actions"
+    - Bias correction and override discipline actions
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "SKU"
-      - "Location"
-      - "TriggerLevel"
-      - "ExecutedDate"
+    - ActionCode
+    - SKU
+    - Location
+    - TriggerLevel
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_Bias_Pct"
-      - "Post_Bias_Pct_120d"
-
+    - ActionCode
+    - Pre_Bias_Pct
+    - Post_Bias_Pct_120d
 governance:
   approvals_required:
-    - "Head of Demand Planning"
+  - Head of Demand Planning
   rollback_plan:
-    - "Relax override constraints if forecast volatility increases"
+  - Relax override constraints if forecast volatility increases
   documentation_links:
-    - "core/usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md"
-
+  - core/usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

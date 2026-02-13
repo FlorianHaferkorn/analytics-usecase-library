@@ -1,86 +1,43 @@
-schema_version: "1.1"
-
-id: "F-C1.4"
-name: "Payables Optimisation"
-owner_domain: "Procurement / Accounts Payable"
-impact_dimension: "Liquidity"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Payables Control"
-  theme: "Improve Cash via Payment Term and Execution Discipline"
-
-tags: ["dpo", "payables", "working-capital"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "wc.dpo.days"
-      role: "primary"
-    - id: "fin.cash.ocf"
-      role: "secondary"
-  decisions_enabled:
-    - "Optimise payment timing within contractual terms"
-    - "Renegotiate payment terms where feasible and approved"
-  non_goals:
-    - "Supplier footprint redesign"
-    - "Strategic sourcing programs"
-    - "Violation of contractual or regulatory payment obligations"
-
+schema_version: "2.0"
+id: F-C1.4
+name: Payables Optimisation
+owner_domain: Procurement / Accounts Payable
+impact_dimension: Liquidity
+status: active
+owner_role: Head of Accounts Payable
+steward_role: Procurement / Accounts Payable BI Lead
 use_case_links:
   core_use_cases:
-    - "FIN-001"
+  - FIN-001
   related_use_cases:
-    - "SCM-002"
-
+  - SCM-002
 kpis:
   trigger_kpis:
-    - kpi_id: "wc.dpo.days"
-      label: "Days Payables Outstanding (Days)"
-      semantic_ref:
-        model_domain: "Finance"
-        measure: "DPO (Days)"
+  - wc.dpo.days
   guardrail_kpis:
-    - kpi_id: "scm.supplier_risk.score"
-      label: "Supplier Risk Score"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "Supplier Risk Score"
+  - scm.supplier_risk.score
   outcome_kpis:
-    - kpi_id: "wc.dpo.days"
-      label: "Days Payables Outstanding (Days)"
-      semantic_ref:
-        model_domain: "Finance"
-        measure: "DPO (Days)"
-    - kpi_id: "fin.cash.ocf"
-      label: "Operating Cash Flow"
-      semantic_ref:
-        model_domain: "Finance"
-        measure: "Operating Cash Flow"
-
+  - wc.dpo.days
+  - fin.cash.ocf
 scope:
-  default_grain: "month"
-  default_perspective: ["Supplier", "Legal Entity"]
+  default_grain: month
+  default_perspective:
+  - Supplier
+  - Legal Entity
   supported_slices:
-    - "Region"
+  - Region
   exclusions:
-    - "Suppliers under financial distress"
-    - "Invoices with early-payment discounts already accepted"
-    - "Intercompany payables"
-
+  - Suppliers under financial distress
+  - Invoices with early-payment discounts already accepted
+  - Intercompany payables
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "month"
+    grain: month
     window:
-      kind: "rolling"
+      kind: rolling
       length: 2
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -88,143 +45,135 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "fin.liquidity.payables.amount"
-        comparator: "gte"
+        metric_kpi_id: fin.liquidity.payables.amount
+        comparator: gte
         value: 250000
-        unit: "amount"
+        unit: amount
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "wc.dpo.days"
-        comparator: "lt"
+        metric_kpi_id: wc.dpo.days
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: -3
-          unit: "days"
+          unit: days
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "wc.dpo.days"
-        comparator: "lt"
+        metric_kpi_id: wc.dpo.days
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: -7
-          unit: "days"
+          unit: days
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "wc.dpo.days"
-        comparator: "lt"
+        metric_kpi_id: wc.dpo.days
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: -12
-          unit: "days"
+          unit: days
         filters: []
   gating_rules:
-    - "Trigger only if Supplier Risk Score remains within acceptable range"
-    - "Do not trigger if early-payment discounts provide higher economic benefit"
-    - "Exclude suppliers with contractual payment term freezes"
-
+  - Trigger only if Supplier Risk Score remains within acceptable range
+  - Do not trigger if early-payment discounts provide higher economic benefit
+  - Exclude suppliers with contractual payment term freezes
 impact:
-  category: "Medium"
+  category: Medium
   expected_range:
-    metric_kpi_id: "wc.dpo.days"
+    metric_kpi_id: wc.dpo.days
     value_low: 2
     value_high: 6
-    unit: "days"
+    unit: days
     time_to_effect:
       min_periods: 1
       max_periods: 3
   mechanism:
-    - "Later payment execution within agreed terms"
-    - "Selective term renegotiation with low-risk suppliers"
+  - Later payment execution within agreed terms
+  - Selective term renegotiation with low-risk suppliers
   confidence:
-    level: "Medium"
+    level: Medium
     rationale:
-      - "Effectiveness depends on supplier portfolio flexibility"
-      - "Guarded by supplier risk constraints"
-
+    - Effectiveness depends on supplier portfolio flexibility
+    - Guarded by supplier risk constraints
 operational_execution:
-  primary_owner_role: "Head of Accounts Payable"
   stakeholders:
-    - "Procurement"
-    - "Finance Controlling"
-    - "Treasury"
+  - Procurement
+  - Finance Controlling
+  - Treasury
   prerequisites:
-    - "Accurate invoice due-date and payment term data"
-    - "Supplier risk classification available"
+  - Accurate invoice due-date and payment term data
+  - Supplier risk classification available
   steps:
-    - "Identify suppliers driving early payment behaviour"
-    - "Assess contractual flexibility and risk"
-    - "Adjust payment runs or renegotiate terms"
-    - "Monitor supplier performance and cash impact"
+  - Identify suppliers driving early payment behaviour
+  - Assess contractual flexibility and risk
+  - Adjust payment runs or renegotiate terms
+  - Monitor supplier performance and cash impact
   effort:
-    level: "Low to Medium"
+    level: Low to Medium
     typical_duration_days: 60
   risks_and_tradeoffs:
-    - "Supplier relationship tension"
-    - "Potential loss of early-payment discounts"
-
+  - Supplier relationship tension
+  - Potential loss of early-payment discounts
 data_requirements:
   required_entities:
-    - "Supplier"
-    - "Legal Entity"
+  - Supplier
+  - Legal Entity
   semantic_dependencies:
     measures:
-      - "DPO (Days)"
-      - "Operating Cash Flow"
-      - "Supplier Risk Score"
-      - "AP Balance Amount"
+    - DPO (Days)
+    - Operating Cash Flow
+    - Supplier Risk Score
+    - AP Balance Amount
     tables:
-      - "fact_ap"
-      - "fact_cash"
-      - "dim_supplier"
-      - "dim_entity"
-
+    - fact_ap
+    - fact_cash
+    - dim_supplier
+    - dim_entity
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "monthly"
-    output: "Suppliers with early payment behaviour"
+    evaluation_frequency: monthly
+    output: Suppliers with early payment behaviour
   suggested_actions:
     enabled: true
     outputs:
-      - "Payment timing and term optimisation candidates"
+    - Payment timing and term optimisation candidates
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "Supplier"
-      - "Entity"
-      - "TriggerLevel"
-      - "ExecutedDate"
+    - ActionCode
+    - Supplier
+    - Entity
+    - TriggerLevel
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_DPO_Days"
-      - "Post_DPO_Days_60d"
-
+    - ActionCode
+    - Pre_DPO_Days
+    - Post_DPO_Days_60d
 governance:
   approvals_required:
-    - "CFO"
-    - "Head of Procurement"
+  - CFO
+  - Head of Procurement
   rollback_plan:
-    - "Revert payment timing if supplier risk indicators deteriorate"
+  - Revert payment timing if supplier risk indicators deteriorate
   documentation_links:
-    - "core/usecases/core/FIN-001_Cash_Liquidity_Performance/Business_Factsheet.md"
-
+  - core/usecases/core/FIN-001_Cash_Liquidity_Performance/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

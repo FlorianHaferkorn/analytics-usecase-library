@@ -1,87 +1,44 @@
-schema_version: "1.1"
-
-id: "C-M2.2"
-name: "Mix Optimization (Margin-Driven)"
-owner_domain: "Commercial"
-impact_dimension: "Profitability"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Portfolio & Mix Steering"
-  theme: "Improve Margin via Sales Mix Quality"
-
-tags: ["mix", "portfolio", "margin"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "sales.pvm.mix_effect.amount"
-      role: "primary"
-    - id: "margin.gm.pct"
-      role: "secondary"
-  decisions_enabled:
-    - "Shift sales focus toward higher-margin SKUs and regions"
-    - "Deprioritize structurally margin-dilutive mix components"
-  non_goals:
-    - "List price changes"
-    - "Promotion mechanics or ROI optimization"
-    - "Assortment rationalization programs"
-
+schema_version: "2.0"
+id: C-M2.2
+name: Mix Optimization (Margin-Driven)
+owner_domain: Commercial
+impact_dimension: Profitability
+status: active
+owner_role: Category Manager
+steward_role: Commercial BI Lead
 use_case_links:
   core_use_cases:
-    - "COM-002"
+  - COM-002
   related_use_cases:
-    - "COM-001"
-
+  - COM-001
 kpis:
   trigger_kpis:
-    - kpi_id: "sales.pvm.mix_effect.amount"
-      label: "Mix Effect Amount"
-      semantic_ref:
-        model_domain: "Commercial"
-        measure: "Mix Effect Amount"
+  - sales.pvm.mix_effect.amount
   guardrail_kpis:
-    - kpi_id: "margin.gm.pct"
-      label: "Gross Margin %"
-      semantic_ref:
-        model_domain: "Commercial"
-        measure: "Gross Margin %"
+  - margin.gm.pct
   outcome_kpis:
-    - kpi_id: "margin.gm.pct"
-      label: "Gross Margin %"
-      semantic_ref:
-        model_domain: "Commercial"
-        measure: "Gross Margin %"
-    - kpi_id: "sales.pvm.mix_effect.amount"
-      label: "Mix Effect Amount"
-      semantic_ref:
-        model_domain: "Commercial"
-        measure: "Mix Effect Amount"
-
+  - margin.gm.pct
+  - sales.pvm.mix_effect.amount
 scope:
-  default_grain: "month"
-  default_perspective: ["Region", "Channel"]
+  default_grain: month
+  default_perspective:
+  - Region
+  - Channel
   supported_slices:
-    - "Product Category"
-    - "SKU"
+  - Product Category
+  - SKU
   exclusions:
-    - "Strategic SKUs"
-    - "Contractually fixed assortments"
-    - "New product launches (<3 months)"
-
+  - Strategic SKUs
+  - Contractually fixed assortments
+  - New product launches (<3 months)
 trigger:
-  type: "Pattern"
+  type: Pattern
   evaluation:
-    grain: "month"
+    grain: month
     window:
-      kind: "rolling"
+      kind: rolling
       length: 3
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -89,142 +46,134 @@ trigger:
       min_observations: 2
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "margin.gm.amount"
-        comparator: "gte"
+        metric_kpi_id: margin.gm.amount
+        comparator: gte
         value: 40000
-        unit: "amount"
+        unit: amount
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "sales.pvm.mix_effect.amount"
-        comparator: "lt"
+        metric_kpi_id: sales.pvm.mix_effect.amount
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 0
-          unit: "amount"
+          unit: amount
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "sales.pvm.mix_effect.amount"
-        comparator: "lt"
+        metric_kpi_id: sales.pvm.mix_effect.amount
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: -75000
-          unit: "amount"
+          unit: amount
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "sales.pvm.mix_effect.amount"
-        comparator: "lt"
+        metric_kpi_id: sales.pvm.mix_effect.amount
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: -200000
-          unit: "amount"
+          unit: amount
         filters: []
   gating_rules:
-    - "Trigger only if price realization is within guardrails"
-    - "Do not trigger if negative mix is driven by temporary availability constraints"
-    - "Exclude SKUs flagged as strategic"
-
+  - Trigger only if price realization is within guardrails
+  - Do not trigger if negative mix is driven by temporary availability constraints
+  - Exclude SKUs flagged as strategic
 impact:
-  category: "Medium"
+  category: Medium
   expected_range:
-    metric_kpi_id: "margin.gm.pct"
+    metric_kpi_id: margin.gm.pct
     value_low: 0.3
     value_high: 1.2
-    unit: "pp"
+    unit: pp
     time_to_effect:
       min_periods: 1
       max_periods: 3
   mechanism:
-    - "Rebalancing sales toward higher-margin products"
-    - "Reducing exposure to low-margin mix elements"
+  - Rebalancing sales toward higher-margin products
+  - Reducing exposure to low-margin mix elements
   confidence:
-    level: "Medium"
+    level: Medium
     rationale:
-      - "Observed margin uplift through mix steering"
-      - "Independent of pricing actions"
-
+    - Observed margin uplift through mix steering
+    - Independent of pricing actions
 operational_execution:
-  primary_owner_role: "Category Manager"
   stakeholders:
-    - "Sales Operations"
-    - "Pricing Analytics"
+  - Sales Operations
+  - Pricing Analytics
   prerequisites:
-    - "Defined SKU margin tiers"
-    - "Clear identification of strategic SKUs"
+  - Defined SKU margin tiers
+  - Clear identification of strategic SKUs
   steps:
-    - "Identify regions/channels with persistent negative mix effect"
-    - "Rank SKUs by margin contribution"
-    - "Adjust sales targets and focus lists"
-    - "Monitor mix and margin monthly"
+  - Identify regions/channels with persistent negative mix effect
+  - Rank SKUs by margin contribution
+  - Adjust sales targets and focus lists
+  - Monitor mix and margin monthly
   effort:
-    level: "Medium"
+    level: Medium
     typical_duration_days: 60
   risks_and_tradeoffs:
-    - "Short-term volume softness"
-    - "Sales resistance to deprioritizing familiar SKUs"
-
+  - Short-term volume softness
+  - Sales resistance to deprioritizing familiar SKUs
 data_requirements:
   required_entities:
-    - "Region"
-    - "Channel"
-    - "Product"
+  - Region
+  - Channel
+  - Product
   semantic_dependencies:
     measures:
-      - "Mix Effect Amount"
-      - "Gross Margin %"
-      - "Gross Margin Amount"
+    - Mix Effect Amount
+    - Gross Margin %
+    - Gross Margin Amount
     tables:
-      - "fact_sales"
-      - "dim_product"
-      - "dim_org"
-
+    - fact_sales
+    - dim_product
+    - dim_org
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "monthly"
-    output: "Regions/channels/SKUs with adverse mix patterns"
+    evaluation_frequency: monthly
+    output: Regions/channels/SKUs with adverse mix patterns
   suggested_actions:
     enabled: true
     outputs:
-      - "SKU priority lists by margin tier"
+    - SKU priority lists by margin tier
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "TriggerLevel"
-      - "Region"
-      - "Channel"
-      - "Product"
-      - "ExecutedDate"
+    - ActionCode
+    - TriggerLevel
+    - Region
+    - Channel
+    - Product
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_GM_Pct"
-      - "Post_GM_Pct_60d"
-
+    - ActionCode
+    - Pre_GM_Pct
+    - Post_GM_Pct_60d
 governance:
   approvals_required:
-    - "Commercial Controlling Lead"
-    - "Category Management Lead"
+  - Commercial Controlling Lead
+  - Category Management Lead
   rollback_plan:
-    - "Restore prior sales focus if revenue decline exceeds tolerance"
+  - Restore prior sales focus if revenue decline exceeds tolerance
   documentation_links:
-    - "core/usecases/core/COM-002_Margin_Price_Performance/Business_Factsheet.md"
-
+  - core/usecases/core/COM-002_Margin_Price_Performance/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

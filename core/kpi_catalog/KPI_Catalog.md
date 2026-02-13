@@ -2886,44 +2886,6 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     last_review: 23.01.2026
 
 
-- kpi_id: fin.liquidity.operating_cash_flow
-  kpi_key: Operating Cash Flow
-  kpi_type: strategic
-  kpi_role: strategic
-  impact_dimension: Liquidity
-  domain_tag: [Finance]
-  use_case_ref:
-  - FIN-001
-  action_code_ref: []
-  calc_type: amount
-  business:
-    purpose: "Measure cash generated from core operations as basis for liquidity steering."
-    definition: "Net cash inflows from operating activities over the period."
-    grain_scope: "Company/segment; monthly or quarterly closing."
-    unit_format: "EUR (2 decimals)"
-    interpretation: "Positive values improve liquidity; negative values may occur during growth or working-capital buildup."
-  technical:
-    dax_name: "Operating Cash Flow"
-    formatString: "#,0"
-    description: "Net cash inflows from operating activities"
-    dax_expression: |
-      SUM ( fact_cash_flow[Operating Cash Flow Amount] )
-    depends_on_measures: []
-    lineage:
-    - fact_cashflow.OperatingCashFlow
-  governance:
-    business_owner: "Head of Treasury"
-    data_owner: "Finance BI"
-    steward: "Cash Flow Analyst"
-    review_cycle: "quarterly"
-    validation_process: "manual review"
-    qa_rules:
-    - Operating cash flow reconciles to cash flow statement within +/- 0.5 %.
-    version: "v1.0"
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 27.01.2026
-
 - kpi_id: fin.liquidity.inventory.amount
   kpi_key: Inventory Amount
   kpi_type: supporting
@@ -3031,122 +2993,6 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
     completeness_score: 1.0
     last_review: 27.01.2026
 
-- kpi_id: crm.complaint.rate.pct
-  kpi_key: Complaint Rate %
-  kpi_type: diagnostic
-  kpi_role: strategic
-  impact_dimension: Customer
-  domain_tag: [Customer & Market]
-  use_case_ref:
-  - COM-003
-  action_code_ref: []
-  calc_type: rate
-  business:
-    purpose: "Track complaints normalized by sales volume or customer base."
-    definition: "Complaint Count / Total Customers (or Orders)"
-    grain_scope: "Complaint / ticket; aggregated to org / channel / product / period."
-    unit_format: "'% (1 decimal)'"
-    interpretation: "Higher values indicate rising service/quality issues relative to volume; interpret with Complaint Count for absolute context."
-  technical:
-    dax_name: "Complaint Rate %"
-    formatString: "0.0%"
-    description: "Complaints normalized by customer base"
-    depends_on_measures:
-    - crm.complaint.count
-    - crm.active_customers.count
-    lineage:
-    - fact_experience.Complaint ID
-    - dim_customer.CustomerKey
-  governance:
-    business_owner: "Head of Customer Service"
-    data_owner: "Service BI"
-    steward: "Service Quality Analyst"
-    review_cycle: "monthly"
-    validation_process: "manual review"
-    qa_rules:
-    - Bounded between 0% and 100%; reconciled to service desk reports
-    version: "v1.0"
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 27.01.2026
-
-- kpi_id: hr.gm.amount
-  kpi_key: HR Gross Margin Amount
-  kpi_type: supporting
-  kpi_role: supporting
-  impact_dimension: Profitability
-  domain_tag: [People & Culture]
-  use_case_ref:
-  - FIN-002
-  action_code_ref: []
-  calc_type: amount
-  business:
-    purpose: "Measure gross margin contribution attributed to HR segments or people-related analyses."
-    definition: "Net Sales Amount - COGS Amount (HR segment context)"
-    grain_scope: "Company/HR segment; monthly or quarterly closing."
-    unit_format: "EUR (2 decimals)"
-    interpretation: "Higher values indicate stronger margin contribution from people segments; compare with headcount metrics."
-  technical:
-    dax_name: "HR Gross Margin Amount"
-    formatString: "#,0.00"
-    description: "Gross margin attributed to HR segments"
-    depends_on_measures:
-    - sales.net_sales.amount
-    - COGS Amount
-    lineage:
-    - fact_sales.Net Sales Amount
-    - fact_sales.Cost of Goods Sold Amount
-  governance:
-    business_owner: "Head of HR Controlling"
-    data_owner: "Finance BI"
-    steward: "HR Finance Analyst"
-    review_cycle: "quarterly"
-    validation_process: "manual review"
-    qa_rules:
-    - Margin reconciles to finance totals within +/- 0.5 %
-    version: "v1.0"
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 27.01.2026
-
-- kpi_id: ops.inventory.turnover
-  kpi_key: Inventory Turnover
-  kpi_type: diagnostic
-  kpi_role: strategic
-  impact_dimension: Efficiency
-  domain_tag: [Operations]
-  use_case_ref:
-  - SCM-001
-  action_code_ref: []
-  calc_type: ratio
-  business:
-    purpose: "Measure how quickly inventory is sold and replaced."
-    definition: "COGS / Average Inventory"
-    grain_scope: "SKU/Location; aggregated weekly/monthly."
-    unit_format: "ratio (2 decimals)"
-    interpretation: "Higher turnover indicates efficient inventory management; very high may signal stockout risk."
-  technical:
-    dax_name: "Inventory Turnover"
-    formatString: "0.00"
-    description: "Rate at which inventory is sold and replaced"
-    depends_on_measures:
-    - COGS Amount
-    - Average Inventory Amount
-    lineage:
-    - fact_cogs.COGS Amount
-    - fact_inventory.Average Inventory Amount
-  governance:
-    business_owner: "Head of Supply Chain / Finance"
-    data_owner: "Supply Chain BI"
-    steward: "Inventory Controller"
-    review_cycle: "quarterly"
-    validation_process: "manual review"
-    qa_rules:
-    - Non-negative; reconciles to inventory and COGS balances within +/- 0.1
-    version: "v1.0"
-  metadata_quality:
-    completeness_score: 1.0
-    last_review: 27.01.2026
 - kpi_id: wc.dio.days
   kpi_key: DIO Days
   kpi_type: diagnostic
@@ -3421,6 +3267,22 @@ Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
   - C-M2.2
   - C-S1.1
   calc_type: ratio
+  causal_links:
+    model_type: local_linear_beta
+    as_of: "2026-02-01"
+    links:
+      - influencing_kpi_id: sales.price.realization_pct
+        effect:
+          kind: pp_to_pp
+          coefficient: 0.8
+          direction: positive
+          interpretation: "+1pp Price Realization implies +0.8pp Gross Margin (ceteris paribus)."
+        applicability:
+          grain: month
+          segments: ["Region", "Channel"]
+        formula:
+          standardized: "Δmargin.gm.pct(pp)=0.8*Δsales.price.realization_pct(pp)"
+          latex: "\\\\Delta GM_{pp} = 0.8 \\\\cdot \\\\Delta PR_{pp}"
   business:
     purpose: "Gross margin % for commercial/operational reporting and strategic P&L reconciliation."
     definition: "(Net Sales Amount - COGS Amount) / Net Sales Amount"

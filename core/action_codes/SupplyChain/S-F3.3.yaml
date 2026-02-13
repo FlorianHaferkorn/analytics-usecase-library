@@ -1,87 +1,44 @@
-schema_version: "1.1"
-
-id: "S-F3.3"
-name: "Service Impact Containment"
-owner_domain: "Supply Planning"
-impact_dimension: "Service Protection"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Forecast Error Containment"
-  theme: "Limit Downstream Service Damage Caused by Forecast Error"
-
-tags: ["forecast", "service-impact", "containment"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "plan.forecast.service_impact.pct"
-      role: "primary"
-    - id: "supply.otif.pct"
-      role: "secondary"
-  decisions_enabled:
-    - "Contain service loss while forecast quality is being corrected"
-    - "Prioritise short-term planning adjustments to protect OTIF"
-  non_goals:
-    - "Inventory buffer redesign"
-    - "Long-term supply network changes"
-    - "Promotion-driven demand shaping"
-
+schema_version: "2.0"
+id: S-F3.3
+name: Service Impact Containment
+owner_domain: Supply Planning
+impact_dimension: Service Protection
+status: active
+owner_role: Supply Planning Manager
+steward_role: Supply Planning BI Lead
 use_case_links:
   core_use_cases:
-    - "SCM-003"
+  - SCM-003
   related_use_cases:
-    - "SCM-002"
-
+  - SCM-002
 kpis:
   trigger_kpis:
-    - kpi_id: "plan.forecast.service_impact.pct"
-      label: "Forecast Service Impact %"
-      semantic_ref:
-        model_domain: "Planning"
-        measure: "Forecast Service Impact %"
+  - plan.forecast.service_impact.pct
   guardrail_kpis:
-    - kpi_id: "inv.dio.days"
-      label: "Days Inventory Outstanding"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "DIO (Days)"
+  - inv.dio.days
   outcome_kpis:
-    - kpi_id: "plan.forecast.service_impact.pct"
-      label: "Forecast Service Impact %"
-      semantic_ref:
-        model_domain: "Planning"
-        measure: "Forecast Service Impact %"
-    - kpi_id: "supply.otif.pct"
-      label: "OTIF %"
-      semantic_ref:
-        model_domain: "SupplyChain"
-        measure: "OTIF %"
-
+  - plan.forecast.service_impact.pct
+  - supply.otif.pct
 scope:
-  default_grain: "sku_location_week"
-  default_perspective: ["SKU", "Location"]
+  default_grain: sku_location_week
+  default_perspective:
+  - SKU
+  - Location
   supported_slices:
-    - "Customer Priority"
-    - "Channel"
+  - Customer Priority
+  - Channel
   exclusions:
-    - "SKUs under promotion programs (COM-004)"
-    - "New product introductions"
-    - "Force majeure demand shocks"
-
+  - SKUs under promotion programs (COM-004)
+  - New product introductions
+  - Force majeure demand shocks
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "sku_location_week"
+    grain: sku_location_week
     window:
-      kind: "rolling"
+      kind: rolling
       length: 2
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -89,142 +46,134 @@ trigger:
       min_observations: 2
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "order.lines"
-        comparator: "gte"
+        metric_kpi_id: order.lines
+        comparator: gte
         value: 200
-        unit: "count"
+        unit: count
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "plan.forecast.service_impact.pct"
-        comparator: "gt"
+        metric_kpi_id: plan.forecast.service_impact.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 2.0
-          unit: "%"
+          unit: '%'
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "plan.forecast.service_impact.pct"
-        comparator: "gt"
+        metric_kpi_id: plan.forecast.service_impact.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 5.0
-          unit: "%"
+          unit: '%'
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "plan.forecast.service_impact.pct"
-        comparator: "gt"
+        metric_kpi_id: plan.forecast.service_impact.pct
+        comparator: gt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 8.0
-          unit: "%"
+          unit: '%'
         filters: []
   gating_rules:
-    - "Trigger only if service impact is forecast-driven"
-    - "Do not trigger if OTIF loss is transport-driven"
-    - "Exclude SKUs with active inventory rightsizing actions"
-
+  - Trigger only if service impact is forecast-driven
+  - Do not trigger if OTIF loss is transport-driven
+  - Exclude SKUs with active inventory rightsizing actions
 impact:
-  category: "High"
+  category: High
   expected_range:
-    metric_kpi_id: "plan.forecast.service_impact.pct"
+    metric_kpi_id: plan.forecast.service_impact.pct
     value_low: -1.0
     value_high: -4.0
-    unit: "pp"
+    unit: pp
     time_to_effect:
       min_periods: 0
       max_periods: 2
   mechanism:
-    - "Short-term prioritisation and allocation adjustments"
-    - "Containment of service loss while root causes are addressed"
+  - Short-term prioritisation and allocation adjustments
+  - Containment of service loss while root causes are addressed
   confidence:
-    level: "High"
+    level: High
     rationale:
-      - "Tactical levers are immediately available"
-      - "Containment is effective but not a root-cause fix"
-
+    - Tactical levers are immediately available
+    - Containment is effective but not a root-cause fix
 operational_execution:
-  primary_owner_role: "Supply Planning Manager"
   stakeholders:
-    - "Customer Operations"
-    - "Logistics"
+  - Customer Operations
+  - Logistics
   prerequisites:
-    - "Clear service prioritisation rules"
-    - "Visibility of forecast error impact on orders"
+  - Clear service prioritisation rules
+  - Visibility of forecast error impact on orders
   steps:
-    - "Identify SKUs/locations with forecast-driven service loss"
-    - "Apply short-term allocation and prioritisation rules"
-    - "Align containment actions with customer service"
-    - "Monitor service impact weekly"
+  - Identify SKUs/locations with forecast-driven service loss
+  - Apply short-term allocation and prioritisation rules
+  - Align containment actions with customer service
+  - Monitor service impact weekly
   effort:
-    level: "Low"
+    level: Low
     typical_duration_days: 21
   risks_and_tradeoffs:
-    - "Service trade-offs between customers"
-    - "Masking underlying forecast quality issues"
-
+  - Service trade-offs between customers
+  - Masking underlying forecast quality issues
 data_requirements:
   required_entities:
-    - "SKU"
-    - "Location"
+  - SKU
+  - Location
   semantic_dependencies:
     measures:
-      - "Forecast Service Impact %"
-      - "OTIF %"
-      - "DIO (Days)"
-      - "Order Lines"
+    - Forecast Service Impact %
+    - OTIF %
+    - DIO (Days)
+    - Order Lines
     tables:
-      - "fact_orders"
-      - "fact_forecast"
-      - "fact_shipments"
-      - "dim_product"
-      - "dim_location"
-
+    - fact_orders
+    - fact_forecast
+    - fact_shipments
+    - dim_product
+    - dim_location
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "weekly"
-    output: "SKU-locations with forecast-driven service impact"
+    evaluation_frequency: weekly
+    output: SKU-locations with forecast-driven service impact
   suggested_actions:
     enabled: true
     outputs:
-      - "Short-term service containment actions"
+    - Short-term service containment actions
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "SKU"
-      - "Location"
-      - "TriggerLevel"
-      - "ExecutedDate"
+    - ActionCode
+    - SKU
+    - Location
+    - TriggerLevel
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_Service_Impact_Pct"
-      - "Post_Service_Impact_Pct_30d"
-
+    - ActionCode
+    - Pre_Service_Impact_Pct
+    - Post_Service_Impact_Pct_30d
 governance:
   approvals_required:
-    - "Head of Supply Planning"
+  - Head of Supply Planning
   rollback_plan:
-    - "Remove containment if service prioritisation causes imbalance"
+  - Remove containment if service prioritisation causes imbalance
   documentation_links:
-    - "core/usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md"
-
+  - core/usecases/core/SCM-003_Forecast_vs_Actual/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

@@ -106,7 +106,7 @@ flowchart TD
 - Action codes and decision spine mapping
 - Semantic model blueprint and domain measure dictionaries
 - Data contracts and templates
-- Glossary and governance conventions
+- Governance conventions and metadata (KPI catalog, measure descriptions, model metadata)
 
 ### 5.2 Platform product (Microsoft Fabric/Power BI)
 

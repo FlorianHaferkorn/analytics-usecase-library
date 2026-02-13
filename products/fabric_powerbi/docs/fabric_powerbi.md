@@ -45,7 +45,7 @@ Not included:
 | Action Codes            | Action Aggregates + Execution Layer |
 | Distribution            | Apps + Navigation Map |
 | Governance              | Workspaces + Git PBIP |
-| AI Readiness            | Descriptions + Metadata + Glossary |
+| AI Readiness            | Descriptions + Metadata (KPI Catalog-grounded) |
 
 ---
 
@@ -227,7 +227,7 @@ Roles:
 - Always include:
   - Landing Page  
   - Domain Overview → Insights → Explorer  
-  - Glossary & KPI Page  
+  - KPI Definitions page (from KPI Catalog)  
 
 ## 7.2 Navigation Pattern
 
@@ -269,11 +269,11 @@ Every measure must have:
 - Table descriptions  
 - Column descriptions  
 - Folder descriptions  
-- KPI → Glossary mapping  
+- KPI → Definitions/Metadata mapping  
 
 ## 8.3 Semantic Exposure
 
-- Ensure Copilot sees context via KPI Catalog + Glossary.  
+- Ensure Copilot sees context via KPI Catalog + measure/table/column descriptions.  
 - No ambiguous names across domains.
 
 ---

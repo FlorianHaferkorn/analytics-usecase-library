@@ -264,6 +264,7 @@ class KpiRecord:
     line: int
     kpi_role: Optional[str]
     governance: Dict[str, Optional[str]]  # business_owner, data_owner, steward, owner_role, steward_role
+    causal_links: Optional[Dict[str, Any]] = None
 
 
 def scan_kpi_catalog(repo_root: Path) -> Tuple[Dict[str, KpiRecord], List[Issue]]:
@@ -318,6 +319,20 @@ def scan_kpi_catalog(repo_root: Path) -> Tuple[Dict[str, KpiRecord], List[Issue]
                 data_owner = _get_field("data_owner")
                 steward = _get_field("steward")
 
+                causal_links: Optional[Dict[str, Any]] = None
+                # Best-effort parse of causal_links (if present) from the chunk using YAML loader.
+                if yaml is not None:
+                    try:
+                        parsed = yaml.safe_load("\n".join(chunk_lines))
+                        # parsed can be a list with one mapping
+                        if isinstance(parsed, list) and parsed and isinstance(parsed[0], dict):
+                            cl = parsed[0].get("causal_links")
+                            if isinstance(cl, dict):
+                                causal_links = cl
+                    except Exception:
+                        # keep best-effort: ignore parse errors here (Stage 1 validates catalog separately)
+                        causal_links = None
+
                 # Normalize governance roles (legacy-safe alias map)
                 owner_role = business_owner or data_owner
                 steward_role = steward or data_owner
@@ -344,6 +359,7 @@ def scan_kpi_catalog(repo_root: Path) -> Tuple[Dict[str, KpiRecord], List[Issue]
                     line=kpi_line,
                     kpi_role=kpi_role,
                     governance=gov,
+                    causal_links=causal_links,
                 )
     return kpis, issues
 
@@ -457,6 +473,74 @@ def normalize_action_governance(action_raw: Dict[str, Any]) -> Tuple[Dict[str, O
     if not owner_role:
         warnings.append("Missing operational_execution.primary_owner_role (owner_role).")
     return {"owner_role": owner_role, "steward_role": steward_role}, warnings
+
+
+def _extract_kpis_from_action(raw: Dict[str, Any]) -> Set[str]:
+    """
+    Extract all KPI IDs referenced by an action code (for transitive linkage).
+    Used to expand the active KPI set: KPIs referenced by subscribed actions count as linked.
+    """
+    kpis: Set[str] = set()
+    if not isinstance(raw, dict):
+        return kpis
+
+    def _add(v: Any) -> None:
+        if isinstance(v, str) and v.strip():
+            kpis.add(v.strip())
+
+    # kpis.trigger_kpis, guardrail_kpis, outcome_kpis
+    kpis_block = raw.get("kpis")
+    if isinstance(kpis_block, dict):
+        for key in ("trigger_kpis", "guardrail_kpis", "outcome_kpis"):
+            arr = kpis_block.get(key)
+            if isinstance(arr, list):
+                for item in arr:
+                    if isinstance(item, dict):
+                        _add(item.get("kpi_id"))
+
+    # strategic_alignment.strategic_kpis
+    strat = raw.get("strategic_alignment")
+    if isinstance(strat, dict):
+        sk_arr = strat.get("strategic_kpis")
+        if isinstance(sk_arr, list):
+            for item in sk_arr:
+                if isinstance(item, dict):
+                    _add(item.get("id"))
+
+    # trigger.levels.*.condition.metric_kpi_id
+    trigger = raw.get("trigger")
+    if isinstance(trigger, dict):
+        levels = trigger.get("levels")
+        if isinstance(levels, dict):
+            for lvl in levels.values():
+                if isinstance(lvl, dict):
+                    cond = lvl.get("condition")
+                    if isinstance(cond, dict):
+                        _add(cond.get("metric_kpi_id"))
+        # trigger.evaluation.minimum_data.volume_guardrail.metric_kpi_id
+        ev = trigger.get("evaluation")
+        if isinstance(ev, dict):
+            min_data = ev.get("minimum_data")
+            if isinstance(min_data, dict):
+                vg = min_data.get("volume_guardrail")
+                if isinstance(vg, dict) and vg.get("enabled"):
+                    _add(vg.get("metric_kpi_id"))
+
+    # impact.expected_range.metric_kpi_id
+    impact = raw.get("impact")
+    if isinstance(impact, dict):
+        er = impact.get("expected_range")
+        if isinstance(er, dict):
+            _add(er.get("metric_kpi_id"))
+
+    # impact_valuation.success_window.metric_kpi_id
+    iv = raw.get("impact_valuation")
+    if isinstance(iv, dict):
+        sw = iv.get("success_window")
+        if isinstance(sw, dict):
+            _add(sw.get("metric_kpi_id"))
+
+    return kpis
 
 
 def build_linked_sets_from_brackets(brackets: Dict[str, Dict[str, Any]]) -> Tuple[Set[str], Set[str], Set[str], List[Issue]]:
@@ -629,6 +713,15 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     uc_ids_active, linked_kpis, linked_actions, link_issues = build_linked_sets_from_brackets(brackets)
     issues.extend(link_issues)
 
+    # Transitive expansion: KPIs referenced by subscribed action codes are also active
+    for aid in linked_actions:
+        arec = actions.get(aid)
+        if not arec:
+            continue
+        raw = arec.get("raw", {})
+        if isinstance(raw, dict):
+            linked_kpis.update(_extract_kpis_from_action(raw))
+
     # UseCase -> Data contract mapping (from Technical factsheet references)
     # This is needed for Trust-Score propagation.
     usecase_domain_contract: Dict[str, str] = {}
@@ -663,22 +756,45 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if isinstance(ob, dict):
             # strategic
             sk = ob.get("strategic_kpi_id")
-            if isinstance(sk, str) and sk.strip() and sk.strip() not in kpis:
-                p = repo_root / Path(src)
-                line = 1
-                try:
-                    lines = _read_text_lines(repo_root / src)
-                    line = find_line_for_yaml_kv(yaml_lines=lines, yaml_start_line=1, keys=["strategic_kpi_id"], value=sk.strip()) or 1
-                except Exception:
-                    pass
-                issues.append(
-                    Issue(
-                        "ERROR",
-                        "ref_integrity.missing_kpi",
-                        f"KPI-ID '{sk.strip()}' not found in KPI catalog.",
-                        SourceLocation(src, line),
+            if isinstance(sk, str) and sk.strip():
+                sk_id = sk.strip()
+                if sk_id not in kpis:
+                    line = 1
+                    try:
+                        lines = _read_text_lines(repo_root / src)
+                        line = find_line_for_yaml_kv(yaml_lines=lines, yaml_start_line=1, keys=["strategic_kpi_id"], value=sk_id) or 1
+                    except Exception:
+                        pass
+                    issues.append(
+                        Issue(
+                            "ERROR",
+                            "ref_integrity.missing_kpi",
+                            f"KPI-ID '{sk_id}' not found in KPI catalog.",
+                            SourceLocation(src, line),
+                        )
                     )
-                )
+                else:
+                    # Strategic KPI role check: must be kpi_role: strategic
+                    kpi_rec = kpis[sk_id]
+                    role = kpi_rec.kpi_role if hasattr(kpi_rec, "kpi_role") else None
+                    if not role:
+                        issues.append(
+                            Issue(
+                                "WARN",
+                                "ref_integrity.strategic_kpi_role_missing",
+                                f"Strategic KPI '{sk_id}' has no kpi_role; expected 'strategic'.",
+                                SourceLocation(kpi_rec.source, kpi_rec.line),
+                            )
+                        )
+                    elif role and str(role).strip().lower() not in ("strategic",):
+                        issues.append(
+                            Issue(
+                                "ERROR",
+                                "ref_integrity.strategic_kpi_role_mismatch",
+                                f"Strategic KPI '{sk_id}' has kpi_role '{role}'; expected 'strategic'.",
+                                SourceLocation(kpi_rec.source, kpi_rec.line),
+                            )
+                        )
             # influencing list
             infl = ob.get("influencing_kpi_ids")
             if isinstance(infl, list):
@@ -721,6 +837,116 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                                 SourceLocation(src, line),
                             )
                         )
+
+    # Value-driver formula checks: LHS matches strategic_kpi_id, RHS refs in catalog, RHS consistent with influencing
+    for uc_id in sorted(uc_ids_active):
+        rec = brackets.get(uc_id)
+        if not rec:
+            continue
+        raw = rec.get("raw", {})
+        ob = raw.get("ontology_bracket", {}) if isinstance(raw, dict) else {}
+        vdm = raw.get("value_driver_model", {}) if isinstance(raw, dict) else {}
+        if not isinstance(ob, dict) or not isinstance(vdm, dict):
+            continue
+        formula = vdm.get("formula")
+        if not isinstance(formula, str) or "=" not in formula:
+            continue
+        sk = ob.get("strategic_kpi_id")
+        infl_set = set()
+        for kid in (ob.get("influencing_kpi_ids") or []):
+            if isinstance(kid, str) and kid.strip():
+                infl_set.add(kid.strip())
+        # Parse formula: "lhs = f(rhs1, rhs2, ...)" - extract lhs and rhs tokens
+        try:
+            lhs_part, rhs_part = formula.split("=", 1)
+            lhs = lhs_part.strip().strip(".").strip()
+            # Extract tokens from f(...) - simple regex for kpi-like ids (word.word.word)
+            rhs_tokens = set(re.findall(r"[a-z]+\.[a-z0-9_.]+", rhs_part))
+            if sk and lhs != sk.strip():
+                issues.append(
+                    Issue("WARN", "value_driver.lhs_mismatch", f"UseCase '{uc_id}' formula LHS '{lhs}' != strategic_kpi_id '{sk}'.", SourceLocation(rec.get("source", ""), 1))
+                )
+            for tok in rhs_tokens:
+                if tok not in kpis:
+                    issues.append(
+                        Issue("WARN", "value_driver.rhs_unknown", f"UseCase '{uc_id}' formula RHS '{tok}' not in KPI catalog.", SourceLocation(rec.get("source", ""), 1))
+                    )
+            if infl_set and rhs_tokens:
+                missing = infl_set - rhs_tokens
+                if missing:
+                    issues.append(
+                        Issue("WARN", "value_driver.rhs_missing_influencing", f"UseCase '{uc_id}' influencing KPIs {sorted(missing)} not in formula RHS.", SourceLocation(rec.get("source", ""), 1))
+                    )
+        except Exception:
+            pass
+
+    # Causal links: if strategic KPI has causal_links, influencing KPIs should be covered
+    for uc_id in sorted(uc_ids_active):
+        rec = brackets.get(uc_id)
+        if not rec:
+            continue
+        raw = rec.get("raw", {})
+        ob = raw.get("ontology_bracket", {}) if isinstance(raw, dict) else {}
+        if not isinstance(ob, dict):
+            continue
+        sk = ob.get("strategic_kpi_id")
+        if not isinstance(sk, str) or not sk.strip():
+            continue
+        kpi_rec = kpis.get(sk.strip())
+        if not kpi_rec or not getattr(kpi_rec, "causal_links", None):
+            continue
+        cl = kpi_rec.causal_links
+        if not isinstance(cl, dict):
+            continue
+        causal_sources: Set[str] = set()
+        for link in (cl.get("links") or []):
+            if isinstance(link, dict):
+                sid = link.get("influencing_kpi_id") or link.get("source")
+                if sid:
+                    causal_sources.add(str(sid).strip())
+        infl = ob.get("influencing_kpi_ids") or []
+        for kid in infl:
+            if isinstance(kid, str) and kid.strip() and kid.strip() not in causal_sources:
+                issues.append(
+                    Issue("WARN", "causal_link.influencing_not_covered", f"UseCase '{uc_id}' influencing KPI '{kid}' not in strategic KPI '{sk}' causal_links.", SourceLocation(rec.get("source", ""), 1))
+                )
+
+    # Action alignment: subscribed action's trigger KPIs should overlap with bracket KPIs
+    for uc_id in sorted(uc_ids_active):
+        rec = brackets.get(uc_id)
+        if not rec:
+            continue
+        raw = rec.get("raw", {})
+        ob = raw.get("ontology_bracket", {}) if isinstance(raw, dict) else {}
+        if not isinstance(ob, dict):
+            continue
+        bracket_kpis: Set[str] = set()
+        sk = ob.get("strategic_kpi_id")
+        if isinstance(sk, str) and sk.strip():
+            bracket_kpis.add(sk.strip())
+        infl = ob.get("influencing_kpi_ids")
+        if isinstance(infl, list):
+            for kid in infl:
+                if isinstance(kid, str) and kid.strip():
+                    bracket_kpis.add(kid.strip())
+        acts = ob.get("action_code_ids") or []
+        for aid in acts:
+            if not isinstance(aid, str) or not aid.strip():
+                continue
+            arec = actions.get(aid.strip())
+            if not arec:
+                continue
+            action_kpis = _extract_kpis_from_action(arec.get("raw", {}) or {})
+            overlap = bracket_kpis & action_kpis
+            if bracket_kpis and action_kpis and not overlap:
+                issues.append(
+                    Issue(
+                        "WARN",
+                        "action_alignment.no_overlap",
+                        f"UseCase '{uc_id}' subscribes to action '{aid.strip()}' but action trigger KPIs ({sorted(action_kpis)}) have no overlap with bracket KPIs ({sorted(bracket_kpis)}); possible misalignment.",
+                        SourceLocation(rec.get("source", ""), 1),
+                    )
+                )
 
     # Orphan detection (Full-scan vs Linked-scan)
     orphan_items: List[Dict[str, Any]] = []
@@ -803,6 +1029,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             linked_contracts = [c for c, ks in contract_to_kpis.items() if kpi_id in ks]
             if linked_contracts:
                 trust_score = 0 if any(c in failed_contracts for c in linked_contracts) else 1
+        linked_contracts_list = sorted([c for c, ks in contract_to_kpis.items() if kpi_id in ks])
+        data_contract_risk: Optional[str] = None
+        if kpi_id in linked_kpis and not linked_contracts_list:
+            data_contract_risk = "high"
         registry_kpis[kpi_id] = {
             "id": kpi_id,
             "kpi_role": rec.kpi_role,
@@ -816,7 +1046,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 },
             },
             "trust_score": trust_score,
-            "linked_domain_contracts": sorted([c for c, ks in contract_to_kpis.items() if kpi_id in ks]),
+            "linked_domain_contracts": linked_contracts_list,
+            "data_contract_risk": data_contract_risk,
+            "causal_links": rec.causal_links,
             "source": {"file": rec.source, "line": rec.line},
         }
         # Migration warnings for governance fallbacks
@@ -844,9 +1076,15 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     for aid, arec in actions.items():
         raw = arec.get("raw", {})
         gov_norm, gov_warnings = normalize_action_governance(raw if isinstance(raw, dict) else {})
+        impact_valuation = raw.get("impact_valuation") if isinstance(raw, dict) else None
+        execution_bridge = raw.get("execution_bridge") if isinstance(raw, dict) else None
         registry_actions[aid] = {
             "id": aid,
+            "name": raw.get("name") if isinstance(raw, dict) else None,
+            "owner_domain": raw.get("owner_domain") if isinstance(raw, dict) else None,
             "governance": gov_norm,
+            "impact_valuation": impact_valuation if isinstance(impact_valuation, dict) else None,
+            "execution_bridge": execution_bridge if isinstance(execution_bridge, dict) else None,
             "source": {"file": arec.get("source")},
         }
         for w in gov_warnings:
@@ -960,6 +1198,104 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         ],
     }
 
+    # ---------------------------------------------------------------------
+    # Value Map (Power BI frontend): causal links + valuation + impact paths
+    # ---------------------------------------------------------------------
+    causal_edges: List[Dict[str, Any]] = []
+    for kpi_id, rec in kpis.items():
+        cl = rec.causal_links
+        if not isinstance(cl, dict):
+            continue
+        links = cl.get("links")
+        if not isinstance(links, list):
+            continue
+        for link in links:
+            if not isinstance(link, dict):
+                continue
+            src = link.get("influencing_kpi_id")
+            if not isinstance(src, str) or not src.strip():
+                continue
+            causal_edges.append(
+                {
+                    "type": "kpi_causal_influence",
+                    "from": src.strip(),
+                    "to": kpi_id,
+                    "effect": link.get("effect") if isinstance(link.get("effect"), dict) else None,
+                    "formula": link.get("formula") if isinstance(link.get("formula"), dict) else None,
+                    "applicability": link.get("applicability") if isinstance(link.get("applicability"), dict) else None,
+                    "evidence": link.get("evidence") if isinstance(link.get("evidence"), dict) else None,
+                    "source": {"file": rec.source, "line": rec.line},
+                }
+            )
+
+    # Build inverse index: KPI -> UseCases that reference it (active brackets only)
+    kpi_to_usecases: Dict[str, Set[str]] = {}
+    for uc_id in sorted(uc_ids_active):
+        urec = brackets.get(uc_id, {})
+        raw = urec.get("raw", {})
+        ob = raw.get("ontology_bracket", {}) if isinstance(raw, dict) else {}
+        if not isinstance(ob, dict):
+            continue
+        sk = ob.get("strategic_kpi_id")
+        if isinstance(sk, str) and sk.strip():
+            kpi_to_usecases.setdefault(sk.strip(), set()).add(uc_id)
+        infl = ob.get("influencing_kpi_ids")
+        if isinstance(infl, list):
+            for kid in infl:
+                if isinstance(kid, str) and kid.strip():
+                    kpi_to_usecases.setdefault(kid.strip(), set()).add(uc_id)
+
+    # Impact paths: failed contract -> affected KPI -> affected use case -> strategic KPI -> subscribed actions -> valuation metadata
+    impact_paths: List[Dict[str, Any]] = []
+    for contract in sorted(failed_contracts):
+        for kpi_id in sorted(contract_to_kpis.get(contract, set())):
+            for uc_id in sorted(kpi_to_usecases.get(kpi_id, set())):
+                urec = brackets.get(uc_id, {})
+                raw = urec.get("raw", {})
+                ob = raw.get("ontology_bracket", {}) if isinstance(raw, dict) else {}
+                sk = ob.get("strategic_kpi_id") if isinstance(ob, dict) else None
+                acts = ob.get("action_code_ids") if isinstance(ob, dict) else None
+                action_ids = [a for a in acts if isinstance(a, str) and a.strip()] if isinstance(acts, list) else []
+                valuations = []
+                for aid in action_ids:
+                    aobj = registry_actions.get(aid)
+                    if isinstance(aobj, dict) and isinstance(aobj.get("impact_valuation"), dict):
+                        valuations.append({"action_code_id": aid, "impact_valuation": aobj.get("impact_valuation")})
+                impact_paths.append(
+                    {
+                        "data_contract": contract,
+                        "kpi_id": kpi_id,
+                        "use_case_id": uc_id,
+                        "strategic_kpi_id": sk if isinstance(sk, str) else None,
+                        "action_code_ids": action_ids,
+                        "valuations": valuations,
+                        "note": "Euro impact is computed in semantic model using facts; registry provides metadata and linkage only.",
+                    }
+                )
+
+    value_map = {
+        "meta": {
+            "generated_at_utc": _utc_now_iso(),
+            "registry_version": "0.1",
+            "repo_root": repo_root.as_posix(),
+            "failed_data_contracts": sorted(failed_contracts),
+        },
+        "nodes": {
+            "use_cases": registry_usecases,
+            "kpis": registry_kpis,
+            "action_codes": registry_actions,
+            "domain_contracts": {
+                c: {"id": c, "status": ("failed" if c in failed_contracts else "ok")}
+                for c in sorted(contract_to_kpis.keys())
+            },
+        },
+        "edges": edges + causal_edges,
+        "impact_paths": impact_paths,
+        "formulas": {
+            "note": "All formulas are metadata strings (standardized/latex) for UI; no execution in registry builder."
+        },
+    }
+
     orphans_report = {
         "meta": {
             "generated_at_utc": _utc_now_iso(),
@@ -975,10 +1311,54 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         },
     }
 
+    # Governance gaps: owner_role missing, steward_role missing, owner_role == steward_role
+    governance_gaps: List[Dict[str, Any]] = []
+    for kpi_id, rec in kpis.items():
+        gov = rec.governance if hasattr(rec, "governance") else {}
+        o = (gov.get("owner_role") or gov.get("business_owner") or gov.get("data_owner")) or ""
+        s = (gov.get("steward_role") or gov.get("steward")) or ""
+        if not o or not str(o).strip():
+            governance_gaps.append({"type": "kpi", "id": kpi_id, "gap": "owner_role_missing", "source": rec.source})
+        if not s or not str(s).strip():
+            governance_gaps.append({"type": "kpi", "id": kpi_id, "gap": "steward_role_missing", "source": rec.source})
+        if o and s and str(o).strip() == str(s).strip():
+            governance_gaps.append({"type": "kpi", "id": kpi_id, "gap": "owner_equals_steward", "source": rec.source})
+    for aid, arec in actions.items():
+        raw = arec.get("raw", {}) or {}
+        gov, _ = normalize_action_governance(raw if isinstance(raw, dict) else {})
+        o = gov.get("owner_role") or ""
+        s = gov.get("steward_role") or ""
+        src = arec.get("source") or ""
+        if not o or not str(o).strip():
+            governance_gaps.append({"type": "action_code", "id": aid, "gap": "owner_role_missing", "source": src})
+        if not s or not str(s).strip():
+            governance_gaps.append({"type": "action_code", "id": aid, "gap": "steward_role_missing", "source": src})
+        if o and s and str(o).strip() == str(s).strip():
+            governance_gaps.append({"type": "action_code", "id": aid, "gap": "owner_equals_steward", "source": src})
+    for uc_id, brec in brackets.items():
+        raw = brec.get("raw", {}) or {}
+        gov = raw.get("governance", {}) if isinstance(raw, dict) else {}
+        if not isinstance(gov, dict):
+            continue
+        o = gov.get("owner_role") or ""
+        s = gov.get("steward_role") or ""
+        src = brec.get("source") or ""
+        if not o or not str(o).strip():
+            governance_gaps.append({"type": "use_case_bracket", "id": uc_id, "gap": "owner_role_missing", "source": src})
+        if not s or not str(s).strip():
+            governance_gaps.append({"type": "use_case_bracket", "id": uc_id, "gap": "steward_role_missing", "source": src})
+        if o and s and str(o).strip() == str(s).strip():
+            governance_gaps.append({"type": "use_case_bracket", "id": uc_id, "gap": "owner_equals_steward", "source": src})
+
+    governance_gaps_path = out_dir / "governance_gaps.json"
+    _write_json(governance_gaps_path, {"gaps": governance_gaps, "meta": {"generated_at_utc": _utc_now_iso()}})
+
     master_path = out_dir / "master_registry.json"
     orphans_path = out_dir / "orphans_report.json"
+    value_map_path = out_dir / "value_map.json"
     _write_json(master_path, master_registry)
     _write_json(orphans_path, orphans_report)
+    _write_json(value_map_path, value_map)
 
     # Determine exit code
     has_errors = any(iss.severity == "ERROR" for iss in issues)

@@ -1,86 +1,43 @@
-schema_version: "1.1"
-
-inherits_decision_spine: "pricing_discipline"
-
-id: "C-S1.1"
-name: "Price Discipline Enforcement"
-owner_domain: "Commercial"
-impact_dimension: "Profitability"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Pricing & Discount Control"
-  theme: "Protect Gross Margin"
-
-tags: ["pricing", "discounts", "margin-guardrail"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "margin.gm.pct"
-      role: "primary"
-    - id: "sales.net_sales.amount"
-      role: "secondary"
-  decisions_enabled:
-    - "Enforce discount floors"
-    - "Require approval for price exceptions"
-  non_goals:
-    - "Promotion ROI optimization"
-    - "Cost or COGS reduction initiatives"
-
+schema_version: "2.0"
+inherits_decision_spine: pricing_discipline
+id: C-S1.1
+name: Price Discipline Enforcement
+owner_domain: Commercial
+impact_dimension: Profitability
+status: active
+owner_role: Pricing Manager
+steward_role: Commercial BI Lead
 use_case_links:
   core_use_cases:
-    - "COM-001"
+  - COM-001
   related_use_cases:
-    - "COM-002"
-
+  - COM-002
 kpis:
   trigger_kpis:
-    - kpi_id: "margin.gm.pct"
-      label: "Gross Margin %"
-      semantic_ref:
-        model_domain: "Commercial"
-        measure: "Gross Margin %"
-    - kpi_id: "sales.pvm.price_effect.amount"
-      label: "Price Effect Amount"
-      semantic_ref:
-        model_domain: "Commercial"
-        measure: "Price Effect Amount"
+  - margin.gm.pct
+  - sales.pvm.price_effect.amount
   guardrail_kpis:
-    - kpi_id: "sales.net_sales.delta_pct.plan"
-      label: "Net Sales % vs Plan"
-      semantic_ref:
-        model_domain: "Commercial"
-        measure: "Net Sales % vs Plan"
+  - sales.net_sales.delta_pct.plan
   outcome_kpis:
-    - kpi_id: "margin.gm.pct"
-      label: "Gross Margin %"
-      semantic_ref:
-        model_domain: "Commercial"
-        measure: "Gross Margin %"
-
+  - margin.gm.pct
 scope:
-  default_grain: "month"
-  default_perspective: ["Region", "Channel"]
+  default_grain: month
+  default_perspective:
+  - Region
+  - Channel
   supported_slices:
-    - "Product Category"
+  - Product Category
   exclusions:
-    - "Approved promotions"
-    - "Strategic SKUs with executive pricing approval"
-
+  - Approved promotions
+  - Strategic SKUs with executive pricing approval
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "month"
+    grain: month
     window:
-      kind: "rolling"
+      kind: rolling
       length: 2
-      unit: "periods"
+      unit: periods
     persistence:
       required: true
       min_consecutive_periods: 2
@@ -88,130 +45,122 @@ trigger:
       min_observations: 1
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "sales.net_sales.amount"
-        comparator: "gte"
+        metric_kpi_id: sales.net_sales.amount
+        comparator: gte
         value: 100000
-        unit: "amount"
+        unit: amount
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "margin.gm.pct"
-        comparator: "lt"
+        metric_kpi_id: margin.gm.pct
+        comparator: lt
         threshold:
-          basis: "target"
+          basis: target
           value: 0.25
-          unit: "%"
+          unit: '%'
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "sales.pvm.price_effect.amount"
-        comparator: "lt"
+        metric_kpi_id: sales.pvm.price_effect.amount
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 0
-          unit: "amount"
+          unit: amount
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "margin.gm.pct"
-        comparator: "lt"
+        metric_kpi_id: margin.gm.pct
+        comparator: lt
         threshold:
-          basis: "absolute"
+          basis: absolute
           value: 0.22
-          unit: "%"
+          unit: '%'
         filters: []
   gating_rules:
-    - "Do not trigger if Net Sales % vs Plan < -10% (structural demand issue)"
-    - "Do not trigger for SKUs flagged as strategic"
-
+  - Do not trigger if Net Sales % vs Plan < -10% (structural demand issue)
+  - Do not trigger for SKUs flagged as strategic
 impact:
-  category: "High"
+  category: High
   expected_range:
-    metric_kpi_id: "margin.gm.pct"
+    metric_kpi_id: margin.gm.pct
     value_low: 0.5
     value_high: 1.5
-    unit: "pp"
+    unit: pp
     time_to_effect:
       min_periods: 1
       max_periods: 3
   confidence:
-    level: "High"
-
+    level: High
 operational_execution:
-  primary_owner_role: "Pricing Manager"
   stakeholders:
-    - "Sales Operations"
-    - "Regional Sales Leads"
+  - Sales Operations
+  - Regional Sales Leads
   prerequisites:
-    - "Defined discount floors by product/category"
-    - "Approval workflow for price exceptions"
+  - Defined discount floors by product/category
+  - Approval workflow for price exceptions
   steps:
-    - "Identify regions/channels breaching GM threshold"
-    - "Freeze new discretionary discounts"
-    - "Require approval for price exceptions"
-    - "Review net price realization weekly"
+  - Identify regions/channels breaching GM threshold
+  - Freeze new discretionary discounts
+  - Require approval for price exceptions
+  - Review net price realization weekly
   effort:
-    level: "Low"
+    level: Low
     typical_duration_days: 30
-
 data_requirements:
   required_entities:
-    - "Region"
-    - "Channel"
-    - "Product"
+  - Region
+  - Channel
+  - Product
   semantic_dependencies:
     measures:
-      - "Gross Margin %"
-      - "Price Effect Amount"
-      - "Net Sales % vs Plan"
+    - Gross Margin %
+    - Price Effect Amount
+    - Net Sales % vs Plan
     tables:
-      - "fact_sales"
-      - "dim_org"
-      - "dim_product"
-
+    - fact_sales
+    - dim_org
+    - dim_product
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "monthly"
-    output: "Flag Region/Channel combinations breaching price discipline thresholds"
+    evaluation_frequency: monthly
+    output: Flag Region/Channel combinations breaching price discipline thresholds
   suggested_actions:
     enabled: true
     outputs:
-      - "List of SKUs requiring discount enforcement"
+    - List of SKUs requiring discount enforcement
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "TriggerLevel"
-      - "Region"
-      - "Channel"
-      - "ExecutedDate"
+    - ActionCode
+    - TriggerLevel
+    - Region
+    - Channel
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_GM_Pct"
-      - "Post_GM_Pct_30d"
-
+    - ActionCode
+    - Pre_GM_Pct
+    - Post_GM_Pct_30d
 governance:
   approvals_required:
-    - "Commercial Controlling Lead"
+  - Commercial Controlling Lead
   rollback_plan:
-    - "Re-enable discount flexibility if Net Sales drop exceeds tolerance"
+  - Re-enable discount flexibility if Net Sales drop exceeds tolerance
   documentation_links:
-    - "core/usecases/core/COM-001_Sales_Performance/Business_Factsheet.md"
-
+  - core/usecases/core/COM-001_Sales_Performance/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

@@ -1,4 +1,4 @@
-# Action Code Template (Canonical)
+# Action Code Template (Canonical v2.0)
 
 This file contains exactly one YAML block that defines a single Action Code.
 It is designed to be:
@@ -6,12 +6,15 @@ It is designed to be:
 - human-readable (customer-ready),
 - machine-readable (agent generation & validation),
 - scalable (strict structure, minimal free text),
-- maintainable (stable IDs & lifecycle handling).
+- maintainable (stable IDs & governance roles).
+
+**v2.0 changes:** Removed `lifecycle`, `category`, `tags`, `strategic_alignment`.
+KPI lists are IDs only. Governance roles (`owner_role`, `steward_role`) promoted to top level.
 
 ---
 
 ```yaml
-schema_version: "1.1"
+schema_version: "2.0"
 
 inherits_decision_spine: null
 
@@ -21,24 +24,9 @@ owner_domain: "<Commercial | SupplyChain | CustomerValue | Liquidity | Operation
 impact_dimension: "<Growth | Profitability | Liquidity | Service | CustomerValue | Risk | Governance | ESG>"
 
 status: "<draft | active | deprecated>"
-lifecycle:
-  introduced_date: "<YYYY-MM-DD>"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
 
-category:
-  group: "<e.g. Price & Discount Management>"
-  theme: "<e.g. Correct Price Leakage>"
-
-tags: []
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "<StrategicKpiId>"
-      role: "<primary | secondary>"
-  decisions_enabled: []
-  non_goals: []
+owner_role: "<Accountable governance role, e.g. Pricing Lead>"
+steward_role: "<Data quality governance role, e.g. Commercial BI Lead>"
 
 use_case_links:
   core_use_cases: []
@@ -46,11 +34,7 @@ use_case_links:
 
 kpis:
   trigger_kpis:
-    - kpi_id: "<KpiId>"
-      label: "<Human label>"
-      semantic_ref:
-        model_domain: "<SemanticModelDomain>"
-        measure: "<MeasureName>"
+    - "<KpiId>"
   guardrail_kpis: []
   outcome_kpis: []
 
@@ -128,7 +112,6 @@ impact:
     rationale: []
 
 operational_execution:
-  primary_owner_role: "<Role>"
   stakeholders: []
   prerequisites: []
   steps: []
@@ -172,6 +155,7 @@ quality_rules:
   - "All kpi_id values must exist in KPI catalog."
   - "Trigger severity must be strictly increasing from L1 to L3."
   - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
+  - "If status=deprecated then a replacement action code should be referenced."
   - "No free-text trigger notes: use gating_rules and structured filters."
+  - "owner_role and steward_role must differ."
 ```

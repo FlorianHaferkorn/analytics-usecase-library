@@ -1,5 +1,7 @@
-﻿{
+{
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Action Code Definition v2.0",
+  "description": "Lean Action Code schema v2.0. Removed: lifecycle, category, tags, strategic_alignment. KPI lists reduced to IDs only. Governance roles promoted to top level.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -9,76 +11,28 @@
     "owner_domain",
     "impact_dimension",
     "status",
-    "lifecycle",
-    "category",
-    "tags",
-    "strategic_alignment",
-    "use_case_links",
+    "owner_role",
+    "steward_role",
     "kpis",
     "scope",
     "trigger",
     "impact",
     "operational_execution",
-    "data_requirements",
-    "automation",
-    "tracking",
-    "governance",
     "quality_rules"
   ],
   "properties": {
-    "schema_version": { "type": "string" },
+    "schema_version": { "type": "string", "const": "2.0" },
     "inherits_decision_spine": { "type": ["string", "null"] },
     "id": { "type": "string" },
     "name": { "type": "string" },
     "owner_domain": { "type": "string" },
     "impact_dimension": { "type": "string" },
-    "status": { "type": "string", "enum": ["draft","active","deprecated"] },
-    "lifecycle": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["introduced_date","deprecated_date","replaced_by","change_notes"],
-      "properties": {
-        "introduced_date": { "type": "string" },
-        "deprecated_date": { "type": ["string","null"] },
-        "replaced_by": { "type": ["string","null"] },
-        "change_notes": { "type": "array", "items": { "type": "string" } }
-      }
-    },
-    "category": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["group","theme"],
-      "properties": {
-        "group": { "type": "string" },
-        "theme": { "type": "string" }
-      }
-    },
-    "tags": { "type": "array", "items": { "type": "string" } },
-    "strategic_alignment": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["strategic_kpis","decisions_enabled","non_goals"],
-      "properties": {
-        "strategic_kpis": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["id","role"],
-            "properties": {
-              "id": { "type": "string" },
-              "role": { "type": "string", "enum": ["primary","secondary"] }
-            }
-          }
-        },
-        "decisions_enabled": { "type": "array", "items": { "type": "string" } },
-        "non_goals": { "type": "array", "items": { "type": "string" } }
-      }
-    },
+    "status": { "type": "string", "enum": ["draft", "active", "deprecated"] },
+    "owner_role": { "type": "string", "description": "Accountable governance role for this action (not a person name)." },
+    "steward_role": { "type": "string", "description": "Data quality / implementation governance role (must differ from owner_role)." },
     "use_case_links": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["core_use_cases","related_use_cases"],
       "properties": {
         "core_use_cases": { "type": "array", "items": { "type": "string" } },
         "related_use_cases": { "type": "array", "items": { "type": "string" } }
@@ -87,37 +41,17 @@
     "kpis": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["trigger_kpis","guardrail_kpis","outcome_kpis"],
+      "required": ["trigger_kpis"],
       "properties": {
-        "trigger_kpis": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["kpi_id","label","semantic_ref"],
-            "properties": {
-              "kpi_id": { "type": "string" },
-              "label": { "type": "string" },
-              "semantic_ref": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": ["model_domain","measure"],
-                "properties": {
-                  "model_domain": { "type": "string" },
-                  "measure": { "type": "string" }
-                }
-              }
-            }
-          }
-        },
-        "guardrail_kpis": { "type": "array", "items": { "type": "object" } },
-        "outcome_kpis": { "type": "array", "items": { "type": "object" } }
+        "trigger_kpis": { "type": "array", "items": { "type": "string" }, "minItems": 1, "description": "KPI IDs (must exist in KPI catalog)." },
+        "guardrail_kpis": { "type": "array", "items": { "type": "string" }, "description": "KPI IDs used as guardrails." },
+        "outcome_kpis": { "type": "array", "items": { "type": "string" }, "description": "KPI IDs used to measure action outcome." }
       }
     },
     "scope": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["default_grain","default_perspective","supported_slices","exclusions"],
+      "required": ["default_grain", "default_perspective", "supported_slices", "exclusions"],
       "properties": {
         "default_grain": { "type": "string" },
         "default_perspective": { "type": "array", "items": { "type": "string" } },
@@ -128,19 +62,18 @@
     "trigger": {
       "type": "object",
       "additionalProperties": false,
-      "required": [],
       "properties": {
         "type": { "type": "string" },
         "evaluation": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["grain","window","persistence","minimum_data"],
+          "required": ["grain", "window", "persistence", "minimum_data"],
           "properties": {
             "grain": { "type": "string" },
             "window": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["kind","length","unit"],
+              "required": ["kind", "length", "unit"],
               "properties": {
                 "kind": { "type": "string" },
                 "length": { "type": "number" },
@@ -150,7 +83,7 @@
             "persistence": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["required","min_consecutive_periods"],
+              "required": ["required", "min_consecutive_periods"],
               "properties": {
                 "required": { "type": "boolean" },
                 "min_consecutive_periods": { "type": "number" }
@@ -165,12 +98,12 @@
                 "volume_guardrail": {
                   "type": "object",
                   "additionalProperties": false,
-                  "required": ["enabled","metric_kpi_id","comparator","value","unit"],
+                  "required": ["enabled", "metric_kpi_id", "comparator", "value", "unit"],
                   "properties": {
                     "enabled": { "type": "boolean" },
                     "metric_kpi_id": { "type": "string" },
                     "comparator": { "type": "string" },
-                    "value": { "type": ["number","string"] },
+                    "value": { "type": ["number", "string"] },
                     "unit": { "type": "string" }
                   }
                 }
@@ -181,7 +114,7 @@
         "levels": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["L1","L2","L3"],
+          "required": ["L1", "L2", "L3"],
           "properties": {
             "L1": { "$ref": "#/definitions/level" },
             "L2": { "$ref": "#/definitions/level" },
@@ -191,16 +124,67 @@
         "gating_rules": { "type": "array", "items": { "type": "string" } }
       }
     },
+    "impact_valuation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "currency", "success_window", "calculation_logic"],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["DirectMarginImprovement", "CostAvoidance", "RevenueUplift", "CashRelease", "RiskAvoidance"]
+        },
+        "currency": { "type": "string", "minLength": 3 },
+        "success_window": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["duration", "metric_kpi_id", "success_criteria"],
+          "properties": {
+            "duration": { "type": "string", "description": "ISO-8601 duration, e.g. P14D, P1M." },
+            "metric_kpi_id": { "type": "string" },
+            "success_criteria": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind"],
+              "properties": {
+                "kind": { "type": "string", "enum": ["return_to_baseline", "threshold_met"] },
+                "baseline_window": { "type": "string", "description": "ISO-8601 duration, used when kind=return_to_baseline." },
+                "comparator": { "type": "string", "description": "Used when kind=threshold_met." },
+                "threshold": { "type": ["number", "string"], "description": "Used when kind=threshold_met." },
+                "unit": { "type": "string" }
+              }
+            }
+          }
+        },
+        "calculation_logic": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["standardized"],
+          "properties": {
+            "standardized": { "type": "string", "minLength": 10, "description": "Deterministic formula string referencing KPI IDs / measures." },
+            "latex": { "type": "string" }
+          }
+        },
+        "required_measures": { "type": "array", "items": { "type": "string" } },
+        "attribution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["method"],
+          "properties": {
+            "method": { "type": "string", "enum": ["before_after", "diff_in_diff", "holdout"] },
+            "notes": { "type": "string" }
+          }
+        }
+      }
+    },
     "impact": {
       "type": "object",
       "additionalProperties": false,
-      "required": [],
       "properties": {
         "category": { "type": "string" },
         "expected_range": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["metric_kpi_id","value_low","value_high","unit","time_to_effect"],
+          "required": ["metric_kpi_id", "value_low", "value_high", "unit", "time_to_effect"],
           "properties": {
             "metric_kpi_id": { "type": "string" },
             "value_low": { "type": "number" },
@@ -209,7 +193,7 @@
             "time_to_effect": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["min_periods","max_periods"],
+              "required": ["min_periods", "max_periods"],
               "properties": {
                 "min_periods": { "type": "number" },
                 "max_periods": { "type": "number" }
@@ -232,16 +216,14 @@
     "operational_execution": {
       "type": "object",
       "additionalProperties": false,
-      "required": [],
       "properties": {
-        "primary_owner_role": { "type": "string" },
         "stakeholders": { "type": "array", "items": { "type": "string" } },
         "prerequisites": { "type": "array", "items": { "type": "string" } },
         "steps": { "type": "array", "items": { "type": "string" } },
         "effort": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["level","typical_duration_days"],
+          "required": ["level", "typical_duration_days"],
           "properties": {
             "level": { "type": "string" },
             "typical_duration_days": { "type": "number" }
@@ -253,13 +235,12 @@
     "data_requirements": {
       "type": "object",
       "additionalProperties": false,
-      "required": [],
       "properties": {
         "required_entities": { "type": "array", "items": { "type": "string" } },
         "semantic_dependencies": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["measures","tables"],
+          "required": ["measures", "tables"],
           "properties": {
             "measures": { "type": "array", "items": { "type": "string" } },
             "tables": { "type": "array", "items": { "type": "string" } }
@@ -270,12 +251,11 @@
     "automation": {
       "type": "object",
       "additionalProperties": false,
-      "required": [],
       "properties": {
         "detection": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["enabled","evaluation_frequency","output"],
+          "required": ["enabled", "evaluation_frequency", "output"],
           "properties": {
             "enabled": { "type": "boolean" },
             "evaluation_frequency": { "type": "string" },
@@ -285,7 +265,7 @@
         "suggested_actions": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["enabled","outputs"],
+          "required": ["enabled", "outputs"],
           "properties": {
             "enabled": { "type": "boolean" },
             "outputs": { "type": "array", "items": { "type": "string" } }
@@ -297,7 +277,6 @@
     "tracking": {
       "type": "object",
       "additionalProperties": false,
-      "required": [],
       "properties": {
         "execution_log": {
           "type": "object",
@@ -324,11 +303,69 @@
     "governance": {
       "type": "object",
       "additionalProperties": false,
-      "required": [],
       "properties": {
         "approvals_required": { "type": "array", "items": { "type": "string" } },
         "rollback_plan": { "type": "array", "items": { "type": "string" } },
         "documentation_links": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "execution_bridge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "mode", "endpoint_template", "payload_definition", "audit"],
+      "properties": {
+        "type": { "type": "string", "enum": ["Webhook", "PowerAutomate", "API"] },
+        "mode": { "type": "string", "enum": ["dry_run", "live"] },
+        "endpoint_template": { "type": "string", "minLength": 8 },
+        "http": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["method"],
+          "properties": {
+            "method": { "type": "string", "enum": ["POST", "PUT", "PATCH"] },
+            "headers_template": { "type": "object", "additionalProperties": { "type": "string" } },
+            "timeout_seconds": { "type": "number" },
+            "retries": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["max_attempts", "backoff_seconds"],
+              "properties": {
+                "max_attempts": { "type": "number" },
+                "backoff_seconds": { "type": "number" }
+              }
+            }
+          }
+        },
+        "auth_reference": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "reference"],
+          "properties": {
+            "kind": { "type": "string", "enum": ["KeyVaultSecret", "EnvVar", "ManagedIdentity"] },
+            "reference": { "type": "string" }
+          }
+        },
+        "payload_definition": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["content_type", "template", "idempotency_key_template"],
+          "properties": {
+            "content_type": { "type": "string", "enum": ["application/json"] },
+            "schema_ref": { "type": "string" },
+            "schema": { "type": "object" },
+            "template": { "type": "object" },
+            "idempotency_key_template": { "type": "string" }
+          }
+        },
+        "audit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["log_table", "minimum_fields"],
+          "properties": {
+            "log_table": { "type": "string" },
+            "minimum_fields": { "type": "array", "items": { "type": "string" } }
+          }
+        }
       }
     },
     "quality_rules": { "type": "array", "items": { "type": "string" } }
@@ -337,7 +374,7 @@
     "level": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["severity","condition"],
+      "required": ["severity", "condition"],
       "properties": {
         "severity": { "type": "string" },
         "condition": {
@@ -349,10 +386,10 @@
             "threshold": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["basis","unit"],
+              "required": ["basis", "unit"],
               "properties": {
                 "basis": { "type": "string" },
-                "value": { "type": ["number","string"] },
+                "value": { "type": ["number", "string"] },
                 "lower": { "type": "number" },
                 "upper": { "type": "number" },
                 "unit": { "type": "string" }
@@ -361,11 +398,11 @@
                 {
                   "type": "object",
                   "required": ["value"],
-                  "properties": { "value": { "type": ["number","string"] } }
+                  "properties": { "value": { "type": ["number", "string"] } }
                 },
                 {
                   "type": "object",
-                  "required": ["lower","upper"],
+                  "required": ["lower", "upper"],
                   "properties": {
                     "lower": { "type": "number" },
                     "upper": { "type": "number" }
@@ -377,22 +414,18 @@
             "composite_rule": {
               "type": "object",
               "additionalProperties": false,
-              "properties": {
-                "description": { "type": "string" }
-              }
+              "properties": { "description": { "type": "string" } }
             },
             "lifecycle_rule": {
               "type": "object",
               "additionalProperties": false,
-              "properties": {
-                "description": { "type": "string" }
-              }
+              "properties": { "description": { "type": "string" } }
             }
           },
           "oneOf": [
             {
               "type": "object",
-              "required": ["metric_kpi_id","comparator","threshold"],
+              "required": ["metric_kpi_id", "comparator", "threshold"],
               "properties": {
                 "metric_kpi_id": { "type": "string" },
                 "comparator": { "type": "string" },
@@ -402,16 +435,12 @@
             {
               "type": "object",
               "required": ["composite_rule"],
-              "properties": {
-                "composite_rule": { "type": "object" }
-              }
+              "properties": { "composite_rule": { "type": "object" } }
             },
             {
               "type": "object",
               "required": ["lifecycle_rule"],
-              "properties": {
-                "lifecycle_rule": { "type": "object" }
-              }
+              "properties": { "lifecycle_rule": { "type": "object" } }
             }
           ]
         }
@@ -419,4 +448,3 @@
     }
   }
 }
-

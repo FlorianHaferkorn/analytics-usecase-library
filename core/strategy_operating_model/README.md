@@ -12,6 +12,9 @@ Recommended reading order:
 3. `operating_model/operating_model_overview.md`
 4. `operating_model/golden_thread_strategy_to_action.md`
 5. `operating_model/reference/single_source_of_truth.md`
+6. `operating_model/data_governance.md` §7–§9 (artifact design laws, framework audit, trust signals)
+
+Design principles origin: [`internal/vision/ACTIONREADY_HOLISTIC_MANIFESTO.md`](../../internal/vision/ACTIONREADY_HOLISTIC_MANIFESTO.md)
 
 For implementation, continue with:
 

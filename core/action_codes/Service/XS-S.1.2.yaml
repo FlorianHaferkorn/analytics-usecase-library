@@ -1,87 +1,44 @@
-schema_version: "1.1"
-
-id: "X-S1.2"
-name: "Capacity & Backlog Stabilisation"
-owner_domain: "Service Operations"
-impact_dimension: "Throughput"
-
-status: "active"
-lifecycle:
-  introduced_date: "2025-12-18"
-  deprecated_date: null
-  replaced_by: null
-  change_notes: []
-
-category:
-  group: "Service Execution Control"
-  theme: "Stabilise Backlog to Protect SLA Attainment"
-
-tags: ["capacity", "backlog", "throughput"]
-
-strategic_alignment:
-  strategic_kpis:
-    - id: "svc.backlog.count"
-      role: "primary"
-    - id: "svc.sla.attainment.pct"
-      role: "secondary"
-  decisions_enabled:
-    - "Rebalance capacity across queues and channels"
-    - "Execute backlog reduction waves without degrading quality"
-  non_goals:
-    - "Permanent headcount changes"
-    - "Organisation redesign or role changes"
-    - "Automation or tooling programs"
-
+schema_version: "2.0"
+id: X-S1.2
+name: Capacity & Backlog Stabilisation
+owner_domain: Service Operations
+impact_dimension: Throughput
+status: active
+owner_role: Service Operations Manager
+steward_role: Operations BI Lead
 use_case_links:
   core_use_cases:
-    - "XD-001"
+  - XD-001
   related_use_cases:
-    - "XD-002"
-
+  - XD-002
 kpis:
   trigger_kpis:
-    - kpi_id: "svc.backlog.count"
-      label: "Backlog Count"
-      semantic_ref:
-        model_domain: "Service"
-        measure: "Backlog Count"
+  - svc.backlog.count
   guardrail_kpis:
-    - kpi_id: "svc.fcr.pct"
-      label: "First Contact Resolution %"
-      semantic_ref:
-        model_domain: "Service"
-        measure: "First Contact Resolution %"
+  - svc.fcr.pct
   outcome_kpis:
-    - kpi_id: "svc.backlog.count"
-      label: "Backlog Count"
-      semantic_ref:
-        model_domain: "Service"
-        measure: "Backlog Count"
-    - kpi_id: "svc.sla.attainment.pct"
-      label: "SLA Attainment %"
-      semantic_ref:
-        model_domain: "Service"
-        measure: "SLA Attainment %"
-
+  - svc.backlog.count
+  - svc.sla.attainment.pct
 scope:
-  default_grain: "queue_day"
-  default_perspective: ["Queue", "Channel"]
+  default_grain: queue_day
+  default_perspective:
+  - Queue
+  - Channel
   supported_slices:
-    - "Region"
-    - "Priority Class"
+  - Region
+  - Priority Class
   exclusions:
-    - "Low-volume specialist queues"
-    - "Queues under active quality remediation"
-    - "Incident-driven backlog spikes with exec override"
-
+  - Low-volume specialist queues
+  - Queues under active quality remediation
+  - Incident-driven backlog spikes with exec override
 trigger:
-  type: "Deviation"
+  type: Deviation
   evaluation:
-    grain: "queue_day"
+    grain: queue_day
     window:
-      kind: "rolling"
+      kind: rolling
       length: 5
-      unit: "days"
+      unit: days
     persistence:
       required: true
       min_consecutive_periods: 3
@@ -89,141 +46,133 @@ trigger:
       min_observations: 3
       volume_guardrail:
         enabled: true
-        metric_kpi_id: "svc.tickets.created.count"
-        comparator: "gte"
+        metric_kpi_id: svc.tickets.created.count
+        comparator: gte
         value: 150
-        unit: "count"
+        unit: count
   levels:
     L1:
-      severity: "EarlyWarning"
+      severity: EarlyWarning
       condition:
-        metric_kpi_id: "svc.backlog.count"
-        comparator: "gt"
+        metric_kpi_id: svc.backlog.count
+        comparator: gt
         threshold:
-          basis: "relative"
-          value: 0.10
-          unit: "%"
+          basis: relative
+          value: 0.1
+          unit: '%'
         filters: []
     L2:
-      severity: "RequiredIntervention"
+      severity: RequiredIntervention
       condition:
-        metric_kpi_id: "svc.backlog.count"
-        comparator: "gt"
+        metric_kpi_id: svc.backlog.count
+        comparator: gt
         threshold:
-          basis: "relative"
+          basis: relative
           value: 0.25
-          unit: "%"
+          unit: '%'
         filters: []
     L3:
-      severity: "PrescriptiveExecution"
+      severity: PrescriptiveExecution
       condition:
-        metric_kpi_id: "svc.backlog.count"
-        comparator: "gt"
+        metric_kpi_id: svc.backlog.count
+        comparator: gt
         threshold:
-          basis: "relative"
-          value: 0.40
-          unit: "%"
+          basis: relative
+          value: 0.4
+          unit: '%'
         filters: []
   gating_rules:
-    - "Trigger only if backlog growth exceeds arrival rate trend"
-    - "Do not trigger if backlog increase is quality-driven"
-    - "Exclude queues with active handling-time reduction actions"
-
+  - Trigger only if backlog growth exceeds arrival rate trend
+  - Do not trigger if backlog increase is quality-driven
+  - Exclude queues with active handling-time reduction actions
 impact:
-  category: "High"
+  category: High
   expected_range:
-    metric_kpi_id: "svc.backlog.count"
+    metric_kpi_id: svc.backlog.count
     value_low: -15.0
     value_high: -35.0
-    unit: "%"
+    unit: '%'
     time_to_effect:
       min_periods: 1
       max_periods: 4
   mechanism:
-    - "Targeted capacity shifts and backlog sweeps"
-    - "Short-term throughput maximisation"
+  - Targeted capacity shifts and backlog sweeps
+  - Short-term throughput maximisation
   confidence:
-    level: "High"
+    level: High
     rationale:
-      - "Backlog concentration is typically queue-specific"
-      - "Tactical capacity levers are immediately available"
-
+    - Backlog concentration is typically queue-specific
+    - Tactical capacity levers are immediately available
 operational_execution:
-  primary_owner_role: "Service Operations Manager"
   stakeholders:
-    - "Workforce Management"
-    - "Team Leads"
+  - Workforce Management
+  - Team Leads
   prerequisites:
-    - "Accurate queue-level backlog measurement"
-    - "Flexible capacity allocation rules"
+  - Accurate queue-level backlog measurement
+  - Flexible capacity allocation rules
   steps:
-    - "Identify queues with sustained backlog growth"
-    - "Reallocate capacity or extend operating windows"
-    - "Execute backlog reduction waves"
-    - "Monitor SLA and quality daily"
+  - Identify queues with sustained backlog growth
+  - Reallocate capacity or extend operating windows
+  - Execute backlog reduction waves
+  - Monitor SLA and quality daily
   effort:
-    level: "Medium"
+    level: Medium
     typical_duration_days: 21
   risks_and_tradeoffs:
-    - "Quality degradation under throughput pressure"
-    - "Burnout from sustained capacity shifts"
-
+  - Quality degradation under throughput pressure
+  - Burnout from sustained capacity shifts
 data_requirements:
   required_entities:
-    - "Queue"
-    - "Channel"
+  - Queue
+  - Channel
   semantic_dependencies:
     measures:
-      - "Backlog Count"
-      - "SLA Attainment %"
-      - "First Contact Resolution %"
-      - "Tickets Created Count"
+    - Backlog Count
+    - SLA Attainment %
+    - First Contact Resolution %
+    - Tickets Created Count
     tables:
-      - "fact_service_tickets"
-      - "fact_service_events"
-      - "dim_queue"
-      - "dim_channel"
-
+    - fact_service_tickets
+    - fact_service_events
+    - dim_queue
+    - dim_channel
 automation:
   detection:
     enabled: true
-    evaluation_frequency: "daily"
-    output: "Queues with structurally growing backlog"
+    evaluation_frequency: daily
+    output: Queues with structurally growing backlog
   suggested_actions:
     enabled: true
     outputs:
-      - "Capacity rebalancing and backlog sweep actions"
+    - Capacity rebalancing and backlog sweep actions
   copilot_prompts: []
-
 tracking:
   execution_log:
     enabled: true
-    recommended_storage: "fact_action_execution"
+    recommended_storage: fact_action_execution
     minimum_fields:
-      - "ActionCode"
-      - "Queue"
-      - "Channel"
-      - "TriggerLevel"
-      - "ExecutedDate"
+    - ActionCode
+    - Queue
+    - Channel
+    - TriggerLevel
+    - ExecutedDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: "fact_action_outcome"
+    recommended_storage: fact_action_outcome
     minimum_fields:
-      - "ActionCode"
-      - "Pre_Backlog_Count"
-      - "Post_Backlog_Count_21d"
-
+    - ActionCode
+    - Pre_Backlog_Count
+    - Post_Backlog_Count_21d
 governance:
   approvals_required:
-    - "Head of Service Operations"
+  - Head of Service Operations
   rollback_plan:
-    - "Revert capacity shifts if quality KPIs deteriorate"
+  - Revert capacity shifts if quality KPIs deteriorate
   documentation_links:
-    - "core/usecases/core/XD-001_Service_Level_Performance/Business_Factsheet.md"
-
+  - core/usecases/core/XD-001_Service_Level_Performance/Business_Factsheet.md
 quality_rules:
-  - "All kpi_id values must exist in KPI catalog."
-  - "Trigger severity must be strictly increasing from L1 to L3."
-  - "impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis."
-  - "If status=deprecated then lifecycle.replaced_by is required."
-  - "No free-text trigger notes: use gating_rules and structured filters."
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'
