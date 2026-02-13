@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Analytics Framework – Guided Intake Wizard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4f7fb;
+        --card: #ffffff;
+        --border: #e2e8f0;
+        --accent: #02b694; /* Nagarro-ish teal */
+        --accent-soft: rgba(2, 182, 148, 0.06);
+        --accent-strong: #02b694;
+        --heading: #08172f;
+        --text: #12212f;
+        --muted: #64748b;
+        --danger: #f97373;
+        --radius-card: 1.1rem;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+          "Segoe UI", sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        color: var(--text);
+        background: radial-gradient(circle at 0 0, #e0f7f4 0, transparent 45%),
+          radial-gradient(circle at 100% 0, #e4f1ff 0, transparent 45%),
+          linear-gradient(to bottom, #f9fafb, #eef3fb);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .shell {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 1.2rem 1.5rem 1.6rem;
+      }
+
+      .hero-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.16rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.55);
+        background: rgba(255, 255, 255, 0.9);
+        font-size: 0.7rem;
+        color: #6b7280;
+        margin-bottom: 0.4rem;
+      }
+
+      .hero-pill-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--accent-strong);
+        box-shadow: 0 0 0 4px rgba(2, 182, 148, 0.12);
+      }
+
+      h1 {
+        font-size: 1.8rem;
+        font-weight: 750;
+        letter-spacing: -0.03em;
+        margin: 0 0 0.25rem;
+        color: var(--heading);
+      }
+
+      .subtitle {
+        font-size: 0.92rem;
+        color: var(--muted);
+        margin-bottom: 0.9rem;
+      }
+
+      .subtag-row {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 1rem;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+
+      .subtag-icon {
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent-strong);
+        font-size: 0.9rem;
+      }
+
+      .value-strip {
+        margin-bottom: 1rem;
+        padding: 0.5rem 0.7rem;
+        border-radius: 999px;
+        background: rgba(2, 182, 148, 0.06);
+        border: 1px solid rgba(45, 212, 191, 0.5);
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 0.7rem;
+        align-items: center;
+        font-size: 0.78rem;
+        color: #0f172a;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+      }
+
+      .value-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+
+      .value-pill-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: var(--accent-strong);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.9rem;
+      }
+
+      @media (max-width: 900px) {
+        .shell {
+          padding-inline: 1rem;
+        }
+      }
+
+      .card {
+        border-radius: var(--radius-card);
+        border: 1px solid var(--border);
+        padding: 1rem 1.1rem 1.1rem;
+        background: var(--card);
+        box-shadow:
+          0 18px 40px rgba(15, 23, 42, 0.04),
+          0 0 0 1px rgba(148, 163, 184, 0.12);
+      }
+
+      .steps {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-bottom: 0.8rem;
+      }
+
+      .step-pill {
+        border-radius: 999px;
+        border: 1px solid transparent;
+        font-size: 0.7rem;
+        padding: 0.25rem 0.8rem;
+        background: #f1f5f9;
+        color: var(--muted);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: all 0.18s ease-out;
+      }
+
+      .step-pill::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.9);
+      }
+
+      .step-pill.active {
+        background: var(--accent-soft);
+        border-color: var(--accent-strong);
+        color: var(--accent-strong);
+      }
+
+      .step-pill.active::before {
+        background: #0ea5e9;
+      }
+
+      .step-pill.done {
+        background: #e0fbf5;
+        border-color: #10b981;
+        color: #047857;
+      }
+
+      .step-pill.done::before {
+        background: #22c55e;
+      }
+
+      .step-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        letter-spacing: -0.01em;
+      }
+
+      .step-help {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-bottom: 0.6rem;
+      }
+
+      .field-group {
+        margin-bottom: 0.6rem;
+      }
+
+      label {
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: block;
+        margin-bottom: 0.18rem;
+      }
+      .report-container {
+        display: flex;
+        justify-content: center;
+        margin: 1rem 0;
+      }
+      .required {
+        color: var(--danger);
+      }
+
+      input[type="text"],
+      textarea,
+      select {
+        width: 100%;
+        padding: 0.42rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: #f8fafc;
+        color: var(--text);
+        font-size: 0.8rem;
+        outline: none;
+        transition: border-color 0.16s ease-out, box-shadow 0.16s ease-out,
+          background-color 0.16s ease-out;
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 3rem;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus {
+        border-color: var(--accent-strong);
+        box-shadow: 0 0 0 1px rgba(2, 182, 148, 0.28);
+        background: #ffffff;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+      }
+
+      .chip {
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        padding: 0.25rem 0.9rem;
+        font-size: 0.7rem;
+        background: #f8fafc;
+        color: #475569;
+        cursor: pointer;
+        transition: all 0.16s ease-out;
+      }
+
+      .chip:hover {
+        border-color: var(--accent-strong);
+        background: var(--accent-soft);
+        color: var(--accent-strong);
+      }
+
+      .chip.selected {
+        border-color: var(--accent-strong);
+        background: var(--accent-soft);
+        color: var(--accent-strong);
+      }
+
+      .actions {
+        margin-top: 0.7rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 0.5rem;
+        align-items: center;
+      }
+
+      .btn {
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: #ffffff;
+        color: #0f172a;
+        font-size: 0.8rem;
+        padding: 0.32rem 0.85rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.28rem;
+        transition: all 0.16s ease-out;
+      }
+
+      .btn:hover:not([disabled]) {
+        border-color: var(--accent-strong);
+        background: #f9fafb;
+      }
+
+      .btn-primary {
+        border-color: var(--accent-strong);
+        background: var(--accent-strong);
+        color: #f9fafb;
+        font-weight: 600;
+        box-shadow: 0 10px 25px rgba(56, 189, 248, 0.4);
+      }
+
+      .btn-primary:hover:not([disabled]) {
+        box-shadow: 0 12px 30px rgba(56, 189, 248, 0.55);
+      }
+
+      .btn[disabled] {
+        opacity: 0.55;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      .summary-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.4rem;
+        letter-spacing: -0.01em;
+      }
+
+      .summary-block {
+        border-radius: 0.75rem;
+        border: 1px solid var(--border);
+        padding: 0.45rem 0.55rem;
+        font-size: 0.78rem;
+        margin-bottom: 0.45rem;
+        background: #ffffff;
+      }
+
+      .summary-block h4 {
+        margin: 0 0 0.18rem;
+        font-size: 0.75rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .summary-json {
+        font-size: 0.7rem;
+        color: var(--muted);
+        margin-top: 0.4rem;
+      }
+
+      .summary-json pre {
+        max-height: 12rem;
+        overflow: auto;
+        background: #0b1120;
+        border-radius: 0.6rem;
+        border: 1px solid rgba(30, 64, 175, 0.85);
+        padding: 0.35rem 0.45rem;
+      }
+    </style>
+  </head>
+      <body>
+    <div class="shell">
+      <div class="hero-pill">
+        <span class="hero-pill-dot"></span>
+        <span>Analytics Framework • Intake Wizard</span>
+      </div>
+<h1>Analytics Framework | Guided Intake Wizard</h1>
+<div class="subtitle">
+  A structured, repeatable way to capture strategy, focus areas, and key decisions for the analytics framework.
+</div>
+
+
+
+<div class="subtag-row">
+
+        <span class="subtag-icon">⚡</span>
+        <span>Under 10 minutes to first package.</span>
+      </div>
+      <div class="value-strip">
+        <span class="value-pill">
+          <span class="value-pill-dot"></span>
+          <span>Align to strategy</span>
+        </span>
+        <span class="value-pill">
+          <span class="value-pill-dot"></span>
+          <span>Standardize KPIs</span>
+        </span>
+        <span class="value-pill">
+          <span class="value-pill-dot"></span>
+          <span>Generate factsheets draft</span>
+        </span>
+      </div>
+      <div class="layout">
+        <div class="card">
+        <div class="steps" id="steps"></div>
+        <div id="step-content"></div>
+        <div class="actions">
+          <button class="btn" id="prev-btn" type="button">Back</button>
+          <div>
+            <button class="btn" id="save-btn" type="button">Save draft</button>
+            <button class="btn btn-primary" id="next-btn" type="button">
+              Next
+            </button>
+          </div>
+        </div>
+        </div>
+        <div class="card">
+          <div class="summary-title">Framework-aligned summary</div>
+          <div id="summary"></div>
+          <div class="summary-json">
+            <button class="btn" id="copy-json-btn" type="button">
+              Copy JSON
+            </button>
+            <pre id="summary-json"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const state = {
+        started: false,
+        stepIndex: 0,
+        company: {
+          name: "",
+          businessModel: "",
+          industry: "",
+          industryOther: "",
+          size: "",
+          regions: [],
+          regionsOther: ""
+        },
+        focusAreas: [],
+        questionsByArea: {},
+        kpisByArea: {},
+        useCases: []
+      };
+
+      const steps = [
+        { id: "company", label: "Company" },
+        { id: "focus", label: "Focus areas" },
+        { id: "questions", label: "Questions" },
+        { id: "kpis", label: "KPIs" },
+        { id: "usecases", label: "Use cases" }
+      ];
+
+      const FOCUS_AREAS = [
+        "Growth",
+        "Profitability",
+        "Liquidity / Cash",
+        "Efficiency / Productivity",
+        "Customer Value & Retention",
+        "Service & Experience",
+        "Governance & Risk",
+        "ESG & Sustainability",
+        "Innovation & People",
+        "Other"
+      ];
+
+      const FREQUENCY_OPTIONS = [
+        "Daily",
+        "Weekly",
+        "Monthly",
+        "Quarterly",
+        "Ad hoc"
+      ];
+
+      const $ = (id) => document.getElementById(id);
+
+      function init() {
+        renderRoot();
+
+        $("prev-btn").onclick = () => {
+          if (state.stepIndex > 0) {
+            state.stepIndex -= 1;
+            renderRoot();
+          }
+        };
+        $("next-btn").onclick = () => {
+          if (!state.started) {
+            state.started = true;
+            state.stepIndex = 0;
+            renderRoot();
+            return;
+          }
+          if (state.stepIndex < steps.length - 1) {
+            state.stepIndex += 1;
+            renderRoot();
+          }
+        };
+        $("save-btn").onclick = () => {
+          try {
+            const payload = buildPayload();
+            localStorage.setItem(
+              "analytics_framework_intake_v1",
+              JSON.stringify(payload)
+            );
+            alert("Draft saved (local browser storage).");
+          } catch (e) {
+            console.error(e);
+            alert("Could not save draft.");
+          }
+        };
+        $("copy-json-btn").onclick = () => {
+          try {
+            const payload = buildPayload();
+            navigator.clipboard
+              .writeText(JSON.stringify(payload, null, 2))
+              .then(() => alert("JSON copied to clipboard."))
+              .catch(() => alert("Could not copy JSON."));
+          } catch (e) {
+            console.error(e);
+            alert("Could not build JSON.");
+          }
+        };
+      }
+
+      function renderRoot() {
+        const stepsBar = $("steps");
+        const actions = document.querySelector(".actions");
+        if (!state.started) {
+          stepsBar.style.display = "none";
+          $("prev-btn").style.display = "none";
+          $("next-btn").textContent = "Start";
+          renderIntro($("step-content"));
+        } else {
+          stepsBar.style.display = "flex";
+          $("prev-btn").style.display = "inline-flex";
+          renderSteps();
+          renderCurrentStep();
+          $("next-btn").textContent =
+            state.stepIndex === steps.length - 1 ? "Finish" : "Next";
+        }
+        updateSummary();
+      }
+
+      function renderIntro(c) {
+        c.innerHTML = `
+          <div class="step-title">Get started</div>
+          <div class="step-help">
+            This short questionnaire captures the essentials needed to instantiate the analytics framework for a client:
+            company context, strategic focus areas, executive questions, existing KPIs, and key decisions / use cases.
+          </div>
+          <div class="field-group">
+            <ul style="margin:0;padding-left:1.1rem;font-size:0.82rem;color:var(--muted);line-height:1.5;">
+              <li>Use it in pre-sales or early discovery to structure conversations.</li>
+              <li>Resulting JSON can be used to scaffold company strategy docs and Business Factsheets.</li>
+              <li>You can stop any time & copy the current JSON payload.</li>
+            </ul>
+          </div>
+          <div style="margin-top:0.8rem;font-size:0.8rem;color:var(--muted);">
+            Click <strong>Start</strong> to move through the questions step by step.
+          </div>
+        `;
+      }
+
+      function renderSteps() {
+        const c = $("steps");
+        c.innerHTML = "";
+        steps.forEach((s, i) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "step-pill";
+          if (i === state.stepIndex) b.classList.add("active");
+          else if (i < state.stepIndex) b.classList.add("done");
+          b.textContent = (i + 1) + ". " + s.label;
+          b.onclick = () => {
+            state.stepIndex = i;
+            renderSteps();
+            renderCurrentStep();
+            updateSummary();
+          };
+          c.appendChild(b);
+        });
+        $("prev-btn").disabled = state.stepIndex === 0;
+        $("next-btn").textContent =
+          state.stepIndex === steps.length - 1 ? "Finish" : "Next";
+      }
+
+      function renderCurrentStep() {
+        const id = steps[state.stepIndex].id;
+        const c = $("step-content");
+        if (id === "company") renderCompany(c);
+        else if (id === "focus") renderFocus(c);
+        else if (id === "questions") renderQuestions(c);
+        else if (id === "kpis") renderKpis(c);
+        else if (id === "usecases") renderUseCases(c);
+      }
+
+      function renderCompany(c) {
+        const d = state.company;
+        c.innerHTML = `
+          <div class="step-title">Company basics</div>
+          <div class="step-help">
+            A few basics so the intake stays aligned with your context.
+          </div>
+          <div class="field-group">
+            <label>Company name <span class="required">*</span></label>
+            <input id="c-name" type="text" value="${esc(d.name)}" />
+          </div>
+          <div class="field-group">
+            <label>Main business model</label>
+            <textarea id="c-model">${esc(d.businessModel)}</textarea>
+          </div>
+          <div class="field-group">
+            <label>Main industry / sector</label>
+            <select id="c-industry">
+              ${[
+                "",
+                "Manufacturing",
+                "Retail",
+                "Financial Services",
+                "Telecommunications",
+                "Public Sector",
+                "Healthcare",
+                "Other"
+              ]
+                .map(
+                  (opt) =>
+                    `<option value="${opt}" ${
+                      opt === d.industry ? "selected" : ""
+                    }>${opt || "Select industry…"}</option>`
+                )
+                .join("")}
+            </select>
+          </div>
+          <div class="field-group" id="c-industry-other-wrap" style="display:${
+            d.industry === "Other" ? "block" : "none"
+          }">
+            <input id="c-industry-other" type="text" placeholder="Describe the industry" value="${esc(
+              d.industryOther
+            )}" />
+          </div>
+          <div class="field-group">
+            <label>Company size (employees)</label>
+            <div class="chips" id="c-size-row">
+              ${["< 500", "500–5,000", "> 5,000"]
+                .map(
+                  (s) =>
+                    `<button type="button" class="chip ${
+                      d.size === s ? "selected" : ""
+                    }" data-v="${s}">${s}</button>`
+                )
+                .join("")}
+            </div>
+          </div>
+          <div class="field-group">
+            <label>Primary regions in scope for analytics</label>
+            <div class="chips" id="c-regions-row">
+              ${[
+                "Europe",
+                "North America",
+                "South America",
+                "Asia-Pacific",
+                "Middle East & Africa",
+                "Other"
+              ]
+                .map(
+                  (r) =>
+                    `<button type="button" class="chip ${
+                      d.regions.includes(r) ? "selected" : ""
+                    }" data-v="${r}">${r}</button>`
+                )
+                .join("")}
+            </div>
+          </div>
+          <div class="field-group" id="c-regions-other-wrap" style="display:${
+            d.regions.includes("Other") ? "block" : "none"
+          }">
+            <input id="c-regions-other" type="text" placeholder="Any specific countries / regions" value="${esc(
+              d.regionsOther
+            )}" />
+          </div>
+        `;
+        $("c-name").oninput = (e) => {
+          state.company.name = e.target.value;
+          updateSummary();
+        };
+        $("c-model").oninput = (e) => {
+          state.company.businessModel = e.target.value;
+          updateSummary();
+        };
+        $("c-industry").onchange = (e) => {
+          state.company.industry = e.target.value;
+          $("c-industry-other-wrap").style.display =
+            e.target.value === "Other" ? "block" : "none";
+          updateSummary();
+        };
+        $("c-industry-other").oninput = (e) => {
+          state.company.industryOther = e.target.value;
+          updateSummary();
+        };
+        document.querySelectorAll("#c-size-row .chip").forEach((b) => {
+          b.onclick = () => {
+            state.company.size = b.dataset.v;
+            renderCompany(c);
+            updateSummary();
+          };
+        });
+        document.querySelectorAll("#c-regions-row .chip").forEach((b) => {
+          b.onclick = () => {
+            const v = b.dataset.v;
+            const set = new Set(state.company.regions);
+            set.has(v) ? set.delete(v) : set.add(v);
+            state.company.regions = Array.from(set);
+            renderCompany(c);
+            updateSummary();
+          };
+        });
+        $("c-regions-other").oninput = (e) => {
+          state.company.regionsOther = e.target.value;
+          updateSummary();
+        };
+      }
+
+      function renderFocus(c) {
+        const set = new Set(state.focusAreas);
+        c.innerHTML = `
+          <div class="step-title">Strategic focus areas</div>
+          <div class="step-help">
+            Pick the areas most important for your strategy in the next 12–24 months.
+          </div>
+          <div class="field-group">
+            <div class="chips" id="f-row">
+              ${FOCUS_AREAS.map(
+                (f) =>
+                  `<button type="button" class="chip ${
+                    set.has(f) ? "selected" : ""
+                  }" data-v="${f}">${f}</button>`
+              ).join("")}
+            </div>
+          </div>
+        `;
+        document.querySelectorAll("#f-row .chip").forEach((b) => {
+          b.onclick = () => {
+            const v = b.dataset.v;
+            set.has(v) ? set.delete(v) : set.add(v);
+            state.focusAreas = Array.from(set);
+            pruneAreas();
+            renderFocus(c);
+            updateSummary();
+          };
+        });
+      }
+
+      function renderQuestions(c) {
+        if (!state.focusAreas.length) {
+          c.innerHTML =
+            "<div class='step-title'>Executive questions</div><div class='step-help'>Select at least one focus area first.</div>";
+          return;
+        }
+        c.innerHTML =
+          "<div class='step-title'>Executive questions</div><div class='step-help'>For each focus area, capture the key steering question.</div>";
+        state.focusAreas.forEach((area) => {
+          if (!state.questionsByArea[area]) {
+            state.questionsByArea[area] = {
+              main: "",
+              additional: ["", ""],
+              owner: "",
+              frequency: ""
+            };
+          }
+          const q = state.questionsByArea[area];
+          const wrap = document.createElement("div");
+          wrap.className = "summary-block";
+          wrap.innerHTML = `
+            <h4>${area}</h4>
+            <div class="field-group">
+              <label>Main question <span class="required">*</span></label>
+              <input type="text" class="q-main" data-area="${escAttr(
+                area
+              )}" value="${esc(q.main)}" />
+            </div>
+            <div class="field-group">
+              <label>Additional questions (optional)</label>
+              <input type="text" class="q-add" data-area="${escAttr(
+                area
+              )}" data-i="0" value="${esc(q.additional[0])}" />
+              <input style="margin-top:0.2rem" type="text" class="q-add" data-area="${escAttr(
+                area
+              )}" data-i="1" value="${esc(q.additional[1])}" />
+            </div>
+            <div class="field-group">
+              <label>Who typically asks this?</label>
+              <input type="text" class="q-owner" data-area="${escAttr(
+                area
+              )}" value="${esc(q.owner)}" />
+            </div>
+            <div class="field-group">
+              <label>How often is it relevant?</label>
+              <select class="q-freq" data-area="${escAttr(area)}">
+                <option value=""></option>
+                ${FREQUENCY_OPTIONS.map(
+                  (f) =>
+                    `<option value="${f}" ${
+                      f === q.frequency ? "selected" : ""
+                    }>${f}</option>`
+                ).join("")}
+              </select>
+            </div>
+          `;
+          c.appendChild(wrap);
+        });
+        c.querySelectorAll(".q-main").forEach((i) => {
+          i.oninput = (e) => {
+            const a = e.target.dataset.area;
+            state.questionsByArea[a].main = e.target.value;
+            updateSummary();
+          };
+        });
+        c.querySelectorAll(".q-add").forEach((i) => {
+          i.oninput = (e) => {
+            const a = e.target.dataset.area;
+            const idx = Number(e.target.dataset.i);
+            state.questionsByArea[a].additional[idx] = e.target.value;
+            updateSummary();
+          };
+        });
+        c.querySelectorAll(".q-owner").forEach((i) => {
+          i.oninput = (e) => {
+            const a = e.target.dataset.area;
+            state.questionsByArea[a].owner = e.target.value;
+            updateSummary();
+          };
+        });
+        c.querySelectorAll(".q-freq").forEach((i) => {
+          i.onchange = (e) => {
+            const a = e.target.dataset.area;
+            state.questionsByArea[a].frequency = e.target.value;
+            updateSummary();
+          };
+        });
+      }
+
+      function renderKpis(c) {
+        if (!state.focusAreas.length) {
+          c.innerHTML =
+            "<div class='step-title'>Existing KPIs</div><div class='step-help'>Select at least one focus area first.</div>";
+          return;
+        }
+        c.innerHTML =
+          "<div class='step-title'>Existing KPIs</div><div class='step-help'>List KPIs you already track for each focus area (optional).</div>";
+        state.focusAreas.forEach((area) => {
+          if (!state.kpisByArea[area]) {
+            state.kpisByArea[area] = {
+              list: "",
+              sources: "",
+              trustIssues: "",
+              hasTrustIssues: false
+            };
+          }
+          const k = state.kpisByArea[area];
+          const wrap = document.createElement("div");
+          wrap.className = "summary-block";
+          wrap.innerHTML = `
+            <h4>${area}</h4>
+            <div class="field-group">
+              <label>KPIs (one per line)</label>
+              <textarea class="k-list" data-area="${escAttr(
+                area
+              )}">${esc(k.list)}</textarea>
+            </div>
+            <div class="field-group">
+              <label>Where do they come from? (systems)</label>
+              <input class="k-src" data-area="${escAttr(
+                area
+              )}" type="text" value="${esc(k.sources)}" />
+            </div>
+          `;
+          c.appendChild(wrap);
+        });
+        c.querySelectorAll(".k-list").forEach((t) => {
+          t.oninput = (e) => {
+            const a = e.target.dataset.area;
+            state.kpisByArea[a].list = e.target.value;
+            updateSummary();
+          };
+        });
+        c.querySelectorAll(".k-src").forEach((i) => {
+          i.oninput = (e) => {
+            const a = e.target.dataset.area;
+            state.kpisByArea[a].sources = e.target.value;
+            updateSummary();
+          };
+        });
+      }
+
+      function renderUseCases(c) {
+        if (!state.useCases.length) {
+          state.useCases = [
+            {
+              decision: "",
+              why: "",
+              owner: "",
+              frequency: "",
+              dataSources: ""
+            }
+          ];
+        }
+        c.innerHTML =
+          "<div class='step-title'>Key decisions / use cases</div><div class='step-help'>Capture the most important decisions to support.</div>";
+        state.useCases.forEach((u, idx) => {
+          const wrap = document.createElement("div");
+          wrap.className = "summary-block";
+          wrap.innerHTML = `
+            <h4>Use case ${idx + 1}</h4>
+            <div class="field-group">
+              <label>Decision / question <span class="required">*</span></label>
+              <input class="uc-dec" data-i="${idx}" type="text" value="${esc(
+                u.decision
+              )}" />
+            </div>
+            <div class="field-group">
+              <label>Why it matters <span class="required">*</span></label>
+              <textarea class="uc-why" data-i="${idx}">${esc(u.why)}</textarea>
+            </div>
+            <div class="field-group">
+              <label>Who decides or acts?</label>
+              <input class="uc-owner" data-i="${idx}" type="text" value="${esc(
+                u.owner
+              )}" />
+            </div>
+          `;
+          c.appendChild(wrap);
+        });
+        const add = document.createElement("button");
+        add.type = "button";
+        add.className = "btn";
+        add.textContent = "+ Add use case";
+        add.onclick = () => {
+          state.useCases.push({
+            decision: "",
+            why: "",
+            owner: "",
+            frequency: "",
+            dataSources: ""
+          });
+          renderUseCases(c);
+          updateSummary();
+        };
+        c.appendChild(add);
+
+        c.querySelectorAll(".uc-dec").forEach((i) => {
+          i.oninput = (e) => {
+            const idx = Number(e.target.dataset.i);
+            state.useCases[idx].decision = e.target.value;
+            updateSummary();
+          };
+        });
+        c.querySelectorAll(".uc-why").forEach((t) => {
+          t.oninput = (e) => {
+            const idx = Number(e.target.dataset.i);
+            state.useCases[idx].why = e.target.value;
+            updateSummary();
+          };
+        });
+        c.querySelectorAll(".uc-owner").forEach((i) => {
+          i.oninput = (e) => {
+            const idx = Number(e.target.dataset.i);
+            state.useCases[idx].owner = e.target.value;
+            updateSummary();
+          };
+        });
+      }
+
+      function pruneAreas() {
+        const set = new Set(state.focusAreas);
+        Object.keys(state.questionsByArea).forEach((a) => {
+          if (!set.has(a)) delete state.questionsByArea[a];
+        });
+        Object.keys(state.kpisByArea).forEach((a) => {
+          if (!set.has(a)) delete state.kpisByArea[a];
+        });
+      }
+
+      function updateSummary() {
+        const s = $("summary");
+        const c = state.company;
+        const use = state.useCases.filter(
+          (u) => u.decision.trim() || u.why.trim()
+        );
+        s.innerHTML = "";
+        const b1 = document.createElement("div");
+        b1.className = "summary-block";
+        b1.innerHTML =
+          "<h4>Company</h4>" +
+          `<div>${esc(c.name || "No name yet")}</div>` +
+          (c.businessModel ? `<div>${esc(c.businessModel)}</div>` : "") +
+          (c.industry
+            ? `<div>Industry: ${esc(
+                c.industry === "Other"
+                  ? c.industryOther || "Other"
+                  : c.industry
+              )}</div>`
+            : "") +
+          (c.size ? `<div>Size: ${esc(c.size)}</div>` : "") +
+          (c.regions.length
+            ? `<div>Regions: ${esc(c.regions.join(", "))}</div>`
+            : "");
+        s.appendChild(b1);
+
+        const b2 = document.createElement("div");
+        b2.className = "summary-block";
+        b2.innerHTML = "<h4>Focus areas & questions</h4>";
+        if (!state.focusAreas.length) {
+          b2.innerHTML += "<div>No focus areas yet.</div>";
+        } else {
+          state.focusAreas.forEach((a) => {
+            const q = state.questionsByArea[a];
+            const main = q && q.main ? q.main : "No main question yet";
+            b2.innerHTML += `<div><strong>${esc(a)}</strong>: ${esc(
+              main
+            )}</div>`;
+          });
+        }
+        s.appendChild(b2);
+
+        const b3 = document.createElement("div");
+        b3.className = "summary-block";
+        b3.innerHTML = "<h4>Existing KPIs</h4>";
+        const anyKpi = Object.values(state.kpisByArea).some(
+          (k) => k.list && k.list.trim()
+        );
+        if (!anyKpi) {
+          b3.innerHTML += "<div>No KPIs captured yet.</div>";
+        } else {
+          Object.entries(state.kpisByArea).forEach(([a, k]) => {
+            if (!k.list.trim()) return;
+            const first = k.list.trim().split("\n")[0];
+            b3.innerHTML += `<div><strong>${esc(a)}</strong>: ${esc(
+              first
+            )}</div>`;
+          });
+        }
+        s.appendChild(b3);
+
+        const b4 = document.createElement("div");
+        b4.className = "summary-block";
+        b4.innerHTML = "<h4>Use cases</h4>";
+        if (!use.length) {
+          b4.innerHTML += "<div>No use cases yet.</div>";
+        } else {
+          use.forEach((u) => {
+            b4.innerHTML += `<div>• ${esc(
+              u.decision || "Decision not yet specified"
+            )}</div>`;
+          });
+        }
+        s.appendChild(b4);
+
+        $("summary-json").textContent = JSON.stringify(buildPayload(), null, 2);
+      }
+
+      function buildPayload() {
+        const company = state.company;
+        const focus = state.focusAreas.map((a) => {
+          const q = state.questionsByArea[a] || {
+            main: "",
+            additional: ["", ""],
+            owner: "",
+            frequency: ""
+          };
+          const k = state.kpisByArea[a] || {
+            list: "",
+            sources: "",
+            trustIssues: "",
+            hasTrustIssues: false
+          };
+          return {
+            focus_area: a,
+            main_question: q.main.trim(),
+            additional_questions: q.additional
+              .map((x) => x.trim())
+              .filter(Boolean),
+            owner_role: q.owner.trim(),
+            frequency: q.frequency,
+            existing_kpis: k.list
+              .split("\n")
+              .map((x) => x.trim())
+              .filter(Boolean),
+            kpi_sources: k.sources.trim()
+          };
+        });
+        const use = state.useCases
+          .map((u, i) => ({
+            id_hint: "UC_" + String(i + 1).padStart(2, "0"),
+            decision_question: u.decision.trim(),
+            business_value: u.why.trim(),
+            decision_owner_role: u.owner.trim()
+          }))
+          .filter((u) => u.decision_question || u.business_value);
+        return {
+          company_strategy: {
+            name: company.name.trim(),
+            business_model: company.businessModel.trim(),
+            industry:
+              company.industry === "Other"
+                ? company.industryOther.trim() || "Other"
+                : company.industry,
+            size_by_employees: company.size,
+            regions: company.regions,
+            regions_other: company.regionsOther.trim(),
+            strategic_focus: focus
+          },
+          business_factsheet_candidates: use
+        };
+      }
+
+      function esc(s) {
+        if (!s) return "";
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+      function escAttr(s) {
+        return esc(s);
+      }
+
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+
+  <div class="report-container">
+  <iframe
+    title="Sample Report Demo"
+    width="1140"
+    height="541.25"
+    src="https://playground.powerbi.com/sampleReportEmbed"
+    frameborder="0"
+    allowfullscreen="true">
+  </iframe>
+</div>  
+  </body>
+
+
+</html>
