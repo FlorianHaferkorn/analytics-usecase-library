@@ -1,6 +1,6 @@
 <!-- GENERATED FILE - DO NOT EDIT MANUALLY -->
 <!-- Source: tooling/ontology/registry_builder.py -->
-<!-- Generated: 2026-02-13T14:40:30+00:00 -->
+<!-- Generated: 2026-02-13T15:01:29+00:00 -->
 
 # Use Case Inventory
 
