@@ -6,7 +6,7 @@ Action Code **patterns** are recurring types of management response: they descri
 
 Documenting patterns makes the closed loop easier to understand and extend: new action codes can be aligned to an existing pattern for consistent naming and behavior.
 
-**Canonical mapping:** Use Case ↔ Action Code remains only in `UseCase_ActionCode_Map.yaml`. This document is descriptive.
+**Canonical mapping:** Use Case → Action Code subscriptions are declared in each use case's `UseCase_Bracket.yaml` (`orchestration.action_code_ids`). This document is descriptive.
 
 ---
 
@@ -50,6 +50,5 @@ Patterns do not change this; they describe the *type* of action (govern, control
 ## 5. Relationship to Other Artifacts
 
 - **Action code YAML:** Each file has `category.group` and `category.theme`; these map to the patterns above.
-- **UseCase_ActionCode_Map.yaml:** Canonical use case ↔ action code mapping; do not duplicate here.
-- **UseCase_ActionCode_Rationale.yaml:** Rationale for why a use case references an action code; supports pattern choice.
+- **UseCase_Bracket.yaml** (`orchestration.action_code_ids`): Canonical use case → action code subscriptions; do not duplicate here.
 - **Decision taxonomy:** `operating_model/decision_taxonomy.md` — Intervene decision type aligns with all action codes; patterns refine how we intervene.

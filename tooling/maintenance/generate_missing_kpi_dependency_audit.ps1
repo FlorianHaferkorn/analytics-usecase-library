@@ -2,7 +2,7 @@ Param(
   [string]$UseCasesRoot = "usecases",
   [string]$KpiCatalogRoot = "core/kpi_catalog",
   [string]$ActionCodesRoot = "core/action_codes",
-  [string]$UseCaseActionCodeMapPath = "usecases/UseCase_ActionCode_Map.yaml",
+  [string]$UseCaseActionCodeMapPath = "",  # Legacy: UseCase_ActionCode_Map.yaml removed in Lean 2.0; action codes now in UseCase_Bracket.yaml
   [string]$MeasureDictRoot = "semantic_models/domains",
   [string]$OutputPath = "internal/reviews/missing_kpi_dependency_audit.md"
 )
@@ -264,7 +264,7 @@ function Get-MeasureRefsFromDax {
 $useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "usecases"
 $kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative "core/kpi_catalog"
 $actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "core/action_codes"
-$actionCodeMapPath = Resolve-RepoPath -ProvidedPath $UseCaseActionCodeMapPath -DefaultRelative "usecases/UseCase_ActionCode_Map.yaml"
+$actionCodeMapPath = if ($UseCaseActionCodeMapPath) { Resolve-RepoPath -ProvidedPath $UseCaseActionCodeMapPath -DefaultRelative $UseCaseActionCodeMapPath } else { $null }  # UseCase_ActionCode_Map.yaml removed in Lean 2.0; action codes now in UseCase_Bracket.yaml
 $measureDictRoot = Resolve-RepoPath -ProvidedPath $MeasureDictRoot -DefaultRelative "semantic_models/domains"
 $outputPath = Resolve-RepoPath -ProvidedPath $OutputPath -DefaultRelative "internal/reviews/missing_kpi_dependency_audit.md"
 

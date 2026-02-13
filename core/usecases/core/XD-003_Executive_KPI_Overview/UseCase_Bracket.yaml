@@ -1,13 +1,11 @@
 schema_version: '2.0'
 id: XD-003
-name: Executive KPI Overview
+title: Executive KPI Overview
 domain: Executive / Cross-Functional
 governance:
-  owner_role: Finance / Strategy / Ops Controlling
-  steward_role: Enterprise BI Lead
-  status: active
-  last_review: '2026-02-12'
-ontology_bracket:
+  owner_role: finance_strategy_ops_controlling
+  steward_role: enterprise_bi_lead
+orchestration:
   strategic_kpi_id: margin.gm.pct
   influencing_kpi_ids:
   - sales.net_sales.delta_pct.ly
@@ -24,22 +22,36 @@ ontology_bracket:
   - X-E3.2
   - X-E3.3
 value_driver_model:
-  description: margin.gm.pct is driven by influencing KPIs and operational levers.
-  formula: margin.gm.pct = f(sales.net_sales.delta_pct.ly, crm.clv.amount, svc.sla.attainment.pct,
-    ops.otif.pct, ops.working_capital.ccc.days, people.digital_adoption.pct, people.attrition_risk.pct,
-    enterprise.action_routed.count, enterprise.action_outcome_rate.pct, enterprise.value_at_risk.index)
+  formula: margin.gm.pct = f(sales.net_sales.delta_pct.ly, crm.clv.amount, svc.sla.attainment.pct, ops.otif.pct, ops.working_capital.ccc.days,
+    people.digital_adoption.pct, people.attrition_risk.pct, enterprise.action_routed.count, enterprise.action_outcome_rate.pct,
+    enterprise.value_at_risk.index)
+  impact_direction: maximize
+  primary_driver: sales.net_sales.delta_pct.ly
+  impact_logic: Improving sales.net_sales.delta_pct.ly is the primary lever for maximizing margin.gm.pct.
 ux_layout_rules:
   report_structure: 2-Page-Lead
-  page_1_summary_insights:
+  page_1_summary:
     title: Executive / Cross-Functional Summary & Insights
-    3s_component: 'North Star: margin.gm.pct'
-    30s_components: []
+    component_3s:
+      kpi_id: margin.gm.pct
+      visual_type: kpi_card
+    component_30s:
+    - kpi_id: sales.net_sales.delta_pct.ly
+      visual_type: trend_line
+    - kpi_ids:
+      - crm.clv.amount
+      - svc.sla.attainment.pct
+      - ops.otif.pct
+      visual_type: bar_chart
   page_2_execution:
     title: Executive / Cross-Functional Execution
-    300s_components:
-    - 'Evidence_Table: (define evidence table requirements)'
-    - 'Action_Panel: Integrated Side-Panel for Subscribed Action Codes'
-    - 'Payload_Injection: Show Level (L1-L3) and Steps from Action Code YAML'
+    component_300s:
+      evidence_grain: transaction_line
+      evidence_columns:
+      - entity
+      - period
+      - margin.gm.pct
+      action_panel: true
+      payload_mode: full
 documentation:
   business_factsheet: ./Business_Factsheet.md
-  technical_factsheet: ./Technical_Factsheet.md

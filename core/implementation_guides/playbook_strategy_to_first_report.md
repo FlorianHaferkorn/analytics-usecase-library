@@ -62,7 +62,7 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 3. For each selected use case, read the **Business Factsheet** (e.g. `core/usecases/core/COM-002_Margin_Price_Performance/Business_Factsheet.md`) and confirm:
    - Required KPIs are in the KPI catalog.
    - Key questions (section 2) are acceptable for your context.
-   - Action codes (section 4) are relevant; map is in `UseCase_ActionCode_Map.yaml`.
+   - Action codes (section 4) are relevant; subscriptions are in `UseCase_Bracket.yaml` (`orchestration.action_code_ids`).
 4. Document the **use-case pack** for Phase 1: e.g. "COM-002, FIN-002, XD-003."
 
 **Output:** List of use cases; confirmed key questions and required KPIs per use case.
@@ -77,7 +77,7 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 
 **Actions:**
 
-1. For each use case in the pack, read the **Technical Factsheet** (section 6: Data Requirements) — required facts, dimensions, grain, time range.
+1. For each use case in the pack, read the **UseCase_Bracket.yaml** (data contract scope and semantic model requirements) — required facts, dimensions, grain, time range.
 2. Check if a **Silver data contract** already exists for the domain (`core/data_contracts/domains/`, `core/data_contracts/sources/` or customer equivalent). If not, create a minimal contract (schema, grain, key fields) for the facts and dimensions needed for **Silver**.
 3. Confirm **source data** can supply these (e.g. ERP, CRM, data lake). Resolve gaps (new pipeline, staging, or scope reduction). Staging/Bronze are out of scope unless explicitly included.
 4. Document **required entities** for Silver and downstream semantic model: facts, dimensions, grain. This becomes the input for Step 4 (Gold/semantic model built from Silver).

@@ -1,13 +1,11 @@
 schema_version: '2.0'
 id: SCM-002
-name: Supply Reliability & OTIF
+title: Supply Reliability & OTIF
 domain: Supply Chain
 governance:
-  owner_role: Supply Chain Controlling / Logistics Performance
-  steward_role: Logistics / Supply Chain BI Lead
-  status: active
-  last_review: '2026-02-12'
-ontology_bracket:
+  owner_role: supply_chain_controlling_logistics_performance
+  steward_role: logistics_supply_chain_bi_lead
+orchestration:
   strategic_kpi_id: supply.otif.pct
   influencing_kpi_ids:
   - supply.on_time.pct
@@ -24,21 +22,35 @@ ontology_bracket:
   - S-R2.4
   - S-R2.5
 value_driver_model:
-  description: supply.otif.pct is driven by influencing KPIs and operational levers.
-  formula: supply.otif.pct = f(supply.on_time.pct, supply.in_full.pct, supply.stockout_impact.pct,
-    supply.penalty.amount, supply.expedite.amount, order.lines, shipments.count)
+  formula: supply.otif.pct = f(supply.on_time.pct, supply.in_full.pct, supply.stockout_impact.pct, supply.penalty.amount,
+    supply.expedite.amount, order.lines, shipments.count)
+  impact_direction: maximize
+  primary_driver: supply.on_time.pct
+  impact_logic: Improving supply.on_time.pct is the primary lever for maximizing supply.otif.pct.
 ux_layout_rules:
   report_structure: 2-Page-Lead
-  page_1_summary_insights:
+  page_1_summary:
     title: Supply Chain Summary & Insights
-    3s_component: 'North Star: supply.otif.pct'
-    30s_components: []
+    component_3s:
+      kpi_id: supply.otif.pct
+      visual_type: kpi_card
+    component_30s:
+    - kpi_id: supply.on_time.pct
+      visual_type: trend_line
+    - kpi_ids:
+      - supply.in_full.pct
+      - supply.stockout_impact.pct
+      - supply.penalty.amount
+      visual_type: bar_chart
   page_2_execution:
     title: Supply Chain Execution
-    300s_components:
-    - 'Evidence_Table: (define evidence table requirements)'
-    - 'Action_Panel: Integrated Side-Panel for Subscribed Action Codes'
-    - 'Payload_Injection: Show Level (L1-L3) and Steps from Action Code YAML'
+    component_300s:
+      evidence_grain: transaction_line
+      evidence_columns:
+      - entity
+      - period
+      - supply.otif.pct
+      action_panel: true
+      payload_mode: full
 documentation:
   business_factsheet: ./Business_Factsheet.md
-  technical_factsheet: ./Technical_Factsheet.md

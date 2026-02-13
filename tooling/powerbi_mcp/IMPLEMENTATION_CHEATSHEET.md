@@ -59,14 +59,11 @@ do {
 ### Pattern 2: Relationship Auto-Config
 
 ```powershell
-# Step 1: Detect from Technical Factsheet
-$factsheet = Get-Content "core\usecases\core\$UseCase\Technical_Factsheet.md" -Raw
-$relSection = Extract-Section $factsheet "### 4.2 Relationships"
+# Step 1: Detect from UseCase_Bracket.yaml
+$bracket = Get-Content "core\usecases\core\$UseCase\UseCase_Bracket.yaml" -Raw
+$relationships = Parse-RelationshipYAML $bracket
 
-# Step 2: Parse relationship definitions
-$relationships = Parse-RelationshipYAML $relSection
-
-# Step 3: Create via MCP
+# Step 2: Create via MCP
 foreach ($rel in $relationships) {
     mcp_powerbi-model_relationship_operations `
         -Operation "create" `
@@ -222,13 +219,11 @@ mcp_powerbi-model_table_operations -Operation "create" -TableDefinition {
 }
 ```
 
-### 3. Technical Factsheet → Relationships
+### 3. UseCase_Bracket.yaml → Relationships
 
 ```yaml
-# From: core/usecases/core/COM-001_Sales_Performance/Technical_Factsheet.md
-### 4.2 Relationships (Mandatory)
-- dim_date (1) -> fact_sales on DateKey
-- dim_org (1) -> fact_sales on OrgKey
+# From: core/usecases/core/COM-001_Sales_Performance/UseCase_Bracket.yaml
+# Relationships are derived from data contract references and KPI-to-measure mappings.
 
 # To: MCP Relationship Operation
 mcp_powerbi-model_relationship_operations -Operation "create" -RelationshipDefinition {

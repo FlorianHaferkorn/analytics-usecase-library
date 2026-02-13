@@ -262,29 +262,28 @@ Invoke-WithRetry "Create Dimension Tables" {
 
 # 3.2 Create Relationships
 Invoke-WithRetry "Auto-Configure Relationships" {
-    # Relationship Logic aus Technical Factsheet
-    $factsheet = Get-Content "usecases\core\$UseCase\Technical_Factsheet.md" -Raw
+    # Relationship Logic from UseCase_Bracket.yaml and data contracts
+    $bracketPath = "core\usecases\core\$UseCase\UseCase_Bracket.yaml"
     
-    # Parse relationship patterns
-    $relPattern = '(?ms)### 4\.2 Relationships.*?```yaml(.*?)```'
-    $relMatch = [regex]::Match($factsheet, $relPattern)
+    if (-not (Test-Path $bracketPath)) {
+        Write-Host "  WARNING: UseCase_Bracket.yaml not found for $UseCase" -ForegroundColor Yellow
+        return
+    }
     
-    if ($relMatch.Success) {
-        $relYaml = $relMatch.Groups[1].Value | ConvertFrom-Yaml
-        
-        # Für jede Relationship: MCP Operation
-        foreach ($rel in $relYaml.relationships) {
-            Write-Host "  Creating relationship: $($rel.from) -> $($rel.to)" -ForegroundColor Gray
-            
-            # TODO: Power BI MCP Relationship Operations
-            # mcp_powerbi-model_relationship_operations -Operation Create -RelationshipDefinition <from factsheet>
-        }
+    $bracketContent = Get-Content $bracketPath -Raw | ConvertFrom-Yaml
+    
+    # Derive relationships from data contract references in bracket
+    $dataContractRef = $bracketContent.overrides.data_contract_ref
+    if ($dataContractRef -and (Test-Path $dataContractRef)) {
+        $contract = Get-Content $dataContractRef -Raw | ConvertFrom-Yaml
+        # TODO: Power BI MCP Relationship Operations from contract
+        # mcp_powerbi-model_relationship_operations -Operation Create -RelationshipDefinition <from contract>
     }
 }
 
 # 3.3 Create Hierarchies
 Invoke-WithRetry "Create Hierarchies" {
-    # Hierarchy Logic aus Technical Factsheet
+    # Hierarchy Logic from UseCase_Bracket.yaml and data contracts
     # TODO: Power BI MCP User Hierarchy Operations
     # mcp_powerbi-model_user_hierarchy_operations
 }
@@ -467,19 +466,18 @@ if ($TableDefinition) {
 
 ```powershell
 # Auto-detect relationships from:
-# 1. Technical Factsheet (explicit)
+# 1. UseCase_Bracket.yaml + data contract references (explicit)
 # 2. Foreign Key naming conventions (implicit)
 # 3. Data Contract lineage (inferred)
 
-function Get-RelationshipsFromFactsheet {
-    param([string]$FactsheetPath)
+function Get-RelationshipsFromBracket {
+    param([string]$BracketPath)
     
-    $content = Get-Content $FactsheetPath -Raw
-    $relPattern = '(?ms)### 4\.2 Relationships.*?```(.*?)```'
-    $match = [regex]::Match($content, $relPattern)
+    $content = Get-Content $BracketPath -Raw | ConvertFrom-Yaml
+    $dataContractRef = $content.overrides.data_contract_ref
     
-    if ($match.Success) {
-        # Parse relationship definition
+    if ($dataContractRef -and (Test-Path $dataContractRef)) {
+        # Parse data contract for relationship definitions
         # Return array of relationship objects
     }
 }

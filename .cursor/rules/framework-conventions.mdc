@@ -13,7 +13,7 @@ alwaysApply: true
 
 ## Key Paths
 
-- **Use cases:** `usecases/core/`, `usecases/templates/` — Business_Factsheet.md, Technical_Factsheet.md per use case.
+- **Use cases:** `usecases/core/`, `usecases/templates/` — Business_Factsheet.md, UseCase_Bracket.yaml per use case.
 - **Framework:** `core/kpi_catalog/`, `core/action_codes/`, `core/templates/` — KPI catalog, action code YAML, page/measure/data-contract templates.
 - **Data contracts:** `data_contracts/domains/`, `data_contracts/sources/` — domain and source-level contracts.
 - **Semantic models:** `semantic_models/core_action_ready/`, `semantic_models/domains/` — model definition, measure dictionaries.

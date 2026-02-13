@@ -1,5 +1,5 @@
 # Pre-Generation DAX Validation Check
-# Purpose: Validate that all KPIs in use case Technical Factsheet have DAX expressions before measure generation
+# Purpose: Validate that all KPIs in UseCase_Bracket.yaml have DAX expressions before measure generation
 # Usage: .\check_dax_before_generation.ps1 -UseCaseId "COM-001" -UseCasesRoot "core/usecases" -KpiCatalogRoot "core/kpi_catalog"
 
 param(
@@ -122,17 +122,14 @@ function Parse-KpiRecord {
 }
 
 function Get-UseCaseKpis {
-	param([string]$TechnicalFactsheetPath)
-	if (-not (Test-Path $TechnicalFactsheetPath)) { return @() }
+	param([string]$BracketPath)
+	if (-not (Test-Path $BracketPath)) { return @() }
 	
-	$content = Get-Content -Path $TechnicalFactsheetPath -Raw
-	$mappingMatch = [regex]::Match($content, '(?ms)```yaml\s*kpi_to_measure_mapping:\s*\r?\n(.*?)```')
-	if (-not $mappingMatch.Success) { return @() }
-	
-	$mappingYaml = $mappingMatch.Groups[1].Value
+	# Read kpi_to_measure_mapping from UseCase_Bracket.yaml
+	$content = Get-Content -Path $BracketPath -Raw
 	$kpiIds = @()
 	
-	foreach ($match in [regex]::Matches($mappingYaml, '(?m)^\s*-\s*kpi_id\s*:\s*([^\s\r\n]+)')) {
+	foreach ($match in [regex]::Matches($content, '(?m)^\s*-?\s*kpi_id\s*:\s*([^\s\r\n#]+)')) {
 		$kpiId = $match.Groups[1].Value.Trim()
 		if ($kpiId -and $kpiIds -notcontains $kpiId) {
 			$kpiIds += $kpiId
@@ -157,9 +154,9 @@ if (-not $useCaseDir) {
 	exit 1
 }
 
-$technicalFactsheet = Join-Path -Path $useCaseDir.FullName -ChildPath "Technical_Factsheet.md"
-if (-not (Test-Path $technicalFactsheet)) {
-	Write-Error "Technical_Factsheet.md not found for use case $UseCaseId"
+$bracketFile = Join-Path -Path $useCaseDir.FullName -ChildPath "UseCase_Bracket.yaml"
+if (-not (Test-Path $bracketFile)) {
+	Write-Error "UseCase_Bracket.yaml not found for use case $UseCaseId"
 	exit 1
 }
 
@@ -182,11 +179,11 @@ foreach ($block in $yamlBlocks) {
 	}
 }
 
-# Get KPIs from use case
-$kpiIds = Get-UseCaseKpis -TechnicalFactsheetPath $technicalFactsheet
+# Get KPIs from use case bracket
+$kpiIds = Get-UseCaseKpis -BracketPath $bracketFile
 
 if ($kpiIds.Count -eq 0) {
-	Write-Warning "No KPIs found in Technical Factsheet for $UseCaseId"
+	Write-Warning "No KPIs found in UseCase_Bracket.yaml for $UseCaseId"
 	exit 0
 }
 

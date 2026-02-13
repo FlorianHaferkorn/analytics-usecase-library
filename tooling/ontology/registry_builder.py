@@ -443,35 +443,54 @@ def scan_usecase_factsheets(repo_root: Path) -> Tuple[Dict[str, Dict[str, Any]],
         if not uc_id:
             issues.append(Issue("WARN", "factsheet.missing_id", "Frontmatter missing 'id'.", SourceLocation(rel, 1)))
             continue
-        rec = out.setdefault(uc_id, {"id": uc_id, "business": None, "technical": None})
+        rec = out.setdefault(uc_id, {"id": uc_id, "business": None})
         if p.name == "Business_Factsheet.md":
             rec["business"] = rel
-        elif p.name == "Technical_Factsheet.md":
-            rec["technical"] = rel
     return out, issues
 
 
 def normalize_action_governance(action_raw: Dict[str, Any]) -> Tuple[Dict[str, Optional[str]], List[str]]:
     """
     Returns normalized governance dict and warnings.
+    Lean 2.0: owner_role / steward_role are top-level fields.
+    Legacy fallback: operational_execution.primary_owner_role, governance.steward_role.
     """
     warnings: List[str] = []
-    operational = action_raw.get("operational_execution") if isinstance(action_raw, dict) else None
+    if not isinstance(action_raw, dict):
+        return {"owner_role": None, "steward_role": None}, ["Action raw data is not a dict."]
+
+    # --- owner_role ---
     owner_role = None
-    if isinstance(operational, dict):
-        por = operational.get("primary_owner_role")
-        if isinstance(por, str) and por.strip():
-            owner_role = por.strip()
-    gov = action_raw.get("governance") if isinstance(action_raw, dict) else None
-    steward_role = None
-    if isinstance(gov, dict):
-        sr = gov.get("steward_role")
-        if isinstance(sr, str) and sr.strip():
-            steward_role = sr.strip()
-    if not steward_role:
-        warnings.append("Missing governance.steward_role (required by ontology); add during migration.")
+    # Lean 2.0: top-level
+    top_or = action_raw.get("owner_role")
+    if isinstance(top_or, str) and top_or.strip():
+        owner_role = top_or.strip()
+    # Legacy fallback: operational_execution.primary_owner_role
     if not owner_role:
-        warnings.append("Missing operational_execution.primary_owner_role (owner_role).")
+        operational = action_raw.get("operational_execution")
+        if isinstance(operational, dict):
+            por = operational.get("primary_owner_role")
+            if isinstance(por, str) and por.strip():
+                owner_role = por.strip()
+
+    # --- steward_role ---
+    steward_role = None
+    # Lean 2.0: top-level
+    top_sr = action_raw.get("steward_role")
+    if isinstance(top_sr, str) and top_sr.strip():
+        steward_role = top_sr.strip()
+    # Legacy fallback: governance.steward_role
+    if not steward_role:
+        gov = action_raw.get("governance")
+        if isinstance(gov, dict):
+            sr = gov.get("steward_role")
+            if isinstance(sr, str) and sr.strip():
+                steward_role = sr.strip()
+
+    if not owner_role:
+        warnings.append("Missing owner_role (top-level or operational_execution.primary_owner_role).")
+    if not steward_role:
+        warnings.append("Missing steward_role (top-level or governance.steward_role).")
     return {"owner_role": owner_role, "steward_role": steward_role}, warnings
 
 
@@ -562,34 +581,34 @@ def build_linked_sets_from_brackets(brackets: Dict[str, Dict[str, Any]]) -> Tupl
         if not is_active:
             continue
         uc_ids_active.add(uc_id)
-        ob = raw.get("ontology_bracket") if isinstance(raw, dict) else None
-        if not isinstance(ob, dict):
-            issues.append(Issue("ERROR", "usecase_bracket.missing_ontology_bracket", "Missing ontology_bracket block.", SourceLocation(src, 1)))
+        orch = raw.get("orchestration") or raw.get("ontology_bracket") if isinstance(raw, dict) else None
+        if not isinstance(orch, dict):
+            issues.append(Issue("ERROR", "usecase_bracket.missing_orchestration", "Missing orchestration block.", SourceLocation(src, 1)))
             continue
-        sk = ob.get("strategic_kpi_id")
+        sk = orch.get("strategic_kpi_id")
         if isinstance(sk, str) and sk.strip():
             kpi_ids.add(sk.strip())
         else:
-            issues.append(Issue("ERROR", "usecase_bracket.missing_strategic_kpi_id", "Missing ontology_bracket.strategic_kpi_id.", SourceLocation(src, 1)))
-        infl = ob.get("influencing_kpi_ids")
+            issues.append(Issue("ERROR", "usecase_bracket.missing_strategic_kpi_id", "Missing orchestration.strategic_kpi_id.", SourceLocation(src, 1)))
+        infl = orch.get("influencing_kpi_ids")
         if infl is None:
             infl_list: List[str] = []
         elif isinstance(infl, list):
             infl_list = [x for x in infl if isinstance(x, str)]
         else:
             infl_list = []
-            issues.append(Issue("ERROR", "usecase_bracket.invalid_influencing_kpi_ids", "ontology_bracket.influencing_kpi_ids must be a list.", SourceLocation(src, 1)))
+            issues.append(Issue("ERROR", "usecase_bracket.invalid_influencing_kpi_ids", "orchestration.influencing_kpi_ids must be a list.", SourceLocation(src, 1)))
         for k in infl_list:
             if k.strip():
                 kpi_ids.add(k.strip())
-        acts = ob.get("action_code_ids")
+        acts = orch.get("action_code_ids")
         if acts is None:
             act_list: List[str] = []
         elif isinstance(acts, list):
             act_list = [x for x in acts if isinstance(x, str)]
         else:
             act_list = []
-            issues.append(Issue("ERROR", "usecase_bracket.invalid_action_code_ids", "ontology_bracket.action_code_ids must be a list.", SourceLocation(src, 1)))
+            issues.append(Issue("ERROR", "usecase_bracket.invalid_action_code_ids", "orchestration.action_code_ids must be a list.", SourceLocation(src, 1)))
         for a in act_list:
             if a.strip():
                 action_ids.add(a.strip())
@@ -675,7 +694,10 @@ def _normalize_contract_ref(s: str) -> str:
 
 def _extract_domain_contract_from_technical_factsheet(text: str) -> Optional[str]:
     """
-    Extract the 'Domain Data Contract' reference path from a Technical_Factsheet.md body.
+    LEGACY: Extract the 'Domain Data Contract' reference path from a Technical_Factsheet.md body.
+    Technical_Factsheet.md was removed in Lean 2.0; data contract refs now live in
+    UseCase_Bracket.yaml overrides.data_contract_ref. This function is unused but retained
+    for backward compatibility during migration.
     """
     # Example: - **Domain Data Contract:** core/core/core/data_contracts/domains/commercial_sales.yaml
     m = re.search(r"(?m)^\s*-\s*\*\*Domain Data Contract:\*\*\s*(.+?)\s*$", text)
@@ -722,28 +744,45 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if isinstance(raw, dict):
             linked_kpis.update(_extract_kpis_from_action(raw))
 
-    # UseCase -> Data contract mapping (from Technical factsheet references)
-    # This is needed for Trust-Score propagation.
+    # UseCase -> Data contract mapping (from bracket overrides.data_contract_ref)
     usecase_domain_contract: Dict[str, str] = {}
     for uc_id in brackets.keys():
-        # Resolve technical factsheet path (documentation pointer default: ./Technical_Factsheet.md)
-        uc_src = brackets[uc_id].get("source", "")
-        uc_dir = (repo_root / uc_src).parent if uc_src else (repo_root / "core" / "usecases")
-        tech_path = uc_dir / "Technical_Factsheet.md"
-        if tech_path.exists():
-            try:
-                dom_contract = _extract_domain_contract_from_technical_factsheet(_read_text(tech_path))
-                if dom_contract:
-                    usecase_domain_contract[uc_id] = dom_contract
-            except Exception as e:
-                issues.append(
-                    Issue(
-                        "WARN",
-                        "usecase.domain_contract.parse_failed",
-                        f"Failed to parse Domain Data Contract from Technical_Factsheet.md: {e}",
-                        SourceLocation(_to_repo_rel(repo_root, tech_path), 1),
-                    )
-                )
+        raw = brackets[uc_id].get("raw", {})
+        overrides = raw.get("overrides", {}) if isinstance(raw, dict) else {}
+        if isinstance(overrides, dict):
+            dcr = overrides.get("data_contract_ref")
+            if isinstance(dcr, str) and dcr.strip():
+                usecase_domain_contract[uc_id] = _normalize_contract_ref(dcr.strip())
+
+    # Org-Registry role validation
+    org_roles_path = repo_root / "core" / "organization" / "org_roles.yaml"
+    valid_role_ids: Set[str] = set()
+    if org_roles_path.exists():
+        try:
+            org_data = parse_yaml_file(org_roles_path)
+            if isinstance(org_data, dict):
+                for role in (org_data.get("roles") or []):
+                    if isinstance(role, dict) and isinstance(role.get("id"), str):
+                        valid_role_ids.add(role["id"])
+        except Exception as e:
+            issues.append(Issue("WARN", "org_registry.parse_failed", f"Failed to parse org_roles.yaml: {e}",
+                                SourceLocation("core/organization/org_roles.yaml", 1)))
+    else:
+        issues.append(Issue("WARN", "org_registry.not_found", "core/organization/org_roles.yaml not found; role validation skipped.",
+                            SourceLocation("core/organization/org_roles.yaml", 1)))
+
+    if valid_role_ids:
+        for uc_id, rec in brackets.items():
+            raw = rec.get("raw", {})
+            src = rec.get("source", "")
+            gov = raw.get("governance", {}) if isinstance(raw, dict) else {}
+            if isinstance(gov, dict):
+                for role_field in ("owner_role", "steward_role"):
+                    role_val = gov.get(role_field)
+                    if isinstance(role_val, str) and role_val.strip() and role_val.strip() not in valid_role_ids:
+                        issues.append(Issue("ERROR", "org_registry.invalid_role",
+                                            f"UseCase '{uc_id}' governance.{role_field} '{role_val}' not found in org_roles.yaml.",
+                                            SourceLocation(src, 1)))
 
     # Referential integrity: bracket references must exist (hard errors with line mapping)
     for uc_id in sorted(uc_ids_active):
@@ -752,7 +791,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             continue
         src = rec.get("source", "")
         raw = rec.get("raw", {})
-        ob = raw.get("ontology_bracket", {}) if isinstance(raw, dict) else {}
+        ob = (raw.get("orchestration") or raw.get("ontology_bracket", {})) if isinstance(raw, dict) else {}
         if isinstance(ob, dict):
             # strategic
             sk = ob.get("strategic_kpi_id")
@@ -844,7 +883,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if not rec:
             continue
         raw = rec.get("raw", {})
-        ob = raw.get("ontology_bracket", {}) if isinstance(raw, dict) else {}
+        ob = (raw.get("orchestration") or raw.get("ontology_bracket", {})) if isinstance(raw, dict) else {}
         vdm = raw.get("value_driver_model", {}) if isinstance(raw, dict) else {}
         if not isinstance(ob, dict) or not isinstance(vdm, dict):
             continue
@@ -886,7 +925,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if not rec:
             continue
         raw = rec.get("raw", {})
-        ob = raw.get("ontology_bracket", {}) if isinstance(raw, dict) else {}
+        ob = (raw.get("orchestration") or raw.get("ontology_bracket", {})) if isinstance(raw, dict) else {}
         if not isinstance(ob, dict):
             continue
         sk = ob.get("strategic_kpi_id")
@@ -917,7 +956,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if not rec:
             continue
         raw = rec.get("raw", {})
-        ob = raw.get("ontology_bracket", {}) if isinstance(raw, dict) else {}
+        ob = (raw.get("orchestration") or raw.get("ontology_bracket", {})) if isinstance(raw, dict) else {}
         if not isinstance(ob, dict):
             continue
         bracket_kpis: Set[str] = set()
@@ -983,7 +1022,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 {
                     "type": "use_case",
                     "id": uc_id,
-                    "source": frec.get("business") or frec.get("technical"),
+                    "source": frec.get("business"),
                     "reason": "Factsheets exist but no UseCase_Bracket.yaml found (migration pending).",
                 }
             )
@@ -1004,7 +1043,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             if not contract:
                 continue
             raw = brackets[uc_id].get("raw", {})
-            ob = raw.get("ontology_bracket", {}) if isinstance(raw, dict) else {}
+            ob = (raw.get("orchestration") or raw.get("ontology_bracket", {})) if isinstance(raw, dict) else {}
             if not isinstance(ob, dict):
                 continue
             kset: Set[str] = set()
@@ -1095,14 +1134,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         raw = brec.get("raw", {})
         src = brec.get("source", "")
         gov = raw.get("governance", {}) if isinstance(raw, dict) else {}
-        ob = raw.get("ontology_bracket", {}) if isinstance(raw, dict) else {}
+        ob = (raw.get("orchestration") or raw.get("ontology_bracket", {})) if isinstance(raw, dict) else {}
         docs = raw.get("documentation", {}) if isinstance(raw, dict) else {}
         registry_usecases[uc_id] = {
             "id": uc_id,
-            "name": raw.get("name"),
+            "title": raw.get("title") or raw.get("name"),
             "domain": raw.get("domain"),
             "governance": gov,
-            "ontology_bracket": ob,
+            "orchestration": ob,
             "value_driver_model": raw.get("value_driver_model"),
             "ux_layout_rules": raw.get("ux_layout_rules"),
             "documentation": docs,
@@ -1122,7 +1161,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         urec = brackets.get(uc_id, {})
         raw = urec.get("raw", {})
         src = urec.get("source", "")
-        ob = raw.get("ontology_bracket", {}) if isinstance(raw, dict) else {}
+        ob = (raw.get("orchestration") or raw.get("ontology_bracket", {})) if isinstance(raw, dict) else {}
         if not isinstance(ob, dict):
             continue
         sk = ob.get("strategic_kpi_id")
@@ -1147,14 +1186,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     # KPI -> domain contract edges (derived)
     for contract, ks in contract_to_kpis.items():
         for kpi_id in ks:
-            edges.append({"type": "kpi_supported_by_domain_contract", "from": kpi_id, "to": contract, "evidence": {"derived_from": "usecase_bracket+technical_factsheet"}})
+            edges.append({"type": "kpi_supported_by_domain_contract", "from": kpi_id, "to": contract, "evidence": {"derived_from": "usecase_bracket.overrides.data_contract_ref"}})
 
     # DisplayFolder conflict rule computation (strategic precedence across UCs)
     # Determine global strategic set: any KPI used as strategic in any active bracket.
     strategic_global: Set[str] = set()
     for uc_id in uc_ids_active:
         raw = brackets[uc_id]["raw"]
-        ob = raw.get("ontology_bracket", {}) if isinstance(raw, dict) else {}
+        ob = (raw.get("orchestration") or raw.get("ontology_bracket", {})) if isinstance(raw, dict) else {}
         if isinstance(ob, dict):
             sk = ob.get("strategic_kpi_id")
             if isinstance(sk, str) and sk.strip():
@@ -1233,7 +1272,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     for uc_id in sorted(uc_ids_active):
         urec = brackets.get(uc_id, {})
         raw = urec.get("raw", {})
-        ob = raw.get("ontology_bracket", {}) if isinstance(raw, dict) else {}
+        ob = (raw.get("orchestration") or raw.get("ontology_bracket", {})) if isinstance(raw, dict) else {}
         if not isinstance(ob, dict):
             continue
         sk = ob.get("strategic_kpi_id")
@@ -1252,7 +1291,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             for uc_id in sorted(kpi_to_usecases.get(kpi_id, set())):
                 urec = brackets.get(uc_id, {})
                 raw = urec.get("raw", {})
-                ob = raw.get("ontology_bracket", {}) if isinstance(raw, dict) else {}
+                ob = (raw.get("orchestration") or raw.get("ontology_bracket", {})) if isinstance(raw, dict) else {}
                 sk = ob.get("strategic_kpi_id") if isinstance(ob, dict) else None
                 acts = ob.get("action_code_ids") if isinstance(ob, dict) else None
                 action_ids = [a for a in acts if isinstance(a, str) and a.strip()] if isinstance(acts, list) else []
@@ -1359,6 +1398,35 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     _write_json(master_path, master_registry)
     _write_json(orphans_path, orphans_report)
     _write_json(value_map_path, value_map)
+
+    # Generate UseCase_Inventory.md
+    inventory_path = repo_root / "core" / "usecases" / "UseCase_Inventory.md"
+    inventory_lines: List[str] = [
+        "<!-- GENERATED FILE - DO NOT EDIT MANUALLY -->",
+        "<!-- Source: tooling/ontology/registry_builder.py -->",
+        f"<!-- Generated: {_utc_now_iso()} -->",
+        "",
+        "# Use Case Inventory",
+        "",
+        "| ID | Title | Domain | Strategic KPI | Influencing KPIs | Action Codes | Owner Role | Steward Role |",
+        "|----|-------|--------|---------------|------------------|--------------|------------|--------------|",
+    ]
+    for uc_id in sorted(registry_usecases.keys()):
+        urec = registry_usecases[uc_id]
+        title = urec.get("title") or uc_id
+        domain = urec.get("domain") or ""
+        orch = urec.get("orchestration") or {}
+        sk = orch.get("strategic_kpi_id", "") if isinstance(orch, dict) else ""
+        infl = orch.get("influencing_kpi_ids", []) if isinstance(orch, dict) else []
+        acts = orch.get("action_code_ids", []) if isinstance(orch, dict) else []
+        gov = urec.get("governance") or {}
+        owner = gov.get("owner_role", "") if isinstance(gov, dict) else ""
+        steward = gov.get("steward_role", "") if isinstance(gov, dict) else ""
+        infl_str = ", ".join(infl) if isinstance(infl, list) else ""
+        acts_str = ", ".join(acts) if isinstance(acts, list) else ""
+        inventory_lines.append(f"| {uc_id} | {title} | {domain} | {sk} | {infl_str} | {acts_str} | {owner} | {steward} |")
+    inventory_lines.append("")
+    inventory_path.write_text("\n".join(inventory_lines), encoding="utf-8")
 
     # Determine exit code
     has_errors = any(iss.severity == "ERROR" for iss in issues)

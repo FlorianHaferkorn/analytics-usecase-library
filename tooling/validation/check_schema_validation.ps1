@@ -42,13 +42,16 @@ if (-not (Test-Path (Join-Path $toolDir "node_modules\\ajv")) -or -not (Test-Pat
 $validationSchemaDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\schemas"
 $aiSchemaDir = Join-Path -Path $rootPath -ChildPath "tooling\ai\schemas"
 $actionCodeSchema = Join-Path -Path $validationSchemaDir -ChildPath "action_code.schema.json"
+$bracketSchema = Join-Path -Path $validationSchemaDir -ChildPath "usecase_bracket.schema.json"
+$orgRolesSchema = Join-Path -Path $validationSchemaDir -ChildPath "org_roles.schema.json"
 $triggerMapTemplateSchema = Join-Path -Path $aiSchemaDir -ChildPath "trigger_map_template.schema.json"
 $triggerMapDeploySchema = Join-Path -Path $aiSchemaDir -ChildPath "trigger_map_deploy.schema.json"
-$useCaseMapSchema = Join-Path -Path $aiSchemaDir -ChildPath "usecase_actioncode_map.schema.json"
 
 $actionCodeFiles = Get-ChildItem -Path (Join-Path $rootPath "core\action_codes") -Recurse -Filter "*.yaml" | Where-Object {
   $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\internal\\archive\\'
 }
+$bracketFiles = Get-ChildItem -Path (Join-Path $rootPath "core\usecases\core") -Recurse -Filter "UseCase_Bracket.yaml" -ErrorAction SilentlyContinue
+$orgRolesFile = Join-Path -Path $rootPath -ChildPath "core\organization\org_roles.yaml"
 $triggerMapTemplateFiles = @()
 $triggerTemplate = Join-Path -Path $rootPath -ChildPath "core\templates\action_codes\ActionCode_KPI_Trigger_Map_Template.yaml"
 if (Test-Path $triggerTemplate) { $triggerMapTemplateFiles += Get-Item $triggerTemplate }
@@ -57,7 +60,6 @@ $deployRoot = Join-Path -Path $rootPath -ChildPath "deployments"
 if (Test-Path $deployRoot) {
   $triggerMapDeployFiles += Get-ChildItem -Path $deployRoot -Recurse -Filter "*trigger_map*.yaml"
 }
-$useCaseMap = Join-Path -Path $rootPath -ChildPath "core\usecases\UseCase_ActionCode_Map.yaml"
 
 $hadIssues = $false
 
@@ -74,11 +76,14 @@ function Invoke-Validation {
 Write-Host "Schema validation" -ForegroundColor Cyan
 
 Invoke-Validation -Schema $actionCodeSchema -Targets ($actionCodeFiles | Select-Object -ExpandProperty FullName)
+if ($bracketFiles -and $bracketFiles.Count -gt 0) {
+  Invoke-Validation -Schema $bracketSchema -Targets ($bracketFiles | Select-Object -ExpandProperty FullName)
+}
+if (Test-Path $orgRolesFile) {
+  Invoke-Validation -Schema $orgRolesSchema -Targets @($orgRolesFile)
+}
 Invoke-Validation -Schema $triggerMapTemplateSchema -Targets ($triggerMapTemplateFiles | Select-Object -ExpandProperty FullName)
 Invoke-Validation -Schema $triggerMapDeploySchema -Targets ($triggerMapDeployFiles | Select-Object -ExpandProperty FullName)
-if (Test-Path $useCaseMap) {
-  Invoke-Validation -Schema $useCaseMapSchema -Targets @($useCaseMap)
-}
 
 if ($hadIssues) {
   if ($FailOnError) { exit 1 }

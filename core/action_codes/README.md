@@ -1,4 +1,4 @@
-﻿# Action Codes
+# Action Codes
 
 ## Purpose
 
@@ -138,28 +138,21 @@ Rules:
 
 ## Binding Action Codes to Use Cases
 
-The **only allowed coupling** between Use Cases and Action Codes is via:
+The **only allowed coupling** between Use Cases and Action Codes is via each use case's `UseCase_Bracket.yaml`:
 
 ```yaml
-usecases/UseCase_ActionCode_Map.yaml
-```
-
-Example:
-
-```yaml
-use_cases:
-  XD-003:
-    action_codes:
-      - X-E3.1
-      - X-E3.2
-      - X-E3.3
+orchestration:
+  action_code_ids:
+    - X-E3.1
+    - X-E3.2
+    - X-E3.3
 ```
 
 Rules:
 
 * No Action Code may exist outside `core/action_codes/`
 * No Action Code may be duplicated per Use Case
-* All mappings must be explicit and auditable
+* All subscriptions must be explicit and auditable in `UseCase_Bracket.yaml`
 
 ## Reuse & Scalability Guarantee
 
@@ -192,7 +185,7 @@ An Action Code is considered **valid** only if:
 
 * It is stored in the correct domain or Enterprise folder
 * It follows the canonical ActionCode template
-* It is referenced by at least one `actioncodes_map.yaml`
+* It is referenced by at least one `UseCase_Bracket.yaml` (`orchestration.action_code_ids`)
 * Ownership, trigger logic, guardrails, and outcomes are explicit
 
 ## Key Takeaway

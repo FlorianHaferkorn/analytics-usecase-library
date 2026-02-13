@@ -54,24 +54,24 @@ if (-not $useCasesRoot) { throw "UseCases root not found. Provide -UseCasesRoot 
 
 Write-Host "DAX definitions vs Measure Dictionaries" -ForegroundColor Cyan
 
+# Note: Technical_Factsheet.md has been removed in Lean 2.0 migration.
+# DAX definitions and measure dictionaries are now validated via UseCase_Bracket.yaml
+# and the KPI catalog. This script scans UseCase_Bracket.yaml for measure_dictionary_ref
+# paths and validates DAX measures from the KPI catalog against those dictionaries.
+
 $missingByFile = @()
-Get-ChildItem -Path $useCasesRoot -Recurse -Filter "Technical_Factsheet.md" | Where-Object {
+Get-ChildItem -Path $useCasesRoot -Recurse -Filter "UseCase_Bracket.yaml" | Where-Object {
   $_.FullName -notmatch '\\_internal\\archive\\'
 } | ForEach-Object {
   $file = $_.FullName
-  $daxNames = Get-DaxMeasureNames -Path $file
-  if ($daxNames.Count -eq 0) { return }
+  $content = Get-Content -Path $file -Raw
 
+  # Extract measure_dictionary_ref paths from bracket YAML
   $dictPaths = @()
-  Get-Content -Path $file | ForEach-Object {
-    if ($_ -match '^\s*-\s*\*\*Measure Dictionary:\*\*\s*(.+?)\s*$') {
-      $dictPaths += ($matches[1] -split ',') | ForEach-Object { $_.Trim() } | Where-Object { $_ }
-    }
+  foreach ($match in [regex]::Matches($content, '(?m)^\s*measure_dictionary_ref\s*:\s*(.+?)\s*$')) {
+    $dictPaths += ($match.Groups[1].Value -replace '["\x27]', '').Trim()
   }
-  if ($dictPaths.Count -eq 0) {
-    $missingByFile += [PSCustomObject]@{ file = $file; missing = @("<Measure Dictionary path not found>") }
-    return
-  }
+  if ($dictPaths.Count -eq 0) { return }
 
   $dictNames = [System.Collections.Generic.HashSet[string]]::new()
   foreach ($dictPath in $dictPaths) {
@@ -84,7 +84,13 @@ Get-ChildItem -Path $useCasesRoot -Recurse -Filter "Technical_Factsheet.md" | Wh
     foreach ($name in $names) { $null = $dictNames.Add($name) }
   }
 
-  $missing = $daxNames | Where-Object { -not $dictNames.Contains($_) } | Sort-Object
+  # Extract kpi_to_measure_mapping measure_names from bracket
+  $bracketMeasures = @()
+  foreach ($match in [regex]::Matches($content, '(?m)^\s*measure_name\s*:\s*"?([^"\r\n]+)"?\s*$')) {
+    $bracketMeasures += $match.Groups[1].Value.Trim()
+  }
+
+  $missing = $bracketMeasures | Where-Object { $_ -and -not $dictNames.Contains($_) } | Sort-Object
   if ($missing.Count -gt 0) {
     $missingByFile += [PSCustomObject]@{ file = $file; missing = $missing }
   }

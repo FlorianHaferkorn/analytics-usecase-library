@@ -34,9 +34,9 @@ Not included:
 ```yaml
 core/usecases/
   UseCase_Inventory.md      - Master list of all use cases
-  templates/                - Business & technical factsheet templates
+  templates/                - Business factsheet template and UseCase_Bracket template
     usecase_factsheet_business.md
-    usecase_factsheet_technical.md
+    UseCase_Bracket_TEMPLATE.yaml
   core/                     - Core use cases (universal)
   extended/                 - Advanced / extended use cases
   industry/                 - Industry-specific scenarios
@@ -46,14 +46,14 @@ core/usecases/
 
 The single source of truth for all use cases in the framework.  
 Contains IDs, domains, KPIs, and status.  
-Use Case ↔ Action Code assignments are canonical only in `core/usecases/UseCase_ActionCode_Map.yaml`.
+Use Case → Action Code subscriptions are declared in each use case's `UseCase_Bracket.yaml` (`orchestration.action_code_ids`).
 
 ### templates/
 
 Reusable templates for consistent documentation:
 
 - Business Factsheet  
-- Technical Factsheet  
+- UseCase_Bracket.yaml (technical configuration)  
 These ensure every use case meets the same standard.
 
 ### core/
@@ -102,7 +102,7 @@ Tailored use cases for specific verticals (Retail, Manufacturing, CPG, Logistics
   - Domain (from Company Layer)  
   - Data Contract  
   - Semantic Model  
-  - Action Codes (assignment via `usecases/UseCase_ActionCode_Map.yaml`)  
+  - Action Codes (subscriptions via `UseCase_Bracket.yaml` `orchestration.action_code_ids`)  
   - Page Template (3-30-300)  
 - Maintain UseCase_Inventory.md as the controlled governance artifact.
 

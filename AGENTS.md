@@ -4,11 +4,11 @@ Use these instructions when editing this repository. Project rules in `.cursor/r
 
 ## Use cases
 
-- Preserve YAML frontmatter (`id`, `factsheet_type`) and required sections on Business and Technical factsheets.
+- Preserve YAML frontmatter (`id`, `factsheet_type`) and required sections on Business Factsheets; preserve UseCase_Bracket.yaml structure per schema.
 - Only reference KPIs that exist in `core/kpi_catalog/`; do not redefine KPI meaning, targets, or lineage in factsheets.
-- Keep `required_kpis` (Business) and `kpi_to_measure_mapping` (Technical) consistent with the KPI catalog and with each other.
+- Keep `required_kpis` (Business Factsheet) and `kpi_to_measure_mapping` (UseCase_Bracket.yaml) consistent with the KPI catalog and with each other.
 - Keep `layout_330300` (Business) aligned with `tooling/ai/schemas/layout_330300.schema.json` and page templates in `core/templates/page_templates/`.
-- When adding or changing action code references, update `core/usecases/UseCase_ActionCode_Map.yaml` so it stays consistent with `core/action_codes/`.
+- When adding or changing action code references, update the `orchestration.action_code_ids` list in each use case's `UseCase_Bracket.yaml` so it stays consistent with `core/action_codes/`.
 
 ## Framework (KPI catalog, action codes, templates)
 

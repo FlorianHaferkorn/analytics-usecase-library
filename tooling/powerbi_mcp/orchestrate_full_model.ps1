@@ -275,32 +275,32 @@ Invoke-WithRetry "Create Tables from Contracts" {
     Write-Host "  Tables created: $createdTables/$($requiredTables.Count)" -ForegroundColor Green
 }
 
-# 3.3 Create Relationships from Technical Factsheet
+# 3.3 Create Relationships from UseCase_Bracket.yaml
 Invoke-WithRetry "Create Relationships" {
-    $techFactsheet = Get-ChildItem "core\usecases\core" -Directory | 
+    $useCaseDir = Get-ChildItem "core\usecases\core" -Directory | 
         Where-Object { $_.Name -like "$scopeName*" } | 
         Select-Object -First 1
     
-    if (-not $techFactsheet) {
-        Write-Host "  WARNING: Technical Factsheet not found for $scopeName" -ForegroundColor Yellow
+    if (-not $useCaseDir) {
+        Write-Host "  WARNING: Use case directory not found for $scopeName" -ForegroundColor Yellow
         return
     }
     
-    $techFactsheetPath = "$($techFactsheet.FullName)\Technical_Factsheet.md"
+    $bracketPath = "$($useCaseDir.FullName)\UseCase_Bracket.yaml"
     
-    if (-not (Test-Path $techFactsheetPath)) {
-        Write-Host "  WARNING: Technical Factsheet missing: $techFactsheetPath" -ForegroundColor Yellow
+    if (-not (Test-Path $bracketPath)) {
+        Write-Host "  WARNING: UseCase_Bracket.yaml missing: $bracketPath" -ForegroundColor Yellow
         return
     }
     
     try {
         & ./tooling/powerbi_mcp/relationship_ops.ps1 `
-            -Operation "CreateFromFactsheet" `
+            -Operation "CreateFromBracket" `
             -ConnectionName "local_pbip" `
-            -FactsheetPath $techFactsheetPath `
+            -FactsheetPath $bracketPath `
             -ErrorAction Stop | Out-Null
         
-        Write-Host "  Relationships created from factsheet" -ForegroundColor Green
+        Write-Host "  Relationships created from UseCase_Bracket.yaml" -ForegroundColor Green
     } catch {
         Write-Host "  WARNING: Could not create relationships: $_" -ForegroundColor Yellow
     }

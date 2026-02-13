@@ -1,13 +1,11 @@
 schema_version: '2.0'
 id: SCM-003
-name: Forecast vs Actual
+title: Forecast vs Actual
 domain: Supply Chain / Planning
 governance:
-  owner_role: Planning Excellence / Controlling
-  steward_role: Planning / S&OP BI Lead
-  status: active
-  last_review: '2026-02-12'
-ontology_bracket:
+  owner_role: planning_excellence_controlling
+  steward_role: planning_s_op_bi_lead
+orchestration:
   strategic_kpi_id: plan.forecast.accuracy.pct
   influencing_kpi_ids:
   - plan.forecast.mape.pct
@@ -23,23 +21,35 @@ ontology_bracket:
   - S-F3.3
   - S-F3.4
 value_driver_model:
-  description: plan.forecast.accuracy.pct is driven by influencing KPIs and operational
-    levers.
-  formula: plan.forecast.accuracy.pct = f(plan.forecast.mape.pct, plan.forecast.bias.pct,
-    plan.forecast.service_impact.pct, plan.replan.count, order.lines, plans.count,
-    sales.units)
+  formula: plan.forecast.accuracy.pct = f(plan.forecast.mape.pct, plan.forecast.bias.pct, plan.forecast.service_impact.pct,
+    plan.replan.count, order.lines, plans.count, sales.units)
+  impact_direction: maximize
+  primary_driver: plan.forecast.mape.pct
+  impact_logic: Improving plan.forecast.mape.pct is the primary lever for maximizing plan.forecast.accuracy.pct.
 ux_layout_rules:
   report_structure: 2-Page-Lead
-  page_1_summary_insights:
+  page_1_summary:
     title: Supply Chain / Planning Summary & Insights
-    3s_component: 'North Star: plan.forecast.accuracy.pct'
-    30s_components: []
+    component_3s:
+      kpi_id: plan.forecast.accuracy.pct
+      visual_type: kpi_card
+    component_30s:
+    - kpi_id: plan.forecast.mape.pct
+      visual_type: trend_line
+    - kpi_ids:
+      - plan.forecast.bias.pct
+      - plan.forecast.service_impact.pct
+      - plan.replan.count
+      visual_type: bar_chart
   page_2_execution:
     title: Supply Chain / Planning Execution
-    300s_components:
-    - 'Evidence_Table: (define evidence table requirements)'
-    - 'Action_Panel: Integrated Side-Panel for Subscribed Action Codes'
-    - 'Payload_Injection: Show Level (L1-L3) and Steps from Action Code YAML'
+    component_300s:
+      evidence_grain: transaction_line
+      evidence_columns:
+      - entity
+      - period
+      - plan.forecast.accuracy.pct
+      action_panel: true
+      payload_mode: full
 documentation:
   business_factsheet: ./Business_Factsheet.md
-  technical_factsheet: ./Technical_Factsheet.md

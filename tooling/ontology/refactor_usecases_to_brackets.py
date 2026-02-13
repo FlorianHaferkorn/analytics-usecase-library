@@ -2,7 +2,11 @@
 Refactor Use Cases: Factsheets -> UseCase_Bracket.yaml
 ======================================================
 
-Goal (Stage 1 entkernung):
+LEGACY MIGRATION SCRIPT — Lean 2.0 cutover is complete.
+Technical_Factsheet.md has been deleted; all machine-readable config now lives
+in UseCase_Bracket.yaml. This script is retained for reference only.
+
+Original goal (Stage 1 entkernung):
 - Extract machine-readable YAML blocks from Business/Technical factsheets.
 - Create `UseCase_Bracket.yaml` per use case folder (schema_version 2.0).
 - Remove the extracted fenced YAML blocks from Markdown and replace with a short reference.
@@ -251,7 +255,7 @@ def build_bracket_yaml(
         },
         "documentation": {
             "business_factsheet": business_factsheet_rel,
-            "technical_factsheet": technical_factsheet_rel,
+            # technical_factsheet removed in Lean 2.0; technical config lives in this bracket file
         },
     }
 

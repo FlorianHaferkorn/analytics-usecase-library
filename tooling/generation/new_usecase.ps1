@@ -74,7 +74,7 @@ if (-not (Test-Path $legacyTemplatePath)) {
 }
 
 $businessTemplatePath = Join-Path $repoRoot "core/usecases/templates/usecase_factsheet_business.md"
-$technicalTemplatePath = Join-Path $repoRoot "core/usecases/templates/usecase_factsheet_technical.md"
+$bracketTemplatePath = Join-Path $repoRoot "core/usecases/templates/UseCase_Bracket_TEMPLATE.yaml"
 
 New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
 
@@ -97,16 +97,17 @@ $businessContent = @(
   $businessBody
 ) -join [Environment]::NewLine
 
-$technicalBody = Read-TemplateRaw -Path $technicalTemplatePath
-if (-not $technicalBody) {
-  $technicalBody = "# $Id - Technical Factsheet`n`nTODO: Fill out the technical template."
+$bracketBody = Read-TemplateRaw -Path $bracketTemplatePath
+if (-not $bracketBody) {
+  $bracketBody = "schema_version: `"2.0`"`nid: `"$Id`"`ntitle: `"$Title`"`n"
 } else {
-  $technicalBody = $technicalBody -replace '<UC-ID>', $Id
+  $bracketBody = $bracketBody -replace '\[PREFIX-000\]', $Id
+  $bracketBody = $bracketBody -replace '\[Title\]', $Title
 }
 
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText((Join-Path $targetDir "Business_Factsheet.md"), $businessContent, $utf8)
-[System.IO.File]::WriteAllText((Join-Path $targetDir "Technical_Factsheet.md"), $technicalBody, $utf8)
+[System.IO.File]::WriteAllText((Join-Path $targetDir "UseCase_Bracket.yaml"), $bracketBody, $utf8)
 
 Write-Host "Created new use case scaffold:" -ForegroundColor Green
 Write-Host "  ID:     $Id" -ForegroundColor Green
@@ -116,7 +117,7 @@ Write-Host ""
 Write-Host "Next steps:" -ForegroundColor Cyan
 Write-Host "  1) Complete the Business factsheet:" -ForegroundColor DarkGray
 Write-Host "       $clusterRel/$folderName/Business_Factsheet.md" -ForegroundColor DarkGray
-Write-Host "  2) Complete the Technical factsheet:" -ForegroundColor DarkGray
-Write-Host "       $clusterRel/$folderName/Technical_Factsheet.md" -ForegroundColor DarkGray
-Write-Host "  3) Add $Id to _includes/UseCase_Inventory.md and ensure referenced KPIs exist." -ForegroundColor DarkGray
+Write-Host "  2) Configure the UseCase_Bracket.yaml (KPIs, actions, UX layout):" -ForegroundColor DarkGray
+Write-Host "       $clusterRel/$folderName/UseCase_Bracket.yaml" -ForegroundColor DarkGray
+Write-Host "  3) Run registry builder to validate and update UseCase_Inventory.md." -ForegroundColor DarkGray
 

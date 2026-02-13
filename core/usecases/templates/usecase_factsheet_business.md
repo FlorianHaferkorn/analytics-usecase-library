@@ -3,180 +3,86 @@ id: <USE CASE ID>
 factsheet_type: business
 ---
 
-# <USE CASE ID> - <USE CASE NAME>
+# Use Case: [ID] - [Title]
 
-## Business Factsheet
-
----
-
-## 0. Metadata (Mandatory)
-
-- **Use Case ID:** <COM-001 / FIN-001 ...>
-- **Domain:** <Commercial / Finance / Operations / Supply Chain / XD>
-- **Business Owner:** <Role>
-- **KPI Owner:** <Role>
-- **Decision Owner:** <Role>
-- **Reporting Level:** <Strategic / Tactical / Operational>
-- **Analytics Stage:** <Descriptive / Diagnostic / Predictive / Prescriptive>
-- **Related Data Contract:** <path/to/data_contract>
-- **Related Semantic Model:** <path/to/model_definition>
+This Markdown file is for human stakeholders. All technical IDs, formulas, and mappings must reside in the corresponding UseCase_Bracket.yaml.
 
 ---
 
-## 1. Business Summary
+## 0. Metadata
 
-**Purpose:** One clear sentence describing the business objective.  
-**Business Value:** 1-2 sentences describing measurable impact (growth, margin,
-cost, risk, liquidity, customer value).  
-**Out of Scope:** 2-3 bullets.
-
----
-
-## 2. Core Business Questions
-
-List the key questions the use case must answer.
-
-- <Question 1>  
-- <Question 2>  
-- <Question 3>  
-- ...
-
-**Example Query Patterns (optional):**
-
-- "How did <KPI> vs Plan develop across <dimension> over <period>?"
-- "Which entities contribute most to <KPI deviation>?"
+- **Use Case ID:** [e.g., COM-001]
+- **Domain:** [e.g., Commercial]
+- **Business Owner (Role):** [e.g., Head of Sales]
+- **Status:** [Draft / Active / Retired]
 
 ---
 
-## 3. Required KPIs (Mandatory)
+## 1. Executive Story (The "Why")
 
-All KPIs must exist in the KPI Catalog.
-Use case factsheets may reference KPIs but must not redefine KPI meaning, targets, or lineage.
+**Purpose:** Describe in 1-2 sentences what business problem this use case solves.
 
-```yaml
-required_kpis:
+**Business Value:**
+What is the measurable impact? (e.g., "Reduction of discount leakage by 2%" or "Optimization of inventory turnover by 5 days").
 
-  - id: <domain.topic.metric>
-    name: <KPI Name>
-    kpi_catalog_id: <Growth | Profitability | Liquidity | CustomerValue | Service | Efficiency | Risk | Governance | ESG | InnovationPeople>
-
-  - ...
-```
+**Out of Scope:**
+Define what this use case does NOT cover to manage stakeholder expectations.
 
 ---
 
-## 4. Action Codes (Summary)
+## 2. The 3-30-300 Journey (UX Strategy)
 
-Structured summary of action codes (definitions remain in YAML).
+This section defines how the user interacts with the data following our cognitive philosophy.
 
-```yaml
-action_codes:
+### 2.1 Three Seconds: Status (System 1)
 
-  - id: <AC-XX>
-    name: <Action Code Name>
-    purpose: <short purpose>
-    status: <active | planned>
-    owner: <Role>
-    trigger_kpis: [<kpi_id_1>, <kpi_id_2>]
-    guardrail_kpis: [<kpi_id_1>, <kpi_id_2>]
-    outcome_kpis: [<kpi_id_1>, <kpi_id_2>]
-    impact_range: <kpi_id: range>
-    levels: <L1-L3>
-    definition: <core/action_codes/...yaml>
+**Goal:** Immediate emotional orientation.
 
-  - ...
-```
+**The Question:** "Are we on track regarding our North Star?"
 
----
+**Visual Intent:** [e.g., A large gauge or KPI card showing the Strategic KPI against target/LY.]
 
-## 5. 3-30-300 Page Layout (Mandatory)
+### 2.2 Thirty Seconds: Diagnostic (System 2 Light)
 
-### 5.1 3-Second Layer (KPI Cards)
+**Goal:** Identification of the primary driver or "the culprit."
 
-- <KPI 1>
-- <KPI 2>
-- <KPI 3>
-- <KPI 4>
-- <Optional 5>
+**The Question:** "Which lever is causing the deviation?"
 
-### 5.2 30-Second Layer (Main Visuals)
+**Visual Intent:** [e.g., A breakdown by Region, Product Group, or a Bridge Chart showing the Influence of Price vs. Volume.]
 
-- **<Trend>**
-  - Visual Type: Line
-  - X-Axis: Date[Month]
-  - Y-Axis: [Net Sales Amount]
-  - Segment: Region
-  - Default Filter: L12M
-  - Notes: mandatory
+### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work)
 
-- **<Ranking>**
-  - Visual Type: Bar (horizontal)
-  - X-Axis: Org[Channel]
-  - Y-Axis: [GM %]
-  - Segment: Region
-  - Default Filter: none
-  - Notes: top/bottom logic
+**Goal:** Decision-making and closing the loop.
 
-- **...**
-  - Visual Type: ...
-  - X-Axis: ...
-  - Y-Axis: ...
-  - Segment: ...
-  - Default Filter: ...
-  - Notes: ...
+**The Question:** "What specific actions must I take right now?"
 
-### 5.3 Required Slicers (Mandatory)
-
-- <Slicer 1>  
-- <Slicer 2>  
-- <Max 3 slicers>
-
-### 5.4 300-Second Layer (Diagnostics)
-
-- <Diagnostic view 1>
-- <Diagnostic view 2>
+**Visual Intent:** [e.g., A detailed evidence table showing specific transactions, combined with the Action Panel displaying the prescriptive steps for the assigned Action Codes.]
 
 ---
 
-## 6. Data Requirements Summary
+## 3. Strategic Rationale & Causal Logic
 
-```yaml
-required_facts:
+Explain the business "belief" behind this use case.
 
-  - <fact_table>
-required_dimensions:
+**Logic:** [e.g., "We believe that by strictly enforcing the price floor (Lever), we can protect the Gross Margin % (North Star) even if we lose a small percentage of low-margin volume."]
 
-  - <dim_table>
-required_grain: <invoice_line / customer_day / asset_day / store_day>
-required_time_range: <e.g., 24 months>
-required_slicers: <e.g., Org, Region, Product>
-```
+**Decision Authority:** [Who is authorized to execute the actions described in the Action Panel?]
 
 ---
 
-## 7. Dependencies, Assumptions & Constraints
+## 4. Key Business Questions
 
-- <Business assumptions>
-- <Data limitations>
-- <Latency rules>
-- <Currency conversion assumptions>
+What specific questions should the user be able to answer after 5 minutes?
 
----
-
-## 8. Success Criteria
-
-- <Impact KPI>
-- <Adoption KPI>
-- <Quality KPI>
-- <Decision Frequency>
+- Question 1...
+- Question 2...
 
 ---
 
-## 9. Risks & Wrong Interpretations (Short)
+## 5. Governance & Trust
 
-- <Risk 1>
-- <Risk 2>
-- <Misinterpretation to avoid>
+- **Review Frequency:** [e.g., Monthly Sales Review]
+- **Data Trust Requirement:** [e.g., "This use case requires a Trust-Score of >0.9 to be used for automated approval blocks."]
+- **Stakeholders:** [List of roles involved in the monthly review process.]
 
 ---
-

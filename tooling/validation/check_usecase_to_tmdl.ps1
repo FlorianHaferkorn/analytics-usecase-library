@@ -1,5 +1,5 @@
 # Use Case → TMDL End-to-End Validation
-# Purpose: Validates that use case KPIs → KPI Catalog DAX → Measure Dictionary → TMDL measures are consistent
+# Purpose: Validates that UseCase_Bracket.yaml KPIs → KPI Catalog DAX → Measure Dictionary → TMDL measures are consistent
 # Usage: .\check_usecase_to_tmdl.ps1 -UseCaseId "COM-001" -TmdlPath "path\to\semantic_model\definition"
 
 param(
@@ -35,17 +35,13 @@ function Resolve-RepoPath {
 }
 
 function Get-UseCaseKpis {
-	param([string]$TechnicalFactsheetPath)
-	if (-not (Test-Path $TechnicalFactsheetPath)) { return @() }
+	param([string]$BracketPath)
+	if (-not (Test-Path $BracketPath)) { return @() }
 	
-	$content = Get-Content -Path $TechnicalFactsheetPath -Raw
-	$mappingMatch = [regex]::Match($content, '(?ms)```yaml\s*kpi_to_measure_mapping:\s*\r?\n(.*?)```')
-	if (-not $mappingMatch.Success) { return @() }
-	
-	$mappingYaml = $mappingMatch.Groups[1].Value
+	$content = Get-Content -Path $BracketPath -Raw
 	$kpiMappings = @()
-	# Technical Factsheet YAML has optional kpi_name (and other fields) between kpi_id and measure_name; parse per list item.
-	$items = [regex]::Split($mappingYaml, '(?m)^\s*-\s*kpi_id:')
+	# UseCase_Bracket.yaml has kpi_to_measure_mapping list with kpi_id and measure_name.
+	$items = [regex]::Split($content, '(?m)^\s*-\s*kpi_id:')
 	foreach ($item in $items) {
 		if ($item -notmatch '\S') { continue }
 		$block = ('  - kpi_id:' + $item).TrimEnd()
@@ -105,9 +101,9 @@ if (-not $useCaseDir) {
 	exit 1
 }
 
-$technicalFactsheet = Join-Path -Path $useCaseDir.FullName -ChildPath "Technical_Factsheet.md"
-if (-not (Test-Path $technicalFactsheet)) {
-	Write-Error "Technical_Factsheet.md not found"
+$bracketFile = Join-Path -Path $useCaseDir.FullName -ChildPath "UseCase_Bracket.yaml"
+if (-not (Test-Path $bracketFile)) {
+	Write-Error "UseCase_Bracket.yaml not found for $UseCaseId"
 	exit 1
 }
 
@@ -127,8 +123,8 @@ if (-not $measuresTmdlFile) {
 $tmdlContent = Get-Content -Path $measuresTmdlFile.FullName -Raw
 $tmdlMeasures = Get-MeasuresFromTmdl -TmdlContent $tmdlContent
 
-# Get use case KPIs
-$kpiMappings = Get-UseCaseKpis -TechnicalFactsheetPath $technicalFactsheet
+# Get use case KPIs from UseCase_Bracket.yaml
+$kpiMappings = Get-UseCaseKpis -BracketPath $bracketFile
 
 # Validation results
 $results = @{
@@ -154,12 +150,12 @@ foreach ($mapping in $kpiMappings) {
 		continue
 	}
 	
-	# Check 2: Measure name matches between Technical Factsheet and KPI Catalog
+	# Check 2: Measure name matches between UseCase_Bracket.yaml and KPI Catalog
 	if ($expectedMeasureName -ne $daxName) {
 		$results.Warnings += @{
 			KpiId = $kpiId
-			Issue = "Measure name mismatch: Factsheet='$expectedMeasureName', Catalog='$daxName'"
-			Layer = "Factsheet vs Catalog"
+			Issue = "Measure name mismatch: Bracket='$expectedMeasureName', Catalog='$daxName'"
+			Layer = "Bracket vs Catalog"
 		}
 	}
 	

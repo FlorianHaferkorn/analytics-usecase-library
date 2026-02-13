@@ -119,7 +119,7 @@ Write-Host "Factsheets -> Action Codes consistency" -ForegroundColor Cyan
 $actionCodeIds = Get-ActionCodeIds -Root $actionCodesRoot
 $missing = @()
 
-Get-ChildItem -Path $useCasesRoot -Recurse -Filter "*Factsheet*.md" | Where-Object {
+Get-ChildItem -Path $useCasesRoot -Recurse -Filter "Business_Factsheet.md" | Where-Object {
   $_.FullName -notmatch '\\_internal\\archive\\'
 } | ForEach-Object {
   $fm = Get-FrontMatterText -Path $_.FullName

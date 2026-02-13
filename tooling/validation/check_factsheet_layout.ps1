@@ -1,7 +1,6 @@
 Param(
   [string]$UseCasesRoot = "core/usecases",
   [string]$BusinessTemplate = "core/usecases/templates/usecase_factsheet_business.md",
-  [string]$TechnicalTemplate = "core/usecases/templates/usecase_factsheet_technical.md",
   [string]$ActionCodesRoot = "core/action_codes",
   [string]$ActionCodeTemplate = "core/templates/action_codes/ActionCode_TEMPLATE.md",
   [string]$KpiCatalogRoot = "core/kpi_catalog",
@@ -183,7 +182,6 @@ function Get-KpiEntriesKeyOrders {
 
 $useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "core/usecases"
 $businessTemplatePath = Resolve-RepoPath -ProvidedPath $BusinessTemplate -DefaultRelative "core/usecases/templates/usecase_factsheet_business.md"
-$technicalTemplatePath = Resolve-RepoPath -ProvidedPath $TechnicalTemplate -DefaultRelative "core/usecases/templates/usecase_factsheet_technical.md"
 $actionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative "core/action_codes"
 $actionCodeTemplatePath = Resolve-RepoPath -ProvidedPath $ActionCodeTemplate -DefaultRelative "core/templates/action_codes/ActionCode_TEMPLATE.md"
 $kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative "core/kpi_catalog"
@@ -198,10 +196,8 @@ $pageInstancesRoot = Resolve-RepoPath -ProvidedPath $PageInstancesRoot -DefaultR
 
 if (-not $useCasesRoot) { throw "UseCases root not found. Provide -UseCasesRoot or run inside repository." }
 if (-not $businessTemplatePath) { throw "Business template not found. Provide -BusinessTemplate or run inside repository." }
-if (-not $technicalTemplatePath) { throw "Technical template not found. Provide -TechnicalTemplate or run inside repository." }
 
 $expectedBusiness = @(Get-Headings -Path $businessTemplatePath)
-$expectedTechnical = @(Get-Headings -Path $technicalTemplatePath)
 
 Write-Host "Template layout checks" -ForegroundColor Cyan
 
@@ -223,21 +219,8 @@ Get-ChildItem -Path $useCasesRoot -Recurse -Filter "Business_Factsheet.md" | Whe
   }
 }
 
-Get-ChildItem -Path $useCasesRoot -Recurse -Filter "Technical_Factsheet.md" | Where-Object {
-  $_.FullName -notmatch '\\_internal\\archive\\'
-} | ForEach-Object {
-  $actual = @(Get-Headings -Path $_.FullName)
-  $cmp = Compare-OrderedList -Expected $expectedTechnical -Actual $actual
-  if (-not $cmp.matches) {
-    $issues += [PSCustomObject]@{
-      file = $_.FullName
-      type = "technical"
-      missing = ($cmp.missing -join "; ")
-      extra = ($cmp.extra -join "; ")
-      order_mismatch = $cmp.order_mismatch
-    }
-  }
-}
+# Note: Technical_Factsheet.md layout check removed (Lean 2.0 migration).
+# Technical config now lives in UseCase_Bracket.yaml; validated by check_schema_validation.ps1.
 
 if ($actionCodesRoot -and $actionCodeTemplatePath) {
   $expectedActionKeys = @(Get-TemplateYamlTopLevelKeys -Path $actionCodeTemplatePath)

@@ -17,7 +17,7 @@ $items = @(
   @{ Path = "core/strategy_operating_model/operating_model/semantic_layer.md";            Kind = "file"; Description = "Semantic Layer blueprint" },
   @{ Path = "core/strategy_operating_model/operating_model/distribution_architecture.md"; Kind = "file"; Description = "Distribution architecture" },
   @{ Path = "core/usecases/templates/usecase_factsheet_business.md";  Kind = "file"; Description = "Use Case factsheet (business) template" },
-  @{ Path = "core/usecases/templates/usecase_factsheet_technical.md"; Kind = "file"; Description = "Use Case factsheet (technical) template" },
+  @{ Path = "core/usecases/templates/UseCase_Bracket_TEMPLATE.yaml"; Kind = "file"; Description = "Use Case bracket (SSOT) template" },
   @{ Path = "core/usecases/UseCase_Inventory.md";                     Kind = "file"; Description = "Use Case Inventory" },
   @{ Path = "core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md"; Kind = "file"; Description = "KPI Catalog Schema (canonical)" },
   @{ Path = "core/kpi_catalog/README.md";                   Kind = "file"; Description = "KPI Catalog overview" },

@@ -200,7 +200,7 @@ For each page in the report:
 ## Action Codes and Closed Loop
 
 **Action Codes Referenced:**  
-<From Business Factsheet section 4 or UseCase_ActionCode_Map.yaml>
+<From Business Factsheet section 4 or UseCase_Bracket.yaml orchestration.action_code_ids>
 
 | Action Code ID | Name | Purpose | Owner | Trigger KPIs |
 |----------------|------|---------|-------|--------------|
@@ -352,11 +352,11 @@ A: Contact the Report Owner: <contact> or Domain Owner: <contact>.
 
 3. **Use Case Factsheets**
    - Business Factsheet: purpose, key questions, KPIs, action codes
-   - Technical Factsheet: data requirements
+   - UseCase_Bracket.yaml: technical configuration, KPI mappings, data requirements
 
 4. **Framework Artifacts**
    - `UseCase_PageTemplate_Map.yaml`: template and slot mapping
-   - `UseCase_ActionCode_Map.yaml`: action code references
+   - `UseCase_Bracket.yaml`: action code references (orchestration.action_code_ids)
    - KPI Catalog: KPI definitions
    - Action Codes: action code definitions
 

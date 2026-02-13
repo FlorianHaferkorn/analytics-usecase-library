@@ -1,13 +1,11 @@
 schema_version: '2.0'
 id: XD-002
-name: Resource Utilization
+title: Resource Utilization
 domain: Experience / Service
 governance:
-  owner_role: Service Operations / Workforce Planning
-  steward_role: Workforce Management / Service Ops BI Lead
-  status: active
-  last_review: '2026-02-12'
-ontology_bracket:
+  owner_role: service_operations_workforce_planning
+  steward_role: workforce_management_service_ops_bi_lead
+orchestration:
   strategic_kpi_id: res.utilization.pct
   influencing_kpi_ids:
   - res.occupancy.pct
@@ -22,21 +20,35 @@ ontology_bracket:
   - X-R2.3
   - X-R2.4
 value_driver_model:
-  description: res.utilization.pct is driven by influencing KPIs and operational levers.
-  formula: res.utilization.pct = f(res.occupancy.pct, svc.sla.attainment.pct, res.overtime.pct,
-    res.shrinkage.pct, svc.backlog.count, svc.tickets.created.count)
+  formula: res.utilization.pct = f(res.occupancy.pct, svc.sla.attainment.pct, res.overtime.pct, res.shrinkage.pct, svc.backlog.count,
+    svc.tickets.created.count)
+  impact_direction: maximize
+  primary_driver: res.occupancy.pct
+  impact_logic: Improving res.occupancy.pct is the primary lever for maximizing res.utilization.pct.
 ux_layout_rules:
   report_structure: 2-Page-Lead
-  page_1_summary_insights:
+  page_1_summary:
     title: Experience / Service Summary & Insights
-    3s_component: 'North Star: res.utilization.pct'
-    30s_components: []
+    component_3s:
+      kpi_id: res.utilization.pct
+      visual_type: kpi_card
+    component_30s:
+    - kpi_id: res.occupancy.pct
+      visual_type: trend_line
+    - kpi_ids:
+      - svc.sla.attainment.pct
+      - res.overtime.pct
+      - res.shrinkage.pct
+      visual_type: bar_chart
   page_2_execution:
     title: Experience / Service Execution
-    300s_components:
-    - 'Evidence_Table: (define evidence table requirements)'
-    - 'Action_Panel: Integrated Side-Panel for Subscribed Action Codes'
-    - 'Payload_Injection: Show Level (L1-L3) and Steps from Action Code YAML'
+    component_300s:
+      evidence_grain: transaction_line
+      evidence_columns:
+      - entity
+      - period
+      - res.utilization.pct
+      action_panel: true
+      payload_mode: full
 documentation:
   business_factsheet: ./Business_Factsheet.md
-  technical_factsheet: ./Technical_Factsheet.md

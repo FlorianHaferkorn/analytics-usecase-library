@@ -807,7 +807,9 @@ if (-not $resolvedTablesDir) {
   if (-not $resolvedDistRoot) { throw "Unable to resolve dist root. Provide -DistRoot or -UseAuroraShowcase / -TargetTablesDir or run inside repository." }
 }
 
-$factSheets = Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Technical_Factsheet.md'
+$factSheets = Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Business_Factsheet.md' | Where-Object {
+  $_.FullName -notmatch '\\templates\\' -and $_.FullName -notmatch '\\_internal\\archive\\'
+}
 if ($UseCase -and $UseCase.Count -gt 0) {
   # Split comma-separated values if passed as single string from CLI
   $expandedUseCase = @()

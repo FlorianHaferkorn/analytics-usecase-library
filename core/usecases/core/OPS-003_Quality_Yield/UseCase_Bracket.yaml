@@ -1,13 +1,11 @@
 schema_version: '2.0'
 id: OPS-003
-name: Quality & Yield
+title: Quality & Yield
 domain: Operations
 governance:
-  owner_role: Quality Manager / Ops Controlling
-  steward_role: Quality Analytics / Ops BI Lead
-  status: active
-  last_review: '2026-02-12'
-ontology_bracket:
+  owner_role: quality_manager
+  steward_role: quality_analytics_ops_bi_lead
+orchestration:
   strategic_kpi_id: quality.fpy.pct
   influencing_kpi_ids:
   - quality.scrap.pct
@@ -24,21 +22,35 @@ ontology_bracket:
   - O-Q3.4
   - O-Q3.5
 value_driver_model:
-  description: quality.fpy.pct is driven by influencing KPIs and operational levers.
-  formula: quality.fpy.pct = f(quality.scrap.pct, quality.rework.pct, quality.copq.amount,
-    quality.complaint.pct, quality.defect_density, ops.planned_output.units, sales.units)
+  formula: quality.fpy.pct = f(quality.scrap.pct, quality.rework.pct, quality.copq.amount, quality.complaint.pct, quality.defect_density,
+    ops.planned_output.units, sales.units)
+  impact_direction: maximize
+  primary_driver: quality.scrap.pct
+  impact_logic: Improving quality.scrap.pct is the primary lever for maximizing quality.fpy.pct.
 ux_layout_rules:
   report_structure: 2-Page-Lead
-  page_1_summary_insights:
+  page_1_summary:
     title: Operations Summary & Insights
-    3s_component: 'North Star: quality.fpy.pct'
-    30s_components: []
+    component_3s:
+      kpi_id: quality.fpy.pct
+      visual_type: kpi_card
+    component_30s:
+    - kpi_id: quality.scrap.pct
+      visual_type: trend_line
+    - kpi_ids:
+      - quality.rework.pct
+      - quality.copq.amount
+      - quality.complaint.pct
+      visual_type: bar_chart
   page_2_execution:
     title: Operations Execution
-    300s_components:
-    - 'Evidence_Table: (define evidence table requirements)'
-    - 'Action_Panel: Integrated Side-Panel for Subscribed Action Codes'
-    - 'Payload_Injection: Show Level (L1-L3) and Steps from Action Code YAML'
+    component_300s:
+      evidence_grain: transaction_line
+      evidence_columns:
+      - entity
+      - period
+      - quality.fpy.pct
+      action_panel: true
+      payload_mode: full
 documentation:
   business_factsheet: ./Business_Factsheet.md
-  technical_factsheet: ./Technical_Factsheet.md

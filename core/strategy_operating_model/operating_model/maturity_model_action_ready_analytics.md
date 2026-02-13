@@ -44,7 +44,7 @@ Levels are **cumulative**: each level assumes the previous one is in place.
 
 **Typical state:**
 
-- Use Case Inventory and Business/Technical Factsheets exist.
+- Use Case Inventory, Business Factsheets, and UseCase_Bracket.yaml files exist.
 - Key questions and required KPIs are explicit per use case.
 - Reports are built from templates and consume governed measures. Prioritization is use-case-driven.
 
@@ -62,7 +62,7 @@ Levels are **cumulative**: each level assumes the previous one is in place.
 - Reports or a separate action layer surface "what to do" in addition to "what happened."
 - Execution and outcomes are logged (even if not fully automated). Governance is explicit (RACI, change flow).
 
-**Framework artifacts:** Action codes; UseCase_ActionCode_Map; ownership/RACI; optional action execution and outcome tracking.
+**Framework artifacts:** Action codes; UseCase_Bracket.yaml (`orchestration.action_code_ids`); ownership/RACI; optional action execution and outcome tracking.
 
 ---
 

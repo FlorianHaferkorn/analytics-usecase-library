@@ -182,7 +182,7 @@ function Test-MeasureCovered {
   return $false
 }
 
-Write-Host "Scanning Business/Technical Factsheets in $UseCasesRoot ..."
+Write-Host "Scanning Business Factsheets in $UseCasesRoot ..."
 $catalog = Load-KpiCatalogIndex -Root $KpiCatalogRoot
 $catalogIds = $catalog.ids
 $catalogNames = $catalog.names
@@ -190,11 +190,8 @@ $factsheets = @(
   Get-ChildItem -Path $UseCasesRoot -Recurse -Filter 'Business_Factsheet.md' | Where-Object {
     $_.FullName -notmatch '\\_internal\\archive\\'
   }
-  Get-ChildItem -Path $UseCasesRoot -Recurse -Filter 'Technical_Factsheet.md' | Where-Object {
-    $_.FullName -notmatch '\\_internal\\archive\\'
-  }
 ) | Sort-Object FullName -Unique
-if ($factsheets.Count -eq 0) { Write-Host "No Business_Factsheet.md or Technical_Factsheet.md files found." -ForegroundColor Yellow; exit 0 }
+if ($factsheets.Count -eq 0) { Write-Host "No Business_Factsheet.md files found." -ForegroundColor Yellow; exit 0 }
 
 $missing = @(); $rows = @(); $noKpiRefs = @()
 foreach ($fs in $factsheets) {

@@ -1233,7 +1233,7 @@ class GoldLayerGenerator:
         """Generate fact_action_log with Action Codes from Use Case map (CONTRACT: ActionID grain)."""
         print("  -> fact_action_log")
         
-        # Action Codes from UseCase_ActionCode_Map.yaml
+        # Action Codes derived from UseCase_Bracket.yaml orchestration.action_code_ids
         use_case_action_map = {
             'COM-001': ['C-M2.1', 'C-S1.1', 'C-S1.2'],
             'COM-002': ['C-M2.2', 'C-P4.1', 'C-S1.2'],

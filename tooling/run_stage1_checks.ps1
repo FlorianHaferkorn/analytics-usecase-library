@@ -31,7 +31,6 @@ $checks = @(
   @{ Path = "tooling/validation/validate_kpi_catalog.ps1"; Args = @("-KpiCatalogRoot", (Join-Path $rootPath "core\kpi_catalog"), "-FailOnError") },
   @{ Path = "tooling/validation/check_action_codes_vs_kpi.ps1"; Args = @("-ActionCodesRoot", (Join-Path $rootPath "core\action_codes"), "-KpiCatalogRoot", (Join-Path $rootPath "core\kpi_catalog"), "-FailOnError") },
   @{ Path = "tooling/validation/check_factsheet_action_codes.ps1"; Args = @("-UseCasesRoot", (Join-Path $rootPath "core\usecases"), "-ActionCodesRoot", (Join-Path $rootPath "core\action_codes"), "-FailOnError") },
-  @{ Path = "tooling/validation/check_usecase_actioncode_map.ps1"; Args = @("-UseCasesRoot", (Join-Path $rootPath "core\usecases"), "-MapPath", (Join-Path $rootPath "core\usecases\UseCase_ActionCode_Map.yaml"), "-ActionCodesRoot", (Join-Path $rootPath "core\action_codes"), "-FailOnError") },
   @{ Path = "tooling/validation/check_decision_spines.ps1"; Args = @("-UseCasesRoot", (Join-Path $rootPath "core\usecases"), "-MapPath", (Join-Path $rootPath "core\action_codes\decision_spines\DecisionSpine_UseCase_Map.yaml"), "-DecisionSpinesRoot", (Join-Path $rootPath "core\action_codes\decision_spines"), "-FailOnError") },
   @{ Path = "tooling/validation/check_duplicate_ids.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
   @{ Path = "tooling/validation/check_ssot_markers.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },

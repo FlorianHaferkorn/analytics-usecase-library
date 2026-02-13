@@ -1,13 +1,11 @@
 schema_version: '2.0'
 id: COM-003
-name: Customer Value
+title: Customer Value
 domain: Commercial / CustomerValue
 governance:
-  owner_role: Commercial Controlling Lead
-  steward_role: Sales Ops BI Lead
-  status: active
-  last_review: '2026-02-12'
-ontology_bracket:
+  owner_role: commercial_controlling_lead
+  steward_role: sales_ops_bi_lead
+orchestration:
   strategic_kpi_id: crm.clv.amount
   influencing_kpi_ids:
   - crm.lifetime_revenue.amount
@@ -22,21 +20,35 @@ ontology_bracket:
   - C-P4.1
   - C-S1.2
 value_driver_model:
-  description: crm.clv.amount is driven by influencing KPIs and operational levers.
-  formula: crm.clv.amount = f(crm.lifetime_revenue.amount, crm.retention.pct, crm.churned_customers.count,
-    crm.revenue_at_risk.amount, crm.active_customers.count, crm.nps.index, crm.complaint.count)
+  formula: crm.clv.amount = f(crm.lifetime_revenue.amount, crm.retention.pct, crm.churned_customers.count, crm.revenue_at_risk.amount,
+    crm.active_customers.count, crm.nps.index, crm.complaint.count)
+  impact_direction: maximize
+  primary_driver: crm.lifetime_revenue.amount
+  impact_logic: Improving crm.lifetime_revenue.amount is the primary lever for maximizing crm.clv.amount.
 ux_layout_rules:
   report_structure: 2-Page-Lead
-  page_1_summary_insights:
+  page_1_summary:
     title: Commercial / CustomerValue Summary & Insights
-    3s_component: 'North Star: crm.clv.amount'
-    30s_components: []
+    component_3s:
+      kpi_id: crm.clv.amount
+      visual_type: kpi_card
+    component_30s:
+    - kpi_id: crm.lifetime_revenue.amount
+      visual_type: trend_line
+    - kpi_ids:
+      - crm.retention.pct
+      - crm.churned_customers.count
+      - crm.revenue_at_risk.amount
+      visual_type: bar_chart
   page_2_execution:
     title: Commercial / CustomerValue Execution
-    300s_components:
-    - 'Evidence_Table: (define evidence table requirements)'
-    - 'Action_Panel: Integrated Side-Panel for Subscribed Action Codes'
-    - 'Payload_Injection: Show Level (L1-L3) and Steps from Action Code YAML'
+    component_300s:
+      evidence_grain: transaction_line
+      evidence_columns:
+      - entity
+      - period
+      - crm.clv.amount
+      action_panel: true
+      payload_mode: full
 documentation:
   business_factsheet: ./Business_Factsheet.md
-  technical_factsheet: ./Technical_Factsheet.md

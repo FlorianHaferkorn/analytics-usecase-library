@@ -45,7 +45,7 @@ tooling/
 - `check_factsheet_vs_kpi.ps1` — factsheet KPI references vs catalog
 - `check_factsheet_action_codes.ps1` — factsheet/bracket action code refs vs framework (falls back to `UseCase_Bracket.yaml`)
 - `check_action_codes_vs_kpi.ps1` — action code KPI IDs vs catalog
-- `check_usecase_actioncode_map.ps1` — map consistency
+- ~~`check_usecase_actioncode_map.ps1`~~ — archived (Lean 2.0; map deleted, see `internal/archive/lean2_cutover_2026-02/`)
 - `check_decision_spines.ps1` — decision spine map alignment
 - `check_duplicate_ids.ps1` — no duplicate IDs across artifacts
 - `check_ssot_markers.ps1` — SSOT markers respected

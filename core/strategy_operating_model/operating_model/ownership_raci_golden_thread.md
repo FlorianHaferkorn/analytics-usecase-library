@@ -17,7 +17,7 @@ Explicit ownership ensures that "governance before automation" and "first, pragm
 | **Strategy** | Company strategy, strategic focus areas, executive key questions | Executive / Strategy Owner | Strategy & Planning; Domain Leads | Domain Owners; Finance | Analytics; Delivery |
 | **Strategic KPIs** | KPI Catalog (`core/kpi_catalog/`), KPI definitions | Domain Owner (per KPI or domain) | KPI Steward / Controlling Lead | Analytics; Semantic Model Owner | Delivery; Report Owners |
 | **Key Questions** | Company layer (`reporting_principles.md`); Use Case Business Factsheets (Core Business Questions) | Domain Owner (per use case) | Use Case Owner / Business Analyst | Analytics | Delivery |
-| **Use Cases** | Use Case Inventory; Business & Technical Factsheets (`core/usecases/`) | Domain Owner (primary domain of use case) | Use Case Owner / Product Owner Analytics | KPI Steward; Action Code Owner; Analytics | Delivery; Report Owners |
+| **Use Cases** | Use Case Inventory; Business Factsheets & UseCase_Bracket.yaml (`core/usecases/`) | Domain Owner (primary domain of use case) | Use Case Owner / Product Owner Analytics | KPI Steward; Action Code Owner; Analytics | Delivery; Report Owners |
 | **Action Codes** | Action Code YAML (`core/action_codes/`) | Domain Owner or Enterprise Governance (per action code) | Action Code Owner / Process Owner | Use Case Owner; Analytics | Delivery; Report Owners |
 | **Data Contracts** | Domain and source contracts (`core/data_contracts/`) | Data Owner / Domain Owner | Data Engineer; Analytics | Semantic Model Owner | Delivery |
 | **Semantic Model** | Model definition, measures, TMDL (implementation-specific) | Semantic Model Owner / Analytics Lead | BI Developer; Analytics | Domain Owner; KPI Steward | Delivery; Report Owners |
@@ -47,7 +47,7 @@ Ownership is **role-based**, not person-named, so it survives reorganizations. C
 - **Strategy or focus area change** → A: Executive / Strategy; flows to KPI relevance and use case prioritization.
 - **New or changed KPI** → A: Domain Owner; KPI Catalog updated; use cases and semantic model follow (reference only).
 - **New or changed Use Case** → A: Domain Owner; references existing KPIs and Action Codes; factsheets and inventory updated.
-- **New or changed Action Code** → A: Domain or Enterprise Owner; UseCase_ActionCode_Map updated if use case linkage changes.
+- **New or changed Action Code** → A: Domain or Enterprise Owner; `UseCase_Bracket.yaml` (`orchestration.action_code_ids`) updated if use case linkage changes.
 - **Semantic model or measure change** → A: Semantic Model Owner; must stay aligned with KPI Catalog and use case requirements; Stage 1 / Fabric checks enforce consistency.
 
 No layer may redefine meaning owned by another layer (e.g. use cases do not define KPI logic; reports do not define measures).

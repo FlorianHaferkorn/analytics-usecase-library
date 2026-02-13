@@ -16,7 +16,7 @@ Before any individual use case can be marked as build-ready:
 - Action Codes portfolio and rationale are defined in `core/action_codes/*`.
 - KPI catalogs and schema are valid according to  
   `core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md` and `run_all_checks.ps1`.
-- Use case templates (business & technical v1.2) are stable and referenced in  
+- Use case templates (Business Factsheet and UseCase_Bracket.yaml) are stable and referenced in  
   `core/usecases/templates/*`.
 
 ## 3. Business DoD (per Use Case)
@@ -25,7 +25,7 @@ A core use case’s **Business Factsheet** is considered done when:
 
 - The file `core/usecases/core/<UC-ID>_*/Business_Factsheet.md`:
   - Follows the v1.2 template in `core/usecases/templates/usecase_factsheet_business.md`.
-  - Passes validation via `validate_factsheets.ps1`.
+  - Passes validation via `check_schema_validation.ps1`.
 - The following content is complete and consistent:
   - **Business Summary & Business Value**: Clear, 1–3 paragraphs, no TBD.
   - **Core Business Questions**: List of concrete questions, not tool-focused.
@@ -34,7 +34,7 @@ A core use case’s **Business Factsheet** is considered done when:
     - No placeholder IDs remain.
   - **Triggers & Action Codes**:
     - Action Codes exist in `core/action_codes/README.md`.
-    - Rationale is documented in `usecases/UseCase_ActionCode_Rationale.yaml`.
+    - Action code subscriptions are declared in `UseCase_Bracket.yaml` (`orchestration.action_code_ids`).
     - All Action Codes are prescriptive (Do / Stop / Shift).
     - No diagnostic-only or interpretive Action Codes remain.
     - Expected impact and risks are explicitly stated.
@@ -45,11 +45,11 @@ A core use case’s **Business Factsheet** is considered done when:
 
 ## 4. Technical DoD (per Use Case)
 
-A core use case’s **Technical Factsheet** is considered done when:
+A core use case’s **UseCase_Bracket.yaml** is considered done when:
 
-- The file `core/usecases/core/<UC-ID>_*/Technical_Factsheet.md`:
-  - Follows the v1.2 template in `core/usecases/templates/usecase_factsheet_technical.md`.
-  - Passes validation via `validate_factsheets.ps1`.
+- The file `core/usecases/core/<UC-ID>_*/UseCase_Bracket.yaml`:
+  - Follows the schema in `tooling/ai/schemas/usecase_bracket.schema.json`.
+  - Passes validation via `check_schema_validation.ps1`.
 - The following content is complete and consistent:
   - **Model References**:
     - `semantic_model_id` and `semantic_model_definition_path` reference existing files in `core/semantic_models/*`.
@@ -80,9 +80,9 @@ For a core use case to be build-ready:
   - `check_factsheet_vs_kpi.ps1`
 - If `_Measures.tmdl` files exist for the use case:
   - `products/fabric_powerbi/tooling/validation/check_measures_vs_kpi.ps1` passes without missing KPI references.
-- AI schemas for business and technical factsheets:
+- AI schemas for business factsheet and use case bracket:
   - `tooling/ai/schemas/business_factsheet_v1_2.schema.json`
-  - `tooling/ai/schemas/technical_factsheet_v1_2.schema.json`  
+  - `tooling/ai/schemas/usecase_bracket.schema.json`  
   are aligned with the current templates.
 
 ## 6. Build-Ready Status

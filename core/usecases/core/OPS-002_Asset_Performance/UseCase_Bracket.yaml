@@ -1,13 +1,11 @@
 schema_version: '2.0'
 id: OPS-002
-name: Asset Performance
+title: Asset Performance
 domain: Operations
 governance:
-  owner_role: Maintenance Controlling / Reliability
-  steward_role: Maintenance / Reliability BI Lead
-  status: active
-  last_review: '2026-02-12'
-ontology_bracket:
+  owner_role: maintenance_controlling_reliability
+  steward_role: maintenance_reliability_bi_lead
+orchestration:
   strategic_kpi_id: ops.mtbf.hours
   influencing_kpi_ids:
   - ops.availability.pct
@@ -26,22 +24,35 @@ ontology_bracket:
   - O-A2.4
   - O-A2.5
 value_driver_model:
-  description: ops.mtbf.hours is driven by influencing KPIs and operational levers.
-  formula: ops.mtbf.hours = f(ops.availability.pct, ops.mttr.hours, ops.downtime.unplanned.pct,
-    ops.spare_parts.stockout.pct, ops.pm_compliance.pct, ops.failure.count, ops.inventory.value.amount,
-    ops.pm.task.count, ops.safety.incident.count)
+  formula: ops.mtbf.hours = f(ops.availability.pct, ops.mttr.hours, ops.downtime.unplanned.pct, ops.spare_parts.stockout.pct,
+    ops.pm_compliance.pct, ops.failure.count, ops.inventory.value.amount, ops.pm.task.count, ops.safety.incident.count)
+  impact_direction: minimize
+  primary_driver: ops.availability.pct
+  impact_logic: Improving ops.availability.pct is the primary lever for minimizing ops.mtbf.hours.
 ux_layout_rules:
   report_structure: 2-Page-Lead
-  page_1_summary_insights:
+  page_1_summary:
     title: Operations Summary & Insights
-    3s_component: 'North Star: ops.mtbf.hours'
-    30s_components: []
+    component_3s:
+      kpi_id: ops.mtbf.hours
+      visual_type: kpi_card
+    component_30s:
+    - kpi_id: ops.availability.pct
+      visual_type: trend_line
+    - kpi_ids:
+      - ops.mttr.hours
+      - ops.downtime.unplanned.pct
+      - ops.spare_parts.stockout.pct
+      visual_type: bar_chart
   page_2_execution:
     title: Operations Execution
-    300s_components:
-    - 'Evidence_Table: (define evidence table requirements)'
-    - 'Action_Panel: Integrated Side-Panel for Subscribed Action Codes'
-    - 'Payload_Injection: Show Level (L1-L3) and Steps from Action Code YAML'
+    component_300s:
+      evidence_grain: transaction_line
+      evidence_columns:
+      - entity
+      - period
+      - ops.mtbf.hours
+      action_panel: true
+      payload_mode: full
 documentation:
   business_factsheet: ./Business_Factsheet.md
-  technical_factsheet: ./Technical_Factsheet.md

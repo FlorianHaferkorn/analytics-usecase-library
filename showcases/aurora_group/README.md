@@ -8,7 +8,7 @@ Demonstrate the ActionReady Analytics Framework end-to-end with a realistic synt
 | What | Location |
 |------|----------|
 | **Framework spec** (strategy, operating model, golden thread) | `core/strategy_operating_model/` — entry: `core/strategy_operating_model/README.md` |
-| **Use case specs** (canonical factsheets) | `core/usecases/core/` (e.g. `COM-001_Sales_Performance/` with Business_Factsheet.md, Technical_Factsheet.md) |
+| **Use case specs** (canonical factsheets) | `core/usecases/core/` (e.g. `COM-001_Sales_Performance/` with Business_Factsheet.md, UseCase_Bracket.yaml) |
 | **KPI catalog** (single source for measure definitions) | `core/kpi_catalog/KPI_Catalog.md` |
 | **Data contracts** (domains, sources, synthetic config) | `core/data_contracts/` |
 | **Page templates** (3–30–300 layouts, governance) | `core/templates/page_templates/` |

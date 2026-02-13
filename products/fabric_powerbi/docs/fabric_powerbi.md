@@ -27,7 +27,7 @@ Not included:
 
 ### Where this fits in the repo
 
-- **Use case factsheets:** `core/usecases/core/` (e.g. `COM-001_Sales_Performance/` Business and Technical Factsheets).
+- **Use case artifacts:** `core/usecases/core/` (e.g. `COM-001_Sales_Performance/` Business_Factsheet.md + UseCase_Bracket.yaml).
 - **KPI catalog:** `core/kpi_catalog/` — source for measure definitions and KPI mapping; used by TMDL generation.
 - **Validation:** `tooling/run_stage1_checks.ps1` (docs/structure); `tooling/run_all_checks.ps1` (Stage 1 + Fabric checks).
 - **Fabric checks:** `products/fabric_powerbi/tooling/run_fabric_checks.ps1` — measures vs KPI, TMDL vs measure dictionary, DAX best practices.
@@ -389,7 +389,7 @@ This section covers a **reference architecture** for delivering core use cases e
 **Closed loop (action codes and traceability)**
 
 - **Reports and action codes:** Reports (and any action layer or drill-through) should reference **action codes** from `core/action_codes/`. Action code IDs (e.g. C-M2.1, F-C1.1) appear in use case factsheets and in Report Documentation.
-- **Traceability:** Ensure **KPI deviation → use case → action code** is documented and visible: e.g. in Report Documentation (Report_Documentation_<UseCaseId>.md), in action panel or drill-through targets in the report, and in `core/usecases/UseCase_ActionCode_Map.yaml`.
+- **Traceability:** Ensure **KPI deviation → use case → action code** is documented and visible: e.g. in Report Documentation (Report_Documentation_<UseCaseId>.md), in action panel or drill-through targets in the report, and in each use case's `UseCase_Bracket.yaml` (`orchestration.action_code_ids`).
 - **Action code definitions:** Remain the single source of truth in `core/action_codes/`; reports and Report Documentation link to them for triggers, evidence, and ownership.
 
 ## 11.2 Semantic model and table best practices (Microsoft Learn)

@@ -161,22 +161,15 @@ function Parse-KpiRecord {
 }
 
 function Get-UseCaseKpis {
-  param([string]$TechnicalFactsheetPath)
-  if (-not (Test-Path $TechnicalFactsheetPath)) { return @() }
+  param([string]$BracketPath)
+  if (-not (Test-Path $BracketPath)) { return @() }
   
-  $frontMatter = Get-FrontMatterBlock -Path $TechnicalFactsheetPath
-  if (-not $frontMatter) { return @() }
-  
-  # Get kpi_to_measure_mapping from frontmatter
-  $content = Get-Content -Path $TechnicalFactsheetPath -Raw
-  $mappingMatch = [regex]::Match($content, '(?ms)```yaml\s*kpi_to_measure_mapping:\s*\r?\n(.*?)```')
-  if (-not $mappingMatch.Success) { return @() }
-  
-  $mappingYaml = $mappingMatch.Groups[1].Value
+  # Read kpi_to_measure_mapping from UseCase_Bracket.yaml
+  $content = Get-Content -Path $BracketPath -Raw
   $kpiIds = @()
   
-  # Extract kpi_id values from the mapping
-  foreach ($match in [regex]::Matches($mappingYaml, '(?m)^\s*-\s*kpi_id\s*:\s*([^\s\r\n]+)')) {
+  # Extract kpi_id values from kpi_to_measure_mapping in bracket YAML
+  foreach ($match in [regex]::Matches($content, '(?m)^\s*-?\s*kpi_id\s*:\s*([^\s\r\n#]+)')) {
     $kpiId = $match.Groups[1].Value.Trim()
     if ($kpiId -and $kpiIds -notcontains $kpiId) {
       $kpiIds += $kpiId
@@ -238,10 +231,10 @@ foreach ($useCaseId in $coreUseCaseIds) {
   
   if (-not $useCaseDir) { continue }
   
-  $technicalFactsheet = Join-Path -Path $useCaseDir.FullName -ChildPath "Technical_Factsheet.md"
-  if (-not (Test-Path $technicalFactsheet)) { continue }
+  $bracketFile = Join-Path -Path $useCaseDir.FullName -ChildPath "UseCase_Bracket.yaml"
+  if (-not (Test-Path $bracketFile)) { continue }
   
-  $kpiIds = Get-UseCaseKpis -TechnicalFactsheetPath $technicalFactsheet
+  $kpiIds = Get-UseCaseKpis -BracketPath $bracketFile
   
   foreach ($kpiId in $kpiIds) {
     if ($kpiData.ContainsKey($kpiId)) {

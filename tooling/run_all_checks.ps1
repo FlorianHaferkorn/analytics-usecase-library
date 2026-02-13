@@ -182,12 +182,7 @@ Invoke-LocalScript -RelativePath "tooling/validation/check_factsheet_action_code
   "-ActionCodesRoot", (Join-Path $repoRoot "core\action_codes")
 )
 
-# 12) UseCase ActionCode map consistency
-Invoke-LocalScript -RelativePath "tooling/validation/check_usecase_actioncode_map.ps1" -Arguments @(
-  "-UseCasesRoot", $useCasesRoot,
-  "-MapPath", (Join-Path $repoRoot "core\usecases\UseCase_ActionCode_Map.yaml"),
-  "-ActionCodesRoot", (Join-Path $repoRoot "core\action_codes")
-)
+# 12) [REMOVED] UseCase ActionCode map consistency — map deleted in Lean 2.0 cutover
 
 # 13) Decision Spines map consistency
 Invoke-LocalScript -RelativePath "tooling/validation/check_decision_spines.ps1" -Arguments @(
@@ -196,17 +191,12 @@ Invoke-LocalScript -RelativePath "tooling/validation/check_decision_spines.ps1" 
   "-DecisionSpinesRoot", (Join-Path $repoRoot "core\action_codes\decision_spines")
 )
 
-# 14) Factsheet action_codes vs UseCase map
-Invoke-LocalScript -RelativePath "tooling/validation/check_factsheet_actioncode_map.ps1" -Arguments @(
-  "-UseCasesRoot", $useCasesRoot,
-  "-MapPath", (Join-Path $repoRoot "core\usecases\UseCase_ActionCode_Map.yaml")
-)
+# 14) [REMOVED] Factsheet action_codes vs UseCase map — map deleted in Lean 2.0 cutover
 
-# 15) Factsheet layout vs templates
+# 15) Factsheet layout vs templates (business only; technical template removed in Lean 2.0)
 Invoke-LocalScript -RelativePath "tooling/validation/check_factsheet_layout.ps1" -Arguments @(
   "-UseCasesRoot", $factsheetsRoot,
-  "-BusinessTemplate", (Join-Path $repoRoot "core\usecases\templates\usecase_factsheet_business.md"),
-  "-TechnicalTemplate", (Join-Path $repoRoot "core\usecases\templates\usecase_factsheet_technical.md")
+  "-BusinessTemplate", (Join-Path $repoRoot "core\usecases\templates\usecase_factsheet_business.md")
 )
 
 # 16) KPI catalog vs Measure Dictionaries

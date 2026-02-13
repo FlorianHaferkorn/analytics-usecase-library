@@ -91,7 +91,7 @@ Each use case contains:
 
 To implement one use case end-to-end (e.g. COM-001):
 
-1. Pick a use case (e.g. COM-001) and open its factsheets: `core/usecases/core/<ID>_<Name>/` (Business_Factsheet.md, Technical_Factsheet.md).
+1. Pick a use case (e.g. COM-001) and open its artifacts: `core/usecases/core/<ID>_<Name>/` (Business_Factsheet.md, UseCase_Bracket.yaml).
 2. Generate TMDL measures from the KPI catalog (from repo root):
 
    ```

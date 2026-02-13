@@ -172,7 +172,7 @@ function Test-UseCaseBracket {
     return $false
   }
   if ($text -notmatch '(?m)^\s*strategic_kpi_id\s*:\s*\S+') {
-    $errors += "$($FactsheetPath): UseCase_Bracket.yaml missing ontology_bracket.strategic_kpi_id ($BracketPath)"
+    $errors += "$($FactsheetPath): UseCase_Bracket.yaml missing orchestration.strategic_kpi_id ($BracketPath)"
     return $false
   }
 
@@ -231,26 +231,14 @@ Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Business_Factsheet.m
   if (-not $domain) { $errors += "$($_.FullName): missing Domain" }
 
   $bracketPath = Get-UseCaseBracketPath -FactsheetPath $_.FullName
-  $hasBracket = Test-UseCaseBracket -BracketPath $bracketPath -FactsheetPath $_.FullName
-  if (-not $hasBracket) {
-    $reqBlock = Get-YamlBlock -Body $body -Key "required_kpis"
-    if ((Count-ListItems -YamlBlock $reqBlock -ItemKey "id") -lt 1) {
-      $errors += "$($_.FullName): required_kpis missing or empty (no UseCase_Bracket.yaml found)"
-    }
-    $acBlock = Get-YamlBlock -Body $body -Key "action_codes"
-    if ((Count-ListItems -YamlBlock $acBlock -ItemKey "id") -lt 1) {
-      $errors += "$($_.FullName): action_codes missing or empty (no UseCase_Bracket.yaml found)"
+  if (-not $bracketPath) {
+    $errors += "$($_.FullName): UseCase_Bracket.yaml not found (required for every Business_Factsheet.md)"
+  } else {
+    $hasBracket = Test-UseCaseBracket -BracketPath $bracketPath -FactsheetPath $_.FullName
+    if (-not $hasBracket) {
+      $errors += "$($_.FullName): UseCase_Bracket.yaml does not pass minimum validation ($bracketPath)"
     }
   }
-}
-
-Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Technical_Factsheet.md' | Where-Object {
-  $_.FullName -notmatch '\\_internal\\archive\\'
-} | ForEach-Object {
-  $fm = Get-FrontMatter -Path $_.FullName
-  if (-not ($fm -and $fm.Text)) { $errors += "Missing front-matter in $($_.FullName)"; return }
-  $body = Get-ContentBody -Path $_.FullName
-  Require-TechnicalRefs -Body $body -Path $_.FullName
 }
 
 if ($warnings.Count -gt 0) {

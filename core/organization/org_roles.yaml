@@ -1,0 +1,294 @@
+schema_version: "1.0"
+roles:
+  # --- Commercial ---
+  - id: head_of_sales
+    title: Head of Sales
+    domain: Commercial
+    aliases:
+      - CCO / Head of Sales
+      - Head of Sales
+
+  - id: commercial_controlling_lead
+    title: Commercial Controlling Lead
+    domain: Commercial
+    aliases:
+      - Commercial Controlling Lead
+
+  - id: sales_bi_lead
+    title: Sales BI Lead
+    domain: Commercial
+    aliases:
+      - Sales BI Lead
+
+  - id: head_of_marketing
+    title: Head of Marketing
+    domain: Commercial
+    aliases:
+      - Head of Marketing
+
+  - id: pricing_manager
+    title: Pricing Manager
+    domain: Commercial
+    aliases:
+      - Pricing Manager
+
+  - id: customer_value_lead
+    title: Customer Value Lead
+    domain: Commercial
+    aliases:
+      - Customer Value Lead
+
+  - id: promotion_manager
+    title: Promotion Manager
+    domain: Commercial
+    aliases:
+      - Promotion Manager
+      - Head of Trade Marketing
+
+  - id: commercial_bi_pricing_analytics_lead
+    title: Commercial BI / Pricing Analytics Lead
+    domain: Commercial
+    aliases:
+      - Commercial BI / Pricing Analytics Lead
+
+  - id: sales_ops_bi_lead
+    title: Sales Ops BI Lead
+    domain: Commercial
+    aliases:
+      - Sales Ops BI Lead
+
+  - id: revenue_growth_management_commercial_controlling
+    title: Revenue Growth Management / Commercial Controlling
+    domain: Commercial
+    aliases:
+      - Revenue Growth Management / Commercial Controlling
+
+  - id: trade_marketing_commercial_bi_lead
+    title: Trade Marketing / Commercial BI Lead
+    domain: Commercial
+    aliases:
+      - Trade Marketing / Commercial BI Lead
+
+  # --- Finance ---
+  - id: cfo
+    title: CFO
+    domain: Finance
+    aliases:
+      - CFO
+      - CFO / Treasury Lead
+
+  - id: treasury_lead
+    title: Treasury Lead
+    domain: Finance
+    aliases:
+      - Treasury Lead
+
+  - id: finance_bi_lead
+    title: Finance BI Lead
+    domain: Finance
+    aliases:
+      - Finance BI Lead
+
+  - id: controlling_lead
+    title: Controlling Lead
+    domain: Finance
+    aliases:
+      - Controlling Lead
+
+  - id: cost_center_manager
+    title: Cost Center Manager
+    domain: Finance
+    aliases:
+      - Cost Center Manager
+
+  - id: treasury_finance_controlling
+    title: Treasury / Finance Controlling
+    domain: Finance
+    aliases:
+      - Treasury / Finance Controlling
+
+  - id: treasury_finance_bi_lead
+    title: Treasury / Finance BI Lead
+    domain: Finance
+    aliases:
+      - Treasury / Finance BI Lead
+
+  - id: plant_ops_controllers
+    title: Plant/Ops Controllers
+    domain: Finance
+    aliases:
+      - Plant/Ops Controllers
+
+  - id: finance_strategy_ops_controlling
+    title: Finance / Strategy / Ops Controlling
+    domain: Finance
+    aliases:
+      - Finance / Strategy / Ops Controlling
+
+  # --- Operations ---
+  - id: head_of_operations
+    title: Head of Operations
+    domain: Operations
+    aliases:
+      - Head of Operations
+      - VP Operations
+
+  - id: operations_bi_lead
+    title: Operations BI Lead
+    domain: Operations
+    aliases:
+      - Operations BI Lead
+
+  - id: plant_manager
+    title: Plant Manager
+    domain: Operations
+    aliases:
+      - Plant Manager
+
+  - id: asset_manager
+    title: Asset Manager
+    domain: Operations
+    aliases:
+      - Asset Manager
+
+  - id: quality_manager
+    title: Quality Manager
+    domain: Operations
+    aliases:
+      - Quality Manager
+
+  - id: operations_controlling_oee_lead
+    title: Operations Controlling / OEE Lead
+    domain: Operations
+    aliases:
+      - Operations Controlling / OEE Lead
+
+  - id: ops_bi_lead_plant_analytics
+    title: Ops BI Lead / Plant Analytics
+    domain: Operations
+    aliases:
+      - Ops BI Lead / Plant Analytics
+
+  - id: maintenance_controlling_reliability
+    title: Maintenance Controlling / Reliability
+    domain: Operations
+    aliases:
+      - Maintenance Controlling / Reliability
+
+  - id: maintenance_reliability_bi_lead
+    title: Maintenance / Reliability BI Lead
+    domain: Operations
+    aliases:
+      - Maintenance / Reliability BI Lead
+
+  - id: quality_analytics_ops_bi_lead
+    title: Quality Analytics / Ops BI Lead
+    domain: Operations
+    aliases:
+      - Quality Analytics / Ops BI Lead
+
+  # --- Supply Chain ---
+  - id: head_of_supply_chain
+    title: Head of Supply Chain
+    domain: SupplyChain
+    aliases:
+      - Head of Supply Chain
+      - VP Supply Chain
+
+  - id: supply_chain_bi_lead
+    title: Supply Chain BI Lead
+    domain: SupplyChain
+    aliases:
+      - Supply Chain BI Lead
+
+  - id: logistics_manager
+    title: Logistics Manager
+    domain: SupplyChain
+    aliases:
+      - Logistics Manager
+
+  - id: demand_planning_lead
+    title: Demand Planning Lead
+    domain: SupplyChain
+    aliases:
+      - Demand Planning Lead
+
+  - id: supply_chain_controlling_inventory_mgmt_lead
+    title: Supply Chain Controlling / Inventory Mgmt Lead
+    domain: SupplyChain
+    aliases:
+      - Supply Chain Controlling / Inventory Mgmt Lead
+
+  - id: supply_chain_controlling_logistics_performance
+    title: Supply Chain Controlling / Logistics Performance
+    domain: SupplyChain
+    aliases:
+      - Supply Chain Controlling / Logistics Performance
+
+  - id: logistics_supply_chain_bi_lead
+    title: Logistics / Supply Chain BI Lead
+    domain: SupplyChain
+    aliases:
+      - Logistics / Supply Chain BI Lead
+
+  - id: planning_excellence_controlling
+    title: Planning Excellence / Controlling
+    domain: SupplyChain
+    aliases:
+      - Planning Excellence / Controlling
+
+  - id: planning_s_op_bi_lead
+    title: Planning / S&OP BI Lead
+    domain: SupplyChain
+    aliases:
+      - Planning / S&OP BI Lead
+
+  # --- Cross-Domain (XD) ---
+  - id: coo
+    title: COO
+    domain: XD
+    aliases:
+      - COO
+
+  - id: enterprise_bi_lead
+    title: Enterprise BI Lead
+    domain: XD
+    aliases:
+      - Enterprise BI Lead
+      - XD BI Lead
+
+  - id: hr_lead
+    title: HR Lead
+    domain: XD
+    aliases:
+      - HR Lead
+
+  - id: service_delivery_lead
+    title: Service Delivery Lead
+    domain: XD
+    aliases:
+      - Service Delivery Lead
+
+  - id: service_operations_cx_analytics
+    title: Service Operations / CX Analytics
+    domain: XD
+    aliases:
+      - Service Operations / CX Analytics
+
+  - id: service_ops_cx_bi_lead
+    title: Service Ops / CX BI Lead
+    domain: XD
+    aliases:
+      - Service Ops / CX BI Lead
+
+  - id: service_operations_workforce_planning
+    title: Service Operations / Workforce Planning
+    domain: XD
+    aliases:
+      - Service Operations / Workforce Planning
+
+  - id: workforce_management_service_ops_bi_lead
+    title: Workforce Management / Service Ops BI Lead
+    domain: XD
+    aliases:
+      - Workforce Management / Service Ops BI Lead

@@ -1,13 +1,11 @@
 schema_version: '2.0'
 id: COM-002
-name: Margin & Price Performance
+title: Margin & Price Performance
 domain: Commercial
 governance:
-  owner_role: Commercial Controlling Lead
-  steward_role: Commercial BI / Pricing Analytics Lead
-  status: active
-  last_review: '2026-02-12'
-ontology_bracket:
+  owner_role: commercial_controlling_lead
+  steward_role: commercial_bi_pricing_analytics_lead
+orchestration:
   strategic_kpi_id: margin.gm.pct
   influencing_kpi_ids:
   - margin.gm.amount
@@ -20,21 +18,35 @@ ontology_bracket:
   - C-P4.1
   - C-S1.2
 value_driver_model:
-  description: margin.gm.pct is driven by influencing KPIs and operational levers.
-  formula: margin.gm.pct = f(margin.gm.amount, sales.price.realization_pct, sales.pvm.mix_effect.amount,
-    cost.cogs_per_unit.amount, margin.gm.vs_plan.pct)
+  formula: margin.gm.pct = f(margin.gm.amount, sales.price.realization_pct, sales.pvm.mix_effect.amount, cost.cogs_per_unit.amount,
+    margin.gm.vs_plan.pct)
+  impact_direction: maximize
+  primary_driver: margin.gm.amount
+  impact_logic: Improving margin.gm.amount is the primary lever for maximizing margin.gm.pct.
 ux_layout_rules:
   report_structure: 2-Page-Lead
-  page_1_summary_insights:
+  page_1_summary:
     title: Commercial Summary & Insights
-    3s_component: 'North Star: margin.gm.pct'
-    30s_components: []
+    component_3s:
+      kpi_id: margin.gm.pct
+      visual_type: kpi_card
+    component_30s:
+    - kpi_id: margin.gm.amount
+      visual_type: trend_line
+    - kpi_ids:
+      - sales.price.realization_pct
+      - sales.pvm.mix_effect.amount
+      - cost.cogs_per_unit.amount
+      visual_type: bar_chart
   page_2_execution:
     title: Commercial Execution
-    300s_components:
-    - 'Evidence_Table: (define evidence table requirements)'
-    - 'Action_Panel: Integrated Side-Panel for Subscribed Action Codes'
-    - 'Payload_Injection: Show Level (L1-L3) and Steps from Action Code YAML'
+    component_300s:
+      evidence_grain: transaction_line
+      evidence_columns:
+      - entity
+      - period
+      - margin.gm.pct
+      action_panel: true
+      payload_mode: full
 documentation:
   business_factsheet: ./Business_Factsheet.md
-  technical_factsheet: ./Technical_Factsheet.md
