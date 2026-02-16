@@ -17,10 +17,12 @@ from __future__ import annotations
 
 import argparse
 import dataclasses
+import difflib
 import json
 import os
 import re
 import sys
+import textwrap
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple
@@ -264,6 +266,7 @@ class KpiRecord:
     line: int
     kpi_role: Optional[str]
     governance: Dict[str, Optional[str]]  # business_owner, data_owner, steward, owner_role, steward_role
+    depends_on_measures: List[str] = dataclasses.field(default_factory=list)
     causal_links: Optional[Dict[str, Any]] = None
 
 
@@ -319,6 +322,45 @@ def scan_kpi_catalog(repo_root: Path) -> Tuple[Dict[str, KpiRecord], List[Issue]
                 data_owner = _get_field("data_owner")
                 steward = _get_field("steward")
 
+                def _extract_depends_on_measures() -> List[str]:
+                    """
+                    Extract technical.depends_on_measures from this KPI YAML chunk using a line-based parser.
+                    We avoid a full YAML parse here because some catalog chunks can be "loose YAML".
+                    """
+                    for i, ln in enumerate(chunk_lines):
+                        mm = re.match(r"^(\s*)depends_on_measures\s*:\s*(.*?)\s*$", ln)
+                        if not mm:
+                            continue
+                        indent = len(mm.group(1) or "")
+                        tail = (mm.group(2) or "").strip()
+                        out: List[str] = []
+                        # Inline list: [a, b, c]
+                        if tail.startswith("[") and tail.endswith("]"):
+                            inner = tail[1:-1].strip()
+                            if inner:
+                                for part in inner.split(","):
+                                    tok = part.strip().strip('"').strip("'")
+                                    if tok:
+                                        out.append(tok)
+                            return out
+                        # Multi-line list items (indented deeper than the key line)
+                        for j in range(i + 1, len(chunk_lines)):
+                            ln2 = chunk_lines[j]
+                            lead = len(ln2) - len(ln2.lstrip(" "))
+                            if lead < indent:
+                                break
+                            # Stop when we hit the next key at the same indentation level.
+                            if lead == indent and re.match(r"^\s*[A-Za-z0-9_]+\s*:\s*", ln2):
+                                break
+                            m2 = re.match(r"^\s*-\s*([^\s#]+)\s*", ln2)
+                            if m2:
+                                tok = m2.group(1).strip().strip('"').strip("'")
+                                if tok:
+                                    out.append(tok)
+                        return out
+                    return []
+
+                depends_on_measures: List[str] = _extract_depends_on_measures()
                 causal_links: Optional[Dict[str, Any]] = None
                 # Best-effort parse of causal_links (if present) from the chunk using YAML loader.
                 if yaml is not None:
@@ -359,6 +401,7 @@ def scan_kpi_catalog(repo_root: Path) -> Tuple[Dict[str, KpiRecord], List[Issue]
                     line=kpi_line,
                     kpi_role=kpi_role,
                     governance=gov,
+                    depends_on_measures=depends_on_measures,
                     causal_links=causal_links,
                 )
     return kpis, issues
@@ -624,7 +667,8 @@ def load_validation_results_if_present(repo_root: Path, results_path: Optional[P
         return None, issues
     rel = _to_repo_rel(repo_root, results_path)
     try:
-        data = json.loads(_read_text(results_path))
+        # latest_results.json may be written with a UTF-8 BOM depending on environment.
+        data = json.loads(results_path.read_text(encoding="utf-8-sig"))
         if not isinstance(data, dict):
             issues.append(Issue("WARN", "validation_results.invalid", "latest_results.json must be a JSON object.", SourceLocation(rel, 1)))
             return None, issues
@@ -706,10 +750,242 @@ def _extract_domain_contract_from_technical_factsheet(text: str) -> Optional[str
     return _normalize_contract_ref(m.group(1))
 
 
+def scan_allowed_grains(repo_root: Path) -> Tuple[Set[str], List[Issue]]:
+    """
+    Collect every ``fact[*].grain`` value from ``core/data_contracts/domains/*.yaml``.
+    Returns the set of allowed evidence-grain tokens and any parse issues.
+    """
+    issues: List[Issue] = []
+    grains: Set[str] = set()
+    contracts_root = repo_root / "core" / "data_contracts" / "domains"
+    if not contracts_root.exists():
+        issues.append(
+            Issue(
+                "WARN",
+                "evidence_grain.contracts_dir_missing",
+                "Directory core/data_contracts/domains/ not found; evidence-grain validation skipped.",
+                SourceLocation("core/data_contracts/domains", 1),
+            )
+        )
+        return grains, issues
+    for p in sorted(contracts_root.glob("*.yaml")):
+        rel = _to_repo_rel(repo_root, p)
+        try:
+            data = parse_yaml_file(p)
+        except Exception as e:
+            issues.append(Issue("WARN", "evidence_grain.contract_parse_failed", f"YAML parse failed: {e}", SourceLocation(rel, 1)))
+            continue
+        if not isinstance(data, dict):
+            continue
+        facts = data.get("fact")
+        if not isinstance(facts, list):
+            continue
+        for fact in facts:
+            if isinstance(fact, dict):
+                grain = fact.get("grain")
+                if isinstance(grain, str) and grain.strip():
+                    grains.add(grain.strip())
+    return grains, issues
+
+
+def validate_evidence_grains(
+    brackets: Dict[str, Dict[str, Any]],
+    allowed_grains: Set[str],
+    repo_root: Path,
+) -> List[Issue]:
+    """
+    Validate ``evidence_grain`` in every bracket against the governed set of grains
+    extracted from domain contracts.
+
+    Rules:
+    - ``transaction_line`` is a known placeholder and always rejected (CRITICAL).
+    - Any grain not present in ``allowed_grains`` is flagged as a Governance Gap (ERROR).
+    """
+    issues: List[Issue] = []
+    for uc_id, rec in sorted(brackets.items()):
+        raw = rec.get("raw", {})
+        src = rec.get("source", "")
+        ux = raw.get("ux_layout_rules") if isinstance(raw, dict) else None
+        if not isinstance(ux, dict):
+            continue
+        p2 = ux.get("page_2_execution")
+        if not isinstance(p2, dict):
+            continue
+        c300 = p2.get("component_300s")
+        if not isinstance(c300, dict):
+            continue
+        eg = c300.get("evidence_grain")
+        if not isinstance(eg, str) or not eg.strip():
+            continue
+        eg = eg.strip()
+
+        # Locate source line for precise reporting
+        line = 1
+        try:
+            lines = _read_text_lines(repo_root / src)
+            found = find_line_for_yaml_kv(
+                yaml_lines=lines, yaml_start_line=1, keys=["evidence_grain"], value=eg
+            )
+            if found:
+                line = found
+        except Exception:
+            pass
+
+        if eg == "transaction_line":
+            msg = textwrap.dedent(f"""\
+                CRITICAL ERROR: Stage 1 Placeholder Detected
+
+                  File:   {src}
+                  Field:  ux_layout_rules.page_2_execution.component_300s.evidence_grain
+                  Value:  transaction_line
+
+                  Action Required:
+                  Der Wert 'transaction_line' ist ein unzulaessiger Platzhalter.
+                  Ein Use Case kann nur "ActionReady" sein, wenn eine reale
+                  Daten-Granularitaet definiert ist.
+                  Bitte pruefe internal/evidence_grain_audit_results.md und trage
+                  die korrekte Grain ein.""")
+            issues.append(
+                Issue("ERROR", "evidence_grain.placeholder_forbidden", msg, SourceLocation(src, line))
+            )
+        elif allowed_grains and eg not in allowed_grains:
+            close = difflib.get_close_matches(eg, sorted(allowed_grains), n=1, cutoff=0.6)
+            if close:
+                hint_line = f"1. Pruefe auf Tippfehler. Meintest du eventuell '{close[0]}'?"
+            else:
+                hint_line = f"1. Erlaubte Grains: {sorted(allowed_grains)}."
+            msg = textwrap.dedent(f"""\
+                ERROR: Governance Gap - Ungoverned Evidence Grain
+
+                  File:            {src}
+                  Attempted Grain: {eg}
+
+                  Reason:
+                  Die angegebene Grain ist in keinem aktiven Data Contract unter
+                  core/data_contracts/domains/*.yaml definiert.
+
+                  Action Required:
+                  {hint_line}
+                  2. Falls die Grain neu ist: Erweitere zuerst den entsprechenden
+                     Data Contract um diese Fact-Tabelle/Grain, bevor du sie im
+                     Bracket verwendest.
+                  Hinweis: Ein Use Case darf nur referenzieren, was technisch durch
+                  einen Contract abgesichert ist.""")
+            issues.append(
+                Issue("ERROR", "evidence_grain.governance_gap", msg, SourceLocation(src, line))
+            )
+    return issues
+
+
+# ---------------------------------------------------------------------------
+# Grain-entity synonym map for action-step text validation
+# ---------------------------------------------------------------------------
+
+_GRAIN_ENTITY_SYNONYMS: Dict[str, List[str]] = {
+    "invoice_line": ["invoice line", "invoice", "line item"],
+    "customer_month": ["customer", "account"],
+    "promotion": ["promotion", "promo", "campaign"],
+    "entity_month": ["entity", "business unit", "company"],
+    "plant_line_product_month": ["plant", "production line", "product"],
+    "line_day": ["line", "production line", "shift"],
+    "failure_event": ["failure", "event", "breakdown", "asset"],
+    "location_sku_month": ["location", "sku", "warehouse", "inventory"],
+    "shipment_line": ["shipment", "delivery", "order"],
+    "case": ["case", "ticket", "incident"],
+    "agent_day": ["agent", "representative", "resource"],
+}
+
+
+def _extract_evidence_grain(bracket_raw: Dict[str, Any]) -> Optional[str]:
+    """Return the evidence_grain string from a bracket's raw YAML, or None."""
+    ux = bracket_raw.get("ux_layout_rules")
+    if not isinstance(ux, dict):
+        return None
+    p2 = ux.get("page_2_execution")
+    if not isinstance(p2, dict):
+        return None
+    c300 = p2.get("component_300s")
+    if not isinstance(c300, dict):
+        return None
+    eg = c300.get("evidence_grain")
+    return eg.strip() if isinstance(eg, str) and eg.strip() else None
+
+
+def validate_action_step_entity_references(
+    brackets: Dict[str, Dict[str, Any]],
+    actions: Dict[str, Dict[str, Any]],
+) -> List[Issue]:
+    """
+    WARN-level check: for every active bracket, verify that each subscribed
+    action code's ``operational_execution.steps`` text references the entity
+    implied by the bracket's ``evidence_grain``.
+
+    Uses ``_GRAIN_ENTITY_SYNONYMS`` for matching (case-insensitive).
+    Non-blocking — emits WARN, does not fail the build.
+    """
+    issues: List[Issue] = []
+    for uc_id, rec in sorted(brackets.items()):
+        raw = rec.get("raw", {})
+        src = rec.get("source", "")
+        eg = _extract_evidence_grain(raw)
+        if not eg:
+            continue
+        synonyms = _GRAIN_ENTITY_SYNONYMS.get(eg)
+        if not synonyms:
+            continue  # no synonym map for this grain yet; skip silently
+
+        orch = raw.get("orchestration") if isinstance(raw, dict) else None
+        if not isinstance(orch, dict):
+            continue
+        acts = orch.get("action_code_ids")
+        if not isinstance(acts, list):
+            continue
+
+        for aid in acts:
+            if not isinstance(aid, str):
+                continue
+            aid = aid.strip()
+            arec = actions.get(aid)
+            if not arec:
+                continue
+            araw = arec.get("raw", {})
+            asrc = arec.get("source", "")
+            op_exec = araw.get("operational_execution") if isinstance(araw, dict) else None
+            if not isinstance(op_exec, dict):
+                continue
+            steps = op_exec.get("steps")
+            if not isinstance(steps, list):
+                continue
+
+            # Concatenate all step texts for a single pass
+            all_text = " ".join(str(s) for s in steps).lower()
+            # Accept {entity} placeholder as valid entity reference (resolved at runtime)
+            if "{entity}" in all_text:
+                continue
+            if any(syn.lower() in all_text for syn in synonyms):
+                continue  # at least one synonym found — OK
+
+            msg = textwrap.dedent(f"""\
+                WARN: Action step text does not reference evidence grain entity
+
+                  Action Code: {aid}
+                  Use Case:    {uc_id}
+                  Grain:       {eg}
+                  Expected:    one of {synonyms}
+
+                  None of the step texts mention the entity. Consider rephrasing
+                  to prescriptive voice, e.g. "CHECK this {eg.replace('_', ' ')}
+                  against the threshold.\"""")
+            issues.append(
+                Issue("WARN", "action_step.missing_entity_reference", msg, SourceLocation(asrc, 1))
+            )
+    return issues
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Build ActionReady master registry and orphan reports.")
     parser.add_argument("--repo-root", default="", help="Repository root. Default: inferred from this script location.")
-    parser.add_argument("--out-dir", default=".", help="Output directory (relative to repo root). Default: repo root.")
+    parser.add_argument("--out-dir", default="tooling/ontology/out", help="Output directory (relative to repo root). Default: tooling/ontology/out (canonical).")
     parser.add_argument("--strict", action="store_true", help="Fail (exit 1) if orphans detected or any ERROR issues.")
     parser.add_argument(
         "--validation-results",
@@ -730,6 +1006,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     brackets, bracket_issues = scan_usecase_brackets(repo_root)
     factsheets, factsheet_issues = scan_usecase_factsheets(repo_root)
     issues.extend(kpi_issues + action_issues + bracket_issues + factsheet_issues)
+
+    # Evidence-grain governance: load allowed grains from domain contracts, validate brackets
+    allowed_grains, grain_scan_issues = scan_allowed_grains(repo_root)
+    issues.extend(grain_scan_issues)
+    grain_validation_issues = validate_evidence_grains(brackets, allowed_grains, repo_root)
+    issues.extend(grain_validation_issues)
+
+    # Action-step entity-reference check (WARN-level, non-blocking)
+    step_entity_issues = validate_action_step_entity_references(brackets, actions)
+    issues.extend(step_entity_issues)
 
     # Linked sets from active brackets
     uc_ids_active, linked_kpis, linked_actions, link_issues = build_linked_sets_from_brackets(brackets)
@@ -783,6 +1069,22 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                         issues.append(Issue("ERROR", "org_registry.invalid_role",
                                             f"UseCase '{uc_id}' governance.{role_field} '{role_val}' not found in org_roles.yaml.",
                                             SourceLocation(src, 1)))
+        for aid, arec in actions.items():
+            raw = arec.get("raw", {}) or {}
+            src = arec.get("source", "") or ""
+            if not isinstance(raw, dict):
+                continue
+            for role_field in ("owner_role", "steward_role"):
+                role_val = raw.get(role_field)
+                if isinstance(role_val, str) and role_val.strip() and role_val.strip() not in valid_role_ids:
+                    issues.append(
+                        Issue(
+                            "ERROR",
+                            "org_registry.invalid_role",
+                            f"ActionCode '{aid}' {role_field} '{role_val}' not found in org_roles.yaml.",
+                            SourceLocation(src, 1),
+                        )
+                    )
 
     # Referential integrity: bracket references must exist (hard errors with line mapping)
     for uc_id in sorted(uc_ids_active):
@@ -887,10 +1189,48 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         vdm = raw.get("value_driver_model", {}) if isinstance(raw, dict) else {}
         if not isinstance(ob, dict) or not isinstance(vdm, dict):
             continue
+        # Lean 2.0 logical consistency: primary_driver should be a true dependency of the strategic KPI
+        primary_driver = vdm.get("primary_driver")
+        sk = ob.get("strategic_kpi_id")
+        if isinstance(primary_driver, str) and primary_driver.strip() and isinstance(sk, str) and sk.strip():
+            sk_id = sk.strip()
+            pd = primary_driver.strip()
+            kpi_rec = kpis.get(sk_id)
+            allowed: Set[str] = set()
+            # Only enforce when the KPI Catalog provides explicit dependency metadata.
+            if kpi_rec and getattr(kpi_rec, "depends_on_measures", None):
+                dom = [x for x in (kpi_rec.depends_on_measures or []) if isinstance(x, str) and x.strip()]
+                # Ignore degenerate/self-referential metadata like ["<kpi_id>"] which is not useful for validation.
+                dom = [x for x in dom if x != sk_id]
+                allowed = set(dom)
+            if allowed and pd not in allowed:
+                line = 1
+                try:
+                    lines = _read_text_lines(repo_root / rec.get("source", ""))
+                    line = find_line_for_yaml_kv(yaml_lines=lines, yaml_start_line=1, keys=["primary_driver"], value=pd) or 1
+                except Exception:
+                    pass
+                issues.append(
+                    Issue(
+                        "ERROR",
+                        "value_driver.primary_driver_not_dependency",
+                        f"UseCase '{uc_id}' primary_driver '{pd}' is not a dependency of strategic KPI '{sk_id}' "
+                        f"(allowed depends_on_measures: {sorted(allowed)}).",
+                        SourceLocation(rec.get("source", ""), line),
+                    )
+                )
+            elif not allowed:
+                issues.append(
+                    Issue(
+                        "WARN",
+                        "value_driver.primary_driver_unverifiable",
+                        f"UseCase '{uc_id}' primary_driver '{pd}' cannot be verified because KPI '{sk_id}' has no technical.depends_on_measures metadata.",
+                        SourceLocation(rec.get("source", ""), 1),
+                    )
+                )
         formula = vdm.get("formula")
         if not isinstance(formula, str) or "=" not in formula:
             continue
-        sk = ob.get("strategic_kpi_id")
         infl_set = set()
         for kid in (ob.get("influencing_kpi_ids") or []):
             if isinstance(kid, str) and kid.strip():
@@ -911,10 +1251,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                         Issue("WARN", "value_driver.rhs_unknown", f"UseCase '{uc_id}' formula RHS '{tok}' not in KPI catalog.", SourceLocation(rec.get("source", ""), 1))
                     )
             if infl_set and rhs_tokens:
-                missing = infl_set - rhs_tokens
-                if missing:
+                # Formula RHS should reference only KPIs that are part of the influencing set (subset check).
+                # Influencing KPIs may be a strict superset of what the formula spells out.
+                rhs_outside_infl = {t for t in rhs_tokens if t != (sk.strip() if isinstance(sk, str) else "")} - infl_set
+                if rhs_outside_infl:
                     issues.append(
-                        Issue("WARN", "value_driver.rhs_missing_influencing", f"UseCase '{uc_id}' influencing KPIs {sorted(missing)} not in formula RHS.", SourceLocation(rec.get("source", ""), 1))
+                        Issue(
+                            "WARN",
+                            "value_driver.rhs_not_in_influencing",
+                            f"UseCase '{uc_id}' formula RHS references KPIs not listed in influencing_kpi_ids: {sorted(rhs_outside_infl)}.",
+                            SourceLocation(rec.get("source", ""), 1),
+                        )
                     )
         except Exception:
             pass
@@ -1427,6 +1774,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         inventory_lines.append(f"| {uc_id} | {title} | {domain} | {sk} | {infl_str} | {acts_str} | {owner} | {steward} |")
     inventory_lines.append("")
     inventory_path.write_text("\n".join(inventory_lines), encoding="utf-8")
+
+    # Print actionable errors and warnings to stderr for CI visibility
+    for iss in issues:
+        if iss.severity in ("ERROR", "WARN"):
+            print(iss.message, file=sys.stderr)
+            print(file=sys.stderr)
 
     # Determine exit code
     has_errors = any(iss.severity == "ERROR" for iss in issues)

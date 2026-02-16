@@ -97,7 +97,7 @@ function Get-ActionCodeIds {
   param([string]$Root)
   $ids = [System.Collections.Generic.HashSet[string]]::new()
   Get-ChildItem -Path $Root -Recurse -File | Where-Object {
-    $_.Extension -in @(".yaml",".yml") -and $_.FullName -notmatch '\\_internal\\archive\\'
+    $_.Extension -in @(".yaml",".yml") -and $_.FullName -notmatch '\\internal\\archive\\'
   } | ForEach-Object {
     $basename = [System.IO.Path]::GetFileNameWithoutExtension($_.Name)
     if ($basename) { $null = $ids.Add($basename) }
@@ -120,7 +120,7 @@ $actionCodeIds = Get-ActionCodeIds -Root $actionCodesRoot
 $missing = @()
 
 Get-ChildItem -Path $useCasesRoot -Recurse -Filter "Business_Factsheet.md" | Where-Object {
-  $_.FullName -notmatch '\\_internal\\archive\\'
+  $_.FullName -notmatch '\\internal\\archive\\'
 } | ForEach-Object {
   $fm = Get-FrontMatterText -Path $_.FullName
   $refs = @()

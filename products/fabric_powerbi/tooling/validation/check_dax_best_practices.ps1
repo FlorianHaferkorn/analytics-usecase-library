@@ -27,7 +27,7 @@ if (-not (Test-Path $rulesResolved)) {
 $rules = Get-Content -Raw -Path $rulesResolved | ConvertFrom-Json
 
 $tmdlFiles = Get-ChildItem -Path $distResolved -Recurse -Filter "_Measures.tmdl" -ErrorAction SilentlyContinue | Where-Object {
-  $_.FullName -notmatch '\\_internal\\archive\\'
+  $_.FullName -notmatch '\\internal\\archive\\'
 }
 if (-not $tmdlFiles -or $tmdlFiles.Count -eq 0) {
   Write-Host "No _Measures.tmdl under DistRoot. Skipping DAX best-practice check." -ForegroundColor Yellow

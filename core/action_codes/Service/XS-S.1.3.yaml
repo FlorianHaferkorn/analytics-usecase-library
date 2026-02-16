@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: X-S1.3
 name: Quality & First-Contact Resolution Uplift
 owner_domain: CX / Quality Management
 impact_dimension: Quality & Yield
 status: active
-owner_role: Quality & Training Lead
-steward_role: CX / Quality Management BI Lead
+owner_role: quality_and_training_lead
+steward_role: cx_quality_management_bi_lead
 use_case_links:
   core_use_cases:
   - XD-001
@@ -112,10 +112,10 @@ operational_execution:
   - Root-cause tagging of repeat contacts
   - Accessible knowledge base and coaching capacity
   steps:
-  - Identify queues/agent groups with low FCR
-  - Diagnose top repeat-contact drivers
-  - Deploy targeted coaching, scripts, or knowledge updates
-  - Review FCR and escalations bi-weekly
+  - IDENTIFY cases with low first-contact resolution by queue/agent group
+  - DIAGNOSE top repeat-contact drivers for this case type
+  - DEPLOY targeted coaching, scripts, or knowledge updates for this case type
+  - REVIEW FCR and escalations for this case type bi-weekly
   effort:
     level: Medium
     typical_duration_days: 90

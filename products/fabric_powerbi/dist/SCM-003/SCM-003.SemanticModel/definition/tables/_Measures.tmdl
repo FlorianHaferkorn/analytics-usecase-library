@@ -49,3 +49,24 @@ table _Measures
 			BLANK()
 		formatString: "#,0"
 		displayFolder: "SCM-003"
+
+	/// order.lines - Order Lines Count
+	/// Counts order lines processed in the period.
+	measure 'Order Lines Count' =
+			BLANK()
+		formatString: "#,0"
+		displayFolder: "SCM-003"
+
+	/// plans.count - Plans Count
+	/// Counts planning cycles or plan versions in the period.
+	measure 'Plans Count' =
+			BLANK()
+		formatString: "#,0"
+		displayFolder: "SCM-003"
+
+	/// sales.units - Sales Units
+	/// Measures sold units volume in the period.
+	measure 'Sales Units' =
+			BLANK()
+		formatString: "#,0"
+		displayFolder: "SCM-003"

@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: F-C1.2
 name: Collections Acceleration
 owner_domain: Finance / Credit & Collections
 impact_dimension: Liquidity
 status: active
-owner_role: Head of Credit & Collections
-steward_role: Finance BI Lead
+owner_role: head_of_credit_and_collections
+steward_role: finance_bi_lead
 use_case_links:
   core_use_cases:
   - FIN-001
@@ -110,10 +110,10 @@ operational_execution:
   - Up-to-date aging and dispute flags
   - Clear escalation and approval matrix
   steps:
-  - Identify customers driving DSO deterioration
-  - Prioritise invoices by age and exposure
-  - Execute reminders, calls, and escalations
-  - Review cash-in impact weekly
+  - IDENTIFY customers driving DSO deterioration for this entity
+  - PRIORITISE invoices by age and exposure within this entity
+  - EXECUTE reminders, calls, and escalations for this entity
+  - REVIEW cash-in impact for this entity weekly
   effort:
     level: Medium
     typical_duration_days: 45

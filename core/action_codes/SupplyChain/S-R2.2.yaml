@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: S-R2.2
 name: Fulfillment & Transport Stabilisation
 owner_domain: Logistics / Operations
 impact_dimension: Timeliness
 status: active
-owner_role: Logistics Manager
-steward_role: Operations BI Lead
+owner_role: logistics_manager
+steward_role: operations_bi_lead
 use_case_links:
   core_use_cases:
   - SCM-002
@@ -111,10 +111,10 @@ operational_execution:
   - Accurate shipment event timestamps
   - Clear lane and carrier ownership
   steps:
-  - Identify lanes/DCs with recurring late deliveries
-  - Analyse delay root causes (pickup, transit, handover)
-  - Implement corrective actions with carriers and DCs
-  - Review on-time performance weekly
+  - IDENTIFY shipments with recurring late deliveries by lane/DC
+  - ANALYSE delay root causes (pickup, transit, handover) for this shipment
+  - IMPLEMENT corrective actions with carriers and DCs for this shipment
+  - REVIEW on-time performance for this shipment weekly
   effort:
     level: Low to Medium
     typical_duration_days: 30

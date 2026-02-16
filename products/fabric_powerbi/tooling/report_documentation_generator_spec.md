@@ -86,7 +86,7 @@ For each page in the report:
 
 ### Slots Activated
 
-<From UseCase_PageTemplate_Map.yaml>
+<From UseCase_Bracket.yaml (ux_layout_rules)>
 - Slot 1: <Purpose>
 - Slot 2: <Purpose>
 
@@ -230,7 +230,7 @@ See `core/action_codes/` for full definitions and trigger logic.
 <From core/templates/page_templates/governance/Page_DoD.md>
 
 - [x] Page uses exactly one allowed page type (T1, T2, T3, or T4)
-- [x] Page exists in UseCase_PageTemplate_Map.yaml
+- [x] Use case has a UseCase_Bracket.yaml with ux_layout_rules
 - [x] Template assignment matches the mapping
 - [x] Activated slots match the mapping exactly
 - [x] Only whitelisted visuals are used
@@ -355,7 +355,7 @@ A: Contact the Report Owner: <contact> or Domain Owner: <contact>.
    - UseCase_Bracket.yaml: technical configuration, KPI mappings, data requirements
 
 4. **Framework Artifacts**
-   - `UseCase_PageTemplate_Map.yaml`: template and slot mapping
+   - `UseCase_Bracket.yaml`: UX layout rules (3s/30s/300s intent)
    - `UseCase_Bracket.yaml`: action code references (orchestration.action_code_ids)
    - KPI Catalog: KPI definitions
    - Action Codes: action code definitions
@@ -402,7 +402,7 @@ Documentation is complete when:
 
 - Every measure used in visuals must have a KPI ID or be documented as "supporting measure"
 - Every action code referenced must exist in `core/action_codes/`
-- Every page must match a template from `UseCase_PageTemplate_Map.yaml`
+- Every page must match the UX intent in the use case bracket (`UseCase_Bracket.yaml`)
 - Every visual must be whitelisted in `Visual_Whitelist.md`
 
 ---

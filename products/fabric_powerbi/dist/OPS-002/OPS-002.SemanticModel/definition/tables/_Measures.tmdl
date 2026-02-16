@@ -15,44 +15,84 @@ table _Measures
 		isHidden
 		summarizeBy: none
 
-	/// ops.availability.pct - Availability %
-	/// Uptime share relative to planned production time.
-	measure 'Availability %' =
-			BLANK()
-		formatString: "0.0%"
-		displayFolder: "OPS-002"
-
 	/// ops.mtbf.hours - MTBF (hours)
 	/// Measures average operating time between failures.
 	measure 'MTBF (hours)' =
-			BLANK()
+			VAR FailureCount = COUNTROWS ( fact_ops_failures )
+			VAR OperatingTime = SUMX ( fact_ops, fact_ops[Run Time Minutes] / 60 )
+			RETURN DIVIDE ( OperatingTime, FailureCount )
 		formatString: "0"
+		displayFolder: "OPS-002"
+
+	/// ops.availability.pct - Availability %
+	/// Uptime share relative to planned production time.
+	measure 'Availability %' =
+			VAR RunTime = SUM ( fact_ops[Run Time Minutes] )
+			VAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] )
+			RETURN DIVIDE ( RunTime, PlannedTime )
+		formatString: "0.0%"
 		displayFolder: "OPS-002"
 
 	/// ops.mttr.hours - MTTR (hours)
 	/// Measures average repair time after failures.
 	measure 'MTTR (hours)' =
-			BLANK()
+			VAR FailureCount = COUNTROWS ( fact_ops_failures )
+			VAR TotalRepairTime = SUM ( fact_ops_failures[Repair Duration Hours] )
+			RETURN DIVIDE ( TotalRepairTime, FailureCount )
 		formatString: "0"
 		displayFolder: "OPS-002"
 
 	/// ops.downtime.unplanned.pct - Unplanned Downtime %
 	/// Measures unplanned downtime share of planned time.
 	measure 'Unplanned Downtime %' =
-			BLANK()
+			VAR UnplannedDowntime = SUMX ( fact_ops_failures, fact_ops_failures[Downtime Minutes] )
+			VAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] )
+			RETURN DIVIDE ( UnplannedDowntime, PlannedTime )
 		formatString: "0.0%"
 		displayFolder: "OPS-002"
 
 	/// ops.spare_parts.stockout.pct - Spare Parts Stockout %
 	/// Measures stockout frequency for critical spare parts.
 	measure 'Spare Parts Stockout %' =
-			BLANK()
+			VAR StockoutCount = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Parts Stockout Flag] = TRUE () )
+			VAR TotalRequests = COUNTROWS ( fact_maintenance )
+			RETURN DIVIDE ( StockoutCount, TotalRequests )
 		formatString: "0.0%"
 		displayFolder: "OPS-002"
 
 	/// ops.pm_compliance.pct - PM Compliance %
 	/// Tracks adherence to preventive maintenance plan.
 	measure 'PM Compliance %' =
-			BLANK()
+			VAR CompletedPM = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order Type] = "PM", fact_maintenance[Order Status] = "Completed" )
+			VAR PlannedPM = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order Type] = "PM" )
+			RETURN DIVIDE ( CompletedPM, PlannedPM )
 		formatString: "0.0%"
+		displayFolder: "OPS-002"
+
+	/// ops.failure.count - Failure Count
+	/// Counts equipment or process failures in the period.
+	measure 'Failure Count' =
+			BLANK()
+		formatString: "#,0"
+		displayFolder: "OPS-002"
+
+	/// ops.inventory.value.amount - Inventory Value Amount
+	/// Tracks inventory value for maintenance-relevant items.
+	measure 'Inventory Value Amount' =
+			BLANK()
+		formatString: "#,0.00"
+		displayFolder: "OPS-002"
+
+	/// ops.pm.task.count - Preventive Maintenance Task Count
+	/// Counts preventive maintenance tasks executed or scheduled.
+	measure 'Preventive Maintenance Task Count' =
+			BLANK()
+		formatString: "#,0"
+		displayFolder: "OPS-002"
+
+	/// ops.safety.incident.count - Safety Incident Count
+	/// Counts safety incidents recorded in the period.
+	measure 'Safety Incident Count' =
+			BLANK()
+		formatString: "#,0"
 		displayFolder: "OPS-002"

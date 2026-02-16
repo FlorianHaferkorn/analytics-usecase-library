@@ -1,4 +1,4 @@
-﻿# Slot Definitions – Page Template Governance
+# Slot Definitions – Page Template Governance
 
 Slots define **what kind of analytical content** a page may contain.
 They are **semantic placeholders**, not visuals.
@@ -22,7 +22,7 @@ The Visual Whitelist decides **how a slot may be visualized**.
 Slots are activated per use case via:
 
 ```yaml
-mappings/UseCase_PageTemplate_Map.yaml
+core/usecases/core/<ID>_*/UseCase_Bracket.yaml (ux_layout_rules)
 ```
 
 ---

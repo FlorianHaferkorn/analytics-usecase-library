@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: X-R2.4
 name: Overtime & Fatigue Containment
 owner_domain: Service Operations / HR
 impact_dimension: Sustainability
 status: active
-owner_role: Service Operations Manager
-steward_role: Operations BI Lead
+owner_role: service_operations_manager
+steward_role: operations_bi_lead
 use_case_links:
   core_use_cases:
   - XD-002
@@ -110,10 +110,10 @@ operational_execution:
   - Clear overtime approval and attribution rules
   - Visibility into overtime drivers by queue
   steps:
-  - Identify queues with recurring overtime
-  - Analyse root causes (demand spikes, misallocation, shrinkage)
-  - Adjust schedules, reallocate capacity, or correct planning gaps
-  - Review overtime and SLA monthly
+  - IDENTIFY agents in queues with recurring overtime
+  - ANALYSE root causes (demand spikes, misallocation, shrinkage) for this agent
+  - ADJUST schedules, REALLOCATE capacity, or CORRECT planning gaps for this agent
+  - REVIEW overtime and SLA for this agent monthly
   effort:
     level: Medium
     typical_duration_days: 120

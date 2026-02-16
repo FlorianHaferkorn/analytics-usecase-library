@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: S-R2.4
 name: Penalty & Expedite Cost Control
 owner_domain: Logistics / Procurement
 impact_dimension: Cost Efficiency
 status: active
-owner_role: Logistics Cost Manager
-steward_role: Logistics / Procurement BI Lead
+owner_role: logistics_cost_manager
+steward_role: logistics_procurement_bi_lead
 use_case_links:
   core_use_cases:
   - SCM-002
@@ -113,10 +113,10 @@ operational_execution:
   - Penalty attribution by lane/customer
   - Clear expedite approval logic
   steps:
-  - Identify lanes with recurring penalties or expedites
-  - Classify costs as avoidable vs justified
-  - Correct underlying execution or planning issues
-  - Review cost trends monthly
+  - IDENTIFY shipments with recurring penalties or expedites by lane
+  - CLASSIFY costs as avoidable vs justified for this shipment
+  - CORRECT underlying execution or planning issues for this shipment
+  - REVIEW cost trends for this shipment monthly
   effort:
     level: Medium
     typical_duration_days: 60

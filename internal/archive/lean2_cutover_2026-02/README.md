@@ -15,3 +15,7 @@ These files were removed from active use during the Lean 2.0 hard cutover.
 - **UseCase_Bracket.yaml** (`core/usecases/core/*/UseCase_Bracket.yaml`) is the exclusive SSOT for use case orchestration, including action code subscriptions.
 - **registry_builder.py** validates referential integrity of brackets, KPIs, and action codes in one pass.
 - **Stage 1 checks** (`tooling/run_stage1_checks.ps1`) enforce the Lean 2.0 contract; `run_all_checks.ps1` was updated to skip these archived checks.
+
+## Reference-only scripts
+
+- **refactor_usecases_to_brackets.py** — Legacy migration that extracted YAML from Business/Technical factsheets into UseCase_Bracket.yaml. Retained for reference only; Lean 2.0 cutover is complete.

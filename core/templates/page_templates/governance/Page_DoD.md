@@ -1,4 +1,4 @@
-﻿# Page Template – Definition of Done (DoD)
+# Page Template – Definition of Done (DoD)
 
 A page is considered complete only if **all checks below are fulfilled**.
 If one check fails, the page must not be released.
@@ -17,12 +17,11 @@ Reference: page_templates/README.md
 
 ## 2. Use Case Mapping
 
-- [ ] Page exists in UseCase_PageTemplate_Map.yaml
-- [ ] Template assignment matches the mapping
-- [ ] Activated slots match the mapping exactly
-- [ ] No additional slots are used
+- [ ] Use case has a `UseCase_Bracket.yaml`
+- [ ] `ux_layout_rules` exists and matches the implemented report pages (overview vs execution)
+- [ ] Activated content matches the bracket intent (3s/30s/300s); no extra page purposes are introduced
 
-Reference: mappings/UseCase_PageTemplate_Map.yaml
+Reference: `core/usecases/core/<ID>_*/UseCase_Bracket.yaml`
 
 ---
 

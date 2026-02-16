@@ -148,7 +148,7 @@ Weekly / Monthly (from Business Factsheet)
 
 ## Traceability
 
-- **Use case:** `core/usecases/core/` (Business + Technical Factsheet)
+- **Use case:** `core/usecases/core/` (Business Factsheet + UseCase_Bracket.yaml)
 - **KPI catalog:** `core/kpi_catalog/`
 - **Action codes:** `core/action_codes/`
 - **Page templates:** `core/templates/page_templates/`

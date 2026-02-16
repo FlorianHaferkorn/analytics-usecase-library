@@ -28,7 +28,7 @@ $issues = @()
 # Action Code IDs
 $actionCodeIds = @{}
 Get-ChildItem -Path (Join-Path $rootPath "core\action_codes") -Recurse -Filter "*.yaml" | Where-Object {
-  $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\_internal\\archive\\'
+  $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\internal\\archive\\'
 } | ForEach-Object {
   $id = $null
   Get-Content -Path $_.FullName | ForEach-Object {
@@ -60,7 +60,7 @@ if (Test-Path $inventoryPath) {
 
 # Factsheet IDs (by type)
 Get-ChildItem -Path (Join-Path $rootPath "core\usecases") -Recurse -Filter "*Factsheet*.md" | Where-Object {
-  $_.FullName -notmatch '\\_internal\\archive\\' -and $_.FullName -notmatch '\\core\\usecases\\templates\\'
+  $_.FullName -notmatch '\\internal\\archive\\' -and $_.FullName -notmatch '\\core\\usecases\\templates\\'
 } | ForEach-Object {
   $content = Get-Content -Raw -Path $_.FullName
   $match = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---")
@@ -96,7 +96,7 @@ Get-ChildItem -Path (Join-Path $rootPath "core\action_codes\decision_spines") -F
 
 # Data contract table names (per file)
 Get-ChildItem -Path (Join-Path $rootPath "core\data_contracts\domains") -Recurse -Filter "*.yaml" | Where-Object {
-  $_.FullName -notmatch '\\_internal\\archive\\'
+  $_.FullName -notmatch '\\internal\\archive\\'
 } | ForEach-Object {
   $seen = @{}
   Get-Content -Path $_.FullName | ForEach-Object {

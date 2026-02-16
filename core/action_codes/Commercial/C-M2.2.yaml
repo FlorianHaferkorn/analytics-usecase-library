@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: C-M2.2
 name: Mix Optimization (Margin-Driven)
 owner_domain: Commercial
 impact_dimension: Profitability
 status: active
-owner_role: Category Manager
-steward_role: Commercial BI Lead
+owner_role: category_manager
+steward_role: commercial_bi_lead
 use_case_links:
   core_use_cases:
   - COM-002
@@ -111,10 +111,10 @@ operational_execution:
   - Defined SKU margin tiers
   - Clear identification of strategic SKUs
   steps:
-  - Identify regions/channels with persistent negative mix effect
-  - Rank SKUs by margin contribution
-  - Adjust sales targets and focus lists
-  - Monitor mix and margin monthly
+  - IDENTIFY each {entity} with persistent negative mix effect
+  - RANK SKUs by margin contribution for this {entity}
+  - ADJUST sales targets and focus lists for this {entity}
+  - MONITOR mix and margin for this {entity} monthly
   effort:
     level: Medium
     typical_duration_days: 60

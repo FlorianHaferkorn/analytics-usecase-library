@@ -204,7 +204,7 @@ Write-Host "Template layout checks" -ForegroundColor Cyan
 $issues = @()
 
 Get-ChildItem -Path $useCasesRoot -Recurse -Filter "Business_Factsheet.md" | Where-Object {
-  $_.FullName -notmatch '\\_internal\\archive\\'
+  $_.FullName -notmatch '\\internal\\archive\\'
 } | ForEach-Object {
   $actual = @(Get-Headings -Path $_.FullName)
   $cmp = Compare-OrderedList -Expected $expectedBusiness -Actual $actual
@@ -226,7 +226,7 @@ if ($actionCodesRoot -and $actionCodeTemplatePath) {
   $expectedActionKeys = @(Get-TemplateYamlTopLevelKeys -Path $actionCodeTemplatePath)
   $optionalActionKeys = @("inherits_decision_spine")
   $actionFiles = Get-ChildItem -Path $actionCodesRoot -Recurse -Filter "*.yaml" | Where-Object {
-    $_.FullName -notmatch 'decision_spines' -and $_.FullName -notmatch '\\_internal\\archive\\'
+    $_.FullName -notmatch 'decision_spines' -and $_.FullName -notmatch '\\internal\\archive\\'
   }
   if ($actionFiles.Count -eq 0) {
     Write-Host "Note: no Action Code YAML files found under $actionCodesRoot." -ForegroundColor Yellow
@@ -338,7 +338,7 @@ if ($dataContractsRoot -and $factTemplatePath -and $dimTemplatePath) {
   $expectedFactKeys = @(Get-YamlChildKeys -Path $factTemplatePath -RootKey "fact")
   $expectedDimKeys = @(Get-YamlChildKeys -Path $dimTemplatePath -RootKey "dimension")
   $contractFiles = Get-ChildItem -Path $dataContractsRoot -Recurse -Filter "*.yaml" | Where-Object {
-    $_.FullName -notmatch '\\_internal\\archive\\'
+    $_.FullName -notmatch '\\internal\\archive\\'
   }
   if ($contractFiles.Count -eq 0) {
     Write-Host "Note: no data contracts found under $dataContractsRoot." -ForegroundColor Yellow

@@ -35,7 +35,8 @@ $checks = @(
   @{ Path = "tooling/validation/check_duplicate_ids.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
   @{ Path = "tooling/validation/check_ssot_markers.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
   @{ Path = "tooling/maintenance/check_docs_refs.ps1"; Args = @("-Root", $rootPath) },
-  @{ Path = "tooling/validation/check_forbidden_content.ps1"; Args = @("-Root", $rootPath, "-FailOnError") }
+  @{ Path = "tooling/validation/check_forbidden_content.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
+  @{ Path = "tooling/validation/check_registry_builder.ps1"; Args = @("-Root", $rootPath, "-FailOnError") }
 )
 
 $resultsDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\results"

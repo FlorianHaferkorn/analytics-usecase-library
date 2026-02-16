@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: S-R2.3
 name: In-Full & Stockout Impact Reduction
 owner_domain: Supply Planning
 impact_dimension: Availability
 status: active
-owner_role: Supply Planner
-steward_role: Supply Planning BI Lead
+owner_role: supply_planner
+steward_role: supply_planning_bi_lead
 use_case_links:
   core_use_cases:
   - SCM-002
@@ -111,10 +111,10 @@ operational_execution:
   - Clear allocation and priority rules
   - Visibility into order line fulfilment
   steps:
-  - Identify SKUs/lanes with rising in-full failures
-  - Reallocate constrained supply by service priority
-  - Correct partial shipment practices
-  - Review in-full performance weekly
+  - IDENTIFY shipments with rising in-full failures by SKU/lane
+  - REALLOCATE constrained supply by service priority for this shipment
+  - CORRECT partial shipment practices for this shipment
+  - REVIEW in-full performance for this shipment weekly
   effort:
     level: Low
     typical_duration_days: 14

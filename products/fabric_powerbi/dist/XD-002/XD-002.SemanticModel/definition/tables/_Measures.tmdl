@@ -56,3 +56,10 @@ table _Measures
 			BLANK()
 		formatString: "#,0"
 		displayFolder: "XD-002"
+
+	/// svc.tickets.created.count - Tickets Created Count
+	/// Counts customer service tickets created in the period.
+	measure 'Tickets Created Count' =
+			BLANK()
+		formatString: "#,0"
+		displayFolder: "XD-002"

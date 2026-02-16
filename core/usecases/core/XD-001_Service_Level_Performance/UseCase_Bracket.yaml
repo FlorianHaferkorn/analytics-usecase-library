@@ -44,7 +44,7 @@ ux_layout_rules:
   page_2_execution:
     title: Experience / Service Execution
     component_300s:
-      evidence_grain: transaction_line
+      evidence_grain: case
       evidence_columns:
       - entity
       - period

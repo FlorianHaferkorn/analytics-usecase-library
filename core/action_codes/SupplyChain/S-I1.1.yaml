@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: S-I1.1
 name: Inventory Orchestration
 owner_domain: Supply Chain Leadership
 impact_dimension: Working Capital & Service Balance
 status: active
-owner_role: Head of Supply Chain
-steward_role: Supply Chain Leadership BI Lead
+owner_role: head_of_supply_chain
+steward_role: supply_chain_leadership_bi_lead
 use_case_links:
   core_use_cases:
   - SCM-001
@@ -113,10 +113,11 @@ operational_execution:
   - Reliable SKU-location inventory visibility
   - Clear ownership of execution Action Codes
   steps:
-  - Detect sustained DIO deviation
-  - Diagnose dominant inventory driver (excess, stockout, obsolescence, planning)
-  - Activate corresponding execution Action Code
-  - Review inventory recovery monthly
+  - DETECT sustained DIO deviation for this SKU/location
+  - DIAGNOSE the dominant inventory driver (excess, stockout, obsolescence, planning)
+    for this SKU/location
+  - ACTIVATE the corresponding execution Action Code for this SKU/location
+  - REVIEW inventory recovery for this SKU/location monthly
   effort:
     level: Low
     typical_duration_days: 30

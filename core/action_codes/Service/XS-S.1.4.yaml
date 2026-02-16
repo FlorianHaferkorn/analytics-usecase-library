@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: X-S1.4
 name: Handling Time & Flow Efficiency
 owner_domain: Service Operations
 impact_dimension: Efficiency
 status: active
-owner_role: Service Operations Manager
-steward_role: Operations BI Lead
+owner_role: service_operations_manager
+steward_role: operations_bi_lead
 use_case_links:
   core_use_cases:
   - XD-001
@@ -111,10 +111,10 @@ operational_execution:
   - Accurate handle-time component tracking
   - Issue categorisation discipline
   steps:
-  - Identify queues with rising AHT
-  - Analyse top handling-time drivers
-  - Remove or streamline non-value steps
-  - Monitor AHT and FCR weekly
+  - IDENTIFY cases with rising average handling time by queue
+  - ANALYSE top handling-time drivers for this case type
+  - REMOVE or STREAMLINE non-value steps in this case handling process
+  - MONITOR AHT and FCR for this case type weekly
   effort:
     level: Medium
     typical_duration_days: 90

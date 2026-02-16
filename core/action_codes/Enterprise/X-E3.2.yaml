@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: X-E3.2
 name: Cross-Domain Risk Prioritisation
 owner_domain: Strategy / Enterprise Controlling
 impact_dimension: Risk Management
 status: active
-owner_role: Head of Enterprise Controlling
-steward_role: Enterprise BI Lead
+owner_role: head_of_enterprise_controlling
+steward_role: enterprise_bi_lead
 use_case_links:
   core_use_cases:
   - XD-003
@@ -110,10 +110,10 @@ operational_execution:
   - Approved risk weighting and materiality model
   - Consistent KPI target definitions
   steps:
-  - Aggregate downside deviation per KPI
-  - Weight by financial and strategic materiality
-  - Rank entities by total value-at-risk
-  - Provide prioritised risk list to executives
+  - AGGREGATE downside deviation per KPI for this entity
+  - WEIGHT by financial and strategic materiality for this entity
+  - RANK this entity by total value-at-risk
+  - PROVIDE prioritised risk list for this entity to executives
   effort:
     level: Low
     typical_duration_days: 7

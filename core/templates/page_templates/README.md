@@ -1,4 +1,4 @@
-﻿# Page Templates
+# Page Templates
 
 This folder defines the **only allowed page types** for reports built with the Analytics Use Case Library.
 
@@ -58,19 +58,19 @@ the **use case is not ready** or not well-defined.
 
 ## How Page Templates Are Used
 
-### 1. Mapping (Single Source of Truth)
+### 1. Use case UX configuration (Single Source of Truth)
 
-The assignment of use cases to page templates is defined in:
+Per-use-case UX layout rules (3–30–300, page structure, action panel intent) are defined in each use case’s:
 
 ```yaml
-mappings/UseCase_PageTemplate_Map.yaml
+core/usecases/core/<ID>_*/UseCase_Bracket.yaml
 ```
 
-This file is the **authoritative source** for:
+`UseCase_Bracket.yaml` is the **authoritative source** for:
 
-- which template a use case uses,
-- which slots are required,
-- whether an action panel is needed.
+- which 2-page structure the use case follows (overview vs execution),
+- which KPI(s) and components belong to 3s / 30s / 300s,
+- whether an action panel is required on the execution page.
 
 Markdown overview files are **read-only views**, not sources of truth.
 

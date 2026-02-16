@@ -87,7 +87,10 @@ table _Measures
 	/// crm.nps.index - NPS Score
 	/// Measures customer advocacy and likelihood to recommend.
 	measure 'NPS Score' =
-			BLANK()
+			VAR Promoters = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[Is Promoter] = TRUE () )
+			VAR Detractors = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[Is Detractor] = TRUE () )
+			VAR Total = COUNTROWS ( fact_nps )
+			RETURN DIVIDE ( Promoters - Detractors, Total ) * 100
 		formatString: "#,0"
 		displayFolder: "COM-003"
 

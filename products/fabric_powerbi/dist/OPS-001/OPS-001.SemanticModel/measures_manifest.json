@@ -3,7 +3,7 @@
     "title":  null,
     "dataset_model":  "OPS-001.SemanticModel",
     "table_name":  "_Measures",
-    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\usecases\\core\\OPS-001_Operations_Performance\\Technical_Factsheet.md",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\usecases\\core\\OPS-001_Operations_Performance\\Business_Factsheet.md",
     "measures":  [
                      {
                          "kpi_id":  "ops.oee.pct",
@@ -22,7 +22,7 @@
                          "purpose":  "Measures manufacturing performance combining availability, performance, and quality.",
                          "description":  "Measures manufacturing performance combining availability, performance, and quality.",
                          "technical_description":  "Measures manufacturing performance combining availability, performance, and quality.",
-                         "dax_expression":  null,
+                         "dax_expression":  "[Availability %] * [Performance %] * [Quality %]",
                          "depends_on":  [
 
                                         ],
@@ -35,7 +35,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "ops.availability.pct",
@@ -54,20 +54,20 @@
                          "purpose":  "Uptime share relative to planned production time.",
                          "description":  "Uptime share relative to planned production time.",
                          "technical_description":  "Uptime share relative to planned production time.",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR RunTime = SUM ( fact_ops[Run Time Minutes] )\nVAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] )\nRETURN DIVIDE ( RunTime, PlannedTime )",
                          "depends_on":  [
 
                                         ],
                          "depends_on_ids":  [
 
                                             ],
-                         "business_owner":  "Head of Supply Chain / Logistics",
-                         "data_owner":  "Supply Chain BI",
-                         "steward":  "Inventory Planner",
+                         "business_owner":  "Head of Operations",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Operations Analyst",
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "ops.performance.pct",
@@ -86,7 +86,7 @@
                          "purpose":  "Throughput speed versus theoretical maximum.",
                          "description":  "Throughput speed versus theoretical maximum.",
                          "technical_description":  "Throughput speed versus theoretical maximum.",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR ActualOutput = SUM ( fact_ops[Output Units] )\nVAR RunTime = SUM ( fact_ops[Run Time Minutes] )\nVAR StandardRate = AVERAGE ( fact_ops[Standard Rate Units Per Minute] )\nVAR TheoreticalOutput = RunTime * StandardRate\nRETURN DIVIDE ( ActualOutput, TheoreticalOutput )",
                          "depends_on":  [
 
                                         ],
@@ -99,7 +99,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "ops.quality.pct",
@@ -118,7 +118,7 @@
                          "purpose":  "Yield of conforming units relative to total units produced.",
                          "description":  "Yield of conforming units relative to total units produced.",
                          "technical_description":  "Yield of conforming units relative to total units produced.",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR GoodUnits = SUM ( fact_ops[Good Units] )\nVAR TotalUnits = SUM ( fact_ops[Output Units] )\nRETURN DIVIDE ( GoodUnits, TotalUnits )",
                          "depends_on":  [
 
                                         ],
@@ -131,7 +131,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "ops.throughput.units",
@@ -150,7 +150,7 @@
                          "purpose":  "Measures total output volume in units.",
                          "description":  "Measures total output volume in units.",
                          "technical_description":  "Measures total output volume in units.",
-                         "dax_expression":  null,
+                         "dax_expression":  "SUM ( fact_ops[Output Units] )",
                          "depends_on":  [
 
                                         ],
@@ -163,7 +163,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "ops.downtime.pct",
@@ -182,7 +182,7 @@
                          "purpose":  "Measures share of planned production time lost to downtime.",
                          "description":  "Measures share of planned production time lost to downtime.",
                          "technical_description":  "Measures share of planned production time lost to downtime.",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR Downtime = SUM ( fact_ops[Downtime Minutes] )\nVAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] )\nRETURN DIVIDE ( Downtime, PlannedTime )",
                          "depends_on":  [
 
                                         ],
@@ -195,7 +195,39 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "ops.planned_output.units",
+                         "name":  "Planned Output Units",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0",
+                         "display_folder":  "",
+                         "purpose":  "Captures planned production output volume.",
+                         "description":  "Captures planned production output volume.",
+                         "technical_description":  "Captures planned production output volume.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Operations",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Production Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      }
                  ]
 }

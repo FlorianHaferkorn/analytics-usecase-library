@@ -15,19 +15,19 @@ table _Measures
 		isHidden
 		summarizeBy: none
 
+	/// margin.gm.pct - Gross Margin %
+	/// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
+	measure 'Gross Margin %' =
+			DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
+		formatString: "0.0%"
+		displayFolder: "XD-003"
+
 	/// sales.net_sales.delta_pct.ly - Delta% Net Sales
 	/// Relative variance of Net Sales vs Last Year.
 	measure 'Delta% Net Sales' =
 			VAR Actual = [Net Sales Amount]
 			VAR LY     = SUM ( fact_sales[Last Year Sales Amount] )
 			RETURN DIVIDE ( Actual - LY, LY )
-		formatString: "0.0%"
-		displayFolder: "XD-003"
-
-	/// margin.gm.pct - Gross Margin %
-	/// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
-	measure 'Gross Margin %' =
-			DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
@@ -76,4 +76,25 @@ table _Measures
 	measure 'Attrition Risk %' =
 			BLANK()
 		formatString: "0.0%"
+		displayFolder: "XD-003"
+
+	/// enterprise.action_routed.count - Actions Routed Count
+	/// Counts action codes routed for execution.
+	measure 'Actions Routed Count' =
+			BLANK()
+		formatString: "#,0"
+		displayFolder: "XD-003"
+
+	/// enterprise.action_outcome_rate.pct - Action Outcome Rate %
+	/// Measures share of actions that achieved the intended outcome.
+	measure 'Action Outcome Rate %' =
+			BLANK()
+		formatString: "0.0%"
+		displayFolder: "XD-003"
+
+	/// enterprise.value_at_risk.index - Enterprise Value-at-Risk Index
+	/// Aggregates downside risk across domains into a single index.
+	measure 'Enterprise Value-at-Risk Index' =
+			BLANK()
+		formatString: "0"
 		displayFolder: "XD-003"

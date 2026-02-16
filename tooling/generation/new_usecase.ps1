@@ -68,8 +68,9 @@ if (Test-Path $targetDir) {
   throw "Target use case folder already exists: $folderName"
 }
 
-$legacyTemplatePath = Join-Path $repoRoot "core/usecases/templates/UC-000_Template.md"
-if (-not (Test-Path $legacyTemplatePath)) {
+# UC-000_Template.md is the canonical use-case scaffold template (front matter and body fallback).
+$ucTemplatePath = Join-Path $repoRoot "core/usecases/templates/UC-000_Template.md"
+if (-not (Test-Path $ucTemplatePath)) {
   throw "Template not found: core/usecases/templates/UC-000_Template.md"
 }
 
@@ -78,16 +79,16 @@ $bracketTemplatePath = Join-Path $repoRoot "core/usecases/templates/UseCase_Brac
 
 New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
 
-$legacyRaw = Read-TemplateRaw -Path $legacyTemplatePath
-$legacyRaw = $legacyRaw -replace 'id:\s*"\{\{PREFIX\}\}-000"', ('id: "' + $Id + '"')
-$legacyRaw = $legacyRaw -replace 'title:\s*"\[Insert Use Case Title\]"', ('title: "' + $Title + '"')
-$fmBlock = Extract-FrontMatter -Content $legacyRaw
+$ucTemplateRaw = Read-TemplateRaw -Path $ucTemplatePath
+$ucTemplateRaw = $ucTemplateRaw -replace 'id:\s*"\{\{PREFIX\}\}-000"', ('id: "' + $Id + '"')
+$ucTemplateRaw = $ucTemplateRaw -replace 'title:\s*"\[Insert Use Case Title\]"', ('title: "' + $Title + '"')
+$fmBlock = Extract-FrontMatter -Content $ucTemplateRaw
 if (-not $fmBlock) { throw "Unable to parse front-matter in UC-000 template." }
 $frontMatter = $fmBlock.FrontMatter.Trim()
-$legacyBody = $fmBlock.Body.TrimStart()
+$ucTemplateBody = $fmBlock.Body.TrimStart()
 
 $businessBody = Read-TemplateRaw -Path $businessTemplatePath
-if (-not $businessBody) { $businessBody = $legacyBody }
+if (-not $businessBody) { $businessBody = $ucTemplateBody }
 $businessBody = ($businessBody -replace '<UC-ID>', $Id).TrimStart()
 $businessContent = @(
   '---'

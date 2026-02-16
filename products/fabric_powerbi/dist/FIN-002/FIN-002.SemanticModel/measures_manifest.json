@@ -3,7 +3,7 @@
     "title":  null,
     "dataset_model":  "FIN-002.SemanticModel",
     "table_name":  "_Measures",
-    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\usecases\\core\\FIN-002_Cost_Performance\\Technical_Factsheet.md",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\usecases\\core\\FIN-002_Cost_Performance\\Business_Factsheet.md",
     "measures":  [
                      {
                          "kpi_id":  "cost.unit.amount",
@@ -22,7 +22,7 @@
                          "purpose":  "Measures total cost per unit produced or sold.",
                          "description":  "Measures total cost per unit produced or sold.",
                          "technical_description":  "Measures total cost per unit produced or sold.",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR TotalCost = SUM ( fact_cost[COGS Amount] )\nVAR OutputUnits = SUM ( fact_output[Output Units] )\nRETURN DIVIDE ( TotalCost, OutputUnits )",
                          "depends_on":  [
 
                                         ],
@@ -35,7 +35,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "margin.cogs.pct",
@@ -54,7 +54,7 @@
                          "purpose":  "Shows cost share relative to net sales.",
                          "description":  "Shows cost share relative to net sales.",
                          "technical_description":  "Shows cost share relative to net sales.",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR COGS = SUM ( fact_finance[COGS Amount] )\nVAR NetSales = SUM ( fact_finance[Net Sales Amount] )\nRETURN DIVIDE ( COGS, NetSales )",
                          "depends_on":  [
 
                                         ],
@@ -67,7 +67,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "cost.opex.vs_plan.pct",
@@ -86,7 +86,7 @@
                          "purpose":  "Measures OpEx variance versus plan.",
                          "description":  "Measures OpEx variance versus plan.",
                          "technical_description":  "Measures OpEx variance versus plan.",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR Actual = SUM ( fact_finance[OpEx Amount] )\nVAR Plan = SUM ( fact_finance[Plan OpEx Amount] )\nRETURN DIVIDE ( Actual - Plan, Plan )",
                          "depends_on":  [
 
                                         ],
@@ -99,7 +99,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "cost.material.pct",
@@ -118,7 +118,7 @@
                          "purpose":  "Shows material cost share of net sales.",
                          "description":  "Shows material cost share of net sales.",
                          "technical_description":  "Shows material cost share of net sales.",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR MaterialCost = SUM ( fact_finance[Material Cost Amount] )\nVAR NetSales = SUM ( fact_finance[Net Sales Amount] )\nRETURN DIVIDE ( MaterialCost, NetSales )",
                          "depends_on":  [
 
                                         ],
@@ -131,7 +131,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "ops.labor.productivity.pct",
@@ -150,6 +150,166 @@
                          "purpose":  "Shows output efficiency relative to labor input.",
                          "description":  "Shows output efficiency relative to labor input.",
                          "technical_description":  "Shows output efficiency relative to labor input.",
+                         "dax_expression":  "VAR OutputUnits = SUM ( fact_output[Output Units] )\nVAR LaborHours = SUM ( fact_labor[Labor Hours] )\nVAR BaselineRate = 100.0\nRETURN DIVIDE ( DIVIDE ( OutputUnits, LaborHours ) * 100, BaselineRate )",
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Operations",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Operations Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "cost.base_volume.amount",
+                         "name":  "Cost Base Volume Amount",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0.00",
+                         "display_folder":  "",
+                         "purpose":  "Baseline cost volume used for variance analysis.",
+                         "description":  "Baseline cost volume used for variance analysis.",
+                         "technical_description":  "Baseline cost volume used for variance analysis.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Controlling",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Cost Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "cost.opex.base.amount",
+                         "name":  "Opex Base Amount",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0.00",
+                         "display_folder":  "",
+                         "purpose":  "Baseline operating expense amount for variance tracking.",
+                         "description":  "Baseline operating expense amount for variance tracking.",
+                         "technical_description":  "Baseline operating expense amount for variance tracking.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Controlling",
+                         "data_owner":  "Finance BI",
+                         "steward":  "Cost Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "ops.production.volume",
+                         "name":  "Production Volume Units",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0",
+                         "display_folder":  "",
+                         "purpose":  "Measures total produced volume in units.",
+                         "description":  "Measures total produced volume in units.",
+                         "technical_description":  "Measures total produced volume in units.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Manufacturing",
+                         "data_owner":  "Manufacturing BI",
+                         "steward":  "Production Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "ops.quality.defect_rate.pct",
+                         "name":  "Quality Defect Rate %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures share of defective units in production.",
+                         "description":  "Measures share of defective units in production.",
+                         "technical_description":  "Measures share of defective units in production.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Quality",
+                         "data_owner":  "Quality BI",
+                         "steward":  "Quality Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "ops.service_level.pct",
+                         "name":  "Operations Service Level %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures on-time or in-full performance for operational delivery.",
+                         "description":  "Measures on-time or in-full performance for operational delivery.",
+                         "technical_description":  "Measures on-time or in-full performance for operational delivery.",
                          "dax_expression":  null,
                          "depends_on":  [
 
@@ -163,7 +323,39 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "ops.yield.pct",
+                         "name":  "Yield %",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "0.0%",
+                         "display_folder":  "",
+                         "purpose":  "Measures ratio of good output to total input.",
+                         "description":  "Measures ratio of good output to total input.",
+                         "technical_description":  "Measures ratio of good output to total input.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Manufacturing",
+                         "data_owner":  "Manufacturing BI",
+                         "steward":  "Process Engineer",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      }
                  ]
 }

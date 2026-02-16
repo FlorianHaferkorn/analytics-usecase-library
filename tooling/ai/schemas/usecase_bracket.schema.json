@@ -156,7 +156,12 @@
               "required": ["evidence_grain", "evidence_columns", "action_panel", "payload_mode"],
               "additionalProperties": false,
               "properties": {
-                "evidence_grain": { "type": "string", "description": "Grain of the evidence table (e.g. invoice_line)." },
+                "evidence_grain": {
+                  "type": "string",
+                  "minLength": 1,
+                  "not": { "const": "transaction_line" },
+                  "description": "Grain of the evidence table — must match a governed fact-table grain from core/data_contracts/domains/*.yaml. Placeholder 'transaction_line' is forbidden; refer to internal/evidence_grain_audit_results.md for correct values."
+                },
                 "evidence_columns": {
                   "type": "array",
                   "items": { "type": "string" },

@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: X-R2.2
 name: Capacity Reallocation & Load Balancing
 owner_domain: Workforce Management
 impact_dimension: Allocation Efficiency
 status: active
-owner_role: Workforce Management Lead
-steward_role: Workforce Management BI Lead
+owner_role: workforce_management_lead
+steward_role: workforce_management_bi_lead
 use_case_links:
   core_use_cases:
   - XD-002
@@ -114,9 +114,9 @@ operational_execution:
   - Flexible skill coverage matrix
   - Near-real-time queue volume visibility
   steps:
-  - Identify queues with sustained utilization imbalance
-  - Reallocate staffing across queues or channels
-  - Validate SLA and backlog impact daily
+  - IDENTIFY agents in queues with sustained utilization imbalance
+  - REALLOCATE this agent across queues or channels
+  - VALIDATE SLA and backlog impact for this agent daily
   effort:
     level: Low to Medium
     typical_duration_days: 14

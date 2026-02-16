@@ -30,7 +30,7 @@ $issues = @()
 $forbiddenKeys = @("definition","definition_short","lineage","target","unit","grain","interpretation")
 
 Get-ChildItem -Path (Join-Path $rootPath "core\usecases") -Recurse -Filter "*Factsheet*.md" | Where-Object {
-  $_.FullName -notmatch '\\_internal\\archive\\' -and $_.FullName -notmatch '\\core\\usecases\\templates\\'
+  $_.FullName -notmatch '\\internal\\archive\\' -and $_.FullName -notmatch '\\core\\usecases\\templates\\'
 } | ForEach-Object {
   $content = Get-Content -Raw -Path $_.FullName
   $front = [regex]::Match($content, "(?ms)^---\s*\r?\n(.*?)\r?\n---")

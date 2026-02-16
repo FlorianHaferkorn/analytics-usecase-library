@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: C-M2.1
 name: Price Realization Guardrails
 owner_domain: Commercial
 impact_dimension: Profitability
 status: active
-owner_role: Pricing Lead
-steward_role: Commercial BI Lead
+owner_role: pricing_lead
+steward_role: commercial_bi_lead
 use_case_links:
   core_use_cases:
   - COM-002
@@ -126,10 +126,10 @@ operational_execution:
   - Defined discount floors by category/SKU
   - Approval workflow for pricing exceptions
   steps:
-  - Identify Region/Channel/SKU combinations below realization threshold
-  - Freeze discretionary discounts
-  - Enforce approval for price exceptions
-  - Review realization recovery monthly
+  - IDENTIFY each {entity} where price realization falls below threshold
+  - FREEZE discretionary discounts for this {entity}
+  - ENFORCE approval workflow for any price exception on this {entity}
+  - REVIEW realization recovery for this {entity} monthly
   effort:
     level: Low
     typical_duration_days: 30

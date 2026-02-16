@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: O-Q3.4
 name: COPQ Reduction
 owner_domain: Quality / Finance
 impact_dimension: Profitability
 status: active
-owner_role: Head of Quality
-steward_role: Finance BI Lead
+owner_role: head_of_quality
+steward_role: finance_bi_lead
 use_case_links:
   core_use_cases:
   - OPS-003
@@ -110,10 +110,10 @@ operational_execution:
   - Reliable COPQ attribution by category
   - Alignment on financial materiality thresholds
   steps:
-  - Identify plants with rising COPQ
-  - Rank COPQ drivers by financial impact
-  - Activate targeted quality actions on top drivers
-  - Review COPQ trend monthly
+  - IDENTIFY each production line with rising COPQ
+  - RANK COPQ drivers by financial impact for this line
+  - ACTIVATE targeted quality actions on top drivers for this line
+  - REVIEW COPQ trend for this line monthly
   effort:
     level: Medium
     typical_duration_days: 90

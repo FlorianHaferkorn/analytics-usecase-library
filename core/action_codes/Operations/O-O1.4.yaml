@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: O-O1.4
 name: Throughput Constraint Resolution
 owner_domain: Operations Leadership
 impact_dimension: Output
 status: active
-owner_role: Operations Director
-steward_role: Operations BI Lead
+owner_role: operations_director
+steward_role: operations_bi_lead
 use_case_links:
   core_use_cases:
   - OPS-001
@@ -28,7 +28,8 @@ scope:
   exclusions:
   - Plants under planned capacity expansion
   - One-off demand shocks approved by S&OP
-  - Throughput loss fully explained by availability, performance, or quality actions already active
+  - Throughput loss fully explained by availability, performance, or quality actions
+    already active
 trigger:
   type: Deviation
   evaluation:
@@ -110,10 +111,11 @@ operational_execution:
   - Reliable throughput vs plan tracking
   - Clear ownership of line-level actions
   steps:
-  - Identify plants missing throughput plan
-  - Diagnose dominant constraint (availability, performance, quality, mix, staffing)
-  - Activate or reprioritise relevant execution Action Codes
-  - Review throughput recovery bi-weekly
+  - IDENTIFY each production line missing throughput plan
+  - DIAGNOSE the dominant constraint (availability, performance, quality, mix, staffing)
+    for this line
+  - ACTIVATE or REPRIORITISE relevant execution Action Codes for this line
+  - REVIEW throughput recovery for this line bi-weekly
   effort:
     level: Low
     typical_duration_days: 30

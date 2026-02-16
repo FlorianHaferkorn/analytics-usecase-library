@@ -3,7 +3,7 @@
     "title":  null,
     "dataset_model":  "XD-001.SemanticModel",
     "table_name":  "_Measures",
-    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\usecases\\core\\XD-001_Service_Level_Performance\\Technical_Factsheet.md",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\usecases\\core\\XD-001_Service_Level_Performance\\Business_Factsheet.md",
     "measures":  [
                      {
                          "kpi_id":  "svc.sla.attainment.pct",
@@ -35,7 +35,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "svc.fcr.pct",
@@ -67,7 +67,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "svc.aht.minutes",
@@ -99,7 +99,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "svc.backlog.count",
@@ -131,7 +131,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "svc.nps.index",
@@ -163,7 +163,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "svc.escalation.pct",
@@ -195,7 +195,71 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "svc.tickets.created.count",
+                         "name":  "Tickets Created Count",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0",
+                         "display_folder":  "",
+                         "purpose":  "Counts customer service tickets created in the period.",
+                         "description":  "Counts customer service tickets created in the period.",
+                         "technical_description":  "Counts customer service tickets created in the period.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Service",
+                         "data_owner":  "Service Analytics",
+                         "steward":  "Service Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "svc.tickets.closed.count",
+                         "name":  "Tickets Closed Count",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0",
+                         "display_folder":  "",
+                         "purpose":  "Counts customer service tickets closed in the period.",
+                         "description":  "Counts customer service tickets closed in the period.",
+                         "technical_description":  "Counts customer service tickets closed in the period.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Service",
+                         "data_owner":  "Service Analytics",
+                         "steward":  "Service Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      }
                  ]
 }

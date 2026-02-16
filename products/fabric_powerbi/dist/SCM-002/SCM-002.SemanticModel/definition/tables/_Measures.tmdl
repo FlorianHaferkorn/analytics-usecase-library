@@ -56,3 +56,17 @@ table _Measures
 			BLANK()
 		formatString: "#,0.00"
 		displayFolder: "SCM-002"
+
+	/// order.lines - Order Lines Count
+	/// Counts order lines processed in the period.
+	measure 'Order Lines Count' =
+			BLANK()
+		formatString: "#,0"
+		displayFolder: "SCM-002"
+
+	/// shipments.count - Shipments Count
+	/// Counts shipments executed in the period.
+	measure 'Shipments Count' =
+			BLANK()
+		formatString: "#,0"
+		displayFolder: "SCM-002"

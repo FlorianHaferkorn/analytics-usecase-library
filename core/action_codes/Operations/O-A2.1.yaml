@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: O-A2.1
 name: Reliability Orchestration
 owner_domain: Operations / Maintenance Leadership
 impact_dimension: Availability
 status: active
-owner_role: Maintenance Manager
-steward_role: Operations BI Lead
+owner_role: maintenance_manager
+steward_role: operations_bi_lead
 use_case_links:
   core_use_cases:
   - OPS-002
@@ -110,10 +110,10 @@ operational_execution:
   - Asset-level downtime and failure transparency
   - Clear ownership of execution Action Codes
   steps:
-  - Detect sustained availability deterioration
-  - Diagnose dominant reliability driver (MTBF, MTTR, PM, Parts)
-  - Activate corresponding execution Action Code
-  - Review availability recovery monthly
+  - DETECT sustained availability deterioration for this asset
+  - DIAGNOSE the dominant reliability driver (MTBF, MTTR, PM, Parts) for this asset
+  - ACTIVATE the corresponding execution Action Code for this asset
+  - REVIEW availability recovery for this asset monthly
   effort:
     level: Low
     typical_duration_days: 30

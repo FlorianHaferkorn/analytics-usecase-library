@@ -3,7 +3,7 @@
     "title":  null,
     "dataset_model":  "OPS-003.SemanticModel",
     "table_name":  "_Measures",
-    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\usecases\\core\\OPS-003_Quality_Yield\\Technical_Factsheet.md",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\usecases\\core\\OPS-003_Quality_Yield\\Business_Factsheet.md",
     "measures":  [
                      {
                          "kpi_id":  "quality.fpy.pct",
@@ -22,7 +22,7 @@
                          "purpose":  "Measures share of units produced without rework or scrap.",
                          "description":  "Measures share of units produced without rework or scrap.",
                          "technical_description":  "Measures share of units produced without rework or scrap.",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR GoodUnits = SUM ( fact_quality[Good Units] )\nVAR TotalUnits = SUM ( fact_quality[Total Units] )\nRETURN DIVIDE ( GoodUnits, TotalUnits )",
                          "depends_on":  [
 
                                         ],
@@ -35,7 +35,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "quality.scrap.pct",
@@ -54,7 +54,7 @@
                          "purpose":  "Measures share of units scrapped in production.",
                          "description":  "Measures share of units scrapped in production.",
                          "technical_description":  "Measures share of units scrapped in production.",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR ScrapUnits = SUM ( fact_quality[Scrap Units] )\nVAR TotalUnits = SUM ( fact_quality[Total Units] )\nRETURN DIVIDE ( ScrapUnits, TotalUnits )",
                          "depends_on":  [
 
                                         ],
@@ -67,7 +67,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "quality.rework.pct",
@@ -86,7 +86,7 @@
                          "purpose":  "Measures share of units requiring rework.",
                          "description":  "Measures share of units requiring rework.",
                          "technical_description":  "Measures share of units requiring rework.",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR ReworkUnits = SUM ( fact_quality[Rework Units] )\nVAR TotalUnits = SUM ( fact_quality[Total Units] )\nRETURN DIVIDE ( ReworkUnits, TotalUnits )",
                          "depends_on":  [
 
                                         ],
@@ -99,7 +99,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "quality.copq.amount",
@@ -118,7 +118,7 @@
                          "purpose":  "Captures financial impact of scrap, rework, and warranty/complaints.",
                          "description":  "Captures financial impact of scrap, rework, and warranty/complaints.",
                          "technical_description":  "Captures financial impact of scrap, rework, and warranty/complaints.",
-                         "dax_expression":  null,
+                         "dax_expression":  "SUM ( fact_quality_costs[COPQ Amount] )",
                          "depends_on":  [
 
                                         ],
@@ -131,7 +131,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "quality.complaint.pct",
@@ -150,7 +150,7 @@
                          "purpose":  "Measures customer complaints relative to shipped units.",
                          "description":  "Measures customer complaints relative to shipped units.",
                          "technical_description":  "Measures customer complaints relative to shipped units.",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR Complaints = SUM ( fact_complaints[Complaint Count] )\nVAR ShippedUnits = SUM ( fact_shipments[Shipped Units] )\nRETURN DIVIDE ( Complaints, ShippedUnits )",
                          "depends_on":  [
 
                                         ],
@@ -163,7 +163,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "quality.defect_density",
@@ -182,7 +182,7 @@
                          "purpose":  "Measures defect count per 1,000 units produced.",
                          "description":  "Measures defect count per 1,000 units produced.",
                          "technical_description":  "Measures defect count per 1,000 units produced.",
-                         "dax_expression":  null,
+                         "dax_expression":  "VAR DefectCount = SUM ( fact_quality[Defect Count] )\nVAR TotalUnits = SUM ( fact_quality[Total Units] )\nRETURN DIVIDE ( DefectCount, TotalUnits ) * 1000",
                          "depends_on":  [
 
                                         ],
@@ -195,7 +195,71 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "ops.planned_output.units",
+                         "name":  "Planned Output Units",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0",
+                         "display_folder":  "",
+                         "purpose":  "Captures planned production output volume.",
+                         "description":  "Captures planned production output volume.",
+                         "technical_description":  "Captures planned production output volume.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Operations",
+                         "data_owner":  "Operations BI",
+                         "steward":  "Production Planner",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "sales.units",
+                         "name":  "Sales Units",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0",
+                         "display_folder":  "",
+                         "purpose":  "Measures sold units volume in the period.",
+                         "description":  "Measures sold units volume in the period.",
+                         "technical_description":  "Measures sold units volume in the period.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Sales",
+                         "data_owner":  "Commercial BI",
+                         "steward":  "Sales Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      }
                  ]
 }

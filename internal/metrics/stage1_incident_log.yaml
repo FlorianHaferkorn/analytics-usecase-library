@@ -1,0 +1,20 @@
+# Stage 1 Incident Log
+#
+# Track Stage 1 check failures to identify patterns and measure skill effectiveness.
+# Append new incidents as they occur to build a historical record.
+#
+# Usage:
+#   After a Stage 1 failure, log the incident with:
+#   - date: ISO date (YYYY-MM-DD)
+#   - check_failed: Name of the failing check script
+#   - resolution_time_minutes: Time to fix (null if still unresolved)
+#   - skill_used: Which Cursor skill was used (null if manual fix)
+#   - notes: Brief description of root cause
+
+incidents:
+  # Example entry (remove after first real incident):
+  # - date: "2026-02-13"
+  #   check_failed: "check_factsheet_vs_kpi"
+  #   resolution_time_minutes: 45
+  #   skill_used: null
+  #   notes: "Missing KPI ID in COM-002 bracket"

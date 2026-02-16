@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: O-O1.1
 name: Operations Stabilisation
 owner_domain: Operations Excellence / Maintenance
 impact_dimension: Effectiveness
 status: active
-owner_role: Maintenance Manager
-steward_role: Operations BI Lead
+owner_role: maintenance_manager
+steward_role: operations_bi_lead
 use_case_links:
   core_use_cases:
   - OPS-001
@@ -112,10 +112,10 @@ operational_execution:
   - Reliable downtime categorisation
   - Clear ownership of maintenance actions
   steps:
-  - Identify top recurring downtime categories
-  - Prioritise chronic failure modes
-  - Execute corrective maintenance and standardisation
-  - Monitor availability recovery weekly
+  - IDENTIFY top recurring downtime categories on this production line
+  - PRIORITISE chronic failure modes for this line
+  - EXECUTE corrective maintenance and standardisation on this line
+  - MONITOR availability recovery for this line weekly
   effort:
     level: Medium
     typical_duration_days: 60

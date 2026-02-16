@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: F-C1.1
 name: Working Capital Improvement
 owner_domain: Finance
 impact_dimension: Liquidity
 status: active
-owner_role: Finance Director
-steward_role: Finance BI Lead
+owner_role: finance_director
+steward_role: finance_bi_lead
 use_case_links:
   core_use_cases:
   - FIN-001
@@ -82,7 +82,8 @@ trigger:
         filters: []
   gating_rules:
   - Trigger only if liquidity deviation is structural, not seasonal
-  - Do not trigger if deterioration is fully explained by growth-driven inventory build
+  - Do not trigger if deterioration is fully explained by growth-driven inventory
+    build
   - Exclude entities with active refinancing programs
 impact:
   category: High
@@ -111,10 +112,10 @@ operational_execution:
   - Consistent WC KPI definitions across entities
   - Clear ownership of execution-level actions
   steps:
-  - Detect sustained deterioration in CCC or cash vs plan
-  - Identify dominant WC driver (DSO, DIO, or DPO)
-  - Trigger corresponding execution Action Code
-  - Review WC impact monthly
+  - DETECT sustained CCC or cash-vs-plan deterioration for this entity
+  - IDENTIFY the dominant working capital driver (DSO, DIO, or DPO) for this entity
+  - TRIGGER the corresponding execution Action Code for this entity
+  - REVIEW working capital impact for this entity monthly
   effort:
     level: Low
     typical_duration_days: 30

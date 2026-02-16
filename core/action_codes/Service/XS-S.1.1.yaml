@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: X-S1.1
 name: Service Level Orchestration
 owner_domain: Service / CX Leadership
 impact_dimension: Service Reliability
 status: active
-owner_role: Head of Service Operations
-steward_role: Service Analytics Lead
+owner_role: head_of_service_operations
+steward_role: service_analytics_lead
 use_case_links:
   core_use_cases:
   - XD-001
@@ -112,10 +112,10 @@ operational_execution:
   - Reliable SLA, backlog, and escalation measurement
   - Clear ownership of execution Action Codes
   steps:
-  - Detect sustained SLA deterioration
-  - Diagnose dominant service constraint
-  - Activate corresponding execution Action Code
-  - Review SLA recovery daily
+  - DETECT sustained SLA deterioration for this case
+  - DIAGNOSE the dominant service constraint for this case
+  - ACTIVATE the corresponding execution Action Code for this case
+  - REVIEW SLA recovery for this case daily
   effort:
     level: Low
     typical_duration_days: 14

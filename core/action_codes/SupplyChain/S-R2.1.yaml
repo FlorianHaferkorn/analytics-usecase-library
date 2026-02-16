@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: S-R2.1
 name: OTIF Orchestration
 owner_domain: Supply Chain Leadership
 impact_dimension: Service Reliability
 status: active
-owner_role: Head of Supply Chain
-steward_role: Supply Chain Leadership BI Lead
+owner_role: head_of_supply_chain
+steward_role: supply_chain_leadership_bi_lead
 use_case_links:
   core_use_cases:
   - SCM-002
@@ -111,10 +111,10 @@ operational_execution:
   - Reliable OTIF decomposition (on-time vs in-full)
   - Clear ownership of execution Action Codes
   steps:
-  - Detect sustained OTIF deterioration
-  - Diagnose dominant OTIF loss driver
-  - Activate corresponding execution Action Code
-  - Review OTIF recovery weekly
+  - DETECT sustained OTIF deterioration for this shipment
+  - DIAGNOSE the dominant OTIF loss driver for this shipment
+  - ACTIVATE the corresponding execution Action Code for this shipment
+  - REVIEW OTIF recovery for this shipment weekly
   effort:
     level: Low
     typical_duration_days: 21

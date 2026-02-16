@@ -116,7 +116,28 @@ def migrate_bracket(data: dict, role_mapping: dict) -> dict:
     # --- UX Layout Rules ---
     # Determine domain label for titles
     domain_label = domain
-
+    
+    # Preserve existing evidence_grain or set TODO sentinel if missing/forbidden
+    existing_grain = None
+    old_ux = data.get("ux_layout_rules", {})
+    if isinstance(old_ux, dict):
+        old_p2 = old_ux.get("page_2_execution", {})
+        if isinstance(old_p2, dict):
+            old_c300 = old_p2.get("component_300s", {})
+            if isinstance(old_c300, dict):
+                existing_grain = old_c300.get("evidence_grain")
+    
+    evidence_grain_value = existing_grain
+    overrides_note = None
+    if not evidence_grain_value or evidence_grain_value == "transaction_line":
+        evidence_grain_value = "TODO_SET_EVIDENCE_GRAIN"
+        overrides_note = (
+            "evidence_grain must be set to a governed fact-table grain from "
+            "core/data_contracts/domains/*.yaml. Placeholder 'transaction_line' is "
+            "forbidden. Refer to internal/evidence_grain_audit_results.md for the "
+            "correct grain for this use case."
+        )
+    
     # Pick first 2 influencing KPIs for 30s component (or all if <= 3)
     comp_30s = []
     if len(influencing_kpi_ids) >= 2:
@@ -154,13 +175,18 @@ def migrate_bracket(data: dict, role_mapping: dict) -> dict:
         "page_2_execution": {
             "title": f"{domain_label} Execution",
             "component_300s": {
-                "evidence_grain": "transaction_line",
+                "evidence_grain": evidence_grain_value,
                 "evidence_columns": ["entity", "period", strategic_kpi_id],
                 "action_panel": True,
                 "payload_mode": "full"
             }
         }
     }
+    
+    # --- Overrides (conditional) ---
+    overrides_dict = {}
+    if overrides_note:
+        overrides_dict["evidence_grain_note"] = overrides_note
 
     # --- Build output ---
     result = {
@@ -188,6 +214,10 @@ def migrate_bracket(data: dict, role_mapping: dict) -> dict:
             "business_factsheet": "./Business_Factsheet.md"
         }
     }
+    
+    # Add overrides section only if non-empty
+    if overrides_dict:
+        result["overrides"] = overrides_dict
 
     return result
 
@@ -241,12 +271,24 @@ def main():
 
     print(f"Found {len(bracket_files)} bracket files to migrate.\n")
 
+    todo_grains = []
     for bf in bracket_files:
         print(f"Migrating: {os.path.relpath(bf, repo_root)}")
         with open(bf, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
 
         migrated = migrate_bracket(data, role_mapping)
+        
+        # Track if TODO sentinel was set
+        ux_rules = migrated.get("ux_layout_rules", {})
+        if isinstance(ux_rules, dict):
+            p2 = ux_rules.get("page_2_execution", {})
+            if isinstance(p2, dict):
+                c300 = p2.get("component_300s", {})
+                if isinstance(c300, dict):
+                    eg = c300.get("evidence_grain")
+                    if eg == "TODO_SET_EVIDENCE_GRAIN":
+                        todo_grains.append(migrated['id'])
 
         with open(bf, "w", encoding="utf-8") as f:
             yaml.dump(migrated, f, Dumper=CleanDumper, default_flow_style=False,
@@ -255,6 +297,13 @@ def main():
         print(f"  OK: {migrated['id']} - {migrated['title']}")
 
     print(f"\nDone. Migrated {len(bracket_files)} brackets.")
+    
+    if todo_grains:
+        print(f"\nWARNING: {len(todo_grains)} bracket(s) have evidence_grain set to 'TODO_SET_EVIDENCE_GRAIN':")
+        for uc in todo_grains:
+            print(f"  - {uc}")
+        print("\nRefer to internal/evidence_grain_audit_results.md for the correct governed grain.")
+        print("Schema and registry builder will fail until a valid grain is set.")
 
 
 if __name__ == "__main__":

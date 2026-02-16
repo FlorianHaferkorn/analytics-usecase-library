@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: O-A2.2
 name: Failure Reduction (MTBF Improvement)
 owner_domain: Reliability Engineering / Maintenance
 impact_dimension: Reliability
 status: active
-owner_role: Reliability Engineer
-steward_role: Reliability Engineering / Maintenance BI Lead
+owner_role: reliability_engineer
+steward_role: reliability_engineering_maintenance_bi_lead
 use_case_links:
   core_use_cases:
   - OPS-002

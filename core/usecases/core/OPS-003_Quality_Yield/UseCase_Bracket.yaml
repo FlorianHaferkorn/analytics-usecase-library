@@ -45,7 +45,7 @@ ux_layout_rules:
   page_2_execution:
     title: Operations Execution
     component_300s:
-      evidence_grain: transaction_line
+      evidence_grain: line_day
       evidence_columns:
       - entity
       - period

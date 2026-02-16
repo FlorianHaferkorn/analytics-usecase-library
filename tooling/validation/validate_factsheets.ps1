@@ -221,7 +221,7 @@ function Require-TechnicalRefs {
 }
 
 Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Business_Factsheet.md' | Where-Object {
-  $_.FullName -notmatch '\\_internal\\archive\\'
+  $_.FullName -notmatch '\\internal\\archive\\'
 } | ForEach-Object {
   $fm = Get-FrontMatter -Path $_.FullName
   if (-not ($fm -and $fm.Text)) { $errors += "Missing front-matter in $($_.FullName)"; return }
@@ -237,6 +237,17 @@ Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Business_Factsheet.m
     $hasBracket = Test-UseCaseBracket -BracketPath $bracketPath -FactsheetPath $_.FullName
     if (-not $hasBracket) {
       $errors += "$($_.FullName): UseCase_Bracket.yaml does not pass minimum validation ($bracketPath)"
+    }
+  }
+}
+
+# Optional: warn when bracket has evidence_grain_note but factsheet does not contain it
+$syncScript = Join-Path (Split-Path -Parent $PSScriptRoot) "maintenance\sync_evidence_grain_note_to_factsheet.ps1"
+if (Test-Path $syncScript) {
+  $syncOutput = & $syncScript -ValidateOnly -Root $script:RepoRoot 2>&1 | Out-String
+  foreach ($line in ($syncOutput -split '\r?\n')) {
+    if ($line -match '^([A-Z]{2,3}-\d{3}):\s*would add/update Evidence grain') {
+      $warnings += "$($matches[1]): bracket has evidence_grain_note but Business Factsheet does not contain it; run sync_evidence_grain_note_to_factsheet.ps1."
     }
   }
 }

@@ -1,12 +1,12 @@
-schema_version: "2.0"
+schema_version: '2.0'
 inherits_decision_spine: pricing_discipline
 id: C-S1.2
 name: Sales Gap Recovery via Price & Pack Adjustment
 owner_domain: Commercial
 impact_dimension: Growth
 status: active
-owner_role: Sales Director
-steward_role: Commercial BI Lead
+owner_role: sales_director
+steward_role: commercial_bi_lead
 use_case_links:
   core_use_cases:
   - COM-001
@@ -83,7 +83,8 @@ trigger:
         filters: []
   gating_rules:
   - Trigger only if Gross Margin % >= 25%
-  - Do not trigger if price effect is structurally negative for 3+ months (hand over to COM-002)
+  - Do not trigger if price effect is structurally negative for 3+ months (hand over
+    to COM-002)
   - Do not trigger during approved campaign periods
 impact:
   category: Medium
@@ -111,10 +112,10 @@ operational_execution:
   - Defined GM guardrails by category
   - Pack-size flexibility approved by Category Management
   steps:
-  - Identify regions/channels breaching plan thresholds
-  - Select eligible products within GM guardrails
-  - Apply temporary price or pack adjustments
-  - Review Net Sales uplift after one cycle
+  - IDENTIFY each {entity} breaching plan thresholds
+  - SELECT eligible products for this {entity} within GM guardrails
+  - APPLY temporary price or pack adjustments to this {entity}
+  - REVIEW Net Sales uplift for this {entity} after one cycle
   effort:
     level: Medium
     typical_duration_days: 45

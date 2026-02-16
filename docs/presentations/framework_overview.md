@@ -102,7 +102,7 @@ flowchart TD
 
 - Strategy and operating model documents
 - KPI catalog and taxonomy
-- Core use case library with business and technical factsheets
+- Core use case library with `Business_Factsheet.md` + `UseCase_Bracket.yaml` (SSOT)
 - Action codes and decision spine mapping
 - Semantic model blueprint and domain measure dictionaries
 - Data contracts and templates

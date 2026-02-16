@@ -1,4 +1,12 @@
-﻿# Semantic Models
+# Semantic Models
+
+## Single Source of Truth (SSOT)
+
+**KPI definitions and business meaning** live in `core/kpi_catalog/` (KPI_Catalog.md).  
+Semantic models **implement and reference** those definitions; they do **not** define KPI meaning, targets, or lineage.  
+When in doubt, the KPI Catalog is authoritative; semantic models are the computable implementation layer.
+
+---
 
 ## Purpose
 
@@ -63,15 +71,15 @@ Once done, a Golden Semantic Model becomes **read-only** for use cases.
 
 ### Domain Ownership
 
-- Each domain (e.g., Growth, Profitability, Liquidity, Service) owns its semantic meaning.
-- Ownership includes KPI definitions, interpretation, and valid actions.
-- Ownership does **not** include tool-specific implementation.
+- Each domain (e.g., Growth, Profitability, Liquidity, Service) owns its **semantic implementation** (measures, aggregations).
+- KPI **definitions** remain in the KPI Catalog; domains implement and expose measures that reference those KPIs.
+- Ownership includes measure logic, interpretation in context, and valid actions; it does **not** include tool-specific implementation.
 
 ### Scope Rules
 
-- Each KPI belongs to exactly one domain.
-- Domains may expose KPIs for cross-domain usage but never delegate ownership.
-- Domain KPIs must be sufficient to cover all Core Use Cases of that domain.
+- Each KPI is **defined once** in the KPI Catalog; semantic models implement it in one or more domains.
+- Domains may expose measures for cross-domain usage but never redefine KPI meaning.
+- Domain measures must be sufficient to cover all Core Use Cases that reference that domain’s KPIs.
 
 ## Cross-Domain Sharing Rules
 
@@ -118,7 +126,7 @@ These patterns undermine trust, scalability, and AI-readiness.
 
 ## Relationship to Other Framework Layers
 
-- **Framework** defines what KPIs mean and which actions are valid.
+- **Framework (KPI Catalog, Action Codes)** defines what KPIs mean and which actions are valid.
 - **Data Contracts** define which data is required.
 - **Semantic Models** define how meaning becomes computable.
 - **Use Cases** define where and why meaning is applied.

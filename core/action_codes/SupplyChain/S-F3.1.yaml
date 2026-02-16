@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: S-F3.1
 name: Forecast Quality Orchestration
 owner_domain: S&OP Leadership
 impact_dimension: Planning Governance
 status: active
-owner_role: S&OP Lead
-steward_role: S&OP Leadership BI Lead
+owner_role: s_and_op_lead
+steward_role: s_and_op_leadership_bi_lead
 use_case_links:
   core_use_cases:
   - SCM-003
@@ -113,10 +113,10 @@ operational_execution:
   - Consistent forecast accuracy and bias measurement
   - Clear ownership of execution Action Codes
   steps:
-  - Detect sustained forecast accuracy deterioration
-  - Diagnose dominant forecast error driver
-  - Activate corresponding execution Action Code
-  - Review forecast quality monthly
+  - DETECT sustained forecast accuracy deterioration for this SKU/location
+  - DIAGNOSE the dominant forecast error driver for this SKU/location
+  - ACTIVATE the corresponding execution Action Code for this SKU/location
+  - REVIEW forecast quality for this SKU/location monthly
   effort:
     level: Low
     typical_duration_days: 30

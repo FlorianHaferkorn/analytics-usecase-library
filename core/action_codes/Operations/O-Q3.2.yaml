@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: O-Q3.2
 name: Process Defect Elimination
 owner_domain: Quality / Production
 impact_dimension: Effectiveness
 status: active
-owner_role: Quality Engineer
-steward_role: Quality / Production BI Lead
+owner_role: quality_engineer
+steward_role: quality_production_bi_lead
 use_case_links:
   core_use_cases:
   - OPS-003
@@ -112,10 +112,10 @@ operational_execution:
   - Consistent defect logging by category and step
   - RCA capability at line level
   steps:
-  - Identify top defect categories and process steps
-  - Perform root-cause analysis on dominant defects
-  - Implement corrective and preventive actions
-  - Monitor defect density weekly
+  - IDENTIFY top defect categories and process steps on this production line
+  - PERFORM root-cause analysis on dominant defects for this line
+  - IMPLEMENT corrective and preventive actions on this line
+  - MONITOR defect density for this line weekly
   effort:
     level: Medium
     typical_duration_days: 60

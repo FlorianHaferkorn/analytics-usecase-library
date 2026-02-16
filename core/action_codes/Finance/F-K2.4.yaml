@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: F-K2.4
 name: OpEx Spend Control
 owner_domain: Finance / Ops Controlling
 impact_dimension: Profitability
 status: active
-owner_role: Head of Controlling
-steward_role: Finance BI Lead
+owner_role: head_of_controlling
+steward_role: finance_bi_lead
 use_case_links:
   core_use_cases:
   - FIN-002
@@ -110,10 +110,10 @@ operational_execution:
   - Clear classification of discretionary vs committed OpEx
   - Enforced approval workflows
   steps:
-  - Identify cost centers exceeding OpEx plan
-  - Classify spend by discretionary vs committed
-  - Freeze, defer, or re-approve expenses
-  - Review OpEx trend monthly
+  - IDENTIFY cost centers exceeding OpEx plan for this plant/product
+  - CLASSIFY spend by discretionary vs committed for this plant/product
+  - FREEZE, DEFER, or RE-APPROVE expenses for this plant/product
+  - REVIEW OpEx trend for this plant/product monthly
   effort:
     level: Low
     typical_duration_days: 30

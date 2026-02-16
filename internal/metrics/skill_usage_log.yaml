@@ -1,0 +1,25 @@
+# Skill Usage Log
+#
+# Track weekly snapshots of Stage 1 runs, failures, and skill invocations.
+# Update weekly (suggested: Friday end-of-week) to track trends over time.
+#
+# Usage:
+#   At end of week, append a snapshot with:
+#   - week_ending: ISO date (YYYY-MM-DD) for the Friday of that week
+#   - stage1_runs: Total times Stage 1 was run
+#   - stage1_failures: Total failures
+#   - failure_breakdown: Map of check names to occurrence counts
+#   - skills_invoked: Map of skill names to invocation counts
+
+weekly_snapshots:
+  # Example entry (remove after first real snapshot):
+  # - week_ending: "2026-02-20"
+  #   stage1_runs: 14
+  #   stage1_failures: 3
+  #   failure_breakdown:
+  #     missing_kpi_id: 2
+  #     forbidden_content: 1
+  #   skills_invoked:
+  #     stage1-pre-commit: 14
+  #     fix-stage1-failure: 3
+  #     add-kpi-reference-safely: 2

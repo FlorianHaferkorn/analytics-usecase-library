@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: O-A2.4
 name: Preventive Maintenance Discipline
 owner_domain: Maintenance Planning
 impact_dimension: Reliability
 status: active
-owner_role: Maintenance Planner
-steward_role: Maintenance Planning BI Lead
+owner_role: maintenance_planner
+steward_role: maintenance_planning_bi_lead
 use_case_links:
   core_use_cases:
   - OPS-002

@@ -41,7 +41,7 @@ ux_layout_rules:
   page_2_execution:
     title: Commercial Execution
     component_300s:
-      evidence_grain: transaction_line
+      evidence_grain: invoice_line
       evidence_columns:
       - entity
       - period

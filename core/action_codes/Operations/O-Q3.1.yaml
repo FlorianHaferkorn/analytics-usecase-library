@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: O-Q3.1
 name: Quality & Yield Orchestration
 owner_domain: Quality / Operations Leadership
 impact_dimension: Effectiveness
 status: active
-owner_role: Head of Quality
-steward_role: Operations BI Lead
+owner_role: head_of_quality
+steward_role: operations_bi_lead
 use_case_links:
   core_use_cases:
   - OPS-003
@@ -111,10 +111,10 @@ operational_execution:
   - Consistent FPY and defect measurement
   - Clear ownership of execution Action Codes
   steps:
-  - Detect sustained FPY deterioration
-  - Diagnose dominant quality loss driver
-  - Activate corresponding execution Action Code
-  - Review FPY recovery monthly
+  - DETECT sustained FPY deterioration on this production line
+  - DIAGNOSE the dominant quality loss driver for this line
+  - ACTIVATE the corresponding execution Action Code for this line
+  - REVIEW FPY recovery for this line monthly
   effort:
     level: Low
     typical_duration_days: 30

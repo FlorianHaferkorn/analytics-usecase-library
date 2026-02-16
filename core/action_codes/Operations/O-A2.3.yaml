@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: O-A2.3
 name: Repair Time Reduction (MTTR Control)
 owner_domain: Maintenance
 impact_dimension: Maintainability
 status: active
-owner_role: Maintenance Supervisor
-steward_role: Maintenance BI Lead
+owner_role: maintenance_supervisor
+steward_role: maintenance_bi_lead
 use_case_links:
   core_use_cases:
   - OPS-002

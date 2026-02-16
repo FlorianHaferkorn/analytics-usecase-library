@@ -54,7 +54,7 @@ $errors = New-Object System.Collections.Generic.List[string]
 $warnings = New-Object System.Collections.Generic.List[string]
 
 Get-ChildItem -Path $MeasureDictRoot -Recurse -Filter "Measure_Dictionary_*.md" | Where-Object {
-  $_.FullName -notmatch '\\_internal\\archive\\'
+  $_.FullName -notmatch '\\internal\\archive\\'
 } | ForEach-Object {
   $text = Get-Content $_.FullName -Raw
   $refs = New-Object System.Collections.Generic.HashSet[string]

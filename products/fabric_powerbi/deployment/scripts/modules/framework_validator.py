@@ -21,15 +21,14 @@ def get_repo_root() -> Optional[Path]:
     if repo_root and os.path.isdir(repo_root):
         return Path(repo_root)
 
-    # From products/fabric_powerbi/deployment/scripts/modules/framework_validator.py
-    # -> products/fabric_powerbi/deployment/scripts/modules
-    # -> ... -> repo root (has _internal, framework)
+    # From products/fabric_powerbi/deployment/scripts/modules -> ... -> repo root
+    # Repo root has tooling/run_stage1_checks.ps1 and core/
     this_file = Path(__file__).resolve()
     candidate = this_file.parent
     for _ in range(8):
         if candidate is None or not candidate.parent:
             break
-        if (candidate / "_internal" / "tools").is_dir() and (candidate / "framework").is_dir():
+        if (candidate / "tooling" / "run_stage1_checks.ps1").is_file() and (candidate / "core").is_dir():
             return candidate
         candidate = candidate.parent
     return None
@@ -92,7 +91,7 @@ def run_stage1_checks(repo_root: Optional[Path] = None) -> Tuple[bool, str, Dict
             {"repo_root": None},
         )
 
-    script_path = root / "_internal" / "tools" / "run_stage1_checks.ps1"
+    script_path = root / "tooling" / "run_stage1_checks.ps1"
     if not script_path.is_file():
         return (
             False,

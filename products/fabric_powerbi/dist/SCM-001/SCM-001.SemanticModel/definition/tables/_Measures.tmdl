@@ -56,3 +56,10 @@ table _Measures
 			BLANK()
 		formatString: "0.0%"
 		displayFolder: "SCM-001"
+
+	/// sales.units - Sales Units
+	/// Measures sold units volume in the period.
+	measure 'Sales Units' =
+			BLANK()
+		formatString: "#,0"
+		displayFolder: "SCM-001"

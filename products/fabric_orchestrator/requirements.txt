@@ -1,0 +1,20 @@
+# Fabric Enterprise Orchestrator v2.0 - Dependencies
+
+# Authentication
+msal>=1.25.0
+
+# HTTP & API
+requests>=2.31.0
+
+# CLI
+typer>=0.9.0
+rich>=13.7.0  # for better CLI output
+
+# Configuration
+pyyaml>=6.0
+
+# Optional: Template generation
+dbt-fabric>=1.6.0  # optional, nur für dbt-Template-Generierung
+
+# Optional: Utilities
+python-dotenv>=1.0.0

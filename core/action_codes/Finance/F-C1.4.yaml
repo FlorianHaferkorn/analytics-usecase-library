@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: F-C1.4
 name: Payables Optimisation
 owner_domain: Procurement / Accounts Payable
 impact_dimension: Liquidity
 status: active
-owner_role: Head of Accounts Payable
-steward_role: Procurement / Accounts Payable BI Lead
+owner_role: head_of_accounts_payable
+steward_role: procurement_accounts_payable_bi_lead
 use_case_links:
   core_use_cases:
   - FIN-001
@@ -111,10 +111,10 @@ operational_execution:
   - Accurate invoice due-date and payment term data
   - Supplier risk classification available
   steps:
-  - Identify suppliers driving early payment behaviour
-  - Assess contractual flexibility and risk
-  - Adjust payment runs or renegotiate terms
-  - Monitor supplier performance and cash impact
+  - IDENTIFY suppliers driving early payment behaviour for this entity
+  - ASSESS contractual flexibility and risk for this entity
+  - ADJUST payment runs or renegotiate terms for this entity
+  - MONITOR supplier performance and cash impact for this entity
   effort:
     level: Low to Medium
     typical_duration_days: 60

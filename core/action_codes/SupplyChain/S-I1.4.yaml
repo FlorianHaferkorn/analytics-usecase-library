@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: S-I1.4
 name: Obsolescence & Excess Reduction
 owner_domain: Inventory Management / Finance
 impact_dimension: Capital Efficiency
 status: active
-owner_role: Inventory Controller
-steward_role: Finance BI Lead
+owner_role: inventory_controller
+steward_role: finance_bi_lead
 use_case_links:
   core_use_cases:
   - SCM-001

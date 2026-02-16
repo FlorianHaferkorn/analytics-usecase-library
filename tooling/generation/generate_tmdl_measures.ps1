@@ -354,6 +354,15 @@ function Get-SafeName {
 # ActionReady Logic helpers
 # ---------------------------------------------------------------------------
 
+function Get-EvidenceGrainDisplayLabel {
+  <#
+  .SYNOPSIS Convert evidence_grain token to human-readable label (e.g., invoice_line -> invoice line).
+  #>
+  param([string]$Grain)
+  if (-not $Grain) { return "record" }
+  return $Grain.Replace('_', ' ')
+}
+
 function Load-UseCaseBrackets {
   <#
   .SYNOPSIS Load all UseCase_Bracket.yaml files and return a hashtable keyed by use case ID.
@@ -387,11 +396,16 @@ function Load-UseCaseBrackets {
         if ($m.Success) { $influencingIds += $m.Groups[1].Value.Trim() }
       }
     }
+    # Extract evidence_grain (nested under component_300s)
+    $grainMatch = [regex]::Match($raw, '(?m)^\s*evidence_grain\s*:\s*[''"]?([^''"#\r\n]+)[''"]?\s*$')
+    $evidenceGrain = if ($grainMatch.Success) { $grainMatch.Groups[1].Value.Trim() } else { $null }
+    
     $map[$ucId] = @{
       id                = $ucId
       action_code_ids   = $actionIds
       strategic_kpi_id  = $strategicKpiId
       influencing_kpi_ids = $influencingIds
+      evidence_grain    = $evidenceGrain
       path              = $f.FullName
     }
   }
@@ -637,6 +651,27 @@ function Build-ActionReadyLogicTable {
       }
       Write-Host "Warning: Action Code '$acId' referenced by $($actionIdsNeeded[$acId] -join ', ') but YAML not found." -ForegroundColor Yellow
     }
+    
+    # Substitute {entity} placeholder if action code is used by exactly one included use case
+    $ucList = $actionIdsNeeded[$acId]
+    if ($ac.steps -and ($ac.steps -join " ") -like "*{entity}*") {
+      if ($ucList.Count -eq 1) {
+        # Single use case: resolve {entity} from bracket evidence_grain
+        $ucId = $ucList[0]
+        $evidenceGrain = $Brackets[$ucId].evidence_grain
+        $displayLabel = Get-EvidenceGrainDisplayLabel -Grain $evidenceGrain
+        $resolvedSteps = @()
+        foreach ($step in $ac.steps) {
+          $resolvedSteps += $step -replace '\{entity\}', $displayLabel
+        }
+        $ac = $ac.Clone()
+        $ac.steps = $resolvedSteps
+      } else {
+        # Multiple use cases: cannot resolve {entity} uniquely
+        Write-Host "Warning: Action Code '$acId' contains {entity} placeholder but is used by multiple use cases: $($ucList -join ', '). Run per-use-case build to resolve." -ForegroundColor Yellow
+      }
+    }
+    
     $block = Build-ActionTextMeasureBlock -ActionCode $ac
     $measureBlocks += $block
     $generatedCount++
@@ -808,7 +843,7 @@ if (-not $resolvedTablesDir) {
 }
 
 $factSheets = Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Business_Factsheet.md' | Where-Object {
-  $_.FullName -notmatch '\\templates\\' -and $_.FullName -notmatch '\\_internal\\archive\\'
+  $_.FullName -notmatch '\\templates\\' -and $_.FullName -notmatch '\\internal\\archive\\'
 }
 if ($UseCase -and $UseCase.Count -gt 0) {
   # Split comma-separated values if passed as single string from CLI

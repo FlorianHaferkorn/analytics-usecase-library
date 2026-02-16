@@ -19,3 +19,9 @@ tooling/validation/results/
 
 # Generated registry outputs (produced by registry_builder.py)
 tooling/ontology/out/
+
+# Root-level registry outputs (ignore if someone runs registry_builder without --out-dir)
+master_registry.json
+value_map.json
+governance_gaps.json
+orphans_report.json

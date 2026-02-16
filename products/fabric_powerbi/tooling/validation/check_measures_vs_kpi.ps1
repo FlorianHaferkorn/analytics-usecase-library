@@ -91,7 +91,7 @@ if (-not $kpiIndex) {
 }
 
 $measuresFiles = Get-ChildItem -Path $resolvedDistRoot -Recurse -Filter '_Measures.tmdl' | Where-Object {
-  $_.FullName -notmatch '\\_internal\\archive\\'
+  $_.FullName -notmatch '\\internal\\archive\\'
 }
 if ($measuresFiles.Count -eq 0) {
   Write-Host "No _Measures.tmdl files found under DistRoot." -ForegroundColor Yellow

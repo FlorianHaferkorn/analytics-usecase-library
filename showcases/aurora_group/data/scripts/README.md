@@ -90,4 +90,4 @@ Get-ChildItem "showcases/aurora_group/data/gold/facts" -Directory |
 **Issue:** Relationship missing in semantic model
 
 - **Solution:** Check relationships.tmdl for the relationship
-- Verify corresponding Technical Factsheet documents the relationship (section 4.2)
+- Verify corresponding data contract documents the relationship

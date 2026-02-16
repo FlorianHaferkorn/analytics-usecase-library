@@ -129,7 +129,7 @@ Open the generated HTML file in a browser to preview the layout before opening i
 
 The generator reads from these governance files:
 
-- `core/templates/page_templates/mappings/UseCase_PageTemplate_Map.yaml`
+- Use case UX SSOT: `core/usecases/core/<ID>_*/UseCase_Bracket.yaml` (`ux_layout_rules`)
 - `core/templates/page_templates/governance/Visual_to_Slot_Mapping.yaml`
 - `core/templates/page_templates/governance/Layout_Grid_System.yaml`
 - `core/templates/page_templates/governance/Color_Semantics_Formatting.yaml`
@@ -138,7 +138,7 @@ The generator reads from these governance files:
 
 - **T2 pages:** By default the generator adds a slim **Action Teaser** textbox at x=1570 (width 350) with text *"Key actions from variance → see Detail or T4"* per [ActionPanel_Spec.md](../../../../core/templates/page_templates/components/ActionPanel_Spec.md). Content area width is 1510. Set `action_teaser: false` in page slots config to omit the teaser.
 - **T4 pages:** Full Action Panel placeholder is emitted when `needs_action_panel` is true.
-- **Measure binding:** Visuals are emitted with empty `queryState` by default. To pre-bind measures (e.g. from use case Technical Factsheet `kpi_to_measure_mapping`), extend the page config or config loader to pass `kpi_measures` and slot-specific `measure_ref`/`category_entity`/`category_property`; `VisualBuilder.build_kpi_card` already accepts optional `measure_ref` and fills Data projections for `_Measures`.
+- **Measure binding:** Visuals are emitted with empty `queryState` by default. To pre-bind measures, extend the generator to look up KPI→measure name from `master_registry.json` (derived from `UseCase_Bracket.yaml` + KPI Catalog by `registry_builder.py`) instead of a factsheet mapping. Pass `kpi_measures` and slot-specific `measure_ref`/`category_entity`/`category_property`; `VisualBuilder.build_kpi_card` already accepts optional `measure_ref` and fills Data projections for `_Measures`.
 
 ## Validation
 
@@ -193,7 +193,7 @@ If you get a "Theme not found" error:
 ### Validation Errors
 
 If validation fails:
-1. Check that the use case exists in `UseCase_PageTemplate_Map.yaml`
+1. Check that the use case has a `UseCase_Bracket.yaml`
 2. Verify the page name is `overview` or `detail`
 3. Ensure template assignment matches the mapping rules
 
@@ -201,7 +201,7 @@ If validation fails:
 
 If visuals are positioned incorrectly:
 1. Check `Layout_Grid_System.yaml` for positioning rules
-2. Verify slot activations in `UseCase_PageTemplate_Map.yaml`
+2. Verify `ux_layout_rules` in the bracket (3s/30s/300s intent and action panel)
 3. Review the HTML mockup to see actual positions
 
 ## Architecture

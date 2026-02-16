@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: F-K2.2
 name: Material Cost Discipline
 owner_domain: Procurement / Operations
 impact_dimension: Profitability
 status: active
-owner_role: Head of Procurement
-steward_role: Operations BI Lead
+owner_role: head_of_procurement
+steward_role: operations_bi_lead
 use_case_links:
   core_use_cases:
   - FIN-002

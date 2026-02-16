@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: X-E3.3
 name: Action Follow-up & Outcome Governance
 owner_domain: Executive Office / PMO
 impact_dimension: Execution Accountability
 status: active
-owner_role: Chief of Staff / PMO Lead
-steward_role: Executive Office / PMO BI Lead
+owner_role: chief_of_staff_pmo_lead
+steward_role: executive_office_pmo_bi_lead
 use_case_links:
   core_use_cases:
   - XD-003
@@ -105,10 +105,10 @@ operational_execution:
   - Action routing and execution logging in place
   - Defined evaluation windows per domain Action Code
   steps:
-  - Track routed Action Codes and execution status
-  - Evaluate KPI trajectory post-action window
-  - Escalate delayed or ineffective actions
-  - Report outcomes to executive committee
+  - TRACK routed Action Codes and execution status for this entity
+  - EVALUATE KPI trajectory post-action window for this entity
+  - ESCALATE delayed or ineffective actions for this entity
+  - REPORT outcomes for this entity to executive committee
   effort:
     level: Low
     typical_duration_days: 30

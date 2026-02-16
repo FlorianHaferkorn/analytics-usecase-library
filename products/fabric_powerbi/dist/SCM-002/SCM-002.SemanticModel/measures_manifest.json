@@ -3,7 +3,7 @@
     "title":  null,
     "dataset_model":  "SCM-002.SemanticModel",
     "table_name":  "_Measures",
-    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\usecases\\core\\SCM-002_Supply_Reliability_OTIF\\Technical_Factsheet.md",
+    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\usecases\\core\\SCM-002_Supply_Reliability_OTIF\\Business_Factsheet.md",
     "measures":  [
                      {
                          "kpi_id":  "supply.otif.pct",
@@ -35,7 +35,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "supply.on_time.pct",
@@ -67,7 +67,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "supply.in_full.pct",
@@ -99,7 +99,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "supply.stockout_impact.pct",
@@ -131,7 +131,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "supply.penalty.amount",
@@ -163,7 +163,7 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      },
                      {
                          "kpi_id":  "supply.expedite.amount",
@@ -195,7 +195,71 @@
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "order.lines",
+                         "name":  "Order Lines Count",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0",
+                         "display_folder":  "",
+                         "purpose":  "Counts order lines processed in the period.",
+                         "description":  "Counts order lines processed in the period.",
+                         "technical_description":  "Counts order lines processed in the period.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Supply Chain",
+                         "data_owner":  "Supply Chain BI",
+                         "steward":  "Order Management Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                     },
+                     {
+                         "kpi_id":  "shipments.count",
+                         "name":  "Shipments Count",
+                         "kpi_key":  null,
+                         "kpi_type":  null,
+                         "impact_dimension":  null,
+                         "domain_tags":  [
+
+                                         ],
+                         "calc_type":  null,
+                         "refresh":  null,
+                         "status":  null,
+                         "format_string":  "#,0",
+                         "display_folder":  "",
+                         "purpose":  "Counts shipments executed in the period.",
+                         "description":  "Counts shipments executed in the period.",
+                         "technical_description":  "Counts shipments executed in the period.",
+                         "dax_expression":  null,
+                         "depends_on":  [
+
+                                        ],
+                         "depends_on_ids":  [
+
+                                            ],
+                         "business_owner":  "Head of Logistics",
+                         "data_owner":  "Logistics BI",
+                         "steward":  "Logistics Analyst",
+                         "qa_rules":  [
+
+                                      ],
+                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
                      }
                  ]
 }

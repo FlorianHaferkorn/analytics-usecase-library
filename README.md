@@ -156,9 +156,8 @@ implementations/    # Tool-specific implementations
 
 showcases/          # Example reports and adoptions (e.g. sample_pbip_report)
 
-_internal/          # Maintainer tooling, CI, schemas
-  tools/             # Validation, generation, automation
-  ai/                # Schemas for AI and automation
+tooling/            # Validation, generation, maintenance, ontology, schemas (e.g. run_stage1_checks.ps1, registry_builder.py)
+internal/           # Archive, strategy, vision, CI (maintainer-only)
 ```
 
 ## Who this is for

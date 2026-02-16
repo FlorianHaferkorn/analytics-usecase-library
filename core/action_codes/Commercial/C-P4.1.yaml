@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: C-P4.1
 name: Promo Calendar Discipline
 owner_domain: Trade Marketing
 impact_dimension: Profitability
 status: active
-owner_role: Trade Marketing Lead
-steward_role: Trade Marketing BI Lead
+owner_role: trade_marketing_lead
+steward_role: trade_marketing_bi_lead
 use_case_links:
   core_use_cases:
   - COM-004
@@ -111,10 +111,10 @@ operational_execution:
   - Promotion ROI calculation validated
   - Clear classification of strategic vs tactical promotions
   steps:
-  - Identify promotions with repeated negative ROI
-  - Review mechanics and baseline assumptions
-  - Stop, replace, or resequence promotions
-  - Validate ROI improvement in next cycle
+  - IDENTIFY each {entity} with repeated negative ROI
+  - REVIEW mechanics and baseline assumptions for this {entity}
+  - STOP, REPLACE, or RESEQUENCE this {entity} based on ROI analysis
+  - VALIDATE ROI improvement for this {entity} in next cycle
   effort:
     level: Low
     typical_duration_days: 30

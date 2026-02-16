@@ -42,7 +42,7 @@ The generator produces Markdown containing:
 Inputs are read from:
 
 - PBIP: `definition/report.json`, `definition/pages/pages.json`, each `definition/pages/<PageName>/page.json` and `visuals/*/visual.json`
-- Framework: Business Factsheet (from `core/usecases/core/<id>_*/Business_Factsheet.md`), `UseCase_PageTemplate_Map.yaml`
+- Framework: Business Factsheet (from `core/usecases/core/<id>_*/Business_Factsheet.md`), and UX/action config from `core/usecases/core/<id>_*/UseCase_Bracket.yaml` (SSOT)
 
 ## Where output is stored
 

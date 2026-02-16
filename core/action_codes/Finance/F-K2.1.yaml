@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: F-K2.1
 name: Cost Take-Out Orchestration
 owner_domain: Finance / Operations
 impact_dimension: Profitability
 status: active
-owner_role: Finance Director
-steward_role: Finance BI Lead
+owner_role: finance_director
+steward_role: finance_bi_lead
 use_case_links:
   core_use_cases:
   - FIN-002
@@ -112,10 +112,10 @@ operational_execution:
   - Reliable unit cost decomposition by driver
   - Clear ownership of execution Action Codes
   steps:
-  - Detect sustained unit cost deterioration
-  - Identify dominant cost driver (Material, Labor, OpEx)
-  - Activate corresponding execution Action Code
-  - Review impact monthly
+  - DETECT sustained unit cost deterioration for this plant/product
+  - IDENTIFY the dominant cost driver (Material, Labor, OpEx) for this plant/product
+  - ACTIVATE the corresponding execution Action Code for this plant/product
+  - REVIEW cost impact for this plant/product monthly
   effort:
     level: Low
     typical_duration_days: 30

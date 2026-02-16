@@ -4,10 +4,10 @@ Use these instructions when editing this repository. Project rules in `.cursor/r
 
 ## Use cases
 
-- Preserve YAML frontmatter (`id`, `factsheet_type`) and required sections on Business Factsheets; preserve UseCase_Bracket.yaml structure per schema.
-- Only reference KPIs that exist in `core/kpi_catalog/`; do not redefine KPI meaning, targets, or lineage in factsheets.
-- Keep `required_kpis` (Business Factsheet) and `kpi_to_measure_mapping` (UseCase_Bracket.yaml) consistent with the KPI catalog and with each other.
-- Keep `layout_330300` (Business) aligned with `tooling/ai/schemas/layout_330300.schema.json` and page templates in `core/templates/page_templates/`.
+- Preserve YAML frontmatter (`id`, `factsheet_type: business`) and required sections on Business Factsheets; preserve UseCase_Bracket.yaml structure per schema.
+- Only reference KPIs that exist in `core/kpi_catalog/`; do not redefine KPI meaning, targets, or lineage in factsheets or brackets.
+- Business Factsheets are prose-only (Lean 2.0); all machine-readable config is in `UseCase_Bracket.yaml` (orchestration, governance, value driver model, UX layout rules).
+- Keep `layout_330300` (if used) aligned with `tooling/ai/schemas/layout_330300.schema.json` and page templates in `core/templates/page_templates/`.
 - When adding or changing action code references, update the `orchestration.action_code_ids` list in each use case's `UseCase_Bracket.yaml` so it stays consistent with `core/action_codes/`.
 
 ## Framework (KPI catalog, action codes, templates)
@@ -21,6 +21,7 @@ Use these instructions when editing this repository. Project rules in `.cursor/r
 - Prefer existing scripts under `tooling/` (validation, generation, maintenance, Power BI MCP).
 - Run PowerShell from the repository root when invoking these scripts.
 - Before committing changes that touch use cases, framework, or data contracts, run Stage 1: `.\tooling\run_stage1_checks.ps1`. For Fabric/Power BI output validation (measures vs KPI, TMDL vs measure dictionary), run `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1` or full suite `.\tooling\run_all_checks.ps1`.
+- Run `.\tooling\maintenance\sync_evidence_grain_note_to_factsheet.ps1` after adding or changing `overrides.evidence_grain_note` in a bracket (e.g. after migration or when adding a governance note).
 - Schema authority: `tooling/ai/schemas/` for factsheets, action codes, data contracts, layout_330300. Structure and naming authority: `core/templates/`, `core/strategy_operating_model/operating_model/`.
 
 ## Golden thread

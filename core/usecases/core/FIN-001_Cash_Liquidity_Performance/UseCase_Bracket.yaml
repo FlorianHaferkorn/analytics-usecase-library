@@ -22,11 +22,10 @@ orchestration:
   - F-C1.3
   - F-C1.4
 value_driver_model:
-  formula: wc.ccc.days = f(fin.cash.balance, fin.cash.ocf, fin.cash.vs_plan.pct, wc.dso.days, wc.dio.days, wc.dpo.days, scm.service_level.pct,
-    scm.supplier_risk.score)
+  formula: wc.ccc.days = wc.dso.days + wc.dio.days - wc.dpo.days
   impact_direction: minimize
-  primary_driver: fin.cash.balance
-  impact_logic: Improving fin.cash.balance is the primary lever for minimizing wc.ccc.days.
+  primary_driver: wc.dso.days
+  impact_logic: Reducing wc.dso.days is the primary lever for minimizing wc.ccc.days.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   page_1_summary:
@@ -45,7 +44,7 @@ ux_layout_rules:
   page_2_execution:
     title: Finance Execution
     component_300s:
-      evidence_grain: transaction_line
+      evidence_grain: entity_month
       evidence_columns:
       - entity
       - period

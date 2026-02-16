@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: O-A2.5
 name: Spare Parts Readiness
 owner_domain: Maintenance / Procurement
 impact_dimension: Availability
 status: active
-owner_role: Maintenance Supply Coordinator
-steward_role: Maintenance / Procurement BI Lead
+owner_role: maintenance_supply_coordinator
+steward_role: maintenance_procurement_bi_lead
 use_case_links:
   core_use_cases:
   - OPS-002

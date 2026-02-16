@@ -50,6 +50,9 @@ ux_layout_rules:
   page_2_execution:
     title: "[Domain] Execution"
     component_300s:
+      # Must match a governed fact-table grain from core/data_contracts/domains/*.yaml
+      # Placeholder 'transaction_line' is forbidden
+      # Reference: internal/evidence_grain_audit_results.md
       evidence_grain: "[e.g., invoice_line]"
       evidence_columns:
         - "[column_1]"

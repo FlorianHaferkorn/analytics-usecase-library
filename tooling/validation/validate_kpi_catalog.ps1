@@ -140,7 +140,7 @@ function Get-RequiredIdsFromFrontMatter {
 $requiredSet = New-Object System.Collections.Generic.HashSet[string]
 if ($UseCasesRoot -and (Test-Path $UseCasesRoot)) {
   Get-ChildItem -Path $UseCasesRoot -Recurse -Filter 'FactSheet.md' | Where-Object {
-    $_.FullName -notmatch '\\_internal\\archive\\'
+    $_.FullName -notmatch '\\internal\\archive\\'
   } | ForEach-Object {
     $fm = Get-FrontMatter -Path $_.FullName
     foreach ($rid in (Get-RequiredIdsFromFrontMatter -FrontMatter $fm)) { [void]$requiredSet.Add($rid) }

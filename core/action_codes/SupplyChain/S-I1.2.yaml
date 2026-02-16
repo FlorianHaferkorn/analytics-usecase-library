@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: S-I1.2
 name: Inventory Rightsizing
 owner_domain: Supply Planning / Inventory Management
 impact_dimension: Working Capital
 status: active
-owner_role: Inventory Manager
-steward_role: Supply Planning / Inventory Management BI Lead
+owner_role: inventory_manager
+steward_role: supply_planning_inventory_management_bi_lead
 use_case_links:
   core_use_cases:
   - SCM-001

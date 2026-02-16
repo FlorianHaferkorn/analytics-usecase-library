@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: S-I1.3
 name: Stockout Prevention
 owner_domain: Supply Planning / Logistics
 impact_dimension: Service Level
 status: active
-owner_role: Supply Planner
-steward_role: Supply Planning / Logistics BI Lead
+owner_role: supply_planner
+steward_role: supply_planning_logistics_bi_lead
 use_case_links:
   core_use_cases:
   - SCM-001

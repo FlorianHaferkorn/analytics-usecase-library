@@ -4,7 +4,7 @@
 
 This document defines how to generate **standardized Power BI report pages** (PBIP page structure) from page templates and use case mappings. The scaffold is a **structural skeleton** that can be opened in Power BI Desktop and populated with measures and visuals; it does not generate final visuals automatically.
 
-**Input:** Use case ID + `UseCase_PageTemplate_Map.yaml` + page template definitions  
+**Input:** Use case ID + `UseCase_Bracket.yaml` (`ux_layout_rules`) + page template definitions  
 **Output:** PBIP page JSON structure (`.pbir` definition) with:
 - Page metadata (name, display name, theme)
 - Visual placeholders (type, position, size, basic properties)
@@ -228,7 +228,7 @@ Row 3 (y=560-860): [Ranking/Context - Left 2/3] [Action Panel continues]
 **Required:**
 - Use case ID (e.g. COM-001)
 - Page name (`overview` or `detail`)
-- `UseCase_PageTemplate_Map.yaml` entry for the use case
+- `UseCase_Bracket.yaml` (`ux_layout_rules`) for the use case
 - Page template definition (T1/T2/T3/T4 markdown)
 - Visual Whitelist rules
 - Slot Definitions
@@ -278,7 +278,7 @@ Row 3 (y=560-860): [Ranking/Context - Left 2/3] [Action Panel continues]
 Before a scaffold is considered valid:
 
 - [ ] Page name matches pattern `page_<use_case_id>_<page_name>`
-- [ ] Template assignment matches `UseCase_PageTemplate_Map.yaml`
+- [ ] Template intent matches `UseCase_Bracket.yaml` (`ux_layout_rules`)
 - [ ] All mandatory slots have visual placeholders
 - [ ] No disallowed visuals are present
 - [ ] Slicer count ≤ 3 (or 4 if mode switch)
@@ -306,5 +306,5 @@ This metadata can be stored as a JSON sidecar file or embedded in the PBIP struc
 - Page templates: `core/templates/page_templates/page_types/`
 - Visual Whitelist: `core/templates/page_templates/governance/Visual_Whitelist.md`
 - Slot Definitions: `core/templates/page_templates/governance/Slot_Definitions.md`
-- Use Case Mapping: `core/templates/page_templates/mappings/UseCase_PageTemplate_Map.yaml`
+- Use case UX SSOT: `core/usecases/core/<ID>_*/UseCase_Bracket.yaml`
 - Action Panel Spec: `core/templates/page_templates/components/ActionPanel_Spec.md`

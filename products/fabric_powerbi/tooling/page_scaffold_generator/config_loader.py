@@ -26,19 +26,32 @@ class ConfigLoader:
             repo_root = current_file.parent.parent.parent.parent.parent
         
         self.repo_root = Path(repo_root)
-        self.framework_root = self.repo_root / "framework" / "templates" / "page_templates"
-        self.governance_root = self.framework_root / "governance"
-        self.mappings_root = self.framework_root / "mappings"
-        self.usecases_root = self.repo_root / "framework" / "usecases"
+        # Lean 2.0: Bracket is SSOT for UX config; mapping file removed.
+        # Canonical paths are under core/.
+        self.page_templates_root = self.repo_root / "core" / "templates" / "page_templates"
+        self.governance_root = self.page_templates_root / "governance"
+        self.usecases_root = self.repo_root / "core" / "usecases"
     
-    def load_use_case_mapping(self) -> Dict[str, Any]:
-        """Load UseCase_PageTemplate_Map.yaml."""
-        mapping_file = self.mappings_root / "UseCase_PageTemplate_Map.yaml"
-        if not mapping_file.exists():
-            raise FileNotFoundError(f"Use case mapping not found: {mapping_file}")
-        
-        with open(mapping_file, 'r', encoding='utf-8') as f:
-            return yaml.safe_load(f)
+    def _resolve_use_case_dir(self, use_case_id: str) -> Optional[Path]:
+        """Resolve core use case directory: core/usecases/core/<ID>_*/."""
+        core = self.usecases_root / "core"
+        if not core.exists():
+            return None
+        for p in core.iterdir():
+            if p.is_dir() and p.name.startswith(f"{use_case_id}_"):
+                return p
+        return None
+
+    def load_use_case_bracket(self, use_case_id: str) -> Dict[str, Any]:
+        """Load UseCase_Bracket.yaml for a given use case."""
+        uc_dir = self._resolve_use_case_dir(use_case_id)
+        if not uc_dir:
+            raise FileNotFoundError(f"Use case directory not found for {use_case_id} under {self.usecases_root / 'core'}")
+        bracket_file = uc_dir / "UseCase_Bracket.yaml"
+        if not bracket_file.exists():
+            raise FileNotFoundError(f"UseCase_Bracket.yaml not found: {bracket_file}")
+        with open(bracket_file, "r", encoding="utf-8") as f:
+            return yaml.safe_load(f) or {}
     
     def load_visual_slot_mapping(self) -> Dict[str, Any]:
         """Load Visual_to_Slot_Mapping.yaml (or return hardcoded mapping if file is markdown)."""
@@ -251,18 +264,83 @@ class ConfigLoader:
         Returns:
             Page configuration dictionary
         """
-        mapping = self.load_use_case_mapping()
-        
-        if use_case_id not in mapping.get('use_cases', {}):
-            raise ValueError(f"Use case {use_case_id} not found in mapping")
-        
-        use_case_config = mapping['use_cases'][use_case_id]
-        
-        for page in use_case_config.get('pages', []):
-            if page.get('name') == page_name:
-                return page
-        
-        raise ValueError(f"Page {page_name} not found for use case {use_case_id}")
+        bracket = self.load_use_case_bracket(use_case_id)
+        ux = (bracket.get("ux_layout_rules") or {}) if isinstance(bracket, dict) else {}
+        if not isinstance(ux, dict):
+            ux = {}
+
+        # Default slot set expected by the scaffold generator
+        slots: Dict[str, bool] = {
+            "needs_trend": False,
+            "needs_variance": False,
+            "needs_ranking": False,
+            "needs_mix": False,
+            "needs_exceptions": False,
+            "needs_detail_matrix": False,
+            "needs_root_cause": False,
+            "needs_prescriptive": False,
+            "needs_funnel": False,
+            # Generator-specific toggles
+            "exclude_time_slicer": False,
+            "action_teaser": True,
+        }
+
+        def _apply_from_component_30s(component_30s: Any) -> None:
+            if not isinstance(component_30s, list):
+                return
+            for item in component_30s:
+                if not isinstance(item, dict):
+                    continue
+                vt = item.get("visual_type")
+                if vt == "trend_line":
+                    slots["needs_trend"] = True
+                elif vt == "bar_chart":
+                    # Heuristic: multi-KPI bar chart indicates variance/bridge; otherwise ranking.
+                    kpi_ids = item.get("kpi_ids")
+                    if isinstance(kpi_ids, list) and len([x for x in kpi_ids if isinstance(x, str) and x.strip()]) >= 2:
+                        slots["needs_variance"] = True
+                    slots["needs_ranking"] = True
+                elif vt in ("stacked_bar", "hundred_percent_stacked_bar"):
+                    slots["needs_mix"] = True
+                elif vt == "funnel":
+                    slots["needs_funnel"] = True
+
+        if page_name == "overview":
+            p1 = ux.get("page_1_summary") or {}
+            if not isinstance(p1, dict):
+                p1 = {}
+            _apply_from_component_30s(p1.get("component_30s"))
+            # Overview pages are typically diagnostic/variance.
+            template = "T2"
+            return {
+                "name": "overview",
+                "layer": [3, 30],
+                "template": template,
+                "needs_action_panel": False,
+                "slots": slots,
+            }
+
+        if page_name == "detail":
+            p2 = ux.get("page_2_execution") or {}
+            if not isinstance(p2, dict):
+                p2 = {}
+            c300 = p2.get("component_300s") or {}
+            if not isinstance(c300, dict):
+                c300 = {}
+            has_action_panel = bool(c300.get("action_panel", False))
+            # Detail pages are execution-focused; treat as prescriptive when action panel is enabled.
+            template = "T4" if has_action_panel else "T2"
+            slots["needs_detail_matrix"] = True
+            slots["needs_prescriptive"] = has_action_panel
+            return {
+                "name": "detail",
+                "layer": [300],
+                "template": template,
+                "needs_action_panel": has_action_panel,
+                "slots": slots,
+            }
+
+        raise ValueError(f"Page {page_name} not supported (expected 'overview' or 'detail')")
     
     def validate_theme_exists(self, theme_name: str) -> bool:
         """
@@ -275,7 +353,7 @@ class ConfigLoader:
             True if theme exists, False otherwise
         """
         # Theme files are in theme_generator/themes/
-        theme_root = self.repo_root / "implementations" / "microsoft_fabric_powerbi" / "tools" / "theme_generator" / "themes"
+        theme_root = self.repo_root / "products" / "fabric_powerbi" / "tooling" / "theme_generator" / "themes"
         
         # Search for theme file
         for theme_file in theme_root.rglob(f"{theme_name}.json"):

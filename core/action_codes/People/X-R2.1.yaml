@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: X-R2.1
 name: Resource Utilization Orchestration
 owner_domain: Service Operations / Workforce Management Leadership
 impact_dimension: Utilization Governance
 status: active
-owner_role: Head of Workforce Management
-steward_role: Operations BI Lead
+owner_role: head_of_workforce_management
+steward_role: operations_bi_lead
 use_case_links:
   core_use_cases:
   - XD-002
@@ -114,10 +114,10 @@ operational_execution:
   - Reliable utilization and occupancy measurement
   - Clear ownership of execution Action Codes
   steps:
-  - Detect sustained utilization band violations
-  - Diagnose dominant utilization driver
-  - Activate corresponding execution Action Code
-  - Review utilization weekly
+  - DETECT sustained utilization band violations for this agent
+  - DIAGNOSE the dominant utilization driver for this agent
+  - ACTIVATE the corresponding execution Action Code for this agent
+  - REVIEW utilization for this agent weekly
   effort:
     level: Low
     typical_duration_days: 21

@@ -1,12 +1,12 @@
-schema_version: "2.0"
+schema_version: '2.0'
 inherits_decision_spine: pricing_discipline
 id: C-S1.1
 name: Price Discipline Enforcement
 owner_domain: Commercial
 impact_dimension: Profitability
 status: active
-owner_role: Pricing Manager
-steward_role: Commercial BI Lead
+owner_role: pricing_manager
+steward_role: commercial_bi_lead
 use_case_links:
   core_use_cases:
   - COM-001
@@ -103,10 +103,10 @@ operational_execution:
   - Defined discount floors by product/category
   - Approval workflow for price exceptions
   steps:
-  - Identify regions/channels breaching GM threshold
-  - Freeze new discretionary discounts
-  - Require approval for price exceptions
-  - Review net price realization weekly
+  - IDENTIFY each {entity} breaching gross margin threshold
+  - FREEZE new discretionary discounts for this {entity}
+  - REQUIRE approval for any price exception on this {entity}
+  - REVIEW net price realization for this {entity} weekly
   effort:
     level: Low
     typical_duration_days: 30

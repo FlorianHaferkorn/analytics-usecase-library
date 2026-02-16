@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: X-R2.3
 name: Shrinkage & Productive Time Control
 owner_domain: Service Operations / CX
 impact_dimension: Productive Capacity
 status: active
-owner_role: Service Operations Manager
-steward_role: Operations BI Lead
+owner_role: service_operations_manager
+steward_role: operations_bi_lead
 use_case_links:
   core_use_cases:
   - XD-002
@@ -111,10 +111,10 @@ operational_execution:
   - Transparent shrinkage categorisation
   - Agreement on controllable vs non-controllable time
   steps:
-  - Identify queues with elevated shrinkage
-  - Analyse dominant shrinkage categories
-  - Adjust planning, adherence, or scheduling practices
-  - Monitor shrinkage and utilization weekly
+  - IDENTIFY agents in queues with elevated shrinkage
+  - ANALYSE dominant shrinkage categories for this agent
+  - ADJUST planning, adherence, or scheduling practices for this agent
+  - MONITOR shrinkage and utilization for this agent weekly
   effort:
     level: Medium
     typical_duration_days: 90

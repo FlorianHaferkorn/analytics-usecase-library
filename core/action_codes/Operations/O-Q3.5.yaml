@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: O-Q3.5
 name: Complaint-Driven Stabilisation
 owner_domain: Quality / Operations Excellence
 impact_dimension: Customer Impact
 status: active
-owner_role: Quality Manager
-steward_role: Operations BI Lead
+owner_role: quality_manager
+steward_role: operations_bi_lead
 use_case_links:
   core_use_cases:
   - OPS-003
@@ -111,10 +111,10 @@ operational_execution:
   - Complaint-to-process mapping
   - Timely complaint classification
   steps:
-  - Identify products with rising complaint rates
-  - Map complaints to production defects and processes
-  - Execute stabilisation and containment actions
-  - Monitor complaint trend monthly
+  - IDENTIFY products with rising complaint rates on this production line
+  - MAP complaints to production defects and processes for this line
+  - EXECUTE stabilisation and containment actions on this line
+  - MONITOR complaint trend for this line monthly
   effort:
     level: Medium
     typical_duration_days: 90

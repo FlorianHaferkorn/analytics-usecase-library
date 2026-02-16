@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: O-O1.3
 name: Quality & Yield Recovery
 owner_domain: Quality / Production
 impact_dimension: Effectiveness
 status: active
-owner_role: Quality Manager
-steward_role: Quality / Production BI Lead
+owner_role: quality_manager
+steward_role: quality_production_bi_lead
 use_case_links:
   core_use_cases:
   - OPS-001

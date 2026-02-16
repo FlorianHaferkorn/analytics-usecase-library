@@ -130,6 +130,11 @@ required_time_range: 24 months history
 required_slicers: Date, Region/Channel, Customer Segment, Product Category
 ```
 
+
+### Evidence grain
+
+customer_month grain is provided by domain contract facts fact_customer_value and fact_customer_events (commercial_sales.yaml). Revenue components can be derived from fact_sales (grain: invoice_line) via customer-month aggregation if needed.
+
 ---
 
 ## 7. Dependencies, Assumptions & Constraints

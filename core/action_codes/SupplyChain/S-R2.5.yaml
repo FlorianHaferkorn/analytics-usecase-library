@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: S-R2.5
 name: Planning & Execution Alignment
 owner_domain: S&OP / Supply Chain Planning
 impact_dimension: Stability
 status: active
-owner_role: S&OP Lead
-steward_role: S&OP / Supply Chain Planning BI Lead
+owner_role: s_and_op_lead
+steward_role: s_and_op_supply_chain_planning_bi_lead
 use_case_links:
   core_use_cases:
   - SCM-002
@@ -113,10 +113,10 @@ operational_execution:
   - Clear S&OP cadence and decision rights
   - Visibility of plan changes vs execution impact
   steps:
-  - Identify cycles with repeated last-minute plan changes
-  - Analyse root causes of plan-execution mismatch
-  - Enforce freeze windows and escalation rules
-  - Review OTIF and expedite trends per cycle
+  - IDENTIFY shipments affected by repeated last-minute plan changes
+  - ANALYSE root causes of plan-execution mismatch for this shipment
+  - ENFORCE freeze windows and escalation rules for this shipment
+  - REVIEW OTIF and expedite trends for this shipment per cycle
   effort:
     level: Medium
     typical_duration_days: 120

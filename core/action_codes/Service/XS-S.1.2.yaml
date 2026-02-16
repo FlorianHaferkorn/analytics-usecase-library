@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: X-S1.2
 name: Capacity & Backlog Stabilisation
 owner_domain: Service Operations
 impact_dimension: Throughput
 status: active
-owner_role: Service Operations Manager
-steward_role: Operations BI Lead
+owner_role: service_operations_manager
+steward_role: operations_bi_lead
 use_case_links:
   core_use_cases:
   - XD-001
@@ -111,10 +111,10 @@ operational_execution:
   - Accurate queue-level backlog measurement
   - Flexible capacity allocation rules
   steps:
-  - Identify queues with sustained backlog growth
-  - Reallocate capacity or extend operating windows
-  - Execute backlog reduction waves
-  - Monitor SLA and quality daily
+  - IDENTIFY cases in queues with sustained backlog growth
+  - REALLOCATE capacity or extend operating windows for this case backlog
+  - EXECUTE backlog reduction waves targeting this case type
+  - MONITOR SLA and quality for this case daily
   effort:
     level: Medium
     typical_duration_days: 21

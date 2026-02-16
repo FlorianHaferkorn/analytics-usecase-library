@@ -86,8 +86,7 @@ Invoke-Validation -Schema $triggerMapTemplateSchema -Targets ($triggerMapTemplat
 Invoke-Validation -Schema $triggerMapDeploySchema -Targets ($triggerMapDeployFiles | Select-Object -ExpandProperty FullName)
 
 if ($hadIssues) {
-  if ($FailOnError) { exit 1 }
-  exit 0
+  exit 1
 }
 
 Write-Host "OK: schema validation passed." -ForegroundColor Green

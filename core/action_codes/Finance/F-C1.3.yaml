@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: F-C1.3
 name: Inventory Rightsizing
 owner_domain: Supply Chain / Inventory Management
 impact_dimension: Liquidity
 status: active
-owner_role: Inventory Manager
-steward_role: Supply Chain / Inventory Management BI Lead
+owner_role: inventory_manager
+steward_role: supply_chain_inventory_management_bi_lead
 use_case_links:
   core_use_cases:
   - FIN-001
@@ -112,10 +112,10 @@ operational_execution:
   - Clear classification of strategic vs excess inventory
   - Agreed service level thresholds
   steps:
-  - Identify categories and warehouses driving DIO increase
-  - Classify excess and slow-moving inventory
-  - Adjust replenishment or liquidation actions
-  - Monitor service level and cash impact
+  - IDENTIFY categories and warehouses driving DIO increase for this entity
+  - CLASSIFY excess and slow-moving inventory within this entity
+  - ADJUST replenishment or liquidation actions for this entity
+  - MONITOR service level and cash impact for this entity
   effort:
     level: Medium
     typical_duration_days: 90

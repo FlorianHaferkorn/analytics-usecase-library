@@ -23,14 +23,14 @@ def _find_repo_root() -> Path:
     """Return repo root (directory containing core/usecases)."""
     p = _TOOLS_DIR
     for _ in range(5):
-        if (p / "framework" / "usecases").exists():
+        if (p / "core" / "usecases").exists():
             return p
         p = p.parent
     return _REPO_ROOT
 
 
 def _resolve_business_factsheet_path(repo_root: Path, use_case_id: str) -> Optional[Path]:
-    core = repo_root / "framework" / "usecases" / "core"
+    core = repo_root / "core" / "usecases" / "core"
     if core.exists():
         for p in core.iterdir():
             if p.is_dir() and p.name.startswith(f"{use_case_id}_"):
@@ -41,6 +41,26 @@ def _resolve_business_factsheet_path(repo_root: Path, use_case_id: str) -> Optio
     if flat.exists():
         return flat
     return None
+
+
+def _resolve_use_case_bracket_path(repo_root: Path, use_case_id: str) -> Optional[Path]:
+    core = repo_root / "core" / "usecases" / "core"
+    if core.exists():
+        for p in core.iterdir():
+            if p.is_dir() and p.name.startswith(f"{use_case_id}_"):
+                f = p / "UseCase_Bracket.yaml"
+                if f.exists():
+                    return f
+    return None
+
+
+def _load_use_case_bracket(repo_root: Path, use_case_id: str) -> Dict[str, Any]:
+    """Load UseCase_Bracket.yaml (SSOT) for UX + action codes + KPI IDs."""
+    p = _resolve_use_case_bracket_path(repo_root, use_case_id)
+    if not p:
+        return {}
+    import yaml
+    return yaml.safe_load(p.read_text(encoding="utf-8")) or {}
 
 
 def _extract_frontmatter(path: Path) -> Dict[str, Any]:
@@ -202,14 +222,24 @@ def load_pbip_structure(report_path: Path) -> Dict[str, Any]:
 
 
 def load_page_template_mapping(repo_root: Path, use_case_id: str) -> Dict[str, Any]:
-    """Load UseCase_PageTemplate_Map for this use case (overview/detail -> template, slots)."""
-    path = repo_root / "framework" / "templates" / "page_templates" / "mappings" / "UseCase_PageTemplate_Map.yaml"
-    if not path.exists():
+    """
+    Page layout is taken from UseCase_Bracket.yaml (SSOT). This returns a derived page list.
+    Legacy (Lean 1): UseCase_PageTemplate_Map.yaml.
+    """
+    bracket = _load_use_case_bracket(repo_root, use_case_id)
+    ux = (bracket.get("ux_layout_rules") or {}) if isinstance(bracket, dict) else {}
+    if not isinstance(ux, dict):
         return {}
-    import yaml
-    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    ucs = data.get("use_cases") or {}
-    return ucs.get(use_case_id) or {}
+    p1 = ux.get("page_1_summary") or {}
+    p2 = ux.get("page_2_execution") or {}
+    c300 = (p2.get("component_300s") or {}) if isinstance(p2, dict) else {}
+    has_action_panel = bool(c300.get("action_panel", False)) if isinstance(c300, dict) else False
+    return {
+        "pages": [
+            {"name": "overview", "layer": [3, 30], "template": "T2"},
+            {"name": "detail", "layer": [300], "template": ("T4" if has_action_panel else "T2")},
+        ]
+    }
 
 
 def build_markdown(
@@ -224,6 +254,10 @@ def build_markdown(
     fm = _extract_frontmatter(factsheet_path) if factsheet_path else {}
     page_templates = load_page_template_mapping(repo_root, use_case_id)
     template_pages = (page_templates.get("pages") or [])
+    bracket = _load_use_case_bracket(repo_root, use_case_id)
+    orch = (bracket.get("orchestration") or {}) if isinstance(bracket, dict) else {}
+    action_codes = orch.get("action_code_ids") if isinstance(orch, dict) else []
+    strategic_kpi = orch.get("strategic_kpi_id") if isinstance(orch, dict) else ""
 
     title = fm.get("id", use_case_id)
     domain = ""
@@ -270,9 +304,11 @@ def build_markdown(
     md.append("")
     md.append("### Strategic Alignment")
     md.append("")
-    md.append("**Strategic KPIs:**  ")
-    for k in _extract_required_kpis(content):
-        md.append(f"- {k.get('name', k.get('id', ''))} (`{k.get('id', '')}`)")
+    md.append("**Strategic KPI:**  ")
+    if isinstance(strategic_kpi, str) and strategic_kpi.strip():
+        md.append(f"- `{strategic_kpi.strip()}`")
+    else:
+        md.append("- (See UseCase_Bracket.yaml)")
     md.append("")
     md.append("**Decision Type:** Tactical / Diagnostic (from use case.)")
     md.append("")
@@ -317,14 +353,13 @@ def build_markdown(
     md.append("")
     md.append("## Traceability")
     md.append("")
-    md.append("- **Use case:** `core/usecases/core/` (Business + Technical Factsheet)")
+    md.append("- **Use case:** `core/usecases/core/` (`Business_Factsheet.md` + `UseCase_Bracket.yaml`)")
     md.append("- **KPI catalog:** `core/kpi_catalog/`")
     md.append("- **Action codes:** `core/action_codes/`")
     md.append("- **Page templates:** `core/templates/page_templates/`")
-    ac = _extract_action_codes_summary(content)
-    if ac:
+    if isinstance(action_codes, list) and action_codes:
         md.append("")
-        md.append("**Action codes referenced:** " + ", ".join(ac))
+        md.append("**Action codes referenced:** " + ", ".join([str(x) for x in action_codes if isinstance(x, str)]))
     md.append("")
     return "\n".join(md)
 

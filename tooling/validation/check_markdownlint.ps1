@@ -1,6 +1,6 @@
 Param(
   [string]$Root = ".",
-  [string[]]$ExcludeDirs = @(".git","node_modules","_internal\\archive","implementations\\microsoft_fabric_powerbi\\dist"),
+  [string[]]$ExcludeDirs = @(".git","node_modules","internal\\archive","implementations\\microsoft_fabric_powerbi\\dist"),
   [switch]$Fix,
   [switch]$FailOnError
 )
@@ -46,7 +46,7 @@ $args = @(
   "--ignore", "**/node_modules/**",
   "--ignore", "node_modules",
   "--ignore", "products/fabric_powerbi/dist",
-  "--ignore", "_internal\\archive"
+  "--ignore", "internal\\archive"
 )
 
 if ($Fix) {

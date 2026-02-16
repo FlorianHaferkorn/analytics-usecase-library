@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: S-F3.4
 name: Re-Plan Discipline & Stability
 owner_domain: S&OP / Planning Excellence
 impact_dimension: Planning Stability
 status: active
-owner_role: Planning Excellence Lead
-steward_role: S&OP / Planning Excellence BI Lead
+owner_role: planning_excellence_lead
+steward_role: s_and_op_planning_excellence_bi_lead
 use_case_links:
   core_use_cases:
   - SCM-003
@@ -111,10 +111,10 @@ operational_execution:
   - Transparent re-plan logging
   - Clear decision rights and escalation paths
   steps:
-  - Identify cycles with excessive replans
-  - Analyse root causes of re-planning
-  - Enforce thresholds, freeze windows, and escalation rules
-  - Review re-plan trends per cycle
+  - IDENTIFY SKU/locations with excessive replans per cycle
+  - ANALYSE root causes of re-planning for this SKU/location
+  - ENFORCE thresholds, freeze windows, and escalation rules for this SKU/location
+  - REVIEW re-plan trends for this SKU/location per cycle
   effort:
     level: Medium
     typical_duration_days: 120

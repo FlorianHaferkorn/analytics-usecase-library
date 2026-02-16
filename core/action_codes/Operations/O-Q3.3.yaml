@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: O-Q3.3
 name: Scrap & Rework Reduction
 owner_domain: Quality / Production
 impact_dimension: Efficiency
 status: active
-owner_role: Production Manager
-steward_role: Quality / Production BI Lead
+owner_role: production_manager
+steward_role: quality_production_bi_lead
 use_case_links:
   core_use_cases:
   - OPS-003
@@ -112,10 +112,10 @@ operational_execution:
   - Clear scrap and rework classification
   - Visibility into rework loops
   steps:
-  - Identify dominant scrap and rework drivers
-  - Analyse rework loops and root causes
-  - Implement process or control corrections
-  - Review scrap and rework trends weekly
+  - IDENTIFY dominant scrap and rework drivers on this production line
+  - ANALYSE rework loops and root causes for this line
+  - IMPLEMENT process or control corrections on this line
+  - REVIEW scrap and rework trends for this line weekly
   effort:
     level: Medium
     typical_duration_days: 60

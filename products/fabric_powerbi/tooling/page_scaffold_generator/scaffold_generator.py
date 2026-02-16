@@ -50,7 +50,6 @@ class PageScaffoldGenerator:
         
         # Load governance files
         self.config = {
-            "use_case_mapping": self.config_loader.load_use_case_mapping(),
             "visual_slot_mapping": self.config_loader.load_visual_slot_mapping(),
             "layout_grid": self.config_loader.load_layout_grid(),
             "color_semantics": self.config_loader.load_color_semantics()

@@ -15,6 +15,13 @@ table _Measures
 		isHidden
 		summarizeBy: none
 
+	/// margin.gm.pct - Gross Margin %
+	/// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
+	measure 'Gross Margin %' =
+			DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
+		formatString: "0.0%"
+		displayFolder: "COM-001"
+
 	/// sales.net_sales.amount - Net Sales Amount
 	/// Total invoiced revenue net of discounts and returns.
 	measure 'Net Sales Amount' =
@@ -37,13 +44,6 @@ table _Measures
 			VAR Actual = [Net Sales Amount]
 			VAR LY     = SUM ( fact_sales[Last Year Sales Amount] )
 			RETURN DIVIDE ( Actual - LY, LY )
-		formatString: "0.0%"
-		displayFolder: "COM-001"
-
-	/// margin.gm.pct - Gross Margin %
-	/// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
-	measure 'Gross Margin %' =
-			DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
 		formatString: "0.0%"
 		displayFolder: "COM-001"
 

@@ -1,11 +1,11 @@
-schema_version: "2.0"
+schema_version: '2.0'
 id: O-O1.2
 name: Performance Uplift
 owner_domain: Production
 impact_dimension: Throughput
 status: active
-owner_role: Production Manager
-steward_role: Production BI Lead
+owner_role: production_manager
+steward_role: production_bi_lead
 use_case_links:
   core_use_cases:
   - OPS-001

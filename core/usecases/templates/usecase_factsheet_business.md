@@ -84,5 +84,16 @@ What specific questions should the user be able to answer after 5 minutes?
 - **Review Frequency:** [e.g., Monthly Sales Review]
 - **Data Trust Requirement:** [e.g., "This use case requires a Trust-Score of >0.9 to be used for automated approval blocks."]
 - **Stakeholders:** [List of roles involved in the monthly review process.]
+- **Evidence grain:** Synced from `UseCase_Bracket.yaml` `overrides.evidence_grain_note` when present. Run `tooling/maintenance/sync_evidence_grain_note_to_factsheet.ps1` after adding or changing that note in the bracket.
+
+---
+
+## 6. Data Requirements Summary
+
+[Describe required facts, dimensions, grain, time range, slicers. Use a YAML block or bullets.]
+
+### Evidence grain
+
+[Filled by sync script when `overrides.evidence_grain_note` is set in UseCase_Bracket.yaml; otherwise describe the evidence-table grain here.]
 
 ---

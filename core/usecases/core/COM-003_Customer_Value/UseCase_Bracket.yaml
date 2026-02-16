@@ -43,12 +43,18 @@ ux_layout_rules:
   page_2_execution:
     title: Commercial / CustomerValue Execution
     component_300s:
-      evidence_grain: transaction_line
+      evidence_grain: customer_month
       evidence_columns:
       - entity
       - period
       - crm.clv.amount
       action_panel: true
       payload_mode: full
+overrides:
+  evidence_grain_note: >-
+    customer_month grain is provided by domain contract facts fact_customer_value
+    and fact_customer_events (commercial_sales.yaml). Revenue components can be
+    derived from fact_sales (grain: invoice_line) via customer-month aggregation
+    if needed.
 documentation:
   business_factsheet: ./Business_Factsheet.md
