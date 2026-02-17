@@ -1,82 +1,51 @@
 ---
-name: add-usecase-scaffold
-description: Create a new use case with Business Factsheet and UseCase_Bracket (Lean 2.0). Use when adding a new use case, scaffolding COM-xxx or FIN-xxx, or the user asks to create a use case.
+name: add-kpi-reference-safely
+description: Add a KPI reference to a use case or action code only if the KPI exists in the catalog; otherwise add to catalog first. Use when adding kpi_id to factsheets, brackets, or action codes.
 ---
 
-# Add Use Case Scaffold (Lean 2.0)
+# Add KPI Reference Safely
 
-Generate a new use case directory with `Business_Factsheet.md` and `UseCase_Bracket.yaml` (SSOT), then validate structure.
+Reference KPIs in use case brackets, action codes, or factsheet prose only after confirming the KPI exists in the KPI catalog. Never define KPI meaning in use cases or action codes.
 
 ## Workflow
 
-1. **Use generation script** (if available):
-   ```powershell
-   .\tooling\generation\new_usecase.ps1 -Id "XXX-###" -Title "Use Case Title"
-   ```
-   - ID format: `COM-001`, `FIN-001`, `OPS-001`, `SCM-001`, `XD-001` (domain prefix + number).
-2. **If script unavailable, create manually**:
-   - Directory: `core/usecases/core/<ID>_Title/`
-   - Files: `Business_Factsheet.md`, `UseCase_Bracket.yaml`
-3. **Complete Business_Factsheet.md**:
-   - Template: `core/usecases/templates/usecase_factsheet_business.md`
-   - Frontmatter: `id`, `factsheet_type: business`
-   - Content: Prose only (Executive Story, 3-30-300 Journey, Strategic Rationale, Key Questions, Governance).
-   - **No YAML blocks in body** (Lean 2.0: all machine config in bracket).
-4. **Complete UseCase_Bracket.yaml**:
-   - Template: `core/usecases/templates/UseCase_Bracket_TEMPLATE.yaml`
-   - Schema: `tooling/validation/schemas/usecase_bracket.schema.json`
-   - Required keys: `schema_version`, `id`, `title`, `domain`, `governance` (owner_role, steward_role), `orchestration` (strategic_kpi_id, influencing_kpi_ids, action_code_ids), `value_driver_model`, `ux_layout_rules`
-   - Governance roles must exist in `core/organization/org_roles.yaml`
-   - KPI IDs must exist in `core/kpi_catalog/`
-   - Action code IDs must exist in `core/action_codes/`
-5. **Update inventory** (if registry builder exists):
-   ```powershell
-   py -3 tooling\ontology\registry_builder.py --out-dir tooling\ontology\out --strict
-   ```
-6. **Run Stage 1**:
+1. **Check KPI catalog first**:
+   - KPI definitions live in `core/kpi_catalog/` (SSOT).
+   - Format: `domain.topic.metric` (e.g. `sales.price.realization_pct`, `plan.forecast.accuracy.pct`).
+2. **If KPI exists**: Add the `kpi_id` reference in the appropriate artifact:
+   - **Bracket:** `orchestration.strategic_kpi_id`, `orchestration.influencing_kpi_ids`, `value_driver_model.primary_driver`
+   - **Action code:** `kpis.trigger_kpis`, `kpis.guardrail_kpis`, `kpis.outcome_kpis`
+   - **Factsheet:** Prose only (no YAML blocks); reference by name or ID in text.
+3. **If KPI does not exist**: Add the KPI to `core/kpi_catalog/` per catalog schema and templates first, then add the reference.
+4. **Run validation**:
    ```powershell
    .\tooling\run_stage1_checks.ps1
    ```
+   Relevant checks: `check_factsheet_vs_kpi.ps1`, `check_action_codes_vs_kpi.ps1`.
 
 ## Validation
 
-After scaffold completion, verify:
-- [ ] Both `Business_Factsheet.md` and `UseCase_Bracket.yaml` exist in `core/usecases/core/<ID>_Title/`
-- [ ] Frontmatter `id` in factsheet matches bracket `id`
-- [ ] Business Factsheet contains no YAML blocks in body (Lean 2.0: prose only)
-- [ ] All KPI IDs in bracket `orchestration` resolve in `core/kpi_catalog/`
-- [ ] Governance roles (`owner_role`, `steward_role`) exist in `core/organization/org_roles.yaml`
-- [ ] Action code IDs (if any) exist in `core/action_codes/`
+After adding a KPI reference, verify:
+- [ ] KPI ID exists in `core/kpi_catalog/`
+- [ ] Reference uses exact `kpi_id` (no redefinition of meaning, target, or lineage)
 - [ ] Stage 1 passes: `.\tooling\run_stage1_checks.ps1`
 
 ## Error Handling
 
-**If generation script fails or doesn't exist:**
-→ Create directory and files manually using templates in `core/usecases/templates/`
+**If check_factsheet_vs_kpi or check_action_codes_vs_kpi fails:**
+→ KPI ID not in catalog: add to `core/kpi_catalog/` per schema, or fix typo in reference.
 
-**If KPI ID doesn't exist in catalog:**
-→ Use `add-kpi-reference-safely` skill OR add KPI to `core/kpi_catalog/` first
-
-**If governance role doesn't exist:**
-→ Add role to `core/organization/org_roles.yaml` before referencing in bracket
-
-**If action code ID doesn't exist:**
-→ Use `add-action-code-and-wire-up` skill OR create action code in `core/action_codes/` first
-
-**If Stage 1 fails after scaffold:**
-→ Use `fix-stage1-failure` skill to diagnose and fix specific check
+**If adding new KPI to catalog:**
+→ Follow KPI catalog structure and templates in `core/kpi_catalog/` and `core/templates/kpi_catalog_templates/`.
 
 ## Guardrails
 
-- **Business Factsheet is human-readable**: Prose only (no YAML blocks in body except frontmatter).
-- **UseCase_Bracket is machine-readable SSOT**: All orchestration, governance, and technical config lives here.
-- **Reference only**: Do not define KPI meaning or action logic in the use case; reference existing IDs.
+- **KPI catalog is SSOT**: Do not define KPI meaning, targets, or lineage in factsheets, brackets, or action codes.
+- **Reference only**: Use existing `kpi_id` values; add new KPIs to the catalog first.
 
 ## Key paths
 
-- Templates: `core/usecases/templates/usecase_factsheet_business.md`, `UseCase_Bracket_TEMPLATE.yaml`
-- New use case: `core/usecases/core/<ID>_Title/`
-- Schemas: `tooling/validation/schemas/usecase_bracket.schema.json`
-- Org roles: `core/organization/org_roles.yaml`
 - KPI catalog: `core/kpi_catalog/`
-- Action codes: `core/action_codes/`
+- Brackets: `core/usecases/core/<UseCase>/UseCase_Bracket.yaml`
+- Action codes: `core/action_codes/<Domain>/*.yaml`
+- Validation: `tooling/validation/` (e.g. `check_factsheet_vs_kpi.ps1`, `check_action_codes_vs_kpi.ps1`)

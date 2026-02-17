@@ -44,7 +44,7 @@ ux_layout_rules:
   page_2_execution:
     title: Supply Chain / Planning Execution
     component_300s:
-      evidence_grain: location_sku_month
+      evidence_grain: sku_location_month
       evidence_columns:
       - entity
       - period

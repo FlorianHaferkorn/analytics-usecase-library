@@ -32,8 +32,8 @@ Create action code YAML files in the framework, validate all references, and wir
      ```
 6. **Run validation**:
    ```powershell
-   .\tooling\validation_scripts\check_action_codes_vs_kpi.ps1
-   .\tooling\validation_scripts\check_factsheet_action_codes.ps1
+   .\tooling\validation\check_action_codes_vs_kpi.ps1
+   .\tooling\validation\check_factsheet_action_codes.ps1
    ```
 
 ## Validation
