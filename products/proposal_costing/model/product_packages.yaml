@@ -1,0 +1,25 @@
+# Proposal Costing – Product packages (implementation pricing per package).
+# Each package ties a scenario (platform) to implementation: either fixed USD or FTE profile.
+# When package_id is used, scenario_id comes from the package.
+
+schema_version: "1.0"
+
+packages:
+  starter:
+    name: "Starter"
+    scenario_id: compact
+    implementation_fixed_usd: 60000
+    maintenance_fixed_usd_per_year: 24000
+
+  professional:
+    name: "Professional"
+    scenario_id: compact
+    implementation_fte: 2
+    implementation_months: 6
+    maintenance_fte: 0.5
+
+  enterprise:
+    name: "Enterprise"
+    scenario_id: enterprise
+    implementation_fixed_usd: 120000
+    maintenance_fixed_usd_per_year: 60000

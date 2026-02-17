@@ -17,9 +17,12 @@ Full or customer-specific role lists (with titles, aliases, etc.) live under sho
 
 Registry builder and schema validation resolve the org roles file as follows:
 
-1. **Primary (override):** If `showcases/aurora_group/organization/org_roles.yaml` exists, it is used for role validation and schema validation of that file.
-2. **Fallback:** Otherwise `core/organization/org_roles.yaml` is used.
+1. **Showcase name:** From environment variable `ANALYTICS_SHOWCASE`; if unset or empty, default is `aurora_group`.
+2. **Primary (override):** If `showcases/<showcase_name>/organization/org_roles.yaml` exists, it is used for role validation and schema validation.
+3. **Fallback:** Otherwise `core/organization/org_roles.yaml` is used.
 
 So in this repo, with the Aurora showcase present, validation runs against the full Aurora list. Without the showcase (or in other repos), the minimal list in core is used.
+
+**Customer use:** To use a customer-specific org_roles list, create `showcases/<customer_name>/organization/org_roles.yaml` and set `ANALYTICS_SHOWCASE=<customer_name>` (e.g. in CI or locally). If the variable is not set and no showcase path exists, tooling uses `core/organization/org_roles.yaml` only—so the framework can be used with just core content.
 
 Maintenance scripts (e.g. `migrate_action_code_roles_to_ids.py`, `migrate_brackets_v2.py`) use the **core** path only, for framework-context migrations.

@@ -273,6 +273,13 @@ Invoke-WithRetry "Create Tables from Contracts" {
     }
     
     Write-Host "  Tables created: $createdTables/$($requiredTables.Count)" -ForegroundColor Green
+    $outDir = Join-Path $script:RepoRoot "tooling\powerbi_mcp\out"
+    if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir -Force | Out-Null }
+    try {
+        & ./tooling/powerbi_mcp/table_ops.ps1 -Operation "ExportFromContract" -DataContractPath $goldContract -UseCase $scopeName -OutJsonPath (Join-Path $outDir "table_ops_$scopeName.json") -ErrorAction Stop | Out-Null
+    } catch {
+        Write-Host "  (ExportFromContract optional: $_)" -ForegroundColor DarkGray
+    }
 }
 
 # 3.3 Create Relationships from UseCase_Bracket.yaml
@@ -293,16 +300,45 @@ Invoke-WithRetry "Create Relationships" {
         return
     }
     
+    $outDir = Join-Path $script:RepoRoot "tooling\powerbi_mcp\out"
+    if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir -Force | Out-Null }
+    $relJsonPath = Join-Path $outDir "relationship_ops_$scopeName.json"
     try {
         & ./tooling/powerbi_mcp/relationship_ops.ps1 `
             -Operation "CreateFromBracket" `
             -ConnectionName "local_pbip" `
-            -FactsheetPath $bracketPath `
+            -BracketPath $bracketPath `
+            -OutJsonPath $relJsonPath `
             -ErrorAction Stop | Out-Null
-        
         Write-Host "  Relationships created from UseCase_Bracket.yaml" -ForegroundColor Green
     } catch {
         Write-Host "  WARNING: Could not create relationships: $_" -ForegroundColor Yellow
+    }
+}
+
+# 3.4 User hierarchies from bracket + contract (output to out/ for MCP or doc)
+Invoke-WithRetry "Create Hierarchies Definition" {
+    $useCaseDir = Get-ChildItem "core\usecases\core" -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -like "$scopeName*" } | Select-Object -First 1
+    if (-not $useCaseDir) {
+        Write-Host "  WARNING: Use case directory not found for $scopeName" -ForegroundColor Yellow
+        return
+    }
+    $bracketPath = "$($useCaseDir.FullName)\UseCase_Bracket.yaml"
+    if (-not (Test-Path $bracketPath)) { return }
+    $outDir = Join-Path $script:RepoRoot "tooling\powerbi_mcp\out"
+    if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir -Force | Out-Null }
+    $hierJsonPath = Join-Path $outDir "hierarchy_ops_$scopeName.json"
+    try {
+        & ./tooling/powerbi_mcp/hierarchy_ops.ps1 `
+            -Operation "FromBracket" `
+            -BracketPath $bracketPath `
+            -RepoRoot $script:RepoRoot `
+            -OutJsonPath $hierJsonPath `
+            -ErrorAction Stop | Out-Null
+        Write-Host "  Hierarchy definitions written to $hierJsonPath" -ForegroundColor Green
+    } catch {
+        Write-Host "  WARNING: Hierarchy ops: $_" -ForegroundColor Yellow
     }
 }
 
@@ -349,6 +385,30 @@ Invoke-WithRetry "Run Quality Checks" {
         $state.warnings += "Quality checks: $($errorLines.Count) warnings"
     }
     Write-Host "  Quality checks completed" -ForegroundColor Green
+}
+
+# PHASE 5: REPORT GENERATION FROM PAGE TEMPLATE
+$state.phase = "report_generation"
+$state.iteration = 5
+Invoke-WithRetry "Generate Report from Template" {
+    $distReportRoot = Join-Path $script:RepoRoot "products\fabric_powerbi\dist"
+    if (-not (Test-Path $distReportRoot)) { New-Item -ItemType Directory -Path $distReportRoot -Force | Out-Null }
+    $templateName = "overview_drivers_details"
+    $factsheetPath = $null
+    $ucDir = Get-ChildItem "core\usecases\core" -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -like "$scopeName*" } | Select-Object -First 1
+    if ($ucDir) {
+        $fsPath = Join-Path $ucDir.FullName "Business_Factsheet.md"
+        if (Test-Path $fsPath) {
+            $fsContent = Get-Content $fsPath -Raw
+            if ($fsContent -match 'page_template:\s*["'']?([^"''\s]+)["'']?') { $templateName = $matches[1].Trim() }
+        }
+    }
+    & ./tooling/powerbi_mcp/report_generator.ps1 `
+        -UseCase $scopeName `
+        -TemplateName $templateName `
+        -OutputPath $distReportRoot `
+        -ErrorAction Stop | Out-Null
+    Write-Host "  Report structure created for $scopeName (template: $templateName)" -ForegroundColor Green
 }
 
 # FINAL SUMMARY

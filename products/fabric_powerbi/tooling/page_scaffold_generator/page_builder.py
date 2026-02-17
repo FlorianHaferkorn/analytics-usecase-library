@@ -5,7 +5,7 @@ Builds Power BI page structures.
 """
 
 import uuid
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List, Optional
 from .layout_calculator import LayoutCalculator, Position
 from .visual_builder import VisualBuilder
 from .slicer_builder import SlicerBuilder
@@ -60,7 +60,9 @@ class PageBuilder:
         slots: Dict[str, bool],
         template: str,
         has_action_panel: bool = False,
-        visual_slot_mapping: Optional[Dict[str, Any]] = None
+        visual_slot_mapping: Optional[Dict[str, Any]] = None,
+        component_30s: Optional[List[Dict[str, Any]]] = None,
+        slot_order: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Build complete page structure with visuals.
@@ -70,6 +72,8 @@ class PageBuilder:
             template: Template type (T1, T2, T3, T4)
             has_action_panel: Whether Action Panel is present
             visual_slot_mapping: Visual-to-slot mapping configuration
+            component_30s: Optional list from ux_layout_rules (each has visual_type, kpi_id/kpi_ids). When set with slot_order, exact visual type per position is used.
+            slot_order: Optional list of layout slot names (e.g. ["trend", "variance"]) matching component_30s order.
         
         Returns:
             Dictionary with 'visuals' and 'slicers' lists
@@ -114,59 +118,92 @@ class PageBuilder:
             visual["position"]["tabOrder"] = tab_order + i
             visuals.append(visual)
 
-        # Trend visual
-        if slots.get('needs_trend', False) and 'trend' in visual_positions:
-            visual = self.visual_builder.build_line_chart(visual_positions['trend'], name="Trend")
-            visual["position"]["tabOrder"] = tab_order + 100
-            visuals.append(visual)
+        # 30s layer: from ux_layout_rules — assign slot by visual_type so layout matches intent (e.g. waterfall→variance, trend_line→trend)
+        _UX_VISUAL_TYPE_TO_SLOT = {
+            "trend_line": "trend",
+            "waterfall": "variance",
+            "bar_chart": "ranking",
+            "stacked_bar": "mix",
+            "hundred_percent_stacked_bar": "mix",
+            "funnel": "funnel",
+        }
+        if component_30s and len(component_30s) > 0:
+            fallback_slot_order = (slot_order or ["trend", "variance"])
+            fallback_slot_order = [s.lower() for s in fallback_slot_order]
+            slots_used = set()
+            for i, item in enumerate(component_30s):
+                vt = item.get("visual_type") or "trend_line"
+                preferred_slot = _UX_VISUAL_TYPE_TO_SLOT.get(vt, "trend")
+                slot_key = preferred_slot
+                if preferred_slot in slots_used or preferred_slot not in visual_positions:
+                    for s in fallback_slot_order:
+                        if s in visual_positions and s not in slots_used:
+                            slot_key = s
+                            break
+                    else:
+                        continue
+                if slot_key not in visual_positions:
+                    continue
+                slots_used.add(slot_key)
+                pos = visual_positions[slot_key]
+                name = (item.get("kpi_id") or (", ".join(item.get("kpi_ids") or [])[:30]) or f"Visual_{i + 1}")
+                visual = self.visual_builder.build_by_ux_visual_type(vt, pos, name=name)
+                visual["position"]["tabOrder"] = tab_order + 100 + i * 100
+                visuals.append(visual)
+        else:
+            # Trend visual
+            if slots.get('needs_trend', False) and 'trend' in visual_positions:
+                visual = self.visual_builder.build_line_chart(visual_positions['trend'], name="Trend")
+                visual["position"]["tabOrder"] = tab_order + 100
+                visuals.append(visual)
 
-        # Variance visual
-        if slots.get('needs_variance', False) and 'variance' in visual_positions:
-            visual = self.visual_builder.build_waterfall(visual_positions['variance'], name="Variance")
-            visual["position"]["tabOrder"] = tab_order + 200
-            visuals.append(visual)
+            # Variance visual
+            if slots.get('needs_variance', False) and 'variance' in visual_positions:
+                visual = self.visual_builder.build_waterfall(visual_positions['variance'], name="Variance")
+                visual["position"]["tabOrder"] = tab_order + 200
+                visuals.append(visual)
 
-        # Ranking visual
-        if slots.get('needs_ranking', False) and 'ranking' in visual_positions:
-            visual = self.visual_builder.build_horizontal_bar(visual_positions['ranking'], name="Ranking")
-            visual["position"]["tabOrder"] = tab_order + 300
-            visuals.append(visual)
+            # Ranking visual
+            if slots.get('needs_ranking', False) and 'ranking' in visual_positions:
+                visual = self.visual_builder.build_horizontal_bar(visual_positions['ranking'], name="Ranking")
+                visual["position"]["tabOrder"] = tab_order + 300
+                visuals.append(visual)
 
-        # Mix visual
-        if slots.get('needs_mix', False) and 'mix' in visual_positions:
-            visual = self.visual_builder.build_stacked_bar(visual_positions['mix'], name="Mix")
-            visual["position"]["tabOrder"] = tab_order + 400
-            visuals.append(visual)
+            # Mix visual
+            if slots.get('needs_mix', False) and 'mix' in visual_positions:
+                visual = self.visual_builder.build_stacked_bar(visual_positions['mix'], name="Mix")
+                visual["position"]["tabOrder"] = tab_order + 400
+                visuals.append(visual)
 
-        # Exceptions visual
-        if slots.get('needs_exceptions', False) and 'exceptions' in visual_positions:
-            visual = self.visual_builder.build_table(visual_positions['exceptions'], name="Exceptions")
-            visual["position"]["tabOrder"] = tab_order + 500
-            visuals.append(visual)
+            # Exceptions visual
+            if slots.get('needs_exceptions', False) and 'exceptions' in visual_positions:
+                visual = self.visual_builder.build_table(visual_positions['exceptions'], name="Exceptions")
+                visual["position"]["tabOrder"] = tab_order + 500
+                visuals.append(visual)
 
-        # Prescriptive visual
-        if slots.get('needs_prescriptive', False) and 'prescriptive' in visual_positions:
-            visual = self.visual_builder.build_table(visual_positions['prescriptive'], name="Prescriptive")
-            visual["position"]["tabOrder"] = tab_order + 600
-            visuals.append(visual)
+            # Prescriptive visual
+            if slots.get('needs_prescriptive', False) and 'prescriptive' in visual_positions:
+                visual = self.visual_builder.build_table(visual_positions['prescriptive'], name="Prescriptive")
+                visual["position"]["tabOrder"] = tab_order + 600
+                visuals.append(visual)
 
-        # Root Cause visual
-        if slots.get('needs_root_cause', False) and 'root_cause' in visual_positions:
-            visual = self.visual_builder.build_scatter_plot(visual_positions['root_cause'], name="RootCause")
-            visual["position"]["tabOrder"] = tab_order + 700
-            visuals.append(visual)
+            # Root Cause visual
+            if slots.get('needs_root_cause', False) and 'root_cause' in visual_positions:
+                visual = self.visual_builder.build_scatter_plot(visual_positions['root_cause'], name="RootCause")
+                visual["position"]["tabOrder"] = tab_order + 700
+                visuals.append(visual)
 
-        # Funnel visual
-        if slots.get('needs_funnel', False) and 'funnel' in visual_positions:
-            visual = self.visual_builder.build_funnel(visual_positions['funnel'], name="Funnel")
-            visual["position"]["tabOrder"] = tab_order + 800
-            visuals.append(visual)
+            # Funnel visual
+            if slots.get('needs_funnel', False) and 'funnel' in visual_positions:
+                visual = self.visual_builder.build_funnel(visual_positions['funnel'], name="Funnel")
+                visual["position"]["tabOrder"] = tab_order + 800
+                visuals.append(visual)
 
-        # Detail Matrix visual
-        if slots.get('needs_detail_matrix', False) and 'detail_matrix' in visual_positions:
-            visual = self.visual_builder.build_table(visual_positions['detail_matrix'], name="DetailMatrix")
-            visual["position"]["tabOrder"] = tab_order + 900
-            visuals.append(visual)
+            # Detail Matrix visual
+            if slots.get('needs_detail_matrix', False) and 'detail_matrix' in visual_positions:
+                visual = self.visual_builder.build_table(visual_positions['detail_matrix'], name="DetailMatrix")
+                visual["position"]["tabOrder"] = tab_order + 900
+                visuals.append(visual)
 
         # Build slicers (default: time slicer) — speaking names
         slicers = []

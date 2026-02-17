@@ -1,0 +1,35 @@
+# Allowed visual_type values per slot for validation and dropdowns.
+# Derived from: core/templates/page_templates/governance/Visual_Whitelist.md
+# and Visual_to_Slot_Mapping.yaml. Keys match UseCase_Bracket ux_layout_rules.
+#
+# visual_type values must match bracket schema and page_scaffold_generator (e.g. trend_line, bar_chart).
+
+slots:
+  KPI_Summary:
+    # component_3s: always KPI Card
+    allowed_visual_types: [kpi_card]
+    default: kpi_card
+
+  Trend:
+    # T2: Line Chart
+    allowed_visual_types: [trend_line]
+    default: trend_line
+
+  Variance:
+    # T1: Waterfall preferred, Horizontal Bar fallback; T2: Waterfall only
+    allowed_visual_types: [waterfall, bar_chart]
+    default: waterfall
+
+  Ranking:
+    allowed_visual_types: [bar_chart]
+    default: bar_chart
+
+  Mix:
+    allowed_visual_types: [hundred_percent_stacked_bar, bar_chart]
+    default: hundred_percent_stacked_bar
+
+  # Execution layer (page_2): evidence table + action panel; no visual_type choice for 300s
+  # component_300s uses evidence_grain, evidence_columns, action_panel, payload_mode only.
+
+# Template used for 2-Page-Lead (overview page)
+default_template: T2

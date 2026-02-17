@@ -1,5 +1,8 @@
 # Golden Semantic Model – Commercial
 
+> **Canonical domain scope:** [domains.md](../../../strategy_operating_model/company/domains.md).  
+> This document describes the Commercial domain implementation and must not contradict domain boundaries.
+
 ## Purpose
 
 The Commercial Golden Semantic Model defines the **canonical meaning of commercial performance** across the enterprise.

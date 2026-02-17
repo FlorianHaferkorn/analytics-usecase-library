@@ -12,7 +12,7 @@ import json
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from page_scaffold_generator import PageScaffoldGenerator, MockupGenerator
+from page_scaffold_generator import PageScaffoldGenerator
 from page_scaffold_generator.config_loader import ConfigLoader
 from page_scaffold_generator.layout_calculator import LayoutCalculator
 from page_scaffold_generator.visual_builder import VisualBuilder
@@ -150,40 +150,6 @@ class TestScaffoldGenerator:
         errors = generator.validate()
         # Should pass validation for COM-001 overview
         assert isinstance(errors, list)
-
-
-class TestMockupGenerator:
-    """Test mockup generator."""
-    
-    def test_generate_mockup(self, tmp_path):
-        """Test generating HTML mockup."""
-        mockup_gen = MockupGenerator()
-        
-        # Create sample page structure (same shape as scaffold generator output)
-        page_structure = {
-            "page_type": "T2",
-            "visuals": [
-                {
-                    "name": "test_visual",
-                    "position": {"x": 20, "y": 20, "width": 280, "height": 140},
-                    "visual": {"visualType": "cardVisual"}
-                }
-            ],
-            "slicers": []
-        }
-        
-        output_path = tmp_path / "test_mockup.html"
-        mockup_gen.generate_mockup(
-            page_structure=page_structure,
-            use_case_id="COM-001",
-            page_name="overview",
-            output_path=output_path
-        )
-        
-        assert output_path.exists()
-        content = output_path.read_text()
-        assert "COM-001" in content
-        assert "overview" in content
 
 
 if __name__ == "__main__":

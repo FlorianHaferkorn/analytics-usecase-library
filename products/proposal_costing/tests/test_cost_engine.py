@@ -19,13 +19,16 @@ from cost_engine import (
     compute,
     compute_projection,
     fill_template,
+    format_breakdown_capacity,
+    format_breakdown_license,
+    format_building_blocks_table,
+    format_milestones_table,
     load_cost_drivers,
+    load_product_packages,
     load_proposal_defaults,
     load_projection,
     load_role_allocation,
     load_scenarios,
-    format_breakdown_capacity,
-    format_breakdown_license,
 )
 
 
@@ -291,3 +294,124 @@ def test_reproducibility_same_inputs_same_output():
     assert r1["total_year"] == r2["total_year"]
     assert r1["capacity_month"] == r2["capacity_month"]
     assert r1["license_month"] == r2["license_month"]
+
+
+def test_compute_includes_tco_rfp_fields():
+    """compute() returns sensitivity_note, customer_contributions, implementation_milestones_table; building_blocks have category."""
+    result = compute("compact", product_root=_product_root)
+    assert "sensitivity_note" in result
+    assert "customer_contributions" in result
+    assert "implementation_milestones_table" in result
+    assert result["sensitivity_note"] != ""
+    assert "Änderungen" in result["sensitivity_note"] or "TCO" in result["sensitivity_note"]
+    assert "Ansprechpartner" in result["customer_contributions"] or "Kick-off" in result["customer_contributions"]
+    assert "Phase" in result["implementation_milestones_table"] and "Deliverable" in result["implementation_milestones_table"]
+    for b in result["building_blocks"]:
+        assert "category" in b
+        assert b["category"] in ("Acquisition", "Operating", "")
+
+
+def test_format_building_blocks_table_with_category():
+    """With category present, table has Kategorie column."""
+    blocks = [
+        {"id": "a", "label": "A", "category": "Operating", "usd_per_month": 10.0, "usd_per_year": 120.0},
+        {"id": "b", "label": "B", "category": "Acquisition", "usd_per_month": 0.0, "usd_per_year": 500.0},
+    ]
+    out = format_building_blocks_table(blocks)
+    assert "Kategorie" in out
+    assert "Operating" in out
+    assert "Acquisition" in out
+    assert "| A |" in out and "| B |" in out
+
+
+def test_format_milestones_table():
+    """format_milestones_table returns Markdown table or — when empty."""
+    assert format_milestones_table([]) == "—"
+    assert format_milestones_table(None) == "—"
+    milestones = [
+        {"phase": "P1", "deliverable": "D1", "duration": "W1-2"},
+        {"phase": "P2", "deliverable": "D2", "duration": "W3-4"},
+    ]
+    out = format_milestones_table(milestones)
+    assert "Phase" in out and "Deliverable" in out and "Dauer" in out
+    assert "P1" in out and "D1" in out and "W1-2" in out
+
+
+def test_fill_template_tco_rfp_placeholders():
+    """fill_template replaces sensitivity_note, customer_contributions, implementation_milestones_table; missing -> —."""
+    result = compute("compact", product_root=_product_root)
+    t = "S: {{ sensitivity_note }} | C: {{ customer_contributions }} | M: {{ implementation_milestones_table }}"
+    out = fill_template(result, t)
+    assert "{{ sensitivity_note }}" not in out
+    assert "{{ customer_contributions }}" not in out
+    assert "{{ implementation_milestones_table }}" not in out
+    assert result["sensitivity_note"] in out or "—" not in out  # we have content
+    # Missing keys in result should yield —
+    minimal = {"scenario_id": "x"}
+    out2 = fill_template(minimal, "S: {{ sensitivity_note }} | C: {{ customer_contributions }}")
+    assert "—" in out2
+
+
+def test_load_product_packages():
+    """load_product_packages returns dict package_id -> package; empty if file missing."""
+    packages = load_product_packages(_product_root)
+    assert isinstance(packages, dict)
+    assert "starter" in packages
+    assert "professional" in packages
+    assert packages["starter"]["scenario_id"] == "compact"
+    assert packages["starter"].get("implementation_fixed_usd") == 60000
+    assert packages["professional"].get("implementation_fte") == 2
+
+
+def test_compute_with_package_fixed():
+    """Package with implementation_fixed_usd uses fixed implementation and maintenance."""
+    result = compute("compact", product_root=_product_root, package_id="starter")
+    assert result["scenario_id"] == "compact"
+    assert result["package_id"] == "starter"
+    assert result["package_name"] == "Starter"
+    assert result["implementation_one_time"] == 60000
+    assert result["maintenance_year"] == 24000
+    assert result["capacity_month"] > 0
+    assert result["license_month"] > 0
+
+
+def test_compute_with_package_fte():
+    """Package with implementation_fte uses cost_drivers rates."""
+    result = compute("compact", product_root=_product_root, package_id="professional")
+    assert result["package_id"] == "professional"
+    assert result["package_name"] == "Professional"
+    assert result["implementation_fte"] == 2
+    assert result["implementation_months"] == 6
+    assert result["maintenance_fte"] == 0.5
+    assert result["implementation_one_time"] == pytest.approx(2 * 6 * 15000)
+    assert result["maintenance_year"] == pytest.approx(0.5 * 120000)
+
+
+def test_compute_unknown_package():
+    with pytest.raises(ValueError, match="Unknown package"):
+        compute("compact", product_root=_product_root, package_id="nonexistent")
+
+
+def test_compute_projection_with_package():
+    out = compute_projection("compact", product_root=_product_root, package_id="starter", tco_years_list=[3, 5])
+    assert out["horizons"]
+    first = out["horizons"][0]["breakdown"]
+    assert first["package_id"] == "starter"
+    assert first["implementation_one_time"] == 60000
+    assert 3 in out["tco_by_years"] and 5 in out["tco_by_years"]
+
+
+def test_fill_template_package_customer_offer():
+    """fill_template replaces package_name, customer_name, offer_date."""
+    result = compute("compact", product_root=_product_root, package_id="starter")
+    result["customer_name"] = "Test Corp"
+    result["offer_date"] = "2025-02-15"
+    t = "P: {{ package_name }} | C: {{ customer_name }} | D: {{ offer_date }}"
+    out = fill_template(result, t)
+    assert "Starter" in out
+    assert "Test Corp" in out
+    assert "2025-02-15" in out
+    assert "{{ package_name }}" not in out
+    minimal = {"scenario_id": "x"}
+    out2 = fill_template(minimal, "P: {{ package_name }} | C: {{ customer_name }}")
+    assert "—" in out2

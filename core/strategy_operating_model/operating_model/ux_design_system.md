@@ -1,4 +1,7 @@
-﻿# UX Design System
+# UX Design System
+
+> **Canonical design principles:** [reporting_principles.md](../company/reporting_principles.md).  
+> This document operationalizes the UX layer and must not redefine reporting principles.
 
 The UX Design System defines binding standards for how analytics is presented and interacted with across the framework.
 

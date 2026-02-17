@@ -262,6 +262,19 @@ if ($distRoot -and (Test-Path $distRoot)) {
 	}
 }
 
+# 19d2) TMDL BPA validation (syntax, indentation, formatString, displayFolder, lineageTag)
+if ($distRoot -and (Test-Path $distRoot)) {
+	$tmdlPaths = Get-ChildItem -Path $distRoot -Filter "*.SemanticModel" -Directory -Recurse -ErrorAction SilentlyContinue
+	foreach ($tmdlPath in $tmdlPaths) {
+		$definitionPath = Join-Path $tmdlPath.FullName "definition"
+		if (Test-Path $definitionPath) {
+			Invoke-LocalScript -RelativePath "tooling/validation/validate_tmdl.ps1" -Arguments @(
+				"-TmdlPath", $definitionPath
+			)
+		}
+	}
+}
+
 # 19e) Use case → TMDL end-to-end validation
 foreach ($useCaseId in $coreUseCases) {
 	Invoke-LocalScript -RelativePath "tooling/validation/check_usecase_to_tmdl.ps1" -Arguments @(

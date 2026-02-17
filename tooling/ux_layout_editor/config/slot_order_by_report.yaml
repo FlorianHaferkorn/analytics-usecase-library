@@ -1,0 +1,19 @@
+# Slot order per report_structure
+# Defines which semantic slot each component_30s position maps to.
+# Used by draft generator and validator to assign slot and allowed visual types.
+#
+# Authority: Framework convention for 2-Page-Lead (T2-style overview).
+# Reference: core/templates/page_templates/governance/Slot_Definitions.md
+
+report_structures:
+  2-Page-Lead:
+    # Page 1 (summary): component_3s = KPI Summary (always kpi_card).
+    # component_30s: first diagnostic = Trend, second = Variance (or Mix for composition).
+    component_30s_slots:
+      - Trend    # Position 0: typically single KPI, trend over time
+      - Variance # Position 1: variance/bridge or multi-KPI comparison (waterfall or bar)
+    template: T2
+
+  # Future: add other report_structures if needed
+  # 1-Page-Summary:
+  #   component_30s_slots: [Trend, Variance, Ranking]

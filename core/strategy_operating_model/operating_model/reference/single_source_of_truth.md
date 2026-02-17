@@ -48,7 +48,7 @@ Use Cases contain only references to KPIs: required_kpi_ids (IDs; in factsheets 
 | Use case master list | `core/usecases/UseCase_Inventory.md` | Strategy alignment map | Inventory is operational truth (status, domain, owners, etc.). |
 | Use case templates | `core/usecases/templates/*` | — | Factsheets must follow these templates. |
 | Use case canonical docs | `core/usecases/core/*/(Business_Factsheet.md, UseCase_Bracket.yaml)` | — | Business Factsheet and UseCase_Bracket.yaml are the canonical per-use-case docs. Technical configuration lives in UseCase_Bracket.yaml. |
-| KPI catalog schema | `core/templates/KPI_Catalog_templates/KPI_Catalog_SCHEMA.md` | `tooling/ai/measure_inventory.schema.json` | Schema governs catalog authoring; AI schema supports validation/agents. |
+| KPI catalog schema | `core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md` | `tooling/ai/measure_inventory.schema.json` | Schema governs catalog authoring; AI schema supports validation/agents. |
 | KPI catalog (SSOT) | `core/kpi_catalog/KPI_Catalog.md` | `core/kpi_catalog/README.md` | Single authoritative catalog; README is navigational only. |
 | Domain KPI overview (executive lens) | `core/usecases/core/XD-003_Executive_KPI_Overview/Business_Factsheet.md` | XD-003 | Must be explicitly "derived view", not redefining KPIs. |
 | Domain measure dictionary schema | `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md` | `core/semantic_models/domains/Measure_Dictionary_*.md` | Schema defines structure; domain dictionaries contain implementation-ready detail. |

@@ -678,6 +678,26 @@ def load_validation_results_if_present(repo_root: Path, results_path: Optional[P
         return None, issues
 
 
+def _load_contract_validation_failed(repo_root: Path) -> Set[str]:
+    """
+    Read tooling/validation/results/contract_validation.json if present.
+    Returns a set of normalized repo-relative paths (posix) for failed domain contracts.
+    """
+    path = repo_root / "tooling" / "validation" / "results" / "contract_validation.json"
+    if not path.exists():
+        return set()
+    try:
+        data = json.loads(path.read_text(encoding="utf-8-sig"))
+        if not isinstance(data, dict):
+            return set()
+        raw = data.get("failed_contracts")
+        if not isinstance(raw, list):
+            return set()
+        return {_normalize_contract_ref(x) for x in raw if isinstance(x, str)}
+    except Exception:
+        return set()
+
+
 def _extract_failed_data_contracts(results: Dict[str, Any]) -> Set[str]:
     """
     Best-effort: returns a set of repo-relative paths (posix) for data contracts that failed.
@@ -1041,8 +1061,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             if isinstance(dcr, str) and dcr.strip():
                 usecase_domain_contract[uc_id] = _normalize_contract_ref(dcr.strip())
 
-    # Org-Registry role validation (showcase override: aurora_group then core)
-    _showcase_org_roles = repo_root / "showcases" / "aurora_group" / "organization" / "org_roles.yaml"
+    # Org-Registry role validation (showcase override via ANALYTICS_SHOWCASE, default aurora_group; else core)
+    _showcase_name = (os.environ.get("ANALYTICS_SHOWCASE") or "").strip() or "aurora_group"
+    _showcase_org_roles = repo_root / "showcases" / _showcase_name / "organization" / "org_roles.yaml"
     _core_org_roles = repo_root / "core" / "organization" / "org_roles.yaml"
     org_roles_path = _showcase_org_roles if _showcase_org_roles.exists() else _core_org_roles
     org_roles_ref = str(org_roles_path.relative_to(repo_root)).replace("\\", "/")
@@ -1385,6 +1406,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     failed_contracts: Set[str] = set()
     if validation_results:
         failed_contracts = {_normalize_contract_ref(x) for x in _extract_failed_data_contracts(validation_results)}
+    # Merge failed contracts from contract_validation.json (written by check_validate_data_contracts.ps1)
+    failed_contracts |= _load_contract_validation_failed(repo_root)
 
     # Contract -> KPI linkage (via UseCase_Bracket KPIs)
     contract_to_kpis: Dict[str, Set[str]] = {}

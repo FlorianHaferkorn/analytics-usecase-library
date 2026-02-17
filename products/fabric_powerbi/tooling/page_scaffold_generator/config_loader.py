@@ -294,6 +294,8 @@ class ConfigLoader:
                 vt = item.get("visual_type")
                 if vt == "trend_line":
                     slots["needs_trend"] = True
+                elif vt == "waterfall":
+                    slots["needs_variance"] = True
                 elif vt == "bar_chart":
                     # Heuristic: multi-KPI bar chart indicates variance/bridge; otherwise ranking.
                     kpi_ids = item.get("kpi_ids")
@@ -312,12 +314,17 @@ class ConfigLoader:
             _apply_from_component_30s(p1.get("component_30s"))
             # Overview pages are typically diagnostic/variance.
             template = "T2"
+            # Pass through for builder: exact visual_type per position (round-trip from layout editor).
+            c3s = p1.get("component_3s")
+            c30s = p1.get("component_30s")
             return {
                 "name": "overview",
                 "layer": [3, 30],
                 "template": template,
                 "needs_action_panel": False,
                 "slots": slots,
+                "component_3s": dict(c3s) if isinstance(c3s, dict) else {},
+                "component_30s": list(c30s) if isinstance(c30s, list) else [],
             }
 
         if page_name == "detail":

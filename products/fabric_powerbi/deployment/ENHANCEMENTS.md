@@ -147,6 +147,7 @@ logger.export_logs("deployment_summary.json")
 - Run Stage 1 checks before deployment
 - Run Fabric checks before deployment
 - Fail fast on framework violations
+- **Zero-Tolerance:** Für strikte Zero-Tolerance (kein Deploy ohne grünes Stage 1) `--skip-stage1` nicht verwenden; in CI ist Stage 1 bereits vorgeschaltet (Build schlägt bei Fehlern fehl).
 
 ### 6. Notification System
 - Email notifications on deployment completion

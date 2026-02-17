@@ -37,3 +37,33 @@ building_block_labels:
   onelake_storage: "OneLake Storage"
   implementation: "Implementation (one-time)"
   maintenance: "Maintenance (per year)"
+
+# Optional: TCO category per building block (Acquisition vs Operating).
+building_block_categories:
+  fabric_capacity: "Operating"
+  power_bi: "Operating"
+  onelake_storage: "Operating"
+  implementation: "Acquisition"
+  maintenance: "Operating"
+
+# Optional: sensitivity note (one line or short paragraph).
+sensitivity_note: "Änderungen bei Nutzerzahl, Capacity oder Region beeinflussen die TCO; bei Abweichung bitte neu kalkulieren."
+
+# Optional: customer contributions / prerequisites for implementation (RFP-style).
+customer_contributions:
+  - "Benennung fachlicher und technischer Ansprechpartner"
+  - "Bereitstellung von Testdaten bzw. Zugang zu Quellsystemen"
+  - "Freigabe von Meilensteinen und Teilnahme an Review-Terminen"
+  - "Kick-off und regelmäßige Abstimmungstermine"
+
+# Optional: implementation milestones (RFP-style). List of phase, deliverable, duration.
+implementation_milestones:
+  - phase: "Kick-off & Anforderung"
+    deliverable: "Anforderungsdokument, Abnahme Kriterien"
+    duration: "Woche 1–2"
+  - phase: "Aufbau & Konfiguration"
+    deliverable: "Umgebungen, erste Reports"
+    duration: "Woche 3–8"
+  - phase: "Test & Go-Live"
+    deliverable: "UAT, Schulung, Go-Live"
+    duration: "Woche 9–12"

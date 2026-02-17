@@ -24,7 +24,7 @@ except ImportError:
     Table = None
 
 import yaml
-from cost_engine import compute, compute_projection, fill_template
+from cost_engine import compute, compute_projection, fill_template, load_product_packages
 
 app = typer.Typer(help="Proposal Costing – compute scenario costs.")
 
@@ -45,8 +45,12 @@ def _load_config(config_path: str) -> dict:
 
 
 def _run(
-    scenario: str = typer.Option(..., "--scenario", "-s", help="Scenario: enterprise, compact, power_bi_only, compact_with_fabric"),
+    scenario: str = typer.Option(None, "--scenario", "-s", help="Scenario: enterprise, compact, power_bi_only, compact_with_fabric (or use --package)"),
     config: str | None = typer.Option(None, "--config", help="Run config YAML (params; CLI overrides config)"),
+    package: str | None = typer.Option(None, "--package", help="Product package ID (overrides scenario; scenario from package)"),
+    template: str | None = typer.Option(None, "--template", help="Template path (e.g. templates/offer_snippet.md); default proposal_snippet.md"),
+    customer_name: str | None = typer.Option(None, "--customer-name", help="Customer name for offer output"),
+    offer_date: str | None = typer.Option(None, "--offer-date", help="Offer date for offer output"),
     pro_users: int | None = typer.Option(None, "--pro-users", help="Override Pro user count"),
     ppu_users: int | None = typer.Option(None, "--ppu-users", help="Override PPU user count"),
     capacity_dev: str | None = typer.Option(None, "--capacity-dev", help="Override dev capacity SKU (e.g. F2)"),
@@ -54,7 +58,7 @@ def _run(
     capacity_prod: str | None = typer.Option(None, "--capacity-prod", help="Override prod capacity SKU"),
     reservation: bool = typer.Option(False, "--reservation", help="Use 1-year reservation pricing for capacity"),
     storage_gb: float | None = typer.Option(None, "--storage-gb", help="OneLake storage estimate (GB); adds storage cost"),
-    implementation_fte: float | None = typer.Option(None, "--implementation-fte", help="Implementation FTE"),
+    implementation_fte: float | None = typer.Option(None, "--implementation-fte", help="Implementation FTE (ignored if package has fixed price)"),
     implementation_months: float | None = typer.Option(None, "--implementation-months", help="Implementation months"),
     maintenance_fte: float | None = typer.Option(None, "--maintenance-fte", help="Maintenance FTE (ongoing)"),
     role_allocation: str | None = typer.Option(None, "--role-allocation", help="Path to role_allocation.yaml"),
@@ -74,10 +78,22 @@ def _run(
             typer.echo(str(e), err=True)
             raise typer.Exit(1)
 
+    package = package or cfg.get("package_id") or cfg.get("package")
     scenario = scenario or cfg.get("scenario_id") or cfg.get("scenario")
+    if package:
+        root = _product_root()
+        packages = load_product_packages(root)
+        if package not in packages:
+            typer.echo(f"Unknown package: {package}. Valid: {list(packages)}", err=True)
+            raise typer.Exit(1)
+        scenario = packages[package].get("scenario_id", scenario)
     if not scenario:
-        typer.echo("Scenario required (--scenario or config.scenario_id)", err=True)
+        typer.echo("Scenario required (--scenario or config.scenario_id, or use --package)", err=True)
         raise typer.Exit(1)
+
+    template = template or cfg.get("template_path") or cfg.get("template")
+    customer_name = customer_name if customer_name is not None else cfg.get("customer_name")
+    offer_date = offer_date if offer_date is not None else cfg.get("offer_date")
 
     overrides: dict = {}
     pro_users = pro_users if pro_users is not None else cfg.get("pro_users")
@@ -123,6 +139,7 @@ def _run(
                 scenario,
                 product_root=root,
                 tco_years_list=tco_years_list,
+                package_id=package,
                 use_reservation=reservation,
                 storage_gb=storage_gb,
                 implementation_fte=implementation_fte,
@@ -143,6 +160,7 @@ def _run(
                 scenario,
                 overrides if overrides else None,
                 product_root=root,
+                package_id=package,
                 use_reservation=reservation,
                 storage_gb=storage_gb,
                 implementation_fte=implementation_fte,
@@ -163,11 +181,11 @@ def _run(
     if json_out:
         print(json.dumps(result, indent=2))
         if output:
-            _write_template_output(result, output)
+            _write_template_output(result, output, template_path=template, customer_name=customer_name, offer_date=offer_date)
         return
 
     if output:
-        _write_template_output(result, output)
+        _write_template_output(result, output, template_path=template, customer_name=customer_name, offer_date=offer_date)
 
     console = Console()
     console.print(f"\n[bold]Scenario:[/bold] {result['scenario_id']}  [dim]Pricing: {result.get('pricing_mode', 'Pay-as-you-go')}[/dim]\n")
@@ -214,14 +232,24 @@ def _run(
     console.print()
 
 
-def _write_template_output(result: dict, output_path: str) -> None:
+def _write_template_output(result: dict, output_path: str, template_path: str | None = None, customer_name: str | None = None, offer_date: str | None = None) -> None:
     root = _product_root()
-    template_path = root / "templates" / "proposal_snippet.md"
-    if not template_path.exists():
-        typer.echo(f"Template not found: {template_path}", err=True)
+    if template_path:
+        tp = Path(template_path)
+        if not tp.is_absolute():
+            tp = root / tp
+    else:
+        tp = root / "templates" / "proposal_snippet.md"
+    if not tp.exists():
+        typer.echo(f"Template not found: {tp}", err=True)
         return
-    with open(template_path, encoding="utf-8") as f:
-        content = fill_template(result, f.read())
+    res = dict(result)
+    if customer_name is not None:
+        res["customer_name"] = customer_name
+    if offer_date is not None:
+        res["offer_date"] = offer_date
+    with open(tp, encoding="utf-8") as f:
+        content = fill_template(res, f.read())
     out = Path(output_path)
     if not out.is_absolute():
         out = root / out
@@ -233,8 +261,12 @@ def _write_template_output(result: dict, output_path: str) -> None:
 
 @app.command()
 def main(
-    scenario: str = typer.Option(None, "--scenario", "-s", help="Scenario (or set in --config)"),
+    scenario: str = typer.Option(None, "--scenario", "-s", help="Scenario (or set in --config or use --package)"),
     config: str | None = typer.Option(None, "--config", help="Run config YAML for reproducibility"),
+    package: str | None = typer.Option(None, "--package", help="Product package ID"),
+    template: str | None = typer.Option(None, "--template", help="Template path (e.g. templates/offer_snippet.md)"),
+    customer_name: str | None = typer.Option(None, "--customer-name", help="Customer name for offer"),
+    offer_date: str | None = typer.Option(None, "--offer-date", help="Offer date for offer"),
     pro_users: int | None = typer.Option(None, "--pro-users", help="Override Pro user count"),
     ppu_users: int | None = typer.Option(None, "--ppu-users", help="Override PPU user count"),
     capacity_dev: str | None = typer.Option(None, "--capacity-dev", help="Override dev capacity SKU"),
@@ -257,6 +289,10 @@ def main(
     _run(
         scenario=scenario or "",
         config=config,
+        package=package,
+        template=template,
+        customer_name=customer_name,
+        offer_date=offer_date,
         pro_users=pro_users,
         ppu_users=ppu_users,
         capacity_dev=capacity_dev,

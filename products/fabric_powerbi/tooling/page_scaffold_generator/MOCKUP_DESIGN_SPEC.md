@@ -1,6 +1,6 @@
 # Mockup Design Spec — World-Class Page Layouts
 
-Design specification for Power BI page scaffold mockups and PBIP output. Ensures analytics path clarity, UI/UX best practices, and a single layout engine for both PBIP and HTML mockups.
+Design specification for Power BI page scaffold and PBIP output. Ensures analytics path clarity, UI/UX best practices, and a single layout engine for PBIP. **The HTML mockup was removed; layout preview is in the UX Layout Editor** (`streamlit run tooling/ux_layout_editor/app.py`). This spec remains the standard for PBIP layout, typography, and 3-30-300 structure.
 
 ---
 

@@ -1,12 +1,14 @@
 # tooling/powerbi_mcp/table_ops.ps1
 
 Param(
-    [ValidateSet("Create","Update","Delete","Get","List","CreateFromContract")]
+    [ValidateSet("Create","Update","Delete","Get","List","CreateFromContract","ExportFromContract")]
     [string]$Operation = "List",
     [string]$ConnectionName = "local_pbip",
     [hashtable]$TableDefinition,
     [string]$DataContractPath,
-    [string]$TableName
+    [string]$TableName,
+    [string]$OutJsonPath,
+    [string]$UseCase
 )
 
 $ErrorActionPreference = "Stop"
@@ -57,7 +59,9 @@ function Convert-DataContractToTableDef {
         "decimal" = "Decimal"
         "double" = "Double"
         "bool" = "Boolean"
+        "boolean" = "Boolean"
         "datetime" = "DateTime"
+        "currency" = "Decimal"
     }
     
     $columns = @()
@@ -84,10 +88,39 @@ function Convert-DataContractToTableDef {
 # Main Operations
 # =========================================
 
-$conn = Get-Connection -Name $ConnectionName
+$conn = $null
+try { $conn = Get-Connection -Name $ConnectionName } catch { $conn = $null }
 
 switch ($Operation) {
+    "ExportFromContract" {
+        if (-not $DataContractPath -or -not (Test-Path $DataContractPath)) {
+            throw "-DataContractPath required and must exist for ExportFromContract"
+        }
+        $contract = Get-Content $DataContractPath -Raw | ConvertFrom-Yaml
+        $tables = @()
+        foreach ($t in @($contract.dimension)) {
+            if (-not $t.name) { continue }
+            $tables += Convert-DataContractToTableDef -Contract $contract -TableName $t.name
+        }
+        foreach ($t in @($contract.fact)) {
+            if (-not $t.name) { continue }
+            $tables += Convert-DataContractToTableDef -Contract $contract -TableName $t.name
+        }
+        $payload = @{ tables = $tables; source = $DataContractPath; useCase = $UseCase; timestamp = (Get-Date -Format "o") }
+        $jsonPath = $OutJsonPath
+        if (-not $jsonPath -and $UseCase) {
+            $outDir = Join-Path (Split-Path $PSScriptRoot) "powerbi_mcp\out"
+            if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir -Force | Out-Null }
+            $jsonPath = Join-Path $outDir "table_ops_$UseCase.json"
+        }
+        if ($jsonPath) {
+            $payload | ConvertTo-Json -Depth 6 | Set-Content -Path $jsonPath -Encoding utf8
+            Write-Host "  Wrote: $jsonPath ($($tables.Count) tables)" -ForegroundColor Green
+        }
+        return $tables
+    }
     "CreateFromContract" {
+        if (-not $conn) { throw "Connection required for CreateFromContract. Run setup_connection.ps1 first." }
         if (-not $DataContractPath) {
             throw "-DataContractPath required for CreateFromContract operation"
         }
@@ -96,18 +129,7 @@ switch ($Operation) {
         }
         
         Write-Host "Loading Data Contract: $DataContractPath" -ForegroundColor Gray
-        
-        # Load YAML (requires powershell-yaml module or manual parsing)
-        if (Get-Module -ListAvailable -Name powershell-yaml) {
-            Import-Module powershell-yaml
-            $contract = Get-Content $DataContractPath -Raw | ConvertFrom-Yaml
-        } else {
-            # Fallback: Simple YAML parsing
-            Write-Host "  Warning: powershell-yaml not installed. Using basic parsing." -ForegroundColor Yellow
-            $yamlContent = Get-Content $DataContractPath -Raw
-            # For now, throw error - proper YAML parsing needed
-            throw "powershell-yaml module required. Install: Install-Module -Name powershell-yaml"
-        }
+        $contract = Get-Content $DataContractPath -Raw | ConvertFrom-Yaml
         
         $tableDef = Convert-DataContractToTableDef -Contract $contract -TableName $TableName
         
@@ -144,9 +166,14 @@ switch ($Operation) {
         [System.IO.File]::WriteAllText($tmdlPath, $tmdlContent, $utf8)
         
         Write-Host "  Created: $tmdlPath" -ForegroundColor Green
+        if ($OutJsonPath) {
+            @{ table = $tableDef; source = $DataContractPath } | ConvertTo-Json -Depth 6 | Set-Content -Path $OutJsonPath -Encoding utf8
+            Write-Host "  Wrote: $OutJsonPath" -ForegroundColor Gray
+        }
     }
     
     "List" {
+        if (-not $conn) { throw "Connection required. Run setup_connection.ps1 first." }
         $tablesDir = "$($conn.definitionPath)\tables"
         if (Test-Path $tablesDir) {
             $tables = Get-ChildItem $tablesDir -Filter "*.tmdl" | Select-Object -ExpandProperty BaseName
@@ -160,6 +187,7 @@ switch ($Operation) {
     }
     
     "Get" {
+        if (-not $conn) { throw "Connection required. Run setup_connection.ps1 first." }
         if (-not $TableName) {
             throw "-TableName required for Get operation"
         }

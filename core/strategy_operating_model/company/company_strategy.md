@@ -38,6 +38,7 @@ For each priority, reference governed KPI IDs in:
 - Monthly KPI target and exception review
 - Continuous refinement through use case outcomes
 
+<a id="5-strategic-kpis"></a>
 ## 5. Strategic KPIs
 
 Strategic KPIs express what success means and must be actively steered. Definitions and IDs are governed in:
@@ -46,6 +47,7 @@ Strategic KPIs express what success means and must be actively steered. Definiti
 
 The operational mapping of Strategic KPIs to use cases is in `core/usecases/UseCase_Inventory.md` (Strategic KPI column). Do not duplicate KPI definitions here.
 
+<a id="6-executive-key-questions"></a>
 ## 6. Executive key questions
 
 Key questions structure the transition from strategic steering signals to decision logic. They are operationalized in Use Case Business Factsheets (e.g. "Core Business Questions" per use case).
@@ -55,6 +57,7 @@ Examples (to be refined per organization):
 - Why is performance deviating from plan in the most material areas?
 - Where should we act first to protect margin and cash?
 
+<a id="7-strategic-alignment-inputs-to-the-golden-thread"></a>
 ## 7. Strategic alignment inputs to the Golden Thread
 
 The alignment map (Strategy → KPIs → Use Cases → Action Codes) is maintained in:

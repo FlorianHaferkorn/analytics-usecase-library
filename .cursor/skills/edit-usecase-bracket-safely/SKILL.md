@@ -27,6 +27,7 @@ Maintain bracket as the SSOT for use case orchestration; validate all references
 5. **UX layout rules**:
    - `page_1_summary`: component_3s (KPI cards), component_30s (diagnostic visuals)
    - `page_2_execution`: component_300s (evidence grain, action panel)
+   - To edit visual types per slot without YAML: use **UX Layout Editor** — `streamlit run tooling/ux_layout_editor/app.py` (see `tooling/ux_layout_editor/README.md`). Im Editor siehst du eine Live-Preview der gewählten Visual-Typen. Draft from orchestration: `py -3 tooling/ux_layout_editor/draft_ux_layout.py --use-case <ID> [--apply]`.
 6. **Run validation**:
    ```powershell
    .\tooling\run_stage1_checks.ps1

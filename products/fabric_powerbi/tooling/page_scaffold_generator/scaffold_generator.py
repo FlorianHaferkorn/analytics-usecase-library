@@ -85,12 +85,17 @@ class PageScaffoldGenerator:
         template = self.page_config.get('template', 'T2')
         has_action_panel = self.page_config.get('needs_action_panel', False)
         slots = self.page_config.get('slots', {})
-        
+        # Round-trip from ux_layout_rules: pass component_30s + slot_order so builder uses exact visual_type per position
+        component_30s = self.page_config.get('component_30s') if self.page_name == 'overview' else None
+        slot_order = ['trend', 'variance'] if self.page_name == 'overview' else None  # 2-Page-Lead order
+
         page_structure = self.page_builder.build_page_structure(
             slots=slots,
             template=template,
             has_action_panel=has_action_panel,
-            visual_slot_mapping=self.config.get('visual_slot_mapping')
+            visual_slot_mapping=self.config.get('visual_slot_mapping'),
+            component_30s=component_30s,
+            slot_order=slot_order,
         )
         
         self.page_structure = {

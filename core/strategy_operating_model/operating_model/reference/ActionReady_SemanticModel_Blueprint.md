@@ -1,4 +1,7 @@
-﻿# Action-Ready Semantic Model EUR" Full Blueprint
+# ActionReady Semantic Model — Full Blueprint
+
+> **Canonical entry:** [semantic_layer.md](../semantic_layer.md).  
+> This document is the detailed reference blueprint; the semantic layer doc is the conceptual entry point.
 
 Purpose:
 
@@ -107,6 +110,6 @@ dim_date --------
 Notes for implementation:
 
 - Measures follow framework naming/formatting; dimensions are conformed across domains.
-- Action aggregates support multi-level triggers (L1EUR"L3); execution layer supports before/after (7/30/60d).
+- Action aggregates support multi-level triggers (L1–L3); execution layer supports before/after (7/30/60d).
 - Align to semantic layer standards and lint rules (`tooling/linters`).
 

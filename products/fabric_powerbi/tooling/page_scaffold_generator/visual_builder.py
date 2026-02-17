@@ -609,3 +609,30 @@ class VisualBuilder:
             raise ValueError(f"Unknown slot: {slot_name}")
 
         return method(position, name=name)
+
+    def build_by_ux_visual_type(
+        self,
+        ux_visual_type: str,
+        position: Position,
+        name: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Build visual from ux_layout_rules visual_type (round-trip from layout editor).
+        Maps bracket/editor semantic types to Power BI visualType via existing build_* methods.
+        """
+        import logging
+        logger = logging.getLogger(__name__)
+        ux_to_method = {
+            "kpi_card": self.build_kpi_card,
+            "trend_line": self.build_line_chart,
+            "waterfall": self.build_waterfall,
+            "bar_chart": self.build_horizontal_bar,
+            "stacked_bar": self.build_stacked_bar,
+            "hundred_percent_stacked_bar": self.build_stacked_bar,
+            "funnel": self.build_funnel,
+        }
+        method = ux_to_method.get(ux_visual_type)
+        if method is None:
+            logger.warning("Unknown ux_visual_type %r; defaulting to lineChart (trend)", ux_visual_type)
+            method = self.build_line_chart
+        return method(position, name=name)

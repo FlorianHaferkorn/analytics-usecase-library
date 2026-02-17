@@ -1,4 +1,7 @@
-﻿# Measure Templates
+# Measure Templates
+
+> **Canonical measure system:** [measure_system.md](../../strategy_operating_model/operating_model/measure_system.md).  
+> These templates are scaffolds; naming and taxonomy are defined in the measure system.
 
 ## Purpose
 

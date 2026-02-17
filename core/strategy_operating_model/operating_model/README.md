@@ -24,7 +24,7 @@ It is the methodological backbone of the framework.
 
 ## 3. Core Concepts
 
-### 3.1 Golden Thread EUR" Strategy to Action
+### 3.1 Golden Thread – Strategy to Action
 
 Explains how strategy, KPIs, use cases, semantic models, reports, and actions are logically connected.
 
@@ -64,7 +64,7 @@ Files:
 
 ### 3.5 UX & Reporting Standards
 
-Defines how insights are presented consistently using the 3EUR"30EUR"300 principle.
+Defines how insights are presented consistently using the 3–30–300 principle.
 
 File: `ux_design_system.md`
 

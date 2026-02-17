@@ -32,9 +32,10 @@ This directory contains **validation scripts** for automated quality checks agai
 
 ---
 
-### validate_dax.ps1 (TODO)
+### validate_dax.ps1
 **Purpose**: Validate DAX measure expressions against `bpa-rules-dax.json`  
 **Auto-fix**: Partial (DIVIDE, REMOVEFILTERS)  
+**Integration**: run_all_checks.ps1 (19c) for each dist `*.SemanticModel\definition`  
 **Checks**:
 - VAR/RETURN usage
 - DIVIDE() vs /
@@ -43,9 +44,10 @@ This directory contains **validation scripts** for automated quality checks agai
 
 ---
 
-### validate_report.ps1 (TODO)
+### validate_report.ps1
 **Purpose**: Validate Power BI report visuals against `bpa-rules-report.json`  
 **Auto-fix**: No  
+**Integration**: run_all_checks.ps1 (19f) for each dist `*.Report`  
 **Checks**:
 - Max visuals per page
 - Theme colors usage
@@ -54,9 +56,10 @@ This directory contains **validation scripts** for automated quality checks agai
 
 ---
 
-### validate_semanticmodel.ps1 (TODO)
+### validate_semanticmodel.ps1
 **Purpose**: Validate semantic model structure against `bpa-rules-semanticmodel.json`  
 **Auto-fix**: No  
+**Integration**: run_all_checks.ps1 (19d) for each dist `*.SemanticModel\definition`  
 **Checks**:
 - Star schema enforcement
 - Calculated column avoidance
@@ -87,16 +90,8 @@ if ($LASTEXITCODE -ne 0) {
 .\validate_tmdl.ps1 -TmdlPath "showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\definition" -AutoFix
 ```
 
-### CI/CD (Stage 1 Check)
-```powershell
-# run_all_checks.ps1 integration (TODO)
-$tmdlResults = & tooling/validation/validate_tmdl.ps1 -TmdlPath $modelPath
-
-if ($tmdlResults.Errors.Count -gt 0) {
-    Write-Error "TMDL validation failed in CI"
-    exit 1
-}
-```
+### CI/CD (run_all_checks.ps1)
+TMDL BPA validation runs in **run_all_checks.ps1** as step **19d2**: for each `*.SemanticModel\definition` under `$DistRoot` (products/fabric_powerbi/dist), `validate_tmdl.ps1` is invoked with `-TmdlPath <definitionPath>`. No auto-fix in CI; validation-only. Failed runs are recorded in the consolidated check results and contribute to the overall exit code.
 
 ---
 
@@ -161,10 +156,10 @@ All validation scripts read from `tooling/linters/powerbi/bpa-rules-*.json`:
 
 | Rule File | Scope | Auto-Fixable | Integration |
 |-----------|-------|--------------|-------------|
-| bpa-rules-tmdl.json | TMDL syntax | High (4/10 rules) | ✅ validate_tmdl.ps1 |
-| bpa-rules-dax.json | DAX expressions | Partial (2/10 rules) | ⏳ TODO |
-| bpa-rules-report.json | Report visuals | Low | ⏳ TODO |
-| bpa-rules-semanticmodel.json | Model structure | No | ⏳ TODO |
+| bpa-rules-tmdl.json | TMDL syntax | High (4/10 rules) | ✅ validate_tmdl.ps1 (run_all_checks 19d2) |
+| bpa-rules-dax.json | DAX expressions | Partial (2/10 rules) | ✅ validate_dax.ps1 (run_all_checks 19c) |
+| bpa-rules-report.json | Report visuals | Low | ✅ validate_report.ps1 (run_all_checks 19f) |
+| bpa-rules-semanticmodel.json | Model structure | No | ✅ validate_semanticmodel.ps1 (run_all_checks 19d) |
 
 ---
 

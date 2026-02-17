@@ -245,48 +245,10 @@ Invoke-WithRetry "Validate TMDL Syntax" {
 $state.phase = "semantic_model_build"
 $state.iteration = 3
 
-# 3.1 Create Tables from Data Contracts
-Invoke-WithRetry "Create Dimension Tables" {
-    $dataContract = Get-Content "core\data_contracts\sources\synthetic\synthetic_data_contract.yaml" -Raw | ConvertFrom-Yaml
-    
-    # Für jede Dimension: Table Operation über MCP
-    foreach ($table in $dataContract.tables) {
-        if ($table.type -eq "dimension") {
-            Write-Host "  Creating table: $($table.name)" -ForegroundColor Gray
-            
-            # TODO: Power BI MCP Table Creation
-            # mcp_powerbi-model_table_operations -Operation Create -TableDefinition <from contract>
-        }
-    }
-}
-
-# 3.2 Create Relationships
-Invoke-WithRetry "Auto-Configure Relationships" {
-    # Relationship Logic from UseCase_Bracket.yaml and data contracts
-    $bracketPath = "core\usecases\core\$UseCase\UseCase_Bracket.yaml"
-    
-    if (-not (Test-Path $bracketPath)) {
-        Write-Host "  WARNING: UseCase_Bracket.yaml not found for $UseCase" -ForegroundColor Yellow
-        return
-    }
-    
-    $bracketContent = Get-Content $bracketPath -Raw | ConvertFrom-Yaml
-    
-    # Derive relationships from data contract references in bracket
-    $dataContractRef = $bracketContent.overrides.data_contract_ref
-    if ($dataContractRef -and (Test-Path $dataContractRef)) {
-        $contract = Get-Content $dataContractRef -Raw | ConvertFrom-Yaml
-        # TODO: Power BI MCP Relationship Operations from contract
-        # mcp_powerbi-model_relationship_operations -Operation Create -RelationshipDefinition <from contract>
-    }
-}
-
-# 3.3 Create Hierarchies
-Invoke-WithRetry "Create Hierarchies" {
-    # Hierarchy Logic from UseCase_Bracket.yaml and data contracts
-    # TODO: Power BI MCP User Hierarchy Operations
-    # mcp_powerbi-model_user_hierarchy_operations
-}
+# 3.1 Create Tables from Data Contracts → table_ops.ps1 -Operation CreateFromContract (or ExportFromContract for JSON)
+#     orchestrate_full_model.ps1 calls table_ops.ps1 per required table; payload written to tooling/powerbi_mcp/out/table_ops_<UseCase>.json
+# 3.2 Create Relationships → relationship_ops.ps1 -Operation CreateFromBracket -BracketPath <path> -OutJsonPath out/relationship_ops_<UseCase>.json
+# 3.3 Create Hierarchies → hierarchy_ops.ps1 -Operation FromBracket -BracketPath <path> -OutJsonPath out/hierarchy_ops_<UseCase>.json
 
 # 3.4 Import Measures
 Invoke-WithRetry "Import Measures to Model" {
@@ -370,19 +332,9 @@ $state.phase = "report_generation"
 $state.iteration = 5
 
 Invoke-WithRetry "Generate Report from Template" {
-    # Page Template aus Use Case Business Factsheet
-    $factsheet = Get-Content "core\usecases\core\$UseCase\Business_Factsheet.md" -Raw
-    
-    # Parse page_template field
-    $templateMatch = [regex]::Match($factsheet, 'page_template:\s*"([^"]+)"')
-    $template = if ($templateMatch.Success) { $templateMatch.Groups[1].Value } else { "overview_drivers_details" }
-    
-    Write-Host "  Using template: $template" -ForegroundColor Gray
-    
-    # TODO: Report Generation via Page Template
-    # Read core/templates/page_templates/$template.md
-    # Generate PBIR with pages, visuals, filters based on template
-    
+    # report_generator.ps1 -UseCase $UseCase -TemplateName (from Business_Factsheet page_template) -OutputPath dist
+    # Reads core/templates/page_templates/components/<TemplateName>.json, writes <UseCase>.Report/definition/report.json
+    & ./tooling/powerbi_mcp/report_generator.ps1 -UseCase $UseCase -TemplateName $template -OutputPath $distReportRoot
     Write-Host "  ✓ Report structure created" -ForegroundColor Green
 }
 
@@ -737,31 +689,14 @@ function Test-QualityGates {
 
 ### 6.1 Deployment Pipeline
 
-```powershell
-# tooling/powerbi_mcp/deploy.ps1
+**Scripts:** `tooling/powerbi_mcp/deploy_gate.ps1`, `tooling/powerbi_mcp/deploy.ps1`
 
-Param(
-    [string]$WorkspaceName = "DM_ActionReady",
-    [string]$ModelPath = "showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel",
-    [string]$ReportPath = "showcases\aurora_group\reports\COM-001.Report"
-)
+- **deploy_gate.ps1** (Zero-Tolerance): Runs `check_validate_data_contracts.ps1` and `check_registry_builder.ps1`; reads `master_registry.json` and fails if `failed_data_contracts` is non-empty. Call before any deploy; `deploy.ps1` invokes it at start.
+- **deploy.ps1**: (1) Runs deploy_gate; (2) Workspace create/get (Fabric REST or Power BI groups API); (3) Semantic Model import; (4) Report publish and bind; (5) Refresh schedule (optional); (6) Security/RLS (optional). Use `-GateOnly` to only run the gate.
 
-# 1. Publish Semantic Model to Fabric
-Write-Host "Publishing Semantic Model..." -ForegroundColor Cyan
-# TODO: Fabric REST API or Power BI Cmdlets
+**Configuration (env vars; do not commit secrets):** `FABRIC_TENANT_ID`, `FABRIC_CLIENT_ID`, `FABRIC_CLIENT_SECRET` (or PBI_* equivalents); `FABRIC_WORKSPACE_NAME` or `FABRIC_WORKSPACE_ID`.
 
-# 2. Publish Report
-Write-Host "Publishing Report..." -ForegroundColor Cyan
-# TODO: Fabric REST API
-
-# 3. Configure Refresh Schedule
-Write-Host "Configuring refresh..." -ForegroundColor Cyan
-# TODO: Set refresh schedule via API
-
-# 4. Apply RLS
-Write-Host "Applying RLS..." -ForegroundColor Cyan
-# TODO: security_user_org mapping
-```
+**Fabric REST (stubs in deploy.ps1):** Workspace (GET/POST groups), Semantic Model import (PBIP/dataset API), Report import/bind, Refresh schedule, RLS/security mapping. Add auth (e.g. client credentials) and API calls as needed; required permissions: workspace admin, dataset create/update, report deploy.
 
 ### 6.2 Monitoring Dashboard
 

@@ -71,6 +71,9 @@ def load_proposal_defaults(product_root: Path | None = None) -> dict[str, Any]:
     for key in _INLINE_DEFAULTS:
         if key in data:
             out[key] = data[key]
+    for key in data:
+        if key not in out:
+            out[key] = data[key]
     return out
 
 
@@ -117,6 +120,18 @@ def load_projection(product_root: Path | None = None) -> dict[str, Any]:
     return {"horizons": data.get("horizons", []), "tco_years": data.get("tco_years", [])}
 
 
+def load_product_packages(product_root: Path | None = None) -> dict[str, dict[str, Any]]:
+    """Load model/product_packages.yaml. Returns dict package_id -> package; empty if file missing."""
+    root = product_root or _product_root()
+    path = root / "model" / "product_packages.yaml"
+    if not path.exists():
+        return {}
+    with open(path, encoding="utf-8") as f:
+        data = yaml.safe_load(f) or {}
+    packages = data.get("packages") or {}
+    return dict(packages) if isinstance(packages, dict) else {}
+
+
 def _ftes_from_role_allocation(role_allocation: dict[str, Any], org_roles_by_id: dict[str, dict[str, Any]]) -> tuple[float, float, list[dict[str, Any]]]:
     """Sum FTE by phase; build role_breakdown with title, domain. Returns (impl_fte, maint_fte, role_breakdown)."""
     impl = 0.0
@@ -126,8 +141,9 @@ def _ftes_from_role_allocation(role_allocation: dict[str, Any], org_roles_by_id:
         rid = a.get("role_id", "")
         fte = float(a.get("fte", 0))
         phase = (a.get("phase") or "").strip().lower()
+        person = (a.get("person") or a.get("contact") or "").strip()
         info = org_roles_by_id.get(rid, {})
-        breakdown.append({"role_id": rid, "title": info.get("title", rid), "domain": info.get("domain", ""), "fte": fte, "phase": phase})
+        breakdown.append({"role_id": rid, "title": info.get("title", rid), "domain": info.get("domain", ""), "fte": fte, "phase": phase, "person": person})
         if phase == "implementation":
             impl += fte
         elif phase == "maintenance":
@@ -179,6 +195,7 @@ def compute(
     scenario_id: str,
     overrides: dict[str, Any] | None = None,
     product_root: Path | None = None,
+    package_id: str | None = None,
     use_reservation: bool = False,
     storage_gb: float | None = None,
     implementation_fte: float | None = None,
@@ -193,16 +210,30 @@ def compute(
 ) -> dict[str, Any]:
     """
     Compute monthly and yearly costs for a scenario.
+    If package_id is set, scenario_id and implementation/maintenance come from the package (fixed USD or FTE profile).
     overrides can include: capacities (dev/test/prod -> SKU), pro_users, ppu_users.
     use_reservation: use reservation pricing for capacity (~41% savings).
     storage_gb: optional OneLake storage estimate (adds storage_month to total).
     contract_term_months, region, price_basis, valid_from, quote_valid_days: for assumptions; defaults from proposal_defaults.yaml.
     Returns dict with capacity_month, license_month, total_month, total_year, capacity_breakdown, license_breakdown,
     scenario_id, pro_users, ppu_users, pricing_mode, viewer_note, prod_sku, scope_in, scope_out,
-    valid_from, quote_valid_until, contract_term_months, region, price_basis, and optionally storage_month, storage_breakdown.
+    valid_from, quote_valid_until, contract_term_months, region, price_basis, package_id, package_name, and optionally storage_month, storage_breakdown.
     """
     overrides = overrides or {}
     root = product_root or _product_root()
+    package: dict[str, Any] | None = None
+    package_id_out = ""
+    package_name_out = ""
+    if package_id:
+        packages = load_product_packages(root)
+        if package_id not in packages:
+            raise ValueError(f"Unknown package: {package_id}. Valid: {list(packages)}")
+        package = packages[package_id]
+        scenario_id = package.get("scenario_id", scenario_id)
+        role_allocation_path = package.get("role_allocation_path") or role_allocation_path
+        package_id_out = package_id
+        package_name_out = package.get("name", package_id) or package_id
+
     drivers = load_cost_drivers(root)
     defaults = load_proposal_defaults(root)
     scenarios_data = load_scenarios(root)
@@ -220,6 +251,13 @@ def compute(
     impl_fte = implementation_fte if implementation_fte is not None else overrides.get("implementation_fte")
     impl_months = implementation_months if implementation_months is not None else overrides.get("implementation_months")
     maint_fte = maintenance_fte if maintenance_fte is not None else overrides.get("maintenance_fte")
+    if package and package.get("implementation_fixed_usd") is None:
+        if impl_fte is None and package.get("implementation_fte") is not None:
+            impl_fte = package.get("implementation_fte")
+        if impl_months is None and package.get("implementation_months") is not None:
+            impl_months = package.get("implementation_months")
+        if maint_fte is None and package.get("maintenance_fte") is not None:
+            maint_fte = package.get("maintenance_fte")
 
     role_breakdown: list[dict[str, Any]] = []
     if role_allocation_path is not None or overrides.get("role_allocation_path") is not None:
@@ -269,7 +307,10 @@ def compute(
 
     implementation_one_time = 0.0
     maintenance_year = 0.0
-    if impl_fte > 0 or impl_months > 0 or maint_fte > 0:
+    if package and package.get("implementation_fixed_usd") is not None:
+        implementation_one_time = round(float(package["implementation_fixed_usd"]), 2)
+        maintenance_year = round(float(package.get("maintenance_fixed_usd_per_year", 0)), 2)
+    elif impl_fte > 0 or impl_months > 0 or maint_fte > 0:
         services = drivers.get("services_rates")
         if not services:
             raise ValueError("services_rates missing in cost_drivers.yaml; required when implementation_fte, implementation_months, or maintenance_fte are set")
@@ -300,17 +341,27 @@ def compute(
     scope_out = "\n".join(f"- {s}" for s in scope_out_list) if isinstance(scope_out_list, list) else str(scope_out_list)
 
     block_labels = defaults.get("building_block_labels") or _INLINE_DEFAULTS.get("building_block_labels") or {}
+    block_categories = defaults.get("building_block_categories") or {}
 
     def _block_label(block_id: str) -> str:
         return block_labels.get(block_id, block_id) if isinstance(block_labels, dict) else block_id
 
+    def _block_category(block_id: str) -> str:
+        return (block_categories.get(block_id) or "") if isinstance(block_categories, dict) else ""
+
     building_blocks = [
-        {"id": "fabric_capacity", "label": _block_label("fabric_capacity"), "usd_per_month": round(capacity_month, 2), "usd_per_year": round(capacity_month * 12, 2)},
-        {"id": "power_bi", "label": _block_label("power_bi"), "usd_per_month": round(license_month, 2), "usd_per_year": round(license_month * 12, 2)},
-        {"id": "onelake_storage", "label": _block_label("onelake_storage"), "usd_per_month": round(storage_month, 2), "usd_per_year": round(storage_month * 12, 2)},
+        {"id": "fabric_capacity", "label": _block_label("fabric_capacity"), "category": _block_category("fabric_capacity"), "usd_per_month": round(capacity_month, 2), "usd_per_year": round(capacity_month * 12, 2)},
+        {"id": "power_bi", "label": _block_label("power_bi"), "category": _block_category("power_bi"), "usd_per_month": round(license_month, 2), "usd_per_year": round(license_month * 12, 2)},
+        {"id": "onelake_storage", "label": _block_label("onelake_storage"), "category": _block_category("onelake_storage"), "usd_per_month": round(storage_month, 2), "usd_per_year": round(storage_month * 12, 2)},
     ]
-    building_blocks.append({"id": "implementation", "label": _block_label("implementation"), "usd_per_month": 0.0, "usd_per_year": implementation_one_time})
-    building_blocks.append({"id": "maintenance", "label": _block_label("maintenance"), "usd_per_month": round(maintenance_year / 12, 2) if maintenance_year else 0.0, "usd_per_year": maintenance_year})
+    building_blocks.append({"id": "implementation", "label": _block_label("implementation"), "category": _block_category("implementation"), "usd_per_month": 0.0, "usd_per_year": implementation_one_time})
+    building_blocks.append({"id": "maintenance", "label": _block_label("maintenance"), "category": _block_category("maintenance"), "usd_per_month": round(maintenance_year / 12, 2) if maintenance_year else 0.0, "usd_per_year": maintenance_year})
+
+    sensitivity_note = (defaults.get("sensitivity_note") or "").strip()
+    customer_contrib_list = defaults.get("customer_contributions") or []
+    customer_contributions = "\n".join(f"- {s}" for s in customer_contrib_list) if isinstance(customer_contrib_list, list) else str(customer_contrib_list) if customer_contrib_list else ""
+    implementation_milestones_raw = defaults.get("implementation_milestones") or []
+    implementation_milestones_table = format_milestones_table(implementation_milestones_raw)
 
     return {
         "scenario_id": scenario_id,
@@ -341,6 +392,11 @@ def compute(
         "implementation_months": impl_months,
         "maintenance_fte": maint_fte,
         "role_breakdown": role_breakdown,
+        "sensitivity_note": sensitivity_note,
+        "customer_contributions": customer_contributions,
+        "implementation_milestones_table": implementation_milestones_table,
+        "package_id": package_id_out,
+        "package_name": package_name_out,
     }
 
 
@@ -349,6 +405,7 @@ def compute_projection(
     product_root: Path | None = None,
     projection_config: dict[str, Any] | None = None,
     tco_years_list: list[int] | None = None,
+    package_id: str | None = None,
     use_reservation: bool = False,
     storage_gb: float | None = None,
     implementation_fte: float | None = None,
@@ -380,6 +437,7 @@ def compute_projection(
             scenario_id,
             overrides=overrides if overrides else None,
             product_root=root,
+            package_id=package_id,
             use_reservation=use_reservation,
             storage_gb=storage_gb,
             implementation_fte=implementation_fte,
@@ -463,29 +521,65 @@ def format_storage_breakdown(storage_breakdown: dict[str, Any] | None) -> str:
 
 
 def format_role_breakdown_table(role_breakdown: list[dict[str, Any]]) -> str:
-    """Format role_breakdown as Markdown table for template placeholder."""
+    """Format role_breakdown as Markdown table for template placeholder. Includes optional person/contact."""
     if not role_breakdown:
         return "—"
-    lines = ["| Role | Domain | FTE | Phase |", "|------|--------|-----|-------|"]
-    for r in role_breakdown:
-        title = r.get("title", r.get("role_id", ""))
-        domain = r.get("domain", "")
-        fte = r.get("fte", 0)
-        phase = r.get("phase", "")
-        lines.append(f"| {title} | {domain} | {fte} | {phase} |")
+    has_person = any(r.get("person") for r in role_breakdown)
+    if has_person:
+        lines = ["| Role | Domain | FTE | Phase | Person / Ansprechpartner |", "|------|--------|-----|-------|---------------------------|"]
+        for r in role_breakdown:
+            title = r.get("title", r.get("role_id", ""))
+            domain = r.get("domain", "")
+            fte = r.get("fte", 0)
+            phase = r.get("phase", "")
+            person = r.get("person", "") or "—"
+            lines.append(f"| {title} | {domain} | {fte} | {phase} | {person} |")
+    else:
+        lines = ["| Role | Domain | FTE | Phase | Person / Ansprechpartner |", "|------|--------|-----|-------|---------------------------|"]
+        for r in role_breakdown:
+            title = r.get("title", r.get("role_id", ""))
+            domain = r.get("domain", "")
+            fte = r.get("fte", 0)
+            phase = r.get("phase", "")
+            lines.append(f"| {title} | {domain} | {fte} | {phase} | — |")
     return "\n".join(lines)
 
 
+def format_milestones_table(milestones: list[dict[str, Any]]) -> str:
+    """Format implementation_milestones as Markdown table (Phase | Deliverable | Dauer)."""
+    if not milestones or not isinstance(milestones, list):
+        return "—"
+    lines = ["| Phase | Deliverable | Dauer |", "|-------|-------------|-------|"]
+    for m in milestones:
+        if not isinstance(m, dict):
+            continue
+        phase = m.get("phase", "")
+        deliverable = m.get("deliverable", "")
+        duration = m.get("duration", "")
+        lines.append(f"| {phase} | {deliverable} | {duration} |")
+    return "\n".join(lines) if len(lines) > 2 else "—"
+
+
 def format_building_blocks_table(building_blocks: list[dict[str, Any]]) -> str:
-    """Format building_blocks as Markdown table for template placeholder."""
+    """Format building_blocks as Markdown table for template placeholder. Optional category column if present."""
     if not building_blocks:
         return "—"
-    lines = ["| Baustein | USD/month | USD/year |", "|----------|-----------|----------|"]
-    for b in building_blocks:
-        label = b.get("label", b.get("id", ""))
-        mo = b.get("usd_per_month", 0) or 0
-        yr = b.get("usd_per_year", 0) or (mo * 12)
-        lines.append(f"| {label} | {mo:.2f} | {yr:.2f} |")
+    has_category = any(b.get("category") for b in building_blocks)
+    if has_category:
+        lines = ["| Baustein | Kategorie | USD/month | USD/year |", "|----------|-----------|-----------|----------|"]
+        for b in building_blocks:
+            label = b.get("label", b.get("id", ""))
+            cat = b.get("category", "") or "—"
+            mo = b.get("usd_per_month", 0) or 0
+            yr = b.get("usd_per_year", 0) or (mo * 12)
+            lines.append(f"| {label} | {cat} | {mo:.2f} | {yr:.2f} |")
+    else:
+        lines = ["| Baustein | USD/month | USD/year |", "|----------|-----------|----------|"]
+        for b in building_blocks:
+            label = b.get("label", b.get("id", ""))
+            mo = b.get("usd_per_month", 0) or 0
+            yr = b.get("usd_per_year", 0) or (mo * 12)
+            lines.append(f"| {label} | {mo:.2f} | {yr:.2f} |")
     return "\n".join(lines)
 
 
@@ -524,6 +618,12 @@ def fill_template(result: dict[str, Any], template_content: str) -> str:
         "projection_table": format_projection_table(result.get("horizons", [])),
         "tco_3y": f"{result.get('tco_by_years', {}).get(3, 0):.2f}" if result.get("tco_by_years") else "—",
         "tco_5y": f"{result.get('tco_by_years', {}).get(5, 0):.2f}" if result.get("tco_by_years") else "—",
+        "sensitivity_note": result.get("sensitivity_note", "") or "—",
+        "customer_contributions": result.get("customer_contributions", "") or "—",
+        "implementation_milestones_table": result.get("implementation_milestones_table", "") or "—",
+        "package_name": result.get("package_name", "") or "—",
+        "customer_name": result.get("customer_name", "") or "—",
+        "offer_date": result.get("offer_date", "") or "—",
     }
     out = template_content
     for key, value in replacements.items():

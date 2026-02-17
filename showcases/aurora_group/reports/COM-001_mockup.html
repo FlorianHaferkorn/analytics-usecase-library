@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Scaffold Preview - COM-001 - overview</title>
+    <style>
+        
+        :root {
+            --canvas-bg: #FBFBFB;
+            --kpi-band-bg: rgba(81, 152, 114, 0.08);
+            --font-title: 1.25rem;
+            --font-slot: 0.75rem;
+            --font-dims: 0.65rem;
+            --space-unit: 20px;
+            --radius: 6px;
+            --shadow: 0 2px 8px rgba(0,0,0,0.12);
+            --shadow-hover: 0 4px 12px rgba(0,0,0,0.2);
+            --color-text: #252423;
+            --color-muted: #6E6D6B;
+            --color-slot: #939290;
+            --color-accent: #0078D4;
+            --color-kpi: #519872;
+            --color-chart: #0078D4;
+            --color-table: #EC4E20;
+            --color-slicer: #F6AE2D;
+            --color-action: #2E7D5B;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f0f0;
+            padding: var(--space-unit);
+        }
+        
+        .header {
+            background: white;
+            padding: var(--space-unit);
+            margin-bottom: var(--space-unit);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        
+        .header h1 {
+            font-size: var(--font-title);
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            color: var(--color-muted);
+            margin: 0.25rem 0;
+            font-size: var(--font-slot);
+        }
+        
+        .header .decision-question {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: var(--kpi-band-bg);
+            border-left: 4px solid var(--color-kpi);
+            border-radius: 0 var(--radius) var(--radius) 0;
+        }
+        
+        .canvas-container {
+            background: white;
+            padding: var(--space-unit);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: auto;
+        }
+        
+        .canvas {
+            position: relative;
+            width: 1920px;
+            height: 1080px;
+            background: var(--canvas-bg);
+            border: 1px solid #E6E6E6;
+            margin: 0 auto;
+        }
+        
+        .canvas.grid::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+            background-size: var(--space-unit) var(--space-unit);
+            pointer-events: none;
+        }
+        
+        .visual {
+            position: absolute;
+            border: 2px solid var(--color-chart);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius);
+            padding: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .visual.kpi-card {
+            border-color: var(--color-kpi);
+            background: var(--kpi-band-bg);
+        }
+        
+        .visual.chart {
+            border-color: var(--color-chart);
+        }
+        
+        .visual.table {
+            border-color: var(--color-table);
+        }
+        
+        .visual.slicer {
+            border-color: var(--color-slicer);
+            background: rgba(246, 174, 45, 0.08);
+        }
+        
+        .visual.action-panel {
+            border-color: var(--color-action);
+            background: rgba(46, 125, 91, 0.08);
+        }
+        
+        .visual-label {
+            font-size: var(--font-slot);
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 4px;
+        }
+        
+        .visual-dims {
+            font-size: var(--font-dims);
+            color: var(--color-muted);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .visual-slot {
+            font-size: var(--font-dims);
+            color: var(--color-slot);
+            font-style: italic;
+            margin-top: 4px;
+        }
+        
+        .controls {
+            margin-top: var(--space-unit);
+            text-align: center;
+        }
+        
+        .controls button {
+            background: var(--color-accent);
+            color: white;
+            border: none;
+            padding: 10px var(--space-unit);
+            margin: 0 10px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: var(--font-slot);
+        }
+        
+        .controls button:hover {
+            filter: brightness(0.92);
+        }
+        
+        .visual:hover {
+            z-index: 10000;
+            box-shadow: var(--shadow-hover);
+        }
+        
+        body.hide-dimensions .visual-dims,
+        body.hide-dimensions .visual-slot {
+            display: none;
+        }
+        
+    </style>
+</head>
+<body class="page-type-t2">
+    <div class="header">
+        <h1>Page Scaffold Preview</h1>
+        <p><strong>Use Case:</strong> COM-001 | <strong>Page:</strong> overview | <strong>Type:</strong> T2</p>
+        <p class="decision-question"><strong>Decision question:</strong> Where do Net Sales deviate most vs Plan and vs LY by region, channel, and product hierarchy?</p>
+        <p><strong>Canvas:</strong> 1920×1080px</p>
+    </div>
+    <div class="canvas-container">
+        <div class="canvas" id="canvas">
+            
+        <div class="visual kpi-card" style="left: 370.0px; top: 20px; width: 280px; height: 140px;">
+            <div class="visual-label">KPI_1</div>
+            <div class="visual-dims">280x140px</div>
+            <div class="visual-slot">KPI Summary</div>
+        </div>
+        
+        <div class="visual kpi-card" style="left: 670.0px; top: 20px; width: 280px; height: 140px;">
+            <div class="visual-label">KPI_2</div>
+            <div class="visual-dims">280x140px</div>
+            <div class="visual-slot">KPI Summary</div>
+        </div>
+        
+        <div class="visual kpi-card" style="left: 970.0px; top: 20px; width: 280px; height: 140px;">
+            <div class="visual-label">KPI_3</div>
+            <div class="visual-dims">280x140px</div>
+            <div class="visual-slot">KPI Summary</div>
+        </div>
+        
+        <div class="visual kpi-card" style="left: 1270.0px; top: 20px; width: 280px; height: 140px;">
+            <div class="visual-label">KPI_4</div>
+            <div class="visual-dims">280x140px</div>
+            <div class="visual-slot">KPI Summary</div>
+        </div>
+        
+        <div class="visual chart" style="left: 20px; top: 300.0px; width: 1510px; height: 243.33333333333331px;">
+            <div class="visual-label">sales.net_sales.amount</div>
+            <div class="visual-dims">1510x243px</div>
+            <div class="visual-slot">Trend</div>
+        </div>
+        
+        <div class="visual chart" style="left: 20px; top: 563.3333333333333px; width: 1510px; height: 243.33333333333331px;">
+            <div class="visual-label">sales.net_sales.delta_pct.plan</div>
+            <div class="visual-dims">1510x243px</div>
+            <div class="visual-slot">Ranking</div>
+        </div>
+        
+        <div class="visual action-panel" style="left: 1570px; top: 0px; width: 350px; height: 1080px;">
+            <div class="visual-label">ActionPanel</div>
+            <div class="visual-dims">350x1080px</div>
+            <div class="visual-slot">Action Panel</div>
+        </div>
+        
+        <div class="visual slicer" style="left: 20px; top: 220px; width: 1880.0px; height: 40px;">
+            <div class="visual-label">Slicer_Date</div>
+            <div class="visual-dims">1880x40px</div>
+            <div class="visual-slot">Slicer</div>
+        </div>
+        
+        </div>
+    </div>
+    <div class="controls">
+        <button onclick="toggleGrid()">Toggle Grid</button>
+        <button onclick="toggleDimensions()">Toggle Dimensions</button>
+        <button onclick="exportImage()">Export as Image</button>
+    </div>
+    <script>
+        
+        function toggleGrid() {
+            document.getElementById('canvas').classList.toggle('grid');
+        }
+        
+        function toggleDimensions() {
+            document.body.classList.toggle('hide-dimensions');
+        }
+        
+        function exportImage() {
+            const canvas = document.getElementById('canvas');
+            html2canvas(canvas, {
+                backgroundColor: '#FBFBFB',
+                scale: 1
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'page-scaffold-preview.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+        
+    </script>
+</body>
+</html>

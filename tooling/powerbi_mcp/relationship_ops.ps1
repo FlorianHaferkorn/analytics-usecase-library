@@ -1,10 +1,13 @@
 # tooling/powerbi_mcp/relationship_ops.ps1
 
 Param(
-    [ValidateSet("Create","List","AutoDetect","CreateFromFactsheet")]
+    [ValidateSet("Create","List","AutoDetect","CreateFromFactsheet","CreateFromBracket")]
     [string]$Operation = "List",
     [string]$ConnectionName = "local_pbip",
     [string]$FactsheetPath,
+    [string]$BracketPath,
+    [string]$DataContractPath,
+    [string]$OutJsonPath,
     [hashtable]$RelationshipDefinition
 )
 
@@ -70,6 +73,47 @@ function Get-RelationshipsFromFactsheet {
 }
 
 # =========================================
+# Helper: Get relationships from UseCase_Bracket + Data Contract
+# =========================================
+function Get-RelationshipsFromBracket {
+    param([string]$BracketPath, [string]$RepoRoot)
+    if (-not (Test-Path $BracketPath)) { return @() }
+    $bracket = Get-Content $BracketPath -Raw | ConvertFrom-Yaml
+    $overrides = $bracket.overrides
+    $contractRef = if ($overrides -and $overrides.data_contract_ref) { $overrides.data_contract_ref.Trim().Replace("/", "\") } else { $null }
+    if (-not $contractRef) { return @() }
+    $contractPath = Join-Path $RepoRoot $contractRef
+    if (-not (Test-Path $contractPath)) { return @() }
+    $contract = Get-Content $contractPath -Raw | ConvertFrom-Yaml
+    $relationships = @()
+    $facts = @($contract.fact)
+    foreach ($f in $facts) {
+        if (-not $f -or -not $f.columns) { continue }
+        foreach ($col in $f.columns) {
+            $cn = $col.name
+            if ($cn -match '^(.+?)Key$') {
+                $dimName = "dim_$($matches[1].ToLower())"
+                $dims = @($contract.dimension)
+                $dim = $dims | Where-Object { $_.name -eq $dimName } | Select-Object -First 1
+                if ($dim) {
+                    $relName = "${dimName}_$($f.name)"
+                    $relationships += @{
+                        name = $relName
+                        fromTable = $f.name
+                        fromColumn = $cn
+                        toTable = $dimName
+                        toColumn = $cn
+                        crossFilteringBehavior = "OneDirection"
+                        cardinality = "ManyToOne"
+                    }
+                }
+            }
+        }
+    }
+    return $relationships
+}
+
+# =========================================
 # Helper: Auto-Detect Relationships based on naming convention
 # =========================================
 function Get-AutoDetectedRelationships {
@@ -129,10 +173,12 @@ function Get-AutoDetectedRelationships {
 # Main Operations
 # =========================================
 
-$conn = Get-Connection -Name $ConnectionName
+$conn = $null
+try { $conn = Get-Connection -Name $ConnectionName } catch { $conn = $null }
 
 switch ($Operation) {
     "CreateFromFactsheet" {
+        if (-not $conn) { throw "Connection required. Run setup_connection.ps1 first." }
         if (-not $FactsheetPath) {
             throw "-FactsheetPath required for CreateFromFactsheet operation"
         }
@@ -170,7 +216,39 @@ switch ($Operation) {
         }
     }
     
+    "CreateFromBracket" {
+        if (-not $BracketPath) { throw "-BracketPath required for CreateFromBracket" }
+        $repoRoot = (Get-Location).Path
+        $relationships = Get-RelationshipsFromBracket -BracketPath $BracketPath -RepoRoot $repoRoot
+        if ($relationships.Count -eq 0) {
+            Write-Host "  No relationships from bracket/data contract; try AutoDetect" -ForegroundColor Yellow
+        } else {
+            Write-Host "Found $($relationships.Count) relationships from bracket + contract" -ForegroundColor Cyan
+            if ($conn) {
+                foreach ($rel in $relationships) {
+                    Write-Host "  $($rel.fromTable).$($rel.fromColumn) -> $($rel.toTable).$($rel.toColumn)" -ForegroundColor Gray
+                    $relDir = "$($conn.definitionPath)\relationships"
+                    New-Item -ItemType Directory -Path $relDir -Force -ErrorAction SilentlyContinue | Out-Null
+                    $tmdlPath = "$relDir\$($rel.name).tmdl"
+                    $tmdlContent = "relationship $($rel.name)`r`n  fromColumn: $($rel.fromTable).$($rel.fromColumn)`r`n  toColumn: $($rel.toTable).$($rel.toColumn)`r`n  cardinality: $($rel.cardinality)`r`n  crossFilteringBehavior: $($rel.crossFilteringBehavior)`r`n"
+                    $utf8 = New-Object System.Text.UTF8Encoding $false
+                    [System.IO.File]::WriteAllText($tmdlPath, $tmdlContent, $utf8)
+                    Write-Host "    Created: $tmdlPath" -ForegroundColor Green
+                }
+            } else {
+                foreach ($rel in $relationships) {
+                    Write-Host "  $($rel.fromTable).$($rel.fromColumn) -> $($rel.toTable).$($rel.toColumn)" -ForegroundColor Gray
+                }
+            }
+        }
+        if ($OutJsonPath) {
+            $relationships | ConvertTo-Json -Depth 4 | Set-Content -Path $OutJsonPath -Encoding utf8
+            Write-Host "  Wrote: $OutJsonPath" -ForegroundColor Gray
+        }
+    }
+
     "AutoDetect" {
+        if (-not $conn) { throw "Connection required for AutoDetect. Run setup_connection.ps1 first." }
         Write-Host "Auto-detecting relationships based on naming conventions..." -ForegroundColor Cyan
         $relationships = Get-AutoDetectedRelationships -DefinitionPath $conn.definitionPath
         
@@ -179,11 +257,15 @@ switch ($Operation) {
         foreach ($rel in $relationships) {
             Write-Host "  [AUTO] $($rel.fromTable).$($rel.fromColumn) -> $($rel.toTable).$($rel.toColumn)" -ForegroundColor Gray
         }
-        
+        if ($OutJsonPath) {
+            $relationships | ConvertTo-Json -Depth 4 | Set-Content -Path $OutJsonPath -Encoding utf8
+            Write-Host "  Wrote: $OutJsonPath" -ForegroundColor Gray
+        }
         return $relationships
     }
     
     "List" {
+        if (-not $conn) { throw "Connection required. Run setup_connection.ps1 first." }
         $relDir = "$($conn.definitionPath)\relationships"
         if (Test-Path $relDir) {
             $rels = Get-ChildItem $relDir -Filter "*.tmdl"
@@ -203,6 +285,6 @@ switch ($Operation) {
     
     default {
         Write-Host "Operation '$Operation' not yet implemented" -ForegroundColor Yellow
-        Write-Host "Available: CreateFromFactsheet, AutoDetect, List" -ForegroundColor Gray
+        Write-Host "Available: CreateFromFactsheet, CreateFromBracket, AutoDetect, List" -ForegroundColor Gray
     }
 }

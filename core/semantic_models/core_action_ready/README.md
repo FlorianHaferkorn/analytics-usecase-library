@@ -1,5 +1,8 @@
 # Core Action-Ready Semantic Model
 
+> **Canonical blueprint:** [ActionReady_SemanticModel_Blueprint.md](../../strategy_operating_model/operating_model/reference/ActionReady_SemanticModel_Blueprint.md).  
+> This implementation must align with the blueprint; it does not redefine the conceptual model.
+
 ## Purpose
 
 Canonical action-ready semantic model that implements **governed KPIs and measures** for use cases and reports.  

@@ -155,3 +155,20 @@
 
 ### YAML-Dateien (außer Scope, zur Kenntnis)
 - framework/usecases/ in drei Action-Code-YAMLs (X-R2.2, S-R2.5, XS-S.1.1) → sollte core/usecases/ sein.
+
+---
+
+## 5. Golden-Thread-Walk (Protokoll)
+
+**Datum:** 2026-02-17  
+**Beispielkette:** company_strategy → UseCase_Inventory (COM-001) → Bracket → KPI Catalog / action_codes
+
+**Ablauf:**
+
+1. **company_strategy.md §5 (Strategic KPIs)** verweist explizit auf `core/kpi_catalog/KPI_Catalog.md` und „operational mapping (Strategic KPI column)“ in `core/usecases/UseCase_Inventory.md`. Keine Auflistung konkreter KPI-IDs in §5 (bewusst: Vermeidung von Duplikation; Inventory ist operationale Quelle).
+2. **company_strategy.md §7 (Strategic alignment)** verweist auf `core/usecases/UseCase_Inventory.md` als „operational master list“ und auf `golden_thread_strategy_to_action.md`. Leser wird klar auf Inventory verwiesen.
+3. **UseCase_Inventory.md** (Beispiel COM-001): Zeile enthält Strategic KPI `margin.gm.pct`, Influencing KPIs, Action Codes (C-M2.1, C-S1.1, C-S1.2). Datei ist generiert (registry_builder.py).
+4. **COM-001 UseCase_Bracket.yaml**: Enthält dieselben IDs (strategic_kpi_id, influencing_kpi_ids, action_code_ids). Verweist auf Business_Factsheet.md.
+5. **Stage 1** prüft: Alle in Bracket/Factsheet referenzierten KPI-IDs existieren im KPI Catalog (check_factsheet_vs_kpi); alle action_code_ids existieren in core/action_codes (check_factsheet_action_codes).
+
+**Ergebnis:** Die Kette Strategy → §5/§7 → UseCase_Inventory → Bracket → KPI Catalog / action_codes ist für einen Leser nachvollziehbar. Kein fehlender Verweis; company_strategy nennt bewusst keine eigene KPI-Liste, sondern verweist auf Inventory und Katalog. Keine Anpassung nötig.

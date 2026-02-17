@@ -136,7 +136,7 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 
 **Checklist for adding the next use case (Fabric/Power BI):**
 
-- [ ] Generate **scaffold** (and optional HTML mockup) for the use case: `generate_page_scaffold.py --use-case <ID> --page overview|detail --output <Report> --mockup <path>`.
+- [ ] Generate **scaffold** for the use case: `generate_page_scaffold.py --use-case <ID> --page overview|detail --output <Report>`. Layout preview: UX Layout Editor (`streamlit run tooling/ux_layout_editor/app.py`).
 - [ ] **Bind visuals** to governed measures only (semantic model); no ad-hoc calculations in the report.
 - [ ] **Apply theme** (Theme Generator or `apply_report_theme`); document theme name and path.
 - [ ] Run **Report Documentation Generator** for the report: `generate_report_documentation.py --report <Report>`; store output in `showcases/<name>/reporting/Report_Documentation_<ID>.md`.

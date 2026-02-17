@@ -1,5 +1,8 @@
 # KPI Catalog
 
+> **Canonical definitions:** [KPI_Catalog.md](KPI_Catalog.md).  
+> This README is for navigation and overview only; it must not redefine KPI semantics.
+
 ## Purpose
 
 The **KPI Catalog** provides a governed, cross-domain inventory of all KPIs and measures used in the  

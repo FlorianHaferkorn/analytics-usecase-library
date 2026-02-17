@@ -1,4 +1,4 @@
-# Mockup / Layout Validation Checklist
+# Layout Validation Checklist
 
 Use this checklist before treating a page layout as done. Ensures analytics path clarity and UI/UX best practices (see [MOCKUP_DESIGN_SPEC.md](MOCKUP_DESIGN_SPEC.md)).
 
@@ -25,7 +25,7 @@ Use this checklist before treating a page layout as done. Ensures analytics path
 ## PBIP / scaffold
 
 - [ ] **Speaking names** — Page folder and `page.json` use a human-readable name (e.g. `Page_COM001_Overview`). Visual folders and `visual.json` use names like `KPI_1`, `Trend`, `Slicer_Date` (no hex IDs).
-- [ ] **Single layout engine** — Mockup and PBIP positions match (same layout calculator output).
+- [ ] **Single layout engine** — PBIP positions come from the layout calculator; preview chart types in the UX Layout Editor.
 
 ## Sign-off
 
@@ -34,4 +34,4 @@ Use this checklist before treating a page layout as done. Ensures analytics path
 
 ---
 
-*Run this checklist after generating or changing a page scaffold/mockup, and before building the real report.*
+*Run this checklist after generating or changing a page scaffold, and before building the real report.*

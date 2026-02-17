@@ -1,5 +1,8 @@
 # Strategy + Operating Model
 
+> **Repository entry point:** [README.md](../../README.md).  
+> This document is the docs hub for Strategy and Operating Model; start from the root README for onboarding.
+
 This area defines the framework's **WHY** and **HOW**:
 
 - `company/` - strategy context, reporting principles, domains, strategy patterns

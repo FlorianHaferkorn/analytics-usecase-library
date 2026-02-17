@@ -51,8 +51,9 @@ $actionCodeFiles = Get-ChildItem -Path (Join-Path $rootPath "core\action_codes")
   $_.FullName -notmatch '\\decision_spines\\' -and $_.FullName -notmatch '\\internal\\archive\\'
 }
 $bracketFiles = Get-ChildItem -Path (Join-Path $rootPath "core\usecases\core") -Recurse -Filter "UseCase_Bracket.yaml" -ErrorAction SilentlyContinue
-# Resolve org_roles: showcase (aurora_group) overrides core if present
-$orgRolesShowcase = Join-Path -Path $rootPath -ChildPath "showcases\aurora_group\organization\org_roles.yaml"
+# Resolve org_roles: showcase from env ANALYTICS_SHOWCASE (default aurora_group), else core
+$showcaseName = if ($env:ANALYTICS_SHOWCASE) { $env:ANALYTICS_SHOWCASE.Trim() } else { "aurora_group" }
+$orgRolesShowcase = Join-Path -Path $rootPath -ChildPath "showcases\$showcaseName\organization\org_roles.yaml"
 $orgRolesCore = Join-Path -Path $rootPath -ChildPath "core\organization\org_roles.yaml"
 $orgRolesFile = if (Test-Path $orgRolesShowcase) { $orgRolesShowcase } else { $orgRolesCore }
 $triggerMapTemplateFiles = @()

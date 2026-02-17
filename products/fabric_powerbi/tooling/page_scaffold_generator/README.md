@@ -32,14 +32,13 @@ python generate_page_scaffold.py \
   --use-case COM-001 \
   --page overview \
   --theme "Brand Blue__Monochromatic__Light__#118DFF" \
-  --output showcases/aurora_group/reports/COM-001.Report \
-  --mockup showcases/aurora_group/reports/COM-001_mockup.html
+  --output showcases/aurora_group/reports/COM-001.Report
 ```
 
 ### Python API
 
 ```python
-from page_scaffold_generator import PageScaffoldGenerator, MockupGenerator
+from page_scaffold_generator import PageScaffoldGenerator
 
 # Generate scaffold
 generator = PageScaffoldGenerator(
@@ -58,16 +57,6 @@ if errors:
 
 # Write PBIP structure
 generator.write(Path("COM-001.Report"))
-
-# Generate HTML mockup
-mockup_gen = MockupGenerator()
-page_structure = generator.get_page_structure()
-mockup_gen.generate_mockup(
-    page_structure=page_structure,
-    use_case_id="COM-001",
-    page_name="overview",
-    output_path=Path("COM-001_mockup.html")
-)
 ```
 
 ## Arguments
@@ -76,7 +65,6 @@ mockup_gen.generate_mockup(
 - `--page`: Page name (`overview` or `detail`)
 - `--theme`: Optional theme name (defaults to framework default)
 - `--output`: Output path for .Report folder
-- `--mockup`: Optional output path for HTML mockup
 - `--repo-root`: Repository root path (auto-detected if not provided)
 
 ## Output Structure
@@ -114,16 +102,7 @@ COM-001.Report/
           ...
 ```
 
-## HTML Mockup
-
-The HTML mockup provides a visual preview of the page layout (same layout engine as PBIP):
-- Visual placeholders with **speaking labels** (e.g. KPI_1, Trend, Slicer_Date)
-- Color-coded visual types and CSS variables (see design spec)
-- Page type (T1/T2/T3/T4) and optional decision question in header
-- Grid overlay and "Toggle Dimensions" for developer vs presentation mode
-- Export as image option (requires html2canvas if used)
-
-Open the generated HTML file in a browser to preview the layout before opening in Power BI Desktop.
+**Layout preview:** Preview with real chart types is in the **UX Layout Editor** (`streamlit run tooling/ux_layout_editor/app.py`).
 
 ## Configuration Files
 
@@ -159,8 +138,7 @@ For **analytics path and UI/UX**, use [VALIDATION_CHECKLIST.md](VALIDATION_CHECK
 python generate_page_scaffold.py \
   --use-case COM-001 \
   --page overview \
-  --output showcases/aurora_group/reports/COM-001.Report \
-  --mockup showcases/aurora_group/reports/COM-001_overview_mockup.html
+  --output showcases/aurora_group/reports/COM-001.Report
 ```
 
 ### Generate COM-001 Detail Page
@@ -169,8 +147,7 @@ python generate_page_scaffold.py \
 python generate_page_scaffold.py \
   --use-case COM-001 \
   --page detail \
-  --output showcases/aurora_group/reports/COM-001.Report \
-  --mockup showcases/aurora_group/reports/COM-001_detail_mockup.html
+  --output showcases/aurora_group/reports/COM-001.Report
 ```
 
 ## Testing
@@ -202,7 +179,7 @@ If validation fails:
 If visuals are positioned incorrectly:
 1. Check `Layout_Grid_System.yaml` for positioning rules
 2. Verify `ux_layout_rules` in the bracket (3s/30s/300s intent and action panel)
-3. Review the HTML mockup to see actual positions
+3. Check layout preview in the UX Layout Editor
 
 ## Architecture
 
@@ -212,7 +189,6 @@ If visuals are positioned incorrectly:
 - **SlicerBuilder**: Builds slicer JSON structures
 - **PageBuilder**: Builds page structures
 - **PBIPWriter**: Writes PBIP file structure
-- **MockupGenerator**: Generates HTML/CSS mockups
 - **PageScaffoldGenerator**: Main orchestrator class
 
 ## References
