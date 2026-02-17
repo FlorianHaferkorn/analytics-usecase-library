@@ -100,9 +100,9 @@ fact:
       - {name: Demand Units, type: decimal, agg: sum}
 
   - name: fact_forecast
-    description: "Demand forecast by SKU and month (with version)."
+    description: "Demand forecast by SKU, location, and month (with version)."
     purpose: "Forecast accuracy and planning."
-    grain: sku_month
+    grain: sku_location_month
     columns:
       - {name: DateKey, type: int, ref: dim_date}
       - {name: ProductKey, type: int, ref: dim_product}

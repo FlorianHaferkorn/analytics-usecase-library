@@ -890,6 +890,7 @@ _GRAIN_ENTITY_SYNONYMS: Dict[str, List[str]] = {
     "line_day": ["line", "production line", "shift"],
     "failure_event": ["failure", "event", "breakdown", "asset"],
     "location_sku_month": ["location", "sku", "warehouse", "inventory"],
+    "sku_location_month": ["sku", "location", "forecast", "planning"],
     "shipment_line": ["shipment", "delivery", "order"],
     "case": ["case", "ticket", "incident"],
     "agent_day": ["agent", "representative", "resource"],
