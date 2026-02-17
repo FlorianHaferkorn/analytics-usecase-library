@@ -1752,7 +1752,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     inventory_lines: List[str] = [
         "<!-- GENERATED FILE - DO NOT EDIT MANUALLY -->",
         "<!-- Source: tooling/ontology/registry_builder.py -->",
-        f"<!-- Generated: {_utc_now_iso()} -->",
         "",
         "# Use Case Inventory",
         "",
