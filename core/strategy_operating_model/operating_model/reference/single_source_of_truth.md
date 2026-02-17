@@ -68,6 +68,7 @@ Use Cases contain only references to KPIs: required_kpi_ids (IDs; in factsheets 
 | Internal AI schemas | `tooling/ai/*.schema.json` | — | Canonical machine-readable structure definitions for agents/validators. |
 | Best-practice rules (BPA/linters) | `tooling/linters/*` and/or `schemas/best_practices/*` | — | Canonical location must be referenced from tooling + docs. |
 | Showcase artifacts (Aurora Group etc.) | `showcases/*` | none | Showcase is never canonical for framework concepts; it is an example implementation. |
+| Governance role IDs | `core/organization/org_roles.yaml` (minimal list for framework) | Full list may override at `showcases/aurora_group/organization/org_roles.yaml` | Tooling resolves: if showcase file exists, use it for validation; else use core. See `core/organization/README.md`. |
 
 ---
 

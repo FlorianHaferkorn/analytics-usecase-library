@@ -5,7 +5,7 @@ Lean 2.0 maintenance: normalize Action Code governance roles to Org-Registry rol
 Goal:
 - Action Codes must store `owner_role` / `steward_role` as role IDs (snake_case),
   not human titles.
-- All referenced role IDs must exist in `core/organization/org_roles.yaml`.
+- All referenced role IDs must exist in the org role registry (see path below).
 
 Strategy:
 1) Load org role registry (ids, titles, aliases).
@@ -30,6 +30,8 @@ import yaml
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+# Framework-context only: use core org_roles (this script may write new roles there).
+# For validation against a full customer list, use registry/Stage 1 (showcase override).
 ORG_ROLES_PATH = REPO_ROOT / "core" / "organization" / "org_roles.yaml"
 ACTION_CODES_ROOT = REPO_ROOT / "core" / "action_codes"
 

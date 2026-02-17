@@ -213,7 +213,7 @@ Hier sind die fünf unumstößlichen Gesetze für die Arbeit von Cursor:
 - **Die Regel**: Die Existenzberechtigung eines Objekts im core/-Ordner ergibt sich ausschließlich aus seiner aktiven Verknüpfung im Golden Thread.
 - **Die Exekution**:
   - Führe den „Hard-Audit“ durch: Jede Datei (Action Code, KPI, Contract), die nicht von einem aktiven UseCase_Bracket referenziert wird, wird als Orphan (Geist) markiert.
-  - Wende die „Move-now-Policy“ an: Verschiebe diese Dateien ohne Diskussion in das _legacy_archive/. Wir „säubern“ das System aktiv, statt es zu verwalten.
+  - Wende die „Move-now-Policy“ an: Verschiebe diese Dateien ohne Diskussion nach internal/archive/tooling/ghosts/. Wir „säubern“ das System aktiv, statt es zu verwalten.
 
 ### IV. Gesetz: Imperative Exekution (Action-Logik)
 

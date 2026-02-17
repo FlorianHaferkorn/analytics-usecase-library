@@ -27,7 +27,7 @@ Preserve factsheet structure, frontmatter, and required sections; keep KPI refer
    - Governance & Trust
 3. **Machine-readable config** (edit `UseCase_Bracket.yaml` instead):
    - `orchestration.strategic_kpi_id`, `influencing_kpi_ids`, `action_code_ids`
-   - `governance.owner_role`, `steward_role` (must exist in `core/organization/org_roles.yaml`)
+   - `governance.owner_role`, `steward_role` (must exist in `core/organization/org_roles.yaml` or `showcases/aurora_group/organization/org_roles.yaml` when in Aurora context)
    - `value_driver_model.formula`, `primary_driver`, `impact_logic`
    - `ux_layout_rules.page_1_summary`, `page_2_execution`
 4. **KPI references**:
@@ -45,7 +45,7 @@ After editing Business Factsheet or Bracket, verify:
 - [ ] Business Factsheet contains no machine-readable YAML blocks (no `required_kpis`, no `kpi_to_measure_mapping`)
 - [ ] All KPI IDs in `UseCase_Bracket.yaml` exist in `core/kpi_catalog/`
 - [ ] All action code IDs in bracket exist in `core/action_codes/`
-- [ ] Governance roles exist in `core/organization/org_roles.yaml`
+- [ ] Governance roles exist in `core/organization/org_roles.yaml` (or `showcases/aurora_group/organization/org_roles.yaml` in Aurora context)
 - [ ] Stage 1 passes: `.\tooling\run_stage1_checks.ps1`
 
 ## Error Handling
@@ -147,4 +147,4 @@ documentation:
 - Template: `core/usecases/templates/usecase_factsheet_business.md`, `UseCase_Bracket_TEMPLATE.yaml`
 - Schemas: `tooling/validation/schemas/usecase_bracket.schema.json`, `tooling/ai/schemas/layout_330300.schema.json`
 - KPI catalog: `core/kpi_catalog/`
-- Org roles: `core/organization/org_roles.yaml`
+- Org roles: `core/organization/org_roles.yaml` or `showcases/aurora_group/organization/org_roles.yaml` (Aurora context)

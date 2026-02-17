@@ -7,6 +7,9 @@ factsheet_type: business
 
 ## Business Factsheet
 
+> **Canonical KPI definitions:** [core/kpi_catalog/KPI_Catalog.md](../../../kpi_catalog/KPI_Catalog.md).  
+> This document is a derived/aggregation view and must not redefine KPI semantics.
+
 ---
 
 ## 0. Metadata (Mandatory)
@@ -18,8 +21,8 @@ factsheet_type: business
 - **Decision Owner:** Executive Committee
 - **Reporting Level:** Strategic
 - **Analytics Stage:** Descriptive / Diagnostic
-- **Related Data Contract:** core/core/core/data_contracts/domains/executive.yaml
-- **Related Semantic Model:** core/core/core/semantic_models/core_action_ready/model_definition.yaml
+- **Related Data Contract:** core/data_contracts/domains/executive.yaml
+- **Related Semantic Model:** core/semantic_models/core_action_ready/model_definition.yaml
 
 ---
 

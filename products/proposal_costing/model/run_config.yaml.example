@@ -1,0 +1,17 @@
+# Proposal Costing – Run config for reproducible calculation.
+# Use: py tooling/run_costing.py --config model/run_config.yaml
+# Same config + same model files = same output.
+
+scenario_id: compact
+use_reservation: false
+storage_gb: null
+implementation_fte: null
+implementation_months: null
+maintenance_fte: null
+role_allocation_path: null
+projection: true
+tco_years: [3, 5]
+contract_term_months: 12
+region: West Europe
+quote_valid_days: 30
+output_path: dist/last_calculation.md

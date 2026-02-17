@@ -126,4 +126,4 @@ After making changes (if user confirms), verify:
 - Schemas: `tooling/validation/schemas/usecase_bracket.schema.json`
 - KPI catalog: `core/kpi_catalog/`
 - Action codes: `core/action_codes/`
-- Org roles: `core/organization/org_roles.yaml`
+- Org roles: `core/organization/org_roles.yaml` or `showcases/aurora_group/organization/org_roles.yaml` (Aurora context)

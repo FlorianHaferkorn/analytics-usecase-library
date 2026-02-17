@@ -24,7 +24,7 @@ alwaysApply: false
 
 - **Schema:** `tooling/validation/schemas/usecase_bracket.schema.json`
 - **Required keys:** `schema_version`, `id`, `title`, `domain`, `governance` (owner_role, steward_role), `orchestration` (strategic_kpi_id, influencing_kpi_ids, action_code_ids), `value_driver_model`, `ux_layout_rules`, `documentation`.
-- **Governance:** `owner_role` and `steward_role` must exist in `core/organization/org_roles.yaml`.
+- **Governance:** `owner_role` and `steward_role` must exist in `core/organization/org_roles.yaml` (or `showcases/aurora_group/organization/org_roles.yaml` in Aurora context).
 - **Orchestration:** All KPI IDs must exist in `core/kpi_catalog/`; all action code IDs must exist in `core/action_codes/`.
 - **Value driver model:** `primary_driver` must be a dependency of `strategic_kpi_id` per catalog `depends_on_measures` or `causal_links`.
 - **UX layout rules:** Defines 3-30-300 UX configuration (page_1_summary, page_2_execution).

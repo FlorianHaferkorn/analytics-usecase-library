@@ -1,0 +1,68 @@
+# Proposal Costing – Cost Driver Catalog
+# Single source for Fabric capacity and Power BI license reference prices (USD).
+# Update valid_from when refreshing prices; keep source_urls for audit.
+
+schema_version: "1.0"
+valid_from: "2025-02-01"
+source_urls:
+  fabric: "https://azure.microsoft.com/pricing/details/microsoft-fabric/"
+  power_bi: "https://powerbi.microsoft.com/pricing/"
+
+# Pay-as-you-go monthly list prices (USD). Reservation: ~41% savings with 1- or 3-year commit.
+# Reservation typically makes sense from F8 upward when committed to 12+ months.
+fabric_capacity:
+  - sku: F2
+    price_usd_per_month: 262.80
+    reservation_discount_pct: 41
+  - sku: F4
+    price_usd_per_month: 525.60
+    reservation_discount_pct: 41
+  - sku: F8
+    price_usd_per_month: 1051.20
+    reservation_discount_pct: 41
+  - sku: F16
+    price_usd_per_month: 2102.40
+    reservation_discount_pct: 41
+  - sku: F32
+    price_usd_per_month: 4204.80
+    reservation_discount_pct: 41
+  - sku: F64
+    price_usd_per_month: 8409.60
+    reservation_discount_pct: 41
+  - sku: F128
+    price_usd_per_month: 16819.20
+    reservation_discount_pct: 41
+  - sku: F256
+    price_usd_per_month: 33638.40
+    reservation_discount_pct: 41
+  - sku: F512
+    price_usd_per_month: 67276.80
+    reservation_discount_pct: 41
+  - sku: F1024
+    price_usd_per_month: 134553.60
+    reservation_discount_pct: 41
+  - sku: F2048
+    price_usd_per_month: 269107.20
+    reservation_discount_pct: 41
+
+# OneLake storage (USD per GB per month). Used only when storage_gb is passed to compute().
+onelake_storage:
+  usd_per_gb_month: 0.023
+  source_url: "https://azure.microsoft.com/pricing/details/microsoft-fabric/"
+
+# Service rates for implementation and maintenance (USD). No fallback in code; values only here.
+services_rates:
+  implementation_usd_per_fte_month: 15000
+  maintenance_usd_per_fte_year: 120000
+  note: "Adjust per engagement; source for audit"
+
+# Per-user per month (USD), annual list price / 12.
+power_bi_licenses:
+  - id: pro
+    name: Power BI Pro
+    price_usd_per_month: 14
+    note: "For authors when using Fabric/Premium capacity; viewers Free with F64+"
+  - id: ppu
+    name: Power BI Premium Per User
+    price_usd_per_month: 24
+    note: "No Fabric capacity; no Lakehouse/Warehouse; full Fabric needs F capacity"

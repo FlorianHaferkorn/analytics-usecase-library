@@ -2,7 +2,7 @@
 
 ---
 
-Schema: see `/_includes/kpi_catalog/KPI_Catalog_SCHEMA.md`
+Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md)
 
 ## KPIs
 

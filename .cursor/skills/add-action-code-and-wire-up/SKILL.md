@@ -20,7 +20,7 @@ Create action code YAML files in the framework, validate all references, and wir
    - Every `kpi_id` in `kpis.trigger_kpis`, `guardrail_kpis`, `outcome_kpis` must exist in `core/kpi_catalog/`.
    - Use `add-kpi-reference-safely` skill if KPI doesn't exist.
 4. **Validate governance roles**:
-   - Ensure `governance.owner_role` and `steward_role` exist in `core/organization/org_roles.yaml`.
+   - Ensure `governance.owner_role` and `steward_role` exist in `core/organization/org_roles.yaml` (or `showcases/aurora_group/organization/org_roles.yaml` in Aurora context).
 5. **Wire into use cases**:
    - For each relevant use case, add the action code ID to `orchestration.action_code_ids` in `UseCase_Bracket.yaml`.
    - Example:
@@ -40,7 +40,7 @@ Create action code YAML files in the framework, validate all references, and wir
 
 After creating action code, verify:
 - [ ] All `kpi_id` references in `kpis.trigger_kpis`, `guardrail_kpis`, `outcome_kpis` exist in `core/kpi_catalog/`
-- [ ] Governance roles (`owner_role`, `steward_role`) exist in `core/organization/org_roles.yaml`
+- [ ] Governance roles (`owner_role`, `steward_role`) exist in `core/organization/org_roles.yaml` (or Aurora showcase path)
 - [ ] Action code ID added to relevant `UseCase_Bracket.yaml` files (`orchestration.action_code_ids`)
 - [ ] `check_action_codes_vs_kpi.ps1` passes
 - [ ] `check_factsheet_action_codes.ps1` passes
@@ -59,7 +59,7 @@ After creating action code, verify:
 → Verify `schema_version`, `id`, `name`, `owner_domain`, `impact_dimension`, `status` are present
 
 **If governance role doesn't exist:**
-→ Add to `core/organization/org_roles.yaml` before referencing in action code
+→ Add to `core/organization/org_roles.yaml` (or Aurora showcase path) before referencing in action code
 
 **If check_factsheet_action_codes fails:**
 → Action code ID in bracket but file doesn't exist: create action code file
@@ -80,5 +80,5 @@ After creating action code, verify:
 
 - Action codes: `core/action_codes/<Domain>/`
 - Brackets: `core/usecases/core/<UseCase>/UseCase_Bracket.yaml`
-- Org roles: `core/organization/org_roles.yaml`
+- Org roles: `core/organization/org_roles.yaml` or `showcases/aurora_group/organization/org_roles.yaml` (Aurora context)
 - KPI catalog: `core/kpi_catalog/`

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Extract KPI orphans from KPI_Catalog.md into _legacy_archive/kpi_catalog_orphans.yaml.
+Extract KPI orphans from KPI_Catalog.md into internal/archive/tooling/kpi_orphans/kpi_catalog_orphans.yaml.
 
 Reads tooling/ontology/out/orphans_report.json and processes each KPI orphan whose
 source is core/kpi_catalog/KPI_Catalog.md. For each:
 - Locates the full YAML list item chunk (- kpi_id: <id> until next - kpi_id: or fence)
-- Appends to _legacy_archive/kpi_catalog_orphans.yaml
+- Appends to internal/archive/tooling/kpi_orphans/kpi_catalog_orphans.yaml
 - Removes the chunk from KPI_Catalog.md
 
-Writes _legacy_archive/kpi_catalog_orphans_move_log.json with kpi_id, source, line range, timestamp.
+Writes internal/archive/tooling/kpi_orphans/kpi_catalog_orphans_move_log.json with kpi_id, source, line range, timestamp.
 
 Usage:
   py -3 tooling/ontology/extract_kpi_orphans.py [--apply]
@@ -183,7 +183,7 @@ def run(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Extract KPI orphans from KPI_Catalog.md into _legacy_archive")
+    parser = argparse.ArgumentParser(description="Extract KPI orphans from KPI_Catalog.md into internal/archive/tooling/kpi_orphans")
     parser.add_argument("--apply", action="store_true", help="Perform extraction; default is dry-run")
     parser.add_argument("--out-dir", default="tooling/ontology/out", help="Directory containing orphans_report.json")
     parser.add_argument("--repo-root", default=None, help="Repository root (default: auto-detect)")
@@ -192,8 +192,8 @@ def main() -> int:
     repo_root = Path(args.repo_root) if args.repo_root else _find_repo_root(Path.cwd())
     orphans_path = repo_root / args.out_dir / "orphans_report.json"
     catalog_path = repo_root / "core" / "kpi_catalog" / "KPI_Catalog.md"
-    archive_path = repo_root / "_legacy_archive" / "kpi_catalog_orphans.yaml"
-    log_path = repo_root / "_legacy_archive" / "kpi_catalog_orphans_move_log.json"
+    archive_path = repo_root / "internal" / "archive" / "tooling" / "kpi_orphans" / "kpi_catalog_orphans.yaml"
+    log_path = repo_root / "internal" / "archive" / "tooling" / "kpi_orphans" / "kpi_catalog_orphans_move_log.json"
 
     return run(
         repo_root=repo_root,

@@ -1,0 +1,47 @@
+# Proposal Costing – Scenario Definitions
+# Each scenario defines default strategy, capacities per environment, and license model.
+# CLI overrides (--pro-users, --capacity-prod, etc.) take precedence over these defaults.
+
+schema_version: "1.0"
+
+scenarios:
+  enterprise:
+    strategy: enterprise
+    capacities:
+      dev: F2
+      test: F4
+      prod: F64
+    license_model: pro_for_authors
+    default_pro_users: 5
+    default_ppu_users: 0
+    description: "Full Medallion, 9 workspaces; F64+ prod recommended; Pro for authors, viewers Free"
+
+  compact:
+    strategy: compact
+    capacities:
+      dev: F2
+      test: F4
+      prod: F8
+    license_model: pro_for_authors
+    default_pro_users: 3
+    default_ppu_users: 0
+    description: "Medallion with reduced footprint, 3 workspaces; Pro for authors, viewers Free"
+
+  power_bi_only:
+    strategy: null
+    capacities: {}
+    license_model: ppu_all
+    default_pro_users: 0
+    default_ppu_users: 10
+    description: "No Fabric; Power BI only; PPU for all users who need premium features"
+
+  compact_with_fabric:
+    strategy: compact
+    capacities:
+      dev: F2
+      test: F2
+      prod: F2
+    license_model: pro_for_authors
+    default_pro_users: 2
+    default_ppu_users: 0
+    description: "Small team, Fabric + Reports; single small capacity or F2 per env"

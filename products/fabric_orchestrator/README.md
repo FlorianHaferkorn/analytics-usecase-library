@@ -71,7 +71,7 @@ Aktivieren Sie in Power BI Admin Portal → Tenant settings:
 
 ### 3. Capacity
 
-Sie benötigen eine Fabric Capacity (F2+) oder Power BI Premium Capacity (P1+). Notieren Sie die Capacity-ID(s) für `config.yaml`.
+Sie benötigen eine Fabric Capacity (F2+) oder Power BI Premium Capacity (P1+). Notieren Sie die Capacity-ID(s) für `config.yaml`. Für Kostenabschätzungen (Fabric-SKUs, Pro/PPU) siehe `products/proposal_costing`.
 
 ### 4. Git Repository
 

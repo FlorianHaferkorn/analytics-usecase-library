@@ -1,0 +1,22 @@
+# Proposal Costing – Role allocation (FTE per role, phase).
+# Copy to role_allocation.yaml and adjust. role_id must exist in the referenced org_roles.
+# Optional: if missing, implementation_fte/maintenance_fte come from CLI or defaults.
+
+schema_version: "1.0"
+
+# Path to org_roles.yaml: "core" (core/organization/org_roles.yaml) or repo-relative path e.g. showcases/aurora_group/organization/org_roles.yaml
+roles_source: "core"
+
+allocations:
+  - role_id: sales_bi_lead
+    fte: 0.5
+    phase: implementation
+  - role_id: finance_bi_lead
+    fte: 0.3
+    phase: implementation
+  - role_id: sales_bi_lead
+    fte: 0.2
+    phase: maintenance
+  - role_id: finance_bi_lead
+    fte: 0.1
+    phase: maintenance

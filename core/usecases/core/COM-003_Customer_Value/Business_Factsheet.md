@@ -18,8 +18,8 @@ factsheet_type: business
 - **Decision Owner:** Sales & Marketing Leadership
 - **Reporting Level:** Tactical
 - **Analytics Stage:** Diagnostic / Predictive
-- **Related Data Contract:** core/core/core/data_contracts/domains/commercial_sales.yaml
-- **Related Semantic Model:** core/core/core/semantic_models/core_action_ready/commercial_sales/model_definition.yaml
+- **Related Data Contract:** core/data_contracts/domains/commercial_sales.yaml
+- **Related Semantic Model:** core/semantic_models/core_action_ready/model_definition.yaml
 
 ---
 

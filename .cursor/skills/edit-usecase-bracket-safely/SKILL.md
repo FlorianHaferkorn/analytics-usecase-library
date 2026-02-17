@@ -14,7 +14,7 @@ Maintain bracket as the SSOT for use case orchestration; validate all references
    - Required keys: `schema_version`, `id`, `title`, `domain`, `governance`, `orchestration`, `value_driver_model`, `ux_layout_rules`
 2. **Governance section**:
    - Required: `owner_role`, `steward_role`
-   - All roles must exist in `core/organization/org_roles.yaml`
+   - All roles must exist in `core/organization/org_roles.yaml` (or `showcases/aurora_group/organization/org_roles.yaml` in Aurora context)
    - Check role availability before assigning
 3. **Orchestration section**:
    - `strategic_kpi_id`: single KPI ID (must exist in `core/kpi_catalog/`)
@@ -36,7 +36,7 @@ Maintain bracket as the SSOT for use case orchestration; validate all references
 
 After editing bracket, verify:
 - [ ] All required keys present per schema
-- [ ] Governance roles (`owner_role`, `steward_role`) exist in `core/organization/org_roles.yaml`
+- [ ] Governance roles (`owner_role`, `steward_role`) exist in `core/organization/org_roles.yaml` (or Aurora showcase path)
 - [ ] All KPI IDs in `orchestration` exist in `core/kpi_catalog/`
 - [ ] All action code IDs exist in `core/action_codes/`
 - [ ] `primary_driver` aligns with `strategic_kpi_id` dependencies (registry will warn if misaligned)
@@ -50,7 +50,7 @@ After editing bracket, verify:
 → Verify `schema_version: "2.0"`, `id`, `title`, `domain`, `governance`, `orchestration` are present
 
 **If governance role doesn't exist:**
-→ Add `owner_role` or `steward_role` to `core/organization/org_roles.yaml` first
+→ Add `owner_role` or `steward_role` to `core/organization/org_roles.yaml` (or Aurora showcase path) first
 → Role IDs are snake_case (e.g., `head_of_sales`)
 
 **If KPI ID doesn't exist:**
@@ -67,7 +67,7 @@ After editing bracket, verify:
 
 **If YAML syntax error:**
 → Check indentation (use spaces, not tabs for YAML)
-→ Ensure lists use `- ` prefix
+→ Ensure lists use `-` prefix
 → Ensure strings with special chars are quoted
 
 ## Guardrails
@@ -91,6 +91,6 @@ After editing bracket, verify:
 - Bracket: `core/usecases/core/<UseCase>/UseCase_Bracket.yaml`
 - Template: `core/usecases/templates/UseCase_Bracket_TEMPLATE.yaml`
 - Schema: `tooling/validation/schemas/usecase_bracket.schema.json`
-- Org roles: `core/organization/org_roles.yaml`
+- Org roles: `core/organization/org_roles.yaml` or `showcases/aurora_group/organization/org_roles.yaml` (Aurora context)
 - KPI catalog: `core/kpi_catalog/`
 - Action codes: `core/action_codes/`

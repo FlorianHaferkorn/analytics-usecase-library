@@ -1041,8 +1041,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             if isinstance(dcr, str) and dcr.strip():
                 usecase_domain_contract[uc_id] = _normalize_contract_ref(dcr.strip())
 
-    # Org-Registry role validation
-    org_roles_path = repo_root / "core" / "organization" / "org_roles.yaml"
+    # Org-Registry role validation (showcase override: aurora_group then core)
+    _showcase_org_roles = repo_root / "showcases" / "aurora_group" / "organization" / "org_roles.yaml"
+    _core_org_roles = repo_root / "core" / "organization" / "org_roles.yaml"
+    org_roles_path = _showcase_org_roles if _showcase_org_roles.exists() else _core_org_roles
+    org_roles_ref = str(org_roles_path.relative_to(repo_root)).replace("\\", "/")
     valid_role_ids: Set[str] = set()
     if org_roles_path.exists():
         try:
@@ -1053,10 +1056,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                         valid_role_ids.add(role["id"])
         except Exception as e:
             issues.append(Issue("WARN", "org_registry.parse_failed", f"Failed to parse org_roles.yaml: {e}",
-                                SourceLocation("core/organization/org_roles.yaml", 1)))
+                                SourceLocation(org_roles_ref, 1)))
     else:
-        issues.append(Issue("WARN", "org_registry.not_found", "core/organization/org_roles.yaml not found; role validation skipped.",
-                            SourceLocation("core/organization/org_roles.yaml", 1)))
+        issues.append(Issue("WARN", "org_registry.not_found", f"{org_roles_ref} not found; role validation skipped.",
+                            SourceLocation(org_roles_ref, 1)))
 
     if valid_role_ids:
         for uc_id, rec in brackets.items():
@@ -1068,7 +1071,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                     role_val = gov.get(role_field)
                     if isinstance(role_val, str) and role_val.strip() and role_val.strip() not in valid_role_ids:
                         issues.append(Issue("ERROR", "org_registry.invalid_role",
-                                            f"UseCase '{uc_id}' governance.{role_field} '{role_val}' not found in org_roles.yaml.",
+                                            f"UseCase '{uc_id}' governance.{role_field} '{role_val}' not found in {org_roles_ref}.",
                                             SourceLocation(src, 1)))
         for aid, arec in actions.items():
             raw = arec.get("raw", {}) or {}
@@ -1082,7 +1085,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                         Issue(
                             "ERROR",
                             "org_registry.invalid_role",
-                            f"ActionCode '{aid}' {role_field} '{role_val}' not found in org_roles.yaml.",
+                            f"ActionCode '{aid}' {role_field} '{role_val}' not found in {org_roles_ref}.",
                             SourceLocation(src, 1),
                         )
                     )

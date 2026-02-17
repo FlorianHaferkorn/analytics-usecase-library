@@ -231,7 +231,7 @@ def run(
 
     moves_log: List[Dict[str, Any]] = []
     for m in to_archive:
-        dest_rel = f"_legacy_archive/{m['source']}"
+        dest_rel = f"internal/archive/tooling/ghosts/{m['source']}"
         moves_log.append({
             "type": m["type"],
             "id": m["id"],
@@ -256,10 +256,10 @@ def run(
             "active_use_cases": sorted(active_uc_ids),
             "orphan_action_codes": sorted(orphan_action_ids),
         }})
-        print(f"Archived {len(to_archive)} ghost(s) to _legacy_archive/")
+        print(f"Archived {len(to_archive)} ghost(s) to internal/archive/tooling/ghosts/")
         print(f"Log written to {log_path.relative_to(repo_root)}")
     else:
-        print("DRY-RUN: Would archive the following to _legacy_archive/:")
+        print("DRY-RUN: Would archive the following to internal/archive/tooling/ghosts/:")
         for m in moves_log:
             print(f"  [{m['type']}] {m['id']}: {m['source']} -> {m['dest']}")
         print(f"\nTotal: {len(to_archive)} item(s)")
@@ -278,7 +278,7 @@ def main() -> int:
 
     repo_root = Path(args.repo_root) if args.repo_root else _find_repo_root(Path.cwd())
     orphans_path = repo_root / args.out_dir / "orphans_report.json"
-    archive_root = repo_root / "_legacy_archive"
+    archive_root = repo_root / "internal" / "archive" / "tooling" / "ghosts"
     log_path = repo_root / args.out_dir / "ghosts_move_log.json"
 
     return run(

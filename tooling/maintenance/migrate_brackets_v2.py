@@ -255,6 +255,7 @@ CleanDumper.add_representer(bool, _bool_representer)
 
 def main():
     repo_root = Path(__file__).resolve().parents[2]
+    # Framework-context only: use core org_roles. For validation, Stage 1 uses showcase override.
     org_path = repo_root / "core" / "organization" / "org_roles.yaml"
     brackets_glob = str(repo_root / "core" / "usecases" / "core" / "*" / "UseCase_Bracket.yaml")
 

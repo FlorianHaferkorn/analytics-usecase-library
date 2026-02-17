@@ -84,7 +84,7 @@ py -3 tooling/ontology/registry_builder.py --out-dir tooling/ontology/out --stri
 
 **Supporting scripts:**
 - `extract_kpi_orphans.py` — extract & purge KPI orphans from catalog
-- `archive_ghosts.py` — move orphan files to `_legacy_archive/`
+- `archive_ghosts.py` — move orphan files to `internal/archive/tooling/ghosts/`
 - `preview_action_texts.py` — generate action text preview
 
 Legacy migration script (factsheets to brackets): see `internal/archive/lean2_cutover_2026-02/refactor_usecases_to_brackets.py`.

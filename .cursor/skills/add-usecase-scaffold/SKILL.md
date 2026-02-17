@@ -26,7 +26,7 @@ Generate a new use case directory with `Business_Factsheet.md` and `UseCase_Brac
    - Template: `core/usecases/templates/UseCase_Bracket_TEMPLATE.yaml`
    - Schema: `tooling/validation/schemas/usecase_bracket.schema.json`
    - Required keys: `schema_version`, `id`, `title`, `domain`, `governance` (owner_role, steward_role), `orchestration` (strategic_kpi_id, influencing_kpi_ids, action_code_ids), `value_driver_model`, `ux_layout_rules`
-   - Governance roles must exist in `core/organization/org_roles.yaml`
+   - Governance roles must exist in `core/organization/org_roles.yaml` (or `showcases/aurora_group/organization/org_roles.yaml` in Aurora context)
    - KPI IDs must exist in `core/kpi_catalog/`
    - Action code IDs must exist in `core/action_codes/`
 5. **Update inventory** (if registry builder exists):
@@ -45,7 +45,7 @@ After scaffold completion, verify:
 - [ ] Frontmatter `id` in factsheet matches bracket `id`
 - [ ] Business Factsheet contains no YAML blocks in body (Lean 2.0: prose only)
 - [ ] All KPI IDs in bracket `orchestration` resolve in `core/kpi_catalog/`
-- [ ] Governance roles (`owner_role`, `steward_role`) exist in `core/organization/org_roles.yaml`
+- [ ] Governance roles (`owner_role`, `steward_role`) exist in `core/organization/org_roles.yaml` (or Aurora showcase path)
 - [ ] Action code IDs (if any) exist in `core/action_codes/`
 - [ ] Stage 1 passes: `.\tooling\run_stage1_checks.ps1`
 
@@ -58,7 +58,7 @@ After scaffold completion, verify:
 → Use `add-kpi-reference-safely` skill OR add KPI to `core/kpi_catalog/` first
 
 **If governance role doesn't exist:**
-→ Add role to `core/organization/org_roles.yaml` before referencing in bracket
+→ Add role to `core/organization/org_roles.yaml` (or `showcases/aurora_group/organization/org_roles.yaml` in Aurora context) before referencing in bracket
 
 **If action code ID doesn't exist:**
 → Use `add-action-code-and-wire-up` skill OR create action code in `core/action_codes/` first
@@ -77,6 +77,6 @@ After scaffold completion, verify:
 - Templates: `core/usecases/templates/usecase_factsheet_business.md`, `UseCase_Bracket_TEMPLATE.yaml`
 - New use case: `core/usecases/core/<ID>_Title/`
 - Schemas: `tooling/validation/schemas/usecase_bracket.schema.json`
-- Org roles: `core/organization/org_roles.yaml`
+- Org roles: `core/organization/org_roles.yaml` or `showcases/aurora_group/organization/org_roles.yaml` (Aurora context)
 - KPI catalog: `core/kpi_catalog/`
 - Action codes: `core/action_codes/`
