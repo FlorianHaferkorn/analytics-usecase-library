@@ -1,27 +1,32 @@
-# Project Status Update Workflow
+# Weekly Project status update: generates a draft status update from Project V2 data
+# and creates it via GraphQL (createProjectV2StatusUpdate). A human reviews and
+# publishes the update in the GitHub Project UI.
+# See: internal/project_mgmt/OPERATING_MODEL.md, tooling/project_mgmt/weekly_status_update.py
 
-name: Project Status Update
+name: Weekly project status update
 
 on:
-  push:
-    branches:
-      - main
+  schedule:
+    # Friday 16:00 UTC
+    - cron: "0 16 * * 5"
+  workflow_dispatch:
 
 jobs:
-  update-project-status:
+  status-update:
+    name: Create draft status update
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Update Project Number
-        run: |
-          PROJECT_NUMBER="2"
-          echo "PROJECT_NUMBER updated to $PROJECT_NUMBER"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-      - name: Commit Changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .github/workflows/project_status_update.yml
-          git commit -m "Update PROJECT_NUMBER to 2" || echo "No changes to commit" 
+      - name: Create Project status update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PROJECT_NUMBER: "2"
+        run: python tooling/project_mgmt/weekly_status_update.py
