@@ -4,6 +4,8 @@
 
 **Ziel:** Von Use Case ID bis zum fertigen Report ohne manuelle Intervention - mit selbst-korrigierendem Feedback-Loop.
 
+Technical TODOs for this flow are listed in [internal/technical_backlog.md](../../internal/technical_backlog.md) § Power BI MCP.
+
 ---
 
 ## 🎯 **End-to-End Flow Overview**

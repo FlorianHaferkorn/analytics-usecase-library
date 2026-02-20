@@ -17,8 +17,18 @@ tooling/validation/node_modules/
 # Generated validation results (produced by Stage 1 runner)
 tooling/validation/results/
 
+# Python virtual environments (bootstrap)
+tooling/.venv/
+.venv/
+
 # Generated registry outputs (produced by registry_builder.py)
 tooling/ontology/out/
+
+# Generated IR outputs (derived from registry outputs)
+tooling/ir/out/
+
+# Customer export packages (generated)
+dist/customer_exports/
 
 # Root-level registry outputs (ignore if someone runs registry_builder without --out-dir)
 master_registry.json

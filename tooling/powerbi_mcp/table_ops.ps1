@@ -135,7 +135,7 @@ switch ($Operation) {
         
         Write-Host "Creating table: $($tableDef.name) ($($tableDef.columns.Count) columns)" -ForegroundColor Cyan
         
-        # TODO: Call Power BI MCP table_operations
+        # TODO: Call Power BI MCP table_operations (see internal/technical_backlog.md § Power BI MCP).
         # For now: Generate TMDL file manually
         $tmdlPath = "$($conn.definitionPath)\tables\$($tableDef.name).tmdl"
         

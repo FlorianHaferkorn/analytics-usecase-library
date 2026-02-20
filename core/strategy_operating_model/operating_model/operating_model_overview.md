@@ -13,6 +13,9 @@ Define how strategy is translated into governed analytics and action at scale.
 5. Distribution Architecture (`distribution_architecture.md`)
 6. UX Design System (`ux_design_system.md`)
 7. Ownership and RACI (`ownership_raci_golden_thread.md`)
+8. Core Constitution (`core_constitution.md`)
+9. AI-first Operations (`ai_first_operations.md`)
+10. Supply Chain & Security (`supply_chain_security.md`)
 
 ## Delivery principle
 

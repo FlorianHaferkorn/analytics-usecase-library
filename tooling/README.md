@@ -61,6 +61,12 @@ cd tooling\validation
 npm ci
 ```
 
+Optional (recommended for reproducible local/CI runners):
+
+```powershell
+.\tooling\bootstrap.ps1 -InstallNodeDeps -CreateVenv -InstallPythonDeps
+```
+
 ---
 
 ## 2. ontology/ (Registry Engine)
@@ -184,6 +190,7 @@ Stage 1 + Fabric checks (measures vs KPI, TMDL, DAX best practices).
 ### For Delivery Teams
 - Use documented tools only.
 - Do not customize or fork scripts for customers; extend the framework instead.
+- For customer delivery from the monorepo, use `tooling/export_customer_package.ps1` to produce a curated package that excludes maintainer-only folders.
 
 ### For Customers
 - No access.

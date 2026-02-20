@@ -1,0 +1,139 @@
+# Presentation Status and Roadmap
+
+**Purpose:** Single source for internal presentations and stakeholder updates — current status, metrics, roadmap, product maturity, tooling, and Aurora proof in one document.
+
+**Language:** English. This document is maintained in English only. When recreating or doing major updates, keep it in English.
+
+**Last updated:** 2026-02-19  
+**Next planned update:** Before next presentation or quarterly
+
+---
+
+## Summary (for presentations)
+
+The framework is in production: the Golden Thread (Strategy → KPIs → Use Cases → Action Codes) is end-to-end, with 14 use cases, 107 KPIs, and 53 action codes. Customers can already implement decision-oriented use cases from the specs and Aurora as reference, generate measures and report structure, and keep everything consistent via Stage 1 and the Registry Gate. Still open: the full 300-second page in the report and Strategy Pattern / AI urgency (backlog).
+
+---
+
+## 1. Metrics (framework scope)
+
+| Artefact | Count | Source for updates |
+|----------|-------|--------------------|
+| Use Cases | 14 | [core/usecases/UseCase_Inventory.md](../core/usecases/UseCase_Inventory.md) (rows with \| COM- \| FIN- \| OPS- \| SCM- \| XD-) |
+| KPIs | 107 | [core/kpi_catalog/KPI_Catalog.md](../core/kpi_catalog/KPI_Catalog.md) (occurrences of `kpi_id:`) |
+| Action Codes | 53 | [core/action_codes/](../core/action_codes/) — all `*.yaml` except under `decision_spines/` |
+| Decision Spines | 12 | [core/action_codes/decision_spines/](../core/action_codes/decision_spines/) |
+
+---
+
+## 2. Current status (functional)
+
+The following applies when **Stage 1 is green** (CI gate: `.\tooling\run_stage1_checks.ps1`). Technical status = Stage 1 passed.
+
+### What we have from the target picture today
+
+- **End-to-end chain:** From strategy to concrete action: Strategy → KPIs → Use Cases → Action Codes. Each use case answers a clear business question, references only KPIs from the catalog, and links to concrete action options (action codes).
+- **Concrete outputs:** Use case inventory; per use case: clear decision question plus machine-readable config (bracket). From this we generate measures (TMDL/DAX) and report scaffolds. Action codes with escalation levels (L1–L3); text usable in Power BI (action payload).
+- **Single KPI catalog:** One business definition per KPI with owner/steward; use cases and action codes only reference these definitions.
+- **Quality and trust:** No use case without valid KPI and action references (Stage 1). Registry keeps the Golden Thread consistent. When a data contract is broken, dependent KPIs can be marked as "untrusted" in the report.
+
+### What we can already produce
+
+- Use case inventory, KPI and action library, generated measures/report scaffolds; 3-second and 30-second layers in the report are in place.
+- Per–use case documentation (question, context, KPIs, actions).
+
+### What is still open (functional)
+
+- **3–30–300 complete:** The principle is defined. Not yet fully implemented: the "300-second page" in the report as a fixed workspace with action text and evidence table sourced directly from action-code YAML, fully generated from the framework.
+- **Strategy Pattern / AI urgency:** Strategy pattern document exists; automatic urgency derivation and automated reasoning are target/backlog.
+- **Strategic layer (optional):** The link Strategy → KPIs → Use Cases works; the written strategic story (strategic KPIs, executive key questions) in company_strategy is still placeholder in places.
+- **Technical open items:** Technical TODOs and stubs (MCP, Fabric API, synthetic data, scaffold) are listed in [internal/technical_backlog.md](technical_backlog.md).
+
+---
+
+## 3. Tooling and gates
+
+| Component | Purpose | Details |
+|-----------|----------|---------|
+| **Registry Gate** | Referential integrity and consistent Golden Thread. No merge on failure. | Checks: all KPI and action-code references exist; detects orphans (ghosts), governance gaps, logical breaks. Run: `py tooling/ontology/registry_builder.py --out-dir tooling/ontology/out --strict`; included in Stage 1. See [tooling/README.md](../tooling/README.md). |
+| **Semantic models & UX** | Best practices for TMDL, DAX, 3-30-300, accessibility. | [products/fabric_powerbi/docs/tmdl_best_practices.md](../products/fabric_powerbi/docs/tmdl_best_practices.md), [fabric_powerbi.md](../products/fabric_powerbi/docs/fabric_powerbi.md) §11. |
+| **Report documentation generator** | Standardised report documentation (Markdown) from PBIP and use-case factsheets. | Traceability: metadata, business questions, KPIs, per page. Usable when PBIP and factsheets exist. Spec: [report_documentation_generator_spec.md](../products/fabric_powerbi/tooling/report_documentation_generator_spec.md). |
+| **Theme generator** | Power BI themes (JSON) from colour/concept; WCAG and CVD checks. | [products/fabric_powerbi/docs/fabric_powerbi.md](../products/fabric_powerbi/docs/fabric_powerbi.md) §9.4; apply to reports e.g. via `apply_report_theme.py`. |
+| **Fabric architecture (code-based)** | Git as source of truth; workspace strategy (DE_/DM_/BI_); deployment pipelines; Stage 1 + Registry before deploy. | [products/fabric_powerbi/docs/fabric_architecture_best_practices.md](../products/fabric_powerbi/docs/fabric_architecture_best_practices.md), [products/fabric_powerbi/deployment/README.md](../products/fabric_powerbi/deployment/README.md). |
+
+---
+
+## 4. Roadmap
+
+### Project completion (definition)
+
+The project is considered substantively and technically complete with **blocker resolution**, **review adjustments**, and **zero-tolerance documentation** (items 1–3 of the project completion plan). Source: [internal/vision/phase2_backlog.md](vision/phase2_backlog.md).
+
+### Until project completion
+
+- Resolve blockers from content review (e.g. company_strategy anchors, factsheet paths).
+- Remaining review adjustments (style, link-backs, encoding).
+- Ensure CI/release without Stage-1 skip is documented.
+
+### Phase 2 / Backlog (after completion)
+
+- **3-30-300 complete:** 300s page with action text and evidence from action-code YAML end-to-end in the report.
+- **Strategy Pattern / AI urgency:** Precision for automated reasoning; conceptually present, not proven in tooling.
+
+Details: [internal/vision/phase2_backlog.md](vision/phase2_backlog.md).
+
+### Operational (ongoing)
+
+- Log Stage 1 incidents and skill usage; weekly snapshot; monthly retrospective. See [internal/metrics/README.md](metrics/README.md).
+
+---
+
+## 5. Product maturity
+
+| Product | Process status | Customer-ready (Aurora proof) | Still to develop | Planned |
+|---------|----------------|------------------------------|------------------|---------|
+| **Framework (Core)** | In production | Yes | — | Phase 2 backlog (3-30-300 complete, AI urgency) |
+| **Fabric / Power BI** | In production | Yes (Aurora) | Stabilise report-doc generator; 300s page | Refine theme/scaffold |
+| **Aurora Showcase** | Proof point | Reference for customers | Expand report pages for FIN/OPS/SCM | More use cases (OPS-002/003, SCM-002/003, XD) |
+| **Proposal Costing** | Implemented | Yes (CLI, scenarios, TCO) | — | Optional: proposal-workflow integration |
+| **Fabric Orchestrator V2** | Implemented | Yes (workspaces, pipelines) | Optional: dbt/notebook templates | Document V1/V2 split |
+
+### What Aurora concretely proves
+
+- **Open PBIP:** Open `showcases/aurora_group/semantic_models/CoreActionReady.pbip` in Power BI Desktop; report and semantic model load together.
+- **Report loads:** CoreActionReady report with scaffolded pages (COM-001/002/003 Overview/Detail etc.) in PBIR format; visuals use the semantic model.
+- **Measures:** One _Measures.tmdl with all measures, displayFolder per use case (COM-001 to COM-004, OPS-001, SCM-001, FIN-001 etc.); generated from KPI catalog.
+- **3-30-300 layouts:** Overview/Insights/Explorer follow [core/templates/page_templates/](../core/templates/page_templates/) and [showcases/aurora_group/reporting/pbip_layouts.md](../showcases/aurora_group/reporting/pbip_layouts.md).
+- **RLS:** Aurora Organization Access; gold data under `showcases/aurora_group/data/gold/`.
+
+Reference: [showcases/aurora_group/README.md](../showcases/aurora_group/README.md).
+
+---
+
+## 6. How to keep this document current
+
+### Metrics
+
+- **Use cases:** Row count in [core/usecases/UseCase_Inventory.md](../core/usecases/UseCase_Inventory.md) (table from line 8) or number of entries.
+- **KPIs:** Count of `kpi_id:` in [core/kpi_catalog/KPI_Catalog.md](../core/kpi_catalog/KPI_Catalog.md).
+- **Action codes:** Count of `*.yaml` under [core/action_codes/](../core/action_codes/) excluding `decision_spines/`.
+- **Decision spines:** Number of files under [core/action_codes/decision_spines/](../core/action_codes/decision_spines/).
+
+### Status and product maturity
+
+- Review when framework or tooling changes significantly; optionally align with [internal/docs_claims_checklist.md](docs_claims_checklist.md) and [internal/vision/phase2_backlog.md](vision/phase2_backlog.md).
+- Update table and short prose on release or when Aurora/products change.
+
+### Update triggers
+
+- **Metrics:** New use case, new KPI, new action code.
+- **Maturity:** Aurora or product release, new showcase scope.
+- **General:** Before internal presentation; optionally before release candidate.
+
+### Recommended frequency
+
+- Review before each use for a presentation; at least quarterly or before release candidate.
+
+### Optional
+
+- Assign and document responsibility (role/name) here.

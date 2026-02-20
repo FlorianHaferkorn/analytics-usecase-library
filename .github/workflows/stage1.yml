@@ -1,0 +1,32 @@
+# Stage 1 CI: hard gate for all PRs. Must pass before merge.
+# See: tooling/run_stage1_checks.ps1, .cursor/rules/stage1-awareness.mdc
+
+name: Stage 1
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  stage1:
+    name: Stage 1 checks
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install schema validation dependencies
+        run: npm ci
+        working-directory: tooling/validation
+
+      - name: Run Stage 1 checks
+        run: .\tooling\run_stage1_checks.ps1
+        working-directory: ${{ github.workspace }}
+        shell: pwsh

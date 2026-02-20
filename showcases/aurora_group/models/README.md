@@ -95,6 +95,8 @@ Each model blueprint requires:
 
 ## Next Steps
 
+In-file comments in `Operations.yaml` and `Finance.yaml` point to this section.
+
 1. **Complete Commercial Domain** (Priority 1):
    - [ ] Add DAX expressions for COM-001 (7 measures) to KPI Catalog
    - [ ] Add DAX expressions for COM-003 (8 measures) to KPI Catalog

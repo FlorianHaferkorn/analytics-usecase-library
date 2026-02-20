@@ -18,7 +18,7 @@ except ImportError:
 import io
 
 #------------------------------------------------------------------------------
-# XXX "Warnings control" is now deprecated. Leaving in the API function to not
+# XXX "Warnings control" is now deprecated. See internal/technical_backlog.md § Page Scaffold Generator. Leaving in the API function to not
 # break code that uses it.
 #------------------------------------------------------------------------------
 def warnings(settings=None):

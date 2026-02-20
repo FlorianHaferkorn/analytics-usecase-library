@@ -6,12 +6,14 @@ This is the single public navigation entry for all audiences.
 
 - Start with: `docs/presentations/executive_summary.md`
 - Full narrative: `docs/presentations/framework_overview.md`
+- Current status and roadmap: `internal/presentation_status_and_roadmap.md`
 
 ## For implementers
 
 - Core framework (tool-agnostic): `core/`
 - Platform product (Fabric/Power BI): `products/fabric_powerbi/`
 - Implementation playbook: `core/implementation_guides/playbook_strategy_to_first_report.md`
+- Core stability contract (artifact roles, IDs, allowed edges): `core/strategy_operating_model/operating_model/core_constitution.md`
 
 ## For maintainers
 

@@ -62,7 +62,7 @@
 **Check**: All skills have valid YAML frontmatter and are under `.cursor/skills/<name>/SKILL.md`.
 
 | Skill | Path | Frontmatter |
-|-------|------|--------------|
+|-------|------|-------------|
 | stage1-pre-commit | .cursor/skills/stage1-pre-commit/SKILL.md | name, description |
 | fix-stage1-failure | .cursor/skills/fix-stage1-failure/SKILL.md | name, description |
 | add-kpi-reference-safely | .cursor/skills/add-kpi-reference-safely/SKILL.md | name, description |

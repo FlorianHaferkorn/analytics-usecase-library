@@ -184,7 +184,7 @@ class Scanner:
         if ch == '.' and self.check_document_end():
             return self.fetch_document_end()
 
-        # TODO: support for BOM within a stream.
+        # TODO: support for BOM within a stream (see internal/technical_backlog.md § Page Scaffold Generator).
         #if ch == '\uFEFF':
         #    return self.fetch_bom()    <-- issue BOMToken
 
@@ -758,7 +758,7 @@ class Scanner:
         # specification requires. Any such mark will be considered as a part
         # of the document.
         #
-        # TODO: We need to make tab handling rules more sane. A good rule is
+        # TODO: We need to make tab handling rules more sane (see internal/technical_backlog.md § Page Scaffold Generator). A good rule is
         #   Tabs cannot precede tokens
         #   BLOCK-SEQUENCE-START, BLOCK-MAPPING-START, BLOCK-END,
         #   KEY(block), VALUE(block), BLOCK-ENTRY

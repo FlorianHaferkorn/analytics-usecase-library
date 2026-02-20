@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "adapter_id": "com.actionready/fabric-powerbi",
+  "name": "Microsoft Fabric / Power BI Adapter (Reference)",
+  "version": "0.1.0",
+  "description": "Reference adapter for generating and validating Fabric/Power BI artifacts from ActionReady Core. Transitional: build uses existing generators; target is IR-first.",
+  "owner": {
+    "team": "analytics-engineering",
+    "repo": "analytics-usecase-library"
+  },
+  "compatibility": {
+    "supported_core_schema_versions": ["UseCase_Bracket:2.0", "ActionCode:2.0"],
+    "supported_ir_versions": ["1.x"],
+    "supported_tools": ["FabricCI/CD", "PowerBIDesktop"]
+  },
+  "capabilities": {
+    "build": true,
+    "validate": true,
+    "deploy": false,
+    "ops": false
+  },
+  "commands": {
+    "build": {
+      "type": "powershell",
+      "entrypoint": "products/fabric_powerbi/tooling/adapter_build.ps1",
+      "args": []
+    },
+    "validate": {
+      "type": "powershell",
+      "entrypoint": "products/fabric_powerbi/tooling/adapter_validate.ps1",
+      "args": []
+    }
+  },
+  "required_secrets": [],
+  "permissions": []
+}
+

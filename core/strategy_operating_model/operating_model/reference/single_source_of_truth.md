@@ -65,6 +65,7 @@ Use Cases contain only references to KPIs: required_kpi_ids (IDs; in factsheets 
 | Source data contracts | `core/data_contracts/sources/*.yaml` | — | Defines system/source-specific schemas and mapping hints. |
 | Synthetic data scope & generator config | `core/data_contracts/sources/synthetic/*` | — | Used for demo/acceleration; must align with domain contracts. |
 | Internal tooling (validation/generation) | `tooling/*` | — | Canonical scripts for checks & generators. |
+| Core ABI (stable machine interface) | `core/strategy_operating_model/operating_model/reference/core_abi.md` | `tooling/ontology/out/*.json` | ABI defines what adapters may consume; ontology outputs are generated artifacts. |
 | Internal AI schemas | `tooling/ai/*.schema.json` | — | Canonical machine-readable structure definitions for agents/validators. |
 | Best-practice rules (BPA/linters) | `tooling/linters/*` and/or `schemas/best_practices/*` | — | Canonical location must be referenced from tooling + docs. |
 | Showcase artifacts (Aurora Group etc.) | `showcases/*` | none | Showcase is never canonical for framework concepts; it is an example implementation. |

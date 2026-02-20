@@ -41,7 +41,9 @@ $checks = @(
 )
 
 $resultsDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\results"
+$runsDir = Join-Path -Path $rootPath -ChildPath "internal\metrics\runs"
 if (-not (Test-Path $resultsDir)) { New-Item -ItemType Directory -Path $resultsDir -Force | Out-Null }
+if (-not (Test-Path $runsDir)) { New-Item -ItemType Directory -Path $runsDir -Force | Out-Null }
 
 $checkResults = @()
 $overallStatus = "pass"
@@ -64,7 +66,10 @@ foreach ($check in $checks) {
       overall_status = $overallStatus
       checks = $checkResults
     }
-    $resultsPayload | ConvertTo-Json -Depth 4 | Out-File -FilePath (Join-Path $resultsDir "latest_results.json") -Encoding utf8
+    $json = $resultsPayload | ConvertTo-Json -Depth 4
+    $json | Out-File -FilePath (Join-Path $resultsDir "latest_results.json") -Encoding utf8
+    $timestampFile = (Get-Date -Format "yyyy-MM-dd_HHmm") + "_stage1.json"
+    $json | Out-File -FilePath (Join-Path $runsDir $timestampFile) -Encoding utf8
     exit $exitCode
   }
   Write-Host "OK $($check.Path)"
@@ -77,6 +82,9 @@ $resultsPayload = @{
   overall_status = $overallStatus
   checks = $checkResults
 }
-$resultsPayload | ConvertTo-Json -Depth 4 | Out-File -FilePath (Join-Path $resultsDir "latest_results.json") -Encoding utf8
+$json = $resultsPayload | ConvertTo-Json -Depth 4
+$json | Out-File -FilePath (Join-Path $resultsDir "latest_results.json") -Encoding utf8
+$timestampFile = (Get-Date -Format "yyyy-MM-dd_HHmm") + "_stage1.json"
+$json | Out-File -FilePath (Join-Path $runsDir $timestampFile) -Encoding utf8
 
-Write-Host "Stage 1 checks passed. Results written to tooling/validation/results/latest_results.json" -ForegroundColor Green
+Write-Host "Stage 1 checks passed. Results written to tooling/validation/results/latest_results.json and internal/metrics/runs/$timestampFile" -ForegroundColor Green

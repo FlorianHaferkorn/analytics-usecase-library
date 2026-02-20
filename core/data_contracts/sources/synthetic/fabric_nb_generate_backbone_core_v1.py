@@ -9,6 +9,7 @@ SCOPE_PATH = "/lakehouse/default/Files/docs/data_design/synthetic_data_scope_cor
 
 RUN_MODE = "core_v1"  # later: "full", "core_v1", "esg_only" etc.
 
+# Open items: see internal/technical_backlog.md § Synthetic Data.
 LAKEHOUSE_NAME = "lh_aurora_backbone"  # TODO: create first
 SCHEMA = "gold"                        # target schema
 

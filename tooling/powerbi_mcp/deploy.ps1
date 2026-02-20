@@ -41,7 +41,7 @@ try {
 
 	# 2) Workspace – Fabric REST or Power BI
 	Write-Host "Deploy: Workspace (Fabric/Power BI)..." -ForegroundColor Cyan
-	# TODO: GET/POST Fabric workspace API
+	# TODO: GET/POST Fabric workspace API (see internal/technical_backlog.md § Power BI MCP).
 	# $workspaceId = ... (from FABRIC_WORKSPACE_ID or lookup by FABRIC_WORKSPACE_NAME)
 	Write-Host "  Stub: Workspace name = $WorkspaceName (configure FABRIC_WORKSPACE_ID or use Fabric REST)" -ForegroundColor Gray
 
@@ -49,27 +49,27 @@ try {
 	$modelPath = $ModelPath
 	if (-not $modelPath) { $modelPath = Join-Path $repoRoot "showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel" }
 	Write-Host "Deploy: Semantic Model..." -ForegroundColor Cyan
-	# TODO: Import PBIP/TMDL or PBIX to Fabric semantic model API
+	# TODO: Import PBIP/TMDL or PBIX to Fabric semantic model API (see internal/technical_backlog.md § Power BI MCP).
 	Write-Host "  Stub: Model path = $modelPath" -ForegroundColor Gray
 
 	# 4) Report publish and bind
 	$reportPath = $ReportPath
 	if (-not $reportPath) { $reportPath = Join-Path $repoRoot "products\fabric_powerbi\dist" }
 	Write-Host "Deploy: Report..." -ForegroundColor Cyan
-	# TODO: Publish report, bind to dataset
+	# TODO: Publish report, bind to dataset (see internal/technical_backlog.md § Power BI MCP).
 	Write-Host "  Stub: Report path = $reportPath" -ForegroundColor Gray
 
 	# 5) Refresh schedule
 	if (-not $SkipRefresh) {
 		Write-Host "Deploy: Refresh schedule..." -ForegroundColor Cyan
-		# TODO: Set refresh schedule via Fabric/Power BI REST
+		# TODO: Set refresh schedule via Fabric/Power BI REST (see internal/technical_backlog.md § Power BI MCP).
 		Write-Host "  Stub: Configure refresh via API" -ForegroundColor Gray
 	}
 
 	# 6) Security / RLS
 	if (-not $SkipSecurity) {
 		Write-Host "Deploy: Security/RLS..." -ForegroundColor Cyan
-		# TODO: Apply RLS or security_user_org mapping via API
+		# TODO: Apply RLS or security_user_org mapping via API (see internal/technical_backlog.md § Power BI MCP).
 		Write-Host "  Stub: Apply RLS/security via API" -ForegroundColor Gray
 	}
 

@@ -196,7 +196,7 @@ switch ($Operation) {
         foreach ($rel in $relationships) {
             Write-Host "  $($rel.fromTable).$($rel.fromColumn) -> $($rel.toTable).$($rel.toColumn)" -ForegroundColor Gray
             
-            # TODO: Call Power BI MCP relationship_operations
+            # TODO: Call Power BI MCP relationship_operations (see internal/technical_backlog.md § Power BI MCP).
             # For now: Generate TMDL file
             $relName = "$($rel.fromTable)_$($rel.toTable)"
             $tmdlPath = "$($conn.definitionPath)\relationships\$relName.tmdl"

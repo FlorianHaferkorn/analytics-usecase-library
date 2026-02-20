@@ -15,6 +15,7 @@ Inspired by the [BI guardrails article](https://dredyson.com/fix-ai-coding-chaos
 - **`stage1_incident_log.yaml`**: Per-incident tracking of Stage 1 failures
 - **`skill_usage_log.yaml`**: Weekly snapshots of runs, failures, and skill invocations
 - **`retrospective_template.md`**: Monthly review template for identifying patterns and improvements
+- **`runs/`**: Each test run as its own file (skill tests, Stage 1 archive, retrospectives). Naming: `YYYY-MM-DD_[HHmm_]<type>[_optional].md` or `.json`. Stage 1 writes a timestamped copy here on every run (`*_stage1.json`). For high run counts, consider archiving or deleting runs older than 90 days.
 
 ## Tracking workflow
 
@@ -59,7 +60,7 @@ weekly_snapshots:
 ### Monthly retrospective
 
 1. **Run at month-end** (or first week of following month).
-2. **Copy `retrospective_template.md`** to `retrospective_YYYY_MM.md`.
+2. **Copy `retrospective_template.md`** and save as **`runs/YYYY-MM_retrospective.md`** (e.g. `runs/2026-02_retrospective.md`).
 3. **Fill in metrics** from `stage1_incident_log.yaml` and `skill_usage_log.yaml`.
 4. **Identify patterns**: What are the top 3 failure modes? Which skills prevented the most issues?
 5. **Define action items**: New skills/rules to add, existing skills to improve, processes to change.

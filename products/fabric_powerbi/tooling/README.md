@@ -6,6 +6,15 @@ Principle:
 - Framework governance tooling stays in `tooling/` (maintainer-only).
 - Implementation tooling here should be **safe to mirror into customer implementations** (or packaged) without leaking maintainer internals.
 
+## Adapter contract (standard commands)
+
+This product is the **reference adapter** for the multi-tool architecture.
+
+- **Adapter manifest**: `products/fabric_powerbi/adapter.json` (schema: `products/adapters/adapter_manifest.schema.json`)
+- **Standard commands** (wrappers):
+  - `products/fabric_powerbi/tooling/adapter_build.ps1` (build → dist)
+  - `products/fabric_powerbi/tooling/adapter_validate.ps1` (validate → report/exit code)
+
 ## What belongs here
 
 - **run_fabric_checks.ps1** — runs Fabric-specific validation (measures vs KPI, TMDL vs measure dictionary, DAX best practices in TMDL). Invoke from repo root. Scripts live under `../validation/` (check_measures_vs_kpi.ps1, check_tmdl_vs_measure_dictionary.ps1, check_dax_best_practices.ps1).

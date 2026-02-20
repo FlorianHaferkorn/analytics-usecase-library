@@ -118,7 +118,7 @@ class GoldLayerGenerator:
             'day_of_week': dates.dayofweek + 1,  # 1=Monday
             'day_name': dates.day_name(),
             'is_weekend': dates.dayofweek.isin([5, 6]).astype(int),
-            'is_holiday': 0,  # TODO: Add holiday logic if needed
+            'is_holiday': 0,  # TODO: Add holiday logic if needed (see internal/technical_backlog.md § Synthetic Data).
         })
         
         # Fiscal calendar (assuming fiscal year starts in April for Aurora Group)

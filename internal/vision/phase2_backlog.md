@@ -2,6 +2,8 @@
 
 **Zweck:** Themen, die bewusst als Folgephase bzw. Backlog geführt werden; kein Muss für Projektabschluss. Das Projekt gilt mit Blocker-Behebung, Review-Anpassungen und Zero-Tolerance-Dokumentation (Punkte 1–3 des Projektabschluss-Plans) als inhaltlich und technisch abgeschlossen.
 
+**Tracking:** Work items are tracked in the repo-scope GitHub Project. For migration to Issues/Epics, see [internal/project_mgmt/BACKLOG_MIGRATION.md](../project_mgmt/BACKLOG_MIGRATION.md).
+
 ---
 
 ## 3-30-300 vollständig
