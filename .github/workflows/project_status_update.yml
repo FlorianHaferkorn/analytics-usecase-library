@@ -1,4 +1,4 @@
-# Updated WORKFLOW
+# Project Status Update Workflow
 
 name: Project Status Update
 
@@ -8,14 +8,20 @@ on:
       - main
 
 jobs:
-  update_project_status:
+  update-project-status:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v2
-      - name: Update Project Status
+
+      - name: Update Project Number
         run: |
-          echo "PROJECT_NUMBER=2" > .env
-      - name: Print Project Number
+          PROJECT_NUMBER="2"
+          echo "PROJECT_NUMBER updated to $PROJECT_NUMBER"
+
+      - name: Commit Changes
         run: |
-          echo "Current Project Number: 2"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .github/workflows/project_status_update.yml
+          git commit -m "Update PROJECT_NUMBER to 2" || echo "No changes to commit" 
