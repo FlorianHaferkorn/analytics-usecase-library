@@ -31,12 +31,17 @@ class PBIPWriter:
         self.definition_path.mkdir(parents=True, exist_ok=True)
         self.pages_path.mkdir(parents=True, exist_ok=True)
     
-    def write_report_json(self, theme_name: Optional[str] = None):
+    def write_report_json(
+        self,
+        theme_name: Optional[str] = None,
+        dataset_reference_path: Optional[str] = None,
+    ):
         """
         Write definition/report.json.
         
         Args:
             theme_name: Optional theme name to reference
+            dataset_reference_path: Optional relative path to semantic model (e.g. for datasetReference.byPath.path)
         """
         report_data = {
             "$schema": self.REPORT_SCHEMA,
@@ -95,6 +100,10 @@ class PBIPWriter:
                 "customTimeoutLimit": "225"
             }
         }
+        if dataset_reference_path:
+            report_data["datasetReference"] = {
+                "byPath": {"path": dataset_reference_path}
+            }
         
         # Add custom theme if provided
         if theme_name:

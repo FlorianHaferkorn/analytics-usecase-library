@@ -15,7 +15,7 @@ An adapter is a versioned package that:
 
 Each adapter must expose the same high-level commands:
 
-- **build**: `build(ir) -> dist/`
+- **build**: `build(ir) -> dist/` — Build consumes IR (and optionally Core ABI outputs). The reference Fabric adapter is **IR-first**: it runs `build_ir.py --kpi-catalog` to produce IR with `measure_spec`, then the measure generator reads only IR (`-IRPath`); no direct reads of `core/usecases` or `core/kpi_catalog` during build.
 - **validate**: `validate(dist) -> report`
 - **deploy**: `deploy(dist, env) -> audit log` (optional; gated)
 

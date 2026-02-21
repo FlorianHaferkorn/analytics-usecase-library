@@ -190,6 +190,11 @@
         }
       }
     },
+    "ux_bindings": {
+      "type": "object",
+      "description": "Optional visual bindings (axis, legend, rows, values, sort, topN) per page/slot. Written by UX Layout Editor; do not edit by hand.",
+      "additionalProperties": true
+    },
     "overrides": {
       "type": "object",
       "additionalProperties": true,

@@ -8,6 +8,8 @@ Param(
   # Path to master_registry.json (for trust-score propagation).  When empty the script
   # tries <repo_root>/master_registry.json automatically.
   [string]$RegistryPath = "",
+  # IR-first: path to ir_v1.json (from tooling/ir/build_ir.py --kpi-catalog). When set, use cases and measure specs come from IR only; no Core reads.
+  [string]$IRPath = "",
   [switch]$SkipManifest,
   # When set, do not overwrite existing _Measures.tmdl files.
   # Instead, generate a sidecar file named "<table>._generated.tmdl" next to them.
@@ -816,10 +818,13 @@ function Write-Manifest {
   Write-Utf8NoBom -Path $Path -Text $json
 }
 
-$resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'core/usecases'
-if (-not $resolvedUseCasesRoot) { throw "Unable to resolve UseCases root folder. Provide -UseCasesRoot or run inside repository." }
-$resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'core/kpi_catalog'
-if (-not $resolvedKpiRoot) { throw "Unable to resolve KPI catalog root. Provide -KpiCatalogRoot or run inside repository." }
+$script:UseIRPath = ($IRPath -and $IRPath.Trim().Length -gt 0)
+if (-not $script:UseIRPath) {
+  $resolvedUseCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'core/usecases'
+  if (-not $resolvedUseCasesRoot) { throw "Unable to resolve UseCases root folder. Provide -UseCasesRoot or run inside repository." }
+  $resolvedKpiRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'core/kpi_catalog'
+  if (-not $resolvedKpiRoot) { throw "Unable to resolve KPI catalog root. Provide -KpiCatalogRoot or run inside repository." }
+}
 
 # Primary output: shared semantic model (e.g. Aurora showcase). When set, write <UseCase>_Measures.tmdl into this directory.
 $resolvedTablesDir = $null
@@ -842,62 +847,117 @@ if (-not $resolvedTablesDir) {
   if (-not $resolvedDistRoot) { throw "Unable to resolve dist root. Provide -DistRoot or -UseAuroraShowcase / -TargetTablesDir or run inside repository." }
 }
 
-$factSheets = Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Business_Factsheet.md' | Where-Object {
-  $_.FullName -notmatch '\\templates\\' -and $_.FullName -notmatch '\\internal\\archive\\'
-}
-if ($UseCase -and $UseCase.Count -gt 0) {
-  # Split comma-separated values if passed as single string from CLI
-  $expandedUseCase = @()
-  foreach ($uc in $UseCase) {
-    if ($uc -and $uc.Contains(',')) {
-      $expandedUseCase += $uc -split ',' | Where-Object { $_ -and $_.Trim().Length -gt 0 } | ForEach-Object { $_.Trim() }
-    } elseif ($uc) {
-      $expandedUseCase += $uc.Trim()
-    }
-  }
-  $filters = $expandedUseCase | Where-Object { $_ -and $_.Trim().Length -gt 0 }
-  if ($filters.Count -gt 0) {
-    $factSheets = foreach ($fs in $factSheets) {
-      $frontMatter = Get-FrontMatterBlock -Path $fs.FullName
-      if (-not $frontMatter) { continue }
-      $lines = @($frontMatter.Lines)
-      $useCaseId = Get-ScalarValue -Lines $lines -Key 'id'
-      if (-not $useCaseId) { $useCaseId = $fs.Directory.Name.Split('_')[0] }
-      if ($filters | Where-Object { $useCaseId -like ($_ + '*') }) { $fs }
-    }
-  }
-}
-
-if ($factSheets.Count -eq 0) {
-  Write-Host "No FactSheets matched the provided filters." -ForegroundColor Yellow
-  exit 0
-}
-
-$catalog = Load-KpiCatalog -Root $resolvedKpiRoot
-$generated = 0
-
-# ---------------------------------------------------------------------------
-# ActionReady: load brackets, action codes, registry (trust scores)
-# ---------------------------------------------------------------------------
-$resolvedActionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative 'core/action_codes'
-$useCaseBrackets = Load-UseCaseBrackets -Root $resolvedUseCasesRoot
-$allActionCodes = if ($resolvedActionCodesRoot) { Load-AllActionCodes -Root $resolvedActionCodesRoot } else { @{} }
-$registry = Load-Registry -ExplicitPath $RegistryPath -RepoRoot $script:RepoRoot
-
-# Build trust-score lookup: kpi_id -> integer (0 = untrusted, 1 = trusted, $null = unknown)
+$catalog = @{}
 $trustScores = @{}
-if ($registry -and $registry.kpis) {
-  foreach ($prop in $registry.kpis.PSObject.Properties) {
-    $kpiObj = $prop.Value
-    if ($null -ne $kpiObj.trust_score) {
-      $trustScores[$prop.Name] = [int]$kpiObj.trust_score
+$useCaseData = @()
+
+if ($script:UseIRPath) {
+  # IR-first: load use cases and measure specs from IR only (no Core reads).
+  $resolvedIRPath = $IRPath
+  if (-not [System.IO.Path]::IsPathRooted($IRPath) -and $script:RepoRoot) {
+    $candidate = Join-Path $script:RepoRoot $IRPath.Trim()
+    if (Test-Path $candidate) { $resolvedIRPath = (Resolve-Path $candidate).Path }
+  }
+  if (-not (Test-Path $resolvedIRPath)) { throw "IR file not found: $resolvedIRPath. Build with: tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog" }
+  $ir = Get-Content -Raw -Path $resolvedIRPath | ConvertFrom-Json
+  if (-not $ir.measure_spec) { throw "IR has no measure_spec. Build with: tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog" }
+  foreach ($kpiId in $ir.measure_spec.PSObject.Properties.Name) {
+    $m = $ir.measure_spec.$kpiId
+    $catalog[$kpiId] = [ordered]@{
+      id = $kpiId
+      kpi_key = $m.kpi_key
+      dax_name = $m.dax_name
+      dax_expression = $m.dax_expression
+      formatString = $m.format_string
+      displayFolder = $m.display_folder
+      description = $m.description
+      purpose = $m.purpose
+      domain_tags = @()
+      depends_on = @(); depends_on_ids = @()
+      business_owner = $null; data_owner = $null; steward = $null
+      qa_rules = @(); kpi_type = $null; impact_dimension = $null; calc_type = $null; refresh = $null; status = $null
+      source = "IR"
     }
   }
-  if ($trustScores.Count -gt 0) {
-    $untrustedCount = ($trustScores.Values | Where-Object { $_ -eq 0 }).Count
-    Write-Host "Loaded trust scores for $($trustScores.Count) KPIs ($untrustedCount untrusted)." -ForegroundColor Gray
+  if ($ir.objects -and $ir.objects.kpis) {
+    foreach ($prop in $ir.objects.kpis.PSObject.Properties) {
+      $kpiObj = $prop.Value
+      if ($null -ne $kpiObj.trust_score) { $trustScores[$prop.Name] = [int]$kpiObj.trust_score }
+    }
+  }
+  $ucFilters = @()
+  if ($UseCase -and $UseCase.Count -gt 0) {
+    foreach ($uc in $UseCase) {
+      if ($uc -and $uc.Contains(',')) { $ucFilters += $uc -split ',' | Where-Object { $_.Trim() } | ForEach-Object { $_.Trim() } }
+      elseif ($uc) { $ucFilters += $uc.Trim() }
+    }
+  }
+  foreach ($ucId in $ir.objects.use_cases.PSObject.Properties.Name) {
+    $u = $ir.objects.use_cases.$ucId
+    if ($ucFilters.Count -gt 0 -and -not ($ucFilters | Where-Object { $ucId -like ($_ + '*') })) { continue }
+    $orch = $u.orchestration
+    $strat = $orch.strategic_kpi_id
+    $inf = @($orch.influencing_kpi_ids)
+    $targetIds = @()
+    if ($strat) { $targetIds += $strat }
+    foreach ($id in $inf) { if ($id -and $targetIds -notcontains $id) { $targetIds += $id } }
+    if ($targetIds.Count -eq 0) { continue }
+    $useCaseData += @{ useCaseId = $ucId; title = $u.title; targetIds = $targetIds; factSheetPath = ""; datasetModel = "$ucId.SemanticModel" }
+  }
+  if ($useCaseData.Count -eq 0) { Write-Host "No use cases in IR matched the filters." -ForegroundColor Yellow; exit 0 }
+  $useCaseBrackets = @{}
+  $allActionCodes = @{}
+  Write-Host "IR-first: $($useCaseData.Count) use cases, $($catalog.Count) measure specs, $($trustScores.Count) trust scores." -ForegroundColor Gray
+} else {
+  $factSheets = Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Business_Factsheet.md' | Where-Object {
+    $_.FullName -notmatch '\\templates\\' -and $_.FullName -notmatch '\\internal\\archive\\'
+  }
+  if ($UseCase -and $UseCase.Count -gt 0) {
+    $expandedUseCase = @()
+    foreach ($uc in $UseCase) {
+      if ($uc -and $uc.Contains(',')) { $expandedUseCase += $uc -split ',' | Where-Object { $_.Trim() } | ForEach-Object { $_.Trim() } }
+      elseif ($uc) { $expandedUseCase += $uc.Trim() }
+    }
+    $filters = $expandedUseCase | Where-Object { $_ -and $_.Trim().Length -gt 0 }
+    if ($filters.Count -gt 0) {
+      $factSheets = foreach ($fs in $factSheets) {
+        $frontMatter = Get-FrontMatterBlock -Path $fs.FullName
+        if (-not $frontMatter) { continue }
+        $lines = @($frontMatter.Lines)
+        $useCaseId = Get-ScalarValue -Lines $lines -Key 'id'
+        if (-not $useCaseId) { $useCaseId = $fs.Directory.Name.Split('_')[0] }
+        if ($filters | Where-Object { $useCaseId -like ($_ + '*') }) { $fs }
+      }
+    }
+  }
+  if ($factSheets.Count -eq 0) { Write-Host "No FactSheets matched the provided filters." -ForegroundColor Yellow; exit 0 }
+  $catalog = Load-KpiCatalog -Root $resolvedKpiRoot
+  $resolvedActionCodesRoot = Resolve-RepoPath -ProvidedPath $ActionCodesRoot -DefaultRelative 'core/action_codes'
+  $useCaseBrackets = Load-UseCaseBrackets -Root $resolvedUseCasesRoot
+  $allActionCodes = if ($resolvedActionCodesRoot) { Load-AllActionCodes -Root $resolvedActionCodesRoot } else { @{} }
+  $registry = Load-Registry -ExplicitPath $RegistryPath -RepoRoot $script:RepoRoot
+  if ($registry -and $registry.kpis) {
+    foreach ($prop in $registry.kpis.PSObject.Properties) {
+      $kpiObj = $prop.Value
+      if ($null -ne $kpiObj.trust_score) { $trustScores[$prop.Name] = [int]$kpiObj.trust_score }
+    }
+  }
+  foreach ($fs in $factSheets) {
+    $frontMatter = Get-FrontMatterBlock -Path $fs.FullName
+    if (-not $frontMatter) { continue }
+    $lines = $frontMatter.Lines
+    $useCaseId = Get-ScalarValue -Lines $lines -Key 'id'
+    if (-not $useCaseId) { $useCaseId = $fs.Directory.Name.Split('_')[0] }
+    $targetIds = Get-YamlBlockIds -Path $fs.FullName
+    if ($targetIds.Count -eq 0) { continue }
+    $title = Get-ScalarValue -Lines $lines -Key 'title'
+    $datasetModel = Get-ScalarValue -Lines $lines -Key 'dataset_model'
+    if (-not $datasetModel) { $datasetModel = "$useCaseId.SemanticModel" }
+    $useCaseData += @{ useCaseId = $useCaseId; title = $title; targetIds = $targetIds; factSheetPath = $fs.FullName; datasetModel = $datasetModel }
   }
 }
+
+$generated = 0
 
 # Determine selected use case IDs (for action logic generation)
 $selectedUseCaseFilters = @()
@@ -917,21 +977,20 @@ if ($UseCase -and $UseCase.Count -gt 0) {
 if ($resolvedTablesDir) {
   $allMeasureBlocks = @()
   $processedUseCases = @()
+  $labelMap = [ordered]@{}
 
-  foreach ($fs in $factSheets) {
-    $frontMatter = Get-FrontMatterBlock -Path $fs.FullName
-    if (-not $frontMatter) { continue }
-    $lines = $frontMatter.Lines
-    $useCaseId = Get-ScalarValue -Lines $lines -Key 'id'
-    if (-not $useCaseId) { $useCaseId = $fs.Directory.Name.Split('_')[0] }
-
-    $targetIds = Get-YamlBlockIds -Path $fs.FullName
+  foreach ($item in $useCaseData) {
+    $useCaseId = $item.useCaseId
+    $targetIds = $item.targetIds
     if ($targetIds.Count -eq 0) {
-      Write-Host "Skipping $useCaseId - no kpi_id entries found in YAML blocks." -ForegroundColor Yellow
+      Write-Host "Skipping $useCaseId - no KPI IDs." -ForegroundColor Yellow
       continue
     }
-    $labelMap = Parse-StringMap -Lines $lines -Field 'required_kpis'
-    if (-not $labelMap) { $labelMap = [ordered]@{} }
+    if (-not $script:UseIRPath -and $item.factSheetPath) {
+      $frontMatter = Get-FrontMatterBlock -Path $item.factSheetPath
+      if ($frontMatter) { $labelMap = Parse-StringMap -Lines $frontMatter.Lines -Field 'required_kpis' }
+      if (-not $labelMap) { $labelMap = [ordered]@{} }
+    }
 
     foreach ($id in $targetIds) {
       $record = if ($catalog.ContainsKey($id)) { $catalog[$id] } else { $null }
@@ -939,7 +998,6 @@ if ($resolvedTablesDir) {
       if (-not $record) {
         Write-Host "Warning: KPI '$id' missing in catalog for $useCaseId" -ForegroundColor Yellow
       }
-      # Build measure block with displayFolder = useCaseId + trust scores
       $allMeasureBlocks += (Build-MeasureBlock -Measure $measure -DefaultDisplayFolder $useCaseId -TrustScores $trustScores)
     }
     $processedUseCases += $useCaseId
@@ -994,33 +1052,27 @@ if ($resolvedTablesDir) {
 # MODE: Per-use-case output (dist) - one _Measures.tmdl per use case folder
 # ============================================================================
 else {
-  foreach ($fs in $factSheets) {
-    $frontMatter = Get-FrontMatterBlock -Path $fs.FullName
-    if (-not $frontMatter) { continue }
-    $lines = $frontMatter.Lines
-    $text = $frontMatter.Text
-
-    $useCaseId = Get-ScalarValue -Lines $lines -Key 'id'
-    if (-not $useCaseId) { $useCaseId = $fs.Directory.Name.Split('_')[0] }
-
-    $title = Get-ScalarValue -Lines $lines -Key 'title'
-    $datasetModel = Get-ScalarValue -Lines $lines -Key 'dataset_model'
-    if (-not $datasetModel) { $datasetModel = "$useCaseId.SemanticModel" }
-
-    $targetIds = Get-YamlBlockIds -Path $fs.FullName
+  foreach ($item in $useCaseData) {
+    $useCaseId = $item.useCaseId
+    $title = $item.title
+    $datasetModel = $item.datasetModel
+    $targetIds = $item.targetIds
     if ($targetIds.Count -eq 0) {
-      Write-Host "Skipping $useCaseId - no kpi_id entries found in YAML blocks." -ForegroundColor Yellow
+      Write-Host "Skipping $useCaseId - no KPI IDs." -ForegroundColor Yellow
       continue
     }
-    $labelMap = Parse-StringMap -Lines $lines -Field 'required_kpis'
-    if (-not $labelMap) { $labelMap = [ordered]@{} }
+    $labelMap = [ordered]@{}
+    if ($item.factSheetPath -and (Test-Path $item.factSheetPath)) {
+      $frontMatter = Get-FrontMatterBlock -Path $item.factSheetPath
+      if ($frontMatter) { $labelMap = Parse-StringMap -Lines $frontMatter.Lines -Field 'required_kpis' }
+    }
 
     $manifest = [ordered]@{
       usecase_id    = $useCaseId
       title         = $title
       dataset_model = $datasetModel
       table_name    = $MeasuresTableName
-      fact_sheet    = (Resolve-Path -Path $fs.FullName).Path
+      fact_sheet    = $item.factSheetPath
       measures      = @()
     }
 

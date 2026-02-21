@@ -11,6 +11,11 @@
     "objects"
   ],
   "properties": {
+    "measure_spec": {
+      "type": "object",
+      "description": "Optional. kpi_id -> measure_spec_item for IR-first adapters.",
+      "additionalProperties": { "$ref": "#/$defs/measure_spec_item" }
+    },
     "ir_version": {
       "type": "string",
       "pattern": "^1\\.(0|[1-9]\\d*)(?:\\.[0-9]+)?$",
@@ -158,6 +163,20 @@
         "impact_valuation": { "type": ["object", "null"], "additionalProperties": true },
         "execution_bridge": { "type": ["object", "null"], "additionalProperties": true },
         "source": { "type": ["object", "null"], "additionalProperties": true }
+      }
+    },
+    "measure_spec_item": {
+      "type": "object",
+      "description": "Per-KPI measure spec for IR-first adapters (no direct Core reads).",
+      "additionalProperties": false,
+      "properties": {
+        "dax_expression": { "type": ["string", "null"] },
+        "format_string": { "type": "string" },
+        "dax_name": { "type": ["string", "null"] },
+        "display_folder": { "type": "string" },
+        "description": { "type": "string" },
+        "purpose": { "type": "string" },
+        "kpi_key": { "type": ["string", "null"] }
       }
     }
   }

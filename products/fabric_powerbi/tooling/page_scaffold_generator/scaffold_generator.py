@@ -153,12 +153,20 @@ class PageScaffoldGenerator:
         
         return errors
     
-    def write(self, output_path: Path):
+    def write(
+        self,
+        output_path: Path,
+        *,
+        append_page_only: bool = False,
+        dataset_reference_path: Optional[str] = None,
+    ):
         """
         Write PBIP structure to disk.
         
         Args:
             output_path: Path to .Report folder (e.g., "COM-001.Report")
+            append_page_only: If True, only append this page (do not overwrite report.json or version.json)
+            dataset_reference_path: Optional relative path to semantic model for report.json (used only when not append_page_only)
         """
         if self.page_structure is None:
             raise ValueError("Page structure not generated. Call generate() first.")
@@ -172,8 +180,13 @@ class PageScaffoldGenerator:
         writer = PBIPWriter(output_path)
         writer.create_pbip_structure()
         
-        # Write report.json with base theme only; when --theme was passed, CLI will call apply_theme() to copy theme and add customTheme + resourcePackages
-        writer.write_report_json(theme_name=None)
+        if not append_page_only:
+            # Write report.json (with optional dataset reference) and version.json only on first page
+            writer.write_report_json(
+                theme_name=None,
+                dataset_reference_path=dataset_reference_path,
+            )
+            writer.write_version_json()
         
         # Write pages.json (append if file exists)
         pages_file = writer.pages_path / "pages.json"
@@ -187,9 +200,6 @@ class PageScaffoldGenerator:
             visuals=self.page_structure["visuals"],
             slicers=self.page_structure.get("slicers", [])
         )
-        
-        # Write version.json
-        writer.write_version_json()
     
     def get_page_structure(self) -> Dict[str, Any]:
         """

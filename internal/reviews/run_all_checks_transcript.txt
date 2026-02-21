@@ -1,0 +1,177 @@
+﻿**********************
+nStart der Windows PowerShell-Aufzeichnung
+Startzeit: 20260221161849
+Benutzername: NAGARRO\florianhaferkorn
+RunAs-Benutzer: NAGARRO\florianhaferkorn
+Konfigurationsname: 
+Computer: NES-NBBSTPQ04 (Microsoft Windows NT 10.0.26100.0)
+Hostanwendung: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\florianhaferkorn\AppData\Local\Programs\cursor\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
+Prozess-ID: 30684
+PSVersion: 5.1.26100.7462
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.7462
+BuildVersion: 10.0.26100.7462
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Running analytics-usecase-library checks...
+UseCases:   C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases
+Factsheets: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core
+KPI Catalog: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog
+
+>> tooling/validation/validate_factsheets.ps1
+FactSheet validation passed.
+
+>> tooling/validation/validate_kpi_catalog.ps1
+KPI Catalog validation passed.
+
+>> tooling/validation/check_factsheet_vs_kpi.ps1
+Scanning Business Factsheets in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases ...
+
+UseCase                            Measure                   
+-------                            -------                   
+COM-001_Sales_Performance          margin.gm.pct             
+COM-001_Sales_Performance          sales.net_sales.amount    
+COM-001_Sales_Performance          sales.net_sales.delta_p...
+COM-001_Sales_Performance          sales.net_sales.delta_p...
+COM-001_Sales_Performance          sales.pvm.mix_effect.am...
+COM-001_Sales_Performance          sales.pvm.price_effect....
+COM-001_Sales_Performance          sales.pvm.volume_effect...
+COM-002_Margin_Price_Performance   cost.cogs_per_unit.amount 
+COM-002_Margin_Price_Performance   margin.gm.amount          
+COM-002_Margin_Price_Performance   margin.gm.pct             
+COM-002_Margin_Price_Performance   margin.gm.vs_plan.pct     
+COM-002_Margin_Price_Performance   sales.price.realization...
+COM-002_Margin_Price_Performance   sales.pvm.mix_effect.am...
+COM-003_Customer_Value             crm.active_customers.count
+COM-003_Customer_Value             crm.churned_customers.c...
+COM-003_Customer_Value             crm.clv.amount            
+COM-003_Customer_Value             crm.complaint.count       
+COM-003_Customer_Value             crm.lifetime_revenue.am...
+COM-003_Customer_Value             crm.nps.index             
+COM-003_Customer_Value             crm.retention.pct         
+COM-003_Customer_Value             crm.revenue_at_risk.amount
+COM-004_Promotion_Effectiveness    margin.promo.gm.pct       
+COM-004_Promotion_Effectiveness    sales.price.realization...
+COM-004_Promotion_Effectiveness    sales.promo.cannibaliza...
+COM-004_Promotion_Effectiveness    sales.promo.incremental...
+COM-004_Promotion_Effectiveness    sales.promo.roi.pct       
+FIN-001_Cash_Liquidity_Performance fin.cash.balance          
+FIN-001_Cash_Liquidity_Performance fin.cash.ocf              
+FIN-001_Cash_Liquidity_Performance fin.cash.vs_plan.pct      
+FIN-001_Cash_Liquidity_Performance scm.service_level.pct     
+FIN-001_Cash_Liquidity_Performance scm.supplier_risk.score   
+FIN-001_Cash_Liquidity_Performance wc.ccc.days               
+FIN-001_Cash_Liquidity_Performance wc.dio.days               
+FIN-001_Cash_Liquidity_Performance wc.dpo.days               
+FIN-001_Cash_Liquidity_Performance wc.dso.days               
+FIN-002_Cost_Performance           cost.base_volume.amount   
+FIN-002_Cost_Performance           cost.material.pct         
+FIN-002_Cost_Performance           cost.opex.base.amount     
+FIN-002_Cost_Performance           cost.opex.vs_plan.pct     
+FIN-002_Cost_Performance           cost.unit.amount          
+FIN-002_Cost_Performance           margin.cogs.pct           
+FIN-002_Cost_Performance           ops.labor.productivity.pct
+FIN-002_Cost_Performance           ops.production.volume     
+FIN-002_Cost_Performance           ops.quality.defect_rate...
+FIN-002_Cost_Performance           ops.service_level.pct     
+FIN-002_Cost_Performance           ops.yield.pct             
+OPS-001_Operations_Performance     ops.availability.pct      
+OPS-001_Operations_Performance     ops.downtime.pct          
+OPS-001_Operations_Performance     ops.oee.pct               
+OPS-001_Operations_Performance     ops.performance.pct       
+OPS-001_Operations_Performance     ops.planned_output.units  
+OPS-001_Operations_Performance     ops.quality.pct           
+OPS-001_Operations_Performance     ops.throughput.units      
+OPS-002_Asset_Performance          ops.availability.pct      
+OPS-002_Asset_Performance          ops.downtime.unplanned.pct
+OPS-002_Asset_Performance          ops.failure.count         
+OPS-002_Asset_Performance          ops.inventory.value.amount
+OPS-002_Asset_Performance          ops.mtbf.hours            
+OPS-002_Asset_Performance          ops.mttr.hours            
+OPS-002_Asset_Performance          ops.pm.task.count         
+OPS-002_Asset_Performance          ops.pm_compliance.pct     
+OPS-002_Asset_Performance          ops.safety.incident.count 
+OPS-002_Asset_Performance          ops.spare_parts.stockou...
+OPS-003_Quality_Yield              ops.planned_output.units  
+OPS-003_Quality_Yield              quality.complaint.pct     
+OPS-003_Quality_Yield              quality.copq.amount       
+OPS-003_Quality_Yield              quality.defect_density    
+OPS-003_Quality_Yield              quality.fpy.pct           
+OPS-003_Quality_Yield              quality.rework.pct        
+OPS-003_Quality_Yield              quality.scrap.pct         
+OPS-003_Quality_Yield              sales.units               
+SCM-001_Inventory_Performance      inv.dio.days              
+SCM-001_Inventory_Performance      inv.obsolete.pct          
+SCM-001_Inventory_Performance      inv.stockout.pct          
+SCM-001_Inventory_Performance      inv.turnover              
+SCM-001_Inventory_Performance      plan.forecast.accuracy.pct
+SCM-001_Inventory_Performance      sales.units               
+SCM-001_Inventory_Performance      supply.otif.pct           
+SCM-002_Supply_Reliability_OTIF    order.lines               
+SCM-002_Supply_Reliability_OTIF    shipments.count           
+SCM-002_Supply_Reliability_OTIF    supply.expedite.amount    
+SCM-002_Supply_Reliability_OTIF    supply.in_full.pct        
+SCM-002_Supply_Reliability_OTIF    supply.on_time.pct        
+SCM-002_Supply_Reliability_OTIF    supply.otif.pct           
+SCM-002_Supply_Reliability_OTIF    supply.penalty.amount     
+SCM-002_Supply_Reliability_OTIF    supply.stockout_impact.pct
+SCM-003_Forecast_vs_Actual         order.lines               
+SCM-003_Forecast_vs_Actual         plan.forecast.accuracy.pct
+SCM-003_Forecast_vs_Actual         plan.forecast.bias.pct    
+SCM-003_Forecast_vs_Actual         plan.forecast.mape.pct    
+SCM-003_Forecast_vs_Actual         plan.forecast.service_i...
+SCM-003_Forecast_vs_Actual         plan.replan.count         
+SCM-003_Forecast_vs_Actual         plans.count               
+SCM-003_Forecast_vs_Actual         sales.units               
+XD-001_Service_Level_Performance   svc.aht.minutes           
+XD-001_Service_Level_Performance   svc.backlog.count         
+XD-001_Service_Level_Performance   svc.escalation.pct        
+XD-001_Service_Level_Performance   svc.fcr.pct               
+XD-001_Service_Level_Performance   svc.nps.index             
+XD-001_Service_Level_Performance   svc.sla.attainment.pct    
+XD-001_Service_Level_Performance   svc.tickets.closed.count  
+XD-001_Service_Level_Performance   svc.tickets.created.count 
+XD-002_Resource_Utilization        res.occupancy.pct         
+XD-002_Resource_Utilization        res.overtime.pct          
+XD-002_Resource_Utilization        res.shrinkage.pct         
+XD-002_Resource_Utilization        res.utilization.pct       
+XD-002_Resource_Utilization        svc.backlog.count         
+XD-002_Resource_Utilization        svc.sla.attainment.pct    
+XD-002_Resource_Utilization        svc.tickets.created.count 
+XD-003_Executive_KPI_Overview      crm.clv.amount            
+XD-003_Executive_KPI_Overview      enterprise.action_outco...
+XD-003_Executive_KPI_Overview      enterprise.action_route...
+XD-003_Executive_KPI_Overview      enterprise.value_at_ris...
+XD-003_Executive_KPI_Overview      margin.gm.pct             
+XD-003_Executive_KPI_Overview      ops.otif.pct              
+XD-003_Executive_KPI_Overview      ops.working_capital.ccc...
+XD-003_Executive_KPI_Overview      people.attrition_risk.pct 
+XD-003_Executive_KPI_Overview      people.digital_adoption...
+XD-003_Executive_KPI_Overview      sales.net_sales.delta_p...
+XD-003_Executive_KPI_Overview      svc.sla.attainment.pct
+All required measures are covered in KPI Catalog.
+
+>> products/fabric_powerbi/tooling/validation/check_measures_vs_kpi.ps1
+Checking measures vs KPI catalogs...
+  Dist root:      C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\products\fabric_powerbi\dist
+  KPI catalog:    C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog
+All KPI references in _Measures.tmdl files exist in KPI catalogs.
+
+>> tooling/maintenance/check_docs_refs.ps1
+Checking documentation and tooling references...
+  OK   core/strategy_operating_model/README.md (Docs overview)
+  OK   core/strategy_operating_model/company/company_strategy.md (Business Strategy / Strategic KPIs / Alignment Map (canonical))
+  OK   core/strategy_operating_model/operating_model/semantic_layer.md (Semantic Layer blueprint)
+  OK   core/strategy_operating_model/operating_model/distribution_architecture.md (Distribution architecture)
+  OK   core/usecases/templates/usecase_factsheet_business.md (Use Case factsheet (business) template)
+  OK   core/usecases/templates/UseCase_Bracket_TEMPLATE.yaml (Use Case bracket (SSOT) template)
+  OK   core/usecases/UseCase_Inventory.md (Use Case Inventory)
+  OK   core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md (KPI Catalog Schema (canonical))
+  OK   core/kpi_catalog/README.md (KPI Catalog overview)
+  OK   tooling/run_all_checks.ps1 (Run all checks script)
+  OK   tooling/generation/new_usecase.ps1 (New usecase helper)
+  OK   tooling/generation/generate_tmdl_measures.ps1 (TMDL measures generator)
+  OK   tooling/generation/generate_all_measures.ps1 (Generate all measures wrapper)

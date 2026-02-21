@@ -12,10 +12,12 @@
 
 | File | Context | Description |
 |------|---------|-------------|
-| tooling/powerbi_mcp/table_ops.ps1 | ~line 138 | Call Power BI MCP table_operations (currently generates TMDL file manually). |
-| tooling/powerbi_mcp/relationship_ops.ps1 | ~line 199 | Call Power BI MCP relationship_operations. |
+| tooling/powerbi_mcp/table_ops.ps1 | ~line 138 | Builder Engine: TMDL output in PBIP (no MCP call). Optional MCP integration later. |
+| tooling/powerbi_mcp/relationship_ops.ps1 | ~line 199 | Builder Engine: relationships TMDL in PBIP (no MCP call). Optional MCP integration later. |
 | tooling/powerbi_mcp/deploy.ps1 | lines 44, 52, 59, 65, 72 | Fabric Workspace API (GET/POST); Import PBIP/TMDL to semantic model API; Publish report and bind to dataset; Set refresh schedule via REST; Apply RLS / security_user_org mapping via API. |
-| tooling/powerbi_mcp/AUTOMATION_FLOW.md | multiple | TMDL default format strings and display folders; Update relationship via MCP; Generate visuals from template; Fabric REST API; Refresh schedule; security_user_org mapping. |
+| tooling/powerbi_mcp/AUTOMATION_FLOW.md | multiple | TMDL default format strings and display folders; Measure binding in visuals; Action Codes in panel; Fabric REST API; Refresh schedule; security_user_org mapping. |
+
+**Phase 1 done:** Registry as build prerequisite; Domain mode (COM-* Relationships/Hierarchies, one report per use case); Full-Report via `generate_full_report.py` (overview + detail, datasetReference); Quality checks as hard gate; Bracket schema `ux_bindings` optional. **Open:** deploy.ps1 real API; measure/axis binding; Action Panel content; Streamlit Bindings/Actions tabs.
 
 ---
 

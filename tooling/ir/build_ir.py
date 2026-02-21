@@ -5,6 +5,10 @@ Inputs (Core ABI):
 - tooling/ontology/out/master_registry.json
 - tooling/ontology/out/value_map.json
 
+Optional (for IR-first adapters):
+- --kpi-catalog: scan core/kpi_catalog for measure specs (dax_expression, formatString, etc.)
+  and add measure_spec to IR so adapters need not read Core.
+
 Output:
 - tooling/ir/out/ir_v1.json (default)
 
@@ -15,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict
@@ -33,7 +38,110 @@ def _write_json(path: Path, obj: Any) -> None:
     path.write_text(json.dumps(obj, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def build_ir(*, master_registry: Dict[str, Any], value_map: Dict[str, Any], ir_version: str, master_path: str, value_path: str) -> Dict[str, Any]:
+def _extract_scalar(chunk: str, key: str) -> str | None:
+    """Extract scalar value for key (key: value or key: \"value\"). Matches at any indentation."""
+    m = re.search(rf"(?m)^\s*{re.escape(key)}\s*:\s*(?:\|\s*)?(?:\r?\n)?(?:\s*\"([^\"]*)\"|\s*'([^']*)'|\s*([^\s#\r\n]+))", chunk)
+    if not m:
+        return None
+    return (m.group(1) or m.group(2) or m.group(3) or "").strip() or None
+
+
+def _extract_literal_block(chunk: str, key: str) -> str | None:
+    """Extract YAML literal block value for key (key: | followed by indented lines)."""
+    m = re.search(rf"(?m)^(\s*){re.escape(key)}\s*:\s*\|\s*\r?\n", chunk)
+    if not m:
+        return None
+    key_indent = len(m.group(1))
+    start = m.end()
+    lines: list[str] = []
+    for line in chunk[start:].splitlines():
+        if line.strip() and re.match(r"^\s*", line):
+            line_indent = len(line) - len(line.lstrip())
+            if line_indent <= key_indent:
+                break
+        lines.append(line)
+    # Strip common indentation
+    non_empty = [ln for ln in lines if ln.strip()]
+    if not non_empty:
+        return None
+    min_indent = min(len(ln) - len(ln.lstrip()) for ln in non_empty)
+    result = "\n".join(ln[min_indent:] if len(ln) >= min_indent else ln for ln in lines)
+    return result.rstrip() or None
+
+
+def _scan_kpi_catalog(root: Path) -> Dict[str, Dict[str, Any]]:
+    """
+    Scan KPI catalog .md files for yaml blocks; extract per-kpi_id measure specs
+    (dax_expression, format_string, dax_name, display_folder, description, purpose).
+    Aligns with generate_tmdl_measures.ps1 Parse-KpiRecord / Load-KpiCatalog.
+    """
+    measure_spec: Dict[str, Dict[str, Any]] = {}
+    for path in sorted(root.glob("*.md")):
+        if path.name in ("README.md", "SCHEMA.md"):
+            continue
+        text = path.read_text(encoding="utf-8-sig")
+        for block in re.finditer(r"```yaml\s*(.*?)```", text, re.DOTALL):
+            yaml_content = block.group(1)
+            # Split into list items by "- kpi_id:"
+            parts = re.split(r"(?m)^\s*-\s*kpi_id\s*:\s*", yaml_content)
+            for i, part in enumerate(parts):
+                if i == 0 and not re.search(r"(?m)^\s*-\s*kpi_id\s*:\s*", yaml_content):
+                    continue
+                kpi_id_m = re.match(r"([a-z][a-z0-9_.]+)\s*[\r\n#]", part)
+                if not kpi_id_m:
+                    continue
+                kpi_id = kpi_id_m.group(1).strip()
+                # Prefer nested technical.* then top-level keys
+                chunk = part
+                dax_expr = _extract_literal_block(chunk, "dax_expression") or _extract_scalar(chunk, "dax_expression")
+                if not dax_expr and "technical:" in chunk:
+                    sub = re.search(r"(?s)technical:\s*\n(.*?)(?=\n\w|\n\s*\n\w|$)", chunk)
+                    if sub:
+                        dax_expr = _extract_literal_block(sub.group(1), "dax_expression") or _extract_scalar(sub.group(1), "dax_expression")
+                format_str = _extract_scalar(chunk, "formatString")
+                if not format_str and "technical:" in chunk:
+                    sub = re.search(r"(?s)technical:\s*\n(.*?)(?=\n\w|\n\s*\n\w|$)", chunk)
+                    if sub:
+                        format_str = _extract_scalar(sub.group(1), "formatString")
+                dax_name = _extract_scalar(chunk, "dax_name")
+                if not dax_name and "technical:" in chunk:
+                    sub = re.search(r"(?s)technical:\s*\n(.*?)(?=\n\w|\n\s*\n\w|$)", chunk)
+                    if sub:
+                        dax_name = _extract_scalar(sub.group(1), "dax_name")
+                display_folder = _extract_scalar(chunk, "displayFolder") or ""
+                description = _extract_scalar(chunk, "description")
+                if not description and "technical:" in chunk:
+                    sub = re.search(r"(?s)technical:\s*\n(.*?)(?=\n\w|\n\s*\n\w|$)", chunk)
+                    if sub:
+                        description = _extract_scalar(sub.group(1), "description")
+                purpose = _extract_scalar(chunk, "purpose")
+                if not purpose and "business:" in chunk:
+                    sub = re.search(r"(?s)business:\s*\n(.*?)(?=\n\w|\n\s*\n\w|$)", chunk)
+                    if sub:
+                        purpose = _extract_scalar(sub.group(1), "purpose")
+                kpi_key = _extract_scalar(chunk, "kpi_key")
+                if kpi_id not in measure_spec or dax_expr:
+                    measure_spec[kpi_id] = {
+                        "dax_expression": dax_expr,
+                        "format_string": format_str or "",
+                        "dax_name": dax_name,
+                        "display_folder": display_folder,
+                        "description": description or "",
+                        "purpose": purpose or "",
+                        "kpi_key": kpi_key,
+                    }
+    return measure_spec
+
+
+def build_ir(
+    *,
+    master_registry: Dict[str, Any],
+    value_map: Dict[str, Any],
+    ir_version: str,
+    master_path: str,
+    value_path: str,
+    measure_spec: Dict[str, Dict[str, Any]] | None = None,
+) -> Dict[str, Any]:
     objects = master_registry.get("objects") or {}
     use_cases = objects.get("use_cases") or {}
     kpis = objects.get("kpis") or {}
@@ -114,6 +222,10 @@ def build_ir(*, master_registry: Dict[str, Any], value_map: Dict[str, Any], ir_v
             # Keep this as non-schema additional data for now (future: extend schema additively).
             ir.setdefault("extras", {})["impact_paths"] = impact_paths
 
+    # Optional: measure specs for IR-first adapters (no direct Core reads).
+    if measure_spec is not None:
+        ir["measure_spec"] = measure_spec
+
     return ir
 
 
@@ -123,6 +235,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--value-map", default="tooling/ontology/out/value_map.json")
     p.add_argument("--out", default="tooling/ir/out/ir_v1.json")
     p.add_argument("--ir-version", default="1.0")
+    p.add_argument("--kpi-catalog", default="", help="Optional path to core/kpi_catalog to add measure_spec to IR (for IR-first adapters).")
     args = p.parse_args(argv)
 
     master_path = Path(args.master_registry)
@@ -137,12 +250,21 @@ def main(argv: list[str] | None = None) -> int:
     master_registry = _read_json(master_path)
     value_map = _read_json(value_path)
 
+    measure_spec: Dict[str, Dict[str, Any]] | None = None
+    if args.kpi_catalog:
+        kpi_root = Path(args.kpi_catalog)
+        if not kpi_root.is_dir():
+            raise SystemExit(f"KPI catalog path is not a directory: {kpi_root}")
+        measure_spec = _scan_kpi_catalog(kpi_root)
+        print(f"measure_spec: {len(measure_spec)} KPIs from {kpi_root.as_posix()}")
+
     ir = build_ir(
         master_registry=master_registry,
         value_map=value_map,
         ir_version=args.ir_version,
         master_path=str(master_path.as_posix()),
         value_path=str(value_path.as_posix()),
+        measure_spec=measure_spec,
     )
     _write_json(out_path, ir)
     print(f"IR written: {out_path.as_posix()}")

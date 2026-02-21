@@ -1,6 +1,8 @@
 # Setup checklist: Project, Branch Protection, Migration
 
-**Purpose:** Execute these steps once to complete the operative package. GitHub CLI (`gh`) is not required for the UI steps; the migration script needs a GitHub token (or install `gh` and run the script).
+**Purpose:** Execute these steps once to complete the operative package.
+
+**Vollautomatischer Weg (empfohlen):** Du legst nur das Project in der UI an und fügst die Felder hinzu (Abschnitt 1). Danach: Token + Projekt-Nummer setzen und [tooling/project_mgmt/setup_project_full.py](../../tooling/project_mgmt/setup_project_full.py) ausführen. Das Skript erstellt **granulare** Issues, fügt sie dem Project hinzu und setzt alle Felder. Details: [WHAT_I_NEED.md](WHAT_I_NEED.md).
 
 **Repo:** `FlorianHaferkorn/analytics-usecase-library` (adjust if different).
 

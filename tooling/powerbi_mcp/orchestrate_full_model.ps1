@@ -11,10 +11,9 @@ Param(
 
 $ErrorActionPreference = "Stop"
 
-# Path Resolution - Calculate before changing location
+# Path Resolution - Calculate before changing location (repo = parent of tooling)
 $script:ToolsRoot = Split-Path -Parent $PSScriptRoot
-$internalRoot = Split-Path -Parent $script:ToolsRoot
-$script:RepoRoot = Split-Path -Parent $internalRoot
+$script:RepoRoot = Split-Path -Parent $script:ToolsRoot
 Push-Location $script:RepoRoot
 
 # Validate input
@@ -88,6 +87,25 @@ function Invoke-WithRetry {
     return $false
 }
 
+# PHASE 0: BUILD REGISTRY (required for Measure binding and Action Panel)
+$state.phase = "registry"
+$state.iteration = 0
+Invoke-WithRetry "Build Registry" {
+    $registryScript = Join-Path $script:RepoRoot "tooling\validation\check_registry_builder.ps1"
+    if (-not (Test-Path $registryScript)) {
+        throw "check_registry_builder.ps1 not found at $registryScript. Registry is required for build."
+    }
+    & $registryScript -Root $script:RepoRoot -FailOnError
+    if ($LASTEXITCODE -ne 0) {
+        throw "Registry build failed (exit $LASTEXITCODE). Fix contract/registry errors and retry."
+    }
+    $masterPath = Join-Path $script:RepoRoot "tooling\ontology\out\master_registry.json"
+    if (-not (Test-Path $masterPath)) {
+        throw "master_registry.json not found after registry build: $masterPath"
+    }
+    Write-Host "  Registry ready: $masterPath" -ForegroundColor Green
+}
+
 # PHASE 1: DATA FOUNDATION
 $state.phase = "data_foundation"
 $state.iteration = 1
@@ -95,7 +113,8 @@ $state.iteration = 1
 Invoke-WithRetry "Check Aurora Data" {
     $dataPath = "showcases\aurora_group\data\gold"
     if (-not (Test-Path $dataPath)) {
-        throw "Aurora data not found at $dataPath"
+        Write-Host "  WARNING: Aurora data not found at $dataPath (optional for measure/report build)" -ForegroundColor Yellow
+        return
     }
     $dims = @("dim_date", "dim_org", "dim_product", "dim_customer", "dim_promo", "dim_account")
     $facts = @("fact_sales", "fact_sales_budget", "fact_action_log", "fact_gl_journal")
@@ -174,16 +193,18 @@ if ($scopeType -eq "UseCase") {
         
         $allMeasures = @()
         foreach ($ucDir in $ucDirs) {
-            Write-Host "  Generating $($ucDir.Name)..." -ForegroundColor Gray
+            # Use Case ID (e.g. COM-001) for consistent paths and report output
+            $ucId = ($ucDir.Name -split '_', 2)[0]
+            Write-Host "  Generating $ucId ($($ucDir.Name))..." -ForegroundColor Gray
             
             & ./tooling/generation/generate_tmdl_measures.ps1 `
-                -UseCase $ucDir.Name `
+                -UseCase $ucId `
                 -UseCasesRoot "core/usecases/core" `
                 -KpiCatalogRoot "core/kpi_catalog" `
                 -DistRoot "products/fabric_powerbi/dist" `
                 -OverwriteExisting | Out-Null
             
-            $measuresFile = "products\fabric_powerbi\dist\$($ucDir.Name)\$($ucDir.Name).SemanticModel\definition\tables\_Measures.tmdl"
+            $measuresFile = "products\fabric_powerbi\dist\$ucId\$ucId.SemanticModel\definition\tables\_Measures.tmdl"
             if (Test-Path $measuresFile) {
                 $allMeasures += (Get-Content $measuresFile -Raw)
             }
@@ -284,62 +305,87 @@ Invoke-WithRetry "Create Tables from Contracts" {
 
 # 3.3 Create Relationships from UseCase_Bracket.yaml
 Invoke-WithRetry "Create Relationships" {
-    $useCaseDir = Get-ChildItem "core\usecases\core" -Directory | 
-        Where-Object { $_.Name -like "$scopeName*" } | 
-        Select-Object -First 1
-    
-    if (-not $useCaseDir) {
-        Write-Host "  WARNING: Use case directory not found for $scopeName" -ForegroundColor Yellow
+    $bracketDirs = @()
+    if ($scopeType -eq "Domain") {
+        $domainPrefix = switch ($scopeName.ToUpper()) {
+            "COMMERCIAL" { "COM" }; "FINANCE" { "FIN" }; "OPERATIONS" { "OPS" }; "SUPPLYCHAIN" { "SCM" }; "EXPERIENCE" { "XD" }
+            default { $scopeName.Substring(0, 3).ToUpper() }
+        }
+        $bracketDirs = @(Get-ChildItem "core\usecases\core" -Directory | Where-Object { $_.Name -like "$domainPrefix-*" })
+    } else {
+        $one = Get-ChildItem "core\usecases\core" -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -like "$scopeName*" } | Select-Object -First 1
+        if ($one) { $bracketDirs = @($one) }
+    }
+    if ($bracketDirs.Count -eq 0) {
+        Write-Host "  WARNING: No use case directory found for scope $scopeName" -ForegroundColor Yellow
         return
     }
-    
-    $bracketPath = "$($useCaseDir.FullName)\UseCase_Bracket.yaml"
-    
-    if (-not (Test-Path $bracketPath)) {
-        Write-Host "  WARNING: UseCase_Bracket.yaml missing: $bracketPath" -ForegroundColor Yellow
-        return
-    }
-    
     $outDir = Join-Path $script:RepoRoot "tooling\powerbi_mcp\out"
     if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir -Force | Out-Null }
-    $relJsonPath = Join-Path $outDir "relationship_ops_$scopeName.json"
-    try {
-        & ./tooling/powerbi_mcp/relationship_ops.ps1 `
-            -Operation "CreateFromBracket" `
-            -ConnectionName "local_pbip" `
-            -BracketPath $bracketPath `
-            -OutJsonPath $relJsonPath `
-            -ErrorAction Stop | Out-Null
-        Write-Host "  Relationships created from UseCase_Bracket.yaml" -ForegroundColor Green
-    } catch {
-        Write-Host "  WARNING: Could not create relationships: $_" -ForegroundColor Yellow
+    $created = 0
+    foreach ($useCaseDir in $bracketDirs) {
+        $bracketPath = "$($useCaseDir.FullName)\UseCase_Bracket.yaml"
+        if (-not (Test-Path $bracketPath)) {
+            Write-Host "  WARNING: UseCase_Bracket.yaml missing: $bracketPath" -ForegroundColor Yellow
+            continue
+        }
+        $ucId = ($useCaseDir.Name -split '_', 2)[0]
+        $relJsonPath = Join-Path $outDir "relationship_ops_$ucId.json"
+        try {
+            & ./tooling/powerbi_mcp/relationship_ops.ps1 `
+                -Operation "CreateFromBracket" `
+                -ConnectionName "local_pbip" `
+                -BracketPath $bracketPath `
+                -OutJsonPath $relJsonPath `
+                -ErrorAction Stop | Out-Null
+            $created++
+            Write-Host "  Relationships from $ucId" -ForegroundColor Green
+        } catch {
+            Write-Host "  WARNING: Could not create relationships for $ucId : $_" -ForegroundColor Yellow
+        }
     }
+    if ($created -gt 0) { Write-Host "  Relationships created for $created bracket(s)" -ForegroundColor Green }
 }
 
 # 3.4 User hierarchies from bracket + contract (output to out/ for MCP or doc)
 Invoke-WithRetry "Create Hierarchies Definition" {
-    $useCaseDir = Get-ChildItem "core\usecases\core" -Directory -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -like "$scopeName*" } | Select-Object -First 1
-    if (-not $useCaseDir) {
-        Write-Host "  WARNING: Use case directory not found for $scopeName" -ForegroundColor Yellow
+    $bracketDirs = @()
+    if ($scopeType -eq "Domain") {
+        $domainPrefix = switch ($scopeName.ToUpper()) {
+            "COMMERCIAL" { "COM" }; "FINANCE" { "FIN" }; "OPERATIONS" { "OPS" }; "SUPPLYCHAIN" { "SCM" }; "EXPERIENCE" { "XD" }
+            default { $scopeName.Substring(0, 3).ToUpper() }
+        }
+        $bracketDirs = @(Get-ChildItem "core\usecases\core" -Directory | Where-Object { $_.Name -like "$domainPrefix-*" })
+    } else {
+        $one = Get-ChildItem "core\usecases\core" -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -like "$scopeName*" } | Select-Object -First 1
+        if ($one) { $bracketDirs = @($one) }
+    }
+    if ($bracketDirs.Count -eq 0) {
+        Write-Host "  WARNING: No use case directory found for scope $scopeName" -ForegroundColor Yellow
         return
     }
-    $bracketPath = "$($useCaseDir.FullName)\UseCase_Bracket.yaml"
-    if (-not (Test-Path $bracketPath)) { return }
     $outDir = Join-Path $script:RepoRoot "tooling\powerbi_mcp\out"
     if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir -Force | Out-Null }
-    $hierJsonPath = Join-Path $outDir "hierarchy_ops_$scopeName.json"
-    try {
-        & ./tooling/powerbi_mcp/hierarchy_ops.ps1 `
-            -Operation "FromBracket" `
-            -BracketPath $bracketPath `
-            -RepoRoot $script:RepoRoot `
-            -OutJsonPath $hierJsonPath `
-            -ErrorAction Stop | Out-Null
-        Write-Host "  Hierarchy definitions written to $hierJsonPath" -ForegroundColor Green
-    } catch {
-        Write-Host "  WARNING: Hierarchy ops: $_" -ForegroundColor Yellow
+    $created = 0
+    foreach ($useCaseDir in $bracketDirs) {
+        $bracketPath = "$($useCaseDir.FullName)\UseCase_Bracket.yaml"
+        if (-not (Test-Path $bracketPath)) { continue }
+        $ucId = ($useCaseDir.Name -split '_', 2)[0]
+        $hierJsonPath = Join-Path $outDir "hierarchy_ops_$ucId.json"
+        try {
+            & ./tooling/powerbi_mcp/hierarchy_ops.ps1 `
+                -Operation "FromBracket" `
+                -BracketPath $bracketPath `
+                -RepoRoot $script:RepoRoot `
+                -OutJsonPath $hierJsonPath `
+                -ErrorAction Stop | Out-Null
+            $created++
+            Write-Host "  Hierarchy definitions for $ucId" -ForegroundColor Green
+        } catch {
+            Write-Host "  WARNING: Hierarchy ops for $ucId : $_" -ForegroundColor Yellow
+        }
     }
+    if ($created -gt 0) { Write-Host "  Hierarchies written for $created bracket(s)" -ForegroundColor Green }
 }
 
 # PHASE 4: VALIDATION
@@ -381,34 +427,60 @@ Invoke-WithRetry "Run Quality Checks" {
     $errorLines = $bpaOutput -split [Environment]::NewLine | Where-Object { $_ -match "ERROR|FAIL" }
     
     if ($errorLines.Count -gt 0) {
-        Write-Host "  Found $($errorLines.Count) warnings" -ForegroundColor Yellow
-        $state.warnings += "Quality checks: $($errorLines.Count) warnings"
+        Write-Host "  Found $($errorLines.Count) error/fail line(s)" -ForegroundColor Red
+        $state.warnings += "Quality checks: $($errorLines.Count) errors"
+        throw "Quality checks reported errors. Fix and run tooling\run_stage1_checks.ps1"
     }
-    Write-Host "  Quality checks completed" -ForegroundColor Green
+    Write-Host "  Quality checks passed" -ForegroundColor Green
 }
 
-# PHASE 5: REPORT GENERATION FROM PAGE TEMPLATE
+# PHASE 5: REPORT GENERATION (UX Engine: page_scaffold_generator, overview + detail, datasetReference)
 $state.phase = "report_generation"
 $state.iteration = 5
 Invoke-WithRetry "Generate Report from Template" {
     $distReportRoot = Join-Path $script:RepoRoot "products\fabric_powerbi\dist"
     if (-not (Test-Path $distReportRoot)) { New-Item -ItemType Directory -Path $distReportRoot -Force | Out-Null }
-    $templateName = "overview_drivers_details"
-    $factsheetPath = $null
-    $ucDir = Get-ChildItem "core\usecases\core" -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -like "$scopeName*" } | Select-Object -First 1
-    if ($ucDir) {
-        $fsPath = Join-Path $ucDir.FullName "Business_Factsheet.md"
-        if (Test-Path $fsPath) {
-            $fsContent = Get-Content $fsPath -Raw
-            if ($fsContent -match 'page_template:\s*["'']?([^"''\s]+)["'']?') { $templateName = $matches[1].Trim() }
+    $reportUseCases = @()
+    if ($scopeType -eq "Domain") {
+        $domainPrefix = switch ($scopeName.ToUpper()) {
+            "COMMERCIAL" { "COM" }; "FINANCE" { "FIN" }; "OPERATIONS" { "OPS" }; "SUPPLYCHAIN" { "SCM" }; "EXPERIENCE" { "XD" }
+            default { $scopeName.Substring(0, 3).ToUpper() }
         }
+        $reportUseCases = @(Get-ChildItem "core\usecases\core" -Directory | Where-Object { $_.Name -like "$domainPrefix-*" } | ForEach-Object { ($_.Name -split '_', 2)[0] })
+    } else {
+        $reportUseCases = @($scopeName)
     }
-    & ./tooling/powerbi_mcp/report_generator.ps1 `
-        -UseCase $scopeName `
-        -TemplateName $templateName `
-        -OutputPath $distReportRoot `
-        -ErrorAction Stop | Out-Null
-    Write-Host "  Report structure created for $scopeName (template: $templateName)" -ForegroundColor Green
+    $pyCmd = $null
+    foreach ($cmd in @("py -3", "python3", "python")) {
+        try {
+            $parts = $cmd -split " "
+            $exe = $parts[0]
+            $exeArgs = @($parts[1..999] | Where-Object { $_ }) + @("--version")
+            $ver = (& $exe $exeArgs 2>&1) -join " "
+            if ($LASTEXITCODE -eq 0 -and $ver -match "Python 3") { $pyCmd = $cmd; break }
+        } catch { continue }
+    }
+    if (-not $pyCmd) {
+        Write-Host "  WARNING: Python 3 not found; falling back to report_generator.ps1 (empty visuals)" -ForegroundColor Yellow
+        foreach ($ucId in $reportUseCases) {
+            & ./tooling/powerbi_mcp/report_generator.ps1 -UseCase $ucId -OutputPath $distReportRoot -ErrorAction Stop | Out-Null
+            Write-Host "  Report structure created for $ucId (fallback)" -ForegroundColor Green
+        }
+        return
+    }
+    $datasetRef = "..\..\..\showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel"
+    $pyExe = ($pyCmd -split " ")[0]
+    $pyExeArgs = @(($pyCmd -split " ")[1..999] | Where-Object { $_ })
+    $scriptPath = Join-Path $script:RepoRoot "products\fabric_powerbi\tooling\page_scaffold_generator\generate_full_report.py"
+    foreach ($ucId in $reportUseCases) {
+        $reportFolder = Join-Path $distReportRoot "$ucId.Report"
+        $allArgs = $pyExeArgs + @($scriptPath, "--use-case", $ucId, "--output", $reportFolder, "--repo-root", $script:RepoRoot, "--dataset-reference", $datasetRef)
+        & $pyExe @allArgs 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            throw "generate_full_report.py failed for $ucId (exit $LASTEXITCODE). Check Bracket ux_layout_rules and page_scaffold_generator."
+        }
+        Write-Host "  Report created for $ucId (overview + detail, UX Engine)" -ForegroundColor Green
+    }
 }
 
 # FINAL SUMMARY
@@ -444,3 +516,7 @@ $stateJson = $state | ConvertTo-Json -Depth 5
 $utf8 = New-Object System.Text.UTF8Encoding $false
 [System.IO.File]::WriteAllText($stateFile, $stateJson, $utf8)
 Write-Host ([Environment]::NewLine + "State saved: $stateFile") -ForegroundColor Green
+
+if ($state.errors.Count -gt 0) {
+    exit 1
+}

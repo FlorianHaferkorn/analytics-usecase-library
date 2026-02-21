@@ -222,9 +222,10 @@ foreach ($file in $tmdlFiles) {
 		}
 	}
 	
-	# Save fixed content
+	# Save fixed content (UTF8 no BOM; PowerShell 5.1 has no UTF8NoBOM enum)
 	if ($modified) {
-		Set-Content -Path $file.FullName -Value $content -Encoding UTF8NoBOM
+		$utf8NoBom = New-Object System.Text.UTF8Encoding $false
+		[System.IO.File]::WriteAllText($file.FullName, $content, $utf8NoBom)
 		Write-Host "  OK Fixed and saved: $($fixedRules -join ', ')" -ForegroundColor Green
 		$results.Fixed += @{
 			File = $file.Name

@@ -20,31 +20,15 @@ table _ActionReady_Logic
 
 	/// ActionReady Logic: C-M2.1 - Price Realization Guardrails
 	measure 'Action_C-M2.1_Text' =
-			"Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each {entity} where price realization falls below threshold" & UNICHAR(10) & "  2. FREEZE discretionary discounts for this {entity}" & UNICHAR(10) & "  3. ENFORCE approval workflow for any price exception on this {entity}" & UNICHAR(10) & "  4. REVIEW realization recovery for this {entity} monthly"
+			"Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each invoice line where price realization falls below threshold" & UNICHAR(10) & "  2. FREEZE discretionary discounts for this invoice line" & UNICHAR(10) & "  3. ENFORCE approval workflow for any price exception on this invoice line" & UNICHAR(10) & "  4. REVIEW realization recovery for this invoice line monthly"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "TBD"
 		annotation ActionReady_ActionCodeId = "C-M2.1"
 
-	/// ActionReady Logic: C-M2.2 - Mix Optimization (Margin-Driven)
-	measure 'Action_C-M2.2_Text' =
-			"Trigger: Pattern (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each {entity} with persistent negative mix effect" & UNICHAR(10) & "  2. RANK SKUs by margin contribution for this {entity}" & UNICHAR(10) & "  3. ADJUST sales targets and focus lists for this {entity}" & UNICHAR(10) & "  4. MONITOR mix and margin for this {entity} monthly"
-		isHidden
-		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "TBD"
-		annotation ActionReady_ActionCodeId = "C-M2.2"
-
-	/// ActionReady Logic: C-P4.1 - Promo Calendar Discipline
-	measure 'Action_C-P4.1_Text' =
-			"Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each {entity} with repeated negative ROI" & UNICHAR(10) & "  2. REVIEW mechanics and baseline assumptions for this {entity}" & UNICHAR(10) & "  3. STOP, REPLACE, or RESEQUENCE this {entity} based on ROI analysis" & UNICHAR(10) & "  4. VALIDATE ROI improvement for this {entity} in next cycle"
-		isHidden
-		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "TBD"
-		annotation ActionReady_ActionCodeId = "C-P4.1"
-
 	/// ActionReady Logic: C-S1.1 - Price Discipline Enforcement
 	measure 'Action_C-S1.1_Text' =
-			"Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each {entity} breaching gross margin threshold" & UNICHAR(10) & "  2. FREEZE new discretionary discounts for this {entity}" & UNICHAR(10) & "  3. REQUIRE approval for any price exception on this {entity}" & UNICHAR(10) & "  4. REVIEW net price realization for this {entity} weekly"
+			"Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each invoice line breaching gross margin threshold" & UNICHAR(10) & "  2. FREEZE new discretionary discounts for this invoice line" & UNICHAR(10) & "  3. REQUIRE approval for any price exception on this invoice line" & UNICHAR(10) & "  4. REVIEW net price realization for this invoice line weekly"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "TBD"
@@ -52,7 +36,7 @@ table _ActionReady_Logic
 
 	/// ActionReady Logic: C-S1.2 - Sales Gap Recovery via Price & Pack Adjustment
 	measure 'Action_C-S1.2_Text' =
-			"Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each {entity} breaching plan thresholds" & UNICHAR(10) & "  2. SELECT eligible products for this {entity} within GM guardrails" & UNICHAR(10) & "  3. APPLY temporary price or pack adjustments to this {entity}" & UNICHAR(10) & "  4. REVIEW Net Sales uplift for this {entity} after one cycle"
+			"Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each invoice line breaching plan thresholds" & UNICHAR(10) & "  2. SELECT eligible products for this invoice line within GM guardrails" & UNICHAR(10) & "  3. APPLY temporary price or pack adjustments to this invoice line" & UNICHAR(10) & "  4. REVIEW Net Sales uplift for this invoice line after one cycle"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "TBD"

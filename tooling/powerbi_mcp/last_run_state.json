@@ -1,9 +1,64 @@
 {
     "errors":  [
                    {
-                       "phase":  "Validate TMDL Syntax",
-                       "iteration":  4,
-                       "error":  "Der Parameter \"Encoding\" kann nicht gebunden werden. Der Wert \"UTF8NoBOM\" kann nicht in den Typ \"Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding\" konvertiert werden. Fehler: \"Der Bezeichner \"UTF8NoBOM\" kann keinem gültigen Enumeratornamen zugeordnet werden. Geben Sie einen der folgenden Enumeratornamen an, und wiederholen Sie den Vorgang:\r\nUnknown, String, Unicode, Byte, BigEndianUnicode, UTF8, UTF7, UTF32, Ascii, Default, Oem, BigEndianUTF32\""
+                       "phase":  "Build Registry",
+                       "iteration":  0,
+                       "error":  "check_registry_builder.ps1 not found at C:\\Users\\florianhaferkorn\\VSCode\\tooling\\validation\\check_registry_builder.ps1. Registry is required for build."
+                   },
+                   {
+                       "phase":  "Build Registry",
+                       "iteration":  0,
+                       "error":  "check_registry_builder.ps1 not found at C:\\Users\\florianhaferkorn\\VSCode\\tooling\\validation\\check_registry_builder.ps1. Registry is required for build."
+                   },
+                   {
+                       "phase":  "Build Registry",
+                       "iteration":  0,
+                       "error":  "check_registry_builder.ps1 not found at C:\\Users\\florianhaferkorn\\VSCode\\tooling\\validation\\check_registry_builder.ps1. Registry is required for build."
+                   },
+                   {
+                       "phase":  "Check Aurora Data",
+                       "iteration":  1,
+                       "error":  "Aurora data not found at showcases\\aurora_group\\data\\gold"
+                   },
+                   {
+                       "phase":  "Check Aurora Data",
+                       "iteration":  1,
+                       "error":  "Aurora data not found at showcases\\aurora_group\\data\\gold"
+                   },
+                   {
+                       "phase":  "Check Aurora Data",
+                       "iteration":  1,
+                       "error":  "Aurora data not found at showcases\\aurora_group\\data\\gold"
+                   },
+                   {
+                       "phase":  "Generate UseCase Measures",
+                       "iteration":  2,
+                       "error":  "Der Pfad \"C:\\Users\\florianhaferkorn\\VSCode\\core\\usecases\\core\" kann nicht gefunden werden, da er nicht vorhanden ist."
+                   },
+                   {
+                       "phase":  "Generate UseCase Measures",
+                       "iteration":  2,
+                       "error":  "Der Pfad \"C:\\Users\\florianhaferkorn\\VSCode\\core\\usecases\\core\" kann nicht gefunden werden, da er nicht vorhanden ist."
+                   },
+                   {
+                       "phase":  "Generate UseCase Measures",
+                       "iteration":  2,
+                       "error":  "Der Pfad \"C:\\Users\\florianhaferkorn\\VSCode\\core\\usecases\\core\" kann nicht gefunden werden, da er nicht vorhanden ist."
+                   },
+                   {
+                       "phase":  "Import Measures to Model",
+                       "iteration":  3,
+                       "error":  "Das Argument kann nicht an den Parameter \"Path\" gebunden werden, da es NULL ist."
+                   },
+                   {
+                       "phase":  "Import Measures to Model",
+                       "iteration":  3,
+                       "error":  "Das Argument kann nicht an den Parameter \"Path\" gebunden werden, da es NULL ist."
+                   },
+                   {
+                       "phase":  "Import Measures to Model",
+                       "iteration":  3,
+                       "error":  "Das Argument kann nicht an den Parameter \"Path\" gebunden werden, da es NULL ist."
                    },
                    {
                        "phase":  "Validate TMDL Syntax",
@@ -14,28 +69,59 @@
                        "phase":  "Validate TMDL Syntax",
                        "iteration":  4,
                        "error":  "Der Parameter \"Encoding\" kann nicht gebunden werden. Der Wert \"UTF8NoBOM\" kann nicht in den Typ \"Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding\" konvertiert werden. Fehler: \"Der Bezeichner \"UTF8NoBOM\" kann keinem gültigen Enumeratornamen zugeordnet werden. Geben Sie einen der folgenden Enumeratornamen an, und wiederholen Sie den Vorgang:\r\nUnknown, String, Unicode, Byte, BigEndianUnicode, UTF8, UTF7, UTF32, Ascii, Default, Oem, BigEndianUTF32\""
+                   },
+                   {
+                       "phase":  "Validate TMDL Syntax",
+                       "iteration":  4,
+                       "error":  "Der Parameter \"Encoding\" kann nicht gebunden werden. Der Wert \"UTF8NoBOM\" kann nicht in den Typ \"Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding\" konvertiert werden. Fehler: \"Der Bezeichner \"UTF8NoBOM\" kann keinem gültigen Enumeratornamen zugeordnet werden. Geben Sie einen der folgenden Enumeratornamen an, und wiederholen Sie den Vorgang:\r\nUnknown, String, Unicode, Byte, BigEndianUnicode, UTF8, UTF7, UTF32, Ascii, Default, Oem, BigEndianUTF32\""
+                   },
+                   {
+                       "phase":  "Run Quality Checks",
+                       "iteration":  4,
+                       "error":  "Das Argument kann nicht an den Parameter \"Path\" gebunden werden, da es sich um eine leere Zeichenfolge handelt."
+                   },
+                   {
+                       "phase":  "Run Quality Checks",
+                       "iteration":  4,
+                       "error":  "Das Argument kann nicht an den Parameter \"Path\" gebunden werden, da es sich um eine leere Zeichenfolge handelt."
+                   },
+                   {
+                       "phase":  "Run Quality Checks",
+                       "iteration":  4,
+                       "error":  "Das Argument kann nicht an den Parameter \"Path\" gebunden werden, da es sich um eine leere Zeichenfolge handelt."
+                   },
+                   {
+                       "phase":  "Generate Report from Template",
+                       "iteration":  5,
+                       "error":  "Die Benennung \"py -3\" wurde nicht als Name eines Cmdlet, einer Funktion, einer Skriptdatei oder eines ausführbaren Programms erkannt. Überprüfen Sie die Schreibweise des Namens, oder ob der Pfad korrekt ist (sofern enthalten), und wiederholen Sie den Vorgang."
+                   },
+                   {
+                       "phase":  "Generate Report from Template",
+                       "iteration":  5,
+                       "error":  "Die Benennung \"py -3\" wurde nicht als Name eines Cmdlet, einer Funktion, einer Skriptdatei oder eines ausführbaren Programms erkannt. Überprüfen Sie die Schreibweise des Namens, oder ob der Pfad korrekt ist (sofern enthalten), und wiederholen Sie den Vorgang."
+                   },
+                   {
+                       "phase":  "Generate Report from Template",
+                       "iteration":  5,
+                       "error":  "Die Benennung \"py -3\" wurde nicht als Name eines Cmdlet, einer Funktion, einer Skriptdatei oder eines ausführbaren Programms erkannt. Überprüfen Sie die Schreibweise des Namens, oder ob der Pfad korrekt ist (sofern enthalten), und wiederholen Sie den Vorgang."
                    }
                ],
     "scopeType":  "UseCase",
-    "iteration":  4,
+    "iteration":  5,
     "warnings":  [
 
                  ],
-    "measuresFile":  "implementations\\microsoft_fabric_powerbi\\dist\\COM-002\\COM-002.SemanticModel\\definition\\tables\\_Measures.tmdl",
-    "scopeName":  "COM-002",
+    "scopeName":  "COM-001",
     "completed":  [
-                      "Check Aurora Data",
-                      "Generate UseCase Measures",
                       "Validate TMDL Syntax",
-                      "Import Measures to Model",
                       "Create Tables from Contracts",
                       "Create Relationships",
-                      "Run Quality Checks"
+                      "Create Hierarchies Definition"
                   ],
-    "phase":  "validation",
+    "phase":  "report_generation",
     "startTime":  {
-                      "value":  "\/Date(1770108237820)\/",
+                      "value":  "\/Date(1771686721490)\/",
                       "DisplayHint":  2,
-                      "DateTime":  "Dienstag, 3. Februar 2026 09:43:57"
+                      "DateTime":  "Samstag, 21. Februar 2026 16:12:01"
                   }
 }

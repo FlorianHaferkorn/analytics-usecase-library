@@ -3,19 +3,16 @@
   Standard adapter command: build -> dist/
 .DESCRIPTION
   Reference implementation for the Fabric/Power BI adapter.
-  Runs Core gates (optional), builds registry outputs, derives IR, and generates tool artifacts.
-
-  Transitional note:
-  Measure generation currently uses existing generators that read Core artifacts.
-  Target state is IR-first generation.
+  Runs Core gates (optional), builds IR from Core ABI + KPI catalog, then generates TMDL from IR only (IR-first).
 #>
 Param(
   [Parameter(Mandatory = $true)][string]$UseCaseId,
-  [string]$UseCasesRoot   = "core/usecases",
   [string]$KpiCatalogRoot = "core/kpi_catalog",
   [string]$DistRoot       = "products/fabric_powerbi/dist",
+  [string]$IROutPath      = "tooling/ir/out/ir_v1.json",
   [switch]$SkipStage1,
-  [switch]$SkipIr
+  # Legacy: run measure generator from Core paths instead of IR (not recommended).
+  [switch]$LegacyCorePaths
 )
 
 $ErrorActionPreference = "Stop"
@@ -29,24 +26,31 @@ if (-not $SkipStage1) {
   Write-Host ""
 }
 
-if (-not $SkipIr) {
-  Write-Host ">> Build IR (from Core ABI outputs)" -ForegroundColor Cyan
+if (-not $LegacyCorePaths) {
+  Write-Host ">> Build IR (Core ABI + KPI catalog -> measure_spec)" -ForegroundColor Cyan
   if (Get-Command py -ErrorAction SilentlyContinue) {
-    & py -3 ./tooling/ir/build_ir.py
+    & py -3 ./tooling/ir/build_ir.py --kpi-catalog $KpiCatalogRoot --out $IROutPath
   } else {
-    & python ./tooling/ir/build_ir.py
+    & python ./tooling/ir/build_ir.py --kpi-catalog $KpiCatalogRoot --out $IROutPath
   }
   if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
   Write-Host ""
-}
 
-Write-Host ">> Generate TMDL measures (existing generator)" -ForegroundColor Cyan
-& ./tooling/generation/generate_tmdl_measures.ps1 `
-  -UseCase $UseCaseId `
-  -UseCasesRoot $UseCasesRoot `
-  -KpiCatalogRoot $KpiCatalogRoot `
-  -DistRoot $DistRoot `
-  -OverwriteExisting
+  Write-Host ">> Generate TMDL measures (IR-first)" -ForegroundColor Cyan
+  & ./tooling/generation/generate_tmdl_measures.ps1 `
+    -UseCase $UseCaseId `
+    -IRPath $IROutPath `
+    -DistRoot $DistRoot `
+    -OverwriteExisting
+} else {
+  Write-Host ">> Generate TMDL measures (legacy Core paths)" -ForegroundColor Cyan
+  & ./tooling/generation/generate_tmdl_measures.ps1 `
+    -UseCase $UseCaseId `
+    -UseCasesRoot "core/usecases" `
+    -KpiCatalogRoot $KpiCatalogRoot `
+    -DistRoot $DistRoot `
+    -OverwriteExisting
+}
 
 exit $LASTEXITCODE
 

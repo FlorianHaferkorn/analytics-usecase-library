@@ -12,7 +12,7 @@ This product is the **reference adapter** for the multi-tool architecture.
 
 - **Adapter manifest**: `products/fabric_powerbi/adapter.json` (schema: `products/adapters/adapter_manifest.schema.json`)
 - **Standard commands** (wrappers):
-  - `products/fabric_powerbi/tooling/adapter_build.ps1` (build → dist)
+  - `products/fabric_powerbi/tooling/adapter_build.ps1` (build → dist). **IR-first by default**: builds IR from Core ABI + KPI catalog (`build_ir.py --kpi-catalog`), then generates TMDL from IR only (`generate_tmdl_measures.ps1 -IRPath`). Use `-LegacyCorePaths` to run the measure generator against Core paths instead.
   - `products/fabric_powerbi/tooling/adapter_validate.ps1` (validate → report/exit code)
 
 ## What belongs here
