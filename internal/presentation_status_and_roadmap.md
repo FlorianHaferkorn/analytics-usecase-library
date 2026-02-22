@@ -11,7 +11,7 @@
 
 ## Summary (for presentations)
 
-The framework is in production: the Golden Thread (Strategy → KPIs → Use Cases → Action Codes) is end-to-end, with 14 use cases, 107 KPIs, and 53 action codes. Customers can already implement decision-oriented use cases from the specs and Aurora as reference, generate measures and report structure, and keep everything consistent via Stage 1 and the Registry Gate. Still open: the full 300-second page in the report and Strategy Pattern / AI urgency (backlog).
+The framework is in production: the Golden Thread (Strategy → KPIs → Use Cases → Action Codes) is end-to-end, with 14 use cases, 107 KPIs, and 53 action codes. Customers can already implement decision-oriented use cases from the specs and Aurora as reference, generate measures and report structure, and keep everything consistent via Stage 1 and the Registry Gate. Delivery is driven by the GitHub Project and an Assistant Agent (daily briefing with focus, bottlenecks, and the next task); status transitions and PR review summary are automated. Still open: the full 300-second page in the report and Strategy Pattern / AI urgency (backlog).
 
 ---
 
@@ -45,7 +45,7 @@ The following applies when **Stage 1 is green** (CI gate: `.\tooling\run_stage1_
 ### What is still open (functional)
 
 - **3–30–300 complete:** The principle is defined. The **300s layer layout** is now defined in [core/templates/page_templates/layout_330300_300s_layer.md](../core/templates/page_templates/layout_330300_300s_layer.md) and schema `layout_330300.schema.json`. Still to implement: full generation of action text and evidence table from action-code YAML in the report.
-- **Strategy Pattern / AI urgency:** Strategy pattern document exists; automatic urgency derivation and automated reasoning are target/backlog.
+- **Strategy Pattern / AI urgency:** Strategy pattern document exists; automatic urgency derivation and automated reasoning are target/backlog. Scope and limits of automated reasoning are documented in [internal/vision/automated_reasoning_scope_and_limits.md](vision/automated_reasoning_scope_and_limits.md).
 - **Strategic layer (optional):** The link Strategy → KPIs → Use Cases works; company_strategy has canonical anchors (§5, §6, §7) and references.
 - **Technical open items:** Technical TODOs and stubs (MCP, Fabric API, synthetic data, scaffold) are listed in [internal/technical_backlog.md](technical_backlog.md). **Aurora Operations:** [showcases/aurora_group/models/Operations.yaml](../showcases/aurora_group/models/Operations.yaml) has relationships and display_folders (measures) defined; DAX in KPI Catalog for OPS-001/002/003 still to be added.
 
@@ -88,7 +88,32 @@ Details: [internal/vision/phase2_backlog.md](vision/phase2_backlog.md).
 
 ---
 
-## 5. Product maturity
+## 5. Project management and delivery
+
+Delivery is driven by the **GitHub Project** (SSOT for status) and agent-supported workflow so that manual steps are minimised.
+
+### Status flow and automation
+
+| Status | Meaning | Automation |
+|--------|--------|------------|
+| **Backlog** / **Planned** | Not started / scheduled | New items default to Backlog. |
+| **In progress** | Work in progress (Implementer agent) | Set via `start_next_task.ps1` (picks next by priority, moves one item). |
+| **In review** | PR open | Project workflow: when a PR is linked to an issue → Status = In review. |
+| **Done** | PR merged | Project workflow: when linked PR is merged → Status = Done. |
+
+- **PR review summary:** [.github/workflows/pr_review_summary.yml](../.github/workflows/pr_review_summary.yml) posts or updates a single comment on each PR with title, description, files changed, and diff stats — one place to see what was created/changed before approving.
+- **Scripts** (repo root): `.\tooling\project_mgmt\start_next_task.ps1` (pick next task, set In progress, output issue # and expert); `.\tooling\project_mgmt\set_issue_status.ps1 -Issue N -Status "…"`; `.\tooling\project_mgmt\refresh_project_snapshot.ps1` (writes PROJECT_SNAPSHOT.md for the Assistant, no status change).
+
+### Assistant Agent and daily briefing
+
+- **Assistant Agent** ([.cursor/rules/assistant-agent.mdc](../.cursor/rules/assistant-agent.mdc)): On request ("Daily Briefing", "Briefing", "Was steht an?") reads [internal/project_mgmt/PROJECT_SNAPSHOT.md](project_mgmt/PROJECT_SNAPSHOT.md) (from `refresh_project_snapshot.ps1`) and [internal/project_mgmt/BACKLOG_GRANULAR.md](project_mgmt/BACKLOG_GRANULAR.md), and produces a short briefing with focus, bottlenecks, and **today’s recommended task** including the exact steps: run `start_next_task.ps1`, then in an Implementer session say **Implement issue #N**.
+- **Minimal manual steps:** (1) Optionally refresh snapshot, then ask the Assistant for a daily briefing. (2) When starting work: run the script and tell the Implementer the issue number. (3) Review PR (using the summary comment) and merge. Everything else (status transitions, PR summary) is automated.
+
+References: [internal/project_mgmt/PM_FLOW.md](project_mgmt/PM_FLOW.md), [internal/project_mgmt/ASSISTANT_BRIEFING.md](project_mgmt/ASSISTANT_BRIEFING.md), [internal/project_mgmt/PROJECT_FIELDS_AND_LABELS.md](project_mgmt/PROJECT_FIELDS_AND_LABELS.md).
+
+---
+
+## 6. Product maturity
 
 | Product | Process status | Customer-ready (Aurora proof) | Still to develop | Planned |
 |---------|----------------|------------------------------|------------------|---------|
@@ -110,7 +135,7 @@ Reference: [showcases/aurora_group/README.md](../showcases/aurora_group/README.m
 
 ---
 
-## 6. How to keep this document current
+## 7. How to keep this document current
 
 ### Metrics
 
@@ -128,6 +153,7 @@ Reference: [showcases/aurora_group/README.md](../showcases/aurora_group/README.m
 
 - **Metrics:** New use case, new KPI, new action code.
 - **Maturity:** Aurora or product release, new showcase scope.
+- **Project management:** Changes to PM flow, Assistant briefing, or project automations (see [internal/project_mgmt/PM_FLOW.md](project_mgmt/PM_FLOW.md)).
 - **General:** Before internal presentation; optionally before release candidate.
 
 ### Recommended frequency
