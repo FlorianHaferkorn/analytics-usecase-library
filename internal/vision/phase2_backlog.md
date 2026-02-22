@@ -27,3 +27,5 @@ Nach Phase 1 (Registry als Build-Pflicht, Domain-Mode mit Report pro Use Case, U
 ## Strategy Pattern / KI-Dringlichkeit
 
 „Präzise genug für KI-Dringlichkeit / Automated Reasoning“ (Manifest § I) als Zielbild. core/strategy_operating_model/company/strategy_patterns.md existiert; KI-Dringlichkeit und Automated Reasoning sind konzeptionell, nicht im Tooling nachgewiesen. Keine Implementierungspflicht für Abschluss.
+
+**Scope und Grenzen** von Automated Reasoning sind in [automated_reasoning_scope_and_limits.md](automated_reasoning_scope_and_limits.md) beschrieben (Umfang, was wir nicht tun, Verweise auf Manifest und framework_evolution).
