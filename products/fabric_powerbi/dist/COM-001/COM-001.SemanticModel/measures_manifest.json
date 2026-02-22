@@ -1,14 +1,14 @@
 {
     "usecase_id":  "COM-001",
-    "title":  null,
+    "title":  "Sales Performance vs Plan \u0026 LY",
     "dataset_model":  "COM-001.SemanticModel",
     "table_name":  "_Measures",
-    "fact_sheet":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\usecases\\core\\COM-001_Sales_Performance\\Business_Factsheet.md",
+    "fact_sheet":  "",
     "measures":  [
                      {
                          "kpi_id":  "margin.gm.pct",
-                         "name":  "Gross Margin %",
-                         "kpi_key":  null,
+                         "name":  "Gross",
+                         "kpi_key":  "Gross",
                          "kpi_type":  null,
                          "impact_dimension":  null,
                          "domain_tags":  [
@@ -29,18 +29,18 @@
                          "depends_on_ids":  [
 
                                             ],
-                         "business_owner":  "Head of Controlling",
-                         "data_owner":  "BI Engineering",
-                         "steward":  "Controlling Analyst",
+                         "business_owner":  null,
+                         "data_owner":  null,
+                         "steward":  null,
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "IR"
                      },
                      {
                          "kpi_id":  "sales.net_sales.amount",
-                         "name":  "Net Sales Amount",
-                         "kpi_key":  null,
+                         "name":  "Net",
+                         "kpi_key":  "Net",
                          "kpi_type":  null,
                          "impact_dimension":  null,
                          "domain_tags":  [
@@ -61,18 +61,18 @@
                          "depends_on_ids":  [
 
                                             ],
-                         "business_owner":  "Head of Sales",
-                         "data_owner":  "BI Engineering",
-                         "steward":  "Sales Analyst",
+                         "business_owner":  null,
+                         "data_owner":  null,
+                         "steward":  null,
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "IR"
                      },
                      {
                          "kpi_id":  "sales.net_sales.delta_pct.plan",
-                         "name":  "Net Sales % vs Plan",
-                         "kpi_key":  null,
+                         "name":  "Net",
+                         "kpi_key":  "Net",
                          "kpi_type":  null,
                          "impact_dimension":  null,
                          "domain_tags":  [
@@ -93,18 +93,18 @@
                          "depends_on_ids":  [
 
                                             ],
-                         "business_owner":  "Head of Sales Controlling",
-                         "data_owner":  "Commercial BI",
-                         "steward":  "Sales Analyst",
+                         "business_owner":  null,
+                         "data_owner":  null,
+                         "steward":  null,
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "IR"
                      },
                      {
                          "kpi_id":  "sales.net_sales.delta_pct.ly",
-                         "name":  "Delta% Net Sales",
-                         "kpi_key":  null,
+                         "name":  "Delta%",
+                         "kpi_key":  "Delta%",
                          "kpi_type":  null,
                          "impact_dimension":  null,
                          "domain_tags":  [
@@ -125,18 +125,18 @@
                          "depends_on_ids":  [
 
                                             ],
-                         "business_owner":  "Head of Sales Controlling",
-                         "data_owner":  "Commercial BI",
-                         "steward":  "Sales Analyst",
+                         "business_owner":  null,
+                         "data_owner":  null,
+                         "steward":  null,
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "IR"
                      },
                      {
                          "kpi_id":  "sales.pvm.price_effect.amount",
-                         "name":  "Price Effect Amount",
-                         "kpi_key":  null,
+                         "name":  "Price",
+                         "kpi_key":  "Price",
                          "kpi_type":  null,
                          "impact_dimension":  null,
                          "domain_tags":  [
@@ -157,18 +157,18 @@
                          "depends_on_ids":  [
 
                                             ],
-                         "business_owner":  "Head of Sales Controlling",
-                         "data_owner":  "BI Engineering",
-                         "steward":  "Sales Analyst",
+                         "business_owner":  null,
+                         "data_owner":  null,
+                         "steward":  null,
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "IR"
                      },
                      {
                          "kpi_id":  "sales.pvm.volume_effect.amount",
-                         "name":  "Volume Effect Amount",
-                         "kpi_key":  null,
+                         "name":  "Volume",
+                         "kpi_key":  "Volume",
                          "kpi_type":  null,
                          "impact_dimension":  null,
                          "domain_tags":  [
@@ -189,18 +189,18 @@
                          "depends_on_ids":  [
 
                                             ],
-                         "business_owner":  "Head of Sales Controlling",
-                         "data_owner":  "BI Engineering",
-                         "steward":  "Sales Analyst",
+                         "business_owner":  null,
+                         "data_owner":  null,
+                         "steward":  null,
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "IR"
                      },
                      {
                          "kpi_id":  "sales.pvm.mix_effect.amount",
-                         "name":  "Mix Effect Amount",
-                         "kpi_key":  null,
+                         "name":  "Mix",
+                         "kpi_key":  "Mix",
                          "kpi_type":  null,
                          "impact_dimension":  null,
                          "domain_tags":  [
@@ -221,13 +221,13 @@
                          "depends_on_ids":  [
 
                                             ],
-                         "business_owner":  "Head of Sales Controlling",
-                         "data_owner":  "BI Engineering",
-                         "steward":  "Sales Analyst",
+                         "business_owner":  null,
+                         "data_owner":  null,
+                         "steward":  null,
                          "qa_rules":  [
 
                                       ],
-                         "catalog_source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\kpi_catalog\\KPI_Catalog.md"
+                         "catalog_source":  "IR"
                      }
                  ]
 }

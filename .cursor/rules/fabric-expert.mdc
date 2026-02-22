@@ -1,0 +1,33 @@
+---
+description: Fabric/Power BI adapter expert — TMDL, DAX, PBIP, Fabric checks
+globs: "products/fabric_powerbi/**", "**/products/fabric_powerbi/**/*.tmdl"
+alwaysApply: false
+---
+
+# Fabric Expert (Power BI / Microsoft Fabric adapter)
+
+When editing under `products/fabric_powerbi/` or Fabric TMDL/DAX artifacts, you are in **Fabric adapter** context. This product is the reference implementation of the adapter contract.
+
+## Adapter contract
+
+- See [products/adapters/README.md](products/adapters/README.md): build, validate, deploy. This adapter consumes IR (and Core ABI); it does not parse `core/` directly during build.
+
+## Rules and skills
+
+- **TMDL and DAX:** Follow [tmdl-dax.mdc](.cursor/rules/tmdl-dax.mdc) (tabs only, measure syntax, diagram layout).
+- **Skill:** fabric-powerbi-validation — use when changing measures, TMDL, or report layout.
+
+## After making changes
+
+Run Fabric validation from repo root:
+
+```powershell
+.\products\fabric_powerbi\tooling\run_fabric_checks.ps1
+```
+
+Stage 1 (`. \tooling\run_stage1_checks.ps1`) still applies for any changes that touch core or cross-references; for Fabric-only artifact edits, Fabric checks are the primary gate.
+
+## Scope
+
+- `products/fabric_powerbi/` — tooling, dist, reports, semantic models.
+- Future tool adapters (e.g. Tableau, Looker) get their own expert rules under `.cursor/rules/<tool>-expert.mdc`.

@@ -8,11 +8,17 @@ Damit das Einrichtungsskript **alles** erledigen kann (granulare Issues anlegen,
 
 - **Scope:** `repo` (für Issues, Milestones, Labels) und **`project`** (für „Issue zum Project hinzufügen“ und Feldwerte setzen).
 - **Wo anlegen:** GitHub → Settings → Developer settings → Personal access tokens → Generate new token (classic). Scopes: `repo`, `project` anhaken.
-- **Wie übergeben:** Beim Ausführen des Skripts als Umgebungsvariable setzen, z. B. in PowerShell:
-  ```powershell
-  $env:GITHUB_TOKEN = "ghp_xxxxxxxx..."
-  ```
-  Oder: [GitHub CLI](https://cli.github.com/) installieren und `gh auth login` ausführen (Token wird dann vom Skript genutzt).
+
+**Token nicht ständig eintippen:** Einmal eine Datei **`.env`** im **Repo-Root** anlegen (siehe `tooling/project_mgmt/.env.example`). Die Skripte laden sie automatisch; `.env` steht in `.gitignore` und wird nicht committed.
+
+```env
+GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+PROJECT_NUMBER=2
+PROJECT_SCOPE=user
+PROJECT_OWNER=FlorianHaferkorn
+```
+
+Alternativ: Umgebungsvariablen pro Session setzen oder [GitHub CLI](https://cli.github.com/) `gh auth login` (Token wird dann vom Skript genutzt).
 
 ---
 
@@ -27,13 +33,7 @@ Damit das Einrichtungsskript **alles** erledigen kann (granulare Issues anlegen,
   ```
 - **Repository-Projekt** (z. B. `.../analytics-usecase-library/projects/1`):  
   Dann nur `PROJECT_NUMBER = "1"` (Standard), `PROJECT_SCOPE` weglassen.
-- Das Project muss die **Felder** mit **exakt diesen Optionen** haben (siehe [PROJECT_FIELDS_AND_LABELS.md](PROJECT_FIELDS_AND_LABELS.md)):
-  - **Status:** Backlog, Planned, In progress, In review, Done  
-  - **Milestone:** Project completion, Phase 2, Technical backlog  
-  - **Area:** Framework, FabricPowerBI, Aurora, Tooling, Docs  
-  - **Priority:** P0, P1, P2  
-  - **Risk:** On track, At risk  
-  Sonst kann das Skript die Feldwerte nicht setzen.
+- **Felder:** Das Skript `set_project_fields_only.ps1` legt fehlende Felder (Status, Milestone, Area, Priority, Risk) per API automatisch an – du musst sie **nicht** manuell im Project anlegen. Optionen wie in [PROJECT_FIELDS_AND_LABELS.md](PROJECT_FIELDS_AND_LABELS.md).
 - **Wie übergeben:** Beim Ausführen des Skripts als Umgebungsvariable, z. B.:
   ```powershell
   $env:PROJECT_NUMBER = "1"
@@ -46,7 +46,13 @@ Damit das Einrichtungsskript **alles** erledigen kann (granulare Issues anlegen,
 
 Aus dem Repo-Root (z. B. `c:\Users\florianhaferkorn\VSCode\analytics-usecase-library`):
 
-**PowerShell (ohne Python):**
+**PowerShell (ohne Python):** Wenn `.env` im Repo-Root existiert, reicht:
+
+```powershell
+.\tooling\project_mgmt\setup_project_full.ps1
+```
+
+Ohne `.env` zuerst die Variablen setzen:
 
 ```powershell
 $env:GITHUB_TOKEN = "ghp_dein_token"
@@ -72,13 +78,13 @@ Das Skript wird dann:
 $env:GITHUB_REPOSITORY = "FlorianHaferkorn/analytics-usecase-library"
 ```
 
-**Falls das Project beim ersten Lauf noch keine Felder hatte:** Felder in den Project-Einstellungen anlegen (Status, Milestone, Area, Priority, Risk – siehe [PROJECT_FIELDS_AND_LABELS.md](PROJECT_FIELDS_AND_LABELS.md)). Danach nur die Feldwerte setzen (ohne neue Issues):
+**Nur Feldwerte setzen** (z. B. nach manuell angelegten Feldern oder bei neuem Lauf):
 
 ```powershell
 .\tooling\project_mgmt\set_project_fields_only.ps1
 ```
 
-(Gleiche Umgebungsvariablen wie oben.)
+(Gleiche Umgebung wie oben – oder `.env` nutzen.)
 
 ---
 

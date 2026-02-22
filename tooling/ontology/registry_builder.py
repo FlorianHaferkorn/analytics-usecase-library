@@ -492,6 +492,58 @@ def scan_usecase_factsheets(repo_root: Path) -> Tuple[Dict[str, Dict[str, Any]],
     return out, issues
 
 
+def _action_code_display_fields(raw: Dict[str, Any], gov_norm: Dict[str, Optional[str]]) -> Dict[str, Any]:
+    """
+    Derive display fields for adapters (trigger_summary, owner_role, steps).
+    Aligns with generate_tmdl_measures.ps1 Load-ActionCodeYaml for _ActionReady_Logic.tmdl.
+    """
+    out: Dict[str, Any] = {}
+    if not isinstance(raw, dict):
+        return out
+
+    # trigger_summary: trigger.type + trigger.levels L1/L2/L3 severity
+    trigger = raw.get("trigger")
+    trigger_summary = "(no trigger defined)"
+    if isinstance(trigger, dict):
+        t_type = trigger.get("type")
+        type_str = str(t_type).strip() if t_type else ""
+        levels = trigger.get("levels")
+        level_parts: List[str] = []
+        if isinstance(levels, dict):
+            for lvl in ("L1", "L2", "L3"):
+                lvl_obj = levels.get(lvl)
+                if isinstance(lvl_obj, dict):
+                    sev = lvl_obj.get("severity")
+                    if isinstance(sev, str) and sev.strip():
+                        level_parts.append(f"{lvl}: {sev.strip()}")
+        if level_parts:
+            trigger_summary = f"{type_str} ({', '.join(level_parts)})" if type_str else f"({', '.join(level_parts)})"
+        elif type_str:
+            trigger_summary = type_str
+    out["trigger_summary"] = trigger_summary
+
+    # owner_role: primary_owner_role | owner_role | governance.owner_role
+    owner = (
+        (raw.get("primary_owner_role") if isinstance(raw.get("primary_owner_role"), str) else None)
+        or (raw.get("owner_role") if isinstance(raw.get("owner_role"), str) else None)
+        or (gov_norm.get("owner_role") if isinstance(gov_norm, dict) else None)
+    )
+    out["owner_role"] = (owner.strip() if owner else None) or "TBD"
+
+    # steps: operational_execution.steps (list of strings)
+    op_exec = raw.get("operational_execution")
+    steps: List[str] = []
+    if isinstance(op_exec, dict):
+        s = op_exec.get("steps")
+        if isinstance(s, list):
+            for item in s:
+                if isinstance(item, str) and item.strip():
+                    steps.append(item.strip())
+    out["steps"] = steps
+
+    return out
+
+
 def normalize_action_governance(action_raw: Dict[str, Any]) -> Tuple[Dict[str, Optional[str]], List[str]]:
     """
     Returns normalized governance dict and warnings.
@@ -1491,6 +1543,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         gov_norm, gov_warnings = normalize_action_governance(raw if isinstance(raw, dict) else {})
         impact_valuation = raw.get("impact_valuation") if isinstance(raw, dict) else None
         execution_bridge = raw.get("execution_bridge") if isinstance(raw, dict) else None
+        display_fields = _action_code_display_fields(raw if isinstance(raw, dict) else {}, gov_norm)
         registry_actions[aid] = {
             "id": aid,
             "name": raw.get("name") if isinstance(raw, dict) else None,
@@ -1499,6 +1552,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             "impact_valuation": impact_valuation if isinstance(impact_valuation, dict) else None,
             "execution_bridge": execution_bridge if isinstance(execution_bridge, dict) else None,
             "source": {"file": arec.get("source")},
+            "trigger_summary": display_fields.get("trigger_summary"),
+            "owner_role": display_fields.get("owner_role"),
+            "steps": display_fields.get("steps", []),
         }
         for w in gov_warnings:
             issues.append(Issue("WARN", "governance.action_normalization", f"Action '{aid}': {w}", SourceLocation(arec.get("source", ""), 1)))

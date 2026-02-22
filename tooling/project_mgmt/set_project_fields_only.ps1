@@ -1,9 +1,9 @@
-# Set Status, Milestone, Area, Priority, Risk on existing project items only.
-# Use this after you add the fields in the Project (Settings -> Fields).
-# Same env as setup_project_full.ps1: GITHUB_TOKEN, PROJECT_NUMBER, PROJECT_SCOPE, PROJECT_OWNER.
-# Run from repo root. Does not create issues.
+# Set Status, Milestone, Area, Priority, Risk on existing project items.
+# If the project is missing these fields, they are created via GitHub API (createProjectV2Field).
+# Token: set GITHUB_TOKEN or use .env in repo root (see .env.example). Run from repo root.
 
 $ErrorActionPreference = "Stop"
+. "$PSScriptRoot\Load-ProjectEnv.ps1"
 
 function Get-GitHubToken {
     $t = $env:GITHUB_TOKEN; if (-not $t) { $t = $env:GH_TOKEN }; if (-not $t) { try { $t = (gh auth token 2>$null) } catch {} }
@@ -44,8 +44,61 @@ $projectId = $proj.id
 $fieldMap = @{}; foreach ($node in $proj.fields.nodes) {
     if ($node.__typename -eq "ProjectV2SingleSelectField" -and $node.options) { $opts = @{}; foreach ($o in $node.options) { $opts[$o.name] = $o.id }; $fieldMap[$node.name] = @{ id = $node.id; options = $opts } }
 }
-$statusF = $fieldMap["Status"]; $milestoneF = $fieldMap["Milestone"]; $areaF = $fieldMap["Area"]; $priorityF = $fieldMap["Priority"]; $riskF = $fieldMap["Risk"]
-if (-not ($statusF -and $milestoneF -and $areaF -and $priorityF)) { Write-Error "Project is missing fields: Status, Milestone, Area, Priority. Add them in Project Settings with exact names (see internal/project_mgmt/PROJECT_FIELDS_AND_LABELS.md)." }
+
+# Standard field definitions (match PROJECT_FIELDS_AND_LABELS.md)
+$requiredFields = @(
+    @{ name = "Status"; options = @("Backlog", "Planned", "In progress", "In review", "Done") },
+    @{ name = "Milestone"; options = @("Project completion", "Phase 2", "Technical backlog") },
+    @{ name = "Area"; options = @("Framework", "FabricPowerBI", "Aurora", "Tooling", "Docs") },
+    @{ name = "Priority"; options = @("P0", "P1", "P2") },
+    @{ name = "Risk"; options = @("On track", "At risk") }
+)
+$createFieldMutation = 'mutation($input: CreateProjectV2FieldInput!) { createProjectV2Field(input: $input) { projectV2Field { ... on ProjectV2SingleSelectField { id name options { id name } } } } }'
+$created = 0
+foreach ($def in $requiredFields) {
+    $hasField = $fieldMap[$def.name]
+    if (-not $hasField) {
+        foreach ($k in $fieldMap.Keys) { if ($k -eq $def.name) { $hasField = $fieldMap[$k]; break } }
+    }
+    if (-not $hasField) {
+        # GitHub API requires color and description per option (non-null). Color: BLUE, GRAY, GREEN, ORANGE, PINK, PURPLE, RED, YELLOW.
+        $optInputs = @($def.options | ForEach-Object { @{ name = $_; description = ""; color = "GRAY" } })
+        $fieldInput = @{ projectId = $projectId; name = $def.name; dataType = "SINGLE_SELECT"; singleSelectOptions = $optInputs }
+        try {
+            $out = Invoke-GitHubGraphQL -Payload @{ query = $createFieldMutation; variables = @{ input = $fieldInput } } -Token $token
+            $created++; Write-Host "Created field: $($def.name)" -ForegroundColor Green
+        } catch {
+            if ($_.Exception.Message -match "already been taken|reserved value") {
+                Write-Host "Field '$($def.name)' already exists or is reserved, skipping create." -ForegroundColor Yellow
+            } else { throw }
+        }
+    }
+}
+# Re-fetch fields after create attempts so we see existing or newly created single-select fields
+$fieldMap = @{}
+if ($scope -eq "user") {
+    $data = Invoke-GitHubGraphQL -Payload @{ query = 'query($login: String!, $number: Int!) { user(login: $login) { projectV2(number: $number) { id fields(first: 30) { nodes { __typename ... on ProjectV2SingleSelectField { id name options { id name } } } } } } }'; variables = @{ login = $projectOwner; number = $projectNumber } } -Token $token
+    $proj = $data.user.projectV2
+} else {
+    $data = Invoke-GitHubGraphQL -Payload @{ query = 'query($owner: String!, $repo: String!, $number: Int!) { repository(owner: $owner, name: $repo) { projectV2(number: $number) { id fields(first: 30) { nodes { __typename ... on ProjectV2SingleSelectField { id name options { id name } } } } } } }'; variables = @{ owner = $owner; repo = $name; number = $projectNumber } } -Token $token
+    $proj = $data.repository.projectV2
+}
+foreach ($node in $proj.fields.nodes) {
+    if ($node.__typename -eq "ProjectV2SingleSelectField" -and $node.options) { $opts = @{}; foreach ($o in $node.options) { $opts[$o.name] = $o.id }; $fieldMap[$node.name] = @{ id = $node.id; options = $opts } }
+}
+
+# Case-insensitive lookup; accept "Milestones" if project uses plural
+$fieldMapByLower = @{}; foreach ($k in $fieldMap.Keys) { $fieldMapByLower[$k.ToLower()] = $fieldMap[$k] }
+$statusF = $fieldMap["Status"]; if (-not $statusF) { $statusF = $fieldMapByLower["status"] }
+$milestoneF = $fieldMap["Milestone"]; if (-not $milestoneF) { $milestoneF = $fieldMapByLower["milestone"] }; if (-not $milestoneF) { $milestoneF = $fieldMap["Milestones"] }; if (-not $milestoneF) { $milestoneF = $fieldMapByLower["milestones"] }
+$areaF = $fieldMap["Area"]; if (-not $areaF) { $areaF = $fieldMapByLower["area"] }
+$priorityF = $fieldMap["Priority"]; if (-not $priorityF) { $priorityF = $fieldMapByLower["priority"] }
+$riskF = $fieldMap["Risk"]; if (-not $riskF) { $riskF = $fieldMapByLower["risk"] }
+if (-not ($statusF -and $milestoneF -and $areaF -and $priorityF)) {
+    $found = @($fieldMap.Keys); if ($found.Count -eq 0) { $found = @("(none - only Single select fields are read)") }
+    Write-Host "Required fields Status, Milestone, Area, Priority not found. Single-select fields on this project: $($found -join ', ')" -ForegroundColor Yellow
+    Write-Error "Add fields in Project Settings with exact names: Status, Milestone, Area, Priority (see internal/project_mgmt/PROJECT_FIELDS_AND_LABELS.md)."
+}
 
 # 2) Build issue number -> milestone, area, priority from repo issues (with milestone)
 $issueMeta = @{}
@@ -72,7 +125,7 @@ do {
 } while ($cursor)
 
 Write-Host "Project items: $($items.Count). Setting fields..." -ForegroundColor Cyan
-$updateMutation = 'mutation($input: UpdateProjectV2ItemFieldValueInput!) { updateProjectV2ItemFieldValue(input: $input) { projectItem { id } } }'
+$updateMutation = 'mutation($input: UpdateProjectV2ItemFieldValueInput!) { updateProjectV2ItemFieldValue(input: $input) { projectV2Item { id } } }'
 $set = 0
 foreach ($it in $items) {
     $meta = $issueMeta[$it.issueNumber]

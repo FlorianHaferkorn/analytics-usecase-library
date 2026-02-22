@@ -30,6 +30,10 @@ tooling/ir/out/
 # Customer export packages (generated)
 dist/customer_exports/
 
+# Local env (token etc.) – never commit
+.env
+.env.local
+
 # Root-level registry outputs (ignore if someone runs registry_builder without --out-dir)
 master_registry.json
 value_map.json

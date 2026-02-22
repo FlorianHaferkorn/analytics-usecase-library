@@ -1,0 +1,59 @@
+# Post or update a single PR comment with: title, body, files changed, diff stats.
+# Gives the user a fixed place to see "what was created/changed" before approving.
+# See: internal/project_mgmt/PM_FLOW.md
+
+name: PR review summary
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  summary:
+    name: Post review summary comment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (with fetch-depth for diff)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build summary and post/update comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -e
+          MARKER="<!-- pr-review-summary -->"
+          TITLE="${{ github.event.pull_request.title }}"
+          DESC="${{ github.event.pull_request.body }}"
+          [ -z "$DESC" ] && DESC="*No description.*"
+          BASE="${{ github.event.pull_request.base.sha }}"
+          FILES=$(git diff --name-status "$BASE"...HEAD 2>/dev/null || echo "—")
+          STATS=$(git diff --shortstat "$BASE"...HEAD 2>/dev/null || echo "—")
+
+          {
+            echo "$MARKER"
+            echo "## PR review summary"
+            echo ""
+            echo "**Title:** $TITLE"
+            echo ""
+            echo "**Summary / description:**"
+            echo "$DESC"
+            echo ""
+            echo "**Files changed:**"
+            echo '```'
+            echo "$FILES"
+            echo '```'
+            echo ""
+            echo "**Diff stats:** $STATS"
+          } > comment_body.md
+
+          EXISTING=$(gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" --jq '.[] | select(.body | contains("<!-- pr-review-summary -->")) | .id' 2>/dev/null | head -1)
+          if [ -n "$EXISTING" ]; then
+            BODY_JSON=$(jq -Rs '{body: .}' comment_body.md)
+            echo "$BODY_JSON" | gh api "repos/${REPO}/issues/comments/${EXISTING}" -X PATCH --input -
+          else
+            gh pr comment "$PR_NUMBER" --body-file comment_body.md
+          fi

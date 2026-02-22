@@ -38,7 +38,7 @@ Aurora Showcase Layer (tool-specific):
 - **`Operations.yaml`** – Operations domain model (OPS-001, OPS-002, OPS-003)
   - Use Cases: OEE Performance, Asset Reliability, Quality & Yield
   - Tables: dim_date, dim_org, dim_asset, dim_product, fact_ops, fact_inventory_snapshot
-  - Status: **Placeholder** (to be implemented after Commercial validation)
+  - Status: **Blueprint complete** (relationships and display_folders defined; DAX in KPI Catalog for OPS-* still to be added)
 
 - **`core_action_ready_model.yaml.legacy`** – Original generic cross-domain model; archived to `internal/archive/legacy_aurora_models_2026-02/`
 
@@ -89,7 +89,7 @@ Each model blueprint requires:
 |--------|-----------|-----------|----------|--------|
 | Commercial | Commercial.yaml | COM-001 to COM-004 | 24 KPIs total | 🟡 Partial (6/24 complete) |
 | Finance | Finance.yaml | FIN-001 to FIN-002 | TBD | 🔴 Placeholder |
-| Operations | Operations.yaml | OPS-001 to OPS-003 | TBD | 🔴 Placeholder |
+| Operations | Operations.yaml | OPS-001 to OPS-003 | Display folders defined | 🟡 Blueprint complete (DAX pending) |
 
 **Legend**: 🟢 Complete | 🟡 Partial | 🔴 Placeholder
 

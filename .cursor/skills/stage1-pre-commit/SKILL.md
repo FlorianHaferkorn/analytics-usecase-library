@@ -37,6 +37,8 @@ Run the mandatory CI hard gate before committing any changes to use cases, frame
 9. `check_ssot_markers.ps1` — SSOT markers valid
 10. `check_docs_refs.ps1` — Doc references valid
 11. `check_forbidden_content.ps1` — No forbidden content
+12. `check_validate_data_contracts.ps1` — Domain data contracts valid
+13. `check_registry_builder.ps1` — Registry builder governance (--strict)
 
 ## Guardrails
 

@@ -1,9 +1,9 @@
 # Full project setup: create granular milestones, labels, issues; add every issue
 # to the GitHub Project and set Status, Milestone, Area, Priority, Risk.
-# Requires: GITHUB_TOKEN (repo + project scope), PROJECT_NUMBER. Optional: PROJECT_SCOPE=user, PROJECT_OWNER.
-# Run from repo root. No Python required. See internal/project_mgmt/WHAT_I_NEED.md.
+# Token: set GITHUB_TOKEN or use .env in repo root (see .env.example). Run from repo root.
 
 $ErrorActionPreference = "Stop"
+. "$PSScriptRoot\Load-ProjectEnv.ps1"
 
 function Get-GitHubToken {
     $token = $env:GITHUB_TOKEN

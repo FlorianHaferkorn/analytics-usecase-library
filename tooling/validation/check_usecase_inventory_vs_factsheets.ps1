@@ -56,6 +56,18 @@ function Get-FactsheetIndex {
   return $index
 }
 
+# Lean 2.0: Bracket is the machine-readable SSOT per use case (no Technical Factsheet).
+function Test-UseCaseHasBracket {
+  param([string]$UseCaseDirOrFactsheetPath)
+  $dir = if (Test-Path -Path $UseCaseDirOrFactsheetPath -PathType Container) {
+    $UseCaseDirOrFactsheetPath
+  } else {
+    Split-Path -Parent $UseCaseDirOrFactsheetPath
+  }
+  $bracketPath = Join-Path -Path $dir -ChildPath "UseCase_Bracket.yaml"
+  return (Test-Path -Path $bracketPath -PathType Leaf)
+}
+
 $useCasesRoot = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative "core/usecases"
 $inventoryPath = Resolve-RepoPath -ProvidedPath $InventoryPath -DefaultRelative "core/usecases/UseCase_Inventory.md"
 if (-not $useCasesRoot) { throw "UseCases root not found. Provide -UseCasesRoot or run inside repository." }
@@ -67,15 +79,17 @@ $factsheetIndex = Get-FactsheetIndex -Root $useCasesRoot
 if (-not $factsheetIndex) { $factsheetIndex = @{} }
 
 $missingBusiness = @()
-$missingTechnical = @()
+$missingBracket = @()
 foreach ($id in $inventoryIds) {
   if (-not $factsheetIndex.ContainsKey($id)) {
     $missingBusiness += $id
-    $missingTechnical += $id
     continue
   }
-  if (-not $factsheetIndex[$id].ContainsKey("business")) { $missingBusiness += $id }
-  if (-not $factsheetIndex[$id].ContainsKey("technical")) { $missingTechnical += $id }
+  if (-not $factsheetIndex[$id].ContainsKey("business")) { $missingBusiness += $id; continue }
+  $businessPath = $factsheetIndex[$id]["business"]
+  if (-not (Test-UseCaseHasBracket -UseCaseDirOrFactsheetPath $businessPath)) {
+    $missingBracket += $id
+  }
 }
 $missingInventory = @()
 foreach ($id in $factsheetIndex.Keys) {
@@ -86,16 +100,16 @@ if ($missingBusiness.Count -gt 0) {
   Write-Host "Missing Business Factsheets (listed in inventory):" -ForegroundColor Red
   $missingBusiness | Sort-Object | ForEach-Object { Write-Host "  - $_" }
 }
-if ($missingTechnical.Count -gt 0) {
-  Write-Host "Missing Technical Factsheets (listed in inventory):" -ForegroundColor Red
-  $missingTechnical | Sort-Object | ForEach-Object { Write-Host "  - $_" }
+if ($missingBracket.Count -gt 0) {
+  Write-Host "Missing UseCase_Bracket.yaml (listed in inventory, same folder as Business Factsheet):" -ForegroundColor Red
+  $missingBracket | Sort-Object | ForEach-Object { Write-Host "  - $_" }
 }
 if ($missingInventory.Count -gt 0) {
   Write-Host "Missing Inventory entries (factsheets exist):" -ForegroundColor Red
   $missingInventory | Sort-Object | ForEach-Object { Write-Host "  - $_" }
 }
 
-if ($missingBusiness.Count -gt 0 -or $missingTechnical.Count -gt 0 -or $missingInventory.Count -gt 0) {
+if ($missingBusiness.Count -gt 0 -or $missingBracket.Count -gt 0 -or $missingInventory.Count -gt 0) {
   if ($FailOnError) { exit 1 }
   exit 0
 }

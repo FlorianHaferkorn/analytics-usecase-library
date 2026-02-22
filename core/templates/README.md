@@ -12,6 +12,7 @@ Reusable, governed templates for framework artifacts.
 - `measure_templates/` - measure documentation templates
 - `page_templates/` - 3-30-300 page system and governance mappings
 - `silver_to_gold/` - mapping template from Silver contracts to Gold outputs
+- `evidence_page_template.md` - Evidence.dev page template (3-30-300, design tokens) for open-source frontend
 
 ## Usage
 

@@ -30,6 +30,8 @@ Map Stage 1 check failures to root causes and propose concrete fixes without app
 | `check_decision_spines` | Map/spine inconsistency | Fix `DecisionSpine_UseCase_Map.yaml` or spine YAML file |
 | `validate_factsheets` | Missing bracket or factsheet structure issue | Add `UseCase_Bracket.yaml` OR fix factsheet frontmatter/sections |
 | `check_docs_refs` | Invalid doc reference | Fix broken reference path |
+| `check_validate_data_contracts` | Domain contract invalid (missing domain/dimension/fact, dimension name, fact grain) | Fix YAML in `core/data_contracts/domains/*.yaml` per schema |
+| `check_registry_builder` | Registry builder governance failure (--strict) | Fix referential integrity: use cases, brackets, action codes, KPI catalog; see `tooling/ontology/registry_builder.py` |
 
 ## Guardrails
 

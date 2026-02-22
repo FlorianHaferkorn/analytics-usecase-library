@@ -52,7 +52,16 @@ if ($transcriptDir -and -not (Test-Path $transcriptDir)) {
   New-Item -ItemType Directory -Path $transcriptDir -Force | Out-Null
 }
 
-Start-Transcript -Path $transcriptPath -Force | Out-Null
+$script:TranscriptActive = $false
+try {
+  $null = Start-Transcript -Path $transcriptPath -Force -ErrorAction SilentlyContinue
+  if ($?) { $script:TranscriptActive = $true }
+  if (-not $script:TranscriptActive) {
+    Write-Host "WARNING: Transcript not started (path: $transcriptPath) - continuing without transcript." -ForegroundColor Yellow
+  }
+} catch {
+  Write-Host "WARNING: Could not start transcript - continuing without transcript. $($_.Exception.Message)" -ForegroundColor Yellow
+}
 
 Write-Host "Running analytics-usecase-library checks..." -ForegroundColor Cyan
 Write-Host "UseCases:   $useCasesRoot" -ForegroundColor DarkGray
@@ -229,11 +238,11 @@ Invoke-LocalScript -RelativePath "products/fabric_powerbi/tooling/validation/che
 # Check core use cases
 $coreUseCases = @("COM-001", "COM-002", "COM-003", "COM-004", "FIN-001", "FIN-002", "OPS-001", "OPS-002", "OPS-003")
 foreach ($useCaseId in $coreUseCases) {
-	Invoke-LocalScript -RelativePath "tooling/validation/check_dax_before_generation.ps1" -Arguments @(
-		"-UseCaseId", $useCaseId,
-		"-UseCasesRoot", $factsheetsRoot,
-		"-KpiCatalogRoot", $kpiCatalogRoot
-	)
+    Invoke-LocalScript -RelativePath "tooling/validation/check_dax_before_generation.ps1" -Arguments @(
+        "-UseCaseId", $useCaseId,
+        "-UseCasesRoot", $factsheetsRoot,
+        "-KpiCatalogRoot", $kpiCatalogRoot
+    )
 }
 
 # 19c) DAX validation (validate DAX expressions against best practices)
@@ -327,7 +336,7 @@ Invoke-LocalScript -RelativePath "tooling/validation/check_schema_validation.ps1
   "-Root", $repoRoot
 )
 
-Stop-Transcript | Out-Null
+if ($script:TranscriptActive) { Stop-Transcript | Out-Null }
 
 $totalChecks = $script:checkResults.Count
 $failedChecks = ($script:checkResults | Where-Object { $_.status -ne "ok" }).Count

@@ -205,7 +205,7 @@ def build_ir(
         if not isinstance(a, dict):
             continue
         gov = a.get("governance") or {}
-        ir["objects"]["action_codes"][aid] = {
+        entry = {
             "id": a.get("id") or aid,
             "name": a.get("name"),
             "owner_domain": a.get("owner_domain"),
@@ -214,6 +214,13 @@ def build_ir(
             "execution_bridge": a.get("execution_bridge"),
             "source": a.get("source"),
         }
+        if a.get("trigger_summary") is not None:
+            entry["trigger_summary"] = a.get("trigger_summary")
+        if a.get("owner_role") is not None:
+            entry["owner_role"] = a.get("owner_role")
+        if a.get("steps") is not None:
+            entry["steps"] = list(a.get("steps"))
+        ir["objects"]["action_codes"][aid] = entry
 
     # Optional: include impact paths for adapters that need prioritization.
     if isinstance(value_map, dict):

@@ -35,6 +35,7 @@ Create these as **Single select** or **Text** / **Date** as indicated. Field nam
 
 - Use **Assignees** for Owner if you prefer; then the script can read assignees via GraphQL.
 - **Milestone** can mirror GitHub Milestones (e.g. same names) so the Roadmap view and milestone progress stay aligned.
+- The script `set_project_fields_only.ps1` accepts both the field name **Milestone** and **Milestones** (e.g. if the board uses the plural).
 
 ---
 

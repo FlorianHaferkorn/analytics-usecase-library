@@ -1,4 +1,4 @@
-/// COM-001 Measures
+/// COM-001 Measures (Sales Performance vs Plan & LY)
 table _Measures
 
 	partition _Measures = m
@@ -15,41 +15,41 @@ table _Measures
 		isHidden
 		summarizeBy: none
 
-	/// margin.gm.pct - Gross Margin %
+	/// margin.gm.pct - Gross
 	/// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
-	measure 'Gross Margin %' =
+	measure 'Gross' =
 			DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
 		formatString: "0.0%"
 		displayFolder: "COM-001"
 
-	/// sales.net_sales.amount - Net Sales Amount
+	/// sales.net_sales.amount - Net
 	/// Total invoiced revenue net of discounts and returns.
-	measure 'Net Sales Amount' =
+	measure 'Net' =
 			SUM ( fact_sales[Net Sales Amount] )
 		formatString: "#,0.00"
 		displayFolder: "COM-001"
 
-	/// sales.net_sales.delta_pct.plan - Net Sales % vs Plan
+	/// sales.net_sales.delta_pct.plan - Net
 	/// Relative variance of Net Sales vs Plan.
-	measure 'Net Sales % vs Plan' =
+	measure 'Net' =
 			VAR Actual = [Net Sales Amount]
 			VAR Plan   = SUM ( fact_sales[Plan Sales Amount] )
 			RETURN DIVIDE ( Actual - Plan, Plan )
 		formatString: "0.0%"
 		displayFolder: "COM-001"
 
-	/// sales.net_sales.delta_pct.ly - Delta% Net Sales
+	/// sales.net_sales.delta_pct.ly - Delta%
 	/// Relative variance of Net Sales vs Last Year.
-	measure 'Delta% Net Sales' =
+	measure 'Delta%' =
 			VAR Actual = [Net Sales Amount]
 			VAR LY     = SUM ( fact_sales[Last Year Sales Amount] )
 			RETURN DIVIDE ( Actual - LY, LY )
 		formatString: "0.0%"
 		displayFolder: "COM-001"
 
-	/// sales.pvm.price_effect.amount - Price Effect Amount
+	/// sales.pvm.price_effect.amount - Price
 	/// Quantifies the pure price impact in the PVM bridge.
-	measure 'Price Effect Amount' =
+	measure 'Price' =
 			SUMX (
 			fact_sales,
 			VAR ActualPrice = DIVIDE ( fact_sales[Net Sales Amount], fact_sales[Quantity] )
@@ -59,9 +59,9 @@ table _Measures
 		formatString: "#,0.00"
 		displayFolder: "COM-001"
 
-	/// sales.pvm.volume_effect.amount - Volume Effect Amount
+	/// sales.pvm.volume_effect.amount - Volume
 	/// Measures the variance caused purely by quantity changes at plan price.
-	measure 'Volume Effect Amount' =
+	measure 'Volume' =
 			SUMX (
 			fact_sales,
 			VAR ActualQty = fact_sales[Quantity]
@@ -72,9 +72,9 @@ table _Measures
 		formatString: "#,0.00"
 		displayFolder: "COM-001"
 
-	/// sales.pvm.mix_effect.amount - Mix Effect Amount
+	/// sales.pvm.mix_effect.amount - Mix
 	/// Captures the residual effect from changes in product, channel, or region mix.
-	measure 'Mix Effect Amount' =
+	measure 'Mix' =
 			[Net Sales Amount]
 			- SUM ( fact_sales[Plan Sales Amount] )
 			- [Price Effect Amount]

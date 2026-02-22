@@ -1,0 +1,50 @@
+---
+description: Workflow for autonomous agent task execution (GitHub Issues, PRs, Stage 1)
+alwaysApply: true
+---
+
+# Agent Task Workflow
+
+When working on an assigned GitHub Issue or task, follow this workflow.
+
+## Workday check (before starting any new implementation)
+
+0. Check whether the agent workday is open: the file `internal/project_mgmt/AGENT_WORKDAY_OPEN` must exist. If it does **not** exist: do **not** start new implementation. Reply with: "Arbeitstag ist geschlossen. Bitte workday_start.ps1 ausführen oder die Datei internal/project_mgmt/AGENT_WORKDAY_OPEN anlegen." and stop.
+
+## Before starting
+
+1. Read the assigned GitHub Issue / task description fully.
+2. Identify which artifacts are affected (use case, action code, KPI, tooling, docs) and which expert context applies:
+   - **Framework / Docs (framework topics):** Use Framework-Expert context (`.cursor/rules/framework-expert.mdc`): core/, tooling/ir/, data_contracts/, tooling/validation/, tooling/ontology/. No tool-specific syntax.
+   - **FabricPowerBI / products/fabric_powerbi/:** Use Fabric-Expert context (`.cursor/rules/fabric-expert.mdc`): TMDL, DAX, run_fabric_checks.
+   - **Aurora (showcases/aurora_group):** Aurora is the showcase for every tool (Fabric first, others later). If the task involves Fabric implementation (DAX, TMDL, Measure_Dictionary, reports) → use Fabric-Expert. If the task is showcase structure only (YAML in showcases/aurora_group/models/, model definition, no tool syntax) → use Framework-Expert.
+   - **Other areas:** Apply the skill that matches the artifact type below.
+3. Read the relevant skill from `.cursor/skills/` for the artifact type before editing:
+   - Factsheet edit → `edit-factsheet-safely`
+   - Bracket edit → `edit-usecase-bracket-safely`
+   - New use case → `add-usecase-scaffold`
+   - KPI reference → `add-kpi-reference-safely`
+   - Action code create/update → `add-action-code-and-wire-up`
+   - Fabric/TMDL/DAX → `fabric-powerbi-validation`
+   - Rename/delete KPI or action code → `assess-change-impact`
+   - Stage 1 failure → `fix-stage1-failure`
+   - Pre-commit validation → `stage1-pre-commit`
+4. Change only files that belong to the task. Do not modify unrelated artifacts.
+
+## During implementation
+
+5. Work on a feature branch: `agent/<issue-id>-<short-name>` (e.g. `agent/42-factsheet-com-001`).
+6. Make small, focused changes. One PR per Issue.
+7. Follow all rules in `.cursor/rules/` — especially `framework-conventions.mdc` and `stage1-awareness.mdc`.
+
+## Before committing
+
+8. Run Stage 1 from repo root: `.\tooling\run_stage1_checks.ps1`
+9. If Fabric/Power BI artifacts changed: `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1`
+10. Fix any failures before committing. Use the `fix-stage1-failure` skill if needed.
+
+## PR creation
+
+11. PR title: `[<Issue-ID>] <concise description>`
+12. PR body: Summary of changes, link to Issue (e.g. `Closes #42`), checklist of what was verified.
+13. Do not merge; leave for human review unless branch protection allows it.

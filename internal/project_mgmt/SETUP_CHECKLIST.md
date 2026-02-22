@@ -103,3 +103,9 @@ cd "c:\Users\florianhaferkorn\VSCode\analytics-usecase-library"
 ## 5. Labels (optional)
 
 In **Issues** → **Labels**, create if missing: `epic`, `bug`, `blocker`, `area:framework`, `area:tooling`, `area:fabric-powerbi`. The migration script can create these; the issue templates use `epic` and `bug`.
+
+---
+
+## 6. Agent-Setup (optional)
+
+For agent-driven workflow (prioritization, implementation, workday control): see [AGENT_SETUP.md](AGENT_SETUP.md) (roles, experts, workflow) and [AGENT_WORKDAY.md](AGENT_WORKDAY.md) (start/end workday scripts).

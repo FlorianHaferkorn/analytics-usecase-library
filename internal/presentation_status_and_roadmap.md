@@ -4,7 +4,7 @@
 
 **Language:** English. This document is maintained in English only. When recreating or doing major updates, keep it in English.
 
-**Last updated:** 2026-02-19  
+**Last updated:** 2026-02-20  
 **Next planned update:** Before next presentation or quarterly
 
 ---
@@ -44,10 +44,10 @@ The following applies when **Stage 1 is green** (CI gate: `.\tooling\run_stage1_
 
 ### What is still open (functional)
 
-- **3–30–300 complete:** The principle is defined. Not yet fully implemented: the "300-second page" in the report as a fixed workspace with action text and evidence table sourced directly from action-code YAML, fully generated from the framework.
+- **3–30–300 complete:** The principle is defined. The **300s layer layout** is now defined in [core/templates/page_templates/layout_330300_300s_layer.md](../core/templates/page_templates/layout_330300_300s_layer.md) and schema `layout_330300.schema.json`. Still to implement: full generation of action text and evidence table from action-code YAML in the report.
 - **Strategy Pattern / AI urgency:** Strategy pattern document exists; automatic urgency derivation and automated reasoning are target/backlog.
-- **Strategic layer (optional):** The link Strategy → KPIs → Use Cases works; the written strategic story (strategic KPIs, executive key questions) in company_strategy is still placeholder in places.
-- **Technical open items:** Technical TODOs and stubs (MCP, Fabric API, synthetic data, scaffold) are listed in [internal/technical_backlog.md](technical_backlog.md).
+- **Strategic layer (optional):** The link Strategy → KPIs → Use Cases works; company_strategy has canonical anchors (§5, §6, §7) and references.
+- **Technical open items:** Technical TODOs and stubs (MCP, Fabric API, synthetic data, scaffold) are listed in [internal/technical_backlog.md](technical_backlog.md). **Aurora Operations:** [showcases/aurora_group/models/Operations.yaml](../showcases/aurora_group/models/Operations.yaml) has relationships and display_folders (measures) defined; DAX in KPI Catalog for OPS-001/002/003 still to be added.
 
 ---
 
@@ -69,11 +69,11 @@ The following applies when **Stage 1 is green** (CI gate: `.\tooling\run_stage1_
 
 The project is considered substantively and technically complete with **blocker resolution**, **review adjustments**, and **zero-tolerance documentation** (items 1–3 of the project completion plan). Source: [internal/vision/phase2_backlog.md](vision/phase2_backlog.md).
 
-### Until project completion
+### Project completion status (items 1–3)
 
-- Resolve blockers from content review (e.g. company_strategy anchors, factsheet paths).
-- Remaining review adjustments (style, link-backs, encoding).
-- Ensure CI/release without Stage-1 skip is documented.
+- **Done:** Blocker resolution (company_strategy anchors and factsheet paths per [internal/core_content_review_results.md](core_content_review_results.md); anchors and paths verified/fixed).
+- **Done:** Remaining review adjustments (style, link-backs, encoding) per content review.
+- **Done:** CI/release without Stage-1 skip documented in [docs/README.md](../docs/README.md) § Quality gates and [internal/project_mgmt/BRANCH_PROTECTION.md](project_mgmt/BRANCH_PROTECTION.md).
 
 ### Phase 2 / Backlog (after completion)
 

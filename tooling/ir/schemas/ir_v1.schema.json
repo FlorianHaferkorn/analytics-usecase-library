@@ -162,7 +162,10 @@
         "governance": { "$ref": "#/$defs/governance" },
         "impact_valuation": { "type": ["object", "null"], "additionalProperties": true },
         "execution_bridge": { "type": ["object", "null"], "additionalProperties": true },
-        "source": { "type": ["object", "null"], "additionalProperties": true }
+        "source": { "type": ["object", "null"], "additionalProperties": true },
+        "trigger_summary": { "type": ["string", "null"] },
+        "owner_role": { "type": ["string", "null"] },
+        "steps": { "type": "array", "items": { "type": "string" } }
       }
     },
     "measure_spec_item": {

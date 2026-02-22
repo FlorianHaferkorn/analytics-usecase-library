@@ -1,0 +1,2 @@
+{"sessionId":"4b8eef","location":"run_all_checks.ps1:start","message":"script started","data":{"repoRoot":"C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library"},"timestamp":1771690548842,"hypothesisId":"H3"}
+{"sessionId":"4b8eef","location":"run_all_checks.ps1:230","message":"coreUseCases before DAX check","data":{"count":9,"hasEmpty":false,"hasCOM005":false,"factsheetsRoot":"C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\usecases\\core"},"timestamp":1771690564395,"hypothesisId":"H1","hypothesisIdH3":"H3"}

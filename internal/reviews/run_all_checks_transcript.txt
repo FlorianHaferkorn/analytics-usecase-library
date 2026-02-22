@@ -175,3 +175,621 @@ Checking documentation and tooling references...
   OK   tooling/generation/new_usecase.ps1 (New usecase helper)
   OK   tooling/generation/generate_tmdl_measures.ps1 (TMDL measures generator)
   OK   tooling/generation/generate_all_measures.ps1 (Generate all measures wrapper)
+
+Documentation and tooling references look consistent.
+
+>> tooling/validation/check_docs_kpi_refs.ps1
+Docs -> KPI Catalog consistency
+OK: docs KPI references are consistent.
+
+>> tooling/validation/check_usecase_inventory_vs_factsheets.ps1
+UseCase Inventory <-> Factsheets consistency
+Missing Technical Factsheets (listed in inventory):
+  - COM-001
+  - COM-002
+  - COM-003
+  - COM-004
+  - FIN-001
+  - FIN-002
+  - OPS-001
+  - OPS-002
+  - OPS-003
+  - SCM-001
+  - SCM-002
+  - SCM-003
+  - XD-001
+  - XD-002
+  - XD-003
+
+>> tooling/validation/check_kpi_catalog_unused_in_factsheets.ps1
+KPI Catalog -> Factsheets coverage
+Note: This list checks core factsheets, core action codes, inventory mentions, and measure dictionaries.
+It does not consider KPI aliases or KPIs used only as intermediate inputs.
+Coverage counts (unique KPI IDs):
+  Factsheets:           0
+  Inventory:            103
+  Core Action Codes:    0
+  Measure Dictionaries: 106
+  Total covered:        106
+OK: all KPI IDs are referenced in factsheets.
+
+>> tooling/validation/check_duplicate_ids.ps1
+OK: no duplicate IDs detected.
+
+>> tooling/validation/check_forbidden_content.ps1
+OK: no forbidden content detected.
+
+>> tooling/validation/check_ssot_markers.ps1
+SSOT markers found outside allowlist:
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\products\fabric_orchestrator\config.yaml:17: authority: "https://login.microsoftonline.com/{tenant_id}"
+  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\products\fabric_orchestrator\README.md:107: authority: "https://login.microsoftonline.com/{tenant_id}"
+
+>> tooling/validation/check_docs_usecase_refs.ps1
+Docs -> UseCase references consistency
+OK: docs use case references are consistent.
+
+>> tooling/validation/check_action_codes_vs_kpi.ps1
+Action Codes -> KPI Catalog consistency
+OK: action code KPI references are consistent.
+
+>> tooling/validation/check_factsheet_action_codes.ps1
+Factsheets -> Action Codes consistency
+OK: factsheet/bracket action codes are consistent.
+
+>> tooling/validation/check_decision_spines.ps1
+Decision Spine map consistency
+Decision Spine content validation
+OK: Decision Spines map matches core use cases and files.
+
+>> tooling/validation/check_factsheet_layout.ps1
+Template layout checks
+Note: no measure documents found for template at C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\templates\measure_templates\measure_template.md (no instances under core/semantic_models/measures).
+Note: no page instance documents found for templates under C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\templates\page_templates\page_types.
+Layout mismatches found:
+- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core\COM-001_Sales_Performance\Business_Factsheet.md
+  Missing: ## 0. Metadata; ## 1. Executive Story (The "Why"); ## 2. The 3-30-300 Journey (UX Strategy); ### 2.1 Three Seconds: Status (System 1); ### 2.2 Thirty Seconds: Diagnostic (System 2 Light); ### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work); ## 3. Strategic Rationale & Causal Logic; ## 4. Key Business Questions; ## 5. Governance & Trust; ### Evidence grain
+  Extra: ## Business Factsheet; ## 0. Metadata (Mandatory); ## 1. Business Summary; ## 2. Core Business Questions; ## 3. Required KPIs (Mandatory); ## 4. Action Codes (Summary); ## 5. 3-30-300 Page Layout (Mandatory); ### 5.1 3-Second Layer (KPI Cards); ### 5.2 30-Second Layer (Main Visuals); ### 5.3 Required Slicers (Mandatory); ### 5.4 300-Second Layer (Diagnostics); ## 7. Dependencies, Assumptions & Constraints; ## 8. Success Criteria; ## 9. Risks & Wrong Interpretations (Short)
+- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core\COM-002_Margin_Price_Performance\Business_Factsheet.md
+  Missing: ## 0. Metadata; ## 1. Executive Story (The "Why"); ## 2. The 3-30-300 Journey (UX Strategy); ### 2.1 Three Seconds: Status (System 1); ### 2.2 Thirty Seconds: Diagnostic (System 2 Light); ### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work); ## 3. Strategic Rationale & Causal Logic; ## 4. Key Business Questions; ## 5. Governance & Trust; ### Evidence grain
+  Extra: ## Business Factsheet; ## 0. Metadata (Mandatory); ## 1. Business Summary; ## 2. Core Business Questions; ## 3. Required KPIs (Mandatory); ## 4. Action Codes (Summary); ## 5. 3-30-300 Page Layout (Mandatory); ### 5.1 3-Second Layer (KPI Cards); ### 5.2 30-Second Layer (Main Visuals); ### 5.3 Required Slicers (Mandatory); ### 5.4 300-Second Layer (Diagnostics); ## 7. Dependencies, Assumptions & Constraints; ## 8. Success Criteria; ## 9. Risks & Wrong Interpretations (Short)
+- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core\COM-003_Customer_Value\Business_Factsheet.md
+  Missing: ## 0. Metadata; ## 1. Executive Story (The "Why"); ## 2. The 3-30-300 Journey (UX Strategy); ### 2.1 Three Seconds: Status (System 1); ### 2.2 Thirty Seconds: Diagnostic (System 2 Light); ### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work); ## 3. Strategic Rationale & Causal Logic; ## 4. Key Business Questions; ## 5. Governance & Trust
+  Extra: ## Business Factsheet; ## 0. Metadata (Mandatory); ## 1. Business Summary; ## 2. Core Business Questions; ## 3. Required KPIs (Mandatory); ## 4. Action Codes (Summary); ## 5. 3-30-300 Page Layout (Mandatory); ### 5.1 3-Second Layer (KPI Cards); ### 5.2 30-Second Layer (Main Visuals); ### 5.3 Required Slicers (Mandatory); ### 5.4 300-Second Layer (Diagnostics); ## 7. Dependencies, Assumptions & Constraints; ## 8. Success Criteria; ## 9. Risks & Wrong Interpretations (Short)
+- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core\COM-004_Promotion_Effectiveness\Business_Factsheet.md
+  Missing: ## 0. Metadata; ## 1. Executive Story (The "Why"); ## 2. The 3-30-300 Journey (UX Strategy); ### 2.1 Three Seconds: Status (System 1); ### 2.2 Thirty Seconds: Diagnostic (System 2 Light); ### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work); ## 3. Strategic Rationale & Causal Logic; ## 4. Key Business Questions; ## 5. Governance & Trust; ### Evidence grain
+  Extra: ## Business Factsheet; ## 0. Metadata (Mandatory); ## 1. Business Summary; ## 2. Core Business Questions; ## 3. Required KPIs (Mandatory); ## 4. Action Codes (Summary); ## 5. 3-30-300 Page Layout (Mandatory); ### 5.1 3-Second Layer (KPI Cards); ### 5.2 30-Second Layer (Main Visuals); ### 5.3 Required Slicers (Mandatory); ### 5.4 300-Second Layer (Diagnostics); ## 7. Dependencies, Assumptions & Constraints; ## 8. Success Criteria; ## 9. Risks & Wrong Interpretations (Short)
+- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core\FIN-001_Cash_Liquidity_Performance\Business_Factsheet.md
+  Missing: ## 0. Metadata; ## 1. Executive Story (The "Why"); ## 2. The 3-30-300 Journey (UX Strategy); ### 2.1 Three Seconds: Status (System 1); ### 2.2 Thirty Seconds: Diagnostic (System 2 Light); ### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work); ## 3. Strategic Rationale & Causal Logic; ## 4. Key Business Questions; ## 5. Governance & Trust; ### Evidence grain
+  Extra: ## Business Factsheet; ## 0. Metadata (Mandatory); ## 1. Business Summary; ## 2. Core Business Questions; ## 3. Required KPIs (Mandatory); ## 4. Action Codes (Summary); ## 5. 3-30-300 Page Layout (Mandatory); ### 5.1 3-Second Layer (KPI Cards); ### 5.2 30-Second Layer (Main Visuals); ### 5.3 Required Slicers (Mandatory); ### 5.4 300-Second Layer (Diagnostics); ## 7. Dependencies, Assumptions & Constraints; ## 8. Success Criteria; ## 9. Risks & Wrong Interpretations (Short)
+- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core\FIN-002_Cost_Performance\Business_Factsheet.md
+  Missing: ## 0. Metadata; ## 1. Executive Story (The "Why"); ## 2. The 3-30-300 Journey (UX Strategy); ### 2.1 Three Seconds: Status (System 1); ### 2.2 Thirty Seconds: Diagnostic (System 2 Light); ### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work); ## 3. Strategic Rationale & Causal Logic; ## 4. Key Business Questions; ## 5. Governance & Trust; ### Evidence grain
+  Extra: ## Business Factsheet; ## 0. Metadata (Mandatory); ## 1. Business Summary; ## 2. Core Business Questions; ## 3. Required KPIs (Mandatory); ## 4. Action Codes (Summary); ## 5. 3-30-300 Page Layout (Mandatory); ### 5.1 3-Second Layer (KPI Cards); ### 5.2 30-Second Layer (Main Visuals); ### 5.3 Required Slicers (Mandatory); ### 5.4 300-Second Layer (Diagnostics); ## 7. Dependencies, Assumptions & Constraints; ## 8. Success Criteria; ## 9. Risks & Wrong Interpretations (Short)
+- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core\OPS-001_Operations_Performance\Business_Factsheet.md
+  Missing: ## 0. Metadata; ## 1. Executive Story (The "Why"); ## 2. The 3-30-300 Journey (UX Strategy); ### 2.1 Three Seconds: Status (System 1); ### 2.2 Thirty Seconds: Diagnostic (System 2 Light); ### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work); ## 3. Strategic Rationale & Causal Logic; ## 4. Key Business Questions; ## 5. Governance & Trust; ### Evidence grain
+  Extra: ## Business Factsheet; ## 0. Metadata (Mandatory); ## 1. Business Summary; ## 2. Core Business Questions; ## 3. Required KPIs (Mandatory); ## 4. Action Codes (Summary); ## 5. 3-30-300 Page Layout (Mandatory); ### 5.1 3-Second Layer (KPI Cards); ### 5.2 30-Second Layer (Main Visuals); ### 5.3 Required Slicers (Mandatory); ### 5.4 300-Second Layer (Diagnostics); ## 7. Dependencies, Assumptions & Constraints; ## 8. Success Criteria; ## 9. Risks & Wrong Interpretations (Short)
+- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core\OPS-002_Asset_Performance\Business_Factsheet.md
+  Missing: ## 0. Metadata; ## 1. Executive Story (The "Why"); ## 2. The 3-30-300 Journey (UX Strategy); ### 2.1 Three Seconds: Status (System 1); ### 2.2 Thirty Seconds: Diagnostic (System 2 Light); ### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work); ## 3. Strategic Rationale & Causal Logic; ## 4. Key Business Questions; ## 5. Governance & Trust; ### Evidence grain
+  Extra: ## Business Factsheet; ## 0. Metadata (Mandatory); ## 1. Business Summary; ## 2. Core Business Questions; ## 3. Required KPIs (Mandatory); ## 4. Action Codes (Summary); ## 5. 3-30-300 Page Layout (Mandatory); ### 5.1 3-Second Layer (KPI Cards); ### 5.2 30-Second Layer (Main Visuals); ### 5.3 Required Slicers (Mandatory); ### 5.4 300-Second Layer (Diagnostics); ## 7. Dependencies, Assumptions & Constraints; ## 8. Success Criteria; ## 9. Risks & Wrong Interpretations (Short)
+- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core\OPS-003_Quality_Yield\Business_Factsheet.md
+  Missing: ## 0. Metadata; ## 1. Executive Story (The "Why"); ## 2. The 3-30-300 Journey (UX Strategy); ### 2.1 Three Seconds: Status (System 1); ### 2.2 Thirty Seconds: Diagnostic (System 2 Light); ### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work); ## 3. Strategic Rationale & Causal Logic; ## 4. Key Business Questions; ## 5. Governance & Trust; ### Evidence grain
+  Extra: ## Business Factsheet; ## 0. Metadata (Mandatory); ## 1. Business Summary; ## 2. Core Business Questions; ## 3. Required KPIs (Mandatory); ## 4. Action Codes (Summary); ## 5. 3-30-300 Page Layout (Mandatory); ### 5.1 3-Second Layer (KPI Cards); ### 5.2 30-Second Layer (Main Visuals); ### 5.3 Required Slicers (Mandatory); ### 5.4 300-Second Layer (Diagnostics); ## 7. Dependencies, Assumptions & Constraints; ## 8. Success Criteria; ## 9. Risks & Wrong Interpretations (Short)
+- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core\SCM-001_Inventory_Performance\Business_Factsheet.md
+  Missing: ## 0. Metadata; ## 1. Executive Story (The "Why"); ## 2. The 3-30-300 Journey (UX Strategy); ### 2.1 Three Seconds: Status (System 1); ### 2.2 Thirty Seconds: Diagnostic (System 2 Light); ### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work); ## 3. Strategic Rationale & Causal Logic; ## 4. Key Business Questions; ## 5. Governance & Trust; ### Evidence grain
+  Extra: ## Business Factsheet; ## 0. Metadata (Mandatory); ## 1. Business Summary; ## 2. Core Business Questions; ## 3. Required KPIs (Mandatory); ## 4. Action Codes (Summary); ## 5. 3-30-300 Page Layout (Mandatory); ### 5.1 3-Second Layer (KPI Cards); ### 5.2 30-Second Layer (Main Visuals); ### 5.3 Required Slicers (Mandatory); ### 5.4 300-Second Layer (Diagnostics); ## 7. Dependencies, Assumptions & Constraints; ## 8. Success Criteria; ## 9. Risks & Wrong Interpretations (Short)
+- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core\SCM-002_Supply_Reliability_OTIF\Business_Factsheet.md
+  Missing: ## 0. Metadata; ## 1. Executive Story (The "Why"); ## 2. The 3-30-300 Journey (UX Strategy); ### 2.1 Three Seconds: Status (System 1); ### 2.2 Thirty Seconds: Diagnostic (System 2 Light); ### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work); ## 3. Strategic Rationale & Causal Logic; ## 4. Key Business Questions; ## 5. Governance & Trust; ### Evidence grain
+  Extra: ## Business Factsheet; ## 0. Metadata (Mandatory); ## 1. Business Summary; ## 2. Core Business Questions; ## 3. Required KPIs (Mandatory); ## 4. Action Codes (Summary); ## 5. 3-30-300 Page Layout (Mandatory); ### 5.1 3-Second Layer (KPI Cards); ### 5.2 30-Second Layer (Main Visuals); ### 5.3 Required Slicers (Mandatory); ### 5.4 300-Second Layer (Diagnostics); ## 7. Dependencies, Assumptions & Constraints; ## 8. Success Criteria; ## 9. Risks & Wrong Interpretations (Short)
+- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core\SCM-003_Forecast_vs_Actual\Business_Factsheet.md
+  Missing: ## 0. Metadata; ## 1. Executive Story (The "Why"); ## 2. The 3-30-300 Journey (UX Strategy); ### 2.1 Three Seconds: Status (System 1); ### 2.2 Thirty Seconds: Diagnostic (System 2 Light); ### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work); ## 3. Strategic Rationale & Causal Logic; ## 4. Key Business Questions; ## 5. Governance & Trust; ### Evidence grain
+  Extra: ## Business Factsheet; ## 0. Metadata (Mandatory); ## 1. Business Summary; ## 2. Core Business Questions; ## 3. Required KPIs (Mandatory); ## 4. Action Codes (Summary); ## 5. 3-30-300 Page Layout (Mandatory); ### 5.1 3-Second Layer (KPI Cards); ### 5.2 30-Second Layer (Main Visuals); ### 5.3 Required Slicers (Mandatory); ### 5.4 300-Second Layer (Diagnostics); ## 7. Dependencies, Assumptions & Constraints; ## 8. Success Criteria; ## 9. Risks & Wrong Interpretations (Short)
+- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core\XD-001_Service_Level_Performance\Business_Factsheet.md
+  Missing: ## 0. Metadata; ## 1. Executive Story (The "Why"); ## 2. The 3-30-300 Journey (UX Strategy); ### 2.1 Three Seconds: Status (System 1); ### 2.2 Thirty Seconds: Diagnostic (System 2 Light); ### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work); ## 3. Strategic Rationale & Causal Logic; ## 4. Key Business Questions; ## 5. Governance & Trust; ### Evidence grain
+  Extra: ## Business Factsheet; ## 0. Metadata (Mandatory); ## 1. Business Summary; ## 2. Core Business Questions; ## 3. Required KPIs (Mandatory); ## 4. Action Codes (Summary); ## 5. 3-30-300 Page Layout (Mandatory); ### 5.1 3-Second Layer (KPI Cards); ### 5.2 30-Second Layer (Main Visuals); ### 5.3 Required Slicers (Mandatory); ### 5.4 300-Second Layer (Diagnostics); ## 7. Dependencies, Assumptions & Constraints; ## 8. Success Criteria; ## 9. Risks & Wrong Interpretations (Short)
+- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core\XD-002_Resource_Utilization\Business_Factsheet.md
+  Missing: ## 0. Metadata; ## 1. Executive Story (The "Why"); ## 2. The 3-30-300 Journey (UX Strategy); ### 2.1 Three Seconds: Status (System 1); ### 2.2 Thirty Seconds: Diagnostic (System 2 Light); ### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work); ## 3. Strategic Rationale & Causal Logic; ## 4. Key Business Questions; ## 5. Governance & Trust; ### Evidence grain
+  Extra: ## Business Factsheet; ## 0. Metadata (Mandatory); ## 1. Business Summary; ## 2. Core Business Questions; ## 3. Required KPIs (Mandatory); ## 4. Action Codes (Summary); ## 5. 3-30-300 Page Layout (Mandatory); ### 5.1 3-Second Layer (KPI Cards); ### 5.2 30-Second Layer (Main Visuals); ### 5.3 Required Slicers (Mandatory); ### 5.4 300-Second Layer (Diagnostics); ## 7. Dependencies, Assumptions & Constraints; ## 8. Success Criteria; ## 9. Risks & Wrong Interpretations (Short)
+- [business] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core\XD-003_Executive_KPI_Overview\Business_Factsheet.md
+  Missing: ## 0. Metadata; ## 1. Executive Story (The "Why"); ## 2. The 3-30-300 Journey (UX Strategy); ### 2.1 Three Seconds: Status (System 1); ### 2.2 Thirty Seconds: Diagnostic (System 2 Light); ### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work); ## 3. Strategic Rationale & Causal Logic; ## 4. Key Business Questions; ## 5. Governance & Trust; ### Evidence grain
+  Extra: ## Business Factsheet; ## 0. Metadata (Mandatory); ## 1. Business Summary; ## 2. Core Business Questions; ## 3. Required KPIs (Mandatory); ## 4. Action Codes (Summary); ## 5. 3-30-300 Page Layout (Mandatory); ### 5.1 3-Second Layer (KPI Cards); ### 5.2 30-Second Layer (Main Visuals); ### 5.3 Required Slicers (Mandatory); ### 5.4 300-Second Layer (Diagnostics); ## 7. Dependencies, Assumptions & Constraints; ## 8. Success Criteria; ## 9. Risks & Wrong Interpretations (Short)
+- [action_code] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\action_codes\Commercial\C-M2.1.yaml
+  Extra: impact_valuation; execution_bridge
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: causal_links
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+
+>> tooling/validation/check_kpi_vs_measure_dictionary.ps1 -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\semantic_models\domains
+KPI Catalog <-> Measure Dictionary consistency
+Duplicate kpi_id_ref in Measure Dictionaries:
+  - crm.active_customers.count
+  - crm.churned_customers.count
+  - crm.clv.amount
+  - plan.forecast.bias.pct
+  - plan.forecast.mape.pct
+  - sales.promo.roi.pct
+Missing in KPI catalogs (present in Measure Dictionaries):
+  - crm.complaint.rate.pct
+  - fin.liquidity.operating_cash_flow
+  - hr.gm.amount
+  - ops.inventory.turnover
+
+>> tooling/validation/check_dax_vs_measure_dictionary.ps1
+DAX definitions vs Measure Dictionaries
+OK: all DAX measures are present in their Measure Dictionaries.
+
+>> tooling/validation/check_measure_dictionary_vs_gold.ps1 -GoldRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\data_contracts\domains -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\semantic_models\domains
+Measure Dictionary -> Gold Data Contracts consistency
+OK: all referenced tables/columns exist in gold contracts.
+
+>> products/fabric_powerbi/tooling/validation/check_tmdl_vs_measure_dictionary.ps1 -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\products\fabric_powerbi\dist
+TMDL <-> Measure Dictionary consistency
+Info: Dictionary measures not yet in any TMDL (expected when dist is a subset): 101 measures.
+OK: Every TMDL measure has a Measure Dictionary entry.
+
+>> products/fabric_powerbi/tooling/validation/check_dax_best_practices.ps1
+DAX best-practice info:
+  [dax.blank.handling] Availability % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Availability % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Cannibalization % in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Cash vs Plan % in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] COGS % of Sales in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] COGS per Unit in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Complaint Rate % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Customer Retention % in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Defect Density in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Delta% Net Sales in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Delta% Net Sales in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] DIO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Downtime % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] DPO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] DSO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] First Pass Yield % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] GM % During Promo in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Gross Margin % in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Gross Margin % in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Gross Margin % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Gross Margin % vs Plan in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Labor Productivity % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Material Cost % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] MTBF (hours) in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] MTTR (hours) in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Net Sales % vs Plan in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] NPS Score in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] OpEx vs Plan % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Performance % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] PM Compliance % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Price Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Price Realization % in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Price Realization % in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Promo ROI % in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Quality % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Rework Rate % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Scrap Rate % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Spare Parts Stockout % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Unit Cost Amount in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Unplanned Downtime % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Volume Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.calculate.preferred] Customer Retention % in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Action Outcome Rate % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Actions Routed Count in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Active Customers in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] AHT Minutes in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Attrition Risk % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Availability % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Availability % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Backlog Count in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Backlog Count in products\fabric_powerbi\dist\XD-002\XD-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Cannibalization % in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Cash Balance in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Cash Conversion Cycle (Days) in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Cash vs Plan % in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] CCC Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Churned Customers in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] CLV in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] CLV in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] COGS % of Sales in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] COGS per Unit in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Complaint Count in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Complaint Rate % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Cost Base Volume Amount in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Cost of Poor Quality in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Customer Lifetime Revenue Amount in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Customer Retention % in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Days in Inventory in products\fabric_powerbi\dist\SCM-001\SCM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Defect Density in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Delta% Net Sales in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Delta% Net Sales in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Digital Adoption Rate % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] DIO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Downtime % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] DPO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] DSO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Enterprise Value-at-Risk Index in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Escalation % in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Expedite Cost Amount in products\fabric_powerbi\dist\SCM-002\SCM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Failure Count in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] FCR % in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] First Pass Yield % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Forecast Accuracy % in products\fabric_powerbi\dist\SCM-001\SCM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Forecast Accuracy % in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Forecast Bias % in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Forecast MAPE % in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] GM % During Promo in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Gross Margin % in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Gross Margin % in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Gross Margin % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Gross Margin % vs Plan in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Gross Margin Amount in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Incremental Sales Amount in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] In-Full % in products\fabric_powerbi\dist\SCM-002\SCM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Inventory Turnover in products\fabric_powerbi\dist\SCM-001\SCM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Inventory Value Amount in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Labor Productivity % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Material Cost % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Mix Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Mix Effect Amount in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] MTBF (hours) in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] MTTR (hours) in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Net Sales % vs Plan in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Net Sales Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Net Sales in products\fabric_powerbi\dist\COM-001_TEST\COM-001_TEST.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] NPS Index in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] NPS Score in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Obsolete Inventory % in products\fabric_powerbi\dist\SCM-001\SCM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Occupancy % in products\fabric_powerbi\dist\XD-002\XD-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] OEE % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] On-Time % in products\fabric_powerbi\dist\SCM-002\SCM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Operating Cash Flow in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Operations Service Level % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Opex Base Amount in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] OpEx vs Plan % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Order Lines Count in products\fabric_powerbi\dist\SCM-002\SCM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Order Lines Count in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] OTIF % in products\fabric_powerbi\dist\SCM-001\SCM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] OTIF % in products\fabric_powerbi\dist\SCM-002\SCM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] OTIF % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Overtime % in products\fabric_powerbi\dist\XD-002\XD-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Penalty Amount in products\fabric_powerbi\dist\SCM-002\SCM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Performance % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Planned Output Units in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Planned Output Units in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Plans Count in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] PM Compliance % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Preventive Maintenance Task Count in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Price Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Price Realization % in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Price Realization % in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Production Volume Units in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Promo ROI % in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Quality % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Quality Defect Rate % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Re-Plan Count in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Revenue at Risk Amount in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Rework Rate % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Safety Incident Count in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Sales Units in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Sales Units in products\fabric_powerbi\dist\SCM-001\SCM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Sales Units in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Scrap Rate % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Service Impact % in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Shipments Count in products\fabric_powerbi\dist\SCM-002\SCM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Shrinkage % in products\fabric_powerbi\dist\XD-002\XD-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] SLA Attainment % in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] SLA Attainment % in products\fabric_powerbi\dist\XD-002\XD-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] SLA Attainment % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Spare Parts Stockout % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Stockout Impact % in products\fabric_powerbi\dist\SCM-002\SCM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Stockout Rate % in products\fabric_powerbi\dist\SCM-001\SCM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Supplier Risk Score in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Supply Chain Service Level % in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Throughput Units in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Tickets Closed Count in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Tickets Created Count in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Tickets Created Count in products\fabric_powerbi\dist\XD-002\XD-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Unit Cost Amount in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Unplanned Downtime % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Utilization % in products\fabric_powerbi\dist\XD-002\XD-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Volume Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Yield % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Action Outcome Rate % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Actions Routed Count in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Active Customers in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] AHT Minutes in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Attrition Risk % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Availability % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Availability % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Backlog Count in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Backlog Count in products\fabric_powerbi\dist\XD-002\XD-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Cannibalization % in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Cash Balance in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Cash Conversion Cycle (Days) in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Cash vs Plan % in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] CCC Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Churned Customers in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] CLV in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] CLV in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] COGS % of Sales in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] COGS per Unit in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Complaint Count in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Complaint Rate % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Cost Base Volume Amount in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Cost of Poor Quality in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Customer Lifetime Revenue Amount in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Customer Retention % in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Days in Inventory in products\fabric_powerbi\dist\SCM-001\SCM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Defect Density in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Delta% Net Sales in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Delta% Net Sales in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Digital Adoption Rate % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] DIO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Downtime % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] DPO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] DSO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Enterprise Value-at-Risk Index in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Escalation % in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Expedite Cost Amount in products\fabric_powerbi\dist\SCM-002\SCM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Failure Count in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] FCR % in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] First Pass Yield % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Forecast Accuracy % in products\fabric_powerbi\dist\SCM-001\SCM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Forecast Accuracy % in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Forecast Bias % in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Forecast MAPE % in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] GM % During Promo in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Gross Margin % in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Gross Margin % in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Gross Margin % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Gross Margin % vs Plan in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Gross Margin Amount in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Incremental Sales Amount in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] In-Full % in products\fabric_powerbi\dist\SCM-002\SCM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Inventory Turnover in products\fabric_powerbi\dist\SCM-001\SCM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Inventory Value Amount in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Labor Productivity % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Material Cost % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Mix Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Mix Effect Amount in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] MTBF (hours) in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] MTTR (hours) in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Net Sales % vs Plan in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Net Sales Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Net Sales in products\fabric_powerbi\dist\COM-001_TEST\COM-001_TEST.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] NPS Index in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] NPS Score in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Obsolete Inventory % in products\fabric_powerbi\dist\SCM-001\SCM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Occupancy % in products\fabric_powerbi\dist\XD-002\XD-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] OEE % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] On-Time % in products\fabric_powerbi\dist\SCM-002\SCM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Operating Cash Flow in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Operations Service Level % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Opex Base Amount in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] OpEx vs Plan % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Order Lines Count in products\fabric_powerbi\dist\SCM-002\SCM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Order Lines Count in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] OTIF % in products\fabric_powerbi\dist\SCM-001\SCM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] OTIF % in products\fabric_powerbi\dist\SCM-002\SCM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] OTIF % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Overtime % in products\fabric_powerbi\dist\XD-002\XD-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Penalty Amount in products\fabric_powerbi\dist\SCM-002\SCM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Performance % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Planned Output Units in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Planned Output Units in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Plans Count in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] PM Compliance % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Preventive Maintenance Task Count in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Price Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Price Realization % in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Price Realization % in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Production Volume Units in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Promo ROI % in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Quality % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Quality Defect Rate % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Re-Plan Count in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Revenue at Risk Amount in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Rework Rate % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Safety Incident Count in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Sales Units in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Sales Units in products\fabric_powerbi\dist\SCM-001\SCM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Sales Units in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Scrap Rate % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Service Impact % in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Shipments Count in products\fabric_powerbi\dist\SCM-002\SCM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Shrinkage % in products\fabric_powerbi\dist\XD-002\XD-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] SLA Attainment % in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] SLA Attainment % in products\fabric_powerbi\dist\XD-002\XD-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] SLA Attainment % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Spare Parts Stockout % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Stockout Impact % in products\fabric_powerbi\dist\SCM-002\SCM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Stockout Rate % in products\fabric_powerbi\dist\SCM-001\SCM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Supplier Risk Score in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Supply Chain Service Level % in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Throughput Units in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Tickets Closed Count in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Tickets Created Count in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Tickets Created Count in products\fabric_powerbi\dist\XD-002\XD-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Unit Cost Amount in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Unplanned Downtime % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Utilization % in products\fabric_powerbi\dist\XD-002\XD-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Volume Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Yield % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+DAX best-practice warnings:
+  [dax.iterators.only_when_needed] CLV in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.iterators.only_when_needed] CLV in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Availability % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Availability % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Cash vs Plan % in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Churned Customers in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] COGS % of Sales in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Complaint Rate % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Customer Retention % in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Defect Density in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Delta% Net Sales in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Delta% Net Sales in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] DIO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Downtime % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] DPO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] DSO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] First Pass Yield % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Gross Margin % vs Plan in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Labor Productivity % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Material Cost % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] MTBF (hours) in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] MTTR (hours) in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Net Sales % vs Plan in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] NPS Score in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] OpEx vs Plan % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Performance % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] PM Compliance % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Price Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Quality % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Revenue at Risk Amount in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Rework Rate % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Scrap Rate % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Spare Parts Stockout % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Unit Cost Amount in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Unplanned Downtime % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Volume Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+DAX best-practice check passed.
+
+>> tooling/validation/check_dax_before_generation.ps1
+Pre-Generation DAX Check for COM-001
+  Total KPIs: 2
+  With DAX: 2
+
+OK All KPIs have DAX expressions. Ready for generation.
+
+>> tooling/validation/check_dax_before_generation.ps1
+Pre-Generation DAX Check for COM-002
+  Total KPIs: 2
+  With DAX: 2
+
+OK All KPIs have DAX expressions. Ready for generation.
+
+>> tooling/validation/check_dax_before_generation.ps1
+Pre-Generation DAX Check for COM-003
+  Total KPIs: 2
+  With DAX: 2
+
+OK All KPIs have DAX expressions. Ready for generation.
+
+>> tooling/validation/check_dax_before_generation.ps1
+Pre-Generation DAX Check for COM-004
+  Total KPIs: 2
+  With DAX: 2
+
+OK All KPIs have DAX expressions. Ready for generation.
+
+>> tooling/validation/check_dax_before_generation.ps1
+PS>TerminatingError(check_dax_before_generation.ps1): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Use case COM-005 not found in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases/core."
+>> TerminatingError(check_dax_before_generation.ps1): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Use case COM-005 not found in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases/core."
+  Error while running tooling/validation/check_dax_before_generation.ps1:
+  Use case COM-005 not found in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases/core
+
+>> tooling/validation/check_dax_before_generation.ps1
+PS>TerminatingError(check_dax_before_generation.ps1): "Das Argument kann nicht an den Parameter "UseCaseId" gebunden werden, da es sich um eine leere Zeichenfolge handelt."
+  Error while running tooling/validation/check_dax_before_generation.ps1:
+  Das Argument kann nicht an den Parameter "UseCaseId" gebunden werden, da es sich um eine leere Zeichenfolge handelt.
+
+>> tooling/validation/check_dax_before_generation.ps1

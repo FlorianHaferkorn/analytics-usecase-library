@@ -108,7 +108,17 @@ Examples:
 
 ---
 
-### 4. Action Panel
+### 4. 300-Second Layer (layout_330300)
+
+The structure of the **300s (diagnostics)** layer — tables, breakdowns, action/evidence slots — is defined by the layout_330300 schema and documented in:
+
+```yaml
+layout_330300_300s_layer.md
+```
+
+Schema: `tooling/ai/schemas/layout_330300.schema.json`. Per-use-case values live in `UseCase_Bracket.yaml`.
+
+### 5. Action Panel
 
 Some pages require an **Action Panel** to support prescriptive analytics.
 

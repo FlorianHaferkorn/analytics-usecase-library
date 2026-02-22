@@ -905,9 +905,41 @@ if ($script:UseIRPath) {
     $useCaseData += @{ useCaseId = $ucId; title = $u.title; targetIds = $targetIds; factSheetPath = ""; datasetModel = "$ucId.SemanticModel" }
   }
   if ($useCaseData.Count -eq 0) { Write-Host "No use cases in IR matched the filters." -ForegroundColor Yellow; exit 0 }
+  # Virtual brackets from IR (for Build-ActionReadyLogicTable): uc_id -> { action_code_ids, evidence_grain }
   $useCaseBrackets = @{}
+  foreach ($ucId in $ir.objects.use_cases.PSObject.Properties.Name) {
+    $u = $ir.objects.use_cases.$ucId
+    $orch = $u.orchestration
+    $actionIds = @($orch.action_code_ids)
+    if ($actionIds.Count -eq 0) { continue }
+    if ($ucFilters.Count -gt 0 -and -not ($ucFilters | Where-Object { $ucId -like ($_ + '*') })) { continue }
+    $evidenceGrain = $null
+    if ($u.ux_layout_rules -and $u.ux_layout_rules.page_2_execution -and $u.ux_layout_rules.page_2_execution.component_300s) {
+      $eg = $u.ux_layout_rules.page_2_execution.component_300s.evidence_grain
+      if ($eg) { $evidenceGrain = $eg }
+    }
+    $useCaseBrackets[$ucId] = @{ id = $ucId; action_code_ids = $actionIds; evidence_grain = $evidenceGrain }
+  }
+  # Action codes from IR (for Build-ActionReadyLogicTable): ac_id -> { id, name, trigger_summary, owner_role, steps }
   $allActionCodes = @{}
-  Write-Host "IR-first: $($useCaseData.Count) use cases, $($catalog.Count) measure specs, $($trustScores.Count) trust scores." -ForegroundColor Gray
+  if ($ir.objects.action_codes) {
+    foreach ($acId in $ir.objects.action_codes.PSObject.Properties.Name) {
+      $a = $ir.objects.action_codes.$acId
+      $triggerSummary = if ($a.trigger_summary) { $a.trigger_summary } else { "(no trigger defined)" }
+      $ownerRole = if ($a.owner_role) { $a.owner_role } else { "TBD" }
+      $stepsList = @()
+      if ($a.steps) { foreach ($s in $a.steps) { if ($s) { $stepsList += $s } } }
+      if ($stepsList.Count -eq 0) { $stepsList = @("(Action code content not in IR - rebuild registry and IR)") }
+      $allActionCodes[$acId] = @{
+        id = $acId
+        name = if ($a.name) { $a.name } else { $acId }
+        trigger_summary = $triggerSummary
+        owner_role = $ownerRole
+        steps = $stepsList
+      }
+    }
+  }
+  Write-Host "IR-first: $($useCaseData.Count) use cases, $($catalog.Count) measure specs, $($trustScores.Count) trust scores, $($useCaseBrackets.Count) brackets, $($allActionCodes.Count) action codes." -ForegroundColor Gray
 } else {
   $factSheets = Get-ChildItem -Path $resolvedUseCasesRoot -Recurse -Filter 'Business_Factsheet.md' | Where-Object {
     $_.FullName -notmatch '\\templates\\' -and $_.FullName -notmatch '\\internal\\archive\\'

@@ -57,14 +57,20 @@ Agents implement and open the PR; humans perform review and merge.
 
 ---
 
-## 5. Weekly status update (Variante B)
+## 5. Intake (new requirements and ideas)
+
+New ideas and requirements are captured in [IDEAS_AND_REQUIREMENTS.md](IDEAS_AND_REQUIREMENTS.md). The **PM agent** (see [AGENT_SETUP.md](AGENT_SETUP.md)) can add entries there from user input (suggested Title, Area, Milestone, Priority). During triage (e.g. weekly), the human decides which items to promote: create a GitHub Issue, add to the Project, set fields; then mark the idea as promoted in the doc. Small or clear requests can go directly to an Issue; larger or fuzzy ideas go to IDEAS_AND_REQUIREMENTS first.
+
+---
+
+## 6. Weekly status update (Variante B)
 
 - **Automated:** A GitHub Action runs the script in `tooling/project_mgmt/`. The script queries the Project (GraphQL), computes progress and risks, and creates a **draft** Project status update via `createProjectV2StatusUpdate`.
 - **Human:** Someone opens the Project, reviews the draft status update (On track / At risk, narrative, next steps), adjusts if needed, and **publishes** it. This keeps the narrative accurate while keeping data entry automatic.
 
 ---
 
-## 6. Flow summary
+## 7. Flow summary
 
 1. **Backlog → Planned:** Triage or agent sets Milestone, Area, Priority; item is scheduled.
 2. **Planned → In progress:** Work starts; agent or human moves Status (or automation when PR is opened for the issue).
@@ -72,4 +78,4 @@ Agents implement and open the PR; humans perform review and merge.
 4. **In review → Done:** PR merged; issue closed; automation sets Status = `Done`. Milestone progress updates automatically.
 5. **Weekly:** Draft status update is created; human reviews and publishes.
 
-See also [PROJECT_FIELDS_AND_LABELS.md](PROJECT_FIELDS_AND_LABELS.md) for fields and automations.
+For the PM-driven flow (start next task, PR review summary, automations), see [PM_FLOW.md](PM_FLOW.md). See also [PROJECT_FIELDS_AND_LABELS.md](PROJECT_FIELDS_AND_LABELS.md) for fields and automations.
