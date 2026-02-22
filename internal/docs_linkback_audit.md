@@ -21,7 +21,7 @@
 
 ## Nicht geprüft / optional
 
-- **Use case Business Factsheets** (Key business questions → company_strategy §6): Plan priorisiert nur XD-003; andere Facts sheets optional.
+- **Use case Business Factsheets** (Key business questions → company_strategy §6): Plan priorisiert nur XD-003; andere Factsheets optional.
 - **UseCase_Inventory.md**: Generierte Datei; Link-back ggf. im Generator (tooling/ontology/registry_builder.py) oder in einer Vorlage hinterlegen.
 - **Domain READMEs** unter `core/semantic_models/domains/*/README.md`: Nur Commercial hat ein README; dieses hat bereits Link-back auf domains.md. Andere Domains (Operations, Finance, etc.) haben nur Measure_Dictionary_*.md, kein README – bei künftiger Anlage gleiches Muster wie Commercial.
 - **Showcase-Varianten** unter `showcases/*`: Beispiel-Implementierung; Link-back optional.
@@ -32,3 +32,5 @@
 ## Nächster Schritt
 
 Bei neuen abgeleiteten Views (z. B. weitere Domain-READMEs) Link-back-Block nach SSOT-Vorlage ergänzen und hier unter „Bereits erledigt“ eintragen.
+
+**Issue #17 (Remaining review adjustments):** Terminology „Facts sheets“ → „Factsheets“ in internal/docs vereinheitlicht; Encoding- und Pfadkorrekturen aus Core Content Review waren zuvor bereits umgesetzt.

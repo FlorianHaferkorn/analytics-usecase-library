@@ -4,7 +4,7 @@
 
 **Language:** English. This document is maintained in English only. When recreating or doing major updates, keep it in English.
 
-**Last updated:** 2026-02-20  
+**Last updated:** 2026-02-22  
 **Next planned update:** Before next presentation or quarterly
 
 ---
@@ -72,7 +72,7 @@ The project is considered substantively and technically complete with **blocker 
 ### Project completion status (items 1–3)
 
 - **Done:** Blocker resolution (company_strategy anchors and factsheet paths per [internal/core_content_review_results.md](core_content_review_results.md); anchors and paths verified/fixed).
-- **Done:** Remaining review adjustments (style, link-backs, encoding) per content review.
+- **Done:** Remaining review adjustments (style, link-backs, encoding) per content review (Issue #17).
 - **Done:** CI/release without Stage-1 skip documented in [docs/README.md](../docs/README.md) § Quality gates and [internal/project_mgmt/BRANCH_PROTECTION.md](project_mgmt/BRANCH_PROTECTION.md).
 
 ### Phase 2 / Backlog (after completion)

@@ -1,7 +1,7 @@
 # Core Content Review – Anpassungen pro Dokument
 
 **Datum:** 2026-02-17  
-**Behoben am:** 2026-02-17 (alle im Plan genannten Punkte umgesetzt)  
+**Behoben am:** 2026-02-17 (Blocker und Pfade); verbleibende Stil-/Link-back-/Encoding-Anpassungen mit Issue #17 (2026-02-22).  
 **Scope:** Alle .md unter core/ (101 Dokumente)  
 **Referenz:** SSOT, Golden Thread, ACTIONREADY Manifesto, company_strategy, reporting_principles
 
@@ -68,7 +68,7 @@
 
 #### core/usecases/core/*/Business_Factsheet.md (alle 13 Use Cases)
 - **Status:** Anpassungen erforderlich
-- **Anpassungen (alle Facts sheets):**
+- **Anpassungen (alle Factsheets):**
   - (Fachlich/Ineinandergreifen) **Blocker.** In Abschnitt „0. Metadata“ stehen **Related Data Contract** und **Related Semantic Model** mit falschem Pfad: `core/core/core/data_contracts/...` bzw. `core/core/core/semantic_models/...`. Korrekt ist genau ein „core/“ (z. B. `core/data_contracts/domains/...`). **Empfehlung:** Alle 13 Facts sheets: „core/core/core/“ durch „core/“ ersetzen. Betroffen: COM-001, COM-002, COM-003, COM-004, FIN-001, FIN-002, OPS-001, OPS-002, OPS-003, SCM-001, SCM-002, SCM-003, XD-001, XD-002, XD-003.
 
 #### core/usecases/core/XD-003_Executive_KPI_Overview/Business_Factsheet.md

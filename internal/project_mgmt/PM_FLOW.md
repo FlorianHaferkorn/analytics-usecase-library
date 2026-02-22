@@ -1,8 +1,8 @@
 # PM-driven flow (Backlog → Done)
 
-**Purpose:** Describes the single flow from backlog to done: how the PM agent, scripts, and GitHub automations work together so the user does as little as possible. Status transitions and the PR review summary are automated; the only recurring manual step is running the next-task script and telling the Implementer which issue to implement.
+**Purpose:** Describes the single flow from backlog to done: how the PM agent, **Assistant Agent** (daily briefing), scripts, and GitHub automations work together so the user does as little as possible. Status transitions and the PR review summary are automated; the only recurring manual steps are: ask the Assistant for a daily briefing, then run the next-task script and tell the Implementer which issue to implement.
 
-**See also:** [OPERATING_MODEL.md](OPERATING_MODEL.md), [PROJECT_FIELDS_AND_LABELS.md](PROJECT_FIELDS_AND_LABELS.md).
+**See also:** [OPERATING_MODEL.md](OPERATING_MODEL.md), [PROJECT_FIELDS_AND_LABELS.md](PROJECT_FIELDS_AND_LABELS.md), [ASSISTANT_BRIEFING.md](ASSISTANT_BRIEFING.md) (daily briefing with minimal manual steps).
 
 ---
 
@@ -22,10 +22,13 @@ Flow: **Backlog / Planned → In progress → In review → Done.**
 
 ## 2. Step-by-step (what is automated vs manual)
 
-### 2.1 Backlog → In progress (one manual step)
+### 2.1 Backlog → In progress (minimal manual steps)
 
-1. **PM agent:** User asks "assign next task" or "start next task". PM outputs the next prioritized task (from BACKLOG_GRANULAR or Project) and tells the user to run the script.
-2. **User runs** (from repo root):
+**Option A — Mit Daily Briefing (empfohlen):** User fragt den **Assistant Agent** nach einem **Daily Briefing** (z. B. "Briefing" oder "Was steht an?"). Der Assistant liest [PROJECT_SNAPSHOT.md](PROJECT_SNAPSHOT.md) (erzeugt von `refresh_project_snapshot.ps1`) und [BACKLOG_GRANULAR.md](BACKLOG_GRANULAR.md) und liefert Fokus, Bottlenecks und **genau die nächste Aufgabe inkl. Anweisung** (Skript + "Implement issue #N"). User führt nur noch diese Anweisung aus. Siehe [ASSISTANT_BRIEFING.md](ASSISTANT_BRIEFING.md).
+
+**Option B — Ohne Briefing:** User fragt den PM Agent "assign next task" / "start next task"; PM gibt die nächste Aufgabe und die Skript-Anweisung aus.
+
+**Gemeinsamer Schritt:** User runs (from repo root):
    ```powershell
    .\tooling\project_mgmt\start_next_task.ps1
    ```
@@ -33,7 +36,7 @@ Flow: **Backlog / Planned → In progress → In review → Done.**
    - Finds project items with Status = **Backlog** or **Planned** (sorted by Priority P0 → P1 → P2).
    - Sets the chosen item’s Status to **In progress**.
    - Prints: issue number, title, Area, recommended expert.
-3. **User** opens an **Implementer** (or recommended expert) session and says: **Implement issue #&lt;N&gt;** (N from script output).
+- **User** then opens an **Implementer** (or recommended expert) session and says: **Implement issue #&lt;N&gt;** (N from script output).
 
 There is no Cursor API to start an agent automatically; this is the one recurring manual step.
 
@@ -65,6 +68,7 @@ There is no Cursor API to start an agent automatically; this is the one recurrin
 | **start_next_task.ps1** | `tooling/project_mgmt/` | Picks one Backlog/Planned item, sets Status to In progress, prints issue # and expert. |
 | **set_issue_status.ps1** | `tooling/project_mgmt/` | Sets Status for one or more issues (e.g. `-Issue 23 -Status "In review"`). |
 | **pr_review_summary.yml** | `.github/workflows/` | PR comment with title, description, files changed, diff stats. |
+| **refresh_project_snapshot.ps1** | `tooling/project_mgmt/` | Reads Backlog/Planned (no status change), writes PROJECT_SNAPSHOT.md for the Assistant. |
 | **project_status_update.yml** | `.github/workflows/` | Weekly draft Project status update (separate from this flow). |
 
 Project automations (in GitHub: Project → … → Workflows) that set **In review** on PR open and **Done** on PR merge must be enabled on your Project for full automation of 2.2 and 2.4.
@@ -74,4 +78,4 @@ Project automations (in GitHub: Project → … → Workflows) that set **In rev
 ## 4. Summary
 
 - **Automated:** Backlog/Planned → In progress (via script); In progress → In review (PR open / Project workflow); PR summary comment; In review → Done (PR merge / Project workflow).
-- **Manual:** Run `start_next_task.ps1` and tell the Implementer "Implement issue #N"; then review the PR (using the summary comment) and merge.
+- **Minimal manual:** (1) Once per day: optionally run `refresh_project_snapshot.ps1`, then ask the **Assistant** for a **daily briefing** — you get focus, bottlenecks, and the exact next step. (2) When starting work: run `start_next_task.ps1` and tell the Implementer "Implement issue #N" (as in the briefing). (3) Review the PR (using the summary comment) and merge.
