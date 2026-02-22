@@ -1,5 +1,5 @@
 # Post or update a single PR comment with: title, body, files changed, diff stats.
-# Gives the user a fixed place to see "what was created/changed" before approving.
+# Also checks that delivery PRs (title [N] or branch agent/N-*) contain "Closes #N" so the issue is closed on merge.
 # See: internal/project_mgmt/PM_FLOW.md
 
 name: PR review summary
@@ -9,6 +9,41 @@ on:
     types: [opened, synchronize]
 
 jobs:
+  check-closes-issue:
+    name: Require Closes #N in PR body
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR has Closes #N when delivery-style
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -e
+          PAYLOAD=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq '{title: .title, body: .body, headRefName: .headRefName}')
+          TITLE=$(echo "$PAYLOAD" | jq -r '.title // ""')
+          BODY=$(echo "$PAYLOAD" | jq -r '.body // ""')
+          REF=$(echo "$PAYLOAD" | jq -r '.headRefName // ""')
+          # Extract issue number from title [N] or branch agent/N-*
+          N=""
+          if [[ "$TITLE" =~ \[([0-9]+)\] ]]; then
+            N="${BASH_REMATCH[1]}"
+          elif [[ "$REF" =~ ^agent/([0-9]+)- ]]; then
+            N="${BASH_REMATCH[1]}"
+          fi
+          if [[ -z "$N" ]]; then
+            echo "Not a delivery-style PR (no [N] in title or agent/N-* branch); skip Closes check."
+            exit 0
+          fi
+          # Require body to contain Closes #N or Fixes #N (case-insensitive)
+          BODY_NORM=$(echo "$BODY" | tr '[:upper:]' '[:lower:]')
+          if echo "$BODY_NORM" | grep -qE '(closes|fixes)\s*#'"$N"'\b'; then
+            echo "PR body contains Closes #${N} or Fixes #${N}. OK."
+            exit 0
+          fi
+          echo "::error::Delivery PR (title or branch references issue #${N}) must contain 'Closes #${N}' or 'Fixes #${N}' in the description so the issue is closed on merge."
+          exit 1
+
   summary:
     name: Post review summary comment
     runs-on: ubuntu-latest
@@ -23,13 +58,16 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           set -e
           MARKER="<!-- pr-review-summary -->"
-          TITLE="${{ github.event.pull_request.title }}"
-          DESC="${{ github.event.pull_request.body }}"
+          TITLE="${PR_TITLE:-}"
+          DESC="${PR_BODY:-}"
           [ -z "$DESC" ] && DESC="*No description.*"
-          BASE="${{ github.event.pull_request.base.sha }}"
+          BASE="${BASE_SHA:-}"
           FILES=$(git diff --name-status "$BASE"...HEAD 2>/dev/null || echo "—")
           STATS=$(git diff --shortstat "$BASE"...HEAD 2>/dev/null || echo "—")
 
@@ -40,7 +78,7 @@ jobs:
             echo "**Title:** $TITLE"
             echo ""
             echo "**Summary / description:**"
-            echo "$DESC"
+            printf '%s\n' "$DESC"
             echo ""
             echo "**Files changed:**"
             echo '```'

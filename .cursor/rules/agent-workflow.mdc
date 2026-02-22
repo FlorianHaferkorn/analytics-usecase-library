@@ -11,9 +11,19 @@ When working on an assigned GitHub Issue or task, follow this workflow.
 
 0. Check whether the agent workday is open: the file `internal/project_mgmt/AGENT_WORKDAY_OPEN` must exist. If it does **not** exist: do **not** start new implementation. Reply with: "Arbeitstag ist geschlossen. Bitte workday_start.ps1 ausführen oder die Datei internal/project_mgmt/AGENT_WORKDAY_OPEN anlegen." and stop.
 
+## Obtain issue number (if user said "start next task" or similar)
+
+If the user asked to **start the next task**, **take the next task**, **next task**, or similar and did **not** give an issue number: run from the **repo root** (PowerShell):
+
+```powershell
+.\tooling\project_mgmt\start_next_task.ps1
+```
+
+Parse the script output for the **issue number** (e.g. "Issue #17" or "Issue number for scripts: 17") and, if present, the **task title**. Use that issue number and title for the rest of the workflow (branch name, PR, Closes #N). Then continue with "Before starting" and "During implementation".
+
 ## Before starting
 
-1. Read the assigned GitHub Issue / task description fully.
+1. Read the assigned GitHub Issue / task description fully (if you ran start_next_task.ps1, you already have the issue number and title; you may still fetch the full description from the issue).
 2. Identify which artifacts are affected (use case, action code, KPI, tooling, docs) and which expert context applies:
    - **Framework / Docs (framework topics):** Use Framework-Expert context (`.cursor/rules/framework-expert.mdc`): core/, tooling/ir/, data_contracts/, tooling/validation/, tooling/ontology/. No tool-specific syntax.
    - **FabricPowerBI / products/fabric_powerbi/:** Use Fabric-Expert context (`.cursor/rules/fabric-expert.mdc`): TMDL, DAX, run_fabric_checks.
@@ -33,7 +43,12 @@ When working on an assigned GitHub Issue or task, follow this workflow.
 
 ## During implementation
 
-5. Work on a feature branch: `agent/<issue-id>-<short-name>` (e.g. `agent/42-factsheet-com-001`).
+5. **Create the feature branch yourself** before editing any files. From the **repo root**, run (PowerShell or Git Bash):
+   - `git fetch origin main`
+   - `git checkout main`
+   - `git pull origin main`
+   - `git checkout -b agent/<issue-id>-<short-name>`
+   Use the issue number you have (e.g. `16`). For `<short-name>`, derive a short kebab-case slug from the issue title (e.g. "Document automated reasoning scope" → `automated-reasoning-scope`), max ~40 characters. Example: `agent/16-automated-reasoning-scope`.
 6. Make small, focused changes. One PR per Issue.
 7. Follow all rules in `.cursor/rules/` — especially `framework-conventions.mdc` and `stage1-awareness.mdc`.
 

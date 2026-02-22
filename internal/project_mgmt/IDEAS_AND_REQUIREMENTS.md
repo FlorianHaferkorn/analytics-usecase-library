@@ -10,7 +10,7 @@
 
 | Date       | Title (suggested) | Area | Milestone | Priority | Notes |
 |------------|-------------------|------|-----------|----------|-------|
-| *(none yet)* | | | | | |
+| 2026-02-22 | Agent setup: Reviewer-Rule, explicit Expert in Briefing, optional Router → #53 | Tooling | Technical backlog | P2 | (1) Reviewer-Rule (reviewer-agent.mdc): Rolle, Prüfliste, Ausgabeformat; PM_FLOW/ASSISTANT_BRIEFING Handoff „nach PR: Session mit Reviewer-Rule, Review PR #N“. (2) Briefing: recommended expert immer mit Rule-Datei (z. B. .cursor/rules/fabric-expert.mdc). (3) Router-Rule optional: Input Issue → Expert + Skills (router-agent.mdc). Reihenfolge: Reviewer zuerst, dann Briefing, Router bei Bedarf. |
 
 ---
 
@@ -18,4 +18,4 @@
 
 | Date | Title | Issue |
 |------|-------|-------|
-| *(none yet)* | | |
+| 2026-02-22 | Agent setup: Reviewer-Rule, explicit Expert in Briefing, optional Router | #53 |
