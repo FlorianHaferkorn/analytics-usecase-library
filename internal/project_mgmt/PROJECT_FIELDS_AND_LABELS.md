@@ -63,6 +63,18 @@ Enable or add these behaviors so the board stays in sync with Issues/PRs without
 
 If your project uses “Item closed” instead of “PR merged”, configure: **When an issue is closed** → set **Status** = `Done`. GitHub’s “Close issue when PR is merged” will then drive Status to Done automatically.
 
+### 4.1 How to enable these automations (in GitHub UI)
+
+1. Open your **repository** on GitHub → **Projects** → open the project (e.g. **Analytics Use Case Library – Delivery**).
+2. Click the **⋯** (three dots) or the project title → **Settings** (or **Workflows** / **Automations**, depending on GitHub's menu).
+3. In **Workflows** (or **Automations**), use **New workflow** (or **Add automation**) and create:
+   - **Item added to project** → Set field **Status** → `Backlog`.
+   - **Pull request opened** → For the **linked issue**, set **Status** → `In review`.
+   - **Pull request merged** (or **Issue closed**) → For the **linked issue**, set **Status** → `Done`.
+4. Save each workflow. Once enabled, opening a PR that references an issue will move that issue to **In review**; merging the PR will set **Done**.
+
+Repository workflows (e.g. `pr_review_summary.yml`, `stage1.yml`) are active as soon as they exist in `.github/workflows/` and are pushed; no UI step needed.
+
 ---
 
 ## 5. Labels (repository-level, optional)
