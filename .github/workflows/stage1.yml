@@ -31,6 +31,12 @@ jobs:
         run: npm ci
         working-directory: tooling/validation
 
+      - name: Install PowerShell YAML module
+        shell: pwsh
+        run: |
+          Install-Module -Name powershell-yaml -Scope CurrentUser -Force -AllowClobber
+          Import-Module powershell-yaml
+
       - name: Run Stage 1 checks
         shell: pwsh
         run: ./tooling/run_stage1_checks.ps1
