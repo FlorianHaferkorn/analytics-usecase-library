@@ -122,3 +122,39 @@ Companies often combine patterns (e.g. "Margin-first with strong cash discipline
 - **KPI Catalog:** All Strategic KPIs listed in patterns must exist in `core/kpi_catalog/`.
 - **Use Case Inventory:** `core/usecases/UseCase_Inventory.md` — use-case IDs and Key Questions align with the clusters above.
 - **Golden Thread:** `operating_model/golden_thread_strategy_to_action.md` — strategy patterns feed Step 1 (Business Strategy) and Step 2 (Strategic KPIs → Key Questions).
+
+---
+
+## 8. Urgency rules (for tooling)
+
+These rules make the strategy pattern **precise enough for tooling** so that urgency derivation (e.g. which deviation or action to surface first) can be automated from governed artifacts.
+
+**Inputs:**
+
+- **Active pattern(s):** One or two of `Margin-First`, `Cash-First`, `Growth-First`. When blending, primary pattern wins for top tiers.
+- **Strategic KPI priority:** Per pattern, sections 3–5 above define a fixed order (1 = highest, 2, 3, 4). That order is the **KPI urgency tier** (tier 1 = highest urgency when in deviation).
+- **Use-case cluster priority:** Per pattern, the tables in sections 3–5 define **use-case cluster priority** (1 = highest). Use-case IDs in each cluster are listed in those tables.
+
+**Rule (relative urgency):**
+
+1. **By KPI deviation:** A deviation or trigger on a Strategic KPI in **tier 1** (first numeric list in the pattern) has higher relative urgency than a deviation on tier 2, and so on. Tooling can rank actions or use cases by the highest-priority KPI they address.
+2. **By use-case cluster:** For ordering use cases (e.g. which to implement or surface first), use the **Priority** column (1, 2, 3, 4) in the pattern’s use-case cluster table. Lower number = higher urgency.
+3. **Blended patterns:** When two patterns are blended, primary pattern defines tiers 1–2; secondary adds tier 3–4. Guardrails from both apply; do not promote urgency of a guardrail KPI above the primary pattern’s tier 1.
+
+**Tooling contract (summary):**
+
+| Input | Source in this document | Use for urgency |
+|-------|-------------------------|-----------------|
+| Pattern id | Section 3 / 4 / 5 heading (Margin-First, Cash-First, Growth-First) | Select KPI and use-case priority tables |
+| KPI priority order | Numbered list under "Strategic KPIs (priority order)" per pattern | Tier 1 = highest urgency when KPI in deviation |
+| Use-case cluster priority | Table "Use-case clusters (priority)" per pattern; column Priority (1–4) | Cluster 1 = highest urgency for ordering use cases |
+
+Implementation of a script or API that consumes this document (or an exported schema) is in backlog; see [BACKLOG_GRANULAR.md](../../../internal/project_mgmt/BACKLOG_GRANULAR.md) (tooling hook for urgency derivation).
+
+---
+
+## 9. Automated reasoning scope
+
+Scope and limits of **automated reasoning** (AI urgency, action suggestion from governed logic, triage, assisted authoring) are defined in a single place so that tooling and product stay aligned:
+
+- **[internal/vision/automated_reasoning_scope_and_limits.md](../../../internal/vision/automated_reasoning_scope_and_limits.md)** — what is in scope, what is out of scope or limited, and how it relates to strategy patterns and urgency rules (§8 above).
