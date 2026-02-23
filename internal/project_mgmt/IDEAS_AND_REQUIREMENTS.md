@@ -11,6 +11,7 @@
 | Date       | Title (suggested) | Area | Milestone | Priority | Notes |
 |------------|-------------------|------|-----------|----------|-------|
 | 2026-02-22 | Agent setup: Reviewer-Rule, explicit Expert in Briefing, optional Router → #53 | Tooling | Technical backlog | P2 | (1) Reviewer-Rule (reviewer-agent.mdc): Rolle, Prüfliste, Ausgabeformat; PM_FLOW/ASSISTANT_BRIEFING Handoff „nach PR: Session mit Reviewer-Rule, Review PR #N“. (2) Briefing: recommended expert immer mit Rule-Datei (z. B. .cursor/rules/fabric-expert.mdc). (3) Router-Rule optional: Input Issue → Expert + Skills (router-agent.mdc). Reihenfolge: Reviewer zuerst, dann Briefing, Router bei Bedarf. |
+| 2026-02-22 | Evidence report authoring: templates + non-technical user variant → #55 | Tooling / Aurora | Phase 2 | P1 | Zwei Perspektiven: (1) Templates, über die Reports erstellt werden; (2) Feintuning dieser Templates für konkrete Reports. Evidence als Basis-Stack. Anforderung: Variante für Nutzer ohne technische Kenntnisse (kein Markdown/SQL). |
 
 ---
 
@@ -19,3 +20,4 @@
 | Date | Title | Issue |
 |------|-------|-------|
 | 2026-02-22 | Agent setup: Reviewer-Rule, explicit Expert in Briefing, optional Router | #53 |
+| 2026-02-22 | Evidence report authoring: templates + non-technical user variant | #55 |

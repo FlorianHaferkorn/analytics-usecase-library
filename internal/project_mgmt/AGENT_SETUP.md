@@ -9,7 +9,8 @@
 | Role | When | What |
 |------|------|------|
 | **Implementer** | Working on an assigned GitHub Issue | Follows [.cursor/rules/agent-workflow.mdc](../../.cursor/rules/agent-workflow.mdc): workday check, skill selection, branch, Stage 1, PR. |
-| **Reviewer** | Reviewing a PR | Same rules and skills; use a separate Cursor session with a prompt like "Review this PR against .cursor/rules and the relevant skills; check Stage 1 compliance." |
+| **Reviewer** | Reviewing a PR | Use [.cursor/rules/reviewer-agent.mdc](../../.cursor/rules/reviewer-agent.mdc) in a separate session; say "Review PR #N". Outputs checklist, findings, approve/request changes. |
+| **Router** | Routing an issue or task to an expert | Use [.cursor/rules/router-agent.mdc](../../.cursor/rules/router-agent.mdc); say "Route issue #N" or give a short description. Outputs recommended Expert (rule path), relevant Skills, short rationale. No code changes. |
 | **PM (Project Manager)** | Prioritization, intake, integration | Use [.cursor/rules/pm-agent.mdc](../../.cursor/rules/pm-agent.mdc) in a dedicated session. Input: BACKLOG_GRANULAR, project status, or new requirements. Output: prioritized next tasks; or intake of new ideas into [IDEAS_AND_REQUIREMENTS.md](IDEAS_AND_REQUIREMENTS.md) and optional issue body for manual creation. May only edit `internal/project_mgmt/` and backlog docs in `tooling/project_mgmt/`. |
 
 ---

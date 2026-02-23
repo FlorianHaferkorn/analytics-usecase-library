@@ -32,6 +32,6 @@ jobs:
         working-directory: tooling/validation
 
       - name: Run Stage 1 checks
-        run: .\tooling\run_stage1_checks.ps1
-        working-directory: ${{ github.workspace }}
         shell: pwsh
+        run: ./tooling/run_stage1_checks.ps1
+        working-directory: ${{ github.workspace }}

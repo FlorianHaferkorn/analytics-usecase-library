@@ -1,6 +1,8 @@
 Param(
   [string]$Root = ".",
-  [string[]]$ExcludeDirs = @(".git","node_modules","internal\\archive","internal\\reviews","products\\fabric_powerbi\\dist")
+  [string[]]$ExcludeDirs = @(".git","node_modules","internal\\archive","internal\\reviews","products\\fabric_powerbi\\dist"),
+  # Link targets that are generated (e.g. gitignored) and not present in CI; do not report as broken.
+  [string[]]$AllowedMissingTargets = @("PROJECT_SNAPSHOT.md", "project_mgmt/PROJECT_SNAPSHOT.md")
 )
 
 $ErrorActionPreference = "Stop"
@@ -108,14 +110,20 @@ Get-ChildItem -Path $rootPath -Recurse -File | Where-Object {
   $content = Get-Content -Raw -Path $_.FullName
   if ($_.Extension -eq ".md") {
     foreach ($link in (Get-MarkdownLinks -Content $content)) {
+      $target = $link.Split('#')[0].Trim().Replace('\', '/')
       if (-not (Test-RelativePath -BasePath $_.FullName -Target $link)) {
-        $brokenRefs += "$($_.FullName): $link"
+        if ($AllowedMissingTargets -notcontains $target -and $AllowedMissingTargets -notcontains (Split-Path -Leaf $target)) {
+          $brokenRefs += "$($_.FullName): $link"
+        }
       }
     }
   } else {
     foreach ($ref in (Get-YamlPathRefs -Content $content)) {
+      $target = $ref.Replace('\', '/')
       if (-not (Test-RelativePath -BasePath $_.FullName -Target $ref)) {
-        $brokenRefs += "$($_.FullName): $ref"
+        if ($AllowedMissingTargets -notcontains $target -and $AllowedMissingTargets -notcontains (Split-Path -Leaf $target)) {
+          $brokenRefs += "$($_.FullName): $ref"
+        }
       }
     }
   }

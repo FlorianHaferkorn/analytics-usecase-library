@@ -53,6 +53,7 @@ There is no Cursor API to start an agent automatically; this is the one recurrin
   - Files changed (name-status list)
   - Diff stats
 - The comment is marked with `<!-- pr-review-summary -->` so it can be updated on each push. The user always has a single place to see **what was created/changed** before approving.
+- **Optional (Reviewer handoff):** After opening the PR, start a Cursor session with [.cursor/rules/reviewer-agent.mdc](../../.cursor/rules/reviewer-agent.mdc) and say: **Review PR #N**. The Reviewer agent checks the PR against rules and skills and outputs a structured review (checklist, findings, approve/request changes).
 
 ### 2.4 In review → Done (automated)
 

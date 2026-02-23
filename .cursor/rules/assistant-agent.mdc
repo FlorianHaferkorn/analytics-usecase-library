@@ -32,6 +32,7 @@ Produce a **kurzes, prägnantes Briefing** (Sprache: nach User-Präferenz, hier 
    Wenn PROJECT_SNAPSHOT vorhanden und aktuell: **exakt diese Zeilen** mit ausgeben:
    - *"Aufgabe: Issue #&lt;N&gt; — &lt;Titel&gt;"*
    - *"So starten: 1) `.\tooling\project_mgmt\start_next_task.ps1` ausführen  2) Im Implementer sagen: **Implement issue #&lt;N&gt;**"*
+   - **Expert rule (immer angeben):** Wenn PROJECT_SNAPSHOT eine Zeile **Expert rule:** enthält, gib diese Regel-Datei wörtlich aus (z. B. *"Session starten mit `.cursor/rules/fabric-expert.mdc`"* oder *"Expert rule: .cursor/rules/fabric-expert.mdc"*). Wenn kein Expert rule angegeben ist (Implementer general), schreibe: *"Keine spezifische Expert-Rule nötig."*
 
 4. **Optional: weitere Themen**  
    Max. 2–3 weitere Punkte aus Backlog oder Roadmap, die heute relevant sein können (ohne Flut).

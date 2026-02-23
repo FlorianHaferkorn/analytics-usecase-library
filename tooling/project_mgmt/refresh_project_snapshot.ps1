@@ -32,10 +32,10 @@ $scope = "repo"; if ($env:PROJECT_SCOPE) { $scope = $env:PROJECT_SCOPE }; $scope
 
 if ($scope -eq "user") {
     $projectOwner = $owner; if ($env:PROJECT_OWNER) { $projectOwner = $env:PROJECT_OWNER }
-    $data = Invoke-GitHubGraphQL -Payload @{ query = 'query($login: String!, $number: Int!) { user(login: $login) { projectV2(number: $number) { id fields(first: 30) { nodes { __typename ... on ProjectV2SingleSelectField { id name options { id name } } } } } } } }'; variables = @{ login = $projectOwner; number = $projectNumber } } -Token $token
+    $data = Invoke-GitHubGraphQL -Payload @{ query = 'query($login: String!, $number: Int!) { user(login: $login) { projectV2(number: $number) { id fields(first: 30) { nodes { __typename ... on ProjectV2SingleSelectField { id name options { id name } } } } } } }'; variables = @{ login = $projectOwner; number = $projectNumber } } -Token $token
     $proj = $data.user.projectV2
 } else {
-    $data = Invoke-GitHubGraphQL -Payload @{ query = 'query($owner: String!, $repo: String!, $number: Int!) { repository(owner: $owner, name: $repo) { projectV2(number: $number) { id fields(first: 30) { nodes { __typename ... on ProjectV2SingleSelectField { id name options { id name } } } } } } } }'; variables = @{ owner = $owner; repo = $name; number = $projectNumber } } -Token $token
+    $data = Invoke-GitHubGraphQL -Payload @{ query = 'query($owner: String!, $repo: String!, $number: Int!) { repository(owner: $owner, name: $repo) { projectV2(number: $number) { id fields(first: 30) { nodes { __typename ... on ProjectV2SingleSelectField { id name options { id name } } } } } } }'; variables = @{ owner = $owner; repo = $name; number = $projectNumber } } -Token $token
     $proj = $data.repository.projectV2
 }
 if (-not $proj) { Write-Error "Project not found." }
@@ -92,7 +92,7 @@ $date = Get-Date -Format "yyyy-MM-dd HH:mm"
 $lines = @(
     "# Project snapshot (Backlog / Planned)",
     "",
-    "**Generated:** $date — use for daily briefing. Refresh with `.\tooling\project_mgmt\refresh_project_snapshot.ps1`.",
+    "**Generated:** $date - use for daily briefing. Refresh with .\tooling\project_mgmt\refresh_project_snapshot.ps1.",
     ""
 )
 if ($candidates.Count -eq 0) {
@@ -103,15 +103,17 @@ if ($candidates.Count -eq 0) {
     $lines += "## Recommended next (by priority)"
     $first = $candidates[0]
     $expert = "Implementer (general)"
-    if ($first.area -eq "FabricPowerBI" -or $first.area -eq "Aurora") { $expert = "Fabric-Expert" }
-    elseif ($first.area -eq "Framework") { $expert = "Framework-Expert" }
+    $expertRulePath = ""
+    if ($first.area -eq "FabricPowerBI" -or $first.area -eq "Aurora") { $expert = "Fabric-Expert"; $expertRulePath = ".cursor/rules/fabric-expert.mdc" }
+    elseif ($first.area -eq "Framework") { $expert = "Framework-Expert"; $expertRulePath = ".cursor/rules/framework-expert.mdc" }
     $lines += ""
     $lines += "| # | Title | Priority | Area | Expert |"
     $lines += "|---|-------|----------|------|--------|"
     $lines += "| $($first.issueNumber) | $($first.title) | $($first.priority) | $($first.area) | $expert |"
     $lines += ""
+    if ($expertRulePath) { $lines += "**Expert rule:** $expertRulePath"; $lines += "" }
     $lines += "**To start this task:**"
-    $lines += "1. Run: `.\tooling\project_mgmt\start_next_task.ps1`"
+    $lines += "1. Run: .\tooling\project_mgmt\start_next_task.ps1"
     $lines += "2. In an Implementer session say: **Implement issue #$($first.issueNumber)**"
     $lines += ""
     $lines += "## All Backlog / Planned (sorted)"
