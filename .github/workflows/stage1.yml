@@ -34,6 +34,10 @@ jobs:
       - name: Install PowerShell YAML module
         shell: pwsh
         run: |
+          if ($null -eq (Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
+            Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
+          }
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
           Install-Module -Name powershell-yaml -Scope CurrentUser -Force -AllowClobber
           Import-Module powershell-yaml
 
