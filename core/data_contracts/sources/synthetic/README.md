@@ -1,4 +1,4 @@
-﻿# Use Case Dictionary – Aurora Group (Synthetic Backbone)
+# Use Case Dictionary – Aurora Group (Synthetic Backbone)
 
 Purpose:
 - Provide a synthetic yet realistic backbone to demo core Aurora Group use cases end-to-end.
@@ -14,6 +14,6 @@ Contents:
 
 Usage:
 - Use this as the default demo data source for the Aurora showcase.
-- Keep contracts and scopes in sync with KPIs/action codes and the core_action_ready model.
+- Keep contracts and scopes in sync with KPIs/action codes and the framework semantic model (core/semantic_models) and Aurora domain models.
 - When moving to a client, replace this source with the real contracts; keep the structure.
 

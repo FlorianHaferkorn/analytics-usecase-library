@@ -1,6 +1,6 @@
 # Project operating model
 
-**Purpose:** Defines how we work: roles, Definition of Ready/Done, cadence, and how agents vs. humans interact. The GitHub Project is the SSOT for plan and status; this document is the contract for behavior. Field values (Status, Milestones, Area, Priority) on project items are owned by the backlog sync ([granular_issues.json](../../tooling/project_mgmt/granular_issues.json)); manual changes in the Project UI are overwritten on the next sync.
+**Purpose:** Defines how we work: roles, Definition of Ready/Done, cadence, and how agents vs. humans interact. The GitHub Project is the SSOT for plan and status; this document is the contract for behavior. Milestones, Area, and Priority on project items are set by the backlog sync ([granular_issues.json](../../tooling/project_mgmt/granular_issues.json)). Status is set to Backlog only when an item is newly added to the project; existing Status (In progress, In review, Done) is not overwritten by the sync.
 
 **Language:** English.
 

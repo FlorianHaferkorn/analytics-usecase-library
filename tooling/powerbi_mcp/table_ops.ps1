@@ -8,7 +8,8 @@ Param(
     [string]$DataContractPath,
     [string]$TableName,
     [string]$OutJsonPath,
-    [string]$UseCase
+    [string]$UseCase,
+    [string]$DefinitionPath
 )
 
 $ErrorActionPreference = "Stop"
@@ -135,9 +136,16 @@ switch ($Operation) {
         
         Write-Host "Creating table: $($tableDef.name) ($($tableDef.columns.Count) columns)" -ForegroundColor Cyan
         
-        # TODO: Call Power BI MCP table_operations (see internal/technical_backlog.md § Power BI MCP).
-        # For now: Generate TMDL file manually
-        $tmdlPath = "$($conn.definitionPath)\tables\$($tableDef.name).tmdl"
+        $repoRoot = (Get-Location).Path
+        $defPath = if ($DefinitionPath) {
+            if ([System.IO.Path]::IsPathRooted($DefinitionPath)) { $DefinitionPath } else { Join-Path $repoRoot $DefinitionPath }
+        } else {
+            if (-not $conn) { throw "Connection or -DefinitionPath required for CreateFromContract." }
+            Join-Path $repoRoot $conn.definitionPath
+        }
+        $tablesDir = Join-Path $defPath "tables"
+        if (-not (Test-Path $tablesDir)) { New-Item -ItemType Directory -Path $tablesDir -Force | Out-Null }
+        $tmdlPath = Join-Path $tablesDir "$($tableDef.name).tmdl"
         
         $tab = "`t"
         $tmdlContent = "table $($tableDef.name)`r`n"

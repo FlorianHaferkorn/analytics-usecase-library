@@ -60,7 +60,7 @@
 #### core/strategy_operating_model/operating_model/reference/single_source_of_truth.md
 - **Status:** Keine inhaltlichen Anpassungen. Hinweis: SSOT-Tabelle referenziert company_strategy.md#5, #6, #7 – solange diese Anker fehlen, sind Link-Ziele defekt (siehe Querschnitt 4).
 
-- **Keine Anpassungen (Strategy & Operating Model):** core/strategy_operating_model/README.md, core/strategy_operating_model/operating_model/README.md, operating_model_overview.md, data_governance.md, golden_thread_strategy_to_action.md, ownership_raci_golden_thread.md, maturity_model_action_ready_analytics.md, strategy_patterns.md, company/README.md, lakehouse_architecture.md, data_layers_standard.md, measure_system.md, ux_design_system.md, distribution_architecture.md, ai_readiness.md, semantic_layer.md, reference/ActionReady_SemanticModel_Blueprint.md, reference/TMDL_Official_Refs.md, reference/TMDL_Allowed_Subset.md, decision_taxonomy.md.
+- **Keine Anpassungen (Strategy & Operating Model):** core/strategy_operating_model/README.md, core/strategy_operating_model/operating_model/README.md, operating_model_overview.md, data_governance.md, golden_thread_strategy_to_action.md, ownership_raci_golden_thread.md, maturity_model_action_ready_analytics.md, strategy_patterns.md, company/README.md, lakehouse_architecture.md, data_layers_standard.md, measure_system.md, ux_design_system.md, distribution_architecture.md, ai_readiness.md, semantic_layer.md, reference/ActionReady_SemanticModel_Blueprint.md (legacy redirect), reference/TMDL_Official_Refs.md, reference/TMDL_Allowed_Subset.md, decision_taxonomy.md.
 
 ---
 
@@ -102,7 +102,7 @@
 - **Anpassungen:**
   - (Fachlich) Beispiele nennen „Measure_Dictionary_Customer.md“, „Measure_Dictionary_Corporate.md“. Unter core/semantic_models/domains/ existieren u. a. Commercial, Operations, SupplyChain, Finance – nicht „Customer“ oder „Corporate“. **Empfehlung:** Beispiele auf existierende Dateien umstellen (z. B. Measure_Dictionary_Commercial.md, Measure_Dictionary_Operations.md).
 
-- **Keine Anpassungen:** core/semantic_models/README.md, core/semantic_models/core_action_ready/README.md, core/semantic_models/domains/README.md, alle Measure_Dictionary_*.md (Commercial, Operations, SupplyChain, Service, Risk, Profitability, People, Liquidity, InnovationPeople, Growth, Governance, Finance, ESG, Efficiency, CustomerValue).
+- **Keine Anpassungen:** core/semantic_models/README.md, core/semantic_models/core_action_ready/README.md (legacy redirect), core/semantic_models/domains/README.md, alle Measure_Dictionary_*.md (Commercial, Operations, SupplyChain, Service, Risk, Profitability, People, Liquidity, InnovationPeople, Growth, Governance, Finance, ESG, Efficiency, CustomerValue).
 
 ---
 

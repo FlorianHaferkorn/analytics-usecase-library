@@ -122,7 +122,7 @@ The template ensures every project has the **same structure** to fill in (dimens
 - **Silver contracts:** `core/data_contracts/domains/`, `core/data_contracts/sources/`
 - **Silver–Gold mapping template:** `core/templates/silver_to_gold/silver_to_gold_mapping_template.yaml` (repeatable setup)
 - **Lakehouse implementation:** `lakehouse_architecture.md` (Silver → Gold structure, Gold layout and format)
-- **Semantic layer:** `semantic_layer.md`, `measure_system.md`, `reference/ActionReady_SemanticModel_Blueprint.md`
+- **Semantic layer:** `semantic_layer.md`, `measure_system.md` (legacy blueprint archived to internal/archive/legacy_action_ready_and_blueprint_2026-02/)
 - **Playbook:** `core/implementation_guides/playbook_strategy_to_first_report.md` (Step 3: Silver contracts)
 
 ---

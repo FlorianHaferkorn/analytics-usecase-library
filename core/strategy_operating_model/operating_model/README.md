@@ -49,7 +49,7 @@ Defines how analytical models are structured to be scalable, reusable, and actio
 Files:
 
 - `semantic_layer.md`
-- `reference/ActionReady_SemanticModel_Blueprint.md`
+- `reference/ActionReady_SemanticModel_Blueprint.md` (legacy redirect; archived to internal/archive/legacy_action_ready_and_blueprint_2026-02/)
 - `reference/TMDL_Allowed_Subset.md`
 - `reference/TMDL_Official_Refs.md`
 

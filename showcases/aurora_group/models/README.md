@@ -40,6 +40,8 @@ Aurora Showcase Layer (tool-specific):
   - Tables: dim_date, dim_org, dim_asset, dim_product, fact_ops, fact_inventory_snapshot
   - Status: **Blueprint complete** (relationships and display_folders defined; DAX in KPI Catalog for OPS-* still to be added)
 
+- **`SupplyChain.yaml`** – Supply Chain domain (SCM-001, SCM-002, SCM-003). Stub for domain semantic model.
+- **`Experience.yaml`** – Experience domain (XD-001, XD-002, XD-003). Stub for domain semantic model.
 - **`core_action_ready_model.yaml.legacy`** – Original generic cross-domain model; archived to `internal/archive/legacy_aurora_models_2026-02/`
 
 ## Usage

@@ -17,7 +17,7 @@ Optional (für Risiko/Status-Update):
 
 | **Risk**   | `On track`, `At risk` |
 
-Feldwerte (Status, Milestones, Area, Priority) im Project werden vom Sync aus dem Backlog ([granular_issues.json](../../tooling/project_mgmt/granular_issues.json)) gesetzt. Manuelle Änderungen in der Project-UI werden beim nächsten Sync überschrieben.
+Milestones, Area und Priority werden vom Sync aus dem Backlog ([granular_issues.json](../../tooling/project_mgmt/granular_issues.json)) gesetzt; **Status** wird nur bei neu zum Projekt hinzugefügten Items auf „Backlog“ gesetzt – bestehende Status (In progress, In review, Done) werden vom Sync nicht überschrieben.
 
 **Danach (Reihenfolge):**
 

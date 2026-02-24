@@ -1,5 +1,7 @@
 # CoreActionReady Semantic Model - Aurora Group
 
+**Legacy:** The Aurora showcase uses **one semantic model per domain** (e.g. `Commercial.SemanticModel`, `Finance.SemanticModel`) under `showcases/aurora_group/semantic_models/`. This folder is kept for reference or backward compatibility; for new work use the domain models and `orchestrate_full_model.ps1` with `-Domain` or `-All`.
+
 ## Überblick
 
 Dieses Semantic Model demonstriert die vollständige Implementierung von 4 Commercial Use Cases für die Aurora Group:
@@ -193,7 +195,7 @@ Die Tabelle `security_user_org` definiert welche User Zugriff auf welche Organis
 ## Deployment
 
 ### Power BI Desktop
-1. Öffne `CoreActionReady.pbip`
+1. Für neue Umsetzungen: öffne ein Domain-Modell (z. B. `Commercial.SemanticModel`). Legacy: dieses Verzeichnis enthielt früher `CoreActionReady.pbip`.
 2. Aktualisiere alle Datenquellen
 3. Teste Hierarchies und Measures
 4. Teste RLS mit "View as Role"

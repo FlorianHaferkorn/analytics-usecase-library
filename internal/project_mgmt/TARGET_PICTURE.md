@@ -51,7 +51,7 @@ The Analytics Use Case Library is **complete** when the Golden Thread (Strategy 
 ## 5. Acceptance criteria (testable)
 
 - **AC1:** Every use case in the inventory has a valid UseCase_Bracket and passes Stage 1 (factsheet vs KPI, action codes, governance roles).
-- **AC2:** Aurora: opening `showcases/aurora_group/semantic_models/CoreActionReady.pbip` loads report and model; measures exist and display folders align with use cases.
+- **AC2:** Aurora: opening a domain semantic model (e.g. `showcases/aurora_group/semantic_models/Commercial.SemanticModel`) or a generated report loads report and model; measures exist and display folders align with use cases.
 - **AC3:** 300s page (when implemented): action text and evidence table can be sourced/generated from action-code YAML and layout config (per [internal/vision/phase2_backlog.md](../vision/phase2_backlog.md)).
 - **AC4:** Project completion (current milestone): blockers from content review resolved; review adjustments and zero-tolerance documentation in place; CI/release without Stage-1 skip documented.
 

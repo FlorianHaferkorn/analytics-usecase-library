@@ -1,4 +1,4 @@
-﻿# Semantic Layer
+# Semantic Layer
 
 The semantic layer is the structural foundation that connects business intent with analytical execution.
 
@@ -124,12 +124,12 @@ Validation mechanisms support consistency and trust at scale.
 
 ## 9. Usage Guidance
 
-The semantic layer blueprint serves as a reference for all domain implementations.
+This document (semantic_layer.md) is the canonical reference for semantic layer structure.
 
-Domains instantiate the pattern using their data contracts and KPIs.
+Domains instantiate the pattern using their data contracts, UseCase_Bracket orchestration, and KPIs.
 Use cases and reports consume the semantic layer without redefining structure.
 
-Showcase implementations illustrate the blueprint but do not extend it.
+Showcase implementations (e.g. Aurora domain semantic models) follow this pattern but do not extend it.
 
 ## 10. Outcome
 

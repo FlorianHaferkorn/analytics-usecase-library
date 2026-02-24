@@ -138,13 +138,15 @@ foreach ($item in $script:GranularIssues) {
     }
     $num = $titleToIssue[$title].number; $nodeId = $titleToIssue[$title].node_id
     $itemId = $null
+    $wasJustAdded = $false
     if (-not $issueToItemId[$num]) {
         $addResult = Invoke-GitHubGraphQL -Payload @{ query = $addMutation; variables = @{ projectId = $projectId; contentId = $nodeId } } -Token $token
-        $itemId = $addResult.addProjectV2ItemById.projectV2Item.id; $issueToItemId[$num] = $itemId; $added += $num
+        $itemId = $addResult.addProjectV2ItemById.projectV2Item.id; $issueToItemId[$num] = $itemId; $added += $num; $wasJustAdded = $true
         Write-Host "Added #$num to project" -ForegroundColor Cyan
     } else { $itemId = $issueToItemId[$num] }
     if ($itemId) {
-        if ($statusF.options["Backlog"]) { Invoke-GitHubGraphQL -Payload @{ query = $updateMutation; variables = @{ input = @{ projectId = $projectId; itemId = $itemId; fieldId = $statusF.id; value = @{ singleSelectOptionId = $statusF.options["Backlog"] } } } } -Token $token | Out-Null }
+        # Set Status only for newly added items (Backlog). Do not overwrite In progress / In review / Done.
+        if ($wasJustAdded -and $statusF.options["Backlog"]) { Invoke-GitHubGraphQL -Payload @{ query = $updateMutation; variables = @{ input = @{ projectId = $projectId; itemId = $itemId; fieldId = $statusF.id; value = @{ singleSelectOptionId = $statusF.options["Backlog"] } } } } -Token $token | Out-Null }
         if ($milestoneF.options[$item.milestone]) { Invoke-GitHubGraphQL -Payload @{ query = $updateMutation; variables = @{ input = @{ projectId = $projectId; itemId = $itemId; fieldId = $milestoneF.id; value = @{ singleSelectOptionId = $milestoneF.options[$item.milestone] } } } } -Token $token | Out-Null }
         if ($areaF.options[$item.area]) { Invoke-GitHubGraphQL -Payload @{ query = $updateMutation; variables = @{ input = @{ projectId = $projectId; itemId = $itemId; fieldId = $areaF.id; value = @{ singleSelectOptionId = $areaF.options[$item.area] } } } } -Token $token | Out-Null }
         if ($priorityF.options[$item.priority]) { Invoke-GitHubGraphQL -Payload @{ query = $updateMutation; variables = @{ input = @{ projectId = $projectId; itemId = $itemId; fieldId = $priorityF.id; value = @{ singleSelectOptionId = $priorityF.options[$item.priority] } } } } -Token $token | Out-Null }

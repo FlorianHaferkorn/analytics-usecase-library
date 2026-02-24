@@ -1,0 +1,32 @@
+# Experience Semantic Model - Aurora Group
+# Purpose: Aurora domain semantic model for Experience / XD (XD-001, XD-002, XD-003).
+# Data: core/data_contracts/domains/experience.yaml; gold: showcases/aurora_group/data/gold/
+
+model_id: aurora_experience
+domain: Experience
+description: >
+  Aurora Group Experience Analytics - Service level, resource utilization, executive overview.
+
+use_cases:
+  - id: XD-001
+    title: "Service Level Performance"
+    display_folder: "10_Service Level"
+  - id: XD-002
+    title: "Resource Utilization"
+    display_folder: "11_Resources"
+  - id: XD-003
+    title: "Executive KPI Overview"
+    display_folder: "12_Executive"
+
+tables:
+  dimensions:
+    - dim_date
+    - dim_org
+    - dim_case_queue
+  facts:
+    - fact_support_cases
+
+notes:
+  - "Domain semantic model; tables from gold per core/data_contracts/domains/experience.yaml"
+governance:
+  version: v0.1-draft

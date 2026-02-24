@@ -1,0 +1,4 @@
+model Model
+  culture: de-DE
+  defaultPowerBIDataSourceVersion: PowerBI_V3
+ref table _ActionReady_Logic

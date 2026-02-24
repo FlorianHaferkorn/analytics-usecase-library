@@ -1,16 +1,16 @@
 ﻿**********************
 nStart der Windows PowerShell-Aufzeichnung
-Startzeit: 20260221161849
+Startzeit: 20260224155910
 Benutzername: NAGARRO\florianhaferkorn
 RunAs-Benutzer: NAGARRO\florianhaferkorn
 Konfigurationsname: 
 Computer: NES-NBBSTPQ04 (Microsoft Windows NT 10.0.26100.0)
-Hostanwendung: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\florianhaferkorn\AppData\Local\Programs\cursor\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
-Prozess-ID: 30684
-PSVersion: 5.1.26100.7462
+Hostanwendung: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File C:\Users\FLORIA~1\AppData\Local\Temp\ps-script-2d851543-1ba3-4a60-9c18-919ce2e5870f.ps1
+Prozess-ID: 21804
+PSVersion: 5.1.26100.7705
 PSEdition: Desktop
-PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.7462
-BuildVersion: 10.0.26100.7462
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.7705
+BuildVersion: 10.0.26100.7705
 CLRVersion: 4.0.30319.42000
 WSManStackVersion: 3.0
 PSRemotingProtocolVersion: 2.3
@@ -30,128 +30,128 @@ KPI Catalog validation passed.
 >> tooling/validation/check_factsheet_vs_kpi.ps1
 Scanning Business Factsheets in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases ...
 
-UseCase                            Measure                   
--------                            -------                   
-COM-001_Sales_Performance          margin.gm.pct             
-COM-001_Sales_Performance          sales.net_sales.amount    
-COM-001_Sales_Performance          sales.net_sales.delta_p...
-COM-001_Sales_Performance          sales.net_sales.delta_p...
-COM-001_Sales_Performance          sales.pvm.mix_effect.am...
-COM-001_Sales_Performance          sales.pvm.price_effect....
-COM-001_Sales_Performance          sales.pvm.volume_effect...
-COM-002_Margin_Price_Performance   cost.cogs_per_unit.amount 
-COM-002_Margin_Price_Performance   margin.gm.amount          
-COM-002_Margin_Price_Performance   margin.gm.pct             
-COM-002_Margin_Price_Performance   margin.gm.vs_plan.pct     
-COM-002_Margin_Price_Performance   sales.price.realization...
-COM-002_Margin_Price_Performance   sales.pvm.mix_effect.am...
-COM-003_Customer_Value             crm.active_customers.count
-COM-003_Customer_Value             crm.churned_customers.c...
-COM-003_Customer_Value             crm.clv.amount            
-COM-003_Customer_Value             crm.complaint.count       
-COM-003_Customer_Value             crm.lifetime_revenue.am...
-COM-003_Customer_Value             crm.nps.index             
-COM-003_Customer_Value             crm.retention.pct         
-COM-003_Customer_Value             crm.revenue_at_risk.amount
-COM-004_Promotion_Effectiveness    margin.promo.gm.pct       
-COM-004_Promotion_Effectiveness    sales.price.realization...
-COM-004_Promotion_Effectiveness    sales.promo.cannibaliza...
-COM-004_Promotion_Effectiveness    sales.promo.incremental...
-COM-004_Promotion_Effectiveness    sales.promo.roi.pct       
-FIN-001_Cash_Liquidity_Performance fin.cash.balance          
-FIN-001_Cash_Liquidity_Performance fin.cash.ocf              
-FIN-001_Cash_Liquidity_Performance fin.cash.vs_plan.pct      
-FIN-001_Cash_Liquidity_Performance scm.service_level.pct     
-FIN-001_Cash_Liquidity_Performance scm.supplier_risk.score   
-FIN-001_Cash_Liquidity_Performance wc.ccc.days               
-FIN-001_Cash_Liquidity_Performance wc.dio.days               
-FIN-001_Cash_Liquidity_Performance wc.dpo.days               
-FIN-001_Cash_Liquidity_Performance wc.dso.days               
-FIN-002_Cost_Performance           cost.base_volume.amount   
-FIN-002_Cost_Performance           cost.material.pct         
-FIN-002_Cost_Performance           cost.opex.base.amount     
-FIN-002_Cost_Performance           cost.opex.vs_plan.pct     
-FIN-002_Cost_Performance           cost.unit.amount          
-FIN-002_Cost_Performance           margin.cogs.pct           
-FIN-002_Cost_Performance           ops.labor.productivity.pct
-FIN-002_Cost_Performance           ops.production.volume     
-FIN-002_Cost_Performance           ops.quality.defect_rate...
-FIN-002_Cost_Performance           ops.service_level.pct     
-FIN-002_Cost_Performance           ops.yield.pct             
-OPS-001_Operations_Performance     ops.availability.pct      
-OPS-001_Operations_Performance     ops.downtime.pct          
-OPS-001_Operations_Performance     ops.oee.pct               
-OPS-001_Operations_Performance     ops.performance.pct       
-OPS-001_Operations_Performance     ops.planned_output.units  
-OPS-001_Operations_Performance     ops.quality.pct           
-OPS-001_Operations_Performance     ops.throughput.units      
-OPS-002_Asset_Performance          ops.availability.pct      
-OPS-002_Asset_Performance          ops.downtime.unplanned.pct
-OPS-002_Asset_Performance          ops.failure.count         
-OPS-002_Asset_Performance          ops.inventory.value.amount
-OPS-002_Asset_Performance          ops.mtbf.hours            
-OPS-002_Asset_Performance          ops.mttr.hours            
-OPS-002_Asset_Performance          ops.pm.task.count         
-OPS-002_Asset_Performance          ops.pm_compliance.pct     
-OPS-002_Asset_Performance          ops.safety.incident.count 
-OPS-002_Asset_Performance          ops.spare_parts.stockou...
-OPS-003_Quality_Yield              ops.planned_output.units  
-OPS-003_Quality_Yield              quality.complaint.pct     
-OPS-003_Quality_Yield              quality.copq.amount       
-OPS-003_Quality_Yield              quality.defect_density    
-OPS-003_Quality_Yield              quality.fpy.pct           
-OPS-003_Quality_Yield              quality.rework.pct        
-OPS-003_Quality_Yield              quality.scrap.pct         
-OPS-003_Quality_Yield              sales.units               
-SCM-001_Inventory_Performance      inv.dio.days              
-SCM-001_Inventory_Performance      inv.obsolete.pct          
-SCM-001_Inventory_Performance      inv.stockout.pct          
-SCM-001_Inventory_Performance      inv.turnover              
-SCM-001_Inventory_Performance      plan.forecast.accuracy.pct
-SCM-001_Inventory_Performance      sales.units               
-SCM-001_Inventory_Performance      supply.otif.pct           
-SCM-002_Supply_Reliability_OTIF    order.lines               
-SCM-002_Supply_Reliability_OTIF    shipments.count           
-SCM-002_Supply_Reliability_OTIF    supply.expedite.amount    
-SCM-002_Supply_Reliability_OTIF    supply.in_full.pct        
-SCM-002_Supply_Reliability_OTIF    supply.on_time.pct        
-SCM-002_Supply_Reliability_OTIF    supply.otif.pct           
-SCM-002_Supply_Reliability_OTIF    supply.penalty.amount     
-SCM-002_Supply_Reliability_OTIF    supply.stockout_impact.pct
-SCM-003_Forecast_vs_Actual         order.lines               
-SCM-003_Forecast_vs_Actual         plan.forecast.accuracy.pct
-SCM-003_Forecast_vs_Actual         plan.forecast.bias.pct    
-SCM-003_Forecast_vs_Actual         plan.forecast.mape.pct    
-SCM-003_Forecast_vs_Actual         plan.forecast.service_i...
-SCM-003_Forecast_vs_Actual         plan.replan.count         
-SCM-003_Forecast_vs_Actual         plans.count               
-SCM-003_Forecast_vs_Actual         sales.units               
-XD-001_Service_Level_Performance   svc.aht.minutes           
-XD-001_Service_Level_Performance   svc.backlog.count         
-XD-001_Service_Level_Performance   svc.escalation.pct        
-XD-001_Service_Level_Performance   svc.fcr.pct               
-XD-001_Service_Level_Performance   svc.nps.index             
-XD-001_Service_Level_Performance   svc.sla.attainment.pct    
-XD-001_Service_Level_Performance   svc.tickets.closed.count  
-XD-001_Service_Level_Performance   svc.tickets.created.count 
-XD-002_Resource_Utilization        res.occupancy.pct         
-XD-002_Resource_Utilization        res.overtime.pct          
-XD-002_Resource_Utilization        res.shrinkage.pct         
-XD-002_Resource_Utilization        res.utilization.pct       
-XD-002_Resource_Utilization        svc.backlog.count         
-XD-002_Resource_Utilization        svc.sla.attainment.pct    
-XD-002_Resource_Utilization        svc.tickets.created.count 
-XD-003_Executive_KPI_Overview      crm.clv.amount            
-XD-003_Executive_KPI_Overview      enterprise.action_outco...
-XD-003_Executive_KPI_Overview      enterprise.action_route...
-XD-003_Executive_KPI_Overview      enterprise.value_at_ris...
-XD-003_Executive_KPI_Overview      margin.gm.pct             
-XD-003_Executive_KPI_Overview      ops.otif.pct              
-XD-003_Executive_KPI_Overview      ops.working_capital.ccc...
-XD-003_Executive_KPI_Overview      people.attrition_risk.pct 
-XD-003_Executive_KPI_Overview      people.digital_adoption...
-XD-003_Executive_KPI_Overview      sales.net_sales.delta_p...
-XD-003_Executive_KPI_Overview      svc.sla.attainment.pct
+UseCase                            Measure                            Covered
+-------                            -------                            -------
+COM-001_Sales_Performance          margin.gm.pct                         True
+COM-001_Sales_Performance          sales.net_sales.amount                True
+COM-001_Sales_Performance          sales.net_sales.delta_pct.ly          True
+COM-001_Sales_Performance          sales.net_sales.delta_pct.plan        True
+COM-001_Sales_Performance          sales.pvm.mix_effect.amount           True
+COM-001_Sales_Performance          sales.pvm.price_effect.amount         True
+COM-001_Sales_Performance          sales.pvm.volume_effect.amount        True
+COM-002_Margin_Price_Performance   cost.cogs_per_unit.amount             True
+COM-002_Margin_Price_Performance   margin.gm.amount                      True
+COM-002_Margin_Price_Performance   margin.gm.pct                         True
+COM-002_Margin_Price_Performance   margin.gm.vs_plan.pct                 True
+COM-002_Margin_Price_Performance   sales.price.realization_pct           True
+COM-002_Margin_Price_Performance   sales.pvm.mix_effect.amount           True
+COM-003_Customer_Value             crm.active_customers.count            True
+COM-003_Customer_Value             crm.churned_customers.count           True
+COM-003_Customer_Value             crm.clv.amount                        True
+COM-003_Customer_Value             crm.complaint.count                   True
+COM-003_Customer_Value             crm.lifetime_revenue.amount           True
+COM-003_Customer_Value             crm.nps.index                         True
+COM-003_Customer_Value             crm.retention.pct                     True
+COM-003_Customer_Value             crm.revenue_at_risk.amount            True
+COM-004_Promotion_Effectiveness    margin.promo.gm.pct                   True
+COM-004_Promotion_Effectiveness    sales.price.realization_pct           True
+COM-004_Promotion_Effectiveness    sales.promo.cannibalization.pct       True
+COM-004_Promotion_Effectiveness    sales.promo.incremental.amount        True
+COM-004_Promotion_Effectiveness    sales.promo.roi.pct                   True
+FIN-001_Cash_Liquidity_Performance fin.cash.balance                      True
+FIN-001_Cash_Liquidity_Performance fin.cash.ocf                          True
+FIN-001_Cash_Liquidity_Performance fin.cash.vs_plan.pct                  True
+FIN-001_Cash_Liquidity_Performance scm.service_level.pct                 True
+FIN-001_Cash_Liquidity_Performance scm.supplier_risk.score               True
+FIN-001_Cash_Liquidity_Performance wc.ccc.days                           True
+FIN-001_Cash_Liquidity_Performance wc.dio.days                           True
+FIN-001_Cash_Liquidity_Performance wc.dpo.days                           True
+FIN-001_Cash_Liquidity_Performance wc.dso.days                           True
+FIN-002_Cost_Performance           cost.base_volume.amount               True
+FIN-002_Cost_Performance           cost.material.pct                     True
+FIN-002_Cost_Performance           cost.opex.base.amount                 True
+FIN-002_Cost_Performance           cost.opex.vs_plan.pct                 True
+FIN-002_Cost_Performance           cost.unit.amount                      True
+FIN-002_Cost_Performance           margin.cogs.pct                       True
+FIN-002_Cost_Performance           ops.labor.productivity.pct            True
+FIN-002_Cost_Performance           ops.production.volume                 True
+FIN-002_Cost_Performance           ops.quality.defect_rate.pct           True
+FIN-002_Cost_Performance           ops.service_level.pct                 True
+FIN-002_Cost_Performance           ops.yield.pct                         True
+OPS-001_Operations_Performance     ops.availability.pct                  True
+OPS-001_Operations_Performance     ops.downtime.pct                      True
+OPS-001_Operations_Performance     ops.oee.pct                           True
+OPS-001_Operations_Performance     ops.performance.pct                   True
+OPS-001_Operations_Performance     ops.planned_output.units              True
+OPS-001_Operations_Performance     ops.quality.pct                       True
+OPS-001_Operations_Performance     ops.throughput.units                  True
+OPS-002_Asset_Performance          ops.availability.pct                  True
+OPS-002_Asset_Performance          ops.downtime.unplanned.pct            True
+OPS-002_Asset_Performance          ops.failure.count                     True
+OPS-002_Asset_Performance          ops.inventory.value.amount            True
+OPS-002_Asset_Performance          ops.mtbf.hours                        True
+OPS-002_Asset_Performance          ops.mttr.hours                        True
+OPS-002_Asset_Performance          ops.pm.task.count                     True
+OPS-002_Asset_Performance          ops.pm_compliance.pct                 True
+OPS-002_Asset_Performance          ops.safety.incident.count             True
+OPS-002_Asset_Performance          ops.spare_parts.stockout.pct          True
+OPS-003_Quality_Yield              ops.planned_output.units              True
+OPS-003_Quality_Yield              quality.complaint.pct                 True
+OPS-003_Quality_Yield              quality.copq.amount                   True
+OPS-003_Quality_Yield              quality.defect_density                True
+OPS-003_Quality_Yield              quality.fpy.pct                       True
+OPS-003_Quality_Yield              quality.rework.pct                    True
+OPS-003_Quality_Yield              quality.scrap.pct                     True
+OPS-003_Quality_Yield              sales.units                           True
+SCM-001_Inventory_Performance      inv.dio.days                          True
+SCM-001_Inventory_Performance      inv.obsolete.pct                      True
+SCM-001_Inventory_Performance      inv.stockout.pct                      True
+SCM-001_Inventory_Performance      inv.turnover                          True
+SCM-001_Inventory_Performance      plan.forecast.accuracy.pct            True
+SCM-001_Inventory_Performance      sales.units                           True
+SCM-001_Inventory_Performance      supply.otif.pct                       True
+SCM-002_Supply_Reliability_OTIF    order.lines                           True
+SCM-002_Supply_Reliability_OTIF    shipments.count                       True
+SCM-002_Supply_Reliability_OTIF    supply.expedite.amount                True
+SCM-002_Supply_Reliability_OTIF    supply.in_full.pct                    True
+SCM-002_Supply_Reliability_OTIF    supply.on_time.pct                    True
+SCM-002_Supply_Reliability_OTIF    supply.otif.pct                       True
+SCM-002_Supply_Reliability_OTIF    supply.penalty.amount                 True
+SCM-002_Supply_Reliability_OTIF    supply.stockout_impact.pct            True
+SCM-003_Forecast_vs_Actual         order.lines                           True
+SCM-003_Forecast_vs_Actual         plan.forecast.accuracy.pct            True
+SCM-003_Forecast_vs_Actual         plan.forecast.bias.pct                True
+SCM-003_Forecast_vs_Actual         plan.forecast.mape.pct                True
+SCM-003_Forecast_vs_Actual         plan.forecast.service_impact.pct      True
+SCM-003_Forecast_vs_Actual         plan.replan.count                     True
+SCM-003_Forecast_vs_Actual         plans.count                           True
+SCM-003_Forecast_vs_Actual         sales.units                           True
+XD-001_Service_Level_Performance   svc.aht.minutes                       True
+XD-001_Service_Level_Performance   svc.backlog.count                     True
+XD-001_Service_Level_Performance   svc.escalation.pct                    True
+XD-001_Service_Level_Performance   svc.fcr.pct                           True
+XD-001_Service_Level_Performance   svc.nps.index                         True
+XD-001_Service_Level_Performance   svc.sla.attainment.pct                True
+XD-001_Service_Level_Performance   svc.tickets.closed.count              True
+XD-001_Service_Level_Performance   svc.tickets.created.count             True
+XD-002_Resource_Utilization        res.occupancy.pct                     True
+XD-002_Resource_Utilization        res.overtime.pct                      True
+XD-002_Resource_Utilization        res.shrinkage.pct                     True
+XD-002_Resource_Utilization        res.utilization.pct                   True
+XD-002_Resource_Utilization        svc.backlog.count                     True
+XD-002_Resource_Utilization        svc.sla.attainment.pct                True
+XD-002_Resource_Utilization        svc.tickets.created.count             True
+XD-003_Executive_KPI_Overview      crm.clv.amount                        True
+XD-003_Executive_KPI_Overview      enterprise.action_outcome_rate.pct    True
+XD-003_Executive_KPI_Overview      enterprise.action_routed.count        True
+XD-003_Executive_KPI_Overview      enterprise.value_at_risk.index        True
+XD-003_Executive_KPI_Overview      margin.gm.pct                         True
+XD-003_Executive_KPI_Overview      ops.otif.pct                          True
+XD-003_Executive_KPI_Overview      ops.working_capital.ccc.days          True
+XD-003_Executive_KPI_Overview      people.attrition_risk.pct             True
+XD-003_Executive_KPI_Overview      people.digital_adoption.pct           True
+XD-003_Executive_KPI_Overview      sales.net_sales.delta_pct.ly          True
+XD-003_Executive_KPI_Overview      svc.sla.attainment.pct                True
 All required measures are covered in KPI Catalog.
 
 >> products/fabric_powerbi/tooling/validation/check_measures_vs_kpi.ps1
@@ -184,22 +184,7 @@ OK: docs KPI references are consistent.
 
 >> tooling/validation/check_usecase_inventory_vs_factsheets.ps1
 UseCase Inventory <-> Factsheets consistency
-Missing Technical Factsheets (listed in inventory):
-  - COM-001
-  - COM-002
-  - COM-003
-  - COM-004
-  - FIN-001
-  - FIN-002
-  - OPS-001
-  - OPS-002
-  - OPS-003
-  - SCM-001
-  - SCM-002
-  - SCM-003
-  - XD-001
-  - XD-002
-  - XD-003
+OK: inventory and factsheets are consistent.
 
 >> tooling/validation/check_kpi_catalog_unused_in_factsheets.ps1
 KPI Catalog -> Factsheets coverage
@@ -222,7 +207,6 @@ OK: no forbidden content detected.
 >> tooling/validation/check_ssot_markers.ps1
 SSOT markers found outside allowlist:
   - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\products\fabric_orchestrator\config.yaml:17: authority: "https://login.microsoftonline.com/{tenant_id}"
-  - C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\products\fabric_orchestrator\README.md:107: authority: "https://login.microsoftonline.com/{tenant_id}"
 
 >> tooling/validation/check_docs_usecase_refs.ps1
 Docs -> UseCase references consistency
@@ -425,8 +409,13 @@ OK: all referenced tables/columns exist in gold contracts.
 
 >> products/fabric_powerbi/tooling/validation/check_tmdl_vs_measure_dictionary.ps1 -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\products\fabric_powerbi\dist
 TMDL <-> Measure Dictionary consistency
-Info: Dictionary measures not yet in any TMDL (expected when dist is a subset): 101 measures.
-OK: Every TMDL measure has a Measure Dictionary entry.
+Missing in Measure Dictionaries (present in TMDL):
+  - Delta%
+  - Gross
+  - Mix
+  - Net
+  - Price
+  - Volume
 
 >> products/fabric_powerbi/tooling/validation/check_dax_best_practices.ps1
 DAX best-practice info:
@@ -439,7 +428,7 @@ DAX best-practice info:
   [dax.blank.handling] Complaint Rate % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] Customer Retention % in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] Defect Density in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.blank.handling] Delta% Net Sales in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Delta% in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] Delta% Net Sales in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] DIO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] Downtime % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
@@ -447,7 +436,7 @@ DAX best-practice info:
   [dax.blank.handling] DSO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] First Pass Yield % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] GM % During Promo in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.blank.handling] Gross Margin % in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Gross in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] Gross Margin % in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] Gross Margin % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] Gross Margin % vs Plan in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
@@ -455,12 +444,12 @@ DAX best-practice info:
   [dax.blank.handling] Material Cost % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] MTBF (hours) in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] MTTR (hours) in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.blank.handling] Net Sales % vs Plan in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Net in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] NPS Score in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] OpEx vs Plan % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] Performance % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] PM Compliance % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.blank.handling] Price Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Price in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] Price Realization % in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] Price Realization % in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] Promo ROI % in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
@@ -470,7 +459,7 @@ DAX best-practice info:
   [dax.blank.handling] Spare Parts Stockout % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] Unit Cost Amount in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.blank.handling] Unplanned Downtime % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.blank.handling] Volume Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.blank.handling] Volume in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.calculate.preferred] Customer Retention % in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Action Outcome Rate % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Actions Routed Count in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
@@ -499,7 +488,7 @@ DAX best-practice info:
   [dax.isinscope.totals] Customer Retention % in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Days in Inventory in products\fabric_powerbi\dist\SCM-001\SCM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Defect Density in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.isinscope.totals] Delta% Net Sales in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Delta% in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Delta% Net Sales in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Digital Adoption Rate % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] DIO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
@@ -517,7 +506,7 @@ DAX best-practice info:
   [dax.isinscope.totals] Forecast Bias % in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Forecast MAPE % in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] GM % During Promo in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.isinscope.totals] Gross Margin % in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Gross in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Gross Margin % in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Gross Margin % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Gross Margin % vs Plan in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
@@ -528,12 +517,11 @@ DAX best-practice info:
   [dax.isinscope.totals] Inventory Value Amount in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Labor Productivity % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Material Cost % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.isinscope.totals] Mix Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Mix Effect Amount in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Mix in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] MTBF (hours) in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] MTTR (hours) in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.isinscope.totals] Net Sales % vs Plan in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.isinscope.totals] Net Sales Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Net in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Net Sales in products\fabric_powerbi\dist\COM-001_TEST\COM-001_TEST.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] NPS Index in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] NPS Score in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
@@ -558,7 +546,7 @@ DAX best-practice info:
   [dax.isinscope.totals] Plans Count in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] PM Compliance % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Preventive Maintenance Task Count in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.isinscope.totals] Price Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Price in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Price Realization % in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Price Realization % in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Production Volume Units in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
@@ -591,7 +579,7 @@ DAX best-practice info:
   [dax.isinscope.totals] Unit Cost Amount in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Unplanned Downtime % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Utilization % in products\fabric_powerbi\dist\XD-002\XD-002.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.isinscope.totals] Volume Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Volume in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Yield % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Action Outcome Rate % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Actions Routed Count in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
@@ -620,7 +608,7 @@ DAX best-practice info:
   [dax.timeintelligence.native] Customer Retention % in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Days in Inventory in products\fabric_powerbi\dist\SCM-001\SCM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Defect Density in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.timeintelligence.native] Delta% Net Sales in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Delta% in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Delta% Net Sales in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Digital Adoption Rate % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] DIO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
@@ -638,7 +626,7 @@ DAX best-practice info:
   [dax.timeintelligence.native] Forecast Bias % in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Forecast MAPE % in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] GM % During Promo in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.timeintelligence.native] Gross Margin % in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Gross in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Gross Margin % in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Gross Margin % in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Gross Margin % vs Plan in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
@@ -649,12 +637,11 @@ DAX best-practice info:
   [dax.timeintelligence.native] Inventory Value Amount in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Labor Productivity % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Material Cost % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.timeintelligence.native] Mix Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Mix Effect Amount in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Mix in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] MTBF (hours) in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] MTTR (hours) in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.timeintelligence.native] Net Sales % vs Plan in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.timeintelligence.native] Net Sales Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Net in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Net Sales in products\fabric_powerbi\dist\COM-001_TEST\COM-001_TEST.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] NPS Index in products\fabric_powerbi\dist\XD-001\XD-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] NPS Score in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
@@ -679,7 +666,7 @@ DAX best-practice info:
   [dax.timeintelligence.native] Plans Count in products\fabric_powerbi\dist\SCM-003\SCM-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] PM Compliance % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Preventive Maintenance Task Count in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.timeintelligence.native] Price Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Price in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Price Realization % in products\fabric_powerbi\dist\COM-002\COM-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Price Realization % in products\fabric_powerbi\dist\COM-004\COM-004.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Production Volume Units in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
@@ -712,7 +699,7 @@ DAX best-practice info:
   [dax.timeintelligence.native] Unit Cost Amount in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Unplanned Downtime % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Utilization % in products\fabric_powerbi\dist\XD-002\XD-002.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.timeintelligence.native] Volume Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Volume in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Yield % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
 DAX best-practice warnings:
   [dax.iterators.only_when_needed] CLV in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
@@ -725,7 +712,7 @@ DAX best-practice warnings:
   [dax.var_return.required] Complaint Rate % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.var_return.required] Customer Retention % in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.var_return.required] Defect Density in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.var_return.required] Delta% Net Sales in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Delta% in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.var_return.required] Delta% Net Sales in products\fabric_powerbi\dist\XD-003\XD-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.var_return.required] DIO Days in products\fabric_powerbi\dist\FIN-001\FIN-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.var_return.required] Downtime % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
@@ -737,12 +724,12 @@ DAX best-practice warnings:
   [dax.var_return.required] Material Cost % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.var_return.required] MTBF (hours) in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.var_return.required] MTTR (hours) in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.var_return.required] Net Sales % vs Plan in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Net in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.var_return.required] NPS Score in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.var_return.required] OpEx vs Plan % in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.var_return.required] Performance % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.var_return.required] PM Compliance % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.var_return.required] Price Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Price in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.var_return.required] Quality % in products\fabric_powerbi\dist\OPS-001\OPS-001.SemanticModel\definition\tables\_Measures.tmdl
   [dax.var_return.required] Revenue at Risk Amount in products\fabric_powerbi\dist\COM-003\COM-003.SemanticModel\definition\tables\_Measures.tmdl
   [dax.var_return.required] Rework Rate % in products\fabric_powerbi\dist\OPS-003\OPS-003.SemanticModel\definition\tables\_Measures.tmdl
@@ -750,46 +737,7 @@ DAX best-practice warnings:
   [dax.var_return.required] Spare Parts Stockout % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.var_return.required] Unit Cost Amount in products\fabric_powerbi\dist\FIN-002\FIN-002.SemanticModel\definition\tables\_Measures.tmdl
   [dax.var_return.required] Unplanned Downtime % in products\fabric_powerbi\dist\OPS-002\OPS-002.SemanticModel\definition\tables\_Measures.tmdl
-  [dax.var_return.required] Volume Effect Amount in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.var_return.required] Volume in products\fabric_powerbi\dist\COM-001\COM-001.SemanticModel\definition\tables\_Measures.tmdl
 DAX best-practice check passed.
-
->> tooling/validation/check_dax_before_generation.ps1
-Pre-Generation DAX Check for COM-001
-  Total KPIs: 2
-  With DAX: 2
-
-OK All KPIs have DAX expressions. Ready for generation.
-
->> tooling/validation/check_dax_before_generation.ps1
-Pre-Generation DAX Check for COM-002
-  Total KPIs: 2
-  With DAX: 2
-
-OK All KPIs have DAX expressions. Ready for generation.
-
->> tooling/validation/check_dax_before_generation.ps1
-Pre-Generation DAX Check for COM-003
-  Total KPIs: 2
-  With DAX: 2
-
-OK All KPIs have DAX expressions. Ready for generation.
-
->> tooling/validation/check_dax_before_generation.ps1
-Pre-Generation DAX Check for COM-004
-  Total KPIs: 2
-  With DAX: 2
-
-OK All KPIs have DAX expressions. Ready for generation.
-
->> tooling/validation/check_dax_before_generation.ps1
-PS>TerminatingError(check_dax_before_generation.ps1): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Use case COM-005 not found in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases/core."
->> TerminatingError(check_dax_before_generation.ps1): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Use case COM-005 not found in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases/core."
-  Error while running tooling/validation/check_dax_before_generation.ps1:
-  Use case COM-005 not found in C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases/core
-
->> tooling/validation/check_dax_before_generation.ps1
-PS>TerminatingError(check_dax_before_generation.ps1): "Das Argument kann nicht an den Parameter "UseCaseId" gebunden werden, da es sich um eine leere Zeichenfolge handelt."
-  Error while running tooling/validation/check_dax_before_generation.ps1:
-  Das Argument kann nicht an den Parameter "UseCaseId" gebunden werden, da es sich um eine leere Zeichenfolge handelt.
 
 >> tooling/validation/check_dax_before_generation.ps1

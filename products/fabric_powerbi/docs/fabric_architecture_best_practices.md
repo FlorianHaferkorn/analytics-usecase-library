@@ -83,7 +83,7 @@ Fabric has four hierarchical levels: **tenant → capacity → workspace → ite
 |----------|---------|--------------------|
 | `core/` | Use cases, KPI catalog, action codes, data contracts, templates | No (spec only) |
 | `products/fabric_powerbi/` | Guide, validation, tools, **dist** (generated TMDL per use case) | dist or customer copy |
-| `showcases/aurora_group/` | Reference semantic model (CoreActionReady), gold data, reports | Optional; proof of framework |
+| `showcases/aurora_group/` | Domain semantic models (Commercial, Finance, etc.), gold data, reports | Optional; proof of framework |
 
 **Golden rule:** Use cases and reports **reference** governed definitions; they do **not** define KPI meaning or action logic. Single source of truth for KPIs is `core/kpi_catalog/`; for semantic output it is generated TMDL and PBIP in `dist/` or showcase.
 
@@ -134,7 +134,7 @@ Run from **repository root**:
    TMDL syntax, PBIP readiness, measures vs KPI catalog, TMDL vs measure dictionary, DAX best practices.
 
 For the Aurora showcase, add:  
-`-AuroraTablesDir "showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition/tables"` when validating the single _Measures.tmdl there.
+`-AuroraTablesDir "showcases/aurora_group/semantic_models/Commercial.SemanticModel/definition/tables"` when validating the domain _Measures.tmdl there.
 
 **Recommendation:** Run Stage 1 on every PR targeting main. Run Fabric checks on every PR that changes `core/kpi_catalog/`, `core/semantic_models/`, `products/fabric_powerbi/dist/`, or `showcases/aurora_group/.../definition/`.
 

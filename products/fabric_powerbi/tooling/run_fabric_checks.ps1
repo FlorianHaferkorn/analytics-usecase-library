@@ -5,11 +5,11 @@
   Invokes scripts under products/fabric_powerbi/tooling/validation/ against
   core paths and products/fabric_powerbi/dist. Run from repository root.
   When -AuroraTablesDir is specified, runs the same checks against the Aurora showcase tables directory
-  (e.g. showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition/tables).
+  (e.g. showcases/aurora_group/semantic_models/Commercial.SemanticModel/definition/tables).
 .EXAMPLE
   .\products\fabric_powerbi\tooling\run_fabric_checks.ps1
 .EXAMPLE
-  .\products\fabric_powerbi\tooling\run_fabric_checks.ps1 -AuroraTablesDir "showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition/tables"
+  .\products\fabric_powerbi\tooling\run_fabric_checks.ps1 -AuroraTablesDir "showcases/aurora_group/semantic_models/Commercial.SemanticModel/definition/tables"
 #>
 Param(
   [string]$DistRoot       = "products/fabric_powerbi/dist",

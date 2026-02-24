@@ -97,7 +97,7 @@ try {
 
 	# 3) Semantic Model / Dataset import
 	$modelPath = $ModelPath
-	if (-not $modelPath) { $modelPath = Join-Path $repoRoot "showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel" }
+	if (-not $modelPath) { $modelPath = Join-Path $repoRoot "showcases\aurora_group\semantic_models\Commercial.SemanticModel" }
 	Write-Host "Deploy: Semantic Model..." -ForegroundColor Cyan
 	# TODO: Import PBIP/TMDL or PBIX to Fabric semantic model API (see internal/technical_backlog.md § Power BI MCP).
 	Write-Host "  Stub: Model path = $modelPath" -ForegroundColor Gray

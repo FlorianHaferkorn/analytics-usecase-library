@@ -19,8 +19,7 @@ Param(
   [switch]$OverwriteExisting,
   # Write into a shared semantic model (e.g. Aurora showcase). All use cases -> ONE _Measures.tmdl with displayFolder per use case.
   [string]$TargetTablesDir = "",
-  # Convenience: same as -TargetTablesDir "showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition/tables"
-  # All measures go into ONE _Measures.tmdl file, organized by displayFolder = Use-Case-ID.
+  # Convenience: same as -TargetTablesDir for one Aurora domain model (default: Commercial.SemanticModel). Prefer orchestrate with -TargetTablesDir per domain.
   [switch]$UseAuroraShowcase,
   # Skip generation of _ActionReady_Logic.tmdl (action-text measures).
   [switch]$SkipActionLogic
@@ -829,7 +828,7 @@ if (-not $script:UseIRPath) {
 # Primary output: shared semantic model (e.g. Aurora showcase). When set, write <UseCase>_Measures.tmdl into this directory.
 $resolvedTablesDir = $null
 if ($UseAuroraShowcase) {
-  $auroraRelative = "showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition/tables"
+  $auroraRelative = "showcases/aurora_group/semantic_models/Commercial.SemanticModel/definition/tables"
   $resolvedTablesDir = if ($script:RepoRoot -and (Test-Path (Join-Path $script:RepoRoot $auroraRelative))) { (Resolve-Path (Join-Path $script:RepoRoot $auroraRelative)).Path } else { $null }
   if (-not $resolvedTablesDir) { $resolvedTablesDir = Join-Path $script:RepoRoot $auroraRelative; Ensure-Dir (Split-Path -Parent $resolvedTablesDir) | Out-Null; New-Item -ItemType Directory -Path $resolvedTablesDir -Force | Out-Null; $resolvedTablesDir = (Resolve-Path $resolvedTablesDir).Path }
 }

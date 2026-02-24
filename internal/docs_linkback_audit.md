@@ -11,11 +11,11 @@
 - `core/strategy_operating_model/operating_model/ux_design_system.md` – Link-back auf reporting_principles.md.
 - `core/kpi_catalog/README.md` – Link-back auf KPI_Catalog.md.
 - `core/semantic_models/domains/Commercial/README.md` – Link-back auf domains.md.
-- `core/semantic_models/core_action_ready/README.md` – Link-back auf ActionReady_SemanticModel_Blueprint.md.
+- `core/semantic_models/core_action_ready/README.md` – Legacy; verweist auf Archiv `internal/archive/legacy_action_ready_and_blueprint_2026-02/`. Kanonisch: semantic_layer.md.
 - `core/strategy_operating_model/README.md` – Link-back auf Root-README.md.
 - `core/templates/page_templates/README.md` – Link-back auf ux_design_system.md.
 - `core/templates/measure_templates/README.md` – Link-back auf measure_system.md.
-- `core/strategy_operating_model/operating_model/reference/ActionReady_SemanticModel_Blueprint.md` – Link-back auf semantic_layer.md; zusätzlich Encoding in der Überschrift behoben (`EUR"` → `—`, Titel vereinheitlicht zu „ActionReady Semantic Model — Full Blueprint“).
+- `core/strategy_operating_model/operating_model/reference/ActionReady_SemanticModel_Blueprint.md` – Legacy-Redirect; Inhalt archiviert unter `internal/archive/legacy_action_ready_and_blueprint_2026-02/`. Kanonisch: semantic_layer.md.
 
 ---
 

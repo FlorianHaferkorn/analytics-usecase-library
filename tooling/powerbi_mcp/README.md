@@ -38,7 +38,7 @@ Orchestration and report generation for semantic models and reports (PBIP) from 
 
 **Output:**
 
-- Semantic model: `showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel`
+- Semantic model: per domain, e.g. `showcases/aurora_group/semantic_models/Commercial.SemanticModel`
 - Reports: `products/fabric_powerbi/dist/<UseCase>.Report` (e.g. COM-001.Report)
 
 ## Deploy

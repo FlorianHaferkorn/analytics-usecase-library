@@ -65,13 +65,13 @@ Implementation Layer (Tool-Specific):
 
 ```powershell
 # Validate all Power BI BPA rules
-& tooling/validation/validate_powerbi.ps1 -PbipPath "showcases/aurora_group/semantic_models/CoreActionReady.pbip"
+& tooling/validation/validate_powerbi.ps1 -PbipPath "showcases/aurora_group/semantic_models/Commercial.SemanticModel"
 
 # Validate TMDL syntax only
-& tooling/validation/validate_tmdl.ps1 -TmdlPath "showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition" -AutoFix
+& tooling/validation/validate_tmdl.ps1 -TmdlPath "showcases/aurora_group/semantic_models/Commercial.SemanticModel/definition" -AutoFix
 
 # Validate DAX measures only
-& tooling/validation/validate_dax.ps1 -MeasuresPath "showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel/definition/tables/_Measures.tmdl"
+& tooling/validation/validate_dax.ps1 -MeasuresPath "showcases/aurora_group/semantic_models/Commercial.SemanticModel/definition/tables/_Measures.tmdl"
 ```
 
 ### Integration in Orchestrator

@@ -19,7 +19,7 @@ factsheet_type: business
 - **Reporting Level:** Tactical / Operational
 - **Analytics Stage:** Diagnostic / Prescriptive
 - **Related Data Contract:** core/data_contracts/domains/experience.yaml
-- **Related Semantic Model:** core/semantic_models/core_action_ready/model_definition.yaml
+- **Related Semantic Model:** Framework: core/strategy_operating_model/operating_model/semantic_layer.md. Aurora: showcases/aurora_group/semantic_models/Experience.SemanticModel (domain model for XD-*).
 
 ---
 

@@ -476,7 +476,7 @@ This layout provides:
 
 ### 10.3 Implementation
 
-The `diagramLayout.json` file in each semantic model's root (e.g. `CoreActionReady.SemanticModel/diagramLayout.json`) defines node positions. When creating or updating semantic models:
+The `diagramLayout.json` file in each semantic model's root (e.g. `Commercial.SemanticModel/diagramLayout.json`) defines node positions. When creating or updating semantic models:
 
 1. Place `_Measures` at (0, 0)
 2. Arrange all fact tables horizontally at y=0 with x increasing by 250px

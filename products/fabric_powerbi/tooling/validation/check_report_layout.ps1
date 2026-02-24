@@ -6,11 +6,11 @@
   core/templates/page_templates/governance/Layout_Grid_System.yaml constants.
   Use for Aurora or any PBIR report to ensure layout compliance.
 .PARAMETER ReportPath
-  Path to report definition folder (e.g. .../CoreActionReady.Report/definition). Default: Aurora report.
+  Path to report definition folder (e.g. products/fabric_powerbi/dist/COM-001.Report/definition). Default: first generated report in dist.
 .EXAMPLE
   .\check_report_layout.ps1
 .EXAMPLE
-  .\check_report_layout.ps1 -ReportPath "showcases/aurora_group/semantic_models/CoreActionReady.Report/definition"
+  .\check_report_layout.ps1 -ReportPath "products/fabric_powerbi/dist/COM-001.Report/definition"
 #>
 Param(
   [string]$ReportPath = "",
@@ -23,7 +23,9 @@ $scriptDir = Split-Path -Parent $PSCommandPath
 $repoRoot = (Get-Item $scriptDir).Parent.Parent.Parent.FullName
 
 if (-not $ReportPath) {
-  $ReportPath = Join-Path $repoRoot "showcases/aurora_group/semantic_models/CoreActionReady.Report/definition"
+  $distDir = Join-Path $repoRoot "products/fabric_powerbi/dist"
+  $firstReport = Get-ChildItem -Path $distDir -Filter "*.Report" -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
+  $ReportPath = if ($firstReport) { Join-Path $firstReport.FullName "definition" } else { Join-Path $distDir "COM-001.Report/definition" }
 }
 $reportDef = if ([System.IO.Path]::IsPathRooted($ReportPath)) { $ReportPath } else { Join-Path $repoRoot $ReportPath }
 

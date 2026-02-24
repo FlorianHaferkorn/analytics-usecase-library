@@ -16,7 +16,7 @@ alwaysApply: true
 - **Use cases:** `usecases/core/`, `usecases/templates/` — Business_Factsheet.md, UseCase_Bracket.yaml per use case.
 - **Framework:** `core/kpi_catalog/`, `core/action_codes/`, `core/templates/` — KPI catalog, action code YAML, page/measure/data-contract templates.
 - **Data contracts:** `data_contracts/domains/`, `data_contracts/sources/` — domain and source-level contracts.
-- **Semantic models:** `semantic_models/core_action_ready/`, `semantic_models/domains/` — model definition, measure dictionaries.
+- **Semantic models:** `semantic_models/domains/` — measure dictionaries; conceptual design in `core/strategy_operating_model/operating_model/semantic_layer.md`. (Legacy core_action_ready archived.)
 - **Docs:** `docs/company/`, `docs/operating_model/` — strategy and operating model; authority for structure and naming.
 - **Internal:** `tooling/` — validation, generation, maintenance, Power BI MCP; `tooling/ai/schemas/` — JSON schemas for factsheets, action codes, data contracts, layout_330300.
 

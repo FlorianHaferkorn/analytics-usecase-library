@@ -354,7 +354,7 @@ showcases/aurora_group/
         fact_sales_budget/
         ...
   semantic_models/
-    CoreActionReady.SemanticModel/
+    Commercial.SemanticModel/
       .platform
       definition/
         model.tmdl

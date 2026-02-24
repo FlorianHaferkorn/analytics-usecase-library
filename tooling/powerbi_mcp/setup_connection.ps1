@@ -2,7 +2,7 @@
 
 Param(
     [string]$WorkspaceRoot = "showcases/aurora_group/semantic_models",
-    [string]$ModelName = "CoreActionReady",
+    [string]$ModelName = "Commercial",
     [string]$ConnectionName = "local_pbip"
 )
 

@@ -12,7 +12,7 @@ This directory contains **validation scripts** for automated quality checks agai
 **Usage**:
 ```powershell
 # Validate and auto-fix TMDL syntax
-.\validate_tmdl.ps1 -TmdlPath "showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\definition" -AutoFix
+.\validate_tmdl.ps1 -TmdlPath "showcases\aurora_group\semantic_models\Commercial.SemanticModel\definition" -AutoFix
 
 # Validation only (no auto-fix)
 .\validate_tmdl.ps1 -TmdlPath "path\to\definition"
@@ -84,10 +84,10 @@ if ($LASTEXITCODE -ne 0) {
 ### Manual Testing
 ```powershell
 # Validate specific TMDL file
-.\validate_tmdl.ps1 -TmdlPath "showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\definition\tables\_Measures.tmdl"
+.\validate_tmdl.ps1 -TmdlPath "showcases\aurora_group\semantic_models\Commercial.SemanticModel\definition\tables\_Measures.tmdl"
 
 # Validate entire model
-.\validate_tmdl.ps1 -TmdlPath "showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel\definition" -AutoFix
+.\validate_tmdl.ps1 -TmdlPath "showcases\aurora_group\semantic_models\Commercial.SemanticModel\definition" -AutoFix
 ```
 
 ### CI/CD (run_all_checks.ps1)

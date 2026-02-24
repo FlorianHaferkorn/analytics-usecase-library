@@ -1,6 +1,6 @@
 # Aurora gold data generators
 
-A single entry point generates all synthetic gold-layer parquet for the Aurora showcase. Output is written to `showcases/aurora_group/data/gold/` (dimensions and facts). Contract-compliant per framework data contracts; table names match CoreActionReady semantic model (e.g. `dim_case_queue`, `fact_support_cases`, `fact_accounts_payable`, `fact_cash_position`, `fact_cash_flow`).
+A single entry point generates all synthetic gold-layer parquet for the Aurora showcase. Output is written to `showcases/aurora_group/data/gold/` (dimensions and facts). Contract-compliant per framework data contracts; table names match Aurora domain semantic models (and gold layer) (e.g. `dim_case_queue`, `fact_support_cases`, `fact_accounts_payable`, `fact_cash_position`, `fact_cash_flow`).
 
 **Run from repo root:**
 

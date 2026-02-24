@@ -180,7 +180,7 @@ The outcome of this step is a **stable semantic execution layer** that can be co
 Reference:
 
 - core/strategy_operating_model/operating_model/semantic_layer.md
-- core/strategy_operating_model/operating_model/reference/ActionReady_SemanticModel_Blueprint.md
+- core/strategy_operating_model/operating_model/semantic_layer.md (legacy ActionReady blueprint archived to internal/archive/legacy_action_ready_and_blueprint_2026-02/)
 
 ## 5. Semantic Model ->' Measures & KPIs
 

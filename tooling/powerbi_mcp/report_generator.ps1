@@ -7,7 +7,7 @@ param(
 	[string]$UseCase,
 	[string]$TemplateName = "overview_drivers_details",
 	[string]$OutputPath,
-	[string]$SemanticModelRelativePath = "../semantic_models/CoreActionReady.SemanticModel"
+	[string]$SemanticModelRelativePath = "../semantic_models/Commercial.SemanticModel"
 )
 
 $ErrorActionPreference = "Stop"

@@ -125,8 +125,8 @@ References: [internal/project_mgmt/PM_FLOW.md](project_mgmt/PM_FLOW.md), [intern
 
 ### What Aurora concretely proves
 
-- **Open PBIP:** Open `showcases/aurora_group/semantic_models/CoreActionReady.pbip` in Power BI Desktop; report and semantic model load together.
-- **Report loads:** CoreActionReady report with scaffolded pages (COM-001/002/003 Overview/Detail etc.) in PBIR format; visuals use the semantic model.
+- **Open PBIP:** Open a domain semantic model (e.g. `showcases/aurora_group/semantic_models/Commercial.SemanticModel`) or a generated report in Power BI Desktop; report and semantic model load together.
+- **Report loads:** Report with scaffolded pages (e.g. COM-001 Overview/Detail) in PBIR format under `products/fabric_powerbi/dist/<UC>.Report`; visuals use the domain semantic model.
 - **Measures:** One _Measures.tmdl with all measures, displayFolder per use case (COM-001 to COM-004, OPS-001, SCM-001, FIN-001 etc.); generated from KPI catalog.
 - **3-30-300 layouts:** Overview/Insights/Explorer follow [core/templates/page_templates/](../core/templates/page_templates/) and [showcases/aurora_group/reporting/pbip_layouts.md](../showcases/aurora_group/reporting/pbip_layouts.md).
 - **RLS:** Aurora Organization Access; gold data under `showcases/aurora_group/data/gold/`.

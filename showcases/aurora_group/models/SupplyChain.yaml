@@ -1,0 +1,34 @@
+# Supply Chain Semantic Model - Aurora Group
+# Purpose: Aurora domain semantic model for Supply Chain (SCM-001, SCM-002, SCM-003).
+# Data: core/data_contracts/domains/supply_chain.yaml; gold: showcases/aurora_group/data/gold/
+
+model_id: aurora_supply_chain
+domain: SupplyChain
+description: >
+  Aurora Group Supply Chain Analytics - Inventory, OTIF, forecast accuracy.
+
+use_cases:
+  - id: SCM-001
+    title: "Inventory Performance"
+    display_folder: "07_Inventory"
+  - id: SCM-002
+    title: "Supply Reliability OTIF"
+    display_folder: "08_OTIF"
+  - id: SCM-003
+    title: "Forecast vs Actual"
+    display_folder: "09_Forecast"
+
+tables:
+  dimensions:
+    - dim_date
+    - dim_org
+    - dim_product
+  facts:
+    - fact_inventory
+    - fact_forecast
+    - fact_fulfillment
+
+notes:
+  - "Domain semantic model; tables from gold per core/data_contracts/domains/supply_chain.yaml"
+governance:
+  version: v0.1-draft

@@ -36,8 +36,8 @@ def main() -> int:
     )
     parser.add_argument(
         "--dataset-reference",
-        default="../../../showcases/aurora_group/semantic_models/CoreActionReady.SemanticModel",
-        help="Relative path from report folder to semantic model PBIP (for datasetReference.byPath.path)",
+        default="../../../showcases/aurora_group/semantic_models/Commercial.SemanticModel",
+        help="Relative path from report folder to semantic model PBIP; orchestrate sets per-domain (e.g. Commercial.SemanticModel).",
     )
     args = parser.parse_args()
 

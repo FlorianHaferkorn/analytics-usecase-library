@@ -1,0 +1,36 @@
+table dim_org
+	 lineageTag: d2be6d2b-ed8e-4be7-979e-3a7cd9d7e5ce
+
+	 column OrgKey
+		 dataType: Int64
+		 sourceColumn: OrgKey
+		 isHidden
+
+	 column OrgCode
+		 dataType: String
+		 sourceColumn: OrgCode
+
+	 column OrgName
+		 dataType: String
+		 sourceColumn: OrgName
+
+	 column Region
+		 dataType: String
+		 sourceColumn: Region
+
+	 column Country
+		 dataType: String
+		 sourceColumn: Country
+
+	 column Channel
+		 dataType: String
+		 sourceColumn: Channel
+
+	 partition dim_org = m
+		 mode: import
+		 source =
+			 let
+				 Source = AuroraGoldLayer{[Schema="dbo",Item="dim_org"]}[Data]
+			 in
+				 Source
+

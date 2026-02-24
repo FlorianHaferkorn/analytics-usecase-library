@@ -44,7 +44,7 @@ graph TB
 
 Param(
     [string]$WorkspaceRoot = "showcases/aurora_group/semantic_models",
-    [string]$ModelName = "CoreActionReady",
+    [string]$ModelName = "Commercial",
     [string]$ConnectionName = "local_pbip"
 )
 
@@ -257,7 +257,7 @@ Invoke-WithRetry "Import Measures to Model" {
     $measuresFile = "products\fabric_powerbi\dist\$UseCase\$UseCase.SemanticModel\definition\tables\_Measures.tmdl"
     
     # Copy measures to working model
-    $targetModel = "showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel"
+    $targetModel = "showcases\aurora_group\semantic_models\Commercial.SemanticModel"
     $targetMeasures = "$targetModel\definition\tables\_Measures.tmdl"
     
     if (Test-Path $measuresFile) {
@@ -351,7 +351,7 @@ Write-Host "Iterations:    $($state.iteration)" -ForegroundColor Gray
 Write-Host "Completed:     $($state.completed.Count) phases" -ForegroundColor Gray
 Write-Host "Errors Fixed:  $($state.errors.Count)" -ForegroundColor Gray
 Write-Host "`nOutput:" -ForegroundColor Cyan
-Write-Host "  Model:  showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel" -ForegroundColor Gray
+Write-Host "  Model:  showcases\aurora_group\semantic_models\<Domain>.SemanticModel" -ForegroundColor Gray
 Write-Host "  Report: showcases\aurora_group\reports\$UseCase.Report" -ForegroundColor Gray
 Write-Host "`nNext Steps:" -ForegroundColor Yellow
 Write-Host "  1. Open in Power BI Desktop: explorer showcases\aurora_group\semantic_models" -ForegroundColor Gray
@@ -556,7 +556,7 @@ function Generate-ReportJSON {
         version = "1.0"
         datasetReference = @{
             byPath = @{
-                path = "../semantic_models/CoreActionReady.SemanticModel"
+                path = "../semantic_models/Commercial.SemanticModel"
             }
         }
         pages = @()
@@ -724,7 +724,7 @@ $metrics = @{
 # 1. Setup (einmalig)
 ./tooling/powerbi_mcp/setup_connection.ps1 `
     -WorkspaceRoot "showcases/aurora_group/semantic_models" `
-    -ModelName "CoreActionReady"
+    -ModelName "Commercial"
 
 # 2. Generate COM-001 (Sales Performance) komplett
 ./tooling/powerbi_mcp/orchestrate_full_model.ps1 `
@@ -732,12 +732,12 @@ $metrics = @{
     -MaxIterations 5
 
 # 3. Öffne in Power BI Desktop
-explorer "showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel"
+explorer "showcases\aurora_group\semantic_models\Commercial.SemanticModel"
 
 # 4. Deploy to Fabric
 ./tooling/powerbi_mcp/deploy.ps1 `
     -WorkspaceName "DM_ActionReady" `
-    -ModelPath "showcases\aurora_group\semantic_models\CoreActionReady.SemanticModel"
+    -ModelPath "showcases\aurora_group\semantic_models\Commercial.SemanticModel"
 ```
 
 ---
