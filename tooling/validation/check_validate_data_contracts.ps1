@@ -27,6 +27,18 @@ function Resolve-RepoPath {
 $rootPath = Resolve-RepoPath -ProvidedPath $Root -DefaultRelative "."
 if (-not $rootPath) { throw "Root path not found." }
 
+# When ConvertFrom-Yaml is not available (e.g. CI without powershell-yaml), use Node + yaml package from tooling/validation
+if (-not (Get-Command ConvertFrom-Yaml -ErrorAction SilentlyContinue)) {
+	$validationDir = Join-Path -Path $rootPath -ChildPath "tooling\validation"
+	Push-Location $validationDir
+	try {
+		& node validate_data_contracts.js $rootPath
+		exit $LASTEXITCODE
+	} finally {
+		Pop-Location
+	}
+}
+
 $contractsDir = Join-Path -Path $rootPath -ChildPath "core\data_contracts\domains"
 $resultsDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\results"
 $outPath = Join-Path -Path $resultsDir -ChildPath "contract_validation.json"
@@ -45,6 +57,12 @@ if (-not (Test-Path $contractsDir)) {
 }
 
 $yamlFiles = Get-ChildItem -Path $contractsDir -Filter "*.yaml" -File -ErrorAction SilentlyContinue
+# #region agent log
+$agentLogPath = Join-Path $rootPath "debug-0c8311.log"
+$cmdletExists = (Get-Command ConvertFrom-Yaml -ErrorAction SilentlyContinue) -ne $null
+$agentPayload = @{ sessionId = "0c8311"; runId = "run1"; hypothesisId = "H1"; location = "check_validate_data_contracts.ps1:before_loop"; message = "ConvertFrom-Yaml availability"; data = @{ cmdletExists = $cmdletExists; psVersion = $PSVersionTable.PSVersion.ToString(); psEdition = $PSVersionTable.PSEdition }; timestamp = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() } | ConvertTo-Json -Compress
+Add-Content -Path $agentLogPath -Value $agentPayload -Encoding utf8 -ErrorAction SilentlyContinue
+# #endregion agent log
 foreach ($file in $yamlFiles) {
 	$relPath = $file.FullName.Replace($rootPath + [IO.Path]::DirectorySeparatorChar, "").Replace("\", "/")
 	$contractPath = "core/data_contracts/domains/$($file.Name)"
