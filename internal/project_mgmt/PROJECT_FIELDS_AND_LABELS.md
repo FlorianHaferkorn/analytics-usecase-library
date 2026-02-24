@@ -27,7 +27,7 @@ Create these as **Single select** or **Text** / **Date** as indicated. Field nam
 | **Priority**| Single select | `P0`, `P1`, `P2` |
 | **Risk**    | Single select | `On track`, `At risk` |
 | **Target date** | Date     | For epics; used in Roadmap view. |
-| **Milestone**   | Single select | Values match GitHub Milestones or your phases, e.g. `Project completion`, `Phase 2`, `Technical backlog`. |
+| **Milestone**   | Single select | Values match GitHub Milestones or your phases, e.g. `Project completion`, `Framework Package 1`, `Phase 2`, `Technical backlog`. |
 | **Owner**   | Text (or Assignees) | Owner of the item. |
 | **Blocked by**  | Text     | Comma-separated issue numbers or "None". |
 

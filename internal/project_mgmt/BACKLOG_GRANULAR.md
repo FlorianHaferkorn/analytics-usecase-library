@@ -9,6 +9,7 @@
 ## Milestones
 
 - **Project completion** — Blocker, Review, Doku (Projektabschluss).
+- **Framework Package 1** — Aurora kundentauglich (Fabric/Power BI); reproduzierbar inkl. neuer Use Cases; Abschluss erstes Framework-Paket.
 - **Phase 2** — 3-30-300 vollständig, Strategy Pattern / AI urgency.
 - **Technical backlog** — MCP, Fabric, Aurora, Synthetic data, Page scaffold.
 
@@ -21,6 +22,24 @@
 | [Task] Resolve blockers from content review (company_strategy anchors, factsheet paths) | Docs | P0 | presentation_status_and_roadmap |
 | [Task] Remaining review adjustments (style, link-backs, encoding) | Docs | P1 | |
 | [Task] Document CI/release without Stage-1 skip | Tooling | P1 | Zero-tolerance documentation |
+
+---
+
+## Framework Package 1 (granular)
+
+Abschluss erstes Framework-Paket: Aurora als kundentauglicher Beweis für Fabric/Power BI (Semantic Models + Reports); bei Kunden ohne Probleme/Bugs einsetzbar; reproduzierbar inkl. neuer Use Cases. Out of Scope: Evidence/andere Tools; Fabric Capacity; Generators/Interfaces (kommen danach). Für bestehende GitHub Projects: Milestone „Framework Package 1“ im Repo anlegen und als Option im Project-Feld „Milestone“ hinzufügen (falls noch nicht vorhanden).
+
+**Demo Friday (priorisierte Reihenfolge):** P0 = Muss für Live-Demo (1 DSM → Reports mit Visuals); P1 = Soll für Freitag; P2 = Optional. Area → Recommended expert: FabricPowerBI/Aurora → Fabric-Expert (.cursor/rules/fabric-expert.mdc); Docs → Framework-Expert oder PM.
+
+| Title | Area | Priority | Demo Friday | Notes |
+|-------|------|----------|-------------|--------|
+| [Epic] Framework Package 1 complete: Aurora customer-ready (Fabric/Power BI) | FabricPowerBI | P1 | — | Parent epic; AC: PBIP opens, no known blockers, docs, page templates |
+| [Task] Reproducible pipeline: Use Cases to PBIP (Aurora, configurable use-case set) | FabricPowerBI | P0 | P0 | Script/workflow from Inventory + Brackets to Aurora PBIP |
+| [Task] Verification: PBIP opens in Power BI Desktop; report and model load | FabricPowerBI | P0 | P0 | AC: Report pages show visual placeholders (KPI, Trend, Variance) and open without error |
+| [Task] Report output: open generated report with CoreActionReady.SemanticModel (minimal .pbip or doc) | FabricPowerBI | P0 | P0 | Minimal .pbip for dist/&lt;UC&gt;.Report + DSM, or clear doc how to open generated report with showcase model |
+| [Task] Verification: Pages align with page templates | FabricPowerBI | P0 | P0 | core/templates/page_templates compliance |
+| [Task] Customer readiness checklist and known blockers | Docs | P1 | P1 | Checklist, document prerequisites (versions, steps) |
+| [Task] Add one new use case and regenerate Aurora report (reproducibility proof) | FabricPowerBI | P2 | P2 | Proof: pipeline works with new use case |
 
 ---
 
@@ -99,10 +118,25 @@
 
 ---
 
+## Demo Friday – Reihenfolge & Agenten
+
+Für die Live-Demo (1 Domain Semantic Model → Reports mit Visuals) in dieser Reihenfolge umsetzen; `start_next_task.ps1` wählt nach Priority (P0 vor P1 vor P2), dann nach Issue-Nummer. **Neues Projekt:** `.\tooling\project_mgmt\setup_project_full.ps1` einmal ausführen (legt alle Issues inkl. neues „Report output“ an). **Bereits bestehendes Projekt:** Neues Issue „Report output…“ manuell anlegen, dem Project hinzufügen, Priority P0; für die vier Demo-Must-haves (1–4) im Board Priority auf P0 setzen.
+
+| # | Issue (Kurz) | Priority | Recommended expert |
+|---|----------------|----------|--------------------|
+| 1 | Reproducible pipeline: Use Cases to PBIP | P0 | Fabric-Expert |
+| 2 | Verification: PBIP opens; report and model load | P0 | Fabric-Expert |
+| 3 | Report output: open generated report with CoreActionReady.SemanticModel | P0 | Fabric-Expert |
+| 4 | Verification: Pages align with page templates | P0 | Fabric-Expert |
+| 5 | Customer readiness checklist and known blockers | P1 | Framework-Expert / Docs |
+| 6 | Add one new use case and regenerate Aurora report | P2 | Fabric-Expert |
+
+---
+
 ## Field mapping (for script)
 
 - **Status:** always `Backlog` for new items.
 - **Risk:** `On track` for new items.
-- **Milestone:** as in table (Project completion / Phase 2 / Technical backlog).
+- **Milestone:** as in table (Project completion / Framework Package 1 / Phase 2 / Technical backlog).
 - **Area:** Framework, FabricPowerBI, Aurora, Tooling, Docs (exact spelling for Project single-select).
-- **Priority:** P0, P1, P2.
+- **Priority:** P0, P1, P2 (P0 = must for Friday demo for Framework Package 1 pipeline items).

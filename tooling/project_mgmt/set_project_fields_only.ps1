@@ -48,7 +48,7 @@ $fieldMap = @{}; foreach ($node in $proj.fields.nodes) {
 # Standard field definitions (match PROJECT_FIELDS_AND_LABELS.md)
 $requiredFields = @(
     @{ name = "Status"; options = @("Backlog", "Planned", "In progress", "In review", "Done") },
-    @{ name = "Milestone"; options = @("Project completion", "Phase 2", "Technical backlog") },
+    @{ name = "Milestone"; options = @("Project completion", "Framework Package 1", "Phase 2", "Technical backlog") },
     @{ name = "Area"; options = @("Framework", "FabricPowerBI", "Aurora", "Tooling", "Docs") },
     @{ name = "Priority"; options = @("P0", "P1", "P2") },
     @{ name = "Risk"; options = @("On track", "At risk") }

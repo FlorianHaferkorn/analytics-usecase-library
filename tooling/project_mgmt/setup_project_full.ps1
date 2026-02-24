@@ -46,6 +46,14 @@ $script:GranularIssues = @(
     @{ title = "[Task] Resolve blockers from content review (company_strategy anchors, factsheet paths)"; milestone = "Project completion"; area = "Docs"; priority = "P0"; labels = @(); body = "From presentation_status_and_roadmap. Blocker resolution." },
     @{ title = "[Task] Remaining review adjustments (style, link-backs, encoding)"; milestone = "Project completion"; area = "Docs"; priority = "P1"; labels = @(); body = "Review adjustments for project completion." },
     @{ title = "[Task] Document CI/release without Stage-1 skip"; milestone = "Project completion"; area = "Tooling"; priority = "P1"; labels = @(); body = "Zero-tolerance documentation: CI/release without Stage-1 skip." },
+    # Framework Package 1 (Demo Friday: P0 = must, P1 = should, P2 = optional)
+    @{ title = "[Epic] Framework Package 1 complete: Aurora customer-ready (Fabric/Power BI)"; milestone = "Framework Package 1"; area = "FabricPowerBI"; priority = "P1"; labels = @("epic"); body = "Abschluss erstes Framework-Paket. Aurora zeigt: bei Kunden ohne Probleme/Bugs einsetzbar; reproduzierbar inkl. neuer Use Cases. Out of Scope: Evidence, andere Tools; Fabric Capacity; Generators/Interfaces. AC: PBIP opens, no known blockers, docs, page templates." },
+    @{ title = "[Task] Reproducible pipeline: Use Cases to PBIP (Aurora, configurable use-case set)"; milestone = "Framework Package 1"; area = "FabricPowerBI"; priority = "P0"; labels = @(); body = "Script/workflow from Use Case Inventory + Brackets to Aurora PBIP (configurable use-case set). Demo Friday: must-have." },
+    @{ title = "[Task] Verification: PBIP opens in Power BI Desktop; report and model load"; milestone = "Framework Package 1"; area = "FabricPowerBI"; priority = "P0"; labels = @(); body = "Check: Aurora PBIP opens in Power BI Desktop; report and model load without error. AC: Report pages show visual placeholders (KPI, Trend, Variance) and open without error." },
+    @{ title = "[Task] Report output: open generated report with CoreActionReady.SemanticModel (minimal .pbip or doc)"; milestone = "Framework Package 1"; area = "FabricPowerBI"; priority = "P0"; labels = @(); body = "Minimal .pbip for dist/<UC>.Report + CoreActionReady.SemanticModel, or clear doc how to open generated report with showcase model. Demo Friday: must-have." },
+    @{ title = "[Task] Verification: Pages align with page templates"; milestone = "Framework Package 1"; area = "FabricPowerBI"; priority = "P0"; labels = @(); body = "Verify pages align with core/templates/page_templates." },
+    @{ title = "[Task] Customer readiness checklist and known blockers"; milestone = "Framework Package 1"; area = "Docs"; priority = "P1"; labels = @(); body = "Customer readiness checklist; document prerequisites (versions, steps); capture known blockers." },
+    @{ title = "[Task] Add one new use case and regenerate Aurora report (reproducibility proof)"; milestone = "Framework Package 1"; area = "FabricPowerBI"; priority = "P2"; labels = @(); body = "Add one new (or defined) use case; run pipeline; Aurora report regenerates and opens without error. Proof: works with new use cases. Demo Friday: optional." },
     @{ title = "[Epic] 3-30-300 complete: 300s page from action-code YAML"; milestone = "Phase 2"; area = "FabricPowerBI"; priority = "P1"; labels = @("epic"); body = "Parent epic. 300s page shows action text and evidence from action-code YAML; generated from framework." },
     @{ title = "[Task] Define 300s page layout in page template (layout_330300)"; milestone = "Phase 2"; area = "FabricPowerBI"; priority = "P1"; labels = @(); body = "core/templates/page_templates. Define 300s page layout." },
     @{ title = "[Task] Generate action text from action-code YAML in report"; milestone = "Phase 2"; area = "FabricPowerBI"; priority = "P1"; labels = @(); body = "Action payload in 300s page from action-code YAML." },
@@ -95,7 +103,7 @@ $existingMs = Invoke-GitHubRest -Method Get -Path "/repos/$owner/$name/milestone
 $byTitle = @{}
 foreach ($m in $existingMs) { $byTitle[$m.title] = $m.number }
 $milestones = @{}
-foreach ($title in @("Project completion", "Phase 2", "Technical backlog")) {
+foreach ($title in @("Project completion", "Framework Package 1", "Phase 2", "Technical backlog")) {
     if ($byTitle[$title]) {
         $milestones[$title] = $byTitle[$title]
         Write-Host "  Milestone exists: $title #$($byTitle[$title])"
