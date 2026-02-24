@@ -71,9 +71,14 @@ jobs:
           FILES=$(git diff --name-status "$BASE"...HEAD 2>/dev/null || echo "—")
           STATS=$(git diff --shortstat "$BASE"...HEAD 2>/dev/null || echo "—")
 
+          CHECKS_URL="https://github.com/${REPO}/pull/${PR_NUMBER}/checks"
           {
             echo "$MARKER"
             echo "## PR review summary"
+            echo ""
+            echo "**Automated checks (run on every PR):**"
+            echo "- [Stage 1](https://github.com/${REPO}/blob/main/.github/workflows/stage1.yml) and [Closes #N](https://github.com/${REPO}/blob/main/.github/workflows/pr_review_summary.yml) — see [Checks](${CHECKS_URL}) for status."
+            echo "- **Manual before merge:** Run the Reviewer Agent (Cursor session with \`.cursor/rules/reviewer-agent.mdc\`, say \"Review PR #${PR_NUMBER}\"). See [PM_FLOW.md](https://github.com/${REPO}/blob/main/internal/project_mgmt/PM_FLOW.md) §2.3."
             echo ""
             echo "**Title:** $TITLE"
             echo ""
