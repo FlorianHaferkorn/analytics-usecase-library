@@ -1,6 +1,6 @@
 # Project operating model
 
-**Purpose:** Defines how we work: roles, Definition of Ready/Done, cadence, and how agents vs. humans interact. The GitHub Project is the SSOT for plan and status; this document is the contract for behavior.
+**Purpose:** Defines how we work: roles, Definition of Ready/Done, cadence, and how agents vs. humans interact. The GitHub Project is the SSOT for plan and status; this document is the contract for behavior. Field values (Status, Milestones, Area, Priority) on project items are owned by the backlog sync ([granular_issues.json](../../tooling/project_mgmt/granular_issues.json)); manual changes in the Project UI are overwritten on the next sync.
 
 **Language:** English.
 

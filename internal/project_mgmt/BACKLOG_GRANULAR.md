@@ -1,5 +1,7 @@
 # Granulares Backlog (feine Ziele)
 
+**Maschinenlesbare Quelle für die Automation:** [tooling/project_mgmt/granular_issues.json](../../tooling/project_mgmt/granular_issues.json). Bei Änderungen an dieser Datei läuft der automatische Project-Sync.
+
 **Purpose:** Fein zerlegte Issues für das GitHub Project. Jedes Item ist ein klar abgrenzbarer Task (ca. 1 PR oder wenige Stunden). Das Skript `tooling/project_mgmt/setup_project_full.py` legt diese Issues an, fügt sie dem Project hinzu und setzt die Felder.
 
 **Language:** English.

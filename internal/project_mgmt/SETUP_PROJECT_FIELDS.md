@@ -17,6 +17,8 @@ Optional (für Risiko/Status-Update):
 
 | **Risk**   | `On track`, `At risk` |
 
+Feldwerte (Status, Milestones, Area, Priority) im Project werden vom Sync aus dem Backlog ([granular_issues.json](../../tooling/project_mgmt/granular_issues.json)) gesetzt. Manuelle Änderungen in der Project-UI werden beim nächsten Sync überschrieben.
+
 **Danach (Reihenfolge):**
 
 1. **Duplikate finden:** Vom **Repo-Root** aus: `.\tooling\project_mgmt\list_project_duplicates.ps1` (Pfad erforderlich). Ausgabe: pro doppeltem Titel „KEEP #X“, „REMOVE #Y, #Z“.  

@@ -41,53 +41,7 @@ function Invoke-GitHubGraphQL {
     return $r.data
 }
 
-# Granular issues: same as setup_project_full.py (BACKLOG_GRANULAR.md)
-$script:GranularIssues = @(
-    @{ title = "[Task] Resolve blockers from content review (company_strategy anchors, factsheet paths)"; milestone = "Project completion"; area = "Docs"; priority = "P0"; labels = @(); body = "From presentation_status_and_roadmap. Blocker resolution." },
-    @{ title = "[Task] Remaining review adjustments (style, link-backs, encoding)"; milestone = "Project completion"; area = "Docs"; priority = "P1"; labels = @(); body = "Review adjustments for project completion." },
-    @{ title = "[Task] Document CI/release without Stage-1 skip"; milestone = "Project completion"; area = "Tooling"; priority = "P1"; labels = @(); body = "Zero-tolerance documentation: CI/release without Stage-1 skip." },
-    # Framework Package 1 (Demo Friday: P0 = must, P1 = should, P2 = optional)
-    @{ title = "[Epic] Framework Package 1 complete: Aurora customer-ready (Fabric/Power BI)"; milestone = "Framework Package 1"; area = "FabricPowerBI"; priority = "P1"; labels = @("epic"); body = "Abschluss erstes Framework-Paket. Aurora zeigt: bei Kunden ohne Probleme/Bugs einsetzbar; reproduzierbar inkl. neuer Use Cases. Out of Scope: Evidence, andere Tools; Fabric Capacity; Generators/Interfaces. AC: PBIP opens, no known blockers, docs, page templates." },
-    @{ title = "[Task] Reproducible pipeline: Use Cases to PBIP (Aurora, configurable use-case set)"; milestone = "Framework Package 1"; area = "FabricPowerBI"; priority = "P0"; labels = @(); body = "Script/workflow from Use Case Inventory + Brackets to Aurora PBIP (configurable use-case set). Demo Friday: must-have." },
-    @{ title = "[Task] Verification: PBIP opens in Power BI Desktop; report and model load"; milestone = "Framework Package 1"; area = "FabricPowerBI"; priority = "P0"; labels = @(); body = "Check: Aurora PBIP opens in Power BI Desktop; report and model load without error. AC: Report pages show visual placeholders (KPI, Trend, Variance) and open without error." },
-    @{ title = "[Task] Report output: open generated report with CoreActionReady.SemanticModel (minimal .pbip or doc)"; milestone = "Framework Package 1"; area = "FabricPowerBI"; priority = "P0"; labels = @(); body = "Minimal .pbip for dist/<UC>.Report + CoreActionReady.SemanticModel, or clear doc how to open generated report with showcase model. Demo Friday: must-have." },
-    @{ title = "[Task] Verification: Pages align with page templates"; milestone = "Framework Package 1"; area = "FabricPowerBI"; priority = "P0"; labels = @(); body = "Verify pages align with core/templates/page_templates." },
-    @{ title = "[Task] Customer readiness checklist and known blockers"; milestone = "Framework Package 1"; area = "Docs"; priority = "P1"; labels = @(); body = "Customer readiness checklist; document prerequisites (versions, steps); capture known blockers." },
-    @{ title = "[Task] Add one new use case and regenerate Aurora report (reproducibility proof)"; milestone = "Framework Package 1"; area = "FabricPowerBI"; priority = "P2"; labels = @(); body = "Add one new (or defined) use case; run pipeline; Aurora report regenerates and opens without error. Proof: works with new use cases. Demo Friday: optional." },
-    @{ title = "[Epic] 3-30-300 complete: 300s page from action-code YAML"; milestone = "Phase 2"; area = "FabricPowerBI"; priority = "P1"; labels = @("epic"); body = "Parent epic. 300s page shows action text and evidence from action-code YAML; generated from framework." },
-    @{ title = "[Task] Define 300s page layout in page template (layout_330300)"; milestone = "Phase 2"; area = "FabricPowerBI"; priority = "P1"; labels = @(); body = "core/templates/page_templates. Define 300s page layout." },
-    @{ title = "[Task] Generate action text from action-code YAML in report"; milestone = "Phase 2"; area = "FabricPowerBI"; priority = "P1"; labels = @(); body = "Action payload in 300s page from action-code YAML." },
-    @{ title = "[Task] Generate evidence table from data contract / action payload"; milestone = "Phase 2"; area = "FabricPowerBI"; priority = "P1"; labels = @(); body = "Evidence table for 300s page." },
-    @{ title = "[Task] Wire 300s page into report scaffold (Aurora)"; milestone = "Phase 2"; area = "FabricPowerBI"; priority = "P1"; labels = @(); body = "Report structure: 300s page in Aurora scaffold." },
-    @{ title = "[Task] Integration test: 300s page end-to-end"; milestone = "Phase 2"; area = "FabricPowerBI"; priority = "P2"; labels = @(); body = "Verify full 300s flow." },
-    @{ title = "[Epic] Strategy Pattern / AI urgency and automated reasoning"; milestone = "Phase 2"; area = "Framework"; priority = "P2"; labels = @("epic"); body = "Parent epic. Strategy pattern precise enough for tooling; AI urgency and automated reasoning scope." },
-    @{ title = "[Task] Document urgency rules in strategy_patterns.md"; milestone = "Phase 2"; area = "Framework"; priority = "P2"; labels = @(); body = "core/strategy_operating_model/company. Urgency rules in strategy_patterns.md." },
-    @{ title = "[Task] Add tooling hook for urgency derivation (stub or spec)"; milestone = "Phase 2"; area = "Tooling"; priority = "P2"; labels = @(); body = "Optional automation for urgency derivation." },
-    @{ title = "[Task] Document automated reasoning scope and limits"; milestone = "Phase 2"; area = "Docs"; priority = "P2"; labels = @(); body = "internal/vision or strategy. Automated reasoning scope." },
-    @{ title = "[Task] Call Power BI MCP table_operations from table_ops.ps1"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "tooling/powerbi_mcp/table_ops.ps1 ~line 138." },
-    @{ title = "[Task] Call Power BI MCP relationship_operations from relationship_ops.ps1"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "relationship_ops.ps1 ~line 199." },
-    @{ title = "[Task] Fabric: Workspace API (GET/POST) in deploy.ps1"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "deploy.ps1 - Workspace API." },
-    @{ title = "[Task] Fabric: Import PBIP/TMDL to semantic model API in deploy.ps1"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "deploy.ps1 - Import PBIP/TMDL." },
-    @{ title = "[Task] Fabric: Publish report and bind to dataset in deploy.ps1"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "deploy.ps1 - Publish report, bind to dataset." },
-    @{ title = "[Task] Fabric: Set refresh schedule via REST in deploy.ps1"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "deploy.ps1 - Refresh schedule." },
-    @{ title = "[Task] Fabric: Apply RLS / security_user_org mapping via API in deploy.ps1"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "deploy.ps1 - RLS/security_user_org." },
-    @{ title = "[Task] TMDL: default format strings and display folders (AUTOMATION_FLOW)"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "tooling/powerbi_mcp/AUTOMATION_FLOW.md." },
-    @{ title = "[Task] Update relationship via MCP (AUTOMATION_FLOW)"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "AUTOMATION_FLOW.md - relationship via MCP." },
-    @{ title = "[Task] Generate visuals from template (AUTOMATION_FLOW)"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "AUTOMATION_FLOW.md - visuals from template." },
-    @{ title = "[Task] Aurora Operations model: complete relationships and measures (Operations.yaml)"; milestone = "Technical backlog"; area = "Aurora"; priority = "P1"; labels = @(); body = "showcases/aurora_group/models/Operations.yaml." },
-    @{ title = "[Task] Aurora Operations model: DAX in KPI Catalog, Measure_Dictionary"; milestone = "Technical backlog"; area = "Aurora"; priority = "P1"; labels = @(); body = "Operations domain - DAX and Measure_Dictionary." },
-    @{ title = "[Task] Aurora Finance model: complete relationships and measures (Finance.yaml)"; milestone = "Technical backlog"; area = "Aurora"; priority = "P1"; labels = @(); body = "showcases/aurora_group/models/Finance.yaml." },
-    @{ title = "[Task] Aurora Finance model: DAX in KPI Catalog, Measure_Dictionary"; milestone = "Technical backlog"; area = "Aurora"; priority = "P1"; labels = @(); body = "Finance domain - DAX and Measure_Dictionary." },
-    @{ title = "[Task] Synthetic: ensure Lakehouse exists before notebook run (create or doc)"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "fabric_nb_generate_backbone_core_v1.py." },
-    @{ title = "[Task] Synthetic: implement date range with Spark (backbone notebook)"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "Backbone notebook - date range." },
-    @{ title = "[Task] Synthetic: derive from sales + config.inventory (target_dio_range, coverage days)"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "Backbone notebook." },
-    @{ title = "[Task] Synthetic: implement join + ratio, Category join + GM% band check"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "Backbone notebook." },
-    @{ title = "[Task] Synthetic: RI dim_* vs facts, margin bands, DIO/CCC bands"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "Backbone notebook." },
-    @{ title = "[Task] Synthetic: Lakehouse and schema exist; map dims/facts to config.lakehouse.tables"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "Backbone notebook." },
-    @{ title = "[Task] Synthetic: optional holiday logic for is_holiday in generate_gold_layer.py"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "generate_gold_layer.py line 121." },
-    @{ title = "[Task] Page scaffold: BOM support in YAML scanner"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "scanner.py line 187." },
-    @{ title = "[Task] Page scaffold: tab handling rules in YAML scanner"; milestone = "Technical backlog"; area = "Tooling"; priority = "P2"; labels = @(); body = "scanner.py line 761." }
-)
+. "$PSScriptRoot\GranularIssues.ps1"
 
 $token = Get-GitHubToken
 $repo = Get-RepoOwnerAndName
