@@ -19,6 +19,6 @@ Optional (für Risiko/Status-Update):
 
 **Danach (Reihenfolge):**
 
-1. **Duplikate finden:** `.\tooling\project_mgmt\list_project_duplicates.ps1` (vom Repo-Root). Ausgabe: pro doppeltem Titel „KEEP #X“, „REMOVE #Y, #Z“.  
-2. **Duplikate entfernen:** Im GitHub-Projekt die als REMOVE gelisteten Issues aus dem Projekt entfernen (Rechtsklick auf Karte → Remove from project) oder die doppelten Issues unter Issues schließen.  
+1. **Duplikate finden:** Vom **Repo-Root** aus: `.\tooling\project_mgmt\list_project_duplicates.ps1` (Pfad erforderlich). Ausgabe: pro doppeltem Titel „KEEP #X“, „REMOVE #Y, #Z“.  
+2. **Duplikate entfernen:** Vom Repo-Root: `.\tooling\project_mgmt\remove_project_duplicates.ps1` (entfernt alle Duplikate aus dem Projekt per API). Optional zuerst mit `-WhatIf` testen.  
 3. **Felder setzen:** `.\tooling\project_mgmt\set_project_fields_only.ps1` – setzt Status/Milestones/Area/Priority auf alle verbleibenden Projekt-Items (liest Werte aus dem Issue-Body).
