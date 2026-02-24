@@ -48,7 +48,7 @@ $fieldMap = @{}; foreach ($node in $proj.fields.nodes) {
 # Standard field definitions (match PROJECT_FIELDS_AND_LABELS.md)
 $requiredFields = @(
     @{ name = "Status"; options = @("Backlog", "Planned", "In progress", "In review", "Done") },
-    @{ name = "Milestone"; options = @("Project completion", "Framework Package 1", "Phase 2", "Technical backlog") },
+    @{ name = "Milestones"; options = @("Project completion", "Framework Package 1", "Phase 2", "Technical backlog") },
     @{ name = "Area"; options = @("Framework", "FabricPowerBI", "Aurora", "Tooling", "Docs") },
     @{ name = "Priority"; options = @("P0", "P1", "P2") },
     @{ name = "Risk"; options = @("On track", "At risk") }
@@ -97,7 +97,7 @@ $riskF = $fieldMap["Risk"]; if (-not $riskF) { $riskF = $fieldMapByLower["risk"]
 if (-not ($statusF -and $milestoneF -and $areaF -and $priorityF)) {
     $found = @($fieldMap.Keys); if ($found.Count -eq 0) { $found = @("(none - only Single select fields are read)") }
     Write-Host "Required fields Status, Milestone, Area, Priority not found. Single-select fields on this project: $($found -join ', ')" -ForegroundColor Yellow
-    Write-Error "Add fields in Project Settings with exact names: Status, Milestone, Area, Priority (see internal/project_mgmt/PROJECT_FIELDS_AND_LABELS.md)."
+    Write-Error "Add fields in Project Settings: Status, Milestones (or Milestone), Area, Priority (see internal/project_mgmt/SETUP_PROJECT_FIELDS.md)."
 }
 
 # 2) Build issue number -> milestone, area, priority from repo issues (with milestone)

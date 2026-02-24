@@ -164,12 +164,12 @@ foreach ($node in $proj.fields.nodes) {
 }
 
 $statusF = $fieldMap["Status"]
-$milestoneF = $fieldMap["Milestone"]
+$milestoneF = $fieldMap["Milestone"]; if (-not $milestoneF) { $milestoneF = $fieldMap["Milestones"] }
 $areaF = $fieldMap["Area"]
 $priorityF = $fieldMap["Priority"]
 $riskF = $fieldMap["Risk"]
 if (-not ($statusF -and $milestoneF -and $areaF -and $priorityF)) {
-    Write-Host "  WARNING: Project is missing required fields (Status, Milestone, Area, Priority). Add them in Project Settings. Skipping field updates." -ForegroundColor Yellow
+    Write-Host "  WARNING: Project is missing required fields (Status, Milestone/Milestones, Area, Priority). Add them in Project Settings. Skipping field updates." -ForegroundColor Yellow
 } else {
     $addMutation = 'mutation($projectId: ID!, $contentId: ID!) { addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) { projectItem { id } } }'
     $updateMutation = 'mutation($input: UpdateProjectV2ItemFieldValueInput!) { updateProjectV2ItemFieldValue(input: $input) { projectItem { id } } }'
