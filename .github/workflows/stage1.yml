@@ -31,6 +31,9 @@ jobs:
         run: npm ci
         working-directory: tooling/validation
 
+      - name: Install data contract validation dependencies
+        run: pip install -r tooling/validation/requirements-data-contracts.txt
+
       - name: Run Stage 1 checks
         shell: pwsh
         run: ./tooling/run_stage1_checks.ps1

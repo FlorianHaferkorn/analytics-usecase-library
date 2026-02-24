@@ -1,0 +1,2 @@
+# For check_validate_data_contracts.py (Stage 1 data contract validation)
+PyYAML>=6.0
