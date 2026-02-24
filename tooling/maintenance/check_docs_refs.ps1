@@ -2,16 +2,14 @@ Param(
   [string]$Root = ".",
   [string[]]$ExcludeDirs = @(".git","node_modules","internal\\archive","internal\\reviews","products\\fabric_powerbi\\dist"),
   # Link targets that are generated (e.g. gitignored) and not present in CI; do not report as broken.
-  [string[]]$AllowedMissingTargets = @("PROJECT_SNAPSHOT.md", "project_mgmt/PROJECT_SNAPSHOT.md")
+  [string[]]$AllowedMissingTargets = @("PROJECT_SNAPSHOT.md", "project_mgmt/PROJECT_SNAPSHOT.md", "internal/project_mgmt/PROJECT_SNAPSHOT.md")
 )
 
 $ErrorActionPreference = "Stop"
 
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path   # .../tooling/maintenance
 $toolsRoot  = Split-Path -Parent $scriptRoot                    # .../tooling
-$repoRoot   = Split-Path -Parent $toolsRoot                     # repo root
-
-Write-Host "Checking documentation and tooling references..." -ForegroundColor Cyan
+$repoRoot   = Split-Path -Parent $toolsRoot                     # repo root (fallback for Resolve-RepoPath)
 
 $items = @(
   @{ Path = "core/strategy_operating_model/README.md";                                    Kind = "file"; Description = "Docs overview" },
@@ -30,17 +28,6 @@ $items = @(
 )
 
 $missing = @()
-
-foreach ($item in $items) {
-  $full = Join-Path $repoRoot $item.Path
-  $exists = Test-Path $full
-  if ($exists) {
-    Write-Host ("  OK   {0} ({1})" -f $item.Path, $item.Description) -ForegroundColor DarkGreen
-  } else {
-    Write-Host ("  MISS {0} ({1})" -f $item.Path, $item.Description) -ForegroundColor Red
-    $missing += $item
-  }
-}
 
 function Is-ExcludedPath {
   param([string]$Path,[string[]]$Exclude)
@@ -70,10 +57,19 @@ function Test-RelativePath {
   param([string]$BasePath,[string]$Target)
   if (-not $Target) { return $true }
   if ($Target -match '^(https?://|mailto:|#)') { return $true }
-  $clean = $Target.Split('#')[0].Trim()
+  $clean = $Target.Split('#')[0].Trim().TrimEnd('/').TrimEnd('\')
   if (-not $clean) { return $true }
   $full = Join-Path -Path (Split-Path -Parent $BasePath) -ChildPath $clean
-  return (Test-Path $full)
+  return (Test-Path -LiteralPath $full)
+}
+
+function Test-IsAllowedMissingTarget {
+  param([string]$Target,[string[]]$AllowedMissingTargets)
+  $norm = $Target.Replace('\', '/').Trim().TrimEnd('/')
+  $leaf = Split-Path -Leaf $norm
+  if ($AllowedMissingTargets -contains $norm -or $AllowedMissingTargets -contains $leaf) { return $true }
+  if ($leaf -eq 'PROJECT_SNAPSHOT.md') { return $true }
+  return $false
 }
 
 function Get-MarkdownLinks {
@@ -102,6 +98,18 @@ function Get-YamlPathRefs {
 $rootPath = Resolve-RepoPath -ProvidedPath $Root -DefaultRelative "."
 if (-not $rootPath) { throw "Root path not found." }
 
+Write-Host "Checking documentation and tooling references..." -ForegroundColor Cyan
+foreach ($item in $items) {
+  $full = Join-Path -Path $rootPath -ChildPath $item.Path
+  $exists = Test-Path -LiteralPath $full
+  if ($exists) {
+    Write-Host ("  OK   {0} ({1})" -f $item.Path, $item.Description) -ForegroundColor DarkGreen
+  } else {
+    Write-Host ("  MISS {0} ({1})" -f $item.Path, $item.Description) -ForegroundColor Red
+    $missing += $item
+  }
+}
+
 $brokenRefs = @()
 
 Get-ChildItem -Path $rootPath -Recurse -File | Where-Object {
@@ -112,7 +120,7 @@ Get-ChildItem -Path $rootPath -Recurse -File | Where-Object {
     foreach ($link in (Get-MarkdownLinks -Content $content)) {
       $target = $link.Split('#')[0].Trim().Replace('\', '/')
       if (-not (Test-RelativePath -BasePath $_.FullName -Target $link)) {
-        if ($AllowedMissingTargets -notcontains $target -and $AllowedMissingTargets -notcontains (Split-Path -Leaf $target)) {
+        if (-not (Test-IsAllowedMissingTarget -Target $target -AllowedMissingTargets $AllowedMissingTargets)) {
           $brokenRefs += "$($_.FullName): $link"
         }
       }
@@ -121,7 +129,7 @@ Get-ChildItem -Path $rootPath -Recurse -File | Where-Object {
     foreach ($ref in (Get-YamlPathRefs -Content $content)) {
       $target = $ref.Replace('\', '/')
       if (-not (Test-RelativePath -BasePath $_.FullName -Target $ref)) {
-        if ($AllowedMissingTargets -notcontains $target -and $AllowedMissingTargets -notcontains (Split-Path -Leaf $target)) {
+        if (-not (Test-IsAllowedMissingTarget -Target $target -AllowedMissingTargets $AllowedMissingTargets)) {
           $brokenRefs += "$($_.FullName): $ref"
         }
       }
