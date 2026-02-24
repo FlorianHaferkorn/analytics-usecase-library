@@ -2,7 +2,7 @@
 
 **Purpose:** Describes the single flow from backlog to done: how the PM agent, **Assistant Agent** (daily briefing), scripts, and GitHub automations work together so the user does as little as possible. Status transitions and the PR review summary are automated; the only recurring manual steps are: ask the Assistant for a daily briefing, then run the next-task script and tell the Implementer which issue to implement.
 
-**See also:** [OPERATING_MODEL.md](OPERATING_MODEL.md), [PROJECT_FIELDS_AND_LABELS.md](PROJECT_FIELDS_AND_LABELS.md), [ASSISTANT_BRIEFING.md](ASSISTANT_BRIEFING.md) (daily briefing with minimal manual steps).
+**See also:** [OPERATING_MODEL.md](OPERATING_MODEL.md), [PROJECT_FIELDS_AND_LABELS.md](PROJECT_FIELDS_AND_LABELS.md), [ASSISTANT_BRIEFING.md](ASSISTANT_BRIEFING.md) (daily briefing with minimal manual steps). For what runs automatically on every PR and how to add LLM-based review: [REVIEW_AUTOMATION_OPTIONS.md](REVIEW_AUTOMATION_OPTIONS.md).
 
 ---
 
@@ -45,20 +45,17 @@ There is no Cursor API to start an agent automatically; this is the one recurrin
 - When a **PR that references the issue** is **opened**, Project automation (if enabled on the repo’s Project) sets the linked issue’s Status to **In review**.  
 - Alternatively, you can set it manually: `.\tooling\project_mgmt\set_issue_status.ps1 -Issue N -Status "In review"`.
 
-### 2.3 PR review summary (automated)
+### 2.3 PR review summary (automated) and Reviewer Agent
 
-- Workflow [.github/workflows/pr_review_summary.yml](../../.github/workflows/pr_review_summary.yml) runs on **pull_request** (opened, synchronize).
-- It posts or updates **one comment** on the PR with:
-  - PR title and description
-  - Files changed (name-status list)
-  - Diff stats
-- The comment is marked with `<!-- pr-review-summary -->` so it can be updated on each push. The user always has a single place to see **what was created/changed** before approving.
-- **Optional (Reviewer handoff):** After opening the PR, start a Cursor session with [.cursor/rules/reviewer-agent.mdc](../../.cursor/rules/reviewer-agent.mdc) and say: **Review PR #N**. The Reviewer agent checks the PR against rules and skills and outputs a structured review (checklist, findings, approve/request changes).
+**Order: run the Reviewer Agent first, then use the automated summary and CI.**
+
+1. **Reviewer Agent (before script-based review):** Start a Cursor session with [.cursor/rules/reviewer-agent.mdc](../../.cursor/rules/reviewer-agent.mdc) and say: **Review PR #N**. The Reviewer agent checks the PR against rules and skills and outputs a structured review (checklist, findings, approve/request changes). Do this before relying on the workflow comment or CI.
+2. **PR summary (automated):** Workflow [.github/workflows/pr_review_summary.yml](../../.github/workflows/pr_review_summary.yml) runs on **pull_request** (opened, synchronize) and posts or updates **one comment** with PR title, description, files changed, diff stats. The comment is marked with `<!-- pr-review-summary -->`. Use this summary together with the Reviewer Agent output before approving.
 
 ### 2.4 In review → Done (automated)
 
 - When the **linked PR is merged**, Project automation (if enabled) sets the issue’s Status to **Done** and the issue is closed (e.g. via "Fixes #N").
-- Human only: **review the PR** (using the summary comment), then **merge**. No need to move status manually.
+- Human only: **review the PR** — first run the Reviewer Agent (§2.3), then use the summary comment and CI; then **merge**. No need to move status manually.
 
 ---
 

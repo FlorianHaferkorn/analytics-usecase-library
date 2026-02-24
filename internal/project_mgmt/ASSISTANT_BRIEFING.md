@@ -31,7 +31,7 @@
 4. **Option A (empfohlen):** Implementer-Session öffnen, sagen: **Start next task**. Der Agent führt das Skript aus, erstellt den Branch und implementiert.
 5. **Option B:** Zuerst `.\tooling\project_mgmt\start_next_task.ps1` ausführen (Endung **.ps1**, vom **Repo-Root**), dann Implementer öffnen und sagen: **Implement issue #N**. Der Agent erstellt den Branch und implementiert.
 
-6. Danach läuft alles automatisch: PR öffnen → Status In review, PR-Summary-Kommentar, Merge → Status Done (siehe [PM_FLOW.md](PM_FLOW.md)). Optional: Nach dem Öffnen des PR eine Session mit [.cursor/rules/reviewer-agent.mdc](../../.cursor/rules/reviewer-agent.mdc) starten und **Review PR #N** sagen, um eine regelbasierte Prüfung zu erhalten.
+6. Danach läuft alles automatisch: PR öffnen → Status In review, PR-Summary-Kommentar, Merge → Status Done (siehe [PM_FLOW.md](PM_FLOW.md)). **Vor dem Merge:** Zuerst Reviewer Agent ausführen (Session mit [.cursor/rules/reviewer-agent.mdc](../../.cursor/rules/reviewer-agent.mdc), **Review PR #N** sagen), danach Summary-Kommentar und CI zur Freigabe nutzen.
 
 ---
 
