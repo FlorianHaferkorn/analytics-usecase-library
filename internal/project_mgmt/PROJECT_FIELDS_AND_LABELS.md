@@ -75,6 +75,16 @@ If your project uses “Item closed” instead of “PR merged”, configure: **
 
 Repository workflows (e.g. `pr_review_summary.yml`, `stage1.yml`) are active as soon as they exist in `.github/workflows/` and are pushed; no UI step needed.
 
+### 4.2 Automation checklist (verify once)
+
+Use this list to ensure status runs automatically end-to-end:
+
+| What | How |
+|------|-----|
+| **Sync** | On push to `granular_issues.json` (or manual run), [sync_project_from_backlog.yml](../../.github/workflows/sync_project_from_backlog.yml) runs. Status is set to Backlog **only for newly added** items; existing In progress / In review / Done are **not** overwritten. |
+| **In progress** | (1) When the Implementer agent starts work, it runs `set_issue_status.ps1 -Issue N -Status "In progress"` after creating the branch. (2) On push to branch `agent/*`, [project_status_on_branch.yml](../../.github/workflows/project_status_on_branch.yml) sets that issue’s Status to **In progress**. |
+| **In review / Done** | **GitHub Project Workflows** (repository → Project → Settings / Workflows): enable **Pull request opened** → linked issue Status **In review**; **Pull request merged** (or **Issue closed**) → linked issue Status **Done**. Check once in the GitHub UI that these automations are active. |
+
 ---
 
 ## 5. Labels (repository-level, optional)

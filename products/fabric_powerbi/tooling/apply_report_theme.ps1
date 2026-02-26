@@ -38,5 +38,15 @@ if ($CustomName) { $args += "--custom-name", $CustomName }
 if ($BaseTheme) { $args += "--base-theme", $BaseTheme }
 if ($NoValidate) { $args += "--no-validate" }
 
-& python $pyScript @args
+# Prefer py -3 (Windows) so orchestrator and manual runs succeed when python is not in PATH
+$pyExe = "python"
+$pyExeArgs = @()
+foreach ($c in @("py -3", "python3", "python")) {
+    $parts = $c -split " "
+    try {
+        $v = & $parts[0] @($parts[1..99] | Where-Object { $_ }) --version 2>&1
+        if ($LASTEXITCODE -eq 0 -and $v -match "Python 3") { $pyExe = $parts[0]; $pyExeArgs = @($parts[1..99] | Where-Object { $_ }); break }
+    } catch { continue }
+}
+& $pyExe @$pyExeArgs $pyScript @args
 exit $LASTEXITCODE

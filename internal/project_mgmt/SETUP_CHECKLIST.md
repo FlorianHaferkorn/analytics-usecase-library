@@ -10,7 +10,7 @@
 
 ## 1. Create the GitHub Project (Repository project, in UI)
 
-1. Open **https://github.com/FlorianHaferkorn/analytics-usecase-library**
+1. Open **<https://github.com/FlorianHaferkorn/analytics-usecase-library>**
 2. Go to **Projects** (top bar) → **New project** → choose **Board** or **Table**.
 3. Select **Repository project** (link to this repo). Name: **Analytics Use Case Library – Delivery**.
 4. In project **Settings** (gear): ensure the project is linked to this repository.

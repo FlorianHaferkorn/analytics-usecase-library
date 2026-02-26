@@ -1,0 +1,646 @@
+﻿{
+    "tables":  [
+                   {
+                       "description":  "Calendar dimension with fiscal hierarchy (Fiscal Year \u003e Quarter \u003e Month \u003e Date).",
+                       "name":  "dim_date",
+                       "columns":  [
+                                       {
+                                           "isHidden":  true,
+                                           "description":  null,
+                                           "name":  "DateKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "DateKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Date",
+                                           "dataType":  "DateTime",
+                                           "sourceColumn":  "Date"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Year",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "Year"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Quarter",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "Quarter"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Month",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "Month"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "MonthNumber",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "MonthNumber"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Week",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "Week"
+                                       }
+                                   ]
+                   },
+                   {
+                       "description":  "Organization dimension (region, country, channel, org name) for reporting and RLS.",
+                       "name":  "dim_org",
+                       "columns":  [
+                                       {
+                                           "isHidden":  true,
+                                           "description":  null,
+                                           "name":  "OrgKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "OrgKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "OrgCode",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "OrgCode"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "OrgName",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "OrgName"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Region",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "Region"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Country",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "Country"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Channel",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "Channel"
+                                       }
+                                   ]
+                   },
+                   {
+                       "description":  "Product dimension with category hierarchy (Category \u003e Sub Category \u003e Brand \u003e Product Name).",
+                       "name":  "dim_product",
+                       "columns":  [
+                                       {
+                                           "isHidden":  true,
+                                           "description":  null,
+                                           "name":  "ProductKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "ProductKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "ProductCode",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "ProductCode"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "ProductName",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "ProductName"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Category",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "Category"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Subcategory",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "Subcategory"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Brand",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "Brand"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "ProductFamily",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "ProductFamily"
+                                       }
+                                   ]
+                   },
+                   {
+                       "description":  "Customer dimension (segment, region, country) for CRM and value reporting.",
+                       "name":  "dim_customer",
+                       "columns":  [
+                                       {
+                                           "isHidden":  true,
+                                           "description":  null,
+                                           "name":  "CustomerKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "CustomerKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "CustomerCode",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "CustomerCode"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "CustomerName",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "CustomerName"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Segment",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "Segment"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Channel",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "Channel"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Region",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "Region"
+                                       }
+                                   ]
+                   },
+                   {
+                       "description":  "Promotion dimension (type, mechanic, date range) for promo effectiveness.",
+                       "name":  "dim_promo",
+                       "columns":  [
+                                       {
+                                           "isHidden":  true,
+                                           "description":  null,
+                                           "name":  "PromoKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "PromoKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Promotion",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "Promotion"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "PromoType",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "PromoType"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Mechanic",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "Mechanic"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "StartDateKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "StartDateKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "EndDateKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "EndDateKey"
+                                       }
+                                   ]
+                   },
+                   {
+                       "description":  "Invoice-line sales (net sales, quantity, price, COGS) with plan and prior year.",
+                       "name":  "fact_sales",
+                       "columns":  [
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "DateKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "DateKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "OrgKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "OrgKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "ProductKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "ProductKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "CustomerKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "CustomerKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "PromoKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "PromoKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Promo Flag",
+                                           "dataType":  "Boolean",
+                                           "sourceColumn":  "Promo Flag"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Net Sales Amount",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Net Sales Amount"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Quantity",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Quantity"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Plan Quantity",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Plan Quantity"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "List Price Amount",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "List Price Amount"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Net Price Amount",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Net Price Amount"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Discount Amount",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Discount Amount"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Plan Sales Amount",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Plan Sales Amount"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Last Year Sales Amount",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Last Year Sales Amount"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Cost of Goods Sold Amount",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Cost of Goods Sold Amount"
+                                       }
+                                   ]
+                   },
+                   {
+                       "description":  "Planned sales and COGS at product-month grain for variance vs plan.",
+                       "name":  "fact_plan_sales",
+                       "columns":  [
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "DateKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "DateKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "OrgKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "OrgKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "ProductKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "ProductKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Plan Net Sales Amount",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Plan Net Sales Amount"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Plan Cost of Goods Sold Amount",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Plan Cost of Goods Sold Amount"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Plan Gross Margin Amount",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Plan Gross Margin Amount"
+                                       }
+                                   ]
+                   },
+                   {
+                       "description":  "Promotion costs and baseline (sales, quantity, non-promo baseline) per promotion.",
+                       "name":  "fact_promo",
+                       "columns":  [
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "PromoKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "PromoKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Promo Cost",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Promo Cost"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Funding Amount",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Funding Amount"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Baseline Sales Amount",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Baseline Sales Amount"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Baseline Quantity",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Baseline Quantity"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Baseline Non-Promo Sales Amount",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Baseline Non-Promo Sales Amount"
+                                       }
+                                   ]
+                   },
+                   {
+                       "description":  "Customer activity and churn flags plus attrition risk at customer-month grain.",
+                       "name":  "fact_customer_events",
+                       "columns":  [
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "DateKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "DateKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "CustomerKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "CustomerKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "OrgKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "OrgKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Activity Flag",
+                                           "dataType":  "Boolean",
+                                           "sourceColumn":  "Activity Flag"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Churn Flag",
+                                           "dataType":  "Boolean",
+                                           "sourceColumn":  "Churn Flag"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Attrition Risk %",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "Attrition Risk %"
+                                       }
+                                   ]
+                   },
+                   {
+                       "description":  "Customer lifetime value (CLV) and remaining value at customer-month grain.",
+                       "name":  "fact_customer_value",
+                       "columns":  [
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "DateKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "DateKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "CustomerKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "CustomerKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "CLV Amount",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "CLV Amount"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "CLV Remaining Amount",
+                                           "dataType":  "Decimal",
+                                           "sourceColumn":  "CLV Remaining Amount"
+                                       }
+                                   ]
+                   },
+                   {
+                       "description":  "Customer complaint and experience events (customer, org, date, severity).",
+                       "name":  "fact_experience",
+                       "columns":  [
+                                       {
+                                           "isHidden":  true,
+                                           "description":  null,
+                                           "name":  "Complaint ID",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "Complaint ID"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "CustomerKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "CustomerKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "OrgKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "OrgKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "DateKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "DateKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Severity",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "Severity"
+                                       }
+                                   ]
+                   },
+                   {
+                       "description":  "NPS survey responses (score, promoter/detractor flags) per response.",
+                       "name":  "fact_nps",
+                       "columns":  [
+                                       {
+                                           "isHidden":  true,
+                                           "description":  null,
+                                           "name":  "ResponseID",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "ResponseID"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "DateKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "DateKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "CustomerKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "CustomerKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "OrgKey",
+                                           "dataType":  "Int64",
+                                           "sourceColumn":  "OrgKey"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "NPS Score",
+                                           "dataType":  "String",
+                                           "sourceColumn":  "NPS Score"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Is Promoter",
+                                           "dataType":  "Boolean",
+                                           "sourceColumn":  "Is Promoter"
+                                       },
+                                       {
+                                           "isHidden":  false,
+                                           "description":  null,
+                                           "name":  "Is Detractor",
+                                           "dataType":  "Boolean",
+                                           "sourceColumn":  "Is Detractor"
+                                       }
+                                   ]
+                   }
+               ],
+    "timestamp":  "2026-02-26T11:17:15.3474455+01:00",
+    "source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\data_contracts\\domains\\commercial_sales.yaml",
+    "useCase":  "COM-001"
+}

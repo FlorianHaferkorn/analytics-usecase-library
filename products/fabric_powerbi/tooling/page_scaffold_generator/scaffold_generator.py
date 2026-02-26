@@ -81,13 +81,20 @@ class PageScaffoldGenerator:
             theme_name=self.theme_name
         )
         
-        # Build page structure with visuals
+        # Build page structure with visuals (page_config from get_page_config)
         template = self.page_config.get('template', 'T2')
         has_action_panel = self.page_config.get('needs_action_panel', False)
         slots = self.page_config.get('slots', {})
+        card_kpi_ids = self.page_config.get('card_kpi_ids') or []
+        card_measure_names = self.page_config.get('card_measure_names') or []
+        kpi_id_to_measure_name = self.page_config.get('kpi_id_to_measure_name') or {}
         # Round-trip from ux_layout_rules: pass component_30s + slot_order so builder uses exact visual_type per position
         component_30s = self.page_config.get('component_30s') if self.page_name == 'overview' else None
         slot_order = ['trend', 'variance'] if self.page_name == 'overview' else None  # 2-Page-Lead order
+        # T4 Detail page: load Action Panel content from action codes (Bracket orchestration.action_code_ids)
+        action_panel_content = None
+        if has_action_panel and self.page_name == 'detail':
+            action_panel_content = self.config_loader.get_action_panel_content(self.use_case_id)
 
         page_structure = self.page_builder.build_page_structure(
             slots=slots,
@@ -96,6 +103,10 @@ class PageScaffoldGenerator:
             visual_slot_mapping=self.config.get('visual_slot_mapping'),
             component_30s=component_30s,
             slot_order=slot_order,
+            card_kpi_ids=card_kpi_ids,
+            card_measure_names=card_measure_names,
+            kpi_id_to_measure_name=kpi_id_to_measure_name,
+            action_panel_content=action_panel_content,
         )
         
         self.page_structure = {
@@ -181,7 +192,8 @@ class PageScaffoldGenerator:
         writer.create_pbip_structure()
         
         if not append_page_only:
-            # Write report.json (with optional dataset reference) and version.json only on first page
+            # Write root .pbip (ItemShortcut) so folder is a valid PBIP; then report.json and version.json
+            writer.write_pbip_file()
             writer.write_report_json(
                 theme_name=None,
                 dataset_reference_path=dataset_reference_path,

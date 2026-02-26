@@ -78,4 +78,4 @@ New ideas and requirements are captured in [IDEAS_AND_REQUIREMENTS.md](IDEAS_AND
 4. **In review → Done:** PR merged; issue closed; automation sets Status = `Done`. Milestone progress updates automatically.
 5. **Weekly:** Draft status update is created; human reviews and publishes.
 
-For the PM-driven flow (start next task, PR review summary, automations), see [PM_FLOW.md](PM_FLOW.md). See also [PROJECT_FIELDS_AND_LABELS.md](PROJECT_FIELDS_AND_LABELS.md) for fields and automations.
+For the PM-driven flow (start next task, PR review summary, automations), see [PM_FLOW.md](PM_FLOW.md). See also [PROJECT_FIELDS_AND_LABELS.md](PROJECT_FIELDS_AND_LABELS.md) for fields and automations. Criteria for **autonomous decisions** vs. **when to inform the user** vs. **when to ask for a decision** are defined in the Assistant and PM agent rules ([.cursor/rules/assistant-agent.mdc](../../.cursor/rules/assistant-agent.mdc), [.cursor/rules/pm-agent.mdc](../../.cursor/rules/pm-agent.mdc)). To verify the target image (no admin work, automatic status, one instruction, proactive assistant) and that agents uphold the flow, use [VERIFICATION_CHECKLIST.md](VERIFICATION_CHECKLIST.md).

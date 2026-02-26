@@ -101,51 +101,51 @@ TMDL BPA validation runs in **run_all_checks.ps1** as step **19d2**: for each `*
 ```powershell
 # Before (❌)
 table dim_date
-	 lineageTag: abc123    # Tab+Space
+  lineageTag: abc123    # Tab+Space
 
 # After (✅)
 table dim_date
-	lineageTag: abc123     # Pure TAB
+ lineageTag: abc123     # Pure TAB
 ```
 
 ### TMDL-002: Description Property → /// Comment
 ```powershell
 # Before (❌)
 measure 'Sales' = SUM([Amount])
-	description: "Total sales amount"
-	formatString: #,0.00
+ description: "Total sales amount"
+ formatString: #,0.00
 
 # After (✅)
 /// Total sales amount
 measure 'Sales' = SUM([Amount])
-	formatString: #,0.00
+ formatString: #,0.00
 ```
 
 ### TMDL-003: M-Expression let...in Wrap
 ```powershell
 # Before (❌)
 partition _Measures = m
-	source = #table(type table [], {})
+ source = #table(type table [], {})
 
 # After (✅)
 partition _Measures = m
-	source =
-		let
-			Source = #table(type table [], {})
-		in
-			Source
+ source =
+  let
+   Source = #table(type table [], {})
+  in
+   Source
 ```
 
 ### TMDL-010: LineageTag Generation
 ```powershell
 # Before (❌)
 measure 'Sales' = SUM([Amount])
-	formatString: #,0.00
+ formatString: #,0.00
 
 # After (✅)
 measure 'Sales' = SUM([Amount])
-	formatString: #,0.00
-	lineageTag: a1b2c3d4-1234-5678-9abc-def012345678
+ formatString: #,0.00
+ lineageTag: a1b2c3d4-1234-5678-9abc-def012345678
 ```
 
 ---

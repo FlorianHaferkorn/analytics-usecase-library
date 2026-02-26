@@ -115,13 +115,22 @@ do {
     $page++; if ($list.Count -lt $perPage) { break }
 } while ($list.Count -eq $perPage)
 
-# 3) Get all project items (paginated)
+# 3) Get all project items with current Status (paginated)
 $items = @(); $cursor = $null
+$itemQuery = 'query($id: ID!, $after: String) { node(id: $id) { ... on ProjectV2 { items(first: 100, after: $after) { nodes { id content { ... on Issue { number } } fieldValues(first: 10) { nodes { __typename ... on ProjectV2ItemFieldSingleSelectValue { name field { ... on ProjectV2SingleSelectField { name } } } } } } pageInfo { endCursor hasNextPage } } } } }'
 do {
-    $q = 'query($id: ID!, $after: String) { node(id: $id) { ... on ProjectV2 { items(first: 100, after: $after) { nodes { id content { ... on Issue { number } } } pageInfo { endCursor hasNextPage } } } } }'
     $vars = @{ id = $projectId }; if ($cursor) { $vars["after"] = $cursor }
-    $out = Invoke-GitHubGraphQL -Payload @{ query = $q; variables = $vars } -Token $token
-    $n = $out.node.items; foreach ($i in $n.nodes) { if ($i.content.number) { $items += @{ itemId = $i.id; issueNumber = $i.content.number } } }; $cursor = $n.pageInfo.endCursor; if (-not $n.pageInfo.hasNextPage) { break }
+    $out = Invoke-GitHubGraphQL -Payload @{ query = $itemQuery; variables = $vars } -Token $token
+    $n = $out.node.items
+    foreach ($i in $n.nodes) {
+        if (-not $i.content.number) { continue }
+        $currentStatus = $null
+        foreach ($fv in $i.fieldValues.nodes) {
+            if ($fv.field.name -eq "Status") { $currentStatus = $fv.name; break }
+        }
+        $items += @{ itemId = $i.id; issueNumber = $i.content.number; currentStatus = $currentStatus }
+    }
+    $cursor = $n.pageInfo.endCursor; if (-not $n.pageInfo.hasNextPage) { break }
 } while ($cursor)
 
 Write-Host "Project items: $($items.Count). Setting fields..." -ForegroundColor Cyan
@@ -130,7 +139,9 @@ $set = 0
 foreach ($it in $items) {
     $meta = $issueMeta[$it.issueNumber]
     if (-not $meta) { Write-Host "  #$($it.issueNumber): no milestone/area in body, skip" -ForegroundColor Gray; continue }
-    if ($statusF.options["Backlog"]) { Invoke-GitHubGraphQL -Payload @{ query = $updateMutation; variables = @{ input = @{ projectId = $projectId; itemId = $it.itemId; fieldId = $statusF.id; value = @{ singleSelectOptionId = $statusF.options["Backlog"] } } } } -Token $token | Out-Null }
+    # Set Status only when current is Backlog, Planned, or empty; never overwrite In progress / In review / Done
+    $maySetStatus = ($null -eq $it.currentStatus) -or ($it.currentStatus -eq "Backlog") -or ($it.currentStatus -eq "Planned")
+    if ($maySetStatus -and $statusF.options["Backlog"]) { Invoke-GitHubGraphQL -Payload @{ query = $updateMutation; variables = @{ input = @{ projectId = $projectId; itemId = $it.itemId; fieldId = $statusF.id; value = @{ singleSelectOptionId = $statusF.options["Backlog"] } } } } -Token $token | Out-Null }
     if ($milestoneF.options[$meta.milestone]) { Invoke-GitHubGraphQL -Payload @{ query = $updateMutation; variables = @{ input = @{ projectId = $projectId; itemId = $it.itemId; fieldId = $milestoneF.id; value = @{ singleSelectOptionId = $milestoneF.options[$meta.milestone] } } } } -Token $token | Out-Null }
     if ($areaF.options[$meta.area]) { Invoke-GitHubGraphQL -Payload @{ query = $updateMutation; variables = @{ input = @{ projectId = $projectId; itemId = $it.itemId; fieldId = $areaF.id; value = @{ singleSelectOptionId = $areaF.options[$meta.area] } } } } -Token $token | Out-Null }
     if ($priorityF.options[$meta.priority]) { Invoke-GitHubGraphQL -Payload @{ query = $updateMutation; variables = @{ input = @{ projectId = $projectId; itemId = $it.itemId; fieldId = $priorityF.id; value = @{ singleSelectOptionId = $priorityF.options[$meta.priority] } } } } -Token $token | Out-Null }

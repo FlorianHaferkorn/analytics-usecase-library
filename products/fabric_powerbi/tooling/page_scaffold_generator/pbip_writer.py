@@ -11,10 +11,14 @@ from typing import Dict, Any, List, Optional
 
 class PBIPWriter:
     """Writes PBIP folder structure and JSON files."""
-    
+
     REPORT_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.0.0/schema.json"
     PAGES_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/pagesMetadata/1.0.0/schema.json"
-    
+    # Desktop resolves version.json via versionMetadata schema (not "version"); version value 2.0.0 per sample.
+    VERSION_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/versionMetadata/1.0.0/schema.json"
+    # Power BI Desktop (Feb 2026+) expects pbipProperties schema; itemShortcut is rejected.
+    PBIP_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/pbip/pbipProperties/1.0.0/schema.json"
+
     def __init__(self, report_path: Path):
         """
         Initialize PBIP writer.
@@ -30,7 +34,34 @@ class PBIPWriter:
         """Create PBIP folder structure."""
         self.definition_path.mkdir(parents=True, exist_ok=True)
         self.pages_path.mkdir(parents=True, exist_ok=True)
-    
+
+    def _pbip_filename(self) -> str:
+        """Speaking name: derive from report folder (e.g. COM-001_Sales_Performance.Report -> COM-001_Sales_Performance.pbip)."""
+        name = self.report_path.name
+        if name.endswith(".Report"):
+            return name[:-7] + ".pbip"  # strip ".Report"
+        return name + ".pbip" if not name.endswith(".pbip") else name
+
+    def write_pbip_file(self) -> Path:
+        """
+        Write root .pbip ItemShortcut so the folder is a valid PBIP (openable in Desktop / pbi-tools).
+        Path "." means report artifact is this folder (contains definition/).
+        Filename is a speaking name derived from the report folder (e.g. COM-001_Sales_Performance.pbip).
+        """
+        pbip_data = {
+            "$schema": self.PBIP_SCHEMA,
+            "version": "1.0",
+            "artifacts": [{"report": {"path": "."}}],
+        }
+        pbip_file = self.report_path / self._pbip_filename()
+        # Remove legacy Report.pbip if present so only the speaking-name file remains
+        legacy_pbip = self.report_path / "Report.pbip"
+        if legacy_pbip.exists() and legacy_pbip != pbip_file:
+            legacy_pbip.unlink()
+        with open(pbip_file, "w", encoding="utf-8") as f:
+            json.dump(pbip_data, f, indent=2, ensure_ascii=False)
+        return pbip_file
+
     def write_report_json(
         self,
         theme_name: Optional[str] = None,
@@ -100,11 +131,9 @@ class PBIPWriter:
                 "customTimeoutLimit": "225"
             }
         }
-        if dataset_reference_path:
-            report_data["datasetReference"] = {
-                "byPath": {"path": dataset_reference_path}
-            }
-        
+        # datasetReference must not appear in report.json; schema does not allow additional properties.
+        # Dataset binding is in definition.pbir only (_write_definition_pbir).
+
         # Add custom theme if provided
         if theme_name:
             report_data["themeCollection"]["customTheme"] = {
@@ -145,6 +174,25 @@ class PBIPWriter:
         report_file = self.definition_path / "report.json"
         with open(report_file, 'w', encoding='utf-8') as f:
             json.dump(report_data, f, indent=2, ensure_ascii=False)
+
+        # Power BI Desktop (Feb 2026+) requires definition.pbir at report root with definitionProperties schema (not report definition).
+        self._write_definition_pbir(dataset_reference_path)
+    
+    def _write_definition_pbir(self, dataset_reference_path: Optional[str] = None):
+        """
+        Write definition.pbir (report properties: version, datasetReference).
+        Schema must be definitionProperties/1.x or 2.x; Desktop rejects definition/report schema here.
+        """
+        path = (dataset_reference_path or "").replace("\\", "/")
+        pbir_data = {
+            "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
+            "version": "4.0",
+        }
+        if path:
+            pbir_data["datasetReference"] = {"byPath": {"path": path}}
+        pbir_file = self.report_path / "definition.pbir"
+        with open(pbir_file, 'w', encoding='utf-8') as f:
+            json.dump(pbir_data, f, indent=2, ensure_ascii=False)
     
     def write_pages_json(self, page_ids: List[str], active_page: Optional[str] = None, append: bool = False):
         """
@@ -163,7 +211,7 @@ class PBIPWriter:
         
         pages_file = self.pages_path / "pages.json"
         
-        # If appending and file exists, load existing data
+        # If appending and file exists, load existing data and keep current active page
         if append and pages_file.exists():
             try:
                 with open(pages_file, 'r', encoding='utf-8') as f:
@@ -175,6 +223,10 @@ class PBIPWriter:
                     if page_id not in combined_order:
                         combined_order.append(page_id)
                 page_ids = combined_order
+                # Keep existing active page so Overview stays default when appending Detail
+                existing_active = existing_data.get("activePageName")
+                if existing_active is not None and existing_active in page_ids:
+                    active_page = existing_active
             except Exception:
                 # If loading fails, just overwrite
                 pass
@@ -253,11 +305,11 @@ class PBIPWriter:
                 self.write_visual_json(page_id, slicer)
     
     def write_version_json(self):
-        """Write definition/version.json."""
+        """Write definition/version.json (required by Desktop and validate_pbip)."""
         version_data = {
-            "version": "1.0"
+            "$schema": self.VERSION_SCHEMA,
+            "version": "2.0.0",
         }
-        
         version_file = self.definition_path / "version.json"
-        with open(version_file, 'w', encoding='utf-8') as f:
+        with open(version_file, "w", encoding="utf-8") as f:
             json.dump(version_data, f, indent=2, ensure_ascii=False)

@@ -83,6 +83,26 @@
       ],
       "group": "build",
       "problemMatcher": []
+    },
+    {
+      "label": "PBI: Watch Desktop errors (bridge)",
+      "type": "shell",
+      "command": "pwsh",
+      "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "./watch_pbi.ps1"],
+      "group": "none",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": { "reveal": "silent" }
+    },
+    {
+      "label": "PBI: Auto-fix daemon (LLM)",
+      "type": "shell",
+      "command": "pwsh",
+      "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "./tooling/pbi_auto_fix_daemon.ps1"],
+      "group": "none",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": { "reveal": "always" }
     }
   ],
   "inputs": [

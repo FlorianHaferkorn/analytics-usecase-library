@@ -1,0 +1,106 @@
+/// Organization dimension (region, country, channel, org name) for reporting and RLS.
+table dim_org
+	lineageTag: 5041837f-8a27-4131-8f8b-780fa237df7b
+
+	column OrgKey
+		dataType: int64
+		isHidden
+		lineageTag: bb93b26e-c8a1-4e0d-b697-aa3ee14073bc
+		summarizeBy: none
+		sourceColumn: OrgKey
+
+	column OrgCode
+		dataType: string
+		lineageTag: a21adaf8-9c5f-4c7a-ab4b-f57120276cdc
+		summarizeBy: none
+		sourceColumn: OrgCode
+
+	column OrgName
+		dataType: string
+		lineageTag: 1c64c7a8-3945-4456-8527-1386325985c2
+		summarizeBy: none
+		sourceColumn: OrgName
+
+	column Country
+		dataType: string
+		lineageTag: 18f70291-93d6-4aa9-9ddc-575dbddd764f
+		summarizeBy: none
+		sourceColumn: Country
+
+	column OrgLevel
+		dataType: string
+		lineageTag: dc176a0d-e714-4541-a249-71de289affd5
+		summarizeBy: none
+		sourceColumn: OrgLevel
+
+		annotation SummarizationSetBy = Automatic
+
+	column ParentOrgKey
+		dataType: int64
+		formatString: 0
+		lineageTag: de2c2c7b-1176-473b-8a0f-7ba2b1f95b5b
+		summarizeBy: count
+		sourceColumn: ParentOrgKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Currency Code'
+		dataType: string
+		lineageTag: 19c59cf2-190c-4d17-8632-9921be530a52
+		summarizeBy: none
+		sourceColumn: Currency Code
+
+		annotation SummarizationSetBy = Automatic
+
+	column OrgType
+		dataType: string
+		lineageTag: ab9adcc1-1cac-48b8-a57a-5d7bdb5a80b7
+		summarizeBy: none
+		sourceColumn: OrgType
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Open DateKey'
+		dataType: int64
+		formatString: 0
+		lineageTag: 47fb803c-4ffd-4196-a75f-4cd14306397d
+		summarizeBy: count
+		sourceColumn: Open DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Close DateKey'
+		dataType: int64
+		formatString: 0
+		lineageTag: 0b16bae4-4114-4e5f-99c3-1767a792c3f3
+		summarizeBy: count
+		sourceColumn: Close DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy dim_org_Hierarchy
+		lineageTag: 11d2861c
+
+		level OrgCode
+			lineageTag: ceaf434a
+			column: OrgCode
+
+		level OrgName
+			lineageTag: e8de6a29
+			column: OrgName
+
+		level Country
+			lineageTag: a6fc35bc
+			column: Country
+
+	partition dim_org = m
+		mode: import
+		source =
+				let
+						Source = Folder.Files(GoldDataPath & "/dimensions/dim_org"),
+						FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+						FirstFile = FilteredFiles{0}[Content],
+						ParquetData = Parquet.Document(FirstFile)
+						in
+						ParquetData
+

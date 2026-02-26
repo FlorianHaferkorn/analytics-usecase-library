@@ -1,6 +1,6 @@
 Param(
   [string]$Root = ".",
-  [string[]]$ExcludeDirs = @(".git","node_modules","internal\\archive","implementations\\microsoft_fabric_powerbi\\dist"),
+  [string[]]$ExcludeDirs = @(".git","node_modules","internal\\archive","implementations\\microsoft_fabric_powerbi\\dist","core\\templates\\page_templates\\governance"),
   [switch]$FailOnError
 )
 
@@ -86,8 +86,13 @@ if (-not $pythonInfo.CanImport) {
   exit 1
 }
 
+# Governance docs under page_templates are Markdown in .yaml extension (not parseable YAML) — skip them
+$governanceYamlPattern = [IO.Path]::DirectorySeparatorChar + "governance" + [IO.Path]::DirectorySeparatorChar
 $files = Get-ChildItem -Path $rootPath -Recurse -File | Where-Object {
-  ($_.Extension -in @(".yaml",".yml")) -and -not (Is-ExcludedPath -Path $_.FullName -Exclude $ExcludeDirs)
+  if ($_.Extension -notin @(".yaml",".yml")) { return $false }
+  if ($_.FullName.IndexOf($governanceYamlPattern, [StringComparison]::OrdinalIgnoreCase) -ge 0) { return $false }
+  if (Is-ExcludedPath -Path $_.FullName -Exclude $ExcludeDirs) { return $false }
+  return $true
 }
 
 $hadIssues = $false

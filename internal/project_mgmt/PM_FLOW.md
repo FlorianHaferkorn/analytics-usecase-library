@@ -33,9 +33,9 @@ Flow: **Backlog / Planned → In progress → In review → Done.**
    .\tooling\project_mgmt\start_next_task.ps1
    ```
    The script:
-   - Finds project items with Status = **Backlog** or **Planned** (sorted by Priority P0 → P1 → P2).
-   - Sets the chosen item’s Status to **In progress**.
-   - Prints: issue number, title, Area, recommended expert.
+- Finds project items with Status = **Backlog** or **Planned** (sorted by Priority P0 → P1 → P2).
+- Sets the chosen item’s Status to **In progress**.
+- Prints: issue number, title, Area, recommended expert.
 - **User** then opens an **Implementer** (or recommended expert) session and says: **Implement issue #&lt;N&gt;** (N from script output).
 
 There is no Cursor API to start an agent automatically; this is the one recurring manual step.

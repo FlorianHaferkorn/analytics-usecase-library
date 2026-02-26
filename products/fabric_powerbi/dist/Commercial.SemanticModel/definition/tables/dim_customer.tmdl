@@ -1,0 +1,75 @@
+/// Customer dimension (segment, region, country) for CRM and value reporting.
+table dim_customer
+	lineageTag: 4195e088-cde6-438d-928c-65a48616de28
+
+	column CustomerKey
+		dataType: int64
+		isHidden
+		lineageTag: cd5f4abb-bfd4-43ab-abda-b471b1a39a83
+		summarizeBy: none
+		sourceColumn: CustomerKey
+
+	column CustomerCode
+		dataType: string
+		lineageTag: 665ee60c-291d-4dca-b45d-87348c58f294
+		summarizeBy: none
+		sourceColumn: CustomerCode
+
+	column CustomerName
+		dataType: string
+		lineageTag: cb9aadfd-8cf2-447c-8518-ba0b25172968
+		summarizeBy: none
+		sourceColumn: CustomerName
+
+	column Segment
+		dataType: string
+		lineageTag: cd5d00af-5310-47e3-ac50-ed500b0d060a
+		summarizeBy: none
+		sourceColumn: Segment
+
+	column 'Channel Preference'
+		dataType: string
+		lineageTag: 936391d9-2c61-40a8-bf2a-3b936eeabdd0
+		summarizeBy: none
+		sourceColumn: Channel Preference
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Tenure Bucket'
+		dataType: string
+		lineageTag: c41690e2-80a3-4657-bbbd-e3c793d0f5fc
+		summarizeBy: none
+		sourceColumn: Tenure Bucket
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy dim_customer_Hierarchy
+		lineageTag: ab155ed5
+
+		level CustomerCode
+			lineageTag: 944fbb30
+			column: CustomerCode
+
+		level CustomerName
+			lineageTag: c4026f1e
+			column: CustomerName
+
+		level Segment
+			lineageTag: 38aaa2fa
+			column: Segment
+
+		level 'Channel Preference'
+			lineageTag: 9943cb3a
+			column: 'Channel Preference'
+
+	partition dim_customer = m
+		mode: import
+		source =
+				let
+						Source = Folder.Files(GoldDataPath & "/dimensions/dim_customer"),
+						FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+						FirstFile = FilteredFiles{0}[Content],
+						ParquetData = Parquet.Document(FirstFile)
+						in
+						ParquetData
+

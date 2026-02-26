@@ -63,10 +63,14 @@ class PageBuilder:
         visual_slot_mapping: Optional[Dict[str, Any]] = None,
         component_30s: Optional[List[Dict[str, Any]]] = None,
         slot_order: Optional[List[str]] = None,
+        card_kpi_ids: Optional[List[str]] = None,
+        card_measure_names: Optional[List[str]] = None,
+        kpi_id_to_measure_name: Optional[Dict[str, str]] = None,
+        action_panel_content: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Build complete page structure with visuals.
-        
+
         Args:
             slots: Dictionary of slot activations
             template: Template type (T1, T2, T3, T4)
@@ -74,7 +78,11 @@ class PageBuilder:
             visual_slot_mapping: Visual-to-slot mapping configuration
             component_30s: Optional list from ux_layout_rules (each has visual_type, kpi_id/kpi_ids). When set with slot_order, exact visual type per position is used.
             slot_order: Optional list of layout slot names (e.g. ["trend", "variance"]) matching component_30s order.
-        
+            card_kpi_ids: Optional list of KPI IDs for KPI cards (for titles/fallback).
+            card_measure_names: Optional list of DAX measure names for KPI cards (must match semantic model); used for measure binding when provided.
+            kpi_id_to_measure_name: Optional map kpi_id -> measure name for resolving component_30s kpi_ids to DAX measure names.
+            action_panel_content: Optional preformatted text for T4 Action Panel (from action codes); used when has_action_panel and template T4.
+
         Returns:
             Dictionary with 'visuals' and 'slicers' lists
         """
@@ -112,9 +120,16 @@ class PageBuilder:
         tab_order = self.visual_builder.tab_order_base
 
         kpi_positions = self.layout_calculator.calculate_kpi_card_positions(kpi_count)
-        
+        card_kpi_ids = card_kpi_ids or []
+        card_measure_names = card_measure_names or []
         for i, pos in enumerate(kpi_positions):
-            visual = self.visual_builder.build_kpi_card(pos, name=f"KPI_{i + 1}")
+            # Binding: DAX measure name (card_measure_names); title from kpi_id if available
+            measure_ref = (card_measure_names[i] if i < len(card_measure_names) else None) or (card_kpi_ids[i] if i < len(card_kpi_ids) else None)
+            title_ref = card_kpi_ids[i] if i < len(card_kpi_ids) else measure_ref
+            title = title_ref.replace(".", " ").replace("_", " ").title() if title_ref else None
+            visual = self.visual_builder.build_kpi_card(
+                pos, measure_ref=measure_ref, name=f"KPI_{i + 1}", title=title
+            )
             visual["position"]["tabOrder"] = tab_order + i
             visuals.append(visual)
 
@@ -146,8 +161,26 @@ class PageBuilder:
                     continue
                 slots_used.add(slot_key)
                 pos = visual_positions[slot_key]
-                name = (item.get("kpi_id") or (", ".join(item.get("kpi_ids") or [])[:30]) or f"Visual_{i + 1}")
-                visual = self.visual_builder.build_by_ux_visual_type(vt, pos, name=name)
+                kpi_id = item.get("kpi_id")
+                kpi_ids = item.get("kpi_ids") or ([kpi_id] if kpi_id else [])
+                if not isinstance(kpi_ids, list):
+                    kpi_ids = [kpi_ids] if kpi_ids else []
+                kpi_ids_clean = [x for x in kpi_ids if isinstance(x, str) and x.strip()]
+                # Resolve to DAX measure names for visual binding (semantic model uses measure names, not KPI IDs)
+                kpi_to_measure = kpi_id_to_measure_name or {}
+                measures = [kpi_to_measure.get(k, k) for k in kpi_ids_clean]
+                # Display title from measures (for tooltip/header)
+                display_title = measures[0] if len(measures) == 1 else (", ".join(measures[:3])[:40] if measures else f"Visual_{i + 1}")
+                title = display_title.replace(".", " ").replace("_", " ").title()
+                # Visual name must be folder-safe (no commas, no chars invalid in paths) so Fabric loads the visual
+                raw_name = measures[0] if len(measures) == 1 else (", ".join(measures[:3])[:40] if measures else f"Visual_{i + 1}")
+                if "," in raw_name or ":" in raw_name or "\\" in raw_name or "/" in raw_name:
+                    name = slot_key.capitalize() + (f"_{i}" if i > 0 else "")
+                else:
+                    name = raw_name
+                visual = self.visual_builder.build_by_ux_visual_type(
+                    vt, pos, name=name, measures=measures, title=title
+                )
                 visual["position"]["tabOrder"] = tab_order + 100 + i * 100
                 visuals.append(visual)
         else:
@@ -183,7 +216,12 @@ class PageBuilder:
 
             # Prescriptive visual
             if slots.get('needs_prescriptive', False) and 'prescriptive' in visual_positions:
-                visual = self.visual_builder.build_table(visual_positions['prescriptive'], name="Prescriptive")
+                visual = self.visual_builder.build_table(
+                    visual_positions['prescriptive'],
+                    columns=[("dim_date", "Date"), ("dim_product", "ProductName")],
+                    measures=["Net Sales Amount"],
+                    name="Prescriptive",
+                )
                 visual["position"]["tabOrder"] = tab_order + 600
                 visuals.append(visual)
 
@@ -201,7 +239,12 @@ class PageBuilder:
 
             # Detail Matrix visual
             if slots.get('needs_detail_matrix', False) and 'detail_matrix' in visual_positions:
-                visual = self.visual_builder.build_table(visual_positions['detail_matrix'], name="DetailMatrix")
+                visual = self.visual_builder.build_table(
+                    visual_positions['detail_matrix'],
+                    columns=[("dim_date", "Date"), ("dim_product", "ProductName")],
+                    measures=["Net Sales Amount", "Gross Margin %"],
+                    name="DetailMatrix",
+                )
                 visual["position"]["tabOrder"] = tab_order + 900
                 visuals.append(visual)
 
@@ -223,7 +266,7 @@ class PageBuilder:
         # Action Panel (T4) or Action Teaser (T2 per ActionPanel_Spec)
         action_panel_visual = None
         if has_action_panel:
-            teaser_text = "'Action Panel Placeholder'"  # T4
+            teaser_text = (action_panel_content if action_panel_content else "'Action Panel Placeholder'")  # T4
             if template == "T2":
                 teaser_text = "'Key actions from variance → see Detail or T4'"  # T2 Teaser
             action_panel_pos = self.layout_calculator.calculate_action_panel_position()

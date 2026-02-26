@@ -7,7 +7,7 @@
             "approve": true,
             "matchCommandLine": true
         },
-        "/^\\.\\\\tooling\\\\powerbi_mcp\\\\orchestrate_full_model\\.ps1 -UseCase \"COM-001\"$/": {
+        "/^\\.\\\\products\\\\fabric_powerbi\\\\orchestrator\\\\orchestrate_full_model\\.ps1 -UseCase \"COM-001\"$/": {
             "approve": true,
             "matchCommandLine": true
         },

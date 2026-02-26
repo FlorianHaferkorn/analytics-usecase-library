@@ -28,10 +28,10 @@
 
 ### Wenn du mit der Aufgabe startest
 
-4. **Option A (empfohlen):** Implementer-Session öffnen, sagen: **Start next task**. Der Agent führt das Skript aus, erstellt den Branch und implementiert.
-5. **Option B:** Zuerst `.\tooling\project_mgmt\start_next_task.ps1` ausführen (Endung **.ps1**, vom **Repo-Root**), dann Implementer öffnen und sagen: **Implement issue #N**. Der Agent erstellt den Branch und implementiert.
+1. **Option A (empfohlen):** Implementer-Session öffnen, sagen: **Start next task**. Der Agent führt das Skript aus, erstellt den Branch und implementiert.
+2. **Option B:** Zuerst `.\tooling\project_mgmt\start_next_task.ps1` ausführen (Endung **.ps1**, vom **Repo-Root**), dann Implementer öffnen und sagen: **Implement issue #N**. Der Agent erstellt den Branch und implementiert.
 
-6. Danach läuft alles automatisch: PR öffnen → Status In review, PR-Summary-Kommentar, Merge → Status Done (siehe [PM_FLOW.md](PM_FLOW.md)). **Vor dem Merge:** Zuerst Reviewer Agent ausführen (Session mit [.cursor/rules/reviewer-agent.mdc](../../.cursor/rules/reviewer-agent.mdc), **Review PR #N** sagen), danach Summary-Kommentar und CI zur Freigabe nutzen.
+3. Danach läuft alles automatisch: PR öffnen → Status In review, PR-Summary-Kommentar, Merge → Status Done (siehe [PM_FLOW.md](PM_FLOW.md)). **Vor dem Merge:** Zuerst Reviewer Agent ausführen (Session mit [.cursor/rules/reviewer-agent.mdc](../../.cursor/rules/reviewer-agent.mdc), **Review PR #N** sagen), danach Summary-Kommentar und CI zur Freigabe nutzen.
 
 ---
 
@@ -40,7 +40,8 @@
 | Datei | Inhalt |
 |-------|--------|
 | **PROJECT_SNAPSHOT.md** | Aktueller Stand Backlog/Planned, „Recommended next“ (Issue #, Titel, Expert). Wird von `refresh_project_snapshot.ps1` geschrieben. |
-| **BACKLOG_GRANULAR.md** | Fein zerlegtes Backlog nach Milestones/Areas. |
+| **BACKLOG_GRANULAR.md** | Fein zerlegtes Backlog nach Milestones/Areas. Enthält Abschnitt „Builder Engine (Diese Woche)“ mit P0/P1/P2 bis Freitag. |
+| **PROJECT_PLAN_BUILDER_ENGINE_FRIDAY.md** | Optional: Kurzplan Builder Engine (Phasen, Prioritäten); bei Fokus „Demo Friday“ für empfohlene nächste Aktion heranziehen. |
 | **presentation_status_and_roadmap.md** | Optional: High-level Status und Roadmap. |
 
 Der Assistant führt keine Skripte aus und ruft keine APIs auf; er liest nur diese Dateien und formatiert das Briefing.

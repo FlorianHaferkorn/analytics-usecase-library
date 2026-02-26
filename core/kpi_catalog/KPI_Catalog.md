@@ -3249,6 +3249,44 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     completeness_score: 0.8
     last_review: 23.01.2026
 
+- kpi_id: cost.cogs.amount
+  kpi_key: Cost of Goods Sold Amount
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Profitability
+  domain_tag: [Commercial]
+  use_case_ref:
+  - COM-001
+  - COM-002
+  calc_type: amount
+  business:
+    purpose: "Total cost of goods sold for invoiced revenue; base for margin and PVM."
+    definition: "Sum of invoice line COGS amounts."
+    grain_scope: "Invoice line."
+    unit_format: "EUR (2 decimals)"
+    interpretation: "Input to Gross Margin % and PVM; must align with P&L COGS."
+  technical:
+    dax_name: "Cost of Goods Sold Amount"
+    formatString: "#,0.00"
+    description: "Total cost of goods sold; base measure for margin and PVM."
+    dax_expression: |
+      SUM ( fact_sales[Cost of Goods Sold Amount] )
+    depends_on_measures: []
+    lineage:
+    - fact_sales.Cost of Goods Sold Amount
+  governance:
+    business_owner: "Head of Controlling"
+    data_owner: "BI Engineering"
+    steward: "Controlling Analyst"
+    review_cycle: "quarterly"
+    validation_process: "dual control"
+    qa_rules:
+    - Reconcile with P&L COGS within +/-0.5%
+    version: "v2.0"
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 23.01.2026
+
 - kpi_id: margin.gm.pct
   kpi_key: Gross Margin %
   kpi_type: diagnostic

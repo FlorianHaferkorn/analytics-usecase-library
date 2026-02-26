@@ -121,17 +121,19 @@ function Add-LineageTag {
 	while ($i -lt $lines.Count) {
 		$line = $lines[$i]
 		
-		# Match table/column/measure definition without lineageTag
-		if ($line -match '^\s*(table|column|measure)\s+' -and $Content -notmatch "lineageTag:") {
+		# Match table/column definition without lineageTag (skip measure: DAX expression must be first; lineageTag before it causes parser error)
+		if ($line -match '^\s*(table|column)\s+' -and $Content -notmatch "lineageTag:") {
 			if ($line -match '^(\s+)') {
 				$indent = $matches[1]
 			} else {
-				$indent = "`t"
+				$indent = ""
 			}
+			# TMDL: table direct props = 1 tab; column (under table) = indent + 1 tab
+			$propIndent = if ($indent) { $indent + "`t" } else { "`t" }
 			$guid = [System.Guid]::NewGuid().ToString()
 			
 			$output += $line
-			$output += "$indent`tlineageTag: $guid"
+			$output += "${propIndent}lineageTag: $guid"
 			
 			$i++
 			continue

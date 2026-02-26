@@ -14,6 +14,7 @@
 *Warum:* Diese Übersicht bildet die monatlichen und jährlichen Plattformkosten (Capacity + Lizenzen) ab; optional ergänzt um Storage. Implementierung und Wartung erscheinen in den Bausteinen und in der TCO.
 
 ## Kosten nach Bausteinen
+
 | Baustein | Kategorie | USD/month | USD/year |
 |----------|-----------|-----------|----------|
 | Fabric Capacity | Operating | 1839.60 | 22075.20 |
@@ -38,6 +39,7 @@
 *Warum:* Nur die unter „Included“ genannten Leistungen sind in dieser Kalkulation abgedeckt. Alles Weitere (z. B. Schulung, individuelle Anpassungen) ist separat zu kalkulieren.
 
 ## Daten-Rollen / FTE
+
 | Role | Domain | FTE | Phase | Person / Ansprechpartner |
 |------|--------|-----|-------|---------------------------|
 | Sales BI Lead | Commercial | 0.5 | implementation | — |
@@ -56,6 +58,7 @@
 *Warum:* Damit Implementierung und Zeitplan halten, sind folgende Beiträge des Kunden erforderlich.
 
 ## Implementierung / Meilensteine
+
 | Phase | Deliverable | Dauer |
 |-------|-------------|-------|
 | Kick-off & Anforderung | Anforderungsdokument, Abnahme Kriterien | Woche 1–2 |
@@ -78,6 +81,7 @@ PRO: 3 users, 42.00 USD/mo
 *Warum:* Die Aufteilung nach Umgebungen (Dev/Test/Prod) bzw. Lizenzen ermöglicht die Nachvollziehbarkeit der Kalkulation und spätere Anpassungen (z. B. Skalierung Prod).
 
 ## Cost projection (horizons)
+
 | Horizon | Years | USD/year (platform) | USD/year (maintenance) |
 |---------|-------|---------------------|------------------------|
 | Year 1 (short-term) | 1 | 22579.20 | 36000.00 |

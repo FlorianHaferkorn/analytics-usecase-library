@@ -82,8 +82,8 @@ code --install-extension analysis-services.TMDL
 4. IntelliSense mit `Ctrl+Space`
 
 **Offizielle Doku:**
-- Extension: https://marketplace.visualstudio.com/items?itemName=analysis-services.TMDL
-- TMDL Spec: https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-overview
+- Extension: <https://marketplace.visualstudio.com/items?itemName=analysis-services.TMDL>
+- TMDL Spec: <https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-overview>
 
 ---
 
@@ -147,10 +147,10 @@ explorer "products\fabric_powerbi\dist\COM-001"
 ## Referenzen
 
 ### Microsoft Official:
-- TMDL Overview: https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-overview
-- TMDL How-To: https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-how-to
-- Power BI TMDL View: https://learn.microsoft.com/en-us/power-bi/transform-model/desktop-tmdl-view
-- VS Code Extension: https://marketplace.visualstudio.com/items?itemName=analysis-services.TMDL
+- TMDL Overview: <https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-overview>
+- TMDL How-To: <https://learn.microsoft.com/en-us/analysis-services/tmdl/tmdl-how-to>
+- Power BI TMDL View: <https://learn.microsoft.com/en-us/power-bi/transform-model/desktop-tmdl-view>
+- VS Code Extension: <https://marketplace.visualstudio.com/items?itemName=analysis-services.TMDL>
 
 ### Internal (von Repo-Root):
 - [TMDL Best Practices](../docs/tmdl_best_practices.md)

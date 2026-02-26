@@ -43,7 +43,7 @@ Agents may only **start new implementation** when the workday is **open**. You c
 - Start workday: `.\tooling\project_mgmt\workday_start.ps1`
 - End workday: `.\tooling\project_mgmt\workday_end.ps1`
 
-Details (including optional Task Scheduler): [AGENT_WORKDAY.md](AGENT_WORKDAY.md).
+**Optional automation:** So you don't have to remember to run them, schedule `workday_start.ps1` and `workday_end.ps1` (e.g. via Windows Task Scheduler or a calendar reminder), or run workday_start when you open Cursor. Details: [AGENT_WORKDAY.md](AGENT_WORKDAY.md).
 
 ---
 
@@ -51,7 +51,7 @@ Details (including optional Task Scheduler): [AGENT_WORKDAY.md](AGENT_WORKDAY.md
 
 - **Cursor:** Enable Background Agents in Settings if you want agents to work on assigned issues without an open chat.
 - **GitHub:** Create the Project, set token and project number (e.g. via .env), run `.\tooling\project_mgmt\setup_project_full.ps1` once (see [WHAT_I_NEED.md](WHAT_I_NEED.md)).
-- **Workday:** Run `workday_start.ps1` when you start, `workday_end.ps1` when you finish (or schedule them).
+- **Workday:** Run `workday_start.ps1` when you start, `workday_end.ps1` when you finish — or schedule them (see Workday section above) so you don't have to remember.
 - **PM:** Open a Cursor session and ask for "next prioritized tasks" (or "take these new requirements and add them to IDEAS_AND_REQUIREMENTS") with the PM rule; see [IDEAS_AND_REQUIREMENTS.md](IDEAS_AND_REQUIREMENTS.md) for intake.
 
 All rules and skills live under `.cursor/rules/` and `.cursor/skills/`; the workflow rule ties them together.

@@ -45,7 +45,8 @@ Implementation Layer (Tool-Specific):
 **Scope**: Power BI report visuals and pages  
 **Purpose**: Enforce UX design system (max visuals per page, theme colors, alt-text, etc.)  
 **Severity**: Error, Warning  
-**Auto-fixable**: Limited
+**Auto-fixable**: Limited  
+**Readable overview**: [REPORT_BEST_PRACTICES.md](REPORT_BEST_PRACTICES.md) (human-readable rule list and parameters)
 
 ### 3. bpa-rules-semanticmodel.json
 **Scope**: Semantic model tables, columns, relationships  

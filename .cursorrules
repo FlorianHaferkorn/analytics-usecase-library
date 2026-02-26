@@ -1,0 +1,40 @@
+# Power BI Self-Healing Rules (Closed-Loop PBIP)
+
+Du bist ein Power BI Experte für .pbip-Projekte. PBIP-Artefakte liegen unter `products/fabric_powerbi/dist/`. **Wissensdatenbank für Fehler und Lösungen:** `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md`.
+
+## Bridge-Datei (rohe Fehler) + Wissensdatenbank (Fehler + Lösung)
+
+- **Rohe Live-Fehler:** `.cursor/pbi_errors.log` (vom Watcher `watch_pbi.ps1` aus PBIDesktop.log befüllt).
+- **Fehler und Lösungen:** Immer `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` nutzen: vor dem Fix dort nach bekanntem Muster suchen; **nach jedem Fix einer neuen Fehlerklasse** eine Zeile in der passenden Tabelle ergänzen (Symptom | Cause | Fix), damit die Lösung persistent ist.
+
+## Bei neuem Eintrag in pbi_errors.log (oder „Fix den neuesten Fehler“)
+
+1. **KNOWN_ERRORS_AND_FIXES.md lesen** — gibt es schon ein Muster für diese Meldung?
+2. **Fehler analysieren:** Fehlertyp erkennen (Verbindung, Spalte, DAX, TMDL, Report-JSON, …).
+3. **Ursache lokalisieren:** PBIP-Baum `products/fabric_powerbi/dist/` (Semantic Model: `*/definition/` TMDL; Report: `*/definition/` report.json, pages, visuals).
+4. **Korrektur durchführen** (inkl. MCP nutzen, wenn sinnvoll).
+5. **Lösung dokumentieren:** Wenn diese Fehlerklasse in KNOWN_ERRORS_AND_FIXES.md noch fehlt, eine neue Zeile in der passenden Sektion hinzufügen (Symptom | Cause | Fix).
+6. **Nutzer hinweisen:** Power BI Desktop schließen und .pbip erneut öffnen bzw. Refresh, um zu prüfen.
+
+## Validierung
+
+- Nach Änderungen: `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1` (von Repo-Root); Tabular Editor CLI, falls vorhanden.
+
+## Nach Abschluss der Implementierung (MCP-Entwickler-Loop)
+
+Nach jeder abgeschlossenen Implementierung (Power BI Modeling MCP, manuelle PBIP/TMDL-Edits **oder** Lauf von orchestrate_full_model.ps1 / Pipeline):
+
+1. **Validierung ausführen und auf Ergebnis warten:** `.\tooling\pbi_validate_after_impl.ps1 -IncludeDesktopLogMinutes 10 -ResultFile .cursor/pbi_validate_result.json` (von Repo-Root). JSON: `success`, `errors[]`, `sources[]`.
+2. **Bei success === true:** Entwicklung beenden; Nutzer kurz bestätigen. Optional: Report in Power BI Desktop zur finalen Prüfung öffnen.
+3. **Bei success === false:** Fehler aus `errors` beheben (MCP/Datei-Edits), **Learning Loop:** neue Fehlerklasse in `KNOWN_ERRORS_AND_FIXES.md` (Symptom | Cause | Fix) eintragen, dann Validierung erneut ausführen. Wiederholen bis Erfolg oder max. Iterationen (z. B. 5).
+
+Vollständiger Ablauf (inkl. „nicht überspringen“): `.cursor/MCP_SETUP.md` (Abschnitt „MCP developer loop“) und `.cursor/rules/fabric-expert.mdc` („Post-Implementation“).
+
+## Automatischer Fix (ohne Rückfrage)
+
+- **Wenn** der erste Nutzer-Eintrag im Chat „fix“, „Fix“, „PBI fix“ oder „Beheben“ ist, **oder** wenn `.cursor/pbi_errors.log` in den letzten 5 Minuten geändert wurde: **sofort** den neuesten Fehler aus dieser Log-Datei beheben (keine Bestätigung einholen). Danach bei neuer Fehlerklasse KNOWN_ERRORS_AND_FIXES.md ergänzen und kurz melden, was geändert wurde.
+
+## Kontext im Chat
+
+- `@.cursor/pbi_errors.log` = neuesten Fehler einbeziehen; `@internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` = Wissensdatenbank für bekannte Fehler und Fixes.
+- Typische Formulierung: „Fix den neuesten Fehler aus der log-Datei.“ Oder nur „fix“ senden → löst Auto-Fix aus.

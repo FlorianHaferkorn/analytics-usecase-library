@@ -12,10 +12,10 @@
 
 | File | Context | Description |
 |------|---------|-------------|
-| tooling/powerbi_mcp/table_ops.ps1 | ~line 138 | Builder Engine: TMDL output in PBIP (no MCP call). Optional MCP integration later. |
-| tooling/powerbi_mcp/relationship_ops.ps1 | ~line 199 | Builder Engine: relationships TMDL in PBIP (no MCP call). Optional MCP integration later. |
-| tooling/powerbi_mcp/deploy.ps1 | lines 44, 52, 59, 72 | Fabric Workspace API (GET/POST); Import PBIP/TMDL to semantic model API; Publish report and bind to dataset; Apply RLS / security_user_org mapping via API. Refresh schedule via REST implemented (step 5). |
-| tooling/powerbi_mcp/AUTOMATION_FLOW.md | multiple | TMDL default format strings and display folders; Measure binding in visuals; Action Codes in panel; Fabric REST API; Refresh schedule; security_user_org mapping. |
+| products/fabric_powerbi/orchestrator/table_ops.ps1 | ~line 138 | Builder Engine: TMDL output in PBIP (no MCP call). Optional MCP integration later. |
+| products/fabric_powerbi/orchestrator/relationship_ops.ps1 | ~line 199 | Builder Engine: relationships TMDL in PBIP (no MCP call). Optional MCP integration later. |
+| products/fabric_powerbi/orchestrator/deploy.ps1 | lines 44, 52, 59, 72 | Fabric Workspace API (GET/POST); Import PBIP/TMDL to semantic model API; Publish report and bind to dataset; Apply RLS / security_user_org mapping via API. Refresh schedule via REST implemented (step 5). |
+| products/fabric_powerbi/orchestrator/AUTOMATION_FLOW.md | multiple | TMDL default format strings and display folders; Measure binding in visuals; Action Codes in panel; Fabric REST API; Refresh schedule; security_user_org mapping. |
 
 **Phase 1 done:** Registry as build prerequisite; Domain mode (COM-* Relationships/Hierarchies, one report per use case); Full-Report via `generate_full_report.py` (overview + detail, datasetReference); Quality checks as hard gate; Bracket schema `ux_bindings` optional. **Open:** deploy.ps1 real API; measure/axis binding; Action Panel content; Streamlit Bindings/Actions tabs.
 
@@ -23,7 +23,7 @@
 
 ## Aurora Models (Operations, Finance)
 
-Open work for Operations and Finance domain models is tracked in **[showcases/aurora_group/models/README.md](../showcases/aurora_group/models/README.md) § Next Steps**: complete relationships/measures/display folders, add DAX expressions to KPI Catalog, populate Measure_Dictionary per domain. The in-file comments in `Operations.yaml` and `Finance.yaml` point to that section.
+Open work for Operations and Finance domain models is tracked in **[products/fabric_powerbi/blueprints/README.md](../products/fabric_powerbi/blueprints/README.md) § Next Steps**: complete relationships/measures/display folders, add DAX expressions to KPI Catalog, populate Measure_Dictionary per domain. The in-file comments in `Operations.yaml` and `Finance.yaml` point to that section.
 
 ---
 

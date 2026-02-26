@@ -1,4 +1,4 @@
-﻿Param(
+Param(
   [Parameter(Mandatory=$true)][string]$Root
 )
 
@@ -23,7 +23,13 @@ if(-not $pbip){ $errors += "Missing .pbip file" } else {
   if(-not (Test-BomFree -Path $pbip.FullName)){ $errors += ".pbip has BOM" }
   if(-not (Test-JsonValid -Path $pbip.FullName)){ $errors += ".pbip invalid JSON" } else {
     $pj = Get-Content -Raw -Path $pbip.FullName | ConvertFrom-Json
-    if(-not $pj.'$schema'){ $warnings += ".pbip missing $schema (optional but recommended)" }
+    $schemaVal = $pj.PSObject.Properties['$schema'].Value
+    if(-not $schemaVal){ $warnings += ".pbip missing $schema (optional but recommended)" } else {
+      # Power BI Desktop (Feb 2026+) requires pbip/pbipProperties; itemShortcut is rejected (KNOWN_ERRORS_AND_FIXES)
+      if($schemaVal -notmatch '^https://developer\.microsoft\.com/json-schemas/fabric/pbip/pbipProperties/1\.\d+\.\d+/schema\.json$'){
+        $errors += ".pbip $schema must be fabric/pbip/pbipProperties/1.x.y/schema.json (not itemShortcut). See internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md"
+      }
+    }
     $reportPath = $null
     if($pj.artifacts){
       foreach($a in $pj.artifacts){ if($a.report -and $a.report.path){ $reportPath = $a.report.path; break } }

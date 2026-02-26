@@ -138,10 +138,10 @@ P2
         milestone = $phase2Milestone
     },
     # Technical backlog – Power BI MCP / Fabric
-    @{ title = "[Task] Call Power BI MCP table_operations from table_ops.ps1"; body = "See internal/technical_backlog.md. File: tooling/powerbi_mcp/table_ops.ps1 ~line 138.`n`n**Area:** Tooling | **Priority:** P2 | **Milestone:** Technical backlog"; labels = @(); milestone = $techMilestone },
+    @{ title = "[Task] Call Power BI MCP table_operations from table_ops.ps1"; body = "See internal/technical_backlog.md. File: products/fabric_powerbi/orchestrator/table_ops.ps1 ~line 138.`n`n**Area:** Tooling | **Priority:** P2 | **Milestone:** Technical backlog"; labels = @(); milestone = $techMilestone },
     @{ title = "[Task] Call Power BI MCP relationship_operations from relationship_ops.ps1"; body = "See internal/technical_backlog.md. tooling/powerbi_mcp/relationship_ops.ps1 ~line 199.`n`n**Area:** Tooling | **Priority:** P2 | **Milestone:** Technical backlog"; labels = @(); milestone = $techMilestone },
     @{ title = "[Task] Fabric Workspace and semantic model API in deploy.ps1"; body = "deploy.ps1: GET/POST workspace, Import PBIP/TMDL, Publish report, Refresh schedule, RLS/security_user_org.`n`n**Area:** Tooling | **Priority:** P2 | **Milestone:** Technical backlog"; labels = @(); milestone = $techMilestone },
-    @{ title = "[Task] TMDL/display folders, relationship update, visuals, REST, refresh, security in AUTOMATION_FLOW"; body = "See tooling/powerbi_mcp/AUTOMATION_FLOW.md.`n`n**Area:** Tooling | **Priority:** P2 | **Milestone:** Technical backlog"; labels = @(); milestone = $techMilestone },
+    @{ title = "[Task] TMDL/display folders, relationship update, visuals, REST, refresh, security in AUTOMATION_FLOW"; body = "See products/fabric_powerbi/orchestrator/AUTOMATION_FLOW.md.`n`n**Area:** Tooling | **Priority:** P2 | **Milestone:** Technical backlog"; labels = @(); milestone = $techMilestone },
     # Aurora
     @{ title = "[Task] Complete Aurora Operations and Finance domain models"; body = "relationships/measures/display folders; DAX in KPI Catalog; Measure_Dictionary per domain. See showcases/aurora_group/models/README.md.`n`n**Area:** Aurora | **Priority:** P1 | **Milestone:** Technical backlog"; labels = @(); milestone = $techMilestone },
     # Synthetic data

@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "ActionPanel",
+  "position": {
+    "x": 1570,
+    "y": 0,
+    "z": 15000,
+    "height": 1080,
+    "width": 350,
+    "tabOrder": 10000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": []
+        }
+      }
+    },
+    "objects": {
+      "text": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Recommended actions (from action codes)\n\n• C-M2.1 — Price Realization Guardrails\n  Owner: pricing_lead\n  · IDENTIFY each {entity} where price realization falls below threshold\n  · FREEZE discretionary discounts for this {entity}\n  · ENFORCE approval workflow for any price exception on this {entity}\n\n• C-S1.1 — Price Discipline Enforcement\n  Owner: pricing_manager\n  · IDENTIFY each {entity} breaching gross margin threshold\n  · FREEZE new discretionary discounts for this {entity}\n  · REQUIRE approval for any price exception on this {entity}\n\n• C-S1.2 — Sales Gap Recovery via Price & Pack Adjustment\n  Owner: sales_director\n  · IDENTIFY each {entity} breaching plan thresholds\n  · SELECT eligible products for this {entity} within GM guardrails\n  · APPLY temporary price or pack adjustments to this {entity}'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

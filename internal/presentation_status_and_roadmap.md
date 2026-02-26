@@ -47,7 +47,7 @@ The following applies when **Stage 1 is green** (CI gate: `.\tooling\run_stage1_
 - **3–30–300 complete:** The principle is defined. The **300s layer layout** is now defined in [core/templates/page_templates/layout_330300_300s_layer.md](../core/templates/page_templates/layout_330300_300s_layer.md) and schema `layout_330300.schema.json`. Still to implement: full generation of action text and evidence table from action-code YAML in the report.
 - **Strategy Pattern / AI urgency:** Strategy pattern document exists; automatic urgency derivation and automated reasoning are target/backlog. Scope and limits of automated reasoning are documented in [internal/vision/automated_reasoning_scope_and_limits.md](vision/automated_reasoning_scope_and_limits.md).
 - **Strategic layer (optional):** The link Strategy → KPIs → Use Cases works; company_strategy has canonical anchors (§5, §6, §7) and references.
-- **Technical open items:** Technical TODOs and stubs (MCP, Fabric API, synthetic data, scaffold) are listed in [internal/technical_backlog.md](technical_backlog.md). **Aurora Operations:** [showcases/aurora_group/models/Operations.yaml](../showcases/aurora_group/models/Operations.yaml) has relationships and display_folders (measures) defined; DAX in KPI Catalog for OPS-001/002/003 still to be added.
+- **Technical open items:** Technical TODOs and stubs (MCP, Fabric API, synthetic data, scaffold) are listed in [internal/technical_backlog.md](technical_backlog.md). **Aurora Operations:** [products/fabric_powerbi/blueprints/Operations.yaml](../products/fabric_powerbi/blueprints/Operations.yaml) has relationships and display_folders (measures) defined; DAX in KPI Catalog for OPS-001/002/003 still to be added.
 
 ---
 
@@ -128,7 +128,7 @@ References: [internal/project_mgmt/PM_FLOW.md](project_mgmt/PM_FLOW.md), [intern
 - **Open PBIP:** Open a domain semantic model (e.g. `showcases/aurora_group/semantic_models/Commercial.SemanticModel`) or a generated report in Power BI Desktop; report and semantic model load together.
 - **Report loads:** Report with scaffolded pages (e.g. COM-001 Overview/Detail) in PBIR format under `products/fabric_powerbi/dist/<UC>.Report`; visuals use the domain semantic model.
 - **Measures:** One _Measures.tmdl with all measures, displayFolder per use case (COM-001 to COM-004, OPS-001, SCM-001, FIN-001 etc.); generated from KPI catalog.
-- **3-30-300 layouts:** Overview/Insights/Explorer follow [core/templates/page_templates/](../core/templates/page_templates/) and [showcases/aurora_group/reporting/pbip_layouts.md](../showcases/aurora_group/reporting/pbip_layouts.md).
+- **3-30-300 layouts:** Overview/Insights/Explorer follow [core/templates/page_templates/](../core/templates/page_templates/) and [products/fabric_powerbi/docs/reporting/pbip_layouts.md](../products/fabric_powerbi/docs/reporting/pbip_layouts.md).
 - **RLS:** Aurora Organization Access; gold data under `showcases/aurora_group/data/gold/`.
 
 Reference: [showcases/aurora_group/README.md](../showcases/aurora_group/README.md).

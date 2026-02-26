@@ -27,6 +27,18 @@
 
 ---
 
+## Builder Engine (Diese Woche)
+
+Kurzfristiger Fokus bis Freitag: Pipeline stabil, Validate im Lauf, Fehler erfassen. Vollständiger Phasenplan: [PROJECT_PLAN_BUILDER_ENGINE_FRIDAY.md](PROJECT_PLAN_BUILDER_ENGINE_FRIDAY.md).
+
+| Priorität | Inhalt |
+|-----------|--------|
+| P0 | Phase 1: Pipeline stabil; PBIP loadable (run_fabric_checks, structure, optional pbi-tools compile). |
+| P1 | Phase 2: Validate nach Build (Reihenfolge, Gate-Doku); Projektplan verankert. |
+| P2 | Phase 3: Inkrementell Use Case; Phase 4: State/KNOWN_ERRORS_AND_FIXES. |
+
+---
+
 ## Framework Package 1 (granular)
 
 Abschluss erstes Framework-Paket: Aurora als kundentauglicher Beweis für Fabric/Power BI (Semantic Models + Reports); bei Kunden ohne Probleme/Bugs einsetzbar; reproduzierbar inkl. neuer Use Cases. Out of Scope: Evidence/andere Tools; Fabric Capacity; Generators/Interfaces (kommen danach). Für bestehende GitHub Projects: Milestone „Framework Package 1“ im Repo anlegen und als Option im Project-Feld „Milestone“ hinzufügen (falls noch nicht vorhanden).
@@ -80,7 +92,7 @@ Abschluss erstes Framework-Paket: Aurora als kundentauglicher Beweis für Fabric
 | [Task] Fabric: Publish report and bind to dataset in deploy.ps1 | Tooling | P2 | deploy.ps1 |
 | [Task] Fabric: Set refresh schedule via REST in deploy.ps1 | Tooling | P2 | deploy.ps1 |
 | [Task] Fabric: Apply RLS / security_user_org mapping via API in deploy.ps1 | Tooling | P2 | deploy.ps1 |
-| [Task] TMDL: default format strings and display folders (AUTOMATION_FLOW) | Tooling | P2 | tooling/powerbi_mcp/AUTOMATION_FLOW.md |
+| [Task] TMDL: default format strings and display folders (AUTOMATION_FLOW) | Tooling | P2 | products/fabric_powerbi/orchestrator/AUTOMATION_FLOW.md |
 | [Task] Update relationship via MCP (AUTOMATION_FLOW) | Tooling | P2 | AUTOMATION_FLOW.md |
 | [Task] Generate visuals from template (AUTOMATION_FLOW) | Tooling | P2 | AUTOMATION_FLOW.md |
 

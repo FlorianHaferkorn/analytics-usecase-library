@@ -8,6 +8,7 @@ governance:
 orchestration:
   strategic_kpi_id: margin.gm.pct
   influencing_kpi_ids:
+  - cost.cogs.amount
   - sales.net_sales.amount
   - sales.net_sales.delta_pct.plan
   - sales.net_sales.delta_pct.ly

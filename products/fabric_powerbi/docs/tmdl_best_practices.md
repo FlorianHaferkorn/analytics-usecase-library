@@ -31,17 +31,17 @@ Not included:
 
 ```tmdl
 table dim_date
-	lineageTag: ef5816f6-16fe-4dd5-9d71-20835fbf02b7    // 1 TAB
+ lineageTag: ef5816f6-16fe-4dd5-9d71-20835fbf02b7    // 1 TAB
 
-	column DateKey
-		dataType: int64                                  // 2 TABS
-		isHidden                                         // 2 TABS
+ column DateKey
+  dataType: int64                                  // 2 TABS
+  isHidden                                         // 2 TABS
 ```
 
 **Common Error**:
 ```tmdl
 table dim_date
-	 lineageTag: ef5816f6-16fe-4dd5-9d71-20835fbf02b7   // ❌ Tab+Space = PARSER ERROR
+  lineageTag: ef5816f6-16fe-4dd5-9d71-20835fbf02b7   // ❌ Tab+Space = PARSER ERROR
 ```
 
 **Indentation Levels**:
@@ -77,24 +77,24 @@ table dim_date
 ```tmdl
 /// Total invoiced revenue net of discounts and returns
 measure 'Net Sales Amount' =
-		SUM(fact_sales[Net Sales Amount])
-	formatString: #,0.00
+  SUM(fact_sales[Net Sales Amount])
+ formatString: #,0.00
 ```
 
 **DAX Comments** (within expression):
 ```tmdl
 measure 'Net Sales Amount' =
-		-- Sum all invoice line amounts
-		SUM(fact_sales[Net Sales Amount])
-	formatString: #,0.00
+  -- Sum all invoice line amounts
+  SUM(fact_sales[Net Sales Amount])
+ formatString: #,0.00
 ```
 
 **NOT SUPPORTED**:
 ```tmdl
 measure 'Net Sales Amount' =
-		SUM(fact_sales[Net Sales Amount])
-	formatString: #,0.00
-	description: "Total revenue"    // ❌ PARSER ERROR
+  SUM(fact_sales[Net Sales Amount])
+ formatString: #,0.00
+ description: "Total revenue"    // ❌ PARSER ERROR
 ```
 
 **Measure description block (standard format):**  
@@ -134,26 +134,26 @@ TMDL uses a **folder structure**, not a single file. Default layout:
 
 ```tmdl
 partition dim_date = m
-	mode: import
-	source =
-			let
-				Source = Folder.Files("C:\\path\\to\\data\\dim_date"),
-				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-				FirstFile = FilteredFiles{0}[Content],
-				ParquetData = Parquet.Document(FirstFile)
-			in
-				ParquetData
+ mode: import
+ source =
+   let
+    Source = Folder.Files("C:\\path\\to\\data\\dim_date"),
+    FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+    FirstFile = FilteredFiles{0}[Content],
+    ParquetData = Parquet.Document(FirstFile)
+   in
+    ParquetData
 ```
 
 **Alternative** (for empty tables):
 ```tmdl
 partition _Measures = m
-	mode: import
-	source =
-			let
-				Source = #table(type table [], {})
-			in
-				Source
+ mode: import
+ source =
+   let
+    Source = #table(type table [], {})
+   in
+    Source
 ```
 
 ### 2.2 Indentation within M-Expressions
@@ -180,11 +180,11 @@ Source = #table(type table [Col1 = int64], {})    // ❌ Expected comma
 ✅ **Correct `type table` syntax**:
 ```tmdl
 Source = #table(
-	type table [
-		Col1 = Int64.Type,
-		Col2 = Text.Type
-	],
-	{}
+ type table [
+  Col1 = Int64.Type,
+  Col2 = Text.Type
+ ],
+ {}
 )
 ```
 
@@ -197,9 +197,9 @@ Source = #table(
 ```tmdl
 /// <Business purpose in one line>
 measure '<Measure Name>' =
-		<DAX Expression>
-	formatString: <format>
-	displayFolder: "<Folder Path>"
+  <DAX Expression>
+ formatString: <format>
+ displayFolder: "<Folder Path>"
 ```
 
 ### 3.2 FormatString Patterns
@@ -227,14 +227,14 @@ displayFolder: "10_Tech"
 ```tmdl
 /// Quantifies the pure price impact in the PVM bridge: (Actual Price - Plan Price) x Actual Quantity
 measure 'Price Effect Amount' =
-		VAR ActualPrice = DIVIDE([Net Sales Amount], SUM(fact_sales[Quantity]))
-		VAR PlanPrice = DIVIDE([Plan Sales Amount], SUM(fact_sales[Plan Quantity]))
-		VAR ActualQty = SUM(fact_sales[Quantity])
-		RETURN
-			(ActualPrice - PlanPrice) * ActualQty
-	formatString: #,0.00
-	displayFolder: "COM-001 Sales Performance\\PVM Analysis"
-	lineageTag: a1b2c3d4-1234-5678-9abc-def012345678
+  VAR ActualPrice = DIVIDE([Net Sales Amount], SUM(fact_sales[Quantity]))
+  VAR PlanPrice = DIVIDE([Plan Sales Amount], SUM(fact_sales[Plan Quantity]))
+  VAR ActualQty = SUM(fact_sales[Quantity])
+  RETURN
+   (ActualPrice - PlanPrice) * ActualQty
+ formatString: #,0.00
+ displayFolder: "COM-001 Sales Performance\\PVM Analysis"
+ lineageTag: a1b2c3d4-1234-5678-9abc-def012345678
 ```
 
 ---
@@ -245,16 +245,16 @@ measure 'Price Effect Amount' =
 
 ```tmdl
 table <table_name>
-	lineageTag: <GUID>
+ lineageTag: <GUID>
 
-	column <column_name>
-		dataType: <type>
-		sourceColumn: <source>
-		[optional properties]
+ column <column_name>
+  dataType: <type>
+  sourceColumn: <source>
+  [optional properties]
 
-	partition <partition_name> = m
-		mode: import
-		source = <M-expression>
+ partition <partition_name> = m
+  mode: import
+  source = <M-expression>
 ```
 
 ### 4.2 Column Names with Spaces
@@ -263,8 +263,8 @@ Use single quotes `'` for column names containing spaces:
 
 ```tmdl
 column 'Net Sales Amount'
-	dataType: string
-	sourceColumn: Net Sales Amount
+ dataType: string
+ sourceColumn: Net Sales Amount
 ```
 
 In M-expressions, use `#"Column Name"`:
@@ -276,9 +276,9 @@ In M-expressions, use `#"Column Name"`:
 
 ```tmdl
 column DateKey
-	dataType: int64
-	sourceColumn: DateKey
-	isHidden
+ dataType: int64
+ sourceColumn: DateKey
+ isHidden
 ```
 
 ---

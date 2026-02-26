@@ -2,98 +2,119 @@
 id: <USE CASE ID>
 factsheet_type: business
 ---
+# [ID] - [Title]
 
-# Use Case: [ID] - [Title]
-
-This Markdown file is for human stakeholders. All technical IDs, formulas, and mappings must reside in the corresponding UseCase_Bracket.yaml.
+## Business Factsheet
 
 ---
 
-## 0. Metadata
+## 0. Metadata (Mandatory)
 
 - **Use Case ID:** [e.g., COM-001]
 - **Domain:** [e.g., Commercial]
-- **Business Owner (Role):** [e.g., Head of Sales]
-- **Status:** [Draft / Active / Retired]
+- **Business Owner:** [e.g., CCO / Head of Sales]
+- **KPI Owner:** [e.g., Commercial Controlling Lead]
+- **Decision Owner:** [e.g., Sales Leadership Team]
+- **Reporting Level:** [Tactical / Strategic / Operational]
+- **Analytics Stage:** [Descriptive / Diagnostic / Predictive / Prescriptive]
+- **Related Data Contract:** [e.g., core/data_contracts/domains/commercial_sales.yaml]
+- **Related Semantic Model:** [Framework and/or Aurora domain model reference.]
 
 ---
 
-## 1. Executive Story (The "Why")
+## 1. Business Summary
 
-**Purpose:** Describe in 1-2 sentences what business problem this use case solves.
+**Purpose:** [1–2 sentences: what business problem this use case solves.]
 
-**Business Value:**
-What is the measurable impact? (e.g., "Reduction of discount leakage by 2%" or "Optimization of inventory turnover by 5 days").
+**Business Value:** [Measurable impact, e.g. "Reduction of discount leakage by 2%".]
 
-**Out of Scope:**
-Define what this use case does NOT cover to manage stakeholder expectations.
+**Out of Scope:** [What this use case does NOT cover.]
 
 ---
 
-## 2. The 3-30-300 Journey (UX Strategy)
+## 2. Core Business Questions
 
-This section defines how the user interacts with the data following our cognitive philosophy.
-
-### 2.1 Three Seconds: Status (System 1)
-
-**Goal:** Immediate emotional orientation.
-
-**The Question:** "Are we on track regarding our North Star?"
-
-**Visual Intent:** [e.g., A large gauge or KPI card showing the Strategic KPI against target/LY.]
-
-### 2.2 Thirty Seconds: Diagnostic (System 2 Light)
-
-**Goal:** Identification of the primary driver or "the culprit."
-
-**The Question:** "Which lever is causing the deviation?"
-
-**Visual Intent:** [e.g., A breakdown by Region, Product Group, or a Bridge Chart showing the Influence of Price vs. Volume.]
-
-### 2.3 Three Hundred Seconds: Execution (System 2 Deep Work)
-
-**Goal:** Decision-making and closing the loop.
-
-**The Question:** "What specific actions must I take right now?"
-
-**Visual Intent:** [e.g., A detailed evidence table showing specific transactions, combined with the Action Panel displaying the prescriptive steps for the assigned Action Codes.]
+- [Question 1 the user should answer in 5 minutes]
+- [Question 2]
+- [Question 3]
 
 ---
 
-## 3. Strategic Rationale & Causal Logic
+## 3. Required KPIs (Mandatory)
 
-Explain the business "belief" behind this use case.
+All KPIs must exist in the KPI Catalog.
 
-**Logic:** [e.g., "We believe that by strictly enforcing the price floor (Lever), we can protect the Gross Margin % (North Star) even if we lose a small percentage of low-margin volume."]
-
-**Decision Authority:** [Who is authorized to execute the actions described in the Action Panel?]
+> Machine-readable KPI + Action configuration lives in `UseCase_Bracket.yaml` (SSOT). This factsheet focuses on business context only.
 
 ---
 
-## 4. Key Business Questions
+## 4. Action Codes (Summary)
 
-What specific questions should the user be able to answer after 5 minutes?
+Structured summary of action codes (definitions remain in YAML).
 
-- Question 1...
-- Question 2...
+> Machine-readable config in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 
-## 5. Governance & Trust
+## 5. 3-30-300 Page Layout (Mandatory)
 
-- **Review Frequency:** [e.g., Monthly Sales Review]
-- **Data Trust Requirement:** [e.g., "This use case requires a Trust-Score of >0.9 to be used for automated approval blocks."]
-- **Stakeholders:** [List of roles involved in the monthly review process.]
-- **Evidence grain:** Synced from `UseCase_Bracket.yaml` `overrides.evidence_grain_note` when present. Run `tooling/maintenance/sync_evidence_grain_note_to_factsheet.ps1` after adding or changing that note in the bracket.
+### 5.1 3-Second Layer (KPI Cards)
+
+- [KPI card 1]
+- [KPI card 2]
+- [Further cards]
+
+### 5.2 30-Second Layer (Main Visuals)
+
+- **[Visual name]**
+  - Visual Type: [e.g., Line, Waterfall, Column]
+  - X-Axis / Y-Axis / Segment / Default Filter / Notes
+
+### 5.3 Required Slicers (Mandatory)
+
+- [Date (Month/Quarter)]
+- [Region / Channel]
+- [Further slicers]
+
+### 5.4 300-Second Layer (Diagnostics)
+
+- [Evidence table, action panel, drill-down description.]
 
 ---
 
 ## 6. Data Requirements Summary
 
-[Describe required facts, dimensions, grain, time range, slicers. Use a YAML block or bullets.]
+```yaml
+required_facts: []
+required_dimensions: []
+required_grain: ""
+required_time_range: ""
+required_slicers: ""
+```
 
-### Evidence grain
+---
 
-[Filled by sync script when `overrides.evidence_grain_note` is set in UseCase_Bracket.yaml; otherwise describe the evidence-table grain here.]
+## 7. Dependencies, Assumptions & Constraints
+
+- [Assumption 1]
+- [Constraint 2]
+- [Data/conformance requirements.]
+
+---
+
+## 8. Success Criteria
+
+- **Impact:** [Measurable outcome.]
+- **Adoption:** [Who uses it; how often.]
+- **Quality:** [Reconciliation, tolerance.]
+- **Decision Frequency:** [e.g., Monthly/Quarterly.]
+
+---
+
+## 9. Risks & Wrong Interpretations (Short)
+
+- [Risk 1: e.g., misstated Plan/LY leading to false gaps.]
+- [Risk 2]
+- [How to avoid wrong interpretations.]
 
 ---

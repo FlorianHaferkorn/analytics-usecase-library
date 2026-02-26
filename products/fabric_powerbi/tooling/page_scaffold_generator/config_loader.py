@@ -4,9 +4,10 @@ Configuration Loader
 Loads governance YAML files and use case configurations.
 """
 
+import re
 import yaml
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 import os
 
 
@@ -31,7 +32,49 @@ class ConfigLoader:
         self.page_templates_root = self.repo_root / "core" / "templates" / "page_templates"
         self.governance_root = self.page_templates_root / "governance"
         self.usecases_root = self.repo_root / "core" / "usecases"
-    
+        self.kpi_catalog_path = self.repo_root / "core" / "kpi_catalog" / "KPI_Catalog.md"
+        self.action_codes_root = self.repo_root / "core" / "action_codes"
+        self._kpi_id_to_measure_name: Optional[Dict[str, str]] = None
+
+    def load_kpi_id_to_measure_name_map(self) -> Dict[str, str]:
+        """
+        Load KPI catalog and return mapping kpi_id -> measure name (as in semantic model).
+        Measure name = kpi_key or technical.dax_name, matching generate_tmdl_measures.ps1.
+        Uses chunk-based parsing (split by "- kpi_id:") because the full YAML block can be
+        invalid as a single document (e.g. malformed list items).
+        """
+        if self._kpi_id_to_measure_name is not None:
+            return self._kpi_id_to_measure_name
+        result: Dict[str, str] = {}
+        if not self.kpi_catalog_path.exists():
+            return result
+        try:
+            content = self.kpi_catalog_path.read_text(encoding="utf-8")
+            match = re.search(r"```yaml\s*\n(.*?)```", content, re.DOTALL)
+            if not match:
+                return result
+            block = match.group(1)
+            # Split into chunks by list item start "- kpi_id:"
+            chunk_starts = list(re.finditer(r"(?m)^\s*-\s*kpi_id\s*:\s*([^\s#\r\n]+)", block))
+            for i, mo in enumerate(chunk_starts):
+                kpi_id = mo.group(1).strip()
+                start = mo.start()
+                end = chunk_starts[i + 1].start() if i + 1 < len(chunk_starts) else len(block)
+                chunk = block[start:end]
+                # kpi_key: "quoted" or kpi_key: unquoted
+                kpi_key_m = re.search(r'(?m)^\s*kpi_key\s*:\s*(?:"([^"]*)"|([^\r\n#]+))', chunk)
+                kpi_key = (kpi_key_m.group(1) or (kpi_key_m.group(2) or "").strip()) if kpi_key_m else None
+                # technical.dax_name: line "dax_name: ..." (may be under technical:)
+                dax_m = re.search(r'(?m)^\s*dax_name\s*:\s*(?:"([^"]*)"|([^\r\n#]+))', chunk)
+                dax_name = (dax_m.group(1) or (dax_m.group(2) or "").strip()) if dax_m else None
+                measure_name = (kpi_key or dax_name or kpi_id).strip()
+                if measure_name:
+                    result[kpi_id] = measure_name
+            self._kpi_id_to_measure_name = result
+        except Exception:
+            pass
+        return result
+
     def _resolve_use_case_dir(self, use_case_id: str) -> Optional[Path]:
         """Resolve core use case directory: core/usecases/core/<ID>_*/."""
         core = self.usecases_root / "core"
@@ -41,6 +84,59 @@ class ConfigLoader:
             if p.is_dir() and p.name.startswith(f"{use_case_id}_"):
                 return p
         return None
+
+    def get_action_panel_content(self, use_case_id: str) -> Optional[str]:
+        """
+        Build Action Panel text from use case action codes (Bracket orchestration.action_code_ids).
+        Loads each action code YAML and formats name, owner, and first steps for the textbox.
+        Returns None if no action codes or on error; caller uses placeholder then.
+        """
+        try:
+            bracket = self.load_use_case_bracket(use_case_id)
+            orch = bracket.get("orchestration") or {}
+            ids = orch.get("action_code_ids") or []
+            if not ids or not isinstance(ids, list):
+                return None
+            lines = ["Recommended actions (from action codes)", ""]
+            for ac_id in ids:
+                if not isinstance(ac_id, str) or not ac_id.strip():
+                    continue
+                ac_id = ac_id.strip()
+                # Find YAML under action_codes (skip decision_spines)
+                found = None
+                for path in self.action_codes_root.rglob(f"{ac_id}.yaml"):
+                    if "decision_spines" in path.parts:
+                        continue
+                    found = path
+                    break
+                if not found or not found.exists():
+                    lines.append(f"• {ac_id} (definition not found)")
+                    continue
+                with open(found, "r", encoding="utf-8") as f:
+                    ac = yaml.safe_load(f) or {}
+                name = ac.get("name") or ac_id
+                owner = ac.get("owner_role") or "—"
+                steps = []
+                exec_block = ac.get("operational_execution") or {}
+                if isinstance(exec_block, dict):
+                    steps = exec_block.get("steps") or []
+                if not isinstance(steps, list):
+                    steps = []
+                steps = steps[:3]
+                lines.append(f"• {ac_id} — {name}")
+                lines.append(f"  Owner: {owner}")
+                for s in steps:
+                    if isinstance(s, str):
+                        lines.append(f"  · {s}")
+                lines.append("")
+            if len(lines) <= 2:
+                return None
+            text = "\n".join(lines).strip()
+            # Escape single quotes for Power BI Literal (double them)
+            text = text.replace("'", "''")
+            return f"'{text}'"
+        except Exception:
+            return None
 
     def load_use_case_bracket(self, use_case_id: str) -> Dict[str, Any]:
         """Load UseCase_Bracket.yaml for a given use case."""
@@ -317,6 +413,13 @@ class ConfigLoader:
             # Pass through for builder: exact visual_type per position (round-trip from layout editor).
             c3s = p1.get("component_3s")
             c30s = p1.get("component_30s")
+            # Card KPI IDs: strategic (component_3s) + first 3 influencing from orchestration
+            orch = (bracket.get("orchestration") or {}) if isinstance(bracket, dict) else {}
+            strategic = (c3s.get("kpi_id") if isinstance(c3s, dict) else None) or orch.get("strategic_kpi_id", "")
+            influencing = orch.get("influencing_kpi_ids") or []
+            card_kpi_ids = ([strategic] if strategic else []) + list(influencing)[:3]
+            kpi_to_measure = self.load_kpi_id_to_measure_name_map()
+            card_measure_names = [kpi_to_measure.get(k, k) for k in card_kpi_ids]
             return {
                 "name": "overview",
                 "layer": [3, 30],
@@ -325,6 +428,9 @@ class ConfigLoader:
                 "slots": slots,
                 "component_3s": dict(c3s) if isinstance(c3s, dict) else {},
                 "component_30s": list(c30s) if isinstance(c30s, list) else [],
+                "card_kpi_ids": card_kpi_ids,
+                "card_measure_names": card_measure_names,
+                "kpi_id_to_measure_name": kpi_to_measure,
             }
 
         if page_name == "detail":
@@ -339,12 +445,24 @@ class ConfigLoader:
             template = "T4" if has_action_panel else "T2"
             slots["needs_detail_matrix"] = True
             slots["needs_prescriptive"] = has_action_panel
+            # Use same KPI cards as overview (strategic + influencing) so detail cards have measure bindings
+            orch = (bracket.get("orchestration") or {}) if isinstance(bracket, dict) else {}
+            p1 = ux.get("page_1_summary") or {}
+            c3s = p1.get("component_3s") if isinstance(p1, dict) else {}
+            strategic = (c3s.get("kpi_id") if isinstance(c3s, dict) else None) or orch.get("strategic_kpi_id", "")
+            influencing = orch.get("influencing_kpi_ids") or []
+            card_kpi_ids = ([strategic] if strategic else []) + list(influencing)[:3]
+            kpi_to_measure = self.load_kpi_id_to_measure_name_map()
+            card_measure_names = [kpi_to_measure.get(k, k) for k in card_kpi_ids]
             return {
                 "name": "detail",
                 "layer": [300],
                 "template": template,
                 "needs_action_panel": has_action_panel,
                 "slots": slots,
+                "card_kpi_ids": card_kpi_ids,
+                "card_measure_names": card_measure_names,
+                "kpi_id_to_measure_name": kpi_to_measure,
             }
 
         raise ValueError(f"Page {page_name} not supported (expected 'overview' or 'detail')")

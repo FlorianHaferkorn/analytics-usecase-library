@@ -21,8 +21,9 @@ from typing import Any, Dict, List, Optional, Tuple
 
 # Repo root (apply_report_theme.py lives in products/fabric_powerbi/tooling/)
 REPO_ROOT = Path(__file__).resolve().parents[3]
-THEME_GENERATOR_THEMES = REPO_ROOT / "implementations" / "microsoft_fabric_powerbi" / "tools" / "theme_generator" / "themes"
-THEME_GENERATOR_CONFIG = REPO_ROOT / "implementations" / "microsoft_fabric_powerbi" / "tools" / "theme_generator" / "themes.config.json"
+# This repo: products/fabric_powerbi/tooling/theme_generator/themes
+THEME_GENERATOR_THEMES = REPO_ROOT / "products" / "fabric_powerbi" / "tooling" / "theme_generator" / "themes"
+THEME_GENERATOR_CONFIG = REPO_ROOT / "products" / "fabric_powerbi" / "tooling" / "theme_generator" / "themes.config.json"
 SHOWCASES_DIR = REPO_ROOT / "showcases"
 DEFAULT_BASE_THEME = "CY25SU10"
 REPORT_VERSION_AT_IMPORT = {"visual": "2.1.0", "report": "3.0.0", "page": "2.3.0"}
@@ -103,7 +104,7 @@ def get_default_theme_name(report_path: Optional[Path] = None) -> Optional[str]:
 
 def _run_theme_generator(color: str, concept: str, mode: str, brand: str, secondary: Optional[str] = None) -> None:
     """Run theme generator agent_cli with given args."""
-    agent = REPO_ROOT / "implementations" / "microsoft_fabric_powerbi" / "tools" / "theme_generator" / "tools" / "theme-agent" / "agent_cli.py"
+    agent = REPO_ROOT / "products" / "fabric_powerbi" / "tooling" / "theme_generator" / "tools" / "theme-agent" / "agent_cli.py"
     if not agent.exists():
         raise FileNotFoundError(f"Theme agent not found: {agent}")
     cmd = [
@@ -123,7 +124,7 @@ def _validate_theme_against_schema(theme_path: Path) -> bool:
     except ImportError:
         return True
     # Resolve theme_generator theme-agent for fetch_latest_theme_schema
-    agent_dir = REPO_ROOT / "implementations" / "microsoft_fabric_powerbi" / "tools" / "theme_generator" / "tools" / "theme-agent"
+    agent_dir = REPO_ROOT / "products" / "fabric_powerbi" / "tooling" / "theme_generator" / "tools" / "theme-agent"
     if agent_dir not in sys.path:
         sys.path.insert(0, str(agent_dir))
     try:

@@ -1,0 +1,160 @@
+/// Invoice-line sales (net sales, quantity, price, COGS) with plan and prior year.
+table fact_sales
+	lineageTag: 2a68a33d-8115-49d4-b301-391a44ef5cdf
+
+	column DateKey
+		dataType: int64
+		lineageTag: d94b2d5d-e1b8-4a40-8121-e0d4d4c3697d
+		summarizeBy: none
+		sourceColumn: DateKey
+
+	column OrgKey
+		dataType: int64
+		lineageTag: ee012aca-f59d-47ec-a795-880676f31e58
+		summarizeBy: none
+		sourceColumn: OrgKey
+
+	column ProductKey
+		dataType: int64
+		lineageTag: f9a1b15c-a44c-4ea2-8227-d64ae0dbee0e
+		summarizeBy: none
+		sourceColumn: ProductKey
+
+	column CustomerKey
+		dataType: int64
+		lineageTag: b12c4e3e-f0d5-4744-bbb9-ddc14aa73f80
+		summarizeBy: none
+		sourceColumn: CustomerKey
+
+	column PromoKey
+		dataType: int64
+		lineageTag: 263653b6-63ae-446e-9983-d1c339979c67
+		summarizeBy: none
+		sourceColumn: PromoKey
+
+	column 'Promo Flag'
+		dataType: string
+		lineageTag: 17a510bd-e753-48d9-8aeb-fe31524ccf81
+		summarizeBy: none
+		sourceColumn: Promo Flag
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Net Sales Amount'
+		dataType: double
+		lineageTag: 34b6943c-d8ac-4795-90c7-a96850ac222c
+		summarizeBy: sum
+		sourceColumn: Net Sales Amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Quantity
+		dataType: int64
+		formatString: 0
+		lineageTag: 1f5e665c-045c-4ee5-9489-19a153fcd1dc
+		summarizeBy: sum
+		sourceColumn: Quantity
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Plan Quantity'
+		dataType: double
+		lineageTag: 620aada7-98f7-4a9a-bfce-843f543651e4
+		summarizeBy: sum
+		sourceColumn: Plan Quantity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'List Price Amount'
+		dataType: double
+		lineageTag: a5b7fea2-8a72-4b73-a839-d9b4fc0bb5d2
+		summarizeBy: sum
+		sourceColumn: List Price Amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Net Price Amount'
+		dataType: double
+		lineageTag: 5c6115d5-b99d-460f-adea-e763859e9287
+		summarizeBy: sum
+		sourceColumn: Net Price Amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Discount Amount'
+		dataType: double
+		lineageTag: bee4e621-9905-4452-aafe-77dc3f6ee602
+		summarizeBy: sum
+		sourceColumn: Discount Amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Plan Sales Amount'
+		dataType: double
+		lineageTag: eab9b7f1-48f2-457c-b82e-cbe57b4ee33c
+		summarizeBy: sum
+		sourceColumn: Plan Sales Amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Last Year Sales Amount'
+		dataType: double
+		lineageTag: bf1eb1fc-e481-4333-aac9-cdbc45475955
+		summarizeBy: sum
+		sourceColumn: Last Year Sales Amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Cost of Goods Sold Amount'
+		dataType: double
+		lineageTag: 98321ade-8079-4c54-9e76-03a0df7c4cc0
+		summarizeBy: sum
+		sourceColumn: Cost of Goods Sold Amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column InvoiceLineID
+		dataType: string
+		lineageTag: 2c2bed5b-2cd8-42ea-8d4e-8fa3b1417cf1
+		summarizeBy: none
+		sourceColumn: InvoiceLineID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Plan COGS Amount'
+		dataType: double
+		lineageTag: 5fee96b1-6265-4adc-90ed-c3669973877a
+		summarizeBy: sum
+		sourceColumn: Plan COGS Amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition fact_sales = m
+		mode: import
+		source =
+				let
+						Source = Folder.Files(GoldDataPath & "/facts/fact_sales"),
+						FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+						FirstFile = FilteredFiles{0}[Content],
+						ParquetData = Parquet.Document(FirstFile)
+						in
+						ParquetData
+

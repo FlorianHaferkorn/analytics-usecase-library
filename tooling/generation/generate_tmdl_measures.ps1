@@ -19,6 +19,8 @@ Param(
   [switch]$OverwriteExisting,
   # Write into a shared semantic model (e.g. Aurora showcase). All use cases -> ONE _Measures.tmdl with displayFolder per use case.
   [string]$TargetTablesDir = "",
+  # When set with TargetTablesDir: write one _Measures_<UC>.tmdl per use case (delta). Only touched use cases are written; others stay unchanged.
+  [switch]$PerUseCaseFiles,
   # Convenience: same as -TargetTablesDir for one Aurora domain model (default: Commercial.SemanticModel). Prefer orchestrate with -TargetTablesDir per domain.
   [switch]$UseAuroraShowcase,
   # Skip generation of _ActionReady_Logic.tmdl (action-text measures).
@@ -425,6 +427,8 @@ function Load-ActionCodeYaml {
   $id = $idMatch.Groups[1].Value.Trim()
   $nameMatch = [regex]::Match($raw, '(?m)^\s*name\s*:\s*"?([^"''\r\n]+)"?\s*$')
   $name = if ($nameMatch.Success) { $nameMatch.Groups[1].Value.Trim() } else { $id }
+  $descMatch = [regex]::Match($raw, '(?m)^\s*description\s*:\s*"?([^"''\r\n]+)"?\s*$')
+  $description = if ($descMatch.Success) { $descMatch.Groups[1].Value.Trim() } else { $null }
 
   # Trigger summary: type + levels summary
   $triggerType = ""
@@ -478,6 +482,7 @@ function Load-ActionCodeYaml {
   return @{
     id             = $id
     name           = $name
+    description    = $description
     trigger_summary = $triggerSummary
     owner_role     = $owner
     steps          = $steps
@@ -533,7 +538,6 @@ function Build-ActionTextMeasureBlock {
   param($ActionCode)
   $t1 = "`t"
   $t2 = "`t`t"
-  $t3 = "`t`t`t"
   $lines = @()
   $acId = $ActionCode.id
   $measureName = "Action_$($acId)_Text"
@@ -562,10 +566,12 @@ function Build-ActionTextMeasureBlock {
 
   # Comment header
   $lines += ($t1 + "/// ActionReady Logic: $acId - $($ActionCode.name)")
+  if ($ActionCode.description) {
+    $lines += ($t1 + "/// " + $ActionCode.description)
+  }
 
-  # Measure definition
-  $lines += ($t1 + "measure '$safeId' =")
-  $lines += ($t3 + $daxExpression)
+  # Measure definition: one line measure 'Name' = EXPR; properties at t2 (Desktop: child properties one tab deeper)
+  $lines += ($t1 + "measure '$safeId' = " + $daxExpression)
   $lines += ($t2 + "isHidden")
   $lines += ($t2 + "displayFolder: ""9_ActionReady_Logic""")
   # Annotation for RLS / automation
@@ -579,12 +585,14 @@ function Build-ActionReadyLogicTable {
   <#
   .SYNOPSIS Generate the full _ActionReady_Logic.tmdl file content.
   Collects all action codes referenced by the selected use cases.
+  When ShellOnly is true (e.g. shared model): table shell only, no measures (measures live in _Measures).
   Returns: string (full TMDL file content) and a count of measures generated.
   #>
   param(
     [hashtable]$Brackets,      # UseCase ID -> bracket data
     [hashtable]$ActionCodes,   # Action Code ID -> action code data
-    [string[]]$SelectedUseCases # Use case IDs to include (empty = all)
+    [string[]]$SelectedUseCases, # Use case IDs to include (empty = all)
+    [switch]$ShellOnly         # When set: output only table/partition/column, no measures (avoids duplicate with _Measures)
   )
   $t1 = "`t"
   $t2 = "`t`t"
@@ -626,7 +634,7 @@ function Build-ActionReadyLogicTable {
   $header += ($t2 + "mode: import")
   $header += ($t2 + "source =")
   $header += ($t3 + "`tlet")
-  $header += ($t3 + "`t`tSource = #table(type table[_Placeholder = text], {})")
+  $header += ($t3 + "`t`tSource = #table(type table[_Placeholder = Text.Type], {})")
   $header += ($t3 + "`tin")
   $header += ($t3 + "`t`tSource")
   $header += ""
@@ -636,6 +644,13 @@ function Build-ActionReadyLogicTable {
   $header += ($t2 + "isHidden")
   $header += ($t2 + "summarizeBy: none")
   $header += ""
+
+  if ($ShellOnly) {
+    $header[0] = "/// ActionReady Logic Table - Placeholder (action measures live in _Measures, displayFolder 9_ActionReady_Logic)"
+    $header[1] = "/// DO NOT EDIT MANUALLY - regenerate via generate_tmdl_measures.ps1"
+    $content = $header -join [Environment]::NewLine
+    return @{ Content = $content; Count = 0 }
+  }
 
   $measureBlocks = @()
   $generatedCount = 0
@@ -769,7 +784,6 @@ function Build-MeasureBlock {
   # TMDL requires tabs only for indentation (tmdl_best_practices.md; check_tmdl_syntax.ps1).
   $t1 = "`t"
   $t2 = "`t`t"
-  $t3 = "`t`t`t"
   $lines = @()
   if ($Measure.kpi_id -or $Measure.kpi_key) {
     $label = $Measure.kpi_key
@@ -787,23 +801,19 @@ function Build-MeasureBlock {
   if ($Measure.purpose) { $lines += ($t1 + "/// " + $Measure.purpose) }
   elseif ($Measure.description) { $lines += ($t1 + "/// " + $Measure.description) }
   $name = $Measure.name.Replace("'", "''")
-  $expressionLines = @()
   if ($Measure.missing) {
     $lines += ($t1 + "/// MISSING in KPI catalog: " + $Measure.kpi_id)
-    $expressionLines = @("// TODO", "BLANK()")
+    $daxOneLine = "// TODO BLANK()"
   } else {
     $expr = if ($Measure.dax_expression) { $Measure.dax_expression } else { "BLANK()" }
-    $expressionLines = $expr -split "\r?\n"
+    # Single-line DAX for reliable TMDL parsing (no multiline indent ambiguity)
+    $daxOneLine = ($expr -split "\r?\n" | ForEach-Object { $_.Trim() } | Where-Object { $_ }) -join " "
   }
-  $lines += ($t1 + "measure '$name' =")
-  foreach ($ln in $expressionLines) {
-    $lines += ($t3 + $ln.TrimStart())
-  }
+  # TMDL: measure 'Name' = <expression> on one line; properties at t2 (Desktop Feb 2026: child properties must be one tab deeper than measure)
+  $lines += ($t1 + "measure '$name' = " + $daxOneLine)
   if ($Measure.format_string) { $lines += ($t2 + "formatString: """ + $Measure.format_string.Replace('"', '\"') + """") }
-  # Display folder: strategic vs influencing vs default
   $displayFolder = if ($Measure.display_folder) { $Measure.display_folder } else { $DefaultDisplayFolder }
   if ($displayFolder) { $lines += ($t2 + "displayFolder: """ + $displayFolder.Replace('"', '\"') + """") }
-  # Trust-score annotation (machine-readable, no name change)
   if ($null -ne $trustScore) {
     $lines += ($t2 + "annotation ActionReady_TrustScore = ""$trustScore""")
   }
@@ -844,6 +854,27 @@ if ($TargetTablesDir -and $TargetTablesDir.Trim().Length -gt 0) {
 if (-not $resolvedTablesDir) {
   $resolvedDistRoot = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'products/fabric_powerbi/dist'
   if (-not $resolvedDistRoot) { throw "Unable to resolve dist root. Provide -DistRoot or -UseAuroraShowcase / -TargetTablesDir or run inside repository." }
+  # When only -UseCase is provided (no TargetTablesDir): write to domain model under dist to avoid dist/COM-001 and dist/_shared.
+  if ($UseCase -and $UseCase.Count -gt 0) {
+    $firstUc = (($UseCase -join ',') -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ } | Select-Object -First 1)
+    if ($firstUc -match '^([A-Z]{2,3})-') {
+      $prefix = $Matches[1]
+      $domainModelName = switch ($prefix) {
+        'COM' { 'Commercial.SemanticModel' }
+        'FIN' { 'Finance.SemanticModel' }
+        'OPS' { 'Operations.SemanticModel' }
+        'SCM' { 'SupplyChain.SemanticModel' }
+        'XD'  { 'Experience.SemanticModel' }
+        default { $null }
+      }
+      if ($domainModelName) {
+        $tablesCandidate = Join-Path $resolvedDistRoot (Join-Path $domainModelName 'definition\tables')
+        Ensure-Dir $tablesCandidate | Out-Null
+        $resolvedTablesDir = (Resolve-Path $tablesCandidate).Path
+        Write-Host "TargetTablesDir derived from use case ($firstUc -> $domainModelName)" -ForegroundColor Gray
+      }
+    }
+  }
 }
 
 $catalog = @{}
@@ -1003,81 +1034,169 @@ if ($UseCase -and $UseCase.Count -gt 0) {
 }
 
 # ============================================================================
-# MODE: Shared semantic model (Aurora showcase) - ALL measures in ONE _Measures.tmdl
+# MODE: Shared semantic model (Aurora showcase)
+#   - PerUseCaseFiles: one _Measures_<UC>.tmdl per use case (delta: only touched UCs written).
+#   - Else: ALL measures in ONE _Measures.tmdl (full refresh).
 # ============================================================================
 if ($resolvedTablesDir) {
-  $allMeasureBlocks = @()
-  $processedUseCases = @()
   $labelMap = [ordered]@{}
+  $definitionRoot = Split-Path -Parent $resolvedTablesDir
+  $modelPath = Join-Path $definitionRoot 'model.tmdl'
 
-  foreach ($item in $useCaseData) {
-    $useCaseId = $item.useCaseId
-    $targetIds = $item.targetIds
-    if ($targetIds.Count -eq 0) {
-      Write-Host "Skipping $useCaseId - no KPI IDs." -ForegroundColor Yellow
-      continue
-    }
-    if (-not $script:UseIRPath -and $item.factSheetPath) {
-      $frontMatter = Get-FrontMatterBlock -Path $item.factSheetPath
-      if ($frontMatter) { $labelMap = Parse-StringMap -Lines $frontMatter.Lines -Field 'required_kpis' }
-      if (-not $labelMap) { $labelMap = [ordered]@{} }
-    }
-
-    foreach ($id in $targetIds) {
-      $record = if ($catalog.ContainsKey($id)) { $catalog[$id] } else { $null }
-      $measure = Build-MeasureObject -KpiId $id -CatalogRecord $record -LabelMap $labelMap
-      if (-not $record) {
-        Write-Host "Warning: KPI '$id' missing in catalog for $useCaseId" -ForegroundColor Yellow
+  if ($PerUseCaseFiles) {
+    # Delta: write only one file per use case in this run; others stay untouched.
+    foreach ($item in $useCaseData) {
+      $useCaseId = $item.useCaseId
+      $targetIds = $item.targetIds
+      if ($targetIds.Count -eq 0) {
+        Write-Host "Skipping $useCaseId - no KPI IDs." -ForegroundColor Yellow
+        continue
       }
-      $allMeasureBlocks += (Build-MeasureBlock -Measure $measure -DefaultDisplayFolder $useCaseId -TrustScores $trustScores)
+      if (-not $script:UseIRPath -and $item.factSheetPath) {
+        $frontMatter = Get-FrontMatterBlock -Path $item.factSheetPath
+        if ($frontMatter) { $labelMap = Parse-StringMap -Lines $frontMatter.Lines -Field 'required_kpis' }
+        if (-not $labelMap) { $labelMap = [ordered]@{} }
+      }
+      $blocks = @()
+      foreach ($id in $targetIds) {
+        $record = if ($catalog.ContainsKey($id)) { $catalog[$id] } else { $null }
+        $measure = Build-MeasureObject -KpiId $id -CatalogRecord $record -LabelMap $labelMap
+        if (-not $record) { Write-Host "Warning: KPI '$id' missing in catalog for $useCaseId" -ForegroundColor Yellow }
+        $blocks += (Build-MeasureBlock -Measure $measure -DefaultDisplayFolder $useCaseId -TrustScores $trustScores)
+      }
+      $tableName = "_Measures_$useCaseId"
+      $measuresPath = Join-Path $resolvedTablesDir "$tableName.tmdl"
+      if (-not $StubOnly -and -not $OverwriteExisting -and (Test-Path $measuresPath)) {
+        Write-Host "Skipping $useCaseId - $tableName.tmdl already exists (use -OverwriteExisting)." -ForegroundColor Gray
+        $generated++
+        continue
+      }
+      $header = @()
+      $header += ("/// Measures for $useCaseId")
+      $header += ("table $tableName")
+      $header += ""
+      $header += ("`tpartition $tableName = m")
+      $header += ("`t`tmode: import")
+      $header += ("`t`tsource =")
+      $header += ("`t`t`t`tlet")
+      $header += ("`t`t`t`t`tSource = #table(type table[Column1 = text], {})")
+      $header += ("`t`t`t`tin")
+      $header += ("`t`t`t`t`tSource")
+      $header += ""
+      $header += ("`tcolumn Column1")
+      $header += ("`t`tdataType: string")
+      $header += ("`t`tsourceColumn: Column1")
+      $header += ("`t`tisHidden")
+      $header += ("`t`tsummarizeBy: none")
+      $header += ""
+      $content = ($header + $blocks) -join [Environment]::NewLine
+      if ($StubOnly) {
+        Write-Utf8NoBom -Path (Join-Path $resolvedTablesDir "$tableName.generated.tmdl") -Text $content
+      } else {
+        Write-Utf8NoBom -Path $measuresPath -Text $content
+      }
+      if (-not $StubOnly -and (Test-Path $modelPath)) {
+        $modelRaw = Get-Content -Raw -Path $modelPath
+        if ($modelRaw -notmatch ("(?m)^ref\s+table\s+" + [regex]::Escape($tableName) + "\s*$")) {
+          $append = "ref table $tableName"
+          $newContent = if ($modelRaw.TrimEnd().Length -gt 0) { $modelRaw.TrimEnd() + [Environment]::NewLine + $append + [Environment]::NewLine } else { $append + [Environment]::NewLine }
+          Write-Utf8NoBom -Path $modelPath -Text $newContent
+          Write-Host "  Added ref table $tableName to model.tmdl" -ForegroundColor Gray
+        }
+      }
+      Write-Host ("Generated _Measures_$useCaseId.tmdl -> " + $measuresPath) -ForegroundColor Green
+      $generated++
     }
-    $processedUseCases += $useCaseId
-    Write-Host "Collected measures for $useCaseId" -ForegroundColor Gray
-  }
-
-  if ($allMeasureBlocks.Count -eq 0) {
-    Write-Host "No measures collected." -ForegroundColor Yellow
-    exit 0
-  }
-
-  # Write ALL measures to ONE _Measures.tmdl
-  $measuresPath = Join-Path $resolvedTablesDir "_Measures.tmdl"
-  $generatedPath = Join-Path $resolvedTablesDir "_Measures.generated.tmdl"
-
-  if (-not $StubOnly -and -not $OverwriteExisting -and (Test-Path $measuresPath)) {
-    Write-Host "Skipping - _Measures.tmdl already exists (use -OverwriteExisting or -StubOnly)." -ForegroundColor Yellow
-    exit 0
-  }
-
-  $header = @()
-  $header += ("/// Consolidated Measures for: " + ($processedUseCases -join ", "))
-  $header += ("table $MeasuresTableName")
-  $header += ""
-  $header += ("`tpartition $MeasuresTableName = m")
-  $header += ("`t`tmode: import")
-  $header += ("`t`tsource =")
-  $header += ("`t`t`t`tlet")
-  $header += ("`t`t`t`t`tSource = #table(type table[Column1 = text], {})")
-  $header += ("`t`t`t`tin")
-  $header += ("`t`t`t`t`tSource")
-  $header += ""
-  $header += ("`tcolumn Column1")
-  $header += ("`t`tdataType: string")
-  $header += ("`t`tsourceColumn: Column1")
-  $header += ("`t`tisHidden")
-  $header += ("`t`tsummarizeBy: none")
-  $header += ""
-
-  $content = ($header + $allMeasureBlocks) -join [Environment]::NewLine
-
-  if ($StubOnly) {
-    Write-Utf8NoBom -Path $generatedPath -Text $content
-    Write-Host ("Generated stub _Measures.tmdl with measures from: " + ($processedUseCases -join ", ") + " -> " + $generatedPath) -ForegroundColor Green
   } else {
-    Write-Utf8NoBom -Path $measuresPath -Text $content
-    Write-Host ("Generated _Measures.tmdl with measures from: " + ($processedUseCases -join ", ") + " -> " + $measuresPath) -ForegroundColor Green
+    # Full: one consolidated _Measures.tmdl with all use cases in this run
+    $allMeasureBlocks = @()
+    $processedUseCases = @()
+
+    foreach ($item in $useCaseData) {
+      $useCaseId = $item.useCaseId
+      $targetIds = $item.targetIds
+      if ($targetIds.Count -eq 0) {
+        Write-Host "Skipping $useCaseId - no KPI IDs." -ForegroundColor Yellow
+        continue
+      }
+      if (-not $script:UseIRPath -and $item.factSheetPath) {
+        $frontMatter = Get-FrontMatterBlock -Path $item.factSheetPath
+        if ($frontMatter) { $labelMap = Parse-StringMap -Lines $frontMatter.Lines -Field 'required_kpis' }
+        if (-not $labelMap) { $labelMap = [ordered]@{} }
+      }
+
+      foreach ($id in $targetIds) {
+        $record = if ($catalog.ContainsKey($id)) { $catalog[$id] } else { $null }
+        $measure = Build-MeasureObject -KpiId $id -CatalogRecord $record -LabelMap $labelMap
+        if (-not $record) {
+          Write-Host "Warning: KPI '$id' missing in catalog for $useCaseId" -ForegroundColor Yellow
+        }
+        $allMeasureBlocks += (Build-MeasureBlock -Measure $measure -DefaultDisplayFolder $useCaseId -TrustScores $trustScores)
+      }
+      $processedUseCases += $useCaseId
+      Write-Host "Collected measures for $useCaseId" -ForegroundColor Gray
+    }
+
+    # Append Action Code text measures into _Measures (own display folder) when not skipping action logic
+    if (-not $SkipActionLogic -and $useCaseBrackets.Count -gt 0 -and $allActionCodes.Count -gt 0) {
+      $actionIdsForMeasures = @{}
+      foreach ($ucId in $useCaseBrackets.Keys) {
+        if ($processedUseCases -and $processedUseCases.Count -gt 0 -and $processedUseCases -notcontains $ucId) { continue }
+        foreach ($acId in $useCaseBrackets[$ucId].action_code_ids) {
+          if (-not $actionIdsForMeasures.ContainsKey($acId)) { $actionIdsForMeasures[$acId] = $true }
+        }
+      }
+      foreach ($acId in ($actionIdsForMeasures.Keys | Sort-Object)) {
+        $ac = if ($allActionCodes.ContainsKey($acId)) { $allActionCodes[$acId] } else { $null }
+        if (-not $ac) {
+          $ac = @{ id = $acId; name = "(Action Code not found)"; trigger_summary = "(no trigger)"; owner_role = "TBD"; steps = @("(YAML missing)") }
+        }
+        $allMeasureBlocks += (Build-ActionTextMeasureBlock -ActionCode $ac)
+      }
+      if ($actionIdsForMeasures.Count -gt 0) { Write-Host "Collected $($actionIdsForMeasures.Count) action-code measure(s) for _Measures (displayFolder: 9_ActionReady_Logic)." -ForegroundColor Gray }
+    }
+
+    if ($allMeasureBlocks.Count -eq 0) {
+      Write-Host "No measures collected." -ForegroundColor Yellow
+    } else {
+      $measuresPath = Join-Path $resolvedTablesDir "_Measures.tmdl"
+      $generatedPath = Join-Path $resolvedTablesDir "_Measures.generated.tmdl"
+
+      if (-not $StubOnly -and -not $OverwriteExisting -and (Test-Path $measuresPath)) {
+        Write-Host "Skipping - _Measures.tmdl already exists (use -OverwriteExisting or -StubOnly)." -ForegroundColor Yellow
+      } else {
+        $header = @()
+        $header += ("/// Consolidated Measures for: " + ($processedUseCases -join ", "))
+        $header += ("table $MeasuresTableName")
+        $header += ""
+        $header += ("`tpartition $MeasuresTableName = m")
+        $header += ("`t`tmode: import")
+        $header += ("`t`tsource =")
+        $header += ("`t`t`t`tlet")
+        $header += ("`t`t`t`t`tSource = #table(type table[Column1 = text], {})")
+        $header += ("`t`t`t`tin")
+        $header += ("`t`t`t`t`tSource")
+        $header += ""
+        $header += ("`tcolumn Column1")
+        $header += ("`t`tdataType: string")
+        $header += ("`t`tsourceColumn: Column1")
+        $header += ("`t`tisHidden")
+        $header += ("`t`tsummarizeBy: none")
+        $header += ""
+
+        $content = ($header + $allMeasureBlocks) -join [Environment]::NewLine
+
+        if ($StubOnly) {
+          Write-Utf8NoBom -Path $generatedPath -Text $content
+          Write-Host ("Generated stub _Measures.tmdl with measures from: " + ($processedUseCases -join ", ") + " -> " + $generatedPath) -ForegroundColor Green
+        } else {
+          Write-Utf8NoBom -Path $measuresPath -Text $content
+          Write-Host ("Generated _Measures.tmdl with measures from: " + ($processedUseCases -join ", ") + " -> " + $measuresPath) -ForegroundColor Green
+        }
+        $generated = $processedUseCases.Count
+      }
+    }
   }
-  $generated = $processedUseCases.Count
 }
 # ============================================================================
 # MODE: Per-use-case output (dist) - one _Measures.tmdl per use case folder
@@ -1195,23 +1314,19 @@ if ($generated -eq 0) {
 
 # ============================================================================
 # ActionReady Logic: _ActionReady_Logic.tmdl (hidden action-text measures)
+# When TargetTablesDir (shared model): write table shell only; action measures are in _Measures.
 # ============================================================================
 if (-not $SkipActionLogic -and $useCaseBrackets.Count -gt 0 -and $allActionCodes.Count -gt 0) {
+  $actionShellOnly = [bool]$resolvedTablesDir
   $actionResult = Build-ActionReadyLogicTable `
     -Brackets $useCaseBrackets `
     -ActionCodes $allActionCodes `
-    -SelectedUseCases $selectedUseCaseFilters
+    -SelectedUseCases $selectedUseCaseFilters `
+    -ShellOnly:$actionShellOnly
 
   if ($actionResult.Content) {
-    # Determine output directory
-    $actionTargetDir = $null
-    if ($resolvedTablesDir) {
-      $actionTargetDir = $resolvedTablesDir
-    } elseif ($resolvedDistRoot) {
-      # In per-use-case mode, write to a shared location under dist
-      $actionTargetDir = Join-Path $resolvedDistRoot '_shared'
-      Ensure-Dir $actionTargetDir
-    }
+    # Output only into domain model tables dir (no dist/_shared; use -TargetTablesDir or -UseCase so resolvedTablesDir is set).
+    $actionTargetDir = $resolvedTablesDir
 
     if ($actionTargetDir) {
       $actionTmdlPath = Join-Path $actionTargetDir '_ActionReady_Logic.tmdl'
@@ -1238,7 +1353,7 @@ if (-not $SkipActionLogic -and $useCaseBrackets.Count -gt 0 -and $allActionCodes
         }
       }
     } else {
-      Write-Host "Skipping _ActionReady_Logic.tmdl - no output directory resolved." -ForegroundColor Yellow
+      Write-Host "Skipping _ActionReady_Logic.tmdl - no TargetTablesDir (use -TargetTablesDir or -UseCase to write to domain model)." -ForegroundColor Yellow
     }
   } else {
     Write-Host "No action codes found for selected use cases - skipping _ActionReady_Logic.tmdl." -ForegroundColor Yellow
