@@ -3,7 +3,10 @@
   "diagrams": [
     {
       "ordinal": 0,
-      "scrollPosition": { "x": 0, "y": 0 },
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
       "name": "Alle Tabellen",
       "zoomValue": 80,
       "pinKeyFieldsToTop": false,
@@ -14,72 +17,126 @@
         {
           "nodeIndex": "_Measures",
           "nodeLineageTag": "1b425e7d-75b1-447e-bdc0-9b461e52fcc9",
-          "location": { "x": 0, "y": 0 },
-          "size": { "width": 234, "height": 72 },
+          "location": {
+            "x": 0,
+            "y": 0
+          },
+          "size": {
+            "width": 234,
+            "height": 72
+          },
           "zIndex": 0,
           "expandedHeight": 104
         },
         {
           "nodeIndex": "fact_sales",
           "nodeLineageTag": "2a68a33d-8115-49d4-b301-391a44ef5cdf",
-          "location": { "x": 280, "y": 0 },
-          "size": { "width": 234, "height": 128 },
+          "location": {
+            "x": 280,
+            "y": 0
+          },
+          "size": {
+            "width": 234,
+            "height": 128
+          },
           "zIndex": 1,
           "expandedHeight": 152
         },
         {
           "nodeIndex": "dim_date",
           "nodeLineageTag": "3bc6a6f6-54c5-4ae6-86bf-b9238579d313",
-          "location": { "x": 0, "y": 120 },
-          "size": { "width": 234, "height": 104 },
+          "location": {
+            "x": 0,
+            "y": 120
+          },
+          "size": {
+            "width": 234,
+            "height": 104
+          },
           "zIndex": 2,
           "expandedHeight": 152
         },
         {
           "nodeIndex": "dim_org",
           "nodeLineageTag": "5041837f-8a27-4131-8f8b-780fa237df7b",
-          "location": { "x": 0, "y": 240 },
-          "size": { "width": 234, "height": 104 },
+          "location": {
+            "x": 0,
+            "y": 240
+          },
+          "size": {
+            "width": 234,
+            "height": 104
+          },
           "zIndex": 3,
           "expandedHeight": 152
         },
         {
           "nodeIndex": "dim_product",
           "nodeLineageTag": "00b69c3d-89b6-4e4c-9b6f-c72f2092877f",
-          "location": { "x": 0, "y": 360 },
-          "size": { "width": 234, "height": 104 },
+          "location": {
+            "x": 0,
+            "y": 360
+          },
+          "size": {
+            "width": 234,
+            "height": 104
+          },
           "zIndex": 4,
           "expandedHeight": 152
         },
         {
           "nodeIndex": "dim_customer",
           "nodeLineageTag": "4195e088-cde6-438d-928c-65a48616de28",
-          "location": { "x": 0, "y": 480 },
-          "size": { "width": 234, "height": 104 },
+          "location": {
+            "x": 0,
+            "y": 480
+          },
+          "size": {
+            "width": 234,
+            "height": 104
+          },
           "zIndex": 5,
           "expandedHeight": 152
         },
         {
           "nodeIndex": "_ActionReady_Logic",
           "nodeLineageTag": "d82f8360-978b-43b1-8a79-c50737f1cee5",
-          "location": { "x": 0, "y": 600 },
-          "size": { "width": 234, "height": 104 },
+          "location": {
+            "x": 0,
+            "y": 600
+          },
+          "size": {
+            "width": 234,
+            "height": 104
+          },
           "zIndex": 6,
           "expandedHeight": 152
         },
         {
           "nodeIndex": "DateTableTemplate_a45096b1-3bb0-4752-ae40-070cc2217a0b",
           "nodeLineageTag": "2f8030ee-6f03-4921-bedb-1f1ab3a00e50",
-          "location": { "x": 0, "y": 720 },
-          "size": { "width": 234, "height": 104 },
+          "location": {
+            "x": 0,
+            "y": 720
+          },
+          "size": {
+            "width": 234,
+            "height": 104
+          },
           "zIndex": 7,
           "expandedHeight": 152
         },
         {
           "nodeIndex": "LocalDateTable_0ca13cbe-3c5f-4a0c-8e10-7109d4df19a4",
           "nodeLineageTag": "09352929-3979-4ede-aeae-0ca40a0ab4f1",
-          "location": { "x": 0, "y": 840 },
-          "size": { "width": 234, "height": 104 },
+          "location": {
+            "x": 0,
+            "y": 840
+          },
+          "size": {
+            "width": 234,
+            "height": 104
+          },
           "zIndex": 8,
           "expandedHeight": 152
         }

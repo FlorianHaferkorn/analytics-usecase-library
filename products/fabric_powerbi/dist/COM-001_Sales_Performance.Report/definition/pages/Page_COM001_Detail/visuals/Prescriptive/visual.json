@@ -3,9 +3,9 @@
   "name": "Prescriptive",
   "position": {
     "x": 20,
-    "y": 300.0,
+    "y": 300,
     "z": 10000,
-    "height": 420.0,
+    "height": 420,
     "width": 1510,
     "tabOrder": 3600
   },

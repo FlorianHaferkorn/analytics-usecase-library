@@ -1,5 +1,5 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.6.0/schema.json",
   "name": "ActionPanel",
   "position": {
     "x": 1570,
@@ -21,15 +21,7 @@
     "objects": {
       "text": [
         {
-          "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Key actions from variance → see Detail or T4'"
-                }
-              }
-            }
-          }
+          "properties": {}
         }
       ]
     }

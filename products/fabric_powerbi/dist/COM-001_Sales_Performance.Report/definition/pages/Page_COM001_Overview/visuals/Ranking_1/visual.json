@@ -1,9 +1,9 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.6.0/schema.json",
   "name": "Ranking_1",
   "position": {
     "x": 20,
-    "y": 846.6666666666666,
+    "y": 846.66666666666663,
     "z": 10000,
     "height": 253.33333333333331,
     "width": 1510,
@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
+              "nativeQueryRef": "Date",
+              "active": true
             }
           ]
         },
@@ -114,7 +115,6 @@
         }
       ]
     },
-    "drillFilterOtherVisuals": true,
     "visualContainerObjects": {
       "visualHeader": [
         {
@@ -129,6 +129,7 @@
           }
         }
       ]
-    }
+    },
+    "drillFilterOtherVisuals": true
   }
 }
