@@ -30,17 +30,17 @@ This project is configured to use the **Power BI Modeling MCP** server so the Cu
 
 2. **Entscheidung:**
    - **success === true:** Entwicklung beenden; Nutzer kurz bestätigen („Validierung bestanden“). Optional: Report in Power BI Desktop zur finalen Prüfung öffnen.
-   - **success === false:** Fehler aus `errors` beheben (MCP und/oder Datei-Edits). **Learning Loop:** Jede neue Fehlerklasse als Zeile (Symptom | Cause | Fix) in [KNOWN_ERRORS_AND_FIXES.md](internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md) eintragen. Danach Schritt 1 erneut ausführen. Wiederholen bis `success === true` oder max. Iterationen (z. B. 5).
+   - **success === false:** Fehler aus `errors` beheben (MCP und/oder Datei-Edits). **Learning Loop:** Jede neue Fehlerklasse als Zeile (Symptom | Cause | Fix) in [KNOWN_ERRORS_AND_FIXES.md](../internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md) eintragen. Danach Schritt 1 erneut ausführen. Wiederholen bis `success === true` oder max. Iterationen (z. B. 5).
 
 3. **Nicht überspringen:** Die Implementierung gilt erst als abgeschlossen, wenn die Validierung bestanden ist oder du nach max. Iterationen abbrichst und den Nutzer informierst.
 
-Details und gleicher Ablauf: [.cursor/rules/fabric-expert.mdc](.cursor/rules/fabric-expert.mdc) (Abschnitt „Post-Implementation“).
+Details und gleicher Ablauf: [.cursor/rules/fabric-expert.mdc](rules/fabric-expert.mdc) (Abschnitt „Post-Implementation“).
 
 ## Knowledge base for error resolution (MCP workflow)
 
 When the agent uses the Power BI Modeling MCP to fix model/report errors (e.g. after a Desktop error in `.cursor/pbi_errors.log` or a pipeline failure):
 
-- **Load:** [internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md](internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md) — errors and solutions (Symptom | Cause | Fix). Read it first to match known patterns.
+- **Load:** [internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md](../internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md) — errors and solutions (Symptom | Cause | Fix). Read it first to match known patterns.
 - **Update:** After applying a fix for a **new** error class, add one row to the appropriate section of that file so the solution is persisted and the MCP workflow can reuse it next time.
 
 ## Using the MCP from the Cursor agent (learning loop)
@@ -50,7 +50,7 @@ For Fabric/Power BI development, the agent should use the registered MCP:
 - **Server ID for `call_mcp_tool`:** `powerbi-modeling-mcp`
 - **Typical tools:** `connection_operations` (ConnectFolder to PBIP definition path), `model_operations` (Get, ExportTMDL), `measure_operations` (List, Create, Update, ExportTMDL), `table_operations`, `relationship_operations`.
 - **Before calling:** Read the tool schema from `mcps/` (e.g. `mcps/project-0-analytics-usecase-library-powerbi-modeling-mcp/tools/<tool_name>.json`) to get the correct `request` shape.
-- **Rule:** [.cursor/rules/fabric-expert.mdc](.cursor/rules/fabric-expert.mdc) instructs the agent to use this MCP for semantic model work.
+- **Rule:** [.cursor/rules/fabric-expert.mdc](rules/fabric-expert.mdc) instructs the agent to use this MCP for semantic model work.
 
 ## Using it with this project’s PBIP output
 

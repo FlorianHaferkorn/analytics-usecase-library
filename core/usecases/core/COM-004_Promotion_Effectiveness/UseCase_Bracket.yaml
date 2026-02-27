@@ -25,8 +25,10 @@ value_driver_model:
   impact_logic: Improving sales.promo.incremental.amount is the primary lever for maximizing sales.promo.roi.pct.
 ux_layout_rules:
   report_structure: 2-Page-Lead
+  report_canvas: { width: 1920, height: 1080 }
   page_1_summary:
     title: Commercial Summary & Insights
+    template_id: pulse
     component_3s:
       kpi_id: sales.promo.roi.pct
       visual_type: kpi_card
@@ -40,6 +42,7 @@ ux_layout_rules:
       visual_type: bar_chart
   page_2_execution:
     title: Commercial Execution
+    template_id: action_matrix
     component_300s:
       evidence_grain: promotion
       evidence_columns:

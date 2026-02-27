@@ -1,0 +1,9 @@
+{
+  "visual_template_id": "Smart_Narrative",
+  "description": "Summary sentence (Smart Narrative) over current filter state.",
+  "visual_type": "textbox",
+  "slot_compatibility": ["Smart_Narrative"],
+  "defaults": {
+    "placeholder": "Summary of current filter context."
+  }
+}

@@ -1,15 +1,15 @@
 """
 Page Builder
 
-Builds Power BI page structures.
+Builds Power BI page structures. Supports legacy row-based layout and grid-based layout (Master Grid 12×12).
 """
 
 import uuid
 from typing import Dict, Any, List, Optional
 from .layout_calculator import LayoutCalculator, Position
+from .grid_calculator import GridCalculator, GridPosition
 from .visual_builder import VisualBuilder
 from .slicer_builder import SlicerBuilder
-import uuid
 
 
 class PageBuilder:
@@ -26,12 +26,80 @@ class PageBuilder:
     def generate_page_id(self) -> str:
         """Generate unique page ID (20 hex characters)."""
         return uuid.uuid4().hex[:20]
-    
+
+    def _build_page_structure_from_grid(
+        self,
+        grid_blueprint: Dict[str, Any],
+        canvas_width: int,
+        canvas_height: int,
+        card_measure_names: List[str],
+        card_kpi_ids: List[str],
+        visual_templates: Dict[str, Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Build page structure from grid blueprint (Master Grid 12×12). All visuals aligned to grid."""
+        canvas = grid_blueprint.get("canvas") or {}
+        w = canvas.get("width") or canvas_width
+        h = canvas.get("height") or canvas_height
+        calc = GridCalculator(canvas_width=w, canvas_height=h, outer_margin=32, gutter=16)
+        slots_list = grid_blueprint.get("slots") or []
+        visuals: List[Dict[str, Any]] = []
+        slicers: List[Dict[str, Any]] = []
+        tab = self.visual_builder.tab_order_base
+
+        for i, slot_def in enumerate(slots_list):
+            slot_id = slot_def.get("slot_id") or f"Slot_{i}"
+            grid = slot_def.get("grid")
+            if not grid or len(grid) != 4:
+                continue
+            col_start, row_start, col_span, row_span = grid[0], grid[1], grid[2], grid[3]
+            pos = calc.calculate_visual_rect(col_start, row_start, col_span, row_span)
+            # Convert GridPosition to Position for visual_builder (same x,y,width,height)
+            position = Position(x=pos.x, y=pos.y, width=pos.width, height=pos.height)
+
+            visual_type_hint = slot_def.get("visual_type_hint")
+            vt_template = None
+            for _vid, vdef in visual_templates.items():
+                if slot_id in (vdef.get("slot_compatibility") or []):
+                    vt_template = vdef
+                    break
+            visual_type = (
+                (vt_template or {}).get("visual_type")
+                or visual_type_hint
+                or "cardVisual"
+            )
+
+            if visual_type == "slicer":
+                sl = self.slicer_builder.build_time_slicer(position, name=slot_id)
+                sl["position"]["tabOrder"] = tab + i
+                slicers.append(sl)
+                continue
+
+            if visual_type == "cardVisual" or (slot_id.startswith("KPI_") and not visual_type_hint):
+                idx = int(slot_id.split("_")[-1]) - 1 if slot_id.startswith("KPI_") else 0
+                measure_ref = (card_measure_names[idx] if 0 <= idx < len(card_measure_names) else None) or (card_kpi_ids[idx] if 0 <= idx < len(card_kpi_ids) else None)
+                title = (card_kpi_ids[idx] if 0 <= idx < len(card_kpi_ids) else measure_ref or slot_id).replace(".", " ").replace("_", " ").title()
+                vis = self.visual_builder.build_kpi_card(position, measure_ref=measure_ref, name=slot_id, title=title)
+            elif visual_type == "textbox":
+                vis = self.visual_builder._build_base_visual("textbox", position, tab_order=tab + i, name=slot_id)
+                vis["visual"]["objects"] = {"text": [{"properties": {"text": {"expr": {"Literal": {"Value": "'Summary'"}}}}}]}
+            elif visual_type == "tableEx":
+                vis = self.visual_builder.build_table(position, columns=[], measures=[], name=slot_id)
+            elif visual_type == "lineChart":
+                vis = self.visual_builder.build_line_chart(position, name=slot_id)
+            else:
+                vis = self.visual_builder._build_base_visual(visual_type, position, tab_order=tab + i, name=slot_id)
+            vis["position"]["tabOrder"] = tab + i
+            visuals.append(vis)
+
+        return {"visuals": visuals, "slicers": slicers, "action_panel": None}
+
     def build_page_metadata(
         self,
         page_id: str,
         display_name: str,
-        theme_name: Optional[str] = None
+        theme_name: Optional[str] = None,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
     ) -> Dict[str, Any]:
         """
         Build page.json structure.
@@ -40,19 +108,22 @@ class PageBuilder:
             page_id: Unique page ID
             display_name: Page display name
             theme_name: Optional theme name
+            width: Optional canvas width (default from layout_calculator)
+            height: Optional canvas height (default from layout_calculator)
         
         Returns:
             Page JSON structure
         """
+        w = width if width is not None else self.layout_calculator.CANVAS_WIDTH
+        h = height if height is not None else self.layout_calculator.CANVAS_HEIGHT
         page = {
             "$schema": self.PAGE_SCHEMA,
             "name": page_id,
             "displayName": display_name,
             "displayOption": "FitToPage",
-            "height": self.layout_calculator.CANVAS_HEIGHT,
-            "width": self.layout_calculator.CANVAS_WIDTH
+            "height": h,
+            "width": w,
         }
-        
         return page
     
     def build_page_structure(
@@ -67,6 +138,10 @@ class PageBuilder:
         card_measure_names: Optional[List[str]] = None,
         kpi_id_to_measure_name: Optional[Dict[str, str]] = None,
         action_panel_content: Optional[str] = None,
+        grid_blueprint: Optional[Dict[str, Any]] = None,
+        canvas_width: Optional[int] = None,
+        canvas_height: Optional[int] = None,
+        visual_templates: Optional[Dict[str, Dict[str, Any]]] = None,
     ) -> Dict[str, Any]:
         """
         Build complete page structure with visuals.
@@ -82,10 +157,25 @@ class PageBuilder:
             card_measure_names: Optional list of DAX measure names for KPI cards (must match semantic model); used for measure binding when provided.
             kpi_id_to_measure_name: Optional map kpi_id -> measure name for resolving component_30s kpi_ids to DAX measure names.
             action_panel_content: Optional preformatted text for T4 Action Panel (from action codes); used when has_action_panel and template T4.
+            grid_blueprint: Optional grid page template (template_id, canvas, slots with slot_id, grid, visual_type_hint). When set, uses Master Grid for positions.
+            canvas_width: Optional canvas width (used with grid_blueprint; default 1920).
+            canvas_height: Optional canvas height (used with grid_blueprint; default 1080).
+            visual_templates: Optional dict of visual_template_id -> visual template (used with grid_blueprint for visual type).
 
         Returns:
             Dictionary with 'visuals' and 'slicers' lists
         """
+        # Grid path: build from grid_blueprint when provided (Baukasten)
+        if grid_blueprint:
+            return self._build_page_structure_from_grid(
+                grid_blueprint=grid_blueprint,
+                canvas_width=canvas_width or 1920,
+                canvas_height=canvas_height or 1080,
+                card_measure_names=card_measure_names or [],
+                card_kpi_ids=card_kpi_ids or [],
+                visual_templates=visual_templates or {},
+            )
+
         # Determine slicer placement (default: top)
         has_side_slicers = False  # Can be made configurable
 

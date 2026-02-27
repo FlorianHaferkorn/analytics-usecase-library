@@ -6,10 +6,10 @@ table dim_date
 		dataType: int64
 		isHidden
 		lineageTag: db8eea93-7067-42ca-9d8c-8d836148c735
-		summarizeBy: count
+		summarizeBy: none
 		sourceColumn: DateKey
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column Date
 		dataType: dateTime
@@ -25,28 +25,28 @@ table dim_date
 	column Year
 		dataType: int64
 		lineageTag: 3b9f5099-c596-4215-bacd-80d9e1dd55d9
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Year
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column Quarter
 		dataType: int64
 		formatString: 0
 		lineageTag: bf1b5bd1-c005-484d-ad51-a6b6df236541
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Quarter
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column Month
 		dataType: int64
 		formatString: 0
 		lineageTag: 81c27a63-f1d2-415f-82b9-2d47e304f224
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Month
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column 'Month Name'
 		dataType: string
@@ -54,16 +54,16 @@ table dim_date
 		summarizeBy: none
 		sourceColumn: Month Name
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column 'Fiscal Year'
 		dataType: int64
 		formatString: 0
 		lineageTag: 18c1c816-74dc-4550-bf9c-b88d880ab4f9
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Fiscal Year
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column 'Fiscal Period'
 		dataType: string
@@ -71,7 +71,7 @@ table dim_date
 		summarizeBy: none
 		sourceColumn: Fiscal Period
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	hierarchy dim_date_Hierarchy
 		lineageTag: 1d8bf31b

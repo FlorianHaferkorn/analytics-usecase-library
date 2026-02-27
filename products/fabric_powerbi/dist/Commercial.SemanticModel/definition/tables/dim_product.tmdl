@@ -45,15 +45,15 @@ table dim_product
 		summarizeBy: none
 		sourceColumn: Lifecycle Status
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column 'List Price Amount'
 		dataType: double
 		lineageTag: 2052122d-f83b-4a47-ac55-bcd871ed2de1
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: List Price Amount
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 

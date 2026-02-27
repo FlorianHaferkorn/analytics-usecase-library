@@ -35,6 +35,7 @@ if (-not (Test-Path $reportDef)) {
 }
 
 # Layout Grid constants (Layout_Grid_System.yaml / layout_calculator.py)
+# Legacy row-based: PADDING 20. Master Grid (12×12): outer_margin 32, gutter 16 (see grid_calculator.py).
 $PADDING = 20
 $CANVAS_WIDTH = 1920
 $CANVAS_HEIGHT = 1080
@@ -55,7 +56,10 @@ if (-not (Test-Path $pagesDir)) {
 }
 
 $violations = [System.Collections.ArrayList]::new()
-$pageIds = Get-ChildItem -Path $pagesDir -Directory | Where-Object { $_.Name -match '^[a-f0-9]+$' } | ForEach-Object { $_.Name }
+# Include both hex page IDs (legacy) and speaking names (Page_*)
+$pageIds = Get-ChildItem -Path $pagesDir -Directory | Where-Object {
+  $_.Name -match '^[a-f0-9]+$' -or $_.Name -match '^Page_'
+} | ForEach-Object { $_.Name }
 
 foreach ($pageId in $pageIds) {
   $pageJsonPath = Join-Path $pagesDir "$pageId/page.json"

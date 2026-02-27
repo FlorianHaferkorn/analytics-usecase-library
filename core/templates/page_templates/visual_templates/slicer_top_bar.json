@@ -1,0 +1,9 @@
+{
+  "visual_template_id": "Slicer_TopBar",
+  "description": "Horizontal slicer for top filter bar (e.g. Date, Scenario).",
+  "visual_type": "slicer",
+  "slot_compatibility": ["Slicer_Date", "Slicer_Time", "Slicer_Scenario"],
+  "defaults": {
+    "style": "horizontal"
+  }
+}

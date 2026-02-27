@@ -11,7 +11,7 @@
       "type": "SharedResources"
     },
     "customTheme": {
-      "name": "Brand_Blue__Monochromatic__Dark___118DFF.json",
+      "name": "Aurora_Group__Monochromatic__Light___2ECDE7.json",
       "reportVersionAtImport": {
         "visual": "2.1.0",
         "report": "3.0.0",
@@ -80,8 +80,8 @@
       "type": "RegisteredResources",
       "items": [
         {
-          "name": "Brand_Blue__Monochromatic__Dark___118DFF.json",
-          "path": "Brand_Blue__Monochromatic__Dark___118DFF.json",
+          "name": "Aurora_Group__Monochromatic__Light___2ECDE7.json",
+          "path": "Aurora_Group__Monochromatic__Light___2ECDE7.json",
           "type": "CustomTheme"
         }
       ]

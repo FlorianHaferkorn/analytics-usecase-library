@@ -110,12 +110,26 @@
           "type": "string",
           "description": "Report pattern (e.g. 2-Page-Lead)."
         },
+        "report_canvas": {
+          "type": "object",
+          "description": "Optional canvas size for grid-based report (default 1920×1080). Enables proportional scaling when changed.",
+          "properties": {
+            "width": { "type": "integer", "minimum": 1280, "description": "Page width in pixels (Full HD: 1920)." },
+            "height": { "type": "integer", "minimum": 720, "description": "Page height in pixels (Full HD: 1080)." }
+          },
+          "additionalProperties": false
+        },
         "page_1_summary": {
           "type": "object",
           "required": ["title", "component_3s", "component_30s"],
           "additionalProperties": false,
           "properties": {
             "title": { "type": "string" },
+            "template_id": {
+              "type": "string",
+              "enum": ["pulse", "investigator"],
+              "description": "Grid page template for Overview (3s/30s): pulse = 6 KPI slots + 3 main; investigator = left slicer + focus + support."
+            },
             "component_3s": {
               "type": "object",
               "required": ["kpi_id", "visual_type"],
@@ -151,6 +165,11 @@
           "additionalProperties": false,
           "properties": {
             "title": { "type": "string" },
+            "template_id": {
+              "type": "string",
+              "enum": ["investigator", "action_matrix"],
+              "description": "Grid page template for Detail (300s): investigator = left slicer + focus + support; action_matrix = narrative + matrix."
+            },
             "component_300s": {
               "type": "object",
               "required": ["evidence_grain", "evidence_columns", "action_panel", "payload_mode"],

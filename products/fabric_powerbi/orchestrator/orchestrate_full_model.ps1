@@ -10,7 +10,7 @@ Param(
     [string]$ConnectionName = "local_pbip",
     [int]$MaxIterations = 5,
     [switch]$DryRun,
-    [string]$ThemeName = "Brand Blue__Monochromatic__Dark__#118DFF",
+    [string]$ThemeName,
     [switch]$UseAuroraData
 )
 
@@ -29,6 +29,7 @@ Push-Location $script:RepoRoot
 
 # Aurora domain semantic models: central mapping (prefix <-> domain name <-> model path, data contract)
 . "$PSScriptRoot\AuroraDomainMapping.ps1"
+. "$PSScriptRoot\Phase5ReportGeneration.ps1"
 
 # Validate: exactly one of -UseCase, -Domain, -All
 $modeCount = 0
@@ -214,15 +215,17 @@ Invoke-WithRetry "Check Aurora Data" {
 }
 
 # PHASE 2: MEASURE GENERATION (per-domain Aurora semantic models)
+# Use ALL use cases per domain (from repo) so _Measures.tmdl is cumulative; reports stay on same model without losing other UCs' measures.
 $state.phase = "measure_generation"
 $state.iteration = 2
 $state.domainMeasurePaths = @()
 
 $byDomain = Get-UseCaseIdsGroupedByDomain -UseCaseIds $script:SelectedUseCaseIds
+$byDomainAll = Get-UseCaseIdsGroupedByDomain -UseCaseIds $allIdsFromRoot
 $ucRootForScript = $UseCaseRoot -replace '\\', '/'
 Invoke-WithRetry "Generate Measures (Aurora per domain)" {
     foreach ($domainName in $byDomain.Keys) {
-        $ucIds = $byDomain[$domainName]
+        $ucIdsForMeasures = if ($byDomainAll[$domainName]) { @($byDomainAll[$domainName]) } else { $byDomain[$domainName] }
         $tablesPath = Get-FabricDomainTablesPath -DomainName $domainName
         if (-not $tablesPath) {
             Write-Host "  WARNING: No Fabric model path for domain $domainName, skipping" -ForegroundColor Yellow
@@ -236,9 +239,9 @@ Invoke-WithRetry "Generate Measures (Aurora per domain)" {
             $utf8 = New-Object System.Text.UTF8Encoding $false
             [System.IO.File]::WriteAllText((Join-Path $script:RepoRoot (Join-Path $modelPath "definition\model.tmdl")), $modelContent, $utf8)
         }
-        Write-Host "  Domain $domainName : $($ucIds -join ', ')" -ForegroundColor Gray
+        Write-Host "  Domain $domainName : $($ucIdsForMeasures -join ', ')" -ForegroundColor Gray
         & ./tooling/generation/generate_tmdl_measures.ps1 `
-            -UseCase $ucIds `
+            -UseCase $ucIdsForMeasures `
             -UseCasesRoot $ucRootForScript `
             -KpiCatalogRoot "core/kpi_catalog" `
             -DistRoot "products/fabric_powerbi/dist" `
@@ -555,69 +558,10 @@ Invoke-WithRetry "Run Quality Checks" {
 }
 
 # PHASE 5: REPORT GENERATION (UX Engine: page_scaffold_generator, overview + detail, datasetReference)
-$state.phase = "report_generation"
-$state.iteration = 5
-Invoke-WithRetry "Generate Report from Template" {
-    $distReportRoot = Join-Path $script:RepoRoot "products\fabric_powerbi\dist"
-    if (-not (Test-Path $distReportRoot)) { New-Item -ItemType Directory -Path $distReportRoot -Force | Out-Null }
-    $reportUseCases = @($script:SelectedUseCaseIds)
-    $pyCmd = $null
-    foreach ($cmd in @("py -3", "python3", "python")) {
-        try {
-            $parts = $cmd -split " "
-            $exe = $parts[0]
-            $exeArgs = @($parts[1..999] | Where-Object { $_ }) + @("--version")
-            $ver = (& $exe $exeArgs 2>&1) -join " "
-            if ($LASTEXITCODE -eq 0 -and $ver -match "Python 3") { $pyCmd = $cmd; break }
-        } catch { continue }
-    }
-    if (-not $pyCmd) {
-        Write-Host "  WARNING: Python 3 not found; falling back to report_generator.ps1 (empty visuals)" -ForegroundColor Yellow
-        foreach ($ucId in $reportUseCases) {
-            & (Join-Path $script:OrchestratorRoot "report_generator.ps1") -UseCase $ucId -OutputPath $distReportRoot -ErrorAction Stop | Out-Null
-            Write-Host "  Report structure created for $ucId (fallback)" -ForegroundColor Green
-        }
-        return
-    }
-    $pyExe = ($pyCmd -split " ")[0]
-    $pyExeArgs = @(($pyCmd -split " ")[1..999] | Where-Object { $_ })
-    $scriptPath = Join-Path $script:RepoRoot "products\fabric_powerbi\tooling\page_scaffold_generator\generate_full_report.py"
-    foreach ($ucId in $reportUseCases) {
-        $domainName = Get-DomainNameFromUseCaseId -UcId $ucId
-        $datasetRef = Get-DatasetReferenceRelativeFromReport -DomainName $domainName
-        if (-not $datasetRef) { $datasetRef = "..\Commercial.SemanticModel" }
-        $reportFolderBaseName = Get-UseCaseReportFolderBaseName -UcId $ucId
-        $reportFolder = Join-Path $distReportRoot "$reportFolderBaseName.Report"
-        $allArgs = $pyExeArgs + @($scriptPath, "--use-case", $ucId, "--output", $reportFolder, "--repo-root", $script:RepoRoot, "--dataset-reference", $datasetRef)
-        & $pyExe @allArgs 2>&1 | Out-Null
-        if ($LASTEXITCODE -ne 0) {
-            throw "generate_full_report.py failed for $ucId (exit $LASTEXITCODE). Check Bracket ux_layout_rules and page_scaffold_generator."
-        }
-        Write-Host "  Report created for $ucId (overview + detail, UX Engine)" -ForegroundColor Green
-        # Ensure report has StaticResources (BaseThemes) like sample so theme application and base theme work
-        $sampleStatic = Join-Path $script:RepoRoot "showcases\sample_pbip_report\Procurement_Wireframe_Theme.Report\StaticResources"
-        if (Test-Path $sampleStatic) {
-            $destStatic = Join-Path $reportFolder "StaticResources"
-            $baseThemesPath = Join-Path $destStatic "SharedResources\BaseThemes"
-            if (-not (Test-Path $baseThemesPath)) {
-                New-Item -ItemType Directory -Force -Path $destStatic | Out-Null
-                Copy-Item -Path (Join-Path $sampleStatic "*") -Destination $destStatic -Recurse -Force
-                Write-Host "  StaticResources (BaseThemes) copied from sample" -ForegroundColor Cyan
-            }
-        }
-        if ($ThemeName) {
-            $applyThemeScript = Join-Path $script:RepoRoot "products\fabric_powerbi\tooling\apply_report_theme.ps1"
-            if (Test-Path $applyThemeScript) {
-                try {
-                    & $applyThemeScript -Report $reportFolder -ThemeName $ThemeName -ErrorAction Stop | Out-Null
-                    Write-Host "  Theme applied: $ThemeName" -ForegroundColor Green
-                } catch {
-                    Write-Host "  WARNING: Apply theme failed: $_" -ForegroundColor Yellow
-                }
-            }
-        }
-    }
+$phase5Block = {
+    Invoke-Phase5ReportGeneration
 }
+Invoke-WithRetry -PhaseName "Generate Report from Template" -Script $phase5Block
 
 # PHASE 6: VALIDATE FABRIC OUTPUT (two-layer: run_fabric_checks -> structure -> pbi-tools compile)
 $state.phase = "validate_fabric_output"

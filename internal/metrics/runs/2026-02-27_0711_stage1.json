@@ -1,0 +1,12 @@
+﻿{
+    "overall_status":  "fail",
+    "timestamp":  "2026-02-27T07:11:11.8725305+01:00",
+    "checks":  [
+                   {
+                       "status":  "fail",
+                       "exit_code":  1,
+                       "check":  "tooling/validation/check_schema_validation.ps1"
+                   }
+               ],
+    "stage":  "stage1"
+}

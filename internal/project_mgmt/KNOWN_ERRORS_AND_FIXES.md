@@ -2,6 +2,8 @@
 
 Purpose: Single **knowledge base** for PBI/PBIP errors and their **solutions**. Capture recurring build/validate and Desktop errors so the learning loop can prevent or resolve them. When a new error class is fixed, add an entry in the tables below (Symptom | Cause | Fix) and consider a BPA/TMDL rule or script check to catch it next time.
 
+**Pflicht (Agent und Mensch):** Nach **jedem** behobenen Fehler (aus Pipeline, Desktop, Nutzerbericht oder eigener Analyse) **muss** eine neue Zeile in die passende Tabelle unten eingetragen werden, sofern diese Fehlerklasse noch nicht dokumentiert ist. So werden Lösungen wiederverwendbar und derselbe Fehler nicht mehrfach gemacht. Bei Generatoren: Fix im Generator umsetzen **und** hier dokumentieren.
+
 ## Closed-loop (Power BI Desktop + Cursor)
 
 - **Live Desktop errors:** Watcher `watch_pbi.ps1` (repo root) tails `PBIDesktop.log` and appends matching lines to **`.cursor/pbi_errors.log`** (bridge file for Cursor). Run with `.\watch_pbi.ps1` while working in Power BI Desktop.
@@ -42,7 +44,30 @@ Purpose: Single **knowledge base** for PBI/PBIP errors and their **solutions**. 
 | Semantic model / Report „öffnet mit Fehlern“ oder Schema-Fehler beim Öffnen in Desktop | Fehlendes `$schema` in .pbip (z. B. SemanticModel.pbip nur mit version/artifacts), oder fehlende definition.pbism/pbir. | **Sofort:** Von Repo-Root `.\products\fabric_powerbi\tooling\ensure_pbip_desktop_ready.ps1` ausführen – ergänzt fehlende definition.pbism/pbir und `$schema` in allen .pbip. **Dauerhaft:** Orchestrator schreibt SemanticModel.pbip mit `$schema`; Post-Implementation-Validierung (`pbi_validate_after_impl.ps1`) ruft ensure_pbip_desktop_ready vor den Fabric-Checks auf. |
 | TMDL-Validierung schlägt fehl (Syntax/Readiness) | Spaces statt Tabs, description:-Property, oder PBIP-Readiness-Regeln. | **TMDL Script Renderer:** `.\products\fabric_powerbi\tooling\tmdl_render_and_fix.ps1` ausführen. Er prüft TMDL, schreibt Fehler nach `.cursor/tmdl_errors.log`, wendet Auto-Fixes an (Spaces→Tabs, description entfernen) und trägt nach erfolgreichem Fix die Lösung in diese Tabelle ein (Learning Loop). Optional in Pipeline/Validierung einbinden. |
 | TMDL "ungültiger Einzug" bei formatString/displayFolder (Desktop Feb 2026, Zeile 21 _Measures) | Measure-Properties (formatString, displayFolder) mit nur **einem Tab** (t1) – Desktop erwartet **zwei Tabs** (t2), also eine Ebene tiefer als die measure-Zeile. | **Generator:** In `Build-MeasureBlock` und `Build-ActionTextMeasureBlock` alle Measure-Properties (formatString, displayFolder, isHidden, annotations) mit **t2** ausgeben. Dann `generate_tmdl_measures.ps1 -OverwriteExisting` und **vor Test** `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1` bzw. `tmdl_render_and_fix.ps1` ausführen. |
-| Daten-Spalten (integer, decimal etc.) sollen nicht automatisch zusammengefasst werden | Power BI kann numerische Spalten standardmäßig summieren; für konsistente Berichte soll keine implizite Aggregation erfolgen. | **Standard:** Alle Daten-Spalten mit `summarizeBy: none`. **CreateFromContract** (table_ops.ps1) schreibt bei Tabellenerstellung bereits `summarizeBy: none` pro Spalte. **PatchAddSummarizeByNone** ergänzt fehlende `summarizeBy: none` nach `sourceColumn` (wird im Orchestrator ausgeführt). |
+| Daten-Spalten (integer, decimal etc.) sollen nicht automatisch zusammengefasst werden; Spalten zeigen Summenzeichen / implizite Aufsummierung | Power BI zeigt das Summenzeichen und erlaubt Summe, wenn (1) `summarizeBy: sum` gesetzt ist oder (2) `SummarizationSetBy = Automatic` bei numerischen/aggregierbaren Spalten. Einzelne Dimensionen (z. B. **dim_date.Month**) hatten noch `summarizeBy: sum`; viele Spalten hatten `SummarizationSetBy = Automatic`. **Fact-Tabellen** (z. B. fact_sales): Amount-/Quantity-Spalten hatten ebenfalls `summarizeBy: sum` und Automatic → Summenzeichen. | **Dimensionstabellen:** Jede Spalte `summarizeBy: none` **und** `annotation SummarizationSetBy = User`. **Fact-Tabellen:** Alle Spalten (Keys, Attribute, Amounts, Quantities) auf `summarizeBy: none` und `SummarizationSetBy = User` setzen; Aggregation ausschließlich über Measures in _Measures.tmdl (z. B. [Net Sales Amount] = SUM(fact_sales[Net Sales Amount])). So verschwindet das Summenzeichen auch bei fact_sales (Net Sales Amount, Quantity, Plan Quantity, List Price Amount, Net Price Amount, Discount Amount, Plan Sales Amount, Last Year Sales Amount, Cost of Goods Sold Amount, Plan COGS Amount, Promo Flag, InvoiceLineID). **Generator/Orchestrator:** CreateFromContract und PatchAddSummarizeByNone (table_ops.ps1); bei neuer Fact-Tabelle alle Spalten none + User. |
+
+---
+
+## Report visuals (PBIP / page_scaffold_generator)
+
+| Symptom / message | Cause | Fix |
+|------------------|--------|-----|
+| Charts (Line/Bar/Waterfall) leer; Felder landen in „Filter für dieses Visual“ statt auf Achse/Werten | queryState nutzte nur eine Rolle `"Data"`; Power BI interpretiert das als Filter. | **Generator:** In `visual_builder.py` für lineChart, clusteredBarChart, waterfallChart rollenspezifische Keys verwenden: `"Category"` (Achse) und `"Y"` (Werte). Dist-Visuals „Net Sales Amount“ und „Variance“ entsprechend anpassen. |
+| Tabellen (DetailMatrix, Prescriptive) leer; Felder im Filter statt in Spalten | tableEx nutzte Rolle `"Data"`. | **Generator:** In `visual_builder.py` für tableEx die Rolle `"Values"` verwenden; in `build_table` z. B. `queryState = {"Values": {"projections": ...}}`. Dist DetailMatrix und Prescriptive anpassen. |
+| Report öffnet auf Detail statt Overview | Beim Anhängen der Detail-Seite setzte `write_pages_json` `activePageName` auf die neue Seite. | **Generator:** In `pbip_writer.py` bei `append=True` den bestehenden `activePageName` aus der aktuellen `pages.json` beibehalten, nicht überschreiben. |
+| Visual-Ordner mit Komma im Namen (z. B. „Net Sales % vs Plan, Delta% …“) verursacht Lade- oder Pfadprobleme | page_builder nutzte measure-abgeleiteten Namen mit `", ".join(measures[:3])`. | **Generator:** In `page_builder.py` wenn der measure-abgeleitete Name `,`, `:`, `\` oder `/` enthält, sicheren slot-basierten Namen verwenden (z. B. „Variance“). Dist: neuer Ordner „Variance“, alter Komma-Name entfernen. |
+| Action Panel (T4) zeigt nur Platzhalter | Kein Inhalt aus Action Codes; Generator nutzte statischen Platzhalter. | **Generator:** `ConfigLoader.get_action_panel_content(use_case_id)` aus Bracket `action_code_ids` und Action-Code-YAMLs (Name, Owner, Steps) befüllen. Von scaffold_generator an page_builder übergeben; T4-Panel mit diesem Text füllen. Dist Detail ActionPanel visual.json anpassen. |
+| Custom Theme wird im Report nicht erkannt | (1) apply_report_theme schlägt still fehl (z. B. Schema-Validierung), dann fehlen themeCollection.customTheme und resourcePackages in definition/report.json. (2) Report-Pfad relativ, Python löst falsch auf. | **Orchestrator:** Beim Aufruf von apply_report_theme.ps1 `-NoValidate` übergeben, damit Theme-Anwendung nicht an Schema-Validierung scheitert. Report-Pfad als absoluten Pfad übergeben (`[System.IO.Path]::GetFullPath`). **Manuell:** Nach Report-Generierung einmal `apply_report_theme.ps1 -Report <Report-Ordner> -ThemeName "<Theme-Name aus theme_config.json>" -NoValidate` ausführen; prüfen, dass definition/report.json danach themeCollection.customTheme und resourcePackages mit RegisteredResources-Eintrag enthält. |
+| python.exe: can't open file '…\@-3' (apply_report_theme.ps1) | (1) PowerShell-Variable `$args` wurde für Skript-Argumente überschrieben; Splat/Launcher übergibt dann falsche argv an Python. (2) Aufruf mit `py -3` + Splat: Launcher reicht `-3` so weiter, dass Python den Skriptpfad als „@-3“ interpretiert. | **apply_report_theme.ps1:** Argumente für Python in eigener Variable bauen (z. B. `$scriptArgs`), **nicht** `$args` verwenden. Python-Aufruf: nur `& $pyExe $pyScript @scriptArgs` (kein `-3` beim Aufruf); Python 3 über Version-Check (`py --version` / `python3 --version`) wählen. **Phase5:** Bei Theme-Fehler Phase abbrechen (throw), nicht nur WARNING; nach Apply prüfen, ob report.json `themeCollection.customTheme` mit type RegisteredResources hat. |
+
+---
+
+## Semantic model (relationships, layout)
+
+| Symptom / message | Cause | Fix |
+|------------------|--------|-----|
+| fact_sales nicht mit Dimensionen verknüpft; Modell unvollständig | In relationships.tmdl nur dim_date→LocalDateTable; keine Beziehungen Fact→Dim. | In `definition/relationships.tmdl` eintragen: fact_sales.DateKey→dim_date.DateKey, OrgKey→dim_org.OrgKey, ProductKey→dim_product.ProductKey, CustomerKey→dim_customer.CustomerKey. Bestehende dim_date→LocalDateTable beibehalten. Bei Regeneration: Generator oder Post-Step muss diese Beziehungen ausgeben. |
+| Modell-Ansicht (Diagramm) unstrukturiert / Spaghetti | Kein diagramLayout.json oder falsche Positionen. | `diagramLayout.json` im Semantic-Model-Root anlegen: _Measures (0,0), Facts horizontal y=0 (z. B. fact_sales x=280), Dimensionen vertikal x=0 mit 120px Abstand (dim_date, dim_org, dim_product, dim_customer, _ActionReady_Logic, Datumstabellen). Reihenfolge nach Verbindungsanzahl. Validierung: `check_diagram_layout.ps1`. |
 
 ---
 
@@ -98,6 +123,14 @@ Purpose: Single **knowledge base** for PBI/PBIP errors and their **solutions**. 
 
 ---
 
+## Measures (shared domain model, multi–use case)
+
+| Symptom / message | Cause | Fix |
+|------------------|--------|-----|
+| Measures für COM-001 verschwinden, wenn Orchestrator nur für COM-002 läuft | Phase 2 übergab nur die **ausgewählten** Use-Case-IDs (z. B. COM-002) an generate_tmdl_measures.ps1; _Measures.tmdl wurde mit nur diesem UC überschrieben. | **Orchestrator:** Pro Domain **alle** Use-Case-IDs dieser Domain aus dem Repo übergeben (`$byDomainAll = Get-UseCaseIdsGroupedByDomain -UseCaseIds $allIdsFromRoot`), nicht nur `$byDomain[$domainName]`. So enthält _Measures.tmdl kumulativ alle Measures (COM-001, COM-002, …). **Measure-Skript:** Im konsolidierten Modus nach KPI-ID deduplizieren (`$seenKpiIds`); gleicher KPI in mehreren UCs → nur ein Measure. |
+
+---
+
 ## Scripts / Generator (PowerShell, Python)
 
 | Symptom / message | Cause | Fix |
@@ -106,9 +139,12 @@ Purpose: Single **knowledge base** for PBI/PBIP errors and their **solutions**. 
 
 ---
 
-## Updating this list
+## Updating this list (Pflicht in jeder Erstellungs-/Fix-Schleife)
 
-When you fix a new error from `last_run_state.json` or `build_errors.json`:
+**In jeder Erstellungs- oder Fix-Schleife:** Sobald ein Fehler behoben wurde (egal ob aus Pipeline, Desktop, Nutzerbericht oder eigener Analyse), **muss** geprüft werden, ob diese Fehlerklasse bereits in einer Tabelle oben steht. Wenn **nicht**: sofort eine neue Zeile (Symptom | Cause | Fix) in die passende Sektion eintragen. So werden dieselben Fehler nicht wiederholt.
 
-1. Add a row above under the right section (or add a section).
-2. If the error can be caught by an existing or new rule, add/update a check in `run_fabric_checks.ps1` or validation scripts so the next run fails fast with a clear message.
+Konkret:
+
+1. Nach jedem Fix: Eintrag in die passende Tabelle (oder neue Sektion) mit **Symptom / Meldung | Ursache | Fix**.
+2. Fehler aus `last_run_state.json`, `build_errors.json`, `.cursor/pbi_errors.log` oder Nutzerfeedback: gleiche Regel.
+3. Wenn der Fehler durch eine Regel/Check abfangbar ist: Check in `run_fabric_checks.ps1` oder Validierungs-Skripten ergänzen/aktualisieren, damit der nächste Lauf früh mit klarer Meldung abbricht.

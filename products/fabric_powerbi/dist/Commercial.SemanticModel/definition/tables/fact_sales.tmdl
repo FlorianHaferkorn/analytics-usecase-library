@@ -38,15 +38,15 @@ table fact_sales
 		summarizeBy: none
 		sourceColumn: Promo Flag
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column 'Net Sales Amount'
 		dataType: double
 		lineageTag: 34b6943c-d8ac-4795-90c7-a96850ac222c
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Net Sales Amount
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
@@ -54,78 +54,78 @@ table fact_sales
 		dataType: int64
 		formatString: 0
 		lineageTag: 1f5e665c-045c-4ee5-9489-19a153fcd1dc
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Quantity
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column 'Plan Quantity'
 		dataType: double
 		lineageTag: 620aada7-98f7-4a9a-bfce-843f543651e4
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Plan Quantity
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column 'List Price Amount'
 		dataType: double
 		lineageTag: a5b7fea2-8a72-4b73-a839-d9b4fc0bb5d2
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: List Price Amount
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column 'Net Price Amount'
 		dataType: double
 		lineageTag: 5c6115d5-b99d-460f-adea-e763859e9287
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Net Price Amount
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column 'Discount Amount'
 		dataType: double
 		lineageTag: bee4e621-9905-4452-aafe-77dc3f6ee602
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Discount Amount
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column 'Plan Sales Amount'
 		dataType: double
 		lineageTag: eab9b7f1-48f2-457c-b82e-cbe57b4ee33c
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Plan Sales Amount
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column 'Last Year Sales Amount'
 		dataType: double
 		lineageTag: bf1eb1fc-e481-4333-aac9-cdbc45475955
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Last Year Sales Amount
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column 'Cost of Goods Sold Amount'
 		dataType: double
 		lineageTag: 98321ade-8079-4c54-9e76-03a0df7c4cc0
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Cost of Goods Sold Amount
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
@@ -135,15 +135,15 @@ table fact_sales
 		summarizeBy: none
 		sourceColumn: InvoiceLineID
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column 'Plan COGS Amount'
 		dataType: double
 		lineageTag: 5fee96b1-6265-4adc-90ed-c3669973877a
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: Plan COGS Amount
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 

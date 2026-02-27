@@ -1108,9 +1108,10 @@ if ($resolvedTablesDir) {
       $generated++
     }
   } else {
-    # Full: one consolidated _Measures.tmdl with all use cases in this run
+    # Full: one consolidated _Measures.tmdl with all use cases in this run; deduplicate by KPI ID so shared model has no duplicate measure names.
     $allMeasureBlocks = @()
     $processedUseCases = @()
+    $seenKpiIds = @{}
 
     foreach ($item in $useCaseData) {
       $useCaseId = $item.useCaseId
@@ -1126,6 +1127,8 @@ if ($resolvedTablesDir) {
       }
 
       foreach ($id in $targetIds) {
+        if ($seenKpiIds.ContainsKey($id)) { continue }
+        $seenKpiIds[$id] = $true
         $record = if ($catalog.ContainsKey($id)) { $catalog[$id] } else { $null }
         $measure = Build-MeasureObject -KpiId $id -CatalogRecord $record -LabelMap $labelMap
         if (-not $record) {

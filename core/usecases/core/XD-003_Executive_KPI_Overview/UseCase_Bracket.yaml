@@ -30,8 +30,10 @@ value_driver_model:
   impact_logic: Improving sales.net_sales.delta_pct.ly is the primary lever for maximizing margin.gm.pct.
 ux_layout_rules:
   report_structure: 2-Page-Lead
+  report_canvas: { width: 1920, height: 1080 }
   page_1_summary:
     title: Executive / Cross-Functional Summary & Insights
+    template_id: pulse
     component_3s:
       kpi_id: margin.gm.pct
       visual_type: kpi_card
@@ -45,6 +47,7 @@ ux_layout_rules:
       visual_type: bar_chart
   page_2_execution:
     title: Executive / Cross-Functional Execution
+    template_id: action_matrix
     component_300s:
       evidence_grain: entity_month
       evidence_columns:

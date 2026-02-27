@@ -74,11 +74,20 @@ class PageScaffoldGenerator:
         display_name = self.config_loader.get_use_case_display_name(self.use_case_id)
         page_display_name = f"{display_name} - {self.page_name.capitalize()}"
         
-        # Build page metadata
+        # Build page metadata (canvas: report_canvas > grid_blueprint.canvas > default)
+        report_canvas = self.page_config.get('report_canvas')
+        grid_blueprint_for_meta = self.page_config.get('grid_blueprint')
+        canvas_w = report_canvas.get('width') if report_canvas else None
+        canvas_h = report_canvas.get('height') if report_canvas else None
+        if canvas_w is None and grid_blueprint_for_meta:
+            c = grid_blueprint_for_meta.get('canvas') or {}
+            canvas_w, canvas_h = c.get('width'), c.get('height')
         page_metadata = self.page_builder.build_page_metadata(
             page_id=self.page_id,
             display_name=page_display_name,
-            theme_name=self.theme_name
+            theme_name=self.theme_name,
+            width=canvas_w,
+            height=canvas_h,
         )
         
         # Build page structure with visuals (page_config from get_page_config)
@@ -96,6 +105,19 @@ class PageScaffoldGenerator:
         if has_action_panel and self.page_name == 'detail':
             action_panel_content = self.config_loader.get_action_panel_content(self.use_case_id)
 
+        grid_blueprint = self.page_config.get('grid_blueprint')
+        template_id = self.page_config.get('template_id')
+        canvas_width = canvas_height = None
+        if grid_blueprint:
+            canvas = grid_blueprint.get('canvas') or {}
+            canvas_width = canvas.get('width')
+            canvas_height = canvas.get('height')
+        report_canvas = self.page_config.get('report_canvas')
+        if report_canvas:
+            canvas_width = report_canvas.get('width') or canvas_width
+            canvas_height = report_canvas.get('height') or canvas_height
+        visual_templates = self.config_loader.load_all_visual_templates() if template_id else {}
+
         page_structure = self.page_builder.build_page_structure(
             slots=slots,
             template=template,
@@ -107,6 +129,10 @@ class PageScaffoldGenerator:
             card_measure_names=card_measure_names,
             kpi_id_to_measure_name=kpi_id_to_measure_name,
             action_panel_content=action_panel_content,
+            grid_blueprint=grid_blueprint,
+            canvas_width=canvas_width,
+            canvas_height=canvas_height,
+            visual_templates=visual_templates,
         )
         
         self.page_structure = {

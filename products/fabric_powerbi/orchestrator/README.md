@@ -38,6 +38,8 @@ Orchestration and report generation for semantic models and reports (PBIP) from 
 ```
 **Semantisches Modell vollständig:** `definition/model.tmdl` muss für jede Tabelle in `definition/tables/` eine Zeile `ref table <Tabellenname>` enthalten. Der Orchestrator ergänzt fehlende refs automatisch (Schritt „Sync model.tmdl refs“). Fehlen refs, lädt Desktop das Modell unvollständig.
 
+**Aurora Custom Theme:** Nach der Report-Erzeugung wird ein Custom Theme auf jeden Report angewendet. Das Theme kommt **nur aus Konfiguration oder Parameter** (nicht hardcodiert). Wenn du **kein** `-ThemeName` übergibst, liest der Orchestrator das Default aus `showcases/aurora_group/theme_config.json` (`defaultThemeName`; aktuell: Aurora Monochromatic Light). Überschreiben: `-ThemeName "Aurora_Group__Monochromatic__Dark__#2ECDE7"` oder anderer Theme-Name aus `theme_generator/themes/` (z. B. Aurora_Group, Brand_Blue; Konzepte: Monochromatic, Analog, Divergent, NeutralAccent; Light/Dark).
+
 - Build runs **Registry** first, then measures, tables/relationships/hierarchies, validation, and **report generation** (UX Engine: overview + detail per use case, with `datasetReference`).
 - If Python 3 is missing, report generation falls back to report_generator.ps1 (sections only, no visuals).
 - **Quality checks are a hard gate:** any ERROR/FAIL from `run_all_checks.ps1` fails the build.

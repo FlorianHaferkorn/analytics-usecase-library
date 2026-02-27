@@ -33,16 +33,16 @@ table dim_org
 		summarizeBy: none
 		sourceColumn: OrgLevel
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column ParentOrgKey
 		dataType: int64
 		formatString: 0
 		lineageTag: de2c2c7b-1176-473b-8a0f-7ba2b1f95b5b
-		summarizeBy: count
+		summarizeBy: none
 		sourceColumn: ParentOrgKey
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column 'Currency Code'
 		dataType: string
@@ -50,7 +50,7 @@ table dim_org
 		summarizeBy: none
 		sourceColumn: Currency Code
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column OrgType
 		dataType: string
@@ -58,25 +58,25 @@ table dim_org
 		summarizeBy: none
 		sourceColumn: OrgType
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column 'Open DateKey'
 		dataType: int64
 		formatString: 0
 		lineageTag: 47fb803c-4ffd-4196-a75f-4cd14306397d
-		summarizeBy: count
+		summarizeBy: none
 		sourceColumn: Open DateKey
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column 'Close DateKey'
 		dataType: int64
 		formatString: 0
 		lineageTag: 0b16bae4-4114-4e5f-99c3-1767a792c3f3
-		summarizeBy: count
+		summarizeBy: none
 		sourceColumn: Close DateKey
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	hierarchy dim_org_Hierarchy
 		lineageTag: 11d2861c

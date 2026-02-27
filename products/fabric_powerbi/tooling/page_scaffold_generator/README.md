@@ -66,6 +66,16 @@ generator.write(Path("COM-001.Report"))
 - `--theme`: Optional theme name (defaults to framework default)
 - `--output`: Output path for .Report folder
 - `--repo-root`: Repository root path (auto-detected if not provided)
+- `--force-full`: Always full generate (overwrite); do not use delta update even if report exists.
+
+## Full Generate vs. Delta Update
+
+When generating a report via `generate_full_report.py` (e.g. from the orchestrator):
+
+- **Full Generate:** If the report folder does not yet exist or has no valid `definition/pages/pages.json` with at least one page, the generator creates the full report (overview + detail pages, report.json, version.json).
+- **Delta Update:** If the report already exists, the generator compares the **desired** state (from Bracket + grid templates) with the **current** PBIP (Ist). It then only: adds missing pages or visuals, removes visuals that are no longer in the template, and updates positions from the grid blueprint. It does **not** overwrite `report.json` or `version.json`, so dataset reference and report metadata are preserved.
+
+Only the two Bracket-defined pages (Overview, Detail) are diffed and updated. **Manually added pages or visuals** in the report are left untouched; they are not removed. Use `--force-full` to force a full regenerate (e.g. for CI or after structural changes).
 
 ## Output Structure
 

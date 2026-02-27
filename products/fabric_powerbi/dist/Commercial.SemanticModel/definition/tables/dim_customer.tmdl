@@ -33,7 +33,7 @@ table dim_customer
 		summarizeBy: none
 		sourceColumn: Channel Preference
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	column 'Tenure Bucket'
 		dataType: string
@@ -41,7 +41,7 @@ table dim_customer
 		summarizeBy: none
 		sourceColumn: Tenure Bucket
 
-		annotation SummarizationSetBy = Automatic
+		annotation SummarizationSetBy = User
 
 	hierarchy dim_customer_Hierarchy
 		lineageTag: ab155ed5

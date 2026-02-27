@@ -27,8 +27,10 @@ value_driver_model:
   impact_logic: Improving crm.lifetime_revenue.amount is the primary lever for maximizing crm.clv.amount.
 ux_layout_rules:
   report_structure: 2-Page-Lead
+  report_canvas: { width: 1920, height: 1080 }
   page_1_summary:
     title: Commercial / CustomerValue Summary & Insights
+    template_id: pulse
     component_3s:
       kpi_id: crm.clv.amount
       visual_type: kpi_card
@@ -42,6 +44,7 @@ ux_layout_rules:
       visual_type: bar_chart
   page_2_execution:
     title: Commercial / CustomerValue Execution
+    template_id: action_matrix
     component_300s:
       evidence_grain: customer_month
       evidence_columns:

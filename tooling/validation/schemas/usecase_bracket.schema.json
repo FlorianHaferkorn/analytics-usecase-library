@@ -110,12 +110,26 @@
           "type": "string",
           "description": "Report pattern (e.g. 2-Page-Lead)."
         },
+        "report_canvas": {
+          "type": "object",
+          "description": "Optional canvas size for grid-based report (default 1920x1080).",
+          "properties": {
+            "width": { "type": "integer", "minimum": 1280 },
+            "height": { "type": "integer", "minimum": 720 }
+          },
+          "additionalProperties": false
+        },
         "page_1_summary": {
           "type": "object",
           "required": ["title", "component_3s", "component_30s"],
           "additionalProperties": false,
           "properties": {
             "title": { "type": "string" },
+            "template_id": {
+              "type": "string",
+              "enum": ["pulse", "investigator"],
+              "description": "Grid page template for Overview (3s/30s)."
+            },
             "component_3s": {
               "type": "object",
               "required": ["kpi_id", "visual_type"],
@@ -151,6 +165,11 @@
           "additionalProperties": false,
           "properties": {
             "title": { "type": "string" },
+            "template_id": {
+              "type": "string",
+              "enum": ["investigator", "action_matrix"],
+              "description": "Grid page template for Detail (300s)."
+            },
             "component_300s": {
               "type": "object",
               "required": ["evidence_grain", "evidence_columns", "action_panel", "payload_mode"],

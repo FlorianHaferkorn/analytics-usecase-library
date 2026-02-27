@@ -1,0 +1,9 @@
+{
+  "visual_template_id": "Slicer_LeftPane",
+  "description": "Vertical slicer pane for quick context switch (Investigator, Action Matrix).",
+  "visual_type": "slicer",
+  "slot_compatibility": ["Slicer_Pane"],
+  "defaults": {
+    "style": "vertical"
+  }
+}

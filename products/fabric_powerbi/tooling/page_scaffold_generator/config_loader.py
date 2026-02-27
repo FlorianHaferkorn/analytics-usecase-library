@@ -4,11 +4,12 @@ Configuration Loader
 Loads governance YAML files and use case configurations.
 """
 
+import json
+import os
 import re
 import yaml
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-import os
 
 
 class ConfigLoader:
@@ -30,6 +31,8 @@ class ConfigLoader:
         # Lean 2.0: Bracket is SSOT for UX config; mapping file removed.
         # Canonical paths are under core/.
         self.page_templates_root = self.repo_root / "core" / "templates" / "page_templates"
+        self.grid_templates_root = self.page_templates_root / "grid_templates"
+        self.visual_templates_root = self.page_templates_root / "visual_templates"
         self.governance_root = self.page_templates_root / "governance"
         self.usecases_root = self.repo_root / "core" / "usecases"
         self.kpi_catalog_path = self.repo_root / "core" / "kpi_catalog" / "KPI_Catalog.md"
@@ -199,6 +202,47 @@ class ConfigLoader:
         except Exception:
             return {}  # Return empty dict, layout calculator uses hardcoded values
     
+    def load_grid_page_template(self, template_id: str) -> Dict[str, Any]:
+        """
+        Load a grid page template (pulse, investigator, action_matrix) by template_id.
+        Returns dict with template_id, canvas, slots (list of slot_id, grid, visual_type_hint).
+        """
+        path = self.grid_templates_root / f"{template_id}.json"
+        if not path.exists():
+            raise FileNotFoundError(f"Grid page template not found: {path}")
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    def load_visual_template(self, visual_template_id: str) -> Optional[Dict[str, Any]]:
+        """Load a visual template by visual_template_id (e.g. KPI_Card_WithDelta)."""
+        if not self.visual_templates_root.exists():
+            return None
+        for p in self.visual_templates_root.glob("*.json"):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                if data.get("visual_template_id") == visual_template_id:
+                    return data
+            except (json.JSONDecodeError, KeyError):
+                continue
+        return None
+
+    def load_all_visual_templates(self) -> Dict[str, Dict[str, Any]]:
+        """Load all visual templates from visual_templates/ keyed by visual_template_id."""
+        result: Dict[str, Dict[str, Any]] = {}
+        if not self.visual_templates_root.exists():
+            return result
+        for p in self.visual_templates_root.glob("*.json"):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                vid = data.get("visual_template_id")
+                if vid:
+                    result[vid] = data
+            except (json.JSONDecodeError, KeyError):
+                continue
+        return result
+
     def load_color_semantics(self) -> Dict[str, Any]:
         """Load Color_Semantics_Formatting.yaml (or return empty dict if file is markdown)."""
         color_file = self.governance_root / "Color_Semantics_Formatting.yaml"
@@ -420,10 +464,21 @@ class ConfigLoader:
             card_kpi_ids = ([strategic] if strategic else []) + list(influencing)[:3]
             kpi_to_measure = self.load_kpi_id_to_measure_name_map()
             card_measure_names = [kpi_to_measure.get(k, k) for k in card_kpi_ids]
+            template_id = ux.get("page_template") or p1.get("template_id")
+            grid_blueprint = None
+            if template_id:
+                try:
+                    grid_blueprint = self.load_grid_page_template(template_id)
+                except FileNotFoundError:
+                    pass
+            report_canvas = ux.get("report_canvas") if isinstance(ux.get("report_canvas"), dict) else None
             return {
                 "name": "overview",
                 "layer": [3, 30],
                 "template": template,
+                "template_id": template_id,
+                "grid_blueprint": grid_blueprint,
+                "report_canvas": report_canvas,
                 "needs_action_panel": False,
                 "slots": slots,
                 "component_3s": dict(c3s) if isinstance(c3s, dict) else {},
@@ -454,10 +509,21 @@ class ConfigLoader:
             card_kpi_ids = ([strategic] if strategic else []) + list(influencing)[:3]
             kpi_to_measure = self.load_kpi_id_to_measure_name_map()
             card_measure_names = [kpi_to_measure.get(k, k) for k in card_kpi_ids]
+            template_id = ux.get("page_template") or p2.get("template_id")
+            grid_blueprint = None
+            if template_id:
+                try:
+                    grid_blueprint = self.load_grid_page_template(template_id)
+                except FileNotFoundError:
+                    pass
+            report_canvas = ux.get("report_canvas") if isinstance(ux.get("report_canvas"), dict) else None
             return {
                 "name": "detail",
                 "layer": [300],
                 "template": template,
+                "template_id": template_id,
+                "grid_blueprint": grid_blueprint,
+                "report_canvas": report_canvas,
                 "needs_action_panel": has_action_panel,
                 "slots": slots,
                 "card_kpi_ids": card_kpi_ids,

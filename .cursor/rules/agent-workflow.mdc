@@ -59,6 +59,7 @@ Parse the script output for the **issue number** (e.g. "Issue #17" or "Issue num
 10. Run Stage 1 from repo root: `.\tooling\run_stage1_checks.ps1`
 11. If Fabric/Power BI artifacts changed: `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1`
 12. Fix any failures before committing. Use the `fix-stage1-failure` skill if needed.
+13. **After fixing any build, validation, or Desktop error:** If that error class is not yet in [internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md](internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md), add one row (Symptom | Cause | Fix) to the appropriate section so the same mistake is not repeated. See that file’s “Updating this list” section.
 
 ## Before reporting "ready for Desktop / user testing" (Fabric/PBIP)
 

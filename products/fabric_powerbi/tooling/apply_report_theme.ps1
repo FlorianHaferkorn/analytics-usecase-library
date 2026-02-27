@@ -22,31 +22,35 @@ param(
 $scriptDir = Split-Path -LiteralPath $MyInvocation.MyCommand.Path
 $pyScript = Join-Path $scriptDir "apply_report_theme.py"
 
-$args = @($Report)
+# Build script arguments (do not use $args - it is PowerShell's automatic variable and can cause wrong Python invocation)
+$scriptArgs = @($Report)
 if ($ThemePath) {
-    $args += "--theme-path", (Resolve-Path -LiteralPath $ThemePath).Path
+    $scriptArgs += "--theme-path", (Resolve-Path -LiteralPath $ThemePath).Path
 } elseif ($ThemeName) {
-    $args += "--theme-name", $ThemeName
-    if ($RunGenerator) { $args += "--run-generator" }
-    $args += "--color", $Color, "--concept", $Concept, "--mode", $Mode, "--brand", $Brand
-    if ($Secondary) { $args += "--secondary", $Secondary }
+    $scriptArgs += "--theme-name", $ThemeName
+    if ($RunGenerator) { $scriptArgs += "--run-generator" }
+    $scriptArgs += "--color", $Color, "--concept", $Concept, "--mode", $Mode, "--brand", $Brand
+    if ($Secondary) { $scriptArgs += "--secondary", $Secondary }
 } else {
     Write-Error "Provide -ThemePath or -ThemeName."
     exit 1
 }
-if ($CustomName) { $args += "--custom-name", $CustomName }
-if ($BaseTheme) { $args += "--base-theme", $BaseTheme }
-if ($NoValidate) { $args += "--no-validate" }
+if ($CustomName) { $scriptArgs += "--custom-name", $CustomName }
+if ($BaseTheme) { $scriptArgs += "--base-theme", $BaseTheme }
+if ($NoValidate) { $scriptArgs += "--no-validate" }
 
-# Prefer py -3 (Windows) so orchestrator and manual runs succeed when python is not in PATH
-$pyExe = "python"
-$pyExeArgs = @()
-foreach ($c in @("py -3", "python3", "python")) {
-    $parts = $c -split " "
+# Find Python 3: prefer py -3 (Windows), then python3, then python. Use only exe + script path + args (no -3 on invoke to avoid launcher passing wrong argv to python.exe).
+$pyExe = $null
+foreach ($c in @("py", "python3", "python")) {
     try {
-        $v = & $parts[0] @($parts[1..99] | Where-Object { $_ }) --version 2>&1
-        if ($LASTEXITCODE -eq 0 -and $v -match "Python 3") { $pyExe = $parts[0]; $pyExeArgs = @($parts[1..99] | Where-Object { $_ }); break }
+        $v = & $c --version 2>&1
+        if ($LASTEXITCODE -eq 0 -and $v -match "Python 3") { $pyExe = $c; break }
     } catch { continue }
 }
-& $pyExe @$pyExeArgs $pyScript @args
+if (-not $pyExe) {
+    Write-Error "Python 3 not found. Install Python 3 or ensure py/python3/python is in PATH."
+    exit 1
+}
+# Invoke: exe, script path, script args (report path, --theme-name, ...). No version flag to avoid launcher argv issues.
+& $pyExe $pyScript @scriptArgs
 exit $LASTEXITCODE

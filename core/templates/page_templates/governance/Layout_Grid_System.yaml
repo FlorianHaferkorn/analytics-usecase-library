@@ -261,8 +261,48 @@ Row 3 (y=600-900):
 
 ---
 
+---
+
+## Master Grid (12×12 LU)
+
+**Purpose:** Rigid 12×12 logical grid for Builder Engine. Positions are computed from slot coordinates; all visuals align to grid boundaries (integer pixels).
+
+### Parameters (configurable)
+
+| Parameter | Default (BPA) | Alternative | Description |
+|-----------|----------------|-------------|-------------|
+| **Canvas** | 1920×1080 | 1280×720, etc. | Page size (Full HD standard). |
+| **Outer Margin** | 32px | 24px | Safety margin from canvas edge. |
+| **Gutter** | 16px | — | Constant gap between all visual containers. |
+| **Internal Padding** | 8px | — | Reserved for future use (inside-container). |
+
+### Formulae
+
+- Content width: `Cw = canvas_width - 2 × outer_margin`
+- Content height: `Ch = canvas_height - 2 × outer_margin`
+- LU width: `lu_width = (Cw - 11 × gutter) / 12`
+- LU height: `lu_height = (Ch - 11 × gutter) / 12`
+- Slot rect for `[col, row, col_span, row_span]` (0-based):
+  - `x = outer_margin + col × (lu_width + gutter)`
+  - `y = outer_margin + row × (lu_height + gutter)`
+  - `width = col_span × lu_width + (col_span - 1) × gutter`
+  - `height = row_span × lu_height + (row_span - 1) × gutter`
+
+### API
+
+- `calculate_visual_rect(col_start, row_start, col_span, row_span)` → pixel (x, y, width, height).
+- Implemented in `products/fabric_powerbi/tooling/page_scaffold_generator/grid_calculator.py`.
+- Page templates: `core/templates/page_templates/grid_templates/` (pulse, investigator, action_matrix).
+
+### Scaling
+
+When canvas size changes, use the same formulae with new width/height; LU dimensions and all slot positions scale proportionally. Set `report_canvas: { width, height }` in Bracket or use grid template `canvas` default.
+
+---
+
 ## References
 
 - **Scaffold Spec:** `products/fabric_powerbi/tooling/page_scaffold_spec.md`
 - **Best Practices Research:** `products/fabric_powerbi/tooling/V1_BEST_PRACTICES_RESEARCH.md`
 - **Visual-to-Slot Mapping:** `governance/Visual_to_Slot_Mapping.yaml`
+- **Grid templates:** `grid_templates/` (pulse.json, investigator.json, action_matrix.json)
