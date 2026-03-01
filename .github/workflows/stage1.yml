@@ -36,5 +36,5 @@ jobs:
 
       - name: Run Stage 1 checks
         shell: pwsh
-        run: ./tooling/run_stage1_checks.ps1
+        run: ./tooling/run_stage1_checks.ps1 -Root $env:GITHUB_WORKSPACE
         working-directory: ${{ github.workspace }}

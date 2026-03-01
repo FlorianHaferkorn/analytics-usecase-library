@@ -9,6 +9,8 @@ orchestration:
   strategic_kpi_id: margin.gm.pct
   influencing_kpi_ids:
   - margin.gm.amount
+  - sales.price.list.amount
+  - sales.price.net.amount
   - sales.price.realization_pct
   - sales.pvm.mix_effect.amount
   - cost.cogs_per_unit.amount

@@ -39,11 +39,16 @@ def _write_json(path: Path, obj: Any) -> None:
 
 
 def _extract_scalar(chunk: str, key: str) -> str | None:
-    """Extract scalar value for key (key: value or key: \"value\"). Matches at any indentation."""
-    m = re.search(rf"(?m)^\s*{re.escape(key)}\s*:\s*(?:\|\s*)?(?:\r?\n)?(?:\s*\"([^\"]*)\"|\s*'([^']*)'|\s*([^\s#\r\n]+))", chunk)
+    """Extract scalar value for key (key: value or key: \"value\"). Matches at any indentation.
+    Unquoted values may contain spaces (e.g. kpi_key: List Price Amount); we take the rest of the line until # or newline."""
+    m = re.search(rf"(?m)^\s*{re.escape(key)}\s*:\s*(?:\|\s*)?(?:\r?\n)?(?:\s*\"([^\"]*)\"|\s*'([^']*)'|\s*([^\r\n#]+))", chunk)
     if not m:
         return None
-    return (m.group(1) or m.group(2) or m.group(3) or "").strip() or None
+    raw = (m.group(1) or m.group(2) or m.group(3) or "").strip()
+    # Strip trailing inline comment
+    if "#" in raw:
+        raw = raw.split("#", 1)[0].strip()
+    return raw or None
 
 
 def _extract_literal_block(chunk: str, key: str) -> str | None:

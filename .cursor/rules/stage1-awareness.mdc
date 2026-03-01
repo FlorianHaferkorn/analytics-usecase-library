@@ -36,6 +36,14 @@ cd tooling\validation
 npm ci
 ```
 
+## If Stage 1 is green locally but fails in GitHub
+
+- **Same command:** CI runs `./tooling/run_stage1_checks.ps1 -Root $env:GITHUB_WORKSPACE` from the repo root. Run the same locally: `.\tooling\run_stage1_checks.ps1 -Root .` (or without `-Root` from repo root).
+- **Schema validation (npm):** CI uses `npm ci` in `tooling/validation`. If you changed `package.json` without updating `package-lock.json`, CI fails; commit the lock file after `npm ci` (or `npm install`) in `tooling/validation`.
+- **Data contracts (Python):** CI installs deps from `tooling/validation/requirements-data-contracts.txt`. If a check uses Python, ensure `py -3` or `python` works and the same deps are installed locally.
+- **Registry builder:** Uses `py -3` or `python`; on the runner only `python` may be on PATH. If you see "Python 3 not found" in CI, the workflow’s `actions/setup-python` step should have run; check that the "Run Stage 1 checks" step uses the same runner (windows-latest) and that no step changed the environment in a way that hides Python.
+- **Path/working directory:** The workflow sets `working-directory: ${{ github.workspace }}` and passes `-Root $env:GITHUB_WORKSPACE` so the script always receives the repo root; this avoids failures when the runner’s current directory differs from the workspace.
+
 ## When suggesting changes
 
 - New or changed KPI references → must exist in `core/kpi_catalog/`.

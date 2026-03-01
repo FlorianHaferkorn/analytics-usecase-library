@@ -2398,9 +2398,87 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     validation_process: "manual review"
     qa_rules: []
     version: "v0.1"
-  metadata_quality:
+    metadata_quality:
     completeness_score: 0.6
     last_review: 23.01.2026
+
+- kpi_id: sales.price.list.amount
+  kpi_key: List Price Amount
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Growth
+  domain_tag: [Commercial]
+  use_case_ref:
+  - COM-001
+  - COM-002
+  - COM-004
+  action_code_ref: []
+  calc_type: amount
+  business:
+    purpose: "Total list price (before discounts) for price realization and discount analysis."
+    definition: "Sum of list price amount at invoice line grain."
+    grain_scope: "Invoice line aggregated to reporting period."
+    unit_format: "currency"
+    interpretation: "Base for Price Realization %; required input for sales.price.realization_pct."
+  technical:
+    dax_name: "List Price Amount"
+    formatString: "#,0.00"
+    dax_expression: |
+      SUM ( fact_sales[List Price Amount] )
+    description: "Total list price amount from fact_sales; data requirement for semantic model."
+    depends_on_measures: []
+    lineage:
+    - fact_sales.List Price Amount
+  governance:
+    business_owner: "Head of Sales Controlling"
+    data_owner: "Pricing Team"
+    steward: "Pricing Analyst"
+    review_cycle: "quarterly"
+    validation_process: "reconciled to price books"
+    qa_rules: []
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 2026-02-22
+
+- kpi_id: sales.price.net.amount
+  kpi_key: Net Price Amount
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Growth
+  domain_tag: [Commercial]
+  use_case_ref:
+  - COM-001
+  - COM-002
+  - COM-004
+  action_code_ref: []
+  calc_type: amount
+  business:
+    purpose: "Total net price (after discounts) for price realization and discount analysis."
+    definition: "Sum of net price amount at invoice line grain."
+    grain_scope: "Invoice line aggregated to reporting period."
+    unit_format: "currency"
+    interpretation: "Numerator for Price Realization %; required input for sales.price.realization_pct."
+  technical:
+    dax_name: "Net Price Amount"
+    formatString: "#,0.00"
+    dax_expression: |
+      SUM ( fact_sales[Net Price Amount] )
+    description: "Total net price amount from fact_sales; data requirement for semantic model."
+    depends_on_measures: []
+    lineage:
+    - fact_sales.Net Price Amount
+  governance:
+    business_owner: "Head of Sales Controlling"
+    data_owner: "Pricing Team"
+    steward: "Pricing Analyst"
+    review_cycle: "quarterly"
+    validation_process: "reconciled to revenue"
+    qa_rules: []
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 2026-02-22
 
 - kpi_id: sales.price.realization_pct
   kpi_key: Price Realization %
@@ -2428,7 +2506,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
       DIVIDE ( [Net Price Amount], [List Price Amount] )
     description: "Shows how much of list price is realized after discounts."
     depends_on_measures:
-    - sales.price.realization_pct
+    - sales.price.list.amount
+    - sales.price.net.amount
     lineage:
     - fact_sales.List Price Amount
     - fact_sales.Net Price Amount

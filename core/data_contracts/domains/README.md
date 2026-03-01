@@ -74,6 +74,7 @@ fact:
 - Use domain contracts as stable input for ingestion layers  
 - Map customer systems to the standardized domain structure  
 - Guarantee consistent downstream semantic models  
+- **Semantic model alignment:** The semantic model (e.g. Fabric TMDL tables) is built from these contracts. KPI catalog entries reference contract tables/columns via `technical.lineage`. When a use case requires a KPI, the contract must define the tables and columns that KPI’s lineage references (e.g. `fact_sales` with `List Price Amount`, `Net Price Amount` for Price Realization %).  
 
 ### For Framework Evolution
 

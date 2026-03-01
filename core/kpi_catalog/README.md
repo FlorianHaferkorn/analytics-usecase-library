@@ -61,6 +61,13 @@ Not included:
 
 ---
 
+## Supporting KPIs and data requirements
+
+- **Supporting KPIs** (e.g. `sales.price.list.amount`, `sales.price.net.amount`) are defined in the catalog with `kpi_role: supporting`. They are referenced in `depends_on_measures` by strategic/diagnostic KPIs (e.g. `sales.price.realization_pct`) and must be listed in the use case’s `orchestration.influencing_kpi_ids` so the measure generator emits them.
+- **Data requirement:** Each KPI’s `technical.lineage` lists the fact/dimension columns required for its measure (e.g. `fact_sales.List Price Amount`). The **semantic model** must provide these tables and columns; they are defined by the **domain data contracts** (`core/data_contracts/domains/`). The pipeline that builds the semantic model from the contract (e.g. Fabric table_ops) ensures the model satisfies this data need. When adding or changing KPIs, ensure the corresponding domain contract includes the required columns.
+
+---
+
 ## Relations
 
 - **WHY ?** Strategic KPIs from the Company Layer define what belongs here.  

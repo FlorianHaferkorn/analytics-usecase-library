@@ -10,6 +10,8 @@ orchestration:
   influencing_kpi_ids:
   - sales.promo.incremental.amount
   - margin.promo.gm.pct
+  - sales.price.list.amount
+  - sales.price.net.amount
   - sales.price.realization_pct
   - sales.promo.cannibalization.pct
   action_code_ids:
