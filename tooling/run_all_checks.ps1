@@ -1,7 +1,7 @@
 Param(
   [string]$UseCasesRoot   = "core/usecases",
   [string]$KpiCatalogRoot = "core/kpi_catalog",
-  [string]$DistRoot       = "products/fabric_powerbi/dist",
+  [string]$DistRoot       = "products/fabric/powerbi/dist",
   [string]$TranscriptPath   = "internal/reviews/run_all_checks_transcript.txt",
   [string]$ReportPath       = "internal/reviews/run_all_checks_report.md",
   [string]$UseCaseIds,
@@ -48,10 +48,10 @@ $repoRoot = $script:RepoRoot
 # Resolve paths; never pass null to child scripts (use repo-relative defaults so params always bind)
 $useCasesRoot   = Resolve-RepoPath -ProvidedPath $UseCasesRoot -DefaultRelative 'core/usecases'
 $kpiCatalogRoot = Resolve-RepoPath -ProvidedPath $KpiCatalogRoot -DefaultRelative 'core/kpi_catalog'
-$distRoot       = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'products/fabric_powerbi/dist'
+$distRoot       = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'products/fabric/powerbi/dist'
 if (-not $useCasesRoot)   { $useCasesRoot   = [System.IO.Path]::GetFullPath((Join-Path -Path $repoRoot -ChildPath 'core\usecases')) }
 if (-not $kpiCatalogRoot) { $kpiCatalogRoot = [System.IO.Path]::GetFullPath((Join-Path -Path $repoRoot -ChildPath 'core\kpi_catalog')) }
-if (-not $distRoot)       { $distRoot       = [System.IO.Path]::GetFullPath((Join-Path -Path $repoRoot -ChildPath 'products\fabric_powerbi\dist')) }
+if (-not $distRoot)       { $distRoot       = [System.IO.Path]::GetFullPath((Join-Path -Path $repoRoot -ChildPath 'products\fabric\powerbi\dist')) }
 $factsheetsRoot = $useCasesRoot
 $coreRoot = Join-Path -Path $useCasesRoot -ChildPath 'core'
 if (Test-Path $coreRoot) {
@@ -172,7 +172,7 @@ Invoke-LocalScript -RelativePath "tooling/validation/check_factsheet_vs_kpi.ps1"
 
 # 4) Check measures vs KPI catalog (Fabric) – skip when dist folder does not exist
 if (Test-Path $distRoot) {
-  Invoke-LocalScript -RelativePath "products/fabric_powerbi/tooling/validation/check_measures_vs_kpi.ps1" -Arguments @{ DistRoot = $distRoot; KpiCatalogRoot = $kpiCatalogRoot }
+  Invoke-LocalScript -RelativePath "products/fabric/powerbi/tooling/validation/check_measures_vs_kpi.ps1" -Arguments @{ DistRoot = $distRoot; KpiCatalogRoot = $kpiCatalogRoot }
 }
 
 # 5) Sanity-check docs and tooling references
@@ -258,7 +258,7 @@ Invoke-LocalScript -RelativePath "tooling/validation/check_measure_dictionary_vs
 
 # 19) TMDL vs Measure Dictionaries (Fabric) – skip when dist does not exist
 if (Test-Path $distRoot) {
-  Invoke-LocalScript -RelativePath "products/fabric_powerbi/tooling/validation/check_tmdl_vs_measure_dictionary.ps1" -Arguments @{
+  Invoke-LocalScript -RelativePath "products/fabric/powerbi/tooling/validation/check_tmdl_vs_measure_dictionary.ps1" -Arguments @{
     MeasureDictRoot = (Join-Path $repoRoot "core\semantic_models\domains")
     DistRoot = $distRoot
   }
@@ -266,7 +266,7 @@ if (Test-Path $distRoot) {
 
 # 19a) DAX best practices in TMDL measures (Fabric)
 if (Test-Path $distRoot) {
-  Invoke-LocalScript -RelativePath "products/fabric_powerbi/tooling/validation/check_dax_best_practices.ps1" -Arguments @{ DistRoot = $distRoot }
+  Invoke-LocalScript -RelativePath "products/fabric/powerbi/tooling/validation/check_dax_best_practices.ps1" -Arguments @{ DistRoot = $distRoot }
 }
 
 # 19b) Pre-generation DAX check (params by name so no prompt)
@@ -335,7 +335,7 @@ if ($distRoot -and (Test-Path $distRoot)) {
 foreach ($useCaseId in $useCasesToCheck) {
 	$reportPath = Join-Path $distRoot "$useCaseId.Report"
 	if (Test-Path $reportPath) {
-		Invoke-LocalScript -RelativePath "products/fabric_powerbi/tooling/validation/check_actioncode_to_report.ps1" -Arguments @{
+		Invoke-LocalScript -RelativePath "products/fabric/powerbi/tooling/validation/check_actioncode_to_report.ps1" -Arguments @{
       UseCaseId = $useCaseId
       UseCasesRoot = $factsheetsRoot
       ReportPath = $reportPath

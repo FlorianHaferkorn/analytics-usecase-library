@@ -1,12 +1,12 @@
 ---
 description: Fabric/Power BI adapter expert — TMDL, DAX, PBIP, Fabric checks
-globs: "products/fabric_powerbi/**", "**/products/fabric_powerbi/**/*.tmdl"
+globs: "products/fabric/powerbi/**", "**/products/fabric/powerbi/**/*.tmdl"
 alwaysApply: false
 ---
 
 # Fabric Expert (Power BI / Microsoft Fabric adapter)
 
-When editing under `products/fabric_powerbi/` or Fabric TMDL/DAX artifacts, you are in **Fabric adapter** context. This product is the reference implementation of the adapter contract.
+When editing under `products/fabric/powerbi/` or Fabric TMDL/DAX artifacts, you are in **Fabric adapter** context. This product is the reference implementation of the adapter contract.
 
 ## Adapter contract
 
@@ -25,9 +25,9 @@ Use the **Power BI Modeling MCP** registered in Cursor (`.cursor/mcp.json`, serv
 
 **Nach Abschluss einer Implementierung (MCP oder manuell):** Als nächsten Schritt immer die Post-Implementation-Validierung ausführen (Abschnitt „Post-Implementation“ unten). Implementierung erst als fertig betrachten, wenn Validierung bestanden oder nach max. Iterationen abgebrochen.
 
-- **Connect to PBIP:** Before model/measure/table operations, connect to the repo’s dist output via `connection_operations` with `operation: "ConnectFolder"` and `folderPath` = path to the **definition** folder (e.g. `products/fabric_powerbi/dist/Commercial.SemanticModel/definition` or absolute path).
+- **Connect to PBIP:** Before model/measure/table operations, connect to the repo’s dist output via `connection_operations` with `operation: "ConnectFolder"` and `folderPath` = path to the **definition** folder (e.g. `products/fabric/powerbi/dist/Commercial.SemanticModel/definition` or absolute path).
 - **Tools:** Prefer MCP where applicable: `model_operations` (Get, ExportTMDL), `measure_operations` (List, Create, Update, ExportTMDL), `table_operations`, `relationship_operations`, `connection_operations` (ConnectFolder, ListConnections). Always read the tool schema in `mcps/<server>/tools/<name>.json` before calling `call_mcp_tool`.
-- **Ref:** [.cursor/MCP_SETUP.md](.cursor/MCP_SETUP.md), [products/fabric_powerbi/orchestrator/IMPLEMENTATION_CHEATSHEET.md](products/fabric_powerbi/orchestrator/IMPLEMENTATION_CHEATSHEET.md).
+- **Ref:** [.cursor/MCP_SETUP.md](.cursor/MCP_SETUP.md), [products/fabric/powerbi/orchestrator/IMPLEMENTATION_CHEATSHEET.md](products/fabric/powerbi/orchestrator/IMPLEMENTATION_CHEATSHEET.md).
 
 ## Rules and skills
 
@@ -57,12 +57,12 @@ Use the **Power BI Modeling MCP** registered in Cursor (`.cursor/mcp.json`, serv
 Run Fabric validation from repo root:
 
 ```powershell
-.\products\fabric_powerbi\tooling\run_fabric_checks.ps1
+.\products\fabric/powerbi\tooling\run_fabric_checks.ps1
 ```
 
 Stage 1 (`. \tooling\run_stage1_checks.ps1`) still applies for any changes that touch core or cross-references; for Fabric-only artifact edits, Fabric checks are the primary gate.
 
 ## Scope
 
-- `products/fabric_powerbi/` — tooling, dist, reports, semantic models.
+- `products/fabric/powerbi/` — tooling, dist, reports, semantic models.
 - Future tool adapters (e.g. Tableau, Looker) get their own expert rules under `.cursor/rules/<tool>-expert.mdc`.

@@ -18,9 +18,9 @@ Use these instructions when editing this repository. Project rules in `.cursor/r
 
 ## Scripts and CI
 
-- Prefer existing scripts under `tooling/` (validation, generation, maintenance). Fabric pipeline (orchestrate, reports, semantic models): `products/fabric_powerbi/orchestrator/`.
+- Prefer existing scripts under `tooling/` (validation, generation, maintenance). Fabric pipeline (orchestrate, reports, semantic models): `products/fabric/powerbi/orchestrator/`.
 - Run PowerShell from the repository root when invoking these scripts.
-- Before committing changes that touch use cases, framework, or data contracts, run Stage 1: `.\tooling\run_stage1_checks.ps1`. For Fabric/Power BI output validation (measures vs KPI, TMDL vs measure dictionary), run `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1` or full suite `.\tooling\run_all_checks.ps1`.
+- Before committing changes that touch use cases, framework, or data contracts, run Stage 1: `.\tooling\run_stage1_checks.ps1`. For Fabric/Power BI output validation (measures vs KPI, TMDL vs measure dictionary), run `.\products\fabric\powerbi\tooling\run_fabric_checks.ps1` or full suite `.\tooling\run_all_checks.ps1`.
 - Run `.\tooling\maintenance\sync_evidence_grain_note_to_factsheet.ps1` after adding or changing `overrides.evidence_grain_note` in a bracket (e.g. after migration or when adding a governance note).
 - Schema authority: `tooling/ai/schemas/` for factsheets, action codes, data contracts, layout_330300. Structure and naming authority: `core/templates/`, `core/strategy_operating_model/operating_model/`.
 

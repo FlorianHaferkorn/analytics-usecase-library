@@ -1,6 +1,6 @@
 Param(
   [string]$Root = ".",
-  [string[]]$ExcludeDirs = @(".git","node_modules","internal\\archive","internal\\reviews","products\\fabric_powerbi\\dist"),
+  [string[]]$ExcludeDirs = @(".git","node_modules","internal\\archive","internal\\reviews","products\\fabric\\powerbi\\dist"),
   # Link targets that are generated (e.g. gitignored) and not present in CI; do not report as broken.
   [string[]]$AllowedMissingTargets = @("PROJECT_SNAPSHOT.md", "project_mgmt/PROJECT_SNAPSHOT.md", "internal/project_mgmt/PROJECT_SNAPSHOT.md")
 )

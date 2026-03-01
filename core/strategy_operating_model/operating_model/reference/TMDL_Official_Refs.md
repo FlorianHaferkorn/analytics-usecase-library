@@ -20,7 +20,7 @@ Purpose: Single place to reference the authoritative Microsoft docs for Tabular 
 ## Internal references (this repo)
 
 - PBIP layout and TMDL usage - repo-specific structure and generators  
-  `products/fabric_powerbi/docs/` (Fabric/Power BI implementation guides; PBIP layout and TMDL authoring)
+  `products/fabric/powerbi/docs/` (Fabric/Power BI implementation guides; PBIP layout and TMDL authoring)
 
 ## Internal usage note (1-liner)
 

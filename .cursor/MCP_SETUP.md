@@ -18,7 +18,7 @@ This project is configured to use the **Power BI Modeling MCP** server so the Cu
 
 ## MCP developer loop (nach Implementierung)
 
-**„Implementierung“** = Änderungen mit dem Power BI Modeling MCP (ConnectFolder, measures, tables, …), manuelle Edits an PBIP/TMDL/Report, **oder** ein Lauf der Pipeline (z. B. `orchestrate_full_model.ps1` oder `products/fabric_powerbi/orchestrator/orchestrate_full_model.ps1`). Nach jedem dieser Schritte gilt:
+**„Implementierung“** = Änderungen mit dem Power BI Modeling MCP (ConnectFolder, measures, tables, …), manuelle Edits an PBIP/TMDL/Report, **oder** ein Lauf der Pipeline (z. B. `orchestrate_full_model.ps1` oder `products/fabric/powerbi/orchestrator/orchestrate_full_model.ps1`). Nach jedem dieser Schritte gilt:
 
 **Wenn du eine Implementierung abgeschlossen hast**, ist der nächste Schritt immer derselbe:
 
@@ -58,7 +58,7 @@ After running the pipeline (e.g. `.\tooling\powerbi_mcp\orchestrate_full_model.p
 
 - **PBIP semantic model (TMDL):**  
   In Cursor/Copilot chat, use the MCP’s **ConnectToPBIP** prompt (or equivalent) and pass the path to the **definition** folder of the PBIP, e.g.:
-  - `products/fabric_powerbi/dist/Commercial.SemanticModel/definition`
+  - `products/fabric/powerbi/dist/Commercial.SemanticModel/definition`
   - Or the full absolute path to that folder on your machine.
 
 - **Power BI Desktop:**  
@@ -78,4 +78,4 @@ After running the pipeline (e.g. `.\tooling\powerbi_mcp\orchestrate_full_model.p
 - [Power BI Modeling MCP (GitHub)](https://github.com/microsoft/powerbi-modeling-mcp)
 - [Power BI MCP (Microsoft Learn)](https://learn.microsoft.com/en-us/power-bi/developer/mcp/)
 - Project orchestration: `tooling/powerbi_mcp/README.md`  
-- Implementation cheatsheet (MCP tools): `products/fabric_powerbi/orchestrator/IMPLEMENTATION_CHEATSHEET.md`
+- Implementation cheatsheet (MCP tools): `products/fabric/powerbi/orchestrator/IMPLEMENTATION_CHEATSHEET.md`

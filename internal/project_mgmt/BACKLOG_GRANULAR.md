@@ -92,7 +92,7 @@ Abschluss erstes Framework-Paket: Aurora als kundentauglicher Beweis für Fabric
 | [Task] Fabric: Publish report and bind to dataset in deploy.ps1 | Tooling | P2 | deploy.ps1 |
 | [Task] Fabric: Set refresh schedule via REST in deploy.ps1 | Tooling | P2 | deploy.ps1 |
 | [Task] Fabric: Apply RLS / security_user_org mapping via API in deploy.ps1 | Tooling | P2 | deploy.ps1 |
-| [Task] TMDL: default format strings and display folders (AUTOMATION_FLOW) | Tooling | P2 | products/fabric_powerbi/orchestrator/AUTOMATION_FLOW.md |
+| [Task] TMDL: default format strings and display folders (AUTOMATION_FLOW) | Tooling | P2 | products/fabric/powerbi/orchestrator/AUTOMATION_FLOW.md |
 | [Task] Update relationship via MCP (AUTOMATION_FLOW) | Tooling | P2 | AUTOMATION_FLOW.md |
 | [Task] Generate visuals from template (AUTOMATION_FLOW) | Tooling | P2 | AUTOMATION_FLOW.md |
 

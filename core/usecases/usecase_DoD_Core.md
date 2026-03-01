@@ -79,7 +79,7 @@ For a core use case to be build-ready:
   - `validate_kpi_catalog.ps1`
   - `check_factsheet_vs_kpi.ps1`
 - If `_Measures.tmdl` files exist for the use case:
-  - `products/fabric_powerbi/tooling/validation/check_measures_vs_kpi.ps1` passes without missing KPI references.
+  - `products/fabric/powerbi/tooling/validation/check_measures_vs_kpi.ps1` passes without missing KPI references.
 - AI schemas for business factsheet and use case bracket:
   - `tooling/ai/schemas/business_factsheet_v1_2.schema.json`
   - `tooling/ai/schemas/usecase_bracket.schema.json`  

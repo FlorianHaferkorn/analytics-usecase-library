@@ -10,6 +10,6 @@ Single entry for the **procedure** from strategy to first report. Data layers: w
 
 Implementation guides for specific platforms live under each platform adapter.
 
-- **Fabric / Power BI:** `products/fabric_powerbi/docs/`
-  - [fabric_powerbi.md](../../products/fabric_powerbi/docs/fabric_powerbi.md)
-  - [tmdl_best_practices.md](../../products/fabric_powerbi/docs/tmdl_best_practices.md)
+- **Fabric / Power BI:** `products/fabric/powerbi/docs/`
+  - [fabric/powerbi.md](../../products/fabric/powerbi/docs/fabric_powerbi.md)
+  - [tmdl_best_practices.md](../../products/fabric/powerbi/docs/tmdl_best_practices.md)

@@ -11,7 +11,7 @@ Run Fabric-specific checks for TMDL syntax, DAX best practices, measure dictiona
 
 1. **Run Fabric checks**:
    ```powershell
-   .\products\fabric_powerbi\tooling\run_fabric_checks.ps1
+   .\products\fabric/powerbi\tooling\run_fabric_checks.ps1
    ```
 2. **Check types**:
    - TMDL syntax validation
@@ -60,8 +60,8 @@ Validated by `check_diagram_layout.ps1` (part of Fabric checks).
 
 ## Key paths
 
-- Fabric checks: `products/fabric_powerbi/tooling/run_fabric_checks.ps1`
-- TMDL output: `products/fabric_powerbi/dist/<UseCase>/`
+- Fabric checks: `products/fabric/powerbi/tooling/run_fabric_checks.ps1`
+- TMDL output: `products/fabric/powerbi/dist/<UseCase>/`
 - Measure dictionaries: `core/semantic_models/domains/`
 - KPI catalog: `core/kpi_catalog/`
 - BPA rules: `tooling/linters/powerbi/bpa-rules-tmdl.json`

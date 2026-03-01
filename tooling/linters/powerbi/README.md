@@ -21,7 +21,7 @@ Tool-Agnostic Layers:
 └── docs/operating_model/          # Conceptual framework
 
 Implementation Layer (Tool-Specific):
-├── products/fabric_powerbi/docs/
+├── products/fabric/powerbi/docs/
 │   └── fabric_powerbi.md          # High-level Power BI patterns
 │   └── tmdl_best_practices.md     # TMDL syntax specifications
 └── tooling/linters/powerbi/
@@ -141,7 +141,7 @@ To add new Power BI BPA rules:
      "description": "Detailed description",
      "pattern": "regex pattern",
      "autoFixable": true|false,
-     "reference": "products/fabric_powerbi/docs/tmdl_best_practices.md#section"
+     "reference": "products/fabric/powerbi/docs/tmdl_best_practices.md#section"
    }
    ```
 
@@ -149,12 +149,12 @@ To add new Power BI BPA rules:
 
 4. Add test case in `tooling/validation/tests/`
 
-5. Document in `products/fabric_powerbi/docs/tmdl_best_practices.md`
+5. Document in `products/fabric/powerbi/docs/tmdl_best_practices.md`
 
 ## References
 
-- **TMDL Best Practices**: `products/fabric_powerbi/docs/tmdl_best_practices.md`
-- **Fabric/Power BI Implementation**: `products/fabric_powerbi/docs/fabric_powerbi.md`
+- **TMDL Best Practices**: `products/fabric/powerbi/docs/tmdl_best_practices.md`
+- **Fabric/Power BI Implementation**: `products/fabric/powerbi/docs/fabric_powerbi.md`
 - **Validation Scripts**: `tooling/validation/`
 - **MCP Operations**: `mcp_powerbi-model_*` tools
 

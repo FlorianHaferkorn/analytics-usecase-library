@@ -21,7 +21,7 @@ Not included:
 
 - Customer-specific implementations (kept in separate project repositories)
 - Internal drafts, prototypes, or experiments
-- Tool-specific implementation guides (see `products/fabric_powerbi/docs/`)
+- Tool-specific implementation guides (see `products/fabric/powerbi/docs/`)
 
 ## Structure
 

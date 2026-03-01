@@ -98,13 +98,13 @@ To implement one use case end-to-end (e.g. COM-001):
    .\tooling\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseAuroraShowcase -OverwriteExisting
    ```
 
-   Primary output: `showcases/aurora_group/semantic_models/.../tables/_Measures.tmdl` (single measures table; measures grouped by display folder). Omit `-UseAuroraShowcase` to write to `products/fabric_powerbi/dist` instead.
+   Primary output: `showcases/aurora_group/semantic_models/.../tables/_Measures.tmdl` (single measures table; measures grouped by display folder). Omit `-UseAuroraShowcase` to write to `products/fabric/powerbi/dist` instead.
 
 3. Run **Stage 1** to ensure framework consistency: `.\tooling\run_stage1_checks.ps1`.
-4. If you have Fabric/Power BI output, run **Fabric checks**: `products\fabric_powerbi\tooling\run_fabric_checks.ps1`.
-5. **Apply report theme (recommended):** `py products/fabric_powerbi/tooling/apply_report_theme.py path/to/Report --theme-name 'Generic__Monochromatic__Light__#118DFF'` (or your showcase default). When generating scaffolds, use `--theme` so the theme is applied in the same step.
+4. If you have Fabric/Power BI output, run **Fabric checks**: `products\fabric/powerbi\tooling\run_fabric_checks.ps1`.
+5. **Apply report theme (recommended):** `py products/fabric/powerbi/tooling/apply_report_theme.py path/to/Report --theme-name 'Generic__Monochromatic__Light__#118DFF'` (or your showcase default). When generating scaffolds, use `--theme` so the theme is applied in the same step.
 
-For Fabric/Power BI layout, PBIP, and best practices, see `products/fabric_powerbi/docs/`.
+For Fabric/Power BI layout, PBIP, and best practices, see `products/fabric/powerbi/docs/`.
 
 **First 2 hours (optional checklist):** Clone repo → run Prerequisites (npm ci in tooling/validation) → read strategy + golden thread (steps 1–2) → run Stage 1 → pick one use case and generate measures (step 2 above).
 
@@ -120,7 +120,7 @@ For Fabric/Power BI layout, PBIP, and best practices, see `products/fabric_power
 
 - **`run_stage1_checks.ps1`** — Use for **CI and before merge**. Fast, tool-agnostic gate (docs, refs, structure, KPI ↔ use case consistency). This is the mandated check for merge.
 - **`run_all_checks.ps1`** — Use for **full local validation** when you have Fabric/Power BI output: runs Stage 1 plus Fabric checks (measures vs KPI, TMDL vs measure dictionary, DAX best practices, TMDL syntax). Use before releasing or when changing measures/TMDL.
-- **`products\fabric_powerbi\tooling\run_fabric_checks.ps1`** — Fabric-only checks (no Stage 1); use when you only need to validate generated TMDL/measures.
+- **`products\fabric/powerbi\tooling\run_fabric_checks.ps1`** — Fabric-only checks (no Stage 1); use when you only need to validate generated TMDL/measures.
 
 ## Stage 2 Soft Review (planned)
 
@@ -149,7 +149,7 @@ core/           # Tool-agnostic: strategy, use cases, KPIs, semantic model, data
   templates/         # Page, measure, data contract templates
 
 implementations/    # Tool-specific implementations
-  microsoft_fabric_powerbi/
+  microsoft_fabric/powerbi/
     guide/           # Fabric/Power BI implementation guides
     dist/            # Generated TMDL/artifacts (default output)
     tools/           # Fabric-specific scripts (e.g. run_fabric_checks.ps1, theme_generator)
@@ -179,5 +179,5 @@ internal/           # Archive, strategy, vision, CI (maintainer-only)
 This framework is **platform-agnostic by design**.  
 Platform-specific implementation guides (e.g. Fabric / Power BI) live under:
 
-- `products/fabric_powerbi/docs/` (Fabric/Power BI)
+- `products/fabric/powerbi/docs/` (Fabric/Power BI)
 

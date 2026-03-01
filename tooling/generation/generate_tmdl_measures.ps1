@@ -3,7 +3,7 @@ Param(
   [string]$UseCasesRoot = "core/usecases",
   [string]$KpiCatalogRoot = "core/kpi_catalog",
   [string]$ActionCodesRoot = "core/action_codes",
-  [string]$DistRoot = "products/fabric_powerbi/dist",
+  [string]$DistRoot = "products/fabric/powerbi/dist",
   [string]$MeasuresTableName = "_Measures",
   # Path to master_registry.json (for trust-score propagation).  When empty the script
   # tries <repo_root>/master_registry.json automatically.
@@ -852,7 +852,7 @@ if ($TargetTablesDir -and $TargetTablesDir.Trim().Length -gt 0) {
   else { throw "Unable to resolve TargetTablesDir. Provide an absolute path or run from repository root." }
 }
 if (-not $resolvedTablesDir) {
-  $resolvedDistRoot = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'products/fabric_powerbi/dist'
+  $resolvedDistRoot = Resolve-RepoPath -ProvidedPath $DistRoot -DefaultRelative 'products/fabric/powerbi/dist'
   if (-not $resolvedDistRoot) { throw "Unable to resolve dist root. Provide -DistRoot or -UseAuroraShowcase / -TargetTablesDir or run inside repository." }
   # When only -UseCase is provided (no TargetTablesDir): write to domain model under dist to avoid dist/COM-001 and dist/_shared.
   if ($UseCase -and $UseCase.Count -gt 0) {

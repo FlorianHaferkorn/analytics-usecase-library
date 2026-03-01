@@ -47,7 +47,7 @@ The following applies when **Stage 1 is green** (CI gate: `.\tooling\run_stage1_
 - **3–30–300 complete:** The principle is defined. The **300s layer layout** is now defined in [core/templates/page_templates/layout_330300_300s_layer.md](../core/templates/page_templates/layout_330300_300s_layer.md) and schema `layout_330300.schema.json`. Still to implement: full generation of action text and evidence table from action-code YAML in the report.
 - **Strategy Pattern / AI urgency:** Strategy pattern document exists; automatic urgency derivation and automated reasoning are target/backlog. Scope and limits of automated reasoning are documented in [internal/vision/automated_reasoning_scope_and_limits.md](vision/automated_reasoning_scope_and_limits.md).
 - **Strategic layer (optional):** The link Strategy → KPIs → Use Cases works; company_strategy has canonical anchors (§5, §6, §7) and references.
-- **Technical open items:** Technical TODOs and stubs (MCP, Fabric API, synthetic data, scaffold) are listed in [internal/technical_backlog.md](technical_backlog.md). **Aurora Operations:** [products/fabric_powerbi/blueprints/Operations.yaml](../products/fabric_powerbi/blueprints/Operations.yaml) has relationships and display_folders (measures) defined; DAX in KPI Catalog for OPS-001/002/003 still to be added.
+- **Technical open items:** Technical TODOs and stubs (MCP, Fabric API, synthetic data, scaffold) are listed in [internal/technical_backlog.md](technical_backlog.md). **Aurora Operations:** [products/fabric/powerbi/blueprints/Operations.yaml](../products/fabric/powerbi/blueprints/Operations.yaml) has relationships and display_folders (measures) defined; DAX in KPI Catalog for OPS-001/002/003 still to be added.
 
 ---
 
@@ -56,10 +56,10 @@ The following applies when **Stage 1 is green** (CI gate: `.\tooling\run_stage1_
 | Component | Purpose | Details |
 |-----------|----------|---------|
 | **Registry Gate** | Referential integrity and consistent Golden Thread. No merge on failure. | Checks: all KPI and action-code references exist; detects orphans (ghosts), governance gaps, logical breaks. Run: `py tooling/ontology/registry_builder.py --out-dir tooling/ontology/out --strict`; included in Stage 1. See [tooling/README.md](../tooling/README.md). |
-| **Semantic models & UX** | Best practices for TMDL, DAX, 3-30-300, accessibility. | [products/fabric_powerbi/docs/tmdl_best_practices.md](../products/fabric_powerbi/docs/tmdl_best_practices.md), [fabric_powerbi.md](../products/fabric_powerbi/docs/fabric_powerbi.md) §11. |
-| **Report documentation generator** | Standardised report documentation (Markdown) from PBIP and use-case factsheets. | Traceability: metadata, business questions, KPIs, per page. Usable when PBIP and factsheets exist. Spec: [report_documentation_generator_spec.md](../products/fabric_powerbi/tooling/report_documentation_generator_spec.md). |
-| **Theme generator** | Power BI themes (JSON) from colour/concept; WCAG and CVD checks. | [products/fabric_powerbi/docs/fabric_powerbi.md](../products/fabric_powerbi/docs/fabric_powerbi.md) §9.4; apply to reports e.g. via `apply_report_theme.py`. |
-| **Fabric architecture (code-based)** | Git as source of truth; workspace strategy (DE_/DM_/BI_); deployment pipelines; Stage 1 + Registry before deploy. | [products/fabric_powerbi/docs/fabric_architecture_best_practices.md](../products/fabric_powerbi/docs/fabric_architecture_best_practices.md), [products/fabric_powerbi/deployment/README.md](../products/fabric_powerbi/deployment/README.md). |
+| **Semantic models & UX** | Best practices for TMDL, DAX, 3-30-300, accessibility. | [products/fabric/powerbi/docs/tmdl_best_practices.md](../products/fabric/powerbi/docs/tmdl_best_practices.md), [fabric/powerbi.md](../products/fabric/powerbi/docs/fabric_powerbi.md) §11. |
+| **Report documentation generator** | Standardised report documentation (Markdown) from PBIP and use-case factsheets. | Traceability: metadata, business questions, KPIs, per page. Usable when PBIP and factsheets exist. Spec: [report_documentation_generator_spec.md](../products/fabric/powerbi/tooling/report_documentation_generator_spec.md). |
+| **Theme generator** | Power BI themes (JSON) from colour/concept; WCAG and CVD checks. | [products/fabric/powerbi/docs/fabric_powerbi.md](../products/fabric/powerbi/docs/fabric_powerbi.md) §9.4; apply to reports e.g. via `apply_report_theme.py`. |
+| **Fabric architecture (code-based)** | Git as source of truth; workspace strategy (DE_/DM_/BI_); deployment pipelines; Stage 1 + Registry before deploy. | [products/fabric/powerbi/docs/fabric_architecture_best_practices.md](../products/fabric/powerbi/docs/fabric_architecture_best_practices.md), [products/fabric/powerbi/deployment/README.md](../products/fabric/powerbi/deployment/README.md). |
 
 ---
 
@@ -126,9 +126,9 @@ References: [internal/project_mgmt/PM_FLOW.md](project_mgmt/PM_FLOW.md), [intern
 ### What Aurora concretely proves
 
 - **Open PBIP:** Open a domain semantic model (e.g. `showcases/aurora_group/semantic_models/Commercial.SemanticModel`) or a generated report in Power BI Desktop; report and semantic model load together.
-- **Report loads:** Report with scaffolded pages (e.g. COM-001 Overview/Detail) in PBIR format under `products/fabric_powerbi/dist/<UC>.Report`; visuals use the domain semantic model.
+- **Report loads:** Report with scaffolded pages (e.g. COM-001 Overview/Detail) in PBIR format under `products/fabric/powerbi/dist/<UC>.Report`; visuals use the domain semantic model.
 - **Measures:** One _Measures.tmdl with all measures, displayFolder per use case (COM-001 to COM-004, OPS-001, SCM-001, FIN-001 etc.); generated from KPI catalog.
-- **3-30-300 layouts:** Overview/Insights/Explorer follow [core/templates/page_templates/](../core/templates/page_templates/) and [products/fabric_powerbi/docs/reporting/pbip_layouts.md](../products/fabric_powerbi/docs/reporting/pbip_layouts.md).
+- **3-30-300 layouts:** Overview/Insights/Explorer follow [core/templates/page_templates/](../core/templates/page_templates/) and [products/fabric/powerbi/docs/reporting/pbip_layouts.md](../products/fabric/powerbi/docs/reporting/pbip_layouts.md).
 - **RLS:** Aurora Organization Access; gold data under `showcases/aurora_group/data/gold/`.
 
 Reference: [showcases/aurora_group/README.md](../showcases/aurora_group/README.md).

@@ -1,6 +1,6 @@
 # Aurora Group Showcase
 
-Purpose: Demonstrate the ActionReady Analytics Framework with a **realistic synthetic company**. Aurora is tool-agnostic: company profile, operating model, and gold data. Report creation, semantic models, and pipeline live under the **tool-specific product** (e.g. Fabric: `products/fabric_powerbi/`).
+Purpose: Demonstrate the ActionReady Analytics Framework with a **realistic synthetic company**. Aurora is tool-agnostic: company profile, operating model, and gold data. Report creation, semantic models, and pipeline live under the **tool-specific product** (e.g. Fabric: `products/fabric/powerbi/`).
 
 ## What Aurora contains
 
@@ -20,8 +20,8 @@ aurora_group/
 | **Framework spec** | `core/strategy_operating_model/` |
 | **Use case specs** | `core/usecases/core/` |
 | **KPI catalog** | `core/kpi_catalog/` |
-| **Generated TMDL & reports** (Fabric) | `products/fabric_powerbi/dist/` |
-| **Fabric pipeline & docs** | `products/fabric_powerbi/orchestrator/`, `products/fabric_powerbi/docs/` |
+| **Generated TMDL & reports** (Fabric) | `products/fabric/powerbi/dist/` |
+| **Fabric pipeline & docs** | `products/fabric/powerbi/orchestrator/`, `products/fabric/powerbi/docs/` |
 | **Stage 1 (CI gate)** | `tooling/run_stage1_checks.ps1` |
 
 ## What we validate with Aurora
@@ -30,9 +30,9 @@ Can someone take a framework use case, use Aurora’s data (and a tool’s seman
 
 - **Stage 1 green** — `.\tooling\run_stage1_checks.ps1`
 - **Aurora data** — Gold under `showcases/aurora_group/data/gold/`
-- **Open PBIP** — Semantic model and reports from `products/fabric_powerbi/dist/` (see Fabric docs for how to run the pipeline and open reports)
+- **Open PBIP** — Semantic model and reports from `products/fabric/powerbi/dist/` (see Fabric docs for how to run the pipeline and open reports)
 
-**How to run the pipeline and verify:** See `products/fabric_powerbi/docs/DEMO_AND_VERIFICATION.md`.
+**How to run the pipeline and verify:** See `products/fabric/powerbi/docs/DEMO_AND_VERIFICATION.md`.
 
 ## How to use Aurora
 

@@ -1,6 +1,6 @@
 Param(
   [string]$Root = ".",
-  [string[]]$ExcludeDirs = @(".git","node_modules","internal\\archive","implementations\\microsoft_fabric_powerbi\\dist","core\\templates\\page_templates\\governance"),
+  [string[]]$ExcludeDirs = @(".git","node_modules","internal\\archive","products\\fabric\\powerbi\\dist","core\\templates\\page_templates\\governance"),
   [switch]$FailOnError
 )
 

@@ -25,7 +25,7 @@
 - **UseCase_Inventory.md**: Generierte Datei; Link-back ggf. im Generator (tooling/ontology/registry_builder.py) oder in einer Vorlage hinterlegen.
 - **Domain READMEs** unter `core/semantic_models/domains/*/README.md`: Nur Commercial hat ein README; dieses hat bereits Link-back auf domains.md. Andere Domains (Operations, Finance, etc.) haben nur Measure_Dictionary_*.md, kein README – bei künftiger Anlage gleiches Muster wie Commercial.
 - **Showcase-Varianten** unter `showcases/*`: Beispiel-Implementierung; Link-back optional.
-- **products/fabric_powerbi/docs/***, **tooling/ai/*.schema.json**: Außerhalb core bzw. keine Prosa-Dateien; nach Bedarf.
+- **products/fabric/powerbi/docs/***, **tooling/ai/*.schema.json**: Außerhalb core bzw. keine Prosa-Dateien; nach Bedarf.
 
 ---
 

@@ -91,7 +91,7 @@ if ($LASTEXITCODE -ne 0) {
 ```
 
 ### CI/CD (run_all_checks.ps1)
-TMDL BPA validation runs in **run_all_checks.ps1** as step **19d2**: for each `*.SemanticModel\definition` under `$DistRoot` (products/fabric_powerbi/dist), `validate_tmdl.ps1` is invoked with `-TmdlPath <definitionPath>`. No auto-fix in CI; validation-only. Failed runs are recorded in the consolidated check results and contribute to the overall exit code.
+TMDL BPA validation runs in **run_all_checks.ps1** as step **19d2**: for each `*.SemanticModel\definition` under `$DistRoot` (products/fabric/powerbi/dist), `validate_tmdl.ps1` is invoked with `-TmdlPath <definitionPath>`. No auto-fix in CI; validation-only. Failed runs are recorded in the consolidated check results and contribute to the overall exit code.
 
 ---
 

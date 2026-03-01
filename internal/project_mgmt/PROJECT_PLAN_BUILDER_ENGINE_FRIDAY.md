@@ -12,9 +12,9 @@
 
 **Umsetzung (Referenz):**
 
-- **Phase 1:** [products/fabric_powerbi/orchestrator/orchestrate_full_model.ps1](../../products/fabric_powerbi/orchestrator/orchestrate_full_model.ps1) – Pipeline inkl. Phase 6 „Validate Fabric output“; [showcases/aurora_group/DEMO_AND_READINESS.md](../../showcases/aurora_group/DEMO_AND_READINESS.md) – Verifikation und pbi-tools.
-- **Phase 2:** Gate in [products/fabric_powerbi/orchestrator/README.md](../../products/fabric_powerbi/orchestrator/README.md); Fehler in `last_run_state.json` und `out/build_errors.json`.
-- **Phase 3:** [products/fabric_powerbi/orchestrator/README.md § Adding a new use case](../../products/fabric_powerbi/orchestrator/README.md).
+- **Phase 1:** [products/fabric/powerbi/orchestrator/orchestrate_full_model.ps1](../../products/fabric/powerbi/orchestrator/orchestrate_full_model.ps1) – Pipeline inkl. Phase 6 „Validate Fabric output“; [showcases/aurora_group/DEMO_AND_READINESS.md](../../showcases/aurora_group/DEMO_AND_READINESS.md) – Verifikation und pbi-tools.
+- **Phase 2:** Gate in [products/fabric/powerbi/orchestrator/README.md](../../products/fabric/powerbi/orchestrator/README.md); Fehler in `last_run_state.json` und `out/build_errors.json`.
+- **Phase 3:** [products/fabric/powerbi/orchestrator/README.md § Adding a new use case](../../products/fabric/powerbi/orchestrator/README.md).
 - **Phase 4:** [KNOWN_ERRORS_AND_FIXES.md](KNOWN_ERRORS_AND_FIXES.md); State-Schema mit `validateErrors`.
 
 **Backlog-Anbindung:** Framework Package 1 (Demo Friday) – siehe [BACKLOG_GRANULAR.md](BACKLOG_GRANULAR.md) Abschnitt „Builder Engine (Diese Woche)“.

@@ -7,7 +7,7 @@
 #>
 Param(
   [string]$OutDir = "dist/customer_exports",
-  [string[]]$IncludeProducts = @("fabric_powerbi"),
+  [string[]]$IncludeProducts = @("fabric/powerbi"),
   [switch]$IncludeShowcases,
   [switch]$Zip
 )
@@ -37,7 +37,7 @@ Copy-Item -Force (Join-Path $repoRoot "README.md") (Join-Path $pkgDir "README.md
 # Selected products
 Ensure-Dir (Join-Path $pkgDir "products")
 foreach ($p in $IncludeProducts) {
-  $src = Join-Path $repoRoot ("products\" + $p)
+  $src = Join-Path $repoRoot ("products\" + ($p -replace '/', [System.IO.Path]::DirectorySeparatorChar))
   if (-not (Test-Path $src)) { throw "Product not found: $src" }
   Copy-Item -Recurse -Force $src (Join-Path $pkgDir ("products\" + $p))
 }

@@ -93,7 +93,7 @@ Lesbare Übersicht der Regeln aus `bpa-rules-report.json`. Diese Regeln werden v
 
 ```powershell
 # Einzelnen Report prüfen
-& tooling/validation/validate_report.ps1 -ReportPath "products/fabric_powerbi/dist/Commercial.SemanticModel/Report/COM-001.Report" -BpaRulesPath "tooling/linters/powerbi/bpa-rules-report.json"
+& tooling/validation/validate_report.ps1 -ReportPath "products/fabric/powerbi/dist/Commercial.SemanticModel/Report/COM-001.Report" -BpaRulesPath "tooling/linters/powerbi/bpa-rules-report.json"
 
 # Über run_all_checks (Check 19f)
 .\tooling\run_all_checks.ps1

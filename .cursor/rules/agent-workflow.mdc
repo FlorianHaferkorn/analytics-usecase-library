@@ -26,7 +26,7 @@ Parse the script output for the **issue number** (e.g. "Issue #17" or "Issue num
 1. Read the assigned GitHub Issue / task description fully (if you ran start_next_task.ps1, you already have the issue number and title; you may still fetch the full description from the issue).
 2. Identify which artifacts are affected (use case, action code, KPI, tooling, docs) and which expert context applies:
    - **Framework / Docs (framework topics):** Use Framework-Expert context (`.cursor/rules/framework-expert.mdc`): core/, tooling/ir/, data_contracts/, tooling/validation/, tooling/ontology/. No tool-specific syntax.
-   - **FabricPowerBI / products/fabric_powerbi/:** Use Fabric-Expert context (`.cursor/rules/fabric-expert.mdc`): TMDL, DAX, run_fabric_checks. Use the **Power BI Modeling MCP** (server `powerbi-modeling-mcp`) for semantic model operations; see fabric-expert.mdc and `.cursor/MCP_SETUP.md`.
+   - **FabricPowerBI / products/fabric/powerbi/:** Use Fabric-Expert context (`.cursor/rules/fabric-expert.mdc`): TMDL, DAX, run_fabric_checks. Use the **Power BI Modeling MCP** (server `powerbi-modeling-mcp`) for semantic model operations; see fabric-expert.mdc and `.cursor/MCP_SETUP.md`.
    - **Aurora (showcases/aurora_group):** Aurora is the showcase for every tool (Fabric first, others later). If the task involves Fabric implementation (DAX, TMDL, Measure_Dictionary, reports) → use Fabric-Expert. If the task is showcase structure only (YAML in showcases/aurora_group/models/, model definition, no tool syntax) → use Framework-Expert.
    - **Other areas:** Apply the skill that matches the artifact type below.
 3. Read the relevant skill from `.cursor/skills/` for the artifact type before editing:
@@ -57,7 +57,7 @@ Parse the script output for the **issue number** (e.g. "Issue #17" or "Issue num
 ## Before committing
 
 10. Run Stage 1 from repo root: `.\tooling\run_stage1_checks.ps1`
-11. If Fabric/Power BI artifacts changed: `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1`
+11. If Fabric/Power BI artifacts changed: `.\products\fabric/powerbi\tooling\run_fabric_checks.ps1`
 12. Fix any failures before committing. Use the `fix-stage1-failure` skill if needed.
 13. **After fixing any build, validation, or Desktop error:** If that error class is not yet in [internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md](internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md), add one row (Symptom | Cause | Fix) to the appropriate section so the same mistake is not repeated. See that file’s “Updating this list” section.
 
@@ -65,7 +65,7 @@ Parse the script output for the **issue number** (e.g. "Issue #17" or "Issue num
 
 When changes affect TMDL or reports (measures, tables, .pbip): **validate TMDL first**, then fix, then hand off. Do **not** ask the user to test until validation passes.
 
-- Run **TMDL validation**: from repo root `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1` (or `.\products\fabric_powerbi\tooling\tmdl_render_and_fix.ps1` for render + auto-fix + knowledge-base update).
+- Run **TMDL validation**: from repo root `.\products\fabric/powerbi\tooling\run_fabric_checks.ps1` (or `.\products\fabric/powerbi\tooling\tmdl_render_and_fix.ps1` for render + auto-fix + knowledge-base update).
 - If TMDL syntax or PBIP readiness fails: fix the cause (e.g. measure formatString/displayFolder at **t2**; see KNOWN_ERRORS_AND_FIXES.md), regenerate if needed, re-run validation. Repeat until **check_tmdl_syntax** and **check_tmdl_pbip_readiness** pass.
 - If a new error class was fixed: add or update a row in [internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md](internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md) (Symptom | Cause | Fix) so the learning loop captures it.
 - Only after validation passes: tell the user that they can test (e.g. open the report .pbip in Power BI Desktop).

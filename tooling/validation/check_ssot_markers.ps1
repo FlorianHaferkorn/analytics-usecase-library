@@ -2,8 +2,8 @@ Param(
   [string]$Root = ".",
   [string[]]$AllowList = @(
     "core/strategy_operating_model/operating_model/reference/single_source_of_truth.md",
-    "products/fabric_orchestrator/README.md",
-    "products/fabric_orchestrator/config.yaml"
+    "products/fabric/orchestrator/README.md",
+    "products/fabric/orchestrator/config.yaml"
   ),
   [switch]$FailOnError
 )

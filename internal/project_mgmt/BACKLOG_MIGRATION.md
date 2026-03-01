@@ -35,10 +35,10 @@ Create as **Task** (or **Bug** where applicable) issues; add to Project; set **M
 
 | Title | Area | Priority | Notes |
 |-------|------|----------|--------|
-| [Task] Call Power BI MCP table_operations from table_ops.ps1 | Tooling | P2 | products/fabric_powerbi/orchestrator/table_ops.ps1 ~line 138. |
-| [Task] Call Power BI MCP relationship_operations from relationship_ops.ps1 | Tooling | P2 | products/fabric_powerbi/orchestrator/relationship_ops.ps1 ~line 199. |
+| [Task] Call Power BI MCP table_operations from table_ops.ps1 | Tooling | P2 | products/fabric/powerbi/orchestrator/table_ops.ps1 ~line 138. |
+| [Task] Call Power BI MCP relationship_operations from relationship_ops.ps1 | Tooling | P2 | products/fabric/powerbi/orchestrator/relationship_ops.ps1 ~line 199. |
 | [Task] Fabric Workspace and semantic model API in deploy.ps1 | Tooling | P2 | deploy.ps1: GET/POST workspace, Import PBIP/TMDL, Publish report, Refresh schedule, RLS/security_user_org. |
-| [Task] TMDL/display folders, relationship update, visuals, REST, refresh, security in AUTOMATION_FLOW | Tooling | P2 | See products/fabric_powerbi/orchestrator/AUTOMATION_FLOW.md. |
+| [Task] TMDL/display folders, relationship update, visuals, REST, refresh, security in AUTOMATION_FLOW | Tooling | P2 | See products/fabric/powerbi/orchestrator/AUTOMATION_FLOW.md. |
 
 ### Aurora Models (Operations, Finance)
 
@@ -78,7 +78,7 @@ Example (adjust body and labels):
 
 ```bash
 gh issue create --title "[Task] Call Power BI MCP table_operations from table_ops.ps1" \
-  --body "See internal/technical_backlog.md. File: products/fabric_powerbi/orchestrator/table_ops.ps1 ~line 138." \
+  --body "See internal/technical_backlog.md. File: products/fabric/powerbi/orchestrator/table_ops.ps1 ~line 138." \
   --label "area:tooling"
 ```
 

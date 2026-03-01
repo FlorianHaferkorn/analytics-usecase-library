@@ -42,7 +42,7 @@ Use Cases contain only references to KPIs: required_kpi_ids (IDs; in factsheets 
 | Semantic layer (conceptual) | `core/strategy_operating_model/operating_model/semantic_layer.md` | `core/semantic_models/domains/`, data contracts, UseCase_Bracket | semantic_layer.md is the canonical design reference; structure is implemented via Brackets, KPI catalog, data contracts, and domain measure dictionaries. (Legacy: ActionReady blueprint and core_action_ready are in `internal/archive/legacy_action_ready_and_blueprint_2026-02/`.) |
 | Measure system (conventions) | `core/strategy_operating_model/operating_model/measure_system.md` | `core/templates/measure_templates/*` | measure_system.md defines naming/taxonomy; templates provide reusable scaffolds. |
 | UX standards & layouts | `core/strategy_operating_model/operating_model/ux_design_system.md` | `core/templates/page_templates/*` | UX system is principles; page templates are patterns. |
-| Distribution architecture | `core/strategy_operating_model/operating_model/distribution_architecture.md` | `products/fabric_powerbi/docs/*` | Tool-specific guides implement distribution patterns. |
+| Distribution architecture | `core/strategy_operating_model/operating_model/distribution_architecture.md` | `products/fabric/powerbi/docs/*` | Tool-specific guides implement distribution patterns. |
 | AI readiness | `core/strategy_operating_model/operating_model/ai_readiness.md` | `tooling/ai/*.schema.json` | ai_readiness describes approach; schemas enforce structure. |
 | Use case master list | `core/usecases/UseCase_Inventory.md` | Strategy alignment map | Inventory is operational truth (status, domain, owners, etc.). |
 | Use case templates | `core/usecases/templates/*` | — | Factsheets must follow these templates. |

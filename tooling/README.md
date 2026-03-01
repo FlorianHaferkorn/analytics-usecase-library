@@ -175,7 +175,7 @@ Referential integrity, transitive linkage, governance gaps, value-driver formula
 **Full validation:** `run_all_checks.ps1`
 Stage 1 + Fabric checks (measures vs KPI, TMDL, DAX best practices).
 
-**Fabric-only:** `products/fabric_powerbi/tooling/run_fabric_checks.ps1`
+**Fabric-only:** `products/fabric/powerbi/tooling/run_fabric_checks.ps1`
 
 ---
 

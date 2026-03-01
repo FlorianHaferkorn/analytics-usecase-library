@@ -123,13 +123,13 @@ Antworte NUR mit einem einzelnen JSON-Objekt, sonst nichts.
 Format:
 {
   "file_edits": [
-    { "path": "relativer Pfad ab Repo-Root (z.B. products/fabric_powerbi/dist/.../definition/model.tmdl)", "search": "exakter zu suchender Text (Newlines als \\n)", "replace": "Ersatztext" }
+    { "path": "relativer Pfad ab Repo-Root (z.B. products/fabric/powerbi/dist/.../definition/model.tmdl)", "search": "exakter zu suchender Text (Newlines als \\n)", "replace": "Ersatztext" }
   ],
   "knowledge_base_row": { "section": "TMDL / PBIP oder DAX / measures oder datasetReference usw.", "symptom": "...", "cause": "...", "fix": "..." }
 }
 
 Regeln:
-- path nur unter products/fabric_powerbi/dist oder internal/project_mgmt; Forward-Slashes.
+- path nur unter products/fabric/powerbi/dist oder internal/project_mgmt; Forward-Slashes.
 - search/replace exakt (escaping in JSON); nur die nötigste Änderung.
 - Wenn du keinen sicheren Fix kennst: "file_edits": [], "knowledge_base_row": null.
 - section muss exakt zu einer Überschrift in der Wissensdatenbank passen (z.B. "TMDL / PBIP").

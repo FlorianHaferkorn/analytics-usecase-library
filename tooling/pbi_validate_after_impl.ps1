@@ -31,19 +31,19 @@ param(
 
 $ErrorActionPreference = "Stop"
 $bridgeFile = Join-Path $RepoRoot ".cursor\pbi_errors.log"
-$fabricChecksScript = Join-Path $RepoRoot "products\fabric_powerbi\tooling\run_fabric_checks.ps1"
+$fabricChecksScript = Join-Path $RepoRoot "products\fabric\powerbi\tooling\run_fabric_checks.ps1"
 
 $errors = [System.Collections.ArrayList]::new()
 $sources = [System.Collections.ArrayList]::new()
 
 # 0) PBIP Desktop-tauglich + TMDL render & fix
-$ensureScript = Join-Path $RepoRoot "products\fabric_powerbi\tooling\ensure_pbip_desktop_ready.ps1"
+$ensureScript = Join-Path $RepoRoot "products\fabric\powerbi\tooling\ensure_pbip_desktop_ready.ps1"
 if (Test-Path $ensureScript) {
-  try { & $ensureScript -DistRoot "products/fabric_powerbi/dist" -RepoRoot $RepoRoot 2>&1 | Out-Null } catch {}
+  try { & $ensureScript -DistRoot "products/fabric/powerbi/dist" -RepoRoot $RepoRoot 2>&1 | Out-Null } catch {}
 }
-$tmdlRenderScript = Join-Path $RepoRoot "products\fabric_powerbi\tooling\tmdl_render_and_fix.ps1"
+$tmdlRenderScript = Join-Path $RepoRoot "products\fabric\powerbi\tooling\tmdl_render_and_fix.ps1"
 if (Test-Path $tmdlRenderScript) {
-  try { & $tmdlRenderScript -DistRoot "products/fabric_powerbi/dist" -RepoRoot $RepoRoot -UpdateKnowledgeBase $true 2>&1 | Out-Null } catch {}
+  try { & $tmdlRenderScript -DistRoot "products/fabric/powerbi/dist" -RepoRoot $RepoRoot -UpdateKnowledgeBase $true 2>&1 | Out-Null } catch {}
 }
 
 # 1) Fabric-Checks ausführen

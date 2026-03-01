@@ -263,7 +263,7 @@ This file defines **color semantics** and **formatting rules** for page template
 
 ## References
 
-- **Theme Generator:** `products/fabric_powerbi/tooling/theme_generator/`
+- **Theme Generator:** `products/fabric/powerbi/tooling/theme_generator/`
 - **Theme Roles:** Theme JSON `good`/`bad`/`neutral`/`accent` properties
-- **Best Practices Research:** `products/fabric_powerbi/tooling/V1_BEST_PRACTICES_RESEARCH.md`
+- **Best Practices Research:** `products/fabric/powerbi/tooling/V1_BEST_PRACTICES_RESEARCH.md`
 - **Visual-to-Slot Mapping:** `governance/Visual_to_Slot_Mapping.yaml`

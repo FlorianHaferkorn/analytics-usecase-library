@@ -11,7 +11,7 @@ This is the single public navigation entry for all audiences.
 ## For implementers
 
 - Core framework (tool-agnostic): `core/`
-- Platform product (Fabric/Power BI): `products/fabric_powerbi/`
+- Platform product (Fabric/Power BI): `products/fabric/powerbi/`
 - Implementation playbook: `core/implementation_guides/playbook_strategy_to_first_report.md`
 - Core stability contract (artifact roles, IDs, allowed edges): `core/strategy_operating_model/operating_model/core_constitution.md`
 
@@ -24,7 +24,7 @@ This is the single public navigation entry for all audiences.
 
 - **Stage 1 (mandatory):** `.\tooling\run_stage1_checks.ps1` — schema, factsheets, KPI/action consistency, governance. No merge or release without Stage 1 green.
 - Full validation: `.\tooling\run_all_checks.ps1`
-- Fabric-only checks: `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1`
+- Fabric-only checks: `.\products\fabric/powerbi\tooling\run_fabric_checks.ps1`
 
 **Zero tolerance:** CI and release must not skip Stage 1. Branch protection should require the Stage 1 check to pass before merge. See [.github/workflows/stage1.yml](../.github/workflows/stage1.yml) and [internal/project_mgmt/BRANCH_PROTECTION.md](../internal/project_mgmt/BRANCH_PROTECTION.md).
 
