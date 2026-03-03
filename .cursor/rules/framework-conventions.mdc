@@ -10,6 +10,8 @@ alwaysApply: true
 - **Strategy → KPIs → use cases → action codes → templates → semantic models.** Every artifact traces back; use cases and reports reference governed definitions; they do not define KPI meaning, targets, or lineage.
 - **Single source of truth:** KPI definitions live in `core/kpi_catalog/`. Action logic and thresholds live in `core/action_codes/`. Use cases in `usecases/` only reference these; they do not redefine them.
 - **Use cases reference, they do not define.** When editing use cases, link to KPI IDs and action code IDs; do not invent new KPI definitions or trigger logic in factsheets.
+- **Report BoM:** The UseCase_Bracket represents all components needed to create the use case as a report: KPIs (strategic, influencing, supporting), evidence grain, and data contract. The registry validates that the bracket is complete (supporting KPIs via depends_on closure) and that evidence grain is governed in domain contracts.
+- **Evidence grain is use-case-only.** It is defined in the bracket (`ux_layout_rules.page_2_execution.component_300s.evidence_grain`) and must be one of the grains from domain data contracts. Action codes do not define or imply report grain; their step text is shared across use cases and must not prescribe evidence grain (e.g. do not require "entity" in steps for entity_month use cases).
 
 ## Key Paths
 

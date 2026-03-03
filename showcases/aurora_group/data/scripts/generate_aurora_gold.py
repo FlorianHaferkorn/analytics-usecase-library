@@ -386,6 +386,71 @@ def run_xd_finance(org_keys, date_keys, customer_keys):
     print(f"Written fact_cash_flow ({len(rows):,} records) [{fmt}]")
 
 
+def run_commercial_derived_facts():
+    """
+    Derive Commercial semantic model facts from existing gold tables.
+    fact_plan_sales from fact_sales_budget; fact_customer_events from fact_customer_interactions;
+    fact_customer_value from fact_sales. Runs when --domain commercial (or all) so these tables
+    are created in the same pipeline as other synthetic data.
+    """
+    def _parquet_files(path):
+        return sorted(path.rglob("*.parquet"))
+
+    def _month_end_datekey(series):
+        dt = pd.to_datetime(series.astype(str), format="%Y%m%d")
+        return (dt.dt.to_period("M").dt.to_timestamp("M").dt.strftime("%Y%m%d")).astype(int)
+
+    # fact_plan_sales from fact_sales_budget
+    budget_path = facts / "fact_sales_budget"
+    if budget_path.is_dir():
+        files = _parquet_files(budget_path)
+        if files:
+            df = pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
+            out = df[["MonthEnd DateKey", "OrgKey", "ProductKey", "Budget Sales Amount", "Budget COGS Amount"]].copy()
+            out = out.rename(columns={
+                "MonthEnd DateKey": "DateKey",
+                "Budget Sales Amount": "Plan Net Sales Amount",
+                "Budget COGS Amount": "Plan Cost of Goods Sold Amount",
+            })
+            out["Plan Gross Margin Amount"] = out["Plan Net Sales Amount"] - out["Plan Cost of Goods Sold Amount"]
+            (facts / "fact_plan_sales").mkdir(parents=True, exist_ok=True)
+            out.to_parquet(facts / "fact_plan_sales" / "plan.parquet", index=False)
+            print(f"Written fact_plan_sales ({len(out):,} rows) from fact_sales_budget")
+
+    # fact_customer_events from fact_customer_interactions
+    interactions_path = facts / "fact_customer_interactions"
+    if interactions_path.is_dir():
+        files = _parquet_files(interactions_path)
+        if files:
+            df = pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
+            df["DateKey"] = _month_end_datekey(df["DateKey"])
+            agg = (
+                df.groupby(["DateKey", "CustomerKey"], as_index=False)
+                .agg(OrgKey=("OrgKey", "first"))
+                .assign(**{"Activity Flag": True, "Churn Flag": False, "Attrition Risk %": 0.1})
+            )
+            (facts / "fact_customer_events").mkdir(parents=True, exist_ok=True)
+            agg.to_parquet(facts / "fact_customer_events" / "events.parquet", index=False)
+            print(f"Written fact_customer_events ({len(agg):,} rows) from fact_customer_interactions")
+
+    # fact_customer_value from fact_sales
+    sales_path = facts / "fact_sales"
+    if sales_path.is_dir():
+        files = _parquet_files(sales_path)
+        if files:
+            dfs = [pd.read_parquet(f) for f in files[:12]]
+            df = pd.concat(dfs, ignore_index=True)
+            df["DateKey"] = _month_end_datekey(df["DateKey"])
+            df["Margin"] = df["Net Sales Amount"] - df["Cost of Goods Sold Amount"]
+            margin = df.groupby(["DateKey", "CustomerKey"], as_index=False)["Margin"].sum()
+            margin["CLV Amount"] = (margin["Margin"] * 3).round(2)
+            margin["CLV Remaining Amount"] = (margin["CLV Amount"] * 0.6).round(2)
+            agg = margin[["DateKey", "CustomerKey", "CLV Amount", "CLV Remaining Amount"]]
+            (facts / "fact_customer_value").mkdir(parents=True, exist_ok=True)
+            agg.to_parquet(facts / "fact_customer_value" / "value.parquet", index=False)
+            print(f"Written fact_customer_value ({len(agg):,} rows) from fact_sales")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Generate Aurora gold data (all domains or selected).")
     parser.add_argument(
@@ -413,6 +478,8 @@ def main():
         run_experience_promo(org_keys, date_keys, customer_keys)
     if "finance" in selected or "experience" in selected:
         run_xd_finance(org_keys, date_keys, customer_keys)
+    if "commercial" in selected:
+        run_commercial_derived_facts()
 
     print("Done.")
 

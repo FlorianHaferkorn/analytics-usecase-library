@@ -1,6 +1,6 @@
 /// NPS survey responses (score, promoter/detractor flags) per response.
 table fact_nps
-	 lineageTag: a72b9b1b-0437-418f-a924-912e90858d55
+	 lineageTag: 2db4f272-60ab-4738-be75-315e7490a7b1
 
 	 column ResponseID
 		 dataType: String

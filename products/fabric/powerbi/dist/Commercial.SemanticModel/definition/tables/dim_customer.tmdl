@@ -1,6 +1,6 @@
 /// Customer dimension (segment, region, country) for CRM and value reporting.
 table dim_customer
-	 lineageTag: 15824da1-e1ca-4ece-9f93-6b5fe153525e
+	 lineageTag: 723f5dd1-ad00-4635-9958-d5d89d833986
 
 	 column CustomerKey
 		 dataType: Int64

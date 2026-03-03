@@ -1,4 +1,4 @@
-﻿# Action Panel Spec – Page Templates
+# Action Panel Spec – Page Templates
 
 The Action Panel is an optional, standardized component used to support **prescriptive analytics**.
 Its purpose is to reduce “analysis paralysis” by translating insights into **concrete, owned actions**.
@@ -7,6 +7,14 @@ Its purpose is to reduce “analysis paralysis” by translating insights into *
 
 - The full Action Panel is designed for **T4 – Prescriptive Recommendation** pages.
 - T1–T3 pages may only use an **Action Teaser** (short, non-interactive) to avoid turning monitoring pages into task managers.
+
+---
+
+## Phase 1 vs Phase 2 (Implementation)
+
+**Phase 1 (current):** Content is built **at scaffold/build time** from Action Code YAML only. The panel is rendered as a textbox (or structured text blocks) with name, owner, trigger condition, impact summary, and steps from the Bracket's `orchestration.action_code_ids`. There is **no execution** from the report: no "Execute" button, no calls to `execution_bridge` or external APIs/Webhooks. See [Recommendation_to_Execution_Research.md](../../../action_codes/Recommendation_to_Execution_Research.md) for the two-phase approach and Human-in-the-Loop for execution.
+
+**Phase 2 (future):** The panel may be driven by a **semantic model table** (e.g. `ActionRecommendation`) with fields such as ActionCodeId, ActionTitle, OwnerRole, TriggerCondition, Recommendation, ExpectedImpact, etc., populated by a trigger-evaluation pipeline/job. The report would filter by context. **Execution** (API/Webhook, task assignment) is Phase 2 only and must go through a central layer with approval and audit; it is not implemented from Power BI in Phase 1.
 
 ---
 
@@ -54,7 +62,9 @@ Not allowed on T1–T3:
 
 ## 3) Data Contract (Inputs)
 
-The Action Panel reads from a curated, governed structure (table, view, or semantic model table).
+**Phase 1:** The panel does not read from a table; it displays text generated from Action Code YAML at build time.
+
+**Phase 2 / target:** The Action Panel can read from a curated, governed structure (table, view, or semantic model table).
 
 ### Required fields (minimum viable)
 

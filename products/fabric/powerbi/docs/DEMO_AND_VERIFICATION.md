@@ -11,7 +11,7 @@ One-page checklist for running the Fabric pipeline and verifying PBIP output (Au
 | **Power BI Desktop** | Current supported version; PBIP format. Open `.pbip` or report folder. |
 | **Repo root as working directory** | All scripts and paths are relative to the repository root. |
 | **Stage 1 one-time** | `cd tooling\validation` then `npm ci` (for schema validation). |
-| **Python 3** | Required for report generation (page_scaffold_generator). If missing, orchestrate falls back to a simpler report structure. |
+| **Python 3** | Required for report generation (page_scaffold_generator). On Windows usually invoked via `py -3`. If no Python is found, orchestrate falls back to a simpler report structure. |
 | **Node** | Only if you run tooling that depends on it (e.g. schema validation). |
 
 ---

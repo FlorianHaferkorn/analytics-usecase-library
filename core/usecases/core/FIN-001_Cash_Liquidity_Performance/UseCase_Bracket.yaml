@@ -16,6 +16,8 @@ orchestration:
   - wc.dpo.days
   - scm.service_level.pct
   - scm.supplier_risk.score
+  supporting_kpi_ids:
+  - fin.liquidity.inventory.amount
   action_code_ids:
   - F-C1.1
   - F-C1.2

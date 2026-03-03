@@ -18,6 +18,8 @@ orchestration:
   - ops.quality.defect_rate.pct
   - ops.service_level.pct
   - ops.yield.pct
+  supporting_kpi_ids:
+  - sales.net_sales.amount
   action_code_ids:
   - F-K2.1
   - F-K2.2

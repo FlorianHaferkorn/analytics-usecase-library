@@ -88,10 +88,55 @@ class ConfigLoader:
                 return p
         return None
 
+    def _format_trigger_condition(self, ac: Dict[str, Any]) -> Optional[str]:
+        """Build a short human-readable trigger condition from action code trigger.levels."""
+        trigger = ac.get("trigger") or {}
+        if not isinstance(trigger, dict):
+            return None
+        levels = trigger.get("levels") or {}
+        if not isinstance(levels, dict):
+            return None
+        # Use L2 as representative (RequiredIntervention) if present
+        for level_key in ("L2", "L1", "L3"):
+            level = levels.get(level_key)
+            if not isinstance(level, dict):
+                continue
+            cond = level.get("condition") or {}
+            if not isinstance(cond, dict):
+                continue
+            metric = cond.get("metric_kpi_id") or ""
+            comp = cond.get("comparator") or ""
+            th = cond.get("threshold")
+            if isinstance(th, dict):
+                val = th.get("value")
+                unit = th.get("unit") or ""
+            else:
+                val, unit = th, ""
+            if metric and comp and val is not None:
+                comp_text = "<" if comp == "lt" else ">" if comp == "gt" else comp
+                return f"{metric} {comp_text} {val}{unit}".strip()
+        return None
+
+    def _format_impact_summary(self, ac: Dict[str, Any]) -> Optional[str]:
+        """Build a short impact summary from action code impact / impact_valuation."""
+        impact = ac.get("impact") or {}
+        if isinstance(impact, dict) and impact.get("category"):
+            cat = impact.get("category", "")
+            val = ac.get("impact_valuation") or {}
+            method = val.get("method", "") if isinstance(val, dict) else ""
+            if method:
+                return f"Impact: {cat}, {method}"
+            return f"Impact: {cat}"
+        val = ac.get("impact_valuation") or {}
+        if isinstance(val, dict) and val.get("method"):
+            return f"Impact: {val.get('method')}"
+        return None
+
     def get_action_panel_content(self, use_case_id: str) -> Optional[str]:
         """
         Build Action Panel text from use case action codes (Bracket orchestration.action_code_ids).
-        Loads each action code YAML and formats name, owner, and first steps for the textbox.
+        Loads each action code YAML and formats name, owner, steps, trigger condition, and impact.
+        Respects payload_mode (full / summary / minimal) from component_300s.
         Returns None if no action codes or on error; caller uses placeholder then.
         """
         try:
@@ -100,12 +145,15 @@ class ConfigLoader:
             ids = orch.get("action_code_ids") or []
             if not ids or not isinstance(ids, list):
                 return None
+            ux = bracket.get("ux_layout_rules") or {}
+            p2 = ux.get("page_2_execution") or {}
+            c300 = p2.get("component_300s") or {}
+            payload_mode = (c300.get("payload_mode") or "full").strip().lower()
             lines = ["Recommended actions (from action codes)", ""]
             for ac_id in ids:
                 if not isinstance(ac_id, str) or not ac_id.strip():
                     continue
                 ac_id = ac_id.strip()
-                # Find YAML under action_codes (skip decision_spines)
                 found = None
                 for path in self.action_codes_root.rglob(f"{ac_id}.yaml"):
                     if "decision_spines" in path.parts:
@@ -119,23 +167,28 @@ class ConfigLoader:
                     ac = yaml.safe_load(f) or {}
                 name = ac.get("name") or ac_id
                 owner = ac.get("owner_role") or "—"
-                steps = []
-                exec_block = ac.get("operational_execution") or {}
-                if isinstance(exec_block, dict):
-                    steps = exec_block.get("steps") or []
-                if not isinstance(steps, list):
-                    steps = []
-                steps = steps[:3]
                 lines.append(f"• {ac_id} — {name}")
                 lines.append(f"  Owner: {owner}")
-                for s in steps:
-                    if isinstance(s, str):
-                        lines.append(f"  · {s}")
+                if payload_mode != "minimal":
+                    trigger_text = self._format_trigger_condition(ac)
+                    if trigger_text:
+                        lines.append(f"  Trigger: {trigger_text}")
+                    impact_text = self._format_impact_summary(ac)
+                    if impact_text:
+                        lines.append(f"  {impact_text}")
+                if payload_mode == "full":
+                    steps = []
+                    exec_block = ac.get("operational_execution") or {}
+                    if isinstance(exec_block, dict):
+                        steps = exec_block.get("steps") or []
+                    if isinstance(steps, list):
+                        for s in steps[:3]:
+                            if isinstance(s, str):
+                                lines.append(f"  · {s}")
                 lines.append("")
             if len(lines) <= 2:
                 return None
             text = "\n".join(lines).strip()
-            # Escape single quotes for Power BI Literal (double them)
             text = text.replace("'", "''")
             return f"'{text}'"
         except Exception:
@@ -517,6 +570,11 @@ class ConfigLoader:
                 except FileNotFoundError:
                     pass
             report_canvas = ux.get("report_canvas") if isinstance(ux.get("report_canvas"), dict) else None
+            evidence_columns = c300.get("evidence_columns")
+            evidence_measures_raw = c300.get("evidence_measures")
+            detail_matrix_columns = list(evidence_columns) if isinstance(evidence_columns, list) else []
+            evidence_measures_list = list(evidence_measures_raw) if isinstance(evidence_measures_raw, list) else []
+            detail_matrix_measures = [kpi_to_measure.get(m, m) for m in evidence_measures_list]
             return {
                 "name": "detail",
                 "layer": [300],
@@ -529,6 +587,8 @@ class ConfigLoader:
                 "card_kpi_ids": card_kpi_ids,
                 "card_measure_names": card_measure_names,
                 "kpi_id_to_measure_name": kpi_to_measure,
+                "detail_matrix_columns": detail_matrix_columns,
+                "detail_matrix_measures": detail_matrix_measures,
             }
 
         raise ValueError(f"Page {page_name} not supported (expected 'overview' or 'detail')")

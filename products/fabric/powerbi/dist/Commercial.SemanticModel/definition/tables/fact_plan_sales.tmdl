@@ -1,6 +1,6 @@
 /// Planned sales and COGS at product-month grain for variance vs plan.
 table fact_plan_sales
-	 lineageTag: 43044030-68f3-412e-8a96-ad6d14e37f5f
+	 lineageTag: c66eba9b-38ec-4704-a146-d3be05d1d146
 
 	 column DateKey
 		 dataType: Int64

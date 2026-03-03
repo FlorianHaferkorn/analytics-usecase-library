@@ -1,6 +1,6 @@
 /// Customer lifetime value (CLV) and remaining value at customer-month grain.
 table fact_customer_value
-	 lineageTag: befa3327-0290-4d50-9fcf-e613a094053f
+	 lineageTag: de1f8e8f-8798-4256-a958-f7bbabe8d0b2
 
 	 column DateKey
 		 dataType: Int64

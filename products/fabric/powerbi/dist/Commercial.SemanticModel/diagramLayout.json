@@ -1,0 +1,22 @@
+{
+  "diagrams": [
+    {
+      "nodes": [
+    { "nodeIndex": "_Measures", "location": { "x": 0, "y": 0 } },
+    { "nodeIndex": "fact_customer_events", "location": { "x": 280, "y": 0 } },
+    { "nodeIndex": "fact_customer_value", "location": { "x": 530, "y": 0 } },
+    { "nodeIndex": "fact_experience", "location": { "x": 780, "y": 0 } },
+    { "nodeIndex": "fact_nps", "location": { "x": 1030, "y": 0 } },
+    { "nodeIndex": "fact_plan_sales", "location": { "x": 1280, "y": 0 } },
+    { "nodeIndex": "fact_promo", "location": { "x": 1530, "y": 0 } },
+    { "nodeIndex": "fact_sales", "location": { "x": 1780, "y": 0 } },
+    { "nodeIndex": "dim_customer", "location": { "x": 0, "y": 120 } },
+    { "nodeIndex": "dim_date", "location": { "x": 0, "y": 240 } },
+    { "nodeIndex": "dim_org", "location": { "x": 0, "y": 360 } },
+    { "nodeIndex": "dim_product", "location": { "x": 0, "y": 480 } },
+    { "nodeIndex": "dim_promo", "location": { "x": 0, "y": 600 } },
+    { "nodeIndex": "_ActionReady_Logic", "location": { "x": 0, "y": 720 } }
+      ]
+    }
+  ]
+}

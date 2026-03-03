@@ -657,6 +657,32 @@ def _extract_kpis_from_action(raw: Dict[str, Any]) -> Set[str]:
     return kpis
 
 
+def _closure_under_depends_on(
+    kpi_ids: Set[str],
+    kpis: Dict[str, KpiRecord],
+) -> Set[str]:
+    """
+    Transitive closure: add every catalog KPI that appears in depends_on_measures
+    of any KPI in kpi_ids, until fixpoint. Only adds IDs that exist in kpis (catalog).
+    Capped at len(kpis) iterations to avoid infinite loops on cycles.
+    """
+    out: Set[str] = set(kpi_ids)
+    max_passes = len(kpis) if kpis else 0
+    for _ in range(max_passes):
+        added = 0
+        for kid in list(out):
+            rec = kpis.get(kid)
+            if not rec or not getattr(rec, "depends_on_measures", None):
+                continue
+            for dep in rec.depends_on_measures or []:
+                if isinstance(dep, str) and dep.strip() and dep.strip() in kpis and dep.strip() not in out:
+                    out.add(dep.strip())
+                    added += 1
+        if added == 0:
+            break
+    return out
+
+
 def build_linked_sets_from_brackets(brackets: Dict[str, Dict[str, Any]]) -> Tuple[Set[str], Set[str], Set[str], List[Issue]]:
     """
     Returns (usecase_ids_active, kpi_ids_linked, action_ids_linked, issues)
@@ -696,6 +722,11 @@ def build_linked_sets_from_brackets(brackets: Dict[str, Dict[str, Any]]) -> Tupl
         for k in infl_list:
             if k.strip():
                 kpi_ids.add(k.strip())
+        supp = orch.get("supporting_kpi_ids")
+        if isinstance(supp, list):
+            for s in supp:
+                if isinstance(s, str) and s.strip():
+                    kpi_ids.add(s.strip())
         acts = orch.get("action_code_ids")
         if acts is None:
             act_list: List[str] = []
@@ -1086,9 +1117,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     grain_validation_issues = validate_evidence_grains(brackets, allowed_grains, repo_root)
     issues.extend(grain_validation_issues)
 
-    # Action-step entity-reference check (WARN-level, non-blocking)
-    step_entity_issues = validate_action_step_entity_references(brackets, actions)
-    issues.extend(step_entity_issues)
+    # Action-step vs evidence-grain check removed: evidence grain is use-case-specific (bracket);
+    # action code step text is shared across use cases and must not be tied to one report grain.
 
     # Linked sets from active brackets
     uc_ids_active, linked_kpis, linked_actions, link_issues = build_linked_sets_from_brackets(brackets)
@@ -1102,6 +1132,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         raw = arec.get("raw", {})
         if isinstance(raw, dict):
             linked_kpis.update(_extract_kpis_from_action(raw))
+
+    # Report BoM: transitive closure under depends_on_measures (supporting KPIs)
+    linked_kpis = _closure_under_depends_on(linked_kpis, kpis)
 
     # UseCase -> Data contract mapping (from bracket overrides.data_contract_ref)
     usecase_domain_contract: Dict[str, str] = {}
@@ -1377,7 +1410,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                     Issue("WARN", "causal_link.influencing_not_covered", f"UseCase '{uc_id}' influencing KPI '{kid}' not in strategic KPI '{sk}' causal_links.", SourceLocation(rec.get("source", ""), 1))
                 )
 
-    # Action alignment: subscribed action's trigger KPIs should overlap with bracket KPIs
+    # Action alignment: for core use cases only, subscribed action's trigger KPIs should overlap with bracket KPIs.
+    # Related use cases may show actions without requiring bracket KPI overlap.
     for uc_id in sorted(uc_ids_active):
         rec = brackets.get(uc_id)
         if not rec:
@@ -1402,7 +1436,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             arec = actions.get(aid.strip())
             if not arec:
                 continue
-            action_kpis = _extract_kpis_from_action(arec.get("raw", {}) or {})
+            action_raw = arec.get("raw", {}) or {}
+            # Only require overlap when this use case is a core use case of the action (not just related).
+            core_use_cases = []
+            ucl = action_raw.get("use_case_links")
+            if isinstance(ucl, dict):
+                core_list = ucl.get("core_use_cases")
+                if isinstance(core_list, list):
+                    core_use_cases = [x.strip() for x in core_list if isinstance(x, str) and x.strip()]
+            if uc_id not in core_use_cases:
+                continue  # related or unlisted: skip overlap check
+            action_kpis = _extract_kpis_from_action(action_raw)
             overlap = bracket_kpis & action_kpis
             if bracket_kpis and action_kpis and not overlap:
                 issues.append(
@@ -1413,6 +1457,43 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                         SourceLocation(rec.get("source", ""), 1),
                     )
                 )
+
+    # Bracket completeness: explicit KPIs (E) must be closed under depends_on (C); missing = C - E
+    for uc_id in sorted(uc_ids_active):
+        rec = brackets.get(uc_id)
+        if not rec:
+            continue
+        raw = rec.get("raw", {})
+        ob = (raw.get("orchestration") or raw.get("ontology_bracket", {})) if isinstance(raw, dict) else {}
+        if not isinstance(ob, dict):
+            continue
+        explicit: Set[str] = set()
+        sk = ob.get("strategic_kpi_id")
+        if isinstance(sk, str) and sk.strip():
+            explicit.add(sk.strip())
+        for kid in ob.get("influencing_kpi_ids") or []:
+            if isinstance(kid, str) and kid.strip():
+                explicit.add(kid.strip())
+        for kid in ob.get("supporting_kpi_ids") or []:
+            if isinstance(kid, str) and kid.strip():
+                explicit.add(kid.strip())
+        for aid in ob.get("action_code_ids") or []:
+            if not isinstance(aid, str) or not aid.strip():
+                continue
+            arec = actions.get(aid.strip())
+            if arec and isinstance(arec.get("raw"), dict):
+                explicit.update(_extract_kpis_from_action(arec["raw"]))
+        closed = _closure_under_depends_on(explicit, kpis)
+        missing = closed - explicit
+        if missing:
+            issues.append(
+                Issue(
+                    "ERROR",
+                    "usecase_bracket.incomplete_supporting",
+                    f"Use case '{uc_id}' bracket incomplete: the following KPIs are required for report creation but are not listed in orchestration: {sorted(missing)}. Add them to influencing_kpi_ids or supporting_kpi_ids.",
+                    SourceLocation(rec.get("source", ""), 1),
+                )
+            )
 
     # Orphan detection (Full-scan vs Linked-scan)
     orphan_items: List[Dict[str, Any]] = []
@@ -1569,6 +1650,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         gov = raw.get("governance", {}) if isinstance(raw, dict) else {}
         ob = (raw.get("orchestration") or raw.get("ontology_bracket", {})) if isinstance(raw, dict) else {}
         docs = raw.get("documentation", {}) if isinstance(raw, dict) else {}
+        evidence_grain = _extract_evidence_grain(raw)
+        overrides = raw.get("overrides", {}) if isinstance(raw, dict) else {}
+        data_contract_ref = (overrides.get("data_contract_ref") or usecase_domain_contract.get(uc_id)) if isinstance(overrides, dict) else usecase_domain_contract.get(uc_id)
         registry_usecases[uc_id] = {
             "id": uc_id,
             "title": raw.get("title") or raw.get("name"),
@@ -1579,6 +1663,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             "ux_layout_rules": raw.get("ux_layout_rules"),
             "documentation": docs,
             "source": {"file": src},
+            "report_bom": {
+                "evidence_grain": evidence_grain,
+                "data_contract_ref": _normalize_contract_ref(data_contract_ref) if isinstance(data_contract_ref, str) and data_contract_ref else None,
+            },
         }
         # Governance required by ontology
         if isinstance(gov, dict):

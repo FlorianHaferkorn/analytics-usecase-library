@@ -397,18 +397,19 @@ switch ($Operation) {
             $inColumn = $false
             $needSummarize = $false
             $addedSummarize = $false
+            $columnIndent = "`t`t"
             for ($i = 0; $i -lt $lines.Count; $i++) {
                 $line = $lines[$i]
-                if ($line -match '^\tcolumn\s+') { $inColumn = $true; $needSummarize = $true; $addedSummarize = $false }
-                elseif ($line -match '^\tpartition\s') { $inColumn = $false }
-                elseif ($inColumn -and $line -match '^\t\tsummarizeBy') { $needSummarize = $false }
-                # Skip duplicate summarizeBy lines (TMDL allows only one per column)
-                if ($line -match '^\t\tsummarizeBy:\s*none' -and $out.Count -gt 0 -and $out[-1] -match '^\t\tsummarizeBy:\s*none') { continue }
+                if ($line -match '^\s+column\s+') { $inColumn = $true; $needSummarize = $true; $addedSummarize = $false }
+                elseif ($line -match '^\s+partition\s') { $inColumn = $false }
+                elseif ($inColumn -and $line -match '^\s+summarizeBy') { $needSummarize = $false }
+                if ($line -match '^\s+summarizeBy:\s*none' -and $out.Count -gt 0 -and $out[-1] -match '^\s+summarizeBy:\s*none') { continue }
                 $out += $line
-                # Add summarizeBy only if missing (next line in file is not already summarizeBy)
-                if ($inColumn -and $needSummarize -and -not $addedSummarize -and $line -match '^\t\tsourceColumn:') {
-                    $nextIsSummarize = ($i + 1 -lt $lines.Count) -and ($lines[$i + 1] -match '^\t\tsummarizeBy')
-                    if (-not $nextIsSummarize) { $out += "`t`tsummarizeBy: none" }
+                if ($inColumn -and $needSummarize -and -not $addedSummarize -and $line -match '^\s+sourceColumn:') {
+                    $nextIsSummarize = ($i + 1 -lt $lines.Count) -and ($lines[$i + 1] -match '^\s+summarizeBy')
+                    if (-not $nextIsSummarize) {
+                        $out += "$columnIndent summarizeBy: none"
+                    }
                     $addedSummarize = $true
                 }
             }

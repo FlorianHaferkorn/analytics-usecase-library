@@ -7,6 +7,7 @@
                       "Create Relationships",
                       "Create Hierarchies Definition",
                       "Write Hierarchies to TMDL",
+                      "Write diagram layout",
                       "Validate TMDL Syntax",
                       "Generate Report from Template"
                   ],
@@ -14,21 +15,21 @@
                            {
                                "phase":  "Validate Fabric output",
                                "path":  "products/fabric/powerbi/dist",
-                               "timestamp":  "2026-03-02T12:46:34.7849375+01:00",
+                               "timestamp":  "2026-03-02T19:03:41.0851627+01:00",
                                "message":  "",
                                "source":  "run_fabric_checks"
                            },
                            {
                                "phase":  "Validate Fabric output",
                                "path":  "products/fabric/powerbi/dist",
-                               "timestamp":  "2026-03-02T12:46:37.6919401+01:00",
+                               "timestamp":  "2026-03-02T19:03:45.0334547+01:00",
                                "message":  "",
                                "source":  "run_fabric_checks"
                            },
                            {
                                "phase":  "Validate Fabric output",
                                "path":  "products/fabric/powerbi/dist",
-                               "timestamp":  "2026-03-02T12:46:40.4853281+01:00",
+                               "timestamp":  "2026-03-02T19:03:49.2882338+01:00",
                                "message":  "",
                                "source":  "run_fabric_checks"
                            }
@@ -103,9 +104,9 @@
     "scopeName":  "Commercial",
     "scopeType":  "Domain",
     "startTime":  {
-                      "value":  "\/Date(1772451786608)\/",
+                      "value":  "\/Date(1772474404353)\/",
                       "DisplayHint":  2,
-                      "DateTime":  "Montag, 2. März 2026 12:43:06"
+                      "DateTime":  "Montag, 2. März 2026 19:00:04"
                   },
     "domainMeasurePaths":  [
 

@@ -1,6 +1,6 @@
 /// Product dimension with category hierarchy (Category > Sub Category > Brand > Product Name).
 table dim_product
-	 lineageTag: 64944afd-06f6-4a7a-8579-46dc9b0e6d97
+	 lineageTag: daef4ca0-5338-4c49-a9b4-d997c069349b
 
 	 column ProductKey
 		 dataType: Int64

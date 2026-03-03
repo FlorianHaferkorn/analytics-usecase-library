@@ -5,7 +5,7 @@ Orchestration and report generation for semantic models and reports (PBIP) from 
 ## Prerequisites
 
 - PowerShell 7+
-- Python 3.x (for Registry, page_scaffold_generator)
+- Python 3.x (for Registry, page_scaffold_generator). On Windows, Python is often invoked via the **py launcher** (e.g. `py -3`); the orchestrator and scripts use `py -3`, `python3`, or `python` in that order.
 - Optional: Node/npm in `tooling/validation` for schema validation
 
 ## Setup (once)
@@ -36,12 +36,12 @@ Orchestration and report generation for semantic models and reports (PBIP) from 
 ```powershell
 .\products\fabric/powerbi\orchestrator\orchestrate_full_model.ps1 -UseCase COM-001 -UseAuroraData
 ```
-**Semantisches Modell vollständig:** `definition/model.tmdl` muss für jede Tabelle in `definition/tables/` eine Zeile `ref table <Tabellenname>` enthalten. Der Orchestrator ergänzt fehlende refs automatisch (Schritt „Sync model.tmdl refs“). Fehlen refs, lädt Desktop das Modell unvollständig.
+**Semantisches Modell vollständig:** `definition/model.tmdl` muss für jede Tabelle in `definition/tables/` eine Zeile `ref table <Tabellenname>` enthalten. Der Orchestrator ergänzt fehlende refs automatisch (Schritt „Sync model.tmdl refs“). **Relationships** und **Model View (diagramLayout.json)** werden bei jedem Lauf erzeugt (Schritte 3.3 und 3.6), sodass ein einziger Build reproduzierbar ist und den Best Practices in `products/fabric/powerbi/docs/tmdl_best_practices.md` (u. a. §10 Model View, Relationships) entspricht. Fehlen refs, lädt Desktop das Modell unvollständig.
 
 **Aurora Custom Theme:** Nach der Report-Erzeugung wird ein Custom Theme auf jeden Report angewendet. Das Theme kommt **nur aus Konfiguration oder Parameter** (nicht hardcodiert). Wenn du **kein** `-ThemeName` übergibst, liest der Orchestrator das Default aus `showcases/aurora_group/theme_config.json` (`defaultThemeName`; aktuell: Aurora Monochromatic Light). Überschreiben: `-ThemeName "Aurora_Group__Monochromatic__Dark__#2ECDE7"` oder anderer Theme-Name aus `theme_generator/themes/` (z. B. Aurora_Group, Brand_Blue; Konzepte: Monochromatic, Analog, Divergent, NeutralAccent; Light/Dark).
 
-- Build runs **Registry** first, then measures, tables/relationships/hierarchies, validation, and **report generation** (UX Engine: overview + detail per use case, with `datasetReference`).
-- If Python 3 is missing, report generation falls back to report_generator.ps1 (sections only, no visuals).
+- Build runs **Registry** first, then measures, tables, **relationships** (per domain, with AutoDetect fallback so relationships are never missing), **hierarchies**, **diagram layout** (Model View), validation, and **report generation** (UX Engine: overview + detail per use case, with `datasetReference`).
+- If no Python 3 is found (py -3 / python3 / python), report generation falls back to report_generator.ps1 (sections only, no visuals).
 - **Quality checks are a hard gate:** any ERROR/FAIL from `run_all_checks.ps1` fails the build.
 
 **Output (single Fabric dist):**
@@ -51,7 +51,9 @@ Orchestration and report generation for semantic models and reports (PBIP) from 
 
 **Dist structure (no legacy folders):** Only `<Domain>.SemanticModel` and `<UseCase>_<Title>.Report`. There is no `dist/COM-001/` (per-use-case semantic model) and no `dist/_shared/`; measure generation writes directly into the domain model’s `definition/tables/` (via `-TargetTablesDir` in the orchestrator or derived from `-UseCase` when running the measure script standalone).
 
-**Gate (success = no manual Desktop open required):** After report generation, the pipeline runs **Validate Fabric output**: (1) `run_fabric_checks.ps1` (TMDL, PBIP readiness, DAX, measures vs KPI), (2) `check_report_structure.ps1` and `validate_pbip.ps1`, (3) if installed, `pbi-tools compile` on each PBIP folder. Success means all phases PASS. See [products/fabric/powerbi/docs/DEMO_AND_VERIFICATION.md](../docs/DEMO_AND_VERIFICATION.md).
+**Gate (success = no manual Desktop open required):** After report generation, the pipeline runs **Validate Fabric output**: (1) `run_fabric_checks.ps1` (TMDL, PBIP readiness, **diagram layout**, DAX, measures vs KPI), (2) `check_report_structure.ps1` and `validate_pbip.ps1`, (3) if installed, `pbi-tools compile` on each PBIP folder. Success means all phases PASS. See [products/fabric/powerbi/docs/DEMO_AND_VERIFICATION.md](../docs/DEMO_AND_VERIFICATION.md).
+
+**Reproduzierbarkeit & Best Practices:** Ein einziger Lauf von `orchestrate_full_model.ps1` erzeugt das vollständige semantische Modell inkl. Relationships (`definition/relationships/*.tmdl`) und Model View (`diagramLayout.json`). Diese Schritte sind fest in Phase 3 (3.3 Relationships, 3.6 diagram layout) integriert; manuelles Nachziehen oder Handpflege ist nicht nötig. Regeln und Validierung: [tmdl_best_practices.md](../docs/tmdl_best_practices.md) (u. a. §10 Model View, Relationships).
 
 ## Adding a new use case to an existing domain (incremental)
 

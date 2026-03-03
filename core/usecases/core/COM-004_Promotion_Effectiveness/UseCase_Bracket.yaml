@@ -14,6 +14,13 @@ orchestration:
   - sales.price.net.amount
   - sales.price.realization_pct
   - sales.promo.cannibalization.pct
+  supporting_kpi_ids:
+  - cost.cogs.amount
+  - sales.promo.baseline_sales.amount
+  - sales.promo.cannibalized_sales.amount
+  - sales.promo.cost.amount
+  - sales.promo.incremental_gm.amount
+  - sales.pvm.volume_effect.amount
   action_code_ids:
   - C-M2.1
   - C-S1.1
@@ -53,5 +60,7 @@ ux_layout_rules:
       - sales.promo.roi.pct
       action_panel: true
       payload_mode: full
+overrides:
+  data_contract_ref: core/data_contracts/domains/commercial_sales.yaml
 documentation:
   business_factsheet: ./Business_Factsheet.md

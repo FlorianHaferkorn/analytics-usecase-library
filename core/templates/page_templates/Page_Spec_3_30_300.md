@@ -32,8 +32,8 @@ Keine Actions auf der Overview-Seite; nur Signal und Erklärung.
 |-----------------|--------------|--------|
 | **Slicer_Pane** | Slicer       | Schneller Kontextwechsel (Zeit, Region, Segment); filtert Detail und Action Panel. |
 | **Smart_Narrative** | Textbox / Smart Narrative | Ein Satz Zusammenfassung zum aktuellen Filterzustand („Was gilt hier?“). |
-| **Detail_Matrix**   | Tabelle/Matrix (tableEx) | Operative Liste – Einheiten, Kennzahlen, Deltas; Basis für „wo eingreifen?“; optional Data Bars für Delta-Spalten. |
-| **ActionPanel** | Text/Card (aus Action Codes) | Nur bei T4: Empfehlung, Owner, Trigger, Schritte, Impact. Daten aus Action-Code-YAML. |
+| **Detail_Matrix**   | Tabelle/Matrix (tableEx) | Operative Liste – Einheiten, Kennzahlen, Deltas; Basis für „wo eingreifen?“; optional Data Bars für Delta-Spalten. Optional kann später eine Spalte **ActionCode** / **Recommended Action** ergänzt werden, sobald das Semantic Model eine entsprechende Tabelle oder Measure bereitstellt (zeilenweise Empfehlung pro Entität). |
+| **ActionPanel** | Text/Card (aus Action Codes) | Nur bei T4: Empfehlung, Owner, Trigger, Schritte, Impact. Phase 1: Daten aus Action-Code-YAML (Build-Zeit); Phase 2: optional aus Semantic-Model-Tabelle. |
 
 Die 300s-Seite dient der Validierung und der Handlung: Smart_Narrative (Kontext), Detail_Matrix (Daten), ActionPanel (was tun, von wem, mit welchem Impact).
 

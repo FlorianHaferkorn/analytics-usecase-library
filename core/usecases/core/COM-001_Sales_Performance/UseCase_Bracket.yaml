@@ -15,6 +15,9 @@ orchestration:
   - sales.pvm.price_effect.amount
   - sales.pvm.volume_effect.amount
   - sales.pvm.mix_effect.amount
+  supporting_kpi_ids:
+  - sales.price.list.amount
+  - sales.price.net.amount
   action_code_ids:
   - C-M2.1
   - C-S1.1
@@ -53,5 +56,7 @@ ux_layout_rules:
       - margin.gm.pct
       action_panel: true
       payload_mode: full
+overrides:
+  data_contract_ref: core/data_contracts/domains/commercial_sales.yaml
 documentation:
   business_factsheet: ./Business_Factsheet.md

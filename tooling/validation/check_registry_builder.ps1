@@ -1,6 +1,7 @@
 Param(
   [string]$Root = ".",
-  [switch]$FailOnError
+  [switch]$FailOnError,
+  [switch]$Strict = $true
 )
 
 $ErrorActionPreference = "Stop"
@@ -66,8 +67,9 @@ if (-not (Test-Path $outDir)) {
   New-Item -ItemType Directory -Path $outDir -Force | Out-Null
 }
 
-# Run registry builder with --strict
-$builderArgs = @($builderScript, "--out-dir", $outDir, "--strict")
+# Run registry builder; --strict only when $Strict is true (CI); omit for local/Aurora builds with alignment warnings
+$builderArgs = @($builderScript, "--out-dir", $outDir)
+if ($Strict) { $builderArgs += "--strict" }
 $cmdParts = $pyCmd -split " "
 $exe = $cmdParts[0]
 $pyArgs = $cmdParts[1..($cmdParts.Length-1)] + $builderArgs

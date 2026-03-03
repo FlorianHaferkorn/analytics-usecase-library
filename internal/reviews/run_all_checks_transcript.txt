@@ -1,12 +1,12 @@
 ﻿**********************
 nStart der Windows PowerShell-Aufzeichnung
-Startzeit: 20260302124544
+Startzeit: 20260302190238
 Benutzername: NAGARRO\florianhaferkorn
 RunAs-Benutzer: NAGARRO\florianhaferkorn
 Konfigurationsname: 
 Computer: NES-NBBSTPQ04 (Microsoft Windows NT 10.0.26100.0)
-Hostanwendung: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File C:\Users\FLORIA~1\AppData\Local\Temp\ps-script-a39e6a18-5701-4dc0-bfe9-7f51defb8783.ps1
-Prozess-ID: 42388
+Hostanwendung: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\florianhaferkorn\AppData\Local\Programs\cursor\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
+Prozess-ID: 12004
 PSVersion: 5.1.26100.7705
 PSEdition: Desktop
 PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.7705
@@ -1031,7 +1031,7 @@ Potential mojibake found:
   - core\templates\page_templates\Page_Spec_3_30_300.md:25: Keine Actions auf der Overview-Seite; nur Signal und ErklÃ¤rung.
   - core\templates\page_templates\Page_Spec_3_30_300.md:29: ## Seite 300 (Detail â€“ "The Action Matrix")
   - core\templates\page_templates\Page_Spec_3_30_300.md:34: | **Smart_Narrative** | Textbox / Smart Narrative | Ein Satz Zusammenfassung zum aktuellen Filterzustand (â€žWas gilt hier?â€œ). |
-  - core\templates\page_templates\Page_Spec_3_30_300.md:35: | **Detail_Matrix**   | Tabelle/Matrix (tableEx) | Operative Liste â€“ Einheiten, Kennzahlen, Deltas; Basis fÃ¼r â€žwo eingreifen?â€œ; optional Data Bars fÃ¼r Delta-Spalten. |
+  - core\templates\page_templates\Page_Spec_3_30_300.md:35: | **Detail_Matrix**   | Tabelle/Matrix (tableEx) | Operative Liste â€“ Einheiten, Kennzahlen, Deltas; Basis fÃ¼r â€žwo eingreifen?â€œ; optional Data Bars fÃ¼r Delta-Spalten. Optional kann spÃ¤ter eine Spalte **ActionCode** / **Recommended Action** ergÃ¤nzt werden, sobald das Semantic Model eine entsprechende Tabelle oder Measure bereitstellt (zeilenweise Empfehlung pro EntitÃ¤t). |
   - core\templates\page_templates\Page_Spec_3_30_300.md:40: **Drillthrough:** Die Detail-Seite ist im PBIP als **Drillthrough-Ziel** konfiguriert (`type: "Drillthrough"`, `visibility: "AlwaysVisible"`, `pageBinding`). Sie erscheint damit sowohl als eigene Seite in der Seitenliste als auch als Ziel fÃ¼r â€žRechtsklick â†’ Drill throughâ€œ von Visuals der Overview-Seite; der Filterkontext wird dabei Ã¼bergeben.
   - core\templates\page_templates\Page_Spec_3_30_300.md:48: | **Slicer_Pane** | Slicer   | Vertikale Slicer-Leiste fÃ¼r schnellen Kontextwechsel. |
   - core\templates\page_templates\Page_Spec_3_30_300.md:49: | **Focus_Area**  | Ein dominantes Analyse-Visual | 30s: Fokus auf â€žWarum?â€œ â€“ z. B. Treiber-Hierarchie, Decomposition. |
@@ -1047,6 +1047,39 @@ Potential mojibake found:
   - core\templates\page_templates\README.md:66: Per-use-case UX layout rules (3â€“30â€“300, page structure, action panel intent) are defined in each use caseâ€™s:
   - core\templates\page_templates\README.md:113: The structure of the **300s (diagnostics)** layer â€” tables, breakdowns, action/evidence slots â€” is defined by the layout_330300 schema and documented in:
   - core\templates\page_templates\README.md:143: - the page answers the templateâ€™s core question.
+  - core\templates\page_templates\components\ActionPanel_Spec.md:1: # Action Panel Spec â€“ Page Templates
+  - core\templates\page_templates\components\ActionPanel_Spec.md:4: Its purpose is to reduce â€œanalysis paralysisâ€ by translating insights into **concrete, owned actions**.
+  - core\templates\page_templates\components\ActionPanel_Spec.md:8: - The full Action Panel is designed for **T4 â€“ Prescriptive Recommendation** pages.
+  - core\templates\page_templates\components\ActionPanel_Spec.md:9: - T1â€“T3 pages may only use an **Action Teaser** (short, non-interactive) to avoid turning monitoring pages into task managers.
+  - core\templates\page_templates\components\ActionPanel_Spec.md:31: ### Optional (T1â€“T3 Teaser)
+  - core\templates\page_templates\components\ActionPanel_Spec.md:33: T1â€“T3 pages may show an Action Teaser only when:
+  - core\templates\page_templates\components\ActionPanel_Spec.md:35: - there is a clear â€œnext stepâ€ signal (e.g., threshold breach, repeated deviation)
+  - core\templates\page_templates\components\ActionPanel_Spec.md:39: Not allowed on T1â€“T3:
+  - core\templates\page_templates\components\ActionPanel_Spec.md:49: ### Variant A â€” Action Panel (Full)
+  - core\templates\page_templates\components\ActionPanel_Spec.md:55: ### Variant B â€” Action Teaser (Light)
+  - core\templates\page_templates\components\ActionPanel_Spec.md:73: - `ActionCategory` (text) â€” e.g., Pricing, Assortment, Service, Compliance
+  - core\templates\page_templates\components\ActionPanel_Spec.md:74: - `OwnerRole` (text) â€” who is accountable
+  - core\templates\page_templates\components\ActionPanel_Spec.md:75: - `TriggerType` (text) â€” e.g., threshold_breach, trend_deviation, outlier_detected
+  - core\templates\page_templates\components\ActionPanel_Spec.md:76: - `TriggerCondition` (text) â€” human-readable condition (not DAX)
+  - core\templates\page_templates\components\ActionPanel_Spec.md:77: - `Recommendation` (text) â€” what to do
+  - core\templates\page_templates\components\ActionPanel_Spec.md:78: - `ExpectedImpact` (text) â€” qualitative or quantified
+  - core\templates\page_templates\components\ActionPanel_Spec.md:79: - `ConfidenceLevel` (text) â€” low | medium | high
+  - core\templates\page_templates\components\ActionPanel_Spec.md:80: - `Priority` (number) â€” 1 (highest) .. 5 (lowest)
+  - core\templates\page_templates\components\ActionPanel_Spec.md:87: - `KpiId` (text) â€” link to KPI catalog
+  - core\templates\page_templates\components\ActionPanel_Spec.md:89: - `EvidenceSummary` (text) â€” why this action is suggested
+  - core\templates\page_templates\components\ActionPanel_Spec.md:90: - `EvidenceMetrics` (text/json) â€” key numbers used
+  - core\templates\page_templates\components\ActionPanel_Spec.md:92: - `ActionLink` (text/url) â€” deep link to process documentation / ticket template
+  - core\templates\page_templates\components\ActionPanel_Spec.md:109: - 1â€“3 supporting metrics (no long tables)
+  - core\templates\page_templates\components\ActionPanel_Spec.md:111: - 3â€“6 bullet steps (plain language)
+  - core\templates\page_templates\components\ActionPanel_Spec.md:115: - â€œShow alternativesâ€ (expand/collapse)
+  - core\templates\page_templates\components\ActionPanel_Spec.md:116: - â€œOpen process linkâ€ (if ActionLink exists)
+  - core\templates\page_templates\components\ActionPanel_Spec.md:118: ### Action Teaser (T1â€“T3)
+  - core\templates\page_templates\components\ActionPanel_Spec.md:120: - 1 line summary: â€œRecommended next step: â€¦â€
+  - core\templates\page_templates\components\ActionPanel_Spec.md:122: - Link/button: â€œView recommendationâ€ (navigates to T4)
+  - core\templates\page_templates\components\ActionPanel_Spec.md:129: - Recommendations must be based on governed Action Codes (no free-form â€œAI suggestionsâ€).
+  - core\templates\page_templates\components\ActionPanel_Spec.md:148: - If `slots.needs_prescriptive = true` â‡’ template must be `T4`
+  - core\templates\page_templates\components\ActionPanel_Spec.md:149: - If `needs_action_panel = true` on T1â€“T3 â‡’ only the **Action Teaser** is allowed
+  - core\templates\page_templates\components\ActionPanel_Spec.md:156: - Emphasize the â€œone best next actionâ€
   - core\templates\page_templates\governance\Color_Semantics_Formatting.yaml:1: # Color Semantics and Formatting Rules â€” Framework Governance
   - core\templates\page_templates\governance\Color_Semantics_Formatting.yaml:69: | **Near target (Â±5%)** | Yellow/Orange | `neutral` |
   - core\templates\page_templates\governance\Color_Semantics_Formatting.yaml:252: - **Large text (â‰¥18pt) or bold (â‰¥14pt):** 3.0:1 contrast ratio
@@ -2261,37 +2294,57 @@ Potential mojibake found:
   - products\fabric\powerbi\docs\tmdl_best_practices.md:402: 2. **Model**: Data Contracts â†’ semantic_layer.md â†’ fabric/powerbi.md
   - products\fabric\powerbi\docs\tmdl_best_practices.md:403: 3. **Implement**: MCP Operations â†’ **tmdl_best_practices.md** â†’ Power BI Desktop
   - products\fabric\powerbi\docs\tmdl_best_practices.md:404: 4. **Validate**: Export TMDL â†’ Test `.pbip` â†’ Commit
-  - products\fabric\powerbi\docs\tmdl_best_practices.md:502: - All fact tables are at y=0 with xâ‰¥280
-  - products\fabric\powerbi\docs\tmdl_best_practices.md:503: - All dimension tables are at x=0 with yâ‰¥120
+  - products\fabric\powerbi\docs\tmdl_best_practices.md:488: - **Relationships:** Step 3.3 in `orchestrate_full_model.ps1` creates relationships **per domain** from `UseCase_Bracket.yaml` and the domain data contract (`overrides.data_contract_ref`). If no relationships are produced (e.g. missing contract ref), **AutoDetect** runs and writes TMDL from table naming conventions (`*Key` â†’ `dim_*`). Script: `products/fabric/powerbi/orchestrator/relationship_ops.ps1` (operations `CreateFromBracket`, `AutoDetect` with `-DefinitionPath` to persist TMDL). Relationships are written to `definition/relationships/*.tmdl`.
+  - products\fabric\powerbi\docs\tmdl_best_practices.md:505: - All fact tables are at y=0 with xâ‰¥280
+  - products\fabric\powerbi\docs\tmdl_best_practices.md:506: - All dimension tables are at x=0 with yâ‰¥120
   - products\fabric\powerbi\docs\reporting\COM-001_mockup_validation.md:10: - **Speaking names:** Page folders `Page_COM001_Overview`, `Page_COM001_Detail`; visuals `KPI_1`â€“`KPI_4`, `Trend`, `Variance`, `Ranking`, `Slicer_Date`, `DetailMatrix`, `ActionPanel`.
   - products\fabric\powerbi\docs\reporting\pbip_layouts.md:4: Document the 3â€“30â€“300 PBIP page layouts used in the Aurora demo.
   - products\fabric\powerbi\docs\reporting\README.md:7: - PBIP layouts and 3â€“30â€“300 page maps (`pbip_layouts.md`).
   - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:3: ## Vision: KPI Catalog â†’ Semantic Model â†’ Reports (Fully Automated)
   - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:7: Technical TODOs for this flow are listed in [internal/technical_backlog.md](../../../../internal/technical_backlog.md) Â§ Power BI MCP.
   - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:38: - Analysis Services TMDL Extension fÃ¼r VS Code
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:84: Write-Host "âœ“ PBIP structure ready: $modelPath" -ForegroundColor Green
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:103: Write-Host "`nâœ“ Connection saved: $connFile" -ForegroundColor Green
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:211: Write-Host "  âœ“ All required tables present" -ForegroundColor Green
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:231: Write-Host "  âœ“ Measures generated" -ForegroundColor Green
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:241: Write-Host "  âœ“ TMDL syntax valid" -ForegroundColor Green
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:250: # 3.1 Create Tables from Data Contracts â†’ table_ops.ps1 -Operation CreateFromContract (or ExportFromContract for JSON)
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:252: # 3.2 Create Relationships â†’ relationship_ops.ps1 -Operation CreateFromBracket -BracketPath <path> -OutJsonPath out/relationship_ops_<UseCase>.json
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:253: # 3.3 Create Hierarchies â†’ hierarchy_ops.ps1 -Operation FromBracket -BracketPath <path> -OutJsonPath out/hierarchy_ops_<UseCase>.json
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:265: Write-Host "  âœ“ Measures imported" -ForegroundColor Green
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:292: Write-Host "  âœ“ BPA checks passed" -ForegroundColor Green
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:304: Write-Host "  â†’ Auto-fix: Adding default formatString" -ForegroundColor Yellow
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:308: Write-Host "  â†’ Auto-fix: Adding default displayFolder" -ForegroundColor Yellow
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:312: Write-Host "  â†’ Auto-fix: Correcting relationship" -ForegroundColor Yellow
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:316: Write-Host "  â†’ Manual intervention required: $($error.error)" -ForegroundColor Red
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:326: Write-Host "`nâœ— Validation failed after $MaxIterations iterations" -ForegroundColor Red
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:340: Write-Host "  âœ“ Report structure created" -ForegroundColor Green
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:347: Write-Host "âœ“ Model Orchestration Complete!" -ForegroundColor Green
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:378: # Wrapper fÃ¼r mcp_powerbi-model_table_operations
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:379: # Konvertiert Data Contract YAML â†’ TMDL Table Definition
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:475: # Parse _Measures.tmdl â†’ Extract measure blocks â†’ Create via MCP
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:597: # Pattern â†’ Auto-Fix Function
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:734: # 3. Ã–ffne in Power BI Desktop
-  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:762: 4. **Natural Language Report Builder:** "Create sales report for Q4" â†’ Full report
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:40: - **Python 3.x** fÃ¼r Registry, page_scaffold_generator (Report-Erstellung mit Visuals). Auf Windows wird Python typischerweise Ã¼ber den **py-Launcher** aufgerufen (z.â€¯B. `py -3`); der Orchestrator verwendet `py -3`, `python3` oder `python` in dieser Reihenfolge. Ohne Python: Fallback auf report_generator.ps1 (nur Report-Struktur, keine UX-Engine).
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:85: Write-Host "âœ“ PBIP structure ready: $modelPath" -ForegroundColor Green
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:104: Write-Host "`nâœ“ Connection saved: $connFile" -ForegroundColor Green
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:212: Write-Host "  âœ“ All required tables present" -ForegroundColor Green
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:232: Write-Host "  âœ“ Measures generated" -ForegroundColor Green
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:242: Write-Host "  âœ“ TMDL syntax valid" -ForegroundColor Green
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:251: # 3.1 Create Tables from Data Contracts â†’ table_ops.ps1 -Operation CreateFromContract (or ExportFromContract for JSON)
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:253: # 3.2b Sync model.tmdl refs â†’ ensure ref table X for every table in definition/tables/
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:255: # 3.4 Create Hierarchies Definition â†’ hierarchy_ops.ps1 -Operation FromBracket -BracketPath <path> -OutJsonPath out/hierarchy_ops_<UseCase>.json
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:256: # 3.5 Write Hierarchies to TMDL â†’ hierarchy_ops.ps1 -Operation WriteToTmdl per domain
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:257: # 3.6 Write diagram layout â†’ write_diagram_layout.ps1 per domain; outputs diagramLayout.json (Model View, spaghetti principle). See tmdl_best_practices.md Â§10.
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:282: Write-Host "  âœ“ BPA checks passed" -ForegroundColor Green
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:294: Write-Host "  â†’ Auto-fix: Adding default formatString" -ForegroundColor Yellow
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:298: Write-Host "  â†’ Auto-fix: Adding default displayFolder" -ForegroundColor Yellow
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:302: Write-Host "  â†’ Auto-fix: Correcting relationship" -ForegroundColor Yellow
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:306: Write-Host "  â†’ Manual intervention required: $($error.error)" -ForegroundColor Red
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:316: Write-Host "`nâœ— Validation failed after $MaxIterations iterations" -ForegroundColor Red
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:324: # - Python: py -3 / python3 / python â†’ generate_full_report.py (--use-case, --output, --dataset-reference, --repo-root)
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:329: # - Theme: theme_config.json (defaultThemeName) oder -ThemeName â†’ apply_report_theme.ps1.
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:336: # FINAL SUMMARY â€“ Output (Fabric dist)
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:338: #   Report: products\fabric\powerbi\dist\<UC>_<Title>.Report  (datasetReference â†’ Domain-Modell im selben dist)
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:342: ### 2.2 Phase 5: Report Generation â€“ UX Engine im Detail
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:344: Phase 5 nutzt dieselbe **Builder-Engine** wie manuelle Report-Erstellung: `generate_full_report.py` â†’ `PageScaffoldGenerator` â†’ `ConfigLoader` + `PageBuilder`. Es gibt keinen separaten Automation-Pfad; alle unten beschriebenen Features sind im Automation Flow aktiv.
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:352: | **Slot-Bindung** | Optional `slot_id` in `component_30s` (Main_1, Main_2, Main_3) fÃ¼r explizite Zuordnung; sonst Heuristik aus `visual_type` (trend_line â†’ trend, waterfall â†’ variance, etc.) |
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:353: | **Detail-Seite** | `component_300s.evidence_columns` / `evidence_measures` â†’ Detail_Matrix-Spalten/Measures (Ã¼ber KPI-Katalog zu Measure-Namen aufgelÃ¶st). `action_panel: true` + `orchestration.action_code_ids` â†’ Action Panel |
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:355: **Action Codes (Phase 1 â€“ nur informativ):**
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:358: - **Zeilenweise Action:** FÃ¼r spÃ¤tere Phase 2 ist vorgesehen, in der Detail_Matrix eine optionale Spalte â€žActionCodeâ€œ / â€žRecommended Actionâ€œ zu nutzen, sobald das Semantic Model eine entsprechende Tabelle/Measure bereitstellt. Im Scaffold wird dafÃ¼r aktuell keine zusÃ¤tzliche Spalte erzeugt (siehe ActionPanel_Spec, Page_Spec_3_30_300).
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:362: - Wenn der Report bereits existiert (`definition/pages/pages.json` + mindestens eine Seite), fÃ¼hrt Phase 5 **kein** Full Overwrite aus, sondern einen **Delta-Sync** (`report_sync`): Soll (aus Bracket + Templates) vs. Ist (PBIP-Reader). Aktionen: fehlende Seiten/Visuals hinzufÃ¼gen, obsolete Visuals entfernen, Positionen aus Grid-Blueprint aktualisieren (`apply_page_layout`). `report.json` und `version.json` werden im Update-Modus nicht Ã¼berschrieben. Manuelle Seiten (auÃŸer den zwei Bracket-Seiten) bleiben erhalten.
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:367: - **Pfad:** `products\fabric\powerbi\dist\<UseCaseFolderName>.Report` (z.â€¯B. `COM-001_Sales_Performance.Report`). Use-Case-Ordnername aus `core/usecases/core/<ID>_*`; kein Schreiben nach `internal/archive/` oder ad-hoc Pfade.
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:368: - Nach dem Schreiben: bei Bedarf StaticResources (BaseThemes) aus Sample kopieren, dann Theme Ã¼ber `apply_report_theme.ps1` (defaultThemeName aus `showcases/aurora_group/theme_config.json` oder `-ThemeName`).
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:386: # Wrapper fÃ¼r mcp_powerbi-model_table_operations
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:387: # Konvertiert Data Contract YAML â†’ TMDL Table Definition
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:483: # Parse _Measures.tmdl â†’ Extract measure blocks â†’ Create via MCP
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:522: ## ðŸŽ¨ **Phase 4 (Orchestrator Phase 5): Report Generation â€“ UX Engine**
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:528: 1. **Python-Aufruf:** Der Orchestrator verwendet `py -3`, `python3` oder `python` (in dieser Reihenfolge). Unter Windows wird Python typischerweise Ã¼ber den **py-Launcher** ausgefÃ¼hrt (`py -3`).
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:530: - Eingabe: Use Case ID, Bracket **ux_layout_rules**, **core/templates/page_templates/** (Slot_Definitions, Visual_to_Slot_Mapping, page_types T1â€“T4).
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:531: - Ausgabe: `products/fabric/powerbi/dist/<UC>_<Title>.Report` (z.â€¯B. `COM-001_Sales_Performance.Report`) mit `definition/report.json`, `definition/pages/`, **definition.pbir**.
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:532: - **datasetReference** wird in **definition.pbir** gesetzt (nicht in report.json; PBIP/Fabric 3.0). Relativer Pfad zum Domain-Modell im selben dist, z.â€¯B. `..\Commercial.SemanticModel` (Ã¼ber `Get-DatasetReferenceRelativeFromReport` in AuroraDomainMapping.ps1).
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:535: 5. **Fallback:** Wenn kein Python gefunden wird â†’ **report_generator.ps1** (nur Report-Struktur/Sections, keine Visuals).
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:556: # Pattern â†’ Auto-Fix Function
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:693: # 3. Ã–ffne in Power BI Desktop
+  - products\fabric\powerbi\orchestrator\AUTOMATION_FLOW.md:721: 4. **Natural Language Report Builder:** "Create sales report for Q4" â†’ Full report
   - products\fabric\powerbi\orchestrator\deploy.ps1:79: # 1) Deploy Gate â€“ must pass before any API calls
   - products\fabric\powerbi\orchestrator\deploy.ps1:92: # 2) Workspace â€“ Fabric REST or Power BI
   - products\fabric\powerbi\orchestrator\deploy.ps1:94: # TODO: GET/POST Fabric workspace API (see internal/technical_backlog.md Â§ Power BI MCP).
@@ -2355,12 +2408,13 @@ Potential mojibake found:
   - products\fabric\powerbi\orchestrator\README.md:25: **One command â€“ Use Case:**
   - products\fabric\powerbi\orchestrator\README.md:30: **One command â€“ Domain (e.g. Commercial, all COM-001..004):**
   - products\fabric\powerbi\orchestrator\README.md:35: **Mit Aurora-Daten (gefÃ¼llte Tabellen):** Ohne `-UseAuroraData` erhalten Tabellen eine leere Partition (Blank). FÃ¼r Bezug zu den Aurora-Gold-Parquet-Daten den Lauf mit `-UseAuroraData` ausfÃ¼hren; dann werden die Partitionen auf `GoldDataPath` umgestellt, `expressions.tmdl` enthÃ¤lt den Parameter `GoldDataPath`, und die Reports zeigen Daten, sofern der Gold-Pfad (`showcases/aurora_group/data/gold`) und die Parquet-Dateien verfÃ¼gbar sind:
-  - products\fabric\powerbi\orchestrator\README.md:39: **Semantisches Modell vollstÃ¤ndig:** `definition/model.tmdl` muss fÃ¼r jede Tabelle in `definition/tables/` eine Zeile `ref table <Tabellenname>` enthalten. Der Orchestrator ergÃ¤nzt fehlende refs automatisch (Schritt â€žSync model.tmdl refsâ€œ). Fehlen refs, lÃ¤dt Desktop das Modell unvollstÃ¤ndig.
+  - products\fabric\powerbi\orchestrator\README.md:39: **Semantisches Modell vollstÃ¤ndig:** `definition/model.tmdl` muss fÃ¼r jede Tabelle in `definition/tables/` eine Zeile `ref table <Tabellenname>` enthalten. Der Orchestrator ergÃ¤nzt fehlende refs automatisch (Schritt â€žSync model.tmdl refsâ€œ). **Relationships** und **Model View (diagramLayout.json)** werden bei jedem Lauf erzeugt (Schritte 3.3 und 3.6), sodass ein einziger Build reproduzierbar ist und den Best Practices in `products/fabric/powerbi/docs/tmdl_best_practices.md` (u. a. Â§10 Model View, Relationships) entspricht. Fehlen refs, lÃ¤dt Desktop das Modell unvollstÃ¤ndig.
   - products\fabric\powerbi\orchestrator\README.md:41: **Aurora Custom Theme:** Nach der Report-Erzeugung wird ein Custom Theme auf jeden Report angewendet. Das Theme kommt **nur aus Konfiguration oder Parameter** (nicht hardcodiert). Wenn du **kein** `-ThemeName` Ã¼bergibst, liest der Orchestrator das Default aus `showcases/aurora_group/theme_config.json` (`defaultThemeName`; aktuell: Aurora Monochromatic Light). Ãœberschreiben: `-ThemeName "Aurora_Group__Monochromatic__Dark__#2ECDE7"` oder anderer Theme-Name aus `theme_generator/themes/` (z.â€¯B. Aurora_Group, Brand_Blue; Konzepte: Monochromatic, Analog, Divergent, NeutralAccent; Light/Dark).
   - products\fabric\powerbi\orchestrator\README.md:50: - **Reports:** `products/fabric/powerbi/dist/<UseCase>_<Title>.Report` (e.g. `COM-001_Sales_Performance.Report`); each reportâ€™s `datasetReference` points to its domain model in the same dist.
   - products\fabric\powerbi\orchestrator\README.md:52: **Dist structure (no legacy folders):** Only `<Domain>.SemanticModel` and `<UseCase>_<Title>.Report`. There is no `dist/COM-001/` (per-use-case semantic model) and no `dist/_shared/`; measure generation writes directly into the domain modelâ€™s `definition/tables/` (via `-TargetTablesDir` in the orchestrator or derived from `-UseCase` when running the measure script standalone).
-  - products\fabric\powerbi\orchestrator\README.md:66: **Note:** The pipeline does not â€œappendâ€ to an existing _Measures.tmdl; it regenerates from the current scope. To add a use case, include it in scope (by adding it to the repo and using `-Domain` or `-All`).
-  - products\fabric\powerbi\orchestrator\README.md:75: - Fabric Workspace / Import Model / Import Report are still **stubs** (see [internal/technical_backlog.md](../../../../internal/technical_backlog.md) Â§ Power BI MCP). Configure `FABRIC_WORKSPACE_ID` or `FABRIC_WORKSPACE_NAME` and implement API calls (e.g. FabricPS-PBIP) as needed.
+  - products\fabric\powerbi\orchestrator\README.md:56: **Reproduzierbarkeit & Best Practices:** Ein einziger Lauf von `orchestrate_full_model.ps1` erzeugt das vollstÃ¤ndige semantische Modell inkl. Relationships (`definition/relationships/*.tmdl`) und Model View (`diagramLayout.json`). Diese Schritte sind fest in Phase 3 (3.3 Relationships, 3.6 diagram layout) integriert; manuelles Nachziehen oder Handpflege ist nicht nÃ¶tig. Regeln und Validierung: [tmdl_best_practices.md](../docs/tmdl_best_practices.md) (u. a. Â§10 Model View, Relationships).
+  - products\fabric\powerbi\orchestrator\README.md:68: **Note:** The pipeline does not â€œappendâ€ to an existing _Measures.tmdl; it regenerates from the current scope. To add a use case, include it in scope (by adding it to the repo and using `-Domain` or `-All`).
+  - products\fabric\powerbi\orchestrator\README.md:77: - Fabric Workspace / Import Model / Import Report are still **stubs** (see [internal/technical_backlog.md](../../../../internal/technical_backlog.md) Â§ Power BI MCP). Configure `FABRIC_WORKSPACE_ID` or `FABRIC_WORKSPACE_NAME` and implement API calls (e.g. FabricPS-PBIP) as needed.
   - products\fabric\powerbi\orchestrator\relationship_ops.ps1:201: # TODO: Call Power BI MCP relationship_operations (see internal/technical_backlog.md Â§ Power BI MCP).
   - products\fabric\powerbi\orchestrator\table_ops.ps1:339: # Fix M "UngÃ¼ltiger Bezeichner": single-quoted column names in #table must be #"Name"
   - products\fabric\powerbi\tooling\check_report_structure.ps1:4: # (Fabric 3.0 schema; no datasetReference in report.jsonâ€”binding is in definition.pbir), definition/version.json, definition/pages/pages.json,
@@ -2652,8 +2706,8 @@ Potential mojibake found:
   - tooling\pbi_validate_after_impl.ps1:13: Repo-Root (Standard: Ã¼ber tooling ermittelt).
   - tooling\pbi_validate_after_impl.ps1:16: Wenn pbi_errors.log innerhalb der letzten N Minuten geÃ¤ndert wurde, dessen Inhalt in errors aufnehmen (0 = aus).
   - tooling\pbi_validate_after_impl.ps1:19: ZusÃ¤tzlich JSON in diese Datei schreiben (z. B. .cursor/pbi_validate_result.json).
-  - tooling\pbi_validate_after_impl.ps1:49: # 1) Fabric-Checks ausfÃ¼hren
-  - tooling\pbi_validate_after_impl.ps1:70: # 2) Optionale Desktop-Log-Fehler (wenn kÃ¼rzlich geÃ¤ndert)
+  - tooling\pbi_validate_after_impl.ps1:64: # 1) Fabric-Checks ausfÃ¼hren
+  - tooling\pbi_validate_after_impl.ps1:85: # 2) Optionale Desktop-Log-Fehler (wenn kÃ¼rzlich geÃ¤ndert)
   - tooling\README.md:43: - `validate_factsheets.ps1` â€” factsheet structure and content
   - tooling\README.md:44: - `validate_kpi_catalog.ps1` â€” KPI catalog rules
   - tooling\README.md:45: - `check_factsheet_vs_kpi.ps1` â€” factsheet KPI references vs catalog
@@ -2748,5 +2802,5 @@ OK: schema validation passed.
 
 **********************
 Ende der Windows PowerShell-Aufzeichnung
-Endzeit: 20260302124629
+Endzeit: 20260302190335
 **********************

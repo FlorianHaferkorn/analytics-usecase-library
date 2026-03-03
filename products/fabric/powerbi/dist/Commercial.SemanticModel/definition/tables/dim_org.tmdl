@@ -1,6 +1,6 @@
 /// Organization dimension (region, country, channel, org name) for reporting and RLS.
 table dim_org
-	 lineageTag: 789981f6-96c7-40ff-b9d8-6984ff3342ce
+	 lineageTag: 9fbcb3ff-2811-427f-9c8b-821902f95294
 
 	 column OrgKey
 		 dataType: Int64

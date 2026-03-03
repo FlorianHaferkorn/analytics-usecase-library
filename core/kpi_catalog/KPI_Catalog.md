@@ -2741,7 +2741,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
       RETURN DIVIDE ( Actual - LY, LY )
     depends_on_measures:
     - sales.net_sales.amount
-    - sales.net_sales.delta_pct.ly
     lineage:
     - fact_sales.Net Sales Amount
   governance:
@@ -2789,7 +2788,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
       RETURN DIVIDE ( Actual - Plan, Plan )
     depends_on_measures:
     - sales.net_sales.amount
-    - sales.net_sales.delta_pct.plan
     lineage:
     - fact_sales.Plan Sales Amount
   governance:

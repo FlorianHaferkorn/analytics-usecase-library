@@ -1,6 +1,6 @@
 /// Customer activity and churn flags plus attrition risk at customer-month grain.
 table fact_customer_events
-	 lineageTag: fdbd1efb-d79a-4b04-8254-f930c596070f
+	 lineageTag: 2315563b-b7fe-428a-9c73-fa67b7abf4a9
 
 	 column DateKey
 		 dataType: Int64

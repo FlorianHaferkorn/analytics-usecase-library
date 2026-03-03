@@ -18,6 +18,10 @@ orchestration:
   - enterprise.action_routed.count
   - enterprise.action_outcome_rate.pct
   - enterprise.value_at_risk.index
+  supporting_kpi_ids:
+  - cost.cogs.amount
+  - sales.net_sales.amount
+  - supply.otif.pct
   action_code_ids:
   - X-E3.2
   - X-E3.3

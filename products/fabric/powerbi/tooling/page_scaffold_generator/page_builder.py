@@ -35,6 +35,10 @@ class PageBuilder:
         card_measure_names: List[str],
         card_kpi_ids: List[str],
         visual_templates: Dict[str, Dict[str, Any]],
+        has_action_panel: bool = False,
+        action_panel_content: Optional[str] = None,
+        detail_matrix_columns: Optional[List[str]] = None,
+        detail_matrix_measures: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """Build page structure from grid blueprint (Master Grid 12×12). All visuals aligned to grid."""
         canvas = grid_blueprint.get("canvas") or {}
@@ -45,6 +49,8 @@ class PageBuilder:
         visuals: List[Dict[str, Any]] = []
         slicers: List[Dict[str, Any]] = []
         tab = self.visual_builder.tab_order_base
+        # Detail_Matrix: evidence_columns are semantic names (no table.column mapping); use measures only for projections
+        detail_measures = detail_matrix_measures if detail_matrix_measures is not None else []
 
         for i, slot_def in enumerate(slots_list):
             slot_id = slot_def.get("slot_id") or f"Slot_{i}"
@@ -53,8 +59,40 @@ class PageBuilder:
                 continue
             col_start, row_start, col_span, row_span = grid[0], grid[1], grid[2], grid[3]
             pos = calc.calculate_visual_rect(col_start, row_start, col_span, row_span)
-            # Convert GridPosition to Position for visual_builder (same x,y,width,height)
             position = Position(x=pos.x, y=pos.y, width=pos.width, height=pos.height)
+
+            if slot_id == "ActionPanel":
+                if has_action_panel:
+                    text_value = (action_panel_content or "'Action Panel Placeholder'")
+                    vis = {
+                        "$schema": self.visual_builder.VISUAL_SCHEMA,
+                        "name": "ActionPanel",
+                        "position": {
+                            "x": position.x,
+                            "y": position.y,
+                            "z": 15000,
+                            "height": position.height,
+                            "width": position.width,
+                            "tabOrder": tab + i
+                        },
+                        "visual": {
+                            "visualType": "textbox",
+                            "query": {"queryState": {"Data": {"projections": []}}},
+                            "objects": {
+                                "text": [
+                                    {
+                                        "properties": {
+                                            "text": {
+                                                "expr": {"Literal": {"Value": text_value}}
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                    visuals.append(vis)
+                continue
 
             visual_type_hint = slot_def.get("visual_type_hint")
             vt_template = None
@@ -85,6 +123,10 @@ class PageBuilder:
             elif visual_type == "textbox":
                 vis = self.visual_builder._build_base_visual("textbox", position, tab_order=tab + i, name=slot_id)
                 vis["visual"]["objects"] = {"text": [{"properties": {"text": {"expr": {"Literal": {"Value": "'Summary'"}}}}}]}
+            elif visual_type == "tableEx" and slot_id == "Detail_Matrix":
+                vis = self.visual_builder.build_table(
+                    position, columns=[], measures=detail_measures, name=slot_id
+                )
             elif visual_type == "tableEx":
                 vis = self.visual_builder.build_table(position, columns=[], measures=[], name=slot_id)
             elif visual_type == "lineChart":
@@ -156,6 +198,8 @@ class PageBuilder:
         canvas_width: Optional[int] = None,
         canvas_height: Optional[int] = None,
         visual_templates: Optional[Dict[str, Dict[str, Any]]] = None,
+        detail_matrix_columns: Optional[List[str]] = None,
+        detail_matrix_measures: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Build complete page structure with visuals.
@@ -175,6 +219,8 @@ class PageBuilder:
             canvas_width: Optional canvas width (used with grid_blueprint; default 1920).
             canvas_height: Optional canvas height (used with grid_blueprint; default 1080).
             visual_templates: Optional dict of visual_template_id -> visual template (used with grid_blueprint for visual type).
+            detail_matrix_columns: Optional list of column names for Detail_Matrix (grid path).
+            detail_matrix_measures: Optional list of measure names for Detail_Matrix (grid path).
 
         Returns:
             Dictionary with 'visuals' and 'slicers' lists
@@ -188,6 +234,10 @@ class PageBuilder:
                 card_measure_names=card_measure_names or [],
                 card_kpi_ids=card_kpi_ids or [],
                 visual_templates=visual_templates or {},
+                has_action_panel=has_action_panel,
+                action_panel_content=action_panel_content,
+                detail_matrix_columns=detail_matrix_columns,
+                detail_matrix_measures=detail_matrix_measures,
             )
 
         # Determine slicer placement (default: top)
@@ -237,7 +287,8 @@ class PageBuilder:
             visual["position"]["tabOrder"] = tab_order + i
             visuals.append(visual)
 
-        # 30s layer: from ux_layout_rules — assign slot by visual_type so layout matches intent (e.g. waterfall→variance, trend_line→trend)
+        # 30s layer: from ux_layout_rules — assign slot by slot_id (Main_1/2/3) when set, else by visual_type
+        _SLOT_ID_TO_POSITION = {"Main_1": "trend", "Main_2": "variance", "Main_3": "ranking"}
         _UX_VISUAL_TYPE_TO_SLOT = {
             "trend_line": "trend",
             "waterfall": "variance",
@@ -252,7 +303,11 @@ class PageBuilder:
             slots_used = set()
             for i, item in enumerate(component_30s):
                 vt = item.get("visual_type") or "trend_line"
-                preferred_slot = _UX_VISUAL_TYPE_TO_SLOT.get(vt, "trend")
+                explicit_slot_id = (item.get("slot_id") or "").strip()
+                if explicit_slot_id in _SLOT_ID_TO_POSITION and _SLOT_ID_TO_POSITION[explicit_slot_id] in visual_positions:
+                    preferred_slot = _SLOT_ID_TO_POSITION[explicit_slot_id]
+                else:
+                    preferred_slot = _UX_VISUAL_TYPE_TO_SLOT.get(vt, "trend")
                 slot_key = preferred_slot
                 if preferred_slot in slots_used or preferred_slot not in visual_positions:
                     for s in fallback_slot_order:

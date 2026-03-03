@@ -1,6 +1,6 @@
 /// Promotion costs and baseline (sales, quantity, non-promo baseline) per promotion.
 table fact_promo
-	 lineageTag: 2a850eac-8b22-4c34-9e8c-e4ead84dd857
+	 lineageTag: 976724c4-73f1-487c-a663-2c0ccab95699
 
 	 column PromoKey
 		 dataType: Int64

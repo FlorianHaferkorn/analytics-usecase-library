@@ -119,6 +119,8 @@ class PageScaffoldGenerator:
             canvas_height = report_canvas.get('height') or canvas_height
         visual_templates = self.config_loader.load_all_visual_templates() if template_id else {}
 
+        detail_matrix_columns = self.page_config.get('detail_matrix_columns') if self.page_name == 'detail' else None
+        detail_matrix_measures = self.page_config.get('detail_matrix_measures') if self.page_name == 'detail' else None
         page_structure = self.page_builder.build_page_structure(
             slots=slots,
             template=template,
@@ -134,6 +136,8 @@ class PageScaffoldGenerator:
             canvas_width=canvas_width,
             canvas_height=canvas_height,
             visual_templates=visual_templates,
+            detail_matrix_columns=detail_matrix_columns,
+            detail_matrix_measures=detail_matrix_measures,
         )
         
         self.page_structure = {

@@ -6,7 +6,7 @@ Use these instructions when editing this repository. Project rules in `.cursor/r
 
 - Preserve YAML frontmatter (`id`, `factsheet_type: business`) and required sections on Business Factsheets; preserve UseCase_Bracket.yaml structure per schema.
 - Only reference KPIs that exist in `core/kpi_catalog/`; do not redefine KPI meaning, targets, or lineage in factsheets or brackets.
-- Business Factsheets are prose-only (Lean 2.0); all machine-readable config is in `UseCase_Bracket.yaml` (orchestration, governance, value driver model, UX layout rules).
+- Business Factsheets are prose-only (Lean 2.0); all machine-readable config is in `UseCase_Bracket.yaml` (orchestration, governance, value driver model, UX layout rules). The bracket is the source for the **report bill-of-materials (BoM)**: KPIs (strategic, influencing, optional supporting_kpi_ids), evidence grain (`ux_layout_rules.page_2_execution.component_300s.evidence_grain`), and data contract (`overrides.data_contract_ref`). The registry validates KPI completeness (closure under catalog depends_on_measures) and evidence grain against domain contracts. Evidence grain is defined only in the bracket; action codes do not prescribe or imply report grain.
 - Keep `layout_330300` (if used) aligned with `tooling/ai/schemas/layout_330300.schema.json` and page templates in `core/templates/page_templates/`.
 - When adding or changing action code references, update the `orchestration.action_code_ids` list in each use case's `UseCase_Bracket.yaml` so it stays consistent with `core/action_codes/`.
 

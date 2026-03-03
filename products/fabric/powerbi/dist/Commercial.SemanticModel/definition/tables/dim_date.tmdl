@@ -1,6 +1,6 @@
 /// Calendar dimension with fiscal hierarchy (Fiscal Year > Quarter > Month > Date).
 table dim_date
-	 lineageTag: 8bb8b191-cc95-4761-a276-7c5eaf261e55
+	 lineageTag: 6a83a514-fef3-41fb-ba4a-6b94f905e53c
 
 	 column DateKey
 		 dataType: Int64

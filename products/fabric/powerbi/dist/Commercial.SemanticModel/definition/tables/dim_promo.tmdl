@@ -1,6 +1,6 @@
 /// Promotion dimension (type, mechanic, date range) for promo effectiveness.
 table dim_promo
-	 lineageTag: 4bbf8410-b06d-465f-8979-a228553acf3b
+	 lineageTag: 0ab9d29f-e65d-4ec8-90f8-f42f224f424b
 
 	 column PromoKey
 		 dataType: Int64

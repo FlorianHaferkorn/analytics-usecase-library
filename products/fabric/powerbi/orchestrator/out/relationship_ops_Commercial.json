@@ -1,0 +1,182 @@
+﻿[
+    {
+        "toColumn":  "DateKey",
+        "name":  "dim_date_fact_sales",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_date",
+        "fromTable":  "fact_sales",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "DateKey"
+    },
+    {
+        "toColumn":  "OrgKey",
+        "name":  "dim_org_fact_sales",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_org",
+        "fromTable":  "fact_sales",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "OrgKey"
+    },
+    {
+        "toColumn":  "ProductKey",
+        "name":  "dim_product_fact_sales",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_product",
+        "fromTable":  "fact_sales",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "ProductKey"
+    },
+    {
+        "toColumn":  "CustomerKey",
+        "name":  "dim_customer_fact_sales",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_customer",
+        "fromTable":  "fact_sales",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "CustomerKey"
+    },
+    {
+        "toColumn":  "PromoKey",
+        "name":  "dim_promo_fact_sales",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_promo",
+        "fromTable":  "fact_sales",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "PromoKey"
+    },
+    {
+        "toColumn":  "DateKey",
+        "name":  "dim_date_fact_plan_sales",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_date",
+        "fromTable":  "fact_plan_sales",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "DateKey"
+    },
+    {
+        "toColumn":  "OrgKey",
+        "name":  "dim_org_fact_plan_sales",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_org",
+        "fromTable":  "fact_plan_sales",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "OrgKey"
+    },
+    {
+        "toColumn":  "ProductKey",
+        "name":  "dim_product_fact_plan_sales",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_product",
+        "fromTable":  "fact_plan_sales",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "ProductKey"
+    },
+    {
+        "toColumn":  "PromoKey",
+        "name":  "dim_promo_fact_promo",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_promo",
+        "fromTable":  "fact_promo",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "PromoKey"
+    },
+    {
+        "toColumn":  "DateKey",
+        "name":  "dim_date_fact_customer_events",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_date",
+        "fromTable":  "fact_customer_events",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "DateKey"
+    },
+    {
+        "toColumn":  "CustomerKey",
+        "name":  "dim_customer_fact_customer_events",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_customer",
+        "fromTable":  "fact_customer_events",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "CustomerKey"
+    },
+    {
+        "toColumn":  "OrgKey",
+        "name":  "dim_org_fact_customer_events",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_org",
+        "fromTable":  "fact_customer_events",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "OrgKey"
+    },
+    {
+        "toColumn":  "DateKey",
+        "name":  "dim_date_fact_customer_value",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_date",
+        "fromTable":  "fact_customer_value",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "DateKey"
+    },
+    {
+        "toColumn":  "CustomerKey",
+        "name":  "dim_customer_fact_customer_value",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_customer",
+        "fromTable":  "fact_customer_value",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "CustomerKey"
+    },
+    {
+        "toColumn":  "CustomerKey",
+        "name":  "dim_customer_fact_experience",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_customer",
+        "fromTable":  "fact_experience",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "CustomerKey"
+    },
+    {
+        "toColumn":  "OrgKey",
+        "name":  "dim_org_fact_experience",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_org",
+        "fromTable":  "fact_experience",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "OrgKey"
+    },
+    {
+        "toColumn":  "DateKey",
+        "name":  "dim_date_fact_experience",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_date",
+        "fromTable":  "fact_experience",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "DateKey"
+    },
+    {
+        "toColumn":  "DateKey",
+        "name":  "dim_date_fact_nps",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_date",
+        "fromTable":  "fact_nps",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "DateKey"
+    },
+    {
+        "toColumn":  "CustomerKey",
+        "name":  "dim_customer_fact_nps",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_customer",
+        "fromTable":  "fact_nps",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "CustomerKey"
+    },
+    {
+        "toColumn":  "OrgKey",
+        "name":  "dim_org_fact_nps",
+        "crossFilteringBehavior":  "OneDirection",
+        "toTable":  "dim_org",
+        "fromTable":  "fact_nps",
+        "cardinality":  "ManyToOne",
+        "fromColumn":  "OrgKey"
+    }
+]

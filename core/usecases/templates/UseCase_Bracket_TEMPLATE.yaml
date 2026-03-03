@@ -21,6 +21,9 @@ orchestration:
     - "[kpi.id_2]"
     - "[kpi.id_3]"
 
+  # Report BoM: KPIs required to calculate strategic/influencing/action (optional; add if registry reports incomplete_supporting)
+  # supporting_kpi_ids: []
+
   # The "300-Second" Level (Execution)
   action_code_ids:              # Prescriptive interventions subscribed by this Use Case
     - "[action.id_1]"

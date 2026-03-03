@@ -37,6 +37,7 @@ graph TB
 - Power BI Desktop installiert (mit TMDL View Support)
 - Analysis Services TMDL Extension für VS Code
 - PBIP-Projekt im Git-Repo
+- **Python 3.x** für Registry, page_scaffold_generator (Report-Erstellung mit Visuals). Auf Windows wird Python typischerweise über den **py-Launcher** aufgerufen (z. B. `py -3`); der Orchestrator verwendet `py -3`, `python3` oder `python` in dieser Reihenfolge. Ohne Python: Fallback auf report_generator.ps1 (nur Report-Struktur, keine UX-Engine).
 
 **Connection Setup Script:**
 ```powershell
@@ -249,22 +250,11 @@ $state.iteration = 3
 
 # 3.1 Create Tables from Data Contracts → table_ops.ps1 -Operation CreateFromContract (or ExportFromContract for JSON)
 #     orchestrate_full_model.ps1 calls table_ops.ps1 per required table; payload written to products/fabric/powerbi/orchestrator/out/table_ops_<UseCase>.json
-# 3.2 Create Relationships → relationship_ops.ps1 -Operation CreateFromBracket -BracketPath <path> -OutJsonPath out/relationship_ops_<UseCase>.json
-# 3.3 Create Hierarchies → hierarchy_ops.ps1 -Operation FromBracket -BracketPath <path> -OutJsonPath out/hierarchy_ops_<UseCase>.json
-
-# 3.4 Import Measures
-Invoke-WithRetry "Import Measures to Model" {
-    $measuresFile = "products\fabric/powerbi\dist\$UseCase\$UseCase.SemanticModel\definition\tables\_Measures.tmdl"
-    
-    # Copy measures to working model
-    $targetModel = "showcases\aurora_group\semantic_models\Commercial.SemanticModel"
-    $targetMeasures = "$targetModel\definition\tables\_Measures.tmdl"
-    
-    if (Test-Path $measuresFile) {
-        Copy-Item $measuresFile $targetMeasures -Force
-        Write-Host "  ✓ Measures imported" -ForegroundColor Green
-    }
-}
+# 3.2b Sync model.tmdl refs → ensure ref table X for every table in definition/tables/
+# 3.3 Create Relationships (per domain, reproducible): relationship_ops.ps1 -Operation CreateFromBracket with first use case bracket; if 0 relationships, AutoDetect + write TMDL to definition/relationships/*.tmdl. See tmdl_best_practices.md and README.md.
+# 3.4 Create Hierarchies Definition → hierarchy_ops.ps1 -Operation FromBracket -BracketPath <path> -OutJsonPath out/hierarchy_ops_<UseCase>.json
+# 3.5 Write Hierarchies to TMDL → hierarchy_ops.ps1 -Operation WriteToTmdl per domain
+# 3.6 Write diagram layout → write_diagram_layout.ps1 per domain; outputs diagramLayout.json (Model View, spaghetti principle). See tmdl_best_practices.md §10.
 
 # ===========================================
 # PHASE 4: VALIDATION & SELF-HEALING
@@ -328,36 +318,54 @@ if (-not $validationPassed) {
 }
 
 # ===========================================
-# PHASE 5: REPORT GENERATION
+# PHASE 5: REPORT GENERATION (UX Engine)
 # ===========================================
-$state.phase = "report_generation"
-$state.iteration = 5
+# Invoke-Phase5ReportGeneration (Phase5ReportGeneration.ps1)
+# - Python: py -3 / python3 / python → generate_full_report.py (--use-case, --output, --dataset-reference, --repo-root)
+#   Input: UseCase_Bracket.yaml ux_layout_rules, core/templates/page_templates/ (Slot_Definitions, Visual_to_Slot_Mapping).
+#   Output: products\fabric\powerbi\dist\<UC>_<Title>.Report (definition/report.json, definition/pages/, definition.pbir).
+#   datasetReference in definition.pbir (nicht in report.json; PBIP/Fabric 3.0). Pfad relativ zum Report, z. B. ..\Commercial.SemanticModel.
+# - StaticResources: falls fehlend, Kopie aus showcases\sample_pbip_report\...\StaticResources (BaseThemes).
+# - Theme: theme_config.json (defaultThemeName) oder -ThemeName → apply_report_theme.ps1.
+# - Ohne Python: Fallback report_generator.ps1 (nur Struktur, keine Visuals).
+# ===========================================
+# PHASE 6: VALIDATE FABRIC OUTPUT
+# ===========================================
+# run_fabric_checks.ps1, check_report_structure.ps1, validate_pbip.ps1, optional pbi-tools compile.
 
-Invoke-WithRetry "Generate Report from Template" {
-    # report_generator.ps1 -UseCase $UseCase -TemplateName (from Business_Factsheet page_template) -OutputPath dist
-    # Reads core/templates/page_templates/components/<TemplateName>.json, writes <UseCase>.Report/definition/report.json
-    & ./products/fabric/powerbi/orchestrator/report_generator.ps1 -UseCase $UseCase -TemplateName $template -OutputPath $distReportRoot
-    Write-Host "  ✓ Report structure created" -ForegroundColor Green
-}
-
-# ===========================================
-# FINAL SUMMARY
-# ===========================================
-Write-Host "`n========================================" -ForegroundColor Green
-Write-Host "✓ Model Orchestration Complete!" -ForegroundColor Green
-Write-Host "========================================" -ForegroundColor Green
-Write-Host "Use Case:      $UseCase" -ForegroundColor Gray
-Write-Host "Iterations:    $($state.iteration)" -ForegroundColor Gray
-Write-Host "Completed:     $($state.completed.Count) phases" -ForegroundColor Gray
-Write-Host "Errors Fixed:  $($state.errors.Count)" -ForegroundColor Gray
-Write-Host "`nOutput:" -ForegroundColor Cyan
-Write-Host "  Model:  showcases\aurora_group\semantic_models\<Domain>.SemanticModel" -ForegroundColor Gray
-Write-Host "  Report: showcases\aurora_group\reports\$UseCase.Report" -ForegroundColor Gray
-Write-Host "`nNext Steps:" -ForegroundColor Yellow
-Write-Host "  1. Open in Power BI Desktop: explorer showcases\aurora_group\semantic_models" -ForegroundColor Gray
-Write-Host "  2. Validate visually" -ForegroundColor Gray
-Write-Host "  3. Publish to Fabric Workspace" -ForegroundColor Gray
+# FINAL SUMMARY – Output (Fabric dist)
+#   Model:  products\fabric\powerbi\dist\<Domain>.SemanticModel
+#   Report: products\fabric\powerbi\dist\<UC>_<Title>.Report  (datasetReference → Domain-Modell im selben dist)
+# Next: Open model/report in Desktop, validate, deploy (deploy.ps1).
 ```
+
+### 2.2 Phase 5: Report Generation – UX Engine im Detail
+
+Phase 5 nutzt dieselbe **Builder-Engine** wie manuelle Report-Erstellung: `generate_full_report.py` → `PageScaffoldGenerator` → `ConfigLoader` + `PageBuilder`. Es gibt keinen separaten Automation-Pfad; alle unten beschriebenen Features sind im Automation Flow aktiv.
+
+**Eingaben (aus Bracket und Templates):**
+
+| Quelle | Verwendung |
+|--------|------------|
+| **UseCase_Bracket.yaml** `ux_layout_rules` | `page_1_summary` (Overview), `page_2_execution` (Detail), `page_template` / `template_id`, `report_canvas` (width/height), `component_3s` / `component_30s` / `component_300s` |
+| **Grid-Templates** `core/templates/page_templates/grid_templates/` | **Pulse** (Overview): KPI_Cards, Slicer_Date, Main_1, Main_2, Main_3. **Action Matrix** (Detail): Slicer_Pane, Smart_Narrative, Detail_Matrix, ActionPanel |
+| **Slot-Bindung** | Optional `slot_id` in `component_30s` (Main_1, Main_2, Main_3) für explizite Zuordnung; sonst Heuristik aus `visual_type` (trend_line → trend, waterfall → variance, etc.) |
+| **Detail-Seite** | `component_300s.evidence_columns` / `evidence_measures` → Detail_Matrix-Spalten/Measures (über KPI-Katalog zu Measure-Namen aufgelöst). `action_panel: true` + `orchestration.action_code_ids` → Action Panel |
+
+**Action Codes (Phase 1 – nur informativ):**
+
+- **Action Panel:** Inhalt wird zur Build-Zeit aus den Action-Code-YAMLs erzeugt (`get_action_panel_content`): Name, Owner, lesbare Trigger-Bedingung (aus `trigger.levels`), Impact (aus `impact` / `impact_valuation`), optional Schritte. Optional `payload_mode` (full/summary/minimal) aus `component_300s`. Anzeige als Textbox im Slot **ActionPanel** (Grid action_matrix); kein API-/Webhook-Aufruf.
+- **Zeilenweise Action:** Für spätere Phase 2 ist vorgesehen, in der Detail_Matrix eine optionale Spalte „ActionCode“ / „Recommended Action“ zu nutzen, sobald das Semantic Model eine entsprechende Tabelle/Measure bereitstellt. Im Scaffold wird dafür aktuell keine zusätzliche Spalte erzeugt (siehe ActionPanel_Spec, Page_Spec_3_30_300).
+
+**Delta-Update:**
+
+- Wenn der Report bereits existiert (`definition/pages/pages.json` + mindestens eine Seite), führt Phase 5 **kein** Full Overwrite aus, sondern einen **Delta-Sync** (`report_sync`): Soll (aus Bracket + Templates) vs. Ist (PBIP-Reader). Aktionen: fehlende Seiten/Visuals hinzufügen, obsolete Visuals entfernen, Positionen aus Grid-Blueprint aktualisieren (`apply_page_layout`). `report.json` und `version.json` werden im Update-Modus nicht überschrieben. Manuelle Seiten (außer den zwei Bracket-Seiten) bleiben erhalten.
+- `--force-full` erzwingt bei Bedarf wieder eine komplette Neuerstellung.
+
+**Ausgabe:**
+
+- **Pfad:** `products\fabric\powerbi\dist\<UseCaseFolderName>.Report` (z. B. `COM-001_Sales_Performance.Report`). Use-Case-Ordnername aus `core/usecases/core/<ID>_*`; kein Schreiben nach `internal/archive/` oder ad-hoc Pfade.
+- Nach dem Schreiben: bei Bedarf StaticResources (BaseThemes) aus Sample kopieren, dann Theme über `apply_report_theme.ps1` (defaultThemeName aus `showcases/aurora_group/theme_config.json` oder `-ThemeName`).
 
 ---
 
@@ -511,78 +519,29 @@ function Import-MeasuresFromTMDL {
 
 ---
 
-## 🎨 **Phase 4: Report Template Engine**
+## 🎨 **Phase 4 (Orchestrator Phase 5): Report Generation – UX Engine**
 
-### 4.1 Page Template Parser
+**File:** `products/fabric/powerbi/orchestrator/Phase5ReportGeneration.ps1` (dot-sourced from `orchestrate_full_model.ps1`).
 
-**File:** `products/fabric/powerbi/orchestrator/report_generator.ps1`
+### Ablauf (Report-Erstellung)
 
-```powershell
-Param(
-    [string]$UseCase,
-    [string]$TemplateName = "overview_drivers_details",
-    [string]$OutputPath
-)
+1. **Python-Aufruf:** Der Orchestrator verwendet `py -3`, `python3` oder `python` (in dieser Reihenfolge). Unter Windows wird Python typischerweise über den **py-Launcher** ausgeführt (`py -3`).
+2. **generate_full_report.py** (`products/fabric/powerbi/tooling/page_scaffold_generator/generate_full_report.py`):
+   - Eingabe: Use Case ID, Bracket **ux_layout_rules**, **core/templates/page_templates/** (Slot_Definitions, Visual_to_Slot_Mapping, page_types T1–T4).
+   - Ausgabe: `products/fabric/powerbi/dist/<UC>_<Title>.Report` (z. B. `COM-001_Sales_Performance.Report`) mit `definition/report.json`, `definition/pages/`, **definition.pbir**.
+   - **datasetReference** wird in **definition.pbir** gesetzt (nicht in report.json; PBIP/Fabric 3.0). Relativer Pfad zum Domain-Modell im selben dist, z. B. `..\Commercial.SemanticModel` (über `Get-DatasetReferenceRelativeFromReport` in AuroraDomainMapping.ps1).
+3. **StaticResources:** Fehlen BaseThemes, werden sie aus `showcases/sample_pbip_report/Procurement_Wireframe_Theme.Report/StaticResources` in den Report kopiert.
+4. **Theme:** Aus `showcases/aurora_group/theme_config.json` (`defaultThemeName`) oder Parameter `-ThemeName`; Anwendung via **apply_report_theme.ps1** (Theme aus `tooling/theme_generator/themes/`).
+5. **Fallback:** Wenn kein Python gefunden wird → **report_generator.ps1** (nur Report-Struktur/Sections, keine Visuals).
 
-# Parse core/templates/page_templates/$TemplateName.md
-# Generate PBIR JSON structure
+### Validierung nach Report (Phase 6 im Orchestrator)
 
-function Parse-PageTemplate {
-    param([string]$TemplatePath)
-    
-    $template = Get-Content $TemplatePath -Raw | ConvertFrom-Markdown
-    
-    $pages = @()
-    
-    # Extract page definitions
-    # Example:
-    # ## Page 1: Overview (3 seconds)
-    # - KPI Cards: Net Sales, Gross Margin %, Price Realization %
-    # - Trend Chart: Net Sales (Last 12M)
-    # - Sparklines: GM% vs Plan
-    
-    return @{
-        pages = $pages
-        filters = @()  # From Use Case filters_default
-        bookmarks = @()
-    }
-}
+- **run_fabric_checks.ps1** (TMDL, PBIP readiness, diagram layout, measures vs KPI).
+- **check_report_structure.ps1** (report.json, datasetReference, Struktur).
+- **validate_pbip.ps1** pro Report-PBIP-Ordner.
+- Optional: **pbi-tools compile** pro Semantic Model und Report.
 
-function Generate-ReportJSON {
-    param($Template, $UseCase)
-    
-    # Create PBIR structure
-    $report = @{
-        version = "1.0"
-        datasetReference = @{
-            byPath = @{
-                path = "../semantic_models/Commercial.SemanticModel"
-            }
-        }
-        pages = @()
-    }
-    
-    foreach ($page in $Template.pages) {
-        $report.pages += @{
-            name = $page.name
-            displayName = $page.title
-            visualContainers = @()  # TODO: Generate visuals from template
-        }
-    }
-    
-    return $report | ConvertTo-Json -Depth 20
-}
-
-# Execute
-$templatePath = "core\templates\page_templates\$TemplateName.md"
-$template = Parse-PageTemplate $templatePath
-$reportJson = Generate-ReportJSON $template $UseCase
-
-# Write PBIR
-$reportFolder = "$OutputPath\$UseCase.Report"
-New-Item -ItemType Directory -Path "$reportFolder\definition" -Force | Out-Null
-$reportJson | Out-File -Encoding UTF8NoBOM "$reportFolder\definition\report.json"
-```
+Siehe auch: [PBIP_REPORT_STRUCTURE.md](../docs/PBIP_REPORT_STRUCTURE.md), [orchestrator README](README.md).
 
 ---
 

@@ -11,7 +11,8 @@ Param(
     [int]$MaxIterations = 5,
     [switch]$DryRun,
     [string]$ThemeName,
-    [switch]$UseAuroraData
+    [switch]$UseAuroraData,
+    [switch]$NoStrictRegistry
 )
 
 $ErrorActionPreference = "Stop"
@@ -176,7 +177,9 @@ Invoke-WithRetry "Build Registry" {
     if (-not (Test-Path $registryScript)) {
         throw "check_registry_builder.ps1 not found at $registryScript. Registry is required for build."
     }
-    & $registryScript -Root $script:RepoRoot -FailOnError
+    $registryParams = @{ Root = $script:RepoRoot; FailOnError = $true }
+    if ($NoStrictRegistry) { $registryParams['Strict'] = $false }
+    & $registryScript @registryParams
     if ($LASTEXITCODE -ne 0) {
         throw "Registry build failed (exit $LASTEXITCODE). Fix contract/registry errors and retry."
     }
@@ -396,43 +399,45 @@ Invoke-WithRetry "Sync model.tmdl refs" {
     }
 }
 
-# 3.3 Create Relationships from UseCase_Bracket.yaml (using $script:SelectedUseCaseIds; write to Fabric dist per domain)
+# 3.3 Create Relationships (per domain, once per domain; fallback to AutoDetect so relationships are never missing)
 Invoke-WithRetry "Create Relationships" {
     $absRoot = if ([System.IO.Path]::IsPathRooted($UseCaseRoot)) { $UseCaseRoot } else { Join-Path $script:RepoRoot $UseCaseRoot }
-    $bracketDirs = @()
-    foreach ($ucId in $script:SelectedUseCaseIds) {
-        $dir = Get-ChildItem $absRoot -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -like "${ucId}_*" } | Select-Object -First 1
-        if ($dir -and (Test-Path "$($dir.FullName)\UseCase_Bracket.yaml")) { $bracketDirs += $dir }
-    }
-    if ($bracketDirs.Count -eq 0) {
-        Write-Host "  WARNING: No use case directory found for selected IDs" -ForegroundColor Yellow
-        return
-    }
     $outDir = Join-Path $script:OrchestratorRoot "out"
     if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir -Force | Out-Null }
-    $created = 0
-    foreach ($useCaseDir in $bracketDirs) {
-        $bracketPath = "$($useCaseDir.FullName)\UseCase_Bracket.yaml"
-        $ucId = ($useCaseDir.Name -split '_', 2)[0]
-        $domainName = Get-DomainNameFromUseCaseId -UcId $ucId
-        $defPath = if ($domainName) { Join-Path $script:RepoRoot (Get-FabricDomainDefinitionPath -DomainName $domainName) } else { $null }
-        $relJsonPath = Join-Path $outDir "relationship_ops_$ucId.json"
-        try {
-            $relArgs = @(
-                "-Operation", "CreateFromBracket",
-                "-BracketPath", $bracketPath,
-                "-OutJsonPath", $relJsonPath
-            )
-            if ($defPath) { $relArgs += "-DefinitionPath", $defPath }
-            else { $relArgs += "-ConnectionName", "local_pbip" }
-            & (Join-Path $script:OrchestratorRoot "relationship_ops.ps1") @relArgs -ErrorAction Stop | Out-Null
-            $created++
-            Write-Host "  Relationships from $ucId" -ForegroundColor Green
-        } catch {
-            Write-Host "  WARNING: Could not create relationships for $ucId : $_" -ForegroundColor Yellow
+    foreach ($domainName in $byDomain.Keys) {
+        $defPath = Join-Path $script:RepoRoot (Get-FabricDomainDefinitionPath -DomainName $domainName)
+        if (-not (Test-Path $defPath)) { continue }
+        $firstUc = $byDomain[$domainName][0]
+        $bracketPath = $null
+        if ($firstUc) {
+            $dir = Get-ChildItem $absRoot -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -like "${firstUc}_*" } | Select-Object -First 1
+            if ($dir -and (Test-Path "$($dir.FullName)\UseCase_Bracket.yaml")) { $bracketPath = "$($dir.FullName)\UseCase_Bracket.yaml" }
         }
+        $relCountBefore = 0
+        $relDir = "$defPath\relationships"
+        if (Test-Path $relDir) { $relCountBefore = (Get-ChildItem $relDir -Filter "*.tmdl" -ErrorAction SilentlyContinue).Count }
+        if ($bracketPath) {
+            try {
+                $relParams = @{ Operation = "CreateFromBracket"; BracketPath = $bracketPath; DefinitionPath = $defPath; OutJsonPath = (Join-Path $outDir "relationship_ops_$domainName.json") }
+                & (Join-Path $script:OrchestratorRoot "relationship_ops.ps1") @relParams -ErrorAction Stop | Out-Null
+            } catch {
+                Write-Host "  [$domainName] CreateFromBracket failed, will use AutoDetect fallback: $_" -ForegroundColor Yellow
+            }
+        }
+        $relCountAfter = 0
+        if (Test-Path $relDir) { $relCountAfter = (Get-ChildItem $relDir -Filter "*.tmdl" -ErrorAction SilentlyContinue).Count }
+        if ($relCountAfter -eq 0) {
+            Write-Host "  [$domainName] No relationships from bracket; running AutoDetect and writing TMDL" -ForegroundColor Cyan
+            try {
+                & (Join-Path $script:OrchestratorRoot "relationship_ops.ps1") -Operation "AutoDetect" -DefinitionPath $defPath -OutJsonPath (Join-Path $outDir "relationship_ops_${domainName}_autodetect.json") -ErrorAction Stop | Out-Null
+            } catch {
+                Write-Host "  WARNING: [$domainName] AutoDetect failed: $_" -ForegroundColor Yellow
+            }
+        }
+        $finalCount = 0
+        if (Test-Path $relDir) { $finalCount = (Get-ChildItem $relDir -Filter "*.tmdl" -ErrorAction SilentlyContinue).Count }
+        Write-Host "  [$domainName] Relationships: $finalCount" -ForegroundColor Green
     }
-    if ($created -gt 0) { Write-Host "  Relationships created for $created bracket(s)" -ForegroundColor Green }
 }
 
 # 3.4 User hierarchies from bracket + contract (using $script:SelectedUseCaseIds)
@@ -488,6 +493,19 @@ Invoke-WithRetry "Write Hierarchies to TMDL" {
             Write-Host "  [$domainName] Hierarchies written to table TMDL" -ForegroundColor Green
         } catch {
             Write-Host "  WARNING: [$domainName] WriteToTmdl : $_" -ForegroundColor Yellow
+        }
+    }
+}
+
+# 3.6 Write diagramLayout.json (Model View: _Measures top-left, facts horizontal, dims vertical)
+Invoke-WithRetry "Write diagram layout" {
+    foreach ($domainName in $byDomain.Keys) {
+        $domainDefPath = Join-Path $script:RepoRoot (Get-FabricDomainDefinitionPath -DomainName $domainName)
+        if (-not (Test-Path $domainDefPath)) { continue }
+        try {
+            & (Join-Path $script:OrchestratorRoot "write_diagram_layout.ps1") -DefinitionPath $domainDefPath -ErrorAction Stop | Out-Null
+        } catch {
+            Write-Host "  WARNING: [$domainName] write_diagram_layout: $_" -ForegroundColor Yellow
         }
     }
 }
@@ -570,6 +588,36 @@ $distReportRoot = Join-Path $script:RepoRoot "products\fabric\powerbi\dist"
 $distRootParam = "products/fabric/powerbi/dist"
 
 Invoke-WithRetry "Validate Fabric output" {
+    # (0a) Normalize TMDL tabs (all .tmdl under dist) before any other TMDL steps
+    $normalizeTabsScript = Join-Path $script:RepoRoot "products\fabric\powerbi\tooling\normalize_tmdl_tabs.ps1"
+    if (Test-Path $normalizeTabsScript) {
+        try { & $normalizeTabsScript -DistRoot $distRootParam -RepoRoot $script:RepoRoot 2>&1 | Out-Null } catch {}
+    }
+
+    # (0) Ensure PBIP desktop-ready
+    $ensureScript = Join-Path $script:RepoRoot "products\fabric\powerbi\tooling\ensure_pbip_desktop_ready.ps1"
+    if (Test-Path $ensureScript) {
+        try { & $ensureScript -DistRoot $distRootParam -RepoRoot $script:RepoRoot 2>&1 | Out-Null } catch {}
+    }
+
+    # (0b) Auto-fix best practices: summarizeBy: none + diagram layout (Spaghetti) so they are always applied
+    foreach ($domainName in $byDomain.Keys) {
+        $domainDefPath = Join-Path $script:RepoRoot (Get-FabricDomainDefinitionPath -DomainName $domainName)
+        if (-not (Test-Path $domainDefPath)) { continue }
+        try {
+            & (Join-Path $script:OrchestratorRoot "table_ops.ps1") -Operation "PatchAddSummarizeByNone" -DefinitionPath $domainDefPath -ErrorAction SilentlyContinue | Out-Null
+        } catch {}
+        try {
+            & (Join-Path $script:OrchestratorRoot "write_diagram_layout.ps1") -DefinitionPath $domainDefPath -ErrorAction SilentlyContinue | Out-Null
+        } catch {}
+    }
+
+    # (0c) TMDL render & fix (reactive for remaining errors; UpdateKnowledgeBase)
+    $tmdlRenderScript = Join-Path $script:RepoRoot "products\fabric\powerbi\tooling\tmdl_render_and_fix.ps1"
+    if (Test-Path $tmdlRenderScript) {
+        try { & $tmdlRenderScript -DistRoot $distRootParam -RepoRoot $script:RepoRoot -UpdateKnowledgeBase $true 2>&1 | Out-Null } catch {}
+    }
+
     # (1) Best-practice rules: TMDL, PBIP readiness, DAX, measures vs KPI
     $fabricChecksScript = Join-Path $script:RepoRoot "products\fabric\powerbi\tooling\run_fabric_checks.ps1"
     if (-not (Test-Path $fabricChecksScript)) {

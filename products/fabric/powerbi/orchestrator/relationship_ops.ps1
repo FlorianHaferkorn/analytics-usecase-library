@@ -232,7 +232,7 @@ switch ($Operation) {
                     New-Item -ItemType Directory -Path $relDir -Force -ErrorAction SilentlyContinue | Out-Null
                     $tmdlPath = "$relDir\$($rel.name).tmdl"
                     # Power BI TMDL (Feb 2026): cardinality/crossFilteringBehavior not supported; fromColumn/toColumn only.
-                    $tmdlContent = "relationship $($rel.name)`r`n  fromColumn: $($rel.fromTable).$($rel.fromColumn)`r`n  toColumn: $($rel.toTable).$($rel.toColumn)`r`n"
+                    $tmdlContent = "relationship $($rel.name)`r`n`tfromColumn: $($rel.fromTable).$($rel.fromColumn)`r`n`ttoColumn: $($rel.toTable).$($rel.toColumn)`r`n"
                     $utf8 = New-Object System.Text.UTF8Encoding $false
                     [System.IO.File]::WriteAllText($tmdlPath, $tmdlContent, $utf8)
                     Write-Host "    Created: $tmdlPath" -ForegroundColor Green
@@ -262,6 +262,19 @@ switch ($Operation) {
         if ($OutJsonPath) {
             $relationships | ConvertTo-Json -Depth 4 | Set-Content -Path $OutJsonPath -Encoding utf8
             Write-Host "  Wrote: $OutJsonPath" -ForegroundColor Gray
+        }
+        # When DefinitionPath is set, write TMDL so relationships are never missing after a build
+        if ($defPath -and $relationships.Count -gt 0) {
+            $relDir = "$defPath\relationships"
+            New-Item -ItemType Directory -Path $relDir -Force -ErrorAction SilentlyContinue | Out-Null
+            foreach ($rel in $relationships) {
+                $relName = "$($rel.toTable)_$($rel.fromTable)"
+                $tmdlPath = "$relDir\$relName.tmdl"
+                $tmdlContent = "relationship $relName`r`n`tfromColumn: $($rel.fromTable).$($rel.fromColumn)`r`n`ttoColumn: $($rel.toTable).$($rel.toColumn)`r`n"
+                $utf8 = New-Object System.Text.UTF8Encoding $false
+                [System.IO.File]::WriteAllText($tmdlPath, $tmdlContent, $utf8)
+                Write-Host "    Created: $tmdlPath" -ForegroundColor Green
+            }
         }
         return $relationships
     }

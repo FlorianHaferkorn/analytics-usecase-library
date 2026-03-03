@@ -1,6 +1,6 @@
 /// Customer complaint and experience events (customer, org, date, severity).
 table fact_experience
-	 lineageTag: be76f98f-415b-47cf-96d8-7ba91040756a
+	 lineageTag: eb274a44-dc59-459f-bc7c-ffae0c847c2c
 
 	 column 'Complaint ID'
 		 dataType: String

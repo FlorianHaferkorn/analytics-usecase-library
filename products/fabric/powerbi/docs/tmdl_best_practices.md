@@ -483,17 +483,20 @@ The `diagramLayout.json` file in each semantic model's root (e.g. `Commercial.Se
 3. Arrange all dimension tables vertically at x=0 with y increasing by 120px (starting at y=120)
 4. Include security tables with dimensions in the left column
 
-**Example structure:**
+**Reproducible implementation:** The orchestrator generates both **relationships** and **diagramLayout.json** so that every build is best-practice compliant and reproducible.
+
+- **Relationships:** Step 3.3 in `orchestrate_full_model.ps1` creates relationships **per domain** from `UseCase_Bracket.yaml` and the domain data contract (`overrides.data_contract_ref`). If no relationships are produced (e.g. missing contract ref), **AutoDetect** runs and writes TMDL from table naming conventions (`*Key` → `dim_*`). Script: `products/fabric/powerbi/orchestrator/relationship_ops.ps1` (operations `CreateFromBracket`, `AutoDetect` with `-DefinitionPath` to persist TMDL). Relationships are written to `definition/relationships/*.tmdl`.
+- **Model View (diagramLayout.json):** Step 3.6 runs `write_diagram_layout.ps1` per domain. It reads `definition/tables/*.tmdl`, then writes `diagramLayout.json` in the semantic model root following the spaghetti principle. Script: `products/fabric/powerbi/orchestrator/write_diagram_layout.ps1`. **Single source of truth:** Run `orchestrate_full_model.ps1 -UseCase <id>` or `-Domain <name>`; do not hand-edit diagram layout or relationships if you want reproducible builds.
+
+**Example structure** (actual file uses `diagrams[0].nodes`):
 ```json
 {
-  "nodes": [
+  "diagrams": [{ "nodes": [
     {"nodeIndex": "_Measures", "location": {"x": 0, "y": 0}},
     {"nodeIndex": "fact_sales", "location": {"x": 280, "y": 0}},
-    {"nodeIndex": "fact_working_capital", "location": {"x": 530, "y": 0}},
     {"nodeIndex": "dim_date", "location": {"x": 0, "y": 120}},
-    {"nodeIndex": "dim_org", "location": {"x": 0, "y": 240}},
-    {"nodeIndex": "security_user_org", "location": {"x": 0, "y": 1200}}
-  ]
+    {"nodeIndex": "dim_org", "location": {"x": 0, "y": 240}}
+  ]}]
 }
 ```
 

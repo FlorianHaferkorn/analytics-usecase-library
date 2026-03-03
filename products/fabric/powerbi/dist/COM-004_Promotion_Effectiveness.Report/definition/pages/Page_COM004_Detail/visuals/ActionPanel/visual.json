@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "ActionPanel",
+  "position": {
+    "x": 1592,
+    "y": 118,
+    "z": 15000,
+    "height": 930,
+    "width": 296,
+    "tabOrder": 3003
+  },
+  "visual": {
+    "visualType": "textbox",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": []
+        }
+      }
+    },
+    "objects": {
+      "text": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Recommended actions (from action codes)\n\n• C-M2.1 — Price Realization Guardrails\n  Owner: pricing_lead\n  Trigger: sales.price.realization_pct < 0.92%\n  Impact: High, DirectMarginImprovement\n  · IDENTIFY each {entity} where price realization falls below threshold\n  · FREEZE discretionary discounts for this {entity}\n  · ENFORCE approval workflow for any price exception on this {entity}\n\n• C-S1.1 — Price Discipline Enforcement\n  Owner: pricing_manager\n  Trigger: sales.pvm.price_effect.amount < 0amount\n  Impact: High\n  · IDENTIFY each {entity} breaching gross margin threshold\n  · FREEZE new discretionary discounts for this {entity}\n  · REQUIRE approval for any price exception on this {entity}\n\n• C-M2.2 — Mix Optimization (Margin-Driven)\n  Owner: category_manager\n  Trigger: sales.pvm.mix_effect.amount < -75000amount\n  Impact: Medium\n  · IDENTIFY each {entity} with persistent negative mix effect\n  · RANK SKUs by margin contribution for this {entity}\n  · ADJUST sales targets and focus lists for this {entity}\n\n• C-P4.1 — Promo Calendar Discipline\n  Owner: trade_marketing_lead\n  Trigger: sales.promo.roi.pct < -5.0%\n  Impact: High\n  · IDENTIFY each {entity} with repeated negative ROI\n  · REVIEW mechanics and baseline assumptions for this {entity}\n  · STOP, REPLACE, or RESEQUENCE this {entity} based on ROI analysis\n\n• C-S1.2 — Sales Gap Recovery via Price & Pack Adjustment\n  Owner: sales_director\n  Trigger: sales.net_sales.delta_pct.plan < -0.05%\n  Impact: Medium\n  · IDENTIFY each {entity} breaching plan thresholds\n  · SELECT eligible products for this {entity} within GM guardrails\n  · APPLY temporary price or pack adjustments to this {entity}'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

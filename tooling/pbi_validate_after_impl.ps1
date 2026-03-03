@@ -36,6 +36,12 @@ $fabricChecksScript = Join-Path $RepoRoot "products\fabric\powerbi\tooling\run_f
 $errors = [System.Collections.ArrayList]::new()
 $sources = [System.Collections.ArrayList]::new()
 
+# 0a) Normalize TMDL tabs (all .tmdl under dist) before ensure and patch
+$normalizeTabsScript = Join-Path $RepoRoot "products\fabric\powerbi\tooling\normalize_tmdl_tabs.ps1"
+if (Test-Path $normalizeTabsScript) {
+  try { & $normalizeTabsScript -DistRoot "products/fabric/powerbi/dist" -RepoRoot $RepoRoot 2>&1 | Out-Null } catch {}
+}
+
 # 0) PBIP Desktop-tauglich + TMDL render & fix
 $ensureScript = Join-Path $RepoRoot "products\fabric\powerbi\tooling\ensure_pbip_desktop_ready.ps1"
 if (Test-Path $ensureScript) {
@@ -44,6 +50,21 @@ if (Test-Path $ensureScript) {
 $tmdlRenderScript = Join-Path $RepoRoot "products\fabric\powerbi\tooling\tmdl_render_and_fix.ps1"
 if (Test-Path $tmdlRenderScript) {
   try { & $tmdlRenderScript -DistRoot "products/fabric/powerbi/dist" -RepoRoot $RepoRoot -UpdateKnowledgeBase $true 2>&1 | Out-Null } catch {}
+}
+
+# 0b) Auto-fix best practices: summarizeBy: none + diagram layout (Spaghetti) for each semantic model in dist
+$distPath = Join-Path $RepoRoot "products\fabric\powerbi\dist"
+$orchestratorRoot = Join-Path $RepoRoot "products\fabric\powerbi\orchestrator"
+$tableOpsScript = Join-Path $orchestratorRoot "table_ops.ps1"
+$writeDiagramScript = Join-Path $orchestratorRoot "write_diagram_layout.ps1"
+if (Test-Path $distPath) {
+  Get-ChildItem -Path $distPath -Directory -Filter "*.SemanticModel" -ErrorAction SilentlyContinue | ForEach-Object {
+    $defPath = Join-Path $_.FullName "definition"
+    if (Test-Path $defPath) {
+      if (Test-Path $tableOpsScript) { try { & $tableOpsScript -Operation "PatchAddSummarizeByNone" -DefinitionPath $defPath 2>&1 | Out-Null } catch {} }
+      if (Test-Path $writeDiagramScript) { try { & $writeDiagramScript -DefinitionPath $defPath 2>&1 | Out-Null } catch {} }
+    }
+  }
 }
 
 # 1) Fabric-Checks ausführen
