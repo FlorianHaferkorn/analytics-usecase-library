@@ -1,0 +1,41 @@
+/// Customer complaint and experience events (customer, org, date, severity).
+table fact_experience
+	 lineageTag: be76f98f-415b-47cf-96d8-7ba91040756a
+
+	 column 'Complaint ID'
+		 dataType: String
+		 sourceColumn: Complaint ID
+		 summarizeBy: none
+		 isHidden
+
+	 column CustomerKey
+		 dataType: Int64
+		 sourceColumn: CustomerKey
+		 summarizeBy: none
+
+	 column OrgKey
+		 dataType: Int64
+		 sourceColumn: OrgKey
+		 summarizeBy: none
+
+	 column DateKey
+		 dataType: Int64
+		 sourceColumn: DateKey
+		 summarizeBy: none
+
+	 column Severity
+		 dataType: String
+		 sourceColumn: Severity
+		 summarizeBy: none
+
+	 partition fact_experience = m
+		 mode: import
+		 source =
+			let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_experience"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+					in
+					ParquetData
+

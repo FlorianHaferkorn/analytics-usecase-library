@@ -103,6 +103,7 @@ class PageBuilder:
         theme_name: Optional[str] = None,
         width: Optional[int] = None,
         height: Optional[int] = None,
+        is_drillthrough_target: bool = False,
     ) -> Dict[str, Any]:
         """
         Build page.json structure.
@@ -113,6 +114,7 @@ class PageBuilder:
             theme_name: Optional theme name
             width: Optional canvas width (default from layout_calculator)
             height: Optional canvas height (default from layout_calculator)
+            is_drillthrough_target: If True, page is also a Drillthrough target (type, visibility, pageBinding).
         
         Returns:
             Page JSON structure
@@ -127,6 +129,15 @@ class PageBuilder:
             "height": h,
             "width": w,
         }
+        if is_drillthrough_target:
+            page["type"] = "Drillthrough"
+            page["visibility"] = "AlwaysVisible"
+            page["pageBinding"] = {
+                "name": "Detail_Drillthrough",
+                "type": "Drillthrough",
+                "referenceScope": "Default",
+                "acceptsFilterContext": "Default",
+            }
         return page
     
     def build_page_structure(

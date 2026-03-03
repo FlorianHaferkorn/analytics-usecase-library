@@ -5,9 +5,10 @@ Builds desired state from Bracket/Templates, computes diff against existing PBIP
 and applies only add/remove/update_position actions. Used when report already exists.
 """
 
+import json
+import shutil
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-import shutil
 
 from .pbip_reader import read_pbip
 from .pbip_writer import PBIPWriter
@@ -166,6 +167,39 @@ def apply_actions(
             )
 
 
+def _ensure_drillthrough_metadata_on_detail_pages(
+    definition_pages_path: Path,
+    desired_pages: List[Dict[str, Any]],
+) -> None:
+    """
+    For each desired page that is a Detail page, merge drillthrough metadata (type, visibility, pageBinding)
+    into existing page.json so that existing reports get the Drillthrough config on next sync.
+    """
+    for desired in desired_pages:
+        page_id = desired.get("page_id") or ""
+        if "Detail" not in page_id:
+            continue
+        metadata = desired.get("metadata") or {}
+        if "type" not in metadata or metadata.get("type") != "Drillthrough":
+            continue
+        page_json_path = definition_pages_path / page_id / "page.json"
+        if not page_json_path.is_file():
+            continue
+        try:
+            with open(page_json_path, "r", encoding="utf-8") as f:
+                page_data = json.load(f)
+        except Exception:
+            continue
+        for key in ("type", "visibility", "pageBinding"):
+            if key in metadata:
+                page_data[key] = metadata[key]
+        try:
+            with open(page_json_path, "w", encoding="utf-8") as f:
+                json.dump(page_data, f, indent=2, ensure_ascii=False)
+        except Exception:
+            pass
+
+
 def sync_report(
     use_case_id: str,
     output_path: Path,
@@ -181,10 +215,10 @@ def sync_report(
         return False
     desired_pages = build_desired_state(use_case_id, repo_root)
     actions = compute_diff(current, desired_pages)
-    if not actions:
-        return True
     definition_pages_path = current.get("pages_path")
     if not definition_pages_path or not Path(definition_pages_path).exists():
         return False
-    apply_actions(output_path, actions, Path(definition_pages_path))
+    if actions:
+        apply_actions(output_path, actions, Path(definition_pages_path))
+    _ensure_drillthrough_metadata_on_detail_pages(Path(definition_pages_path), desired_pages)
     return True

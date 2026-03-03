@@ -62,6 +62,46 @@ function Has-NonEmptyList {
   return $false
 }
 
+# Extract technical.depends_on_measures (or top-level) list from a KPI YAML chunk. SSOT: no duplicates allowed in list.
+function Get-DependsOnMeasuresFromChunk {
+  param([string]$Chunk)
+  $key = 'depends_on_measures'
+  $list = @()
+  # Top-level
+  if ($Chunk -match "(?m)^\s*$key\s*:\s*\[\s*\]") { return @() }
+  $m = [regex]::Match($Chunk, "(?m)^\s*$key\s*:\s*\[(?<inner>[^\]]*)\]")
+  if ($m.Success) {
+    foreach ($mm in [regex]::Matches($m.Groups['inner'].Value, '([a-z][a-z0-9_.]+)')) { $list += $mm.Groups[1].Value }
+    return $list
+  }
+  # Block list after key
+  $block = [regex]::Match($Chunk, "(?m)^\s*$key\s*:\s*(?:\r?\n)(?<body>(?:\s{2,}-\s*[^\r\n]+\r?\n?)+)")
+  if ($block.Success) {
+    foreach ($line in ($block.Groups['body'].Value -split "\r?\n")) {
+      if ($line -match '^\s{2,}-\s*([a-z][a-z0-9_.]+)') { $list += $Matches[1] }
+    }
+    return $list
+  }
+  # Under technical:
+  $tech = [regex]::Match($Chunk, "(?ms)^\s*technical\s*:\s*\r?\n(.*?)(?=^\s*\w|\z)")
+  if ($tech.Success) {
+    $sub = $tech.Groups[1].Value
+    if ($sub -match "(?m)^\s*$key\s*:\s*\[\s*\]") { return @() }
+    $mi = [regex]::Match($sub, "(?m)^\s*$key\s*:\s*\[(?<inner>[^\]]*)\]")
+    if ($mi.Success) {
+      foreach ($mm in [regex]::Matches($mi.Groups['inner'].Value, '([a-z][a-z0-9_.]+)')) { $list += $mm.Groups[1].Value }
+      return $list
+    }
+    $blk = [regex]::Match($sub, "(?m)^\s*$key\s*:\s*(?:\r?\n)(?<body>(?:\s{2,}-\s*[^\r\n]+\r?\n?)+)")
+    if ($blk.Success) {
+      foreach ($line in ($blk.Groups['body'].Value -split "\r?\n")) {
+        if ($line -match '^\s{2,}-\s*([a-z][a-z0-9_.]+)') { $list += $Matches[1] }
+      }
+    }
+  }
+  return $list
+}
+
 $errors = @(); $warnings = @(); $seenIds = @{}
 
 # Path to Use Case FactSheets (for required KPI IDs)
@@ -149,7 +189,11 @@ if ($UseCasesRoot -and (Test-Path $UseCasesRoot)) {
 
 # Build index of all IDs for cross-check
 $allIds = New-Object System.Collections.Generic.HashSet[string]
-Get-ChildItem -Path $resolvedCatalogRoot -Filter '*.md' | Where-Object { $_.Name -ne 'SCHEMA.md' } | ForEach-Object { $r = Get-Content -Raw -Path $_.FullName; foreach($m in [regex]::Matches($r,'kpi_id\s*:\s*"([^"]+)"')){ [void]$allIds.Add($m.Groups[1].Value) } }
+Get-ChildItem -Path $resolvedCatalogRoot -Filter '*.md' | Where-Object { $_.Name -ne 'SCHEMA.md' } | ForEach-Object {
+  $r = Get-Content -Raw -Path $_.FullName
+  foreach ($m in [regex]::Matches($r, 'kpi_id\s*:\s*"([^"]+)"')) { [void]$allIds.Add($m.Groups[1].Value) }
+  foreach ($m in [regex]::Matches($r, 'kpi_id\s*:\s*([a-z][a-z0-9_.]+)\s*[\r\n#]')) { [void]$allIds.Add($m.Groups[1].Value) }
+}
 
 Get-KpiBlocks -Root $resolvedCatalogRoot | ForEach-Object {
   $file = $_.File; $b = $_.Block
@@ -210,6 +254,17 @@ Get-KpiBlocks -Root $resolvedCatalogRoot | ForEach-Object {
             if(-not $allIds.Contains($depId)){ $errors += "depends_on_ids references unknown id '$depId' for $id ($file)" }
           }
         }
+      }
+    }
+
+    # technical.depends_on_measures: no duplicates (SSOT), and every referenced ID must exist in catalog
+    $depIds = Get-DependsOnMeasuresFromChunk -Chunk $chunk
+    if ($depIds.Count -gt 0) {
+      $seenDep = @{}
+      foreach ($depId in $depIds) {
+        if ($seenDep.ContainsKey($depId)) { $errors += "duplicate in depends_on_measures for $id : '$depId' ($file)" }
+        else { $seenDep[$depId] = $true }
+        if (-not $allIds.Contains($depId)) { $errors += "depends_on_measures references unknown KPI '$depId' for $id ($file)" }
       }
     }
   }

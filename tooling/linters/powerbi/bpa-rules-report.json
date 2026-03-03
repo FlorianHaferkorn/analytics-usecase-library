@@ -276,8 +276,8 @@
     },
     {
       "id": "HIDE_TOOLTIP_DRILLTROUGH_PAGES",
-      "name": "Tooltip and Drillthrough pages should be hidden",
-      "description": "Reports a test fail if a page of type Tooltip or Drillthrough is visible. To disable this rule, mark it as disabled in the base rules file.",
+      "name": "Tooltip pages should be hidden",
+      "description": "Tooltip pages must be HiddenInViewMode. Drillthrough pages (e.g. 300s Detail) may be AlwaysVisible so they appear as a normal page and as a drillthrough target.",
       "disabled": false,
       "test": [
         {
@@ -294,10 +294,7 @@
                         {
                           "var": "pageBinding.type"
                         },
-                        [
-                          "Tooltip",
-                          "Drillthrough"
-                        ]
+                        ["Tooltip"]
                       ]
                     },
                     {

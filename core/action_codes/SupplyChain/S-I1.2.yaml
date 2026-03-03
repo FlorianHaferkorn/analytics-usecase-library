@@ -9,8 +9,9 @@ steward_role: supply_planning_inventory_management_bi_lead
 use_case_links:
   core_use_cases:
   - SCM-001
-  related_use_cases:
   - FIN-001
+  related_use_cases:
+  - SCM-003
 kpis:
   trigger_kpis:
   - inv.dio.days

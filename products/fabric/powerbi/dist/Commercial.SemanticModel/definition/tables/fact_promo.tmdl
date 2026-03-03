@@ -1,0 +1,45 @@
+/// Promotion costs and baseline (sales, quantity, non-promo baseline) per promotion.
+table fact_promo
+	 lineageTag: 2a850eac-8b22-4c34-9e8c-e4ead84dd857
+
+	 column PromoKey
+		 dataType: Int64
+		 sourceColumn: PromoKey
+		 summarizeBy: none
+
+	 column 'Promo Cost'
+		 dataType: Decimal
+		 sourceColumn: Promo Cost
+		 summarizeBy: none
+
+	 column 'Funding Amount'
+		 dataType: Decimal
+		 sourceColumn: Funding Amount
+		 summarizeBy: none
+
+	 column 'Baseline Sales Amount'
+		 dataType: Decimal
+		 sourceColumn: Baseline Sales Amount
+		 summarizeBy: none
+
+	 column 'Baseline Quantity'
+		 dataType: Decimal
+		 sourceColumn: Baseline Quantity
+		 summarizeBy: none
+
+	 column 'Baseline Non-Promo Sales Amount'
+		 dataType: Decimal
+		 sourceColumn: Baseline Non-Promo Sales Amount
+		 summarizeBy: none
+
+	 partition fact_promo = m
+		 mode: import
+		 source =
+			let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_promo"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+					in
+					ParquetData
+

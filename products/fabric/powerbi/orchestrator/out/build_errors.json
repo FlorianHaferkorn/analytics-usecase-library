@@ -2,21 +2,21 @@
     {
         "phase":  "Validate Fabric output",
         "path":  "products/fabric/powerbi/dist",
-        "timestamp":  "2026-03-01T08:45:56.6509244+01:00",
+        "timestamp":  "2026-03-02T12:46:34.7849375+01:00",
         "message":  "",
         "source":  "run_fabric_checks"
     },
     {
         "phase":  "Validate Fabric output",
         "path":  "products/fabric/powerbi/dist",
-        "timestamp":  "2026-03-01T08:45:59.4276513+01:00",
+        "timestamp":  "2026-03-02T12:46:37.6919401+01:00",
         "message":  "",
         "source":  "run_fabric_checks"
     },
     {
         "phase":  "Validate Fabric output",
         "path":  "products/fabric/powerbi/dist",
-        "timestamp":  "2026-03-01T08:46:02.0499793+01:00",
+        "timestamp":  "2026-03-02T12:46:40.4853281+01:00",
         "message":  "",
         "source":  "run_fabric_checks"
     }

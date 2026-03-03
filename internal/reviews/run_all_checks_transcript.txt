@@ -1,12 +1,12 @@
 ﻿**********************
 nStart der Windows PowerShell-Aufzeichnung
-Startzeit: 20260301084459
+Startzeit: 20260302124544
 Benutzername: NAGARRO\florianhaferkorn
 RunAs-Benutzer: NAGARRO\florianhaferkorn
 Konfigurationsname: 
 Computer: NES-NBBSTPQ04 (Microsoft Windows NT 10.0.26100.0)
-Hostanwendung: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File C:\Users\FLORIA~1\AppData\Local\Temp\ps-script-62f31b76-55a8-4496-9c1f-6b76dbdeac99.ps1
-Prozess-ID: 9420
+Hostanwendung: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File C:\Users\FLORIA~1\AppData\Local\Temp\ps-script-a39e6a18-5701-4dc0-bfe9-7f51defb8783.ps1
+Prozess-ID: 42388
 PSVersion: 5.1.26100.7705
 PSEdition: Desktop
 PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.7705
@@ -44,6 +44,8 @@ COM-002_Margin_Price_Performance   cost.cogs_per_unit.amount             True
 COM-002_Margin_Price_Performance   margin.gm.amount                      True
 COM-002_Margin_Price_Performance   margin.gm.pct                         True
 COM-002_Margin_Price_Performance   margin.gm.vs_plan.pct                 True
+COM-002_Margin_Price_Performance   sales.price.list.amount               True
+COM-002_Margin_Price_Performance   sales.price.net.amount                True
 COM-002_Margin_Price_Performance   sales.price.realization_pct           True
 COM-002_Margin_Price_Performance   sales.pvm.mix_effect.amount           True
 COM-003_Customer_Value             crm.active_customers.count            True
@@ -55,6 +57,8 @@ COM-003_Customer_Value             crm.nps.index                         True
 COM-003_Customer_Value             crm.retention.pct                     True
 COM-003_Customer_Value             crm.revenue_at_risk.amount            True
 COM-004_Promotion_Effectiveness    margin.promo.gm.pct                   True
+COM-004_Promotion_Effectiveness    sales.price.list.amount               True
+COM-004_Promotion_Effectiveness    sales.price.net.amount                True
 COM-004_Promotion_Effectiveness    sales.price.realization_pct           True
 COM-004_Promotion_Effectiveness    sales.promo.cannibalization.pct       True
 COM-004_Promotion_Effectiveness    sales.promo.incremental.amount        True
@@ -193,11 +197,15 @@ Note: This list checks core factsheets, core action codes, inventory mentions, a
 It does not consider KPI aliases or KPIs used only as intermediate inputs.
 Coverage counts (unique KPI IDs):
   Factsheets:           0
-  Inventory:            104
+  Inventory:            106
   Core Action Codes:    0
   Measure Dictionaries: 106
-  Total covered:        107
-OK: all KPI IDs are referenced in factsheets.
+  Total covered:        109
+KPI IDs not referenced in factsheets:
+  - sales.promo.baseline_sales.amount
+  - sales.promo.cannibalized_sales.amount
+  - sales.promo.cost.amount
+  - sales.promo.incremental_gm.amount
 
 >> tooling/validation/check_duplicate_ids.ps1 -Root C:\Users\florianhaferkorn\VSCode\analytics-usecase-library
 OK: no duplicate IDs detected.
@@ -314,12 +322,132 @@ Layout mismatches found:
   Extra: dax_expression
 - [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
   Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Missing: metadata_quality
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_governance] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: metadata_quality; completeness_score; last_review
+- [kpi_catalog_metadata_quality] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Missing: completeness_score; last_review
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
 - [kpi_catalog] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
   Missing: action_code_ref
 - [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
   Extra: dax_expression
 - [kpi_catalog] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
   Extra: causal_links
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
+- [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
+  Extra: dax_expression
 - [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
   Extra: dax_expression
 - [kpi_catalog_technical] C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog\KPI_Catalog.md
@@ -356,6 +484,12 @@ Duplicate kpi_id_ref in Measure Dictionaries:
   - sales.promo.roi.pct
 Missing in Measure Dictionaries (present in KPI catalogs):
   - cost.cogs.amount
+  - sales.price.list.amount
+  - sales.price.net.amount
+  - sales.promo.baseline_sales.amount
+  - sales.promo.cannibalized_sales.amount
+  - sales.promo.cost.amount
+  - sales.promo.incremental_gm.amount
 Missing in KPI catalogs (present in Measure Dictionaries):
   - crm.complaint.rate.pct
   - fin.liquidity.operating_cash_flow
@@ -372,12 +506,8 @@ OK: all referenced tables/columns exist in gold contracts.
 
 >> products/fabric/powerbi/tooling/validation/check_tmdl_vs_measure_dictionary.ps1 -MeasureDictRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\semantic_models\domains -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\products\fabric\powerbi\dist
 TMDL <-> Measure Dictionary consistency
-Missing in Measure Dictionaries (present in TMDL):
-  - Action_C-M2.1_Text
-  - Action_C-M2.2_Text
-  - Action_C-P4.1_Text
-  - Action_C-S1.1_Text
-  - Action_C-S1.2_Text
+Info: Dictionary measures not yet in any TMDL (expected when dist is a subset): 178 measures.
+OK: Every TMDL measure has a Measure Dictionary entry.
 
 >> products/fabric/powerbi/tooling/validation/check_dax_best_practices.ps1 -DistRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\products\fabric\powerbi\dist
 DAX best-practice info:
@@ -415,7 +545,9 @@ DAX best-practice info:
   [dax.isinscope.totals] Gross Margin % vs Plan in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Gross Margin Amount in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Incremental Sales Amount in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] List Price Amount in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Mix Effect Amount in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.isinscope.totals] Net Price Amount in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Net Sales % vs Plan in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] Net Sales Amount in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
   [dax.isinscope.totals] NPS Score in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
@@ -444,7 +576,9 @@ DAX best-practice info:
   [dax.timeintelligence.native] Gross Margin % vs Plan in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Gross Margin Amount in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Incremental Sales Amount in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] List Price Amount in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Mix Effect Amount in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
+  [dax.timeintelligence.native] Net Price Amount in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Net Sales % vs Plan in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] Net Sales Amount in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
   [dax.timeintelligence.native] NPS Score in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
@@ -466,7 +600,22 @@ DAX best-practice warnings:
   [dax.var_return.required] Volume Effect Amount in products\fabric\powerbi\dist\Commercial.SemanticModel\definition\tables\_Measures.tmdl
 DAX best-practice check passed.
 
+>> tooling/validation/check_dax_before_generation.ps1 -UseCaseId COM-001 -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog -UseCasesRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core
+PS>TerminatingError(check_dax_before_generation.ps1): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.."
+  Error while running tooling/validation/check_dax_before_generation.ps1:
+  Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.
+
 >> tooling/validation/check_dax_before_generation.ps1 -UseCaseId COM-002 -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog -UseCasesRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core
+PS>TerminatingError(check_dax_before_generation.ps1): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.."
+  Error while running tooling/validation/check_dax_before_generation.ps1:
+  Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.
+
+>> tooling/validation/check_dax_before_generation.ps1 -UseCaseId COM-003 -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog -UseCasesRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core
+PS>TerminatingError(check_dax_before_generation.ps1): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.."
+  Error while running tooling/validation/check_dax_before_generation.ps1:
+  Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.
+
+>> tooling/validation/check_dax_before_generation.ps1 -UseCaseId COM-004 -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog -UseCasesRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core
 PS>TerminatingError(check_dax_before_generation.ps1): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.."
   Error while running tooling/validation/check_dax_before_generation.ps1:
   Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.
@@ -486,20 +635,25 @@ PS>TerminatingError(validate_tmdl.ps1): "Der ausgeführte Befehl wurde beendet, 
   Error while running tooling/validation/validate_tmdl.ps1:
   Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.
 
+>> tooling/validation/check_usecase_to_tmdl.ps1 -TmdlPath C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\products\fabric\powerbi\dist -UseCaseId COM-001 -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog -UseCasesRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core
+PS>TerminatingError(check_usecase_to_tmdl.ps1): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.."
+  Error while running tooling/validation/check_usecase_to_tmdl.ps1:
+  Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.
+
 >> tooling/validation/check_usecase_to_tmdl.ps1 -TmdlPath C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\products\fabric\powerbi\dist -UseCaseId COM-002 -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog -UseCasesRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core
 PS>TerminatingError(check_usecase_to_tmdl.ps1): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.."
   Error while running tooling/validation/check_usecase_to_tmdl.ps1:
   Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.
 
->> tooling/validation/validate_report.ps1 -ReportPath
-PS>TerminatingError(validate_report.ps1): "Das Argument kann nicht an den Parameter "ReportPath" gebunden werden, da es sich um eine leere Zeichenfolge handelt."
-  Error while running tooling/validation/validate_report.ps1:
-  Das Argument kann nicht an den Parameter "ReportPath" gebunden werden, da es sich um eine leere Zeichenfolge handelt.
+>> tooling/validation/check_usecase_to_tmdl.ps1 -TmdlPath C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\products\fabric\powerbi\dist -UseCaseId COM-003 -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog -UseCasesRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core
+PS>TerminatingError(check_usecase_to_tmdl.ps1): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.."
+  Error while running tooling/validation/check_usecase_to_tmdl.ps1:
+  Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.
 
->> tooling/validation/validate_report.ps1 -ReportPath
-PS>TerminatingError(validate_report.ps1): "Das Argument kann nicht an den Parameter "ReportPath" gebunden werden, da es sich um eine leere Zeichenfolge handelt."
-  Error while running tooling/validation/validate_report.ps1:
-  Das Argument kann nicht an den Parameter "ReportPath" gebunden werden, da es sich um eine leere Zeichenfolge handelt.
+>> tooling/validation/check_usecase_to_tmdl.ps1 -TmdlPath C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\products\fabric\powerbi\dist -UseCaseId COM-004 -KpiCatalogRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\kpi_catalog -UseCasesRoot C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\core\usecases\core
+PS>TerminatingError(check_usecase_to_tmdl.ps1): "Der ausgeführte Befehl wurde beendet, da die Einstellungsvariable "ErrorActionPreference" oder ein allgemeiner Parameter auf "Stop" festgelegt ist: Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.."
+  Error while running tooling/validation/check_usecase_to_tmdl.ps1:
+  Das Eingabeobjekt kann an keine Parameter des Befehls gebunden werden, da der Befehl keine Pipelineeingaben akzeptiert oder die Eingabe und deren Eigenschaften mit keinem der Parameter übereinstimmen, die Pipelineeingaben akzeptieren.
 
 >> tooling/validation/check_mojibake.ps1 -Root C:\Users\florianhaferkorn\VSCode\analytics-usecase-library
 Mojibake scan
@@ -605,7 +759,7 @@ Potential mojibake found:
   - .github\workflows\pr_review_summary.yml:80: echo "- [Stage 1](https://github.com/${REPO}/blob/main/.github/workflows/stage1.yml) and [Closes #N](https://github.com/${REPO}/blob/main/.github/workflows/pr_review_summary.yml) â€” see [Checks](${CHECKS_URL}) for status."
   - .github\workflows\pr_review_summary.yml:81: echo "- **Manual before merge:** Run the Reviewer Agent (Cursor session with \`.cursor/rules/reviewer-agent.mdc\`, say \"Review PR #${PR_NUMBER}\"). See [PM_FLOW.md](https://github.com/${REPO}/blob/main/internal/project_mgmt/PM_FLOW.md) Â§2.3."
   - core\action_codes\Action_Code_Patterns.md:9: **Canonical mapping:** Use Case â†’ Action Code subscriptions are declared in each use case's `UseCase_Bracket.yaml` (`orchestration.action_code_ids`). This document is descriptive.
-  - core\action_codes\Action_Code_Patterns.md:18: | **Control / Containment** | Enforce or correct a single lever: price, receivables, availability, defect, etc. | KPI breach (level L1â€“L3) | Price Realization Guardrails (C-M2.1), Receivables Control (F-C1.2), Payables Control (F-C1.3), Inventory Level Control (S-I1.2), Availability Control (O-O1.1), Speed Loss Control (O-O1.2), Defect Control (O-Q3.2), Failure Control (O-A2.2), Delivery Execution Control (S-R2.2), Service Execution Control (X-S1.2) |
+  - core\action_codes\Action_Code_Patterns.md:18: | **Control / Containment** | Enforce or correct a single lever: price, receivables, availability, defect, etc. | KPI breach (level L1â€“L3) | Price Realization Guardrails (C-M2.1), Receivables Control (F-C1.2), Payables Optimisation (F-C1.4), Inventory Rightsizing (S-I1.2), Availability Control (O-O1.1), Speed Loss Control (O-O1.2), Defect Control (O-Q3.2), Failure Control (O-A2.2), Delivery Execution Control (S-R2.2), Service Execution Control (X-S1.2) |
   - core\action_codes\Action_Code_Patterns.md:32: | Supply Chain | Governance, Control | Inventory Governance, Level/Service Availability/Aging/Planning; OTIF Governance, Delivery/Completeness/Service Cost/Planâ€“Execute; Forecast Governance, Error Control/Containment, Planning Governance |
   - core\action_codes\Action_Code_Patterns.md:38: ## 4. Trigger Levels (L1â€“L3)
   - core\action_codes\Action_Code_Patterns.md:42: - **L1 â€” Early warning:** Monitor and prepare; no mandatory intervention.
@@ -628,10 +782,53 @@ Potential mojibake found:
   - core\action_codes\README.md:168: * `S-S2.3 â€” Supply Risk Containment`
   - core\action_codes\README.md:169: * `X-E3.2 â€” Cross-Domain Risk Prioritisation`
   - core\action_codes\README.md:194: > **Use Cases reference them to turn insight into action â€” never the other way around.**
+  - core\action_codes\Recommendation_to_Execution_Research.md:3: Kurze Zusammenfassung der Recherche zu der Frage: **Soll man Action Codes zuerst nur als informative Empfehlung umsetzen und die API-Anbindung (Execution in anderen Systemen) erst in einem zweiten Schritt ergÃ¤nzen â€“ oder von Anfang an beides?**
+  - core\action_codes\Recommendation_to_Execution_Research.md:9: Wenn Analytics- oder BI-Empfehlungen am Ende **Aktionen in anderen Systemen** auslÃ¶sen (API, Webhook, Workflow), ist das etablierte Muster **nicht** â€žEmpfehlung â†’ sofort API-Callâ€œ, sondern:
+  - core\action_codes\Recommendation_to_Execution_Research.md:11: 1. **Exception Detection** â€“ System erkennt, dass eine Entscheidung nÃ¶tig ist
+  - core\action_codes\Recommendation_to_Execution_Research.md:12: 2. **Handoff** â€“ Empfehlung wird mit vollem Kontext an Menschen Ã¼bergeben
+  - core\action_codes\Recommendation_to_Execution_Research.md:13: 3. **Intervention** â€“ Mensch prÃ¼ft, genehmigt oder korrigiert
+  - core\action_codes\Recommendation_to_Execution_Research.md:14: 4. **Resolution** â€“ System fÃ¼hrt die **genehmigte** Entscheidung aus (API/Execution)
+  - core\action_codes\Recommendation_to_Execution_Research.md:15: 5. **Feedback** â€“ Ergebnis und ggf. Overrides flieÃŸen zurÃ¼ck (Audit, Lernschleife)
+  - core\action_codes\Recommendation_to_Execution_Research.md:19: **Kern:** FÃ¼r folgenreiche Entscheidungen bleibt der Mensch verantwortlich; die Automation fÃ¼hrt aus, was freigegeben wurde. Direkter Sprung von â€žEmpfehlung anzeigenâ€œ zu â€žAPI ausfÃ¼hrenâ€œ ohne Freigabe wird in Enterprise- und Governance-Kontexten als riskant beschrieben.
+  - core\action_codes\Recommendation_to_Execution_Research.md:25: FÃ¼r den Weg von â€žpassivem BIâ€œ zu â€žactionableâ€œ Systemen mit Execution wird explizit ein **stufenweises Vorgehen** empfohlen:
+  - core\action_codes\Recommendation_to_Execution_Research.md:27: - **Stufe 1 â€“ Autonomously Alerting:** Proaktive Erkennung + Kontext + Empfehlung **ohne** Execution. Nutzer sehen, was empfohlen wird, und kÃ¶nnen manuell handeln.
+  - core\action_codes\Recommendation_to_Execution_Research.md:28: - **Stufe 2 â€“ Autonomously Decisioning:** System trifft VorschlÃ¤ge; **Human Review** wo nÃ¶tig; danach Execution.
+  - core\action_codes\Recommendation_to_Execution_Research.md:29: - **Stufe 3 â€“ Autonomously Actioning:** Vollautomatische Execution nur fÃ¼r klar definierte, low-risk FÃ¤lle unter Guardrails und Audit.
+  - core\action_codes\Recommendation_to_Execution_Research.md:33: **FÃ¼r Action Codes:**
+  - core\action_codes\Recommendation_to_Execution_Research.md:34: - **Phase 1:** Action Codes nur **informativ** (Panel, Zeilen-Spalte, Narrative) â€“ keine API-Anbindung. Zweck: Logik validieren, Vertrauen aufbauen, Akzeptanz prÃ¼fen.
+  - core\action_codes\Recommendation_to_Execution_Research.md:35: - **Phase 2:** Execution Layer (z.â€¯B. `execution_bridge` im YAML) hinzufÃ¼gen â€“ aber nur mit **expliziter Freigabe** (z.â€¯B. â€žEmpfehlung anzeigenâ€œ + Button â€žAktion ausfÃ¼hrenâ€œ â†’ dann Webhook/API). Human-in-the-Loop bleibt zentral.
+  - core\action_codes\Recommendation_to_Execution_Research.md:36: - **Phase 3 (optional):** FÃ¼r einzelne, gut abgegrenzte Action Codes und nur bei hoher Reife: automatische Execution mit Policy-as-Code und Audit (Approval Gates, Step-up Approvals).
+  - core\action_codes\Recommendation_to_Execution_Research.md:40: ## 3. Closed-Loop Analytics â€“ mit und ohne Mensch
+  - core\action_codes\Recommendation_to_Execution_Research.md:42: â€žClosed Loopâ€œ bedeutet oft: **Erkennen â†’ Entscheiden â†’ AusfÃ¼hren â†’ Messen**. Die Frage ist, wo der Mensch steht:
+  - core\action_codes\Recommendation_to_Execution_Research.md:44: - **Mit Mensch im Loop (empfohlen fÃ¼r Entscheidungen):**
+  - core\action_codes\Recommendation_to_Execution_Research.md:45: Erkennen â†’ Empfehlung anzeigen â†’ Mensch genehmigt/Ã¤ndert â†’ AusfÃ¼hren (API) â†’ Ergebnis messen.
+  - core\action_codes\Recommendation_to_Execution_Research.md:48: - **Ohne Mensch (nur fÃ¼r low-risk, hochautomatisierbare FÃ¤lle):**
+  - core\action_codes\Recommendation_to_Execution_Research.md:49: Erkennen â†’ automatische Entscheidung â†’ API-Aufruf.
+  - core\action_codes\Recommendation_to_Execution_Research.md:52: **Fazit:** FÃ¼r Action Codes, die echte Steuerungsentscheidungen abbilden (Preis, Rabatt, Bestellung, Eskalation), ist der **zweigeteilte Ansatz** konsistent mit der Literatur: erst informative Empfehlung, dann Execution mit Freigabe.
+  - core\action_codes\Recommendation_to_Execution_Research.md:58: Wenn BI/Analytics **externe Systeme per API** auslÃ¶st, wird empfohlen:
+  - core\action_codes\Recommendation_to_Execution_Research.md:60: - **Keine direkte Verbindung** â€žReport â†’ APIâ€œ, sondern **dazwischen** eine Governance-Schicht: Approval Gate, Event Trigger mit Freigabe, oder zentrale Pipeline (z.â€¯B. Orchestrator), die Aufrufe protokolliert und optional genehmigungspflichtig macht.
+  - core\action_codes\Recommendation_to_Execution_Research.md:61: - **Audit:** Wer hat welche Empfehlung wann genehmigt/abgelehnt, welche Payload wurde an welchen Endpoint gesendet (z.â€¯B. Claw EA, SailPoint).
+  - core\action_codes\Recommendation_to_Execution_Research.md:62: - **Approval vor Execution:** Besonders bei hohem Risiko â€“ explizite Approve/Deny-Entscheidung, festgehalten mit IdentitÃ¤t und Zeitstempel.
+  - core\action_codes\Recommendation_to_Execution_Research.md:66: **Implikation fÃ¼r Action Codes:** Das `execution_bridge` im YAML (Webhook/API) sollte so designed werden, dass es **nicht** â€žvon Power BI direkt ohne Freigabeâ€œ aufgerufen wird, sondern Ã¼ber einen Dienst/Gate, der Freigabe und Audit unterstÃ¼tzt. Phase 1 (nur Anzeige) umgeht diese Anforderung zunÃ¤chst vollstÃ¤ndig.
+  - core\action_codes\Recommendation_to_Execution_Research.md:74: - Nutzer akzeptieren Automation eher, wenn sie **verstehen**, was empfohlen wird und **Kontrolle** behalten (z.â€¯B. Empfehlung anzeigen, dann â€žExecuteâ€œ bestÃ¤tigen).
+  - core\action_codes\Recommendation_to_Execution_Research.md:75: - Ein â€žShow first, execute laterâ€œ-Muster erhÃ¶ht die Bereitschaft, das System spÃ¤ter auch autonom handeln zu lassen (â€žParadox of controlâ€œ â€“ wer stoppen kann, vertraut eher).
+  - core\action_codes\Recommendation_to_Execution_Research.md:76: - Empfehlungen zuerst nur anzuzeigen, reduziert Risiko und erlaubt Kalibrierung: Stimmen die Empfehlungen mit der Erwartung der Fachseite Ã¼berein, bevor Ã¼berhaupt Execution mÃ¶glich ist?
+  - core\action_codes\Recommendation_to_Execution_Research.md:82: ## 6. Empfehlung fÃ¼r das Framework
+  - core\action_codes\Recommendation_to_Execution_Research.md:87: - Action Codes erscheinen **nur** als Information: im Action Panel, als Zeilen-Spalte in der Detail-Matrix, ggf. Smart Narrative fÃ¼r Kontext.
+  - core\action_codes\Recommendation_to_Execution_Research.md:91: 2. **Zweite Stufe (Execution Ã¼ber API mit Freigabe)**
+  - core\action_codes\Recommendation_to_Execution_Research.md:92: - `execution_bridge` (Webhook/API) wird genutzt â€“ aber **nur** nach expliziter Nutzeraktion (z.â€¯B. â€žAktion ausfÃ¼hrenâ€œ pro Zeile oder pro Empfehlung).
+  - core\action_codes\Recommendation_to_Execution_Research.md:93: - Idealerweise Ã¼ber eine **zentrale Komponente** (z.â€¯B. Backend/Orchestrator), die:
+  - core\action_codes\Recommendation_to_Execution_Research.md:95: - optional Approval-Gates unterstÃ¼tzt,
+  - core\action_codes\Recommendation_to_Execution_Research.md:97: - Power BI/Report bleibt dann â€žEmpfehlung anzeigen + Freigabe-Signalâ€œ, die eigentliche API-Execution liegt auÃŸerhalb.
+  - core\action_codes\Recommendation_to_Execution_Research.md:100: - FÃ¼r wenige, klar definierte und low-risk Action Codes: automatische Execution unter Guardrails (z.â€¯B. nur bei hoher Konfidenz, nur bestimmte Aktionstypen), weiterhin mit Audit und Rollback-Optionen.
+  - core\action_codes\Recommendation_to_Execution_Research.md:102: Diese Reihenfolge entspricht dem in der Recherche gefundenen Muster: **erst Empfehlung sichtbar und vertrauenswÃ¼rdig machen, dann Execution mit Human-in-the-Loop einfÃ¼hren, danach optional selektiv automatisieren.**
+  - core\action_codes\Recommendation_to_Execution_Research.md:111: - OpsVeda: Agentic AI You Can Trust â€“ Guardrails, Human-in-the-Loop, Staged Autonomy
+  - core\action_codes\Recommendation_to_Execution_Research.md:114: - Mastra: Human-in-the-Loop â€“ Where to Put Approval
   - core\data_contracts\README.md:9: - Domain contracts (commercial_sales, operations, supply_chain, finance, experience, executive) â€” **Silver**
   - core\data_contracts\README.md:10: - Source contracts (including synthetic backbone) â€” map to Silver
   - core\data_contracts\domains\README.md:69: - Understand what â€œgoodâ€ analytical data looks like per domain
   - core\data_contracts\domains\README.md:70: - Support IT â†” BI alignment through clear contracts
+  - core\data_contracts\domains\README.md:77: - **Semantic model alignment:** The semantic model (e.g. Fabric TMDL tables) is built from these contracts. KPI catalog entries reference contract tables/columns via `technical.lineage`. When a use case requires a KPI, the contract must define the tables and columns that KPIâ€™s lineage references (e.g. `fact_sales` with `List Price Amount`, `Net Price Amount` for Price Realization %).
   - core\data_contracts\sources\README.md:7: This folder helps illustrate how real data maps into the ActionReady domain contracts â€” without exposing sensitive customer data.
   - core\data_contracts\sources\README.md:13: - Metadata describing source â†” contract mappings
   - core\data_contracts\sources\synthetic\README.md:1: # Use Case Dictionary â€“ Aurora Group (Synthetic Backbone)
@@ -659,6 +856,9 @@ Potential mojibake found:
   - core\implementation_guides\README.md:7: - **From strategy to first report:** [playbook_strategy_to_first_report.md](playbook_strategy_to_first_report.md) â€” Step-by-step: choose strategy pattern, select use-case pack, align **Silver** data, build semantic model (from Silver), build first report, validate. Use this before or alongside platform-specific guides.
   - core\kpi_catalog\KPI_Taxonomy.md:7: **Structure:** Domain â†’ Topic (prefix) â†’ KPI id and short purpose. **Used in** refers to core use case IDs.
   - core\kpi_catalog\README.md:23: - KPI â†’ Domain â†’ Use Case â†’ Action Code mapping (action code subscriptions per use case in `UseCase_Bracket.yaml` `orchestration.action_code_ids`)
+  - core\kpi_catalog\README.md:66: - **Supporting KPIs** (e.g. `sales.price.list.amount`, `sales.price.net.amount`) are defined in the catalog with `kpi_role: supporting`. They are referenced in `depends_on_measures` by strategic/diagnostic KPIs (e.g. `sales.price.realization_pct`) and must be listed in the use caseâ€™s `orchestration.influencing_kpi_ids` so the measure generator emits them.
+  - core\kpi_catalog\README.md:67: - **Data requirement:** Each KPIâ€™s `technical.lineage` lists the fact/dimension columns required for its measure (e.g. `fact_sales.List Price Amount`). The **semantic model** must provide these tables and columns; they are defined by the **domain data contracts** (`core/data_contracts/domains/`). The pipeline that builds the semantic model from the contract (e.g. Fabric table_ops) ensures the model satisfies this data need. When adding or changing KPIs, ensure the corresponding domain contract includes the required columns.
+  - core\kpi_catalog\README.md:68: - **Measure dependencies:** If a KPIâ€™s DAX formula references another measure by name (e.g. `[Net Sales Amount]`, `[Cost of Goods Sold Amount]`), set `technical.depends_on_measures` to the list of **KPI IDs** whose `dax_name` matches those measure names. The TMDL measure generator (IR-first) resolves this closure and emits measures in dependency order so that referenced measures exist before dependents. This avoids â€œmeasure not foundâ€ errors when adding use cases or building shared semantic models.
   - core\organization\README.md:26: **Customer use:** To use a customer-specific org_roles list, create `showcases/<customer_name>/organization/org_roles.yaml` and set `ANALYTICS_SHOWCASE=<customer_name>` (e.g. in CI or locally). If the variable is not set and no showcase path exists, tooling uses `core/organization/org_roles.yaml` onlyâ€”so the framework can be used with just core content.
   - core\semantic_models\README.md:27: - Domain-level semantic cores (â€œGolden Semantic Modelsâ€)
   - core\semantic_models\README.md:46: > Use cases consume semantic cores â€” they do not redefine them.
@@ -832,9 +1032,10 @@ Potential mojibake found:
   - core\templates\page_templates\Page_Spec_3_30_300.md:29: ## Seite 300 (Detail â€“ "The Action Matrix")
   - core\templates\page_templates\Page_Spec_3_30_300.md:34: | **Smart_Narrative** | Textbox / Smart Narrative | Ein Satz Zusammenfassung zum aktuellen Filterzustand (â€žWas gilt hier?â€œ). |
   - core\templates\page_templates\Page_Spec_3_30_300.md:35: | **Detail_Matrix**   | Tabelle/Matrix (tableEx) | Operative Liste â€“ Einheiten, Kennzahlen, Deltas; Basis fÃ¼r â€žwo eingreifen?â€œ; optional Data Bars fÃ¼r Delta-Spalten. |
-  - core\templates\page_templates\Page_Spec_3_30_300.md:46: | **Slicer_Pane** | Slicer   | Vertikale Slicer-Leiste fÃ¼r schnellen Kontextwechsel. |
-  - core\templates\page_templates\Page_Spec_3_30_300.md:47: | **Focus_Area**  | Ein dominantes Analyse-Visual | 30s: Fokus auf â€žWarum?â€œ â€“ z. B. Treiber-Hierarchie, Decomposition. |
-  - core\templates\page_templates\Page_Spec_3_30_300.md:51: Wenn KPIs auch im Investigator-Layout gezeigt werden sollen, kann ein Slot **KPI_Cards** ergÃ¤nzt werden (gleiche Semantik wie bei Pulse).
+  - core\templates\page_templates\Page_Spec_3_30_300.md:40: **Drillthrough:** Die Detail-Seite ist im PBIP als **Drillthrough-Ziel** konfiguriert (`type: "Drillthrough"`, `visibility: "AlwaysVisible"`, `pageBinding`). Sie erscheint damit sowohl als eigene Seite in der Seitenliste als auch als Ziel fÃ¼r â€žRechtsklick â†’ Drill throughâ€œ von Visuals der Overview-Seite; der Filterkontext wird dabei Ã¼bergeben.
+  - core\templates\page_templates\Page_Spec_3_30_300.md:48: | **Slicer_Pane** | Slicer   | Vertikale Slicer-Leiste fÃ¼r schnellen Kontextwechsel. |
+  - core\templates\page_templates\Page_Spec_3_30_300.md:49: | **Focus_Area**  | Ein dominantes Analyse-Visual | 30s: Fokus auf â€žWarum?â€œ â€“ z. B. Treiber-Hierarchie, Decomposition. |
+  - core\templates\page_templates\Page_Spec_3_30_300.md:53: Wenn KPIs auch im Investigator-Layout gezeigt werden sollen, kann ein Slot **KPI_Cards** ergÃ¤nzt werden (gleiche Semantik wie bei Pulse).
   - core\templates\page_templates\README.md:24: to support the **3â€“30â€“300 rule**:
   - core\templates\page_templates\README.md:26: - **3 seconds** â†’ headline KPIs
   - core\templates\page_templates\README.md:27: - **30 seconds** â†’ patterns, deviations, rankings
@@ -1495,6 +1696,36 @@ Potential mojibake found:
   - internal\project_mgmt\BACKLOG_MIGRATION.md:14: - **Phase 2** â€” 3-30-300 complete, Strategy Pattern / AI urgency (from phase2_backlog).
   - internal\project_mgmt\BACKLOG_MIGRATION.md:15: - **Technical backlog** â€” MCP, Fabric, synthetic data, scaffold, Aurora models (from technical_backlog).
   - internal\project_mgmt\BRANCH_PROTECTION.md:3: **Purpose:** Recommended repository settings so that PRs to the default branch require review and passing CI. Apply these in **Settings â†’ Branches â†’ Branch protection rules** (or your orgâ€™s equivalent).
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:3: Dieses Dokument ordnet den **Best-Practice-Ansatz** fÃ¼r Data Governance (strategische Verankerung, Rollen, VertrÃ¤ge, Glossar, Data Dictionary, KPI-Katalog) der **konkreten Umsetzung** in diesem Cursor-Projekt (Analytics Use Case Library) zu. Es definiert, **welche Bestandteile** die jeweiligen Artefakte **zwingend** haben mÃ¼ssen.
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:13: | **Datenkatalog / KPI-Katalog** (Inventar, Auffindbarkeit, Lineage) | **KPI Catalog** als zentrales KPI-Inventar; **Data Contracts** als Inventar der DatensÃ¤tze; **Registry** (`master_registry.json`, `value_map.json`) fÃ¼r VerknÃ¼pfungen und Trust | `core/kpi_catalog/`, `core/data_contracts/`, `tooling/ontology/out/` |
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:15: **Hinweis:** In diesem Projekt sind **KPI-Katalog** und **Data Contracts** die zentralen SSOT-Artefakte. Das **Measure Dictionary** pro Domain (`core/semantic_models/domains/*/Measure_Dictionary_*.md`) ist die dokumentierte Schnittstelle zwischen KPI-Katalog und technischer Umsetzung (TMDL/DAX) und gehÃ¶rt inhaltlich zwischen Business Glossary (fachliche Bedeutung) und Data Dictionary (Formel, AbhÃ¤ngigkeiten).
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:21: Die folgenden Bestandteile werden als **obligatorisch** betrachtet, damit Data Governance operativ handlungsfÃ¤hig ist.
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:25: - **Ziele und GeschÃ¤ftstreiber** (Compliance, Prozessharmonisierung, BI, Kundennutzen).
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:27: - **Definition von DatenqualitÃ¤t** und zu messende Dimensionen (z. B. Genauigkeit, VollstÃ¤ndigkeit, AktualitÃ¤t).
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:34: - KÃ¼rzel: R (Responsible), A (Accountable), C (Consulted), I (Informed).
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:36: **Projekt:** `core/strategy_operating_model/operating_model/ownership_raci_golden_thread.md`. Rollen sind **rollenbasiert** (`owner_role`, `steward_role`) in KPI Catalog, Action Codes, Brackets; keine Personennamen (siehe data_governance.md Â§7.4).
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:38: ### 2.3 Data Contracts (DatenvertrÃ¤ge)
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:40: - **Semantik:** GeschÃ¤ftliche Bedeutung und beabsichtigte Nutzung.
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:42: - **Validierungsregeln / DatenqualitÃ¤t:** Wertebereiche, Formate, referenzielle IntegritÃ¤t (ref).
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:43: - **SLAs:** (im Projekt optional) VerfÃ¼gbarkeit, AktualitÃ¤t; aktuell Ã¼ber Grain und Lineage abgebildet.
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:44: - **Governance & Ownership:** Ansprechpartner und Ã„nderungsmanagement.
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:50: - **Informationslandkarte:** Definitionen von GeschÃ¤ftsbegriffen, EntitÃ¤ten, Attributen in nicht-technischer Sprache.
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:52: - **GeschÃ¤fts- und Kontrollregeln:** Vorgaben zur Nutzung und wer Begriffe Ã¤ndern darf.
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:53: - **Klassifizierung:** SensibilitÃ¤t, Nutzung.
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:57: ### 2.5 Data Dictionary (Technisches DatenwÃ¶rterbuch)
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:60: - **Datentypen und FeldgrÃ¶ÃŸen.**
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:64: **Projekt:** `core/data_contracts/domains/*.yaml` (columns: name, type, ref, agg, nullable). Technische KPI-Seite: `technical:` in KPI_Catalog.md (dax_expression, lineage, formatString, depends_on_measures). TMDL-Tabellen in dist sind generiert; AutoritÃ¤t liegt bei Data Contracts und KPI Catalog.
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:68: - **Identifikation & Zweck:** KPI-ID, Name, geschÃ¤ftliche Bedeutung.
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:71: - **Datenquelle & Frequenz:** lineage; Frequenz Ã¼ber grain_scope/Reporting-Kontext.
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:74: **Projekt:** `core/kpi_catalog/KPI_Catalog.md`. Jeder Eintrag enthÃ¤lt: kpi_id, kpi_key, business (purpose, definition, grain_scope, unit_format, interpretation), technical (dax_expression, lineage, formatString, depends_on_measures), governance (business_owner, data_owner, steward, review_cycle, qa_rules). Schema: `core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md` bzw. `tooling/ai/schemas`.
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:78: ## 3. Kurz: Was das Projekt â€žimmer habenâ€œ muss
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:82: - **Data Contracts:** Pflicht fÃ¼r alle Domains mit Semantic Model; zwingend: domain, dimension/fact, name, grain, columns (name, type, ref wo nÃ¶tig).
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:91: Zur Vermeidung von MissverstÃ¤ndnissen die hier verwendete Terminologie:
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:94: - **Owner (Accountable)** = `business_owner` / `owner_role`; **Steward (Responsible fÃ¼r QualitÃ¤t/Umsetzung)** = `data_owner` / `steward_role`. Beide Rollen pro Artefakt erforderlich, nicht identisch (data_governance.md Â§7.4).
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:95: - **KPI** = im Projekt eindeutig Ã¼ber `kpi_id` (z. B. sales.net_sales.amount); Definition nur im KPI Catalog, Use Cases und Action Codes referenzieren nur.
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:96: - **Data Contract** = Domain- oder Source-Level-Vertrag unter `core/data_contracts/` (YAML); definiert Schema und Grain fÃ¼r Silver-Layer.
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:97: - **Single Source of Truth (SSOT):** Pro Konzept genau ein autoritativer Ort (vgl. data_governance.md Â§7.2); abgeleitete Artefakte (z. B. Registry, generierte Measures) werden nicht hand-editiert.
+  - internal\project_mgmt\DATA_GOVERNANCE_ARTEFACTS_AND_BEST_PRACTICE.md:99: Ein unternehmensweites **Business Glossary** im engeren Sinne (eigenes Dokument nur fÃ¼r Begriffe/Synonyme) existiert nicht als separates Deliverable; seine Funktion Ã¼bernehmen KPI Catalog und Factsheets. Bei EinfÃ¼hrung eines expliziten Glossars sollte es mit kpi_id und Bracket-Referenzen verknÃ¼pft werden, um Doppeldefinitionen zu vermeiden.
   - internal\project_mgmt\IDEAS_AND_REQUIREMENTS.md:5: **Process:** Add items below with suggested Title, Area, Milestone, Priority. When promoted to an Issue, add a line like `â†’ #123` so it's clear the item is tracked.
   - internal\project_mgmt\IDEAS_AND_REQUIREMENTS.md:13: | 2026-02-22 | Agent setup: Reviewer-Rule, explicit Expert in Briefing, optional Router â†’ #53 | Tooling | Technical backlog | P2 | (1) Reviewer-Rule (reviewer-agent.mdc): Rolle, PrÃ¼fliste, Ausgabeformat; PM_FLOW/ASSISTANT_BRIEFING Handoff â€žnach PR: Session mit Reviewer-Rule, Review PR #Nâ€œ. (2) Briefing: recommended expert immer mit Rule-Datei (z. B. .cursor/rules/fabric-expert.mdc). (3) Router-Rule optional: Input Issue â†’ Expert + Skills (router-agent.mdc). Reihenfolge: Reviewer zuerst, dann Briefing, Router bei Bedarf. |
   - internal\project_mgmt\IDEAS_AND_REQUIREMENTS.md:14: | 2026-02-22 | Evidence report authoring: templates + non-technical user variant â†’ #55 | Tooling / Aurora | Phase 2 | P1 | Zwei Perspektiven: (1) Templates, Ã¼ber die Reports erstellt werden; (2) Feintuning dieser Templates fÃ¼r konkrete Reports. Evidence als Basis-Stack. Anforderung: Variante fÃ¼r Nutzer ohne technische Kenntnisse (kein Markdown/SQL). |
@@ -2131,7 +2362,7 @@ Potential mojibake found:
   - products\fabric\powerbi\orchestrator\README.md:66: **Note:** The pipeline does not â€œappendâ€ to an existing _Measures.tmdl; it regenerates from the current scope. To add a use case, include it in scope (by adding it to the repo and using `-Domain` or `-All`).
   - products\fabric\powerbi\orchestrator\README.md:75: - Fabric Workspace / Import Model / Import Report are still **stubs** (see [internal/technical_backlog.md](../../../../internal/technical_backlog.md) Â§ Power BI MCP). Configure `FABRIC_WORKSPACE_ID` or `FABRIC_WORKSPACE_NAME` and implement API calls (e.g. FabricPS-PBIP) as needed.
   - products\fabric\powerbi\orchestrator\relationship_ops.ps1:201: # TODO: Call Power BI MCP relationship_operations (see internal/technical_backlog.md Â§ Power BI MCP).
-  - products\fabric\powerbi\orchestrator\table_ops.ps1:338: # Fix M "UngÃ¼ltiger Bezeichner": single-quoted column names in #table must be #"Name"
+  - products\fabric\powerbi\orchestrator\table_ops.ps1:339: # Fix M "UngÃ¼ltiger Bezeichner": single-quoted column names in #table must be #"Name"
   - products\fabric\powerbi\tooling\check_report_structure.ps1:4: # (Fabric 3.0 schema; no datasetReference in report.jsonâ€”binding is in definition.pbir), definition/version.json, definition/pages/pages.json,
   - products\fabric\powerbi\tooling\page_scaffold_spec.md:54: **Visual Type Selection (Slot â†’ Visual):**
   - products\fabric\powerbi\tooling\page_scaffold_spec.md:60: | KPI Summary | T1, T2, T3, T4 | KPI Card | â€” | Always KPI Card |
@@ -2491,7 +2722,14 @@ Potential mojibake found:
   - tooling\validation\README.md:160: | bpa-rules-dax.json | DAX expressions | Partial (2/10 rules) | âœ… validate_dax.ps1 (run_all_checks 19c) |
   - tooling\validation\README.md:161: | bpa-rules-report.json | Report visuals | Low | âœ… validate_report.ps1 (run_all_checks 19f) |
   - tooling\validation\README.md:162: | bpa-rules-semanticmodel.json | Model structure | No | âœ… validate_semanticmodel.ps1 (run_all_checks 19d) |
+  - tooling\validation\README.md:224: - **SSOT.possible_semantic_duplicate:** Same normalized calculation expression used by more than one KPI ID â†’ risk of duplicate measures; consider one canonical ID.
+  - tooling\validation\README.md:225: - **SSOT.duplicate_dax_name:** Same `dax_name` on multiple KPIs â†’ tool output (e.g. TMDL) may conflict; or derive names from formula (tool-agnostic catalog).
+  - tooling\validation\README.md:226: - **SSOT.formula_ref_not_in_depends_on:** Formula references `[MeasureName]` but `depends_on_measures` does not list the KPI ID for that measure â†’ add the dependency so the generator can resolve it.
+  - tooling\validation\README.md:245: - **ActionCode.duplicate_display_name:** Same `name` (display name) used by more than one action code ID â†’ use distinct names (e.g. prefix with domain or outcome).
+  - tooling\validation\README.md:264: - **Contract.duplicate_table_name_cross_domain:** Table (dim_*/ fact_*) defined in multiple domain files â†’ risk of inconsistent grain/columns; define in one contract or document shared ownership.
+  - tooling\validation\README.md:265: - **Contract.lineage_ref_not_in_contract:** KPI catalog lineage references a table or table.column that is not defined in any domain contract â†’ add to the appropriate domain contract or fix lineage.
   - tooling\validation\validate_tmdl.ps1:195: Write-Host "  â†» Auto-fixing: $($rule.id) - $($rule.name)" -ForegroundColor Yellow
+  - tooling\validation\docs\REMEDIATION_INSERTABLE_FORMAT.md:142: Workflow: Run audit â†’ Review findings â†’ Confirm which remediations to apply â†’ Insert the insertable_content at the given location (manually or via tool/agent).
 
 >> tooling/validation/check_markdownlint.ps1 -Fix True -Root C:\Users\florianhaferkorn\VSCode\analytics-usecase-library
 Markdownlint check
@@ -2510,5 +2748,5 @@ OK: schema validation passed.
 
 **********************
 Ende der Windows PowerShell-Aufzeichnung
-Endzeit: 20260301084554
+Endzeit: 20260302124629
 **********************

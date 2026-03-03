@@ -620,7 +620,7 @@
                                            "isHidden":  false,
                                            "description":  null,
                                            "name":  "NPS Score",
-                                           "dataType":  "String",
+                                           "dataType":  "Double",
                                            "sourceColumn":  "NPS Score"
                                        },
                                        {
@@ -640,7 +640,7 @@
                                    ]
                    }
                ],
-    "timestamp":  "2026-02-27T09:52:33.6854543+01:00",
+    "timestamp":  "2026-03-02T12:43:31.6426146+01:00",
     "source":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\data_contracts\\domains\\commercial_sales.yaml",
     "useCase":  "COM-001"
 }

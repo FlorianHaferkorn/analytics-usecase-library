@@ -88,6 +88,7 @@ class PageScaffoldGenerator:
             theme_name=self.theme_name,
             width=canvas_w,
             height=canvas_h,
+            is_drillthrough_target=(self.page_name == "detail"),
         )
         
         # Build page structure with visuals (page_config from get_page_config)

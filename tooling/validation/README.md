@@ -203,6 +203,71 @@ To add new validation rules:
 
 ---
 
+---
+
+## SSOT content audit (proactive in-content checks)
+
+**Purpose:** The framework keeps SSOTs (e.g. KPI catalog) tool-agnostic where possible. Naming (e.g. `dax_name`) is tool-specific and should ideally be **derived** from the calculation formula plus TMDL/DAX naming conventions, not stored as the single source of truth. An **SSOT content auditor** runs semantic and consistency checks and **proactively highlights issues for human review** (in addition to schema and structural validation).
+
+### audit_ssot_content.ps1
+
+**Purpose:** In-content checks on the KPI catalog. Surfaces findings for human review; does not fail the build by default.
+
+**Usage:**
+```powershell
+.\tooling\validation\audit_ssot_content.ps1 -KpiCatalogRoot core/kpi_catalog
+# Optional: fail CI when any finding exists
+.\tooling\validation\audit_ssot_content.ps1 -FailOnFinding
+```
+
+**Checks:**
+- **SSOT.possible_semantic_duplicate:** Same normalized calculation expression used by more than one KPI ID → risk of duplicate measures; consider one canonical ID.
+- **SSOT.duplicate_dax_name:** Same `dax_name` on multiple KPIs → tool output (e.g. TMDL) may conflict; or derive names from formula (tool-agnostic catalog).
+- **SSOT.formula_ref_not_in_depends_on:** Formula references `[MeasureName]` but `depends_on_measures` does not list the KPI ID for that measure → add the dependency so the generator can resolve it.
+
+**Output:** `tooling/validation/results/ssot_audit_<timestamp>.md` and `.json`. Run regularly (e.g. pre-commit or CI job) so humans are prompted to fix SSOT content before issues propagate.
+
+**Integration:** Optional. Can be added as a non-blocking step in `run_all_checks.ps1` or as a separate scheduled/review job. Use `-FailOnFinding` in CI if you want the pipeline to fail when findings exist.
+
+---
+
+### audit_action_codes_content.ps1
+
+**Purpose:** Proactive checks on action codes (core/action_codes). Surfaces duplicate display names across different action code IDs so UI/reports stay unambiguous.
+
+**Usage:**
+```powershell
+.\tooling\validation\audit_action_codes_content.ps1 -ActionCodesRoot core/action_codes
+.\tooling\validation\audit_action_codes_content.ps1 -FailOnFinding
+```
+
+**Checks:**
+- **ActionCode.duplicate_display_name:** Same `name` (display name) used by more than one action code ID → use distinct names (e.g. prefix with domain or outcome).
+
+**Output:** `tooling/validation/results/action_codes_audit_<timestamp>.md` and `.json`. Scope: all YAML under core/action_codes **excluding** decision_spines and DecisionSpine_UseCase_Map.yaml.
+
+---
+
+### audit_data_contracts_content.ps1
+
+**Purpose:** Proactive checks on domain data contracts vs KPI catalog lineage. Ensures every `table.Column` referenced in KPI lineage exists in core/data_contracts/domains, and flags tables defined in more than one domain file.
+
+**Prerequisite:** Python 3 and PyYAML (same as check_validate_data_contracts). Uses `get_contract_schema.py` to extract table/column schema from domain YAMLs.
+
+**Usage:**
+```powershell
+.\tooling\validation\audit_data_contracts_content.ps1 -Root .
+.\tooling\validation\audit_data_contracts_content.ps1 -FailOnFinding
+```
+
+**Checks:**
+- **Contract.duplicate_table_name_cross_domain:** Table (dim_*/ fact_*) defined in multiple domain files → risk of inconsistent grain/columns; define in one contract or document shared ownership.
+- **Contract.lineage_ref_not_in_contract:** KPI catalog lineage references a table or table.column that is not defined in any domain contract → add to the appropriate domain contract or fix lineage.
+
+**Output:** `tooling/validation/results/data_contracts_audit_<timestamp>.md` and `.json`.
+
+---
+
 ## Version History
 
 | Version | Date | Changes |

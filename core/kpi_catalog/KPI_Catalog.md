@@ -35,7 +35,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
               SUM ( fact_sales[Net Sales Amount] ) - SUM ( fact_sales[Cost of Goods Sold Amount] )
           ) * 3
       )
-    depends_on_measures: []
+    depends_on_measures:
+    - sales.net_sales.amount
+    - cost.cogs.amount
     lineage:
     - fact_customer_value.CLV Amount
   governance:
@@ -292,7 +294,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
           SUM ( fact_sales[Net Sales Amount] ),
           ALLSELECTED ( dim_date )
       )
-    depends_on_measures: []
+    depends_on_measures:
+    - sales.net_sales.amount
     lineage:
     - dim_customer.CustomerKey
   governance:
@@ -899,7 +902,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
       VAR Complaints = SUM ( fact_complaints[Complaint Count] )
       VAR ShippedUnits = SUM ( fact_shipments[Shipped Units] )
       RETURN DIVIDE ( Complaints, ShippedUnits )
-    depends_on_measures: []
+    depends_on_measures:
+    - crm.complaint.count
     lineage:
     - fact_complaints.Complaint Count
     - fact_shipments.Shipped Units
@@ -988,6 +992,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Days in Inventory"
     formatString: "0"
     description: "Measures inventory holding period in days."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - inv.dio.days
     lineage:
@@ -1030,6 +1037,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Stockout Rate %"
     formatString: "0.0%"
     description: "Measures how often inventory is unavailable when demanded."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - inv.stockout.pct
     lineage:
@@ -1070,6 +1080,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Obsolete Inventory %"
     formatString: "0.0%"
     description: "Measures share of inventory considered obsolete."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - inv.obsolete.pct
     lineage: []
@@ -1113,6 +1126,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Forecast Accuracy %"
     formatString: "0.0%"
     description: "Measures how close forecasted demand is to actual demand."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - plan.forecast.accuracy.pct
     lineage: []
@@ -1153,6 +1169,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Forecast Bias %"
     formatString: "0.0%"
     description: "Measures systematic over- or under-forecasting."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - plan.forecast.bias.pct
     lineage: []
@@ -1195,6 +1214,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Re-Plan Count"
     formatString: "#,0"
     description: "Counts number of replanning cycles in a period."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - plan.replan.count
     lineage: []
@@ -1240,6 +1262,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "OTIF %"
     formatString: "0.0%"
     description: "Measures share of orders delivered on time and in full."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - supply.otif.pct
     lineage:
@@ -1281,6 +1306,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "On-Time %"
     formatString: "0.0%"
     description: "Measures share of deliveries arriving on time."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - supply.on_time.pct
     lineage:
@@ -1321,6 +1349,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Stockout Impact %"
     formatString: "0.0%"
     description: "Measures lost demand share due to stockouts."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - supply.stockout_impact.pct
     lineage: []
@@ -1361,6 +1392,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Expedite Cost Amount"
     formatString: "#,0.00"
     description: "Captures additional cost for expedited shipments."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - supply.expedite.amount
     lineage:
@@ -1400,6 +1434,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Penalty Amount"
     formatString: "#,0.00"
     description: "Captures penalties for service level breaches."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - supply.penalty.amount
     lineage:
@@ -1438,6 +1475,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Service Impact %"
     formatString: "0.0%"
     description: "Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast un..."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - plan.forecast.service_impact.pct
     lineage:
@@ -1531,6 +1571,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Failure Count"
     formatString: "#,0"
     description: "Counts equipment or process failures in the period."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures: []
     lineage: []
   governance:
@@ -1567,6 +1610,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Inventory Value Amount"
     formatString: "#,0.00"
     description: "Tracks inventory value for maintenance-relevant items."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures: []
     lineage: []
   governance:
@@ -1607,6 +1653,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Planned Output Units"
     formatString: "#,0"
     description: "Captures planned production output volume."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures: []
     lineage: []
   governance:
@@ -1643,6 +1692,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Preventive Maintenance Task Count"
     formatString: "#,0"
     description: "Counts preventive maintenance tasks executed or scheduled."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - ops.pm.task.count
     lineage: []
@@ -1680,6 +1732,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Production Volume Units"
     formatString: "#,0"
     description: "Measures total produced volume in units."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - ops.production.volume
     lineage:
@@ -1717,6 +1772,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Quality Defect Rate %"
     formatString: "0.0%"
     description: "Measures share of defective units in production."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - ops.quality.defect_rate.pct
     lineage:
@@ -1755,6 +1813,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Safety Incident Count"
     formatString: "#,0"
     description: "Counts safety incidents recorded in the period."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - ops.safety.incident.count
     lineage: []
@@ -1791,6 +1852,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Operations Service Level %"
     formatString: "0.0%"
     description: "Measures on-time or in-full performance for operational delivery."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - ops.service_level.pct
     lineage: []
@@ -1827,6 +1891,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Yield %"
     formatString: "0.0%"
     description: "Measures ratio of good output to total input."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - ops.yield.pct
     lineage:
@@ -1868,6 +1935,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Order Lines Count"
     formatString: "#,0"
     description: "Counts order lines processed in the period."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - order.lines
     lineage: []
@@ -1905,6 +1975,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Plans Count"
     formatString: "#,0"
     description: "Counts planning cycles or plan versions in the period."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - plans.count
     lineage: []
@@ -1944,6 +2017,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Shipments Count"
     formatString: "#,0"
     description: "Counts shipments executed in the period."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - shipments.count
     lineage: []
@@ -1979,6 +2055,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Supply Chain Service Level %"
     formatString: "0.0%"
     description: "Measures supply chain service level performance."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - scm.service_level.pct
     lineage:
@@ -2059,9 +2138,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher OTIF indicates better delivery reliability; low values reflect service and execution issues."
   technical:
-    dax_name: "OTIF %"
+    dax_name: "Ops OTIF %"
     formatString: "0.0%"
     description: "Delivery reliability measured by orders delivered on-time and in-full."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - supply.otif.pct
     lineage: []
@@ -2100,6 +2182,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Cash Conversion Cycle (Days)"
     formatString: "0"
     description: "Combines receivables, inventory, and payables days to show cash efficiency."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - ops.working_capital.ccc.days
     lineage: []
@@ -2228,6 +2313,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Inventory Turnover"
     formatString: "#,0"
     description: "Measures how often inventory is sold and replaced."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - inv.turnover
     lineage:
@@ -2270,6 +2358,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Forecast MAPE %"
     formatString: "0.0%"
     description: "Measures mean absolute percentage error in forecast."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - plan.forecast.mape.pct
     lineage:
@@ -2311,6 +2402,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "In-Full %"
     formatString: "0.0%"
     description: "Measures share of deliveries with complete quantities."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - supply.in_full.pct
     lineage:
@@ -2351,6 +2445,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Action Outcome Rate %"
     formatString: "0.0%"
     description: "Measures share of actions that achieved the intended outcome."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - enterprise.action_outcome_rate.pct
     lineage: []
@@ -2387,6 +2484,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Actions Routed Count"
     formatString: "#,0"
     description: "Counts action codes routed for execution."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - enterprise.action_routed.count
     lineage: []
@@ -2555,7 +2655,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
           - [Volume Effect Amount]
     description: "Captures the residual effect from changes in product, channel, or region mix."
     depends_on_measures:
-    - sales.pvm.mix_effect.amount
+    - sales.net_sales.amount
+    - sales.pvm.price_effect.amount
+    - sales.pvm.volume_effect.amount
     lineage: []
   governance:
     business_owner: "Head of Sales Controlling"
@@ -2597,8 +2699,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: "Total invoiced revenue net of discounts and returns."
     dax_expression: |
       SUM ( fact_sales[Net Sales Amount] )
-    depends_on_measures:
-    - sales.net_sales.amount
+    depends_on_measures: []
     lineage:
     - fact_sales.Net Sales Amount
   governance:
@@ -2639,6 +2740,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
       VAR LY     = SUM ( fact_sales[Last Year Sales Amount] )
       RETURN DIVIDE ( Actual - LY, LY )
     depends_on_measures:
+    - sales.net_sales.amount
     - sales.net_sales.delta_pct.ly
     lineage:
     - fact_sales.Net Sales Amount
@@ -2686,6 +2788,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
       VAR Plan   = SUM ( fact_sales[Plan Sales Amount] )
       RETURN DIVIDE ( Actual - Plan, Plan )
     depends_on_measures:
+    - sales.net_sales.amount
     - sales.net_sales.delta_pct.plan
     lineage:
     - fact_sales.Plan Sales Amount
@@ -2732,7 +2835,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
           RETURN ( ActualPrice - PlanPrice ) * fact_sales[Quantity]
       )
     depends_on_measures:
-    - sales.pvm.price_effect.amount
+    - sales.net_sales.amount
     lineage:
     - fact_sales.Net Sales Amount
     - fact_sales.Plan Quantity
@@ -2780,8 +2883,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
           VAR PlanPrice = DIVIDE ( fact_sales[Plan Sales Amount], PlanQty )
           RETURN ( ActualQty - PlanQty ) * PlanPrice
       )
-    depends_on_measures:
-    - sales.pvm.volume_effect.amount
+    depends_on_measures: []
     lineage:
     - fact_sales.Plan Quantity
     - fact_sales.Plan Sales Amount
@@ -2829,6 +2931,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Sales Units"
     formatString: "#,0"
     description: "Measures sold units volume in the period."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - sales.units
     lineage:
@@ -2866,6 +2971,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Digital Adoption Rate %"
     formatString: "0.0%"
     description: "Measure how much of all eligible process transactions are executed via digital tools instead of m..."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - people.digital_adoption.pct
     lineage:
@@ -2904,6 +3012,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Attrition Risk %"
     formatString: "0.0%"
     description: "Probability of employee attrition"
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - people.attrition_risk.pct
     lineage: []
@@ -3082,7 +3193,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   use_case_ref:
   - FIN-001
   action_code_ref:
-  - F-C1.3
+  - S-I1.2
   calc_type: amount
   business:
     purpose: "Measures days inventory outstanding."
@@ -3098,7 +3209,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
       VAR Inventory = SUM ( fact_inventory[Inventory Amount] )
       VAR COGS = SUM ( fact_inventory[COGS Amount] )
       RETURN DIVIDE ( Inventory * 365, COGS )
-    depends_on_measures: []
+    depends_on_measures:
+    - fin.liquidity.inventory.amount
     lineage:
     - fact_inventory.Inventory Amount
     - fact_inventory.COGS Amount
@@ -3252,7 +3364,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - FIN-001
   action_code_ref:
   - F-C1.2
-  - F-C1.3
+  - S-I1.2
   - F-C1.4
   calc_type: amount
   business:
@@ -3412,7 +3524,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_expression: |
       DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
     description: "Gross Margin % used in commercial and management reporting and P&L reconciliation."
-    depends_on_measures: []
+    depends_on_measures:
+    - sales.net_sales.amount
+    - cost.cogs.amount
     lineage:
     - fact_sales.Cost of Goods Sold Amount
     - fact_sales.Net Sales Amount
@@ -3428,6 +3542,91 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     version: "v2.0"
   metadata_quality:
     completeness_score: 1.0
+    last_review: 23.01.2026
+
+- kpi_id: sales.promo.cost.amount
+  kpi_key: Promo Cost
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Profitability
+  domain_tag: [Commercial]
+  use_case_ref:
+  - COM-002
+  - COM-003
+  - COM-004
+  action_code_ref:
+  - C-P4.1
+  calc_type: amount
+  business:
+    purpose: "Total promotion cost for ROI and spend analysis."
+    definition: "Sum of promo cost from promo systems."
+    grain_scope: "Promo / period."
+    unit_format: "EUR (2 decimals)"
+    interpretation: "Input to Promo ROI %."
+  technical:
+    dax_name: "Promo Cost"
+    formatString: "#,0.00"
+    description: "Total promotion cost."
+    dax_expression: |
+      SUM ( fact_promo[Promo Cost] )
+    depends_on_measures: []
+    lineage:
+    - fact_promo.Promo Cost
+  governance:
+    business_owner: "Head of Marketing Controlling"
+    data_owner: "BI Engineering"
+    steward: "Trade Marketing Analyst"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+    - Promo cost > 0 when promo active
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 23.01.2026
+
+- kpi_id: sales.promo.incremental_gm.amount
+  kpi_key: Incremental Gross Margin Amount
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Profitability
+  domain_tag: [Commercial]
+  use_case_ref:
+  - COM-002
+  - COM-003
+  - COM-004
+  action_code_ref:
+  - C-P4.1
+  calc_type: amount
+  business:
+    purpose: "Incremental gross margin from promotions for ROI numerator."
+    definition: "Incremental sales minus incremental COGS; proxy here as share of incremental sales."
+    grain_scope: "Promo / period."
+    unit_format: "EUR (2 decimals)"
+    interpretation: "Input to Promo ROI %."
+  technical:
+    dax_name: "Incremental Gross Margin Amount"
+    formatString: "#,0.00"
+    description: "Incremental gross margin from promo."
+    dax_expression: |
+      [Incremental Sales Amount] * 0.35
+    depends_on_measures:
+    - sales.promo.incremental.amount
+    lineage:
+    - fact_sales.Net Sales Amount
+    - fact_sales.Cost of Goods Sold Amount
+    - fact_promo.Baseline Sales Amount
+  governance:
+    business_owner: "Head of Marketing Controlling"
+    data_owner: "BI Engineering"
+    steward: "Trade Marketing Analyst"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+    - Refine formula when incremental COGS available
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 0.9
     last_review: 23.01.2026
 
 - kpi_id: sales.promo.roi.pct
@@ -3456,7 +3655,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_expression: |
       DIVIDE ( [Incremental Gross Margin Amount], [Promo Cost] )
     depends_on_measures:
-    - sales.promo.roi.pct
+    - sales.promo.incremental_gm.amount
+    - sales.promo.cost.amount
     lineage: []
   governance:
     business_owner: "Head of Marketing Controlling"
@@ -3502,7 +3702,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
           fact_sales[Promo Flag] = "Yes"
       )
     depends_on_measures:
-    - margin.promo.gm.pct
+    - sales.net_sales.amount
+    - cost.cogs.amount
     lineage:
     - fact_sales.Cost of Goods Sold Amount
     - fact_sales.Net Sales Amount
@@ -3544,7 +3745,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
       DIVIDE ( [Cost of Goods Sold Amount], SUM ( fact_sales[Quantity] ) )
     description: "Shows unit cost level relative to sold volume."
     depends_on_measures:
-    - cost.cogs_per_unit.amount
+    - cost.cogs.amount
     lineage:
     - fact_sales.Quantity
   governance:
@@ -3555,6 +3756,49 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     validation_process: "manual review"
     qa_rules:
     - Units Sold > 0
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 23.01.2026
+
+- kpi_id: sales.promo.cannibalized_sales.amount
+  kpi_key: Cannibalized Sales Amount
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Profitability
+  domain_tag: [Commercial]
+  use_case_ref:
+  - COM-004
+  action_code_ref: []
+  calc_type: amount
+  business:
+    purpose: "Sales lost on non-promoted items versus baseline (cannibalization in value)."
+    definition: "MAX(0, Baseline Non-Promo Sales - Actual Non-Promo Sales)."
+    grain_scope: "Promo campaign / product / period."
+    unit_format: "EUR (2 decimals)"
+    interpretation: "Numerator for Cannibalization %; higher means more cannibalization."
+  technical:
+    dax_name: "Cannibalized Sales Amount"
+    formatString: "#,0.00"
+    description: "Sales amount lost on non-promoted items versus baseline."
+    dax_expression: |
+      VAR ActualNonPromoSales = CALCULATE ( SUM ( fact_sales[Net Sales Amount] ), fact_sales[Promo Flag] = FALSE () )
+      VAR BaselineNonPromoSales = SUM ( fact_promo[Baseline Non-Promo Sales Amount] )
+      RETURN MAX ( 0, BaselineNonPromoSales - ActualNonPromoSales )
+    depends_on_measures:
+    - sales.net_sales.amount
+    lineage:
+    - fact_promo.Baseline Non-Promo Sales Amount
+    - fact_sales.Net Sales Amount
+    - fact_sales.Promo Flag
+  governance:
+    business_owner: "Head of Marketing Controlling"
+    data_owner: "BI Engineering"
+    steward: "Trade Marketing Analyst"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules:
+    - Lost non-promo floored at 0
     version: "v1.0"
   metadata_quality:
     completeness_score: 1.0
@@ -3583,7 +3827,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_expression: |
       DIVIDE ( [Cannibalized Sales Amount], [Incremental Sales Amount] )
     depends_on_measures:
-    - sales.promo.cannibalization.pct
+    - sales.promo.incremental.amount
+    - sales.promo.cannibalized_sales.amount
     lineage:
     - fact_promo.Baseline Non-Promo Sales Amount
     - fact_sales.Net Sales Amount
@@ -3628,7 +3873,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
       VAR MaterialCost = SUM ( fact_finance[Material Cost Amount] )
       VAR NetSales = SUM ( fact_finance[Net Sales Amount] )
       RETURN DIVIDE ( MaterialCost, NetSales )
-    depends_on_measures: []
+    depends_on_measures:
+    - sales.net_sales.amount
     lineage:
     - fact_finance.Material Cost Amount
     - fact_finance.Net Sales Amount
@@ -3763,7 +4009,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
       [Net Sales Amount] - [Cost of Goods Sold Amount]
     description: "Absolute gross margin in currency."
     depends_on_measures:
-    - margin.gm.amount
+    - sales.net_sales.amount
+    - cost.cogs.amount
     lineage:
     - fact_sales.Cost of Goods Sold Amount
     - fact_sales.Net Sales Amount
@@ -3781,6 +4028,46 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
   aliases:
   - hr.gm.amount
+
+- kpi_id: sales.promo.baseline_sales.amount
+  kpi_key: Baseline Sales Amount
+  kpi_type: diagnostic
+  kpi_role: supporting
+  impact_dimension: Profitability
+  domain_tag: [Commercial]
+  use_case_ref:
+  - COM-002
+  - COM-003
+  - COM-004
+  action_code_ref:
+  - C-P4.1
+  calc_type: amount
+  business:
+    purpose: "Baseline sales for incremental calculation."
+    definition: "Sum of baseline sales from promo system."
+    grain_scope: "Promo period/product"
+    unit_format: "EUR (2 decimals)"
+    interpretation: "Reference level for incremental lift."
+  technical:
+    dax_name: "Baseline Sales Amount"
+    formatString: "#,0.00"
+    description: "Baseline sales from promo."
+    dax_expression: |
+      SUM ( fact_promo[Baseline Sales Amount] )
+    depends_on_measures: []
+    lineage:
+    - fact_promo.Baseline Sales Amount
+  governance:
+    business_owner: "Head of Marketing Controlling"
+    data_owner: "BI Engineering"
+    steward: "Trade Marketing Analyst"
+    review_cycle: "quarterly"
+    validation_process: "manual review"
+    qa_rules: []
+    version: "v1.0"
+  metadata_quality:
+    completeness_score: 1.0
+    last_review: 23.01.2026
 
 - kpi_id: sales.promo.incremental.amount
   kpi_key: Incremental Sales Amount
@@ -3808,7 +4095,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_expression: |
       [Net Sales Amount] - [Baseline Sales Amount]
     depends_on_measures:
-    - sales.promo.incremental.amount
+    - sales.net_sales.amount
+    - sales.promo.baseline_sales.amount
     lineage:
     - fact_promo.Baseline Sales Amount
     - fact_sales.Net Sales Amount
@@ -3851,7 +4139,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
       VAR COGS = SUM ( fact_finance[COGS Amount] )
       VAR NetSales = SUM ( fact_finance[Net Sales Amount] )
       RETURN DIVIDE ( COGS, NetSales )
-    depends_on_measures: []
+    depends_on_measures:
+    - sales.net_sales.amount
     lineage:
     - fact_finance.COGS Amount
     - fact_finance.Net Sales Amount
@@ -3898,7 +4187,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
           DIVIDE ( GMAct - GMPlan, GMPlan )
     description: "Measures gross margin rate variance versus plan."
     depends_on_measures:
-    - margin.gm.vs_plan.pct
+    - sales.net_sales.amount
+    - cost.cogs.amount
     lineage: []
   governance:
     business_owner: "Head of Controlling"
@@ -3935,6 +4225,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Cost Base Volume Amount"
     formatString: "#,0.00"
     description: "Baseline cost volume used for variance analysis."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - cost.base_volume.amount
     lineage: []
@@ -3971,6 +4264,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Opex Base Amount"
     formatString: "#,0.00"
     description: "Baseline operating expense amount for variance tracking."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - cost.opex.base.amount
     lineage: []
@@ -4008,6 +4304,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Enterprise Value-at-Risk Index"
     formatString: "0"
     description: "Aggregates downside risk across domains into a single index."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - enterprise.value_at_risk.index
     lineage: []
@@ -4043,6 +4342,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Supplier Risk Score"
     formatString: "0"
     description: "Rates suppliers based on risk indicators."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - scm.supplier_risk.score
     lineage: []
@@ -4083,6 +4385,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "SLA Attainment %"
     formatString: "0.0%"
     description: "Measures how many cases meet the committed SLA."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - svc.sla.attainment.pct
     lineage:
@@ -4121,6 +4426,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "FCR %"
     formatString: "0.0%"
     description: "Shows the share of cases solved on first contact."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - svc.fcr.pct
     lineage:
@@ -4159,6 +4467,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "AHT Minutes"
     formatString: "#,0"
     description: "Measures average time to handle a contact."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - svc.aht.minutes
     lineage:
@@ -4199,6 +4510,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Backlog Count"
     formatString: "#,0"
     description: "Quantifies unresolved work in queue."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - svc.backlog.count
     lineage:
@@ -4236,6 +4550,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "NPS Index"
     formatString: "#,0"
     description: "Measures customer advocacy and experience quality."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - svc.nps.index
     lineage:
@@ -4275,6 +4592,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Escalation %"
     formatString: "0.0%"
     description: "Measures frequency of escalated cases."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - svc.escalation.pct
     lineage:
@@ -4317,6 +4637,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Utilization %"
     formatString: "0.0%"
     description: "Measures productive time versus paid time for agents."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - res.utilization.pct
     lineage:
@@ -4358,6 +4681,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Occupancy %"
     formatString: "0.0%"
     description: "Measures active vs idle share of time."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - res.occupancy.pct
     lineage:
@@ -4400,6 +4726,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Overtime %"
     formatString: "0.0%"
     description: "Shows overtime share of total hours."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - res.overtime.pct
     lineage:
@@ -4440,6 +4769,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Shrinkage %"
     formatString: "0.0%"
     description: "Measures non-productive share of paid time."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - res.shrinkage.pct
     lineage:
@@ -4485,6 +4817,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Tickets Created Count"
     formatString: "#,0"
     description: "Counts customer service tickets created in the period."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - svc.tickets.created.count
     lineage: []
@@ -4522,6 +4857,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     dax_name: "Tickets Closed Count"
     formatString: "#,0"
     description: "Counts customer service tickets closed in the period."
+    dax_expression: |
+      -- TBD: see Measure Dictionary
+      BLANK()
     depends_on_measures:
     - svc.tickets.closed.count
     lineage: []

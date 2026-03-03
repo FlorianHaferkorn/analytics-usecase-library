@@ -127,8 +127,8 @@ foreach ($defDir in $definitionDirs) {
     $errors += [PSCustomObject]@{ File = "$relPathBase/tables"; Line = 0; Rule = "pbip.measure.duplicate_name"; Message = "Duplicate measure name: '$($g.Name)'" }
   }
 
-  # --- 5) Numeric columns: all summarizable types (int64, int32, double, decimal) must have summarizeBy: none ---
-  $numericDataTypePattern = [regex]'(?m)^\s*dataType:\s*(int64|int32|double|decimal)'
+  # --- 5) Numeric columns: all summarizable types (Int64, Decimal, Double, etc.) must have summarizeBy: none ---
+  $numericDataTypePattern = [regex]'(?mi)^\s*dataType:\s*(int64|int32|double|decimal)'
   $summarizeByPattern = [regex]'(?m)^\s*summarizeBy:\s*none'
   $columnPattern = [regex]'(?m)^\s*column\s+([^\s\r\n]+)'
   if (Test-Path $tablesDir) {

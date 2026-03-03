@@ -34,12 +34,15 @@ $script:AuroraDomainToDataContract = @{
 }
 
 # Required tables per domain (minimal set; must exist in data contract). Shared dims first.
+# Commercial: full set from commercial_sales.yaml so COM-002..COM-004 measures (Promo, Complaint, NPS, CLV) resolve.
+# Finance: extended so FIN-001/FIN-002 KPIs (wc.dio, cost.unit, margin.cogs, cost.opex, cost.material, ops.labor.productivity) resolve.
+# Operations: extended so OPS-001/OPS-002/OPS-003 KPIs (MTBF, MTTR, maintenance, quality_costs, complaints, shipments) resolve.
 $script:AuroraDomainRequiredTables = @{
-    Commercial  = @("dim_date", "dim_org", "dim_product", "dim_customer", "fact_sales")
-    Finance     = @("dim_date", "dim_org", "fact_cash_position", "fact_cash_flow", "fact_accounts_receivable", "fact_accounts_payable")
-    Operations  = @("dim_date", "dim_org", "dim_asset", "dim_product", "fact_ops", "fact_quality")
-    SupplyChain = @("dim_date", "dim_org", "dim_product", "fact_inventory", "fact_forecast", "fact_fulfillment")
-    Experience  = @("dim_date", "dim_org", "dim_case_queue", "fact_support_cases")
+    Commercial  = @("dim_date", "dim_org", "dim_product", "dim_customer", "dim_promo", "fact_sales", "fact_plan_sales", "fact_promo", "fact_customer_events", "fact_customer_value", "fact_experience", "fact_nps")
+    Finance     = @("dim_date", "dim_org", "fact_cash_position", "fact_cash_flow", "fact_accounts_receivable", "fact_accounts_payable", "fact_inventory", "fact_finance", "fact_cost", "fact_output", "fact_labor")
+    Operations  = @("dim_date", "dim_org", "dim_asset", "dim_product", "fact_ops", "fact_quality", "fact_ops_failures", "fact_maintenance", "fact_quality_costs", "fact_complaints", "fact_shipments")
+    SupplyChain = @("dim_date", "dim_org", "dim_product", "fact_inventory", "fact_forecast", "fact_fulfillment", "fact_cogs", "fact_stockout", "fact_sales")
+    Experience  = @("dim_date", "dim_org", "dim_case_queue", "fact_support_cases", "fact_nps")
 }
 
 function Get-DomainNameFromPrefix {

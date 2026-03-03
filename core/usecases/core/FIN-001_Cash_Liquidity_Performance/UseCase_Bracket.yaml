@@ -19,7 +19,7 @@ orchestration:
   action_code_ids:
   - F-C1.1
   - F-C1.2
-  - F-C1.3
+  - S-I1.2
   - F-C1.4
 value_driver_model:
   formula: wc.ccc.days = wc.dso.days + wc.dio.days - wc.dpo.days

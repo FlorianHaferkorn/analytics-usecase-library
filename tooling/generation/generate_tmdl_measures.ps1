@@ -721,6 +721,54 @@ function Resolve-SemanticModelPath {
   return (Resolve-Path -Path $target).Path
 }
 
+function Resolve-MeasureDependencyClosure {
+  <#
+  .SYNOPSIS
+    Given a set of KPI IDs (from bracket), returns the closure over depends_on_measures and in topological order (dependencies first).
+  #>
+  param(
+    [string[]]$TargetIds,
+    [hashtable]$Catalog
+  )
+  $closure = @{}
+  foreach ($id in $TargetIds) { if ($id) { $closure[$id] = $true } }
+  $changed = $true
+  while ($changed) {
+    $changed = $false
+    foreach ($id in @($closure.Keys)) {
+      $rec = if ($Catalog.ContainsKey($id)) { $Catalog[$id] } else { $null }
+      $deps = if ($rec -and $rec.depends_on_ids) { @($rec.depends_on_ids) } else { @() }
+      foreach ($dep in $deps) {
+        if ($dep -and -not $closure[$dep]) {
+          $closure[$dep] = $true
+          $changed = $true
+        }
+      }
+    }
+  }
+  $remaining = @{}
+  foreach ($k in $closure.Keys) { $remaining[$k] = $true }
+  $sorted = @()
+  while ($remaining.Count -gt 0) {
+    $added = $false
+    foreach ($id in @($remaining.Keys)) {
+      $rec = if ($Catalog.ContainsKey($id)) { $Catalog[$id] } else { $null }
+      $deps = if ($rec -and $rec.depends_on_ids) { @($rec.depends_on_ids) } else { @() }
+      $depsInRemaining = @($deps | Where-Object { $remaining.ContainsKey($_) })
+      if ($depsInRemaining.Count -eq 0) {
+        $sorted += $id
+        $remaining.Remove($id) | Out-Null
+        $added = $true
+      }
+    }
+    if (-not $added) {
+      foreach ($id in @($remaining.Keys)) { $sorted += $id }
+      break
+    }
+  }
+  return $sorted
+}
+
 function Build-MeasureObject {
   param(
     [string]$KpiId,
@@ -893,6 +941,10 @@ if ($script:UseIRPath) {
   if (-not $ir.measure_spec) { throw "IR has no measure_spec. Build with: tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog" }
   foreach ($kpiId in $ir.measure_spec.PSObject.Properties.Name) {
     $m = $ir.measure_spec.$kpiId
+    $depends = @()
+    if ($m.depends_on_measures) {
+      if ($m.depends_on_measures -is [array]) { $depends = @($m.depends_on_measures) } else { $depends = @($m.depends_on_measures) }
+    }
     $catalog[$kpiId] = [ordered]@{
       id = $kpiId
       kpi_key = $m.kpi_key
@@ -903,7 +955,7 @@ if ($script:UseIRPath) {
       description = $m.description
       purpose = $m.purpose
       domain_tags = @()
-      depends_on = @(); depends_on_ids = @()
+      depends_on = @(); depends_on_ids = $depends
       business_owner = $null; data_owner = $null; steward = $null
       qa_rules = @(); kpi_type = $null; impact_dimension = $null; calc_type = $null; refresh = $null; status = $null
       source = "IR"
@@ -1126,7 +1178,12 @@ if ($resolvedTablesDir) {
         if (-not $labelMap) { $labelMap = [ordered]@{} }
       }
 
-      foreach ($id in $targetIds) {
+      $resolvedIds = if ($script:UseIRPath -and $catalog.Count -gt 0) {
+        Resolve-MeasureDependencyClosure -TargetIds $targetIds -Catalog $catalog
+      } else {
+        $targetIds
+      }
+      foreach ($id in $resolvedIds) {
         if ($seenKpiIds.ContainsKey($id)) { continue }
         $seenKpiIds[$id] = $true
         $record = if ($catalog.ContainsKey($id)) { $catalog[$id] } else { $null }

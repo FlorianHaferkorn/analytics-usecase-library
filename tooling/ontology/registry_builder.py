@@ -1266,7 +1266,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         vdm = raw.get("value_driver_model", {}) if isinstance(raw, dict) else {}
         if not isinstance(ob, dict) or not isinstance(vdm, dict):
             continue
-        # Lean 2.0 logical consistency: primary_driver should be a true dependency of the strategic KPI
+        # Lean 2.0: primary_driver should be either a DAX dependency of the strategic KPI or a KPI in the bracket (strategic or influencing).
         primary_driver = vdm.get("primary_driver")
         sk = ob.get("strategic_kpi_id")
         if isinstance(primary_driver, str) and primary_driver.strip() and isinstance(sk, str) and sk.strip():
@@ -1274,12 +1274,15 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             pd = primary_driver.strip()
             kpi_rec = kpis.get(sk_id)
             allowed: Set[str] = set()
-            # Only enforce when the KPI Catalog provides explicit dependency metadata.
+            # Allowed = depends_on_measures of strategic KPI (DAX dependency) + bracket KPIs (strategic + influencing).
             if kpi_rec and getattr(kpi_rec, "depends_on_measures", None):
                 dom = [x for x in (kpi_rec.depends_on_measures or []) if isinstance(x, str) and x.strip()]
-                # Ignore degenerate/self-referential metadata like ["<kpi_id>"] which is not useful for validation.
                 dom = [x for x in dom if x != sk_id]
                 allowed = set(dom)
+            allowed.add(sk_id)
+            for kid in ob.get("influencing_kpi_ids") or []:
+                if isinstance(kid, str) and kid.strip():
+                    allowed.add(kid.strip())
             if allowed and pd not in allowed:
                 line = 1
                 try:

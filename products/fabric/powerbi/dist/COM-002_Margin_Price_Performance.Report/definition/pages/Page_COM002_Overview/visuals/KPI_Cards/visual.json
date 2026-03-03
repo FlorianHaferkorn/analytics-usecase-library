@@ -51,11 +51,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Price Realization %"
+                  "Property": "List Price Amount"
                 }
               },
-              "queryRef": "_Measures.Price Realization %",
-              "nativeQueryRef": "Price Realization %"
+              "queryRef": "_Measures.List Price Amount",
+              "nativeQueryRef": "List Price Amount"
             },
             {
               "field": {
@@ -65,11 +65,11 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "Mix Effect Amount"
+                  "Property": "Net Price Amount"
                 }
               },
-              "queryRef": "_Measures.Mix Effect Amount",
-              "nativeQueryRef": "Mix Effect Amount"
+              "queryRef": "_Measures.Net Price Amount",
+              "nativeQueryRef": "Net Price Amount"
             }
           ]
         }

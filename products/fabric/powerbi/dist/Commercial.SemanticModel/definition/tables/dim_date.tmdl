@@ -1,105 +1,51 @@
 /// Calendar dimension with fiscal hierarchy (Fiscal Year > Quarter > Month > Date).
 table dim_date
-	lineageTag: 3bc6a6f6-54c5-4ae6-86bf-b9238579d313
+	 lineageTag: 8bb8b191-cc95-4761-a276-7c5eaf261e55
 
-	column DateKey
-		dataType: int64
-		isHidden
-		lineageTag: db8eea93-7067-42ca-9d8c-8d836148c735
-		summarizeBy: none
-		sourceColumn: DateKey
+	 column DateKey
+		 dataType: Int64
+		 sourceColumn: DateKey
+		 summarizeBy: none
+		 isHidden
 
-		annotation SummarizationSetBy = User
+	 column Date
+		 dataType: DateTime
+		 sourceColumn: Date
+		 summarizeBy: none
 
-	column Date
-		dataType: dateTime
-		lineageTag: 23de0618-b467-4eda-89cf-461999545702
-		summarizeBy: none
-		sourceColumn: Date
+	 column Year
+		 dataType: Int64
+		 sourceColumn: Year
+		 summarizeBy: none
 
-		variation Variation
-			isDefault
-			relationship: 70848bda-8394-4c09-94f2-54cc47ddf6b8
-			defaultHierarchy: LocalDateTable_0ca13cbe-3c5f-4a0c-8e10-7109d4df19a4.Datumshierarchie
+	 column Quarter
+		 dataType: String
+		 sourceColumn: Quarter
+		 summarizeBy: none
 
-	column Year
-		dataType: int64
-		lineageTag: 3b9f5099-c596-4215-bacd-80d9e1dd55d9
-		summarizeBy: none
-		sourceColumn: Year
+	 column Month
+		 dataType: String
+		 sourceColumn: Month
+		 summarizeBy: none
 
-		annotation SummarizationSetBy = User
+	 column MonthNumber
+		 dataType: Int64
+		 sourceColumn: MonthNumber
+		 summarizeBy: none
 
-	column Quarter
-		dataType: int64
-		formatString: 0
-		lineageTag: bf1b5bd1-c005-484d-ad51-a6b6df236541
-		summarizeBy: none
-		sourceColumn: Quarter
+	 column Week
+		 dataType: String
+		 sourceColumn: Week
+		 summarizeBy: none
 
-		annotation SummarizationSetBy = User
-
-	column Month
-		dataType: int64
-		formatString: 0
-		lineageTag: 81c27a63-f1d2-415f-82b9-2d47e304f224
-		summarizeBy: none
-		sourceColumn: Month
-
-		annotation SummarizationSetBy = User
-
-	column 'Month Name'
-		dataType: string
-		lineageTag: d1d5b849-bc8c-4189-aa3a-753a801586ba
-		summarizeBy: none
-		sourceColumn: Month Name
-
-		annotation SummarizationSetBy = User
-
-	column 'Fiscal Year'
-		dataType: int64
-		formatString: 0
-		lineageTag: 18c1c816-74dc-4550-bf9c-b88d880ab4f9
-		summarizeBy: none
-		sourceColumn: Fiscal Year
-
-		annotation SummarizationSetBy = User
-
-	column 'Fiscal Period'
-		dataType: string
-		lineageTag: c75875a2-2891-490e-8f3e-c8db64591440
-		summarizeBy: none
-		sourceColumn: Fiscal Period
-
-		annotation SummarizationSetBy = User
-
-	hierarchy dim_date_Hierarchy
-		lineageTag: 1d8bf31b
-
-		level Date
-			lineageTag: 737c9ef4
-			column: Date
-
-		level Year
-			lineageTag: 33579aaa
-			column: Year
-
-		level Quarter
-			lineageTag: 39e115fc
-			column: Quarter
-
-		level Month
-			lineageTag: 7c92eeab
-			column: Month
-
-	partition dim_date = m
-		mode: import
-		source =
-				let
-						Source = Folder.Files(GoldDataPath & "/dimensions/dim_date"),
-						FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-						FirstFile = FilteredFiles{0}[Content],
-						ParquetData = Parquet.Document(FirstFile)
-						in
-						ParquetData
+	 partition dim_date = m
+		 mode: import
+		 source =
+			let
+					Source = Folder.Files(GoldDataPath & "/dimensions/dim_date"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+					in
+					ParquetData
 

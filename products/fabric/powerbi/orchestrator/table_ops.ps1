@@ -111,6 +111,7 @@ function Convert-DataContractToTableDef {
         "date" = "DateTime"
         "decimal" = "Decimal"
         "double" = "Double"
+        "number" = "Double"
         "bool" = "Boolean"
         "boolean" = "Boolean"
         "datetime" = "DateTime"

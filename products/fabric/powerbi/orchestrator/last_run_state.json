@@ -1,8 +1,6 @@
 {
     "completed":  [
-                      "Build Registry",
                       "Check Aurora Data",
-                      "Generate Measures (Aurora per domain)",
                       "Validate TMDL Syntax",
                       "Create Tables from Contracts (per domain)",
                       "Sync model.tmdl refs",
@@ -12,26 +10,25 @@
                       "Validate TMDL Syntax",
                       "Generate Report from Template"
                   ],
-    "measuresFile":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\Commercial.SemanticModel\\definition\\tables\\_Measures.tmdl",
     "validateErrors":  [
                            {
                                "phase":  "Validate Fabric output",
                                "path":  "products/fabric/powerbi/dist",
-                               "timestamp":  "2026-03-01T08:45:56.6509244+01:00",
+                               "timestamp":  "2026-03-02T12:46:34.7849375+01:00",
                                "message":  "",
                                "source":  "run_fabric_checks"
                            },
                            {
                                "phase":  "Validate Fabric output",
                                "path":  "products/fabric/powerbi/dist",
-                               "timestamp":  "2026-03-01T08:45:59.4276513+01:00",
+                               "timestamp":  "2026-03-02T12:46:37.6919401+01:00",
                                "message":  "",
                                "source":  "run_fabric_checks"
                            },
                            {
                                "phase":  "Validate Fabric output",
                                "path":  "products/fabric/powerbi/dist",
-                               "timestamp":  "2026-03-01T08:46:02.0499793+01:00",
+                               "timestamp":  "2026-03-02T12:46:40.4853281+01:00",
                                "message":  "",
                                "source":  "run_fabric_checks"
                            }
@@ -41,6 +38,36 @@
                  ],
     "iteration":  6,
     "errors":  [
+                   {
+                       "phase":  "Build Registry",
+                       "iteration":  0,
+                       "error":  "Registry build failed (exit 1). Fix contract/registry errors and retry."
+                   },
+                   {
+                       "phase":  "Build Registry",
+                       "iteration":  0,
+                       "error":  "Registry build failed (exit 1). Fix contract/registry errors and retry."
+                   },
+                   {
+                       "phase":  "Build Registry",
+                       "iteration":  0,
+                       "error":  "Registry build failed (exit 1). Fix contract/registry errors and retry."
+                   },
+                   {
+                       "phase":  "Generate Measures (Aurora per domain)",
+                       "iteration":  2,
+                       "error":  "Measure generation failed for domain Commercial (exit 1)"
+                   },
+                   {
+                       "phase":  "Generate Measures (Aurora per domain)",
+                       "iteration":  2,
+                       "error":  "Measure generation failed for domain Commercial (exit 1)"
+                   },
+                   {
+                       "phase":  "Generate Measures (Aurora per domain)",
+                       "iteration":  2,
+                       "error":  "Measure generation failed for domain Commercial (exit 1)"
+                   },
                    {
                        "phase":  "Run Quality Checks",
                        "iteration":  4,
@@ -73,14 +100,14 @@
                    }
                ],
     "phase":  "validate_fabric_output",
-    "scopeName":  "COM-002",
-    "scopeType":  "UseCase",
+    "scopeName":  "Commercial",
+    "scopeType":  "Domain",
     "startTime":  {
-                      "value":  "\/Date(1772350946917)\/",
+                      "value":  "\/Date(1772451786608)\/",
                       "DisplayHint":  2,
-                      "DateTime":  "Sonntag, 1. März 2026 08:42:26"
+                      "DateTime":  "Montag, 2. März 2026 12:43:06"
                   },
     "domainMeasurePaths":  [
-                               "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\Commercial.SemanticModel\\definition\\tables\\_Measures.tmdl"
+
                            ]
 }

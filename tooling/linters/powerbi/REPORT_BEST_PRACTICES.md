@@ -67,9 +67,9 @@ Lesbare Übersicht der Regeln aus `bpa-rules-report.json`. Diese Regeln werden v
 - **Aktion bei Verstoß:** Liste der betroffenen Visual-Namen; Option in den Visual-Einstellungen deaktivieren.
 
 ### HIDE_TOOLTIP_DRILLTROUGH_PAGES
-- **Was:** Seiten vom Typ **Tooltip** oder **Drillthrough** müssen in der View ausgeblendet sein (`visibility = HiddenInViewMode`).
-- **Warum:** Diese Seiten sind nur als Overlay/Drillthrough gedacht und sollen nicht in der Seitenliste erscheinen.
-- **Aktion bei Verstoß:** Sichtbarkeit der betroffenen Seiten auf „Hidden in view mode“ setzen.
+- **Was:** Seiten vom Typ **Tooltip** müssen in der View ausgeblendet sein (`visibility = HiddenInViewMode`). **Drillthrough**-Seiten (z. B. 300s-Detail) dürfen sichtbar bleiben, damit sie sowohl als eigene Seite als auch als Drillthrough-Ziel genutzt werden können.
+- **Warum:** Tooltip-Seiten sind nur als Overlay gedacht. Drillthrough-Detailseiten sollen in der Seitenliste erscheinen und zusätzlich per Rechtsklick erreichbar sein.
+- **Aktion bei Verstoß:** Sichtbarkeit der betroffenen Tooltip-Seiten auf „Hidden in view mode“ setzen.
 
 ### ENSURE_THEME_COLOURS
 - **Was:** Charts (außer Textboxen) dürfen **keine** hart codierten Hex-Farben (z. B. `#FF0000`) verwenden; es sollen Theme-Farben genutzt werden.

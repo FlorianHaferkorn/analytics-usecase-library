@@ -54,6 +54,10 @@ Parse the script output for the **issue number** (e.g. "Issue #17" or "Issue num
 8. **If you recognize that this task requires a skill or tool we don't yet have** (e.g. new artifact type, new domain): Add a row to [internal/project_mgmt/IDEAS_AND_REQUIREMENTS.md](internal/project_mgmt/IDEAS_AND_REQUIREMENTS.md) in the Pending table with a Title like "Skill/Tool for X" and a short Notes rationale. Mention this need in the PR body or in the next briefing so it can be prioritized.
 9. Follow all rules in `.cursor/rules/` — especially `framework-conventions.mdc` and `stage1-awareness.mdc`.
 
+## SSOT audit findings (insertable remediation)
+
+When an audit reports missing or inconsistent SSOT content (e.g. `audit_ssot_content.ps1`, use-case readiness audit), each finding may include **InsertableRemediation**: ready-to-paste content for the respective SSOT. Workflow: (1) **Highlight** findings in the report. (2) **Propose** the fix using the `insertable_content` and `insert_location` from the report. (3) **After the user confirms** the concrete contents, **insert** the content into the file at the given location. Do not apply insertable remediation without confirmation. Format and examples: [tooling/validation/docs/REMEDIATION_INSERTABLE_FORMAT.md](tooling/validation/docs/REMEDIATION_INSERTABLE_FORMAT.md).
+
 ## Before committing
 
 10. Run Stage 1 from repo root: `.\tooling\run_stage1_checks.ps1`

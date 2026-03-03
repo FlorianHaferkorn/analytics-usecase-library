@@ -1,0 +1,35 @@
+/// Customer lifetime value (CLV) and remaining value at customer-month grain.
+table fact_customer_value
+	 lineageTag: befa3327-0290-4d50-9fcf-e613a094053f
+
+	 column DateKey
+		 dataType: Int64
+		 sourceColumn: DateKey
+		 summarizeBy: none
+
+	 column CustomerKey
+		 dataType: Int64
+		 sourceColumn: CustomerKey
+		 summarizeBy: none
+
+	 column 'CLV Amount'
+		 dataType: Decimal
+		 sourceColumn: CLV Amount
+		 summarizeBy: none
+
+	 column 'CLV Remaining Amount'
+		 dataType: Decimal
+		 sourceColumn: CLV Remaining Amount
+		 summarizeBy: none
+
+	 partition fact_customer_value = m
+		 mode: import
+		 source =
+			let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_customer_value"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+					in
+					ParquetData
+

@@ -1,24 +1,17 @@
 model Model
 	culture: de-DE
-	defaultPowerBIDataSourceVersion: powerBI_V3
-	sourceQueryCulture: de-DE
-	dataAccessOptions
-		legacyRedirects
-		returnErrorValuesAsNull
-
-annotation PBI_QueryOrder = ["_ActionReady_Logic","_Measures","dim_customer","dim_date","dim_org","dim_product","fact_sales","GoldDataPath"]
-
-annotation __PBI_TimeIntelligenceEnabled = 1
-
-annotation PBI_ProTooling = ["DevMode"]
-
+	defaultPowerBIDataSourceVersion: PowerBI_V3
 ref table _ActionReady_Logic
 ref table _Measures
 ref table dim_customer
 ref table dim_date
 ref table dim_org
 ref table dim_product
+ref table dim_promo
+ref table fact_customer_events
+ref table fact_customer_value
+ref table fact_experience
+ref table fact_nps
+ref table fact_plan_sales
+ref table fact_promo
 ref table fact_sales
-ref table DateTableTemplate_a45096b1-3bb0-4752-ae40-070cc2217a0b
-ref table LocalDateTable_0ca13cbe-3c5f-4a0c-8e10-7109d4df19a4
-

@@ -74,6 +74,38 @@ def _extract_literal_block(chunk: str, key: str) -> str | None:
     return result.rstrip() or None
 
 
+def _extract_list(chunk: str, key: str) -> list[str]:
+    """Extract YAML list for key (key: [] or key: followed by indented lines starting with -)."""
+    m = re.search(rf"(?m)^(\s*){re.escape(key)}\s*:\s*(?:\r?\n)?", chunk)
+    if not m:
+        return []
+    key_indent = len(m.group(1))
+    start = m.end()
+    # Inline empty list
+    rest = chunk[start : start + 50].strip()
+    if rest.startswith("[]"):
+        return []
+    items: list[str] = []
+    for line in chunk[start:].splitlines():
+        line_stripped = line.strip()
+        if not line:
+            if items:
+                break
+            continue
+        line_indent = len(line) - len(line.lstrip())
+        # New key at same or less indent: stop
+        if line_indent <= key_indent and re.match(r"^\s*\w+\s*:", line):
+            break
+        bullet = re.match(r"^\s*-\s*(.+)$", line)
+        if bullet:
+            val = bullet.group(1).strip().strip("'\"").split("#")[0].strip()
+            if val:
+                items.append(val)
+        elif items and line_indent <= key_indent:
+            break
+    return items
+
+
 def _scan_kpi_catalog(root: Path) -> Dict[str, Dict[str, Any]]:
     """
     Scan KPI catalog .md files for yaml blocks; extract per-kpi_id measure specs
@@ -125,6 +157,11 @@ def _scan_kpi_catalog(root: Path) -> Dict[str, Dict[str, Any]]:
                     if sub:
                         purpose = _extract_scalar(sub.group(1), "purpose")
                 kpi_key = _extract_scalar(chunk, "kpi_key")
+                depends_on = _extract_list(chunk, "depends_on_measures")
+                if not depends_on and "technical:" in chunk:
+                    sub = re.search(r"(?s)technical:\s*\n(.*?)(?=\n\w|\n\s*\n\w|$)", chunk)
+                    if sub:
+                        depends_on = _extract_list(sub.group(1), "depends_on_measures")
                 if kpi_id not in measure_spec or dax_expr:
                     measure_spec[kpi_id] = {
                         "dax_expression": dax_expr,
@@ -134,6 +171,7 @@ def _scan_kpi_catalog(root: Path) -> Dict[str, Dict[str, Any]]:
                         "description": description or "",
                         "purpose": purpose or "",
                         "kpi_key": kpi_key,
+                        "depends_on_measures": depends_on,
                     }
     return measure_spec
 

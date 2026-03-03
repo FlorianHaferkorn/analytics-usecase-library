@@ -37,6 +37,8 @@ Keine Actions auf der Overview-Seite; nur Signal und Erklärung.
 
 Die 300s-Seite dient der Validierung und der Handlung: Smart_Narrative (Kontext), Detail_Matrix (Daten), ActionPanel (was tun, von wem, mit welchem Impact).
 
+**Drillthrough:** Die Detail-Seite ist im PBIP als **Drillthrough-Ziel** konfiguriert (`type: "Drillthrough"`, `visibility: "AlwaysVisible"`, `pageBinding`). Sie erscheint damit sowohl als eigene Seite in der Seitenliste als auch als Ziel für „Rechtsklick → Drill through“ von Visuals der Overview-Seite; der Filterkontext wird dabei übergeben.
+
 ---
 
 ## Alternative Overview: "The Investigator"

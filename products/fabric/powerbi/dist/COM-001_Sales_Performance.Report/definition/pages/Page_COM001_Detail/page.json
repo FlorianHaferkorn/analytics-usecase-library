@@ -4,5 +4,13 @@
   "displayName": "COM-001 - Detail",
   "displayOption": "FitToPage",
   "height": 1080,
-  "width": 1920
+  "width": 1920,
+  "type": "Drillthrough",
+  "visibility": "AlwaysVisible",
+  "pageBinding": {
+    "name": "Detail_Drillthrough",
+    "type": "Drillthrough",
+    "referenceScope": "Default",
+    "acceptsFilterContext": "Default"
+  }
 }
