@@ -1,0 +1,8 @@
+# Session dumps – do not commit
+sessions/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/

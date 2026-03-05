@@ -141,7 +141,11 @@
               "additionalProperties": false,
               "properties": {
                 "kpi_id": { "type": "string", "description": "North Star KPI ID." },
-                "visual_type": { "type": "string", "description": "Visual type (e.g. kpi_card, gauge)." }
+                "visual_type": {
+                  "type": "string",
+                  "description": "Abstract visual type (tool-agnostic). Fabric maps to PBI visualType in products/fabric/powerbi.",
+                  "enum": ["kpi_card"]
+                }
               }
             },
             "component_30s": {
@@ -156,7 +160,11 @@
                     "items": { "type": "string" },
                     "description": "Multiple KPI IDs for composite visuals."
                   },
-                  "visual_type": { "type": "string", "description": "Visual type (e.g. trend_line, bar_chart, bridge_chart)." },
+                  "visual_type": {
+                    "type": "string",
+                    "description": "Abstract visual type (tool-agnostic). Fabric maps to PBI visualType in products/fabric/powerbi.",
+                    "enum": ["trend_line", "bar_chart", "waterfall", "hundred_percent_stacked_bar", "stacked_bar", "funnel", "kpi_card"]
+                  },
                   "slot_id": {
                     "type": "string",
                     "enum": ["Main_1", "Main_2", "Main_3"],

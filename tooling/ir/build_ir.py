@@ -24,6 +24,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict
 
+try:
+    import yaml
+except ImportError:
+    yaml = None  # type: ignore[assignment]
+
 
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
@@ -176,6 +181,70 @@ def _scan_kpi_catalog(root: Path) -> Dict[str, Dict[str, Any]]:
     return measure_spec
 
 
+def _load_fabric_overlay(path: Path) -> Dict[str, Dict[str, Any]]:
+    """Load Fabric measure overlay YAML: kpi_id -> { dax_expression, format_string, dax_name, display_folder }."""
+    if not path.exists():
+        return {}
+    if yaml is None:
+        raise SystemExit("PyYAML required for --fabric-overlay; install with: pip install pyyaml")
+    raw = yaml.safe_load(path.read_text(encoding="utf-8-sig")) or {}
+    overlay: Dict[str, Dict[str, Any]] = {}
+    for kpi_id, fields in raw.items():
+        if not isinstance(fields, dict):
+            continue
+        overlay[kpi_id] = {
+            "dax_expression": fields.get("dax_expression"),
+            "format_string": fields.get("format_string") or "",
+            "dax_name": fields.get("dax_name"),
+            "display_folder": fields.get("display_folder") or "",
+        }
+    return overlay
+
+
+def _merge_fabric_overlay(
+    measure_spec: Dict[str, Dict[str, Any]], overlay: Dict[str, Dict[str, Any]]
+) -> None:
+    """Merge Fabric overlay into measure_spec in place. Overlay overwrites dax_expression, format_string, dax_name, display_folder."""
+    for kpi_id, fab in overlay.items():
+        if kpi_id in measure_spec:
+            if fab.get("dax_expression") is not None:
+                measure_spec[kpi_id]["dax_expression"] = fab["dax_expression"]
+            if fab.get("format_string") != "":
+                measure_spec[kpi_id]["format_string"] = fab["format_string"]
+            if fab.get("dax_name") is not None:
+                measure_spec[kpi_id]["dax_name"] = fab["dax_name"]
+            if fab.get("display_folder") != "":
+                measure_spec[kpi_id]["display_folder"] = fab["display_folder"]
+        else:
+            measure_spec[kpi_id] = {
+                "dax_expression": fab.get("dax_expression"),
+                "format_string": fab.get("format_string") or "",
+                "dax_name": fab.get("dax_name"),
+                "display_folder": fab.get("display_folder") or "",
+                "description": "",
+                "purpose": "",
+                "kpi_key": None,
+                "depends_on_measures": [],
+            }
+
+
+def _write_fabric_overlay(measure_spec: Dict[str, Dict[str, Any]], path: Path) -> None:
+    """Write Fabric-relevant fields of measure_spec to a YAML overlay file."""
+    if yaml is None:
+        raise SystemExit("PyYAML required for --write-fabric-overlay; install with: pip install pyyaml")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    overlay = {
+        kpi_id: {
+            "dax_expression": spec.get("dax_expression"),
+            "format_string": spec.get("format_string") or "",
+            "dax_name": spec.get("dax_name"),
+            "display_folder": spec.get("display_folder") or "",
+        }
+        for kpi_id, spec in sorted(measure_spec.items())
+    }
+    path.write_text(yaml.dump(overlay, default_flow_style=False, allow_unicode=True, sort_keys=False), encoding="utf-8")
+
+
 def build_ir(
     *,
     master_registry: Dict[str, Any],
@@ -286,6 +355,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--out", default="tooling/ir/out/ir_v1.json")
     p.add_argument("--ir-version", default="1.0")
     p.add_argument("--kpi-catalog", default="", help="Optional path to core/kpi_catalog to add measure_spec to IR (for IR-first adapters).")
+    p.add_argument("--fabric-overlay", default="", help="Optional path to Fabric measure overlay YAML; merged over measure_spec (dax_expression, format_string, dax_name, display_folder).")
+    p.add_argument("--write-fabric-overlay", default="", help="Optional path to write current measure_spec Fabric fields to YAML (one-time extraction from KPI catalog).")
     args = p.parse_args(argv)
 
     master_path = Path(args.master_registry)
@@ -307,6 +378,17 @@ def main(argv: list[str] | None = None) -> int:
             raise SystemExit(f"KPI catalog path is not a directory: {kpi_root}")
         measure_spec = _scan_kpi_catalog(kpi_root)
         print(f"measure_spec: {len(measure_spec)} KPIs from {kpi_root.as_posix()}")
+
+        if args.fabric_overlay:
+            overlay_path = Path(args.fabric_overlay)
+            overlay = _load_fabric_overlay(overlay_path)
+            _merge_fabric_overlay(measure_spec, overlay)
+            print(f"merged fabric overlay: {overlay_path.as_posix()} ({len(overlay)} entries)")
+
+        if args.write_fabric_overlay:
+            out_overlay = Path(args.write_fabric_overlay)
+            _write_fabric_overlay(measure_spec, out_overlay)
+            print(f"wrote fabric overlay: {out_overlay.as_posix()}")
 
     ir = build_ir(
         master_registry=master_registry,

@@ -12,12 +12,15 @@
   Directory for report files (default: tooling/validation/results).
 .PARAMETER FailOnFinding
   If set, exit 1 when any finding exists (for strict CI).
+.PARAMETER AllowedSharedTables
+  Table names that are allowed to appear in multiple domain files (conformed/shared). When not set, uses built-in default: dim_date, dim_org, dim_product, dim_customer, fact_sales, fact_nps, fact_inventory.
 #>
 Param(
   [string]$Root = ".",
   [string]$KpiCatalogRoot = "core/kpi_catalog",
   [string]$OutputDir = "",
-  [switch]$FailOnFinding
+  [switch]$FailOnFinding,
+  [string[]]$AllowedSharedTables = @()
 )
 
 $ErrorActionPreference = "Stop"
@@ -80,11 +83,17 @@ foreach ($m in [regex]::Matches($raw, '(?m)^\s*-\s+(dim_[a-z0-9_]+|fact_[a-z0-9_
   if (-not $lineageRefs[$key]) { $lineageRefs[$key] = @{ table = $table; column = $col } }
 }
 
+# Default allowlist for tables intentionally defined in multiple domains (see core/data_contracts/README.md)
+if ($AllowedSharedTables.Count -eq 0) {
+  $AllowedSharedTables = @('dim_date', 'dim_org', 'dim_product', 'dim_customer', 'fact_sales', 'fact_nps', 'fact_inventory')
+}
+
 $findings = @()
 
-# Cross-domain duplicate table names
+# Cross-domain duplicate table names (skip allowlisted shared/conformed tables)
 foreach ($dup in $crossDomainDuplicates) {
   $tname = $dup[0]
+  if ($AllowedSharedTables -contains $tname) { continue }
   $files = $dup[1] -join ', '
   $findings += [pscustomobject]@{
     Severity    = 'Warning'

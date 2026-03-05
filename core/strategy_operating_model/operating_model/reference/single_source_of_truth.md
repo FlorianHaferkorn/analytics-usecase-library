@@ -14,12 +14,13 @@ Scope:
 
 ## Rules (non-negotiable)
 
-1. One concept ->' one canonical file or folder.
-2. If a concept appears elsewhere, it must be a **link-back** or **derived view** (explicitly marked).
-3. No canonical definition may exist in more than one place.
-4. Every use case must be traceable end-to-end:
+1. **Core = tool-agnostic; products/ = tool-specific.** Canonical definitions in core contain structure, IDs, lineage, and logical formulas only. Tool-specific realisation (e.g. DAX, TMDL, PBI visualType) lives under `products/<tool>/` (e.g. `products/fabric/powerbi/`). See plan "Tool-agnostic vs tool-specific Trennung" for migration.
+2. One concept ->' one canonical file or folder.
+3. If a concept appears elsewhere, it must be a **link-back** or **derived view** (explicitly marked).
+4. No canonical definition may exist in more than one place.
+5. Every use case must be traceable end-to-end:
    Strategy KPI ->' Use Case ->' required_kpi_ids ->' KPI Catalog ->' Measure Dictionary ->' Data Contract ->' Semantic Model blueprint.
-5. If the canonical source changes, derived views must be updated in the same PR.
+6. If the canonical source changes, derived views must be updated in the same PR.
 
 Use Cases contain only references to KPIs: required_kpi_ids (IDs; in factsheets represented as required_kpis[].id) and kpi_catalog_id (file-based reference); no KPI semantics (definitions, lineage, targets, units) belong in use case artifacts.
 

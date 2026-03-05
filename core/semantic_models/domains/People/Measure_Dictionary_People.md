@@ -3,32 +3,31 @@
 Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
-- measure_name: "Digital Adoption %"
+- measure_name: Digital Adoption %
   is_kpi_measure: true
-  kpi_id_ref: "people.digital_adoption.pct"
-  semantic_model: "People_SemanticModel"
-  display_folder: "03_Digital"
-  category: "KPI"
+  kpi_id_ref: people.digital_adoption.pct
+  semantic_model: People_SemanticModel
+  display_folder: 03_Digital
+  category: KPI
   expression:
-    dax: |
-      VAR Users = SUM ( fact_it[Digital Users] )
-      VAR Heads = SUM ( fact_hr[Headcount] )
-      RETURN DIVIDE ( Users, Heads )
-    formatString: "0.0%"
+    logical: 'Fabric: see overlay / TMDL.'
   documentation:
-    description: "Digital tool users divided by total employees."
-    notes: |
-      Grain: month. Unit: %.
+    description: Digital tool users divided by total employees.
+    notes: 'Grain: month. Unit: %.
+
       Lineage: fact_it[Digital Users], fact_hr[Headcount].
+
       QA: Headcount > 0; user identity consistent.
+
+      '
   dependencies:
     columns:
-      - "fact_it[Digital Users]"
-      - "fact_hr[Headcount]"
+    - fact_it[Digital Users]
+    - fact_hr[Headcount]
   governance:
-    owner: "People Analytics"
-    status: "draft"
-    version: "v1.2"
-    last_review: "TBD"
+    owner: People Analytics
+    status: draft
+    version: v1.2
+    last_review: TBD
 ```
 

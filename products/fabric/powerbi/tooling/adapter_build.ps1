@@ -11,6 +11,8 @@ Param(
   [string]$DistRoot       = "products/fabric/powerbi/dist",
   [string]$IROutPath      = "tooling/ir/out/ir_v1.json",
   [switch]$SkipStage1,
+  # Fabric measure overlay (dax_expression, format_string, dax_name). When set and file exists, build_ir merges overlay over catalog.
+  [string]$FabricOverlay  = "products/fabric/powerbi/specs/fabric_measure_overlay.yaml",
   # Legacy: run measure generator from Core paths instead of IR (not recommended).
   [switch]$LegacyCorePaths
 )
@@ -28,10 +30,14 @@ if (-not $SkipStage1) {
 
 if (-not $LegacyCorePaths) {
   Write-Host ">> Build IR (Core ABI + KPI catalog -> measure_spec)" -ForegroundColor Cyan
+  $buildIrArgs = @("--kpi-catalog", $KpiCatalogRoot, "--out", $IROutPath)
+  if ($FabricOverlay -and (Test-Path $FabricOverlay)) {
+    $buildIrArgs += @("--fabric-overlay", $FabricOverlay)
+  }
   if (Get-Command py -ErrorAction SilentlyContinue) {
-    & py -3 ./tooling/ir/build_ir.py --kpi-catalog $KpiCatalogRoot --out $IROutPath
+    & py -3 ./tooling/ir/build_ir.py @buildIrArgs
   } else {
-    & python ./tooling/ir/build_ir.py --kpi-catalog $KpiCatalogRoot --out $IROutPath
+    & python ./tooling/ir/build_ir.py @buildIrArgs
   }
   if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
   Write-Host ""

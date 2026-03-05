@@ -31,11 +31,17 @@ py -3 tooling/ir/build_ir.py
 
 # IR + measure_spec for IR-first adapters (no direct Core reads by adapters)
 py -3 tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog
+
+# With Fabric measure overlay (tool-agnostic core; DAX in products/fabric/powerbi/specs)
+py -3 tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog --fabric-overlay products/fabric/powerbi/specs/fabric_measure_overlay.yaml
+
+# One-time: write current catalog DAX fields to overlay YAML
+py -3 tooling/ir/build_ir.py --kpi-catalog core/kpi_catalog --write-fabric-overlay products/fabric/powerbi/specs/fabric_measure_overlay.yaml
 ```
 
 Output (ignored by git): `tooling/ir/out/ir_v1.json`
 
-When `--kpi-catalog` is provided, the script scans the KPI catalog for DAX/formats and adds a top-level `measure_spec` (kpi_id → dax_expression, format_string, dax_name, etc.). Adapters can then generate TMDL/measures from IR only.
+When `--kpi-catalog` is provided, the script scans the KPI catalog for DAX/formats and adds a top-level `measure_spec` (kpi_id → dax_expression, format_string, dax_name, etc.). With `--fabric-overlay`, Fabric-specific fields are merged from the overlay (see tool-agnostic separation in `products/fabric/powerbi/docs/tool_agnostic_separation.md`). Adapters can then generate TMDL/measures from IR only.
 
 ## IR-first adapter flow
 
