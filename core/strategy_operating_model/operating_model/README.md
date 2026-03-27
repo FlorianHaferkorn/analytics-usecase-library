@@ -49,7 +49,7 @@ Defines how analytical models are structured to be scalable, reusable, and actio
 Files:
 
 - `semantic_layer.md`
-- `reference/ActionReady_SemanticModel_Blueprint.md` (legacy redirect; archived to internal/archive/legacy_action_ready_and_blueprint_2026-02/)
+- *(Legacy ActionReady blueprint archived to `internal/archive/legacy_action_ready_and_blueprint_2026-02/`.)*
 - `reference/TMDL_Allowed_Subset.md`
 - `reference/TMDL_Official_Refs.md`
 
@@ -81,7 +81,7 @@ Defines ownership, quality gates, lifecycle management, and operational monitori
 Files:
 
 - `data_governance.md` — includes artifact design laws (§7), framework audit & registry engine (§8), and trust signals (§9)
-- `usecases/Usecase_DoD_Core.md`
+- `usecases/usecase_DoD_Core.md`
 
 ### 3.8 Automation & AI Readiness
 
@@ -106,8 +106,8 @@ Layer mapping:
 
 - WHY -> `core/strategy_operating_model/company/`
 - HOW -> `core/strategy_operating_model/operating_model/`
-- WHAT ->' `usecases/`
-- TEMPLATES ->' `core/templates/`
+- WHAT → `usecases/`
+- TEMPLATES → `core/templates/`
 
 The operating model connects strategy with execution.
 

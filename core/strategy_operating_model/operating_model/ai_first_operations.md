@@ -38,8 +38,8 @@ This document defines **binding guardrails**. It does not introduce new business
 
 - **Stage 1**: `tooling/run_stage1_checks.ps1`
 - **Registry strict**: `tooling/ontology/registry_builder.py --strict` (included via Stage 1 registry check)
-- **Tool validation**: adapter-specific validation (e.g. Fabric checks via `products/fabric_powerbi/tooling/run_fabric_checks.ps1`)
-- **Deploy gate** (when deploying): zero-tolerance gate for contracts + registry (e.g. `products/fabric_powerbi/orchestrator/deploy_gate.ps1`)
+- **Tool validation**: adapter-specific validation (e.g. Fabric checks via `products/fabric/powerbi/tooling/run_fabric_checks.ps1`)
+- **Deploy gate** (when deploying): zero-tolerance gate for contracts + registry (e.g. `products/fabric/powerbi/orchestrator/deploy_gate.ps1`)
 
 ## Operating workflow (AI-first)
 

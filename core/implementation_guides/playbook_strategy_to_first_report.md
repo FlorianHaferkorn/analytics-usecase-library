@@ -96,7 +96,7 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 
 1. **Design** the semantic model (tables, relationships, grain) to support the required facts and dimensions from Step 3 (Silver). Use `core/strategy_operating_model/operating_model/semantic_layer.md` and implementation guide (e.g. Fabric) for patterns. (Legacy blueprint archived to internal/archive/legacy_action_ready_and_blueprint_2026-02/.)
 2. **Implement measures** for every required KPI in the use-case pack. Use the KPI Catalog and measure system rules (`operating_model/measure_system.md`). For Fabric/Power BI: generate or author TMDL; use `tooling/generation/generate_tmdl_measures.ps1` if applicable.
-3. **Validate:** Run **Stage 1** from repo root: `.\tooling\run_stage1_checks.ps1`. For Fabric: run `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1` (measures vs KPI, TMDL vs measure dictionary). Fix any failures.
+3. **Validate:** Run **Stage 1** from repo root: `.\tooling\run_stage1_checks.ps1`. For Fabric: run `.\products\fabric/powerbi\tooling\run_fabric_checks.ps1` (measures vs KPI, TMDL vs measure dictionary). Fix any failures.
 
 **Output:** Semantic model (e.g. TMDL dataset) with measures aligned to KPI catalog; Stage 1 and Fabric checks green.
 
@@ -113,7 +113,7 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 1. **Pick one use case** from the pack for the first report (e.g. COM-002 Margin & Price Performance).
 2. **Layout:** Follow the use case's **5. 3-30-300 Page Layout** (Business Factsheet): 3-second layer (KPI cards), 30-second layer (main visuals), required slicers, 300-second layer (diagnostics).
 3. **Templates:** Use `core/templates/page_templates/` and implementation guide (e.g. Fabric report structure, theme) for consistency.
-4. **Apply standardized theme:** Themes are **applied automatically** when using the page scaffold generator (unless `--no-theme` is set). The generator detects showcase default or framework default from `themes.config.json`. To override: use `--theme <name>` when generating scaffolds. To apply manually: `py products/fabric_powerbi/tooling/apply_report_theme.py path/to/Report --theme-name '<name>'`. Base theme remains fixed; custom theme defines the standardized look. For IBCS styling, use `--theme-name "IBCS_Light"` or set as default via `setup_theme_defaults.py`. Theme schema (optional): run `py products/fabric_powerbi/tooling/theme_generator/tools/theme-agent/fetch_latest_theme_schema.py --update-pin` once or in CI so validation uses the latest schema.
+4. **Apply standardized theme:** Themes are **applied automatically** when using the page scaffold generator (unless `--no-theme` is set). The generator detects showcase default or framework default from `themes.config.json`. To override: use `--theme <name>` when generating scaffolds. To apply manually: `py products/fabric/powerbi/tooling/apply_report_theme.py path/to/Report --theme-name '<name>'`. Base theme remains fixed; custom theme defines the standardized look. For IBCS styling, use `--theme-name "IBCS_Light"` or set as default via `setup_theme_defaults.py`. Theme schema (optional): run `py products/fabric/powerbi/tooling/theme_generator/tools/theme-agent/fetch_latest_theme_schema.py --update-pin` once or in CI so validation uses the latest schema.
 5. **Action codes:** Ensure the report (or an action panel) can surface which action codes apply when KPIs deviate (trigger levels L1–L3). Definitions stay in `core/action_codes/`; report only references them.
 6. **Deploy** to a dev or test workspace; validate with business that definitions and layout match expectations.
 
@@ -130,7 +130,7 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 **Actions:**
 
 1. **Run Stage 1** again after any changes to factsheets, KPI catalog, or action codes: `.\tooling\run_stage1_checks.ps1`.
-2. **Run Fabric checks** (if using Fabric): `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1`.
+2. **Run Fabric checks** (if using Fabric): `.\products\fabric/powerbi\tooling\run_fabric_checks.ps1`.
 3. **Review with business:** Confirm key questions are answered by the report; confirm action codes are understandable and owned.
 4. **Iterate:** Add the next use case from the pack; repeat Steps 4–6 as needed. Extend to more domains when ready.
 
@@ -141,7 +141,7 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 - [ ] **Apply theme** (Theme Generator or `apply_report_theme`); document theme name and path.
 - [ ] Run **Report Documentation Generator** for the report: `generate_report_documentation.py --report <Report>`; store output in `showcases/<name>/reporting/Report_Documentation_<ID>.md`.
 - [ ] Run **Stage 1**: `.\tooling\run_stage1_checks.ps1`.
-- [ ] Run **Fabric checks**: `.\products\fabric_powerbi\tooling\run_fabric_checks.ps1`.
+- [ ] Run **Fabric checks**: `.\products\fabric/powerbi\tooling\run_fabric_checks.ps1`.
 
 **Output:** Stable first report; checklist for adding the next use case; governance (ownership, change flow) in place.
 
@@ -161,9 +161,9 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 | Ownership RACI | `core/strategy_operating_model/operating_model/ownership_raci_golden_thread.md` |
 | Silver data contracts | `core/data_contracts/` (domains/, sources/) |
 | Page templates | `core/templates/page_templates/` |
-| Fabric/Power BI implementation | `products/fabric_powerbi/docs/fabric_powerbi.md` |
+| Fabric/Power BI implementation | `products/fabric/powerbi/docs/fabric/powerbi.md` |
 | Stage 1 (CI gate) | `tooling/run_stage1_checks.ps1` |
-| Fabric checks | `products/fabric_powerbi/tooling/run_fabric_checks.ps1` |
+| Fabric checks | `products/fabric/powerbi/tooling/run_fabric_checks.ps1` |
 
 ---
 
