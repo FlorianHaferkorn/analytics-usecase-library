@@ -204,13 +204,13 @@ def get_connection(connection_identifier: str) -> Optional[Dict[str, Any]]:
             if result.get("status_code", 404) == 200:
                 return result.get("text")
             return None
-        except:
+        except (json.JSONDecodeError, KeyError, ValueError):
             return None
     else:
         connection_path = f".connections/{connection_identifier}.Connection"
         try:
             return get_item(connection_path)
-        except:
+        except (subprocess.CalledProcessError, OSError):
             return None
 
 
@@ -222,7 +222,7 @@ def connection_exists(connection_identifier: str) -> bool:
         try:
             result = json.loads(response)
             return result.get("status_code", 404) == 200
-        except:
+        except (json.JSONDecodeError, KeyError, ValueError):
             return False
     else:
         connection_path = f".connections/{connection_identifier}.Connection"
@@ -456,7 +456,7 @@ def get_git_connection(workspace_id: str, max_retries: int = 5) -> Optional[Dict
                 retry_count += 1
             else:
                 return result.get("text")
-        except:
+        except (json.JSONDecodeError, KeyError, ValueError):
             time.sleep(2)
             retry_count += 1
     
