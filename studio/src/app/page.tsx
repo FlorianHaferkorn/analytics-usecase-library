@@ -1,39 +1,64 @@
 import Link from 'next/link';
+import { loadKpiCatalog } from '@/lib/core/catalog-loader';
+import { loadAllActionCodes } from '@/lib/core/action-loader';
+import { loadAllBrackets } from '@/lib/core/bracket-loader';
 
 const NAV_ITEMS = [
   {
     href: '/discovery',
     title: 'Discovery Hub',
     description: 'Extract strategy anchors from business reports and research',
-    icon: '🔍',
+    icon: 'D',
+    color: 'var(--mint)',
   },
   {
     href: '/steering',
     title: 'Steering Hub',
-    description: 'Visualize and edit the Golden Thread: Strategy → KPI → Action',
-    icon: '🌳',
+    description: 'Visualize and edit the Golden Thread: Strategy to Action',
+    icon: 'S',
+    color: 'var(--mint)',
   },
   {
     href: '/registry',
     title: 'Registry',
     description: 'Manage the SSOT KPI catalog and action code library',
-    icon: '📋',
+    icon: 'R',
+    color: 'var(--info)',
   },
   {
     href: '/brand-lab',
     title: 'Brand & UX Lab',
     description: 'Define themes, layouts, and preview 3-30-300 report pages',
-    icon: '🎨',
+    icon: 'B',
+    color: 'var(--gold)',
   },
   {
     href: '/delivery',
     title: 'Delivery',
     description: 'Export to Fabric/Power BI, SQL, or Evidence.dev',
-    icon: '🚀',
+    icon: 'X',
+    color: 'var(--gold)',
   },
 ] as const;
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [kpis, actions, brackets] = await Promise.all([
+    loadKpiCatalog(),
+    loadAllActionCodes(),
+    loadAllBrackets(),
+  ]);
+
+  const stats = [
+    { label: 'KPIs', value: kpis.length, color: 'var(--mint)' },
+    { label: 'Action Codes', value: actions.length, color: 'var(--gold)' },
+    { label: 'Use Cases', value: brackets.length, color: 'var(--info)' },
+    {
+      label: 'Domains',
+      value: [...new Set(brackets.map((b) => b.domain))].length,
+      color: 'var(--slate-300)',
+    },
+  ];
+
   return (
     <div
       style={{
@@ -43,7 +68,7 @@ export default function HomePage() {
         alignItems: 'center',
         justifyContent: 'center',
         padding: 'var(--sp-4)',
-        gap: 'var(--sp-6)',
+        gap: 'var(--sp-4)',
       }}
     >
       <header style={{ textAlign: 'center' }}>
@@ -70,6 +95,38 @@ export default function HomePage() {
         </p>
       </header>
 
+      {/* Pulse Stats */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 'var(--sp-2)',
+          maxWidth: '640px',
+          width: '100%',
+        }}
+      >
+        {stats.map((stat) => (
+          <div
+            key={stat.label}
+            style={{
+              padding: 'var(--sp-2)',
+              backgroundColor: 'var(--slate-800)',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--slate-700)',
+              textAlign: 'center',
+            }}
+          >
+            <p style={{ fontSize: '1.75rem', fontWeight: 700, color: stat.color }}>
+              {stat.value}
+            </p>
+            <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: '2px' }}>
+              {stat.label}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Navigation Grid */}
       <nav
         style={{
           display: 'grid',
@@ -93,7 +150,22 @@ export default function HomePage() {
               transition: 'border-color var(--duration-fast) var(--ease-out)',
             }}
           >
-            <div style={{ fontSize: '1.5rem', marginBottom: 'var(--sp-1)' }}>
+            <div
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: 'var(--radius-md)',
+                backgroundColor: 'var(--slate-900)',
+                border: `1px solid ${item.color}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '0.875rem',
+                fontWeight: 700,
+                color: item.color,
+                marginBottom: 'var(--sp-1-5)',
+              }}
+            >
               {item.icon}
             </div>
             <h2
@@ -114,7 +186,7 @@ export default function HomePage() {
       </nav>
 
       <footer style={{ color: 'var(--slate-600)', fontSize: '0.75rem' }}>
-        ActionReady Analytics Platform v0.1.0 — Aurora Group Showcase
+        ActionReady Analytics Platform v0.1.0 — Aurora Group SE Showcase
       </footer>
     </div>
   );
