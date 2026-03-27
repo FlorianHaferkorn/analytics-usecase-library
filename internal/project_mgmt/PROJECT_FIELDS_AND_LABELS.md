@@ -81,8 +81,8 @@ Use this list to ensure status runs automatically end-to-end:
 
 | What | How |
 |------|-----|
-| **Sync** | On push to `granular_issues.json` (or manual run), [sync_project_from_backlog.yml](../../.github/workflows/sync_project_from_backlog.yml) runs. Status is set to Backlog **only for newly added** items; existing In progress / In review / Done are **not** overwritten. |
-| **In progress** | (1) When the Implementer agent starts work, it runs `set_issue_status.ps1 -Issue N -Status "In progress"` after creating the branch. (2) On push to branch `agent/*`, [project_status_on_branch.yml](../../.github/workflows/project_status_on_branch.yml) sets that issue’s Status to **In progress**. |
+| **Sync** | Run `set_project_fields_only.ps1` or `setup_project_full.ps1` manually to sync backlog items. Status is set to Backlog **only for newly added** items; existing In progress / In review / Done are **not** overwritten. |
+| **In progress** | When the Implementer agent starts work, it runs `set_issue_status.ps1 -Issue N -Status "In progress"` after creating the branch. |
 | **In review / Done** | **GitHub Project Workflows** (repository → Project → Settings / Workflows): enable **Pull request opened** → linked issue Status **In review**; **Pull request merged** (or **Issue closed**) → linked issue Status **Done**. Check once in the GitHub UI that these automations are active. |
 
 ---
@@ -103,16 +103,9 @@ Labels are optional; the script can rely only on Project fields (Priority, Risk,
 
 ---
 
-## 6. Weekly status update (automated)
+## 6. Weekly status update
 
-A scheduled workflow runs the script in [tooling/project_mgmt/](../../tooling/project_mgmt/). The script:
-
-- Queries the project (GraphQL) for items, Status, Milestone, Priority, Risk, Target date, Blocked by.
-- Computes: Done/Total per milestone, overdue P0, blocked items, merged PRs since last run.
-- Sets **At risk** heuristics: e.g. P0 overdue, or P0 blocked, or epic past target date.
-- Calls `createProjectV2StatusUpdate` with body (markdown) and status `ON_TRACK` or `AT_RISK`.
-
-The generated update is a **draft** for human review; a human reviews and publishes in the Project’s status updates. See [internal/project_mgmt/OPERATING_MODEL.md](OPERATING_MODEL.md) for cadence.
+Status updates are created manually or via custom tooling. Review project items in the Board or Table view to assess progress, risks, and blockers. See [internal/project_mgmt/OPERATING_MODEL.md](OPERATING_MODEL.md) for cadence.
 
 ---
 
