@@ -1,0 +1,61 @@
+{
+  "template_id": "executive_kpi",
+  "description": "Executive KPI — tall KPI strip (6+ cards) + large trend + compact comparison panels",
+  "position_mode": "absolute",
+  "canvas": {
+    "width": 1920,
+    "height": 1080
+  },
+  "slots": [
+    {
+      "slot_id": "KPI_Cards",
+      "position": {
+        "x": 32,
+        "y": 32,
+        "width": 1856,
+        "height": 240
+      },
+      "visual_type_hint": "cardVisual"
+    },
+    {
+      "slot_id": "Slicer_Date",
+      "position": {
+        "x": 32,
+        "y": 288,
+        "width": 1856,
+        "height": 70
+      },
+      "visual_type_hint": "slicer"
+    },
+    {
+      "slot_id": "Main_1",
+      "position": {
+        "x": 32,
+        "y": 374,
+        "width": 1232,
+        "height": 674
+      },
+      "visual_type_hint": "lineChart"
+    },
+    {
+      "slot_id": "Main_2",
+      "position": {
+        "x": 1280,
+        "y": 374,
+        "width": 608,
+        "height": 328
+      },
+      "visual_type_hint": "clusteredBarChart"
+    },
+    {
+      "slot_id": "Main_3",
+      "position": {
+        "x": 1280,
+        "y": 718,
+        "width": 608,
+        "height": 330
+      },
+      "visual_type_hint": "clusteredBarChart"
+    }
+  ]
+}

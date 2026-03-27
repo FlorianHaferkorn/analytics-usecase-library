@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "ActionPanel",
+  "position": {
+    "x": 1592,
+    "y": 118,
+    "z": 15000,
+    "height": 930,
+    "width": 296,
+    "tabOrder": 3004
+  },
+  "visual": {
+    "visualType": "textbox",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": []
+        }
+      }
+    },
+    "objects": {
+      "text": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Recommended actions (from action codes)\n\n• O-O1.1 — Operations Stabilisation\n  Owner: maintenance_manager\n  Trigger: ops.availability.pct < 85.0%\n  Impact: High\n  Expected: 3.0–8.0 pp\n  Confidence: High\n  · IDENTIFY top recurring downtime categories on this production line\n  · PRIORITISE chronic failure modes for this line\n  · EXECUTE corrective maintenance and standardisation on this line\n  ⚠ Trigger only if downtime is dominated by recurring failure categories\n  ⚠ Do not trigger if availability loss is driven by approved changeovers\n\n• O-O1.2 — Performance Uplift\n  Owner: production_manager\n  Trigger: ops.performance.pct < 90.0%\n  Impact: Medium\n  Expected: 2.0–6.0 pp\n  Confidence: Medium\n  · Identify lines with sustained performance loss\n  · Analyze micro-stops and speed losses\n  · Implement line balance and standard work corrections\n  ⚠ Trigger only if availability is stable (>= 90%)\n  ⚠ Do not trigger if performance loss is driven by quality rework\n\n• O-O1.3 — Quality & Yield Recovery\n  Owner: quality_manager\n  Trigger: ops.quality.pct < 96.0%\n  Impact: Medium\n  Expected: 1.0–3.0 pp\n  Confidence: Medium\n  · Identify lines with sustained quality loss\n  · Prioritise dominant defect categories\n  · Execute corrective actions and process controls\n  ⚠ Trigger only if availability and performance are stable\n  ⚠ Do not trigger if defects are supplier-driven\n\n• O-O1.4 — Throughput Constraint Resolution\n  Owner: operations_director\n  Trigger: ops.throughput.units < 0.1%\n  Impact: High\n  Expected: 3.0–10.0 %\n  Confidence: Medium\n  · IDENTIFY each production line missing throughput plan\n  · DIAGNOSE the dominant constraint (availability, performance, quality, mix, staffing) for this line\n  · ACTIVATE or REPRIORITISE relevant execution Action Codes for this line\n  ⚠ Trigger only if OEE components are within acceptable range\n  ⚠ Do not trigger if throughput miss is demand-driven'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

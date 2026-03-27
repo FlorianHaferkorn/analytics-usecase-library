@@ -7,7 +7,7 @@
     "z": 10000,
     "height": 70,
     "width": 1232,
-    "tabOrder": 3001
+    "tabOrder": 3002
   },
   "visual": {
     "visualType": "textbox",
@@ -25,7 +25,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Summary'"
+                  "Value": "'[Commercial] Margin & Price Performance\nEvidence grain: invoice_line | Strategic KPI: Gross Margin %'"
                 }
               }
             }

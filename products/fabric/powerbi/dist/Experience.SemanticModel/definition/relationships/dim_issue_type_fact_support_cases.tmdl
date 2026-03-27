@@ -1,0 +1,3 @@
+relationship dim_issue_type_fact_support_cases
+	fromColumn: fact_support_cases.IssueKey
+	toColumn: dim_issue_type.IssueKey

@@ -1,5 +1,9 @@
 # Open-Source Stack (Evidence.dev)
 
+> **Status: Placeholder** — Dieses Produkt ist noch nicht implementiert. Die Struktur ist als Absichtserklärung angelegt; der Inhalt (Pages, Queries, Konfiguration) fehlt noch vollständig.
+>
+> **Scope:** Außerhalb des aktuellen Fabric Showcases (Spur 1). Geplant für einen späteren Ausbau, sobald der Core-Framework-Pipeline vollständig ist (Spur 2).
+
 Platform-agnostic frontend implementation using [Evidence.dev](https://evidence.dev). Logic is driven by Core (KPI catalog, use cases, semantic model); this stack is a **connector** that renders dashboards from that logic.
 
 ## Structure

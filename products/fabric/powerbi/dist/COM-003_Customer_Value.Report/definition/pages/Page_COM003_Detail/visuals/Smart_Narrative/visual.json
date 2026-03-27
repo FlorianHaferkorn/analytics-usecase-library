@@ -7,7 +7,7 @@
     "z": 10000,
     "height": 70,
     "width": 1232,
-    "tabOrder": 3001
+    "tabOrder": 3002
   },
   "visual": {
     "visualType": "textbox",
@@ -25,7 +25,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Summary'"
+                  "Value": "'[Commercial / CustomerValue] Customer Value\nEvidence grain: customer_month | Strategic KPI: CLV (Customer Lifetime Value)'"
                 }
               }
             }

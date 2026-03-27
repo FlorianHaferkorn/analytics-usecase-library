@@ -127,6 +127,17 @@ fact:
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: Shipped Units, type: decimal, agg: sum}
 
+  - name: fact_inventory_snapshot
+    description: "Daily inventory snapshot (units/value) at location-SKU grain for operations monitoring."
+    grain: location_sku_day
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: On-Hand Units, type: decimal, agg: sum}
+      - {name: Inventory Value, type: currency, agg: sum}
+      - {name: Reorder Flag, type: boolean, nullable: true}
+
 settings:
   timezone: Europe/Berlin
   fiscal_year_start: 01-01

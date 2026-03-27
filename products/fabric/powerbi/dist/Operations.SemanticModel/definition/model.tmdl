@@ -1,0 +1,12 @@
+model Model
+	culture: de-DE
+	defaultPowerBIDataSourceVersion: PowerBI_V3
+ref table _ActionReady_Logic
+ref table _Measures
+ref table dim_date
+ref table dim_org
+ref table dim_asset
+ref table dim_product
+ref table fact_ops
+ref table fact_inventory_snapshot
+ref table security_user_org

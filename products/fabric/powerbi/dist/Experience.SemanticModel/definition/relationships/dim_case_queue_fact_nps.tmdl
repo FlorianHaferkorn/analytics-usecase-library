@@ -1,0 +1,3 @@
+relationship dim_case_queue_fact_nps
+	fromColumn: fact_nps.QueueKey
+	toColumn: dim_case_queue.QueueKey

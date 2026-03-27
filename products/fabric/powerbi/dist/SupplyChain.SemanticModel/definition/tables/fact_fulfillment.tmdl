@@ -1,0 +1,57 @@
+/// Order-level fulfillment facts (OTIF, on-time, in-full, penalties, expedite)
+table fact_fulfillment
+	lineageTag: 3cc85299-bf3a-56e7-97e4-2ffe49a5ca50
+	column DateKey
+		dataType: Int64
+		sourceColumn: DateKey
+		summarizeBy: none
+	column OrgKey
+		dataType: Int64
+		sourceColumn: OrgKey
+		summarizeBy: none
+	column ProductKey
+		dataType: Int64
+		sourceColumn: ProductKey
+		summarizeBy: none
+	column LaneKey
+		dataType: Int64
+		sourceColumn: LaneKey
+		summarizeBy: none
+	column 'OTIF Flag'
+		dataType: Boolean
+		sourceColumn: OTIF Flag
+		summarizeBy: none
+	column 'On-Time Flag'
+		dataType: Boolean
+		sourceColumn: On-Time Flag
+		summarizeBy: none
+	column 'In-Full Flag'
+		dataType: Boolean
+		sourceColumn: In-Full Flag
+		summarizeBy: none
+	column 'Order Correct Flag'
+		dataType: Boolean
+		sourceColumn: Order Correct Flag
+		summarizeBy: none
+	column 'Order Qty'
+		dataType: Decimal
+		sourceColumn: Order Qty
+		summarizeBy: none
+	column 'Penalty Amount'
+		dataType: Decimal
+		sourceColumn: Penalty Amount
+		summarizeBy: none
+	column 'Expedite Cost'
+		dataType: Decimal
+		sourceColumn: Expedite Cost
+		summarizeBy: none
+	partition fact_fulfillment = m
+		mode: import
+		source =
+			let
+				Source = Folder.Files(GoldDataPath & "/facts/fact_fulfillment"),
+				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+				FirstFile = FilteredFiles{0}[Content],
+				ParquetData = Parquet.Document(FirstFile)
+			in
+				ParquetData
