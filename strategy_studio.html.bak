@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Strategy Studio</title>
+<title>Strategy Studio v3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;800&family=Barlow:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
@@ -14,29 +14,19 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body,#root{height:100%;overflow:hidden;}
-body{font-size:14px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
-.heading{font-family:'Barlow Condensed',sans-serif;font-weight:800;line-height:1.2;}
+.heading{font-family:'Barlow Condensed',sans-serif;font-weight:800;}
 .subhead{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.04em;}
-::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:rgba(71,215,172,.35);border-radius:4px;}
-::-webkit-scrollbar-thumb:hover{background:rgba(71,215,172,.55);}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-@keyframes slideInR{from{opacity:0;transform:translateX(28px);}to{opacity:1;transform:translateX(0);}}
+::-webkit-scrollbar-thumb{background:rgba(71,215,172,.3);border-radius:4px;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideInR{from{opacity:0;transform:translateX(24px);}to{opacity:1;transform:translateX(0);}}
 @keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
-.fade-in{animation:fadeIn .28s ease;}
-.slide-in{animation:slideInR .22s ease;}
-button{transition:opacity .15s,background .15s,border-color .15s,color .15s;}
-button:hover{opacity:.88;}
+.fade-in{animation:fadeIn .25s ease;}
+.slide-in{animation:slideInR .2s ease;}
+button:hover{opacity:.85;}
 input,textarea,select{outline:none;}
-a{color:inherit;}
-/* Improve min touch target sizes */
-button{min-height:28px;}
-/* Better focus ring */
-button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
-  outline:2px solid rgba(71,215,172,.6);outline-offset:2px;
-}
 </style>
 </head>
 <body>
@@ -177,9 +167,9 @@ function localAnswer(q,context){
     const fs=window.__FS_DATA__[ucm.id];
     return `**${ucm.id}** — ${ucm.title}\n\n**Zweck:** ${fs.purpose}\n\n**Value:** ${fs.value}`;
   }
-  if(ql.includes("gap")||ql.includes("missing")||ql.includes("incomplete")){
+  if(ql.includes("lück")||ql.includes("gap")||ql.includes("fehlt")){
     const gaps=USE_CASES.filter(u=>u.completeness<60);
-    return `**${gaps.length} Use Cases with gaps:**\n\n${gaps.map(u=>`• **${u.id}** — ${u.title} (${u.completeness}%)`).join("\n")}`;
+    return `**${gaps.length} Use Cases mit Lücken:**\n\n${gaps.map(u=>`• **${u.id}** — ${u.title} (${u.completeness}%)`).join("\n")}`;
   }
   if(ql.includes("ready")||ql.includes("fertig")){
     const ready=USE_CASES.filter(u=>u.status==="ready");
@@ -356,14 +346,14 @@ function KpiPanel({kpiId,dark,onClose,industry,perplexityKey}){
       const q=`What is the industry benchmark for "${kd.key}" (${kd.unit||""}) in the ${ind} industry in 2024-2025? Give a specific numeric target and brief context. Answer in 2-3 sentences.`;
       const res=await callPerplexity(perplexityKey,q);
       setBenchmark({text:res.answer,citations:res.citations});
-    }catch(e){setBenchmark({text:"Research failed: "+e.message,citations:[]});}
+    }catch(e){setBenchmark({text:"Recherche fehlgeschlagen: "+e.message,citations:[]});}
     setBenchLoading(false);
   };
 
   const rows=[
     {icon:<Ph.Function s={13} c={c}/>,label:"Definition",val:kd.definition},
-    {icon:<Ph.Tag s={13} c={c}/>,label:"Unit",val:kd.unit||"—"},
-    {icon:<Ph.Info s={13} c={c}/>,label:"Purpose",val:kd.purpose},
+    {icon:<Ph.Tag s={13} c={c}/>,label:"Einheit",val:kd.unit||"—"},
+    {icon:<Ph.Info s={13} c={c}/>,label:"Zweck",val:kd.purpose},
     {icon:<Ph.Scales s={13} c={c}/>,label:"Interpretation",val:kd.interpretation||"—"},
     {icon:<Ph.Person s={13} c={c}/>,label:"Business Owner",val:kd.owner||"—"},
   ];
@@ -377,11 +367,11 @@ function KpiPanel({kpiId,dark,onClose,industry,perplexityKey}){
       <div style={{padding:"13px 16px",borderBottom:`1px solid ${c}20`,display:"flex",alignItems:"center",gap:8}}>
         <Ph.ChartBar s={16} c={c}/>
         <div style={{flex:1}}>
-          <div className="subhead" style={{fontSize:"0.65rem",color:c,letterSpacing:".06em",textTransform:"uppercase"}}>KPI Catalog</div>
-          <div className="heading" style={{fontSize:"1.1rem",color:tx,lineHeight:1.1}}>{kd.key}</div>
+          <div className="subhead" style={{fontSize:"0.65rem",color:c,letterSpacing:".06em",textTransform:"uppercase"}}>KPI Katalog</div>
+          <div className="heading" style={{fontSize:"1rem",color:tx,lineHeight:1.1}}>{kd.key}</div>
           <div style={{fontSize:"0.6rem",color:mu,marginTop:2,fontFamily:"monospace"}}>{kpiId}</div>
         </div>
-        <button onClick={onClose} title="Close" style={{background:"none",border:"none",cursor:"pointer",padding:4}}><Ph.X s={15} c={mu}/></button>
+        <button onClick={onClose} title="Schließen" style={{background:"none",border:"none",cursor:"pointer",padding:4}}><Ph.X s={15} c={mu}/></button>
       </div>
 
       <div style={{flex:1,overflow:"auto",padding:"12px 16px",display:"flex",flexDirection:"column",gap:10}}>
@@ -390,7 +380,7 @@ function KpiPanel({kpiId,dark,onClose,industry,perplexityKey}){
           {[kd.type,kd.role,kd.impact_dimension].filter(Boolean).map(tag=>(
             <span key={tag} style={{fontSize:"0.58rem",padding:"2px 8px",borderRadius:999,border:`1px solid ${c}30`,color:c,fontWeight:700,fontFamily:"'Barlow Condensed',sans-serif"}}>{tag}</span>
           ))}
-          <span title="Completeness score of this KPI" style={{fontSize:"0.58rem",padding:"2px 8px",borderRadius:999,background:scoreColor(kd.completeness_score||70)+"18",color:scoreColor(kd.completeness_score||70),fontWeight:700,fontFamily:"'Barlow Condensed',sans-serif",cursor:"help"}}>{kd.completeness_score||"?"}% complete</span>
+          <span title="Completeness Score dieses KPIs" style={{fontSize:"0.58rem",padding:"2px 8px",borderRadius:999,background:scoreColor(kd.completeness_score||70)+"18",color:scoreColor(kd.completeness_score||70),fontWeight:700,fontFamily:"'Barlow Condensed',sans-serif",cursor:"help"}}>{kd.completeness_score||"?"}% vollständig</span>
         </div>
 
         {/* Benchmark Ampel */}
@@ -398,11 +388,11 @@ function KpiPanel({kpiId,dark,onClose,industry,perplexityKey}){
           <div style={{padding:"9px 11px",background:dark?`${B.blue}10`:`${B.blue}06`,border:`1px solid ${B.blue}25`,borderRadius:8}}>
             <div style={{display:"flex",alignItems:"center",gap:5,marginBottom:4}}>
               <Ph.Target s={12} c={B.blue}/>
-              <span style={{fontSize:"0.58rem",fontWeight:700,color:B.blue,fontFamily:"'Barlow Condensed',sans-serif",textTransform:"uppercase",letterSpacing:".06em"}}>Industry Benchmark · {ind}</span>
+              <span style={{fontSize:"0.58rem",fontWeight:700,color:B.blue,fontFamily:"'Barlow Condensed',sans-serif",textTransform:"uppercase",letterSpacing:".06em"}}>Industrie-Benchmark · {ind}</span>
             </div>
             <div style={{display:"flex",alignItems:"center",gap:8}}>
               <div className="heading" style={{fontSize:"1.1rem",color:B.blue}}>{embeddedBench.target}<span style={{fontSize:"0.65rem",fontWeight:400,marginLeft:2}}>{embeddedBench.unit}</span></div>
-              <div style={{fontSize:"0.6rem",color:mu}}>Target</div>
+              <div style={{fontSize:"0.6rem",color:mu}}>Zielwert</div>
             </div>
           </div>
         )}
@@ -411,7 +401,7 @@ function KpiPanel({kpiId,dark,onClose,industry,perplexityKey}){
         {!benchmark&&perplexityKey&&(
           <button onClick={fetchBenchmark} disabled={benchLoading}
             style={{display:"flex",alignItems:"center",gap:6,padding:"7px 10px",background:`${B.cyan}10`,border:`1px solid ${B.cyan}25`,borderRadius:8,cursor:"pointer",fontSize:"0.63rem",color:B.cyan,fontWeight:700,fontFamily:"'Barlow Condensed',sans-serif"}}>
-            {benchLoading?<span style={{animation:"pulse 1s infinite"}}>Researching…</span>:<><Ph.MagnifyingGlass s={12} c={B.cyan}/>Research current benchmark (Perplexity)</>}
+            {benchLoading?<span style={{animation:"pulse 1s infinite"}}>Recherchiert…</span>:<><Ph.MagnifyingGlass s={12} c={B.cyan}/>Aktuellen Benchmark recherchieren (Perplexity)</>}
           </button>
         )}
         {benchmark&&(
@@ -421,7 +411,7 @@ function KpiPanel({kpiId,dark,onClose,industry,perplexityKey}){
               <span style={{fontSize:"0.58rem",fontWeight:700,color:B.cyan,fontFamily:"'Barlow Condensed',sans-serif",textTransform:"uppercase",letterSpacing:".06em"}}>Perplexity Research</span>
             </div>
             <p style={{fontSize:"0.68rem",color:tx,lineHeight:1.55,margin:0}}>{benchmark.text}</p>
-            {benchmark.citations?.length>0&&<div style={{marginTop:5,fontSize:"0.56rem",color:mu}}>{benchmark.citations.length} source{benchmark.citations.length!==1?"s":""}</div>}
+            {benchmark.citations?.length>0&&<div style={{marginTop:5,fontSize:"0.56rem",color:mu}}>{benchmark.citations.length} Quelle(n)</div>}
           </div>
         )}
 
@@ -430,8 +420,8 @@ function KpiPanel({kpiId,dark,onClose,industry,perplexityKey}){
           <div key={label} style={{display:"flex",gap:8,alignItems:"flex-start"}}>
             <div style={{marginTop:2,flexShrink:0}}>{icon}</div>
             <div>
-              <div style={{fontSize:"0.59rem",fontWeight:700,letterSpacing:".06em",textTransform:"uppercase",color:mu,marginBottom:2,fontFamily:"'Barlow Condensed',sans-serif"}}>{label}</div>
-              <div style={{fontSize:"0.73rem",color:tx,lineHeight:1.55}}>{val}</div>
+              <div style={{fontSize:"0.57rem",fontWeight:700,letterSpacing:".06em",textTransform:"uppercase",color:mu,marginBottom:1,fontFamily:"'Barlow Condensed',sans-serif"}}>{label}</div>
+              <div style={{fontSize:"0.71rem",color:tx,lineHeight:1.5}}>{val}</div>
             </div>
           </div>
         ))}
@@ -441,9 +431,9 @@ function KpiPanel({kpiId,dark,onClose,industry,perplexityKey}){
           <div style={{padding:"9px 11px",background:dark?"#0f172a":"#f8fafc",borderRadius:8,border:`1px solid ${bdr}`}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:5}}>
               <div style={{fontSize:"0.57rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".06em",fontFamily:"'Barlow Condensed',sans-serif"}}>DAX / Measure</div>
-              <button onClick={copyDAX} title="Copy DAX measure"
+              <button onClick={copyDAX} title="DAX-Measure kopieren"
                 style={{display:"flex",alignItems:"center",gap:4,padding:"3px 8px",background:copied?`${B.mint}20`:dark?"#1e293b":"#e2e8f0",border:`1px solid ${copied?B.mint:bdr}`,borderRadius:5,cursor:"pointer",fontSize:"0.6rem",color:copied?B.mint:mu,fontWeight:700,fontFamily:"'Barlow Condensed',sans-serif",transition:"all .2s"}}>
-                {copied?<><Ph.CheckCircle s={10} c={B.mint}/>Copied!</>:<><Ph.Export s={10} c={mu}/>Copy DAX</>}
+                {copied?<><Ph.CheckCircle s={10} c={B.mint}/>Kopiert!</>:<><Ph.Export s={10} c={mu}/>DAX kopieren</>}
               </button>
             </div>
             <code style={{fontSize:"0.67rem",color:B.cyan,fontFamily:"monospace",display:"block",wordBreak:"break-all",lineHeight:1.5}}>{kd.dax}</code>
@@ -453,7 +443,7 @@ function KpiPanel({kpiId,dark,onClose,industry,perplexityKey}){
         {/* Linked Use Cases */}
         {linkedUcs.length>0&&(
           <div>
-            <div style={{fontSize:"0.57rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".06em",marginBottom:6,fontFamily:"'Barlow Condensed',sans-serif"}}>Used in {linkedUcs.length} Use Case{linkedUcs.length!==1?"s":""}</div>
+            <div style={{fontSize:"0.57rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".06em",marginBottom:6,fontFamily:"'Barlow Condensed',sans-serif"}}>In {linkedUcs.length} Use Case(s)</div>
             <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
               {linkedUcs.map(u=>(
                 <span key={u.id} style={{fontSize:"0.63rem",fontWeight:700,padding:"2px 9px",background:`${DOMAIN_COL[u.domain]||B.mint}14`,border:`1px solid ${DOMAIN_COL[u.domain]||B.mint}30`,borderRadius:6,color:DOMAIN_COL[u.domain]||B.mint}}>{u.id}</span>
@@ -477,7 +467,7 @@ function FactsheetPanel({ucId,dark,onClose,onOpenKPI}){
   const bg=dark?"#080e1a":"#ffffff";
   const tx=dark?"#e2e8f0":B.nightfall;
   const mu=dark?"#64748b":"#94a3b8";
-  const tabs=[{id:"overview",label:"Overview"},{id:"questions",label:"Key Questions"},{id:"layout",label:"Report Layout"},{id:"kpis",label:"KPIs"}];
+  const tabs=[{id:"overview",label:"Überblick"},{id:"questions",label:"Kernfragen"},{id:"layout",label:"Report-Layout"},{id:"kpis",label:"KPIs"}];
   return(
     <div className="slide-in" style={{position:"fixed",top:0,right:0,bottom:0,width:380,
       background:bg,borderLeft:`1px solid ${c}30`,zIndex:200,display:"flex",flexDirection:"column",
@@ -489,7 +479,7 @@ function FactsheetPanel({ucId,dark,onClose,onOpenKPI}){
           </div>
           <div style={{flex:1}}>
             <div style={{fontSize:"0.58rem",fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:c,fontFamily:"'Barlow Condensed',sans-serif"}}>{uc.domain} · {uc.id}</div>
-            <div className="heading" style={{fontSize:"1rem",color:tx,lineHeight:1.25}}>{uc.title}</div>
+            <div className="heading" style={{fontSize:"0.95rem",color:tx,lineHeight:1.2}}>{uc.title}</div>
           </div>
           <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",padding:4}}><Ph.X s={15} c={mu}/></button>
         </div>
@@ -509,12 +499,12 @@ function FactsheetPanel({ucId,dark,onClose,onOpenKPI}){
         {activeTab==="overview"&&(
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
             <div style={{padding:"10px 12px",background:dark?`${c}10`:`${c}08`,borderRadius:8,border:`1px solid ${c}20`}}>
-              <div style={{fontSize:"0.58rem",fontWeight:700,color:c,textTransform:"uppercase",letterSpacing:".06em",marginBottom:4,fontFamily:"'Barlow Condensed',sans-serif"}}>Purpose</div>
-              <p style={{fontSize:"0.74rem",color:tx,lineHeight:1.65}}>{fs.purpose||"—"}</p>
+              <div style={{fontSize:"0.58rem",fontWeight:700,color:c,textTransform:"uppercase",letterSpacing:".06em",marginBottom:4,fontFamily:"'Barlow Condensed',sans-serif"}}>Zweck</div>
+              <p style={{fontSize:"0.72rem",color:tx,lineHeight:1.6}}>{fs.purpose||"—"}</p>
             </div>
             <div style={{padding:"10px 12px",background:dark?"rgba(255,255,255,.02)":"#f8fafc",borderRadius:8,border:`1px solid ${dark?"#1e293b":"#e2e8f0"}`}}>
               <div style={{fontSize:"0.58rem",fontWeight:700,color:B.mint,textTransform:"uppercase",letterSpacing:".06em",marginBottom:4,fontFamily:"'Barlow Condensed',sans-serif"}}>Business Value</div>
-              <p style={{fontSize:"0.74rem",color:tx,lineHeight:1.65}}>{fs.value||"—"}</p>
+              <p style={{fontSize:"0.72rem",color:tx,lineHeight:1.6}}>{fs.value||"—"}</p>
             </div>
             {[
               {icon:<Ph.Buildings s={13} c={c}/>,label:"Business Owner",val:fs.owner||"—"},
@@ -546,7 +536,7 @@ function FactsheetPanel({ucId,dark,onClose,onOpenKPI}){
                 <p style={{fontSize:"0.71rem",color:tx,lineHeight:1.55}}>{q}</p>
               </div>
             ))}
-            {(!fs.questions||fs.questions.length===0)&&<p style={{fontSize:"0.72rem",color:mu}}>No key questions defined.</p>}
+            {(!fs.questions||fs.questions.length===0)&&<p style={{fontSize:"0.72rem",color:mu}}>Keine Kernfragen definiert.</p>}
           </div>
         )}
         {activeTab==="layout"&&(
@@ -554,7 +544,7 @@ function FactsheetPanel({ucId,dark,onClose,onOpenKPI}){
             {[
               {label:"3s — KPI Cards",icon:<Ph.Lightning s={13} c={B.vanilla}/>,content:fs.layer3s,color:B.vanilla},
               {label:"30s — Main Visuals",icon:<Ph.ChartBar s={13} c={B.blue}/>,content:"Trend Lines, Waterfall-Bridge, Ranking-Charts",color:B.blue},
-              {label:"300s — Diagnostics",icon:<Ph.MagnifyingGlass s={13} c={B.pink}/>,content:"Decomposition, Guardrail Tables, Top-N Analysis",color:B.pink},
+              {label:"300s — Diagnostics",icon:<Ph.MagnifyingGlass s={13} c={B.pink}/>,content:"Decomposition, Guardrail-Tabellen, Top-N Analyse",color:B.pink},
             ].map(t=>(
               <div key={t.label} style={{padding:"10px 12px",background:dark?"rgba(255,255,255,.03)":"#f8fafc",borderRadius:8,border:`1px solid ${dark?"#1e293b":"#e2e8f0"}`}}>
                 <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:5}}>
@@ -568,7 +558,7 @@ function FactsheetPanel({ucId,dark,onClose,onOpenKPI}){
         {activeTab==="kpis"&&(
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             <div style={{marginBottom:4}}>
-              <div style={{fontSize:"0.57rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".06em",marginBottom:6,fontFamily:"'Barlow Condensed',sans-serif"}}>Strategic KPI</div>
+              <div style={{fontSize:"0.57rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".06em",marginBottom:6,fontFamily:"'Barlow Condensed',sans-serif"}}>Strategischer KPI</div>
               {window.__KPI_DATA__[uc.strategicKpi]&&(
                 <button onClick={()=>onOpenKPI&&onOpenKPI(uc.strategicKpi)}
                   style={{width:"100%",textAlign:"left",padding:"9px 11px",background:`${c}14`,border:`1px solid ${c}30`,borderRadius:8,cursor:"pointer"}}>
@@ -623,7 +613,7 @@ function UCCard({uc,dark,selected,onOpenFS,onOpenKPI}){
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8,gap:6}}>
         <div>
           <div style={{fontSize:"0.58rem",fontWeight:700,color:c,textTransform:"uppercase",letterSpacing:".06em",marginBottom:2,fontFamily:"'Barlow Condensed',sans-serif"}}>{uc.domain} · {uc.id}</div>
-          <div className="heading" style={{fontSize:"0.86rem",color:tx,lineHeight:1.3}}>{uc.title}</div>
+          <div className="heading" style={{fontSize:"0.82rem",color:tx,lineHeight:1.25}}>{uc.title}</div>
         </div>
         <div style={{flexShrink:0,width:32,height:32,borderRadius:"50%",background:`${sc}18`,border:`2px solid ${sc}`,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column"}}>
           <div style={{fontSize:"0.58rem",fontWeight:800,color:sc,fontFamily:"'Barlow Condensed',sans-serif",lineHeight:1}}>{uc.completeness}</div>
@@ -695,8 +685,8 @@ function SourcesPanel({dark,sources,setSources}){
   return(
     <div style={{height:"100%",overflow:"auto",padding:"16px 14px",display:"flex",flexDirection:"column",gap:12}}>
       <div>
-        <div className="heading" style={{fontSize:"0.9rem",color:tx,marginBottom:2}}>Data Sources</div>
-        <p style={{fontSize:"0.67rem",color:mu,lineHeight:1.5}}>Add sources — the AI assistant derives KPIs, value drivers and use cases from them.</p>
+        <div className="heading" style={{fontSize:"0.9rem",color:tx,marginBottom:2}}>Datenquellen</div>
+        <p style={{fontSize:"0.67rem",color:mu,lineHeight:1.5}}>Füge Quellen hinzu — der AI-Assistent leitet daraus KPIs, Werttreiber und Use Cases ab.</p>
       </div>
 
       {/* URL Input */}
@@ -705,11 +695,11 @@ function SourcesPanel({dark,sources,setSources}){
           <Ph.Link s={13} c={mu}/>
           <input value={urlInput} onChange={e=>setUrlInput(e.target.value)}
             onKeyDown={e=>e.key==="Enter"&&addUrl()}
-            placeholder="Add URL (annual report, IR page, …)"
+            placeholder="URL hinzufügen (Jahresbericht, IR-Seite, …)"
             style={{flex:1,background:"none",border:"none",fontSize:"0.72rem",color:tx,fontFamily:"'Barlow',sans-serif"}}/>
         </div>
         <button onClick={addUrl} style={{padding:"7px 12px",background:B.mint,border:"none",borderRadius:8,cursor:"pointer",color:B.nightfall,fontWeight:700,fontSize:"0.7rem",fontFamily:"'Barlow Condensed',sans-serif"}}>
-          Add
+          Hinzufügen
         </button>
       </div>
 
@@ -719,10 +709,10 @@ function SourcesPanel({dark,sources,setSources}){
         style={{padding:"20px",border:`2px dashed ${dragOver?B.mint:bdr}`,borderRadius:10,textAlign:"center",
           cursor:"pointer",transition:"all .2s",background:dragOver?`${B.mint}08`:"transparent"}}>
         <Ph.Upload s={20} c={dragOver?B.mint:mu}/>
-        <div style={{fontSize:"0.72rem",color:dragOver?B.mint:mu,marginTop:8,fontFamily:"'Barlow Condensed',sans-serif",fontWeight:600}}>
-          Drop files here or click to browse
+        <div style={{fontSize:"0.7rem",color:dragOver?B.mint:mu,marginTop:6,fontFamily:"'Barlow Condensed',sans-serif",fontWeight:600}}>
+          Dateien hierher ziehen
         </div>
-        <div style={{fontSize:"0.64rem",color:mu,marginTop:4}}>PDF · PPTX · Excel · CSV · JSON · YAML</div>
+        <div style={{fontSize:"0.62rem",color:mu,marginTop:3}}>PDF · PPTX · Excel · CSV · JSON · YAML</div>
         <input id="fileInput" type="file" multiple style={{display:"none"}} accept=".pdf,.pptx,.docx,.xlsx,.csv,.json,.yaml,.yml"
           onChange={e=>Array.from(e.target.files).forEach(addFile)}/>
       </div>
@@ -731,7 +721,7 @@ function SourcesPanel({dark,sources,setSources}){
       {sources.length>0&&(
         <div style={{display:"flex",flexDirection:"column",gap:6}}>
           <div style={{fontSize:"0.58rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".06em",fontFamily:"'Barlow Condensed',sans-serif"}}>
-            {sources.length} source{sources.length!==1?"s":""} loaded
+            {sources.length} Quelle{sources.length!==1?"n":""} geladen
           </div>
           {sources.map(src=>(
             <div key={src.id} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",background:bg,border:`1px solid ${bdr}`,borderRadius:8}}>
@@ -755,7 +745,7 @@ function SourcesPanel({dark,sources,setSources}){
       {sources.length===0&&(
         <div style={{textAlign:"center",padding:"20px 0",color:mu,fontSize:"0.68rem"}}>
           <Ph.Database s={28} c={mu}/>
-          <div style={{marginTop:8}}>No sources added yet</div>
+          <div style={{marginTop:8}}>Noch keine Quellen hinzugefügt</div>
         </div>
       )}
     </div>
@@ -777,12 +767,12 @@ function UCCreator({dark,sources,onSave,apiKey}){
 
   const runAI=async()=>{
     setLoading(true);
-    const sys=`You are an Analytics Framework expert. Based on the context suggest:
-1. 3-5 relevant KPI keys from the catalog (as array "kpis")
-2. 3 key questions for this use case (as array "questions")  
-3. Business Value Statement (as string "value")
-Reply ONLY as JSON: {"kpis":[],"questions":[],"value":""}`;
-    const userMsg=`Use Case Title: ${form.title}\nDomain: ${form.domain}\nGoal: ${form.goal}\nAvailable Sources: ${sources.map(s=>s.name).join(", ")||"none"}`;
+    const sys=`Du bist ein Analytics Framework Experte. Basierend auf dem Kontext schlage vor:
+1. 3-5 relevante KPI-Keys aus dem Katalog (als Array "kpis")
+2. 3 Kernfragen für diesen Use Case (als Array "questions")  
+3. Business Value Statement (als String "value")
+Antworte NUR als JSON: {"kpis":[],"questions":[],"value":""}`;
+    const userMsg=`Use Case Titel: ${form.title}\nDomain: ${form.domain}\nZiel: ${form.goal}\nVerfügbare Quellen: ${sources.map(s=>s.name).join(", ")||"keine"}`;
     try{
       let result;
       if(apiKey){
@@ -802,8 +792,8 @@ Reply ONLY as JSON: {"kpis":[],"questions":[],"value":""}`;
         };
         result={
           kpis:domainKpis[form.domain]||[],
-          questions:[`How does ${form.title} develop vs. plan?`,`Where are the main drivers for ${form.goal}?`,"What actions can be derived from this?"],
-          value:`Improving ${form.goal} through data-driven decisions in the ${form.domain} domain.`
+          questions:[`Wie entwickelt sich ${form.title} vs. Plan?`,`Wo liegen die größten Treiber für ${form.goal}?`,"Welche Handlungsmaßnahmen ergeben sich daraus?"],
+          value:`Verbesserung von ${form.goal} durch datengetriebene Entscheidungen im Bereich ${form.domain}.`
         };
       }
       setAiSuggestions(result);
@@ -825,12 +815,12 @@ Reply ONLY as JSON: {"kpis":[],"questions":[],"value":""}`;
     onSave(newUC,form);
   };
 
-  const stepLabel=["","Context","AI Derivation","Review & Save"];
+  const stepLabel=["","Kontext","AI-Derivation","Review & Speichern"];
 
   return(
     <div style={{height:"100%",overflow:"auto",padding:"16px 14px",display:"flex",flexDirection:"column",gap:12}}>
       <div>
-        <div className="heading" style={{fontSize:"0.9rem",color:tx,marginBottom:2}}>Create Use Case</div>
+        <div className="heading" style={{fontSize:"0.9rem",color:tx,marginBottom:2}}>Use Case erstellen</div>
         <div style={{display:"flex",gap:0,marginTop:8}}>
           {[1,2,3].map(s=>(
             <div key={s} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
@@ -849,9 +839,9 @@ Reply ONLY as JSON: {"kpis":[],"questions":[],"value":""}`;
       {step===1&&(
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           <div>
-            <label style={{fontSize:"0.62rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".06em",fontFamily:"'Barlow Condensed',sans-serif",display:"block",marginBottom:5}}>Title</label>
+            <label style={{fontSize:"0.62rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".06em",fontFamily:"'Barlow Condensed',sans-serif",display:"block",marginBottom:5}}>Titel</label>
             <input value={form.title} onChange={e=>setForm(p=>({...p,title:e.target.value}))}
-              placeholder="e.g. Margin Performance by Customer"
+              placeholder="z.B. Margin Performance by Customer"
               style={{width:"100%",padding:"8px 10px",background:bg,border:`1px solid ${bdr}`,borderRadius:8,fontSize:"0.72rem",color:tx,fontFamily:"'Barlow',sans-serif"}}/>
           </div>
           <div>
@@ -862,9 +852,9 @@ Reply ONLY as JSON: {"kpis":[],"questions":[],"value":""}`;
             </select>
           </div>
           <div>
-            <label style={{fontSize:"0.62rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".06em",fontFamily:"'Barlow Condensed',sans-serif",display:"block",marginBottom:5}}>Goal / Business Problem</label>
+            <label style={{fontSize:"0.62rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".06em",fontFamily:"'Barlow Condensed',sans-serif",display:"block",marginBottom:5}}>Ziel / Geschäftsproblem</label>
             <textarea value={form.goal} onChange={e=>setForm(p=>({...p,goal:e.target.value}))}
-              rows={3} placeholder="e.g. Margin improvement through pricing optimization and customer segmentation"
+              rows={3} placeholder="z.B. Margenverbesserung durch Preisoptimierung und Kundensegmentierung"
               style={{width:"100%",padding:"8px 10px",background:bg,border:`1px solid ${bdr}`,borderRadius:8,fontSize:"0.72rem",color:tx,fontFamily:"'Barlow',sans-serif",resize:"none"}}/>
           </div>
           <button onClick={()=>form.title&&form.goal?setStep(2):null}
@@ -873,7 +863,7 @@ Reply ONLY as JSON: {"kpis":[],"questions":[],"value":""}`;
               cursor:form.title&&form.goal?"pointer":"not-allowed",color:form.title&&form.goal?(dark?"#000":"#fff"):c,
               fontWeight:700,fontSize:"0.75rem",fontFamily:"'Barlow Condensed',sans-serif",letterSpacing:".04em",
               opacity:form.title&&form.goal?1:.5}}>
-            Continue to AI Derivation
+            Weiter zu AI-Derivation
           </button>
         </div>
       )}
@@ -881,27 +871,27 @@ Reply ONLY as JSON: {"kpis":[],"questions":[],"value":""}`;
       {step===2&&(
         <div style={{display:"flex",flexDirection:"column",gap:10,alignItems:"center",textAlign:"center",padding:"16px 0"}}>
           <Ph.Sparkle s={32} c={c}/>
-          <div className="heading" style={{fontSize:"0.9rem",color:tx}}>AI Analyzing Context</div>
-          <p style={{fontSize:"0.7rem",color:mu,lineHeight:1.6}}>Gemini derives KPIs, key questions and business value from your context.{!apiKey&&" (No API Key → rule-based fallback)"}</p>
+          <div className="heading" style={{fontSize:"0.9rem",color:tx}}>AI analysiert Kontext</div>
+          <p style={{fontSize:"0.7rem",color:mu,lineHeight:1.6}}>Gemini leitet KPIs, Kernfragen und Business Value aus deinem Kontext ab.{!apiKey&&" (Kein API Key → regelbasierter Fallback)"}</p>
           <button onClick={runAI} disabled={loading}
             style={{padding:"10px 20px",background:c,border:"none",borderRadius:8,cursor:loading?"wait":"pointer",
               color:dark?"#000":"#fff",fontWeight:700,fontSize:"0.75rem",fontFamily:"'Barlow Condensed',sans-serif",
               display:"flex",alignItems:"center",gap:7,opacity:loading?.7:1}}>
-            {loading?<span style={{animation:"pulse 1s infinite"}}>Analyzing…</span>:<><Ph.Sparkle s={14} c={dark?"#000":"#fff"}/>Generate AI Suggestions</>}
+            {loading?<span style={{animation:"pulse 1s infinite"}}>Analysiert…</span>:<><Ph.Sparkle s={14} c={dark?"#000":"#fff"}/>AI-Vorschläge generieren</>}
           </button>
-          <button onClick={()=>setStep(1)} style={{background:"none",border:"none",cursor:"pointer",color:mu,fontSize:"0.65rem"}}>Back</button>
+          <button onClick={()=>setStep(1)} style={{background:"none",border:"none",cursor:"pointer",color:mu,fontSize:"0.65rem"}}>Zurück</button>
         </div>
       )}
 
       {step===3&&(
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           <div style={{padding:"10px 12px",background:`${c}10`,border:`1px solid ${c}20`,borderRadius:8}}>
-            <div style={{fontSize:"0.62rem",fontWeight:700,color:c,fontFamily:"'Barlow Condensed',sans-serif",marginBottom:3}}>New ID: {newId}</div>
+            <div style={{fontSize:"0.62rem",fontWeight:700,color:c,fontFamily:"'Barlow Condensed',sans-serif",marginBottom:3}}>Neue ID: {newId}</div>
             <div className="heading" style={{fontSize:"0.85rem",color:tx}}>{form.title}</div>
             <div style={{fontSize:"0.65rem",color:mu,marginTop:2}}>{form.domain}</div>
           </div>
           <div>
-            <div style={{fontSize:"0.62rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".06em",fontFamily:"'Barlow Condensed',sans-serif",marginBottom:5}}>Suggested KPIs</div>
+            <div style={{fontSize:"0.62rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".06em",fontFamily:"'Barlow Condensed',sans-serif",marginBottom:5}}>Vorgeschlagene KPIs</div>
             <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:6}}>
               {form.kpis.map(k=>(
                 <span key={k} style={{fontSize:"0.65rem",padding:"2px 9px",background:`${c}14`,border:`1px solid ${c}30`,borderRadius:6,color:c,fontWeight:600,display:"flex",alignItems:"center",gap:4}}>
@@ -911,7 +901,7 @@ Reply ONLY as JSON: {"kpis":[],"questions":[],"value":""}`;
               ))}
             </div>
             <div style={{display:"flex",gap:5}}>
-              <input value={customKpi} onChange={e=>setCustomKpi(e.target.value)} placeholder="Add KPI key…"
+              <input value={customKpi} onChange={e=>setCustomKpi(e.target.value)} placeholder="KPI-Key hinzufügen…"
                 style={{flex:1,padding:"6px 9px",background:bg,border:`1px solid ${bdr}`,borderRadius:7,fontSize:"0.68rem",color:tx,fontFamily:"'Barlow',sans-serif"}}/>
               <button onClick={()=>{if(customKpi.trim()){setForm(p=>({...p,kpis:[...p.kpis,customKpi.trim()]}));setCustomKpi("");}}}
                 style={{padding:"6px 10px",background:`${c}20`,border:`1px solid ${c}30`,borderRadius:7,cursor:"pointer",color:c}}>
@@ -925,11 +915,11 @@ Reply ONLY as JSON: {"kpis":[],"questions":[],"value":""}`;
               style={{width:"100%",padding:"8px 10px",background:bg,border:`1px solid ${bdr}`,borderRadius:8,fontSize:"0.7rem",color:tx,fontFamily:"'Barlow',sans-serif",resize:"none"}}/>
           </div>
           <div style={{display:"flex",gap:6}}>
-            <button onClick={()=>setStep(2)} style={{flex:1,padding:"9px",background:"transparent",border:`1px solid ${bdr}`,borderRadius:8,cursor:"pointer",color:mu,fontSize:"0.7rem",fontFamily:"'Barlow Condensed',sans-serif"}}>Back</button>
+            <button onClick={()=>setStep(2)} style={{flex:1,padding:"9px",background:"transparent",border:`1px solid ${bdr}`,borderRadius:8,cursor:"pointer",color:mu,fontSize:"0.7rem",fontFamily:"'Barlow Condensed',sans-serif"}}>Zurück</button>
             <button onClick={handleSave} disabled={!form.title}
               style={{flex:2,padding:"9px",background:c,border:"none",borderRadius:8,cursor:"pointer",
                 color:dark?"#000":"#fff",fontWeight:700,fontSize:"0.75rem",fontFamily:"'Barlow Condensed',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
-              <Ph.CheckCircle s={14} c={dark?"#000":"#fff"}/>Save Use Case
+              <Ph.CheckCircle s={14} c={dark?"#000":"#fff"}/>Use Case speichern
             </button>
           </div>
         </div>
@@ -940,7 +930,7 @@ Reply ONLY as JSON: {"kpis":[],"questions":[],"value":""}`;
 
 // ── Chat Panel (Context-Aware + Gemini) ───────────────────────────────────────
 function ChatPanel({dark,apiKey,contextLock,onAgentCmd}){
-  const [msgs,setMsgs]=useState([{id:1,role:"a",text:"Welcome to **Strategy Studio**!\n\nI'm your AI assistant — powered by Gemini when an API key is configured.\n\nAsk me about:\n• KPIs (e.g. `margin.gm.pct`)\n• Use Cases (e.g. `COM-001`)\n• Gaps in the framework\n• Or select a node in the tree / a card for context-aware chat"}]);
+  const [msgs,setMsgs]=useState([{id:1,role:"a",text:"Willkommen im **Strategy Studio v3**!\n\nIch bin dein KI-Assistent — powered by Gemini wenn ein API-Key hinterlegt ist.\n\nFrag mich nach:\n• KPIs (z.B. `margin.gm.pct`)\n• Use Cases (z.B. `COM-001`)\n• Lücken im Framework\n• Oder wähle einen Knoten im Tree / eine Karte für Kontext-Chat"}]);
   const [input,setInput]=useState("");
   const [loading,setLoading]=useState(false);
   const [mode,setMode]=useState("explain");
@@ -951,7 +941,7 @@ function ChatPanel({dark,apiKey,contextLock,onAgentCmd}){
   useEffect(()=>{
     if(contextLock){
       const label=contextLock.type==="kpi"?(window.__KPI_DATA__[contextLock.id]?.key||contextLock.id):contextLock.id;
-      setMsgs(p=>[...p,{id:Date.now(),role:"a",text:`**Context active: ${label}**\n\nI'm now focused on this element. What would you like to know or improve?`}]);
+      setMsgs(p=>[...p,{id:Date.now(),role:"a",text:`**Kontext aktiv: ${label}**\n\nIch fokussiere mich jetzt auf dieses Element. Was möchtest du wissen oder verbessern?`}]);
     }
   },[contextLock]);
 
@@ -964,9 +954,9 @@ function ChatPanel({dark,apiKey,contextLock,onAgentCmd}){
     try{
       let rawAnswer;
       const modeInstruction={
-        explain:"Explain precisely and in a structured way. Use Markdown for formatting.",
-        complete:"Complete the missing element and suggest concrete values/definitions. If the user explicitly wants a change, use the %%CMD%% syntax.",
-        validate:"Validate the element against best practices and list concrete improvements with priority."
+        explain:"Erkläre präzise und strukturiert auf Deutsch. Nutze Markdown für Formatierung.",
+        complete:"Vervollständige das fehlende Element und schlage konkrete Werte/Definitionen vor. Wenn der Nutzer explizit eine Änderung will, nutze die %%CMD%%-Syntax.",
+        validate:"Validiere das Element gegen Best Practices und nenne konkrete Verbesserungen mit Priorität."
       }[mode];
       const ctxInfo=contextLock?`Aktives Element: ${contextLock.type} "${contextLock.id}"${contextLock.type==="kpi"&&window.__KPI_DATA__[contextLock.id]?` (${window.__KPI_DATA__[contextLock.id].key})`:""}`:"Kein Element aktiv";
       const sys=AGENT_SYSTEM+`\n\nModus: ${mode}\n${ctxInfo}\n${modeInstruction}`;
@@ -981,7 +971,7 @@ function ChatPanel({dark,apiKey,contextLock,onAgentCmd}){
       if(cmds.length>0){
         // Show pending commands for approval
         setMsgs(p=>[...p,{id:Date.now()+1,role:"a",text:cleanAnswer},
-          {id:Date.now()+2,role:"cmd",cmds,text:`**${cmds.length} change${cmds.length!==1?"s":""} suggested** — Accept?`}]);
+          {id:Date.now()+2,role:"cmd",cmds,text:`**${cmds.length} Änderung(en) vorgeschlagen** — Annehmen?`}]);
       }else{
         setMsgs(p=>[...p,{id:Date.now()+1,role:"a",text:cleanAnswer}]);
       }
@@ -1011,7 +1001,7 @@ function ChatPanel({dark,apiKey,contextLock,onAgentCmd}){
     <div style={{display:"flex",flexDirection:"column",height:"100%",overflow:"hidden"}}>
       {/* Mode selector */}
       <div style={{padding:"8px 10px",borderBottom:`1px solid ${bdr}`,flexShrink:0,display:"flex",gap:3,background:dark?"#0c1528":"#f8fafc"}}>
-        {[{id:"explain",label:"Explain"},{id:"complete",label:"Complete"},{id:"validate",label:"Validate"}].map(m=>(
+        {[{id:"explain",label:"Erkläre"},{id:"complete",label:"Ergänze"},{id:"validate",label:"Validiere"}].map(m=>(
           <button key={m.id} onClick={()=>setMode(m.id)}
             style={{flex:1,padding:"5px 4px",borderRadius:6,border:"none",cursor:"pointer",fontSize:"0.62rem",fontWeight:700,
               fontFamily:"'Barlow Condensed',sans-serif",letterSpacing:".03em",
@@ -1033,7 +1023,7 @@ function ChatPanel({dark,apiKey,contextLock,onAgentCmd}){
       {/* API Key indicator */}
       {!apiKey&&(
         <div style={{padding:"4px 10px",background:`${B.vanilla}12`,fontSize:"0.58rem",color:B.vanilla,fontFamily:"'Barlow Condensed',sans-serif",display:"flex",alignItems:"center",gap:4}}>
-          <Ph.Warning s={10} c={B.vanilla}/>No API Key — rule-based mode
+          <Ph.Warning s={10} c={B.vanilla}/>Kein API Key — regelbasierter Modus
         </div>
       )}
 
@@ -1091,7 +1081,7 @@ function ChatPanel({dark,apiKey,contextLock,onAgentCmd}){
         <div style={{display:"flex",gap:6,alignItems:"flex-end"}}>
           <textarea value={input} onChange={e=>setInput(e.target.value)}
             onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}}
-            rows={3} placeholder="Ask the framework assistant…"
+            rows={2} placeholder="Frag den Framework-Assistenten…"
             style={{flex:1,padding:"7px 10px",background:dark?"#0f172a":"#ffffff",border:`1px solid ${bdr}`,borderRadius:9,fontSize:"0.7rem",color:tx,resize:"none",fontFamily:"'Barlow',sans-serif"}}/>
           <button onClick={send} disabled={!input.trim()||loading}
             style={{padding:"8px 10px",background:input.trim()&&!loading?B.mint:"transparent",
@@ -1118,7 +1108,7 @@ function InputSidebar({dark,state,setState}){
   const Section=({id,label,icon,children})=>(
     <div style={{borderBottom:`1px solid ${bdr}`}}>
       <button onClick={()=>toggle(id)} style={{width:"100%",display:"flex",alignItems:"center",gap:7,padding:"9px 12px",background:"none",border:"none",cursor:"pointer",textAlign:"left"}}>
-        {icon}<span className="subhead" style={{flex:1,fontSize:"0.7rem",color:tx}}>{label}</span>
+        {icon}<span className="subhead" style={{flex:1,fontSize:"0.68rem",color:tx}}>{label}</span>
         {sections[id]?<Ph.CaretDown s={11} c={mu}/>:<Ph.CaretRight s={11} c={mu}/>}
       </button>
       {sections[id]&&<div style={{padding:"0 12px 10px"}}>{children}</div>}
@@ -1135,33 +1125,33 @@ function InputSidebar({dark,state,setState}){
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
           {[{v:stats.total,l:"Use Cases",c:tx},{v:stats.ready,l:"Ready",c:B.mint},{v:`${stats.avg}%`,l:"∅ Score",c:scoreColor(stats.avg)}].map(s=>(
             <div key={s.l} style={{textAlign:"center",padding:"5px 4px",background:dark?"#0f172a":"#f8fafc",borderRadius:7}}>
-              <div className="heading" style={{fontSize:"1.1rem",color:s.c,lineHeight:1}}>{s.v}</div>
+              <div className="heading" style={{fontSize:"1rem",color:s.c,lineHeight:1}}>{s.v}</div>
               <div style={{fontSize:"0.52rem",color:mu,marginTop:1,fontFamily:"'Barlow Condensed',sans-serif"}}>{s.l}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <Section id="context" label="Company Context" icon={<Ph.Buildings s={13} c={B.mint}/>}>
+      <Section id="context" label="Unternehmens-Kontext" icon={<Ph.Buildings s={13} c={B.mint}/>}>
         {[
-          {k:"company",label:"Company",ph:"Aurora AG"},
-          {k:"industry",label:"Industry",ph:"FMCG"},
+          {k:"company",label:"Unternehmen",ph:"Aurora AG"},
+          {k:"industry",label:"Branche",ph:"FMCG"},
         ].map(f=>(
           <div key={f.k} style={{marginBottom:7}}>
             <label style={{fontSize:"0.57rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".05em",fontFamily:"'Barlow Condensed',sans-serif",display:"block",marginBottom:3}}>{f.label}</label>
             <input value={state[f.k]||""} onChange={e=>setState(p=>({...p,[f.k]:e.target.value}))} placeholder={f.ph}
-              style={{width:"100%",padding:"7px 9px",background:dark?"#0f172a":"#f8fafc",border:`1px solid ${bdr}`,borderRadius:7,fontSize:"0.72rem",color:tx,fontFamily:"'Barlow',sans-serif"}}/>
+              style={{width:"100%",padding:"6px 8px",background:dark?"#0f172a":"#f8fafc",border:`1px solid ${bdr}`,borderRadius:7,fontSize:"0.7rem",color:tx,fontFamily:"'Barlow',sans-serif"}}/>
           </div>
         ))}
         <div style={{marginBottom:7}}>
-          <label style={{fontSize:"0.57rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".05em",fontFamily:"'Barlow Condensed',sans-serif",display:"block",marginBottom:3}}>Strategic Goal</label>
+          <label style={{fontSize:"0.57rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".05em",fontFamily:"'Barlow Condensed',sans-serif",display:"block",marginBottom:3}}>Strategisches Ziel</label>
           <textarea value={state.goal||""} onChange={e=>setState(p=>({...p,goal:e.target.value}))} rows={2}
-            placeholder="e.g. EBITDA +2%, NPS >50"
-            style={{width:"100%",padding:"7px 9px",background:dark?"#0f172a":"#f8fafc",border:`1px solid ${bdr}`,borderRadius:7,fontSize:"0.72rem",color:tx,resize:"none",fontFamily:"'Barlow',sans-serif"}}/>
+            placeholder="z.B. EBITDA +2%, NPS >50"
+            style={{width:"100%",padding:"6px 8px",background:dark?"#0f172a":"#f8fafc",border:`1px solid ${bdr}`,borderRadius:7,fontSize:"0.7rem",color:tx,resize:"none",fontFamily:"'Barlow',sans-serif"}}/>
         </div>
       </Section>
 
-      <Section id="settings" label="API & Settings" icon={<Ph.Gear s={13} c={B.blue}/>}>
+      <Section id="settings" label="API & Einstellungen" icon={<Ph.Gear s={13} c={B.blue}/>}>
         <div style={{marginBottom:7}}>
           <label style={{fontSize:"0.57rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".05em",fontFamily:"'Barlow Condensed',sans-serif",display:"block",marginBottom:3}}>Gemini API Key</label>
           <div style={{display:"flex",alignItems:"center",gap:5,padding:"6px 8px",background:dark?"#0f172a":"#f8fafc",border:`1px solid ${state.apiKey?B.mint:bdr}`,borderRadius:7}}>
@@ -1171,7 +1161,7 @@ function InputSidebar({dark,state,setState}){
               style={{flex:1,background:"none",border:"none",fontSize:"0.7rem",color:tx,fontFamily:"'Barlow',sans-serif"}}/>
           </div>
           <div style={{fontSize:"0.57rem",color:state.apiKey?B.mint:mu,marginTop:3}}>
-            {state.apiKey?"✓ Gemini active — Agentic Mode":"No key: rule-based chat mode"}
+            {state.apiKey?"✓ Gemini aktiv — Agentic Mode":"Ohne Key: regelbasierter Chat-Modus"}
           </div>
         </div>
         <div style={{marginBottom:7}}>
@@ -1183,11 +1173,11 @@ function InputSidebar({dark,state,setState}){
               style={{flex:1,background:"none",border:"none",fontSize:"0.7rem",color:tx,fontFamily:"'Barlow',sans-serif"}}/>
           </div>
           <div style={{fontSize:"0.57rem",color:state.perplexityKey?B.cyan:mu,marginTop:3}}>
-            {state.perplexityKey?"✓ Benchmark research active":"For live benchmarks (optional)"}
+            {state.perplexityKey?"✓ Benchmark-Recherche aktiv":"Für Live-Benchmarks (optional)"}
           </div>
         </div>
         <div style={{marginBottom:2}}>
-          <label style={{fontSize:"0.57rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".05em",fontFamily:"'Barlow Condensed',sans-serif",display:"block",marginBottom:5}}>Industry Profile</label>
+          <label style={{fontSize:"0.57rem",fontWeight:700,color:mu,textTransform:"uppercase",letterSpacing:".05em",fontFamily:"'Barlow Condensed',sans-serif",display:"block",marginBottom:5}}>Industrie-Profil</label>
           <select value={state.industry||"FMCG"} onChange={e=>setState(p=>({...p,industry:e.target.value}))}
             style={{width:"100%",padding:"6px 8px",background:dark?"#0f172a":"#f8fafc",border:`1px solid ${bdr}`,borderRadius:7,fontSize:"0.7rem",color:tx,fontFamily:"'Barlow',sans-serif",cursor:"pointer"}}>
             {["FMCG","Automotive","Retail","B2B"].map(i=><option key={i}>{i}</option>)}
@@ -1205,7 +1195,7 @@ function InputSidebar({dark,state,setState}){
 function IBtn({onClick,active,dark,title,children}){
   return(
     <button onClick={onClick} title={title}
-      style={{width:32,height:32,display:"flex",alignItems:"center",justifyContent:"center",
+      style={{width:30,height:30,display:"flex",alignItems:"center",justifyContent:"center",
         borderRadius:7,border:`1px solid ${active?(dark?"rgba(71,215,172,.4)":"rgba(71,215,172,.5)"):(dark?"rgba(255,255,255,.1)":"rgba(19,41,75,.1)")}`,
         background:active?(dark?"rgba(71,215,172,.12)":"rgba(71,215,172,.1)"):"transparent",
         cursor:"pointer",color:active?B.mint:(dark?"#94a3b8":"#64748b"),transition:"all .15s"}}>
@@ -1226,27 +1216,27 @@ function OnboardingModal({dark,onDismiss,onSetup}){
   const steps=[
     {
       icon:<Ph.Tree s={28} c={B.mint}/>,
-      title:"Welcome to Strategy Studio",
-      body:"Build a complete analytics framework — from strategy to Power BI deployment. The data shown is currently demo data. Replace it with your own sources.",
-      cta:"Get Started",
+      title:"Willkommen im Strategy Studio",
+      body:"Das Tool hilft dir, ein vollständiges Analytics Framework zu bauen — von der Strategie bis zum Power BI Dashboard. Die Daten sind aktuell Demo-Daten. Du kannst sie durch eigene Quellen ersetzen.",
+      cta:"Los geht's",
     },
     {
       icon:<Ph.Database s={28} c={B.blue}/>,
-      title:"Step 1: Add Sources",
-      body:"In the 'Data Sources' tab you can upload PDFs, Excel files, URLs or JSON. The AI derives strategic KPIs and use cases from them.",
-      cta:"Got it",
+      title:"Schritt 1: Quellen hinzufügen",
+      body:"Im Tab 'Datenquellen' kannst du PDFs, Excel-Dateien, URLs oder JSON hochladen. Die AI leitet daraus strategische KPIs und Use Cases ab.",
+      cta:"Verstanden",
     },
     {
       icon:<Ph.Sparkle s={28} c={B.lavender}/>,
-      title:"Step 2: Use the AI Assistant",
-      body:"Click a node in the tree or a use case card — the chat assistant automatically focuses on it. Ask directly: 'Explain this KPI' or 'Complete missing fields'.",
+      title:"Schritt 2: AI-Assistent nutzen",
+      body:"Klicke auf einen Knoten im Baum oder eine Use-Case-Karte — der Chat-Assistent fokussiert sich automatisch darauf. Du kannst direkt fragen: 'Erkläre diesen KPI' oder 'Ergänze fehlende Felder'.",
       cta:"Weiter",
     },
     {
       icon:<Ph.Export s={28} c={B.cyan}/>,
-      title:"Step 3: Export & Deploy",
-      body:"When your framework is ready, export it as YAML, JSON or Power BI Schema. The Gap Report shows what's still missing before you export.",
-      cta:"Explore Framework",
+      title:"Schritt 3: Exportieren & deployen",
+      body:"Wenn dein Framework bereit ist, exportiere es als YAML, JSON oder Power BI Schema. Der Gap Report zeigt dir, was noch fehlt bevor du exportierst.",
+      cta:"Framework erkunden",
     },
   ];
 
@@ -1265,7 +1255,7 @@ function OnboardingModal({dark,onDismiss,onSetup}){
           ))}
         </div>
 
-        <div style={{textAlign:"center",marginBottom:20}}>
+        <div style={{textAlign:"center",marginBottom:18}}>
           <div style={{marginBottom:14}}>{s.icon}</div>
           <div className="heading" style={{fontSize:"1.1rem",color:tx,marginBottom:8}}>{s.title}</div>
           <p style={{fontSize:"0.75rem",color:mu,lineHeight:1.65,margin:0}}>{s.body}</p>
@@ -1274,7 +1264,7 @@ function OnboardingModal({dark,onDismiss,onSetup}){
         <div style={{display:"flex",gap:8,justifyContent:"center"}}>
           <button onClick={onDismiss}
             style={{padding:"8px 14px",background:"transparent",border:`1px solid ${dark?"#1e293b":"#e2e8f0"}`,borderRadius:9,cursor:"pointer",fontSize:"0.68rem",color:mu,fontFamily:"'Barlow Condensed',sans-serif"}}>
-            Skip
+            Überspringen
           </button>
           <button onClick={()=>isLast?onDismiss():setStep(s=>s+1)}
             style={{padding:"9px 20px",background:B.mint,border:"none",borderRadius:9,cursor:"pointer",
@@ -1403,14 +1393,14 @@ function EditableTree({dark,useCases,setUseCases,treeData,setTreeData,onOpenKPI,
       <div style={{padding:"8px 12px",borderBottom:`1px solid ${bdr}`,background:dark?"#0c1528":"#f8fafc",
         display:"flex",alignItems:"center",gap:8}}>
         <Ph.Gear s={13} c={B.mint}/>
-        <span className="subhead" style={{fontSize:"0.7rem",color:tx}}>Edit Mode — Move Nodes</span>
-        <span style={{fontSize:"0.6rem",color:mu}}>Double-click = rename · Right-click = delete</span>
+        <span className="subhead" style={{fontSize:"0.7rem",color:tx}}>Edit Mode — Knoten verschieben</span>
+        <span style={{fontSize:"0.6rem",color:mu}}>Doppelklick = umbenennen · Rechtsklick = löschen</span>
         <div style={{marginLeft:"auto",display:"flex",gap:4}}>
           <button onClick={()=>{
             const id="kpi.new."+Date.now();
             setNodes(p=>[...p,{id,label:"Neuer KPI",type:"kpi",color:B.mint,x:350,y:200,parentId:"rev",editing:false,ucs:[]}]);
           }} style={{display:"flex",alignItems:"center",gap:4,padding:"4px 9px",background:`${B.mint}15`,border:`1px solid ${B.mint}30`,borderRadius:6,cursor:"pointer",fontSize:"0.62rem",color:B.mint,fontWeight:700,fontFamily:"'Barlow Condensed',sans-serif"}}>
-            <Ph.Plus s={11} c={B.mint}/>Add KPI
+            <Ph.Plus s={11} c={B.mint}/>KPI hinzufügen
           </button>
         </div>
       </div>
@@ -1465,7 +1455,7 @@ function EditableTree({dark,useCases,setUseCases,treeData,setTreeData,onOpenKPI,
         })}
       </svg>
       <div style={{padding:"6px 12px",borderTop:`1px solid ${bdr}`,fontSize:"0.58rem",color:mu,background:dark?"#0c1528":"#f8fafc"}}>
-        {nodes.length} nodes · Double-click = rename · Right-click = delete · Drag = move
+        {nodes.length} Knoten · Doppelklick = umbenennen · Rechtsklick = löschen · Ziehen = verschieben
       </div>
     </div>
   );
@@ -1507,17 +1497,17 @@ function parseAgentCommands(text){
 function stripAgentCommands(text){return text.replace(/%%CMD%%(.+?)%%END%%/gs,"").trim();}
 
 // ── v5: System prompt for agentic Gemini ─────────────────────────────────────
-const AGENT_SYSTEM = `You are an Analytics Framework expert and AI agent in Strategy Studio.
-You can directly modify the Value Driver Tree and Use Cases. When suggesting changes, 
-insert structured commands in this format (ONLY when the user explicitly requests a change):
+const AGENT_SYSTEM = `Du bist ein Analytics Framework Experte und KI-Agent im Strategy Studio.
+Du kannst den Werttreiber-Baum und Use Cases direkt verändern. Wenn du Änderungen vorschlägst, 
+füge strukturierte Befehle in diesem Format ein (NUR wenn der Nutzer explizit eine Änderung wünscht):
 
-%%CMD%%{"action":"add_kpi","payload":{"id":"<kpi.id>","label":"<short name>","parent":"<rev|cost|wc|svc>","color":"<hex>"}}%%END%%
-%%CMD%%{"action":"add_uc","payload":{"id":"<DOM-000>","title":"<title>","domain":"<Domain>","kpis":["<kpi.id>"],"goal":"<goal>"}}%%END%%
-%%CMD%%{"action":"update_uc","payload":{"id":"<UC-ID>","field":"<completeness|status|title>","value":"<value>"}}%%END%%
+%%CMD%%{"action":"add_kpi","payload":{"id":"<kpi.id>","label":"<Kurzname>","parent":"<rev|cost|wc|svc>","color":"<hex>"}}%%END%%
+%%CMD%%{"action":"add_uc","payload":{"id":"<DOM-000>","title":"<Titel>","domain":"<Domain>","kpis":["<kpi.id>"],"goal":"<Ziel>"}}%%END%%
+%%CMD%%{"action":"update_uc","payload":{"id":"<UC-ID>","field":"<completeness|status|title>","value":"<wert>"}}%%END%%
 %%CMD%%{"action":"highlight","payload":{"ids":["<UC-ID>",...]}}%%END%%
 
-Always give a clear explanation in English. Use commands only for explicit change requests.
-Current context is provided in the user message.`;
+Gib immer eine verständliche Erklärung auf Deutsch. Befehle nur bei expliziten Änderungswünschen.
+Aktueller Kontext wird im User-Message mitgegeben.`;
 
 // ── v5: Onboarding state check ────────────────────────────────────────────────
 function useOnboarding(){
@@ -1551,14 +1541,14 @@ function GapReport({dark,useCases,onOpenFS,onOpenChat}){
   const gapFields=(uc)=>{
     const fs=window.__FS_DATA__[uc.id];
     const gaps=[];
-    if(!fs?.purpose||fs.purpose==="—")gaps.push({label:"Purpose missing",severity:"high"});
-    if(!fs?.value||fs.value==="—")gaps.push({label:"Business Value missing",severity:"high"});
-    if(!fs?.owner||fs.owner==="—")gaps.push({label:"Business Owner missing",severity:"medium"});
-    if(!fs?.questions||fs.questions.length===0)gaps.push({label:"Key questions missing",severity:"medium"});
-    if(uc.kpis.length===0)gaps.push({label:"No KPIs linked",severity:"high"});
+    if(!fs?.purpose||fs.purpose==="—")gaps.push({label:"Zweck fehlt",severity:"high"});
+    if(!fs?.value||fs.value==="—")gaps.push({label:"Business Value fehlt",severity:"high"});
+    if(!fs?.owner||fs.owner==="—")gaps.push({label:"Business Owner fehlt",severity:"medium"});
+    if(!fs?.questions||fs.questions.length===0)gaps.push({label:"Kernfragen fehlen",severity:"medium"});
+    if(uc.kpis.length===0)gaps.push({label:"Keine KPIs verknüpft",severity:"high"});
     const hasDAX=uc.kpis.some(k=>window.__KPI_DATA__[k]?.dax);
-    if(!hasDAX)gaps.push({label:"DAX measures missing",severity:"low"});
-    if(uc.actionCodes.length===0)gaps.push({label:"Action codes missing",severity:"low"});
+    if(!hasDAX)gaps.push({label:"DAX-Measures fehlen",severity:"low"});
+    if(uc.actionCodes.length===0)gaps.push({label:"Action Codes fehlen",severity:"low"});
     return gaps;
   };
 
@@ -1575,14 +1565,14 @@ function GapReport({dark,useCases,onOpenFS,onOpenChat}){
       {/* Summary bar */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:14}}>
         {[
-          {v:totalGaps,l:"Total Gaps",c:B.pink,icon:<Ph.Warning s={13} c={B.pink}/>},
-          {v:highGaps,l:"Critical",c:B.pink,icon:<Ph.Warning s={13} c={B.pink}/>},
+          {v:totalGaps,l:"Gesamt-Lücken",c:B.pink,icon:<Ph.Warning s={13} c={B.pink}/>},
+          {v:highGaps,l:"Kritisch",c:B.pink,icon:<Ph.Warning s={13} c={B.pink}/>},
           {v:useCases.filter(u=>u.completeness>=80).length,l:"Ready",c:B.mint,icon:<Ph.CheckCircle s={13} c={B.mint}/>},
           {v:Math.round(useCases.reduce((s,u)=>s+u.completeness,0)/useCases.length),l:"∅ Score",c:scoreColor(Math.round(useCases.reduce((s,u)=>s+u.completeness,0)/useCases.length)),icon:<Ph.Target s={13} c={scoreColor(Math.round(useCases.reduce((s,u)=>s+u.completeness,0)/useCases.length))}/>},
         ].map(s=>(
           <div key={s.l} style={{padding:"10px 12px",background:bg,border:`1px solid ${s.c}25`,borderRadius:10,textAlign:"center"}}>
             <div style={{display:"flex",justifyContent:"center",marginBottom:4}}>{s.icon}</div>
-            <div className="heading" style={{fontSize:"1.3rem",color:s.c,lineHeight:1}}>{s.v}{s.l==="∅ Score"?"%":""}</div>
+            <div className="heading" style={{fontSize:"1.2rem",color:s.c,lineHeight:1}}>{s.v}{s.l==="∅ Score"?"%":""}</div>
             <div style={{fontSize:"0.57rem",color:mu,marginTop:2,fontFamily:"'Barlow Condensed',sans-serif"}}>{s.l}</div>
           </div>
         ))}
@@ -1591,7 +1581,7 @@ function GapReport({dark,useCases,onOpenFS,onOpenChat}){
       {/* Controls */}
       <div style={{display:"flex",gap:6,marginBottom:10,flexWrap:"wrap"}}>
         <div style={{display:"flex",gap:2,background:dark?"#1a2744":"#f1f5f9",borderRadius:7,padding:3}}>
-          {[{id:"score",label:"By Score"},{id:"id",label:"By ID"}].map(s=>(
+          {[{id:"score",label:"Nach Score"},{id:"id",label:"Nach ID"}].map(s=>(
             <button key={s.id} onClick={()=>setSortBy(s.id)}
               style={{padding:"4px 10px",borderRadius:5,border:"none",cursor:"pointer",fontSize:"0.6rem",fontWeight:700,
                 fontFamily:"'Barlow Condensed',sans-serif",background:sortBy===s.id?B.mint:"transparent",
@@ -1606,7 +1596,7 @@ function GapReport({dark,useCases,onOpenFS,onOpenChat}){
               borderRadius:6,cursor:"pointer",fontFamily:"'Barlow Condensed',sans-serif",fontWeight:filterStatus===s?700:400,
               background:filterStatus===s?`${s?scoreColor(s==="ready"?90:s==="review"?65:30):B.mint}14`:"transparent",
               color:filterStatus===s?(s?scoreColor(s==="ready"?90:s==="review"?65:30):B.mint):mu}}>
-            {s||"All"}
+            {s||"Alle"}
           </button>
         ))}
       </div>
@@ -1622,8 +1612,8 @@ function GapReport({dark,useCases,onOpenFS,onOpenChat}){
               <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
                 <div style={{flex:1}}>
                   <div style={{display:"flex",alignItems:"center",gap:6}}>
-                    <span style={{fontSize:"0.64rem",fontWeight:700,color:c,fontFamily:"'Barlow Condensed',sans-serif"}}>{uc.id}</span>
-                    <span style={{fontSize:"0.7rem",fontWeight:600,color:tx}}>{uc.title}</span>
+                    <span style={{fontSize:"0.62rem",fontWeight:700,color:c,fontFamily:"'Barlow Condensed',sans-serif"}}>{uc.id}</span>
+                    <span style={{fontSize:"0.68rem",fontWeight:600,color:tx}}>{uc.title}</span>
                   </div>
                 </div>
                 <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
@@ -1653,13 +1643,13 @@ function GapReport({dark,useCases,onOpenFS,onOpenChat}){
                 </div>
               ):(
                 <div style={{fontSize:"0.62rem",color:B.mint,display:"flex",alignItems:"center",gap:4,marginBottom:7}}>
-                  <Ph.CheckCircle s={12} c={B.mint}/>No gaps found
+                  <Ph.CheckCircle s={12} c={B.mint}/>Keine Lücken gefunden
                 </div>
               )}
               {/* Actions */}
               <div style={{display:"flex",gap:5}}>
                 <button onClick={()=>onOpenFS(uc.id)} style={{flex:1,padding:"5px 8px",background:`${c}12`,border:`1px solid ${c}25`,borderRadius:6,cursor:"pointer",fontSize:"0.62rem",color:c,fontWeight:700,fontFamily:"'Barlow Condensed',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:4}}>
-                  <Ph.FileText s={11} c={c}/>Open Factsheet
+                  <Ph.FileText s={11} c={c}/>Factsheet öffnen
                 </button>
                 <button onClick={()=>onOpenChat({type:"uc",id:uc.id,domain:uc.domain})} style={{flex:1,padding:"5px 8px",background:`${B.lavender}12`,border:`1px solid ${B.lavender}25`,borderRadius:6,cursor:"pointer",fontSize:"0.62rem",color:B.lavender,fontWeight:700,fontFamily:"'Barlow Condensed',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:4}}>
                   <Ph.Sparkle s={11} c={B.lavender}/>AI Refinement
@@ -1805,10 +1795,10 @@ function ExportModal({dark,useCases,sources,onClose}){
   };
 
   const fmts=[
-    {id:"json",label:"JSON",desc:"Complete framework incl. factsheets",icon:<Ph.Database s={15} c={B.mint}/>},
-    {id:"yaml",label:"YAML",desc:"Core framework format (ready to use)",icon:<Ph.FileText s={15} c={B.blue}/>},
-    {id:"csv",label:"CSV",desc:"Use case overview for Excel",icon:<Ph.ChartBar s={15} c={B.vanilla}/>},
-    {id:"pbi",label:"Power BI Schema",desc:"Tabular model stub for Fabric/Desktop",icon:<Ph.Network s={15} c={B.lavender}/>},
+    {id:"json",label:"JSON",desc:"Vollständiges Framework inkl. Factsheets",icon:<Ph.Database s={15} c={B.mint}/>},
+    {id:"yaml",label:"YAML",desc:"Core Framework Format (direkt nutzbar)",icon:<Ph.FileText s={15} c={B.blue}/>},
+    {id:"csv",label:"CSV",desc:"Use Case Übersicht für Excel",icon:<Ph.ChartBar s={15} c={B.vanilla}/>},
+    {id:"pbi",label:"Power BI Schema",desc:"Tabular Model Stub für Fabric/Desktop",icon:<Ph.Network s={15} c={B.lavender}/>},
   ];
 
   return(
@@ -1818,7 +1808,7 @@ function ExportModal({dark,useCases,sources,onClose}){
         border:`1px solid ${bdr}`,boxShadow:"0 24px 60px rgba(0,0,0,.3)"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
           <div>
-            <div className="heading" style={{fontSize:"1rem",color:tx}}>Export Framework</div>
+            <div className="heading" style={{fontSize:"1rem",color:tx}}>Framework exportieren</div>
             <div style={{fontSize:"0.63rem",color:mu,marginTop:2}}>{useCases.length} Use Cases · {Object.keys(window.__KPI_DATA__).length} KPIs</div>
           </div>
           <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer"}}><Ph.X s={16} c={mu}/></button>
@@ -1842,7 +1832,7 @@ function ExportModal({dark,useCases,sources,onClose}){
           style={{width:"100%",padding:"10px",background:B.mint,border:"none",borderRadius:9,cursor:"pointer",
             color:B.nightfall,fontWeight:700,fontSize:"0.78rem",fontFamily:"'Barlow Condensed',sans-serif",
             display:"flex",alignItems:"center",justifyContent:"center",gap:7}}>
-          <Ph.Export s={15} c={B.nightfall}/>Download as {fmts.find(f=>f.id===fmt)?.label}
+          <Ph.Export s={15} c={B.nightfall}/>Als {fmts.find(f=>f.id===fmt)?.label} herunterladen
         </button>
       </div>
     </div>
@@ -1894,7 +1884,7 @@ function YAMLEditor({dark,useCases,setUseCases}){
   const bdr=dark?"#1e293b":"#e2e8f0";
 
   const toYAML=useCallback((ucs)=>{
-    const lines=["# Strategy Framework — Live YAML Editor","# Changes are applied immediately","","use_cases:"];
+    const lines=["# Strategy Framework — Live YAML Editor","# Änderungen werden sofort übernommen","","use_cases:"];
     ucs.forEach(u=>{
       lines.push(`  - id: ${u.id}`);
       lines.push(`    title: "${u.title}"`);
@@ -1944,7 +1934,7 @@ function YAMLEditor({dark,useCases,setUseCases}){
       }).filter(u=>u.id&&u.id.match(/^[A-Z]{2,4}-\d{3}$/));
       if(parsed.length>0){
         setUseCases(parsed);
-        setLastSync(new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"}));
+        setLastSync(new Date().toLocaleTimeString("de-DE"));
       }
     }catch(e){
       setParseError(e.message);
@@ -1964,14 +1954,14 @@ function YAMLEditor({dark,useCases,setUseCases}){
         display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
         <Ph.FileText s={14} c={B.mint}/>
         <div>
-          <div className="subhead" style={{fontSize:"0.72rem",color:tx}}>YAML Live Editor</div>
-          <div style={{fontSize:"0.56rem",color:mu}}>Changes are applied to use cases immediately</div>
+          <div className="subhead" style={{fontSize:"0.72rem",color:tx}}>YAML Live-Editor</div>
+          <div style={{fontSize:"0.56rem",color:mu}}>Änderungen in den Use Cases werden sofort übernommen</div>
         </div>
         {lastSync&&<span style={{fontSize:"0.58rem",color:B.mint,marginLeft:4}}>Sync: {lastSync}</span>}
-        {parseError&&<span style={{fontSize:"0.58rem",color:B.pink,flex:1}}>Parse error: {parseError}</span>}
+        {parseError&&<span style={{fontSize:"0.58rem",color:B.pink,flex:1}}>Parse-Fehler: {parseError}</span>}
         <div style={{marginLeft:"auto",display:"flex",gap:5}}>
           <button onClick={copyAll} style={{display:"flex",alignItems:"center",gap:4,padding:"4px 9px",background:`${B.mint}12`,border:`1px solid ${B.mint}30`,borderRadius:6,cursor:"pointer",fontSize:"0.62rem",color:B.mint,fontWeight:700,fontFamily:"'Barlow Condensed',sans-serif"}}>
-            <Ph.Export s={11} c={B.mint}/>Copy
+            <Ph.Export s={11} c={B.mint}/>Kopieren
           </button>
           <button onClick={downloadYAML} style={{display:"flex",alignItems:"center",gap:4,padding:"4px 9px",background:`${B.blue}12`,border:`1px solid ${B.blue}30`,borderRadius:6,cursor:"pointer",fontSize:"0.62rem",color:B.blue,fontWeight:700,fontFamily:"'Barlow Condensed',sans-serif"}}>
             <Ph.Export s={11} c={B.blue}/>Download
@@ -1992,7 +1982,7 @@ function YAMLEditor({dark,useCases,setUseCases}){
             spellCheck={false}
             style={{flex:1,padding:"12px 14px",background:dark?"#06041F":"#fafafa",color:dark?"#e2e8f0":B.nightfall,
               border:"none",resize:"none",fontFamily:"'Fira Code','Cascadia Code','Consolas',monospace",
-              fontSize:"0.73rem",lineHeight:1.75,outline:"none",
+              fontSize:"0.7rem",lineHeight:1.7,outline:"none",
               borderLeft:parseError?`3px solid ${B.pink}`:`3px solid ${B.mint}`}}/>
         </div>
         {/* Live preview pane */}
@@ -2039,7 +2029,7 @@ function App(){
   const [editMode,setEditMode]=useState(false);
   const [onboardingDone,setOnboardingDone]=useState(false);
   const [treeData,setTreeData]=useState(TREE);
-  const [ctx,setCtx]=useState({company:"Aurora AG",industry:"FMCG",goal:"EBITDA +2%",apiKey:"AIzaSyCHVpsE1xFVK19JTWqHfCM_jvWPONwEjrE",perplexityKey:""});
+  const [ctx,setCtx]=useState({company:"Aurora AG",industry:"FMCG",goal:"EBITDA +2%",apiKey:"",perplexityKey:""});
 
   const bg=dark?"#080e1a":"#eef3fb";
   const sf=dark?"#0c1528":"#ffffff";
@@ -2103,11 +2093,11 @@ function App(){
   const overallScore=Math.round(useCases.reduce((s,u)=>s+u.completeness,0)/useCases.length);
 
   const TABS=[
-    {id:"tree",label:"Value Driver Tree",icon:<Ph.Tree s={13} c="currentColor"/>},
+    {id:"tree",label:"Werttreiber-Baum",icon:<Ph.Tree s={13} c="currentColor"/>},
     {id:"cards",label:"Use Cases",icon:<Ph.Cards s={13} c="currentColor"/>},
-    {id:"network",label:"Dependencies",icon:<Ph.Network s={13} c="currentColor"/>},
+    {id:"network",label:"Abhängigkeiten",icon:<Ph.Network s={13} c="currentColor"/>},
     {id:"gaps",label:"Gap Report",icon:<Ph.Warning s={13} c="currentColor"/>},
-    {id:"sources",label:"Data Sources",icon:<Ph.Database s={13} c="currentColor"/>},
+    {id:"sources",label:"Datenquellen",icon:<Ph.Database s={13} c="currentColor"/>},
     {id:"yaml",label:"YAML / Export",icon:<Ph.FileText s={13} c="currentColor"/>},
     {id:"create",label:"+ Use Case",icon:<Ph.Plus s={13} c="currentColor"/>},
   ];
@@ -2120,41 +2110,41 @@ function App(){
       `}</style>
 
       {/* ── Header ── */}
-      <header style={{height:52,display:"flex",alignItems:"center",padding:"0 16px",gap:10,background:sf,borderBottom:`1px solid ${bdr}`,flexShrink:0,zIndex:10}}>
+      <header style={{height:50,display:"flex",alignItems:"center",padding:"0 14px",gap:8,background:sf,borderBottom:`1px solid ${bdr}`,flexShrink:0,zIndex:10}}>
         <div style={{display:"flex",alignItems:"center",gap:8,marginRight:6}}>
           <div style={{width:30,height:30,borderRadius:9,background:`linear-gradient(135deg,${B.nightfall},${B.lavender})`,display:"flex",alignItems:"center",justifyContent:"center"}}>
             <Ph.Tree s={15} c={B.mint}/>
           </div>
           <div>
-            <div className="heading" style={{fontSize:"1rem",color:tx,lineHeight:1}}>Strategy<span style={{color:B.mint}}>Studio</span></div>
-            <div style={{fontSize:"0.52rem",color:mu,letterSpacing:".07em",textTransform:"uppercase",fontFamily:"'Barlow Condensed',sans-serif"}}>Analytics Operating System</div>
+            <div className="heading" style={{fontSize:"0.9rem",color:tx,lineHeight:1}}>Strategy<span style={{color:B.mint}}>Studio</span></div>
+            <div style={{fontSize:"0.47rem",color:mu,letterSpacing:".07em",textTransform:"uppercase",fontFamily:"'Barlow Condensed',sans-serif"}}>Analytics Operating System</div>
           </div>
         </div>
         <div style={{width:1,height:22,background:bdr}}/>
         {/* Company context pill */}
         <div style={{display:"flex",alignItems:"center",gap:5,padding:"3px 10px",borderRadius:999,border:`1px solid ${bdr}`,background:dark?"#0f172a":"#f1f5f9"}}>
           <div style={{width:5,height:5,borderRadius:"50%",background:B.mint,boxShadow:`0 0 0 2px ${B.mint}28`}}/>
-          <span style={{color:tx,fontWeight:600,fontFamily:"'Barlow Condensed',sans-serif",fontSize:"0.75rem"}}>{ctx.company||"—"}</span>
+          <span style={{color:tx,fontWeight:600,fontFamily:"'Barlow Condensed',sans-serif",fontSize:"0.72rem"}}>{ctx.company||"—"}</span>
           {ctx.industry&&<span style={{opacity:.5,fontSize:"0.7rem"}}>· {ctx.industry}</span>}
         </div>
         {/* Overall score */}
         <div style={{display:"flex",alignItems:"center",gap:5,padding:"3px 9px",borderRadius:999,border:`1px solid ${scoreColor(overallScore)}30`,background:`${scoreColor(overallScore)}10`}}>
           <div style={{width:5,height:5,borderRadius:"50%",background:scoreColor(overallScore)}}/>
-          <span style={{fontSize:"0.68rem",fontWeight:700,color:scoreColor(overallScore),fontFamily:"'Barlow Condensed',sans-serif"}}>Framework {overallScore}%</span>
+          <span style={{fontSize:"0.65rem",fontWeight:700,color:scoreColor(overallScore),fontFamily:"'Barlow Condensed',sans-serif"}}>Framework {overallScore}%</span>
         </div>
         {sources.length>0&&(
           <div style={{display:"flex",alignItems:"center",gap:4,padding:"2px 8px",borderRadius:999,border:`1px solid ${B.blue}30`,background:`${B.blue}10`}}>
             <Ph.Database s={10} c={B.blue}/>
-            <span style={{fontSize:"0.6rem",fontWeight:700,color:B.blue,fontFamily:"'Barlow Condensed',sans-serif"}}>{sources.length} Sources</span>
+            <span style={{fontSize:"0.6rem",fontWeight:700,color:B.blue,fontFamily:"'Barlow Condensed',sans-serif"}}>{sources.length} Quellen</span>
           </div>
         )}
         <div style={{flex:1}}/>
         {/* Header stats */}
-        <div style={{display:"flex",gap:14,fontSize:"0.62rem",color:mu}}>
+        <div style={{display:"flex",gap:12,fontSize:"0.6rem",color:mu}}>
           {[
             {v:useCases.length,l:"Use Cases",c:tx},
             {v:useCases.filter(u=>u.status==="ready").length,l:"Ready",c:B.mint},
-            {v:useCases.filter(u=>u.completeness<60).length,l:"Gaps",c:B.pink},
+            {v:useCases.filter(u=>u.completeness<60).length,l:"Lücken",c:B.pink},
           ].map(s=>(
             <div key={s.l} style={{textAlign:"center"}}>
               <div className="heading" style={{fontSize:"0.92rem",color:s.c,lineHeight:1}}>{s.v}</div>
@@ -2182,10 +2172,10 @@ function App(){
       {sources.length===0&&(
         <div style={{background:`${B.vanilla}14`,borderBottom:`1px solid ${B.vanilla}30`,padding:"5px 14px",display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
           <Ph.Warning s={12} c={B.vanilla}/>
-          <span style={{fontSize:"0.65rem",color:B.vanilla,fontWeight:700}}>Demo Data Active</span>
-          <span style={{fontSize:"0.62rem",color:dark?"#94a3b8":"#64748b"}}>— Add your own sources under "Data Sources" to build a real framework.</span>
+          <span style={{fontSize:"0.63rem",color:B.vanilla,fontWeight:600}}>Demo-Daten aktiv</span>
+          <span style={{fontSize:"0.62rem",color:dark?"#94a3b8":"#64748b"}}>— Füge eigene Quellen unter "Datenquellen" hinzu, um ein echtes Framework zu bauen.</span>
           <button onClick={()=>setTab("sources")} style={{marginLeft:"auto",padding:"3px 9px",background:`${B.vanilla}20`,border:`1px solid ${B.vanilla}40`,borderRadius:5,cursor:"pointer",fontSize:"0.62rem",color:B.vanilla,fontWeight:700,fontFamily:"'Barlow Condensed',sans-serif",display:"flex",alignItems:"center",gap:4}}>
-            <Ph.Database s={10} c={B.vanilla}/>Add Sources
+            <Ph.Database s={10} c={B.vanilla}/>Quellen hinzufügen
           </button>
         </div>
       )}
@@ -2194,7 +2184,7 @@ function App(){
       <div style={{flex:1,display:"flex",overflow:"hidden",minHeight:0}}>
         {/* Sidebar */}
         {sidebarOn&&(
-          <div style={{width:200,flexShrink:0,borderRight:`1px solid ${bdr}`,overflow:"hidden"}}>
+          <div style={{width:192,flexShrink:0,borderRight:`1px solid ${bdr}`,overflow:"hidden"}}>
             <InputSidebar dark={dark} state={{...ctx,onOpenFS:openFS}} setState={setCtx}/>
           </div>
         )}
@@ -2203,7 +2193,7 @@ function App(){
         <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",minWidth:0}}>
           {/* Tab bar */}
           <div style={{display:"flex",alignItems:"center",gap:8,padding:"7px 12px",background:sf,borderBottom:`1px solid ${bdr}`,flexShrink:0,flexWrap:"wrap"}}>
-            <div style={{display:"flex",gap:2,background:dark?"#1a2744":"#f1f5f9",borderRadius:10,padding:3}}>
+            <div style={{display:"flex",gap:2,background:dark?"#1a2744":"#f1f5f9",borderRadius:9,padding:3}}>
               {TABS.map(t=>{
                 const isNew=t.id==="create";
                 const active=tab===t.id;
@@ -2267,8 +2257,8 @@ function App(){
                 <div style={{background:sf,border:`1px solid ${bdr}`,borderRadius:12,padding:"12px 14px",marginBottom:10}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10,flexWrap:"wrap",gap:8}}>
                     <div>
-                      <h2 className="heading" style={{fontSize:"0.88rem",margin:0}}>Value Driver Tree</h2>
-                      <p style={{margin:"3px 0 0",fontSize:"0.62rem",color:mu}}>Click = KPI Catalog · Badge = Use Cases · Scroll = Zoom · Color = Quality Score</p>
+                      <h2 className="heading" style={{fontSize:"0.88rem",margin:0}}>Werttreiber-Baum</h2>
+                      <p style={{margin:"3px 0 0",fontSize:"0.62rem",color:mu}}>Klicken = KPI Katalog · Badge = Use Cases · Scroll = Zoom · Farbe = Qualitäts-Score</p>
                     </div>
                     <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center"}}>
                       {[{c:B.mint,l:"≥80% Ready"},{c:B.vanilla,l:"55–79% Review"},{c:B.pink,l:"<55% Draft"}].map(l=>(
@@ -2307,16 +2297,16 @@ function App(){
               <div>
                 <div style={{background:sf,border:`1px solid ${bdr}`,borderRadius:12,padding:"12px 14px",marginBottom:10}}>
                   <div style={{marginBottom:10}}>
-                    <h2 className="heading" style={{fontSize:"0.88rem",margin:0}}>Dependency Network</h2>
-                    <p style={{margin:"3px 0 0",fontSize:"0.62rem",color:mu}}>Shared KPIs (2+ use cases) connect nodes · Click = Factsheet · Drag = Move</p>
+                    <h2 className="heading" style={{fontSize:"0.88rem",margin:0}}>Abhängigkeits-Netzwerk</h2>
+                    <p style={{margin:"3px 0 0",fontSize:"0.62rem",color:mu}}>Geteilte KPIs (2+ Use Cases) verbinden Knoten · Klicken = Factsheet · Drag = Verschieben</p>
                   </div>
                   <DependencyNetwork dark={dark} useCases={useCases} onOpenFS={openFS}/>
                 </div>
                 <div style={{padding:"10px 12px",background:sf,border:`1px solid ${bdr}`,borderRadius:10,fontSize:"0.67rem",color:mu,display:"flex",gap:12,flexWrap:"wrap"}}>
                   <span style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:18,height:18,borderRadius:4,border:`2px solid ${B.mint}`,background:`${B.mint}15`}}/><span>Use Case</span></span>
-                  <span style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:12,height:12,borderRadius:"50%",border:`2px solid ${B.cyan}`,background:dark?"#1a2a44":"#eef3fb"}}/><span>Shared KPI</span></span>
-                  <span style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:20,height:3,background:`${B.mint}40`,borderRadius:2}}/><span>Connection</span></span>
-                  <span style={{color:B.mint}}>Use case edge color = Completeness Score</span>
+                  <span style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:12,height:12,borderRadius:"50%",border:`2px solid ${B.cyan}`,background:dark?"#1a2a44":"#eef3fb"}}/><span>Geteilter KPI</span></span>
+                  <span style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:20,height:3,background:`${B.mint}40`,borderRadius:2}}/><span>Verknüpfung</span></span>
+                  <span style={{color:B.mint}}>Farbe der Use Case-Kante = Completeness-Score</span>
                 </div>
               </div>
             )}
@@ -2331,11 +2321,11 @@ function App(){
 
         {/* Chat */}
         {chatOn&&(
-          <div style={{width:280,flexShrink:0,borderLeft:`1px solid ${bdr}`,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+          <div style={{width:268,flexShrink:0,borderLeft:`1px solid ${bdr}`,display:"flex",flexDirection:"column",overflow:"hidden"}}>
             <div style={{padding:"9px 12px 8px",borderBottom:`1px solid ${bdr}`,background:sf,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
               <div>
-                <div className="subhead" style={{fontSize:"0.76rem",color:tx}}>Framework Assistant</div>
-                <div style={{fontSize:"0.6rem",color:mu,marginTop:1}}>{ctx.apiKey?"Gemini AI active":"Rule-based mode"}</div>
+                <div className="subhead" style={{fontSize:"0.73rem",color:tx}}>Framework-Assistent</div>
+                <div style={{fontSize:"0.55rem",color:mu}}>{ctx.apiKey?"Gemini AI aktiv":"Regelbasierter Modus"}</div>
               </div>
               <div style={{display:"flex",alignItems:"center",gap:5}}>
                 {ctx.apiKey&&<div style={{width:6,height:6,borderRadius:"50%",background:B.mint,boxShadow:`0 0 0 2px ${B.mint}28`}}/>}
