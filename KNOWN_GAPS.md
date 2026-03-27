@@ -6,18 +6,39 @@ Last updated: 2026-03-27
 
 ---
 
-## 1. Placeholder Measures (Pending Data Contracts)
+## 1. Missing Fact Tables — Gold Layer Data Contracts
 
-Four use cases contain placeholder measures that return `0` or `BLANK()` because the underlying data source schema has not yet been finalized. These will be replaced once the data contracts are signed off.
+Three fact tables are missing Parquet data in the Gold Layer. The TMDL definitions are in place (reports load cleanly with empty partitions), but the measures return BLANK until real data is provisioned.
 
-| Use Case | Measure | Status | Owner |
+| Fact Table | Used By | Missing Columns | Status |
 |---|---|---|---|
-| FIN-001 Cash & Liquidity | `[CashConversionCycleDays]` | Placeholder — awaiting AR/AP schema | Finance Domain |
-| FIN-002 Cost Performance | `[AllocatedOverheadPct]` | Placeholder — awaiting cost allocation table | Finance Domain |
-| OPS-003 Quality & Yield | `[ScrapRatePct]` | Placeholder — awaiting MES integration | Operations Domain |
-| XD-003 Executive KPI Overview | `[NPS_Score]` | Placeholder — awaiting CX survey feed | Experience Domain |
+| `fact_quality_costs` | OPS-003 `[Cost of Poor Quality]` | COPQ Amount, Scrap/Rework/Warranty Cost | Stub TMDL ✅ — Parquet pending MES integration |
+| `fact_complaints` | OPS-003 `[Complaint Rate %]` | Complaint Count, Resolved Count, Resolution Days | Stub TMDL ✅ — Parquet pending CRM feed |
+| `fact_supplier_risk` | FIN-001 `[Supplier Risk Score]` | Risk Score, Delivery/Quality/Financial Risk | Stub TMDL ✅ — Parquet pending procurement data contract |
 
-**When resolved:** Update the relevant `UseCase_Bracket.yaml` under `core/usecases/core/<ID>/`, re-run `generate_full_report.py --use-case <ID> --force-full`, and remove the row from this table.
+**How to provision Parquet data (local machine with pyarrow):**
+```bash
+python3 showcases/aurora_group/data/gold/generate_missing_facts.py
+```
+This generates ~60K synthetic rows per table using the same seed and company profile as existing facts. Once run, commit the new `facts/fact_quality_costs/`, `facts/fact_complaints/`, `facts/fact_supplier_risk/` folders.
+
+**TMDL locations:**
+- `products/fabric/powerbi/dist/Operations.SemanticModel/definition/tables/fact_quality_costs.tmdl`
+- `products/fabric/powerbi/dist/Operations.SemanticModel/definition/tables/fact_complaints.tmdl`
+- `products/fabric/powerbi/dist/Finance.SemanticModel/definition/tables/fact_supplier_risk.tmdl`
+
+---
+
+## 1a. Pending Measures — Require ML/Predictive Models (Deferred)
+
+Two XD-003 measures are explicitly deferred — they require predictive model outputs not yet in any data contract:
+
+| Measure | KPI ID | Requirement |
+|---|---|---|
+| `[Digital Adoption Rate %]` | `people.digital_adoption.pct` | `fact_it` digital users + `fact_hr` total headcount |
+| `[Attrition Risk %]` | `people.attrition_risk.pct` | Predictive attrition model output table |
+
+These return `BLANK()` by design until the source systems are connected.
 
 ---
 

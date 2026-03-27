@@ -114,9 +114,34 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
+	/// DSO Days (XD) - receivables days estimate for CCC cross-domain view
+	measure 'DSO Days' = VAR AR = SUM ( fact_sales[Net Sales Amount] ) * 0.12 VAR NetSales = SUM ( fact_sales[Net Sales Amount] ) RETURN DIVIDE ( AR * 365, NetSales )
+		formatString: "0"
+		displayFolder: "XD-003"
+
+	/// DIO Days (XD) - inventory days estimate for CCC cross-domain view
+	measure 'DIO Days' = VAR Inventory = SUM ( fact_sales[Cost of Goods Sold Amount] ) * 0.15 VAR COGS = SUM ( fact_sales[Cost of Goods Sold Amount] ) RETURN DIVIDE ( Inventory * 365, COGS )
+		formatString: "0"
+		displayFolder: "XD-003"
+
+	/// DPO Days (XD) - payables days estimate for CCC cross-domain view
+	measure 'DPO Days' = VAR AP = SUM ( fact_sales[Cost of Goods Sold Amount] ) * 0.08 VAR COGS = SUM ( fact_sales[Cost of Goods Sold Amount] ) RETURN DIVIDE ( AP * 365, COGS )
+		formatString: "0"
+		displayFolder: "XD-003"
+
+	/// First Pass Yield % (XD) - delivery quality proxy via fulfillment in-full rate
+	measure 'First Pass Yield %' = DIVIDE ( COUNTROWS ( FILTER ( fact_fulfillment, fact_fulfillment[In-Full Flag] = TRUE() ) ), COUNTROWS ( fact_fulfillment ) )
+		formatString: "0.0%"
+		displayFolder: "XD-003"
+
+	/// Revenue at Risk Amount - weighted sales exposure from OTIF failures and quality defects
+	measure 'Revenue at Risk Amount' = VAR OTIFFailRate = 1 - [Ops OTIF %] VAR FPYFailRate = 1 - [First Pass Yield %] RETURN SUM ( fact_sales[Net Sales Amount] ) * ( OTIFFailRate + FPYFailRate ) / 2
+		formatString: "#,0.00"
+		displayFolder: "XD-003"
+
 	/// Cash Conversion Cycle (Days) - ops.working_capital.ccc.days
 	/// Combines receivables, inventory, and payables days to show cash efficiency.
-	measure 'Cash Conversion Cycle (Days)' = [DSO Days] + [Days in Inventory] - [DPO Days]
+	measure 'Cash Conversion Cycle (Days)' = [DSO Days] + [DIO Days] - [DPO Days]
 		formatString: "0"
 		displayFolder: "XD-003"
 
