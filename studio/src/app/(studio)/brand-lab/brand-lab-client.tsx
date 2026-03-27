@@ -3,18 +3,8 @@
 import { useState } from 'react';
 import { ColorPicker } from '@/components/brand/color-picker';
 import { LayoutPreview } from '@/components/brand/layout-preview';
+import { useProjectStore, DEFAULT_THEME } from '@/lib/store/project-store';
 import type { ThemeConfig } from '@/lib/store/project-store';
-
-const DEFAULT_THEME: ThemeConfig = {
-  primary: '#00D4AA',
-  secondary: '#FFB800',
-  accent: '#3B82F6',
-  background: '#1E293B',
-  surface: '#0F172A',
-  text: '#F1F5F9',
-  fontFamily: 'Inter',
-  borderRadius: 8,
-};
 
 const PRESET_THEMES: Record<string, Partial<ThemeConfig>> = {
   'Aurora Monochromatic': {
@@ -44,11 +34,12 @@ const PRESET_THEMES: Record<string, Partial<ThemeConfig>> = {
 };
 
 export function BrandLabClient() {
-  const [theme, setTheme] = useState<ThemeConfig>(DEFAULT_THEME);
+  const theme = useProjectStore((s) => s.theme);
+  const storeSetTheme = useProjectStore((s) => s.setTheme);
   const [activeLayer, setActiveLayer] = useState<'3s' | '30s' | '300s'>('3s');
 
   const updateTheme = (partial: Partial<ThemeConfig>) => {
-    setTheme((prev) => ({ ...prev, ...partial }));
+    storeSetTheme(partial);
   };
 
   return (

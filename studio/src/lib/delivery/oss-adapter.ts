@@ -7,6 +7,7 @@
  */
 
 import type { IRPackage, IRMeasure } from './ir-builder';
+import { sanitize } from './utils';
 
 export interface OssOutput {
   filename: string;
@@ -92,6 +93,3 @@ export function generateEvidencePage(ir: IRPackage): OssOutput {
   };
 }
 
-function sanitize(s: string): string {
-  return s.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-}

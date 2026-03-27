@@ -121,6 +121,12 @@ export async function loadKpi(kpiId: string): Promise<CatalogKpi | null> {
   return all.find((k) => k.kpi_id === kpiId) ?? null;
 }
 
+/** Load the KPI catalog as a Map keyed by kpi_id. */
+export async function loadKpiMap(): Promise<Map<string, CatalogKpi>> {
+  const kpis = await loadKpiCatalog();
+  return new Map(kpis.map((k) => [k.kpi_id, k]));
+}
+
 /** Get unique domain tags from the catalog. */
 export async function loadDomainTags(): Promise<string[]> {
   const all = await loadKpiCatalog();

@@ -5,7 +5,7 @@
  * typed UseCaseBracket objects. Server-side only (fs access).
  */
 
-import { readFile, readdir, stat } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parseYaml } from './yaml-loader';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
@@ -38,19 +38,18 @@ export async function loadBracket(
 /** Load all UseCase Brackets from core/usecases/core/. */
 export async function loadAllBrackets(): Promise<UseCaseBracketV20Lean[]> {
   const dirs = await readdir(CORE_USECASES_DIR);
-  const brackets: UseCaseBracketV20Lean[] = [];
 
-  for (const dir of dirs.sort()) {
-    const bracketPath = join(CORE_USECASES_DIR, dir, 'UseCase_Bracket.yaml');
-    try {
-      const s = await stat(bracketPath);
-      if (!s.isFile()) continue;
-      const raw = await readFile(bracketPath, 'utf-8');
-      brackets.push(parseYaml<UseCaseBracketV20Lean>(raw));
-    } catch {
-      // Skip directories without a bracket file
-    }
-  }
+  const results = await Promise.all(
+    dirs.sort().map(async (dir) => {
+      const bracketPath = join(CORE_USECASES_DIR, dir, 'UseCase_Bracket.yaml');
+      try {
+        const raw = await readFile(bracketPath, 'utf-8');
+        return parseYaml<UseCaseBracketV20Lean>(raw);
+      } catch {
+        return null;
+      }
+    })
+  );
 
-  return brackets;
+  return results.filter((b): b is UseCaseBracketV20Lean => b !== null);
 }

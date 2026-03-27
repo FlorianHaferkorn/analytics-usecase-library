@@ -8,6 +8,7 @@
  */
 
 import type { IRPackage, IRMeasure, IRPage } from './ir-builder';
+import { sanitize } from './utils';
 
 /** Generated TMDL measure file content. */
 export interface TmdlOutput {
@@ -105,6 +106,3 @@ function escapeQuotes(s: string): string {
   return s.replace(/"/g, '\\"');
 }
 
-function sanitize(s: string): string {
-  return s.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-}

@@ -34,21 +34,25 @@ export async function loadAllActionCodes(): Promise<
   ActionCodeDefinitionV20AIMirror[]
 > {
   const yamlFiles = await findYamlFiles(ACTION_CODES_DIR);
-  const actions: ActionCodeDefinitionV20AIMirror[] = [];
 
-  for (const filePath of yamlFiles.sort()) {
-    try {
-      const raw = await readFile(filePath, 'utf-8');
-      const parsed = parseYaml<ActionCodeDefinitionV20AIMirror>(raw);
-      if (parsed?.id && parsed?.schema_version === '2.0') {
-        actions.push(parsed);
+  const results = await Promise.all(
+    yamlFiles.sort().map(async (filePath) => {
+      try {
+        const raw = await readFile(filePath, 'utf-8');
+        const parsed = parseYaml<ActionCodeDefinitionV20AIMirror>(raw);
+        if (parsed?.id && parsed?.schema_version === '2.0') {
+          return parsed;
+        }
+      } catch {
+        // Skip malformed files
       }
-    } catch {
-      // Skip malformed files
-    }
-  }
+      return null;
+    })
+  );
 
-  return actions;
+  return results.filter(
+    (a): a is ActionCodeDefinitionV20AIMirror => a !== null
+  );
 }
 
 /** Load a single Action Code by ID (e.g. "C-M2.1"). */

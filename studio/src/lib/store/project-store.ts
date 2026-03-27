@@ -68,7 +68,7 @@ export interface ProjectState {
   markClean: () => void;
 }
 
-const DEFAULT_THEME: ThemeConfig = {
+export const DEFAULT_THEME: ThemeConfig = {
   primary: '#00D4AA',
   secondary: '#FFB800',
   accent: '#3B82F6',

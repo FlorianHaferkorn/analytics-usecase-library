@@ -54,12 +54,14 @@ export function DeliveryClient({ brackets }: Props) {
   };
 
   const adapter = ADAPTERS.find((a) => a.id === selectedAdapter)!;
-  const totalKpis = brackets
-    .filter((b) => selectedBrackets.has(b.id))
-    .reduce((sum, b) => sum + b.kpiCount, 0);
-  const totalActions = brackets
-    .filter((b) => selectedBrackets.has(b.id))
-    .reduce((sum, b) => sum + b.actionCount, 0);
+  let totalKpis = 0;
+  let totalActions = 0;
+  for (const b of brackets) {
+    if (selectedBrackets.has(b.id)) {
+      totalKpis += b.kpiCount;
+      totalActions += b.actionCount;
+    }
+  }
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-3)' }}>

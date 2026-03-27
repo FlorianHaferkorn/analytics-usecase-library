@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { loadBracket } from '@/lib/core/bracket-loader';
-import { loadKpiCatalog } from '@/lib/core/catalog-loader';
+import { loadKpiMap } from '@/lib/core/catalog-loader';
 import { buildIRPackage } from '@/lib/delivery/ir-builder';
 import { generateTmdlMeasures, generatePbipLayout } from '@/lib/delivery/fabric-adapter';
 
@@ -12,8 +12,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'No use case IDs provided' }, { status: 400 });
   }
 
-  const kpis = await loadKpiCatalog();
-  const kpiMap = new Map(kpis.map((k) => [k.kpi_id, k]));
+  const kpiMap = await loadKpiMap();
 
   const results = [];
 

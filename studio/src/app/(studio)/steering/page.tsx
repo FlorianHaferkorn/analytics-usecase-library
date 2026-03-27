@@ -1,35 +1,49 @@
-import { readFile, readdir, stat } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { loadAllBrackets } from '@/lib/core/bracket-loader';
+import { parseYaml } from '@/lib/core/yaml-loader';
 import { loadAllActionCodes } from '@/lib/core/action-loader';
 import { SteeringHubClient } from './steering-hub-client';
+import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 
 const CORE_USECASES_DIR = join(process.cwd(), '..', 'core', 'usecases', 'core');
 
-async function loadBracketYamls(): Promise<Record<string, string>> {
+/** Load all brackets and their raw YAML in a single pass. */
+async function loadBracketsWithYaml(): Promise<{
+  brackets: UseCaseBracketV20Lean[];
+  yamls: Record<string, string>;
+}> {
+  const dirs = await readdir(CORE_USECASES_DIR);
+  const brackets: UseCaseBracketV20Lean[] = [];
   const yamls: Record<string, string> = {};
-  try {
-    const dirs = await readdir(CORE_USECASES_DIR);
-    for (const dir of dirs) {
+
+  const results = await Promise.all(
+    dirs.sort().map(async (dir) => {
       const bracketPath = join(CORE_USECASES_DIR, dir, 'UseCase_Bracket.yaml');
       try {
-        const s = await stat(bracketPath);
-        if (!s.isFile()) continue;
         const raw = await readFile(bracketPath, 'utf-8');
-        // Extract ID from filename pattern: COM-001_*
+        const parsed = parseYaml<UseCaseBracketV20Lean>(raw);
         const id = dir.split('_')[0];
-        yamls[id] = raw;
-      } catch { /* skip */ }
+        return { parsed, raw, id };
+      } catch {
+        return null;
+      }
+    })
+  );
+
+  for (const r of results) {
+    if (r) {
+      brackets.push(r.parsed);
+      yamls[r.id] = r.raw;
     }
-  } catch { /* skip */ }
-  return yamls;
+  }
+
+  return { brackets, yamls };
 }
 
 export default async function SteeringPage() {
-  const [brackets, actions, bracketYamls] = await Promise.all([
-    loadAllBrackets(),
+  const [{ brackets, yamls: bracketYamls }, actions] = await Promise.all([
+    loadBracketsWithYaml(),
     loadAllActionCodes(),
-    loadBracketYamls(),
   ]);
 
   const actionDetails: Array<[string, { name: string; status: string; domain: string; triggerKpis: string[] }]> =
