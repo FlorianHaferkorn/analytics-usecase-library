@@ -2,6 +2,26 @@
 
 Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
+## Aggregation Method Conventions
+
+All measures must declare an `aggregation_method` in their `expression` block. Conventions:
+
+| Method | Use for |
+|--------|---------|
+| `sum` | Additive facts (units, minutes, costs) — safe to aggregate across all dimensions |
+| `average` | Per-unit or per-asset averages (MTBF, MTTR, cycle time) — dimension-sensitive |
+| `last_value` | Not applicable in operations domain (no balance measures) |
+| `ratio` | Rate measures (%, OEE, FPY) — must be recomputed from components when filter changes |
+| `count` | Event counts (failures, orders) — additive |
+
+**Rule:** OEE, FPY, Scrap Rate, and all percentage measures must never be averaged. Always re-derive from summed time/unit components.
+
+## Logical Expression Convention
+
+`expression.logical` contains tool-agnostic business-logic pseudocode. Tool-specific DAX/SQL lives in `products/fabric/`.
+
+Format: `MEASURE_NAME = <pseudocode using column references from operations data contract>`
+
 ```yaml
 - measure_name: OEE %
   is_kpi_measure: true
@@ -10,7 +30,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: ratio
+    logical: 'OEE = Availability % * Performance % * Quality % = (SUM(Run Time) / SUM(Planned Time)) * (SUM(Output Units) / (SUM(Planned Time) * Standard Rate)) * (SUM(Good Units) / SUM(Output Units))'
   documentation:
     description: Overall equipment effectiveness combining availability, performance,
       and quality.
@@ -31,9 +52,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Good Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Availability %
   is_kpi_measure: true
   kpi_id_ref: ops.availability.pct
@@ -41,7 +63,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: ratio
+    logical: 'Availability = SUM(fact_ops[Run Time Minutes]) / SUM(fact_ops[Planned Time Minutes])'
   documentation:
     description: 'Uptime control: Run Time / Planned Production Time.'
     notes: 'Grain: line_day. Unit: %.
@@ -57,9 +80,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Planned Time Minutes]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Performance %
   is_kpi_measure: true
   kpi_id_ref: ops.performance.pct
@@ -84,9 +108,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - '[Standard Output]'
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Planned Hours
   is_kpi_measure: true
   kpi_id_ref: ops.planned.hours
@@ -137,9 +162,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Output Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Throughput Units
   is_kpi_measure: true
   kpi_id_ref: ops.throughput.units
@@ -162,9 +188,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Output Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Downtime %
   is_kpi_measure: true
   kpi_id_ref: ops.downtime.pct
@@ -188,9 +215,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Planned Time Minutes]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Run Time Minutes
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -207,9 +235,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Run Time Minutes]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Downtime Minutes
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -226,9 +255,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Downtime Minutes]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Unplanned Downtime Minutes
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -245,9 +275,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Unplanned Downtime Minutes]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Standard Output Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -265,9 +296,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Standard Rate Units Per Minute]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Failure Count
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -284,9 +316,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops_failures[Failure Start DateTime]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: MTBF (hours)
   is_kpi_measure: true
   kpi_id_ref: ops.mtbf.hours
@@ -310,9 +343,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops_failures[Failure End]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: MTTR (hours)
   is_kpi_measure: true
   kpi_id_ref: ops.mttr.hours
@@ -335,9 +369,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops_failures[Repair Duration]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Unplanned Downtime %
   is_kpi_measure: true
   kpi_id_ref: ops.downtime.unplanned.pct
@@ -361,9 +396,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Planned Time Minutes]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Spare Parts Stockout %
   is_kpi_measure: true
   kpi_id_ref: ops.spare_parts.stockout.pct
@@ -387,9 +423,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_maintenance[Orders]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: PM Compliance %
   is_kpi_measure: true
   kpi_id_ref: ops.pm_compliance.pct
@@ -414,9 +451,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_maintenance[PM Planned]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: First Pass Yield %
   is_kpi_measure: true
   kpi_id_ref: quality.fpy.pct
@@ -424,7 +462,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 06_Quality
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: ratio
+    logical: 'FPY = SUM(fact_quality[Good Units]) / SUM(fact_quality[Total Units])'
   documentation:
     description: Good units / total units at first pass.
     notes: 'Grain: line_day. Unit: %.
@@ -440,9 +479,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Total Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Scrap Rate %
   is_kpi_measure: true
   kpi_id_ref: quality.scrap.pct
@@ -466,9 +506,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Total Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Rework Rate %
   is_kpi_measure: true
   kpi_id_ref: quality.rework.pct
@@ -492,9 +533,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Total Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Total Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -511,9 +553,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Total Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Good Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -530,9 +573,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Good Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Scrap Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -549,9 +593,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Scrap Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Rework Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -568,9 +613,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Rework Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Cost of Poor Quality
   is_kpi_measure: true
   kpi_id_ref: quality.copq.amount
@@ -593,9 +639,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality_costs[COPQ]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Complaint Rate %
   is_kpi_measure: true
   kpi_id_ref: quality.complaint.pct
@@ -619,9 +666,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_shipments[Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Complaint Count
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -638,9 +686,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_complaints[Complaint Count]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Shipped Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -657,9 +706,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_shipments[Shipped Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Defect Density
   is_kpi_measure: true
   kpi_id_ref: quality.defect_density
@@ -683,9 +733,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Planned Time
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -702,9 +753,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Planned Time Minutes]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Run Time
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -721,9 +773,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Run Time Minutes]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Output Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -740,9 +793,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Output Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Defect Count
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -759,9 +813,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Defect Count]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Failure Count
   is_kpi_measure: true
   kpi_id_ref: ops.failure.count
@@ -784,9 +839,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Failure Count]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Planned Output Units
   is_kpi_measure: true
   kpi_id_ref: ops.planned_output.units
@@ -809,9 +865,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Planned Output Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Preventive Maintenance Task Count
   is_kpi_measure: true
   kpi_id_ref: ops.pm.task.count
@@ -834,9 +891,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_maintenance[PM Task Count]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Production Volume Units
   is_kpi_measure: true
   kpi_id_ref: ops.production.volume
@@ -859,9 +917,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Output Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Quality Defect Rate %
   is_kpi_measure: true
   kpi_id_ref: ops.quality.defect_rate.pct
@@ -885,9 +944,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Output Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Safety Incident Count
   is_kpi_measure: true
   kpi_id_ref: ops.safety.incident.count
@@ -910,9 +970,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_safety[Incident Count]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Operations Service Level %
   is_kpi_measure: true
   kpi_id_ref: ops.service_level.pct
@@ -936,9 +997,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Total Deliveries]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Yield %
   is_kpi_measure: true
   kpi_id_ref: ops.yield.pct
@@ -962,8 +1024,9 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Output Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 ```
 

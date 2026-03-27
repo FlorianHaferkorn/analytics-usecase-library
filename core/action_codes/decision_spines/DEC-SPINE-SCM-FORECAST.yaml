@@ -14,8 +14,8 @@ decision_context:
   primary_question: >
     Which forecast quality lever should be applied first?
   decision_owner_roles:
-    - "Domain Lead"
-    - "Controlling Lead"
+    - "planning_s_op_bi_lead"
+    - "supply_chain_bi_lead"
 
 decision_tradeoffs:
   improves:
@@ -28,35 +28,37 @@ decision_tradeoffs:
 when_not_to_act:
   conditions:
     - description: "Promotions or launches"
-      signal: "Defined in Action Codes"
+      signal: "Active promotion or product launch with less than 3 months of post-event history; baseline signal is not statistically reliable"
     - description: "Insufficient history"
-      signal: "Defined in Action Codes"
+      signal: "New SKU or market segment with fewer than 12 months of sales history; statistical forecasting models have limited applicability"
+    - description: "Deliberate conservative buffer"
+      signal: "S&OP-approved conservative overstock buffer for strategic or seasonal reasons; intentional bias accepted"
 
 escalation_logic:
-  principle: "Escalate as impact persists while guardrails are respected"
+  principle: "Correct systematic bias before tuning algorithms; separate signal from noise using multi-period analysis"
   escalation_path:
     - level: "EarlyWarning"
-      action: "Visibility and monitoring"
+      action: "Alert Planning team and S&OP BI Lead; run MAPE and bias analysis; flag in next S&OP cycle review"
     - level: "RequiredIntervention"
-      action: "Controlled corrective action"
+      action: "Demand Manager initiates mandatory forecast review and bias correction; Planning Excellence team engaged"
     - level: "PrescriptiveExecution"
-      action: "Mandatory enforcement"
+      action: "Head of Supply Chain mandates forecast model review; algorithm change requires S&OP sign-off"
 
 decision_confidence:
-  level: "Medium"
+  level: "Low"
   rationale:
-    - "Depends on signal quality and execution follow-through"
+    - "Demand forecasts carry inherent uncertainty; algorithm performance varies significantly by product lifecycle stage and market volatility"
+    - "Forecast improvement actions have multi-cycle lag before measurable accuracy gains; immediate attribution is unreliable"
 
 governance:
   ownership:
-    accountable_role: "Domain Lead"
+    accountable_role: "planning_s_op_bi_lead"
     consulted_roles:
-      - "Strategy"
-      - "Analytics"
+      - "supply_chain_bi_lead"
+      - "planning_excellence_controlling"
   change_policy:
     - "Spine changes require domain and governance sign-off"
 
 quality_rules:
   - "No KPI IDs or thresholds are defined in the spine."
   - "Spine must remain domain-agnostic within its decision field."
-

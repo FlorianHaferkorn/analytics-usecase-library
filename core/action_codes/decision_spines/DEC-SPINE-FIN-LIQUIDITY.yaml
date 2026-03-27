@@ -14,8 +14,8 @@ decision_context:
   primary_question: >
     Which working-capital lever should be prioritized without harming service?
   decision_owner_roles:
-    - "Domain Lead"
-    - "Controlling Lead"
+    - "treasury_finance_controlling"
+    - "treasury_finance_bi_lead"
 
 decision_tradeoffs:
   improves:
@@ -29,35 +29,37 @@ decision_tradeoffs:
 when_not_to_act:
   conditions:
     - description: "Temporary cash buffers"
-      signal: "Defined in Action Codes"
+      signal: "Seasonal cash build or treasury-approved liquidity buffer is in place with documented rationale"
     - description: "Regulatory payment constraints"
-      signal: "Defined in Action Codes"
+      signal: "Payment terms governed by local regulatory requirements, approved supplier financing programme, or early payment discount arrangement"
+    - description: "Strategic financing"
+      signal: "Cash position is intentionally low due to approved M&A, capex deployment, or dividend commitment"
 
 escalation_logic:
-  principle: "Escalate as impact persists while guardrails are respected"
+  principle: "Escalate as cash deterioration persists; prioritise lever with lowest service and supplier risk"
   escalation_path:
     - level: "EarlyWarning"
-      action: "Visibility and monitoring"
+      action: "Alert Treasury team and Finance Controller; initiate working capital lever review within 2 business days"
     - level: "RequiredIntervention"
-      action: "Controlled corrective action"
+      action: "CFO-sponsored working capital review; activate DSO or DIO lever with Credit & Collections or Supply Chain"
     - level: "PrescriptiveExecution"
-      action: "Mandatory enforcement"
+      action: "Mandatory cash management action; CFO sign-off required; Board notification if breach of covenant"
 
 decision_confidence:
-  level: "Medium"
+  level: "High"
   rationale:
-    - "Depends on signal quality and execution follow-through"
+    - "Cash and working capital positions are measured daily with high accounting precision"
+    - "DSO, DIO, DPO are deterministic calculations from ledger data; causal attribution to levers is reliable"
 
 governance:
   ownership:
-    accountable_role: "Domain Lead"
+    accountable_role: "treasury_finance_controlling"
     consulted_roles:
-      - "Strategy"
-      - "Analytics"
+      - "treasury_finance_bi_lead"
+      - "head_of_credit_and_collections"
   change_policy:
     - "Spine changes require domain and governance sign-off"
 
 quality_rules:
   - "No KPI IDs or thresholds are defined in the spine."
   - "Spine must remain domain-agnostic within its decision field."
-

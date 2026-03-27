@@ -82,6 +82,29 @@ fact:
       - {name: Critical Incidents, type: int, agg: sum, nullable: true}
       - {name: MTTR, type: decimal, agg: avg, nullable: true}
 
+quality_rules:
+  freshness_sla:
+    fact_dq: monthly              # data quality metrics compiled monthly
+    fact_compliance: monthly      # compliance incidents reported monthly
+    fact_audit: per-audit-cycle   # findings loaded within 5 business days of audit close
+    fact_projects: monthly
+    fact_security: monthly
+  key_nullability:
+    - "fact_dq.DateKey, DatasetKey, Valid Records, Total Records: never null"
+    - "fact_compliance.DateKey, OrgKey, Incidents, Breaches: never null"
+    - "fact_audit.Finding ID: unique per row; never null"
+    - "fact_security.DateKey, Incidents: never null"
+  value_ranges:
+    - "fact_dq.Valid Records: >= 0; <= Total Records"
+    - "fact_compliance.Incidents: >= 0; Breaches >= 0; Breaches <= Incidents"
+    - "fact_audit.Open Findings: >= 0 when present; <= Findings when present"
+    - "fact_security.Critical Incidents: >= 0 when present; <= Incidents"
+    - "fact_security.MTTR: >= 0 when present"
+  referential_integrity:
+    - "fact_dq.DatasetKey → dim_dataset (required)"
+    - "fact_projects.ProjectKey → dim_project (required)"
+    - "fact_projects.OrgKey → dim_org (nullable)"
+
 settings:
   timezone: Europe/Berlin
   fiscal_year_start: 01-01

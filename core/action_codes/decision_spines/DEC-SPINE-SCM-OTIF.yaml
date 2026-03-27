@@ -14,8 +14,8 @@ decision_context:
   primary_question: >
     Which reliability lever should be activated without masking root causes?
   decision_owner_roles:
-    - "Domain Lead"
-    - "Controlling Lead"
+    - "supply_chain_controlling_inventory_mgmt_lead"
+    - "supply_chain_bi_lead"
 
 decision_tradeoffs:
   improves:
@@ -28,35 +28,37 @@ decision_tradeoffs:
 when_not_to_act:
   conditions:
     - description: "Temporary disruptions"
-      signal: "Defined in Action Codes"
+      signal: "Externally caused disruption (carrier strike, port congestion, weather event) with confirmed resolution timeline; root cause is outside operational control"
     - description: "Customer-approved exceptions"
-      signal: "Defined in Action Codes"
+      signal: "Customer-agreed delivery rescheduling or volume flexibility window in place; OTIF deviation is contractually acknowledged and does not trigger penalty"
+    - description: "Recovery already in progress"
+      signal: "Corrective action plan initiated in the prior S&OP cycle with measurable improvement trajectory; intervention would create conflicting signals in execution"
 
 escalation_logic:
-  principle: "Escalate as impact persists while guardrails are respected"
+  principle: "Address systemic drivers before applying expedite; containment costs must not exceed structural fix investment"
   escalation_path:
     - level: "EarlyWarning"
-      action: "Visibility and monitoring"
+      action: "Alert Supply Chain BI Lead and Logistics Manager; run OTIF root cause split (OT vs. IF vs. carrier); flag in weekly operations review"
     - level: "RequiredIntervention"
-      action: "Controlled corrective action"
+      action: "Supply Chain Controlling Lead initiates carrier or warehouse corrective action plan; customer communication assessed; expedite spend authorised within budget guardrail"
     - level: "PrescriptiveExecution"
-      action: "Mandatory enforcement"
+      action: "Head of Supply Chain mandates structural fix (carrier switch, safety lead time adjustment, or supplier development); customer penalty review initiated; executive visibility required"
 
 decision_confidence:
-  level: "Medium"
+  level: "High"
   rationale:
-    - "Depends on signal quality and execution follow-through"
+    - "OTIF is a binary, event-level metric derived from confirmed shipment and delivery data; measurement is reliable when data capture is complete"
+    - "Root cause decomposition (On-Time vs. In-Full vs. carrier vs. supplier) follows well-defined attribution logic with high signal quality in most ERP environments"
 
 governance:
   ownership:
-    accountable_role: "Domain Lead"
+    accountable_role: "supply_chain_controlling_inventory_mgmt_lead"
     consulted_roles:
-      - "Strategy"
-      - "Analytics"
+      - "supply_chain_bi_lead"
+      - "planning_excellence_controlling"
   change_policy:
     - "Spine changes require domain and governance sign-off"
 
 quality_rules:
   - "No KPI IDs or thresholds are defined in the spine."
   - "Spine must remain domain-agnostic within its decision field."
-

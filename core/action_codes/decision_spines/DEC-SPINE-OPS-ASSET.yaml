@@ -14,8 +14,8 @@ decision_context:
   primary_question: >
     Which reliability lever should be prioritized: PM, MTBF, MTTR, or spares?
   decision_owner_roles:
-    - "Domain Lead"
-    - "Controlling Lead"
+    - "maintenance_manager"
+    - "operations_controlling_oee_lead"
 
 decision_tradeoffs:
   improves:
@@ -29,35 +29,37 @@ decision_tradeoffs:
 when_not_to_act:
   conditions:
     - description: "Safety incidents in progress"
-      signal: "Defined in Action Codes"
+      signal: "Active safety incident or near-miss investigation under way; asset must not be touched until safety review is cleared"
     - description: "Regulatory stoppages"
-      signal: "Defined in Action Codes"
+      signal: "Regulatory authority-ordered stoppage in force; maintenance action requires compliance sign-off before resumption"
+    - description: "Asset end-of-life"
+      signal: "Asset is approved for decommissioning within the current planning horizon; investment in PM is not economically justified"
 
 escalation_logic:
-  principle: "Escalate as impact persists while guardrails are respected"
+  principle: "Escalate as availability loss persists; safety guardrails are non-negotiable at all levels"
   escalation_path:
     - level: "EarlyWarning"
-      action: "Visibility and monitoring"
+      action: "Notify Reliability Engineer and Maintenance Manager; schedule asset inspection within 2 business days"
     - level: "RequiredIntervention"
-      action: "Controlled corrective action"
+      action: "Maintenance Manager initiates corrective PM or MTTR reduction plan; Plant Manager review required"
     - level: "PrescriptiveExecution"
-      action: "Mandatory enforcement"
+      action: "Plant Manager enforces emergency maintenance; production schedule adjusted; Operations Director notified"
 
 decision_confidence:
   level: "Medium"
   rationale:
-    - "Depends on signal quality and execution follow-through"
+    - "Equipment degradation patterns are probabilistic; MTBF and MTTR vary across asset age, operating conditions, and maintenance history"
+    - "Causal attribution between maintenance actions and availability improvement is reliable but has a lag of days to weeks"
 
 governance:
   ownership:
-    accountable_role: "Domain Lead"
+    accountable_role: "maintenance_manager"
     consulted_roles:
-      - "Strategy"
-      - "Analytics"
+      - "operations_controlling_oee_lead"
+      - "reliability_engineering_maintenance_bi_lead"
   change_policy:
     - "Spine changes require domain and governance sign-off"
 
 quality_rules:
   - "No KPI IDs or thresholds are defined in the spine."
   - "Spine must remain domain-agnostic within its decision field."
-

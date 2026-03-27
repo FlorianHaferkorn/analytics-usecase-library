@@ -38,6 +38,19 @@ fact:
       - {name: OTIF %, type: decimal, nullable: true}
       - {name: Turnover %, type: decimal, nullable: true}
 
+quality_rules:
+  freshness_sla: monthly    # fact_exec_summary refreshed within 3 business days of month close
+  key_nullability:
+    - "fact_exec_summary.DateKey, OrgKey, Revenue Amount, Gross Margin Amount, EBITDA Amount: never null"
+    - "DSO Days, DIO Days, DPO Days, OTIF %, Turnover %: nullable (not all entities report all KPIs)"
+  value_ranges:
+    - "fact_exec_summary.OTIF %: in [0; 1] when present"
+    - "fact_exec_summary.Turnover %: >= 0 when present"
+    - "fact_exec_summary.Revenue Amount: may be negative only for credit/reversal entities"
+  referential_integrity:
+    - "Source: aggregated from finance, commercial_sales, supply_chain, and people domain contracts"
+    - "fact_exec_summary must align with fact_finance entity-month totals within rounding tolerance"
+
 settings:
   timezone: Europe/Berlin
   fiscal_year_start: 01-01

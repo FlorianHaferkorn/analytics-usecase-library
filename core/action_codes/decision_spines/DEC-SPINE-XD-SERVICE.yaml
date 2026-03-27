@@ -14,8 +14,8 @@ decision_context:
   primary_question: >
     Which service lever should be prioritized to recover SLA?
   decision_owner_roles:
-    - "Domain Lead"
-    - "Controlling Lead"
+    - "service_ops_cx_bi_lead"
+    - "service_operations_workforce_planning"
 
 decision_tradeoffs:
   improves:
@@ -28,35 +28,37 @@ decision_tradeoffs:
 when_not_to_act:
   conditions:
     - description: "Exceptional incidents"
-      signal: "Defined in Action Codes"
+      signal: "Major incident or system outage generating abnormal case volume; SLA deviation is caused by an extraordinary external event, not by operational drift"
     - description: "Regulated cases"
-      signal: "Defined in Action Codes"
+      signal: "Case queue contains regulatory, legal, or compliance-mandated cases with extended handling requirements; standard SLA targets do not apply to this case category"
+    - description: "Deliberate quality hold"
+      signal: "Service leadership has approved a temporary throughput reduction to address quality defects in resolution output; SLA deviation is intentional and time-bounded"
 
 escalation_logic:
-  principle: "Escalate as impact persists while guardrails are respected"
+  principle: "FCR and resolution quality are non-negotiable guardrails; SLA recovery must not sacrifice quality for speed"
   escalation_path:
     - level: "EarlyWarning"
-      action: "Visibility and monitoring"
+      action: "Alert Service Ops BI Lead and Team Lead; review queue age distribution and case routing; check for skill or channel concentration driving backlog"
     - level: "RequiredIntervention"
-      action: "Controlled corrective action"
+      action: "Service Operations Manager initiates SLA recovery plan; AHT and FCR impact assessed; resource redeployment or queue prioritisation activated within 24 hours"
     - level: "PrescriptiveExecution"
-      action: "Mandatory enforcement"
+      action: "Head of Service Operations mandates SLA recovery programme; customer communication plan activated for breached cases; executive sponsor informed; penalty exposure assessed"
 
 decision_confidence:
-  level: "Medium"
+  level: "High"
   rationale:
-    - "Depends on signal quality and execution follow-through"
+    - "SLA compliance is a binary, time-stamped measurement at case level; breach detection is reliable and near-real-time when ticketing system data is complete"
+    - "FCR and AHT are directly observable from case data; causal attribution of service degradation to queue, routing, or staffing drivers is well-supported by standard service analytics"
 
 governance:
   ownership:
-    accountable_role: "Domain Lead"
+    accountable_role: "service_ops_cx_bi_lead"
     consulted_roles:
-      - "Strategy"
-      - "Analytics"
+      - "service_operations_workforce_planning"
+      - "enterprise_bi_lead"
   change_policy:
     - "Spine changes require domain and governance sign-off"
 
 quality_rules:
   - "No KPI IDs or thresholds are defined in the spine."
   - "Spine must remain domain-agnostic within its decision field."
-

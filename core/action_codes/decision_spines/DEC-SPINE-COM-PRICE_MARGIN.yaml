@@ -14,8 +14,8 @@ decision_context:
   primary_question: >
     Should we tighten pricing discipline or allow flexibility to protect growth?
   decision_owner_roles:
-    - "Domain Lead"
-    - "Controlling Lead"
+    - "commercial_controlling_lead"
+    - "pricing_manager"
 
 decision_tradeoffs:
   improves:
@@ -29,37 +29,37 @@ decision_tradeoffs:
 when_not_to_act:
   conditions:
     - description: "Strategic price investment"
-      signal: "Defined in Action Codes"
+      signal: "Approved strategic pricing exception with commercial leadership sign-off; logged in trade investment register"
     - description: "Promo-approved periods"
-      signal: "Defined in Action Codes"
+      signal: "Active promotional period covered by an approved trade plan and trade budget allocation"
     - description: "Demand shock"
-      signal: "Defined in Action Codes"
+      signal: "Documented market disruption, competitor-driven volume emergency, or force majeure affecting demand baseline"
 
 escalation_logic:
-  principle: "Escalate as impact persists while guardrails are respected"
+  principle: "Escalate as price erosion persists; protect margin floor before addressing volume"
   escalation_path:
     - level: "EarlyWarning"
-      action: "Visibility and monitoring"
+      action: "Flag pricing gap to Pricing Manager; monitor daily realization and compliance for 3 business days"
     - level: "RequiredIntervention"
-      action: "Controlled corrective action"
+      action: "Initiate controlled price correction with Sales Director approval; notify affected accounts and sales team"
     - level: "PrescriptiveExecution"
-      action: "Mandatory enforcement"
+      action: "Enforce pricing floor; mandatory commercial approval gate required for any exception below threshold"
 
 decision_confidence:
   level: "Medium"
   rationale:
-    - "Depends on signal quality and execution follow-through"
+    - "Price-volume trade-offs are market-context dependent; customer elasticity and competitor reactions vary significantly"
+    - "Execution follow-through by Sales has high variability; requires structured tracking to confirm corrective action"
 
 governance:
   ownership:
-    accountable_role: "Domain Lead"
+    accountable_role: "commercial_controlling_lead"
     consulted_roles:
-      - "Strategy"
-      - "Analytics"
+      - "pricing_manager"
+      - "sales_bi_lead"
   change_policy:
     - "Spine changes require domain and governance sign-off"
 
 quality_rules:
   - "No KPI IDs or thresholds are defined in the spine."
   - "Spine must remain domain-agnostic within its decision field."
-

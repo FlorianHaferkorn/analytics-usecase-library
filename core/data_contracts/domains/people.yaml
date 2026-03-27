@@ -49,6 +49,26 @@ fact:
       - {name: Total Responses, type: int, agg: sum}
       - {name: Training Hours, type: decimal, agg: sum}
 
+quality_rules:
+  freshness_sla:
+    fact_hr: monthly          # payroll-aligned; available within 5 business days of month close
+    fact_it: monthly
+    fact_survey: per-cycle    # survey data available within 2 weeks of survey close
+  key_nullability:
+    - "fact_hr.DateKey, OrgKey, Headcount, FTE: never null"
+    - "fact_hr.Leavers, Absent Hours, Scheduled Hours: never null; must be >= 0"
+    - "fact_survey.Engaged Responses, Total Responses: never null"
+    - "fact_it.Digital Users: never null; must be >= 0"
+  value_ranges:
+    - "fact_hr.Headcount: >= 0"
+    - "fact_hr.Absent Hours: >= 0; <= Scheduled Hours"
+    - "fact_hr.FTE: >= 0"
+    - "fact_survey.Engaged Responses: <= Total Responses"
+    - "fact_hr.Personnel Cost: >= 0"
+  referential_integrity:
+    - "fact_hr.OrgKey → dim_org (required)"
+    - "fact_survey.OrgKey → dim_org (nullable; absent = company-wide survey)"
+
 settings:
   timezone: Europe/Berlin
   fiscal_year_start: 01-01

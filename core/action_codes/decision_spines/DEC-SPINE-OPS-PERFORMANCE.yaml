@@ -14,8 +14,8 @@ decision_context:
   primary_question: >
     Which operational constraint is dominant and must be resolved first?
   decision_owner_roles:
-    - "Domain Lead"
-    - "Controlling Lead"
+    - "operations_controlling_oee_lead"
+    - "operations_bi_lead"
 
 decision_tradeoffs:
   improves:
@@ -28,35 +28,37 @@ decision_tradeoffs:
 when_not_to_act:
   conditions:
     - description: "Planned shutdowns"
-      signal: "Defined in Action Codes"
+      signal: "Scheduled maintenance shutdown or planned production ramp-down approved in production calendar"
     - description: "Approved maintenance windows"
-      signal: "Defined in Action Codes"
+      signal: "Pre-approved maintenance window or engineering change in progress; performance deviation is expected"
+    - description: "Deliberate speed reduction"
+      signal: "Speed or throughput intentionally reduced for quality qualification, customer-requested hold, or regulatory inspection"
 
 escalation_logic:
-  principle: "Escalate as impact persists while guardrails are respected"
+  principle: "Identify and resolve the dominant constraint first; avoid multi-lever paralysis"
   escalation_path:
     - level: "EarlyWarning"
-      action: "Visibility and monitoring"
+      action: "Alert Shift Lead and Operations BI Lead; run constraint analysis and flag to Plant Manager within 4 hours"
     - level: "RequiredIntervention"
-      action: "Controlled corrective action"
+      action: "Plant Manager reviews constraint resolution plan; activate Lean/CI team if systematic issue identified"
     - level: "PrescriptiveExecution"
-      action: "Mandatory enforcement"
+      action: "Production Director mandates throughput recovery plan; daily tracking activated until performance restored"
 
 decision_confidence:
   level: "Medium"
   rationale:
-    - "Depends on signal quality and execution follow-through"
+    - "Throughput is influenced by multiple interdependent factors (availability, rate, quality); bottleneck identification requires multi-signal analysis"
+    - "Short-term performance fluctuations are common; distinguishing signal from noise requires 3–5 shift persistence window"
 
 governance:
   ownership:
-    accountable_role: "Domain Lead"
+    accountable_role: "operations_controlling_oee_lead"
     consulted_roles:
-      - "Strategy"
-      - "Analytics"
+      - "operations_bi_lead"
+      - "plant_manager"
   change_policy:
     - "Spine changes require domain and governance sign-off"
 
 quality_rules:
   - "No KPI IDs or thresholds are defined in the spine."
   - "Spine must remain domain-agnostic within its decision field."
-

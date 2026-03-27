@@ -1,0 +1,102 @@
+domain: efficiency
+version: v1.0
+owner: Operations / Finance Data Product (cross-domain)
+
+# Efficiency contract covers cross-domain productivity and cost efficiency metrics:
+# labor productivity, cost-per-unit, automation rates, and process cycle times.
+# This domain draws from operations, finance, and people source contracts.
+# This v1.0 is a structured placeholder — requires validation before production use.
+
+dimension:
+  - name: dim_date
+    description: "Calendar dimension for efficiency reporting."
+    purpose: "Time slicing for productivity and cost-per-unit trends."
+    columns:
+      - {name: DateKey, type: int, role: key}
+      - {name: Date, type: date}
+      - {name: Year, type: int}
+      - {name: Quarter, type: text}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
+
+  - name: dim_org
+    description: "Organization/site dimension (plant, line, entity) for efficiency reporting."
+    purpose: "Scoping productivity metrics to plant, line, or cost centre."
+    columns:
+      - {name: OrgKey, type: int, role: key}
+      - {name: Plant, type: text}
+      - {name: Line, type: text, nullable: true}
+      - {name: CostCentre, type: text, nullable: true}
+      - {name: Region, type: text, nullable: true}
+
+  - name: dim_process
+    description: "Business process dimension for cycle time and automation analysis."
+    purpose: "Process-level efficiency and automation rate reporting."
+    columns:
+      - {name: ProcessKey, type: int, role: key}
+      - {name: ProcessCode, type: text}
+      - {name: ProcessName, type: text}
+      - {name: Domain, type: text}          # e.g. Finance, Operations, HR
+
+fact:
+  - name: fact_labor_productivity
+    description: "Labor productivity at plant-line-month grain (output units per labor hour, OEE-adjusted)."
+    purpose: "Throughput per FTE and productivity trend analysis."
+    grain: plant_line_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: Output Units, type: decimal, agg: sum}
+      - {name: Labor Hours, type: decimal, agg: sum}
+      - {name: FTE, type: decimal, agg: avg}
+      - {name: Plan Output Units, type: decimal, agg: sum, nullable: true}
+      - {name: Plan Labor Hours, type: decimal, agg: sum, nullable: true}
+
+  - name: fact_cost_per_unit
+    description: "Cost-per-unit (COGS, labor, overhead) at plant-product-month grain."
+    purpose: "Unit cost analysis, benchmark, and cost reduction tracking."
+    grain: plant_product_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: Output Units, type: decimal, agg: sum}
+      - {name: Total Cost Amount, type: currency, agg: sum}
+      - {name: Material Cost Amount, type: currency, agg: sum, nullable: true}
+      - {name: Labor Cost Amount, type: currency, agg: sum, nullable: true}
+      - {name: Overhead Amount, type: currency, agg: sum, nullable: true}
+
+  - name: fact_process_efficiency
+    description: "Process cycle time and automation rates at process-org-month grain."
+    purpose: "Process automation, STP rate, and cycle time optimization."
+    grain: process_org_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ProcessKey, type: int, ref: dim_process}
+      - {name: Cycle Time Hours, type: decimal, agg: avg}
+      - {name: Automated Transactions, type: int, agg: sum, nullable: true}
+      - {name: Total Transactions, type: int, agg: sum}
+      - {name: Exception Rate %, type: decimal, nullable: true}
+
+quality_rules:
+  freshness_sla:
+    fact_labor_productivity: monthly    # aligned to payroll and production close
+    fact_cost_per_unit: monthly         # aligned to finance close cycle
+    fact_process_efficiency: monthly
+  key_nullability:
+    - "fact_labor_productivity.DateKey, OrgKey, Output Units, Labor Hours: never null"
+    - "fact_cost_per_unit.DateKey, OrgKey, Output Units, Total Cost Amount: never null"
+    - "fact_process_efficiency.DateKey, OrgKey, ProcessKey, Total Transactions, Cycle Time Hours: never null"
+  value_ranges:
+    - "fact_labor_productivity.Output Units: >= 0; Labor Hours > 0"
+    - "fact_cost_per_unit.Total Cost Amount: >= 0; Output Units > 0"
+    - "fact_process_efficiency.Automated Transactions: >= 0; <= Total Transactions when present"
+    - "fact_process_efficiency.Exception Rate %: in [0; 1] when present"
+  referential_integrity:
+    - "fact_process_efficiency.ProcessKey → dim_process (required)"
+    - "All facts: OrgKey → dim_org (required)"
+    - "Source: derived from operations.fact_ops, finance.fact_cost/fact_labor, and people.fact_hr"
+
+settings:
+  timezone: Europe/Berlin
+  fiscal_year_start: 01-01

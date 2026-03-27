@@ -2,6 +2,26 @@
 
 Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
+## Aggregation Method Conventions
+
+All measures must declare an `aggregation_method` in their `expression` block. Conventions:
+
+| Method | Use for |
+|--------|---------|
+| `sum` | Additive facts (amounts, units, hours) — safe to aggregate across all dimensions |
+| `average` | Rate-based or averaged measures (headcount, pricing averages) — dimension-sensitive |
+| `last_value` | Stock/balance measures (cash position, AR balance, inventory) — not additive across time |
+| `ratio` | Calculated ratios (%, days) — must be computed from component measures, not averaged |
+| `count` | Event counts — additive |
+
+**Rule:** Ratio measures (`%`, `days`) must never be averaged directly. Always re-compute from summed numerator/denominator components when changing filter context.
+
+## Logical Expression Convention
+
+`expression.logical` contains a tool-agnostic business-logic pseudocode. This is the single source of truth for what the measure calculates. Tool-specific implementation (DAX, SQL, Python) lives in the adapter layer (`products/fabric/`).
+
+Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
+
 ```yaml
 - measure_name: Cash Balance
   is_kpi_measure: true
@@ -10,7 +30,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Liquidity
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: last_value
+    logical: 'Cash Balance = SUM(fact_cash_position[Cash Balance Amount]) at MAX(DateKey) in filter context'
   documentation:
     description: Cash and cash equivalents.
     notes: 'Grain: day. Unit: EUR.
@@ -25,9 +46,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_cash[Cash Balance]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Operating Cash Flow
   is_kpi_measure: true
   kpi_id_ref: fin.cash.ocf
@@ -50,9 +72,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_cashflow[OCF]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Cash vs Plan %
   is_kpi_measure: true
   kpi_id_ref: fin.cash.vs_plan.pct
@@ -77,9 +100,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - plan_cash[Cash Balance]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: CCC Days
   is_kpi_measure: true
   kpi_id_ref: wc.ccc.days
@@ -87,7 +111,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_WorkingCapital
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: ratio
+    logical: 'CCC = [DSO Days] + [DIO Days] - [DPO Days]'
   documentation:
     description: Working capital cycle time.
     notes: 'Grain: month. Unit: days.
@@ -104,9 +129,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - '[DPO (days)]'
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: DSO Days
   is_kpi_measure: true
   kpi_id_ref: wc.dso.days
@@ -114,7 +140,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_WorkingCapital
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: ratio
+    logical: 'DSO = SUM(fact_ar[AR Amount]) / (SUM(fact_ar[Revenue Amount]) / 365)'
   documentation:
     description: 'Receivables efficiency: AR / (Revenue/365).'
     notes: 'Grain: month. Unit: days.
@@ -130,9 +157,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Net Sales Amount]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: DIO Days
   is_kpi_measure: true
   kpi_id_ref: wc.dio.days
@@ -140,7 +168,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_WorkingCapital
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: ratio
+    logical: 'DIO = SUM(fact_inventory[Inventory Amount]) / (SUM(fact_ap[COGS Amount]) / 365)'
   documentation:
     description: 'Inventory efficiency: Inventory / (COGS/365).'
     notes: 'Grain: month. Unit: days.
@@ -156,9 +185,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_cogs[COGS]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: DPO Days
   is_kpi_measure: true
   kpi_id_ref: wc.dpo.days
@@ -166,7 +196,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_WorkingCapital
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: ratio
+    logical: 'DPO = SUM(fact_ap[AP Amount]) / (SUM(fact_ap[COGS Amount]) / 365)'
   documentation:
     description: 'Payables efficiency: AP / (COGS/365).'
     notes: 'Grain: month. Unit: days.
@@ -182,9 +213,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_cogs[COGS]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: AR Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -201,9 +233,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ar[AR Amount]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Revenue Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -220,9 +253,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ar[Revenue Amount]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: AP Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -239,9 +273,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ap[AP Amount]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Inventory Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -258,9 +293,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_inventory[Inventory Amount]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Net Sales Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -277,9 +313,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_finance[Net Sales Amount]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: COGS Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -296,9 +333,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_finance[COGS Amount]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Material Cost Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -315,9 +353,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_finance[Material Cost Amount]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: OpEx Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -334,9 +373,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_finance[OpEx Amount]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Plan OpEx Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -353,9 +393,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_finance[Plan OpEx Amount]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Output Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -372,9 +413,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_output[Output Units]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Labor Hours
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -391,9 +433,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_labor[Labor Hours]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Unit Cost Amount
   is_kpi_measure: true
   kpi_id_ref: cost.unit.amount
@@ -401,7 +444,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Cost
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: ratio
+    logical: 'Unit Cost = SUM(fact_cost[COGS Amount]) / SUM(fact_output[Output Units])'
   documentation:
     description: Total COGS / units produced or sold.
     notes: 'Grain: plant_line_product_month. Unit: EUR per unit.
@@ -417,9 +461,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_output[Units]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: COGS % of Sales
   is_kpi_measure: true
   kpi_id_ref: margin.cogs.pct
@@ -427,7 +472,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Cost
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: ratio
+    logical: 'COGS % = SUM(fact_finance[COGS Amount]) / SUM(fact_finance[Net Sales Amount])'
   documentation:
     description: 'Cost share: COGS / Net Sales.'
     notes: 'Grain: month. Unit: %.
@@ -443,9 +489,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_finance[Net Sales]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: OpEx vs Plan %
   is_kpi_measure: true
   kpi_id_ref: cost.opex.vs_plan.pct
@@ -469,9 +516,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - plan_opex[Plan OpEx]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Material Cost %
   is_kpi_measure: true
   kpi_id_ref: cost.material.pct
@@ -495,9 +543,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_finance[Net Sales]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Labor Productivity %
   is_kpi_measure: true
   kpi_id_ref: ops.labor.productivity.pct
@@ -521,9 +570,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_labor[Labor Hours]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: EBITDA Margin
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -547,9 +597,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_finance[Net Sales]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: COGS Amount (AP)
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -566,8 +617,9 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ap[COGS Amount]
   governance:
     owner: Finance Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 ```
 
