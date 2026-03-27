@@ -95,7 +95,7 @@ table _Measures
 
 	/// margin.gm.vs_plan.pct - Gross Margin % vs Plan
 	/// Measures gross margin rate variance versus plan.
-	measure 'Gross Margin % vs Plan' = VAR GMAct = DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] ) VAR GMPlan = DIVIDE ( SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] ), SUM ( fact_sales[Plan Sales Amount] ) ) RETURN DIVIDE ( GMAct - GMPlan, GMPlan )
+	measure 'Gross Margin % vs Plan' = VAR GMAct = DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] ) VAR GMPlan = DIVIDE ( SUM ( fact_plan_sales[Plan Net Sales Amount] ) - SUM ( fact_plan_sales[Plan Cost of Goods Sold Amount] ), SUM ( fact_plan_sales[Plan Net Sales Amount] ) ) RETURN DIVIDE ( GMAct - GMPlan, GMPlan )
 		formatString: "0.0%"
 		displayFolder: "COM-002"
 
@@ -146,6 +146,30 @@ table _Measures
 	measure 'Complaint Count' = COUNTROWS ( fact_experience )
 		formatString: "#,0"
 		displayFolder: "COM-003"
+
+	/// sales.promo.cost.amount - Promo Cost
+	/// Total cost of promotions from fact_promo.
+	measure 'Promo Cost' = SUM ( fact_promo[Promo Cost] )
+		formatString: "#,0.00"
+		displayFolder: "COM-004"
+
+	/// sales.promo.baseline.amount - Baseline Sales Amount
+	/// Expected sales without promotion (from fact_promo baseline).
+	measure 'Baseline Sales Amount' = SUM ( fact_promo[Baseline Sales Amount] )
+		formatString: "#,0.00"
+		displayFolder: "COM-004"
+
+	/// sales.promo.incremental_gm.amount - Incremental Gross Margin Amount
+	/// Gross margin from incremental (promo-driven) sales.
+	measure 'Incremental Gross Margin Amount' = [Incremental Sales Amount] - [Cost of Goods Sold Amount] * DIVIDE ( [Incremental Sales Amount], [Net Sales Amount] )
+		formatString: "#,0.00"
+		displayFolder: "COM-004"
+
+	/// sales.promo.cannibalized.amount - Cannibalized Sales Amount
+	/// Sales from non-promoted products lost due to promotion (baseline non-promo decline).
+	measure 'Cannibalized Sales Amount' = SUM ( fact_promo[Baseline Non-Promo Sales Amount] ) - CALCULATE ( SUM ( fact_sales[Net Sales Amount] ), fact_sales[Promo Flag] = "No" )
+		formatString: "#,0.00"
+		displayFolder: "COM-004"
 
 	/// sales.promo.roi.pct - Promo ROI %
 	/// Measures profitability of promotions relative to spend.

@@ -18,30 +18,25 @@ from page_scaffold_generator.layout_calculator import LayoutCalculator
 from page_scaffold_generator.visual_builder import VisualBuilder
 from page_scaffold_generator.slicer_builder import SlicerBuilder
 
+# Resolve repo root (tests live deep in products/fabric/powerbi/tooling/page_scaffold_generator/tests/)
+REPO_ROOT = Path(__file__).resolve().parents[6]  # -> analytics-usecase-library
+
 
 class TestConfigLoader:
     """Test config loader."""
     
-    def test_load_use_case_mapping(self):
-        """Test loading use case mapping."""
-        loader = ConfigLoader()
-        mapping = loader.load_use_case_mapping()
-        
-        assert "use_cases" in mapping
-        assert "COM-001" in mapping["use_cases"]
-    
     def test_get_page_config(self):
         """Test getting page config."""
-        loader = ConfigLoader()
+        loader = ConfigLoader(REPO_ROOT)
         config = loader.get_page_config("COM-001", "overview")
-        
+
         assert config["name"] == "overview"
         assert config["template"] == "T2"
         assert "slots" in config
-    
+
     def test_get_use_case_display_name(self):
         """Test getting use case display name."""
-        loader = ConfigLoader()
+        loader = ConfigLoader(REPO_ROOT)
         name = loader.get_use_case_display_name("COM-001")
         
         assert name is not None
@@ -87,28 +82,49 @@ class TestLayoutCalculator:
 
 class TestVisualBuilder:
     """Test visual builder."""
-    
+
     def test_build_kpi_card(self):
         """Test building KPI card."""
         builder = VisualBuilder()
         from page_scaffold_generator.layout_calculator import Position
-        
+
         pos = Position(x=20, y=20, width=280, height=140)
         visual = builder.build_kpi_card(pos)
-        
+
         assert visual["visual"]["visualType"] == "cardVisual"
         assert visual["position"]["x"] == 20
         assert visual["position"]["y"] == 20
-    
+        # Cards must use Data role
+        qs = visual["visual"]["query"]["queryState"]
+        assert "Data" in qs
+
     def test_build_line_chart(self):
         """Test building line chart."""
         builder = VisualBuilder()
         from page_scaffold_generator.layout_calculator import Position
-        
+
         pos = Position(x=20, y=180, width=800, height=400)
         visual = builder.build_line_chart(pos)
-        
+
         assert visual["visual"]["visualType"] == "lineChart"
+        # Charts must use Category + Y, never Data
+        qs = visual["visual"]["query"]["queryState"]
+        assert "Category" in qs
+        assert "Y" in qs
+        assert "Data" not in qs
+
+    def test_build_table_empty(self):
+        """Test building table with no data still uses Values role."""
+        builder = VisualBuilder()
+        from page_scaffold_generator.layout_calculator import Position
+
+        pos = Position(x=20, y=20, width=800, height=400)
+        visual = builder.build_table(pos, columns=[], measures=[])
+
+        assert visual["visual"]["visualType"] == "tableEx"
+        qs = visual["visual"]["query"]["queryState"]
+        assert "Values" in qs, "Empty table must use Values role"
+        assert "Data" not in qs
 
 
 class TestScaffoldGenerator:
@@ -116,40 +132,51 @@ class TestScaffoldGenerator:
     
     def test_generator_initialization(self):
         """Test generator initialization."""
-        generator = PageScaffoldGenerator("COM-001", "overview")
-        
+        generator = PageScaffoldGenerator("COM-001", "overview", repo_root=REPO_ROOT)
+
         assert generator.use_case_id == "COM-001"
         assert generator.page_name == "overview"
-    
+
     def test_load_config(self):
         """Test loading configuration."""
-        generator = PageScaffoldGenerator("COM-001", "overview")
+        generator = PageScaffoldGenerator("COM-001", "overview", repo_root=REPO_ROOT)
         generator.load_config()
-        
+
         assert generator.config is not None
         assert generator.page_config is not None
         assert generator.page_config["template"] == "T2"
-    
+
     def test_generate(self):
         """Test scaffold generation."""
-        generator = PageScaffoldGenerator("COM-001", "overview")
+        generator = PageScaffoldGenerator("COM-001", "overview", repo_root=REPO_ROOT)
         generator.load_config()
         generator.generate()
-        
+
         assert generator.page_id is not None
         assert generator.page_structure is not None
         assert "visuals" in generator.page_structure
         assert "slicers" in generator.page_structure
-    
+
     def test_validate(self):
         """Test validation."""
-        generator = PageScaffoldGenerator("COM-001", "overview")
+        generator = PageScaffoldGenerator("COM-001", "overview", repo_root=REPO_ROOT)
         generator.load_config()
         generator.generate()
-        
+
         errors = generator.validate()
-        # Should pass validation for COM-001 overview
+        # Should pass validation for COM-001 overview (including visual validation)
         assert isinstance(errors, list)
+        assert len(errors) == 0, f"COM-001 overview should pass validation: {errors}"
+
+    def test_validate_detail(self):
+        """Test validation for detail page."""
+        generator = PageScaffoldGenerator("COM-001", "detail", repo_root=REPO_ROOT)
+        generator.load_config()
+        generator.generate()
+
+        errors = generator.validate()
+        assert isinstance(errors, list)
+        assert len(errors) == 0, f"COM-001 detail should pass validation: {errors}"
 
 
 if __name__ == "__main__":

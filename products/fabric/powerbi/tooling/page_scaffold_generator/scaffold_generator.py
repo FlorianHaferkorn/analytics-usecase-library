@@ -9,6 +9,7 @@ from typing import Dict, Any, Optional, List
 from .config_loader import ConfigLoader
 from .page_builder import PageBuilder
 from .pbip_writer import PBIPWriter
+from .visual_validator import validate_page
 
 
 class PageScaffoldGenerator:
@@ -192,7 +193,12 @@ class PageScaffoldGenerator:
             ]
             if detail_matrix_visuals:
                 errors.append("Detail Matrix should only be on detail pages")
-        
+
+        # Visual-level validation (queryState roles, names, bounds)
+        canvas_w = self.page_structure["metadata"].get("width", 1920)
+        canvas_h = self.page_structure["metadata"].get("height", 1080)
+        errors.extend(validate_page(self.page_structure, canvas_w, canvas_h))
+
         return errors
     
     def write(

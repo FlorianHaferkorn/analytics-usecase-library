@@ -48,13 +48,6 @@ class VisualBuilder:
             },
             "visual": {
                 "visualType": visual_type,
-                "query": {
-                    "queryState": {
-                        "Data": {
-                            "projections": []
-                        }
-                    }
-                },
                 "objects": {},
                 "drillFilterOtherVisuals": True
             }
@@ -130,13 +123,13 @@ class VisualBuilder:
         }
         
         visual["visual"]["visualContainerObjects"] = self._visual_header_with_title(title)
-        
-        # Add placeholder measure if provided
-        if measure_ref:
-            visual["visual"]["query"]["queryState"]["Data"]["projections"] = [
-                self._measure_projection(measure_ref)
-            ]
-        
+
+        # Cards use "Data" role for measure aggregation
+        projections = [self._measure_projection(measure_ref)] if measure_ref else []
+        visual["visual"]["query"] = {
+            "queryState": {"Data": {"projections": projections}}
+        }
+
         return visual
 
     def build_kpi_cards_multi(
@@ -176,10 +169,11 @@ class VisualBuilder:
             ]
         }
         visual["visual"]["visualContainerObjects"] = self._visual_header_with_title(title)
-        if measure_refs:
-            visual["visual"]["query"]["queryState"]["Data"]["projections"] = [
-                self._measure_projection(m) for m in measure_refs
-            ]
+        # Cards use "Data" role for measure aggregation
+        projections = [self._measure_projection(m) for m in measure_refs] if measure_refs else []
+        visual["visual"]["query"] = {
+            "queryState": {"Data": {"projections": projections}}
+        }
         return visual
     
     def build_line_chart(
@@ -206,14 +200,15 @@ class VisualBuilder:
             Visual JSON structure
         """
         visual = self._build_base_visual("lineChart", position, name=name)
-        # Use Category (X-axis) and Y (values) roles so fields land in field wells, not in visual filter
-        qs = {}
-        if category_entity and category_property:
-            qs["Category"] = {"projections": [self._column_projection(category_entity, category_property)]}
-        if measures:
-            qs["Y"] = {"projections": [self._measure_projection(m) for m in measures]}
-        if qs:
-            visual["visual"]["query"]["queryState"] = qs
+        # Charts use Category (X-axis) and Y (values) roles so fields land in field wells, not in visual filter
+        cat_proj = [self._column_projection(category_entity, category_property)] if (category_entity and category_property) else []
+        y_proj = [self._measure_projection(m) for m in measures] if measures else []
+        visual["visual"]["query"] = {
+            "queryState": {
+                "Category": {"projections": cat_proj},
+                "Y": {"projections": y_proj},
+            }
+        }
         visual["visual"]["objects"] = {
             "legend": [
                 {
@@ -250,13 +245,14 @@ class VisualBuilder:
             Visual JSON structure
         """
         visual = self._build_base_visual("waterfallChart", position, name=name)
-        qs = {}
-        if category_entity and category_property:
-            qs["Category"] = {"projections": [self._column_projection(category_entity, category_property)]}
-        if measures:
-            qs["Y"] = {"projections": [self._measure_projection(m) for m in measures]}
-        if qs:
-            visual["visual"]["query"]["queryState"] = qs
+        cat_proj = [self._column_projection(category_entity, category_property)] if (category_entity and category_property) else []
+        y_proj = [self._measure_projection(m) for m in measures] if measures else []
+        visual["visual"]["query"] = {
+            "queryState": {
+                "Category": {"projections": cat_proj},
+                "Y": {"projections": y_proj},
+            }
+        }
 
         # Add waterfall-specific objects
         visual["visual"]["objects"] = {
@@ -301,13 +297,14 @@ class VisualBuilder:
             Visual JSON structure
         """
         visual = self._build_base_visual("clusteredBarChart", position, name=name)
-        qs = {}
-        if category_entity and category_property:
-            qs["Category"] = {"projections": [self._column_projection(category_entity, category_property)]}
-        if measures:
-            qs["Y"] = {"projections": [self._measure_projection(m) for m in measures]}
-        if qs:
-            visual["visual"]["query"]["queryState"] = qs
+        cat_proj = [self._column_projection(category_entity, category_property)] if (category_entity and category_property) else []
+        y_proj = [self._measure_projection(m) for m in measures] if measures else []
+        visual["visual"]["query"] = {
+            "queryState": {
+                "Category": {"projections": cat_proj},
+                "Y": {"projections": y_proj},
+            }
+        }
         visual["visual"]["objects"] = {
             "categoryAxis": [
                 {
@@ -346,6 +343,11 @@ class VisualBuilder:
             Visual JSON structure
         """
         visual = self._build_base_visual("hundredPercentStackedBarChart", position, name=name)
+        # Charts use Category + Y roles
+        qs = {"Category": {"projections": []}, "Y": {"projections": []}}
+        if measures:
+            qs["Y"] = {"projections": [self._measure_projection(m) for m in measures]}
+        visual["visual"]["query"] = {"queryState": qs}
 
         # Add stacked bar chart-specific objects
         visual["visual"]["objects"] = {
@@ -419,9 +421,8 @@ class VisualBuilder:
         if measures:
             for m in measures:
                 projections.append(self._measure_projection(m))
-        if projections:
-            # Table visual expects "Values" role (column well); "Data" would land in filter
-            visual["visual"]["query"]["queryState"] = {"Values": {"projections": projections}}
+        # Table visual always uses "Values" role (column well); "Data" would land in filter
+        visual["visual"]["query"] = {"queryState": {"Values": {"projections": projections}}}
 
         # Add table-specific objects
         visual["visual"]["objects"] = {
@@ -480,6 +481,10 @@ class VisualBuilder:
             Visual JSON structure
         """
         visual = self._build_base_visual("pivotTable", position, name=name)
+        # Matrix uses Rows + Values roles
+        visual["visual"]["query"] = {
+            "queryState": {"Rows": {"projections": []}, "Values": {"projections": []}}
+        }
 
         # Add matrix-specific objects
         visual["visual"]["objects"] = {
@@ -531,6 +536,10 @@ class VisualBuilder:
             Visual JSON structure
         """
         visual = self._build_base_visual("scatterChart", position, name=name)
+        # Scatter plot uses X + Y roles
+        visual["visual"]["query"] = {
+            "queryState": {"X": {"projections": []}, "Y": {"projections": []}}
+        }
 
         # Add scatter plot-specific objects
         visual["visual"]["objects"] = {
@@ -636,6 +645,10 @@ class VisualBuilder:
             Visual JSON structure
         """
         visual = self._build_base_visual("funnelChart", position, name=name)
+        # Funnel uses Category + Y roles
+        visual["visual"]["query"] = {
+            "queryState": {"Category": {"projections": []}, "Y": {"projections": []}}
+        }
 
         # Add funnel-specific objects
         visual["visual"]["objects"] = {}

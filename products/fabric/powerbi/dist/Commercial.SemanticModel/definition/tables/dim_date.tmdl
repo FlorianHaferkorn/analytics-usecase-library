@@ -1,46 +1,46 @@
 /// Calendar dimension with fiscal hierarchy (Fiscal Year > Quarter > Month > Date).
 table dim_date
-	 lineageTag: 6a83a514-fef3-41fb-ba4a-6b94f905e53c
+		lineageTag: 6a83a514-fef3-41fb-ba4a-6b94f905e53c
 
-	 column DateKey
-		 dataType: Int64
-		 sourceColumn: DateKey
-		 summarizeBy: none
-		 isHidden
+		column DateKey
+			dataType: Int64
+			sourceColumn: DateKey
+			summarizeBy: none
+			isHidden
 
-	 column Date
-		 dataType: DateTime
-		 sourceColumn: Date
-		 summarizeBy: none
+		column Date
+			dataType: DateTime
+			sourceColumn: Date
+			summarizeBy: none
 
-	 column Year
-		 dataType: Int64
-		 sourceColumn: Year
-		 summarizeBy: none
+		column Year
+			dataType: Int64
+			sourceColumn: Year
+			summarizeBy: none
 
-	 column Quarter
-		 dataType: String
-		 sourceColumn: Quarter
-		 summarizeBy: none
+		column Quarter
+			dataType: String
+			sourceColumn: Quarter
+			summarizeBy: none
 
-	 column Month
-		 dataType: String
-		 sourceColumn: Month
-		 summarizeBy: none
+		column Month
+			dataType: String
+			sourceColumn: Month
+			summarizeBy: none
 
-	 column MonthNumber
-		 dataType: Int64
-		 sourceColumn: MonthNumber
-		 summarizeBy: none
+		column MonthNumber
+			dataType: Int64
+			sourceColumn: MonthNumber
+			summarizeBy: none
 
-	 column Week
-		 dataType: String
-		 sourceColumn: Week
-		 summarizeBy: none
+		column Week
+			dataType: String
+			sourceColumn: Week
+			summarizeBy: none
 
-	 partition dim_date = m
-		 mode: import
-		 source =
+		partition dim_date = m
+			mode: import
+			source =
 			let
 					Source = Folder.Files(GoldDataPath & "/dimensions/dim_date"),
 					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),

@@ -1,41 +1,41 @@
 /// Promotion dimension (type, mechanic, date range) for promo effectiveness.
 table dim_promo
-	 lineageTag: 0ab9d29f-e65d-4ec8-90f8-f42f224f424b
+		lineageTag: 0ab9d29f-e65d-4ec8-90f8-f42f224f424b
 
-	 column PromoKey
-		 dataType: Int64
-		 sourceColumn: PromoKey
-		 summarizeBy: none
-		 isHidden
+		column PromoKey
+			dataType: Int64
+			sourceColumn: PromoKey
+			summarizeBy: none
+			isHidden
 
-	 column Promotion
-		 dataType: String
-		 sourceColumn: Promotion
-		 summarizeBy: none
+		column Promotion
+			dataType: String
+			sourceColumn: Promotion
+			summarizeBy: none
 
-	 column PromoType
-		 dataType: String
-		 sourceColumn: PromoType
-		 summarizeBy: none
+		column PromoType
+			dataType: String
+			sourceColumn: PromoType
+			summarizeBy: none
 
-	 column Mechanic
-		 dataType: String
-		 sourceColumn: Mechanic
-		 summarizeBy: none
+		column Mechanic
+			dataType: String
+			sourceColumn: Mechanic
+			summarizeBy: none
 
-	 column StartDateKey
-		 dataType: Int64
-		 sourceColumn: StartDateKey
-		 summarizeBy: none
+		column StartDateKey
+			dataType: Int64
+			sourceColumn: StartDateKey
+			summarizeBy: none
 
-	 column EndDateKey
-		 dataType: Int64
-		 sourceColumn: EndDateKey
-		 summarizeBy: none
+		column EndDateKey
+			dataType: Int64
+			sourceColumn: EndDateKey
+			summarizeBy: none
 
-	 partition dim_promo = m
-		 mode: import
-		 source =
+		partition dim_promo = m
+			mode: import
+			source =
 			let
 					Source = Folder.Files(GoldDataPath & "/dimensions/dim_promo"),
 					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),

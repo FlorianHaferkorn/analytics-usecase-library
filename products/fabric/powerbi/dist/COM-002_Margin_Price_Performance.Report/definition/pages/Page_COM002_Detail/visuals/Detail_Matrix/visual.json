@@ -11,13 +11,6 @@
   },
   "visual": {
     "visualType": "tableEx",
-    "query": {
-      "queryState": {
-        "Data": {
-          "projections": []
-        }
-      }
-    },
     "objects": {
       "grid": [
         {
@@ -54,6 +47,13 @@
         }
       ]
     },
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": []
+        }
+      }
+    }
   }
 }
