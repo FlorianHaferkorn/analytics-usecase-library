@@ -47,6 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      issues: write
       contents: read
     steps:
       - name: Checkout (with fetch-depth for diff)
@@ -94,7 +95,7 @@ jobs:
             echo "**Diff stats:** $STATS"
           } > comment_body.md
 
-          EXISTING=$(gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" --jq '.[] | select(.body | contains("<!-- pr-review-summary -->")) | .id' 2>/dev/null | head -1)
+          EXISTING=$(gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" --jq '.[] | select(.body | contains("<!-- pr-review-summary -->")) | .id' 2>/dev/null | grep -E '^[0-9]+$' | head -1 || true)
           if [ -n "$EXISTING" ]; then
             BODY_JSON=$(jq -Rs '{body: .}' comment_body.md)
             echo "$BODY_JSON" | gh api "repos/${REPO}/issues/comments/${EXISTING}" -X PATCH --input -
