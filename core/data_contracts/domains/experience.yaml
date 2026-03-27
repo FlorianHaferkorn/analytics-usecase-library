@@ -85,6 +85,27 @@ fact:
       - {name: QueueKey, type: int, ref: dim_case_queue, nullable: true}
       - {name: NPS Score, type: int}
 
+quality_rules:
+  freshness_sla:
+    fact_support_cases: real-time   # case events captured within 15 min; closed cases same-day
+    fact_workforce_management: daily
+    fact_nps: per-cycle             # survey results available within 24 h of survey close
+  key_nullability:
+    - "fact_support_cases.DateKey, OrgKey, SLA Met Flag, FCR Flag, Handle Time Minutes: never null"
+    - "fact_support_cases.Escalation Flag, Backlog Flag, Open Case Flag: never null"
+    - "fact_workforce_management.DateKey, OrgKey, Work Time Minutes, Paid Time Minutes: never null"
+    - "fact_nps.DateKey, NPS Score: never null"
+  value_ranges:
+    - "fact_support_cases.Handle Time Minutes: >= 0"
+    - "fact_nps.NPS Score: integer in [0; 10]"
+    - "fact_workforce_management.Work Time Minutes: >= 0; <= Paid Time Minutes"
+    - "fact_workforce_management.Shrinkage Minutes: >= 0 when present"
+    - "fact_workforce_management.Idle Time Minutes: >= 0"
+  referential_integrity:
+    - "fact_support_cases.QueueKey → dim_case_queue (nullable)"
+    - "fact_support_cases.IssueKey → dim_issue_type (nullable)"
+    - "fact_workforce_management.QueueKey → dim_case_queue (nullable)"
+
 settings:
   timezone: Europe/Berlin
   fiscal_year_start: 01-01

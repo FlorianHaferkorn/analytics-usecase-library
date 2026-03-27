@@ -127,6 +127,32 @@ fact:
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: Shipped Units, type: decimal, agg: sum}
 
+quality_rules:
+  freshness_sla:
+    fact_ops: daily                 # production data by shift-end; next-day availability expected
+    fact_ops_failures: real-time    # failure events captured within 30 min of occurrence
+    fact_maintenance: daily
+    fact_quality: daily
+    fact_quality_costs: monthly
+    fact_complaints: daily
+    fact_shipments: daily
+  key_nullability:
+    - "fact_ops.DateKey, OrgKey, Planned Time Minutes, Run Time Minutes, Output Units: never null"
+    - "fact_ops_failures.AssetKey, Failure Start DateTime, Repair Duration Hours: never null"
+    - "fact_quality.DateKey, OrgKey, Total Units, Good Units, Scrap Units: never null"
+    - "fact_maintenance.AssetKey, DateKey, Order Type, Order Status: never null"
+  value_ranges:
+    - "fact_ops.Run Time Minutes: >= 0; <= Planned Time Minutes"
+    - "fact_ops.Downtime Minutes: >= 0"
+    - "fact_ops.Good Units: >= 0; <= Output Units"
+    - "fact_quality.Good Units: >= 0; <= Total Units"
+    - "fact_quality.Scrap Units + Rework Units: <= Total Units"
+    - "fact_ops.Standard Rate Units Per Minute: > 0 (must be a positive reference rate)"
+  referential_integrity:
+    - "fact_ops.AssetKey → dim_asset (nullable; absent = line without asset-level tracking)"
+    - "fact_quality.ProductKey → dim_product (nullable; absent = multi-product line run)"
+    - "fact_maintenance.AssetKey → dim_asset (required)"
+
 settings:
   timezone: Europe/Berlin
   fiscal_year_start: 01-01

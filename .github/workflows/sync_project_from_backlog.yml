@@ -1,6 +1,10 @@
 # Sync backlog (granular_issues.json) to GitHub Project: get-or-create issues, add to project, set fields, remove duplicates.
 # Triggered only when the machine-readable source or sync script changes. Manual run can override project number.
 # See: internal/project_mgmt/BACKLOG_GRANULAR.md, tooling/project_mgmt/sync_project_from_backlog.ps1
+#
+# REQUIRED SECRET: GH_PAT — a classic Personal Access Token with 'repo' and 'project' scopes.
+# The standard GITHUB_TOKEN does NOT have GitHub Projects v2 write access.
+# Create one at https://github.com/settings/tokens and store it as a repository secret named GH_PAT.
 
 name: Sync project from backlog
 
@@ -28,7 +32,7 @@ jobs:
 
       - name: Sync project from backlog
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PROJECT_NUMBER: ${{ github.event.inputs.project_number || '2' }}
         run: pwsh -File tooling/project_mgmt/sync_project_from_backlog.ps1

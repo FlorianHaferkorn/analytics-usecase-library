@@ -43,16 +43,18 @@ Each measure is a YAML object with the following fields.
   - `Helper`
   - `Technical`
 
-### 1.2 `expression` section (required)
+### 1.2 `expression` section (tool-agnostic core)
 
-- `expression.dax` (required, string; multiline allowed)  
-  Full DAX expression of the measure.
+In **core** (tool-agnostic), use only logical description; no DAX or format strings.
 
-- `expression.formatString` (required, string)  
-  Power BI format string, e.g.:
-  - `"€ #,0.00"`
-  - `"0.0 %"`
-  - `"#,0"`
+- `expression.logical` (optional, string)  
+  Logical formula or description of the measure (e.g. "Sum of Net Sales after discounts"; "Ratio A/B"). Tool-agnostic.
+
+- `expression.dax` (optional, string; multiline allowed)  
+  **Fabric-specific.** Omit in core; use Fabric overlay or TMDL for realisation. If present (e.g. during migration), may be stripped for tool-agnostic core.
+
+- `expression.formatString` (optional, string)  
+  **Fabric-specific.** Power BI format string. Omit in core; use Fabric overlay or TMDL.
 
 ### 1.3 `documentation` section (required)
 

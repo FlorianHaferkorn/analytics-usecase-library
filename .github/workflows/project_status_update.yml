@@ -2,6 +2,10 @@
 # and creates it via GraphQL (createProjectV2StatusUpdate). A human reviews and
 # publishes the update in the GitHub Project UI.
 # See: internal/project_mgmt/OPERATING_MODEL.md, tooling/project_mgmt/weekly_status_update.py
+#
+# REQUIRED SECRET: GH_PAT — a classic Personal Access Token with 'repo' and 'project' scopes.
+# The standard GITHUB_TOKEN does NOT have GitHub Projects v2 access.
+# Create one at https://github.com/settings/tokens and store it as a repository secret named GH_PAT.
 
 name: Weekly project status update
 
@@ -26,7 +30,7 @@ jobs:
 
       - name: Create Project status update
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PROJECT_NUMBER: "2"
         run: python tooling/project_mgmt/weekly_status_update.py

@@ -150,6 +150,32 @@ fact:
       - {name: OrgKey, type: int, ref: dim_org}
       - {name: Labor Hours, type: decimal, agg: sum}
 
+quality_rules:
+  freshness_sla:
+    fact_cash_position: daily           # treasury reconciled daily
+    fact_cash_flow: monthly             # within 3 business days of month close
+    fact_accounts_receivable: monthly   # within 3 business days of month close
+    fact_accounts_payable: monthly      # within 3 business days of month close
+    fact_finance: monthly               # within 5 business days of month close
+    fact_cost: monthly
+    fact_output: daily
+    fact_labor: monthly
+  key_nullability:
+    - "fact_cash_position.DateKey, OrgKey, Cash Balance Amount: never null"
+    - "fact_accounts_receivable.AR Amount, Revenue Amount: never null"
+    - "fact_accounts_payable.AP Amount, COGS Amount: never null"
+    - "fact_finance.Net Sales Amount, COGS Amount, EBITDA Amount: never null"
+    - "fact_output.Output Units: never null; must be >= 0"
+  value_ranges:
+    - "fact_cash_position.Cash Balance Amount: may be negative (overdraft); no range constraint"
+    - "fact_output.Output Units: >= 0"
+    - "fact_labor.Labor Hours: >= 0"
+    - "fact_cost.COGS Amount: >= 0"
+  referential_integrity:
+    - "fact_accounts_receivable.CustomerKey → dim_customer (nullable)"
+    - "fact_accounts_payable.SupplierKey → dim_supplier (nullable)"
+    - "fact_cost.ProductKey → dim_product (required)"
+
 settings:
   timezone: Europe/Berlin
   fiscal_year_start: 01-01

@@ -182,9 +182,51 @@ required_slicers: >
 
 ## 9. Risks & Wrong Interpretations (Short)
 
-- Misapplied force majeure exclusions inflating OTIF.  
-- Missing penalty/expedite capture understates cost.  
-- Stockout impact misread if demand not captured consistently.  
+- Misapplied force majeure exclusions inflating OTIF.
+- Missing penalty/expedite capture understates cost.
+- Stockout impact misread if demand not captured consistently.
+
+---
+
+## 10. Typical Decision Scenarios
+
+### Scenario A: OTIF Drop Driven by In-Full Failures on Key Customer
+
+**Situation:** OTIF has dropped from 94.2% to 87.6% over 4 weeks. The OT/IF split shows: On-Time is 97.1% (stable), but In-Full has dropped to 90.3%. The concentration analysis shows 65% of In-Full failures come from a single large retail customer in the West region.
+
+**Decision question:** Is the In-Full failure caused by short pick (warehouse capacity), by procurement shortfall (supplier late delivery), or by a demand spike not covered by safety stock?
+
+**Who decides:** Supply Chain Controlling Lead + Warehouse Manager + Procurement.
+
+**Consequence of inaction:** The customer's OTIF contract threshold is 92%. Below 90.3% for 2 consecutive weeks, penalties of €35K/week are triggered. Expedite costs are already +€18K vs budget.
+
+**Action Code triggered:** S-F3.1 (OTIF Recovery) — activates root cause split by OT vs IF failure type and customer exposure quantification.
+
+### Scenario B: Penalty Amount Trend Requires Structural Fix
+
+**Situation:** Penalty amounts have been rising for 3 consecutive months: €8K → €22K → €51K. The issue is persistent with 3 different customers and 2 different carriers. The pattern does not suggest a single root cause.
+
+**Decision question:** Is this a systemic carrier reliability issue or a systemic planning/buffer issue that makes the company structurally exposed?
+
+**Who decides:** Head of Supply Chain + Supply Chain Controlling (DEC-SPINE-SCM-OTIF, RequiredIntervention level).
+
+**Consequence of inaction:** At the current penalty trajectory, full-year penalty exposure is €400K+. More critically: 3 customers are approaching the OTIF level that triggers contract review clauses.
+
+**Action Code triggered:** S-F3.2 (Carrier Performance Management) + S-R2.3 (Buffer Stock Review for structural coverage gap).
+
+### Scenario C: Expedite Cost Spike Following Demand Surge
+
+**Situation:** A promotional event generated 35% more demand than forecast. The OTIF system flags 480 orders as at-risk of In-Full failure. The Operations team activates air freight to cover the shortfall. Expedite costs hit €95K in a single week.
+
+**Decision question:** Was the demand surge foreseeable? Is the expedite cost justified by the margin of the orders rescued vs the penalty + lost sales alternative?
+
+**Who decides:** Supply Chain + Commercial (cross-domain).
+
+**Consequence of inaction:** Expedite spend can offset the promotional uplift margin. This scenario triggers the `when_not_to_act` review: if the demand surge was from an active promotion, DEC-SPINE-SCM-FORECAST requires S&OP review before structural forecast adjustment.
+
+**Action Code triggered:** S-F3.3 (Expedite Cost Management) — activates cost/benefit analysis and promotional demand alignment review with SCM-003.
+
+---
 
 
 

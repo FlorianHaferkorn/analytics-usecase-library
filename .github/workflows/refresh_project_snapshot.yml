@@ -1,6 +1,10 @@
 # Refresh PROJECT_SNAPSHOT.md from the GitHub Project (Backlog/Planned, recommended next task).
 # Keeps the Assistant briefing up to date without manual runs. Commits the file to main if changed.
 # See: internal/project_mgmt/ASSISTANT_BRIEFING.md, tooling/project_mgmt/refresh_project_snapshot.ps1
+#
+# REQUIRED SECRET: GH_PAT — a classic Personal Access Token with 'repo' and 'project' scopes.
+# The standard GITHUB_TOKEN does NOT have GitHub Projects v2 read/write access.
+# Create one at https://github.com/settings/tokens and store it as a repository secret named GH_PAT.
 
 name: Refresh project snapshot
 
@@ -20,11 +24,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
 
       - name: Refresh project snapshot
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PROJECT_NUMBER: "2"
         run: pwsh -File tooling/project_mgmt/refresh_project_snapshot.ps1

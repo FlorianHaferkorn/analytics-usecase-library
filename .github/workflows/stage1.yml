@@ -32,7 +32,9 @@ jobs:
         working-directory: tooling/validation
 
       - name: Install data contract validation dependencies
-        run: pip install -r tooling/validation/requirements-data-contracts.txt
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r tooling/validation/requirements-data-contracts.txt
 
       - name: Run Stage 1 checks
         shell: pwsh

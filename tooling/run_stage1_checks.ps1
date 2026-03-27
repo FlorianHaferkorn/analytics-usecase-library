@@ -37,7 +37,12 @@ $checks = @(
   @{ Path = "tooling/maintenance/check_docs_refs.ps1"; Args = @("-Root", $rootPath) },
   @{ Path = "tooling/validation/check_forbidden_content.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
   @{ Path = "tooling/validation/check_validate_data_contracts.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
-  @{ Path = "tooling/validation/check_registry_builder.ps1"; Args = @("-Root", $rootPath, "-FailOnError") }
+  @{ Path = "tooling/validation/check_registry_builder.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
+  @{ Path = "tooling/validation/check_measure_aggregation_methods.ps1"; Args = @("-Root", $rootPath) },
+  @{ Path = "tooling/validation/check_data_contract_kpi_coverage.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
+  @{ Path = "tooling/validation/check_usecase_page_types.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
+  @{ Path = "tooling/validation/check_extended_usecase_readmes.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
+  @{ Path = "tooling/validation/check_semantic_model_status.ps1"; Args = @("-Root", $rootPath) }
 )
 
 $resultsDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\results"

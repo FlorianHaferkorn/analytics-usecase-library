@@ -3,55 +3,56 @@
 Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
-- measure_name: "Actions Routed Count"
+- measure_name: Actions Routed Count
   is_kpi_measure: true
-  kpi_id_ref: "enterprise.action_routed.count"
-  semantic_model: "Governance_SemanticModel"
-  display_folder: "06_Execution"
-  category: "KPI"
+  kpi_id_ref: enterprise.action_routed.count
+  semantic_model: Governance_SemanticModel
+  display_folder: 06_Execution
+  category: KPI
   expression:
-    dax: "COUNTROWS ( fact_action[Action ID] )"
-    formatString: "#,0"
+    logical: 'Fabric: see overlay / TMDL.'
   documentation:
-    description: "Count of routed action instances."
-    notes: |
-      Grain: action_instance. Unit: count.
+    description: Count of routed action instances.
+    notes: 'Grain: action_instance. Unit: count.
+
       Lineage: fact_action[Action ID].
+
       QA: Exclude duplicates and canceled actions.
+
+      '
   dependencies:
     columns:
-      - "fact_action[Action ID]"
+    - fact_action[Action ID]
   governance:
-    owner: "Executive Office"
-    status: "draft"
-    version: "v0.1"
-    last_review: "TBD"
-
-
-- measure_name: "Action Outcome Rate %"
+    owner: Executive Office
+    status: draft
+    version: v0.1
+    last_review: TBD
+- measure_name: Action Outcome Rate %
   is_kpi_measure: true
-  kpi_id_ref: "enterprise.action_outcome_rate.pct"
-  semantic_model: "Governance_SemanticModel"
-  display_folder: "06_Execution"
-  category: "KPI"
+  kpi_id_ref: enterprise.action_outcome_rate.pct
+  semantic_model: Governance_SemanticModel
+  display_folder: 06_Execution
+  category: KPI
   expression:
-    dax: |
-      DIVIDE ( SUM ( fact_action[Outcome Success Flag] ), COUNTROWS ( fact_action[Action ID] ) )
-    formatString: "0.0%"
+    logical: 'Fabric: see overlay / TMDL.'
   documentation:
-    description: "Share of routed actions that achieved the intended outcome."
-    notes: |
-      Grain: action_instance. Unit: %.
+    description: Share of routed actions that achieved the intended outcome.
+    notes: 'Grain: action_instance. Unit: %.
+
       Lineage: fact_action[Outcome Success Flag], fact_action[Action ID].
+
       QA: Outcome definition and evaluation window must be consistent.
+
+      '
   dependencies:
     columns:
-      - "fact_action[Outcome Success Flag]"
-      - "fact_action[Action ID]"
+    - fact_action[Outcome Success Flag]
+    - fact_action[Action ID]
   governance:
-    owner: "Executive Office"
-    status: "draft"
-    version: "v0.1"
-    last_review: "TBD"
+    owner: Executive Office
+    status: draft
+    version: v0.1
+    last_review: TBD
 ```
 

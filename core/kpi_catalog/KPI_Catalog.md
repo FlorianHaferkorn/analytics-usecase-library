@@ -4389,7 +4389,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures:
     - svc.sla.attainment.pct
     lineage:
-    - fact_cases.SLA Met Flag
+    - fact_support_cases.SLA Met Flag
   governance:
     business_owner: "Head of Service"
     data_owner: "Service Analytics"
@@ -4430,7 +4430,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures:
     - svc.fcr.pct
     lineage:
-    - fact_cases.FCR Flag
+    - fact_support_cases.FCR Flag
   governance:
     business_owner: "Head of Service"
     data_owner: "Service Analytics"
@@ -4471,7 +4471,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures:
     - svc.aht.minutes
     lineage:
-    - fact_cases.Handle Time Minutes
+    - fact_support_cases.Handle Time Minutes
   governance:
     business_owner: "Head of Service"
     data_owner: "Service Analytics"
@@ -4514,7 +4514,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures:
     - svc.backlog.count
     lineage:
-    - fact_cases.Backlog Flag
+    - fact_support_cases.Backlog Flag
   governance:
     business_owner: "Head of Service"
     data_owner: "Service Analytics"
@@ -4596,7 +4596,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures:
     - svc.escalation.pct
     lineage:
-    - fact_cases.Escalation Flag
+    - fact_support_cases.Escalation Flag
   governance:
     business_owner: "Head of Service"
     data_owner: "Service Analytics"
@@ -4641,8 +4641,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures:
     - res.utilization.pct
     lineage:
-    - fact_wfm.Paid Time Minutes
-    - fact_wfm.Work Time Minutes
+    - fact_workforce_management.Paid Time Minutes
+    - fact_workforce_management.Work Time Minutes
   governance:
     business_owner: "Head of Service"
     data_owner: "WFM Analytics"
@@ -4685,9 +4685,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures:
     - res.occupancy.pct
     lineage:
-    - fact_wfm.Idle Time Minutes
-    - fact_wfm.Talk Time Minutes
-    - fact_wfm.Wrap Time Minutes
+    - fact_workforce_management.Idle Time Minutes
+    - fact_workforce_management.Talk Time Minutes
+    - fact_workforce_management.Wrap Time Minutes
   governance:
     business_owner: "Head of Service"
     data_owner: "WFM Analytics"
@@ -4730,8 +4730,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures:
     - res.overtime.pct
     lineage:
-    - fact_wfm.Overtime Minutes
-    - fact_wfm.Paid Time Minutes
+    - fact_workforce_management.Overtime Minutes
+    - fact_workforce_management.Paid Time Minutes
   governance:
     business_owner: "Head of Service"
     data_owner: "WFM Analytics"
@@ -4773,8 +4773,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures:
     - res.shrinkage.pct
     lineage:
-    - fact_wfm.Paid Time Minutes
-    - fact_wfm.Shrinkage Minutes
+    - fact_workforce_management.Paid Time Minutes
+    - fact_workforce_management.Shrinkage Minutes
   governance:
     business_owner: "Head of Service"
     data_owner: "WFM Analytics"

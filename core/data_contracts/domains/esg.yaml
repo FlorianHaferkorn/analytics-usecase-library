@@ -1,0 +1,124 @@
+domain: esg
+version: v1.0
+owner: ESG / Sustainability Data Product
+
+# ESG contract covers environmental, social, and governance reporting inputs.
+# Scope: carbon emissions, energy consumption, water/waste, workforce safety, D&I indicators.
+# This v1.0 is a structured placeholder — tables and columns are indicative and require
+# validation against the company's ESG reporting framework before production use.
+
+dimension:
+  - name: dim_date
+    description: "Calendar dimension for ESG reporting (annual and quarterly cycles)."
+    purpose: "Time slicing for ESG KPIs, aligned to reporting periods."
+    columns:
+      - {name: DateKey, type: int, role: key}
+      - {name: Date, type: date}
+      - {name: Year, type: int}
+      - {name: Quarter, type: text}
+      - {name: Month, type: text}
+      - {name: MonthNumber, type: int}
+
+  - name: dim_org
+    description: "Organization/site dimension for ESG reporting (plant, region, country)."
+    purpose: "Scoping for site-level environmental and social reporting."
+    columns:
+      - {name: OrgKey, type: int, role: key}
+      - {name: SiteCode, type: text}
+      - {name: SiteName, type: text}
+      - {name: Region, type: text, nullable: true}
+      - {name: Country, type: text, nullable: true}
+      - {name: Segment, type: text, nullable: true}
+
+  - name: dim_emission_scope
+    description: "GHG emission scope classification (Scope 1, 2, 3)."
+    purpose: "Carbon reporting by emission scope."
+    columns:
+      - {name: ScopeKey, type: int, role: key}
+      - {name: ScopeCode, type: text}   # e.g. SCOPE_1, SCOPE_2, SCOPE_3
+      - {name: ScopeName, type: text}
+      - {name: Category, type: text, nullable: true}
+
+fact:
+  - name: fact_emissions
+    description: "GHG emissions (tCO2e) by site, scope, and period."
+    purpose: "Carbon footprint reporting and net-zero progress tracking."
+    grain: site_scope_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: ScopeKey, type: int, ref: dim_emission_scope}
+      - {name: Emissions tCO2e, type: decimal, agg: sum}
+      - {name: Target Emissions tCO2e, type: decimal, agg: sum, nullable: true}
+
+  - name: fact_energy
+    description: "Energy consumption (MWh) by source and site per month."
+    purpose: "Energy intensity and renewable energy ratio reporting."
+    grain: site_source_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: Energy Source, type: text}       # e.g. Grid, Gas, Renewable
+      - {name: Energy Consumed MWh, type: decimal, agg: sum}
+      - {name: Is Renewable, type: boolean}
+
+  - name: fact_water_waste
+    description: "Water withdrawal, recycled water, and waste generated per site per month."
+    purpose: "Water intensity and waste-to-landfill reporting."
+    grain: site_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: Water Withdrawn m3, type: decimal, agg: sum, nullable: true}
+      - {name: Water Recycled m3, type: decimal, agg: sum, nullable: true}
+      - {name: Waste Generated Tonnes, type: decimal, agg: sum, nullable: true}
+      - {name: Waste Recycled Tonnes, type: decimal, agg: sum, nullable: true}
+
+  - name: fact_safety
+    description: "Workplace safety incidents and lost time per site per month."
+    purpose: "LTIFR, incident rate, and safety performance reporting."
+    grain: site_month
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: Incidents, type: int, agg: sum}
+      - {name: Lost Time Incidents, type: int, agg: sum}
+      - {name: Hours Worked, type: decimal, agg: sum}
+      - {name: Fatalities, type: int, agg: sum}
+
+  - name: fact_di
+    description: "Diversity and inclusion metrics per org per reporting period."
+    purpose: "D&I reporting (gender, leadership representation, pay gap)."
+    grain: org_period
+    columns:
+      - {name: DateKey, type: int, ref: dim_date}
+      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: Female Headcount, type: int, agg: sum, nullable: true}
+      - {name: Total Headcount, type: int, agg: sum}
+      - {name: Female Leadership %, type: decimal, nullable: true}
+      - {name: Gender Pay Gap %, type: decimal, nullable: true}
+
+quality_rules:
+  freshness_sla:
+    fact_emissions: quarterly       # GHG data typically quarterly; annual for external reporting
+    fact_energy: monthly
+    fact_water_waste: monthly
+    fact_safety: monthly
+    fact_di: annually               # annual reporting cycle; quarterly updates where available
+  key_nullability:
+    - "fact_emissions.DateKey, OrgKey, ScopeKey, Emissions tCO2e: never null"
+    - "fact_safety.DateKey, OrgKey, Incidents, Hours Worked: never null"
+    - "fact_di.DateKey, OrgKey, Total Headcount: never null"
+  value_ranges:
+    - "fact_emissions.Emissions tCO2e: >= 0"
+    - "fact_safety.Fatalities: >= 0; Lost Time Incidents <= Incidents"
+    - "fact_di.Female Leadership %: in [0; 1] when present"
+    - "fact_di.Gender Pay Gap %: may be negative (female-favourable gap); no range restriction"
+    - "fact_water_waste.Water Recycled m3: <= Water Withdrawn m3 when both present"
+  referential_integrity:
+    - "fact_emissions.ScopeKey → dim_emission_scope (required)"
+    - "All facts: OrgKey → dim_org (required)"
+
+settings:
+  timezone: Europe/Berlin
+  fiscal_year_start: 01-01

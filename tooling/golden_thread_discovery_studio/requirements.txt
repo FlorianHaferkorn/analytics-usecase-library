@@ -1,0 +1,7 @@
+# Golden Thread Discovery Studio (run from repo root: streamlit run tooling/golden_thread_discovery_studio/app.py)
+streamlit>=1.28.0
+python-dotenv>=1.0.0
+pyyaml>=6.0
+jsonschema>=4.17.0
+openai>=1.0.0
+google-generativeai>=0.8.0

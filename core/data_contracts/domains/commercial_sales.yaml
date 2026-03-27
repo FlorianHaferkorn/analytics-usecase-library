@@ -161,6 +161,23 @@ fact:
     qa:
       - "NPS Score in [0;10]; Promoter/Detractor flags mutually exclusive."
 
+quality_rules:
+  freshness_sla: daily        # fact_sales refreshed within 24 h of business close; fact_customer_events monthly
+  key_nullability:
+    - "fact_sales.DateKey, OrgKey, ProductKey, Net Sales Amount, Quantity: never null"
+    - "fact_customer_events.Activity Flag, Churn Flag: never null"
+    - "fact_nps.NPS Score: never null; ResponseID unique per row"
+    - "fact_customer_value.CLV Amount: never null"
+  value_ranges:
+    - "fact_nps.NPS Score: integer in [0; 10]"
+    - "fact_customer_value.CLV Amount: >= 0; CLV Remaining Amount >= 0 when present"
+    - "fact_customer_events.Attrition Risk %: in [0; 1] when present"
+    - "fact_sales.Discount Amount: >= 0 when present (no negative discount)"
+  referential_integrity:
+    - "fact_sales.CustomerKey → dim_customer (nullable; absent = unidentified customer)"
+    - "fact_sales.PromoKey → dim_promo (nullable; absent = non-promotional transaction)"
+    - "fact_customer_events.CustomerKey → dim_customer (required)"
+
 settings:
   timezone: Europe/Berlin
   fiscal_year_start: 01-01
