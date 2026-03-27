@@ -343,11 +343,14 @@ class VisualBuilder:
             Visual JSON structure
         """
         visual = self._build_base_visual("hundredPercentStackedBarChart", position, name=name)
-        # Charts use Category + Y roles
-        qs = {"Category": {"projections": []}, "Y": {"projections": []}}
-        if measures:
-            qs["Y"] = {"projections": [self._measure_projection(m) for m in measures]}
-        visual["visual"]["query"] = {"queryState": qs}
+        # Charts use Category + Y roles (consistent with build_line_chart et al.)
+        y_proj = [self._measure_projection(m) for m in measures] if measures else []
+        visual["visual"]["query"] = {
+            "queryState": {
+                "Category": {"projections": []},
+                "Y": {"projections": y_proj},
+            }
+        }
 
         # Add stacked bar chart-specific objects
         visual["visual"]["objects"] = {
@@ -468,22 +471,30 @@ class VisualBuilder:
         self,
         position: Position,
         columns: Optional[list] = None,
+        measures: Optional[List[str]] = None,
         name: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Build Matrix (Pivot Table) visual placeholder.
-        
+
         Args:
             position: Position and size
-            columns: Optional list of column references
-        
+            columns: Optional list of (entity, property) for row grouping
+            measures: Optional list of DAX measure names for value columns
+            name: Optional visual name
+
         Returns:
             Visual JSON structure
         """
         visual = self._build_base_visual("pivotTable", position, name=name)
         # Matrix uses Rows + Values roles
+        row_proj = []
+        if columns:
+            for ent, prop in columns:
+                row_proj.append(self._column_projection(ent, prop))
+        val_proj = [self._measure_projection(m) for m in measures] if measures else []
         visual["visual"]["query"] = {
-            "queryState": {"Rows": {"projections": []}, "Values": {"projections": []}}
+            "queryState": {"Rows": {"projections": row_proj}, "Values": {"projections": val_proj}}
         }
 
         # Add matrix-specific objects
@@ -522,23 +533,26 @@ class VisualBuilder:
     def build_scatter_plot(
         self,
         position: Position,
-        measures: Optional[list] = None,
+        measures: Optional[List[str]] = None,
         name: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Build Scatter Plot visual placeholder.
-        
+
         Args:
             position: Position and size
-            measures: Optional list of measure references
-        
+            measures: Optional list of measure references (first → X, second → Y)
+            name: Optional visual name
+
         Returns:
             Visual JSON structure
         """
         visual = self._build_base_visual("scatterChart", position, name=name)
         # Scatter plot uses X + Y roles
+        x_proj = [self._measure_projection(measures[0])] if measures and len(measures) >= 1 else []
+        y_proj = [self._measure_projection(measures[1])] if measures and len(measures) >= 2 else []
         visual["visual"]["query"] = {
-            "queryState": {"X": {"projections": []}, "Y": {"projections": []}}
+            "queryState": {"X": {"projections": x_proj}, "Y": {"projections": y_proj}}
         }
 
         # Add scatter plot-specific objects
@@ -631,28 +645,26 @@ class VisualBuilder:
     def build_funnel(
         self,
         position: Position,
-        measures: Optional[list] = None,
+        measures: Optional[List[str]] = None,
         name: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Build Funnel Chart visual placeholder.
-        
+
         Args:
             position: Position and size
             measures: Optional list of measure references
-        
+            name: Optional visual name
+
         Returns:
             Visual JSON structure
         """
         visual = self._build_base_visual("funnelChart", position, name=name)
         # Funnel uses Category + Y roles
+        y_proj = [self._measure_projection(m) for m in measures] if measures else []
         visual["visual"]["query"] = {
-            "queryState": {"Category": {"projections": []}, "Y": {"projections": []}}
+            "queryState": {"Category": {"projections": []}, "Y": {"projections": y_proj}}
         }
-
-        # Add funnel-specific objects
-        visual["visual"]["objects"] = {}
-        
         return visual
     
     def build_visual_for_slot(
