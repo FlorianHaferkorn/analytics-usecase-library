@@ -88,6 +88,22 @@ class ConfigLoader:
                 return p
         return None
 
+    def _format_smart_narrative(self, bracket: Dict[str, Any], use_case_id: str) -> str:
+        """Build a one-line Smart Narrative context text for the 300s detail page."""
+        title = bracket.get("title") or use_case_id
+        domain = bracket.get("domain") or ""
+        orch = bracket.get("orchestration") or {}
+        strategic_kpi_id = orch.get("strategic_kpi_id") or ""
+        ux = bracket.get("ux_layout_rules") or {}
+        p2 = ux.get("page_2_execution") or {}
+        c300 = p2.get("component_300s") or {}
+        grain = c300.get("evidence_grain") or "transaction"
+        kpi_to_measure = self.load_kpi_id_to_measure_name_map()
+        kpi_name = kpi_to_measure.get(strategic_kpi_id, strategic_kpi_id)
+        domain_prefix = f"[{domain}] " if domain else ""
+        text = f"{domain_prefix}{title}\nEvidence grain: {grain} | Strategic KPI: {kpi_name}"
+        return text
+
     def _format_trigger_condition(self, ac: Dict[str, Any]) -> Optional[str]:
         """Build a short human-readable trigger condition from action code trigger.levels."""
         trigger = ac.get("trigger") or {}
@@ -176,6 +192,19 @@ class ConfigLoader:
                     impact_text = self._format_impact_summary(ac)
                     if impact_text:
                         lines.append(f"  {impact_text}")
+                    # Phase D: add quantified impact range + confidence level
+                    imp = ac.get("impact") or {}
+                    if isinstance(imp, dict):
+                        rng = imp.get("expected_range") or {}
+                        if isinstance(rng, dict) and rng.get("value_low") is not None:
+                            lo = rng.get("value_low")
+                            hi = rng.get("value_high")
+                            unit = (rng.get("unit") or "").strip()
+                            range_str = f"{lo}–{hi} {unit}".strip()
+                            lines.append(f"  Expected: {range_str}")
+                        conf = imp.get("confidence") or {}
+                        if isinstance(conf, dict) and conf.get("level"):
+                            lines.append(f"  Confidence: {conf['level']}")
                 if payload_mode == "full":
                     steps = []
                     exec_block = ac.get("operational_execution") or {}
@@ -185,6 +214,12 @@ class ConfigLoader:
                         for s in steps[:3]:
                             if isinstance(s, str):
                                 lines.append(f"  · {s}")
+                    # Phase D: add first 2 gating rules as risk context
+                    gating = ac.get("trigger", {}).get("gating_rules") if isinstance(ac.get("trigger"), dict) else []
+                    if isinstance(gating, list) and gating:
+                        lines.append(f"  ⚠ {gating[0]}")
+                        if len(gating) > 1:
+                            lines.append(f"  ⚠ {gating[1]}")
                 lines.append("")
             if len(lines) <= 2:
                 return None
@@ -518,8 +553,39 @@ class ConfigLoader:
             kpi_to_measure = self.load_kpi_id_to_measure_name_map()
             card_measure_names = [kpi_to_measure.get(k, k) for k in card_kpi_ids]
             template_id = ux.get("page_template") or p1.get("template_id")
+            layout_source = ux.get("layout_source")  # Figma URI: "figma://FILE_ID/NODE_ID" or Penpot URI: "penpot://FILE_ID/PAGE_ID/FRAME_ID"
             grid_blueprint = None
-            if template_id:
+            # Figma layout takes precedence over static template_id when layout_source is set
+            if layout_source and layout_source.startswith("figma://"):
+                try:
+                    from .figma_layout_bridge import FigmaLayoutBridge
+                    bridge = FigmaLayoutBridge(figma_client=None)  # client injected at runtime if available
+                    grid_blueprint = bridge.load_layout(layout_source)
+                except Exception:
+                    pass  # Fallback to static template below
+            # Penpot layout as alternative when layout_source is a penpot:// URI
+            elif layout_source and layout_source.startswith("penpot://"):
+                try:
+                    from .penpot_layout_bridge import PenpotLayoutBridge
+                    bridge = PenpotLayoutBridge()
+                    parsed = bridge.parse_layout_source(layout_source)
+                    if parsed:
+                        file_id, page_id, frame_id = parsed
+                        # Try to load from file first (exported JSON), then fallback to URL
+                        # Typical file path pattern: <project_root>/designs/penpot_exports/<file_id>_<page_id>_<frame_id>.json
+                        export_path = self.repo_root / "designs" / "penpot_exports" / f"{file_id}_{page_id}_{frame_id}.json"
+                        if export_path.exists():
+                            grid_blueprint = bridge.load_from_file(str(export_path))
+                        else:
+                            # Fallback: try to load from Penpot REST API (requires token in environment)
+                            import os
+                            penpot_token = os.getenv("PENPOT_API_TOKEN")
+                            if penpot_token:
+                                api_url = f"https://penpot.app/api/rpc/command/file/get?file-id={file_id}"
+                                grid_blueprint = bridge.load_from_url(api_url, token=penpot_token)
+                except Exception:
+                    pass  # Fallback to static template below
+            if grid_blueprint is None and template_id:
                 try:
                     grid_blueprint = self.load_grid_page_template(template_id)
                 except FileNotFoundError:
@@ -530,6 +596,7 @@ class ConfigLoader:
                 "layer": [3, 30],
                 "template": template,
                 "template_id": template_id,
+                "layout_source": layout_source,
                 "grid_blueprint": grid_blueprint,
                 "report_canvas": report_canvas,
                 "needs_action_panel": False,
@@ -572,9 +639,42 @@ class ConfigLoader:
             report_canvas = ux.get("report_canvas") if isinstance(ux.get("report_canvas"), dict) else None
             evidence_columns = c300.get("evidence_columns")
             evidence_measures_raw = c300.get("evidence_measures")
-            detail_matrix_columns = list(evidence_columns) if isinstance(evidence_columns, list) else []
-            evidence_measures_list = list(evidence_measures_raw) if isinstance(evidence_measures_raw, list) else []
-            detail_matrix_measures = [kpi_to_measure.get(m, m) for m in evidence_measures_list]
+            # --- Phase D: resolve evidence_columns to (table, col) tuples and measure names ---
+            # Standard tokens map generic semantic names to Power BI table.column pairs
+            EVIDENCE_DIM_TOKENS: Dict[str, tuple] = {
+                "entity":     ("dim_org",        "OrgName"),
+                "period":     ("dim_date",        "CalendarYearMonth"),
+                "customer":   ("dim_customer",    "CustomerName"),
+                "product":    ("dim_product",     "ProductName"),
+                "channel":    ("dim_channel",     "ChannelName"),
+                "region":     ("dim_org",         "RegionName"),
+                "lane":       ("dim_lane",        "LaneName"),
+                "issue_type": ("dim_issue_type",  "IssueTypeName"),
+                "category":   ("dim_product",     "ProductCategory"),
+                "supplier":   ("dim_supplier",    "SupplierName"),
+                "sku":        ("dim_product",     "SKU"),
+            }
+            resolved_dim_cols: list = []
+            resolved_measures: list = []
+            if isinstance(evidence_columns, list):
+                for col in evidence_columns:
+                    if not isinstance(col, str):
+                        continue
+                    token = col.strip().lower()
+                    if token in EVIDENCE_DIM_TOKENS:
+                        resolved_dim_cols.append(EVIDENCE_DIM_TOKENS[token])
+                    else:
+                        # Treat as KPI ID → resolve to DAX measure name
+                        measure_name = kpi_to_measure.get(col, col)
+                        resolved_measures.append(measure_name)
+            # Explicit evidence_measures (if any) extend the resolved set
+            if isinstance(evidence_measures_raw, list):
+                for m in evidence_measures_raw:
+                    if isinstance(m, str):
+                        resolved_measures.append(kpi_to_measure.get(m, m))
+            detail_matrix_columns = resolved_dim_cols   # list of (table, col) tuples
+            detail_matrix_measures = resolved_measures  # list of DAX measure name strings
+            smart_narrative_text = self._format_smart_narrative(bracket, use_case_id)
             return {
                 "name": "detail",
                 "layer": [300],
@@ -589,6 +689,7 @@ class ConfigLoader:
                 "kpi_id_to_measure_name": kpi_to_measure,
                 "detail_matrix_columns": detail_matrix_columns,
                 "detail_matrix_measures": detail_matrix_measures,
+                "smart_narrative_text": smart_narrative_text,
             }
 
         raise ValueError(f"Page {page_name} not supported (expected 'overview' or 'detail')")
