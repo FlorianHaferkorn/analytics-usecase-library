@@ -17,6 +17,10 @@ tooling/validation/node_modules/
 # Generated validation results (produced by Stage 1 runner)
 tooling/validation/results/
 
+# Python bytecode cache
+__pycache__/
+*.pyc
+
 # Python virtual environments (bootstrap)
 tooling/.venv/
 .venv/

@@ -131,7 +131,22 @@ class PageBuilder:
                 vis = self.visual_builder.build_table(position, columns=[], measures=[], name=slot_id)
             elif visual_type == "lineChart":
                 vis = self.visual_builder.build_line_chart(position, name=slot_id)
+            elif visual_type == "pivotTable":
+                vis = self.visual_builder.build_matrix(position, name=slot_id)
+            elif visual_type == "scatterChart":
+                vis = self.visual_builder.build_scatter_plot(position, name=slot_id)
+            elif visual_type == "funnelChart":
+                vis = self.visual_builder.build_funnel(position, name=slot_id)
+            elif visual_type in ("clusteredBarChart", "clusteredColumnChart"):
+                vis = self.visual_builder.build_horizontal_bar(position, name=slot_id)
+            elif visual_type in ("hundredPercentStackedBarChart", "hundredPercentStackedColumnChart",
+                                 "stackedBarChart", "stackedColumnChart"):
+                vis = self.visual_builder.build_stacked_bar(position, name=slot_id)
+            elif visual_type == "waterfallChart":
+                vis = self.visual_builder.build_waterfall(position, name=slot_id)
             else:
+                # Unknown visual type: use base structure (no queryState).
+                # Validator will flag if the type is in VISUAL_TYPE_ROLES.
                 vis = self.visual_builder._build_base_visual(visual_type, position, tab_order=tab + i, name=slot_id)
             vis["position"]["tabOrder"] = tab + i
             visuals.append(vis)

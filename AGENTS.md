@@ -27,3 +27,14 @@ Use these instructions when editing this repository. Project rules in `.cursor/r
 ## Golden thread
 
 - Use cases and reports **reference** governed definitions; they do **not** define KPI meaning or action logic. Single source of truth for KPIs is `core/kpi_catalog/`; for action logic it is `core/action_codes/`.
+
+## Skills (tool-agnostisch)
+
+Wiederverwendbare Workflows für AI-Agenten und Menschen. Jeder Skill beschreibt einen kompletten Arbeitsablauf mit Validierung, Fehlerbehandlung und Lernschleife. Die Skills liegen in `internal/skills/` und können von jedem AI-Tool (Claude Code, Cursor, Copilot, etc.) verwendet werden.
+
+| Skill | Wann verwenden |
+|-------|---------------|
+| [`generate-and-validate-pbi-report.md`](internal/skills/generate-and-validate-pbi-report.md) | Power BI Report erstellen, neu generieren oder nach Bracket-Änderungen aktualisieren |
+| [`fix-pbi-report-errors.md`](internal/skills/fix-pbi-report-errors.md) | Fehler in bestehenden Reports oder Semantic Models diagnostizieren und beheben |
+
+**Lernschleife:** Nach jedem behobenen Fehler **muss** eine neue Zeile in `internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md` eingetragen werden, wenn die Fehlerklasse noch nicht dokumentiert ist. So werden Lösungen wiederverwendbar.

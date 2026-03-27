@@ -1,30 +1,30 @@
 /// Customer lifetime value (CLV) and remaining value at customer-month grain.
 table fact_customer_value
-	 lineageTag: de1f8e8f-8798-4256-a958-f7bbabe8d0b2
+		lineageTag: de1f8e8f-8798-4256-a958-f7bbabe8d0b2
 
-	 column DateKey
-		 dataType: Int64
-		 sourceColumn: DateKey
-		 summarizeBy: none
+		column DateKey
+			dataType: Int64
+			sourceColumn: DateKey
+			summarizeBy: none
 
-	 column CustomerKey
-		 dataType: Int64
-		 sourceColumn: CustomerKey
-		 summarizeBy: none
+		column CustomerKey
+			dataType: Int64
+			sourceColumn: CustomerKey
+			summarizeBy: none
 
-	 column 'CLV Amount'
-		 dataType: Decimal
-		 sourceColumn: CLV Amount
-		 summarizeBy: none
+		column 'CLV Amount'
+			dataType: Decimal
+			sourceColumn: CLV Amount
+			summarizeBy: none
 
-	 column 'CLV Remaining Amount'
-		 dataType: Decimal
-		 sourceColumn: CLV Remaining Amount
-		 summarizeBy: none
+		column 'CLV Remaining Amount'
+			dataType: Decimal
+			sourceColumn: CLV Remaining Amount
+			summarizeBy: none
 
-	 partition fact_customer_value = m
-		 mode: import
-		 source =
+		partition fact_customer_value = m
+			mode: import
+			source =
 			let
 					Source = Folder.Files(GoldDataPath & "/facts/fact_customer_value"),
 					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),

@@ -10,43 +10,22 @@
     "tabOrder": 3002
   },
   "visual": {
-    "visualType": "tableEx",
-    "query": {
-      "queryState": {
-        "Data": {
-          "projections": []
-        }
-      }
-    },
+    "visualType": "lineChart",
     "objects": {
-      "grid": [
+      "legend": [
         {
           "properties": {
-            "gridVertical": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            },
-            "gridHorizontal": {
+            "show": {
               "expr": {
                 "Literal": {
                   "Value": "true"
                 }
               }
             },
-            "gridHorizontalWeight": {
+            "showTitle": {
               "expr": {
                 "Literal": {
-                  "Value": "1L"
-                }
-              }
-            },
-            "rowPadding": {
-              "expr": {
-                "Literal": {
-                  "Value": "8L"
+                  "Value": "false"
                 }
               }
             }
@@ -54,6 +33,31 @@
         }
       ]
     },
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_date"
+                    }
+                  },
+                  "Property": "Date"
+                }
+              },
+              "queryRef": "dim_date.Date",
+              "nativeQueryRef": "Date"
+            }
+          ]
+        },
+        "Y": {
+          "projections": []
+        }
+      }
+    }
   }
 }
