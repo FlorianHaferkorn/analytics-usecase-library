@@ -1,0 +1,20 @@
+[project]
+name = "analytics-usecase-library"
+version = "0.1.0"
+description = "Analytics Strategy-to-Action Framework — Use Case Library"
+requires-python = ">=3.11"
+dependencies = [
+    "pyyaml>=6.0",
+    "jsonschema>=4.17.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tooling/tests", "products"]
+pythonpath = ["tooling", "tooling/ontology"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]

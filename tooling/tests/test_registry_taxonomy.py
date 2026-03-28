@@ -2,16 +2,12 @@
 
 from __future__ import annotations
 
-import sys
 import textwrap
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 import yaml
-
-# Ensure tooling/ontology/ is importable
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "ontology"))
 from registry_builder import (
     Issue,
     KpiRecord,

@@ -4,7 +4,7 @@
 
 **Tracking:** Work items are tracked in the repo-scope GitHub Project. For migration of these items to Issues, see [internal/project_mgmt/BACKLOG_MIGRATION.md](project_mgmt/BACKLOG_MIGRATION.md).
 
-**Last updated:** 2026-02-19
+**Last updated:** 2026-03-28
 
 ---
 
@@ -29,10 +29,11 @@ Open work for Operations and Finance domain models is tracked in **[products/fab
 
 ## Synthetic Data
 
+**Status:** ✅ Backbone Core v1 generator fully implemented (2026-03-28). All 14 dimension and fact generators, QA checks, and Lakehouse write logic now have complete PySpark implementations. Only the Lakehouse must exist before running.
+
 | File | Context | Description |
 |------|---------|-------------|
-| core/data_contracts/sources/synthetic/fabric_nb_generate_backbone_core_v1.py | line 12 | Lakehouse must exist (create first). |
-| core/data_contracts/sources/synthetic/fabric_nb_generate_backbone_core_v1.py | lines 79, 116, 154, 189, 219, 266, 304, 357, 365, 375, 478, 483 | Generate date range with Spark; stub blocks; derive from sales + config.inventory (target_dio_range, coverage days); implement join + ratio; Category join + GM% band check; RI dim_* vs facts, margin bands, DIO/CCC bands; ensure Lakehouse and schema exist; map dims/facts to config.lakehouse.tables. |
+| core/data_contracts/sources/synthetic/fabric_nb_generate_backbone_core_v1.py | line 13 | Lakehouse must exist before running (Fabric prerequisite). |
 | core/data_contracts/sources/synthetic/generate_gold_layer.py | line 121 | Optional: add holiday logic for `is_holiday` column. |
 
 ---
