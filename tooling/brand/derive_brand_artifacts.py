@@ -51,6 +51,7 @@ _SHOWCASES_DIR = _REPO_ROOT / "showcases"
 _THEME_OUTPUT_DIR = (
     _REPO_ROOT / "products" / "fabric" / "powerbi" / "tooling" / "theme_generator" / "themes"
 )
+_OSS_THEMES_DIR = _REPO_ROOT / "products" / "open_source_stack" / "themes"
 
 
 # ─────────────────────────────────────────────
@@ -93,6 +94,8 @@ def derive_for_showcase(
     # Register the generated theme as the showcase default so apply_report_theme
     # --use-default and --batch-showcase can pick it up without extra arguments.
     _register_showcase_default(showcase_name, outputs["pbi_theme"], verbose)
+    # Mirror CSS variables into the OSS stack so Evidence pages pick up the brand.
+    _write_oss_css(outputs["css_variables"], verbose)
     return outputs
 
 
@@ -216,6 +219,19 @@ def _patch_tool_derivations(
         encoding="utf-8",
     )
     _log(f"  Patched tool_derivations in {spec_path.name}", verbose)
+
+
+def _write_oss_css(css_path: Path, verbose: bool) -> None:
+    """
+    Mirror the generated CSS variables file into the OSS stack themes directory
+    so Evidence pages and the Tailwind config pick up the active brand without
+    manual copying.  Only runs when the OSS themes directory exists.
+    """
+    if not _OSS_THEMES_DIR.is_dir():
+        return
+    dest = _OSS_THEMES_DIR / "variables.css"
+    dest.write_text(css_path.read_text(encoding="utf-8"), encoding="utf-8")
+    _log(f"  OSS CSS   → {dest.relative_to(_REPO_ROOT)}", verbose)
 
 
 def _register_showcase_default(
