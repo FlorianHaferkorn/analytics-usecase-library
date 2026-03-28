@@ -31,6 +31,23 @@ _BRAND_SCHEMA = _REPO_ROOT / "core" / "brand" / "BrandSpec.schema.yaml"
 _BRAND_SAMPLE = _REPO_ROOT / "core" / "brand" / "samples" / "generic_brand.yaml"
 _SHOWCASES_DIR = _REPO_ROOT / "showcases"
 
+# Lazy import of the derivation orchestrator — avoids hard dependency when
+# brand_designer is loaded in environments without the full tooling stack.
+def _derive_artifacts(showcase_name: str) -> None:
+    """Save-and-derive: run the brand derivation pipeline for a showcase."""
+    import sys as _sys
+    if str(_REPO_ROOT) not in _sys.path:
+        _sys.path.insert(0, str(_REPO_ROOT))
+    from tooling.brand.derive_brand_artifacts import derive_for_showcase
+    outputs = derive_for_showcase(showcase_name, verbose=False)
+    import streamlit as _st
+    for key, path in outputs.items():
+        try:
+            rel = path.relative_to(_REPO_ROOT)
+        except ValueError:
+            rel = path
+        _st.success(f"{key}: `{rel}`")
+
 
 # ─────────────────────────────────────────────
 # Helpers
@@ -230,41 +247,12 @@ def _build_spec_dict(state: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _generate_css_preview(spec: Dict[str, Any]) -> str:
-    """Generate a CSS :root preview from the spec dict."""
-    color = spec.get("color", {})
-    primary = color.get("primary", "#2B5EB4")
-    secondary = color.get("secondary", "#3B8EA5")
-    sem = color.get("semantic", {})
-    neutral = color.get("neutral_scale", {})
-    typo = spec.get("typography", {})
-    font = typo.get("font_family", {}).get("primary", "system-ui")
-    spacing = spec.get("spacing", {}).get("scale", {})
-
-    lines = [
-        ":root {",
-        f"  --brand-color-primary:    {primary};",
-        f"  --brand-color-secondary:  {secondary};",
-        f"  --brand-color-positive:   {sem.get('positive', {}).get('color', '#107C10')};",
-        f"  --brand-color-negative:   {sem.get('negative', {}).get('color', '#D13438')};",
-        f"  --brand-color-warning:    {sem.get('warning',  {}).get('color', '#F7630C')};",
-        f"  --brand-color-neutral:    {sem.get('neutral',  {}).get('color', '#605E5C')};",
-        "",
-        f"  --brand-neutral-50:   {neutral.get('50',  '#FAFAFA')};",
-        f"  --brand-neutral-100:  {neutral.get('100', '#F3F2F1')};",
-        f"  --brand-neutral-200:  {neutral.get('200', '#E1DFDD')};",
-        f"  --brand-neutral-400:  {neutral.get('400', '#A19F9D')};",
-        f"  --brand-neutral-700:  {neutral.get('700', '#3B3A39')};",
-        f"  --brand-neutral-900:  {neutral.get('900', '#201F1E')};",
-        "",
-        f"  --brand-font-primary: {font};",
-        "",
-        f"  --brand-spacing-sm:   {spacing.get('sm', 8)}px;",
-        f"  --brand-spacing-md:   {spacing.get('md', 16)}px;",
-        f"  --brand-spacing-lg:   {spacing.get('lg', 24)}px;",
-        f"  --brand-spacing-xl:   {spacing.get('xl', 32)}px;",
-        "}",
-    ]
-    return "\n".join(lines)
+    """Generate a full CSS :root block from the spec dict via the derivation pipeline."""
+    import sys as _sys
+    if str(_REPO_ROOT) not in _sys.path:
+        _sys.path.insert(0, str(_REPO_ROOT))
+    from core.brand.derivations.css_variables import spec_to_css
+    return spec_to_css(spec)
 
 
 # ─────────────────────────────────────────────
@@ -422,6 +410,15 @@ def render_brand_designer(repo_root: Optional[Path] = None) -> None:
                 st.success(f"Saved: `{path.relative_to(_REPO_ROOT)}`")
             except Exception as exc:
                 st.error(f"Save failed: {exc}")
+
+    col_derive, _ = st.columns([3, 2])
+    with col_derive:
+        if st.button("⚙ Generate Artifacts", disabled=not showcase_name,
+                     help="Derive Power BI theme JSON and CSS variables from the saved BrandSpec."):
+            try:
+                _derive_artifacts(showcase_name)
+            except Exception as exc:
+                st.error(f"Derivation failed: {exc}")
 
     with col_yaml:
         yaml_str = yaml.dump(spec, allow_unicode=True, default_flow_style=False, sort_keys=False) if _YAML_OK else json.dumps(spec, indent=2)

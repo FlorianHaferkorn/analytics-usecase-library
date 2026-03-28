@@ -107,7 +107,7 @@ To implement one use case end-to-end (e.g. COM-001):
    .\tooling\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseAuroraShowcase -OverwriteExisting
    ```
 
-   Primary output: `showcases/aurora_group/semantic_models/.../tables/_Measures.tmdl` (single measures table; measures grouped by display folder). Omit `-UseAuroraShowcase` to write to `products/fabric/powerbi/dist` instead.
+   Primary output: `products/fabric/powerbi/dist/<Domain>.SemanticModel/tables/_Measures.tmdl` (single measures table; measures grouped by display folder). With `-UseAuroraShowcase`, the script targets the Aurora showcase configuration (same output path; the flag sets showcase-specific defaults such as org context and data source pointers).
 
 3. Run **Stage 1** to ensure framework consistency: `.\tooling\run_stage1_checks.ps1`.
 4. If you have Fabric/Power BI output, run **Fabric checks**: `products\fabric/powerbi\tooling\run_fabric_checks.ps1`.

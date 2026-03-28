@@ -1,5 +1,9 @@
 # Golden Thread Discovery Studio
 
+> **Deprecated — superseded by the Next.js ActionReady Studio (PR #233).**
+> This Streamlit app is kept for reference until PR #233 is merged into main.
+> All new feature work goes into the Next.js app; do not extend this studio.
+
 Inception UI for the Golden Thread: sources, discovery chat, Living Tree, and export into SSOTs. Optional tool; not part of Stage 1 CI.
 
 ## Purpose

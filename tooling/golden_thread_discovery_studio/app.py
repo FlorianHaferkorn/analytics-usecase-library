@@ -1,6 +1,9 @@
 """
 Golden Thread Discovery Studio – Streamlit app.
 
+DEPRECATED: Superseded by the Next.js ActionReady Studio (PR #233).
+Kept for reference until PR #233 merges. Do not extend this file.
+
 Triple-pane: Sources (left), Discovery Chat (center), Living Tree + YAML Editor (right).
 Single global state (DiscoverySession); Tree and YAML stay in sync.
 """
@@ -174,6 +177,31 @@ def _inject_notebooklm_css() -> None:
     )
 
 
+def _render_llm_status_badge() -> None:
+    """Show a sidebar status indicator for LLM configuration. Fails fast with clear guidance."""
+    import os
+    google_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+    openai_key = os.environ.get("OPENAI_API_KEY")
+    azure_key = os.environ.get("AZURE_OPENAI_API_KEY")
+    azure_endpoint = os.environ.get("AZURE_OPENAI_ENDPOINT")
+
+    if google_key:
+        st.sidebar.success("LLM: Google Gemini ✓")
+    elif azure_key and azure_endpoint:
+        st.sidebar.success("LLM: Azure OpenAI ✓")
+    elif openai_key:
+        st.sidebar.success("LLM: OpenAI ✓")
+    else:
+        st.sidebar.warning(
+            "**Discovery Chat not configured.**\n\n"
+            "Set one of the following in your `.env` file or environment:\n"
+            "- `GOOGLE_API_KEY` / `GEMINI_API_KEY`\n"
+            "- `OPENAI_API_KEY`\n"
+            "- `AZURE_OPENAI_API_KEY` + `AZURE_OPENAI_ENDPOINT`\n\n"
+            "Copy `.env.example` → `.env` to get started."
+        )
+
+
 def main() -> None:
     st.set_page_config(page_title="Golden Thread Discovery Studio", layout="wide")
 
@@ -181,6 +209,8 @@ def main() -> None:
     _init_session_state()
     repo_root = st.sidebar.text_input("Repo root", value=str(st.session_state.repo_root))
     st.session_state.repo_root = Path(repo_root) if repo_root else _REPO_ROOT
+
+    _render_llm_status_badge()
 
     project_mode = st.sidebar.radio("Project mode", ["greenfield", "brownfield"], index=0)
     _update_session({"project_mode": project_mode})

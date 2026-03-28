@@ -1,0 +1,69 @@
+schema_version: "2.0"
+id: SCM-EXT-001
+title: Supplier Risk & Dual-Sourcing Monitor
+domain: SupplyChain
+# build_status: draft — scaffold only; not yet build_ready
+# prerequisites: SCM-002 (Supply Reliability / OTIF)
+
+governance:
+  owner_role: supply_chain_lead
+  steward_role: procurement_bi_lead
+
+orchestration:
+  strategic_kpi_id: scm.supplier.risk_score.composite   # Composite risk index 0–100
+  influencing_kpi_ids:
+    - scm.supplier.otif.pct                              # On-Time In-Full delivery
+    - scm.supplier.lead_time.delta_days                  # Lead time vs. contracted
+    - scm.supplier.quality.defect_pct                    # Quality defect rate
+    - scm.supplier.concentration.pct                     # Single-source concentration
+    - scm.supplier.financial_health_score                # External financial health
+  action_code_ids:
+    - S-P1.1    # Procurement escalation
+    - S-P1.2    # Dual-source activation
+
+value_driver_model:
+  formula: scm.supplier.risk_score.composite = f(scm.supplier.otif.pct, scm.supplier.lead_time.delta_days, scm.supplier.quality.defect_pct, scm.supplier.concentration.pct)
+  impact_direction: minimize
+  primary_driver: scm.supplier.otif.pct
+  impact_logic: >
+    The composite risk score rises when a single supplier dominates spend
+    and simultaneously shows degrading OTIF or quality metrics.
+    Dual-sourcing activation lowers concentration risk.
+  critical_threshold: 70   # Risk score ≥ 70 triggers procurement escalation
+
+ux_layout_rules:
+  report_structure: 2-Page-Lead
+  report_canvas: { width: 1920, height: 1080 }
+  page_1_summary:
+    title: Supplier Risk Overview
+    template_id: pulse
+    component_3s:
+      kpi_id: scm.supplier.risk_score.composite
+      visual_type: kpi_card
+    component_30s:
+      - kpi_id: scm.supplier.concentration.pct
+        visual_type: treemap             # Spend concentration by supplier
+      - kpi_ids:
+          - scm.supplier.otif.pct
+          - scm.supplier.quality.defect_pct
+          - scm.supplier.lead_time.delta_days
+        visual_type: scatter_chart       # Risk matrix: OTIF vs. defect rate
+  page_2_execution:
+    title: Supplier Scorecard & Actions
+    template_id: action_matrix
+    component_300s:
+      evidence_grain: purchase_order_line
+      evidence_columns:
+        - supplier_id
+        - supplier_name
+        - material_group
+        - scm.supplier.risk_score.composite
+        - scm.supplier.concentration.pct
+      action_panel: true
+      payload_mode: full
+
+overrides:
+  data_contract_ref: core/data_contracts/domains/supply_chain.yaml
+
+documentation:
+  business_factsheet: ./Business_Factsheet.md
