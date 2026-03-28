@@ -153,3 +153,31 @@ required_slicers: Date, Plant/Asset, Asset Class/Criticality
 
 
 
+
+## 10. Typical Decision Scenarios
+
+These scenarios illustrate how this use case drives decisions in practice. They are examples — not exhaustive.
+
+### Scenario A: MTBF Collapse on Critical Production Line
+
+**Situation:** Mean time between failures on Line 3 dropped from 480h to 190h over 8 weeks. Unplanned downtime increased to 12%. Spare parts stockout rate is 18% for Line 3 components.
+
+**Decision question:** Is this a maintenance execution gap (missed PMs), an aging asset issue, or a spare parts availability problem?
+
+**Who decides:** Maintenance Manager + Plant Director.
+
+**Consequence of inaction:** Each unplanned stop costs ~€15K in lost output; current trajectory projects 3 additional failures per month.
+
+**Action Code triggered:** O-A2.1 (Asset Reliability Recovery) — activates failure pattern analysis and PM compliance review.
+
+### Scenario B: High PM Compliance but No MTBF Improvement
+
+**Situation:** Preventive maintenance compliance is 95%, yet MTBF has not improved in 6 months. Failure modes are shifting from mechanical to electrical/control system issues.
+
+**Decision question:** Is the PM program targeting the right failure modes, or does the maintenance strategy need updating?
+
+**Who decides:** Reliability Engineer + Maintenance Manager.
+
+**Consequence of inaction:** PM resources are spent without reliability gain; false sense of proactive maintenance.
+
+**Action Code triggered:** O-A2.3 (Maintenance Strategy Review) — activates failure mode analysis and PM task relevance scoring.

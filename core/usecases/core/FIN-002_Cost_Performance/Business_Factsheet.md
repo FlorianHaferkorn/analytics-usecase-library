@@ -157,3 +157,31 @@ required_slicers: Date, Entity/Plant/Line, Product/Category, Cost bucket
 
 
 
+
+## 10. Typical Decision Scenarios
+
+These scenarios illustrate how this use case drives decisions in practice. They are examples — not exhaustive.
+
+### Scenario A: Unit Cost Spike Driven by Volume Drop
+
+**Situation:** Cost per unit has increased 15% vs plan in Q2. COGS % is stable, but production volume dropped 20% due to demand shortfall, spreading fixed costs over fewer units.
+
+**Decision question:** Is the volume shortfall temporary (seasonal, order timing) or structural (demand erosion)? Should production be consolidated?
+
+**Who decides:** Operations Controller + Plant Manager.
+
+**Consequence of inaction:** Fixed cost absorption worsens each month of underutilization; unit cost gap compounds into margin erosion.
+
+**Action Code triggered:** F-K2.1 (Cost Variance Investigation) — activates fixed/variable cost split analysis by plant and product line.
+
+### Scenario B: OPEX Overrun Despite Revenue on Track
+
+**Situation:** OPEX is 8% above plan while revenue tracks at +1%. Labor productivity has declined 5% and defect rate increased, driving rework costs.
+
+**Decision question:** Is the OPEX overrun driven by quality issues (rework), headcount creep, or input cost inflation?
+
+**Who decides:** Finance Controller + Operations Lead.
+
+**Consequence of inaction:** OPEX overrun flows directly to EBIT; annualized gap equals €2M if unaddressed.
+
+**Action Code triggered:** F-K2.3 (OPEX Containment) — activates cost driver decomposition and variance bridge.

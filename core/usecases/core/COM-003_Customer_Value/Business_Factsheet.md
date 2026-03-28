@@ -167,3 +167,31 @@ customer_month grain is provided by domain contract facts fact_customer_value an
 
 
 
+
+## 10. Typical Decision Scenarios
+
+These scenarios illustrate how this use case drives decisions in practice. They are examples — not exhaustive.
+
+### Scenario A: CLV Decline in High-Value Segment
+
+**Situation:** Average CLV has dropped 12% YoY in the top-20% customer segment. Retention rate is stable, but revenue per customer is declining. NPS is trending down in the same cohort.
+
+**Decision question:** Is the revenue decline driven by reduced purchase frequency, lower basket size, or competitive switching?
+
+**Who decides:** CRM Lead + Commercial Controlling.
+
+**Consequence of inaction:** Accelerating value erosion in the most profitable segment; 1pp CLV drop in top segment equals ~€3M annual impact.
+
+**Action Code triggered:** C-M2.2 (Customer Value Recovery) — activates cohort-level CLV decomposition and churn risk scoring.
+
+### Scenario B: Rising Complaint Rate Despite Stable NPS
+
+**Situation:** Complaint count has increased 25% in Q2 while NPS remains flat. Revenue at risk is climbing as complaints concentrate in a single product category.
+
+**Decision question:** Is NPS masking a growing service gap, or are complaints isolated to a fixable product issue?
+
+**Who decides:** CRM Lead + Service Manager.
+
+**Consequence of inaction:** Unresolved complaints erode trust; revenue at risk compounds as dissatisfied customers churn silently.
+
+**Action Code triggered:** C-P4.1 (Complaint Resolution) — activates root-cause analysis by product and customer segment.

@@ -182,3 +182,31 @@ required_slicers: >
 - Ignoring seasonality causing false alarms on utilization/occupancy.  
 
 
+
+## 10. Typical Decision Scenarios
+
+These scenarios illustrate how this use case drives decisions in practice. They are examples — not exhaustive.
+
+### Scenario A: Low Utilization Despite High Demand
+
+**Situation:** Resource utilization is 62% against a 78% target, yet ticket backlog is growing. Occupancy rate is 71% but shrinkage (training, meetings, system downtime) has increased to 22%.
+
+**Decision question:** Is the utilization gap driven by excessive non-productive time, scheduling inefficiency, or skill mismatch (agents available but not qualified for queued work)?
+
+**Who decides:** Workforce Planning Lead + Operations Manager.
+
+**Consequence of inaction:** Understaffed queues grow while available agents sit in non-productive activities; overtime costs spike to compensate.
+
+**Action Code triggered:** X-R2.1 (Utilization Recovery) — activates shrinkage decomposition and schedule adherence analysis.
+
+### Scenario B: Overtime Spike with Stable Headcount
+
+**Situation:** Overtime rate jumped to 18% (target <8%). Headcount is unchanged, but volume per agent increased 12% due to a product launch. SLA is at risk.
+
+**Decision question:** Is this a temporary surge requiring short-term overtime, or does the volume step-change require permanent capacity adjustment?
+
+**Who decides:** Workforce Planning Lead + Service Director.
+
+**Consequence of inaction:** Sustained overtime degrades agent well-being, increases attrition, and costs 1.5x base rate.
+
+**Action Code triggered:** X-R2.2 (Capacity Adjustment) — activates volume trend analysis and capacity model re-run.
