@@ -1,0 +1,31 @@
+# Use Case Factsheets (Lean 2.0)
+
+## Structure
+
+- **Frontmatter (mandatory):** YAML with `id` (use case ID) and `factsheet_type: business`. Must be the first block in the file.
+- **Templates:** `core/usecases/templates/usecase_factsheet_business.md` — follow section order and required fields.
+- **Technical Factsheet:** Removed in Lean 2.0 hard-cutover. All machine-readable config is now in `UseCase_Bracket.yaml`.
+
+## Business Factsheet
+
+- **Metadata (section 0):** Use Case ID, Domain, Business Owner (Role), Status.
+- **Content:** Human-readable prose only (Executive Story, 3-30-300 Journey, Strategic Rationale, Key Business Questions, Governance & Trust).
+- **No YAML blocks in body:** Lean 2.0 rule: Business Factsheets contain no machine-readable config except frontmatter.
+- **Action codes:** Reference action code IDs in prose; actual IDs are in `UseCase_Bracket.yaml`.
+- **Layout (layout_330300):** If used, must conform to schema; reference `tooling/ai/schemas/layout_330300.schema.json` and page templates in `core/templates/page_templates/`.
+
+## UseCase_Bracket.yaml (SSOT for machine-readable config)
+
+- **Schema:** `tooling/validation/schemas/usecase_bracket.schema.json`
+- **Required keys:** `schema_version`, `id`, `title`, `domain`, `governance` (owner_role, steward_role), `orchestration` (strategic_kpi_id, influencing_kpi_ids, action_code_ids), `value_driver_model`, `ux_layout_rules`, `documentation`.
+- **Governance:** `owner_role` and `steward_role` must exist in `core/organization/org_roles.yaml` (or `showcases/aurora_group/organization/org_roles.yaml` in Aurora context).
+- **Orchestration:** All KPI IDs must exist in `core/kpi_catalog/`; all action code IDs must exist in `core/action_codes/`.
+- **Value driver model:** `primary_driver` must be a dependency of `strategic_kpi_id` per catalog `depends_on_measures` or `causal_links`.
+- **UX layout rules:** Defines 3-30-300 UX configuration (page_1_summary, page_2_execution).
+
+## Schemas
+
+- Business factsheet: Minimal frontmatter only (no YAML blocks in body).
+- UseCase_Bracket: `tooling/validation/schemas/usecase_bracket.schema.json`
+
+When adding or changing sections or frontmatter, ensure output still validates against schema and passes Stage 1 (`.\tooling\run_stage1_checks.ps1`).

@@ -1,0 +1,70 @@
+rules:
+  agent-workflow:
+    description: "Workflow for autonomous agent task execution (GitHub Issues, PRs, Stage 1)"
+    alwaysApply: true
+    globs: null
+
+  artifacts-factsheets:
+    description: "Use case factsheet structure and required sections (Lean 2.0)"
+    alwaysApply: false
+    globs: "**/usecases/**/*.md"
+
+  artifacts-yaml:
+    description: "YAML artifact structure — action codes, maps, data contracts"
+    alwaysApply: false
+    globs: "**/*.yaml"
+
+  assistant-agent:
+    description: "Assistant — daily briefing, plan overview, decisions, bottlenecks, today's focus"
+    alwaysApply: false
+    globs: null
+
+  fabric-expert:
+    description: "Fabric/Power BI adapter expert — TMDL, DAX, PBIP, Fabric checks"
+    alwaysApply: false
+    globs: "products/fabric/powerbi/**, **/products/fabric/powerbi/**/*.tmdl"
+
+  framework-architect:
+    description: "Role — Analytics Framework Architect; Core as SSOT, Connectors, Living Hub"
+    alwaysApply: false
+    globs: null
+
+  framework-conventions:
+    description: "Golden thread, SSOT, and framework paths for the Analytics Use Case Library"
+    alwaysApply: true
+    globs: null
+
+  framework-expert:
+    description: "Framework expert — tool-agnostic core artifacts only; no TMDL, DAX, or other tool syntax"
+    alwaysApply: false
+    globs: "core/**, tooling/ir/**, data_contracts/**, tooling/validation/**, tooling/ontology/**"
+
+  oss-stack-expert:
+    description: "OSS stack expert — Evidence.dev, DuckDB, Trino, dbt-core, page generator, validation"
+    alwaysApply: false
+    globs: "products/open_source_stack/**"
+
+  pm-agent:
+    description: "Project Manager — prioritization, intake of new requirements, integrate into backlog/ideas"
+    alwaysApply: false
+    globs: null
+
+  reviewer-agent:
+    description: "Reviewer — review PRs against .cursor/rules and skills; Stage 1 compliance"
+    alwaysApply: false
+    globs: null
+
+  router-agent:
+    description: "Router — route Issue # or description to recommended Expert, Skills, rationale"
+    alwaysApply: false
+    globs: null
+
+  stage1-awareness:
+    description: "Stage 1 CI checks — run before commit; avoid suggesting changes that break these"
+    alwaysApply: true
+    globs: null
+
+  tmdl-dax:
+    description: "TMDL and DAX rules for Power BI semantic models in the ActionReady Framework"
+    alwaysApply: false
+    globs: "**/*.tmdl"

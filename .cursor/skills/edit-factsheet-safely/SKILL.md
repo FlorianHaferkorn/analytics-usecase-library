@@ -1,3 +1,5 @@
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+
 ---
 name: edit-factsheet-safely
 description: Edit Business factsheets without breaking Stage 1 (Lean 2.0). Use when editing Business_Factsheet.md or any use case markdown. Technical Factsheets no longer exist.
@@ -74,10 +76,8 @@ After editing Business Factsheet or Bracket, verify:
 **Correct structure (prose only)**:
 
 ```markdown
----
 id: COM-001
 factsheet_type: business
----
 
 # Use Case: COM-001 - Sales Performance vs Plan & LY
 

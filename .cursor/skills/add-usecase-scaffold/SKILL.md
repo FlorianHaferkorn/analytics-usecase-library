@@ -1,3 +1,5 @@
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+
 ---
 name: add-usecase-scaffold
 description: Create a new use case with Business Factsheet and UseCase_Bracket (Lean 2.0). Use when adding a new use case, scaffolding COM-xxx or FIN-xxx, or the user asks to create a use case.

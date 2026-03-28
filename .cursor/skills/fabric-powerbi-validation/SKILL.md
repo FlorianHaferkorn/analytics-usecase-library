@@ -1,3 +1,5 @@
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+
 ---
 name: fabric-powerbi-validation
 description: Validate Fabric and Power BI output (TMDL, DAX, measures). Use when working on TMDL files, DAX measures, Fabric checks, or Power BI semantic models.

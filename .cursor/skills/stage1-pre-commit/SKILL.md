@@ -1,3 +1,5 @@
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+
 ---
 name: stage1-pre-commit
 description: Run Stage 1 CI checks before committing. Use when the user is about to commit, asks to run checks, validation, or mentions Stage 1, pre-commit gate, or CI checks.
