@@ -1,6 +1,9 @@
 """
 Golden Thread Discovery Studio – Streamlit app.
 
+DEPRECATED: Superseded by the Next.js ActionReady Studio (PR #233).
+Kept for reference until PR #233 merges. Do not extend this file.
+
 Triple-pane: Sources (left), Discovery Chat (center), Living Tree + YAML Editor (right).
 Single global state (DiscoverySession); Tree and YAML stay in sync.
 """
