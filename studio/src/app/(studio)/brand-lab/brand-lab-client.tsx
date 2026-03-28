@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { ColorPicker } from '@/components/brand/color-picker';
 import { LayoutPreview } from '@/components/brand/layout-preview';
 import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
+import { ThemeExportPanel } from '@/components/brand/theme-export-panel';
+import { CssPreview } from '@/components/brand/css-preview';
 import { useProjectStore, DEFAULT_THEME } from '@/lib/store/project-store';
 import type { ThemeConfig } from '@/lib/store/project-store';
 
@@ -36,12 +38,27 @@ const PRESET_THEMES: Record<string, Partial<ThemeConfig>> = {
 
 export function BrandLabClient() {
   const theme = useProjectStore((s) => s.theme);
+  const projectId = useProjectStore((s) => s.projectId);
   const storeSetTheme = useProjectStore((s) => s.setTheme);
   const [activeLayer, setActiveLayer] = useState<'3s' | '30s' | '300s'>('3s');
+  const [saving, setSaving] = useState(false);
 
   const updateTheme = (partial: Partial<ThemeConfig>) => {
     storeSetTheme(partial);
   };
+
+  const handleSaveTheme = useCallback(async () => {
+    setSaving(true);
+    try {
+      await fetch('/api/theme', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectId, theme }),
+      });
+    } finally {
+      setSaving(false);
+    }
+  }, [projectId, theme]);
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 'var(--sp-3)', height: 'calc(100vh - 56px - var(--sp-6))' }}>
@@ -207,6 +224,12 @@ export function BrandLabClient() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* CSS Preview + Export */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)' }}>
+          <CssPreview theme={theme} />
+          <ThemeExportPanel theme={theme} onSave={handleSaveTheme} saving={saving} />
         </div>
       </div>
     </div>

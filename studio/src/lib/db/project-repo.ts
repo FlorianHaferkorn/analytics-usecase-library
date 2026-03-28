@@ -59,6 +59,22 @@ export function updateProject(id: string, updates: Partial<Pick<ProjectRow, 'nam
   db.prepare(`UPDATE projects SET ${fields.join(', ')} WHERE id = ?`).run(...values);
 }
 
+/** Convenience: persist a ThemeConfig to the project's theme_json column. */
+export function saveTheme(projectId: string, theme: Record<string, unknown>) {
+  updateProject(projectId, { theme_json: JSON.stringify(theme) });
+}
+
+/** Convenience: load a parsed ThemeConfig from the project's theme_json column. */
+export function loadTheme(projectId: string): Record<string, unknown> | null {
+  const project = getProject(projectId);
+  if (!project?.theme_json) return null;
+  try {
+    return JSON.parse(project.theme_json) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
 export interface BracketEditRow {
   bracket_id: string;
   project_id: string;
