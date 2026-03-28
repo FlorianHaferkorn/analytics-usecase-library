@@ -90,7 +90,7 @@ export function DiscoveryClient() {
       <div style={{ display: 'flex', gap: 'var(--sp-2)', flex: 1, minHeight: 0 }}>
         <SourcePanel sources={sources} onAddSource={addSource} onRemoveSource={removeSource} />
         <DiscoveryChat apiKey={apiKey} context={context} onExtract={handleExtract} />
-        <ExtractionPanel lastResponse={lastResponse} />
+        <ExtractionPanel lastResponse={lastResponse} sourceNames={sources.map((s) => s.name)} />
       </div>
     </div>
   );

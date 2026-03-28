@@ -1,0 +1,39 @@
+import { NextResponse } from 'next/server';
+import { loadBracket } from '@/lib/core/bracket-loader';
+import { loadKpiMap } from '@/lib/core/catalog-loader';
+import { buildIRPackage, type IRPackage } from '@/lib/delivery/ir-builder';
+import { generateGitHubWorkflow, generateValidationPipeline, generateDeployScript } from '@/lib/delivery/cicd-adapter';
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  const { useCaseIds } = body as { useCaseIds: string[] };
+
+  if (!useCaseIds?.length) {
+    return NextResponse.json({ error: 'No use case IDs provided' }, { status: 400 });
+  }
+
+  const kpiMap = await loadKpiMap();
+
+  const packages: IRPackage[] = [];
+  for (const id of useCaseIds) {
+    const bracket = await loadBracket(id);
+    if (bracket) {
+      packages.push(buildIRPackage(bracket, kpiMap));
+    }
+  }
+
+  const workflow = generateGitHubWorkflow(packages);
+  const validation = generateValidationPipeline(packages);
+  const deployScript = generateDeployScript(packages);
+
+  return NextResponse.json({
+    results: [{
+      useCaseId: 'cicd-bundle',
+      outputs: {
+        workflow,
+        validation,
+        deployScript,
+      },
+    }],
+  });
+}

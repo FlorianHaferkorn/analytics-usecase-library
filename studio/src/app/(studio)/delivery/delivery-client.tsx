@@ -47,9 +47,9 @@ const ADAPTERS = [
     id: 'cicd',
     name: 'CI/CD Pipeline',
     description: 'Deploy via GitHub Actions or Fabric REST API',
-    outputs: ['GitHub Actions workflow', 'Fabric API deploy script', 'Validation pipeline'],
-    status: 'planned' as const,
-    endpoint: '',
+    outputs: ['GitHub Actions workflow', 'Validation pipeline', 'Fabric deploy script'],
+    status: 'available' as const,
+    endpoint: '/api/export/cicd',
   },
 ] as const;
 
@@ -143,15 +143,14 @@ export function DeliveryClient({ brackets }: Props) {
             {ADAPTERS.map((a) => (
               <button
                 key={a.id}
-                onClick={() => a.status !== 'planned' && setSelectedAdapter(a.id)}
+                onClick={() => setSelectedAdapter(a.id)}
                 style={{
                   padding: 'var(--sp-2)',
                   backgroundColor: selectedAdapter === a.id ? 'var(--slate-700)' : 'var(--slate-800)',
                   border: `1px solid ${selectedAdapter === a.id ? 'var(--mint)' : 'var(--slate-700)'}`,
                   borderRadius: 'var(--radius-lg)',
-                  cursor: a.status === 'planned' ? 'not-allowed' : 'pointer',
+                  cursor: 'pointer',
                   textAlign: 'left',
-                  opacity: a.status === 'planned' ? 0.5 : 1,
                   transition: 'all var(--duration-fast) var(--ease-out)',
                 }}
               >

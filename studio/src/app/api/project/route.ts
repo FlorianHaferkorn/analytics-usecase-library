@@ -1,0 +1,30 @@
+import { NextResponse } from 'next/server';
+import { getProject, updateProject } from '@/lib/db/project-repo';
+
+export async function GET() {
+  const project = getProject();
+  if (!project) {
+    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+  }
+  return NextResponse.json({
+    ...project,
+    theme: JSON.parse(project.theme_json || '{}'),
+  });
+}
+
+export async function PATCH(request: Request) {
+  const body = await request.json();
+  const { name, strategy_anchor, theme } = body as {
+    name?: string;
+    strategy_anchor?: string;
+    theme?: Record<string, unknown>;
+  };
+
+  updateProject('default', {
+    name,
+    strategy_anchor,
+    theme_json: theme ? JSON.stringify(theme) : undefined,
+  });
+
+  return NextResponse.json({ ok: true });
+}

@@ -24,15 +24,37 @@ interface Props {
   strategyAnchor: string;
   brackets: BracketData[];
   actionDetails: Array<[string, { name: string; status: string; domain: string; triggerKpis: string[] }]>;
-  /** Full bracket YAML strings keyed by ID, for editor display. */
   bracketYamls: Record<string, string>;
 }
 
 type ViewMode = 'flow' | 'split' | 'editor';
 
-export function SteeringHubClient({ strategyAnchor, brackets, actionDetails, bracketYamls }: Props) {
+/** Extract BracketData fields from a parsed YAML bracket object. */
+function extractBracketData(parsed: Record<string, unknown>): Partial<BracketData> | null {
+  if (!parsed || typeof parsed !== 'object') return null;
+
+  const orch = parsed.orchestration as Record<string, unknown> | undefined;
+  const vdm = parsed.value_driver_model as Record<string, unknown> | undefined;
+
+  const result: Partial<BracketData> = {};
+  if (typeof parsed.title === 'string') result.title = parsed.title;
+  if (typeof parsed.domain === 'string') result.domain = parsed.domain;
+  if (orch) {
+    if (typeof orch.strategic_kpi_id === 'string') result.strategicKpiId = orch.strategic_kpi_id;
+    if (Array.isArray(orch.influencing_kpi_ids)) result.influencingKpiIds = orch.influencing_kpi_ids;
+    if (Array.isArray(orch.action_code_ids)) result.actionCodeIds = orch.action_code_ids;
+  }
+  if (vdm && typeof vdm.impact_direction === 'string') result.impactDirection = vdm.impact_direction;
+
+  return result;
+}
+
+export function SteeringHubClient({ strategyAnchor, brackets: initialBrackets, actionDetails, bracketYamls: initialYamls }: Props) {
   const [selectedBracket, setSelectedBracket] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('flow');
+  const [brackets, setBrackets] = useState<BracketData[]>(initialBrackets);
+  const [bracketYamls, setBracketYamls] = useState<Record<string, string>>(initialYamls);
+  const [syncStatus, setSyncStatus] = useState<'synced' | 'dirty' | 'error'>('synced');
 
   const flowData = useMemo<GoldenThreadData>(() => {
     const filtered = selectedBracket
@@ -45,7 +67,6 @@ export function SteeringHubClient({ strategyAnchor, brackets, actionDetails, bra
     };
   }, [strategyAnchor, brackets, actionDetails, selectedBracket]);
 
-  // Compute action gap stats (memoized)
   const { totalDrivers, actionGapCount } = useMemo(() => {
     const aMap = new Map(actionDetails);
     const total = brackets.reduce((sum, b) => sum + b.influencingKpiIds.length, 0);
@@ -59,12 +80,10 @@ export function SteeringHubClient({ strategyAnchor, brackets, actionDetails, bra
     return { totalDrivers: total, actionGapCount: total - withAction };
   }, [brackets, actionDetails]);
 
-  // YAML content for the editor
   const editorContent = useMemo(() => {
     if (selectedBracket && bracketYamls[selectedBracket]) {
       return bracketYamls[selectedBracket];
     }
-    // Show summary of all brackets
     const summary = brackets.map((b) => ({
       id: b.id,
       title: b.title,
@@ -76,20 +95,40 @@ export function SteeringHubClient({ strategyAnchor, brackets, actionDetails, bra
     return toYaml(summary);
   }, [selectedBracket, brackets, bracketYamls]);
 
-  const handleYamlChange = useCallback((_value: string, _parsed: unknown) => {
-    // TODO: bi-directional sync — validate and update flow
-  }, []);
+  const handleYamlChange = useCallback(
+    (value: string, parsed: unknown) => {
+      if (!selectedBracket) return;
+
+      const data = extractBracketData(parsed as Record<string, unknown>);
+      if (!data) {
+        setSyncStatus('error');
+        return;
+      }
+
+      setBrackets((prev) =>
+        prev.map((b) => (b.id === selectedBracket ? { ...b, ...data } : b))
+      );
+      setBracketYamls((prev) => ({ ...prev, [selectedBracket]: value }));
+      setSyncStatus('dirty');
+    },
+    [selectedBracket]
+  );
 
   const showFlow = viewMode === 'flow' || viewMode === 'split';
   const showEditor = viewMode === 'editor' || viewMode === 'split';
 
+  const syncIndicator = syncStatus === 'synced'
+    ? { color: 'var(--mint)', label: 'Synced' }
+    : syncStatus === 'dirty'
+      ? { color: 'var(--gold)', label: 'Modified' }
+      : { color: 'var(--danger)', label: 'Parse Error' };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)', height: 'calc(100vh - 56px - var(--sp-6))' }}>
-      {/* Toolbar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', flexShrink: 0 }}>
         <select
           value={selectedBracket ?? ''}
-          onChange={(e) => setSelectedBracket(e.target.value || null)}
+          onChange={(e) => { setSelectedBracket(e.target.value || null); setSyncStatus('synced'); }}
           style={{
             padding: 'var(--sp-1) var(--sp-1-5)',
             backgroundColor: 'var(--slate-800)',
@@ -105,7 +144,6 @@ export function SteeringHubClient({ strategyAnchor, brackets, actionDetails, bra
           ))}
         </select>
 
-        {/* View mode toggle */}
         <div style={{ display: 'flex', backgroundColor: 'var(--slate-800)', borderRadius: 'var(--radius-md)', border: '1px solid var(--slate-700)', overflow: 'hidden' }}>
           {(['flow', 'split', 'editor'] as const).map((mode) => (
             <button
@@ -119,7 +157,6 @@ export function SteeringHubClient({ strategyAnchor, brackets, actionDetails, bra
                 fontSize: '0.75rem',
                 fontWeight: viewMode === mode ? 600 : 400,
                 cursor: 'pointer',
-                textTransform: 'capitalize',
               }}
             >
               {mode === 'split' ? 'Flow + YAML' : mode === 'flow' ? 'Flow' : 'YAML'}
@@ -128,6 +165,13 @@ export function SteeringHubClient({ strategyAnchor, brackets, actionDetails, bra
         </div>
 
         <div style={{ flex: 1 }} />
+
+        {selectedBracket && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: syncIndicator.color }} />
+            <span style={{ fontSize: '0.6875rem', color: syncIndicator.color }}>{syncIndicator.label}</span>
+          </div>
+        )}
 
         <div style={{ display: 'flex', gap: 'var(--sp-2)', fontSize: '0.75rem' }}>
           <span style={{ color: 'var(--mint)' }}>{brackets.length} Use Cases</span>
@@ -138,34 +182,18 @@ export function SteeringHubClient({ strategyAnchor, brackets, actionDetails, bra
         </div>
       </div>
 
-      {/* Main content */}
       <div style={{ flex: 1, display: 'flex', gap: 'var(--sp-2)', minHeight: 0 }}>
         {showFlow && (
-          <div
-            style={{
-              flex: 1,
-              backgroundColor: 'var(--slate-950)',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--slate-700)',
-              overflow: 'hidden',
-            }}
-          >
+          <div style={{ flex: 1, backgroundColor: 'var(--slate-950)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--slate-700)', overflow: 'hidden' }}>
             <GoldenThreadFlow data={flowData} />
           </div>
         )}
         {showEditor && (
-          <div
-            style={{
-              flex: 1,
-              backgroundColor: 'var(--slate-950)',
-              borderRadius: 'var(--radius-lg)',
-              border: '1px solid var(--slate-700)',
-              overflow: 'hidden',
-            }}
-          >
+          <div style={{ flex: 1, backgroundColor: 'var(--slate-950)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--slate-700)', overflow: 'hidden' }}>
             <YamlEditor
               initialValue={editorContent}
               onChange={handleYamlChange}
+              readOnly={!selectedBracket}
               height="100%"
             />
           </div>
