@@ -247,41 +247,12 @@ def _build_spec_dict(state: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _generate_css_preview(spec: Dict[str, Any]) -> str:
-    """Generate a CSS :root preview from the spec dict."""
-    color = spec.get("color", {})
-    primary = color.get("primary", "#2B5EB4")
-    secondary = color.get("secondary", "#3B8EA5")
-    sem = color.get("semantic", {})
-    neutral = color.get("neutral_scale", {})
-    typo = spec.get("typography", {})
-    font = typo.get("font_family", {}).get("primary", "system-ui")
-    spacing = spec.get("spacing", {}).get("scale", {})
-
-    lines = [
-        ":root {",
-        f"  --brand-color-primary:    {primary};",
-        f"  --brand-color-secondary:  {secondary};",
-        f"  --brand-color-positive:   {sem.get('positive', {}).get('color', '#107C10')};",
-        f"  --brand-color-negative:   {sem.get('negative', {}).get('color', '#D13438')};",
-        f"  --brand-color-warning:    {sem.get('warning',  {}).get('color', '#F7630C')};",
-        f"  --brand-color-neutral:    {sem.get('neutral',  {}).get('color', '#605E5C')};",
-        "",
-        f"  --brand-neutral-50:   {neutral.get('50',  '#FAFAFA')};",
-        f"  --brand-neutral-100:  {neutral.get('100', '#F3F2F1')};",
-        f"  --brand-neutral-200:  {neutral.get('200', '#E1DFDD')};",
-        f"  --brand-neutral-400:  {neutral.get('400', '#A19F9D')};",
-        f"  --brand-neutral-700:  {neutral.get('700', '#3B3A39')};",
-        f"  --brand-neutral-900:  {neutral.get('900', '#201F1E')};",
-        "",
-        f"  --brand-font-primary: {font};",
-        "",
-        f"  --brand-spacing-sm:   {spacing.get('sm', 8)}px;",
-        f"  --brand-spacing-md:   {spacing.get('md', 16)}px;",
-        f"  --brand-spacing-lg:   {spacing.get('lg', 24)}px;",
-        f"  --brand-spacing-xl:   {spacing.get('xl', 32)}px;",
-        "}",
-    ]
-    return "\n".join(lines)
+    """Generate a full CSS :root block from the spec dict via the derivation pipeline."""
+    import sys as _sys
+    if str(_REPO_ROOT) not in _sys.path:
+        _sys.path.insert(0, str(_REPO_ROOT))
+    from core.brand.derivations.css_variables import spec_to_css
+    return spec_to_css(spec)
 
 
 # ─────────────────────────────────────────────

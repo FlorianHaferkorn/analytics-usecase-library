@@ -82,7 +82,7 @@ def derive_for_showcase(
     """
     spec_path = _SHOWCASES_DIR / showcase_name / "brand" / "brand_spec.yaml"
     out_dir_css = _SHOWCASES_DIR / showcase_name / "brand"
-    return derive_from_spec(
+    outputs = derive_from_spec(
         spec_path=spec_path,
         out_dir_pbi=_THEME_OUTPUT_DIR,
         out_dir_css=out_dir_css,
@@ -90,6 +90,10 @@ def derive_for_showcase(
         canvas_profile=canvas_profile,
         verbose=verbose,
     )
+    # Register the generated theme as the showcase default so apply_report_theme
+    # --use-default and --batch-showcase can pick it up without extra arguments.
+    _register_showcase_default(showcase_name, outputs["pbi_theme"], verbose)
+    return outputs
 
 
 def derive_from_spec(
@@ -152,7 +156,12 @@ def _write_pbi_theme(
 ) -> Path:
     """Write PBI theme dict as JSON. Returns the written path."""
     out_dir.mkdir(parents=True, exist_ok=True)
-    safe_name = theme_name.replace(" ", "_").replace("/", "-")
+    safe_name = (
+        theme_name
+        .replace(" ", "_")
+        .replace("/", "-")
+        .replace("#", "")   # hex color in name — strip leading hash for filesystem safety
+    )
     out_path = out_dir / f"{safe_name}.json"
     out_path.write_text(
         json.dumps(pbi_dict, indent=2, ensure_ascii=False),
@@ -207,6 +216,34 @@ def _patch_tool_derivations(
         encoding="utf-8",
     )
     _log(f"  Patched tool_derivations in {spec_path.name}", verbose)
+
+
+def _register_showcase_default(
+    showcase_name: str,
+    pbi_path: Path,
+    verbose: bool,
+) -> None:
+    """
+    Write/update showcases/<name>/theme_config.json with the generated theme name
+    so that apply_report_theme --use-default resolves to this theme automatically.
+    """
+    showcase_dir = _SHOWCASES_DIR / showcase_name
+    if not showcase_dir.is_dir():
+        return
+    config_file = showcase_dir / "theme_config.json"
+    config: dict[str, Any] = {}
+    if config_file.exists():
+        try:
+            config = json.loads(config_file.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    # Theme name is the JSON stem (filename without .json extension).
+    config["defaultThemeName"] = pbi_path.stem
+    config_file.write_text(
+        json.dumps(config, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    _log(f"  Default theme registered in {config_file.relative_to(_REPO_ROOT)}", verbose)
 
 
 def _log(msg: str, verbose: bool) -> None:
