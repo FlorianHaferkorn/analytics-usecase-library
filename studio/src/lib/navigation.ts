@@ -66,6 +66,14 @@ export const NAV_ITEMS: readonly NavItem[] = [
     sidebarIcon: '🚀',
     color: 'var(--gold)',
   },
+  {
+    href: '/plugins',
+    label: 'Plugins',
+    description: 'Manage extensions that add tools, widgets, and data sources',
+    icon: 'P',
+    sidebarIcon: '🔌',
+    color: 'var(--slate-400)',
+  },
 ] as const;
 
 /** Get page title for a given pathname. */
