@@ -56,7 +56,16 @@ Doing nothing does not keep the current state — it reinforces it.
 
 **Documentation hub (single navigation entry):** [`core/strategy_operating_model/README.md`](core/strategy_operating_model/README.md) — Golden Thread order, layer map, and links to all framework docs.
 
-**Prerequisites:** PowerShell (or pwsh); Node.js for schema validation. One-time from repo root: `cd tooling\validation` then `npm ci`. Run all commands from the **repository root**.
+**Quick setup:** See [`CONTRIBUTING.md`](CONTRIBUTING.md) for full prerequisites and workflow.
+
+```bash
+pip install -r requirements.txt          # Python deps
+cd tooling/validation && npm ci && cd ..  # Schema validation deps
+```
+
+**Taxonomy & naming conventions:** See [`TAXONOMY.md`](TAXONOMY.md) for domain prefixes, ID schemes, and file naming.
+
+Run all commands from the **repository root**.
 
 ### 1. Understand the Strategy Context (WHY)
 
@@ -121,6 +130,15 @@ For Fabric/Power BI layout, PBIP, and best practices, see `products/fabric/power
 - **`run_stage1_checks.ps1`** — Use for **CI and before merge**. Fast, tool-agnostic gate (docs, refs, structure, KPI ↔ use case consistency). This is the mandated check for merge.
 - **`run_all_checks.ps1`** — Use for **full local validation** when you have Fabric/Power BI output: runs Stage 1 plus Fabric checks (measures vs KPI, TMDL vs measure dictionary, DAX best practices, TMDL syntax). Use before releasing or when changing measures/TMDL.
 - **`products\fabric/powerbi\tooling\run_fabric_checks.ps1`** — Fabric-only checks (no Stage 1); use when you only need to validate generated TMDL/measures.
+
+## Health Scorecard
+
+Automated H1-H5 framework health metrics (Golden Thread Coverage, Semantic Model Stability, Data Contract Coverage, Action Code Completeness, Factsheet Quality):
+
+```bash
+python tooling/health_scorecard.py            # Console summary
+python tooling/health_scorecard.py --json      # JSON output for CI
+```
 
 ## Stage 2 Soft Review (planned)
 
