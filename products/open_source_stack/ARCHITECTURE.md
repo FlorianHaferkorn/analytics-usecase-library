@@ -21,9 +21,37 @@ on any hyperscaler or on-premises.
 
 ---
 
-## 2 Stack Decision Matrix
+## 2 Licensing — Zero License Fees
 
-### 2.1 Visualization Layer — Evidence.dev (confirmed)
+A core requirement: **no license fees for any component in the stack.** Every
+tool must be open-source (MIT, Apache 2.0, or similarly permissive) and free
+for self-hosted deployment.
+
+| Component | License | Self-Host Cost | Notes |
+|-----------|---------|---------------|-------|
+| **Evidence.dev** | MIT | Free | Cloud features (scheduling) are SaaS-only but not needed — we use our own auth proxy and Git-based scheduling |
+| **DuckDB** | MIT | Free | Embedded, zero-infra |
+| **Apache Iceberg** | Apache 2.0 | Free | Table format spec, no runtime cost |
+| **Trino** | Apache 2.0 | Free | Self-hosted query engine |
+| **dbt-core** | Apache 2.0 | Free | dbt Cloud is paid, but dbt-core CLI is fully free |
+| **Dagster** (OSS) | Apache 2.0 | Free | Dagster Cloud is paid; OSS has full feature set |
+| **DataHub** | Apache 2.0 | Free | Managed Acryl DataHub is paid; OSS is complete |
+| **PostgreSQL** | PostgreSQL License | Free | Permissive, BSD-like |
+| **MinIO** | AGPL v3 (server) | Free | AGPL is fine for internal infra; commercial license available if needed |
+
+**Alternatives considered and rejected for licensing reasons:**
+
+| Tool | License | Issue |
+|------|---------|-------|
+| Metabase | AGPL v3 | Enterprise features (SSO, row-level security, audit) require paid license |
+| Rill Data | Apache 2.0 (CLI only) | Server/cloud features require commercial license |
+| Cube.dev | MIT (core) | Production semantic layer features increasingly gated behind paid tier |
+
+---
+
+## 3 Stack Decision Matrix
+
+### 3.1 Visualization Layer — Evidence.dev (confirmed)
 
 | Candidate | Strengths | Weaknesses | Verdict |
 |-----------|-----------|------------|---------|
@@ -35,11 +63,31 @@ on any hyperscaler or on-premises.
 
 **Why Evidence.dev wins:**
 
+- **MIT license, free self-hosting** — zero license fees, no enterprise feature gating for what we need.
 - **Git-native**: Pages are Markdown files with embedded SQL — perfect for our agent workflow where pages are generated from IR/KPI catalog and committed to Git.
 - **Template-driven**: Our `evidence_page_template.md` already defines the 3-30-300 pattern with design tokens. A page generator can produce Evidence Markdown the same way `page_scaffold_generator` produces PBIP JSON.
 - **Tailwind theming**: Maps directly to our `theme_config.json` design tokens.
 - **Static build**: `npm run build` produces a static site — easy to deploy behind any auth proxy.
 - **SQL-first**: Queries run against the configured source (DuckDB dev, Postgres/warehouse prod) — no proprietary query language.
+
+**Why not Vega-Lite or D3.js?**
+
+Vega-Lite (BSD-3) and D3.js (ISC) are **chart libraries**, not dashboard frameworks.
+They solve a different problem: "given data, render one chart." They don't provide
+pages, navigation, SQL execution, filters, auth, or static-site generation. Using
+them would mean building our own Evidence.dev from scratch.
+
+However, Evidence uses Vega-Lite internally for its charts. For **custom/novel
+visualizations** (Sankey diagrams, value driver trees, decision spines) that go
+beyond Evidence's built-in components, Vega-Lite specs can be embedded directly
+inside Evidence pages:
+
+```markdown
+<VegaLite spec={{...}} data={driver_data} />
+```
+
+This gives the best of both worlds: Evidence as the framework, Vega-Lite as an
+escape hatch for bespoke visuals.
 
 ### 2.2 Data Platform
 
@@ -64,7 +112,30 @@ The OSS data platform mirrors Fabric's medallion architecture (Bronze → Silver
 - **Trino** as the production query engine provides federated SQL across Iceberg, Postgres, and other sources.
 - **Dagster** for orchestration because it's asset-centric (like our use-case-driven model) and has built-in dbt integration.
 
-### 2.3 Hyperscaler Base Options
+### 2.3 Flexible Data Storage Tiers
+
+The data storage layer is **pluggable by design** — Evidence queries against
+whatever SQL source is configured. This lets adopters choose based on their
+budget and scale, from zero-cost local files to enterprise cloud warehouses.
+
+| Tier | Who | Storage | Query Engine | License | Cost |
+|------|-----|---------|-------------|---------|------|
+| **Zero-cost** | Solo analysts, PoCs, small businesses | Local Parquet/CSV files | **DuckDB** (embedded) | MIT | **$0** |
+| **Small team** | Teams with existing DB | **PostgreSQL** (self-hosted or free tier) | Postgres-native | PostgreSQL License | **$0** |
+| **Cloud-light** | Startups | DuckDB + **S3/GCS** (Parquet files) | DuckDB with httpfs | MIT + cloud storage | ~$0.02/GB/month |
+| **Mid-scale** | Growing companies | **S3/GCS/ADLS + Iceberg** tables | **Trino** (self-hosted) or **Athena** (serverless) | Apache 2.0 | Pay-per-query |
+| **Enterprise** | Large orgs | Iceberg/Delta on object store | Trino / Spark / Snowflake | Platform-dependent | Platform-dependent |
+
+**Key principle:** The page generator and Evidence pages use standard SQL.
+Switching storage tiers only changes `evidence.config.yaml` (the data source
+connection) — no page modifications needed. The same generated dashboard
+works against DuckDB locally and Trino in production.
+
+**Evidence.dev data source support:** Evidence natively supports DuckDB,
+PostgreSQL, MySQL, Snowflake, BigQuery, Trino, Databricks, MS SQL, SQLite,
+and more via its connector system. Any SQL-compatible source works.
+
+### 2.4 Hyperscaler Base Options
 
 Any of these work — the adapter is cloud-agnostic, only the infrastructure provisioning differs:
 
@@ -391,7 +462,10 @@ products/open_source_stack/
 
 | Date | Decision | Rationale |
 |------|----------|-----------|
-| 2026-03-28 | Evidence.dev as visualization layer | Git-native, Markdown+SQL, template-driven, Tailwind themes — best fit for agent workflow |
+| 2026-03-28 | Evidence.dev as visualization layer | MIT license, zero fees, Git-native, Markdown+SQL, template-driven, Tailwind themes — best fit for agent workflow |
+| 2026-03-28 | Vega-Lite/D3.js as embedded escape hatch, not framework | They are chart libs, not dashboard frameworks — Evidence already uses Vega-Lite internally; embed custom specs when needed |
+| 2026-03-28 | Pluggable data storage tiers (DuckDB → Postgres → Iceberg) | Zero-cost for small businesses (DuckDB + Parquet), scales to enterprise without changing pages |
+| 2026-03-28 | Zero license fees as hard requirement | All components MIT/Apache 2.0; rejected Metabase (AGPL + gated features), Rill (commercial server) |
 | 2026-03-28 | Apache Iceberg as table format | Industry convergence, multi-cloud, time-travel, schema evolution |
 | 2026-03-28 | DuckDB (dev) + Trino (prod) as query engines | Zero-infra dev, same SQL in prod, Iceberg support |
 | 2026-03-28 | dbt-core for transformations + semantic layer | Version-controlled SQL, metric governance, replaces DAX measures |
