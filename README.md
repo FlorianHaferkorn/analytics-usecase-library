@@ -148,13 +148,17 @@ core/           # Tool-agnostic: strategy, use cases, KPIs, semantic model, data
   data_contracts/    # Domain- and source-level contracts
   templates/         # Page, measure, data contract templates
 
-implementations/    # Tool-specific implementations
-  microsoft_fabric/powerbi/
-    guide/           # Fabric/Power BI implementation guides
+products/           # Tool-specific implementations
+  fabric/powerbi/
+    docs/            # Fabric/Power BI implementation guides
     dist/            # Generated TMDL/artifacts (default output)
-    tools/           # Fabric-specific scripts (e.g. run_fabric_checks.ps1, theme_generator)
+    tooling/         # Fabric-specific scripts (e.g. run_fabric_checks.ps1, page scaffold generator)
+    orchestrator/    # Semantic model orchestration (table ops, measures, relationships)
+    deployment/      # CI/CD pipelines and deployment scripts
+  open_source_stack/ # Evidence.dev frontend (planned)
+  proposal_costing/  # Proposal cost engine
 
-showcases/          # Example reports and adoptions (e.g. sample_pbip_report)
+showcases/          # Example reports and adoptions (e.g. aurora_group, sample_pbip_report)
 
 tooling/            # Validation, generation, maintenance, ontology, schemas (e.g. run_stage1_checks.ps1, registry_builder.py)
 internal/           # Archive, strategy, vision, CI (maintainer-only)
