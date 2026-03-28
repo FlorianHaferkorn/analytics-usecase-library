@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { ActionCodeDefinitionV20AIMirror } from '@/lib/schemas';
+import { tableContainerStyle, tableStyle, thStyle, tdStyle, expandedRowStyle, filterInputStyle, filterSelectStyle, getStatusColor } from '@/lib/ui-styles';
 
 interface Props {
   actions: ActionCodeDefinitionV20AIMirror[];
@@ -32,62 +33,20 @@ export function ActionRegistryTable({ actions }: Props) {
           placeholder="Search Action Codes..."
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          style={{
-            flex: 1,
-            padding: 'var(--sp-1) var(--sp-1-5)',
-            backgroundColor: 'var(--slate-800)',
-            border: '1px solid var(--slate-700)',
-            borderRadius: 'var(--radius-md)',
-            color: 'var(--slate-100)',
-            fontSize: '0.875rem',
-            outline: 'none',
-          }}
+          style={{ ...filterInputStyle, flex: 1 }}
         />
-        <select
-          value={domainFilter}
-          onChange={(e) => setDomainFilter(e.target.value)}
-          style={{
-            padding: 'var(--sp-1) var(--sp-1-5)',
-            backgroundColor: 'var(--slate-800)',
-            border: '1px solid var(--slate-700)',
-            borderRadius: 'var(--radius-md)',
-            color: 'var(--slate-100)',
-            fontSize: '0.875rem',
-          }}
-        >
+        <select value={domainFilter} onChange={(e) => setDomainFilter(e.target.value)} style={filterSelectStyle}>
           <option value="all">All Domains</option>
-          {domains.map((d) => (
-            <option key={d} value={d}>{d}</option>
-          ))}
+          {domains.map((d) => <option key={d} value={d}>{d}</option>)}
         </select>
       </div>
 
-      <div
-        style={{
-          backgroundColor: 'var(--slate-800)',
-          borderRadius: 'var(--radius-lg)',
-          border: '1px solid var(--slate-700)',
-          overflow: 'hidden',
-        }}
-      >
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
+      <div style={tableContainerStyle}>
+        <table style={tableStyle}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--slate-700)' }}>
               {['ID', 'Name', 'Domain', 'Impact', 'Status', 'Trigger KPIs'].map((h) => (
-                <th
-                  key={h}
-                  style={{
-                    padding: 'var(--sp-1) var(--sp-1-5)',
-                    textAlign: 'left',
-                    color: 'var(--slate-400)',
-                    fontWeight: 500,
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
-                  {h}
-                </th>
+                <th key={h} style={thStyle}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -97,9 +56,7 @@ export function ActionRegistryTable({ actions }: Props) {
                 key={action.id}
                 action={action}
                 isExpanded={expanded === action.id}
-                onToggle={() =>
-                  setExpanded(expanded === action.id ? null : action.id)
-                }
+                onToggle={() => setExpanded(expanded === action.id ? null : action.id)}
               />
             ))}
           </tbody>
@@ -117,22 +74,7 @@ export function ActionRegistryTable({ actions }: Props) {
   );
 }
 
-function ActionRow({
-  action,
-  isExpanded,
-  onToggle,
-}: {
-  action: ActionCodeDefinitionV20AIMirror;
-  isExpanded: boolean;
-  onToggle: () => void;
-}) {
-  const statusColor =
-    action.status === 'active'
-      ? 'var(--mint)'
-      : action.status === 'draft'
-        ? 'var(--gold)'
-        : 'var(--slate-500)';
-
+function ActionRow({ action, isExpanded, onToggle }: { action: ActionCodeDefinitionV20AIMirror; isExpanded: boolean; onToggle: () => void }) {
   return (
     <>
       <tr
@@ -143,46 +85,30 @@ function ActionRow({
           transition: 'background-color var(--duration-fast) var(--ease-out)',
         }}
       >
-        <td style={{ padding: 'var(--sp-1) var(--sp-1-5)', fontFamily: 'var(--font-mono)', color: 'var(--gold)', fontSize: '0.75rem' }}>
-          {action.id}
+        <td style={{ ...tdStyle, fontFamily: 'var(--font-mono)', color: 'var(--gold)', fontSize: '0.75rem' }}>{action.id}</td>
+        <td style={{ ...tdStyle, color: 'var(--slate-100)' }}>{action.name}</td>
+        <td style={{ ...tdStyle, color: 'var(--slate-400)' }}>{action.owner_domain}</td>
+        <td style={{ ...tdStyle, color: 'var(--slate-400)' }}>{action.impact_dimension}</td>
+        <td style={tdStyle}>
+          <span style={{ color: getStatusColor(action.status), fontWeight: 500, fontSize: '0.75rem' }}>{action.status}</span>
         </td>
-        <td style={{ padding: 'var(--sp-1) var(--sp-1-5)', color: 'var(--slate-100)' }}>
-          {action.name}
-        </td>
-        <td style={{ padding: 'var(--sp-1) var(--sp-1-5)', color: 'var(--slate-400)' }}>
-          {action.owner_domain}
-        </td>
-        <td style={{ padding: 'var(--sp-1) var(--sp-1-5)', color: 'var(--slate-400)' }}>
-          {action.impact_dimension}
-        </td>
-        <td style={{ padding: 'var(--sp-1) var(--sp-1-5)' }}>
-          <span style={{ color: statusColor, fontWeight: 500, fontSize: '0.75rem' }}>
-            {action.status}
-          </span>
-        </td>
-        <td style={{ padding: 'var(--sp-1) var(--sp-1-5)', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--slate-400)' }}>
+        <td style={{ ...tdStyle, fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--slate-400)' }}>
           {action.kpis.trigger_kpis.join(', ')}
         </td>
       </tr>
       {isExpanded && (
         <tr>
-          <td colSpan={6} style={{ padding: 'var(--sp-2) var(--sp-1-5)', backgroundColor: 'var(--slate-850, #182030)' }}>
+          <td colSpan={6} style={expandedRowStyle}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--sp-2)', fontSize: '0.8125rem' }}>
               <div>
                 <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>Trigger KPIs</p>
-                <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--slate-200)' }}>
-                  {action.kpis.trigger_kpis.join(', ')}
-                </p>
+                <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--slate-200)' }}>{action.kpis.trigger_kpis.join(', ')}</p>
                 <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: 'var(--sp-1)' }}>Guardrail KPIs</p>
-                <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--slate-200)' }}>
-                  {(action.kpis.guardrail_kpis ?? []).join(', ') || '—'}
-                </p>
+                <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--slate-200)' }}>{(action.kpis.guardrail_kpis ?? []).join(', ') || '—'}</p>
               </div>
               <div>
                 <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>Outcome KPIs</p>
-                <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--slate-200)' }}>
-                  {(action.kpis.outcome_kpis ?? []).join(', ') || '—'}
-                </p>
+                <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--slate-200)' }}>{(action.kpis.outcome_kpis ?? []).join(', ') || '—'}</p>
                 <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: 'var(--sp-1)' }}>Grain</p>
                 <p style={{ color: 'var(--slate-200)' }}>{action.scope.default_grain}</p>
               </div>

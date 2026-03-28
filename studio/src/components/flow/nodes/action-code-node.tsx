@@ -1,4 +1,5 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react';
+import { getStatusColor } from '@/lib/ui-styles';
 
 export interface ActionCodeData {
   actionId: string;
@@ -9,8 +10,7 @@ export interface ActionCodeData {
 
 export function ActionCodeNode({ data }: NodeProps) {
   const { actionId, label, status, domain } = data as unknown as ActionCodeData;
-  const statusColor =
-    status === 'active' ? 'var(--mint)' : status === 'draft' ? 'var(--gold)' : 'var(--slate-500)';
+  const statusColor = getStatusColor(status);
 
   return (
     <div

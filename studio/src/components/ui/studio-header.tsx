@@ -1,20 +1,11 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-
-const PAGE_TITLES: Record<string, string> = {
-  '/discovery': 'Discovery Hub',
-  '/steering': 'Steering Hub',
-  '/registry': 'Registry',
-  '/brand-lab': 'Brand & UX Lab',
-  '/delivery': 'Delivery',
-};
+import { getPageTitle } from '@/lib/navigation';
 
 export function StudioHeader() {
   const pathname = usePathname();
-  const title = Object.entries(PAGE_TITLES).find(([path]) =>
-    pathname.startsWith(path)
-  )?.[1] ?? 'Studio';
+  const title = getPageTitle(pathname);
 
   return (
     <header
@@ -28,23 +19,11 @@ export function StudioHeader() {
         backgroundColor: 'var(--slate-900)',
       }}
     >
-      <h1
-        style={{
-          fontSize: '1rem',
-          fontWeight: 600,
-          color: 'var(--slate-100)',
-        }}
-      >
+      <h1 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--slate-100)' }}>
         {title}
       </h1>
 
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--sp-1)',
-        }}
-      >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)' }}>
         <span
           style={{
             display: 'inline-block',

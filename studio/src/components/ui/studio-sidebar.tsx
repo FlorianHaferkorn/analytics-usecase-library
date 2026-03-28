@@ -2,14 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
-const NAV_ITEMS = [
-  { href: '/discovery', label: 'Discovery Hub', icon: '🔍' },
-  { href: '/steering', label: 'Steering Hub', icon: '🌳' },
-  { href: '/registry', label: 'Registry', icon: '📋' },
-  { href: '/brand-lab', label: 'Brand & UX Lab', icon: '🎨' },
-  { href: '/delivery', label: 'Delivery', icon: '🚀' },
-] as const;
+import { NAV_ITEMS } from '@/lib/navigation';
 
 export function StudioSidebar() {
   const pathname = usePathname();
@@ -25,12 +18,7 @@ export function StudioSidebar() {
         padding: 'var(--sp-2) 0',
       }}
     >
-      <div
-        style={{
-          padding: 'var(--sp-1) var(--sp-2)',
-          marginBottom: 'var(--sp-3)',
-        }}
-      >
+      <div style={{ padding: 'var(--sp-1) var(--sp-2)', marginBottom: 'var(--sp-3)' }}>
         <Link href="/" style={{ textDecoration: 'none' }}>
           <span
             style={{
@@ -70,7 +58,7 @@ export function StudioSidebar() {
               }}
             >
               <span style={{ fontSize: '1rem', width: '24px', textAlign: 'center' }}>
-                {item.icon}
+                {item.sidebarIcon}
               </span>
               {item.label}
             </Link>

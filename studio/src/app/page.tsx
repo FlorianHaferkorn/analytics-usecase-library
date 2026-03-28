@@ -2,44 +2,7 @@ import Link from 'next/link';
 import { loadKpiCatalog } from '@/lib/core/catalog-loader';
 import { loadAllActionCodes } from '@/lib/core/action-loader';
 import { loadAllBrackets } from '@/lib/core/bracket-loader';
-
-const NAV_ITEMS = [
-  {
-    href: '/discovery',
-    title: 'Discovery Hub',
-    description: 'Extract strategy anchors from business reports and research',
-    icon: 'D',
-    color: 'var(--mint)',
-  },
-  {
-    href: '/steering',
-    title: 'Steering Hub',
-    description: 'Visualize and edit the Golden Thread: Strategy to Action',
-    icon: 'S',
-    color: 'var(--mint)',
-  },
-  {
-    href: '/registry',
-    title: 'Registry',
-    description: 'Manage the SSOT KPI catalog and action code library',
-    icon: 'R',
-    color: 'var(--info)',
-  },
-  {
-    href: '/brand-lab',
-    title: 'Brand & UX Lab',
-    description: 'Define themes, layouts, and preview 3-30-300 report pages',
-    icon: 'B',
-    color: 'var(--gold)',
-  },
-  {
-    href: '/delivery',
-    title: 'Delivery',
-    description: 'Export to Fabric/Power BI, SQL, or Evidence.dev',
-    icon: 'X',
-    color: 'var(--gold)',
-  },
-] as const;
+import { NAV_ITEMS } from '@/lib/navigation';
 
 export default async function HomePage() {
   const [kpis, actions, brackets] = await Promise.all([
@@ -176,7 +139,7 @@ export default async function HomePage() {
                 marginBottom: 'var(--sp-0-5)',
               }}
             >
-              {item.title}
+              {item.label}
             </h2>
             <p style={{ fontSize: '0.875rem', color: 'var(--slate-400)', lineHeight: 1.5 }}>
               {item.description}
