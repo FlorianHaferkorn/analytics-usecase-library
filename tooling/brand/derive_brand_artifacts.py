@@ -189,13 +189,14 @@ def _patch_tool_derivations(
     if not isinstance(spec, dict):
         return
 
-    base = spec_path.parent
-
     def _rel(p: Path) -> str:
-        try:
-            return str(p.relative_to(base))
-        except ValueError:
-            return str(p)
+        # Prefer repo-root-relative path (portable); fall back to absolute.
+        for anchor in (_REPO_ROOT, spec_path.parent):
+            try:
+                return str(p.relative_to(anchor))
+            except ValueError:
+                continue
+        return str(p)
 
     td = spec.setdefault("tool_derivations", {})
     td["powerbi_theme"] = _rel(pbi_path)

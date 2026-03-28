@@ -138,6 +138,6 @@ canvas_profiles:
       2xl: 1536
     description: Web context — fluid typography, 12-column CSS grid.
 tool_derivations:
-  powerbi_theme: /tmp/pytest-of-root/pytest-3/test_css_file_contains_root0/themes/Aurora_Group_SE__Monochromatic__powerbi_design_base__#2ECDE7.json
-  css_variables: /tmp/pytest-of-root/pytest-3/test_css_file_contains_root0/css/aurora_group_variables.css
+  powerbi_theme: products/fabric/powerbi/tooling/theme_generator/themes/Aurora_Group_SE__Monochromatic__powerbi_design_base__#2ECDE7.json
+  css_variables: showcases/aurora_group/brand/aurora_group_variables.css
   sass_variables: null

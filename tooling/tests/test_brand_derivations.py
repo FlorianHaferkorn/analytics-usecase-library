@@ -388,59 +388,70 @@ from tooling.brand.derive_brand_artifacts import derive_from_spec
 
 
 class TestDeriveFromSpec:
-    def test_writes_pbi_theme_file(self, tmp_path):
+    """
+    Each test uses an isolated copy of the aurora spec so _patch_tool_derivations
+    never writes /tmp paths back into the real brand_spec.yaml.
+    """
+
+    @pytest.fixture(autouse=True)
+    def spec_copy(self, tmp_path):
+        import shutil
+        copy = tmp_path / "brand_spec.yaml"
+        shutil.copy(_AURORA_SPEC, copy)
+        self._spec = copy
+        self._tmp = tmp_path
+
+    def test_writes_pbi_theme_file(self):
         outputs = derive_from_spec(
-            spec_path=_AURORA_SPEC,
-            out_dir_pbi=tmp_path / "themes",
-            out_dir_css=tmp_path / "css",
+            spec_path=self._spec,
+            out_dir_pbi=self._tmp / "themes",
+            out_dir_css=self._tmp / "css",
             concept="Monochromatic",
             verbose=False,
         )
         assert outputs["pbi_theme"].exists()
         assert outputs["pbi_theme"].suffix == ".json"
 
-    def test_writes_css_file(self, tmp_path):
+    def test_writes_css_file(self):
         outputs = derive_from_spec(
-            spec_path=_AURORA_SPEC,
-            out_dir_pbi=tmp_path / "themes",
-            out_dir_css=tmp_path / "css",
+            spec_path=self._spec,
+            out_dir_pbi=self._tmp / "themes",
+            out_dir_css=self._tmp / "css",
             verbose=False,
         )
         assert outputs["css_variables"].exists()
         assert outputs["css_variables"].suffix == ".css"
 
-    def test_pbi_json_is_valid(self, tmp_path):
+    def test_pbi_json_is_valid(self):
         outputs = derive_from_spec(
-            spec_path=_AURORA_SPEC,
-            out_dir_pbi=tmp_path / "themes",
-            out_dir_css=tmp_path / "css",
+            spec_path=self._spec,
+            out_dir_pbi=self._tmp / "themes",
+            out_dir_css=self._tmp / "css",
             verbose=False,
         )
         data = json.loads(outputs["pbi_theme"].read_text())
         assert "dataColors" in data
         assert len(data["dataColors"]) == 8
 
-    def test_css_file_contains_root(self, tmp_path):
+    def test_css_file_contains_root(self):
         outputs = derive_from_spec(
-            spec_path=_AURORA_SPEC,
-            out_dir_pbi=tmp_path / "themes",
-            out_dir_css=tmp_path / "css",
+            spec_path=self._spec,
+            out_dir_pbi=self._tmp / "themes",
+            out_dir_css=self._tmp / "css",
             verbose=False,
         )
         css = outputs["css_variables"].read_text()
         assert ":root {" in css
 
-    def test_patches_tool_derivations(self, tmp_path):
-        import shutil, yaml
-        spec_copy = tmp_path / "brand_spec.yaml"
-        shutil.copy(_AURORA_SPEC, spec_copy)
+    def test_patches_tool_derivations(self):
+        import yaml
         derive_from_spec(
-            spec_path=spec_copy,
-            out_dir_pbi=tmp_path / "themes",
-            out_dir_css=tmp_path,
+            spec_path=self._spec,
+            out_dir_pbi=self._tmp / "themes",
+            out_dir_css=self._tmp,
             verbose=False,
         )
-        patched = yaml.safe_load(spec_copy.read_text())
+        patched = yaml.safe_load(self._spec.read_text())
         assert patched["tool_derivations"]["css_variables"] is not None
         assert patched["tool_derivations"]["powerbi_theme"] is not None
 
