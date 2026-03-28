@@ -117,6 +117,12 @@ function ActionRow({ action, isExpanded, onToggle }: { action: ActionCodeDefinit
                 <p style={{ color: 'var(--slate-200)' }}>{action.owner_role}</p>
                 <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: 'var(--sp-1)' }}>Steward Role</p>
                 <p style={{ color: 'var(--slate-200)' }}>{action.steward_role}</p>
+                {action.inherits_decision_spine && (
+                  <>
+                    <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: 'var(--sp-1)' }}>Decision Spine</p>
+                    <p style={{ color: 'var(--info)', fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>{action.inherits_decision_spine}</p>
+                  </>
+                )}
               </div>
             </div>
           </td>

@@ -12,6 +12,7 @@
 import { create } from 'zustand';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 import type { CatalogKpi } from '@/lib/core/catalog-loader';
+import type { DriftReport } from '@/lib/validation/drift-scanner';
 
 /** Serializable action detail for the flow. */
 export interface ActionDetail {
@@ -51,6 +52,10 @@ export interface ProjectState {
   // Theme
   theme: ThemeConfig;
 
+  // Drift detection
+  driftReport: DriftReport | null;
+  driftLoading: boolean;
+
   // UI state
   selectedBracketId: string | null;
   activePanel: 'flow' | 'editor' | 'chat';
@@ -64,6 +69,8 @@ export interface ProjectState {
   setKpis: (kpis: CatalogKpi[]) => void;
   setActions: (actions: ActionDetail[]) => void;
   setTheme: (theme: Partial<ThemeConfig>) => void;
+  setDriftReport: (report: DriftReport | null) => void;
+  setDriftLoading: (loading: boolean) => void;
   selectBracket: (id: string | null) => void;
   setActivePanel: (panel: 'flow' | 'editor' | 'chat') => void;
   updateBracket: (id: string, update: Partial<UseCaseBracketV20Lean>) => void;
@@ -93,6 +100,9 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
   theme: DEFAULT_THEME,
 
+  driftReport: null,
+  driftLoading: false,
+
   selectedBracketId: null,
   activePanel: 'flow',
   isDirty: false,
@@ -109,6 +119,9 @@ export const useProjectStore = create<ProjectState>((set) => ({
       theme: { ...state.theme, ...partial },
       isDirty: true,
     })),
+
+  setDriftReport: (report) => set({ driftReport: report }),
+  setDriftLoading: (loading) => set({ driftLoading: loading }),
 
   selectBracket: (id) => set({ selectedBracketId: id }),
   setActivePanel: (panel) => set({ activePanel: panel }),

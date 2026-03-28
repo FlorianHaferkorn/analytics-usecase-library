@@ -12,6 +12,8 @@ describe('ProjectStore', () => {
       kpis: [],
       actions: [],
       theme: DEFAULT_THEME,
+      driftReport: null,
+      driftLoading: false,
       selectedBracketId: null,
       activePanel: 'flow',
       isDirty: false,
