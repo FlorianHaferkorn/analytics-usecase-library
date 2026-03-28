@@ -64,7 +64,7 @@ Reference:
 
 - core/strategy_operating_model/company/company_strategy.md
 
-## 2. Strategic KPIs ->' Key Questions
+## 2. Strategic KPIs → Key Questions
 
 Strategic KPIs act as **steering signals**.
 
@@ -97,7 +97,7 @@ Reference:
 
 - core/strategy_operating_model/company/reporting_principles.md
 
-## 3. Key Questions ->' Use Cases (WHAT)
+## 3. Key Questions → Use Cases (WHAT)
 
 Key Questions describe where clarity is required.
 They do not yet define how decisions are made or which actions are possible.
@@ -142,7 +142,7 @@ Reference:
 - usecases/UseCase_Inventory.md
 - usecases/core/
 
-## 4. Use Cases ->' Semantic Model (HOW)
+## 4. Use Cases → Semantic Model (HOW)
 
 Use Cases define **what decisions must be supported** and which information is required to take them.
 To make these decisions reliable and repeatable, their logic must be executed consistently.
@@ -182,7 +182,7 @@ Reference:
 - core/strategy_operating_model/operating_model/semantic_layer.md
 - core/strategy_operating_model/operating_model/semantic_layer.md (legacy ActionReady blueprint archived to internal/archive/legacy_action_ready_and_blueprint_2026-02/)
 
-## 5. Semantic Model ->' Measures & KPIs
+## 5. Semantic Model → Measures & KPIs
 
 KPIs are defined conceptually in the **KPI Catalog**.
 They express business meaning, ownership, and intent.
@@ -231,7 +231,7 @@ Reference:
 - core/strategy_operating_model/operating_model/measure_system.md
 - core/strategy_operating_model/operating_model/reference/single_source_of_truth.md
 
-## 6. Measures ->' Reports (3-30-300)
+## 6. Measures → Reports (3-30-300)
 
 Measures implemented in the Semantic Model become actionable only when they are consumed in a way that supports decision-making.
 
@@ -270,7 +270,7 @@ Reference:
 - core/templates/page_templates/
 - core/strategy_operating_model/operating_model/ux_design_system.md
 
-## 7. Reports ->' Actions
+## 7. Reports → Actions
 
 Analytics creates value only when it leads to action.
 
@@ -297,7 +297,7 @@ By linking reports to Action Codes, the framework ensures that:
 - and a foundation is created for tracking, evaluation, and organizational learning.
 
 This creates a closed loop:
-**signal ->' decision ->' action ->' outcome ->' learning**.
+**signal → decision → action → outcome → learning**.
 
 Without explicit actions and impact tracking:
 
@@ -308,7 +308,7 @@ Without explicit actions and impact tracking:
 Reference:
 
 - core/action_codes/
-- usecases/Usecase_DoD_Core.md
+- usecases/usecase_DoD_Core.md
 
 ## 8. Automation & AI Readiness
 

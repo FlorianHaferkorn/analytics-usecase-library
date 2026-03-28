@@ -11,9 +11,10 @@ from typing import Any, Dict, List, Optional, Tuple
 
 # Allow running as script or from tooling
 if __name__ == "__main__":
+    import sys
     _parent = Path(__file__).resolve().parent
-    if str(_parent.parent) not in __import__("sys").path:
-        __import__("sys").path.insert(0, str(_parent.parent))
+    if str(_parent.parent) not in sys.path:
+        sys.path.insert(0, str(_parent.parent))
 
 from page_scaffold_generator.grid_calculator import GridCalculator, GridPosition
 

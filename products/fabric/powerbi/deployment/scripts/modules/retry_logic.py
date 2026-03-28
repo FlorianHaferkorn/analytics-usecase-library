@@ -90,20 +90,6 @@ def retry(
             for attempt in range(max_retries + 1):
                 try:
                     return func(*args, **kwargs)
-                except exc_types as e:
-                    last_exc = e
-                    last_output = getattr(e, "output", "") or getattr(e, "stderr", "") or str(e)
-                    if attempt >= max_retries:
-                        raise
-                    should_retry = (
-                        retry_condition(last_exc, last_output)
-                        if retry_condition
-                        else is_transient_failure(last_exc, last_output)
-                    )
-                    if not should_retry:
-                        raise
-                    time.sleep(delay)
-                    delay *= backoff_multiplier
                 except Exception as e:
                     last_exc = e
                     last_output = getattr(e, "output", "") or getattr(e, "stderr", "") or str(e)

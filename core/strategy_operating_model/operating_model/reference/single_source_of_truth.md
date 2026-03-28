@@ -15,11 +15,11 @@ Scope:
 ## Rules (non-negotiable)
 
 1. **Core = tool-agnostic; products/ = tool-specific.** Canonical definitions in core contain structure, IDs, lineage, and logical formulas only. Tool-specific realisation (e.g. DAX, TMDL, PBI visualType) lives under `products/<tool>/` (e.g. `products/fabric/powerbi/`). See plan "Tool-agnostic vs tool-specific Trennung" for migration.
-2. One concept ->' one canonical file or folder.
+2. One concept → one canonical file or folder.
 3. If a concept appears elsewhere, it must be a **link-back** or **derived view** (explicitly marked).
 4. No canonical definition may exist in more than one place.
 5. Every use case must be traceable end-to-end:
-   Strategy KPI ->' Use Case ->' required_kpi_ids ->' KPI Catalog ->' Measure Dictionary ->' Data Contract ->' Semantic Model blueprint.
+   Strategy KPI → Use Case → required_kpi_ids → KPI Catalog → Measure Dictionary → Data Contract → Semantic Model blueprint.
 6. If the canonical source changes, derived views must be updated in the same PR.
 
 Use Cases contain only references to KPIs: required_kpi_ids (IDs; in factsheets represented as required_kpis[].id) and kpi_catalog_id (file-based reference); no KPI semantics (definitions, lineage, targets, units) belong in use case artifacts.
@@ -35,7 +35,7 @@ Use Cases contain only references to KPIs: required_kpi_ids (IDs; in factsheets 
 | Business Strategy | `core/strategy_operating_model/company/company_strategy.md` | Showcase variants under `showcases/*` | Strategy is framework-level; showcase is example only. |
 | Domains overview (scope & boundaries) | `core/strategy_operating_model/company/domains.md` | Domain READMEs under `core/semantic_models/domains/*/README.md` | Domain READMEs must not contradict domain scope. |
 | Strategic KPIs | `core/strategy_operating_model/company/company_strategy.md#5-strategic-kpis` | KPI catalogs (detail), XD-003 (aggregation) | Strategic KPIs define "what matters"; catalogs define "how measured". |
-| Strategic alignment map (KPI ->' Use Cases) | `core/strategy_operating_model/company/company_strategy.md#7-strategic-alignment-inputs-to-the-golden-thread` | core/usecases/UseCase_Inventory.md | Alignment map is the strategy linkage; Inventory is operational master list. |
+| Strategic alignment map (KPI → Use Cases) | `core/strategy_operating_model/company/company_strategy.md#7-strategic-alignment-inputs-to-the-golden-thread` | core/usecases/UseCase_Inventory.md | Alignment map is the strategy linkage; Inventory is operational master list. |
 | Key business questions | `core/strategy_operating_model/company/company_strategy.md#6-executive-key-questions` | Use case Business Factsheets | Use cases operationalize key questions. |
 | Reporting design principles | `core/strategy_operating_model/company/reporting_principles.md` | `core/strategy_operating_model/operating_model/ux_design_system.md` | Company principles set constraints; UX system operationalizes them. |
 | Analytics Operating Model overview | `core/strategy_operating_model/operating_model/README.md` | — | Index for "HOW". |
