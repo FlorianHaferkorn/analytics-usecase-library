@@ -143,7 +143,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_customer_events[Attrition Risk %]
   governance:
     owner: CRM BI
-    status: planned
+    status: active
     version: v1.2
     last_review: 12.12.2025
 - measure_name: NPS Score
@@ -260,7 +260,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_experience[Interaction ID]
   governance:
     owner: CX BI
-    status: planned
+    status: active
     version: v1.0
     last_review: TBD
 - measure_name: Active Customers
