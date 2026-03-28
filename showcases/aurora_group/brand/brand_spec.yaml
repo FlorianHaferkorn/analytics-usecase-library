@@ -1,155 +1,143 @@
-# Aurora Group SE — Brand Specification
-# ─────────────────────────────────────────────
-# Source: showcases/aurora_group/company/Aurora_Theme_Color_Proposal.md
-#         Colors derived from official AuroraGroupLogo.png (approved 2025)
-# Schema reference: core/brand/BrandSpec.schema.yaml
-
-$schema: "analytics-usecase-library/brand/v1"
-
+$schema: analytics-usecase-library/brand/v1
 identity:
-  brand_id: "aurora_group"
-  brand_name: "Aurora Group SE"
-  brand_version: "1.0.0"
-  created_by: "aurora-analytics-team"
+  brand_id: aurora_group
+  brand_name: Aurora Group SE
+  brand_version: 1.0.0
+  created_by: aurora-analytics-team
   approved: true
-
 color:
-  # Measured from A-symbol in AuroraGroupLogo.png
-  primary:   "#2ECDE7"     # Aurora Light Cyan — primary data series, KPI highlights
-  secondary: "#44B396"     # Aurora Teal — second data series, divergent second pole
-
+  primary: '#2ECDE7'
+  secondary: '#44B396'
   semantic:
     positive:
-      color: "#107C10"     # Standard green — consistent with PBI positive signal
-      icon: "▲"
-      label: "positive"
+      color: '#107C10'
+      icon: ▲
+      label: positive
     negative:
-      color: "#D13438"     # Standard red — consistent with PBI negative signal
-      icon: "▼"
-      label: "negative"
+      color: '#D13438'
+      icon: ▼
+      label: negative
     warning:
-      color: "#F7630C"     # Amber — near-threshold / monitoring required
-      icon: "⚠"
-      label: "warning"
+      color: '#F7630C'
+      icon: ⚠
+      label: warning
     neutral:
-      color: "#605E5C"     # Mid-grey — no directional signal
-      icon: "─"
-      label: "neutral"
-
-  # Neutral scale derived from Aurora brand dark (#00396B logo text)
+      color: '#605E5C'
+      icon: ─
+      label: neutral
   neutral_scale:
-    "50":  "#F5FBFC"       # Very light cyan-tinted white — canvas / page background
-    "100": "#E8F6F9"       # Light cyan tint — card/panel fills
-    "200": "#C5E8EF"       # Cyan-tinted border / divider
-    "400": "#7FB8C7"       # Muted cyan — disabled text, placeholders
-    "700": "#004E7A"       # Aurora deep blue — body text, secondary labels
-    "900": "#00396B"       # Aurora darkest blue (logo text) — headlines, primary labels
-
-  mode: "light"
-
+    '50': '#F5FBFC'
+    '100': '#E8F6F9'
+    '200': '#C5E8EF'
+    '400': '#7FB8C7'
+    '700': '#004E7A'
+    '900': '#00396B'
+  mode: light
 typography:
-  # Segoe UI is the system font in Power BI and Windows; safe primary choice.
-  # Aurora brand does not mandate a custom body font for digital interfaces.
   font_family:
-    primary:   "Segoe UI, system-ui, -apple-system, sans-serif"
+    primary: Segoe UI, system-ui, -apple-system, sans-serif
     secondary: null
-    monospace: "Cascadia Code, Consolas, 'Courier New', monospace"
-
+    monospace: Cascadia Code, Consolas, 'Courier New', monospace
   type_scale:
-    xs:    { size_rem: 0.625, line_height: 1.4 }
-    sm:    { size_rem: 0.75,  line_height: 1.4 }
-    md:    { size_rem: 0.875, line_height: 1.5 }
-    lg:    { size_rem: 1.0,   line_height: 1.5 }
-    xl:    { size_rem: 1.25,  line_height: 1.3 }
-    "2xl": { size_rem: 1.5,   line_height: 1.2 }
-    "3xl": { size_rem: 2.0,   line_height: 1.1 }
-
+    xs:
+      size_rem: 0.625
+      line_height: 1.4
+    sm:
+      size_rem: 0.75
+      line_height: 1.4
+    md:
+      size_rem: 0.875
+      line_height: 1.5
+    lg:
+      size_rem: 1.0
+      line_height: 1.5
+    xl:
+      size_rem: 1.25
+      line_height: 1.3
+    2xl:
+      size_rem: 1.5
+      line_height: 1.2
+    3xl:
+      size_rem: 2.0
+      line_height: 1.1
   role_map:
-    kpi_value:    "3xl"
-    kpi_label:    "sm"
-    kpi_delta:    "md"
-    kpi_period:   "xs"
-    chart_title:  "md"
-    axis_label:   "xs"
-    legend_label: "xs"
-    body:         "md"
-    caption:      "xs"
-    heading_1:    "2xl"
-    heading_2:    "xl"
-    heading_3:    "lg"
-    table_header: "sm"
-    table_cell:   "sm"
-
+    kpi_value: 3xl
+    kpi_label: sm
+    kpi_delta: md
+    kpi_period: xs
+    chart_title: md
+    axis_label: xs
+    legend_label: xs
+    body: md
+    caption: xs
+    heading_1: 2xl
+    heading_2: xl
+    heading_3: lg
+    table_header: sm
+    table_cell: sm
   tool_minimums:
     powerbi:
-      body_pt:    12
-      label_pt:   10
-      kpi_pt:     18
-      canvas_design_base: "1280x720"
-      canvas_production:  "1920x1080"
+      body_pt: 12
+      label_pt: 10
+      kpi_pt: 18
+      canvas_design_base: 1280x720
+      canvas_production: 1920x1080
     web:
-      body_rem:   1.0
-      label_rem:  0.75
+      body_rem: 1.0
+      label_rem: 0.75
     export_pdf:
-      body_pt:    11
-      label_pt:   9
-
+      body_pt: 11
+      label_pt: 9
 spacing:
   base_unit: 8
   scale:
-    xs:    4
-    sm:    8
-    md:    16
-    lg:    24
-    xl:    32
-    "2xl": 48
-    "3xl": 64
-
+    xs: 4
+    sm: 8
+    md: 16
+    lg: 24
+    xl: 32
+    2xl: 48
+    3xl: 64
 border:
   radius:
-    none:   0
-    sm:     2
-    md:     4
-    lg:     8
-    full:   9999
+    none: 0
+    sm: 2
+    md: 4
+    lg: 8
+    full: 9999
   width:
     hairline: 1
-    thin:     1
-    medium:   2
-
+    thin: 1
+    medium: 2
 shadow:
-  none:   "none"
-  low:    "0 1px 3px rgba(0,57,107,0.10), 0 1px 2px rgba(0,57,107,0.06)"
-  medium: "0 4px 12px rgba(0,57,107,0.12), 0 2px 6px rgba(0,57,107,0.08)"
-  high:   "0 8px 24px rgba(0,57,107,0.16), 0 4px 12px rgba(0,57,107,0.10)"
-
+  none: none
+  low: 0 1px 3px rgba(0,57,107,0.10), 0 1px 2px rgba(0,57,107,0.06)
+  medium: 0 4px 12px rgba(0,57,107,0.12), 0 2px 6px rgba(0,57,107,0.08)
+  high: 0 8px 24px rgba(0,57,107,0.16), 0 4px 12px rgba(0,57,107,0.10)
 logo:
-  light_bg_asset: "company/AuroraGroupLogo.png"   # Relative to showcases/aurora_group/
-  dark_bg_asset:  null                             # No dark variant defined yet
-  clear_space:    16
-  min_width:      80
-
+  light_bg_asset: company/AuroraGroupLogo.png
+  dark_bg_asset: null
+  clear_space: 16
+  min_width: 80
 canvas_profiles:
   powerbi_design_base:
-    width:  1280
+    width: 1280
     height: 720
-    description: "Design reference — layout and fonts at 100% readability."
+    description: Design reference — layout and fonts at 100% readability.
   powerbi_production:
-    width:  1920
+    width: 1920
     height: 1080
-    font_size_delta_pt: +2
-    description: "Production canvas — fonts +2pt for FitToPage compensation."
+    font_size_delta_pt: 2
+    description: Production canvas — fonts +2pt for FitToPage compensation.
   web_fluid:
     breakpoints:
-      sm:    640
-      md:    768
-      lg:    1024
-      xl:    1280
-      "2xl": 1536
-    description: "Web context — fluid typography, 12-column CSS grid."
-
+      sm: 640
+      md: 768
+      lg: 1024
+      xl: 1280
+      2xl: 1536
+    description: Web context — fluid typography, 12-column CSS grid.
 tool_derivations:
-  # Populated by theme generator after running derivation pipeline
-  powerbi_theme:  "../../products/fabric/powerbi/tooling/theme_generator/themes/Aurora_Group/"
-  css_variables:  null
+  powerbi_theme: /tmp/pytest-of-root/pytest-3/test_css_file_contains_root0/themes/Aurora_Group_SE__Monochromatic__powerbi_design_base__#2ECDE7.json
+  css_variables: /tmp/pytest-of-root/pytest-3/test_css_file_contains_root0/css/aurora_group_variables.css
   sass_variables: null
