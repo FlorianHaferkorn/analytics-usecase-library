@@ -118,6 +118,11 @@ function buildGraph(data: GoldenThreadData): { nodes: Node[]; edges: Edge[] } {
       const aNodeId = `action-${bracket.id}-${actionId}`;
       const details = data.actionDetails.get(actionId);
 
+      // Orphan: action's trigger KPIs don't overlap with bracket's influencing KPIs
+      const triggerKpis = details?.triggerKpis ?? [];
+      const isOrphan = triggerKpis.length === 0 ||
+        !triggerKpis.some((kpi) => bracket.influencingKpiIds.includes(kpi));
+
       nodes.push({
         id: aNodeId,
         type: 'actionCode',
@@ -127,6 +132,7 @@ function buildGraph(data: GoldenThreadData): { nodes: Node[]; edges: Edge[] } {
           label: details?.name ?? actionId,
           status: details?.status ?? 'draft',
           domain: details?.domain ?? bracket.domain,
+          isOrphan,
         },
       });
 
