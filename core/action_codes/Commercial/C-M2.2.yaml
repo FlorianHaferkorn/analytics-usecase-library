@@ -16,9 +16,13 @@ kpis:
   - sales.pvm.mix_effect.amount
   guardrail_kpis:
   - margin.gm.pct
+  - crm.retention.pct
+  - crm.revenue_at_risk.amount
+  - cost.cogs_per_unit.amount
   outcome_kpis:
   - margin.gm.pct
   - sales.pvm.mix_effect.amount
+  - crm.clv.amount
 scope:
   default_grain: month
   default_perspective:

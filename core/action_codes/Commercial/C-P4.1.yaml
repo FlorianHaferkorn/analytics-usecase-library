@@ -14,11 +14,13 @@ use_case_links:
 kpis:
   trigger_kpis:
   - sales.promo.roi.pct
+  - crm.complaint.count
   guardrail_kpis:
   - margin.promo.gm.pct
   outcome_kpis:
   - sales.promo.roi.pct
   - margin.promo.gm.pct
+  - crm.nps.index
 scope:
   default_grain: promotion
   default_perspective:
