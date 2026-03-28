@@ -1086,6 +1086,122 @@ def validate_action_step_entity_references(
     return issues
 
 
+# ---------------------------------------------------------------------------
+# Taxonomy validation (ID format, enum checks)
+# ---------------------------------------------------------------------------
+
+def load_taxonomy(repo_root: Path) -> Dict[str, Any]:
+    """Load taxonomy definitions from tooling/validation/_index.yaml.
+
+    Returns an empty dict if the file is missing or unparseable.
+    """
+    taxonomy_path = repo_root / "tooling" / "validation" / "_index.yaml"
+    if not taxonomy_path.exists() or yaml is None:
+        return {}
+    try:
+        data = yaml.safe_load(taxonomy_path.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def validate_taxonomy(
+    kpis: Dict[str, "KpiRecord"],
+    actions: Dict[str, Dict[str, Any]],
+    brackets: Dict[str, Dict[str, Any]],
+    taxonomy: Dict[str, Any],
+) -> List[Issue]:
+    """Validate scanned IDs and enum values against taxonomy definitions.
+
+    All violations are WARN severity — informational, not blocking.
+    """
+    issues: List[Issue] = []
+    if not taxonomy:
+        return issues
+
+    id_patterns = taxonomy.get("id_patterns", {})
+    allowed_kpi_roles = set(taxonomy.get("kpi_roles", []))
+    allowed_gov_statuses = set(taxonomy.get("governance_statuses", []))
+
+    # Compile regexes once
+    compiled: Dict[str, re.Pattern] = {}
+    for key in ("kpi", "action_code", "use_case"):
+        pat_str = (id_patterns.get(key) or {}).get("regex")
+        if pat_str:
+            try:
+                compiled[key] = re.compile(pat_str)
+            except re.error:
+                pass
+
+    # --- KPI ID format ---
+    kpi_re = compiled.get("kpi")
+    if kpi_re:
+        for kpi_id, rec in kpis.items():
+            if not kpi_re.match(kpi_id):
+                issues.append(Issue(
+                    "WARN", "taxonomy.kpi_id_format",
+                    f"KPI ID '{kpi_id}' does not match expected format "
+                    f"({id_patterns['kpi'].get('format', 'unknown')})",
+                    SourceLocation(rec.source, rec.line),
+                ))
+
+    # --- KPI role enum ---
+    if allowed_kpi_roles:
+        for kpi_id, rec in kpis.items():
+            if rec.kpi_role and rec.kpi_role not in allowed_kpi_roles:
+                issues.append(Issue(
+                    "WARN", "taxonomy.invalid_kpi_role",
+                    f"KPI '{kpi_id}' has kpi_role '{rec.kpi_role}' "
+                    f"which is not in the allowed set: {sorted(allowed_kpi_roles)}",
+                    SourceLocation(rec.source, rec.line),
+                ))
+
+    # --- Action code ID format ---
+    ac_re = compiled.get("action_code")
+    if ac_re:
+        for ac_id, ac in actions.items():
+            src = ac.get("source", "")
+            line = ac.get("line", 1)
+            if not ac_re.match(ac_id):
+                issues.append(Issue(
+                    "WARN", "taxonomy.action_code_id_format",
+                    f"Action code ID '{ac_id}' does not match expected format "
+                    f"({id_patterns['action_code'].get('format', 'unknown')})",
+                    SourceLocation(src, line) if src else None,
+                ))
+
+    # --- Use case ID format ---
+    uc_re = compiled.get("use_case")
+    if uc_re:
+        for uc_id, br in brackets.items():
+            src = br.get("source", "")
+            line = br.get("line", 1)
+            if not uc_re.match(uc_id):
+                issues.append(Issue(
+                    "WARN", "taxonomy.usecase_id_format",
+                    f"Use case ID '{uc_id}' does not match expected format "
+                    f"({id_patterns['use_case'].get('format', 'unknown')})",
+                    SourceLocation(src, line) if src else None,
+                ))
+
+    # --- Governance status enum (brackets) ---
+    if allowed_gov_statuses:
+        for uc_id, br in brackets.items():
+            raw = br.get("raw", {})
+            gov = raw.get("governance", {}) if isinstance(raw, dict) else {}
+            status = gov.get("status") if isinstance(gov, dict) else None
+            if status and status not in allowed_gov_statuses:
+                src = br.get("source", "")
+                issues.append(Issue(
+                    "WARN", "taxonomy.invalid_governance_status",
+                    f"Use case '{uc_id}' has governance.status '{status}' "
+                    f"which is not in the allowed set: {sorted(allowed_gov_statuses)}",
+                    SourceLocation(src, br.get("line", 1)) if src else None,
+                ))
+
+    return issues
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description="Build ActionReady master registry and orphan reports.")
     parser.add_argument("--repo-root", default="", help="Repository root. Default: inferred from this script location.")
@@ -1110,6 +1226,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     brackets, bracket_issues = scan_usecase_brackets(repo_root)
     factsheets, factsheet_issues = scan_usecase_factsheets(repo_root)
     issues.extend(kpi_issues + action_issues + bracket_issues + factsheet_issues)
+
+    # Taxonomy validation (ID format and enum checks)
+    taxonomy = load_taxonomy(repo_root)
+    if taxonomy:
+        issues.extend(validate_taxonomy(kpis, actions, brackets, taxonomy))
 
     # Evidence-grain governance: load allowed grains from domain contracts, validate brackets
     allowed_grains, grain_scan_issues = scan_allowed_grains(repo_root)

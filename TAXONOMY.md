@@ -19,17 +19,18 @@ used across the Analytics Strategy-to-Action Framework.
 
 ### KPI IDs
 
-Format: `<domain>.<entity>.<metric>`
+Format: `<domain>.<entity>.<metric>[.<qualifier>]`
 
-All lowercase, dot-separated. The domain segment maps to a KPI catalog file.
+All lowercase, dot-separated (2-5 segments). The domain segment maps to a KPI catalog file.
 
 | Segment | Rules | Example |
 |---------|-------|---------|
 | domain | Lowercase domain name | `sales`, `crm`, `finance`, `ops` |
 | entity | Business entity or concept | `net_sales`, `clv`, `inventory_turn` |
 | metric | Measurement type | `amount`, `pct`, `count`, `ratio`, `days` |
+| qualifier | Optional: comparison, period, variant | `ly`, `plan`, `vs_plan` |
 
-Examples: `sales.net_sales.amount`, `crm.clv.amount`, `finance.cash_flow.amount`
+Examples: `sales.net_sales.amount`, `crm.clv.amount`, `sales.net_sales.delta_pct.ly`
 
 ### Use Case IDs
 
@@ -69,6 +70,7 @@ Each KPI in the catalog has a `kpi_role`:
 | `strategic` | Top-level KPI tracked by leadership | Drives Golden Thread (H1 metric) |
 | `influencing` | Mid-level KPI that influences strategic KPIs | Referenced in use case brackets |
 | `operational` | Day-to-day metric | Used in measure dictionaries |
+| `supporting` | Supporting/derived measure backing other KPIs | Used in formulas and aggregations |
 
 ## Action Code Structure
 

@@ -56,8 +56,8 @@ domains:
 
 id_patterns:
   kpi:
-    format: "<domain>.<entity>.<metric>"
-    regex: "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"
+    format: "<domain>.<entity>.<metric>[.<qualifier>]"
+    regex: "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*){1,4}$"
     examples:
       - sales.net_sales.amount
       - crm.clv.amount
@@ -91,6 +91,7 @@ kpi_roles:
   - strategic     # Top-level, tracked by leadership
   - influencing   # Mid-level, drives strategic KPIs
   - operational   # Day-to-day metric
+  - supporting    # Supporting/derived measure backing other KPIs
 
 action_types:
   M: "Margin / Revenue"
