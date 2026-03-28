@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import {
   ReactFlow,
   Background,
@@ -156,7 +157,7 @@ interface Props {
 }
 
 export function GoldenThreadFlow({ data }: Props) {
-  const { nodes, edges } = buildGraph(data);
+  const { nodes, edges } = useMemo(() => buildGraph(data), [data]);
 
   return (
     <div style={{ width: '100%', height: '100%', minHeight: '600px' }}>

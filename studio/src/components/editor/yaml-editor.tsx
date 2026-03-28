@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
-import { parseYaml, toYaml } from '@/lib/core/yaml-loader';
+import { parseYaml } from '@/lib/core/yaml-loader';
 import { validate, type ValidationResult } from '@/lib/validation/schema-validator';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react').then(m => m.default), {
@@ -29,6 +29,8 @@ interface Props {
   height?: string;
 }
 
+const DEBOUNCE_MS = 300;
+
 export function YamlEditor({
   initialValue,
   schema,
@@ -37,35 +39,39 @@ export function YamlEditor({
   height = '500px',
 }: Props) {
   const [validation, setValidation] = useState<ValidationResult>({ valid: true, errors: [] });
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
   const handleChange = useCallback(
     (value: string | undefined) => {
       if (!value) return;
 
-      try {
-        const parsed = parseYaml<unknown>(value);
+      if (timerRef.current) clearTimeout(timerRef.current);
 
-        if (schema) {
-          const result = validate(schema, parsed);
-          setValidation(result);
-        } else {
-          setValidation({ valid: true, errors: [] });
+      timerRef.current = setTimeout(() => {
+        try {
+          const parsed = parseYaml<unknown>(value);
+
+          if (schema) {
+            const result = validate(schema, parsed);
+            setValidation(result);
+          } else {
+            setValidation({ valid: true, errors: [] });
+          }
+
+          onChange?.(value, parsed);
+        } catch {
+          setValidation({
+            valid: false,
+            errors: [{ path: '/', message: 'Invalid YAML syntax', keyword: 'syntax' }],
+          });
         }
-
-        onChange?.(value, parsed);
-      } catch {
-        setValidation({
-          valid: false,
-          errors: [{ path: '/', message: 'Invalid YAML syntax', keyword: 'syntax' }],
-        });
-      }
+      }, DEBOUNCE_MS);
     },
     [schema, onChange]
   );
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height }}>
-      {/* Status Bar */}
       <div
         style={{
           display: 'flex',
@@ -100,7 +106,6 @@ export function YamlEditor({
         </span>
       </div>
 
-      {/* Editor */}
       <div style={{ flex: 1 }}>
         <MonacoEditor
           defaultLanguage="yaml"
@@ -121,7 +126,6 @@ export function YamlEditor({
         />
       </div>
 
-      {/* Error Panel */}
       {!validation.valid && (
         <div
           style={{
@@ -149,9 +153,4 @@ export function YamlEditor({
       )}
     </div>
   );
-}
-
-/** Helper: convert an object to YAML and render in the editor. */
-export function objectToYaml(obj: unknown): string {
-  return toYaml(obj);
 }

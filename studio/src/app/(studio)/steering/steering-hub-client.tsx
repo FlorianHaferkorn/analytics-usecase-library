@@ -45,17 +45,19 @@ export function SteeringHubClient({ strategyAnchor, brackets, actionDetails, bra
     };
   }, [strategyAnchor, brackets, actionDetails, selectedBracket]);
 
-  // Compute action gap stats
-  const actionMap = new Map(actionDetails);
-  const totalDrivers = brackets.reduce((sum, b) => sum + b.influencingKpiIds.length, 0);
-  let driversWithAction = 0;
-  for (const b of brackets) {
-    for (const driverId of b.influencingKpiIds) {
-      const hasAction = b.actionCodeIds.some((aid) => actionMap.get(aid)?.triggerKpis.includes(driverId));
-      if (hasAction) driversWithAction++;
+  // Compute action gap stats (memoized)
+  const { totalDrivers, actionGapCount } = useMemo(() => {
+    const aMap = new Map(actionDetails);
+    const total = brackets.reduce((sum, b) => sum + b.influencingKpiIds.length, 0);
+    let withAction = 0;
+    for (const b of brackets) {
+      for (const driverId of b.influencingKpiIds) {
+        const hasAction = b.actionCodeIds.some((aid) => aMap.get(aid)?.triggerKpis.includes(driverId));
+        if (hasAction) withAction++;
+      }
     }
-  }
-  const actionGapCount = totalDrivers - driversWithAction;
+    return { totalDrivers: total, actionGapCount: total - withAction };
+  }, [brackets, actionDetails]);
 
   // YAML content for the editor
   const editorContent = useMemo(() => {

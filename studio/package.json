@@ -12,8 +12,11 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.64",
+    "@ai-sdk/openai": "^3.0.48",
     "@monaco-editor/react": "^4.7.0",
     "@xyflow/react": "^12.10.2",
+    "ai": "^6.0.141",
     "ajv": "^8.18.0",
     "framer-motion": "^12.38.0",
     "json-schema-to-typescript": "^15.0.4",
