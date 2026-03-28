@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { GoldenThreadFlow, type GoldenThreadData } from '@/components/flow/golden-thread-flow';
 import { toYaml } from '@/lib/core/yaml-loader';
+import { ExportReportButton } from '@/components/steering/export-report-button';
 
 const YamlEditor = dynamic(
   () => import('@/components/editor/yaml-editor').then((m) => m.YamlEditor),
@@ -172,6 +173,8 @@ export function SteeringHubClient({ strategyAnchor, brackets: initialBrackets, a
             <span style={{ fontSize: '0.6875rem', color: syncIndicator.color }}>{syncIndicator.label}</span>
           </div>
         )}
+
+        <ExportReportButton />
 
         <div style={{ display: 'flex', gap: 'var(--sp-2)', fontSize: '0.75rem' }}>
           <span style={{ color: 'var(--mint)' }}>{brackets.length} Use Cases</span>
