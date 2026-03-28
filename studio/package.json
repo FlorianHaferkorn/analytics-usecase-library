@@ -10,7 +10,8 @@
     "generate:types": "node scripts/generate-types.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "mcp": "tsx mcp-server.mjs"
+    "mcp": "tsx mcp-server.mjs",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.64",
