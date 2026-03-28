@@ -8,6 +8,7 @@ import { BracketRegistryTable } from '@/components/registry/bracket-registry-tab
 import { IntegrityPanel } from '@/components/registry/integrity-panel';
 import { RegistryClientWrapper } from '@/components/registry/registry-client-wrapper';
 import { SpineList } from '@/components/registry/spine-list';
+import { ActivityTimeline } from '@/components/registry/activity-timeline';
 
 export default async function RegistryPage() {
   const [kpis, actions, brackets, spines] = await Promise.all([
@@ -53,6 +54,13 @@ export default async function RegistryPage() {
           Decision Spines ({spines.length})
         </h2>
         <SpineList spines={spines} />
+      </section>
+
+      <section>
+        <h2 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--slate-50)', marginBottom: 'var(--sp-2)' }}>
+          Activity Log
+        </h2>
+        <ActivityTimeline />
       </section>
     </div>
   );

@@ -3,6 +3,7 @@
  */
 
 import { getProject, updateProject } from '@/lib/db/project-repo';
+import { logAuditEvent } from '@/lib/db/audit-repo';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -27,6 +28,12 @@ export async function PUT(request: Request) {
     theme: Record<string, unknown>;
   };
 
+  const before = getProject(projectId);
+  const beforeTheme = before?.theme_json ? JSON.parse(before.theme_json) : null;
   updateProject(projectId, { theme_json: JSON.stringify(theme) });
+  logAuditEvent('theme', projectId, 'update', {
+    before: beforeTheme,
+    after: theme,
+  }, projectId);
   return Response.json({ ok: true });
 }

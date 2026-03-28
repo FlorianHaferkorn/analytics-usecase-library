@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getProject, updateProject, createProject } from '@/lib/db/project-repo';
+import { logAuditEvent } from '@/lib/db/audit-repo';
 
 export async function GET() {
   const project = getProject();
@@ -20,10 +21,15 @@ export async function PATCH(request: Request) {
     theme?: Record<string, unknown>;
   };
 
+  const before = getProject();
   updateProject('default', {
     name,
     strategy_anchor,
     theme_json: theme ? JSON.stringify(theme) : undefined,
+  });
+  logAuditEvent('project', 'default', 'update', {
+    before: before ? { name: before.name, strategy_anchor: before.strategy_anchor } : null,
+    after: { name, strategy_anchor },
   });
 
   return NextResponse.json({ ok: true });
