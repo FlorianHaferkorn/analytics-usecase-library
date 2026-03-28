@@ -43,6 +43,14 @@ export const NAV_ITEMS: readonly NavItem[] = [
     color: 'var(--info)',
   },
   {
+    href: '/simulator',
+    label: 'Simulator',
+    description: 'What-if scenario modeling with value driver formulas',
+    icon: 'W',
+    sidebarIcon: '\u26A1',
+    color: 'var(--gold)',
+  },
+  {
     href: '/brand-lab',
     label: 'Brand & UX Lab',
     description: 'Define themes, layouts, and preview 3-30-300 report pages',
