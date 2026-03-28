@@ -60,5 +60,7 @@ ux_layout_rules:
       - margin.gm.pct
       action_panel: true
       payload_mode: full
+overrides:
+  data_contract_ref: core/data_contracts/domains/executive.yaml
 documentation:
   business_factsheet: ./Business_Factsheet.md

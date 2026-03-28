@@ -59,5 +59,7 @@ ux_layout_rules:
       - cost.unit.amount
       action_panel: true
       payload_mode: full
+overrides:
+  data_contract_ref: core/data_contracts/domains/finance.yaml
 documentation:
   business_factsheet: ./Business_Factsheet.md

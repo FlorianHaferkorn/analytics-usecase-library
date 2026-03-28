@@ -56,5 +56,7 @@ ux_layout_rules:
       - wc.ccc.days
       action_panel: true
       payload_mode: full
+overrides:
+  data_contract_ref: core/data_contracts/domains/finance.yaml
 documentation:
   business_factsheet: ./Business_Factsheet.md

@@ -54,5 +54,7 @@ ux_layout_rules:
       - svc.sla.attainment.pct
       action_panel: true
       payload_mode: full
+overrides:
+  data_contract_ref: core/data_contracts/domains/experience.yaml
 documentation:
   business_factsheet: ./Business_Factsheet.md
