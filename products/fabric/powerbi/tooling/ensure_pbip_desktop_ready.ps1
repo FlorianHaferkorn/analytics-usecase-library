@@ -32,7 +32,7 @@ function Ensure-PbipSchema {
                 Write-Host "  Fixed: added `$schema to $($_.Name)" -ForegroundColor Green
                 $changed = $true
             }
-        } catch {}
+        } catch { Write-Verbose "Skipped $($_.FullName): $($_.Exception.Message)" }
     }
     return $changed
 }
@@ -62,7 +62,7 @@ function Write-PbirIfMissingOrWrong {
             if ($rj.datasetReference -and $rj.datasetReference.byPath -and $rj.datasetReference.byPath.path) {
                 $datasetPath = $rj.datasetReference.byPath.path -replace '\\', '/'
             }
-        } catch {}
+        } catch { Write-Verbose "Could not read report.json in $ReportDir: $($_.Exception.Message)" }
     }
     $needsWrite = $false
     if (-not (Test-Path $pbirPath)) {

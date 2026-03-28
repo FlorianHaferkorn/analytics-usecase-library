@@ -40,7 +40,7 @@ if sys.platform == 'win32':
         encoding = sys.stdout.encoding or 'utf-8'
         if encoding.lower() in ('cp1252', 'ascii', 'latin1'):
             _check_unicode_support = False
-    except:
+    except Exception:
         _check_unicode_support = False
 
 if _check_unicode_support:

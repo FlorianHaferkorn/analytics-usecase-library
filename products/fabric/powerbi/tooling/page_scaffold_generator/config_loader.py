@@ -5,11 +5,14 @@ Loads governance YAML files and use case configurations.
 """
 
 import json
+import logging
 import os
 import re
 import yaml
 from pathlib import Path
 from typing import Dict, Any, Optional, List
+
+logger = logging.getLogger(__name__)
 
 
 class ConfigLoader:
@@ -74,8 +77,8 @@ class ConfigLoader:
                 if measure_name:
                     result[kpi_id] = measure_name
             self._kpi_id_to_measure_name = result
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning("Failed to parse KPI catalog at %s: %s", self.kpi_catalog_path, exc)
         return result
 
     def _resolve_use_case_dir(self, use_case_id: str) -> Optional[Path]:

@@ -591,13 +591,13 @@ Invoke-WithRetry "Validate Fabric output" {
     # (0a) Normalize TMDL tabs (all .tmdl under dist) before any other TMDL steps
     $normalizeTabsScript = Join-Path $script:RepoRoot "products\fabric\powerbi\tooling\normalize_tmdl_tabs.ps1"
     if (Test-Path $normalizeTabsScript) {
-        try { & $normalizeTabsScript -DistRoot $distRootParam -RepoRoot $script:RepoRoot 2>&1 | Out-Null } catch {}
+        try { & $normalizeTabsScript -DistRoot $distRootParam -RepoRoot $script:RepoRoot 2>&1 | Out-Null } catch { Write-Verbose "Optional normalize-tabs: $($_.Exception.Message)" }
     }
 
     # (0) Ensure PBIP desktop-ready
     $ensureScript = Join-Path $script:RepoRoot "products\fabric\powerbi\tooling\ensure_pbip_desktop_ready.ps1"
     if (Test-Path $ensureScript) {
-        try { & $ensureScript -DistRoot $distRootParam -RepoRoot $script:RepoRoot 2>&1 | Out-Null } catch {}
+        try { & $ensureScript -DistRoot $distRootParam -RepoRoot $script:RepoRoot 2>&1 | Out-Null } catch { Write-Verbose "Optional ensure-pbip-desktop-ready: $($_.Exception.Message)" }
     }
 
     # (0b) Auto-fix best practices: summarizeBy: none + diagram layout (Spaghetti) so they are always applied
@@ -606,16 +606,16 @@ Invoke-WithRetry "Validate Fabric output" {
         if (-not (Test-Path $domainDefPath)) { continue }
         try {
             & (Join-Path $script:OrchestratorRoot "table_ops.ps1") -Operation "PatchAddSummarizeByNone" -DefinitionPath $domainDefPath -ErrorAction SilentlyContinue | Out-Null
-        } catch {}
+        } catch { Write-Verbose "Optional summarize-by-none ($domainName): $($_.Exception.Message)" }
         try {
             & (Join-Path $script:OrchestratorRoot "write_diagram_layout.ps1") -DefinitionPath $domainDefPath -ErrorAction SilentlyContinue | Out-Null
-        } catch {}
+        } catch { Write-Verbose "Optional diagram-layout ($domainName): $($_.Exception.Message)" }
     }
 
     # (0c) TMDL render & fix (reactive for remaining errors; UpdateKnowledgeBase)
     $tmdlRenderScript = Join-Path $script:RepoRoot "products\fabric\powerbi\tooling\tmdl_render_and_fix.ps1"
     if (Test-Path $tmdlRenderScript) {
-        try { & $tmdlRenderScript -DistRoot $distRootParam -RepoRoot $script:RepoRoot -UpdateKnowledgeBase $true 2>&1 | Out-Null } catch {}
+        try { & $tmdlRenderScript -DistRoot $distRootParam -RepoRoot $script:RepoRoot -UpdateKnowledgeBase $true 2>&1 | Out-Null } catch { Write-Verbose "Optional tmdl-render-fix: $($_.Exception.Message)" }
     }
 
     # (1) Best-practice rules: TMDL, PBIP readiness, DAX, measures vs KPI

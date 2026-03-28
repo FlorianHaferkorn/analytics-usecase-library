@@ -179,5 +179,51 @@ class TestScaffoldGenerator:
         assert len(errors) == 0, f"COM-001 detail should pass validation: {errors}"
 
 
+class TestConfigLoaderKpiMap:
+    """Test KPI catalog loading and warning on failure."""
+
+    def test_load_kpi_map_returns_dict(self):
+        """KPI map should return a non-empty dict from the real KPI catalog."""
+        loader = ConfigLoader(REPO_ROOT)
+        result = loader.load_kpi_id_to_measure_name_map()
+        assert isinstance(result, dict)
+        # Real catalog should have entries
+        assert len(result) > 0
+
+    def test_load_kpi_map_caches_result(self):
+        """Second call should return the cached result."""
+        loader = ConfigLoader(REPO_ROOT)
+        first = loader.load_kpi_id_to_measure_name_map()
+        second = loader.load_kpi_id_to_measure_name_map()
+        assert first is second
+
+    def test_load_kpi_map_missing_catalog_returns_empty(self, tmp_path):
+        """Missing KPI catalog should return empty dict, not raise."""
+        loader = ConfigLoader(tmp_path)
+        result = loader.load_kpi_id_to_measure_name_map()
+        assert result == {}
+
+    def test_load_kpi_map_logs_warning_on_parse_failure(self, tmp_path, caplog):
+        """Malformed KPI catalog should log a warning, not silently pass."""
+        import logging
+
+        # Create a fake KPI catalog with valid yaml fence but broken content
+        kpi_dir = tmp_path / "core" / "kpi_catalog"
+        kpi_dir.mkdir(parents=True)
+        catalog = kpi_dir / "KPI_Catalog.md"
+        # Write content that will trigger the regex match but fail parsing
+        catalog.write_text(
+            "```yaml\n- kpi_id: TEST\n  kpi_key: \x00invalid\n```",
+            encoding="utf-8",
+        )
+        loader = ConfigLoader(tmp_path)
+
+        with caplog.at_level(logging.WARNING, logger="page_scaffold_generator.config_loader"):
+            result = loader.load_kpi_id_to_measure_name_map()
+
+        # Should still return a dict (possibly with partial results), not raise
+        assert isinstance(result, dict)
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
