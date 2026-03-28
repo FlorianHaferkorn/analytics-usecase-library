@@ -48,14 +48,15 @@ describe('generateSqlViews', () => {
     expect(output.content).toContain('Revenue Growth');
   });
 
-  it('includes DAX reference as comments', () => {
+  it('translates DAX to SQL CREATE VIEW statements', () => {
     const output = generateSqlViews(mockIR);
-    expect(output.content).toContain('SUM(Sales[Amount])');
+    expect(output.content).toContain('CREATE VIEW');
+    expect(output.content).toContain('SUM(Amount) FROM Sales');
   });
 
-  it('generates sanitized view names', () => {
+  it('generates view names from measure names', () => {
     const output = generateSqlViews(mockIR);
-    expect(output.content).toContain('v_kpi_001');
+    expect(output.content).toContain('v_revenue');
   });
 });
 

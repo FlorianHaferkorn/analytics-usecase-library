@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ColorPicker } from '@/components/brand/color-picker';
 import { LayoutPreview } from '@/components/brand/layout-preview';
+import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { useProjectStore, DEFAULT_THEME } from '@/lib/store/project-store';
 import type { ThemeConfig } from '@/lib/store/project-store';
 
@@ -189,9 +190,9 @@ export function BrandLabClient() {
           ))}
         </div>
 
-        {/* Live Preview */}
+        {/* Live Dashboard Preview */}
         <div style={{ flex: 1 }}>
-          <LayoutPreview theme={theme} layer={activeLayer} />
+          <DashboardLayout theme={theme} layer={activeLayer} />
         </div>
 
         {/* All layers side by side */}

@@ -8,6 +8,7 @@
 
 import type { IRPackage, IRMeasure } from './ir-builder';
 import { sanitize } from './utils';
+import { translateDaxToSql } from './dax-to-sql';
 
 export interface OssOutput {
   filename: string;
@@ -24,12 +25,8 @@ export function generateSqlViews(ir: IRPackage): OssOutput {
 
   for (const measure of ir.measures) {
     lines.push(`-- ${measure.name}: ${measure.description}`);
-    lines.push(`-- Original DAX (reference only):`);
-    for (const daxLine of measure.expression.split('\n')) {
-      lines.push(`--   ${daxLine}`);
-    }
-    lines.push(`-- TODO: Translate DAX to SQL`);
-    lines.push(`-- CREATE VIEW v_${sanitize(measure.id)} AS SELECT ...;`);
+    const sql = translateDaxToSql(measure.expression, measure.name);
+    lines.push(sql);
     lines.push('');
   }
 
