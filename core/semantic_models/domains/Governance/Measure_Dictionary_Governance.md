@@ -25,7 +25,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_action[Action ID]
   governance:
     owner: Executive Office
-    status: draft
+    status: active
     version: v0.1
     last_review: TBD
 - measure_name: Action Outcome Rate %
@@ -51,7 +51,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_action[Action ID]
   governance:
     owner: Executive Office
-    status: draft
+    status: active
     version: v0.1
     last_review: TBD
 ```

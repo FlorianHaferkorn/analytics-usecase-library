@@ -25,7 +25,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Net Sales Amount]
   governance:
     owner: Growth Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Net Sales Delta % vs LY
@@ -51,7 +51,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Net Sales Amount LY]
   governance:
     owner: Growth Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Price Realization %
@@ -77,7 +77,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[List Price Amount]
   governance:
     owner: Growth Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Forecast Net Sales Amount
@@ -102,7 +102,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_forecast[Net Sales Amount]
   governance:
     owner: Growth Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Sales Units
@@ -127,7 +127,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Sales Units]
   governance:
     owner: Growth Analytics
-    status: draft
+    status: active
     version: v0.1
     last_review: TBD
 ```

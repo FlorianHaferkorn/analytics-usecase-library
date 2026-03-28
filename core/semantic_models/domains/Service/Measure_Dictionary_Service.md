@@ -28,7 +28,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - Cases Resolved
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: FCR %
@@ -56,7 +56,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - Cases Resolved
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: AHT Minutes
@@ -84,7 +84,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - Cases Resolved
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Backlog Count
@@ -111,7 +111,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_cases[Backlog Flag]
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: NPS Index
@@ -136,7 +136,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_nps[NPS Score]
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Escalation %
@@ -164,7 +164,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - Cases Resolved
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Utilization %
@@ -193,7 +193,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - Paid Time Minutes
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Occupancy %
@@ -224,7 +224,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - Idle Time Minutes
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Overtime %
@@ -253,7 +253,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - Paid Time Minutes
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Shrinkage %
@@ -282,7 +282,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - Paid Time Minutes
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Cases Resolved
@@ -300,7 +300,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
       '
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Cases SLA Met
@@ -319,7 +319,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_cases[SLA Met Flag]
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Cases FCR
@@ -338,7 +338,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_cases[FCR Flag]
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Escalated Cases
@@ -357,7 +357,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_cases[Escalation Flag]
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Backlog Cases
@@ -376,7 +376,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_cases[Backlog Flag]
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Total Handle Time Minutes
@@ -395,7 +395,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_cases[Handle Time Minutes]
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Work Time Minutes
@@ -414,7 +414,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_wfm[Work Time Minutes]
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Paid Time Minutes
@@ -433,7 +433,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_wfm[Paid Time Minutes]
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Talk+Wrap Minutes
@@ -453,7 +453,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_wfm[Wrap Time Minutes]
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Idle Time Minutes
@@ -472,7 +472,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_wfm[Idle Time Minutes]
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Overtime Minutes
@@ -491,7 +491,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_wfm[Overtime Minutes]
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Shrinkage Minutes
@@ -510,7 +510,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_wfm[Shrinkage Minutes]
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Talk Wrap Minutes
@@ -529,7 +529,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_wfm[Talk Wrap Minutes]
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Tickets Created Count
@@ -554,7 +554,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ticket[Ticket ID]
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v0.1
     last_review: TBD
 - measure_name: Tickets Closed Count
@@ -579,7 +579,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ticket[Tickets Closed Count]
   governance:
     owner: Service Analytics
-    status: draft
+    status: active
     version: v0.1
     last_review: TBD
 ```

@@ -26,7 +26,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Cost of Goods Sold Amount]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Gross Margin Amount
@@ -52,7 +52,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Cost of Goods Sold Amount]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Gross Margin % vs Plan
@@ -77,7 +77,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - '[Gross Margin %]'
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Promotion ROI %
@@ -103,7 +103,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - '[Promo Cost Amount]'
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Promo ROI %
@@ -121,7 +121,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     measures: []
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Net Sales Amount
@@ -144,7 +144,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Net Sales Amount]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Gross Margin Amount LY
@@ -167,7 +167,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - '[Gross Margin Amount]'
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Gross Margin % LY
@@ -190,7 +190,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - '[Gross Margin %]'
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Plan Gross Margin %
@@ -214,7 +214,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_plan_sales[Plan Net Sales Amount]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Promo Cost Amount
@@ -237,7 +237,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Promo Cost Amount]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Promo COGS Amount
@@ -261,7 +261,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Promo Flag]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Incremental Sales Amount
@@ -286,7 +286,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Promo Flag]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Incremental GM Amount
@@ -309,7 +309,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - '[Gross Margin Amount]'
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Promo Gross Margin %
@@ -337,7 +337,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Promo Flag]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Cost Base Volume Amount
@@ -362,7 +362,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_cost[Base Volume Amount]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v0.1
     last_review: TBD
 - measure_name: Opex Base Amount
@@ -387,7 +387,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_opex[Opex Base Amount]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v0.1
     last_review: TBD
 ```

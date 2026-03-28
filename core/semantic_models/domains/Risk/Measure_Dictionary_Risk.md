@@ -25,7 +25,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_risk[Value at Risk Index]
   governance:
     owner: Risk Analytics
-    status: draft
+    status: active
     version: v0.1
     last_review: TBD
 - measure_name: Supplier Risk Score
@@ -50,7 +50,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_supplier_risk[Risk Score]
   governance:
     owner: Risk Analytics
-    status: draft
+    status: active
     version: v0.1
     last_review: TBD
 ```

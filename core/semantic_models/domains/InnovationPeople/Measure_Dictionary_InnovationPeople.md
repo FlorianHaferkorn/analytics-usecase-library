@@ -26,7 +26,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_hr[Headcount]
   governance:
     owner: Innovation Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Digital Adoption Rate %
@@ -44,7 +44,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     columns: []
   governance:
     owner: Innovation Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Gross Margin per FTE Amount
@@ -70,7 +70,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - '[Average FTE]'
   governance:
     owner: Innovation Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Personnel Cost Ratio %
@@ -96,7 +96,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - '[Revenue Amount]'
   governance:
     owner: Innovation Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Revenue per FTE
@@ -121,7 +121,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - '[Average FTE]'
   governance:
     owner: Innovation Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Attrition Risk %
@@ -144,7 +144,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_hr[Attrition Risk %]
   governance:
     owner: Innovation Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Turnover Rate %
@@ -168,7 +168,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - '[Average Headcount]'
   governance:
     owner: Innovation Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Absenteeism %
@@ -192,7 +192,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - '[Scheduled Hours]'
   governance:
     owner: Innovation Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Gross Margin Amount
@@ -215,7 +215,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_financials[GrossMarginAmount]
   governance:
     owner: Innovation Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 ```

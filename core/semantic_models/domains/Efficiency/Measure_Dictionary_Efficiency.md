@@ -192,7 +192,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     notes: Calculated at location_sku_day or sku_week; aggregated to sku_month.
   governance:
     owner: Supply Chain BI
-    status: draft
+    status: active
     version: v0.1
   display_folder: 08_SCM_Service
   dependencies:
@@ -211,7 +211,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     notes: Aggregated to sku_month.
   governance:
     owner: Supply Chain BI
-    status: draft
+    status: active
     version: v0.1
   display_folder: 08_SCM_Service
   dependencies:
@@ -231,7 +231,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     notes: sku_month aggregated by Date, Org, Product.
   governance:
     owner: Supply Chain BI
-    status: draft
+    status: active
     version: v0.1
   display_folder: 08_SCM_Service
   dependencies:
@@ -252,7 +252,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     notes: sku_month aggregated by Date, Org, Product.
   governance:
     owner: Supply Chain BI
-    status: draft
+    status: active
     version: v0.1
   display_folder: 08_SCM_Service
   dependencies:
