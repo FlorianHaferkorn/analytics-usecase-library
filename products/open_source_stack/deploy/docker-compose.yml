@@ -1,0 +1,25 @@
+# Local development stack: Evidence + DuckDB + Authentik auth proxy
+# Usage: docker compose up
+version: "3.8"
+
+services:
+  evidence:
+    build:
+      context: ../evidence_app
+      dockerfile: ../deploy/Dockerfile.evidence
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../evidence_app/pages:/app/pages
+      - ../evidence_app/sources:/app/sources
+    environment:
+      - NODE_ENV=development
+
+  # Optional: Authentik identity proxy for production
+  # Uncomment and configure for authenticated access
+  # authentik:
+  #   image: ghcr.io/goauthentik/server:latest
+  #   ports:
+  #     - "9000:9000"
+  #   environment:
+  #     AUTHENTIK_SECRET_KEY: "change-me-in-production"

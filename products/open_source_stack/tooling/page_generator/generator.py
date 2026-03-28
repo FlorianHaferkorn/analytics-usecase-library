@@ -98,6 +98,10 @@ class EvidencePageGenerator:
 
         return pages_written
 
+    def _get_kpi_label(self, kpi: Dict[str, Any]) -> str:
+        """Get a human-readable label for a KPI. IR uses various field names."""
+        return kpi.get("title") or kpi.get("label") or kpi.get("id", "")
+
     def _build_page(
         self,
         page_id: str,
@@ -105,8 +109,7 @@ class EvidencePageGenerator:
         kpi_nodes: List[Dict[str, Any]],
     ) -> str:
         """Build a single Evidence page."""
-        uc_node = self.config_loader.get_use_case_from_ir(self._ir, self.use_case_id)  # type: ignore[arg-type]
-        title = (uc_node or {}).get("label", self.use_case_id)
+        title = self.config_loader.get_use_case_title(self._ir, self.use_case_id)  # type: ignore[arg-type]
         page_type = page_def.get("page_type", "overview")
         description = f"{title} — {page_type.replace('_', ' ').title()}"
 
@@ -116,7 +119,7 @@ class EvidencePageGenerator:
         kpi_section = PageSection("3-Second Layer — KPI Headlines")
         for kpi in kpi_nodes:
             kpi_id = kpi.get("id", "")
-            label = kpi.get("label", kpi_id)
+            label = self._get_kpi_label(kpi)
             table = self.sql_builder.infer_table_from_kpi(kpi)
             spec = kpi.get("measure_spec", {})
             dax = spec.get("dax_expression", "")
@@ -135,7 +138,7 @@ class EvidencePageGenerator:
         trend_section = PageSection("30-Second Layer — Trends")
         for kpi in kpi_nodes[:3]:  # Top 3 KPIs as trends
             kpi_id = kpi.get("id", "")
-            label = kpi.get("label", kpi_id)
+            label = self._get_kpi_label(kpi)
             table = self.sql_builder.infer_table_from_kpi(kpi)
             spec = kpi.get("measure_spec", {})
             dax = spec.get("dax_expression", "")
@@ -166,6 +169,15 @@ class EvidencePageGenerator:
                     self.component_builder.build_data_table(qname)
                 )
             sections.append(detail_section)
+
+        # Grid layout wrapper (when bracket defines ux_layout_rules with grid_blueprint)
+        ux_rules = self._bracket.get("ux_layout_rules", {}) if self._bracket else {}  # type: ignore[union-attr]
+        grid_blueprint = ux_rules.get("grid_blueprint")
+        if grid_blueprint:
+            slots = self.layout_calculator.parse_slots(grid_blueprint)
+            errors = self.layout_calculator.validate_slots(slots)
+            if errors:
+                print(f"  WARN: Grid layout errors: {errors}", file=sys.stderr)
 
         frontmatter = {
             "title": title,

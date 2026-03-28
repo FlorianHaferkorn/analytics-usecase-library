@@ -1,0 +1,30 @@
+# Copy to ~/.dbt/profiles.yml and adjust
+
+oss_stack:
+  target: dev
+
+  outputs:
+    # Zero-cost local development
+    dev:
+      type: duckdb
+      path: dev.duckdb
+
+    # Small team / existing Postgres
+    postgres:
+      type: postgres
+      host: localhost
+      port: 5432
+      user: analytics
+      pass: "{{ env_var('DB_PASSWORD') }}"
+      dbname: analytics
+      schema: gold
+
+    # Production with Trino
+    prod:
+      type: trino
+      method: none
+      host: trino.example.com
+      port: 8080
+      user: analytics
+      catalog: iceberg
+      schema: gold

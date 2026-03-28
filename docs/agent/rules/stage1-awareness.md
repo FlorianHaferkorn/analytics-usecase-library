@@ -1,0 +1,48 @@
+# Stage 1 CI (Hard Gate)
+
+Stage 1 is the mandatory CI gate. All checks must pass before merge. When suggesting edits, ensure they do not violate these checks.
+
+## Canonical command (run from repo root)
+
+```powershell
+.\tooling\run_stage1_checks.ps1
+```
+
+## Checks run (in order)
+
+1. **check_schema_validation.ps1** — Validates artifacts (action codes, UseCase_Bracket, org_roles) against JSON schemas in `tooling/validation/` and `tooling/ai/schemas/`.
+2. **validate_factsheets.ps1** — Business factsheets structure; verifies `UseCase_Bracket.yaml` exists for each use case.
+3. **check_factsheet_vs_kpi.ps1** — Every KPI referenced in Business factsheets/brackets exists in KPI catalog.
+4. **validate_kpi_catalog.ps1** — KPI catalog structure and rules.
+5. **check_action_codes_vs_kpi.ps1** — Every KPI ID in action codes exists in KPI catalog.
+6. **check_factsheet_action_codes.ps1** — Business factsheet / bracket action code references vs framework action codes.
+7. **check_decision_spines.ps1** — Decision spine map and spine files consistent.
+8. **check_duplicate_ids.ps1** — No duplicate IDs across governed artifacts.
+9. **check_ssot_markers.ps1** — Single source of truth markers respected.
+10. **check_docs_refs.ps1** — Doc references valid.
+11. **check_forbidden_content.ps1** — No forbidden content in repo.
+12. **check_validate_data_contracts.ps1** — Domain data contracts under `core/data_contracts/domains/` valid (structure, dimension/fact keys, grain).
+13. **check_registry_builder.ps1** — Registry builder governance validation (`tooling/ontology/registry_builder.py --strict`).
+
+## Prerequisite (one-time, for schema validation)
+
+```powershell
+cd tooling\validation
+npm ci
+```
+
+## If Stage 1 is green locally but fails in GitHub
+
+- **Same command:** CI runs `./tooling/run_stage1_checks.ps1 -Root $env:GITHUB_WORKSPACE` from the repo root. Run the same locally: `.\tooling\run_stage1_checks.ps1 -Root .` (or without `-Root` from repo root).
+- **Schema validation (npm):** CI uses `npm ci` in `tooling/validation`. If you changed `package.json` without updating `package-lock.json`, CI fails; commit the lock file after `npm ci` (or `npm install`) in `tooling/validation`.
+- **Data contracts (Python):** CI installs deps from `tooling/validation/requirements-data-contracts.txt`. If a check uses Python, ensure `py -3` or `python` works and the same deps are installed locally.
+- **Registry builder:** Uses `py -3` or `python`; on the runner only `python` may be on PATH. If you see "Python 3 not found" in CI, the workflow’s `actions/setup-python` step should have run; check that the "Run Stage 1 checks" step uses the same runner (windows-latest) and that no step changed the environment in a way that hides Python.
+- **Path/working directory:** The workflow sets `working-directory: ${{ github.workspace }}` and passes `-Root $env:GITHUB_WORKSPACE` so the script always receives the repo root; this avoids failures when the runner’s current directory differs from the workspace.
+
+## When suggesting changes
+
+- New or changed KPI references → must exist in `core/kpi_catalog/`.
+- New or changed action code IDs → must be in `core/action_codes/` and subscribed via `UseCase_Bracket.yaml` `orchestration.action_code_ids`.
+- Business factsheet edits → human-readable only; no YAML blocks. All machine-readable config in `UseCase_Bracket.yaml`.
+- Bracket edits → preserve required keys per `usecase_bracket.schema.json`; governance roles must exist in `core/organization/org_roles.yaml` (or Aurora showcase path; see core/organization/README.md).
+- Before committing, run Stage 1 from repo root to confirm no regressions.

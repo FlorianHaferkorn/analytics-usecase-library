@@ -1,0 +1,35 @@
+# Framework Conventions
+
+## Golden Thread
+
+- **Strategy → KPIs → use cases → action codes → templates → semantic models.** Every artifact traces back; use cases and reports reference governed definitions; they do not define KPI meaning, targets, or lineage.
+- **Single source of truth:** KPI definitions live in `core/kpi_catalog/`. Action logic and thresholds live in `core/action_codes/`. Use cases in `usecases/` only reference these; they do not redefine them.
+- **Use cases reference, they do not define.** When editing use cases, link to KPI IDs and action code IDs; do not invent new KPI definitions or trigger logic in factsheets.
+- **Report BoM:** The UseCase_Bracket represents all components needed to create the use case as a report: KPIs (strategic, influencing, supporting), evidence grain, and data contract. The registry validates that the bracket is complete (supporting KPIs via depends_on closure) and that evidence grain is governed in domain contracts.
+- **Evidence grain is use-case-only.** It is defined in the bracket (`ux_layout_rules.page_2_execution.component_300s.evidence_grain`) and must be one of the grains from domain data contracts. Action codes do not define or imply report grain; their step text is shared across use cases and must not prescribe evidence grain (e.g. do not require "entity" in steps for entity_month use cases).
+
+## Tool-agnostic vs. tool-specific
+
+- **Core = tool-agnostisch:** Structure, IDs, lineage, logical formulas only. No DAX, format strings, or PBI visual types in core.
+- **products/** = tool-specific realisation: e.g. `products/fabric/powerbi/` for DAX, TMDL, formatString, PBI visualType, PBIP. Same logic for all SSOT artifacts.
+
+## Key Paths
+
+- **Use cases:** `core/usecases/core/`, `core/usecases/templates/` — Business_Factsheet.md, UseCase_Bracket.yaml per use case.
+- **Framework:** `core/kpi_catalog/`, `core/action_codes/`, `core/templates/` — KPI catalog, action code YAML, page/measure/data-contract templates.
+- **Data contracts:** `core/data_contracts/domains/`, `core/data_contracts/sources/` — domain and source-level contracts.
+- **Semantic models:** `core/semantic_models/domains/` — measure dictionaries (tool-agnostic); conceptual design in `core/strategy_operating_model/operating_model/semantic_layer.md`. TMDL/PBIP output lives under `products/fabric/powerbi/dist/` or `showcases/…/semantic_models/`. (Legacy core_action_ready archived.)
+- **Docs:** `docs/company/`, `docs/operating_model/` — strategy and operating model; authority for structure and naming.
+- **Internal:** `tooling/` — validation, generation, maintenance, Power BI MCP; `tooling/ai/schemas/` — JSON schemas for factsheets, action codes, data contracts, layout_330300.
+
+## Naming and IDs
+
+- Use case IDs: `COM-001`, `FIN-001`, `OPS-001`, `SCM-001`, `XD-001`, etc. (prefix + number).
+- Action code IDs: e.g. `C-M2.1`, `F-C1.1`, `O-A2.1` — domain prefix + topic + index.
+- KPI IDs: `domain.topic.metric` (e.g. `sales.price.realization_pct`). Must exist in KPI catalog before referencing in use cases or action codes.
+- Domains: Commercial, Finance, Operations, Supply Chain, XD (Experience/Enterprise).
+
+## Invariants
+
+- Do not add new artifact types without alignment with `internal/archive/framework_evolution.md`.
+- Automation and generation must produce artifacts that pass Stage 1; prefer existing scripts under `tooling/`.

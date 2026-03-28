@@ -1,3 +1,5 @@
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+
 ---
 name: generate-oss-dashboard
 description: Generate Evidence.dev dashboard pages from IR and UseCase Bracket

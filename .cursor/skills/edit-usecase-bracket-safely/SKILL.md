@@ -1,3 +1,5 @@
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+
 ---
 name: edit-usecase-bracket-safely
 description: Edit UseCase_Bracket.yaml (SSOT) without breaking orchestration or governance (Lean 2.0). Use when editing brackets, orchestration config, governance roles, or action_code_ids.

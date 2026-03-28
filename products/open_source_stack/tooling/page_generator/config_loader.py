@@ -76,23 +76,47 @@ class ConfigLoader:
         return json.loads(path.read_text(encoding="utf-8-sig"))
 
     # -- IR helpers --------------------------------------------------------
+    # IR schema (from build_ir.py):
+    #   ir.objects.use_cases  → {uc_id: {id, title, domain, orchestration: {strategic_kpi_id, influencing_kpi_ids, ...}}}
+    #   ir.objects.kpis       → {kpi_id: {id, kpi_role, governance, ...}}
+    #   ir.measure_spec       → {kpi_id: {dax_expression, formatString, ...}}  (optional, from --kpi-catalog)
 
     def get_use_case_from_ir(self, ir: Dict[str, Any], use_case_id: str) -> Optional[Dict[str, Any]]:
-        """Extract a use case node from the IR by ID."""
-        for node in ir.get("nodes", []):
-            if node.get("id") == use_case_id and node.get("type") == "use_case":
-                return node
-        return None
+        """Extract a use case from the IR objects map."""
+        objects = ir.get("objects", {})
+        return objects.get("use_cases", {}).get(use_case_id)
 
     def get_kpis_for_use_case(self, ir: Dict[str, Any], use_case_id: str) -> List[Dict[str, Any]]:
-        """Return all KPI nodes linked to a use case via edges."""
-        linked_kpi_ids = set()
-        for edge in ir.get("edges", []):
-            if edge.get("source") == use_case_id and edge.get("target_type") == "kpi":
-                linked_kpi_ids.add(edge["target"])
-            elif edge.get("target") == use_case_id and edge.get("source_type") == "kpi":
-                linked_kpi_ids.add(edge["source"])
-        return [n for n in ir.get("nodes", []) if n.get("id") in linked_kpi_ids]
+        """Return all KPI dicts linked to a use case via orchestration fields."""
+        uc = self.get_use_case_from_ir(ir, use_case_id)
+        if not uc:
+            return []
+        orch = uc.get("orchestration", {})
+        kpi_ids: List[str] = []
+        strategic = orch.get("strategic_kpi_id")
+        if strategic:
+            kpi_ids.append(strategic)
+        kpi_ids.extend(orch.get("influencing_kpi_ids", []))
+
+        all_kpis = ir.get("objects", {}).get("kpis", {})
+        measure_specs = ir.get("measure_spec", {})
+        result = []
+        for kpi_id in kpi_ids:
+            kpi = all_kpis.get(kpi_id)
+            if kpi:
+                # Attach measure_spec from IR root if available
+                enriched = dict(kpi)
+                if kpi_id in measure_specs:
+                    enriched["measure_spec"] = measure_specs[kpi_id]
+                result.append(enriched)
+        return result
+
+    def get_use_case_title(self, ir: Dict[str, Any], use_case_id: str) -> str:
+        """Get the use case title (IR uses 'title', not 'label')."""
+        uc = self.get_use_case_from_ir(ir, use_case_id)
+        if uc:
+            return uc.get("title") or use_case_id
+        return use_case_id
 
     # -- Utilities ---------------------------------------------------------
 

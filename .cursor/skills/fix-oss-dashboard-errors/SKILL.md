@@ -1,3 +1,5 @@
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+
 ---
 name: fix-oss-dashboard-errors
 description: Diagnose and fix Evidence.dev dashboard / OSS validation errors

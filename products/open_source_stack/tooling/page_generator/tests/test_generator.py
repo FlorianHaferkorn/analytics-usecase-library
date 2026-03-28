@@ -3,47 +3,57 @@
 import json
 import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
 from page_generator.generator import EvidencePageGenerator
 
 
 @pytest.fixture
 def sample_ir(tmp_path):
-    """Create a minimal IR for testing."""
+    """Create a minimal IR matching the real build_ir.py output format."""
     ir = {
-        "meta": {"version": "1.0", "generated": "2026-03-28T00:00:00Z"},
-        "nodes": [
-            {
-                "id": "COM-001",
-                "type": "use_case",
-                "label": "Sales Performance",
-            },
-            {
-                "id": "KPI-COM-001",
-                "type": "kpi",
-                "label": "Net Sales",
-                "domain": "Commercial",
-                "measure_spec": {
-                    "dax_expression": "SUM(fact_sales[net_sales_amount])",
-                    "formatString": "#,##0",
+        "ir_version": "1.0",
+        "generated_at_utc": "2026-03-28T00:00:00Z",
+        "source": {"core_abi": {}},
+        "objects": {
+            "use_cases": {
+                "COM-001": {
+                    "id": "COM-001",
+                    "title": "Sales Performance",
+                    "domain": "Commercial",
+                    "orchestration": {
+                        "strategic_kpi_id": "KPI-COM-001",
+                        "influencing_kpi_ids": ["KPI-COM-002"],
+                        "action_code_ids": [],
+                    },
+                    "ux_layout_rules": None,
                 },
             },
-            {
-                "id": "KPI-COM-002",
-                "type": "kpi",
-                "label": "Gross Margin",
-                "domain": "Commercial",
-                "measure_spec": {
-                    "dax_expression": "DIVIDE(SUM(fact_sales[profit]), SUM(fact_sales[revenue]))",
-                    "formatString": "0.0%",
+            "kpis": {
+                "KPI-COM-001": {
+                    "id": "KPI-COM-001",
+                    "kpi_role": "strategic",
+                    "governance": None,
+                    "trust_score": None,
+                },
+                "KPI-COM-002": {
+                    "id": "KPI-COM-002",
+                    "kpi_role": "influencing",
+                    "governance": None,
+                    "trust_score": None,
                 },
             },
-        ],
-        "edges": [
-            {"source": "COM-001", "target": "KPI-COM-001", "target_type": "kpi", "relation": "strategic_kpi"},
-            {"source": "COM-001", "target": "KPI-COM-002", "target_type": "kpi", "relation": "influencing_kpi"},
-        ],
+            "action_codes": {},
+        },
+        "measure_spec": {
+            "KPI-COM-001": {
+                "dax_expression": "SUM(fact_sales[net_sales_amount])",
+                "formatString": "#,##0",
+            },
+            "KPI-COM-002": {
+                "dax_expression": "DIVIDE(SUM(fact_sales[profit]), SUM(fact_sales[revenue]))",
+                "formatString": "0.0%",
+            },
+        },
     }
     ir_path = tmp_path / "ir_v1.json"
     ir_path.write_text(json.dumps(ir), encoding="utf-8")
@@ -63,7 +73,6 @@ ux_layout:
     - page_id: detail
       page_type: detail
 """
-    # Create the bracket in the expected location
     uc_dir = tmp_path / "core" / "usecases" / "core" / "COM-001_Sales_Performance"
     uc_dir.mkdir(parents=True)
     bracket_file = uc_dir / "UseCase_Bracket.yaml"
@@ -103,7 +112,7 @@ class TestEvidencePageGenerator:
         overview = [p for p in pages if "overview" in p.name][0]
         content = overview.read_text()
         assert "# Sales Performance" in content
-        assert "Net Sales" in content
+        assert "Net Sales" in content or "KPI-COM-001" in content
         assert "```sql" in content
         assert "<BigValue" in content
 
@@ -137,6 +146,24 @@ class TestEvidencePageGenerator:
         names = [p.name for p in pages]
         assert "com_001_overview.md" in names
         assert "com_001_detail.md" in names
+
+    def test_kpis_enriched_with_measure_spec(self, generator):
+        """Verify that KPIs from IR get measure_spec attached from ir root."""
+        generator.load()
+        kpis = generator.config_loader.get_kpis_for_use_case(
+            generator._ir, "COM-001"
+        )
+        assert len(kpis) == 2
+        assert kpis[0].get("measure_spec", {}).get("dax_expression") == "SUM(fact_sales[net_sales_amount])"
+        assert "DIVIDE" in kpis[1].get("measure_spec", {}).get("dax_expression", "")
+
+    def test_use_case_title_from_ir(self, generator):
+        """Verify title is read from IR objects (not 'label')."""
+        generator.load()
+        title = generator.config_loader.get_use_case_title(
+            generator._ir, "COM-001"
+        )
+        assert title == "Sales Performance"
 
 
 class TestGeneratorFallback:

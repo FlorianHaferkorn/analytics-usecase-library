@@ -1,6 +1,8 @@
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+
 ---
 description: Fabric/Power BI adapter expert — TMDL, DAX, PBIP, Fabric checks
-globs: "products/fabric/powerbi/**", "**/products/fabric/powerbi/**/*.tmdl"
+globs: "products/fabric/powerbi/**, **/products/fabric/powerbi/**/*.tmdl"
 alwaysApply: false
 ---
 

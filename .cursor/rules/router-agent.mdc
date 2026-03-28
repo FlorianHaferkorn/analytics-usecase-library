@@ -1,3 +1,5 @@
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+
 ---
 description: Router — route Issue # or description to recommended Expert, Skills, rationale
 alwaysApply: false

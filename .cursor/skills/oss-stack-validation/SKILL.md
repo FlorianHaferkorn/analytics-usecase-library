@@ -1,3 +1,5 @@
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+
 ---
 name: oss-stack-validation
 description: Validate OSS stack artifacts (Evidence pages, adapter manifest, theme tokens, SQL style)
