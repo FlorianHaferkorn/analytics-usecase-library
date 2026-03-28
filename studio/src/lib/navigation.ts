@@ -35,6 +35,14 @@ export const NAV_ITEMS: readonly NavItem[] = [
     color: 'var(--info)',
   },
   {
+    href: '/lineage',
+    label: 'Data & Lineage',
+    description: 'Explore data contracts and KPI lineage graphs',
+    icon: 'L',
+    sidebarIcon: '\uD83D\uDD17',
+    color: 'var(--info)',
+  },
+  {
     href: '/brand-lab',
     label: 'Brand & UX Lab',
     description: 'Define themes, layouts, and preview 3-30-300 report pages',

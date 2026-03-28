@@ -1,6 +1,7 @@
 import { streamText } from 'ai';
 import { createModel, detectProvider } from '@/lib/ai/orchestrator';
 import { DISCOVERY_SYSTEM_PROMPT } from '@/lib/ai/prompts/discovery';
+import { discoveryTools } from '@/lib/ai/tools/discovery-tools';
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -28,6 +29,7 @@ export async function POST(request: Request) {
     model,
     system: systemPrompt,
     messages,
+    tools: discoveryTools,
   });
 
   return result.toTextStreamResponse();

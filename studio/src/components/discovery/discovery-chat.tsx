@@ -1,19 +1,35 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { ToolResultCard } from './tool-result-card';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
+  toolResults?: Array<{ toolName: string; result: unknown }>;
 }
 
 interface Props {
   apiKey: string;
   context: string;
   onExtract: (content: string) => void;
+  onToolResult?: (toolName: string, result: unknown) => void;
 }
 
-export function DiscoveryChat({ apiKey, context, onExtract }: Props) {
+/** Parse Vercel AI SDK data stream events. */
+function parseStreamEvent(line: string): { type: string; data: unknown } | null {
+  // Format: "type:json_data"
+  const colon = line.indexOf(':');
+  if (colon < 0) return null;
+  const type = line.slice(0, colon);
+  try {
+    return { type, data: JSON.parse(line.slice(colon + 1)) };
+  } catch {
+    return null;
+  }
+}
+
+export function DiscoveryChat({ apiKey, context, onExtract, onToolResult }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +54,7 @@ export function DiscoveryChat({ apiKey, context, onExtract }: Props) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: updatedMessages,
+          messages: updatedMessages.map((m) => ({ role: m.role, content: m.content })),
           apiKey,
           context: context || undefined,
         }),
@@ -53,6 +69,7 @@ export function DiscoveryChat({ apiKey, context, onExtract }: Props) {
       if (!reader) throw new Error('No stream reader');
 
       let assistantContent = '';
+      const toolResults: Array<{ toolName: string; result: unknown }> = [];
       const decoder = new TextDecoder();
 
       setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
@@ -62,19 +79,39 @@ export function DiscoveryChat({ apiKey, context, onExtract }: Props) {
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: true });
-        // Parse SSE data events from the AI SDK stream
         for (const line of chunk.split('\n')) {
-          if (line.startsWith('0:')) {
-            try {
-              const text = JSON.parse(line.slice(2));
-              assistantContent += text;
+          if (!line.trim()) continue;
+          const event = parseStreamEvent(line);
+          if (!event) continue;
+
+          // Type 0 = text delta
+          if (event.type === '0' && typeof event.data === 'string') {
+            assistantContent += event.data;
+            setMessages((prev) => {
+              const copy = [...prev];
+              copy[copy.length - 1] = { role: 'assistant', content: assistantContent, toolResults };
+              return copy;
+            });
+          }
+          // Type 9 = tool result (Vercel AI SDK data stream format)
+          if (event.type === '9' && typeof event.data === 'object' && event.data !== null) {
+            const d = event.data as Record<string, unknown>;
+            if (d.toolName && d.result !== undefined) {
+              toolResults.push({ toolName: String(d.toolName), result: d.result });
+              onToolResult?.(String(d.toolName), d.result);
               setMessages((prev) => {
                 const copy = [...prev];
-                copy[copy.length - 1] = { role: 'assistant', content: assistantContent };
+                copy[copy.length - 1] = { role: 'assistant', content: assistantContent, toolResults: [...toolResults] };
                 return copy;
               });
-            } catch {
-              // Skip non-JSON lines
+            }
+          }
+          // Type a = tool call (tool invocation start)
+          if (event.type === 'a' && typeof event.data === 'object' && event.data !== null) {
+            const d = event.data as Record<string, unknown>;
+            if (d.result !== undefined && d.toolName) {
+              toolResults.push({ toolName: String(d.toolName), result: d.result });
+              onToolResult?.(String(d.toolName), d.result);
             }
           }
         }
@@ -146,23 +183,29 @@ export function DiscoveryChat({ apiKey, context, onExtract }: Props) {
           </div>
         ) : (
           messages.map((msg, i) => (
-            <div
-              key={i}
-              style={{
-                alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                maxWidth: '80%',
-                padding: 'var(--sp-1-5)',
-                backgroundColor: msg.role === 'user' ? 'var(--slate-700)' : 'var(--slate-900)',
-                borderRadius: 'var(--radius-md)',
-                border: `1px solid ${msg.role === 'user' ? 'var(--slate-600)' : 'var(--slate-700)'}`,
-              }}
-            >
-              <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginBottom: '4px', fontWeight: 600 }}>
-                {msg.role === 'user' ? 'You' : 'AI'}
-              </p>
-              <div style={{ fontSize: '0.8125rem', color: 'var(--slate-100)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
-                {msg.content}
+            <div key={i}>
+              <div
+                style={{
+                  alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                  maxWidth: '80%',
+                  padding: 'var(--sp-1-5)',
+                  backgroundColor: msg.role === 'user' ? 'var(--slate-700)' : 'var(--slate-900)',
+                  borderRadius: 'var(--radius-md)',
+                  border: `1px solid ${msg.role === 'user' ? 'var(--slate-600)' : 'var(--slate-700)'}`,
+                }}
+              >
+                <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginBottom: '4px', fontWeight: 600 }}>
+                  {msg.role === 'user' ? 'You' : 'AI'}
+                </p>
+                <div style={{ fontSize: '0.8125rem', color: 'var(--slate-100)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                  {msg.content}
+                </div>
               </div>
+              {msg.toolResults?.map((tr, j) => (
+                <div key={j} style={{ marginTop: '4px', maxWidth: '90%' }}>
+                  <ToolResultCard toolName={tr.toolName} result={tr.result} />
+                </div>
+              ))}
             </div>
           ))
         )}

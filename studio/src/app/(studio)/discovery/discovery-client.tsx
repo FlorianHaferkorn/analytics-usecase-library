@@ -23,6 +23,11 @@ export function DiscoveryClient() {
     setLastResponse(content);
   }, []);
 
+  const handleToolResult = useCallback((_toolName: string, _result: unknown) => {
+    // Tool results are displayed inline via ToolResultCard in chat.
+    // Future: merge tool-extracted elements into ExtractionPanel.
+  }, []);
+
   // Build context from all sources
   const context = sources.map((s) => `--- Source: ${s.name} ---\n${s.content}`).join('\n\n');
 
@@ -89,7 +94,7 @@ export function DiscoveryClient() {
       {/* Main 3-panel layout */}
       <div style={{ display: 'flex', gap: 'var(--sp-2)', flex: 1, minHeight: 0 }}>
         <SourcePanel sources={sources} onAddSource={addSource} onRemoveSource={removeSource} />
-        <DiscoveryChat apiKey={apiKey} context={context} onExtract={handleExtract} />
+        <DiscoveryChat apiKey={apiKey} context={context} onExtract={handleExtract} onToolResult={handleToolResult} />
         <ExtractionPanel lastResponse={lastResponse} sourceNames={sources.map((s) => s.name)} />
       </div>
     </div>
