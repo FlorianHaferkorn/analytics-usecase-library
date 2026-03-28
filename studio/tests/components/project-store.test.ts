@@ -14,6 +14,7 @@ describe('ProjectStore', () => {
       theme: DEFAULT_THEME,
       driftReport: null,
       driftLoading: false,
+      notifications: [],
       selectedBracketId: null,
       activePanel: 'flow',
       isDirty: false,

@@ -68,6 +68,21 @@ function initSchema(db: Database.Database) {
       FOREIGN KEY (project_id) REFERENCES projects(id)
     );
 
+    CREATE TABLE IF NOT EXISTS notification_rules (
+      id TEXT PRIMARY KEY,
+      project_id TEXT NOT NULL DEFAULT 'default',
+      name TEXT NOT NULL,
+      kpi_id TEXT NOT NULL,
+      condition TEXT NOT NULL,
+      threshold REAL NOT NULL,
+      threshold_upper REAL,
+      severity TEXT NOT NULL,
+      spine_id TEXT,
+      enabled INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (project_id) REFERENCES projects(id)
+    );
+
     -- Ensure default project exists
     INSERT OR IGNORE INTO projects (id, name, strategy_anchor)
     VALUES ('default', 'Aurora Group', 'Profitable growth through margin quality, cash resilience & operational excellence');

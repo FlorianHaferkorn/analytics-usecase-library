@@ -13,6 +13,7 @@ import { create } from 'zustand';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 import type { CatalogKpi } from '@/lib/core/catalog-loader';
 import type { DriftReport } from '@/lib/validation/drift-scanner';
+import type { ActiveNotification } from '@/lib/notifications/rule-types';
 
 /** Serializable action detail for the flow. */
 export interface ActionDetail {
@@ -56,6 +57,9 @@ export interface ProjectState {
   driftReport: DriftReport | null;
   driftLoading: boolean;
 
+  // Notifications
+  notifications: ActiveNotification[];
+
   // UI state
   selectedBracketId: string | null;
   activePanel: 'flow' | 'editor' | 'chat';
@@ -71,6 +75,8 @@ export interface ProjectState {
   setTheme: (theme: Partial<ThemeConfig>) => void;
   setDriftReport: (report: DriftReport | null) => void;
   setDriftLoading: (loading: boolean) => void;
+  addNotification: (n: ActiveNotification) => void;
+  dismissNotification: (id: string) => void;
   selectBracket: (id: string | null) => void;
   setActivePanel: (panel: 'flow' | 'editor' | 'chat') => void;
   updateBracket: (id: string, update: Partial<UseCaseBracketV20Lean>) => void;
@@ -103,6 +109,8 @@ export const useProjectStore = create<ProjectState>((set) => ({
   driftReport: null,
   driftLoading: false,
 
+  notifications: [],
+
   selectedBracketId: null,
   activePanel: 'flow',
   isDirty: false,
@@ -122,6 +130,15 @@ export const useProjectStore = create<ProjectState>((set) => ({
 
   setDriftReport: (report) => set({ driftReport: report }),
   setDriftLoading: (loading) => set({ driftLoading: loading }),
+
+  addNotification: (n) =>
+    set((state) => ({ notifications: [...state.notifications, n] })),
+  dismissNotification: (id) =>
+    set((state) => ({
+      notifications: state.notifications.map((n) =>
+        n.id === id ? { ...n, dismissed: true } : n,
+      ),
+    })),
 
   selectBracket: (id) => set({ selectedBracketId: id }),
   setActivePanel: (panel) => set({ activePanel: panel }),
