@@ -29,6 +29,12 @@ from suggestion_parser import parse_kpi_suggestion
 from url_fetcher import fetch_url_text
 from validator import validate_bracket
 
+try:
+    from brand_designer import render_brand_designer
+    _BRAND_DESIGNER_OK = True
+except Exception:
+    _BRAND_DESIGNER_OK = False
+
 
 def _html_escape(s: str) -> str:
     return (s or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
@@ -200,6 +206,21 @@ def main() -> None:
     session = _session()
     use_cases = session.get("use_cases") or []
 
+    tab_discovery, tab_brand = st.tabs(["Discovery", "Brand & Layout"])
+
+    with tab_brand:
+        if _BRAND_DESIGNER_OK:
+            render_brand_designer(repo_root=Path(repo_root) if repo_root else _REPO_ROOT)
+        else:
+            st.error("brand_designer.py konnte nicht geladen werden.")
+            st.info("Prüfe, ob `pyyaml` installiert ist: `pip install pyyaml`")
+
+    with tab_discovery:
+        _render_discovery(session, use_cases, repo_root)
+
+
+def _render_discovery(session: Any, use_cases: list, repo_root: str) -> None:
+    """Discovery triple-pane: Quellen | Chat | Studio."""
     # Triple-pane layout (NotebookLM: Quellen | Chat | Studio)
     col_sources, col_chat, col_artifacts = st.columns([3, 4, 4])
 
