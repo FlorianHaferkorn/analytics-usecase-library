@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getProject, updateProject } from '@/lib/db/project-repo';
+import { getProject, updateProject, createProject } from '@/lib/db/project-repo';
 
 export async function GET() {
   const project = getProject();
@@ -27,4 +27,16 @@ export async function PATCH(request: Request) {
   });
 
   return NextResponse.json({ ok: true });
+}
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  const { name, strategyAnchor } = body as { name: string; strategyAnchor?: string };
+
+  if (!name?.trim()) {
+    return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+  }
+
+  const project = createProject(name.trim(), strategyAnchor?.trim() ?? '');
+  return NextResponse.json({ project }, { status: 201 });
 }

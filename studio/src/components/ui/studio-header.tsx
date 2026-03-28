@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { getPageTitle } from '@/lib/navigation';
+import { ProjectSelector } from './project-selector';
 
 export function StudioHeader() {
   const pathname = usePathname();
@@ -23,19 +24,12 @@ export function StudioHeader() {
         {title}
       </h1>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)' }}>
-        <span
-          style={{
-            display: 'inline-block',
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            backgroundColor: 'var(--mint)',
-          }}
-        />
-        <span style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>
-          Stage 1 Ready
-        </span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)' }}>
+          <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--mint)' }} />
+          <span style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>Stage 1 Ready</span>
+        </div>
+        <ProjectSelector />
       </div>
     </header>
   );

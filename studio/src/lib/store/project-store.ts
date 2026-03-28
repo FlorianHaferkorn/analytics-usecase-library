@@ -39,6 +39,7 @@ export interface ThemeConfig {
 /** Project-level state. */
 export interface ProjectState {
   // Meta
+  projectId: string;
   projectName: string;
   strategyAnchor: string;
 
@@ -56,6 +57,7 @@ export interface ProjectState {
   isDirty: boolean;
 
   // Actions
+  setProjectId: (id: string) => void;
   setProjectName: (name: string) => void;
   setStrategyAnchor: (anchor: string) => void;
   setBrackets: (brackets: UseCaseBracketV20Lean[]) => void;
@@ -80,6 +82,7 @@ export const DEFAULT_THEME: ThemeConfig = {
 };
 
 export const useProjectStore = create<ProjectState>((set) => ({
+  projectId: 'default',
   projectName: 'Aurora Group',
   strategyAnchor:
     'Profitable growth through margin quality, cash resilience & operational excellence',
@@ -94,6 +97,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
   activePanel: 'flow',
   isDirty: false,
 
+  setProjectId: (id) => set({ projectId: id, isDirty: false }),
   setProjectName: (name) => set({ projectName: name, isDirty: true }),
   setStrategyAnchor: (anchor) => set({ strategyAnchor: anchor, isDirty: true }),
   setBrackets: (brackets) => set({ brackets }),

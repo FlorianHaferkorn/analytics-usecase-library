@@ -13,9 +13,33 @@ export interface ProjectRow {
   updated_at: string;
 }
 
+export function listProjects(): ProjectRow[] {
+  const db = getDb();
+  return db.prepare('SELECT * FROM projects ORDER BY updated_at DESC').all() as ProjectRow[];
+}
+
 export function getProject(id = 'default'): ProjectRow | undefined {
   const db = getDb();
   return db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as ProjectRow | undefined;
+}
+
+export function createProject(name: string, strategyAnchor: string): ProjectRow {
+  const db = getDb();
+  const id = `proj-${Date.now().toString(36)}`;
+  db.prepare(`
+    INSERT INTO projects (id, name, strategy_anchor, theme_json)
+    VALUES (?, ?, ?, '{}')
+  `).run(id, name, strategyAnchor);
+  return getProject(id)!;
+}
+
+export function deleteProject(id: string): boolean {
+  if (id === 'default') return false;
+  const db = getDb();
+  db.prepare('DELETE FROM bracket_edits WHERE project_id = ?').run(id);
+  db.prepare('DELETE FROM discovery_sessions WHERE project_id = ?').run(id);
+  const result = db.prepare('DELETE FROM projects WHERE id = ?').run(id);
+  return result.changes > 0;
 }
 
 export function updateProject(id: string, updates: Partial<Pick<ProjectRow, 'name' | 'strategy_anchor' | 'theme_json'>>) {

@@ -5,6 +5,7 @@ describe('ProjectStore', () => {
   beforeEach(() => {
     // Reset store to initial state between tests
     useProjectStore.setState({
+      projectId: 'default',
       projectName: 'Aurora Group',
       strategyAnchor: 'Profitable growth through margin quality, cash resilience & operational excellence',
       brackets: [],
