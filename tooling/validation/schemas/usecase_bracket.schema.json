@@ -237,6 +237,67 @@
           "description": "Path to the related data contract YAML."
         }
       }
+    },
+    "prioritization": {
+      "type": "object",
+      "description": "Use case prioritization scoring (RICE-inspired). Helps objectively rank use cases for implementation order.",
+      "additionalProperties": false,
+      "properties": {
+        "business_value": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Expected business impact if this use case is implemented successfully."
+        },
+        "implementation_effort": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Estimated effort to implement (data, tooling, change management)."
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Confidence level in the estimates (0.0 = speculative, 1.0 = validated)."
+        },
+        "reach": {
+          "type": "string",
+          "enum": ["organization", "division", "team"],
+          "description": "Scope of users/stakeholders who benefit from this use case."
+        },
+        "priority_score": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Composite priority score (1-100). Can be auto-calculated or manually set."
+        }
+      }
+    },
+    "readiness": {
+      "type": "object",
+      "description": "Organizational readiness assessment for this use case. Evaluates whether prerequisites are met before implementation starts.",
+      "additionalProperties": false,
+      "properties": {
+        "data_availability": {
+          "type": "string",
+          "enum": ["available", "partial", "missing"],
+          "description": "Are the required data sources accessible and of sufficient quality?"
+        },
+        "org_capability": {
+          "type": "string",
+          "enum": ["ready", "developing", "not_ready"],
+          "description": "Does the organization have the skills and processes to use this use case?"
+        },
+        "stakeholder_alignment": {
+          "type": "string",
+          "enum": ["aligned", "partial", "not_aligned"],
+          "description": "Are business owners and stakeholders committed to acting on insights?"
+        },
+        "overall_readiness": {
+          "type": "string",
+          "enum": ["green", "amber", "red"],
+          "description": "Summary readiness signal. Green = ready to implement, Amber = gaps to close, Red = not ready."
+        }
+      }
     }
   }
 }
