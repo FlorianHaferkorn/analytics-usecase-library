@@ -48,14 +48,21 @@ service dispatching.
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| res.utilization.pct | Strategic |
+| res.occupancy.pct | Influencing |
+| svc.sla.attainment.pct | Influencing |
+| res.overtime.pct | Influencing |
+| res.shrinkage.pct | Influencing |
+| svc.backlog.count | Influencing |
+| svc.tickets.created.count | Influencing |
 
+**Action Codes:** X-R2.1, X-R2.2, X-R2.3, X-R2.4
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 

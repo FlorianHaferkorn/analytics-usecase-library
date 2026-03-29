@@ -11,6 +11,7 @@ dimension:
   - name: dim_date
     description: "Calendar dimension for efficiency reporting."
     purpose: "Time slicing for productivity and cost-per-unit trends."
+    scd_type: 1
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -22,6 +23,7 @@ dimension:
   - name: dim_org
     description: "Organization/site dimension (plant, line, entity) for efficiency reporting."
     purpose: "Scoping productivity metrics to plant, line, or cost centre."
+    scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Plant, type: text}
@@ -32,6 +34,7 @@ dimension:
   - name: dim_process
     description: "Business process dimension for cycle time and automation analysis."
     purpose: "Process-level efficiency and automation rate reporting."
+    scd_type: 1
     columns:
       - {name: ProcessKey, type: int, role: key}
       - {name: ProcessCode, type: text}
@@ -44,8 +47,8 @@ fact:
     purpose: "Throughput per FTE and productivity trend analysis."
     grain: plant_line_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: Output Units, type: decimal, agg: sum}
       - {name: Labor Hours, type: decimal, agg: sum}
       - {name: FTE, type: decimal, agg: avg}
@@ -57,8 +60,8 @@ fact:
     purpose: "Unit cost analysis, benchmark, and cost reduction tracking."
     grain: plant_product_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: Output Units, type: decimal, agg: sum}
       - {name: Total Cost Amount, type: currency, agg: sum}
       - {name: Material Cost Amount, type: currency, agg: sum, nullable: true}
@@ -70,9 +73,9 @@ fact:
     purpose: "Process automation, STP rate, and cycle time optimization."
     grain: process_org_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: ProcessKey, type: int, ref: dim_process}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: ProcessKey, type: int, ref: dim_process, cardinality: many-to-one}
       - {name: Cycle Time Hours, type: decimal, agg: avg}
       - {name: Automated Transactions, type: int, agg: sum, nullable: true}
       - {name: Total Transactions, type: int, agg: sum}

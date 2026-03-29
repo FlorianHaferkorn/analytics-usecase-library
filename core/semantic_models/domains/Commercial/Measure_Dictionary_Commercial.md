@@ -10,7 +10,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Revenue
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Net Sales Amount = SUM ( fact_sales[Net Sales Amount] )
+    aggregation_method: sum
   documentation:
     description: Sum of net sales after discounts and rebates.
     notes: 'Grain: invoice_line, reported monthly. Unit: EUR.
@@ -35,15 +36,15 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Revenue
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Net Sales % vs Plan = ([Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] )) / (SUM ( fact_sales[Plan Sales Amount] ))
+    aggregation_method: ratio
   documentation:
     description: Variance of net sales versus plan as a percentage.
     notes: 'Grain: month. Unit: %.
 
       Lineage: [Net Sales Amount], fact_sales[Plan Sales Amount].
 
-      QA: Plan Sales Amount must be populated for the same grain; DIVIDE protects
-      divide-by-zero.
+      QA: Plan Sales Amount must be populated for the same grain; DIVIDE protects divide-by-zero.
 
       '
   dependencies:
@@ -64,7 +65,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Revenue
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Net Sales % vs LY = ([Net Sales Amount] - [Last Year Sales Amount]) / [Last Year Sales Amount]
+    aggregation_method: ratio
   documentation:
     description: Variance of net sales versus last year as a percentage.
     notes: 'Grain: month. Unit: %.
@@ -92,7 +94,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Margin
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Gross Margin Amount = [Net Sales Amount] - [Cost of Goods Sold Amount]
+    aggregation_method: sum
   documentation:
     description: Profit pool calculated as net sales minus cost of goods sold.
     notes: 'Grain: invoice_line, reported monthly. Unit: EUR.
@@ -119,7 +122,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Margin
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Gross Margin % = ([Net Sales Amount] - [Cost of Goods Sold Amount]) / ([Net Sales Amount])
+    aggregation_method: ratio
   documentation:
     description: Gross margin rate as a share of net sales.
     notes: 'Grain: month. Unit: %.
@@ -145,13 +149,14 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Margin
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Gross Margin % vs Plan = (([Net Sales Amount] - [Cost of Goods Sold Amount]) / ([Net Sales Amount]) - (SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] )) / (SUM (
+      fact_sales[Plan Sales Amount] ))) / ((SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] )) / (SUM ( fact_sales[Plan Sales Amount] )))
+    aggregation_method: ratio
   documentation:
     description: Relative variance of gross margin rate versus plan.
     notes: 'Grain: month. Unit: percentage-point.
 
-      Lineage: [Gross Margin Amount], [Net Sales Amount], [Plan Gross Margin Amount],
-      [Plan Sales Amount].
+      Lineage: [Gross Margin Amount], [Net Sales Amount], [Plan Gross Margin Amount], [Plan Sales Amount].
 
       QA: Requires plan sales and plan COGS populated; DIVIDE protects divide-by-zero.
 
@@ -176,13 +181,13 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_PVM
   category: Driver
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Price Effect Amount = ( (fact_sales[Net Sales Amount]) / (fact_sales[Quantity]) - (fact_sales[Plan Sales Amount]) / (fact_sales[Plan Quantity]) ) * fact_sales[Quantity] )
+    aggregation_method: sum
   documentation:
     description: PVM driver quantifying the net sales impact from price change.
     notes: 'Grain: invoice_line aggregated monthly. Unit: EUR.
 
-      Lineage: fact_sales[Net Sales Amount], fact_sales[Plan Sales Amount], fact_sales[Quantity],
-      fact_sales[Plan Quantity].
+      Lineage: fact_sales[Net Sales Amount], fact_sales[Plan Sales Amount], fact_sales[Quantity], fact_sales[Plan Quantity].
 
       QA: Plan quantities/prices must be available; watch for zero quantities.
 
@@ -205,16 +210,15 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_PVM
   category: Driver
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Volume Effect Amount = ( fact_sales[Quantity] - fact_sales[Plan Quantity] ) * (fact_sales[Plan Sales Amount]) / (PlanQty) )
+    aggregation_method: sum
   documentation:
     description: PVM driver quantifying the net sales impact from volume change.
     notes: 'Grain: invoice_line aggregated monthly. Unit: EUR.
 
-      Lineage: fact_sales[Quantity], fact_sales[Plan Quantity], fact_sales[Plan Sales
-      Amount].
+      Lineage: fact_sales[Quantity], fact_sales[Plan Quantity], fact_sales[Plan Sales Amount].
 
-      QA: Relies on plan quantities and plan prices at the same grain; watch for zero
-      quantities.
+      QA: Relies on plan quantities and plan prices at the same grain; watch for zero quantities.
 
       '
   dependencies:
@@ -234,13 +238,13 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_PVM
   category: Driver
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Mix Effect Amount = [Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] ) - [Price Effect Amount] - [Volume Effect Amount]
+    aggregation_method: sum
   documentation:
     description: Residual PVM driver capturing mix impact after price and volume effects.
     notes: 'Grain: month. Unit: EUR.
 
-      Lineage: [Net Sales Amount], [Price Effect Amount], [Volume Effect Amount],
-      [Plan Sales Amount].
+      Lineage: [Net Sales Amount], [Price Effect Amount], [Volume Effect Amount], [Plan Sales Amount].
 
       QA: Uses plan sales as baseline; ensure consistent grain.
 
@@ -263,15 +267,15 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Pricing
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Price Realization % = ([Net Price Amount]) / ([List Price Amount])
+    aggregation_method: ratio
   documentation:
     description: Discount discipline metric comparing net price to list price.
     notes: 'Grain: month or promo. Unit: %.
 
       Lineage: fact_sales[Net Price Amount], fact_sales[List Price Amount].
 
-      QA: List price must exclude temporary surcharges and taxes; DIVIDE protects
-      divide-by-zero.
+      QA: List price must exclude temporary surcharges and taxes; DIVIDE protects divide-by-zero.
 
       '
   dependencies:
@@ -290,16 +294,15 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Promotion ROI % = [Promo Gross Margin Uplift Amount] / SUM(fact_promo[Promo Cost])
+    aggregation_method: ratio
   documentation:
-    description: Return on promotion investment based on incremental gross margin
-      versus promo cost.
+    description: Return on promotion investment based on incremental gross margin versus promo cost.
     notes: 'Grain: promotion. Unit: %.
 
       Lineage: [Promo Gross Margin Uplift Amount], fact_promo[Promo Cost].
 
-      QA: Promo Gross Margin Uplift Amount derived from incremental sales/COGS; relies
-      on promo cost completeness; DIVIDE protects divide-by-zero.
+      QA: Promo Gross Margin Uplift Amount derived from incremental sales/COGS; relies on promo cost completeness; DIVIDE protects divide-by-zero.
 
       '
   dependencies:
@@ -319,7 +322,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Incremental Sales Amount = [Net Sales Amount] - [Baseline Sales Amount]
+    aggregation_method: sum
   documentation:
     description: Incremental sales generated by promotion versus baseline sales.
     notes: 'Grain: promotion. Unit: EUR.
@@ -345,15 +349,13 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Cannibalized Sales Amount = MAX ( 0, SUM ( fact_promo[Baseline Non-Promo Sales Amount] ) - SUM ( fact_sales[Net Sales Amount] ) WHERE fact_sales[Promo Flag] = FALSE )
+    aggregation_method: sum
   documentation:
-    description: Sales amount lost on non-promoted items versus baseline (cannibalization
-      in value).
+    description: Sales amount lost on non-promoted items versus baseline (cannibalization in value).
     notes: 'Grain: promotion. Unit: EUR.
 
-      Lineage: fact_sales[Net Sales Amount], fact_sales[Promo Flag], fact_promo[Baseline
-      Non-Promo Sales Amount]. May require related SKU mapping for comparable scope
-      (data prep).
+      Lineage: fact_sales[Net Sales Amount], fact_sales[Promo Flag], fact_promo[Baseline Non-Promo Sales Amount]. May require related SKU mapping for comparable scope (data prep).
 
       QA: Same logic as Cannibalization % numerator; floored at 0.
 
@@ -375,17 +377,15 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Cannibalization % = ([Cannibalized Sales Amount]) / ([Incremental Sales Amount])
+    aggregation_method: ratio
   documentation:
     description: Share of promotional uplift offset by losses in non-promoted items.
     notes: 'Grain: promotion. Unit: %.
 
-      Lineage: fact_sales[Net Sales Amount], fact_sales[Promo Flag], fact_promo[Baseline
-      Non-Promo Sales Amount], dim_product[ProductFamily].
+      Lineage: fact_sales[Net Sales Amount], fact_sales[Promo Flag], fact_promo[Baseline Non-Promo Sales Amount], dim_product[ProductFamily].
 
-      QA: Requires clear promo flagging, non-promo baseline for comparable items,
-      grouping via ProductFamily; DIVIDE protects divide-by-zero; lost non-promo is
-      floored at 0.
+      QA: Requires clear promo flagging, non-promo baseline for comparable items, grouping via ProductFamily; DIVIDE protects divide-by-zero; lost non-promo is floored at 0.
 
       '
   dependencies:
@@ -407,15 +407,15 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Margin
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Promo Gross Margin % = SUM(fact_sales[Net Sales Amount]) / SUM(fact_sales[Cost of Goods Sold Amount])
+    aggregation_method: ratio
   documentation:
     description: Gross margin rate during promotions.
     notes: 'Grain: promotion. Unit: %.
 
       Lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount].
 
-      QA: Filter context must include only promotional transactions; DIVIDE protects
-      divide-by-zero.
+      QA: Filter context must include only promotional transactions; DIVIDE protects divide-by-zero.
 
       '
   dependencies:
@@ -434,7 +434,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Margin
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: COGS per Unit = ([Cost of Goods Sold Amount]) / (SUM ( fact_sales[Quantity] ))
+    aggregation_method: sum
   documentation:
     description: Unit cost calculated as COGS divided by quantity sold.
     notes: 'Grain: invoice_line, reported monthly. Unit: EUR per unit.
@@ -461,7 +462,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Revenue
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Plan Sales Amount = SUM(fact_sales[Plan Sales Amount])
+    aggregation_method: sum
   documentation:
     description: Plan net sales amount for variance calculations.
     notes: 'Grain: invoice_line aggregated monthly. Unit: EUR.
@@ -486,7 +488,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Revenue
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Last Year Sales Amount = SUM(fact_sales[Last Year Sales Amount])
+    aggregation_method: sum
   documentation:
     description: Net sales amount from the comparable prior-year period.
     notes: 'Grain: invoice_line aggregated monthly. Unit: EUR.
@@ -511,7 +514,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Margin
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Plan Gross Margin Amount = [Plan Sales Amount] - SUM(fact_sales[Plan COGS Amount])
+    aggregation_method: sum
   documentation:
     description: Planned gross margin amount for variance logic.
     notes: 'Grain: month. Unit: EUR.
@@ -538,7 +542,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Pricing
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Net Price Amount = SUM ( fact_sales[Net Price Amount] )
+    aggregation_method: sum
   documentation:
     description: Aggregated net price amount for pricing metrics.
     notes: 'Grain: invoice_line aggregated monthly. Unit: EUR.
@@ -563,7 +568,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Pricing
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: List Price Amount = SUM ( fact_sales[List Price Amount] )
+    aggregation_method: sum
   documentation:
     description: Aggregated list price amount for pricing metrics.
     notes: 'Grain: invoice_line aggregated monthly. Unit: EUR.
@@ -588,7 +594,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Margin
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Cost of Goods Sold Amount = SUM ( fact_sales[Cost of Goods Sold Amount] )
+    aggregation_method: sum
   documentation:
     description: Total cost of goods sold aligned to sales grain.
     notes: 'Grain: invoice_line aggregated monthly. Unit: EUR.
@@ -613,7 +620,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Margin
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Plan COGS Amount = SUM(fact_sales[Plan COGS Amount])
+    aggregation_method: sum
   documentation:
     description: Planned cost of goods sold for variance logic.
     notes: 'Grain: invoice_line aggregated monthly. Unit: EUR.
@@ -638,7 +646,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Revenue
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Quantity = SUM(fact_sales[Quantity])
+    aggregation_method: sum
   documentation:
     description: Total quantity sold.
     notes: 'Grain: invoice_line aggregated monthly. Unit: units.
@@ -663,7 +672,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Revenue
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Plan Quantity = SUM(fact_sales[Plan Quantity])
+    aggregation_method: sum
   documentation:
     description: Planned quantity sold for variance logic.
     notes: 'Grain: invoice_line aggregated monthly. Unit: units.
@@ -688,7 +698,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Pricing
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Discount Amount = SUM(fact_sales[Discount Amount])
+    aggregation_method: sum
   documentation:
     description: Total discount amount applied to sales.
     notes: 'Grain: invoice_line aggregated monthly. Unit: EUR.
@@ -713,7 +724,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Pricing
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Rebate Amount = SUM(fact_sales[Rebate Amount])
+    aggregation_method: sum
   documentation:
     description: Total rebate amount applied to sales.
     notes: 'Grain: invoice_line aggregated monthly. Unit: EUR.
@@ -738,7 +750,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Pricing
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Surcharge Amount = SUM(fact_sales[Surcharge Amount])
+    aggregation_method: sum
   documentation:
     description: Total surcharge amount applied to sales.
     notes: 'Grain: invoice_line aggregated monthly. Unit: EUR.
@@ -763,7 +776,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Promo Gross Margin Uplift Amount = [Incremental Sales Amount] - SUM(fact_sales[Cost of Goods Sold Amount])
+    aggregation_method: sum
   documentation:
     description: Gross margin uplift attributable to promotions.
     notes: 'Grain: promotion. Unit: EUR.
@@ -790,11 +804,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Incremental Gross Margin Amount = [Incremental Sales Amount] * 0.35
+    aggregation_method: sum
   documentation:
-    description: Gross margin attributable to incremental promo sales (used e.g. in
-      Promo ROI %). Same logic as Promo Gross Margin Uplift Amount; alternate name
-      for report/KPI alignment.
+    description: Gross margin attributable to incremental promo sales (used e.g. in Promo ROI %). Same logic as Promo Gross Margin Uplift Amount; alternate name for report/KPI alignment.
     notes: 'Grain: promotion. Unit: EUR.
 
       Lineage: [Incremental Sales Amount], fact_sales[Cost of Goods Sold Amount].
@@ -819,7 +832,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Baseline Sales Amount = SUM ( fact_promo[Baseline Sales Amount] )
+    aggregation_method: sum
   documentation:
     description: Baseline sales amount for promotion uplift calculations.
     notes: 'Grain: promotion. Unit: EUR.
@@ -844,7 +858,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Baseline Quantity = SUM(fact_promo[Baseline Quantity])
+    aggregation_method: sum
   documentation:
     description: Baseline quantity for promotion uplift calculations.
     notes: 'Grain: promotion. Unit: units.
@@ -869,7 +884,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Funding Amount = SUM(fact_promo[Funding Amount])
+    aggregation_method: sum
   documentation:
     description: Total funding amount for promotions.
     notes: 'Grain: promotion. Unit: EUR.
@@ -894,7 +910,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Promo Cost = SUM ( fact_promo[Promo Cost] )
+    aggregation_method: sum
   documentation:
     description: Total promotion cost captured in promo systems.
     notes: 'Grain: promotion. Unit: EUR.
@@ -919,7 +936,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Revenue
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Delta% Net Sales = ([Net Sales Amount] - SUM ( fact_sales[Last Year Sales Amount] )) / (SUM ( fact_sales[Last Year Sales Amount] ))
+    aggregation_method: ratio
   documentation:
     description: Alias for Net Sales % vs LY (TMDL display name).
     notes: Same as Net Sales % vs LY.
@@ -938,7 +956,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Revenue
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Net Sales = Alias for Net Sales Amount (TMDL display name, e.g. test models).
+    aggregation_method: sum
   documentation:
     description: Alias for Net Sales Amount (TMDL display name, e.g. test models).
     notes: Same as Net Sales Amount.
@@ -956,7 +975,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Margin
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: GM % During Promo = ([Net Sales Amount] - [Cost of Goods Sold Amount]) / ([Net Sales Amount]) WHERE fact_sales[Promo Flag] = "Yes"
+    aggregation_method: ratio
   documentation:
     description: Alias for Promo Gross Margin % (TMDL display name).
     notes: Gross margin % during promotion context.

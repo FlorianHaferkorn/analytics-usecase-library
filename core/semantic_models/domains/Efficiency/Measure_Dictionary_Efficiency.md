@@ -9,7 +9,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: OEE % = [Availability %] * [Performance %] * [Quality %]
+    aggregation_method: ratio
   documentation:
     description: 'Composite efficiency: Availability x Performance x Quality.'
     notes: ''
@@ -36,7 +37,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Efficiency_SemanticModel
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Total Process Cost Amount = Total process cost in the selected context.
+    aggregation_method: sum
   documentation:
     description: Total process cost in the selected context.
     notes: ''
@@ -54,7 +56,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Efficiency_SemanticModel
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Produced Units Qty = Total produced units in the selected context.
+    aggregation_method: sum
   documentation:
     description: Total produced units in the selected context.
     notes: ''
@@ -72,7 +75,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Efficiency_SemanticModel
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Net Sales Amount = SUM ( fact_sales[Net Sales Amount] )
+    aggregation_method: sum
   documentation:
     description: Net sales amount from finance for cross-domain ratios.
     notes: ''
@@ -90,7 +94,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Availability % = (RunTime) / (PlannedTime)
+    aggregation_method: ratio
   documentation:
     description: Available time / Planned time
     notes: ''
@@ -105,7 +110,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Performance % = (ActualOutput) / (TheoreticalOutput)
+    aggregation_method: ratio
   documentation:
     description: Actual output / Theoretical maximum
     notes: ''
@@ -120,7 +126,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Quality % = (GoodUnits) / (TotalUnits)
+    aggregation_method: ratio
   documentation:
     description: Good units / Total units
     notes: ''
@@ -135,7 +142,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Inventory Turnover = COGS / Average Inventory
+    aggregation_method: sum
   documentation:
     description: COGS / Average Inventory
     notes: ''
@@ -150,7 +158,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: OTIF % = On-Time In-Full deliveries / Total Deliveries
+    aggregation_method: ratio
   documentation:
     description: On-Time In-Full deliveries / Total Deliveries
     notes: ''
@@ -169,11 +178,11 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Cash Conversion Cycle (Days) = DSO + DIO - DPO.
+    aggregation_method: ratio
   documentation:
     description: Aggregated cash conversion cycle derived from DSO, DIO, and DPO measures.
-    notes: Cross-domain view; the canonical Working Capital definition is maintained
-      in Measure_Dictionary_Liquidity.
+    notes: Cross-domain view; the canonical Working Capital definition is maintained in Measure_Dictionary_Liquidity.
   governance:
     owner: Finance BI
     status: active
@@ -186,7 +195,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Efficiency_SemanticModel
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Forecast Error Qty = Forecast Error Qty = Forecast Qty - Actual Demand Qty.
+    aggregation_method: sum
   documentation:
     description: Forecast Error Qty = Forecast Qty - Actual Demand Qty.
     notes: Calculated at location_sku_day or sku_week; aggregated to sku_month.
@@ -205,7 +215,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Efficiency_SemanticModel
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Under-Forecast Lost Demand Qty = [Forecast Error Qty]
+    aggregation_method: sum
   documentation:
     description: Lost demand attributable to forecast under-coverage below threshold.
     notes: Aggregated to sku_month.
@@ -225,7 +236,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Efficiency_SemanticModel
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Under-Forecast Lost Demand Share % = [Under-Forecast Lost Demand Qty]
+    aggregation_method: ratio
   documentation:
     description: Under-Forecast Lost Demand Qty / Stockout Lost Demand Qty.
     notes: sku_month aggregated by Date, Org, Product.
@@ -245,10 +257,10 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Service Impact % = [Under-Forecast Lost Demand Share %] / [Stockout Impact %]
+    aggregation_method: ratio
   documentation:
-    description: Service Impact % = Stockout Impact % x Under-Forecast Lost Demand
-      Share %.
+    description: Service Impact % = Stockout Impact % x Under-Forecast Lost Demand Share %.
     notes: sku_month aggregated by Date, Org, Product.
   governance:
     owner: Supply Chain BI

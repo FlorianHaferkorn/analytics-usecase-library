@@ -11,6 +11,7 @@ dependencies = [
 [tool.pytest.ini_options]
 testpaths = ["tooling/tests", "products"]
 pythonpath = ["tooling", "tooling/ontology"]
+norecursedirs = ["products/fabric/powerbi/deployment/scripts/modules/tests"]
 
 [tool.ruff]
 line-length = 120

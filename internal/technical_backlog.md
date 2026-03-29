@@ -4,7 +4,7 @@
 
 **Tracking:** Work items are tracked in the repo-scope GitHub Project. For migration of these items to Issues, see [internal/project_mgmt/BACKLOG_MIGRATION.md](project_mgmt/BACKLOG_MIGRATION.md).
 
-**Last updated:** 2026-03-28
+**Last updated:** 2026-03-29
 
 ---
 
@@ -23,7 +23,9 @@
 
 ## Aurora Models (Operations, Finance)
 
-Open work for Operations and Finance domain models is tracked in **[products/fabric/powerbi/blueprints/README.md](../products/fabric/powerbi/blueprints/README.md) § Next Steps**: complete relationships/measures/display folders, add DAX expressions to KPI Catalog, populate Measure_Dictionary per domain. The in-file comments in `Operations.yaml` and `Finance.yaml` point to that section.
+Open work for Operations and Finance domain models is tracked in **[products/fabric/powerbi/blueprints/README.md](../products/fabric/powerbi/blueprints/README.md) § Next Steps**: complete relationships/measures/display folders, populate Measure_Dictionary per domain. The in-file comments in `Operations.yaml` and `Finance.yaml` point to that section.
+
+> **Note (2026-03-29):** DAX expressions have been removed from the KPI Catalog (core is tool-agnostic). DAX now lives exclusively in the Fabric overlay: `products/fabric/powerbi/specs/fabric_measure_overlay.yaml`.
 
 ---
 
@@ -59,3 +61,22 @@ These behaviours are by design. They are not open work to "fix"; they require ma
 | tooling/generation/generate_tmdl_measures_simple.ps1 | Emits `// TODO` placeholder for measures without expression. |
 | tooling/maintenance/migrate_brackets_v2.py | Sets `evidence_grain` to `TODO_SET_EVIDENCE_GRAIN` when missing or forbidden (e.g. `transaction_line`). Run `tooling/maintenance/sync_evidence_grain_note_to_factsheet.ps1` and fix grain manually per use case; see core/data_contracts/domains and internal/evidence_grain_audit_results.md. |
 | tooling/maintenance/convert_kpi_catalogs.py | Uses default `"TODO - add interpretation."` when interpretation key is missing during conversion. |
+
+---
+
+## Completed Items (2026-03-29)
+
+| Item | Description |
+|------|-------------|
+| KPI Catalog: DAX removal | Removed `dax_expression` (110), `formatString` (113) from core KPI Catalog. Renamed `dax_name` → `measure_name`. DAX lives in Fabric overlay. |
+| KPI Catalog: YAML fixes | Fixed 28+41 malformed `domain_tag` entries (dangling list items). Fixed self-referential dep on `svc.tickets.created.count`. |
+| KPI Catalog: completeness scores | Updated 17 entries from 0.6 → 1.0 (incomplete DAX no longer penalizes score). |
+| KPI Catalog Schema | Updated `kpi_catalog_SCHEMA.md`: removed `dax_expression`/`formatString`, renamed `dax_name` → `measure_name`. |
+| Measure Dictionaries: logical expressions | Completed tool-agnostic pseudocode for 223 placeholder measures (was "Fabric: see overlay / TMDL"). Added `aggregation_method` to all. |
+| Measure Dictionaries: display_folder | Added missing `display_folder` values to Liquidity domain measures. |
+| Data Contracts: SCD types | Added `scd_type: 1\|2` to all dimension definitions across 13 domain contracts. |
+| Data Contracts: cardinality | Added `cardinality: many-to-one` to fact→dim foreign key columns. |
+| Data Contracts: grain compatibility | Created `GRAIN_COMPATIBILITY.md` documenting safe joins between fact grains. |
+| Business Factsheets: KPI summaries | Embedded KPI & Action Code overview tables in all 15 factsheets (from UseCase_Bracket.yaml). |
+| Downstream tooling | Updated `build_ir.py`, `validate_kpi_catalog.ps1`, `convert_kpi_catalogs.py`, `audit_missing_dax.ps1` for `measure_name` field. |
+| pytest config | Fixed conftest.py collision via `norecursedirs` in pyproject.toml. |

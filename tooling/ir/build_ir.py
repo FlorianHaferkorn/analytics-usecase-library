@@ -114,8 +114,8 @@ def _extract_list(chunk: str, key: str) -> list[str]:
 def _scan_kpi_catalog(root: Path) -> Dict[str, Dict[str, Any]]:
     """
     Scan KPI catalog .md files for yaml blocks; extract per-kpi_id measure specs
-    (dax_expression, format_string, dax_name, display_folder, description, purpose).
-    Aligns with generate_tmdl_measures.ps1 Parse-KpiRecord / Load-KpiCatalog.
+    (measure_name, description, purpose, depends_on_measures).
+    Tool-specific fields (dax_expression, format_string) come from the Fabric overlay.
     """
     measure_spec: Dict[str, Dict[str, Any]] = {}
     for path in sorted(root.glob("*.md")):
@@ -145,11 +145,11 @@ def _scan_kpi_catalog(root: Path) -> Dict[str, Dict[str, Any]]:
                     sub = re.search(r"(?s)technical:\s*\n(.*?)(?=\n\w|\n\s*\n\w|$)", chunk)
                     if sub:
                         format_str = _extract_scalar(sub.group(1), "formatString")
-                dax_name = _extract_scalar(chunk, "dax_name")
+                dax_name = _extract_scalar(chunk, "measure_name") or _extract_scalar(chunk, "dax_name")
                 if not dax_name and "technical:" in chunk:
                     sub = re.search(r"(?s)technical:\s*\n(.*?)(?=\n\w|\n\s*\n\w|$)", chunk)
                     if sub:
-                        dax_name = _extract_scalar(sub.group(1), "dax_name")
+                        dax_name = _extract_scalar(sub.group(1), "measure_name") or _extract_scalar(sub.group(1), "dax_name")
                 display_folder = _extract_scalar(chunk, "displayFolder") or ""
                 description = _extract_scalar(chunk, "description")
                 if not description and "technical:" in chunk:

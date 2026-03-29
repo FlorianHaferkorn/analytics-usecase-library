@@ -48,14 +48,22 @@ service parts/ops (scoped separately).
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| svc.sla.attainment.pct | Strategic |
+| svc.fcr.pct | Influencing |
+| svc.aht.minutes | Influencing |
+| svc.backlog.count | Influencing |
+| svc.nps.index | Influencing |
+| svc.escalation.pct | Influencing |
+| svc.tickets.created.count | Influencing |
+| svc.tickets.closed.count | Influencing |
 
+**Action Codes:** X-S1.1, X-S1.2, X-S1.3, X-S1.4
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 

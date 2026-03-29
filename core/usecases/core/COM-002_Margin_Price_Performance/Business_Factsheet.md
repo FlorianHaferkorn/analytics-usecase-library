@@ -41,14 +41,28 @@ factsheet_type: business
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| margin.gm.pct | Strategic |
+| margin.gm.amount | Influencing |
+| sales.price.list.amount | Influencing |
+| sales.price.net.amount | Influencing |
+| sales.price.realization_pct | Influencing |
+| sales.pvm.mix_effect.amount | Influencing |
+| cost.cogs_per_unit.amount | Influencing |
+| margin.gm.vs_plan.pct | Influencing |
+| cost.cogs.amount | Supporting |
+| sales.promo.baseline_sales.amount | Supporting |
+| sales.promo.cost.amount | Supporting |
+| sales.promo.incremental_gm.amount | Supporting |
+| sales.pvm.price_effect.amount | Supporting |
+| sales.pvm.volume_effect.amount | Supporting |
 
+**Action Codes:** C-M2.2, C-P4.1, C-S1.2
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 

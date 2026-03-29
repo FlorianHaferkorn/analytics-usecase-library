@@ -4,6 +4,7 @@ owner: People Data Product
 
 dimension:
   - name: dim_date
+    scd_type: 1
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -14,6 +15,7 @@ dimension:
       - {name: MonthKey, type: int}
 
   - name: dim_org
+    scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Entity, type: text}

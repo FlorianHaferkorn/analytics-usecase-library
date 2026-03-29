@@ -10,7 +10,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: SLA Attainment % = Cases with SLA Met Flag = 1 divided by total cases in period.
+    aggregation_method: ratio
   documentation:
     description: Cases meeting SLA divided by total cases.
     notes: 'Grain: day_queue. Unit: %.
@@ -38,7 +39,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: FCR % = Cases with FCR Flag = 1 divided by total cases.
+    aggregation_method: ratio
   documentation:
     description: Cases resolved on first contact divided by total cases.
     notes: 'Grain: day_queue. Unit: %.
@@ -66,7 +68,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Efficiency
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: AHT Minutes = Total handle time divided by number of cases/contacts.
+    aggregation_method: sum
   documentation:
     description: Average handle time per case/contact.
     notes: 'Grain: day_queue. Unit: minutes.
@@ -94,7 +97,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Backlog
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Backlog Count = Count of open cases at period end.
+    aggregation_method: count
   documentation:
     description: Open cases not resolved.
     notes: 'Grain: day_queue. Unit: count.
@@ -121,7 +125,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Experience
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: NPS Index = %Promoters minus %Detractors from NPS survey.
+    aggregation_method: average
   documentation:
     description: 'NPS score from surveys: %Promoters - %Detractors.'
     notes: 'Grain: month. Unit: index.
@@ -146,7 +151,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Escalation % = Escalated cases divided by total cases.
+    aggregation_method: ratio
   documentation:
     description: Escalated cases / total cases.
     notes: 'Grain: day_queue. Unit: %.
@@ -174,7 +180,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 05_Workforce
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Utilization % = Productive time divided by paid time.
+    aggregation_method: ratio
   documentation:
     description: Productive time vs paid time.
     notes: 'Grain: agent_day or queue_day. Unit: %.
@@ -203,13 +210,13 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 05_Workforce
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Occupancy % = (Talk + Wrap) / (Talk + Wrap + Idle).
+    aggregation_method: ratio
   documentation:
     description: 'Active vs available time: (Talk + Wrap) / (Talk + Wrap + Idle).'
     notes: 'Grain: agent_day or queue_day. Unit: %.
 
-      Lineage: fact_wfm[Talk Time Minutes], fact_wfm[Wrap Time Minutes], fact_wfm[Idle
-      Time Minutes].
+      Lineage: fact_wfm[Talk Time Minutes], fact_wfm[Wrap Time Minutes], fact_wfm[Idle Time Minutes].
 
       QA: Ensure no double counting; time totals align.
 
@@ -234,7 +241,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 05_Workforce
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Overtime % = Overtime hours divided by total hours.
+    aggregation_method: ratio
   documentation:
     description: Overtime minutes / paid time minutes.
     notes: 'Grain: agent_day or region_week. Unit: %.
@@ -263,7 +271,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 05_Workforce
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Shrinkage % = Non-productive time divided by paid time.
+    aggregation_method: ratio
   documentation:
     description: Shrinkage minutes / paid time minutes.
     notes: 'Grain: agent_day. Unit: %.
@@ -292,7 +301,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Service
   category: Helper
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Cases Resolved = Total number of cases in scope.
+    aggregation_method: sum
   documentation:
     description: Total number of cases in scope.
     notes: 'Grain: case. Unit: count.
@@ -310,7 +320,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Service
   category: Helper
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Cases SLA Met = SUM(fact_cases[SLA Met Flag])
+    aggregation_method: sum
   documentation:
     description: Cases where SLA was met.
     notes: ''
@@ -329,7 +340,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Service
   category: Helper
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Cases FCR = SUM(fact_cases[FCR Flag])
+    aggregation_method: sum
   documentation:
     description: Cases resolved on first contact.
     notes: ''
@@ -348,7 +360,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Service
   category: Helper
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Escalated Cases = SUM(fact_cases[Escalation Flag])
+    aggregation_method: sum
   documentation:
     description: Cases that were escalated.
     notes: ''
@@ -367,7 +380,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Backlog
   category: Helper
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Backlog Cases = SUM(fact_cases[Backlog Flag])
+    aggregation_method: sum
   documentation:
     description: Open cases not yet resolved.
     notes: ''
@@ -386,7 +400,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Efficiency
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Total Handle Time Minutes = SUM(fact_cases[Handle Time Minutes])
+    aggregation_method: sum
   documentation:
     description: Total handle time across cases.
     notes: ''
@@ -405,7 +420,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 05_Workforce
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Work Time Minutes = SUM(fact_wfm[Work Time Minutes])
+    aggregation_method: sum
   documentation:
     description: Total productive work time.
     notes: ''
@@ -424,7 +440,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 05_Workforce
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Paid Time Minutes = SUM(fact_wfm[Paid Time Minutes])
+    aggregation_method: sum
   documentation:
     description: Total paid time.
     notes: ''
@@ -443,7 +460,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 05_Workforce
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Talk+Wrap Minutes = SUM(fact_wfm[Talk Time Minutes])
+    aggregation_method: sum
   documentation:
     description: Total talk plus wrap-up time.
     notes: ''
@@ -463,7 +481,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 05_Workforce
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Idle Time Minutes = SUM(fact_wfm[Idle Time Minutes])
+    aggregation_method: sum
   documentation:
     description: Total idle time.
     notes: ''
@@ -482,7 +501,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 05_Workforce
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Overtime Minutes = SUM(fact_wfm[Overtime Minutes])
+    aggregation_method: sum
   documentation:
     description: Total overtime minutes.
     notes: ''
@@ -501,7 +521,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 05_Workforce
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Shrinkage Minutes = SUM(fact_wfm[Shrinkage Minutes])
+    aggregation_method: sum
   documentation:
     description: Total shrinkage minutes.
     notes: ''
@@ -520,7 +541,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 05_Workforce
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Talk Wrap Minutes = SUM(fact_wfm[Talk Wrap Minutes])
+    aggregation_method: sum
   documentation:
     description: Total talk + wrap time in minutes.
     notes: 'Source: fact_wfm[Talk Wrap Minutes].'
@@ -539,7 +561,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Tickets Created Count = Count of newly created service tickets.
+    aggregation_method: count
   documentation:
     description: Count of newly created service tickets.
     notes: 'Grain: ticket_day. Unit: count.
@@ -564,7 +587,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Tickets Closed Count = Count of closed service tickets.
+    aggregation_method: count
   documentation:
     description: Count of closed service tickets.
     notes: 'Grain: ticket_day. Unit: count.

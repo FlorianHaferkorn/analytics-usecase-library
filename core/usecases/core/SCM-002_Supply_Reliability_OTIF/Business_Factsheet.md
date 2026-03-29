@@ -48,14 +48,22 @@ deep dive (SCM-003); promo effects (COM-004).
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| supply.otif.pct | Strategic |
+| supply.on_time.pct | Influencing |
+| supply.in_full.pct | Influencing |
+| supply.stockout_impact.pct | Influencing |
+| supply.penalty.amount | Influencing |
+| supply.expedite.amount | Influencing |
+| order.lines | Influencing |
+| shipments.count | Influencing |
 
+**Action Codes:** S-R2.1, S-R2.2, S-R2.3, S-R2.4, S-R2.5
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 

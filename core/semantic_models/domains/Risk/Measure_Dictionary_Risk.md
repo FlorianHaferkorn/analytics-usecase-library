@@ -10,7 +10,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Enterprise
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Enterprise Value-at-Risk Index = Weighted index of normalized domain risk signals.
+    aggregation_method: average
   documentation:
     description: Composite enterprise risk index based on domain signals.
     notes: 'Grain: entity_month. Unit: index.
@@ -35,7 +36,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Supply
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Supplier Risk Score = Composite risk score derived from supplier risk factors.
+    aggregation_method: average
   documentation:
     description: Average supplier risk score across the selected scope.
     notes: 'Grain: supplier_month. Unit: score.

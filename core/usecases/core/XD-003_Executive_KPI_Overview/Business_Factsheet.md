@@ -46,14 +46,28 @@ factsheet_type: business
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| margin.gm.pct | Strategic |
+| sales.net_sales.delta_pct.ly | Influencing |
+| crm.clv.amount | Influencing |
+| svc.sla.attainment.pct | Influencing |
+| ops.otif.pct | Influencing |
+| ops.working_capital.ccc.days | Influencing |
+| people.digital_adoption.pct | Influencing |
+| people.attrition_risk.pct | Influencing |
+| enterprise.action_routed.count | Influencing |
+| enterprise.action_outcome_rate.pct | Influencing |
+| enterprise.value_at_risk.index | Influencing |
+| cost.cogs.amount | Supporting |
+| sales.net_sales.amount | Supporting |
+| supply.otif.pct | Supporting |
 
+**Action Codes:** X-E3.2, X-E3.3
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 

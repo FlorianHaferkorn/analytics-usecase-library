@@ -6,6 +6,7 @@ dimension:
   - name: dim_date
     description: "Calendar dimension for time slicing in supply chain."
     purpose: "Time dimension for inventory, fulfillment, and forecast reporting."
+    scd_type: 1
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -18,6 +19,7 @@ dimension:
   - name: dim_org
     description: "Location/organization dimension (location, region, channel) for supply chain."
     purpose: "Scoping for inventory, fulfillment, and replenishment."
+    scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Location, type: text}
@@ -28,6 +30,7 @@ dimension:
   - name: dim_product
     description: "Product dimension with ABC/XYZ classification for supply chain."
     purpose: "Product-level inventory, COGS, and fulfillment."
+    scd_type: 2
     columns:
       - {name: ProductKey, type: int, role: key}
       - {name: ProductCode, type: text}
@@ -40,6 +43,7 @@ dimension:
   - name: dim_lane
     description: "Transport lane dimension (origin, destination, mode) for fulfillment."
     purpose: "Lane-level OTIF and logistics analysis."
+    scd_type: 1
     columns:
       - {name: LaneKey, type: int, role: key}
       - {name: Origin, type: text}

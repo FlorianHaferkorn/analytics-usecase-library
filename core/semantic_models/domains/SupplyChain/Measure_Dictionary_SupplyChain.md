@@ -31,7 +31,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   category: KPI
   expression:
     aggregation_method: ratio
-    logical: 'DIO = SUM(fact_inventory[Average Inventory Amount]) / (SUM(fact_cogs[COGS Amount]) / 365)'
+    logical: DIO = SUM(fact_inventory[Average Inventory Amount]) / (SUM(fact_cogs[COGS Amount]) / 365)
   documentation:
     description: Working capital efficiency via inventory days.
     notes: 'Grain: location_sku_month. Unit: days.
@@ -58,7 +58,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 01_Inventory
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Inventory Turnover = COGS / Average Inventory.
+    aggregation_method: sum
   documentation:
     description: 'Velocity of inventory: COGS / Avg Inventory.'
     notes: 'Grain: location_sku_month. Unit: x.
@@ -85,7 +86,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Stockout Rate % = Stockout Events / Total Demand Events.
+    aggregation_method: ratio
   documentation:
     description: Service risk from stockout occurrences.
     notes: 'Grain: location_sku_day. Unit: %.
@@ -112,7 +114,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   category: KPI
   expression:
     aggregation_method: ratio
-    logical: 'OTIF = COUNTIF(fact_fulfillment[OTIF Flag] = TRUE) / COUNT(fact_fulfillment[Order Qty])'
+    logical: OTIF = COUNTIF(fact_fulfillment[OTIF Flag] = TRUE) / COUNT(fact_fulfillment[Order Qty])
   documentation:
     description: On-Time In-Full orders share.
     notes: 'Grain: order. Unit: %.
@@ -138,7 +140,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 01_Inventory
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Obsolete Inventory % = Obsolete Inventory Value / Total Inventory Value.
+    aggregation_method: ratio
   documentation:
     description: Share of obsolete stock vs total stock.
     notes: 'Grain: location_sku_month. Unit: %.
@@ -166,7 +169,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   category: KPI
   expression:
     aggregation_method: ratio
-    logical: 'Forecast Accuracy = 1 - SUM(ABS(fact_forecast[Forecast Units] - fact_sales[Actual Units])) / SUM(fact_sales[Actual Units])'
+    logical: Forecast Accuracy = 1 - SUM(ABS(fact_forecast[Forecast Units] - fact_sales[Actual Units])) / SUM(fact_sales[Actual
+      Units])
   documentation:
     description: 'Planning quality: 1 - |Forecast - Actual| / Actual.'
     notes: 'Grain: sku_month. Unit: %.
@@ -193,7 +197,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 03_Forecast
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: MAPE % = Mean(|Forecast - Actual| / Actual).
+    aggregation_method: ratio
   documentation:
     description: Mean absolute percentage error.
     notes: 'Grain: sku_month. Unit: %.
@@ -224,10 +229,10 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 03_Forecast
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Forecast Bias % = (Forecast - Actual) / Actual.
+    aggregation_method: ratio
   documentation:
-    description: Alias for Bias % (TMDL display name). Forecast error direction (Forecast
-      - Actual) / Actual.
+    description: Alias for Bias % (TMDL display name). Forecast error direction (Forecast - Actual) / Actual.
     notes: Same as Bias %.
   dependencies:
     measures: []
@@ -245,7 +250,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 03_Forecast
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Forecast MAPE % = Mean(|Forecast - Actual| / Actual).
+    aggregation_method: ratio
   documentation:
     description: Alias for MAPE % (TMDL display name).
     notes: Same as MAPE %.
@@ -265,7 +271,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 03_Forecast
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Bias % = (Forecast - Actual) / Actual.
+    aggregation_method: ratio
   documentation:
     description: Forecast error direction (Forecast - Actual) / Actual.
     notes: 'Grain: sku_month. Unit: %.
@@ -292,7 +299,9 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 03_Forecast
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Service Impact % = Service Impact % = Stockout Impact % x (Under-Forecast Lost Demand / Total Lost Demand). Under-forecast
+      is defined as a negative forecast error below a configurable threshold; all inputs are unit-based (qty), not revenue.
+    aggregation_method: ratio
   documentation:
     description: Portion of service misses attributable to forecast error.
     notes: 'Grain: sku_month. Unit: %.
@@ -326,7 +335,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 03_Forecast
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Re-Plan Count = Total replan events logged in planning system.
+    aggregation_method: count
   documentation:
     description: Number of re-plans within period.
     notes: 'Grain: month. Unit: count.
@@ -352,7 +362,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: On-Time % = On-Time Deliveries / Total Deliveries.
+    aggregation_method: ratio
   documentation:
     description: On-time deliveries share.
     notes: 'Grain: shipment. Unit: %.
@@ -378,7 +389,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: In-Full % = In-Full Deliveries / Total Deliveries.
+    aggregation_method: ratio
   documentation:
     description: In-full deliveries share.
     notes: 'Grain: shipment. Unit: %.
@@ -404,7 +416,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Stockout Impact % = Lost Demand Qty / Total Demand Qty.
+    aggregation_method: ratio
   documentation:
     description: Lost demand share due to stockout.
     notes: 'Grain: location_sku_day. Unit: %.
@@ -431,7 +444,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 04_Cost
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Penalty Amount = Sum of penalty charges incurred in the period.
+    aggregation_method: sum
   documentation:
     description: Penalties incurred for service misses.
     notes: 'Grain: order. Unit: EUR.
@@ -457,7 +471,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 04_Cost
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Expedite Cost Amount = Sum of expedite fees and premium freight charges.
+    aggregation_method: sum
   documentation:
     description: Additional cost for expedited shipping.
     notes: 'Grain: shipment. Unit: EUR.
@@ -483,7 +498,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 01_Inventory
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Avg Inventory Amount = SUM(fact_inventory[Average Inventory Amount])
+    aggregation_method: sum
   documentation:
     description: Average inventory value used as base for DIO and turnover.
     notes: 'Source: fact_inventory[Average Inventory Amount].'
@@ -503,7 +519,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 01_Inventory
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: COGS Amount = SUM(fact_cogs[COGS Amount])
+    aggregation_method: sum
   documentation:
     description: COGS base for inventory turnover and DIO.
     notes: 'Source: fact_cogs[COGS Amount].'
@@ -523,7 +540,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: On-Time In-Full Orders = SUM(fact_fulfillment[OTIF Flag])
+    aggregation_method: sum
   documentation:
     description: OTIF order quantity used as numerator for OTIF %.
     notes: 'Source: fact_fulfillment[OTIF Flag], [Order Qty].'
@@ -544,7 +562,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: OTIF Orders = SUM(fact_fulfillment[OTIF Flag])
+    aggregation_method: sum
   documentation:
     description: OTIF order quantity used for OTIF %.
     notes: Same base as On-Time In-Full Orders.
@@ -565,7 +584,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Total Orders = SUM(fact_fulfillment[Order Qty])
+    aggregation_method: sum
   documentation:
     description: Total order quantity used as denominator for OTIF, on-time, and in-full.
     notes: 'Source: fact_fulfillment[Order Qty].'
@@ -585,7 +605,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: On-Time Deliveries = SUM(fact_fulfillment[On-Time Flag])
+    aggregation_method: sum
   documentation:
     description: On-time delivery quantity used as numerator for On-Time %.
     notes: 'Source: fact_fulfillment[On-Time Flag], [Order Qty].'
@@ -606,7 +627,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: In-Full Deliveries = SUM(fact_fulfillment[In-Full Flag])
+    aggregation_method: sum
   documentation:
     description: In-full delivery quantity used as numerator for In-Full %.
     notes: 'Source: fact_fulfillment[In-Full Flag], [Order Qty].'
@@ -627,7 +649,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Demand Occurrences = SUM(fact_stockout[Demand Occurrences])
+    aggregation_method: sum
   documentation:
     description: Demand occurrences used as denominator for stockout rate.
     notes: 'Source: fact_stockout[Demand Occurrences].'
@@ -647,7 +670,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Stockout Count = SUM(fact_stockout[Stockout Flag])
+    aggregation_method: count
   documentation:
     description: Stockout occurrences used as numerator for stockout rate.
     notes: 'Source: fact_stockout[Stockout Flag], [Demand Occurrences].'
@@ -668,7 +692,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Lost Demand Units = SUM(fact_stockout[Lost Demand Units])
+    aggregation_method: sum
   documentation:
     description: Lost demand units used for stockout impact.
     notes: 'Source: fact_stockout[Lost Demand Units].'
@@ -688,7 +713,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Demand Units = SUM(fact_stockout[Demand Units])
+    aggregation_method: sum
   documentation:
     description: Demand units used as denominator for stockout impact.
     notes: 'Source: fact_stockout[Demand Units].'
@@ -708,7 +734,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 03_Forecast
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Forecast Units = SUM(fact_forecast[Forecast Units])
+    aggregation_method: sum
   documentation:
     description: Forecast quantity base for planning KPIs.
     notes: 'Source: fact_forecast[Forecast Units].'
@@ -728,7 +755,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 03_Forecast
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Actual Units = SUM(fact_sales[Actual Units])
+    aggregation_method: sum
   documentation:
     description: Actual quantity base for planning KPIs.
     notes: 'Source: fact_sales[Actual Units].'
@@ -748,7 +776,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 03_Forecast
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Absolute Error = [[Forecast Units]] / [[Actual Units]]
+    aggregation_method: sum
   documentation:
     description: Absolute forecast error used for accuracy and MAPE.
     notes: Derived from Forecast Units and Actual Units.
@@ -769,7 +798,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 03_Forecast
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Forecast Error Qty = [[Forecast Units]] / [[Actual Units]]
+    aggregation_method: sum
   documentation:
     description: Forecast units minus actual units.
     notes: Derived from Forecast Units and Actual Units.
@@ -790,7 +820,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 03_Forecast
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Under-Forecast Lost Demand Qty = SUM(fact_stockout[Lost Demand Units])
+    aggregation_method: sum
   documentation:
     description: Lost demand units attributable to under-forecasting beyond threshold.
     notes: Requires Lost Demand Units and forecast error logic.
@@ -813,7 +844,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 03_Forecast
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Under-Forecast Lost Demand Share % = [[Under-Forecast Lost Demand Qty]] / [[Stockout Lost Demand Qty]]
+    aggregation_method: ratio
   documentation:
     description: Share of stockout lost demand attributable to under-forecasting.
     notes: Derived from Under-Forecast Lost Demand Qty and Stockout Lost Demand Qty.
@@ -834,7 +866,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 01_Inventory
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Inventory Value Amount = Sum of inventory value amount for the selected scope.
+    aggregation_method: sum
   documentation:
     description: Total inventory value in the selected scope.
     notes: 'Grain: location_sku_day. Unit: EUR.
@@ -860,7 +893,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Supply Chain Service Level % = On-Time In-Full Orders / Total Orders.
+    aggregation_method: ratio
   documentation:
     description: On-time in-full rate for customer fulfillment.
     notes: 'Grain: order_line_day. Unit: %.
@@ -886,7 +920,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Order Lines Count = Count of order line items.
+    aggregation_method: count
   documentation:
     description: Count of order line items.
     notes: 'Grain: order_line. Unit: count.
@@ -912,7 +947,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 03_Forecast
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Plans Count = Count of plan records or plan versions.
+    aggregation_method: count
   documentation:
     description: Count of plan records or plan versions.
     notes: 'Grain: plan_version. Unit: count.
@@ -938,7 +974,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from supply_chain da
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Shipments Count = Count of shipment records.
+    aggregation_method: count
   documentation:
     description: Count of shipments executed.
     notes: 'Grain: shipment. Unit: count.

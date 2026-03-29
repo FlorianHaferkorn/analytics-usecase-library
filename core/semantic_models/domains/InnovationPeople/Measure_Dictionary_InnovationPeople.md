@@ -10,7 +10,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Digital
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Digital Adoption % = SUM(fact_it[Digital Users])
+    aggregation_method: ratio
   documentation:
     description: Digital tool users divided by total employees.
     notes: 'Grain: month. Unit: %.
@@ -36,7 +37,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Digital
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Digital Adoption Rate % = Alias for Digital Adoption % (TMDL display name).
+    aggregation_method: ratio
   documentation:
     description: Alias for Digital Adoption % (TMDL display name).
     notes: Same as Digital Adoption %.
@@ -54,7 +56,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_People
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Gross Margin per FTE Amount = [[Gross Margin Amount]] / [[Average FTE]]
+    aggregation_method: sum
   documentation:
     description: Gross margin per FTE.
     notes: 'Grain: month. Unit: EUR per FTE.
@@ -80,7 +83,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_People
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Personnel Cost Ratio % = [[Personnel Cost Amount]] / [[Revenue Amount]]
+    aggregation_method: ratio
   documentation:
     description: Personnel cost / revenue.
     notes: 'Grain: month. Unit: %.
@@ -106,7 +110,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_People
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Revenue per FTE = [[Revenue Amount]] / [[Average FTE]]
+    aggregation_method: sum
   formatString: 'EUR #,0'
   documentation:
     description: Total revenue divided by average FTE.
@@ -131,7 +136,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_People
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Attrition Risk % = Probability of attrition for the selected population in the period.
+    aggregation_method: ratio
   documentation:
     description: Average attrition risk for the selected population.
     notes: 'Grain: month. Unit: %.
@@ -154,7 +160,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_People
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Turnover Rate % = [[Exits Count]] / [[Average Headcount]]
+    aggregation_method: ratio
   documentation:
     description: Employee exits divided by average headcount.
     notes: 'Grain: month. Unit: %.
@@ -178,7 +185,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_People
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Absenteeism % = [[Absent Hours]] / [[Scheduled Hours]]
+    aggregation_method: ratio
   documentation:
     description: Absent hours divided by scheduled hours.
     notes: 'Grain: month. Unit: %.
@@ -202,7 +210,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_People
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Gross Margin Amount = [Net Sales Amount] - [Cost of Goods Sold Amount]
+    aggregation_method: sum
   documentation:
     description: Gross margin amount for the selected period.
     notes: 'Grain: month. Unit: EUR.

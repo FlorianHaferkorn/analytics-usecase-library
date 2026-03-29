@@ -10,6 +10,7 @@ dimension:
   - name: dim_date
     description: "Calendar dimension for growth reporting."
     purpose: "Time slicing for revenue growth, acquisition, and expansion trends."
+    scd_type: 1
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -21,6 +22,7 @@ dimension:
   - name: dim_org
     description: "Organization dimension (region, country, channel, segment) for growth reporting."
     purpose: "Market and channel scoping for growth analysis."
+    scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Region, type: text}
@@ -31,6 +33,7 @@ dimension:
   - name: dim_product
     description: "Product dimension with lifecycle stage and category hierarchy."
     purpose: "Product-level growth, launch performance, and portfolio analysis."
+    scd_type: 2
     columns:
       - {name: ProductKey, type: int, role: key}
       - {name: ProductCode, type: text}
@@ -42,6 +45,7 @@ dimension:
   - name: dim_customer_segment
     description: "Customer segment dimension for acquisition and retention analysis."
     purpose: "Segment-level acquisition, conversion, and NPS reporting."
+    scd_type: 2
     columns:
       - {name: SegmentKey, type: int, role: key}
       - {name: SegmentName, type: text}
@@ -54,9 +58,9 @@ fact:
     purpose: "Net sales growth, PVM decomposition, and market share trend."
     grain: product_org_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one}
       - {name: Net Sales Amount, type: currency, agg: sum}
       - {name: Plan Sales Amount, type: currency, agg: sum, nullable: true}
       - {name: Last Year Sales Amount, type: currency, agg: sum, nullable: true}
@@ -68,9 +72,9 @@ fact:
     purpose: "New customer volume, conversion rate, and CAC reporting."
     grain: segment_channel_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: SegmentKey, type: int, ref: dim_customer_segment}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: SegmentKey, type: int, ref: dim_customer_segment, cardinality: many-to-one}
       - {name: New Customers, type: int, agg: sum}
       - {name: Leads, type: int, agg: sum, nullable: true}
       - {name: Conversion Rate %, type: decimal, nullable: true}
@@ -81,9 +85,9 @@ fact:
     purpose: "Launch vs plan tracking and early-stage growth curve analysis."
     grain: product_org_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one}
       - {name: Launch Month Offset, type: int}   # months since product launch date
       - {name: Net Sales Amount, type: currency, agg: sum}
       - {name: Plan Launch Sales Amount, type: currency, agg: sum, nullable: true}

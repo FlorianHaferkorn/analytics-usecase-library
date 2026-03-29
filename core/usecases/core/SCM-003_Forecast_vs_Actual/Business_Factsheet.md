@@ -45,14 +45,22 @@ factsheet_type: business
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| plan.forecast.accuracy.pct | Strategic |
+| plan.forecast.mape.pct | Influencing |
+| plan.forecast.bias.pct | Influencing |
+| plan.forecast.service_impact.pct | Influencing |
+| plan.replan.count | Influencing |
+| order.lines | Influencing |
+| plans.count | Influencing |
+| sales.units | Influencing |
 
+**Action Codes:** S-F3.1, S-F3.2, S-F3.3, S-F3.4
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 

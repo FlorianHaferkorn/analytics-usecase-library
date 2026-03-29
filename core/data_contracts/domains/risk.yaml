@@ -11,6 +11,7 @@ dimension:
   - name: dim_date
     description: "Calendar dimension for risk reporting."
     purpose: "Time slicing for risk register snapshots and control cycles."
+    scd_type: 1
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -22,6 +23,7 @@ dimension:
   - name: dim_org
     description: "Organization dimension for risk ownership and reporting."
     purpose: "Scoping risk items to business units and regions."
+    scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Entity, type: text}
@@ -31,6 +33,7 @@ dimension:
   - name: dim_risk_category
     description: "Risk category taxonomy (strategic, operational, financial, compliance, reputational)."
     purpose: "Risk classification and reporting by category."
+    scd_type: 1
     columns:
       - {name: RiskCategoryKey, type: int, role: key}
       - {name: CategoryCode, type: text}

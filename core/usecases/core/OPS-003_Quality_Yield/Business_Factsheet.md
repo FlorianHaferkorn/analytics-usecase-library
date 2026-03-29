@@ -45,14 +45,23 @@ factsheet_type: business
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| quality.fpy.pct | Strategic |
+| quality.scrap.pct | Influencing |
+| quality.rework.pct | Influencing |
+| quality.copq.amount | Influencing |
+| quality.complaint.pct | Influencing |
+| quality.defect_density | Influencing |
+| ops.planned_output.units | Influencing |
+| sales.units | Influencing |
+| crm.complaint.count | Supporting |
 
+**Action Codes:** O-Q3.1, O-Q3.2, O-Q3.3, O-Q3.4, O-Q3.5
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 

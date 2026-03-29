@@ -7,9 +7,11 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   is_kpi_measure: false
   kpi_id_ref: ''
   semantic_model: Liquidity_SemanticModel
+  display_folder: 01_CashFlow
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: sum
+    logical: 'Operating Cash Flow Amount = SUM(fact_cashflow[Operating Cash Flow Amount])'
   documentation:
     description: Operating cash flow amount from the cash flow statement.
     notes: ''
@@ -25,9 +27,11 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   is_kpi_measure: true
   kpi_id_ref: fin.liquidity.operating_cash_flow
   semantic_model: Liquidity_SemanticModel
+  display_folder: 01_CashFlow
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: sum
+    logical: 'Operating Cash Flow = SUM(fact_cashflow[Operating Cash Flow Amount]) for the reporting period'
   documentation:
     description: Cash generated from operations
     notes: ''
@@ -40,9 +44,11 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   is_kpi_measure: true
   kpi_id_ref: fin.liquidity.inventory.amount
   semantic_model: Liquidity_SemanticModel
+  display_folder: 02_WorkingCapital
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: last_value
+    logical: 'Inventory Amount = SUM(fact_inventory[Average Inventory Amount]) at latest DateKey in filter context'
   documentation:
     description: Inventory value at period end
     notes: Used for working capital and liquidity calculations
@@ -55,9 +61,11 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   is_kpi_measure: true
   kpi_id_ref: fin.liquidity.payables.amount
   semantic_model: Liquidity_SemanticModel
+  display_folder: 02_WorkingCapital
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: last_value
+    logical: 'Payables Amount = SUM(fact_ap[AP Amount]) at latest DateKey in filter context'
   documentation:
     description: Accounts payable balance at period end
     notes: Used for DPO and working capital analysis
