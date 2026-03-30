@@ -431,7 +431,7 @@ class TestRunScorecard:
             pytest.skip("master_registry.json not found — run registry_builder.py first")
         results = run_scorecard(repo_root)
         assert "metrics" in results
-        assert len(results["metrics"]) == 5
+        assert len(results["metrics"]) == 6
         for m in results["metrics"]:
             assert "score" in m
             assert "target" in m
