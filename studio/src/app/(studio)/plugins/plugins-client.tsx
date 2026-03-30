@@ -129,8 +129,27 @@ export function PluginsClient() {
   "type": "tool",
   "description": "Adds custom KPI calculations",
   "entrypoint": "index.ts",
-  "hooks": ["onKpiEvaluate"]
-}`}
+  "hooks": ["onKpiEvaluate", "onExport", "onApproval"]
+}
+
+// Typed Hook Contracts
+// Each hook receives a strongly-typed payload:
+//   onBracketLoad → { bracketId, kpiIds, status }
+//   onKpiEvaluate → { kpiId, value, previousValue?, delta? }
+//   onThemeChange → { primary, secondary, background, fontFamily? }
+//   onExport      → { format, bracketId, timestamp }
+//   onApproval    → { bracketId, action, actor, status }
+
+// Lifecycle Callbacks (optional)
+// export const lifecycle = {
+//   onLoad(ctx) {
+//     console.log(\`\${ctx.pluginId} v\${ctx.pluginVersion} loaded\`);
+//     console.log(\`Studio version: \${ctx.studioVersion}\`);
+//   },
+//   onUnload() {
+//     console.log('Plugin unloaded — cleanup resources');
+//   },
+// };`}
         </pre>
       </div>
     </div>

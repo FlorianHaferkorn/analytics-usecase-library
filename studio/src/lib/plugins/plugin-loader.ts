@@ -44,9 +44,11 @@ export function loadPluginManifests(): PluginManifest[] {
       const parsed = JSON.parse(raw);
       if (isValidManifest(parsed)) {
         manifests.push(parsed);
+      } else {
+        console.warn(`Skipping invalid plugin manifest: ${entry.name} — missing required fields`);
       }
-    } catch {
-      // Skip invalid manifests
+    } catch (error) {
+      console.warn(`Skipping plugin "${entry.name}":`, error instanceof Error ? error.message : error);
     }
   }
 

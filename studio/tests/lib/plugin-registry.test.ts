@@ -91,7 +91,7 @@ describe('PluginRegistry', () => {
     expect(pluginRegistry.size).toBe(0);
     expect(pluginRegistry.getAll()).toHaveLength(0);
 
-    pluginRegistry.emit('onBracketLoad', {});
+    pluginRegistry.emit('onBracketLoad', { bracketId: 'UC001', kpiIds: [], status: 'draft' });
     expect(handler).not.toHaveBeenCalled();
   });
 });

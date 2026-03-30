@@ -2,8 +2,11 @@
  * Plugin Types — Shared interfaces for the extension SDK.
  */
 
+import type { TypedPluginHook } from './hook-contracts';
+import type { PluginLifecycle } from './lifecycle';
+
 export type PluginType = 'tool' | 'widget' | 'datasource';
-export type PluginHook = 'onBracketLoad' | 'onKpiEvaluate' | 'onThemeChange';
+export type PluginHook = TypedPluginHook;
 
 export interface PluginManifest {
   id: string;
@@ -14,6 +17,7 @@ export interface PluginManifest {
   description: string;
   entrypoint: string;
   hooks?: PluginHook[];
+  lifecycle?: PluginLifecycle;
 }
 
 export interface RegisteredPlugin {
