@@ -38,8 +38,8 @@ export function generateTmdlMeasures(ir: IRPackage): TmdlOutput[] {
 
     for (const measure of measures) {
       lines.push(`measure '${measure.name}'`);
-      lines.push(`\tdataType: ${inferDataType(measure.formatString)}`);
-      lines.push(`\tformatString: ${measure.formatString}`);
+      lines.push(`\tdataType: ${inferDataType(measure.calcType, measure.formatString)}`);
+      lines.push(`\tformatString: "${measure.formatString}"`);
       lines.push(`\tdisplayFolder: "${folder}"`);
 
       if (measure.description) {
@@ -96,9 +96,31 @@ function generatePageLayout(page: IRPage) {
   };
 }
 
-function inferDataType(formatString: string): string {
+/**
+ * Infer TMDL data type from KPI calc_type and format string.
+ * Uses calc_type as primary signal, formatString as fallback.
+ */
+function inferDataType(calcType: string, formatString: string): string {
+  // Primary: use calc_type from KPI catalog
+  switch (calcType) {
+    case 'ratio':
+    case 'percentage':
+      return 'percentage';
+    case 'currency':
+    case 'sum':
+    case 'count':
+      return formatString.includes('.') ? 'decimal' : 'int64';
+    case 'average':
+    case 'weighted_average':
+      return 'decimal';
+    case 'days':
+    case 'duration':
+      return 'int64';
+  }
+
+  // Fallback: infer from format string
   if (formatString.includes('%')) return 'percentage';
-  if (formatString.includes('.')) return 'decimal';
+  if (formatString.includes('.') && !formatString.includes(',')) return 'decimal';
   return 'int64';
 }
 

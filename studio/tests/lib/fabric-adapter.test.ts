@@ -12,6 +12,7 @@ const mockIR: IRPackage = {
       name: 'Revenue',
       expression: 'SUM(Sales[Amount])',
       formatString: '#,0',
+      calcType: 'sum',
       description: 'Total revenue',
       dependsOn: [],
       folder: 'Finance',
@@ -21,6 +22,7 @@ const mockIR: IRPackage = {
       name: 'Margin',
       expression: 'DIVIDE(Profit, Revenue)',
       formatString: '0.0%',
+      calcType: 'ratio',
       description: 'Profit margin',
       dependsOn: ['KPI_001'],
       folder: 'Finance',
@@ -38,6 +40,7 @@ const mockIR: IRPackage = {
     },
   ],
   actionCodes: ['AC_001'],
+  warnings: [],
   metadata: {
     generatedAt: '2026-01-01T00:00:00Z',
     schemaVersion: '2.0',
@@ -47,7 +50,7 @@ const mockIR: IRPackage = {
 describe('generateTmdlMeasures', () => {
   it('generates TMDL files grouped by folder', () => {
     const outputs = generateTmdlMeasures(mockIR);
-    expect(outputs).toHaveLength(1); // both in "Finance" folder
+    expect(outputs).toHaveLength(1);
     expect(outputs[0].filename).toContain('UC001');
     expect(outputs[0].filename.endsWith('.tmdl')).toBe(true);
   });
@@ -61,10 +64,24 @@ describe('generateTmdlMeasures', () => {
     expect(content).toContain('DIVIDE(Profit, Revenue)');
   });
 
-  it('infers percentage dataType from formatString', () => {
+  it('infers percentage dataType from calcType ratio', () => {
     const outputs = generateTmdlMeasures(mockIR);
     const content = outputs[0].content;
     expect(content).toContain('dataType: percentage');
+  });
+
+  it('infers int64 for sum calcType with integer format', () => {
+    const outputs = generateTmdlMeasures(mockIR);
+    const content = outputs[0].content;
+    // Revenue has calcType 'sum' and formatString '#,0' (no decimal)
+    expect(content).toContain('dataType: int64');
+  });
+
+  it('quotes formatString in TMDL output', () => {
+    const outputs = generateTmdlMeasures(mockIR);
+    const content = outputs[0].content;
+    expect(content).toContain('formatString: "#,0"');
+    expect(content).toContain('formatString: "0.0%"');
   });
 
   it('generates separate files for different folders', () => {
@@ -77,6 +94,24 @@ describe('generateTmdlMeasures', () => {
     };
     const outputs = generateTmdlMeasures(multiFolder);
     expect(outputs).toHaveLength(2);
+  });
+
+  it('handles currency calcType with decimal format', () => {
+    const currencyIR: IRPackage = {
+      ...mockIR,
+      measures: [{
+        id: 'KPI_003',
+        name: 'COGS',
+        expression: 'SUM(Costs[Amount])',
+        formatString: '#,0.00',
+        calcType: 'currency',
+        description: 'Cost of goods sold',
+        dependsOn: [],
+        folder: 'Finance',
+      }],
+    };
+    const outputs = generateTmdlMeasures(currencyIR);
+    expect(outputs[0].content).toContain('dataType: decimal');
   });
 });
 

@@ -12,6 +12,7 @@ const mockIR: IRPackage = {
       name: 'Revenue',
       expression: 'SUM(Sales[Amount])',
       formatString: '#,0',
+      calcType: 'sum',
       description: 'Total revenue',
       dependsOn: [],
       folder: 'Finance',
@@ -30,6 +31,7 @@ const mockIR: IRPackage = {
     },
   ],
   actionCodes: ['AC_001'],
+  warnings: [],
   metadata: {
     generatedAt: '2026-01-01T00:00:00Z',
     schemaVersion: '2.0',

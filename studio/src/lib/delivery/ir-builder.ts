@@ -16,6 +16,7 @@ export interface IRMeasure {
   name: string;
   expression: string;
   formatString: string;
+  calcType: string;
   description: string;
   dependsOn: string[];
   folder: string;
@@ -45,6 +46,7 @@ export interface IRPackage {
   measures: IRMeasure[];
   pages: IRPage[];
   actionCodes: string[];
+  warnings: string[];
   metadata: {
     generatedAt: string;
     schemaVersion: string;
@@ -65,15 +67,20 @@ export function buildIRPackage(
 
   // Build measures from resolved KPIs
   const measures: IRMeasure[] = [];
+  const warnings: string[] = [];
   for (const kpiId of allKpiIds) {
     const kpi = kpiMap.get(kpiId);
-    if (!kpi?.technical) continue;
+    if (!kpi?.technical) {
+      warnings.push(`KPI ${kpiId}: missing technical metadata, skipped from measures`);
+      continue;
+    }
 
     measures.push({
       id: kpiId,
       name: kpi.technical.dax_name,
       expression: kpi.technical.dax_expression?.trim() ?? '',
       formatString: kpi.technical.formatString ?? '#,0',
+      calcType: kpi.calc_type ?? 'measure',
       description: kpi.technical.description ?? kpi.business?.purpose ?? '',
       dependsOn: kpi.technical.depends_on_measures ?? [],
       folder: bracket.domain,
@@ -91,11 +98,14 @@ export function buildIRPackage(
       const components: IRComponent[] = [];
 
       if (layout.page_1_summary.component_3s) {
+        const comp3s = layout.page_1_summary.component_3s;
         components.push({
           slot: '3s',
-          type: layout.page_1_summary.component_3s.visual_type ?? 'kpi_card',
-          kpiIds: [layout.page_1_summary.component_3s.kpi_id].filter(Boolean) as string[],
-          config: {},
+          type: comp3s.visual_type ?? 'kpi_card',
+          kpiIds: [comp3s.kpi_id].filter(Boolean) as string[],
+          config: {
+            visual_type: comp3s.visual_type,
+          },
         });
       }
 
@@ -105,7 +115,9 @@ export function buildIRPackage(
             slot: '30s',
             type: comp.visual_type ?? 'bar_chart',
             kpiIds: comp.kpi_ids ?? (comp.kpi_id ? [comp.kpi_id] : []),
-            config: {},
+            config: {
+              visual_type: comp.visual_type,
+            },
           });
         }
       }
@@ -151,6 +163,7 @@ export function buildIRPackage(
     measures,
     pages,
     actionCodes: bracket.orchestration.action_code_ids,
+    warnings,
     metadata: {
       generatedAt: new Date().toISOString(),
       schemaVersion: bracket.schema_version,

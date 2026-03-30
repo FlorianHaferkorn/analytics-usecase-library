@@ -42,9 +42,10 @@ const mockBracket = {
   governance: {},
 } as never;
 
-function makeKpi(id: string, daxName: string): CatalogKpi {
+function makeKpi(id: string, daxName: string, calcType = 'measure'): CatalogKpi {
   return {
     kpi_id: id,
+    calc_type: calcType,
     business: { purpose: `Purpose of ${id}` },
     technical: {
       dax_name: daxName,
@@ -101,17 +102,40 @@ describe('buildIRPackage', () => {
     expect(p2Components.some((c) => c.slot === '300s')).toBe(true);
   });
 
-  it('skips KPIs not found in the map', () => {
+  it('skips KPIs not found in the map and adds warnings', () => {
     const sparseMap = new Map<string, CatalogKpi>();
     sparseMap.set('KPI_001', makeKpi('KPI_001', 'Revenue'));
     // KPI_002, 003, 004 missing
     const ir = buildIRPackage(mockBracket, sparseMap);
     expect(ir.measures).toHaveLength(1);
     expect(ir.measures[0].id).toBe('KPI_001');
+    // Should have warnings for skipped KPIs
+    expect(ir.warnings.length).toBeGreaterThanOrEqual(3);
+    expect(ir.warnings[0]).toContain('missing technical metadata');
   });
 
   it('includes action code IDs', () => {
     const ir = buildIRPackage(mockBracket, kpiMap);
     expect(ir.actionCodes).toEqual(['AC_001']);
+  });
+
+  it('includes calcType in measures', () => {
+    const ir = buildIRPackage(mockBracket, kpiMap);
+    for (const m of ir.measures) {
+      expect(m.calcType).toBeDefined();
+    }
+  });
+
+  it('has empty warnings when all KPIs resolve', () => {
+    const ir = buildIRPackage(mockBracket, kpiMap);
+    expect(ir.warnings).toEqual([]);
+  });
+
+  it('propagates component config from ux_layout_rules', () => {
+    const ir = buildIRPackage(mockBracket, kpiMap);
+    const p2 = ir.pages[1];
+    const comp300 = p2.components.find(c => c.slot === '300s');
+    expect(comp300?.config.evidence_grain).toBe('weekly');
+    expect(comp300?.config.evidence_columns).toEqual(['product', 'region']);
   });
 });
