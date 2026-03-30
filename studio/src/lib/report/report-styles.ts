@@ -24,7 +24,7 @@ export function generateReportStyles(theme: ThemeConfig): string {
     header h1 { font-size: 1.5rem; color: #1a1a2e; }
     header .date { font-size: 0.875rem; color: #666; }
     h2 { font-size: 1.125rem; color: #1a1a2e; margin: 24px 0 12px; }
-    .pulse-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    .pulse-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 24px; }
     .pulse-card {
       padding: 16px; border-radius: ${theme.borderRadius}px;
       border: 1px solid #e5e7eb; border-left: 4px solid ${theme.primary};
@@ -64,9 +64,17 @@ export function generateReportStyles(theme: ThemeConfig): string {
     .priority-P3 { color: #64748B; }
     footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 0.75rem; color: #999; text-align: center; }
     @media print {
-      body { padding: 20px; }
+      @page {
+        margin: 20mm;
+        @bottom-center { content: counter(page) " / " counter(pages); font-size: 9pt; color: #999; }
+      }
+      body { padding: 0; orphans: 3; widows: 3; }
       .pulse-grid { break-inside: avoid; }
       table { break-inside: avoid; }
+      .trend-container { break-inside: avoid; }
+      .waterfall-container { break-inside: avoid; }
+      h2 { break-after: avoid; }
+      footer { break-before: always; }
     }
   `;
 }

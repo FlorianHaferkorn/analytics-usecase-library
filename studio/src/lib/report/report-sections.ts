@@ -43,10 +43,27 @@ export function renderTrendSection(label: string, data: TrendPoint[]): string {
   `;
 }
 
-export function renderWaterfallSection(drivers: WaterfallDriver[]): string {
+export function renderWaterfallSection(
+  drivers: WaterfallDriver[],
+  openingBalance?: number,
+  closingBalance?: number,
+): string {
   const maxDelta = Math.max(...drivers.map((d) => Math.abs(d.delta)), 0.1);
+  const maxBalance = Math.max(openingBalance ?? 0, closingBalance ?? 0, maxDelta);
+
+  const balanceBar = (label: string, val: number) => {
+    const heightPct = maxBalance > 0 ? (Math.abs(val) / maxBalance) * 80 : 0;
+    return `
+      <div class="waterfall-item">
+        <div class="bar" style="height:${heightPct}px; background: #6366F1;"></div>
+        <div class="driver" style="font-weight: 600;">${escapeHtml(label)}</div>
+        <div class="delta-val">${val.toFixed(1)}%</div>
+      </div>
+    `;
+  };
+
   const items = drivers.map((d) => {
-    const heightPct = (Math.abs(d.delta) / maxDelta) * 80;
+    const heightPct = (Math.abs(d.delta) / (maxBalance > 0 ? maxBalance : maxDelta)) * 80;
     const barClass = d.delta >= 0 ? 'bar-positive' : 'bar-negative';
     const sign = d.delta >= 0 ? '+' : '';
     return `
@@ -58,10 +75,13 @@ export function renderWaterfallSection(drivers: WaterfallDriver[]): string {
     `;
   }).join('');
 
+  const openingHtml = openingBalance !== undefined ? balanceBar('Opening', openingBalance) : '';
+  const closingHtml = closingBalance !== undefined ? balanceBar('Closing', closingBalance) : '';
+
   return `
     <h2>Margin Bridge</h2>
     <div class="waterfall-container">
-      <div class="waterfall-bars">${items}</div>
+      <div class="waterfall-bars">${openingHtml}${items}${closingHtml}</div>
     </div>
   `;
 }

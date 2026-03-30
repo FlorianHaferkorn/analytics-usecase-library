@@ -11,6 +11,7 @@ import {
   renderWaterfallSection,
   renderEvidenceSection,
 } from './report-sections';
+import { renderTableOfContents } from './table-of-contents';
 
 export interface ReportData {
   projectName: string;
@@ -77,10 +78,11 @@ export function buildBoardPackReport(
   });
 
   const styles = generateReportStyles(theme);
-  const sections = reports.map((r) => {
+  const toc = renderTableOfContents(reports);
+  const sections = reports.map((r, i) => {
     const title = r.bracketTitle ?? 'Overview';
     return `
-      <div style="page-break-before: always;">
+      <div id="section-${i}" style="page-break-before: always;">
         <h2 style="border-bottom: 2px solid ${theme.primary}; padding-bottom: 8px;">${escapeForHtml(title)}</h2>
         ${renderPulseSection(r.kpis)}
         ${renderEvidenceSection(r.evidence)}
@@ -101,6 +103,7 @@ export function buildBoardPackReport(
     <span class="date">${dateStr}</span>
   </header>
 
+  ${toc}
   ${sections}
 
   <footer>

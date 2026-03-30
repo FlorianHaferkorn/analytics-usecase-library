@@ -1,7 +1,10 @@
 /**
  * Report Export API — Generates downloadable HTML board reports.
  *
- * POST { theme, mode: 'single' | 'board-pack', projectName? }
+ * POST { theme, mode: 'single' | 'board-pack', projectName?, bracketId? }
+ *
+ * When bracketId is provided, builds report from bracket KPIs.
+ * Otherwise falls back to sample data for demo/preview.
  */
 
 import type { ThemeConfig } from '@/lib/store/project-store';
@@ -14,13 +17,17 @@ import {
 import { buildHtmlReport, buildBoardPackReport } from '@/lib/report/html-report-builder';
 import type { ReportData } from '@/lib/report/html-report-builder';
 import { auditWithActor } from '@/lib/db/audit-helpers';
+import { loadBracket } from '@/lib/core/bracket-loader';
+import { loadKpiMap } from '@/lib/core/catalog-loader';
+import { buildReportDataFromBracket } from '@/lib/report/report-data-builder';
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const { theme, mode = 'single', projectName = 'Aurora Group' } = body as {
+  const { theme, mode = 'single', projectName = 'Aurora Group', bracketId } = body as {
     theme: ThemeConfig;
     mode?: 'single' | 'board-pack';
     projectName?: string;
+    bracketId?: string;
   };
 
   if (!theme) {
@@ -30,14 +37,24 @@ export async function POST(request: Request) {
     });
   }
 
-  const reportData: ReportData = {
-    projectName,
-    kpis: SAMPLE_KPIS,
-    trend: SAMPLE_TREND,
-    trendLabel: 'Gross Margin',
-    waterfall: SAMPLE_WATERFALL,
-    evidence: SAMPLE_EVIDENCE,
-  };
+  let reportData: ReportData;
+
+  if (bracketId) {
+    const bracket = await loadBracket(bracketId);
+    if (bracket) {
+      const kpiMap = await loadKpiMap();
+      const allKpiIds = [
+        bracket.orchestration.strategic_kpi_id,
+        ...bracket.orchestration.influencing_kpi_ids,
+        ...(bracket.orchestration.supporting_kpi_ids ?? []),
+      ];
+      reportData = buildReportDataFromBracket(bracketId, kpiMap, allKpiIds, projectName);
+    } else {
+      reportData = buildSampleReportData(projectName);
+    }
+  } else {
+    reportData = buildSampleReportData(projectName);
+  }
 
   let html: string;
   if (mode === 'board-pack') {
@@ -48,7 +65,7 @@ export async function POST(request: Request) {
 
   await auditWithActor('export', 'report', 'export', {
     before: null,
-    after: { format: 'html-report', mode, projectName },
+    after: { format: 'html-report', mode, projectName, bracketId: bracketId ?? null },
   });
 
   return new Response(html, {
@@ -57,4 +74,15 @@ export async function POST(request: Request) {
       'Content-Disposition': `attachment; filename="report-${mode}.html"`,
     },
   });
+}
+
+function buildSampleReportData(projectName: string): ReportData {
+  return {
+    projectName,
+    kpis: SAMPLE_KPIS,
+    trend: SAMPLE_TREND,
+    trendLabel: 'Gross Margin',
+    waterfall: SAMPLE_WATERFALL,
+    evidence: SAMPLE_EVIDENCE,
+  };
 }
