@@ -23,15 +23,26 @@ $pyScript = Join-Path -Path $scriptDir -ChildPath "check_validate_data_contracts
 if (-not (Test-Path -LiteralPath $pyScript)) { Write-Error "Missing: check_validate_data_contracts.py" }
 
 $pyExe = $null
-foreach ($c in @("python", "python3", "py -3")) {
-	$parts = $c -split " "
-	if (Get-Command $parts[0] -ErrorAction SilentlyContinue) { $pyExe = $c; break }
+# Prefer the Python installed by actions/setup-python (env var set by that action)
+if ($env:pythonLocation) {
+	$candidate = Join-Path $env:pythonLocation "python.exe"
+	if (Test-Path $candidate) { $pyExe = $candidate }
+}
+if (-not $pyExe) {
+	foreach ($c in @("python", "python3", "py -3")) {
+		$parts = $c -split " "
+		if (Get-Command $parts[0] -ErrorAction SilentlyContinue) { $pyExe = $c; break }
+	}
 }
 if (-not $pyExe) { Write-Error "Python not found. Install Python 3 or ensure 'py -3' or 'python' is on PATH." }
 
 $pyArgs = @("--root", $rootPath)
 if ($FailOnError) { $pyArgs += "--fail-on-error" }
 
-$allArgs = ($pyExe -split " ") + @($pyScript) + $pyArgs
-& $allArgs[0] $allArgs[1..($allArgs.Count - 1)]
+if ($pyExe -match " ") {
+	$allArgs = ($pyExe -split " ") + @($pyScript) + $pyArgs
+	& $allArgs[0] $allArgs[1..($allArgs.Count - 1)]
+} else {
+	& $pyExe $pyScript @pyArgs
+}
 exit $LASTEXITCODE
