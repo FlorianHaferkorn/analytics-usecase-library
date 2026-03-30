@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-color-primary: #2B5EB4;
+  --brand-color-secondary: #1A3A6E;
+  --brand-color-positive: #16A34A;
+  --brand-color-negative: #DC2626;
+  --brand-color-warning: #D97706;
+  --brand-color-neutral: #6B7280;
+  --brand-color-surface: #F8FAFC;
+  --brand-color-border: #E2E8F0;
+}
+
+html, body {
+  height: 100%;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* YAML editor */
+.yaml-editor {
+  font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  tab-size: 2;
+}
