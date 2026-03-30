@@ -6,12 +6,14 @@ interface Props {
   baseValue: number;
   value: number;
   unit: string;
+  minRange?: number;
+  maxRange?: number;
   onChange: (value: number) => void;
 }
 
-export function KpiSlider({ kpiId, label, baseValue, value, unit, onChange }: Props) {
-  const min = baseValue * 0.7;
-  const max = baseValue * 1.3;
+export function KpiSlider({ kpiId, label, baseValue, value, unit, minRange, maxRange, onChange }: Props) {
+  const min = minRange ?? baseValue * 0.7;
+  const max = maxRange ?? baseValue * 1.3;
   const delta = value - baseValue;
   const deltaColor = delta >= 0 ? 'var(--mint)' : 'var(--danger)';
 

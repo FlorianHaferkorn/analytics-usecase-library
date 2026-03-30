@@ -78,12 +78,30 @@ export function SimulatorClient({ brackets }: Props) {
   const drivers = useMemo(() => {
     if (!parsed) return [];
     const ids = parsed.type === 'additive' ? parsed.terms.map((t) => t.kpiId) : parsed.drivers;
-    return ids.map((id) => ({
-      kpiId: id,
-      label: id.split('.').slice(-2).join('.'),
-      baseValue: baseValues.get(id) ?? 0,
-      unit: getUnit(id),
-    }));
+    return ids.map((id) => {
+      const base = baseValues.get(id) ?? 0;
+      // Adaptive slider range based on KPI type
+      let minRange: number;
+      let maxRange: number;
+      if (id.includes('.pct')) {
+        minRange = Math.max(0, base - 15);
+        maxRange = Math.min(100, base + 15);
+      } else if (id.includes('.days') || id.includes('.hours') || id.includes('.minutes')) {
+        minRange = Math.max(0, base * 0.5);
+        maxRange = base * 1.5;
+      } else {
+        minRange = Math.max(0, base * 0.7);
+        maxRange = base * 1.3;
+      }
+      return {
+        kpiId: id,
+        label: id.split('.').slice(-2).join('.'),
+        baseValue: base,
+        unit: getUnit(id),
+        minRange,
+        maxRange,
+      };
+    });
   }, [parsed, baseValues]);
 
   const handleOverride = useCallback((kpiId: string, value: number) => {
@@ -94,6 +112,26 @@ export function SimulatorClient({ brackets }: Props) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
+      {/* Illustrative data banner */}
+      <div
+        style={{
+          padding: 'var(--sp-1) var(--sp-2)',
+          backgroundColor: 'rgba(255,184,0,0.1)',
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid var(--gold)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--sp-1)',
+        }}
+      >
+        <span style={{ fontSize: '0.75rem', color: 'var(--gold)', fontWeight: 600 }}>
+          Illustrative Data
+        </span>
+        <span style={{ fontSize: '0.6875rem', color: 'var(--slate-400)' }}>
+          Values are derived from KPI naming conventions. Connect real data sources for production use.
+        </span>
+      </div>
+
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)' }}>
         <select

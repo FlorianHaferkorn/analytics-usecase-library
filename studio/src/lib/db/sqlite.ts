@@ -102,6 +102,14 @@ function initSchema(db: Database.Database) {
       FOREIGN KEY (project_id) REFERENCES projects(id)
     );
 
+    CREATE TABLE IF NOT EXISTS rule_executions (
+      id TEXT PRIMARY KEY,
+      rule_id TEXT NOT NULL,
+      fired INTEGER NOT NULL DEFAULT 0,
+      kpi_value REAL NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     -- Ensure default project exists
     INSERT OR IGNORE INTO projects (id, name, strategy_anchor)
     VALUES ('default', 'Aurora Group', 'Profitable growth through margin quality, cash resilience & operational excellence');

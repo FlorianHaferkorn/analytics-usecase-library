@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { RuleCondition, EscalationSeverity } from '@/lib/notifications/rule-types';
+import { KpiAutocomplete } from './kpi-autocomplete';
 
 interface Props {
   onSubmit: (data: {
@@ -9,6 +10,7 @@ interface Props {
     threshold: number; thresholdUpper?: number;
     severity: EscalationSeverity; spineId?: string;
   }) => void;
+  kpiIds?: string[];
 }
 
 const inputStyle = {
@@ -21,7 +23,7 @@ const inputStyle = {
   width: '100%',
 };
 
-export function RuleForm({ onSubmit }: Props) {
+export function RuleForm({ onSubmit, kpiIds = [] }: Props) {
   const [name, setName] = useState('');
   const [kpiId, setKpiId] = useState('');
   const [condition, setCondition] = useState<RuleCondition>('lt');
@@ -45,7 +47,7 @@ export function RuleForm({ onSubmit }: Props) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-1)', padding: 'var(--sp-1-5)', backgroundColor: 'var(--slate-800)', borderRadius: 'var(--radius-md)', border: '1px solid var(--slate-700)' }}>
       <input placeholder="Rule name" value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} />
-      <input placeholder="KPI ID (e.g., margin.gm.pct)" value={kpiId} onChange={(e) => setKpiId(e.target.value)} style={inputStyle} />
+      <KpiAutocomplete value={kpiId} onChange={setKpiId} kpiIds={kpiIds} />
       <select value={condition} onChange={(e) => setCondition(e.target.value as RuleCondition)} style={inputStyle}>
         <option value="lt">&lt; Less than</option>
         <option value="gt">&gt; Greater than</option>

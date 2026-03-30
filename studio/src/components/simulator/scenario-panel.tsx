@@ -7,6 +7,8 @@ interface KpiEntry {
   label: string;
   baseValue: number;
   unit: string;
+  minRange?: number;
+  maxRange?: number;
 }
 
 interface Props {
@@ -56,6 +58,8 @@ export function ScenarioPanel({ drivers, overrides, onOverride, onReset }: Props
           baseValue={d.baseValue}
           value={overrides.get(d.kpiId) ?? d.baseValue}
           unit={d.unit}
+          minRange={d.minRange}
+          maxRange={d.maxRange}
           onChange={(v) => onOverride(d.kpiId, v)}
         />
       ))}
