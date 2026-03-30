@@ -24,35 +24,33 @@ export default function StudioPage() {
 
   return (
     <div className="h-full flex overflow-hidden">
-      {/* Left: Sources (1/5) */}
-      <div className="w-56 shrink-0 border-r border-slate-200 bg-white flex flex-col overflow-hidden">
+      {/* Left: Sources */}
+      <div className="w-56 shrink-0 border-r border-theme bg-theme flex flex-col overflow-hidden">
         <SourcesPane />
       </div>
 
-      {/* Center: Chat (2/5) */}
-      <div className="flex-1 border-r border-slate-200 bg-slate-50 flex flex-col overflow-hidden min-w-0">
+      {/* Center: Chat */}
+      <div className="flex-1 border-r border-theme bg-theme-secondary flex flex-col overflow-hidden min-w-0">
         <ChatPane />
       </div>
 
-      {/* Right: Studio — Living Tree + YAML (2/5) */}
-      <div className="w-[480px] shrink-0 bg-white flex flex-col overflow-hidden">
-        {/* Tab switcher */}
-        <div className="border-b border-slate-200 flex items-center px-3 shrink-0">
+      {/* Right: Studio pane */}
+      <div className="w-[480px] shrink-0 bg-theme flex flex-col overflow-hidden">
+        <div className="border-b border-theme flex items-center px-3 shrink-0">
           {(["tree", "yaml"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setActiveTab(t)}
               className={`px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors cursor-pointer
                 ${activeTab === t
-                  ? "border-brand-primary text-brand-primary"
-                  : "border-transparent text-slate-400 hover:text-slate-600"
+                  ? "border-brand-mint text-brand-mint"
+                  : "border-transparent text-theme-tertiary hover:text-theme-secondary"
                 }`}
             >
-              {t === "tree" ? "🌳 Living Tree" : "✏️ YAML Editor"}
+              {t === "tree" ? "Living Tree" : "YAML Editor"}
             </button>
           ))}
         </div>
-
         <div className="flex-1 overflow-hidden">
           {activeTab === "tree" ? <LivingTree /> : <YamlEditor />}
         </div>

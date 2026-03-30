@@ -20,6 +20,12 @@ export interface KpiRecord {
   governance?: {
     business_owner?: string;
     data_owner?: string;
+    steward?: string;
+    review_cycle?: string;
+  };
+  metadata_quality?: {
+    completeness_score?: number;
+    last_review?: string;
   };
   source?: string;
 }

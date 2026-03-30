@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
+import { ThemeProvider } from "@/lib/theme";
 
 export const metadata: Metadata = {
   title: "ActionReady Studio",
@@ -9,10 +10,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="bg-slate-50 text-slate-900 h-screen flex flex-col overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-hidden">{children}</main>
+    <html lang="en" suppressHydrationWarning>
+      <body className="h-screen flex flex-col overflow-hidden">
+        <ThemeProvider>
+          <Header />
+          <main className="flex-1 overflow-hidden">{children}</main>
+        </ThemeProvider>
       </body>
     </html>
   );

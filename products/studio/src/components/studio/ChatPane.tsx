@@ -11,8 +11,8 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
       <div
         className={`max-w-[85%] rounded-lg px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap
           ${isUser
-            ? "bg-brand-primary text-white rounded-br-sm"
-            : "bg-white border border-slate-200 text-slate-800 rounded-bl-sm"
+            ? "bg-brand-mint text-brand-petrol rounded-br-sm"
+            : "bg-theme border border-theme text-theme rounded-bl-sm"
           }`}
       >
         {msg.content}
@@ -24,7 +24,7 @@ function MessageBubble({ msg }: { msg: ChatMessage }) {
 export function ChatPane() {
   const { messages, chatLoading, addMessage, setChatLoading, sources, draft } = useStudio();
   const [input, setInput] = useState("");
-  const [provider, setProvider] = useState<string>("…");
+  const [provider, setProvider] = useState<string>("...");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,7 +45,6 @@ export function ChatPane() {
     setChatLoading(true);
 
     try {
-      // Build context about the current draft
       const draftContext = draft.orchestration.strategic_kpi_id
         ? `\n\nCurrent use case context: "${draft.title}" (${draft.id}), strategic KPI: ${draft.orchestration.strategic_kpi_id}`
         : "";
@@ -76,7 +75,7 @@ export function ChatPane() {
     } catch (e) {
       const errMsg: ChatMessage = {
         role: "assistant",
-        content: `⚠️ ${e instanceof Error ? e.message : "Chat error"}`,
+        content: `Error: ${e instanceof Error ? e.message : "Chat error"}`,
         timestamp: Date.now(),
       };
       addMessage(errMsg);
@@ -86,23 +85,25 @@ export function ChatPane() {
   }
 
   const providerLabel: Record<string, string> = {
-    gemini: "Gemini ✓",
-    azure: "Azure OpenAI ✓",
-    openai: "OpenAI ✓",
-    none: "No LLM — add API key to .env",
+    gemini: "Gemini",
+    azure: "Azure OpenAI",
+    openai: "OpenAI",
+    none: "No LLM configured",
   };
 
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="px-3 py-2 border-b border-slate-200 shrink-0 flex items-center justify-between">
+      <div className="px-3 py-2 border-b border-theme shrink-0 flex items-center justify-between">
         <div>
-          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Discovery Chat</h2>
-          <p className="text-xs text-slate-400 mt-0.5">Ask about KPIs, use cases, and action codes</p>
+          <h2 className="text-xs font-semibold text-theme-tertiary uppercase tracking-wider">Discovery Chat</h2>
+          <p className="text-[10px] text-theme-tertiary mt-0.5">Ask about KPIs, use cases, and action codes</p>
         </div>
         <span
-          className={`text-xs px-2 py-0.5 rounded-full font-medium
-            ${provider === "none" ? "bg-red-50 text-red-500" : "bg-green-50 text-green-600"}`}
+          className={`text-[10px] px-2 py-0.5 rounded font-medium
+            ${provider === "none"
+              ? "bg-nagarro-pink-100 text-nagarro-pink-400 dark:bg-nagarro-pink-900/30 dark:text-nagarro-pink-300"
+              : "bg-nagarro-green-100 text-nagarro-green-700 dark:bg-nagarro-green-900/30 dark:text-nagarro-green-300"}`}
         >
           {providerLabel[provider] ?? provider}
         </span>
@@ -111,10 +112,10 @@ export function ChatPane() {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-3 py-3">
         {messages.length === 0 && (
-          <div className="text-center text-xs text-slate-400 mt-8 space-y-1">
-            <p className="font-medium text-slate-500">Start your discovery</p>
-            <p>Try: "Suggest a use case for reducing working capital"</p>
-            <p>Or: "What KPIs should I track for supply chain reliability?"</p>
+          <div className="text-center text-xs text-theme-tertiary mt-8 space-y-1">
+            <p className="font-medium text-theme-secondary">Start your discovery</p>
+            <p>Try: &ldquo;Suggest a use case for reducing working capital&rdquo;</p>
+            <p>Or: &ldquo;What KPIs should I track for supply chain reliability?&rdquo;</p>
           </div>
         )}
         {messages.map((msg, i) => (
@@ -122,12 +123,12 @@ export function ChatPane() {
         ))}
         {chatLoading && (
           <div className="flex justify-start mb-3">
-            <div className="bg-white border border-slate-200 rounded-lg rounded-bl-sm px-3 py-2">
+            <div className="bg-theme border border-theme rounded-lg rounded-bl-sm px-3 py-2">
               <div className="flex gap-1">
                 {[0, 1, 2].map((i) => (
                   <div
                     key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce"
+                    className="w-1.5 h-1.5 rounded-full bg-brand-mint animate-bounce"
                     style={{ animationDelay: `${i * 0.15}s` }}
                   />
                 ))}
@@ -139,7 +140,7 @@ export function ChatPane() {
       </div>
 
       {/* Input */}
-      <div className="px-3 py-2 border-t border-slate-200 shrink-0">
+      <div className="px-3 py-2 border-t border-theme shrink-0">
         <div className="flex gap-2">
           <textarea
             value={input}
@@ -150,16 +151,16 @@ export function ChatPane() {
                 sendMessage();
               }
             }}
-            placeholder="Ask about use cases, KPIs, action codes… (Enter to send)"
+            placeholder="Ask about use cases, KPIs, action codes..."
             rows={2}
-            className="flex-1 text-sm border border-slate-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
+            className="flex-1 text-sm bg-theme-secondary border border-theme rounded-md px-3 py-2 text-theme focus:outline-none focus:ring-1 focus:ring-brand-mint resize-none placeholder:text-theme-tertiary"
           />
           <Button onClick={sendMessage} loading={chatLoading} disabled={!input.trim()}>
             Send
           </Button>
         </div>
-        <p className="text-xs text-slate-400 mt-1">
-          {sources.filter((s) => s.include_in_chat).length} source(s) in context · Shift+Enter for newline
+        <p className="text-[10px] text-theme-tertiary mt-1">
+          {sources.filter((s) => s.include_in_chat).length} source(s) in context
         </p>
       </div>
     </div>
