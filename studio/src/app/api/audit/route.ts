@@ -5,8 +5,12 @@
  */
 
 import { getAuditEvents, getAuditEventsByEntity, getAuditEventCount } from '@/lib/db/audit-repo';
+import { requireAuth } from '@/lib/auth/session';
 
 export async function GET(request: Request) {
+  const [, authError] = await requireAuth();
+  if (authError) return authError;
+
   const { searchParams } = new URL(request.url);
   const projectId = searchParams.get('projectId') ?? 'default';
   const entityType = searchParams.get('entityType') as 'bracket' | 'project' | 'theme' | 'discovery' | null;

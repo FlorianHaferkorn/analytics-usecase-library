@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getProject, updateProject, createProject } from '@/lib/db/project-repo';
 import { logAuditEvent } from '@/lib/db/audit-repo';
+import { requireAuth } from '@/lib/auth/session';
 
 export async function GET() {
   const project = getProject();
@@ -14,6 +15,9 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
+  const [user, authError] = await requireAuth();
+  if (authError) return authError;
+
   const body = await request.json();
   const { name, strategy_anchor, theme } = body as {
     name?: string;
@@ -30,12 +34,15 @@ export async function PATCH(request: Request) {
   logAuditEvent('project', 'default', 'update', {
     before: before ? { name: before.name, strategy_anchor: before.strategy_anchor } : null,
     after: { name, strategy_anchor },
-  });
+  }, 'default', user.email);
 
   return NextResponse.json({ ok: true });
 }
 
 export async function POST(request: Request) {
+  const [user, authError] = await requireAuth();
+  if (authError) return authError;
+
   const body = await request.json();
   const { name, strategyAnchor } = body as { name: string; strategyAnchor?: string };
 
@@ -44,5 +51,10 @@ export async function POST(request: Request) {
   }
 
   const project = createProject(name.trim(), strategyAnchor?.trim() ?? '');
+  logAuditEvent('project', project.id, 'create', {
+    before: null,
+    after: { name: name.trim(), strategy_anchor: strategyAnchor?.trim() ?? '' },
+  }, project.id, user.email);
+
   return NextResponse.json({ project }, { status: 201 });
 }

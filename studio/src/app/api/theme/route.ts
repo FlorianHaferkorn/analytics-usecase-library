@@ -4,6 +4,7 @@
 
 import { getProject, updateProject } from '@/lib/db/project-repo';
 import { logAuditEvent } from '@/lib/db/audit-repo';
+import { requireAuth } from '@/lib/auth/session';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -11,10 +12,7 @@ export async function GET(request: Request) {
 
   const project = getProject(projectId);
   if (!project) {
-    return new Response(JSON.stringify({ error: 'Project not found' }), {
-      status: 404,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return Response.json({ error: 'Project not found' }, { status: 404 });
   }
 
   const theme = project.theme_json ? JSON.parse(project.theme_json) : {};
@@ -22,6 +20,9 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  const [user, authError] = await requireAuth();
+  if (authError) return authError;
+
   const body = await request.json();
   const { projectId = 'default', theme } = body as {
     projectId?: string;
@@ -34,6 +35,6 @@ export async function PUT(request: Request) {
   logAuditEvent('theme', projectId, 'update', {
     before: beforeTheme,
     after: theme,
-  }, projectId);
+  }, projectId, user.email);
   return Response.json({ ok: true });
 }

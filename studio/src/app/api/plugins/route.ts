@@ -5,6 +5,7 @@
 import { pluginRegistry } from '@/lib/plugins/plugin-registry';
 import { loadPluginManifests } from '@/lib/plugins/plugin-loader';
 import type { PluginManifest } from '@/lib/plugins/plugin-types';
+import { requireAuth } from '@/lib/auth/session';
 
 export async function GET() {
   // Auto-register discovered plugins that aren't already registered
@@ -20,6 +21,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const [, authError] = await requireAuth();
+  if (authError) return authError;
+
   const body = await request.json();
   const manifest = body as PluginManifest;
 
@@ -36,6 +40,9 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  const [, authError] = await requireAuth();
+  if (authError) return authError;
+
   const body = await request.json();
   const { pluginId, enabled } = body as { pluginId: string; enabled: boolean };
   const ok = pluginRegistry.setEnabled(pluginId, enabled);
@@ -44,6 +51,9 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const [, authError] = await requireAuth();
+  if (authError) return authError;
+
   const { searchParams } = new URL(request.url);
   const pluginId = searchParams.get('pluginId');
   if (!pluginId) return Response.json({ error: 'pluginId required' }, { status: 400 });
