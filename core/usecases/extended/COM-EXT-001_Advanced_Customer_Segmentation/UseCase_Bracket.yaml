@@ -20,6 +20,10 @@ orchestration:
   action_code_ids:
     - C-M2.1    # Pricing intervention (inherited from COM-001)
     - C-S1.2    # Sales channel activation
+  supporting_kpi_ids:
+    - cost.cogs.amount
+    - sales.price.list.amount
+    - sales.price.net.amount
 
 value_driver_model:
   formula: customer.clv.amount = f(customer.rfm.recency_score, customer.rfm.frequency_score, customer.rfm.monetary_score, customer.churn.risk_pct)
@@ -51,7 +55,7 @@ ux_layout_rules:
     title: Segment Drill-Down & Actions
     template_id: action_matrix
     component_300s:
-      evidence_grain: customer_transaction
+      evidence_grain: customer_event
       evidence_columns:
         - customer_id
         - segment_label

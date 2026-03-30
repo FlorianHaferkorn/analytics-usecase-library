@@ -53,7 +53,7 @@ ux_layout_rules:
     title: Carrier Scorecard & Actions
     template_id: action_matrix
     component_300s:
-      evidence_grain: delivery_event
+      evidence_grain: shipment_line
       evidence_columns:
         - carrier_id
         - region

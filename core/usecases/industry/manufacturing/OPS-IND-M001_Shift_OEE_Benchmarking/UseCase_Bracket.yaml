@@ -21,6 +21,10 @@ orchestration:
   action_code_ids:
     - O-P1.1    # Preventive maintenance trigger
     - O-P1.2    # Line rebalancing action
+  supporting_kpi_ids:
+    - ops.availability.pct
+    - ops.performance.pct
+    - ops.quality.pct
 
 value_driver_model:
   formula: ops.oee.pct = ops.oee.availability.pct × ops.oee.performance.pct × ops.oee.quality.pct
@@ -53,7 +57,7 @@ ux_layout_rules:
     title: Downtime Drill-Down & Actions
     template_id: action_matrix
     component_300s:
-      evidence_grain: production_order_line
+      evidence_grain: plant_line_product_month
       evidence_columns:
         - plant
         - line
