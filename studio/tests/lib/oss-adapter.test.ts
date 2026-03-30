@@ -88,4 +88,25 @@ describe('generateEvidencePage', () => {
     const output = generateEvidencePage(mockIR);
     expect(output.content).toContain('<DataTable');
   });
+
+  it('uses evidence_grain from component config', () => {
+    const irWithConfig: IRPackage = {
+      ...mockIR,
+      pages: [{
+        id: 'P1', title: 'Test', template: 'action_matrix',
+        components: [{
+          slot: '300s', type: 'evidence_grid', kpiIds: [],
+          config: { evidence_grain: 'weekly', evidence_columns: ['product', 'region'] },
+        }],
+      }],
+    };
+    const output = generateEvidencePage(irWithConfig);
+    expect(output.content).toContain('fact_evidence_weekly');
+    expect(output.content).toContain('product, region');
+  });
+
+  it('falls back to monthly grain when no config', () => {
+    const output = generateEvidencePage(mockIR);
+    expect(output.content).toContain('fact_evidence_monthly');
+  });
 });

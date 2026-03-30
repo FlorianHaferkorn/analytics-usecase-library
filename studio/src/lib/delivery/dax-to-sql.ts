@@ -21,11 +21,15 @@ export function translateDaxToSql(dax: string, measureName: string): string {
   // Try each pattern in priority order
   const result =
     trySum(trimmed) ??
+    trySumX(trimmed) ??
     tryCountRows(trimmed) ??
     tryDistinctCount(trimmed) ??
     tryDivide(trimmed) ??
     tryAverageX(trimmed) ??
     tryMinMax(trimmed) ??
+    tryTotalYtd(trimmed) ??
+    tryDateAdd(trimmed) ??
+    trySamePeriodLastYear(trimmed) ??
     tryVar(trimmed) ??
     tryCalculate(trimmed) ??
     null;
@@ -112,6 +116,41 @@ function tryCalculate(dax: string): string | null {
   const expr = translateRef(match[1].trim());
   const filter = match[2].trim();
   return `${expr} /* WHERE ${filter} */`;
+}
+
+function trySumX(dax: string): string | null {
+  const match = dax.match(/^SUMX\s*\(\s*(\w+)\s*,\s*(.+?)\s*\)$/i);
+  if (!match) return null;
+  const table = match[1];
+  const expr = translateRef(match[2]);
+  return `SUM(${expr}) FROM ${table}`;
+}
+
+function tryTotalYtd(dax: string): string | null {
+  const match = dax.match(/^TOTALYTD\s*\(\s*(.+?)\s*,\s*(\w+\[\w+\])\s*\)$/i);
+  if (!match) return null;
+  const expr = translateRef(match[1].trim());
+  const dateRef = extractTableColumn(match[2]);
+  if (!dateRef) return null;
+  return `${expr} FROM ${dateRef.table} WHERE ${dateRef.column} >= DATE_TRUNC('year', CURRENT_DATE) AND ${dateRef.column} <= CURRENT_DATE`;
+}
+
+function tryDateAdd(dax: string): string | null {
+  const match = dax.match(/^DATEADD\s*\(\s*(\w+\[\w+\])\s*,\s*(-?\d+)\s*,\s*(\w+)\s*\)$/i);
+  if (!match) return null;
+  const dateRef = extractTableColumn(match[1]);
+  if (!dateRef) return null;
+  const offset = match[2];
+  const unit = match[3].toUpperCase();
+  return `${dateRef.column} + INTERVAL '${offset} ${unit}' FROM ${dateRef.table}`;
+}
+
+function trySamePeriodLastYear(dax: string): string | null {
+  const match = dax.match(/^SAMEPERIODLASTYEAR\s*\(\s*(\w+\[\w+\])\s*\)$/i);
+  if (!match) return null;
+  const dateRef = extractTableColumn(match[1]);
+  if (!dateRef) return null;
+  return `${dateRef.column} - INTERVAL '1 YEAR' FROM ${dateRef.table}`;
 }
 
 /** Translate a DAX measure reference [MeasureName] or table[col] to SQL-friendly form. */

@@ -74,8 +74,14 @@ export function generateEvidencePage(ir: IRPackage): OssOutput {
       }
 
       if (comp.slot === '300s') {
+        const grain = (comp.config.evidence_grain as string) ?? 'monthly';
+        const columns = (comp.config.evidence_columns as string[]) ?? ['*'];
+        const selectCols = columns.length && columns[0] !== '*'
+          ? columns.join(', ')
+          : '*';
+        const tableName = `fact_evidence_${grain}`;
         lines.push('```sql evidence');
-        lines.push('select * from fact_evidence order by period desc limit 100');
+        lines.push(`select ${selectCols} from ${tableName} order by period desc limit 100`);
         lines.push('```');
         lines.push('');
         lines.push('<DataTable data={evidence} />');

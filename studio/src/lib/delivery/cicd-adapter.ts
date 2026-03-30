@@ -36,10 +36,10 @@ on:
         default: ''
 
 env:
-  FABRIC_WORKSPACE_ID: \${{ secrets.FABRIC_WORKSPACE_ID }}
-  FABRIC_TENANT_ID: \${{ secrets.FABRIC_TENANT_ID }}
-  FABRIC_CLIENT_ID: \${{ secrets.FABRIC_CLIENT_ID }}
-  FABRIC_CLIENT_SECRET: \${{ secrets.FABRIC_CLIENT_SECRET }}
+  FABRIC_WORKSPACE_ID: ${"${{ secrets.FABRIC_WORKSPACE_ID }}"}
+  FABRIC_TENANT_ID: ${"${{ secrets.FABRIC_TENANT_ID }}"}
+  FABRIC_CLIENT_ID: ${"${{ secrets.FABRIC_CLIENT_ID }}"}
+  FABRIC_CLIENT_SECRET: ${"${{ secrets.FABRIC_CLIENT_SECRET }}"}
 
 jobs:
   validate:
@@ -88,14 +88,14 @@ jobs:
         working-directory: products/fabric
         run: |
           python deploy.py \\
-            --workspace-id "\$FABRIC_WORKSPACE_ID" \\
+            --workspace-id "${"$FABRIC_WORKSPACE_ID"}" \\
             --use-cases "${useCaseIds.join(',')}"
 
       - name: Deploy report layouts
         working-directory: products/fabric
         run: |
           python deploy_reports.py \\
-            --workspace-id "\$FABRIC_WORKSPACE_ID" \\
+            --workspace-id "${"$FABRIC_WORKSPACE_ID"}" \\
             --use-cases "${useCaseIds.join(',')}"
 
   notify:
@@ -106,7 +106,7 @@ jobs:
     steps:
       - name: Report status
         run: |
-          echo "Deployment status: \${{ needs.deploy.result }}"
+          echo "Deployment status: ${"${{ needs.deploy.result }}"}"
           echo "Use cases: ${useCaseIds.join(', ')}"
           echo "Measures: ${measureCount}"
 `;
@@ -219,9 +219,30 @@ def get_token():
     return resp.json()["access_token"]
 
 def deploy_tmdl(token: str, tmdl_path: Path):
-    """Deploy a TMDL file to the workspace semantic model."""
+    """Deploy a TMDL file to the workspace semantic model via Fabric REST API."""
     print(f"  Deploying {tmdl_path.name}...")
-    # TODO: Use semantic-link-labs or Fabric REST API
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+    }
+    # List semantic models in the workspace
+    api_base = f"https://api.fabric.microsoft.com/v1/workspaces/{WORKSPACE_ID}"
+    models_resp = requests.get(f"{api_base}/semanticmodels", headers=headers)
+    models_resp.raise_for_status()
+    models = models_resp.json().get("value", [])
+    if not models:
+        print("  WARNING: No semantic models found in workspace")
+        return
+    model_id = models[0]["id"]
+    # Upload TMDL definition
+    tmdl_content = tmdl_path.read_text(encoding="utf-8")
+    payload = {"definition": {"parts": [{"path": tmdl_path.name, "payload": tmdl_content}]}}
+    resp = requests.post(
+        f"{api_base}/semanticmodels/{model_id}/updateDefinition",
+        headers=headers,
+        json=payload,
+    )
+    resp.raise_for_status()
     print(f"  OK: {tmdl_path.name}")
 
 def main():

@@ -73,4 +73,29 @@ describe('translateDaxToSql', () => {
     const sql = translateDaxToSql('', '[Empty]');
     expect(sql).toContain('empty expression');
   });
+
+  it('translates SUMX', () => {
+    const sql = translateDaxToSql('SUMX(fact_orders, fact_orders[Qty])', '[Total Qty]');
+    expect(sql).toContain('SUM(Qty) FROM fact_orders');
+    expect(sql).toContain('CREATE VIEW');
+  });
+
+  it('translates TOTALYTD', () => {
+    const sql = translateDaxToSql('TOTALYTD([Revenue], dim_date[Date])', '[YTD Revenue]');
+    expect(sql).toContain('DATE_TRUNC');
+    expect(sql).toContain('CURRENT_DATE');
+    expect(sql).toContain('FROM dim_date');
+  });
+
+  it('translates DATEADD', () => {
+    const sql = translateDaxToSql('DATEADD(dim_date[Date], -1, YEAR)', '[Last Year Date]');
+    expect(sql).toContain("INTERVAL '-1 YEAR'");
+    expect(sql).toContain('FROM dim_date');
+  });
+
+  it('translates SAMEPERIODLASTYEAR', () => {
+    const sql = translateDaxToSql('SAMEPERIODLASTYEAR(dim_date[Date])', '[SPLY Date]');
+    expect(sql).toContain("INTERVAL '1 YEAR'");
+    expect(sql).toContain('FROM dim_date');
+  });
 });
