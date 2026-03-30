@@ -130,6 +130,11 @@
           "additionalProperties": false,
           "properties": {
             "title": { "type": "string" },
+            "page_type": {
+              "type": "string",
+              "enum": ["T1_Strategic_Overview", "T2_Tactical_Variance", "T3_Operational_Monitoring", "T4_Prescriptive_Recommendation"],
+              "description": "Page type classification from core/templates/page_templates/page_types/."
+            },
             "template_id": {
               "type": "string",
               "enum": ["pulse", "investigator"],
@@ -183,6 +188,11 @@
           "additionalProperties": false,
           "properties": {
             "title": { "type": "string" },
+            "page_type": {
+              "type": "string",
+              "enum": ["T1_Strategic_Overview", "T2_Tactical_Variance", "T3_Operational_Monitoring", "T4_Prescriptive_Recommendation"],
+              "description": "Page type classification from core/templates/page_templates/page_types/."
+            },
             "template_id": {
               "type": "string",
               "enum": ["investigator", "action_matrix"],
