@@ -55,6 +55,17 @@ ux_layout_rules:
       - supply.otif.pct
       action_panel: true
       payload_mode: full
+prioritization:
+  business_value: high
+  implementation_effort: medium
+  confidence: 0.75
+  reach: division
+  priority_score: 72
+readiness:
+  data_availability: partial
+  org_capability: ready
+  stakeholder_alignment: aligned
+  overall_readiness: amber
 overrides:
   data_contract_ref: core/data_contracts/domains/supply_chain.yaml
 documentation:

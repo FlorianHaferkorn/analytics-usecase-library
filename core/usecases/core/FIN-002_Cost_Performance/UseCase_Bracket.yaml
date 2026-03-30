@@ -59,6 +59,17 @@ ux_layout_rules:
       - cost.unit.amount
       action_panel: true
       payload_mode: full
+prioritization:
+  business_value: high
+  implementation_effort: high
+  confidence: 0.75
+  reach: division
+  priority_score: 70
+readiness:
+  data_availability: partial
+  org_capability: ready
+  stakeholder_alignment: aligned
+  overall_readiness: amber
 overrides:
   data_contract_ref: core/data_contracts/domains/finance.yaml
 documentation:

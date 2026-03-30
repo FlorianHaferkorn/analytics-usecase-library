@@ -60,6 +60,17 @@ ux_layout_rules:
       - sales.promo.roi.pct
       action_panel: true
       payload_mode: full
+prioritization:
+  business_value: high
+  implementation_effort: high
+  confidence: 0.65
+  reach: division
+  priority_score: 60
+readiness:
+  data_availability: partial
+  org_capability: developing
+  stakeholder_alignment: aligned
+  overall_readiness: amber
 overrides:
   data_contract_ref: core/data_contracts/domains/commercial_sales.yaml
 documentation:
