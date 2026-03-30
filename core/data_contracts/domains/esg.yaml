@@ -11,6 +11,7 @@ dimension:
   - name: dim_date
     description: "Calendar dimension for ESG reporting (annual and quarterly cycles)."
     purpose: "Time slicing for ESG KPIs, aligned to reporting periods."
+    scd_type: 1
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -22,6 +23,7 @@ dimension:
   - name: dim_org
     description: "Organization/site dimension for ESG reporting (plant, region, country)."
     purpose: "Scoping for site-level environmental and social reporting."
+    scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: SiteCode, type: text}
@@ -33,6 +35,7 @@ dimension:
   - name: dim_emission_scope
     description: "GHG emission scope classification (Scope 1, 2, 3)."
     purpose: "Carbon reporting by emission scope."
+    scd_type: 1
     columns:
       - {name: ScopeKey, type: int, role: key}
       - {name: ScopeCode, type: text}   # e.g. SCOPE_1, SCOPE_2, SCOPE_3
@@ -45,9 +48,9 @@ fact:
     purpose: "Carbon footprint reporting and net-zero progress tracking."
     grain: site_scope_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: ScopeKey, type: int, ref: dim_emission_scope}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: ScopeKey, type: int, ref: dim_emission_scope, cardinality: many-to-one}
       - {name: Emissions tCO2e, type: decimal, agg: sum}
       - {name: Target Emissions tCO2e, type: decimal, agg: sum, nullable: true}
 
@@ -56,8 +59,8 @@ fact:
     purpose: "Energy intensity and renewable energy ratio reporting."
     grain: site_source_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: Energy Source, type: text}       # e.g. Grid, Gas, Renewable
       - {name: Energy Consumed MWh, type: decimal, agg: sum}
       - {name: Is Renewable, type: boolean}
@@ -67,8 +70,8 @@ fact:
     purpose: "Water intensity and waste-to-landfill reporting."
     grain: site_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: Water Withdrawn m3, type: decimal, agg: sum, nullable: true}
       - {name: Water Recycled m3, type: decimal, agg: sum, nullable: true}
       - {name: Waste Generated Tonnes, type: decimal, agg: sum, nullable: true}
@@ -79,8 +82,8 @@ fact:
     purpose: "LTIFR, incident rate, and safety performance reporting."
     grain: site_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: Incidents, type: int, agg: sum}
       - {name: Lost Time Incidents, type: int, agg: sum}
       - {name: Hours Worked, type: decimal, agg: sum}
@@ -91,8 +94,8 @@ fact:
     purpose: "D&I reporting (gender, leadership representation, pay gap)."
     grain: org_period
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: Female Headcount, type: int, agg: sum, nullable: true}
       - {name: Total Headcount, type: int, agg: sum}
       - {name: Female Leadership %, type: decimal, nullable: true}

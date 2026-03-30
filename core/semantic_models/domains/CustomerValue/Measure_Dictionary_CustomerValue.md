@@ -10,7 +10,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 00_Base
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Net Sales Amount = SUM ( fact_sales[Net Sales Amount] )
+    aggregation_method: sum
   documentation:
     description: Base measure summing net sales for all transactions.
     notes: Excludes VAT/returns; currency conversion handled upstream.
@@ -29,7 +30,9 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Customer
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Customer Lifetime Value Amount = Sum of expected future gross margin per customer discounted over the chosen
+      time horizon.
+    aggregation_method: sum
   documentation:
     description: Discounted lifetime value per customer sourced from the CLV mart.
     notes: CLV methodology (horizon, discount rate) defined upstream.
@@ -48,10 +51,10 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Revenue
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Customer Lifetime Revenue Amount = Sum of net sales amount from first purchase to date for the customer.
+    aggregation_method: sum
   documentation:
-    description: Total realised revenue per customer across lifecycle; resets date
-      context to accumulate.
+    description: Total realised revenue per customer across lifecycle; resets date context to accumulate.
     notes: Uses Net Sales Amount as base; lifecycle completeness handled upstream.
   dependencies:
     measures:
@@ -70,7 +73,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Retention
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Active Customers Count = Distinct customers with at least one qualifying transaction in the period.
+    aggregation_method: count
   documentation:
     description: Active customers in the period based on activity flag.
     notes: Forms the base for retention/churn metrics.
@@ -90,7 +94,9 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Retention
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Churned Customers Count = Distinct customers with no qualifying transactions in the current period but active
+      in the look-back window.
+    aggregation_method: count
   documentation:
     description: Customers flagged as churned in the selected period.
     notes: Depends on churn flag in fact_customer_events.
@@ -110,7 +116,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Retention
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Customer Retention % = (Active Customers at end of period) / (Active Customers at start of period).
+    aggregation_method: ratio
   documentation:
     description: Retained customers as share of opening active base in the period.
     notes: Relies on activity/churn flags in fact_customer_events.
@@ -130,20 +137,19 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Retention
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Revenue at Risk Amount = CLV Remaining Amount * Attrition Risk %.
+    aggregation_method: sum
   documentation:
-    description: Exposure sizing from churn-risk customers based on CLV remaining
-      and attrition risk.
-    notes: Attrition Risk % delivered as 0�100 is auto-scaled to 0�1. CLV and Remaining
-      follow finance-approved discount rate and CLV horizon (use finance WACC and
-      agreed horizon).
+    description: Exposure sizing from churn-risk customers based on CLV remaining and attrition risk.
+    notes: Attrition Risk % delivered as 0�100 is auto-scaled to 0�1. CLV and Remaining follow finance-approved discount rate
+      and CLV horizon (use finance WACC and agreed horizon).
   dependencies:
     columns:
     - fact_customer_value[CLV Remaining Amount]
     - fact_customer_events[Attrition Risk %]
   governance:
     owner: CRM BI
-    status: planned
+    status: active
     version: v1.2
     last_review: 12.12.2025
 - measure_name: NPS Score
@@ -153,7 +159,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_CX
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: NPS Score = (%Promoters - %Detractors) from survey responses in the period.
+    aggregation_method: average
   documentation:
     description: Average NPS score across responses in the current context.
     notes: Use survey weights upstream if required.
@@ -172,7 +179,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_CX
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Customer Complaints Count = Count of complaint records in the complaint/service system.
+    aggregation_method: count
   documentation:
     description: Total complaint events in the selected context.
     notes: Relies on fact_experience complaint records.
@@ -191,7 +199,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Margin
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: COGS Amount = SUM(fact_sales[Cost of Goods Sold Amount])
+    aggregation_method: sum
   documentation:
     description: Cost of goods sold aggregated for the current filter context.
     notes: ''
@@ -210,7 +219,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Margin
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Margin Amount = [Net Sales Amount] / [COGS Amount]
+    aggregation_method: sum
   documentation:
     description: Margin amount calculated as Net Sales minus COGS.
     notes: ''
@@ -230,7 +240,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Margin
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Gross Margin % = ([Net Sales Amount] - [Cost of Goods Sold Amount]) / ([Net Sales Amount])
+    aggregation_method: ratio
   documentation:
     description: Gross margin percentage derived from margin and net sales.
     notes: Supporting only; not a required KPI in CustomerValue scope.
@@ -250,7 +261,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_CX
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Complaint Rate % = (Complaints) / (ShippedUnits)
+    aggregation_method: ratio
   documentation:
     description: Complaint incidence rate.
     notes: Requires interaction base definition.
@@ -260,7 +272,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_experience[Interaction ID]
   governance:
     owner: CX BI
-    status: planned
+    status: active
     version: v1.0
     last_review: TBD
 - measure_name: Active Customers
@@ -270,7 +282,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Retention
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Active Customers = Distinct customers with at least one qualifying transaction in the period.
+    aggregation_method: sum
   documentation:
     description: Alias for Active Customers Count (TMDL display name).
     notes: Same as Active Customers Count.
@@ -288,7 +301,9 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Retention
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Churned Customers = Distinct customers with no qualifying transactions in the current period but active in the
+      look-back window.
+    aggregation_method: sum
   documentation:
     description: Alias for Churned Customers Count (TMDL display name).
     notes: Same as Churned Customers Count.
@@ -306,7 +321,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Customer
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: CLV = Sum of expected future gross margin per customer discounted over the chosen time horizon.
+    aggregation_method: sum
   documentation:
     description: Alias for Customer Lifetime Value Amount (TMDL display name).
     notes: Same as Customer Lifetime Value Amount.

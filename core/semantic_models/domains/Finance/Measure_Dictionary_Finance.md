@@ -31,7 +31,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   category: KPI
   expression:
     aggregation_method: last_value
-    logical: 'Cash Balance = SUM(fact_cash_position[Cash Balance Amount]) at MAX(DateKey) in filter context'
+    logical: Cash Balance = SUM(fact_cash_position[Cash Balance Amount]) at MAX(DateKey) in filter context
   documentation:
     description: Cash and cash equivalents.
     notes: 'Grain: day. Unit: EUR.
@@ -57,7 +57,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 01_Liquidity
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Operating Cash Flow = Net cash flows from operations for the period.
+    aggregation_method: sum
   documentation:
     description: Cash generated from operating activities.
     notes: 'Grain: month. Unit: EUR.
@@ -83,7 +84,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 01_Liquidity
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Cash vs Plan % = (Cash Balance - Cash Plan) / Cash Plan.
+    aggregation_method: ratio
   documentation:
     description: Performance vs plan for cash position.
     notes: 'Grain: month. Unit: %.
@@ -112,7 +114,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   category: KPI
   expression:
     aggregation_method: ratio
-    logical: 'CCC = [DSO Days] + [DIO Days] - [DPO Days]'
+    logical: CCC = [DSO Days] + [DIO Days] - [DPO Days]
   documentation:
     description: Working capital cycle time.
     notes: 'Grain: month. Unit: days.
@@ -141,7 +143,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   category: KPI
   expression:
     aggregation_method: ratio
-    logical: 'DSO = SUM(fact_ar[AR Amount]) / (SUM(fact_ar[Revenue Amount]) / 365)'
+    logical: DSO = SUM(fact_ar[AR Amount]) / (SUM(fact_ar[Revenue Amount]) / 365)
   documentation:
     description: 'Receivables efficiency: AR / (Revenue/365).'
     notes: 'Grain: month. Unit: days.
@@ -169,7 +171,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   category: KPI
   expression:
     aggregation_method: ratio
-    logical: 'DIO = SUM(fact_inventory[Inventory Amount]) / (SUM(fact_ap[COGS Amount]) / 365)'
+    logical: DIO = SUM(fact_inventory[Inventory Amount]) / (SUM(fact_ap[COGS Amount]) / 365)
   documentation:
     description: 'Inventory efficiency: Inventory / (COGS/365).'
     notes: 'Grain: month. Unit: days.
@@ -197,7 +199,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   category: KPI
   expression:
     aggregation_method: ratio
-    logical: 'DPO = SUM(fact_ap[AP Amount]) / (SUM(fact_ap[COGS Amount]) / 365)'
+    logical: DPO = SUM(fact_ap[AP Amount]) / (SUM(fact_ap[COGS Amount]) / 365)
   documentation:
     description: 'Payables efficiency: AP / (COGS/365).'
     notes: 'Grain: month. Unit: days.
@@ -224,7 +226,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 02_WorkingCapital
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: AR Amount = SUM(fact_ar[AR Amount])
+    aggregation_method: sum
   documentation:
     description: Accounts receivable balance for DSO calculations.
     notes: 'Source: fact_ar. Aligns to revenue period.'
@@ -244,7 +247,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 02_WorkingCapital
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Revenue Amount = SUM(fact_ar[Revenue Amount])
+    aggregation_method: sum
   documentation:
     description: Revenue base used in DSO calculations.
     notes: 'Source: fact_ar.'
@@ -264,7 +268,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 02_WorkingCapital
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: AP Amount = SUM(fact_ap[AP Amount])
+    aggregation_method: sum
   documentation:
     description: Accounts payable balance for DPO calculations.
     notes: 'Source: fact_ap.'
@@ -284,7 +289,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 02_WorkingCapital
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Inventory Amount = SUM(fact_inventory[Inventory Amount])
+    aggregation_method: sum
   documentation:
     description: Inventory balance used in DIO calculations.
     notes: 'Source: fact_inventory.'
@@ -304,7 +310,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 03_Cost
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Net Sales Amount = SUM ( fact_sales[Net Sales Amount] )
+    aggregation_method: sum
   documentation:
     description: Net sales base for cost ratios.
     notes: 'Source: fact_finance.'
@@ -324,7 +331,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 03_Cost
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: COGS Amount = SUM(fact_finance[COGS Amount])
+    aggregation_method: sum
   documentation:
     description: Cost of goods sold base for cost ratios.
     notes: 'Source: fact_finance.'
@@ -344,7 +352,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 03_Cost
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Material Cost Amount = SUM(fact_finance[Material Cost Amount])
+    aggregation_method: sum
   documentation:
     description: Material cost base for material share calculations.
     notes: 'Source: fact_finance.'
@@ -364,7 +373,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 04_OpEx
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: OpEx Amount = SUM(fact_finance[OpEx Amount])
+    aggregation_method: sum
   documentation:
     description: Operating expenses base.
     notes: 'Source: fact_finance.'
@@ -384,7 +394,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 04_OpEx
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Plan OpEx Amount = SUM(fact_finance[Plan OpEx Amount])
+    aggregation_method: sum
   documentation:
     description: Planned operating expenses base.
     notes: 'Source: fact_finance.'
@@ -404,7 +415,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 05_Productivity
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Output Units = SUM(fact_output[Output Units])
+    aggregation_method: sum
   documentation:
     description: Output units for productivity and unit cost metrics.
     notes: 'Source: fact_output.'
@@ -424,7 +436,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 05_Productivity
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Labor Hours = SUM(fact_labor[Labor Hours])
+    aggregation_method: ratio
   documentation:
     description: Labor hours for productivity calculations.
     notes: 'Source: fact_labor.'
@@ -445,7 +458,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   category: KPI
   expression:
     aggregation_method: ratio
-    logical: 'Unit Cost = SUM(fact_cost[COGS Amount]) / SUM(fact_output[Output Units])'
+    logical: Unit Cost = SUM(fact_cost[COGS Amount]) / SUM(fact_output[Output Units])
   documentation:
     description: Total COGS / units produced or sold.
     notes: 'Grain: plant_line_product_month. Unit: EUR per unit.
@@ -473,7 +486,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   category: KPI
   expression:
     aggregation_method: ratio
-    logical: 'COGS % = SUM(fact_finance[COGS Amount]) / SUM(fact_finance[Net Sales Amount])'
+    logical: COGS % = SUM(fact_finance[COGS Amount]) / SUM(fact_finance[Net Sales Amount])
   documentation:
     description: 'Cost share: COGS / Net Sales.'
     notes: 'Grain: month. Unit: %.
@@ -500,7 +513,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 04_OpEx
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: OpEx vs Plan % = (OpEx Amount - OpEx Plan Amount) / OpEx Plan Amount.
+    aggregation_method: ratio
   documentation:
     description: 'Overhead control: (OpEx - Plan) / Plan.'
     notes: 'Grain: month. Unit: %.
@@ -527,7 +541,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 03_Cost
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Material Cost % = Material Cost Amount / Net Sales Amount.
+    aggregation_method: ratio
   documentation:
     description: Material cost / Net Sales.
     notes: 'Grain: month. Unit: %.
@@ -554,7 +569,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 05_Productivity
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Labor Productivity % = Output Units or Net Sales divided by Labor Hours (normalized to % baseline).
+    aggregation_method: ratio
   documentation:
     description: Output vs labor hours (or revenue per labor hour).
     notes: 'Grain: month. Unit: % / index.
@@ -581,7 +597,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 06_Profitability
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: EBITDA Margin = SUM(fact_finance[EBITDA])
+    aggregation_method: sum
   documentation:
     description: EBITDA / Net Sales.
     notes: 'Grain: month. Unit: %.
@@ -608,7 +625,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from data contract>`
   display_folder: 02_WorkingCapital
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: COGS Amount (AP) = SUM(fact_ap[COGS Amount])
+    aggregation_method: sum
   documentation:
     description: COGS amount used as AP base for DPO calculations.
     notes: 'Source: fact_ap[COGS Amount].'

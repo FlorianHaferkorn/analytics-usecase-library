@@ -10,7 +10,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Digital
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Digital Adoption % = Digital Transactions Count / Total Transactions Count for eligible processes.
+    aggregation_method: ratio
   documentation:
     description: Digital tool users divided by total employees.
     notes: 'Grain: month. Unit: %.
@@ -26,7 +27,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_hr[Headcount]
   governance:
     owner: People Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 ```

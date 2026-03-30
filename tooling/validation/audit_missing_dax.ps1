@@ -1,3 +1,8 @@
+# NOTE: As of 2026-03-29, dax_expression has been removed from the KPI Catalog (core is tool-agnostic).
+# DAX expressions now live exclusively in the Fabric overlay:
+#   products/fabric/powerbi/specs/fabric_measure_overlay.yaml
+# This script may need updating to scan the overlay instead of the KPI Catalog.
+
 Param(
   [string]$UseCasesRoot,
   [string]$KpiCatalogRoot,

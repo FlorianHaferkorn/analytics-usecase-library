@@ -3,15 +3,11 @@
 from __future__ import annotations
 
 import json
-import sys
 import textwrap
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-
-# Ensure tooling/ is importable
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from health_scorecard import (
     _extract_section,
     _scan_action_code_kpi_refs,

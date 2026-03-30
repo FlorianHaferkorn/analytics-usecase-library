@@ -48,14 +48,24 @@ cash conversion, and improved resilience.
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| wc.ccc.days | Strategic |
+| fin.cash.balance | Influencing |
+| fin.cash.ocf | Influencing |
+| fin.cash.vs_plan.pct | Influencing |
+| wc.dso.days | Influencing |
+| wc.dio.days | Influencing |
+| wc.dpo.days | Influencing |
+| scm.service_level.pct | Influencing |
+| scm.supplier_risk.score | Influencing |
+| fin.liquidity.inventory.amount | Supporting |
 
+**Action Codes:** F-C1.1, F-C1.2, S-I1.2, F-C1.4
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 

@@ -211,8 +211,7 @@ Get-KpiBlocks -Root $resolvedCatalogRoot | ForEach-Object {
     $bizDef     = $chunk -match '(?m)^\s*definition\s*:\s*"'
     $bizGrain   = $chunk -match '(?m)^\s*grain_scope\s*:\s*"'
     $bizUnit    = $chunk -match '(?m)^\s*unit_format\s*:\s*"'
-    $tecName    = $chunk -match '(?m)^\s*dax_name\s*:\s*"'
-    $tecFmt     = $chunk -match '(?m)^\s*formatString\s*:\s*"'
+    $tecName    = $chunk -match '(?m)^\s*(measure_name|dax_name)\s*:\s*"'
     $tecDesc    = $chunk -match '(?m)^\s*description\s*:\s*"'
     $govBOwner  = $chunk -match '(?m)^\s*business_owner\s*:\s*"'
     $govDOwner  = $chunk -match '(?m)^\s*data_owner\s*:\s*"'
@@ -229,7 +228,7 @@ Get-KpiBlocks -Root $resolvedCatalogRoot | ForEach-Object {
       if (-not $hasTec) { $errors += "missing technical block for $id ($file)" }
       if (-not $hasGov) { $errors += "missing governance block for $id ($file)" }
       if ($hasBiz -and (-not ($bizPurpose -and $bizDef -and $bizGrain -and $bizUnit))) { $errors += "incomplete business block for $id ($file)" }
-      if ($hasTec -and (-not ($tecName -and $tecFmt -and $tecDesc))) { $errors += "incomplete technical block for $id ($file)" }
+      if ($hasTec -and (-not ($tecName -and $tecDesc))) { $errors += "incomplete technical block for $id ($file)" }
       if ($hasGov -and (-not ($govBOwner -and $govDOwner))) { $errors += "incomplete governance block for $id ($file)" }
     } else {
       if (-not $hasTec) { $warnings += "technical block recommended for $id ($file)" }

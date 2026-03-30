@@ -31,17 +31,16 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   category: KPI
   expression:
     aggregation_method: ratio
-    logical: 'OEE = Availability % * Performance % * Quality % = (SUM(Run Time) / SUM(Planned Time)) * (SUM(Output Units) / (SUM(Planned Time) * Standard Rate)) * (SUM(Good Units) / SUM(Output Units))'
+    logical: OEE = Availability % * Performance % * Quality % = (SUM(Run Time) / SUM(Planned Time)) * (SUM(Output Units) /
+      (SUM(Planned Time) * Standard Rate)) * (SUM(Good Units) / SUM(Output Units))
   documentation:
-    description: Overall equipment effectiveness combining availability, performance,
-      and quality.
+    description: Overall equipment effectiveness combining availability, performance, and quality.
     notes: 'Grain: line_day. Unit: %.
 
-      Lineage: fact_ops[Run Time Minutes], fact_ops[Planned Time Minutes], fact_ops[Output
-      Units], fact_ops[Good Units].
+      Lineage: fact_ops[Run Time Minutes], fact_ops[Planned Time Minutes], fact_ops[Output Units], fact_ops[Good Units].
 
-      QA: Ensure consistent time base; flags for downtime types; DIVIDE guards; replace
-      Perf divisor with theoretical output when available.
+      QA: Ensure consistent time base; flags for downtime types; DIVIDE guards; replace Perf divisor with theoretical output
+      when available.
 
       '
   dependencies:
@@ -64,7 +63,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   category: KPI
   expression:
     aggregation_method: ratio
-    logical: 'Availability = SUM(fact_ops[Run Time Minutes]) / SUM(fact_ops[Planned Time Minutes])'
+    logical: Availability = SUM(fact_ops[Run Time Minutes]) / SUM(fact_ops[Planned Time Minutes])
   documentation:
     description: 'Uptime control: Run Time / Planned Production Time.'
     notes: 'Grain: line_day. Unit: %.
@@ -91,7 +90,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Performance % = Actual output / Theoretical maximum output
+    aggregation_method: ratio
   documentation:
     description: 'Speed vs standard: Actual Output / Theoretical Output.'
     notes: 'Grain: line_day. Unit: %.
@@ -119,7 +119,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Planned Hours = Sum of planned production hours
+    aggregation_method: ratio
   documentation:
     description: Scheduled production time allocated for machines/lines.
     notes: 'Grain: machine/line level per shift/day.
@@ -146,7 +147,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Quality % = Good units / Total units
+    aggregation_method: ratio
   documentation:
     description: 'First pass yield: Good Units / Total Units.'
     notes: 'Grain: line_day. Unit: %.
@@ -173,7 +175,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 02_Throughput
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Throughput Units = Sum of produced units in the period.
+    aggregation_method: sum
   documentation:
     description: Volume output over time.
     notes: 'Grain: line_day. Unit: qty.
@@ -199,7 +202,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 03_Downtime
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Downtime % = Downtime Minutes / Planned Time Minutes.
+    aggregation_method: ratio
   documentation:
     description: 'Loss share: Downtime / Planned Production Time.'
     notes: 'Grain: line_day. Unit: %.
@@ -226,7 +230,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 03_Downtime
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Run Time Minutes = SUM(fact_ops[Run Time Minutes])
+    aggregation_method: sum
   documentation:
     description: Total run time in minutes.
     notes: 'Source: fact_ops[Run Time Minutes].'
@@ -246,7 +251,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 03_Downtime
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Downtime Minutes = SUM(fact_ops[Downtime Minutes])
+    aggregation_method: sum
   documentation:
     description: Total downtime minutes (planned + unplanned if not split).
     notes: 'Source: fact_ops[Downtime Minutes].'
@@ -266,7 +272,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 03_Downtime
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Unplanned Downtime Minutes = SUM(fact_ops[Unplanned Downtime Minutes])
+    aggregation_method: sum
   documentation:
     description: Unplanned downtime minutes.
     notes: 'Source: fact_ops[Unplanned Downtime].'
@@ -286,7 +293,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 02_Throughput
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Standard Output Units = SUM(fact_ops[Planned Time Minutes])
+    aggregation_method: sum
   documentation:
     description: Theoretical output based on planned time and standard rate.
     notes: 'Source: fact_ops planned time and standard rate.'
@@ -307,7 +315,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 04_Reliability
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Failure Count = SUM(fact_ops_failures[Failure Start DateTime])
+    aggregation_method: count
   documentation:
     description: Count of failure events.
     notes: 'Source: fact_ops_failures[Failure Start].'
@@ -327,7 +336,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 04_Reliability
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: MTBF (hours) = Operating Time Hours / Number of Failures.
+    aggregation_method: ratio
   documentation:
     description: Mean time between failures.
     notes: 'Grain: asset. Unit: hours.
@@ -354,7 +364,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 04_Reliability
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: MTTR (hours) = Total Repair Time Hours / Number of Failures.
+    aggregation_method: ratio
   documentation:
     description: Mean time to repair.
     notes: 'Grain: asset. Unit: hours.
@@ -380,7 +391,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 03_Downtime
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Unplanned Downtime % = Unplanned Downtime Minutes / Planned Time Minutes.
+    aggregation_method: ratio
   documentation:
     description: Unplanned downtime share of planned time.
     notes: 'Grain: asset_day. Unit: %.
@@ -407,7 +419,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 05_Maintenance
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Spare Parts Stockout % = Stockout Events / Total Parts Requests.
+    aggregation_method: ratio
   documentation:
     description: Maintenance readiness via stockout rate for parts.
     notes: 'Grain: month. Unit: %.
@@ -434,10 +447,10 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 05_Maintenance
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: PM Compliance % = Completed PM Orders / Planned PM Orders.
+    aggregation_method: ratio
   documentation:
-    description: 'Preventive maintenance discipline: on-time PM orders / planned PM
-      orders.'
+    description: 'Preventive maintenance discipline: on-time PM orders / planned PM orders.'
     notes: 'Grain: month. Unit: %.
 
       Lineage: fact_maintenance[PM On Time], fact_maintenance[PM Planned].
@@ -463,7 +476,7 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   category: KPI
   expression:
     aggregation_method: ratio
-    logical: 'FPY = SUM(fact_quality[Good Units]) / SUM(fact_quality[Total Units])'
+    logical: FPY = SUM(fact_quality[Good Units]) / SUM(fact_quality[Total Units])
   documentation:
     description: Good units / total units at first pass.
     notes: 'Grain: line_day. Unit: %.
@@ -490,7 +503,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 06_Quality
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Scrap Rate % = Scrap Units / Total Units.
+    aggregation_method: ratio
   documentation:
     description: Scrap units / total units.
     notes: 'Grain: line_day. Unit: %.
@@ -517,7 +531,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 06_Quality
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Rework Rate % = Reworked Units / Total Units.
+    aggregation_method: ratio
   documentation:
     description: Reworked units / total units.
     notes: 'Grain: line_day. Unit: %.
@@ -544,7 +559,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 06_Quality
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Total Units = SUM(fact_quality[Total Units])
+    aggregation_method: sum
   documentation:
     description: Total produced units in the selected context.
     notes: 'Source: fact_quality[Total Units].'
@@ -564,7 +580,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 06_Quality
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Good Units = SUM(fact_quality[Good Units])
+    aggregation_method: sum
   documentation:
     description: Conforming units produced.
     notes: 'Source: fact_quality[Good Units].'
@@ -584,7 +601,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 06_Quality
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Scrap Units = SUM(fact_quality[Scrap Units])
+    aggregation_method: sum
   documentation:
     description: Scrapped units in the selected context.
     notes: 'Source: fact_quality[Scrap Units].'
@@ -604,7 +622,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 06_Quality
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Rework Units = SUM(fact_quality[Rework Units])
+    aggregation_method: sum
   documentation:
     description: Reworked units in the selected context.
     notes: 'Source: fact_quality[Rework Units].'
@@ -624,7 +643,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 06_Quality
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Cost of Poor Quality = Sum of cost impacts for quality failures in period.
+    aggregation_method: sum
   documentation:
     description: Financial impact from scrap, rework, and warranty/complaint costs.
     notes: 'Grain: month. Unit: EUR.
@@ -650,7 +670,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 06_Quality
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Complaint Rate % = Complaint Count / Units Shipped.
+    aggregation_method: ratio
   documentation:
     description: Complaints / units shipped.
     notes: 'Grain: month. Unit: %.
@@ -677,7 +698,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 06_Quality
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Complaint Count = COUNTROWS ( fact_experience )
+    aggregation_method: count
   documentation:
     description: Number of complaints in the selected context.
     notes: 'Source: fact_complaints[Complaint Count].'
@@ -697,7 +719,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 06_Quality
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Shipped Units = SUM(fact_shipments[Shipped Units])
+    aggregation_method: sum
   documentation:
     description: Units shipped used as denominator for complaint rate.
     notes: 'Source: fact_shipments[Shipped Units].'
@@ -717,7 +740,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 06_Quality
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Defect Density = (Defect Count / Total Units) * 1,000.
+    aggregation_method: sum
   documentation:
     description: Defects per 1k units.
     notes: 'Grain: line_day. Unit: defects per 1k units.
@@ -744,7 +768,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 03_Downtime
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Planned Time = SUM(fact_ops[Planned Time Minutes])
+    aggregation_method: sum
   documentation:
     description: Total planned production time in minutes.
     notes: 'Source: fact_ops[Planned Time Minutes].'
@@ -764,7 +789,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 03_Downtime
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Run Time = SUM(fact_ops[Run Time Minutes])
+    aggregation_method: sum
   documentation:
     description: Total run time in minutes.
     notes: 'Source: fact_ops[Run Time Minutes].'
@@ -784,7 +810,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 01_Ops
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Output Units = SUM(fact_ops[Output Units])
+    aggregation_method: sum
   documentation:
     description: Total output units.
     notes: 'Source: fact_ops[Output Units].'
@@ -804,7 +831,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 04_Quality
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Defect Count = SUM(fact_quality[Defect Count])
+    aggregation_method: count
   documentation:
     description: Total defect count.
     notes: 'Source: fact_quality[Defect Count].'
@@ -824,7 +852,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Failure Count = Count of recorded failure events.
+    aggregation_method: count
   documentation:
     description: Count of recorded equipment or process failures.
     notes: 'Grain: asset_day. Unit: count.
@@ -850,7 +879,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Planned Output Units = Sum of planned output units for the period.
+    aggregation_method: sum
   documentation:
     description: Planned production output units.
     notes: 'Grain: line_day. Unit: units.
@@ -876,7 +906,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Preventive Maintenance Task Count = Count of PM tasks in the period.
+    aggregation_method: count
   documentation:
     description: Count of preventive maintenance tasks.
     notes: 'Grain: asset_day. Unit: count.
@@ -902,7 +933,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Production Volume Units = Sum of produced units for the period.
+    aggregation_method: sum
   documentation:
     description: Total produced units in the period.
     notes: 'Grain: line_day. Unit: units.
@@ -928,7 +960,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 04_Quality
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Quality Defect Rate % = Defective Units / Total Produced Units.
+    aggregation_method: ratio
   documentation:
     description: Defect count divided by total output units.
     notes: 'Grain: line_day. Unit: %.
@@ -955,7 +988,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 05_Safety
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Safety Incident Count = Count of recorded safety incidents.
+    aggregation_method: count
   documentation:
     description: Count of safety incidents in the period.
     notes: 'Grain: site_day. Unit: count.
@@ -981,7 +1015,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Operations Service Level % = On-Time or In-Full Deliveries / Total Deliveries.
+    aggregation_method: ratio
   documentation:
     description: On-time delivery rate for operational fulfillment.
     notes: 'Grain: shipment_day. Unit: %.
@@ -1008,7 +1043,8 @@ Format: `MEASURE_NAME = <pseudocode using column references from operations data
   display_folder: 04_Quality
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Yield % = Good Units / Total Units Produced.
+    aggregation_method: ratio
   documentation:
     description: Good units divided by total output.
     notes: 'Grain: line_day. Unit: %.

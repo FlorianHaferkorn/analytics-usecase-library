@@ -6,6 +6,7 @@ dimension:
   - name: dim_date
     description: "Calendar dimension with fiscal hierarchy for time slicing."
     purpose: "Time dimension for operations reporting."
+    scd_type: 1
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -18,6 +19,7 @@ dimension:
   - name: dim_org
     description: "Organization dimension (plant, line, shift, region) for operations."
     purpose: "Scoping for production and quality reporting."
+    scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Plant, type: text}
@@ -29,6 +31,7 @@ dimension:
   - name: dim_asset
     description: "Asset or production line dimension (code, name, class, criticality) for OEE and maintenance."
     purpose: "Asset-level performance and downtime analysis."
+    scd_type: 2
     columns:
       - {name: AssetKey, type: int, role: key}
       - {name: AssetCode, type: text}
@@ -40,6 +43,7 @@ dimension:
   - name: dim_product
     description: "Product dimension for quality and output reporting."
     purpose: "Product-level quality and throughput."
+    scd_type: 2
     columns:
       - {name: ProductKey, type: int, role: key}
       - {name: ProductCode, type: text}

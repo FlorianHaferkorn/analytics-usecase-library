@@ -6,6 +6,7 @@ dimension:
   - name: dim_date
     description: "Calendar dimension for finance reporting."
     purpose: "Time dimension for P&L, cash flow, and working capital."
+    scd_type: 1
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -17,6 +18,7 @@ dimension:
   - name: dim_org
     description: "Entity/organization dimension (entity, region, country) for finance."
     purpose: "Scoping for P&L and balance sheet."
+    scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Entity, type: text}
@@ -26,6 +28,7 @@ dimension:
   - name: dim_customer
     description: "Customer dimension for AR and revenue attribution."
     purpose: "Customer-level receivables and revenue."
+    scd_type: 2
     columns:
       - {name: CustomerKey, type: int, role: key}
       - {name: CustomerCode, type: text}
@@ -35,6 +38,7 @@ dimension:
   - name: dim_supplier
     description: "Supplier dimension for AP and procurement attribution."
     purpose: "Supplier-level payables and COGS."
+    scd_type: 2
     columns:
       - {name: SupplierKey, type: int, role: key}
       - {name: SupplierCode, type: text}
@@ -44,6 +48,7 @@ dimension:
   - name: dim_product
     description: "Product dimension for finance (inventory, COGS, cost)."
     purpose: "Product-level P&L and working capital."
+    scd_type: 2
     columns:
       - {name: ProductKey, type: int, role: key}
       - {name: ProductCode, type: text}
@@ -56,8 +61,8 @@ fact:
     purpose: "Cash position and liquidity."
     grain: day
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: Cash Balance Amount, type: currency, agg: sum}
       - {name: Plan Cash Amount, type: currency, agg: sum, nullable: true}
 
@@ -66,8 +71,8 @@ fact:
     purpose: "Cash flow and liquidity planning."
     grain: month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: Operating Cash Flow Amount, type: currency, agg: sum}
       - {name: CapEx Amount, type: currency, agg: sum, nullable: true}
       - {name: Plan OCF Amount, type: currency, agg: sum, nullable: true}
@@ -77,9 +82,9 @@ fact:
     purpose: "AR aging and revenue recognition."
     grain: month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: CustomerKey, type: int, ref: dim_customer, nullable: true}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: CustomerKey, type: int, ref: dim_customer, nullable: true, cardinality: many-to-one}
       - {name: AR Amount, type: currency, agg: sum}
       - {name: Revenue Amount, type: currency, agg: sum}
 
@@ -88,9 +93,9 @@ fact:
     purpose: "AP aging and payables management."
     grain: month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: SupplierKey, type: int, ref: dim_supplier, nullable: true}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: SupplierKey, type: int, ref: dim_supplier, nullable: true, cardinality: many-to-one}
       - {name: AP Amount, type: currency, agg: sum}
       - {name: COGS Amount, type: currency, agg: sum}
 
@@ -99,9 +104,9 @@ fact:
     purpose: "Working capital and inventory valuation."
     grain: month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: ProductKey, type: int, ref: dim_product, nullable: true}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: ProductKey, type: int, ref: dim_product, nullable: true, cardinality: many-to-one}
       - {name: Inventory Amount, type: currency, agg: sum}
       - {name: COGS Amount, type: currency, agg: sum}
 
@@ -110,8 +115,8 @@ fact:
     purpose: "P&L and management reporting."
     grain: entity_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: Net Sales Amount, type: currency, agg: sum}
       - {name: COGS Amount, type: currency, agg: sum}
       - {name: EBITDA Amount, type: currency, agg: sum}
@@ -124,9 +129,9 @@ fact:
     purpose: "Cost analysis and variance."
     grain: plant_line_product_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one}
       - {name: COGS Amount, type: currency, agg: sum}
       - {name: Material Cost Amount, type: currency, agg: sum, nullable: true}
       - {name: Overhead Amount, type: currency, agg: sum, nullable: true}
@@ -136,9 +141,9 @@ fact:
     purpose: "Production output for cost per unit."
     grain: plant_line_product_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one}
       - {name: Output Units, type: decimal, agg: sum}
 
   - name: fact_labor
@@ -146,8 +151,8 @@ fact:
     purpose: "Labor cost and productivity."
     grain: plant_line_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: Labor Hours, type: decimal, agg: sum}
 
 quality_rules:

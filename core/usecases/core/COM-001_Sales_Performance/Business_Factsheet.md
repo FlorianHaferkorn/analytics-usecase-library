@@ -46,14 +46,24 @@ diagnostics (COM-002); pipeline/win-loss (COM-010).
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| margin.gm.pct | Strategic |
+| cost.cogs.amount | Influencing |
+| sales.net_sales.amount | Influencing |
+| sales.net_sales.delta_pct.plan | Influencing |
+| sales.net_sales.delta_pct.ly | Influencing |
+| sales.pvm.price_effect.amount | Influencing |
+| sales.pvm.volume_effect.amount | Influencing |
+| sales.pvm.mix_effect.amount | Influencing |
+| sales.price.list.amount | Supporting |
+| sales.price.net.amount | Supporting |
 
+**Action Codes:** C-M2.1, C-S1.1, C-S1.2
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 

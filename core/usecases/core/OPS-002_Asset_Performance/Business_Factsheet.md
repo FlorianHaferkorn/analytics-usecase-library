@@ -46,14 +46,24 @@ factsheet_type: business
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| ops.mtbf.hours | Strategic |
+| ops.availability.pct | Influencing |
+| ops.mttr.hours | Influencing |
+| ops.downtime.unplanned.pct | Influencing |
+| ops.spare_parts.stockout.pct | Influencing |
+| ops.pm_compliance.pct | Influencing |
+| ops.failure.count | Influencing |
+| ops.inventory.value.amount | Influencing |
+| ops.pm.task.count | Influencing |
+| ops.safety.incident.count | Influencing |
 
+**Action Codes:** O-A2.1, O-A2.2, O-A2.3, O-A2.4, O-A2.5
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 

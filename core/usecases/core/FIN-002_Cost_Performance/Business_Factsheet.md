@@ -45,14 +45,26 @@ factsheet_type: business
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| cost.unit.amount | Strategic |
+| margin.cogs.pct | Influencing |
+| cost.opex.vs_plan.pct | Influencing |
+| cost.material.pct | Influencing |
+| ops.labor.productivity.pct | Influencing |
+| cost.base_volume.amount | Influencing |
+| cost.opex.base.amount | Influencing |
+| ops.production.volume | Influencing |
+| ops.quality.defect_rate.pct | Influencing |
+| ops.service_level.pct | Influencing |
+| ops.yield.pct | Influencing |
+| sales.net_sales.amount | Supporting |
 
+**Action Codes:** F-K2.1, F-K2.2, F-K2.3, F-K2.4
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 

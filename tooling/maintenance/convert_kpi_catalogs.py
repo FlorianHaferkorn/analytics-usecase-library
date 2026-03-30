@@ -17,9 +17,7 @@ SCHEMA_FILENAME = "KPI_Catalog_SCHEMA.md"
 
 BUSINESS_KEYS = {"purpose", "definition", "grain_scope", "unit_format", "interpretation"}
 TECHNICAL_KEYS = {
-    "dax_name",
-    "dax_expression",
-    "formatString",
+    "measure_name",
     "description",
     "lineage",
     "source_grain",
@@ -196,7 +194,7 @@ def transform_entry(entry: Dict, id_to_measure: Dict[str, str]) -> Dict:
         elif isinstance(existing, str):
             depends = [existing]
     kpi["technical"] = {
-        "dax_name": tech.get("dax_name") or tech.get("daxName") or "",
+        "measure_name": tech.get("measure_name") or tech.get("dax_name") or tech.get("daxName") or "",
         "depends_on_measures": depends,
         "lineage": lineage,
     }
@@ -258,7 +256,7 @@ def build_catalog_content(entries: List[Dict], title: str) -> str:
 def process_catalog(path: Path, dry_run: bool = False) -> None:
     entries = parse_catalog(path)
     id_to_measure = {
-        entry.data.get("kpi_id"): (entry.data.get("technical") or {}).get("dax_name", "")
+        entry.data.get("kpi_id"): (entry.data.get("technical") or {}).get("measure_name", "") or (entry.data.get("technical") or {}).get("dax_name", "")
         for entry in entries
     }
     converted = [transform_entry(entry.data, id_to_measure) for entry in entries]
