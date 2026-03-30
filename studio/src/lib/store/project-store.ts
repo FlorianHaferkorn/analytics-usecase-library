@@ -36,6 +36,10 @@ export interface ThemeConfig {
   text: string;
   fontFamily: string;
   borderRadius: number;
+  fontWeight?: number;
+  lineHeight?: number;
+  letterSpacing?: number;
+  shadow?: string;
 }
 
 /** Project-level state. */

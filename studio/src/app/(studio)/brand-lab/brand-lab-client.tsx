@@ -6,6 +6,7 @@ import { LayoutPreview } from '@/components/brand/layout-preview';
 import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { ThemeExportPanel } from '@/components/brand/theme-export-panel';
 import { CssPreview } from '@/components/brand/css-preview';
+import { ContrastBadge } from '@/components/brand/contrast-badge';
 import { useProjectStore, DEFAULT_THEME } from '@/lib/store/project-store';
 import type { ThemeConfig } from '@/lib/store/project-store';
 
@@ -121,12 +122,21 @@ export function BrandLabClient() {
             Colors
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1-5)' }}>
-            <ColorPicker label="Primary" value={theme.primary} onChange={(v) => updateTheme({ primary: v })} />
-            <ColorPicker label="Secondary" value={theme.secondary} onChange={(v) => updateTheme({ secondary: v })} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)' }}>
+              <div style={{ flex: 1 }}><ColorPicker label="Primary" value={theme.primary} onChange={(v) => updateTheme({ primary: v })} /></div>
+              <ContrastBadge fg={theme.primary} bg={theme.background} />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)' }}>
+              <div style={{ flex: 1 }}><ColorPicker label="Secondary" value={theme.secondary} onChange={(v) => updateTheme({ secondary: v })} /></div>
+              <ContrastBadge fg={theme.secondary} bg={theme.background} />
+            </div>
             <ColorPicker label="Accent" value={theme.accent} onChange={(v) => updateTheme({ accent: v })} />
             <ColorPicker label="Background" value={theme.background} onChange={(v) => updateTheme({ background: v })} />
             <ColorPicker label="Surface" value={theme.surface} onChange={(v) => updateTheme({ surface: v })} />
-            <ColorPicker label="Text" value={theme.text} onChange={(v) => updateTheme({ text: v })} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)' }}>
+              <div style={{ flex: 1 }}><ColorPicker label="Text" value={theme.text} onChange={(v) => updateTheme({ text: v })} /></div>
+              <ContrastBadge fg={theme.text} bg={theme.background} />
+            </div>
           </div>
         </div>
 
@@ -166,6 +176,48 @@ export function BrandLabClient() {
             </div>
             <div>
               <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>
+                Font Weight ({theme.fontWeight ?? 400})
+              </label>
+              <input
+                type="range"
+                min={300}
+                max={700}
+                step={100}
+                value={theme.fontWeight ?? 400}
+                onChange={(e) => updateTheme({ fontWeight: Number(e.target.value) })}
+                style={{ width: '100%' }}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>
+                Line Height ({theme.lineHeight ?? 1.5})
+              </label>
+              <input
+                type="range"
+                min={1.25}
+                max={1.75}
+                step={0.05}
+                value={theme.lineHeight ?? 1.5}
+                onChange={(e) => updateTheme({ lineHeight: Number(e.target.value) })}
+                style={{ width: '100%' }}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>
+                Letter Spacing ({(theme.letterSpacing ?? 0).toFixed(3)}em)
+              </label>
+              <input
+                type="range"
+                min={-0.025}
+                max={0.05}
+                step={0.005}
+                value={theme.letterSpacing ?? 0}
+                onChange={(e) => updateTheme({ letterSpacing: Number(e.target.value) })}
+                style={{ width: '100%' }}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>
                 Border Radius ({theme.borderRadius}px)
               </label>
               <input
@@ -177,6 +229,28 @@ export function BrandLabClient() {
                 onChange={(e) => updateTheme({ borderRadius: Number(e.target.value) })}
                 style={{ width: '100%' }}
               />
+            </div>
+            <div>
+              <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>Shadow</label>
+              <select
+                value={theme.shadow ?? 'none'}
+                onChange={(e) => updateTheme({ shadow: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: 'var(--sp-0-5) var(--sp-1)',
+                  backgroundColor: 'var(--slate-900)',
+                  border: '1px solid var(--slate-700)',
+                  borderRadius: 'var(--radius-sm)',
+                  color: 'var(--slate-100)',
+                  fontSize: '0.8125rem',
+                }}
+              >
+                <option value="none">None</option>
+                <option value="0 1px 2px rgba(0,0,0,0.25)">Small</option>
+                <option value="0 4px 6px rgba(0,0,0,0.3)">Medium</option>
+                <option value="0 10px 15px rgba(0,0,0,0.35)">Large</option>
+                <option value="0 20px 25px rgba(0,0,0,0.4)">Extra Large</option>
+              </select>
             </div>
           </div>
         </div>

@@ -69,6 +69,35 @@ export const transitions = {
   slow: 400,
 } as const;
 
+export const fontWeights = {
+  light: 300,
+  normal: 400,
+  medium: 500,
+  semibold: 600,
+  bold: 700,
+} as const;
+
+export const lineHeights = {
+  tight: 1.25,
+  normal: 1.5,
+  relaxed: 1.75,
+} as const;
+
+export const letterSpacings = {
+  tight: '-0.025em',
+  normal: '0em',
+  wide: '0.025em',
+  wider: '0.05em',
+} as const;
+
+export const shadows = {
+  none: 'none',
+  sm: '0 1px 2px rgba(0,0,0,0.25)',
+  md: '0 4px 6px rgba(0,0,0,0.3)',
+  lg: '0 10px 15px rgba(0,0,0,0.35)',
+  xl: '0 20px 25px rgba(0,0,0,0.4)',
+} as const;
+
 /** RAG status colors for KPI cards */
 export const ragColors = {
   red: colors.semantic.danger,
