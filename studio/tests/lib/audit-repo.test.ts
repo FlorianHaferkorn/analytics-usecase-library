@@ -26,6 +26,8 @@ function createTestDb(): Database.Database {
       entity_id TEXT NOT NULL,
       action TEXT NOT NULL,
       diff_json TEXT NOT NULL DEFAULT '{}',
+      prev_hash TEXT,
+      hash TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       FOREIGN KEY (project_id) REFERENCES projects(id)
     );

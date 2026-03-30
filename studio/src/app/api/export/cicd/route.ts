@@ -3,6 +3,7 @@ import { loadBracket } from '@/lib/core/bracket-loader';
 import { loadKpiMap } from '@/lib/core/catalog-loader';
 import { buildIRPackage, type IRPackage } from '@/lib/delivery/ir-builder';
 import { generateGitHubWorkflow, generateValidationPipeline, generateDeployScript } from '@/lib/delivery/cicd-adapter';
+import { auditWithActor } from '@/lib/db/audit-helpers';
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -25,6 +26,11 @@ export async function POST(request: Request) {
   const workflow = generateGitHubWorkflow(packages);
   const validation = generateValidationPipeline(packages);
   const deployScript = generateDeployScript(packages);
+
+  await auditWithActor('export', 'cicd', 'export', {
+    before: null,
+    after: { format: 'cicd', useCaseIds, packageCount: packages.length },
+  });
 
   return NextResponse.json({
     results: [{

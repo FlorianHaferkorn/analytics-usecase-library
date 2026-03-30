@@ -9,6 +9,7 @@ import { NextResponse } from 'next/server';
 import { loadBracket } from '@/lib/core/bracket-loader';
 import { loadKpiMap } from '@/lib/core/catalog-loader';
 import { buildIRPackage, type IRPackage } from '@/lib/delivery/ir-builder';
+import { auditWithActor } from '@/lib/db/audit-helpers';
 
 export interface ExportResult {
   useCaseId: string;
@@ -19,10 +20,11 @@ export interface ExportResult {
 
 type AdapterFn = (ir: IRPackage) => Record<string, unknown>;
 
-/** Process an export request: load brackets, build IR, apply adapter. */
+/** Process an export request: load brackets, build IR, apply adapter, log audit. */
 export async function processExportRequest(
   request: Request,
-  adapter: AdapterFn
+  adapter: AdapterFn,
+  exportFormat = 'generic',
 ): Promise<NextResponse> {
   const body = await request.json();
   const { useCaseIds } = body as { useCaseIds: string[] };
@@ -46,6 +48,12 @@ export async function processExportRequest(
       return { useCaseId, ir, outputs };
     })
   );
+
+  // Log audit event for the export
+  await auditWithActor('export', exportFormat, 'export', {
+    before: null,
+    after: { format: exportFormat, useCaseIds, resultCount: results.length },
+  });
 
   return NextResponse.json({ results });
 }

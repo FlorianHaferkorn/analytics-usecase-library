@@ -13,6 +13,7 @@ import {
 } from '@/lib/dashboard/sample-data';
 import { buildHtmlReport, buildBoardPackReport } from '@/lib/report/html-report-builder';
 import type { ReportData } from '@/lib/report/html-report-builder';
+import { auditWithActor } from '@/lib/db/audit-helpers';
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -44,6 +45,11 @@ export async function POST(request: Request) {
   } else {
     html = buildHtmlReport(reportData, theme);
   }
+
+  await auditWithActor('export', 'report', 'export', {
+    before: null,
+    after: { format: 'html-report', mode, projectName },
+  });
 
   return new Response(html, {
     headers: {

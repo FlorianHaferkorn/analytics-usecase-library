@@ -6,6 +6,7 @@
  */
 
 import { getDb } from './sqlite';
+import { chainEvent } from './audit-chain';
 
 export type AuditEntityType =
   | 'bracket'
@@ -59,6 +60,9 @@ export function logAuditEvent(
     INSERT INTO audit_events (id, project_id, actor, entity_type, entity_id, action, diff_json)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `).run(id, projectId, actor, entityType, entityId, action, diffJson);
+
+  // Chain the event for tamper detection
+  chainEvent(id, projectId);
 
   return db.prepare('SELECT * FROM audit_events WHERE id = ?').get(id) as AuditEvent;
 }

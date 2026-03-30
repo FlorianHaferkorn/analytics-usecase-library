@@ -5,5 +5,5 @@ export async function POST(request: Request) {
   return processExportRequest(request, (ir) => ({
     tmdl: generateTmdlMeasures(ir),
     pbip: generatePbipLayout(ir),
-  }));
+  }), 'fabric');
 }

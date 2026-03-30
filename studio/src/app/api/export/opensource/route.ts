@@ -5,5 +5,5 @@ export async function POST(request: Request) {
   return processExportRequest(request, (ir) => ({
     sql: generateSqlViews(ir),
     evidence: generateEvidencePage(ir),
-  }));
+  }), 'opensource');
 }
