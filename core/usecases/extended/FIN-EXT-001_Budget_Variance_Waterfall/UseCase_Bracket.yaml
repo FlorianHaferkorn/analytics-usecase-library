@@ -20,6 +20,10 @@ orchestration:
   action_code_ids:
     - F-C1.2    # Cost containment
     - F-C1.1    # Budget reforecast
+  supporting_kpi_ids:
+    - fin.liquidity.inventory.amount
+    - wc.dio.days
+    - wc.dpo.days
 
 value_driver_model:
   formula: finance.ebit.delta_pct.budget = f(finance.revenue.delta_amount.budget, finance.cogs.delta_amount.budget, finance.opex.delta_amount.budget)
@@ -52,7 +56,7 @@ ux_layout_rules:
     title: Variance Drill-Down & Actions
     template_id: action_matrix
     component_300s:
-      evidence_grain: gl_posting_line
+      evidence_grain: invoice_line
       evidence_columns:
         - cost_centre
         - gl_account

@@ -20,6 +20,10 @@ orchestration:
   action_code_ids:
     - C-M2.1    # Pricing intervention (promotional mechanics)
     - C-S1.2    # Sales channel activation (in-store placement)
+  supporting_kpi_ids:
+    - cost.cogs.amount
+    - sales.price.list.amount
+    - sales.price.net.amount
 
 value_driver_model:
   formula: retail.basket.items_per_transaction = f(retail.category.crosssell_rate.pct, retail.promotion.attachment_rate.pct)
@@ -50,7 +54,7 @@ ux_layout_rules:
     title: Category Drill-Down & Actions
     template_id: action_matrix
     component_300s:
-      evidence_grain: basket_item
+      evidence_grain: invoice_line
       evidence_columns:
         - transaction_id
         - category
