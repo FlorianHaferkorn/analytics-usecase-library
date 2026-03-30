@@ -59,7 +59,7 @@ prioritization:
   implementation_effort: medium
   confidence: 0.8
   reach: division
-  priority_score: 75
+  priority_score: 27
 readiness:
   data_availability: available
   org_capability: ready
