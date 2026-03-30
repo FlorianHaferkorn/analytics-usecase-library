@@ -1,19 +1,31 @@
 /**
  * Audit Repository — Event sourcing for change tracking.
  *
- * Every mutation (bracket edit, project update, theme save) logs an event
- * with before/after diff for accountability and rollback support.
+ * Every mutation (bracket edit, project update, theme save, rule change,
+ * plugin action, export) logs an event with before/after diff.
  */
 
 import { getDb } from './sqlite';
+
+export type AuditEntityType =
+  | 'bracket'
+  | 'project'
+  | 'theme'
+  | 'discovery'
+  | 'notification_rule'
+  | 'plugin'
+  | 'export'
+  | 'governance';
+
+export type AuditAction = 'create' | 'update' | 'delete' | 'export' | 'approve' | 'reject' | 'submit';
 
 export interface AuditEvent {
   id: string;
   project_id: string;
   actor: string;
-  entity_type: 'bracket' | 'project' | 'theme' | 'discovery';
+  entity_type: AuditEntityType;
   entity_id: string;
-  action: 'create' | 'update' | 'delete';
+  action: AuditAction;
   diff_json: string;
   created_at: string;
 }
@@ -21,19 +33,23 @@ export interface AuditEvent {
 export interface AuditDiff {
   before: Record<string, unknown> | null;
   after: Record<string, unknown> | null;
+  justification?: string;
 }
 
 function generateId(): string {
   return `aud-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 }
 
+/**
+ * Log an audit event. Actor is required — pass user email or 'system' for cron/background jobs.
+ */
 export function logAuditEvent(
-  entityType: AuditEvent['entity_type'],
+  entityType: AuditEntityType,
   entityId: string,
-  action: AuditEvent['action'],
+  action: AuditAction,
   diff: AuditDiff,
-  projectId = 'default',
-  actor = 'system',
+  projectId: string,
+  actor: string,
 ): AuditEvent {
   const db = getDb();
   const id = generateId();
@@ -59,7 +75,7 @@ export function getAuditEvents(
 }
 
 export function getAuditEventsByEntity(
-  entityType: AuditEvent['entity_type'],
+  entityType: AuditEntityType,
   entityId: string,
   limit = 50,
 ): AuditEvent[] {

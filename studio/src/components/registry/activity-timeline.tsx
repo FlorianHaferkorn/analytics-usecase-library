@@ -18,6 +18,10 @@ const ENTITY_LABELS: Record<string, string> = {
   project: 'Project',
   theme: 'Theme',
   discovery: 'Discovery',
+  notification_rule: 'Rule',
+  plugin: 'Plugin',
+  export: 'Export',
+  governance: 'Governance',
 };
 
 function relativeTime(dateStr: string): string {
@@ -93,6 +97,12 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
               <span style={{ fontSize: '0.75rem', color: 'var(--slate-100)', fontWeight: 600 }}>
                 {evt.entity_id}
               </span>
+              {/* Actor */}
+              {evt.actor && evt.actor !== 'system' && (
+                <span style={{ fontSize: '0.625rem', color: 'var(--slate-400)' }}>
+                  by {evt.actor}
+                </span>
+              )}
               {/* Timestamp */}
               <span style={{ marginLeft: 'auto', fontSize: '0.625rem', color: 'var(--slate-500)' }}>
                 {relativeTime(evt.created_at)}

@@ -55,7 +55,7 @@ describe('audit-repo', () => {
     const event = logAuditEvent('bracket', 'COM-001', 'update', {
       before: { yaml: 'old' },
       after: { yaml: 'new' },
-    });
+    }, 'default', 'test@co.com');
     expect(event.id).toMatch(/^aud-/);
     expect(event.entity_type).toBe('bracket');
     expect(event.entity_id).toBe('COM-001');
@@ -67,19 +67,18 @@ describe('audit-repo', () => {
     const event = logAuditEvent('theme', 'default', 'update', {
       before: { primary: '#000' },
       after: { primary: '#FFF' },
-    });
+    }, 'default', 'test@co.com');
     const diff = JSON.parse(event.diff_json);
     expect(diff.before).toEqual({ primary: '#000' });
     expect(diff.after).toEqual({ primary: '#FFF' });
   });
 
   it('queries events by project in reverse chronological order', () => {
-    logAuditEvent('bracket', 'COM-001', 'create', { before: null, after: {} });
-    logAuditEvent('bracket', 'COM-002', 'create', { before: null, after: {} });
-    logAuditEvent('project', 'default', 'update', { before: null, after: {} });
+    logAuditEvent('bracket', 'COM-001', 'create', { before: null, after: {} }, 'default', 'test@co.com');
+    logAuditEvent('bracket', 'COM-002', 'create', { before: null, after: {} }, 'default', 'test@co.com');
+    logAuditEvent('project', 'default', 'update', { before: null, after: {} }, 'default', 'test@co.com');
     const events = getAuditEvents('default');
     expect(events).toHaveLength(3);
-    // All events returned for the project
     const entityIds = events.map((e) => e.entity_id);
     expect(entityIds).toContain('COM-001');
     expect(entityIds).toContain('COM-002');
@@ -87,16 +86,16 @@ describe('audit-repo', () => {
   });
 
   it('queries events by entity type and id', () => {
-    logAuditEvent('bracket', 'COM-001', 'create', { before: null, after: {} });
-    logAuditEvent('bracket', 'COM-001', 'update', { before: {}, after: {} });
-    logAuditEvent('bracket', 'COM-002', 'create', { before: null, after: {} });
+    logAuditEvent('bracket', 'COM-001', 'create', { before: null, after: {} }, 'default', 'test@co.com');
+    logAuditEvent('bracket', 'COM-001', 'update', { before: {}, after: {} }, 'default', 'test@co.com');
+    logAuditEvent('bracket', 'COM-002', 'create', { before: null, after: {} }, 'default', 'test@co.com');
     const events = getAuditEventsByEntity('bracket', 'COM-001');
     expect(events).toHaveLength(2);
   });
 
   it('respects limit and offset', () => {
     for (let i = 0; i < 10; i++) {
-      logAuditEvent('bracket', `B-${i}`, 'create', { before: null, after: {} });
+      logAuditEvent('bracket', `B-${i}`, 'create', { before: null, after: {} }, 'default', 'test@co.com');
     }
     const page1 = getAuditEvents('default', 3, 0);
     const page2 = getAuditEvents('default', 3, 3);
@@ -106,8 +105,8 @@ describe('audit-repo', () => {
   });
 
   it('counts events for a project', () => {
-    logAuditEvent('bracket', 'COM-001', 'create', { before: null, after: {} });
-    logAuditEvent('bracket', 'COM-002', 'update', { before: {}, after: {} });
+    logAuditEvent('bracket', 'COM-001', 'create', { before: null, after: {} }, 'default', 'test@co.com');
+    logAuditEvent('bracket', 'COM-002', 'update', { before: {}, after: {} }, 'default', 'test@co.com');
     expect(getAuditEventCount('default')).toBe(2);
   });
 
@@ -123,9 +122,37 @@ describe('audit-repo', () => {
     const event = logAuditEvent('bracket', 'NEW-001', 'create', {
       before: null,
       after: { title: 'New Bracket' },
-    });
+    }, 'default', 'test@co.com');
     const diff = JSON.parse(event.diff_json);
     expect(diff.before).toBeNull();
     expect(diff.after).toEqual({ title: 'New Bracket' });
+  });
+
+  it('supports expanded entity types', () => {
+    const ruleEvent = logAuditEvent('notification_rule', 'rule-1', 'create', {
+      before: null, after: { name: 'Test Rule' },
+    }, 'default', 'admin@co.com');
+    expect(ruleEvent.entity_type).toBe('notification_rule');
+
+    const pluginEvent = logAuditEvent('plugin', 'calc-plugin', 'create', {
+      before: null, after: { name: 'Calculator' },
+    }, 'default', 'admin@co.com');
+    expect(pluginEvent.entity_type).toBe('plugin');
+
+    const exportEvent = logAuditEvent('export', 'fabric-001', 'export', {
+      before: null, after: { format: 'tmdl' },
+    }, 'default', 'admin@co.com');
+    expect(exportEvent.entity_type).toBe('export');
+    expect(exportEvent.action).toBe('export');
+  });
+
+  it('stores justification in diff when provided', () => {
+    const event = logAuditEvent('governance', 'bracket-1', 'approve', {
+      before: { status: 'review' },
+      after: { status: 'approved' },
+      justification: 'Reviewed by CFO',
+    }, 'default', 'admin@co.com');
+    const diff = JSON.parse(event.diff_json);
+    expect(diff.justification).toBe('Reviewed by CFO');
   });
 });

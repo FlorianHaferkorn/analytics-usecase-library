@@ -5,6 +5,7 @@
 import { listRules, createRule, updateRuleEnabled, deleteRule } from '@/lib/db/notification-repo';
 import type { NotificationRule } from '@/lib/notifications/rule-types';
 import { requireAuth } from '@/lib/auth/session';
+import { auditWithKnownActor } from '@/lib/db/audit-helpers';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const [, authError] = await requireAuth();
+  const [user, authError] = await requireAuth();
   if (authError) return authError;
 
   const body = await request.json();
@@ -40,26 +41,43 @@ export async function POST(request: Request) {
     enabled: true,
   });
 
+  auditWithKnownActor(user.email, 'notification_rule', rule.id, 'create', {
+    before: null,
+    after: { name, kpiId, condition, threshold, severity },
+  }, projectId);
+
   return Response.json({ rule }, { status: 201 });
 }
 
 export async function PUT(request: Request) {
-  const [, authError] = await requireAuth();
+  const [user, authError] = await requireAuth();
   if (authError) return authError;
 
   const body = await request.json();
   const { ruleId, enabled } = body as { ruleId: string; enabled: boolean };
   updateRuleEnabled(ruleId, enabled);
+
+  auditWithKnownActor(user.email, 'notification_rule', ruleId, 'update', {
+    before: null,
+    after: { enabled },
+  });
+
   return Response.json({ ok: true });
 }
 
 export async function DELETE(request: Request) {
-  const [, authError] = await requireAuth();
+  const [user, authError] = await requireAuth();
   if (authError) return authError;
 
   const { searchParams } = new URL(request.url);
   const ruleId = searchParams.get('ruleId');
   if (!ruleId) return Response.json({ error: 'ruleId required' }, { status: 400 });
   deleteRule(ruleId);
+
+  auditWithKnownActor(user.email, 'notification_rule', ruleId, 'delete', {
+    before: { ruleId },
+    after: null,
+  });
+
   return Response.json({ ok: true });
 }
