@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getProject, updateProject, createProject } from '@/lib/db/project-repo';
 import { logAuditEvent } from '@/lib/db/audit-repo';
 import { requireAuth } from '@/lib/auth/session';
+import { checkAccess, addProjectMember } from '@/lib/db/rbac-repo';
+import { findOrCreateUser } from '@/lib/db/user-repo';
 
 export async function GET() {
   const project = getProject();
@@ -17,6 +19,11 @@ export async function GET() {
 export async function PATCH(request: Request) {
   const [user, authError] = await requireAuth();
   if (authError) return authError;
+
+  const dbUser = findOrCreateUser(user.email, user.name);
+  if (!checkAccess('default', dbUser.id, 'editor')) {
+    return NextResponse.json({ error: 'Forbidden: editor role required' }, { status: 403 });
+  }
 
   const body = await request.json();
   const { name, strategy_anchor, theme } = body as {
@@ -51,6 +58,11 @@ export async function POST(request: Request) {
   }
 
   const project = createProject(name.trim(), strategyAnchor?.trim() ?? '');
+
+  // Auto-assign creator as project admin
+  const dbUser = findOrCreateUser(user.email, user.name);
+  addProjectMember(project.id, dbUser.id, 'admin');
+
   logAuditEvent('project', project.id, 'create', {
     before: null,
     after: { name: name.trim(), strategy_anchor: strategyAnchor?.trim() ?? '' },

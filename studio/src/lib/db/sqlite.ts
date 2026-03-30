@@ -28,6 +28,13 @@ export function getDb(): Database.Database {
 
 function initSchema(db: Database.Database) {
   db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      email TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS projects (
       id TEXT PRIMARY KEY DEFAULT 'default',
       name TEXT NOT NULL DEFAULT 'Aurora Group',
@@ -35,6 +42,16 @@ function initSchema(db: Database.Database) {
       theme_json TEXT NOT NULL DEFAULT '{}',
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS project_members (
+      user_id TEXT NOT NULL,
+      project_id TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'viewer',
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (user_id, project_id),
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (project_id) REFERENCES projects(id)
     );
 
     CREATE TABLE IF NOT EXISTS discovery_sessions (
