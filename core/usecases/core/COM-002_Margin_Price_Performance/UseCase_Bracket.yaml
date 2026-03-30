@@ -60,6 +60,17 @@ ux_layout_rules:
       - margin.gm.pct
       action_panel: true
       payload_mode: full
+prioritization:
+  business_value: high
+  implementation_effort: medium
+  confidence: 0.85
+  reach: organization
+  priority_score: 42
+readiness:
+  data_availability: available
+  org_capability: ready
+  stakeholder_alignment: aligned
+  overall_readiness: green
 overrides:
   data_contract_ref: core/data_contracts/domains/commercial_sales.yaml
 documentation:

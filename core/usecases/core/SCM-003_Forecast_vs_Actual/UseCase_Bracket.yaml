@@ -54,6 +54,17 @@ ux_layout_rules:
       - plan.forecast.accuracy.pct
       action_panel: true
       payload_mode: full
+prioritization:
+  business_value: high
+  implementation_effort: medium
+  confidence: 0.7
+  reach: division
+  priority_score: 23
+readiness:
+  data_availability: partial
+  org_capability: developing
+  stakeholder_alignment: partial
+  overall_readiness: amber
 overrides:
   data_contract_ref: core/data_contracts/domains/supply_chain.yaml
 documentation:

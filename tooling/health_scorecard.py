@@ -2,7 +2,7 @@
 Framework Health Scorecard
 ==========================
 
-Automates the H1-H5 metrics defined in:
+Automates the H1-H6 metrics defined in:
   core/strategy_operating_model/operating_model/framework_health_metrics.md
 
 Usage:
@@ -24,6 +24,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
+
+import yaml
 
 
 def _repo_root() -> Path:
@@ -467,11 +469,72 @@ def _extract_section(content: str, section_num: int) -> Optional[str]:
 
 
 # ---------------------------------------------------------------------------
+# H6 — Prioritization & Readiness Coverage %
+# ---------------------------------------------------------------------------
+
+def compute_h6(repo_root: Path) -> Dict[str, Any]:
+    """
+    H6: % of use cases that have both a prioritization and readiness block.
+    Measures governance maturity for use case intake and implementation planning.
+    """
+    usecases_dir = repo_root / "core" / "usecases"
+    total = 0
+    with_prio = 0
+    with_readiness = 0
+    with_both = 0
+    missing = []
+
+    for bracket_path in sorted(usecases_dir.rglob("UseCase_Bracket.yaml")):
+        if "templates" in bracket_path.parts:
+            continue
+
+        try:
+            data = yaml.safe_load(bracket_path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+
+        uc_id = data.get("id", bracket_path.parent.name)
+        total += 1
+        has_prio = data.get("prioritization") is not None
+        has_ready = data.get("readiness") is not None
+
+        if has_prio:
+            with_prio += 1
+        if has_ready:
+            with_readiness += 1
+        if has_prio and has_ready:
+            with_both += 1
+        else:
+            missing.append(uc_id)
+
+    if total == 0:
+        return {"metric": "H6", "name": "Prioritization & Readiness Coverage",
+                "score": 0.0, "target": 80.0, "details": {}, "status": "no_data"}
+
+    pct = (with_both / total) * 100
+
+    return {
+        "metric": "H6",
+        "name": "Prioritization & Readiness Coverage",
+        "score": round(pct, 1),
+        "target": 80.0,
+        "status": "pass" if pct >= 80.0 else "below_target",
+        "details": {
+            "total_use_cases": total,
+            "with_prioritization": with_prio,
+            "with_readiness": with_readiness,
+            "with_both": with_both,
+            "missing": missing,
+        },
+    }
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
 def run_scorecard(repo_root: Optional[Path] = None) -> Dict[str, Any]:
-    """Run all H1-H5 metrics and return results dict."""
+    """Run all H1-H6 metrics and return results dict."""
     if repo_root is None:
         repo_root = _repo_root()
 
@@ -494,6 +557,7 @@ def run_scorecard(repo_root: Optional[Path] = None) -> Dict[str, Any]:
         compute_h3(registry),
         compute_h4(repo_root),
         compute_h5(repo_root),
+        compute_h6(repo_root),
     ]
 
     all_pass = all(m["status"] == "pass" for m in metrics)
@@ -557,6 +621,10 @@ def print_console(results: Dict[str, Any]) -> None:
             low = [f"{k}({v}/5)" for k, v in pts.items() if v < 4]
             if low:
                 print(f"         Below 4/5: {', '.join(low)}")
+        if "total_use_cases" in details:
+            print(f"         {details['with_both']}/{details['total_use_cases']} use cases with prioritization + readiness")
+            if details.get("missing"):
+                print(f"         Missing: {', '.join(details['missing'])}")
 
     overall = results["overall_status"]
     color = GREEN if overall == "pass" else RED

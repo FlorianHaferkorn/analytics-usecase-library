@@ -54,6 +54,17 @@ ux_layout_rules:
       - svc.sla.attainment.pct
       action_panel: true
       payload_mode: full
+prioritization:
+  business_value: medium
+  implementation_effort: medium
+  confidence: 0.75
+  reach: division
+  priority_score: 17
+readiness:
+  data_availability: partial
+  org_capability: ready
+  stakeholder_alignment: aligned
+  overall_readiness: amber
 overrides:
   data_contract_ref: core/data_contracts/domains/experience.yaml
 documentation:

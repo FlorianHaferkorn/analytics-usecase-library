@@ -57,6 +57,17 @@ ux_layout_rules:
       - ops.mtbf.hours
       action_panel: true
       payload_mode: full
+prioritization:
+  business_value: high
+  implementation_effort: high
+  confidence: 0.7
+  reach: division
+  priority_score: 16
+readiness:
+  data_availability: partial
+  org_capability: developing
+  stakeholder_alignment: aligned
+  overall_readiness: amber
 overrides:
   data_contract_ref: core/data_contracts/domains/operations.yaml
 documentation:
