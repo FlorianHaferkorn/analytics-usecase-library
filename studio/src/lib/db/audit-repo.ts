@@ -18,7 +18,7 @@ export type AuditEntityType =
   | 'export'
   | 'governance';
 
-export type AuditAction = 'create' | 'update' | 'delete' | 'export' | 'approve' | 'reject' | 'submit';
+export type AuditAction = 'create' | 'update' | 'delete' | 'export' | 'approve' | 'reject' | 'submit' | 'deprecate' | 'reopen';
 
 export interface AuditEvent {
   id: string;

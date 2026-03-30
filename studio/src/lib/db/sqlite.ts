@@ -102,6 +102,16 @@ function initSchema(db: Database.Database) {
       FOREIGN KEY (project_id) REFERENCES projects(id)
     );
 
+    CREATE TABLE IF NOT EXISTS bracket_lifecycle (
+      bracket_id TEXT PRIMARY KEY,
+      status TEXT NOT NULL DEFAULT 'draft',
+      submitted_by TEXT,
+      approved_by TEXT,
+      justification TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS rule_executions (
       id TEXT PRIMARY KEY,
       rule_id TEXT NOT NULL,
