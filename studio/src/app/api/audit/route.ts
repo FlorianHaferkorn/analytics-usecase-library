@@ -6,6 +6,7 @@
 
 import { getAuditEvents, getAuditEventsByEntity, getAuditEventCount } from '@/lib/db/audit-repo';
 import { requireAuth } from '@/lib/auth/session';
+import { apiSuccess } from '@/lib/api/response';
 
 export async function GET(request: Request) {
   const [, authError] = await requireAuth();
@@ -20,10 +21,10 @@ export async function GET(request: Request) {
 
   if (entityType && entityId) {
     const events = getAuditEventsByEntity(entityType, entityId, limit);
-    return Response.json({ events });
+    return apiSuccess({ events });
   }
 
   const events = getAuditEvents(projectId, limit, offset);
   const total = getAuditEventCount(projectId);
-  return Response.json({ events, total });
+  return apiSuccess({ events, total });
 }

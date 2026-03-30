@@ -7,6 +7,8 @@
  */
 
 import { auth } from '@/lib/auth/config';
+import { apiError } from '@/lib/api/response';
+import { ErrorCode } from '@/lib/api/error-codes';
 
 export interface SessionUser {
   id: string;
@@ -42,7 +44,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 export async function requireAuth(): Promise<[SessionUser, null] | [null, Response]> {
   const user = await getSessionUser();
   if (!user) {
-    return [null, Response.json({ error: 'Authentication required' }, { status: 401 })];
+    return [null, apiError(ErrorCode.AUTH_REQUIRED, 'Authentication required', 401)];
   }
   return [user, null];
 }

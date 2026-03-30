@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { validate } from '@/lib/validation/schema-validator';
+import { apiSuccess, apiValidationError } from '@/lib/api/response';
 
 const SCHEMA_DIR = join(process.cwd(), '..', 'tooling', 'ai', 'schemas');
 
@@ -19,10 +19,7 @@ export async function POST(request: Request) {
 
   const schemaFile = SCHEMA_MAP[schemaType];
   if (!schemaFile) {
-    return NextResponse.json(
-      { error: `Unknown schema type: ${schemaType}. Valid: ${Object.keys(SCHEMA_MAP).join(', ')}` },
-      { status: 400 }
-    );
+    return apiValidationError([`Unknown schema type: ${schemaType}. Valid: ${Object.keys(SCHEMA_MAP).join(', ')}`]);
   }
 
   const schemaPath = join(SCHEMA_DIR, schemaFile);
@@ -31,5 +28,5 @@ export async function POST(request: Request) {
 
   const result = validate(schema, data);
 
-  return NextResponse.json(result);
+  return apiSuccess(result);
 }

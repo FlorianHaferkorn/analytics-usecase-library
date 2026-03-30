@@ -9,6 +9,7 @@ import { generateCssCustomProperties } from '@/lib/theme/export-css';
 import { generateTailwindConfig } from '@/lib/theme/export-tailwind';
 import { generateJsonConfig } from '@/lib/theme/export-json';
 import { generateThemeBundle } from '@/lib/theme/export-bundle';
+import { apiValidationError } from '@/lib/api/response';
 
 type ExportFormat = 'css' | 'tailwind' | 'json' | 'bundle';
 
@@ -17,10 +18,7 @@ export async function POST(request: Request) {
   const { theme, format } = body as { theme: ThemeConfig; format: ExportFormat };
 
   if (!theme || !format) {
-    return new Response(JSON.stringify({ error: 'theme and format required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return apiValidationError(['theme and format required']);
   }
 
   switch (format) {
@@ -59,9 +57,6 @@ export async function POST(request: Request) {
     }
 
     default:
-      return new Response(JSON.stringify({ error: `Unknown format: ${format}` }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return apiValidationError([`Unknown format: ${format}`]);
   }
 }

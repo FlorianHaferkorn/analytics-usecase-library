@@ -6,6 +6,7 @@
 
 import { listRules } from '@/lib/db/notification-repo';
 import { evaluateRules } from '@/lib/notifications/rule-engine';
+import { apiSuccess, apiValidationError } from '@/lib/api/response';
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -15,12 +16,12 @@ export async function POST(request: Request) {
   };
 
   if (!kpiValues) {
-    return Response.json({ error: 'kpiValues required' }, { status: 400 });
+    return apiValidationError(['kpiValues required']);
   }
 
   const rules = listRules(projectId);
   const valueMap = new Map(Object.entries(kpiValues));
   const triggered = evaluateRules(rules, valueMap);
 
-  return Response.json({ triggered, ruleCount: rules.length });
+  return apiSuccess({ triggered, ruleCount: rules.length });
 }

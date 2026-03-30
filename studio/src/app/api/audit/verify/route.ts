@@ -6,6 +6,7 @@
 
 import { verifyChain } from '@/lib/db/audit-chain';
 import { requireAuth } from '@/lib/auth/session';
+import { apiSuccess } from '@/lib/api/response';
 
 export async function GET(request: Request) {
   const [, authError] = await requireAuth();
@@ -15,5 +16,5 @@ export async function GET(request: Request) {
   const projectId = searchParams.get('projectId') ?? 'default';
 
   const result = verifyChain(projectId);
-  return Response.json(result);
+  return apiSuccess(result);
 }

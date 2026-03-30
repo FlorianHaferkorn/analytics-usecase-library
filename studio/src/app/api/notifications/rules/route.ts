@@ -6,12 +6,14 @@ import { listRules, createRule, updateRuleEnabled, deleteRule } from '@/lib/db/n
 import type { NotificationRule } from '@/lib/notifications/rule-types';
 import { requireAuth } from '@/lib/auth/session';
 import { auditWithKnownActor } from '@/lib/db/audit-helpers';
+import { apiSuccess, apiCreated, apiError, apiValidationError } from '@/lib/api/response';
+import { ErrorCode } from '@/lib/api/error-codes';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const projectId = searchParams.get('projectId') ?? 'default';
   const rules = listRules(projectId);
-  return Response.json({ rules });
+  return apiSuccess({ rules });
 }
 
 export async function POST(request: Request) {
@@ -26,7 +28,7 @@ export async function POST(request: Request) {
   };
 
   if (!name || !kpiId || !condition || threshold === undefined || !severity) {
-    return Response.json({ error: 'Missing required fields' }, { status: 400 });
+    return apiValidationError(['Missing required fields: name, kpiId, condition, threshold, severity']);
   }
 
   const rule = createRule({
@@ -46,7 +48,7 @@ export async function POST(request: Request) {
     after: { name, kpiId, condition, threshold, severity },
   }, projectId);
 
-  return Response.json({ rule }, { status: 201 });
+  return apiCreated({ rule });
 }
 
 export async function PUT(request: Request) {
@@ -62,7 +64,7 @@ export async function PUT(request: Request) {
     after: { enabled },
   });
 
-  return Response.json({ ok: true });
+  return apiSuccess({ ok: true });
 }
 
 export async function DELETE(request: Request) {
@@ -71,7 +73,7 @@ export async function DELETE(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const ruleId = searchParams.get('ruleId');
-  if (!ruleId) return Response.json({ error: 'ruleId required' }, { status: 400 });
+  if (!ruleId) return apiValidationError(['ruleId required']);
   deleteRule(ruleId);
 
   auditWithKnownActor(user.email, 'notification_rule', ruleId, 'delete', {
@@ -79,5 +81,5 @@ export async function DELETE(request: Request) {
     after: null,
   });
 
-  return Response.json({ ok: true });
+  return apiSuccess({ ok: true });
 }

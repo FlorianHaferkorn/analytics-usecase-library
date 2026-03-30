@@ -1,16 +1,16 @@
-import { NextResponse } from 'next/server';
 import { loadBracket } from '@/lib/core/bracket-loader';
 import { loadKpiMap } from '@/lib/core/catalog-loader';
 import { buildIRPackage, type IRPackage } from '@/lib/delivery/ir-builder';
 import { generateGitHubWorkflow, generateValidationPipeline, generateDeployScript } from '@/lib/delivery/cicd-adapter';
 import { auditWithActor } from '@/lib/db/audit-helpers';
+import { apiSuccess, apiValidationError } from '@/lib/api/response';
 
 export async function POST(request: Request) {
   const body = await request.json();
   const { useCaseIds } = body as { useCaseIds: string[] };
 
   if (!useCaseIds?.length) {
-    return NextResponse.json({ error: 'No use case IDs provided' }, { status: 400 });
+    return apiValidationError(['No use case IDs provided']);
   }
 
   const kpiMap = await loadKpiMap();
@@ -32,14 +32,10 @@ export async function POST(request: Request) {
     after: { format: 'cicd', useCaseIds, packageCount: packages.length },
   });
 
-  return NextResponse.json({
+  return apiSuccess({
     results: [{
       useCaseId: 'cicd-bundle',
-      outputs: {
-        workflow,
-        validation,
-        deployScript,
-      },
+      outputs: { workflow, validation, deployScript },
     }],
   });
 }

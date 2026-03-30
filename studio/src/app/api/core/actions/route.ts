@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { loadAllActionCodes } from '@/lib/core/action-loader';
+import { apiSuccess } from '@/lib/api/response';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -11,8 +11,5 @@ export async function GET(request: Request) {
     actions = actions.filter((a) => a.owner_domain === domain);
   }
 
-  return NextResponse.json({
-    count: actions.length,
-    actions,
-  });
+  return apiSuccess({ count: actions.length, actions });
 }

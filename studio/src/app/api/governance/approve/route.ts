@@ -16,6 +16,8 @@ import {
   reopen,
 } from '@/lib/governance/approval-workflow';
 import type { ApprovalAction } from '@/lib/governance/approval-types';
+import { apiSuccess, apiError, apiValidationError } from '@/lib/api/response';
+import { ErrorCode } from '@/lib/api/error-codes';
 
 export async function GET(request: Request) {
   const [, authError] = await requireAuth();
@@ -23,10 +25,10 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const bracketId = searchParams.get('bracketId');
-  if (!bracketId) return Response.json({ error: 'bracketId required' }, { status: 400 });
+  if (!bracketId) return apiValidationError(['bracketId required']);
 
   const lifecycle = getLifecycle(bracketId);
-  return Response.json({ lifecycle });
+  return apiSuccess({ lifecycle });
 }
 
 export async function POST(request: Request) {
@@ -41,14 +43,14 @@ export async function POST(request: Request) {
   };
 
   if (!bracketId || !action) {
-    return Response.json({ error: 'bracketId and action required' }, { status: 400 });
+    return apiValidationError(['bracketId and action required']);
   }
 
   // Approve requires admin role
   if (action === 'approve') {
     const dbUser = findOrCreateUser(user.email, user.name);
     if (!checkAccess('default', dbUser.id, 'admin')) {
-      return Response.json({ error: 'Forbidden: admin role required for approval' }, { status: 403 });
+      return apiError(ErrorCode.FORBIDDEN, 'Admin role required for approval', 403);
     }
   }
 
@@ -63,12 +65,12 @@ export async function POST(request: Request) {
 
     const handler = handlers[action];
     if (!handler) {
-      return Response.json({ error: `Unknown action: ${action}` }, { status: 400 });
+      return apiValidationError([`Unknown action: ${action}`]);
     }
 
     const lifecycle = handler();
-    return Response.json({ lifecycle });
+    return apiSuccess({ lifecycle });
   } catch (e) {
-    return Response.json({ error: (e as Error).message }, { status: 409 });
+    return apiError(ErrorCode.CONFLICT, (e as Error).message, 409);
   }
 }

@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { loadAllBrackets } from '@/lib/core/bracket-loader';
+import { apiSuccess } from '@/lib/api/response';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -11,8 +11,5 @@ export async function GET(request: Request) {
     brackets = brackets.filter((b) => b.domain === domain);
   }
 
-  return NextResponse.json({
-    count: brackets.length,
-    brackets,
-  });
+  return apiSuccess({ count: brackets.length, brackets });
 }

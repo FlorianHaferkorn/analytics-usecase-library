@@ -10,6 +10,7 @@ import { loadBracket } from '@/lib/core/bracket-loader';
 import { loadKpiMap } from '@/lib/core/catalog-loader';
 import { buildIRPackage, type IRPackage } from '@/lib/delivery/ir-builder';
 import { auditWithActor } from '@/lib/db/audit-helpers';
+import { apiSuccess, apiValidationError } from '@/lib/api/response';
 
 export interface ExportResult {
   useCaseId: string;
@@ -30,7 +31,7 @@ export async function processExportRequest(
   const { useCaseIds } = body as { useCaseIds: string[] };
 
   if (!useCaseIds?.length) {
-    return NextResponse.json({ error: 'No use case IDs provided' }, { status: 400 });
+    return apiValidationError(['No use case IDs provided']);
   }
 
   const kpiMap = await loadKpiMap();
@@ -55,5 +56,5 @@ export async function processExportRequest(
     after: { format: exportFormat, useCaseIds, resultCount: results.length },
   });
 
-  return NextResponse.json({ results });
+  return apiSuccess({ results });
 }

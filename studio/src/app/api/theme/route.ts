@@ -5,6 +5,8 @@
 import { getProject, updateProject } from '@/lib/db/project-repo';
 import { logAuditEvent } from '@/lib/db/audit-repo';
 import { requireAuth } from '@/lib/auth/session';
+import { apiSuccess, apiError } from '@/lib/api/response';
+import { ErrorCode } from '@/lib/api/error-codes';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -12,11 +14,11 @@ export async function GET(request: Request) {
 
   const project = getProject(projectId);
   if (!project) {
-    return Response.json({ error: 'Project not found' }, { status: 404 });
+    return apiError(ErrorCode.NOT_FOUND, 'Project not found', 404);
   }
 
   const theme = project.theme_json ? JSON.parse(project.theme_json) : {};
-  return Response.json(theme);
+  return apiSuccess(theme);
 }
 
 export async function PUT(request: Request) {
@@ -36,5 +38,5 @@ export async function PUT(request: Request) {
     before: beforeTheme,
     after: theme,
   }, projectId, user.email);
-  return Response.json({ ok: true });
+  return apiSuccess({ ok: true });
 }

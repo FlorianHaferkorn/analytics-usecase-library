@@ -1,16 +1,17 @@
-import { NextResponse } from 'next/server';
 import { getProject, updateProject, createProject } from '@/lib/db/project-repo';
 import { logAuditEvent } from '@/lib/db/audit-repo';
 import { requireAuth } from '@/lib/auth/session';
 import { checkAccess, addProjectMember } from '@/lib/db/rbac-repo';
 import { findOrCreateUser } from '@/lib/db/user-repo';
+import { apiSuccess, apiCreated, apiError, apiValidationError } from '@/lib/api/response';
+import { ErrorCode } from '@/lib/api/error-codes';
 
 export async function GET() {
   const project = getProject();
   if (!project) {
-    return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    return apiError(ErrorCode.NOT_FOUND, 'Project not found', 404);
   }
-  return NextResponse.json({
+  return apiSuccess({
     ...project,
     theme: JSON.parse(project.theme_json || '{}'),
   });
@@ -22,7 +23,7 @@ export async function PATCH(request: Request) {
 
   const dbUser = findOrCreateUser(user.email, user.name);
   if (!checkAccess('default', dbUser.id, 'editor')) {
-    return NextResponse.json({ error: 'Forbidden: editor role required' }, { status: 403 });
+    return apiError(ErrorCode.FORBIDDEN, 'Editor role required', 403);
   }
 
   const body = await request.json();
@@ -43,7 +44,7 @@ export async function PATCH(request: Request) {
     after: { name, strategy_anchor },
   }, 'default', user.email);
 
-  return NextResponse.json({ ok: true });
+  return apiSuccess({ ok: true });
 }
 
 export async function POST(request: Request) {
@@ -54,12 +55,11 @@ export async function POST(request: Request) {
   const { name, strategyAnchor } = body as { name: string; strategyAnchor?: string };
 
   if (!name?.trim()) {
-    return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+    return apiValidationError(['Name is required']);
   }
 
   const project = createProject(name.trim(), strategyAnchor?.trim() ?? '');
 
-  // Auto-assign creator as project admin
   const dbUser = findOrCreateUser(user.email, user.name);
   addProjectMember(project.id, dbUser.id, 'admin');
 
@@ -68,5 +68,5 @@ export async function POST(request: Request) {
     after: { name: name.trim(), strategy_anchor: strategyAnchor?.trim() ?? '' },
   }, project.id, user.email);
 
-  return NextResponse.json({ project }, { status: 201 });
+  return apiCreated({ project });
 }

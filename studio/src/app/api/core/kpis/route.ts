@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { loadKpiCatalog } from '@/lib/core/catalog-loader';
+import { apiSuccess } from '@/lib/api/response';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -22,8 +22,5 @@ export async function GET(request: Request) {
     );
   }
 
-  return NextResponse.json({
-    count: kpis.length,
-    kpis,
-  });
+  return apiSuccess({ count: kpis.length, kpis });
 }

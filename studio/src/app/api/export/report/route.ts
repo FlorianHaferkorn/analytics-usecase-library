@@ -20,6 +20,7 @@ import { auditWithActor } from '@/lib/db/audit-helpers';
 import { loadBracket } from '@/lib/core/bracket-loader';
 import { loadKpiMap } from '@/lib/core/catalog-loader';
 import { buildReportDataFromBracket } from '@/lib/report/report-data-builder';
+import { apiValidationError } from '@/lib/api/response';
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -31,10 +32,7 @@ export async function POST(request: Request) {
   };
 
   if (!theme) {
-    return new Response(JSON.stringify({ error: 'theme required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return apiValidationError(['theme required']);
   }
 
   let reportData: ReportData;
