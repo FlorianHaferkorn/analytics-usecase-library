@@ -32,6 +32,7 @@ ux_layout_rules:
   report_canvas: { width: 1920, height: 1080 }
   page_1_summary:
     title: Supply Chain Summary & Insights
+    page_type: T1_Strategic_Overview
     template_id: pulse
     component_3s:
       kpi_id: supply.otif.pct
@@ -46,6 +47,7 @@ ux_layout_rules:
       visual_type: bar_chart
   page_2_execution:
     title: Supply Chain Execution
+    page_type: T3_Operational_Monitoring
     template_id: action_matrix
     component_300s:
       evidence_grain: shipment_line
@@ -55,5 +57,18 @@ ux_layout_rules:
       - supply.otif.pct
       action_panel: true
       payload_mode: full
+prioritization:
+  business_value: high
+  implementation_effort: medium
+  confidence: 0.75
+  reach: division
+  priority_score: 25
+readiness:
+  data_availability: partial
+  org_capability: ready
+  stakeholder_alignment: aligned
+  overall_readiness: amber
+overrides:
+  data_contract_ref: core/data_contracts/domains/supply_chain.yaml
 documentation:
   business_factsheet: ./Business_Factsheet.md

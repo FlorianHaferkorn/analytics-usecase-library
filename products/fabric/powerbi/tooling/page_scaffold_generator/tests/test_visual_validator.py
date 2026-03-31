@@ -1,0 +1,207 @@
+"""
+Tests for Visual Validator
+
+Ensures the self-validation catches common report generation errors
+(wrong queryState roles, unsafe names, out-of-bounds positions).
+
+Run with: python -m pytest tests/test_visual_validator.py -v
+"""
+
+import pytest
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from page_scaffold_generator.visual_validator import validate_visual, validate_page
+from page_scaffold_generator.visual_builder import VisualBuilder
+from page_scaffold_generator.layout_calculator import Position
+
+
+@pytest.fixture
+def builder():
+    return VisualBuilder()
+
+
+@pytest.fixture
+def pos():
+    return Position(x=20, y=20, width=400, height=300)
+
+
+class TestQueryStateRoles:
+    """Verify that each visual type uses the correct queryState roles."""
+
+    def test_table_uses_values_role(self, builder, pos):
+        visual = builder.build_table(pos, columns=[], measures=[])
+        qs = visual["visual"]["query"]["queryState"]
+        assert "Values" in qs, f"tableEx should use 'Values' role, got: {list(qs.keys())}"
+        assert "Data" not in qs, "tableEx must NOT use 'Data' role"
+
+    def test_table_with_data_uses_values_role(self, builder, pos):
+        visual = builder.build_table(
+            pos, columns=[("dim_date", "Date")], measures=["Net Sales Amount"]
+        )
+        qs = visual["visual"]["query"]["queryState"]
+        assert "Values" in qs
+        assert len(qs["Values"]["projections"]) == 2
+
+    def test_line_chart_uses_category_y(self, builder, pos):
+        visual = builder.build_line_chart(pos)
+        qs = visual["visual"]["query"]["queryState"]
+        assert "Category" in qs, f"lineChart should use 'Category' role, got: {list(qs.keys())}"
+        assert "Y" in qs, f"lineChart should use 'Y' role, got: {list(qs.keys())}"
+        assert "Data" not in qs
+
+    def test_line_chart_with_measures(self, builder, pos):
+        visual = builder.build_line_chart(pos, measures=["Net Sales Amount"])
+        qs = visual["visual"]["query"]["queryState"]
+        assert "Category" in qs
+        assert "Y" in qs
+        assert len(qs["Y"]["projections"]) == 1
+
+    def test_waterfall_uses_category_y(self, builder, pos):
+        visual = builder.build_waterfall(pos)
+        qs = visual["visual"]["query"]["queryState"]
+        assert "Category" in qs
+        assert "Y" in qs
+        assert "Data" not in qs
+
+    def test_bar_chart_uses_category_y(self, builder, pos):
+        visual = builder.build_horizontal_bar(pos)
+        qs = visual["visual"]["query"]["queryState"]
+        assert "Category" in qs
+        assert "Y" in qs
+        assert "Data" not in qs
+
+    def test_stacked_bar_uses_category_y(self, builder, pos):
+        visual = builder.build_stacked_bar(pos)
+        qs = visual["visual"]["query"]["queryState"]
+        assert "Category" in qs
+        assert "Y" in qs
+        assert "Data" not in qs
+
+    def test_scatter_uses_x_y(self, builder, pos):
+        visual = builder.build_scatter_plot(pos)
+        qs = visual["visual"]["query"]["queryState"]
+        assert "X" in qs
+        assert "Y" in qs
+        assert "Data" not in qs
+
+    def test_funnel_uses_category_y(self, builder, pos):
+        visual = builder.build_funnel(pos)
+        qs = visual["visual"]["query"]["queryState"]
+        assert "Category" in qs
+        assert "Y" in qs
+        assert "Data" not in qs
+
+    def test_matrix_uses_rows_values(self, builder, pos):
+        visual = builder.build_matrix(pos)
+        qs = visual["visual"]["query"]["queryState"]
+        assert "Rows" in qs
+        assert "Values" in qs
+        assert "Data" not in qs
+
+    def test_kpi_card_uses_data(self, builder, pos):
+        visual = builder.build_kpi_card(pos, measure_ref="Net Sales Amount")
+        qs = visual["visual"]["query"]["queryState"]
+        assert "Data" in qs, "cardVisual should use 'Data' role"
+
+    def test_kpi_cards_multi_uses_data(self, builder, pos):
+        visual = builder.build_kpi_cards_multi(pos, ["M1", "M2"])
+        qs = visual["visual"]["query"]["queryState"]
+        assert "Data" in qs
+
+
+class TestValidatorDetectsErrors:
+    """Verify the validator catches invalid visuals."""
+
+    def test_detects_data_role_on_chart(self):
+        """A lineChart with 'Data' role should fail validation."""
+        bad_visual = {
+            "$schema": "https://example.com/schema.json",
+            "name": "BadChart",
+            "position": {"x": 0, "y": 0, "z": 10000, "height": 300, "width": 400, "tabOrder": 3000},
+            "visual": {
+                "visualType": "lineChart",
+                "query": {"queryState": {"Data": {"projections": []}}},
+                "objects": {},
+            },
+        }
+        errors = validate_visual(bad_visual)
+        assert any("Data" in e and "lineChart" in e for e in errors), f"Should detect Data role on lineChart: {errors}"
+
+    def test_detects_missing_roles(self):
+        """A tableEx with no queryState at all should fail."""
+        bad_visual = {
+            "$schema": "https://example.com/schema.json",
+            "name": "BadTable",
+            "position": {"x": 0, "y": 0, "z": 10000, "height": 300, "width": 400, "tabOrder": 3000},
+            "visual": {
+                "visualType": "tableEx",
+                "objects": {},
+            },
+        }
+        errors = validate_visual(bad_visual)
+        assert any("Values" in e for e in errors), f"Should detect missing Values role: {errors}"
+
+    def test_accepts_correct_chart(self, builder, pos):
+        """A correctly built line chart should pass validation."""
+        visual = builder.build_line_chart(pos, measures=["Net Sales Amount"], name="Trend")
+        errors = validate_visual(visual)
+        assert len(errors) == 0, f"Correct lineChart should pass: {errors}"
+
+    def test_accepts_correct_table(self, builder, pos):
+        """A correctly built table should pass validation."""
+        visual = builder.build_table(pos, columns=[], measures=[], name="DetailMatrix")
+        errors = validate_visual(visual)
+        assert len(errors) == 0, f"Correct tableEx should pass: {errors}"
+
+    def test_detects_unsafe_name(self):
+        visual = {
+            "$schema": "https://example.com/schema.json",
+            "name": "Net Sales, Delta%",
+            "position": {"x": 0, "y": 0, "z": 10000, "height": 300, "width": 400, "tabOrder": 3000},
+            "visual": {"visualType": "textbox", "objects": {}},
+        }
+        errors = validate_visual(visual)
+        assert any("unsafe" in e.lower() for e in errors), f"Should detect comma in name: {errors}"
+
+    def test_detects_hex_id_name(self):
+        visual = {
+            "$schema": "https://example.com/schema.json",
+            "name": "a1b2c3d4e5f6a7b8c9d0",
+            "position": {"x": 0, "y": 0, "z": 10000, "height": 300, "width": 400, "tabOrder": 3000},
+            "visual": {"visualType": "textbox", "objects": {}},
+        }
+        errors = validate_visual(visual)
+        assert any("hex" in e.lower() for e in errors), f"Should detect hex ID: {errors}"
+
+    def test_detects_out_of_bounds(self):
+        visual = {
+            "$schema": "https://example.com/schema.json",
+            "name": "OverflowVisual",
+            "position": {"x": 1800, "y": 0, "z": 10000, "height": 300, "width": 400, "tabOrder": 3000},
+            "visual": {"visualType": "textbox", "objects": {}},
+        }
+        errors = validate_visual(visual, canvas_width=1920, canvas_height=1080)
+        assert any("exceeds canvas" in e for e in errors), f"Should detect out-of-bounds: {errors}"
+
+
+class TestValidatePage:
+    """Verify page-level validation aggregates visual errors."""
+
+    def test_page_with_correct_visuals(self, builder, pos):
+        page = {
+            "visuals": [
+                builder.build_line_chart(pos, name="Trend"),
+                builder.build_table(pos, name="DetailMatrix"),
+                builder.build_kpi_card(pos, name="KPI_1"),
+            ],
+            "slicers": [],
+        }
+        errors = validate_page(page)
+        assert len(errors) == 0, f"All correct visuals should pass: {errors}"
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

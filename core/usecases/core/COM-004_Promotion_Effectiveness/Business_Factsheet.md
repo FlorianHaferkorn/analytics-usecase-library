@@ -41,14 +41,27 @@ factsheet_type: business
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| sales.promo.roi.pct | Strategic |
+| sales.promo.incremental.amount | Influencing |
+| margin.promo.gm.pct | Influencing |
+| sales.price.list.amount | Influencing |
+| sales.price.net.amount | Influencing |
+| sales.price.realization_pct | Influencing |
+| sales.promo.cannibalization.pct | Influencing |
+| cost.cogs.amount | Supporting |
+| sales.promo.baseline_sales.amount | Supporting |
+| sales.promo.cannibalized_sales.amount | Supporting |
+| sales.promo.cost.amount | Supporting |
+| sales.promo.incremental_gm.amount | Supporting |
+| sales.pvm.volume_effect.amount | Supporting |
 
+**Action Codes:** C-M2.1, C-S1.1, C-M2.2, C-P4.1, C-S1.2
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 
@@ -152,3 +165,31 @@ required_slicers: Date/Promo period, Region/Channel, Product Category/Subcategor
 
 
 
+
+## 10. Typical Decision Scenarios
+
+These scenarios illustrate how this use case drives decisions in practice. They are examples — not exhaustive.
+
+### Scenario A: High Cannibalization Eroding Promo ROI
+
+**Situation:** Promo ROI has dropped to 0.8x (below breakeven) in the latest campaign wave. Incremental sales are positive, but cannibalization rate spiked to 35%, meaning baseline sales shifted into promo windows rather than generating true uplift.
+
+**Decision question:** Is the cannibalization structural (customers trained to wait for promos) or campaign-specific (overlapping promotions on substitutes)?
+
+**Who decides:** Trade Marketing Lead + Category Manager.
+
+**Consequence of inaction:** Continued promo investment destroys margin; each campaign cycle reinforces buying pattern shift.
+
+**Action Code triggered:** C-M2.1 (Promo Mix Optimization) — activates cannibalization decomposition by product pair and campaign type.
+
+### Scenario B: Strong Incremental Sales but Margin-Negative Promos
+
+**Situation:** A regional promo generated €1.2M incremental sales (+18% uplift), but promo GM% is 8pp below standard GM%. Price realization dropped to 72%.
+
+**Decision question:** Should the promo mechanic be adjusted (depth, duration, product scope) or discontinued in this format?
+
+**Who decides:** Commercial Controlling + Regional Sales Director.
+
+**Consequence of inaction:** Volume-positive but margin-negative promos accumulate; quarterly GM target at risk.
+
+**Action Code triggered:** C-S1.1 (Price Realization Recovery) — activates promo-level P&L analysis and mechanic comparison.

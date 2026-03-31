@@ -1,40 +1,40 @@
 /// Promotion costs and baseline (sales, quantity, non-promo baseline) per promotion.
 table fact_promo
-	 lineageTag: 976724c4-73f1-487c-a663-2c0ccab95699
+		lineageTag: 976724c4-73f1-487c-a663-2c0ccab95699
 
-	 column PromoKey
-		 dataType: Int64
-		 sourceColumn: PromoKey
-		 summarizeBy: none
+		column PromoKey
+			dataType: Int64
+			sourceColumn: PromoKey
+			summarizeBy: none
 
-	 column 'Promo Cost'
-		 dataType: Decimal
-		 sourceColumn: Promo Cost
-		 summarizeBy: none
+		column 'Promo Cost'
+			dataType: Decimal
+			sourceColumn: Promo Cost
+			summarizeBy: none
 
-	 column 'Funding Amount'
-		 dataType: Decimal
-		 sourceColumn: Funding Amount
-		 summarizeBy: none
+		column 'Funding Amount'
+			dataType: Decimal
+			sourceColumn: Funding Amount
+			summarizeBy: none
 
-	 column 'Baseline Sales Amount'
-		 dataType: Decimal
-		 sourceColumn: Baseline Sales Amount
-		 summarizeBy: none
+		column 'Baseline Sales Amount'
+			dataType: Decimal
+			sourceColumn: Baseline Sales Amount
+			summarizeBy: none
 
-	 column 'Baseline Quantity'
-		 dataType: Decimal
-		 sourceColumn: Baseline Quantity
-		 summarizeBy: none
+		column 'Baseline Quantity'
+			dataType: Decimal
+			sourceColumn: Baseline Quantity
+			summarizeBy: none
 
-	 column 'Baseline Non-Promo Sales Amount'
-		 dataType: Decimal
-		 sourceColumn: Baseline Non-Promo Sales Amount
-		 summarizeBy: none
+		column 'Baseline Non-Promo Sales Amount'
+			dataType: Decimal
+			sourceColumn: Baseline Non-Promo Sales Amount
+			summarizeBy: none
 
-	 partition fact_promo = m
-		 mode: import
-		 source =
+		partition fact_promo = m
+			mode: import
+			source =
 			let
 					Source = Folder.Files(GoldDataPath & "/facts/fact_promo"),
 					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),

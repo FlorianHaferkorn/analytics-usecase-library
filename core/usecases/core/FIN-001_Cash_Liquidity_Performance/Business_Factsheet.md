@@ -48,14 +48,24 @@ cash conversion, and improved resilience.
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| wc.ccc.days | Strategic |
+| fin.cash.balance | Influencing |
+| fin.cash.ocf | Influencing |
+| fin.cash.vs_plan.pct | Influencing |
+| wc.dso.days | Influencing |
+| wc.dio.days | Influencing |
+| wc.dpo.days | Influencing |
+| scm.service_level.pct | Influencing |
+| scm.supplier_risk.score | Influencing |
+| fin.liquidity.inventory.amount | Supporting |
 
+**Action Codes:** F-C1.1, F-C1.2, S-I1.2, F-C1.4
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 
@@ -125,7 +135,10 @@ Structured summary of action codes (definitions remain in YAML).
 
 ### 5.4 300-Second Layer (Diagnostics)
 
-- (optional)
+- AR aging detail by customer and entity: outstanding invoices, days overdue, dispute status.
+- AP aging detail by supplier: payment timing vs contracted terms; early payment discount opportunities.
+- DIO by SKU/location with coverage days vs safety stock target.
+- OCF bridge: EBITDA → operating cash flow with working capital movement waterfall.
 
 ## 6. Data Requirements Summary
 
@@ -191,9 +204,51 @@ required_slicers: >
 
 ## 9. Risks & Wrong Interpretations (Short)
 
-- Misalignment of AR/AP aging with revenue/COGS periods.  
-- DIO misread if inventory/COGS not aligned or strategic stock excluded.  
-- Overextension of DPO harming supplier relationships.  
+- Misalignment of AR/AP aging with revenue/COGS periods.
+- DIO misread if inventory/COGS not aligned or strategic stock excluded.
+- Overextension of DPO harming supplier relationships.
+
+---
+
+## 10. Typical Decision Scenarios
+
+### Scenario A: Cash Below Plan Driven by DSO Deterioration
+
+**Situation:** Cash position is −12% vs plan at month-end. OCF is broadly on track, but CCC has extended by 8 days vs prior quarter, entirely explained by DSO rising from 45 to 53 days. Two large customers in the Western Europe region account for 60% of the outstanding AR increase.
+
+**Decision question:** Is the DSO increase driven by customer payment behavior (structural), by invoice disputes (operational), or by a change in payment terms granted by sales?
+
+**Who decides:** Treasury / Finance Controlling Lead + Credit & Collections Manager.
+
+**Consequence of inaction:** At €150M annual revenue, 8 additional DSO days = ~€3.3M of cash tied up in receivables. Cash covenant risk if trend persists for 2 more months.
+
+**Action Code triggered:** F-C1.1 (DSO Recovery) — activates customer-level AR aging review and collections escalation protocol.
+
+### Scenario B: DIO Spike Following Inventory Build Decision
+
+**Situation:** DIO has risen from 62 to 79 days in the last 2 months. Finance flags as a working capital concern. Supply Chain explains this was an approved strategic buffer for a seasonal peak.
+
+**Decision question:** Is the inventory build within the approved S&OP buffer range, or has it exceeded the approved limit?
+
+**Who decides:** CFO + Supply Chain Controlling Lead.
+
+**Consequence of inaction:** None if within approved policy (this is the `when_not_to_act` scenario for DEC-SPINE-FIN-LIQUIDITY). If outside policy, +€8M inventory carries an annualized cost of capital impact.
+
+**Action Code triggered:** None if within approved buffer. F-K2.2 (DIO Reduction) triggered only if buffer threshold exceeded.
+
+### Scenario C: OCF Below Plan Despite Positive EBITDA
+
+**Situation:** EBITDA is +3% vs plan, but OCF is −15% vs plan. The bridge analysis shows that working capital consumed €8M more cash than planned, primarily from AR increase (+€5M) and inventory build (+€3M).
+
+**Decision question:** Is the OCF gap temporary (timing) or structural? Which lever (DSO, DIO, or DPO) offers fastest recovery with lowest business risk?
+
+**Who decides:** CFO-sponsored working capital review (DEC-SPINE-FIN-LIQUIDITY, RequiredIntervention level).
+
+**Consequence of inaction:** Positive EBITDA will be misread as financial health. Liquidity risk can materialize within 60–90 days if not addressed.
+
+**Action Code triggered:** F-C1.1 and/or F-K2.2 depending on root cause of bridge analysis.
+
+---
 
 
 

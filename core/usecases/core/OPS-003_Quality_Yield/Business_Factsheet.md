@@ -45,14 +45,23 @@ factsheet_type: business
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| quality.fpy.pct | Strategic |
+| quality.scrap.pct | Influencing |
+| quality.rework.pct | Influencing |
+| quality.copq.amount | Influencing |
+| quality.complaint.pct | Influencing |
+| quality.defect_density | Influencing |
+| ops.planned_output.units | Influencing |
+| sales.units | Influencing |
+| crm.complaint.count | Supporting |
 
+**Action Codes:** O-Q3.1, O-Q3.2, O-Q3.3, O-Q3.4, O-Q3.5
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 
@@ -155,3 +164,31 @@ required_slicers: Date, Plant/Line/Shift, Product, Defect Type
 
 
 
+
+## 10. Typical Decision Scenarios
+
+These scenarios illustrate how this use case drives decisions in practice. They are examples — not exhaustive.
+
+### Scenario A: FPY Drop After Raw Material Supplier Change
+
+**Situation:** First pass yield dropped from 94% to 87% two weeks after switching to a new material supplier. Scrap rate doubled on the affected product line. Defect density is concentrated in a specific process step.
+
+**Decision question:** Is the yield drop caused by material specification variance, process parameter mismatch, or operator adjustment lag?
+
+**Who decides:** Quality Manager + Process Engineer.
+
+**Consequence of inaction:** Each 1pp FPY drop equals ~€50K/month in scrap and rework costs on this line.
+
+**Action Code triggered:** O-Q3.1 (Yield Recovery) — activates defect Pareto analysis and process parameter correlation.
+
+### Scenario B: Rising Cost of Poor Quality Despite Stable FPY
+
+**Situation:** FPY is holding at 92%, but COPQ has increased 20% due to rising rework costs. Complaint rate from customers is also up 10%.
+
+**Decision question:** Are rework loops hiding quality issues that eventually reach customers? Is FPY being artificially maintained through excessive inspection?
+
+**Who decides:** Quality Manager + Production Manager.
+
+**Consequence of inaction:** COPQ erodes margin; customer complaints damage brand trust and trigger contractual penalties.
+
+**Action Code triggered:** O-Q3.2 (COPQ Reduction) — activates hidden factory analysis and rework loop identification.

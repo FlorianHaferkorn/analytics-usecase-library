@@ -45,14 +45,26 @@ factsheet_type: business
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| cost.unit.amount | Strategic |
+| margin.cogs.pct | Influencing |
+| cost.opex.vs_plan.pct | Influencing |
+| cost.material.pct | Influencing |
+| ops.labor.productivity.pct | Influencing |
+| cost.base_volume.amount | Influencing |
+| cost.opex.base.amount | Influencing |
+| ops.production.volume | Influencing |
+| ops.quality.defect_rate.pct | Influencing |
+| ops.service_level.pct | Influencing |
+| ops.yield.pct | Influencing |
+| sales.net_sales.amount | Supporting |
 
+**Action Codes:** F-K2.1, F-K2.2, F-K2.3, F-K2.4
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 
@@ -157,3 +169,31 @@ required_slicers: Date, Entity/Plant/Line, Product/Category, Cost bucket
 
 
 
+
+## 10. Typical Decision Scenarios
+
+These scenarios illustrate how this use case drives decisions in practice. They are examples — not exhaustive.
+
+### Scenario A: Unit Cost Spike Driven by Volume Drop
+
+**Situation:** Cost per unit has increased 15% vs plan in Q2. COGS % is stable, but production volume dropped 20% due to demand shortfall, spreading fixed costs over fewer units.
+
+**Decision question:** Is the volume shortfall temporary (seasonal, order timing) or structural (demand erosion)? Should production be consolidated?
+
+**Who decides:** Operations Controller + Plant Manager.
+
+**Consequence of inaction:** Fixed cost absorption worsens each month of underutilization; unit cost gap compounds into margin erosion.
+
+**Action Code triggered:** F-K2.1 (Cost Variance Investigation) — activates fixed/variable cost split analysis by plant and product line.
+
+### Scenario B: OPEX Overrun Despite Revenue on Track
+
+**Situation:** OPEX is 8% above plan while revenue tracks at +1%. Labor productivity has declined 5% and defect rate increased, driving rework costs.
+
+**Decision question:** Is the OPEX overrun driven by quality issues (rework), headcount creep, or input cost inflation?
+
+**Who decides:** Finance Controller + Operations Lead.
+
+**Consequence of inaction:** OPEX overrun flows directly to EBIT; annualized gap equals €2M if unaddressed.
+
+**Action Code triggered:** F-K2.3 (OPEX Containment) — activates cost driver decomposition and variance bridge.

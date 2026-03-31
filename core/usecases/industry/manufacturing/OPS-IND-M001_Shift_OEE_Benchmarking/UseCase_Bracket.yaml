@@ -1,0 +1,74 @@
+schema_version: "2.0"
+id: OPS-IND-M001
+title: Shift OEE Benchmarking across Plants
+domain: Operations
+# build_status: draft — scaffold only; not yet build_ready
+# vertical: Manufacturing
+# prerequisites: OPS-001 (Operations Performance), OPS-002 (Asset Performance)
+
+governance:
+  owner_role: operations_lead
+  steward_role: manufacturing_bi_lead
+
+orchestration:
+  strategic_kpi_id: ops.oee.pct                           # Overall Equipment Effectiveness
+  influencing_kpi_ids:
+    - ops.oee.availability.pct                            # A: scheduled vs. actual run time
+    - ops.oee.performance.pct                             # P: actual vs. ideal cycle time
+    - ops.oee.quality.pct                                 # Q: good parts / total parts
+    - ops.downtime.unplanned.minutes                      # Unplanned stoppage minutes
+    - ops.shift.throughput.units                          # Units produced per shift
+  action_code_ids:
+    - O-P1.1    # Preventive maintenance trigger
+    - O-P1.2    # Line rebalancing action
+  supporting_kpi_ids:
+    - ops.availability.pct
+    - ops.performance.pct
+    - ops.quality.pct
+
+value_driver_model:
+  formula: ops.oee.pct = ops.oee.availability.pct × ops.oee.performance.pct × ops.oee.quality.pct
+  impact_direction: maximize
+  primary_driver: ops.oee.availability.pct
+  impact_logic: >
+    OEE is the product of Availability, Performance, and Quality.
+    Availability losses (unplanned downtime) are typically the largest
+    single OEE lever; performance and quality losses are secondary.
+  critical_threshold: 0.65   # OEE < 65% triggers escalation
+
+ux_layout_rules:
+  report_structure: 2-Page-Lead
+  report_canvas: { width: 1920, height: 1080 }
+  page_1_summary:
+    title: Shift OEE Summary
+    template_id: pulse
+    component_3s:
+      kpi_id: ops.oee.pct
+      visual_type: kpi_card
+    component_30s:
+      - kpi_id: ops.oee.pct
+        visual_type: trend_line          # OEE trend by shift
+      - kpi_ids:
+          - ops.oee.availability.pct
+          - ops.oee.performance.pct
+          - ops.oee.quality.pct
+        visual_type: bar_chart           # A/P/Q split by plant
+  page_2_execution:
+    title: Downtime Drill-Down & Actions
+    template_id: action_matrix
+    component_300s:
+      evidence_grain: plant_line_product_month
+      evidence_columns:
+        - plant
+        - line
+        - shift
+        - ops.oee.pct
+        - ops.downtime.unplanned.minutes
+      action_panel: true
+      payload_mode: full
+
+overrides:
+  data_contract_ref: core/data_contracts/domains/operations.yaml
+
+documentation:
+  business_factsheet: ./Business_Factsheet.md

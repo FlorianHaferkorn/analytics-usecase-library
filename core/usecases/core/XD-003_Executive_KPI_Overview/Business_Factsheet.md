@@ -46,14 +46,28 @@ factsheet_type: business
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| margin.gm.pct | Strategic |
+| sales.net_sales.delta_pct.ly | Influencing |
+| crm.clv.amount | Influencing |
+| svc.sla.attainment.pct | Influencing |
+| ops.otif.pct | Influencing |
+| ops.working_capital.ccc.days | Influencing |
+| people.digital_adoption.pct | Influencing |
+| people.attrition_risk.pct | Influencing |
+| enterprise.action_routed.count | Influencing |
+| enterprise.action_outcome_rate.pct | Influencing |
+| enterprise.value_at_risk.index | Influencing |
+| cost.cogs.amount | Supporting |
+| sales.net_sales.amount | Supporting |
+| supply.otif.pct | Supporting |
 
+**Action Codes:** X-E3.2, X-E3.3
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 
@@ -170,3 +184,31 @@ required_slicers: Date, Org/Region/Entity, Product or Customer Segment, Function
 
 
 
+
+## 10. Typical Decision Scenarios
+
+These scenarios illustrate how this use case drives decisions in practice. They are examples — not exhaustive.
+
+### Scenario A: GM% on Target but Multiple Domains Underperforming
+
+**Situation:** Overall gross margin is +0.5pp vs plan, but drilling into the domain heatmap reveals that Commercial and Operations are both below target, masked by a one-time gain in Finance (favorable FX).
+
+**Decision question:** Should leadership treat this as "on track" or intervene in the underperforming domains before the FX tailwind reverses?
+
+**Who decides:** Executive Leadership Team.
+
+**Consequence of inaction:** FX-driven margin provides temporary cover; structural gaps in COM and OPS compound in following quarters.
+
+**Action Code triggered:** X-E3.2 (Cross-Domain Performance Review) — activates domain-level root-cause drill and action routing to domain leads.
+
+### Scenario B: Action Outcome Rate Below Threshold
+
+**Situation:** Enterprise action routed count is high (45 actions in Q2), but outcome rate is only 38% (target 65%). Value at risk index has increased as unresolved actions accumulate.
+
+**Decision question:** Are actions failing due to unclear ownership, resource constraints, or incorrect trigger thresholds generating false positives?
+
+**Who decides:** Executive Sponsor + Analytics Lead.
+
+**Consequence of inaction:** Action framework loses credibility; teams stop responding to triggers, defeating the purpose of action-ready analytics.
+
+**Action Code triggered:** X-E3.3 (Action Effectiveness Review) — activates action completion funnel analysis and trigger threshold recalibration.

@@ -16,6 +16,7 @@ kpis:
   - sales.price.realization_pct
   guardrail_kpis:
   - margin.gm.pct
+  - sales.promo.cannibalization.pct
   outcome_kpis:
   - sales.price.realization_pct
   - margin.gm.pct

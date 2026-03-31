@@ -1,0 +1,8 @@
+# Evidence.dev configuration
+# Default: DuckDB for local development (zero cost)
+# Production: Switch to Postgres, Trino, or other SQL source
+data_sources:
+  - name: default
+    type: duckdb
+    options:
+      filename: sources/local.duckdb

@@ -153,8 +153,85 @@ Implementation of a script or API that consumes this document (or an exported sc
 
 ---
 
-## 9. Automated reasoning scope
+## 9. Pattern-selection decision guide
+
+Use these questions to select or blend patterns. Work top-to-bottom; the first branch that matches determines the primary pattern. A secondary pattern can be added in the next pass.
+
+```
+START
+  │
+  ▼
+Q1: Is cash position or CCC currently the most critical leadership concern?
+  ├── YES → Primary: Cash-First
+  │         (re-enter for secondary if margin or growth also under pressure)
+  └── NO
+       │
+       ▼
+      Q2: Is gross margin or EBIT significantly below plan or trend?
+        ├── YES → Primary: Margin-First
+        │         (add Cash-First as secondary if DSO or DIO also elevated)
+        └── NO
+             │
+             ▼
+            Q3: Is top-line growth the primary strategic commitment for the period?
+              ├── YES → Primary: Growth-First
+              │         (add Margin-First as secondary if guardrail KPIs approach boundary)
+              └── NO → Blend or escalate to leadership for priority reset
+```
+
+**When blending:** the primary pattern governs tier 1–2 KPI urgency. The secondary pattern contributes tier 3–4 and adds its guardrail conditions to the decision boundary. Never invert guardrail KPIs above tier 1 of the primary pattern.
+
+---
+
+## 10. Reference guardrails (orientation only)
+
+These values are **illustrative reference points** — not mandatory thresholds. They provide starting orientation for teams that have not yet defined their own thresholds. Each company must calibrate to its own industry, business model, and operating context.
+
+### Margin-First — reference guardrails
+
+| Dimension | Orientation value | Rationale |
+|-----------|-------------------|-----------|
+| GM% deviation vs. plan | > −2pp sustained over 2+ periods triggers spine activation | Industry-typical sensitivity before structural action is justified |
+| Price realization | < 95% sustained signals systematic discounting or mix erosion | 5pp buffer for normal variation; below this, pricing discipline review warranted |
+| COGS vs. plan | > +3% sustained over 1 quarter without structural explanation | Distinguishes noise from systematic cost drift |
+| Revenue growth guardrail | Growth actions acceptable if GM% remains > agreed floor | Prevents volume growth that dilutes margin below strategic minimum |
+
+### Cash-First — reference guardrails
+
+| Dimension | Orientation value | Rationale |
+|-----------|-------------------|-----------|
+| OCF vs. plan | < 90% of planned OCF for 2+ periods triggers escalation | 10% buffer for normal timing differences; below this, structural lever review warranted |
+| CCC trend | Rising CCC (DSO + DIO − DPO) for 2+ consecutive periods | Directional deterioration signal regardless of absolute level |
+| DSO deviation | > +5 days vs. plan sustained | Indicates collections or terms issue beyond normal customer behaviour |
+| DIO deviation | > +7 days vs. plan sustained | Distinguishes seasonal buffer from structural overstock |
+| Service level guardrail | Inventory reduction actions require OTIF to remain above agreed floor | Prevents cash optimization at the expense of service delivery |
+
+### Growth-First — reference guardrails
+
+| Dimension | Orientation value | Rationale |
+|-----------|-------------------|-----------|
+| Revenue vs. plan | < 95% of planned Net Sales for 2+ periods triggers spine activation | 5% buffer for normal phasing; below this, structural demand review warranted |
+| CLV trend | Declining CLV cohort trend over 3+ periods | Indicates structural customer value erosion vs. one-time churn |
+| Margin guardrail | Growth actions require GM% to remain above agreed floor | Prevents revenue growth that dilutes profitability below strategic minimum |
+| Cash guardrail | Revenue initiatives must not reduce OCF below agreed liquidity floor | Prevents growth investment that creates structural cash risk |
+
+---
+
+## 11. Urgency conflict resolution
+
+When two patterns are active simultaneously and both signal deviation at the same urgency tier, apply this resolution order:
+
+1. **Cash guardrail always wins over margin or growth** — liquidity risk is existential; no margin improvement or growth initiative proceeds if it breaches an active cash guardrail.
+2. **Margin guardrail overrides growth** — if growth actions are driving margin below the agreed floor, the growth lever is paused until margin stabilizes.
+3. **Tie within the same pattern tier** — rank by financial impact magnitude (absolute deviation × weighting factor defined in KPI Catalog). Surface the larger-impact deviation first.
+4. **Cross-domain escalation** — if conflict involves KPIs owned by different domains, escalate to the Executive Cross-Domain Governance spine (`DEC-SPINE-XD-EXEC`) for prioritization.
+
+**Example:** Cash-First (primary) + Margin-First (secondary) are both active. DSO is elevated (Cash-First tier 1) and GM% is below plan (Margin-First tier 1 for the secondary). Resolution: DSO action takes priority because cash guardrail is in force; GM% action is tracked but subordinated until cash trajectory improves.
+
+---
+
+## 12. Automated reasoning scope
 
 Scope and limits of **automated reasoning** (AI urgency, action suggestion from governed logic, triage, assisted authoring) are defined in a single place so that tooling and product stay aligned:
 
-- **[internal/vision/automated_reasoning_scope_and_limits.md](../../../internal/vision/automated_reasoning_scope_and_limits.md)** — what is in scope, what is out of scope or limited, and how it relates to strategy patterns and urgency rules (§8 above).
+- **[internal/vision/automated_reasoning_scope_and_limits.md](../../../internal/vision/automated_reasoning_scope_and_limits.md)** — what is in scope, what is out of scope or limited, and how it relates to strategy patterns, urgency rules (§8), and conflict resolution (§11).

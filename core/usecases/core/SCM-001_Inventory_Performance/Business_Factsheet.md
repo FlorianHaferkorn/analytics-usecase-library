@@ -46,14 +46,21 @@ factsheet_type: business
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| inv.dio.days | Strategic |
+| inv.turnover | Influencing |
+| inv.stockout.pct | Influencing |
+| supply.otif.pct | Influencing |
+| inv.obsolete.pct | Influencing |
+| plan.forecast.accuracy.pct | Influencing |
+| sales.units | Influencing |
 
+**Action Codes:** S-I1.1, S-I1.2, S-I1.3, S-I1.4, S-I1.5
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 
@@ -150,9 +157,51 @@ required_slicers: Date, Location/DC/Channel, Category/Product, ABC/XYZ
 
 ## 9. Risks & Wrong Interpretations (Short)
 
-- Misstated DIO if COGS or inventory snapshots misaligned.  
-- Stockout flags incomplete, underreporting availability risk.  
-- Forecast accuracy misread without considering promotions or launches.  
+- Misstated DIO if COGS or inventory snapshots misaligned.
+- Stockout flags incomplete, underreporting availability risk.
+- Forecast accuracy misread without considering promotions or launches.
+
+---
+
+## 10. Typical Decision Scenarios
+
+### Scenario A: DIO Spike Without OTIF Impact
+
+**Situation:** DIO has risen from 55 to 71 days in 6 weeks across the Central Europe DC. Inventory value is up €12M. However, OTIF remains at 97.8% and stockout rate is 0.3% — both within targets.
+
+**Decision question:** Is the inventory build intentional (S&OP-approved seasonal buffer) or unmanaged accumulation of slow-moving stock?
+
+**Who decides:** Supply Chain Controlling Lead + Inventory Manager.
+
+**Consequence of inaction:** If unmanaged, €12M excess inventory carries €600K annualized cost of capital (at 5%). If seasonal buffer is approved, this is the `when_not_to_act` condition — no corrective action needed.
+
+**Action Code triggered:** S-I1.1 (Inventory Reduction) — only if confirmed as unmanaged excess after S&OP policy check.
+
+### Scenario B: Stockout Rate Rising in Core SKUs Despite Adequate Total Inventory
+
+**Situation:** Total DIO is 62 days (within target), but the stockout rate has risen to 4.2% on A-class SKUs in the Northern region. The root cause analysis shows inventory concentrated in slow-moving C-class items while A-class coverage has dropped to 12 days.
+
+**Decision question:** Is this a demand signal failure (forecast under-estimated A-class demand) or a replenishment priority failure (reorder triggered too late)?
+
+**Who decides:** Supply Chain Controlling Lead + Demand Planner.
+
+**Consequence of inaction:** 4.2% stockout on A-class SKUs that represent 60% of revenue = ~2.5% effective lost sales rate. At €200M revenue = €5M annual lost sales risk.
+
+**Action Code triggered:** S-I1.3 (Safety Stock Adjustment) + SCM-003 forecast review for demand signal correction.
+
+### Scenario C: Obsolete Inventory Build Approaching Write-off Threshold
+
+**Situation:** Obsolete inventory as a % of total has risen from 2.1% to 5.8% over 3 months. The aging analysis shows 80% of the obsolete stock is in 3 discontinued SKUs in the Southern DC.
+
+**Decision question:** At what point does the cost of holding exceed the write-off cost? Is there a liquidation channel available?
+
+**Who decides:** Head of Supply Chain + Finance Controlling.
+
+**Consequence of inaction:** Holding €4M of obsolete inventory at 5% CoC = €200K annual holding cost, plus full write-off risk when the items breach the accounting aging policy.
+
+**Action Code triggered:** S-R2.1 (Obsolescence Management) — activates liquidation or write-off decision protocol.
+
+---
 
 
 

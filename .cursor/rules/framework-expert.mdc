@@ -1,6 +1,8 @@
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+
 ---
 description: Framework expert — tool-agnostic core artifacts only; no TMDL, DAX, or other tool syntax
-globs: "core/**", "tooling/ir/**", "data_contracts/**", "tooling/validation/**", "tooling/ontology/**"
+globs: "core/**, tooling/ir/**, data_contracts/**, tooling/validation/**, tooling/ontology/**"
 alwaysApply: false
 ---
 

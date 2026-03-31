@@ -32,7 +32,7 @@ function Invoke-Phase5ReportGeneration {
     if (-not $effectiveTheme) {
         $auroraThemeConfig = Join-Path $script:RepoRoot "showcases\aurora_group\theme_config.json"
         if (Test-Path $auroraThemeConfig) {
-            try { $cfg = Get-Content $auroraThemeConfig -Raw -ErrorAction Stop | ConvertFrom-Json; if ($cfg.defaultThemeName) { $effectiveTheme = $cfg.defaultThemeName } } catch { }
+            try { $cfg = Get-Content $auroraThemeConfig -Raw -ErrorAction Stop | ConvertFrom-Json; if ($cfg.defaultThemeName) { $effectiveTheme = $cfg.defaultThemeName } } catch { Write-Verbose "Could not load theme config: $($_.Exception.Message)" }
         }
     }
 
@@ -40,7 +40,7 @@ function Invoke-Phase5ReportGeneration {
     foreach ($ucId in $reportUseCases) {
         $domainName = Get-DomainNameFromUseCaseId -UcId $ucId
         $datasetRef = Get-DatasetReferenceRelativeFromReport -DomainName $domainName
-        if (-not $datasetRef) { $datasetRef = "..\Commercial.SemanticModel" }
+        if (-not $datasetRef) { $datasetRef = "..\$($domainName).SemanticModel" }
         $reportFolderBaseName = Get-UseCaseReportFolderBaseName -UcId $ucId
         $reportFolder = Join-Path $distReportRoot "$reportFolderBaseName.Report"
         $allArgs = $pyExeArgs + @($scriptPath, "--use-case", $ucId, "--output", $reportFolder, "--repo-root", $script:RepoRoot, "--dataset-reference", $datasetRef)

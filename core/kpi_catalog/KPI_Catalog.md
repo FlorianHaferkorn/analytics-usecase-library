@@ -25,16 +25,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Higher CLV indicates more valuable segments; compare against acquisition cost and churn risk."
   technical:
-    dax_name: "CLV"
-    formatString: "#,0.00"
+    measure_name: "CLV"
     description: "Estimate long-term value of a customer to prioritize retention, acquisition, and service investme..."
-    dax_expression: |
-      AVERAGEX (
-          VALUES ( fact_sales[CustomerKey] ),
-          CALCULATE (
-              SUM ( fact_sales[Net Sales Amount] ) - SUM ( fact_sales[Cost of Goods Sold Amount] )
-          ) * 3
-      )
     depends_on_measures:
     - sales.net_sales.amount
     - cost.cogs.amount
@@ -70,12 +62,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (0 decimals)"
     interpretation: "Higher values indicate more revenue at risk; prioritize retention actions."
   technical:
-    dax_name: "Revenue at Risk Amount"
-    formatString: "#,0"
+    measure_name: "Revenue at Risk Amount"
     description: "Revenue exposure from churn-risk customers"
-    dax_expression: |
-      VAR ChurnRiskPct = 0.15
-      RETURN [CLV] * ChurnRiskPct
     depends_on_measures:
     - crm.clv.amount
     lineage:
@@ -111,11 +99,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "count"
     interpretation: "Higher values indicate more issues; interpret with Complaint Rate % to normalize by volume."
   technical:
-    dax_name: "Complaint Count"
-    formatString: "#,0"
+    measure_name: "Complaint Count"
     description: "Count of logged customer complaints"
-    dax_expression: |
-      COUNTROWS ( fact_experience )
     depends_on_measures: []
     lineage:
     - fact_experience.Complaint ID
@@ -149,21 +134,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher retention indicates better loyalty and relationship quality; interpret jointly with churn and CLV."
   technical:
-    dax_name: "Customer Retention %"
-    formatString: "0.0%"
+    measure_name: "Customer Retention %"
     description: "Measure the share of customers that remain active from one period to the next, as a core loyalty ..."
-    dax_expression: |
-      VAR CurrentPeriodCustomers =
-          CALCULATE (
-              DISTINCTCOUNT ( fact_sales[CustomerKey] ),
-              FILTER ( ALLSELECTED ( dim_date ), dim_date[Date] = MAX ( dim_date[Date] ) )
-          )
-      VAR PreviousPeriodCustomers =
-          CALCULATE (
-              DISTINCTCOUNT ( fact_sales[CustomerKey] ),
-              DATEADD ( dim_date[Date], -1, MONTH )
-          )
-      RETURN DIVIDE ( CurrentPeriodCustomers, PreviousPeriodCustomers )
     depends_on_measures: []
     lineage: []
   governance:
@@ -197,14 +169,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "Index (-100 to 100)"
     interpretation: "'>0 is positive, >50 strong advocacy; track trend and segment gaps.'"
   technical:
-    dax_name: "NPS Score"
-    formatString: "#,0"
+    measure_name: "NPS Score"
     description: "Measures customer advocacy and likelihood to recommend."
-    dax_expression: |
-      VAR Promoters = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[Is Promoter] = TRUE () )
-      VAR Detractors = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[Is Detractor] = TRUE () )
-      VAR Total = COUNTROWS ( fact_nps )
-      RETURN DIVIDE ( Promoters - Detractors, Total ) * 100
     depends_on_measures: []
     lineage:
     - fact_nps.Is Promoter
@@ -239,19 +205,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "count"
     interpretation: "Higher counts indicate deteriorating retention; validate against cohort definitions."
   technical:
-    dax_name: "Churned Customers"
-    formatString: "#,0"
+    measure_name: "Churned Customers"
     description: "Count customers that have stopped purchasing in the observation window as basis for churn calcula..."
-    dax_expression: |
-      VAR PreviousMonthCustomers =
-          CALCULATETABLE (
-              VALUES ( fact_sales[CustomerKey] ),
-              DATEADD ( dim_date[Date], -1, MONTH )
-          )
-      VAR CurrentMonthCustomers =
-          VALUES ( fact_sales[CustomerKey] )
-      RETURN
-          COUNTROWS ( EXCEPT ( PreviousMonthCustomers, CurrentMonthCustomers ) )
     depends_on_measures: []
     lineage:
     - dim_customer.CustomerKey
@@ -286,14 +241,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (0 decimals)"
     interpretation: "Base for concentration and CLV inputs."
   technical:
-    dax_name: "Customer Lifetime Revenue Amount"
-    formatString: "#,0"
+    measure_name: "Customer Lifetime Revenue Amount"
     description: "Sum of realized revenue across customer lifecycle"
-    dax_expression: |
-      CALCULATE (
-          SUM ( fact_sales[Net Sales Amount] ),
-          ALLSELECTED ( dim_date )
-      )
     depends_on_measures:
     - sales.net_sales.amount
     lineage:
@@ -328,11 +277,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "count"
     interpretation: "Base for retention, churn and at-risk share calculations."
   technical:
-    dax_name: "Active Customers"
-    formatString: "#,0"
+    measure_name: "Active Customers"
     description: "Number of unique active customers in the reporting period."
-    dax_expression: |
-      DISTINCTCOUNT ( fact_sales[CustomerKey] )
     depends_on_measures: []
     lineage:
     - dim_customer.CustomerKey
@@ -355,8 +301,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-001
   action_code_ref:
@@ -369,15 +314,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher performance indicates faster throughput; values above 100 % require validation of standard rates."
   technical:
-    dax_name: "Performance %"
-    formatString: "0.0%"
+    measure_name: "Performance %"
     description: "Throughput speed versus theoretical maximum."
-    dax_expression: |
-      VAR ActualOutput = SUM ( fact_ops[Output Units] )
-      VAR RunTime = SUM ( fact_ops[Run Time Minutes] )
-      VAR StandardRate = AVERAGE ( fact_ops[Standard Rate Units Per Minute] )
-      VAR TheoreticalOutput = RunTime * StandardRate
-      RETURN DIVIDE ( ActualOutput, TheoreticalOutput )
     depends_on_measures: []
     lineage:
     - fact_ops.Output Units
@@ -401,8 +339,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-001
   action_code_ref:
@@ -415,13 +352,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher quality means fewer defects; low values indicate scrap/rework issues."
   technical:
-    dax_name: "Quality %"
-    formatString: "0.0%"
+    measure_name: "Quality %"
     description: "Yield of conforming units relative to total units produced."
-    dax_expression: |
-      VAR GoodUnits = SUM ( fact_ops[Good Units] )
-      VAR TotalUnits = SUM ( fact_ops[Output Units] )
-      RETURN DIVIDE ( GoodUnits, TotalUnits )
     depends_on_measures: []
     lineage:
     - fact_ops.Good Units
@@ -444,8 +376,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - FIN-002
   action_code_ref:
@@ -458,14 +389,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher values indicate better labor efficiency; validate against mix effects."
   technical:
-    dax_name: "Labor Productivity %"
-    formatString: "0.0%"
+    measure_name: "Labor Productivity %"
     description: "Shows output efficiency relative to labor input."
-    dax_expression: |
-      VAR OutputUnits = SUM ( fact_output[Output Units] )
-      VAR LaborHours = SUM ( fact_labor[Labor Hours] )
-      VAR BaselineRate = 100.0
-      RETURN DIVIDE ( DIVIDE ( OutputUnits, LaborHours ) * 100, BaselineRate )
     depends_on_measures: []
     lineage:
     - fact_output.Output Units
@@ -489,8 +414,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-002
   action_code_ref:
@@ -504,13 +428,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "hours"
     interpretation: "Higher is better; declining MTBF indicates reliability issues."
   technical:
-    dax_name: "MTBF (hours)"
-    formatString: "0"
+    measure_name: "MTBF (hours)"
     description: "Measures average operating time between failures."
-    dax_expression: |
-      VAR FailureCount = COUNTROWS ( fact_ops_failures )
-      VAR OperatingTime = SUMX ( fact_ops, fact_ops[Run Time Minutes] / 60 )
-      RETURN DIVIDE ( OperatingTime, FailureCount )
     depends_on_measures: []
     lineage:
     - fact_ops_failures.Failure Start DateTime
@@ -533,8 +452,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-002
   action_code_ref:
@@ -548,13 +466,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "hours"
     interpretation: "Lower is better; high MTTR indicates slow recovery or parts issues."
   technical:
-    dax_name: "MTTR (hours)"
-    formatString: "0"
+    measure_name: "MTTR (hours)"
     description: "Measures average repair time after failures."
-    dax_expression: |
-      VAR FailureCount = COUNTROWS ( fact_ops_failures )
-      VAR TotalRepairTime = SUM ( fact_ops_failures[Repair Duration Hours] )
-      RETURN DIVIDE ( TotalRepairTime, FailureCount )
     depends_on_measures: []
     lineage:
     - fact_ops_failures.Repair Duration Hours
@@ -576,8 +489,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-002
   action_code_ref:
@@ -590,13 +502,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher is better; low compliance increases breakdown risk."
   technical:
-    dax_name: "PM Compliance %"
-    formatString: "0.0%"
+    measure_name: "PM Compliance %"
     description: "Tracks adherence to preventive maintenance plan."
-    dax_expression: |
-      VAR CompletedPM = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order Type] = "PM", fact_maintenance[Order Status] = "Completed" )
-      VAR PlannedPM = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Order Type] = "PM" )
-      RETURN DIVIDE ( CompletedPM, PlannedPM )
     depends_on_measures: []
     lineage:
     - fact_maintenance.Order Type
@@ -620,8 +527,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-002
   action_code_ref:
@@ -634,13 +540,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower is better; stockouts drive downtime and MTTR."
   technical:
-    dax_name: "Spare Parts Stockout %"
-    formatString: "0.0%"
+    measure_name: "Spare Parts Stockout %"
     description: "Measures stockout frequency for critical spare parts."
-    dax_expression: |
-      VAR StockoutCount = CALCULATE ( COUNTROWS ( fact_maintenance ), fact_maintenance[Parts Stockout Flag] = TRUE () )
-      VAR TotalRequests = COUNTROWS ( fact_maintenance )
-      RETURN DIVIDE ( StockoutCount, TotalRequests )
     depends_on_measures: []
     lineage:
     - fact_maintenance.Parts Stockout Flag
@@ -663,8 +564,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-001
   action_code_ref:
@@ -678,11 +578,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "units"
     interpretation: "Higher values indicate higher output; analyze against capacity and demand."
   technical:
-    dax_name: "Throughput Units"
-    formatString: "#,0"
+    measure_name: "Throughput Units"
     description: "Measures total output volume in units."
-    dax_expression: |
-      SUM ( fact_ops[Output Units] )
     depends_on_measures: []
     lineage:
     - fact_ops.Output Units
@@ -704,8 +601,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-003
   action_code_ref:
@@ -719,13 +615,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher is better; low FPY indicates process instability."
   technical:
-    dax_name: "First Pass Yield %"
-    formatString: "0.0%"
+    measure_name: "First Pass Yield %"
     description: "Measures share of units produced without rework or scrap."
-    dax_expression: |
-      VAR GoodUnits = SUM ( fact_quality[Good Units] )
-      VAR TotalUnits = SUM ( fact_quality[Total Units] )
-      RETURN DIVIDE ( GoodUnits, TotalUnits )
     depends_on_measures: []
     lineage:
     - fact_quality.Good Units
@@ -749,8 +640,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-003
   action_code_ref:
@@ -765,13 +655,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower is better; rising scrap increases cost and reduces yield."
   technical:
-    dax_name: "Scrap Rate %"
-    formatString: "0.0%"
+    measure_name: "Scrap Rate %"
     description: "Measures share of units scrapped in production."
-    dax_expression: |
-      VAR ScrapUnits = SUM ( fact_quality[Scrap Units] )
-      VAR TotalUnits = SUM ( fact_quality[Total Units] )
-      RETURN DIVIDE ( ScrapUnits, TotalUnits )
     depends_on_measures: []
     lineage:
     - fact_quality.Scrap Units
@@ -795,8 +680,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-003
   action_code_ref:
@@ -810,13 +694,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower is better; high rework impacts throughput and cost."
   technical:
-    dax_name: "Rework Rate %"
-    formatString: "0.0%"
+    measure_name: "Rework Rate %"
     description: "Measures share of units requiring rework."
-    dax_expression: |
-      VAR ReworkUnits = SUM ( fact_quality[Rework Units] )
-      VAR TotalUnits = SUM ( fact_quality[Total Units] )
-      RETURN DIVIDE ( ReworkUnits, TotalUnits )
     depends_on_measures: []
     lineage:
     - fact_quality.Rework Units
@@ -840,8 +719,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-003
   action_code_ref:
@@ -855,11 +733,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Lower is better; high COPQ indicates process and supplier issues."
   technical:
-    dax_name: "Cost of Poor Quality"
-    formatString: "#,0.00"
+    measure_name: "Cost of Poor Quality"
     description: "Captures financial impact of scrap, rework, and warranty/complaints."
-    dax_expression: |
-      SUM ( fact_quality_costs[COPQ Amount] )
     depends_on_measures: []
     lineage:
     - fact_quality_costs.COPQ Amount
@@ -881,8 +756,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-003
   action_code_ref:
@@ -895,13 +769,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower is better; spikes indicate quality or service issues."
   technical:
-    dax_name: "Complaint Rate %"
-    formatString: "0.0%"
+    measure_name: "Complaint Rate %"
     description: "Measures customer complaints relative to shipped units."
-    dax_expression: |
-      VAR Complaints = SUM ( fact_complaints[Complaint Count] )
-      VAR ShippedUnits = SUM ( fact_shipments[Shipped Units] )
-      RETURN DIVIDE ( Complaints, ShippedUnits )
     depends_on_measures:
     - crm.complaint.count
     lineage:
@@ -928,8 +797,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-003
   action_code_ref:
@@ -942,13 +810,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "defects per 1k units"
     interpretation: "Lower is better; indicates process stability."
   technical:
-    dax_name: "Defect Density"
-    formatString: "#,0"
+    measure_name: "Defect Density"
     description: "Measures defect count per 1,000 units produced."
-    dax_expression: |
-      VAR DefectCount = SUM ( fact_quality[Defect Count] )
-      VAR TotalUnits = SUM ( fact_quality[Total Units] )
-      RETURN DIVIDE ( DefectCount, TotalUnits ) * 1000
     depends_on_measures: []
     lineage:
     - fact_quality.Defect Count
@@ -972,8 +835,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Supply Chain]
-  - Operational Efficiency
+  domain_tag: [Supply Chain, Operational Efficiency]
   use_case_ref:
   - SCM-001
   action_code_ref:
@@ -989,12 +851,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "days"
     interpretation: "Higher values indicate slower movement and more cash tied up."
   technical:
-    dax_name: "Days in Inventory"
-    formatString: "0"
+    measure_name: "Days in Inventory"
     description: "Measures inventory holding period in days."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - inv.dio.days
     lineage:
@@ -1018,8 +876,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Supply Chain]
-  - Operational Efficiency
+  domain_tag: [Supply Chain, Operational Efficiency]
   use_case_ref:
   - SCM-001
   action_code_ref:
@@ -1034,12 +891,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower is better; high stockout rate impacts service and revenue."
   technical:
-    dax_name: "Stockout Rate %"
-    formatString: "0.0%"
+    measure_name: "Stockout Rate %"
     description: "Measures how often inventory is unavailable when demanded."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - inv.stockout.pct
     lineage:
@@ -1063,8 +916,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Supply Chain]
-  - Operational Efficiency
+  domain_tag: [Supply Chain, Operational Efficiency]
   use_case_ref:
   - SCM-001
   action_code_ref:
@@ -1077,12 +929,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower is better; high obsolescence indicates slow movement or aging."
   technical:
-    dax_name: "Obsolete Inventory %"
-    formatString: "0.0%"
+    measure_name: "Obsolete Inventory %"
     description: "Measures share of inventory considered obsolete."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - inv.obsolete.pct
     lineage: []
@@ -1105,8 +953,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Supply Chain]
-  - Operational Efficiency
+  domain_tag: [Supply Chain, Operational Efficiency]
   use_case_ref:
   - SCM-001
   - SCM-003
@@ -1123,12 +970,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher is better; low accuracy drives inventory and service issues."
   technical:
-    dax_name: "Forecast Accuracy %"
-    formatString: "0.0%"
+    measure_name: "Forecast Accuracy %"
     description: "Measures how close forecasted demand is to actual demand."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - plan.forecast.accuracy.pct
     lineage: []
@@ -1151,8 +994,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Supply Chain]
-  - Operational Efficiency
+  domain_tag: [Supply Chain, Operational Efficiency]
   use_case_ref:
   - SCM-003
   action_code_ref:
@@ -1166,12 +1008,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Values near 0 are best; positive bias indicates over-forecasting."
   technical:
-    dax_name: "Forecast Bias %"
-    formatString: "0.0%"
+    measure_name: "Forecast Bias %"
     description: "Measures systematic over- or under-forecasting."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - plan.forecast.bias.pct
     lineage: []
@@ -1196,8 +1034,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Supply Chain]
-  - Operational Efficiency
+  domain_tag: [Supply Chain, Operational Efficiency]
   use_case_ref:
   - SCM-003
   action_code_ref:
@@ -1211,12 +1048,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "count"
     interpretation: "High values indicate planning instability or frequent disruptions."
   technical:
-    dax_name: "Re-Plan Count"
-    formatString: "#,0"
+    measure_name: "Re-Plan Count"
     description: "Counts number of replanning cycles in a period."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - plan.replan.count
     lineage: []
@@ -1238,8 +1071,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Supply Chain]
-  - Operational Efficiency
+  domain_tag: [Supply Chain, Operational Efficiency]
   use_case_ref:
   - SCM-001
   - SCM-002
@@ -1259,12 +1091,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher is better; key service level indicator."
   technical:
-    dax_name: "OTIF %"
-    formatString: "0.0%"
+    measure_name: "OTIF %"
     description: "Measures share of orders delivered on time and in full."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - supply.otif.pct
     lineage:
@@ -1288,8 +1116,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Supply Chain]
-  - Operational Efficiency
+  domain_tag: [Supply Chain, Operational Efficiency]
   use_case_ref:
   - SCM-002
   action_code_ref:
@@ -1303,12 +1130,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher is better; analyze by carrier and lane."
   technical:
-    dax_name: "On-Time %"
-    formatString: "0.0%"
+    measure_name: "On-Time %"
     description: "Measures share of deliveries arriving on time."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - supply.on_time.pct
     lineage:
@@ -1332,8 +1155,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Supply Chain]
-  - Operational Efficiency
+  domain_tag: [Supply Chain, Operational Efficiency]
   use_case_ref:
   - SCM-002
   action_code_ref:
@@ -1346,12 +1168,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower is better; ties inventory and service performance."
   technical:
-    dax_name: "Stockout Impact %"
-    formatString: "0.0%"
+    measure_name: "Stockout Impact %"
     description: "Measures lost demand share due to stockouts."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - supply.stockout_impact.pct
     lineage: []
@@ -1374,8 +1192,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Supply Chain]
-  - Operational Efficiency
+  domain_tag: [Supply Chain, Operational Efficiency]
   use_case_ref:
   - SCM-002
   action_code_ref:
@@ -1389,12 +1206,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Lower is better; high values indicate planning or supply issues."
   technical:
-    dax_name: "Expedite Cost Amount"
-    formatString: "#,0.00"
+    measure_name: "Expedite Cost Amount"
     description: "Captures additional cost for expedited shipments."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - supply.expedite.amount
     lineage:
@@ -1417,8 +1230,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Supply Chain]
-  - Operational Efficiency
+  domain_tag: [Supply Chain, Operational Efficiency]
   use_case_ref:
   - SCM-002
   action_code_ref:
@@ -1431,12 +1243,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Lower is better; high penalties signal delivery or quality issues."
   technical:
-    dax_name: "Penalty Amount"
-    formatString: "#,0.00"
+    measure_name: "Penalty Amount"
     description: "Captures penalties for service level breaches."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - supply.penalty.amount
     lineage:
@@ -1472,12 +1280,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "%"
     interpretation: "Lower values are better; high impact indicates forecast under-coverage driving service loss."
   technical:
-    dax_name: "Service Impact %"
-    formatString: "0.0%"
+    measure_name: "Service Impact %"
     description: "Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast un..."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - plan.forecast.service_impact.pct
     lineage:
@@ -1504,8 +1308,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-001
   action_code_ref:
@@ -1520,11 +1323,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher OEE indicates better utilization; capped at 100 %."
   technical:
-    dax_name: "OEE %"
-    formatString: "0.0%"
+    measure_name: "OEE %"
     description: "Measures manufacturing performance combining availability, performance, and quality."
-    dax_expression: |
-      [Availability %] * [Performance %] * [Quality %]
     depends_on_measures:
     - ops.availability.pct
     - ops.performance.pct
@@ -1552,8 +1352,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-002
   action_code_ref:
@@ -1568,12 +1367,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "count"
     interpretation: "Higher counts indicate lower reliability."
   technical:
-    dax_name: "Failure Count"
-    formatString: "#,0"
+    measure_name: "Failure Count"
     description: "Counts equipment or process failures in the period."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures: []
     lineage: []
   governance:
@@ -1586,7 +1381,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - Failures reconcile with maintenance logs.
     version: "v0.1"
   metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: ops.inventory.value.amount
@@ -1594,8 +1389,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Supply Chain
+  domain_tag: [Operations, Supply Chain]
   use_case_ref:
   - OPS-002
   action_code_ref: []
@@ -1607,12 +1401,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Higher values indicate more capital tied in spare parts."
   technical:
-    dax_name: "Inventory Value Amount"
-    formatString: "#,0.00"
+    measure_name: "Inventory Value Amount"
     description: "Tracks inventory value for maintenance-relevant items."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures: []
     lineage: []
   governance:
@@ -1624,7 +1414,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules: []
     version: "v0.1"
   metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: ops.planned_output.units
@@ -1632,8 +1422,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-001
   - OPS-003
@@ -1650,12 +1439,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "units"
     interpretation: "Baseline for comparing actual throughput."
   technical:
-    dax_name: "Planned Output Units"
-    formatString: "#,0"
+    measure_name: "Planned Output Units"
     description: "Captures planned production output volume."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures: []
     lineage: []
   governance:
@@ -1667,7 +1452,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules: []
     version: "v0.1"
   metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: ops.pm.task.count
@@ -1675,8 +1460,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-002
   action_code_ref:
@@ -1689,12 +1473,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "count"
     interpretation: "Higher counts indicate more planned maintenance activity."
   technical:
-    dax_name: "Preventive Maintenance Task Count"
-    formatString: "#,0"
+    measure_name: "Preventive Maintenance Task Count"
     description: "Counts preventive maintenance tasks executed or scheduled."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - ops.pm.task.count
     lineage: []
@@ -1707,7 +1487,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules: []
     version: "v0.1"
   metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: ops.production.volume
@@ -1715,8 +1495,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - FIN-002
   action_code_ref:
@@ -1729,12 +1508,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "units"
     interpretation: "Higher values indicate higher output."
   technical:
-    dax_name: "Production Volume Units"
-    formatString: "#,0"
+    measure_name: "Production Volume Units"
     description: "Measures total produced volume in units."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - ops.production.volume
     lineage:
@@ -1756,8 +1531,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - FIN-002
   action_code_ref: []
@@ -1769,12 +1543,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower values indicate better quality."
   technical:
-    dax_name: "Quality Defect Rate %"
-    formatString: "0.0%"
+    measure_name: "Quality Defect Rate %"
     description: "Measures share of defective units in production."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - ops.quality.defect_rate.pct
     lineage:
@@ -1797,8 +1567,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-002
   action_code_ref: []
@@ -1810,12 +1579,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "count"
     interpretation: "Higher counts indicate higher safety risk."
   technical:
-    dax_name: "Safety Incident Count"
-    formatString: "#,0"
+    measure_name: "Safety Incident Count"
     description: "Counts safety incidents recorded in the period."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - ops.safety.incident.count
     lineage: []
@@ -1828,7 +1593,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules: []
     version: "v0.1"
   metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: ops.service_level.pct
@@ -1836,8 +1601,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - FIN-002
   action_code_ref: []
@@ -1849,12 +1613,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher values indicate better service performance."
   technical:
-    dax_name: "Operations Service Level %"
-    formatString: "0.0%"
+    measure_name: "Operations Service Level %"
     description: "Measures on-time or in-full performance for operational delivery."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - ops.service_level.pct
     lineage: []
@@ -1867,7 +1627,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules: []
     version: "v0.1"
   metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: ops.yield.pct
@@ -1875,8 +1635,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - FIN-002
   action_code_ref: []
@@ -1888,12 +1647,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher yield indicates better process efficiency."
   technical:
-    dax_name: "Yield %"
-    formatString: "0.0%"
+    measure_name: "Yield %"
     description: "Measures ratio of good output to total input."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - ops.yield.pct
     lineage:
@@ -1916,8 +1671,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Commercial]
-  - Supply Chain
+  domain_tag: [Commercial, Supply Chain]
   use_case_ref:
   - SCM-002
   - SCM-003
@@ -1932,12 +1686,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "count"
     interpretation: "Higher counts indicate higher order volume."
   technical:
-    dax_name: "Order Lines Count"
-    formatString: "#,0"
+    measure_name: "Order Lines Count"
     description: "Counts order lines processed in the period."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - order.lines
     lineage: []
@@ -1950,7 +1700,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules: []
     version: "v0.1"
   metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: plans.count
@@ -1958,8 +1708,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Supply Chain]
-  - Forecast Planning
+  domain_tag: [Supply Chain, Forecast Planning]
   use_case_ref:
   - SCM-003
   action_code_ref:
@@ -1972,12 +1721,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "count"
     interpretation: "Higher counts indicate more planning activity."
   technical:
-    dax_name: "Plans Count"
-    formatString: "#,0"
+    measure_name: "Plans Count"
     description: "Counts planning cycles or plan versions in the period."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - plans.count
     lineage: []
@@ -1990,7 +1735,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules: []
     version: "v0.1"
   metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: shipments.count
@@ -2014,12 +1759,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "count"
     interpretation: "Higher counts indicate higher fulfillment activity."
   technical:
-    dax_name: "Shipments Count"
-    formatString: "#,0"
+    measure_name: "Shipments Count"
     description: "Counts shipments executed in the period."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - shipments.count
     lineage: []
@@ -2032,7 +1773,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules: []
     version: "v0.1"
   metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: scm.service_level.pct
@@ -2052,12 +1793,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher values indicate better service reliability."
   technical:
-    dax_name: "Supply Chain Service Level %"
-    formatString: "0.0%"
+    measure_name: "Supply Chain Service Level %"
     description: "Measures supply chain service level performance."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - scm.service_level.pct
     lineage:
@@ -2079,8 +1816,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-001
   - OPS-002
@@ -2096,13 +1832,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher availability indicates less downtime; low values typically reflect maintenance or scheduling issues."
   technical:
-    dax_name: "Availability %"
-    formatString: "0.0%"
+    measure_name: "Availability %"
     description: "Uptime share relative to planned production time."
-    dax_expression: |
-      VAR RunTime = SUM ( fact_ops[Run Time Minutes] )
-      VAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] )
-      RETURN DIVIDE ( RunTime, PlannedTime )
     depends_on_measures: []
     lineage:
     - fact_ops.Run Time Minutes
@@ -2125,8 +1856,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - XD-003
   action_code_ref: []
@@ -2138,12 +1868,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher OTIF indicates better delivery reliability; low values reflect service and execution issues."
   technical:
-    dax_name: "Ops OTIF %"
-    formatString: "0.0%"
+    measure_name: "Ops OTIF %"
     description: "Delivery reliability measured by orders delivered on-time and in-full."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - supply.otif.pct
     lineage: []
@@ -2166,8 +1892,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - XD-003
   action_code_ref: []
@@ -2179,12 +1904,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "days"
     interpretation: "Lower CCC means faster cash conversion and lower working capital."
   technical:
-    dax_name: "Cash Conversion Cycle (Days)"
-    formatString: "0"
+    measure_name: "Cash Conversion Cycle (Days)"
     description: "Combines receivables, inventory, and payables days to show cash efficiency."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - ops.working_capital.ccc.days
     lineage: []
@@ -2208,8 +1929,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-001
   action_code_ref: []
@@ -2221,13 +1941,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower is better; analyze downtime drivers and loss categories."
   technical:
-    dax_name: "Downtime %"
-    formatString: "0.0%"
+    measure_name: "Downtime %"
     description: "Measures share of planned production time lost to downtime."
-    dax_expression: |
-      VAR Downtime = SUM ( fact_ops[Downtime Minutes] )
-      VAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] )
-      RETURN DIVIDE ( Downtime, PlannedTime )
     depends_on_measures: []
     lineage:
     - fact_ops.Downtime Minutes
@@ -2251,8 +1966,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Operations]
-  - Operational Efficiency
+  domain_tag: [Operations, Operational Efficiency]
   use_case_ref:
   - OPS-002
   action_code_ref:
@@ -2266,13 +1980,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower is better; track reliability and maintenance effectiveness."
   technical:
-    dax_name: "Unplanned Downtime %"
-    formatString: "0.0%"
+    measure_name: "Unplanned Downtime %"
     description: "Measures unplanned downtime share of planned time."
-    dax_expression: |
-      VAR UnplannedDowntime = SUMX ( fact_ops_failures, fact_ops_failures[Downtime Minutes] )
-      VAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] )
-      RETURN DIVIDE ( UnplannedDowntime, PlannedTime )
     depends_on_measures: []
     lineage:
     - fact_ops_failures.Downtime Minutes
@@ -2296,8 +2005,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Supply Chain]
-  - Operational Efficiency
+  domain_tag: [Supply Chain, Operational Efficiency]
   use_case_ref:
   - SCM-001
   action_code_ref:
@@ -2310,12 +2018,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "turns"
     interpretation: "Higher turnover indicates better inventory velocity; too high may risk stockouts."
   technical:
-    dax_name: "Inventory Turnover"
-    formatString: "#,0"
+    measure_name: "Inventory Turnover"
     description: "Measures how often inventory is sold and replaced."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - inv.turnover
     lineage:
@@ -2341,8 +2045,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Supply Chain]
-  - Operational Efficiency
+  domain_tag: [Supply Chain, Operational Efficiency]
   use_case_ref:
   - SCM-003
   action_code_ref:
@@ -2355,12 +2058,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower is better; high MAPE indicates unstable demand or poor model fit."
   technical:
-    dax_name: "Forecast MAPE %"
-    formatString: "0.0%"
+    measure_name: "Forecast MAPE %"
     description: "Measures mean absolute percentage error in forecast."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - plan.forecast.mape.pct
     lineage:
@@ -2384,8 +2083,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Efficiency
-  domain_tag: [Supply Chain]
-  - Operational Efficiency
+  domain_tag: [Supply Chain, Operational Efficiency]
   use_case_ref:
   - SCM-002
   action_code_ref:
@@ -2399,12 +2097,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher is better; low values indicate allocation or stock issues."
   technical:
-    dax_name: "In-Full %"
-    formatString: "0.0%"
+    measure_name: "In-Full %"
     description: "Measures share of deliveries with complete quantities."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - supply.in_full.pct
     lineage:
@@ -2428,8 +2122,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Governance
-  domain_tag: [Enterprise & Governance]
-  - Governance
+  domain_tag: [Enterprise & Governance, Governance]
   use_case_ref:
   - XD-003
   action_code_ref:
@@ -2442,12 +2135,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher values indicate better execution effectiveness."
   technical:
-    dax_name: "Action Outcome Rate %"
-    formatString: "0.0%"
+    measure_name: "Action Outcome Rate %"
     description: "Measures share of actions that achieved the intended outcome."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - enterprise.action_outcome_rate.pct
     lineage: []
@@ -2460,7 +2149,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules: []
     version: "v0.1"
   metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: enterprise.action_routed.count
@@ -2468,8 +2157,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Governance
-  domain_tag: [Enterprise & Governance]
-  - Governance
+  domain_tag: [Enterprise & Governance, Governance]
   use_case_ref:
   - XD-003
   action_code_ref: []
@@ -2481,12 +2169,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "count"
     interpretation: "Higher counts indicate more routed actions."
   technical:
-    dax_name: "Actions Routed Count"
-    formatString: "#,0"
+    measure_name: "Actions Routed Count"
     description: "Counts action codes routed for execution."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - enterprise.action_routed.count
     lineage: []
@@ -2499,7 +2183,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules: []
     version: "v0.1"
     metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: sales.price.list.amount
@@ -2521,10 +2205,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "currency"
     interpretation: "Base for Price Realization %; required input for sales.price.realization_pct."
   technical:
-    dax_name: "List Price Amount"
-    formatString: "#,0.00"
-    dax_expression: |
-      SUM ( fact_sales[List Price Amount] )
+    measure_name: "List Price Amount"
     description: "Total list price amount from fact_sales; data requirement for semantic model."
     depends_on_measures: []
     lineage:
@@ -2560,10 +2241,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "currency"
     interpretation: "Numerator for Price Realization %; required input for sales.price.realization_pct."
   technical:
-    dax_name: "Net Price Amount"
-    formatString: "#,0.00"
-    dax_expression: |
-      SUM ( fact_sales[Net Price Amount] )
+    measure_name: "Net Price Amount"
     description: "Total net price amount from fact_sales; data requirement for semantic model."
     depends_on_measures: []
     lineage:
@@ -2600,10 +2278,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Values below 100% indicate discounting; values above 100% indicate uplift vs list price."
   technical:
-    dax_name: "Price Realization %"
-    formatString: "0.0%"
-    dax_expression: |
-      DIVIDE ( [Net Price Amount], [List Price Amount] )
+    measure_name: "Price Realization %"
     description: "Shows how much of list price is realized after discounts."
     depends_on_measures:
     - sales.price.list.amount
@@ -2646,13 +2321,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Explains whether composition shifts drive positive or negative outcomes."
   technical:
-    dax_name: "Mix Effect Amount"
-    formatString: "#,0.00"
-    dax_expression: |
-      [Net Sales Amount]
-          - SUM ( fact_sales[Plan Sales Amount] )
-          - [Price Effect Amount]
-          - [Volume Effect Amount]
+    measure_name: "Mix Effect Amount"
     description: "Captures the residual effect from changes in product, channel, or region mix."
     depends_on_measures:
     - sales.net_sales.amount
@@ -2694,11 +2363,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Represents total top-line sales."
   technical:
-    dax_name: "Net Sales Amount"
-    formatString: "#,0.00"
+    measure_name: "Net Sales Amount"
     description: "Total invoiced revenue net of discounts and returns."
-    dax_expression: |
-      SUM ( fact_sales[Net Sales Amount] )
     depends_on_measures: []
     lineage:
     - fact_sales.Net Sales Amount
@@ -2732,13 +2398,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Shows growth rate vs prior year."
   technical:
-    dax_name: "Delta% Net Sales"
-    formatString: "0.0%"
+    measure_name: "Delta% Net Sales"
     description: "Relative variance of Net Sales vs Last Year."
-    dax_expression: |
-      VAR Actual = [Net Sales Amount]
-      VAR LY     = SUM ( fact_sales[Last Year Sales Amount] )
-      RETURN DIVIDE ( Actual - LY, LY )
     depends_on_measures:
     - sales.net_sales.amount
     lineage:
@@ -2779,13 +2440,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Positive values indicate outperformance vs plan; negative values indicate shortfall."
   technical:
-    dax_name: "Net Sales % vs Plan"
-    formatString: "0.0%"
+    measure_name: "Net Sales % vs Plan"
     description: "Relative variance of Net Sales vs Plan."
-    dax_expression: |
-      VAR Actual = [Net Sales Amount]
-      VAR Plan   = SUM ( fact_sales[Plan Sales Amount] )
-      RETURN DIVIDE ( Actual - Plan, Plan )
     depends_on_measures:
     - sales.net_sales.amount
     lineage:
@@ -2822,16 +2478,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Positive values indicate price gains; negative values represent price pressure."
   technical:
-    dax_name: "Price Effect Amount"
-    formatString: "#,0.00"
+    measure_name: "Price Effect Amount"
     description: "Quantifies the pure price impact in the PVM bridge."
-    dax_expression: |
-      SUMX (
-          fact_sales,
-          VAR ActualPrice = DIVIDE ( fact_sales[Net Sales Amount], fact_sales[Quantity] )
-          VAR PlanPrice   = DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] )
-          RETURN ( ActualPrice - PlanPrice ) * fact_sales[Quantity]
-      )
     depends_on_measures:
     - sales.net_sales.amount
     lineage:
@@ -2870,17 +2518,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Positive values indicate higher volume than plan; negative values indicate volume shortfalls."
   technical:
-    dax_name: "Volume Effect Amount"
-    formatString: "#,0.00"
+    measure_name: "Volume Effect Amount"
     description: "Measures the variance caused purely by quantity changes at plan price."
-    dax_expression: |
-      SUMX (
-          fact_sales,
-          VAR ActualQty = fact_sales[Quantity]
-          VAR PlanQty   = fact_sales[Plan Quantity]
-          VAR PlanPrice = DIVIDE ( fact_sales[Plan Sales Amount], PlanQty )
-          RETURN ( ActualQty - PlanQty ) * PlanPrice
-      )
     depends_on_measures: []
     lineage:
     - fact_sales.Plan Quantity
@@ -2926,12 +2565,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "units"
     interpretation: "Higher values indicate higher volume sold."
   technical:
-    dax_name: "Sales Units"
-    formatString: "#,0"
+    measure_name: "Sales Units"
     description: "Measures sold units volume in the period."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - sales.units
     lineage:
@@ -2953,8 +2588,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Innovation & People
-  domain_tag: [People & Culture]
-  - Corporate & Strategy
+  domain_tag: [People & Culture, Corporate & Strategy]
   use_case_ref:
   - XD-003
   action_code_ref: []
@@ -2966,12 +2600,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher values indicate greater adoption of digital processes; low values show manual work and automation potential."
   technical:
-    dax_name: "Digital Adoption Rate %"
-    formatString: "0.0%"
+    measure_name: "Digital Adoption Rate %"
     description: "Measure how much of all eligible process transactions are executed via digital tools instead of m..."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - people.digital_adoption.pct
     lineage:
@@ -3007,12 +2637,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher values signal retention risk and require targeted actions."
   technical:
-    dax_name: "Attrition Risk %"
-    formatString: "0.0%"
+    measure_name: "Attrition Risk %"
     description: "Probability of employee attrition"
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - people.attrition_risk.pct
     lineage: []
@@ -3035,8 +2661,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Liquidity
-  domain_tag: [Finance]
-  - Corporate & Strategy
+  domain_tag: [Finance, Corporate & Strategy]
   use_case_ref:
   - FIN-001
   action_code_ref:
@@ -3049,13 +2674,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "days"
     interpretation: "Lower is better; rising DSO indicates collection issues."
   technical:
-    dax_name: "DSO Days"
-    formatString: "0"
+    measure_name: "DSO Days"
     description: "Measures days sales outstanding for receivables."
-    dax_expression: |
-      VAR AR = SUM ( fact_accounts_receivable[AR Amount] )
-      VAR NetSales = SUM ( fact_accounts_receivable[Revenue Amount] )
-      RETURN DIVIDE ( AR * 365, NetSales )
     depends_on_measures: []
     lineage:
     - fact_accounts_receivable.AR Amount
@@ -3091,8 +2711,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Higher values increase working capital needs; validate against seasonality and service targets."
   technical:
-    dax_name: "Inventory Amount"
-    formatString: "#,0.00"
+    measure_name: "Inventory Amount"
     description: "Inventory value at period end"
     depends_on_measures: []
     lineage: []
@@ -3126,8 +2745,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Higher balances increase working capital funding but can signal payment delays; compare to terms."
   technical:
-    dax_name: "Payables Amount"
-    formatString: "#,0.00"
+    measure_name: "Payables Amount"
     description: "Accounts payable balance at period end"
     depends_on_measures: []
     lineage: []
@@ -3161,8 +2779,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "hours"
     interpretation: "Capacity baseline for utilization and downtime; compare with actual runtime and downtime."
   technical:
-    dax_name: "Planned Hours"
-    formatString: "#,0.0"
+    measure_name: "Planned Hours"
     description: "Scheduled production time for machines/lines"
     depends_on_measures: []
     lineage: []
@@ -3186,8 +2803,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Liquidity
-  domain_tag: [Finance]
-  - Corporate & Strategy
+  domain_tag: [Finance, Corporate & Strategy]
   use_case_ref:
   - FIN-001
   action_code_ref:
@@ -3200,13 +2816,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "days"
     interpretation: "Lower is better; high DIO increases cash tied up in stock."
   technical:
-    dax_name: "DIO Days"
-    formatString: "0"
+    measure_name: "DIO Days"
     description: "Measures days inventory outstanding."
-    dax_expression: |
-      VAR Inventory = SUM ( fact_inventory[Inventory Amount] )
-      VAR COGS = SUM ( fact_inventory[COGS Amount] )
-      RETURN DIVIDE ( Inventory * 365, COGS )
     depends_on_measures:
     - fin.liquidity.inventory.amount
     lineage:
@@ -3230,8 +2841,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Liquidity
-  domain_tag: [Finance]
-  - Corporate & Strategy
+  domain_tag: [Finance, Corporate & Strategy]
   use_case_ref:
   - FIN-001
   action_code_ref:
@@ -3244,13 +2854,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "days"
     interpretation: "Higher values improve cash but may impact supplier terms."
   technical:
-    dax_name: "DPO Days"
-    formatString: "0"
+    measure_name: "DPO Days"
     description: "Measures days payables outstanding."
-    dax_expression: |
-      VAR AP = SUM ( fact_accounts_payable[AP Amount] )
-      VAR COGS = SUM ( fact_accounts_payable[COGS Amount] )
-      RETURN DIVIDE ( AP * 365, COGS )
     depends_on_measures: []
     lineage:
     - fact_accounts_payable.AP Amount
@@ -3273,8 +2878,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Liquidity
-  domain_tag: [Finance]
-  - Corporate & Strategy
+  domain_tag: [Finance, Corporate & Strategy]
   use_case_ref:
   - FIN-001
   action_code_ref:
@@ -3287,11 +2891,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "days"
     interpretation: "Lower values indicate faster cash recovery."
   technical:
-    dax_name: "CCC Days"
-    formatString: "0"
+    measure_name: "CCC Days"
     description: "Measures cash conversion cycle length."
-    dax_expression: |
-      [DSO Days] + [DIO Days] - [DPO Days]
     depends_on_measures:
     - wc.dso.days
     - wc.dio.days
@@ -3315,8 +2916,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Liquidity
-  domain_tag: [Finance]
-  - Corporate & Strategy
+  domain_tag: [Finance, Corporate & Strategy]
   use_case_ref:
   - FIN-001
   action_code_ref:
@@ -3330,11 +2930,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Higher balance improves liquidity buffer; consider seasonality and debt strategy."
   technical:
-    dax_name: "Cash Balance"
-    formatString: "#,0.00"
+    measure_name: "Cash Balance"
     description: "Tracks cash and cash equivalents at period end."
-    dax_expression: |
-      SUM ( fact_cash_position[Cash Balance Amount] )
     depends_on_measures: []
     lineage:
     - fact_cash_position.Cash Balance Amount
@@ -3356,8 +2953,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Liquidity
-  domain_tag: [Finance]
-  - Corporate & Strategy
+  domain_tag: [Finance, Corporate & Strategy]
   use_case_ref:
   - FIN-001
   action_code_ref:
@@ -3372,11 +2968,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Positive values improve liquidity; negative values require investigation."
   technical:
-    dax_name: "Operating Cash Flow"
-    formatString: "#,0.00"
+    measure_name: "Operating Cash Flow"
     description: "Measures cash generated by operating activities."
-    dax_expression: |
-      SUM ( fact_cash_flow[Operating Cash Flow Amount] )
     depends_on_measures: []
     lineage:
     - fact_cash_flow.Operating Cash Flow Amount
@@ -3400,8 +2993,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Liquidity
-  domain_tag: [Finance]
-  - Corporate & Strategy
+  domain_tag: [Finance, Corporate & Strategy]
   use_case_ref:
   - FIN-001
   action_code_ref:
@@ -3414,13 +3006,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Positive values indicate higher cash than planned."
   technical:
-    dax_name: "Cash vs Plan %"
-    formatString: "0.0%"
+    measure_name: "Cash vs Plan %"
     description: "Measures deviation of cash balance versus plan."
-    dax_expression: |
-      VAR Actual = SUM ( fact_cash_position[Cash Balance Amount] )
-      VAR Plan = SUM ( fact_cash_position[Plan Cash Amount] )
-      RETURN DIVIDE ( Actual - Plan, Plan )
     depends_on_measures: []
     lineage:
     - fact_cash_position.Cash Balance Amount
@@ -3455,11 +3042,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Input to Gross Margin % and PVM; must align with P&L COGS."
   technical:
-    dax_name: "Cost of Goods Sold Amount"
-    formatString: "#,0.00"
+    measure_name: "Cost of Goods Sold Amount"
     description: "Total cost of goods sold; base measure for margin and PVM."
-    dax_expression: |
-      SUM ( fact_sales[Cost of Goods Sold Amount] )
     depends_on_measures: []
     lineage:
     - fact_sales.Cost of Goods Sold Amount
@@ -3481,8 +3065,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
-  domain_tag: [Finance]
-  - Commercial
+  domain_tag: [Finance, Commercial]
   use_case_ref:
   - COM-001
   - COM-002
@@ -3517,10 +3100,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Values above 0 % indicate positive gross profit; trend over time shows structural profitability changes. Used for both operational management reporting and P&L reconciliation."
   technical:
-    dax_name: "Gross Margin %"
-    formatString: "0.0%"
-    dax_expression: |
-      DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
+    measure_name: "Gross Margin %"
     description: "Gross Margin % used in commercial and management reporting and P&L reconciliation."
     depends_on_measures:
     - sales.net_sales.amount
@@ -3562,11 +3142,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Input to Promo ROI %."
   technical:
-    dax_name: "Promo Cost"
-    formatString: "#,0.00"
+    measure_name: "Promo Cost"
     description: "Total promotion cost."
-    dax_expression: |
-      SUM ( fact_promo[Promo Cost] )
     depends_on_measures: []
     lineage:
     - fact_promo.Promo Cost
@@ -3603,11 +3180,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Input to Promo ROI %."
   technical:
-    dax_name: "Incremental Gross Margin Amount"
-    formatString: "#,0.00"
+    measure_name: "Incremental Gross Margin Amount"
     description: "Incremental gross margin from promo."
-    dax_expression: |
-      [Incremental Sales Amount] * 0.35
     depends_on_measures:
     - sales.promo.incremental.amount
     lineage:
@@ -3647,11 +3221,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Values > 0 indicate promotions adding value."
   technical:
-    dax_name: "Promo ROI %"
-    formatString: "0.0%"
+    measure_name: "Promo ROI %"
     description: "Measures profitability of promotions relative to spend."
-    dax_expression: |
-      DIVIDE ( [Incremental Gross Margin Amount], [Promo Cost] )
     depends_on_measures:
     - sales.promo.incremental_gm.amount
     - sales.promo.cost.amount
@@ -3675,8 +3246,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
-  domain_tag: [Finance]
-  - Commercial
+  domain_tag: [Finance, Commercial]
   use_case_ref:
   - COM-002
   - COM-003
@@ -3691,14 +3261,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Profitability of promotions."
   technical:
-    dax_name: "GM % During Promo"
-    formatString: "0.0%"
+    measure_name: "GM % During Promo"
     description: "Gross margin rate during promo periods."
-    dax_expression: |
-      CALCULATE (
-          DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] ),
-          fact_sales[Promo Flag] = "Yes"
-      )
     depends_on_measures:
     - sales.net_sales.amount
     - cost.cogs.amount
@@ -3724,8 +3288,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
-  domain_tag: [Finance]
-  - Commercial
+  domain_tag: [Finance, Commercial]
   use_case_ref:
   - COM-002
   action_code_ref: []
@@ -3737,10 +3300,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR per unit"
     interpretation: "Lower is better; rising unit cost erodes margin."
   technical:
-    dax_name: "COGS per Unit"
-    formatString: "#,0"
-    dax_expression: |
-      DIVIDE ( [Cost of Goods Sold Amount], SUM ( fact_sales[Quantity] ) )
+    measure_name: "COGS per Unit"
     description: "Shows unit cost level relative to sold volume."
     depends_on_measures:
     - cost.cogs.amount
@@ -3776,13 +3336,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Numerator for Cannibalization %; higher means more cannibalization."
   technical:
-    dax_name: "Cannibalized Sales Amount"
-    formatString: "#,0.00"
+    measure_name: "Cannibalized Sales Amount"
     description: "Sales amount lost on non-promoted items versus baseline."
-    dax_expression: |
-      VAR ActualNonPromoSales = CALCULATE ( SUM ( fact_sales[Net Sales Amount] ), fact_sales[Promo Flag] = FALSE () )
-      VAR BaselineNonPromoSales = SUM ( fact_promo[Baseline Non-Promo Sales Amount] )
-      RETURN MAX ( 0, BaselineNonPromoSales - ActualNonPromoSales )
     depends_on_measures:
     - sales.net_sales.amount
     lineage:
@@ -3819,11 +3374,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower is better; high cannibalization reduces net gain."
   technical:
-    dax_name: "Cannibalization %"
-    formatString: "0.0%"
+    measure_name: "Cannibalization %"
     description: "Measures share of promo uplift offset by decline in non-promoted sales."
-    dax_expression: |
-      DIVIDE ( [Cannibalized Sales Amount], [Incremental Sales Amount] )
     depends_on_measures:
     - sales.promo.incremental.amount
     - sales.promo.cannibalized_sales.amount
@@ -3850,8 +3402,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
-  domain_tag: [Finance]
-  - Corporate & Strategy
+  domain_tag: [Finance, Corporate & Strategy]
   use_case_ref:
   - FIN-002
   action_code_ref:
@@ -3864,13 +3415,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower is better; increases indicate supplier or price pressure."
   technical:
-    dax_name: "Material Cost %"
-    formatString: "0.0%"
+    measure_name: "Material Cost %"
     description: "Shows material cost share of net sales."
-    dax_expression: |
-      VAR MaterialCost = SUM ( fact_finance[Material Cost Amount] )
-      VAR NetSales = SUM ( fact_finance[Net Sales Amount] )
-      RETURN DIVIDE ( MaterialCost, NetSales )
     depends_on_measures:
     - sales.net_sales.amount
     lineage:
@@ -3894,8 +3440,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
-  domain_tag: [Finance]
-  - Corporate & Strategy
+  domain_tag: [Finance, Corporate & Strategy]
   use_case_ref:
   - FIN-002
   action_code_ref:
@@ -3908,13 +3453,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Positive values indicate overspend; negative values indicate savings."
   technical:
-    dax_name: "OpEx vs Plan %"
-    formatString: "0.0%"
+    measure_name: "OpEx vs Plan %"
     description: "Measures OpEx variance versus plan."
-    dax_expression: |
-      VAR Actual = SUM ( fact_finance[OpEx Amount] )
-      VAR Plan = SUM ( fact_finance[Plan OpEx Amount] )
-      RETURN DIVIDE ( Actual - Plan, Plan )
     depends_on_measures: []
     lineage:
     - fact_finance.OpEx Amount
@@ -3937,8 +3477,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Profitability
-  domain_tag: [Finance]
-  - Corporate & Strategy
+  domain_tag: [Finance, Corporate & Strategy]
   use_case_ref:
   - FIN-002
   action_code_ref:
@@ -3954,13 +3493,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR per unit"
     interpretation: "Lower is better; used to track cost efficiency."
   technical:
-    dax_name: "Unit Cost Amount"
-    formatString: "#,0"
+    measure_name: "Unit Cost Amount"
     description: "Measures total cost per unit produced or sold."
-    dax_expression: |
-      VAR TotalCost = SUM ( fact_cost[COGS Amount] )
-      VAR OutputUnits = SUM ( fact_output[Output Units] )
-      RETURN DIVIDE ( TotalCost, OutputUnits )
     depends_on_measures: []
     lineage:
     - fact_cost.COGS Amount
@@ -3983,8 +3517,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Profitability
-  domain_tag: [Finance]
-  - Commercial
+  domain_tag: [Finance, Commercial]
   use_case_ref:
   - COM-001
   - COM-002
@@ -4001,10 +3534,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Explains profitability magnitude before OpEx."
   technical:
-    dax_name: "Gross Margin Amount"
-    formatString: "#,0.00"
-    dax_expression: |
-      [Net Sales Amount] - [Cost of Goods Sold Amount]
+    measure_name: "Gross Margin Amount"
     description: "Absolute gross margin in currency."
     depends_on_measures:
     - sales.net_sales.amount
@@ -4047,11 +3577,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Reference level for incremental lift."
   technical:
-    dax_name: "Baseline Sales Amount"
-    formatString: "#,0.00"
+    measure_name: "Baseline Sales Amount"
     description: "Baseline sales from promo."
-    dax_expression: |
-      SUM ( fact_promo[Baseline Sales Amount] )
     depends_on_measures: []
     lineage:
     - fact_promo.Baseline Sales Amount
@@ -4087,11 +3614,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Input to promo ROI."
   technical:
-    dax_name: "Incremental Sales Amount"
-    formatString: "#,0.00"
+    measure_name: "Incremental Sales Amount"
     description: "Additional sales due to promotion."
-    dax_expression: |
-      [Net Sales Amount] - [Baseline Sales Amount]
     depends_on_measures:
     - sales.net_sales.amount
     - sales.promo.baseline_sales.amount
@@ -4116,8 +3640,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Profitability
-  domain_tag: [Finance]
-  - Commercial
+  domain_tag: [Finance, Commercial]
   use_case_ref:
   - FIN-002
   action_code_ref:
@@ -4130,13 +3653,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower is better; complements gross margin %."
   technical:
-    dax_name: "COGS % of Sales"
-    formatString: "0.0%"
+    measure_name: "COGS % of Sales"
     description: "Shows cost share relative to net sales."
-    dax_expression: |
-      VAR COGS = SUM ( fact_finance[COGS Amount] )
-      VAR NetSales = SUM ( fact_finance[Net Sales Amount] )
-      RETURN DIVIDE ( COGS, NetSales )
     depends_on_measures:
     - sales.net_sales.amount
     lineage:
@@ -4160,8 +3678,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Profitability
-  domain_tag: [Finance]
-  - Commercial
+  domain_tag: [Finance, Commercial]
   use_case_ref:
   - COM-002
   action_code_ref: []
@@ -4173,16 +3690,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Positive values indicate better-than-plan margin."
   technical:
-    dax_name: "Gross Margin % vs Plan"
-    formatString: "0.0%"
-    dax_expression: |
-      VAR GMAct =
-          DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
-      VAR GMPlan =
-          DIVIDE ( SUM ( fact_sales[Plan Sales Amount] ) - SUM ( fact_sales[Plan COGS Amount] ),
-                   SUM ( fact_sales[Plan Sales Amount] ) )
-      RETURN
-          DIVIDE ( GMAct - GMPlan, GMPlan )
+    measure_name: "Gross Margin % vs Plan"
     description: "Measures gross margin rate variance versus plan."
     depends_on_measures:
     - sales.net_sales.amount
@@ -4220,12 +3728,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Provides a stable base for cost variance comparisons."
   technical:
-    dax_name: "Cost Base Volume Amount"
-    formatString: "#,0.00"
+    measure_name: "Cost Base Volume Amount"
     description: "Baseline cost volume used for variance analysis."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - cost.base_volume.amount
     lineage: []
@@ -4238,7 +3742,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules: []
     version: "v0.1"
   metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: cost.opex.base.amount
@@ -4259,12 +3763,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "EUR (2 decimals)"
     interpretation: "Used to compare actual Opex against the base."
   technical:
-    dax_name: "Opex Base Amount"
-    formatString: "#,0.00"
+    measure_name: "Opex Base Amount"
     description: "Baseline operating expense amount for variance tracking."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - cost.opex.base.amount
     lineage: []
@@ -4277,7 +3777,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules: []
     version: "v0.1"
   metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: enterprise.value_at_risk.index
@@ -4285,8 +3785,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: supporting
   impact_dimension: Risk
-  domain_tag: [Enterprise & Governance]
-  - Corporate & Strategy
+  domain_tag: [Enterprise & Governance, Corporate & Strategy]
   use_case_ref:
   - XD-003
   action_code_ref:
@@ -4299,12 +3798,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "index"
     interpretation: "Higher index indicates higher enterprise risk exposure."
   technical:
-    dax_name: "Enterprise Value-at-Risk Index"
-    formatString: "0"
+    measure_name: "Enterprise Value-at-Risk Index"
     description: "Aggregates downside risk across domains into a single index."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - enterprise.value_at_risk.index
     lineage: []
@@ -4317,7 +3812,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules: []
     version: "v0.1"
   metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: scm.supplier_risk.score
@@ -4337,12 +3832,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "score"
     interpretation: "Higher scores indicate higher supplier risk."
   technical:
-    dax_name: "Supplier Risk Score"
-    formatString: "0"
+    measure_name: "Supplier Risk Score"
     description: "Rates suppliers based on risk indicators."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - scm.supplier_risk.score
     lineage: []
@@ -4355,7 +3846,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules: []
     version: "v0.1"
   metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: svc.sla.attainment.pct
@@ -4380,12 +3871,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher is better; interpret jointly with backlog and escalation %."
   technical:
-    dax_name: "SLA Attainment %"
-    formatString: "0.0%"
+    measure_name: "SLA Attainment %"
     description: "Measures how many cases meet the committed SLA."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - svc.sla.attainment.pct
     lineage:
@@ -4421,12 +3908,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Higher is better; keep in balance with AHT and escalation %."
   technical:
-    dax_name: "FCR %"
-    formatString: "0.0%"
+    measure_name: "FCR %"
     description: "Shows the share of cases solved on first contact."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - svc.fcr.pct
     lineage:
@@ -4462,12 +3945,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'minutes (1 decimal)'"
     interpretation: "Lower is better, but balance with FCR and NPS."
   technical:
-    dax_name: "AHT Minutes"
-    formatString: "#,0"
+    measure_name: "AHT Minutes"
     description: "Measures average time to handle a contact."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - svc.aht.minutes
     lineage:
@@ -4505,12 +3984,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'count'"
     interpretation: "Lower is better; assess with SLA attainment and staffing KPIs."
   technical:
-    dax_name: "Backlog Count"
-    formatString: "#,0"
+    measure_name: "Backlog Count"
     description: "Quantifies unresolved work in queue."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - svc.backlog.count
     lineage:
@@ -4545,12 +4020,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'index'"
     interpretation: "Higher is better; explain shifts with FCR, AHT, escalation %."
   technical:
-    dax_name: "NPS Index"
-    formatString: "#,0"
+    measure_name: "NPS Index"
     description: "Measures customer advocacy and experience quality."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - svc.nps.index
     lineage:
@@ -4587,12 +4058,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower is better; balance with FCR and SLA."
   technical:
-    dax_name: "Escalation %"
-    formatString: "0.0%"
+    measure_name: "Escalation %"
     description: "Measures frequency of escalated cases."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - svc.escalation.pct
     lineage:
@@ -4615,8 +4082,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Workforce
-  domain_tag: [Operations]
-  - Service & Experience
+  domain_tag: [Operations, Service & Experience]
   use_case_ref:
   - XD-002
   action_code_ref:
@@ -4632,12 +4098,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Typical healthy band 75?85%; balance with SLA/NPS."
   technical:
-    dax_name: "Utilization %"
-    formatString: "0.0%"
+    measure_name: "Utilization %"
     description: "Measures productive time versus paid time for agents."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - res.utilization.pct
     lineage:
@@ -4661,8 +4123,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Workforce
-  domain_tag: [Operations]
-  - Service & Experience
+  domain_tag: [Operations, Service & Experience]
   use_case_ref:
   - XD-002
   action_code_ref:
@@ -4676,12 +4137,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Balanced occupancy supports SLA and quality."
   technical:
-    dax_name: "Occupancy %"
-    formatString: "0.0%"
+    measure_name: "Occupancy %"
     description: "Measures active vs idle share of time."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - res.occupancy.pct
     lineage:
@@ -4706,8 +4163,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Workforce
-  domain_tag: [Operations]
-  - Service & Experience
+  domain_tag: [Operations, Service & Experience]
   use_case_ref:
   - XD-002
   action_code_ref:
@@ -4721,12 +4177,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower is better; monitor sustainability and cost."
   technical:
-    dax_name: "Overtime %"
-    formatString: "0.0%"
+    measure_name: "Overtime %"
     description: "Shows overtime share of total hours."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - res.overtime.pct
     lineage:
@@ -4750,8 +4202,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Workforce
-  domain_tag: [Operations]
-  - Service & Experience
+  domain_tag: [Operations, Service & Experience]
   use_case_ref:
   - XD-002
   action_code_ref:
@@ -4764,12 +4215,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'% (1 decimal)'"
     interpretation: "Lower is better; compare vs plan."
   technical:
-    dax_name: "Shrinkage %"
-    formatString: "0.0%"
+    measure_name: "Shrinkage %"
     description: "Measures non-productive share of paid time."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - res.shrinkage.pct
     lineage:
@@ -4812,14 +4259,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "count"
     interpretation: "Higher counts indicate higher inbound demand."
   technical:
-    dax_name: "Tickets Created Count"
-    formatString: "#,0"
+    measure_name: "Tickets Created Count"
     description: "Counts customer service tickets created in the period."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
-    depends_on_measures:
-    - svc.tickets.created.count
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of Service"
@@ -4830,7 +4272,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules: []
     version: "v0.1"
   metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 
 - kpi_id: svc.tickets.closed.count
@@ -4852,12 +4294,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "count"
     interpretation: "Higher counts indicate higher resolution throughput."
   technical:
-    dax_name: "Tickets Closed Count"
-    formatString: "#,0"
+    measure_name: "Tickets Closed Count"
     description: "Counts customer service tickets closed in the period."
-    dax_expression: |
-      -- TBD: see Measure Dictionary
-      BLANK()
     depends_on_measures:
     - svc.tickets.closed.count
     lineage: []
@@ -4870,6 +4308,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     qa_rules: []
     version: "v0.1"
   metadata_quality:
-    completeness_score: 0.6
+    completeness_score: 1.0
     last_review: 23.01.2026
 ```

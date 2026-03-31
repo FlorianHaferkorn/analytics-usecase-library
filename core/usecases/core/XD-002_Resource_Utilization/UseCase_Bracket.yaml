@@ -30,6 +30,7 @@ ux_layout_rules:
   report_canvas: { width: 1920, height: 1080 }
   page_1_summary:
     title: Experience / Service Summary & Insights
+    page_type: T1_Strategic_Overview
     template_id: pulse
     component_3s:
       kpi_id: res.utilization.pct
@@ -44,6 +45,7 @@ ux_layout_rules:
       visual_type: bar_chart
   page_2_execution:
     title: Experience / Service Execution
+    page_type: T3_Operational_Monitoring
     template_id: action_matrix
     component_300s:
       evidence_grain: agent_day
@@ -53,5 +55,18 @@ ux_layout_rules:
       - res.utilization.pct
       action_panel: true
       payload_mode: full
+prioritization:
+  business_value: medium
+  implementation_effort: medium
+  confidence: 0.7
+  reach: division
+  priority_score: 16
+readiness:
+  data_availability: partial
+  org_capability: developing
+  stakeholder_alignment: partial
+  overall_readiness: amber
+overrides:
+  data_contract_ref: core/data_contracts/domains/efficiency.yaml
 documentation:
   business_factsheet: ./Business_Factsheet.md

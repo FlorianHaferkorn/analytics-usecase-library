@@ -14,8 +14,8 @@ decision_context:
   primary_question: >
     Which cost levers are safe to activate now?
   decision_owner_roles:
-    - "Domain Lead"
-    - "Controlling Lead"
+    - "treasury_finance_controlling"
+    - "finance_bi_lead"
 
 decision_tradeoffs:
   improves:
@@ -29,35 +29,37 @@ decision_tradeoffs:
 when_not_to_act:
   conditions:
     - description: "Safety-critical operations"
-      signal: "Defined in Action Codes"
+      signal: "Spend relates to safety-critical operations, legal compliance obligations, or HSE requirements"
     - description: "Contractual labor limits"
-      signal: "Defined in Action Codes"
+      signal: "Contractual labor minimums, collective bargaining agreement constraints, or notice-period obligations in force"
+    - description: "Approved investment spend"
+      signal: "One-off investment or restructuring charge with executive approval and documented accounting treatment"
 
 escalation_logic:
-  principle: "Escalate as impact persists while guardrails are respected"
+  principle: "Escalate as cost overrun persists; prioritise reduction levers with least service risk"
   escalation_path:
     - level: "EarlyWarning"
-      action: "Visibility and monitoring"
+      action: "Alert Finance Controller and Cost Center Owner; review cost variance report within 3 business days"
     - level: "RequiredIntervention"
-      action: "Controlled corrective action"
+      action: "Initiate cost reduction action plan; Finance Director review required before activation"
     - level: "PrescriptiveExecution"
-      action: "Mandatory enforcement"
+      action: "Enforce cost ceiling; mandatory CFO or Head of Controlling sign-off for budget overruns"
 
 decision_confidence:
-  level: "Medium"
+  level: "High"
   rationale:
-    - "Depends on signal quality and execution follow-through"
+    - "Cost data is ledger-sourced with high precision; allocation rules are documented and auditable"
+    - "Causal analysis between cost drivers and unit cost is reliable in most manufacturing and service contexts"
 
 governance:
   ownership:
-    accountable_role: "Domain Lead"
+    accountable_role: "treasury_finance_controlling"
     consulted_roles:
-      - "Strategy"
-      - "Analytics"
+      - "finance_bi_lead"
+      - "finance_strategy_ops_controlling"
   change_policy:
     - "Spine changes require domain and governance sign-off"
 
 quality_rules:
   - "No KPI IDs or thresholds are defined in the spine."
   - "Spine must remain domain-agnostic within its decision field."
-

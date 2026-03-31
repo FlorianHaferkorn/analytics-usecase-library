@@ -1,0 +1,14 @@
+# Core dependencies (used by tooling and products)
+pyyaml>=6.0
+jsonschema>=4.17.0
+
+# Proposal costing
+typer>=0.9.0
+rich>=13.7.0
+
+# Golden Thread Discovery Studio & UX Layout Editor (optional — Streamlit apps)
+# streamlit>=1.28.0
+# python-dotenv>=1.0.0
+# openai>=1.0.0
+# google-generativeai>=0.8.0
+# plotly>=5.18.0

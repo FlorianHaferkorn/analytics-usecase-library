@@ -35,6 +35,7 @@ kpis:
   guardrail_kpis: []
   outcome_kpis:
   - enterprise.value_at_risk.index
+  - people.digital_adoption.pct
 scope:
   default_grain: entity_month
   default_perspective:

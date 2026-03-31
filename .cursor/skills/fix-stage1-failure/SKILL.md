@@ -1,3 +1,5 @@
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+
 ---
 name: fix-stage1-failure
 description: Diagnose and fix Stage 1 CI check failures. Use when Stage 1 checks fail, validation errors occur, or the user asks how to fix a specific check failure.

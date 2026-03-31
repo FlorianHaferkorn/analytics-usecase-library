@@ -10,7 +10,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 06_Execution
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Actions Routed Count = Count of routed action instances in the period.
+    aggregation_method: count
   documentation:
     description: Count of routed action instances.
     notes: 'Grain: action_instance. Unit: count.
@@ -25,7 +26,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_action[Action ID]
   governance:
     owner: Executive Office
-    status: draft
+    status: active
     version: v0.1
     last_review: TBD
 - measure_name: Action Outcome Rate %
@@ -35,7 +36,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 06_Execution
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Action Outcome Rate % = Successful Actions / Routed Actions.
+    aggregation_method: ratio
   documentation:
     description: Share of routed actions that achieved the intended outcome.
     notes: 'Grain: action_instance. Unit: %.
@@ -51,7 +53,7 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_action[Action ID]
   governance:
     owner: Executive Office
-    status: draft
+    status: active
     version: v0.1
     last_review: TBD
 ```

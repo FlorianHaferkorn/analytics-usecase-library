@@ -45,14 +45,22 @@ factsheet_type: business
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| plan.forecast.accuracy.pct | Strategic |
+| plan.forecast.mape.pct | Influencing |
+| plan.forecast.bias.pct | Influencing |
+| plan.forecast.service_impact.pct | Influencing |
+| plan.replan.count | Influencing |
+| order.lines | Influencing |
+| plans.count | Influencing |
+| sales.units | Influencing |
 
+**Action Codes:** S-F3.1, S-F3.2, S-F3.3, S-F3.4
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 
@@ -158,3 +166,31 @@ required_slicers: Date, Region/Channel/Location, Category/Product, ABC/XYZ
 
 
 
+
+## 10. Typical Decision Scenarios
+
+These scenarios illustrate how this use case drives decisions in practice. They are examples — not exhaustive.
+
+### Scenario A: Persistent Forecast Bias Driving Excess Inventory
+
+**Situation:** Forecast accuracy is 72% (target 85%), but the issue is directional — forecast bias is consistently +15%, meaning systematic over-forecasting. Inventory days on hand have increased 8 days as a result.
+
+**Decision question:** Is the bias driven by optimistic sales input, outdated baseline models, or promotional volume that didn't materialize?
+
+**Who decides:** Demand Planning Lead + Sales Operations.
+
+**Consequence of inaction:** Excess inventory ties up €4M in working capital; obsolescence risk increases for perishable/seasonal items.
+
+**Action Code triggered:** S-F3.2 (Forecast Bias Correction) — activates bias decomposition by product family and input source.
+
+### Scenario B: High MAPE Concentrated in New Product Launches
+
+**Situation:** Overall MAPE is 28%, but segmentation reveals that new products (launched <6 months) account for 60% of forecast error. Mature products forecast at 88% accuracy.
+
+**Decision question:** Should new product forecasting use a different method (analogous, bottom-up from pre-orders) rather than the statistical baseline?
+
+**Who decides:** Demand Planning Lead + Product Launch Manager.
+
+**Consequence of inaction:** New product launches consistently over- or under-stocked; service impact on key launches damages market entry.
+
+**Action Code triggered:** S-F3.3 (Forecast Method Review) — activates accuracy segmentation and method-level benchmarking.

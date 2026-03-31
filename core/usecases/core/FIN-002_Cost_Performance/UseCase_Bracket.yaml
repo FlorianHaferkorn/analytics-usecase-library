@@ -36,6 +36,7 @@ ux_layout_rules:
   report_canvas: { width: 1920, height: 1080 }
   page_1_summary:
     title: Finance / Operations Summary & Insights
+    page_type: T1_Strategic_Overview
     template_id: pulse
     component_3s:
       kpi_id: cost.unit.amount
@@ -50,6 +51,7 @@ ux_layout_rules:
       visual_type: bar_chart
   page_2_execution:
     title: Finance / Operations Execution
+    page_type: T2_Tactical_Variance
     template_id: action_matrix
     component_300s:
       evidence_grain: plant_line_product_month
@@ -59,5 +61,18 @@ ux_layout_rules:
       - cost.unit.amount
       action_panel: true
       payload_mode: full
+prioritization:
+  business_value: high
+  implementation_effort: high
+  confidence: 0.75
+  reach: division
+  priority_score: 17
+readiness:
+  data_availability: partial
+  org_capability: ready
+  stakeholder_alignment: aligned
+  overall_readiness: amber
+overrides:
+  data_contract_ref: core/data_contracts/domains/finance.yaml
 documentation:
   business_factsheet: ./Business_Factsheet.md

@@ -48,14 +48,22 @@ service parts/ops (scoped separately).
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| svc.sla.attainment.pct | Strategic |
+| svc.fcr.pct | Influencing |
+| svc.aht.minutes | Influencing |
+| svc.backlog.count | Influencing |
+| svc.nps.index | Influencing |
+| svc.escalation.pct | Influencing |
+| svc.tickets.created.count | Influencing |
+| svc.tickets.closed.count | Influencing |
 
+**Action Codes:** X-S1.1, X-S1.2, X-S1.3, X-S1.4
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 
@@ -184,3 +192,31 @@ required_slicers: >
 
 
 
+
+## 10. Typical Decision Scenarios
+
+These scenarios illustrate how this use case drives decisions in practice. They are examples — not exhaustive.
+
+### Scenario A: SLA Attainment Drop Driven by Backlog Surge
+
+**Situation:** SLA attainment dropped from 91% to 78% over 4 weeks. First contact resolution is stable at 68%, but ticket backlog has grown 40%. Average handling time increased 15%.
+
+**Decision question:** Is the backlog driven by volume spike (seasonal, campaign), staffing gap, or complexity increase in incoming tickets?
+
+**Who decides:** Service Operations Lead + Workforce Manager.
+
+**Consequence of inaction:** SLA penalties activate at <80%; customer churn risk increases with each week below threshold.
+
+**Action Code triggered:** X-S1.1 (SLA Recovery) — activates backlog decomposition by category and aging analysis.
+
+### Scenario B: NPS Decline Despite SLA on Target
+
+**Situation:** SLA attainment is 92% (above target), yet NPS has dropped 8 points over the quarter. Escalation rate increased from 5% to 11%.
+
+**Decision question:** Is the NPS gap driven by resolution quality (cases resolved but not to satisfaction), channel friction, or a specific product/service issue?
+
+**Who decides:** Service Operations Lead + Customer Experience Manager.
+
+**Consequence of inaction:** SLA compliance masks service quality erosion; NPS decline signals future churn.
+
+**Action Code triggered:** X-S1.3 (Service Quality Review) — activates resolution satisfaction analysis and escalation root-cause breakdown.

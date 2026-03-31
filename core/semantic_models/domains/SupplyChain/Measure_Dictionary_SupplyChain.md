@@ -2,6 +2,26 @@
 
 Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
+## Aggregation Method Conventions
+
+All measures must declare an `aggregation_method` in their `expression` block. Conventions:
+
+| Method | Use for |
+|--------|---------|
+| `sum` | Additive facts (units, costs, penalties, expedite costs) |
+| `average` | Average inventory, coverage days — dimension-sensitive |
+| `last_value` | Inventory balance at a point in time — not additive across time |
+| `ratio` | Rate measures (OTIF %, Forecast Accuracy %, Stockout Rate %) — recompute from components |
+| `count` | Order counts, shipment counts — additive |
+
+**Rule:** DIO, Inventory Turnover, OTIF %, Forecast Accuracy %, and MAPE must never be averaged across periods. Always recompute from summed inventory/COGS/order components.
+
+## Logical Expression Convention
+
+`expression.logical` contains tool-agnostic business-logic pseudocode. Tool-specific DAX/SQL lives in `products/fabric/`.
+
+Format: `MEASURE_NAME = <pseudocode using column references from supply_chain data contract>`
+
 ```yaml
 - measure_name: Days in Inventory
   is_kpi_measure: true
@@ -10,7 +30,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Inventory
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: ratio
+    logical: DIO = SUM(fact_inventory[Average Inventory Amount]) / (SUM(fact_cogs[COGS Amount]) / 365)
   documentation:
     description: Working capital efficiency via inventory days.
     notes: 'Grain: location_sku_month. Unit: days.
@@ -26,9 +47,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_cogs[COGS Amount]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Inventory Turnover
   is_kpi_measure: true
   kpi_id_ref: inv.turnover
@@ -36,7 +58,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Inventory
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Inventory Turnover = COGS / Average Inventory.
+    aggregation_method: sum
   documentation:
     description: 'Velocity of inventory: COGS / Avg Inventory.'
     notes: 'Grain: location_sku_month. Unit: x.
@@ -52,9 +75,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_cogs[COGS Amount]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Stockout Rate %
   is_kpi_measure: true
   kpi_id_ref: inv.stockout.pct
@@ -62,7 +86,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Stockout Rate % = Stockout Events / Total Demand Events.
+    aggregation_method: ratio
   documentation:
     description: Service risk from stockout occurrences.
     notes: 'Grain: location_sku_day. Unit: %.
@@ -77,9 +102,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_stockout[Stockout Flag]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: OTIF %
   is_kpi_measure: true
   kpi_id_ref: supply.otif.pct
@@ -87,7 +113,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: ratio
+    logical: OTIF = COUNTIF(fact_fulfillment[OTIF Flag] = TRUE) / COUNT(fact_fulfillment[Order Qty])
   documentation:
     description: On-Time In-Full orders share.
     notes: 'Grain: order. Unit: %.
@@ -102,9 +129,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_fulfillment[OTIF Flag]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Obsolete Inventory %
   is_kpi_measure: true
   kpi_id_ref: inv.obsolete.pct
@@ -112,7 +140,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Inventory
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Obsolete Inventory % = Obsolete Inventory Value / Total Inventory Value.
+    aggregation_method: ratio
   documentation:
     description: Share of obsolete stock vs total stock.
     notes: 'Grain: location_sku_month. Unit: %.
@@ -128,9 +157,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_inventory[Total Stock]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Forecast Accuracy %
   is_kpi_measure: true
   kpi_id_ref: plan.forecast.accuracy.pct
@@ -138,7 +168,9 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Forecast
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: ratio
+    logical: Forecast Accuracy = 1 - SUM(ABS(fact_forecast[Forecast Units] - fact_sales[Actual Units])) / SUM(fact_sales[Actual
+      Units])
   documentation:
     description: 'Planning quality: 1 - |Forecast - Actual| / Actual.'
     notes: 'Grain: sku_month. Unit: %.
@@ -154,9 +186,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Actual]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: MAPE %
   is_kpi_measure: true
   kpi_id_ref: plan.forecast.mape.pct
@@ -164,7 +197,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Forecast
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: MAPE % = Mean(|Forecast - Actual| / Actual).
+    aggregation_method: ratio
   documentation:
     description: Mean absolute percentage error.
     notes: 'Grain: sku_month. Unit: %.
@@ -184,9 +218,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Actual Units]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Forecast Bias %
   is_kpi_measure: true
   kpi_id_ref: plan.forecast.bias.pct
@@ -194,19 +229,20 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Forecast
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Forecast Bias % = (Forecast - Actual) / Actual.
+    aggregation_method: ratio
   documentation:
-    description: Alias for Bias % (TMDL display name). Forecast error direction (Forecast
-      - Actual) / Actual.
+    description: Alias for Bias % (TMDL display name). Forecast error direction (Forecast - Actual) / Actual.
     notes: Same as Bias %.
   dependencies:
     measures: []
     columns: []
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Forecast MAPE %
   is_kpi_measure: true
   kpi_id_ref: plan.forecast.mape.pct
@@ -214,7 +250,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Forecast
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Forecast MAPE % = Mean(|Forecast - Actual| / Actual).
+    aggregation_method: ratio
   documentation:
     description: Alias for MAPE % (TMDL display name).
     notes: Same as MAPE %.
@@ -223,9 +260,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     columns: []
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Bias %
   is_kpi_measure: true
   kpi_id_ref: plan.forecast.bias.pct
@@ -233,7 +271,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Forecast
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Bias % = (Forecast - Actual) / Actual.
+    aggregation_method: ratio
   documentation:
     description: Forecast error direction (Forecast - Actual) / Actual.
     notes: 'Grain: sku_month. Unit: %.
@@ -249,9 +288,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Actual]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Service Impact %
   is_kpi_measure: true
   kpi_id_ref: plan.forecast.service_impact.pct
@@ -259,7 +299,9 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Forecast
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Service Impact % = Service Impact % = Stockout Impact % x (Under-Forecast Lost Demand / Total Lost Demand). Under-forecast
+      is defined as a negative forecast error below a configurable threshold; all inputs are unit-based (qty), not revenue.
+    aggregation_method: ratio
   documentation:
     description: Portion of service misses attributable to forecast error.
     notes: 'Grain: sku_month. Unit: %.
@@ -282,9 +324,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_stockout[Demand Units]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Re-Plan Count
   is_kpi_measure: true
   kpi_id_ref: plan.replan.count
@@ -292,7 +335,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Forecast
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Re-Plan Count = Total replan events logged in planning system.
+    aggregation_method: count
   documentation:
     description: Number of re-plans within period.
     notes: 'Grain: month. Unit: count.
@@ -307,9 +351,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_planning[Replan Count]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: On-Time %
   is_kpi_measure: true
   kpi_id_ref: supply.on_time.pct
@@ -317,7 +362,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: On-Time % = On-Time Deliveries / Total Deliveries.
+    aggregation_method: ratio
   documentation:
     description: On-time deliveries share.
     notes: 'Grain: shipment. Unit: %.
@@ -332,9 +378,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_fulfillment[On-Time Flag]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: In-Full %
   is_kpi_measure: true
   kpi_id_ref: supply.in_full.pct
@@ -342,7 +389,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: In-Full % = In-Full Deliveries / Total Deliveries.
+    aggregation_method: ratio
   documentation:
     description: In-full deliveries share.
     notes: 'Grain: shipment. Unit: %.
@@ -357,9 +405,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_fulfillment[In-Full Flag]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Stockout Impact %
   is_kpi_measure: true
   kpi_id_ref: supply.stockout_impact.pct
@@ -367,7 +416,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Stockout Impact % = Lost Demand Qty / Total Demand Qty.
+    aggregation_method: ratio
   documentation:
     description: Lost demand share due to stockout.
     notes: 'Grain: location_sku_day. Unit: %.
@@ -383,9 +433,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_stockout[Demand]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Penalty Amount
   is_kpi_measure: true
   kpi_id_ref: supply.penalty.amount
@@ -393,7 +444,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Cost
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Penalty Amount = Sum of penalty charges incurred in the period.
+    aggregation_method: sum
   documentation:
     description: Penalties incurred for service misses.
     notes: 'Grain: order. Unit: EUR.
@@ -408,9 +460,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_fulfillment[Penalty Amount]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Expedite Cost Amount
   is_kpi_measure: true
   kpi_id_ref: supply.expedite.amount
@@ -418,7 +471,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Cost
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Expedite Cost Amount = Sum of expedite fees and premium freight charges.
+    aggregation_method: sum
   documentation:
     description: Additional cost for expedited shipping.
     notes: 'Grain: shipment. Unit: EUR.
@@ -433,9 +487,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_fulfillment[Expedite Cost]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Avg Inventory Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -443,7 +498,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Inventory
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Avg Inventory Amount = SUM(fact_inventory[Average Inventory Amount])
+    aggregation_method: sum
   documentation:
     description: Average inventory value used as base for DIO and turnover.
     notes: 'Source: fact_inventory[Average Inventory Amount].'
@@ -452,9 +508,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_inventory[Average Inventory Amount]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: COGS Amount
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -462,7 +519,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Inventory
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: COGS Amount = SUM(fact_cogs[COGS Amount])
+    aggregation_method: sum
   documentation:
     description: COGS base for inventory turnover and DIO.
     notes: 'Source: fact_cogs[COGS Amount].'
@@ -471,9 +529,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_cogs[COGS Amount]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: On-Time In-Full Orders
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -481,7 +540,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: On-Time In-Full Orders = SUM(fact_fulfillment[OTIF Flag])
+    aggregation_method: sum
   documentation:
     description: OTIF order quantity used as numerator for OTIF %.
     notes: 'Source: fact_fulfillment[OTIF Flag], [Order Qty].'
@@ -491,9 +551,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_fulfillment[Order Qty]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: OTIF Orders
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -501,7 +562,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: OTIF Orders = SUM(fact_fulfillment[OTIF Flag])
+    aggregation_method: sum
   documentation:
     description: OTIF order quantity used for OTIF %.
     notes: Same base as On-Time In-Full Orders.
@@ -511,9 +573,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_fulfillment[Order Qty]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Total Orders
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -521,7 +584,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Total Orders = SUM(fact_fulfillment[Order Qty])
+    aggregation_method: sum
   documentation:
     description: Total order quantity used as denominator for OTIF, on-time, and in-full.
     notes: 'Source: fact_fulfillment[Order Qty].'
@@ -530,9 +594,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_fulfillment[Order Qty]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: On-Time Deliveries
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -540,7 +605,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: On-Time Deliveries = SUM(fact_fulfillment[On-Time Flag])
+    aggregation_method: sum
   documentation:
     description: On-time delivery quantity used as numerator for On-Time %.
     notes: 'Source: fact_fulfillment[On-Time Flag], [Order Qty].'
@@ -550,9 +616,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_fulfillment[Order Qty]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: In-Full Deliveries
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -560,7 +627,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: In-Full Deliveries = SUM(fact_fulfillment[In-Full Flag])
+    aggregation_method: sum
   documentation:
     description: In-full delivery quantity used as numerator for In-Full %.
     notes: 'Source: fact_fulfillment[In-Full Flag], [Order Qty].'
@@ -570,9 +638,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_fulfillment[Order Qty]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Demand Occurrences
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -580,7 +649,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Demand Occurrences = SUM(fact_stockout[Demand Occurrences])
+    aggregation_method: sum
   documentation:
     description: Demand occurrences used as denominator for stockout rate.
     notes: 'Source: fact_stockout[Demand Occurrences].'
@@ -589,9 +659,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_stockout[Demand Occurrences]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Stockout Count
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -599,7 +670,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Stockout Count = SUM(fact_stockout[Stockout Flag])
+    aggregation_method: count
   documentation:
     description: Stockout occurrences used as numerator for stockout rate.
     notes: 'Source: fact_stockout[Stockout Flag], [Demand Occurrences].'
@@ -609,9 +681,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_stockout[Demand Occurrences]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Lost Demand Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -619,7 +692,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Lost Demand Units = SUM(fact_stockout[Lost Demand Units])
+    aggregation_method: sum
   documentation:
     description: Lost demand units used for stockout impact.
     notes: 'Source: fact_stockout[Lost Demand Units].'
@@ -628,9 +702,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_stockout[Lost Demand Units]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Demand Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -638,7 +713,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Demand Units = SUM(fact_stockout[Demand Units])
+    aggregation_method: sum
   documentation:
     description: Demand units used as denominator for stockout impact.
     notes: 'Source: fact_stockout[Demand Units].'
@@ -647,9 +723,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_stockout[Demand Units]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Forecast Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -657,7 +734,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Forecast
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Forecast Units = SUM(fact_forecast[Forecast Units])
+    aggregation_method: sum
   documentation:
     description: Forecast quantity base for planning KPIs.
     notes: 'Source: fact_forecast[Forecast Units].'
@@ -666,9 +744,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_forecast[Forecast Units]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Actual Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -676,7 +755,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Forecast
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Actual Units = SUM(fact_sales[Actual Units])
+    aggregation_method: sum
   documentation:
     description: Actual quantity base for planning KPIs.
     notes: 'Source: fact_sales[Actual Units].'
@@ -685,9 +765,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Actual Units]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Absolute Error
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -695,7 +776,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Forecast
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Absolute Error = [[Forecast Units]] / [[Actual Units]]
+    aggregation_method: sum
   documentation:
     description: Absolute forecast error used for accuracy and MAPE.
     notes: Derived from Forecast Units and Actual Units.
@@ -705,9 +787,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - '[Actual Units]'
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Forecast Error Qty
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -715,7 +798,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Forecast
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Forecast Error Qty = [[Forecast Units]] / [[Actual Units]]
+    aggregation_method: sum
   documentation:
     description: Forecast units minus actual units.
     notes: Derived from Forecast Units and Actual Units.
@@ -725,9 +809,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - '[Actual Units]'
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Under-Forecast Lost Demand Qty
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -735,7 +820,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Forecast
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Under-Forecast Lost Demand Qty = SUM(fact_stockout[Lost Demand Units])
+    aggregation_method: sum
   documentation:
     description: Lost demand units attributable to under-forecasting beyond threshold.
     notes: Requires Lost Demand Units and forecast error logic.
@@ -747,9 +833,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - '[Actual Units]'
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Under-Forecast Lost Demand Share %
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -757,7 +844,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Forecast
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Under-Forecast Lost Demand Share % = [[Under-Forecast Lost Demand Qty]] / [[Stockout Lost Demand Qty]]
+    aggregation_method: ratio
   documentation:
     description: Share of stockout lost demand attributable to under-forecasting.
     notes: Derived from Under-Forecast Lost Demand Qty and Stockout Lost Demand Qty.
@@ -767,9 +855,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - '[Stockout Lost Demand Qty]'
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Inventory Value Amount
   is_kpi_measure: true
   kpi_id_ref: ops.inventory.value.amount
@@ -777,7 +866,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Inventory
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Inventory Value Amount = Sum of inventory value amount for the selected scope.
+    aggregation_method: sum
   documentation:
     description: Total inventory value in the selected scope.
     notes: 'Grain: location_sku_day. Unit: EUR.
@@ -792,9 +882,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_inventory[Inventory Value Amount]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Supply Chain Service Level %
   is_kpi_measure: true
   kpi_id_ref: scm.service_level.pct
@@ -802,7 +893,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Supply Chain Service Level % = On-Time In-Full Orders / Total Orders.
+    aggregation_method: ratio
   documentation:
     description: On-time in-full rate for customer fulfillment.
     notes: 'Grain: order_line_day. Unit: %.
@@ -817,9 +909,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_fulfillment[OTIF Flag]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Order Lines Count
   is_kpi_measure: true
   kpi_id_ref: order.lines
@@ -827,7 +920,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Order Lines Count = Count of order line items.
+    aggregation_method: count
   documentation:
     description: Count of order line items.
     notes: 'Grain: order_line. Unit: count.
@@ -842,9 +936,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_order_lines[Order Line ID]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Plans Count
   is_kpi_measure: true
   kpi_id_ref: plans.count
@@ -852,7 +947,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Forecast
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Plans Count = Count of plan records or plan versions.
+    aggregation_method: count
   documentation:
     description: Count of plan records or plan versions.
     notes: 'Grain: plan_version. Unit: count.
@@ -867,9 +963,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_plan[Plan ID]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Shipments Count
   is_kpi_measure: true
   kpi_id_ref: shipments.count
@@ -877,7 +974,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Shipments Count = Count of shipment records.
+    aggregation_method: count
   documentation:
     description: Count of shipments executed.
     notes: 'Grain: shipment. Unit: count.
@@ -892,8 +990,9 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_shipment[Shipment ID]
   governance:
     owner: Supply Chain Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 ```
 

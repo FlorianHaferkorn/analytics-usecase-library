@@ -106,4 +106,130 @@ Levels are **cumulative**: each level assumes the previous one is in place.
 - **Golden Thread:** `golden_thread_strategy_to_action.md` — Levels 3–5 assume the full thread is in place or in progress.
 - **Ownership:** `ownership_raci_golden_thread.md` — Level 4+ requires explicit RACI.
 - **Strategy patterns:** `company/strategy_patterns.md` — Level 3+ benefits from choosing or defining a strategy pattern.
+- **Framework Health Metrics:** `framework_health_metrics.md` — H1–H5 metrics measure the framework's own completeness and support Level 4–5 governance.
 - **Vision:** `internal/archive/framework_evolution.md` — Technical evolution (V1–V6) supports reaching and sustaining these levels.
+
+---
+
+## 6. Self-Assessment Rubric
+
+Use this rubric to score an organization or a specific domain objectively.
+Score each dimension (A–E) independently, then compute the overall level.
+
+### How to score
+
+- Score each dimension 1–5 using the criteria table below
+- **Overall level = the lowest-scoring dimension** (weakest link)
+- Dimensions where you score ≥4 but are blocked by another dimension at 2 are advancement opportunities
+
+### Scoring Criteria
+
+#### Dimension A — KPI Governance
+
+| Score | Criteria |
+|-------|----------|
+| 1 | KPIs are ad hoc; definitions vary by report |
+| 2 | KPI catalog exists; ≥50% of KPIs have single owner and definition |
+| 3 | KPI catalog governs ≥80% of reported KPIs; measures aligned to catalog in semantic layer |
+| 4 | KPI catalog covers 100% of strategic KPIs; all linked to use cases; aggregation methods documented |
+| 5 | KPIs reviewed quarterly; obsolete KPIs deprecated; Golden Thread coverage ≥90% (H1 metric) |
+
+#### Dimension B — Use Case Completeness
+
+| Score | Criteria |
+|-------|----------|
+| 1 | No formal use cases; reports are ad hoc or project-based |
+| 2 | Informal use case list exists; no Bracket schema; no consistent structure |
+| 3 | ≥50% of core use cases have Business_Factsheet.md + UseCase_Bracket.yaml (v2.0 schema) |
+| 4 | ≥80% of core use cases are build-ready (pass Core DoD); page types declared; fact tables in data contracts |
+| 5 | 100% core use cases build-ready; ≥1 extended use case per domain; use case inventory maintained |
+
+#### Dimension C — Action Code Coverage
+
+| Score | Criteria |
+|-------|----------|
+| 1 | No action codes; responses are ad hoc per manager judgment |
+| 2 | Some response patterns documented informally; not linked to KPI triggers |
+| 3 | ≥50% of core use cases have ≥1 action code with L1 trigger and KPI linkage |
+| 4 | ≥80% of action codes have complete execution_bridge + impact_valuation; linked to decision spines |
+| 5 | All action codes complete; outcome tracking in place; false positive rate <5% (H4 metric ≥80%) |
+
+#### Dimension D — Semantic Model & Data Contract Maturity
+
+| Score | Criteria |
+|-------|----------|
+| 1 | No semantic layer; measures defined in individual reports |
+| 2 | Semantic model exists; ≥50% of KPI measures defined and reused across reports |
+| 3 | Domain measure dictionaries exist; ≥80% of measures have aggregation_method; data contracts for ≥3 domains |
+| 4 | Semantic model stability ≥80% (H2 metric); data contract coverage ≥90% (H3 metric); quality_rules defined |
+| 5 | All domains have active-status measures; ESG/Risk/Efficiency/Growth contracts active; Silver→Gold lineage complete |
+
+#### Dimension E — Governance & Learning Loop
+
+| Score | Criteria |
+|-------|----------|
+| 1 | No formal ownership; no review cadence |
+| 2 | KPI and use case owners named; ad hoc review when issues arise |
+| 3 | RACI documented; monthly review cadence for tactical domains; Stage 1 CI gate in place |
+| 4 | Decision spine governance active; action outcomes tracked; quarterly framework health review |
+| 5 | Full learning loop: outcomes measured, thresholds refined, underperforming use cases deprecated; framework health ≥80% on all H1–H5 metrics |
+
+---
+
+### Quick Self-Assessment Template
+
+Copy and fill in for your organization or a specific domain:
+
+```
+Domain/Organization: _______________
+Assessment date:     _______________
+Assessor:            _______________
+
+A — KPI Governance:            [ 1 / 2 / 3 / 4 / 5 ]  Notes: ___
+B — Use Case Completeness:     [ 1 / 2 / 3 / 4 / 5 ]  Notes: ___
+C — Action Code Coverage:      [ 1 / 2 / 3 / 4 / 5 ]  Notes: ___
+D — Semantic Model & Contracts:[ 1 / 2 / 3 / 4 / 5 ]  Notes: ___
+E — Governance & Learning:     [ 1 / 2 / 3 / 4 / 5 ]  Notes: ___
+
+Overall Level (lowest dimension): [ 1 / 2 / 3 / 4 / 5 ]
+Blocking dimension(s):            _______________
+Next milestone:                   _______________
+```
+
+---
+
+### Effort Estimates
+
+These are orientation estimates for teams starting from zero in a domain.
+Actual effort depends on data availability and team capacity.
+
+| Transition | Typical Effort | Key Accelerators |
+|------------|---------------|-----------------|
+| Level 1 → 2 | 2–4 weeks | Existing KPI list; domain SME available |
+| Level 2 → 3 | 6–10 weeks | Templates in place; use cases from framework (not greenfield) |
+| Level 3 → 4 | 8–12 weeks | Action code templates; decision spine for the domain |
+| Level 4 → 5 | 3–6 months | Reporting infrastructure for outcome tracking; review cadence established |
+| Full Level 1 → 4 (single domain) | ~4–6 months | Framework adoption (vs. custom build: 12–18 months) |
+| Full Level 1 → 5 (enterprise) | 12–24 months | Phased rollout; domain by domain |
+
+**Critical path bottlenecks (most common causes of stall):**
+- L2 → L3: KPI definitions not agreed across Finance and Commercial
+- L3 → L4: Action code ownership unclear (no single decision owner per domain)
+- L4 → L5: No outcome tracking infrastructure; actions not logged in a system of record
+
+---
+
+### Milestone Checklist: Level 3 → Level 4 (Single Domain)
+
+Use this checklist to confirm a domain is ready for Level 4 transition:
+
+- [ ] All core use cases for the domain have v2.0 `UseCase_Bracket.yaml`
+- [ ] Each use case has ≥1 action code with `l1_trigger` defined
+- [ ] Action code KPI trigger IDs exist in `core/kpi_catalog/`
+- [ ] Decision spine for the domain is active (not placeholder)
+- [ ] `when_not_to_act` conditions defined in the decision spine
+- [ ] Execution bridge type declared for each action code (not "TBD")
+- [ ] Stage 1 CI passes without errors for the domain's files
+- [ ] Domain Lead and Business Owner named in use case metadata
+- [ ] RACI for the domain exists in `ownership_raci_golden_thread.md`
+- [ ] Action codes presented to and accepted by domain leadership

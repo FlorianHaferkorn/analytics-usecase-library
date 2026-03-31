@@ -7,6 +7,7 @@ owner: Executive Data Product
 
 dimension:
   - name: dim_date
+    scd_type: 1
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -16,6 +17,7 @@ dimension:
       - {name: MonthNumber, type: int}
 
   - name: dim_org
+    scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Entity, type: text}
@@ -27,8 +29,8 @@ fact:
   - name: fact_exec_summary
     grain: entity_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: Revenue Amount, type: currency, agg: sum}
       - {name: Gross Margin Amount, type: currency, agg: sum}
       - {name: EBITDA Amount, type: currency, agg: sum}
@@ -37,6 +39,19 @@ fact:
       - {name: DPO Days, type: decimal, nullable: true}
       - {name: OTIF %, type: decimal, nullable: true}
       - {name: Turnover %, type: decimal, nullable: true}
+
+quality_rules:
+  freshness_sla: monthly    # fact_exec_summary refreshed within 3 business days of month close
+  key_nullability:
+    - "fact_exec_summary.DateKey, OrgKey, Revenue Amount, Gross Margin Amount, EBITDA Amount: never null"
+    - "DSO Days, DIO Days, DPO Days, OTIF %, Turnover %: nullable (not all entities report all KPIs)"
+  value_ranges:
+    - "fact_exec_summary.OTIF %: in [0; 1] when present"
+    - "fact_exec_summary.Turnover %: >= 0 when present"
+    - "fact_exec_summary.Revenue Amount: may be negative only for credit/reversal entities"
+  referential_integrity:
+    - "Source: aggregated from finance, commercial_sales, supply_chain, and people domain contracts"
+    - "fact_exec_summary must align with fact_finance entity-month totals within rounding tolerance"
 
 settings:
   timezone: Europe/Berlin

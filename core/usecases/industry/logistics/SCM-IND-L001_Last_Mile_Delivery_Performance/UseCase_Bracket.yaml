@@ -1,0 +1,70 @@
+schema_version: "2.0"
+id: SCM-IND-L001
+title: Last-Mile Delivery Performance
+domain: SupplyChain
+# build_status: draft — scaffold only; not yet build_ready
+# vertical: Logistics & 3PL
+# prerequisites: SCM-002 (Supply Reliability / OTIF), OPS-001 (Operations Performance)
+
+governance:
+  owner_role: supply_chain_lead
+  steward_role: logistics_bi_lead
+
+orchestration:
+  strategic_kpi_id: logistics.last_mile.otd.pct           # On-Time Delivery %
+  influencing_kpi_ids:
+    - logistics.last_mile.first_attempt_success.pct       # Successful delivery on first attempt
+    - logistics.last_mile.avg_delivery_days               # Average days from dispatch to delivery
+    - logistics.last_mile.returns.pct                     # Returns rate (failed delivery / damage)
+    - logistics.carrier.cost_per_delivery                 # Cost per delivered parcel
+    - logistics.route.utilisation.pct                     # Vehicle / route capacity utilisation
+  action_code_ids:
+    - S-P1.1    # Procurement escalation (carrier SLA breach)
+    - O-P1.2    # Route optimisation action
+
+value_driver_model:
+  formula: logistics.last_mile.otd.pct = f(logistics.last_mile.first_attempt_success.pct, logistics.last_mile.avg_delivery_days, logistics.carrier.cost_per_delivery)
+  impact_direction: maximize
+  primary_driver: logistics.last_mile.first_attempt_success.pct
+  impact_logic: >
+    On-Time Delivery is primarily driven by first-attempt success rate.
+    Failed first attempts create redelivery cost and delay that compound
+    OTD failure. Route utilisation affects cost efficiency but not OTD directly.
+  critical_threshold: 0.95   # OTD < 95% triggers carrier escalation
+
+ux_layout_rules:
+  report_structure: 2-Page-Lead
+  report_canvas: { width: 1920, height: 1080 }
+  page_1_summary:
+    title: Last-Mile Delivery Overview
+    template_id: pulse
+    component_3s:
+      kpi_id: logistics.last_mile.otd.pct
+      visual_type: kpi_card
+    component_30s:
+      - kpi_id: logistics.last_mile.otd.pct
+        visual_type: trend_line
+      - kpi_ids:
+          - logistics.last_mile.first_attempt_success.pct
+          - logistics.last_mile.returns.pct
+          - logistics.carrier.cost_per_delivery
+        visual_type: bar_chart
+  page_2_execution:
+    title: Carrier Scorecard & Actions
+    template_id: action_matrix
+    component_300s:
+      evidence_grain: shipment_line
+      evidence_columns:
+        - carrier_id
+        - region
+        - delivery_date
+        - logistics.last_mile.otd.pct
+        - logistics.last_mile.first_attempt_success.pct
+      action_panel: true
+      payload_mode: full
+
+overrides:
+  data_contract_ref: core/data_contracts/domains/supply_chain.yaml
+
+documentation:
+  business_factsheet: ./Business_Factsheet.md

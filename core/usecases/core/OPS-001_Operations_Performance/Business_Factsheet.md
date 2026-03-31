@@ -45,14 +45,21 @@ factsheet_type: business
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| ops.oee.pct | Strategic |
+| ops.availability.pct | Influencing |
+| ops.performance.pct | Influencing |
+| ops.quality.pct | Influencing |
+| ops.throughput.units | Influencing |
+| ops.downtime.pct | Influencing |
+| ops.planned_output.units | Influencing |
 
+**Action Codes:** O-O1.1, O-O1.2, O-O1.3, O-O1.4
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 
@@ -140,9 +147,51 @@ required_slicers: Date, Plant/Line/Shift, Product (optional)
 
 ## 9. Risks & Wrong Interpretations (Short)
 
-- Misclassified planned vs unplanned downtime distorts availability.  
-- Ignoring product mix/standard rate differences when reading performance %.  
-- Quality issues masked if rework/scrap not fully captured.  
+- Misclassified planned vs unplanned downtime distorts availability.
+- Ignoring product mix/standard rate differences when reading performance %.
+- Quality issues masked if rework/scrap not fully captured.
+
+---
+
+## 10. Typical Decision Scenarios
+
+### Scenario A: OEE Drop Below Target — Availability as Dominant Cause
+
+**Situation:** Line 3 OEE has dropped from 78% to 67% over 3 weeks. The OEE bridge shows: Availability −8pp (dominant), Performance −2pp, Quality −1pp. Availability loss is concentrated in 2 failure events on the same asset.
+
+**Decision question:** Is this an asset-specific reliability issue (MTBF deteriorating) or a maintenance compliance issue (PM overdue)?
+
+**Who decides:** Operations Controlling / OEE Lead + Maintenance Manager.
+
+**Consequence of inaction:** At €2,000/hour production value, 11pp OEE drop on a 16h/day line = ~€28,000 daily lost output. The DEC-SPINE-OPS-ASSET spine escalates to RequiredIntervention after 3 shifts.
+
+**Action Code triggered:** O-A2.1 (Asset Reliability Recovery) — activates asset inspection schedule and MTBF root cause analysis.
+
+### Scenario B: Performance Loss Without Downtime Events
+
+**Situation:** OEE is 72%, but Availability is at 94% and Quality at 97%. The Performance component is 79% — significantly below the 92% standard. Operators report no downtime events but acknowledge running at reduced speed due to "product quality concerns."
+
+**Decision question:** Is the speed reduction an official decision (quality qualification run per `when_not_to_act`) or an unauthorized operator adjustment?
+
+**Who decides:** Operations Controlling / OEE Lead + Shift Lead + Quality Manager.
+
+**Consequence of inaction:** Systematic speed reduction of 13pp is not captured in downtime and will not trigger maintenance or quality corrective actions. The loss becomes invisible.
+
+**Action Code triggered:** O-O1.1 (Performance Recovery) — activates standard rate review and speed authorization audit.
+
+### Scenario C: Quality % Drop Triggering Scrap Cost Alert
+
+**Situation:** First Pass Yield has dropped from 97.2% to 94.1% on Product Line A over 5 consecutive shifts. Scrap rate is up 3pp. COPQ for the month is on track to exceed budget by 18%.
+
+**Decision question:** Is the yield drop caused by a raw material issue (batch-specific), a process parameter drift, or an equipment degradation?
+
+**Who decides:** Quality Manager + Operations BI Lead.
+
+**Consequence of inaction:** 3pp scrap rate on 200,000 units/day = 6,000 scrapped units/day. At €4/unit COGS = €24,000 daily COPQ. DEC-SPINE-OPS-QUALITY escalates to RequiredIntervention within 1 shift if pattern persists.
+
+**Action Code triggered:** O-Q3.1 (Quality Root Cause) — activates defect pareto analysis and containment review.
+
+---
 
 
 

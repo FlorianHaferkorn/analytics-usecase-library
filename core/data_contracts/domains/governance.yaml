@@ -4,6 +4,7 @@ owner: Governance Data Product
 
 dimension:
   - name: dim_date
+    scd_type: 1
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -13,6 +14,7 @@ dimension:
       - {name: MonthNumber, type: int}
 
   - name: dim_org
+    scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Entity, type: text}
@@ -20,6 +22,7 @@ dimension:
       - {name: Country, type: text, nullable: true}
 
   - name: dim_project
+    scd_type: 1
     columns:
       - {name: ProjectKey, type: int, role: key}
       - {name: ProjectCode, type: text}
@@ -27,6 +30,7 @@ dimension:
       - {name: Portfolio, type: text, nullable: true}
 
   - name: dim_dataset
+    scd_type: 1
     columns:
       - {name: DatasetKey, type: int, role: key}
       - {name: DatasetName, type: text}
@@ -35,25 +39,25 @@ fact:
   - name: fact_dq
     grain: dataset_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
-      - {name: DatasetKey, type: int, ref: dim_dataset}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
+      - {name: DatasetKey, type: int, ref: dim_dataset, cardinality: many-to-one}
       - {name: Valid Records, type: int, agg: sum}
       - {name: Total Records, type: int, agg: sum}
 
   - name: fact_compliance
     grain: month_org
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
       - {name: Incidents, type: int, agg: sum}
       - {name: Breaches, type: int, agg: sum}
 
   - name: fact_audit
     grain: finding
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
       - {name: Finding ID, type: text, role: key}
       - {name: Findings, type: int, agg: sum, nullable: true}
       - {name: Open Findings, type: int, agg: sum, nullable: true}
@@ -61,9 +65,9 @@ fact:
   - name: fact_projects
     grain: project_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
-      - {name: ProjectKey, type: int, ref: dim_project}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
+      - {name: ProjectKey, type: int, ref: dim_project, cardinality: many-to-one}
       - {name: Benefit, type: currency, agg: sum, nullable: true}
       - {name: Planned Benefit, type: currency, agg: sum, nullable: true}
       - {name: Actual Cost, type: currency, agg: sum, nullable: true}
@@ -76,11 +80,34 @@ fact:
   - name: fact_security
     grain: month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
       - {name: Incidents, type: int, agg: sum}
       - {name: Critical Incidents, type: int, agg: sum, nullable: true}
       - {name: MTTR, type: decimal, agg: avg, nullable: true}
+
+quality_rules:
+  freshness_sla:
+    fact_dq: monthly              # data quality metrics compiled monthly
+    fact_compliance: monthly      # compliance incidents reported monthly
+    fact_audit: per-audit-cycle   # findings loaded within 5 business days of audit close
+    fact_projects: monthly
+    fact_security: monthly
+  key_nullability:
+    - "fact_dq.DateKey, DatasetKey, Valid Records, Total Records: never null"
+    - "fact_compliance.DateKey, OrgKey, Incidents, Breaches: never null"
+    - "fact_audit.Finding ID: unique per row; never null"
+    - "fact_security.DateKey, Incidents: never null"
+  value_ranges:
+    - "fact_dq.Valid Records: >= 0; <= Total Records"
+    - "fact_compliance.Incidents: >= 0; Breaches >= 0; Breaches <= Incidents"
+    - "fact_audit.Open Findings: >= 0 when present; <= Findings when present"
+    - "fact_security.Critical Incidents: >= 0 when present; <= Incidents"
+    - "fact_security.MTTR: >= 0 when present"
+  referential_integrity:
+    - "fact_dq.DatasetKey → dim_dataset (required)"
+    - "fact_projects.ProjectKey → dim_project (required)"
+    - "fact_projects.OrgKey → dim_org (nullable)"
 
 settings:
   timezone: Europe/Berlin

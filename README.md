@@ -56,7 +56,16 @@ Doing nothing does not keep the current state — it reinforces it.
 
 **Documentation hub (single navigation entry):** [`core/strategy_operating_model/README.md`](core/strategy_operating_model/README.md) — Golden Thread order, layer map, and links to all framework docs.
 
-**Prerequisites:** PowerShell (or pwsh); Node.js for schema validation. One-time from repo root: `cd tooling\validation` then `npm ci`. Run all commands from the **repository root**.
+**Quick setup:** See [`CONTRIBUTING.md`](CONTRIBUTING.md) for full prerequisites and workflow.
+
+```bash
+pip install -r requirements.txt          # Python deps
+cd tooling/validation && npm ci && cd ..  # Schema validation deps
+```
+
+**Taxonomy & naming conventions:** See [`TAXONOMY.md`](TAXONOMY.md) for domain prefixes, ID schemes, and file naming.
+
+Run all commands from the **repository root**.
 
 ### 1. Understand the Strategy Context (WHY)
 
@@ -98,7 +107,7 @@ To implement one use case end-to-end (e.g. COM-001):
    .\tooling\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseAuroraShowcase -OverwriteExisting
    ```
 
-   Primary output: `showcases/aurora_group/semantic_models/.../tables/_Measures.tmdl` (single measures table; measures grouped by display folder). Omit `-UseAuroraShowcase` to write to `products/fabric/powerbi/dist` instead.
+   Primary output: `products/fabric/powerbi/dist/<Domain>.SemanticModel/tables/_Measures.tmdl` (single measures table; measures grouped by display folder). With `-UseAuroraShowcase`, the script targets the Aurora showcase configuration (same output path; the flag sets showcase-specific defaults such as org context and data source pointers).
 
 3. Run **Stage 1** to ensure framework consistency: `.\tooling\run_stage1_checks.ps1`.
 4. If you have Fabric/Power BI output, run **Fabric checks**: `products\fabric/powerbi\tooling\run_fabric_checks.ps1`.
@@ -121,6 +130,15 @@ For Fabric/Power BI layout, PBIP, and best practices, see `products/fabric/power
 - **`run_stage1_checks.ps1`** — Use for **CI and before merge**. Fast, tool-agnostic gate (docs, refs, structure, KPI ↔ use case consistency). This is the mandated check for merge.
 - **`run_all_checks.ps1`** — Use for **full local validation** when you have Fabric/Power BI output: runs Stage 1 plus Fabric checks (measures vs KPI, TMDL vs measure dictionary, DAX best practices, TMDL syntax). Use before releasing or when changing measures/TMDL.
 - **`products\fabric/powerbi\tooling\run_fabric_checks.ps1`** — Fabric-only checks (no Stage 1); use when you only need to validate generated TMDL/measures.
+
+## Health Scorecard
+
+Automated H1-H5 framework health metrics (Golden Thread Coverage, Semantic Model Stability, Data Contract Coverage, Action Code Completeness, Factsheet Quality):
+
+```bash
+python tooling/health_scorecard.py            # Console summary
+python tooling/health_scorecard.py --json      # JSON output for CI
+```
 
 ## Stage 2 Soft Review (planned)
 
@@ -148,13 +166,17 @@ core/           # Tool-agnostic: strategy, use cases, KPIs, semantic model, data
   data_contracts/    # Domain- and source-level contracts
   templates/         # Page, measure, data contract templates
 
-implementations/    # Tool-specific implementations
-  microsoft_fabric/powerbi/
-    guide/           # Fabric/Power BI implementation guides
+products/           # Tool-specific implementations
+  fabric/powerbi/
+    docs/            # Fabric/Power BI implementation guides
     dist/            # Generated TMDL/artifacts (default output)
-    tools/           # Fabric-specific scripts (e.g. run_fabric_checks.ps1, theme_generator)
+    tooling/         # Fabric-specific scripts (e.g. run_fabric_checks.ps1, page scaffold generator)
+    orchestrator/    # Semantic model orchestration (table ops, measures, relationships)
+    deployment/      # CI/CD pipelines and deployment scripts
+  open_source_stack/ # Evidence.dev frontend (planned)
+  proposal_costing/  # Proposal cost engine
 
-showcases/          # Example reports and adoptions (e.g. sample_pbip_report)
+showcases/          # Example reports and adoptions (e.g. aurora_group, sample_pbip_report)
 
 tooling/            # Validation, generation, maintenance, ontology, schemas (e.g. run_stage1_checks.ps1, registry_builder.py)
 internal/           # Archive, strategy, vision, CI (maintainer-only)

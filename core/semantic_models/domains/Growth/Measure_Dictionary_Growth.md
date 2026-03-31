@@ -10,7 +10,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Growth
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Net Sales Amount = Sum of all invoice line amounts net of VAT and returns.
+    aggregation_method: sum
   documentation:
     description: Sum of net sales after discounts.
     notes: 'Grain: invoice_line / month. Unit: EUR.
@@ -25,7 +26,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Net Sales Amount]
   governance:
     owner: Growth Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Net Sales Delta % vs LY
@@ -35,7 +36,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Growth
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Net Sales Delta % vs LY = (Net Sales - LY) / LY
+    aggregation_method: ratio
   documentation:
     description: Relative growth vs last year.
     notes: 'Grain: month. Unit: %.
@@ -51,7 +53,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Net Sales Amount LY]
   governance:
     owner: Growth Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Price Realization %
@@ -61,7 +63,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Pricing
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Price Realization % = Net Price Amount / List Price Amount.
+    aggregation_method: ratio
   documentation:
     description: Net Price / List Price.
     notes: 'Grain: month. Unit: %.
@@ -77,7 +80,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[List Price Amount]
   governance:
     owner: Growth Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Forecast Net Sales Amount
@@ -87,7 +90,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 05_Forecast
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Forecast Net Sales Amount = SUM(fact_forecast[Net Sales Amount])
+    aggregation_method: sum
   documentation:
     description: Forecasted net sales amount.
     notes: 'Grain: sku_month or org_month. Unit: EUR.
@@ -102,7 +106,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_forecast[Net Sales Amount]
   governance:
     owner: Growth Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Sales Units
@@ -112,7 +116,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Growth
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Sales Units = Sum of sold units across transactions.
+    aggregation_method: sum
   documentation:
     description: Total units sold in the period.
     notes: 'Grain: invoice_line. Unit: units.
@@ -127,7 +132,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Sales Units]
   governance:
     owner: Growth Analytics
-    status: draft
+    status: active
     version: v0.1
     last_review: TBD
 ```

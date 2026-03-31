@@ -55,19 +55,19 @@ Section `business` (required):
   How to interpret the KPI (good/bad range, typical values, caveats).
 
 Section `technical` (required):
-- `technical.dax_name` (required, string)  
-  Semantic measure name in the implementation tool.  
-  Field name remains for compatibility; actual measure names vary by tool.
-- `technical.formatString` (required, string)  
-  DAX format string for display formatting, e.g. `"#,0"`, `"#,0.0%"`, `"€#,0.00"`.
-- `technical.description` (required, string)  
+- `technical.measure_name` (required, string)
+  Tool-agnostic semantic measure name, e.g. `"Gross Margin %"`, `"Net Sales Amount"`.
+- `technical.description` (required, string)
   One-sentence technical description of the measure calculation.
-- `technical.depends_on_measures` (required, list<string>)  
-  **KPI IDs** this KPI depends on, e.g. `["sales.net_sales.amount","cost.cogs.amount"]`.  
-  Use stable kpi_id references for traceability. Base measures without KPI ID should use descriptive names.  
-  **No DAX expression here.**
-- `technical.lineage` (required, list<string>)  
+- `technical.depends_on_measures` (required, list<string>)
+  **KPI IDs** this KPI depends on, e.g. `["sales.net_sales.amount","cost.cogs.amount"]`.
+  Use stable kpi_id references for traceability. Base measures without KPI ID should use descriptive names.
+- `technical.lineage` (required, list<string>)
   Source tables/columns, e.g. `fact_sales.Net Sales Amount`.
+
+> **Removed fields:** `dax_expression`, `formatString`, and `dax_name` were removed
+> (2026-03-29). Tool-specific measure details (DAX, format strings) live in product
+> overlays — see `products/fabric/powerbi/specs/fabric_measure_overlay.yaml`.
 Section `governance` (required):
 - `governance.business_owner` (required, string)  
   Business owner role/person.
@@ -133,7 +133,7 @@ Optional:
     unit_format: "% (1 decimal)"
     interpretation: "Higher is better; negative values indicate loss-making segments."
   technical:
-    dax_name: "Gross Margin %"
+    measure_name: "Gross Margin %"
     depends_on_measures:
       - "Net Sales Amount"
       - "COGS Amount"
@@ -170,9 +170,9 @@ Optional:
 - `use_case_ref` is required (list; empty list allowed).
 - `action_code_ref` is required (list; empty list allowed).
 - All referenced KPI IDs must exist.
-- No tool-specific syntax in KPI Catalog entries.
+- No tool-specific syntax in KPI Catalog entries (no DAX, SQL, format strings).
 - **String values in business, technical, and governance blocks MUST use double quotes.**
 - **Strategic KPIs require complete business, technical, and governance blocks with quoted fields.**
-- **formatString and description are required in technical blocks for all KPIs.**
+- **measure_name and description are required in technical blocks for all KPIs.**
 
 

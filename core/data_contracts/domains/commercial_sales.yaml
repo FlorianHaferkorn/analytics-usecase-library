@@ -6,6 +6,7 @@ dimension:
   - name: dim_date
     description: "Calendar dimension with fiscal hierarchy (Fiscal Year > Quarter > Month > Date)."
     purpose: "Single source for time slicing and fiscal reporting."
+    scd_type: 1
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -18,6 +19,7 @@ dimension:
   - name: dim_org
     description: "Organization dimension (region, country, channel, org name) for reporting and RLS."
     purpose: "Scoping and security for entity-level reporting."
+    scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: OrgCode, type: text}
@@ -29,6 +31,7 @@ dimension:
   - name: dim_product
     description: "Product dimension with category hierarchy (Category > Sub Category > Brand > Product Name)."
     purpose: "Product and margin analysis, mix reporting."
+    scd_type: 2
     columns:
       - {name: ProductKey, type: int, role: key}
       - {name: ProductCode, type: text}
@@ -41,6 +44,7 @@ dimension:
   - name: dim_customer
     description: "Customer dimension (segment, region, country) for CRM and value reporting."
     purpose: "Customer-level analysis, CLV, retention, and segmentation."
+    scd_type: 2
     columns:
       - {name: CustomerKey, type: int, role: key}
       - {name: CustomerCode, type: text}
@@ -52,6 +56,7 @@ dimension:
   - name: dim_promo
     description: "Promotion dimension (type, mechanic, date range) for promo effectiveness."
     purpose: "Promo ROI, incremental sales, and cannibalization analysis."
+    scd_type: 1
     columns:
       - {name: PromoKey, type: int, role: key}
       - {name: Promotion, type: text}
@@ -66,11 +71,11 @@ fact:
     purpose: "Core revenue and margin reporting; PVM and variance analysis."
     grain: invoice_line
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: ProductKey, type: int, ref: dim_product}
-      - {name: CustomerKey, type: int, ref: dim_customer, nullable: true}
-      - {name: PromoKey, type: int, ref: dim_promo, nullable: true}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one}
+      - {name: CustomerKey, type: int, ref: dim_customer, nullable: true, cardinality: many-to-one}
+      - {name: PromoKey, type: int, ref: dim_promo, nullable: true, cardinality: many-to-one}
       - {name: Promo Flag, type: boolean, nullable: true}   # identifies promotional transactions
       - {name: Net Sales Amount, type: currency, agg: sum}
       - {name: Quantity, type: decimal, agg: sum}
@@ -87,9 +92,9 @@ fact:
     purpose: "Plan vs actual reporting and forecasting alignment."
     grain: product_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: ProductKey, type: int, ref: dim_product}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: ProductKey, type: int, ref: dim_product, cardinality: many-to-one}
       - {name: Plan Net Sales Amount, type: currency, agg: sum}
       - {name: Plan Cost of Goods Sold Amount, type: currency, agg: sum, nullable: true}
       - {name: Plan Gross Margin Amount, type: currency, agg: sum, nullable: true}
@@ -99,7 +104,7 @@ fact:
     purpose: "Promo ROI, incremental sales, and cannibalization calculations."
     grain: promotion
     columns:
-      - {name: PromoKey, type: int, ref: dim_promo}
+      - {name: PromoKey, type: int, ref: dim_promo, cardinality: many-to-one}
       - {name: Promo Cost, type: currency, agg: sum}
       - {name: Funding Amount, type: currency, agg: sum, nullable: true}
       - {name: Baseline Sales Amount, type: currency, agg: sum, nullable: true}
@@ -111,9 +116,9 @@ fact:
     purpose: "Retention, churn, and risk reporting."
     grain: customer_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: CustomerKey, type: int, ref: dim_customer}
-      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: CustomerKey, type: int, ref: dim_customer, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
       - {name: Activity Flag, type: boolean}
       - {name: Churn Flag, type: boolean}
       - {name: Attrition Risk %, type: decimal, nullable: true}
@@ -126,8 +131,8 @@ fact:
     purpose: "CLV reporting and prioritization."
     grain: customer_month
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: CustomerKey, type: int, ref: dim_customer}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: CustomerKey, type: int, ref: dim_customer, cardinality: many-to-one}
       - {name: CLV Amount, type: currency}
       - {name: CLV Remaining Amount, type: currency, nullable: true}
     qa:
@@ -139,9 +144,9 @@ fact:
     grain: customer_event
     columns:
       - {name: Complaint ID, type: text, role: key}
-      - {name: CustomerKey, type: int, ref: dim_customer}
-      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
-      - {name: DateKey, type: int, ref: dim_date}
+      - {name: CustomerKey, type: int, ref: dim_customer, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
       - {name: Severity, type: text, nullable: true}
     qa:
       - "Complaint ID unique per event."
@@ -152,14 +157,31 @@ fact:
     grain: customer_event
     columns:
       - {name: ResponseID, type: text, role: key}
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: CustomerKey, type: int, ref: dim_customer, nullable: true}
-      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: CustomerKey, type: int, ref: dim_customer, nullable: true, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
       - {name: NPS Score, type: number}
       - {name: Is Promoter, type: bool, nullable: true}
       - {name: Is Detractor, type: bool, nullable: true}
     qa:
       - "NPS Score in [0;10]; Promoter/Detractor flags mutually exclusive."
+
+quality_rules:
+  freshness_sla: daily        # fact_sales refreshed within 24 h of business close; fact_customer_events monthly
+  key_nullability:
+    - "fact_sales.DateKey, OrgKey, ProductKey, Net Sales Amount, Quantity: never null"
+    - "fact_customer_events.Activity Flag, Churn Flag: never null"
+    - "fact_nps.NPS Score: never null; ResponseID unique per row"
+    - "fact_customer_value.CLV Amount: never null"
+  value_ranges:
+    - "fact_nps.NPS Score: integer in [0; 10]"
+    - "fact_customer_value.CLV Amount: >= 0; CLV Remaining Amount >= 0 when present"
+    - "fact_customer_events.Attrition Risk %: in [0; 1] when present"
+    - "fact_sales.Discount Amount: >= 0 when present (no negative discount)"
+  referential_integrity:
+    - "fact_sales.CustomerKey → dim_customer (nullable; absent = unidentified customer)"
+    - "fact_sales.PromoKey → dim_promo (nullable; absent = non-promotional transaction)"
+    - "fact_customer_events.CustomerKey → dim_customer (required)"
 
 settings:
   timezone: Europe/Berlin

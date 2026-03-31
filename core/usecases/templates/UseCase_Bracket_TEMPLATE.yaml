@@ -67,6 +67,23 @@ ux_layout_rules:
 documentation:
   business_factsheet: "./Business_Factsheet.md"
 
+# Optional: Use Case Prioritization (RICE-inspired scoring)
+# Helps objectively rank use cases for implementation order.
+# prioritization:
+#   business_value: high             # high / medium / low
+#   implementation_effort: medium    # high / medium / low
+#   confidence: 0.8                  # 0.0 - 1.0
+#   reach: organization              # organization / division / team
+#   priority_score: null             # 1-100 (auto-calculated or manual)
+
+# Optional: Readiness Assessment
+# Evaluates organizational prerequisites before implementation starts.
+# readiness:
+#   data_availability: partial       # available / partial / missing
+#   org_capability: ready            # ready / developing / not_ready
+#   stakeholder_alignment: aligned   # aligned / partial / not_aligned
+#   overall_readiness: amber         # green / amber / red
+
 # Optional overrides (only if not auto-detectable)
 overrides:
   measure_folder: "[e.g., 01_Sales_Performance]"

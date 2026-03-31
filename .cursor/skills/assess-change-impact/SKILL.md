@@ -1,3 +1,5 @@
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+
 ---
 name: assess-change-impact
 description: Assess blast radius before renaming, deleting, or deprecating KPI IDs, action code IDs, or governance roles. Use when making changes that could break downstream references.

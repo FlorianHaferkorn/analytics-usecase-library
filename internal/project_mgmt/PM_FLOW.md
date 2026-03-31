@@ -67,7 +67,6 @@ There is no Cursor API to start an agent automatically; this is the one recurrin
 | **set_issue_status.ps1** | `tooling/project_mgmt/` | Sets Status for one or more issues (e.g. `-Issue 23 -Status "In review"`). |
 | **pr_review_summary.yml** | `.github/workflows/` | PR comment with title, description, files changed, diff stats. |
 | **refresh_project_snapshot.ps1** | `tooling/project_mgmt/` | Reads Backlog/Planned (no status change), writes PROJECT_SNAPSHOT.md for the Assistant. |
-| **project_status_update.yml** | `.github/workflows/` | Weekly draft Project status update (separate from this flow). |
 
 Project automations (in GitHub: Project → … → Workflows) that set **In review** on PR open and **Done** on PR merge must be enabled on your Project for full automation of 2.2 and 2.4.
 

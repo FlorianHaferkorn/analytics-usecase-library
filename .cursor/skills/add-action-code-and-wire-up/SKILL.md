@@ -1,3 +1,5 @@
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+
 ---
 name: add-action-code-and-wire-up
 description: Create or update action codes and wire them into use cases. Use when creating action code YAML files, updating orchestration.action_code_ids, or linking action codes to use cases.

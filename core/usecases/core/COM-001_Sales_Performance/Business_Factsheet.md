@@ -46,14 +46,24 @@ diagnostics (COM-002); pipeline/win-loss (COM-010).
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| margin.gm.pct | Strategic |
+| cost.cogs.amount | Influencing |
+| sales.net_sales.amount | Influencing |
+| sales.net_sales.delta_pct.plan | Influencing |
+| sales.net_sales.delta_pct.ly | Influencing |
+| sales.pvm.price_effect.amount | Influencing |
+| sales.pvm.volume_effect.amount | Influencing |
+| sales.pvm.mix_effect.amount | Influencing |
+| sales.price.list.amount | Supporting |
+| sales.price.net.amount | Supporting |
 
+**Action Codes:** C-M2.1, C-S1.1, C-S1.2
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 
@@ -178,6 +188,50 @@ required_slicers: >
 - Misstated Plan/LY leading to false gaps.
 - PVM residual too high due to inconsistent plan price or quantity.
 - Over-reacting on price without GM guardrails can erode margin.
+
+---
+
+## 10. Typical Decision Scenarios
+
+These scenarios illustrate how this use case drives decisions in practice. They are examples — not exhaustive.
+
+### Scenario A: Revenue Gap Triggered by Volume Loss in Key Channel
+
+**Situation:** Net Sales are 8% below plan in Month 3 of Q2. The PVM bridge shows a volume effect of −€2.4M with a flat price effect, concentrated in the North Europe channel. The mix effect is slightly positive.
+
+**Decision question:** Is this a structural demand issue, a execution/distribution gap, or a one-time event?
+
+**Who decides:** Commercial Controlling Lead + Regional Sales Director.
+
+**Consequence of inaction:** Gap compounds into Q2 miss; plan credibility with board deteriorates.
+
+**Action Code triggered:** C-S1.1 (Volume Recovery) — activates root-cause split by customer/product in the affected channel.
+
+### Scenario B: Gross Margin Erosion Despite Revenue on Track
+
+**Situation:** Net Sales is +1% vs plan, but GM % has dropped 2.5pp vs plan and 3pp vs LY. The PVM bridge shows a strong negative mix effect (shift from high-margin premium products to volume SKUs).
+
+**Decision question:** Is the mix shift a strategic choice or an unmanaged drift? Is it driven by customer purchasing behavior or by promotional depth?
+
+**Who decides:** Commercial Controlling Lead + Product/Category Manager.
+
+**Consequence of inaction:** A 3pp GM drop on annual revenue of €200M equals €6M unplanned margin erosion. Below the guardrail defined in the Margin-First strategy pattern.
+
+**Action Code triggered:** C-M2.1 (Mix Recovery) — activates segment-level mix analysis and pricing review.
+
+### Scenario C: Regional Outperformance Masks Systemic Under-Delivery
+
+**Situation:** Company-level Net Sales is +2% vs plan, but drilling by region reveals that 70% of the upside is concentrated in one region while 3 other regions are all −5% to −8% below plan.
+
+**Decision question:** Is the regional concentration a risk (single-region dependency) or an opportunity (replicate what's working)?
+
+**Who decides:** Sales Leadership Team.
+
+**Consequence of inaction:** Company-level reporting gives false confidence; under-performing regions are not addressed.
+
+**Action Code triggered:** No single AC fires — management judgment required. The use case flags the concentration risk via the ranking visual.
+
+---
 
 ---
 

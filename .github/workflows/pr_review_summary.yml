@@ -12,18 +12,16 @@ jobs:
   check-closes-issue:
     name: Require Closes #N in PR body
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     steps:
       - name: Check PR has Closes #N when delivery-style
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          REPO: ${{ github.repository }}
+          TITLE: ${{ github.event.pull_request.title }}
+          BODY: ${{ github.event.pull_request.body }}
+          REF: ${{ github.event.pull_request.head.ref }}
         run: |
           set -e
-          PAYLOAD=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}" --jq '{title: .title, body: .body, headRefName: .headRefName}')
-          TITLE=$(echo "$PAYLOAD" | jq -r '.title // ""')
-          BODY=$(echo "$PAYLOAD" | jq -r '.body // ""')
-          REF=$(echo "$PAYLOAD" | jq -r '.headRefName // ""')
           # Extract issue number from title [N] or branch agent/N-*
           N=""
           if [[ "$TITLE" =~ \[([0-9]+)\] ]]; then
@@ -47,6 +45,10 @@ jobs:
   summary:
     name: Post review summary comment
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+      contents: read
     steps:
       - name: Checkout (with fetch-depth for diff)
         uses: actions/checkout@v4
@@ -93,7 +95,7 @@ jobs:
             echo "**Diff stats:** $STATS"
           } > comment_body.md
 
-          EXISTING=$(gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" --jq '.[] | select(.body | contains("<!-- pr-review-summary -->")) | .id' 2>/dev/null | head -1)
+          EXISTING=$(gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" --jq '.[] | select(.body | contains("<!-- pr-review-summary -->")) | .id' 2>/dev/null | grep -E '^[0-9]+$' | head -1 || true)
           if [ -n "$EXISTING" ]; then
             BODY_JSON=$(jq -Rs '{body: .}' comment_body.md)
             echo "$BODY_JSON" | gh api "repos/${REPO}/issues/comments/${EXISTING}" -X PATCH --input -

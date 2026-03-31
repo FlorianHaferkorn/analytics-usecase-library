@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "adapter_id": "com.actionready/oss-evidence",
+  "name": "Open-Source Evidence.dev Stack",
+  "version": "0.1.0",
+  "description": "OSS adapter: Evidence.dev dashboards + dbt semantic layer over Iceberg/DuckDB/Trino. Consumes IR, produces Markdown pages and dbt metrics.",
+  "owner": {
+    "team": "platform-oss",
+    "repo": "florianhaferkorn/analytics-usecase-library"
+  },
+  "compatibility": {
+    "supported_ir_versions": ["1.x"],
+    "supported_core_schema_versions": ["2.0"],
+    "supported_tools": ["Evidence.dev>=4.0", "dbt-core>=1.8", "DuckDB>=1.0", "Trino>=440"]
+  },
+  "capabilities": {
+    "build": true,
+    "validate": true,
+    "deploy": true,
+    "ops": false
+  },
+  "commands": {
+    "build": {
+      "type": "python",
+      "entrypoint": "products/open_source_stack/tooling/page_generator/generator.py",
+      "args": ["--ir-path", "tooling/ir/out/ir_v1.json"]
+    },
+    "validate": {
+      "type": "python",
+      "entrypoint": "products/open_source_stack/tooling/validate_oss.py",
+      "args": ["--root", "."]
+    },
+    "deploy": {
+      "type": "python",
+      "entrypoint": "products/open_source_stack/deploy/deploy_cli.py",
+      "args": ["--env", "dev"]
+    }
+  },
+  "required_secrets": [
+    "DB_CONNECTION_STRING",
+    "AUTH_PROXY_SECRET"
+  ],
+  "permissions": [
+    "read:ir",
+    "write:evidence_app",
+    "write:dbt_project"
+  ]
+}

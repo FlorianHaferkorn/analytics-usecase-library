@@ -2,6 +2,26 @@
 
 Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
+## Aggregation Method Conventions
+
+All measures must declare an `aggregation_method` in their `expression` block. Conventions:
+
+| Method | Use for |
+|--------|---------|
+| `sum` | Additive facts (units, minutes, costs) — safe to aggregate across all dimensions |
+| `average` | Per-unit or per-asset averages (MTBF, MTTR, cycle time) — dimension-sensitive |
+| `last_value` | Not applicable in operations domain (no balance measures) |
+| `ratio` | Rate measures (%, OEE, FPY) — must be recomputed from components when filter changes |
+| `count` | Event counts (failures, orders) — additive |
+
+**Rule:** OEE, FPY, Scrap Rate, and all percentage measures must never be averaged. Always re-derive from summed time/unit components.
+
+## Logical Expression Convention
+
+`expression.logical` contains tool-agnostic business-logic pseudocode. Tool-specific DAX/SQL lives in `products/fabric/`.
+
+Format: `MEASURE_NAME = <pseudocode using column references from operations data contract>`
+
 ```yaml
 - measure_name: OEE %
   is_kpi_measure: true
@@ -10,17 +30,17 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: ratio
+    logical: OEE = Availability % * Performance % * Quality % = (SUM(Run Time) / SUM(Planned Time)) * (SUM(Output Units) /
+      (SUM(Planned Time) * Standard Rate)) * (SUM(Good Units) / SUM(Output Units))
   documentation:
-    description: Overall equipment effectiveness combining availability, performance,
-      and quality.
+    description: Overall equipment effectiveness combining availability, performance, and quality.
     notes: 'Grain: line_day. Unit: %.
 
-      Lineage: fact_ops[Run Time Minutes], fact_ops[Planned Time Minutes], fact_ops[Output
-      Units], fact_ops[Good Units].
+      Lineage: fact_ops[Run Time Minutes], fact_ops[Planned Time Minutes], fact_ops[Output Units], fact_ops[Good Units].
 
-      QA: Ensure consistent time base; flags for downtime types; DIVIDE guards; replace
-      Perf divisor with theoretical output when available.
+      QA: Ensure consistent time base; flags for downtime types; DIVIDE guards; replace Perf divisor with theoretical output
+      when available.
 
       '
   dependencies:
@@ -31,9 +51,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Good Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Availability %
   is_kpi_measure: true
   kpi_id_ref: ops.availability.pct
@@ -41,7 +62,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: ratio
+    logical: Availability = SUM(fact_ops[Run Time Minutes]) / SUM(fact_ops[Planned Time Minutes])
   documentation:
     description: 'Uptime control: Run Time / Planned Production Time.'
     notes: 'Grain: line_day. Unit: %.
@@ -57,9 +79,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Planned Time Minutes]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Performance %
   is_kpi_measure: true
   kpi_id_ref: ops.performance.pct
@@ -67,7 +90,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Performance % = Actual output / Theoretical maximum output
+    aggregation_method: ratio
   documentation:
     description: 'Speed vs standard: Actual Output / Theoretical Output.'
     notes: 'Grain: line_day. Unit: %.
@@ -84,9 +108,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - '[Standard Output]'
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Planned Hours
   is_kpi_measure: true
   kpi_id_ref: ops.planned.hours
@@ -94,7 +119,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Planned Hours = Sum of planned production hours
+    aggregation_method: ratio
   documentation:
     description: Scheduled production time allocated for machines/lines.
     notes: 'Grain: machine/line level per shift/day.
@@ -121,7 +147,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Quality % = Good units / Total units
+    aggregation_method: ratio
   documentation:
     description: 'First pass yield: Good Units / Total Units.'
     notes: 'Grain: line_day. Unit: %.
@@ -137,9 +164,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Output Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Throughput Units
   is_kpi_measure: true
   kpi_id_ref: ops.throughput.units
@@ -147,7 +175,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Throughput
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Throughput Units = Sum of produced units in the period.
+    aggregation_method: sum
   documentation:
     description: Volume output over time.
     notes: 'Grain: line_day. Unit: qty.
@@ -162,9 +191,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Output Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Downtime %
   is_kpi_measure: true
   kpi_id_ref: ops.downtime.pct
@@ -172,7 +202,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Downtime
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Downtime % = Downtime Minutes / Planned Time Minutes.
+    aggregation_method: ratio
   documentation:
     description: 'Loss share: Downtime / Planned Production Time.'
     notes: 'Grain: line_day. Unit: %.
@@ -188,9 +219,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Planned Time Minutes]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Run Time Minutes
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -198,7 +230,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Downtime
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Run Time Minutes = SUM(fact_ops[Run Time Minutes])
+    aggregation_method: sum
   documentation:
     description: Total run time in minutes.
     notes: 'Source: fact_ops[Run Time Minutes].'
@@ -207,9 +240,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Run Time Minutes]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Downtime Minutes
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -217,7 +251,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Downtime
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Downtime Minutes = SUM(fact_ops[Downtime Minutes])
+    aggregation_method: sum
   documentation:
     description: Total downtime minutes (planned + unplanned if not split).
     notes: 'Source: fact_ops[Downtime Minutes].'
@@ -226,9 +261,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Downtime Minutes]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Unplanned Downtime Minutes
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -236,7 +272,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Downtime
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Unplanned Downtime Minutes = SUM(fact_ops[Unplanned Downtime Minutes])
+    aggregation_method: sum
   documentation:
     description: Unplanned downtime minutes.
     notes: 'Source: fact_ops[Unplanned Downtime].'
@@ -245,9 +282,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Unplanned Downtime Minutes]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Standard Output Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -255,7 +293,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Throughput
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Standard Output Units = SUM(fact_ops[Planned Time Minutes])
+    aggregation_method: sum
   documentation:
     description: Theoretical output based on planned time and standard rate.
     notes: 'Source: fact_ops planned time and standard rate.'
@@ -265,9 +304,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Standard Rate Units Per Minute]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Failure Count
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -275,7 +315,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Reliability
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Failure Count = SUM(fact_ops_failures[Failure Start DateTime])
+    aggregation_method: count
   documentation:
     description: Count of failure events.
     notes: 'Source: fact_ops_failures[Failure Start].'
@@ -284,9 +325,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops_failures[Failure Start DateTime]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: MTBF (hours)
   is_kpi_measure: true
   kpi_id_ref: ops.mtbf.hours
@@ -294,7 +336,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Reliability
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: MTBF (hours) = Operating Time Hours / Number of Failures.
+    aggregation_method: ratio
   documentation:
     description: Mean time between failures.
     notes: 'Grain: asset. Unit: hours.
@@ -310,9 +353,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops_failures[Failure End]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: MTTR (hours)
   is_kpi_measure: true
   kpi_id_ref: ops.mttr.hours
@@ -320,7 +364,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Reliability
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: MTTR (hours) = Total Repair Time Hours / Number of Failures.
+    aggregation_method: ratio
   documentation:
     description: Mean time to repair.
     notes: 'Grain: asset. Unit: hours.
@@ -335,9 +380,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops_failures[Repair Duration]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Unplanned Downtime %
   is_kpi_measure: true
   kpi_id_ref: ops.downtime.unplanned.pct
@@ -345,7 +391,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Downtime
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Unplanned Downtime % = Unplanned Downtime Minutes / Planned Time Minutes.
+    aggregation_method: ratio
   documentation:
     description: Unplanned downtime share of planned time.
     notes: 'Grain: asset_day. Unit: %.
@@ -361,9 +408,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Planned Time Minutes]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Spare Parts Stockout %
   is_kpi_measure: true
   kpi_id_ref: ops.spare_parts.stockout.pct
@@ -371,7 +419,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 05_Maintenance
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Spare Parts Stockout % = Stockout Events / Total Parts Requests.
+    aggregation_method: ratio
   documentation:
     description: Maintenance readiness via stockout rate for parts.
     notes: 'Grain: month. Unit: %.
@@ -387,9 +436,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_maintenance[Orders]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: PM Compliance %
   is_kpi_measure: true
   kpi_id_ref: ops.pm_compliance.pct
@@ -397,10 +447,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 05_Maintenance
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: PM Compliance % = Completed PM Orders / Planned PM Orders.
+    aggregation_method: ratio
   documentation:
-    description: 'Preventive maintenance discipline: on-time PM orders / planned PM
-      orders.'
+    description: 'Preventive maintenance discipline: on-time PM orders / planned PM orders.'
     notes: 'Grain: month. Unit: %.
 
       Lineage: fact_maintenance[PM On Time], fact_maintenance[PM Planned].
@@ -414,9 +464,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_maintenance[PM Planned]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: First Pass Yield %
   is_kpi_measure: true
   kpi_id_ref: quality.fpy.pct
@@ -424,7 +475,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 06_Quality
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    aggregation_method: ratio
+    logical: FPY = SUM(fact_quality[Good Units]) / SUM(fact_quality[Total Units])
   documentation:
     description: Good units / total units at first pass.
     notes: 'Grain: line_day. Unit: %.
@@ -440,9 +492,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Total Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Scrap Rate %
   is_kpi_measure: true
   kpi_id_ref: quality.scrap.pct
@@ -450,7 +503,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 06_Quality
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Scrap Rate % = Scrap Units / Total Units.
+    aggregation_method: ratio
   documentation:
     description: Scrap units / total units.
     notes: 'Grain: line_day. Unit: %.
@@ -466,9 +520,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Total Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Rework Rate %
   is_kpi_measure: true
   kpi_id_ref: quality.rework.pct
@@ -476,7 +531,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 06_Quality
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Rework Rate % = Reworked Units / Total Units.
+    aggregation_method: ratio
   documentation:
     description: Reworked units / total units.
     notes: 'Grain: line_day. Unit: %.
@@ -492,9 +548,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Total Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Total Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -502,7 +559,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 06_Quality
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Total Units = SUM(fact_quality[Total Units])
+    aggregation_method: sum
   documentation:
     description: Total produced units in the selected context.
     notes: 'Source: fact_quality[Total Units].'
@@ -511,9 +569,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Total Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Good Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -521,7 +580,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 06_Quality
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Good Units = SUM(fact_quality[Good Units])
+    aggregation_method: sum
   documentation:
     description: Conforming units produced.
     notes: 'Source: fact_quality[Good Units].'
@@ -530,9 +590,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Good Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Scrap Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -540,7 +601,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 06_Quality
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Scrap Units = SUM(fact_quality[Scrap Units])
+    aggregation_method: sum
   documentation:
     description: Scrapped units in the selected context.
     notes: 'Source: fact_quality[Scrap Units].'
@@ -549,9 +611,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Scrap Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Rework Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -559,7 +622,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 06_Quality
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Rework Units = SUM(fact_quality[Rework Units])
+    aggregation_method: sum
   documentation:
     description: Reworked units in the selected context.
     notes: 'Source: fact_quality[Rework Units].'
@@ -568,9 +632,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Rework Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Cost of Poor Quality
   is_kpi_measure: true
   kpi_id_ref: quality.copq.amount
@@ -578,7 +643,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 06_Quality
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Cost of Poor Quality = Sum of cost impacts for quality failures in period.
+    aggregation_method: sum
   documentation:
     description: Financial impact from scrap, rework, and warranty/complaint costs.
     notes: 'Grain: month. Unit: EUR.
@@ -593,9 +659,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality_costs[COPQ]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Complaint Rate %
   is_kpi_measure: true
   kpi_id_ref: quality.complaint.pct
@@ -603,7 +670,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 06_Quality
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Complaint Rate % = Complaint Count / Units Shipped.
+    aggregation_method: ratio
   documentation:
     description: Complaints / units shipped.
     notes: 'Grain: month. Unit: %.
@@ -619,9 +687,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_shipments[Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Complaint Count
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -629,7 +698,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 06_Quality
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Complaint Count = COUNTROWS ( fact_experience )
+    aggregation_method: count
   documentation:
     description: Number of complaints in the selected context.
     notes: 'Source: fact_complaints[Complaint Count].'
@@ -638,9 +708,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_complaints[Complaint Count]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Shipped Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -648,7 +719,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 06_Quality
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Shipped Units = SUM(fact_shipments[Shipped Units])
+    aggregation_method: sum
   documentation:
     description: Units shipped used as denominator for complaint rate.
     notes: 'Source: fact_shipments[Shipped Units].'
@@ -657,9 +729,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_shipments[Shipped Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Defect Density
   is_kpi_measure: true
   kpi_id_ref: quality.defect_density
@@ -667,7 +740,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 06_Quality
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Defect Density = (Defect Count / Total Units) * 1,000.
+    aggregation_method: sum
   documentation:
     description: Defects per 1k units.
     notes: 'Grain: line_day. Unit: defects per 1k units.
@@ -683,9 +757,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Planned Time
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -693,7 +768,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Downtime
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Planned Time = SUM(fact_ops[Planned Time Minutes])
+    aggregation_method: sum
   documentation:
     description: Total planned production time in minutes.
     notes: 'Source: fact_ops[Planned Time Minutes].'
@@ -702,9 +778,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Planned Time Minutes]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Run Time
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -712,7 +789,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 03_Downtime
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Run Time = SUM(fact_ops[Run Time Minutes])
+    aggregation_method: sum
   documentation:
     description: Total run time in minutes.
     notes: 'Source: fact_ops[Run Time Minutes].'
@@ -721,9 +799,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Run Time Minutes]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Output Units
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -731,7 +810,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Ops
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Output Units = SUM(fact_ops[Output Units])
+    aggregation_method: sum
   documentation:
     description: Total output units.
     notes: 'Source: fact_ops[Output Units].'
@@ -740,9 +820,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Output Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Defect Count
   is_kpi_measure: false
   kpi_id_ref: ''
@@ -750,7 +831,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Quality
   category: Base
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Defect Count = SUM(fact_quality[Defect Count])
+    aggregation_method: count
   documentation:
     description: Total defect count.
     notes: 'Source: fact_quality[Defect Count].'
@@ -759,9 +841,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_quality[Defect Count]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v1.2
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Failure Count
   is_kpi_measure: true
   kpi_id_ref: ops.failure.count
@@ -769,7 +852,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Failure Count = Count of recorded failure events.
+    aggregation_method: count
   documentation:
     description: Count of recorded equipment or process failures.
     notes: 'Grain: asset_day. Unit: count.
@@ -784,9 +868,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Failure Count]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Planned Output Units
   is_kpi_measure: true
   kpi_id_ref: ops.planned_output.units
@@ -794,7 +879,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Planned Output Units = Sum of planned output units for the period.
+    aggregation_method: sum
   documentation:
     description: Planned production output units.
     notes: 'Grain: line_day. Unit: units.
@@ -809,9 +895,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Planned Output Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Preventive Maintenance Task Count
   is_kpi_measure: true
   kpi_id_ref: ops.pm.task.count
@@ -819,7 +906,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Preventive Maintenance Task Count = Count of PM tasks in the period.
+    aggregation_method: count
   documentation:
     description: Count of preventive maintenance tasks.
     notes: 'Grain: asset_day. Unit: count.
@@ -834,9 +922,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_maintenance[PM Task Count]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Production Volume Units
   is_kpi_measure: true
   kpi_id_ref: ops.production.volume
@@ -844,7 +933,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Ops
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Production Volume Units = Sum of produced units for the period.
+    aggregation_method: sum
   documentation:
     description: Total produced units in the period.
     notes: 'Grain: line_day. Unit: units.
@@ -859,9 +949,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Output Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Quality Defect Rate %
   is_kpi_measure: true
   kpi_id_ref: ops.quality.defect_rate.pct
@@ -869,7 +960,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Quality
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Quality Defect Rate % = Defective Units / Total Produced Units.
+    aggregation_method: ratio
   documentation:
     description: Defect count divided by total output units.
     notes: 'Grain: line_day. Unit: %.
@@ -885,9 +977,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Output Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Safety Incident Count
   is_kpi_measure: true
   kpi_id_ref: ops.safety.incident.count
@@ -895,7 +988,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 05_Safety
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Safety Incident Count = Count of recorded safety incidents.
+    aggregation_method: count
   documentation:
     description: Count of safety incidents in the period.
     notes: 'Grain: site_day. Unit: count.
@@ -910,9 +1004,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_safety[Incident Count]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Operations Service Level %
   is_kpi_measure: true
   kpi_id_ref: ops.service_level.pct
@@ -920,7 +1015,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Service
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Operations Service Level % = On-Time or In-Full Deliveries / Total Deliveries.
+    aggregation_method: ratio
   documentation:
     description: On-time delivery rate for operational fulfillment.
     notes: 'Grain: shipment_day. Unit: %.
@@ -936,9 +1032,10 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Total Deliveries]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 - measure_name: Yield %
   is_kpi_measure: true
   kpi_id_ref: ops.yield.pct
@@ -946,7 +1043,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Quality
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Yield % = Good Units / Total Units Produced.
+    aggregation_method: ratio
   documentation:
     description: Good units divided by total output.
     notes: 'Grain: line_day. Unit: %.
@@ -962,8 +1060,9 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     - fact_ops[Output Units]
   governance:
     owner: Operations Analytics
-    status: draft
+    status: active
     version: v0.1
-    last_review: TBD
+    last_review: 2026-03-27
+    review_due: 2027-03-31
 ```
 

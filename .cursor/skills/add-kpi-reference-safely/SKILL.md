@@ -1,3 +1,5 @@
+<!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
+
 ---
 name: add-kpi-reference-safely
 description: Add a KPI reference to a use case or action code only if the KPI exists in the catalog; otherwise add to catalog first. Use when adding kpi_id to factsheets, brackets, or action codes.

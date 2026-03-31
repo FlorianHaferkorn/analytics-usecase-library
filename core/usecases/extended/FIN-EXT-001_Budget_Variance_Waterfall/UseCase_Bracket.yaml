@@ -1,0 +1,72 @@
+schema_version: "2.0"
+id: FIN-EXT-001
+title: Budget Variance Waterfall (P&L Bridge)
+domain: Finance
+# build_status: draft — scaffold only; not yet build_ready
+# prerequisites: FIN-002 (Cost Performance)
+
+governance:
+  owner_role: finance_controlling_lead
+  steward_role: finance_bi_lead
+
+orchestration:
+  strategic_kpi_id: finance.ebit.delta_pct.budget      # EBIT vs. Budget %
+  influencing_kpi_ids:
+    - finance.revenue.delta_amount.budget               # Revenue bridge
+    - finance.cogs.delta_amount.budget                  # COGS bridge
+    - finance.opex.delta_amount.budget                  # OpEx bridge
+    - finance.gross_margin.delta_pct.budget
+    - finance.headcount_cost.delta_amount.budget
+  action_code_ids:
+    - F-C1.2    # Cost containment
+    - F-C1.1    # Budget reforecast
+  supporting_kpi_ids:
+    - fin.liquidity.inventory.amount
+    - wc.dio.days
+    - wc.dpo.days
+
+value_driver_model:
+  formula: finance.ebit.delta_pct.budget = f(finance.revenue.delta_amount.budget, finance.cogs.delta_amount.budget, finance.opex.delta_amount.budget)
+  impact_direction: maximize
+  primary_driver: finance.revenue.delta_amount.budget
+  impact_logic: >
+    EBIT vs. Budget is decomposed into revenue, COGS, and OpEx bridges.
+    Each bridge isolates the controllable variance source so management
+    can direct action to the largest unfavourable contributor.
+  critical_threshold: 0.03   # 3% EBIT shortfall triggers escalation
+
+ux_layout_rules:
+  report_structure: 2-Page-Lead
+  report_canvas: { width: 1920, height: 1080 }
+  page_1_summary:
+    title: P&L Bridge Summary
+    template_id: pulse
+    component_3s:
+      kpi_id: finance.ebit.delta_pct.budget
+      visual_type: kpi_card
+    component_30s:
+      - kpi_id: finance.ebit.delta_pct.budget
+        visual_type: waterfall_chart      # P&L bridge waterfall
+      - kpi_ids:
+          - finance.revenue.delta_amount.budget
+          - finance.cogs.delta_amount.budget
+          - finance.opex.delta_amount.budget
+        visual_type: bar_chart
+  page_2_execution:
+    title: Variance Drill-Down & Actions
+    template_id: action_matrix
+    component_300s:
+      evidence_grain: invoice_line
+      evidence_columns:
+        - cost_centre
+        - gl_account
+        - period
+        - finance.ebit.delta_amount.budget
+      action_panel: true
+      payload_mode: full
+
+overrides:
+  data_contract_ref: core/data_contracts/domains/finance.yaml
+
+documentation:
+  business_factsheet: ./Business_Factsheet.md

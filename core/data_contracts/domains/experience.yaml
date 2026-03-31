@@ -6,6 +6,7 @@ dimension:
   - name: dim_date
     description: "Calendar dimension for experience and service reporting."
     purpose: "Time slicing for cases, WFM, and NPS."
+    scd_type: 1
     columns:
       - {name: DateKey, type: int, role: key}
       - {name: Date, type: date}
@@ -18,6 +19,7 @@ dimension:
   - name: dim_org
     description: "Organization dimension (region, channel, queue, agent group) for experience."
     purpose: "Scoping for support cases and WFM."
+    scd_type: 2
     columns:
       - {name: OrgKey, type: int, role: key}
       - {name: Region, type: text, nullable: true}
@@ -28,6 +30,7 @@ dimension:
   - name: dim_case_queue
     description: "Support case queue dimension (queue name, channel, region)."
     purpose: "Queue-level case and WFM analysis."
+    scd_type: 1
     columns:
       - {name: QueueKey, type: int, role: key}
       - {name: QueueName, type: text}
@@ -37,6 +40,7 @@ dimension:
   - name: dim_issue_type
     description: "Issue type dimension (type, severity) for case classification."
     purpose: "Issue-type and severity analysis for support."
+    scd_type: 1
     columns:
       - {name: IssueKey, type: int, role: key}
       - {name: IssueType, type: text}
@@ -48,10 +52,10 @@ fact:
     purpose: "Case performance and SLA reporting."
     grain: case
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: QueueKey, type: int, ref: dim_case_queue, nullable: true}
-      - {name: IssueKey, type: int, ref: dim_issue_type, nullable: true}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: QueueKey, type: int, ref: dim_case_queue, nullable: true, cardinality: many-to-one}
+      - {name: IssueKey, type: int, ref: dim_issue_type, nullable: true, cardinality: many-to-one}
       - {name: SLA Met Flag, type: boolean}
       - {name: FCR Flag, type: boolean}
       - {name: Handle Time Minutes, type: decimal}
@@ -64,9 +68,9 @@ fact:
     purpose: "WFM utilization and shrinkage reporting."
     grain: agent_day
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org}
-      - {name: QueueKey, type: int, ref: dim_case_queue, nullable: true}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, cardinality: many-to-one}
+      - {name: QueueKey, type: int, ref: dim_case_queue, nullable: true, cardinality: many-to-one}
       - {name: Work Time Minutes, type: decimal, agg: sum}
       - {name: Paid Time Minutes, type: decimal, agg: sum}
       - {name: Talk Time Minutes, type: decimal, agg: sum}
@@ -80,10 +84,31 @@ fact:
     purpose: "Net Promoter Score reporting."
     grain: survey
     columns:
-      - {name: DateKey, type: int, ref: dim_date}
-      - {name: OrgKey, type: int, ref: dim_org, nullable: true}
-      - {name: QueueKey, type: int, ref: dim_case_queue, nullable: true}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
+      - {name: QueueKey, type: int, ref: dim_case_queue, nullable: true, cardinality: many-to-one}
       - {name: NPS Score, type: int}
+
+quality_rules:
+  freshness_sla:
+    fact_support_cases: real-time   # case events captured within 15 min; closed cases same-day
+    fact_workforce_management: daily
+    fact_nps: per-cycle             # survey results available within 24 h of survey close
+  key_nullability:
+    - "fact_support_cases.DateKey, OrgKey, SLA Met Flag, FCR Flag, Handle Time Minutes: never null"
+    - "fact_support_cases.Escalation Flag, Backlog Flag, Open Case Flag: never null"
+    - "fact_workforce_management.DateKey, OrgKey, Work Time Minutes, Paid Time Minutes: never null"
+    - "fact_nps.DateKey, NPS Score: never null"
+  value_ranges:
+    - "fact_support_cases.Handle Time Minutes: >= 0"
+    - "fact_nps.NPS Score: integer in [0; 10]"
+    - "fact_workforce_management.Work Time Minutes: >= 0; <= Paid Time Minutes"
+    - "fact_workforce_management.Shrinkage Minutes: >= 0 when present"
+    - "fact_workforce_management.Idle Time Minutes: >= 0"
+  referential_integrity:
+    - "fact_support_cases.QueueKey → dim_case_queue (nullable)"
+    - "fact_support_cases.IssueKey → dim_issue_type (nullable)"
+    - "fact_workforce_management.QueueKey → dim_case_queue (nullable)"
 
 settings:
   timezone: Europe/Berlin

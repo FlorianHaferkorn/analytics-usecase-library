@@ -17,6 +17,10 @@ tooling/validation/node_modules/
 # Generated validation results (produced by Stage 1 runner)
 tooling/validation/results/
 
+# Python bytecode cache
+__pycache__/
+*.pyc
+
 # Python virtual environments (bootstrap)
 tooling/.venv/
 .venv/
@@ -51,3 +55,7 @@ master_registry.json
 value_map.json
 governance_gaps.json
 orphans_report.json
+# Root-level Node artifacts (Studio lives in /studio)
+node_modules/
+package.json
+package-lock.json

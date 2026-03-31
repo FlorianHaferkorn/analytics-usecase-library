@@ -1,0 +1,341 @@
+{
+  "name": "Generic Framework Brand__Monochromatic__powerbi_design_base__#2B5EB4",
+  "$schema": "https://raw.githubusercontent.com/microsoft/powerbi-desktop-samples/main/Report%20Theme%20JSON%20Schema/reportThemeSchema-2.145.json",
+  "dataColors": [
+    "#2B5EB4",
+    "#6A94DB",
+    "#A7C0EA",
+    "#1C3E76",
+    "#0D1E39",
+    "#4C6793",
+    "#5A81C3",
+    "#050B15"
+  ],
+  "good": "#107C10",
+  "bad": "#D13438",
+  "neutral": "#605E5C",
+  "maximum": "#3AE63A",
+  "minimum": "#E38588",
+  "null": "#A19F9D",
+  "background": "#F3F2F1",
+  "foreground": "#201F1E",
+  "tableAccent": "#2B5EB41A",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "fontFamily": [
+          {
+            "value": "Segoe UI, system-ui, -apple-system, sans-serif"
+          }
+        ],
+        "fontSize": [
+          {
+            "value": 12
+          }
+        ]
+      }
+    },
+    "cardVisual": {
+      "*": {
+        "calloutValue": [
+          {
+            "value": {
+              "fontSize": 18,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "labels": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ]
+      }
+    },
+    "card": {
+      "*": {
+        "labels": [
+          {
+            "value": {
+              "fontSize": 18,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "categoryLabels": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ]
+      }
+    },
+    "tableEx": {
+      "*": {
+        "values": [
+          {
+            "value": {
+              "fontSize": 12,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "columnHeaders": [
+          {
+            "value": {
+              "fontSize": 12,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "background": [
+          {
+            "value": {
+              "color": "#FAFAFA"
+            }
+          }
+        ]
+      }
+    },
+    "matrix": {
+      "*": {
+        "values": [
+          {
+            "value": {
+              "fontSize": 12,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "columnHeaders": [
+          {
+            "value": {
+              "fontSize": 12,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "rowHeaders": [
+          {
+            "value": {
+              "fontSize": 12,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "background": [
+          {
+            "value": {
+              "color": "#FAFAFA"
+            }
+          }
+        ]
+      }
+    },
+    "lineChart": {
+      "*": {
+        "categoryAxis": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "valueAxis": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "legend": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ]
+      }
+    },
+    "barChart": {
+      "*": {
+        "categoryAxis": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "valueAxis": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "legend": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ]
+      }
+    },
+    "clusteredBarChart": {
+      "*": {
+        "categoryAxis": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "valueAxis": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "legend": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ]
+      }
+    },
+    "columnChart": {
+      "*": {
+        "categoryAxis": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "valueAxis": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "legend": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ]
+      }
+    },
+    "areaChart": {
+      "*": {
+        "categoryAxis": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "valueAxis": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "legend": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ]
+      }
+    },
+    "scatterChart": {
+      "*": {
+        "categoryAxis": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "valueAxis": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "legend": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ]
+      }
+    },
+    "slicer": {
+      "*": {
+        "items": [
+          {
+            "value": {
+              "fontSize": 12,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ],
+        "header": [
+          {
+            "value": {
+              "fontSize": 10,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ]
+      }
+    },
+    "textbox": {
+      "*": {
+        "paragraphs": [
+          {
+            "value": {
+              "fontSize": 12,
+              "fontFamily": "Segoe UI, system-ui, -apple-system, sans-serif"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

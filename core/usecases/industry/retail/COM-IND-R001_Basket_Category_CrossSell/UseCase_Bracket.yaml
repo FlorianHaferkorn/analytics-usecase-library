@@ -1,0 +1,71 @@
+schema_version: "2.0"
+id: COM-IND-R001
+title: Basket & Category Cross-Sell Analysis
+domain: Commercial
+# build_status: draft — scaffold only; not yet build_ready
+# vertical: Retail & CPG
+# prerequisites: COM-001 (Sales Performance), COM-003 (Customer Value)
+
+governance:
+  owner_role: commercial_controlling_lead
+  steward_role: sales_bi_lead
+
+orchestration:
+  strategic_kpi_id: retail.basket.items_per_transaction    # Avg items per basket
+  influencing_kpi_ids:
+    - retail.category.crosssell_rate.pct                   # % transactions spanning ≥2 categories
+    - retail.basket.value.average                          # Average transaction value
+    - retail.promotion.attachment_rate.pct                 # Promoted item → attachment rate
+    - customer.rfm.frequency_score                         # Visit frequency
+  action_code_ids:
+    - C-M2.1    # Pricing intervention (promotional mechanics)
+    - C-S1.2    # Sales channel activation (in-store placement)
+  supporting_kpi_ids:
+    - cost.cogs.amount
+    - sales.price.list.amount
+    - sales.price.net.amount
+
+value_driver_model:
+  formula: retail.basket.items_per_transaction = f(retail.category.crosssell_rate.pct, retail.promotion.attachment_rate.pct)
+  impact_direction: maximize
+  primary_driver: retail.category.crosssell_rate.pct
+  impact_logic: >
+    Cross-sell rate measures the share of transactions spanning multiple categories.
+    Increasing cross-sell through placement and promotion mechanics directly
+    lifts basket size and average transaction value.
+
+ux_layout_rules:
+  report_structure: 2-Page-Lead
+  report_canvas: { width: 1920, height: 1080 }
+  page_1_summary:
+    title: Basket & Cross-Sell Overview
+    template_id: pulse
+    component_3s:
+      kpi_id: retail.basket.items_per_transaction
+      visual_type: kpi_card
+    component_30s:
+      - kpi_id: retail.category.crosssell_rate.pct
+        visual_type: matrix_chart        # Category affinity matrix
+      - kpi_ids:
+          - retail.basket.value.average
+          - retail.promotion.attachment_rate.pct
+        visual_type: bar_chart
+  page_2_execution:
+    title: Category Drill-Down & Actions
+    template_id: action_matrix
+    component_300s:
+      evidence_grain: invoice_line
+      evidence_columns:
+        - transaction_id
+        - category
+        - sku
+        - retail.basket.items_per_transaction
+        - retail.category.crosssell_rate.pct
+      action_panel: true
+      payload_mode: full
+
+overrides:
+  data_contract_ref: core/data_contracts/domains/commercial_sales.yaml
+
+documentation:
+  business_factsheet: ./Business_Factsheet.md

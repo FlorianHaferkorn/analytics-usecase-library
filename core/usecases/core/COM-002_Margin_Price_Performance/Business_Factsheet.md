@@ -41,14 +41,28 @@ factsheet_type: business
 
 ---
 
-## 3. Required KPIs (Mandatory)
+### 3. KPI & Action Code Overview
 
-All KPIs must exist in the KPI Catalog.
+| KPI ID | Role |
+|--------|------|
+| margin.gm.pct | Strategic |
+| margin.gm.amount | Influencing |
+| sales.price.list.amount | Influencing |
+| sales.price.net.amount | Influencing |
+| sales.price.realization_pct | Influencing |
+| sales.pvm.mix_effect.amount | Influencing |
+| cost.cogs_per_unit.amount | Influencing |
+| margin.gm.vs_plan.pct | Influencing |
+| cost.cogs.amount | Supporting |
+| sales.promo.baseline_sales.amount | Supporting |
+| sales.promo.cost.amount | Supporting |
+| sales.promo.incremental_gm.amount | Supporting |
+| sales.pvm.price_effect.amount | Supporting |
+| sales.pvm.volume_effect.amount | Supporting |
 
+**Action Codes:** C-M2.2, C-P4.1, C-S1.2
 
-> Machine-readable KPI + Action configuration has been extracted to `UseCase_Bracket.yaml` (SSOT).
-> This factsheet focuses on business context only.
-
+> Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
 ---
 
@@ -139,9 +153,49 @@ required_slicers: Date, Region/Country/Channel, Product Category/Subcategory
 
 ## 9. Risks & Wrong Interpretations (Short)
 
-- Misstating realization if promo flags are missing (see COM-004).  
-- Misattributing mix when hierarchy changes mid-period.  
+- Misstating realization if promo flags are missing (see COM-004).
+- Misattributing mix when hierarchy changes mid-period.
 - Ignoring cost timing effects (e.g., accruals) when reading COGS/unit trends.
+
+---
+
+## 10. Typical Decision Scenarios
+
+### Scenario A: Price Realization Below Guardrail
+
+**Situation:** Price realization has dropped to 92% (vs 95% guardrail) in the Southern Europe region. Discount approval logs show 15% of invoices were granted exceptions above the standard discount floor, concentrated in 3 large customers.
+
+**Decision question:** Are the exceptions above approval authority? Is this isolated to Southern Europe or a broader pattern?
+
+**Who decides:** Commercial Controlling Lead + Pricing Manager + Regional Sales Director.
+
+**Consequence of inaction:** At 3pp realization shortfall on €80M regional revenue = €2.4M annual margin leakage. If normalized to full-company revenue, the impact becomes a material earnings miss.
+
+**Action Code triggered:** C-P4.1 (Price Realization Recovery) — activates exception audit and pricing discipline review.
+
+### Scenario B: Gross Margin Collapse in a Key Category
+
+**Situation:** GM % in the Premium tier has dropped 4pp vs plan in the last 2 months. The margin bridge shows: price effect −1pp, mix effect −2pp (shift to lower-margin SKUs within the tier), COGS/unit effect −1pp.
+
+**Decision question:** Which of the three effects is controllable in the near term? The COGS/unit change is expected (input cost inflation); the mix and price effects are operational decisions.
+
+**Who decides:** CCO + Category Manager.
+
+**Consequence of inaction:** A 4pp GM drop on €50M category revenue = €2M annualized. If COGS is structural, the mix and price response must offset it within 2 quarters.
+
+**Action Code triggered:** C-M2.2 (Mix Recovery) and C-P4.1 (Price Recovery) — sequential activation based on root cause.
+
+### Scenario C: Unit Cost Spike Not Explained by Volume
+
+**Situation:** COGS/unit has risen 8% vs plan without a change in production volume. The cost bridge shows raw material cost as the driver (+6%) with overhead per unit flat.
+
+**Decision question:** Is this a one-time procurement event or a structural input cost increase? Does the list price need to be revised to recover margin?
+
+**Who decides:** Finance Controlling + Procurement + Pricing.
+
+**Consequence of inaction:** Margin erodes even as revenue meets plan. The Margin-First strategy pattern requires a pricing or cost response within 2 S&OP cycles.
+
+**Action Code triggered:** F-C1.2 (Cost Reduction) for procurement response; C-P4.1 for pricing pass-through assessment.
 
 ---
 

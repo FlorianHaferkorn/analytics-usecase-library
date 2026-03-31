@@ -1,6 +1,9 @@
 """
 Golden Thread Discovery Studio – Streamlit app.
 
+DEPRECATED: Superseded by the Next.js ActionReady Studio (PR #233).
+Kept for reference until PR #233 merges. Do not extend this file.
+
 Triple-pane: Sources (left), Discovery Chat (center), Living Tree + YAML Editor (right).
 Single global state (DiscoverySession); Tree and YAML stay in sync.
 """
@@ -28,6 +31,12 @@ from serializer import draft_to_bracket_dict, draft_to_yaml, yaml_to_draft
 from suggestion_parser import parse_kpi_suggestion
 from url_fetcher import fetch_url_text
 from validator import validate_bracket
+
+try:
+    from brand_designer import render_brand_designer
+    _BRAND_DESIGNER_OK = True
+except Exception:
+    _BRAND_DESIGNER_OK = False
 
 
 def _html_escape(s: str) -> str:
@@ -168,6 +177,31 @@ def _inject_notebooklm_css() -> None:
     )
 
 
+def _render_llm_status_badge() -> None:
+    """Show a sidebar status indicator for LLM configuration. Fails fast with clear guidance."""
+    import os
+    google_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+    openai_key = os.environ.get("OPENAI_API_KEY")
+    azure_key = os.environ.get("AZURE_OPENAI_API_KEY")
+    azure_endpoint = os.environ.get("AZURE_OPENAI_ENDPOINT")
+
+    if google_key:
+        st.sidebar.success("LLM: Google Gemini ✓")
+    elif azure_key and azure_endpoint:
+        st.sidebar.success("LLM: Azure OpenAI ✓")
+    elif openai_key:
+        st.sidebar.success("LLM: OpenAI ✓")
+    else:
+        st.sidebar.warning(
+            "**Discovery Chat not configured.**\n\n"
+            "Set one of the following in your `.env` file or environment:\n"
+            "- `GOOGLE_API_KEY` / `GEMINI_API_KEY`\n"
+            "- `OPENAI_API_KEY`\n"
+            "- `AZURE_OPENAI_API_KEY` + `AZURE_OPENAI_ENDPOINT`\n\n"
+            "Copy `.env.example` → `.env` to get started."
+        )
+
+
 def main() -> None:
     st.set_page_config(page_title="Golden Thread Discovery Studio", layout="wide")
 
@@ -175,6 +209,8 @@ def main() -> None:
     _init_session_state()
     repo_root = st.sidebar.text_input("Repo root", value=str(st.session_state.repo_root))
     st.session_state.repo_root = Path(repo_root) if repo_root else _REPO_ROOT
+
+    _render_llm_status_badge()
 
     project_mode = st.sidebar.radio("Project mode", ["greenfield", "brownfield"], index=0)
     _update_session({"project_mode": project_mode})
@@ -200,6 +236,21 @@ def main() -> None:
     session = _session()
     use_cases = session.get("use_cases") or []
 
+    tab_discovery, tab_brand = st.tabs(["Discovery", "Brand & Layout"])
+
+    with tab_brand:
+        if _BRAND_DESIGNER_OK:
+            render_brand_designer(repo_root=Path(repo_root) if repo_root else _REPO_ROOT)
+        else:
+            st.error("brand_designer.py konnte nicht geladen werden.")
+            st.info("Prüfe, ob `pyyaml` installiert ist: `pip install pyyaml`")
+
+    with tab_discovery:
+        _render_discovery(session, use_cases, repo_root)
+
+
+def _render_discovery(session: Any, use_cases: list, repo_root: str) -> None:
+    """Discovery triple-pane: Quellen | Chat | Studio."""
     # Triple-pane layout (NotebookLM: Quellen | Chat | Studio)
     col_sources, col_chat, col_artifacts = st.columns([3, 4, 4])
 

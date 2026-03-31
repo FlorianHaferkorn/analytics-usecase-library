@@ -10,7 +10,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Margin
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Gross Margin % = (Net Sales Amount - COGS Amount) / Net Sales Amount
+    aggregation_method: ratio
   documentation:
     description: Gross margin divided by net sales.
     notes: 'Grain: month (aggregated from invoice_line). Unit: %.
@@ -26,7 +27,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Cost of Goods Sold Amount]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Gross Margin Amount
@@ -36,7 +37,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Margin
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Gross Margin Amount = Net Sales Amount - COGS Amount
+    aggregation_method: sum
   documentation:
     description: 'Profit pool: net sales minus COGS.'
     notes: 'Grain: month. Unit: EUR.
@@ -52,7 +54,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Cost of Goods Sold Amount]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Gross Margin % vs Plan
@@ -62,7 +64,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Margin
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Gross Margin % vs Plan = (Gross Margin % - Plan Gross Margin %) / Plan Gross Margin %.
+    aggregation_method: ratio
   documentation:
     description: Relative variance of GM% versus plan.
     notes: 'Grain: month. Unit: percentage-point.
@@ -77,7 +80,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - '[Gross Margin %]'
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Promotion ROI %
@@ -87,7 +90,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Promotion ROI % = (Incremental GM Amount - Promo Cost Amount) / Promo Cost Amount
+    aggregation_method: ratio
   documentation:
     description: Incremental GM divided by promo cost.
     notes: 'Grain: promotion. Unit: %.
@@ -103,7 +107,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - '[Promo Cost Amount]'
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Promo ROI %
@@ -113,7 +117,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Promo ROI % = (Incremental GM Amount - Promo Cost Amount) / Promo Cost Amount
+    aggregation_method: ratio
   documentation:
     description: Alias for Promotion ROI % (TMDL display name).
     notes: Same as Promotion ROI %.
@@ -121,7 +126,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     measures: []
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Net Sales Amount
@@ -131,7 +136,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 00_Sales
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Net Sales Amount = SUM ( fact_sales[Net Sales Amount] )
+    aggregation_method: sum
   documentation:
     description: Total net sales after discounts.
     notes: 'Grain: invoice_line / month. Unit: EUR.
@@ -144,7 +150,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Net Sales Amount]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Gross Margin Amount LY
@@ -154,7 +160,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Margin
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Gross Margin Amount LY = [[Gross Margin Amount]]
+    aggregation_method: sum
   documentation:
     description: Last year gross margin for variance bridges.
     notes: 'Grain: month. Unit: EUR.
@@ -167,7 +174,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - '[Gross Margin Amount]'
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Gross Margin % LY
@@ -177,7 +184,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Margin
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Gross Margin % LY = [[Gross Margin %]]
+    aggregation_method: ratio
   documentation:
     description: Last year gross margin rate for variance analysis.
     notes: 'Grain: month. Unit: %.
@@ -190,7 +198,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - '[Gross Margin %]'
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Plan Gross Margin %
@@ -200,7 +208,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 01_Margin
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Plan Gross Margin % = SUM(fact_plan_sales[Plan Gross Margin Amount])
+    aggregation_method: ratio
   documentation:
     description: Planned gross margin rate for variance vs plan.
     notes: 'Grain: month. Unit: %.
@@ -214,7 +223,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_plan_sales[Plan Net Sales Amount]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Promo Cost Amount
@@ -224,7 +233,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Promo Cost Amount = SUM(fact_sales[Promo Cost Amount])
+    aggregation_method: sum
   documentation:
     description: Total promo spend for a promotion.
     notes: 'Grain: promotion / product. Unit: EUR.
@@ -237,7 +247,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Promo Cost Amount]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Promo COGS Amount
@@ -247,7 +257,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Promo COGS Amount = SUM(fact_sales[Cost of Goods Sold Amount])
+    aggregation_method: sum
   documentation:
     description: COGS limited to promo periods/products.
     notes: 'Grain: promotion / product. Unit: EUR.
@@ -261,7 +272,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Promo Flag]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Incremental Sales Amount
@@ -271,7 +282,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Incremental Sales Amount = [Net Sales Amount] - [Baseline Sales Amount]
+    aggregation_method: sum
   documentation:
     description: Additional sales due to promotion vs baseline.
     notes: 'Grain: promotion / product. Unit: EUR.
@@ -286,7 +298,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Promo Flag]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Incremental GM Amount
@@ -296,7 +308,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: Supporting
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Incremental GM Amount = [[Gross Margin Amount]]
+    aggregation_method: sum
   documentation:
     description: Incremental gross margin during promotion vs non-promo baseline.
     notes: 'Grain: promotion / product. Unit: EUR.
@@ -309,7 +322,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - '[Gross Margin Amount]'
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Promo Gross Margin %
@@ -319,13 +332,13 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 04_Promo
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Promo Gross Margin % = (Promo NS - Promo COGS) / Promo NS
+    aggregation_method: ratio
   documentation:
     description: GM rate during promotions.
     notes: 'Grain: promotion. Unit: %.
 
-      Lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount],
-      promo flag.
+      Lineage: fact_sales[Net Sales Amount], fact_sales[Cost of Goods Sold Amount], promo flag.
 
       QA: Promo filter context; DIVIDE guard.
 
@@ -337,7 +350,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_sales[Promo Flag]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v1.2
     last_review: TBD
 - measure_name: Cost Base Volume Amount
@@ -347,7 +360,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Cost
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Cost Base Volume Amount = Baseline amount of cost volume for the selected period.
+    aggregation_method: sum
   documentation:
     description: Baseline cost volume amount for variance analysis.
     notes: 'Grain: cost_center_month. Unit: EUR.
@@ -362,7 +376,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_cost[Base Volume Amount]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v0.1
     last_review: TBD
 - measure_name: Opex Base Amount
@@ -372,7 +386,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
   display_folder: 02_Cost
   category: KPI
   expression:
-    logical: 'Fabric: see overlay / TMDL.'
+    logical: Opex Base Amount = Baseline operating expense amount for the selected period.
+    aggregation_method: sum
   documentation:
     description: Baseline operating expense amount.
     notes: 'Grain: cost_center_month. Unit: EUR.
@@ -387,7 +402,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_opex[Opex Base Amount]
   governance:
     owner: Profitability Analytics
-    status: draft
+    status: active
     version: v0.1
     last_review: TBD
 ```
