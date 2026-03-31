@@ -1,14 +1,18 @@
 {
   "hooks": {
-    "PreToolUse": [
+    "PostToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 /home/user/analytics-usecase-library/tooling/hooks/pre_push_gate.py \"$TOOL_INPUT\"",
-            "timeout": 300000,
-            "description": "Run preflight checks before git push"
+            "command": "bash .claude/hooks/validate-tmdl.sh",
+            "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/validate-pbip-json.sh",
+            "timeout": 10000
           }
         ]
       }

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(curl -s https://raw.githubusercontent.com/data-goblin/power-bi-agentic-development/main/plugins/fabric-cli/skills/fabric-cli/SKILL.md)",
+      "Bash(py -3 -c \":*)"
+    ]
+  }
+}
