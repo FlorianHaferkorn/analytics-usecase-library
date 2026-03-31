@@ -40,6 +40,9 @@ python -m pytest tooling/tests/ -v
 # Run product tests only
 python -m pytest products/ -v
 
+# Local preflight (mirrors CI — run before pushing)
+python tooling/preflight.py
+
 # Registry builder (strict mode — used in CI)
 python tooling/ontology/registry_builder.py --strict
 

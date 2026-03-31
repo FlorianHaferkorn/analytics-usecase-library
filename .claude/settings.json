@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /home/user/analytics-usecase-library/tooling/hooks/pre_push_gate.py \"$TOOL_INPUT\"",
+            "timeout": 300000,
+            "description": "Run preflight checks before git push"
+          }
+        ]
+      }
+    ]
+  }
+}
