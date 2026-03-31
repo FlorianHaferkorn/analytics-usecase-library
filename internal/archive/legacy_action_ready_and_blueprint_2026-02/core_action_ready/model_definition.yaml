@@ -1,4 +1,0 @@
-model: Core Action-Ready Semantic Model
-version: v1.0
-purpose: Baseline semantic model supporting cross-domain action-ready KPIs.
-notes: Use KPI IDs and measure patterns from core/kpi_catalog and measure templates.

@@ -1,7 +1,0 @@
-expression GoldDataPath = "C:/Users/florianhaferkorn/VSCode/analytics-usecase-library/analytics-usecase-library/showcases/aurora_group/data/gold" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
-	lineageTag: gold-data-path-parameter
-
-	annotation PBI_NavigationStepName = GoldDataPath
-
-	annotation PBI_ResultType = Text
-

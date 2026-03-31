@@ -55,3 +55,7 @@ master_registry.json
 value_map.json
 governance_gaps.json
 orphans_report.json
+# Root-level Node artifacts (Studio lives in /studio)
+node_modules/
+package.json
+package-lock.json
