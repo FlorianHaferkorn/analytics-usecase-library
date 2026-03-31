@@ -5,7 +5,8 @@
       "Bash(gh auth:*)",
       "Bash(gh repo:*)",
       "Bash(gh pr:*)",
-      "Bash(gh run:*)"
+      "Bash(gh run:*)",
+      "Bash(ls \"C:\\\\Users\\\\florianhaferkorn\\\\VSCode\\\\analytics-usecase-library\\\\.claude\\\\worktrees\\\\unruffled-napier\\\\core\\\\usecases\\\\extended\"\" 2>/dev/null || echo \"EMPTY\":*)"
     ]
   }
 }
