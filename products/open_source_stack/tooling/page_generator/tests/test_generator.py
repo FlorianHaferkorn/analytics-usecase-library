@@ -188,3 +188,34 @@ ux_layout: {}
         pages = gen.generate()
         assert len(pages) == 1
         assert "overview" in pages[0].name
+
+        def test_ux_layout_rules_generates_two_pages(self, sample_ir, tmp_path):
+                bracket_content = """\
+schema_version: "2.0"
+use_case_id: COM-001
+ux_layout_rules:
+    page_1_summary:
+        title: Summary
+    page_2_execution:
+        title: Detail
+        component_300s:
+            evidence_columns:
+                - entity
+                - period
+                - margin.gm.pct
+"""
+                uc_dir = tmp_path / "core" / "usecases" / "core" / "COM-001_Sales_Performance"
+                uc_dir.mkdir(parents=True)
+                (uc_dir / "UseCase_Bracket.yaml").write_text(bracket_content)
+
+                gen = EvidencePageGenerator(
+                        use_case_id="COM-001",
+                        ir_path=sample_ir,
+                        repo_root=tmp_path,
+                        output_dir=tmp_path / "out",
+                )
+                gen.load()
+                pages = gen.generate()
+                names = [p.name for p in pages]
+                assert "com_001_overview.md" in names
+                assert "com_001_detail.md" in names

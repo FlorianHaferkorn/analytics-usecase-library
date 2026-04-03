@@ -16,7 +16,7 @@ import argparse
 import json
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 try:
     import yaml
@@ -90,9 +90,102 @@ def kpi_to_metric(kpi_node: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     }
 
 
-def generate_metrics_yaml(ir_path: Path) -> Dict[str, Any]:
+def _collect_required_kpi_ids(ir: Dict[str, Any], use_cases: Optional[List[str]] = None) -> List[str]:
+    use_case_objects = ir.get("objects", {}).get("use_cases", {})
+    measure_specs = ir.get("measure_spec", {})
+    selected = use_cases or sorted(use_case_objects.keys())
+    ordered: List[str] = []
+    seen: Set[str] = set()
+
+    def add_with_dependencies(kpi_id: str) -> None:
+        if not isinstance(kpi_id, str) or not kpi_id:
+            return
+        spec = measure_specs.get(kpi_id, {}) if isinstance(measure_specs, dict) else {}
+        dependencies = spec.get("depends_on_measures", []) if isinstance(spec, dict) else []
+        if isinstance(dependencies, list):
+            for dep in dependencies:
+                add_with_dependencies(dep)
+        if kpi_id not in seen:
+            seen.add(kpi_id)
+            ordered.append(kpi_id)
+
+    for use_case_id in selected:
+        use_case = use_case_objects.get(use_case_id, {}) if isinstance(use_case_objects, dict) else {}
+        orch = use_case.get("orchestration", {}) if isinstance(use_case, dict) else {}
+        for candidate in [orch.get("strategic_kpi_id")]:
+            if isinstance(candidate, str) and candidate:
+                add_with_dependencies(candidate)
+        for key in ("influencing_kpi_ids", "supporting_kpi_ids"):
+            values = orch.get(key, []) if isinstance(orch, dict) else []
+            if isinstance(values, list):
+                for value in values:
+                    if isinstance(value, str) and value:
+                        add_with_dependencies(value)
+
+    return ordered
+
+
+def kpi_to_core_metric(
+    kpi_id: str,
+    kpi_node: Dict[str, Any],
+    measure_spec: Dict[str, Any],
+    required_by_use_cases: List[str],
+) -> Dict[str, Any]:
+    label = kpi_node.get("label") or kpi_node.get("title") or measure_spec.get("kpi_key") or kpi_id
+    description = (
+        measure_spec.get("purpose")
+        or measure_spec.get("description")
+        or f"Core-governed KPI {kpi_id} exposed via generic metric observations"
+    )
+    metric_name = kpi_id.lower().replace("-", "_").replace(".", "_")
+    return {
+        "name": metric_name,
+        "label": label,
+        "description": description,
+        "type": "simple",
+        "type_params": {"measure": "metric_value"},
+        "meta": {
+            "kpi_id": kpi_id,
+            "source": "core_ir",
+            "calculation_logic_source": "core",
+            "required_by_use_cases": required_by_use_cases,
+            "semantic_projection": {
+                "table": "metric_observations",
+                "filter_column": "kpi_id",
+                "filter_value": kpi_id,
+            },
+        },
+    }
+
+
+def generate_metrics_yaml(
+    ir_path: Path,
+    mode: str = "legacy",
+    use_cases: Optional[List[str]] = None,
+) -> Dict[str, Any]:
     """Generate a dbt _metrics.yml structure from IR."""
     ir = json.loads(ir_path.read_text(encoding="utf-8-sig"))
+
+    if mode == "core":
+        objects = ir.get("objects", {})
+        kpi_objects = objects.get("kpis", {}) if isinstance(objects, dict) else {}
+        measure_specs = ir.get("measure_spec", {}) if isinstance(ir.get("measure_spec", {}), dict) else {}
+        selected_use_cases = use_cases or sorted((objects.get("use_cases", {}) or {}).keys())
+        required_kpi_ids = _collect_required_kpi_ids(ir, selected_use_cases)
+
+        metrics = []
+        for kpi_id in required_kpi_ids:
+            kpi_node = kpi_objects.get(kpi_id, {}) if isinstance(kpi_objects, dict) else {}
+            metric = kpi_to_core_metric(
+                kpi_id=kpi_id,
+                kpi_node=kpi_node if isinstance(kpi_node, dict) else {},
+                measure_spec=measure_specs.get(kpi_id, {}) if isinstance(measure_specs.get(kpi_id, {}), dict) else {},
+                required_by_use_cases=selected_use_cases,
+            )
+            metrics.append(metric)
+
+        return {"version": 2, "metrics": metrics}
+
     kpi_nodes = [n for n in ir.get("nodes", []) if n.get("type") == "kpi"]
 
     metrics = []
@@ -118,9 +211,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Generate dbt metrics from IR")
     parser.add_argument("--ir-path", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--mode", choices=["legacy", "core"], default="legacy")
+    parser.add_argument("--use-cases", default="", help="Comma-separated use case IDs to scope generated metrics")
     args = parser.parse_args()
 
-    metrics = generate_metrics_yaml(args.ir_path)
+    use_cases = [item.strip() for item in args.use_cases.split(",") if item.strip()]
+    metrics = generate_metrics_yaml(args.ir_path, mode=args.mode, use_cases=use_cases or None)
     out = write_metrics_file(metrics, args.output_dir / "_metrics.yml")
     print(f"  Generated {len(metrics.get('metrics', []))} metrics → {out}")
 

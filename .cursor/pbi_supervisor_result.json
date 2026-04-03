@@ -1,0 +1,120 @@
+﻿{
+    "policy":  "fabric-report-production",
+    "policyVersion":  "1.1.0",
+    "repoRoot":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library",
+    "scope":  {
+                  "value":  "COM-001",
+                  "type":  "UseCase"
+              },
+    "publishEnvironment":  "tst",
+    "startedAt":  "2026-04-03T14:29:33.0156164+02:00",
+    "iterations":  [
+                       {
+                           "iteration":  1,
+                           "timestamp":  "2026-04-03T14:29:33.0704349+02:00",
+                           "build":  {
+                                         "output":  [
+                                                        "orchestrate_full_model failed: Specify only one of: -UseCase, -Domain, -All (not multiple)"
+                                                    ],
+                                         "exitCode":  1,
+                                         "passed":  false
+                                     },
+                           "validation":  null,
+                           "classifications":  [
+
+                                               ],
+                           "deterministicFixes":  [
+
+                                                  ],
+                           "llmFix":  null,
+                           "publish":  null,
+                           "smokeTest":  null
+                       },
+                       {
+                           "iteration":  2,
+                           "timestamp":  "2026-04-03T14:29:33.4990039+02:00",
+                           "build":  {
+                                         "output":  [
+                                                        "orchestrate_full_model failed: Specify only one of: -UseCase, -Domain, -All (not multiple)"
+                                                    ],
+                                         "exitCode":  1,
+                                         "passed":  false
+                                     },
+                           "validation":  null,
+                           "classifications":  [
+
+                                               ],
+                           "deterministicFixes":  [
+
+                                                  ],
+                           "llmFix":  null,
+                           "publish":  null,
+                           "smokeTest":  null
+                       },
+                       {
+                           "iteration":  3,
+                           "timestamp":  "2026-04-03T14:29:33.5554257+02:00",
+                           "build":  {
+                                         "output":  [
+                                                        "orchestrate_full_model failed: Specify only one of: -UseCase, -Domain, -All (not multiple)"
+                                                    ],
+                                         "exitCode":  1,
+                                         "passed":  false
+                                     },
+                           "validation":  null,
+                           "classifications":  [
+
+                                               ],
+                           "deterministicFixes":  [
+
+                                                  ],
+                           "llmFix":  null,
+                           "publish":  null,
+                           "smokeTest":  null
+                       },
+                       {
+                           "iteration":  4,
+                           "timestamp":  "2026-04-03T14:29:33.6043586+02:00",
+                           "build":  {
+                                         "output":  [
+                                                        "orchestrate_full_model failed: Specify only one of: -UseCase, -Domain, -All (not multiple)"
+                                                    ],
+                                         "exitCode":  1,
+                                         "passed":  false
+                                     },
+                           "validation":  null,
+                           "classifications":  [
+
+                                               ],
+                           "deterministicFixes":  [
+
+                                                  ],
+                           "llmFix":  null,
+                           "publish":  null,
+                           "smokeTest":  null
+                       },
+                       {
+                           "iteration":  5,
+                           "timestamp":  "2026-04-03T14:29:33.6570781+02:00",
+                           "build":  {
+                                         "output":  [
+                                                        "orchestrate_full_model failed: Specify only one of: -UseCase, -Domain, -All (not multiple)"
+                                                    ],
+                                         "exitCode":  1,
+                                         "passed":  false
+                                     },
+                           "validation":  null,
+                           "classifications":  [
+
+                                               ],
+                           "deterministicFixes":  [
+
+                                                  ],
+                           "llmFix":  null,
+                           "publish":  null,
+                           "smokeTest":  null
+                       }
+                   ],
+    "completedAt":  "2026-04-03T14:29:33.7189716+02:00",
+    "success":  false
+}

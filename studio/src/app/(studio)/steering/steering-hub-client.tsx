@@ -2,9 +2,12 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { useProjectStore } from '@/lib/store/project-store';
 import { GoldenThreadFlow, type GoldenThreadData } from '@/components/flow/golden-thread-flow';
-import { toYaml } from '@/lib/core/yaml-loader';
+import { parseYaml, toYaml } from '@/lib/core/yaml-loader';
+import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 import { ExportReportButton } from '@/components/steering/export-report-button';
+import { StudioButton, StudioField, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel, StudioSegmentedControl, StudioToolbar } from '@/components/ui/studio-page';
 
 const YamlEditor = dynamic(
   () => import('@/components/editor/yaml-editor').then((m) => m.YamlEditor),
@@ -26,6 +29,8 @@ interface Props {
   brackets: BracketData[];
   actionDetails: Array<[string, { name: string; status: string; domain: string; triggerKpis: string[] }]>;
   bracketYamls: Record<string, string>;
+  initialSelectedBracket?: string | null;
+  draftBracketId?: string | null;
 }
 
 type ViewMode = 'flow' | 'split' | 'editor';
@@ -50,12 +55,92 @@ function extractBracketData(parsed: Record<string, unknown>): Partial<BracketDat
   return result;
 }
 
-export function SteeringHubClient({ strategyAnchor, brackets: initialBrackets, actionDetails, bracketYamls: initialYamls }: Props) {
-  const [selectedBracket, setSelectedBracket] = useState<string | null>(null);
+export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: initialBrackets, actionDetails, bracketYamls: initialYamls, initialSelectedBracket = null, draftBracketId = null }: Props) {
+  const storeAnchor = useProjectStore((s) => s.strategyAnchor);
+  const strategyAnchor = storeAnchor || initialAnchor;
+
+  const [selectedBracket, setSelectedBracket] = useState<string | null>(initialSelectedBracket);
   const [viewMode, setViewMode] = useState<ViewMode>('flow');
   const [brackets, setBrackets] = useState<BracketData[]>(initialBrackets);
   const [bracketYamls, setBracketYamls] = useState<Record<string, string>>(initialYamls);
   const [syncStatus, setSyncStatus] = useState<'synced' | 'dirty' | 'error'>('synced');
+  const [isSaving, setIsSaving] = useState(false);
+  const [activeDraftBracketId, setActiveDraftBracketId] = useState<string | null>(draftBracketId);
+  const [createTargetId, setCreateTargetId] = useState(() => (draftBracketId && /^DRAFT-/.test(draftBracketId) ? 'XD-900' : draftBracketId ?? ''));
+  const [createTargetTitle, setCreateTargetTitle] = useState(() => (initialSelectedBracket ? initialBrackets.find((bracket) => bracket.id === initialSelectedBracket)?.title ?? '' : ''));
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [creatingBracket, setCreatingBracket] = useState(false);
+
+  const handleSave = useCallback(async () => {
+    if (!selectedBracket || syncStatus !== 'dirty') return;
+    if (activeDraftBracketId && selectedBracket === activeDraftBracketId) return;
+    const yaml = bracketYamls[selectedBracket];
+    if (!yaml) return;
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/core/brackets/${encodeURIComponent(selectedBracket)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ yaml }),
+      });
+      if (res.ok) {
+        setSyncStatus('synced');
+      } else {
+        console.error('Save failed', await res.text());
+      }
+    } catch (err) {
+      console.error('Save error', err);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [selectedBracket, syncStatus, bracketYamls, activeDraftBracketId]);
+
+  const handleCreateFromDraft = useCallback(async () => {
+    if (!selectedBracket || !activeDraftBracketId || selectedBracket !== activeDraftBracketId) return;
+    const yaml = bracketYamls[selectedBracket];
+    if (!yaml || !createTargetId.trim() || !createTargetTitle.trim()) return;
+
+    setCreatingBracket(true);
+    setCreateError(null);
+    try {
+      const parsed = parseYaml<UseCaseBracketV20Lean>(yaml);
+      parsed.id = createTargetId.trim();
+      parsed.title = createTargetTitle.trim();
+      parsed.documentation = { business_factsheet: './Business_Factsheet.md' };
+
+      const response = await fetch('/api/core/brackets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: createTargetId.trim(), title: createTargetTitle.trim(), yaml: toYaml(parsed) }),
+      });
+      const json = await response.json() as { error?: { message?: string } };
+      if (!response.ok) {
+        setCreateError(json.error?.message ?? `HTTP ${response.status}`);
+        return;
+      }
+
+      const nextYaml = toYaml(parsed);
+      const previousDraftId = selectedBracket;
+      setBrackets((prev) => prev.map((bracket) => bracket.id === previousDraftId ? {
+        ...bracket,
+        id: createTargetId.trim(),
+        title: createTargetTitle.trim(),
+      } : bracket));
+      setBracketYamls((prev) => {
+        const next = { ...prev };
+        delete next[previousDraftId];
+        next[createTargetId.trim()] = nextYaml;
+        return next;
+      });
+      setSelectedBracket(createTargetId.trim());
+      setActiveDraftBracketId(null);
+      setSyncStatus('synced');
+    } catch (error) {
+      setCreateError(error instanceof Error ? error.message : 'Bracket creation failed');
+    } finally {
+      setCreatingBracket(false);
+    }
+  }, [selectedBracket, activeDraftBracketId, bracketYamls, createTargetId, createTargetTitle]);
 
   const flowData = useMemo<GoldenThreadData>(() => {
     const filtered = selectedBracket
@@ -118,6 +203,12 @@ export function SteeringHubClient({ strategyAnchor, brackets: initialBrackets, a
   const showFlow = viewMode === 'flow' || viewMode === 'split';
   const showEditor = viewMode === 'editor' || viewMode === 'split';
 
+  const handleBracketSelectFromFlow = useCallback((useCaseId: string) => {
+    setSelectedBracket(useCaseId);
+    setViewMode('split');
+    setSyncStatus('synced');
+  }, []);
+
   const syncIndicator = syncStatus === 'synced'
     ? { color: 'var(--mint)', label: 'Synced' }
     : syncStatus === 'dirty'
@@ -125,83 +216,133 @@ export function SteeringHubClient({ strategyAnchor, brackets: initialBrackets, a
       : { color: 'var(--danger)', label: 'Parse Error' };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)', height: 'calc(100vh - 56px - var(--sp-6))' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)', flexShrink: 0 }}>
-        <select
-          value={selectedBracket ?? ''}
-          onChange={(e) => { setSelectedBracket(e.target.value || null); setSyncStatus('synced'); }}
-          style={{
-            padding: 'var(--sp-1) var(--sp-1-5)',
-            backgroundColor: 'var(--slate-800)',
-            border: '1px solid var(--slate-700)',
-            borderRadius: 'var(--radius-md)',
-            color: 'var(--slate-100)',
-            fontSize: '0.875rem',
-          }}
-        >
-          <option value="">All Use Cases ({brackets.length})</option>
-          {brackets.map((b) => (
-            <option key={b.id} value={b.id}>{b.id} — {b.title}</option>
-          ))}
-        </select>
+    <StudioPage fill>
+      <StudioPageHeader
+        eyebrow="Studio / Decision Design"
+        title="Steering"
+        description="Navigate the golden thread, refine bracket YAML, and turn draft scaffolds into governed use cases without leaving the same working surface."
+        badge={selectedBracket ?? `All ${brackets.length}`}
+        tone="success"
+        actions={<ExportReportButton />}
+      />
 
-        <div style={{ display: 'flex', backgroundColor: 'var(--slate-800)', borderRadius: 'var(--radius-md)', border: '1px solid var(--slate-700)', overflow: 'hidden' }}>
-          {(['flow', 'split', 'editor'] as const).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => setViewMode(mode)}
-              style={{
-                padding: 'var(--sp-0-5) var(--sp-1-5)',
-                backgroundColor: viewMode === mode ? 'var(--slate-700)' : 'transparent',
-                border: 'none',
-                color: viewMode === mode ? 'var(--slate-50)' : 'var(--slate-500)',
-                fontSize: '0.75rem',
-                fontWeight: viewMode === mode ? 600 : 400,
-                cursor: 'pointer',
-              }}
-            >
-              {mode === 'split' ? 'Flow + YAML' : mode === 'flow' ? 'Flow' : 'YAML'}
-            </button>
-          ))}
-        </div>
+      <StudioMetricBar>
+        <StudioMetric label="Use Cases" value={brackets.length} meta="loaded into steering graph" tone="info" />
+        <StudioMetric label="Drivers" value={totalDrivers} meta="in linked brackets" />
+        <StudioMetric label="Action gaps" value={actionGapCount} meta={actionGapCount > 0 ? 'drivers without linked action' : 'all drivers covered'} tone={actionGapCount > 0 ? 'warning' : 'success'} />
+        <StudioMetric label="Sync" value={selectedBracket ? syncIndicator.label : 'overview'} meta={selectedBracket ? 'current bracket state' : 'aggregate mode'} tone={syncStatus === 'error' ? 'warning' : syncStatus === 'dirty' ? 'warning' : 'success'} />
+      </StudioMetricBar>
+
+      <StudioToolbar>
+        <StudioField label="Bracket focus">
+          <select
+            value={selectedBracket ?? ''}
+            onChange={(e) => { setSelectedBracket(e.target.value || null); setSyncStatus('synced'); }}
+            style={{
+              padding: 'var(--sp-1) var(--sp-1-5)',
+              backgroundColor: 'var(--slate-900)',
+              border: '1px solid var(--slate-700)',
+              borderRadius: 'var(--radius-md)',
+              color: 'var(--slate-100)',
+              fontSize: '0.875rem',
+              minWidth: '280px',
+            }}
+          >
+            <option value="">All Use Cases ({brackets.length})</option>
+            {Object.entries(
+              brackets.reduce<Record<string, BracketData[]>>((acc, b) => {
+                (acc[b.domain] ??= []).push(b);
+                return acc;
+              }, {})
+            ).sort(([a], [b]) => a.localeCompare(b)).map(([domain, items]) => (
+              <optgroup key={domain} label={domain}>
+                {items.map((b) => (
+                  <option key={b.id} value={b.id}>{b.id}{activeDraftBracketId === b.id ? ' [Draft]' : ''} — {b.title}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </StudioField>
+
+        <StudioField label="Workspace mode">
+          <StudioSegmentedControl
+            value={viewMode}
+            onChange={setViewMode}
+            options={[
+              { value: 'flow', label: 'Flow' },
+              { value: 'split', label: 'Flow + YAML' },
+              { value: 'editor', label: 'YAML' },
+            ]}
+          />
+        </StudioField>
 
         <div style={{ flex: 1 }} />
 
-        {selectedBracket && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+        {selectedBracket ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            {activeDraftBracketId === selectedBracket && (
+              <span style={{ fontSize: '0.6875rem', color: 'var(--info)' }}>Draft scaffold loaded</span>
+            )}
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: syncIndicator.color }} />
             <span style={{ fontSize: '0.6875rem', color: syncIndicator.color }}>{syncIndicator.label}</span>
+            {syncStatus === 'dirty' && activeDraftBracketId !== selectedBracket && (
+              <StudioButton onClick={() => void handleSave()} tone="success" variant="secondary" disabled={isSaving} style={{ padding: '6px 10px' }}>
+                {isSaving ? 'Saving…' : 'Save to core/'}
+              </StudioButton>
+            )}
           </div>
-        )}
-
-        <ExportReportButton />
-
-        <div style={{ display: 'flex', gap: 'var(--sp-2)', fontSize: '0.75rem' }}>
-          <span style={{ color: 'var(--mint)' }}>{brackets.length} Use Cases</span>
-          <span style={{ color: 'var(--slate-400)' }}>{totalDrivers} Drivers</span>
-          {actionGapCount > 0 && (
-            <span style={{ color: 'var(--gold)' }}>{actionGapCount} Action Gaps</span>
-          )}
-        </div>
-      </div>
+        ) : null}
+      </StudioToolbar>
 
       <div style={{ flex: 1, display: 'flex', gap: 'var(--sp-2)', minHeight: 0 }}>
         {showFlow && (
-          <div style={{ flex: 1, backgroundColor: 'var(--slate-950)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--slate-700)', overflow: 'hidden' }}>
-            <GoldenThreadFlow data={flowData} />
-          </div>
+          <StudioPanel title="Golden Thread Flow" description="Explore strategy anchors, drivers, and action-code coverage visually." tone="success" style={{ flex: 1, padding: 0, overflow: 'hidden' }}>
+            <GoldenThreadFlow data={flowData} onBracketSelect={handleBracketSelectFromFlow} />
+          </StudioPanel>
         )}
         {showEditor && (
-          <div style={{ flex: 1, backgroundColor: 'var(--slate-950)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--slate-700)', overflow: 'hidden' }}>
+          <StudioPanel title="Bracket YAML" description="Inspect and refine the machine-readable source of truth for the selected bracket." tone="info" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
+            {activeDraftBracketId === selectedBracket && (
+              <div style={{ padding: 'var(--sp-1)', borderBottom: '1px solid var(--slate-700)', backgroundColor: 'var(--slate-900)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr auto', gap: '8px', alignItems: 'end' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.625rem', color: 'var(--slate-500)', marginBottom: '4px' }}>Target ID</label>
+                    <input
+                      value={createTargetId}
+                      onChange={(event) => setCreateTargetId(event.target.value.toUpperCase())}
+                      style={{ width: '100%', padding: '6px 8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--slate-700)', backgroundColor: 'var(--slate-950)', color: 'var(--slate-100)', fontSize: '0.75rem' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.625rem', color: 'var(--slate-500)', marginBottom: '4px' }}>Title</label>
+                    <input
+                      value={createTargetTitle}
+                      onChange={(event) => setCreateTargetTitle(event.target.value)}
+                      style={{ width: '100%', padding: '6px 8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--slate-700)', backgroundColor: 'var(--slate-950)', color: 'var(--slate-100)', fontSize: '0.75rem' }}
+                    />
+                  </div>
+                  <StudioButton
+                    onClick={() => void handleCreateFromDraft()}
+                    disabled={creatingBracket || !createTargetId.trim() || !createTargetTitle.trim()}
+                    tone="success"
+                    variant="secondary"
+                    style={{ padding: '7px 10px' }}
+                  >
+                    {creatingBracket ? 'Creating...' : 'Create in core/'}
+                  </StudioButton>
+                </div>
+                {createError && <p style={{ fontSize: '0.6875rem', color: 'var(--danger)' }}>{createError}</p>}
+              </div>
+            )}
             <YamlEditor
               initialValue={editorContent}
               onChange={handleYamlChange}
               readOnly={!selectedBracket}
               height="100%"
             />
-          </div>
+          </StudioPanel>
         )}
       </div>
-    </div>
+    </StudioPage>
   );
 }

@@ -10,7 +10,6 @@ interface ChatMessage {
 }
 
 interface Props {
-  apiKey: string;
   context: string;
   onExtract: (content: string) => void;
   onToolResult?: (toolName: string, result: unknown) => void;
@@ -29,7 +28,7 @@ function parseStreamEvent(line: string): { type: string; data: unknown } | null 
   }
 }
 
-export function DiscoveryChat({ apiKey, context, onExtract, onToolResult }: Props) {
+export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -55,7 +54,6 @@ export function DiscoveryChat({ apiKey, context, onExtract, onToolResult }: Prop
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: updatedMessages.map((m) => ({ role: m.role, content: m.content })),
-          apiKey,
           context: context || undefined,
         }),
       });
@@ -138,8 +136,6 @@ export function DiscoveryChat({ apiKey, context, onExtract, onToolResult }: Prop
     }
   };
 
-  const hasKey = apiKey.length > 0;
-
   return (
     <div
       style={{
@@ -170,11 +166,9 @@ export function DiscoveryChat({ apiKey, context, onExtract, onToolResult }: Prop
                 Start a Discovery Session
               </p>
               <p style={{ fontSize: '0.8125rem', color: 'var(--slate-400)', lineHeight: 1.6 }}>
-                {hasKey
-                  ? 'Upload a source document, then ask the AI to extract strategy anchors, KPIs, and action codes.'
-                  : 'Enter your API key in the settings panel below to start chatting.'}
+                Upload a source document, then ask the AI to extract strategy anchors, KPIs, and action codes.
               </p>
-              {hasKey && context && (
+              {context && (
                 <p style={{ fontSize: '0.75rem', color: 'var(--mint)', marginTop: 'var(--sp-1)' }}>
                   {Math.round(context.length / 4)} tokens of context loaded
                 </p>
@@ -197,7 +191,7 @@ export function DiscoveryChat({ apiKey, context, onExtract, onToolResult }: Prop
                 <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginBottom: '4px', fontWeight: 600 }}>
                   {msg.role === 'user' ? 'You' : 'AI'}
                 </p>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--slate-100)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                <div style={{ fontSize: '0.8125rem', color: 'var(--slate-100)', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
                   {msg.content}
                 </div>
               </div>
@@ -218,8 +212,8 @@ export function DiscoveryChat({ apiKey, context, onExtract, onToolResult }: Prop
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={hasKey ? 'Ask about strategy, KPIs, or actions...' : 'Enter API key first...'}
-            disabled={!hasKey || isLoading}
+            placeholder="Ask about strategy, KPIs, or actions..."
+            disabled={isLoading}
             style={{
               flex: 1,
               padding: 'var(--sp-1) var(--sp-1-5)',
@@ -232,17 +226,17 @@ export function DiscoveryChat({ apiKey, context, onExtract, onToolResult }: Prop
           />
           <button
             onClick={sendMessage}
-            disabled={!hasKey || isLoading || !input.trim()}
+            disabled={isLoading || !input.trim()}
             style={{
               padding: 'var(--sp-1) var(--sp-2)',
-              backgroundColor: hasKey && input.trim() ? 'var(--mint)' : 'var(--slate-600)',
+              backgroundColor: input.trim() ? 'var(--mint)' : 'var(--slate-600)',
               borderRadius: 'var(--radius-md)',
               border: 'none',
               color: 'var(--slate-950)',
               fontWeight: 600,
               fontSize: '0.875rem',
-              cursor: hasKey && input.trim() ? 'pointer' : 'not-allowed',
-              opacity: hasKey && input.trim() ? 1 : 0.5,
+              cursor: input.trim() ? 'pointer' : 'not-allowed',
+              opacity: input.trim() ? 1 : 0.5,
             }}
           >
             Send

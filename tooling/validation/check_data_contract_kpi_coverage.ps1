@@ -60,7 +60,7 @@ Get-ChildItem -Path $bracketsDir -Recurse -Filter "UseCase_Bracket.yaml" -ErrorA
   foreach ($m in [regex]::Matches($factsBlock, '(?m)-\s+(fact_\w+)')) {
     $factName = $m.Groups[1].Value
     if (-not $contractFactTables.ContainsKey($factName)) {
-      $issues += "$ucId: required fact table '$factName' not found in any data contract domain file"
+      $issues += "${ucId}: required fact table '$factName' not found in any data contract domain file"
     }
   }
 }

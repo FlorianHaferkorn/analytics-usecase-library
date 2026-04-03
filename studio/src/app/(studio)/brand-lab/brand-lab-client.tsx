@@ -3,12 +3,14 @@
 import { useState, useCallback } from 'react';
 import { ColorPicker } from '@/components/brand/color-picker';
 import { LayoutPreview } from '@/components/brand/layout-preview';
+import { VisualGallery } from '@/components/brand/visual-gallery';
 import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { ThemeExportPanel } from '@/components/brand/theme-export-panel';
 import { CssPreview } from '@/components/brand/css-preview';
 import { ContrastBadge } from '@/components/brand/contrast-badge';
 import { useProjectStore, DEFAULT_THEME } from '@/lib/store/project-store';
 import type { ThemeConfig } from '@/lib/store/project-store';
+import { StudioButton, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel, StudioSegmentedControl, StudioToolbar } from '@/components/ui/studio-page';
 
 const PRESET_THEMES: Record<string, Partial<ThemeConfig>> = {
   'Aurora Monochromatic': {
@@ -42,6 +44,7 @@ export function BrandLabClient() {
   const projectId = useProjectStore((s) => s.projectId);
   const storeSetTheme = useProjectStore((s) => s.setTheme);
   const [activeLayer, setActiveLayer] = useState<'3s' | '30s' | '300s'>('3s');
+  const [activeBottomTab, setActiveBottomTab] = useState<'overview' | 'gallery'>('overview');
   const [saving, setSaving] = useState(false);
 
   const updateTheme = (partial: Partial<ThemeConfig>) => {
@@ -61,8 +64,26 @@ export function BrandLabClient() {
     }
   }, [projectId, theme]);
 
+  const themeChanged = JSON.stringify(theme) !== JSON.stringify(DEFAULT_THEME);
+
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 'var(--sp-3)', height: 'calc(100vh - 56px - var(--sp-6))' }}>
+    <StudioPage fill>
+      <StudioPageHeader
+        eyebrow="Studio / Design"
+        title="Brand Lab"
+        description="Tune theme tokens, preview the 3-30-300 experience, and export a coherent visual language without page-specific styling drift."
+        badge={theme.fontFamily}
+        tone="warning"
+        actions={<StudioButton onClick={() => void handleSaveTheme()} tone="warning" variant="primary" disabled={saving}>{saving ? 'Saving…' : 'Save Theme'}</StudioButton>}
+      />
+
+      <StudioMetricBar>
+        <StudioMetric label="Preset state" value={themeChanged ? 'custom' : 'default'} meta="theme token divergence" tone={themeChanged ? 'warning' : 'success'} />
+        <StudioMetric label="Preview layer" value={activeLayer} meta="active dashboard focus" tone="info" />
+        <StudioMetric label="Preview tab" value={activeBottomTab} meta="bottom canvas mode" />
+      </StudioMetricBar>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '320px minmax(0, 1fr)', gap: 'var(--sp-3)', minHeight: 0, flex: 1 }}>
       {/* Left: Theme Editor */}
       <div
         style={{
@@ -73,17 +94,7 @@ export function BrandLabClient() {
         }}
       >
         {/* Presets */}
-        <div
-          style={{
-            padding: 'var(--sp-2)',
-            backgroundColor: 'var(--slate-800)',
-            borderRadius: 'var(--radius-lg)',
-            border: '1px solid var(--slate-700)',
-          }}
-        >
-          <h3 style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--slate-100)', marginBottom: 'var(--sp-1-5)' }}>
-            Presets
-          </h3>
+        <StudioPanel title="Presets" description="Seed the theme with a visual direction before fine-tuning individual tokens." tone="warning">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-1)' }}>
             {Object.entries(PRESET_THEMES).map(([name, preset]) => (
               <button
@@ -107,20 +118,10 @@ export function BrandLabClient() {
               </button>
             ))}
           </div>
-        </div>
+        </StudioPanel>
 
         {/* Color Editors */}
-        <div
-          style={{
-            padding: 'var(--sp-2)',
-            backgroundColor: 'var(--slate-800)',
-            borderRadius: 'var(--radius-lg)',
-            border: '1px solid var(--slate-700)',
-          }}
-        >
-          <h3 style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--slate-100)', marginBottom: 'var(--sp-1-5)' }}>
-            Colors
-          </h3>
+        <StudioPanel title="Colors" description="Work directly on primary, contrast, surface and accent tokens." tone="info">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1-5)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)' }}>
               <div style={{ flex: 1 }}><ColorPicker label="Primary" value={theme.primary} onChange={(v) => updateTheme({ primary: v })} /></div>
@@ -138,20 +139,10 @@ export function BrandLabClient() {
               <ContrastBadge fg={theme.text} bg={theme.background} />
             </div>
           </div>
-        </div>
+        </StudioPanel>
 
         {/* Typography & Spacing */}
-        <div
-          style={{
-            padding: 'var(--sp-2)',
-            backgroundColor: 'var(--slate-800)',
-            borderRadius: 'var(--radius-lg)',
-            border: '1px solid var(--slate-700)',
-          }}
-        >
-          <h3 style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--slate-100)', marginBottom: 'var(--sp-1-5)' }}>
-            Typography & Layout
-          </h3>
+        <StudioPanel title="Typography & Layout" description="Control typography rhythm, radius and shadow from one governed surface.">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
             <div>
               <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>Font Family</label>
@@ -253,52 +244,55 @@ export function BrandLabClient() {
               </select>
             </div>
           </div>
-        </div>
+        </StudioPanel>
       </div>
 
       {/* Right: Preview */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
-        {/* Layer Tabs */}
-        <div style={{ display: 'flex', gap: 'var(--sp-1)' }}>
-          {(['3s', '30s', '300s'] as const).map((layer) => (
-            <button
-              key={layer}
-              onClick={() => setActiveLayer(layer)}
-              style={{
-                padding: 'var(--sp-1) var(--sp-2)',
-                backgroundColor: activeLayer === layer ? 'var(--slate-700)' : 'var(--slate-800)',
-                border: `1px solid ${activeLayer === layer ? 'var(--mint)' : 'var(--slate-700)'}`,
-                borderRadius: 'var(--radius-md)',
-                color: activeLayer === layer ? 'var(--slate-50)' : 'var(--slate-400)',
-                fontSize: '0.8125rem',
-                fontWeight: activeLayer === layer ? 600 : 400,
-                cursor: 'pointer',
-                transition: 'all var(--duration-fast) var(--ease-out)',
-              }}
-            >
-              {layer === '3s' ? 'Pulse (3s)' : layer === '30s' ? 'Investigator (30s)' : 'Action (300s)'}
-            </button>
-          ))}
-        </div>
+        <StudioToolbar>
+          <StudioSegmentedControl
+            value={activeLayer}
+            onChange={setActiveLayer}
+            options={[
+              { value: '3s', label: 'Pulse (3s)' },
+              { value: '30s', label: 'Investigator (30s)' },
+              { value: '300s', label: 'Action (300s)' },
+            ]}
+          />
+        </StudioToolbar>
 
         {/* Live Dashboard Preview */}
-        <div style={{ flex: 1 }}>
+        <StudioPanel title="Live Dashboard Preview" description="Inspect the active layer with the current theme tokens applied." tone="success" style={{ flex: 1 }}>
           <DashboardLayout theme={theme} layer={activeLayer} />
-        </div>
+        </StudioPanel>
 
-        {/* All layers side by side */}
-        <div>
-          <h3 style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--slate-100)', marginBottom: 'var(--sp-1)' }}>
-            3-30-300 Overview
-          </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--sp-1)' }}>
-            {(['3s', '30s', '300s'] as const).map((layer) => (
-              <div key={layer} style={{ transform: 'scale(1)', transformOrigin: 'top left' }}>
-                <LayoutPreview theme={theme} layer={layer} />
-              </div>
-            ))}
+        {/* Bottom: 3-30-300 Overview + Visual Gallery (tabbed) */}
+        <StudioPanel title="Preview Modes" description="Switch between structural overview and visual gallery without leaving the page.">
+          <div style={{ marginBottom: 'var(--sp-1)' }}>
+            <StudioSegmentedControl
+              value={activeBottomTab}
+              onChange={setActiveBottomTab}
+              options={[
+                { value: 'overview', label: '3-30-300 Übersicht' },
+                { value: 'gallery', label: 'Visual Gallery' },
+              ]}
+            />
           </div>
-        </div>
+
+          {activeBottomTab === 'overview' && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--sp-1)' }}>
+              {(['3s', '30s', '300s'] as const).map((layer) => (
+                <div key={layer}>
+                  <LayoutPreview theme={theme} layer={layer} />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activeBottomTab === 'gallery' && (
+            <VisualGallery theme={theme} />
+          )}
+        </StudioPanel>
 
         {/* CSS Preview + Export */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)' }}>
@@ -306,6 +300,7 @@ export function BrandLabClient() {
           <ThemeExportPanel theme={theme} onSave={handleSaveTheme} saving={saving} />
         </div>
       </div>
-    </div>
+      </div>
+    </StudioPage>
   );
 }

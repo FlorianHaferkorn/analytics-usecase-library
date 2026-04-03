@@ -84,7 +84,7 @@ function extractYamlBlock(markdown: string): string {
  * each individually, skipping any that fail.
  */
 export async function loadKpiCatalog(): Promise<CatalogKpi[]> {
-  const raw = await readFile(KPI_CATALOG_PATH, 'utf-8');
+  const raw = (await readFile(KPI_CATALOG_PATH, 'utf-8')).replace(/\r\n/g, '\n');
   const yamlBlock = extractYamlBlock(raw);
   if (!yamlBlock) return [];
 

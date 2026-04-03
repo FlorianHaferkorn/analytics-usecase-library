@@ -34,6 +34,7 @@ export function KpiSlider({ kpiId, label, baseValue, value, unit, minRange, maxR
       </div>
       <input
         type="range"
+        title={`${kpiId} — aktuell: ${value.toFixed(1)}${unit}, Baseline: ${baseValue.toFixed(1)}${unit}, Bereich: ${min.toFixed(1)}–${max.toFixed(1)}${unit}`}
         min={min}
         max={max}
         step={(max - min) / 100}

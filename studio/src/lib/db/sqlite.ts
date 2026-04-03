@@ -112,6 +112,24 @@ function initSchema(db: Database.Database) {
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS bracket_review_comments (
+      id TEXT PRIMARY KEY,
+      bracket_id TEXT NOT NULL,
+      actor TEXT NOT NULL DEFAULT 'local-user',
+      comment TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS bracket_versions (
+      id TEXT PRIMARY KEY,
+      bracket_id TEXT NOT NULL,
+      label TEXT NOT NULL,
+      note TEXT,
+      yaml_content TEXT NOT NULL,
+      created_by TEXT NOT NULL DEFAULT 'local-user',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS rule_executions (
       id TEXT PRIMARY KEY,
       rule_id TEXT NOT NULL,

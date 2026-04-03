@@ -93,3 +93,4 @@ $timestampFile = (Get-Date -Format "yyyy-MM-dd_HHmm") + "_stage1.json"
 $json | Out-File -FilePath (Join-Path $runsDir $timestampFile) -Encoding utf8
 
 Write-Host "Stage 1 checks passed. Results written to tooling/validation/results/latest_results.json and internal/metrics/runs/$timestampFile" -ForegroundColor Green
+exit 0

@@ -49,7 +49,7 @@ All tools in the OSS stack must have zero license fees. When evaluating a new de
 
 ## Architecture reference
 
-See [ARCHITECTURE.md](../../products/open_source_stack/ARCHITECTURE.md) for full stack decisions, component boundaries, and the adapter contract.
+See [ARCHITECTURE.md](../../../products/open_source_stack/ARCHITECTURE.md) for full stack decisions, component boundaries, and the adapter contract.
 
 ## Skills to use
 

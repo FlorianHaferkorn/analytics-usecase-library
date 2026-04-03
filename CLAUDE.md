@@ -51,7 +51,7 @@ These rules are automatically checked after every Write/Edit on `.tmdl` files. V
 | Rule | Correct | Wrong |
 |---|---|---|
 | Indentation | Tabs only | Spaces |
-| DAX assignment | `= ` | `:=` |
+| DAX assignment | `=` | `:=` |
 | Measure docs | `/// Purpose: ...` comment above | `description:` property |
 | Numeric columns | Always include `summarizeBy: none` | Omit summarizeBy |
 | Measure formatting | Always include `formatString` | Omit formatString |

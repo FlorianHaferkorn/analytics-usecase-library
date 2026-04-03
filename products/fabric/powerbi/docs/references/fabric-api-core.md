@@ -72,7 +72,7 @@ Using the wrong audience is the most common cause of `401 Unauthorized`.
 >
 > **SQL double-slash gotcha**: With MSAL v1.0 endpoint, the scope must be `https://database.windows.net//.default` (double slash). The v2.0 endpoint handles this correctly.
 >
-> Ref: https://learn.microsoft.com/en-us/rest/api/fabric/articles/scopes
+> Ref: <https://learn.microsoft.com/en-us/rest/api/fabric/articles/scopes>
 
 ### Delegated vs Application Permissions
 
@@ -242,7 +242,7 @@ You can use `continuationUri` directly. Do **not** modify the token — it is op
 
 ### Long-Running Operations (LRO)
 
-> Ref: https://learn.microsoft.com/en-us/rest/api/fabric/articles/long-running-operation
+> Ref: <https://learn.microsoft.com/en-us/rest/api/fabric/articles/long-running-operation>
 
 Many mutating operations return `202 Accepted` with:
 - `Location` — poll URL

@@ -20,8 +20,12 @@ validation failures. Mirrors the Fabric `fix-pbi-report-errors` skill.
 
 1. **Run the validator and capture output:**
 
+   ```powershell
+   python products/open_source_stack/tooling/validate_oss.py --root . --json | Out-File -Encoding utf8 .cursor/oss_results.json
+   ```
+
    ```bash
-   python products/open_source_stack/tooling/validate_oss.py --root . --json > /tmp/oss_results.json
+   python products/open_source_stack/tooling/validate_oss.py --root . --json > .cursor/oss_results.json
    ```
 
 2. **Read the results** — each error has a check name, file, and message.
@@ -30,7 +34,7 @@ validation failures. Mirrors the Fabric `fix-pbi-report-errors` skill.
 
    | Error pattern | Root cause | Fix |
    |---------------|-----------|-----|
-   | Missing page title | Markdown doesn't start with `# ` | Add `# <Use Case Name>` as first line |
+   | Missing page title | Markdown doesn't start with `#` | Add `# <Use Case Name>` as first line |
    | No SQL query blocks | Page has no ```` ```sql name ```` blocks | Re-run generator or add SQL manually |
    | No Evidence components | Components missing or misspelled | Add `<BigValue>`, `<LineChart>` etc. |
    | SELECT * not allowed | Lazy SQL in a query block | Replace with explicit column list |
@@ -41,6 +45,10 @@ validation failures. Mirrors the Fabric `fix-pbi-report-errors` skill.
 4. **Apply fixes** in the `.md` file.
 
 5. **Re-run validation** to confirm:
+
+   ```powershell
+   python products/open_source_stack/tooling/validate_oss.py --root .
+   ```
 
    ```bash
    python products/open_source_stack/tooling/validate_oss.py --root .

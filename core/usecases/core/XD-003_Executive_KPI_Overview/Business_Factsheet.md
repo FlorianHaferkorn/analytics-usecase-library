@@ -50,7 +50,8 @@ factsheet_type: business
 
 | KPI ID | Role |
 |--------|------|
-| margin.gm.pct | Strategic |
+| enterprise.value_at_risk.index | Strategic |
+| margin.gm.pct | Influencing |
 | sales.net_sales.delta_pct.ly | Influencing |
 | crm.clv.amount | Influencing |
 | svc.sla.attainment.pct | Influencing |
@@ -60,7 +61,6 @@ factsheet_type: business
 | people.attrition_risk.pct | Influencing |
 | enterprise.action_routed.count | Influencing |
 | enterprise.action_outcome_rate.pct | Influencing |
-| enterprise.value_at_risk.index | Influencing |
 | cost.cogs.amount | Supporting |
 | sales.net_sales.amount | Supporting |
 | supply.otif.pct | Supporting |
@@ -87,6 +87,7 @@ Structured summary of action codes (definitions remain in YAML).
 ### 5.1 3-Second Layer (KPI Cards)
 
 - Net Sales % vs LY
+- Enterprise Value-at-Risk Index
 - Gross Margin %
 - Customer Lifetime Value Amount
 - OTIF %

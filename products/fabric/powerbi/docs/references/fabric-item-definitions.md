@@ -54,13 +54,13 @@ The `.platform` part contains item metadata (type, display name, description, lo
 | KQLDatabase | `JSON` | |
 | VariableLibrary | *(default — do NOT include format field)* | Critical gotcha |
 
-> Full schema index: https://github.com/microsoft/json-schemas/tree/main/fabric/item
+> Full schema index: <https://github.com/microsoft/json-schemas/tree/main/fabric/item>
 
 ---
 
 ### SemanticModel
 
-> Spec: https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/semantic-model-definition
+> Spec: <https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/semantic-model-definition>
 
 **Formats**: `TMSL`, `TMDL` (prefer TMDL — text-based, diff-friendly)
 
@@ -90,7 +90,7 @@ The `.platform` part contains item metadata (type, display name, description, lo
 
 ### Report
 
-> Spec: https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/report-definition
+> Spec: <https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/report-definition>
 > JSON Schemas: [`report/3.1.0`](https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.1.0/schema.json)
 
 **Formats**: `PBIR-Legacy`, `PBIR` (prefer PBIR — per-visual files, diff-friendly)
@@ -123,7 +123,7 @@ The `.platform` part contains item metadata (type, display name, description, lo
 
 ### Notebook
 
-> Spec: https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/notebook-definition
+> Spec: <https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/notebook-definition>
 
 **Formats**: `ipynb` (default), `FabricGitSource`
 
@@ -160,7 +160,7 @@ The `.platform` part contains item metadata (type, display name, description, lo
 
 ### DataPipeline
 
-> Spec: https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/datapipeline-definition
+> Spec: <https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/datapipeline-definition>
 
 **Formats**: *(default — no format parameter needed)*
 
@@ -201,7 +201,7 @@ The `.platform` part contains item metadata (type, display name, description, lo
 
 ### Lakehouse
 
-> Spec: https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/lakehouse-definition
+> Spec: <https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/lakehouse-definition>
 
 **Format**: `LakehouseDefinitionV1`
 
@@ -240,7 +240,7 @@ The `.platform` part contains item metadata (type, display name, description, lo
 
 ### SparkJobDefinition
 
-> Spec: https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/spark-job-definition
+> Spec: <https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/spark-job-definition>
 
 **Formats**: `SparkJobDefinitionV1`, `SparkJobDefinitionV2`
 
@@ -273,7 +273,7 @@ The `.platform` part contains item metadata (type, display name, description, lo
 
 ### VariableLibrary
 
-> Spec: https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/variable-library-definition
+> Spec: <https://learn.microsoft.com/en-us/rest/api/fabric/articles/item-management/definitions/variable-library-definition>
 
 > **CRITICAL**: Variable Library does **NOT** support the `format` field. Omit it entirely — including `"format": null` may cause errors.
 

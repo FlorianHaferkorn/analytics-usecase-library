@@ -1,0 +1,176 @@
+schema_version: '2.0'
+id: S-L1.2
+name: Route Network Rebalancing
+owner_domain: Supply Chain / Logistics Leadership
+impact_dimension: Delivery Reliability
+status: active
+owner_role: logistics_manager
+steward_role: supply_planning_logistics_bi_lead
+use_case_links:
+  core_use_cases: []
+  related_use_cases:
+  - SCM-IND-L001
+kpis:
+  trigger_kpis:
+  - supply.on_time.pct
+  - shipments.count
+  guardrail_kpis:
+  - supply.penalty.amount
+  outcome_kpis:
+  - supply.on_time.pct
+scope:
+  default_grain: route_region_week
+  default_perspective:
+  - Route
+  - Region
+  supported_slices:
+  - Carrier
+  - Delivery Window
+  exclusions:
+  - Temporary network cut-overs
+  - Trial routes without stable demand pattern
+  - Regions below minimum shipment density
+trigger:
+  type: Pattern
+  evaluation:
+    grain: route_region_week
+    window:
+      kind: rolling
+      length: 3
+      unit: periods
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 2
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: shipments.count
+        comparator: gte
+        value: 150
+        unit: count
+  levels:
+    L1:
+      severity: EarlyWarning
+      condition:
+        metric_kpi_id: supply.on_time.pct
+        comparator: lt
+        threshold:
+          basis: absolute
+          value: 97.0
+          unit: '%'
+        filters: []
+    L2:
+      severity: RequiredIntervention
+      condition:
+        metric_kpi_id: supply.on_time.pct
+        comparator: lt
+        threshold:
+          basis: absolute
+          value: 95.0
+          unit: '%'
+        filters: []
+    L3:
+      severity: PrescriptiveExecution
+      condition:
+        metric_kpi_id: supply.on_time.pct
+        comparator: lt
+        threshold:
+          basis: absolute
+          value: 93.0
+          unit: '%'
+        filters: []
+  gating_rules:
+  - Trigger only if delay patterns cluster by route or dispatch window
+  - Do not trigger if failure pattern is carrier-wide and already escalated contractually
+  - Exclude weeks with exceptional customer-side access restrictions
+impact:
+  category: Medium
+  expected_range:
+    metric_kpi_id: supply.on_time.pct
+    value_low: 1.0
+    value_high: 3.0
+    unit: pp
+    time_to_effect:
+      min_periods: 1
+      max_periods: 2
+  mechanism:
+  - Rebalancing routes reduces redelivery and late-arrival concentration
+  - Better route density improves delivery-window adherence
+  confidence:
+    level: Medium
+    rationale:
+    - Dependent on dispatch discipline and route master data quality
+    - Strongest impact where failures are geographically concentrated
+operational_execution:
+  stakeholders:
+  - Logistics Planning
+  - Dispatch Operations
+  prerequisites:
+  - Stable route master data and dispatch ownership
+  - Weekly route-level delivery performance review
+  steps:
+  - IDENTIFY each route-region pair with repeated delay concentration
+  - REBALANCE route workload and delivery windows for this route-region pair
+  - ALIGN carrier and dispatch plan for this route-region pair
+  - REVIEW on-time improvement for this route-region pair weekly
+  effort:
+    level: Medium
+    typical_duration_days: 14
+  risks_and_tradeoffs:
+  - Temporary dispatch disruption during route changes
+  - Local improvements can worsen adjacent routes if not coordinated
+data_requirements:
+  required_entities:
+  - Route
+  - Region
+  semantic_dependencies:
+    measures:
+    - On-Time %
+    - Shipments Count
+    - Penalty Amount
+    tables:
+    - fact_shipments
+    - fact_fulfillment
+    - dim_route
+    - dim_region
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: weekly
+    output: Route-region pairs requiring rebalancing
+  suggested_actions:
+    enabled: true
+    outputs:
+    - Proposed route rebalancing plan
+  copilot_prompts: []
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: fact_action_execution
+    minimum_fields:
+    - ActionCode
+    - Route
+    - Region
+    - TriggerLevel
+    - ExecutedDate
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: fact_action_outcome
+    minimum_fields:
+    - ActionCode
+    - Pre_OnTime_Pct
+    - Post_OnTime_Pct_14d
+governance:
+  approvals_required:
+  - Head of Logistics Planning
+  rollback_plan:
+  - Revert route changes if adjacent routes breach service thresholds
+  documentation_links:
+  - core/usecases/industry/logistics/SCM-IND-L001_Last_Mile_Delivery_Performance/Business_Factsheet.md
+quality_rules:
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

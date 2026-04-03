@@ -34,4 +34,4 @@ You are managing a modular, platform-agnostic framework. Your goal is to maintai
 - **Hub (when used):** Astro/Starlight in `docs_hub/`; deployable via GitHub Pages.
 - **Open-source frontend (when used):** Evidence.dev under `products/open_source_stack/evidence_app/`; pages generated from Core templates and semantic logic.
 
-Follow [framework-conventions.mdc](framework-conventions.mdc), [stage1-awareness.mdc](stage1-awareness.mdc), and [agent-workflow.mdc](agent-workflow.mdc). Run Stage 1 before committing.
+Follow [framework-conventions.md](framework-conventions.md), [stage1-awareness.md](stage1-awareness.md), and [agent-workflow.md](agent-workflow.md). Run Stage 1 before committing.

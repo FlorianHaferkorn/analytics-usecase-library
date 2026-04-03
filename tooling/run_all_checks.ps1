@@ -218,6 +218,13 @@ Invoke-LocalScript -RelativePath "tooling/validation/check_action_codes_vs_kpi.p
   KpiCatalogRoot = $kpiCatalogRoot
 }
 
+# 11) OSS Stack gate
+if (Test-Path (Join-Path $repoRoot "products\open_source_stack")) {
+  Invoke-LocalScript -RelativePath "products/open_source_stack/tooling/run_oss_checks.ps1" -Arguments @{
+    Root = $repoRoot
+  }
+}
+
 # 11) Factsheets -> Action Codes existence
 Invoke-LocalScript -RelativePath "tooling/validation/check_factsheet_action_codes.ps1" -Arguments @{
   UseCasesRoot = $factsheetsRoot

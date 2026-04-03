@@ -36,12 +36,12 @@ foreach ($entry in $requiredReadmes) {
   $readme = Join-Path $dir "README.md"
 
   if (-not (Test-Path $dir)) {
-    $issues += "Directory '$($entry.Dir)' does not exist — $($entry.Label) layer is missing"
+    $issues += "Directory '$($entry.Dir)' does not exist - $($entry.Label) layer is missing"
     continue
   }
 
   if (-not (Test-Path $readme)) {
-    $issues += "$($entry.Dir)/README.md is missing — $($entry.Label) must have a README explaining scope, criteria, and roadmap"
+    $issues += "$($entry.Dir)/README.md is missing - $($entry.Label) must have a README explaining scope, criteria, and roadmap"
     continue
   }
 

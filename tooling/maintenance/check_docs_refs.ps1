@@ -59,8 +59,10 @@ function Test-RelativePath {
   if ($Target -match '^(https?://|mailto:|#)') { return $true }
   $clean = $Target.Split('#')[0].Trim().TrimEnd('/').TrimEnd('\')
   if (-not $clean) { return $true }
-  $full = Join-Path -Path (Split-Path -Parent $BasePath) -ChildPath $clean
-  return (Test-Path -LiteralPath $full)
+  $full = [System.IO.Path]::GetFullPath((Join-Path -Path (Split-Path -Parent $BasePath) -ChildPath $clean))
+  if (Test-Path -LiteralPath $full) { return $true }
+  $repoRelative = Join-Path -Path $repoRoot -ChildPath $clean
+  return (Test-Path -LiteralPath $repoRelative)
 }
 
 function Test-IsAllowedMissingTarget {

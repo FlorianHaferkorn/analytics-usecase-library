@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import type { CatalogKpi } from '@/lib/core/catalog-loader';
-import { tdStyle } from '@/lib/ui-styles';
+import { StudioInput, StudioInlineStat, StudioTableCell } from '@/components/ui/studio-data';
 
 interface Props {
   kpis: CatalogKpi[];
@@ -62,18 +62,13 @@ export function KpiRegistryVirtual({ kpis, pageSize = 50 }: Props) {
 
   return (
     <div>
-      <input
+      <StudioInput
         type="text"
         placeholder="Search KPIs..."
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
         style={{
-          width: '100%',
           padding: '8px 12px',
-          backgroundColor: 'var(--slate-800)',
-          border: '1px solid var(--slate-700)',
-          borderRadius: 'var(--radius-md)',
-          color: 'var(--slate-100)',
           fontSize: '0.8125rem',
           marginBottom: 'var(--sp-1)',
         }}
@@ -91,15 +86,15 @@ export function KpiRegistryVirtual({ kpis, pageSize = 50 }: Props) {
               borderBottom: '1px solid var(--slate-700)',
             }}
           >
-            <span style={{ ...tdStyle, fontFamily: 'var(--font-mono)', color: 'var(--mint)', fontSize: '0.75rem', minWidth: '200px' }}>
+            <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--mint)', fontSize: '0.75rem', minWidth: '200px', borderTop: 'none', padding: 0 }}>
               {kpi.kpi_id}
-            </span>
-            <span style={{ ...tdStyle, color: 'var(--slate-100)', flex: 1 }}>
+            </StudioTableCell>
+            <StudioTableCell style={{ color: 'var(--slate-100)', flex: 1, borderTop: 'none', padding: 0 }}>
               {kpi.kpi_key}
-            </span>
-            <span style={{ ...tdStyle, color: 'var(--slate-400)', fontSize: '0.75rem' }}>
+            </StudioTableCell>
+            <StudioTableCell style={{ color: 'var(--slate-400)', fontSize: '0.75rem', borderTop: 'none', padding: 0 }}>
               {(kpi.domain_tag ?? []).join(', ')}
-            </span>
+            </StudioTableCell>
           </div>
         ))}
 
@@ -112,9 +107,9 @@ export function KpiRegistryVirtual({ kpis, pageSize = 50 }: Props) {
         )}
       </div>
 
-      <p style={{ marginTop: 'var(--sp-1)', fontSize: '0.75rem', color: 'var(--slate-500)' }}>
+      <StudioInlineStat>
         Showing {visible.length} of {filtered.length} KPIs
-      </p>
+      </StudioInlineStat>
     </div>
   );
 }

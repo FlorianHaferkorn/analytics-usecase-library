@@ -1,0 +1,3 @@
+relationship dim_customer_fact_customer_events
+	fromColumn: fact_customer_events.CustomerKey
+	toColumn: dim_customer.CustomerKey

@@ -63,6 +63,15 @@ class TestValidatePage:
         result = validate_page(content)
         assert any("SELECT *" in e for e in result.errors)
 
+    def test_placeholder_sql_rejected(self):
+        content = (
+            "# Title\n\n## 3-Second Layer\n\n"
+            "```sql q\n-- TODO: translate DAX: CALCULATE(...)\n```\n"
+            "<BigValue data={q} />"
+        )
+        result = validate_page(content)
+        assert any("Placeholder SQL" in e for e in result.errors)
+
     def test_unreferenced_sql_warns(self):
         content = (
             "# Title\n\n## KPI Headlines\n\n"

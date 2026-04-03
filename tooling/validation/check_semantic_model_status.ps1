@@ -51,7 +51,7 @@ Get-ChildItem -Path $dictDir -Recurse -Filter "Measure_Dictionary_*.md" -ErrorAc
   # If draft: try to find last_review date
   $reviewMatch = [regex]::Match($content, '(?m)last_review\s*:\s*"?(\d{4}-\d{2}-\d{2})"?')
   if (-not $reviewMatch.Success) {
-    $warnings += "$($_.Name): status=draft and no parseable last_review date — cannot determine how long it has been in draft"
+    $warnings += "$($_.Name): status=draft and no parseable last_review date - cannot determine how long it has been in draft"
     return
   }
 
@@ -59,7 +59,7 @@ Get-ChildItem -Path $dictDir -Recurse -Filter "Measure_Dictionary_*.md" -ErrorAc
   $daysDraft = ($now - $lastReview).Days
 
   if ($daysDraft -ge $DraftWarningDaysThreshold) {
-    $warnings += "$($_.Name): status=draft for $daysDraft days (last_review: $($reviewMatch.Groups[1].Value)) — exceeds $DraftWarningDaysThreshold-day threshold"
+    $warnings += "$($_.Name): status=draft for $daysDraft days (last_review: $($reviewMatch.Groups[1].Value)) - exceeds $DraftWarningDaysThreshold-day threshold"
   }
 }
 
@@ -72,7 +72,7 @@ if ($warnings.Count -gt 0) {
     Write-Host "Failing due to -FailOnError flag." -ForegroundColor Red
     exit 1
   }
-  # Always exit 0 unless FailOnError — this check is advisory
+  # Always exit 0 unless FailOnError - this check is advisory
   Write-Host "Note: draft status warnings are non-blocking. Resolve by updating governance.status to 'active'." -ForegroundColor Yellow
   exit 0
 }

@@ -5,6 +5,7 @@ import { parseFormula } from '@/lib/simulation/formula-parser';
 import { runScenario } from '@/lib/simulation/scenario-engine';
 import { ScenarioPanel } from '@/components/simulator/scenario-panel';
 import { ImpactChart } from '@/components/simulator/impact-chart';
+import { StudioField, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel, StudioToolbar } from '@/components/ui/studio-page';
 
 interface BracketSummary {
   id: string;
@@ -109,68 +110,73 @@ export function SimulatorClient({ brackets }: Props) {
   }, []);
 
   const handleReset = useCallback(() => setOverrides(new Map()), []);
+  const overriddenDrivers = overrides.size;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
+    <StudioPage>
+      <StudioPageHeader
+        eyebrow="Studio / What-if"
+        title="Simulator"
+        description="Run controlled what-if scenarios against bracket formulas to understand driver sensitivity before real data pipelines are wired in."
+        badge={selectedId || 'No selection'}
+        tone="warning"
+      />
+
+      <StudioMetricBar>
+        <StudioMetric label="Brackets" value={brackets.length} meta="available for simulation" tone="info" />
+        <StudioMetric label="Drivers" value={drivers.length} meta="for current scenario" />
+        <StudioMetric label="Overrides" value={overriddenDrivers} meta={overriddenDrivers > 0 ? 'manual deviations active' : 'using seeded baseline'} tone={overriddenDrivers > 0 ? 'warning' : 'success'} />
+        <StudioMetric label="Target" value={bracket?.strategicKpiId ?? 'n/a'} meta={bracket ? bracket.impactDirection : 'select a bracket'} tone="success" />
+      </StudioMetricBar>
+
       {/* Illustrative data banner */}
-      <div
-        style={{
-          padding: 'var(--sp-1) var(--sp-2)',
-          backgroundColor: 'rgba(255,184,0,0.1)',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--gold)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--sp-1)',
-        }}
-      >
-        <span style={{ fontSize: '0.75rem', color: 'var(--gold)', fontWeight: 600 }}>
-          Illustrative Data
-        </span>
-        <span style={{ fontSize: '0.6875rem', color: 'var(--slate-400)' }}>
-          Values are derived from KPI naming conventions. Connect real data sources for production use.
-        </span>
-      </div>
+      <StudioPanel tone="warning" title="Illustrative Simulation" description="This view operates on synthetic seeded values, not live production data.">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)', marginBottom: '4px' }}>
+          <span style={{ fontSize: '0.5625rem', color: 'var(--slate-500)' }}>Keine Echtdaten</span>
+        </div>
+        <p style={{ fontSize: '0.6875rem', color: 'var(--slate-300)', lineHeight: 1.5, marginBottom: '4px' }}>
+          Diese Simulation zeigt eine <strong style={{ color: 'var(--slate-100)' }}>Sensitivitätsanalyse</strong>: Wie verändert sich der strategische KPI,
+          wenn Treiber-KPIs variieren? Die Ausgangswerte werden anhand der KPI-ID-Konventionen
+          (z.&nbsp;B. <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem' }}>.pct</code> → 30&ndash;80&thinsp;%,&nbsp;
+          <code style={{ fontFamily: 'var(--font-mono)', fontSize: '0.625rem' }}>.days</code> → 20&ndash;50) synthetisch erzeugt.
+        </p>
+        <p style={{ fontSize: '0.625rem', color: 'var(--slate-500)' }}>
+          Für produktive Szenarien: echte Datenpipeline anschließen und Basiswerte im Use-Case-Bracket hinterlegen.
+        </p>
+      </StudioPanel>
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-2)' }}>
-        <select
-          value={selectedId}
-          onChange={(e) => { setSelectedId(e.target.value); setOverrides(new Map()); }}
-          style={{
-            padding: 'var(--sp-1) var(--sp-1-5)',
-            backgroundColor: 'var(--slate-800)',
-            border: '1px solid var(--slate-700)',
-            borderRadius: 'var(--radius-md)',
-            color: 'var(--slate-100)',
-            fontSize: '0.875rem',
-            minWidth: '280px',
-          }}
-        >
-          {brackets.map((b) => (
-            <option key={b.id} value={b.id}>{b.id} — {b.title}</option>
-          ))}
-        </select>
+      <StudioToolbar>
+        <StudioField label="Scenario focus">
+          <select
+            value={selectedId}
+            onChange={(e) => { setSelectedId(e.target.value); setOverrides(new Map()); }}
+            style={{
+              padding: 'var(--sp-1) var(--sp-1-5)',
+              backgroundColor: 'var(--slate-900)',
+              border: '1px solid var(--slate-700)',
+              borderRadius: 'var(--radius-md)',
+              color: 'var(--slate-100)',
+              fontSize: '0.875rem',
+              minWidth: '280px',
+            }}
+          >
+            {brackets.map((b) => (
+              <option key={b.id} value={b.id}>{b.id} — {b.title}</option>
+            ))}
+          </select>
+        </StudioField>
         {bracket && (
           <span style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>
             {bracket.impactDirection === 'maximize' ? '↑' : '↓'} {bracket.strategicKpiId}
           </span>
         )}
-      </div>
+      </StudioToolbar>
 
       {/* Result card */}
       {result && (
-        <div
-          style={{
-            padding: 'var(--sp-2)',
-            backgroundColor: result.isImprovement ? 'rgba(0,212,170,0.1)' : 'rgba(239,68,68,0.1)',
-            borderRadius: 'var(--radius-lg)',
-            border: `1px solid ${result.isImprovement ? 'var(--mint)' : 'var(--danger)'}`,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--sp-3)',
-          }}
-        >
+        <StudioPanel tone={result.isImprovement ? 'success' : 'warning'} title="Simulation Result" description="Compare the adjusted strategic KPI against its synthetic baseline after driver overrides.">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)', flexWrap: 'wrap' }}>
           <div>
             <p style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>Strategic KPI</p>
             <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--slate-50)' }}>
@@ -188,7 +194,8 @@ export function SimulatorClient({ brackets }: Props) {
               {result.delta >= 0 ? '+' : ''}{result.delta.toFixed(2)} ({result.deltaPercent >= 0 ? '+' : ''}{result.deltaPercent.toFixed(1)}%)
             </p>
           </div>
-        </div>
+          </div>
+        </StudioPanel>
       )}
 
       {/* Two-column: sliders + impact chart */}
@@ -211,13 +218,13 @@ export function SimulatorClient({ brackets }: Props) {
 
       {/* Formula display */}
       {bracket && (
-        <div style={{ padding: 'var(--sp-1-5)', backgroundColor: 'var(--slate-800)', borderRadius: 'var(--radius-md)', border: '1px solid var(--slate-700)' }}>
+        <StudioPanel title="Formula" description="Current value-driver formula used for the simulation engine.">
           <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginBottom: '4px' }}>Formula</p>
           <code style={{ fontSize: '0.75rem', color: 'var(--slate-300)', fontFamily: 'var(--font-mono)' }}>
             {bracket.formula}
           </code>
-        </div>
+        </StudioPanel>
       )}
-    </div>
+    </StudioPage>
   );
 }

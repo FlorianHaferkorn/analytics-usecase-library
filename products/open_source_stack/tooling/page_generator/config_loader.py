@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 try:
     import yaml
@@ -97,11 +97,13 @@ class ConfigLoader:
         if strategic:
             kpi_ids.append(strategic)
         kpi_ids.extend(orch.get("influencing_kpi_ids", []))
+        kpi_ids.extend(orch.get("supporting_kpi_ids", []))
 
         all_kpis = ir.get("objects", {}).get("kpis", {})
         measure_specs = ir.get("measure_spec", {})
+        expanded_ids = self._expand_kpi_dependencies(kpi_ids, measure_specs)
         result = []
-        for kpi_id in kpi_ids:
+        for kpi_id in expanded_ids:
             kpi = all_kpis.get(kpi_id)
             if kpi:
                 # Attach measure_spec from IR root if available
@@ -110,6 +112,30 @@ class ConfigLoader:
                     enriched["measure_spec"] = measure_specs[kpi_id]
                 result.append(enriched)
         return result
+
+    def _expand_kpi_dependencies(
+        self,
+        kpi_ids: List[str],
+        measure_specs: Dict[str, Any],
+    ) -> List[str]:
+        ordered: List[str] = []
+        seen: Set[str] = set()
+
+        def add_with_dependencies(kpi_id: str) -> None:
+            if not isinstance(kpi_id, str) or not kpi_id or kpi_id in seen:
+                return
+            spec = measure_specs.get(kpi_id, {})
+            dependencies = spec.get("depends_on_measures", []) if isinstance(spec, dict) else []
+            if isinstance(dependencies, list):
+                for dep in dependencies:
+                    add_with_dependencies(dep)
+            seen.add(kpi_id)
+            ordered.append(kpi_id)
+
+        for kpi_id in kpi_ids:
+            add_with_dependencies(kpi_id)
+
+        return ordered
 
     def get_use_case_title(self, ir: Dict[str, Any], use_case_id: str) -> str:
         """Get the use case title (IR uses 'title', not 'label')."""

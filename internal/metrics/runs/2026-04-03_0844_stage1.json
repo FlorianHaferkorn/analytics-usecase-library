@@ -1,0 +1,97 @@
+﻿{
+    "overall_status":  "pass",
+    "timestamp":  "2026-04-03T08:44:29.5535535+02:00",
+    "checks":  [
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/check_schema_validation.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/validate_factsheets.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/check_factsheet_vs_kpi.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/validate_kpi_catalog.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/check_action_codes_vs_kpi.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/check_factsheet_action_codes.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/check_decision_spines.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/check_duplicate_ids.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/check_ssot_markers.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/maintenance/check_docs_refs.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/check_forbidden_content.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/check_validate_data_contracts.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/check_registry_builder.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/check_measure_aggregation_methods.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/check_data_contract_kpi_coverage.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/check_usecase_page_types.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/check_extended_usecase_readmes.ps1"
+                   },
+                   {
+                       "status":  "pass",
+                       "exit_code":  0,
+                       "check":  "tooling/validation/check_semantic_model_status.ps1"
+                   }
+               ],
+    "stage":  "stage1"
+}

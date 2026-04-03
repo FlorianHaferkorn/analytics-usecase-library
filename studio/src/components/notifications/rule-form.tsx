@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import type { RuleCondition, EscalationSeverity } from '@/lib/notifications/rule-types';
 import { KpiAutocomplete } from './kpi-autocomplete';
+import { StudioButton } from '@/components/ui/studio-page';
+import { StudioFormField, StudioFormGrid, StudioInput, StudioSelect } from '@/components/ui/studio-data';
 
 interface Props {
   onSubmit: (data: {
@@ -12,16 +14,6 @@ interface Props {
   }) => void;
   kpiIds?: string[];
 }
-
-const inputStyle = {
-  padding: '4px var(--sp-1)',
-  backgroundColor: 'var(--slate-900)',
-  border: '1px solid var(--slate-700)',
-  borderRadius: 'var(--radius-sm)',
-  color: 'var(--slate-100)',
-  fontSize: '0.75rem',
-  width: '100%',
-};
 
 export function RuleForm({ onSubmit, kpiIds = [] }: Props) {
   const [name, setName] = useState('');
@@ -45,40 +37,41 @@ export function RuleForm({ onSubmit, kpiIds = [] }: Props) {
   };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-1)', padding: 'var(--sp-1-5)', backgroundColor: 'var(--slate-800)', borderRadius: 'var(--radius-md)', border: '1px solid var(--slate-700)' }}>
-      <input placeholder="Rule name" value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} />
-      <KpiAutocomplete value={kpiId} onChange={setKpiId} kpiIds={kpiIds} />
-      <select value={condition} onChange={(e) => setCondition(e.target.value as RuleCondition)} style={inputStyle}>
-        <option value="lt">&lt; Less than</option>
-        <option value="gt">&gt; Greater than</option>
-        <option value="eq">= Equals</option>
-        <option value="between">Between</option>
-      </select>
-      <input type="number" placeholder="Threshold" value={threshold} onChange={(e) => setThreshold(e.target.value)} style={inputStyle} />
+    <StudioFormGrid>
+      <StudioFormField label="Rule name">
+        <StudioInput placeholder="Rule name" value={name} onChange={(e) => setName(e.target.value)} />
+      </StudioFormField>
+      <StudioFormField label="KPI">
+        <KpiAutocomplete value={kpiId} onChange={setKpiId} kpiIds={kpiIds} />
+      </StudioFormField>
+      <StudioFormField label="Condition">
+        <StudioSelect value={condition} onChange={(e) => setCondition(e.target.value as RuleCondition)}>
+          <option value="lt">&lt; Less than</option>
+          <option value="gt">&gt; Greater than</option>
+          <option value="eq">= Equals</option>
+          <option value="between">Between</option>
+        </StudioSelect>
+      </StudioFormField>
+      <StudioFormField label="Threshold">
+        <StudioInput type="number" placeholder="Threshold" value={threshold} onChange={(e) => setThreshold(e.target.value)} />
+      </StudioFormField>
       {condition === 'between' && (
-        <input type="number" placeholder="Upper threshold" value={thresholdUpper} onChange={(e) => setThresholdUpper(e.target.value)} style={inputStyle} />
+        <StudioFormField label="Upper threshold">
+          <StudioInput type="number" placeholder="Upper threshold" value={thresholdUpper} onChange={(e) => setThresholdUpper(e.target.value)} />
+        </StudioFormField>
       )}
-      <select value={severity} onChange={(e) => setSeverity(e.target.value as EscalationSeverity)} style={inputStyle}>
-        <option value="EarlyWarning">Early Warning</option>
-        <option value="RequiredIntervention">Required Intervention</option>
-        <option value="PrescriptiveExecution">Prescriptive Execution</option>
-      </select>
-      <button
-        onClick={handleSubmit}
-        style={{
-          padding: '6px var(--sp-1-5)',
-          backgroundColor: 'var(--mint)',
-          border: 'none',
-          borderRadius: 'var(--radius-sm)',
-          color: 'var(--slate-950)',
-          fontSize: '0.75rem',
-          fontWeight: 600,
-          cursor: 'pointer',
-          gridColumn: condition === 'between' ? 'auto' : '2',
-        }}
-      >
-        Add Rule
-      </button>
-    </div>
+      <StudioFormField label="Severity">
+        <StudioSelect value={severity} onChange={(e) => setSeverity(e.target.value as EscalationSeverity)}>
+          <option value="EarlyWarning">Early Warning</option>
+          <option value="RequiredIntervention">Required Intervention</option>
+          <option value="PrescriptiveExecution">Prescriptive Execution</option>
+        </StudioSelect>
+      </StudioFormField>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-start' }}>
+        <StudioButton onClick={handleSubmit} tone="success" variant="primary" style={{ minWidth: '140px' }}>
+          Add Rule
+        </StudioButton>
+      </div>
+    </StudioFormGrid>
   );
 }

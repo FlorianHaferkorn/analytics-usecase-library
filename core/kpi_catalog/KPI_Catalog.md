@@ -3081,6 +3081,90 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     model_type: local_linear_beta
     as_of: "2026-02-01"
     links:
+      - influencing_kpi_id: sales.net_sales.amount
+        effect:
+          kind: abs_to_abs
+          coefficient: 0.000002
+          direction: positive
+          interpretation: "Higher net sales improve gross margin % when price and cost structure remain stable."
+        applicability:
+          grain: month
+          segments: ["Region", "Channel", "Product Category"]
+        formula:
+          standardized: "Δmargin.gm.pct = 0.000002 * Δsales.net_sales.amount"
+          latex: "\\Delta GM = 0.000002 \\cdot \\Delta NetSales"
+      - influencing_kpi_id: cost.cogs.amount
+        effect:
+          kind: abs_to_abs
+          coefficient: -0.000002
+          direction: negative
+          interpretation: "Higher cost of goods sold reduces gross margin % when revenue does not increase proportionally."
+        applicability:
+          grain: month
+          segments: ["Region", "Channel", "Product Category"]
+        formula:
+          standardized: "Δmargin.gm.pct = -0.000002 * Δcost.cogs.amount"
+          latex: "\\Delta GM = -0.000002 \\cdot \\Delta COGS"
+      - influencing_kpi_id: sales.net_sales.delta_pct.plan
+        effect:
+          kind: pct_to_pct
+          coefficient: 0.3
+          direction: positive
+          interpretation: "Closing the net sales gap versus plan is associated with higher gross margin % through better fixed-cost absorption and mix."
+        applicability:
+          grain: month
+          segments: ["Region", "Channel"]
+        formula:
+          standardized: "Δmargin.gm.pct = 0.3 * Δsales.net_sales.delta_pct.plan"
+          latex: "\\Delta GM = 0.3 \\cdot \\Delta NetSales_{vsPlan}"
+      - influencing_kpi_id: sales.net_sales.delta_pct.ly
+        effect:
+          kind: pct_to_pct
+          coefficient: 0.25
+          direction: positive
+          interpretation: "Improving net sales growth versus prior year tends to improve gross margin % through scale and operating leverage."
+        applicability:
+          grain: month
+          segments: ["Region", "Channel"]
+        formula:
+          standardized: "Δmargin.gm.pct = 0.25 * Δsales.net_sales.delta_pct.ly"
+          latex: "\\Delta GM = 0.25 \\cdot \\Delta NetSales_{vsLY}"
+      - influencing_kpi_id: sales.pvm.price_effect.amount
+        effect:
+          kind: abs_to_abs
+          coefficient: 0.000003
+          direction: positive
+          interpretation: "Positive price effect contributes directly to gross margin % improvement."
+        applicability:
+          grain: month
+          segments: ["Region", "Channel", "SKU"]
+        formula:
+          standardized: "Δmargin.gm.pct = 0.000003 * Δsales.pvm.price_effect.amount"
+          latex: "\\Delta GM = 0.000003 \\cdot \\Delta PVM_{price}"
+      - influencing_kpi_id: sales.pvm.volume_effect.amount
+        effect:
+          kind: abs_to_abs
+          coefficient: 0.000001
+          direction: positive
+          interpretation: "Positive volume effect improves gross margin % when incremental volume carries sufficient contribution margin."
+        applicability:
+          grain: month
+          segments: ["Region", "Channel", "SKU"]
+        formula:
+          standardized: "Δmargin.gm.pct = 0.000001 * Δsales.pvm.volume_effect.amount"
+          latex: "\\Delta GM = 0.000001 \\cdot \\Delta PVM_{volume}"
+      - influencing_kpi_id: sales.pvm.mix_effect.amount
+        effect:
+          kind: abs_to_abs
+          coefficient: 0.000002
+          direction: positive
+          interpretation: "Favorable product or customer mix improves gross margin % by shifting revenue toward higher-margin combinations."
+        applicability:
+          grain: month
+          segments: ["Region", "Channel", "Product Category"]
+        formula:
+          standardized: "Δmargin.gm.pct = 0.000002 * Δsales.pvm.mix_effect.amount"
+          latex: "\\Delta GM = 0.000002 \\cdot \\Delta PVM_{mix}"
       - influencing_kpi_id: sales.price.realization_pct
         effect:
           kind: pp_to_pp
@@ -3093,6 +3177,66 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
         formula:
           standardized: "Δmargin.gm.pct(pp)=0.8*Δsales.price.realization_pct(pp)"
           latex: "\\\\Delta GM_{pp} = 0.8 \\\\cdot \\\\Delta PR_{pp}"
+      - influencing_kpi_id: margin.gm.amount
+        effect:
+          kind: abs_to_abs
+          coefficient: 0.000002
+          direction: positive
+          interpretation: "Higher gross margin amount is associated with higher gross margin % when revenue mix remains comparable."
+        applicability:
+          grain: month
+          segments: ["Region", "Channel", "Product Category"]
+        formula:
+          standardized: "Δmargin.gm.pct = 0.000002 * Δmargin.gm.amount"
+          latex: "\\Delta GM = 0.000002 \\cdot \\Delta GM_{amount}"
+      - influencing_kpi_id: sales.price.list.amount
+        effect:
+          kind: abs_to_abs
+          coefficient: 0.000001
+          direction: positive
+          interpretation: "Higher list price levels support gross margin % provided realization discipline is maintained."
+        applicability:
+          grain: month
+          segments: ["Region", "Channel", "SKU"]
+        formula:
+          standardized: "Δmargin.gm.pct = 0.000001 * Δsales.price.list.amount"
+          latex: "\\Delta GM = 0.000001 \\cdot \\Delta Price_{list}"
+      - influencing_kpi_id: sales.price.net.amount
+        effect:
+          kind: abs_to_abs
+          coefficient: 0.000002
+          direction: positive
+          interpretation: "Higher net realized price improves gross margin % directly."
+        applicability:
+          grain: month
+          segments: ["Region", "Channel", "SKU"]
+        formula:
+          standardized: "Δmargin.gm.pct = 0.000002 * Δsales.price.net.amount"
+          latex: "\\Delta GM = 0.000002 \\cdot \\Delta Price_{net}"
+      - influencing_kpi_id: cost.cogs_per_unit.amount
+        effect:
+          kind: abs_to_abs
+          coefficient: -0.15
+          direction: negative
+          interpretation: "Higher unit COGS reduces gross margin % unless offset by price or mix gains."
+        applicability:
+          grain: month
+          segments: ["Region", "Channel", "SKU"]
+        formula:
+          standardized: "Δmargin.gm.pct = -0.15 * Δcost.cogs_per_unit.amount"
+          latex: "\\Delta GM = -0.15 \\cdot \\Delta COGS_{unit}"
+      - influencing_kpi_id: margin.gm.vs_plan.pct
+        effect:
+          kind: pp_to_pp
+          coefficient: 0.9
+          direction: positive
+          interpretation: "Improving gross margin performance versus plan is strongly aligned with higher actual gross margin %."
+        applicability:
+          grain: month
+          segments: ["Region", "Channel"]
+        formula:
+          standardized: "Δmargin.gm.pct = 0.9 * Δmargin.gm.vs_plan.pct"
+          latex: "\\Delta GM = 0.9 \\cdot \\Delta GM_{vsPlan}"
   business:
     purpose: "Gross margin % for commercial/operational reporting and strategic P&L reconciliation."
     definition: "(Net Sales Amount - COGS Amount) / Net Sales Amount"
@@ -3783,7 +3927,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
 - kpi_id: enterprise.value_at_risk.index
   kpi_key: Enterprise Value-at-Risk Index
   kpi_type: diagnostic
-  kpi_role: supporting
+  kpi_role: strategic
   impact_dimension: Risk
   domain_tag: [Enterprise & Governance, Corporate & Strategy]
   use_case_ref:

@@ -1,6 +1,8 @@
 {
     "completed":  [
+                      "Build Registry",
                       "Check Aurora Data",
+                      "Generate Measures (Aurora per domain)",
                       "Validate TMDL Syntax",
                       "Create Tables from Contracts (per domain)",
                       "Sync model.tmdl refs",
@@ -8,28 +10,28 @@
                       "Create Hierarchies Definition",
                       "Write Hierarchies to TMDL",
                       "Write diagram layout",
-                      "Validate TMDL Syntax",
-                      "Generate Report from Template"
+                      "Validate TMDL Syntax"
                   ],
+    "measuresFile":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\Commercial.SemanticModel\\definition\\tables\\_Measures.tmdl",
     "validateErrors":  [
                            {
                                "phase":  "Validate Fabric output",
                                "path":  "products/fabric/powerbi/dist",
-                               "timestamp":  "2026-03-02T19:03:41.0851627+01:00",
+                               "timestamp":  "2026-04-03T09:14:08.7291496+02:00",
                                "message":  "",
                                "source":  "run_fabric_checks"
                            },
                            {
                                "phase":  "Validate Fabric output",
                                "path":  "products/fabric/powerbi/dist",
-                               "timestamp":  "2026-03-02T19:03:45.0334547+01:00",
+                               "timestamp":  "2026-04-03T09:14:11.9524867+02:00",
                                "message":  "",
                                "source":  "run_fabric_checks"
                            },
                            {
                                "phase":  "Validate Fabric output",
                                "path":  "products/fabric/powerbi/dist",
-                               "timestamp":  "2026-03-02T19:03:49.2882338+01:00",
+                               "timestamp":  "2026-04-03T09:14:16.1827810+02:00",
                                "message":  "",
                                "source":  "run_fabric_checks"
                            }
@@ -40,36 +42,6 @@
     "iteration":  6,
     "errors":  [
                    {
-                       "phase":  "Build Registry",
-                       "iteration":  0,
-                       "error":  "Registry build failed (exit 1). Fix contract/registry errors and retry."
-                   },
-                   {
-                       "phase":  "Build Registry",
-                       "iteration":  0,
-                       "error":  "Registry build failed (exit 1). Fix contract/registry errors and retry."
-                   },
-                   {
-                       "phase":  "Build Registry",
-                       "iteration":  0,
-                       "error":  "Registry build failed (exit 1). Fix contract/registry errors and retry."
-                   },
-                   {
-                       "phase":  "Generate Measures (Aurora per domain)",
-                       "iteration":  2,
-                       "error":  "Measure generation failed for domain Commercial (exit 1)"
-                   },
-                   {
-                       "phase":  "Generate Measures (Aurora per domain)",
-                       "iteration":  2,
-                       "error":  "Measure generation failed for domain Commercial (exit 1)"
-                   },
-                   {
-                       "phase":  "Generate Measures (Aurora per domain)",
-                       "iteration":  2,
-                       "error":  "Measure generation failed for domain Commercial (exit 1)"
-                   },
-                   {
                        "phase":  "Run Quality Checks",
                        "iteration":  4,
                        "error":  "Ausnahme beim Aufrufen von \"GetFullPath\" mit 1 Argument(en):  \"Das angegebene Pfadformat wird nicht unterstützt.\""
@@ -83,6 +55,21 @@
                        "phase":  "Run Quality Checks",
                        "iteration":  4,
                        "error":  "Ausnahme beim Aufrufen von \"GetFullPath\" mit 1 Argument(en):  \"Das angegebene Pfadformat wird nicht unterstützt.\""
+                   },
+                   {
+                       "phase":  "Generate Report from Template",
+                       "iteration":  5,
+                       "error":  "apply_report_theme.ps1 failed (exit 1) for COM-001. Theme \u0027Aurora_Group_SE__Monochromatic__powerbi_design_base__2ECDE7\u0027 not applied. Check theme_generator/themes/ and report definition."
+                   },
+                   {
+                       "phase":  "Generate Report from Template",
+                       "iteration":  5,
+                       "error":  "apply_report_theme.ps1 failed (exit 1) for COM-001. Theme \u0027Aurora_Group_SE__Monochromatic__powerbi_design_base__2ECDE7\u0027 not applied. Check theme_generator/themes/ and report definition."
+                   },
+                   {
+                       "phase":  "Generate Report from Template",
+                       "iteration":  5,
+                       "error":  "apply_report_theme.ps1 failed (exit 1) for COM-001. Theme \u0027Aurora_Group_SE__Monochromatic__powerbi_design_base__2ECDE7\u0027 not applied. Check theme_generator/themes/ and report definition."
                    },
                    {
                        "phase":  "Validate Fabric output",
@@ -101,14 +88,14 @@
                    }
                ],
     "phase":  "validate_fabric_output",
-    "scopeName":  "Commercial",
-    "scopeType":  "Domain",
+    "scopeName":  "COM-001",
+    "scopeType":  "UseCase",
     "startTime":  {
-                      "value":  "\/Date(1772474404353)\/",
+                      "value":  "\/Date(1775200190835)\/",
                       "DisplayHint":  2,
-                      "DateTime":  "Montag, 2. März 2026 19:00:04"
+                      "DateTime":  "Freitag, 3. April 2026 09:09:50"
                   },
     "domainMeasurePaths":  [
-
+                               "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\Commercial.SemanticModel\\definition\\tables\\_Measures.tmdl"
                            ]
 }

@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useProjectStore } from '@/lib/store/project-store';
+import { StudioButton, StudioPanel } from '@/components/ui/studio-page';
+import { StudioInput } from '@/components/ui/studio-data';
 
 interface ProjectItem {
   id: string;
@@ -58,34 +60,25 @@ export function ProjectSelector() {
 
   return (
     <div style={{ position: 'relative' }}>
-      <button
+      <StudioButton
         onClick={() => setIsOpen(!isOpen)}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 'var(--sp-1)',
-          padding: '4px var(--sp-1-5)',
-          backgroundColor: 'var(--slate-800)',
-          border: '1px solid var(--slate-600)',
-          borderRadius: 'var(--radius-md)',
-          color: 'var(--slate-100)',
-          fontSize: '0.8125rem',
-          cursor: 'pointer',
-        }}
+        variant="secondary"
+        tone="info"
+        style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)', fontSize: '0.8125rem', padding: '4px var(--sp-1-5)' }}
       >
         <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--mint)' }} />
         {projectName}
         <span style={{ color: 'var(--slate-500)', fontSize: '0.6875rem' }}>▾</span>
-      </button>
+      </StudioButton>
 
       {isOpen && (
-        <div style={{
+        <StudioPanel style={{
           position: 'absolute', top: '100%', right: 0, marginTop: 4,
           width: 280,
-          backgroundColor: 'var(--slate-800)',
-          border: '1px solid var(--slate-600)',
-          borderRadius: 'var(--radius-lg)',
           boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
           zIndex: 50,
           overflow: 'hidden',
+          padding: 0,
         }}>
           <div style={{ padding: 'var(--sp-1)', maxHeight: 200, overflow: 'auto' }}>
             {projects.map((p) => (
@@ -110,48 +103,34 @@ export function ProjectSelector() {
           <div style={{ borderTop: '1px solid var(--slate-700)', padding: 'var(--sp-1)' }}>
             {showCreate ? (
               <div style={{ display: 'flex', gap: '4px' }}>
-                <input
+                <StudioInput
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
                   placeholder="Project name..."
                   autoFocus
-                  style={{
-                    flex: 1, padding: '4px var(--sp-1)',
-                    backgroundColor: 'var(--slate-900)',
-                    border: '1px solid var(--slate-600)',
-                    borderRadius: 'var(--radius-sm)',
-                    color: 'var(--slate-100)', fontSize: '0.75rem',
-                  }}
+                  style={{ flex: 1, padding: '4px var(--sp-1)', fontSize: '0.75rem', borderRadius: 'var(--radius-sm)' }}
                 />
-                <button
+                <StudioButton
                   onClick={handleCreate}
-                  style={{
-                    padding: '4px var(--sp-1)',
-                    backgroundColor: 'var(--mint)', border: 'none',
-                    borderRadius: 'var(--radius-sm)',
-                    color: 'var(--slate-950)', fontSize: '0.75rem', fontWeight: 600,
-                    cursor: 'pointer',
-                  }}
+                  tone="success"
+                  variant="primary"
+                  style={{ padding: '4px var(--sp-1)', fontSize: '0.75rem', borderRadius: 'var(--radius-sm)' }}
                 >
                   Add
-                </button>
+                </StudioButton>
               </div>
             ) : (
-              <button
+              <StudioButton
                 onClick={() => setShowCreate(true)}
-                style={{
-                  width: '100%', padding: '4px',
-                  backgroundColor: 'transparent', border: 'none',
-                  color: 'var(--mint)', fontSize: '0.75rem',
-                  cursor: 'pointer', textAlign: 'left',
-                }}
+                variant="ghost"
+                style={{ width: '100%', padding: '4px', fontSize: '0.75rem', textAlign: 'left', justifyContent: 'flex-start' }}
               >
                 + New Project
-              </button>
+              </StudioButton>
             )}
           </div>
-        </div>
+        </StudioPanel>
       )}
     </div>
   );

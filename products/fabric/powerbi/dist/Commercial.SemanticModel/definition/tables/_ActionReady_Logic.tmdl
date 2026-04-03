@@ -2,6 +2,7 @@
 /// DO NOT EDIT MANUALLY - regenerate via generate_tmdl_measures.ps1
 /// DO NOT EDIT MANUALLY - regenerate via generate_tmdl_measures.ps1
 table _ActionReady_Logic
+	lineageTag: 3226b4a5-47b9-4f4a-9e82-209a8b5e87bb
 	isHidden
 
 	partition _ActionReady_Logic = m
@@ -13,6 +14,7 @@ table _ActionReady_Logic
 					Source
 
 	column _Placeholder
+		lineageTag: e52b2485-95f0-421d-910d-e653d0a40611
 		dataType: string
 		sourceColumn: _Placeholder
 		isHidden

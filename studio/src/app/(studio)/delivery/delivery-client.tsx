@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { cardStyle } from '@/lib/ui-styles';
 import { ExportResults, type ExportResultItem } from '@/components/delivery/export-results';
+import { StudioButton, StudioEmptyState, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel } from '@/components/ui/studio-page';
 
 interface BracketSummary {
   id: string;
@@ -61,6 +61,7 @@ export function DeliveryClient({ brackets }: Props) {
   };
 
   const adapter = ADAPTERS.find((a) => a.id === selectedAdapter)!;
+  const selectedBracketItems = brackets.filter((bracket) => selectedBrackets.has(bracket.id));
   let totalKpis = 0;
   let totalActions = 0;
   for (const b of brackets) {
@@ -69,6 +70,32 @@ export function DeliveryClient({ brackets }: Props) {
       totalActions += b.actionCount;
     }
   }
+
+  const selectedDomains = [...new Set(selectedBracketItems.map((bracket) => bracket.domain))];
+  const readinessWarnings = [
+    ...(selectedBrackets.size === 0 ? ['No use cases selected for export.'] : []),
+    ...(adapter.status === 'preview' ? ['Selected adapter is preview; validate outputs before promotion.'] : []),
+    ...(selectedDomains.length > 1 ? ['Selection spans multiple domains; verify shared governance and evidence grain.'] : []),
+    ...(totalActions > 20 ? ['High action-code volume; expect larger validation and review scope.'] : []),
+  ];
+
+  const runbookSteps = selectedAdapter === 'fabric'
+    ? [
+        '.\\tooling\\run_stage1_checks.ps1',
+        '.\\products\\fabric\\powerbi\\tooling\\run_fabric_checks.ps1',
+        '.\\tooling\\generation\\generate_all_measures.ps1',
+      ]
+    : selectedAdapter === 'opensource'
+      ? [
+          '.\\tooling\\run_stage1_checks.ps1',
+          'bash products/open_source_stack/tooling/run_oss_checks.sh',
+          'powershell -NoProfile -ExecutionPolicy Bypass -File .\\products\\open_source_stack\\tooling\\adapter_build.ps1 -UseCaseId <ID>',
+        ]
+      : [
+          '.\\tooling\\run_stage1_checks.ps1',
+          '.\\tooling\\run_all_checks.ps1',
+          'Review generated workflow and deployment secrets before enabling CI/CD.',
+        ];
 
   const handleExport = useCallback(async () => {
     if (selectedBrackets.size === 0 || !adapter.endpoint) return;
@@ -92,115 +119,187 @@ export function DeliveryClient({ brackets }: Props) {
   }, [selectedBrackets, adapter.endpoint]);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-3)', height: 'calc(100vh - 56px - var(--sp-6))' }}>
+    <StudioPage fill style={{ gap: 'var(--sp-3)' }}>
+      <StudioPageHeader
+        eyebrow="Studio / Delivery"
+        title="Delivery"
+        description="Package approved use cases for target stacks, validate export readiness, and keep the operational runbook attached to every delivery move."
+        badge={adapter.name}
+        tone={adapter.status === 'available' ? 'success' : 'warning'}
+      />
+
+      <StudioMetricBar>
+        <StudioMetric label="Scope" value={selectedBrackets.size} meta="use cases selected" tone="info" />
+        <StudioMetric label="KPIs" value={totalKpis} meta="governed measures in export scope" />
+        <StudioMetric label="Actions" value={totalActions} meta="linked action codes" />
+        <StudioMetric label="Readiness" value={readinessWarnings.length === 0 ? 'ready' : `${readinessWarnings.length} checks`} meta={adapter.status === 'preview' ? 'preview adapter selected' : 'validation status'} tone={readinessWarnings.length === 0 ? 'success' : 'warning'} />
+      </StudioMetricBar>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-3)', height: 'calc(100vh - 56px - var(--sp-6) - 176px)' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-3)' }}>
         {/* Left: Adapter Selection */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
-          <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--slate-100)' }}>
-            Target Platform
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
-            {ADAPTERS.map((a) => (
-              <button
-                key={a.id}
-                onClick={() => setSelectedAdapter(a.id)}
-                style={{
-                  padding: 'var(--sp-2)',
-                  backgroundColor: selectedAdapter === a.id ? 'var(--slate-700)' : 'var(--slate-800)',
-                  border: `1px solid ${selectedAdapter === a.id ? 'var(--mint)' : 'var(--slate-700)'}`,
-                  borderRadius: 'var(--radius-lg)',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'all var(--duration-fast) var(--ease-out)',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--slate-100)' }}>{a.name}</span>
-                  <span style={{
-                    fontSize: '0.625rem', padding: '2px 8px', borderRadius: '9999px', fontWeight: 600,
-                    backgroundColor: a.status === 'available' ? 'var(--mint)' : 'var(--gold)',
-                    color: 'var(--slate-950)',
-                  }}>
-                    {a.status}
-                  </span>
-                </div>
-                <p style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>{a.description}</p>
-              </button>
-            ))}
-          </div>
+          <StudioPanel title="Target Platform" description="Choose the export adapter that should receive the selected use cases.">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
+              {ADAPTERS.map((a) => (
+                <StudioButton
+                  key={a.id}
+                  onClick={() => setSelectedAdapter(a.id)}
+                  variant="ghost"
+                  style={{
+                    padding: 'var(--sp-2)',
+                    backgroundColor: selectedAdapter === a.id ? 'var(--slate-700)' : 'var(--slate-800)',
+                    border: `1px solid ${selectedAdapter === a.id ? 'var(--mint)' : 'var(--slate-700)'}`,
+                    textAlign: 'left',
+                    display: 'block',
+                    width: '100%',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', gap: 'var(--sp-1)' }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--slate-100)' }}>{a.name}</span>
+                    <span style={{
+                      fontSize: '0.625rem', padding: '2px 8px', borderRadius: '9999px', fontWeight: 600,
+                      backgroundColor: a.status === 'available' ? 'var(--mint)' : 'var(--gold)',
+                      color: 'var(--slate-950)',
+                    }}>
+                      {a.status}
+                    </span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--slate-400)' }}>{a.description}</p>
+                </StudioButton>
+              ))}
+            </div>
+          </StudioPanel>
 
-          <div style={cardStyle}>
-            <h4 style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--slate-300)', marginBottom: 'var(--sp-1)' }}>
-              Generated Outputs
-            </h4>
-            {adapter.outputs.map((output) => (
-              <div key={output} style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)', padding: '4px 0', fontSize: '0.8125rem', color: 'var(--slate-200)' }}>
-                <span style={{ color: 'var(--mint)' }}>+</span>
-                {output}
-              </div>
-            ))}
-          </div>
+          <StudioPanel title="Generated Outputs" description="Expected artifacts for the currently selected delivery target." tone="info">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {adapter.outputs.map((output) => (
+                <div key={output} style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)', fontSize: '0.8125rem', color: 'var(--slate-200)' }}>
+                  <span style={{ color: 'var(--mint)' }}>+</span>
+                  {output}
+                </div>
+              ))}
+            </div>
+          </StudioPanel>
         </div>
 
         {/* Right: Scope Selection */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--slate-100)' }}>Export Scope</h3>
-            <button
-              onClick={() =>
-                setSelectedBrackets(
-                  selectedBrackets.size === brackets.length ? new Set() : new Set(brackets.map((b) => b.id))
-                )
-              }
-              style={{ fontSize: '0.75rem', color: 'var(--mint)', background: 'none', border: 'none', cursor: 'pointer' }}
-            >
-              {selectedBrackets.size === brackets.length ? 'Deselect all' : 'Select all'}
-            </button>
-          </div>
-
-          <div style={{ backgroundColor: 'var(--slate-800)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--slate-700)', overflow: 'hidden' }}>
-            {brackets.map((bracket) => (
-              <label
-                key={bracket.id}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 'var(--sp-1)',
-                  padding: 'var(--sp-1) var(--sp-1-5)', borderBottom: '1px solid var(--slate-700)',
-                  cursor: 'pointer',
-                  backgroundColor: selectedBrackets.has(bracket.id) ? 'var(--slate-750, #283548)' : 'transparent',
-                }}
+          <StudioPanel
+            title="Export Scope"
+            description="Curate the approved use cases that will flow into the selected target stack."
+            action={
+              <StudioButton
+                onClick={() =>
+                  setSelectedBrackets(
+                    selectedBrackets.size === brackets.length ? new Set() : new Set(brackets.map((b) => b.id))
+                  )
+                }
+                variant="ghost"
+                tone="info"
               >
-                <input type="checkbox" checked={selectedBrackets.has(bracket.id)} onChange={() => toggleBracket(bracket.id)} style={{ accentColor: 'var(--mint)' }} />
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--info)', width: '60px' }}>{bracket.id}</span>
-                <span style={{ flex: 1, fontSize: '0.8125rem', color: 'var(--slate-100)' }}>{bracket.title}</span>
-                <span style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>{bracket.kpiCount} KPIs · {bracket.actionCount} Actions</span>
-              </label>
-            ))}
-          </div>
+                {selectedBrackets.size === brackets.length ? 'Deselect all' : 'Select all'}
+              </StudioButton>
+            }
+          >
+            {brackets.length === 0 ? (
+              <StudioEmptyState title="No use cases available" description="Add or approve use cases before preparing a delivery export." />
+            ) : (
+              <div style={{ overflow: 'hidden', borderRadius: 'var(--radius-lg)', border: '1px solid var(--slate-700)' }}>
+                {brackets.map((bracket) => (
+                  <label
+                    key={bracket.id}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 'var(--sp-1)',
+                      padding: 'var(--sp-1) var(--sp-1-5)', borderBottom: '1px solid var(--slate-700)',
+                      cursor: 'pointer',
+                      backgroundColor: selectedBrackets.has(bracket.id) ? 'var(--slate-750, #283548)' : 'var(--slate-900)',
+                    }}
+                  >
+                    <input type="checkbox" checked={selectedBrackets.has(bracket.id)} onChange={() => toggleBracket(bracket.id)} style={{ accentColor: 'var(--mint)' }} />
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--info)', width: '60px' }}>{bracket.id}</span>
+                    <span style={{ flex: 1, fontSize: '0.8125rem', color: 'var(--slate-100)' }}>{bracket.title}</span>
+                    <span style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>{bracket.kpiCount} KPIs · {bracket.actionCount} Actions</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </StudioPanel>
 
-          <div style={{ ...cardStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <p style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>
-              {selectedBrackets.size} use cases · {totalKpis} KPIs · {totalActions} actions
+          <StudioPanel
+            title="Export Trigger"
+            description={`${selectedBrackets.size} use cases · ${totalKpis} KPIs · ${totalActions} actions`}
+            action={
+              <StudioButton
+                onClick={handleExport}
+                disabled={selectedBrackets.size === 0 || isExporting}
+                tone="success"
+                variant="primary"
+                style={{ padding: 'var(--sp-1) var(--sp-3)', fontSize: '0.875rem' }}
+              >
+                {isExporting ? 'Exporting...' : `Export to ${adapter.name.split('/')[0].trim()}`}
+              </StudioButton>
+            }
+          >
+            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--slate-400)' }}>
+              Trigger a packaged export only after the scope, governance and validation path below look correct.
             </p>
-            <button
-              onClick={handleExport}
-              disabled={selectedBrackets.size === 0 || isExporting}
-              style={{
-                padding: 'var(--sp-1) var(--sp-3)',
-                backgroundColor: selectedBrackets.size > 0 && !isExporting ? 'var(--mint)' : 'var(--slate-600)',
-                borderRadius: 'var(--radius-md)', border: 'none',
-                color: 'var(--slate-950)', fontWeight: 700, fontSize: '0.875rem',
-                cursor: selectedBrackets.size > 0 && !isExporting ? 'pointer' : 'not-allowed',
-              }}
-            >
-              {isExporting ? 'Exporting...' : `Export to ${adapter.name.split('/')[0].trim()}`}
-            </button>
-          </div>
+          </StudioPanel>
+
+          <StudioPanel title="Operational Plan" description="Validation checks, runbook steps and scope signals for the current delivery move." tone={readinessWarnings.length === 0 ? 'success' : 'warning'}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h4 style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--slate-200)' }}>Operational Plan</h4>
+              <span style={{ fontSize: '0.625rem', color: readinessWarnings.length === 0 ? 'var(--mint)' : 'var(--gold)' }}>
+                {readinessWarnings.length === 0 ? 'Ready for validation' : `${readinessWarnings.length} checks before export`}
+              </span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+              <div style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--slate-900)', border: '1px solid var(--slate-700)' }}>
+                <p style={{ fontSize: '0.625rem', color: 'var(--slate-500)', marginBottom: '2px' }}>Scope</p>
+                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--slate-100)' }}>{selectedBrackets.size}</p>
+                <p style={{ fontSize: '0.625rem', color: 'var(--slate-400)' }}>use cases selected</p>
+              </div>
+              <div style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--slate-900)', border: '1px solid var(--slate-700)' }}>
+                <p style={{ fontSize: '0.625rem', color: 'var(--slate-500)', marginBottom: '2px' }}>Domains</p>
+                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--slate-100)' }}>{selectedDomains.length}</p>
+                <p style={{ fontSize: '0.625rem', color: 'var(--slate-400)' }}>{selectedDomains.join(', ') || 'None'}</p>
+              </div>
+              <div style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--slate-900)', border: '1px solid var(--slate-700)' }}>
+                <p style={{ fontSize: '0.625rem', color: 'var(--slate-500)', marginBottom: '2px' }}>Target</p>
+                <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--slate-100)' }}>{adapter.status}</p>
+                <p style={{ fontSize: '0.625rem', color: 'var(--slate-400)' }}>{adapter.name}</p>
+              </div>
+            </div>
+
+            {readinessWarnings.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {readinessWarnings.map((warning) => (
+                  <div key={warning} style={{ padding: '6px 8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'color-mix(in srgb, var(--gold) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--gold) 24%, transparent)', fontSize: '0.6875rem', color: 'var(--gold)' }}>
+                    {warning}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div>
+              <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginBottom: '6px' }}>Runbook</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {runbookSteps.map((step) => (
+                  <div key={step} style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--slate-900)', border: '1px solid var(--slate-700)', fontSize: '0.6875rem', color: 'var(--slate-200)', fontFamily: 'var(--font-mono)', overflowWrap: 'anywhere' }}>
+                    {step}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </StudioPanel>
         </div>
       </div>
 
       {exportResults && (
         <ExportResults results={exportResults} adapterName={selectedAdapter} />
       )}
-    </div>
+      </div>
+    </StudioPage>
   );
 }

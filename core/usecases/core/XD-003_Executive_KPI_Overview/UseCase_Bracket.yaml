@@ -6,8 +6,9 @@ governance:
   owner_role: finance_strategy_ops_controlling
   steward_role: enterprise_bi_lead
 orchestration:
-  strategic_kpi_id: margin.gm.pct
+  strategic_kpi_id: enterprise.value_at_risk.index
   influencing_kpi_ids:
+  - margin.gm.pct
   - sales.net_sales.delta_pct.ly
   - crm.clv.amount
   - svc.sla.attainment.pct
@@ -17,7 +18,6 @@ orchestration:
   - people.attrition_risk.pct
   - enterprise.action_routed.count
   - enterprise.action_outcome_rate.pct
-  - enterprise.value_at_risk.index
   supporting_kpi_ids:
   - cost.cogs.amount
   - sales.net_sales.amount
@@ -26,12 +26,12 @@ orchestration:
   - X-E3.2
   - X-E3.3
 value_driver_model:
-  formula: margin.gm.pct = f(sales.net_sales.delta_pct.ly, crm.clv.amount, svc.sla.attainment.pct, ops.otif.pct, ops.working_capital.ccc.days,
-    people.digital_adoption.pct, people.attrition_risk.pct, enterprise.action_routed.count, enterprise.action_outcome_rate.pct,
-    enterprise.value_at_risk.index)
-  impact_direction: maximize
-  primary_driver: sales.net_sales.delta_pct.ly
-  impact_logic: Improving sales.net_sales.delta_pct.ly is the primary lever for maximizing margin.gm.pct.
+  formula: enterprise.value_at_risk.index = f(margin.gm.pct, sales.net_sales.delta_pct.ly, crm.clv.amount, svc.sla.attainment.pct,
+    ops.otif.pct, ops.working_capital.ccc.days, people.digital_adoption.pct, people.attrition_risk.pct,
+    enterprise.action_routed.count, enterprise.action_outcome_rate.pct)
+  impact_direction: minimize
+  primary_driver: margin.gm.pct
+  impact_logic: Enterprise value at risk rises when profitability, service, working-capital, people, or action-effectiveness signals deteriorate.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -40,7 +40,7 @@ ux_layout_rules:
     page_type: T1_Strategic_Overview
     template_id: pulse
     component_3s:
-      kpi_id: margin.gm.pct
+      kpi_id: enterprise.value_at_risk.index
       visual_type: kpi_card
     component_30s:
     - kpi_id: sales.net_sales.delta_pct.ly
@@ -59,7 +59,7 @@ ux_layout_rules:
       evidence_columns:
       - entity
       - period
-      - margin.gm.pct
+      - enterprise.value_at_risk.index
       action_panel: true
       payload_mode: full
 prioritization:

@@ -108,6 +108,7 @@
           "properties": {
             "strategic_kpi_id": { "type": ["string", "null"] },
             "influencing_kpi_ids": { "type": "array", "items": { "type": "string" } },
+            "supporting_kpi_ids": { "type": "array", "items": { "type": "string" } },
             "action_code_ids": { "type": "array", "items": { "type": "string" } }
           }
         },

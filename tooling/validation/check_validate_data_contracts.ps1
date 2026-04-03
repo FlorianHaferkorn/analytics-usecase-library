@@ -23,11 +23,25 @@ $pyScript = Join-Path -Path $scriptDir -ChildPath "check_validate_data_contracts
 if (-not (Test-Path -LiteralPath $pyScript)) { Write-Error "Missing: check_validate_data_contracts.py" }
 
 $pyExe = $null
-foreach ($c in @("python", "python3", "py -3")) {
+foreach ($c in @("py -3", "python3", "python")) {
 	$parts = $c -split " "
-	if (Get-Command $parts[0] -ErrorAction SilentlyContinue) { $pyExe = $c; break }
+	if (-not (Get-Command $parts[0] -ErrorAction SilentlyContinue)) { continue }
+	try {
+		$versionArgs = @()
+		if ($parts.Count -gt 1) {
+			$versionArgs += $parts[1..($parts.Count - 1)]
+		}
+		$versionArgs += "--version"
+		$output = & $parts[0] $versionArgs 2>&1 | Out-String
+		if ($LASTEXITCODE -eq 0 -and $output -match "Python 3") {
+			$pyExe = $c
+			break
+		}
+	} catch {
+		continue
+	}
 }
-if (-not $pyExe) { Write-Error "Python not found. Install Python 3 or ensure 'py -3' or 'python' is on PATH." }
+if (-not $pyExe) { Write-Error "Python 3 not found. Install Python 3 or ensure 'py -3' resolves to a working interpreter; ignore broken Microsoft Store 'python' aliases." }
 
 $pyArgs = @("--root", $rootPath)
 if ($FailOnError) { $pyArgs += "--fail-on-error" }

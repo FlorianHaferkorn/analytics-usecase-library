@@ -10,14 +10,27 @@ interface Props {
 export function LayoutPreview({ theme, layer }: Props) {
   const layerConfig = LAYER_CONFIG[layer];
 
+  const cssVars = {
+    '--preview-primary': theme.primary,
+    '--preview-secondary': theme.secondary,
+    '--preview-accent': theme.accent,
+    '--preview-bg': theme.background,
+    '--preview-surface': theme.surface,
+    '--preview-text': theme.text,
+    '--preview-radius': `${Math.round(theme.borderRadius / 2)}px`,
+    '--preview-font': theme.fontFamily || 'inherit',
+  } as React.CSSProperties;
+
   return (
     <div
       style={{
+        ...cssVars,
         backgroundColor: theme.background,
         borderRadius: `${theme.borderRadius}px`,
         border: '1px solid var(--slate-700)',
         overflow: 'hidden',
         aspectRatio: '16/9',
+        fontFamily: theme.fontFamily || 'inherit',
       }}
     >
       {/* Header */}

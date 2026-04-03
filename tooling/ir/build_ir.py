@@ -291,6 +291,7 @@ def build_ir(
             "orchestration": {
                 "strategic_kpi_id": (u.get("orchestration") or {}).get("strategic_kpi_id"),
                 "influencing_kpi_ids": list((u.get("orchestration") or {}).get("influencing_kpi_ids") or []),
+                "supporting_kpi_ids": list((u.get("orchestration") or {}).get("supporting_kpi_ids") or []),
                 "action_code_ids": list((u.get("orchestration") or {}).get("action_code_ids") or []),
             },
             "value_driver_model": u.get("value_driver_model"),

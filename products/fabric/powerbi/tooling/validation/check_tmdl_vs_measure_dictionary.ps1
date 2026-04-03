@@ -25,11 +25,30 @@ function Get-MeasureNamesFromDict {
   Get-ChildItem -Path $Root -Recurse -Filter "Measure_Dictionary_*.md" | Where-Object {
     $_.FullName -notmatch '\\internal\\archive\\'
   } | ForEach-Object {
+    $currentMeasureName = $null
+    $currentKpiIdRef = $null
     Get-Content $_.FullName | ForEach-Object {
       if ($_ -match '^\s*-?\s*measure_name:\s*"?(.+?)"?\s*$') {
-        $name = $Matches[1].Trim()
-        if ($name) { $names.Add($name) | Out-Null }
+        if ($currentKpiIdRef) {
+          $names.Add($currentKpiIdRef) | Out-Null
+        } elseif ($currentMeasureName) {
+          $names.Add($currentMeasureName) | Out-Null
+        }
+        $currentMeasureName = $Matches[1].Trim()
+        $currentKpiIdRef = $null
+        return
       }
+      if ($_ -match '^\s*kpi_id_ref:\s*"?(.+?)"?\s*$') {
+        $kpiId = $Matches[1].Trim()
+        if ($kpiId) {
+          $currentKpiIdRef = $kpiId
+        }
+      }
+    }
+    if ($currentKpiIdRef) {
+      $names.Add($currentKpiIdRef) | Out-Null
+    } elseif ($currentMeasureName) {
+      $names.Add($currentMeasureName) | Out-Null
     }
   }
   return $names

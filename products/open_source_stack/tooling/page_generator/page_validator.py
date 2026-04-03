@@ -16,6 +16,12 @@ from typing import List, Optional
 from .component_builder import COMPONENT_MAP
 
 
+PLACEHOLDER_SQL_PATTERNS = (
+    re.compile(r"--\s*TODO:", re.IGNORECASE),
+    re.compile(r"--\s*\[manual\]", re.IGNORECASE),
+)
+
+
 @dataclass
 class ValidationResult:
     """Result of validating a single page."""
@@ -58,7 +64,13 @@ def validate_page(content: str, page_path: str = "<unknown>") -> ValidationResul
     if re.search(r"SELECT\s+\*", content, re.IGNORECASE):
         result.errors.append("SELECT * is not allowed — use explicit column names")
 
-    # Rule 6: Design tokens — only governed classes
+    # Rule 6: Generated SQL must not contain manual placeholder markers
+    for pattern in PLACEHOLDER_SQL_PATTERNS:
+        if pattern.search(content):
+            result.errors.append("Placeholder SQL is not allowed — replace TODO/manual translations")
+            break
+
+    # Rule 7: Design tokens — only governed classes
     governed_tokens = {"fill-primary", "text-brand-header", "bg-surface"}
     custom_classes = re.findall(r'class="([^"]*)"', content)
     for cls_str in custom_classes:
@@ -66,7 +78,7 @@ def validate_page(content: str, page_path: str = "<unknown>") -> ValidationResul
             if cls.startswith(("fill-", "text-brand-", "bg-")) and cls not in governed_tokens:
                 result.warnings.append(f"Non-governed design token: {cls}")
 
-    # Rule 7: 3-30-300 structure — should have section headings
+    # Rule 8: 3-30-300 structure — should have section headings
     has_3s = bool(re.search(r"##.*3.Second|##.*KPI|##.*Headline", content, re.IGNORECASE))
     has_30s = bool(re.search(r"##.*30.Second|##.*Main|##.*Trend", content, re.IGNORECASE))
     if not has_3s:

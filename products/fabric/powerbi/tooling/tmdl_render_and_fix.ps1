@@ -61,6 +61,11 @@ function Write-TmdlLog {
   Write-Host $line
 }
 
+function Test-PbiToolsCompileCompatible {
+  param([string]$FolderPath)
+  return (Test-Path (Join-Path $FolderPath "Version.txt"))
+}
+
 function Invoke-TmdlValidation {
   $allOutput = @()
   $failed = $false
@@ -76,10 +81,21 @@ function Invoke-TmdlValidation {
   }
   if ($TryPbiToolsCompile) {
     $pbitools = Get-Command pbi-tools -ErrorAction SilentlyContinue
+    if (-not $pbitools) {
+      $localPbiTools = @(
+        (Join-Path $RepoRoot ".tools\pbi-tools\pbi-tools.exe"),
+        (Join-Path $RepoRoot ".tools\pbi-tools\pbi-tools.core.exe")
+      ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+      if ($localPbiTools) {
+        $pbitools = @{ Source = (Resolve-Path -Path $localPbiTools).Path }
+      }
+    }
     if ($pbitools) {
-      $modelDirs = Get-ChildItem -Path $distResolved -Directory -Filter "*.SemanticModel" -ErrorAction SilentlyContinue
-      foreach ($m in $modelDirs) {
-        $out = & pbi-tools compile -pbipPath $m.FullName 2>&1
+      $modelDirs = @(Get-ChildItem -Path $distResolved -Directory -Filter "*.SemanticModel" -ErrorAction SilentlyContinue)
+      $modelDirs += @(Get-ChildItem -Path $distResolved -Directory -Filter "*.Report" -ErrorAction SilentlyContinue)
+      $compatibleModelDirs = @($modelDirs | Where-Object { Test-PbiToolsCompileCompatible -FolderPath $_.FullName })
+      foreach ($m in $compatibleModelDirs) {
+        $out = & $pbitools.Source compile $m.FullName 2>&1
         $allOutput += $out
         if ($LASTEXITCODE -ne 0) { $failed = $true }
       }

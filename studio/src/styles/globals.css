@@ -64,15 +64,16 @@
 
 /* ── Base Styles ── */
 html {
+  height: 100%;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body {
+  height: 100%;
   background-color: var(--slate-900);
   color: var(--slate-100);
-  min-height: 100vh;
 }
 
 /* ── Scrollbar ── */
@@ -98,4 +99,30 @@ body {
 ::selection {
   background-color: color-mix(in srgb, var(--mint) 30%, transparent);
   color: var(--slate-50);
+}
+
+/* ── React Flow Controls ── */
+.react-flow__controls {
+  background: var(--slate-800) !important;
+  border: 1px solid var(--slate-600) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: none !important;
+}
+
+.react-flow__controls-button {
+  background: var(--slate-800) !important;
+  border-bottom: 1px solid var(--slate-700) !important;
+  color: var(--slate-300) !important;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--slate-700) !important;
+}
+
+.react-flow__controls-button svg {
+  fill: var(--slate-300) !important;
+}
+
+.react-flow__controls-button:last-child {
+  border-bottom: none !important;
 }
