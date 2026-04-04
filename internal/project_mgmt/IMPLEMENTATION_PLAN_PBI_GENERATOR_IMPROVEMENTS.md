@@ -1,4 +1,4 @@
-# Implementierungsplan: PBI Generator Improvements
+# Implementierungsplan: PBI Generator & Architecture Generator Improvements
 
 **Basis:** Gap-Analyse `GAP_ANALYSIS_PBI_GENERATOR_VS_SKILLS_FOR_FABRIC.md`  
 **Stand:** 2026-04-04  
@@ -375,19 +375,23 @@ delegates_to:
 ```
 Sprint 1 (1-2 Wochen):
   [ ] 1.1 TMDL Advanced Features Docs (M)
-  [ ] 1.3 REST-API az rest Patterns in fabric-api-core.md (S)
+  [ ] 1.3 REST-API az rest Patterns in fabric-api-core.md (S) — inkl. getDefinition /result Gotcha
   [ ] 1.4 pbip_writer.py byConnection Support (S)
 
 Sprint 2 (1-2 Wochen):
   [ ] 1.2 Direct Lake Generierung in table_ops.ps1 (L)
   [ ] 2.3 RLS/OLS TMDL Syntax (S)
+  [ ] ARCH-4 allowCreateArtifact in orchestrator.py PipelineManager.deploy() (S)
 
 Sprint 3 (1 Woche):
   [ ] 2.1 powerbi-consumption.md INFO.VIEW.* (S)
   [ ] 2.4 Router-Agent Delegation (S)
   [ ] 2.2 Skill-Format-Standardisierung (M)
+  [ ] ARCH-2 OneLake Shortcut-Erstellung in orchestrator.py (M)
 
 Sprint 4 (optional):
+  [ ] ARCH-1 Item-Provisioning in orchestrator.py (L)
+  [ ] ARCH-3 Notebook-Deployment nach Workspace-Provisioning (M)
   [ ] 3.1 Prompt Security Scan (S)
   [ ] 3.2 Versions-Tracking (S)
   [ ] 3.3 MCP-Routing-Doku (S)
@@ -395,12 +399,231 @@ Sprint 4 (optional):
 
 ---
 
-## Erfolgs-Kriterien
+---
 
-| Kriterium | Messung |
-|---|---|
-| TMDL Calculation Groups | Generator produziert valide TMDL für Zeit-Intelligenz ohne Hook-Fehler |
-| Direct Lake Deploy | `table_ops.ps1 -StorageMode DirectLake` erzeugt valide Entity Partitions |
-| REST Report Deploy | `definition.pbir` mit `byConnection` wird via REST erfolgreich deployed |
-| Discovery | Agent kann `INFO.VIEW.MEASURES()` auf deployed Modell ausführen |
-| Skill-Routing | KI wählt korrekt zwischen `fabric-powerbi-authoring` und `pbi-generator-orchestrator` |
+## Teil 2: Architecture Generator — Implementierungsdetails
+
+### ARCH-4 (Sprint 2) — `allowCreateArtifact` beim ersten Pipeline-Deploy
+
+**Datei:** `products/fabric/orchestrator/orchestrator.py` — `PipelineManager.deploy()`
+
+```python
+# Aktuell (vereinfacht):
+payload = {
+    "sourceStageOrder": source_stage,
+    "isBackwardDeployment": False
+}
+
+# Neu: allowCreateArtifact als Parameter
+def deploy(self, pipeline_id: str, source_stage: int, 
+           allow_create: bool = False) -> dict:
+    payload = {
+        "sourceStageOrder": source_stage,
+        "isBackwardDeployment": False,
+        "options": {
+            "allowCreateArtifact": allow_create,
+            "allowOverwriteArtifact": True
+        }
+    }
+```
+
+CLI-Ergänzung: `--allow-create` Flag bei `deploy` Command (default: False, Pflicht beim Erst-Deploy).  
+**Aufwand:** S (1-2h)
+
+---
+
+### ARCH-2 (Sprint 3) — OneLake Shortcut-Erstellung
+
+**Datei:** `products/fabric/orchestrator/orchestrator.py` — neue Klasse `ShortcutManager`
+
+```python
+class ShortcutManager:
+    def create_shortcut(self, workspace_id: str, lakehouse_id: str,
+                        name: str, path: str,
+                        source_workspace_id: str, source_item_id: str,
+                        source_path: str) -> dict:
+        """Create OneLake Shortcut: Src → Trf layer (zero-copy)"""
+        url = f"workspaces/{workspace_id}/items/{lakehouse_id}/shortcuts"
+        payload = {
+            "name": name,
+            "path": path,
+            "target": {
+                "type": "OneLake",
+                "oneLake": {
+                    "path": source_path,
+                    "itemId": source_item_id,
+                    "workspaceId": source_workspace_id
+                }
+            }
+        }
+        return self.api_client.post(url, payload)
+
+    def list_shortcuts(self, workspace_id: str, lakehouse_id: str) -> list:
+        url = f"workspaces/{workspace_id}/items/{lakehouse_id}/shortcuts"
+        return self.api_client.get(url).get("value", [])
+```
+
+Integration in `DomainOrchestrator.init_domain()`:  
+Nach Workspace-Erstellung → `_create_layer_shortcuts()` aufrufen wenn `config.onelake_shortcuts.enabled`.  
+**Aufwand:** M (4-5h)
+
+---
+
+### ARCH-1 (Sprint 4) — Item-Provisioning nach Workspace-Erstellung
+
+**Datei:** `products/fabric/orchestrator/orchestrator.py` — neue Klasse `ItemProvisioner`
+
+```python
+class ItemProvisioner:
+    ITEM_TYPES = {
+        "Src": ["Lakehouse"],
+        "Trf": ["Warehouse"],
+        "Anl": ["SemanticModel"]  # nur Stub; echtes Modell via PBI Generator
+    }
+
+    def provision_layer_items(self, workspace_id: str, layer: str,
+                               domain: str) -> dict:
+        """Create default items per layer after workspace provisioning"""
+        items_created = {}
+        for item_type in self.ITEM_TYPES.get(layer, []):
+            existing = self._find_item(workspace_id, item_type, 
+                                       f"{domain.lower()}_{layer.lower()}")
+            if existing:
+                items_created[item_type] = existing["id"]
+                continue
+            # POST /v1/workspaces/{id}/items
+            result = self.api_client.post(f"workspaces/{workspace_id}/items", {
+                "displayName": f"{domain.lower()}_{layer.lower()}",
+                "type": item_type
+            })
+            items_created[item_type] = result["id"]
+        return items_created
+```
+
+CLI-Ergänzung: `--provision-items` Flag bei `init-domain` (default: False, opt-in).  
+**Aufwand:** L (8-10h) — inkl. Idempotenz, Lakehouse-SQL-Endpoint-Polling, Error Handling.
+
+---
+
+---
+
+## Teil 3: Flexibilitäts-Maßnahmen (Zukunftssicherung)
+
+### F-1 — TMDL-Basistemplates zentralisieren
+
+**Problem:** `database.tmdl` + `model.tmdl` Pflichtinhalt ist in `measure_ops.ps1` + `table_ops.ps1` verteilt. Bei einem `compatibilityLevel`-Update müssen mehrere Stellen angepasst werden.
+
+**Lösung:**
+
+```
+core/strategy_operating_model/operating_model/reference/
+  └── tmdl_base_templates/
+        ├── database.tmdl.template    # compatibilityLevel: 1702
+        ├── model.tmdl.template       # culture, defaultPowerBIDataSourceVersion
+        └── definition.pbism.template # version: "4.2"
+```
+
+Orchestrator liest Templates statt Strings hardcodet. Wenn Microsoft `compatibilityLevel` auf 1800 erhöht → eine Datei ändern.  
+**Aufwand:** S (2h)
+
+---
+
+### F-2 — PBIR JSON-Schema-Validierung einbinden
+
+**Problem:** Microsoft veröffentlicht PBIR JSON Schemas unter `developer.microsoft.com/json-schemas/fabric/item/report/`. Wir prüfen aktuell nur Syntax, nicht Schema-Konformität.
+
+**Lösung:** `check_report_layout.ps1` um Schema-Validation erweitern:
+
+```powershell
+# Schema-URL aus Microsoft JSON Schema Index
+$schemaUrl = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.1.0/schema.json"
+# Lokale Kopie cachen in tooling/schemas/pbir/
+# Bei Änderungen → Changelog warnt uns
+```
+
+**Aufwand:** S (2h)
+
+---
+
+### F-3 — `fab` CLI-Abhängigkeit absichern
+
+**Problem:** `fab import` ist der einzige Deploy-Weg. Wenn `fab` sich ändert oder deprecated wird, bricht das Deployment.
+
+**Lösung:** `deploy.ps1` um `az rest`-Fallback ergänzen:
+
+```powershell
+if (Test-Command "fab") {
+    # Primär: fab import (schnell, unterstützt byPath)
+    fab import "$WorkspaceId/SemanticModel" -i $ModelPath -f
+} else {
+    # Fallback: az rest createItemWithDefinition
+    # Requires: az login, TMDL base64-encoding
+    Invoke-FabricRestDeploy -ModelPath $ModelPath -WorkspaceId $WorkspaceId
+}
+```
+
+**Aufwand:** M (4h) — `Invoke-FabricRestDeploy` Funktion implementieren.
+
+---
+
+### F-4 — `getDefinition` LRO `/result`-Suffix dokumentieren und implementieren
+
+**Problem:** Das Polling für `getDefinition` braucht `/result` am Poll-URL-Ende (anders als `createItemWithDefinition`). Aktuell nicht dokumentiert in `fabric-api-core.md`.
+
+**Sofort-Fix:** In `fabric-api-core.md` ergänzen:
+
+```
+LRO-Unterschied:
+- createItemWithDefinition: Poll URL → GET {Location}  → { "status": "Succeeded" }
+- getDefinition:            Poll URL → GET {Location}/result → { ..., "definition": {...} }
+```
+
+**Aufwand:** XS (30min)
+
+---
+
+## Aufgaben-Reihenfolge (vollständig, mit Architecture Generator)
+
+```
+Sprint 1:
+  [ ] PBI 1.1 TMDL Advanced Features Docs (M)
+  [ ] PBI 1.3 az rest Patterns + getDefinition /result Fix (S)
+  [ ] PBI 1.4 pbip_writer.py byConnection Support (S)
+  [ ] F-4 getDefinition /result in fabric-api-core.md (XS) ← sofort!
+
+Sprint 2:
+  [ ] PBI 1.2 Direct Lake Generierung (L)
+  [ ] PBI 2.3 RLS/OLS TMDL Syntax (S)
+  [ ] ARCH-4 allowCreateArtifact in deploy() (S)
+  [ ] F-1 TMDL-Basistemplates zentralisieren (S)
+
+Sprint 3:
+  [ ] PBI 2.1 powerbi-consumption.md (S)
+  [ ] PBI 2.4 Router-Agent Delegation (S)
+  [ ] PBI 2.2 Skill-Format-Standardisierung (M)
+  [ ] ARCH-2 OneLake Shortcuts in orchestrator.py (M)
+  [ ] F-2 PBIR Schema-Validierung (S)
+
+Sprint 4+:
+  [ ] ARCH-1 Item-Provisioning (L)
+  [ ] ARCH-3 Notebook-Deployment (M)
+  [ ] F-3 fab-Fallback via az rest (M)
+  [ ] PBI 3.1 Prompt Security Scan (S)
+  [ ] PBI 3.2 Versions-Tracking (S)
+```
+
+---
+
+## Erfolgs-Kriterien (erweitert)
+
+| Kriterium | Tool | Messung |
+|---|---|---|
+| TMDL Calculation Groups | PBI Generator | Valide TMDL ohne Hook-Fehler |
+| Direct Lake Deploy | PBI Generator | Entity Partitions korrekt generiert |
+| REST Report Deploy | PBI Generator | `byConnection` via REST erfolgreich |
+| Discovery | Beide | Agent kann `INFO.VIEW.MEASURES()` ausführen |
+| Skill-Routing | PBI Generator | KI wählt korrekt zwischen Authoring/Consumption |
+| OneLake Shortcuts | Architecture Generator | Src→Trf Shortcuts automatisch nach init-domain |
+| Deployment Pipeline Erst-Deploy | Architecture Generator | DEV→TEST ohne manuellen Eingriff |
+| Fallback-Deploy ohne fab | PBI Generator | `az rest` Deploy funktioniert wenn fab fehlt |
+| TMDL Änderungs-Resilienz | PBI Generator | `compatibilityLevel` in einer Datei änderbar |

@@ -1,4 +1,4 @@
-# Gap-Analyse: PBI Generator vs. microsoft/skills-for-fabric
+# Gap-Analyse: PBI Generator & Fabric Architecture Generator vs. microsoft/skills-for-fabric
 
 **Stand:** 2026-04-04  
 **Branch:** `claude/pbi-generator-gap-analysis-MrchA`  
@@ -8,7 +8,14 @@
 
 ## Kontext
 
-Diese Analyse vergleicht unseren **PBI Generator** (Phase-basierter PBIP-Orchestrator in `products/fabric/powerbi/`) mit dem offiziellen Microsoft-Repository `skills-for-fabric`. Ziel ist es, konkrete Verbesserungen zu identifizieren, die unsere KI-Agenten präziser, robuster und vollständiger machen.
+Diese Analyse umfasst **zwei Tools**:
+
+| Tool | Pfad | Zweck |
+|---|---|---|
+| **PBI Generator** | `products/fabric/powerbi/orchestrator/` | Code-Generierung: TMDL, PBIP, Reports aus UseCase Brackets |
+| **Fabric Architecture Generator** | `products/fabric/orchestrator/orchestrator.py` | Infrastruktur-Provisioning: Workspaces, Deployment Pipelines, Git |
+
+Beide werden mit dem Microsoft `skills-for-fabric`-Repository (v0.2.6) verglichen.
 
 ---
 
@@ -276,7 +283,7 @@ POST /v1/workspaces/{wsId}/datasets/{datasetId}/users
 
 ---
 
-## Abgrenzung: Was wir bewusst NICHT übernehmen
+## Abgrenzung: Was wir bewusst NICHT übernehmen (PBI Generator)
 
 | Aspekt | Begründung |
 |---|---|
@@ -284,3 +291,281 @@ POST /v1/workspaces/{wsId}/datasets/{datasetId}/users
 | `spark-authoring-cli`, `sqldw-authoring-cli` | Außerhalb unseres PBI-Generator-Scopes |
 | `e2e-medallion-architecture` Skill | Wir haben eigenen Orchestrator mit Domain-DDM-Architektur |
 | `generate_skill_catalog.py` | Wir nutzen Knowledge Graph + Registry statt statischem Katalog |
+
+---
+
+---
+
+## Teil 2: Fabric Architecture Generator (`orchestrator.py`) — Gap-Analyse
+
+### Kurzbeschreibung des Generators
+
+`products/fabric/orchestrator/orchestrator.py` (v2.0, ~1.400 Zeilen Python) ist ein **reines Infrastruktur-Provisioning-Tool**:
+
+- Erstellt Workspace-Matrizen (Enterprise: 9 / Compact: 3 Workspaces pro Domain)
+- Konfiguriert Git-Integration (GitHub / Azure DevOps) pro Workspace
+- Erstellt Deployment Pipelines (DEV→TEST→PROD) mit automatischer Stage-Zuweisung
+- Wendet Governance an (Sensitivity Labels, Endorsement)
+- Erstellt Feature-Workspaces für Branch-Isolation
+- **Erstellt keine Items** (Lakehouse, Warehouse, Notebooks, Pipelines, Semantic Models, Reports)
+
+**Auth:** SPN über MSAL (kein `fab`, kein `az` nötig — reines `requests` + `msal`).  
+**API:** Direkt gegen `https://api.fabric.microsoft.com/v1` — kein CLI-Wrapper.
+
+---
+
+### Wo der Architecture Generator von skills-for-fabric profitieren würde
+
+#### ARCH-GAP 1 — Item-Provisioning fehlt komplett
+
+**Status:** Hoch  
+**Unser Stand:** Der Generator erstellt nur Workspaces. Nach der Provisioning-Phase müssen Benutzer manuell (oder via separatem CI/CD) erstellen:
+- Lakehouses im Src-Layer
+- Warehouses im Trf-Layer  
+- Notebooks für Bronze→Silver→Gold Transformationen
+- DataPipelines für Orchestrierung
+- OneLake Shortcuts zwischen Layern
+
+**Skills-for-fabric bietet dafür:**
+- `spark-authoring-cli`: Lakehouse-Erstellung, Notebook-Deployment via `createItemWithDefinition` mit `.ipynb` Base64
+- `ITEM-DEFINITIONS-CORE.md`: Vollständige Item-Typen (Lakehouse, DataPipeline, SparkJobDefinition, etc.)
+- `COMMON-CLI.md § OneLake Shortcuts`: Create/List/Delete Shortcut Patterns
+
+**Konkrete Ergänzung:** `orchestrator.py` sollte nach Workspace-Provisioning optional Lakehouse + Warehouse Items erstellen können — via `POST /v1/workspaces/{id}/items` mit `{"type": "Lakehouse", "displayName": "..."}`. Das Pattern ist vollständig in `ITEM-DEFINITIONS-CORE.md` dokumentiert.
+
+---
+
+#### ARCH-GAP 2 — OneLake Shortcuts: Config ohne Ausführung
+
+**Status:** Hoch  
+**Unser Stand:** `config.yaml.example` zeigt `onelake_shortcuts` Konfiguration, aber `orchestrator.py` erstellt keine Shortcuts. Der Code-Kommentar sagt "configuration shown but **not explicitly created** by tool".
+
+**Skills-for-fabric:**
+
+```bash
+# Shortcut Create via az rest
+az rest --method post \
+  --resource "https://api.fabric.microsoft.com" \
+  --url "https://api.fabric.microsoft.com/v1/workspaces/{wsId}/items/{itemId}/shortcuts" \
+  --body '{
+    "name": "silver_sales",
+    "path": "/Tables",
+    "target": {
+      "type": "OneLake",
+      "oneLake": {
+        "path": "Tables/sales",
+        "itemId": "{srcLakehouseId}",
+        "workspaceId": "{srcWorkspaceId}"
+      }
+    }
+  }'
+```
+
+**Konsequenz:** Das "Zero-Copy" Konzept Src→Trf kann nicht automatisiert werden.
+
+---
+
+#### ARCH-GAP 3 — Notebook-Deployment nach Workspace-Provisioning
+
+**Status:** Mittel  
+**Unser Stand:** `TemplateGenerator` generiert PySpark-Notebook-Templates (Bronze/Silver-Ingestion + dbt-Skeleton) als **lokale Dateien**, deployt sie aber nicht in Fabric.
+
+**Skills-for-fabric `spark-authoring-cli`:** Vollständiges Notebook-Deployment via REST:
+
+```bash
+# Notebook als base64-encoded .ipynb deployen
+PAYLOAD=$(python3 -c "
+import base64, json
+nb = json.load(open('bronze_ingestion.ipynb'))
+nb['metadata']['dependencies'] = {
+  'lakehouse': {
+    'default_lakehouse': '$LAKEHOUSE_ID',
+    'default_lakehouse_name': 'src_lakehouse',
+    'default_lakehouse_workspace_id': '$WS_ID'
+  }
+}
+print(base64.b64encode(json.dumps(nb).encode()).decode())
+")
+```
+
+Kritische `skills-for-fabric`-Erkenntnisse die uns betreffen:
+- Jede Code-Cell braucht `"outputs": []` und `"execution_count": null` — sonst stilles Deployment-Versagen
+- Lakehouse-Binding muss in `metadata.dependencies.lakehouse` im `.ipynb` selbst stehen
+- `updateDefinition` LRO: Poll-URL ohne `/result` (anders als `getDefinition`)
+
+---
+
+#### ARCH-GAP 4 — Deployment Pipeline: Keine `allowCreateArtifact` Option
+
+**Status:** Mittel  
+**Unser Stand:** `PipelineManager.deploy()` sendet einen Deployment-Request, aber ohne `allowCreateArtifact`-Option.
+
+**Skills-for-fabric:** Explizite Option für das erste Deployment:
+
+```json
+{
+  "sourceStageOrder": 0,
+  "isBackwardDeployment": false,
+  "options": {
+    "allowCreateArtifact": true,
+    "allowOverwriteArtifact": true
+  }
+}
+```
+
+Ohne `allowCreateArtifact: true` schlägt das erste Deployment (DEV→TEST) fehl, weil TEST noch keine Items hat.
+
+---
+
+#### ARCH-GAP 5 — Fehlende Idempotenz für Items
+
+**Status:** Mittel  
+**Unser Stand:** Workspaces werden idempotent erstellt (find-before-create). Items werden nicht erstellt — somit auch keine Item-Idempotenz nötig. Sobald Item-Provisioning ergänzt wird (ARCH-GAP 1), muss auch Idempotenz implementiert werden.
+
+**Skills-for-fabric Pattern:** `GET /v1/workspaces/{id}/items?type={type}` + JMESPath-Filter nach `displayName` → create nur wenn nicht vorhanden.
+
+---
+
+#### ARCH-GAP 6 — Governance: `workspaces/{id}/governanceLabels` ist non-standard
+
+**Status:** Niedrig  
+**Unser Stand:** `GovernanceManager.apply_sensitivity_label()` nutzt `POST /v1/workspaces/{id}/governanceLabels`. Dieser Endpoint ist nicht in `skills-for-fabric` dokumentiert — er gehört zur **Information Protection API** (Microsoft Purview), nicht zur Standard-Fabric-API.
+
+**Risiko:** Dieser Endpoint könnte sich ändern oder Purview-Lizenz benötigen. Skills-for-fabric umgeht Governance-Labels bewusst (außerhalb ihres Scope).
+
+---
+
+### Was der Architecture Generator bereits besser macht als skills-for-fabric abdeckt
+
+| Stärke | Beschreibung |
+|---|---|
+| **Workspace-Matrix** | 9-Workspace Enterprise-Muster; skills-for-fabric kennt kein Schema-Provisioning |
+| **Git-Integration** | Workspace→Branch-Verbindung; skills-for-fabric hat kein `git connect` Pattern |
+| **Feature-Isolation** | Naming-Pattern + Safe-Cleanup; skills-for-fabric nur für single-workspace |
+| **Multi-Domain Config** | `config.yaml` mit N Domains; skills-for-fabric ist single-workspace-focused |
+| **SPN via MSAL (kein az)** | Kein Azure CLI nötig; portabler als `az login` Flows |
+| **Retry/Backoff** | Explizit implementiert mit `Retry-After`; skills-for-fabric delegiert das an az CLI |
+
+---
+
+### Zusammenfassung: Architecture Generator Gaps nach Priorität
+
+| # | Gap | Priorität | Aufwand |
+|---|---|---|---|
+| ARCH-1 | Item-Provisioning (Lakehouse, Warehouse, Shortcut) nach Workspace | Hoch | L |
+| ARCH-2 | OneLake Shortcut-Erstellung implementieren | Hoch | M |
+| ARCH-3 | Notebook-Deployment in Fabric nach Template-Generierung | Mittel | M |
+| ARCH-4 | `allowCreateArtifact` in Deployment-Pipeline-Deploy | Mittel | S |
+| ARCH-5 | Item-Idempotenz (find-before-create für Items) | Mittel | S |
+| ARCH-6 | Governance-Label-Endpoint absichern (Purview-Abhängigkeit) | Niedrig | S |
+
+---
+
+---
+
+## Teil 3: Flexibilität & Zukunftssicherheit
+
+### Was sich bei Microsoft ändern kann — und wie es uns trifft
+
+#### A) Fabric REST API Endpunkte
+
+| Änderungsrisiko | Betrifft | Auswirkung |
+|---|---|---|
+| `/v1/` → `/v2/` API-Versioning | Beide Tools | Breaking Change in allen API-Calls |
+| Neue Item-Typen (z.B. `VariableLibrary`) | Architecture Generator | ARCH-GAP 1 wird größer |
+| LRO-Verhalten ändert sich | Beide Tools | Polling-Logik muss angepasst werden |
+| `getDefinition` `/result`-Suffix entfällt | PBI Generator (REST-Deploy) | Silent Failure beim Polling |
+| `definition.pbism` Version erhöht (4.2 → 5.x) | PBI Generator | Generator erzeugt veraltete Dateien |
+
+**Unser Risiko (Architecture Generator):** Gering — reine REST-Calls, kein CLI-Wrapper. Endpunkt-Änderungen sind an einer Stelle (FabricApiClient) zu fixen.
+
+**Unser Risiko (PBI Generator):** Mittel — mehrere Stellen betroffen: `pbip_writer.py`, `fab import` Commands, PowerShell-Orchestrator.
+
+**skills-for-fabric Risiko:** Gering — REST-first, modularer Aufbau. Microsoft pflegt die Skills selbst.
+
+---
+
+#### B) TMDL-Spezifikation
+
+| Änderungsrisiko | Betrifft | Wahrscheinlichkeit |
+|---|---|---|
+| Neue TMDL-Features (z.B. Composite Models) | PBI Generator TMDL-Generierung | Hoch |
+| `compatibilityLevel` erhöht (1702 → 1800+) | `database.tmdl` in Generator | Mittel |
+| `defaultPowerBIDataSourceVersion` neue Werte | `model.tmdl` Template | Mittel |
+| `///` Description-Syntax geändert | Alle TMDL-Generatoren | Niedrig |
+| DAX-Syntax-Änderungen | Measure-Generator | Niedrig |
+
+**Unser PBI Generator:** Spröde — TMDL-Templates sind in `measure_ops.ps1` + `table_ops.ps1` hardcodiert. Kein zentrales Template-System.  
+**skills-for-fabric:** Robuster — TMDL-Syntax ist in `tmdl-authoring-guide.md` konzentriert; Skills referenzieren es. Eine Änderung → eine Datei updaten.
+
+**Empfehlung:** TMDL-Basistemplates (database.tmdl, model.tmdl) in eine zentrale Datei auslagern, die Generator + AI-Agent gemeinsam nutzen.
+
+---
+
+#### C) PBIR / Report-Format
+
+| Änderungsrisiko | Betrifft | Wahrscheinlichkeit |
+|---|---|---|
+| PBIR-Legacy → PBIR Migration (Microsoft erzwingt) | PBI Generator (`pbip_writer.py`) | Hoch (bereits in Gange) |
+| Visual JSON-Schema Änderungen | `visual_builder.py`, `page_builder.py` | Mittel |
+| `definition.pbir` `byPath` wird deprecated | PBI Generator (REST-Deploy) | Mittel |
+| Report-JSON-Schema-Versionen (3.1.0+) | Alle Report-Generatoren | Mittel |
+
+**Unser Risiko:** Hoch — `pbip_writer.py` und `page_builder.py` haben ~1.500 Zeilen hardcodierter Visual-JSON-Strukturen. Eine PBIR-Schema-Änderung erfordert umfangreiche Anpassungen.
+
+**Mitigation:** Microsoft veröffentlicht PBIR JSON Schemas unter `developer.microsoft.com/json-schemas/fabric/item/report/` — diese könnten als Validierungsgrundlage in unsere Checks eingebunden werden.
+
+---
+
+#### D) `fab` CLI (nur PBI Generator)
+
+| Änderungsrisiko | Betrifft | Wahrscheinlichkeit |
+|---|---|---|
+| `fab` CLI wird deprecated | `orchestrate_full_model.ps1`, Deploy-Scripts | Mittel |
+| `fab import` Argumente ändern sich | Alle Deploy-Schritte | Mittel |
+| `fab auth` Flow ändert sich | Auth in PowerShell | Niedrig |
+
+**Unser Risiko:** Hoch — `fab` ist ein Community-/Microsoft-Tool ohne GA-Garantie. Skills-for-fabric hat `fab` bewusst **nicht** verwendet und setzt auf `az rest` — das ist die stabilere Wahl.  
+**Empfehlung:** `az rest` als Fallback-Deploy-Pfad parallel zu `fab` implementieren (deckt GAP 3).
+
+---
+
+#### E) Authentication / Token Audiences
+
+| Änderungsrisiko | Betrifft | Wahrscheinlichkeit |
+|---|---|---|
+| Fabric API Audience ändert sich | Beide Tools | Sehr niedrig |
+| Power BI Datasets API Audience ändert sich | PBI Generator (Refresh, Permissions) | Sehr niedrig |
+| SPN-Anforderungen verschärft (MFA, Conditional Access) | Architecture Generator | Mittel |
+| Managed Identity als Pflicht | Architecture Generator | Niedrig |
+
+**Architecture Generator Risiko:** SPN-only Auth ist robust, solange Microsoft Service Principals für Fabric APIs erlaubt. Langfristig empfiehlt Microsoft Managed Identity.
+
+---
+
+### Flexibilitätsbewertung: Gesamtübersicht
+
+| Dimension | PBI Generator | Architecture Generator | skills-for-fabric |
+|---|---|---|---|
+| **REST-API Stabilität** | ⚠️ Mittel (`fab`-Abhängigkeit) | ✅ Hoch (direkte REST-Calls) | ✅ Hoch |
+| **TMDL-Änderungen** | ⚠️ Spröde (hardcodiert) | — (kein TMDL) | ✅ Zentral in einer Datei |
+| **Report-Format-Änderungen** | ⚠️ Hoch (viel hardcodierter Visual-JSON) | — | ✅ Referenz-Docs anpassbar |
+| **Auth-Stabilität** | ⚠️ Mittel (`fab auth`) | ✅ Hoch (MSAL direkt) | ✅ Hoch (`az login`) |
+| **Neue Fabric Item-Typen** | — | ⚠️ Manuell nachpflegen | ✅ Skills erweiterbar |
+| **Agent-Anpassbarkeit** | ⚠️ Prompts verteilt | — | ✅ Skill-Granularität |
+| **Wartungsaufwand bei Updates** | Hoch | Mittel | Niedrig (Microsoft pflegt) |
+
+**Fazit:** Der Architecture Generator ist durch seinen REST-first Ansatz bereits robuster als der PBI Generator. Der größte gemeinsame Risikofaktor ist die TMDL-Spezifikation und das PBIR-Format — beides liegt außerhalb unserer Kontrolle. Die Empfehlung aus `skills-for-fabric`: Syntax-Regeln in zentrale, AI-lesbare Referenz-Dokumente auslagern statt in Code hardcoden — dann reicht bei einer API-Änderung ein Dokument-Update.
+
+---
+
+## Abgrenzung: Was wir bewusst NICHT übernehmen (beide Tools)
+
+| Aspekt | Begründung |
+|---|---|
+| `check-updates` Session-Check | Wir haben kein verteiltes Skills-Paket — Agents laufen im Repo-Kontext |
+| `spark-authoring-cli`, `sqldw-authoring-cli` | Außerhalb unseres Scopes (wir generieren keine Spark/SQL-Notebooks) |
+| `e2e-medallion-architecture` Skill | Wir haben eigenen Orchestrator mit Domain-DDM-Architektur |
+| `generate_skill_catalog.py` | Wir nutzen Knowledge Graph + Registry statt statischem Katalog |
+| `FabricAppDev` Agent | Python ODBC/XMLA-App-Entwicklung ist nicht unser Anwendungsfall |
+| `VariableLibrary` Item-Type | Interessant für Notebook-Config, aber kein direkter PBI-Generator-Bezug |
