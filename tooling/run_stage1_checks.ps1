@@ -4,6 +4,11 @@ Param(
 
 $ErrorActionPreference = "Stop"
 
+# Ensure powershell-yaml is loaded for check_validate_data_contracts.ps1 (CI and local)
+if (-not (Get-Command ConvertFrom-Yaml -ErrorAction SilentlyContinue)) {
+  Import-Module powershell-yaml -ErrorAction Stop
+}
+
 function Resolve-RepoPath {
   param([string]$ProvidedPath,[string]$DefaultRelative)
   $repo = (Get-Location).Path
