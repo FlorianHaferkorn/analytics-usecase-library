@@ -24,12 +24,15 @@ Semantic models require these mandatory parts:
 
 | Part | Purpose | Required |
 |---|---|---|
-| `definition.pbism` | Connection settings (JSON format) | Yes |
-| `definition/database.tmdl` | Database properties and compatibility level | Yes |
-| `definition/model.tmdl` | Model properties, culture, defaults | Yes |
+| `definition.pbism` | Connection settings (JSON format, version `"4.2"`) | Yes |
+| `definition/database.tmdl` | Database properties — muss mit `database '<Name>'` beginnen, `compatibilityLevel: 1702` | Yes |
+| `definition/model.tmdl` | Model properties — `defaultPowerBIDataSourceVersion: powerBI_V3` Pflicht für Import-Mode | Yes |
 | `definition/tables/*.tmdl` | Per-table definitions (columns, measures, partitions) | ≥1 required |
 
 > **Critical**: The API replaces entire definitions during updates — all parts (modified and unmodified) must be included. Omitted parts are deleted. Never include `.platform` metadata in update payloads.
+
+> **TMDL-Syntax** für database.tmdl, model.tmdl, Direct Lake Entity Partitions, Calculation Groups, RLS-Rollen:
+> → `tmdl-advanced-features.md`
 
 ---
 
@@ -37,13 +40,14 @@ Semantic models require these mandatory parts:
 
 ### MUST DO
 
-- Read TMDL reference documentation (`TMDL_Allowed_Subset.md`) before generating content
-- Always pass `--resource` parameter to `az rest`
+- Read `TMDL_Allowed_Subset.md` (Policies) **und** `tmdl-advanced-features.md` (Syntax) vor jeder TMDL-Generierung
+- Always pass `--resource` parameter to `az rest` — falsche Audience = `401`
 - Include `Content-Type: application/json` header on Power BI API POST/PATCH/PUT calls
 - Base64-encode all TMDL content payloads before submission
-- Poll long-running operations (LRO) to completion before proceeding
+- Poll long-running operations (LRO) to completion before proceeding — **`getDefinition` braucht `/result` am Poll-URL-Ende**
 - Include ALL definition parts in updates (not just changed parts)
 - Verify workspace has capacity assignment before creating models
+- Für REST-Deploy: `byConnection` in `definition.pbir` nutzen — `byPath` wird von der Fabric API abgelehnt
 
 ### PREFER
 
@@ -174,7 +178,9 @@ WS_ID=$(az rest --method get \
 
 ## Cross-References
 
-- TMDL syntax rules: `core/strategy_operating_model/operating_model/reference/TMDL_Allowed_Subset.md`
-- Item definition envelope: `fabric-item-definitions.md`
-- Fabric REST API auth/LRO: `fabric-api-core.md`
+- TMDL Policies (was erlaubt ist): `core/strategy_operating_model/operating_model/reference/TMDL_Allowed_Subset.md`
+- TMDL Syntax (wie es geschrieben wird): `tmdl-advanced-features.md`
+- Item definition envelope + PBIR Parts: `fabric-item-definitions.md`
+- Fabric REST API auth/LRO/JMESPath + Semantic Model & Report az rest Patterns: `fabric-api-core.md`
 - Execute DAX queries: `products/fabric/powerbi/tooling/scripts/execute_dax.py`
+- Report lokal schreiben (byPath): `products/fabric/powerbi/tooling/page_scaffold_generator/pbip_writer.py`
