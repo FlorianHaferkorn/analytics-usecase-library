@@ -46,6 +46,10 @@ if (-not $pyExe) { Write-Error "Python 3 not found. Install Python 3 or ensure '
 $pyArgs = @("--root", $rootPath)
 if ($FailOnError) { $pyArgs += "--fail-on-error" }
 
-$allArgs = ($pyExe -split " ") + @($pyScript) + $pyArgs
-& $allArgs[0] $allArgs[1..($allArgs.Count - 1)]
+if ($pyExe -match " ") {
+	$allArgs = ($pyExe -split " ") + @($pyScript) + $pyArgs
+	& $allArgs[0] $allArgs[1..($allArgs.Count - 1)]
+} else {
+	& $pyExe $pyScript @pyArgs
+}
 exit $LASTEXITCODE
