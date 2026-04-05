@@ -1,316 +1,376 @@
-# Visual-to-Slot Mapping — Framework Governance
-
-## Purpose
-
-This file defines the **mandatory mapping** between semantic slots and Power BI visual types. It ensures consistency across all scaffold-generated pages and serves as the single source of truth for visual type selection.
-
-**Authority:** This file is validated in Stage 1 CI and must be referenced by scaffold generators.
-
----
-
-## Mapping Rules
-
-### KPI Summary Slot
-
-| Template | Visual Type | Notes |
-|----------|-------------|-------|
-| T1, T2, T3, T4 | KPI Card | Always KPI Card, no exceptions |
-
-**Properties:**
-- Standard size: 280px × 140px
-- Compact size: 200px × 120px (when space constrained)
-- Max per row: 6 cards
-- Formatting: Use theme `good`/`bad`/`neutral` for conditional formatting
+# Visual-to-Slot Mapping — 3-30-300 Framework Governance
+#
+# Authority:   Canonical mapping between semantic slots and abstract visual type IDs.
+#              Tool-agnostic. Connectors translate abstract types to tool-native components.
+#
+# Visual type vocabulary: core/templates/page_templates/Abstract_Visual_Types.md
+# Slot definitions:       core/templates/page_templates/governance/Slot_Definitions.md
+# Connector specs:        core/templates/page_templates/connectors/
+#
+# Tool-specific patterns (DAX, PBIR JSON, theme tokens) belong in connector docs:
+#   PBI: core/templates/page_templates/connectors/PowerBI_Connector.md
+#   OSS: core/templates/page_templates/connectors/OSS_Connector_Guide.md
+#
+# Archived pre-abstract version: _archive/Visual_to_Slot_Mapping_pre_abstract.yaml
 
 ---
-
-### Trend Slot
-
-| Template | Preferred Visual | Fallback | Notes |
-|----------|------------------|----------|-------|
-| T1 | Line Chart | Area Chart | Area Chart only if multiple series |
-| T2 | Line Chart | — | Always Line Chart |
-| T3 | Line Chart | — | Always Line Chart |
-
-**Properties:**
-- Minimum size: 800px × 400px (standard), 600px × 300px (compact)
-- Show target line: Yes, if Variance slot exists (use theme `accent` color)
-- Formatting: Use theme `dataColors[0]` for primary series
-
----
-
-### Variance Slot
-
-| Template | Preferred Visual | Fallback | Notes |
-|----------|------------------|----------|-------|
-| T1 | Waterfall | Horizontal Bar | Waterfall preferred |
-| T2 | Waterfall | — | Always Waterfall, no exceptions |
-
-**Properties:**
-- Minimum size: 800px × 400px (standard), 600px × 300px (compact)
-- Formatting: 
-  - Positive variance: Theme `good` color
-  - Negative variance: Theme `bad` color
-  - Neutral: Theme `neutral` color
-
----
-
-### Ranking Slot
-
-| Template | Visual Type | Notes |
-|----------|-------------|-------|
-| T1, T2, T3 | Horizontal Bar Chart | Always Horizontal Bar |
-
-**Properties:**
-- Minimum size: 400px × 300px (standard), 300px × 250px (compact)
-- Max items: 20 (paginate if more)
-- Sorting: Descending by value (unless business rule specifies otherwise)
-- Formatting: Use theme `dataColors[0]` through `dataColors[7]` for bars
-
----
-
-### Mix Slot
-
-| Template | Visual Type | Notes |
-|----------|-------------|-------|
-| T1, T2 | 100% Stacked Bar Chart | Always 100% Stacked Bar |
-
-**Properties:**
-- Minimum size: 400px × 300px (standard), 300px × 250px (compact)
-- Formatting: Use theme `dataColors` for segments
-
----
-
-### Exceptions Slot
-
-| Template | Visual Type | Notes |
-|----------|-------------|-------|
-| T3 | Table | Always Table, no exceptions |
-
-**Properties:**
-- Full width (minus slicer column if side placement)
-- Minimum height: 400px
-- Max rows: 50 (paginate if more)
-- Formatting:
-  - Critical exceptions: Theme `bad` color background
-  - Warning exceptions: Theme `neutral` color background
-  - Info exceptions: Theme `fourthLevelElements` color background
-
----
-
-### Root Cause Slot
-
-| Template | Visual Type | Fallback | Notes |
-|----------|-------------|----------|-------|
-| T3 | Scatter Plot | Horizontal Bar | Only if `needs_root_cause = true` |
-| T4 | Scatter Plot | Horizontal Bar | Only if `needs_root_cause = true` |
-
-**Properties:**
-- Minimum size: 600px × 400px
-- Axes: X = Effort, Y = Impact (for Impact-Effort matrix)
-- Quadrants: Labeled (Quick Wins, Major Projects, Fill-ins, Thankless Tasks)
-- Formatting: Use theme `dataColors` for data points, quadrant colors from theme
-
----
-
-### Prescriptive Slot
-
-| Template | Visual Type | Notes |
-|----------|-------------|-------|
-| T4 | Table (Recommendation) | Always Table, Action Panel mandatory |
-
-**Properties:**
-- Full width (minus Action Panel if present)
-- Minimum height: 400px
-- Max rows: 10 (show top recommendations)
-- Formatting:
-  - Top recommendation: Bold, theme `accent` color highlight
-  - Priority color coding: High = Theme `bad`, Medium = Theme `neutral`, Low = Theme `good`
-
----
-
-### Funnel Slot
-
-| Template | Visual Type | Notes |
-|----------|-------------|-------|
-| T2 | Funnel Chart | Only if `needs_funnel = true` |
-
-**Properties:**
-- Minimum size: 600px × 400px
-- Max stages: 10 (aggregate if more)
-- Formatting: Use theme `dataColors` gradient (darker at top, lighter at bottom)
-
----
-
-### Detail Matrix Slot
-
-| Template | Visual Type | Notes |
-|----------|-------------|-------|
-| All (Detail pages only) | Table | Use Table for individual records |
-| All (Detail pages only) | Matrix | Use Matrix for aggregated/hierarchical data |
-
-**Properties:**
-- Full width (minus slicer column if side placement)
-- Minimum height: 300px
-- Formatting: Use theme table formatting (from `visualStyles.tableEx` or `visualStyles.pivotTable`)
-
-**Selection Rule:**
-- Use **Table** when showing individual transaction records (e.g., exceptions, recommendations)
-- Use **Matrix** when showing aggregated data across dimensions (e.g., Sales by Region × Product × Month)
-
-### Transactional Detail Pattern (Optional)
-
-For transactional facts (e.g., fact_sales, fact_ops_failures, fact_experience), consider creating a DAX measure that concatenates multiple detail fields into a single column when showing individual transaction records in a Matrix visual.
-
-**Use case:** When users need to see transaction-level details (e.g., order number, customer details, product info) without dedicating separate columns to each attribute.
-
-**Pattern:**
-- Create a "Details" measure using `CONCATENATEX` over filtered rows
-- Use `ISINSCOPE` to ensure measure only displays at transaction grain
-- Filter out blank values and use consistent delimiter (e.g., ", ")
-- Reference: SQLBI article "Show transaction details on the matrix visual in Power BI" (https://www.sqlbi.com/articles/show-transaction-details-on-the-matrix-visual-in-power-bi/)
-
-**Example (conceptual):**
-```DAX
-Transaction Details = 
-IF (
-    ISINSCOPE ( fact_sales[Order Number] ),
-    CONCATENATEX (
-        CALCULATETABLE ( fact_sales ),
-        CONCATENATEX (
-            FILTER (
-                { 
-                    fact_sales[Quantity],
-                    RELATED ( 'Product'[Product Name] ),
-                    RELATED ( 'Customer'[Country Code] )
-                },
-                [Value] <> ""
-            ),
-            [Value],
-            ", "
-        ),
-        UNICHAR ( 10 )  // Newline between rows
-    )
-)
-```
-
-**When to use:**
-- Detail pages showing individual transactions
-- Matrix visual with transaction-level grain (e.g., Order Number in rows)
-- Space-constrained layouts where separate columns would require horizontal scrolling
-
-**When NOT to use:**
-- Aggregated views (use separate columns for clarity)
-- When all detail fields are always needed (use separate columns)
-- When performance is critical (measure adds formula engine overhead)
-
-**Template for fact_ops_failures transactional details:**
-
-```DAX
-/// Transaction Details - fact_ops_failures
-/// Shows: Asset, Failure Start, Cause Code, Repair Duration
-/// Use in Matrix visual with Failure Start DateTime in rows
-Transaction Details = 
-IF (
-    ISINSCOPE ( fact_ops_failures[Failure Start DateTime] ),
-    CONCATENATEX (
-        CALCULATETABLE (
-            fact_ops_failures,
-            CROSSFILTER ( fact_ops_failures[AssetKey], dim_asset[AssetKey], BOTH )
-        ),
-        CONCATENATEX (
-            FILTER (
-                { 
-                    RELATED ( dim_asset[Asset Name] ),
-                    fact_ops_failures[Failure Start DateTime],
-                    fact_ops_failures[Cause Code],
-                    fact_ops_failures[Repair Duration Hours] & " hrs"
-                },
-                [Value] <> ""
-            ),
-            [Value],
-            ", "
-        ),
-        " | "  // Separator between multiple failures
-    )
-)
-```
-
-**Template for fact_experience transactional details:**
-
-```DAX
-/// Transaction Details - fact_experience
-/// Shows: Customer, Org, Severity, Complaint Type
-/// Use in Matrix visual with Complaint ID in rows
-Complaint Details = 
-IF (
-    ISINSCOPE ( fact_experience['Complaint ID'] ),
-    CONCATENATEX (
-        CALCULATETABLE (
-            fact_experience,
-            CROSSFILTER ( fact_experience[CustomerKey], dim_customer[CustomerKey], BOTH ),
-            CROSSFILTER ( fact_experience[OrgKey], dim_org[OrgKey], BOTH )
-        ),
-        CONCATENATEX (
-            FILTER (
-                { 
-                    RELATED ( dim_customer[Customer Name] ),
-                    RELATED ( dim_org[Plant] ),
-                    fact_experience[Severity],
-                    fact_experience['Complaint Type']
-                },
-                [Value] <> ""
-            ),
-            [Value],
-            ", "
-        ),
-        UNICHAR ( 10 )  // Newline between multiple complaints
-    )
-)
-```
-
-**Usage notes:**
-- Replace table/column names with your fact table
-- Adjust RELATED() calls based on your relationship structure
-- Modify delimiter (", " or " | ") based on readability needs
-- Consider performance: this pattern iterates over filtered rows, so use sparingly on large datasets
-
----
-
-## Edge Cases
-
-### Multiple Slots of Same Type
-
-**Rule:** Each slot gets its own visual. Do not combine slots into a single visual.
-
-**Example:** If both Trend and Variance slots exist, create two separate visuals (Line Chart + Waterfall).
-
-### Slot Not Activated
-
-**Rule:** If a slot is not activated (`needs_<slot> = false`), do not create a visual for it.
-
-**Example:** If `needs_trend = false`, do not create a Trend visual, even if the template allows it.
-
-### Slot Conflicts
-
-**Rule:** If slot requirements conflict with template rules, slot requirements take precedence.
-
-**Example:** If T3 template says "no scatter plots" but `needs_root_cause = true`, scatter plot is allowed (per Visual Whitelist).
-
----
-
-## Validation Rules
-
-1. **Visual type must be in Visual Whitelist** for the given template
-2. **Slot must be activated** (`needs_<slot> = true`) in use case mapping
-3. **Template must allow** the visual type for the slot
-4. **Visual size** must meet minimum requirements
-
----
-
-## References
-
-- **Visual Whitelist:** `governance/Visual_Whitelist.md`
-- **Slot Definitions:** `governance/Slot_Definitions.md`
-- **Page Templates:** `page_types/T1_Strategic_Overview.md`, etc.
-- **Scaffold Spec:** `products/fabric/powerbi/tooling/page_scaffold_spec.md`
+authority: core/templates/page_templates/Abstract_Visual_Types.md
+governed_by: core/templates/page_templates/Connector_Spec.md
+schema_version: "2.0"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# OVERVIEW PAGE SLOTS  (3-second + 30-second layers)
+# ─────────────────────────────────────────────────────────────────────────────
+
+slots:
+
+  KPI_Cards:
+    zone: "1 (3s)"
+    semantic_purpose: "Status signal — KPI value, delta, reference comparison"
+    layer: overview
+    allowed_templates: [T1, T2, T3, T4]
+    visual_types:
+      preferred: kpi_card
+      variants:
+        - type: kpi_card_hero
+          when: "T1 only; single dominant metric; col_span ≥ 4 LU"
+        - type: kpi_card_compact
+          when: "T3 only; 6-card dense row; col_span = 2 LU"
+      disallowed: [status_tile]
+    grid:
+      col: 0
+      row: 0
+      col_span: 12
+      row_span: 2
+    rules:
+      - "Every card MUST show value + delta vs reference. Value alone is disqualified."
+      - "Max 6 cards per row."
+      - "Primary (North Star) KPI is leftmost — first in natural reading order."
+      - "Sparkline optional; if shown, inline within the card (abstract type: sparkline)."
+
+  Slicer_Date:
+    zone: "2 (filter)"
+    semantic_purpose: "Temporal context filter"
+    layer: overview
+    allowed_templates: [T1, T2, T3, T4]
+    visual_types:
+      preferred: slicer_range
+      fallback: slicer_dropdown
+    grid:
+      col: 0
+      row: 2
+      col_span: 4
+      row_span: 1
+    rules:
+      - "Always the leftmost slicer (date is primary context)."
+      - "Range picker preferred — supports MTD/YTD/custom selection."
+
+  Slicer_Cat_1:
+    zone: "2 (filter)"
+    semantic_purpose: "First categorical context filter (e.g. Region)"
+    layer: overview
+    allowed_templates: [T2, T3, T4]
+    visual_types:
+      preferred: slicer_dropdown
+    grid:
+      col: 4
+      row: 2
+      col_span: 4
+      row_span: 1
+    rules:
+      - "Optional — activate only when categorical filtering is required on the Overview page."
+      - "Counts toward the 3-slicer per-page limit."
+
+  Slicer_Cat_2:
+    zone: "2 (filter)"
+    semantic_purpose: "Second categorical context filter (e.g. Channel, Segment)"
+    layer: overview
+    allowed_templates: [T2, T3, T4]
+    visual_types:
+      preferred: slicer_dropdown
+    grid:
+      col: 8
+      row: 2
+      col_span: 4
+      row_span: 1
+    rules:
+      - "Optional — only if a second categorical dimension is analytically necessary."
+      - "Total slicers per page ≤ 3 (plus optional 4th as mode switch)."
+
+  Main_1:
+    zone: "3 (30s)"
+    semantic_purpose: "Trend — time development of the strategic KPI"
+    layer: overview
+    allowed_templates: [T1, T2, T3]
+    visual_types:
+      preferred: line_chart
+      fallback: area_chart
+      fallback_condition: "area_chart only when a single series requires emphasis of volume fill"
+      disallowed: [bar_chart_column, stacked_bar_100pct, waterfall, scatter_plot, funnel_chart]
+    grid:
+      col: 0
+      row: 3
+      col_span: 4
+      row_span: 8
+    rules:
+      - "Must contain a time axis."
+      - "Show target / plan as a dashed reference line when Main_2 (Variance) is also present."
+      - "Max 4 series. Primary series uses brand.primary color role."
+      - "Annotate significant inflection points — annotations carry analytical signal, not decoration."
+      - "T3 exception: table_with_databars (exceptions-first view) may replace line_chart when"
+      - "  operational monitoring requires exception-first scanning rather than trend reading."
+
+  Main_2:
+    zone: "3 (30s)"
+    semantic_purpose: "Variance — deviation from reference (Plan, PY, target)"
+    layer: overview
+    allowed_templates: [T2]
+    visual_types:
+      preferred: waterfall
+      fallback: bar_chart_horizontal
+      fallback_condition: >
+        bar_chart_horizontal when the connector has no native waterfall implementation
+        (e.g. OSS stack). Document the fallback in the connector spec.
+        Waterfall contract: baseline + all drivers must reconcile to actual total.
+      alternatives:
+        - type: stacked_bar_100pct
+          when: "Mix / composition question replaces variance (T1, T2 Main_2 variant)"
+        - type: scatter_plot
+          when: "Root cause / impact-effort correlation (T3, T4 only; requires governance approval)"
+      disallowed: [line_chart, area_chart, funnel_chart, kpi_card, kpi_card_hero]
+    grid:
+      col: 4
+      row: 3
+      col_span: 4
+      row_span: 8
+    rules:
+      - "Waterfall must reconcile: sum of all driver bars = (Actual − Baseline). No unexplained residual."
+      - "Max 7–8 bars including the baseline and actual closing bar."
+      - "Positive drivers: semantic.positive color role. Negative: semantic.negative."
+      - "Labels on bars: absolute value + percentage contribution."
+
+  Main_3:
+    zone: "3 (30s)"
+    semantic_purpose: "Ranking / Mix — entity comparison or composition"
+    layer: overview
+    allowed_templates: [T1, T2, T3]
+    visual_types:
+      preferred: bar_chart_horizontal
+      alternatives:
+        - type: stacked_bar_100pct
+          when: "Composition (part-to-whole) question replaces ranking"
+        - type: bar_chart_column
+          when: "T3 operational: time-based categorical comparison across periods"
+      disallowed: [line_chart, waterfall, scatter_plot, funnel_chart]
+    grid:
+      col: 8
+      row: 3
+      col_span: 4
+      row_span: 8
+    rules:
+      - "Default sort: descending by |Δ plan| — worst-performing entities first."
+      - "Max 20 items visible. Provide a 'Show all' control; never paginate silently."
+      - "Entity label always on the left (horizontal bar natural reading direction)."
+      - "Delta coloring: semantic.negative for underperformers, semantic.positive for outperformers."
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DETAIL PAGE SLOTS  (300-second layer)
+# ─────────────────────────────────────────────────────────────────────────────
+
+  Slicer_Pane:
+    zone: "4 (300s)"
+    semantic_purpose: "Context switch — all detail-page filters in a left sidebar"
+    layer: detail
+    allowed_templates: [T1, T2, T3, T4]
+    visual_types:
+      preferred: slicer_list
+      fallback: slicer_dropdown
+      fallback_condition: "slicer_dropdown when space-constrained; max 3 slicers"
+    grid:
+      col: 0
+      row: 0
+      col_span: 2
+      row_span: 12
+    rules:
+      - "Left sidebar — consistent with F-pattern: controls on left, data on right."
+      - "Drillthrough context pre-applied: slicer reflects the active selection on arrival."
+
+  Smart_Narrative:
+    zone: "4 (300s)"
+    semantic_purpose: "Summary text — current state in the active filter context"
+    layer: detail
+    allowed_templates: [T1, T2, T3, T4]
+    visual_types:
+      preferred: text_narrative
+    grid:
+      col: 2
+      row: 0
+      col_span: 10    # Shrinks to col_span=8 when ActionPanel is active (T4)
+      row_span: 1
+    rules:
+      - "≤ 2 sentences. Quantified. Present tense. No hedging."
+      - "Must answer the Big Idea for the current filter context — never a generic placeholder."
+      - "Placed at the top of the detail page so the reader gets the answer before scanning the table."
+
+  Detail_Matrix:
+    zone: "4 (300s)"
+    semantic_purpose: "Entity-grain detail table with delta columns and data bars"
+    layer: detail
+    allowed_templates: [T1, T2, T3, T4]
+    visual_types:
+      preferred: table_with_databars
+      alternative: matrix
+      alternative_condition: "matrix when data is aggregated / hierarchical across multiple dimensions"
+    grid:
+      col: 2
+      row: 1
+      col_span: 10    # Shrinks to col_span=8 when ActionPanel is active (T4)
+      row_span: 11
+    rules:
+      - "Entity name is always the leftmost column — F-pattern anchor."
+      - "Column order: Entity | Value | Δ abs | Δ% | Secondary measures | Sparkline (rightmost)"
+      - "Delta columns always carry data bars (inline positive/negative bars)."
+      - "Default sort: |Δ Plan| descending — worst-performing entities at the top."
+      - "Sparklines in rightmost column only — decorative trend context, least critical."
+      - "Show top N rows with 'Show all' and 'Export' controls visible but non-prominent."
+      - "Max 6 data fields per visual (Framework Hard Limit — Connector_Spec.md §3.4)."
+
+  ActionPanel:
+    zone: "4 (300s, T4 only)"
+    semantic_purpose: "Recommended action — prescriptive directive with owner, deadline, impact"
+    layer: detail
+    allowed_templates: [T4]
+    visual_types:
+      preferred: action_card
+    grid:
+      col: 10
+      row: 0
+      col_span: 2
+      row_span: 12
+    rules:
+      - "Right-side, full height — visible immediately on page load without scrolling."
+      - "Recommendation leads, evidence follows (T4 core principle)."
+      - "Mandatory fields: action title (verb-first), owner, due date, quantified impact, steps."
+      - "When active: Smart_Narrative and Detail_Matrix shrink to col_span=8."
+
+# ─────────────────────────────────────────────────────────────────────────────
+# INVESTIGATOR LAYOUT SLOTS  (alternative overview / deep-dive pattern)
+# ─────────────────────────────────────────────────────────────────────────────
+
+  Focus_Area:
+    zone: "Investigator"
+    semantic_purpose: "Dominant analysis visual — primary investigative question"
+    layer: overview_alternative
+    allowed_templates: [T3, T4]
+    visual_types:
+      preferred: decomposition_tree
+      alternatives:
+        - type: scatter_plot
+          when: "Impact-effort / two-variable correlation analysis"
+        - type: bar_chart_horizontal
+          when: "Ranked exception list as the primary focus"
+    grid:
+      col: 2
+      row: 0
+      col_span: 10
+      row_span: 8
+    rules:
+      - "Occupies the majority of the canvas — this is the investigative primary."
+      - "Left sidebar (col 0-1) reserved for Slicer_Pane in Investigator layout."
+
+  Support_1:
+    zone: "Investigator"
+    semantic_purpose: "Supporting context visual 1 (below Focus_Area, left)"
+    layer: overview_alternative
+    allowed_templates: [T3, T4]
+    visual_types:
+      preferred: bar_chart_horizontal
+      alternatives:
+        - type: line_chart
+        - type: kpi_card_compact
+    grid:
+      col: 2
+      row: 8
+      col_span: 5
+      row_span: 4
+
+  Support_2:
+    zone: "Investigator"
+    semantic_purpose: "Supporting context visual 2 (below Focus_Area, right)"
+    layer: overview_alternative
+    allowed_templates: [T3, T4]
+    visual_types:
+      preferred: bar_chart_horizontal
+      alternatives:
+        - type: kpi_card_compact
+        - type: text_narrative
+    grid:
+      col: 7
+      row: 8
+      col_span: 5
+      row_span: 4
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DISALLOWED VISUAL TYPES  (all slots, all templates, all connectors)
+# ─────────────────────────────────────────────────────────────────────────────
+
+disallowed_types:
+  - type: pie_chart
+    reason: "Part-to-whole comparison without spatial position is perceptually inaccurate. Use stacked_bar_100pct."
+  - type: donut_chart
+    reason: "Same perceptual failure as pie_chart."
+  - type: gauge
+    reason: "Wastes 80% of visual space on non-data chrome. Use kpi_card with delta."
+  - type: radar_chart
+    reason: "No clear decision axis; area encoding is perceptually unreliable."
+  - type: treemap
+    reason: "Area encoding less accurate than position encoding. Requires governance approval."
+  - type: 3d_chart
+    reason: "Perspective distortion adds no analytical value."
+  - type: animated_chart
+    reason: "Distracting in analytical contexts. Exception: live operational monitoring only."
+
+# ─────────────────────────────────────────────────────────────────────────────
+# EDGE CASES
+# ─────────────────────────────────────────────────────────────────────────────
+
+edge_cases:
+
+  multiple_slots_same_type:
+    rule: "Each activated slot gets its own visual. Never combine two slots into one visual."
+    example: "Trend (Main_1) + Variance (Main_2) → two separate visuals: line_chart + waterfall."
+
+  slot_not_activated:
+    rule: "If a slot is absent from UseCase_Bracket.yaml component_30s, do not create a visual for it."
+    example: "No Main_2 entry in the bracket → no waterfall on the Overview page."
+
+  slot_activation_overrides_template:
+    rule: "If UseCase_Bracket.yaml activates a slot not in the default template, the bracket wins."
+    example: "ActionPanel activated in bracket for a T4 use case overrides T2 default layout."
+
+  oss_waterfall_fallback:
+    rule: >
+      When the connector tool has no native waterfall (Superset, Grafana, Metabase), use
+      bar_chart_horizontal with positive and negative contributions arranged around a zero axis.
+      Document the fallback in the connector spec.
+    reference: "core/templates/page_templates/connectors/OSS_Connector_Guide.md"
+
+  t3_exceptions_first:
+    rule: >
+      T3 Operational Monitoring may replace Main_1 (Trend) with a table_with_databars
+      (exception list) when the analytical question is "what is broken right now?"
+      rather than "how has it trended?". The exception list must include:
+      Severity | Entity | Value | Δ | Age | Owner.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# REFERENCES
+# ─────────────────────────────────────────────────────────────────────────────
+
+references:
+  abstract_visual_types: "core/templates/page_templates/Abstract_Visual_Types.md"
+  slot_definitions:       "core/templates/page_templates/governance/Slot_Definitions.md"
+  connector_spec:         "core/templates/page_templates/Connector_Spec.md"
+  powerbi_connector:      "core/templates/page_templates/connectors/PowerBI_Connector.md"
+  oss_connector:          "core/templates/page_templates/connectors/OSS_Connector_Guide.md"
+  content_quality:        "core/templates/page_templates/Content_Quality_Guide.md"
+  storytelling:           "core/templates/page_templates/Storytelling_Principles.md"

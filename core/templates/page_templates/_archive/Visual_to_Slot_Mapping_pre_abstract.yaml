@@ -1,0 +1,316 @@
+# Visual-to-Slot Mapping — Framework Governance
+
+## Purpose
+
+This file defines the **mandatory mapping** between semantic slots and Power BI visual types. It ensures consistency across all scaffold-generated pages and serves as the single source of truth for visual type selection.
+
+**Authority:** This file is validated in Stage 1 CI and must be referenced by scaffold generators.
+
+---
+
+## Mapping Rules
+
+### KPI Summary Slot
+
+| Template | Visual Type | Notes |
+|----------|-------------|-------|
+| T1, T2, T3, T4 | KPI Card | Always KPI Card, no exceptions |
+
+**Properties:**
+- Standard size: 280px × 140px
+- Compact size: 200px × 120px (when space constrained)
+- Max per row: 6 cards
+- Formatting: Use theme `good`/`bad`/`neutral` for conditional formatting
+
+---
+
+### Trend Slot
+
+| Template | Preferred Visual | Fallback | Notes |
+|----------|------------------|----------|-------|
+| T1 | Line Chart | Area Chart | Area Chart only if multiple series |
+| T2 | Line Chart | — | Always Line Chart |
+| T3 | Line Chart | — | Always Line Chart |
+
+**Properties:**
+- Minimum size: 800px × 400px (standard), 600px × 300px (compact)
+- Show target line: Yes, if Variance slot exists (use theme `accent` color)
+- Formatting: Use theme `dataColors[0]` for primary series
+
+---
+
+### Variance Slot
+
+| Template | Preferred Visual | Fallback | Notes |
+|----------|------------------|----------|-------|
+| T1 | Waterfall | Horizontal Bar | Waterfall preferred |
+| T2 | Waterfall | — | Always Waterfall, no exceptions |
+
+**Properties:**
+- Minimum size: 800px × 400px (standard), 600px × 300px (compact)
+- Formatting: 
+  - Positive variance: Theme `good` color
+  - Negative variance: Theme `bad` color
+  - Neutral: Theme `neutral` color
+
+---
+
+### Ranking Slot
+
+| Template | Visual Type | Notes |
+|----------|-------------|-------|
+| T1, T2, T3 | Horizontal Bar Chart | Always Horizontal Bar |
+
+**Properties:**
+- Minimum size: 400px × 300px (standard), 300px × 250px (compact)
+- Max items: 20 (paginate if more)
+- Sorting: Descending by value (unless business rule specifies otherwise)
+- Formatting: Use theme `dataColors[0]` through `dataColors[7]` for bars
+
+---
+
+### Mix Slot
+
+| Template | Visual Type | Notes |
+|----------|-------------|-------|
+| T1, T2 | 100% Stacked Bar Chart | Always 100% Stacked Bar |
+
+**Properties:**
+- Minimum size: 400px × 300px (standard), 300px × 250px (compact)
+- Formatting: Use theme `dataColors` for segments
+
+---
+
+### Exceptions Slot
+
+| Template | Visual Type | Notes |
+|----------|-------------|-------|
+| T3 | Table | Always Table, no exceptions |
+
+**Properties:**
+- Full width (minus slicer column if side placement)
+- Minimum height: 400px
+- Max rows: 50 (paginate if more)
+- Formatting:
+  - Critical exceptions: Theme `bad` color background
+  - Warning exceptions: Theme `neutral` color background
+  - Info exceptions: Theme `fourthLevelElements` color background
+
+---
+
+### Root Cause Slot
+
+| Template | Visual Type | Fallback | Notes |
+|----------|-------------|----------|-------|
+| T3 | Scatter Plot | Horizontal Bar | Only if `needs_root_cause = true` |
+| T4 | Scatter Plot | Horizontal Bar | Only if `needs_root_cause = true` |
+
+**Properties:**
+- Minimum size: 600px × 400px
+- Axes: X = Effort, Y = Impact (for Impact-Effort matrix)
+- Quadrants: Labeled (Quick Wins, Major Projects, Fill-ins, Thankless Tasks)
+- Formatting: Use theme `dataColors` for data points, quadrant colors from theme
+
+---
+
+### Prescriptive Slot
+
+| Template | Visual Type | Notes |
+|----------|-------------|-------|
+| T4 | Table (Recommendation) | Always Table, Action Panel mandatory |
+
+**Properties:**
+- Full width (minus Action Panel if present)
+- Minimum height: 400px
+- Max rows: 10 (show top recommendations)
+- Formatting:
+  - Top recommendation: Bold, theme `accent` color highlight
+  - Priority color coding: High = Theme `bad`, Medium = Theme `neutral`, Low = Theme `good`
+
+---
+
+### Funnel Slot
+
+| Template | Visual Type | Notes |
+|----------|-------------|-------|
+| T2 | Funnel Chart | Only if `needs_funnel = true` |
+
+**Properties:**
+- Minimum size: 600px × 400px
+- Max stages: 10 (aggregate if more)
+- Formatting: Use theme `dataColors` gradient (darker at top, lighter at bottom)
+
+---
+
+### Detail Matrix Slot
+
+| Template | Visual Type | Notes |
+|----------|-------------|-------|
+| All (Detail pages only) | Table | Use Table for individual records |
+| All (Detail pages only) | Matrix | Use Matrix for aggregated/hierarchical data |
+
+**Properties:**
+- Full width (minus slicer column if side placement)
+- Minimum height: 300px
+- Formatting: Use theme table formatting (from `visualStyles.tableEx` or `visualStyles.pivotTable`)
+
+**Selection Rule:**
+- Use **Table** when showing individual transaction records (e.g., exceptions, recommendations)
+- Use **Matrix** when showing aggregated data across dimensions (e.g., Sales by Region × Product × Month)
+
+### Transactional Detail Pattern (Optional)
+
+For transactional facts (e.g., fact_sales, fact_ops_failures, fact_experience), consider creating a DAX measure that concatenates multiple detail fields into a single column when showing individual transaction records in a Matrix visual.
+
+**Use case:** When users need to see transaction-level details (e.g., order number, customer details, product info) without dedicating separate columns to each attribute.
+
+**Pattern:**
+- Create a "Details" measure using `CONCATENATEX` over filtered rows
+- Use `ISINSCOPE` to ensure measure only displays at transaction grain
+- Filter out blank values and use consistent delimiter (e.g., ", ")
+- Reference: SQLBI article "Show transaction details on the matrix visual in Power BI" (https://www.sqlbi.com/articles/show-transaction-details-on-the-matrix-visual-in-power-bi/)
+
+**Example (conceptual):**
+```DAX
+Transaction Details = 
+IF (
+    ISINSCOPE ( fact_sales[Order Number] ),
+    CONCATENATEX (
+        CALCULATETABLE ( fact_sales ),
+        CONCATENATEX (
+            FILTER (
+                { 
+                    fact_sales[Quantity],
+                    RELATED ( 'Product'[Product Name] ),
+                    RELATED ( 'Customer'[Country Code] )
+                },
+                [Value] <> ""
+            ),
+            [Value],
+            ", "
+        ),
+        UNICHAR ( 10 )  // Newline between rows
+    )
+)
+```
+
+**When to use:**
+- Detail pages showing individual transactions
+- Matrix visual with transaction-level grain (e.g., Order Number in rows)
+- Space-constrained layouts where separate columns would require horizontal scrolling
+
+**When NOT to use:**
+- Aggregated views (use separate columns for clarity)
+- When all detail fields are always needed (use separate columns)
+- When performance is critical (measure adds formula engine overhead)
+
+**Template for fact_ops_failures transactional details:**
+
+```DAX
+/// Transaction Details - fact_ops_failures
+/// Shows: Asset, Failure Start, Cause Code, Repair Duration
+/// Use in Matrix visual with Failure Start DateTime in rows
+Transaction Details = 
+IF (
+    ISINSCOPE ( fact_ops_failures[Failure Start DateTime] ),
+    CONCATENATEX (
+        CALCULATETABLE (
+            fact_ops_failures,
+            CROSSFILTER ( fact_ops_failures[AssetKey], dim_asset[AssetKey], BOTH )
+        ),
+        CONCATENATEX (
+            FILTER (
+                { 
+                    RELATED ( dim_asset[Asset Name] ),
+                    fact_ops_failures[Failure Start DateTime],
+                    fact_ops_failures[Cause Code],
+                    fact_ops_failures[Repair Duration Hours] & " hrs"
+                },
+                [Value] <> ""
+            ),
+            [Value],
+            ", "
+        ),
+        " | "  // Separator between multiple failures
+    )
+)
+```
+
+**Template for fact_experience transactional details:**
+
+```DAX
+/// Transaction Details - fact_experience
+/// Shows: Customer, Org, Severity, Complaint Type
+/// Use in Matrix visual with Complaint ID in rows
+Complaint Details = 
+IF (
+    ISINSCOPE ( fact_experience['Complaint ID'] ),
+    CONCATENATEX (
+        CALCULATETABLE (
+            fact_experience,
+            CROSSFILTER ( fact_experience[CustomerKey], dim_customer[CustomerKey], BOTH ),
+            CROSSFILTER ( fact_experience[OrgKey], dim_org[OrgKey], BOTH )
+        ),
+        CONCATENATEX (
+            FILTER (
+                { 
+                    RELATED ( dim_customer[Customer Name] ),
+                    RELATED ( dim_org[Plant] ),
+                    fact_experience[Severity],
+                    fact_experience['Complaint Type']
+                },
+                [Value] <> ""
+            ),
+            [Value],
+            ", "
+        ),
+        UNICHAR ( 10 )  // Newline between multiple complaints
+    )
+)
+```
+
+**Usage notes:**
+- Replace table/column names with your fact table
+- Adjust RELATED() calls based on your relationship structure
+- Modify delimiter (", " or " | ") based on readability needs
+- Consider performance: this pattern iterates over filtered rows, so use sparingly on large datasets
+
+---
+
+## Edge Cases
+
+### Multiple Slots of Same Type
+
+**Rule:** Each slot gets its own visual. Do not combine slots into a single visual.
+
+**Example:** If both Trend and Variance slots exist, create two separate visuals (Line Chart + Waterfall).
+
+### Slot Not Activated
+
+**Rule:** If a slot is not activated (`needs_<slot> = false`), do not create a visual for it.
+
+**Example:** If `needs_trend = false`, do not create a Trend visual, even if the template allows it.
+
+### Slot Conflicts
+
+**Rule:** If slot requirements conflict with template rules, slot requirements take precedence.
+
+**Example:** If T3 template says "no scatter plots" but `needs_root_cause = true`, scatter plot is allowed (per Visual Whitelist).
+
+---
+
+## Validation Rules
+
+1. **Visual type must be in Visual Whitelist** for the given template
+2. **Slot must be activated** (`needs_<slot> = true`) in use case mapping
+3. **Template must allow** the visual type for the slot
+4. **Visual size** must meet minimum requirements
+
+---
+
+## References
+
+- **Visual Whitelist:** `governance/Visual_Whitelist.md`
+- **Slot Definitions:** `governance/Slot_Definitions.md`
+- **Page Templates:** `page_types/T1_Strategic_Overview.md`, etc.
+- **Scaffold Spec:** `products/fabric/powerbi/tooling/page_scaffold_spec.md`

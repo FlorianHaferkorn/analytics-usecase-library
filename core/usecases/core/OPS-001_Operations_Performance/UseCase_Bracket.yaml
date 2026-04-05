@@ -30,23 +30,32 @@ ux_layout_rules:
   report_canvas: { width: 1920, height: 1080 }
   page_1_summary:
     title: Operations Summary & Insights
-    page_type: T1_Strategic_Overview
+    page_type: T3_Operational_Monitoring
     template_id: pulse
+    decision_question: "Is OEE on target and which losses are biggest this week?"
+    big_idea: "OEE is below target — unplanned availability losses account for 70% of the gap and require immediate maintenance action."
     component_3s:
       kpi_id: ops.oee.pct
       visual_type: kpi_card
+      sparkline_field: OeePct_Daily
+      comparison: vs_target
+      status_logic: higher_is_better
     component_30s:
-    - kpi_id: ops.availability.pct
-      visual_type: trend_line
-    - kpi_ids:
+    - slot_id: Main_1
+      kpi_id: ops.availability.pct
+      visual_type: line_chart
+    - slot_id: Main_3
+      kpi_ids:
       - ops.performance.pct
       - ops.quality.pct
       - ops.throughput.units
-      visual_type: bar_chart
+      visual_type: bar_chart_horizontal
   page_2_execution:
     title: Operations Execution
     page_type: T3_Operational_Monitoring
     template_id: action_matrix
+    decision_question: "Which assets and shifts explain the OEE gap this week?"
+    big_idea: "Line 3 and Line 7 account for 65% of unplanned downtime — maintenance backlog on these assets is the root cause."
     component_300s:
       evidence_grain: line_day
       evidence_columns:

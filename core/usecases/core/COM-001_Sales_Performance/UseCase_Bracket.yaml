@@ -33,23 +33,36 @@ ux_layout_rules:
   report_canvas: { width: 1920, height: 1080 }
   page_1_summary:
     title: Commercial Summary & Insights
-    page_type: T1_Strategic_Overview
+    page_type: T2_Tactical_Variance
     template_id: pulse
+    decision_question: "Are we on track for our Commercial targets this month?"
+    big_idea: "Net Sales is above plan but GM% is below target — adverse mix in DACH is the primary driver and requires attention."
     component_3s:
       kpi_id: margin.gm.pct
       visual_type: kpi_card
+      sparkline_field: GmPct_Monthly
+      comparison: vs_plan
+      status_logic: higher_is_better
     component_30s:
-    - kpi_id: sales.net_sales.amount
-      visual_type: trend_line
-    - kpi_ids:
+    - slot_id: Main_1
+      kpi_id: sales.net_sales.amount
+      visual_type: line_chart
+    - slot_id: Main_2
+      kpi_ids:
       - sales.net_sales.delta_pct.plan
-      - sales.net_sales.delta_pct.ly
       - sales.pvm.price_effect.amount
-      visual_type: bar_chart
+      - sales.pvm.volume_effect.amount
+      - sales.pvm.mix_effect.amount
+      visual_type: waterfall
+    - slot_id: Main_3
+      kpi_id: sales.net_sales.amount
+      visual_type: bar_chart_horizontal
   page_2_execution:
     title: Commercial Execution
     page_type: T2_Tactical_Variance
     template_id: action_matrix
+    decision_question: "Which entities explain the revenue and margin gap vs Plan?"
+    big_idea: "DACH and CEE account for 80% of the Plan gap — mix degradation and price concessions are the root causes."
     component_300s:
       evidence_grain: invoice_line
       evidence_columns:

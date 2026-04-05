@@ -85,6 +85,40 @@ Reference: components/action_panel/ActionPanel_Spec.md
 
 ---
 
+## 9. Decision Question
+
+Every page must have a concrete decision question that frames the reader's intent.
+
+- [ ] `decision_question` is defined in `UseCase_Bracket.yaml` for this page
+- [ ] Decision question is ≤ 80 characters (max 120 permitted; 80 is the design target)
+- [ ] Decision question is phrased as a business question, not a technical label
+  - Good: *"Are we on track for our Commercial targets this month?"*
+  - Bad: *"Sales Performance Dashboard"*
+- [ ] Decision question is displayed as a visible banner or heading on the page
+
+Reference: `Storytelling_Principles.md §2` · `Content_Quality_Guide.md §5`
+
+---
+
+## 10. Big Idea
+
+The Big Idea is the one-sentence narrative anchor that a reader should be able to state after viewing the page. It is not decorative — it is a testable quality standard.
+
+- [ ] `big_idea` is defined in `UseCase_Bracket.yaml` for this page
+- [ ] Big Idea is a single sentence (≤ 300 characters)
+- [ ] Big Idea follows the template for the page type:
+  - **T1 Strategic:** *"[Domain] is [on/off] track — [KPI] is [Δ] and the [direction] signals [consequence]."*
+  - **T2 Tactical:** *"[KPI] is [Δ vs reference] — [primary driver] is the dominant cause."*
+  - **T3 Operational:** *"[N] exceptions exceed threshold in [dimension] — [entity/team] requires attention."*
+  - **T4 Prescriptive:** *"[Action] in [entity] by [date] will recover [Δ KPI] — owner: [role]."*
+- [ ] **30-second test:** A reader unfamiliar with this specific filter context can construct the Big Idea sentence from the page within 30 seconds (10 seconds for T4 detail pages)
+
+The 30-second test is the only objective measure of whether the page design has succeeded. If the test fails, the layout or content must be revised — not the timer.
+
+Reference: `Storytelling_Principles.md §2` · `samples/page_pulse_full.md §Big Idea Verification`
+
+---
+
 ## Final Rule
 
 > If a page technically works but fails one DoD check,
