@@ -367,7 +367,16 @@ function Invoke-WorkspacePublishPhase {
   if ((-not $hasCredentials) -and $dryRunWhenCredentialsMissing) {
     $publishArgs += "-DryRun"
   }
-  $null = & $publishScript @publishArgs 2>&1
+  $powershellHost = Get-PowerShellHostPath
+  $stdoutFile = [System.IO.Path]::GetTempFileName()
+  $stderrFile = [System.IO.Path]::GetTempFileName()
+  $publishCommand = @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $publishScript) + $publishArgs
+  $publishCommandLine = (($publishCommand | ForEach-Object { Quote-NativeArgument -Value $_ }) -join ' ')
+  $publishProcess = Start-Process -FilePath $powershellHost -ArgumentList $publishCommandLine -NoNewWindow -Wait -PassThru -RedirectStandardOutput $stdoutFile -RedirectStandardError $stderrFile
+  Remove-Item -Path $stdoutFile, $stderrFile -ErrorAction SilentlyContinue
+  if ($publishProcess.ExitCode -ne 0 -and -not (Test-Path $publishResultPath)) {
+    throw "Publish script failed before writing result file (exit $($publishProcess.ExitCode))."
+  }
   if (-not (Test-Path $publishResultPath)) {
     throw "Publish result file not written: $publishResultPath"
   }
@@ -449,6 +458,7 @@ $runState = [ordered]@{
   scope = $scopeState
   publishEnvironment = $effectivePublishEnvironment
   startedAt = (Get-Date).ToString("o")
+  blockingReason = $null
   iterations = @()
 }
 
@@ -536,6 +546,7 @@ for ($iteration = 1; $iteration -le $maxIterations; $iteration++) {
           $runState.iterations += $iterationState
           $runState.completedAt = (Get-Date).ToString("o")
           $runState.success = $false
+          $runState.blockingReason = if ($publishResult.blockingReason) { $publishResult.blockingReason } else { "workspace_publish_credentials_missing" }
           $runState | ConvertTo-Json -Depth 12 | Set-Content -Path $resolvedResultFile -Encoding utf8
           Write-Host "[Supervisor] Workspace publish requires TENANT_ID, CLIENT_ID and CLIENT_SECRET; only dry-run was possible." -ForegroundColor Yellow
           exit 1
