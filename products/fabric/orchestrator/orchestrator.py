@@ -581,41 +581,83 @@ class PipelineManager:
         )
         return response is not None
     
+    def is_first_deploy(self, pipeline_id: str, target_stage_order: int) -> bool:
+        """
+        Return True when the target stage has no items — i.e. this is the first
+        DEV→TEST (or TEST→PROD) promotion and allowCreateArtifact is required.
+        """
+        response = self.api.get(f"deploymentPipelines/{pipeline_id}/stages/{target_stage_order}/items")
+        if not response:
+            return True
+        items = response.get('value') or response.get('items') or []
+        return len(items) == 0
+
     def deploy(
         self,
         pipeline_id: str,
         source_stage_order: int,
         target_stage_order: int,
-        note: str = ""
+        note: str = "",
+        allow_create_artifact: Optional[bool] = None,
+        allow_overwrite_artifact: bool = True,
     ) -> Dict[str, Any]:
         """
         Deploy (promote) from source to target stage.
-        
-        API CALL: Deploy (Promote)
+
+        API CALL: POST /v1/deploymentPipelines/{id}/deploy
         This triggers the actual DEV→TEST or TEST→PROD promotion.
+
+        allow_create_artifact:
+            When None (default), auto-detected: True if the target stage is empty
+            (first deployment), False otherwise. Set explicitly to override.
+            IMPORTANT: The first DEV→TEST deploy always requires this flag or the
+            API returns 400 "Target workspace is empty; allowCreateArtifact must be true."
+
+        allow_overwrite_artifact:
+            Overwrite existing items in target stage (default True). Set False to
+            do a "create-only" pass that skips already-deployed items.
         """
         source_name = ["DEV", "TEST", "PROD"][source_stage_order]
         target_name = ["DEV", "TEST", "PROD"][target_stage_order]
-        
-        console.print(f"[green]Deploying:[/green] {source_name} → {target_name}")
-        
+
+        # Auto-detect first deployment when caller did not specify explicitly
+        if allow_create_artifact is None:
+            if not self.api.dry_run:
+                allow_create_artifact = self.is_first_deploy(pipeline_id, target_stage_order)
+                if allow_create_artifact:
+                    console.print(
+                        f"[yellow]First deploy detected for {target_name} stage — "
+                        f"setting allowCreateArtifact=true[/yellow]"
+                    )
+            else:
+                allow_create_artifact = True  # Safe default for dry-run
+
+        console.print(
+            f"[green]Deploying:[/green] {source_name} → {target_name} "
+            f"(allowCreate={allow_create_artifact}, allowOverwrite={allow_overwrite_artifact})"
+        )
+
         payload = {
             "sourceStageOrder": source_stage_order,
             "targetStageOrder": target_stage_order,
-            "note": note
+            "note": note,
+            "options": {
+                "allowCreateArtifact": allow_create_artifact,
+                "allowOverwriteArtifact": allow_overwrite_artifact,
+            },
         }
-        
+
         response = self.api.post(f"deploymentPipelines/{pipeline_id}/deploy", payload)
-        
+
         if not response:
             raise FabricApiError(f"Failed to deploy pipeline: {pipeline_id}")
-        
+
         # Wait for deployment to complete (polling)
         if not self.api.dry_run:
             operation_id = response.get('operationId')
             if operation_id:
                 self._wait_for_deployment(pipeline_id, operation_id)
-        
+
         return response
     
     def _wait_for_deployment(self, pipeline_id: str, operation_id: str, timeout: int = 300):
@@ -1203,19 +1245,26 @@ class DomainOrchestrator:
         console.print(f"\n[bold green]Deleted {len(to_delete)} workspace(s)[/bold green]\n")
         return True
     
-    def deploy_domain(self, domain_name: str, target: str, strategy: str = "enterprise") -> bool:
+    def deploy_domain(
+        self,
+        domain_name: str,
+        target: str,
+        strategy: str = "enterprise",
+        allow_create_artifact: Optional[bool] = None,
+        allow_overwrite_artifact: bool = True,
+    ) -> bool:
         """Deploy domain to target environment (test or prod). Target workspace depends on strategy."""
         console.print(f"\n[bold]Deploying domain:[/bold] {domain_name} → {target.upper()} [strategy={strategy}]\n")
-        
+
         pipeline_name = self.config.get('deployment_pipelines.naming_pattern', '{domain}_Pipeline')
         pipeline_name = pipeline_name.format(domain=domain_name)
-        
+
         pipeline = self.pipeline_mgr.find_pipeline(pipeline_name)
         if not pipeline:
             raise FabricApiError(f"Deployment pipeline not found: {pipeline_name}")
-        
+
         pipeline_id = pipeline['id']
-        
+
         if target.lower() == 'test':
             source_order = 0
             target_order = 1
@@ -1224,12 +1273,14 @@ class DomainOrchestrator:
             target_order = 2
         else:
             raise ValueError(f"Invalid target: {target}. Must be 'test' or 'prod'")
-        
+
         result = self.pipeline_mgr.deploy(
             pipeline_id=pipeline_id,
             source_stage_order=source_order,
             target_stage_order=target_order,
-            note=f"Automated deployment: {domain_name} to {target.upper()}"
+            note=f"Automated deployment: {domain_name} to {target.upper()}",
+            allow_create_artifact=allow_create_artifact,
+            allow_overwrite_artifact=allow_overwrite_artifact,
         )
         
         # Find target workspace for parameter update (enterprise=Anl, compact=single env workspace)
@@ -1371,26 +1422,39 @@ def deploy(
     domain: str = typer.Option(..., help="Domain name"),
     target: str = typer.Option(..., help="Target environment: test or prod"),
     strategy: Optional[str] = typer.Option(None, "--strategy", help="Architecture: enterprise or compact (for target workspace lookup)"),
+    allow_create: Optional[bool] = typer.Option(None, "--allow-create/--no-allow-create", help="Allow creating new items in target stage. Auto-detected when omitted: True if target stage is empty (first deploy)."),
+    no_overwrite: bool = typer.Option(False, "--no-overwrite", help="Skip overwriting items that already exist in target stage."),
     config_file: str = typer.Option("config.yaml", "--config", help="Config file path"),
     dry_run: bool = typer.Option(False, "--dry-run", help="Simulate without deploying")
 ):
     """
     Deploy domain to target environment (DEV→TEST or TEST→PROD).
-    
+
+    allowCreateArtifact is auto-detected on first deploy (target stage empty).
+    Override with --allow-create / --no-allow-create when auto-detection is not desired.
+
     Example:
         python orchestrator.py deploy --domain Sales --target test
+        python orchestrator.py deploy --domain Sales --target test --allow-create
         python orchestrator.py deploy --domain Sales --target prod --strategy compact
+        python orchestrator.py deploy --domain Sales --target prod --no-overwrite
     """
     try:
         if target.lower() not in ['test', 'prod']:
             raise ValueError("Target must be 'test' or 'prod'")
-        
+
         config = ConfigLoader(config_file)
         resolved_strategy = _resolve_strategy(strategy, config)
         orchestrator = DomainOrchestrator(config, dry_run=dry_run)
-        
-        orchestrator.deploy_domain(domain_name=domain, target=target, strategy=resolved_strategy)
-        
+
+        orchestrator.deploy_domain(
+            domain_name=domain,
+            target=target,
+            strategy=resolved_strategy,
+            allow_create_artifact=allow_create,
+            allow_overwrite_artifact=not no_overwrite,
+        )
+
     except Exception as e:
         console.print(f"[bold red]Error:[/bold red] {e}")
         raise typer.Exit(code=1)
