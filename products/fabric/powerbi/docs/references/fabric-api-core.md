@@ -4,6 +4,35 @@
 > **Purpose**: Shared reference for all Microsoft Fabric data-plane operations.
 > **Language-agnostic** — no SDK code, no CLI commands. Every API reference is a raw REST specification (verb, URL, headers, payload, response).
 
+## Triggers
+
+Use this document when:
+- Making any `az rest` or direct REST call to the Fabric API
+- Authenticating with `fab auth login` or resolving audience/token issues
+- Resolving workspace IDs, item IDs, or capacity IDs dynamically
+- Implementing LRO polling (createItemWithDefinition, getDefinition)
+- Creating or listing OneLake shortcuts
+- Any operation where the correct `--resource` audience for `az rest` is unclear
+
+**Delegate here from**: `fabric-powerbi-authoring.md` (for auth patterns), `router-agent` (for REST operations), `orchestrator.py` (for API endpoint shapes).
+
+## Must / Prefer / Avoid
+
+### MUST DO
+- Always specify `--resource` on every `az rest` call (Fabric API vs Power BI API use different audiences — wrong audience = silent 401)
+- Poll LRO operations to completion before reading results — `getDefinition` requires `/result` suffix on the poll URL
+- Resolve workspace/item IDs dynamically via REST; never hardcode GUIDs
+
+### PREFER
+- `fab api` over raw `az rest` for Fabric data-plane — simpler auth wiring
+- Scope estimation before large discovery queries
+- `fab auth status` before any Fabric operation in a new session
+
+### AVOID
+- Using Power BI API audience for Fabric Items API calls (and vice versa)
+- Hardcoded IDs in scripts or configs
+- Assuming LRO completes synchronously
+
 ---
 
 ## Fabric Topology & Key Concepts

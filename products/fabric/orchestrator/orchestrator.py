@@ -513,6 +513,125 @@ class GovernanceManager:
 
 
 # ============================================================================
+# Shortcut Manager
+# ============================================================================
+
+class ShortcutManager:
+    """
+    Manages OneLake Shortcuts — zero-copy references between Fabric items/workspaces.
+
+    Use case: After domain init, create Trf→Src shortcuts so the Transform layer
+    can read raw data without copying. The shortcut lives inside the *target*
+    lakehouse and points at the *source* lakehouse path in OneLake.
+
+    API reference: POST /v1/workspaces/{workspaceId}/items/{itemId}/shortcuts
+    Docs: https://learn.microsoft.com/en-us/fabric/onelake/onelake-shortcuts
+    """
+
+    def __init__(self, api: FabricApiClient, config: ConfigLoader):
+        self.api = api
+        self.config = config
+
+    def create_shortcut(
+        self,
+        workspace_id: str,
+        lakehouse_id: str,
+        name: str,
+        path: str,
+        source_workspace_id: str,
+        source_item_id: str,
+        source_path: str,
+    ) -> Dict[str, Any]:
+        """
+        Create a OneLake shortcut inside a lakehouse.
+
+        Args:
+            workspace_id:       Target workspace (where the shortcut will appear).
+            lakehouse_id:       Target lakehouse item ID.
+            name:               Shortcut name (folder name inside the lakehouse).
+            path:               Parent path in the target lakehouse (e.g. "Tables").
+            source_workspace_id: Source workspace ID.
+            source_item_id:     Source lakehouse/warehouse item ID.
+            source_path:        Path inside the source item (e.g. "Tables/FactSales").
+
+        Returns:
+            API response dict.
+        """
+        payload = {
+            "name": name,
+            "path": path,
+            "target": {
+                "type": "OneLake",
+                "oneLake": {
+                    "workspaceId": source_workspace_id,
+                    "itemId": source_item_id,
+                    "path": source_path,
+                },
+            },
+        }
+        console.print(
+            f"[blue]Creating shortcut:[/blue] {name} → "
+            f"ws={source_workspace_id[:8]}…/item={source_item_id[:8]}…/{source_path}"
+        )
+        response = self.api.post(
+            f"workspaces/{workspace_id}/items/{lakehouse_id}/shortcuts", payload
+        )
+        if not response:
+            raise FabricApiError(
+                f"Failed to create shortcut '{name}' in lakehouse {lakehouse_id}"
+            )
+        return response
+
+    def list_shortcuts(
+        self,
+        workspace_id: str,
+        lakehouse_id: str,
+        path: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        List shortcuts in a lakehouse, optionally filtered by path.
+
+        GET /v1/workspaces/{workspaceId}/items/{itemId}/shortcuts
+        """
+        params = {"path": path} if path else None
+        response = self.api.get(
+            f"workspaces/{workspace_id}/items/{lakehouse_id}/shortcuts",
+            params=params,
+        )
+        return response.get("value", []) if response else []
+
+    def delete_shortcut(
+        self,
+        workspace_id: str,
+        lakehouse_id: str,
+        shortcut_path: str,
+        shortcut_name: str,
+    ) -> bool:
+        """
+        Delete a shortcut by path + name.
+
+        DELETE /v1/workspaces/{workspaceId}/items/{itemId}/shortcuts/{path}/{name}
+        """
+        endpoint = (
+            f"workspaces/{workspace_id}/items/{lakehouse_id}"
+            f"/shortcuts/{shortcut_path.strip('/')}/{shortcut_name}"
+        )
+        console.print(f"[red]Deleting shortcut:[/red] {shortcut_path}/{shortcut_name}")
+        return self.api.delete(endpoint)
+
+    def shortcut_exists(
+        self,
+        workspace_id: str,
+        lakehouse_id: str,
+        path: str,
+        name: str,
+    ) -> bool:
+        """Return True if a shortcut with the given path/name already exists."""
+        shortcuts = self.list_shortcuts(workspace_id, lakehouse_id, path=path)
+        return any(s.get("name") == name for s in shortcuts)
+
+
+# ============================================================================
 # Pipeline Manager
 # ============================================================================
 
@@ -947,6 +1066,7 @@ class DomainOrchestrator:
         self.api = FabricApiClient(config, self.auth, dry_run)
         self.workspace_mgr = WorkspaceManager(self.api, config)
         self.governance_mgr = GovernanceManager(self.api, config)
+        self.shortcut_mgr = ShortcutManager(self.api, config)
         self.pipeline_mgr = PipelineManager(self.api, config)
         self.template_gen = TemplateGenerator(config)
     
@@ -1074,7 +1194,11 @@ class DomainOrchestrator:
         # Create deployment pipeline (if auto_create enabled)
         if self.config.get('deployment_pipelines.auto_create', True):
             self._create_deployment_pipeline(domain_name, created_workspaces, strategy)
-        
+
+        # Create OneLake shortcuts between layers (if enabled)
+        if self.config.get('onelake_shortcuts.enabled', False):
+            self._create_layer_shortcuts(domain_name, created_workspaces, strategy)
+
         console.print(f"\n[bold green]Domain initialized:[/bold green] {domain_name}")
         console.print(f"[green]Created {len(created_workspaces)} workspaces[/green]\n")
         
@@ -1123,7 +1247,124 @@ class DomainOrchestrator:
                     stage_order=stage_order,
                     workspace_id=ws_id
                 )
-    
+
+    def _create_layer_shortcuts(
+        self,
+        domain_name: str,
+        created_workspaces: Dict[str, Dict[str, Any]],
+        strategy: str = "enterprise",
+    ) -> None:
+        """
+        Create OneLake shortcuts from Trf→Src and Anl→Trf for each environment.
+
+        Config section (config.yaml):
+          onelake_shortcuts:
+            enabled: true
+            shortcuts:
+              - source_layer: Src
+                target_layer: Trf
+                tables: ["*"]           # "*" = all tables; list specific table names to limit
+              - source_layer: Trf
+                target_layer: Anl
+                tables: ["*"]
+
+        Compact strategy: skipped (single workspace per env; no cross-workspace shortcuts needed).
+        Enterprise strategy: Trf workspace gets Src shortcuts; Anl workspace gets Trf shortcuts.
+        """
+        if strategy == Strategy.COMPACT.value:
+            console.print(
+                "[yellow]Skipping layer shortcuts — not applicable for compact strategy[/yellow]"
+            )
+            return
+
+        shortcut_defs = self.config.get("onelake_shortcuts.shortcuts", [
+            {"source_layer": "Src", "target_layer": "Trf", "tables": ["*"]},
+            {"source_layer": "Trf", "target_layer": "Anl", "tables": ["*"]},
+        ])
+
+        console.print(
+            f"\n[bold]Creating OneLake layer shortcuts:[/bold] {domain_name}\n"
+        )
+
+        environments = [Environment.DEV, Environment.TEST, Environment.PROD]
+
+        for env in environments:
+            env_val = env.value
+            for shortcut_def in shortcut_defs:
+                src_layer = shortcut_def["source_layer"]
+                tgt_layer = shortcut_def["target_layer"]
+                tables = shortcut_def.get("tables", ["*"])
+
+                src_ws_name = f"{domain_name}_{src_layer}_{env_val.capitalize()}"
+                tgt_ws_name = f"{domain_name}_{tgt_layer}_{env_val.capitalize()}"
+
+                src_ws = created_workspaces.get(src_ws_name)
+                tgt_ws = created_workspaces.get(tgt_ws_name)
+
+                if not src_ws or not tgt_ws:
+                    console.print(
+                        f"[yellow]Skipping {src_ws_name}→{tgt_ws_name}: workspace not found[/yellow]"
+                    )
+                    continue
+
+                src_ws_id = src_ws["id"]
+                tgt_ws_id = tgt_ws["id"]
+
+                # Resolve lakehouse IDs within each workspace
+                src_lakehouse_id = self._resolve_lakehouse_id(src_ws_id, f"{domain_name.lower()}_src")
+                tgt_lakehouse_id = self._resolve_lakehouse_id(tgt_ws_id, f"{domain_name.lower()}_trf")
+
+                if not src_lakehouse_id or not tgt_lakehouse_id:
+                    console.print(
+                        f"[yellow]Skipping {src_layer}→{tgt_layer}/{env_val}: lakehouse not yet provisioned[/yellow]"
+                    )
+                    continue
+
+                if tables == ["*"]:
+                    # Single shortcut at the Tables root
+                    shortcut_name = f"{src_layer.lower()}_tables"
+                    if not self.shortcut_mgr.shortcut_exists(
+                        tgt_ws_id, tgt_lakehouse_id, "Tables", shortcut_name
+                    ):
+                        self.shortcut_mgr.create_shortcut(
+                            workspace_id=tgt_ws_id,
+                            lakehouse_id=tgt_lakehouse_id,
+                            name=shortcut_name,
+                            path="Tables",
+                            source_workspace_id=src_ws_id,
+                            source_item_id=src_lakehouse_id,
+                            source_path="Tables",
+                        )
+                    else:
+                        console.print(
+                            f"[yellow]Shortcut exists:[/yellow] {shortcut_name} in {tgt_ws_name}"
+                        )
+                else:
+                    # Per-table shortcuts
+                    for table_name in tables:
+                        shortcut_name = f"{src_layer.lower()}_{table_name.lower()}"
+                        if not self.shortcut_mgr.shortcut_exists(
+                            tgt_ws_id, tgt_lakehouse_id, "Tables", shortcut_name
+                        ):
+                            self.shortcut_mgr.create_shortcut(
+                                workspace_id=tgt_ws_id,
+                                lakehouse_id=tgt_lakehouse_id,
+                                name=shortcut_name,
+                                path="Tables",
+                                source_workspace_id=src_ws_id,
+                                source_item_id=src_lakehouse_id,
+                                source_path=f"Tables/{table_name}",
+                            )
+
+    def _resolve_lakehouse_id(self, workspace_id: str, display_name: str) -> Optional[str]:
+        """Find a Lakehouse item by display name in a workspace. Returns item ID or None."""
+        response = self.api.get(f"workspaces/{workspace_id}/items?type=Lakehouse")
+        items = response.get("value", []) if response else []
+        for item in items:
+            if item.get("displayName", "").lower() == display_name.lower():
+                return item.get("id")
+        return None
+
     def create_feature_workspaces(
         self,
         domain_name: str,
@@ -1482,6 +1723,93 @@ def destroy_feature(
         if not success:
             raise typer.Exit(code=1)
         
+    except Exception as e:
+        console.print(f"[bold red]Error:[/bold red] {e}")
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def create_shortcut(
+    workspace_id: str = typer.Option(..., "--workspace-id", help="Target workspace ID"),
+    lakehouse_id: str = typer.Option(..., "--lakehouse-id", help="Target lakehouse item ID"),
+    name: str = typer.Option(..., "--name", help="Shortcut name (folder name in the lakehouse)"),
+    path: str = typer.Option("Tables", "--path", help="Parent path in the target lakehouse"),
+    source_workspace_id: str = typer.Option(..., "--source-workspace-id", help="Source workspace ID"),
+    source_item_id: str = typer.Option(..., "--source-item-id", help="Source lakehouse/warehouse item ID"),
+    source_path: str = typer.Option(..., "--source-path", help="Path inside the source item"),
+    config_file: str = typer.Option("config.yaml", "--config", help="Config file path"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Simulate without creating"),
+):
+    """
+    Create a OneLake shortcut from a source lakehouse path into a target lakehouse.
+
+    Example:
+        python orchestrator.py create-shortcut \\
+          --workspace-id <tgt-ws-id> --lakehouse-id <tgt-lh-id> \\
+          --name src_tables --path Tables \\
+          --source-workspace-id <src-ws-id> --source-item-id <src-lh-id> \\
+          --source-path Tables
+    """
+    try:
+        config = ConfigLoader(config_file)
+        auth = AuthProvider(config)
+        api = FabricApiClient(config, auth, dry_run)
+        mgr = ShortcutManager(api, config)
+        result = mgr.create_shortcut(
+            workspace_id=workspace_id,
+            lakehouse_id=lakehouse_id,
+            name=name,
+            path=path,
+            source_workspace_id=source_workspace_id,
+            source_item_id=source_item_id,
+            source_path=source_path,
+        )
+        console.print(f"[green]Shortcut created:[/green] {name}")
+        console.print_json(data=result)
+    except Exception as e:
+        console.print(f"[bold red]Error:[/bold red] {e}")
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def list_shortcuts(
+    workspace_id: str = typer.Option(..., "--workspace-id", help="Workspace ID"),
+    lakehouse_id: str = typer.Option(..., "--lakehouse-id", help="Lakehouse item ID"),
+    path: Optional[str] = typer.Option(None, "--path", help="Filter by path (e.g. Tables)"),
+    config_file: str = typer.Option("config.yaml", "--config", help="Config file path"),
+):
+    """
+    List OneLake shortcuts in a lakehouse.
+
+    Example:
+        python orchestrator.py list-shortcuts \\
+          --workspace-id <ws-id> --lakehouse-id <lh-id> --path Tables
+    """
+    try:
+        config = ConfigLoader(config_file)
+        auth = AuthProvider(config)
+        api = FabricApiClient(config, auth)
+        mgr = ShortcutManager(api, config)
+        shortcuts = mgr.list_shortcuts(workspace_id, lakehouse_id, path=path)
+
+        table = Table(title=f"Shortcuts in {lakehouse_id[:8]}…")
+        table.add_column("Name", style="cyan")
+        table.add_column("Path", style="green")
+        table.add_column("Source Type")
+        table.add_column("Source Path")
+
+        for sc in shortcuts:
+            target = sc.get("target", {})
+            one_lake = target.get("oneLake", {})
+            table.add_row(
+                sc.get("name", ""),
+                sc.get("path", ""),
+                target.get("type", ""),
+                one_lake.get("path", ""),
+            )
+
+        console.print(table)
+        console.print(f"Total: {len(shortcuts)} shortcuts")
     except Exception as e:
         console.print(f"[bold red]Error:[/bold red] {e}")
         raise typer.Exit(code=1)

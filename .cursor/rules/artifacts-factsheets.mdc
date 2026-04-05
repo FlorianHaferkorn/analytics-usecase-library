@@ -1,7 +1,8 @@
 <!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
 
 ---
-description: Use case factsheet structure and required sections (Lean 2.0)
+description: Govern factsheets. Use when: creating or editing Business Factsheets or UseCase_Bracket.yaml. Triggers: "factsheet", "use case", "business factsheet", "UseCase_Bracket"
+
 globs: "**/usecases/**/*.md"
 alwaysApply: false
 ---

@@ -1,7 +1,8 @@
 <!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
 
 ---
-description: Workflow for autonomous agent task execution (GitHub Issues, PRs, Stage 1)
+description: Execute. Use when: working on any assigned GitHub Issue or PR task. Triggers: "start task", "work on issue", "implement", "begin sprint"
+
 alwaysApply: true
 ---
 

@@ -1,7 +1,7 @@
 # Deploy Semantic Model and Report to Fabric (or Power BI).
 # 1) Runs deploy_gate.ps1 (Zero-Tolerance: no deploy if failed_data_contracts or registry errors).
 # 2) Workspace create/get (Fabric REST or Power BI groups API).
-# 3) Semantic Model / Dataset import.
+# 3) Semantic Model import — via `fab` if available, az rest fallback otherwise.
 # 4) Report publish and bind to dataset.
 # 5) Refresh schedule (optional).
 # 6) Security/RLS (optional).
@@ -10,16 +10,24 @@
 #   FABRIC_TENANT_ID, FABRIC_CLIENT_ID, FABRIC_CLIENT_SECRET (or PBI_* equivalents)
 #   FABRIC_WORKSPACE_NAME or FABRIC_WORKSPACE_ID
 #   FABRIC_DATASET_ID or PBI_DATASET_ID (for refresh schedule; or pass -DatasetId)
+#
+# Deploy strategy:
+#   Primary:  fab import (fast, supports byPath, requires fab CLI authenticated)
+#   Fallback: az rest createItemWithDefinition (requires az login, base64 TMDL encoding)
+#   Use -ForceFabCli or -ForceAzRest to override auto-detection.
 
 param(
 	[string]$Root = ".",
 	[string]$WorkspaceName = "DM_ActionReady",
+	[string]$WorkspaceId,
 	[string]$ModelPath,
 	[string]$ReportPath,
 	[string]$DatasetId,
 	[switch]$GateOnly,
 	[switch]$SkipRefresh,
-	[switch]$SkipSecurity
+	[switch]$SkipSecurity,
+	[switch]$ForceFabCli,
+	[switch]$ForceAzRest
 )
 
 $ErrorActionPreference = "Stop"
@@ -72,6 +80,133 @@ function Set-PowerBIRefreshSchedule {
 	Invoke-RestMethod -Method Patch -Uri $uri -Headers $headers -Body $payload
 }
 
+# ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function Test-Command([string]$Name) {
+	return ($null -ne (Get-Command $Name -ErrorAction SilentlyContinue))
+}
+
+function Get-FabricToken {
+	<#
+	.SYNOPSIS
+	  Return a Fabric API bearer token using az cli or client credentials.
+	#>
+	# Try az cli first (interactive sessions)
+	if (Test-Command "az") {
+		try {
+			$token = az account get-access-token --resource "https://api.fabric.microsoft.com" --query accessToken --output tsv 2>$null
+			if ($token) { return $token }
+		} catch { }
+	}
+	# Fall back to client credentials via env vars
+	return Get-PowerBIAccessToken
+}
+
+function Invoke-FabricRestDeploy {
+	<#
+	.SYNOPSIS
+	  Deploy a PBIP semantic model to Fabric via az rest createItemWithDefinition.
+	  Fallback when `fab` CLI is unavailable.
+	.PARAMETER ModelPath
+	  Path to the .SemanticModel directory (containing definition/).
+	.PARAMETER WorkspaceId
+	  Target Fabric workspace GUID.
+	#>
+	param(
+		[Parameter(Mandatory)][string]$ModelPath,
+		[Parameter(Mandatory)][string]$WorkspaceId
+	)
+
+	$defPath = Join-Path $ModelPath "definition"
+	if (-not (Test-Path $defPath)) {
+		throw "definition/ folder not found in: $ModelPath"
+	}
+
+	$modelName = (Get-Item $ModelPath).BaseName -replace "\.SemanticModel$", ""
+	Write-Host "  az rest deploy: $modelName → workspace $($WorkspaceId.Substring(0,8))…" -ForegroundColor Cyan
+
+	# Build base64-encoded part list for createItemWithDefinition
+	$parts = [System.Collections.ArrayList]::new()
+	Get-ChildItem -Path $defPath -Recurse -File | ForEach-Object {
+		$relPath = $_.FullName.Replace($defPath, "").TrimStart("/\").Replace("\", "/")
+		$bytes   = [System.IO.File]::ReadAllBytes($_.FullName)
+		$b64     = [System.Convert]::ToBase64String($bytes)
+		[void]$parts.Add(@{
+			path    = $relPath
+			payload = $b64
+			payloadType = "InlineBase64"
+		})
+	}
+
+	$pbismPath = Join-Path $ModelPath "definition.pbism"
+	$pbismPart = $null
+	if (Test-Path $pbismPath) {
+		$bytes    = [System.IO.File]::ReadAllBytes($pbismPath)
+		$b64      = [System.Convert]::ToBase64String($bytes)
+		$pbismPart = @{ path = "definition.pbism"; payload = $b64; payloadType = "InlineBase64" }
+		[void]$parts.Insert(0, $pbismPart)
+	}
+
+	$body = @{
+		displayName = $modelName
+		type        = "SemanticModel"
+		definition  = @{
+			parts = $parts.ToArray()
+		}
+	} | ConvertTo-Json -Depth 10
+
+	$bodyFile = [System.IO.Path]::GetTempFileName()
+	$body | Set-Content -Path $bodyFile -Encoding UTF8
+
+	try {
+		$apiUrl  = "https://api.fabric.microsoft.com/v1/workspaces/$WorkspaceId/items"
+		$result  = az rest --method POST --url $apiUrl --headers "Content-Type=application/json" --body "@$bodyFile" 2>&1
+		if ($LASTEXITCODE -ne 0) {
+			throw "az rest failed (exit $LASTEXITCODE): $result"
+		}
+		$resultObj = $result | ConvertFrom-Json -ErrorAction SilentlyContinue
+		$operationId = $resultObj.operationId
+		if ($operationId) {
+			Write-Host "  LRO started: $operationId — polling..." -ForegroundColor DarkGray
+			Invoke-PollLro -WorkspaceId $WorkspaceId -OperationId $operationId
+		}
+		Write-Host "  az rest deploy: success." -ForegroundColor Green
+		return $resultObj
+	} finally {
+		Remove-Item $bodyFile -ErrorAction SilentlyContinue
+	}
+}
+
+function Invoke-PollLro {
+	<#
+	.SYNOPSIS
+	  Poll a Fabric LRO operation until it completes (Succeeded) or fails.
+	#>
+	param(
+		[string]$WorkspaceId,
+		[string]$OperationId,
+		[int]$TimeoutSeconds = 300,
+		[int]$PollIntervalSeconds = 5
+	)
+	$deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+	$pollUrl  = "https://api.fabric.microsoft.com/v1/workspaces/$WorkspaceId/operations/$OperationId/result"
+
+	while ((Get-Date) -lt $deadline) {
+		Start-Sleep -Seconds $PollIntervalSeconds
+		$raw = az rest --method GET --url $pollUrl 2>&1
+		if ($LASTEXITCODE -ne 0) { break }
+		$status = ($raw | ConvertFrom-Json -ErrorAction SilentlyContinue).status
+		Write-Host "    LRO status: $status" -ForegroundColor DarkGray
+		if ($status -in @("Succeeded", "Completed")) { return }
+		if ($status -in @("Failed", "Cancelled")) {
+			throw "LRO $OperationId ended with status: $status"
+		}
+	}
+	throw "LRO $OperationId did not complete within $TimeoutSeconds seconds"
+}
+
+# ─── Main ─────────────────────────────────────────────────────────────────────
+
 $repoRoot = if ($Root -and (Test-Path $Root)) { (Resolve-Path $Root).Path } else { (Get-Location).Path }
 Push-Location $repoRoot
 
@@ -95,12 +230,43 @@ try {
 	# $workspaceId = ... (from FABRIC_WORKSPACE_ID or lookup by FABRIC_WORKSPACE_NAME)
 	Write-Host "  Stub: Workspace name = $WorkspaceName (configure FABRIC_WORKSPACE_ID or use Fabric REST)" -ForegroundColor Gray
 
-	# 3) Semantic Model / Dataset import
+	# 3) Semantic Model import — fab primary, az rest fallback
 	$modelPath = $ModelPath
-	if (-not $modelPath) { $modelPath = Join-Path $repoRoot "showcases\aurora_group\semantic_models\Commercial.SemanticModel" }
+	if (-not $modelPath) { $modelPath = Join-Path $repoRoot "products\fabric\powerbi\dist\Commercial.SemanticModel" }
 	Write-Host "Deploy: Semantic Model..." -ForegroundColor Cyan
-	# TODO: Import PBIP/TMDL or PBIX to Fabric semantic model API (see internal/technical_backlog.md § Power BI MCP).
-	Write-Host "  Stub: Model path = $modelPath" -ForegroundColor Gray
+
+	$wsId = if ($WorkspaceId) { $WorkspaceId } else { $env:FABRIC_WORKSPACE_ID }
+
+	$fabAvailable = (Test-Command "fab") -and (-not $ForceAzRest)
+	$azAvailable  = (Test-Command "az")  -and (-not $ForceFabCli)
+
+	if ($fabAvailable) {
+		Write-Host "  Strategy: fab import (primary)" -ForegroundColor DarkGray
+		if (-not $wsId) {
+			Write-Host "  Skipped: no workspace ID (set -WorkspaceId or FABRIC_WORKSPACE_ID)." -ForegroundColor Yellow
+		} else {
+			$modelName = (Get-Item $modelPath -ErrorAction SilentlyContinue)?.BaseName
+			& fab import "$wsId/$modelName.SemanticModel" -i $modelPath -f
+			if ($LASTEXITCODE -ne 0) {
+				Write-Host "  fab import failed; trying az rest fallback..." -ForegroundColor Yellow
+				if ($azAvailable -and $wsId) {
+					Invoke-FabricRestDeploy -ModelPath $modelPath -WorkspaceId $wsId
+				} else {
+					Write-Host "  No fallback available (az not found or no workspace ID)." -ForegroundColor Red
+					exit 1
+				}
+			} else {
+				Write-Host "  fab import: success." -ForegroundColor Green
+			}
+		}
+	} elseif ($azAvailable -and $wsId) {
+		Write-Host "  Strategy: az rest createItemWithDefinition (fallback — fab not found)" -ForegroundColor Yellow
+		Invoke-FabricRestDeploy -ModelPath $modelPath -WorkspaceId $wsId
+	} else {
+		Write-Host "  Skipped: neither fab nor az available, or no workspace ID." -ForegroundColor Gray
+		Write-Host "    Install fab: https://aka.ms/fabric-cli" -ForegroundColor Gray
+		Write-Host "    Install az:  https://aka.ms/azcli" -ForegroundColor Gray
+	}
 
 	# 4) Report publish and bind
 	$reportPath = $ReportPath

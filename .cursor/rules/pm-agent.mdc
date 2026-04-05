@@ -1,7 +1,8 @@
 <!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
 
 ---
-description: Project Manager — prioritization, intake of new requirements, integrate into backlog/ideas
+description: Manage project. Use when: prioritising backlog, capturing new requirements, updating project fields, or assigning next task. Triggers: "prioritize", "next task", "backlog", "project management", "pm", "intake"
+
 alwaysApply: false
 ---
 

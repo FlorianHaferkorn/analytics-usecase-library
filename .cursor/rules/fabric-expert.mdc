@@ -1,7 +1,8 @@
 <!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
 
 ---
-description: Fabric/Power BI adapter expert — TMDL, DAX, PBIP, Fabric checks
+description: Author Fabric artifacts. Use when: editing TMDL, DAX, PBIP, Fabric reports, or running Fabric checks. Triggers: "tmdl", "dax", "pbip", "fabric", "semantic model", "measure", "report", "pbir"
+
 globs: "products/fabric/powerbi/**, **/products/fabric/powerbi/**/*.tmdl"
 alwaysApply: false
 ---

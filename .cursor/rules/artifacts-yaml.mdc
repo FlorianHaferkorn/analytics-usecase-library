@@ -1,7 +1,8 @@
 <!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
 
 ---
-description: YAML artifact structure — action codes, maps, data contracts
+description: Govern YAML artifacts. Use when: editing action codes, data contracts, or KPI YAML files. Triggers: "action code", "data contract", "yaml artifact"
+
 globs: "**/*.yaml"
 alwaysApply: false
 ---
