@@ -7,6 +7,10 @@ Scope: Applies to all semantic models in this repo (PBIP layout). Desktop is pre
 > **TMDL-Textsyntax** (Calculation Groups, Direct Lake Entity Partitions, Security Roles, database.tmdl/model.tmdl Pflichtinhalt):
 > → `products/fabric/powerbi/docs/references/tmdl-advanced-features.md`
 
+> **Canonical base templates** (database.tmdl, model.tmdl, definition.pbism — single source of truth for compatibilityLevel + format settings):
+> → `core/strategy_operating_model/operating_model/reference/tmdl_base_templates/`
+> → Generate via: `.\products\fabric\powerbi\orchestrator\table_ops.ps1 -Operation WriteModelFiles -DefinitionPath <path>`
+
 ---
 
 ## 1) Global Policies

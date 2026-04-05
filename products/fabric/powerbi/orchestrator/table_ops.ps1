@@ -1,7 +1,7 @@
 # products/fabric/powerbi/orchestrator/table_ops.ps1
 
 Param(
-    [ValidateSet("Create","Update","Delete","Get","List","CreateFromContract","ExportFromContract","PatchDescriptionsFromContract","PatchPartitionSourceToBlank","PatchAddSummarizeByNone","WriteExpressionsTmdl","PatchPartitionSourceToGoldDataPath","WriteDirectLakeExpression","PatchPartitionSourceToDirectLake")]
+    [ValidateSet("Create","Update","Delete","Get","List","CreateFromContract","ExportFromContract","PatchDescriptionsFromContract","PatchPartitionSourceToBlank","PatchAddSummarizeByNone","WriteExpressionsTmdl","PatchPartitionSourceToGoldDataPath","WriteDirectLakeExpression","PatchPartitionSourceToDirectLake","WriteModelFiles")]
     [string]$Operation = "List",
     [string]$ConnectionName = "local_pbip",
     [hashtable]$TableDefinition,
@@ -18,7 +18,10 @@ Param(
     [string]$WorkspaceId,
     [string]$LakehouseId,
     [string]$ExpressionName = "DL_Lakehouse",
-    [string]$SchemaName = "dbo"
+    [string]$SchemaName = "dbo",
+    # WriteModelFiles parameters
+    [string]$ModelName,         # Database/model name (e.g. "Commercial"); defaults to parent folder stem
+    [string]$Culture = "de-DE"  # Default culture for model.tmdl
 )
 
 $ErrorActionPreference = "Stop"
@@ -681,6 +684,55 @@ expression GoldDataPath = "$goldDefault" meta [IsParameterQuery=true, Type="Text
         Write-Host "    2. Ensure Delta tables exist in Lakehouse (same names as TMDL tables)" -ForegroundColor Gray
         Write-Host "    3. Import model to Fabric workspace via: fab import" -ForegroundColor Gray
         Write-Host "    4. Trigger full refresh to validate Direct Lake connectivity" -ForegroundColor Gray
+    }
+
+    "WriteModelFiles" {
+        # Generate database.tmdl, model.tmdl, and definition.pbism from canonical templates.
+        # Templates live in: core/strategy_operating_model/operating_model/reference/tmdl_base_templates/
+        # This is the single source of truth for compatibilityLevel + format settings.
+        $defPath = if ($DefinitionPath) {
+            $repoRoot = (Get-Location).Path
+            if ([System.IO.Path]::IsPathRooted($DefinitionPath)) { $DefinitionPath } else { Join-Path $repoRoot $DefinitionPath }
+        } else { throw "-DefinitionPath required for WriteModelFiles." }
+
+        $repoRoot = (Get-Location).Path
+        $templatesDir = Join-Path $repoRoot "core\strategy_operating_model\operating_model\reference\tmdl_base_templates"
+        if (-not (Test-Path $templatesDir)) {
+            throw "Templates directory not found: $templatesDir. Run from repo root."
+        }
+
+        # Resolve model name: explicit param → parent folder stem (remove .SemanticModel suffix) → "Model"
+        $resolvedModelName = $ModelName
+        if (-not $resolvedModelName) {
+            $parentFolder = Split-Path (Split-Path $defPath -Parent) -Leaf
+            $resolvedModelName = $parentFolder -replace '\.SemanticModel$', ''
+        }
+        if (-not $resolvedModelName) { $resolvedModelName = "Model" }
+
+        $utf8 = New-Object System.Text.UTF8Encoding $false
+
+        # database.tmdl
+        $dbTemplate = Get-Content (Join-Path $templatesDir "database.tmdl.template") -Raw
+        $dbContent  = $dbTemplate -replace '\{\{MODEL_NAME\}\}', $resolvedModelName
+        [System.IO.File]::WriteAllText((Join-Path $defPath "database.tmdl"), $dbContent, $utf8)
+        Write-Host "  Wrote: database.tmdl  (model=$resolvedModelName, compatibilityLevel=1702)" -ForegroundColor Green
+
+        # model.tmdl — only write if it doesn't exist (preserve existing ref table entries)
+        $modelPath = Join-Path $defPath "model.tmdl"
+        if (-not (Test-Path $modelPath)) {
+            $mdlTemplate = Get-Content (Join-Path $templatesDir "model.tmdl.template") -Raw
+            $mdlContent  = $mdlTemplate -replace '\{\{CULTURE\}\}', $Culture
+            [System.IO.File]::WriteAllText($modelPath, $mdlContent, $utf8)
+            Write-Host "  Wrote: model.tmdl  (culture=$Culture)" -ForegroundColor Green
+        } else {
+            Write-Host "  Skipped: model.tmdl (already exists — preserving ref table entries)" -ForegroundColor Gray
+        }
+
+        # definition.pbism — parent of definition/ folder
+        $pbismPath = Join-Path (Split-Path $defPath -Parent) "definition.pbism"
+        $pbismTemplate = Get-Content (Join-Path $templatesDir "definition.pbism.template") -Raw
+        [System.IO.File]::WriteAllText($pbismPath, $pbismTemplate, $utf8)
+        Write-Host "  Wrote: definition.pbism" -ForegroundColor Green
     }
 
     "List" {
