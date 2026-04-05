@@ -2,7 +2,7 @@
 
 **Purpose:** Single place for technical TODOs and stubs that are not covered by [internal/vision/phase2_backlog.md](vision/phase2_backlog.md) (functional topics: 3-30-300, Strategy Pattern). Use this document to find and track code-level open items.
 
-**Tracking:** Work items are tracked in the repo-scope GitHub Project. For migration of these items to Issues, see [internal/project_mgmt/BACKLOG_MIGRATION.md](project_mgmt/BACKLOG_MIGRATION.md).
+**Tracking:** Work items are tracked in the repo-scope GitHub Project and can be converted to issues directly from this list.
 
 **Last updated:** 2026-03-29
 

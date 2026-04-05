@@ -225,7 +225,7 @@ export function StudioButton({
   style,
 }: {
   children: ReactNode;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   tone?: Tone;
   variant?: 'primary' | 'secondary' | 'ghost';
   disabled?: boolean;

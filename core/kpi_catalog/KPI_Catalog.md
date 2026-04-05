@@ -2125,8 +2125,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   domain_tag: [Enterprise & Governance, Governance]
   use_case_ref:
   - XD-003
-  action_code_ref:
-  - X-E3.3
+  action_code_ref: []
   calc_type: rate
   business:
     purpose: "Measures share of actions that achieved the intended outcome."

@@ -145,15 +145,19 @@ function Log-Phase {
 
 function Invoke-WithRetry {
     param([string]$PhaseName, [scriptblock]$Script, [int]$MaxRetries = 3)
+    $attemptErrors = @()
     for ($i = 0; $i -lt $MaxRetries; $i++) {
         try {
             Log-Phase $PhaseName "START"
             & $Script
             Log-Phase $PhaseName "PASS"
             $state.completed += $PhaseName
+            if ($attemptErrors.Count -gt 0) {
+                $state.warnings += "$PhaseName recovered after $($attemptErrors.Count) retry attempt(s)"
+            }
             return $true
         } catch {
-            $state.errors += @{
+            $attemptErrors += @{
                 phase = $PhaseName
                 iteration = $state.iteration
                 error = $_.Exception.Message
@@ -166,7 +170,33 @@ function Invoke-WithRetry {
             }
         }
     }
+    $state.errors += $attemptErrors
     return $false
+}
+
+function Resolve-PbiToolsPath {
+    $command = Get-Command pbi-tools -ErrorAction SilentlyContinue
+    if ($command) { return $command.Source }
+
+    $candidates = @(
+        $env:PBI_TOOLS_PATH,
+        (Join-Path $script:RepoRoot ".tools\pbi-tools\pbi-tools.exe"),
+        (Join-Path $script:RepoRoot ".tools\pbi-tools\pbi-tools.core.exe")
+    ) | Where-Object { $_ }
+
+    foreach ($candidate in $candidates) {
+        if (Test-Path $candidate) {
+            return (Resolve-Path -Path $candidate).Path
+        }
+    }
+
+    return $null
+}
+
+function Test-PbiToolsCompileCompatible {
+    param([string]$FolderPath)
+
+    return (Test-Path (Join-Path $FolderPath "Version.txt"))
 }
 
 # PHASE 0: BUILD REGISTRY (required for Measure binding and Action Panel)
@@ -557,19 +587,15 @@ foreach ($domainName in $byDomain.Keys) {
 }
 
 Invoke-WithRetry "Run Quality Checks" {
-    $checksScript = Join-Path $script:ToolsRoot "run_all_checks.ps1"
+    $checksScript = Join-Path $script:ToolsRoot "run_stage1_checks.ps1"
     
     if (-not (Test-Path $checksScript)) {
-        Write-Host "  run_all_checks.ps1 not found, skipping" -ForegroundColor Yellow
+        Write-Host "  run_stage1_checks.ps1 not found, skipping" -ForegroundColor Yellow
         return
     }
-    $useCaseIdsArg = $script:SelectedUseCaseIds -join ","
-    $bpaOutput = & $checksScript -UseCaseIds $useCaseIdsArg -RepoRoot $script:RepoRoot 2>&1 | Out-String
-    $errorLines = $bpaOutput -split [Environment]::NewLine | Where-Object { $_ -match "ERROR|FAIL" }
-    
-    if ($errorLines.Count -gt 0) {
-        Write-Host "  Found $($errorLines.Count) error/fail line(s)" -ForegroundColor Red
-        $state.warnings += "Quality checks: $($errorLines.Count) errors"
+    $null = & $checksScript -Root $script:RepoRoot 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) {
+        $state.warnings += "Quality checks: Stage 1 failed"
         throw "Quality checks reported errors. Fix and run tooling\run_stage1_checks.ps1"
     }
     Write-Host "  Quality checks passed" -ForegroundColor Green
@@ -664,7 +690,7 @@ Invoke-WithRetry "Validate Fabric output" {
     }
 
     # (3) pbi-tools compile (optional gate): proxy for "would Desktop open?"
-    $pbiTools = Get-Command pbi-tools -ErrorAction SilentlyContinue
+    $pbiTools = Resolve-PbiToolsPath
     if (-not $pbiTools) {
         Write-Host "  WARNING: pbi-tools not found. Skipping compile step. Install for loadable gate (e.g. winget install pbi-tools)." -ForegroundColor Yellow
         $state.warnings += "pbi-tools not installed; compile step skipped"
@@ -675,8 +701,16 @@ Invoke-WithRetry "Validate Fabric output" {
             if (Test-Path $modelPath) { $compileDirs += $modelPath }
         }
         Get-ChildItem $distReportRoot -Directory -Filter "*.Report" -ErrorAction SilentlyContinue | ForEach-Object { $compileDirs += $_.FullName }
-        foreach ($pbipFolder in $compileDirs) {
-            $compileOut = & pbi-tools compile $pbipFolder 2>&1 | Out-String
+        $compatibleCompileDirs = @($compileDirs | Where-Object { Test-PbiToolsCompileCompatible -FolderPath $_ })
+        $skippedCompileDirs = @($compileDirs | Where-Object { -not (Test-PbiToolsCompileCompatible -FolderPath $_) })
+        foreach ($skippedFolder in $skippedCompileDirs) {
+            Write-Host "  compile skipped: $([System.IO.Path]::GetFileName($skippedFolder)) (PBIP split artifact without Version.txt)" -ForegroundColor DarkGray
+        }
+        if ($compatibleCompileDirs.Count -eq 0) {
+            Write-Host "  No pbi-tools-compatible PbixProj folders found; structural PBIP validation remains authoritative." -ForegroundColor DarkGray
+        }
+        foreach ($pbipFolder in $compatibleCompileDirs) {
+            $compileOut = & $pbiTools compile $pbipFolder 2>&1 | Out-String
             if ($LASTEXITCODE -ne 0) {
                 $state.validateErrors += @{
                     timestamp = (Get-Date -Format "o")

@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback, useMemo, type ReactNode } from 'react
 import type { RegisteredPlugin } from '@/lib/plugins/plugin-types';
 import { ALL_HOOKS } from '@/lib/plugins/hook-contracts';
 import { PluginCard } from '@/components/plugins/plugin-card';
-import { StudioEmptyState, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel } from '@/components/ui/studio-page';
+import { StudioInput } from '@/components/ui/studio-data';
+import { StudioButton, StudioEmptyState, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel } from '@/components/ui/studio-page';
 
 export function PluginsClient() {
   const [plugins, setPlugins] = useState<RegisteredPlugin[]>([]);
@@ -109,36 +110,28 @@ export function PluginsClient() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'var(--sp-2)' }}>
         <StudioPanel title="Catalog Controls" description="Filter the registry by plugin shape, runtime status, and hook keywords." action={<span style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>{filteredPlugins.length} visible</span>} tone="info" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <input
+            <StudioInput
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search id, name, author, description, hook"
               style={{
-                width: '100%',
                 padding: '8px 10px',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--slate-700)',
-                backgroundColor: 'var(--slate-900)',
-                color: 'var(--slate-100)',
                 fontSize: '0.75rem',
               }}
             />
-            <button
+            <StudioButton
               onClick={resetFilters}
               disabled={!hasActiveFilters}
+              tone="info"
+              variant={hasActiveFilters ? 'secondary' : 'ghost'}
               style={{
                 padding: '8px 10px',
-                borderRadius: 'var(--radius-md)',
-                border: `1px solid ${hasActiveFilters ? 'var(--info)' : 'var(--slate-700)'}`,
-                backgroundColor: hasActiveFilters ? 'color-mix(in srgb, var(--info) 14%, var(--slate-900))' : 'var(--slate-900)',
-                color: hasActiveFilters ? 'var(--slate-100)' : 'var(--slate-500)',
                 fontSize: '0.75rem',
-                cursor: hasActiveFilters ? 'pointer' : 'not-allowed',
                 whiteSpace: 'nowrap',
               }}
             >
               Reset
-            </button>
+            </StudioButton>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '8px' }}>
             <MiniSignal label="Tools" value={stats.typeCounts.tool} accent="var(--mint)" />
@@ -253,21 +246,19 @@ export function PluginsClient() {
 
 function FilterChip({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
   return (
-    <button
+    <StudioButton
       onClick={onClick}
+      tone={active ? 'success' : 'default'}
+      variant={active ? 'secondary' : 'ghost'}
       style={{
         padding: '5px 10px',
         borderRadius: '9999px',
-        border: `1px solid ${active ? 'var(--mint)' : 'var(--slate-600)'}`,
-        backgroundColor: active ? 'color-mix(in srgb, var(--mint) 12%, transparent)' : 'transparent',
-        color: active ? 'var(--mint)' : 'var(--slate-400)',
         fontSize: '0.6875rem',
-        cursor: 'pointer',
         textTransform: 'capitalize',
       }}
     >
       {children}
-    </button>
+    </StudioButton>
   );
 }
 

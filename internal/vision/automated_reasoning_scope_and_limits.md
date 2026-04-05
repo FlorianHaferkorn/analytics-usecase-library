@@ -4,7 +4,7 @@
 
 **Audience:** Product, architecture, and anyone implementing or evaluating AI/automation around the framework.
 
-**Status:** Scope and limits documented here; tooling and implementation are in backlog (see [phase2_backlog.md](phase2_backlog.md), [BACKLOG_GRANULAR.md](../project_mgmt/BACKLOG_GRANULAR.md)).
+**Status:** Scope and limits documented here; tooling and implementation are in backlog (see [phase2_backlog.md](phase2_backlog.md), [technical_backlog.md](../technical_backlog.md)).
 
 ---
 
@@ -53,4 +53,4 @@ Within this framework, **automated reasoning** refers to machine-assisted use of
 | [phase2_backlog.md](phase2_backlog.md) | Strategy Pattern / KI-Dringlichkeit as Phase 2 backlog. |
 | [internal/archive/framework_evolution.md](../archive/framework_evolution.md) | Automation and AI (assisted creation, consumption, limits, agentic future). |
 | [core/strategy_operating_model/company/strategy_patterns.md](../../core/strategy_operating_model/company/strategy_patterns.md) | Authority for strategy patterns; §8 defines urgency rules for tooling. |
-| [internal/project_mgmt/BACKLOG_GRANULAR.md](../project_mgmt/BACKLOG_GRANULAR.md) | Granular tasks: document urgency rules, tooling hook, this scope/limits doc. |
+| [internal/technical_backlog.md](../technical_backlog.md) | Granular technical tasks: urgency tooling hook and implementation follow-ups. |

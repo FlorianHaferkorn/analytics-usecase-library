@@ -24,7 +24,6 @@ orchestration:
   - supply.otif.pct
   action_code_ids:
   - X-E3.2
-  - X-E3.3
 value_driver_model:
   formula: enterprise.value_at_risk.index = f(margin.gm.pct, sales.net_sales.delta_pct.ly, crm.clv.amount, svc.sla.attainment.pct,
     ops.otif.pct, ops.working_capital.ccc.days, people.digital_adoption.pct, people.attrition_risk.pct,
@@ -51,7 +50,7 @@ ux_layout_rules:
       - ops.otif.pct
       visual_type: bar_chart
   page_2_execution:
-    title: Executive / Cross-Functional Execution
+    title: Executive / Cross-Functional Risk Prioritisation
     page_type: T1_Strategic_Overview
     template_id: action_matrix
     component_300s:

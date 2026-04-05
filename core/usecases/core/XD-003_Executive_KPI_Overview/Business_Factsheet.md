@@ -65,7 +65,7 @@ factsheet_type: business
 | sales.net_sales.amount | Supporting |
 | supply.otif.pct | Supporting |
 
-**Action Codes:** X-E3.2, X-E3.3
+**Action Codes:** X-E3.2
 
 > Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
@@ -117,6 +117,7 @@ Structured summary of action codes (definitions remain in YAML).
 - Working-capital driver table (DSO, DIO, DPO contributors).
 - Digital adoption cohort analysis (role, tool, region).
 - Attrition risk drivers (role, tenure, performance band).
+- Cross-domain risk prioritisation table with top entities ranked by enterprise value-at-risk and routed executive owner.
 
 ---
 
@@ -202,14 +203,14 @@ These scenarios illustrate how this use case drives decisions in practice. They 
 
 **Action Code triggered:** X-E3.2 (Cross-Domain Performance Review) — activates domain-level root-cause drill and action routing to domain leads.
 
-### Scenario B: Action Outcome Rate Below Threshold
+### Scenario B: Action Outcome Rate Drops While Enterprise Risk Rises
 
 **Situation:** Enterprise action routed count is high (45 actions in Q2), but outcome rate is only 38% (target 65%). Value at risk index has increased as unresolved actions accumulate.
 
-**Decision question:** Are actions failing due to unclear ownership, resource constraints, or incorrect trigger thresholds generating false positives?
+**Decision question:** Which entities and domains should leadership prioritise first when declining action outcome rate begins to reinforce enterprise value at risk?
 
-**Who decides:** Executive Sponsor + Analytics Lead.
+**Who decides:** Executive Leadership Team with Enterprise Controlling.
 
-**Consequence of inaction:** Action framework loses credibility; teams stop responding to triggers, defeating the purpose of action-ready analytics.
+**Consequence of inaction:** Governance deterioration remains visible but unprioritised; unresolved execution drag compounds financial, service, and people risk in the next cycle.
 
-**Action Code triggered:** X-E3.3 (Action Effectiveness Review) — activates action completion funnel analysis and trigger threshold recalibration.
+**Action Code triggered:** X-E3.2 (Cross-Domain Risk Prioritisation) — ranks the most material entity-domain combinations so leadership can intervene where weak execution is amplifying enterprise downside first.

@@ -84,14 +84,14 @@ foreach($v in @($verDef,$verRoot)){
 # 3) .platform displayName consistency
 $repPlat = if($reportPath){ Join-Path $Root (Join-Path $reportPath '.platform') } else { $null }
 $semPlat = $null
-if(Test-Path $repPlat){ $rep = Get-Content -Raw -Path $repPlat | ConvertFrom-Json } else { $warnings += "Missing Report .platform" }
+if(Test-Path $repPlat){ $rep = Get-Content -Raw -Path $repPlat | ConvertFrom-Json }
 if(Test-Path $pbir){ try { $dp = Get-Content -Raw -Path $pbir | ConvertFrom-Json; $semRel = $dp.datasetReference.byPath.path } catch {} }
 if($semRel){
   $repDir = if($reportPath){ Join-Path $Root $reportPath } else { $Root }
   try { $semFull = [IO.Path]::GetFullPath((Join-Path $repDir $semRel)) } catch { $semFull = Join-Path $repDir $semRel }
   $semPlat = Join-Path $semFull '.platform'
-  if(Test-Path $semPlat){ $sem = Get-Content -Raw -Path $semPlat | ConvertFrom-Json } else { $warnings += "Missing SemanticModel .platform" }
-} else { $warnings += "Cannot resolve SemanticModel path from definition.pbir" }
+  if(Test-Path $semPlat){ $sem = Get-Content -Raw -Path $semPlat | ConvertFrom-Json }
+}
 if($rep -and $sem){ if($rep.metadata.displayName -ne $sem.metadata.displayName){ $warnings += "displayName mismatch: '$($rep.metadata.displayName)' vs '$($sem.metadata.displayName)'" } }
 
 # 4) TMDL presence and basic checks

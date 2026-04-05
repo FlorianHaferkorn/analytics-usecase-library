@@ -7,6 +7,7 @@ import { GoldenThreadFlow, type GoldenThreadData } from '@/components/flow/golde
 import { parseYaml, toYaml } from '@/lib/core/yaml-loader';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 import { ExportReportButton } from '@/components/steering/export-report-button';
+import { StudioFormField, StudioInput, StudioSelect } from '@/components/ui/studio-data';
 import { StudioButton, StudioField, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel, StudioSegmentedControl, StudioToolbar } from '@/components/ui/studio-page';
 
 const YamlEditor = dynamic(
@@ -235,15 +236,10 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
 
       <StudioToolbar>
         <StudioField label="Bracket focus">
-          <select
+          <StudioSelect
             value={selectedBracket ?? ''}
             onChange={(e) => { setSelectedBracket(e.target.value || null); setSyncStatus('synced'); }}
             style={{
-              padding: 'var(--sp-1) var(--sp-1-5)',
-              backgroundColor: 'var(--slate-900)',
-              border: '1px solid var(--slate-700)',
-              borderRadius: 'var(--radius-md)',
-              color: 'var(--slate-100)',
               fontSize: '0.875rem',
               minWidth: '280px',
             }}
@@ -261,7 +257,7 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
                 ))}
               </optgroup>
             ))}
-          </select>
+          </StudioSelect>
         </StudioField>
 
         <StudioField label="Workspace mode">
@@ -305,22 +301,20 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
             {activeDraftBracketId === selectedBracket && (
               <div style={{ padding: 'var(--sp-1)', borderBottom: '1px solid var(--slate-700)', backgroundColor: 'var(--slate-900)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr auto', gap: '8px', alignItems: 'end' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.625rem', color: 'var(--slate-500)', marginBottom: '4px' }}>Target ID</label>
-                    <input
+                  <StudioFormField label="Target ID">
+                    <StudioInput
                       value={createTargetId}
                       onChange={(event) => setCreateTargetId(event.target.value.toUpperCase())}
-                      style={{ width: '100%', padding: '6px 8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--slate-700)', backgroundColor: 'var(--slate-950)', color: 'var(--slate-100)', fontSize: '0.75rem' }}
+                      style={{ padding: '6px 8px', backgroundColor: 'var(--slate-950)', fontSize: '0.75rem' }}
                     />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.625rem', color: 'var(--slate-500)', marginBottom: '4px' }}>Title</label>
-                    <input
+                  </StudioFormField>
+                  <StudioFormField label="Title">
+                    <StudioInput
                       value={createTargetTitle}
                       onChange={(event) => setCreateTargetTitle(event.target.value)}
-                      style={{ width: '100%', padding: '6px 8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--slate-700)', backgroundColor: 'var(--slate-950)', color: 'var(--slate-100)', fontSize: '0.75rem' }}
+                      style={{ padding: '6px 8px', backgroundColor: 'var(--slate-950)', fontSize: '0.75rem' }}
                     />
-                  </div>
+                  </StudioFormField>
                   <StudioButton
                     onClick={() => void handleCreateFromDraft()}
                     disabled={creatingBracket || !createTargetId.trim() || !createTargetTitle.trim()}

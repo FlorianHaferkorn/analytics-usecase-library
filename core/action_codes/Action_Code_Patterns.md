@@ -17,8 +17,8 @@ Documenting patterns makes the closed loop easier to understand and extend: new 
 | **Governance / Orchestration** | Coordinate multiple levers or stakeholders without executing a single control. Decide *which* sub-action to activate. | KPI deviation or imbalance across dimensions | Inventory Governance (S-I1.1), Service Governance (X-S1.1), Liquidity Steering (F-C1.1), Reliability Governance (O-A2.1), Quality Governance (O-Q3.1), Utilization Governance (X-R2.1), Forecast Governance (S-F3.1), Service Reliability Governance (S-R2.1), Cost Governance (F-K2.1), Pricing Governance (C-M2.1), Enterprise Risk Steering (X-E3.2) |
 | **Control / Containment** | Enforce or correct a single lever: price, receivables, availability, defect, etc. | KPI breach (level L1–L3) | Price Realization Guardrails (C-M2.1), Receivables Control (F-C1.2), Payables Optimisation (F-C1.4), Inventory Rightsizing (S-I1.2), Availability Control (O-O1.1), Speed Loss Control (O-O1.2), Defect Control (O-Q3.2), Failure Control (O-A2.2), Delivery Execution Control (S-R2.2), Service Execution Control (X-S1.2) |
 | **Allocate / Rebalance** | Shift resources (capacity, mix, budget) across dimensions. | Under/over utilization or misallocation | Portfolio & Mix Steering (C-M2.2), Capacity Allocation Control (X-R2.2) |
-| **Escalate / Route** | Route issues to the right owner or prioritise cross-domain. | Cross-domain risk or executive attention | Enterprise Risk Steering (X-E3.2), Executive Accountability (X-E3.3) |
-| **Review and Decide** | Structured review with follow-up and outcome measurement. | Recurring cadence or after intervention | Executive Accountability (X-E3.3) |
+| **Escalate / Route** | Route issues to the right owner or prioritise cross-domain. | Cross-domain risk or executive attention | Enterprise Risk Steering (X-E3.2) |
+| **Review and Decide** | Structured review with follow-up and outcome measurement. | Recurring cadence or after intervention | Domain governance action codes within the respective active use cases |
 
 ---
 

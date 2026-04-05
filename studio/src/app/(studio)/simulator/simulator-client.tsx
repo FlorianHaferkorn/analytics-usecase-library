@@ -5,6 +5,7 @@ import { parseFormula } from '@/lib/simulation/formula-parser';
 import { runScenario } from '@/lib/simulation/scenario-engine';
 import { ScenarioPanel } from '@/components/simulator/scenario-panel';
 import { ImpactChart } from '@/components/simulator/impact-chart';
+import { StudioSelect } from '@/components/ui/studio-data';
 import { StudioField, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel, StudioToolbar } from '@/components/ui/studio-page';
 
 interface BracketSummary {
@@ -148,15 +149,10 @@ export function SimulatorClient({ brackets }: Props) {
       {/* Header */}
       <StudioToolbar>
         <StudioField label="Scenario focus">
-          <select
+          <StudioSelect
             value={selectedId}
             onChange={(e) => { setSelectedId(e.target.value); setOverrides(new Map()); }}
             style={{
-              padding: 'var(--sp-1) var(--sp-1-5)',
-              backgroundColor: 'var(--slate-900)',
-              border: '1px solid var(--slate-700)',
-              borderRadius: 'var(--radius-md)',
-              color: 'var(--slate-100)',
               fontSize: '0.875rem',
               minWidth: '280px',
             }}
@@ -164,7 +160,7 @@ export function SimulatorClient({ brackets }: Props) {
             {brackets.map((b) => (
               <option key={b.id} value={b.id}>{b.id} — {b.title}</option>
             ))}
-          </select>
+          </StudioSelect>
         </StudioField>
         {bracket && (
           <span style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>

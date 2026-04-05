@@ -49,10 +49,24 @@ Get-ChildItem -Path $bracketsDir -Recurse -Filter "UseCase_Bracket.yaml" -ErrorA
   $ucId = "unknown"
   if ($content -match '^\s*id\s*:\s*"?([^"\s]+)"?') { $ucId = $matches[1] }
 
-  # Extract required_facts from data_contract_scope section
+  $dataContractRef = $null
+  if ($content -match '(?ms)overrides\s*:\s*.*?data_contract_ref\s*:\s*"?([^"\r\n]+)"?') {
+    $dataContractRef = $matches[1].Trim()
+  }
+
+  # Legacy factsheet-style required_facts are optional for brackets. If a bracket already
+  # points to a governed data contract via overrides.data_contract_ref, treat that as the
+  # canonical linkage and do not warn about missing required_facts.
   $factsSection = [regex]::Match($content, '(?ms)required_facts\s*:(.*?)(?=required_dimensions|$)')
   if (-not $factsSection.Success) {
-    $warnings += "$ucId ($($_.Name)): no required_facts section found in data_contract_scope"
+    if ($dataContractRef) {
+      $resolvedContractPath = Join-Path $rootPath $dataContractRef
+      if (-not (Test-Path $resolvedContractPath)) {
+        $issues += "${ucId}: referenced data contract '$dataContractRef' does not exist"
+      }
+    } else {
+      $warnings += "$ucId ($($_.Name)): neither required_facts nor overrides.data_contract_ref found"
+    }
     return
   }
 

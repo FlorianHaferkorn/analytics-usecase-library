@@ -10,6 +10,7 @@ import { CssPreview } from '@/components/brand/css-preview';
 import { ContrastBadge } from '@/components/brand/contrast-badge';
 import { useProjectStore, DEFAULT_THEME } from '@/lib/store/project-store';
 import type { ThemeConfig } from '@/lib/store/project-store';
+import { StudioFormField, StudioSelect } from '@/components/ui/studio-data';
 import { StudioButton, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel, StudioSegmentedControl, StudioToolbar } from '@/components/ui/studio-page';
 
 const PRESET_THEMES: Record<string, Partial<ThemeConfig>> = {
@@ -97,16 +98,16 @@ export function BrandLabClient() {
         <StudioPanel title="Presets" description="Seed the theme with a visual direction before fine-tuning individual tokens." tone="warning">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-1)' }}>
             {Object.entries(PRESET_THEMES).map(([name, preset]) => (
-              <button
+              <StudioButton
                 key={name}
                 onClick={() => updateTheme(preset)}
+                variant="ghost"
                 style={{
                   padding: 'var(--sp-1)',
                   backgroundColor: 'var(--slate-900)',
-                  border: '1px solid var(--slate-700)',
-                  borderRadius: 'var(--radius-md)',
-                  cursor: 'pointer',
                   textAlign: 'left',
+                  display: 'block',
+                  width: '100%',
                 }}
               >
                 <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
@@ -114,8 +115,8 @@ export function BrandLabClient() {
                   <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: preset.secondary }} />
                   <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: preset.background }} />
                 </div>
-                <p style={{ fontSize: '0.6875rem', color: 'var(--slate-300)' }}>{name}</p>
-              </button>
+                <p style={{ margin: 0, fontSize: '0.6875rem', color: 'var(--slate-300)' }}>{name}</p>
+              </StudioButton>
             ))}
           </div>
         </StudioPanel>
@@ -144,18 +145,12 @@ export function BrandLabClient() {
         {/* Typography & Spacing */}
         <StudioPanel title="Typography & Layout" description="Control typography rhythm, radius and shadow from one governed surface.">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
-            <div>
-              <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>Font Family</label>
-              <select
+            <StudioFormField label="Font Family">
+              <StudioSelect
                 value={theme.fontFamily}
                 onChange={(e) => updateTheme({ fontFamily: e.target.value })}
                 style={{
-                  width: '100%',
                   padding: 'var(--sp-0-5) var(--sp-1)',
-                  backgroundColor: 'var(--slate-900)',
-                  border: '1px solid var(--slate-700)',
-                  borderRadius: 'var(--radius-sm)',
-                  color: 'var(--slate-100)',
                   fontSize: '0.8125rem',
                 }}
               >
@@ -163,8 +158,8 @@ export function BrandLabClient() {
                 <option value="DM Sans">DM Sans</option>
                 <option value="Plus Jakarta Sans">Plus Jakarta Sans</option>
                 <option value="IBM Plex Sans">IBM Plex Sans</option>
-              </select>
-            </div>
+              </StudioSelect>
+            </StudioFormField>
             <div>
               <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>
                 Font Weight ({theme.fontWeight ?? 400})
@@ -221,18 +216,12 @@ export function BrandLabClient() {
                 style={{ width: '100%' }}
               />
             </div>
-            <div>
-              <label style={{ fontSize: '0.75rem', color: 'var(--slate-400)', display: 'block', marginBottom: '4px' }}>Shadow</label>
-              <select
+            <StudioFormField label="Shadow">
+              <StudioSelect
                 value={theme.shadow ?? 'none'}
                 onChange={(e) => updateTheme({ shadow: e.target.value })}
                 style={{
-                  width: '100%',
                   padding: 'var(--sp-0-5) var(--sp-1)',
-                  backgroundColor: 'var(--slate-900)',
-                  border: '1px solid var(--slate-700)',
-                  borderRadius: 'var(--radius-sm)',
-                  color: 'var(--slate-100)',
                   fontSize: '0.8125rem',
                 }}
               >
@@ -241,8 +230,8 @@ export function BrandLabClient() {
                 <option value="0 4px 6px rgba(0,0,0,0.3)">Medium</option>
                 <option value="0 10px 15px rgba(0,0,0,0.35)">Large</option>
                 <option value="0 20px 25px rgba(0,0,0,0.4)">Extra Large</option>
-              </select>
-            </div>
+              </StudioSelect>
+            </StudioFormField>
           </div>
         </StudioPanel>
       </div>
