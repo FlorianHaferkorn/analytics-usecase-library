@@ -1,5 +1,5 @@
 # Loads .env from repo root into process environment. Safe to dot-source; no error if .env missing.
-# Use: . "$PSScriptRoot\Load-ProjectEnv.ps1"
+# Use: . "$PSScriptRoot\load_project_env.ps1"
 # .env format: one KEY=value per line (no spaces around =). Comment lines with #.
 # Ensures GITHUB_TOKEN and optional PROJECT_* are set so you don't have to type them each time.
 

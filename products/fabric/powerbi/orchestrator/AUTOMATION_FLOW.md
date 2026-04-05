@@ -320,7 +320,7 @@ if (-not $validationPassed) {
 # ===========================================
 # PHASE 5: REPORT GENERATION (UX Engine)
 # ===========================================
-# Invoke-Phase5ReportGeneration (Phase5ReportGeneration.ps1)
+# Invoke-Phase5ReportGeneration (generate_phase5_reports.ps1)
 # - Python: py -3 / python3 / python → generate_full_report.py (--use-case, --output, --dataset-reference, --repo-root)
 #   Input: UseCase_Bracket.yaml ux_layout_rules, core/templates/page_templates/ (Slot_Definitions, Visual_to_Slot_Mapping).
 #   Output: products\fabric\powerbi\dist\<UC>_<Title>.Report (definition/report.json, definition/pages/, definition.pbir).
@@ -521,7 +521,7 @@ function Import-MeasuresFromTMDL {
 
 ## 🎨 **Phase 4 (Orchestrator Phase 5): Report Generation – UX Engine**
 
-**File:** `products/fabric/powerbi/orchestrator/Phase5ReportGeneration.ps1` (dot-sourced from `orchestrate_full_model.ps1`).
+**File:** `products/fabric/powerbi/orchestrator/generate_phase5_reports.ps1` (dot-sourced from `orchestrate_full_model.ps1`).
 
 ### Ablauf (Report-Erstellung)
 
@@ -529,7 +529,7 @@ function Import-MeasuresFromTMDL {
 2. **generate_full_report.py** (`products/fabric/powerbi/tooling/page_scaffold_generator/generate_full_report.py`):
    - Eingabe: Use Case ID, Bracket **ux_layout_rules**, **core/templates/page_templates/** (Slot_Definitions, Visual_to_Slot_Mapping, page_types T1–T4).
    - Ausgabe: `products/fabric/powerbi/dist/<UC>_<Title>.Report` (z. B. `COM-001_Sales_Performance.Report`) mit `definition/report.json`, `definition/pages/`, **definition.pbir**.
-   - **datasetReference** wird in **definition.pbir** gesetzt (nicht in report.json; PBIP/Fabric 3.0). Relativer Pfad zum Domain-Modell im selben dist, z. B. `..\Commercial.SemanticModel` (über `Get-DatasetReferenceRelativeFromReport` in AuroraDomainMapping.ps1).
+   - **datasetReference** wird in **definition.pbir** gesetzt (nicht in report.json; PBIP/Fabric 3.0). Relativer Pfad zum Domain-Modell im selben dist, z. B. `..\Commercial.SemanticModel` (über `Get-DatasetReferenceRelativeFromReport` in map_aurora_domains.ps1).
 3. **StaticResources:** Fehlen BaseThemes, werden sie aus `showcases/sample_pbip_report/Procurement_Wireframe_Theme.Report/StaticResources` in den Report kopiert.
 4. **Theme:** Aus `showcases/aurora_group/theme_config.json` (`defaultThemeName`) oder Parameter `-ThemeName`; Anwendung via **apply_report_theme.ps1** (Theme aus `tooling/theme_generator/themes/`).
 5. **Fallback:** Wenn kein Python gefunden wird → **report_generator.ps1** (nur Report-Struktur/Sections, keine Visuals).

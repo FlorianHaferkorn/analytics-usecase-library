@@ -142,7 +142,7 @@ https://app.fabric.microsoft.com/groups/<WorkspaceId>/lakehouses/<LakehouseId>
 1. Ensure Delta tables exist in Lakehouse (same names as TMDL table names)
 2. Get WorkspaceId + LakehouseId (fab or portal)
 3. Run PatchPartitionSourceToDirectLake
-4. Validate TMDL: run validate-tmdl.sh
+4. Validate TMDL: run validate_tmdl_style.sh
 5. Import to Fabric: fab import "ws.Workspace/Model.SemanticModel" -i ./dist/Model.SemanticModel -f
 6. Trigger full refresh: fab api -A powerbi "groups/$WS_ID/datasets/$MODEL_ID/refreshes" -X post -i '{"type":"Full"}'
 7. Verify via DAX: fab api -A powerbi "groups/$WS_ID/datasets/$MODEL_ID/executeQueries" -X post -i '{"queries":[{"query":"EVALUATE ROW(\"RowCount\", COUNTROWS(fact_sales))"}]}'

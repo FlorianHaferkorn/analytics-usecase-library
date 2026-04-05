@@ -70,8 +70,8 @@ Reference: `core/strategy_operating_model/operating_model/reference/TMDL_Allowed
 ### PostToolUse Hooks (Automatic)
 
 Two hooks fire after every Write/Edit:
-- **`validate-tmdl.sh`** — blocks on tab/`:=`/`description:` violations in `.tmdl` files
-- **`validate-pbip-json.sh`** — blocks on JSON syntax errors in `.json`/`.pbir` files inside PBIP directories
+- **`validate_tmdl_style.sh`** — blocks on tab/`:=`/`description:` violations in `.tmdl` files
+- **`validate_pbir_structure.sh`** — blocks on JSON syntax errors in `.json`/`.pbir` files inside PBIP directories
 
 Hooks are defined in `.claude/settings.json`. If a hook blocks you, fix the violation and retry — never bypass.
 

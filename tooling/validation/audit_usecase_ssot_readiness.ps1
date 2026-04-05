@@ -57,9 +57,9 @@ $script:DomainToContract = @{
   Experience  = "experience.yaml"
 }
 
-# Parse AuroraDomainRequiredTables from AuroraDomainMapping.ps1
+# Parse AuroraDomainRequiredTables from map_aurora_domains.ps1
 function Get-AuroraRequiredTables {
-  $mappingPath = Join-Path $script:RepoRoot "products\fabric\powerbi\orchestrator\AuroraDomainMapping.ps1"
+  $mappingPath = Join-Path $script:RepoRoot "products\fabric\powerbi\orchestrator\map_aurora_domains.ps1"
   if (-not (Test-Path $mappingPath)) { return @{} }
   $lines = Get-Content -Path $mappingPath
   $result = @{}
@@ -418,10 +418,10 @@ foreach ($domain in $kpiIdsByDomain.Keys) {
             Message = "KPI '$kpiId' uses table '$tbl' which is in the domain contract but not in AuroraDomainRequiredTables for $domain."
             Location = $kpiId
             Domain = $domain
-            Remediation = "Add '$tbl' to AuroraDomainRequiredTables for $domain in products/fabric/powerbi/orchestrator/AuroraDomainMapping.ps1."
+            Remediation = "Add '$tbl' to AuroraDomainRequiredTables for $domain in products/fabric/powerbi/orchestrator/map_aurora_domains.ps1."
             InsertableRemediation = [pscustomobject]@{
               ssot_type = 'aurora_domain_mapping'
-              file_path = 'products/fabric/powerbi/orchestrator/AuroraDomainMapping.ps1'
+              file_path = 'products/fabric/powerbi/orchestrator/map_aurora_domains.ps1'
               insert_location = "In `$script:AuroraDomainRequiredTables, for key '$domain', add '$tbl' to the array. Replace the existing line for $domain with the line below."
               insertable_content = $line
             }
@@ -449,8 +449,8 @@ foreach ($domain in $kpiIdsByDomain.Keys) {
               Remediation = "Add '$tbl' to AuroraDomainRequiredTables for $domain."
               InsertableRemediation = [pscustomobject]@{
                 ssot_type = 'aurora_domain_mapping'
-                file_path = 'products/fabric/powerbi/orchestrator/AuroraDomainMapping.ps1'
-                insert_location = "In AuroraDomainMapping.ps1, for key '$domain', add '$tbl' to the required tables array."
+                file_path = 'products/fabric/powerbi/orchestrator/map_aurora_domains.ps1'
+                insert_location = "In map_aurora_domains.ps1, for key '$domain', add '$tbl' to the required tables array."
                 insertable_content = $line
               }
             }

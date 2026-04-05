@@ -18,7 +18,7 @@ from pathlib import Path
 GRAPHQL_URL = "https://api.github.com/graphql"
 REST_BASE = "https://api.github.com"
 
-# Single source of truth: same file as PowerShell sync and GranularIssues.ps1
+# Single source of truth: same file as PowerShell sync and list_granular_issues.ps1
 _JSON_PATH = Path(__file__).resolve().parent / "granular_issues.json"
 with open(_JSON_PATH, "r", encoding="utf-8") as f:
     GRANULAR_ISSUES = json.load(f)

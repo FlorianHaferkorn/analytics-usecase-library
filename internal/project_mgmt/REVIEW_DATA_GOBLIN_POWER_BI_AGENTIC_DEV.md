@@ -76,7 +76,7 @@ We have zero rename guidance currently. Adopting this immediately prevents agent
 
 Their `validate-pbir.sh` does more than JSON syntax:
 
-| Check | Their `validate-pbir.sh` | Our `validate-pbip-json.sh` |
+| Check | Their `validate-pbir.sh` | Our `validate_pbir_structure.sh` |
 |---|---|---|
 | JSON syntax (`jq empty`) | ✅ | ✅ |
 | **Folder name spaces** | ✅ (spaces break rendering) | ❌ |
@@ -86,7 +86,7 @@ Their `validate-pbir.sh` does more than JSON syntax:
 
 Their `validate-report-binding.sh` (new to us):
 
-| Check | Their version | Our `validate-pbip-json.sh` |
+| Check | Their version | Our `validate_pbir_structure.sh` |
 |---|---|---|
 | `byPath` directory exists | ✅ | ❌ |
 | `fab exists` for `byConnection` models | ✅ (configurable via config.yaml) | ❌ |

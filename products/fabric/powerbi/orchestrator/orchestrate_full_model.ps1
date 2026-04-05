@@ -29,8 +29,8 @@ $script:OrchestratorRoot = $PSScriptRoot
 Push-Location $script:RepoRoot
 
 # Aurora domain semantic models: central mapping (prefix <-> domain name <-> model path, data contract)
-. "$PSScriptRoot\AuroraDomainMapping.ps1"
-. "$PSScriptRoot\Phase5ReportGeneration.ps1"
+. "$PSScriptRoot\map_aurora_domains.ps1"
+. "$PSScriptRoot\generate_phase5_reports.ps1"
 
 # Validate: exactly one of -UseCase, -Domain, -All
 $modeCount = 0
