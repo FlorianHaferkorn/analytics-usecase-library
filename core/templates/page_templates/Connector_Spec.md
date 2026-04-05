@@ -213,8 +213,8 @@ Run this checklist before a connector implementation is considered production-re
 
 | Connector | Location | Status |
 |---|---|---|
-| Power BI / Fabric | `products/fabric/powerbi/` | Active |
-| OSS Stack (Superset, Grafana, Metabase) | `core/templates/page_templates/connectors/OSS_Connector_Guide.md` | Reference sketch |
+| Power BI / Fabric | `connectors/PowerBI_Connector.md` + `products/fabric/powerbi/` | Active — v2.0.1 |
+| OSS Stack (Superset, Grafana, Metabase) | `connectors/OSS_Connector_Guide.md` | Reference sketch |
 
 To register a new connector, add it to this table and create a corresponding document in `connectors/<tool>_Connector.md`.
 
