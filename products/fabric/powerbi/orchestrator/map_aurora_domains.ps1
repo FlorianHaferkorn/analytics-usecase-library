@@ -1,7 +1,7 @@
-# products/fabric/powerbi/orchestrator/AuroraDomainMapping.ps1
+# products/fabric/powerbi/orchestrator/map_aurora_domains.ps1
 # Central mapping: Use-Case prefix <-> Domain name <-> model name and data contract.
 # Aurora = tool-agnostic showcase (gold data, structure). Fabric output lives under products/fabric/powerbi/dist.
-# Dot-source from orchestrate or other scripts: . "$PSScriptRoot\AuroraDomainMapping.ps1"
+# Dot-source from orchestrate or other scripts: . "$PSScriptRoot\map_aurora_domains.ps1"
 
 # Prefix (e.g. COM) -> Domain display name (e.g. Commercial)
 $script:AuroraPrefixToDomain = @{
