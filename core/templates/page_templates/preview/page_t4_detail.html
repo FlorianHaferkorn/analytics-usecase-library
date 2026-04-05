@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>T4 — Prescriptive Detail (Action Matrix)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+  :root {
+    --pos: #1a7a36; --pos-bg: #e8f5ec;
+    --neg: #b00020; --neg-bg: #fdecea;
+    --warn: #b25000; --warn-bg: #fff3e0;
+    --neutral: #5f6368;
+    --border: #e0e3e8;
+    --action: #1a237e;
+    --action-bg: #e8eaf6;
+    --surface: #f8f9fb;
+    --text-primary: #1a1c20;
+    --text-secondary: #5f6368;
+  }
+  .canvas {
+    width: 1280px; height: 720px;
+    background: #fff;
+    display: grid;
+    grid-template-columns: 2fr 8fr 2fr;
+    grid-template-rows: auto auto 1fr auto;
+    border: 1px solid #d0d4db;
+    box-shadow: 0 4px 24px rgba(0,0,0,.12);
+    overflow: hidden;
+  }
+
+  /* ── decision banner ── */
+  .decision-banner {
+    grid-column: 1 / -1; grid-row: 1;
+    background: #1a237e; color: #fff;
+    display: flex; align-items: center; padding: 0 16px;
+    font-size: 11px; font-weight: 600; letter-spacing: .3px;
+    height: 32px;
+  }
+  .decision-banner span { opacity: .6; margin-right: 8px; font-size: 9px; text-transform: uppercase; letter-spacing: .8px; }
+
+  /* ── slicer pane (left) ── */
+  .slicer-pane {
+    grid-column: 1; grid-row: 2 / -1;
+    background: var(--surface); border-right: 1px solid var(--border);
+    padding: 12px 10px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .slicer-group-label { font-size: 8.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 2px; }
+  .slicer-item {
+    background: #fff; border: 1px solid var(--border); border-radius: 3px;
+    padding: 4px 8px; font-size: 9px; color: var(--text-primary);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .slicer-item.active { border-color: #1a237e; background: var(--action-bg); color: var(--action); font-weight: 600; }
+  .slicer-item .caret { color: #adb5bd; }
+  .slicer-context { font-size: 8px; color: #b00020; font-weight: 600; margin-top: 6px; padding: 4px 6px; background: var(--neg-bg); border-radius: 3px; }
+  .zone-label { font-size: 8px; color: #adb5bd; font-weight: 600; letter-spacing: .4px; }
+
+  /* ── smart narrative ── */
+  .smart-narrative {
+    grid-column: 2; grid-row: 2;
+    padding: 8px 16px; border-bottom: 1px solid var(--border);
+    background: #fffde7;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .narrative-label { font-size: 8.5px; font-weight: 700; color: var(--warn); text-transform: uppercase; letter-spacing: .6px; white-space: nowrap; }
+  .narrative-text { font-size: 10px; color: var(--text-primary); line-height: 1.5; }
+  .narrative-text strong { color: var(--neg); }
+
+  /* ── detail matrix ── */
+  .detail-matrix {
+    grid-column: 2; grid-row: 3;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .matrix-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 14px; border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .matrix-title { font-size: 10px; font-weight: 600; color: var(--text-primary); }
+  .matrix-tools { display: flex; gap: 8px; }
+  .matrix-btn { font-size: 8.5px; color: #1a237e; cursor: pointer; padding: 2px 6px; border: 1px solid #c5cae9; border-radius: 3px; background: #fff; }
+
+  .matrix-head {
+    display: grid;
+    grid-template-columns: 110px 80px 100px 70px 80px 80px 80px;
+    padding: 5px 14px; border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .mh-cell { font-size: 8.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .4px; }
+
+  .matrix-row {
+    display: grid;
+    grid-template-columns: 110px 80px 100px 70px 80px 80px 80px;
+    padding: 6px 14px; border-bottom: 1px solid #f0f2f5;
+    align-items: center;
+  }
+  .matrix-row:hover { background: #fafbfc; }
+  .matrix-row.selected { background: #e8eaf6; }
+  .mc { font-size: 9.5px; color: var(--text-primary); }
+  .mc.bold { font-weight: 600; }
+  .mc.neg { color: var(--neg); }
+  .mc.pos { color: var(--pos); }
+  .mc.warn { color: var(--warn); }
+  .mc.small { font-size: 8.5px; color: var(--text-secondary); }
+
+  /* delta bar inline */
+  .delta-cell { display: flex; align-items: center; gap: 4px; }
+  .delta-bar-track { width: 48px; height: 8px; background: #f0f2f5; border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+  .delta-bar-fill { height: 100%; border-radius: 2px; }
+  .delta-bar-neg { background: var(--neg); }
+  .delta-bar-pos { background: var(--pos); }
+  .delta-bar-warn { background: var(--warn); }
+  .delta-val { font-size: 9px; font-weight: 600; white-space: nowrap; }
+
+  /* action badge */
+  .action-badge { font-size: 8px; font-weight: 700; padding: 2px 5px; border-radius: 2px; }
+  .action-cap  { background: var(--neg-bg); color: var(--neg); }
+  .action-mon  { background: var(--warn-bg); color: var(--warn); }
+  .action-ok   { background: var(--pos-bg); color: var(--pos); }
+
+  .matrix-footer {
+    padding: 5px 14px; font-size: 8.5px; color: var(--text-secondary);
+    border-top: 1px solid var(--border); background: var(--surface);
+    display: flex; justify-content: space-between;
+  }
+
+  /* ── action panel (right) ── */
+  .action-panel {
+    grid-column: 3; grid-row: 2 / -1;
+    background: #1a237e; color: #fff;
+    padding: 14px 12px; display: flex; flex-direction: column; gap: 0;
+    border-left: 3px solid #3949ab;
+  }
+  .ap-badge { font-size: 8px; font-weight: 700; letter-spacing: .8px; background: #3949ab; color: #9fa8da; padding: 2px 6px; border-radius: 2px; margin-bottom: 8px; display: inline-block; }
+  .ap-title { font-size: 13px; font-weight: 700; line-height: 1.3; color: #fff; margin-bottom: 10px; }
+  .ap-divider { height: 1px; background: #3949ab; margin: 8px 0; }
+  .ap-section-label { font-size: 8px; font-weight: 700; letter-spacing: .8px; color: #9fa8da; text-transform: uppercase; margin-bottom: 4px; }
+  .ap-content { font-size: 9.5px; color: #c5cae9; line-height: 1.5; }
+  .ap-content strong { color: #fff; }
+  .ap-content.highlight { color: #fff; font-size: 12px; font-weight: 700; }
+  .ap-step { font-size: 9px; color: #c5cae9; margin: 3px 0; display: flex; gap: 6px; }
+  .ap-step-num { color: #7986cb; font-weight: 700; flex-shrink: 0; }
+  .ap-priority { margin-top: auto; padding: 6px 8px; background: #b00020; border-radius: 3px; text-align: center; font-size: 10px; font-weight: 700; color: #fff; letter-spacing: .5px; }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- Decision banner -->
+  <div class="decision-banner">
+    <span>T4 Prescriptive · Detail page · 300s</span>
+    What should we do to recover GM% in DACH?
+  </div>
+
+  <!-- Slicer pane -->
+  <div class="slicer-pane">
+    <div>
+      <div class="zone-label">Slicer_Pane</div>
+      <div class="slicer-context">▼ Drillthrough: DACH</div>
+    </div>
+    <div>
+      <div class="slicer-group-label">Period</div>
+      <div class="slicer-item active">Oct 2025 MTD <span class="caret">▾</span></div>
+    </div>
+    <div>
+      <div class="slicer-group-label">Region</div>
+      <div class="slicer-item active">DACH <span class="caret">▾</span></div>
+    </div>
+    <div>
+      <div class="slicer-group-label">Channel</div>
+      <div class="slicer-item">All <span class="caret">▾</span></div>
+    </div>
+    <div>
+      <div class="slicer-group-label">Segment</div>
+      <div class="slicer-item">All <span class="caret">▾</span></div>
+    </div>
+  </div>
+
+  <!-- Smart narrative -->
+  <div class="smart-narrative">
+    <div class="narrative-label">Context</div>
+    <div class="narrative-text zone-label" style="white-space:nowrap;margin-right:6px">Smart_Narrative</div>
+    <div class="narrative-text">
+      GM% in DACH is at <strong>16.9%</strong>, <strong>&minus;1.1pp below the 18% threshold</strong> for the 3rd consecutive month.
+      Primary driver: promotional depth at 22% vs 15% target — action triggered.
+    </div>
+  </div>
+
+  <!-- Detail matrix -->
+  <div class="detail-matrix">
+    <div class="matrix-toolbar">
+      <div>
+        <div class="matrix-title">Which DACH accounts explain the GM% shortfall?</div>
+        <div style="font-size:8.5px;color:var(--text-secondary);margin-top:1px">DACH · Oct 2025 MTD · sorted by |Δ Target| desc</div>
+      </div>
+      <div class="matrix-tools">
+        <div class="matrix-btn">Show all (23)</div>
+        <div class="matrix-btn">Export ↓</div>
+      </div>
+    </div>
+
+    <div class="matrix-head">
+      <div class="mh-cell">Account</div>
+      <div class="mh-cell">GM%</div>
+      <div class="mh-cell">Δ vs Target</div>
+      <div class="mh-cell">Promo %</div>
+      <div class="mh-cell">Revenue</div>
+      <div class="mh-cell">GM €</div>
+      <div class="mh-cell">Action</div>
+    </div>
+
+    <div class="matrix-row selected">
+      <div class="mc bold">Acct A — Munich</div>
+      <div class="mc neg bold">14.2%</div>
+      <div class="mc">
+        <div class="delta-cell">
+          <div class="delta-bar-track"><div class="delta-bar-fill delta-bar-neg" style="width:95%"></div></div>
+          <span class="delta-val neg">&minus;3.8pp</span>
+        </div>
+      </div>
+      <div class="mc neg bold">24%</div>
+      <div class="mc">€4.2M</div>
+      <div class="mc neg">€0.60M</div>
+      <div class="mc"><span class="action-badge action-cap">→ Cap</span></div>
+    </div>
+
+    <div class="matrix-row">
+      <div class="mc bold">Acct B — Frankfurt</div>
+      <div class="mc neg">15.1%</div>
+      <div class="mc">
+        <div class="delta-cell">
+          <div class="delta-bar-track"><div class="delta-bar-fill delta-bar-neg" style="width:75%"></div></div>
+          <span class="delta-val neg">&minus;2.9pp</span>
+        </div>
+      </div>
+      <div class="mc neg">22%</div>
+      <div class="mc">€3.8M</div>
+      <div class="mc neg">€0.57M</div>
+      <div class="mc"><span class="action-badge action-cap">→ Cap</span></div>
+    </div>
+
+    <div class="matrix-row">
+      <div class="mc">Acct C — Vienna</div>
+      <div class="mc neg">16.8%</div>
+      <div class="mc">
+        <div class="delta-cell">
+          <div class="delta-bar-track"><div class="delta-bar-fill delta-bar-neg" style="width:40%"></div></div>
+          <span class="delta-val neg">&minus;1.2pp</span>
+        </div>
+      </div>
+      <div class="mc warn">21%</div>
+      <div class="mc">€2.9M</div>
+      <div class="mc warn">€0.49M</div>
+      <div class="mc"><span class="action-badge action-cap">→ Cap</span></div>
+    </div>
+
+    <div class="matrix-row">
+      <div class="mc">Acct D — Zurich</div>
+      <div class="mc warn">17.4%</div>
+      <div class="mc">
+        <div class="delta-cell">
+          <div class="delta-bar-track"><div class="delta-bar-fill delta-bar-warn" style="width:18%"></div></div>
+          <span class="delta-val warn">&minus;0.6pp</span>
+        </div>
+      </div>
+      <div class="mc">19%</div>
+      <div class="mc">€2.1M</div>
+      <div class="mc">€0.37M</div>
+      <div class="mc"><span class="action-badge action-mon">→ Monitor</span></div>
+    </div>
+
+    <div class="matrix-row">
+      <div class="mc">Acct E — Hamburg</div>
+      <div class="mc pos">18.3%</div>
+      <div class="mc">
+        <div class="delta-cell">
+          <div class="delta-bar-track"><div class="delta-bar-fill delta-bar-pos" style="width:8%"></div></div>
+          <span class="delta-val pos">+0.3pp</span>
+        </div>
+      </div>
+      <div class="mc pos">18%</div>
+      <div class="mc">€1.8M</div>
+      <div class="mc pos">€0.33M</div>
+      <div class="mc"><span class="action-badge action-ok">✓ OK</span></div>
+    </div>
+
+    <div class="matrix-footer">
+      <span>5 of 23 DACH accounts · Sorted by |Δ Target| desc · F-pattern column order: Entity | Value | Δ | Driver | Secondary | Action</span>
+      <span>zone: Detail_Matrix · table_with_databars</span>
+    </div>
+  </div>
+
+  <!-- Action panel -->
+  <div class="action-panel">
+    <div class="ap-badge">RECOMMENDED ACTION</div>
+    <div class="ap-title">Cap promo depth in DACH to ≤15%</div>
+
+    <div class="ap-divider"></div>
+    <div class="ap-section-label">Why now</div>
+    <div class="ap-content">GM% at <strong>16.9%</strong>, below 18% threshold for <strong>3 consecutive months</strong>. Promo depth at <strong>22% vs 15% target</strong>.</div>
+
+    <div class="ap-divider"></div>
+    <div class="ap-section-label">Owner</div>
+    <div class="ap-content highlight">Comm Mgr DACH</div>
+
+    <div class="ap-divider"></div>
+    <div class="ap-section-label">Due date</div>
+    <div class="ap-content highlight">End October</div>
+
+    <div class="ap-divider"></div>
+    <div class="ap-section-label">Expected impact</div>
+    <div class="ap-content highlight">+0.8pp GM%</div>
+    <div class="ap-content">+€1.2M margin recovered</div>
+
+    <div class="ap-divider"></div>
+    <div class="ap-section-label">Steps</div>
+    <div class="ap-step"><span class="ap-step-num">1.</span>Cap all DACH accounts at 15% promotional depth</div>
+    <div class="ap-step"><span class="ap-step-num">2.</span>Renegotiate rebate agreements for Acct A &amp; B</div>
+    <div class="ap-step"><span class="ap-step-num">3.</span>Alert Category Manager to review promo calendar</div>
+
+    <div class="ap-priority">⚠ PRIORITY: HIGH</div>
+  </div>
+
+</div>
+</body>
+</html>
