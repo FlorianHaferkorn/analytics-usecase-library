@@ -3,6 +3,7 @@
 ---
 name: stage1-pre-commit
 description: Run Stage 1 CI checks before committing. Use when the user is about to commit, asks to run checks, validation, or mentions Stage 1, pre-commit gate, or CI checks.
+version: "1.0.0"
 ---
 
 # Stage 1 Pre-Commit Check

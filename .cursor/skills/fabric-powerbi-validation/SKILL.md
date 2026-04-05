@@ -3,6 +3,7 @@
 ---
 name: fabric-powerbi-validation
 description: Validate Fabric and Power BI output (TMDL, DAX, measures). Use when working on TMDL files, DAX measures, Fabric checks, or Power BI semantic models.
+version: "1.0.0"
 ---
 
 # Fabric and Power BI Validation

@@ -176,6 +176,31 @@ WS_ID=$(az rest --method get \
 
 ---
 
+## MCP / Tool Routing Decision Tree
+
+Choose the right tool based on operation size, frequency, and target environment:
+
+| Change type | Recommended tool | Why |
+|---|---|---|
+| **New semantic model** (>3 tables) | `az rest createItemWithDefinition` or `fab import` | Full definition in one POST; REST is idempotent for CI/CD |
+| **Add/edit single measure** | `powerbi-modeling-mcp` (if available) → else File-Edit + TMDL hook | MCP validates in-process; avoids full round-trip |
+| **Add table or partition** | `table_ops.ps1` → `az rest updateDefinition` | Orchestrated: TMDL generation + REST push |
+| **Change RLS role** | File-Edit `roles/*.tmdl` → `az rest updateDefinition` | Role TMDL is text-editable; membership via REST separately |
+| **Trigger dataset refresh** | Power BI Datasets API (`az rest --resource analysis.windows.net`) | Datasets API, not Fabric Items API |
+| **Deploy between pipeline stages** | `orchestrator.py deploy` or `PipelineManager.deploy()` | Handles LRO + allowCreateArtifact auto-detection |
+| **Create workspace / provision items** | `orchestrator.py init-domain` | Handles capacity, Git, governance, shortcuts in order |
+| **Explore deployed model structure** | `execute_dax.py` + `INFO.VIEW.*` | Read-only; no model changes; see `powerbi-consumption.md` |
+| **Local report scaffolding** | `page_scaffold_generator/pbip_writer.py` | byPath only; for local Desktop preview |
+| **Fabric deploy (CI pipeline)** | `deploy.ps1` (fab primary, az rest fallback) | Orchestrated gate + deploy + schedule |
+
+### When NOT to use MCP
+
+- Do **not** use `powerbi-modeling-mcp` for structural changes (new tables, partitions, model files) — use `table_ops.ps1` or REST instead.
+- Do **not** use MCP for Direct Lake partition conversion — requires `PatchPartitionSourceToDirectLake` in `table_ops.ps1`.
+- MCP operates on a live connection; file-edit + REST is safer for CI/CD.
+
+---
+
 ## Cross-References
 
 - TMDL Policies (was erlaubt ist): `core/strategy_operating_model/operating_model/reference/TMDL_Allowed_Subset.md`

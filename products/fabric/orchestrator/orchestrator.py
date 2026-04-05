@@ -1051,6 +1051,379 @@ WHERE transaction_date >= DATEADD(year, -2, GETDATE())
 
 
 # ============================================================================
+# Item Provisioner
+# ============================================================================
+
+class ItemProvisioner:
+    """
+    Provision default Fabric items in each layer workspace after workspace creation.
+
+    Default item types per layer (from architecture spec):
+      Src → Lakehouse   (raw / bronze zone)
+      Trf → Warehouse   (transform / silver zone; SQL analytics endpoint auto-created)
+      Anl → SemanticModel stub (placeholder — full model via PBI Generator pipeline)
+
+    The provisioner is idempotent: it skips creation if an item with the target
+    display name already exists in the workspace.
+
+    API reference: POST /v1/workspaces/{workspaceId}/items
+    """
+
+    #: Default item types per layer — override via config key `item_provisioner.layer_items`
+    DEFAULT_LAYER_ITEMS: Dict[str, List[str]] = {
+        "Src": ["Lakehouse"],
+        "Trf": ["Warehouse"],
+        "Anl": ["SemanticModel"],
+    }
+
+    #: Items that require polling for the SQL endpoint to become ready
+    SQL_ENDPOINT_TYPES = {"Warehouse", "Lakehouse"}
+
+    #: Maximum seconds to wait for SQL endpoint readiness after item creation
+    SQL_ENDPOINT_TIMEOUT = 120
+
+    def __init__(self, api: FabricApiClient, config: ConfigLoader):
+        self.api = api
+        self.config = config
+
+    def _get_layer_items(self, layer: str) -> List[str]:
+        """Return item types to provision for a given layer (config-driven with defaults)."""
+        override = self.config.get(f"item_provisioner.layer_items.{layer}")
+        if override is not None:
+            return override if isinstance(override, list) else [override]
+        return self.DEFAULT_LAYER_ITEMS.get(layer, [])
+
+    def _find_item(
+        self,
+        workspace_id: str,
+        item_type: str,
+        display_name: str,
+    ) -> Optional[Dict[str, Any]]:
+        """Find an existing item by type and display name in a workspace."""
+        response = self.api.get(f"workspaces/{workspace_id}/items?type={item_type}")
+        items = response.get("value", []) if response else []
+        for item in items:
+            if item.get("displayName", "").lower() == display_name.lower():
+                return item
+        return None
+
+    def _wait_for_sql_endpoint(
+        self,
+        workspace_id: str,
+        item_id: str,
+        item_type: str,
+        timeout: int = SQL_ENDPOINT_TIMEOUT,
+    ) -> bool:
+        """
+        Poll until the SQL analytics endpoint for a Lakehouse/Warehouse is ready.
+
+        Returns True when ready, False on timeout.
+        GET /v1/workspaces/{workspaceId}/items/{itemId}
+        """
+        if item_type not in self.SQL_ENDPOINT_TYPES:
+            return True
+
+        console.print(
+            f"    [yellow]Waiting for SQL endpoint:[/yellow] {item_type} {item_id[:8]}…"
+        )
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            time.sleep(5)
+            response = self.api.get(f"workspaces/{workspace_id}/items/{item_id}")
+            if not response:
+                continue
+            props = response.get("properties", {})
+            endpoint = props.get("sqlEndpointProperties", {}).get("connectionString")
+            if endpoint:
+                console.print(f"    [green]SQL endpoint ready:[/green] {endpoint[:40]}…")
+                return True
+        console.print(f"    [yellow]SQL endpoint not ready after {timeout}s — continuing[/yellow]")
+        return False
+
+    def provision_layer_items(
+        self,
+        workspace_id: str,
+        layer: str,
+        domain: str,
+    ) -> Dict[str, Any]:
+        """
+        Create the default Fabric items for a layer workspace.
+
+        Args:
+            workspace_id:  Target workspace GUID.
+            layer:         Layer name — "Src", "Trf", or "Anl".
+            domain:        Domain name (used to build display_name: domain_layer).
+
+        Returns:
+            Dict mapping item_type → item_id for all provisioned items.
+        """
+        items_created: Dict[str, Any] = {}
+        item_types = self._get_layer_items(layer)
+
+        for item_type in item_types:
+            display_name = f"{domain.lower()}_{layer.lower()}"
+            existing = self._find_item(workspace_id, item_type, display_name)
+
+            if existing:
+                item_id = existing["id"]
+                console.print(
+                    f"  [yellow]Item exists:[/yellow] {item_type} '{display_name}' ({item_id[:8]}…)"
+                )
+                items_created[item_type] = item_id
+                continue
+
+            console.print(f"  [green]Creating {item_type}:[/green] '{display_name}'")
+
+            payload: Dict[str, Any] = {
+                "displayName": display_name,
+                "type": item_type,
+            }
+            # SemanticModel stub: add minimal description so it can be identified
+            if item_type == "SemanticModel":
+                payload["description"] = (
+                    f"Placeholder SemanticModel for {domain} Anl layer. "
+                    "Replace with full model via PBI Generator."
+                )
+
+            response = self.api.post(f"workspaces/{workspace_id}/items", payload)
+            if not response:
+                raise FabricApiError(
+                    f"Failed to create {item_type} '{display_name}' in workspace {workspace_id}"
+                )
+
+            item_id = response.get("id")
+            items_created[item_type] = item_id
+
+            # Wait for SQL endpoint on Lakehouse/Warehouse before proceeding
+            if item_id and item_type in self.SQL_ENDPOINT_TYPES and not self.api.dry_run:
+                self._wait_for_sql_endpoint(workspace_id, item_id, item_type)
+
+        return items_created
+
+    def provision_domain(
+        self,
+        domain_name: str,
+        created_workspaces: Dict[str, Dict[str, Any]],
+        strategy: str = "enterprise",
+    ) -> Dict[str, Dict[str, Any]]:
+        """
+        Provision items across all workspaces in a domain.
+
+        For enterprise strategy: iterates Src/Trf/Anl × Dev/Test/Prod.
+        For compact strategy: provisions a Lakehouse in each env workspace.
+
+        Returns:
+            Nested dict: workspace_name → {item_type: item_id}
+        """
+        console.print(f"\n[bold]Provisioning items:[/bold] {domain_name} [strategy={strategy}]\n")
+        results: Dict[str, Dict[str, Any]] = {}
+
+        for ws_name, ws_info in created_workspaces.items():
+            ws_id = ws_info.get("id")
+            ws_config = ws_info.get("config")
+            if not ws_id or not ws_config:
+                continue
+
+            if strategy == Strategy.COMPACT.value:
+                layer = "Src"  # Compact: single Lakehouse per env workspace
+            else:
+                layer = ws_config.layer.value if hasattr(ws_config, "layer") else "Src"
+
+            provisioned = self.provision_layer_items(ws_id, layer, domain_name)
+            if provisioned:
+                results[ws_name] = provisioned
+
+        console.print(f"\n[bold green]Item provisioning complete:[/bold green] {domain_name}")
+        return results
+
+
+# ============================================================================
+# Notebook Deployer
+# ============================================================================
+
+class NotebookDeployer:
+    """
+    Deploy Fabric Notebooks to workspaces.
+
+    Supports two deployment modes:
+      1. From template  — generated via TemplateGenerator.generate_spark_notebook()
+      2. From file      — deploy an existing .ipynb file to a target workspace
+
+    Notebook items are identified by displayName within a workspace.
+    If a notebook with the same name already exists, it is updated (idempotent).
+
+    API reference:
+      Create: POST /v1/workspaces/{workspaceId}/items  (type: "Notebook")
+      Update: PATCH /v1/workspaces/{workspaceId}/items/{itemId}
+      Update definition: POST /v1/workspaces/{workspaceId}/items/{itemId}/updateItemDefinition
+    """
+
+    def __init__(self, api: FabricApiClient, config: ConfigLoader, template_gen: "TemplateGenerator"):
+        self.api = api
+        self.config = config
+        self.template_gen = template_gen
+
+    def _find_notebook(self, workspace_id: str, display_name: str) -> Optional[Dict[str, Any]]:
+        """Find an existing notebook by display name in a workspace."""
+        response = self.api.get(f"workspaces/{workspace_id}/items?type=Notebook")
+        items = response.get("value", []) if response else []
+        for item in items:
+            if item.get("displayName", "").lower() == display_name.lower():
+                return item
+        return None
+
+    def _encode_notebook(self, notebook_path: Path) -> str:
+        """Base64-encode a .ipynb file for the Fabric Items API definition payload."""
+        import base64
+        content = notebook_path.read_bytes()
+        return base64.b64encode(content).decode("utf-8")
+
+    def _build_definition_payload(self, notebook_path: Path) -> Dict[str, Any]:
+        """Build the `definition.parts` payload for createItemWithDefinition."""
+        encoded = self._encode_notebook(notebook_path)
+        return {
+            "parts": [
+                {
+                    "path": "artifact.content.ipynb",
+                    "payload": encoded,
+                    "payloadType": "InlineBase64",
+                }
+            ]
+        }
+
+    def deploy_from_file(
+        self,
+        workspace_id: str,
+        notebook_path: Path,
+        display_name: Optional[str] = None,
+        description: str = "",
+    ) -> Dict[str, Any]:
+        """
+        Deploy a .ipynb notebook file to a Fabric workspace.
+
+        If a notebook with the same display_name exists, its definition is updated.
+        If not, a new Notebook item is created.
+
+        Args:
+            workspace_id:   Target workspace GUID.
+            notebook_path:  Path to the local .ipynb file.
+            display_name:   Display name in Fabric (defaults to file stem).
+            description:    Optional description for the notebook item.
+
+        Returns:
+            API response dict for the created/updated notebook.
+        """
+        if not notebook_path.exists():
+            raise FabricApiError(f"Notebook file not found: {notebook_path}")
+
+        name = display_name or notebook_path.stem
+        definition = self._build_definition_payload(notebook_path)
+
+        existing = self._find_notebook(workspace_id, name)
+
+        if existing:
+            item_id = existing["id"]
+            console.print(f"  [yellow]Notebook exists — updating definition:[/yellow] {name}")
+            response = self.api.post(
+                f"workspaces/{workspace_id}/items/{item_id}/updateItemDefinition",
+                {"definition": definition},
+            )
+            return response or {"id": item_id, "updated": True}
+
+        console.print(f"  [green]Creating notebook:[/green] {name}")
+        payload: Dict[str, Any] = {
+            "displayName": name,
+            "type": "Notebook",
+            "definition": definition,
+        }
+        if description:
+            payload["description"] = description
+
+        response = self.api.post(f"workspaces/{workspace_id}/items", payload)
+        if not response:
+            raise FabricApiError(f"Failed to create notebook '{name}' in workspace {workspace_id}")
+        return response
+
+    def deploy_template(
+        self,
+        workspace_id: str,
+        domain: str,
+        layer: str,
+        output_dir: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Generate a layer-appropriate notebook from template and deploy it.
+
+        Template is generated by TemplateGenerator.generate_spark_notebook().
+        The notebook is written to a temp directory (or output_dir if given),
+        then deployed via deploy_from_file.
+
+        Args:
+            workspace_id:  Target workspace GUID.
+            domain:        Domain name (e.g. "Sales").
+            layer:         Layer name (e.g. "Src", "Trf").
+            output_dir:    Directory to write the generated .ipynb; defaults to /tmp.
+
+        Returns:
+            API response dict for the deployed notebook.
+        """
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            out = output_dir or tmp
+            notebook_path_str = self.template_gen.generate_spark_notebook(domain, layer, out)
+            notebook_path = Path(notebook_path_str)
+            display_name = f"{domain}_{layer}_ETL"
+            return self.deploy_from_file(
+                workspace_id=workspace_id,
+                notebook_path=notebook_path,
+                display_name=display_name,
+                description=f"Auto-generated {layer} ETL notebook for {domain} domain.",
+            )
+
+    def deploy_domain_notebooks(
+        self,
+        domain_name: str,
+        created_workspaces: Dict[str, Dict[str, Any]],
+        strategy: str = "enterprise",
+    ) -> Dict[str, Any]:
+        """
+        Deploy ETL notebooks to Src and Trf layer workspaces in a domain.
+
+        Args:
+            domain_name:         Domain name.
+            created_workspaces:  Workspace map from DomainOrchestrator.init_domain().
+            strategy:            "enterprise" or "compact".
+
+        Returns:
+            Dict mapping workspace_name → notebook deployment result.
+        """
+        console.print(f"\n[bold]Deploying notebooks:[/bold] {domain_name}\n")
+        results: Dict[str, Any] = {}
+
+        notebook_layers = {"Src", "Trf"} if strategy != Strategy.COMPACT.value else {"Anl"}
+
+        for ws_name, ws_info in created_workspaces.items():
+            ws_id = ws_info.get("id")
+            ws_config = ws_info.get("config")
+            if not ws_id or not ws_config:
+                continue
+
+            layer = ws_config.layer.value if hasattr(ws_config, "layer") else ""
+            if layer not in notebook_layers:
+                continue
+
+            try:
+                result = self.deploy_template(workspace_id=ws_id, domain=domain_name, layer=layer)
+                results[ws_name] = result
+                console.print(f"  [green]Notebook deployed:[/green] {domain_name}_{layer}_ETL → {ws_name}")
+            except FabricApiError as e:
+                console.print(f"  [red]Notebook deploy failed:[/red] {ws_name} — {e}")
+
+        return results
+
+
+# ============================================================================
 # Domain Orchestrator
 # ============================================================================
 
@@ -1069,6 +1442,8 @@ class DomainOrchestrator:
         self.shortcut_mgr = ShortcutManager(self.api, config)
         self.pipeline_mgr = PipelineManager(self.api, config)
         self.template_gen = TemplateGenerator(config)
+        self.item_provisioner = ItemProvisioner(self.api, config)
+        self.notebook_deployer = NotebookDeployer(self.api, config, self.template_gen)
     
     def init_domain(
         self,
@@ -1198,6 +1573,14 @@ class DomainOrchestrator:
         # Create OneLake shortcuts between layers (if enabled)
         if self.config.get('onelake_shortcuts.enabled', False):
             self._create_layer_shortcuts(domain_name, created_workspaces, strategy)
+
+        # Provision default items (Lakehouse/Warehouse/SemanticModel) per layer (opt-in)
+        if self.config.get('item_provisioner.enabled', False):
+            self.item_provisioner.provision_domain(domain_name, created_workspaces, strategy)
+
+        # Deploy ETL notebook templates to Src/Trf workspaces (opt-in)
+        if self.config.get('notebooks.auto_deploy', False):
+            self.notebook_deployer.deploy_domain_notebooks(domain_name, created_workspaces, strategy)
 
         console.print(f"\n[bold green]Domain initialized:[/bold green] {domain_name}")
         console.print(f"[green]Created {len(created_workspaces)} workspaces[/green]\n")
@@ -1568,21 +1951,36 @@ def init_domain(
     capacity_dev: Optional[str] = typer.Option(None, "--capacity-dev", help="Dev capacity ID or SKU"),
     capacity_test: Optional[str] = typer.Option(None, "--capacity-test", help="Test capacity ID or SKU"),
     capacity_prod: Optional[str] = typer.Option(None, "--capacity-prod", help="Prod capacity ID or SKU"),
+    provision_items: bool = typer.Option(False, "--provision-items", help="Create default Lakehouse/Warehouse/SemanticModel items after workspace creation"),
+    deploy_notebooks: bool = typer.Option(False, "--deploy-notebooks", help="Deploy ETL notebook templates to Src/Trf workspaces after provisioning"),
     config_file: str = typer.Option("config.yaml", "--config", help="Config file path"),
-    dry_run: bool = typer.Option(False, "--dry-run", help="Simulate without creating resources")
+    dry_run: bool = typer.Option(False, "--dry-run", help="Simulate without creating resources"),
 ):
     """
     Initialize domain: create workspaces by strategy (enterprise=9, compact=3).
-    
-    Example:
+
+    Optional flags:
+      --provision-items   Create default Fabric items (Lakehouse, Warehouse, SemanticModel stub)
+                          in each workspace immediately after workspace creation.
+      --deploy-notebooks  Deploy generated PySpark ETL notebooks to Src/Trf workspaces
+                          (requires --provision-items to have run first or items to exist).
+
+    Examples:
         python orchestrator.py init-domain --name Sales --capacity-dev F2
-        python orchestrator.py init-domain --name Sales --strategy compact
+        python orchestrator.py init-domain --name Sales --strategy compact --provision-items
+        python orchestrator.py init-domain --name Sales --provision-items --deploy-notebooks
     """
     try:
         config = ConfigLoader(config_file)
         resolved_strategy = _resolve_strategy(strategy, config)
         orchestrator = DomainOrchestrator(config, dry_run=dry_run)
-        
+
+        # Override config flags from CLI
+        if provision_items:
+            orchestrator.config.config.setdefault("item_provisioner", {})["enabled"] = True
+        if deploy_notebooks:
+            orchestrator.config.config.setdefault("notebooks", {})["auto_deploy"] = True
+
         result = orchestrator.init_domain(
             domain_name=name,
             capacity_dev=capacity_dev,
@@ -1810,6 +2208,77 @@ def list_shortcuts(
 
         console.print(table)
         console.print(f"Total: {len(shortcuts)} shortcuts")
+    except Exception as e:
+        console.print(f"[bold red]Error:[/bold red] {e}")
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def provision_items(
+    domain: str = typer.Option(..., help="Domain name"),
+    workspace_id: str = typer.Option(..., "--workspace-id", help="Target workspace ID"),
+    layer: str = typer.Option(..., "--layer", help="Layer: Src, Trf, or Anl"),
+    config_file: str = typer.Option("config.yaml", "--config", help="Config file path"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Simulate without creating items"),
+):
+    """
+    Provision default Fabric items in a single workspace layer.
+
+    Creates Lakehouse (Src), Warehouse (Trf), or SemanticModel stub (Anl) if not present.
+    Idempotent — skips items that already exist.
+
+    Example:
+        python orchestrator.py provision-items --domain Sales --workspace-id <ws-id> --layer Src
+    """
+    try:
+        config = ConfigLoader(config_file)
+        auth = AuthProvider(config)
+        api = FabricApiClient(config, auth, dry_run)
+        provisioner = ItemProvisioner(api, config)
+        result = provisioner.provision_layer_items(workspace_id, layer, domain)
+        console.print(f"[green]Provisioned:[/green] {result}")
+    except Exception as e:
+        console.print(f"[bold red]Error:[/bold red] {e}")
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def deploy_notebook(
+    workspace_id: str = typer.Option(..., "--workspace-id", help="Target workspace ID"),
+    notebook: Optional[str] = typer.Option(None, "--notebook", help="Path to .ipynb file (omit to use generated template)"),
+    domain: Optional[str] = typer.Option(None, "--domain", help="Domain name (required when using template)"),
+    layer: Optional[str] = typer.Option(None, "--layer", help="Layer name (required when using template): Src, Trf"),
+    display_name: Optional[str] = typer.Option(None, "--display-name", help="Display name for the notebook in Fabric"),
+    config_file: str = typer.Option("config.yaml", "--config", help="Config file path"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Simulate without deploying"),
+):
+    """
+    Deploy a notebook to a Fabric workspace.
+
+    If --notebook is provided, deploys that .ipynb file.
+    Otherwise generates a PySpark ETL template for --domain/--layer and deploys it.
+
+    Examples:
+        python orchestrator.py deploy-notebook --workspace-id <id> --notebook etl.ipynb
+        python orchestrator.py deploy-notebook --workspace-id <id> --domain Sales --layer Src
+    """
+    try:
+        config = ConfigLoader(config_file)
+        auth = AuthProvider(config)
+        api = FabricApiClient(config, auth, dry_run)
+        template_gen = TemplateGenerator(config)
+        deployer = NotebookDeployer(api, config, template_gen)
+
+        if notebook:
+            nb_path = Path(notebook)
+            result = deployer.deploy_from_file(workspace_id, nb_path, display_name=display_name)
+        else:
+            if not domain or not layer:
+                console.print("[bold red]Error:[/bold red] --domain and --layer required when not providing --notebook")
+                raise typer.Exit(code=1)
+            result = deployer.deploy_template(workspace_id, domain, layer)
+
+        console.print(f"[green]Notebook deployed:[/green] {result.get('id', 'ok')}")
     except Exception as e:
         console.print(f"[bold red]Error:[/bold red] {e}")
         raise typer.Exit(code=1)
