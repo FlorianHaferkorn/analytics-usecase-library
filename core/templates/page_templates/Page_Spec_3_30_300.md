@@ -6,48 +6,48 @@ Reference document for **where which visual is placed and why** on the two stand
 
 ## Purpose by layer
 
-- **3 seconds:** One glance – headline KPIs and status vs. target.
-- **30 seconds:** Explanation – why we are off target; drivers, variance, trend.
-- **300 seconds:** Validation and action – detail data and prescribed next steps (T4).
+- **3 seconds:** One glance — headline KPIs and status vs. target.
+- **30 seconds:** Explanation — why we are off target; drivers, variance, trend.
+- **300 seconds:** Validation and action — detail data and prescribed next steps (T4).
 
 ---
 
-## Seite 3–30 (Overview – "The Pulse")
+## Page 3-30 (Overview — "The Pulse")
 
-| Slot-ID      | Visual-Typ     | Zweck |
-|-------------|----------------|--------|
-| **KPI_Cards** | New KPI Card (cardVisual, multiple measures) | Alle als KPI angezeigten Kennzahlen (strategic + influencing) in einem Visual. Ein Blick: Status und Abweichung. |
-| **Slicer_Date** | Slicer | Zeitfilter; gilt für alle nachgelagerten Visuals. |
-| **Main_1**  | z. B. Line Chart | 30s: Trend – wie entwickelt sich die Kennzahl über die Zeit? |
-| **Main_2**  | z. B. Waterfall / Bar | 30s: Variance oder Ranking – wo weichen wir ab bzw. wer treibt was? |
-| **Main_3**  | z. B. Bar / Stacked Bar | 30s: Treiber oder Verteilung (Mix/Ranking). |
+| Slot ID      | Visual Type    | Purpose |
+|-------------|----------------|---------|
+| **KPI_Cards** | KPI Card (multiple measures) | All KPIs designated for the 3-second layer in one band. One glance: status and deviation. |
+| **Slicer_Date** | Slicer | Time filter; applies to all downstream visuals. |
+| **Main_1**  | e.g. Line Chart | 30s: Trend — how does the metric develop over time? |
+| **Main_2**  | e.g. Waterfall / Bar | 30s: Variance or Ranking — where do we deviate, or who drives what? |
+| **Main_3**  | e.g. Bar / Stacked Bar | 30s: Drivers or distribution (Mix / Ranking). |
 
-Keine Actions auf der Overview-Seite; nur Signal und Erklärung.
+No actions on the Overview page — signal and explanation only.
 
 ---
 
-## Seite 300 (Detail – "The Action Matrix")
+## Page 300 (Detail — "The Action Matrix")
 
-| Slot-ID         | Visual-Typ   | Zweck |
-|-----------------|--------------|--------|
-| **Slicer_Pane** | Slicer       | Schneller Kontextwechsel (Zeit, Region, Segment); filtert Detail und Action Panel. |
-| **Smart_Narrative** | Textbox / Smart Narrative | Ein Satz Zusammenfassung zum aktuellen Filterzustand („Was gilt hier?“). |
-| **Detail_Matrix**   | Tabelle/Matrix (tableEx) | Operative Liste – Einheiten, Kennzahlen, Deltas; Basis für „wo eingreifen?“; optional Data Bars für Delta-Spalten. Optional kann später eine Spalte **ActionCode** / **Recommended Action** ergänzt werden, sobald das Semantic Model eine entsprechende Tabelle oder Measure bereitstellt (zeilenweise Empfehlung pro Entität). |
-| **ActionPanel** | Text/Card (aus Action Codes) | Nur bei T4: Empfehlung, Owner, Trigger, Schritte, Impact. Phase 1: Daten aus Action-Code-YAML (Build-Zeit); Phase 2: optional aus Semantic-Model-Tabelle. |
+| Slot ID         | Visual Type  | Purpose |
+|-----------------|--------------|---------|
+| **Slicer_Pane** | Slicer       | Fast context switch (time, region, segment); filters Detail and Action Panel. |
+| **Smart_Narrative** | Text / Narrative | One-sentence summary for the current filter context ("What is true here?"). |
+| **Detail_Matrix**   | Table / Matrix | Operative list — entities, metrics, deltas; basis for "where to intervene?"; optional data bars on delta columns. An **ActionCode** / **Recommended Action** column may be added when the semantic model provides a row-level recommendation per entity (Phase 2). |
+| **ActionPanel** | Text / Card (from Action Codes) | T4 only: recommendation, owner, trigger, steps, impact. Phase 1: data from Action Code YAML (build time); Phase 2: optional from semantic model table. |
 
-Die 300s-Seite dient der Validierung und der Handlung: Smart_Narrative (Kontext), Detail_Matrix (Daten), ActionPanel (was tun, von wem, mit welchem Impact).
+The 300s page serves validation and action: Smart_Narrative (context), Detail_Matrix (data), ActionPanel (what to do, by whom, with what impact).
 
-**Drillthrough:** Die Detail-Seite ist im PBIP als **Drillthrough-Ziel** konfiguriert (`type: "Drillthrough"`, `visibility: "AlwaysVisible"`, `pageBinding`). Sie erscheint damit sowohl als eigene Seite in der Seitenliste als auch als Ziel für „Rechtsklick → Drill through“ von Visuals der Overview-Seite; der Filterkontext wird dabei übergeben.
+**Drillthrough:** The Detail page is configured as a **drillthrough target** (`type: "Drillthrough"`, `visibility: "AlwaysVisible"`, `pageBinding`). It appears both as a standalone page in the page list and as the target for right-click → Drill through from Overview visuals; filter context is passed automatically.
 
 ---
 
 ## Alternative Overview: "The Investigator"
 
-| Slot-ID       | Visual-Typ | Zweck |
-|---------------|------------|--------|
-| **Slicer_Pane** | Slicer   | Vertikale Slicer-Leiste für schnellen Kontextwechsel. |
-| **Focus_Area**  | Ein dominantes Analyse-Visual | 30s: Fokus auf „Warum?“ – z. B. Treiber-Hierarchie, Decomposition. |
-| **Support_1**   | Kleines Kontext-Visual | Zeitlicher oder regionaler Kontext zur Focus_Area. |
-| **Support_2**   | Wie Support_1 | Zweiter Kontext (andere Dimension oder Metrik). |
+| Slot ID       | Visual Type | Purpose |
+|---------------|-------------|---------|
+| **Slicer_Pane** | Slicer   | Vertical slicer bar for fast context switching. |
+| **Focus_Area**  | One dominant analysis visual | 30s: Focus on "Why?" — e.g. driver hierarchy, decomposition. |
+| **Support_1**   | Small context visual | Temporal or regional context for the Focus_Area. |
+| **Support_2**   | Like Support_1 | Second context (different dimension or metric). |
 
-Wenn KPIs auch im Investigator-Layout gezeigt werden sollen, kann ein Slot **KPI_Cards** ergänzt werden (gleiche Semantik wie bei Pulse).
+When KPIs are also required in the Investigator layout, a **KPI_Cards** slot may be added (same semantics as Pulse).
