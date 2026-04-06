@@ -106,7 +106,11 @@ Structured summary of action codes (definitions remain in YAML).
 
 ### 5.4 300-Second Layer (Diagnostics)
 
-- (optional)
+- Defect decomposition by line, product family, and defect type with absolute scrap/rework units and relative contribution to the FPY and COPQ gap vs target.
+- Quality guardrail table linking FPY drop, scrap rate spike, and complaint rate to the specific line/product clusters that trigger O-Q3.1 (root cause analysis), O-Q3.2 (containment action), or O-Q3.3 (process parameter review).
+- Top-N product/line combinations with the highest defect density and COPQ, including the last 4 weekly observations to separate batch-specific anomalies from persistent process drift.
+
+---
 
 ## 6. Data Requirements Summary
 

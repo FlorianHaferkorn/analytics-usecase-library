@@ -105,7 +105,11 @@ Structured summary of action codes (definitions remain in YAML).
 
 ### 5.4 300-Second Layer (Diagnostics)
 
-- (optional)
+- DIO gap decomposition by location, product category, and ABC/XYZ class with absolute inventory value and relative contribution to the target overshoot.
+- Inventory health guardrail table linking DIO, stockout rate, obsolescence rate, and forecast accuracy to the specific SKU/location clusters that trigger S-I1.1 (excess reduction), S-I1.2 (safety stock recalibration), or S-I1.3 (obsolescence write-down).
+- Top-N SKU/location combinations with the highest DIO or stockout rate, including the last 3 monthly observations to separate seasonal effects from persistent imbalances.
+
+---
 
 ## 6. Data Requirements Summary
 
