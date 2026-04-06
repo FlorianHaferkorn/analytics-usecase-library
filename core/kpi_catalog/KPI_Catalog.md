@@ -27,7 +27,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     interpretation: "Higher CLV indicates more valuable segments; compare against acquisition cost and churn risk."
   technical:
     measure_name: "CLV"
-    description: "Estimate long-term value of a customer to prioritize retention, acquisition, and service investme..."
+    description: "Estimate long-term value of a customer to prioritize retention, acquisition, and service investments."
     depends_on_measures:
     - crm.lifetime_revenue.amount
     - crm.retention.pct
@@ -144,7 +144,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     interpretation: "Higher retention indicates better loyalty and relationship quality; interpret jointly with churn and CLV."
   technical:
     measure_name: "Customer Retention %"
-    description: "Measure the share of customers that remain active from one period to the next, as a core loyalty ..."
+    description: "Measure the share of customers that remain active from one period to the next, as a core loyalty KPI."
     depends_on_measures: []
     lineage: []
   governance:
@@ -216,7 +216,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     interpretation: "Higher counts indicate deteriorating retention; validate against cohort definitions."
   technical:
     measure_name: "Churned Customers"
-    description: "Count customers that have stopped purchasing in the observation window as basis for churn calcula..."
+    description: "Count customers that have stopped purchasing in the observation window as basis for churn calculations."
     depends_on_measures: []
     lineage:
     - dim_customer.CustomerKey
@@ -863,8 +863,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Days in Inventory"
     description: "Measures inventory holding period in days."
-    depends_on_measures:
-    - inv.dio.days
+    depends_on_measures: []
     lineage:
     - fact_cogs.COGS Amount
     - fact_inventory.Average Inventory Amount
@@ -903,8 +902,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Stockout Rate %"
     description: "Measures how often inventory is unavailable when demanded."
-    depends_on_measures:
-    - inv.stockout.pct
+    depends_on_measures: []
     lineage:
     - fact_stockout.Stockout Flag
   governance:
@@ -941,8 +939,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Obsolete Inventory %"
     description: "Measures share of inventory considered obsolete."
-    depends_on_measures:
-    - inv.obsolete.pct
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of Supply Chain / Logistics"
@@ -982,8 +979,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Forecast Accuracy %"
     description: "Measures how close forecasted demand is to actual demand."
-    depends_on_measures:
-    - plan.forecast.accuracy.pct
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Supply Planning Lead"
@@ -1020,8 +1016,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Forecast Bias %"
     description: "Measures systematic over- or under-forecasting."
-    depends_on_measures:
-    - plan.forecast.bias.pct
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Supply Planning Lead"
@@ -1060,8 +1055,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Re-Plan Count"
     description: "Counts number of replanning cycles in a period."
-    depends_on_measures:
-    - plan.replan.count
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Supply Planning Lead"
@@ -1103,8 +1097,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "OTIF %"
     description: "Measures share of orders delivered on time and in full."
-    depends_on_measures:
-    - supply.otif.pct
+    depends_on_measures: []
     lineage:
     - fact_fulfillment.OTIF Flag
   governance:
@@ -1142,8 +1135,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "On-Time %"
     description: "Measures share of deliveries arriving on time."
-    depends_on_measures:
-    - supply.on_time.pct
+    depends_on_measures: []
     lineage:
     - fact_fulfillment.On-Time Flag
   governance:
@@ -1180,8 +1172,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Stockout Impact %"
     description: "Measures lost demand share due to stockouts."
-    depends_on_measures:
-    - supply.stockout_impact.pct
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of Supply Chain / Logistics"
@@ -1218,8 +1209,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Expedite Cost Amount"
     description: "Captures additional cost for expedited shipments."
-    depends_on_measures:
-    - supply.expedite.amount
+    depends_on_measures: []
     lineage:
     - fact_fulfillment.Expedite Cost
   governance:
@@ -1255,8 +1245,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Penalty Amount"
     description: "Captures penalties for service level breaches."
-    depends_on_measures:
-    - supply.penalty.amount
+    depends_on_measures: []
     lineage:
     - fact_fulfillment.Penalty Amount
   governance:
@@ -1291,9 +1280,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     interpretation: "Lower values are better; high impact indicates forecast under-coverage driving service loss."
   technical:
     measure_name: "Service Impact %"
-    description: "Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast un..."
-    depends_on_measures:
-    - plan.forecast.service_impact.pct
+    description: "Quantifies how much of the service loss (stockouts or OTIF misses) is attributable to forecast under-coverage."
+    depends_on_measures: []
     lineage:
     - fact_forecast.Forecast Units
     - fact_stockout.Demand Units
@@ -1485,8 +1473,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Preventive Maintenance Task Count"
     description: "Counts preventive maintenance tasks executed or scheduled."
-    depends_on_measures:
-    - ops.pm.task.count
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of Maintenance"
@@ -1520,8 +1507,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Production Volume Units"
     description: "Measures total produced volume in units."
-    depends_on_measures:
-    - ops.production.volume
+    depends_on_measures: []
     lineage:
     - fact_ops.Output Units
   governance:
@@ -1555,8 +1541,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Quality Defect Rate %"
     description: "Measures share of defective units in production."
-    depends_on_measures:
-    - ops.quality.defect_rate.pct
+    depends_on_measures: []
     lineage:
     - fact_ops.Output Units
     - fact_quality.Defect Count
@@ -1591,8 +1576,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Safety Incident Count"
     description: "Counts safety incidents recorded in the period."
-    depends_on_measures:
-    - ops.safety.incident.count
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "EHS Manager"
@@ -1625,8 +1609,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Operations Service Level %"
     description: "Measures on-time or in-full performance for operational delivery."
-    depends_on_measures:
-    - ops.service_level.pct
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of Operations"
@@ -1659,8 +1642,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Yield %"
     description: "Measures ratio of good output to total input."
-    depends_on_measures:
-    - ops.yield.pct
+    depends_on_measures: []
     lineage:
     - fact_ops.Good Units
     - fact_ops.Output Units
@@ -1698,8 +1680,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Order Lines Count"
     description: "Counts order lines processed in the period."
-    depends_on_measures:
-    - order.lines
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of Supply Chain"
@@ -1733,8 +1714,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Plans Count"
     description: "Counts planning cycles or plan versions in the period."
-    depends_on_measures:
-    - plans.count
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Supply Planning Lead"
@@ -1771,8 +1751,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Shipments Count"
     description: "Counts shipments executed in the period."
-    depends_on_measures:
-    - shipments.count
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of Logistics"
@@ -1805,8 +1784,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Supply Chain Service Level %"
     description: "Measures supply chain service level performance."
-    depends_on_measures:
-    - scm.service_level.pct
+    depends_on_measures: []
     lineage:
     - fact_fulfillment.OTIF Flag
   governance:
@@ -1916,8 +1894,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Cash Conversion Cycle (Days)"
     description: "Combines receivables, inventory, and payables days to show cash efficiency."
-    depends_on_measures:
-    - ops.working_capital.ccc.days
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of Treasury"
@@ -2030,8 +2007,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Inventory Turnover"
     description: "Measures how often inventory is sold and replaced."
-    depends_on_measures:
-    - inv.turnover
+    depends_on_measures: []
     lineage:
     - fact_cogs.COGS Amount
     - fact_inventory.Average Inventory Amount
@@ -2070,8 +2046,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Forecast MAPE %"
     description: "Measures mean absolute percentage error in forecast."
-    depends_on_measures:
-    - plan.forecast.mape.pct
+    depends_on_measures: []
     lineage:
     - fact_forecast.Forecast Units
   governance:
@@ -2109,8 +2084,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "In-Full %"
     description: "Measures share of deliveries with complete quantities."
-    depends_on_measures:
-    - supply.in_full.pct
+    depends_on_measures: []
     lineage:
     - fact_fulfillment.In-Full Flag
   governance:
@@ -2146,8 +2120,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Action Outcome Rate %"
     description: "Measures share of actions that achieved the intended outcome."
-    depends_on_measures:
-    - enterprise.action_outcome_rate.pct
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Executive Office"
@@ -2181,8 +2154,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Actions Routed Count"
     description: "Counts action codes routed for execution."
-    depends_on_measures:
-    - enterprise.action_routed.count
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Executive Office"
@@ -2577,8 +2549,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Sales Units"
     description: "Measures sold units volume in the period."
-    depends_on_measures:
-    - sales.units
+    depends_on_measures: []
     lineage:
     - fact_sales.Sales Units
   governance:
@@ -2611,9 +2582,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     interpretation: "Higher values indicate greater adoption of digital processes; low values show manual work and automation potential."
   technical:
     measure_name: "Digital Adoption Rate %"
-    description: "Measure how much of all eligible process transactions are executed via digital tools instead of m..."
-    depends_on_measures:
-    - people.digital_adoption.pct
+    description: "Measure how much of all eligible process transactions are executed via digital tools instead of manual channels."
+    depends_on_measures: []
     lineage:
     - fact_hr.Headcount
     - fact_it.Digital Users
@@ -2649,8 +2619,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Attrition Risk %"
     description: "Probability of employee attrition"
-    depends_on_measures:
-    - people.attrition_risk.pct
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of HR"
@@ -4076,8 +4045,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "FCR %"
     description: "Shows the share of cases solved on first contact."
-    depends_on_measures:
-    - svc.fcr.pct
+    depends_on_measures: []
     lineage:
     - fact_support_cases.FCR Flag
   governance:
@@ -4113,8 +4081,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "AHT Minutes"
     description: "Measures average time to handle a contact."
-    depends_on_measures:
-    - svc.aht.minutes
+    depends_on_measures: []
     lineage:
     - fact_support_cases.Handle Time Minutes
   governance:
@@ -4152,8 +4119,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Backlog Count"
     description: "Quantifies unresolved work in queue."
-    depends_on_measures:
-    - svc.backlog.count
+    depends_on_measures: []
     lineage:
     - fact_support_cases.Backlog Flag
   governance:
@@ -4188,8 +4154,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "NPS Index"
     description: "Measures customer advocacy and experience quality."
-    depends_on_measures:
-    - svc.nps.index
+    depends_on_measures: []
     lineage:
     - fact_nps.NPS Score
   governance:
@@ -4226,8 +4191,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Escalation %"
     description: "Measures frequency of escalated cases."
-    depends_on_measures:
-    - svc.escalation.pct
+    depends_on_measures: []
     lineage:
     - fact_support_cases.Escalation Flag
   governance:
@@ -4310,8 +4274,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Occupancy %"
     description: "Measures active vs idle share of time."
-    depends_on_measures:
-    - res.occupancy.pct
+    depends_on_measures: []
     lineage:
     - fact_workforce_management.Idle Time Minutes
     - fact_workforce_management.Talk Time Minutes
@@ -4350,8 +4313,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Overtime %"
     description: "Shows overtime share of total hours."
-    depends_on_measures:
-    - res.overtime.pct
+    depends_on_measures: []
     lineage:
     - fact_workforce_management.Overtime Minutes
     - fact_workforce_management.Paid Time Minutes
@@ -4388,8 +4350,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Shrinkage %"
     description: "Measures non-productive share of paid time."
-    depends_on_measures:
-    - res.shrinkage.pct
+    depends_on_measures: []
     lineage:
     - fact_workforce_management.Paid Time Minutes
     - fact_workforce_management.Shrinkage Minutes
@@ -4467,8 +4428,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Tickets Closed Count"
     description: "Counts customer service tickets closed in the period."
-    depends_on_measures:
-    - svc.tickets.closed.count
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of Service"
