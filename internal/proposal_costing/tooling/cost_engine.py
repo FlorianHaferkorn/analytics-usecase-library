@@ -191,6 +191,68 @@ def _parse_valid_from(valid_from: str | None) -> datetime:
     return datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
 
+def _compute_capacity_costs(capacities: dict[str, Any], drivers: dict[str, Any], use_reservation: bool) -> tuple[float, list]:
+    """Return (total_cost, building_blocks_list) for capacity."""
+    capacity_month = 0.0
+    capacity_breakdown: list[dict[str, Any]] = []
+    for env, sku in capacities.items():
+        if not sku:
+            continue
+        price = _price_by_sku(drivers, sku, use_reservation=use_reservation)
+        capacity_month += price
+        capacity_breakdown.append({"environment": env, "sku": sku, "usd_per_month": price})
+    return capacity_month, capacity_breakdown
+
+
+def _compute_license_costs(pro_users: int | float, ppu_users: int | float, drivers: dict[str, Any]) -> tuple[float, list]:
+    """Return (total_cost, building_blocks_list) for licenses."""
+    pro_price, ppu_price = _license_prices(drivers)
+    license_month = pro_users * pro_price + ppu_users * ppu_price
+    license_breakdown = [
+        {"license": "pro", "users": pro_users, "usd_per_month": pro_users * pro_price},
+        {"license": "ppu", "users": ppu_users, "usd_per_month": ppu_users * ppu_price},
+    ]
+    return license_month, license_breakdown
+
+
+def _compute_service_costs(impl_fte: float, impl_months: float, maint_fte: float, drivers: dict[str, Any], package: dict[str, Any] | None) -> tuple[float, float]:
+    """Return (impl_cost, maint_annual_cost)."""
+    implementation_one_time = 0.0
+    maintenance_year = 0.0
+    if package and package.get("implementation_fixed_usd") is not None:
+        implementation_one_time = round(float(package["implementation_fixed_usd"]), 2)
+        maintenance_year = round(float(package.get("maintenance_fixed_usd_per_year", 0)), 2)
+    elif impl_fte > 0 or impl_months > 0 or maint_fte > 0:
+        services = drivers.get("services_rates")
+        if not services:
+            raise ValueError("services_rates missing in cost_drivers.yaml; required when implementation_fte, implementation_months, or maintenance_fte are set")
+        rate_impl = float(services.get("implementation_usd_per_fte_month", 0))
+        rate_maint = float(services.get("maintenance_usd_per_fte_year", 0))
+        implementation_one_time = round(impl_fte * impl_months * rate_impl, 2) if (impl_fte and impl_months) else 0.0
+        maintenance_year = round(maint_fte * rate_maint, 2) if maint_fte else 0.0
+    return implementation_one_time, maintenance_year
+
+
+def _resolve_assumptions(defaults: dict[str, Any], drivers: dict[str, Any], valid_from: str | None, quote_days: int, region: str | None) -> dict[str, Any]:
+    """Normalize valid_from, quote_valid_until, scope strings. Return assumptions dict."""
+    valid_from_val = valid_from or drivers.get("valid_from") or datetime.now().strftime("%Y-%m-%d")
+    dt = _parse_valid_from(valid_from_val)
+    quote_valid_until = (dt + timedelta(days=quote_days)).strftime("%Y-%m-%d")
+
+    scope_in_list = defaults.get("scope_in", _INLINE_DEFAULTS["scope_in"])
+    scope_out_list = defaults.get("scope_out", _INLINE_DEFAULTS["scope_out"])
+    scope_in = "\n".join(f"- {s}" for s in scope_in_list) if isinstance(scope_in_list, list) else str(scope_in_list)
+    scope_out = "\n".join(f"- {s}" for s in scope_out_list) if isinstance(scope_out_list, list) else str(scope_out_list)
+
+    return {
+        "valid_from_val": valid_from_val if isinstance(valid_from_val, str) else str(valid_from_val),
+        "quote_valid_until": quote_valid_until,
+        "scope_in": scope_in,
+        "scope_out": scope_out,
+        "region": region or defaults.get("default_region", _INLINE_DEFAULTS["default_region"]),
+    }
+
+
 def compute(
     scenario_id: str,
     overrides: dict[str, Any] | None = None,
@@ -282,21 +344,9 @@ def compute(
     impl_months = float(impl_months) if impl_months is not None else 0.0
     maint_fte = float(maint_fte) if maint_fte is not None else 0.0
 
-    capacity_month = 0.0
-    capacity_breakdown: list[dict[str, Any]] = []
-    for env, sku in capacities.items():
-        if not sku:
-            continue
-        price = _price_by_sku(drivers, sku, use_reservation=use_reservation)
-        capacity_month += price
-        capacity_breakdown.append({"environment": env, "sku": sku, "usd_per_month": price})
+    capacity_month, capacity_breakdown = _compute_capacity_costs(capacities, drivers, use_reservation)
 
-    pro_price, ppu_price = _license_prices(drivers)
-    license_month = pro_users * pro_price + ppu_users * ppu_price
-    license_breakdown = [
-        {"license": "pro", "users": pro_users, "usd_per_month": pro_users * pro_price},
-        {"license": "ppu", "users": ppu_users, "usd_per_month": ppu_users * ppu_price},
-    ]
+    license_month, license_breakdown = _compute_license_costs(pro_users, ppu_users, drivers)
 
     storage_month = 0.0
     storage_breakdown: dict[str, Any] | None = None
@@ -305,19 +355,7 @@ def compute(
         storage_month = round(storage_gb * float(onelake), 2)
         storage_breakdown = {"gb": storage_gb, "usd_per_month": storage_month}
 
-    implementation_one_time = 0.0
-    maintenance_year = 0.0
-    if package and package.get("implementation_fixed_usd") is not None:
-        implementation_one_time = round(float(package["implementation_fixed_usd"]), 2)
-        maintenance_year = round(float(package.get("maintenance_fixed_usd_per_year", 0)), 2)
-    elif impl_fte > 0 or impl_months > 0 or maint_fte > 0:
-        services = drivers.get("services_rates")
-        if not services:
-            raise ValueError("services_rates missing in cost_drivers.yaml; required when implementation_fte, implementation_months, or maintenance_fte are set")
-        rate_impl = float(services.get("implementation_usd_per_fte_month", 0))
-        rate_maint = float(services.get("maintenance_usd_per_fte_year", 0))
-        implementation_one_time = round(impl_fte * impl_months * rate_impl, 2) if (impl_fte and impl_months) else 0.0
-        maintenance_year = round(maint_fte * rate_maint, 2) if maint_fte else 0.0
+    implementation_one_time, maintenance_year = _compute_service_costs(impl_fte, impl_months, maint_fte, drivers, package)
 
     total_month = capacity_month + license_month + storage_month
     total_year = round(total_month * 12, 2)
@@ -330,15 +368,8 @@ def compute(
     else:
         viewer_note = ""
 
-    valid_from_val = valid_from or drivers.get("valid_from") or datetime.now().strftime("%Y-%m-%d")
     quote_days = quote_valid_days if quote_valid_days is not None else int(defaults.get("default_quote_valid_days", 30))
-    dt = _parse_valid_from(valid_from_val)
-    quote_valid_until = (dt + timedelta(days=quote_days)).strftime("%Y-%m-%d")
-
-    scope_in_list = defaults.get("scope_in", _INLINE_DEFAULTS["scope_in"])
-    scope_out_list = defaults.get("scope_out", _INLINE_DEFAULTS["scope_out"])
-    scope_in = "\n".join(f"- {s}" for s in scope_in_list) if isinstance(scope_in_list, list) else str(scope_in_list)
-    scope_out = "\n".join(f"- {s}" for s in scope_out_list) if isinstance(scope_out_list, list) else str(scope_out_list)
+    assumptions = _resolve_assumptions(defaults, drivers, valid_from, quote_days, region)
 
     block_labels = defaults.get("building_block_labels") or _INLINE_DEFAULTS.get("building_block_labels") or {}
     block_categories = defaults.get("building_block_categories") or {}
@@ -376,12 +407,12 @@ def compute(
         "pricing_mode": "1-year reservation (~41% savings)" if use_reservation else "Pay-as-you-go",
         "viewer_note": viewer_note,
         "prod_sku": prod_sku,
-        "scope_in": scope_in,
-        "scope_out": scope_out,
-        "valid_from": valid_from_val if isinstance(valid_from_val, str) else str(valid_from_val),
-        "quote_valid_until": quote_valid_until,
+        "scope_in": assumptions["scope_in"],
+        "scope_out": assumptions["scope_out"],
+        "valid_from": assumptions["valid_from_val"],
+        "quote_valid_until": assumptions["quote_valid_until"],
         "contract_term_months": contract_term_months if contract_term_months is not None else int(defaults.get("default_contract_term_months", 12)),
-        "region": region or defaults.get("default_region", _INLINE_DEFAULTS["default_region"]),
+        "region": assumptions["region"],
         "price_basis": price_basis or defaults.get("price_basis", _INLINE_DEFAULTS["price_basis"]),
         "storage_month": round(storage_month, 2),
         "storage_breakdown": storage_breakdown,

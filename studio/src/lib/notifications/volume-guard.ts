@@ -3,6 +3,8 @@
  *
  * Prevents firing alerts when the underlying metric is too small
  * to be meaningful (e.g., margin alert on 3 transactions).
+ *
+ * TODO: not yet wired into production — currently only used in tests.
  */
 
 /** Default minimum thresholds by KPI type suffix. */

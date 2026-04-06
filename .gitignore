@@ -59,3 +59,13 @@ orphans_report.json
 node_modules/
 package.json
 package-lock.json
+
+# Next.js build artifacts
+products/studio/.next/
+studio/.next/
+
+# CI run logs (local only – not versioned)
+internal/metrics/runs/*.json
+
+# Backup files
+*.bak

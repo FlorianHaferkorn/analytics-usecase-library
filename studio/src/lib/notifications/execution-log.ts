@@ -3,6 +3,8 @@
  *
  * Stores execution history in SQLite for audit trail and
  * "last fired" display in the rules list UI.
+ *
+ * TODO: not yet wired into production — currently only used in tests.
  */
 
 import { getDb } from '@/lib/db/sqlite';

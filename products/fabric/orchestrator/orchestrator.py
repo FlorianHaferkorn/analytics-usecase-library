@@ -841,9 +841,9 @@ class TemplateGenerator:
     def __init__(self, config: ConfigLoader):
         self.config = config
     
-    def generate_spark_notebook(self, domain: str, layer: str, output_dir: str) -> str:
-        """Generate PySpark notebook template for Src layer."""
-        notebook_content = {
+    def _build_spark_notebook_content(self, domain: str, layer: str) -> dict:
+        """Construct and return the notebook content dict (no I/O)."""
+        return {
             "nbformat": 4,
             "nbformat_minor": 2,
             "cells": [
@@ -911,21 +911,21 @@ class TemplateGenerator:
                 }
             ]
         }
-        
+
+    def generate_spark_notebook(self, domain: str, layer: str, output_dir: str) -> str:
+        """Generate PySpark notebook template for Src layer."""
+        notebook_content = self._build_spark_notebook_content(domain, layer)
+
         output_path = Path(output_dir) / f"{domain}_{layer}_bronze_to_silver.ipynb"
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(notebook_content, f, indent=2)
-        
+
         return str(output_path)
     
-    def generate_dbt_project(self, domain: str, output_dir: str) -> Tuple[str, str]:
-        """Generate dbt-fabric project skeleton."""
-        project_dir = Path(output_dir) / f"dbt_{domain.lower()}"
-        project_dir.mkdir(parents=True, exist_ok=True)
-        
-        # dbt_project.yml
+    def _build_dbt_project_configs(self, domain: str) -> dict:
+        """Construct and return all dbt config structures (no I/O, no print)."""
         dbt_project = {
             "name": f"{domain.lower()}_dbt",
             "version": "1.0.0",
@@ -948,12 +948,7 @@ class TemplateGenerator:
                 }
             }
         }
-        
-        project_yml_path = project_dir / "dbt_project.yml"
-        with open(project_yml_path, 'w', encoding='utf-8') as f:
-            yaml.dump(dbt_project, f, default_flow_style=False)
-        
-        # profiles.yml
+
         profiles = {
             "fabric": {
                 "target": "dev",
@@ -997,15 +992,7 @@ class TemplateGenerator:
                 }
             }
         }
-        
-        profiles_yml_path = project_dir / "profiles.yml"
-        with open(profiles_yml_path, 'w', encoding='utf-8') as f:
-            yaml.dump(profiles, f, default_flow_style=False)
-        
-        # models/gold/schema.yml
-        models_dir = project_dir / "models" / "gold"
-        models_dir.mkdir(parents=True, exist_ok=True)
-        
+
         schema_yml = {
             "version": 2,
             "models": [
@@ -1020,12 +1007,7 @@ class TemplateGenerator:
                 }
             ]
         }
-        
-        schema_yml_path = models_dir / "schema.yml"
-        with open(schema_yml_path, 'w', encoding='utf-8') as f:
-            yaml.dump(schema_yml, f, default_flow_style=False)
-        
-        # models/gold/fact_transactions.sql
+
         fact_sql = f"""-- Gold layer: Fact table for {domain} transactions
 -- Source: Silver layer (via OneLake shortcut)
 
@@ -1040,13 +1022,46 @@ SELECT
 FROM silver.transactions_cleaned
 WHERE transaction_date >= DATEADD(year, -2, GETDATE())
 """
-        
+
+        return {
+            "dbt_project": dbt_project,
+            "profiles": profiles,
+            "schema": schema_yml,
+            "fact_sql": fact_sql,
+        }
+
+    def generate_dbt_project(self, domain: str, output_dir: str) -> Tuple[str, str]:
+        """Generate dbt-fabric project skeleton."""
+        configs = self._build_dbt_project_configs(domain)
+
+        project_dir = Path(output_dir) / f"dbt_{domain.lower()}"
+        project_dir.mkdir(parents=True, exist_ok=True)
+
+        # dbt_project.yml
+        project_yml_path = project_dir / "dbt_project.yml"
+        with open(project_yml_path, 'w', encoding='utf-8') as f:
+            yaml.dump(configs["dbt_project"], f, default_flow_style=False)
+
+        # profiles.yml
+        profiles_yml_path = project_dir / "profiles.yml"
+        with open(profiles_yml_path, 'w', encoding='utf-8') as f:
+            yaml.dump(configs["profiles"], f, default_flow_style=False)
+
+        # models/gold/schema.yml
+        models_dir = project_dir / "models" / "gold"
+        models_dir.mkdir(parents=True, exist_ok=True)
+
+        schema_yml_path = models_dir / "schema.yml"
+        with open(schema_yml_path, 'w', encoding='utf-8') as f:
+            yaml.dump(configs["schema"], f, default_flow_style=False)
+
+        # models/gold/fact_transactions.sql
         fact_sql_path = models_dir / "fact_transactions.sql"
         with open(fact_sql_path, 'w', encoding='utf-8') as f:
-            f.write(fact_sql)
-        
+            f.write(configs["fact_sql"])
+
         console.print(f"[green]Generated dbt project:[/green] {project_dir}")
-        
+
         return (str(project_yml_path), str(profiles_yml_path))
 
 

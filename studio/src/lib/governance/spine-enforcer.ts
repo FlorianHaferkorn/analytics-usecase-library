@@ -4,6 +4,8 @@
  * Decision spines define threshold boundaries that brackets must respect.
  * This enforcer checks if a bracket's notification rules align with the
  * spine's defined boundaries.
+ *
+ * TODO: not yet wired into production — currently only used in tests.
  */
 
 export interface SpineRule {

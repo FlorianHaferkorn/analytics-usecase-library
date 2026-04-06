@@ -18,12 +18,11 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set
 
 import yaml
 
@@ -533,11 +532,8 @@ def compute_h6(repo_root: Path) -> Dict[str, Any]:
 # Main
 # ---------------------------------------------------------------------------
 
-def run_scorecard(repo_root: Optional[Path] = None) -> Dict[str, Any]:
-    """Run all H1-H6 metrics and return results dict."""
-    if repo_root is None:
-        repo_root = _repo_root()
-
+def _ensure_registry(repo_root: Path) -> Path:
+    """Check if registry exists; if not, build it via registry_builder.py subprocess. Return path."""
     registry_path = repo_root / "tooling" / "ontology" / "out" / "master_registry.json"
     if not registry_path.exists():
         print("Registry not found. Running registry builder...", file=sys.stderr)
@@ -548,7 +544,15 @@ def run_scorecard(repo_root: Optional[Path] = None) -> Dict[str, Any]:
             check=True,
             cwd=str(repo_root),
         )
+    return registry_path
 
+
+def run_scorecard(repo_root: Optional[Path] = None) -> Dict[str, Any]:
+    """Run all H1-H6 metrics and return results dict."""
+    if repo_root is None:
+        repo_root = _repo_root()
+
+    registry_path = _ensure_registry(repo_root)
     registry = json.loads(registry_path.read_text(encoding="utf-8"))
 
     metrics = [
