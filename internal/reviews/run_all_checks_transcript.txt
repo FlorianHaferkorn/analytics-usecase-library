@@ -265,3 +265,30 @@ PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; po
 PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; git status --short -- tooling/generation/generate_tmdl_measures.ps1 products/fabric/powerbi/tooling/invoke_workspace_publish.ps1 products/fabric/powerbi/tooling/invoke_production_supervisor.ps1 products/fabric/powerbi/dist/Commercial.SemanticModel/definition/tables/_Measures.tmdl
 
 ]633;D;0]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; powershell -NoProfile -ExecutionPolicy Bypass -File '.\tooling\validation\validate_tmdl.ps1' -TmdlPath '.\products\fabric\powerbi\dist\Commercial.SemanticModel\definition'
+
+]633;D;1]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; powershell -NoProfile -ExecutionPolicy Bypass -File '.\tooling\validation\validate_tmdl.ps1' -TmdlPath '.\products\fabric\powerbi\dist\Commercial.SemanticModel\definition'
+
+]633;D;1]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; powershell -NoProfile -ExecutionPolicy Bypass -File '.\products\fabric\powerbi\tooling\validation\check_dax_best_practices.ps1' -DistRoot '.\products\fabric\powerbi\dist'
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; powershell -NoProfile -ExecutionPolicy Bypass -File '.\tooling\validation\validate_tmdl.ps1' -TmdlPath '.\products\fabric\powerbi\dist\Commercial.SemanticModel\definition'
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; powershell -NoProfile -ExecutionPolicy Bypass -File '.\products\fabric\powerbi\tooling\invoke_production_supervisor.ps1' -UseCase COM-001 -UseAuroraData -SkipPublish -DisableLlmFix
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; powershell -NoProfile -ExecutionPolicy Bypass -File '.\products\fabric\powerbi\tooling\invoke_production_supervisor.ps1' -UseCase COM-001 -UseAuroraData -DisableLlmFix
+
+]633;D;1]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; git status --short -- tooling/validation/validate_tmdl.ps1 products/fabric/powerbi/tooling/validation/check_dax_best_practices.ps1 tooling/linters/powerbi/bpa-rules-tmdl.json
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; [PSCustomObject]@{ TENANT_ID = [bool]$env:TENANT_ID; CLIENT_ID = [bool]$env:CLIENT_ID; CLIENT_SECRET = [bool]$env:CLIENT_SECRET } | ConvertTo-Json -Compress
+{"TENANT_ID":false,"CLIENT_ID":false,"CLIENT_SECRET":false}
+]633;D;0]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>powershell -NoProfile -ExecutionPolicy Bypass -File ".\products\fabric\powerbi\tooling\invoke_production_supervisor.ps1" -UseCase COM-001 -UseAuroraData -AcceptDryRunPublish -DisableLlmFix
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B

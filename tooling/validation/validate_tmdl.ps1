@@ -8,10 +8,14 @@ param(
 	
 	[switch]$AutoFix,
 	
-	[string]$BpaRulesPath = "$PSScriptRoot\..\linters\powerbi\bpa-rules-tmdl.json"
+	[string]$BpaRulesPath = ""
 )
 
 $ErrorActionPreference = "Stop"
+
+if (-not $BpaRulesPath) {
+	$BpaRulesPath = Join-Path $PSScriptRoot "..\linters\powerbi\bpa-rules-tmdl.json"
+}
 
 # Load BPA Rules
 if (-not (Test-Path $BpaRulesPath)) {
@@ -28,6 +32,31 @@ $results = @{
 	Warnings = @()
 	Info = @()
 	Fixed = @()
+}
+
+function Test-MeasureDocumentationWarnings {
+	param([string]$Content)
+
+	$warnings = @()
+	$lines = $Content -split "`r?`n"
+	for ($i = 0; $i -lt $lines.Count; $i++) {
+		if ($lines[$i] -match '^\s*measure\s+') {
+			$prev = $i - 1
+			while ($prev -ge 0 -and $lines[$prev] -match '^\s*$') {
+				$prev--
+			}
+			if ($prev -lt 0 -or $lines[$prev] -notmatch '^\s*///') {
+				$warnings += $lines[$i]
+			}
+		}
+	}
+	return $warnings
+}
+
+function Test-CalculatedColumnWarnings {
+	param([string]$Content)
+
+	return @([regex]::Matches($Content, '(?m)^\s*column\s+[''\"]?[^''\"=\r\n]+[''\"]?\s*=\s*') | ForEach-Object { $_.Value })
 }
 
 # Helper: Convert description: property to /// comment
@@ -161,14 +190,28 @@ foreach ($file in $tmdlFiles) {
 	# Apply BPA Rules
 	foreach ($rule in $bpaRules.rules) {
 		$ruleMatches = $false
-		
-		# Check pattern match
-		if ($rule.pattern -and $content -match $rule.pattern) {
-			# Check negative pattern (must NOT match)
-			if ($rule.negativePattern -and $content -match $rule.negativePattern) {
-				continue
+		$specialMatches = @()
+
+		switch ($rule.id) {
+			"TMDL-006" {
+				$specialMatches = Test-MeasureDocumentationWarnings -Content $content
+				$ruleMatches = ($specialMatches.Count -gt 0)
 			}
-			$ruleMatches = $true
+			"TMDL-007" {
+				$specialMatches = Test-CalculatedColumnWarnings -Content $content
+				$ruleMatches = ($specialMatches.Count -gt 0)
+			}
+			default {
+		
+				# Check pattern match
+				if ($rule.pattern -and $content -match $rule.pattern) {
+					# Check negative pattern (must NOT match)
+					if ($rule.negativePattern -and $content -match $rule.negativePattern) {
+						continue
+					}
+					$ruleMatches = $true
+				}
+			}
 		}
 		
 		if ($ruleMatches) {

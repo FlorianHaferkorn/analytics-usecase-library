@@ -54,9 +54,9 @@ factsheet_type: business
 | plan.forecast.bias.pct | Influencing |
 | plan.forecast.service_impact.pct | Influencing |
 | plan.replan.count | Influencing |
-| order.lines | Influencing |
-| plans.count | Influencing |
-| sales.units | Influencing |
+| order.lines | Supporting |
+| plans.count | Supporting |
+| sales.units | Supporting |
 
 **Action Codes:** S-F3.1, S-F3.2, S-F3.3, S-F3.4
 
@@ -113,31 +113,11 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 6. Data Requirements Summary
 
-```yaml
-required_facts:
-
-  - fact_forecast
-
-  - fact_sales (actuals)
-
-  - fact_fulfillment (for service impact linkage)
-
-  - fact_stockout (for service impact linkage)
-
-  - fact_replan (if available)
-required_dimensions:
-
-  - dim_date
-
-  - dim_org (location/channel/region)
-
-  - dim_product
-
-  - security_user_org
-required_grain: sku_month for accuracy/bias; order/day for service impact; month for replans
-required_time_range: 12-24 months history
-required_slicers: Date, Region/Channel/Location, Category/Product, ABC/XYZ
-```
+- Required facts: fact_forecast, fact_sales, fact_fulfillment, and fact_stockout, with re-plan events derived from forecast versioning or governance logs.
+- Required dimensions: dim_date, dim_org, dim_product, and security_user_org.
+- Required grain: sku_location_month for forecast steering, with order or day linkage only where service impact containment is needed.
+- Required time range: 12-24 months history.
+- Required slicers: Date, Region/Channel/Location, Category/Product, ABC/XYZ.
 
 ---
 

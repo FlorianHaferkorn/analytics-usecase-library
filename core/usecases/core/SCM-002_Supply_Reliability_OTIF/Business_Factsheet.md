@@ -57,9 +57,9 @@ deep dive (SCM-003); promo effects (COM-004).
 | supply.in_full.pct | Influencing |
 | supply.stockout_impact.pct | Influencing |
 | supply.penalty.amount | Influencing |
-| supply.expedite.amount | Influencing |
-| order.lines | Influencing |
-| shipments.count | Influencing |
+| supply.expedite.amount | Supporting |
+| order.lines | Supporting |
+| shipments.count | Supporting |
 
 **Action Codes:** S-R2.1, S-R2.2, S-R2.3, S-R2.4, S-R2.5
 
@@ -90,27 +90,27 @@ Structured summary of action codes (definitions remain in YAML).
 
 ### 5.2 30-Second Layer (Main Visuals)
 
-- **OTIF vs Target by Lane/DC**
+- **OTIF vs Target by Route/Location**
   - Visual Type: Column
-  - X-Axis: dim_lane[Lane/DC]
+  - X-Axis: dim_lane[Origin]
   - Y-Axis: [OTIF %], [Target]
-  - Segment: Channel
+  - Segment: dim_lane[Destination]
   - Default Filter: Current quarter
   - Notes: Core ranking
 
 - **On-Time vs In-Full Components**
   - Visual Type: Column clustered
-  - X-Axis: dim_lane[Lane/DC]
+  - X-Axis: dim_lane[Origin]
   - Y-Axis: [On-Time %], [In-Full %]
-  - Segment: Channel
+  - Segment: dim_lane[Destination]
   - Default Filter: Current quarter
   - Notes: Component view
 
 - **Penalty & Expedite Cost by Customer/Channel**
   - Visual Type: Bar (horizontal)
-  - X-Axis: dim_org[Customer/Channel]
+  - X-Axis: dim_org[Customer]
   - Y-Axis: [Penalty Amount], [Expedite Cost]
-  - Segment: Region
+  - Segment: dim_org[Channel]
   - Default Filter: Current quarter
   - Notes: Cost impact
 
@@ -118,15 +118,15 @@ Structured summary of action codes (definitions remain in YAML).
   - Visual Type: Line
   - X-Axis: dim_date[Week]
   - Y-Axis: [Stockout Impact %]
-  - Segment: Location/Channel
+  - Segment: dim_org[Location]
   - Default Filter: L12W
   - Notes: Service stability
 
 ### 5.3 Required Slicers (Mandatory)
 
 - Date (Week/Month)  
-- Lane / DC / Channel  
-- Customer / Region  
+- Origin / Destination / Location  
+- Customer / Channel / Region  
 - Product / Category (if relevant)  
 
 ---
@@ -141,31 +141,11 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 6. Data Requirements Summary
 
-```yaml
-required_facts:
-
-  - fact_fulfillment (OTIF, penalties, expedites)
-
-  - fact_stockout (stockout impact)
-
-  - fact_forecast (variance drivers, if used)
-required_dimensions:
-
-  - dim_date
-
-  - dim_org (customer/channel/DC)
-
-  - dim_product (if needed)
-
-  - dim_lane (if modeled for transport lanes)
-
-  - security_user_org
-required_grain: >
-  order for OTIF/penalties; location_sku_day for stockouts
-required_time_range: 12-24 months history
-required_slicers: >
-  Date, Lane/DC/Channel, Customer/Region, Product/Category (optional)
-```
+- Required facts: fact_fulfillment and fact_stockout, with fact_forecast only where planning-driven service misses need explanation.
+- Required dimensions: dim_date, dim_org, optional dim_product, dim_lane where route modeling exists, and security_user_org.
+- Required grain: order for OTIF and service-cost signals, with location_sku_day for stockout impact analysis.
+- Required time range: 12-24 months history.
+- Required slicers: Date, Origin/Destination/Location, Customer/Channel/Region, Product/Category.
 
 ---
 
@@ -212,19 +192,19 @@ required_slicers: >
 
 **Consequence of inaction:** The customer's OTIF contract threshold is 92%. Below 90.3% for 2 consecutive weeks, penalties of €35K/week are triggered. Expedite costs are already +€18K vs budget.
 
-**Action Code triggered:** S-F3.1 (OTIF Recovery) — activates root cause split by OT vs IF failure type and customer exposure quantification.
+**Action Code triggered:** S-R2.1 (OTIF Orchestration) — activates root cause split by OT vs IF failure type and customer exposure quantification.
 
 ### Scenario B: Penalty Amount Trend Requires Structural Fix
 
-**Situation:** Penalty amounts have been rising for 3 consecutive months: €8K → €22K → €51K. The issue is persistent with 3 different customers and 2 different carriers. The pattern does not suggest a single root cause.
+**Situation:** Penalty amounts have been rising for 3 consecutive months: €8K → €22K → €51K. The issue is persistent with 3 different customers across 2 major route-location combinations. The pattern does not suggest a single root cause.
 
-**Decision question:** Is this a systemic carrier reliability issue or a systemic planning/buffer issue that makes the company structurally exposed?
+**Decision question:** Is this a systemic route and site execution issue or a systemic planning and buffer issue that makes the company structurally exposed?
 
 **Who decides:** Head of Supply Chain + Supply Chain Controlling (DEC-SPINE-SCM-OTIF, RequiredIntervention level).
 
 **Consequence of inaction:** At the current penalty trajectory, full-year penalty exposure is €400K+. More critically: 3 customers are approaching the OTIF level that triggers contract review clauses.
 
-**Action Code triggered:** S-F3.2 (Carrier Performance Management) + S-R2.3 (Buffer Stock Review for structural coverage gap).
+**Action Code triggered:** S-R2.2 (Fulfillment & Transport Stabilisation) + S-R2.3 (In-Full & Stockout Impact Reduction).
 
 ### Scenario C: Expedite Cost Spike Following Demand Surge
 
@@ -236,7 +216,7 @@ required_slicers: >
 
 **Consequence of inaction:** Expedite spend can offset the promotional uplift margin. This scenario triggers the `when_not_to_act` review: if the demand surge was from an active promotion, DEC-SPINE-SCM-FORECAST requires S&OP review before structural forecast adjustment.
 
-**Action Code triggered:** S-F3.3 (Expedite Cost Management) — activates cost/benefit analysis and promotional demand alignment review with SCM-003.
+**Action Code triggered:** S-R2.4 (Penalty & Expedite Cost Control) — activates cost-benefit analysis and service-cost containment, with SCM-003 handoff if the root cause is forecast-driven.
 
 ---
 

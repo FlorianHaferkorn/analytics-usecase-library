@@ -18,6 +18,18 @@ orchestration:
   - scm.service_level.pct
   - scm.supplier_risk.score
   - fin.liquidity.inventory.amount
+  - inv.turnover
+  - inv.stockout.pct
+  - inv.obsolete.pct
+  - supply.otif.pct
+  - supply.on_time.pct
+  - supply.in_full.pct
+  - supply.stockout_impact.pct
+  - plan.forecast.accuracy.pct
+  - plan.forecast.mape.pct
+  - plan.forecast.bias.pct
+  - plan.forecast.service_impact.pct
+  - plan.replan.count
   action_code_ids:
   - F-C1.1
   - F-C1.2

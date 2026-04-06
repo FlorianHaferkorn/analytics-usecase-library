@@ -30,9 +30,9 @@
     "scopeName":  "COM-001",
     "scopeType":  "UseCase",
     "startTime":  {
-                      "value":  "\/Date(1775365917505)\/",
+                      "value":  "\/Date(1775478120989)\/",
                       "DisplayHint":  2,
-                      "DateTime":  "Sonntag, 5. April 2026 07:11:57"
+                      "DateTime":  "Montag, 6. April 2026 14:22:00"
                   },
     "domainMeasurePaths":  [
                                "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\Commercial.SemanticModel\\definition\\tables\\_Measures.tmdl"

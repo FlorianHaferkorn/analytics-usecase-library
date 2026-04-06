@@ -149,9 +149,8 @@ data_requirements:
     - OEE %
     - Planned Output Units
     tables:
-    - fact_ops_output
-    - fact_ops_runtime
-    - dim_plant
+    - fact_ops
+    - dim_org
 automation:
   detection:
     enabled: true

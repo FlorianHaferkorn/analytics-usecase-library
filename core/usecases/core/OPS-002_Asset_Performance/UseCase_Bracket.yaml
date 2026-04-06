@@ -14,6 +14,7 @@ orchestration:
   - ops.spare_parts.stockout.pct
   - ops.pm_compliance.pct
   - ops.failure.count
+  supporting_kpi_ids:
   - ops.inventory.value.amount
   - ops.pm.task.count
   - ops.safety.incident.count
@@ -24,11 +25,11 @@ orchestration:
   - O-A2.4
   - O-A2.5
 value_driver_model:
-  formula: ops.mtbf.hours = f(ops.availability.pct, ops.mttr.hours, ops.downtime.unplanned.pct, ops.spare_parts.stockout.pct,
-    ops.pm_compliance.pct, ops.failure.count, ops.inventory.value.amount, ops.pm.task.count, ops.safety.incident.count)
-  impact_direction: minimize
-  primary_driver: ops.availability.pct
-  impact_logic: Improving ops.availability.pct is the primary lever for minimizing ops.mtbf.hours.
+  formula: ops.mtbf.hours = f(ops.failure.count, ops.mttr.hours, ops.downtime.unplanned.pct, ops.pm_compliance.pct, ops.spare_parts.stockout.pct,
+    ops.availability.pct)
+  impact_direction: maximize
+  primary_driver: ops.failure.count
+  impact_logic: Reducing ops.failure.count is the primary lever for maximizing ops.mtbf.hours because fewer recurring failures directly extend operating time between breakdowns.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -54,8 +55,15 @@ ux_layout_rules:
     component_300s:
       evidence_grain: failure_event
       evidence_columns:
-      - entity
-      - period
+      - plant
+      - asset
+      - asset_class
+      - criticality
+      - ops.mttr.hours
+      - ops.downtime.unplanned.pct
+      - ops.pm_compliance.pct
+      - ops.spare_parts.stockout.pct
+      - ops.failure.count
       - ops.mtbf.hours
       action_panel: true
       payload_mode: full

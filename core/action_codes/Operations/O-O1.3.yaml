@@ -149,10 +149,9 @@ data_requirements:
     - Availability %
     - Planned Runtime Hours
     tables:
-    - fact_ops_quality
-    - fact_ops_runtime
-    - dim_production_line
-    - dim_plant
+    - fact_quality
+    - fact_ops
+    - dim_org
 automation:
   detection:
     enabled: true

@@ -129,10 +129,10 @@ operational_execution:
   - Complaint-to-process mapping
   - Timely complaint classification
   steps:
-  - IDENTIFY products with rising complaint rates on this production line
-  - MAP complaints to production defects and processes for this line
-  - EXECUTE stabilisation and containment actions on this line
-  - MONITOR complaint trend for this line monthly
+  - IDENTIFY products with rising complaint rates in this plant-product scope
+  - MAP complaints to production defects and processes in this plant-product scope
+  - EXECUTE stabilisation and containment actions in this plant-product scope
+  - MONITOR complaint trend for this plant-product scope monthly
   effort:
     level: Medium
     typical_duration_days: 90
@@ -149,11 +149,11 @@ data_requirements:
     - First Pass Yield %
     - Sales Units
     tables:
-    - fact_quality_complaints
+    - fact_complaints
     - fact_quality
-    - fact_sales
+    - fact_shipments
     - dim_product
-    - dim_plant
+    - dim_org
 automation:
   detection:
     enabled: true

@@ -92,11 +92,11 @@ if ($dupCatalog.Count -gt 0) {
 }
 
 if ($dupDict.Count -gt 0) {
-  Write-Host "Duplicate kpi_id_ref in Measure Dictionaries:"
+  Write-Host "Warnings: Duplicate kpi_id_ref in Measure Dictionaries:"
   $dupDict | Sort-Object | ForEach-Object { Write-Host "  - $_" }
 }
 
-if ($missingInDict.Count -eq 0 -and $missingInCatalog.Count -eq 0) {
+if ($missingInDict.Count -eq 0 -and $missingInCatalog.Count -eq 0 -and $dupCatalog.Count -eq 0) {
   Write-Host "OK: KPI IDs are consistent."
   exit 0
 }
@@ -111,5 +111,9 @@ if ($missingInCatalog.Count -gt 0) {
   $missingInCatalog | ForEach-Object { Write-Host "  - $_" }
 }
 
-exit 1
+if ($dupCatalog.Count -gt 0 -or $missingInDict.Count -gt 0 -or $missingInCatalog.Count -gt 0) {
+  exit 1
+}
+
+exit 0
 

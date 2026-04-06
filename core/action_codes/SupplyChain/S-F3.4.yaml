@@ -128,10 +128,10 @@ operational_execution:
   - Transparent re-plan logging
   - Clear decision rights and escalation paths
   steps:
-  - IDENTIFY SKU/locations with excessive replans per cycle
-  - ANALYSE root causes of re-planning for this SKU/location
-  - ENFORCE thresholds, freeze windows, and escalation rules for this SKU/location
-  - REVIEW re-plan trends for this SKU/location per cycle
+  - IDENTIFY cycles or planner scopes with excessive replans
+  - ANALYSE root causes of re-planning for the affected cycle or planner scope
+  - ENFORCE thresholds, freeze windows, and escalation rules for the affected cycle or planner scope
+  - REVIEW re-plan trends per cycle for the affected planning scope
   effort:
     level: Medium
     typical_duration_days: 120
@@ -148,10 +148,9 @@ data_requirements:
     - OTIF %
     - Plans Count
     tables:
-    - fact_sop_changes
     - fact_forecast
-    - fact_shipments
-    - dim_sop_cycle
+    - fact_fulfillment
+    - dim_org
 automation:
   detection:
     enabled: true

@@ -149,10 +149,11 @@ data_requirements:
     - DIO (Days)
     - Sales Units
     tables:
+    - fact_stockout
+    - fact_fulfillment
     - fact_inventory
-    - fact_sales
     - dim_product
-    - dim_location
+    - dim_org
 automation:
   detection:
     enabled: true

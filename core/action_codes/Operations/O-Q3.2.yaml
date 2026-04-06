@@ -152,9 +152,8 @@ data_requirements:
     - Availability %
     tables:
     - fact_quality
-    - fact_ops_output
-    - dim_production_line
-    - dim_plant
+    - fact_ops
+    - dim_org
 automation:
   detection:
     enabled: true

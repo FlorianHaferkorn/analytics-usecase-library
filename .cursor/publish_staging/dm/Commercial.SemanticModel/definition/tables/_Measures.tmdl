@@ -1,6 +1,6 @@
 /// Consolidated Measures for: COM-001, COM-002, COM-003, COM-004
 table _Measures
-	lineageTag: e85884fd-c813-4242-bf38-81821b00901b
+	lineageTag: 25a9a71c-2ad6-4c25-9830-c58e9443b51c
 
 	partition _Measures = m
 		mode: import
@@ -11,7 +11,7 @@ table _Measures
 					Source
 
 	column Column1
-		lineageTag: f15966da-ced2-43c9-a25b-3c45c84bd448
+		lineageTag: 801f6223-d414-4bd0-8c1b-6cf3c802785d
 		dataType: string
 		sourceColumn: Column1
 		isHidden

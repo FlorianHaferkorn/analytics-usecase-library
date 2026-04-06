@@ -70,8 +70,9 @@ foreach ($it in $allItems) {
     if ($r.match -and $r.match.any) {
       foreach ($needle in $r.match.any) { if ($e -like ('*' + $needle + '*')) { $hit = $true; break } }
     }
-    if ($r.matchRegex -and ($eSingleLine -match $r.matchRegex)) { $hit = $true }
-    if (-not $r.match -and -not $r.matchRegex) { $hit = $true }
+    elseif ($r.matchRegex -and ($eSingleLine -match $r.matchRegex)) { $hit = $true }
+    elseif ($r.forbidRegex -and ($eSingleLine -match $r.forbidRegex)) { $hit = $true }
+    else { continue }
     if (-not $hit) { continue }
     if ($r.mustContain) {
       foreach ($m in $r.mustContain) { if ($e -notlike ('*' + $m + '*')) { $hit = $false; break } }

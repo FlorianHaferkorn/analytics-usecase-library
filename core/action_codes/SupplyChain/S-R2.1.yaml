@@ -129,10 +129,10 @@ operational_execution:
   - Reliable OTIF decomposition (on-time vs in-full)
   - Clear ownership of execution Action Codes
   steps:
-  - DETECT sustained OTIF deterioration for this shipment
-  - DIAGNOSE the dominant OTIF loss driver for this shipment
-  - ACTIVATE the corresponding execution Action Code for this shipment
-  - REVIEW OTIF recovery for this shipment weekly
+  - DETECT sustained OTIF deterioration for this lane-DC scope
+  - DIAGNOSE the dominant OTIF loss driver for this lane-DC scope
+  - ACTIVATE the corresponding execution Action Code for this lane-DC scope
+  - REVIEW OTIF recovery for this lane-DC scope weekly
   effort:
     level: Low
     typical_duration_days: 21
@@ -151,11 +151,11 @@ data_requirements:
     - Expedite Cost Amount
     - DIO (Days)
     tables:
-    - fact_shipments
-    - fact_logistics_cost
+    - fact_fulfillment
+    - fact_stockout
     - fact_inventory
     - dim_lane
-    - dim_distribution_center
+    - dim_org
 automation:
   detection:
     enabled: true

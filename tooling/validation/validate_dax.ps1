@@ -8,10 +8,14 @@ param(
 	
 	[switch]$AutoFix,
 	
-	[string]$BpaRulesPath = "$PSScriptRoot\..\linters\powerbi\bpa-rules-dax.json"
+	[string]$BpaRulesPath = ""
 )
 
 $ErrorActionPreference = "Stop"
+
+if (-not $BpaRulesPath) {
+	$BpaRulesPath = Join-Path $PSScriptRoot "..\linters\powerbi\bpa-rules-dax.json"
+}
 
 # Load BPA Rules
 if (-not (Test-Path $BpaRulesPath)) {

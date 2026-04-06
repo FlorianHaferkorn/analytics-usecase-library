@@ -56,7 +56,7 @@ factsheet_type: business
 | supply.otif.pct | Influencing |
 | inv.obsolete.pct | Influencing |
 | plan.forecast.accuracy.pct | Influencing |
-| sales.units | Influencing |
+| sales.units | Supporting |
 
 **Action Codes:** S-I1.1, S-I1.2, S-I1.3, S-I1.4, S-I1.5
 
@@ -113,31 +113,11 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 6. Data Requirements Summary
 
-```yaml
-required_facts:
-
-  - fact_inventory
-
-  - fact_cogs (or fact_sales for COGS proxy)
-
-  - fact_fulfillment (OTIF)
-
-  - fact_forecast
-
-  - fact_sales (actuals for accuracy)
-required_dimensions:
-
-  - dim_date
-
-  - dim_org (location/DC/channel)
-
-  - dim_product
-
-  - security_user_org
-required_grain: location_sku_month for inventory; order for OTIF; day for stockouts
-required_time_range: 12-24 months history
-required_slicers: Date, Location/DC/Channel, Category/Product, ABC/XYZ
-```
+- Required facts: fact_inventory, fact_cogs, fact_fulfillment, fact_forecast, fact_sales, and fact_stockout for service-risk context.
+- Required dimensions: dim_date, dim_org, dim_product, and security_user_org.
+- Required grain: location_sku_month for inventory steering, with location_sku_day stockout detail and order-level fulfillment context.
+- Required time range: 12-24 months history.
+- Required slicers: Date, Location/DC/Channel, Category/Product, ABC/XYZ.
 
 ---
 
@@ -203,7 +183,7 @@ required_slicers: Date, Location/DC/Channel, Category/Product, ABC/XYZ
 
 **Consequence of inaction:** Holding €4M of obsolete inventory at 5% CoC = €200K annual holding cost, plus full write-off risk when the items breach the accounting aging policy.
 
-**Action Code triggered:** S-R2.1 (Obsolescence Management) — activates liquidation or write-off decision protocol.
+**Action Code triggered:** S-I1.4 (Obsolescence & Excess Reduction) — activates liquidation, replenishment stop, or write-off decision protocol.
 
 ---
 

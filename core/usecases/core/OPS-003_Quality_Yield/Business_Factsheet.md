@@ -55,8 +55,8 @@ factsheet_type: business
 | quality.copq.amount | Influencing |
 | quality.complaint.pct | Influencing |
 | quality.defect_density | Influencing |
-| ops.planned_output.units | Influencing |
-| sales.units | Influencing |
+| ops.planned_output.units | Supporting |
+| sales.units | Supporting |
 | crm.complaint.count | Supporting |
 
 **Action Codes:** O-Q3.1, O-Q3.2, O-Q3.3, O-Q3.4, O-Q3.5
@@ -114,29 +114,11 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 6. Data Requirements Summary
 
-```yaml
-required_facts:
-
-  - fact_quality (units, good, scrap, rework, defects)
-
-  - fact_quality_costs (COPQ)
-
-  - fact_complaints (field complaints)
-
-  - fact_shipments (for complaint rate)
-required_dimensions:
-
-  - dim_date
-
-  - dim_org (plant/line/shift)
-
-  - dim_product
-
-  - security_user_org
-required_grain: line_day for quality; complaint_month for complaints
-required_time_range: 12-24 months history
-required_slicers: Date, Plant/Line/Shift, Product, Defect Type
-```
+- Required facts: fact_quality, fact_quality_costs, fact_complaints, and fact_shipments.
+- Required dimensions: dim_date, dim_org, dim_product, and security_user_org.
+- Required grain: line_day for internal quality signals and complaint-level aggregation to month/product for field quality.
+- Required time range: 12-24 months history.
+- Required slicers: Date, Plant/Line/Shift, Product/Product Family, Defect Type/Cause.
 
 ---
 

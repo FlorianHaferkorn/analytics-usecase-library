@@ -13,9 +13,9 @@ orchestration:
   - quality.copq.amount
   - quality.complaint.pct
   - quality.defect_density
+  supporting_kpi_ids:
   - ops.planned_output.units
   - sales.units
-  supporting_kpi_ids:
   - crm.complaint.count
   action_code_ids:
   - O-Q3.1
@@ -24,8 +24,7 @@ orchestration:
   - O-Q3.4
   - O-Q3.5
 value_driver_model:
-  formula: quality.fpy.pct = f(quality.scrap.pct, quality.rework.pct, quality.copq.amount, quality.complaint.pct, quality.defect_density,
-    ops.planned_output.units, sales.units)
+  formula: quality.fpy.pct = f(quality.scrap.pct, quality.rework.pct, quality.copq.amount, quality.complaint.pct, quality.defect_density)
   impact_direction: maximize
   primary_driver: quality.scrap.pct
   impact_logic: Improving quality.scrap.pct is the primary lever for maximizing quality.fpy.pct.
@@ -54,8 +53,17 @@ ux_layout_rules:
     component_300s:
       evidence_grain: line_day
       evidence_columns:
-      - entity
-      - period
+      - plant
+      - line
+      - shift
+      - product_category
+      - quality.scrap.pct
+      - quality.rework.pct
+      - quality.copq.amount
+      - quality.complaint.pct
+      - quality.defect_density
+      - ops.planned_output.units
+      - sales.units
       - quality.fpy.pct
       action_panel: true
       payload_mode: full

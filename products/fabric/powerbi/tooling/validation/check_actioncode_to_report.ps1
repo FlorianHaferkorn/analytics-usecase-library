@@ -74,7 +74,13 @@ $resolvedReportPath = Resolve-RepoPath -ProvidedPath $ReportPath -DefaultRelativ
 if (-not $resolvedReportPath) { throw "Unable to resolve report path." }
 
 # Find use case
-$useCaseDir = Get-ChildItem -Path (Join-Path -Path $resolvedUseCasesRoot -ChildPath "core") -Directory | Where-Object { $_.Name -like "$UseCaseId*" } | Select-Object -First 1
+$useCaseSearchRoot = if (Test-Path (Join-Path -Path $resolvedUseCasesRoot -ChildPath "core")) {
+	Join-Path -Path $resolvedUseCasesRoot -ChildPath "core"
+} else {
+	$resolvedUseCasesRoot
+}
+
+$useCaseDir = Get-ChildItem -Path $useCaseSearchRoot -Directory | Where-Object { $_.Name -like "$UseCaseId*" } | Select-Object -First 1
 if (-not $useCaseDir) {
 	Write-Error "Use case $UseCaseId not found"
 	exit 1

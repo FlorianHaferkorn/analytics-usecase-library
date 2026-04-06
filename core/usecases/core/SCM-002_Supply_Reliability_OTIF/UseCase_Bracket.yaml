@@ -12,6 +12,7 @@ orchestration:
   - supply.in_full.pct
   - supply.stockout_impact.pct
   - supply.penalty.amount
+  supporting_kpi_ids:
   - supply.expedite.amount
   - order.lines
   - shipments.count
@@ -22,8 +23,7 @@ orchestration:
   - S-R2.4
   - S-R2.5
 value_driver_model:
-  formula: supply.otif.pct = f(supply.on_time.pct, supply.in_full.pct, supply.stockout_impact.pct, supply.penalty.amount,
-    supply.expedite.amount, order.lines, shipments.count)
+  formula: supply.otif.pct = f(supply.on_time.pct, supply.in_full.pct, supply.stockout_impact.pct)
   impact_direction: maximize
   primary_driver: supply.on_time.pct
   impact_logic: Improving supply.on_time.pct is the primary lever for maximizing supply.otif.pct.
@@ -52,8 +52,17 @@ ux_layout_rules:
     component_300s:
       evidence_grain: shipment_line
       evidence_columns:
-      - entity
-      - period
+      - location
+      - channel
+      - customer
+      - lane
+      - supply.on_time.pct
+      - supply.in_full.pct
+      - supply.stockout_impact.pct
+      - supply.penalty.amount
+      - supply.expedite.amount
+      - order.lines
+      - shipments.count
       - supply.otif.pct
       action_panel: true
       payload_mode: full

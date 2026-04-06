@@ -204,8 +204,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     version: v1.2
     last_review: TBD
 - measure_name: Gross Margin Amount
-  is_kpi_measure: true
-  kpi_id_ref: hr.gm.amount
+  is_kpi_measure: false
+  kpi_id_ref: ''
   semantic_model: InnovationPeople_SemanticModel
   display_folder: 04_People
   category: KPI

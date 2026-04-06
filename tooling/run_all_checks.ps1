@@ -18,6 +18,20 @@ try {
   $script:RepoRoot = $script:RepoRootRaw
 }
 
+function Resolve-FullPathSafe {
+  param(
+    [string]$PathValue
+  )
+  if ([string]::IsNullOrWhiteSpace($PathValue)) {
+    return $null
+  }
+  try {
+    return [System.IO.Path]::GetFullPath($PathValue)
+  } catch {
+    return $PathValue
+  }
+}
+
 function Resolve-RepoPath {
   param(
     [string]$ProvidedPath,
@@ -26,19 +40,19 @@ function Resolve-RepoPath {
   $repo = $script:RepoRoot
   if ($ProvidedPath) {
     if (Test-Path $ProvidedPath) {
-      try { return [System.IO.Path]::GetFullPath((Resolve-Path -Path $ProvidedPath).Path) } catch { }
+      try { return (Resolve-FullPathSafe ((Resolve-Path -Path $ProvidedPath).Path)) } catch { }
     }
     $candidate = Join-Path -Path $repo -ChildPath ($ProvidedPath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (Test-Path $candidate) {
-      try { return [System.IO.Path]::GetFullPath((Resolve-Path -Path $candidate).Path) } catch { return [System.IO.Path]::GetFullPath($candidate) }
+      try { return (Resolve-FullPathSafe ((Resolve-Path -Path $candidate).Path)) } catch { return (Resolve-FullPathSafe $candidate) }
     }
   }
   if ($DefaultRelative) {
     $fallback = Join-Path -Path $repo -ChildPath ($DefaultRelative -replace '/', [System.IO.Path]::DirectorySeparatorChar)
     if (Test-Path $fallback) {
-      try { return [System.IO.Path]::GetFullPath((Resolve-Path -Path $fallback).Path) } catch { return [System.IO.Path]::GetFullPath($fallback) }
+      try { return (Resolve-FullPathSafe ((Resolve-Path -Path $fallback).Path)) } catch { return (Resolve-FullPathSafe $fallback) }
     }
-    return [System.IO.Path]::GetFullPath($fallback)
+    return (Resolve-FullPathSafe $fallback)
   }
   return $null
 }
@@ -77,11 +91,7 @@ $transcriptPath = if ([System.IO.Path]::IsPathRooted($TranscriptPath)) {
 } else {
   Join-Path -Path $repoRoot -ChildPath ($TranscriptPath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
 }
-try {
-  $transcriptPath = [System.IO.Path]::GetFullPath($transcriptPath)
-} catch {
-  # keep as-is if GetFullPath fails
-}
+$transcriptPath = Resolve-FullPathSafe $transcriptPath
 $transcriptDir = [System.IO.Path]::GetDirectoryName($transcriptPath)
 if ($transcriptDir -and -not (Test-Path $transcriptDir)) {
   New-Item -ItemType Directory -Path $transcriptDir -Force | Out-Null
@@ -128,24 +138,27 @@ function Invoke-LocalScript {
   $startedAt = Get-Date
   $status = "ok"
   $errorMessage = ""
+  $scriptExitCode = 0
   try {
-    # Explicitly pass no pipeline input so child script never prompts for mandatory params
+    $global:LASTEXITCODE = 0
     if ($Arguments -is [hashtable]) {
-      $null | & $full @Arguments
+      & $full @Arguments
     } elseif ($Arguments -is [string[]]) {
-      $null | & $full @Arguments
+      & $full @Arguments
     } else {
-      $null | & $full
+      & $full
     }
+    $scriptExitCode = $LASTEXITCODE
   } catch {
     $status = "failed"
     $errorMessage = $_.Exception.Message
     Write-Host ("  Error while running {0}:{1}  {2}" -f $RelativePath, [Environment]::NewLine, $_.Exception.Message) -ForegroundColor Red
+    $scriptExitCode = if ($LASTEXITCODE -ne $null) { $LASTEXITCODE } else { 1 }
   }
-  if ($status -eq "ok" -and $LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) {
+  if ($status -eq "ok" -and $scriptExitCode -ne 0) {
     $status = "failed"
     if (-not $errorMessage) {
-      $errorMessage = "Non-zero exit code: $LASTEXITCODE"
+      $errorMessage = "Non-zero exit code: $scriptExitCode"
     }
   }
   $endedAt = Get-Date
@@ -280,7 +293,7 @@ if (Test-Path $distRoot) {
 foreach ($useCaseId in $useCasesToCheck) {
   Invoke-LocalScript -RelativePath "tooling/validation/check_dax_before_generation.ps1" -Arguments @{
     UseCaseId = $useCaseId
-    UseCasesRoot = $factsheetsRoot
+    UseCasesRoot = $useCasesRoot
     KpiCatalogRoot = $kpiCatalogRoot
   }
 }
@@ -323,7 +336,7 @@ if (-not [string]::IsNullOrWhiteSpace($distRoot)) {
   foreach ($useCaseId in $useCasesToCheck) {
     Invoke-LocalScript -RelativePath "tooling/validation/check_usecase_to_tmdl.ps1" -Arguments @{
       UseCaseId = $useCaseId
-      UseCasesRoot = $factsheetsRoot
+      UseCasesRoot = $useCasesRoot
       KpiCatalogRoot = $kpiCatalogRoot
       TmdlPath = $distRoot
     }
@@ -332,20 +345,24 @@ if (-not [string]::IsNullOrWhiteSpace($distRoot)) {
 
 # 19f) Report validation (Power BI report structure)
 if ($distRoot -and (Test-Path $distRoot)) {
-	$reportPaths = Get-ChildItem -Path $distRoot -Filter "*.Report" -Directory -Recurse -ErrorAction SilentlyContinue
-	foreach ($reportPath in $reportPaths) {
-		Invoke-LocalScript -RelativePath "tooling/validation/validate_report.ps1" -Arguments @{ ReportPath = $reportPath.FullName }
+  $reportDirs = Get-ChildItem -Path $distRoot -Filter "*.Report" -Directory -Recurse -ErrorAction SilentlyContinue
+  foreach ($reportDir in $reportDirs) {
+    $currentValidatedReportPath = $reportDir.FullName
+    if ([string]::IsNullOrWhiteSpace($currentValidatedReportPath)) {
+      continue
+    }
+	Invoke-LocalScript -RelativePath "tooling/validation/validate_report.ps1" -Arguments @{ ReportPath = $currentValidatedReportPath }
 	}
 }
 
 # 19g) Action code → report validation
 foreach ($useCaseId in $useCasesToCheck) {
-	$reportPath = Join-Path $distRoot "$useCaseId.Report"
-	if (Test-Path $reportPath) {
+  $currentUseCaseReportPath = Join-Path $distRoot "$useCaseId.Report"
+  if (Test-Path $currentUseCaseReportPath) {
 		Invoke-LocalScript -RelativePath "products/fabric/powerbi/tooling/validation/check_actioncode_to_report.ps1" -Arguments @{
       UseCaseId = $useCaseId
-      UseCasesRoot = $factsheetsRoot
-      ReportPath = $reportPath
+  UseCasesRoot = $useCasesRoot
+      ReportPath = $currentUseCaseReportPath
     }
 	}
 }
@@ -366,10 +383,12 @@ if ($script:TranscriptActive) { Stop-Transcript | Out-Null }
 
 $totalChecks = $script:checkResults.Count
 $failedChecks = ($script:checkResults | Where-Object { $_.status -ne "ok" }).Count
-$consolidatedPath = Resolve-RepoPath -ProvidedPath $ReportPath -DefaultRelative $ReportPath
-if (-not $consolidatedPath) {
-  $consolidatedPath = Join-Path -Path $repoRoot -ChildPath $ReportPath
+$consolidatedPath = if ([System.IO.Path]::IsPathRooted($ReportPath)) {
+  $ReportPath
+} else {
+  Join-Path -Path $repoRoot -ChildPath ($ReportPath -replace '/', [System.IO.Path]::DirectorySeparatorChar)
 }
+$consolidatedPath = Resolve-FullPathSafe $consolidatedPath
 $consolidatedDir = Split-Path -Parent $consolidatedPath
 if ($consolidatedDir -and -not (Test-Path $consolidatedDir)) {
   New-Item -ItemType Directory -Path $consolidatedDir -Force | Out-Null

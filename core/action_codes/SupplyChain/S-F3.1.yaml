@@ -155,7 +155,10 @@ data_requirements:
     tables:
     - fact_forecast
     - fact_sales
+    - fact_fulfillment
+    - fact_stockout
     - dim_product
+    - dim_org
     - dim_location
 automation:
   detection:

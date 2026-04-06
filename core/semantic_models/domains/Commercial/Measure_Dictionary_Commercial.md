@@ -421,8 +421,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     version: v1.2
     last_review: 06.02.2026
 - measure_name: Cannibalized Sales Amount
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: sales.promo.cannibalized_sales.amount
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 04_Promo
   category: Supporting
@@ -904,8 +904,8 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     version: v1.2
     last_review: 06.02.2026
 - measure_name: Baseline Sales Amount
-  is_kpi_measure: false
-  kpi_id_ref: ''
+  is_kpi_measure: true
+  kpi_id_ref: sales.promo.baseline_sales.amount
   semantic_model: Commercial_Sales_SemanticModel
   display_folder: 04_Promo
   category: Base

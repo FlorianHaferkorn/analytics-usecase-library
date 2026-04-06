@@ -22,6 +22,7 @@ param(
   [switch] $UseAuroraData,
   [switch] $SkipBuild,
   [switch] $SkipPublish,
+  [switch] $AcceptDryRunPublish,
   [switch] $DisableLlmFix,
   [string] $PublishEnvironment = ""
 )
@@ -459,6 +460,7 @@ $runState = [ordered]@{
   publishEnvironment = $effectivePublishEnvironment
   startedAt = (Get-Date).ToString("o")
   blockingReason = $null
+  completionMode = "pending"
   iterations = @()
 }
 
@@ -542,16 +544,21 @@ for ($iteration = 1; $iteration -le $maxIterations; $iteration++) {
       try {
         $publishResult = Invoke-WorkspacePublishPhase
         $iterationState.publish = $publishResult
-        if ($publishResult.dryRun -and -not (Test-PublishCredentialsConfigured)) {
+        $dryRunAccepted = ($AcceptDryRunPublish -and $publishResult.dryRun -and -not (Test-PublishCredentialsConfigured))
+        if ($dryRunAccepted -and $smokeRequired) {
+          $iterationState.smokeTest = @{ success = $true; messages = @("Dry-run publish accepted as provisional completion because -AcceptDryRunPublish is active and workspace credentials are unavailable.") }
+        }
+        if ($publishResult.dryRun -and -not (Test-PublishCredentialsConfigured) -and -not $dryRunAccepted) {
           $runState.iterations += $iterationState
           $runState.completedAt = (Get-Date).ToString("o")
           $runState.success = $false
+          $runState.completionMode = "blocked_credentials_missing"
           $runState.blockingReason = if ($publishResult.blockingReason) { $publishResult.blockingReason } else { "workspace_publish_credentials_missing" }
           $runState | ConvertTo-Json -Depth 12 | Set-Content -Path $resolvedResultFile -Encoding utf8
           Write-Host "[Supervisor] Workspace publish requires TENANT_ID, CLIENT_ID and CLIENT_SECRET; only dry-run was possible." -ForegroundColor Yellow
           exit 1
         }
-        if ($smokeRequired) {
+        if ($smokeRequired -and -not $iterationState.smokeTest) {
           $iterationState.smokeTest = Invoke-PostPublishSmokeTest -PublishResult $publishResult
         }
       } catch {
@@ -562,14 +569,20 @@ for ($iteration = 1; $iteration -le $maxIterations; $iteration++) {
       }
     }
 
-    $publishPassed = ($SkipPublish -or -not $publishRequired -or ($iterationState.publish -and $iterationState.publish.success -and -not $iterationState.publish.dryRun))
+    $dryRunAccepted = ($AcceptDryRunPublish -and $iterationState.publish -and $iterationState.publish.success -and $iterationState.publish.dryRun -and -not (Test-PublishCredentialsConfigured))
+    $publishPassed = ($SkipPublish -or -not $publishRequired -or ($iterationState.publish -and $iterationState.publish.success -and (-not $iterationState.publish.dryRun -or $dryRunAccepted)))
     $smokePassed = ($SkipPublish -or -not $smokeRequired -or ($iterationState.smokeTest -and $iterationState.smokeTest.success))
     if ($publishPassed -and $smokePassed) {
       $runState.iterations += $iterationState
       $runState.completedAt = (Get-Date).ToString("o")
       $runState.success = $true
+      $runState.completionMode = if ($dryRunAccepted) { "credentialless_dry_run" } else { "published" }
       $runState | ConvertTo-Json -Depth 12 | Set-Content -Path $resolvedResultFile -Encoding utf8
-      Write-Host "[Supervisor] Production validation and publish successful." -ForegroundColor Green
+      if ($dryRunAccepted) {
+        Write-Host "[Supervisor] Production validation successful; dry-run publish accepted as provisional completion." -ForegroundColor Green
+      } else {
+        Write-Host "[Supervisor] Production validation and publish successful." -ForegroundColor Green
+      }
       exit 0
     }
 
@@ -614,6 +627,7 @@ for ($iteration = 1; $iteration -le $maxIterations; $iteration++) {
 
 $runState.completedAt = (Get-Date).ToString("o")
 $runState.success = $false
+$runState.completionMode = if ($runState.blockingReason) { "blocked" } else { "failed_validation" }
 $runState | ConvertTo-Json -Depth 12 | Set-Content -Path $resolvedResultFile -Encoding utf8
 Write-Host "[Supervisor] Max iterations reached without satisfying production quality policy." -ForegroundColor Yellow
 exit 1

@@ -151,12 +151,11 @@ data_requirements:
     - Inventory Value Amount
     - Failure Count
     tables:
-    - fact_spare_parts
+    - fact_maintenance
     - fact_ops_failures
-    - fact_ops_maintenance
+    - fact_ops
     - dim_asset
-    - dim_spare_part
-    - dim_plant
+    - dim_org
 automation:
   detection:
     enabled: true

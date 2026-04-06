@@ -13,6 +13,14 @@ orchestration:
   - supply.otif.pct
   - inv.obsolete.pct
   - plan.forecast.accuracy.pct
+  supporting_kpi_ids:
+  - supply.on_time.pct
+  - supply.in_full.pct
+  - supply.stockout_impact.pct
+  - plan.forecast.mape.pct
+  - plan.forecast.bias.pct
+  - plan.forecast.service_impact.pct
+  - plan.replan.count
   - sales.units
   action_code_ids:
   - S-I1.1
@@ -21,8 +29,7 @@ orchestration:
   - S-I1.4
   - S-I1.5
 value_driver_model:
-  formula: inv.dio.days = f(inv.turnover, inv.stockout.pct, supply.otif.pct, inv.obsolete.pct, plan.forecast.accuracy.pct,
-    sales.units)
+  formula: inv.dio.days = f(inv.turnover, inv.stockout.pct, supply.otif.pct, inv.obsolete.pct, plan.forecast.accuracy.pct)
   impact_direction: minimize
   primary_driver: inv.turnover
   impact_logic: Improving inv.turnover is the primary lever for minimizing inv.dio.days.
@@ -51,8 +58,17 @@ ux_layout_rules:
     component_300s:
       evidence_grain: location_sku_month
       evidence_columns:
-      - entity
-      - period
+      - location
+      - channel
+      - product_category
+      - abc_class
+      - xyz_class
+      - inv.turnover
+      - inv.stockout.pct
+      - supply.otif.pct
+      - inv.obsolete.pct
+      - plan.forecast.accuracy.pct
+      - sales.units
       - inv.dio.days
       action_panel: true
       payload_mode: full

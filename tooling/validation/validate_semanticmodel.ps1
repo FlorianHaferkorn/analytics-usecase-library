@@ -6,10 +6,14 @@ param(
 	[Parameter(Mandatory=$true)]
 	[string]$TmdlPath,
 	
-	[string]$BpaRulesPath = "$PSScriptRoot\..\linters\powerbi\bpa-rules-semanticmodel.json"
+	[string]$BpaRulesPath = ""
 )
 
 $ErrorActionPreference = "Stop"
+
+if (-not $BpaRulesPath) {
+	$BpaRulesPath = Join-Path $PSScriptRoot "..\linters\powerbi\bpa-rules-semanticmodel.json"
+}
 
 # Load BPA Rules
 if (-not (Test-Path $BpaRulesPath)) {
@@ -17,7 +21,14 @@ if (-not (Test-Path $BpaRulesPath)) {
 	exit 1
 }
 
-$bpaRules = Get-Content $BpaRulesPath -Raw | ConvertFrom-Json
+$rawRules = Get-Content $BpaRulesPath -Raw | ConvertFrom-Json
+if ($rawRules -is [System.Array]) {
+	$bpaRules = [PSCustomObject]@{
+		rules = @($rawRules | Where-Object { -not $_._meta })
+	}
+} else {
+	$bpaRules = $rawRules
+}
 
 # Validation Results
 $results = @{

@@ -12,6 +12,7 @@ orchestration:
   - ops.performance.pct
   - ops.quality.pct
   - ops.throughput.units
+  supporting_kpi_ids:
   - ops.downtime.pct
   - ops.planned_output.units
   action_code_ids:
@@ -20,8 +21,7 @@ orchestration:
   - O-O1.3
   - O-O1.4
 value_driver_model:
-  formula: ops.oee.pct = f(ops.availability.pct, ops.performance.pct, ops.quality.pct, ops.throughput.units, ops.downtime.pct,
-    ops.planned_output.units)
+  formula: ops.oee.pct = f(ops.availability.pct, ops.performance.pct, ops.quality.pct)
   impact_direction: maximize
   primary_driver: ops.availability.pct
   impact_logic: Improving ops.availability.pct is the primary lever for maximizing ops.oee.pct.
@@ -59,8 +59,16 @@ ux_layout_rules:
     component_300s:
       evidence_grain: line_day
       evidence_columns:
-      - entity
-      - period
+      - plant
+      - line
+      - shift
+      - product_category
+      - ops.availability.pct
+      - ops.performance.pct
+      - ops.quality.pct
+      - ops.throughput.units
+      - ops.downtime.pct
+      - ops.planned_output.units
       - ops.oee.pct
       action_panel: true
       payload_mode: full

@@ -25,7 +25,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     - fact_cashflow[Operating Cash Flow Amount]
 - measure_name: Operating Cash Flow
   is_kpi_measure: true
-  kpi_id_ref: fin.liquidity.operating_cash_flow
+  kpi_id_ref: fin.cash.ocf
   semantic_model: Liquidity_SemanticModel
   display_folder: 01_CashFlow
   category: KPI

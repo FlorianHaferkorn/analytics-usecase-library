@@ -57,9 +57,9 @@ factsheet_type: business
 | ops.spare_parts.stockout.pct | Influencing |
 | ops.pm_compliance.pct | Influencing |
 | ops.failure.count | Influencing |
-| ops.inventory.value.amount | Influencing |
-| ops.pm.task.count | Influencing |
-| ops.safety.incident.count | Influencing |
+| ops.inventory.value.amount | Supporting |
+| ops.pm.task.count | Supporting |
+| ops.safety.incident.count | Supporting |
 
 **Action Codes:** O-A2.1, O-A2.2, O-A2.3, O-A2.4, O-A2.5
 
@@ -115,27 +115,11 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 6. Data Requirements Summary
 
-```yaml
-required_facts:
-
-  - fact_ops (availability/downtime)
-
-  - fact_ops_failures (MTBF/MTTR with causes)
-
-  - fact_maintenance (PM compliance, orders)
-required_dimensions:
-
-  - dim_date
-
-  - dim_org (plant/line/asset)
-
-  - dim_asset (if separate from org)
-
-  - security_user_org
-required_grain: asset_day for availability; failure event for MTBF/MTTR; month for PM compliance
-required_time_range: 12-24 months history
-required_slicers: Date, Plant/Asset, Asset Class/Criticality
-```
+- Required facts: fact_ops, fact_ops_failures, and fact_maintenance.
+- Required dimensions: dim_date, dim_org, dim_asset, and security_user_org.
+- Required grain: failure_event for reliability root cause, line_day for availability context, and maintenance_order for PM execution.
+- Required time range: 12-24 months history.
+- Required slicers: Date, Plant, Asset, Asset Class, Criticality.
 
 ---
 

@@ -45,6 +45,20 @@ STRICT_METRIC_PLACEHOLDER_PATTERNS = (
 )
 
 
+def _load_default_reference_use_cases(root: Path) -> List[str]:
+    standard_path = root / "products" / "open_source_stack" / "tooling" / "production_quality.standard.json"
+    if not standard_path.exists():
+        return []
+    try:
+        data = json.loads(standard_path.read_text(encoding="utf-8-sig"))
+    except json.JSONDecodeError:
+        return []
+    reference_use_cases = data.get("referenceUseCases", [])
+    if not isinstance(reference_use_cases, list):
+        return []
+    return [item for item in reference_use_cases if isinstance(item, str) and item]
+
+
 def _load_ir(root: Path) -> Dict[str, Any]:
     ir_path = root / "tooling" / "ir" / "out" / "ir_v1.json"
     if not ir_path.exists():
@@ -302,6 +316,8 @@ def main() -> None:
 
     root = args.root.resolve()
     selected_use_cases = [item.strip() for item in args.use_cases.split(",") if item.strip()]
+    if not selected_use_cases:
+        selected_use_cases = _load_default_reference_use_cases(root)
     results = run_all_checks(root, selected_use_cases or None)
 
     if args.json:

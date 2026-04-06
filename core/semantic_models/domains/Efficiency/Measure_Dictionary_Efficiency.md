@@ -138,7 +138,7 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     last_review: 04.11.2025
 - measure_name: Inventory Turnover
   is_kpi_measure: true
-  kpi_id_ref: ops.inventory.turnover
+  kpi_id_ref: inv.turnover
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:

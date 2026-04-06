@@ -255,8 +255,8 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     version: v1.2
     last_review: 12.12.2025
 - measure_name: Complaint Rate %
-  is_kpi_measure: true
-  kpi_id_ref: crm.complaint.rate.pct
+  is_kpi_measure: false
+  kpi_id_ref: ''
   semantic_model: CustomerValue_SemanticModel
   display_folder: 02_CX
   category: KPI

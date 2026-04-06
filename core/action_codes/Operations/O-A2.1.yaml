@@ -148,11 +148,11 @@ data_requirements:
     - PM Compliance %
     - Planned Runtime Hours
     tables:
-    - fact_ops_runtime
-    - fact_ops_downtime
-    - fact_ops_maintenance
+    - fact_ops
+    - fact_ops_failures
+    - fact_maintenance
     - dim_asset
-    - dim_plant
+    - dim_org
 automation:
   detection:
     enabled: true

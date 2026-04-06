@@ -26,6 +26,9 @@ orchestration:
   - crm.retention.pct
   - sales.net_sales.amount
   - supply.otif.pct
+  - supply.on_time.pct
+  - supply.in_full.pct
+  - supply.stockout_impact.pct
   - svc.fcr.pct
   - svc.aht.minutes
   - svc.backlog.count

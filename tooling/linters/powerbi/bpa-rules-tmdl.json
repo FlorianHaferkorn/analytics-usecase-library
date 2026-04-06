@@ -71,7 +71,7 @@
       "severity": "warning",
       "category": "Metadata",
       "description": "All measures should have /// documentation comment on the line before definition for AI/Copilot readiness.",
-      "pattern": "(?<!///[^\\n]*\\n)\\s*measure\\s+",
+      "pattern": "(?m)^\\s*measure\\s+",
       "autoFixable": false,
       "reference": "products/fabric/powerbi/docs/fabric/powerbi.md#ai-copilot-readiness"
     },
@@ -82,7 +82,7 @@
       "category": "Performance",
       "description": "Calculated columns do not compress as well as data columns. Business logic should be implemented via measures, not calculated columns.",
       "scope": "**/*.tmdl",
-      "pattern": "column\\s+['\"]?[^'\"]+['\"]?\\s*=\\s*",
+      "pattern": "(?m)^\\s*column\\s+['\"]?[^'\"=\\r\\n]+['\"]?\\s*=\\s*",
       "autoFixable": false,
       "reference": "products/fabric/powerbi/docs/fabric/powerbi.md#semantic-modeling-rules"
     },

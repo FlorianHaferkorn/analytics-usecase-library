@@ -149,11 +149,11 @@ data_requirements:
     - DIO (Days)
     - Order Lines
     tables:
-    - fact_orders
     - fact_forecast
-    - fact_shipments
+    - fact_fulfillment
+    - fact_stockout
     - dim_product
-    - dim_location
+    - dim_org
 automation:
   detection:
     enabled: true

@@ -129,10 +129,10 @@ operational_execution:
   - Clear allocation and priority rules
   - Visibility into order line fulfilment
   steps:
-  - IDENTIFY shipments with rising in-full failures by SKU/lane
-  - REALLOCATE constrained supply by service priority for this shipment
-  - CORRECT partial shipment practices for this shipment
-  - REVIEW in-full performance for this shipment weekly
+  - IDENTIFY SKU-lane scopes with rising in-full failures
+  - REALLOCATE constrained supply by service priority for the affected SKU-lane scope
+  - CORRECT partial shipment practices for the affected SKU-lane scope
+  - REVIEW in-full performance weekly for the affected SKU-lane scope
   effort:
     level: Low
     typical_duration_days: 14
@@ -150,8 +150,8 @@ data_requirements:
     - DIO (Days)
     - Order Lines
     tables:
-    - fact_orders
-    - fact_shipments
+    - fact_fulfillment
+    - fact_stockout
     - fact_inventory
     - dim_product
     - dim_lane

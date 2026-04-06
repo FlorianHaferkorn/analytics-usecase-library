@@ -150,10 +150,11 @@ data_requirements:
     - Availability %
     - PM Task Count
     tables:
-    - fact_ops_maintenance
-    - fact_ops_runtime
+    - fact_maintenance
+    - fact_ops_failures
+    - fact_ops
     - dim_asset
-    - dim_plant
+    - dim_org
 automation:
   detection:
     enabled: true

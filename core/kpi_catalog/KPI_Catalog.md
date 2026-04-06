@@ -441,7 +441,13 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "MTBF (hours)"
     description: "Measures average operating time between failures."
-    depends_on_measures: []
+    depends_on_measures:
+    - ops.failure.count
+    - ops.mttr.hours
+    - ops.downtime.unplanned.pct
+    - ops.pm_compliance.pct
+    - ops.spare_parts.stockout.pct
+    - ops.availability.pct
     lineage:
     - fact_ops_failures.Failure Start DateTime
     - fact_ops.Run Time Minutes
@@ -628,7 +634,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "First Pass Yield %"
     description: "Measures share of units produced without rework or scrap."
-    depends_on_measures: []
+    depends_on_measures:
+    - quality.scrap.pct
+    - quality.rework.pct
+    - quality.copq.amount
+    - quality.complaint.pct
+    - quality.defect_density
     lineage:
     - fact_quality.Good Units
     - fact_quality.Total Units
@@ -864,7 +875,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Days in Inventory"
     description: "Measures inventory holding period in days."
-    depends_on_measures: []
+    depends_on_measures:
+    - inv.turnover
+    - inv.stockout.pct
+    - supply.otif.pct
+    - inv.obsolete.pct
+    - plan.forecast.accuracy.pct
     lineage:
     - fact_cogs.COGS Amount
     - fact_inventory.Average Inventory Amount
@@ -981,7 +997,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Forecast Accuracy %"
     description: "Measures how close forecasted demand is to actual demand."
-    depends_on_measures: []
+    depends_on_measures:
+    - plan.forecast.mape.pct
+    - plan.forecast.bias.pct
+    - plan.forecast.service_impact.pct
+    - plan.replan.count
     lineage:
     - fact_forecast.Forecast Units
   governance:
@@ -1102,7 +1122,10 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "OTIF %"
     description: "Measures share of orders delivered on time and in full."
-    depends_on_measures: []
+    depends_on_measures:
+    - supply.on_time.pct
+    - supply.in_full.pct
+    - supply.stockout_impact.pct
     lineage:
     - fact_fulfillment.OTIF Flag
   governance:

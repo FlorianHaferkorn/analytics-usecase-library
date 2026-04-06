@@ -43,12 +43,20 @@ Der Publish erfolgt nicht mehr ueber das stubhafte orchestrator/deploy.ps1, sond
 
 Ohne gueltige TENANT_ID-, CLIENT_ID- und CLIENT_SECRET-Umgebungsvariablen kann der Adapter optional nur als Dry-Run laufen. Ein Dry-Run erfuellt den Produktionsstandard bewusst nicht.
 
+Fuer Umgebungen ohne verfügbare Fabric-Credentials kann der Supervisor temporaer mit AcceptDryRunPublish betrieben werden. Dann gilt ein erfolgreicher Dry-Run-Staging-Lauf als vorlaeufige Abnahme, wird aber im Resultat explizit als credentialless_dry_run markiert und ersetzt keinen echten Workspace-Publish.
+
 ## Nutzung
 
 Use Case:
 
 ```powershell
 .\products\fabric\powerbi\tooling\invoke_production_supervisor.ps1 -UseCase COM-001 -UseAuroraData
+```
+
+Use Case ohne Credentials, aber mit vorlaeufiger Dry-Run-Abnahme:
+
+```powershell
+.\products\fabric\powerbi\tooling\invoke_production_supervisor.ps1 -UseCase COM-001 -UseAuroraData -AcceptDryRunPublish
 ```
 
 Domain:

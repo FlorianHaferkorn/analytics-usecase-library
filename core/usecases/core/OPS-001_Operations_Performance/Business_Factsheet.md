@@ -53,9 +53,9 @@ factsheet_type: business
 | ops.availability.pct | Influencing |
 | ops.performance.pct | Influencing |
 | ops.quality.pct | Influencing |
-| ops.throughput.units | Influencing |
-| ops.downtime.pct | Influencing |
-| ops.planned_output.units | Influencing |
+| ops.throughput.units | Supporting |
+| ops.downtime.pct | Supporting |
+| ops.planned_output.units | Supporting |
 
 **Action Codes:** O-O1.1, O-O1.2, O-O1.3, O-O1.4
 
@@ -111,23 +111,11 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 6. Data Requirements Summary
 
-```yaml
-required_facts:
-
-  - fact_ops (production events/OEE)
-required_dimensions:
-
-  - dim_date
-
-  - dim_org (plant/line/shift)
-
-  - dim_product (if needed)
-
-  - security_user_org
-required_grain: line_day (or line_shift if available)
-required_time_range: 12-24 months history
-required_slicers: Date, Plant/Line/Shift, Product (optional)
-```
+- Required facts: fact_ops as the production-event backbone for runtime, downtime, output, good units, and scrap.
+- Required dimensions: dim_date, dim_org, optional dim_product, and security_user_org.
+- Required grain: line_day, with shift retained where available for operational execution.
+- Required time range: 12-24 months history.
+- Required slicers: Date, Plant/Line/Shift, Product/Category.
 
 ---
 

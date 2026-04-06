@@ -146,8 +146,8 @@ data_requirements:
     - First Pass Yield %
     tables:
     - fact_quality
-    - fact_finance_copq
-    - dim_plant
+    - fact_quality_costs
+    - dim_org
 automation:
   detection:
     enabled: true

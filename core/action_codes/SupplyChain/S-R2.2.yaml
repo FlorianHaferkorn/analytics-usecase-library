@@ -23,10 +23,10 @@ scope:
   default_grain: lane_dc_week
   default_perspective:
   - Lane
-  - Distribution Center
+  - Location
   supported_slices:
-  - Carrier
   - Transport Mode
+  - Channel
   exclusions:
   - Force majeure or weather-related disruptions
   - Customer-requested delivery date changes
@@ -113,12 +113,12 @@ impact:
       min_periods: 1
       max_periods: 2
   mechanism:
-  - Lane and carrier execution corrections
+  - Lane and route execution corrections
   - Dispatch and handover discipline
   confidence:
     level: High
     rationale:
-    - Delivery delays are typically lane- or carrier-specific
+    - Delivery delays are typically lane-, route-, or site-specific
     - Operational levers are immediately available
 operational_execution:
   stakeholders:
@@ -126,12 +126,12 @@ operational_execution:
   - Transport Providers
   prerequisites:
   - Accurate shipment event timestamps
-  - Clear lane and carrier ownership
+  - Clear lane, location, and transport-mode ownership
   steps:
-  - IDENTIFY shipments with recurring late deliveries by lane/DC
-  - ANALYSE delay root causes (pickup, transit, handover) for this shipment
-  - IMPLEMENT corrective actions with carriers and DCs for this shipment
-  - REVIEW on-time performance for this shipment weekly
+  - IDENTIFY recurring late deliveries by route and location
+  - ANALYSE delay root causes by lane-DC scope
+  - IMPLEMENT corrective actions for the affected route-location scope
+  - REVIEW on-time performance weekly for the affected lane-DC scope
   effort:
     level: Low to Medium
     typical_duration_days: 30
@@ -141,8 +141,8 @@ operational_execution:
 data_requirements:
   required_entities:
   - Lane
-  - Distribution Center
-  - Carrier
+  - Location
+  - Channel
   semantic_dependencies:
     measures:
     - On-Time %
@@ -150,12 +150,10 @@ data_requirements:
     - Expedite Cost Amount
     - Shipments Count
     tables:
-    - fact_shipments
-    - fact_logistics_events
-    - fact_logistics_cost
+    - fact_fulfillment
+    - fact_logistics
     - dim_lane
-    - dim_distribution_center
-    - dim_carrier
+    - dim_org
 automation:
   detection:
     enabled: true
@@ -164,7 +162,7 @@ automation:
   suggested_actions:
     enabled: true
     outputs:
-    - Carrier and dispatch stabilisation actions
+    - Route and dispatch stabilisation actions
   copilot_prompts: []
 tracking:
   execution_log:
@@ -173,8 +171,8 @@ tracking:
     minimum_fields:
     - ActionCode
     - Lane
-    - DistributionCenter
-    - Carrier
+    - Location
+    - Channel
     - TriggerLevel
     - ExecutedDate
   outcome_evaluation:

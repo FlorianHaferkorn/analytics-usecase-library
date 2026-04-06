@@ -6,10 +6,14 @@ param(
 	[Parameter(Mandatory=$true)]
 	[string]$ReportPath,
 	
-	[string]$BpaRulesPath = "$PSScriptRoot\..\linters\powerbi\bpa-rules-report.json"
+	[string]$BpaRulesPath = ""
 )
 
 $ErrorActionPreference = "Stop"
+
+if (-not $BpaRulesPath) {
+	$BpaRulesPath = Join-Path $PSScriptRoot "..\linters\powerbi\bpa-rules-report.json"
+}
 
 # Load BPA Rules
 if (-not (Test-Path $BpaRulesPath)) {

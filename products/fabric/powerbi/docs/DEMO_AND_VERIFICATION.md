@@ -56,6 +56,7 @@ The pipeline runs validation after report generation:
 
 - **RLS:** Not applied automatically; configure manually if required.
 - **Publish to Fabric:** Ein automatisierter Publish-Pfad existiert jetzt ueber products/fabric/powerbi/tooling/invoke_workspace_publish.ps1 plus deployment/scripts/fabric_release.py. Ohne Credentials oder Fabric-Zielumgebung bleibt das lokal ein Dry-Run und erfuellt den Produktionsstandard nicht.
+- **Credentialloser Abnahmemodus:** Falls vorlaeufig keine Fabric-Credentials verfuegbar sind, kann invoke_production_supervisor.ps1 mit AcceptDryRunPublish laufen. Das validiert Build, Gates und Publish-Staging, markiert das Ergebnis aber explizit nur als credentialless_dry_run.
 - **Scope:** "Opens in Desktop and loads"; no claim for Fabric workspace deployment or embedding.
 
 ---

@@ -24,10 +24,10 @@ scope:
   default_grain: lane_dc_month
   default_perspective:
   - Lane
-  - Distribution Center
+  - Location
   supported_slices:
-  - Customer Contract
-  - Carrier
+  - Customer
+  - Channel
   exclusions:
   - Penalties driven by customer-side process failures
   - Approved premium service agreements
@@ -126,13 +126,13 @@ operational_execution:
   - Customer Operations
   - Finance
   prerequisites:
-  - Penalty attribution by lane/customer
+  - Penalty attribution by lane, location, and customer
   - Clear expedite approval logic
   steps:
-  - IDENTIFY shipments with recurring penalties or expedites by lane
-  - CLASSIFY costs as avoidable vs justified for this shipment
-  - CORRECT underlying execution or planning issues for this shipment
-  - REVIEW cost trends for this shipment monthly
+  - IDENTIFY recurring penalties or expedites by lane and location
+  - CLASSIFY costs as avoidable vs justified for the affected lane-DC scope
+  - CORRECT underlying execution or planning issues for the affected lane-DC scope
+  - REVIEW cost trends monthly for the affected lane-DC scope
   effort:
     level: Medium
     typical_duration_days: 60
@@ -142,7 +142,7 @@ operational_execution:
 data_requirements:
   required_entities:
   - Lane
-  - Distribution Center
+  - Location
   - Customer
   semantic_dependencies:
     measures:
@@ -151,11 +151,10 @@ data_requirements:
     - OTIF %
     - Shipments Count
     tables:
-    - fact_logistics_cost
-    - fact_shipments
+    - fact_fulfillment
+    - fact_logistics
     - dim_lane
-    - dim_distribution_center
-    - dim_customer
+    - dim_org
 automation:
   detection:
     enabled: true
@@ -173,7 +172,7 @@ tracking:
     minimum_fields:
     - ActionCode
     - Lane
-    - DistributionCenter
+    - Location
     - TriggerLevel
     - ExecutedDate
   outcome_evaluation:

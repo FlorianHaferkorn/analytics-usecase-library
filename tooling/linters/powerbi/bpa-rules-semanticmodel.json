@@ -649,4 +649,5 @@
     "Scope": "Measure",
     "Expression": "DisplayFolder = null or DisplayFolder = \"\"",
     "CompatibilityLevel": 1200
-  }\n]
+  }
+]
