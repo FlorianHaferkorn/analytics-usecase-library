@@ -7,7 +7,7 @@
  */
 
 /** Parse a DAX table[column] reference. */
-export function extractTableColumn(ref: string): { table: string; column: string } | null {
+function extractTableColumn(ref: string): { table: string; column: string } | null {
   const match = ref.match(/^\s*(\w+)\[(\w+)\]\s*$/);
   if (!match) return null;
   return { table: match[1], column: match[2] };

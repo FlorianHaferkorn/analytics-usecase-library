@@ -39,11 +39,10 @@ if (-not (Test-Path (Join-Path $toolDir "node_modules\\ajv")) -or -not (Test-Pat
   exit 0
 }
 
-$validationSchemaDir = Join-Path -Path $rootPath -ChildPath "tooling\validation\schemas"
 $aiSchemaDir = Join-Path -Path $rootPath -ChildPath "tooling\ai\schemas"
-$actionCodeSchema = Join-Path -Path $validationSchemaDir -ChildPath "action_code.schema.json"
-$bracketSchema = Join-Path -Path $validationSchemaDir -ChildPath "usecase_bracket.schema.json"
-$orgRolesSchema = Join-Path -Path $validationSchemaDir -ChildPath "org_roles.schema.json"
+$actionCodeSchema = Join-Path -Path $aiSchemaDir -ChildPath "action_code.schema.json"
+$bracketSchema = Join-Path -Path $aiSchemaDir -ChildPath "usecase_bracket.schema.json"
+$orgRolesSchema = Join-Path -Path $aiSchemaDir -ChildPath "org_roles.schema.json"
 $triggerMapTemplateSchema = Join-Path -Path $aiSchemaDir -ChildPath "trigger_map_template.schema.json"
 $triggerMapDeploySchema = Join-Path -Path $aiSchemaDir -ChildPath "trigger_map_deploy.schema.json"
 

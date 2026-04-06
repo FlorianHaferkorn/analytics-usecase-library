@@ -187,32 +187,105 @@ def setup_git_connection(env_definition, tenant_id, client_id, client_secret, gi
     return git_connection
 
 
+def _create_workspace_if_missing(workspace_name, capacity_name, dry_run, fabcli) -> dict:
+    """Check existence and create if missing. Return workspace info dict."""
+    if dry_run:
+        return {"id": "dry-run-workspace-id", "displayName": workspace_name}
+
+    if fabcli.workspace_exists(workspace_name):
+        misc.print_warning(f"Workspace '{workspace_name}' already exists")
+        workspace = fabcli.get_workspace(workspace_name)
+    else:
+        misc.print_info(f"Creating workspace '{workspace_name}'...", bold=True, end="")
+        workspace = fabcli.create_workspace(workspace_name, capacity_name)
+
+        if workspace:
+            misc.print_success(f" {misc.CHECKMARK}")
+        else:
+            misc.print_error(f" {misc.CROSSMARK} Failed!")
+
+    return workspace
+
+
+def _assign_workspace_permissions(workspace_id, permissions, dry_run, fabcli) -> None:
+    """Assign role assignments to workspace."""
+    if not permissions or dry_run:
+        return
+
+    misc.print_info(f"  {misc.BULLET} Assigning workspace permissions...", end="")
+    for role_name, principals in permissions.items():
+        if not principals:
+            continue
+        for principal in principals:
+            fabcli.add_workspace_roleassignment(
+                workspace_id,
+                principal.get("id"),
+                principal.get("type"),
+                role_name
+            )
+    misc.print_success(f" {misc.CHECKMARK}")
+
+
+def _provision_workspace_items(workspace_id, items, dry_run, fabcli, workspace_name) -> None:
+    """Create items (Lakehouse etc.) in workspace. Includes SQL endpoint wait."""
+    if not items or dry_run:
+        return
+
+    misc.print_info(f"  {misc.BULLET} Creating workspace items...")
+    for item_type, item_list in items.items():
+        if not isinstance(item_list, list):
+            continue
+        for item_def in item_list:
+            if item_def.get("skip_item_creation", False):
+                continue
+
+            item_name = item_def.get("item_name")
+            if not item_name:
+                continue
+
+            misc.print_info(f"    {misc.BULLET} {item_type}: {item_name}...", end="")
+
+            item_path = f"{workspace_name}.Workspace/{item_name}.{item_type}"
+            if fabcli.item_exists(item_path):
+                misc.print_warning(" [Already exists]")
+            else:
+                # Create item via CLI
+                result = fabcli.run_command(f"create '{item_path}'")
+                if result:
+                    misc.print_success(f" {misc.CHECKMARK}")
+                    # Wait for Lakehouse SQL endpoint if needed
+                    if item_type == "Lakehouse":
+                        time.sleep(5)  # Give time for SQL endpoint provisioning
+                else:
+                    misc.print_error(f" {misc.CROSSMARK} Failed!")
+
+
 def setup_workspaces(env_definition, capacity_name, dry_run=False):
     """Create workspaces for each layer."""
     solution_name_template = env_definition.get("name", "")
     layers = env_definition.get("layers", {})
     environment = env_definition.get("generic", {}).get("environment_name", "dev")
     generic_permissions = env_definition.get("generic", {}).get("permissions", {})
-    
+
     misc.print_header(f"Setting up {environment.upper()} environment workspaces")
-    
+
     if dry_run:
         misc.print_info("  [DRY-RUN] Would create workspaces:", bold=True)
-    
+
     created_workspaces = {}
-    
+
     for layer_name, layer_def in layers.items():
         if not isinstance(layer_def, dict):
             continue
-        
+
         workspace_name = misc.format_workspace_name(
             solution_name_template,
             layer_name,
             environment
         )
-        
+
         misc.print_subheader(f"Layer: {layer_name} - Workspace: {workspace_name}")
-        
+
         if dry_run:
             misc.print_info(f"  [DRY-RUN] Would create workspace: {workspace_name}")
             misc.print_info(f"    - Capacity: {capacity_name}")
@@ -223,84 +296,32 @@ def setup_workspaces(env_definition, capacity_name, dry_run=False):
                 "workspace": {"id": "dry-run-workspace-id", "displayName": workspace_name}
             }
             continue
-        
-        # Check if workspace exists
-        if fabcli.workspace_exists(workspace_name):
-            misc.print_warning(f"Workspace '{workspace_name}' already exists")
-            workspace = fabcli.get_workspace(workspace_name)
-        else:
-            misc.print_info(f"Creating workspace '{workspace_name}'...", bold=True, end="")
-            workspace = fabcli.create_workspace(workspace_name, capacity_name)
-            
-            if workspace:
-                misc.print_success(f" {misc.CHECKMARK}")
-            else:
-                misc.print_error(f" {misc.CROSSMARK} Failed!")
-                continue
-        
+
+        workspace = _create_workspace_if_missing(workspace_name, capacity_name, dry_run, fabcli)
+
         if not workspace:
             continue
-        
+
         workspace_id = workspace.get("id")
         created_workspaces[layer_name] = {
             "workspace_id": workspace_id,
             "workspace_name": workspace_name,
             "workspace": workspace
         }
-        
+
         # Assign workspace permissions
         layer_permissions = layer_def.get("permissions") or generic_permissions
-        if layer_permissions:
-            misc.print_info(f"  {misc.BULLET} Assigning workspace permissions...", end="")
-            for role_name, principals in layer_permissions.items():
-                if not principals:
-                    continue
-                for principal in principals:
-                    fabcli.add_workspace_roleassignment(
-                        workspace_id,
-                        principal.get("id"),
-                        principal.get("type"),
-                        role_name
-                    )
-            misc.print_success(f" {misc.CHECKMARK}")
-        
+        _assign_workspace_permissions(workspace_id, layer_permissions, dry_run, fabcli)
+
         # Create workspace identity if needed
         if layer_def.get("create_workspace_identity", False):
             misc.print_info(f"  {misc.BULLET} Creating workspace identity...", end="")
             # Note: Workspace identity creation via CLI may require additional implementation
             misc.print_warning(" [Not implemented yet]")
-        
+
         # Create workspace items if specified
-        items = layer_def.get("items", {})
-        if items:
-            misc.print_info(f"  {misc.BULLET} Creating workspace items...")
-            for item_type, item_list in items.items():
-                if not isinstance(item_list, list):
-                    continue
-                for item_def in item_list:
-                    if item_def.get("skip_item_creation", False):
-                        continue
-                    
-                    item_name = item_def.get("item_name")
-                    if not item_name:
-                        continue
-                    
-                    misc.print_info(f"    {misc.BULLET} {item_type}: {item_name}...", end="")
-                    
-                    item_path = f"{workspace_name}.Workspace/{item_name}.{item_type}"
-                    if fabcli.item_exists(item_path):
-                        misc.print_warning(" [Already exists]")
-                    else:
-                        # Create item via CLI
-                        result = fabcli.run_command(f"create '{item_path}'")
-                        if result:
-                            misc.print_success(f" {misc.CHECKMARK}")
-                            # Wait for Lakehouse SQL endpoint if needed
-                            if item_type == "Lakehouse":
-                                time.sleep(5)  # Give time for SQL endpoint provisioning
-                        else:
-                            misc.print_error(f" {misc.CROSSMARK} Failed!")
-    
+        _provision_workspace_items(workspace_id, layer_def.get("items", {}), dry_run, fabcli, workspace_name)
+
     return created_workspaces
 
 

@@ -270,12 +270,151 @@ class KpiRecord:
     causal_links: Optional[Dict[str, Any]] = None
 
 
+def _extract_depends_on_measures(chunk_lines: List[str]) -> List[str]:
+    """
+    Extract technical.depends_on_measures from a KPI YAML chunk using a line-based parser.
+    We avoid a full YAML parse here because some catalog chunks can be "loose YAML".
+    """
+    for i, ln in enumerate(chunk_lines):
+        mm = re.match(r"^(\s*)depends_on_measures\s*:\s*(.*?)\s*$", ln)
+        if not mm:
+            continue
+        indent = len(mm.group(1) or "")
+        tail = (mm.group(2) or "").strip()
+        out: List[str] = []
+        # Inline list: [a, b, c]
+        if tail.startswith("[") and tail.endswith("]"):
+            inner = tail[1:-1].strip()
+            if inner:
+                for part in inner.split(","):
+                    tok = part.strip().strip('"').strip("'")
+                    if tok:
+                        out.append(tok)
+            return out
+        # Multi-line list items (indented deeper than the key line)
+        for j in range(i + 1, len(chunk_lines)):
+            ln2 = chunk_lines[j]
+            lead = len(ln2) - len(ln2.lstrip(" "))
+            if lead < indent:
+                break
+            # Stop when we hit the next key at the same indentation level.
+            if lead == indent and re.match(r"^\s*[A-Za-z0-9_]+\s*:\s*", ln2):
+                break
+            m2 = re.match(r"^\s*-\s*([^\s#]+)\s*", ln2)
+            if m2:
+                tok = m2.group(1).strip().strip('"').strip("'")
+                if tok:
+                    out.append(tok)
+        return out
+    return []
+
+
+def _parse_kpi_catalog_chunk(chunk_lines: List[str]) -> dict:
+    """
+    Parse one YAML block chunk (starting at ``- kpi_id: ...``) and return a raw dict
+    with the fields needed to build a KpiRecord.  Returns an empty dict if the chunk
+    cannot be parsed.
+    """
+    first_line = chunk_lines[0] if chunk_lines else ""
+    m = re.match(r"^\s*-\s*kpi_id\s*:\s*([^\s#]+)\s*", first_line)
+    if not m:
+        return {}
+    kpi_id = m.group(1).strip().strip('"').strip("'")
+
+    def _get_field(key: str) -> Optional[str]:
+        pat = re.compile(rf"^\s*{re.escape(key)}\s*:\s*(.+?)\s*$")
+        for cl in chunk_lines:
+            mm = pat.match(cl)
+            if mm:
+                val = mm.group(1).strip()
+                if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+                    val = val[1:-1]
+                return val
+        return None
+
+    kpi_role = _get_field("kpi_role")
+    business_owner = _get_field("business_owner")
+    data_owner = _get_field("data_owner")
+    steward = _get_field("steward")
+
+    depends_on_measures: List[str] = _extract_depends_on_measures(chunk_lines)
+
+    causal_links: Optional[Dict[str, Any]] = None
+    # Best-effort parse of causal_links (if present) from the chunk using YAML loader.
+    if yaml is not None:
+        try:
+            parsed = yaml.safe_load("\n".join(chunk_lines))
+            # parsed can be a list with one mapping
+            if isinstance(parsed, list) and parsed and isinstance(parsed[0], dict):
+                cl = parsed[0].get("causal_links")
+                if isinstance(cl, dict):
+                    causal_links = cl
+        except Exception:
+            # keep best-effort: ignore parse errors here (Stage 1 validates catalog separately)
+            causal_links = None
+
+    return {
+        "kpi_id": kpi_id,
+        "kpi_role": kpi_role,
+        "business_owner": business_owner,
+        "data_owner": data_owner,
+        "steward": steward,
+        "depends_on_measures": depends_on_measures,
+        "causal_links": causal_links,
+    }
+
+
+def _normalize_kpi_governance(raw_fields: dict) -> Dict[str, Optional[str]]:
+    """
+    Normalize governance role fields using the legacy-safe alias map.
+    Maps ``business_owner``/``data_owner`` -> ``owner_role`` and
+    ``steward``/``data_owner`` -> ``steward_role``.
+    """
+    business_owner = raw_fields.get("business_owner")
+    data_owner = raw_fields.get("data_owner")
+    steward = raw_fields.get("steward")
+    owner_role = business_owner or data_owner
+    steward_role = steward or data_owner
+    return {
+        "business_owner": business_owner,
+        "data_owner": data_owner,
+        "steward": steward,
+        "owner_role": owner_role,
+        "steward_role": steward_role,
+    }
+
+
+def _validate_kpi_duplicates(records: list) -> List[Issue]:
+    """
+    Check for duplicate KPI IDs in the list of (kpi_id, rel, kpi_line) tuples.
+    Returns one ERROR Issue per duplicate occurrence (second and later appearances).
+    """
+    seen: Dict[str, bool] = {}
+    issues: List[Issue] = []
+    for kpi_id, rel, kpi_line in records:
+        if kpi_id in seen:
+            issues.append(
+                Issue(
+                    "ERROR",
+                    "kpi_catalog.duplicate_kpi_id",
+                    f"Duplicate KPI ID '{kpi_id}' in catalog.",
+                    SourceLocation(rel, kpi_line),
+                )
+            )
+        else:
+            seen[kpi_id] = True
+    return issues
+
+
 def scan_kpi_catalog(repo_root: Path) -> Tuple[Dict[str, KpiRecord], List[Issue]]:
     issues: List[Issue] = []
     kpi_root = repo_root / "core" / "kpi_catalog"
     kpis: Dict[str, KpiRecord] = {}
     if not kpi_root.exists():
         return kpis, issues
+
+    # Collect all parsed records as (kpi_id, rel, kpi_line, KpiRecord) before deduplication.
+    parsed_records: List[Tuple[str, str, int, KpiRecord]] = []
 
     md_files = [p for p in kpi_root.rglob("*.md") if p.is_file()]
     for p in md_files:
@@ -299,111 +438,34 @@ def scan_kpi_catalog(repo_root: Path) -> Tuple[Dict[str, KpiRecord], List[Issue]
                 start_idx = chunk_starts[si]
                 end_idx = chunk_starts[si + 1]
                 chunk_lines = block.yaml_lines[start_idx:end_idx]
-                first_line = chunk_lines[0] if chunk_lines else ""
-                m = re.match(r"^\s*-\s*kpi_id\s*:\s*([^\s#]+)\s*", first_line)
-                if not m:
-                    continue
-                kpi_id = m.group(1).strip().strip('"').strip("'")
                 kpi_line = block.yaml_start_line + start_idx
 
-                def _get_field(key: str) -> Optional[str]:
-                    pat = re.compile(rf"^\s*{re.escape(key)}\s*:\s*(.+?)\s*$")
-                    for cl in chunk_lines:
-                        mm = pat.match(cl)
-                        if mm:
-                            val = mm.group(1).strip()
-                            if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
-                                val = val[1:-1]
-                            return val
-                    return None
-
-                kpi_role = _get_field("kpi_role")
-                business_owner = _get_field("business_owner")
-                data_owner = _get_field("data_owner")
-                steward = _get_field("steward")
-
-                def _extract_depends_on_measures() -> List[str]:
-                    """
-                    Extract technical.depends_on_measures from this KPI YAML chunk using a line-based parser.
-                    We avoid a full YAML parse here because some catalog chunks can be "loose YAML".
-                    """
-                    for i, ln in enumerate(chunk_lines):
-                        mm = re.match(r"^(\s*)depends_on_measures\s*:\s*(.*?)\s*$", ln)
-                        if not mm:
-                            continue
-                        indent = len(mm.group(1) or "")
-                        tail = (mm.group(2) or "").strip()
-                        out: List[str] = []
-                        # Inline list: [a, b, c]
-                        if tail.startswith("[") and tail.endswith("]"):
-                            inner = tail[1:-1].strip()
-                            if inner:
-                                for part in inner.split(","):
-                                    tok = part.strip().strip('"').strip("'")
-                                    if tok:
-                                        out.append(tok)
-                            return out
-                        # Multi-line list items (indented deeper than the key line)
-                        for j in range(i + 1, len(chunk_lines)):
-                            ln2 = chunk_lines[j]
-                            lead = len(ln2) - len(ln2.lstrip(" "))
-                            if lead < indent:
-                                break
-                            # Stop when we hit the next key at the same indentation level.
-                            if lead == indent and re.match(r"^\s*[A-Za-z0-9_]+\s*:\s*", ln2):
-                                break
-                            m2 = re.match(r"^\s*-\s*([^\s#]+)\s*", ln2)
-                            if m2:
-                                tok = m2.group(1).strip().strip('"').strip("'")
-                                if tok:
-                                    out.append(tok)
-                        return out
-                    return []
-
-                depends_on_measures: List[str] = _extract_depends_on_measures()
-                causal_links: Optional[Dict[str, Any]] = None
-                # Best-effort parse of causal_links (if present) from the chunk using YAML loader.
-                if yaml is not None:
-                    try:
-                        parsed = yaml.safe_load("\n".join(chunk_lines))
-                        # parsed can be a list with one mapping
-                        if isinstance(parsed, list) and parsed and isinstance(parsed[0], dict):
-                            cl = parsed[0].get("causal_links")
-                            if isinstance(cl, dict):
-                                causal_links = cl
-                    except Exception:
-                        # keep best-effort: ignore parse errors here (Stage 1 validates catalog separately)
-                        causal_links = None
-
-                # Normalize governance roles (legacy-safe alias map)
-                owner_role = business_owner or data_owner
-                steward_role = steward or data_owner
-                gov = {
-                    "business_owner": business_owner,
-                    "data_owner": data_owner,
-                    "steward": steward,
-                    "owner_role": owner_role,
-                    "steward_role": steward_role,
-                }
-                if kpi_id in kpis:
-                    issues.append(
-                        Issue(
-                            "ERROR",
-                            "kpi_catalog.duplicate_kpi_id",
-                            f"Duplicate KPI ID '{kpi_id}' in catalog.",
-                            SourceLocation(rel, kpi_line),
-                        )
-                    )
+                raw = _parse_kpi_catalog_chunk(chunk_lines)
+                if not raw:
                     continue
-                kpis[kpi_id] = KpiRecord(
-                    kpi_id=kpi_id,
+
+                gov = _normalize_kpi_governance(raw)
+                record = KpiRecord(
+                    kpi_id=raw["kpi_id"],
                     source=rel,
                     line=kpi_line,
-                    kpi_role=kpi_role,
+                    kpi_role=raw["kpi_role"],
                     governance=gov,
-                    depends_on_measures=depends_on_measures,
-                    causal_links=causal_links,
+                    depends_on_measures=raw["depends_on_measures"],
+                    causal_links=raw["causal_links"],
                 )
+                parsed_records.append((raw["kpi_id"], rel, kpi_line, record))
+
+    # Validate duplicates across all parsed records, then build the final dict (first wins).
+    dup_issues = _validate_kpi_duplicates([(kpi_id, rel, line) for kpi_id, rel, line, _ in parsed_records])
+    issues.extend(dup_issues)
+    duplicate_ids = {iss.location.file and iss.message for iss in dup_issues}  # set of dup kpi_ids for fast lookup
+    seen_ids: set = set()
+    for kpi_id, rel, kpi_line, record in parsed_records:
+        if kpi_id not in seen_ids:
+            seen_ids.add(kpi_id)
+            kpis[kpi_id] = record
+
     return kpis, issues
 
 
