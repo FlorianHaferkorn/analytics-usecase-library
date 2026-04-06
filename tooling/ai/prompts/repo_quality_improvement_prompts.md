@@ -14,11 +14,10 @@
 | 3 | KPI Catalog: Abgeschnittene Beschreibungen | Hoch | 5 KPIs mit truncated Descriptions |
 | 4 | Business Factsheets: Sektion 4 leer (Action Codes Summary) | Mittel | Alle Core-Factsheets |
 | 5 | Business Factsheets: 300s-Layer unvollstaendig | Mittel | Mehrere Factsheets (z.B. OPS-001) |
-| 6 | UseCase Brackets: Fehlende Felder | Mittel | Extended/Industry Brackets |
-| 7 | Action Codes: Fehlende `impact_valuation` | Mittel | Viele Action Codes |
-| 8 | KPI Catalog: Inkonsistente Formelnotation | Niedrig | Gesamter Katalog |
-| 9 | Use Case Inventory: Sync mit tatsaechlichen Dateien | Niedrig | `UseCase_Inventory.md` |
-| 10 | Decision Scenarios: Qualitaet und Vollstaendigkeit | Niedrig | Extended/Industry Factsheets |
+| 6 | Action Codes: Fehlende `impact_valuation` | Mittel | Alle 49 Action Codes |
+| 7 | KPI Catalog: Inkonsistente Formelnotation | Niedrig | Gesamter Katalog |
+| 8 | Use Case Inventory: Sync mit tatsaechlichen Dateien | Niedrig | `UseCase_Inventory.md` |
+| 9 | Cross-Referenzen: Bidirektionale Konsistenz | Niedrig | Action Codes + Factsheets |
 
 ---
 
@@ -171,8 +170,8 @@ beschreibt die tiefgehende Diagnose-Ebene fuer Execution. In einigen Factsheets
 Anspruch des Frameworks.
 
 Vorgehen:
-1. Pruefe alle `Business_Factsheet.md` unter `core/usecases/core/` und
-   `core/usecases/extended/` auf unvollstaendige 300s-Layer (Sektion 5.4).
+1. Pruefe alle `Business_Factsheet.md` unter `core/usecases/core/`
+   auf unvollstaendige 300s-Layer (Sektion 5.4).
 2. Fuer jedes unvollstaendige Factsheet:
    a) Lies den `UseCase_Bracket.yaml` → `component_300s` fuer Struktur-Vorgaben.
    b) Lies die Action Codes fuer den Kontext der Execution-Entscheidungen.
@@ -189,41 +188,7 @@ Vorgehen:
 
 ---
 
-## Prompt 6 — Extended/Industry UseCase Brackets komplettieren (MITTEL)
-
-```
-Aufgabe: Bringe alle UseCase_Bracket.yaml-Dateien im Extended- und Industry-Bereich
-auf den Qualitaetsstandard der Core-Brackets.
-
-Kontext: Core-Brackets (COM-001 bis XD-004) sind vollstaendig mit allen Sektionen
-(governance, orchestration, value_driver_model, ux_layout_rules, prioritization,
-readiness). Extended/Industry-Brackets haben oft fehlende oder minimale Sektionen.
-
-Vorgehen:
-1. Lies das Template: `core/usecases/templates/UseCase_Bracket_TEMPLATE.yaml`.
-2. Vergleiche jeden Bracket unter `core/usecases/extended/` und
-   `core/usecases/industry/` mit dem Template.
-3. Ergaenze fehlende Sektionen:
-   a) `value_driver_model` — Formel, Impact-Direction, Primary Driver, Impact Logic
-   b) `ux_layout_rules` — Page-Struktur mit 3s/30s/300s-Komponenten
-   c) `prioritization` — Business Value, Effort, Confidence, Reach, Score
-   d) `readiness` — Data Availability, Org Capability, Stakeholder Alignment
-4. Stelle sicher, dass alle `kpi_id`-Referenzen im KPI-Katalog existieren.
-5. Stelle sicher, dass alle `action_code_ids` im Action-Code-Verzeichnis existieren.
-6. Fuehre `.\tooling\run_stage1_checks.ps1` aus.
-
-Betroffene Dateien:
-- core/usecases/extended/FIN-EXT-001_Budget_Variance_Waterfall/UseCase_Bracket.yaml
-- core/usecases/extended/COM-EXT-001_Advanced_Customer_Segmentation/UseCase_Bracket.yaml
-- core/usecases/extended/SCM-EXT-001_Supplier_Risk_Monitor/UseCase_Bracket.yaml
-- core/usecases/industry/logistics/SCM-IND-L001_Last_Mile_Delivery_Performance/UseCase_Bracket.yaml
-- core/usecases/industry/retail/COM-IND-R001_Basket_Category_CrossSell/UseCase_Bracket.yaml
-- core/usecases/industry/manufacturing/OPS-IND-M001_Shift_OEE_Benchmarking/UseCase_Bracket.yaml
-```
-
----
-
-## Prompt 7 — Action Codes um Impact Valuation ergaenzen (MITTEL)
+## Prompt 6 — Action Codes um Impact Valuation ergaenzen (MITTEL)
 
 ```
 Aufgabe: Ergaenze die `impact_valuation`-Sektion in allen Action Codes, die sie
@@ -253,7 +218,7 @@ Vorgehen:
 
 ---
 
-## Prompt 8 — KPI Formelnotation standardisieren (NIEDRIG)
+## Prompt 7 — KPI Formelnotation standardisieren (NIEDRIG)
 
 ```
 Aufgabe: Standardisiere die Formelnotation im gesamten KPI-Katalog.
@@ -286,7 +251,7 @@ funktional korrekt, nur stilistisch inkonsistent.
 
 ---
 
-## Prompt 9 — UseCase Inventory synchronisieren (NIEDRIG)
+## Prompt 8 — UseCase Inventory synchronisieren (NIEDRIG)
 
 ```
 Aufgabe: Synchronisiere `core/usecases/UseCase_Inventory.md` mit dem tatsaechlichen
@@ -300,8 +265,6 @@ Vorgehen:
 1. Lies `core/usecases/UseCase_Inventory.md`.
 2. Scanne alle Verzeichnisse unter:
    - `core/usecases/core/`
-   - `core/usecases/extended/`
-   - `core/usecases/industry/`
 3. Vergleiche:
    a) Sind alle existierenden Use Cases im Inventory gelistet?
    b) Sind alle Inventory-Eintraege als Verzeichnis vorhanden?
@@ -313,39 +276,7 @@ Vorgehen:
 
 ---
 
-## Prompt 10 — Decision Scenarios fuer Extended/Industry Use Cases (NIEDRIG)
-
-```
-Aufgabe: Ergaenze "Sektion 10 — Typical Decision Scenarios" in den Extended-
-und Industry-Factsheets.
-
-Kontext: Core-Factsheets (COM-001 bis XD-004) haben jeweils 2-3 ausgearbeitete
-Decision Scenarios mit: Situation, Decision Question, Who Decides, Consequence
-of Inaction, Action Code Triggered. Extended/Industry-Factsheets haben diese
-Sektion oft nicht oder nur rudimentaer.
-
-Vorgehen:
-1. Pruefe alle Business_Factsheet.md unter `core/usecases/extended/` und
-   `core/usecases/industry/`.
-2. Fuer jedes Factsheet ohne vollstaendige Decision Scenarios:
-   a) Lies den Business Summary und die Core Business Questions.
-   b) Lies die zugehoerigen Action Codes.
-   c) Erstelle 2-3 Szenarien im gleichen Format wie die Core-Factsheets:
-      ```
-      ### Scenario A: [Kurztitel]
-      **Situation:** [Konkretes zahlengestuetztes Szenario]
-      **Decision question:** [Praezise Entscheidungsfrage]
-      **Who decides:** [Rolle(n)]
-      **Consequence of inaction:** [Quantifizierter Impact]
-      **Action Code triggered:** [Code + was passiert]
-      ```
-   d) Szenarien muessen realistisch sein und verschiedene Trigger-Level abdecken.
-3. Fuehre `.\tooling\run_stage1_checks.ps1` aus.
-```
-
----
-
-## Prompt 11 — Cross-Referenzen zwischen Use Cases validieren (NIEDRIG)
+## Prompt 9 — Cross-Referenzen zwischen Use Cases validieren (NIEDRIG)
 
 ```
 Aufgabe: Validiere und vervollstaendige die Cross-Referenzen zwischen Use Cases.
@@ -381,5 +312,5 @@ Vorgehen:
 |------------|---------|-------------|
 | 1 (sofort) | Prompt 1, 3 | Datenfehler im KPI-Katalog — wirken sich auf alle Downstream-Artefakte aus |
 | 2 (bald) | Prompt 2, 4, 5 | Vollstaendigkeit der zentralen Artefakte |
-| 3 (naechste Iteration) | Prompt 6, 7 | Qualitaet der Extended-Artefakte und Action-Code-Reife |
-| 4 (bei Gelegenheit) | Prompt 8, 9, 10, 11 | Konsistenz und Polish |
+| 3 (naechste Iteration) | Prompt 6 | Action-Code-Reife (Impact Valuation) |
+| 4 (bei Gelegenheit) | Prompt 7, 8, 9 | Konsistenz und Polish |
