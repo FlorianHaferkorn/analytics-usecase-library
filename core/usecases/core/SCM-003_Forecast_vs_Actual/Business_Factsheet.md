@@ -105,7 +105,11 @@ Structured summary of action codes (definitions remain in YAML).
 
 ### 5.4 300-Second Layer (Diagnostics)
 
-- (optional)
+- Forecast accuracy gap decomposition by SKU, location, and product family with absolute forecast error (MAPE) and relative contribution to the service impact and excess inventory.
+- Bias and volatility guardrail table linking forecast bias %, MAPE, replan frequency, and service impact % to the specific SKU/location clusters that trigger S-F3.1 (bias correction), S-F3.2 (model refit), or S-F3.3 (demand sensing activation).
+- Top-N SKU/location combinations with the highest MAPE or persistent bias, including the last 3 monthly observations to separate one-off demand shocks from systematic forecasting gaps.
+
+---
 
 ## 6. Data Requirements Summary
 
