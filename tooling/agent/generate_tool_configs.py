@@ -7,6 +7,11 @@ then produces tool-specific wrappers:
   - .cursor/skills/*/SKILL.md  (YAML frontmatter + body)
   - .github/copilot-instructions.md  (concat of alwaysApply rules)
 
+Version tracking:
+  Skills carry a `version` field in _index.yaml (semver string, e.g. "1.2.0").
+  The generator writes it into SKILL.md frontmatter so tools can detect breaking changes.
+  Use check_skill_versions.py to audit missing versions or detect downgrade anomalies.
+
 Usage:
     python tooling/agent/generate_tool_configs.py [--root .]
 """
@@ -78,6 +83,10 @@ def generate_cursor_skills(root: Path) -> int:
         fm_lines = ["---"]
         fm_lines.append(f'name: {meta.get("name", name)}')
         fm_lines.append(f'description: {meta.get("description", name)}')
+        # Write version if present — enables breaking-change detection
+        version = meta.get("version")
+        if version:
+            fm_lines.append(f'version: "{version}"')
         fm_lines.append("---")
 
         out_dir = out_base / name

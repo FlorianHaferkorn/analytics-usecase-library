@@ -17,7 +17,7 @@ if (-not $scriptDir) { $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.P
 $repoRoot = (Resolve-Path (Join-Path $scriptDir "..\..")).Path
 Push-Location $repoRoot
 try {
-    . (Join-Path $scriptDir "Load-ProjectEnv.ps1")
+    . (Join-Path $scriptDir "load_project_env.ps1")
     $token = $env:GITHUB_TOKEN; if (-not $token) { $token = $env:GH_TOKEN }; if (-not $token) { try { $token = (gh auth token 2>$null) } catch {} }
     if (-not $token) { Write-Error "Set GITHUB_TOKEN in .env or run gh auth login." }
     $owner = "FlorianHaferkorn"; $name = "analytics-usecase-library"

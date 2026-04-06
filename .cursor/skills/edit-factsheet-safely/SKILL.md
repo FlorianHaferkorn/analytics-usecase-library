@@ -3,6 +3,7 @@
 ---
 name: edit-factsheet-safely
 description: Edit Business factsheets without breaking Stage 1 (Lean 2.0). Use when editing Business_Factsheet.md or any use case markdown. Technical Factsheets no longer exist.
+version: "1.0.0"
 ---
 
 # Edit Factsheet Safely (Lean 2.0)

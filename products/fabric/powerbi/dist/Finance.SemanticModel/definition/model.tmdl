@@ -1,0 +1,14 @@
+model Model
+	culture: de-DE
+	defaultPowerBIDataSourceVersion: PowerBI_V3
+ref table _Measures
+ref table dim_date
+ref table dim_org
+ref table fact_accounts_payable
+ref table fact_accounts_receivable
+ref table fact_cash_flow
+ref table fact_cash_position
+ref table fact_cost
+ref table fact_inventory
+ref table fact_labor
+ref table fact_output

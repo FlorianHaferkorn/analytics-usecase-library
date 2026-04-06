@@ -1,0 +1,3 @@
+relationship dim_date_fact_inventory
+	fromColumn: fact_inventory.DateKey
+	toColumn: dim_date.DateKey

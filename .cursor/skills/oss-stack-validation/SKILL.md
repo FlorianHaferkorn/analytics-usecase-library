@@ -3,6 +3,7 @@
 ---
 name: oss-stack-validation
 description: Validate OSS stack artifacts (Evidence pages, adapter manifest, theme tokens, SQL style)
+version: "1.0.0"
 ---
 
 # OSS Stack Validation

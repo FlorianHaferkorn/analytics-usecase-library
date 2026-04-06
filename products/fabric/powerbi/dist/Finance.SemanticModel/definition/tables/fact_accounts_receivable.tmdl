@@ -1,0 +1,40 @@
+/// Accounts receivable: open invoices, revenue, and DSO inputs.
+table fact_accounts_receivable
+		lineageTag: 4d5e6f7a-8b9c-0123-4d5e-6f7a8b9c0d1e
+
+		column DateKey
+			dataType: Int64
+			sourceColumn: DateKey
+			summarizeBy: none
+
+		column OrgKey
+			dataType: Int64
+			sourceColumn: OrgKey
+			summarizeBy: none
+
+		column 'AR Balance Amount'
+			dataType: Decimal
+			sourceColumn: AR Balance Amount
+			summarizeBy: none
+
+		column 'Revenue Amount'
+			dataType: Decimal
+			sourceColumn: Revenue Amount
+			summarizeBy: none
+
+		column 'Overdue Amount'
+			dataType: Decimal
+			sourceColumn: Overdue Amount
+			summarizeBy: none
+
+		partition fact_accounts_receivable = m
+			mode: import
+			source =
+			let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_accounts_receivable"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+					in
+					ParquetData
+

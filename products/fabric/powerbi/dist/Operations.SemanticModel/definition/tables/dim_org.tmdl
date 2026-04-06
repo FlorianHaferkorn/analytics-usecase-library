@@ -1,0 +1,51 @@
+/// Organization dimension (region, country, plant, line) for operations reporting.
+table dim_org
+		lineageTag: b2c3d4e5-f6a7-8901-bc23-de45fg67bc89
+
+		column OrgKey
+			dataType: Int64
+			sourceColumn: OrgKey
+			summarizeBy: none
+			isHidden
+
+		column OrgCode
+			dataType: String
+			sourceColumn: OrgCode
+			summarizeBy: none
+
+		column OrgName
+			dataType: String
+			sourceColumn: OrgName
+			summarizeBy: none
+
+		column Region
+			dataType: String
+			sourceColumn: Region
+			summarizeBy: none
+
+		column Country
+			dataType: String
+			sourceColumn: Country
+			summarizeBy: none
+
+		column Plant
+			dataType: String
+			sourceColumn: Plant
+			summarizeBy: none
+
+		column Line
+			dataType: String
+			sourceColumn: Line
+			summarizeBy: none
+
+		partition dim_org = m
+			mode: import
+			source =
+			let
+					Source = Folder.Files(GoldDataPath & "/dimensions/dim_org"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+					in
+					ParquetData
+

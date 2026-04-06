@@ -3,7 +3,7 @@
 # Same env as set_project_fields_only.ps1. Run from repo root.
 
 $ErrorActionPreference = "Stop"
-. "$PSScriptRoot\Load-ProjectEnv.ps1"
+. "$PSScriptRoot\load_project_env.ps1"
 
 function Get-GitHubToken {
     $t = $env:GITHUB_TOKEN; if (-not $t) { $t = $env:GH_TOKEN }; if (-not $t) { try { $t = (gh auth token 2>$null) } catch {} }

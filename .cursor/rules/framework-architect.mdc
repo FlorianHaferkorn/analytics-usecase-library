@@ -1,7 +1,8 @@
 <!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
 
 ---
-description: Role — Analytics Framework Architect; Core as SSOT, Connectors, Living Hub
+description: Architect framework. Use when: designing core structure, connector contracts, or living hub strategy. Triggers: "architect", "framework design", "connector contract", "hub strategy"
+
 alwaysApply: false
 ---
 

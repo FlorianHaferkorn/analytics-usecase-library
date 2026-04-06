@@ -3,6 +3,7 @@
 ---
 name: generate-and-validate-pbi-report
 description: Iterative, learning workflow for error-free Power BI report and semantic model generation. Tool-agnostic workflow for any AI tool or human.
+version: "1.1.0"
 ---
 
 # Generate and Validate Power BI Report

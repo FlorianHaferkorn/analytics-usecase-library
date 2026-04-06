@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.4.0/schema.json",
+  "title": "PBIR Visual Container",
+  "description": "Cached schema for PBIR visual.json files. Source: Microsoft Fabric JSON Schemas.",
+  "type": "object",
+  "required": ["$schema", "name", "position"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Schema URI — must match the Microsoft PBIR visual container schema."
+    },
+    "name": {
+      "type": "string",
+      "description": "Unique visual identifier. Alphanumeric, hyphens, underscores only. No spaces.",
+      "pattern": "^[a-zA-Z0-9_\\-]+$"
+    },
+    "position": {
+      "type": "object",
+      "required": ["x", "y", "height", "width"],
+      "properties": {
+        "x": { "type": "number", "minimum": 0 },
+        "y": { "type": "number", "minimum": 0 },
+        "height": { "type": "number", "minimum": 1 },
+        "width": { "type": "number", "minimum": 1 },
+        "tabOrder": { "type": ["integer", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "visual": {
+      "type": "object",
+      "description": "Visual-type container (present for non-group visuals)."
+    },
+    "visualGroup": {
+      "type": "object",
+      "description": "Visual-group container (present for group visuals)."
+    }
+  },
+  "oneOf": [
+    { "required": ["visual"] },
+    { "required": ["visualGroup"] }
+  ]
+}

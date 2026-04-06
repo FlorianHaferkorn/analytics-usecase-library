@@ -1,0 +1,289 @@
+"""Tests for the IR layer (specs + compiler)."""
+
+from __future__ import annotations
+
+import json
+import tempfile
+from pathlib import Path
+
+import pytest
+import yaml
+
+from ..ir.specs import (
+    AdapterTarget,
+    Binding,
+    DashboardSpec,
+    MeasureSpec,
+    PageRole,
+    PageSpec,
+    PageType,
+    Position,
+    VisualSpec,
+    VisualType,
+)
+from ..ir.compiler import BracketCompiler
+
+
+# ---------------------------------------------------------------------------
+# Fixtures
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def tmp_dirs(tmp_path: Path):
+    """Create minimal KPI catalog and action codes directories."""
+    kpi_root = tmp_path / "kpi_catalog"
+    kpi_root.mkdir()
+    ac_root = tmp_path / "action_codes" / "commercial"
+    ac_root.mkdir(parents=True)
+
+    # KPI
+    kpi = {
+        "id": "com.sales.net_sales_amount",
+        "name": "Net Sales Amount",
+        "dax_expression": "SUM ( fact_sales[Net Sales Amount] )",
+        "format_string": "#,0",
+        "display_folder": "COM-001",
+    }
+    (kpi_root / "com.sales.net_sales_amount.yaml").write_text(
+        yaml.dump(kpi), encoding="utf-8"
+    )
+
+    # Action code
+    ac = {
+        "id": "C-S1.1",
+        "name": "Accelerate Top Account Penetration",
+        "owner": "Sales VP",
+        "trigger": {
+            "levels": {
+                "L1": {"condition": "Net Sales Amount < Plan × 0.95"}
+            }
+        },
+        "impact": {"category": "Revenue"},
+        "operational_execution": {
+            "steps": ["Review top 10 accounts", "Schedule calls", "Offer incentives"]
+        },
+    }
+    (ac_root / "C-S1.1.yaml").write_text(yaml.dump(ac), encoding="utf-8")
+
+    return tmp_path, kpi_root, ac_root
+
+
+@pytest.fixture
+def bracket_file(tmp_path: Path):
+    """Write a minimal UseCase_Bracket.yaml."""
+    bracket = {
+        "id": "COM-001",
+        "title": "Sales Performance",
+        "primary_kpi_ids": ["com.sales.net_sales_amount"],
+        "influencing_kpi_ids": [],
+        "orchestration": {"action_code_ids": ["C-S1.1"]},
+        "ux_layout_rules": {
+            "page_1_summary": {
+                "page_type": "T1",
+                "component_30s": [
+                    {"visual_type": "trend_line", "kpi_id": "com.sales.net_sales_amount", "category": "dim_date.Date"},
+                    {"visual_type": "bar_chart",  "kpi_id": "com.sales.net_sales_amount", "category": "dim_org.OrgName"},
+                ],
+            },
+            "page_2_execution": {
+                "component_300s": {
+                    "action_panel": True,
+                    "payload_mode": "summary",
+                }
+            },
+        },
+        "evidence_grain": {
+            "grain": "customer_invoice_line",
+            "columns": ["dim_customer.CustomerName", "dim_product.ProductName"],
+        },
+    }
+    p = tmp_path / "COM-001_Sales_Performance" / "UseCase_Bracket.yaml"
+    p.parent.mkdir(parents=True)
+    p.write_text(yaml.dump(bracket), encoding="utf-8")
+    return p
+
+
+# ---------------------------------------------------------------------------
+# Tests: IR specs
+# ---------------------------------------------------------------------------
+
+class TestVisualSpec:
+    def test_basic_construction(self):
+        vs = VisualSpec(
+            id="KPI_Cards",
+            visual_type=VisualType.KPI_CARD,
+            page_role=PageRole.OVERVIEW,
+            position=Position(0.0, 0.0, 0.8, 0.18),
+            binding=Binding(measures=["Net Sales Amount"]),
+        )
+        assert vs.id == "KPI_Cards"
+        assert vs.visual_type == VisualType.KPI_CARD
+        assert vs.binding.measures == ["Net Sales Amount"]
+
+    def test_position_to_pixels(self):
+        pos = Position(x=0.0, y=0.0, width=0.5, height=0.25)
+        px = pos.to_pixels(1280, 720)
+        assert px["width"] == 640
+        assert px["height"] == 180
+
+    def test_visual_type_values(self):
+        assert VisualType.KPI_CARD.value == "kpi_card"
+        assert VisualType.TREND_LINE.value == "trend_line"
+        assert VisualType.SMART_NARRATIVE.value == "smart_narrative"
+
+
+class TestPageSpec:
+    def test_visual_by_id(self):
+        vs1 = VisualSpec("KPI_Cards", VisualType.KPI_CARD, PageRole.OVERVIEW,
+                         Position(), Binding())
+        vs2 = VisualSpec("Main_1", VisualType.TREND_LINE, PageRole.OVERVIEW,
+                         Position(), Binding())
+        page = PageSpec("Overview", "Overview", PageRole.OVERVIEW, visuals=[vs1, vs2])
+        assert page.visual_by_id("KPI_Cards") is vs1
+        assert page.visual_by_id("MISSING") is None
+
+    def test_visuals_by_type(self):
+        vs1 = VisualSpec("KPI_Cards", VisualType.KPI_CARD, PageRole.OVERVIEW,
+                         Position(), Binding())
+        vs2 = VisualSpec("Main_1", VisualType.TREND_LINE, PageRole.OVERVIEW,
+                         Position(), Binding())
+        page = PageSpec("Overview", "Overview", PageRole.OVERVIEW, visuals=[vs1, vs2])
+        kpi_cards = page.visuals_by_type(VisualType.KPI_CARD)
+        assert len(kpi_cards) == 1
+        assert kpi_cards[0].id == "KPI_Cards"
+
+
+class TestDashboardSpec:
+    def test_overview_and_detail_access(self):
+        ov = PageSpec("Overview", "Overview", PageRole.OVERVIEW)
+        dt = PageSpec("Detail", "Detail", PageRole.DETAIL)
+        spec = DashboardSpec(
+            use_case_id="COM-001", domain="Commercial", title="Sales",
+            pages=[ov, dt], semantic_model="Commercial.SemanticModel",
+        )
+        assert spec.overview_page() is ov
+        assert spec.detail_page() is dt
+
+    def test_measure_by_kpi(self):
+        m = MeasureSpec(kpi_id="com.sales.net_sales", name="Net Sales", dax="SUM(x)")
+        spec = DashboardSpec(
+            use_case_id="COM-001", domain="Commercial", title="Sales",
+            measures=[m], semantic_model="Commercial.SemanticModel",
+        )
+        assert spec.measure_by_kpi("com.sales.net_sales") is m
+        assert spec.measure_by_kpi("nonexistent") is None
+
+
+# ---------------------------------------------------------------------------
+# Tests: BracketCompiler
+# ---------------------------------------------------------------------------
+
+class TestBracketCompiler:
+    def test_compile_returns_dashboard_spec(self, tmp_dirs, bracket_file):
+        _, kpi_root, ac_root = tmp_dirs
+        compiler = BracketCompiler(kpi_root, ac_root)
+        spec = compiler.compile(bracket_file)
+
+        assert spec.use_case_id == "COM-001"
+        assert spec.domain == "Commercial"
+        assert spec.semantic_model == "Commercial.SemanticModel"
+
+    def test_compile_has_two_pages(self, tmp_dirs, bracket_file):
+        _, kpi_root, ac_root = tmp_dirs
+        compiler = BracketCompiler(kpi_root, ac_root)
+        spec = compiler.compile(bracket_file)
+
+        assert len(spec.pages) == 2
+        assert spec.overview_page() is not None
+        assert spec.detail_page() is not None
+
+    def test_overview_has_kpi_cards(self, tmp_dirs, bracket_file):
+        _, kpi_root, ac_root = tmp_dirs
+        compiler = BracketCompiler(kpi_root, ac_root)
+        spec = compiler.compile(bracket_file)
+
+        overview = spec.overview_page()
+        kpi_cards = overview.visual_by_id("KPI_Cards")
+        assert kpi_cards is not None
+        assert kpi_cards.visual_type == VisualType.KPI_CARD
+
+    def test_overview_has_main_visuals(self, tmp_dirs, bracket_file):
+        _, kpi_root, ac_root = tmp_dirs
+        compiler = BracketCompiler(kpi_root, ac_root)
+        spec = compiler.compile(bracket_file)
+
+        overview = spec.overview_page()
+        main1 = overview.visual_by_id("Main_1")
+        main2 = overview.visual_by_id("Main_2")
+        assert main1 is not None
+        assert main2 is not None
+        assert main1.visual_type == VisualType.TREND_LINE
+        assert main2.visual_type == VisualType.BAR_CHART
+
+    def test_detail_has_smart_narrative(self, tmp_dirs, bracket_file):
+        _, kpi_root, ac_root = tmp_dirs
+        compiler = BracketCompiler(kpi_root, ac_root)
+        spec = compiler.compile(bracket_file)
+
+        detail = spec.detail_page()
+        sn = detail.visual_by_id("Smart_Narrative")
+        assert sn is not None
+        assert sn.visual_type == VisualType.SMART_NARRATIVE
+
+    def test_detail_has_action_panel_when_enabled(self, tmp_dirs, bracket_file):
+        _, kpi_root, ac_root = tmp_dirs
+        compiler = BracketCompiler(kpi_root, ac_root)
+        spec = compiler.compile(bracket_file)
+
+        detail = spec.detail_page()
+        ap = detail.visual_by_id("ActionPanel")
+        assert ap is not None
+        assert spec.action_panel is not None
+        assert spec.action_panel.enabled is True
+
+    def test_detail_has_evidence_matrix(self, tmp_dirs, bracket_file):
+        _, kpi_root, ac_root = tmp_dirs
+        compiler = BracketCompiler(kpi_root, ac_root)
+        spec = compiler.compile(bracket_file)
+
+        detail = spec.detail_page()
+        matrix = detail.visual_by_id("Detail_Matrix")
+        assert matrix is not None
+        assert spec.evidence_table is not None
+        assert spec.evidence_table.grain == "customer_invoice_line"
+
+    def test_measures_compiled_from_catalog(self, tmp_dirs, bracket_file):
+        _, kpi_root, ac_root = tmp_dirs
+        compiler = BracketCompiler(kpi_root, ac_root)
+        spec = compiler.compile(bracket_file)
+
+        assert len(spec.measures) == 1
+        m = spec.measures[0]
+        assert m.name == "Net Sales Amount"
+        assert "SUM" in m.dax
+
+    def test_missing_kpi_produces_warning(self, tmp_dirs, bracket_file):
+        tmp_path, kpi_root, ac_root = tmp_dirs
+        # Bracket references a KPI that doesn't exist
+        bracket = yaml.safe_load(bracket_file.read_text())
+        bracket["primary_kpi_ids"].append("nonexistent.kpi")
+        bracket_file.write_text(yaml.dump(bracket))
+
+        compiler = BracketCompiler(kpi_root, ac_root)
+        spec = compiler.compile(bracket_file)
+
+        warning_codes = [w.code for w in compiler.warnings]
+        assert "MISSING_KPI" in warning_codes
+
+    def test_domain_inference(self, tmp_dirs, bracket_file):
+        _, kpi_root, ac_root = tmp_dirs
+        compiler = BracketCompiler(kpi_root, ac_root)
+
+        # Test FIN prefix
+        bracket = yaml.safe_load(bracket_file.read_text())
+        bracket["id"] = "FIN-001"
+        fin_bracket = bracket_file.parent.parent / "FIN-001_test" / "UseCase_Bracket.yaml"
+        fin_bracket.parent.mkdir(parents=True, exist_ok=True)
+        fin_bracket.write_text(yaml.dump(bracket))
+        spec = compiler.compile(fin_bracket)
+        assert spec.domain == "Finance"

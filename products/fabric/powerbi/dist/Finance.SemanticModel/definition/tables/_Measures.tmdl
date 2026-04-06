@@ -1,0 +1,122 @@
+/// Consolidated Measures for: FIN-001, FIN-002
+table _Measures
+
+	partition _Measures = m
+		mode: import
+		source =
+				let
+					Source = #table(type table[Column1 = text], {})
+				in
+					Source
+
+	column Column1
+		dataType: string
+		sourceColumn: Column1
+		isHidden
+		summarizeBy: none
+
+	// ─── FIN-001: Cash & Liquidity Performance ────────────────────────────────
+
+	/// fin.cash.balance - Cash Balance
+	/// Total cash and cash equivalents at period end.
+	measure 'Cash Balance' = SUM ( fact_cash_position[Cash Balance Amount] )
+		formatString: "#,0.00"
+		displayFolder: "FIN-001"
+
+	/// fin.cash.ocf - Operating Cash Flow
+	/// Net cash generated from operating activities in the reporting period.
+	measure 'Operating Cash Flow' = SUM ( fact_cash_position[Operating Cash Flow Amount] )
+		formatString: "#,0.00"
+		displayFolder: "FIN-001"
+
+	/// fin.cash.vs_plan.pct - Cash vs Plan %
+	/// Relative variance of actual cash balance versus plan.
+	measure 'Cash vs Plan %' = VAR Actual = [Cash Balance] VAR Plan   = SUM ( fact_cash_position[Plan Cash Balance Amount] ) RETURN DIVIDE ( Actual - Plan, Plan )
+		formatString: "0.0%"
+		displayFolder: "FIN-001"
+
+	/// wc.dso.days - DSO Days
+	/// Days Sales Outstanding: average collection period for accounts receivable.
+	measure 'DSO Days' = DIVIDE ( SUM ( fact_accounts_receivable[AR Balance Amount] ), DIVIDE ( SUM ( fact_accounts_receivable[Revenue Amount] ), 365 ) )
+		formatString: "#,0.0"
+		displayFolder: "FIN-001"
+
+	/// wc.dio.days - DIO Days
+	/// Days Inventory Outstanding: average days inventory is held before sale.
+	measure 'DIO Days' = DIVIDE ( SUM ( fact_inventory[Inventory Balance Amount] ), DIVIDE ( SUM ( fact_inventory[COGS Amount] ), 365 ) )
+		formatString: "#,0.0"
+		displayFolder: "FIN-001"
+
+	/// wc.dpo.days - DPO Days
+	/// Days Payable Outstanding: average time taken to pay suppliers.
+	measure 'DPO Days' = DIVIDE ( SUM ( fact_accounts_payable[AP Balance Amount] ), DIVIDE ( SUM ( fact_accounts_payable[Purchases Amount] ), 365 ) )
+		formatString: "#,0.0"
+		displayFolder: "FIN-001"
+
+	/// wc.ccc.days - Cash Conversion Cycle (days)
+	/// Working capital efficiency: DSO + DIO - DPO. Lower is better.
+	measure 'Cash Conversion Cycle (days)' = [DSO Days] + [DIO Days] - [DPO Days]
+		formatString: "#,0.0"
+		displayFolder: "FIN-001"
+
+	/// fin.liquidity.inventory.amount - Liquidity Inventory Amount
+	/// Inventory balance as component of working capital liquidity.
+	measure 'Liquidity Inventory Amount' = SUM ( fact_inventory[Inventory Balance Amount] )
+		formatString: "#,0.00"
+		displayFolder: "FIN-001"
+
+	// ─── FIN-002: Cost Performance ────────────────────────────────────────────
+
+	/// cost.unit.amount - Unit Cost
+	/// Total cost per unit produced; primary cost efficiency KPI.
+	measure 'Unit Cost' = DIVIDE ( SUM ( fact_cost[COGS Amount] ) + SUM ( fact_cost[OpEx Amount] ), SUM ( fact_output[Production Volume] ) )
+		formatString: "#,0.00"
+		displayFolder: "FIN-002"
+
+	/// margin.cogs.pct - COGS %
+	/// Cost of goods sold as share of total revenue; input to unit cost driver model.
+	measure 'COGS %' = DIVIDE ( SUM ( fact_cost[COGS Amount] ), SUM ( fact_cost[Total Revenue Amount] ) )
+		formatString: "0.0%"
+		displayFolder: "FIN-002"
+
+	/// cost.opex.vs_plan.pct - OpEx vs Plan %
+	/// Relative variance of actual operating expenses vs plan.
+	measure 'OpEx vs Plan %' = VAR Actual = SUM ( fact_cost[OpEx Amount] ) VAR Plan   = SUM ( fact_cost[Plan OpEx Amount] ) RETURN DIVIDE ( Actual - Plan, Plan )
+		formatString: "0.0%"
+		displayFolder: "FIN-002"
+
+	/// cost.material.pct - Material Cost %
+	/// Material cost as share of total cost; key lever for unit cost reduction.
+	measure 'Material Cost %' = DIVIDE ( SUM ( fact_cost[Material Cost Amount] ), SUM ( fact_cost[COGS Amount] ) + SUM ( fact_cost[OpEx Amount] ) )
+		formatString: "0.0%"
+		displayFolder: "FIN-002"
+
+	/// ops.labor.productivity.pct - Labor Productivity %
+	/// Actual output per labor hour versus planned, expressed as a ratio.
+	measure 'Labor Productivity %' = DIVIDE ( DIVIDE ( SUM ( fact_labor[Output Units] ), SUM ( fact_labor[Labor Hours] ) ), DIVIDE ( SUM ( fact_labor[Plan Output Units] ), SUM ( fact_labor[Labor Hours] ) ) )
+		formatString: "0.0%"
+		displayFolder: "FIN-002"
+
+	/// cost.base_volume.amount - Base Volume Amount
+	/// Reference production volume used as cost absorption base.
+	measure 'Base Volume Amount' = SUM ( fact_output[Base Volume Amount] )
+		formatString: "#,0.00"
+		displayFolder: "FIN-002"
+
+	/// cost.opex.base.amount - OpEx Base Amount
+	/// Baseline operating expense (plan or standard) for variance analysis.
+	measure 'OpEx Base Amount' = SUM ( fact_output[OpEx Base Amount] )
+		formatString: "#,0.00"
+		displayFolder: "FIN-002"
+
+	/// ops.production.volume - Production Volume
+	/// Total units produced in the reporting period.
+	measure 'Production Volume' = SUM ( fact_output[Production Volume] )
+		formatString: "#,0"
+		displayFolder: "FIN-002"
+
+	/// sales.net_sales.amount - Net Sales Amount (Finance view)
+	/// Total revenue for cost rate denominator in cost % calculations.
+	measure 'Net Sales Amount' = SUM ( fact_cost[Total Revenue Amount] )
+		formatString: "#,0.00"
+		displayFolder: "FIN-002"

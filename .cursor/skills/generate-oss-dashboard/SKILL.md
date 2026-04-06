@@ -3,6 +3,7 @@
 ---
 name: generate-oss-dashboard
 description: Generate Evidence.dev dashboard pages from IR and UseCase Bracket
+version: "1.0.0"
 ---
 
 # Generate OSS Dashboard

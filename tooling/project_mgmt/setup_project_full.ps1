@@ -3,7 +3,7 @@
 # Token: set GITHUB_TOKEN or use .env in repo root (see .env.example). Run from repo root.
 
 $ErrorActionPreference = "Stop"
-. "$PSScriptRoot\Load-ProjectEnv.ps1"
+. "$PSScriptRoot\load_project_env.ps1"
 
 function Get-GitHubToken {
     $token = $env:GITHUB_TOKEN
@@ -41,7 +41,7 @@ function Invoke-GitHubGraphQL {
     return $r.data
 }
 
-. "$PSScriptRoot\GranularIssues.ps1"
+. "$PSScriptRoot\list_granular_issues.ps1"
 
 $token = Get-GitHubToken
 $repo = Get-RepoOwnerAndName

@@ -1,7 +1,8 @@
 <!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
 
 ---
-description: Stage 1 CI checks — run before commit; avoid suggesting changes that break these
+description: Enforce Stage 1. Use when: any edit that might be committed — ensures stage1 checks pass. Triggers: always active
+
 alwaysApply: true
 ---
 

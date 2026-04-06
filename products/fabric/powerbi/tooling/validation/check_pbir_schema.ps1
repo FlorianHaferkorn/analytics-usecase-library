@@ -1,0 +1,265 @@
+<#
+.SYNOPSIS
+  Validates PBIR JSON files against cached Microsoft JSON schemas.
+.DESCRIPTION
+  Checks all visual.json, page.json, and definition.pbir files in a PBIP report
+  directory against the JSON schemas cached in tooling/schemas/pbir/.
+
+  Uses Python (jsonschema package) for full JSON Schema Draft-7 validation when
+  available, falling back to structural PowerShell checks when jsonschema is not
+  installed.
+
+  Schemas cached in: tooling/schemas/pbir/
+  Schema source:     https://developer.microsoft.com/json-schemas/fabric/item/report/
+
+.PARAMETER ReportPath
+  Path to a .Report directory or its definition sub-folder. Defaults to first
+  *.Report directory found under products/fabric/powerbi/dist/.
+.PARAMETER SchemaDir
+  Override the schema directory. Defaults to tooling/schemas/pbir/ relative to
+  the repository root.
+.EXAMPLE
+  .\check_pbir_schema.ps1
+.EXAMPLE
+  .\check_pbir_schema.ps1 -ReportPath "products/fabric/powerbi/dist/COM-001_Sales_Performance.Report"
+#>
+Param(
+    [string]$ReportPath = "",
+    [string]$SchemaDir  = ""
+)
+
+$ErrorActionPreference = "Stop"
+
+# ── Locate repo root ──────────────────────────────────────────────────────────
+$scriptDir = Split-Path -Parent $PSCommandPath
+$repoRoot  = (Get-Item $scriptDir).Parent.Parent.Parent.FullName
+
+# ── Resolve SchemaDir ─────────────────────────────────────────────────────────
+if (-not $SchemaDir) {
+    $SchemaDir = Join-Path $repoRoot "tooling/schemas/pbir"
+}
+if (-not (Test-Path $SchemaDir)) {
+    Write-Error "Schema directory not found: $SchemaDir"
+    exit 1
+}
+
+# ── Resolve ReportPath ────────────────────────────────────────────────────────
+if (-not $ReportPath) {
+    $distDir     = Join-Path $repoRoot "products/fabric/powerbi/dist"
+    $firstReport = Get-ChildItem -Path $distDir -Filter "*.Report" -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
+    $ReportPath  = if ($firstReport) { $firstReport.FullName } else { $distDir }
+}
+if (-not [System.IO.Path]::IsPathRooted($ReportPath)) {
+    $ReportPath = Join-Path $repoRoot $ReportPath
+}
+# Accept either the .Report directory or its definition sub-folder
+$defDir = if ((Split-Path -Leaf $ReportPath) -eq "definition") { $ReportPath } else { Join-Path $ReportPath "definition" }
+
+if (-not (Test-Path $defDir)) {
+    Write-Error "Report definition folder not found: $defDir"
+    exit 1
+}
+
+Write-Host "PBIR schema validation: $defDir" -ForegroundColor Cyan
+Write-Host "Schemas from:           $SchemaDir" -ForegroundColor Cyan
+Write-Host ""
+
+# ── Check jsonschema availability ─────────────────────────────────────────────
+$useJsonschema = $false
+try {
+    $pyCheck = python3 -c "import jsonschema; print('ok')" 2>$null
+    $useJsonschema = ($pyCheck -eq "ok")
+} catch { }
+
+if ($useJsonschema) {
+    Write-Host "  Using: Python jsonschema (full JSON Schema Draft-7)" -ForegroundColor DarkGray
+} else {
+    Write-Host "  Using: PowerShell structural checks (install jsonschema for full schema validation)" -ForegroundColor Yellow
+}
+Write-Host ""
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+$violations = [System.Collections.ArrayList]::new()
+
+function Add-Violation([string]$RelPath, [string]$Message) {
+    [void]$script:violations.Add("$RelPath : $Message")
+}
+
+function Get-RelPath([string]$AbsPath) {
+    $AbsPath.Replace($repoRoot, "").TrimStart("/\")
+}
+
+function Validate-WithJsonschema([string]$JsonFile, [string]$SchemaFile) {
+    $relJson   = Get-RelPath $JsonFile
+    $pyResult  = python3 - <<'PYEOF' 2>&1
+import sys, json, jsonschema, pathlib
+
+json_path   = sys.argv[1]
+schema_path = sys.argv[2]
+
+with open(json_path,   encoding="utf-8") as f: instance = json.load(f)
+with open(schema_path, encoding="utf-8") as f: schema   = json.load(f)
+
+validator = jsonschema.Draft7Validator(schema)
+errors    = sorted(validator.iter_errors(instance), key=lambda e: list(e.path))
+
+for e in errors:
+    path = "/".join(str(p) for p in e.path) if e.path else "(root)"
+    print(f"  SCHEMA: [{path}] {e.message}")
+PYEOF
+
+    $args   = @($JsonFile, $SchemaFile)
+    $output = python3 -c @"
+import sys, json, jsonschema, pathlib
+
+json_path   = sys.argv[1]
+schema_path = sys.argv[2]
+
+with open(json_path,   encoding='utf-8') as f: instance = json.load(f)
+with open(schema_path, encoding='utf-8') as f: schema   = json.load(f)
+
+validator = jsonschema.Draft7Validator(schema)
+errors    = sorted(validator.iter_errors(instance), key=lambda e: list(e.path))
+
+for e in errors:
+    path = '/'.join(str(p) for p in e.path) if e.path else '(root)'
+    print(f'{path}|{e.message}')
+"@ $JsonFile $SchemaFile 2>&1
+
+    foreach ($line in $output) {
+        if ($line -and $line -match "\|") {
+            $parts   = $line -split "\|", 2
+            $path    = $parts[0]
+            $message = $parts[1]
+            Add-Violation $relJson "[$path] $message"
+        }
+    }
+}
+
+function Validate-Structural-Visual([string]$JsonFile) {
+    $relJson = Get-RelPath $JsonFile
+    try {
+        $obj = Get-Content $JsonFile -Raw -Encoding UTF8 | ConvertFrom-Json
+    } catch {
+        Add-Violation $relJson "JSON parse error: $_"
+        return
+    }
+    if (-not $obj.'$schema') { Add-Violation $relJson 'missing required: $schema' }
+    if (-not $obj.name)      { Add-Violation $relJson "missing required: name" }
+    if (-not $obj.position)  { Add-Violation $relJson "missing required: position" }
+    if (-not ($obj.visual -or $obj.visualGroup)) {
+        Add-Violation $relJson "missing required: visual or visualGroup"
+    }
+    if ($obj.name -and $obj.name -match "[^a-zA-Z0-9_\-]") {
+        Add-Violation $relJson "name '$($obj.name)' contains invalid characters (use a-z, A-Z, 0-9, _, -)"
+    }
+    if ($obj.position) {
+        foreach ($field in @("x","y","height","width")) {
+            if ($null -eq $obj.position.$field) {
+                Add-Violation $relJson "position missing required field: $field"
+            }
+        }
+    }
+}
+
+function Validate-Structural-Page([string]$JsonFile) {
+    $relJson = Get-RelPath $JsonFile
+    try {
+        $obj = Get-Content $JsonFile -Raw -Encoding UTF8 | ConvertFrom-Json
+    } catch {
+        Add-Violation $relJson "JSON parse error: $_"
+        return
+    }
+    if (-not $obj.'$schema')   { Add-Violation $relJson 'missing required: $schema' }
+    if (-not $obj.name)        { Add-Violation $relJson "missing required: name" }
+    if (-not $obj.displayName) { Add-Violation $relJson "missing required: displayName" }
+    if ($obj.displayOption -and ($obj.displayOption -is [int])) {
+        Add-Violation $relJson "displayOption must be a string (e.g. 'FitToPage'), not an integer"
+    }
+}
+
+function Validate-Structural-Pbir([string]$JsonFile) {
+    $relJson = Get-RelPath $JsonFile
+    try {
+        $obj = Get-Content $JsonFile -Raw -Encoding UTF8 | ConvertFrom-Json
+    } catch {
+        Add-Violation $relJson "JSON parse error: $_"
+        return
+    }
+    if (-not $obj.'$schema')        { Add-Violation $relJson 'missing required: $schema' }
+    if (-not $obj.version)          { Add-Violation $relJson "missing required: version" }
+    if (-not $obj.datasetReference) { Add-Violation $relJson "missing required: datasetReference" }
+    if ($obj.datasetReference) {
+        $hasByPath       = $null -ne $obj.datasetReference.byPath
+        $hasByConnection = $null -ne $obj.datasetReference.byConnection
+        if (-not $hasByPath -and -not $hasByConnection) {
+            Add-Violation $relJson "datasetReference must have either byPath or byConnection"
+        }
+        if ($hasByPath -and -not $obj.datasetReference.byPath.path) {
+            Add-Violation $relJson "datasetReference.byPath.path is required"
+        }
+        if ($hasByConnection) {
+            $bc = $obj.datasetReference.byConnection
+            if (-not $bc.pbiModelDatabaseName) {
+                Add-Violation $relJson "datasetReference.byConnection.pbiModelDatabaseName is required (Fabric SemanticModel GUID)"
+            } elseif ($bc.pbiModelDatabaseName.Length -ne 36) {
+                Add-Violation $relJson "datasetReference.byConnection.pbiModelDatabaseName should be a 36-char GUID"
+            }
+        }
+    }
+}
+
+# ── Scan files ────────────────────────────────────────────────────────────────
+$visualSchema = Join-Path $SchemaDir "visual.schema.json"
+$pageSchema   = Join-Path $SchemaDir "page.schema.json"
+$pbirSchema   = Join-Path $SchemaDir "definition.pbir.schema.json"
+
+$scannedFiles = 0
+
+# definition.pbir
+$pbirFile = Join-Path $defDir "definition.pbir"
+if (Test-Path $pbirFile) {
+    $scannedFiles++
+    if ($useJsonschema -and (Test-Path $pbirSchema)) {
+        Validate-WithJsonschema $pbirFile $pbirSchema
+    } else {
+        Validate-Structural-Pbir $pbirFile
+    }
+}
+
+# pages/**/page.json and visuals/**/visual.json
+$pagesDir = Join-Path $defDir "pages"
+if (Test-Path $pagesDir) {
+    Get-ChildItem -Path $pagesDir -Recurse -File -Filter "page.json" | ForEach-Object {
+        $scannedFiles++
+        if ($useJsonschema -and (Test-Path $pageSchema)) {
+            Validate-WithJsonschema $_.FullName $pageSchema
+        } else {
+            Validate-Structural-Page $_.FullName
+        }
+    }
+
+    Get-ChildItem -Path $pagesDir -Recurse -File -Filter "visual.json" | ForEach-Object {
+        $scannedFiles++
+        if ($useJsonschema -and (Test-Path $visualSchema)) {
+            Validate-WithJsonschema $_.FullName $visualSchema
+        } else {
+            Validate-Structural-Visual $_.FullName
+        }
+    }
+}
+
+# ── Report results ────────────────────────────────────────────────────────────
+Write-Host "Scanned $scannedFiles file(s)." -ForegroundColor DarkGray
+
+if ($violations.Count -gt 0) {
+    Write-Host ""
+    Write-Host "PBIR schema violations ($($violations.Count)):" -ForegroundColor Red
+    foreach ($v in $violations) {
+        Write-Host "  ✗ $v" -ForegroundColor Red
+    }
+    exit 1
+}
+
+Write-Host "PBIR schema check passed — no violations found." -ForegroundColor Green
+exit 0

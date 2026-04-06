@@ -1,7 +1,8 @@
 <!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
 
 ---
-description: Assistant — daily briefing, plan overview, decisions, bottlenecks, today's focus
+description: Assist. Use when: preparing daily briefings, plan overviews, decision summaries, or identifying bottlenecks. Triggers: "briefing", "what's next", "daily plan", "decisions", "today's focus"
+
 alwaysApply: false
 ---
 

@@ -1,0 +1,3 @@
+relationship dim_date_fact_cash_flow
+	fromColumn: fact_cash_flow.DateKey
+	toColumn: dim_date.DateKey

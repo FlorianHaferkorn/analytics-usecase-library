@@ -3,6 +3,7 @@
 ---
 name: fix-stage1-failure
 description: Diagnose and fix Stage 1 CI check failures. Use when Stage 1 checks fail, validation errors occur, or the user asks how to fix a specific check failure.
+version: "1.0.0"
 ---
 
 # Fix Stage 1 Failure

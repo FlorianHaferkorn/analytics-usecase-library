@@ -3,6 +3,7 @@
 ---
 name: fix-oss-dashboard-errors
 description: Diagnose and fix Evidence.dev dashboard / OSS validation errors
+version: "1.0.0"
 ---
 
 # Fix OSS Dashboard Errors

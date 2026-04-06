@@ -3,6 +3,7 @@
 ---
 name: assess-change-impact
 description: Assess blast radius before renaming, deleting, or deprecating KPI IDs, action code IDs, or governance roles. Use when making changes that could break downstream references.
+version: "1.0.0"
 ---
 
 # Assess Change Impact (Lean 2.0)

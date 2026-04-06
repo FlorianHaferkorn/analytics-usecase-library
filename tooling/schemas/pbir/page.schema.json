@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/1.2.0/schema.json",
+  "title": "PBIR Report Page",
+  "description": "Cached schema for PBIR page.json files. Source: Microsoft Fabric JSON Schemas.",
+  "type": "object",
+  "required": ["$schema", "name", "displayName"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "description": "Internal page identifier."
+    },
+    "displayName": {
+      "type": "string",
+      "description": "Human-readable page name shown in the report."
+    },
+    "displayOption": {
+      "type": "string",
+      "description": "Page display mode. Must be a string (not an integer). Legacy integer values belong in report.json.",
+      "enum": ["FitToPage", "FitToWidth", "ActualSize", "FitToHeight"]
+    },
+    "width": { "type": "number", "minimum": 1 },
+    "height": { "type": "number", "minimum": 1 },
+    "background": { "type": "object" },
+    "wallpaper": { "type": "object" },
+    "visibility": {
+      "type": "string",
+      "enum": ["Hidden", "HiddenInNavigator", ""]
+    }
+  }
+}
