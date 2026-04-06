@@ -55,7 +55,7 @@ showcases/<name>/brand/
 | Directory | Purpose | Edit? |
 |---|---|---|
 | `samples/` | Ready-to-copy YAML and their pre-generated artifacts for the generic framework brand | Only edit `generic_brand.yaml`; re-run pipeline to update artifacts |
-| `derivations/` | Python package containing the conversion logic consumed by the CLI and Studio | Edit only when changing derivation logic; tests in `tooling/tests/test_brand_derivations.py` |
+| `derivations/` | Python package containing the pure conversion logic — consumed by `tooling/brand/derive_brand_artifacts.py`. No dependency on Studio or any UI layer. | Edit only when changing derivation logic; tests in `tooling/tests/test_brand_derivations.py` |
 | `tool_derivations/` | Human-readable mapping reference docs | Edit to update mapping specs; no code |
 
 ---

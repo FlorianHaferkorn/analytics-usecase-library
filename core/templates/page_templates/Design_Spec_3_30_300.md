@@ -3,9 +3,12 @@
 > **Governing authority:** [`reporting_principles.md`](../../strategy_operating_model/company/reporting_principles.md) · [`ux_design_system.md`](../../strategy_operating_model/operating_model/ux_design_system.md)
 > **BPA rules:** [`REPORT_BEST_PRACTICES.md`](../../../tooling/linters/powerbi/REPORT_BEST_PRACTICES.md)
 > **Web design references:** Tremor, Tabler, SQLBI (see §2)
-> **Implements:** `Page_Spec_3_30_300.md` · `governance/Layout_Grid_System.yaml` · `governance/Slot_Definitions.md`
+> **Implements:** `Page_Spec_3_30_300.md` · `governance/Layout_Grid_System.md` · `governance/Slot_Definitions.md`
+> **Machine-readable tokens:** `tokens/layout_grid.yaml` · `tokens/color_semantics.yaml` · `tokens/typography.yaml`
 
-This document is the authoritative **tool-agnostic** layout design specification for all analytical pages built with the Analytics Use Case Library. It is written for frontend designers and layout engineers who implement the 3-30-300 framework across tools (Power BI, web, export).
+This document is the authoritative **tool-agnostic** layout design specification for all analytical pages built with the Analytics Use Case Library. It is written for frontend designers and layout engineers who implement the 3-30-300 framework across tools (Power BI/Fabric, Apache Superset, Grafana, Metabase, web export, and any future connector).
+
+How to translate this spec into a specific tool is defined in `connectors/` — see [Connector_Spec.md](connectors/../Connector_Spec.md) and [Abstract_Visual_Types.md](Abstract_Visual_Types.md).
 
 Do not redefine content here that is already owned by the governing documents above. Reference by path instead.
 
@@ -71,32 +74,35 @@ Use Z-pattern for the **Overview (3s/30s) page**. Use F-pattern for the **Detail
 
 ## 3. Canvas & Grid
 
-### 3.1 Canvas Scale Problem and Solution
+### 3.1 Canvas Scale and Font Rendering
 
-Power BI fonts are defined in points and do **not** scale proportionally with FitToPage. At 1920×1080 canvas displayed on a 1366×768 screen (0.71× scale), a 9pt font becomes visually ~6pt — unreadable.
+Tools vary in how they scale fonts relative to canvas size. The design base canvas (1280×720) is the reference point for this spec. Tool-specific scaling compensation is defined per connector.
 
-**Resolution:**
+| Connector | Design canvas | Notes |
+|---|---|---|
+| **Power BI / Fabric** | 1280×720 | See Power BI connector doc — font scaling required at production size |
+| **Web / browser** | Fluid (viewport-relative) | Use `clamp()` with rem units — scales automatically |
+| **PDF / export** | 1920×1080 | Minimum +2pt on all roles for print legibility |
+| **Other tools** | Per connector spec | Define in `connectors/<tool>_Connector.md` |
 
-| Environment | Design canvas | Production canvas | Font adjustment |
-|---|---|---|---|
-| **Power BI** | 1280×720 (design at this size) | 1920×1080 (scale up) | +2pt on all roles for production canvas |
-| **Power BI 4K** | 1280×720 | 2560×1440 | +4pt on all roles |
-| **Web / browser** | Fluid (viewport-relative) | n/a | `clamp()` with rem units — scales automatically |
-| **PDF / export** | 1920×1080 | n/a | +2pt minimum; print needs larger fonts |
-
-> **Rule:** When defining layouts, use the **design base canvas** (1280×720 for PBI). Font sizes and spacing are correct at this size. The production canvas scales everything up, and the additional `font_size_delta_pt` compensates for the non-scaling font issue.
+> **Rule:** All layout coordinates in this spec use the **1280×720 design base canvas**. Connectors translate to their native canvas and apply font compensation per their spec.
 
 ### 3.2 Logical 12×12 Grid
 
 All layouts use a **12-column × 12-row logical unit (LU) grid** that scales proportionally to any canvas.
 
-Grid parameters (from `governance/Layout_Grid_System.yaml`):
+Grid parameters (canonical values — `tokens/layout_grid.yaml`):
 
-| Parameter | Default | Description |
-|---|---|---|
-| Outer margin | 32px | Safety margin from canvas edge |
-| Gutter | 16px | Gap between all visual containers |
-| Grid | 12 × 12 LU | Columns and rows |
+| Parameter        | Value     | Description                                           |
+|------------------|-----------|-------------------------------------------------------|
+| Grid             | 12 × 12 LU| Columns and rows, logical units                      |
+| Outer margin     | 32px      | Safety gap from all canvas edges                     |
+| Gutter           | 16px      | Gap between visuals **within the same zone**         |
+| Internal padding | 8px       | Padding inside visual containers (cards, panels)     |
+| Zone gap         | 40px      | Gap between zone groups (overrides gutter)           |
+
+Spacing hierarchy: Zone gap (40px) > Gutter (16px) > Internal padding (8px)
+Source authority: `Storytelling_Principles.md §11`
 
 Formulas:
 ```
@@ -413,34 +419,30 @@ Tooltips appear on chart hover. Minimum content:
 
 ---
 
-## 10. BPA Hard Limits
+## 10. Framework Hard Limits
 
-All layouts must comply with `REPORT_BEST_PRACTICES.md`. Hard limits enforced by linter:
+These limits apply to all connectors. Tool-specific linters enforce them within their environment (see `Connector_Spec.md §4`).
 
 | Rule | Limit | Reason |
 |---|---|---|
 | Visible visuals per page | ≤ 20 | Performance and cognitive load |
 | Data fields per visual | ≤ 6 | Readability |
-| Slicers per page | ≤ 3 | Clutter (ux_design_system) |
+| Slicers per page | ≤ 3 | Clutter (`ux_design_system §5.1`) |
 | TopN filters per page | ≤ 4 | Performance |
 | Page height (no scroll) | ≤ canvas height | No vertical scroll allowed |
-| Hard-coded colors in visuals | 0 | Must use theme colors |
-| Pie/donut charts | 0 | Not allowed (ux_design_system §5.1) |
+| Hard-coded colors in visuals | 0 | Must use theme / token colors |
+| Pie/donut charts | 0 | Not allowed — use 100% stacked bar |
 
 ---
 
-## 11. Web Derivation Notes
+## 11. Connector Notes
 
-When implementing 3-30-300 layouts in web/browser contexts:
+Tool-specific implementation details are out of scope for this document. See:
 
-- Use the 12-column CSS grid defined in `core/brand/tool_derivations/css_mapping.md`
-- Use `--brand-*` CSS custom properties for all colors, spacing, and typography
-- Zone widths collapse at breakpoints: 3-column driver zone → 1 column stacked at `sm` breakpoint
-- KPI card band reflows to 2-column at `md`, 1-column at `sm`
-- Detail matrix becomes horizontally scrollable at `md` and below
-- Action panel moves below detail matrix on mobile (not sidebar)
-- Tremor KPI card component matches the 3-second layer anatomy above
-- Tabler fluid grid aligns with the 12-column system
+- `Connector_Spec.md` — abstract connector contract and compliance checklist
+- `Abstract_Visual_Types.md` — tool-agnostic visual type vocabulary
+- `connectors/OSS_Connector_Guide.md` — reference for Superset, Grafana, Metabase
+- `connectors/powerbi_Connector.md` — Power BI / Fabric specifics (canvas, BPA, PBIR)
 
 ---
 
@@ -449,13 +451,16 @@ When implementing 3-30-300 layouts in web/browser contexts:
 | Document | Location |
 |---|---|
 | Page Spec (slot overview) | `core/templates/page_templates/Page_Spec_3_30_300.md` |
+| Storytelling Principles | `core/templates/page_templates/Storytelling_Principles.md` |
+| Content Quality Guide | `core/templates/page_templates/Content_Quality_Guide.md` |
+| Connector Spec | `core/templates/page_templates/Connector_Spec.md` |
+| Abstract Visual Types | `core/templates/page_templates/Abstract_Visual_Types.md` |
 | Slot Definitions | `core/templates/page_templates/governance/Slot_Definitions.md` |
-| Layout Grid System | `core/templates/page_templates/governance/Layout_Grid_System.yaml` |
-| Visual-to-Slot Mapping | `core/templates/page_templates/governance/Visual_to_Slot_Mapping.yaml` |
+| Layout Grid System (prose) | `core/templates/page_templates/governance/Layout_Grid_System.md` |
+| Layout Grid Tokens (machine-readable) | `core/templates/page_templates/tokens/layout_grid.yaml` |
+| Color Tokens (machine-readable) | `core/templates/page_templates/tokens/color_semantics.yaml` |
+| Typography Tokens (machine-readable) | `core/templates/page_templates/tokens/typography.yaml` |
+| Visual-to-Slot Mapping | `core/templates/page_templates/tokens/visual_slot_mapping.yaml` |
 | Grid Templates | `core/templates/page_templates/grid_templates/` |
-| Mockup Design Spec (web/PBI) | `products/fabric/powerbi/tooling/page_scaffold_generator/MOCKUP_DESIGN_SPEC.md` |
-| BPA Rules | `tooling/linters/powerbi/REPORT_BEST_PRACTICES.md` |
 | Brand Spec Schema | `core/brand/BrandSpec.schema.yaml` |
-| PBI Theme Mapping | `core/brand/tool_derivations/powerbi_mapping.md` |
-| CSS Mapping | `core/brand/tool_derivations/css_mapping.md` |
 | Layer Samples | `core/templates/page_templates/samples/` |

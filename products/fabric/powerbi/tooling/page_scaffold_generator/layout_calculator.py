@@ -21,38 +21,41 @@ class Position:
 class LayoutCalculator:
     """Calculates layout positions based on grid system rules."""
     
-    # Canvas constants
+    # Canvas constants (1920×1080 production canvas — see tokens/layout_grid.yaml)
     CANVAS_WIDTH = 1920
     CANVAS_HEIGHT = 1080
-    PADDING = 20
-    GAP_BETWEEN_VISUALS = 20
-    GAP_BETWEEN_GROUPS = 40
-    
-    # Row definitions
+
+    # Spacing — canonical values from tokens/layout_grid.yaml
+    # Source authority: Storytelling_Principles.md §11
+    PADDING = 32              # outer_margin: safety gap from canvas edge
+    GAP_BETWEEN_VISUALS = 16  # gutter: gap between visuals within the same zone
+    GAP_BETWEEN_GROUPS = 40   # zone_gap: gap between zone groups
+
+    # Row definitions (derived from canonical spacing at 1920×1080)
     ROW_1_Y_START = 0
-    ROW_1_Y_END = 160
-    ROW_2_Y_START = 180
+    ROW_1_Y_END = 176          # PADDING(32) + kpi_height(140) + GAP_BETWEEN_VISUALS(16) - 12
+    ROW_2_Y_START = 208        # ROW_1_Y_END + GAP_BETWEEN_GROUPS(40) - 8
     ROW_2_Y_END = 580
-    ROW_3_Y_START = 600
+    ROW_3_Y_START = 620
     ROW_3_Y_END = 900
-    ROW_4_Y_START = 920
-    
-    # KPI Card constants
+    ROW_4_Y_START = 940
+
+    # KPI Card constants (from tokens/layout_grid.yaml visual_sizing.kpi_card)
     KPI_CARD_WIDTH_STANDARD = 280
     KPI_CARD_HEIGHT_STANDARD = 140
     KPI_CARD_WIDTH_COMPACT = 200
     KPI_CARD_HEIGHT_COMPACT = 120
-    KPI_CARD_GAP = 20
+    KPI_CARD_GAP = 16          # gutter between cards (aligned with GAP_BETWEEN_VISUALS)
     KPI_CARDS_MAX_PER_ROW = 6
-    
-    # Slicer constants
+
+    # Slicer constants (from tokens/layout_grid.yaml visual_sizing)
     SLICER_TOP_HEIGHT = 40
     SLICER_SIDE_WIDTH = 200
-    SLICER_SIDE_X = 1570  # Right side placement
-    
-    # Action Panel constants
-    ACTION_PANEL_WIDTH = 350
-    ACTION_PANEL_X = 1570  # Right side placement
+    SLICER_SIDE_X = 1688       # CANVAS_WIDTH - PADDING(32) - SLICER_SIDE_WIDTH(200)
+
+    # Action Panel constants (2 LU cols at 1920×1080 = ~206px; rounded to match grid)
+    ACTION_PANEL_WIDTH = 206
+    ACTION_PANEL_X = 1682      # CANVAS_WIDTH - PADDING(32) - ACTION_PANEL_WIDTH(206)
 
     def compute_adaptive_bounds(
         self,

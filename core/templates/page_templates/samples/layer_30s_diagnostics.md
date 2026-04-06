@@ -3,7 +3,7 @@
 > **Layer:** Zone 3 (rows 3–8 of the 12×12 grid, full width)
 > **Purpose:** Explain why — drivers, trends, variance, ranking
 > **Reading pattern:** Z-pattern — primary visual top-left, secondary top-right, tertiary bottom
-> **Spec ref:** `layout_330300_design_spec.md §5.3`
+> **Spec ref:** `Design_Spec_3_30_300.md §5.3`
 
 ---
 

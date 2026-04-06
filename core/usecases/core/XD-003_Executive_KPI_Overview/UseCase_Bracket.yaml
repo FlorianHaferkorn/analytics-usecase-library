@@ -47,21 +47,27 @@ ux_layout_rules:
     title: Executive / Cross-Functional Summary & Insights
     page_type: T1_Strategic_Overview
     template_id: pulse
+    decision_question: "Are we on track across all strategic KPIs this quarter?"
+    big_idea: "Revenue growth is on track but GM% compression and OTIF decline signal execution risk that requires executive intervention."
     component_3s:
       kpi_id: enterprise.value_at_risk.index
       visual_type: kpi_card
     component_30s:
-    - kpi_id: sales.net_sales.delta_pct.ly
-      visual_type: trend_line
-    - kpi_ids:
+    - slot_id: Main_1
+      kpi_id: sales.net_sales.delta_pct.ly
+      visual_type: line_chart
+    - slot_id: Main_3
+      kpi_ids:
       - crm.clv.amount
       - svc.sla.attainment.pct
       - ops.otif.pct
-      visual_type: bar_chart
+      visual_type: bar_chart_horizontal
   page_2_execution:
     title: Executive / Cross-Functional Risk Prioritisation
     page_type: T1_Strategic_Overview
     template_id: action_matrix
+    decision_question: "Which business units require executive intervention this quarter?"
+    big_idea: "Two business units are below threshold on both GM% and service level — escalation and resource reallocation required."
     component_300s:
       evidence_grain: entity_month
       evidence_columns:

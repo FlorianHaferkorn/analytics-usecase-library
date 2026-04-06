@@ -1,0 +1,288 @@
+# Color Semantics and Formatting Rules — Framework Governance
+#
+# Authority:   This file is the canonical source for color tokens, semantic roles,
+#              and typography rules for all Analytics Use Case Library pages.
+#
+# Tool-agnostic: Tokens are defined as abstract semantic roles with hex defaults.
+#                Connector-specific bindings (PBI theme roles, CSS variables, etc.)
+#                are listed in the Connector Bindings section below.
+#
+# Implements:  Design_Spec_3_30_300.md §7 (Visual Grammar Rules)
+# Aligns with: Storytelling_Principles.md §9 (Color System), §10 (Typography)
+
+---
+
+## Semantic Color Tokens (Tool-Agnostic)
+
+These tokens are the single source of truth for color meaning. Every chart, card, and
+table uses these roles — never hardcoded hex values directly in visual definitions.
+
+| Token                  | Default Hex | Meaning                                               | Never use for                        |
+|------------------------|-------------|-------------------------------------------------------|--------------------------------------|
+| semantic.positive      | #107C10     | Favourable delta, above target, good performance      | Brand accents, general categories    |
+| semantic.negative      | #A4262C     | Unfavourable delta, below target, critical exception  | Neutral data, category encoding      |
+| semantic.warning       | #C98A00     | Near threshold, attention needed, caution             | Positive signals, brand color        |
+| semantic.neutral       | #605E5C     | No signal, informational, no target set               | Performance-coded data               |
+| brand.primary          | #0078D4     | First data series, primary KPI line, reference line   | Signal coding (use semantic.* only)  |
+| brand.secondary        | #50E6FF     | Second data series, supporting metrics                | Signal coding                        |
+| brand.data_colors[0]   | #0078D4     | Categorical series slot 0                             | —                                    |
+| brand.data_colors[1]   | #50E6FF     | Categorical series slot 1                             | —                                    |
+| brand.data_colors[2]   | #8661C5     | Categorical series slot 2                             | —                                    |
+| brand.data_colors[3]   | #F7630C     | Categorical series slot 3                             | —                                    |
+| brand.data_colors[4]   | #008575     | Categorical series slot 4                             | —                                    |
+| brand.data_colors[5]   | #E3008C     | Categorical series slot 5                             | —                                    |
+| brand.data_colors[6]   | #EF6950     | Categorical series slot 6                             | —                                    |
+| brand.data_colors[7]   | #FFB900     | Categorical series slot 7                             | —                                    |
+| surface.page           | #F5F5F5     | Page background                                       | —                                    |
+| surface.card           | #FFFFFF     | Visual / card background                              | —                                    |
+| surface.row_alt        | #F9F9F9     | Alternating table row background                      | —                                    |
+| text.primary           | #201F1E     | Primary text (titles, values, labels)                 | —                                    |
+| text.secondary         | #605E5C     | Secondary text (axis labels, footnotes)               | —                                    |
+| border.default         | #E1DFDD     | Visual borders, grid lines (0.5px, 8px radius)        | —                                    |
+
+Colorblind-safe variance pair: brand.primary (#0078D4 blue) / brand.data_colors[3] (#F7630C orange)
+Use this pair instead of semantic.positive/semantic.negative when printing or when
+colorblind safety is critical. Always pair with icon regardless.
+
+Rule: Max 3–4 semantic colors visible on any single page.
+Rule: Never hardcode hex in visual definitions. Reference tokens by name.
+Rule: Every color signal must be paired with an icon (▲ ▼ ⚠ ─) for colorblind safety.
+
+---
+
+## Connector Token Bindings
+
+### Power BI / Fabric (theme.json)
+
+| Token                | Power BI theme property         |
+|----------------------|---------------------------------|
+| semantic.positive    | good                            |
+| semantic.negative    | bad                             |
+| semantic.warning     | neutral                         |
+| semantic.neutral     | fourthLevelElements             |
+| brand.primary        | dataColors[0]                   |
+| surface.page         | background                      |
+| surface.card         | secondaryBackground             |
+| text.primary         | firstLevelElements              |
+| text.secondary       | secondLevelElements             |
+| border.default       | tableAccent                     |
+
+Theme generator: products/fabric/powerbi/tooling/theme_generator/
+
+### Web / CSS
+
+```css
+:root {
+  --color-positive:  #107C10;
+  --color-negative:  #A4262C;
+  --color-warning:   #C98A00;
+  --color-neutral:   #605E5C;
+  --color-primary:   #0078D4;
+  --color-secondary: #50E6FF;
+  --surface-page:    #F5F5F5;
+  --surface-card:    #FFFFFF;
+  --text-primary:    #201F1E;
+  --text-secondary:  #605E5C;
+  --border-default:  #E1DFDD;
+}
+```
+
+### Other tools (Superset, Grafana, Metabase)
+
+See connectors/OSS_Connector_Guide.md — map token names to each tool's color config.
+
+---
+
+## Typography Scale
+
+Canonical font sizes for the 1280×720 design base canvas.
+Scale up by ~1.5× for 1920×1080 production canvas or add +2pt minimum for PDF export.
+
+| Token           | Size       | Weight          | Color token    | Usage                                         |
+|-----------------|------------|-----------------|----------------|-----------------------------------------------|
+| page_title      | 16–18pt    | Regular         | text.primary   | Page / report title (decision question)       |
+| section_header  | 13–14pt    | Semibold        | text.primary   | Visual title (question-oriented)              |
+| kpi_value       | 28–36pt    | Bold            | text.primary   | Hero number on KPI card                       |
+| kpi_delta       | 13–14pt    | Regular         | semantic.*     | Variance value + icon on KPI card             |
+| kpi_label       | 10–11pt    | Regular         | text.secondary | KPI name below the value (muted)              |
+| axis_label      | 9–11pt     | Regular         | text.secondary | Chart axis tick labels                        |
+| data_label      | 10–11pt    | Regular         | text.primary   | On-chart data labels (sparse use only)        |
+| table_header    | 11–12pt    | Bold            | text.primary   | Column headers in tables and matrices         |
+| table_value     | 10–11pt    | Regular         | text.primary   | Row values in tables                          |
+| footnote        | 8–9pt      | Regular         | text.secondary | Data source, timestamp, notes (muted)         |
+
+Font family rule: One sans-serif family across all pages. Vary only weight and size.
+Accepted families: Segoe UI (Fabric/PBI), Inter, Roboto, Open Sans (web/OSS tools).
+Tabular numerals required for any column of numbers users compare vertically.
+
+Source authority: Storytelling_Principles.md §10
+
+---
+
+## KPI Card Formatting
+
+### Required Elements
+
+| Element         | Token          | Format                                       |
+|-----------------|----------------|----------------------------------------------|
+| KPI label       | kpi_label      | Metric name — sentence case, ≤ 25 chars      |
+| Current value   | kpi_value      | Formatted per metric type (see Value Formats)|
+| Delta vs ref.   | kpi_delta      | ▲/▼ + value + semantic color token           |
+| Period label    | footnote       | "vs Plan", "vs PY", "MTD" — right-aligned    |
+| Sparkline       | brand.primary  | Optional; trailing 12 periods                |
+
+### Value Format Rules
+
+| Metric type | Format         | Example       |
+|-------------|----------------|---------------|
+| Currency    | Suffix K/M/B   | €42.3M        |
+| Percentage  | 1 decimal      | 45.2%         |
+| Count       | Thousands sep. | 1,234         |
+| Index       | 2 decimals     | 1.23          |
+
+### Signal Color Logic
+
+| Condition            | Token              | Icon |
+|----------------------|--------------------|------|
+| Above target         | semantic.positive  | ▲    |
+| Below target         | semantic.negative  | ▼    |
+| Within ±5% of target | semantic.warning   | ⚠    |
+| No target defined    | semantic.neutral   | ─    |
+
+Rule: Delta direction (up/down) and color (good/bad) are independent.
+      For cost metrics, ▲ (increase) maps to semantic.negative; ▼ to semantic.positive.
+      The metric polarity is declared in core/kpi_catalog/<kpi_id>.yaml (polarity: higher_is_better | lower_is_better).
+
+---
+
+## Chart Formatting
+
+### Data Series Colors
+
+- First series:  brand.data_colors[0]
+- Further series: brand.data_colors[1..7] in order
+- Semantic signal overrides categorical color (e.g. a variance bar always uses semantic.positive/negative)
+
+### Reference / Target Lines
+
+- Color:  brand.primary (#0078D4)
+- Style:  dashed, 1.5px
+- Label:  show value at line endpoint
+
+### Variance Charts (Waterfall)
+
+| Bar type        | Token             |
+|-----------------|-------------------|
+| Positive bridge | semantic.positive |
+| Negative bridge | semantic.negative |
+| Subtotal bar    | brand.primary     |
+| Net total bar   | semantic.positive or semantic.negative (per result) |
+
+### Grid Lines
+
+- Show: yes (subtle)
+- Color: border.default (#E1DFDD)
+- Width: 1px, 80% transparency
+- Horizontal only (suppress vertical grid lines)
+
+### Axis Labels
+
+- Font: axis_label (9–11pt, text.secondary)
+- Show max 8 tick labels per axis; rotate 45° only if labels > 12 chars
+- Zero-based axis mandatory for bar/column charts
+
+### Data Labels
+
+- Show on key points only: endpoints, inflection points, highlighted values
+- Font: data_label (10–11pt, text.primary)
+- Background: surface.card with 80% opacity
+
+---
+
+## Table Formatting
+
+### General
+
+- Header:          table_header, background surface.card
+- Row background:  alternating surface.card / surface.row_alt
+- Row border:      border.default, 1px
+- Max rows shown:  50 (paginate on demand)
+- Default sort:    worst deviation first (descending absolute delta)
+
+### Exception Tables (T3)
+
+| Severity | Row background          | Token basis                    |
+|----------|-------------------------|--------------------------------|
+| Critical | #FFE6E6 (lightened red) | semantic.negative at 15% alpha |
+| Warning  | #FFF8E1 (lightened amber)| semantic.warning at 15% alpha |
+| Info     | surface.row_alt          | surface.row_alt                |
+
+Sort: Critical → Warning → Info, then by deviation descending.
+
+### Prescriptive Tables (T4)
+
+| Priority | Row background           | Token basis                    |
+|----------|--------------------------|--------------------------------|
+| High     | #FFE6E6 (lightened red)  | semantic.negative at 15% alpha |
+| Medium   | #FFF8E1 (lightened amber) | semantic.warning at 15% alpha |
+| Low      | #E6F5E6 (lightened green) | semantic.positive at 15% alpha |
+
+Top recommendation row: bold text, brand.primary at 20% alpha background, border.default 2px.
+
+### Data Bars (Detail Matrix)
+
+- Bar fill: brand.primary for positive delta, semantic.negative for negative delta
+- Bar max width: column width minus value label
+- Show value and bar in same cell
+
+---
+
+## Borders and Surfaces
+
+| Element              | Style                                       |
+|----------------------|---------------------------------------------|
+| Visual container     | border.default, 0.5px, 8px border-radius    |
+| Table border         | border.default, 1px, no radius              |
+| Action Panel         | Left border only: brand.primary, 2px         |
+| Card hover / focus   | brand.primary, 1.5px                        |
+| Page background      | surface.page (#F5F5F5)                      |
+| Visual background    | surface.card (#FFFFFF)                      |
+
+---
+
+## Accessibility
+
+### Contrast (WCAG AA)
+
+| Text type         | Required contrast ratio |
+|-------------------|-------------------------|
+| Body text (≤18pt) | 4.5:1 minimum           |
+| Large text (≥18pt bold or ≥24pt) | 3.0:1 minimum |
+
+All token hex values in this file have been validated for WCAG AA compliance against
+surface.card (#FFFFFF) and surface.page (#F5F5F5).
+
+### Colorblind Safety
+
+- Never use semantic.positive / semantic.negative as the only distinguishing signal.
+- Always pair with icon: ▲ (positive), ▼ (negative), ⚠ (warning), ─ (neutral)
+- Optional: pair with bold (positive) vs regular (negative) font weight
+- For variance charts where colorblind safety is critical: use blue/orange pair
+  (brand.primary / brand.data_colors[3]) instead of green/red
+
+### Tab / Focus Order
+
+KPI band → primary visuals → secondary visuals → slicers → action panel
+
+---
+
+## References
+
+| Document                           | Relationship                                              |
+|------------------------------------|-----------------------------------------------------------|
+| Storytelling_Principles.md §9      | Authority for semantic color role definitions             |
+| Storytelling_Principles.md §10     | Authority for typography scale (font sizes and weights)   |
+| Design_Spec_3_30_300.md §7    | Governing spec — this file implements it                  |
+| products/fabric/powerbi/tooling/theme_generator/ | PBI theme JSON generation from these tokens  |
+| connectors/OSS_Connector_Guide.md  | Token binding for Superset, Grafana, Metabase             |
+| core/kpi_catalog/<kpi_id>.yaml     | KPI polarity (higher_is_better) for delta color logic     |

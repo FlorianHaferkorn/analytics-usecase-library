@@ -221,6 +221,30 @@ def _patch_tool_derivations(
     _log(f"  Patched tool_derivations in {spec_path.name}", verbose)
 
 
+def _write_repo_config(showcase_name: str, verbose: bool) -> None:
+    """
+    Write (or update) repo_config.yaml at the repo root with the given showcase_id.
+    Preserves existing keys; only updates showcase_id.
+    """
+    if not _YAML_OK:
+        _log("  [skip] PyYAML not available — cannot update repo_config.yaml.", verbose)
+        return
+    config_path = _REPO_ROOT / "repo_config.yaml"
+    config: dict = {}
+    if config_path.exists():
+        try:
+            config = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
+        except Exception:
+            pass
+    config.setdefault("schema_version", "1.0")
+    config["showcase_id"] = showcase_name
+    config_path.write_text(
+        yaml.dump(config, allow_unicode=True, default_flow_style=False, sort_keys=False),
+        encoding="utf-8",
+    )
+    _log(f"  repo_config.yaml → showcase_id: {showcase_name}", verbose)
+
+
 def _write_oss_css(css_path: Path, verbose: bool) -> None:
     """
     Mirror the generated CSS variables file into the OSS stack themes directory
@@ -313,6 +337,15 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Canvas profile for font size delta (default: powerbi_design_base).",
     )
     parser.add_argument(
+        "--update-repo-config",
+        action="store_true",
+        help=(
+            "After derivation, write showcase_id to repo_config.yaml at the repo root. "
+            "Only applies when --showcase is used. "
+            "Use this to activate a brand for all generators in one step."
+        ),
+    )
+    parser.add_argument(
         "--quiet",
         action="store_true",
         help="Suppress progress output.",
@@ -333,6 +366,8 @@ def main() -> int:
                 canvas_profile=args.canvas_profile,
                 verbose=verbose,
             )
+            if args.update_repo_config:
+                _write_repo_config(args.showcase, verbose)
         else:
             spec_path = Path(args.spec).resolve()
             out_dir = Path(args.out_dir).resolve() if args.out_dir else spec_path.parent

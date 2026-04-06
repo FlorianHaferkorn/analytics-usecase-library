@@ -4,7 +4,7 @@
 > **Template:** T2 Tactical Variance (standard; other templates follow same structure)
 > **Reading pattern:** Z-pattern
 > **Use case example:** COM-001 Sales Performance
-> **Spec ref:** `layout_330300_design_spec.md §6.1`
+> **Spec ref:** `Design_Spec_3_30_300.md §6.1`
 
 ---
 
@@ -124,7 +124,70 @@ The primary diagnostic visual (trend or variance) is placed at Main_1 (leftmost 
 
 ---
 
-## PBIP Configuration Snippet
+## Narrative Annotation
+
+```
+Z-Pattern reading path — annotated:
+
+→ Step 1 (top-left → top-right): KPI band
+  ACT 1 — ESTABLISH. "Here is where we stand."
+  NET SALES ▲ +8.2% → GREEN. First signal: we are above target on revenue.
+  GM MARGIN ▼ -1.1pp → RED. Second signal: margin is under pressure.
+  Eye reads left to right in ~1 second. Two conflicting signals = tension.
+
+↘ Step 2 (diagonal): Slicer bar
+  CONTEXT SET. "Oct 2025 MTD, All Regions, All Channels."
+  Confirms the scope is current month. No re-reading needed after the Z-diagonal.
+
+→ Step 3 (left main visual — Main_1):
+  ACT 2 — TREND. "This is the journey."
+  Revenue grew steadily, then dipped in Aug, recovered. Current momentum: positive.
+  Annotated inflection point: "Aug: summer slowdown — recovered in Sep."
+  Question answered: "Are we trending in the right direction?" → Yes, but margin tells a different story.
+
+→ Step 4 (center — Main_2):
+  ACT 2 — VARIANCE. "This is what caused the gap."
+  Waterfall: Plan 45 → -2.1 Price → +3.2 Volume → -5.3 Mix → Actual 38.
+  The Big Idea materializes: "Mix is the dominant negative driver."
+  Reader now knows what is happening and why — in 30 seconds.
+
+→ Step 5 (right — Main_3):
+  ACT 2 — RANKING. "These are the actors."
+  DACH drives the largest shortfall. BNL and NOR are green.
+  Ranked by |Δ Plan| descending. Eye stops at the longest red bar → DACH.
+  Reader knows where to intervene.
+```
+
+**The Z-path tells the complete story:** "Revenue is up but margin is under pressure (3s) → Mix decline in DACH is the driver, trend is recovering (30s) → action required: DACH mix review."
+
+---
+
+## Big Idea Verification
+
+After 30 seconds on this page, the reader should be able to state:
+
+> *"Net Sales is +8.2% vs Plan but GM% is -1.1pp below plan. The revenue gap from Plan is driven by adverse mix effects (-€5.3M), concentrated in DACH. Trend is recovering after an August dip."*
+
+If this statement cannot be constructed from the page, the design has failed.
+
+---
+
+## Content Quality Checklist (Pulse — T2)
+
+- [x] Decision question banner visible above KPI band
+- [x] All KPI cards show delta vs reference (not value only)
+- [x] Primary KPI (Net Sales) is leftmost and largest
+- [x] Visual titles are question-form ("How is Net Sales trending vs prior year?")
+- [x] Waterfall bars labeled with absolute + percentage contribution
+- [x] Ranking sorted by |Δ Plan| descending (worst first)
+- [x] Max 3 slicers (Time, Region, Channel)
+- [x] No tables, no action panel (Overview page = signal + explanation only)
+- [x] IBCS abbreviations used (PY, Plan, MTD, AC)
+- [x] Inflection point on trend chart annotated
+
+---
+
+## Bracket YAML Reference (updated to abstract visual types)
 
 ```yaml
 # UseCase_Bracket.yaml → page_1_summary
@@ -132,8 +195,11 @@ The primary diagnostic visual (trend or variance) is placed at Main_1 (leftmost 
 ux_layout_rules:
   report_structure: "2-Page-Lead"
   page_1_summary:
-    template_type: "T2"
-    grid_template: "pulse"             # core/templates/page_templates/grid_templates/pulse.json
+    title: "Commercial Overview"
+    page_type: "T2_Tactical_Variance"
+    template_id: "pulse"
+    decision_question: "Are we on track for our Commercial targets this month?"
+    big_idea: "Net Sales is +8.2% vs Plan but GM% is -1.1pp — adverse Mix in DACH requires attention."
     component_3s:
       kpi_id: sales.net_sales.amount
       visual_type: kpi_card
@@ -141,14 +207,14 @@ ux_layout_rules:
       comparison: "vs_plan"
       status_logic: "higher_is_better"
     component_30s:
-      - slot: "Main_1"
-        visual_type: trend_line
+      - slot_id: "Main_1"
+        visual_type: line_chart
         kpi_id: sales.net_sales.amount
-      - slot: "Main_2"
+      - slot_id: "Main_2"
         visual_type: waterfall
         kpi_ids: [sales.net_sales.delta_abs.plan]
-      - slot: "Main_3"
-        visual_type: bar_chart
+      - slot_id: "Main_3"
+        visual_type: bar_chart_horizontal
         kpi_id: sales.net_sales.amount
         segment_by: region
 ```

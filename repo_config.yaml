@@ -1,0 +1,10 @@
+schema_version: "1.0"
+
+# Active showcase for this repository instance.
+# Generators use this to locate the brand spec:
+#   showcases/<showcase_id>/brand/brand_spec.yaml
+#
+# Single-brand repo:  set showcase_id to the showcase directory name (e.g. aurora_group).
+# Multi-brand repo:   leave null here; set brand.brand_id per use case in UseCase_Bracket.yaml.
+# Framework-only repo (no client brand): leave null — generators fall back to semantic tokens.
+showcase_id: null

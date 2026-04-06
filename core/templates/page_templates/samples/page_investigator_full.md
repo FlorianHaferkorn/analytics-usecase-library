@@ -4,7 +4,7 @@
 > **Templates:** T2 Tactical, T3 Operational, T4 Prescriptive
 > **Reading pattern:** F-pattern (focus visual dominates left column)
 > **Use case:** When a single diagnostic question dominates the page (e.g., decomposition, root cause)
-> **Spec ref:** `layout_330300_design_spec.md §6.3`
+> **Spec ref:** `Design_Spec_3_30_300.md §6.3`
 > **Grid template:** `core/templates/page_templates/grid_templates/investigator.json`
 
 ---
