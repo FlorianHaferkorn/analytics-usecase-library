@@ -62,7 +62,7 @@ if __name__ == "__main__":
     "core/brand/tool_derivations/powerbi_mapping.md",
     "core/brand/tool_derivations/css_mapping.md",
     "showcases/aurora_group/brand/brand_spec.yaml",
-    "core/templates/page_templates/layout_330300_design_spec.md",
+    "core/templates/page_templates/Design_Spec_3_30_300.md",
     "core/templates/page_templates/samples/README.md",
     "core/templates/page_templates/samples/layer_3s_kpi_band.md",
     "core/templates/page_templates/samples/layer_30s_diagnostics.md",
@@ -383,7 +383,7 @@ if __name__ == "__main__":
     # 8. LAYOUT DESIGN SPEC — CONTENT CHECKS
     # ─────────────────────────────────────────────────────────────────────────────
 
-    spec_path = REPO / "core/templates/page_templates/layout_330300_design_spec.md"
+    spec_path = REPO / "core/templates/page_templates/Design_Spec_3_30_300.md"
     if spec_path.exists():
         spec_text = spec_path.read_text(encoding="utf-8")
 
@@ -402,8 +402,8 @@ if __name__ == "__main__":
             "## 7. Visual Grammar Rules",
             "## 8. Interaction Patterns",
             "## 9. Accessibility",
-            "## 10. BPA Hard Limits",
-            "## 11. Web Derivation Notes",
+            "## 10. Framework Hard Limits",
+            "## 11. Connector Notes",
         ]
         for section in required_sections:
             if section in spec_text:
