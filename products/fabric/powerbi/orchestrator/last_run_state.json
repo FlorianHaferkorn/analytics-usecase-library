@@ -10,90 +10,29 @@
                       "Create Hierarchies Definition",
                       "Write Hierarchies to TMDL",
                       "Write diagram layout",
-                      "Validate TMDL Syntax"
+                      "Validate TMDL Syntax",
+                      "Run Quality Checks",
+                      "Generate Report from Template",
+                      "Validate Fabric output"
                   ],
     "measuresFile":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\Commercial.SemanticModel\\definition\\tables\\_Measures.tmdl",
     "validateErrors":  [
-                           {
-                               "phase":  "Validate Fabric output",
-                               "path":  "products/fabric/powerbi/dist",
-                               "timestamp":  "2026-04-03T09:14:08.7291496+02:00",
-                               "message":  "",
-                               "source":  "run_fabric_checks"
-                           },
-                           {
-                               "phase":  "Validate Fabric output",
-                               "path":  "products/fabric/powerbi/dist",
-                               "timestamp":  "2026-04-03T09:14:11.9524867+02:00",
-                               "message":  "",
-                               "source":  "run_fabric_checks"
-                           },
-                           {
-                               "phase":  "Validate Fabric output",
-                               "path":  "products/fabric/powerbi/dist",
-                               "timestamp":  "2026-04-03T09:14:16.1827810+02:00",
-                               "message":  "",
-                               "source":  "run_fabric_checks"
-                           }
+
                        ],
     "warnings":  [
 
                  ],
     "iteration":  6,
     "errors":  [
-                   {
-                       "phase":  "Run Quality Checks",
-                       "iteration":  4,
-                       "error":  "Ausnahme beim Aufrufen von \"GetFullPath\" mit 1 Argument(en):  \"Das angegebene Pfadformat wird nicht unterstützt.\""
-                   },
-                   {
-                       "phase":  "Run Quality Checks",
-                       "iteration":  4,
-                       "error":  "Ausnahme beim Aufrufen von \"GetFullPath\" mit 1 Argument(en):  \"Das angegebene Pfadformat wird nicht unterstützt.\""
-                   },
-                   {
-                       "phase":  "Run Quality Checks",
-                       "iteration":  4,
-                       "error":  "Ausnahme beim Aufrufen von \"GetFullPath\" mit 1 Argument(en):  \"Das angegebene Pfadformat wird nicht unterstützt.\""
-                   },
-                   {
-                       "phase":  "Generate Report from Template",
-                       "iteration":  5,
-                       "error":  "apply_report_theme.ps1 failed (exit 1) for COM-001. Theme \u0027Aurora_Group_SE__Monochromatic__powerbi_design_base__2ECDE7\u0027 not applied. Check theme_generator/themes/ and report definition."
-                   },
-                   {
-                       "phase":  "Generate Report from Template",
-                       "iteration":  5,
-                       "error":  "apply_report_theme.ps1 failed (exit 1) for COM-001. Theme \u0027Aurora_Group_SE__Monochromatic__powerbi_design_base__2ECDE7\u0027 not applied. Check theme_generator/themes/ and report definition."
-                   },
-                   {
-                       "phase":  "Generate Report from Template",
-                       "iteration":  5,
-                       "error":  "apply_report_theme.ps1 failed (exit 1) for COM-001. Theme \u0027Aurora_Group_SE__Monochromatic__powerbi_design_base__2ECDE7\u0027 not applied. Check theme_generator/themes/ and report definition."
-                   },
-                   {
-                       "phase":  "Validate Fabric output",
-                       "iteration":  6,
-                       "error":  "Fabric checks failed (exit 1). Fix TMDL/PBIP/DAX/measures and retry."
-                   },
-                   {
-                       "phase":  "Validate Fabric output",
-                       "iteration":  6,
-                       "error":  "Fabric checks failed (exit 1). Fix TMDL/PBIP/DAX/measures and retry."
-                   },
-                   {
-                       "phase":  "Validate Fabric output",
-                       "iteration":  6,
-                       "error":  "Fabric checks failed (exit 1). Fix TMDL/PBIP/DAX/measures and retry."
-                   }
+
                ],
     "phase":  "validate_fabric_output",
     "scopeName":  "COM-001",
     "scopeType":  "UseCase",
     "startTime":  {
-                      "value":  "\/Date(1775200190835)\/",
+                      "value":  "\/Date(1775365917505)\/",
                       "DisplayHint":  2,
-                      "DateTime":  "Freitag, 3. April 2026 09:09:50"
+                      "DateTime":  "Sonntag, 5. April 2026 07:11:57"
                   },
     "domainMeasurePaths":  [
                                "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\Commercial.SemanticModel\\definition\\tables\\_Measures.tmdl"

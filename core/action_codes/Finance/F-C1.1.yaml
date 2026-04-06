@@ -125,17 +125,23 @@ operational_execution:
   - Conflicting incentives across domains
 data_requirements:
   required_entities:
-  - Legal Entity
+  - Entity
   - Region
   semantic_dependencies:
     measures:
     - Cash Conversion Cycle (Days)
     - Cash vs Plan %
     - Cash Balance
+    - DSO (Days)
+    - DIO (Days)
+    - DPO (Days)
     tables:
-    - fact_cash
-    - fact_working_capital
-    - dim_entity
+    - fact_cash_position
+    - fact_cash_flow
+    - fact_accounts_receivable
+    - fact_accounts_payable
+    - fact_inventory
+    - dim_org
 automation:
   detection:
     enabled: true

@@ -131,31 +131,17 @@ Structured summary of action codes (definitions remain in YAML).
 
 ### 5.4 300-Second Layer (Diagnostics)
 
-- (optional)
+- Queue- and agent-group-level workforce table with utilization, occupancy, overtime, shrinkage, and SLA context.
+- Capacity imbalance view that separates demand surge from structural shrinkage or routing problems.
+- Action panel routing for utilization orchestration, capacity reallocation, shrinkage control, or overtime containment.
 
 ## 6. Data Requirements Summary
 
-```yaml
-required_facts:
-
-  - fact_wfm (work/idle/wrap/overtime/shrinkage)
-
-  - fact_cases (SLA, backlog)
-required_dimensions:
-
-  - dim_date
-
-  - dim_org (region/channel/queue)
-
-  - dim_queue (if separate)
-
-  - security_user_org
-required_grain: >
-  agent_day or queue_day; week/month for trends
-required_time_range: 12-24 months history
-required_slicers: >
-  Date, Region/Channel/Queue, Agent Group/Skill (if available)
-```
+- Required facts: workforce-management time records plus support-case volume and backlog context.
+- Required dimensions: date, organization, queue, and agent-group attributes where available.
+- Required grain: agent_day with queue/day roll-up for trend and balancing views.
+- Required time range: 12 to 24 months history.
+- Required slicers: Date, Region/Channel/Queue, Agent Group or Skill.
 
 ---
 

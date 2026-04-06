@@ -1250,6 +1250,7 @@ class GoldLayerGenerator:
             'XD-001': ['X-S1.1', 'X-S1.2', 'X-S1.3', 'X-S1.4'],
             'XD-002': ['X-R2.1', 'X-R2.2', 'X-R2.3', 'X-R2.4'],
             'XD-003': ['X-E3.2'],
+            'XD-004': ['X-E3.3'],
         }
         
         action_types = [

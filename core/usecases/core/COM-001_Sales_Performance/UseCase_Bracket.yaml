@@ -53,8 +53,16 @@ ux_layout_rules:
     component_300s:
       evidence_grain: invoice_line
       evidence_columns:
-      - entity
-      - period
+      - region
+      - channel
+      - product_category
+      - customer_segment
+      - sales.net_sales.amount
+      - sales.net_sales.delta_pct.plan
+      - sales.net_sales.delta_pct.ly
+      - sales.pvm.price_effect.amount
+      - sales.pvm.volume_effect.amount
+      - sales.pvm.mix_effect.amount
       - margin.gm.pct
       action_panel: true
       payload_mode: full

@@ -59,7 +59,7 @@ factsheet_type: business
 | sales.promo.incremental_gm.amount | Supporting |
 | sales.pvm.volume_effect.amount | Supporting |
 
-**Action Codes:** C-M2.1, C-S1.1, C-M2.2, C-P4.1, C-S1.2
+**Action Codes:** C-P4.1, C-M2.1, C-M2.2
 
 > Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
@@ -104,35 +104,19 @@ Structured summary of action codes (definitions remain in YAML).
 
 ### 5.4 300-Second Layer (Diagnostics)
 
-- Promo-level GM bridge (uplift vs cost vs leakage).
-- Cannibalization root-cause table (related SKUs, categories).
-- Mechanic depth/timing analysis by channel/category.
+- Promo-level GM bridge showing uplift, cannibalized sales, promo cost, and incremental GM by campaign, channel, and category.
+- Cannibalization root-cause table linking related SKUs and product families to the campaigns that shifted demand instead of creating incremental value.
+- Mechanic depth, timing, and realization analysis by channel and category so trade marketing can distinguish healthy promo investment from price-leaking activity.
 
 ---
 
 ## 6. Data Requirements Summary
 
-```yaml
-required_facts:
-
-  - fact_sales
-
-  - fact_promo
-required_dimensions:
-
-  - dim_date
-
-  - dim_org
-
-  - dim_product
-
-  - dim_promo
-
-  - security_user_org
-required_grain: promotion (with invoice_line base for uplift/realization)
-required_time_range: 12-24 months of promo history with baseline
-required_slicers: Date/Promo period, Region/Channel, Product Category/Subcategory, Mechanic
-```
+- Required facts: fact_promo for baseline and promo-cost logic, plus fact_sales for invoice-line uplift, realization, and GM reconstruction.
+- Required dimensions: dim_date, dim_org, dim_product, dim_promo, and security_user_org.
+- Required grain: promotion for campaign evaluation, with invoice-line sales retained for uplift and realization diagnostics.
+- Required time range: 12-24 months of promo history with stable baseline assumptions.
+- Required slicers: Date/Promo period, Region/Channel, Product Category/Subcategory, Promotion Type/Mechanic.
 
 ---
 

@@ -14,9 +14,9 @@ orchestration:
   - wc.dso.days
   - wc.dio.days
   - wc.dpo.days
+  supporting_kpi_ids:
   - scm.service_level.pct
   - scm.supplier_risk.score
-  supporting_kpi_ids:
   - fin.liquidity.inventory.amount
   action_code_ids:
   - F-C1.1
@@ -54,8 +54,17 @@ ux_layout_rules:
       evidence_grain: entity_month
       evidence_columns:
       - entity
-      - period
+      - region
+      - fin.cash.balance
+      - fin.cash.ocf
+      - fin.cash.vs_plan.pct
+      - wc.dso.days
+      - wc.dio.days
+      - wc.dpo.days
       - wc.ccc.days
+      - fin.liquidity.inventory.amount
+      - scm.service_level.pct
+      - scm.supplier_risk.score
       action_panel: true
       payload_mode: full
 prioritization:

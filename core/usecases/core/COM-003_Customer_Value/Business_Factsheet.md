@@ -49,18 +49,14 @@ factsheet_type: business
 | crm.lifetime_revenue.amount | Influencing |
 | crm.retention.pct | Influencing |
 | crm.churned_customers.count | Influencing |
-| crm.revenue_at_risk.amount | Influencing |
 | crm.active_customers.count | Influencing |
 | crm.nps.index | Influencing |
 | crm.complaint.count | Influencing |
+| crm.revenue_at_risk.amount | Supporting |
+| sales.net_sales.amount | Supporting |
 | cost.cogs.amount | Supporting |
-| sales.promo.baseline_sales.amount | Supporting |
-| sales.promo.cost.amount | Supporting |
-| sales.promo.incremental_gm.amount | Supporting |
-| sales.pvm.price_effect.amount | Supporting |
-| sales.pvm.volume_effect.amount | Supporting |
 
-**Action Codes:** C-M2.2, C-P4.1, C-S1.2
+**Action Codes:** C-C3.1, C-C3.2
 
 > Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
@@ -107,42 +103,20 @@ Structured summary of action codes (definitions remain in YAML).
 
 ### 5.4 300-Second Layer (Diagnostics)
 
-- Top-N customers by revenue at risk and declining CLV.
-- Cohort trend tables (retention, churned count, active base).
-- Complaint root-cause table (category, product, channel) linked to NPS.
-- Price/mix and COGS views for margin guardrails (link to COM-002 action P2).
+- Top-N customers and segments by revenue at risk, declining CLV, and retention deterioration over the last 3 periods.
+- Cohort trend tables linking active base, churned customers, and retention to re-engagement opportunities rather than only historical churn reporting.
+- Complaint and advocacy root-cause matrix by region, channel, product category, and customer segment, combining complaint volume with NPS deterioration.
+- Margin guardrail view showing whether low-value or low-margin segments should be protected, repriced, or deprioritized before retention spend is committed.
 
 ---
 
 ## 6. Data Requirements Summary
 
-```yaml
-required_facts:
-
-  - fact_sales
-
-  - fact_customer_events
-
-  - fact_customer_value
-
-  - fact_experience
-
-  - fact_nps
-required_dimensions:
-
-  - dim_date
-
-  - dim_org
-
-  - dim_customer
-
-  - dim_product
-
-  - security_user_org
-required_grain: customer_month (for retention/churn/risk), invoice_line for revenue/margin
-required_time_range: 24 months history
-required_slicers: Date, Region/Channel, Customer Segment, Product Category
-```
+- Required facts: fact_customer_events, fact_customer_value, fact_experience, fact_nps, and fact_sales for revenue and margin context.
+- Required dimensions: dim_date, dim_org, dim_customer, dim_product, and security_user_org.
+- Required grain: customer_month for retention, churn, CLV, and at-risk prioritization, with invoice-line sales detail available for margin guardrails.
+- Required time range: 24 months history to distinguish structural erosion from temporary customer noise.
+- Required slicers: Date, Region/Channel, Customer Segment, Product Category.
 
 
 ### Evidence grain
@@ -196,7 +170,7 @@ These scenarios illustrate how this use case drives decisions in practice. They 
 
 **Consequence of inaction:** Accelerating value erosion in the most profitable segment; 1pp CLV drop in top segment equals ~€3M annual impact.
 
-**Action Code triggered:** C-M2.2 (Customer Value Recovery) — activates cohort-level CLV decomposition and churn risk scoring.
+**Action Code triggered:** C-C3.1 (Customer Retention Intervention) — activates cohort-level CLV decomposition, at-risk prioritization, and targeted re-engagement planning.
 
 ### Scenario B: Rising Complaint Rate Despite Stable NPS
 
@@ -208,4 +182,4 @@ These scenarios illustrate how this use case drives decisions in practice. They 
 
 **Consequence of inaction:** Unresolved complaints erode trust; revenue at risk compounds as dissatisfied customers churn silently.
 
-**Action Code triggered:** C-P4.1 (Complaint Resolution) — activates root-cause analysis by product and customer segment.
+**Action Code triggered:** C-C3.2 (Complaint & Advocacy Recovery) — activates root-cause analysis by product, channel, and customer segment with advocacy recovery follow-up.

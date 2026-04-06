@@ -573,12 +573,43 @@ function Build-ActionTextMeasureBlock {
   # Measure definition: one line measure 'Name' = EXPR; properties at t2 (Desktop: child properties one tab deeper)
   $lines += ($t1 + "measure '$safeId' = " + $daxExpression)
   $lines += ($t2 + "isHidden")
+  $lines += ($t2 + "formatString: ""@""")
   $lines += ($t2 + "displayFolder: ""9_ActionReady_Logic""")
   # Annotation for RLS / automation
   $lines += ($t2 + "annotation ActionReady_ResponsibleRole = ""$($ActionCode.owner_role)""")
   $lines += ($t2 + "annotation ActionReady_ActionCodeId = ""$acId""")
   $lines += ""
   return $lines
+}
+
+function Resolve-MeasureFormatString {
+  param($Measure)
+  if ($Measure.format_string) {
+    return [string]$Measure.format_string
+  }
+
+  $kpiId = [string]$Measure.kpi_id
+  $calcType = [string]$Measure.calc_type
+  $name = [string]$Measure.name
+  $classifier = ($kpiId + ' ' + $calcType + ' ' + $name).ToLowerInvariant()
+
+  if ($classifier -match '(^|[\s._-])pct([\s._-]|$)|percent|percentage') {
+    return '0.0%'
+  }
+  if ($classifier -match '(^|[\s._-])count([\s._-]|$)|(^|[\s._-])cnt([\s._-]|$)') {
+    return '#,0'
+  }
+  if ($classifier -match '(^|[\s._-])days([\s._-]|$)|duration') {
+    return '#,0.0'
+  }
+  if ($classifier -match '(^|[\s._-])amount([\s._-]|$)|currency|value') {
+    return '#,0.00'
+  }
+  if ($classifier -match '(^|[\s._-])index([\s._-]|$)|score|rate') {
+    return '#,0.0'
+  }
+
+  return '#,0.00'
 }
 
 function Build-ActionReadyLogicTable {
@@ -859,7 +890,8 @@ function Build-MeasureBlock {
   }
   # TMDL: measure 'Name' = <expression> on one line; properties at t2 (Desktop Feb 2026: child properties must be one tab deeper than measure)
   $lines += ($t1 + "measure '$name' = " + $daxOneLine)
-  if ($Measure.format_string) { $lines += ($t2 + "formatString: """ + $Measure.format_string.Replace('"', '\"') + """") }
+  $formatString = Resolve-MeasureFormatString -Measure $Measure
+  if ($formatString) { $lines += ($t2 + "formatString: """ + $formatString.Replace('"', '""') + """") }
   $displayFolder = if ($Measure.display_folder) { $Measure.display_folder } else { $DefaultDisplayFolder }
   if ($displayFolder) { $lines += ($t2 + "displayFolder: """ + $displayFolder.Replace('"', '\"') + """") }
   if ($null -ne $trustScore) {

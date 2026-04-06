@@ -57,8 +57,17 @@ ux_layout_rules:
     component_300s:
       evidence_grain: invoice_line
       evidence_columns:
-      - entity
-      - period
+      - region
+      - channel
+      - product_category
+      - sku
+      - margin.gm.amount
+      - margin.gm.vs_plan.pct
+      - sales.price.list.amount
+      - sales.price.net.amount
+      - sales.price.realization_pct
+      - sales.pvm.mix_effect.amount
+      - cost.cogs_per_unit.amount
       - margin.gm.pct
       action_panel: true
       payload_mode: full

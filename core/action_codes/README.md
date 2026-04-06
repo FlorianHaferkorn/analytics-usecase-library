@@ -111,6 +111,7 @@ Examples:
 
 * `X-E3.1 - Executive Performance Orchestration`
 * `X-E3.2 - Cross-Domain Risk Prioritisation`
+* `X-E3.3 - Executive Action Governance`
 
 ## Decision Spines (Mandatory for Core Use Cases)
 
@@ -144,6 +145,7 @@ orchestration:
   action_code_ids:
     - X-E3.1
     - X-E3.2
+    - X-E3.3
 ```
 
 Rules:

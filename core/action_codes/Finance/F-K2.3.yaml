@@ -124,7 +124,7 @@ operational_execution:
 data_requirements:
   required_entities:
   - Plant
-  - Production Line
+  - Line
   semantic_dependencies:
     measures:
     - Labor Productivity %
@@ -133,9 +133,11 @@ data_requirements:
     - Production Volume
     tables:
     - fact_ops
+    - fact_labor
+    - fact_output
+    - fact_quality
     - fact_cost
-    - dim_plant
-    - dim_production_line
+    - dim_org
 automation:
   detection:
     enabled: true
@@ -153,7 +155,7 @@ tracking:
     minimum_fields:
     - ActionCode
     - Plant
-    - ProductionLine
+    - Line
     - TriggerLevel
     - ExecutedDate
   outcome_evaluation:

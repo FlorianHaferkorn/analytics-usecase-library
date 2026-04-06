@@ -81,6 +81,15 @@ $result = [ordered]@{
   reportFiles = @()
   errors = @()
   warnings = @()
+  blockingReason = $null
+  credentialStatus = @{
+    configured = [bool]($env:TENANT_ID -and $env:CLIENT_ID -and $env:CLIENT_SECRET)
+    missing = @(
+      if (-not $env:TENANT_ID) { 'TENANT_ID' }
+      if (-not $env:CLIENT_ID) { 'CLIENT_ID' }
+      if (-not $env:CLIENT_SECRET) { 'CLIENT_SECRET' }
+    )
+  }
   timestamp = (Get-Date).ToString("o")
 }
 
@@ -133,6 +142,7 @@ $result.command = ((@($python.command) + $commandArgs) -join ' ')
 if ($DryRun) {
   if (-not ($env:TENANT_ID -and $env:CLIENT_ID -and $env:CLIENT_SECRET)) {
     $result.warnings = @("Dry-run executed because Fabric credentials are not fully configured.")
+    $result.blockingReason = "workspace_publish_credentials_missing"
   }
   $result.success = $true
   $result | ConvertTo-Json -Depth 8 | Set-Content -Path $resolvedResultFile -Encoding utf8
@@ -142,6 +152,7 @@ if ($DryRun) {
 
 if (-not ($env:TENANT_ID -and $env:CLIENT_ID -and $env:CLIENT_SECRET)) {
   $result.errors = @("TENANT_ID, CLIENT_ID and CLIENT_SECRET are required for workspace publish.")
+  $result.blockingReason = "workspace_publish_credentials_missing"
   $result | ConvertTo-Json -Depth 8 | Set-Content -Path $resolvedResultFile -Encoding utf8
   exit 1
 }

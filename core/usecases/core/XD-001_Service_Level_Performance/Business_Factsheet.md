@@ -56,10 +56,10 @@ service parts/ops (scoped separately).
 | svc.fcr.pct | Influencing |
 | svc.aht.minutes | Influencing |
 | svc.backlog.count | Influencing |
-| svc.nps.index | Influencing |
 | svc.escalation.pct | Influencing |
 | svc.tickets.created.count | Influencing |
 | svc.tickets.closed.count | Influencing |
+| svc.nps.index | Supporting |
 
 **Action Codes:** X-S1.1, X-S1.2, X-S1.3, X-S1.4
 
@@ -132,33 +132,17 @@ Structured summary of action codes (definitions remain in YAML).
 
 ### 5.4 300-Second Layer (Diagnostics)
 
-- (optional)
+- Queue- and severity-level case table with SLA flag, backlog flag, escalation flag, and handle-time context.
+- Aging and backlog decomposition by queue, issue type, and region.
+- Action panel routing for SLA recovery, backlog stabilisation, quality uplift, or handling-time optimisation.
 
 ## 6. Data Requirements Summary
 
-```yaml
-required_facts:
-
-  - fact_cases (SLA, FCR, AHT, backlog, escalation)
-
-  - fact_nps (NPS scores)
-required_dimensions:
-
-  - dim_date
-
-  - dim_org (region/channel/queue)
-
-  - dim_queue (if separate)
-
-  - dim_issue (if modeled)
-
-  - security_user_org
-required_grain: >
-  day_queue for ops metrics; month for NPS
-required_time_range: 12-24 months history
-required_slicers: >
-  Date, Region/Channel/Queue, Issue Type/Severity
-```
+- Required facts: support-case events for SLA, FCR, handle time, escalation, backlog, and ticket flow plus NPS survey results.
+- Required dimensions: date, organization, queue, issue type/severity.
+- Required grain: case for operations metrics, with monthly aggregation for NPS comparison.
+- Required time range: 12 to 24 months history.
+- Required slicers: Date, Region/Channel/Queue, Issue Type, Severity.
 
 ---
 

@@ -134,10 +134,10 @@ data_requirements:
     - AHT (Minutes)
     - Tickets Closed Count
     tables:
-    - fact_service_tickets
-    - fact_service_quality
-    - dim_queue
-    - dim_agent_group
+    - fact_support_cases
+    - fact_nps
+    - dim_case_queue
+    - dim_org
 automation:
   detection:
     enabled: true

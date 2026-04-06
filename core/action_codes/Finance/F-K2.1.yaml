@@ -24,9 +24,9 @@ scope:
   default_grain: month
   default_perspective:
   - Plant
-  - Cost Center
-  supported_slices:
   - Product Category
+  supported_slices:
+  - Line
   exclusions:
   - One-off approved restructuring costs
   - Temporary cost spikes linked to ramp-ups
@@ -125,7 +125,7 @@ operational_execution:
 data_requirements:
   required_entities:
   - Plant
-  - Cost Center
+  - Product Category
   semantic_dependencies:
     measures:
     - Unit Cost Amount
@@ -133,9 +133,11 @@ data_requirements:
     - Labor Productivity %
     tables:
     - fact_cost
-    - fact_ops
-    - dim_plant
-    - dim_cost_center
+    - fact_output
+    - fact_finance
+    - fact_labor
+    - dim_org
+    - dim_product
 automation:
   detection:
     enabled: true
@@ -153,7 +155,7 @@ tracking:
     minimum_fields:
     - ActionCode
     - Plant
-    - CostCenter
+    - ProductCategory
     - TriggerLevel
     - ActivatedLever
     - ExecutedDate

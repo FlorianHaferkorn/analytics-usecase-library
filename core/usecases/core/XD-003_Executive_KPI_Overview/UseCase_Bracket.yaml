@@ -16,18 +16,27 @@ orchestration:
   - ops.working_capital.ccc.days
   - people.digital_adoption.pct
   - people.attrition_risk.pct
-  - enterprise.action_routed.count
-  - enterprise.action_outcome_rate.pct
   supporting_kpi_ids:
   - cost.cogs.amount
+  - crm.active_customers.count
+  - crm.churned_customers.count
+  - crm.complaint.count
+  - crm.lifetime_revenue.amount
+  - crm.nps.index
+  - crm.retention.pct
   - sales.net_sales.amount
   - supply.otif.pct
+  - svc.fcr.pct
+  - svc.aht.minutes
+  - svc.backlog.count
+  - svc.escalation.pct
+  - svc.tickets.created.count
+  - svc.tickets.closed.count
   action_code_ids:
   - X-E3.2
 value_driver_model:
   formula: enterprise.value_at_risk.index = f(margin.gm.pct, sales.net_sales.delta_pct.ly, crm.clv.amount, svc.sla.attainment.pct,
-    ops.otif.pct, ops.working_capital.ccc.days, people.digital_adoption.pct, people.attrition_risk.pct,
-    enterprise.action_routed.count, enterprise.action_outcome_rate.pct)
+    ops.otif.pct, ops.working_capital.ccc.days, people.digital_adoption.pct, people.attrition_risk.pct)
   impact_direction: minimize
   primary_driver: margin.gm.pct
   impact_logic: Enterprise value at risk rises when profitability, service, working-capital, people, or action-effectiveness signals deteriorate.
@@ -59,6 +68,9 @@ ux_layout_rules:
       - entity
       - period
       - enterprise.value_at_risk.index
+      - margin.gm.pct
+      - sales.net_sales.delta_pct.ly
+      - ops.otif.pct
       action_panel: true
       payload_mode: full
 prioritization:

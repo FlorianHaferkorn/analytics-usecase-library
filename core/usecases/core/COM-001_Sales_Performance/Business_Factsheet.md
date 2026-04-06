@@ -131,33 +131,19 @@ Structured summary of action codes (definitions remain in YAML).
 
 ### 5.4 300-Second Layer (Diagnostics)
 
-- PVM decomposition by Region/Channel/Product.
-- Margin guardrail table (GM %, discount discipline).
-- Top-N accounts/products with adverse price/mix effects.
+- Gap decomposition by region, channel, product category, and customer segment with absolute and relative contribution to the plan and LY variance.
+- Margin guardrail table linking GM%, price realization, and mix deterioration to the specific invoice-line clusters that trigger C-S1.1 or C-S1.2.
+- Top-N accounts, SKUs, and channels with adverse price, volume, or mix effects, including the last 3 monthly observations to separate one-off noise from persistent execution gaps.
 
 ---
 
 ## 6. Data Requirements Summary
 
-```yaml
-required_facts:
-
-  - fact_sales
-required_dimensions:
-
-  - dim_date
-
-  - dim_org
-
-  - dim_product
-
-  - security_user_org
-required_grain: >
-  invoice_line (aggregated to month for KPIs)
-required_time_range: 24 months history with Plan and LY
-required_slicers: >
-  Date, Region/Channel, Product Category, Customer Segment (optional)
-```
+- Required facts: fact_sales with plan, LY, list price, net price, quantity, and COGS at invoice-line level.
+- Required dimensions: dim_date, dim_org, dim_product, dim_customer where available, and security_user_org.
+- Required grain: invoice_line, aggregated to month for KPI tracking and retained at invoice-line level for execution diagnostics.
+- Required time range: 24 months history with current plan and prior-year comparatives.
+- Required slicers: Date, Region/Channel, Product Category, Customer Segment.
 
 ---
 
