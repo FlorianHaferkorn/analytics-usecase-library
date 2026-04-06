@@ -1,0 +1,208 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "dashboard_spec.schema.json",
+  "title": "DashboardSpec",
+  "description": "Complete, platform-agnostic intermediate representation of one use case's reports + model. This is the handoff object between the BracketCompiler and any GeneratorAdapter.",
+  "type": "object",
+  "required": ["use_case_id", "domain", "title", "pages", "semantic_model"],
+  "additionalProperties": false,
+  "properties": {
+    "use_case_id": {
+      "type": "string",
+      "description": "Use case ID matching the bracket id field",
+      "examples": ["COM-001", "FIN-002", "OPS-003"]
+    },
+    "domain": {
+      "type": "string",
+      "description": "Domain name matching the semantic model prefix",
+      "examples": ["Commercial", "Finance", "Operations", "SupplyChain", "Experience"]
+    },
+    "title": {
+      "type": "string",
+      "description": "Human-readable use case title"
+    },
+    "semantic_model": {
+      "type": "string",
+      "description": "Target semantic model name",
+      "examples": ["Commercial.SemanticModel", "Finance.SemanticModel"]
+    },
+    "source_bracket": {
+      "type": "string",
+      "description": "Path to the source UseCase_Bracket.yaml"
+    },
+    "target_adapter": {
+      "type": "string",
+      "enum": ["pbip", "metabase", "grafana", "superset", "redash"],
+      "description": "Which adapter renders this spec",
+      "default": "pbip"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp of compilation"
+    },
+    "generator_version": {
+      "type": "string",
+      "description": "Semantic version of the generator_core package"
+    },
+    "pages": {
+      "type": "array",
+      "description": "Ordered list of pages (Overview first, then Detail)",
+      "minItems": 1,
+      "maxItems": 2,
+      "items": {"$ref": "#/definitions/PageSpec"}
+    },
+    "measures": {
+      "type": "array",
+      "description": "Measures to add/update in the domain semantic model",
+      "items": {"$ref": "#/definitions/MeasureSpec"}
+    },
+    "evidence_table": {
+      "oneOf": [
+        {"$ref": "#/definitions/EvidenceTableSpec"},
+        {"type": "null"}
+      ]
+    },
+    "action_panel": {
+      "oneOf": [
+        {"$ref": "#/definitions/ActionPanelSpec"},
+        {"type": "null"}
+      ]
+    }
+  },
+  "definitions": {
+    "PageSpec": {
+      "type": "object",
+      "required": ["id", "display_name", "role", "visuals"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "enum": ["Overview", "Detail"],
+          "description": "Stable page identifier"
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Tab label shown in report"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["overview", "detail"]
+        },
+        "page_type": {
+          "type": "string",
+          "enum": ["T1", "T2", "T3", "T4"],
+          "description": "3-30-300 page type: T1 Strategic, T2 Tactical, T3 Operational, T4 Prescriptive"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Tab order (0 = first)"
+        },
+        "visuals": {
+          "type": "array",
+          "items": {"$ref": "visual_spec.schema.json"}
+        }
+      }
+    },
+    "MeasureSpec": {
+      "type": "object",
+      "required": ["kpi_id", "name", "dax"],
+      "additionalProperties": false,
+      "properties": {
+        "kpi_id": {
+          "type": "string",
+          "description": "KPI catalog ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name in Power BI field list"
+        },
+        "dax": {
+          "type": "string",
+          "description": "DAX expression (single-line)"
+        },
+        "format_string": {
+          "type": "string",
+          "description": "Power BI format string",
+          "examples": ["#,0", "#,0.00", "0.0%", "@"]
+        },
+        "display_folder": {
+          "type": "string",
+          "description": "Folder path in field list"
+        },
+        "is_hidden": {
+          "type": "boolean",
+          "default": false
+        },
+        "description": {
+          "type": ["string", "null"]
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {"type": "string"},
+          "description": "TMDL annotations (key: value)"
+        }
+      }
+    },
+    "EvidenceTableSpec": {
+      "type": "object",
+      "required": ["grain"],
+      "additionalProperties": false,
+      "properties": {
+        "grain": {
+          "type": "string",
+          "description": "Evidence grain entity (e.g. customer_invoice_line)"
+        },
+        "columns": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "measures": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "sort_by": {
+          "type": ["string", "null"]
+        },
+        "limit": {
+          "type": "integer",
+          "default": 500,
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "data_bars": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "ActionPanelSpec": {
+      "type": "object",
+      "required": ["enabled"],
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "action_code_ids": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "payload_mode": {
+          "type": "string",
+          "enum": ["full", "summary", "minimal"],
+          "default": "full"
+        },
+        "title": {
+          "type": "string",
+          "default": "Recommended Actions"
+        },
+        "rendered_text": {
+          "type": ["string", "null"],
+          "description": "Pre-rendered action panel text (filled by compiler)"
+        }
+      }
+    }
+  }
+}

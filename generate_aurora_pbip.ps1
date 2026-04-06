@@ -31,6 +31,7 @@ Param(
     # Pipeline control
     [switch]$SkipVerification,    # Skip PBIP Desktop-readiness and page-structure checks
     [switch]$SkipCompliance,      # Skip page-template compliance check (Python)
+    [switch]$SkipPreflight,       # Skip Step 0 preflight (not recommended)
     [string]$DistRoot = "products/fabric/powerbi/dist"
 )
 
@@ -113,8 +114,60 @@ Write-Host ""
 
 $startTime = Get-Date
 
+# ── Step 0: Preflight (generator_core preflight validator) ────────────────────
+Write-Host "── Step 0 / 5  Preflight Validation ──────────────────────" -ForegroundColor Cyan
+
+$step0OK = $true
+if ($SkipPreflight) {
+    Write-Host "  SKIPPED (--SkipPreflight)" -ForegroundColor Yellow
+} elseif ($DryRun) {
+    Write-Host "  SKIPPED (DryRun)" -ForegroundColor Yellow
+} else {
+    $preflightScript = Join-Path $script:RepoRoot "tooling\generator_core\preflight\validator.py"
+    if (-not (Test-Path $preflightScript)) {
+        Write-Host "  WARN: preflight validator not found, skipping" -ForegroundColor Yellow
+    } else {
+        # Build the bracket path argument based on scope
+        $preflightArgs = @(
+            $preflightScript,
+            "--kpi-catalog-root",    (Join-Path $script:RepoRoot "core\kpi_catalog"),
+            "--action-codes-root",   (Join-Path $script:RepoRoot "core\action_codes"),
+            "--data-contracts-root", (Join-Path $script:RepoRoot "core\data_contracts"),
+            "--dist-root",           (Join-Path $script:RepoRoot ($DistRoot -replace '/', [IO.Path]::DirectorySeparatorChar)),
+            "--use-cases-root",      (Join-Path $script:RepoRoot ($UseCaseRoot -replace '/', [IO.Path]::DirectorySeparatorChar)),
+            "--mode", "full"
+        )
+        if ($UseCase) {
+            # Find the bracket file for this specific use case
+            $bracketFiles = Get-ChildItem -Path (Join-Path $script:RepoRoot $UseCaseRoot) -Filter "UseCase_Bracket.yaml" -Recurse |
+                Where-Object { $_.Directory.Name -like "$UseCase*" }
+            if ($bracketFiles) {
+                $preflightArgs += @("--bracket", $bracketFiles[0].FullName)
+            }
+        } elseif ($Domain) {
+            $preflightArgs += @("--domain", $Domain)
+        }
+        # else: no --bracket / --domain → runs for all use cases
+
+        python @preflightArgs
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "  FAIL: Preflight found blocking issues — fix them before generation." -ForegroundColor Red
+            Write-Host "  Tip:  Run 'python -m tooling.generator_core preflight --bracket <path>' for details." -ForegroundColor Yellow
+            $step0OK = $false
+        } else {
+            Write-Host "  OK: All preflight checks passed" -ForegroundColor Green
+        }
+    }
+}
+
+if (-not $step0OK) {
+    Write-Host "  Pipeline aborted at Step 0. Fix preflight errors and retry." -ForegroundColor Red
+    exit 1
+}
+
 # ── Step 1: Generate (orchestrate_full_model.ps1) ─────────────────────────────
-Write-Host "── Step 1 / 4  Generate TMDL + PBIP ──────────────────────" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "── Step 1 / 5  Generate TMDL + PBIP ──────────────────────" -ForegroundColor Cyan
 
 function Invoke-Orchestrator {
     param([array]$ExtraArgs)
@@ -162,7 +215,7 @@ if ($step1OK) {
 
 # ── Step 2: Desktop Readiness (ensure_pbip_desktop_ready.ps1) ─────────────────
 Write-Host ""
-Write-Host "── Step 2 / 4  PBIP Desktop Readiness ────────────────────" -ForegroundColor Cyan
+Write-Host "── Step 2 / 5  PBIP Desktop Readiness ────────────────────" -ForegroundColor Cyan
 
 $step2OK = $true
 if ($SkipVerification) {
@@ -183,7 +236,7 @@ if ($SkipVerification) {
 
 # ── Step 3: Page Structure (check_pbip_report_pages.ps1) ──────────────────────
 Write-Host ""
-Write-Host "── Step 3 / 4  Page Structure Verification ────────────────" -ForegroundColor Cyan
+Write-Host "── Step 3 / 5  Page Structure Verification ────────────────" -ForegroundColor Cyan
 
 $step3OK = $true
 if ($SkipVerification) {
@@ -204,7 +257,7 @@ if ($SkipVerification) {
 
 # ── Step 4: Template Compliance (check_page_template_compliance.py) ───────────
 Write-Host ""
-Write-Host "── Step 4 / 4  Page Template Compliance ───────────────────" -ForegroundColor Cyan
+Write-Host "── Step 4 / 5  Page Template Compliance ───────────────────" -ForegroundColor Cyan
 
 $step4OK = $true
 if ($SkipCompliance -or $SkipVerification) {
@@ -228,17 +281,42 @@ if ($SkipCompliance -or $SkipVerification) {
     }
 }
 
+# ── Step 5: Quality Score + Telemetry ────────────────────────────────────────
+Write-Host ""
+Write-Host "── Step 5 / 5  Quality Score + Telemetry ──────────────────" -ForegroundColor Cyan
+
+$step5OK = $true
+if ($DryRun) {
+    Write-Host "  SKIPPED (DryRun)" -ForegroundColor Yellow
+} else {
+    $scoreScript = Join-Path $script:RepoRoot "tooling\generator_core\__main__.py"
+    if (Test-Path $scoreScript) {
+        $scoreArgs = @(
+            "-m", "tooling.generator_core", "telemetry", "--stats"
+        )
+        try {
+            $scoreOutput = python @scoreArgs 2>&1
+            Write-Host "  Telemetry: $($scoreOutput -join ' | ')" -ForegroundColor Gray
+        } catch {
+            Write-Verbose "Telemetry stats unavailable: $($_.Exception.Message)"
+        }
+    }
+    Write-Host "  OK" -ForegroundColor Green
+}
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 $elapsed   = [int]((Get-Date) - $startTime).TotalSeconds
-$allPassed = $step1OK -and $step2OK -and $step3OK -and $step4OK
+$allPassed = $step0OK -and $step1OK -and $step2OK -and $step3OK -and $step4OK
 
 Write-Host ""
 Write-Host "══════════════════════════════════════════════════════════" -ForegroundColor Cyan
 Write-Host "  Pipeline Summary  ($($elapsed)s)" -ForegroundColor Cyan
+Write-Host "  Step 0 Preflight:      $(if ($SkipPreflight -or $DryRun) { 'SKIP' } elseif ($step0OK) { 'PASS' } else { 'FAIL' })" -ForegroundColor $(if ($SkipPreflight -or $DryRun) { 'Yellow' } elseif ($step0OK) { 'Green' } else { 'Red' })
 Write-Host "  Step 1 Generate:       $(if ($step1OK) { 'PASS' } else { 'FAIL' })" -ForegroundColor $(if ($step1OK) { 'Green' } else { 'Red' })
 Write-Host "  Step 2 Desktop ready:  $(if ($SkipVerification -or $DryRun) { 'SKIP' } elseif ($step2OK) { 'PASS' } else { 'FAIL' })" -ForegroundColor $(if ($SkipVerification -or $DryRun) { 'Yellow' } elseif ($step2OK) { 'Green' } else { 'Red' })
 Write-Host "  Step 3 Page structure: $(if ($SkipVerification -or $DryRun) { 'SKIP' } elseif ($step3OK) { 'PASS' } else { 'FAIL' })" -ForegroundColor $(if ($SkipVerification -or $DryRun) { 'Yellow' } elseif ($step3OK) { 'Green' } else { 'Red' })
 Write-Host "  Step 4 Compliance:     $(if ($SkipCompliance -or $SkipVerification -or $DryRun) { 'SKIP' } elseif ($step4OK) { 'PASS' } else { 'FAIL' })" -ForegroundColor $(if ($SkipCompliance -or $SkipVerification -or $DryRun) { 'Yellow' } elseif ($step4OK) { 'Green' } else { 'Red' })
+Write-Host "  Step 5 Telemetry:      $(if ($DryRun) { 'SKIP' } else { 'DONE' })" -ForegroundColor $(if ($DryRun) { 'Yellow' } else { 'Green' })
 Write-Host "══════════════════════════════════════════════════════════" -ForegroundColor Cyan
 
 # Write pipeline manifest (non-critical — don't fail the pipeline on errors)
@@ -251,6 +329,7 @@ if (-not $DryRun) {
                 scope          = $scopeLabel
                 all_passed     = $allPassed
                 steps          = @{
+                    preflight      = $step0OK
                     generate       = $step1OK
                     desktop_ready  = $step2OK
                     page_structure = $step3OK

@@ -124,6 +124,27 @@ try {
     if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
   }
 
+  # ── Telemetry: record this run ────────────────────────────────────────────
+  $telemetryScript = Join-Path $repoRoot "tooling\generator_core\intelligence\telemetry.py"
+  if (Test-Path $telemetryScript) {
+    try {
+      $runStatus = if ($failed -gt 0) { "failure" } else { "success" }
+      $telemetryCode = @"
+import sys, json
+sys.path.insert(0, r'$repoRoot')
+from tooling.generator_core.intelligence.telemetry import TelemetryCollector
+from tooling.generator_core.intelligence.classifier import ErrorClassifier
+tc = TelemetryCollector()
+run = tc.start_run('_fabric_checks', adapter='fabric_checks')
+tc.record_phase(run, 'fabric_checks', '$runStatus', errors=['$failed check(s) failed'] if $failed > 0 else [])
+tc.complete_run(run)
+"@
+      python -c $telemetryCode 2>$null
+    } catch {
+      # Non-critical — ignore telemetry errors
+    }
+  }
+
   if ($failed -gt 0) {
     Write-Host "Fabric checks: $failed failed." -ForegroundColor Red
     exit 1
