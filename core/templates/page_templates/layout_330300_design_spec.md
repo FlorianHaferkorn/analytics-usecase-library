@@ -90,13 +90,18 @@ Tools vary in how they scale fonts relative to canvas size. The design base canv
 
 All layouts use a **12-column × 12-row logical unit (LU) grid** that scales proportionally to any canvas.
 
-Grid parameters (from `governance/Layout_Grid_System.yaml`):
+Grid parameters (canonical values — `governance/Layout_Grid_System.yaml`):
 
-| Parameter | Default | Description |
-|---|---|---|
-| Outer margin | 32px | Safety margin from canvas edge |
-| Gutter | 16px | Gap between all visual containers |
-| Grid | 12 × 12 LU | Columns and rows |
+| Parameter        | Value     | Description                                           |
+|------------------|-----------|-------------------------------------------------------|
+| Grid             | 12 × 12 LU| Columns and rows, logical units                      |
+| Outer margin     | 32px      | Safety gap from all canvas edges                     |
+| Gutter           | 16px      | Gap between visuals **within the same zone**         |
+| Internal padding | 8px       | Padding inside visual containers (cards, panels)     |
+| Zone gap         | 40px      | Gap between zone groups (overrides gutter)           |
+
+Spacing hierarchy: Zone gap (40px) > Gutter (16px) > Internal padding (8px)
+Source authority: `Storytelling_Principles.md §11`
 
 Formulas:
 ```

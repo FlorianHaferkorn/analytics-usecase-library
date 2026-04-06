@@ -1,308 +1,195 @@
 # Layout Grid System — Framework Governance
-
-## Purpose
-
-This file defines the **systematic layout grid system** for Power BI page scaffolds. It ensures consistent visual positioning, spacing, and alignment across all generated pages.
-
-**Authority:** This file is referenced by scaffold generators to position visuals on pages.
+#
+# Authority:   This file is the canonical source for all visual positioning,
+#              spacing, and grid calculations across the Analytics Use Case Library.
+#
+# Implements:  layout_330300_design_spec.md §3 (Canvas & Grid)
+# Aligns with: Storytelling_Principles.md §11 (White Space)
+#
+# Rule: Values in this file supersede pixel values stated anywhere else.
+#       All slot coordinates use the 1280×720 design-base canvas.
+#       Connectors translate to their native canvas via the LU formulae below.
 
 ---
 
 ## Canvas Standards
 
-### Default Canvas Size
+| Mode             | Width  | Height | Aspect Ratio | Purpose                                           |
+|------------------|--------|--------|--------------|---------------------------------------------------|
+| Design base      | 1280px | 720px  | 16:9         | Reference for all slot coordinates in this file   |
+| Production (PBI) | 1920px | 1080px | 16:9         | Default for deployed Fabric/Power BI reports      |
+| Export / PDF     | 1920px | 1080px | 16:9         | +2pt font compensation required per connector     |
+| Web / fluid      | —      | —      | viewport     | Use rem/clamp; defined per connector spec         |
 
-| Mode | Width | Height | Aspect Ratio |
-|------|-------|--------|--------------|
-| **Standard** | 1920px | 1080px | 16:9 (Full HD) |
-| **Minimum** | 1280px | 720px | 16:9 (HD) |
-
-**Rule:** Scaffolds use **1920×1080px** by default. Minimum size (1280×720px) only for mobile-optimized layouts.
-
----
-
-## Grid System
-
-### Pixel-Based Positioning
-
-**Principle:** Use **pixel-based positioning** (not column-based grid) for precise control.
-
-**Grid Alignment:**
-- **Snap-to-grid:** Enabled (`snapToGrid: true` in page metadata)
-- **Grid spacing:** 10px (visuals align to 10px increments)
-- **Show gridlines:** Optional (for development, disabled in production)
+Rule: Scaffold generators read canvas from UseCase_Bracket.yaml → report_canvas.
+      When unset, default is 1280×720 (design base).
 
 ---
 
-## Spacing Rules
+## Master Grid Parameters (Canonical)
 
-### Page Padding
+| Parameter        | Value | Description                                              |
+|------------------|-------|----------------------------------------------------------|
+| Grid             | 12×12 | Columns × rows, logical units (LU)                      |
+| Outer margin     | 32px  | Safety gap from all canvas edges                        |
+| Gutter           | 16px  | Gap between visuals within the same zone                |
+| Internal padding | 8px   | Padding inside visual containers (cards, panels)        |
+| Zone gap         | 40px  | Gap between zone groups (overrides gutter between zones)|
 
-| Edge | Padding |
-|------|---------|
-| **Top** | 20px |
-| **Bottom** | 20px |
-| **Left** | 20px |
-| **Right** | 20px |
+Spacing hierarchy:
+  Zone gap (40px) > Gutter (16px) > Internal padding (8px)
 
-**Rule:** All visuals must be positioned at least 20px from page edges.
+  - Between visuals in the same zone  →  16px  (gutter)
+  - Between different zone groups     →  40px  (zone gap)
+  - Inside a card or panel container  →   8px  (internal padding)
+  - Canvas edge to first visual       →  32px  (outer margin)
 
-### Visual Gaps
-
-| Gap Type | Size |
-|----------|------|
-| **Between visuals (horizontal)** | 20px |
-| **Between visuals (vertical)** | 20px |
-| **Between visual groups** | 40px |
-| **Between KPI cards** | 20px |
-
-**Rule:** Consistent 20px gaps between visuals create professional appearance. Use 40px gaps to separate visual groups (e.g., KPI row from main charts).
+Source authority: Storytelling_Principles.md §11
 
 ---
 
-## Row System
+## Grid Formulae
 
-### Standard Row Heights
+For any canvas (W × H):
 
-| Row | Y-Position Range | Purpose |
-|-----|------------------|---------|
-| **Row 1** | 0-160px | KPI Cards, Slicers |
-| **Row 2** | 180-580px | Primary visuals (Trend, Variance, Exceptions, Prescriptive) |
-| **Row 3** | 600-900px | Secondary visuals (Ranking, Mix, Root Cause) |
-| **Row 4+** | 920px+ | Detail Matrix (Detail pages only) |
+  content_width   = W − 2 × outer_margin
+  content_height  = H − 2 × outer_margin
+  lu_width        = (content_width  − 11 × gutter) / 12
+  lu_height       = (content_height − 11 × gutter) / 12
 
-**Rule:** Rows are guidelines, not strict boundaries. Visuals can span multiple rows if needed.
+  slot(col_start, row_start, col_span, row_span):
+    x      = outer_margin + col_start × (lu_width  + gutter)
+    y      = outer_margin + row_start × (lu_height + gutter)
+    width  = col_span  × lu_width  + (col_span  − 1) × gutter
+    height = row_span  × lu_height + (row_span  − 1) × gutter
 
-### KPI Cards Row (Row 1)
+Computed values at 1280×720 design base:
+  content_width   = 1216px
+  content_height  =  656px
+  lu_width        ≈  86.67px  (1040 / 12)
+  lu_height       =  40px     (480  / 12)
+  col_step        ≈ 102.67px  (lu_width  + gutter)
+  row_step        =  56px     (lu_height + gutter)
 
-**Positioning:**
-- **Y:** 0-160px
-- **X:** Start at 20px (left padding)
-- **Width per card:** 280px (standard) or 200px (compact)
-- **Height:** 140px (standard) or 120px (compact)
-- **Gap between cards:** 20px
-- **Max cards per row:** 6 (wrap to row 2 if more)
+Implementation: products/fabric/powerbi/tooling/page_scaffold_generator/grid_calculator.py
 
-**Calculation:**
-- Available width: 1920px - 40px (left + right padding) = 1880px
-- With 6 cards (280px each) + 5 gaps (20px each): 6×280 + 5×20 = 1780px
-- Remaining space: 1880px - 1780px = 100px (distributed as left/right margin)
+---
 
-### Primary Visuals Row (Row 2)
+## Zone System
 
-**Positioning:**
-- **Y:** 180px (20px gap after KPI row)
-- **Height:** 400px minimum
-- **Width:** Full width (minus slicer column if side placement)
+Zones map to LU rows. Zone gap (40px) is achieved by leaving an empty LU row between zones
+OR by applying explicit offset in the scaffold generator.
 
-**Visuals:**
-- Trend (Line Chart)
-- Variance (Waterfall)
-- Exceptions (Table, T3)
-- Prescriptive (Table, T4)
+| Zone   | LU Rows | Purpose                                      | Reading Pattern |
+|--------|---------|----------------------------------------------|-----------------|
+| Zone 1 | 0–1     | 3-second layer: KPI band (no slicers)        | Both            |
+| Zone 2 | 2       | 30-second filter: slicer bar (top placement) | Z-pattern pages |
+| Zone 3 | 3–8     | 30-second drivers: trend, variance, ranking  | Both            |
+| Zone 4 | 0–11    | 300-second detail: full-page (detail pages)  | F-pattern pages |
 
-### Secondary Visuals Row (Row 3)
+Zone 4 occupies the full grid of the Detail page — it does not share a page with Zones 1–3.
 
-**Positioning:**
-- **Y:** 600px (20px gap after Row 2)
-- **Height:** 300px minimum
-- **Width:** Half width (400px+) or full width if no other visual
+---
 
-**Visuals:**
-- Ranking (Horizontal Bar)
-- Mix (100% Stacked Bar)
-- Root Cause (Scatter Plot)
+## Named Slot Coordinates
 
-### Detail Matrix Row (Row 4+)
+All coordinates at 1280×720 design base. Connectors scale proportionally.
 
-**Positioning:**
-- **Y:** 920px+ (20px gap after Row 3)
-- **Height:** 300px minimum (flexible)
-- **Width:** Full width (minus slicer column if side placement)
+### Overview Page (Z-pattern — T1, T2, T3 overview)
 
-**Visuals:**
-- Detail Matrix (Table or Matrix, Detail pages only)
+| Slot ID       | col | row | col_span | row_span | x (px) | y (px) | w (px) | h (px) |
+|---------------|-----|-----|----------|----------|--------|--------|--------|--------|
+| KPI_Cards     |   0 |   0 |       12 |        2 |     32 |     32 |   1216 |     96 |
+| Slicer_Date   |   0 |   2 |       12 |        1 |     32 |    144 |   1216 |     40 |
+| Main_1 (Trend)|   0 |   3 |        4 |        6 |     32 |    200 |    395 |    320 |
+| Main_2 (Var.) |   4 |   3 |        4 |        6 |    443 |    200 |    395 |    320 |
+| Main_3 (Rank) |   8 |   3 |        4 |        6 |    853 |    200 |    395 |    320 |
+
+Note: Slicer_Date sits in Zone 2 (row 2), never in Zone 1 (rows 0–1).
+      SQLBI rule: slicers never occupy the 3-second space.
+
+### Detail Page — without Action Panel (T1/T2/T3 detail)
+
+| Slot ID        | col | row | col_span | row_span | x (px) | y (px) | w (px) | h (px) |
+|----------------|-----|-----|----------|----------|--------|--------|--------|--------|
+| Slicer_Pane    |   0 |   0 |        2 |       12 |     32 |     32 |    189 |    656 |
+| Smart_Narrative|   2 |   0 |       10 |        1 |    237 |     32 |   1011 |     40 |
+| Detail_Matrix  |   2 |   1 |       10 |       11 |    237 |     88 |   1011 |    600 |
+
+### Detail Page — with Action Panel (T4 prescriptive)
+
+| Slot ID        | col | row | col_span | row_span | x (px) | y (px) | w (px) | h (px) |
+|----------------|-----|-----|----------|----------|--------|--------|--------|--------|
+| Slicer_Pane    |   0 |   0 |        2 |       12 |     32 |     32 |    189 |    656 |
+| Smart_Narrative|   2 |   0 |        8 |        1 |    237 |     32 |    805 |     40 |
+| Detail_Matrix  |   2 |   1 |        8 |       11 |    237 |     88 |    805 |    600 |
+| ActionPanel    |  10 |   1 |        2 |       11 |   1058 |     88 |    189 |    600 |
 
 ---
 
 ## Slicer Placement
 
-### Top Slicers
+Slicer position follows the reading pattern of the page. This is intentional — not inconsistency.
 
-**Positioning:**
-- **Y:** 0-40px (Row 1, top)
-- **X:** After KPI cards or at start if no KPI cards
-- **Width:** Equal distribution (divide available width by number of slicers)
-- **Height:** 40px
+| Page type      | Reading pattern | Slicer placement  | Rationale                                           |
+|----------------|-----------------|-------------------|-----------------------------------------------------|
+| Overview pages | Z-pattern       | Top bar (Zone 2)  | Eye scans horizontally; top filter visible at glance|
+| Detail pages   | F-pattern       | Left pane (Zone 4)| Eye anchors left column; slicer context always visible while reading table down |
 
-**Rule:** Use top placement for time/date slicers and when filtering affects most visuals.
-
-### Side Slicers
-
-**Positioning:**
-- **X:** Right side, starting at 1570px (1920px - 350px width)
-- **Y:** 0px (full page height)
-- **Width:** 200px
-- **Height:** Full page height (1080px)
-
-**Rule:** Use side placement for categorical slicers (org, product, region) when space allows.
-
-**Visual Resizing:**
-- When side slicers present, reduce visual width by 220px (200px slicer + 20px gap)
-- Available width for visuals: 1920px - 40px (padding) - 220px (slicer) = 1660px
-
----
-
-## Action Panel Placement (T4)
-
-**Positioning:**
-- **X:** Right side, starting at 1570px (1920px - 350px width)
-- **Y:** 0px (full page height)
-- **Width:** 350px
-- **Height:** Full page height (1080px)
-
-**Visual Resizing:**
-- When Action Panel present, reduce visual width by 370px (350px panel + 20px gap)
-- Available width for visuals: 1920px - 40px (padding) - 370px (panel) = 1510px
-
-**Z-Order:**
-- Action Panel always on top (can overlay visuals if needed, but visuals should resize)
+Rule: Never place a slicer in Zone 1 (KPI band). The 3-second space belongs to KPIs only.
+Rule: Max 3 slicers per page (ux_design_system §5.1). Date/time first, categorical after.
 
 ---
 
 ## Visual Sizing Standards
 
-### Standard Sizes
+Reference sizes at 1280×720 design base. Scale proportionally for other canvas sizes.
 
-| Visual Type | Standard Width | Standard Height | Compact Width | Compact Height |
-|-------------|----------------|-----------------|---------------|----------------|
-| **KPI Card** | 280px | 140px | 200px | 120px |
-| **Trend Chart** | 800px+ | 400px | 600px | 300px |
-| **Variance (Waterfall)** | 800px+ | 400px | 600px | 300px |
-| **Ranking (Bar)** | 400px+ | 300px | 300px | 250px |
-| **Mix (Stacked Bar)** | 400px+ | 300px | 300px | 250px |
-| **Exception Table** | Full width | 400px+ | — | — |
-| **Prescriptive Table** | Full width (minus Action Panel) | 400px+ | — | — |
-| **Scatter Plot** | 600px+ | 400px | — | — |
-| **Funnel Chart** | 600px+ | 400px | — | — |
-| **Detail Matrix** | Full width | 300px+ | — | — |
+| Visual type          | Standard w  | Standard h | Compact w | Compact h |
+|----------------------|-------------|------------|-----------|-----------|
+| KPI Card             | 189px (2 LU)| 96px (2 LU)| 140px     |  80px     |
+| Trend chart          | 395px (4 LU)| 320px (6 LU)| 300px    | 200px     |
+| Waterfall / Variance | 395px (4 LU)| 320px (6 LU)| 300px    | 200px     |
+| Horizontal bar       | 395px (4 LU)| 320px (6 LU)| 300px    | 200px     |
+| Exception table      | 1216px full | 320px+     | —         | —         |
+| Detail matrix        | slot width  | slot height| —         | —         |
+| Slicer pane (left)   | 189px (2 LU)| 656px full | —         | —         |
+| Action panel (right) | 189px (2 LU)| 600px (11 LU)| —       | —         |
+| Smart narrative      | slot width  | 40px (1 LU)| —         | —         |
 
-### Aspect Ratios
-
-**Rule:** Charts maintain **2:1 aspect ratio** (width:height) for readability.
-
-**Examples:**
-- 800px × 400px = 2:1
-- 600px × 300px = 2:1
-- 400px × 200px = 2:1
-
----
-
-## Responsive Behavior
-
-### Mobile Layouts
-
-**Rule:** Mobile layouts are **separate page definitions**, not responsive transformations.
-
-**Mobile Canvas:**
-- Width: 1280px (minimum)
-- Height: 720px (minimum)
-
-**Mobile Adjustments:**
-- KPI Cards: Compact size (200×120px), max 3 per row
-- Charts: Reduced to minimum sizes (600×300px)
-- Slicers: Responsive (horizontal to vertical layout)
-- Tables: Full width, scrollable
+Aspect ratio rule: Charts target a 2:1 width:height ratio for readability.
+KPI card max: 6 per row at standard size. Use compact when ≥5 cards required.
 
 ---
 
 ## Z-Order Rules
 
-**Priority (highest to lowest):**
-1. **Action Panel** (T4) — Always on top
-2. **Slicers** — Above visuals
-3. **Visuals** — Standard layer
-4. **Background** — Bottom layer
+Priority (highest → lowest):
+  1. Action Panel (T4) — always on top
+  2. Slicers          — above visuals
+  3. Visuals          — standard layer
+  4. Background       — bottom layer
 
-**Rule:** Visuals should not overlap unless explicitly required (e.g., Action Panel overlay).
-
----
-
-## Examples
-
-### T2 Overview Page (COM-001)
-
-```
-Row 1 (y=0-160):
-  [KPI Card 1] [KPI Card 2] [KPI Card 3] [KPI Card 4] [Slicer: Time] [Slicer: Org]
-
-Row 2 (y=180-580):
-  [Trend Chart - Full Width (1880px × 400px)]
-
-Row 3 (y=600-900):
-  [Variance Waterfall - Full Width (1880px × 400px)]
-
-Row 4 (y=920-1220):
-  [Ranking Bar Chart - Full Width (1880px × 300px)]
-```
-
-### T4 Overview Page (with Action Panel)
-
-```
-Row 1 (y=0-160):
-  [KPI Card 1] [KPI Card 2] [Slicer: Time] [Action Panel - Right Side (350px × 1080px)]
-
-Row 2 (y=180-580):
-  [Prescriptive Table - Left (1510px × 400px)] [Action Panel continues]
-
-Row 3 (y=600-900):
-  [Ranking Bar Chart - Left (1510px × 300px)] [Action Panel continues]
-```
+Rule: Visuals must not overlap. Action Panel is sized to a dedicated slot — it does not
+      overlay chart area. Resize Main/Matrix slots accordingly (see slot table above).
 
 ---
 
----
+## Snap and Alignment
 
-## Master Grid (12×12 LU)
-
-**Purpose:** Rigid 12×12 logical grid for Builder Engine. Positions are computed from slot coordinates; all visuals align to grid boundaries (integer pixels).
-
-### Parameters (configurable)
-
-| Parameter | Default (BPA) | Alternative | Description |
-|-----------|----------------|-------------|-------------|
-| **Canvas** | 1920×1080 | 1280×720, etc. | Page size (Full HD standard). |
-| **Outer Margin** | 32px | 24px | Safety margin from canvas edge. |
-| **Gutter** | 16px | — | Constant gap between all visual containers. |
-| **Internal Padding** | 8px | — | Reserved for future use (inside-container). |
-
-### Formulae
-
-- Content width: `Cw = canvas_width - 2 × outer_margin`
-- Content height: `Ch = canvas_height - 2 × outer_margin`
-- LU width: `lu_width = (Cw - 11 × gutter) / 12`
-- LU height: `lu_height = (Ch - 11 × gutter) / 12`
-- Slot rect for `[col, row, col_span, row_span]` (0-based):
-  - `x = outer_margin + col × (lu_width + gutter)`
-  - `y = outer_margin + row × (lu_height + gutter)`
-  - `width = col_span × lu_width + (col_span - 1) × gutter`
-  - `height = row_span × lu_height + (row_span - 1) × gutter`
-
-### API
-
-- `calculate_visual_rect(col_start, row_start, col_span, row_span)` → pixel (x, y, width, height).
-- Implemented in `products/fabric/powerbi/tooling/page_scaffold_generator/grid_calculator.py`.
-- Page templates: `core/templates/page_templates/grid_templates/` (pulse, investigator, action_matrix).
-
-### Scaling
-
-When canvas size changes, use the same formulae with new width/height; LU dimensions and all slot positions scale proportionally. Set `report_canvas: { width, height }` in Bracket or use grid template `canvas` default.
+- Grid snap: 10px increments (visuals align to 10px boundaries in PBI scaffold generator)
+- Baseline alignment: all visuals in the same LU row share the same top Y coordinate
+- No orphaned visuals: every visual must be assigned to a named slot ID
 
 ---
 
 ## References
 
-- **Scaffold Spec:** `products/fabric/powerbi/tooling/page_scaffold_spec.md`
-- **Best Practices Research:** `products/fabric/powerbi/tooling/V1_BEST_PRACTICES_RESEARCH.md`
-- **Visual-to-Slot Mapping:** `governance/Visual_to_Slot_Mapping.yaml`
-- **Grid templates:** `grid_templates/` (pulse.json, investigator.json, action_matrix.json)
+| Document                                           | Relationship                            |
+|----------------------------------------------------|-----------------------------------------|
+| layout_330300_design_spec.md §3                   | Governing design spec — this file implements it |
+| Storytelling_Principles.md §11                    | Authority for spacing values (16/40/8/32px) |
+| grid_templates/ (pulse.json, action_matrix.json)  | Machine-readable slot configs derived from this file |
+| grid_calculator.py                                | Formula implementation — reads this file's parameters |
+| Visual_to_Slot_Mapping.yaml                       | Maps abstract visual types to named slots |
+| Slot_Definitions.md                               | Prose definition of each slot's content rules |
