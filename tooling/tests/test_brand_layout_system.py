@@ -32,6 +32,8 @@ def warn(name: str, detail: str) -> None:
 
 
 def load_yaml(path: Path) -> dict:
+    # Inline to support standalone execution (no sys.path setup).
+    # Shared equivalent: tooling/utils/yaml_loader.py
     import yaml
     return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 

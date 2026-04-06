@@ -52,9 +52,9 @@ Every concrete adapter MUST:
    | Adapter | Location |
    |---|---|
    | `PBIPAdapter` | `products/fabric/powerbi/tooling/adapters/pbip.py` |
-   | `MetabaseAdapter` | `products/oss/tooling/adapters/metabase.py` |
-   | `GrafanaAdapter` | `products/oss/tooling/adapters/grafana.py` |
-   | `SupersetAdapter` | `products/oss/tooling/adapters/superset.py` |
+   | `MetabaseAdapter` | `products/oss_adapters/tooling/adapters/metabase.py` |
+   | `GrafanaAdapter` | `products/oss_adapters/tooling/adapters/grafana.py` |
+   | `SupersetAdapter` | `products/oss_adapters/tooling/adapters/superset.py` |
 
 4. **Use absolute imports** for generator_core types:
    ```python
@@ -186,5 +186,5 @@ provides better guidance without any code changes.
 - [ ] Add `validate_ir()` — at minimum check Overview + Detail pages exist
 - [ ] Implement `visual_type_map()` with all `VisualType` values
 - [ ] Implement `render()` — returns `{relative_path: bytes}`
-- [ ] Add OSS-specific output checks to `products/oss/tooling/validation/`
+- [ ] Add OSS-specific output checks to `products/oss_adapters/tooling/validation/`
 - [ ] Write at least one smoke test in `products/<product>/tooling/tests/`

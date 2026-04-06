@@ -38,6 +38,7 @@ from pathlib import Path
 
 import yaml
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
+from tooling.utils.yaml_loader import load_yaml  # shared utility
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Paths (relative to this script)
@@ -131,9 +132,7 @@ def quote_if_spaces(name: str) -> str:
     return name
 
 
-def load_yaml(path: Path) -> dict:
-    with open(path, encoding="utf-8") as f:
-        return yaml.safe_load(f)
+# load_yaml imported from tooling.utils.yaml_loader above
 
 
 # ─────────────────────────────────────────────────────────────────────────────
