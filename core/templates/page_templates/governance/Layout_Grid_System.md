@@ -3,7 +3,7 @@
 # Authority:   This file is the canonical source for all visual positioning,
 #              spacing, and grid calculations across the Analytics Use Case Library.
 #
-# Implements:  layout_330300_design_spec.md §3 (Canvas & Grid)
+# Implements:  Design_Spec_3_30_300.md §3 (Canvas & Grid)
 # Aligns with: Storytelling_Principles.md §11 (White Space)
 #
 # Rule: Values in this file supersede pixel values stated anywhere else.
@@ -187,7 +187,7 @@ Rule: Visuals must not overlap. Action Panel is sized to a dedicated slot — it
 
 | Document                                           | Relationship                            |
 |----------------------------------------------------|-----------------------------------------|
-| layout_330300_design_spec.md §3                   | Governing design spec — this file implements it |
+| Design_Spec_3_30_300.md §3                   | Governing design spec — this file implements it |
 | Storytelling_Principles.md §11                    | Authority for spacing values (16/40/8/32px) |
 | grid_templates/ (pulse.json, action_matrix.json)  | Machine-readable slot configs derived from this file |
 | grid_calculator.py                                | Formula implementation — reads this file's parameters |

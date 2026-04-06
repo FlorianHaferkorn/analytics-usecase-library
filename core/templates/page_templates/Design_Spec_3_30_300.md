@@ -3,7 +3,8 @@
 > **Governing authority:** [`reporting_principles.md`](../../strategy_operating_model/company/reporting_principles.md) · [`ux_design_system.md`](../../strategy_operating_model/operating_model/ux_design_system.md)
 > **BPA rules:** [`REPORT_BEST_PRACTICES.md`](../../../tooling/linters/powerbi/REPORT_BEST_PRACTICES.md)
 > **Web design references:** Tremor, Tabler, SQLBI (see §2)
-> **Implements:** `Page_Spec_3_30_300.md` · `governance/Layout_Grid_System.yaml` · `governance/Slot_Definitions.md`
+> **Implements:** `Page_Spec_3_30_300.md` · `governance/Layout_Grid_System.md` · `governance/Slot_Definitions.md`
+> **Machine-readable tokens:** `tokens/layout_grid.yaml` · `tokens/color_semantics.yaml` · `tokens/typography.yaml`
 
 This document is the authoritative **tool-agnostic** layout design specification for all analytical pages built with the Analytics Use Case Library. It is written for frontend designers and layout engineers who implement the 3-30-300 framework across tools (Power BI/Fabric, Apache Superset, Grafana, Metabase, web export, and any future connector).
 
@@ -90,7 +91,7 @@ Tools vary in how they scale fonts relative to canvas size. The design base canv
 
 All layouts use a **12-column × 12-row logical unit (LU) grid** that scales proportionally to any canvas.
 
-Grid parameters (canonical values — `governance/Layout_Grid_System.yaml`):
+Grid parameters (canonical values — `tokens/layout_grid.yaml`):
 
 | Parameter        | Value     | Description                                           |
 |------------------|-----------|-------------------------------------------------------|
@@ -455,8 +456,11 @@ Tool-specific implementation details are out of scope for this document. See:
 | Connector Spec | `core/templates/page_templates/Connector_Spec.md` |
 | Abstract Visual Types | `core/templates/page_templates/Abstract_Visual_Types.md` |
 | Slot Definitions | `core/templates/page_templates/governance/Slot_Definitions.md` |
-| Layout Grid System | `core/templates/page_templates/governance/Layout_Grid_System.yaml` |
-| Visual-to-Slot Mapping | `core/templates/page_templates/governance/Visual_to_Slot_Mapping.yaml` |
+| Layout Grid System (prose) | `core/templates/page_templates/governance/Layout_Grid_System.md` |
+| Layout Grid Tokens (machine-readable) | `core/templates/page_templates/tokens/layout_grid.yaml` |
+| Color Tokens (machine-readable) | `core/templates/page_templates/tokens/color_semantics.yaml` |
+| Typography Tokens (machine-readable) | `core/templates/page_templates/tokens/typography.yaml` |
+| Visual-to-Slot Mapping | `core/templates/page_templates/tokens/visual_slot_mapping.yaml` |
 | Grid Templates | `core/templates/page_templates/grid_templates/` |
 | Brand Spec Schema | `core/brand/BrandSpec.schema.yaml` |
 | Layer Samples | `core/templates/page_templates/samples/` |

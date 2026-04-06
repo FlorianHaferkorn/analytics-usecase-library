@@ -4,7 +4,7 @@
 >
 > **Governs:** All connector implementations under `products/*/` and `core/templates/page_templates/connectors/`.
 >
-> **Abstract spec:** `layout_330300_design_spec.md` · `Abstract_Visual_Types.md`
+> **Abstract spec:** `Design_Spec_3_30_300.md` · `Abstract_Visual_Types.md`
 
 ---
 
@@ -51,7 +51,7 @@ Full semantics: `governance/Slot_Definitions.md`
 
 ### 2.2 Grid Coordinates (12×12 LU System)
 
-Grid positions use logical units (LU) on a 12-column × 12-row grid. Connectors translate LU to native pixel or % coordinates using the formulas in `governance/Layout_Grid_System.yaml §Master Grid`.
+Grid positions use logical units (LU) on a 12-column × 12-row grid. Connectors translate LU to native pixel or % coordinates using the formulas in `governance/Layout_Grid_System.md §Grid Formulae`. Machine-readable parameters: `tokens/layout_grid.yaml`.
 
 Standard grid positions per layout template: `grid_templates/pulse.json`, `action_matrix.json`, `investigator.json`.
 

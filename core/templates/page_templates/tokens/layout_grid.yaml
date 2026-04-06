@@ -1,0 +1,47 @@
+# layout_grid.yaml — Machine-readable grid parameters (tool-agnostic)
+# Consumed by: products/fabric/powerbi/tooling/page_scaffold_generator/config_loader.py
+# Prose documentation: governance/Layout_Grid_System.md
+# Authority: Storytelling_Principles.md §11 · Design_Spec_3_30_300.md §3
+# Schema version: 1.0
+
+schema_version: "1.0"
+
+canvas:
+  design_base:
+    width: 1280
+    height: 720
+  production:
+    width: 1920
+    height: 1080
+
+grid:
+  cols: 12
+  rows: 12
+
+spacing:
+  outer_margin: 32     # px — safety gap from canvas edge on all sides
+  gutter: 16           # px — gap between visuals within the same zone
+  internal_padding: 8  # px — padding inside visual containers (cards, panels)
+  zone_gap: 40         # px — gap between zone groups (overrides gutter between zones)
+
+# Spacing hierarchy: zone_gap (40) > gutter (16) > internal_padding (8)
+# Source authority: Storytelling_Principles.md §11
+
+visual_sizing:
+  kpi_card:
+    standard:
+      width: 280
+      height: 140
+    compact:
+      width: 200
+      height: 120
+    max_per_row: 6
+  slicer_top:
+    height: 40
+  slicer_pane:
+    col_span: 2         # LU columns (left sidebar on detail pages)
+  action_panel:
+    col_span: 2         # LU columns (right sidebar on T4 detail pages)
+
+snap:
+  grid_px: 10           # pixel snap increment for scaffold generator

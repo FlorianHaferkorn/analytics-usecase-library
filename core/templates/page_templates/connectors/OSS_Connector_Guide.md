@@ -6,7 +6,7 @@
 >
 > **Covers:** Apache Superset, Grafana, Metabase
 >
-> **Abstract spec:** `../layout_330300_design_spec.md` · `../Connector_Spec.md` · `../Abstract_Visual_Types.md`
+> **Abstract spec:** `../Design_Spec_3_30_300.md` · `../Connector_Spec.md` · `../Abstract_Visual_Types.md`
 
 ---
 
@@ -56,7 +56,7 @@ The 12×12 LU grid translates to OSS tool layout systems as follows.
 
 ### Design Canvas Reference
 
-- Design base: 1280×720 (from `layout_330300_design_spec.md §3.1`)
+- Design base: 1280×720 (from `Design_Spec_3_30_300.md §3.1`)
 - Grid parameters: 32px outer margin, 16px gutter, 12×12 LU
 
 ### Computed LU Sizes (1280×720)

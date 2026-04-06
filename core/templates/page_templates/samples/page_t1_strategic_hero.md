@@ -4,7 +4,7 @@
 > **Template:** T1 Strategic Overview — Hero Layout (1 dominant KPI, 2 context charts)
 > **Reading pattern:** Z-pattern
 > **Use case example:** FIN-001 Group Financial Performance
-> **Spec ref:** `layout_330300_design_spec.md §6.1` · `page_types/T1_Strategic_Overview.md`
+> **Spec ref:** `Design_Spec_3_30_300.md §6.1` · `page_types/T1_Strategic_Overview.md`
 
 ---
 

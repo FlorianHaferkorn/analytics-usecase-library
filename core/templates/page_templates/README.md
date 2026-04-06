@@ -31,7 +31,7 @@ Each use case is implemented as **exactly two pages**:
 | Document | Purpose |
 |---|---|
 | `Page_Spec_3_30_300.md` | Slot overview — where which visual goes and why |
-| `layout_330300_design_spec.md` | **Authoritative** tool-agnostic layout spec (canvas, grid, zones, visual grammar, accessibility) |
+| `Design_Spec_3_30_300.md` | **Authoritative** tool-agnostic layout spec (canvas, grid, zones, visual grammar, accessibility) |
 | `Storytelling_Principles.md` | Narrative and content quality principles — Big Idea, Narrative Arc, pre-attentive attributes, color, typography |
 | `Content_Quality_Guide.md` | Content standards — visual titles, KPI labels, Smart Narrative templates, Action Panel copy |
 | `Connector_Spec.md` | Connector contract — what any tool connector must implement; compliance checklist |
@@ -52,10 +52,18 @@ Each use case is implemented as **exactly two pages**:
 |---|---|
 | `governance/Slot_Definitions.md` | Semantic slot definitions and allowed templates |
 | `governance/Visual_Whitelist.md` | Allowed visual types by slot and template |
-| `governance/Color_Semantics_Formatting.yaml` | Color roles, KPI card formatting, chart formatting rules |
-| `governance/Layout_Grid_System.yaml` | 12×12 LU grid parameters and pixel formulae |
-| `governance/Visual_to_Slot_Mapping.yaml` | Visual type → slot compatibility matrix |
+| `governance/Color_Semantics_Formatting.md` | Color roles, KPI card formatting, chart formatting rules (prose) |
+| `governance/Layout_Grid_System.md` | 12×12 LU grid parameters and pixel formulae (prose) |
 | `governance/Page_DoD.md` | Definition of Done — 8-point completion checklist |
+
+### Design Tokens (Machine-Readable YAML)
+
+| File | Contents |
+|---|---|
+| `tokens/layout_grid.yaml` | Grid parameters, canvas sizes, spacing values (canonical) |
+| `tokens/color_semantics.yaml` | Semantic hex tokens, brand palette, surface/text/border colors |
+| `tokens/typography.yaml` | Font scale — sizes, weights, color roles per typography role |
+| `tokens/visual_slot_mapping.yaml` | Visual type → slot compatibility matrix with grid coordinates |
 
 ### Grid Templates (Machine-Readable)
 

@@ -3,7 +3,7 @@
 > **Connector version:** 2.0.1 (implements abstract spec v2.0)
 > **Status:** Active — production connector for the Fabric/Power BI product track
 > **Location:** `products/fabric/powerbi/`
-> **Abstract spec:** `../layout_330300_design_spec.md` · `../Connector_Spec.md` · `../Abstract_Visual_Types.md`
+> **Abstract spec:** `../Design_Spec_3_30_300.md` · `../Connector_Spec.md` · `../Abstract_Visual_Types.md`
 
 ---
 
@@ -46,7 +46,7 @@ Font delta values are set in `products/fabric/powerbi/tooling/page_scaffold_gene
 
 ### Grid → Pixel Conversion
 
-The `GridCalculator` class (`grid_calculator.py`) implements the 12×12 LU formulae from `governance/Layout_Grid_System.yaml §Master Grid`:
+The `GridCalculator` class (`grid_calculator.py`) implements the 12×12 LU formulae from `tokens/layout_grid.yaml` (prose: `governance/Layout_Grid_System.md §Grid Formulae`):
 
 ```python
 # Default parameters (1920×1080 production canvas)
@@ -324,5 +324,5 @@ Run date: per CI execution — see `tooling/validation/` output.
 | BPA rules | `tooling/linters/powerbi/REPORT_BEST_PRACTICES.md` |
 | Grid calculator | `products/fabric/powerbi/tooling/page_scaffold_generator/grid_calculator.py` |
 | Brand/theme mapping | `core/brand/tool_derivations/powerbi_mapping.md` |
-| Abstract spec | `core/templates/page_templates/layout_330300_design_spec.md` |
+| Abstract spec | `core/templates/page_templates/Design_Spec_3_30_300.md` |
 | Connector contract | `core/templates/page_templates/Connector_Spec.md` |

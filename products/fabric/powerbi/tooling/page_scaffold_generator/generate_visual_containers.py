@@ -17,11 +17,32 @@ if __name__ == "__main__":
         sys.path.insert(0, str(_parent.parent))
 
 from page_scaffold_generator.grid_calculator import GridCalculator, GridPosition
+from page_scaffold_generator.config_loader import ConfigLoader
 
-# Brand Blue Dark (Monochromatic) - for conditional formatting
-BRAND_BLUE_DARK_GOOD = "#519872"
-BRAND_BLUE_DARK_NEUTRAL = "#F6AE2D"
-BRAND_BLUE_DARK_BAD = "#EC4E20"
+# Semantic color tokens — loaded from tokens/color_semantics.yaml at runtime.
+# Fallback values match canonical tokens (color_semantics.yaml semantic.*).
+# Source authority: Storytelling_Principles.md §9
+_COLOR_DEFAULTS = {
+    "good":    "#107C10",  # semantic.positive
+    "neutral": "#C98A00",  # semantic.warning
+    "bad":     "#A4262C",  # semantic.negative
+}
+
+def _load_semantic_colors() -> dict:
+    """Load semantic color tokens from tokens/color_semantics.yaml via ConfigLoader."""
+    try:
+        loader = ConfigLoader()
+        data = loader.load_color_semantics()
+        sem = data.get("semantic", {})
+        return {
+            "good":    sem.get("positive", _COLOR_DEFAULTS["good"]),
+            "neutral": sem.get("warning",  _COLOR_DEFAULTS["neutral"]),
+            "bad":     sem.get("negative", _COLOR_DEFAULTS["bad"]),
+        }
+    except Exception:
+        return _COLOR_DEFAULTS.copy()
+
+_SEMANTIC_COLORS = _load_semantic_colors()
 
 VISUAL_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json"
 
@@ -166,12 +187,9 @@ def render_action_matrix(
 
 
 def get_conditional_formatting_colors() -> Dict[str, str]:
-    """Return Brand Blue Dark colors for good/neutral/bad (bedingte Formatierung)."""
-    return {
-        "good": BRAND_BLUE_DARK_GOOD,
-        "neutral": BRAND_BLUE_DARK_NEUTRAL,
-        "bad": BRAND_BLUE_DARK_BAD,
-    }
+    """Return semantic token colors for good/neutral/bad conditional formatting.
+    Values loaded from tokens/color_semantics.yaml; falls back to canonical hex defaults."""
+    return _SEMANTIC_COLORS.copy()
 
 
 def main() -> int:

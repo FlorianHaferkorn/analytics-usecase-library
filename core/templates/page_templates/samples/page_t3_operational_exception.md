@@ -4,7 +4,7 @@
 > **Template:** T3 Operational Monitoring — Exception-first layout
 > **Reading pattern:** F-pattern (exception list anchors the left column)
 > **Use case example:** LOG-001 Order Backlog & SLA Compliance
-> **Spec ref:** `layout_330300_design_spec.md §6.1` · `page_types/T3_Operational_Monitoring.md`
+> **Spec ref:** `Design_Spec_3_30_300.md §6.1` · `page_types/T3_Operational_Monitoring.md`
 
 ---
 

@@ -4,7 +4,7 @@
 > **Templates:** All (T1–T4); Action Panel only for T4
 > **Reading pattern:** F-pattern
 > **Use case example:** COM-001 Sales Performance (T2), T4 variant shown separately
-> **Spec ref:** `layout_330300_design_spec.md §6.2`
+> **Spec ref:** `Design_Spec_3_30_300.md §6.2`
 
 ---
 

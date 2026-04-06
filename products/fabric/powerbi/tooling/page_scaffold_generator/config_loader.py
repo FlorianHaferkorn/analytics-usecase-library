@@ -37,6 +37,7 @@ class ConfigLoader:
         self.grid_templates_root = self.page_templates_root / "grid_templates"
         self.visual_templates_root = self.page_templates_root / "visual_templates"
         self.governance_root = self.page_templates_root / "governance"
+        self.tokens_root = self.page_templates_root / "tokens"   # machine-readable design tokens
         self.usecases_root = self.repo_root / "core" / "usecases"
         self.kpi_catalog_path = self.repo_root / "core" / "kpi_catalog" / "KPI_Catalog.md"
         self.action_codes_root = self.repo_root / "core" / "action_codes"
@@ -209,22 +210,17 @@ class ConfigLoader:
             return yaml.safe_load(f) or {}
     
     def load_visual_slot_mapping(self) -> Dict[str, Any]:
-        """Load Visual_to_Slot_Mapping.yaml (or return hardcoded mapping if file is markdown)."""
-        mapping_file = self.governance_root / "Visual_to_Slot_Mapping.yaml"
+        """Load tokens/visual_slot_mapping.yaml. Falls back to hardcoded mapping on error."""
+        mapping_file = self.tokens_root / "visual_slot_mapping.yaml"
         if not mapping_file.exists():
-            raise FileNotFoundError(f"Visual slot mapping not found: {mapping_file}")
-        
-        # Try to load as YAML first
+            logger.warning("visual_slot_mapping.yaml not found at %s — using hardcoded fallback", mapping_file)
+            return self._get_hardcoded_visual_slot_mapping()
         try:
             with open(mapping_file, 'r', encoding='utf-8') as f:
-                content = f.read()
-                # Check if it's markdown (starts with #)
-                if content.strip().startswith('#'):
-                    # Return hardcoded mapping based on documentation
-                    return self._get_hardcoded_visual_slot_mapping()
-                return yaml.safe_load(content)
-        except Exception:
-            # If YAML parsing fails, return hardcoded mapping
+                data = yaml.safe_load(f)
+            return data if isinstance(data, dict) else self._get_hardcoded_visual_slot_mapping()
+        except Exception as exc:
+            logger.warning("Failed to parse visual_slot_mapping.yaml: %s — using hardcoded fallback", exc)
             return self._get_hardcoded_visual_slot_mapping()
     
     def _get_hardcoded_visual_slot_mapping(self) -> Dict[str, Any]:
@@ -243,20 +239,18 @@ class ConfigLoader:
         }
     
     def load_layout_grid(self) -> Dict[str, Any]:
-        """Load Layout_Grid_System.yaml (or return hardcoded values if file is markdown)."""
-        layout_file = self.governance_root / "Layout_Grid_System.yaml"
-        if not layout_file.exists():
-            raise FileNotFoundError(f"Layout grid not found: {layout_file}")
-        
-        # Try to load as YAML first
+        """Load tokens/layout_grid.yaml. Returns empty dict on error (caller uses defaults)."""
+        token_file = self.tokens_root / "layout_grid.yaml"
+        if not token_file.exists():
+            logger.warning("layout_grid.yaml not found at %s — callers will use hardcoded defaults", token_file)
+            return {}
         try:
-            with open(layout_file, 'r', encoding='utf-8') as f:
-                content = f.read()
-                if content.strip().startswith('#'):
-                    return {}  # Return empty dict, layout calculator uses hardcoded values
-                return yaml.safe_load(content)
-        except Exception:
-            return {}  # Return empty dict, layout calculator uses hardcoded values
+            with open(token_file, 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f)
+            return data if isinstance(data, dict) else {}
+        except Exception as exc:
+            logger.warning("Failed to parse layout_grid.yaml: %s", exc)
+            return {}
     
     def load_grid_page_template(self, template_id: str) -> Dict[str, Any]:
         """
@@ -300,20 +294,32 @@ class ConfigLoader:
         return result
 
     def load_color_semantics(self) -> Dict[str, Any]:
-        """Load Color_Semantics_Formatting.yaml (or return empty dict if file is markdown)."""
-        color_file = self.governance_root / "Color_Semantics_Formatting.yaml"
-        if not color_file.exists():
-            raise FileNotFoundError(f"Color semantics not found: {color_file}")
-        
-        # Try to load as YAML first
+        """Load tokens/color_semantics.yaml. Returns empty dict on error (caller uses defaults)."""
+        token_file = self.tokens_root / "color_semantics.yaml"
+        if not token_file.exists():
+            logger.warning("color_semantics.yaml not found at %s — callers will use hardcoded defaults", token_file)
+            return {}
         try:
-            with open(color_file, 'r', encoding='utf-8') as f:
-                content = f.read()
-                if content.strip().startswith('#'):
-                    return {}  # Return empty dict, formatting uses theme roles
-                return yaml.safe_load(content)
-        except Exception:
-            return {}  # Return empty dict, formatting uses theme roles
+            with open(token_file, 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f)
+            return data if isinstance(data, dict) else {}
+        except Exception as exc:
+            logger.warning("Failed to parse color_semantics.yaml: %s", exc)
+            return {}
+
+    def load_typography(self) -> Dict[str, Any]:
+        """Load tokens/typography.yaml. Returns empty dict on error (caller uses defaults)."""
+        token_file = self.tokens_root / "typography.yaml"
+        if not token_file.exists():
+            logger.warning("typography.yaml not found at %s — callers will use hardcoded defaults", token_file)
+            return {}
+        try:
+            with open(token_file, 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f)
+            return data if isinstance(data, dict) else {}
+        except Exception as exc:
+            logger.warning("Failed to parse typography.yaml: %s", exc)
+            return {}
     
     def load_use_case_factsheet(self, use_case_id: str) -> Optional[Dict[str, Any]]:
         """

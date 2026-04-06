@@ -1,7 +1,7 @@
 # ARCHIVED — layout_330300_300s_layer.md
 
 **Archived:** 2026-04-05  
-**Reason:** Content superseded by `layout_330300_design_spec.md §5.4` (Zone 4 — 300-Second Layer) and enriched samples in `samples/`. Schema authority unchanged — see `tooling/ai/schemas/layout_330300.schema.json`.  
+**Reason:** Content superseded by `Design_Spec_3_30_300.md §5.4` (Zone 4 — 300-Second Layer) and enriched samples in `samples/`. Schema authority unchanged — see `tooling/ai/schemas/layout_330300.schema.json`.  
 **Do not delete:** File kept for git history reference only.
 
 ---

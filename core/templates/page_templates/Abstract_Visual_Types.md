@@ -2,7 +2,7 @@
 
 > **Authority:** This document defines the tool-agnostic vocabulary for all visual types used in the 3-30-300 framework. Connectors translate these abstract types to tool-native components.
 >
-> **Used by:** `Connector_Spec.md` · `governance/Visual_Whitelist.md` · `governance/Visual_to_Slot_Mapping.yaml`
+> **Used by:** `Connector_Spec.md` · `governance/Visual_Whitelist.md` · `tokens/visual_slot_mapping.yaml`
 
 ---
 

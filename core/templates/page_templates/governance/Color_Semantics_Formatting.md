@@ -7,7 +7,7 @@
 #                Connector-specific bindings (PBI theme roles, CSS variables, etc.)
 #                are listed in the Connector Bindings section below.
 #
-# Implements:  layout_330300_design_spec.md §7 (Visual Grammar Rules)
+# Implements:  Design_Spec_3_30_300.md §7 (Visual Grammar Rules)
 # Aligns with: Storytelling_Principles.md §9 (Color System), §10 (Typography)
 
 ---
@@ -282,7 +282,7 @@ KPI band → primary visuals → secondary visuals → slicers → action panel
 |------------------------------------|-----------------------------------------------------------|
 | Storytelling_Principles.md §9      | Authority for semantic color role definitions             |
 | Storytelling_Principles.md §10     | Authority for typography scale (font sizes and weights)   |
-| layout_330300_design_spec.md §7    | Governing spec — this file implements it                  |
+| Design_Spec_3_30_300.md §7    | Governing spec — this file implements it                  |
 | products/fabric/powerbi/tooling/theme_generator/ | PBI theme JSON generation from these tokens  |
 | connectors/OSS_Connector_Guide.md  | Token binding for Superset, Grafana, Metabase             |
 | core/kpi_catalog/<kpi_id>.yaml     | KPI polarity (higher_is_better) for delta color logic     |

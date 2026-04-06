@@ -4,7 +4,7 @@
 > **Template:** T4 Prescriptive Recommendation — Full action panel
 > **Reading pattern:** F-pattern (left = slicer + data; right = action)
 > **Use case example:** COM-002 Promotional Effectiveness & Margin Recovery
-> **Spec ref:** `layout_330300_design_spec.md §6.2` · `page_types/T4_Prescriptive_Recommendation.md`
+> **Spec ref:** `Design_Spec_3_30_300.md §6.2` · `page_types/T4_Prescriptive_Recommendation.md`
 
 ---
 

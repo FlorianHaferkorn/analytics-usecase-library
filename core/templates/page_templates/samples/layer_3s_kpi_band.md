@@ -3,7 +3,7 @@
 > **Layer:** Zone 1 (rows 0–1 of the 12×12 grid, full width)
 > **Purpose:** Immediate orientation — status vs. target at a glance
 > **Rule:** Nothing else shares this zone. No slicers. No logos. No buttons.
-> **Spec ref:** `layout_330300_design_spec.md §5.1`
+> **Spec ref:** `Design_Spec_3_30_300.md §5.1`
 
 ---
 

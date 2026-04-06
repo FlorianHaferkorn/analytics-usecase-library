@@ -4,7 +4,7 @@
 > **Template:** T2 Tactical Variance (standard; other templates follow same structure)
 > **Reading pattern:** Z-pattern
 > **Use case example:** COM-001 Sales Performance
-> **Spec ref:** `layout_330300_design_spec.md §6.1`
+> **Spec ref:** `Design_Spec_3_30_300.md §6.1`
 
 ---
 

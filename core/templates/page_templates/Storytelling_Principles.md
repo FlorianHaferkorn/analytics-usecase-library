@@ -2,7 +2,7 @@
 
 > **Authority:** This document governs the narrative and content standards for all pages built with the Analytics Use Case Library. It translates established data storytelling research into binding rules for the framework.
 >
-> **Implements:** `layout_330300_design_spec.md` · `page_types/T1–T4` · `Content_Quality_Guide.md`
+> **Implements:** `Design_Spec_3_30_300.md` · `page_types/T1–T4` · `Content_Quality_Guide.md`
 >
 > **Research basis:** Knaflic (SWD), Few (Information Dashboard Design), Tufte (Visual Display of Quantitative Information), Nielsen Norman Group (Dashboard UX), IBCS (ISO/AWI 24896), MDPI Eye-Tracking Study 2024.
 
