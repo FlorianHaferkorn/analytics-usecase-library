@@ -1,0 +1,160 @@
+/// Consolidated Measures for: OPS-001, OPS-002, OPS-003
+table _Measures
+
+	partition _Measures = m
+		mode: import
+		source =
+				let
+					Source = #table(type table[Column1 = text], {})
+				in
+					Source
+
+	column Column1
+		dataType: string
+		sourceColumn: Column1
+		isHidden
+		summarizeBy: none
+
+	// ─── OPS-001: Operations Performance (OEE) ───────────────────────────────
+
+	/// ops.availability.pct - Availability %
+	/// Ratio of actual runtime to planned production time; primary OEE driver.
+	measure 'Availability %' = DIVIDE ( SUM ( fact_ops[Planned Time Minutes] ) - SUM ( fact_ops[Downtime Minutes] ), SUM ( fact_ops[Planned Time Minutes] ) )
+		formatString: "0.0%"
+		displayFolder: "OPS-001"
+
+	/// ops.performance.pct - Performance %
+	/// Actual output rate versus planned speed during available runtime.
+	measure 'Performance %' = DIVIDE ( SUM ( fact_ops[Actual Output Units] ), ( SUM ( fact_ops[Planned Time Minutes] ) - SUM ( fact_ops[Downtime Minutes] ) ) * AVERAGE ( fact_ops[Planned Speed Units Per Min] ) )
+		formatString: "0.0%"
+		displayFolder: "OPS-001"
+
+	/// ops.quality.pct - Quality Rate %
+	/// Share of good (first-pass) units versus total produced units.
+	measure 'Quality Rate %' = DIVIDE ( SUM ( fact_ops[Good Output Units] ), SUM ( fact_ops[Total Output Units] ) )
+		formatString: "0.0%"
+		displayFolder: "OPS-001"
+
+	/// ops.oee.pct - OEE %
+	/// Overall Equipment Effectiveness = Availability × Performance × Quality Rate.
+	measure 'OEE %' = [Availability %] * [Performance %] * [Quality Rate %]
+		formatString: "0.0%"
+		displayFolder: "OPS-001"
+
+	/// ops.throughput.units - Throughput Units
+	/// Total good units produced in the reporting period.
+	measure 'Throughput Units' = SUM ( fact_ops[Good Output Units] )
+		formatString: "#,0"
+		displayFolder: "OPS-001"
+
+	/// ops.downtime.pct - Downtime %
+	/// Downtime as share of planned production time; inverse of availability.
+	measure 'Downtime %' = DIVIDE ( SUM ( fact_ops[Downtime Minutes] ), SUM ( fact_ops[Planned Time Minutes] ) )
+		formatString: "0.0%"
+		displayFolder: "OPS-001"
+
+	/// ops.planned_output.units - Planned Output Units
+	/// Total planned production volume for the reporting period.
+	measure 'Planned Output Units' = SUM ( fact_ops[Planned Output Units] )
+		formatString: "#,0"
+		displayFolder: "OPS-001"
+
+	// ─── OPS-002: Asset Performance ──────────────────────────────────────────
+
+	/// ops.failure.count - Failure Count
+	/// Total number of equipment failures in the reporting period.
+	measure 'Failure Count' = COUNTROWS ( fact_ops_failures )
+		formatString: "#,0"
+		displayFolder: "OPS-002"
+
+	/// ops.mtbf.hours - MTBF (hours)
+	/// Mean Time Between Failures: average uptime between failure events.
+	measure 'MTBF (hours)' = DIVIDE ( SUM ( fact_ops_failures[Uptime Hours] ), [Failure Count] )
+		formatString: "#,0.0"
+		displayFolder: "OPS-002"
+
+	/// ops.mttr.hours - MTTR (hours)
+	/// Mean Time To Repair: average time to restore equipment after a failure.
+	measure 'MTTR (hours)' = DIVIDE ( SUM ( fact_ops_failures[Downtime Hours] ), [Failure Count] )
+		formatString: "#,0.0"
+		displayFolder: "OPS-002"
+
+	/// ops.downtime.unplanned.pct - Unplanned Downtime %
+	/// Share of downtime events that were unplanned (not scheduled maintenance).
+	measure 'Unplanned Downtime %' = DIVIDE ( CALCULATE ( COUNTROWS ( fact_ops_failures ), fact_ops_failures[Is Unplanned] = TRUE () ), [Failure Count] )
+		formatString: "0.0%"
+		displayFolder: "OPS-002"
+
+	/// ops.pm_compliance.pct - PM Compliance %
+	/// Ratio of completed preventive maintenance tasks to scheduled tasks.
+	measure 'PM Compliance %' = DIVIDE ( SUM ( fact_maintenance[PM Tasks Completed] ), SUM ( fact_maintenance[PM Tasks Scheduled] ) )
+		formatString: "0.0%"
+		displayFolder: "OPS-002"
+
+	/// ops.spare_parts.stockout.pct - Spare Parts Stockout %
+	/// Share of spare parts requests that resulted in stockout.
+	measure 'Spare Parts Stockout %' = DIVIDE ( SUM ( fact_maintenance[Spare Parts Stockout Count] ), SUM ( fact_maintenance[Spare Parts Available] ) + SUM ( fact_maintenance[Spare Parts Stockout Count] ) )
+		formatString: "0.0%"
+		displayFolder: "OPS-002"
+
+	/// ops.inventory.value.amount - Maintenance Inventory Value
+	/// Total value of spare parts and maintenance inventory on hand.
+	measure 'Maintenance Inventory Value' = SUM ( fact_maintenance[Inventory Value Amount] )
+		formatString: "#,0.00"
+		displayFolder: "OPS-002"
+
+	/// ops.pm.task.count - PM Task Count
+	/// Total preventive maintenance tasks scheduled in the reporting period.
+	measure 'PM Task Count' = SUM ( fact_maintenance[PM Tasks Scheduled] )
+		formatString: "#,0"
+		displayFolder: "OPS-002"
+
+	/// ops.safety.incident.count - Safety Incident Count
+	/// Total safety incidents linked to maintenance or equipment events.
+	measure 'Safety Incident Count' = SUM ( fact_maintenance[Safety Incident Count] )
+		formatString: "#,0"
+		displayFolder: "OPS-002"
+
+	// ─── OPS-003: Quality & Yield ─────────────────────────────────────────────
+
+	/// quality.fpy.pct - First Pass Yield %
+	/// Share of units that pass all quality checks without rework on first pass.
+	measure 'First Pass Yield %' = DIVIDE ( SUM ( fact_quality[Good Units] ), SUM ( fact_quality[Produced Units] ) )
+		formatString: "0.0%"
+		displayFolder: "OPS-003"
+
+	/// quality.scrap.pct - Scrap %
+	/// Share of produced units scrapped due to quality failures.
+	measure 'Scrap %' = DIVIDE ( SUM ( fact_quality[Scrap Units] ), SUM ( fact_quality[Produced Units] ) )
+		formatString: "0.0%"
+		displayFolder: "OPS-003"
+
+	/// quality.rework.pct - Rework %
+	/// Share of produced units requiring rework before passing quality.
+	measure 'Rework %' = DIVIDE ( SUM ( fact_quality[Rework Units] ), SUM ( fact_quality[Produced Units] ) )
+		formatString: "0.0%"
+		displayFolder: "OPS-003"
+
+	/// quality.copq.amount - Cost of Poor Quality
+	/// Total cost from scrap, rework, warranty, and failure (COPQ).
+	measure 'Cost of Poor Quality' = SUM ( fact_quality[COPQ Amount] )
+		formatString: "#,0.00"
+		displayFolder: "OPS-003"
+
+	/// quality.complaint.pct - Complaint %
+	/// Complaint count as share of units shipped or invoiced.
+	measure 'Complaint %' = DIVIDE ( SUM ( fact_quality[Complaint Count] ), SUM ( fact_quality[Produced Units] ) )
+		formatString: "0.00%"
+		displayFolder: "OPS-003"
+
+	/// quality.defect_density - Defect Density
+	/// Number of defects per 1 000 units produced (DPU × 1000).
+	measure 'Defect Density' = DIVIDE ( SUM ( fact_quality[Defect Count] ), SUM ( fact_quality[Produced Units] ) ) * 1000
+		formatString: "#,0.0"
+		displayFolder: "OPS-003"
+
+	/// crm.complaint.count - Complaint Count
+	/// Total number of quality complaints logged.
+	measure 'Complaint Count' = SUM ( fact_quality[Complaint Count] )
+		formatString: "#,0"
+		displayFolder: "OPS-003"

@@ -1,0 +1,3 @@
+relationship dim_date_fact_accounts_payable
+	fromColumn: fact_accounts_payable.DateKey
+	toColumn: dim_date.DateKey

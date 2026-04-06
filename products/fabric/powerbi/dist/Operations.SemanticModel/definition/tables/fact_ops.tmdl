@@ -1,0 +1,65 @@
+/// OEE fact table (per shift/line/day): availability, performance, quality inputs for OEE calculation.
+table fact_ops
+		lineageTag: e5f6a7b8-c9d0-1234-ef56-gh78ij90ef12
+
+		column DateKey
+			dataType: Int64
+			sourceColumn: DateKey
+			summarizeBy: none
+
+		column OrgKey
+			dataType: Int64
+			sourceColumn: OrgKey
+			summarizeBy: none
+
+		column AssetKey
+			dataType: Int64
+			sourceColumn: AssetKey
+			summarizeBy: none
+
+		column 'Planned Time Minutes'
+			dataType: Decimal
+			sourceColumn: Planned Time Minutes
+			summarizeBy: none
+
+		column 'Downtime Minutes'
+			dataType: Decimal
+			sourceColumn: Downtime Minutes
+			summarizeBy: none
+
+		column 'Actual Output Units'
+			dataType: Decimal
+			sourceColumn: Actual Output Units
+			summarizeBy: none
+
+		column 'Planned Output Units'
+			dataType: Decimal
+			sourceColumn: Planned Output Units
+			summarizeBy: none
+
+		column 'Good Output Units'
+			dataType: Decimal
+			sourceColumn: Good Output Units
+			summarizeBy: none
+
+		column 'Total Output Units'
+			dataType: Decimal
+			sourceColumn: Total Output Units
+			summarizeBy: none
+
+		column 'Planned Speed Units Per Min'
+			dataType: Decimal
+			sourceColumn: Planned Speed Units Per Min
+			summarizeBy: none
+
+		partition fact_ops = m
+			mode: import
+			source =
+			let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_ops"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+					in
+					ParquetData
+

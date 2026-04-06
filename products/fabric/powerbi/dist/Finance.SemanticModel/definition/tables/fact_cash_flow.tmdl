@@ -1,0 +1,35 @@
+/// Cash flow statement fact: operating, investing, and financing cash flows by period.
+table fact_cash_flow
+		lineageTag: 0d1e2f3a-4b5c-6789-0d1e-2f3a4b5c6d7e
+
+		column DateKey
+			dataType: Int64
+			sourceColumn: DateKey
+			summarizeBy: none
+
+		column OrgKey
+			dataType: Int64
+			sourceColumn: OrgKey
+			summarizeBy: none
+
+		column 'Cash Flow Amount'
+			dataType: Decimal
+			sourceColumn: Cash Flow Amount
+			summarizeBy: none
+
+		column 'Cash Flow Category'
+			dataType: String
+			sourceColumn: Cash Flow Category
+			summarizeBy: none
+
+		partition fact_cash_flow = m
+			mode: import
+			source =
+			let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_cash_flow"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+					in
+					ParquetData
+

@@ -108,6 +108,22 @@ try {
     }
   }
 
+  $checkReportPages = Join-Path $repoRoot "products/fabric/powerbi/tooling/validation/check_pbip_report_pages.ps1"
+  if (Test-Path $checkReportPages) {
+    Write-Host ""
+    Write-Host ">> check_pbip_report_pages.ps1" -ForegroundColor Cyan
+    & $checkReportPages -DistRoot $distRootResolved
+    if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
+  }
+
+  $checkCompliance = Join-Path $repoRoot "products/fabric/powerbi/tooling/validation/check_page_template_compliance.py"
+  if (Test-Path $checkCompliance) {
+    Write-Host ""
+    Write-Host ">> check_page_template_compliance.py" -ForegroundColor Cyan
+    python $checkCompliance --dist-root $distRootResolved
+    if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
+  }
+
   if ($failed -gt 0) {
     Write-Host "Fabric checks: $failed failed." -ForegroundColor Red
     exit 1
