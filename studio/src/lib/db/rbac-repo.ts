@@ -26,7 +26,7 @@ export function addProjectMember(
 }
 
 /** Remove a member from a project. */
-export function removeProjectMember(projectId: string, userId: string): boolean {
+function removeProjectMember(projectId: string, userId: string): boolean {
   const db = getDb();
   const result = db.prepare(
     'DELETE FROM project_members WHERE user_id = ? AND project_id = ?',
@@ -35,7 +35,7 @@ export function removeProjectMember(projectId: string, userId: string): boolean 
 }
 
 /** Get a specific member's role in a project. */
-export function getProjectMember(
+function getProjectMember(
   projectId: string,
   userId: string,
 ): ProjectMember | undefined {
@@ -46,7 +46,7 @@ export function getProjectMember(
 }
 
 /** List all members of a project. */
-export function listProjectMembers(projectId: string): ProjectMember[] {
+function listProjectMembers(projectId: string): ProjectMember[] {
   const db = getDb();
   return db.prepare(
     'SELECT * FROM project_members WHERE project_id = ? ORDER BY created_at',

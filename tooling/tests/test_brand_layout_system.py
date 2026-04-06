@@ -32,6 +32,8 @@ def warn(name: str, detail: str) -> None:
 
 
 def load_yaml(path: Path) -> dict:
+    # Inline to support standalone execution (no sys.path setup).
+    # Shared equivalent: tooling/utils/yaml_loader.py
     import yaml
     return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
@@ -70,7 +72,6 @@ if __name__ == "__main__":
     "core/templates/page_templates/samples/page_pulse_full.md",
     "core/templates/page_templates/samples/page_action_matrix_full.md",
     "core/templates/page_templates/samples/page_investigator_full.md",
-    "tooling/golden_thread_discovery_studio/brand_designer.py",
     ]
 
     for rel in EXPECTED_FILES:

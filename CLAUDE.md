@@ -34,6 +34,8 @@ Use cases and reports **reference** governed definitions — they do not define 
 
 Run all scripts from the **repository root**.
 
+**PowerShell (Windows / CI):**
+
 | Task | Command |
 |---|---|
 | Stage 1 (required before commit) | `.\tooling\run_stage1_checks.ps1` |
@@ -41,6 +43,17 @@ Run all scripts from the **repository root**.
 | Full suite | `.\tooling\run_all_checks.ps1` |
 | Sync evidence grain to factsheet | `.\tooling\maintenance\sync_evidence_grain_note_to_factsheet.ps1` |
 | Full model generation | `.\products\fabric\powerbi\orchestrator\orchestrate_full_model.ps1` |
+
+**Python / Shell (Linux / macOS / CI):**
+
+| Task | Command |
+|---|---|
+| Python test suite | `python3 -m pytest tooling/tests/ products/ -q` |
+| OSS stack validation | `bash products/open_source_stack/tooling/run_oss_checks.sh` |
+| OSS report generation | `python3 products/oss_adapters/orchestrator/orchestrate_oss.py --bracket <path> --adapter metabase` |
+| Registry build | `python3 tooling/ontology/registry_builder.py --repo-root .` |
+| Health scorecard | `python3 tooling/health_scorecard.py` |
+| Schema validation (Python) | `python3 -m pytest tooling/tests/ -k schema -q` |
 
 ---
 
@@ -154,6 +167,47 @@ Every use case gets exactly 2 pages:
 Page types: T1 Strategic Overview, T2 Tactical Variance, T3 Operational Monitoring, T4 Prescriptive Recommendation.
 
 Layout template: `core/templates/page_templates/Page_Spec_3_30_300.md`
+
+---
+
+## Open Source Stack & OSS Adapters
+
+Two separate products cover non-Fabric deployments:
+
+### `products/open_source_stack/` — Evidence.dev (full stack)
+
+Full platform-agnostic frontend using [Evidence.dev](https://evidence.dev) + dbt. Same Core logic, zero licensing fees.
+
+| Path | Purpose |
+|---|---|
+| `tooling/validate_oss.py` | Validates OSS artifacts against schema |
+| `tooling/run_oss_checks.sh` | Full OSS validation gate (Linux/macOS/CI) |
+| `tooling/run_oss_checks.ps1` | Same, Windows |
+| `tooling/page_generator/` | Generates Evidence.dev pages from use case brackets |
+| `tooling/metric_generator/` | Generates dbt metric definitions from KPI catalog |
+
+Validation gate: `bash products/open_source_stack/tooling/run_oss_checks.sh`
+
+### `products/oss_adapters/` — Grafana / Metabase / Superset (adapter stubs)
+
+Standalone adapter implementations that plug into the `generator_core` framework. Each adapter translates a `DashboardSpec` IR into the target tool's native format.
+
+| Adapter | File | Status |
+|---|---|---|
+| Grafana | `tooling/adapters/grafana.py` | Stub — `render()` not yet implemented |
+| Metabase | `tooling/adapters/metabase.py` | Stub — `render()` not yet implemented |
+| Superset | `tooling/adapters/superset.py` | Stub — `render()` not yet implemented |
+
+Orchestrator: `products/oss_adapters/orchestrator/orchestrate_oss.py`
+
+```bash
+python3 products/oss_adapters/orchestrator/orchestrate_oss.py \
+  --bracket core/usecases/core/COM-001/UseCase_Bracket.yaml \
+  --adapter metabase \
+  --out-dir products/oss_adapters/dist/
+```
+
+**Key distinction:** `open_source_stack/` is a complete Evidence.dev deployment. `oss_adapters/` provides thin adapter wrappers for BI tools (Grafana/Metabase/Superset) using the same `generator_core` IR pipeline as the Fabric/Power BI product.
 
 ---
 
