@@ -39,6 +39,9 @@ class PageBuilder:
         action_panel_content: Optional[str] = None,
         detail_matrix_columns: Optional[List[str]] = None,
         detail_matrix_measures: Optional[List[str]] = None,
+        smart_narrative_text: Optional[str] = None,
+        component_30s: Optional[List[Dict[str, Any]]] = None,
+        kpi_id_to_measure_name: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """Build page structure from grid blueprint (Master Grid 12×12). All visuals aligned to grid."""
         canvas = grid_blueprint.get("canvas") or {}
@@ -49,17 +52,52 @@ class PageBuilder:
         visuals: List[Dict[str, Any]] = []
         slicers: List[Dict[str, Any]] = []
         tab = self.visual_builder.tab_order_base
-        # Detail_Matrix: evidence_columns are semantic names (no table.column mapping); use measures only for projections
+        # Detail_Matrix: resolved dim columns (list of (table,col) tuples) + measure names
+        detail_dim_cols = detail_matrix_columns if isinstance(detail_matrix_columns, list) else []
         detail_measures = detail_matrix_measures if detail_matrix_measures is not None else []
+
+        # 30s slot binding: map Main_1/2/3 sequentially to component_30s items
+        # component_30s[0] → Main_1, component_30s[1] → Main_2, component_30s[2] → Main_3
+        _MAIN_SLOTS_ORDER = ["Main_1", "Main_2", "Main_3"]
+        _kpi_to_measure = kpi_id_to_measure_name or {}
+        _c30s = component_30s if isinstance(component_30s, list) else []
+        _main_slot_binding: Dict[str, Dict[str, Any]] = {}
+        for _idx, _c_item in enumerate(_c30s):
+            if _idx >= len(_MAIN_SLOTS_ORDER):
+                break
+            _slot_name = _MAIN_SLOTS_ORDER[_idx]
+            _vt = _c_item.get("visual_type") or "trend_line"
+            _kid = _c_item.get("kpi_id")
+            _kids = _c_item.get("kpi_ids") or ([_kid] if _kid else [])
+            if not isinstance(_kids, list):
+                _kids = [_kids] if _kids else []
+            _measures = [_kpi_to_measure.get(k, k) for k in _kids if isinstance(k, str) and k.strip()]
+            _main_slot_binding[_slot_name] = {"visual_type": _vt, "measures": _measures}
+
+        # Detect absolute-position mode (Figma-sourced layouts)
+        position_mode = grid_blueprint.get("position_mode", "grid")
 
         for i, slot_def in enumerate(slots_list):
             slot_id = slot_def.get("slot_id") or f"Slot_{i}"
-            grid = slot_def.get("grid")
-            if not grid or len(grid) != 4:
-                continue
-            col_start, row_start, col_span, row_span = grid[0], grid[1], grid[2], grid[3]
-            pos = calc.calculate_visual_rect(col_start, row_start, col_span, row_span)
-            position = Position(x=pos.x, y=pos.y, width=pos.width, height=pos.height)
+
+            # Resolve position: absolute (Figma) or grid (12×12 GridCalculator)
+            if position_mode == "absolute":
+                abs_pos = slot_def.get("position") or {}
+                if not abs_pos:
+                    continue
+                position = Position(
+                    x=abs_pos.get("x", 0),
+                    y=abs_pos.get("y", 0),
+                    width=abs_pos.get("width", 100),
+                    height=abs_pos.get("height", 100),
+                )
+            else:
+                grid = slot_def.get("grid")
+                if not grid or len(grid) != 4:
+                    continue
+                col_start, row_start, col_span, row_span = grid[0], grid[1], grid[2], grid[3]
+                pos = calc.calculate_visual_rect(col_start, row_start, col_span, row_span)
+                position = Position(x=pos.x, y=pos.y, width=pos.width, height=pos.height)
 
             if slot_id == "ActionPanel":
                 if has_action_panel:
@@ -112,7 +150,32 @@ class PageBuilder:
                 slicers.append(sl)
                 continue
 
-            if slot_id == "KPI_Cards" and visual_type == "cardVisual":
+            if visual_type == "slicer_entity":
+                # Entity slicer (OrgName) for filtering Detail pages by business unit
+                sl = self.slicer_builder.build_categorical_slicer(position, field="dim_org.OrgName", name=slot_id)
+                sl["position"]["tabOrder"] = tab + i
+                slicers.append(sl)
+                continue
+
+            # 30s chart slots (Main_1/2/3): use component_30s binding when available;
+            # fallback for unbound main slots: clusteredBarChart with KPI card measures (ranking view)
+            if slot_id in _main_slot_binding:
+                _binding = _main_slot_binding[slot_id]
+                _ux_vt = _binding["visual_type"]
+                _measures = _binding["measures"]
+                _title = (_measures[0] if len(_measures) == 1 else slot_id).replace("_", " ").replace(".", " ")
+                vis = self.visual_builder.build_by_ux_visual_type(
+                    _ux_vt, position, name=slot_id, measures=_measures, title=_title
+                )
+            elif slot_id in _MAIN_SLOTS_ORDER and card_measure_names:
+                # Unbound main slot — entity comparison bar (OrgName axis) for KPI card measures
+                # Gives a ranking view: "which business unit performs best on these KPIs?"
+                _fb_measures = list(card_measure_names[:4])
+                vis = self.visual_builder.build_horizontal_bar(
+                    position, measures=_fb_measures, name=slot_id, title="KPI by Entity",
+                    category_entity="dim_org", category_property="OrgName"
+                )
+            elif slot_id == "KPI_Cards" and visual_type == "cardVisual":
                 vis = self.visual_builder.build_kpi_cards_multi(
                     position, card_measure_names or [], name=slot_id, title=None
                 )
@@ -122,10 +185,12 @@ class PageBuilder:
                 vis = self.visual_builder.build_kpi_card(position, measure_ref=measure_ref, name=slot_id, title=title)
             elif visual_type == "textbox":
                 vis = self.visual_builder._build_base_visual("textbox", position, tab_order=tab + i, name=slot_id)
-                vis["visual"]["objects"] = {"text": [{"properties": {"text": {"expr": {"Literal": {"Value": "'Summary'"}}}}}]}
+                _sn_raw = smart_narrative_text or "Filtering active – review current selection."
+                _sn_escaped = _sn_raw.replace("'", "''")
+                vis["visual"]["objects"] = {"text": [{"properties": {"text": {"expr": {"Literal": {"Value": f"'{_sn_escaped}'"}}}}}]}
             elif visual_type == "tableEx" and slot_id == "Detail_Matrix":
                 vis = self.visual_builder.build_table(
-                    position, columns=[], measures=detail_measures, name=slot_id
+                    position, columns=detail_dim_cols, measures=detail_measures, name=slot_id
                 )
             elif visual_type == "tableEx":
                 vis = self.visual_builder.build_table(position, columns=[], measures=[], name=slot_id)
@@ -215,6 +280,7 @@ class PageBuilder:
         visual_templates: Optional[Dict[str, Dict[str, Any]]] = None,
         detail_matrix_columns: Optional[List[str]] = None,
         detail_matrix_measures: Optional[List[str]] = None,
+        smart_narrative_text: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Build complete page structure with visuals.
@@ -234,8 +300,9 @@ class PageBuilder:
             canvas_width: Optional canvas width (used with grid_blueprint; default 1920).
             canvas_height: Optional canvas height (used with grid_blueprint; default 1080).
             visual_templates: Optional dict of visual_template_id -> visual template (used with grid_blueprint for visual type).
-            detail_matrix_columns: Optional list of column names for Detail_Matrix (grid path).
-            detail_matrix_measures: Optional list of measure names for Detail_Matrix (grid path).
+            detail_matrix_columns: Optional list of (table,col) tuples for Detail_Matrix.
+            detail_matrix_measures: Optional list of measure names for Detail_Matrix.
+            smart_narrative_text: Optional context text for Smart_Narrative textbox on detail page.
 
         Returns:
             Dictionary with 'visuals' and 'slicers' lists
@@ -253,6 +320,9 @@ class PageBuilder:
                 action_panel_content=action_panel_content,
                 detail_matrix_columns=detail_matrix_columns,
                 detail_matrix_measures=detail_matrix_measures,
+                smart_narrative_text=smart_narrative_text,
+                component_30s=component_30s,
+                kpi_id_to_measure_name=kpi_id_to_measure_name,
             )
 
         # Determine slicer placement (default: top)
@@ -411,12 +481,14 @@ class PageBuilder:
                 visual["position"]["tabOrder"] = tab_order + 800
                 visuals.append(visual)
 
-            # Detail Matrix visual
+            # Detail Matrix visual — use evidence columns/measures from bracket if available
             if slots.get('needs_detail_matrix', False) and 'detail_matrix' in visual_positions:
+                dm_cols = list(detail_matrix_columns) if detail_matrix_columns else [("dim_date", "Date"), ("dim_product", "ProductName")]
+                dm_meas = list(detail_matrix_measures) if detail_matrix_measures else ["Net Sales Amount", "Gross Margin %"]
                 visual = self.visual_builder.build_table(
                     visual_positions['detail_matrix'],
-                    columns=[("dim_date", "Date"), ("dim_product", "ProductName")],
-                    measures=["Net Sales Amount", "Gross Margin %"],
+                    columns=dm_cols,
+                    measures=dm_meas,
                     name="DetailMatrix",
                 )
                 visual["position"]["tabOrder"] = tab_order + 900
