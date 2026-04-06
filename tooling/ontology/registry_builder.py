@@ -1269,76 +1269,18 @@ def validate_taxonomy(
     return issues
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
-    parser = argparse.ArgumentParser(description="Build ActionReady master registry and orphan reports.")
-    parser.add_argument("--repo-root", default="", help="Repository root. Default: inferred from this script location.")
-    parser.add_argument("--out-dir", default="tooling/ontology/out", help="Output directory (relative to repo root). Default: tooling/ontology/out (canonical).")
-    parser.add_argument("--strict", action="store_true", help="Fail (exit 1) if orphans detected or any ERROR issues.")
-    parser.add_argument(
-        "--validation-results",
-        default="",
-        help="Optional path to tooling/validation/results/latest_results.json. If omitted, script checks the default path.",
-    )
-    args = parser.parse_args(argv)
-
-    repo_root = Path(args.repo_root).resolve() if args.repo_root else _repo_root_from_file()
-    out_dir = (repo_root / args.out_dir).resolve()
-    out_dir.mkdir(parents=True, exist_ok=True)
-
+def _validate_org_roles(
+    brackets: Dict[str, Dict[str, Any]],
+    actions: Dict[str, Dict[str, Any]],
+    org_roles_path: Path,
+    repo_root: Path,
+) -> List[Issue]:
+    """
+    Validate that governance role fields in brackets and action codes reference
+    role IDs that exist in the org_roles registry file.  Returns Issue objects only —
+    does not mutate any input.
+    """
     issues: List[Issue] = []
-
-    # Scan primitives
-    kpis, kpi_issues = scan_kpi_catalog(repo_root)
-    actions, action_issues = scan_action_codes(repo_root)
-    brackets, bracket_issues = scan_usecase_brackets(repo_root)
-    factsheets, factsheet_issues = scan_usecase_factsheets(repo_root)
-    issues.extend(kpi_issues + action_issues + bracket_issues + factsheet_issues)
-
-    # Taxonomy validation (ID format and enum checks)
-    taxonomy = load_taxonomy(repo_root)
-    if taxonomy:
-        issues.extend(validate_taxonomy(kpis, actions, brackets, taxonomy))
-
-    # Evidence-grain governance: load allowed grains from domain contracts, validate brackets
-    allowed_grains, grain_scan_issues = scan_allowed_grains(repo_root)
-    issues.extend(grain_scan_issues)
-    grain_validation_issues = validate_evidence_grains(brackets, allowed_grains, repo_root)
-    issues.extend(grain_validation_issues)
-
-    # Action-step vs evidence-grain check removed: evidence grain is use-case-specific (bracket);
-    # action code step text is shared across use cases and must not be tied to one report grain.
-
-    # Linked sets from active brackets
-    uc_ids_active, linked_kpis, linked_actions, link_issues = build_linked_sets_from_brackets(brackets)
-    issues.extend(link_issues)
-
-    # Transitive expansion: KPIs referenced by subscribed action codes are also active
-    for aid in linked_actions:
-        arec = actions.get(aid)
-        if not arec:
-            continue
-        raw = arec.get("raw", {})
-        if isinstance(raw, dict):
-            linked_kpis.update(_extract_kpis_from_action(raw))
-
-    # Report BoM: transitive closure under depends_on_measures (supporting KPIs)
-    linked_kpis = _closure_under_depends_on(linked_kpis, kpis)
-
-    # UseCase -> Data contract mapping (from bracket overrides.data_contract_ref)
-    usecase_domain_contract: Dict[str, str] = {}
-    for uc_id in brackets.keys():
-        raw = brackets[uc_id].get("raw", {})
-        overrides = raw.get("overrides", {}) if isinstance(raw, dict) else {}
-        if isinstance(overrides, dict):
-            dcr = overrides.get("data_contract_ref")
-            if isinstance(dcr, str) and dcr.strip():
-                usecase_domain_contract[uc_id] = _normalize_contract_ref(dcr.strip())
-
-    # Org-Registry role validation (showcase override via ANALYTICS_SHOWCASE, default aurora_group; else core)
-    _showcase_name = (os.environ.get("ANALYTICS_SHOWCASE") or "").strip() or "aurora_group"
-    _showcase_org_roles = repo_root / "showcases" / _showcase_name / "organization" / "org_roles.yaml"
-    _core_org_roles = repo_root / "core" / "organization" / "org_roles.yaml"
-    org_roles_path = _showcase_org_roles if _showcase_org_roles.exists() else _core_org_roles
     org_roles_ref = str(org_roles_path.relative_to(repo_root)).replace("\\", "/")
     valid_role_ids: Set[str] = set()
     if org_roles_path.exists():
@@ -1383,6 +1325,24 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                             SourceLocation(src, 1),
                         )
                     )
+
+    return issues
+
+
+def _validate_referential_integrity(
+    brackets: Dict[str, Dict[str, Any]],
+    kpis: Dict[str, "KpiRecord"],
+    actions: Dict[str, Dict[str, Any]],
+    repo_root: Path,
+    uc_ids_active: Set[str],
+) -> List[Issue]:
+    """
+    Validate that every KPI and action code ID referenced in active use-case brackets
+    exists in the catalog / action-code registry.  Also checks value-driver formulas,
+    causal-link coverage, action alignment, and bracket completeness.
+    Returns Issue objects only — does not mutate any input.
+    """
+    issues: List[Issue] = []
 
     # Referential integrity: bracket references must exist (hard errors with line mapping)
     for uc_id in sorted(uc_ids_active):
@@ -1682,6 +1642,76 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                     SourceLocation(rec.get("source", ""), 1),
                 )
             )
+
+    return issues
+
+
+def build_registry(repo_root: Path, args: Any) -> Dict[str, Any]:
+    """
+    Run all scans, all validations, and assemble every output artefact.
+    Returns a dict with keys:
+        master_registry, orphans_report, value_map, governance_gaps,
+        issues, orphan_items, inventory_lines
+    ``args`` is the parsed argparse Namespace from ``main()``.
+    """
+    issues: List[Issue] = []
+
+    # Scan primitives
+    kpis, kpi_issues = scan_kpi_catalog(repo_root)
+    actions, action_issues = scan_action_codes(repo_root)
+    brackets, bracket_issues = scan_usecase_brackets(repo_root)
+    factsheets, factsheet_issues = scan_usecase_factsheets(repo_root)
+    issues.extend(kpi_issues + action_issues + bracket_issues + factsheet_issues)
+
+    # Taxonomy validation (ID format and enum checks)
+    taxonomy = load_taxonomy(repo_root)
+    if taxonomy:
+        issues.extend(validate_taxonomy(kpis, actions, brackets, taxonomy))
+
+    # Evidence-grain governance: load allowed grains from domain contracts, validate brackets
+    allowed_grains, grain_scan_issues = scan_allowed_grains(repo_root)
+    issues.extend(grain_scan_issues)
+    grain_validation_issues = validate_evidence_grains(brackets, allowed_grains, repo_root)
+    issues.extend(grain_validation_issues)
+
+    # Action-step vs evidence-grain check removed: evidence grain is use-case-specific (bracket);
+    # action code step text is shared across use cases and must not be tied to one report grain.
+
+    # Linked sets from active brackets
+    uc_ids_active, linked_kpis, linked_actions, link_issues = build_linked_sets_from_brackets(brackets)
+    issues.extend(link_issues)
+
+    # Transitive expansion: KPIs referenced by subscribed action codes are also active
+    for aid in linked_actions:
+        arec = actions.get(aid)
+        if not arec:
+            continue
+        raw = arec.get("raw", {})
+        if isinstance(raw, dict):
+            linked_kpis.update(_extract_kpis_from_action(raw))
+
+    # Report BoM: transitive closure under depends_on_measures (supporting KPIs)
+    linked_kpis = _closure_under_depends_on(linked_kpis, kpis)
+
+    # UseCase -> Data contract mapping (from bracket overrides.data_contract_ref)
+    usecase_domain_contract: Dict[str, str] = {}
+    for uc_id in brackets.keys():
+        raw = brackets[uc_id].get("raw", {})
+        overrides = raw.get("overrides", {}) if isinstance(raw, dict) else {}
+        if isinstance(overrides, dict):
+            dcr = overrides.get("data_contract_ref")
+            if isinstance(dcr, str) and dcr.strip():
+                usecase_domain_contract[uc_id] = _normalize_contract_ref(dcr.strip())
+
+    # Org-Registry role validation (showcase override via ANALYTICS_SHOWCASE, default aurora_group; else core)
+    _showcase_name = (os.environ.get("ANALYTICS_SHOWCASE") or "").strip() or "aurora_group"
+    _showcase_org_roles = repo_root / "showcases" / _showcase_name / "organization" / "org_roles.yaml"
+    _core_org_roles = repo_root / "core" / "organization" / "org_roles.yaml"
+    org_roles_path = _showcase_org_roles if _showcase_org_roles.exists() else _core_org_roles
+    issues.extend(_validate_org_roles(brackets, actions, org_roles_path, repo_root))
+
+    # Referential integrity checks (KPI/action refs, value-driver formulas, causal links, etc.)
+    issues.extend(_validate_referential_integrity(brackets, kpis, actions, repo_root, uc_ids_active))
 
     # Orphan detection (Full-scan vs Linked-scan)
     orphan_items: List[Dict[str, Any]] = []
@@ -2098,18 +2128,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if o and s and str(o).strip() == str(s).strip():
             governance_gaps.append({"type": "use_case_bracket", "id": uc_id, "gap": "owner_equals_steward", "source": src})
 
-    governance_gaps_path = out_dir / "governance_gaps.json"
-    _write_json(governance_gaps_path, {"gaps": governance_gaps, "meta": {"generated_at_utc": _utc_now_iso()}})
-
-    master_path = out_dir / "master_registry.json"
-    orphans_path = out_dir / "orphans_report.json"
-    value_map_path = out_dir / "value_map.json"
-    _write_json(master_path, master_registry)
-    _write_json(orphans_path, orphans_report)
-    _write_json(value_map_path, value_map)
-
-    # Generate UseCase_Inventory.md
-    inventory_path = repo_root / "core" / "usecases" / "UseCase_Inventory.md"
+    # Build inventory lines (computed here because registry_usecases is available)
     inventory_lines: List[str] = [
         "<!-- GENERATED FILE - DO NOT EDIT MANUALLY -->",
         "<!-- Source: tooling/ontology/registry_builder.py -->",
@@ -2134,6 +2153,51 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         acts_str = ", ".join(acts) if isinstance(acts, list) else ""
         inventory_lines.append(f"| {uc_id} | {title} | {domain} | {sk} | {infl_str} | {acts_str} | {owner} | {steward} |")
     inventory_lines.append("")
+
+    return {
+        "master_registry": master_registry,
+        "orphans_report": orphans_report,
+        "value_map": value_map,
+        "governance_gaps": governance_gaps,
+        "issues": issues,
+        "orphan_items": orphan_items,
+        "inventory_lines": inventory_lines,
+    }
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    parser = argparse.ArgumentParser(description="Build ActionReady master registry and orphan reports.")
+    parser.add_argument("--repo-root", default="", help="Repository root. Default: inferred from this script location.")
+    parser.add_argument("--out-dir", default="tooling/ontology/out", help="Output directory (relative to repo root). Default: tooling/ontology/out (canonical).")
+    parser.add_argument("--strict", action="store_true", help="Fail (exit 1) if orphans detected or any ERROR issues.")
+    parser.add_argument(
+        "--validation-results",
+        default="",
+        help="Optional path to tooling/validation/results/latest_results.json. If omitted, script checks the default path.",
+    )
+    args = parser.parse_args(argv)
+
+    repo_root = Path(args.repo_root).resolve() if args.repo_root else _repo_root_from_file()
+    out_dir = (repo_root / args.out_dir).resolve()
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    result = build_registry(repo_root, args)
+    master_registry = result["master_registry"]
+    orphans_report = result["orphans_report"]
+    value_map = result["value_map"]
+    governance_gaps = result["governance_gaps"]
+    issues = result["issues"]
+    orphan_items = result["orphan_items"]
+    inventory_lines = result["inventory_lines"]
+
+    # Write JSON output files
+    _write_json(out_dir / "governance_gaps.json", {"gaps": governance_gaps, "meta": {"generated_at_utc": _utc_now_iso()}})
+    _write_json(out_dir / "master_registry.json", master_registry)
+    _write_json(out_dir / "orphans_report.json", orphans_report)
+    _write_json(out_dir / "value_map.json", value_map)
+
+    # Write UseCase_Inventory.md
+    inventory_path = repo_root / "core" / "usecases" / "UseCase_Inventory.md"
     inventory_path.write_text("\n".join(inventory_lines), encoding="utf-8")
 
     # Print actionable errors and warnings to stderr for CI visibility
