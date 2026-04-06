@@ -86,6 +86,24 @@ trigger:
   - Trigger only if complaint trend is rising for the same segment, channel, or category
   - Do not trigger when survey coverage is below the agreed minimum sample size
   - Prioritize populations with elevated revenue at risk or CLV concentration
+impact_valuation:
+  method: RevenueUplift
+  currency: EUR
+  attribution:
+    method: before_after
+  success_window:
+    duration: P90D
+    metric_kpi_id: crm.retention.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Retained_Customers * Avg_Revenue_Per_Customer"
+    latex: EUR = N_{retained} \times \overline{Rev}
+  required_measures:
+  - Retention Rate
+  - Revenue per Customer
+  - Action Execution Count
 impact:
   category: Medium
   expected_range:

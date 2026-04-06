@@ -11,6 +11,7 @@ use_case_links:
   - COM-002
   related_use_cases:
   - COM-001
+  - COM-004
 kpis:
   trigger_kpis:
   - sales.pvm.mix_effect.amount
@@ -89,6 +90,24 @@ trigger:
   - Trigger only if price realization is within guardrails
   - Do not trigger if negative mix is driven by temporary availability constraints
   - Exclude SKUs flagged as strategic
+impact_valuation:
+  method: DirectMarginImprovement
+  currency: EUR
+  attribution:
+    method: before_after
+  success_window:
+    duration: P30D
+    metric_kpi_id: margin.gm.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P60D
+  calculation_logic:
+    standardized: "RealizedEUR = (Post_GM_Amount - Pre_GM_Amount) attributable to mix shift"
+    latex: EUR = GM_{post} - GM_{pre} \mid_{mix}
+  required_measures:
+  - Gross Margin Amount
+  - Mix Effect Amount
+  - Action Execution Count
 impact:
   category: Medium
   expected_range:

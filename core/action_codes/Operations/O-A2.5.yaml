@@ -85,6 +85,23 @@ trigger:
   - Trigger only if MTTR impact is observable
   - Do not trigger if stockouts are caused by approved supplier shutdowns
   - Exclude parts with approved alternative sourcing in place
+impact_valuation:
+  method: RiskAvoidance
+  currency: EUR
+  success_window:
+    duration: P90D
+    metric_kpi_id: ops.safety.incident.count
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P180D
+  calculation_logic:
+    standardized: "RealizedEUR = Avoided_Incidents * Avg_Incident_Cost"
+  required_measures:
+  - Safety Incident Count
+  - Avg Incident Cost
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: Medium
   expected_range:

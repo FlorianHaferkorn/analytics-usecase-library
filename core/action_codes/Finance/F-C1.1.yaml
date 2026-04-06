@@ -86,6 +86,24 @@ trigger:
   - Do not trigger if deterioration is fully explained by growth-driven inventory
     build
   - Exclude entities with active refinancing programs
+impact_valuation:
+  method: CashRelease
+  currency: EUR
+  attribution:
+    method: before_after
+  success_window:
+    duration: P60D
+    metric_kpi_id: fin.liquidity.dso.days
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P60D
+  calculation_logic:
+    standardized: "RealizedEUR = (Pre_DSO - Post_DSO) / 365 * Annual_Revenue"
+    latex: EUR = \frac{DSO_{pre} - DSO_{post}}{365} \times Rev
+  required_measures:
+  - DSO Days
+  - Revenue
+  - Action Execution Count
 impact:
   category: High
   expected_range:

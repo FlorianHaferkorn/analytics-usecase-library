@@ -87,6 +87,24 @@ trigger:
   - Trigger only if baseline quality checks pass (baseline sales/qty present)
   - Do not trigger if Promo Gross Margin % remains above target
   - Exclude promotions flagged as strategic branding with approved override
+impact_valuation:
+  method: DirectMarginImprovement
+  currency: EUR
+  attribution:
+    method: before_after
+  success_window:
+    duration: P30D
+    metric_kpi_id: sales.promo.roi.pct
+    success_criteria:
+      kind: threshold_met
+      baseline_window: P30D
+  calculation_logic:
+    standardized: "RealizedEUR = (Post_Promo_ROI - Pre_Promo_ROI) * Promo_Spend"
+    latex: EUR = (\Delta ROI) \times Spend
+  required_measures:
+  - Promo ROI
+  - Promo Spend
+  - Action Execution Count
 impact:
   category: High
   expected_range:

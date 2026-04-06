@@ -88,6 +88,23 @@ trigger:
   - Trigger only if imbalance is queue-structural, not individual
   - Do not trigger if imbalance is caused by approved surge coverage
   - Exclude queues with active overtime containment actions
+impact_valuation:
+  method: RiskAvoidance
+  currency: EUR
+  success_window:
+    duration: P90D
+    metric_kpi_id: people.digital_adoption.pct
+    success_criteria:
+      kind: threshold_met
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Improved_Adoption_Points * Productivity_Gain_Per_Point"
+  required_measures:
+  - Digital Adoption %
+  - Productivity Value
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

@@ -86,6 +86,23 @@ trigger:
   - Trigger only if bias direction is consistent across periods
   - Do not trigger if error is driven by one-off demand shocks
   - Exclude SKUs with active service containment actions
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P90D
+    metric_kpi_id: plan.forecast.mape.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = (Pre_MAPE - Post_MAPE) * Avg_Demand_Value * Safety_Stock_Factor"
+  required_measures:
+  - MAPE %
+  - Demand Value
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: Medium
   expected_range:

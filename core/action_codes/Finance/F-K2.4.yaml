@@ -84,6 +84,23 @@ trigger:
   - Trigger only if service levels remain within agreed thresholds
   - Do not trigger for costs already approved by executive committee
   - Exclude OpEx driven by regulatory or safety requirements
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  attribution:
+    method: before_after
+  success_window:
+    duration: P30D
+    metric_kpi_id: cost.base_volume.amount
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P60D
+  calculation_logic:
+    standardized: "RealizedEUR = Pre_CostVariance - Post_CostVariance"
+    latex: EUR = CV_{pre} - CV_{post}
+  required_measures:
+  - Cost Variance Amount
+  - Action Execution Count
 impact:
   category: Medium
   expected_range:

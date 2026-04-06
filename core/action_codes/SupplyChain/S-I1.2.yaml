@@ -87,6 +87,23 @@ trigger:
   - Trigger only if stockout rate remains below tolerance
   - Do not trigger if OTIF deterioration is observed
   - Exclude SKUs with active stockout prevention actions
+impact_valuation:
+  method: CashRelease
+  currency: EUR
+  success_window:
+    duration: P60D
+    metric_kpi_id: inv.stockout.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Inventory_Reduction_Amount - Incremental_Stockout_Cost"
+  required_measures:
+  - Inventory Value
+  - Stockout Rate
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

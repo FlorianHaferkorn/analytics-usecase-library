@@ -86,6 +86,24 @@ trigger:
   - Trigger only if forecast error is structurally recurring
   - Do not trigger if service containment actions already mitigate impact
   - Exclude SKUs with active execution Action Codes in progress
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P60D
+    metric_kpi_id: plan.forecast.bias.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Avoided_Excess_Inventory_Cost + Avoided_Stockout_Cost"
+  required_measures:
+  - Forecast Bias %
+  - Excess Cost
+  - Stockout Cost
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: Medium
   expected_range:

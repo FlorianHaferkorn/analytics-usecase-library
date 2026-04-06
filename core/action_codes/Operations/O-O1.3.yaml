@@ -85,6 +85,23 @@ trigger:
   - Trigger only if availability and performance are stable
   - Do not trigger if defects are supplier-driven
   - Exclude periods with approved engineering changes
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P30D
+    metric_kpi_id: ops.availability.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P60D
+  calculation_logic:
+    standardized: "RealizedEUR = Saved_Changeover_Minutes * Hourly_Production_Value / 60"
+  required_measures:
+  - Changeover Minutes
+  - Production Value
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: Medium
   expected_range:

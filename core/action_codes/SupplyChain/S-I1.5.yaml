@@ -84,6 +84,24 @@ trigger:
   - Trigger only if forecast error is structurally recurring
   - Do not trigger if volatility is driven by approved promotions
   - Exclude SKUs with active rightsizing or stockout actions
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P60D
+    metric_kpi_id: plan.forecast.accuracy.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Avoided_Excess_Cost + Avoided_Stockout_Cost"
+  required_measures:
+  - Forecast Accuracy %
+  - Excess Cost
+  - Stockout Cost
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: Medium
   expected_range:

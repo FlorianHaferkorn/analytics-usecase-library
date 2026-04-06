@@ -85,6 +85,23 @@ trigger:
   - Trigger only if service impact is forecast-driven
   - Do not trigger if OTIF loss is transport-driven
   - Exclude SKUs with active inventory rightsizing actions
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P60D
+    metric_kpi_id: plan.forecast.accuracy.pct
+    success_criteria:
+      kind: threshold_met
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Improved_Accuracy_Points * Demand_Value * Inventory_Cost_Rate"
+  required_measures:
+  - Forecast Accuracy %
+  - Demand Value
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

@@ -85,6 +85,24 @@ trigger:
   - Trigger only if throughput impact remains within tolerance
   - Do not trigger if quality loss is driven by temporary ramp-up
   - Exclude lines with active execution Action Codes already in progress
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P30D
+    metric_kpi_id: quality.fpy.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P60D
+  calculation_logic:
+    standardized: "RealizedEUR = (Post_FPY - Pre_FPY) * Total_Output * Unit_Cost"
+  required_measures:
+  - First Pass Yield %
+  - Total Output
+  - Unit Cost
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

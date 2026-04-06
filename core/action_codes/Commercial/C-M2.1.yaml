@@ -11,6 +11,7 @@ use_case_links:
   - COM-002
   related_use_cases:
   - COM-001
+  - COM-004
 kpis:
   trigger_kpis:
   - sales.price.realization_pct

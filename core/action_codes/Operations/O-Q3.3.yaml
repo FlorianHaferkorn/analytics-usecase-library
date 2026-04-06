@@ -86,6 +86,24 @@ trigger:
   - Trigger only if FPY deterioration is confirmed
   - Do not trigger if scrap increase is short-term mix-driven
   - Exclude lines with active process defect elimination actions
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P30D
+    metric_kpi_id: quality.rework.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P60D
+  calculation_logic:
+    standardized: "RealizedEUR = (Pre_Rework_Pct - Post_Rework_Pct) * Total_Output * Rework_Cost_Per_Unit"
+  required_measures:
+  - Rework %
+  - Total Output
+  - Rework Cost
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: Medium
   expected_range:
