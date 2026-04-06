@@ -85,6 +85,24 @@ trigger:
   - Trigger only if PM backlog is structural, not one-off
   - Do not trigger if PM deferrals are approved by operations leadership
   - Exclude assets with active MTBF or MTTR execution actions
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P60D
+    metric_kpi_id: ops.mttr.hours
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = (Pre_MTTR - Post_MTTR) * Hourly_Production_Value * Failure_Count"
+  required_measures:
+  - MTTR Hours
+  - Production Value
+  - Failure Count
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: Medium
   expected_range:

@@ -84,6 +84,23 @@ trigger:
   - Trigger only if replans are driven by planning overrides or governance breaches
   - Do not trigger if replans are caused by external disruptions
   - Exclude cycles with active forecast bias correction actions
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P60D
+    metric_kpi_id: plan.replan.count
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Avoided_Replans * Avg_Replan_Cost + Avoided_Nervousness_Cost"
+  required_measures:
+  - Replan Count
+  - Replan Cost
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: Medium
   expected_range:

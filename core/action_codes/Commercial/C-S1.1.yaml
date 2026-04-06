@@ -83,6 +83,24 @@ trigger:
   gating_rules:
   - Do not trigger if Net Sales % vs Plan < -10% (structural demand issue)
   - Do not trigger for SKUs flagged as strategic
+impact_valuation:
+  method: DirectMarginImprovement
+  currency: EUR
+  attribution:
+    method: before_after
+  success_window:
+    duration: P30D
+    metric_kpi_id: margin.gm.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P60D
+  calculation_logic:
+    standardized: "RealizedEUR = (Post_GM_Pct - Pre_GM_Pct) * Net_Sales_Amount"
+    latex: EUR = \Delta GM\% \times NetSales
+  required_measures:
+  - Gross Margin %
+  - Net Sales Amount
+  - Action Execution Count
 impact:
   category: High
   expected_range:

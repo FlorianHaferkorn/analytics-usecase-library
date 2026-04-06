@@ -84,6 +84,24 @@ trigger:
   - Trigger only if OEE components are within acceptable range
   - Do not trigger if throughput miss is demand-driven
   - Exclude plants with active stabilization or recovery actions dominating output
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P14D
+    metric_kpi_id: ops.quality.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P28D
+  calculation_logic:
+    standardized: "RealizedEUR = (Post_Quality_Pct - Pre_Quality_Pct) * Total_Output * Unit_Cost"
+  required_measures:
+  - Quality %
+  - Total Output
+  - Unit Cost
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

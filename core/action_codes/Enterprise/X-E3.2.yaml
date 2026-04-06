@@ -83,6 +83,24 @@ trigger:
   - Trigger only for entities with cross-domain exposure
   - Limit output to top N risk items per cycle
   - Exclude risks already mitigated by active domain actions
+impact_valuation:
+  method: RiskAvoidance
+  currency: EUR
+  success_window:
+    duration: P60D
+    metric_kpi_id: enterprise.action_outcome_rate.pct
+    success_criteria:
+      kind: threshold_met
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Improved_Outcome_Rate * Total_Actions * Avg_Action_Value"
+  required_measures:
+  - Action Outcome Rate %
+  - Action Count
+  - Action Value
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

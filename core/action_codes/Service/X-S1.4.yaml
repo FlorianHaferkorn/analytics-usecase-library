@@ -85,6 +85,24 @@ trigger:
   - Trigger only if AHT increase is not quality-driven
   - Do not trigger if AHT rise is caused by training or onboarding
   - Exclude queues with active capacity stabilisation actions
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P30D
+    metric_kpi_id: svc.escalation.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P60D
+  calculation_logic:
+    standardized: "RealizedEUR = Avoided_Escalations * (Escalation_Cost - Standard_Resolution_Cost)"
+  required_measures:
+  - Escalation %
+  - Escalation Cost
+  - Standard Cost
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: Medium
   expected_range:

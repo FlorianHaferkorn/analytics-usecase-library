@@ -84,6 +84,23 @@ trigger:
   - Trigger only if unplanned downtime is the dominant availability loss driver
   - Do not trigger if availability loss is driven by production scheduling
   - Exclude assets with active execution Action Codes already in progress
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P60D
+    metric_kpi_id: ops.mtbf.hours
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Avoided_Downtime_Hours * Hourly_Production_Value"
+  required_measures:
+  - MTBF Hours
+  - Production Value
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

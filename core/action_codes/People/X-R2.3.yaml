@@ -85,6 +85,24 @@ trigger:
   - Trigger only if shrinkage is structurally recurring
   - Do not trigger if increase is driven by approved training plans
   - Exclude queues with active capacity reallocation actions
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P30D
+    metric_kpi_id: res.overtime.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P60D
+  calculation_logic:
+    standardized: "RealizedEUR = (Pre_Overtime_Pct - Post_Overtime_Pct) * Total_Labor_Hours * Overtime_Premium"
+  required_measures:
+  - Overtime %
+  - Labor Hours
+  - Overtime Premium
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: Medium
   expected_range:

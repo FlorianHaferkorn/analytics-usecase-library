@@ -86,6 +86,22 @@ trigger:
   - Trigger only if expedites are caused by planning overrides or late changes
   - Do not trigger if expedites are driven by external disruptions
   - Exclude cycles with active fulfillment or transport stabilisation actions
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P60D
+    metric_kpi_id: supply.expedite.amount
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Pre_Expedite_Amount - Post_Expedite_Amount"
+  required_measures:
+  - Expedite Amount
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: Medium
   expected_range:

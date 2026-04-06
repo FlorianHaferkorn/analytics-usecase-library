@@ -85,6 +85,24 @@ trigger:
   - Trigger only if PM compliance is within acceptable range
   - Do not trigger if failures are dominated by external events
   - Exclude assets with active MTTR recovery actions
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P60D
+    metric_kpi_id: ops.pm_compliance.pct
+    success_criteria:
+      kind: threshold_met
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Prevented_Failures * Avg_Repair_Cost"
+  required_measures:
+  - PM Compliance %
+  - Failure Count
+  - Repair Cost
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: Medium
   expected_range:

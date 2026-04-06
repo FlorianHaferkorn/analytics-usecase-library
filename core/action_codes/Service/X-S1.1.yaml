@@ -85,6 +85,24 @@ trigger:
   - Trigger only if backlog growth or escalations confirm structural issue
   - Do not trigger if SLA miss is caused by one-off incidents
   - Exclude queues with active execution Action Codes in progress
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P30D
+    metric_kpi_id: svc.fcr.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P60D
+  calculation_logic:
+    standardized: "RealizedEUR = Avoided_Escalations * Avg_Escalation_Cost + Avoided_SLA_Penalties"
+  required_measures:
+  - FCR %
+  - Escalation Count
+  - SLA Penalty
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

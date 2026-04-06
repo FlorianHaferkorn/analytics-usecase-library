@@ -85,6 +85,23 @@ trigger:
   - Trigger only if safety incident rate remains within tolerance
   - Do not trigger if MTTR increase is driven by spare parts stockouts
   - Exclude assets with active MTBF improvement actions
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P90D
+    metric_kpi_id: ops.spare_parts.stockout.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Avoided_Emergency_Purchases * Premium_Markup"
+  required_measures:
+  - Spare Parts Stockout %
+  - Emergency Purchase Cost
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: Medium
   expected_range:

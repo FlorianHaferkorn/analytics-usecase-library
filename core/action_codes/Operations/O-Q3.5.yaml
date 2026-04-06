@@ -84,6 +84,24 @@ trigger:
   - Trigger only if complaint trend is structurally increasing
   - Do not trigger if complaints are driven by distribution or service issues
   - Exclude products with active recall or field action programs
+impact_valuation:
+  method: RiskAvoidance
+  currency: EUR
+  success_window:
+    duration: P90D
+    metric_kpi_id: quality.complaint.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Avoided_Complaints * Avg_Complaint_Resolution_Cost"
+  required_measures:
+  - Complaint Rate %
+  - Complaint Count
+  - Resolution Cost
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

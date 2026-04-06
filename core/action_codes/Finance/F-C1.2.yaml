@@ -84,6 +84,24 @@ trigger:
   - Exclude receivables flagged as disputed or legally blocked
   - Do not trigger if DSO increase is driven solely by approved term extensions
   - Suspend escalation for strategic customers under negotiation
+impact_valuation:
+  method: CashRelease
+  currency: EUR
+  attribution:
+    method: before_after
+  success_window:
+    duration: P60D
+    metric_kpi_id: fin.liquidity.dpo.days
+    success_criteria:
+      kind: threshold_met
+      baseline_window: P60D
+  calculation_logic:
+    standardized: "RealizedEUR = (Post_DPO - Pre_DPO) / 365 * Annual_COGS"
+    latex: EUR = \frac{DPO_{post} - DPO_{pre}}{365} \times COGS
+  required_measures:
+  - DPO Days
+  - COGS
+  - Action Execution Count
 impact:
   category: High
   expected_range:

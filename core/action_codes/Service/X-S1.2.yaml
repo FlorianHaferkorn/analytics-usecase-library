@@ -85,6 +85,24 @@ trigger:
   - Trigger only if backlog growth exceeds arrival rate trend
   - Do not trigger if backlog increase is quality-driven
   - Exclude queues with active handling-time reduction actions
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P30D
+    metric_kpi_id: svc.aht.minutes
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P60D
+  calculation_logic:
+    standardized: "RealizedEUR = (Pre_AHT - Post_AHT) * Ticket_Volume * Cost_Per_Minute"
+  required_measures:
+  - AHT Minutes
+  - Ticket Volume
+  - Cost Per Minute
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

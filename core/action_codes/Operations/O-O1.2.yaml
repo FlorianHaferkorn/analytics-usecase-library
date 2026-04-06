@@ -85,6 +85,23 @@ trigger:
   - Trigger only if availability is stable (>= 90%)
   - Do not trigger if performance loss is driven by quality rework
   - Exclude periods with abnormal product mix shifts
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P14D
+    metric_kpi_id: ops.availability.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P28D
+  calculation_logic:
+    standardized: "RealizedEUR = (Post_Availability - Pre_Availability) * Hourly_Production_Value * Operating_Hours"
+  required_measures:
+  - Availability %
+  - Production Value
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: Medium
   expected_range:

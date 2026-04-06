@@ -84,6 +84,23 @@ trigger:
   - Trigger only if yield remains within guardrails
   - Do not trigger if unit cost increase is labor-driven
   - Exclude plants under approved material transition programs
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  attribution:
+    method: before_after
+  success_window:
+    duration: P90D
+    metric_kpi_id: cost.opex.base.amount
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Pre_OpEx - Post_OpEx for targeted cost lines"
+    latex: EUR = OpEx_{pre} - OpEx_{post}
+  required_measures:
+  - OpEx Amount
+  - Action Execution Count
 impact:
   category: Medium
   expected_range:

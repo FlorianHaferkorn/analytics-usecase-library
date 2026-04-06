@@ -85,6 +85,23 @@ trigger:
   - Trigger only if items are outside active demand horizon
   - Do not trigger if obsolescence is driven by approved lifecycle transitions
   - Exclude SKUs with active rightsizing or stockout actions
+impact_valuation:
+  method: CashRelease
+  currency: EUR
+  success_window:
+    duration: P60D
+    metric_kpi_id: inv.turnover
+    success_criteria:
+      kind: threshold_met
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = (Post_Turnover - Pre_Turnover) * Avg_Inventory_Value / Pre_Turnover"
+  required_measures:
+  - Inventory Turnover
+  - Inventory Value
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: Medium
   expected_range:

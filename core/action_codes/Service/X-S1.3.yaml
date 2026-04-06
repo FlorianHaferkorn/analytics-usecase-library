@@ -87,6 +87,23 @@ trigger:
   - Trigger only if repeat contacts drive backlog growth
   - Do not trigger if low FCR is caused by missing authority to resolve
   - Exclude queues with active capacity stabilisation actions
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P30D
+    metric_kpi_id: svc.backlog.count
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P30D
+  calculation_logic:
+    standardized: "RealizedEUR = Cleared_Backlog_Items * Avg_Cost_Per_Delayed_Case"
+  required_measures:
+  - Backlog Count
+  - Cost Per Delayed Case
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

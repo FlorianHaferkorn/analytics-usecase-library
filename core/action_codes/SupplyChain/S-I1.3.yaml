@@ -85,6 +85,23 @@ trigger:
   - Trigger only if DIO is not already above upper tolerance
   - Do not trigger if stockouts are demand-spike driven and approved
   - Exclude SKUs with active inventory rightsizing actions
+impact_valuation:
+  method: CashRelease
+  currency: EUR
+  success_window:
+    duration: P90D
+    metric_kpi_id: inv.obsolete.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P180D
+  calculation_logic:
+    standardized: "RealizedEUR = Written_Down_Inventory_Value * Recovery_Rate"
+  required_measures:
+  - Obsolete Inventory %
+  - Inventory Value
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:
