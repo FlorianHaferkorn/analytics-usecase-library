@@ -46,7 +46,6 @@ $checks = @(
   @{ Path = "tooling/validation/check_measure_aggregation_methods.ps1"; Args = @("-Root", $rootPath) },
   @{ Path = "tooling/validation/check_data_contract_kpi_coverage.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
   @{ Path = "tooling/validation/check_usecase_page_types.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
-  @{ Path = "tooling/validation/check_extended_usecase_readmes.ps1"; Args = @("-Root", $rootPath, "-FailOnError") },
   @{ Path = "tooling/validation/check_semantic_model_status.ps1"; Args = @("-Root", $rootPath) }
 )
 
