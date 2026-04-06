@@ -1,0 +1,49 @@
+{
+  "standardVersion": "1.1.0",
+  "name": "fabric-report-production",
+  "description": "Verbindlicher Produktionsstandard fuer den Fabric/Power BI Report Generator.",
+  "requirements": {
+    "stage1": {
+      "required": true,
+      "command": ".\\tooling\\run_stage1_checks.ps1"
+    },
+    "fabricChecks": {
+      "required": true,
+      "command": ".\\products\\fabric\\powerbi\\tooling\\run_fabric_checks.ps1"
+    },
+    "reportStructure": {
+      "required": true,
+      "command": ".\\products\\fabric\\powerbi\\tooling\\check_report_structure.ps1"
+    },
+    "pbipValidation": {
+      "required": true,
+      "command": ".\\tooling\\validation\\pbip\\validate_pbip.ps1"
+    },
+    "pbiToolsCompile": {
+      "required": true,
+      "description": "Proxy-Gate fuer Desktop-Loadability; in Produktion nicht optional."
+    },
+    "workspacePublish": {
+      "required": true,
+      "command": ".\\products\\fabric\\powerbi\\tooling\\invoke_workspace_publish.ps1"
+    },
+    "postPublishSmoke": {
+      "required": true,
+      "description": "Workspace-Publish muss mit einem maschinenlesbaren Smoke-Test bestaetigt werden."
+    }
+  },
+  "slos": {
+    "consecutiveGreenRuns": 3,
+    "maxUnknownErrorClasses": 0,
+    "requireManualIntervention": false
+  },
+  "supervisor": {
+    "maxIterations": 5,
+    "stopOnStage1Failure": true,
+    "writeRunManifest": true,
+    "maxDeterministicFixPassesPerIteration": 2,
+    "maxLlmFixAttempts": 1,
+    "publishEnvironment": "tst",
+    "dryRunWhenCredentialsMissing": true
+  }
+}

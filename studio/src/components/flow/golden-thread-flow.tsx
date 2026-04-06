@@ -53,12 +53,41 @@ function buildGraph(data: GoldenThreadData): { nodes: Node[]; edges: Edge[] } {
     data: { label: data.strategyAnchor, description: '' },
   });
 
+  // Sort brackets by domain so same-domain brackets cluster together
+  const sortedBrackets = [...data.brackets].sort((a, b) => a.domain.localeCompare(b.domain));
+
   // Strategic KPIs (one per bracket)
   let skpiX = 0;
   const skpiY = 140;
   const kpiSpacing = 320;
+  let prevDomain = '';
 
-  for (const bracket of data.brackets) {
+  for (const bracket of sortedBrackets) {
+    // Domain separator: add extra spacing and a label node on domain change
+    if (bracket.domain !== prevDomain && sortedBrackets.length > 1) {
+      if (prevDomain !== '') skpiX += kpiSpacing * 0.5; // gap between domains
+      nodes.push({
+        id: `domain-${bracket.domain}`,
+        type: 'default',
+        position: { x: skpiX, y: skpiY - 60 },
+        data: { label: bracket.domain },
+        style: {
+          backgroundColor: 'transparent',
+          border: 'none',
+          fontSize: '0.625rem',
+          fontWeight: 700,
+          color: 'var(--slate-500)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          pointerEvents: 'none',
+        },
+        draggable: false,
+        selectable: false,
+        connectable: false,
+      });
+      prevDomain = bracket.domain;
+    }
+
     const skpiId = `skpi-${bracket.id}`;
     nodes.push({
       id: skpiId,
@@ -152,7 +181,7 @@ function buildGraph(data: GoldenThreadData): { nodes: Node[]; edges: Edge[] } {
       actionX += 200;
     }
 
-    skpiX += kpiSpacing;
+    skpiX += Math.max(kpiSpacing, bracket.influencingKpiIds.length * 180 + 140);
   }
 
   return { nodes, edges };
@@ -160,9 +189,10 @@ function buildGraph(data: GoldenThreadData): { nodes: Node[]; edges: Edge[] } {
 
 interface Props {
   data: GoldenThreadData;
+  onBracketSelect?: (useCaseId: string) => void;
 }
 
-export function GoldenThreadFlow({ data }: Props) {
+export function GoldenThreadFlow({ data, onBracketSelect }: Props) {
   const { nodes, edges } = useMemo(() => buildGraph(data), [data]);
 
   return (
@@ -174,6 +204,10 @@ export function GoldenThreadFlow({ data }: Props) {
         fitView
         proOptions={{ hideAttribution: true }}
         defaultEdgeOptions={{ type: 'smoothstep' }}
+        onNodeClick={(_, node) => {
+          const id = (node.data as Record<string, unknown>)?.useCaseId as string | undefined;
+          if (id && onBracketSelect) onBracketSelect(id);
+        }}
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} color="var(--slate-700)" />
         <Controls

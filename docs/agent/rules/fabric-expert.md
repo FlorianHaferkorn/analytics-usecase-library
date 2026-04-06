@@ -10,7 +10,7 @@ When editing under `products/fabric/powerbi/` or Fabric TMDL/DAX artifacts, you 
 
 When diagnosing or fixing PBI/PBIP errors (from `.cursor/pbi_errors.log`, `build_errors.json`, or MCP operations):
 
-- **Read first:** [internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md](../../internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md) — single source for known errors and solutions (Symptom | Cause | Fix).
+- **Read first:** [internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md](../../../internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md) — single source for known errors and solutions (Symptom | Cause | Fix).
 - **After fixing a new error class:** Add a row to the appropriate table in that file so the solution is stored and the MCP workflow can reuse it.
 
 ## Power BI Modeling MCP (development)
@@ -42,7 +42,7 @@ Use the **Power BI Modeling MCP** registered in Cursor (`.cursor/mcp.json`, serv
 
 2. **Auswertung:**
    - **success === true:** Entwicklung beenden; Nutzer kurz informieren („Validierung bestanden, Implementierung abgeschlossen“). Optional hinweisen: Report in Power BI Desktop öffnen zur finalen Prüfung.
-   - **success === false:** Fehler aus `errors` auswerten; mit MCP und/oder Datei-Edits beheben. **Learning Loop:** Jede neue Fehlerklasse als Zeile (Symptom | Cause | Fix) in [KNOWN_ERRORS_AND_FIXES.md](../../internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md) in der passenden Sektion eintragen. Anschließend Schritt 1 erneut ausführen (Validierung). Wiederholen bis `success === true` oder maximale Iterationen (z. B. 5); bei Abbruch Nutzer informieren und offene Fehler nennen.
+   - **success === false:** Fehler aus `errors` auswerten; mit MCP und/oder Datei-Edits beheben. **Learning Loop:** Jede neue Fehlerklasse als Zeile (Symptom | Cause | Fix) in [KNOWN_ERRORS_AND_FIXES.md](../../../internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md) in der passenden Sektion eintragen. Anschließend Schritt 1 erneut ausführen (Validierung). Wiederholen bis `success === true` oder maximale Iterationen (z. B. 5); bei Abbruch Nutzer informieren und offene Fehler nennen.
 
 3. **Nicht überspringen:** Diese Validierung und die Entscheidung (Loop vs. Ende) sind Teil des Implementierungsabschlusses; nicht „nur“ Fabric-Checks manuell laufen lassen, sondern das Ergebnis explizit auswerten und ggf. nachfixen.
 

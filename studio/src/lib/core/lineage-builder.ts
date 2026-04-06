@@ -69,7 +69,7 @@ export async function buildLineageGraph(
     edges.push(edge);
   };
 
-  // 1. Data contract nodes (dimensions + facts)
+  // 1. Data contract nodes — Pass 1: add ALL nodes first so FK refs resolve correctly
   for (const contract of contracts) {
     for (const dim of contract.dimension ?? []) {
       addNode({
@@ -88,8 +88,12 @@ export async function buildLineageGraph(
         domain: contract.domain,
         metadata: { grain: fact.grain, columns: String(fact.columns.length) },
       });
+    }
+  }
 
-      // Connect fact → dimension via foreign key refs
+  // Pass 2: add FK edges now that all nodes exist
+  for (const contract of contracts) {
+    for (const fact of contract.fact ?? []) {
       for (const col of fact.columns) {
         if (col.ref) {
           const refTable = extractTable(col.ref);

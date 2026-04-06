@@ -102,3 +102,74 @@ class TestGenerateMetricsYaml:
         ir_path.write_text(json.dumps(ir))
         result = generate_metrics_yaml(ir_path)
         assert result["metrics"] == []
+
+    def test_core_mode_generates_metrics_from_orchestration_and_supporting(self, tmp_path):
+        ir = {
+            "objects": {
+                "use_cases": {
+                    "COM-001": {
+                        "id": "COM-001",
+                        "orchestration": {
+                            "strategic_kpi_id": "margin.gm.pct",
+                            "influencing_kpi_ids": ["sales.net_sales.amount"],
+                            "supporting_kpi_ids": ["sales.price.net.amount"],
+                            "action_code_ids": [],
+                        },
+                    }
+                },
+                "kpis": {
+                    "margin.gm.pct": {"id": "margin.gm.pct", "label": "GM %"},
+                    "sales.net_sales.amount": {"id": "sales.net_sales.amount", "label": "Net Sales"},
+                    "sales.price.net.amount": {"id": "sales.price.net.amount", "label": "Net Price"},
+                },
+                "action_codes": {},
+            },
+            "measure_spec": {
+                "margin.gm.pct": {"purpose": "Gross margin percentage"},
+                "sales.net_sales.amount": {"purpose": "Net sales amount"},
+                "sales.price.net.amount": {"purpose": "Net price amount"},
+            },
+        }
+        ir_path = tmp_path / "ir_v1.json"
+        ir_path.write_text(json.dumps(ir))
+
+        result = generate_metrics_yaml(ir_path, mode="core", use_cases=["COM-001"])
+        metric_names = [metric["name"] for metric in result["metrics"]]
+        assert metric_names == [
+            "margin_gm_pct",
+            "sales_net_sales_amount",
+            "sales_price_net_amount",
+        ]
+        assert all(metric["meta"]["calculation_logic_source"] == "core" for metric in result["metrics"])
+
+    def test_core_mode_includes_dependency_closure(self, tmp_path):
+        ir = {
+            "objects": {
+                "use_cases": {
+                    "FIN-001": {
+                        "id": "FIN-001",
+                        "orchestration": {
+                            "strategic_kpi_id": "wc.ccc.days",
+                            "influencing_kpi_ids": [],
+                            "supporting_kpi_ids": [],
+                            "action_code_ids": [],
+                        },
+                    }
+                },
+                "kpis": {
+                    "wc.ccc.days": {"id": "wc.ccc.days"},
+                    "wc.dso.days": {"id": "wc.dso.days"},
+                },
+                "action_codes": {},
+            },
+            "measure_spec": {
+                "wc.ccc.days": {"depends_on_measures": ["wc.dso.days"]},
+                "wc.dso.days": {"purpose": "Days sales outstanding"},
+            },
+        }
+        ir_path = tmp_path / "ir_v1.json"
+        ir_path.write_text(json.dumps(ir))
+
+        result = generate_metrics_yaml(ir_path, mode="core", use_cases=["FIN-001"])
+        metric_names = [metric["name"] for metric in result["metrics"]]
+        assert metric_names == ["wc_dso_days", "wc_ccc_days"]

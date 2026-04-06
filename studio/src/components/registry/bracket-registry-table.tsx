@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
+import { Warning } from '@phosphor-icons/react';
+import { BracketGovernancePanel } from './bracket-governance-panel';
+import { StudioExpandedRow, StudioTable, StudioTableCell, StudioTableHeadCell, StudioTableShell } from '@/components/ui/studio-data';
 
 interface Props {
   brackets: UseCaseBracketV20Lean[];
@@ -11,32 +14,12 @@ export function BracketRegistryTable({ brackets }: Props) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   return (
-    <div
-      style={{
-        backgroundColor: 'var(--slate-800)',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--slate-700)',
-        overflow: 'hidden',
-      }}
-    >
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
+    <StudioTableShell>
+      <StudioTable>
         <thead>
           <tr style={{ borderBottom: '1px solid var(--slate-700)' }}>
             {['ID', 'Title', 'Domain', 'Strategic KPI', 'Drivers', 'Actions'].map((h) => (
-              <th
-                key={h}
-                style={{
-                  padding: 'var(--sp-1) var(--sp-1-5)',
-                  textAlign: 'left',
-                  color: 'var(--slate-400)',
-                  fontWeight: 500,
-                  fontSize: '0.75rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                }}
-              >
-                {h}
-              </th>
+              <StudioTableHeadCell key={h} style={{ fontWeight: 500, fontSize: '0.75rem' }}>{h}</StudioTableHeadCell>
             ))}
           </tr>
         </thead>
@@ -55,8 +38,8 @@ export function BracketRegistryTable({ brackets }: Props) {
             );
           })}
         </tbody>
-      </table>
-    </div>
+      </StudioTable>
+    </StudioTableShell>
   );
 }
 
@@ -83,31 +66,30 @@ function BracketRow({
           transition: 'background-color var(--duration-fast) var(--ease-out)',
         }}
       >
-        <td style={{ padding: 'var(--sp-1) var(--sp-1-5)', fontFamily: 'var(--font-mono)', color: 'var(--info)', fontSize: '0.75rem' }}>
+        <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--info)', fontSize: '0.75rem' }}>
           {bracket.id}
-        </td>
-        <td style={{ padding: 'var(--sp-1) var(--sp-1-5)', color: 'var(--slate-100)' }}>
+        </StudioTableCell>
+        <StudioTableCell style={{ color: 'var(--slate-100)' }}>
           {bracket.title}
-        </td>
-        <td style={{ padding: 'var(--sp-1) var(--sp-1-5)', color: 'var(--slate-400)' }}>
+        </StudioTableCell>
+        <StudioTableCell style={{ color: 'var(--slate-400)' }}>
           {bracket.domain}
-        </td>
-        <td style={{ padding: 'var(--sp-1) var(--sp-1-5)', fontFamily: 'var(--font-mono)', color: 'var(--mint)', fontSize: '0.75rem' }}>
+        </StudioTableCell>
+        <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--mint)', fontSize: '0.75rem' }}>
           {bracket.orchestration.strategic_kpi_id}
-        </td>
-        <td style={{ padding: 'var(--sp-1) var(--sp-1-5)', color: 'var(--slate-300)', textAlign: 'center' }}>
+        </StudioTableCell>
+        <StudioTableCell style={{ color: 'var(--slate-300)', textAlign: 'center' }}>
           {driverCount}
-        </td>
-        <td style={{ padding: 'var(--sp-1) var(--sp-1-5)', textAlign: 'center' }}>
+        </StudioTableCell>
+        <StudioTableCell style={{ textAlign: 'center' }}>
           <span style={{ color: hasActionGap ? 'var(--danger)' : 'var(--slate-300)' }}>
             {actionCount}
-            {hasActionGap && ' ⚠'}
+            {hasActionGap && <Warning size={12} style={{ verticalAlign: 'middle', marginLeft: '4px', color: 'var(--danger)' }} />}
           </span>
-        </td>
+        </StudioTableCell>
       </tr>
       {isExpanded && (
-        <tr>
-          <td colSpan={6} style={{ padding: 'var(--sp-2) var(--sp-1-5)', backgroundColor: 'var(--slate-850, #182030)' }}>
+        <StudioExpandedRow colSpan={6}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--sp-2)', fontSize: '0.8125rem' }}>
               <div>
                 <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>Influencing KPIs</p>
@@ -135,8 +117,8 @@ function BracketRow({
                 </p>
               </div>
             </div>
-          </td>
-        </tr>
+            <BracketGovernancePanel bracketId={bracket.id} />
+        </StudioExpandedRow>
       )}
     </>
   );

@@ -1,7 +1,8 @@
 <!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
 
 ---
-description: Golden thread, SSOT, and framework paths for the Analytics Use Case Library
+description: Enforce conventions. Use when: any edit touching core/ or framework artifacts — ensures Golden Thread and SSOT rules. Triggers: always active
+
 alwaysApply: true
 ---
 

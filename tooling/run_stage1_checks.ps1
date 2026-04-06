@@ -4,6 +4,11 @@ Param(
 
 $ErrorActionPreference = "Stop"
 
+# Ensure powershell-yaml is loaded for check_validate_data_contracts.ps1 (CI and local)
+if (-not (Get-Command ConvertFrom-Yaml -ErrorAction SilentlyContinue)) {
+  Import-Module powershell-yaml -ErrorAction Stop
+}
+
 function Resolve-RepoPath {
   param([string]$ProvidedPath,[string]$DefaultRelative)
   $repo = (Get-Location).Path
@@ -93,3 +98,4 @@ $timestampFile = (Get-Date -Format "yyyy-MM-dd_HHmm") + "_stage1.json"
 $json | Out-File -FilePath (Join-Path $runsDir $timestampFile) -Encoding utf8
 
 Write-Host "Stage 1 checks passed. Results written to tooling/validation/results/latest_results.json and internal/metrics/runs/$timestampFile" -ForegroundColor Green
+exit 0

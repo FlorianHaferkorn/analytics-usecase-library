@@ -24,12 +24,15 @@ Semantic models require these mandatory parts:
 
 | Part | Purpose | Required |
 |---|---|---|
-| `definition.pbism` | Connection settings (JSON format) | Yes |
-| `definition/database.tmdl` | Database properties and compatibility level | Yes |
-| `definition/model.tmdl` | Model properties, culture, defaults | Yes |
+| `definition.pbism` | Connection settings (JSON format, version `"4.2"`) | Yes |
+| `definition/database.tmdl` | Database properties — muss mit `database '<Name>'` beginnen, `compatibilityLevel: 1702` | Yes |
+| `definition/model.tmdl` | Model properties — `defaultPowerBIDataSourceVersion: powerBI_V3` Pflicht für Import-Mode | Yes |
 | `definition/tables/*.tmdl` | Per-table definitions (columns, measures, partitions) | ≥1 required |
 
 > **Critical**: The API replaces entire definitions during updates — all parts (modified and unmodified) must be included. Omitted parts are deleted. Never include `.platform` metadata in update payloads.
+
+> **TMDL-Syntax** für database.tmdl, model.tmdl, Direct Lake Entity Partitions, Calculation Groups, RLS-Rollen:
+> → `tmdl-advanced-features.md`
 
 ---
 
@@ -37,13 +40,14 @@ Semantic models require these mandatory parts:
 
 ### MUST DO
 
-- Read TMDL reference documentation (`TMDL_Allowed_Subset.md`) before generating content
-- Always pass `--resource` parameter to `az rest`
+- Read `TMDL_Allowed_Subset.md` (Policies) **und** `tmdl-advanced-features.md` (Syntax) vor jeder TMDL-Generierung
+- Always pass `--resource` parameter to `az rest` — falsche Audience = `401`
 - Include `Content-Type: application/json` header on Power BI API POST/PATCH/PUT calls
 - Base64-encode all TMDL content payloads before submission
-- Poll long-running operations (LRO) to completion before proceeding
+- Poll long-running operations (LRO) to completion before proceeding — **`getDefinition` braucht `/result` am Poll-URL-Ende**
 - Include ALL definition parts in updates (not just changed parts)
 - Verify workspace has capacity assignment before creating models
+- Für REST-Deploy: `byConnection` in `definition.pbir` nutzen — `byPath` wird von der Fabric API abgelehnt
 
 ### PREFER
 
@@ -172,9 +176,36 @@ WS_ID=$(az rest --method get \
 
 ---
 
+## MCP / Tool Routing Decision Tree
+
+Choose the right tool based on operation size, frequency, and target environment:
+
+| Change type | Recommended tool | Why |
+|---|---|---|
+| **New semantic model** (>3 tables) | `az rest createItemWithDefinition` or `fab import` | Full definition in one POST; REST is idempotent for CI/CD |
+| **Add/edit single measure** | `powerbi-modeling-mcp` (if available) → else File-Edit + TMDL hook | MCP validates in-process; avoids full round-trip |
+| **Add table or partition** | `table_ops.ps1` → `az rest updateDefinition` | Orchestrated: TMDL generation + REST push |
+| **Change RLS role** | File-Edit `roles/*.tmdl` → `az rest updateDefinition` | Role TMDL is text-editable; membership via REST separately |
+| **Trigger dataset refresh** | Power BI Datasets API (`az rest --resource analysis.windows.net`) | Datasets API, not Fabric Items API |
+| **Deploy between pipeline stages** | `orchestrator.py deploy` or `PipelineManager.deploy()` | Handles LRO + allowCreateArtifact auto-detection |
+| **Create workspace / provision items** | `orchestrator.py init-domain` | Handles capacity, Git, governance, shortcuts in order |
+| **Explore deployed model structure** | `execute_dax.py` + `INFO.VIEW.*` | Read-only; no model changes; see `powerbi-consumption.md` |
+| **Local report scaffolding** | `page_scaffold_generator/pbip_writer.py` | byPath only; for local Desktop preview |
+| **Fabric deploy (CI pipeline)** | `deploy.ps1` (fab primary, az rest fallback) | Orchestrated gate + deploy + schedule |
+
+### When NOT to use MCP
+
+- Do **not** use `powerbi-modeling-mcp` for structural changes (new tables, partitions, model files) — use `table_ops.ps1` or REST instead.
+- Do **not** use MCP for Direct Lake partition conversion — requires `PatchPartitionSourceToDirectLake` in `table_ops.ps1`.
+- MCP operates on a live connection; file-edit + REST is safer for CI/CD.
+
+---
+
 ## Cross-References
 
-- TMDL syntax rules: `core/strategy_operating_model/operating_model/reference/TMDL_Allowed_Subset.md`
-- Item definition envelope: `fabric-item-definitions.md`
-- Fabric REST API auth/LRO: `fabric-api-core.md`
+- TMDL Policies (was erlaubt ist): `core/strategy_operating_model/operating_model/reference/TMDL_Allowed_Subset.md`
+- TMDL Syntax (wie es geschrieben wird): `tmdl-advanced-features.md`
+- Item definition envelope + PBIR Parts: `fabric-item-definitions.md`
+- Fabric REST API auth/LRO/JMESPath + Semantic Model & Report az rest Patterns: `fabric-api-core.md`
 - Execute DAX queries: `products/fabric/powerbi/tooling/scripts/execute_dax.py`
+- Report lokal schreiben (byPath): `products/fabric/powerbi/tooling/page_scaffold_generator/pbip_writer.py`

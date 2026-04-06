@@ -3,6 +3,7 @@
 ---
 name: edit-usecase-bracket-safely
 description: Edit UseCase_Bracket.yaml (SSOT) without breaking orchestration or governance (Lean 2.0). Use when editing brackets, orchestration config, governance roles, or action_code_ids.
+version: "1.0.0"
 ---
 
 # Edit UseCase_Bracket Safely (Lean 2.0)

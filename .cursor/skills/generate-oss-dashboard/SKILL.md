@@ -3,6 +3,7 @@
 ---
 name: generate-oss-dashboard
 description: Generate Evidence.dev dashboard pages from IR and UseCase Bracket
+version: "1.0.0"
 ---
 
 # Generate OSS Dashboard
@@ -20,11 +21,21 @@ pages for a use case. Mirrors the Fabric `generate-and-validate-pbi-report` skil
 
 1. **Refresh the IR** (ensures latest KPI catalog and brackets are included):
 
+   ```powershell
+   python tooling/ir/build_ir.py --kpi-catalog
+   ```
+
    ```bash
    python tooling/ir/build_ir.py --kpi-catalog
    ```
 
 2. **Run the Evidence Page Generator** for the target use case:
+
+   ```powershell
+   python -m products.open_source_stack.tooling.page_generator.generator `
+      --use-case <USE_CASE_ID> `
+      --ir-path tooling/ir/out/ir_v1.json
+   ```
 
    ```bash
    python -m products.open_source_stack.tooling.page_generator.generator \
@@ -40,6 +51,10 @@ pages for a use case. Mirrors the Fabric `generate-and-validate-pbi-report` skil
    - For detail pages, check the 300-second layer includes diagnostic tables
 
 4. **Run OSS validation:**
+
+   ```powershell
+   python products/open_source_stack/tooling/validate_oss.py --root .
+   ```
 
    ```bash
    python products/open_source_stack/tooling/validate_oss.py --root .

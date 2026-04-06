@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "ActionPanel",
+  "position": {
+    "x": 1592,
+    "y": 118,
+    "z": 15000,
+    "height": 930,
+    "width": 296,
+    "tabOrder": 3004
+  },
+  "visual": {
+    "visualType": "textbox",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": []
+        }
+      }
+    },
+    "objects": {
+      "text": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Recommended actions (from action codes)\n\n• S-R2.1 — OTIF Orchestration\n  Owner: head_of_supply_chain\n  Trigger: supply.otif.pct < 93.0%\n  Impact: High\n  Expected: 1.0–4.0 pp\n  Confidence: High\n  · DETECT sustained OTIF deterioration for this shipment\n  · DIAGNOSE the dominant OTIF loss driver for this shipment\n  · ACTIVATE the corresponding execution Action Code for this shipment\n  ⚠ Trigger only if service deterioration is structurally recurring\n  ⚠ Do not trigger if OTIF loss is fully explained by inventory shortages\n\n• S-R2.2 — Fulfillment & Transport Stabilisation\n  Owner: logistics_manager\n  Trigger: supply.on_time.pct < 94.0%\n  Impact: High\n  Expected: 2.0–5.0 pp\n  Confidence: High\n  · IDENTIFY shipments with recurring late deliveries by lane/DC\n  · ANALYSE delay root causes (pickup, transit, handover) for this shipment\n  · IMPLEMENT corrective actions with carriers and DCs for this shipment\n  ⚠ Trigger only if late deliveries dominate OTIF loss\n  ⚠ Do not trigger if delays are inventory-driven\n\n• S-R2.3 — In-Full & Stockout Impact Reduction\n  Owner: supply_planner\n  Trigger: supply.stockout_impact.pct > 6.0%\n  Impact: High\n  Expected: -1.0–-4.0 pp\n  Confidence: High\n  · IDENTIFY shipments with rising in-full failures by SKU/lane\n  · REALLOCATE constrained supply by service priority for this shipment\n  · CORRECT partial shipment practices for this shipment\n  ⚠ Trigger only if in-full failures dominate OTIF loss\n  ⚠ Do not trigger if issues are transport-driven\n\n• S-R2.4 — Penalty & Expedite Cost Control\n  Owner: logistics_cost_manager\n  Trigger: supply.penalty.amount > 0.25%\n  Impact: Medium\n  Expected: -10.0–-30.0 %\n  Confidence: Medium\n  · IDENTIFY shipments with recurring penalties or expedites by lane\n  · CLASSIFY costs as avoidable vs justified for this shipment\n  · CORRECT underlying execution or planning issues for this shipment\n  ⚠ Trigger only if penalties/expedites are structurally recurring\n  ⚠ Do not trigger if cost increase is explained by approved service upgrades\n\n• S-R2.5 — Planning & Execution Alignment\n  Owner: s_and_op_lead\n  Trigger: supply.expedite.amount > 0.25%\n  Impact: Medium\n  Expected: 1.0–3.0 pp\n  Confidence: Medium\n  · IDENTIFY shipments affected by repeated last-minute plan changes\n  · ANALYSE root causes of plan-execution mismatch for this shipment\n  · ENFORCE freeze windows and escalation rules for this shipment\n  ⚠ Trigger only if expedites are caused by planning overrides or late changes\n  ⚠ Do not trigger if expedites are driven by external disruptions'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

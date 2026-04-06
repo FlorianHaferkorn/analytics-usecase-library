@@ -73,8 +73,8 @@ class EvidencePageGenerator:
         kpi_nodes = self.config_loader.get_kpis_for_use_case(self._ir, self.use_case_id)
 
         # Get UX layout from bracket
-        ux_layout = self._bracket.get("ux_layout", {})
-        report_pages = ux_layout.get("report_pages", [])
+        ux_layout = self._bracket.get("ux_layout_rules", {}) or self._bracket.get("ux_layout", {})
+        report_pages = self._resolve_report_pages(ux_layout)
 
         if not report_pages:
             # Fallback: generate a single overview page
@@ -110,24 +110,26 @@ class EvidencePageGenerator:
     ) -> str:
         """Build a single Evidence page."""
         title = self.config_loader.get_use_case_title(self._ir, self.use_case_id)  # type: ignore[arg-type]
+        use_case = self.config_loader.get_use_case_from_ir(self._ir, self.use_case_id) or {}  # type: ignore[arg-type]
+        orchestration = use_case.get("orchestration", {}) if isinstance(use_case, dict) else {}
         page_type = page_def.get("page_type", "overview")
         description = f"{title} — {page_type.replace('_', ' ').title()}"
+        kpis_by_id = {kpi.get("id", ""): kpi for kpi in kpi_nodes}
+        visible_kpi_ids = self._get_visible_kpi_ids(orchestration)
 
         sections: List[PageSection] = []
 
         # 3-Second Layer — KPI Headlines
         kpi_section = PageSection("3-Second Layer — KPI Headlines")
-        for kpi in kpi_nodes:
-            kpi_id = kpi.get("id", "")
+        for kpi_id in visible_kpi_ids:
+            kpi = kpis_by_id.get(kpi_id)
+            if not kpi:
+                continue
             label = self._get_kpi_label(kpi)
-            table = self.sql_builder.infer_table_from_kpi(kpi)
-            spec = kpi.get("measure_spec", {})
-            dax = spec.get("dax_expression", "")
-            sql_expr = self.sql_builder.dax_to_sql_expression(dax)
             qname = self.sql_builder.kpi_to_query_name(kpi_id)
 
             kpi_section.add_block(
-                self.sql_builder.build_kpi_headline_query(qname, table, sql_expr, label)
+                self.sql_builder.build_metric_headline_query(qname, kpi_id, label)
             )
             kpi_section.add_block(
                 self.component_builder.build_kpi_card(qname, title=label)
@@ -136,38 +138,43 @@ class EvidencePageGenerator:
 
         # 30-Second Layer — Trends
         trend_section = PageSection("30-Second Layer — Trends")
-        for kpi in kpi_nodes[:3]:  # Top 3 KPIs as trends
-            kpi_id = kpi.get("id", "")
+        for kpi_id in visible_kpi_ids[:3]:
+            kpi = kpis_by_id.get(kpi_id)
+            if not kpi:
+                continue
             label = self._get_kpi_label(kpi)
-            table = self.sql_builder.infer_table_from_kpi(kpi)
-            spec = kpi.get("measure_spec", {})
-            dax = spec.get("dax_expression", "")
-            sql_expr = self.sql_builder.dax_to_sql_expression(dax)
             qname = f"{self.sql_builder.kpi_to_query_name(kpi_id)}_trend"
 
             trend_section.add_block(
-                self.sql_builder.build_trend_query(qname, table, sql_expr)
+                self.sql_builder.build_metric_trend_query(qname, kpi_id)
             )
             trend_section.add_block(
                 self.component_builder.build_chart(
                     "trend_line", qname, x="period", y="metric_value", title=label
                 )
             )
+        formula_block = self._build_formula_block(use_case)
+        if formula_block:
+            trend_section.add_block(formula_block)
         sections.append(trend_section)
 
         # 300-Second Layer — Detail (for detail pages)
         if page_type in ("detail", "diagnostics"):
             detail_section = PageSection("300-Second Layer — Diagnostics")
-            if kpi_nodes:
-                table = self.sql_builder.infer_table_from_kpi(kpi_nodes[0])
+            if visible_kpi_ids:
+                detail_config = self._get_detail_config()
                 qname = "detail_data"
-                columns = ["entity", "period", "kpi_value", "driver"]
+                columns = detail_config.get("evidence_columns") or ["entity", "period", "metric_value"]
                 detail_section.add_block(
-                    self.sql_builder.build_detail_query(qname, table, columns)
+                    self.sql_builder.build_metric_detail_query(qname, visible_kpi_ids[0], columns)
                 )
                 detail_section.add_block(
                     self.component_builder.build_data_table(qname)
                 )
+                if detail_config.get("action_panel"):
+                    detail_section.add_block(
+                        "> Action panel enabled for this use case. Use the linked action codes and governance flow for execution."
+                    )
             sections.append(detail_section)
 
         # Grid layout wrapper (when bracket defines ux_layout_rules with grid_blueprint)
@@ -191,6 +198,59 @@ class EvidencePageGenerator:
             sections=sections,
             frontmatter=frontmatter,
         )
+
+    def _resolve_report_pages(self, ux_layout: Dict[str, Any]) -> List[Dict[str, Any]]:
+        report_pages = ux_layout.get("report_pages", []) if isinstance(ux_layout, dict) else []
+        if report_pages:
+            return report_pages
+
+        derived: List[Dict[str, Any]] = []
+        if isinstance(ux_layout, dict):
+            if isinstance(ux_layout.get("page_1_summary"), dict):
+                derived.append({"page_id": "overview", "page_type": "overview"})
+            if isinstance(ux_layout.get("page_2_execution"), dict):
+                derived.append({"page_id": "detail", "page_type": "detail"})
+        return derived
+
+    def _get_visible_kpi_ids(self, orchestration: Dict[str, Any]) -> List[str]:
+        ordered: List[str] = []
+        for value in [orchestration.get("strategic_kpi_id")]:
+            if isinstance(value, str) and value and value not in ordered:
+                ordered.append(value)
+        for key in ("influencing_kpi_ids", "supporting_kpi_ids"):
+            values = orchestration.get(key, [])
+            if isinstance(values, list):
+                for value in values:
+                    if isinstance(value, str) and value and value not in ordered:
+                        ordered.append(value)
+        return ordered
+
+    def _get_detail_config(self) -> Dict[str, Any]:
+        if not isinstance(self._bracket, dict):
+            return {}
+        ux_layout = self._bracket.get("ux_layout_rules", {}) or self._bracket.get("ux_layout", {})
+        if not isinstance(ux_layout, dict):
+            return {}
+        page_2 = ux_layout.get("page_2_execution", {})
+        if not isinstance(page_2, dict):
+            return {}
+        component_300s = page_2.get("component_300s", {})
+        if not isinstance(component_300s, dict):
+            return {}
+        return component_300s
+
+    def _build_formula_block(self, use_case: Dict[str, Any]) -> str:
+        value_driver = use_case.get("value_driver_model", {}) if isinstance(use_case, dict) else {}
+        if not isinstance(value_driver, dict):
+            return ""
+        formula = value_driver.get("formula")
+        impact_logic = value_driver.get("impact_logic")
+        lines: List[str] = []
+        if isinstance(formula, str) and formula.strip():
+            lines.append(f"> Core formula: {formula.strip()}")
+        if isinstance(impact_logic, str) and impact_logic.strip():
+            lines.append(f"> Impact logic: {impact_logic.strip()}")
+        return "\n".join(lines)
 
 
 def main() -> None:

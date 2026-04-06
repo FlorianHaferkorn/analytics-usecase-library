@@ -1,5 +1,6 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react';
-import { getStatusColor } from '@/lib/ui-styles';
+import { Warning } from '@phosphor-icons/react';
+import { getStatusColor } from '@/lib/status-colors';
 
 export interface ActionCodeData {
   actionId: string;
@@ -29,7 +30,7 @@ export function ActionCodeNode({ data }: NodeProps) {
     >
       <Handle type="target" position={Position.Top} style={{ background: borderColor }} />
       <p style={{ fontSize: '0.6875rem', color: headerColor, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '2px' }}>
-        {isOrphan ? '⚠ Orphan Action' : 'Action Code'}
+        {isOrphan ? <><Warning size={10} style={{ verticalAlign: 'middle', marginRight: '2px' }} /> Orphan Action</> : 'Action Code'}
       </p>
       <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--slate-100)' }}>
         {label}

@@ -185,15 +185,15 @@ class SlicerBuilder:
     def build_time_slicer(
         self,
         position: Position,
-        field: str = "dim_date.Date",
+        field: str = "dim_date.CalendarYearMonth",
         name: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Build time/date slicer.
-        
+
         Args:
             position: Position and size
-            field: Date field reference (default: dim_date.Date)
+            field: Date field reference (default: dim_date.CalendarYearMonth for YYYY-MM sortable slicer)
             name: Speaking name (e.g. Slicer_Date); optional
         
         Returns:

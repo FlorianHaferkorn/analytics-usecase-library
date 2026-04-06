@@ -111,10 +111,10 @@ operational_execution:
   - Transparent shrinkage categorisation
   - Agreement on controllable vs non-controllable time
   steps:
-  - IDENTIFY agents in queues with elevated shrinkage
-  - ANALYSE dominant shrinkage categories for this agent
-  - ADJUST planning, adherence, or scheduling practices for this agent
-  - MONITOR shrinkage and utilization for this agent weekly
+  - IDENTIFY queues or agent groups with elevated shrinkage
+  - ANALYSE dominant shrinkage categories for this queue or agent group
+  - ADJUST planning, adherence, or scheduling practices for this queue or agent group
+  - MONITOR shrinkage and utilization for this queue or agent group weekly
   effort:
     level: Medium
     typical_duration_days: 90
@@ -132,10 +132,10 @@ data_requirements:
     - SLA Attainment %
     - Tickets Created Count
     tables:
-    - fact_workforce
-    - fact_service_tickets
-    - dim_queue
-    - dim_agent_group
+    - fact_workforce_management
+    - fact_support_cases
+    - dim_case_queue
+    - dim_org
 automation:
   detection:
     enabled: true

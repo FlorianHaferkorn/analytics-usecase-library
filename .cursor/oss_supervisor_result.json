@@ -1,0 +1,219 @@
+﻿{
+    "policy":  "oss-report-production",
+    "policyVersion":  "1.0.0",
+    "repoRoot":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library",
+    "scope":  {
+                  "value":  [
+                                "COM-001",
+                                "COM-004"
+                            ],
+                  "type":  "UseCase"
+              },
+    "startedAt":  "2026-04-03T08:48:24.0804427+02:00",
+    "iterations":  [
+                       {
+                           "iteration":  1,
+                           "build":  {
+                                         "output":  [
+                                                        "Build completed successfully."
+                                                    ],
+                                         "exitCode":  0,
+                                         "passed":  true
+                                     },
+                           "validation":  {
+                                              "timestamp":  "2026-04-03T06:48:45.881413+00:00",
+                                              "checks":  [
+                                                             {
+                                                                 "check":  "validate_adapter_manifest",
+                                                                 "passed":  true,
+                                                                 "errors":  [
+
+                                                                            ],
+                                                                 "warnings":  [
+
+                                                                              ]
+                                                             },
+                                                             {
+                                                                 "check":  "validate_evidence_pages",
+                                                                 "passed":  true,
+                                                                 "errors":  [
+
+                                                                            ],
+                                                                 "warnings":  [
+
+                                                                              ]
+                                                             },
+                                                             {
+                                                                 "check":  "validate_theme_tokens",
+                                                                 "passed":  true,
+                                                                 "errors":  [
+
+                                                                            ],
+                                                                 "warnings":  [
+
+                                                                              ]
+                                                             },
+                                                             {
+                                                                 "check":  "validate_sql_style",
+                                                                 "passed":  true,
+                                                                 "errors":  [
+
+                                                                            ],
+                                                                 "warnings":  [
+
+                                                                              ]
+                                                             },
+                                                             {
+                                                                 "check":  "check_metrics_vs_kpi",
+                                                                 "passed":  true,
+                                                                 "errors":  [
+
+                                                                            ],
+                                                                 "warnings":  [
+
+                                                                              ]
+                                                             }
+                                                         ],
+                                              "passed":  true
+                                          },
+                           "timestamp":  "2026-04-03T08:48:24.0817405+02:00"
+                       },
+                       {
+                           "iteration":  2,
+                           "build":  {
+                                         "output":  [
+                                                        "Build completed successfully."
+                                                    ],
+                                         "exitCode":  0,
+                                         "passed":  true
+                                     },
+                           "validation":  {
+                                              "timestamp":  "2026-04-03T06:49:08.012685+00:00",
+                                              "checks":  [
+                                                             {
+                                                                 "check":  "validate_adapter_manifest",
+                                                                 "passed":  true,
+                                                                 "errors":  [
+
+                                                                            ],
+                                                                 "warnings":  [
+
+                                                                              ]
+                                                             },
+                                                             {
+                                                                 "check":  "validate_evidence_pages",
+                                                                 "passed":  true,
+                                                                 "errors":  [
+
+                                                                            ],
+                                                                 "warnings":  [
+
+                                                                              ]
+                                                             },
+                                                             {
+                                                                 "check":  "validate_theme_tokens",
+                                                                 "passed":  true,
+                                                                 "errors":  [
+
+                                                                            ],
+                                                                 "warnings":  [
+
+                                                                              ]
+                                                             },
+                                                             {
+                                                                 "check":  "validate_sql_style",
+                                                                 "passed":  true,
+                                                                 "errors":  [
+
+                                                                            ],
+                                                                 "warnings":  [
+
+                                                                              ]
+                                                             },
+                                                             {
+                                                                 "check":  "check_metrics_vs_kpi",
+                                                                 "passed":  true,
+                                                                 "errors":  [
+
+                                                                            ],
+                                                                 "warnings":  [
+
+                                                                              ]
+                                                             }
+                                                         ],
+                                              "passed":  true
+                                          },
+                           "timestamp":  "2026-04-03T08:48:45.8976205+02:00"
+                       },
+                       {
+                           "iteration":  3,
+                           "build":  {
+                                         "output":  [
+                                                        "Build completed successfully."
+                                                    ],
+                                         "exitCode":  0,
+                                         "passed":  true
+                                     },
+                           "validation":  {
+                                              "timestamp":  "2026-04-03T06:49:30.373721+00:00",
+                                              "checks":  [
+                                                             {
+                                                                 "check":  "validate_adapter_manifest",
+                                                                 "passed":  true,
+                                                                 "errors":  [
+
+                                                                            ],
+                                                                 "warnings":  [
+
+                                                                              ]
+                                                             },
+                                                             {
+                                                                 "check":  "validate_evidence_pages",
+                                                                 "passed":  true,
+                                                                 "errors":  [
+
+                                                                            ],
+                                                                 "warnings":  [
+
+                                                                              ]
+                                                             },
+                                                             {
+                                                                 "check":  "validate_theme_tokens",
+                                                                 "passed":  true,
+                                                                 "errors":  [
+
+                                                                            ],
+                                                                 "warnings":  [
+
+                                                                              ]
+                                                             },
+                                                             {
+                                                                 "check":  "validate_sql_style",
+                                                                 "passed":  true,
+                                                                 "errors":  [
+
+                                                                            ],
+                                                                 "warnings":  [
+
+                                                                              ]
+                                                             },
+                                                             {
+                                                                 "check":  "check_metrics_vs_kpi",
+                                                                 "passed":  true,
+                                                                 "errors":  [
+
+                                                                            ],
+                                                                 "warnings":  [
+
+                                                                              ]
+                                                             }
+                                                         ],
+                                              "passed":  true
+                                          },
+                           "timestamp":  "2026-04-03T08:49:08.0281640+02:00"
+                       }
+                   ],
+    "completedAt":  "2026-04-03T08:49:30.3866246+02:00",
+    "success":  true,
+    "consecutiveGreenRuns":  3
+}

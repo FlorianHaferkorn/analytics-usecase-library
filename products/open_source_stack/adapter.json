@@ -21,14 +21,14 @@
   },
   "commands": {
     "build": {
-      "type": "python",
-      "entrypoint": "products/open_source_stack/tooling/page_generator/generator.py",
-      "args": ["--ir-path", "tooling/ir/out/ir_v1.json"]
+      "type": "powershell",
+      "entrypoint": "products/open_source_stack/tooling/adapter_build.ps1",
+      "args": []
     },
     "validate": {
-      "type": "python",
-      "entrypoint": "products/open_source_stack/tooling/validate_oss.py",
-      "args": ["--root", "."]
+      "type": "powershell",
+      "entrypoint": "products/open_source_stack/tooling/run_oss_checks.ps1",
+      "args": ["-Root", "."]
     },
     "deploy": {
       "type": "python",

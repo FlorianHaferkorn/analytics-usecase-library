@@ -29,6 +29,58 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.2
     last_review: 06.02.2026
+- measure_name: List Price Amount
+  is_kpi_measure: true
+  kpi_id_ref: sales.price.list.amount
+  semantic_model: Commercial_Sales_SemanticModel
+  display_folder: 01_Revenue
+  category: KPI
+  expression:
+    logical: List Price Amount = SUM ( fact_sales[List Price Amount] )
+    aggregation_method: sum
+  documentation:
+    description: Sum of list price amount before discounts.
+    notes: 'Grain: invoice_line, reported monthly. Unit: EUR.
+
+      Lineage: fact_sales[List Price Amount].
+
+      QA: Price book mapping and currency conversion handled upstream.
+
+      '
+  dependencies:
+    columns:
+    - fact_sales[List Price Amount]
+  governance:
+    owner: Commercial BI
+    status: active
+    version: v1.0
+    last_review: 06.02.2026
+- measure_name: Net Price Amount
+  is_kpi_measure: true
+  kpi_id_ref: sales.price.net.amount
+  semantic_model: Commercial_Sales_SemanticModel
+  display_folder: 01_Revenue
+  category: KPI
+  expression:
+    logical: Net Price Amount = SUM ( fact_sales[Net Price Amount] )
+    aggregation_method: sum
+  documentation:
+    description: Sum of net price amount after discounts.
+    notes: 'Grain: invoice_line, reported monthly. Unit: EUR.
+
+      Lineage: fact_sales[Net Price Amount].
+
+      QA: Discount treatment and currency conversion handled upstream.
+
+      '
+  dependencies:
+    columns:
+    - fact_sales[Net Price Amount]
+  governance:
+    owner: Commercial BI
+    status: active
+    version: v1.0
+    last_review: 06.02.2026
 - measure_name: Net Sales % vs Plan
   is_kpi_measure: true
   kpi_id_ref: sales.net_sales.delta_pct.plan
@@ -114,6 +166,32 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     owner: Commercial BI
     status: active
     version: v1.2
+    last_review: 06.02.2026
+- measure_name: Cost of Goods Sold Amount
+  is_kpi_measure: true
+  kpi_id_ref: cost.cogs.amount
+  semantic_model: Commercial_Sales_SemanticModel
+  display_folder: 02_Margin
+  category: KPI
+  expression:
+    logical: Cost of Goods Sold Amount = SUM ( fact_sales[Cost of Goods Sold Amount] )
+    aggregation_method: sum
+  documentation:
+    description: Total cost of goods sold aligned to invoiced revenue.
+    notes: 'Grain: invoice_line, reported monthly. Unit: EUR.
+
+      Lineage: fact_sales[Cost of Goods Sold Amount].
+
+      QA: Must reconcile to commercial P and L COGS within tolerance.
+
+      '
+  dependencies:
+    columns:
+    - fact_sales[Cost of Goods Sold Amount]
+  governance:
+    owner: Commercial BI
+    status: active
+    version: v1.0
     last_review: 06.02.2026
 - measure_name: Gross Margin %
   is_kpi_measure: false

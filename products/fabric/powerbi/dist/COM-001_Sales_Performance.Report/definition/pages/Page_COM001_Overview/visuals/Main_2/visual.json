@@ -10,7 +10,7 @@
     "tabOrder": 3003
   },
   "visual": {
-    "visualType": "lineChart",
+    "visualType": "clusteredBarChart",
     "objects": {
       "legend": [
         {
@@ -43,14 +43,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_date"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "Date"
+                  "Property": "OrgName"
                 }
               },
-              "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
+              "queryRef": "dim_org.OrgName",
+              "nativeQueryRef": "OrgName"
             }
           ]
         },

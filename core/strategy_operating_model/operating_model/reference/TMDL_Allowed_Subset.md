@@ -4,6 +4,13 @@ Purpose: Bind our project to a **minimal, consistent subset** of the official TM
 
 Scope: Applies to all semantic models in this repo (PBIP layout). Desktop is preview/canvas-only; authoring happens in TMDL.
 
+> **TMDL-Textsyntax** (Calculation Groups, Direct Lake Entity Partitions, Security Roles, database.tmdl/model.tmdl Pflichtinhalt):
+> → `products/fabric/powerbi/docs/references/tmdl-advanced-features.md`
+
+> **Canonical base templates** (database.tmdl, model.tmdl, definition.pbism — single source of truth for compatibilityLevel + format settings):
+> → `core/strategy_operating_model/operating_model/reference/tmdl_base_templates/`
+> → Generate via: `.\products\fabric\powerbi\orchestrator\table_ops.ps1 -Operation WriteModelFiles -DefinitionPath <path>`
+
 ---
 
 ## 1) Global Policies
@@ -169,15 +176,27 @@ Policies:
 - `DirectQuery` only when latency constraints or data residency demand it.
 - Name partitions predictably (e.g., `p_all`, `p_YYYYMM`).
 
-Example (partition excerpt):
+TMDL-Syntax (Import):
 
-```json
-{
-  "partitions": [
-    { "name": "p_all", "mode": "import" }
-  ]
-}
 ```
+partition p_all = m
+	mode: import
+	source =
+		let Source = ... in Source
+```
+
+TMDL-Syntax (Direct Lake):
+
+```
+partition Sales = entity
+	mode: directLake
+	source
+		entityName: Sales
+		schemaName: dbo
+		expressionSource: DL_Lakehouse
+```
+
+> Vollständiges Direct Lake Pattern inkl. Named Expression: `tmdl-advanced-features.md §4`
 
 ---
 
@@ -271,6 +290,19 @@ Example (measure description inside JSON as string):
 - Define roles only on dimension tables (e.g., Org/Region).
 - Keep expressions deterministic and documented in model README if complex.
 - Naming: `RLS_<Domain>_<Scope>` (e.g., `RLS_Sales_Region`).
+
+TMDL-Syntax (Datei: `definition/roles/RLS_Sales_Region.tmdl`):
+
+```
+role 'RLS_Sales_Region'
+	modelPermission: read
+
+	tablePermission Sales
+		filterExpression: 'Sales'[RegionCode] = USERNAME()
+```
+
+> Role Membership (User → Rolle) **nie in TMDL** — immer via Power BI REST API.
+> Vollständige Syntax inkl. OLS: `tmdl-advanced-features.md §7`
 
 ---
 

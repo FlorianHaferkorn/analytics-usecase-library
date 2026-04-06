@@ -39,15 +39,19 @@ fact:
       - {name: DPO Days, type: decimal, nullable: true}
       - {name: OTIF %, type: decimal, nullable: true}
       - {name: Turnover %, type: decimal, nullable: true}
+      - {name: Actions Routed Count, type: int, nullable: true}
+      - {name: Action Outcome Rate %, type: decimal, nullable: true}
 
 quality_rules:
   freshness_sla: monthly    # fact_exec_summary refreshed within 3 business days of month close
   key_nullability:
     - "fact_exec_summary.DateKey, OrgKey, Revenue Amount, Gross Margin Amount, EBITDA Amount: never null"
-    - "DSO Days, DIO Days, DPO Days, OTIF %, Turnover %: nullable (not all entities report all KPIs)"
+    - "DSO Days, DIO Days, DPO Days, OTIF %, Turnover %, Actions Routed Count, Action Outcome Rate %: nullable (not all entities report all KPIs)"
   value_ranges:
     - "fact_exec_summary.OTIF %: in [0; 1] when present"
     - "fact_exec_summary.Turnover %: >= 0 when present"
+    - "fact_exec_summary.Action Outcome Rate %: in [0; 1] when present"
+    - "fact_exec_summary.Actions Routed Count: >= 0 when present"
     - "fact_exec_summary.Revenue Amount: may be negative only for credit/reversal entities"
   referential_integrity:
     - "Source: aggregated from finance, commercial_sales, supply_chain, and people domain contracts"

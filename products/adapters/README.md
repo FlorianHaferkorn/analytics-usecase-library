@@ -1,5 +1,7 @@
 # Tool Adapters (Multi-Tool Architecture)
 
+> **Rolle: Framework-Infrastruktur** — Dieser Ordner ist kein auslieferbares Produkt, sondern definiert den Vertrag (Schema + Konventionen), an den sich alle tool-spezifischen Adapter halten müssen. Er ist nicht Bestandteil des Fabric Showcases, wird aber aktiv von `products/fabric/powerbi/adapter.json` und `tooling/ir/` referenziert.
+
 ## Purpose
 
 This folder defines the **adapter contract** for tool-specific implementations.

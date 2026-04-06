@@ -1,7 +1,7 @@
 # products/fabric/powerbi/orchestrator/table_ops.ps1
 
 Param(
-    [ValidateSet("Create","Update","Delete","Get","List","CreateFromContract","ExportFromContract","PatchDescriptionsFromContract","PatchPartitionSourceToBlank","PatchAddSummarizeByNone","WriteExpressionsTmdl","PatchPartitionSourceToGoldDataPath")]
+    [ValidateSet("Create","Update","Delete","Get","List","CreateFromContract","ExportFromContract","PatchDescriptionsFromContract","PatchPartitionSourceToBlank","PatchAddSummarizeByNone","WriteExpressionsTmdl","PatchPartitionSourceToGoldDataPath","WriteDirectLakeExpression","PatchPartitionSourceToDirectLake","WriteModelFiles")]
     [string]$Operation = "List",
     [string]$ConnectionName = "local_pbip",
     [hashtable]$TableDefinition,
@@ -11,7 +11,17 @@ Param(
     [string]$UseCase,
     [string]$DefinitionPath,
     [ValidateSet("AuroraGoldLayer","Blank","GoldDataPath")]
-    [string]$PartitionSourceStyle = "Blank"
+    [string]$PartitionSourceStyle = "Blank",
+    # Direct Lake parameters
+    [ValidateSet("Import","DirectLake")]
+    [string]$StorageMode = "Import",
+    [string]$WorkspaceId,
+    [string]$LakehouseId,
+    [string]$ExpressionName = "DL_Lakehouse",
+    [string]$SchemaName = "dbo",
+    # WriteModelFiles parameters
+    [string]$ModelName,         # Database/model name (e.g. "Commercial"); defaults to parent folder stem
+    [string]$Culture = "de-DE"  # Default culture for model.tmdl
 )
 
 $ErrorActionPreference = "Stop"
@@ -60,6 +70,52 @@ function Get-MQuotedColumnRef {
     $name = $ColumnName.Trim()
     if ($name -match '^[a-zA-Z_][a-zA-Z0-9_]*$') { return $name }
     return '#"' + $name.Replace('"', '""') + '"'
+}
+
+# =========================================
+# Helper: Build Direct Lake entity partition block (TMDL)
+# Returns the full partition block lines (without table-level indentation).
+# =========================================
+function Get-DirectLakePartitionBlock {
+    param(
+        [string]$TableName,
+        [string]$EntityName,       # Delta table name in Lakehouse (defaults to TableName)
+        [string]$SchemaName = "dbo",
+        [string]$ExpressionName = "DL_Lakehouse"
+    )
+    if (-not $EntityName) { $EntityName = $TableName }
+    $tab = "`t"
+    $lines = @()
+    $lines += "${tab}partition $TableName = entity"
+    $lines += "${tab}${tab}mode: directLake"
+    $lines += "${tab}${tab}source"
+    $lines += "${tab}${tab}${tab}entityName: $EntityName"
+    $lines += "${tab}${tab}${tab}schemaName: $SchemaName"
+    $lines += "${tab}${tab}${tab}expressionSource: $ExpressionName"
+    return $lines
+}
+
+# =========================================
+# Helper: Build Direct Lake named expression M query
+# =========================================
+function Get-DirectLakeExpressionContent {
+    param(
+        [string]$WorkspaceId,
+        [string]$LakehouseId,
+        [string]$ExpressionName = "DL_Lakehouse"
+    )
+    $url = "https://onelake.dfs.fabric.microsoft.com/$WorkspaceId/$LakehouseId"
+    $lineageTag = [guid]::NewGuid()
+    $tab = "`t"
+    $content  = "expression $ExpressionName =`r`n"
+    $content += "${tab}let`r`n"
+    $content += "${tab}${tab}Source = AzureStorage.DataLake(`"$url`", [HierarchicalNavigation = true, Timeout = Duration.From(null)])`r`n"
+    $content += "${tab}in`r`n"
+    $content += "${tab}${tab}Source`r`n"
+    $content += "${tab}lineageTag: $lineageTag`r`n"
+    $content += "${tab}annotation PBI_NavigationStepName = $ExpressionName`r`n"
+    $content += "${tab}annotation PBI_ResultType = Table`r`n"
+    return $content
 }
 
 # =========================================
@@ -233,22 +289,39 @@ switch ($Operation) {
             $tmdlContent += "`r`n"
         }
         
-        # Add partition (required for Power BI). Source: AuroraGoldLayer (Fabric), Blank (local), or GoldDataPath (Aurora gold).
-        $sourceExpr = Get-PartitionSourceExpression -Style $PartitionSourceStyle -TableName $tableDef.name -Columns $tableDef.columns
-        $tmdlContent += "$tab partition $($tableDef.name) = m`r`n"
-        $tmdlContent += "$tab$tab mode: import`r`n"
-        $tmdlContent += "$tab$tab source =`r`n"
-        if ($PartitionSourceStyle -eq "GoldDataPath") {
-            foreach ($line in ($sourceExpr -split "\r?\n")) {
-                $tmdlContent += "$tab$tab$tab" + $line + "`r`n"
+        # Add partition — Import (M) or DirectLake (entity partition)
+        if ($StorageMode -eq "DirectLake") {
+            if (-not $LakehouseId -or -not $WorkspaceId) {
+                # Try to read from data contract settings
+                $contractSettings = $contract.settings
+                if ($contractSettings) {
+                    if (-not $LakehouseId -and $contractSettings.lakehouse_id) { $LakehouseId = $contractSettings.lakehouse_id }
+                    if (-not $WorkspaceId -and $contractSettings.workspace_id)  { $WorkspaceId  = $contractSettings.workspace_id  }
+                }
+                if (-not $LakehouseId -or -not $WorkspaceId) {
+                    throw "StorageMode=DirectLake requires -WorkspaceId and -LakehouseId (or settings.workspace_id / settings.lakehouse_id in the data contract)."
+                }
             }
+            $dlLines = Get-DirectLakePartitionBlock -TableName $tableDef.name -SchemaName $SchemaName -ExpressionName $ExpressionName
+            foreach ($line in $dlLines) { $tmdlContent += $line + "`r`n" }
+            $tmdlContent += "`r`n"
         } else {
-            $tmdlContent += "$tab$tab$tab let`r`n"
-            $tmdlContent += "$tab$tab$tab$tab Source = $sourceExpr`r`n"
-            $tmdlContent += "$tab$tab$tab in`r`n"
-            $tmdlContent += "$tab$tab$tab$tab Source`r`n"
+            $sourceExpr = Get-PartitionSourceExpression -Style $PartitionSourceStyle -TableName $tableDef.name -Columns $tableDef.columns
+            $tmdlContent += "$tab partition $($tableDef.name) = m`r`n"
+            $tmdlContent += "$tab$tab mode: import`r`n"
+            $tmdlContent += "$tab$tab source =`r`n"
+            if ($PartitionSourceStyle -eq "GoldDataPath") {
+                foreach ($line in ($sourceExpr -split "\r?\n")) {
+                    $tmdlContent += "$tab$tab$tab" + $line + "`r`n"
+                }
+            } else {
+                $tmdlContent += "$tab$tab$tab let`r`n"
+                $tmdlContent += "$tab$tab$tab$tab Source = $sourceExpr`r`n"
+                $tmdlContent += "$tab$tab$tab in`r`n"
+                $tmdlContent += "$tab$tab$tab$tab Source`r`n"
+            }
+            $tmdlContent += "`r`n"
         }
-        $tmdlContent += "`r`n"
         
         $utf8 = New-Object System.Text.UTF8Encoding $false
         [System.IO.File]::WriteAllText($tmdlPath, $tmdlContent, $utf8)
@@ -491,6 +564,177 @@ expression GoldDataPath = "$goldDefault" meta [IsParameterQuery=true, Type="Text
         Write-Host "  Patched $patched table(s) to GoldDataPath" -ForegroundColor Green
     }
     
+    "WriteDirectLakeExpression" {
+        # Write expressions.tmdl containing the DL_Lakehouse named expression for Direct Lake models.
+        # Resolves WorkspaceId / LakehouseId from parameters or data contract settings.
+        $defPath = if ($DefinitionPath) {
+            $repoRoot = (Get-Location).Path
+            if ([System.IO.Path]::IsPathRooted($DefinitionPath)) { $DefinitionPath } else { Join-Path $repoRoot $DefinitionPath }
+        } else { throw "-DefinitionPath required for WriteDirectLakeExpression." }
+
+        if ($DataContractPath -and (Test-Path $DataContractPath)) {
+            $contract = Get-Content $DataContractPath -Raw | ConvertFrom-Yaml
+            $contractSettings = $contract.settings
+            if ($contractSettings) {
+                if (-not $LakehouseId -and $contractSettings.lakehouse_id) { $LakehouseId = $contractSettings.lakehouse_id }
+                if (-not $WorkspaceId -and $contractSettings.workspace_id)  { $WorkspaceId  = $contractSettings.workspace_id  }
+            }
+        }
+        if (-not $LakehouseId -or -not $WorkspaceId) {
+            throw "-WorkspaceId and -LakehouseId are required (or settings.workspace_id / settings.lakehouse_id in the data contract)."
+        }
+
+        $exprContent = Get-DirectLakeExpressionContent -WorkspaceId $WorkspaceId -LakehouseId $LakehouseId -ExpressionName $ExpressionName
+        $exprPath = Join-Path $defPath "expressions.tmdl"
+        $utf8 = New-Object System.Text.UTF8Encoding $false
+        [System.IO.File]::WriteAllText($exprPath, $exprContent, $utf8)
+        Write-Host "  Wrote Direct Lake expression '$ExpressionName': $exprPath" -ForegroundColor Green
+        Write-Host "  Workspace: $WorkspaceId" -ForegroundColor Gray
+        Write-Host "  Lakehouse: $LakehouseId" -ForegroundColor Gray
+    }
+
+    "PatchPartitionSourceToDirectLake" {
+        # Converts all Import-mode M partitions in a TMDL model to Direct Lake entity partitions.
+        # Skips _Measures and _ActionReady_Logic tables (calculated tables).
+        $defPath = if ($DefinitionPath) {
+            $repoRoot = (Get-Location).Path
+            if ([System.IO.Path]::IsPathRooted($DefinitionPath)) { $DefinitionPath } else { Join-Path $repoRoot $DefinitionPath }
+        } else { throw "-DefinitionPath required for PatchPartitionSourceToDirectLake." }
+
+        if ($DataContractPath -and (Test-Path $DataContractPath)) {
+            $contract = Get-Content $DataContractPath -Raw | ConvertFrom-Yaml
+            $contractSettings = $contract.settings
+            if ($contractSettings) {
+                if (-not $LakehouseId -and $contractSettings.lakehouse_id) { $LakehouseId = $contractSettings.lakehouse_id }
+                if (-not $WorkspaceId -and $contractSettings.workspace_id)  { $WorkspaceId  = $contractSettings.workspace_id  }
+            }
+        }
+        if (-not $LakehouseId -or -not $WorkspaceId) {
+            throw "-WorkspaceId and -LakehouseId are required for PatchPartitionSourceToDirectLake."
+        }
+
+        $tablesDir = Join-Path $defPath "tables"
+        if (-not (Test-Path $tablesDir)) { Write-Host "  No tables directory" -ForegroundColor Yellow; return }
+
+        # Also write/overwrite expressions.tmdl with the Direct Lake named expression
+        $exprContent = Get-DirectLakeExpressionContent -WorkspaceId $WorkspaceId -LakehouseId $LakehouseId -ExpressionName $ExpressionName
+        $exprPath = Join-Path $defPath "expressions.tmdl"
+        $utf8 = New-Object System.Text.UTF8Encoding $false
+        [System.IO.File]::WriteAllText($exprPath, $exprContent, $utf8)
+        Write-Host "  Wrote Direct Lake expression: $exprPath" -ForegroundColor Green
+
+        $patched = 0
+        $skipped = 0
+        Get-ChildItem $tablesDir -Filter "*.tmdl" | ForEach-Object {
+            $baseName = $_.BaseName
+            # Skip calculated tables — they don't have data partitions
+            if ($baseName -eq "_Measures" -or $baseName -eq "_ActionReady_Logic") { $skipped++; return }
+
+            $content = [System.IO.File]::ReadAllText($_.FullName)
+
+            # Skip tables that already use Direct Lake
+            if ($content -match 'partition\s+\S+\s*=\s*entity') {
+                Write-Host "  Already DirectLake: $baseName" -ForegroundColor Gray
+                $skipped++
+                return
+            }
+
+            # Find the partition block and replace mode: import + source = <M expr> with entity partition
+            $lines = $content -split "\r?\n"
+            $newLines = @()
+            $i = 0
+            $replaced = $false
+            while ($i -lt $lines.Count) {
+                $line = $lines[$i]
+                # Detect "partition <name> = m" line
+                if ($line -match '^\tpartition\s+(\S+)\s*=\s*m\s*$') {
+                    $partName = $matches[1]
+                    # Emit Direct Lake partition block instead
+                    $dlLines = Get-DirectLakePartitionBlock -TableName $partName -EntityName $baseName -SchemaName $SchemaName -ExpressionName $ExpressionName
+                    foreach ($dlLine in $dlLines) { $newLines += $dlLine }
+                    $replaced = $true
+                    # Skip all original partition lines (mode, source block)
+                    $i++
+                    while ($i -lt $lines.Count -and ($lines[$i] -match '^\t\t' -or $lines[$i] -eq '')) {
+                        # Keep blank lines after the partition block
+                        if ($lines[$i] -eq '') { $newLines += ''; break }
+                        $i++
+                    }
+                    continue
+                }
+                $newLines += $line
+                $i++
+            }
+
+            if ($replaced) {
+                $newContent = $newLines -join "`r`n"
+                $utf8 = New-Object System.Text.UTF8Encoding $false
+                [System.IO.File]::WriteAllText($_.FullName, $newContent, $utf8)
+                $patched++
+                Write-Host "  Patched to DirectLake: $baseName" -ForegroundColor Green
+            } else {
+                Write-Host "  WARNING: No import partition found in $baseName" -ForegroundColor Yellow
+                $skipped++
+            }
+        }
+        Write-Host "  Converted $patched table(s) to DirectLake ($skipped skipped)" -ForegroundColor Green
+        Write-Host "" -ForegroundColor White
+        Write-Host "  Next steps:" -ForegroundColor Cyan
+        Write-Host "    1. Verify expressions.tmdl WorkspaceId + LakehouseId are correct" -ForegroundColor Gray
+        Write-Host "    2. Ensure Delta tables exist in Lakehouse (same names as TMDL tables)" -ForegroundColor Gray
+        Write-Host "    3. Import model to Fabric workspace via: fab import" -ForegroundColor Gray
+        Write-Host "    4. Trigger full refresh to validate Direct Lake connectivity" -ForegroundColor Gray
+    }
+
+    "WriteModelFiles" {
+        # Generate database.tmdl, model.tmdl, and definition.pbism from canonical templates.
+        # Templates live in: core/strategy_operating_model/operating_model/reference/tmdl_base_templates/
+        # This is the single source of truth for compatibilityLevel + format settings.
+        $defPath = if ($DefinitionPath) {
+            $repoRoot = (Get-Location).Path
+            if ([System.IO.Path]::IsPathRooted($DefinitionPath)) { $DefinitionPath } else { Join-Path $repoRoot $DefinitionPath }
+        } else { throw "-DefinitionPath required for WriteModelFiles." }
+
+        $repoRoot = (Get-Location).Path
+        $templatesDir = Join-Path $repoRoot "core\strategy_operating_model\operating_model\reference\tmdl_base_templates"
+        if (-not (Test-Path $templatesDir)) {
+            throw "Templates directory not found: $templatesDir. Run from repo root."
+        }
+
+        # Resolve model name: explicit param → parent folder stem (remove .SemanticModel suffix) → "Model"
+        $resolvedModelName = $ModelName
+        if (-not $resolvedModelName) {
+            $parentFolder = Split-Path (Split-Path $defPath -Parent) -Leaf
+            $resolvedModelName = $parentFolder -replace '\.SemanticModel$', ''
+        }
+        if (-not $resolvedModelName) { $resolvedModelName = "Model" }
+
+        $utf8 = New-Object System.Text.UTF8Encoding $false
+
+        # database.tmdl
+        $dbTemplate = Get-Content (Join-Path $templatesDir "database.tmdl.template") -Raw
+        $dbContent  = $dbTemplate -replace '\{\{MODEL_NAME\}\}', $resolvedModelName
+        [System.IO.File]::WriteAllText((Join-Path $defPath "database.tmdl"), $dbContent, $utf8)
+        Write-Host "  Wrote: database.tmdl  (model=$resolvedModelName, compatibilityLevel=1702)" -ForegroundColor Green
+
+        # model.tmdl — only write if it doesn't exist (preserve existing ref table entries)
+        $modelPath = Join-Path $defPath "model.tmdl"
+        if (-not (Test-Path $modelPath)) {
+            $mdlTemplate = Get-Content (Join-Path $templatesDir "model.tmdl.template") -Raw
+            $mdlContent  = $mdlTemplate -replace '\{\{CULTURE\}\}', $Culture
+            [System.IO.File]::WriteAllText($modelPath, $mdlContent, $utf8)
+            Write-Host "  Wrote: model.tmdl  (culture=$Culture)" -ForegroundColor Green
+        } else {
+            Write-Host "  Skipped: model.tmdl (already exists — preserving ref table entries)" -ForegroundColor Gray
+        }
+
+        # definition.pbism — parent of definition/ folder
+        $pbismPath = Join-Path (Split-Path $defPath -Parent) "definition.pbism"
+        $pbismTemplate = Get-Content (Join-Path $templatesDir "definition.pbism.template") -Raw
+        [System.IO.File]::WriteAllText($pbismPath, $pbismTemplate, $utf8)
+        Write-Host "  Wrote: definition.pbism" -ForegroundColor Green
+    }
+
     "List" {
         if (-not $conn) { throw "Connection required. Run setup_connection.ps1 first." }
         $tablesDir = "$($conn.definitionPath)\tables"

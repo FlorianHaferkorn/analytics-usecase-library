@@ -1,4 +1,23 @@
+---
+id: SCM-IND-L001
+factsheet_type: business
+required_kpi_ids:
+  - shipments.count
+  - supply.on_time.pct
+  - supply.otif.pct
+---
 # SCM-IND-L001 — Last-Mile Delivery Performance
+
+## Business Factsheet
+
+---
+
+## 0. Metadata (Mandatory)
+
+- **Use Case ID:** SCM-IND-L001
+- **Domain:** Supply Chain
+
+---
 
 **Status:** Draft scaffold — not yet build-ready
 **Vertical:** Logistics & 3PL
@@ -26,8 +45,8 @@
 
 | Action Code | Description |
 |---|---|
-| S-P1.1 | Carrier escalation — formal SLA breach notification and remedy plan |
-| O-P1.2 | Route optimisation — rebalance routes to reduce delivery days and improve utilisation |
+| S-L1.1 | Carrier escalation — formal SLA breach notification and remedy plan |
+| S-L1.2 | Route optimisation — rebalance routes to reduce delivery days and improve utilisation |
 
 ## Scope & Limits
 

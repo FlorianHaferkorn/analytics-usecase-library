@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "ActionPanel",
+  "position": {
+    "x": 1592,
+    "y": 118,
+    "z": 15000,
+    "height": 930,
+    "width": 296,
+    "tabOrder": 3004
+  },
+  "visual": {
+    "visualType": "textbox",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": []
+        }
+      }
+    },
+    "objects": {
+      "text": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Recommended actions (from action codes)\n\n• S-I1.1 — Inventory Orchestration\n  Owner: head_of_supply_chain\n  Trigger: inv.dio.days > 0.25%\n  Impact: High\n  Expected: -5.0–-15.0 days\n  Confidence: High\n  · DETECT sustained DIO deviation for this SKU/location\n  · DIAGNOSE the dominant inventory driver (excess, stockout, obsolescence, planning) for this SKU/location\n  · ACTIVATE the corresponding execution Action Code for this SKU/location\n  ⚠ Trigger only if OTIF remains within agreed tolerance\n  ⚠ Do not trigger if DIO increase is driven by approved buffer build-up\n\n• S-I1.2 — Inventory Rightsizing\n  Owner: inventory_manager\n  Trigger: inv.dio.days > 40days\n  Impact: High\n  Expected: -10.0–-30.0 days\n  Confidence: Medium\n  · Identify SKUs with structurally high DIO\n  · Adjust safety stock and reorder parameters\n  · Execute rebalancing or clearance actions\n  ⚠ Trigger only if stockout rate remains below tolerance\n  ⚠ Do not trigger if OTIF deterioration is observed\n\n• S-I1.3 — Stockout Prevention\n  Owner: supply_planner\n  Trigger: inv.stockout.pct > 5.0%\n  Impact: High\n  Expected: -1.0–-5.0 pp\n  Confidence: High\n  · Identify SKUs with rising stockout risk\n  · Correct replenishment parameters or trigger expedites\n  · Reallocate inventory across locations if needed\n  ⚠ Trigger only if DIO is not already above upper tolerance\n  ⚠ Do not trigger if stockouts are demand-spike driven and approved\n\n• S-I1.4 — Obsolescence & Excess Reduction\n  Owner: inventory_controller\n  Trigger: inv.obsolete.pct > 10.0%\n  Impact: Medium\n  Expected: -2.0–-8.0 pp\n  Confidence: Medium\n  · Identify obsolete and aging inventory beyond demand horizon\n  · Block further replenishment\n  · Execute liquidation, return, or disposal actions\n  ⚠ Trigger only if items are outside active demand horizon\n  ⚠ Do not trigger if obsolescence is driven by approved lifecycle transitions\n\n• S-I1.5 — Forecast & Planning Stabilisation\n  Owner: head_of_demand_planning\n  Trigger: plan.forecast.accuracy.pct < 60.0%\n  Impact: Medium\n  Expected: 5.0–15.0 pp\n  Confidence: Medium\n  · Identify SKUs with persistent forecast instability\n  · Review planning inputs, overrides, and cadence\n  · Enforce planning governance and parameter discipline\n  ⚠ Trigger only if forecast error is structurally recurring\n  ⚠ Do not trigger if volatility is driven by approved promotions'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

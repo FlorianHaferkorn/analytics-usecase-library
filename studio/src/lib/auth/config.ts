@@ -6,30 +6,37 @@ import { validateAuthEnv } from './env-check';
 validateAuthEnv();
 
 const isProduction = process.env.NODE_ENV === 'production';
+const hasGitHubOAuth = Boolean(process.env.GITHUB_ID && process.env.GITHUB_SECRET);
+
+const providers = [
+  ...(hasGitHubOAuth
+    ? [
+        GitHub({
+          clientId: process.env.GITHUB_ID ?? '',
+          clientSecret: process.env.GITHUB_SECRET ?? '',
+        }),
+      ]
+    : []),
+  // Credentials provider is disabled in production for security.
+  ...(!isProduction
+    ? [
+        Credentials({
+          name: 'Demo Login',
+          credentials: {
+            email: { label: 'Email', type: 'email', placeholder: 'demo@aurora-group.eu' },
+          },
+          async authorize(credentials) {
+            const email = credentials?.email as string | undefined;
+            if (!email) return null;
+            return { id: email, name: email.split('@')[0], email };
+          },
+        }),
+      ]
+    : []),
+];
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [
-    GitHub({
-      clientId: process.env.GITHUB_ID ?? '',
-      clientSecret: process.env.GITHUB_SECRET ?? '',
-    }),
-    // Credentials provider is disabled in production for security.
-    ...(!isProduction
-      ? [
-          Credentials({
-            name: 'Demo Login',
-            credentials: {
-              email: { label: 'Email', type: 'email', placeholder: 'demo@aurora-group.eu' },
-            },
-            async authorize(credentials) {
-              const email = credentials?.email as string | undefined;
-              if (!email) return null;
-              return { id: email, name: email.split('@')[0], email };
-            },
-          }),
-        ]
-      : []),
-  ],
+  providers,
   pages: {
     signIn: '/login',
   },

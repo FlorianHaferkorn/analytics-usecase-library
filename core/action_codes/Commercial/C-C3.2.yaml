@@ -1,0 +1,181 @@
+schema_version: '2.0'
+inherits_decision_spine: DEC-SPINE-COM-CUSTOMER_VALUE
+id: C-C3.2
+name: Complaint & Advocacy Recovery
+owner_domain: Commercial
+impact_dimension: Customer Value
+status: active
+owner_role: commercial_controlling_lead
+steward_role: sales_ops_bi_lead
+use_case_links:
+  core_use_cases:
+  - COM-003
+kpis:
+  trigger_kpis:
+  - crm.nps.index
+  - crm.complaint.count
+  guardrail_kpis:
+  - crm.revenue_at_risk.amount
+  outcome_kpis:
+  - crm.nps.index
+  - crm.complaint.count
+  - crm.retention.pct
+scope:
+  default_grain: customer_month
+  default_perspective:
+  - Customer Segment
+  - Channel
+  supported_slices:
+  - Region
+  - Product Category
+  exclusions:
+  - Issues already assigned to open major-incident workflows
+  - Complaint spikes caused solely by known one-off recalls with separate governance
+  - Segments with insufficient survey coverage
+trigger:
+  type: Deviation
+  evaluation:
+    grain: customer_month
+    window:
+      kind: rolling
+      length: 2
+      unit: periods
+    persistence:
+      required: true
+      min_consecutive_periods: 2
+    minimum_data:
+      min_observations: 1
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: crm.complaint.count
+        comparator: gte
+        value: 10
+        unit: count
+  levels:
+    L1:
+      severity: EarlyWarning
+      condition:
+        metric_kpi_id: crm.nps.index
+        comparator: lt
+        threshold:
+          basis: absolute
+          value: 20
+          unit: index
+        filters: []
+    L2:
+      severity: RequiredIntervention
+      condition:
+        metric_kpi_id: crm.nps.index
+        comparator: lt
+        threshold:
+          basis: absolute
+          value: 5
+          unit: index
+        filters: []
+    L3:
+      severity: PrescriptiveExecution
+      condition:
+        metric_kpi_id: crm.nps.index
+        comparator: lt
+        threshold:
+          basis: absolute
+          value: -5
+          unit: index
+        filters: []
+  gating_rules:
+  - Trigger only if complaint trend is rising for the same segment, channel, or category
+  - Do not trigger when survey coverage is below the agreed minimum sample size
+  - Prioritize populations with elevated revenue at risk or CLV concentration
+impact:
+  category: Medium
+  expected_range:
+    metric_kpi_id: crm.nps.index
+    value_low: 5.0
+    value_high: 15.0
+    unit: index
+    time_to_effect:
+      min_periods: 1
+      max_periods: 3
+  mechanism:
+  - Faster complaint resolution and root-cause closure
+  - Restoration of customer advocacy in high-value segments
+  confidence:
+    level: Medium
+    rationale:
+    - Complaint and advocacy correction can be targeted quickly
+    - Retention impact depends on issue severity and recovery quality
+operational_execution:
+  stakeholders:
+  - Customer Experience
+  - Sales Operations
+  prerequisites:
+  - Complaint categorization and ownership are available
+  - NPS and complaint data can be aligned at customer or segment level
+  steps:
+  - IDENTIFY segments or products with falling advocacy and rising complaints
+  - MAP the complaint pattern to channel, product, and customer ownership
+  - EXECUTE recovery actions and close the highest-value issue clusters first
+  - REVIEW complaint volume, NPS, and retention response monthly
+  effort:
+    level: Medium
+    typical_duration_days: 45
+  risks_and_tradeoffs:
+  - Survey lag can delay signal confirmation
+  - Overreacting to small-sample NPS noise
+data_requirements:
+  required_entities:
+  - Customer Segment
+  - Channel
+  semantic_dependencies:
+    measures:
+    - Net Promoter Score (NPS)
+    - Complaint Count
+    - Revenue at Risk Amount
+    - Customer Retention %
+    tables:
+    - fact_nps
+    - fact_experience
+    - fact_customer_events
+    - dim_customer
+    - dim_org
+    - dim_product
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: monthly
+    output: Customer segments with deteriorating advocacy and elevated complaint load
+  suggested_actions:
+    enabled: true
+    outputs:
+    - Complaint and advocacy recovery backlog
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: fact_action_execution
+    minimum_fields:
+    - ActionCode
+    - CustomerSegment
+    - Channel
+    - TriggerLevel
+    - ExecutedDate
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: fact_action_outcome
+    minimum_fields:
+    - ActionCode
+    - Pre_NPS
+    - Post_NPS_90d
+governance:
+  approvals_required:
+  - Commercial Controlling Lead
+  - Head of Customer Experience
+  rollback_plan:
+  - Pause interventions if complaint closure does not improve advocacy or retention in the target segment
+  documentation_links:
+  - core/usecases/core/COM-003_Customer_Value/Business_Factsheet.md
+quality_rules:
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

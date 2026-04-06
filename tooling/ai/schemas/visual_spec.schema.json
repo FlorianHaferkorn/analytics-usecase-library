@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "visual_spec.schema.json",
+  "title": "VisualSpec",
+  "description": "Tool-agnostic intermediate representation of a single visual slot. Adapters translate this to platform-specific output (PBIP JSON, Metabase card, Grafana panel, …).",
+  "type": "object",
+  "required": ["id", "visual_type", "page_role", "position"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Slot identifier matching UseCase_Bracket slot names",
+      "examples": ["KPI_Cards", "Main_1", "Main_2", "Main_3", "Detail_Matrix", "ActionPanel", "Smart_Narrative", "Slicer_Date", "Slicer_Pane"]
+    },
+    "visual_type": {
+      "type": "string",
+      "enum": ["kpi_card", "trend_line", "bar_chart", "waterfall", "scatter", "matrix", "table", "slicer", "smart_narrative", "action_panel", "text_box"],
+      "description": "Tool-agnostic visual type from UseCase_Bracket vocabulary"
+    },
+    "page_role": {
+      "type": "string",
+      "enum": ["overview", "detail"],
+      "description": "Which page layer this visual belongs to"
+    },
+    "position": {
+      "$ref": "#/definitions/Position"
+    },
+    "binding": {
+      "$ref": "#/definitions/Binding"
+    },
+    "title": {
+      "type": ["string", "null"],
+      "description": "Optional display title for the visual"
+    },
+    "kpi_id": {
+      "type": ["string", "null"],
+      "description": "Source KPI ID from the KPI catalog"
+    },
+    "action_code_id": {
+      "type": ["string", "null"],
+      "description": "Source action code ID if visual is action-related"
+    },
+    "config": {
+      "type": "object",
+      "description": "Adapter-specific overrides merged during rendering",
+      "additionalProperties": true
+    }
+  },
+  "definitions": {
+    "Position": {
+      "type": "object",
+      "description": "Canvas-fraction position. All values are 0.0–1.0 ratios of canvas dimensions.",
+      "required": ["x", "y", "width", "height"],
+      "additionalProperties": false,
+      "properties": {
+        "x":      {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "y":      {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "width":  {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "height": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+      }
+    },
+    "Binding": {
+      "type": "object",
+      "description": "Data binding for the visual. All names are human-readable; adapters resolve table references.",
+      "additionalProperties": false,
+      "properties": {
+        "measure": {
+          "type": ["string", "null"],
+          "description": "Primary measure name"
+        },
+        "measures": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Multiple measures (KPI cards, matrix)"
+        },
+        "category": {
+          "type": ["string", "null"],
+          "description": "Category axis column. Format: 'table.column' or just 'column'",
+          "examples": ["dim_date.Date", "dim_org.OrgName", "dim_product.ProductName"]
+        },
+        "series": {
+          "type": ["string", "null"],
+          "description": "Series/legend column"
+        },
+        "columns": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Table columns for matrix/table visuals"
+        },
+        "filter_table": {
+          "type": ["string", "null"],
+          "description": "Slicer target table"
+        },
+        "filter_column": {
+          "type": ["string", "null"],
+          "description": "Slicer target column"
+        },
+        "sort_by": {
+          "type": ["string", "null"],
+          "description": "Default sort column or measure name"
+        },
+        "top_n": {
+          "type": ["integer", "null"],
+          "description": "Top-N filter if applicable"
+        }
+      }
+    }
+  }
+}

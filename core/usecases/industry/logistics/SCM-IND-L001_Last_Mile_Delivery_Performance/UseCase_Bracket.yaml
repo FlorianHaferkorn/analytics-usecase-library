@@ -19,8 +19,8 @@ orchestration:
     - logistics.carrier.cost_per_delivery                 # Cost per delivered parcel
     - logistics.route.utilisation.pct                     # Vehicle / route capacity utilisation
   action_code_ids:
-    - S-P1.1    # Procurement escalation (carrier SLA breach)
-    - O-P1.2    # Route optimisation action
+    - S-L1.1    # Carrier SLA escalation
+    - S-L1.2    # Route optimisation action
 
 value_driver_model:
   formula: logistics.last_mile.otd.pct = f(logistics.last_mile.first_attempt_success.pct, logistics.last_mile.avg_delivery_days, logistics.carrier.cost_per_delivery)

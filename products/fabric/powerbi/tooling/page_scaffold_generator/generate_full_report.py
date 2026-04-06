@@ -16,7 +16,7 @@ import argparse
 import sys
 from pathlib import Path
 
-# Canonical dist path (must match orchestrate_full_model.ps1 / Phase5ReportGeneration.ps1)
+# Canonical dist path (must match orchestrate_full_model.ps1 / generate_phase5_reports.ps1)
 DIST_RELATIVE = "products/fabric/powerbi/dist"
 USE_CASE_ROOT_RELATIVE = "core/usecases/core"
 

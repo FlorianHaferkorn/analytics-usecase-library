@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import type { EvidenceRow } from '@/lib/dashboard/sample-data';
-import { tableContainerStyle, tableStyle, thStyle, tdStyle } from '@/lib/ui-styles';
+import { StudioButton, StudioPanel, StudioSegmentedControl } from '@/components/ui/studio-page';
+import { StudioTable, StudioTableCell, StudioTableHeadCell, StudioTableShell } from '@/components/ui/studio-data';
 
 const PRIORITY_COLORS: Record<string, { bg: string; text: string }> = {
   P1: { bg: 'var(--danger)', text: '#fff' },
@@ -25,41 +26,29 @@ export function ActionMatrix({ rows, theme }: Props) {
   });
 
   return (
-    <div style={{
-      backgroundColor: theme?.surface ?? 'var(--slate-800)',
-      border: '1px solid var(--slate-700)',
-      borderRadius: 'var(--radius-lg)',
-      padding: 'var(--sp-2)',
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--sp-1)' }}>
-        <p style={{ fontSize: '0.75rem', color: 'var(--slate-400)' }}>
-          Evidence Grid — 300s Action Layer
-        </p>
-        <div style={{ display: 'flex', gap: 'var(--sp-1)' }}>
-          {(['priority', 'delta'] as const).map((key) => (
-            <button
-              key={key}
-              onClick={() => setSortKey(key)}
-              style={{
-                fontSize: '0.6875rem', padding: '2px 8px',
-                backgroundColor: sortKey === key ? 'var(--slate-600)' : 'transparent',
-                border: '1px solid var(--slate-600)', borderRadius: 'var(--radius-sm)',
-                color: sortKey === key ? 'var(--slate-100)' : 'var(--slate-400)',
-                cursor: 'pointer',
-              }}
-            >
-              Sort: {key === 'priority' ? 'Priority' : '|Delta|'}
-            </button>
-          ))}
-        </div>
-      </div>
+    <StudioPanel
+      title="Evidence Grid"
+      description="300s action layer with sortable operational evidence rows."
+      tone="warning"
+      style={{ backgroundColor: theme?.surface ?? undefined }}
+      action={
+        <StudioSegmentedControl
+          value={sortKey}
+          onChange={setSortKey}
+          options={[
+            { value: 'priority', label: 'Sort: Priority' },
+            { value: 'delta', label: 'Sort: |Delta|' },
+          ]}
+        />
+      }
+    >
 
-      <div style={tableContainerStyle}>
-        <table style={tableStyle}>
+      <StudioTableShell>
+        <StudioTable>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--slate-700)' }}>
               {['Entity', 'KPI Value', 'Delta', 'Action Code', 'Priority'].map((h) => (
-                <th key={h} style={thStyle}>{h}</th>
+                <StudioTableHeadCell key={h}>{h}</StudioTableHeadCell>
               ))}
             </tr>
           </thead>
@@ -72,26 +61,26 @@ export function ActionMatrix({ rows, theme }: Props) {
                   onClick={() => setExpanded(expanded === row.entity ? null : row.entity)}
                   style={{ borderBottom: '1px solid var(--slate-700)', cursor: 'pointer' }}
                 >
-                  <td style={{ ...tdStyle, color: 'var(--slate-100)', fontWeight: 500 }}>{row.entity}</td>
-                  <td style={{ ...tdStyle, fontFamily: 'var(--font-mono)' }}>{row.kpiValue.toFixed(1)}%</td>
-                  <td style={{ ...tdStyle, color: row.delta >= 0 ? 'var(--mint)' : 'var(--danger)', fontWeight: 600 }}>
+                  <StudioTableCell style={{ color: 'var(--slate-100)', fontWeight: 500 }}>{row.entity}</StudioTableCell>
+                  <StudioTableCell style={{ fontFamily: 'var(--font-mono)' }}>{row.kpiValue.toFixed(1)}%</StudioTableCell>
+                  <StudioTableCell style={{ color: row.delta >= 0 ? 'var(--mint)' : 'var(--danger)', fontWeight: 600 }}>
                     {row.delta >= 0 ? '+' : ''}{row.delta.toFixed(1)}pp
-                  </td>
-                  <td style={{ ...tdStyle, fontFamily: 'var(--font-mono)', color: 'var(--gold)' }}>{row.actionCode}</td>
-                  <td style={tdStyle}>
+                  </StudioTableCell>
+                  <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--gold)' }}>{row.actionCode}</StudioTableCell>
+                  <StudioTableCell>
                     <span style={{
                       padding: '2px 8px', borderRadius: '9999px', fontSize: '0.625rem', fontWeight: 700,
                       backgroundColor: pc.bg, color: pc.text,
                     }}>
                       {row.priority}
                     </span>
-                  </td>
+                  </StudioTableCell>
                 </tr>
               );
             })}
           </tbody>
-        </table>
-      </div>
-    </div>
+        </StudioTable>
+      </StudioTableShell>
+    </StudioPanel>
   );
 }

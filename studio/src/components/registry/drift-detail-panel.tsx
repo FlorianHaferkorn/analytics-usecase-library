@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import type { DriftReport, DriftIssue, DriftSeverity } from '@/lib/validation/drift-scanner';
+import { StudioButton, StudioEmptyState, StudioPanel, StudioSegmentedControl } from '@/components/ui/studio-page';
 
 interface Props {
   report: DriftReport | null;
@@ -25,19 +26,16 @@ type Filter = 'all' | DriftSeverity;
 
 function IssueRow({ issue }: { issue: DriftIssue }) {
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '24px 80px 100px 1fr',
-        gap: 'var(--sp-1)',
-        alignItems: 'center',
-        padding: 'var(--sp-1) var(--sp-1-5)',
-        backgroundColor: 'var(--slate-900)',
-        borderRadius: 'var(--radius-sm)',
-        border: '1px solid var(--slate-700)',
-        fontSize: '0.75rem',
-      }}
-    >
+    <StudioPanel tone={issue.severity === 'error' ? 'warning' : issue.severity === 'warning' ? 'warning' : 'info'} style={{ padding: 'var(--sp-1) var(--sp-1-5)' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '24px 80px 100px 1fr',
+          gap: 'var(--sp-1)',
+          alignItems: 'center',
+          fontSize: '0.75rem',
+        }}
+      >
       <span style={{ color: SEVERITY_COLORS[issue.severity], fontSize: '0.875rem', textAlign: 'center' }}>
         {SEVERITY_ICONS[issue.severity]}
       </span>
@@ -57,7 +55,8 @@ function IssueRow({ issue }: { issue: DriftIssue }) {
         {issue.artifact}
       </span>
       <span style={{ color: 'var(--slate-200)' }}>{issue.message}</span>
-    </div>
+      </div>
+    </StudioPanel>
   );
 }
 
@@ -76,95 +75,61 @@ export function DriftDetailPanel({ report, loading, onScan }: Props) {
   ];
 
   return (
-    <div
-      style={{
-        padding: 'var(--sp-2)',
-        backgroundColor: 'var(--slate-800)',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--slate-700)',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 'var(--sp-2)',
-        }}
-      >
-        <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--slate-100)' }}>
-          Semantic Drift Report
-        </h3>
-        <button
-          onClick={onScan}
-          disabled={loading}
-          style={{
-            padding: 'var(--sp-0-5) var(--sp-1-5)',
-            backgroundColor: loading ? 'var(--slate-700)' : 'var(--mint)',
-            border: 'none',
-            borderRadius: 'var(--radius-sm)',
-            color: 'var(--slate-950)',
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.5 : 1,
-          }}
-        >
+    <StudioPanel
+      title="Semantic Drift Report"
+      description="Scan for semantic inconsistencies and filter issues by severity before reviewing artifacts in detail."
+      action={
+        <StudioButton onClick={onScan} disabled={loading} tone="success" variant="primary">
           {loading ? 'Scanning...' : 'Scan Now'}
-        </button>
-      </div>
-
+        </StudioButton>
+      }
+    >
       {/* Filter pills */}
-      <div style={{ display: 'flex', gap: 'var(--sp-0-5)', marginBottom: 'var(--sp-2)' }}>
-        {filterButtons.map((btn) => (
-          <button
-            key={btn.value}
-            onClick={() => setFilter(btn.value)}
-            style={{
-              padding: '4px 10px',
-              backgroundColor: filter === btn.value ? 'var(--slate-600)' : 'var(--slate-900)',
-              border: `1px solid ${filter === btn.value ? 'var(--slate-500)' : 'var(--slate-700)'}`,
-              borderRadius: 'var(--radius-sm)',
-              color: filter === btn.value ? 'var(--slate-100)' : 'var(--slate-400)',
-              fontSize: '0.6875rem',
-              cursor: 'pointer',
-            }}
-          >
-            {btn.label} ({btn.count})
-          </button>
-        ))}
+      <div style={{ marginBottom: 'var(--sp-2)' }}>
+        <StudioSegmentedControl
+          value={filter}
+          onChange={setFilter}
+          options={filterButtons.map((btn) => ({ value: btn.value, label: `${btn.label} (${btn.count})` }))}
+        />
       </div>
 
       {/* Artifact summary */}
       {report && (
         <div
           style={{
-            display: 'flex',
-            gap: 'var(--sp-2)',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+            gap: 'var(--sp-1)',
             marginBottom: 'var(--sp-2)',
-            fontSize: '0.6875rem',
-            color: 'var(--slate-400)',
           }}
         >
-          <span>Scanned: {report.artifactCounts.kpis} KPIs</span>
-          <span>{report.artifactCounts.brackets} Brackets</span>
-          <span>{report.artifactCounts.actions} Actions</span>
-          <span style={{ marginLeft: 'auto', color: 'var(--slate-500)' }}>
-            {new Date(report.scannedAt).toLocaleTimeString()}
-          </span>
+          <SummaryChip label="KPIs" value={report.artifactCounts.kpis} />
+          <SummaryChip label="Brackets" value={report.artifactCounts.brackets} />
+          <SummaryChip label="Actions" value={report.artifactCounts.actions} />
+          <SummaryChip label="Scanned" value={new Date(report.scannedAt).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} />
         </div>
       )}
 
       {/* Issues list */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '400px', overflow: 'auto' }}>
         {filteredIssues.length === 0 ? (
-          <p style={{ fontSize: '0.8125rem', color: 'var(--slate-500)', textAlign: 'center', padding: 'var(--sp-3)' }}>
-            {report ? 'No issues found' : 'Click "Scan Now" to run drift detection'}
-          </p>
+          <StudioEmptyState
+            title={report ? 'No issues found' : 'No scan executed yet'}
+            description={report ? 'The current filter returned no drift issues.' : 'Click "Scan Now" to run drift detection.'}
+          />
         ) : (
           filteredIssues.map((issue, i) => <IssueRow key={i} issue={issue} />)
         )}
       </div>
+    </StudioPanel>
+  );
+}
+
+function SummaryChip({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div style={{ padding: '8px 10px', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--slate-900)', border: '1px solid var(--slate-700)' }}>
+      <p style={{ margin: 0, marginBottom: '2px', fontSize: '0.625rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</p>
+      <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--slate-200)', fontWeight: 600 }}>{value}</p>
     </div>
   );
 }

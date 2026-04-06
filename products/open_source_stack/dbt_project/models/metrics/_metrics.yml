@@ -1,0 +1,295 @@
+version: 2
+metrics:
+- name: sales_net_sales_amount
+  label: Net Sales Amount
+  description: Total invoiced revenue net of discounts and returns.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: sales.net_sales.amount
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: &id001
+    - COM-001
+    - COM-004
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: sales.net_sales.amount
+- name: cost_cogs_amount
+  label: Cost of Goods Sold Amount
+  description: Total cost of goods sold for invoiced revenue; base for margin and
+    PVM.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: cost.cogs.amount
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: cost.cogs.amount
+- name: margin_gm_pct
+  label: Gross Margin %
+  description: Gross margin % for commercial/operational reporting and strategic P&L
+    reconciliation.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: margin.gm.pct
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: margin.gm.pct
+- name: sales_net_sales_delta_pct_plan
+  label: Net Sales % vs Plan
+  description: Relative variance of Net Sales vs Plan.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: sales.net_sales.delta_pct.plan
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: sales.net_sales.delta_pct.plan
+- name: sales_net_sales_delta_pct_ly
+  label: Delta% Net Sales
+  description: Relative variance of Net Sales vs Last Year.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: sales.net_sales.delta_pct.ly
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: sales.net_sales.delta_pct.ly
+- name: sales_pvm_price_effect_amount
+  label: Price Effect Amount
+  description: Quantifies the pure price impact in the PVM bridge.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: sales.pvm.price_effect.amount
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: sales.pvm.price_effect.amount
+- name: sales_pvm_volume_effect_amount
+  label: Volume Effect Amount
+  description: Measures the variance caused purely by quantity changes at plan price.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: sales.pvm.volume_effect.amount
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: sales.pvm.volume_effect.amount
+- name: sales_pvm_mix_effect_amount
+  label: Mix Effect Amount
+  description: Captures the residual effect from changes in product, channel, or region
+    mix.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: sales.pvm.mix_effect.amount
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: sales.pvm.mix_effect.amount
+- name: sales_price_list_amount
+  label: List Price Amount
+  description: Total list price (before discounts) for price realization and discount
+    analysis.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: sales.price.list.amount
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: sales.price.list.amount
+- name: sales_price_net_amount
+  label: Net Price Amount
+  description: Total net price (after discounts) for price realization and discount
+    analysis.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: sales.price.net.amount
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: sales.price.net.amount
+- name: sales_promo_baseline_sales_amount
+  label: Baseline Sales Amount
+  description: Baseline sales for incremental calculation.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: sales.promo.baseline_sales.amount
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: sales.promo.baseline_sales.amount
+- name: sales_promo_incremental_amount
+  label: Incremental Sales Amount
+  description: Additional sales due to promotion.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: sales.promo.incremental.amount
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: sales.promo.incremental.amount
+- name: sales_promo_incremental_gm_amount
+  label: Incremental Gross Margin Amount
+  description: Incremental gross margin from promotions for ROI numerator.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: sales.promo.incremental_gm.amount
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: sales.promo.incremental_gm.amount
+- name: sales_promo_cost_amount
+  label: Promo Cost
+  description: Total promotion cost for ROI and spend analysis.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: sales.promo.cost.amount
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: sales.promo.cost.amount
+- name: sales_promo_roi_pct
+  label: Promo ROI %
+  description: Measures profitability of promotions relative to spend.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: sales.promo.roi.pct
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: sales.promo.roi.pct
+- name: margin_promo_gm_pct
+  label: GM % During Promo
+  description: Gross margin rate during promo periods.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: margin.promo.gm.pct
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: margin.promo.gm.pct
+- name: sales_price_realization_pct
+  label: Price Realization %
+  description: Shows how much of list price is realized after discounts.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: sales.price.realization_pct
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: sales.price.realization_pct
+- name: sales_promo_cannibalized_sales_amount
+  label: Cannibalized Sales Amount
+  description: Sales lost on non-promoted items versus baseline (cannibalization in
+    value).
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: sales.promo.cannibalized_sales.amount
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: sales.promo.cannibalized_sales.amount
+- name: sales_promo_cannibalization_pct
+  label: Cannibalization %
+  description: Measures share of promo uplift offset by decline in non-promoted sales.
+  type: simple
+  type_params:
+    measure: metric_value
+  meta:
+    kpi_id: sales.promo.cannibalization.pct
+    source: core_ir
+    calculation_logic_source: core
+    required_by_use_cases: *id001
+    semantic_projection:
+      table: metric_observations
+      filter_column: kpi_id
+      filter_value: sales.promo.cannibalization.pct

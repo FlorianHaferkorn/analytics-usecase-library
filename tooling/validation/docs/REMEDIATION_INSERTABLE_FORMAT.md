@@ -118,12 +118,12 @@ Use same indentation as sibling columns (typically 6 spaces for fact columns).
 
 ---
 
-## 4. Aurora Domain Mapping (products/fabric/powerbi/orchestrator/AuroraDomainMapping.ps1)
+## 4. Aurora Domain Mapping (products/fabric/powerbi/orchestrator/map_aurora_domains.ps1)
 
 ### 4.1 Add table to required tables for a domain
 
 - **When:** KPI lineage references a table that is in the domain contract but not in AuroraDomainRequiredTables for that domain.
-- **insert_location:** "In AuroraDomainMapping.ps1, in \$script:AuroraDomainRequiredTables, for key '\<DomainName\>', add the table to the array."
+- **insert_location:** "In map_aurora_domains.ps1, in \$script:AuroraDomainRequiredTables, for key '\<DomainName\>', add the table to the array."
 - **insertable_content:** Exact PowerShell line. The whole array is one line per domain. Example: add "fact_experience" to Commercial:
   - Before: `Commercial  = @("dim_date", "dim_org", ..., "fact_nps")`
   - insertable_content is the **full updated line** so it can replace the existing line:
@@ -141,4 +141,4 @@ So the remediation includes the complete array for that domain with the new tabl
 
 Workflow: Run audit → Review findings → Confirm which remediations to apply → Insert the insertable_content at the given location (manually or via tool/agent).
 
-**Note:** Reports may show `insertable_content` in a generic code block; for `ssot_type: aurora_domain_mapping` the content is PowerShell and belongs in `AuroraDomainMapping.ps1`.
+**Note:** Reports may show `insertable_content` in a generic code block; for `ssot_type: aurora_domain_mapping` the content is PowerShell and belongs in `map_aurora_domains.ps1`.

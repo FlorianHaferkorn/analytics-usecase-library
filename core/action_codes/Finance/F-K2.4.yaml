@@ -110,10 +110,10 @@ operational_execution:
   - Clear classification of discretionary vs committed OpEx
   - Enforced approval workflows
   steps:
-  - IDENTIFY cost centers exceeding OpEx plan for this plant/product
-  - CLASSIFY spend by discretionary vs committed for this plant/product
-  - FREEZE, DEFER, or RE-APPROVE expenses for this plant/product
-  - REVIEW OpEx trend for this plant/product monthly
+  - IDENTIFY entities or plants exceeding OpEx plan for this scope
+  - CLASSIFY spend by discretionary vs committed for this scope
+  - FREEZE, DEFER, or RE-APPROVE expenses for this scope
+  - REVIEW OpEx trend for this scope monthly
   effort:
     level: Low
     typical_duration_days: 30
@@ -122,7 +122,8 @@ operational_execution:
   - Deferred spend accumulation risk
 data_requirements:
   required_entities:
-  - Cost Center
+  - Entity
+  - Plant
   semantic_dependencies:
     measures:
     - OpEx vs Plan %
@@ -130,7 +131,8 @@ data_requirements:
     - Operational Service Level %
     tables:
     - fact_cost
-    - dim_cost_center
+    - fact_finance
+    - dim_org
 automation:
   detection:
     enabled: true
@@ -147,7 +149,8 @@ tracking:
     recommended_storage: fact_action_execution
     minimum_fields:
     - ActionCode
-    - CostCenter
+    - Entity
+    - Plant
     - TriggerLevel
     - ExecutedDate
   outcome_evaluation:

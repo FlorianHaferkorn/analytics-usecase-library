@@ -1,7 +1,8 @@
 <!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
 
 ---
-description: Reviewer — review PRs against .cursor/rules and skills; Stage 1 compliance
+description: Review. Use when: reviewing PRs or changes for compliance with rules, skills, and Stage 1. Triggers: "review pr", "review changes", "compliance check", "reviewer"
+
 alwaysApply: false
 ---
 

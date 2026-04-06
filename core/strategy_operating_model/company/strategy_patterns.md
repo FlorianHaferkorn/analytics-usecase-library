@@ -149,7 +149,7 @@ These rules make the strategy pattern **precise enough for tooling** so that urg
 | KPI priority order | Numbered list under "Strategic KPIs (priority order)" per pattern | Tier 1 = highest urgency when KPI in deviation |
 | Use-case cluster priority | Table "Use-case clusters (priority)" per pattern; column Priority (1–4) | Cluster 1 = highest urgency for ordering use cases |
 
-Implementation of a script or API that consumes this document (or an exported schema) is in backlog; see [BACKLOG_GRANULAR.md](../../../internal/project_mgmt/BACKLOG_GRANULAR.md) (tooling hook for urgency derivation).
+Implementation of a script or API that consumes this document (or an exported schema) is in backlog; see [urgency_derivation_spec.md](../../../tooling/ir/urgency_derivation_spec.md) (tooling hook for urgency derivation).
 
 ---
 

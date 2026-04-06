@@ -1,0 +1,3 @@
+relationship dim_date_fact_support_cases
+	fromColumn: fact_support_cases.DateKey
+	toColumn: dim_date.DateKey

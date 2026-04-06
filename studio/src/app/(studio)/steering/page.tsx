@@ -2,6 +2,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parseYaml } from '@/lib/core/yaml-loader';
 import { loadAllActionCodes } from '@/lib/core/action-loader';
+import { getProject } from '@/lib/db/project-repo';
 import { SteeringHubClient } from './steering-hub-client';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
 
@@ -40,11 +41,21 @@ async function loadBracketsWithYaml(): Promise<{
   return { brackets, yamls };
 }
 
-export default async function SteeringPage() {
+const FALLBACK_ANCHOR = 'Profitable growth through margin quality, cash resilience & operational excellence';
+
+export default async function SteeringPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ draftId?: string; draftYaml?: string }>;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const [{ brackets, yamls: bracketYamls }, actions] = await Promise.all([
     loadBracketsWithYaml(),
     loadAllActionCodes(),
   ]);
+
+  const defaultProject = getProject('default');
+  const strategyAnchor = defaultProject?.strategy_anchor || FALLBACK_ANCHOR;
 
   const actionDetails: Array<[string, { name: string; status: string; domain: string; triggerKpis: string[] }]> =
     actions.map((a) => [
@@ -62,12 +73,44 @@ export default async function SteeringPage() {
     actionCodeIds: b.orchestration.action_code_ids,
   }));
 
+  let draftBracketData: {
+    id: string;
+    title: string;
+    domain: string;
+    strategicKpiId: string;
+    impactDirection: string;
+    influencingKpiIds: string[];
+    actionCodeIds: string[];
+  } | null = null;
+  let draftYaml: string | null = null;
+
+  if (resolvedSearchParams?.draftId && resolvedSearchParams?.draftYaml) {
+    try {
+      draftYaml = decodeURIComponent(resolvedSearchParams.draftYaml);
+      const parsedDraft = parseYaml<UseCaseBracketV20Lean>(draftYaml);
+      draftBracketData = {
+        id: resolvedSearchParams.draftId,
+        title: parsedDraft.title,
+        domain: parsedDraft.domain,
+        strategicKpiId: parsedDraft.orchestration.strategic_kpi_id,
+        impactDirection: parsedDraft.value_driver_model.impact_direction,
+        influencingKpiIds: parsedDraft.orchestration.influencing_kpi_ids,
+        actionCodeIds: parsedDraft.orchestration.action_code_ids,
+      };
+    } catch {
+      draftBracketData = null;
+      draftYaml = null;
+    }
+  }
+
   return (
     <SteeringHubClient
-      strategyAnchor="Profitable growth through margin quality, cash resilience & operational excellence"
-      brackets={bracketData}
+      strategyAnchor={strategyAnchor}
+      brackets={draftBracketData ? [draftBracketData, ...bracketData] : bracketData}
       actionDetails={actionDetails}
-      bracketYamls={bracketYamls}
+      bracketYamls={draftBracketData && draftYaml ? { [draftBracketData.id]: draftYaml, ...bracketYamls } : bracketYamls}
+      initialSelectedBracket={draftBracketData?.id ?? null}
+      draftBracketId={draftBracketData?.id ?? null}
     />
   );
 }

@@ -1,5 +1,7 @@
 'use client';
 
+import { StudioInput } from '@/components/ui/studio-data';
+
 interface Props {
   label: string;
   value: string;
@@ -9,7 +11,7 @@ interface Props {
 export function ColorPicker({ label, value, onChange }: Props) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-1)' }}>
-      <input
+      <StudioInput
         type="color"
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -18,7 +20,6 @@ export function ColorPicker({ label, value, onChange }: Props) {
           height: '32px',
           border: '2px solid var(--slate-600)',
           borderRadius: 'var(--radius-sm)',
-          cursor: 'pointer',
           backgroundColor: 'transparent',
           padding: 0,
         }}

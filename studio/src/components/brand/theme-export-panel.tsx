@@ -5,6 +5,7 @@ import type { ThemeConfig } from '@/lib/store/project-store';
 import { generateCssCustomProperties } from '@/lib/theme/export-css';
 import { generateTailwindConfig } from '@/lib/theme/export-tailwind';
 import { generateJsonConfig } from '@/lib/theme/export-json';
+import { StudioButton, StudioPanel, StudioSegmentedControl } from '@/components/ui/studio-page';
 
 type PreviewFormat = 'css' | 'tailwind' | 'json';
 
@@ -74,60 +75,22 @@ export function ThemeExportPanel({ theme, onSave, saving }: Props) {
   }, [theme]);
 
   return (
-    <div
-      style={{
-        padding: 'var(--sp-2)',
-        backgroundColor: 'var(--slate-800)',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--slate-700)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--sp-1-5)',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h3 style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--slate-100)' }}>
-          Export Theme
-        </h3>
-        <button
-          onClick={onSave}
-          disabled={saving}
-          style={{
-            padding: '4px var(--sp-1-5)',
-            backgroundColor: 'var(--mint)',
-            border: 'none',
-            borderRadius: 'var(--radius-sm)',
-            color: 'var(--slate-950)',
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            cursor: saving ? 'wait' : 'pointer',
-            opacity: saving ? 0.6 : 1,
-          }}
-        >
+    <StudioPanel
+      title="Export Theme"
+      description="Preview generated theme artifacts and export them in the target format or as a bundle."
+      action={
+        <StudioButton onClick={onSave} disabled={saving} tone="success" variant="primary" style={{ padding: '4px var(--sp-1-5)' }}>
           {saving ? 'Saving...' : 'Save Theme'}
-        </button>
-      </div>
-
+        </StudioButton>
+      }
+      style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1-5)' }}
+    >
       {/* Format tabs */}
-      <div style={{ display: 'flex', gap: 'var(--sp-0-5)' }}>
-        {(Object.entries(FORMAT_LABELS) as [PreviewFormat, string][]).map(([fmt, label]) => (
-          <button
-            key={fmt}
-            onClick={() => setActiveFormat(fmt)}
-            style={{
-              padding: '4px var(--sp-1)',
-              backgroundColor: activeFormat === fmt ? 'var(--slate-700)' : 'transparent',
-              border: `1px solid ${activeFormat === fmt ? 'var(--mint)' : 'var(--slate-700)'}`,
-              borderRadius: 'var(--radius-sm)',
-              color: activeFormat === fmt ? 'var(--slate-50)' : 'var(--slate-400)',
-              fontSize: '0.75rem',
-              cursor: 'pointer',
-            }}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <StudioSegmentedControl
+        value={activeFormat}
+        onChange={setActiveFormat}
+        options={(Object.entries(FORMAT_LABELS) as [PreviewFormat, string][]).map(([fmt, label]) => ({ value: fmt, label }))}
+      />
 
       {/* Preview */}
       <pre
@@ -150,40 +113,31 @@ export function ThemeExportPanel({ theme, onSave, saving }: Props) {
 
       {/* Download buttons */}
       <div style={{ display: 'flex', gap: 'var(--sp-1)' }}>
-        <button
+        <StudioButton
           onClick={handleDownload}
+          variant="secondary"
           style={{
             flex: 1,
             padding: '6px var(--sp-1)',
-            backgroundColor: 'var(--slate-700)',
-            border: '1px solid var(--slate-600)',
-            borderRadius: 'var(--radius-sm)',
-            color: 'var(--slate-200)',
             fontSize: '0.75rem',
-            cursor: 'pointer',
           }}
         >
           Download {FORMAT_LABELS[activeFormat]}
-        </button>
-        <button
+        </StudioButton>
+        <StudioButton
           onClick={handleDownloadBundle}
           disabled={bundleLoading}
+          tone="warning"
+          variant="primary"
           style={{
             flex: 1,
             padding: '6px var(--sp-1)',
-            backgroundColor: 'var(--gold)',
-            border: 'none',
-            borderRadius: 'var(--radius-sm)',
-            color: 'var(--slate-950)',
             fontSize: '0.75rem',
-            fontWeight: 600,
-            cursor: bundleLoading ? 'wait' : 'pointer',
-            opacity: bundleLoading ? 0.6 : 1,
           }}
         >
           {bundleLoading ? 'Bundling...' : 'Download All (ZIP)'}
-        </button>
+        </StudioButton>
       </div>
-    </div>
+    </StudioPanel>
   );
 }

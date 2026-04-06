@@ -1,0 +1,61 @@
+{
+  "template_id": "investigator_focus",
+  "description": "Investigator Focus — large primary chart 64% + 2 stacked support panels 34%",
+  "position_mode": "absolute",
+  "canvas": {
+    "width": 1920,
+    "height": 1080
+  },
+  "slots": [
+    {
+      "slot_id": "KPI_Cards",
+      "position": {
+        "x": 32,
+        "y": 32,
+        "width": 1856,
+        "height": 120
+      },
+      "visual_type_hint": "cardVisual"
+    },
+    {
+      "slot_id": "Slicer_Date",
+      "position": {
+        "x": 32,
+        "y": 168,
+        "width": 1856,
+        "height": 70
+      },
+      "visual_type_hint": "slicer"
+    },
+    {
+      "slot_id": "Main_1",
+      "position": {
+        "x": 32,
+        "y": 254,
+        "width": 1232,
+        "height": 794
+      },
+      "visual_type_hint": "lineChart"
+    },
+    {
+      "slot_id": "Main_2",
+      "position": {
+        "x": 1280,
+        "y": 254,
+        "width": 608,
+        "height": 385
+      },
+      "visual_type_hint": "clusteredBarChart"
+    },
+    {
+      "slot_id": "Main_3",
+      "position": {
+        "x": 1280,
+        "y": 655,
+        "width": 608,
+        "height": 393
+      },
+      "visual_type_hint": "clusteredBarChart"
+    }
+  ]
+}

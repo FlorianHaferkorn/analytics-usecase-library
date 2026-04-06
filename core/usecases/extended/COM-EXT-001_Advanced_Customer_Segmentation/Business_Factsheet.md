@@ -1,4 +1,23 @@
+---
+id: COM-EXT-001
+factsheet_type: business
+required_kpi_ids:
+  - sales.net_sales.amount
+  - cost.cogs.amount
+  - sales.price.net.amount
+---
 # COM-EXT-001 — Advanced Customer Segmentation (RFM + CLV)
+
+## Business Factsheet
+
+---
+
+## 0. Metadata (Mandatory)
+
+- **Use Case ID:** COM-EXT-001
+- **Domain:** Commercial
+
+---
 
 **Status:** Draft scaffold — not yet build-ready
 **Domain:** Commercial

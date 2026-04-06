@@ -66,7 +66,20 @@
         "grain_rules": {"type": "string"},
         "naming": {"type": "string"},
         "currency": {"type": "string"},
-        "time_zone": {"type": "string"}
+        "time_zone": {"type": "string"},
+        "storage_mode": {
+          "type": "string",
+          "enum": ["Import", "DirectLake"],
+          "description": "Partition mode for all tables in this contract. Import = M/Power Query partitions (local parquet). DirectLake = entity partitions pointing to Fabric Lakehouse Delta tables."
+        },
+        "lakehouse_id": {
+          "type": "string",
+          "description": "Fabric Lakehouse item GUID. Required when storage_mode = DirectLake. Used to build the DL_Lakehouse named expression in expressions.tmdl."
+        },
+        "workspace_id": {
+          "type": "string",
+          "description": "Fabric Workspace GUID. Required when storage_mode = DirectLake."
+        }
       },
       "additionalProperties": false
     }

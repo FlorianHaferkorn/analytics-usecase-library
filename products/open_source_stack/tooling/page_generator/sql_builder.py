@@ -34,7 +34,7 @@ class SqlBuilder:
 
     def kpi_to_query_name(self, kpi_id: str) -> str:
         """Convert KPI ID to a valid SQL / Evidence query name."""
-        return kpi_id.lower().replace("-", "_")
+        return re.sub(r"[^a-z0-9_]", "_", kpi_id.lower().replace("-", "_"))
 
     def dax_to_sql_expression(self, dax: str) -> str:
         """
@@ -102,6 +102,33 @@ class SqlBuilder:
             f"```"
         )
 
+    def build_metric_headline_query(
+        self,
+        query_name: str,
+        kpi_id: str,
+        label: str,
+        table: str = "gold.metric_observations",
+        period_column: str = "period",
+        value_column: str = "metric_value",
+    ) -> str:
+        safe_kpi_id = kpi_id.replace("'", "''")
+        safe_label = label.replace("'", "''")
+        return (
+            f"```sql {query_name}\n"
+            f"SELECT\n"
+            f"  {value_column} AS value,\n"
+            f"  '{safe_label}' AS label,\n"
+            f"  {period_column}\n"
+            f"FROM {table}\n"
+            f"WHERE kpi_id = '{safe_kpi_id}'\n"
+            f"  AND {period_column} = (\n"
+            f"    SELECT MAX({period_column})\n"
+            f"    FROM {table}\n"
+            f"    WHERE kpi_id = '{safe_kpi_id}'\n"
+            f"  )\n"
+            f"```"
+        )
+
     def build_trend_query(
         self,
         query_name: str,
@@ -129,6 +156,34 @@ class SqlBuilder:
             f"```"
         )
 
+    def build_metric_trend_query(
+        self,
+        query_name: str,
+        kpi_id: str,
+        table: str = "gold.metric_observations",
+        period_column: str = "period",
+        value_column: str = "metric_value",
+        segment_column: Optional[str] = None,
+    ) -> str:
+        safe_kpi_id = kpi_id.replace("'", "''")
+        select_cols = [period_column, f"{value_column} AS metric_value"]
+        group_cols = [period_column, value_column]
+        if segment_column:
+            select_cols.insert(1, segment_column)
+            group_cols.insert(1, segment_column)
+        select_str = ",\n  ".join(select_cols)
+        group_str = ", ".join(group_cols)
+        return (
+            f"```sql {query_name}\n"
+            f"SELECT\n"
+            f"  {select_str}\n"
+            f"FROM {table}\n"
+            f"WHERE kpi_id = '{safe_kpi_id}'\n"
+            f"GROUP BY {group_str}\n"
+            f"ORDER BY {period_column}\n"
+            f"```"
+        )
+
     def build_detail_query(
         self,
         query_name: str,
@@ -144,6 +199,28 @@ class SqlBuilder:
             f"SELECT\n"
             f"  {cols}\n"
             f"FROM {table}\n"
+            f"ORDER BY {order_by}\n"
+            f"LIMIT {limit}\n"
+            f"```"
+        )
+
+    def build_metric_detail_query(
+        self,
+        query_name: str,
+        kpi_id: str,
+        columns: List[str],
+        table: str = "gold.metric_evidence",
+        order_by: str = "period DESC",
+        limit: int = 500,
+    ) -> str:
+        safe_kpi_id = kpi_id.replace("'", "''")
+        cols = ", ".join(columns)
+        return (
+            f"```sql {query_name}\n"
+            f"SELECT\n"
+            f"  {cols}\n"
+            f"FROM {table}\n"
+            f"WHERE kpi_id = '{safe_kpi_id}'\n"
             f"ORDER BY {order_by}\n"
             f"LIMIT {limit}\n"
             f"```"

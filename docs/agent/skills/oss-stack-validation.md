@@ -12,6 +12,10 @@ Run all validation checks for the open-source Evidence.dev stack.
 
 1. **Run the OSS validation runner:**
 
+   ```powershell
+   python products/open_source_stack/tooling/validate_oss.py --root .
+   ```
+
    ```bash
    python products/open_source_stack/tooling/validate_oss.py --root .
    ```
@@ -21,7 +25,7 @@ Run all validation checks for the open-source Evidence.dev stack.
    - `validate_evidence_pages` — page structure, SQL blocks, Evidence components
    - `validate_theme_tokens` — only governed design tokens used
    - `validate_sql_style` — no SELECT *, explicit column names
-   - `check_metrics_vs_kpi` — dbt metrics cover bracket KPIs (Phase 2)
+   - `check_metrics_vs_kpi` — dbt metrics cover orchestrated bracket KPIs
 
 3. **If checks fail:**
    - Read the error messages — each references a specific file and rule
@@ -29,6 +33,10 @@ Run all validation checks for the open-source Evidence.dev stack.
    - Re-run the validator
 
 4. **For JSON output (CI):**
+
+   ```powershell
+   python products/open_source_stack/tooling/validate_oss.py --root . --json
+   ```
 
    ```bash
    python products/open_source_stack/tooling/validate_oss.py --root . --json

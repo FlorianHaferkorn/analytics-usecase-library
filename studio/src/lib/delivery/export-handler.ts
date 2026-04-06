@@ -50,11 +50,15 @@ export async function processExportRequest(
     })
   );
 
-  // Log audit event for the export
-  await auditWithActor('export', exportFormat, 'export', {
-    before: null,
-    after: { format: exportFormat, useCaseIds, resultCount: results.length },
-  });
+  // Log audit event for the export (non-fatal)
+  try {
+    await auditWithActor('export', exportFormat, 'export', {
+      before: null,
+      after: { format: exportFormat, useCaseIds, resultCount: results.length },
+    });
+  } catch {
+    // Audit failure must not block export delivery
+  }
 
   return apiSuccess({ results });
 }

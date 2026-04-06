@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import type { CatalogKpi } from '@/lib/core/catalog-loader';
-import { tableContainerStyle, tableStyle, thStyle, tdStyle, expandedRowStyle, filterInputStyle, filterSelectStyle } from '@/lib/ui-styles';
+import { StudioDataToolbar, StudioExpandedRow, StudioInlineStat, StudioInput, StudioSelect, StudioTable, StudioTableCell, StudioTableHeadCell, StudioTableShell } from '@/components/ui/studio-data';
 
 interface Props {
   kpis: CatalogKpi[];
@@ -31,26 +31,26 @@ export function KpiRegistryTable({ kpis }: Props) {
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: 'var(--sp-1)', marginBottom: 'var(--sp-2)' }}>
-        <input
+      <StudioDataToolbar>
+        <StudioInput
           type="text"
           placeholder="Search KPIs..."
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          style={{ ...filterInputStyle, flex: 1 }}
+          style={{ flex: 1 }}
         />
-        <select value={domainFilter} onChange={(e) => setDomainFilter(e.target.value)} style={filterSelectStyle}>
+        <StudioSelect value={domainFilter} onChange={(e) => setDomainFilter(e.target.value)}>
           <option value="all">All Domains</option>
           {domains.map((d) => <option key={d} value={d}>{d}</option>)}
-        </select>
-      </div>
+        </StudioSelect>
+      </StudioDataToolbar>
 
-      <div style={tableContainerStyle}>
-        <table style={tableStyle}>
+      <StudioTableShell>
+        <StudioTable>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--slate-700)' }}>
               {['KPI ID', 'Name', 'Type', 'Domain', 'Use Cases', 'Score'].map((h) => (
-                <th key={h} style={thStyle}>{h}</th>
+                <StudioTableHeadCell key={h}>{h}</StudioTableHeadCell>
               ))}
             </tr>
           </thead>
@@ -64,16 +64,16 @@ export function KpiRegistryTable({ kpis }: Props) {
               />
             ))}
           </tbody>
-        </table>
+        </StudioTable>
         {filtered.length === 0 && (
           <p style={{ padding: 'var(--sp-3)', textAlign: 'center', color: 'var(--slate-500)' }}>
             No KPIs match the filter.
           </p>
         )}
-      </div>
-      <p style={{ marginTop: 'var(--sp-1)', fontSize: '0.75rem', color: 'var(--slate-500)' }}>
+      </StudioTableShell>
+      <StudioInlineStat>
         Showing {filtered.length} of {kpis.length} KPIs
-      </p>
+      </StudioInlineStat>
     </div>
   );
 }
@@ -93,20 +93,19 @@ function KpiRow({ kpi, isExpanded, onToggle }: { kpi: CatalogKpi; isExpanded: bo
           transition: 'background-color var(--duration-fast) var(--ease-out)',
         }}
       >
-        <td style={{ ...tdStyle, fontFamily: 'var(--font-mono)', color: 'var(--mint)', fontSize: '0.75rem' }}>{kpi.kpi_id}</td>
-        <td style={{ ...tdStyle, color: 'var(--slate-100)' }}>{kpi.kpi_key}</td>
-        <td style={tdStyle}>
+        <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--mint)', fontSize: '0.75rem' }}>{kpi.kpi_id}</StudioTableCell>
+        <StudioTableCell style={{ color: 'var(--slate-100)' }}>{kpi.kpi_key}</StudioTableCell>
+        <StudioTableCell>
           <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 500, border: `1px solid ${kpi.kpi_role === 'strategic' ? 'var(--gold)' : 'var(--slate-400)'}`, color: kpi.kpi_role === 'strategic' ? 'var(--gold)' : 'var(--slate-400)' }}>
             {kpi.kpi_type}
           </span>
-        </td>
-        <td style={{ ...tdStyle, color: 'var(--slate-400)' }}>{(kpi.domain_tag ?? []).join(', ')}</td>
-        <td style={{ ...tdStyle, color: 'var(--slate-400)' }}>{(kpi.use_case_ref ?? []).join(', ') || '—'}</td>
-        <td style={{ ...tdStyle, color: scoreColor, fontWeight: 600 }}>{(score * 100).toFixed(0)}%</td>
+        </StudioTableCell>
+        <StudioTableCell style={{ color: 'var(--slate-400)' }}>{(kpi.domain_tag ?? []).join(', ')}</StudioTableCell>
+        <StudioTableCell style={{ color: 'var(--slate-400)' }}>{(kpi.use_case_ref ?? []).join(', ') || '—'}</StudioTableCell>
+        <StudioTableCell style={{ color: scoreColor, fontWeight: 600 }}>{(score * 100).toFixed(0)}%</StudioTableCell>
       </tr>
       {isExpanded && (
-        <tr>
-          <td colSpan={6} style={expandedRowStyle}>
+        <StudioExpandedRow colSpan={6}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)' }}>
               <div>
                 <DetailLabel>Purpose</DetailLabel>
@@ -125,8 +124,7 @@ function KpiRow({ kpi, isExpanded, onToggle }: { kpi: CatalogKpi; isExpanded: bo
                 <DetailText>{kpi.governance?.business_owner}</DetailText>
               </div>
             </div>
-          </td>
-        </tr>
+        </StudioExpandedRow>
       )}
     </>
   );

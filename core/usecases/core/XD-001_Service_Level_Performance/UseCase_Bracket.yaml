@@ -8,24 +8,25 @@ governance:
 orchestration:
   strategic_kpi_id: svc.sla.attainment.pct
   influencing_kpi_ids:
+  - svc.backlog.count
   - svc.fcr.pct
   - svc.aht.minutes
-  - svc.backlog.count
-  - svc.nps.index
   - svc.escalation.pct
   - svc.tickets.created.count
   - svc.tickets.closed.count
+  supporting_kpi_ids:
+  - svc.nps.index
   action_code_ids:
   - X-S1.1
   - X-S1.2
   - X-S1.3
   - X-S1.4
 value_driver_model:
-  formula: svc.sla.attainment.pct = f(svc.fcr.pct, svc.aht.minutes, svc.backlog.count, svc.nps.index, svc.escalation.pct,
+  formula: svc.sla.attainment.pct = f(svc.fcr.pct, svc.aht.minutes, svc.backlog.count, svc.escalation.pct,
     svc.tickets.created.count, svc.tickets.closed.count)
   impact_direction: maximize
-  primary_driver: svc.fcr.pct
-  impact_logic: Improving svc.fcr.pct is the primary lever for maximizing svc.sla.attainment.pct.
+  primary_driver: svc.backlog.count
+  impact_logic: Reducing queue backlog is the primary operational lever for maximizing svc.sla.attainment.pct while FCR, AHT, and escalation remain in guardrail balance.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -37,23 +38,28 @@ ux_layout_rules:
       kpi_id: svc.sla.attainment.pct
       visual_type: kpi_card
     component_30s:
-    - kpi_id: svc.fcr.pct
+    - kpi_id: svc.backlog.count
       visual_type: trend_line
     - kpi_ids:
+      - svc.fcr.pct
       - svc.aht.minutes
-      - svc.backlog.count
-      - svc.nps.index
+      - svc.escalation.pct
       visual_type: bar_chart
   page_2_execution:
-    title: Experience / Service Execution
+    title: Service Queue Recovery & Execution
     page_type: T3_Operational_Monitoring
     template_id: action_matrix
     component_300s:
       evidence_grain: case
       evidence_columns:
       - entity
-      - period
+      - queue
+      - channel
+      - issue_type
+      - severity
       - svc.sla.attainment.pct
+      - svc.backlog.count
+      - svc.escalation.pct
       action_panel: true
       payload_mode: full
 prioritization:

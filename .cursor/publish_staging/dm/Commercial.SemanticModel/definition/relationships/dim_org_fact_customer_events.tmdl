@@ -1,0 +1,3 @@
+relationship dim_org_fact_customer_events
+	fromColumn: fact_customer_events.OrgKey
+	toColumn: dim_org.OrgKey

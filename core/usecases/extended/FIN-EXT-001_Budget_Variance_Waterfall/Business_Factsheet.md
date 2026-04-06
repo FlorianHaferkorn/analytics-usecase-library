@@ -1,4 +1,23 @@
+---
+id: FIN-EXT-001
+factsheet_type: business
+required_kpi_ids:
+  - cost.opex.vs_plan.pct
+  - cost.opex.base.amount
+  - margin.cogs.pct
+---
 # FIN-EXT-001 — Budget Variance Waterfall (P&L Bridge)
+
+## Business Factsheet
+
+---
+
+## 0. Metadata (Mandatory)
+
+- **Use Case ID:** FIN-EXT-001
+- **Domain:** Finance
+
+---
 
 **Status:** Draft scaffold — not yet build-ready
 **Domain:** Finance

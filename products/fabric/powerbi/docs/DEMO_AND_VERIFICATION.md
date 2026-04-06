@@ -55,7 +55,7 @@ The pipeline runs validation after report generation:
 ## Known limits
 
 - **RLS:** Not applied automatically; configure manually if required.
-- **Publish to Fabric:** No automated publish; use Desktop or your own deployment pipeline.
+- **Publish to Fabric:** Ein automatisierter Publish-Pfad existiert jetzt ueber products/fabric/powerbi/tooling/invoke_workspace_publish.ps1 plus deployment/scripts/fabric_release.py. Ohne Credentials oder Fabric-Zielumgebung bleibt das lokal ein Dry-Run und erfuellt den Produktionsstandard nicht.
 - **Scope:** "Opens in Desktop and loads"; no claim for Fabric workspace deployment or embedding.
 
 ---

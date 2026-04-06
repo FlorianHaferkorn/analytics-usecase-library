@@ -3,6 +3,7 @@
 ---
 name: add-action-code-and-wire-up
 description: Create or update action codes and wire them into use cases. Use when creating action code YAML files, updating orchestration.action_code_ids, or linking action codes to use cases.
+version: "1.0.0"
 ---
 
 # Add Action Code and Wire Up

@@ -41,14 +41,14 @@ Get-ChildItem -Path $bracketsDir -Recurse -Filter "UseCase_Bracket.yaml" -ErrorA
   $pageTypeMatches = [regex]::Matches($content, '(?m)page_type\s*:\s*"?([^"\s\r\n]+)"?')
 
   if ($pageTypeMatches.Count -eq 0) {
-    $issues += "$ucId ($($_.Name)): no page_type declared — at least one page_type is required"
+    $issues += "${ucId} ($($_.Name)): no page_type declared - at least one page_type is required"
     return
   }
 
   foreach ($m in $pageTypeMatches) {
     $pt = $m.Groups[1].Value.Trim('"')
     if ($pt -notin $validPageTypes) {
-      $issues += "$ucId: invalid page_type '$pt' (valid: $($validPageTypes -join ', '))"
+      $issues += "${ucId}: invalid page_type '$pt' (valid: $($validPageTypes -join ', '))"
     }
   }
 }

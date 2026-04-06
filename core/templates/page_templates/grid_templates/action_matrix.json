@@ -3,7 +3,8 @@
   "description": "The Action Matrix (Detail / 300s). Operative Liste für direkte Maßnahmen.",
   "canvas": { "width": 1920, "height": 1080 },
   "slots": [
-    { "slot_id": "Slicer_Pane", "grid": [0, 0, 2, 12], "visual_type_hint": "slicer" },
+    { "slot_id": "Slicer_Pane", "grid": [0, 0, 2, 6], "visual_type_hint": "slicer" },
+    { "slot_id": "Slicer_Entity", "grid": [0, 6, 2, 6], "visual_type_hint": "slicer_entity" },
     { "slot_id": "Smart_Narrative", "grid": [2, 0, 8, 1], "visual_type_hint": "textbox" },
     { "slot_id": "Detail_Matrix", "grid": [2, 1, 8, 11], "visual_type_hint": "tableEx" },
     { "slot_id": "ActionPanel", "grid": [10, 1, 2, 11], "visual_type_hint": "textbox" }

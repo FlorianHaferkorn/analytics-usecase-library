@@ -1,0 +1,181 @@
+schema_version: '2.0'
+id: X-S1.1
+name: Service Level Orchestration
+owner_domain: Service / CX Leadership
+impact_dimension: Service Reliability
+status: active
+owner_role: head_of_service_operations
+steward_role: service_analytics_lead
+use_case_links:
+  core_use_cases:
+  - XD-001
+  related_use_cases:
+  - XD-002
+kpis:
+  trigger_kpis:
+  - svc.sla.attainment.pct
+  - svc.backlog.count
+  guardrail_kpis:
+  - svc.fcr.pct
+  outcome_kpis:
+  - svc.sla.attainment.pct
+scope:
+  default_grain: queue_day
+  default_perspective:
+  - Queue
+  - Region
+  supported_slices:
+  - Channel
+  - Priority Class
+  exclusions:
+  - Queues under planned transformation initiatives
+  - Incident-driven surge periods with executive override
+  - Low-volume specialist queues
+trigger:
+  type: Deviation
+  evaluation:
+    grain: queue_day
+    window:
+      kind: rolling
+      length: 5
+      unit: days
+    persistence:
+      required: true
+      min_consecutive_periods: 3
+    minimum_data:
+      min_observations: 3
+      volume_guardrail:
+        enabled: true
+        metric_kpi_id: svc.tickets.created.count
+        comparator: gte
+        value: 100
+        unit: count
+  levels:
+    L1:
+      severity: EarlyWarning
+      condition:
+        metric_kpi_id: svc.sla.attainment.pct
+        comparator: lt
+        threshold:
+          basis: absolute
+          value: 95.0
+          unit: '%'
+        filters: []
+    L2:
+      severity: RequiredIntervention
+      condition:
+        metric_kpi_id: svc.sla.attainment.pct
+        comparator: lt
+        threshold:
+          basis: absolute
+          value: 92.0
+          unit: '%'
+        filters: []
+    L3:
+      severity: PrescriptiveExecution
+      condition:
+        metric_kpi_id: svc.sla.attainment.pct
+        comparator: lt
+        threshold:
+          basis: absolute
+          value: 88.0
+          unit: '%'
+        filters: []
+  gating_rules:
+  - Trigger only if backlog growth or escalations confirm structural issue
+  - Do not trigger if SLA miss is caused by one-off incidents
+  - Exclude queues with active execution Action Codes in progress
+impact:
+  category: High
+  expected_range:
+    metric_kpi_id: svc.sla.attainment.pct
+    value_low: 3.0
+    value_high: 8.0
+    unit: pp
+    time_to_effect:
+      min_periods: 1
+      max_periods: 3
+  mechanism:
+  - Focused activation of the dominant service lever
+  - Avoidance of conflicting service actions
+  confidence:
+    level: High
+    rationale:
+    - Service failures are concentrated by queue
+    - Central coordination improves execution quality
+operational_execution:
+  stakeholders:
+  - Workforce Management
+  - Quality Assurance
+  - CX Leadership
+  prerequisites:
+  - Reliable SLA, backlog, and escalation measurement
+  - Clear ownership of execution Action Codes
+  steps:
+  - DETECT sustained SLA deterioration for this queue
+  - DIAGNOSE the dominant service constraint for this queue
+  - ACTIVATE the corresponding execution Action Code for this queue
+  - REVIEW SLA recovery for this queue daily
+  effort:
+    level: Low
+    typical_duration_days: 14
+  risks_and_tradeoffs:
+  - Delayed execution if diagnosis is incorrect
+  - Underreaction to multi-driver service issues
+data_requirements:
+  required_entities:
+  - Queue
+  - Region
+  semantic_dependencies:
+    measures:
+    - SLA Attainment %
+    - Backlog Count
+    - Escalation %
+    - First Contact Resolution %
+    - Tickets Created Count
+    tables:
+    - fact_support_cases
+    - fact_workforce_management
+    - dim_case_queue
+    - dim_org
+automation:
+  detection:
+    enabled: true
+    evaluation_frequency: daily
+    output: Queues with sustained SLA deterioration
+  suggested_actions:
+    enabled: true
+    outputs:
+    - Recommended service lever activation
+  copilot_prompts: []
+tracking:
+  execution_log:
+    enabled: true
+    recommended_storage: fact_action_execution
+    minimum_fields:
+    - ActionCode
+    - Queue
+    - Region
+    - TriggerLevel
+    - ActivatedLever
+    - ExecutedDate
+  outcome_evaluation:
+    enabled: true
+    recommended_storage: fact_action_outcome
+    minimum_fields:
+    - ActionCode
+    - Pre_SLA_Pct
+    - Post_SLA_Pct_14d
+governance:
+  approvals_required:
+  - VP Customer Operations
+  rollback_plan:
+  - Suspend orchestration if quality KPIs deteriorate
+  documentation_links:
+  - core/usecases/core/XD-001_Service_Level_Performance/Business_Factsheet.md
+quality_rules:
+- All kpi_id values must exist in KPI catalog.
+- Trigger severity must be strictly increasing from L1 to L3.
+- impact.expected_range.metric_kpi_id must be one of kpis.outcome_kpis.
+- If status=deprecated then lifecycle.replaced_by is required.
+- 'No free-text trigger notes: use gating_rules and structured filters.'

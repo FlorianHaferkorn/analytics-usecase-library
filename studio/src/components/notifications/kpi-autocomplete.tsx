@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { StudioInput } from '@/components/ui/studio-data';
 
 interface Props {
   value: string;
@@ -8,16 +9,6 @@ interface Props {
   kpiIds: string[];
   placeholder?: string;
 }
-
-const inputStyle = {
-  padding: '4px var(--sp-1)',
-  backgroundColor: 'var(--slate-900)',
-  border: '1px solid var(--slate-700)',
-  borderRadius: 'var(--radius-sm)',
-  color: 'var(--slate-100)',
-  fontSize: '0.75rem',
-  width: '100%',
-};
 
 /**
  * KPI Autocomplete — combobox with datalist filtering against KPI catalog IDs.
@@ -34,13 +25,13 @@ export function KpiAutocomplete({ value, onChange, kpiIds, placeholder }: Props)
 
   return (
     <>
-      <input
+      <StudioInput
         type="text"
         list={listId}
         value={value}
         onChange={handleChange}
         placeholder={placeholder ?? 'Select KPI (e.g., margin.gm.pct)'}
-        style={inputStyle}
+        style={{ fontSize: '0.75rem', padding: '4px var(--sp-1)', borderRadius: 'var(--radius-sm)' }}
         autoComplete="off"
       />
       <datalist id={listId}>

@@ -1,4 +1,25 @@
+---
+id: OPS-IND-M001
+factsheet_type: business
+required_kpi_ids:
+  - ops.oee.pct
+  - ops.availability.pct
+  - ops.performance.pct
+  - ops.quality.pct
+  - ops.throughput.units
+---
 # OPS-IND-M001 — Shift OEE Benchmarking across Plants
+
+## Business Factsheet
+
+---
+
+## 0. Metadata (Mandatory)
+
+- **Use Case ID:** OPS-IND-M001
+- **Domain:** Operations
+
+---
 
 **Status:** Draft scaffold — not yet build-ready
 **Vertical:** Manufacturing

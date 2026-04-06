@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import type { DataContract } from '@/lib/schemas';
+import { StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
+import { StudioTable, StudioTableCell, StudioTableHeadCell, StudioTableShell } from '@/components/ui/studio-data';
 
 interface Props {
   contracts: DataContract[];
@@ -11,14 +13,7 @@ function ContractCard({ contract }: { contract: DataContract }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div
-      style={{
-        backgroundColor: 'var(--slate-800)',
-        border: `1px solid ${expanded ? 'var(--info)' : 'var(--slate-700)'}`,
-        borderRadius: 'var(--radius-lg)',
-        overflow: 'hidden',
-      }}
-    >
+    <StudioPanel tone={expanded ? 'info' : 'default'} style={{ padding: 0, overflow: 'hidden', border: `1px solid ${expanded ? 'var(--info)' : 'var(--slate-700)'}` }}>
       <button
         onClick={() => setExpanded(!expanded)}
         style={{
@@ -59,25 +54,33 @@ function ContractCard({ contract }: { contract: DataContract }) {
               <p style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--slate-300)', marginBottom: '4px' }}>
                 {dim.name} (dimension)
               </p>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.6875rem' }}>
+              <StudioTableShell>
+              <StudioTable>
+                <colgroup>
+                  <col style={{ width: '40%' }} />
+                  <col style={{ width: '18%' }} />
+                  <col style={{ width: '22%' }} />
+                  <col style={{ width: '20%' }} />
+                </colgroup>
                 <thead>
                   <tr>
                     {['Column', 'Type', 'Role', 'Ref'].map((h) => (
-                      <th key={h} style={{ textAlign: 'left', padding: '2px 8px', color: 'var(--slate-500)', borderBottom: '1px solid var(--slate-700)' }}>{h}</th>
+                      <StudioTableHeadCell key={h} style={{ padding: '2px 8px', fontSize: '0.6875rem' }}>{h}</StudioTableHeadCell>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {dim.columns.map((col) => (
                     <tr key={col.name}>
-                      <td style={{ padding: '2px 8px', color: 'var(--slate-200)', fontFamily: 'monospace' }}>{col.name}</td>
-                      <td style={{ padding: '2px 8px', color: 'var(--slate-400)' }}>{col.type}</td>
-                      <td style={{ padding: '2px 8px', color: col.role === 'key' ? 'var(--gold)' : 'var(--slate-400)' }}>{col.role ?? '—'}</td>
-                      <td style={{ padding: '2px 8px', color: 'var(--info)', fontFamily: 'monospace' }}>{col.ref ?? '—'}</td>
+                      <StudioTableCell style={{ padding: '2px 8px', color: 'var(--slate-200)', fontFamily: 'monospace' }}>{col.name}</StudioTableCell>
+                      <StudioTableCell style={{ padding: '2px 8px', color: 'var(--slate-400)' }}>{col.type}</StudioTableCell>
+                      <StudioTableCell style={{ padding: '2px 8px', color: col.role === 'key' ? 'var(--gold)' : 'var(--slate-400)' }}>{col.role ?? '—'}</StudioTableCell>
+                      <StudioTableCell style={{ padding: '2px 8px', color: 'var(--info)', fontFamily: 'monospace' }}>{col.ref ?? '—'}</StudioTableCell>
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </StudioTable>
+              </StudioTableShell>
             </div>
           ))}
 
@@ -87,25 +90,33 @@ function ContractCard({ contract }: { contract: DataContract }) {
               <p style={{ fontSize: '0.6875rem', fontWeight: 600, color: 'var(--slate-300)', marginBottom: '4px' }}>
                 {fact.name} (fact &middot; grain: {fact.grain})
               </p>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.6875rem' }}>
+              <StudioTableShell>
+              <StudioTable>
+                <colgroup>
+                  <col style={{ width: '40%' }} />
+                  <col style={{ width: '18%' }} />
+                  <col style={{ width: '22%' }} />
+                  <col style={{ width: '20%' }} />
+                </colgroup>
                 <thead>
                   <tr>
                     {['Column', 'Type', 'Agg', 'Ref'].map((h) => (
-                      <th key={h} style={{ textAlign: 'left', padding: '2px 8px', color: 'var(--slate-500)', borderBottom: '1px solid var(--slate-700)' }}>{h}</th>
+                      <StudioTableHeadCell key={h} style={{ padding: '2px 8px', fontSize: '0.6875rem' }}>{h}</StudioTableHeadCell>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {fact.columns.map((col) => (
                     <tr key={col.name}>
-                      <td style={{ padding: '2px 8px', color: 'var(--slate-200)', fontFamily: 'monospace' }}>{col.name}</td>
-                      <td style={{ padding: '2px 8px', color: 'var(--slate-400)' }}>{col.type}</td>
-                      <td style={{ padding: '2px 8px', color: col.agg ? 'var(--mint)' : 'var(--slate-400)' }}>{col.agg ?? '—'}</td>
-                      <td style={{ padding: '2px 8px', color: 'var(--info)', fontFamily: 'monospace' }}>{col.ref ?? '—'}</td>
+                      <StudioTableCell style={{ padding: '2px 8px', color: 'var(--slate-200)', fontFamily: 'monospace' }}>{col.name}</StudioTableCell>
+                      <StudioTableCell style={{ padding: '2px 8px', color: 'var(--slate-400)' }}>{col.type}</StudioTableCell>
+                      <StudioTableCell style={{ padding: '2px 8px', color: col.agg ? 'var(--mint)' : 'var(--slate-400)' }}>{col.agg ?? '—'}</StudioTableCell>
+                      <StudioTableCell style={{ padding: '2px 8px', color: 'var(--info)', fontFamily: 'monospace' }}>{col.ref ?? '—'}</StudioTableCell>
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </StudioTable>
+              </StudioTableShell>
             </div>
           ))}
 
@@ -119,13 +130,13 @@ function ContractCard({ contract }: { contract: DataContract }) {
           )}
         </div>
       )}
-    </div>
+    </StudioPanel>
   );
 }
 
 export function ContractDetailList({ contracts }: Props) {
   if (contracts.length === 0) {
-    return <p style={{ fontSize: '0.8125rem', color: 'var(--slate-500)' }}>No data contracts found.</p>;
+    return <StudioEmptyState title="No data contracts found" description="Lineage has no contract metadata to render for the current context." />;
   }
 
   return (

@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { ReactFlow, Background, Controls, type Node, type Edge } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import dagre from '@dagrejs/dagre';
 import type { LineageGraph } from '@/lib/core/lineage-builder';
 import { LineageNodeComponent } from './nodes/lineage-node';
 
@@ -20,19 +21,34 @@ const EDGE_COLORS: Record<string, string> = {
   consumes: 'var(--gold)',
 };
 
-/** Simple column-based layout: dimension → fact → kpi → bracket. */
+const NODE_WIDTH = 220;
+const NODE_HEIGHT = 60;
+
+/** Dagre-based auto-layout: left-to-right, dimension → fact → kpi → bracket. */
 function layoutNodes(graph: LineageGraph): Node[] {
-  const columns: Record<string, number> = { dimension: 0, fact: 1, kpi: 2, bracket: 3 };
-  const counters: Record<number, number> = { 0: 0, 1: 0, 2: 0, 3: 0 };
+  const g = new dagre.graphlib.Graph();
+  g.setDefaultEdgeLabel(() => ({}));
+  g.setGraph({ rankdir: 'LR', ranksep: 80, nodesep: 30 });
+
+  for (const n of graph.nodes) {
+    g.setNode(n.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
+  }
+  for (const e of graph.edges) {
+    g.setEdge(e.source, e.target);
+  }
+
+  dagre.layout(g);
 
   return graph.nodes.map((n) => {
-    const col = columns[n.type] ?? 0;
-    const row = counters[col]++;
+    const pos = g.node(n.id);
     return {
       id: n.id,
       type: 'lineage',
       data: { ...n } as Record<string, unknown>,
-      position: { x: col * 280, y: row * 100 },
+      position: {
+        x: (pos?.x ?? 0) - NODE_WIDTH / 2,
+        y: (pos?.y ?? 0) - NODE_HEIGHT / 2,
+      },
     };
   });
 }
@@ -76,3 +92,4 @@ export function LineageFlow({ graph }: Props) {
     </div>
   );
 }
+

@@ -1,4 +1,23 @@
+---
+id: SCM-EXT-001
+factsheet_type: business
+required_kpi_ids:
+  - supply.otif.pct
+  - supply.stockout_impact.pct
+  - supply.penalty.amount
+---
 # SCM-EXT-001 — Supplier Risk & Dual-Sourcing Monitor
+
+## Business Factsheet
+
+---
+
+## 0. Metadata (Mandatory)
+
+- **Use Case ID:** SCM-EXT-001
+- **Domain:** Supply Chain
+
+---
 
 **Status:** Draft scaffold — not yet build-ready
 **Domain:** Supply Chain

@@ -1,6 +1,7 @@
 'use client';
 
 import { KpiSlider } from './kpi-slider';
+import { StudioButton, StudioPanel } from '@/components/ui/studio-page';
 
 interface KpiEntry {
   kpiId: string;
@@ -22,32 +23,20 @@ export function ScenarioPanel({ drivers, overrides, onOverride, onReset }: Props
   const hasOverrides = overrides.size > 0;
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--sp-1)',
-      }}
-    >
+    <StudioPanel title="Driver Adjustments" description="Tune synthetic driver values to inspect sensitivity and scenario impact." style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h4 style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--slate-100)' }}>
-          Driver Adjustments
-        </h4>
+        <span style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>{drivers.length} drivers</span>
         {hasOverrides && (
-          <button
+          <StudioButton
             onClick={onReset}
+            variant="ghost"
             style={{
               padding: '2px var(--sp-1)',
-              backgroundColor: 'transparent',
-              border: '1px solid var(--slate-600)',
-              borderRadius: 'var(--radius-sm)',
-              color: 'var(--slate-400)',
               fontSize: '0.6875rem',
-              cursor: 'pointer',
             }}
           >
             Reset All
-          </button>
+          </StudioButton>
         )}
       </div>
       {drivers.map((d) => (
@@ -63,6 +52,6 @@ export function ScenarioPanel({ drivers, overrides, onOverride, onReset }: Props
           onChange={(v) => onOverride(d.kpiId, v)}
         />
       ))}
-    </div>
+    </StudioPanel>
   );
 }

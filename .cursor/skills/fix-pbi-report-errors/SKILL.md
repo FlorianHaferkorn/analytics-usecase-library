@@ -3,6 +3,7 @@
 ---
 name: fix-pbi-report-errors
 description: Diagnose and fix Power BI report and semantic model errors. Tool-agnostic workflow for any AI tool or human.
+version: "1.1.0"
 ---
 
 # Fix Power BI Report Errors

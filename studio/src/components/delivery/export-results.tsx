@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { cardStyle } from '@/lib/ui-styles';
+import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
 
 export interface ExportFile {
   filename: string;
@@ -49,22 +49,12 @@ export function ExportResults({ results, adapterName }: Props) {
   }, [results, adapterName]);
 
   return (
-    <div style={{ ...cardStyle, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--sp-2)' }}>
-        <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--slate-100)' }}>
-          Export Results
-        </h3>
-        <button
-          onClick={handleDownloadAll}
-          style={{
-            padding: 'var(--sp-0-5) var(--sp-2)',
-            backgroundColor: 'var(--mint)', borderRadius: 'var(--radius-sm)',
-            border: 'none', color: 'var(--slate-950)', fontWeight: 600, fontSize: '0.75rem', cursor: 'pointer',
-          }}
-        >
-          Download All
-        </button>
-      </div>
+    <StudioPanel
+      title="Export Results"
+      description="Inspect generated files, review errors and download the combined export bundle."
+      action={<StudioButton onClick={handleDownloadAll} tone="success" variant="primary">Download All</StudioButton>}
+      style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
+    >
 
       <div style={{ display: 'flex', gap: 'var(--sp-2)', flex: 1, minHeight: 0 }}>
         {/* File list */}
@@ -72,16 +62,24 @@ export function ExportResults({ results, adapterName }: Props) {
           {results.map((result) => {
             if (result.error) {
               return (
-                <div key={result.useCaseId} style={{ padding: 'var(--sp-1)', fontSize: '0.75rem', color: 'var(--danger)' }}>
-                  {result.error}
+                <div key={result.useCaseId} style={{
+                  padding: 'var(--sp-1)',
+                  fontSize: '0.75rem',
+                  color: 'var(--danger)',
+                  backgroundColor: 'color-mix(in srgb, var(--danger) 12%, transparent)',
+                  border: '1px solid color-mix(in srgb, var(--danger) 40%, transparent)',
+                  borderRadius: 'var(--radius-sm)',
+                }}>
+                  <strong>{result.useCaseId}</strong>: {result.error}
                 </div>
               );
             }
             const files = collectFiles([result]);
             return files.map((file) => (
-              <button
+              <StudioButton
                 key={file.filename}
                 onClick={() => setPreviewFile(file)}
+                variant="ghost"
                 style={{
                   display: 'block', width: '100%', textAlign: 'left',
                   padding: 'var(--sp-0-5) var(--sp-1)',
@@ -89,11 +87,11 @@ export function ExportResults({ results, adapterName }: Props) {
                   border: `1px solid ${previewFile?.filename === file.filename ? 'var(--mint)' : 'var(--slate-700)'}`,
                   borderRadius: 'var(--radius-sm)',
                   color: 'var(--slate-200)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)',
-                  cursor: 'pointer',
+                  justifyContent: 'flex-start',
                 }}
               >
                 {file.filename}
-              </button>
+              </StudioButton>
             ));
           })}
         </div>
@@ -105,12 +103,12 @@ export function ExportResults({ results, adapterName }: Props) {
               {previewFile.content}
             </pre>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--slate-500)' }}>Select a file to preview</p>
+            <div style={{ height: '100%' }}>
+              <StudioEmptyState title="No preview selected" description="Select a generated file from the left column to inspect its content." />
             </div>
           )}
         </div>
       </div>
-    </div>
+    </StudioPanel>
   );
 }

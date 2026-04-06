@@ -1,7 +1,8 @@
 <!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
 
 ---
-description: OSS stack expert — Evidence.dev, DuckDB, Trino, dbt-core, page generator, validation
+description: Author OSS stack. Use when: editing Evidence.dev pages, DuckDB queries, dbt models, or page generator. Triggers: "evidence", "duckdb", "dbt", "oss", "open source", "dashboard"
+
 globs: "products/open_source_stack/**"
 alwaysApply: false
 ---

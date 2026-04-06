@@ -15,7 +15,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: 'Discovery Hub',
     description: 'Extract strategy anchors from business reports and research',
     icon: 'D',
-    sidebarIcon: '🔍',
+    sidebarIcon: 'magnifying-glass',
     color: 'var(--mint)',
   },
   {
@@ -23,7 +23,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: 'Steering Hub',
     description: 'Visualize and edit the Golden Thread: Strategy to Action',
     icon: 'S',
-    sidebarIcon: '🌳',
+    sidebarIcon: 'tree-structure',
     color: 'var(--mint)',
   },
   {
@@ -31,7 +31,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: 'Registry',
     description: 'Manage the SSOT KPI catalog and action code library',
     icon: 'R',
-    sidebarIcon: '📋',
+    sidebarIcon: 'clipboard-text',
     color: 'var(--info)',
   },
   {
@@ -39,7 +39,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: 'Data & Lineage',
     description: 'Explore data contracts and KPI lineage graphs',
     icon: 'L',
-    sidebarIcon: '\uD83D\uDD17',
+    sidebarIcon: 'link',
     color: 'var(--info)',
   },
   {
@@ -47,7 +47,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: 'Simulator',
     description: 'What-if scenario modeling with value driver formulas',
     icon: 'W',
-    sidebarIcon: '\u26A1',
+    sidebarIcon: 'lightning',
     color: 'var(--gold)',
   },
   {
@@ -55,7 +55,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: 'Brand & UX Lab',
     description: 'Define themes, layouts, and preview 3-30-300 report pages',
     icon: 'B',
-    sidebarIcon: '🎨',
+    sidebarIcon: 'paint-brush',
     color: 'var(--gold)',
   },
   {
@@ -63,7 +63,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: 'Delivery',
     description: 'Export to Fabric/Power BI, SQL, or Evidence.dev',
     icon: 'X',
-    sidebarIcon: '🚀',
+    sidebarIcon: 'rocket-launch',
     color: 'var(--gold)',
   },
   {
@@ -71,7 +71,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: 'Plugins',
     description: 'Manage extensions that add tools, widgets, and data sources',
     icon: 'P',
-    sidebarIcon: '🔌',
+    sidebarIcon: 'puzzle-piece',
     color: 'var(--slate-400)',
   },
 ] as const;

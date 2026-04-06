@@ -1,0 +1,65 @@
+schema_version: '2.0'
+id: XD-004
+title: Executive Action Governance
+domain: Executive / Governance
+governance:
+  owner_role: chief_of_staff_pmo_lead
+  steward_role: executive_office_pmo_bi_lead
+orchestration:
+  strategic_kpi_id: enterprise.action_outcome_rate.pct
+  influencing_kpi_ids:
+  - enterprise.action_routed.count
+  action_code_ids:
+  - X-E3.3
+value_driver_model:
+  formula: enterprise.action_outcome_rate.pct = successful_actions / routed_actions
+  impact_direction: maximize
+  primary_driver: enterprise.action_routed.count
+  impact_logic: Executive action effectiveness improves when routed actions are owned clearly, closed on time, and evaluated against agreed outcomes.
+ux_layout_rules:
+  report_structure: 2-Page-Lead
+  report_canvas: { width: 1920, height: 1080 }
+  page_1_summary:
+    title: Executive Action Governance Summary
+    page_type: T1_Strategic_Overview
+    template_id: pulse
+    component_3s:
+      kpi_id: enterprise.action_outcome_rate.pct
+      visual_type: kpi_card
+    component_30s:
+    - kpi_id: enterprise.action_outcome_rate.pct
+      visual_type: trend_line
+    - kpi_ids:
+      - enterprise.action_routed.count
+      visual_type: bar_chart
+  page_2_execution:
+    title: Executive Action Governance Execution
+    page_type: T4_Prescriptive_Recommendation
+    template_id: action_matrix
+    component_300s:
+      evidence_grain: action_instance
+      evidence_columns:
+      - action_instance_id
+      - entity
+      - domain_action_code
+      - owner_role
+      - status
+      - due_date
+      - enterprise.action_outcome_rate.pct
+      action_panel: true
+      payload_mode: full
+prioritization:
+  business_value: high
+  implementation_effort: medium
+  confidence: 0.8
+  reach: organization
+  priority_score: 82
+readiness:
+  data_availability: partial
+  org_capability: developing
+  stakeholder_alignment: aligned
+  overall_readiness: amber
+overrides:
+  data_contract_ref: core/data_contracts/domains/governance.yaml
+documentation:
+  business_factsheet: ./Business_Factsheet.md

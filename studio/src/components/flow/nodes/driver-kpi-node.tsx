@@ -1,4 +1,5 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react';
+import { Warning } from '@phosphor-icons/react';
 
 export interface DriverKpiData {
   kpiId: string;
@@ -33,7 +34,7 @@ export function DriverKpiNode({ data }: NodeProps) {
       >
         <Handle type="target" position={Position.Top} style={{ background: borderColor }} />
         <p style={{ fontSize: '0.6875rem', color: hasAction ? 'var(--slate-500)' : 'var(--gold)', marginBottom: '2px' }}>
-          Driver KPI {!hasAction && '⚠ No Action'}
+          Driver KPI {!hasAction && <><Warning size={10} style={{ verticalAlign: 'middle', marginLeft: '2px' }} /> No Action</>}
         </p>
         <p style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--slate-100)' }}>
           {label}

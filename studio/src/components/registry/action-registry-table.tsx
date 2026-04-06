@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import type { ActionCodeDefinitionV20AIMirror } from '@/lib/schemas';
-import { tableContainerStyle, tableStyle, thStyle, tdStyle, expandedRowStyle, filterInputStyle, filterSelectStyle, getStatusColor } from '@/lib/ui-styles';
+import { getStatusColor } from '@/lib/status-colors';
+import { StudioDataToolbar, StudioExpandedRow, StudioInlineStat, StudioInput, StudioSelect, StudioTable, StudioTableCell, StudioTableHeadCell, StudioTableShell } from '@/components/ui/studio-data';
 
 interface Props {
   actions: ActionCodeDefinitionV20AIMirror[];
@@ -27,26 +28,26 @@ export function ActionRegistryTable({ actions }: Props) {
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: 'var(--sp-1)', marginBottom: 'var(--sp-2)' }}>
-        <input
+      <StudioDataToolbar>
+        <StudioInput
           type="text"
           placeholder="Search Action Codes..."
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          style={{ ...filterInputStyle, flex: 1 }}
+          style={{ flex: 1 }}
         />
-        <select value={domainFilter} onChange={(e) => setDomainFilter(e.target.value)} style={filterSelectStyle}>
+        <StudioSelect value={domainFilter} onChange={(e) => setDomainFilter(e.target.value)}>
           <option value="all">All Domains</option>
           {domains.map((d) => <option key={d} value={d}>{d}</option>)}
-        </select>
-      </div>
+        </StudioSelect>
+      </StudioDataToolbar>
 
-      <div style={tableContainerStyle}>
-        <table style={tableStyle}>
+      <StudioTableShell>
+        <StudioTable>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--slate-700)' }}>
               {['ID', 'Name', 'Domain', 'Impact', 'Status', 'Trigger KPIs'].map((h) => (
-                <th key={h} style={thStyle}>{h}</th>
+                <StudioTableHeadCell key={h}>{h}</StudioTableHeadCell>
               ))}
             </tr>
           </thead>
@@ -60,16 +61,16 @@ export function ActionRegistryTable({ actions }: Props) {
               />
             ))}
           </tbody>
-        </table>
+        </StudioTable>
         {filtered.length === 0 && (
           <p style={{ padding: 'var(--sp-3)', textAlign: 'center', color: 'var(--slate-500)' }}>
             No Action Codes match the filter.
           </p>
         )}
-      </div>
-      <p style={{ marginTop: 'var(--sp-1)', fontSize: '0.75rem', color: 'var(--slate-500)' }}>
+      </StudioTableShell>
+      <StudioInlineStat>
         Showing {filtered.length} of {actions.length} Action Codes
-      </p>
+      </StudioInlineStat>
     </div>
   );
 }
@@ -85,20 +86,19 @@ function ActionRow({ action, isExpanded, onToggle }: { action: ActionCodeDefinit
           transition: 'background-color var(--duration-fast) var(--ease-out)',
         }}
       >
-        <td style={{ ...tdStyle, fontFamily: 'var(--font-mono)', color: 'var(--gold)', fontSize: '0.75rem' }}>{action.id}</td>
-        <td style={{ ...tdStyle, color: 'var(--slate-100)' }}>{action.name}</td>
-        <td style={{ ...tdStyle, color: 'var(--slate-400)' }}>{action.owner_domain}</td>
-        <td style={{ ...tdStyle, color: 'var(--slate-400)' }}>{action.impact_dimension}</td>
-        <td style={tdStyle}>
+        <StudioTableCell style={{ fontFamily: 'var(--font-mono)', color: 'var(--gold)', fontSize: '0.75rem' }}>{action.id}</StudioTableCell>
+        <StudioTableCell style={{ color: 'var(--slate-100)' }}>{action.name}</StudioTableCell>
+        <StudioTableCell style={{ color: 'var(--slate-400)' }}>{action.owner_domain}</StudioTableCell>
+        <StudioTableCell style={{ color: 'var(--slate-400)' }}>{action.impact_dimension}</StudioTableCell>
+        <StudioTableCell>
           <span style={{ color: getStatusColor(action.status), fontWeight: 500, fontSize: '0.75rem' }}>{action.status}</span>
-        </td>
-        <td style={{ ...tdStyle, fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--slate-400)' }}>
+        </StudioTableCell>
+        <StudioTableCell style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--slate-400)' }}>
           {action.kpis.trigger_kpis.join(', ')}
-        </td>
+        </StudioTableCell>
       </tr>
       {isExpanded && (
-        <tr>
-          <td colSpan={6} style={expandedRowStyle}>
+        <StudioExpandedRow colSpan={6}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--sp-2)', fontSize: '0.8125rem' }}>
               <div>
                 <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>Trigger KPIs</p>
@@ -125,8 +125,7 @@ function ActionRow({ action, isExpanded, onToggle }: { action: ActionCodeDefinit
                 )}
               </div>
             </div>
-          </td>
-        </tr>
+        </StudioExpandedRow>
       )}
     </>
   );

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { NAV_ITEMS } from '@/lib/navigation';
+import { PhIcon, type PhIconName } from './ph-icon';
 
 export function StudioSidebar() {
   const pathname = usePathname();
@@ -57,9 +58,7 @@ export function StudioSidebar() {
                 transition: 'all var(--duration-fast) var(--ease-out)',
               }}
             >
-              <span style={{ fontSize: '1rem', width: '24px', textAlign: 'center' }}>
-                {item.sidebarIcon}
-              </span>
+              <PhIcon name={item.sidebarIcon as PhIconName} size={18} />
               {item.label}
             </Link>
           );

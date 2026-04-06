@@ -6,8 +6,9 @@ governance:
   owner_role: finance_strategy_ops_controlling
   steward_role: enterprise_bi_lead
 orchestration:
-  strategic_kpi_id: margin.gm.pct
+  strategic_kpi_id: enterprise.value_at_risk.index
   influencing_kpi_ids:
+  - margin.gm.pct
   - sales.net_sales.delta_pct.ly
   - crm.clv.amount
   - svc.sla.attainment.pct
@@ -15,23 +16,30 @@ orchestration:
   - ops.working_capital.ccc.days
   - people.digital_adoption.pct
   - people.attrition_risk.pct
-  - enterprise.action_routed.count
-  - enterprise.action_outcome_rate.pct
-  - enterprise.value_at_risk.index
   supporting_kpi_ids:
   - cost.cogs.amount
+  - crm.active_customers.count
+  - crm.churned_customers.count
+  - crm.complaint.count
+  - crm.lifetime_revenue.amount
+  - crm.nps.index
+  - crm.retention.pct
   - sales.net_sales.amount
   - supply.otif.pct
+  - svc.fcr.pct
+  - svc.aht.minutes
+  - svc.backlog.count
+  - svc.escalation.pct
+  - svc.tickets.created.count
+  - svc.tickets.closed.count
   action_code_ids:
   - X-E3.2
-  - X-E3.3
 value_driver_model:
-  formula: margin.gm.pct = f(sales.net_sales.delta_pct.ly, crm.clv.amount, svc.sla.attainment.pct, ops.otif.pct, ops.working_capital.ccc.days,
-    people.digital_adoption.pct, people.attrition_risk.pct, enterprise.action_routed.count, enterprise.action_outcome_rate.pct,
-    enterprise.value_at_risk.index)
-  impact_direction: maximize
-  primary_driver: sales.net_sales.delta_pct.ly
-  impact_logic: Improving sales.net_sales.delta_pct.ly is the primary lever for maximizing margin.gm.pct.
+  formula: enterprise.value_at_risk.index = f(margin.gm.pct, sales.net_sales.delta_pct.ly, crm.clv.amount, svc.sla.attainment.pct,
+    ops.otif.pct, ops.working_capital.ccc.days, people.digital_adoption.pct, people.attrition_risk.pct)
+  impact_direction: minimize
+  primary_driver: margin.gm.pct
+  impact_logic: Enterprise value at risk rises when profitability, service, working-capital, people, or action-effectiveness signals deteriorate.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -42,11 +50,8 @@ ux_layout_rules:
     decision_question: "Are we on track across all strategic KPIs this quarter?"
     big_idea: "Revenue growth is on track but GM% compression and OTIF decline signal execution risk that requires executive intervention."
     component_3s:
-      kpi_id: margin.gm.pct
-      visual_type: kpi_card_hero
-      sparkline_field: GmPct_Monthly
-      comparison: vs_plan
-      status_logic: higher_is_better
+      kpi_id: enterprise.value_at_risk.index
+      visual_type: kpi_card
     component_30s:
     - slot_id: Main_1
       kpi_id: sales.net_sales.delta_pct.ly
@@ -58,7 +63,7 @@ ux_layout_rules:
       - ops.otif.pct
       visual_type: bar_chart_horizontal
   page_2_execution:
-    title: Executive / Cross-Functional Execution
+    title: Executive / Cross-Functional Risk Prioritisation
     page_type: T1_Strategic_Overview
     template_id: action_matrix
     decision_question: "Which business units require executive intervention this quarter?"
@@ -68,7 +73,10 @@ ux_layout_rules:
       evidence_columns:
       - entity
       - period
+      - enterprise.value_at_risk.index
       - margin.gm.pct
+      - sales.net_sales.delta_pct.ly
+      - ops.otif.pct
       action_panel: true
       payload_mode: full
 prioritization:

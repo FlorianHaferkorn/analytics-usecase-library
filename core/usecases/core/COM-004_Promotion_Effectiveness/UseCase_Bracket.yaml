@@ -16,17 +16,17 @@ orchestration:
   - sales.promo.cannibalization.pct
   supporting_kpi_ids:
   - cost.cogs.amount
+  - sales.net_sales.amount
   - sales.promo.baseline_sales.amount
   - sales.promo.cannibalized_sales.amount
   - sales.promo.cost.amount
   - sales.promo.incremental_gm.amount
+  - sales.pvm.price_effect.amount
   - sales.pvm.volume_effect.amount
   action_code_ids:
-  - C-M2.1
-  - C-S1.1
-  - C-M2.2
   - C-P4.1
-  - C-S1.2
+  - C-M2.1
+  - C-M2.2
 value_driver_model:
   formula: sales.promo.roi.pct = f(sales.promo.incremental.amount, margin.promo.gm.pct, sales.price.realization_pct, sales.promo.cannibalization.pct)
   impact_direction: maximize
@@ -57,8 +57,17 @@ ux_layout_rules:
     component_300s:
       evidence_grain: promotion
       evidence_columns:
-      - entity
-      - period
+      - promotion
+      - promo_type
+      - mechanic
+      - region
+      - channel
+      - product_category
+      - sales.promo.incremental.amount
+      - sales.promo.cost.amount
+      - sales.promo.incremental_gm.amount
+      - sales.promo.cannibalization.pct
+      - sales.price.realization_pct
       - sales.promo.roi.pct
       action_panel: true
       payload_mode: full

@@ -1,0 +1,344 @@
+version: "1.0"
+# Machine-readable error knowledge base.
+# Sourced from internal/project_mgmt/KNOWN_ERRORS_AND_FIXES.md
+# Each entry maps a symptom pattern → cause → fix → optional auto_fix_commands.
+# The intelligence layer (classifier + suggester) uses this to drive the
+# self-learning loop: new errors are appended here as AUTO- skeleton entries.
+#
+# Fields:
+#   id             Stable identifier (TMDL-001, DAX-001, …)
+#   category       ErrorCategory value from intelligence/classifier.py
+#   symptom        Substring or regex used to match error messages
+#   symptom_regex  Set true if symptom is a regex (default: false)
+#   cause          Root cause explanation
+#   fix            Human-readable fix description
+#   auto_fix_commands  Shell commands that can be run to auto-fix (empty = manual only)
+#   added_date     ISO date when added
+#   source         "human" | "agent" | "pipeline"
+
+entries:
+
+  # -----------------------------------------------------------------------
+  # TMDL / PBIP
+  # -----------------------------------------------------------------------
+
+  - id: TMDL-001
+    category: tmdl_syntax
+    symptom: "tabs_only|tmdl.*indent|invalid indent"
+    symptom_regex: true
+    cause: >
+      TMDL requires tab-only indentation. Spaces (even mixed with tabs) cause
+      parse errors in Power BI Desktop.
+    fix: >
+      Run normalize_tmdl_tabs.ps1 to replace spaces with tabs. For manual fix,
+      ensure every indented line uses a single tab per level. See TMDL_Allowed_Subset.md.
+    auto_fix_commands:
+      - .\\products\\fabric\\powerbi\\tooling\\normalize_tmdl_tabs.ps1
+      - .\\products\\fabric\\powerbi\\tooling\\tmdl_render_and_fix.ps1
+    added_date: "2026-01-15"
+    source: human
+
+  - id: TMDL-002
+    category: tmdl_syntax
+    symptom: "formatString.*missing|measure.*no formatString|ungültiger Einzug.*formatString"
+    symptom_regex: true
+    cause: >
+      All measures must have a formatString property at two-tab indent (t2).
+      Text measures use "@". Numeric measures use "#,0", "#,0.00", "0.0%", etc.
+      Missing or wrong-indent formatString causes Desktop validation errors.
+    fix: >
+      Add formatString at t2 (two tabs) after the measure DAX line.
+      For hidden text measures add: formatString: "@" at t2.
+      Regenerate with generate_tmdl_measures.ps1 -OverwriteExisting.
+    auto_fix_commands:
+      - .\\tooling\\generation\\generate_tmdl_measures.ps1 -OverwriteExisting
+    added_date: "2026-02-20"
+    source: human
+
+  - id: TMDL-003
+    category: tmdl_syntax
+    symptom: "description:.*property|use.*/// comment"
+    symptom_regex: true
+    cause: >
+      TMDL convention: use /// Purpose: ... comment above measure instead of
+      description: property. The description: property is not supported in
+      the TMDL subset used by this generator.
+    fix: >
+      Replace 'description: "..."' with '/// Purpose: ...' on the line
+      above the measure definition. Run validate_tmdl_style.sh hook.
+    auto_fix_commands: []
+    added_date: "2026-01-20"
+    source: human
+
+  - id: TMDL-004
+    category: tmdl_syntax
+    symptom: "summarizeBy.*missing|numeric column.*summarizeBy"
+    symptom_regex: true
+    cause: >
+      Numeric source columns must have summarizeBy: none to prevent Power BI
+      from showing the Sigma (sum) icon. Omitting it causes implicit aggregation.
+    fix: >
+      Add 'summarizeBy: none' to every numeric column in fact and dimension
+      tables. In table_ops.ps1 the PatchAddSummarizeByNone operation handles
+      this automatically.
+    auto_fix_commands:
+      - .\\products\\fabric\\powerbi\\orchestrator\\table_ops.ps1 -Operation PatchAddSummarizeByNone
+    added_date: "2026-02-10"
+    source: human
+
+  - id: TMDL-005
+    category: tmdl_syntax
+    symptom: ":= in measure|DAX contains :="
+    symptom_regex: true
+    cause: >
+      TMDL uses '= ' (equals sign + space) for DAX assignment, not ':=' (colon-equals).
+      The ':=' syntax is from Power Query / M language.
+    fix: >
+      Replace all ':=' with '= ' in measure definitions. The generate_tmdl_measures.ps1
+      generator always outputs '= ' correctly. Check for manual edits.
+    auto_fix_commands: []
+    added_date: "2026-01-15"
+    source: human
+
+  - id: TMDL-006
+    category: tmdl_syntax
+    symptom: "same name already exists|object.*cannot be added.*already exists"
+    symptom_regex: true
+    cause: >
+      Action-code measures were emitted in both _Measures.tmdl and
+      _ActionReady_Logic.tmdl. Power BI allows only one measure per name
+      in a model.
+    fix: >
+      When using TargetTablesDir (Aurora shared model), action measures live
+      only in _Measures.tmdl (displayFolder: 9_ActionReady_Logic).
+      _ActionReady_Logic.tmdl must be shell-only (table + partition + column,
+      no measures). Generator: generate_tmdl_measures.ps1 calls
+      Build-ActionReadyLogicTable -ShellOnly when $resolvedTablesDir is set.
+    auto_fix_commands: []
+    added_date: "2026-02-15"
+    source: human
+
+  - id: TMDL-007
+    category: pbip_structure
+    symptom: "definition.pbir.*missing|Required artifact.*definition.pbir"
+    symptom_regex: true
+    cause: >
+      Power BI Desktop Feb 2026+ expects definition.pbir at the report root.
+      Generator must write this file with definitionProperties schema.
+    fix: >
+      Run ensure_pbip_desktop_ready.ps1 to add missing definition.pbir.
+      Generator: pbip_writer._write_definition_pbir() writes it with
+      definitionProperties/2.0.0 schema and byPath datasetReference.
+    auto_fix_commands:
+      - .\\products\\fabric\\powerbi\\tooling\\ensure_pbip_desktop_ready.ps1
+    added_date: "2026-02-18"
+    source: human
+
+  - id: TMDL-008
+    category: pbip_structure
+    symptom: "definition.pbism.*missing|DatasetDefinition.*Required artifact"
+    symptom_regex: true
+    cause: >
+      Power BI Desktop Feb 2026+ expects definition.pbism at the semantic model
+      root. Orchestrator must write this file alongside the TMDL.
+    fix: >
+      Run ensure_pbip_desktop_ready.ps1. Generator writes definition.pbism with
+      schema semanticModel/definitionProperties/1.0.0, version "4.2", settings {}.
+    auto_fix_commands:
+      - .\\products\\fabric\\powerbi\\tooling\\ensure_pbip_desktop_ready.ps1
+    added_date: "2026-02-18"
+    source: human
+
+  - id: TMDL-009
+    category: pbip_structure
+    symptom: "\\$schema.*pbip|Expected.*\\$schema.*pbip|pbipProperties"
+    symptom_regex: true
+    cause: >
+      .pbip files must include $schema pointing to
+      fabric/pbip/pbipProperties/1.0.0/schema.json. Old schema URLs
+      (fabric/gitIntegration/itemShortcut/…) cause Desktop validation errors.
+    fix: >
+      Use $schema: fabric/pbip/pbipProperties/1.0.0/schema.json in all .pbip
+      files. Run ensure_pbip_desktop_ready.ps1 to patch automatically.
+    auto_fix_commands:
+      - .\\products\\fabric\\powerbi\\tooling\\ensure_pbip_desktop_ready.ps1
+    added_date: "2026-02-20"
+    source: human
+
+  # -----------------------------------------------------------------------
+  # Report visuals
+  # -----------------------------------------------------------------------
+
+  - id: VISUAL-001
+    category: visual_type_mismatch
+    symptom: "charts.*leer|visuals.*empty|fields.*filter.*statt.*achse"
+    symptom_regex: true
+    cause: >
+      queryState used role "Data" for all visuals. Power BI interprets
+      "Data" as a filter role for chart visuals. Charts need "Category" + "Y";
+      tables need "Values".
+    fix: >
+      In visual_builder.py use role-specific keys:
+      lineChart/clusteredBarChart/waterfallChart → Category + Y
+      tableEx → Values
+      slicer → Field
+      cardVisual → Data
+    auto_fix_commands: []
+    added_date: "2026-03-01"
+    source: human
+
+  - id: VISUAL-002
+    category: visual_type_mismatch
+    symptom: "report.*opens.*on.*detail|activePageName.*Detail"
+    symptom_regex: true
+    cause: >
+      When appending the Detail page, pbip_writer.write_pages_json set
+      activePageName to the new page instead of preserving the existing value.
+    fix: >
+      In pbip_writer.py on append=True, read the existing activePageName from
+      pages.json and preserve it rather than overwriting.
+    auto_fix_commands: []
+    added_date: "2026-03-05"
+    source: human
+
+  - id: VISUAL-003
+    category: visual_type_mismatch
+    symptom: "action panel.*placeholder|action panel.*only.*text"
+    symptom_regex: true
+    cause: >
+      Generator used a static placeholder instead of loading action code YAMLs.
+      ConfigLoader.get_action_panel_content() was not implemented.
+    fix: >
+      Run generate_action_payload.py --use-case <ID> to regenerate ActionPanel
+      content from action code YAMLs (trigger + impact + steps).
+    auto_fix_commands:
+      - python products/fabric/powerbi/tooling/generate_action_payload.py --use-case {use_case_id}
+    added_date: "2026-03-10"
+    source: human
+
+  # -----------------------------------------------------------------------
+  # Semantic model (relationships, layout)
+  # -----------------------------------------------------------------------
+
+  - id: SM-001
+    category: layout
+    symptom: "fact.*not.*joined|relationships.*missing|model.*incomplete"
+    symptom_regex: true
+    cause: >
+      relationships.tmdl only had dim_date→LocalDateTable entries; fact table
+      joins to dimensions were missing.
+    fix: >
+      Add all fact→dimension relationships to definition/relationships.tmdl.
+      Use relationship_ops.ps1 -Operation AutoDetect to generate them from
+      column name matching. Verify with check_diagram_layout.ps1.
+    auto_fix_commands:
+      - .\\products\\fabric\\powerbi\\orchestrator\\relationship_ops.ps1 -Operation AutoDetect
+    added_date: "2026-02-28"
+    source: human
+
+  - id: SM-002
+    category: layout
+    symptom: "diagramLayout.*unstrukturiert|spaghetti|model view"
+    symptom_regex: true
+    cause: >
+      No diagramLayout.json or incorrect table positions in Model View.
+      Spaghetti Principle: _Measures at (0,0), facts horizontal at y=0,
+      dimensions vertical at x=0.
+    fix: >
+      Run check_diagram_layout.ps1. If diagramLayout.json is missing, run
+      diagram_ops.ps1 -Operation LayoutTablesFromContract.
+    auto_fix_commands:
+      - .\\products\\fabric\\powerbi\\orchestrator\\diagram_ops.ps1 -Operation LayoutTablesFromContract
+    added_date: "2026-03-02"
+    source: human
+
+  # -----------------------------------------------------------------------
+  # DAX / Measures
+  # -----------------------------------------------------------------------
+
+  - id: DAX-001
+    category: dax_syntax
+    symptom: "cannot be determined|column.*does not exist|measure.*not found"
+    symptom_regex: true
+    cause: >
+      DAX expression references a column or measure that doesn't exist in the
+      model (wrong table name, typo, or base measure not yet added to catalog).
+    fix: >
+      Check the KPI catalog formula for typos. Ensure all referenced tables and
+      columns exist in data contracts. Add missing base measures to KPI catalog
+      as separate KPI entries and include their kpi_id in influencing_kpi_ids.
+    auto_fix_commands:
+      - .\\products\\fabric\\powerbi\\tooling\\validation\\check_dax_best_practices.ps1
+    added_date: "2026-02-12"
+    source: human
+
+  - id: DAX-002
+    category: missing_kpi_ref
+    symptom: "kpi.*not found in catalog|KPI.*not found"
+    symptom_regex: true
+    cause: >
+      A KPI ID is referenced in a UseCase_Bracket.yaml but the corresponding
+      <kpi_id>.yaml file does not exist in core/kpi_catalog/.
+    fix: >
+      Create the KPI YAML file in core/kpi_catalog/<domain>/<kpi_id>.yaml
+      following the kpi_definition.schema.json schema. Or remove the kpi_id
+      reference from the bracket if it was added in error.
+    auto_fix_commands: []
+    added_date: "2026-01-20"
+    source: human
+
+  # -----------------------------------------------------------------------
+  # Dataset reference
+  # -----------------------------------------------------------------------
+
+  - id: DS-001
+    category: dataset_reference
+    symptom: "datasetReference.*missing|report.*cannot connect"
+    symptom_regex: true
+    cause: >
+      Report definition.pbir has no or invalid datasetReference. Local PBIP
+      needs byPath; Fabric REST deployment needs byConnection.
+    fix: >
+      For local PBIP: ensure definition.pbir has datasetReference.byPath
+      pointing to ../../<Domain>.SemanticModel. For REST deploy: use byConnection
+      with the semantic model's Fabric item ID.
+    auto_fix_commands:
+      - .\\products\\fabric\\powerbi\\tooling\\ensure_pbip_desktop_ready.ps1
+    added_date: "2026-02-25"
+    source: human
+
+  - id: DS-002
+    category: dataset_reference
+    symptom: "tables.*empty|no data in report|blank.*partition"
+    symptom_regex: true
+    cause: >
+      Model partitions use Blank #table because orchestrator was run without
+      -UseAuroraData flag. Reports show empty tables.
+    fix: >
+      Run orchestrate_full_model.ps1 -UseAuroraData to patch partition sources
+      to GoldDataPath. Or use table_ops.ps1 -Operation PatchPartitionSourceToGoldDataPath.
+    auto_fix_commands:
+      - .\\products\\fabric\\powerbi\\orchestrator\\table_ops.ps1 -Operation PatchPartitionSourceToGoldDataPath
+    added_date: "2026-03-01"
+    source: human
+
+  # -----------------------------------------------------------------------
+  # Measures (multi-use-case, shared model)
+  # -----------------------------------------------------------------------
+
+  - id: MS-001
+    category: measure_duplicate
+    symptom: "measures.*disappear|COM-001.*missing.*when.*COM-002"
+    symptom_regex: true
+    cause: >
+      Orchestrator passed only selected use-case IDs to generate_tmdl_measures.ps1,
+      overwriting _Measures.tmdl with a subset. Previous use cases' measures
+      are lost.
+    fix: >
+      Per domain, always pass ALL use-case IDs to generate_tmdl_measures.ps1
+      ($byDomainAll), not just the currently selected ones. Deduplicate by
+      KPI ID ($seenKpiIds) to avoid duplicate measures.
+    auto_fix_commands:
+      - .\\tooling\\generation\\generate_tmdl_measures.ps1 -All
+    added_date: "2026-03-15"
+    source: human

@@ -1,7 +1,7 @@
 # BrandSpec → Power BI Theme JSON Mapping
 
 > **Schema:** `core/brand/BrandSpec.schema.yaml`
-> **PBI theme schema:** https://raw.githubusercontent.com/microsoft/powerbi-desktop-samples/main/Report%20Theme%20JSON%20Schema/reportThemeSchema-2.145.json
+> **PBI theme schema:** <https://raw.githubusercontent.com/microsoft/powerbi-desktop-samples/main/Report%20Theme%20JSON%20Schema/reportThemeSchema-2.145.json>
 > **Derivation tool:** `products/fabric/powerbi/tooling/theme_generator/` + `apply_report_theme.py`
 
 This guide defines exactly how each BrandSpec property translates to a Power BI theme JSON property. Use it to build or validate theme generators.

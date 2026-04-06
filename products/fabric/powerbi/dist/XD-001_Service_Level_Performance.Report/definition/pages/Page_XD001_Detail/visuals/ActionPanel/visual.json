@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "ActionPanel",
+  "position": {
+    "x": 1592,
+    "y": 118,
+    "z": 15000,
+    "height": 930,
+    "width": 296,
+    "tabOrder": 3004
+  },
+  "visual": {
+    "visualType": "textbox",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": []
+        }
+      }
+    },
+    "objects": {
+      "text": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Recommended actions (from action codes)\n\n• X-S1.1 — Service Level Orchestration\n  Owner: head_of_service_operations\n  Trigger: svc.sla.attainment.pct < 92.0%\n  Impact: High\n  Expected: 3.0–8.0 pp\n  Confidence: High\n  · DETECT sustained SLA deterioration for this case\n  · DIAGNOSE the dominant service constraint for this case\n  · ACTIVATE the corresponding execution Action Code for this case\n  ⚠ Trigger only if backlog growth or escalations confirm structural issue\n  ⚠ Do not trigger if SLA miss is caused by one-off incidents\n\n• X-S1.2 — Capacity & Backlog Stabilisation\n  Owner: service_operations_manager\n  Trigger: svc.backlog.count > 0.25%\n  Impact: High\n  Expected: -15.0–-35.0 %\n  Confidence: High\n  · IDENTIFY cases in queues with sustained backlog growth\n  · REALLOCATE capacity or extend operating windows for this case backlog\n  · EXECUTE backlog reduction waves targeting this case type\n  ⚠ Trigger only if backlog growth exceeds arrival rate trend\n  ⚠ Do not trigger if backlog increase is quality-driven\n\n• X-S1.3 — Quality & First-Contact Resolution Uplift\n  Owner: quality_and_training_lead\n  Trigger: svc.fcr.pct < 65.0%\n  Impact: High\n  Expected: 5.0–12.0 pp\n  Confidence: Medium\n  · IDENTIFY cases with low first-contact resolution by queue/agent group\n  · DIAGNOSE top repeat-contact drivers for this case type\n  · DEPLOY targeted coaching, scripts, or knowledge updates for this case type\n  ⚠ Trigger only if repeat contacts drive backlog growth\n  ⚠ Do not trigger if low FCR is caused by missing authority to resolve\n\n• X-S1.4 — Handling Time & Flow Efficiency\n  Owner: service_operations_manager\n  Trigger: svc.aht.minutes > 0.25%\n  Impact: Medium\n  Expected: -5.0–-15.0 %\n  Confidence: Medium\n  · IDENTIFY cases with rising average handling time by queue\n  · ANALYSE top handling-time drivers for this case type\n  · REMOVE or STREAMLINE non-value steps in this case handling process\n  ⚠ Trigger only if AHT increase is not quality-driven\n  ⚠ Do not trigger if AHT rise is caused by training or onboarding'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

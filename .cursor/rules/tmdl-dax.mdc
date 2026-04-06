@@ -1,7 +1,8 @@
 <!-- AUTO-GENERATED from docs/agent/ — do not edit directly. Run: python tooling/agent/generate_tool_configs.py -->
 
 ---
-description: TMDL and DAX rules for Power BI semantic models in the ActionReady Framework
+description: Enforce TMDL/DAX style. Use when: writing or editing .tmdl files or DAX expressions. Triggers: "tmdl", "dax", ".tmdl", "measure syntax", "tab indentation"
+
 globs: "**/*.tmdl"
 alwaysApply: false
 ---

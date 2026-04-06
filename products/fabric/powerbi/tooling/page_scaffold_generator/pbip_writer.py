@@ -66,13 +66,18 @@ class PBIPWriter:
         self,
         theme_name: Optional[str] = None,
         dataset_reference_path: Optional[str] = None,
+        connection_type: str = "byPath",
+        dataset_id: Optional[str] = None,
     ):
         """
         Write definition/report.json.
-        
+
         Args:
             theme_name: Optional theme name to reference
-            dataset_reference_path: Optional relative path to semantic model (e.g. for datasetReference.byPath.path)
+            dataset_reference_path: Relative path to semantic model — used when connection_type="byPath"
+                                    (e.g. "../../Commercial.SemanticModel"). Works locally but NOT via Fabric REST API.
+            connection_type: "byPath" (default, local PBIP) or "byConnection" (Fabric REST API deploy).
+            dataset_id: Semantic model GUID — required when connection_type="byConnection".
         """
         report_data = {
             "$schema": self.REPORT_SCHEMA,
@@ -135,6 +140,7 @@ class PBIPWriter:
         # Dataset binding is in definition.pbir only (_write_definition_pbir).
 
         # Add custom theme if provided
+
         if theme_name:
             report_data["themeCollection"]["customTheme"] = {
                 "name": f"{theme_name}.json",
@@ -176,20 +182,47 @@ class PBIPWriter:
             json.dump(report_data, f, indent=2, ensure_ascii=False)
 
         # Power BI Desktop (Feb 2026+) requires definition.pbir at report root with definitionProperties schema (not report definition).
-        self._write_definition_pbir(dataset_reference_path)
+        self._write_definition_pbir(
+            dataset_reference_path=dataset_reference_path,
+            connection_type=connection_type,
+            dataset_id=dataset_id,
+        )
     
-    def _write_definition_pbir(self, dataset_reference_path: Optional[str] = None):
+    def _write_definition_pbir(
+        self,
+        dataset_reference_path: Optional[str] = None,
+        connection_type: str = "byPath",
+        dataset_id: Optional[str] = None,
+    ):
         """
         Write definition.pbir (report properties: version, datasetReference).
         Schema must be definitionProperties/1.x or 2.x; Desktop rejects definition/report schema here.
+
+        connection_type="byPath"  — local PBIP (Desktop, pbi-tools). dataset_reference_path required.
+        connection_type="byConnection" — Fabric REST API deploy. dataset_id (SemanticModel GUID) required.
+                                         byPath references are silently rejected by the Fabric Items API.
         """
-        path = (dataset_reference_path or "").replace("\\", "/")
         pbir_data = {
             "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
             "version": "4.0",
         }
-        if path:
-            pbir_data["datasetReference"] = {"byPath": {"path": path}}
+
+        if connection_type == "byConnection":
+            pbir_data["datasetReference"] = {
+                "byConnection": {
+                    "connectionString": None,
+                    "pbiServiceModelId": None,
+                    "pbiModelVirtualServerName": "sobe_wowvirtualserver",
+                    "pbiModelDatabaseName": dataset_id,
+                    "connectionType": "pbiServiceXmlaStyleLive",
+                    "name": "EntityDataSource",
+                }
+            }
+        else:
+            path = (dataset_reference_path or "").replace("\\", "/")
+            if path:
+                pbir_data["datasetReference"] = {"byPath": {"path": path}}
+
         pbir_file = self.report_path / "definition.pbir"
         with open(pbir_file, 'w', encoding='utf-8') as f:
             json.dump(pbir_data, f, indent=2, ensure_ascii=False)

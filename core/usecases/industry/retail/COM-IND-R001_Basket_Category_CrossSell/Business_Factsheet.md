@@ -1,4 +1,23 @@
+---
+id: COM-IND-R001
+factsheet_type: business
+required_kpi_ids:
+  - sales.net_sales.amount
+  - sales.units
+  - crm.active_customers.count
+---
 # COM-IND-R001 — Basket & Category Cross-Sell Analysis
+
+## Business Factsheet
+
+---
+
+## 0. Metadata (Mandatory)
+
+- **Use Case ID:** COM-IND-R001
+- **Domain:** Commercial
+
+---
 
 **Status:** Draft scaffold — not yet build-ready
 **Vertical:** Retail & CPG

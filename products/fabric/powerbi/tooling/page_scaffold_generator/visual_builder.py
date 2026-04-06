@@ -320,12 +320,20 @@ class VisualBuilder:
                         "clusteredGapOverlaps": {"expr": {"Literal": {"Value": "false"}}}
                     }
                 }
+            ],
+            "dataLabels": [
+                {
+                    "properties": {
+                        "show": {"expr": {"Literal": {"Value": "true"}}},
+                        "labelPosition": {"expr": {"Literal": {"Value": "'OutsideEnd'"}}}
+                    }
+                }
             ]
         }
         if title:
             visual["visual"]["visualContainerObjects"] = self._visual_header_with_title(title)
         return visual
-    
+
     def build_stacked_bar(
         self,
         position: Position,

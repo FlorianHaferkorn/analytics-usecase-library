@@ -12,12 +12,12 @@ import { ErrorCode } from './error-codes';
 
 /** Success response (200 by default). */
 export function apiSuccess<T>(data: T, status = 200): NextResponse {
-  return NextResponse.json({ data }, { status });
+  return NextResponse.json(data, { status });
 }
 
 /** Created response (201). */
 export function apiCreated<T>(data: T): NextResponse {
-  return NextResponse.json({ data }, { status: 201 });
+  return NextResponse.json(data, { status: 201 });
 }
 
 /** Error response with code and message. */

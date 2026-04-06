@@ -4,6 +4,35 @@
 > **Purpose**: Shared reference for all Microsoft Fabric data-plane operations.
 > **Language-agnostic** — no SDK code, no CLI commands. Every API reference is a raw REST specification (verb, URL, headers, payload, response).
 
+## Triggers
+
+Use this document when:
+- Making any `az rest` or direct REST call to the Fabric API
+- Authenticating with `fab auth login` or resolving audience/token issues
+- Resolving workspace IDs, item IDs, or capacity IDs dynamically
+- Implementing LRO polling (createItemWithDefinition, getDefinition)
+- Creating or listing OneLake shortcuts
+- Any operation where the correct `--resource` audience for `az rest` is unclear
+
+**Delegate here from**: `fabric-powerbi-authoring.md` (for auth patterns), `router-agent` (for REST operations), `orchestrator.py` (for API endpoint shapes).
+
+## Must / Prefer / Avoid
+
+### MUST DO
+- Always specify `--resource` on every `az rest` call (Fabric API vs Power BI API use different audiences — wrong audience = silent 401)
+- Poll LRO operations to completion before reading results — `getDefinition` requires `/result` suffix on the poll URL
+- Resolve workspace/item IDs dynamically via REST; never hardcode GUIDs
+
+### PREFER
+- `fab api` over raw `az rest` for Fabric data-plane — simpler auth wiring
+- Scope estimation before large discovery queries
+- `fab auth status` before any Fabric operation in a new session
+
+### AVOID
+- Using Power BI API audience for Fabric Items API calls (and vice versa)
+- Hardcoded IDs in scripts or configs
+- Assuming LRO completes synchronously
+
 ---
 
 ## Fabric Topology & Key Concepts
@@ -72,7 +101,7 @@ Using the wrong audience is the most common cause of `401 Unauthorized`.
 >
 > **SQL double-slash gotcha**: With MSAL v1.0 endpoint, the scope must be `https://database.windows.net//.default` (double slash). The v2.0 endpoint handles this correctly.
 >
-> Ref: https://learn.microsoft.com/en-us/rest/api/fabric/articles/scopes
+> Ref: <https://learn.microsoft.com/en-us/rest/api/fabric/articles/scopes>
 
 ### Delegated vs Application Permissions
 
@@ -242,7 +271,7 @@ You can use `continuationUri` directly. Do **not** modify the token — it is op
 
 ### Long-Running Operations (LRO)
 
-> Ref: https://learn.microsoft.com/en-us/rest/api/fabric/articles/long-running-operation
+> Ref: <https://learn.microsoft.com/en-us/rest/api/fabric/articles/long-running-operation>
 
 Many mutating operations return `202 Accepted` with:
 - `Location` — poll URL
@@ -254,6 +283,56 @@ Many mutating operations return `202 Accepted` with:
 **Get result:** `GET /v1/operations/<operationId>/result` (after `Succeeded`)
 
 **Best practices**: Honour `Retry-After`. Use exponential backoff if absent. Set a max timeout. Handle `Failed` gracefully.
+
+> **Kritischer LRO-Unterschied je Operation:**
+>
+> | Operation | Poll-URL | Ergebnis-URL |
+> |---|---|---|
+> | `createItemWithDefinition` | `GET {Location}` → `{ "status": "Succeeded" }` | — (keine separate Result-URL) |
+> | `updateDefinition` | `GET {Location}` → `{ "status": "Succeeded" }` | — |
+> | `getDefinition` | `GET {Location}` → läuft noch | `GET {Location}/result` → Definition-Payload |
+>
+> **`getDefinition` braucht `/result` am Ende der Poll-URL.** Ohne `/result` gibt die API `{ "status": "Succeeded" }` zurück aber keinen Payload. Immer `{Location}/result` aufrufen sobald Status `Succeeded`.
+
+### az CLI Shell-Pattern (LRO polling)
+
+```bash
+# Standard-LRO-Poll (createItemWithDefinition, updateDefinition)
+poll_lro() {
+  local OPERATION_ID="$1"
+  while true; do
+    STATUS=$(az rest --method get \
+      --resource "https://api.fabric.microsoft.com" \
+      --url "https://api.fabric.microsoft.com/v1/operations/$OPERATION_ID" \
+      --query "status" -o tsv)
+    [ "$STATUS" = "Succeeded" ] && break
+    [ "$STATUS" = "Failed" ] && {
+      az rest --method get --resource "https://api.fabric.microsoft.com" \
+        --url "https://api.fabric.microsoft.com/v1/operations/$OPERATION_ID/result"
+      return 1
+    }
+    sleep 5
+  done
+}
+
+# getDefinition — braucht /result nach Succeeded
+get_definition_result() {
+  local OPERATION_ID="$1"
+  while true; do
+    STATUS=$(az rest --method get \
+      --resource "https://api.fabric.microsoft.com" \
+      --url "https://api.fabric.microsoft.com/v1/operations/$OPERATION_ID" \
+      --query "status" -o tsv)
+    [ "$STATUS" = "Succeeded" ] && break
+    [ "$STATUS" = "Failed" ] && return 1
+    sleep 5
+  done
+  # Pflicht: /result anhängen
+  az rest --method get \
+    --resource "https://api.fabric.microsoft.com" \
+    --url "https://api.fabric.microsoft.com/v1/operations/$OPERATION_ID/result"
+}
+```
 
 ### Rate Limiting & Throttling
 
@@ -404,3 +483,189 @@ Verify `capacityAssignmentProgress` is "Completed" before creating items.
 - **Distinguish transient vs permanent errors** — retry 429/503/504; fix 400/403/404.
 - URL-encode display names in URLs. Prefer GUIDs for programmatic access.
 - Current API version: `v1`. The `preview` parameter is deprecated in favour of `beta` (supported until March 31, 2026).
+
+---
+
+## Semantic Model Lifecycle (az rest)
+
+> Tool: `az rest` (primary). Audience-Wechsel je Operation — falsche Audience = `401`.
+> Detaillierte TMDL-Syntax: `tmdl-advanced-features.md`. Projekt-Policies: `TMDL_Allowed_Subset.md`.
+
+### Zwei API Audiences
+
+| Operation | API | `--resource` |
+|---|---|---|
+| Definition CRUD (Create / Get / Update / Delete) | Fabric Items API | `https://api.fabric.microsoft.com` |
+| Refresh, Data Sources, Permissions, Deployment Pipelines | Power BI Datasets API | `https://analysis.windows.net/powerbi/api` |
+
+### Workspace und Model-ID auflösen
+
+```bash
+# Workspace ID via REST (kein fab-Dependency)
+WS_ID=$(az rest --method get \
+  --resource "https://api.fabric.microsoft.com" \
+  --url "https://api.fabric.microsoft.com/v1/workspaces" \
+  --query "value[?displayName=='MyWorkspace'].id" -o tsv)
+
+# Model ID via REST
+MODEL_ID=$(az rest --method get \
+  --resource "https://api.fabric.microsoft.com" \
+  --url "https://api.fabric.microsoft.com/v1/workspaces/$WS_ID/items?type=SemanticModel" \
+  --query "value[?displayName=='MyModel'].id" -o tsv)
+```
+
+### Semantic Model erstellen (createItemWithDefinition)
+
+```bash
+# TMDL-Dateien base64-kodieren
+DB_B64=$(base64 -w 0 definition/database.tmdl)
+MODEL_B64=$(base64 -w 0 definition/model.tmdl)
+SALES_B64=$(base64 -w 0 definition/tables/Sales.tmdl)
+PBISM_B64=$(base64 -w 0 definition.pbism)
+
+# Payload zusammenstellen
+cat > /tmp/sm_payload.json << EOF
+{
+  "displayName": "Commercial.SemanticModel",
+  "type": "SemanticModel",
+  "definition": {
+    "format": "TMDL",
+    "parts": [
+      { "path": "definition.pbism",           "payload": "$PBISM_B64",  "payloadType": "InlineBase64" },
+      { "path": "definition/database.tmdl",   "payload": "$DB_B64",     "payloadType": "InlineBase64" },
+      { "path": "definition/model.tmdl",      "payload": "$MODEL_B64",  "payloadType": "InlineBase64" },
+      { "path": "definition/tables/Sales.tmdl","payload": "$SALES_B64", "payloadType": "InlineBase64" }
+    ]
+  }
+}
+EOF
+
+# POST → gibt 202 zurück
+RESPONSE=$(az rest --method post \
+  --resource "https://api.fabric.microsoft.com" \
+  --url "https://api.fabric.microsoft.com/v1/workspaces/$WS_ID/semanticModels" \
+  --headers "Content-Type=application/json" \
+  --body @/tmp/sm_payload.json --verbose 2>&1)
+
+# Operation-ID aus Header extrahieren und LRO pollen (siehe poll_lro oben)
+```
+
+> **Kritisch**: Alle Parts müssen bei `updateDefinition` mitgeschickt werden — auch unveränderte.
+> Fehlende Parts werden gelöscht. `.platform`-Datei **nie** in `updateDefinition` senden.
+
+### Definition herunterladen (getDefinition)
+
+```bash
+# POST zur getDefinition — gibt 202 LRO zurück
+az rest --method post \
+  --resource "https://api.fabric.microsoft.com" \
+  --url "https://api.fabric.microsoft.com/v1/workspaces/$WS_ID/semanticModels/$MODEL_ID/getDefinition?format=TMDL" \
+  --headers "Content-Type=application/json" \
+  --body '{}'
+
+# WICHTIG: Nach Succeeded → /result anhängen (nicht wie bei anderen LROs)
+# az rest GET {Location}/result → gibt { "definition": { "parts": [...] } } zurück
+# Parts sind base64-kodiert → dekodieren mit: echo "$PAYLOAD" | base64 -d
+```
+
+### Refresh triggern (Power BI Datasets API — andere Audience!)
+
+```bash
+az rest --method post \
+  --resource "https://analysis.windows.net/powerbi/api" \
+  --url "https://api.powerbi.com/v1.0/myorg/groups/$WS_ID/datasets/$MODEL_ID/refreshes" \
+  --headers "Content-Type=application/json" \
+  --body '{"type":"Full"}'
+```
+
+---
+
+## Report Lifecycle (PBIR via az rest)
+
+> Reports nutzen das PBIR-Format (moderne Alternative zu PBIR-Legacy).
+> Lokal (Desktop/pbi-tools): `byPath`-Referenz auf Semantic Model.
+> REST API Deploy: nur `byConnection` unterstützt — `byPath` schlägt bei der API fehl.
+
+### Report erstellen (createItemWithDefinition)
+
+```bash
+# Mindest-Parts für ein PBIR-Report
+REPORT_JSON_B64=$(base64 -w 0 definition/report.json)
+VERSION_JSON_B64=$(base64 -w 0 definition/version.json)
+PAGES_JSON_B64=$(base64 -w 0 definition/pages/pages.json)
+PAGE_JSON_B64=$(base64 -w 0 "definition/pages/ReportPage1/page.json")
+PBIR_B64=$(base64 -w 0 definition.pbir)   # byConnection Referenz!
+
+cat > /tmp/report_payload.json << EOF
+{
+  "displayName": "COM-001_Sales_Performance.Report",
+  "type": "Report",
+  "definition": {
+    "format": "PBIR",
+    "parts": [
+      { "path": "definition/report.json",                                  "payload": "$REPORT_JSON_B64",  "payloadType": "InlineBase64" },
+      { "path": "definition/version.json",                                 "payload": "$VERSION_JSON_B64", "payloadType": "InlineBase64" },
+      { "path": "definition/pages/pages.json",                             "payload": "$PAGES_JSON_B64",   "payloadType": "InlineBase64" },
+      { "path": "definition/pages/ReportPage1/page.json",                  "payload": "$PAGE_JSON_B64",    "payloadType": "InlineBase64" },
+      { "path": "definition.pbir",                                         "payload": "$PBIR_B64",         "payloadType": "InlineBase64" }
+    ]
+  }
+}
+EOF
+
+az rest --method post \
+  --resource "https://api.fabric.microsoft.com" \
+  --url "https://api.fabric.microsoft.com/v1/workspaces/$WS_ID/reports" \
+  --headers "Content-Type=application/json" \
+  --body @/tmp/report_payload.json
+```
+
+### definition.pbir: byConnection (REST API) vs byPath (lokal)
+
+```json
+// byPath — funktioniert lokal (Desktop, pbi-tools), NICHT via REST API
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
+  "version": "4.0",
+  "datasetReference": {
+    "byPath": { "path": "../../Commercial.SemanticModel" }
+  }
+}
+
+// byConnection — für REST API Deploy (createItemWithDefinition)
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definitionProperties/2.0.0/schema.json",
+  "version": "4.0",
+  "datasetReference": {
+    "byConnection": {
+      "connectionString": null,
+      "pbiServiceModelId": null,
+      "pbiModelVirtualServerName": "sobe_wowvirtualserver",
+      "pbiModelDatabaseName": "<SemanticModel-GUID>",
+      "connectionType": "pbiServiceXmlaStyleLive",
+      "name": "EntityDataSource"
+    }
+  }
+}
+```
+
+> `pbip_writer.py` unterstützt beide Varianten via `connection_type`-Parameter.
+> Für REST-Deploy: `write_report_json(connection_type="byConnection", dataset_id="<GUID>")`.
+
+---
+
+## JMESPath Quick Reference (az rest --query)
+
+```bash
+# Workspace finden
+az rest ... --query "value[?displayName=='MyWorkspace'].id" -o tsv
+
+# Erstes Element
+az rest ... --query "value[0].id" -o tsv
+
+# Alle Namen auflisten
+az rest ... --query "value[].displayName" -o tsv
+
+# Mehrere Felder
+az rest ... --query "value[?displayName=='MyItem'].{id:id, type:type}" -o json
+```

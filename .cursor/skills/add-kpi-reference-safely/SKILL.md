@@ -3,6 +3,7 @@
 ---
 name: add-kpi-reference-safely
 description: Add a KPI reference to a use case or action code only if the KPI exists in the catalog; otherwise add to catalog first. Use when adding kpi_id to factsheets, brackets, or action codes.
+version: "1.0.0"
 ---
 
 # Add KPI Reference Safely

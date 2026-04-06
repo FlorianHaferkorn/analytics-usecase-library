@@ -3,6 +3,31 @@
 Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
 
 ```yaml
+- measure_name: Safety Incident Count
+  is_kpi_measure: true
+  kpi_id_ref: ops.safety.incident.count
+  semantic_model: ESG_SemanticModel
+  display_folder: 01_Safety
+  category: KPI
+  expression:
+    logical: Safety Incident Count = Count of recorded safety incidents in the selected period.
+    aggregation_method: count
+  documentation:
+    description: Count of safety incidents used as the minimum governed ESG measure set.
+    notes: 'Grain: site_month. Unit: count.
 
+      Lineage: fact_safety[Incident ID].
+
+      QA: Exclude duplicated incident records and keep reporting period aligned with EHS close.
+
+      '
+  dependencies:
+    columns:
+    - fact_safety[Incident ID]
+  governance:
+    owner: EHS Manager
+    status: active
+    version: v0.1
+    last_review: 2026-04-03
 ```
 
