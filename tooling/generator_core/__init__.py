@@ -16,11 +16,17 @@ Public API
 
 Package layout
 --------------
-    ir/          — DashboardSpec, VisualSpec, MeasureSpec + BracketCompiler
-    adapters/    — GeneratorAdapter base, PBIPAdapter, OSSAdapter (stub)
-    preflight/   — PreflightValidator + check functions
-    intelligence/ — Telemetry, ErrorClassifier, FixSuggester, QualityScorer, KnowledgeBase
+    ir/             — DashboardSpec, VisualSpec, MeasureSpec + BracketCompiler
+    adapters/       — GeneratorAdapter abstract base only (no concrete adapters)
+    preflight/      — PreflightValidator + check functions
+    intelligence/   — Telemetry, ErrorClassifier, FixSuggester, QualityScorer, KnowledgeBase
     knowledge_base/ — errors.yaml (machine-readable error KB)
+
+Concrete adapters live in their product directories:
+    products/fabric/powerbi/tooling/adapters/pbip.py  → PBIPAdapter
+    products/oss/tooling/adapters/metabase.py          → MetabaseAdapter
+    products/oss/tooling/adapters/grafana.py            → GrafanaAdapter
+    products/oss/tooling/adapters/superset.py           → SupersetAdapter
 """
 
 from __future__ import annotations
@@ -34,8 +40,6 @@ __version__ = "1.0.0"
 from .ir.specs import DashboardSpec, VisualSpec, MeasureSpec, PageSpec, VisualType, PageRole
 from .ir.compiler import BracketCompiler
 from .adapters.base import GeneratorAdapter, RenderResult
-from .adapters.pbip import PBIPAdapter
-from .adapters.oss import OSSAdapter
 from .preflight.validator import PreflightValidator, PreflightReport
 from .intelligence.telemetry import TelemetryCollector, GenerationRun
 from .intelligence.classifier import ErrorClassifier, ErrorCategory

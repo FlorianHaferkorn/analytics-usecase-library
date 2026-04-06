@@ -62,8 +62,6 @@ def cmd_preflight(args: argparse.Namespace) -> int:
 def cmd_compile(args: argparse.Namespace) -> int:
     from .ir.compiler import BracketCompiler
     from .ir.specs import AdapterTarget
-    from .adapters.pbip import PBIPAdapter
-    from .adapters.oss import OSSAdapter
 
     compiler = BracketCompiler(
         kpi_catalog_root=args.kpi_catalog_root,
@@ -86,11 +84,24 @@ def cmd_compile(args: argparse.Namespace) -> int:
         }, indent=2))
         return 0
 
-    # Select adapter and render
+    # Load adapter from the appropriate product directory.
+    # Concrete adapters are NOT part of generator_core — they live in their
+    # product directories and are imported lazily here.
     if args.adapter == "pbip":
+        from products.fabric.powerbi.tooling.adapters.pbip import PBIPAdapter
         adapter = PBIPAdapter()
+    elif args.adapter == "metabase":
+        from products.oss.tooling.adapters.metabase import MetabaseAdapter
+        adapter = MetabaseAdapter()
+    elif args.adapter == "grafana":
+        from products.oss.tooling.adapters.grafana import GrafanaAdapter
+        adapter = GrafanaAdapter()
+    elif args.adapter == "superset":
+        from products.oss.tooling.adapters.superset import SupersetAdapter
+        adapter = SupersetAdapter()
     else:
-        adapter = OSSAdapter(target=args.adapter)
+        print(f"ERROR Unknown adapter '{args.adapter}'", file=sys.stderr)
+        return 1
 
     errors = adapter.validate_ir(spec)
     if errors:

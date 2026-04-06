@@ -1,19 +1,23 @@
 """
-Abstract adapter interface.
+Abstract adapter interface — the only adapter code in generator_core.
 
-All target-platform adapters inherit from GeneratorAdapter and implement:
-  - validate_ir()  — pre-render checks specific to this platform
-  - render()       — produce {filename: bytes} output from a DashboardSpec
-  - visual_type_map() — map IR VisualType to platform strings
+Every generator (Power BI, OSS, future targets) inherits from GeneratorAdapter
+and implements three methods:
+  - validate_ir()    — platform-specific IR validation before rendering
+  - render()         — DashboardSpec → {relative_path: bytes}
+  - visual_type_map() — IR VisualType → platform type strings
+
+Concrete implementations live in their product directories, not here:
+  products/fabric/powerbi/tooling/adapters/pbip.py
+  products/oss/tooling/adapters/metabase.py
+  products/oss/tooling/adapters/grafana.py
+  ...
 
 Design contract
 ---------------
-* render() must be pure (no side effects on the DashboardSpec).
-* render() returns a dict[relative_path → bytes]; the caller decides where
-  to write the files.
-* validate_ir() returns a list of error strings — empty means OK.
-  Hard errors (things that will definitely break) MUST be returned here;
-  warnings belong in the compiler.
+* render() must be pure — no side effects on the DashboardSpec.
+* render() returns {relative_path: bytes}; the caller writes the files.
+* validate_ir() returns error strings — empty list means safe to render.
 """
 
 from __future__ import annotations
@@ -26,7 +30,7 @@ from ..ir.specs import AdapterTarget, DashboardSpec, VisualType
 
 
 class RenderResult:
-    """Output of adapter.render()."""
+    """Immutable output of adapter.render()."""
 
     def __init__(
         self,
@@ -34,8 +38,8 @@ class RenderResult:
         adapter: str,
         warnings: Optional[List[str]] = None,
     ) -> None:
-        self.files = files                  # {relative_path: bytes}
-        self.adapter = adapter
+        self.files    = files                   # {relative_path: bytes}
+        self.adapter  = adapter
         self.warnings: List[str] = warnings or []
         self.file_count = len(files)
 
@@ -52,18 +56,16 @@ class RenderResult:
 
 class GeneratorAdapter(ABC):
     """
-    Abstract base class for all generator adapters.
+    Abstract base class every generator adapter must implement.
 
-    Subclasses
-    ----------
-    PBIPAdapter   — Power BI PBIP / PBIR format
-    OSSAdapter    — OSS BI tools (Metabase, Grafana, Superset, Redash)
+    A generator adapter translates a tool-agnostic DashboardSpec (IR)
+    into platform-specific output files.
     """
 
     @property
     @abstractmethod
     def name(self) -> str:
-        """Short identifier used in logs, manifests, and error messages."""
+        """Short identifier used in logs and manifests (e.g. 'pbip', 'metabase')."""
 
     @property
     @abstractmethod
@@ -73,28 +75,27 @@ class GeneratorAdapter(ABC):
     @abstractmethod
     def validate_ir(self, spec: DashboardSpec) -> List[str]:
         """
-        Validate that the IR spec is renderable for this adapter.
-
-        Return a list of error strings.  Empty list = OK to render.
-        Hard validation failures should prevent render() from being called.
+        Validate that the IR is renderable for this platform.
+        Returns a list of error strings — empty means OK to render.
         """
 
     @abstractmethod
     def render(self, spec: DashboardSpec) -> RenderResult:
         """
         Render the DashboardSpec to platform-specific output files.
-
-        Returns a RenderResult containing {relative_path: bytes}.
+        Returns RenderResult with {relative_path: bytes}.
         Does NOT write files — the caller decides the destination.
         """
 
     @abstractmethod
     def visual_type_map(self) -> Dict[VisualType, List[str]]:
         """
-        Return a mapping from IR VisualType to one or more platform type strings.
+        Map IR VisualType values to one or more platform type strings.
 
         Example (PBIP):
             {VisualType.KPI_CARD: ["cardVisual", "kpiVisual", "card"], ...}
+        Example (Metabase):
+            {VisualType.KPI_CARD: ["scalar"], ...}
         """
 
     # ------------------------------------------------------------------
@@ -104,7 +105,7 @@ class GeneratorAdapter(ABC):
     def map_visual_type(self, vtype: VisualType) -> str:
         """Return the preferred (first) platform type string for a VisualType."""
         types = self.visual_type_map().get(vtype, [])
-        return types[0] if types else str(vtype.value)
+        return types[0] if types else vtype.value
 
     def accepts_visual_type(self, platform_type: str, ir_type: VisualType) -> bool:
         """Return True if platform_type is a valid rendering of ir_type."""
