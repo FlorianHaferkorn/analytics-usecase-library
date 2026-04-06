@@ -27,19 +27,19 @@ export function findOrCreateUser(email: string, name?: string): UserRecord {
 }
 
 /** Find a user by ID. */
-export function findUserById(id: string): UserRecord | undefined {
+function findUserById(id: string): UserRecord | undefined {
   const db = getDb();
   return db.prepare('SELECT * FROM users WHERE id = ?').get(id) as UserRecord | undefined;
 }
 
 /** Find a user by email. */
-export function findUserByEmail(email: string): UserRecord | undefined {
+function findUserByEmail(email: string): UserRecord | undefined {
   const db = getDb();
   return db.prepare('SELECT * FROM users WHERE email = ?').get(email) as UserRecord | undefined;
 }
 
 /** List all users. */
-export function listUsers(): UserRecord[] {
+function listUsers(): UserRecord[] {
   const db = getDb();
   return db.prepare('SELECT * FROM users ORDER BY created_at DESC').all() as UserRecord[];
 }

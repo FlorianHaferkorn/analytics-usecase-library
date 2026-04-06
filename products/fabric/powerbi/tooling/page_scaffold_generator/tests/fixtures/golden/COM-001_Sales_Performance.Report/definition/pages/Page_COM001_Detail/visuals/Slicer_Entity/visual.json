@@ -1,12 +1,12 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
-  "name": "Slicer_Date",
+  "name": "Slicer_Entity",
   "position": {
     "x": 32,
-    "y": 204,
+    "y": 548,
     "z": 5000,
-    "height": 70,
-    "width": 1856,
+    "height": 500,
+    "width": 296,
     "tabOrder": 3001
   },
   "visual": {
@@ -20,14 +20,14 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_date"
+                      "Entity": "dim_org"
                     }
                   },
-                  "Property": "CalendarYearMonth"
+                  "Property": "OrgName"
                 }
               },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
+              "queryRef": "dim_org.OrgName",
+              "nativeQueryRef": "OrgName"
             }
           ]
         }
