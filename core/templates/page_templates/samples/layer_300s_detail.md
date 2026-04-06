@@ -4,7 +4,7 @@
 > **Purpose:** Validate, drill, and act — evidence data + prescription
 > **Reading pattern:** F-pattern — slicer pane anchors left, detail fills center, action panel anchors right
 > **Template:** Any (with slicer/matrix); T4 additionally requires Action Panel
-> **Spec ref:** `layout_330300_design_spec.md §5.4`
+> **Spec ref:** `Design_Spec_3_30_300.md §5.4`
 
 ---
 

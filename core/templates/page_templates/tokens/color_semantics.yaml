@@ -1,0 +1,36 @@
+# color_semantics.yaml — Machine-readable design tokens (tool-agnostic)
+# Consumed by: products/fabric/powerbi/tooling/page_scaffold_generator/config_loader.py
+# Prose documentation: governance/Color_Semantics_Formatting.md
+# Authority: Storytelling_Principles.md §9 · Design_Spec_3_30_300.md §7.1
+# Connector bindings (PBI theme.json, CSS vars): governance/Color_Semantics_Formatting.md
+# Schema version: 1.0
+
+schema_version: "1.0"
+
+semantic:
+  positive: "#107C10"   # Favourable delta, above target — WCAG AA validated
+  negative: "#A4262C"   # Unfavourable delta, below target — WCAG AA validated
+  warning:  "#C98A00"   # Near threshold, attention needed — WCAG AA validated
+  neutral:  "#605E5C"   # No signal, informational, no target set
+
+# brand.* is NOT a framework constant — it is resolved at generation time from:
+#   showcases/<showcase_id>/brand/brand_spec.yaml  (via repo_config.yaml showcase_id)
+# ConfigLoader.resolve_color_tokens() merges brand.* into this base at runtime.
+
+surface:
+  page:    "#F5F5F5"   # page background
+  card:    "#FFFFFF"   # visual / card background
+  row_alt: "#F9F9F9"   # alternating table row
+
+text:
+  primary:   "#201F1E"  # titles, values, labels
+  secondary: "#605E5C"  # axis labels, footnotes (muted)
+
+border:
+  default: "#E1DFDD"   # visual borders, grid lines (0.5px, 8px radius)
+
+# Colorblind-safe variance pair (blue/orange) — use instead of semantic.positive/negative
+# when printing or when CVAA compliance is critical. Always pair with icon regardless.
+colorblind_safe:
+  positive: "#0078D4"   # brand.primary (blue)
+  negative: "#F7630C"   # brand.data_colors[3] (orange)

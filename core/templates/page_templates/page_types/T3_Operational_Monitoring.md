@@ -167,6 +167,69 @@ A T3 page is complete when:
 
 ---
 
+## Narrative Arc
+
+### The Big Idea
+
+One sentence that every T3 page must communicate:
+
+> “[N] [entity type] are currently outside threshold — [N_critical] require immediate attention in [area].”
+
+Example: *”14 accounts are currently outside the overdue threshold — 3 are critical and require escalation by end of day.”*
+
+### Story Structure
+
+**Act 1 — Operational Status (3 seconds, KPI Band)**
+The T3 3-second layer is a control panel, not a performance summary.
+- The most important KPI is the **count of exceptions** (e.g., “14 accounts overdue”), not a revenue figure.
+- A traffic-light summary (In Control / At Risk / Critical) serves as the opening signal.
+- The reader must be able to answer “Is everything under control right now?” before their eye moves.
+
+**Act 2 — Prioritized Exceptions (30 seconds, Driver Zone)**
+The exception list and ranking visuals tell the story of “Where and how bad?”:
+- `Main_1` (Exceptions Table / Alert List): *”These are the cases that require attention — prioritized by severity.”*
+  Sorted: Critical first, then Warning. Each row has an entity, metric, threshold, actual, and deviation.
+- `Main_2` (Trend — short-term): *”This is the recent pattern — are exceptions increasing or decreasing?”*
+  Short window (last 7–30 days). Not strategic trend; operational pulse.
+- `Main_3` (Ranking by severity/owner): *”This is where concentration lies — which area or owner has the most open cases?”*
+
+**Act 3 — Controlled Detail (300 seconds, Detail Page)**
+The detail page shows records that are in exception state only. Not all records.
+- Filter is pre-applied: the reader arrives seeing only what needs attention.
+- No free exploration. The focus is validation and assignment, not analysis.
+
+### Visual Title Narrative
+
+| Slot | Narrative Role | Example Title |
+|---|---|---|
+| `Main_1` (Exceptions) | “What needs attention now?” | “Which accounts are currently above the overdue threshold?” |
+| `Main_2` (Trend) | “Is the situation improving?” | “How has the overdue account count trended over the last 30 days?” |
+| `Main_3` (Ranking) | “Where is the concentration?” | “Which team owns the most critical open cases?” |
+
+### Exception List Column Order
+
+The exception table must be designed for fast scanning, not for completeness. Column order:
+
+1. **Entity** — who/what (leftmost, always visible, anchors the F-pattern scan)
+2. **Severity** — traffic light icon + label (Critical/Warning/Info)
+3. **Metric** — which KPI is in exception
+4. **Actual vs. Threshold** — how far outside (absolute + %)
+5. **Owner** — who is responsible for resolution
+6. **Age** — how long has this been in exception state
+
+Do not show more than 6 columns without a toggle to “show more”.
+
+### What Makes This Page Fail the Narrative
+
+| Failure | Cause | Fix |
+|---|---|---|
+| All rows colored red/amber | No severity hierarchy | Define threshold bands; Critical ≠ Warning |
+| Strategic KPIs in Zone 1 | Wrong page type applied | Replace with exception count KPI; strategic KPIs → T1 |
+| Exception table unsorted | Alphabetical or insert order | Sort by severity first, then by deviation magnitude |
+| Page explains “why” exceptions occur | T2 content leaked in | Remove root cause analysis; keep operational context only |
+
+---
+
 ## Key Principle
 >
 > **T3 answers “Where is execution breaking right now?” – nothing else.**

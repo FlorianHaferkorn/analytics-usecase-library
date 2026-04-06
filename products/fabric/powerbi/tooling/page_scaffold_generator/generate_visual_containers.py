@@ -17,11 +17,37 @@ if __name__ == "__main__":
         sys.path.insert(0, str(_parent.parent))
 
 from page_scaffold_generator.grid_calculator import GridCalculator, GridPosition
+from page_scaffold_generator.config_loader import ConfigLoader
 
-# Brand Blue Dark (Monochromatic) - for conditional formatting
-BRAND_BLUE_DARK_GOOD = "#519872"
-BRAND_BLUE_DARK_NEUTRAL = "#F6AE2D"
-BRAND_BLUE_DARK_BAD = "#EC4E20"
+# Semantic color fallbacks (canonical tokens, used when token files are unavailable).
+# Source authority: Storytelling_Principles.md §9 · tokens/color_semantics.yaml
+_COLOR_DEFAULTS = {
+    "good":    "#107C10",  # semantic.positive
+    "neutral": "#C98A00",  # semantic.warning
+    "bad":     "#A4262C",  # semantic.negative
+}
+
+# Framework fallback data palette (used when no brand spec is configured).
+_DATA_COLOR_DEFAULTS = [
+    "#0078D4", "#50E6FF", "#8661C5", "#F7630C",
+    "#008575", "#E3008C", "#EF6950", "#FFB900",
+]
+
+
+def _load_resolved_tokens() -> dict:
+    """
+    Load fully resolved color tokens via ConfigLoader.resolve_color_tokens().
+    Merges framework semantic defaults with active showcase brand overrides.
+    Falls back to hardcoded defaults on any error.
+    """
+    try:
+        loader = ConfigLoader()
+        return loader.resolve_color_tokens()
+    except Exception:
+        return {}
+
+
+_RESOLVED_TOKENS = _load_resolved_tokens()
 
 VISUAL_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json"
 
@@ -166,12 +192,26 @@ def render_action_matrix(
 
 
 def get_conditional_formatting_colors() -> Dict[str, str]:
-    """Return Brand Blue Dark colors for good/neutral/bad (bedingte Formatierung)."""
+    """Return semantic token colors for good/neutral/bad conditional formatting.
+    Resolved from tokens/color_semantics.yaml merged with active brand overrides.
+    Falls back to canonical hex defaults when token files are unavailable."""
+    sem = _RESOLVED_TOKENS.get("semantic", {})
     return {
-        "good": BRAND_BLUE_DARK_GOOD,
-        "neutral": BRAND_BLUE_DARK_NEUTRAL,
-        "bad": BRAND_BLUE_DARK_BAD,
+        "good":    sem.get("positive", _COLOR_DEFAULTS["good"]),
+        "neutral": sem.get("warning",  _COLOR_DEFAULTS["neutral"]),
+        "bad":     sem.get("negative", _COLOR_DEFAULTS["bad"]),
     }
+
+
+def get_brand_data_colors() -> List[str]:
+    """Return the 8-slot data color palette for the active showcase brand.
+    Positions 0-1 are brand primary/secondary; positions 2-7 are framework defaults.
+    Falls back to framework palette when no brand is configured."""
+    brand = _RESOLVED_TOKENS.get("brand", {})
+    data_colors = brand.get("data_colors")
+    if isinstance(data_colors, list) and data_colors:
+        return list(data_colors)
+    return list(_DATA_COLOR_DEFAULTS)
 
 
 def main() -> int:

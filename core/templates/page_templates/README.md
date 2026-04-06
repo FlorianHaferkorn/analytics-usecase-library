@@ -1,173 +1,199 @@
 # Page Templates
 
-> **Canonical UX standards:** [ux_design_system.md](../../strategy_operating_model/operating_model/ux_design_system.md).  
+> **Canonical UX standards:** [ux_design_system.md](../../strategy_operating_model/operating_model/ux_design_system.md).
 > These templates implement the UX system; they must not redefine layout or interaction principles.
 
 This folder defines the **only allowed page types** for reports built with the Analytics Use Case Library.
 
 The goal is not design freedom, but **decision clarity, scalability, and reuse**.
 
-If you follow these rules, every report:
-
-- looks familiar to users,
-- answers clear business questions,
-- scales across domains and use cases,
-- remains maintainable without consultants.
-
----
-
-## What is a Page Template?
-
-A page template is a **decision-oriented page type**, not a visual layout.
-
-Each template answers a specific class of business questions and is designed
-to support the **3–30–300 rule**:
-
-- **3 seconds** → headline KPIs  
-- **30 seconds** → patterns, deviations, rankings  
-- **300 seconds** → detailed analysis and drill-down
-
 ---
 
 ## The 4 Golden Page Types (Mandatory)
 
-Only the following page types are allowed.
+| Template | Core Question | Primary Audience | Decision Type |
+|---|---|---|---|
+| **T1 — Strategic Overview** | *Are we on track?* | Executive, board | Directional |
+| **T2 — Tactical Variance** | *Why are we off target?* | Management, domain leads | Diagnostic |
+| **T3 — Operational Monitoring** | *Where is execution breaking now?* | Operations, process owners | Corrective |
+| **T4 — Prescriptive Recommendation** | *What should we do next?* | Decision owners | Prescriptive |
 
-| Template | Purpose | Core Question | Typical Use |
-|--------|--------|--------------|-------------|
-| **T1 – Strategic Overview** | Direction & performance | *Are we on track?* | Management, steering |
-| **T2 – Tactical Variance** | Target vs. actual | *Where do we deviate and why?* | Performance management |
-| **T3 – Operational Monitoring** | Process health | *Where are issues emerging right now?* | Operations, governance |
-| **T4 – Prescriptive Recommendation** | Action & decision | *What should we do next?* | Action-driven analytics |
-
-Each use case is implemented using **exactly two pages**:
-
-- one **Overview** page (3 / 30 layer)
-- one **Detail** page (300 layer)
+Each use case is implemented as **exactly two pages**:
+- one **Overview page** (3s + 30s layer)
+- one **Detail page** (300s layer)
 
 ---
 
-## When NOT to use a Page Type
+## Document Map
+
+### Core Specs
+
+| Document | Purpose |
+|---|---|
+| `Page_Spec_3_30_300.md` | Slot overview — where which visual goes and why |
+| `Design_Spec_3_30_300.md` | **Authoritative** tool-agnostic layout spec (canvas, grid, zones, visual grammar, accessibility) |
+| `Storytelling_Principles.md` | Narrative and content quality principles — Big Idea, Narrative Arc, pre-attentive attributes, color, typography |
+| `Content_Quality_Guide.md` | Content standards — visual titles, KPI labels, Smart Narrative templates, Action Panel copy |
+| `Connector_Spec.md` | Connector contract — what any tool connector must implement; compliance checklist |
+| `Abstract_Visual_Types.md` | Tool-agnostic visual type vocabulary with cross-tool mapping table |
+
+### Page Type Definitions
+
+| Document | Template |
+|---|---|
+| `page_types/T1_Strategic_Overview.md` | T1 — including Narrative Arc |
+| `page_types/T2_Tactical_Variance.md` | T2 — including Narrative Arc |
+| `page_types/T3_Operational_Monitoring.md` | T3 — including Narrative Arc |
+| `page_types/T4_Prescriptive_Recommendation.md` | T4 — including Narrative Arc |
+
+### Governance
+
+| Document | Purpose |
+|---|---|
+| `governance/Slot_Definitions.md` | Semantic slot definitions and allowed templates |
+| `governance/Visual_Whitelist.md` | Allowed visual types by slot and template |
+| `governance/Color_Semantics_Formatting.md` | Color roles, KPI card formatting, chart formatting rules (prose) |
+| `governance/Layout_Grid_System.md` | 12×12 LU grid parameters and pixel formulae (prose) |
+| `governance/Page_DoD.md` | Definition of Done — 8-point completion checklist |
+
+### Design Tokens (Machine-Readable YAML)
+
+| File | Contents |
+|---|---|
+| `tokens/layout_grid.yaml` | Grid parameters, canvas sizes, spacing values (canonical) |
+| `tokens/color_semantics.yaml` | Semantic hex tokens, brand palette, surface/text/border colors |
+| `tokens/typography.yaml` | Font scale — sizes, weights, color roles per typography role |
+| `tokens/visual_slot_mapping.yaml` | Visual type → slot compatibility matrix with grid coordinates |
+
+### Grid Templates (Machine-Readable)
+
+| File | Layout |
+|---|---|
+| `grid_templates/pulse.json` | Overview layout (3s + 30s) |
+| `grid_templates/action_matrix.json` | Detail layout (300s) |
+| `grid_templates/investigator.json` | Alternative overview (focus-area layout) |
+
+### Visual Templates (Machine-Readable)
+
+| File | Component |
+|---|---|
+| `visual_templates/kpi_card_with_delta.json` | KPI Card |
+| `visual_templates/trend_line.json` | Line chart (Trend slot) |
+| `visual_templates/smart_narrative.json` | Smart Narrative |
+| `visual_templates/slicer_top_bar.json` | Top-bar slicer (Zone 2) |
+| `visual_templates/slicer_left_pane.json` | Left-pane slicer (300s pages) |
+| `visual_templates/matrix_with_data_bars.json` | Detail Matrix |
+
+### Samples (Annotated Reference Pages)
+
+| File | What it Shows |
+|---|---|
+| `samples/page_pulse_full.md` | T2 Overview — full Pulse layout with annotations |
+| `samples/page_action_matrix_full.md` | T1–T4 Detail — Action Matrix (with and without Action Panel) |
+| `samples/page_investigator_full.md` | Investigator alternative overview |
+| `samples/page_t1_strategic_hero.md` | **T1 Hero layout** — executive overview with Big Idea annotation |
+| `samples/page_t3_operational_exception.md` | **T3 Exception dashboard** — F-pattern, severity-sorted exception list |
+| `samples/page_t4_prescriptive_action.md` | **T4 Full action layout** — narrative arc + Action Panel copy standards |
+| `samples/layer_3s_kpi_band.md` | KPI band detail — all variants |
+| `samples/layer_30s_diagnostics.md` | 30s driver zone detail |
+| `samples/layer_300s_detail.md` | 300s detail page detail |
+
+### Connectors
+
+| File | Purpose |
+|---|---|
+| `connectors/OSS_Connector_Guide.md` | Reference implementation for Superset, Grafana, Metabase |
+
+### Components
+
+| File | Purpose |
+|---|---|
+| `components/ActionPanel_Spec.md` | Action Panel — full specification |
+
+### Archive
+
+| Directory | Purpose |
+|---|---|
+| `_archive/` | Superseded documents kept for git history reference |
+
+---
+
+## How Page Templates Are Used
+
+### Step 1 — Select Page Type
+
+Choose exactly one page type (T1–T4) based on the use case's primary decision question.
+
+```
+Decision →  "Are we on track?"           → T1
+            "Why are we off target?"     → T2
+            "Where is execution off?"    → T3
+            "What should we do?"         → T4
+```
+
+If the question maps to multiple types, the use case is probably two separate use cases.
+
+### Step 2 — Define the Big Idea
+
+Before building any visual, write the Big Idea sentence for each page:
+
+```
+T1: "[Domain] is [on/off] track — [KPI] is [Δ], [momentum direction]."
+T2: "The [Δ] gap is driven by [factor] — intervention in [area] required."
+T3: "[N] exceptions are outside threshold — [N_critical] need immediate action."
+T4: "[Trigger]. Recommended: [action] by [owner] — [impact] by [deadline]."
+```
+
+See `Storytelling_Principles.md §2` for the full Big Idea framework.
+
+### Step 3 — Activate Slots in UseCase_Bracket.yaml
+
+Slots define what analytical content is present. Per-use-case configuration lives in:
+
+```yaml
+core/usecases/core/<ID>_*/UseCase_Bracket.yaml → ux_layout_rules
+```
+
+Only activate slots that answer a concrete question for this use case's audience.
+
+### Step 4 — Select Visual Types
+
+From the activated slots, select the appropriate visual type from `Abstract_Visual_Types.md`. The connector translates abstract types to tool-native components.
+
+### Step 5 — Apply Content Quality Standards
+
+Before any page is considered done, verify content quality per `Content_Quality_Guide.md`:
+- Visual titles are question- or conclusion-form
+- KPI labels ≤25 characters, Title Case
+- Smart Narrative is quantified, ≤2 sentences
+- Action Panel (T4) has all mandatory fields
+
+### Step 6 — Run Definition of Done
+
+`governance/Page_DoD.md` — 8-point completion checklist. A page is not done until all 8 checks pass.
+
+---
+
+## When NOT to Use a Page Type
 
 - Do **not** create custom layouts per report
 - Do **not** mix multiple page purposes on one page
 - Do **not** introduce new template types
 - Do **not** redesign visuals outside the whitelist
 
-If a question does not fit one of the four templates,
-the **use case is not ready** or not well-defined.
+If a question does not fit one of the four templates, the **use case is not ready** or not well-defined.
 
 ---
 
-## How Page Templates Are Used
+## Key Principles (Read These)
 
-### 1. Use case UX configuration (Single Source of Truth)
-
-Per-use-case UX layout rules (3–30–300, page structure, action panel intent) are defined in each use case’s:
-
-```yaml
-core/usecases/core/<ID>_*/UseCase_Bracket.yaml
-```
-
-`UseCase_Bracket.yaml` is the **authoritative source** for:
-
-- which 2-page structure the use case follows (overview vs execution),
-- which KPI(s) and components belong to 3s / 30s / 300s,
-- whether an action panel is required on the execution page.
-
-Markdown overview files are **read-only views**, not sources of truth.
-
----
-
-### 2. Slots (What a Page May Contain)
-
-Templates do not define concrete visuals.
-They define **slots** (e.g. Trend, Variance, Ranking).
-
-Slot rules and allowed visuals are defined in:
-
-```yaml
-governance/Slot_Definitions.md
-```
-
----
-
-### 3. Visual Governance
-
-Which visuals are allowed (and where) is defined in:
-
-```yaml
-governance/Visual_Whitelist.md
-```
-
-Examples:
-
-- Scatter plots are allowed only in **T3 and T4**
-- Tables/matrices are allowed only on **Detail (300) pages**
-- Funnel charts are non-default and explicitly flagged
-
----
-
-### 4. 300-Second Layer (layout_330300)
-
-The structure of the **300s (diagnostics)** layer — tables, breakdowns, action/evidence slots — is defined by the layout_330300 schema and documented in:
-
-```yaml
-layout_330300_300s_layer.md
-```
-
-Schema: `tooling/ai/schemas/layout_330300.schema.json`. Per-use-case values live in `UseCase_Bracket.yaml`.
-
-### 5. Action Panel
-
-Some pages require an **Action Panel** to support prescriptive analytics.
-
-Rules and structure are defined in:
-
-```yaml
-components/ActionPanel_Spec.md
-```
-
-The Action Panel is **optional**, but if enabled, it must follow the spec.
-
----
-
-## Definition of Done (DoD)
-
-A page is considered complete only if:
-
-- it follows one of the four page types,
-- slot usage matches the mapping,
-- only whitelisted visuals are used,
-- slicer limits are respected,
-- the page answers the template’s core question.
-
-The formal checklist is defined in:
-
-```yaml
-governance/Page_DoD.md
-```
-
----
-
-## Deprecated Content
-
-The following legacy templates are **no longer part of the Golden Path** and must not be used for new work:
-
-- overview_page_template.md
-- insights_page_template.md
-- explorer_page_template.md
-
-They are kept only for reference.
-
----
-
-## Key Principle (Read This Twice)
-
-> **Consistency beats creativity.**  
+> **Consistency beats creativity.**
 > The value of this framework comes from reuse, not customization.
 
-If you feel the need to break these rules,
-the problem is usually **upstream** (use case definition, KPIs, or actions),
-not the page template.
+> **A page has one job: lead the reader to a decision within their time horizon.**
+> If a page tries to do more, it does less.
 
+> **The Big Idea first. Evidence second.**
+> In analytical reports, the conclusion leads — the reader validates, not discovers.
+
+If you feel the need to break these rules, the problem is usually **upstream** (use case definition, KPIs, or actions), not the page template.

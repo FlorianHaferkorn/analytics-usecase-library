@@ -6,7 +6,8 @@
 # All values are tool-independent. Tool derivations (Power BI, CSS, etc.)
 # translate these properties to their native formats.
 #
-# Validated by: tooling/golden_thread_discovery_studio/brand_designer.py
+# Validation: core/brand/derivations/loader.py (I/O boundary — validates required fields)
+# Derivation pipeline: tooling/brand/derive_brand_artifacts.py --showcase <name>
 # Derivation guides: core/brand/tool_derivations/
 
 $schema: "analytics-usecase-library/brand/v1"

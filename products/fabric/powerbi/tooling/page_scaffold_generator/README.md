@@ -130,9 +130,9 @@ COM-001.Report/
 The generator reads from these governance files:
 
 - Use case UX SSOT: `core/usecases/core/<ID>_*/UseCase_Bracket.yaml` (`ux_layout_rules`)
-- `core/templates/page_templates/governance/Visual_to_Slot_Mapping.yaml`
-- `core/templates/page_templates/governance/Layout_Grid_System.yaml`
-- `core/templates/page_templates/governance/Color_Semantics_Formatting.yaml`
+- `core/templates/page_templates/tokens/visual_slot_mapping.yaml`
+- `core/templates/page_templates/tokens/layout_grid.yaml`
+- `core/templates/page_templates/tokens/color_semantics.yaml`
 
 ## T2 Action Teaser and layout
 

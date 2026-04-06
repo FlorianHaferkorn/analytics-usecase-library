@@ -153,6 +153,70 @@ A T2 page is complete when:
 
 ---
 
+## Narrative Arc
+
+### The Big Idea
+
+One sentence that every T2 page must communicate:
+
+> “The [Δ] gap vs [reference] is driven by [top factor] ([magnitude]) — intervention in [area] is required.”
+
+Example: *”The -€4.2M revenue gap vs Plan YTD is driven primarily by DACH volume decline (-€3.1M) and an adverse mix effect — intervention in DACH promotional strategy is required.”*
+
+### Story Structure
+
+**Act 1 — Signal the Deviation (3 seconds, KPI Band)**
+The KPI delta is the first word of the T2 story. It tells the reader: “We have a gap. Here is the magnitude.”
+- The primary KPI shows the deviation clearly — absolute + percentage, colored signal.
+- Supporting KPIs show whether the gap is isolated or systemic.
+- The reader must not need to look at the driver charts to understand that a problem exists.
+
+**Act 2 — Explain the Gap (30 seconds, Driver Zone)**
+The three driver visuals together answer “Why?”. Each adds one layer to the explanation:
+- `Main_1` (Trend): *”This is the journey — when did the deviation begin, and is it accelerating?”*
+  The trend answers whether this is a new problem or an ongoing one. Inflection points are annotated.
+- `Main_2` (Variance Bridge / Waterfall): *”This is the breakdown — which factors explain the gap?”*
+  The waterfall is the structural heart of T2. It reconciles the KPI delta into named drivers.
+  Each bar = one driver (Price, Volume, Mix, FX). The bars must sum to the total deviation.
+- `Main_3` (Ranking / Driver Ranking): *”These are the actors — which entities drive each factor?”*
+  Sorted by magnitude of deviation. Worst-performing entity first. Immediately actionable.
+
+**Act 3 — Limited Validation (300 seconds, Detail Page)**
+The detail page validates the drivers at entity level. It does not introduce new drivers or explanations.
+
+### Visual Title Narrative
+
+The three driver visual titles must tell a coherent “Why?” story:
+
+| Slot | Narrative Role | Example Title |
+|---|---|---|
+| `Main_1` (Trend) | “When did the problem start?” | “How has Net Sales trended vs Plan over the last 12 months?” |
+| `Main_2` (Variance) | “What caused the gap?” | “Which factors explain the -€4.2M revenue gap vs Plan?” |
+| `Main_3` (Ranking) | “Who/where is the gap?” | “Which regions drive the largest deviation from Plan?” |
+
+Together they form: *”The gap started in [period], was caused by [factors], and is concentrated in [entities].”*
+
+### Waterfall Chart Contract
+
+The variance bridge is the most important visual on a T2 page. It must:
+- Start with the reference value (Plan or Prior Year) on the left
+- End with the actual value on the right
+- Sum of all driver bars = (Actual − Reference)
+- Each bar is labeled with absolute value and % of total gap
+- Positive contributions (green), negative contributions (red), net bars (neutral)
+- Maximum 7–8 bars; group smaller drivers into “Other”
+
+### What Makes This Page Fail the Narrative
+
+| Failure | Cause | Fix |
+|---|---|---|
+| Variance bridge doesn't reconcile | KPI delta ≠ sum of waterfall bars | Fix data model; validate driver logic |
+| Three charts tell disconnected stories | Different time periods, different KPIs | Align all three to same KPI, same period |
+| Trend inflection not annotated | Cause of deviation is not explained | Add reference line or text callout at the key date |
+| Ranking sorted alphabetically | Hardest-to-scan ordering | Sort by absolute deviation magnitude, descending |
+
+---
+
 ## Key Principle
 >
 > **T2 answers “Why are we off target?” – not “Who failed?” and not “What should we do?”**

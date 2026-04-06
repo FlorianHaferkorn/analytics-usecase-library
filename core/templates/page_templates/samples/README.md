@@ -39,4 +39,4 @@ These samples are **design references**, not generated artifacts. They show what
 
 ## Reference
 
-Full design spec: `core/templates/page_templates/layout_330300_design_spec.md`
+Full design spec: `core/templates/page_templates/Design_Spec_3_30_300.md`

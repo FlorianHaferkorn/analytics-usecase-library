@@ -149,6 +149,58 @@ A T1 page is complete when:
 
 ---
 
+## Narrative Arc
+
+### The Big Idea
+
+One sentence that every T1 page must communicate to the reader:
+
+> “[Domain] is [on/off] track — [primary KPI] is [Δ vs target], and [momentum direction].”
+
+Example: *”Commercial performance is off track — Net Sales is -8% vs Plan YTD, with declining momentum over the last three months.”*
+
+If this sentence cannot be constructed from the page content, the page is not ready.
+
+### Story Structure
+
+**Act 1 — Establish (3 seconds, KPI Band)**
+The KPI band is the opening statement. It answers the Big Idea question immediately.
+- The hero KPI (strategic outcome) anchors the top-left position.
+- Green/red signal immediately frames the narrative: “We are winning” or “We have a problem.”
+- The reader must not need to go to Act 2 to understand Act 1.
+
+**Act 2 — Contextualize (30 seconds, Driver Zone)**
+The driver visuals answer “How did we get here?” — not “Why”, which belongs to T2.
+- `Main_1` (Trend): *”This is the trajectory — are we improving or deteriorating?”*
+- `Main_2` (Variance or portfolio comparison): *”This is where we stand across the portfolio.”*
+- T1 does NOT answer “What caused it?” — that escalates to T2.
+
+**Act 3 — Strategic Signal (optional, bottom or callout)**
+At most 1–2 brief strategic callouts: high-level flags for leadership attention.
+- *”Region X requires strategic review”* — direction only, no operational detail.
+- No action steps. No owner assignment. No data tables.
+
+### Visual Title Narrative
+
+The three visual titles on a T1 page should tell a strategic story together when read in sequence:
+
+| Slot | Narrative Role | Example Title |
+|---|---|---|
+| `Main_1` (Trend) | “The journey” | “How has [primary KPI] developed over the last 12 months?” |
+| `Main_2` (Portfolio/Variance) | “The portfolio position” | “Which strategic units are on and off track?” |
+| `Main_3` (optional, Mix/Ranking) | “The composition” | “How is [KPI] distributed across the portfolio?” |
+
+### What Makes This Page Fail the Narrative
+
+| Failure | Cause | Fix |
+|---|---|---|
+| Big Idea not visible in 3 seconds | Hero KPI buried or no status signal | Move primary KPI to top-left; add semantic color |
+| Page explains “why” | T2 content leaked in | Remove driver decomposition; keep trend only |
+| Too many KPIs dilute the signal | More than 6 KPIs in Zone 1 | Reduce to 4 strategic KPIs; move others to T2 |
+| Charts tell disconnected stories | No common thread between visuals | Align all visuals to one strategic dimension |
+
+---
+
 ## Key Principle
 >
 > **T1 answers “Are we on track?” – nothing else.**

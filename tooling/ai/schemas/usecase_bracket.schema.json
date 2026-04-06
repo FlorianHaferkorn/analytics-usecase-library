@@ -130,6 +130,16 @@
           "additionalProperties": false,
           "properties": {
             "title": { "type": "string" },
+            "decision_question": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "The primary decision question this page answers. Displayed as a banner. Max 80 chars recommended. See Content_Quality_Guide.md §5."
+            },
+            "big_idea": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "One-sentence narrative anchor for this page (Knaflic Big Idea). Template: '[Domain] is [on/off] track — [KPI] is [Δ], [momentum].' See Storytelling_Principles.md §2."
+            },
             "page_type": {
               "type": "string",
               "enum": ["T1_Strategic_Overview", "T2_Tactical_Variance", "T3_Operational_Monitoring", "T4_Prescriptive_Recommendation"],
@@ -148,8 +158,26 @@
                 "kpi_id": { "type": "string", "description": "North Star KPI ID." },
                 "visual_type": {
                   "type": "string",
-                  "description": "Abstract visual type (tool-agnostic). Fabric maps to PBI visualType in products/fabric/powerbi.",
-                  "enum": ["kpi_card"]
+                  "description": "Abstract visual type from Abstract_Visual_Types.md. Connectors translate to tool-native component.",
+                  "enum": ["kpi_card", "kpi_card_hero", "kpi_card_compact"]
+                },
+                "sparkline_field": {
+                  "type": "string",
+                  "description": "Measure or field name for the sparkline mini-trend in the KPI card (optional)."
+                },
+                "comparison": {
+                  "type": "string",
+                  "enum": ["vs_plan", "vs_py", "vs_prior_month", "vs_prior_refresh", "vs_target"],
+                  "description": "Reference period for the delta calculation."
+                },
+                "status_logic": {
+                  "type": "string",
+                  "enum": ["higher_is_better", "lower_is_better"],
+                  "description": "Signal direction: determines whether a positive delta is green or red."
+                },
+                "target_value": {
+                  "type": "number",
+                  "description": "Explicit target value (optional — used when target is a fixed threshold, not a measure)."
                 }
               }
             },
@@ -167,8 +195,30 @@
                   },
                   "visual_type": {
                     "type": "string",
-                    "description": "Abstract visual type (tool-agnostic). Fabric maps to PBI visualType in products/fabric/powerbi.",
-                    "enum": ["trend_line", "bar_chart", "waterfall", "hundred_percent_stacked_bar", "stacked_bar", "funnel", "kpi_card"]
+                    "description": "Abstract visual type from Abstract_Visual_Types.md. Connectors translate to tool-native component.",
+                    "enum": [
+                      "line_chart",
+                      "area_chart",
+                      "bar_chart_horizontal",
+                      "bar_chart_column",
+                      "stacked_bar_100pct",
+                      "waterfall",
+                      "scatter_plot",
+                      "decomposition_tree",
+                      "funnel_chart",
+                      "recommendation_table",
+                      "table_with_databars",
+                      "kpi_card",
+                      "kpi_card_hero",
+                      "kpi_card_compact",
+                      "status_tile",
+                      "text_narrative",
+                      "trend_line",
+                      "bar_chart",
+                      "hundred_percent_stacked_bar",
+                      "stacked_bar",
+                      "funnel"
+                    ]
                   },
                   "slot_id": {
                     "type": "string",
@@ -188,6 +238,16 @@
           "additionalProperties": false,
           "properties": {
             "title": { "type": "string" },
+            "decision_question": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "The primary decision question this detail page answers. Max 80 chars recommended. See Content_Quality_Guide.md §5."
+            },
+            "big_idea": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "One-sentence narrative anchor for this page (Knaflic Big Idea). Template depends on page type. See Storytelling_Principles.md §2."
+            },
             "page_type": {
               "type": "string",
               "enum": ["T1_Strategic_Overview", "T2_Tactical_Variance", "T3_Operational_Monitoring", "T4_Prescriptive_Recommendation"],
@@ -292,6 +352,18 @@
           "minimum": 1,
           "maximum": 100,
           "description": "Composite priority score (1-100). Can be auto-calculated or manually set."
+        }
+      }
+    },
+    "brand": {
+      "type": "object",
+      "description": "Brand override. Only needed for multi-brand companies. Omit to inherit repo_config.yaml showcase_id.",
+      "additionalProperties": false,
+      "properties": {
+        "brand_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "showcase_id of the brand to use. Must match a directory under showcases/<brand_id>/brand/brand_spec.yaml. Takes precedence over repo_config.yaml showcase_id."
         }
       }
     },
