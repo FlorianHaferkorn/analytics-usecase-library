@@ -1,65 +1,45 @@
-/// Quality fact table: first pass yield, scrap, rework, defects, complaints per line/product/day.
+/// Line-day quality facts (total/good/scrap/rework units, defect count) for FPY and COPQ.
 table fact_quality
-		lineageTag: f6a7b8c9-d0e1-2345-fg67-hi89jk01fg23
-
-		column DateKey
-			dataType: Int64
-			sourceColumn: DateKey
-			summarizeBy: none
-
-		column OrgKey
-			dataType: Int64
-			sourceColumn: OrgKey
-			summarizeBy: none
-
-		column ProductKey
-			dataType: Int64
-			sourceColumn: ProductKey
-			summarizeBy: none
-
-		column 'Produced Units'
-			dataType: Decimal
-			sourceColumn: Produced Units
-			summarizeBy: none
-
-		column 'Good Units'
-			dataType: Decimal
-			sourceColumn: Good Units
-			summarizeBy: none
-
-		column 'Scrap Units'
-			dataType: Decimal
-			sourceColumn: Scrap Units
-			summarizeBy: none
-
-		column 'Rework Units'
-			dataType: Decimal
-			sourceColumn: Rework Units
-			summarizeBy: none
-
-		column 'Defect Count'
-			dataType: Int64
-			sourceColumn: Defect Count
-			summarizeBy: none
-
-		column 'COPQ Amount'
-			dataType: Decimal
-			sourceColumn: COPQ Amount
-			summarizeBy: none
-
-		column 'Complaint Count'
-			dataType: Int64
-			sourceColumn: Complaint Count
-			summarizeBy: none
-
-		partition fact_quality = m
-			mode: import
-			source =
+	lineageTag: 09fce7df-982f-47d4-ab54-d57bb3ff1b15
+	column DateKey
+		dataType: Int64
+		sourceColumn: DateKey
+		summarizeBy: none
+	column OrgKey
+		dataType: Int64
+		sourceColumn: OrgKey
+		summarizeBy: none
+	column ProductKey
+		dataType: Int64
+		sourceColumn: ProductKey
+		summarizeBy: none
+	column 'Total Units'
+		dataType: Decimal
+		sourceColumn: Total Units
+		summarizeBy: none
+	column 'Good Units'
+		dataType: Decimal
+		sourceColumn: Good Units
+		summarizeBy: none
+	column 'Scrap Units'
+		dataType: Decimal
+		sourceColumn: Scrap Units
+		summarizeBy: none
+	column 'Rework Units'
+		dataType: Decimal
+		sourceColumn: Rework Units
+		summarizeBy: none
+	column 'Defect Count'
+		dataType: Decimal
+		sourceColumn: Defect Count
+		summarizeBy: none
+	partition fact_quality = m
+		mode: import
+		source =
 			let
-					Source = Folder.Files(GoldDataPath & "/facts/fact_quality"),
-					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-					FirstFile = FilteredFiles{0}[Content],
-					ParquetData = Parquet.Document(FirstFile)
-					in
-					ParquetData
-
+				Source = Folder.Files(GoldDataPath & "/facts/fact_quality"),
+				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+				FirstFile = FilteredFiles{0}[Content],
+				ParquetData = Parquet.Document(FirstFile)
+			in
+				ParquetData

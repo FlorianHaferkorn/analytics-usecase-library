@@ -1,0 +1,9 @@
+relationship {{ rel_name }}
+	fromColumn: {{ from_table }}.{{ from_column }}
+	toColumn: {{ to_table }}.{{ to_column }}
+{%- if cross_filter == 'both' %}
+	crossFilteringBehavior: bothDirections
+{%- endif %}
+{%- if is_inactive %}
+	isActive: false
+{%- endif %}

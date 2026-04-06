@@ -1,308 +1,567 @@
-# Deploy Semantic Model and Report to Fabric (or Power BI).
-# 1) Runs deploy_gate.ps1 (Zero-Tolerance: no deploy if failed_data_contracts or registry errors).
-# 2) Workspace create/get (Fabric REST or Power BI groups API).
-# 3) Semantic Model import — via `fab` if available, az rest fallback otherwise.
-# 4) Report publish and bind to dataset.
-# 5) Refresh schedule (optional).
-# 6) Security/RLS (optional).
+# Deploy Semantic Models and Reports to Microsoft Fabric / Power BI.
 #
-# Configuration: set env vars (do not commit secrets):
-#   FABRIC_TENANT_ID, FABRIC_CLIENT_ID, FABRIC_CLIENT_SECRET (or PBI_* equivalents)
-#   FABRIC_WORKSPACE_NAME or FABRIC_WORKSPACE_ID
-#   FABRIC_DATASET_ID or PBI_DATASET_ID (for refresh schedule; or pass -DatasetId)
+# Pipeline:
+#   1) deploy_gate.ps1      – Zero-Tolerance gate (contracts + registry)
+#   2) Workspace            – GET or CREATE via Fabric REST v1
+#   3) Items deploy         – SemanticModel + Reports per domain via fabric-cicd (fabric_release.py)
+#   4) RLS Sync             – Apply OrgAccess role members per deployed dataset
+#   5) Refresh schedule     – PATCH datasets/{id}/refreshSchedule (Power BI REST)
+#   6) Summary              – Per-domain result table
 #
-# Deploy strategy:
-#   Primary:  fab import (fast, supports byPath, requires fab CLI authenticated)
-#   Fallback: az rest createItemWithDefinition (requires az login, base64 TMDL encoding)
-#   Use -ForceFabCli or -ForceAzRest to override auto-detection.
+# Auth (Service Principal – set as env vars, never commit):
+#   FABRIC_TENANT_ID, FABRIC_CLIENT_ID, FABRIC_CLIENT_SECRET
+#   Fallback aliases: PBI_TENANT_ID, PBI_CLIENT_ID, PBI_CLIENT_SECRET
+#
+# Optional env vars:
+#   FABRIC_WORKSPACE_ID     – skip workspace lookup (use directly)
+#   FABRIC_CAPACITY_ID      – assign capacity when creating workspace
+#   FABRIC_RLS_GROUP_ID     – AAD group object ID to assign to OrgAccess RLS role
+#
+# Usage examples:
+#   .\deploy.ps1 -All -Environment dev
+#   .\deploy.ps1 -Domains Commercial,Finance -Environment tst -DryRun
+#   .\deploy.ps1 -GateOnly
+#   .\deploy.ps1 -All -SkipSecurity -SkipRefresh
 
 param(
-	[string]$Root = ".",
-	[string]$WorkspaceName = "DM_ActionReady",
-	[string]$WorkspaceId,
-	[string]$ModelPath,
-	[string]$ReportPath,
-	[string]$DatasetId,
-	[switch]$GateOnly,
-	[switch]$SkipRefresh,
-	[switch]$SkipSecurity,
-	[switch]$ForceFabCli,
-	[switch]$ForceAzRest
+    [string]$Root          = ".",
+    [string]$WorkspaceName = "DM_ActionReady",
+    [string]$Environment   = "dev",
+    [string[]]$Domains     = @("Commercial","Finance","Operations","SupplyChain","Experience"),
+    [switch]$All,
+    [string]$CapacityId,
+    [switch]$GateOnly,
+    [switch]$SkipRefresh,
+    [switch]$SkipSecurity,
+    [switch]$DryRun
 )
 
 $ErrorActionPreference = "Stop"
+$script:FabricApiBase  = "https://api.fabric.microsoft.com/v1"
+$script:PbiApiBase     = "https://api.powerbi.com/v1.0/myorg"
 
-# Get Power BI / Fabric access token (client credentials). Requires FABRIC_* or PBI_* env vars.
-function Get-PowerBIAccessToken {
-	$tenantId = if ($env:FABRIC_TENANT_ID) { $env:FABRIC_TENANT_ID } else { $env:PBI_TENANT_ID }
-	$clientId = if ($env:FABRIC_CLIENT_ID) { $env:FABRIC_CLIENT_ID } else { $env:PBI_CLIENT_ID }
-	$clientSecret = if ($env:FABRIC_CLIENT_SECRET) { $env:FABRIC_CLIENT_SECRET } else { $env:PBI_CLIENT_SECRET }
-	if (-not $tenantId -or -not $clientId -or -not $clientSecret) {
-		return $null
-	}
-	$scope = [System.Net.WebUtility]::UrlEncode("https://analysis.windows.net/powerbi/api/.default")
-	$body = "grant_type=client_credentials&client_id=$([System.Net.WebUtility]::UrlEncode($clientId))&client_secret=$([System.Net.WebUtility]::UrlEncode($clientSecret))&scope=$scope"
-	$uri = "https://login.microsoftonline.com/$tenantId/oauth2/v2.0/token"
-	try {
-		$response = Invoke-RestMethod -Method Post -Uri $uri -Body $body -ContentType "application/x-www-form-urlencoded"
-		return $response.access_token
-	} catch {
-		Write-Host "  Get-PowerBIAccessToken failed: $_" -ForegroundColor Red
-		return $null
-	}
+# ────────────────────────────────────────────────────────────────────────────────
+# HELPERS – Paths
+# ────────────────────────────────────────────────────────────────────────────────
+
+function Resolve-RepoRoot {
+    param([string]$Provided)
+    $candidate = if ($Provided -and (Test-Path $Provided)) {
+        (Resolve-Path $Provided).Path
+    } else { (Get-Location).Path }
+    # Walk up until core/ + products/ exist (repo root)
+    $cur = $candidate
+    while ($cur) {
+        if ((Test-Path (Join-Path $cur "core")) -and (Test-Path (Join-Path $cur "products"))) {
+            return $cur
+        }
+        $parent = Split-Path -Parent $cur
+        if ($parent -eq $cur) { break }
+        $cur = $parent
+    }
+    return $candidate
 }
 
-# Set Power BI dataset refresh schedule via REST. See: https://learn.microsoft.com/en-us/rest/api/power-bi/datasets/update-refresh-schedule
-function Set-PowerBIRefreshSchedule {
-	param(
-		[Parameter(Mandatory = $true)]
-		[string]$DatasetId,
-		[Parameter(Mandatory = $true)]
-		[string]$AccessToken,
-		[string[]]$Days = @("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"),
-		[string[]]$Times = @("07:00"),
-		[string]$LocalTimeZoneId = "UTC",
-		[string]$NotifyOption = "NoNotification"
-	)
-	$payload = @{
-		value = @{
-			days             = $Days
-			times            = $Times
-			localTimeZoneId  = $LocalTimeZoneId
-			notifyOption     = $NotifyOption
-		}
-	} | ConvertTo-Json -Depth 4
-	$uri = "https://api.powerbi.com/v1.0/myorg/datasets/$DatasetId/refreshSchedule"
-	$headers = @{
-		"Authorization" = "Bearer $AccessToken"
-		"Content-Type"  = "application/json"
-	}
-	Invoke-RestMethod -Method Patch -Uri $uri -Headers $headers -Body $payload
+# ────────────────────────────────────────────────────────────────────────────────
+# HELPERS – Authentication
+# ────────────────────────────────────────────────────────────────────────────────
+
+function Get-SPCredentials {
+    return @{
+        TenantId     = if ($env:FABRIC_TENANT_ID)     { $env:FABRIC_TENANT_ID }     else { $env:PBI_TENANT_ID }
+        ClientId     = if ($env:FABRIC_CLIENT_ID)     { $env:FABRIC_CLIENT_ID }     else { $env:PBI_CLIENT_ID }
+        ClientSecret = if ($env:FABRIC_CLIENT_SECRET) { $env:FABRIC_CLIENT_SECRET } else { $env:PBI_CLIENT_SECRET }
+    }
 }
 
-# ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function Test-Command([string]$Name) {
-	return ($null -ne (Get-Command $Name -ErrorAction SilentlyContinue))
+function Get-OAuthToken {
+    # Returns bearer token for Power BI / Fabric API (client credentials flow).
+    param([string]$Scope = "https://analysis.windows.net/powerbi/api/.default")
+    $creds = Get-SPCredentials
+    if (-not $creds.TenantId -or -not $creds.ClientId -or -not $creds.ClientSecret) {
+        Write-Host "  [WARN] No service-principal credentials found." `
+            + " Set FABRIC_TENANT_ID / FABRIC_CLIENT_ID / FABRIC_CLIENT_SECRET." -ForegroundColor Yellow
+        return $null
+    }
+    $body = "grant_type=client_credentials" +
+            "&client_id=$([Uri]::EscapeDataString($creds.ClientId))" +
+            "&client_secret=$([Uri]::EscapeDataString($creds.ClientSecret))" +
+            "&scope=$([Uri]::EscapeDataString($Scope))"
+    $uri = "https://login.microsoftonline.com/$($creds.TenantId)/oauth2/v2.0/token"
+    try {
+        $resp = Invoke-RestMethod -Method Post -Uri $uri -Body $body `
+            -ContentType "application/x-www-form-urlencoded" -ErrorAction Stop
+        return $resp.access_token
+    } catch {
+        Write-Host "  [ERROR] Token request failed: $_" -ForegroundColor Red
+        return $null
+    }
 }
 
-function Get-FabricToken {
-	<#
-	.SYNOPSIS
-	  Return a Fabric API bearer token using az cli or client credentials.
-	#>
-	# Try az cli first (interactive sessions)
-	if (Test-Command "az") {
-		try {
-			$token = az account get-access-token --resource "https://api.fabric.microsoft.com" --query accessToken --output tsv 2>$null
-			if ($token) { return $token }
-		} catch { }
-	}
-	# Fall back to client credentials via env vars
-	return Get-PowerBIAccessToken
+# ────────────────────────────────────────────────────────────────────────────────
+# HELPERS – REST wrappers
+# ────────────────────────────────────────────────────────────────────────────────
+
+function Invoke-FabricREST {
+    param(
+        [string]$Method,
+        [string]$Path,
+        [string]$Token,
+        [object]$Body   = $null,
+        [switch]$Silent
+    )
+    $uri     = "$script:FabricApiBase$Path"
+    $headers = @{ "Authorization" = "Bearer $Token"; "Content-Type" = "application/json" }
+    $params  = @{ Method = $Method; Uri = $uri; Headers = $headers; ErrorAction = "Stop" }
+    if ($Body) { $params["Body"] = ($Body | ConvertTo-Json -Depth 10 -Compress) }
+    try {
+        return Invoke-RestMethod @params
+    } catch {
+        if (-not $Silent) {
+            Write-Host "  [ERROR] Fabric REST $Method $Path -> $_" -ForegroundColor Red
+        }
+        return $null
+    }
 }
 
-function Invoke-FabricRestDeploy {
-	<#
-	.SYNOPSIS
-	  Deploy a PBIP semantic model to Fabric via az rest createItemWithDefinition.
-	  Fallback when `fab` CLI is unavailable.
-	.PARAMETER ModelPath
-	  Path to the .SemanticModel directory (containing definition/).
-	.PARAMETER WorkspaceId
-	  Target Fabric workspace GUID.
-	#>
-	param(
-		[Parameter(Mandatory)][string]$ModelPath,
-		[Parameter(Mandatory)][string]$WorkspaceId
-	)
-
-	$defPath = Join-Path $ModelPath "definition"
-	if (-not (Test-Path $defPath)) {
-		throw "definition/ folder not found in: $ModelPath"
-	}
-
-	$modelName = (Get-Item $ModelPath).BaseName -replace "\.SemanticModel$", ""
-	Write-Host "  az rest deploy: $modelName → workspace $($WorkspaceId.Substring(0,8))…" -ForegroundColor Cyan
-
-	# Build base64-encoded part list for createItemWithDefinition
-	$parts = [System.Collections.ArrayList]::new()
-	Get-ChildItem -Path $defPath -Recurse -File | ForEach-Object {
-		$relPath = $_.FullName.Replace($defPath, "").TrimStart("/\").Replace("\", "/")
-		$bytes   = [System.IO.File]::ReadAllBytes($_.FullName)
-		$b64     = [System.Convert]::ToBase64String($bytes)
-		[void]$parts.Add(@{
-			path    = $relPath
-			payload = $b64
-			payloadType = "InlineBase64"
-		})
-	}
-
-	$pbismPath = Join-Path $ModelPath "definition.pbism"
-	$pbismPart = $null
-	if (Test-Path $pbismPath) {
-		$bytes    = [System.IO.File]::ReadAllBytes($pbismPath)
-		$b64      = [System.Convert]::ToBase64String($bytes)
-		$pbismPart = @{ path = "definition.pbism"; payload = $b64; payloadType = "InlineBase64" }
-		[void]$parts.Insert(0, $pbismPart)
-	}
-
-	$body = @{
-		displayName = $modelName
-		type        = "SemanticModel"
-		definition  = @{
-			parts = $parts.ToArray()
-		}
-	} | ConvertTo-Json -Depth 10
-
-	$bodyFile = [System.IO.Path]::GetTempFileName()
-	$body | Set-Content -Path $bodyFile -Encoding UTF8
-
-	try {
-		$apiUrl  = "https://api.fabric.microsoft.com/v1/workspaces/$WorkspaceId/items"
-		$result  = az rest --method POST --url $apiUrl --headers "Content-Type=application/json" --body "@$bodyFile" 2>&1
-		if ($LASTEXITCODE -ne 0) {
-			throw "az rest failed (exit $LASTEXITCODE): $result"
-		}
-		$resultObj = $result | ConvertFrom-Json -ErrorAction SilentlyContinue
-		$operationId = $resultObj.operationId
-		if ($operationId) {
-			Write-Host "  LRO started: $operationId — polling..." -ForegroundColor DarkGray
-			Invoke-PollLro -WorkspaceId $WorkspaceId -OperationId $operationId
-		}
-		Write-Host "  az rest deploy: success." -ForegroundColor Green
-		return $resultObj
-	} finally {
-		Remove-Item $bodyFile -ErrorAction SilentlyContinue
-	}
+function Invoke-PBIREST {
+    param(
+        [string]$Method,
+        [string]$Path,
+        [string]$Token,
+        [object]$Body   = $null,
+        [switch]$Silent
+    )
+    $uri     = "$script:PbiApiBase$Path"
+    $headers = @{ "Authorization" = "Bearer $Token"; "Content-Type" = "application/json" }
+    $params  = @{ Method = $Method; Uri = $uri; Headers = $headers; ErrorAction = "Stop" }
+    if ($Body) { $params["Body"] = ($Body | ConvertTo-Json -Depth 10 -Compress) }
+    try {
+        return Invoke-RestMethod @params
+    } catch {
+        if (-not $Silent) {
+            Write-Host "  [ERROR] Power BI REST $Method $Path -> $_" -ForegroundColor Red
+        }
+        return $null
+    }
 }
 
-function Invoke-PollLro {
-	<#
-	.SYNOPSIS
-	  Poll a Fabric LRO operation until it completes (Succeeded) or fails.
-	#>
-	param(
-		[string]$WorkspaceId,
-		[string]$OperationId,
-		[int]$TimeoutSeconds = 300,
-		[int]$PollIntervalSeconds = 5
-	)
-	$deadline = (Get-Date).AddSeconds($TimeoutSeconds)
-	$pollUrl  = "https://api.fabric.microsoft.com/v1/workspaces/$WorkspaceId/operations/$OperationId/result"
+# ────────────────────────────────────────────────────────────────────────────────
+# STEP 2 – Workspace: GET or CREATE
+# ────────────────────────────────────────────────────────────────────────────────
 
-	while ((Get-Date) -lt $deadline) {
-		Start-Sleep -Seconds $PollIntervalSeconds
-		$raw = az rest --method GET --url $pollUrl 2>&1
-		if ($LASTEXITCODE -ne 0) { break }
-		$status = ($raw | ConvertFrom-Json -ErrorAction SilentlyContinue).status
-		Write-Host "    LRO status: $status" -ForegroundColor DarkGray
-		if ($status -in @("Succeeded", "Completed")) { return }
-		if ($status -in @("Failed", "Cancelled")) {
-			throw "LRO $OperationId ended with status: $status"
-		}
-	}
-	throw "LRO $OperationId did not complete within $TimeoutSeconds seconds"
+function Get-OrCreate-FabricWorkspace {
+    param([string]$Name, [string]$Token, [string]$CapacityId)
+
+    # Short-circuit: workspace ID already provided via env var
+    if ($env:FABRIC_WORKSPACE_ID) {
+        Write-Host "  Using FABRIC_WORKSPACE_ID from env: $($env:FABRIC_WORKSPACE_ID)" -ForegroundColor Gray
+        return $env:FABRIC_WORKSPACE_ID
+    }
+
+    if (-not $Token) {
+        Write-Host "  [SKIP] No token available – workspace step skipped." -ForegroundColor Yellow
+        return $null
+    }
+
+    # List workspaces (paginated – Fabric REST v1 does not support OData $filter on displayName)
+    Write-Host "  Searching for workspace '$Name'..." -ForegroundColor Gray
+    $continuationToken = $null
+    do {
+        $path = "/workspaces"
+        if ($continuationToken) {
+            $path += "?continuationToken=$([Uri]::EscapeDataString($continuationToken))"
+        }
+        $page = Invoke-FabricREST -Method Get -Path $path -Token $Token -Silent
+        if (-not $page) { break }
+        $match = $page.value | Where-Object { $_.displayName -eq $Name } | Select-Object -First 1
+        if ($match) {
+            Write-Host "  Found existing workspace: $($match.id)" -ForegroundColor Gray
+            return $match.id
+        }
+        $continuationToken = $page.continuationToken
+    } while ($continuationToken)
+
+    # Not found – create
+    Write-Host "  Workspace '$Name' not found – creating..." -ForegroundColor Gray
+    if ($DryRun) {
+        Write-Host "  [DRY-RUN] Would POST /workspaces { displayName: '$Name' }" -ForegroundColor Cyan
+        return "dry-run-workspace-id"
+    }
+
+    $createBody = @{ displayName = $Name }
+    if ($CapacityId) { $createBody["capacityId"] = $CapacityId }
+
+    $created = Invoke-FabricREST -Method Post -Path "/workspaces" -Token $Token -Body $createBody
+    if (-not $created) { throw "Failed to create Fabric workspace '$Name'." }
+
+    Write-Host "  Created workspace: $($created.id)" -ForegroundColor Green
+    return $created.id
 }
 
-# ─── Main ─────────────────────────────────────────────────────────────────────
+# ────────────────────────────────────────────────────────────────────────────────
+# STEP 3 – Items deploy: delegate to fabric_release.py (fabric-cicd)
+# ────────────────────────────────────────────────────────────────────────────────
 
-$repoRoot = if ($Root -and (Test-Path $Root)) { (Resolve-Path $Root).Path } else { (Get-Location).Path }
+function Invoke-FabricRelease {
+    param(
+        [string]$RepoRoot,
+        [string]$WorkspaceId,
+        [string]$Environment,
+        [string]$Domain         # e.g. "Commercial"; empty = all domains
+    )
+
+    $releaseScript = Join-Path $RepoRoot "products\fabric\powerbi\deployment\scripts\fabric_release.py"
+    if (-not (Test-Path $releaseScript)) {
+        Write-Host "  [WARN] fabric_release.py not found: $releaseScript" -ForegroundColor Yellow
+        return $false
+    }
+
+    # Dist root contains all PBIP folders (SemanticModel + Report subfolders)
+    $distRoot = Join-Path $RepoRoot "products\fabric\powerbi\dist"
+
+    # Pass SP credentials to Python via azure-identity expected env vars
+    $creds = Get-SPCredentials
+    if ($creds.TenantId)     { $env:AZURE_TENANT_ID     = $creds.TenantId }
+    if ($creds.ClientId)     { $env:AZURE_CLIENT_ID     = $creds.ClientId }
+    if ($creds.ClientSecret) { $env:AZURE_CLIENT_SECRET = $creds.ClientSecret }
+
+    $pyArgs = @(
+        $releaseScript,
+        "--environment", $Environment,
+        "--repo_path",   $distRoot,
+        "--item_types",  "SemanticModel,Report",
+        "--layers",      "DM"
+    )
+    if ($WorkspaceId)  { $pyArgs += @("--workspace_id", $WorkspaceId) }
+    if ($Domain)       { $pyArgs += @("--domain_filter", $Domain) }
+    if ($DryRun)       { $pyArgs += "--dry_run" }
+
+    Write-Host "  fabric_release.py (domain=$(if ($Domain) { $Domain } else { 'all' }), env=$Environment)..." -ForegroundColor Gray
+
+    if ($DryRun) {
+        Write-Host "  [DRY-RUN] python $($pyArgs -join ' ')" -ForegroundColor Cyan
+        return $true
+    }
+
+    try {
+        $output = & python @pyArgs 2>&1
+        $output | ForEach-Object { Write-Host "    $_" -ForegroundColor DarkGray }
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "  [ERROR] fabric_release.py exited with code $LASTEXITCODE" -ForegroundColor Red
+            return $false
+        }
+        return $true
+    } catch {
+        Write-Host "  [ERROR] fabric_release.py invocation failed: $_" -ForegroundColor Red
+        return $false
+    }
+}
+
+# ────────────────────────────────────────────────────────────────────────────────
+# STEP 3b – Resolve deployed item IDs from workspace (for RLS + refresh)
+# ────────────────────────────────────────────────────────────────────────────────
+
+function Get-WorkspaceDatasetMap {
+    # Returns @{ DisplayName -> datasetId }
+    param([string]$WorkspaceId, [string]$Token)
+    if (-not $Token -or -not $WorkspaceId) { return @{} }
+    $resp = Invoke-PBIREST -Method Get -Path "/groups/$WorkspaceId/datasets" -Token $Token -Silent
+    if (-not $resp) { return @{} }
+    $map = @{}
+    $resp.value | ForEach-Object { $map[$_.name] = $_.id }
+    return $map
+}
+
+# ────────────────────────────────────────────────────────────────────────────────
+# STEP 4 – RLS Sync: read blueprint security_roles, assign members via Power BI REST
+# ────────────────────────────────────────────────────────────────────────────────
+
+function Read-BlueprintRoles {
+    # Parse security_roles from domain Blueprint YAML via Python (avoids PowerShell-Yaml dependency)
+    param([string]$RepoRoot, [string]$DomainName)
+    $blueprintPath = Join-Path $RepoRoot "products\fabric\powerbi\blueprints\$DomainName.yaml"
+    if (-not (Test-Path $blueprintPath)) { return @() }
+    $safePath = $blueprintPath -replace "\\", "/"
+    $pyScript = "import yaml,json,sys; d=yaml.safe_load(open(r'$safePath',encoding='utf-8')); print(json.dumps(d.get('security_roles',[])))"
+    try {
+        $json = & python -c $pyScript 2>$null
+        if ($json) { return ($json | ConvertFrom-Json) }
+    } catch {}
+    return @()
+}
+
+function Sync-RLSRoles {
+    param(
+        [string]$WorkspaceId,
+        [string]$DatasetId,
+        [string]$DomainName,
+        [string]$Token,
+        [string]$RepoRoot,
+        [string]$RlsGroupId    # AAD group object ID for OrgAccess
+    )
+
+    if (-not $Token -or -not $WorkspaceId -or -not $DatasetId) {
+        Write-Host "  [SKIP] RLS sync skipped – missing token, workspace, or dataset ID." -ForegroundColor Yellow
+        return
+    }
+
+    $roles = Read-BlueprintRoles -RepoRoot $RepoRoot -DomainName $DomainName
+    if (-not $roles -or $roles.Count -eq 0) {
+        Write-Host "  No security_roles in $DomainName blueprint – nothing to sync." -ForegroundColor Gray
+        return
+    }
+
+    foreach ($role in $roles) {
+        $roleName = $role.id
+        if (-not $roleName) { continue }
+
+        # Collect members: from FABRIC_RLS_GROUP_ID env var + blueprint members list
+        $members = [System.Collections.Generic.List[hashtable]]::new()
+
+        $effectiveGroupId = if ($RlsGroupId) { $RlsGroupId } `
+                            elseif ($env:FABRIC_RLS_GROUP_ID) { $env:FABRIC_RLS_GROUP_ID } `
+                            else { $null }
+        if ($effectiveGroupId) {
+            $members.Add(@{ memberType = "Group"; memberName = $effectiveGroupId })
+        }
+
+        # Blueprint-defined members (optional; format: {type: "Group"|"User", id: "..."})
+        if ($role.PSObject.Properties.Name -contains 'members' -and $role.members) {
+            foreach ($m in $role.members) {
+                $mType = if ($m.PSObject.Properties.Name -contains 'type') { $m.type } else { "User" }
+                $mName = if ($m.PSObject.Properties.Name -contains 'id')   { $m.id }   else { $m.name }
+                if ($mName) { $members.Add(@{ memberType = $mType; memberName = $mName }) }
+            }
+        }
+
+        if ($members.Count -eq 0) {
+            Write-Host "  Role '$roleName': no members configured (set FABRIC_RLS_GROUP_ID)." -ForegroundColor Gray
+            continue
+        }
+
+        if ($DryRun) {
+            Write-Host "  [DRY-RUN] Would PUT /groups/$WorkspaceId/datasets/$DatasetId/security { role=$roleName, members=$($members.Count) }" -ForegroundColor Cyan
+            continue
+        }
+
+        # PUT /groups/{workspaceId}/datasets/{datasetId}/security
+        # Power BI REST: replaces current member list for the specified role
+        $body   = @{ role = $roleName; members = @($members) }
+        $result = Invoke-PBIREST -Method Put `
+            -Path "/groups/$WorkspaceId/datasets/$DatasetId/security" `
+            -Token $Token -Body $body -Silent
+
+        if ($null -ne $result) {
+            Write-Host "  Role '$roleName': $($members.Count) member(s) synced." -ForegroundColor Green
+        } else {
+            # 204 No Content returns $null; treat as success if no exception was thrown
+            Write-Host "  Role '$roleName': PUT returned null (may be 204 OK or permission issue)." -ForegroundColor Yellow
+        }
+    }
+}
+
+# ────────────────────────────────────────────────────────────────────────────────
+# STEP 5 – Refresh schedule: PATCH datasets/{id}/refreshSchedule
+# ────────────────────────────────────────────────────────────────────────────────
+
+function Set-RefreshSchedule {
+    param(
+        [string]$WorkspaceId,
+        [string]$DatasetId,
+        [string]$Token,
+        [string[]]$Days   = @("Monday","Tuesday","Wednesday","Thursday","Friday"),
+        [string[]]$Times  = @("05:00","13:00"),
+        [string]$TimeZone = "UTC"
+    )
+    if (-not $Token -or -not $DatasetId) {
+        Write-Host "  [SKIP] Refresh schedule: no token or dataset ID." -ForegroundColor Gray
+        return
+    }
+
+    $body = @{
+        value = @{
+            enabled         = $true
+            days            = $Days
+            times           = $Times
+            localTimeZoneId = $TimeZone
+            notifyOption    = "NoNotification"
+        }
+    }
+
+    if ($DryRun) {
+        Write-Host "  [DRY-RUN] Would PATCH refreshSchedule for $DatasetId ($($Days -join ',') @ $($Times -join ',') $TimeZone)" -ForegroundColor Cyan
+        return
+    }
+
+    # Use group-scoped path when workspaceId is available (avoids "My workspace" ambiguity)
+    $path = if ($WorkspaceId) {
+        "/groups/$WorkspaceId/datasets/$DatasetId/refreshSchedule"
+    } else {
+        "/datasets/$DatasetId/refreshSchedule"
+    }
+
+    $result = Invoke-PBIREST -Method Patch -Path $path -Token $Token -Body $body -Silent
+    if ($null -ne $result) {
+        Write-Host "  Set: $($Days -join ',') @ $($Times -join ', ') $TimeZone" -ForegroundColor Green
+    } else {
+        # PATCH refreshSchedule returns 200 with body; null usually means permission issue
+        Write-Host "  [WARN] refreshSchedule PATCH returned null – check Build permissions on dataset." -ForegroundColor Yellow
+    }
+}
+
+# ────────────────────────────────────────────────────────────────────────────────
+# MAIN
+# ────────────────────────────────────────────────────────────────────────────────
+
+$repoRoot = Resolve-RepoRoot -Provided $Root
 Push-Location $repoRoot
 
+# Domain -> SemanticModel display name mapping (mirrors AuroraDomainMapping.ps1)
+$domainToModelName = @{
+    Commercial  = "Commercial"
+    Finance     = "Finance"
+    Operations  = "Operations"
+    SupplyChain = "SupplyChain"
+    Experience  = "Experience"
+}
+
+$deployDomains = if ($All) {
+    $domainToModelName.Keys | Sort-Object
+} else {
+    $Domains
+}
+
 try {
-	# 1) Deploy Gate – must pass before any API calls
-	$gateScript = Join-Path $repoRoot "products\fabric\powerbi\orchestrator\deploy_gate.ps1"
-	if (-not (Test-Path $gateScript)) { throw "deploy_gate.ps1 not found." }
-	& $gateScript -Root $repoRoot
-	if ($LASTEXITCODE -ne 0) {
-		Write-Host "Deploy aborted: gate failed (failed_data_contracts or registry error)." -ForegroundColor Red
-		exit 1
-	}
-	if ($GateOnly) {
-		Write-Host "GateOnly: gate passed; skipping deploy steps." -ForegroundColor Green
-		exit 0
-	}
+    $deployResults  = @{}
+    $datasetMap     = @{}
 
-	# 2) Workspace – Fabric REST or Power BI
-	Write-Host "Deploy: Workspace (Fabric/Power BI)..." -ForegroundColor Cyan
-	# TODO: GET/POST Fabric workspace API (see internal/technical_backlog.md § Power BI MCP).
-	# $workspaceId = ... (from FABRIC_WORKSPACE_ID or lookup by FABRIC_WORKSPACE_NAME)
-	Write-Host "  Stub: Workspace name = $WorkspaceName (configure FABRIC_WORKSPACE_ID or use Fabric REST)" -ForegroundColor Gray
+    # ── 1. Deploy Gate ──────────────────────────────────────────────────────────
+    Write-Host "`n[1/6] Deploy Gate" -ForegroundColor Cyan
+    $gateScript = Join-Path $repoRoot "products\fabric\powerbi\orchestrator\deploy_gate.ps1"
+    if (Test-Path $gateScript) {
+        & $gateScript -Root $repoRoot
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Deploy aborted: gate failed (failed_data_contracts or registry error)." -ForegroundColor Red
+            exit 1
+        }
+        Write-Host "  Gate PASSED." -ForegroundColor Green
+    } else {
+        Write-Host "  [WARN] deploy_gate.ps1 not found – gate skipped." -ForegroundColor Yellow
+    }
 
-	# 3) Semantic Model import — fab primary, az rest fallback
-	$modelPath = $ModelPath
-	if (-not $modelPath) { $modelPath = Join-Path $repoRoot "products\fabric\powerbi\dist\Commercial.SemanticModel" }
-	Write-Host "Deploy: Semantic Model..." -ForegroundColor Cyan
+    if ($GateOnly) {
+        Write-Host "GateOnly mode – exiting after gate." -ForegroundColor Green
+        exit 0
+    }
 
-	$wsId = if ($WorkspaceId) { $WorkspaceId } else { $env:FABRIC_WORKSPACE_ID }
+    # ── 2. Authentication ───────────────────────────────────────────────────────
+    Write-Host "`n[2/6] Authentication" -ForegroundColor Cyan
+    $token = Get-OAuthToken
+    if ($token) {
+        Write-Host "  Bearer token acquired (client credentials)." -ForegroundColor Green
+    } else {
+        Write-Host "  No token – API steps (workspace, RLS, refresh) will be skipped." -ForegroundColor Yellow
+    }
 
-	$fabAvailable = (Test-Command "fab") -and (-not $ForceAzRest)
-	$azAvailable  = (Test-Command "az")  -and (-not $ForceFabCli)
+    # ── 3. Workspace ────────────────────────────────────────────────────────────
+    Write-Host "`n[3/6] Workspace: '$WorkspaceName'" -ForegroundColor Cyan
+    $effectiveCapacityId = if ($CapacityId) { $CapacityId } else { $env:FABRIC_CAPACITY_ID }
+    $workspaceId = Get-OrCreate-FabricWorkspace `
+        -Name $WorkspaceName -Token $token -CapacityId $effectiveCapacityId
+    if ($workspaceId) {
+        Write-Host "  Workspace ID: $workspaceId" -ForegroundColor Green
+    } else {
+        Write-Host "  Workspace ID unavailable – RLS and refresh steps will be skipped." -ForegroundColor Yellow
+    }
 
-	if ($fabAvailable) {
-		Write-Host "  Strategy: fab import (primary)" -ForegroundColor DarkGray
-		if (-not $wsId) {
-			Write-Host "  Skipped: no workspace ID (set -WorkspaceId or FABRIC_WORKSPACE_ID)." -ForegroundColor Yellow
-		} else {
-			$modelName = (Get-Item $modelPath -ErrorAction SilentlyContinue)?.BaseName
-			& fab import "$wsId/$modelName.SemanticModel" -i $modelPath -f
-			if ($LASTEXITCODE -ne 0) {
-				Write-Host "  fab import failed; trying az rest fallback..." -ForegroundColor Yellow
-				if ($azAvailable -and $wsId) {
-					Invoke-FabricRestDeploy -ModelPath $modelPath -WorkspaceId $wsId
-				} else {
-					Write-Host "  No fallback available (az not found or no workspace ID)." -ForegroundColor Red
-					exit 1
-				}
-			} else {
-				Write-Host "  fab import: success." -ForegroundColor Green
-			}
-		}
-	} elseif ($azAvailable -and $wsId) {
-		Write-Host "  Strategy: az rest createItemWithDefinition (fallback — fab not found)" -ForegroundColor Yellow
-		Invoke-FabricRestDeploy -ModelPath $modelPath -WorkspaceId $wsId
-	} else {
-		Write-Host "  Skipped: neither fab nor az available, or no workspace ID." -ForegroundColor Gray
-		Write-Host "    Install fab: https://aka.ms/fabric-cli" -ForegroundColor Gray
-		Write-Host "    Install az:  https://aka.ms/azcli" -ForegroundColor Gray
-	}
+    # ── 4. Items deploy ─────────────────────────────────────────────────────────
+    Write-Host "`n[4/6] Items deploy (SemanticModel + Reports per domain)" -ForegroundColor Cyan
+    foreach ($domain in $deployDomains) {
+        Write-Host "  -> $domain" -ForegroundColor White
+        $ok = Invoke-FabricRelease `
+            -RepoRoot    $repoRoot `
+            -WorkspaceId (if ($workspaceId) { $workspaceId } else { "" }) `
+            -Environment $Environment `
+            -Domain      $domain
+        $deployResults[$domain] = $ok
+        Write-Host "  $domain: $(if ($ok) { 'SUCCESS' } else { 'FAILED' })" `
+            -ForegroundColor (if ($ok) { "Green" } else { "Red" })
+    }
 
-	# 4) Report publish and bind
-	$reportPath = $ReportPath
-	if (-not $reportPath) { $reportPath = Join-Path $repoRoot "products\fabric\powerbi\dist" }
-	Write-Host "Deploy: Report..." -ForegroundColor Cyan
-	# TODO: Publish report, bind to dataset (see internal/technical_backlog.md § Power BI MCP).
-	Write-Host "  Stub: Report path = $reportPath" -ForegroundColor Gray
+    # Refresh item maps (dataset display names from Power BI REST)
+    if ($token -and $workspaceId) {
+        $datasetMap = Get-WorkspaceDatasetMap -WorkspaceId $workspaceId -Token $token
+    }
 
-	# 5) Refresh schedule (Power BI REST: PATCH datasets/{id}/refreshSchedule)
-	if (-not $SkipRefresh) {
-		Write-Host "Deploy: Refresh schedule..." -ForegroundColor Cyan
-		$datasetId = $DatasetId
-		if (-not $datasetId) { $datasetId = if ($env:FABRIC_DATASET_ID) { $env:FABRIC_DATASET_ID } else { $env:PBI_DATASET_ID } }
-		$token = Get-PowerBIAccessToken
-		if ($datasetId -and $token) {
-			try {
-				Set-PowerBIRefreshSchedule -DatasetId $datasetId -AccessToken $token
-				Write-Host "  Refresh schedule set (weekdays 07:00 UTC, NoNotification)." -ForegroundColor Green
-			} catch {
-				Write-Host "  Set refresh schedule failed: $_" -ForegroundColor Red
-			}
-		} else {
-			if (-not $datasetId) { Write-Host "  Skipped: no dataset ID. Set -DatasetId or FABRIC_DATASET_ID when semantic model is deployed." -ForegroundColor Gray }
-			else { Write-Host "  Skipped: no Power BI token. Set FABRIC_TENANT_ID, FABRIC_CLIENT_ID, FABRIC_CLIENT_SECRET (or PBI_*)." -ForegroundColor Gray }
-		}
-	}
+    # ── 5. RLS Sync ─────────────────────────────────────────────────────────────
+    if (-not $SkipSecurity) {
+        Write-Host "`n[5/6] RLS Sync" -ForegroundColor Cyan
+        foreach ($domain in $deployDomains) {
+            $modelName = $domainToModelName[$domain]
+            $datasetId = if ($datasetMap -and $modelName) { $datasetMap[$modelName] } else { $null }
+            Write-Host "  $domain (dataset: $(if ($datasetId) { $datasetId } else { 'not found' }))" -ForegroundColor White
+            if (-not $datasetId -and -not $DryRun) {
+                Write-Host "  [SKIP] Dataset '$modelName' not found in workspace – deploy may have failed or be async." -ForegroundColor Yellow
+                continue
+            }
+            $rlsWsId  = if ($workspaceId) { $workspaceId } else { "" }
+            $rlsDsId  = if ($datasetId)   { $datasetId }   else { "" }
+            $rlsToken = if ($token)        { $token }       else { "" }
+            Sync-RLSRoles `
+                -WorkspaceId  $rlsWsId `
+                -DatasetId    $rlsDsId `
+                -DomainName   $domain `
+                -Token        $rlsToken `
+                -RepoRoot     $repoRoot `
+                -RlsGroupId   $env:FABRIC_RLS_GROUP_ID
+        }
+    } else {
+        Write-Host "`n[5/6] RLS Sync – SKIPPED (-SkipSecurity)" -ForegroundColor Gray
+    }
 
-	# 6) Security / RLS
-	if (-not $SkipSecurity) {
-		Write-Host "Deploy: Security/RLS..." -ForegroundColor Cyan
-		# TODO: Apply RLS or security_user_org mapping via API (see internal/technical_backlog.md § Power BI MCP).
-		Write-Host "  Stub: Apply RLS/security via API" -ForegroundColor Gray
-	}
+    # ── 6. Refresh schedule ─────────────────────────────────────────────────────
+    if (-not $SkipRefresh) {
+        Write-Host "`n[6/6] Refresh schedule" -ForegroundColor Cyan
+        foreach ($domain in $deployDomains) {
+            $modelName = $domainToModelName[$domain]
+            $datasetId = if ($datasetMap -and $modelName) { $datasetMap[$modelName] } else { $null }
+            Write-Host "  $domain" -ForegroundColor White
+            if (-not $datasetId -and -not $DryRun) {
+                Write-Host "  [SKIP] No dataset ID for '$domain'." -ForegroundColor Gray
+                continue
+            }
+            $rfWsId  = if ($workspaceId) { $workspaceId } else { "" }
+            $rfDsId  = if ($datasetId)   { $datasetId }   else { "dry-run" }
+            $rfToken = if ($token)        { $token }       else { "" }
+            Set-RefreshSchedule `
+                -WorkspaceId $rfWsId `
+                -DatasetId   $rfDsId `
+                -Token       $rfToken
+        }
+    } else {
+        Write-Host "`n[6/6] Refresh schedule – SKIPPED (-SkipRefresh)" -ForegroundColor Gray
+    }
 
-	Write-Host "Deploy script finished (Fabric REST steps are stubs; add auth and API calls)." -ForegroundColor Yellow
-	exit 0
+    # ── Summary ─────────────────────────────────────────────────────────────────
+    Write-Host ""
+    Write-Host "=====================================================" -ForegroundColor Cyan
+    Write-Host " DEPLOY SUMMARY" -ForegroundColor Cyan
+    Write-Host "=====================================================" -ForegroundColor Cyan
+    Write-Host ("  Environment  : " + $Environment)
+    Write-Host ("  Workspace    : $WorkspaceName" + $(if ($workspaceId) { " [$workspaceId]" } else { " [—]" }))
+    Write-Host ("  DryRun       : " + $DryRun.IsPresent)
+    Write-Host "  Domains      :"
+    foreach ($domain in $deployDomains) {
+        $ok     = $deployResults[$domain]
+        $dsId   = if ($datasetMap[$domainToModelName[$domain]]) { $datasetMap[$domainToModelName[$domain]] } else { "—" }
+        $status = if ($null -eq $ok) { "—" } elseif ($ok) { "OK" } else { "FAIL" }
+        Write-Host ("    {0,-14} [{1}]   dataset: {2}" -f $domain, $status, $dsId)
+    }
+    Write-Host "=====================================================" -ForegroundColor Cyan
+
+    exit 0
+
 } finally {
-	Pop-Location
+    Pop-Location
 }

@@ -122,6 +122,7 @@ class PageScaffoldGenerator:
 
         detail_matrix_columns = self.page_config.get('detail_matrix_columns') if self.page_name == 'detail' else None
         detail_matrix_measures = self.page_config.get('detail_matrix_measures') if self.page_name == 'detail' else None
+        smart_narrative_text = self.page_config.get('smart_narrative_text') if self.page_name == 'detail' else None
         page_structure = self.page_builder.build_page_structure(
             slots=slots,
             template=template,
@@ -139,6 +140,7 @@ class PageScaffoldGenerator:
             visual_templates=visual_templates,
             detail_matrix_columns=detail_matrix_columns,
             detail_matrix_measures=detail_matrix_measures,
+            smart_narrative_text=smart_narrative_text,
         )
         
         self.page_structure = {

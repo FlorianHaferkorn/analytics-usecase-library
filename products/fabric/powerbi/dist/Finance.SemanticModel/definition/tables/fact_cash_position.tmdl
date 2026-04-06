@@ -1,50 +1,29 @@
-/// Daily cash position: opening balance, closing balance, and plan for liquidity management.
+/// Daily cash balance and plan cash per entity
 table fact_cash_position
-		lineageTag: 3c4d5e6f-7a8b-9012-3c4d-5e6f7a8b9c0d
-
-		column DateKey
-			dataType: Int64
-			sourceColumn: DateKey
-			summarizeBy: none
-
-		column OrgKey
-			dataType: Int64
-			sourceColumn: OrgKey
-			summarizeBy: none
-
-		column 'Cash Balance Amount'
-			dataType: Decimal
-			sourceColumn: Cash Balance Amount
-			summarizeBy: none
-
-		column 'Plan Cash Balance Amount'
-			dataType: Decimal
-			sourceColumn: Plan Cash Balance Amount
-			summarizeBy: none
-
-		column 'Operating Cash Flow Amount'
-			dataType: Decimal
-			sourceColumn: Operating Cash Flow Amount
-			summarizeBy: none
-
-		column 'Financing Cash Flow Amount'
-			dataType: Decimal
-			sourceColumn: Financing Cash Flow Amount
-			summarizeBy: none
-
-		column 'Investing Cash Flow Amount'
-			dataType: Decimal
-			sourceColumn: Investing Cash Flow Amount
-			summarizeBy: none
-
-		partition fact_cash_position = m
-			mode: import
-			source =
+	lineageTag: 21615652-3685-5a91-80c6-a0b778cf7bd2
+	column DateKey
+		dataType: Int64
+		sourceColumn: DateKey
+		summarizeBy: none
+	column OrgKey
+		dataType: Int64
+		sourceColumn: OrgKey
+		summarizeBy: none
+	column 'Cash Balance Amount'
+		dataType: Decimal
+		sourceColumn: Cash Balance Amount
+		summarizeBy: none
+	column 'Plan Cash Amount'
+		dataType: Decimal
+		sourceColumn: Plan Cash Amount
+		summarizeBy: none
+	partition fact_cash_position = m
+		mode: import
+		source =
 			let
-					Source = Folder.Files(GoldDataPath & "/facts/fact_cash_position"),
-					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-					FirstFile = FilteredFiles{0}[Content],
-					ParquetData = Parquet.Document(FirstFile)
-					in
-					ParquetData
-
+				Source = Folder.Files(GoldDataPath & "/facts/fact_cash_position"),
+				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+				FirstFile = FilteredFiles{0}[Content],
+				ParquetData = Parquet.Document(FirstFile)
+			in
+				ParquetData

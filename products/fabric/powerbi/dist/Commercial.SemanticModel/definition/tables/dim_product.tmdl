@@ -1,4 +1,4 @@
-/// Product dimension with category hierarchy (Category > Sub Category > Brand > Product Name).
+/// Product master with category hierarchy
 table dim_product
 		lineageTag: daef4ca0-5338-4c49-a9b4-d997c069349b
 
@@ -42,10 +42,19 @@ table dim_product
 			mode: import
 			source =
 			let
-					Source = Folder.Files(GoldDataPath & "/dimensions/dim_product"),
-					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-					FirstFile = FilteredFiles{0}[Content],
-					ParquetData = Parquet.Document(FirstFile)
-					in
-					ParquetData
-
+				Source = Folder.Files(GoldDataPath & "/dimensions/dim_product"),
+				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+				FirstFile = FilteredFiles{0}[Content],
+				ParquetData = Parquet.Document(FirstFile)
+			in
+				ParquetData
+	hierarchy 'Product Hierarchy'
+		lineageTag: 0ef5b45c-daa0-513f-8352-a64ade5a6bf8
+		level Category
+			column: Category
+		level Subcategory
+			column: Subcategory
+		level Brand
+			column: Brand
+		level Product Name
+			column: Product Name

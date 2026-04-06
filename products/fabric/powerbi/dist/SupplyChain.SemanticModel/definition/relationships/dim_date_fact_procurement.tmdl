@@ -1,0 +1,3 @@
+relationship dim_date_fact_procurement
+	fromColumn: fact_procurement.DateKey
+	toColumn: dim_date.DateKey

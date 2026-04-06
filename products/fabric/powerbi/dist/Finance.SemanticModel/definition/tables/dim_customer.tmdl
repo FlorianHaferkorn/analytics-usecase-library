@@ -1,0 +1,30 @@
+/// Customer dimension for AR and revenue attribution (PII-free, Aurora synthetic)
+table dim_customer
+	lineageTag: c2b40444-2fca-5b73-a09c-b596ffd49cc6
+	column CustomerKey
+		dataType: Int64
+		sourceColumn: CustomerKey
+		summarizeBy: none
+		isHidden
+	column CustomerCode
+		dataType: String
+		sourceColumn: CustomerCode
+		summarizeBy: none
+	column CustomerName
+		dataType: String
+		sourceColumn: CustomerName
+		summarizeBy: none
+	column Region
+		dataType: String
+		sourceColumn: Region
+		summarizeBy: none
+	partition dim_customer = m
+		mode: import
+		source =
+			let
+				Source = Folder.Files(GoldDataPath & "/dimensions/dim_customer"),
+				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+				FirstFile = FilteredFiles{0}[Content],
+				ParquetData = Parquet.Document(FirstFile)
+			in
+				ParquetData

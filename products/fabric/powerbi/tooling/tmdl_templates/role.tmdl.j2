@@ -1,0 +1,7 @@
+role {{ role_name }}
+	modelPermission: read
+{% for tp in table_permissions %}
+
+	tablePermission {{ tp.table }} =
+		{{ tp.dax_single_line }}
+{% endfor %}

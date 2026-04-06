@@ -1,60 +1,37 @@
-/// Maintenance fact table: PM compliance, spare parts, maintenance costs, task counts.
+/// Maintenance orders (PM/CM) per asset and date with status and on-time flags.
 table fact_maintenance
-		lineageTag: b8c9d0e1-f2a3-4567-bc89-de01fg23bc45
-
-		column DateKey
-			dataType: Int64
-			sourceColumn: DateKey
-			summarizeBy: none
-
-		column OrgKey
-			dataType: Int64
-			sourceColumn: OrgKey
-			summarizeBy: none
-
-		column AssetKey
-			dataType: Int64
-			sourceColumn: AssetKey
-			summarizeBy: none
-
-		column 'PM Tasks Scheduled'
-			dataType: Int64
-			sourceColumn: PM Tasks Scheduled
-			summarizeBy: none
-
-		column 'PM Tasks Completed'
-			dataType: Int64
-			sourceColumn: PM Tasks Completed
-			summarizeBy: none
-
-		column 'Spare Parts Available'
-			dataType: Int64
-			sourceColumn: Spare Parts Available
-			summarizeBy: none
-
-		column 'Spare Parts Stockout Count'
-			dataType: Int64
-			sourceColumn: Spare Parts Stockout Count
-			summarizeBy: none
-
-		column 'Inventory Value Amount'
-			dataType: Decimal
-			sourceColumn: Inventory Value Amount
-			summarizeBy: none
-
-		column 'Safety Incident Count'
-			dataType: Int64
-			sourceColumn: Safety Incident Count
-			summarizeBy: none
-
-		partition fact_maintenance = m
-			mode: import
-			source =
+	lineageTag: 7ea6afb8-4f67-4ff6-919f-fb7e5d9a1bbe
+	column AssetKey
+		dataType: Int64
+		sourceColumn: AssetKey
+		summarizeBy: none
+	column DateKey
+		dataType: Int64
+		sourceColumn: DateKey
+		summarizeBy: none
+	column 'Order Type'
+		dataType: String
+		sourceColumn: Order Type
+		summarizeBy: none
+	column 'Order Status'
+		dataType: String
+		sourceColumn: Order Status
+		summarizeBy: none
+	column 'On Time Flag'
+		dataType: Boolean
+		sourceColumn: On Time Flag
+		summarizeBy: none
+	column 'Parts Stockout Flag'
+		dataType: Boolean
+		sourceColumn: Parts Stockout Flag
+		summarizeBy: none
+	partition fact_maintenance = m
+		mode: import
+		source =
 			let
-					Source = Folder.Files(GoldDataPath & "/facts/fact_maintenance"),
-					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-					FirstFile = FilteredFiles{0}[Content],
-					ParquetData = Parquet.Document(FirstFile)
-					in
-					ParquetData
-
+				Source = Folder.Files(GoldDataPath & "/facts/fact_maintenance"),
+				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+				FirstFile = FilteredFiles{0}[Content],
+				ParquetData = Parquet.Document(FirstFile)
+			in
+				ParquetData

@@ -44,7 +44,7 @@ The following applies when **Stage 1 is green** (CI gate: `.\tooling\run_stage1_
 
 ### What is still open (functional)
 
-- **3–30–300 complete:** The principle is defined. The **300s layer layout** is now defined in [core/templates/page_templates/layout_330300_300s_layer.md](../core/templates/page_templates/layout_330300_300s_layer.md) and schema `layout_330300.schema.json`. Still to implement: full generation of action text and evidence table from action-code YAML in the report.
+- **3–30–300 complete:** The principle is defined. The **300s layer layout** is now defined in [core/templates/page_templates/_archive/layout_330300_300s_layer.md](../core/templates/page_templates/_archive/layout_330300_300s_layer.md) and schema `layout_330300.schema.json`. Still to implement: full generation of action text and evidence table from action-code YAML in the report.
 - **Strategy Pattern / AI urgency:** Strategy pattern document exists; automatic urgency derivation and automated reasoning are target/backlog. Scope and limits of automated reasoning are documented in [internal/vision/automated_reasoning_scope_and_limits.md](vision/automated_reasoning_scope_and_limits.md).
 - **Strategic layer (optional):** The link Strategy → KPIs → Use Cases works; company_strategy has canonical anchors (§5, §6, §7) and references.
 - **Technical open items:** Technical TODOs and stubs (MCP, Fabric API, synthetic data, scaffold) are listed in [internal/technical_backlog.md](technical_backlog.md). **Aurora Operations:** [products/fabric/powerbi/blueprints/Operations.yaml](../products/fabric/powerbi/blueprints/Operations.yaml) has relationships and display_folders (measures) defined; DAX in KPI Catalog for OPS-001/002/003 still to be added.

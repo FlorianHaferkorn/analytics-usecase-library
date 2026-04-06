@@ -1,6 +1,6 @@
 # 300-Second Layer (layout_330300)
 
-**Purpose:** Defines the structure of the **300-second (diagnostics + action)** layer for 3-30-300 page layouts. This is the formal definition referenced by `layout_330300` in Use Case brackets and by the page scaffold generator. Schema: [tooling/ai/schemas/layout_330300.schema.json](../../../tooling/ai/schemas/layout_330300.schema.json).
+**Purpose:** Defines the structure of the **300-second (diagnostics + action)** layer for 3-30-300 page layouts. This is the formal definition referenced by `layout_330300` in Use Case brackets and by the page scaffold generator. Schema: [tooling/ai/schemas/layout_330300.schema.json](../../../../tooling/ai/schemas/layout_330300.schema.json).
 
 ---
 
@@ -89,7 +89,7 @@ action_panel:
 
 **Phase 1 (current):** The panel renders as a textbox visual with content built **at scaffold time** from action-code YAML. Content is static in the PBIP file. No execution from the report.
 
-**Phase 2 (future):** Panel driven from a semantic model table (e.g. `ActionRecommendation`) populated by a trigger-evaluation pipeline. Field: `action_panel.phase2_table: "ActionRecommendation"`. See [ActionPanel_Spec.md](components/ActionPanel_Spec.md).
+**Phase 2 (future):** Panel driven from a semantic model table (e.g. `ActionRecommendation`) populated by a trigger-evaluation pipeline. Field: `action_panel.phase2_table: "ActionRecommendation"`. See [ActionPanel_Spec.md](../components/ActionPanel_Spec.md).
 
 ---
 
@@ -105,7 +105,7 @@ The bracket's `ux_layout_rules.page_2_execution.component_300s` maps directly to
 | `component_300s.payload_mode` | `action_panel.payload_mode` |
 | `orchestration.action_code_ids` | `action_panel.action_code_ids` |
 
-Generators (page scaffold, report documentation) must conform to [layout_330300.schema.json](../../../tooling/ai/schemas/layout_330300.schema.json).
+Generators (page scaffold, report documentation) must conform to [layout_330300.schema.json](../../../../tooling/ai/schemas/layout_330300.schema.json).
 
 ---
 

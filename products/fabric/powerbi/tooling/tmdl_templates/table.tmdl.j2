@@ -1,0 +1,32 @@
+/// {{ description }}
+table {{ table_name }}
+	lineageTag: {{ lineage_tag }}
+{% for col in columns %}
+	column {{ col.tmdl_name }}
+		dataType: {{ col.data_type }}
+		sourceColumn: {{ col.source_column }}
+		summarizeBy: none
+{% if col.is_hidden %}
+		isHidden
+{% endif %}
+{% endfor %}
+	partition {{ table_name }} = m
+		mode: import
+		source =
+			let
+				Source = Folder.Files(GoldDataPath & "/{{ subfolder }}/{{ table_name }}"),
+				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+				FirstFile = FilteredFiles{0}[Content],
+				ParquetData = Parquet.Document(FirstFile)
+			in
+				ParquetData
+{% if hierarchies %}
+{% for h in hierarchies %}
+	hierarchy '{{ h.name }}'
+		lineageTag: {{ h.tag }}
+{% for level in h.levels %}
+		level {{ level }}
+			column: {{ level }}
+{% endfor %}
+{% endfor %}
+{% endif %}

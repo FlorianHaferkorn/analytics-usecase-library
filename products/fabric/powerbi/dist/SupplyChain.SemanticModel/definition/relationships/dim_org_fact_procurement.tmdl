@@ -1,0 +1,3 @@
+relationship dim_org_fact_procurement
+	fromColumn: fact_procurement.OrgKey
+	toColumn: dim_org.OrgKey

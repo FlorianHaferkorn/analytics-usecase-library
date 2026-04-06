@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "ActionPanel",
+  "position": {
+    "x": 1592,
+    "y": 118,
+    "z": 15000,
+    "height": 930,
+    "width": 296,
+    "tabOrder": 3004
+  },
+  "visual": {
+    "visualType": "textbox",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": []
+        }
+      }
+    },
+    "objects": {
+      "text": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Recommended actions (from action codes)\n\n• X-R2.1 — Resource Utilization Orchestration\n  Owner: head_of_workforce_management\n  Impact: High\n  Expected: 3.0–8.0 pp\n  Confidence: High\n  · DETECT sustained utilization band violations for this agent\n  · DIAGNOSE the dominant utilization driver for this agent\n  · ACTIVATE the corresponding execution Action Code for this agent\n  ⚠ Trigger only if deviation is structurally recurring\n  ⚠ Do not trigger if utilization deviation is caused by approved surge coverage\n\n• X-R2.2 — Capacity Reallocation & Load Balancing\n  Owner: workforce_management_lead\n  Impact: High\n  Expected: 4.0–10.0 pp\n  Confidence: High\n  · IDENTIFY agents in queues with sustained utilization imbalance\n  · REALLOCATE this agent across queues or channels\n  · VALIDATE SLA and backlog impact for this agent daily\n  ⚠ Trigger only if imbalance is queue-structural, not individual\n  ⚠ Do not trigger if imbalance is caused by approved surge coverage\n\n• X-R2.3 — Shrinkage & Productive Time Control\n  Owner: service_operations_manager\n  Trigger: res.shrinkage.pct > 30.0%\n  Impact: Medium\n  Expected: -3.0–-8.0 pp\n  Confidence: Medium\n  · IDENTIFY agents in queues with elevated shrinkage\n  · ANALYSE dominant shrinkage categories for this agent\n  · ADJUST planning, adherence, or scheduling practices for this agent\n  ⚠ Trigger only if shrinkage is structurally recurring\n  ⚠ Do not trigger if increase is driven by approved training plans\n\n• X-R2.4 — Overtime & Fatigue Containment\n  Owner: service_operations_manager\n  Trigger: res.overtime.pct > 12.0%\n  Impact: Medium\n  Expected: -2.0–-6.0 pp\n  Confidence: Medium\n  · IDENTIFY agents in queues with recurring overtime\n  · ANALYSE root causes (demand spikes, misallocation, shrinkage) for this agent\n  · ADJUST schedules, REALLOCATE capacity, or CORRECT planning gaps for this agent\n  ⚠ Trigger only if overtime is structurally recurring\n  ⚠ Do not trigger if overtime is driven by approved peak coverage'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

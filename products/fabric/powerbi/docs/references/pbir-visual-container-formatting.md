@@ -169,10 +169,10 @@ Container formatting is heavily influenced by the theme. The theme's `visualStyl
 
 When a visual's `visualContainerObjects` explicitly sets a property, it overrides the theme. When it doesn't, the theme value applies silently.
 
-This is why a programmatically created visual can look different from what you expect -- the theme is adding titles, borders, or shadows that you didn't ask for. Always check the theme first. See [theme.md](./theme.md) for the full inheritance model.
+This is why a programmatically created visual can look different from what you expect -- the theme is adding titles, borders, or shadows that you didn't ask for. Always check the theme first. See [pbir-theme.md](./pbir-theme.md) for the full inheritance model.
 
 ## Related
 
-- [theme.md](./theme.md) -- Theme wildcards and visual-type overrides
-- [textbox.md](./textbox.md) -- Textbox-specific container patterns
-- [schema-patterns/expressions.md](./schema-patterns/expressions.md) -- Expression syntax for property values
+- [pbir-theme.md](./pbir-theme.md) -- Theme wildcards and visual-type overrides
+- [pbir-visual-json.md](./pbir-visual-json.md) -- Visual JSON patterns (including textbox scenarios)
+- [pbir-visual-json.md](./pbir-visual-json.md) -- Expression and property-value patterns

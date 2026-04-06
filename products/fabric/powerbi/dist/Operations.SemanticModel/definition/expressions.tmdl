@@ -1,4 +1,4 @@
-expression GoldDataPath = "/home/user/analytics-usecase-library/showcases/aurora_group/data/gold" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
-	lineageTag: e1a2b3c4-d5e6-7f89-a0b1-c2d3e4f5a6b7
+expression GoldDataPath = "showcases/aurora_group/data/gold" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 7757be27-f4bf-5d18-bc0a-40cab106f98f
 	annotation PBI_NavigationStepName = GoldDataPath
 	annotation PBI_ResultType = Text

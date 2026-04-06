@@ -1,60 +1,41 @@
-/// Equipment failure events: for MTBF, MTTR, failure count, and unplanned downtime analysis.
+/// Failure events per asset (start/end, repair duration, cause) for MTBF and root cause.
 table fact_ops_failures
-		lineageTag: a7b8c9d0-e1f2-3456-ab78-cd90ef12ab34
-
-		column DateKey
-			dataType: Int64
-			sourceColumn: DateKey
-			summarizeBy: none
-
-		column OrgKey
-			dataType: Int64
-			sourceColumn: OrgKey
-			summarizeBy: none
-
-		column AssetKey
-			dataType: Int64
-			sourceColumn: AssetKey
-			summarizeBy: none
-
-		column 'Failure Start DateKey'
-			dataType: Int64
-			sourceColumn: Failure Start DateKey
-			summarizeBy: none
-
-		column 'Failure End DateKey'
-			dataType: Int64
-			sourceColumn: Failure End DateKey
-			summarizeBy: none
-
-		column 'Downtime Hours'
-			dataType: Decimal
-			sourceColumn: Downtime Hours
-			summarizeBy: none
-
-		column 'Uptime Hours'
-			dataType: Decimal
-			sourceColumn: Uptime Hours
-			summarizeBy: none
-
-		column 'Is Unplanned'
-			dataType: Boolean
-			sourceColumn: Is Unplanned
-			summarizeBy: none
-
-		column 'Failure Type'
-			dataType: String
-			sourceColumn: Failure Type
-			summarizeBy: none
-
-		partition fact_ops_failures = m
-			mode: import
-			source =
+	lineageTag: ee7878cf-ae5e-4333-b5ff-208a5a77007b
+	column AssetKey
+		dataType: Int64
+		sourceColumn: AssetKey
+		summarizeBy: none
+	column DateKey
+		dataType: Int64
+		sourceColumn: DateKey
+		summarizeBy: none
+	column 'Failure Start DateTime'
+		dataType: DateTime
+		sourceColumn: Failure Start DateTime
+		summarizeBy: none
+	column 'Failure End DateTime'
+		dataType: DateTime
+		sourceColumn: Failure End DateTime
+		summarizeBy: none
+	column 'Repair Duration Hours'
+		dataType: Decimal
+		sourceColumn: Repair Duration Hours
+		summarizeBy: none
+	column 'Downtime Minutes'
+		dataType: Decimal
+		sourceColumn: Downtime Minutes
+		summarizeBy: none
+	column 'Cause Code'
+		dataType: String
+		sourceColumn: Cause Code
+		summarizeBy: none
+	partition fact_ops_failures = m
+		mode: import
+		source =
 			let
-					Source = Folder.Files(GoldDataPath & "/facts/fact_ops_failures"),
-					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-					FirstFile = FilteredFiles{0}[Content],
-					ParquetData = Parquet.Document(FirstFile)
-					in
-					ParquetData
-
+				Source = Folder.Files(GoldDataPath & "/facts/fact_ops_failures"),
+				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+				FirstFile = FilteredFiles{0}[Content],
+				ParquetData = Parquet.Document(FirstFile)
+			in
+				ParquetData

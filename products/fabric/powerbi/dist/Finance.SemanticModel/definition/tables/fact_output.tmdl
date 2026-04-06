@@ -1,40 +1,29 @@
-/// Production output fact: units produced and base volume for unit cost calculation.
+/// Output units per plant-line-product-month
 table fact_output
-		lineageTag: 8b9c0d1e-2f3a-4567-8b9c-0d1e2f3a4b5c
-
-		column DateKey
-			dataType: Int64
-			sourceColumn: DateKey
-			summarizeBy: none
-
-		column OrgKey
-			dataType: Int64
-			sourceColumn: OrgKey
-			summarizeBy: none
-
-		column 'Production Volume'
-			dataType: Decimal
-			sourceColumn: Production Volume
-			summarizeBy: none
-
-		column 'Base Volume Amount'
-			dataType: Decimal
-			sourceColumn: Base Volume Amount
-			summarizeBy: none
-
-		column 'OpEx Base Amount'
-			dataType: Decimal
-			sourceColumn: OpEx Base Amount
-			summarizeBy: none
-
-		partition fact_output = m
-			mode: import
-			source =
+	lineageTag: a2deee00-83cf-58da-a8cf-2c649beac779
+	column DateKey
+		dataType: Int64
+		sourceColumn: DateKey
+		summarizeBy: none
+	column OrgKey
+		dataType: Int64
+		sourceColumn: OrgKey
+		summarizeBy: none
+	column ProductKey
+		dataType: Int64
+		sourceColumn: ProductKey
+		summarizeBy: none
+	column 'Output Units'
+		dataType: Decimal
+		sourceColumn: Output Units
+		summarizeBy: none
+	partition fact_output = m
+		mode: import
+		source =
 			let
-					Source = Folder.Files(GoldDataPath & "/facts/fact_output"),
-					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-					FirstFile = FilteredFiles{0}[Content],
-					ParquetData = Parquet.Document(FirstFile)
-					in
-					ParquetData
-
+				Source = Folder.Files(GoldDataPath & "/facts/fact_output"),
+				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+				FirstFile = FilteredFiles{0}[Content],
+				ParquetData = Parquet.Document(FirstFile)
+			in
+				ParquetData
