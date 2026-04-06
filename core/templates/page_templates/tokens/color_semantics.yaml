@@ -13,18 +13,9 @@ semantic:
   warning:  "#C98A00"   # Near threshold, attention needed — WCAG AA validated
   neutral:  "#605E5C"   # No signal, informational, no target set
 
-brand:
-  primary:   "#0078D4"
-  secondary: "#50E6FF"
-  data_colors:
-    - "#0078D4"   # slot 0 — primary
-    - "#50E6FF"   # slot 1
-    - "#8661C5"   # slot 2
-    - "#F7630C"   # slot 3
-    - "#008575"   # slot 4
-    - "#E3008C"   # slot 5
-    - "#EF6950"   # slot 6
-    - "#FFB900"   # slot 7
+# brand.* is NOT a framework constant — it is resolved at generation time from:
+#   showcases/<showcase_id>/brand/brand_spec.yaml  (via repo_config.yaml showcase_id)
+# ConfigLoader.resolve_color_tokens() merges brand.* into this base at runtime.
 
 surface:
   page:    "#F5F5F5"   # page background

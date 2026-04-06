@@ -14,6 +14,23 @@ from typing import Dict, Any, Optional, List
 
 logger = logging.getLogger(__name__)
 
+# Framework fallback data palette (used when no brand spec is configured).
+_FRAMEWORK_DATA_COLORS = [
+    "#0078D4",  # slot 0 — framework primary blue
+    "#50E6FF",  # slot 1
+    "#8661C5",  # slot 2
+    "#F7630C",  # slot 3
+    "#008575",  # slot 4
+    "#E3008C",  # slot 5
+    "#EF6950",  # slot 6
+    "#FFB900",  # slot 7
+]
+
+
+def _derive_data_palette(primary: str, secondary: str) -> List[str]:
+    """Build an 8-slot data color palette with brand primary/secondary at positions 0-1."""
+    return [primary, secondary] + _FRAMEWORK_DATA_COLORS[2:]
+
 
 class ConfigLoader:
     """Loads configuration files for scaffold generation."""
@@ -306,6 +323,82 @@ class ConfigLoader:
         except Exception as exc:
             logger.warning("Failed to parse color_semantics.yaml: %s", exc)
             return {}
+
+    def _get_repo_showcase_id(self) -> Optional[str]:
+        """Read showcase_id from repo_config.yaml at repo root. Returns None if not set."""
+        config_path = self.repo_root / "repo_config.yaml"
+        if not config_path.exists():
+            return None
+        try:
+            with open(config_path, "r", encoding="utf-8") as f:
+                cfg = yaml.safe_load(f) or {}
+            sid = cfg.get("showcase_id")
+            return str(sid) if sid else None
+        except Exception as exc:
+            logger.warning("Failed to read repo_config.yaml: %s", exc)
+            return None
+
+    def load_brand(self, showcase_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        """
+        Load the brand spec for the active showcase.
+        Returns None if no showcase configured (framework-only / fallback mode).
+
+        Resolution order:
+          1. Explicit showcase_id parameter (e.g. from UseCase_Bracket brand.brand_id)
+          2. repo_config.yaml showcase_id
+          3. None → caller uses framework semantic tokens only
+        """
+        sid = showcase_id or self._get_repo_showcase_id()
+        if not sid:
+            return None
+        brand_path = self.repo_root / "showcases" / sid / "brand" / "brand_spec.yaml"
+        if not brand_path.exists():
+            logger.warning("Brand spec not found for showcase '%s' at %s", sid, brand_path)
+            return None
+        try:
+            with open(brand_path, "r", encoding="utf-8") as f:
+                return yaml.safe_load(f) or {}
+        except Exception as exc:
+            logger.warning("Failed to load brand spec for '%s': %s", sid, exc)
+            return None
+
+    def resolve_color_tokens(self, showcase_id: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Merge framework semantic tokens with brand overrides.
+
+        Token cascade:
+          1. Framework defaults  (tokens/color_semantics.yaml  — semantic signals only)
+          2. Brand semantic overrides  (brand_spec.yaml color.semantic.*)
+          3. Brand palette injected as base["brand"]  (primary, secondary, data_colors)
+
+        Returns the merged token dict. Callers access:
+          tokens["semantic"]["positive/negative/warning/neutral"]
+          tokens["brand"]["primary"], tokens["brand"]["secondary"], tokens["brand"]["data_colors"]
+        """
+        base = self.load_color_semantics()
+        brand = self.load_brand(showcase_id)
+        if not brand:
+            return base
+
+        color = brand.get("color", {})
+
+        # Brand may override semantic signal colors (e.g. Aurora uses #D13438 for negative)
+        brand_semantic = color.get("semantic", {})
+        base_semantic = base.setdefault("semantic", {})
+        for role in ("positive", "negative", "warning", "neutral"):
+            role_block = brand_semantic.get(role)
+            if isinstance(role_block, dict) and "color" in role_block:
+                base_semantic[role] = role_block["color"]
+
+        # Inject brand palette so callers don't have to re-load the brand spec
+        primary = color.get("primary", "#0078D4")
+        secondary = color.get("secondary", "#50E6FF")
+        base["brand"] = {
+            "primary":     primary,
+            "secondary":   secondary,
+            "data_colors": _derive_data_palette(primary, secondary),
+        }
+        return base
 
     def load_typography(self) -> Dict[str, Any]:
         """Load tokens/typography.yaml. Returns empty dict on error (caller uses defaults)."""

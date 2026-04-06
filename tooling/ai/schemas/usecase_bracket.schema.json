@@ -355,6 +355,18 @@
         }
       }
     },
+    "brand": {
+      "type": "object",
+      "description": "Brand override. Only needed for multi-brand companies. Omit to inherit repo_config.yaml showcase_id.",
+      "additionalProperties": false,
+      "properties": {
+        "brand_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "showcase_id of the brand to use. Must match a directory under showcases/<brand_id>/brand/brand_spec.yaml. Takes precedence over repo_config.yaml showcase_id."
+        }
+      }
+    },
     "readiness": {
       "type": "object",
       "description": "Organizational readiness assessment for this use case. Evaluates whether prerequisites are met before implementation starts.",
