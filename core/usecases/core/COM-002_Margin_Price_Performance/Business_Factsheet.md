@@ -105,31 +105,19 @@ Structured summary of action codes (definitions remain in YAML).
 
 ### 5.4 300-Second Layer (Diagnostics)
 
-- Price realization ladder (List -> Net) with discount/rebate/surcharge.
-- Mix decomposition by Region/Channel/Product.
-- Unit cost variance by supplier/plant/SKU.
+- Price realization ladder from list to net with discount, rebate, and surcharge components by region, channel, and SKU cluster.
+- Mix decomposition by region, channel, product category, and SKU to isolate whether margin loss is commercial mix drift or a true pricing failure.
+- Unit-cost variance drill tying COGS per unit, GM vs plan, and mix effect back to the invoice-line combinations that justify C-M2.2 or C-P4.1.
 
 ---
 
 ## 6. Data Requirements Summary
 
-```yaml
-required_facts:
-
-  - fact_sales
-required_dimensions:
-
-  - dim_date
-
-  - dim_org
-
-  - dim_product
-
-  - security_user_org
-required_grain: invoice_line (aggregated to month for KPIs)
-required_time_range: 24 months history + Plan/LY snapshots
-required_slicers: Date, Region/Country/Channel, Product Category/Subcategory
-```
+- Required facts: fact_sales with list price, net price, discounts, plan, LY, quantity, and COGS detail at invoice-line level.
+- Required dimensions: dim_date, dim_org, dim_product, and security_user_org.
+- Required grain: invoice_line retained for diagnostics, rolled up to month for KPI monitoring.
+- Required time range: 24 months history plus frozen plan and LY snapshots.
+- Required slicers: Date, Region/Country/Channel, Product Category/Subcategory.
 
 ---
 

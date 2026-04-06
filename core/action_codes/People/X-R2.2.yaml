@@ -114,9 +114,9 @@ operational_execution:
   - Flexible skill coverage matrix
   - Near-real-time queue volume visibility
   steps:
-  - IDENTIFY agents in queues with sustained utilization imbalance
-  - REALLOCATE this agent across queues or channels
-  - VALIDATE SLA and backlog impact for this agent daily
+  - IDENTIFY queues with sustained utilization imbalance
+  - REALLOCATE capacity across queues or channels for this queue cluster
+  - VALIDATE SLA and backlog impact for this queue daily
   effort:
     level: Low to Medium
     typical_duration_days: 14
@@ -134,10 +134,10 @@ data_requirements:
     - SLA Attainment %
     - Tickets Created Count
     tables:
-    - fact_workforce
-    - fact_service_tickets
-    - dim_queue
-    - dim_channel
+    - fact_workforce_management
+    - fact_support_cases
+    - dim_case_queue
+    - dim_org
 automation:
   detection:
     enabled: true

@@ -24,5 +24,5 @@ decision_spines:
   DEC-SPINE-XD-RESOURCE:
     use_cases: [XD-002]
   DEC-SPINE-XD-EXEC:
-    use_cases: [XD-003]
+    use_cases: [XD-003, XD-004]
 

@@ -4,7 +4,7 @@
     "environment":  "tst",
     "stagingRoot":  ".cursor/publish_staging",
     "stagedArtifacts":  {
-                            "reports":  4,
+                            "reports":  1,
                             "semanticModels":  1
                         },
     "command":  "py -3 C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\deployment\\scripts\\fabric_release.py --environment tst --layers DM,BI --item_types SemanticModel,Report --repo_path C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\.cursor\\publish_staging --validate-parameters --skip-framework-validation",
@@ -17,5 +17,14 @@
     "warnings":  [
                      "Dry-run executed because Fabric credentials are not fully configured."
                  ],
-    "timestamp":  "2026-04-02T20:49:28.7364639+02:00"
+    "blockingReason":  "workspace_publish_credentials_missing",
+    "credentialStatus":  {
+                             "missing":  [
+                                             "TENANT_ID",
+                                             "CLIENT_ID",
+                                             "CLIENT_SECRET"
+                                         ],
+                             "configured":  false
+                         },
+    "timestamp":  "2026-04-05T07:13:10.8411776+02:00"
 }

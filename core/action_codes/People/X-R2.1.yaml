@@ -114,10 +114,10 @@ operational_execution:
   - Reliable utilization and occupancy measurement
   - Clear ownership of execution Action Codes
   steps:
-  - DETECT sustained utilization band violations for this agent
-  - DIAGNOSE the dominant utilization driver for this agent
-  - ACTIVATE the corresponding execution Action Code for this agent
-  - REVIEW utilization for this agent weekly
+  - DETECT sustained utilization band violations for this queue
+  - DIAGNOSE the dominant utilization driver for this queue
+  - ACTIVATE the corresponding execution Action Code for this queue
+  - REVIEW utilization for this queue weekly
   effort:
     level: Low
     typical_duration_days: 21
@@ -136,10 +136,10 @@ data_requirements:
     - SLA Attainment %
     - Tickets Created Count
     tables:
-    - fact_workforce
-    - fact_service_tickets
-    - dim_queue
-    - dim_region
+    - fact_workforce_management
+    - fact_support_cases
+    - dim_case_queue
+    - dim_org
 automation:
   detection:
     enabled: true

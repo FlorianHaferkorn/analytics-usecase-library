@@ -59,13 +59,11 @@ factsheet_type: business
 | ops.working_capital.ccc.days | Influencing |
 | people.digital_adoption.pct | Influencing |
 | people.attrition_risk.pct | Influencing |
-| enterprise.action_routed.count | Influencing |
-| enterprise.action_outcome_rate.pct | Influencing |
 | cost.cogs.amount | Supporting |
 | sales.net_sales.amount | Supporting |
 | supply.otif.pct | Supporting |
 
-**Action Codes:** X-E3.2, X-E3.3
+**Action Codes:** X-E3.2
 
 > Full machine-readable configuration in `UseCase_Bracket.yaml` (SSOT).
 
@@ -100,8 +98,8 @@ Structured summary of action codes (definitions remain in YAML).
 
 | Visual Name | Visual Type | X-Axis | Y-Axis | Segment | Default Filter | Notes |
 |-------------|-------------|--------|--------|---------|----------------|-------|
-| Executive Trend | Line | Date[Month] | All 8 KPI measures | Org / Region | 12-24M | Trend vs Plan/LY bands |
-| Driver Variance | Clustered/Waterfall | Drivers | KPI variance | Org / Segment | Recent period | Focus on growth/margin/service drivers |
+| Executive Trend | Line | Date[Month] | Enterprise Value-at-Risk Index + selected driver KPIs | Org / Region | 12-24M | Trend vs Plan/LY bands |
+| Driver Variance | Clustered/Waterfall | Drivers | KPI variance | Org / Segment | Recent period | Focus on growth, margin, service, working-capital and people drivers |
 
 ### 5.3 Required Slicers (Mandatory)
 
@@ -117,44 +115,17 @@ Structured summary of action codes (definitions remain in YAML).
 - Working-capital driver table (DSO, DIO, DPO contributors).
 - Digital adoption cohort analysis (role, tool, region).
 - Attrition risk drivers (role, tenure, performance band).
+- Cross-domain risk prioritisation table with top entities ranked by enterprise value-at-risk and material driver contribution.
 
 ---
 
 ## 6. Data Requirements Summary
 
-```yaml
-required_facts:
-
-  - fact_revenue
-
-  - fact_finance
-
-  - fact_customer_value
-
-  - fact_service
-
-  - fact_fulfillment
-
-  - fact_wc
-
-  - fact_digital
-
-  - fact_hr
-required_dimensions:
-
-  - dim_date
-
-  - dim_org
-
-  - dim_product
-
-  - dim_customer
-
-  - dim_employee
-required_grain: month (with order-level base for OTIF and service where applicable)
-required_time_range: minimum 24 months history with plan/LY references
-required_slicers: Date, Org/Region/Entity, Product or Customer Segment, Function/Department
-```
+- Required facts: executive summary aggregates for revenue, margin, customer value, service, fulfillment, working capital, digital adoption, and people risk signals.
+- Required dimensions: date, organization/entity, product, customer, employee.
+- Required grain: entity_month, with lower-grain operational sources rolled up into executive comparators where needed.
+- Required time range: minimum 24 months with plan and prior-year references.
+- Required slicers: Date, Org/Region/Entity, Product or Customer Segment, Function/Department.
 
 ---
 
@@ -202,14 +173,14 @@ These scenarios illustrate how this use case drives decisions in practice. They 
 
 **Action Code triggered:** X-E3.2 (Cross-Domain Performance Review) — activates domain-level root-cause drill and action routing to domain leads.
 
-### Scenario B: Action Outcome Rate Below Threshold
+### Scenario B: Service and Working-Capital Signals Deteriorate Together
 
-**Situation:** Enterprise action routed count is high (45 actions in Q2), but outcome rate is only 38% (target 65%). Value at risk index has increased as unresolved actions accumulate.
+**Situation:** OTIF drops below target in two regions while cash conversion cycle lengthens at the same time. The enterprise value-at-risk index rises even though gross margin remains stable.
 
-**Decision question:** Are actions failing due to unclear ownership, resource constraints, or incorrect trigger thresholds generating false positives?
+**Decision question:** Which entities require immediate executive attention when service reliability and working-capital pressure deteriorate together?
 
-**Who decides:** Executive Sponsor + Analytics Lead.
+**Who decides:** Executive Leadership Team.
 
-**Consequence of inaction:** Action framework loses credibility; teams stop responding to triggers, defeating the purpose of action-ready analytics.
+**Consequence of inaction:** Service erosion and cash pressure reinforce each other; enterprise downside grows before domains react in a coordinated way.
 
-**Action Code triggered:** X-E3.3 (Action Effectiveness Review) — activates action completion funnel analysis and trigger threshold recalibration.
+**Action Code triggered:** X-E3.2 (Cross-Domain Risk Prioritisation) — ranks the most material entity-domain combinations so leadership can intervene where service and cash signals combine into enterprise downside first.

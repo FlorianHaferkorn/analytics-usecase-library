@@ -1,12 +1,12 @@
 ﻿**********************
 nStart der Windows PowerShell-Aufzeichnung
-Startzeit: 20260403143421
+Startzeit: 20260403144223
 Benutzername: NAGARRO\florianhaferkorn
 RunAs-Benutzer: NAGARRO\florianhaferkorn
 Konfigurationsname: 
 Computer: NES-NBBSTPQ04 (Microsoft Windows NT 10.0.26100.0)
-Hostanwendung: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\products\fabric\powerbi\orchestrator\orchestrate_full_model.ps1 -UseCase COM-001 -UseAuroraData
-Prozess-ID: 32868
+Hostanwendung: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\florianhaferkorn\AppData\Local\Programs\Microsoft VS Code\cfbea10c5f\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
+Prozess-ID: 55792
 PSVersion: 5.1.26100.7920
 PSEdition: Desktop
 PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.7920
@@ -180,3 +180,88 @@ Checking documentation and tooling references...
   OK   tooling/generation/new_usecase.ps1 (New usecase helper)
   OK   tooling/generation/generate_tmdl_measures.ps1 (TMDL measures generator)
   OK   tooling/generation/generate_all_measures.ps1 (Generate all measures wrapper)
+PS>TerminatingError(): "Die Pipeline wurde beendet."
+>> TerminatingError(): "Die Pipeline wurde beendet."
+>> TerminatingError(): "Die Pipeline wurde beendet."
+>> TerminatingError(): "Die Pipeline wurde beendet."
+>> TerminatingError(): "Die Pipeline wurde beendet."
+>> TerminatingError(): "Die Pipeline wurde beendet."
+>> TerminatingError(): "Die Pipeline wurde beendet."
+>> TerminatingError(): "Die Pipeline wurde beendet."
+>> TerminatingError(): "Die Pipeline wurde beendet."
+]633;D;1]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; $buildArgs=@('-UseCase','COM-001'); & '.\products\fabric\powerbi\orchestrator\orchestrate_full_model.ps1' @buildArgs
+PS>TerminatingError(): "Specify only one of: -UseCase, -Domain, -All (not multiple)"
+>> TerminatingError(): "Specify only one of: -UseCase, -Domain, -All (not multiple)"
+Specify only one of: -UseCase, -Domain, -All (not multiple)
+Specify only one of: -UseCase, -Domain, -All (not multiple)
+In C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\products\fabric\p
+owerbi\orchestrator\orchestrate_full_model.ps1:44 Zeichen:5
++     throw "Specify only one of: -UseCase, -Domain, -All (not multiple ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Specify only on... (not multi
+   ple):String) [], RuntimeException
+    + FullyQualifiedErrorId : Specify only one of: -UseCase, -Domain, -All (no
+   t multiple)
+
+]633;D;1]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; $powershellHost=(Get-Process -Id $PID).Path; $orchestrator=Join-Path $PWD 'products\fabric\powerbi\orchestrator\orchestrate_full_model.ps1'; $buildArgs=@('-NoProfile','-ExecutionPolicy','Bypass','-File',$orchestrator,'-UseCase','COM-001','-UseAuroraData'); & $powershellHost @buildArgs
+  [Run Quality Checks] Ausnahme beim Aufrufen von "GetFullPath" mit 1 Argument(en):  "Das angegebene Pfadformat wird nicht unter
+stützt."
+  [Generate Report from Template] apply_report_theme.ps1 failed (exit 1) for COM-001. Theme 'Aurora_Group_SE__Monochromatic__pow
+erbi_design_base__2ECDE7' not applied. Check theme_generator/themes/ and report definition.
+  [Generate Report from Template] apply_report_theme.ps1 failed (exit 1) for COM-001. Theme 'Aurora_Group_SE__Monochromatic__pow
+erbi_design_base__2ECDE7' not applied. Check theme_generator/themes/ and report definition.
+  [Generate Report from Template] apply_report_theme.ps1 failed (exit 1) for COM-001. Theme 'Aurora_Group_SE__Monochromatic__pow
+erbi_design_base__2ECDE7' not applied. Check theme_generator/themes/ and report definition.
+
+Output (Fabric dist):
+  [Commercial] products\fabric\powerbi\dist\Commercial.SemanticModel
+  Reports: products\fabric\powerbi\dist\<UC>.Report (datasetReference = ..\<Domain>.SemanticModel)
+
+Next Steps:
+  1. Open a domain model in Power BI Desktop (e.g. products\fabric\powerbi\dist\Commercial.SemanticModel)
+  2. Open a report: products\fabric\powerbi\dist\<UC>.Report (references that UC's domain model in same dist)
+  3. Use -Domain <name> or -UseCase <id> to build only that scope
+
+State saved: C:\Users\florianhaferkorn\VSCode\analytics-usecase-library\products\fabric\powerbi\orchestrator\last_run_state.json
+]633;D;1]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; $orchestrator=(Join-Path $PWD 'products\fabric\powerbi\orchestrator\orchestrate_full_model.ps1'); powershell -NoProfile -ExecutionPolicy Bypass -File $orchestrator -UseCase COM-001 -UseAuroraData
+
+]633;D;1]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; powershell -NoProfile -ExecutionPolicy Bypass -File '.\products\open_source_stack\tooling\run_oss_checks.ps1' -Root $PWD
+
+]633;D;1]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; powershell -NoProfile -ExecutionPolicy Bypass -File '.\products\open_source_stack\tooling\run_oss_checks.ps1' -Root $PWD
+
+]633;D;1]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; powershell -NoProfile -ExecutionPolicy Bypass -File '.\products\fabric\powerbi\tooling\invoke_workspace_publish.ps1' -RepoRoot $PWD -Environment tst -UseCase COM-001 -DryRun
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; $pbi='c:/Users/florianhaferkorn/VSCode/analytics-usecase-library/.tools/pbi-tools/pbi-tools.core.exe'; & $pbi compile '.\products\fabric\powerbi\dist\Commercial.SemanticModel'
+
+]633;D;1]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>git branch --show-current
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; powershell -NoProfile -ExecutionPolicy Bypass -File '.\products\fabric\powerbi\tooling\invoke_production_supervisor.ps1' -UseCase COM-001 -UseAuroraData -SkipPublish -DisableLlmFix
+
+]633;D;1]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; powershell -NoProfile -ExecutionPolicy Bypass -File '.\products\fabric\powerbi\tooling\invoke_production_supervisor.ps1' -UseCase COM-001 -UseAuroraData -DisableLlmFix
+
+]633;D;1]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; powershell -NoProfile -ExecutionPolicy Bypass -File '.\tooling\generation\generate_tmdl_measures.ps1' -UseCase COM-001 -UseAuroraShowcase
+
+]633;D;1]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; powershell -NoProfile -ExecutionPolicy Bypass -File '.\tooling\generation\generate_tmdl_measures.ps1' -UseCase COM-001 -UseAuroraShowcase
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; powershell -NoProfile -ExecutionPolicy Bypass -File '.\products\fabric\powerbi\tooling\invoke_production_supervisor.ps1' -UseCase COM-001 -UseAuroraData -SkipPublish -DisableLlmFix
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; powershell -NoProfile -ExecutionPolicy Bypass -File '.\products\fabric\powerbi\tooling\invoke_production_supervisor.ps1' -UseCase COM-001 -UseAuroraData -DisableLlmFix
+
+]633;D;1]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B
+PS>Set-Location 'c:/Users/florianhaferkorn/VSCode/analytics-usecase-library'; git status --short -- tooling/generation/generate_tmdl_measures.ps1 products/fabric/powerbi/tooling/invoke_workspace_publish.ps1 products/fabric/powerbi/tooling/invoke_production_supervisor.ps1 products/fabric/powerbi/dist/Commercial.SemanticModel/definition/tables/_Measures.tmdl
+
+]633;D;0]633;A]633;P;Cwd=C:\x5cUsers\x5cflorianhaferkorn\x5cVSCode\x5canalytics-usecase-libraryPS C:\Users\florianhaferkorn\VSCode\analytics-usecase-library> ]633;B

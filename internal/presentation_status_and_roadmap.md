@@ -11,7 +11,7 @@
 
 ## Summary (for presentations)
 
-The framework is in production: the Golden Thread (Strategy → KPIs → Use Cases → Action Codes) is end-to-end, with 14 use cases, 107 KPIs, and 53 action codes. Customers can already implement decision-oriented use cases from the specs and Aurora as reference, generate measures and report structure, and keep everything consistent via Stage 1 and the Registry Gate. Delivery is driven by the GitHub Project and an Assistant Agent (daily briefing with focus, bottlenecks, and the next task); status transitions and PR review summary are automated. Still open: the full 300-second page in the report and Strategy Pattern / AI urgency (backlog).
+The framework is in production: the Golden Thread (Strategy → KPIs → Use Cases → Action Codes) is end-to-end, with 14 use cases, 107 KPIs, and 53 action codes. Customers can already implement decision-oriented use cases from the specs and Aurora as reference, generate measures and report structure, and keep everything consistent via Stage 1 and the Registry Gate. Delivery is supported by project tooling and short assistant briefings focused on priorities and blockers. Still open: the full 300-second page in the report and Strategy Pattern / AI urgency (backlog).
 
 ---
 
@@ -73,7 +73,7 @@ The project is considered substantively and technically complete with **blocker 
 
 - **Done:** Blocker resolution (company_strategy anchors and factsheet paths per [internal/core_content_review_results.md](core_content_review_results.md); anchors and paths verified/fixed).
 - **Done:** Remaining review adjustments (style, link-backs, encoding) per content review (Issue #17).
-- **Done:** CI/release without Stage-1 skip documented in [docs/README.md](../docs/README.md) § Quality gates and [internal/project_mgmt/BRANCH_PROTECTION.md](project_mgmt/BRANCH_PROTECTION.md).
+- **Done:** CI/release without Stage-1 skip documented in [docs/README.md](../docs/README.md) § Quality gates.
 
 ### Phase 2 / Backlog (after completion)
 
@@ -101,15 +101,14 @@ Delivery is driven by the **GitHub Project** (SSOT for status) and agent-support
 | **In review** | PR open | Project workflow: when a PR is linked to an issue → Status = In review. |
 | **Done** | PR merged | Project workflow: when linked PR is merged → Status = Done. |
 
-- **PR review summary:** [.github/workflows/pr_review_summary.yml](../.github/workflows/pr_review_summary.yml) posts or updates a single comment on each PR with title, description, files changed, and diff stats — one place to see what was created/changed before approving.
 - **Scripts** (repo root): `.\tooling\project_mgmt\start_next_task.ps1` (pick next task, set In progress, output issue # and expert); `.\tooling\project_mgmt\set_issue_status.ps1 -Issue N -Status "…"`; `.\tooling\project_mgmt\refresh_project_snapshot.ps1` (writes PROJECT_SNAPSHOT.md for the Assistant, no status change).
 
 ### Assistant Agent and daily briefing
 
-- **Assistant Agent** ([.cursor/rules/assistant-agent.mdc](../.cursor/rules/assistant-agent.mdc)): On request ("Daily Briefing", "Briefing", "Was steht an?") reads [internal/project_mgmt/PROJECT_SNAPSHOT.md](project_mgmt/PROJECT_SNAPSHOT.md) (from `refresh_project_snapshot.ps1`) and [internal/project_mgmt/BACKLOG_GRANULAR.md](project_mgmt/BACKLOG_GRANULAR.md), and produces a short briefing with focus, bottlenecks, and **today’s recommended task** including the exact steps: run `start_next_task.ps1`, then in an Implementer session say **Implement issue #N**.
+- **Assistant Agent** ([.cursor/rules/assistant-agent.mdc](../.cursor/rules/assistant-agent.mdc)): On request ("Daily Briefing", "Briefing", "Was steht an?") reads [internal/presentation_status_and_roadmap.md](presentation_status_and_roadmap.md) and [internal/technical_backlog.md](technical_backlog.md), and produces a short briefing with focus, bottlenecks, and a recommended next task.
 - **Minimal manual steps:** (1) Optionally refresh snapshot, then ask the Assistant for a daily briefing. (2) When starting work: run the script and tell the Implementer the issue number. (3) Review PR (using the summary comment) and merge. Everything else (status transitions, PR summary) is automated.
 
-References: [internal/project_mgmt/PM_FLOW.md](project_mgmt/PM_FLOW.md), [internal/project_mgmt/ASSISTANT_BRIEFING.md](project_mgmt/ASSISTANT_BRIEFING.md), [internal/project_mgmt/PROJECT_FIELDS_AND_LABELS.md](project_mgmt/PROJECT_FIELDS_AND_LABELS.md).
+References: [tooling/project_mgmt/README.md](../tooling/project_mgmt/README.md), [docs/agent/rules/assistant-agent.md](../docs/agent/rules/assistant-agent.md).
 
 ---
 
@@ -153,7 +152,7 @@ Reference: [showcases/aurora_group/README.md](../showcases/aurora_group/README.m
 
 - **Metrics:** New use case, new KPI, new action code.
 - **Maturity:** Aurora or product release, new showcase scope.
-- **Project management:** Changes to PM flow, Assistant briefing, or project automations (see [internal/project_mgmt/PM_FLOW.md](project_mgmt/PM_FLOW.md)).
+- **Project management:** Changes to task orchestration scripts or assistant briefing rules.
 - **General:** Before internal presentation; optionally before release candidate.
 
 ### Recommended frequency

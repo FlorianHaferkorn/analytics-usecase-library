@@ -16,14 +16,14 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     description: Count of routed action instances.
     notes: 'Grain: action_instance. Unit: count.
 
-      Lineage: fact_action[Action ID].
+      Lineage: fact_action_governance[ActionInstanceId].
 
       QA: Exclude duplicates and canceled actions.
 
       '
   dependencies:
     columns:
-    - fact_action[Action ID]
+    - fact_action_governance[ActionInstanceId]
   governance:
     owner: Executive Office
     status: active
@@ -42,15 +42,15 @@ Schema: see `core/semantic_models/Domain_Measure_Dictionary_Schema.md`
     description: Share of routed actions that achieved the intended outcome.
     notes: 'Grain: action_instance. Unit: %.
 
-      Lineage: fact_action[Outcome Success Flag], fact_action[Action ID].
+      Lineage: fact_action_governance[Outcome Success Flag], fact_action_governance[ActionInstanceId].
 
       QA: Outcome definition and evaluation window must be consistent.
 
       '
   dependencies:
     columns:
-    - fact_action[Outcome Success Flag]
-    - fact_action[Action ID]
+    - fact_action_governance[Outcome Success Flag]
+    - fact_action_governance[ActionInstanceId]
   governance:
     owner: Executive Office
     status: active

@@ -54,13 +54,13 @@ factsheet_type: business
 | cost.opex.vs_plan.pct | Influencing |
 | cost.material.pct | Influencing |
 | ops.labor.productivity.pct | Influencing |
-| cost.base_volume.amount | Influencing |
-| cost.opex.base.amount | Influencing |
 | ops.production.volume | Influencing |
 | ops.quality.defect_rate.pct | Influencing |
-| ops.service_level.pct | Influencing |
 | ops.yield.pct | Influencing |
 | sales.net_sales.amount | Supporting |
+| cost.base_volume.amount | Supporting |
+| cost.opex.base.amount | Supporting |
+| ops.service_level.pct | Supporting |
 
 **Action Codes:** F-K2.1, F-K2.2, F-K2.3, F-K2.4
 
@@ -109,35 +109,17 @@ Structured summary of action codes (definitions remain in YAML).
 
 ### 5.4 300-Second Layer (Diagnostics)
 
-- (optional)
+- Plant-line-product variance bridge tying unit cost, material share, labor productivity, and production volume into one reconciled cost story.
+- Quality and yield drill showing whether scrap, rework, or defect deterioration is the real cause of cost pressure rather than pure price or overhead variance.
+- OpEx and overhead control view by entity and plant to separate structural overspend from temporary ramp-up or approved transformation effects.
 
 ## 6. Data Requirements Summary
 
-```yaml
-required_facts:
-
-  - fact_cost (COGS, material)
-
-  - fact_output (units)
-
-  - fact_finance (Net Sales/COGS for COGS %)
-
-  - fact_opex (OpEx vs Plan)
-
-  - fact_labor (labor hours/productivity)
-required_dimensions:
-
-  - dim_date
-
-  - dim_org (entity/plant/line)
-
-  - dim_product
-
-  - security_user_org
-required_grain: plant_line_product_month for unit cost; month/entity for OpEx
-required_time_range: 12-24 months history + plan
-required_slicers: Date, Entity/Plant/Line, Product/Category, Cost bucket
-```
+- Required facts: fact_cost, fact_output, fact_finance, fact_labor, plus fact_ops and fact_quality where productivity, yield, and defect drivers are used to explain cost pressure.
+- Required dimensions: dim_date, dim_org, dim_product, and security_user_org.
+- Required grain: plant_line_product_month for unit-cost diagnostics, with entity_month finance views for OpEx control.
+- Required time range: 12-24 months history plus current plan and baseline comparatives.
+- Required slicers: Date, Entity/Plant/Line, Product/Category, Cost bucket.
 
 ---
 

@@ -1,6 +1,6 @@
 schema_version: '2.0'
 id: X-E3.3
-name: Action Follow-up & Outcome Governance
+name: Executive Action Governance
 owner_domain: Executive Office / PMO
 impact_dimension: Execution Accountability
 status: active
@@ -8,8 +8,9 @@ owner_role: chief_of_staff_pmo_lead
 steward_role: executive_office_pmo_bi_lead
 use_case_links:
   core_use_cases:
-  - XD-003
+  - XD-004
   related_use_cases:
+  - XD-003
   - COM-001
   - COM-002
   - COM-003
@@ -60,24 +61,24 @@ trigger:
       severity: Monitoring
       condition:
         lifecycle_rule:
-          description: Action routed but not yet completed
+          description: Action routed but not yet completed within the expected follow-up window.
         filters: []
     L2:
       severity: Delayed
       condition:
         lifecycle_rule:
-          description: Action not executed within agreed SLA
+          description: Action not executed within the agreed service level.
         filters: []
     L3:
       severity: Ineffective
       condition:
         lifecycle_rule:
-          description: Action executed but no KPI improvement observed
+          description: Action completed but intended KPI improvement not achieved.
         filters: []
   gating_rules:
-  - Outcome evaluation only after domain-defined evaluation window
-  - Do not escalate if follow-up window not elapsed
-  - Exclude actions explicitly marked as informational
+  - Outcome evaluation only after the domain-specific review window elapsed.
+  - Exclude actions explicitly marked as informational or observation-only.
+  - Do not re-route actions already owned by an executive escalation.
 impact:
   category: High
   expected_range:
@@ -89,53 +90,55 @@ impact:
       min_periods: 1
       max_periods: 3
   mechanism:
-  - Visibility of execution gaps at executive level
-  - Pressure for closure and measurable impact
+  - Visibility of delayed or ineffective action execution.
+  - Escalation pressure on ownership gaps and missing follow-through.
   confidence:
     level: High
     rationale:
-    - Pure governance and transparency effect
-    - No dependency on operational levers
+    - Governance transparency effect is directly observable.
+    - No dependency on domain-specific remediation logic.
 operational_execution:
   stakeholders:
+  - Executive Office
+  - PMO
   - Domain Executives
-  - Strategy
-  - Enterprise Controlling
   prerequisites:
-  - Action routing and execution logging in place
-  - Defined evaluation windows per domain Action Code
+  - Routed actions logged with owner, due date, and status.
+  - Outcome evaluation criteria defined per domain action code.
   steps:
-  - TRACK routed Action Codes and execution status for this entity
-  - EVALUATE KPI trajectory post-action window for this entity
-  - ESCALATE delayed or ineffective actions for this entity
-  - REPORT outcomes for this entity to executive committee
+  - TRACK routed Action Codes at action-instance level with owner and due date.
+  - EVALUATE completion status and elapsed time for each routed action.
+  - ASSESS post-action KPI movement once the evaluation window is complete.
+  - ESCALATE delayed or ineffective actions to the executive governance forum.
   effort:
     level: Low
     typical_duration_days: 30
   risks_and_tradeoffs:
-  - False negatives if evaluation window is mis-sized
-  - Perceived micromanagement by domains
+  - False negatives if outcome windows are too short.
+  - Governance noise if informational actions are not filtered out.
 data_requirements:
   required_entities:
   - Action Instance
-  - Domain
+  - Domain Action Code
+  - Entity
   semantic_dependencies:
     measures:
     - Actions Routed Count
     - Action Outcome Rate %
     tables:
-    - fact_action_routing
-    - fact_action_execution
-    - fact_action_outcome
+    - fact_action_governance
+    - dim_action_code
+    - dim_org
 automation:
   detection:
     enabled: true
     evaluation_frequency: monthly
-    output: List of delayed or ineffective Action Codes
+    output: List of delayed or ineffective Action Codes by owner and entity
   suggested_actions:
     enabled: true
     outputs:
-    - Escalation and follow-up signals
+    - Executive escalation queue
+    - Ownership and SLA breach summary
   copilot_prompts: []
 tracking:
   execution_log:
@@ -144,27 +147,32 @@ tracking:
     minimum_fields:
     - ActionCode
     - DomainActionCode
+    - ActionInstanceId
     - Entity
+    - OwnerRole
     - Status
+    - DueDate
     - EvaluationDate
   outcome_evaluation:
     enabled: true
-    recommended_storage: fact_action_outcome
+    recommended_storage: fact_action_governance
     minimum_fields:
     - ActionCode
     - DomainActionCode
-    - Pre_KPI_Value
-    - Post_KPI_Value
+    - ActionInstanceId
+    - OutcomeSuccessFlag
+    - PreKPIValue
+    - PostKPIValue
 governance:
   approvals_required:
   - CEO
   - Chief of Staff
   rollback_plan:
-  - Suspend escalations if governance noise outweighs value
+  - Suspend executive escalation if governance noise outweighs decision value.
   documentation_links:
-  - core/usecases/core/XD-003_Executive_KPI_Overview/Business_Factsheet.md
+  - core/usecases/core/XD-004_Executive_Action_Governance/Business_Factsheet.md
 quality_rules:
-- XD-003 Action Codes must not introduce execution logic.
-- Outcome evaluation must reference domain-defined KPIs.
-- Escalation must be lifecycle-based, not KPI-threshold-based.
+- Executive governance must evaluate lifecycle quality, not domain remediation logic.
+- Outcome evaluation must reference domain-defined KPIs and windows.
+- Escalation must remain action-instance based and auditable.
 - If status=deprecated then lifecycle.replaced_by is required.

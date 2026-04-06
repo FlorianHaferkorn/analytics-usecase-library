@@ -124,7 +124,7 @@ operational_execution:
 data_requirements:
   required_entities:
   - Supplier
-  - Legal Entity
+  - Entity
   semantic_dependencies:
     measures:
     - DPO (Days)
@@ -132,10 +132,10 @@ data_requirements:
     - Supplier Risk Score
     - AP Balance Amount
     tables:
-    - fact_ap
-    - fact_cash
+    - fact_accounts_payable
+    - fact_cash_flow
     - dim_supplier
-    - dim_entity
+    - dim_org
 automation:
   detection:
     enabled: true

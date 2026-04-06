@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { ToolResultCard } from './tool-result-card';
+import { StudioInput } from '@/components/ui/studio-data';
+import { StudioButton, StudioEmptyState } from '@/components/ui/studio-page';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -161,18 +163,16 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
       <div ref={scrollRef} style={{ flex: 1, overflow: 'auto', padding: 'var(--sp-2)', display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
         {messages.length === 0 ? (
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ textAlign: 'center', maxWidth: '400px' }}>
-              <p style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--slate-200)', marginBottom: 'var(--sp-1)' }}>
-                Start a Discovery Session
-              </p>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--slate-400)', lineHeight: 1.6 }}>
-                Upload a source document, then ask the AI to extract strategy anchors, KPIs, and action codes.
-              </p>
-              {context && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--mint)', marginTop: 'var(--sp-1)' }}>
-                  {Math.round(context.length / 4)} tokens of context loaded
-                </p>
-              )}
+            <div style={{ maxWidth: '400px', width: '100%' }}>
+              <StudioEmptyState
+                title="Start a Discovery Session"
+                description={
+                  <>
+                    <span>Upload a source document, then ask the AI to extract strategy anchors, KPIs, and action codes.</span>
+                    {context ? <span style={{ display: 'block', marginTop: 'var(--sp-1)', color: 'var(--mint)' }}>{Math.round(context.length / 4)} tokens of context loaded</span> : null}
+                  </>
+                }
+              />
             </div>
           </div>
         ) : (
@@ -207,7 +207,7 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
 
       <div style={{ padding: 'var(--sp-1-5)', borderTop: '1px solid var(--slate-700)' }}>
         <div style={{ display: 'flex', gap: 'var(--sp-1)' }}>
-          <input
+          <StudioInput
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -217,30 +217,21 @@ export function DiscoveryChat({ context, onExtract, onToolResult }: Props) {
             style={{
               flex: 1,
               padding: 'var(--sp-1) var(--sp-1-5)',
-              backgroundColor: 'var(--slate-900)',
-              border: '1px solid var(--slate-700)',
-              borderRadius: 'var(--radius-md)',
-              color: 'var(--slate-100)',
               fontSize: '0.875rem',
             }}
           />
-          <button
+          <StudioButton
             onClick={sendMessage}
             disabled={isLoading || !input.trim()}
+            tone="success"
+            variant="primary"
             style={{
               padding: 'var(--sp-1) var(--sp-2)',
-              backgroundColor: input.trim() ? 'var(--mint)' : 'var(--slate-600)',
-              borderRadius: 'var(--radius-md)',
-              border: 'none',
-              color: 'var(--slate-950)',
-              fontWeight: 600,
               fontSize: '0.875rem',
-              cursor: input.trim() ? 'pointer' : 'not-allowed',
-              opacity: input.trim() ? 1 : 0.5,
             }}
           >
             Send
-          </button>
+          </StudioButton>
         </div>
       </div>
     </div>

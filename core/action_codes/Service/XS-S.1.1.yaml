@@ -112,10 +112,10 @@ operational_execution:
   - Reliable SLA, backlog, and escalation measurement
   - Clear ownership of execution Action Codes
   steps:
-  - DETECT sustained SLA deterioration for this case
-  - DIAGNOSE the dominant service constraint for this case
-  - ACTIVATE the corresponding execution Action Code for this case
-  - REVIEW SLA recovery for this case daily
+  - DETECT sustained SLA deterioration for this queue
+  - DIAGNOSE the dominant service constraint for this queue
+  - ACTIVATE the corresponding execution Action Code for this queue
+  - REVIEW SLA recovery for this queue daily
   effort:
     level: Low
     typical_duration_days: 14
@@ -134,10 +134,10 @@ data_requirements:
     - First Contact Resolution %
     - Tickets Created Count
     tables:
-    - fact_service_tickets
-    - fact_service_events
-    - dim_queue
-    - dim_region
+    - fact_support_cases
+    - fact_workforce_management
+    - dim_case_queue
+    - dim_org
 automation:
   detection:
     enabled: true

@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { StudioButton, StudioEmptyState, StudioPanel, StudioSegmentedControl } from '@/components/ui/studio-page';
 
 export interface ExtractedElement {
   type: 'anchor' | 'kpi' | 'action';
@@ -289,21 +290,12 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
   }, [elements, drafting, hasConflicts, decisions]);
 
   return (
-    <div
-      style={{
-        width: '280px',
-        flexShrink: 0,
-        backgroundColor: 'var(--slate-800)',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--slate-700)',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
+    <StudioPanel
+      title="Extracted Elements"
+      description="Review discovered anchors, KPIs and action codes before drafting them into governed artifacts."
+      style={{ width: '280px', flexShrink: 0, display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}
     >
       <div style={{ padding: 'var(--sp-2)', borderBottom: '1px solid var(--slate-700)' }}>
-        <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--slate-100)', marginBottom: '4px' }}>
-          Extracted Elements
-        </h3>
         {reviewSummary && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px', marginBottom: 'var(--sp-1)' }}>
             <ReviewStat label="New" value={reviewSummary.newCount} color="var(--mint)" />
@@ -317,34 +309,26 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
             {reviewError}
           </div>
         )}
-        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-          {(['all', 'anchor', 'kpi', 'action'] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              style={{
-                padding: '2px 8px',
-                fontSize: '0.625rem',
-                borderRadius: '9999px',
-                border: `1px solid ${filter === f ? 'var(--mint)' : 'var(--slate-600)'}`,
-                backgroundColor: filter === f ? 'var(--slate-700)' : 'transparent',
-                color: filter === f ? 'var(--slate-100)' : 'var(--slate-400)',
-                cursor: 'pointer',
-              }}
-            >
-              {f === 'all' ? `All (${elements.length})` : `${TYPE_LABELS[f]}s`}
-            </button>
-          ))}
-        </div>
+        <StudioSegmentedControl
+          value={filter}
+          onChange={setFilter}
+          options={[
+            { value: 'all', label: `All (${elements.length})` },
+            { value: 'anchor', label: 'Anchors' },
+            { value: 'kpi', label: 'KPIs' },
+            { value: 'action', label: 'Actions' },
+          ]}
+        />
       </div>
 
       <div style={{ flex: 1, overflow: 'auto', padding: 'var(--sp-1-5)' }}>
         {filtered.length === 0 ? (
-          <p style={{ fontSize: '0.75rem', color: 'var(--slate-500)', textAlign: 'center', padding: 'var(--sp-3)' }}>
-            {elements.length === 0
+          <StudioEmptyState
+            title={elements.length === 0 ? 'No extracted elements yet' : 'No elements match the filter'}
+            description={elements.length === 0
               ? 'Strategy anchors, KPIs, and action codes will appear here after discovery.'
-              : 'No elements match the current filter.'}
-          </p>
+              : 'Adjust the filter to widen the current discovery slice.'}
+          />
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
             {filtered.map((el, i) => {
@@ -357,20 +341,20 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
               const selectedMatch = review?.matches.find((match) => match.id === selectedMatchId) ?? review?.matches[0] ?? null;
               return (
                 <div key={key}>
-                  <button
+                  <StudioButton
                     onClick={() => setExpandedId(isExpanded ? null : key)}
+                    variant="ghost"
                     style={{
                       width: '100%',
                       textAlign: 'left',
                       padding: 'var(--sp-1)',
                       backgroundColor: 'var(--slate-900)',
                       borderRadius: 'var(--radius-md)',
-                      borderLeft: `3px solid ${TYPE_COLORS[el.type]}`,
-                      border: 'none',
+                      border: `1px solid color-mix(in srgb, ${TYPE_COLORS[el.type]} 45%, var(--slate-700))`,
                       borderLeftWidth: '3px',
                       borderLeftStyle: 'solid',
                       borderLeftColor: TYPE_COLORS[el.type],
-                      cursor: 'pointer',
+                      display: 'block',
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
@@ -394,7 +378,7 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
                     <p style={{ fontSize: '0.5625rem', color: 'var(--slate-500)', marginTop: '2px' }}>
                       {el.source}
                     </p>
-                  </button>
+                  </StudioButton>
 
                   {isExpanded && (
                     <div style={{ marginTop: '4px', padding: 'var(--sp-1)', backgroundColor: 'var(--slate-950)', borderRadius: 'var(--radius-sm)', fontSize: '0.6875rem' }}>
@@ -409,27 +393,24 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
                               {review.matches.map((match) => {
                                 const isActive = selectedMatchId === match.id;
                                 return (
-                                  <button
+                                  <StudioButton
                                     key={`${match.id}-${match.reason}`}
                                     onClick={(event) => {
                                       event.stopPropagation();
                                       setCompareSelectionMap((prev) => ({ ...prev, [reviewKey]: match.id }));
                                     }}
+                                    tone={isActive ? 'info' : 'default'}
+                                    variant={isActive ? 'secondary' : 'ghost'}
                                     style={{
                                       padding: '4px 8px',
-                                      borderRadius: 'var(--radius-sm)',
-                                      border: `1px solid ${isActive ? 'var(--info)' : 'var(--slate-700)'}`,
-                                      backgroundColor: isActive ? 'color-mix(in srgb, var(--info) 14%, transparent)' : 'transparent',
-                                      color: isActive ? 'var(--info)' : 'var(--slate-400)',
                                       fontSize: '0.625rem',
-                                      cursor: 'pointer',
                                     }}
                                   >
                                     Compare {match.id}
-                                  </button>
+                                  </StudioButton>
                                 );
                               })}
-                              <button
+                              <StudioButton
                                 onClick={(event) => {
                                   event.stopPropagation();
                                   setReuseMap((prev) => {
@@ -439,22 +420,19 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
                                     return next;
                                   });
                                 }}
+                                tone={reusedId ? 'success' : 'default'}
+                                variant={reusedId ? 'secondary' : 'ghost'}
                                 style={{
                                   padding: '4px 8px',
-                                  borderRadius: 'var(--radius-sm)',
-                                  border: `1px solid ${reusedId ? 'var(--mint)' : 'var(--slate-600)'}`,
-                                  backgroundColor: reusedId ? 'color-mix(in srgb, var(--mint) 12%, transparent)' : 'transparent',
-                                  color: reusedId ? 'var(--mint)' : 'var(--slate-300)',
                                   fontSize: '0.625rem',
-                                  cursor: 'pointer',
                                 }}
                               >
                                 {reusedId
                                   ? `${review.status === 'conflict' ? 'Merge' : 'Reuse'} ${reusedId}`
                                   : `${review.status === 'conflict' ? 'Merge into' : 'Reuse'} ${selectedMatchId ?? review.matches[0].id}`}
-                              </button>
+                              </StudioButton>
                               {reusedId && (
-                                <button
+                                <StudioButton
                                   onClick={(event) => {
                                     event.stopPropagation();
                                     setReuseMap((prev) => {
@@ -463,18 +441,14 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
                                       return next;
                                     });
                                   }}
+                                  variant="ghost"
                                   style={{
                                     padding: '4px 8px',
-                                    borderRadius: 'var(--radius-sm)',
-                                    border: '1px solid var(--slate-600)',
-                                    backgroundColor: 'transparent',
-                                    color: 'var(--slate-400)',
                                     fontSize: '0.625rem',
-                                    cursor: 'pointer',
                                   }}
                                 >
                                   Create new instead
-                                </button>
+                                </StudioButton>
                               )}
                             </div>
                           )}
@@ -532,21 +506,17 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
                 {reviewLoading ? 'Checking registry matches...' : hasConflicts ? 'Resolve or merge exact-ID conflicts before drafting.' : 'Draft branch will include reviewed extracted items.'}
               </p>
             </div>
-            <button
+            <StudioButton
               onClick={() => void runReview()}
               disabled={reviewLoading}
+              variant="ghost"
               style={{
                 padding: '6px 8px',
-                backgroundColor: 'transparent',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--slate-600)',
-                color: reviewLoading ? 'var(--slate-600)' : 'var(--slate-300)',
                 fontSize: '0.6875rem',
-                cursor: reviewLoading ? 'not-allowed' : 'pointer',
               }}
             >
               {reviewLoading ? 'Review...' : 'Review refresh'}
-            </button>
+            </StudioButton>
           </div>
           {draftResult && (
             <div style={{ padding: 'var(--sp-1)', backgroundColor: 'color-mix(in srgb, var(--mint) 12%, transparent)', borderRadius: 'var(--radius-sm)', fontSize: '0.6875rem', color: 'var(--mint)' }}>
@@ -559,24 +529,20 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
                     Scaffold → {draftResult.scaffold.file}
                   </p>
                   {draftResult.scaffoldYaml && (
-                    <button
+                    <StudioButton
                       onClick={() => {
                         router.push(`/steering?draftId=${encodeURIComponent(draftResult.scaffold!.id)}&draftYaml=${encodeURIComponent(draftResult.scaffoldYaml!)}`);
                       }}
+                      tone="success"
+                      variant="ghost"
                       style={{
                         marginTop: '8px',
                         padding: '5px 8px',
-                        borderRadius: 'var(--radius-sm)',
-                        border: '1px solid var(--mint)',
-                        backgroundColor: 'transparent',
-                        color: 'var(--mint)',
                         fontSize: '0.6875rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
                       }}
                     >
                       Open scaffold in Steering
-                    </button>
+                    </StudioButton>
                   )}
                 </>
               )}
@@ -587,26 +553,22 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
               {draftError}
             </div>
           )}
-          <button
+          <StudioButton
             onClick={handleCreateDraft}
             disabled={drafting || reviewLoading || hasConflicts}
+            tone="success"
+            variant="primary"
             style={{
               width: '100%',
               padding: 'var(--sp-1)',
-              backgroundColor: drafting || reviewLoading || hasConflicts ? 'var(--slate-700)' : 'var(--mint)',
-              borderRadius: 'var(--radius-md)',
-              border: 'none',
-              color: drafting || reviewLoading || hasConflicts ? 'var(--slate-400)' : 'var(--slate-950)',
-              fontWeight: 600,
               fontSize: '0.8125rem',
-              cursor: drafting || reviewLoading || hasConflicts ? 'not-allowed' : 'pointer',
             }}
           >
             {drafting ? 'Branch wird erstellt...' : hasConflicts ? 'Conflicts zuerst prüfen' : 'Draft-Branch erstellen'}
-          </button>
+          </StudioButton>
         </div>
       )}
-    </div>
+    </StudioPanel>
   );
 }
 

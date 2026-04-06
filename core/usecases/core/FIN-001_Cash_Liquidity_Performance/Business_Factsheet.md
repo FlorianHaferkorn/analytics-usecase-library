@@ -59,9 +59,9 @@ cash conversion, and improved resilience.
 | wc.dso.days | Influencing |
 | wc.dio.days | Influencing |
 | wc.dpo.days | Influencing |
-| scm.service_level.pct | Influencing |
-| scm.supplier_risk.score | Influencing |
 | fin.liquidity.inventory.amount | Supporting |
+| scm.service_level.pct | Supporting |
+| scm.supplier_risk.score | Supporting |
 
 **Action Codes:** F-C1.1, F-C1.2, S-I1.2, F-C1.4
 
@@ -142,40 +142,11 @@ Structured summary of action codes (definitions remain in YAML).
 
 ## 6. Data Requirements Summary
 
-```yaml
-required_facts:
-
-  - fact_cash
-
-  - fact_cashflow
-
-  - fact_ar
-
-  - fact_ap
-
-  - fact_inventory (for DIO)
-
-  - fact_cogs (or sales/COGS for rates)
-required_dimensions:
-
-  - dim_date
-
-  - dim_org (entity/region)
-
-  - dim_customer (for AR/DSO drill)
-
-  - dim_supplier (for AP/DPO drill)
-
-  - dim_product (for DIO drill)
-
-  - security_user_org
-required_grain: >
-  day for cash; month for WC metrics; customer/supplier drill for DSO/DPO;
-  location_sku for DIO
-required_time_range: 12-24 months history + plan
-required_slicers: >
-  Date, Region/Entity, Customer/Supplier, Product (optional)
-```
+- Required facts: fact_cash_position, fact_cash_flow, fact_accounts_receivable, fact_accounts_payable, fact_inventory, and fact_finance where bridge logic needs P&L context.
+- Required dimensions: dim_date, dim_org, dim_customer, dim_supplier, dim_product, and security_user_org where authorized.
+- Required grain: day for cash position, entity_month for working-capital steering, customer or supplier drill for DSO and DPO, and entity-product-month for DIO.
+- Required time range: 12-24 months history plus current plan.
+- Required slicers: Date, Region/Entity, Customer, Supplier, Product/Category.
 
 ---
 

@@ -26,16 +26,15 @@ use_case_links:
   - XD-002
 kpis:
   trigger_kpis:
-  - sales.revenue.growth_pct
+  - sales.net_sales.delta_pct.ly
   - margin.gm.pct
   - svc.sla.attainment.pct
-  - supply.otif.pct
-  - wc.ccc.days
+  - ops.otif.pct
+  - ops.working_capital.ccc.days
   - people.attrition_risk.pct
   guardrail_kpis: []
   outcome_kpis:
   - enterprise.value_at_risk.index
-  - people.digital_adoption.pct
 scope:
   default_grain: entity_month
   default_perspective:
@@ -127,12 +126,13 @@ data_requirements:
   - Region
   semantic_dependencies:
     measures:
-    - Net Sales Growth %
+    - Net Sales % vs LY
     - Gross Margin %
     - Service Level %
-    - OTIF %
-    - CCC (Days)
+    - Ops OTIF %
+    - Cash Conversion Cycle (Days)
     - Attrition Risk %
+    - Digital Adoption %
     tables:
     - fact_kpi_snapshot
     - fact_risk_weights

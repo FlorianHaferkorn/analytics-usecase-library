@@ -58,6 +58,34 @@ function Convert-ToLineArray {
   return @($text -split "`r?`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne "" })
 }
 
+function Get-PowerShellHostPath {
+  $processPath = (Get-Process -Id $PID -ErrorAction Stop).Path
+  if ($processPath -and (Test-Path $processPath)) {
+    return $processPath
+  }
+
+  $powershellCommand = Get-Command powershell.exe -ErrorAction SilentlyContinue
+  if ($powershellCommand) {
+    return $powershellCommand.Source
+  }
+
+  throw "Unable to resolve a PowerShell host executable for supervisor child process."
+}
+
+function Quote-NativeArgument {
+  param([string] $Value)
+  if ($null -eq $Value) { return '""' }
+  if ($Value -match '^[^-\s"][^\s"]*$' -or $Value -match '^-[A-Za-z0-9][A-Za-z0-9-]*$') {
+    return $Value
+  }
+
+  return ('"{0}"' -f ($Value -replace '"', '\"'))
+}
+
+function Test-PublishCredentialsConfigured {
+  return [bool]($env:TENANT_ID -and $env:CLIENT_ID -and $env:CLIENT_SECRET)
+}
+
 function Test-LlmConfigured {
   return (($env:AZURE_OPENAI_API_KEY -and $env:AZURE_OPENAI_ENDPOINT -and $env:AZURE_OPENAI_DEPLOYMENT) -or $env:OPENAI_API_KEY)
 }
@@ -335,11 +363,20 @@ function Invoke-WorkspacePublishPhase {
     $publishArgs += "-All"
   }
   $dryRunWhenCredentialsMissing = [bool](Get-PolicyValue -Root $policy -Path @("supervisor", "dryRunWhenCredentialsMissing") -Default $true)
-  $hasCredentials = ($env:TENANT_ID -and $env:CLIENT_ID -and $env:CLIENT_SECRET)
+  $hasCredentials = Test-PublishCredentialsConfigured
   if ((-not $hasCredentials) -and $dryRunWhenCredentialsMissing) {
     $publishArgs += "-DryRun"
   }
-  $null = & $publishScript @publishArgs 2>&1
+  $powershellHost = Get-PowerShellHostPath
+  $stdoutFile = [System.IO.Path]::GetTempFileName()
+  $stderrFile = [System.IO.Path]::GetTempFileName()
+  $publishCommand = @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $publishScript) + $publishArgs
+  $publishCommandLine = (($publishCommand | ForEach-Object { Quote-NativeArgument -Value $_ }) -join ' ')
+  $publishProcess = Start-Process -FilePath $powershellHost -ArgumentList $publishCommandLine -NoNewWindow -Wait -PassThru -RedirectStandardOutput $stdoutFile -RedirectStandardError $stderrFile
+  Remove-Item -Path $stdoutFile, $stderrFile -ErrorAction SilentlyContinue
+  if ($publishProcess.ExitCode -ne 0 -and -not (Test-Path $publishResultPath)) {
+    throw "Publish script failed before writing result file (exit $($publishProcess.ExitCode))."
+  }
   if (-not (Test-Path $publishResultPath)) {
     throw "Publish result file not written: $publishResultPath"
   }
@@ -421,6 +458,7 @@ $runState = [ordered]@{
   scope = $scopeState
   publishEnvironment = $effectivePublishEnvironment
   startedAt = (Get-Date).ToString("o")
+  blockingReason = $null
   iterations = @()
 }
 
@@ -456,9 +494,21 @@ for ($iteration = 1; $iteration -le $maxIterations; $iteration++) {
       $buildArgs += "-UseAuroraData"
     }
     try {
-      $buildOutput = & $orchestratorScript @buildArgs 2>&1
-      $buildExit = $LASTEXITCODE
-      if ($null -eq $buildExit) { $buildExit = 0 }
+      $powershellHost = Get-PowerShellHostPath
+      $stdoutFile = [System.IO.Path]::GetTempFileName()
+      $stderrFile = [System.IO.Path]::GetTempFileName()
+      $buildCommand = @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $orchestratorScript) + $buildArgs
+      $buildCommandLine = (($buildCommand | ForEach-Object { Quote-NativeArgument -Value $_ }) -join ' ')
+      $buildProcess = Start-Process -FilePath $powershellHost -ArgumentList $buildCommandLine -NoNewWindow -Wait -PassThru -RedirectStandardOutput $stdoutFile -RedirectStandardError $stderrFile
+      $buildExit = $buildProcess.ExitCode
+      $buildOutput = @()
+      if (Test-Path $stdoutFile) {
+        $buildOutput += Get-Content -Path $stdoutFile -Encoding utf8
+      }
+      if (Test-Path $stderrFile) {
+        $buildOutput += Get-Content -Path $stderrFile -Encoding utf8
+      }
+      Remove-Item -Path $stdoutFile, $stderrFile -ErrorAction SilentlyContinue
       $iterationState.build = @{ passed = ($buildExit -eq 0); exitCode = $buildExit; output = @(Convert-ToLineArray -Value $buildOutput) }
       if ($buildExit -ne 0) {
         $runState.iterations += $iterationState
@@ -492,6 +542,15 @@ for ($iteration = 1; $iteration -le $maxIterations; $iteration++) {
       try {
         $publishResult = Invoke-WorkspacePublishPhase
         $iterationState.publish = $publishResult
+        if ($publishResult.dryRun -and -not (Test-PublishCredentialsConfigured)) {
+          $runState.iterations += $iterationState
+          $runState.completedAt = (Get-Date).ToString("o")
+          $runState.success = $false
+          $runState.blockingReason = if ($publishResult.blockingReason) { $publishResult.blockingReason } else { "workspace_publish_credentials_missing" }
+          $runState | ConvertTo-Json -Depth 12 | Set-Content -Path $resolvedResultFile -Encoding utf8
+          Write-Host "[Supervisor] Workspace publish requires TENANT_ID, CLIENT_ID and CLIENT_SECRET; only dry-run was possible." -ForegroundColor Yellow
+          exit 1
+        }
         if ($smokeRequired) {
           $iterationState.smokeTest = Invoke-PostPublishSmokeTest -PublishResult $publishResult
         }
@@ -504,7 +563,7 @@ for ($iteration = 1; $iteration -le $maxIterations; $iteration++) {
     }
 
     $publishPassed = ($SkipPublish -or -not $publishRequired -or ($iterationState.publish -and $iterationState.publish.success -and -not $iterationState.publish.dryRun))
-    $smokePassed = ((-not $smokeRequired) -or ($iterationState.smokeTest -and $iterationState.smokeTest.success))
+    $smokePassed = ($SkipPublish -or -not $smokeRequired -or ($iterationState.smokeTest -and $iterationState.smokeTest.success))
     if ($publishPassed -and $smokePassed) {
       $runState.iterations += $iterationState
       $runState.completedAt = (Get-Date).ToString("o")

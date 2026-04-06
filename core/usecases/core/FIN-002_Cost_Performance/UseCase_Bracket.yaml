@@ -12,25 +12,25 @@ orchestration:
   - cost.opex.vs_plan.pct
   - cost.material.pct
   - ops.labor.productivity.pct
-  - cost.base_volume.amount
-  - cost.opex.base.amount
   - ops.production.volume
   - ops.quality.defect_rate.pct
-  - ops.service_level.pct
   - ops.yield.pct
   supporting_kpi_ids:
   - sales.net_sales.amount
+  - cost.base_volume.amount
+  - cost.opex.base.amount
+  - ops.service_level.pct
   action_code_ids:
   - F-K2.1
   - F-K2.2
   - F-K2.3
   - F-K2.4
 value_driver_model:
-  formula: cost.unit.amount = f(margin.cogs.pct, cost.opex.vs_plan.pct, cost.material.pct, ops.labor.productivity.pct, cost.base_volume.amount,
-    cost.opex.base.amount, ops.production.volume, ops.quality.defect_rate.pct, ops.service_level.pct, ops.yield.pct)
+  formula: cost.unit.amount = f(margin.cogs.pct, cost.opex.vs_plan.pct, cost.material.pct, ops.labor.productivity.pct, ops.production.volume,
+    ops.quality.defect_rate.pct, ops.yield.pct)
   impact_direction: minimize
-  primary_driver: margin.cogs.pct
-  impact_logic: Improving margin.cogs.pct is the primary lever for minimizing cost.unit.amount.
+  primary_driver: cost.material.pct
+  impact_logic: Improving cost.material.pct is the primary lever for minimizing cost.unit.amount because material consumption and purchase discipline are the fastest structural levers before broader labor or overhead redesign is needed.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -57,7 +57,17 @@ ux_layout_rules:
       evidence_grain: plant_line_product_month
       evidence_columns:
       - entity
-      - period
+      - plant
+      - line
+      - product_category
+      - cost.unit.amount
+      - margin.cogs.pct
+      - cost.material.pct
+      - cost.opex.vs_plan.pct
+      - ops.labor.productivity.pct
+      - ops.production.volume
+      - ops.quality.defect_rate.pct
+      - ops.yield.pct
       - cost.unit.amount
       action_panel: true
       payload_mode: full

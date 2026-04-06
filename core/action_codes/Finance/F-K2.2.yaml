@@ -25,7 +25,7 @@ scope:
   - Plant
   - Product Category
   supported_slices:
-  - Supplier
+  - Line
   exclusions:
   - Approved spec changes and engineering trials
   - One-off material price spikes with approved pass-through
@@ -125,7 +125,6 @@ data_requirements:
   required_entities:
   - Plant
   - Product
-  - Supplier
   semantic_dependencies:
     measures:
     - Material Cost %
@@ -134,8 +133,10 @@ data_requirements:
     tables:
     - fact_cost
     - fact_ops
-    - dim_supplier
-    - dim_plant
+    - fact_output
+    - fact_quality
+    - dim_org
+    - dim_product
 automation:
   detection:
     enabled: true

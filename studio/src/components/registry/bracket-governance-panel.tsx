@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { ApprovalBadge } from './approval-badge';
 import type { ApprovalAction, ApprovalRecord } from '@/lib/governance/approval-types';
+import { StudioTextarea } from '@/components/ui/studio-data';
+import { StudioButton, StudioEmptyState } from '@/components/ui/studio-page';
 
 interface GovernanceComment {
   id: string;
@@ -217,101 +219,76 @@ export function BracketGovernancePanel({ bracketId }: Props) {
           <p style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Loading review context...</p>
         ) : (
           <>
-            <textarea
+            <StudioTextarea
               value={comment}
               onChange={(event) => setComment(event.target.value)}
               placeholder="Add review comment"
               style={{
-                width: '100%',
-                minHeight: '72px',
                 padding: '8px',
-                resize: 'vertical',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--slate-700)',
                 backgroundColor: 'var(--slate-950)',
-                color: 'var(--slate-100)',
                 fontSize: '0.75rem',
               }}
             />
             <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-              <button
+              <StudioButton
                 onClick={handleAddComment}
                 disabled={submitting || comment.trim().length < 3}
+                tone="info"
+                variant="primary"
                 style={{
                   padding: '6px 10px',
-                  border: 'none',
-                  borderRadius: 'var(--radius-sm)',
-                  backgroundColor: submitting || comment.trim().length < 3 ? 'var(--slate-700)' : 'var(--info)',
-                  color: submitting || comment.trim().length < 3 ? 'var(--slate-500)' : 'white',
-                  cursor: submitting || comment.trim().length < 3 ? 'not-allowed' : 'pointer',
                   fontSize: '0.6875rem',
-                  fontWeight: 600,
                 }}
               >
                 {submitting ? 'Saving...' : 'Add comment'}
-              </button>
-              <button
+              </StudioButton>
+              <StudioButton
                 onClick={handleSnapshot}
                 disabled={snapshotting}
+                variant="ghost"
                 style={{
                   padding: '6px 10px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--slate-600)',
-                  backgroundColor: 'transparent',
-                  color: snapshotting ? 'var(--slate-600)' : 'var(--slate-300)',
-                  cursor: snapshotting ? 'not-allowed' : 'pointer',
                   fontSize: '0.6875rem',
-                  fontWeight: 600,
                 }}
               >
                 {snapshotting ? 'Snapshot...' : 'Create snapshot'}
-              </button>
+              </StudioButton>
             </div>
             <div style={{ marginTop: 'var(--sp-1-5)', paddingTop: 'var(--sp-1)', borderTop: '1px solid var(--slate-800)' }}>
               <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginBottom: '6px' }}>Lifecycle action</p>
-              <textarea
+              <StudioTextarea
                 value={justification}
                 onChange={(event) => setJustification(event.target.value)}
                 placeholder="Justification for lifecycle change"
                 style={{
-                  width: '100%',
                   minHeight: '54px',
                   padding: '8px',
-                  resize: 'vertical',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--slate-700)',
                   backgroundColor: 'var(--slate-950)',
-                  color: 'var(--slate-100)',
                   fontSize: '0.75rem',
                 }}
               />
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '8px' }}>
                 {availableActions.map((action) => (
-                  <button
+                  <StudioButton
                     key={action}
                     onClick={() => void handleLifecycle(action)}
                     disabled={transitioning !== null}
+                    variant="ghost"
                     style={{
                       padding: '5px 9px',
-                      borderRadius: 'var(--radius-sm)',
-                      border: '1px solid var(--slate-600)',
-                      backgroundColor: 'transparent',
-                      color: transitioning === action ? 'var(--slate-600)' : 'var(--slate-200)',
-                      cursor: transitioning !== null ? 'not-allowed' : 'pointer',
                       fontSize: '0.6875rem',
-                      fontWeight: 600,
                       textTransform: 'capitalize',
                     }}
                   >
                     {transitioning === action ? `${action}...` : action}
-                  </button>
+                  </StudioButton>
                 ))}
               </div>
             </div>
             {error && <p style={{ fontSize: '0.6875rem', color: 'var(--danger)', marginTop: '8px' }}>{error}</p>}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'var(--sp-1-5)' }}>
               {comments.length === 0 ? (
-                <p style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>No review comments yet.</p>
+                <StudioEmptyState title="No review comments yet" description="Add the first review note to capture governance context for this bracket." />
               ) : comments.map((entry) => (
                 <div key={entry.id} style={{ padding: '8px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--slate-950)', border: '1px solid var(--slate-800)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', marginBottom: '4px' }}>
@@ -330,7 +307,7 @@ export function BracketGovernancePanel({ bracketId }: Props) {
         {loading ? (
           <p style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Loading snapshots...</p>
         ) : versions.length === 0 ? (
-          <p style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>No manual snapshots yet.</p>
+          <StudioEmptyState title="No snapshots yet" description="Create a manual snapshot from the review panel to compare and restore governed states." />
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {versions.map((version) => (
@@ -342,19 +319,23 @@ export function BracketGovernancePanel({ bracketId }: Props) {
                 <p style={{ fontSize: '0.625rem', color: 'var(--slate-400)', marginTop: '2px' }}>by {version.created_by}</p>
                 {version.note && <p style={{ fontSize: '0.6875rem', color: 'var(--slate-300)', marginTop: '4px' }}>{version.note}</p>}
                 <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
-                  <button
+                  <StudioButton
                     onClick={() => setSelectedVersionId(version.id)}
-                    style={{ padding: '4px 8px', borderRadius: 'var(--radius-sm)', border: `1px solid ${selectedVersionId === version.id ? 'var(--info)' : 'var(--slate-600)'}`, backgroundColor: 'transparent', color: selectedVersionId === version.id ? 'var(--info)' : 'var(--slate-300)', fontSize: '0.625rem', cursor: 'pointer' }}
+                    tone={selectedVersionId === version.id ? 'info' : 'default'}
+                    variant={selectedVersionId === version.id ? 'secondary' : 'ghost'}
+                    style={{ padding: '4px 8px', fontSize: '0.625rem' }}
                   >
                     Compare
-                  </button>
-                  <button
+                  </StudioButton>
+                  <StudioButton
                     onClick={() => void handleRestore(version.id)}
                     disabled={restoringVersionId !== null}
-                    style={{ padding: '4px 8px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--gold)', backgroundColor: 'transparent', color: restoringVersionId === version.id ? 'var(--slate-600)' : 'var(--gold)', fontSize: '0.625rem', cursor: restoringVersionId !== null ? 'not-allowed' : 'pointer' }}
+                    tone="warning"
+                    variant="ghost"
+                    style={{ padding: '4px 8px', fontSize: '0.625rem' }}
                   >
                     {restoringVersionId === version.id ? 'Restoring...' : 'Restore'}
-                  </button>
+                  </StudioButton>
                 </div>
               </div>
             ))}

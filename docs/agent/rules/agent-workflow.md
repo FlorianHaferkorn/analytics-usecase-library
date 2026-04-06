@@ -1,10 +1,10 @@
 # Agent Task Workflow
 
-When working on an assigned GitHub Issue or task, follow this workflow. Your behavior must uphold the flow in [internal/project_mgmt/VERIFICATION_CHECKLIST.md](internal/project_mgmt/VERIFICATION_CHECKLIST.md): set issue Status to In progress after creating the branch; add Skill/Tool gaps to IDEAS_AND_REQUIREMENTS when recognized.
+When working on an assigned GitHub Issue or task, follow this workflow. Set issue status to In progress after creating the branch and document relevant delivery notes in the PR body.
 
-## Workday check (before starting any new implementation)
+## Workday note (before starting any new implementation)
 
-1. Check whether the agent workday is open: the file `internal/project_mgmt/AGENT_WORKDAY_OPEN` must exist. If it does **not** exist: do **not** start new implementation. Reply with: "Arbeitstag ist geschlossen. Bitte workday_start.ps1 ausführen oder die Datei internal/project_mgmt/AGENT_WORKDAY_OPEN anlegen." and stop.
+1. If your team uses a workday guard, run `tooling/project_mgmt/workday_start.ps1` before starting implementation.
 
 ## Obtain issue number (if user said "start next task" or similar)
 
@@ -46,7 +46,7 @@ Parse the script output for the **issue number** (e.g. "Issue #17" or "Issue num
    Use the issue number you have (e.g. `16`). For `<short-name>`, derive a short kebab-case slug from the issue title (e.g. "Document automated reasoning scope" → `automated-reasoning-scope`), max ~40 characters. Example: `agent/16-automated-reasoning-scope`.
 2. **Set project Status to In progress** for this issue so the board stays correct. From the **repo root** (PowerShell): `.\tooling\project_mgmt\set_issue_status.ps1 -Issue <N> -Status "In progress"` (use the issue number from step 5).
 3. Make small, focused changes. One PR per Issue.
-4. **If you recognize that this task requires a skill or tool we don't yet have** (e.g. new artifact type, new domain): Add a row to [internal/project_mgmt/IDEAS_AND_REQUIREMENTS.md](internal/project_mgmt/IDEAS_AND_REQUIREMENTS.md) in the Pending table with a Title like "Skill/Tool for X" and a short Notes rationale. Mention this need in the PR body or in the next briefing so it can be prioritized.
+4. **If you recognize that this task requires a skill or tool we don't yet have** (e.g. new artifact type, new domain): mention this need in the PR body so it can be prioritized.
 5. Follow all rules in `.cursor/rules/` — especially `framework-conventions.mdc` and `stage1-awareness.mdc`.
 
 ## SSOT audit findings (insertable remediation)

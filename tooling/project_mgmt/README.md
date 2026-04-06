@@ -4,8 +4,8 @@
 
 **See:**
 
-- [internal/project_mgmt/OPERATING_MODEL.md](../../internal/project_mgmt/OPERATING_MODEL.md) — cadence and roles.
-- [internal/project_mgmt/PROJECT_FIELDS_AND_LABELS.md](../../internal/project_mgmt/PROJECT_FIELDS_AND_LABELS.md) — project fields and API reference.
+- [docs/README.md](../../docs/README.md) — quality gates and repository entry points.
+- [tooling/README.md](../README.md) — shared tooling overview.
 
 **Key scripts:**
 

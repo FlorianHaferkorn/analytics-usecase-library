@@ -11,27 +11,22 @@ orchestration:
   - crm.lifetime_revenue.amount
   - crm.retention.pct
   - crm.churned_customers.count
-  - crm.revenue_at_risk.amount
   - crm.active_customers.count
   - crm.nps.index
   - crm.complaint.count
   supporting_kpi_ids:
+  - crm.revenue_at_risk.amount
+  - sales.net_sales.amount
   - cost.cogs.amount
-  - sales.promo.baseline_sales.amount
-  - sales.promo.cost.amount
-  - sales.promo.incremental_gm.amount
-  - sales.pvm.price_effect.amount
-  - sales.pvm.volume_effect.amount
   action_code_ids:
-  - C-M2.2
-  - C-P4.1
-  - C-S1.2
+  - C-C3.1
+  - C-C3.2
 value_driver_model:
-  formula: crm.clv.amount = f(crm.lifetime_revenue.amount, crm.retention.pct, crm.churned_customers.count, crm.revenue_at_risk.amount,
-    crm.active_customers.count, crm.nps.index, crm.complaint.count)
+  formula: crm.clv.amount = f(crm.lifetime_revenue.amount, crm.retention.pct, crm.churned_customers.count, crm.active_customers.count,
+    crm.nps.index, crm.complaint.count)
   impact_direction: maximize
-  primary_driver: crm.lifetime_revenue.amount
-  impact_logic: Improving crm.lifetime_revenue.amount is the primary lever for maximizing crm.clv.amount.
+  primary_driver: crm.retention.pct
+  impact_logic: Improving crm.retention.pct is the primary lever for maximizing crm.clv.amount because the use case is designed to protect future profitable revenue before churn becomes realized loss.
 ux_layout_rules:
   report_structure: 2-Page-Lead
   report_canvas: { width: 1920, height: 1080 }
@@ -57,8 +52,15 @@ ux_layout_rules:
     component_300s:
       evidence_grain: customer_month
       evidence_columns:
-      - entity
-      - period
+      - customer_segment
+      - channel
+      - region
+      - crm.clv.amount
+      - crm.retention.pct
+      - crm.churned_customers.count
+      - crm.revenue_at_risk.amount
+      - crm.nps.index
+      - crm.complaint.count
       - crm.clv.amount
       action_panel: true
       payload_mode: full

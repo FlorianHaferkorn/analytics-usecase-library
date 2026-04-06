@@ -123,17 +123,18 @@ operational_execution:
 data_requirements:
   required_entities:
   - Customer
-  - Legal Entity
+  - Entity
   semantic_dependencies:
     measures:
     - DSO (Days)
     - Operating Cash Flow
     - Cash Balance
     tables:
-    - fact_ar
-    - fact_cash
+    - fact_accounts_receivable
+    - fact_cash_position
+    - fact_cash_flow
     - dim_customer
-    - dim_entity
+    - dim_org
 automation:
   detection:
     enabled: true

@@ -132,10 +132,10 @@ data_requirements:
     - First Contact Resolution %
     - Tickets Closed Count
     tables:
-    - fact_service_tickets
-    - fact_service_events
-    - dim_queue
-    - dim_channel
+    - fact_support_cases
+    - fact_workforce_management
+    - dim_case_queue
+    - dim_org
 automation:
   detection:
     enabled: true

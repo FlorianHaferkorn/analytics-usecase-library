@@ -77,16 +77,23 @@ function Get-BracketActionCodes {
   if (-not (Test-Path $bracketPath)) { return @() }
   $ids = @()
   $inActionCodeIds = $false
+  $sectionIndent = $null
   foreach ($line in (Get-Content -Path $bracketPath)) {
     if ($line -match '^\s*action_code_ids\s*:') {
       $inActionCodeIds = $true
+      $sectionIndent = ($line.Length - $line.TrimStart().Length)
       continue
     }
     if ($inActionCodeIds) {
+      if ($line -match '^\s*$' -or $line -match '^\s*#') {
+        continue
+      }
+      $currentIndent = ($line.Length - $line.TrimStart().Length)
+      if ($currentIndent -le $sectionIndent) {
+        break
+      }
       if ($line -match '^\s*-\s*"?([^"\s]+)"?') {
         $ids += $matches[1]
-      } elseif ($line -match '^\S') {
-        break
       }
     }
   }
@@ -120,7 +127,9 @@ $actionCodeIds = Get-ActionCodeIds -Root $actionCodesRoot
 $missing = @()
 
 Get-ChildItem -Path $useCasesRoot -Recurse -Filter "Business_Factsheet.md" | Where-Object {
-  $_.FullName -notmatch '\\internal\\archive\\'
+  $_.FullName -notmatch '\\internal\\archive\\' -and
+  $_.FullName -notmatch '\\extended\\' -and
+  $_.FullName -notmatch '\\industry\\'
 } | ForEach-Object {
   $fm = Get-FrontMatterText -Path $_.FullName
   $refs = @()

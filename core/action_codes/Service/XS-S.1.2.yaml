@@ -111,10 +111,10 @@ operational_execution:
   - Accurate queue-level backlog measurement
   - Flexible capacity allocation rules
   steps:
-  - IDENTIFY cases in queues with sustained backlog growth
-  - REALLOCATE capacity or extend operating windows for this case backlog
-  - EXECUTE backlog reduction waves targeting this case type
-  - MONITOR SLA and quality for this case daily
+  - IDENTIFY queues with sustained backlog growth
+  - REALLOCATE capacity or extend operating windows for this queue backlog
+  - EXECUTE backlog reduction waves targeting this queue or issue segment
+  - MONITOR SLA and quality for this queue daily
   effort:
     level: Medium
     typical_duration_days: 21
@@ -132,10 +132,10 @@ data_requirements:
     - First Contact Resolution %
     - Tickets Created Count
     tables:
-    - fact_service_tickets
-    - fact_service_events
-    - dim_queue
-    - dim_channel
+    - fact_support_cases
+    - fact_workforce_management
+    - dim_case_queue
+    - dim_org
 automation:
   detection:
     enabled: true

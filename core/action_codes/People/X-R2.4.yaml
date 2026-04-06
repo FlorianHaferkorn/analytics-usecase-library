@@ -110,10 +110,10 @@ operational_execution:
   - Clear overtime approval and attribution rules
   - Visibility into overtime drivers by queue
   steps:
-  - IDENTIFY agents in queues with recurring overtime
-  - ANALYSE root causes (demand spikes, misallocation, shrinkage) for this agent
-  - ADJUST schedules, REALLOCATE capacity, or CORRECT planning gaps for this agent
-  - REVIEW overtime and SLA for this agent monthly
+  - IDENTIFY queues with recurring overtime
+  - ANALYSE root causes (demand spikes, misallocation, shrinkage) for this queue
+  - ADJUST schedules, REALLOCATE capacity, or CORRECT planning gaps for this queue
+  - REVIEW overtime and SLA for this queue monthly
   effort:
     level: Medium
     typical_duration_days: 120
@@ -131,10 +131,10 @@ data_requirements:
     - SLA Attainment %
     - Tickets Created Count
     tables:
-    - fact_workforce
-    - fact_service_tickets
-    - dim_queue
-    - dim_region
+    - fact_workforce_management
+    - fact_support_cases
+    - dim_case_queue
+    - dim_org
 automation:
   detection:
     enabled: true

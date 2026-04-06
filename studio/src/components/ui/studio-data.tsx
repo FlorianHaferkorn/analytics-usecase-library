@@ -14,6 +14,10 @@ export function StudioInput(props: React.InputHTMLAttributes<HTMLInputElement>) 
   return <input {...props} style={{ ...inputBaseStyle, ...props.style }} />;
 }
 
+export function StudioTextarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return <textarea {...props} style={{ ...inputBaseStyle, resize: 'vertical', minHeight: '72px', ...props.style }} />;
+}
+
 export function StudioSelect(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return <select {...props} style={{ ...inputBaseStyle, minWidth: '140px', ...props.style }} />;
 }

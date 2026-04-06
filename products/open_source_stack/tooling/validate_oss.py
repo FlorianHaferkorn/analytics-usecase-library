@@ -54,18 +54,21 @@ def _load_ir(root: Path) -> Dict[str, Any]:
 
 def _collect_required_kpi_ids(ir: Dict[str, Any], selected_use_cases: List[str] | None = None) -> Set[str]:
     required: Set[str] = set()
+    visiting: Set[str] = set()
     use_case_objects = ir.get("objects", {}).get("use_cases", {})
     selected = use_case_objects.keys() if selected_use_cases is None else selected_use_cases
     measure_specs = ir.get("measure_spec", {}) if isinstance(ir.get("measure_spec", {}), dict) else {}
 
     def add_with_dependencies(kpi_id: str) -> None:
-        if not isinstance(kpi_id, str) or not kpi_id or kpi_id in required:
+        if not isinstance(kpi_id, str) or not kpi_id or kpi_id in required or kpi_id in visiting:
             return
+        visiting.add(kpi_id)
         spec = measure_specs.get(kpi_id, {}) if isinstance(measure_specs, dict) else {}
         dependencies = spec.get("depends_on_measures", []) if isinstance(spec, dict) else []
         if isinstance(dependencies, list):
             for dep in dependencies:
                 add_with_dependencies(dep)
+        visiting.remove(kpi_id)
         required.add(kpi_id)
 
     for use_case_id in selected:

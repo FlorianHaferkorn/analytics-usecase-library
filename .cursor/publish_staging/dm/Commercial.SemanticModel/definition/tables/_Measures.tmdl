@@ -1,5 +1,6 @@
 /// Consolidated Measures for: COM-001, COM-002, COM-003, COM-004
 table _Measures
+	lineageTag: e85884fd-c813-4242-bf38-81821b00901b
 
 	partition _Measures = m
 		mode: import
@@ -10,194 +11,182 @@ table _Measures
 					Source
 
 	column Column1
+		lineageTag: f15966da-ced2-43c9-a25b-3c45c84bd448
 		dataType: string
 		sourceColumn: Column1
 		isHidden
 		summarizeBy: none
 
-	/// margin.gm.pct - Gross Margin %
+	/// margin.gm.pct - margin.gm.pct
 	/// Gross margin % for commercial/operational reporting and strategic P&L reconciliation.
-	measure 'Gross Margin %' = DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
+	measure 'margin.gm.pct' = BLANK()
 		formatString: "0.0%"
 		displayFolder: "COM-001"
 
-	/// cost.cogs.amount - Cost of Goods Sold Amount
+	/// cost.cogs.amount - cost.cogs.amount
 	/// Total cost of goods sold for invoiced revenue; base for margin and PVM.
-	measure 'Cost of Goods Sold Amount' = SUM ( fact_sales[Cost of Goods Sold Amount] )
+	measure 'cost.cogs.amount' = BLANK()
 		formatString: "#,0.00"
 		displayFolder: "COM-001"
 
-	/// sales.net_sales.amount - Net Sales Amount
+	/// sales.net_sales.amount - sales.net_sales.amount
 	/// Total invoiced revenue net of discounts and returns.
-	measure 'Net Sales Amount' = SUM ( fact_sales[Net Sales Amount] )
+	measure 'sales.net_sales.amount' = BLANK()
 		formatString: "#,0.00"
 		displayFolder: "COM-001"
 
-	/// sales.net_sales.delta_pct.plan - Net Sales % vs Plan
+	/// sales.net_sales.delta_pct.plan - sales.net_sales.delta_pct.plan
 	/// Relative variance of Net Sales vs Plan.
-	measure 'Net Sales % vs Plan' = VAR Actual = [Net Sales Amount] VAR Plan   = SUM ( fact_sales[Plan Sales Amount] ) RETURN DIVIDE ( Actual - Plan, Plan )
+	measure 'sales.net_sales.delta_pct.plan' = BLANK()
 		formatString: "0.0%"
 		displayFolder: "COM-001"
 
-	/// sales.net_sales.delta_pct.ly - Delta% Net Sales
+	/// sales.net_sales.delta_pct.ly - sales.net_sales.delta_pct.ly
 	/// Relative variance of Net Sales vs Last Year.
-	measure 'Delta% Net Sales' = VAR Actual = [Net Sales Amount] VAR LY     = SUM ( fact_sales[Last Year Sales Amount] ) RETURN DIVIDE ( Actual - LY, LY )
+	measure 'sales.net_sales.delta_pct.ly' = BLANK()
 		formatString: "0.0%"
 		displayFolder: "COM-001"
 
-	/// sales.pvm.price_effect.amount - Price Effect Amount
+	/// sales.pvm.price_effect.amount - sales.pvm.price_effect.amount
 	/// Quantifies the pure price impact in the PVM bridge.
-	measure 'Price Effect Amount' = SUMX ( fact_sales, VAR ActualPrice = DIVIDE ( fact_sales[Net Sales Amount], fact_sales[Quantity] ) VAR PlanPrice   = DIVIDE ( fact_sales[Plan Sales Amount], fact_sales[Plan Quantity] ) RETURN ( ActualPrice - PlanPrice ) * fact_sales[Quantity] )
+	measure 'sales.pvm.price_effect.amount' = BLANK()
 		formatString: "#,0.00"
 		displayFolder: "COM-001"
 
-	/// sales.pvm.volume_effect.amount - Volume Effect Amount
+	/// sales.pvm.volume_effect.amount - sales.pvm.volume_effect.amount
 	/// Measures the variance caused purely by quantity changes at plan price.
-	measure 'Volume Effect Amount' = SUMX ( fact_sales, VAR ActualQty = fact_sales[Quantity] VAR PlanQty   = fact_sales[Plan Quantity] VAR PlanPrice = DIVIDE ( fact_sales[Plan Sales Amount], PlanQty ) RETURN ( ActualQty - PlanQty ) * PlanPrice )
+	measure 'sales.pvm.volume_effect.amount' = BLANK()
 		formatString: "#,0.00"
 		displayFolder: "COM-001"
 
-	/// sales.pvm.mix_effect.amount - Mix Effect Amount
+	/// sales.pvm.mix_effect.amount - sales.pvm.mix_effect.amount
 	/// Captures the residual effect from changes in product, channel, or region mix.
-	measure 'Mix Effect Amount' = [Net Sales Amount] - SUM ( fact_sales[Plan Sales Amount] ) - [Price Effect Amount] - [Volume Effect Amount]
+	measure 'sales.pvm.mix_effect.amount' = BLANK()
 		formatString: "#,0.00"
 		displayFolder: "COM-001"
 
-	/// margin.gm.amount - Gross Margin Amount
+	/// margin.gm.amount - margin.gm.amount
 	/// Absolute gross margin in currency.
-	measure 'Gross Margin Amount' = [Net Sales Amount] - [Cost of Goods Sold Amount]
+	measure 'margin.gm.amount' = BLANK()
 		formatString: "#,0.00"
 		displayFolder: "COM-002"
 
-	/// sales.price.list.amount - List Price Amount
+	/// sales.price.list.amount - sales.price.list.amount
 	/// Total list price (before discounts) for price realization and discount analysis.
-	measure 'List Price Amount' = SUM ( fact_sales[List Price Amount] )
+	measure 'sales.price.list.amount' = BLANK()
 		formatString: "#,0.00"
 		displayFolder: "COM-002"
 
-	/// sales.price.net.amount - Net Price Amount
+	/// sales.price.net.amount - sales.price.net.amount
 	/// Total net price (after discounts) for price realization and discount analysis.
-	measure 'Net Price Amount' = SUM ( fact_sales[Net Price Amount] )
+	measure 'sales.price.net.amount' = BLANK()
 		formatString: "#,0.00"
 		displayFolder: "COM-002"
 
-	/// sales.price.realization_pct - Price Realization %
+	/// sales.price.realization_pct - sales.price.realization_pct
 	/// Shows how much of list price is realized after discounts.
-	measure 'Price Realization %' = DIVIDE ( [Net Price Amount], [List Price Amount] )
+	measure 'sales.price.realization_pct' = BLANK()
 		formatString: "0.0%"
 		displayFolder: "COM-002"
 
-	/// cost.cogs_per_unit.amount - COGS per Unit
+	/// cost.cogs_per_unit.amount - cost.cogs_per_unit.amount
 	/// Shows unit cost level relative to sold volume.
-	measure 'COGS per Unit' = DIVIDE ( [Cost of Goods Sold Amount], SUM ( fact_sales[Quantity] ) )
-		formatString: "#,0"
+	measure 'cost.cogs_per_unit.amount' = BLANK()
+		formatString: "#,0.00"
 		displayFolder: "COM-002"
 
-	/// margin.gm.vs_plan.pct - Gross Margin % vs Plan
+	/// margin.gm.vs_plan.pct - margin.gm.vs_plan.pct
 	/// Measures gross margin rate variance versus plan.
-	measure 'Gross Margin % vs Plan' = VAR GMAct = DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] ) VAR GMPlan = DIVIDE ( SUM ( fact_plan_sales[Plan Net Sales Amount] ) - SUM ( fact_plan_sales[Plan Cost of Goods Sold Amount] ), SUM ( fact_plan_sales[Plan Net Sales Amount] ) ) RETURN DIVIDE ( GMAct - GMPlan, GMPlan )
+	measure 'margin.gm.vs_plan.pct' = BLANK()
 		formatString: "0.0%"
 		displayFolder: "COM-002"
 
-	/// crm.clv.amount - CLV
+	/// crm.clv.amount - crm.clv.amount
 	/// Estimate long-term value of a customer to prioritize retention, acquisition, and service investments.
-	measure 'CLV' = AVERAGEX ( VALUES ( fact_sales[CustomerKey] ), CALCULATE ( SUM ( fact_sales[Net Sales Amount] ) - SUM ( fact_sales[Cost of Goods Sold Amount] ) ) * 3 )
+	measure 'crm.clv.amount' = BLANK()
 		formatString: "#,0.00"
 		displayFolder: "COM-003"
 
-	/// crm.lifetime_revenue.amount - Customer Lifetime Revenue Amount
+	/// crm.lifetime_revenue.amount - crm.lifetime_revenue.amount
 	/// Sum of realized revenue across the customer lifecycle.
-	measure 'Customer Lifetime Revenue Amount' = CALCULATE ( SUM ( fact_sales[Net Sales Amount] ), ALLSELECTED ( dim_date ) )
-		formatString: "#,0"
+	measure 'crm.lifetime_revenue.amount' = BLANK()
+		formatString: "#,0.00"
 		displayFolder: "COM-003"
 
-	/// crm.retention.pct - Customer Retention %
+	/// crm.retention.pct - crm.retention.pct
 	/// Measure the share of customers that remain active from one period to the next, as a core loyalty KPI.
-	measure 'Customer Retention %' = VAR CurrentPeriodCustomers = CALCULATE ( DISTINCTCOUNT ( fact_sales[CustomerKey] ), FILTER ( ALLSELECTED ( dim_date ), dim_date[Date] = MAX ( dim_date[Date] ) ) ) VAR PreviousPeriodCustomers = CALCULATE ( DISTINCTCOUNT ( fact_sales[CustomerKey] ), DATEADD ( dim_date[Date], -1, MONTH ) ) RETURN DIVIDE ( CurrentPeriodCustomers, PreviousPeriodCustomers )
+	measure 'crm.retention.pct' = BLANK()
 		formatString: "0.0%"
 		displayFolder: "COM-003"
 
-	/// crm.churned_customers.count - Churned Customers
+	/// crm.churned_customers.count - crm.churned_customers.count
 	/// Count customers that have stopped purchasing in the observation window as basis for churn calculations.
-	measure 'Churned Customers' = VAR PreviousMonthCustomers = CALCULATETABLE ( VALUES ( fact_sales[CustomerKey] ), DATEADD ( dim_date[Date], -1, MONTH ) ) VAR CurrentMonthCustomers = VALUES ( fact_sales[CustomerKey] ) RETURN COUNTROWS ( EXCEPT ( PreviousMonthCustomers, CurrentMonthCustomers ) )
+	measure 'crm.churned_customers.count' = BLANK()
 		formatString: "#,0"
 		displayFolder: "COM-003"
 
-	/// crm.revenue_at_risk.amount - Revenue at Risk Amount
-	/// Quantify revenue exposure from customers flagged as churn-risk.
-	measure 'Revenue at Risk Amount' = VAR ChurnRiskPct = 0.15 RETURN [CLV] * ChurnRiskPct
-		formatString: "#,0"
-		displayFolder: "COM-003"
-
-	/// crm.active_customers.count - Active Customers
+	/// crm.active_customers.count - crm.active_customers.count
 	/// Number of unique active customers in the reporting period.
-	measure 'Active Customers' = DISTINCTCOUNT ( fact_sales[CustomerKey] )
+	measure 'crm.active_customers.count' = BLANK()
 		formatString: "#,0"
 		displayFolder: "COM-003"
 
-	/// crm.nps.index - NPS Score
+	/// crm.nps.index - crm.nps.index
 	/// Measures customer advocacy and likelihood to recommend.
-	measure 'NPS Score' = VAR Promoters = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[Is Promoter] = TRUE () ) VAR Detractors = CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[Is Detractor] = TRUE () ) VAR Total = COUNTROWS ( fact_nps ) RETURN DIVIDE ( Promoters - Detractors, Total ) * 100
-		formatString: "#,0"
+	measure 'crm.nps.index' = BLANK()
+		formatString: "#,0.0"
 		displayFolder: "COM-003"
 
-	/// crm.complaint.count - Complaint Count
+	/// crm.complaint.count - crm.complaint.count
 	/// Provide the absolute number of logged complaints.
-	measure 'Complaint Count' = COUNTROWS ( fact_experience )
+	measure 'crm.complaint.count' = BLANK()
 		formatString: "#,0"
 		displayFolder: "COM-003"
 
-	/// sales.promo.cost.amount - Promo Cost
-	/// Total cost of promotions from fact_promo.
-	measure 'Promo Cost' = SUM ( fact_promo[Promo Cost] )
-		formatString: "#,0.00"
-		displayFolder: "COM-004"
-
-	/// sales.promo.baseline.amount - Baseline Sales Amount
-	/// Expected sales without promotion (from fact_promo baseline).
-	measure 'Baseline Sales Amount' = SUM ( fact_promo[Baseline Sales Amount] )
-		formatString: "#,0.00"
-		displayFolder: "COM-004"
-
-	/// sales.promo.incremental_gm.amount - Incremental Gross Margin Amount
-	/// Gross margin from incremental (promo-driven) sales.
-	measure 'Incremental Gross Margin Amount' = [Incremental Sales Amount] - [Cost of Goods Sold Amount] * DIVIDE ( [Incremental Sales Amount], [Net Sales Amount] )
-		formatString: "#,0.00"
-		displayFolder: "COM-004"
-
-	/// sales.promo.cannibalized.amount - Cannibalized Sales Amount
-	/// Sales from non-promoted products lost due to promotion (baseline non-promo decline).
-	measure 'Cannibalized Sales Amount' = SUM ( fact_promo[Baseline Non-Promo Sales Amount] ) - CALCULATE ( SUM ( fact_sales[Net Sales Amount] ), fact_sales[Promo Flag] = "No" )
-		formatString: "#,0.00"
-		displayFolder: "COM-004"
-
-	/// sales.promo.roi.pct - Promo ROI %
+	/// sales.promo.roi.pct - sales.promo.roi.pct
 	/// Measures profitability of promotions relative to spend.
-	measure 'Promo ROI %' = DIVIDE ( [Incremental Gross Margin Amount], [Promo Cost] )
+	measure 'sales.promo.roi.pct' = BLANK()
 		formatString: "0.0%"
 		displayFolder: "COM-004"
 
-	/// sales.promo.incremental.amount - Incremental Sales Amount
+	/// sales.promo.incremental.amount - sales.promo.incremental.amount
 	/// Additional sales due to promotion.
-	measure 'Incremental Sales Amount' = [Net Sales Amount] - [Baseline Sales Amount]
+	measure 'sales.promo.incremental.amount' = BLANK()
 		formatString: "#,0.00"
 		displayFolder: "COM-004"
 
-	/// margin.promo.gm.pct - GM % During Promo
+	/// margin.promo.gm.pct - margin.promo.gm.pct
 	/// Gross margin rate during promo periods.
-	measure 'GM % During Promo' = CALCULATE ( DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] ), fact_sales[Promo Flag] = "Yes" )
+	measure 'margin.promo.gm.pct' = BLANK()
 		formatString: "0.0%"
 		displayFolder: "COM-004"
 
-	/// sales.promo.cannibalization.pct - Cannibalization %
+	/// sales.promo.cannibalization.pct - sales.promo.cannibalization.pct
 	/// Measures share of promo uplift offset by decline in non-promoted sales.
-	measure 'Cannibalization %' = DIVIDE ( [Cannibalized Sales Amount], [Incremental Sales Amount] )
+	measure 'sales.promo.cannibalization.pct' = BLANK()
 		formatString: "0.0%"
 		displayFolder: "COM-004"
+
+	/// ActionReady Logic: C-C3.1 - Customer Retention Intervention
+	measure 'Action_C-C3.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY segments or customers with persistent retention deterioration" & UNICHAR(10) & "  2. PRIORITIZE the book of business by crm.revenue_at_risk.amount and crm.clv.amount" & UNICHAR(10) & "  3. ASSIGN targeted recovery actions to account or CRM owners" & UNICHAR(10) & "  4. REVIEW retention and CLV recovery for the targeted population monthly"
+		isHidden
+		formatString: "@"
+		displayFolder: "9_ActionReady_Logic"
+		annotation ActionReady_ResponsibleRole = "TBD"
+		annotation ActionReady_ActionCodeId = "C-C3.1"
+
+	/// ActionReady Logic: C-C3.2 - Complaint & Advocacy Recovery
+	measure 'Action_C-C3.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY segments or products with falling advocacy and rising complaints" & UNICHAR(10) & "  2. MAP the complaint pattern to channel, product, and customer ownership" & UNICHAR(10) & "  3. EXECUTE recovery actions and close the highest-value issue clusters first" & UNICHAR(10) & "  4. REVIEW complaint volume, NPS, and retention response monthly"
+		isHidden
+		formatString: "@"
+		displayFolder: "9_ActionReady_Logic"
+		annotation ActionReady_ResponsibleRole = "TBD"
+		annotation ActionReady_ActionCodeId = "C-C3.2"
 
 	/// ActionReady Logic: C-M2.1 - Price Realization Guardrails
 	measure 'Action_C-M2.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each {entity} where price realization falls below threshold" & UNICHAR(10) & "  2. FREEZE discretionary discounts for this {entity}" & UNICHAR(10) & "  3. ENFORCE approval workflow for any price exception on this {entity}" & UNICHAR(10) & "  4. REVIEW realization recovery for this {entity} monthly"
 		isHidden
+		formatString: "@"
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "TBD"
 		annotation ActionReady_ActionCodeId = "C-M2.1"
@@ -205,6 +194,7 @@ table _Measures
 	/// ActionReady Logic: C-M2.2 - Mix Optimization (Margin-Driven)
 	measure 'Action_C-M2.2_Text' = "Trigger: Pattern (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each {entity} with persistent negative mix effect" & UNICHAR(10) & "  2. RANK SKUs by margin contribution for this {entity}" & UNICHAR(10) & "  3. ADJUST sales targets and focus lists for this {entity}" & UNICHAR(10) & "  4. MONITOR mix and margin for this {entity} monthly"
 		isHidden
+		formatString: "@"
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "TBD"
 		annotation ActionReady_ActionCodeId = "C-M2.2"
@@ -212,6 +202,7 @@ table _Measures
 	/// ActionReady Logic: C-P4.1 - Promo Calendar Discipline
 	measure 'Action_C-P4.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each {entity} with repeated negative ROI" & UNICHAR(10) & "  2. REVIEW mechanics and baseline assumptions for this {entity}" & UNICHAR(10) & "  3. STOP, REPLACE, or RESEQUENCE this {entity} based on ROI analysis" & UNICHAR(10) & "  4. VALIDATE ROI improvement for this {entity} in next cycle"
 		isHidden
+		formatString: "@"
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "TBD"
 		annotation ActionReady_ActionCodeId = "C-P4.1"
@@ -219,6 +210,7 @@ table _Measures
 	/// ActionReady Logic: C-S1.1 - Price Discipline Enforcement
 	measure 'Action_C-S1.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each {entity} breaching gross margin threshold" & UNICHAR(10) & "  2. FREEZE new discretionary discounts for this {entity}" & UNICHAR(10) & "  3. REQUIRE approval for any price exception on this {entity}" & UNICHAR(10) & "  4. REVIEW net price realization for this {entity} weekly"
 		isHidden
+		formatString: "@"
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "TBD"
 		annotation ActionReady_ActionCodeId = "C-S1.1"
@@ -226,6 +218,7 @@ table _Measures
 	/// ActionReady Logic: C-S1.2 - Sales Gap Recovery via Price & Pack Adjustment
 	measure 'Action_C-S1.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each {entity} breaching plan thresholds" & UNICHAR(10) & "  2. SELECT eligible products for this {entity} within GM guardrails" & UNICHAR(10) & "  3. APPLY temporary price or pack adjustments to this {entity}" & UNICHAR(10) & "  4. REVIEW Net Sales uplift for this {entity} after one cycle"
 		isHidden
+		formatString: "@"
 		displayFolder: "9_ActionReady_Logic"
 		annotation ActionReady_ResponsibleRole = "TBD"
 		annotation ActionReady_ActionCodeId = "C-S1.2"

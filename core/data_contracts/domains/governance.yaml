@@ -35,6 +35,14 @@ dimension:
       - {name: DatasetKey, type: int, role: key}
       - {name: DatasetName, type: text}
 
+  - name: dim_action_code
+    scd_type: 1
+    columns:
+      - {name: ActionCodeKey, type: int, role: key}
+      - {name: ActionCode, type: text}
+      - {name: DomainActionCode, type: text, nullable: true}
+      - {name: ActionFamily, type: text, nullable: true}
+
 fact:
   - name: fact_dq
     grain: dataset_month
@@ -86,6 +94,22 @@ fact:
       - {name: Critical Incidents, type: int, agg: sum, nullable: true}
       - {name: MTTR, type: decimal, agg: avg, nullable: true}
 
+  - name: fact_action_governance
+    grain: action_instance
+    columns:
+      - {name: ActionInstanceId, type: text, role: key}
+      - {name: DateKey, type: int, ref: dim_date, cardinality: many-to-one}
+      - {name: OrgKey, type: int, ref: dim_org, nullable: true, cardinality: many-to-one}
+      - {name: ActionCodeKey, type: int, ref: dim_action_code, cardinality: many-to-one}
+      - {name: OwnerRole, type: text}
+      - {name: Status, type: text}
+      - {name: Routed Actions, type: int, agg: sum}
+      - {name: Successful Actions, type: int, agg: sum, nullable: true}
+      - {name: Outcome Success Flag, type: int, agg: max, nullable: true}
+      - {name: Due Date, type: date, nullable: true}
+      - {name: Completion Date, type: date, nullable: true}
+      - {name: Evaluation Date, type: date, nullable: true}
+
 quality_rules:
   freshness_sla:
     fact_dq: monthly              # data quality metrics compiled monthly
@@ -98,16 +122,21 @@ quality_rules:
     - "fact_compliance.DateKey, OrgKey, Incidents, Breaches: never null"
     - "fact_audit.Finding ID: unique per row; never null"
     - "fact_security.DateKey, Incidents: never null"
+    - "fact_action_governance.ActionInstanceId, DateKey, ActionCodeKey, OwnerRole, Status, Routed Actions: never null"
   value_ranges:
     - "fact_dq.Valid Records: >= 0; <= Total Records"
     - "fact_compliance.Incidents: >= 0; Breaches >= 0; Breaches <= Incidents"
     - "fact_audit.Open Findings: >= 0 when present; <= Findings when present"
     - "fact_security.Critical Incidents: >= 0 when present; <= Incidents"
     - "fact_security.MTTR: >= 0 when present"
+    - "fact_action_governance.Routed Actions: >= 0"
+    - "fact_action_governance.Successful Actions: >= 0 when present; <= Routed Actions when present"
+    - "fact_action_governance.Outcome Success Flag: in [0; 1] when present"
   referential_integrity:
     - "fact_dq.DatasetKey → dim_dataset (required)"
     - "fact_projects.ProjectKey → dim_project (required)"
     - "fact_projects.OrgKey → dim_org (nullable)"
+    - "fact_action_governance.ActionCodeKey → dim_action_code (required)"
 
 settings:
   timezone: Europe/Berlin

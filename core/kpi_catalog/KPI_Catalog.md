@@ -16,7 +16,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   use_case_ref:
   - COM-003
   - XD-003
-  action_code_ref: []
+  action_code_ref:
+  - C-C3.1
   calc_type: amount
   business:
     purpose: "Estimate long-term value of a customer to prioritize retention, acquisition, and service investments."
@@ -28,7 +29,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: "CLV"
     description: "Estimate long-term value of a customer to prioritize retention, acquisition, and service investme..."
     depends_on_measures:
-    - sales.net_sales.amount
+    - crm.lifetime_revenue.amount
+    - crm.retention.pct
+    - crm.churned_customers.count
+    - crm.active_customers.count
+    - crm.nps.index
+    - crm.complaint.count
     - cost.cogs.amount
     lineage:
     - fact_customer_value.CLV Amount
@@ -53,7 +59,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   domain_tag: [Customer & Market]
   use_case_ref:
   - COM-003
-  action_code_ref: []
+  action_code_ref:
+  - C-C3.1
   calc_type: amount
   business:
     purpose: "Quantify revenue exposure from customers flagged as churn-risk."
@@ -90,7 +97,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   domain_tag: [Customer & Market]
   use_case_ref:
   - COM-003
-  action_code_ref: []
+  action_code_ref:
+  - C-C3.2
   calc_type: count
   business:
     purpose: "Provide the absolute number of logged complaints."
@@ -125,7 +133,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   domain_tag: [Customer & Market]
   use_case_ref:
   - COM-003
-  action_code_ref: []
+  action_code_ref:
+  - C-C3.1
   calc_type: rate
   business:
     purpose: "Measure the share of customers that remain active from one period to the next, as a core loyalty KPI."
@@ -160,7 +169,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   domain_tag: [Customer & Market]
   use_case_ref:
   - COM-003
-  action_code_ref: []
+  action_code_ref:
+  - C-C3.2
   calc_type: rate
   business:
     purpose: "Measures customer advocacy and likelihood to recommend."
@@ -2124,9 +2134,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   impact_dimension: Governance
   domain_tag: [Enterprise & Governance, Governance]
   use_case_ref:
-  - XD-003
-  action_code_ref:
-  - X-E3.3
+  - XD-004
+  action_code_ref: []
   calc_type: rate
   business:
     purpose: "Measures share of actions that achieved the intended outcome."
@@ -2159,8 +2168,9 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   impact_dimension: Governance
   domain_tag: [Enterprise & Governance, Governance]
   use_case_ref:
-  - XD-003
-  action_code_ref: []
+  - XD-004
+  action_code_ref:
+  - X-E3.3
   calc_type: count
   business:
     purpose: "Counts action codes routed for execution."
@@ -3352,8 +3362,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   impact_dimension: Profitability
   domain_tag: [Commercial]
   use_case_ref:
-  - COM-002
-  - COM-003
   - COM-004
   action_code_ref:
   - C-P4.1
@@ -3392,8 +3400,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   impact_dimension: Profitability
   domain_tag: [Finance, Commercial]
   use_case_ref:
-  - COM-002
-  - COM-003
   - COM-004
   action_code_ref:
   - C-P4.1
@@ -3639,7 +3645,14 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Unit Cost Amount"
     description: "Measures total cost per unit produced or sold."
-    depends_on_measures: []
+    depends_on_measures:
+    - margin.cogs.pct
+    - cost.opex.vs_plan.pct
+    - cost.material.pct
+    - ops.labor.productivity.pct
+    - ops.production.volume
+    - ops.quality.defect_rate.pct
+    - ops.yield.pct
     lineage:
     - fact_cost.COGS Amount
     - fact_output.Output Units
@@ -3874,8 +3887,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Cost Base Volume Amount"
     description: "Baseline cost volume used for variance analysis."
-    depends_on_measures:
-    - cost.base_volume.amount
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of Controlling"
@@ -3909,8 +3921,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Opex Base Amount"
     description: "Baseline operating expense amount for variance tracking."
-    depends_on_measures:
-    - cost.opex.base.amount
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of Controlling"
@@ -3945,7 +3956,14 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: "Enterprise Value-at-Risk Index"
     description: "Aggregates downside risk across domains into a single index."
     depends_on_measures:
-    - enterprise.value_at_risk.index
+    - margin.gm.pct
+    - sales.net_sales.delta_pct.ly
+    - crm.clv.amount
+    - svc.sla.attainment.pct
+    - ops.otif.pct
+    - ops.working_capital.ccc.days
+    - people.digital_adoption.pct
+    - people.attrition_risk.pct
     lineage: []
   governance:
     business_owner: "Chief Risk Officer"
@@ -3978,8 +3996,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   technical:
     measure_name: "Supplier Risk Score"
     description: "Rates suppliers based on risk indicators."
-    depends_on_measures:
-    - scm.supplier_risk.score
+    depends_on_measures: []
     lineage: []
   governance:
     business_owner: "Head of Procurement"
@@ -4018,7 +4035,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: "SLA Attainment %"
     description: "Measures how many cases meet the committed SLA."
     depends_on_measures:
-    - svc.sla.attainment.pct
+    - svc.backlog.count
+    - svc.fcr.pct
+    - svc.aht.minutes
+    - svc.escalation.pct
+    - svc.tickets.created.count
+    - svc.tickets.closed.count
     lineage:
     - fact_support_cases.SLA Met Flag
   governance:
@@ -4245,7 +4267,12 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: "Utilization %"
     description: "Measures productive time versus paid time for agents."
     depends_on_measures:
-    - res.utilization.pct
+    - res.occupancy.pct
+    - res.overtime.pct
+    - res.shrinkage.pct
+    - svc.sla.attainment.pct
+    - svc.backlog.count
+    - svc.tickets.created.count
     lineage:
     - fact_workforce_management.Paid Time Minutes
     - fact_workforce_management.Work Time Minutes

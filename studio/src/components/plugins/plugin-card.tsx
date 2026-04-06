@@ -1,6 +1,7 @@
 'use client';
 
 import type { RegisteredPlugin } from '@/lib/plugins/plugin-types';
+import { StudioButton } from '@/components/ui/studio-page';
 
 interface Props {
   plugin: RegisteredPlugin;
@@ -83,13 +84,14 @@ export function PluginCard({ plugin, onToggle, onRemove }: Props) {
             onChange={() => onToggle(manifest.id, !enabled)}
             style={{ accentColor: 'var(--mint)' }}
           />
-          <button
+          <StudioButton
             onClick={() => onRemove(manifest.id)}
-            aria-label={`Remove ${manifest.name}`}
+            tone="warning"
+            variant="ghost"
             style={{ backgroundColor: 'transparent', border: '1px solid var(--slate-700)', color: 'var(--slate-400)', cursor: 'pointer', fontSize: '0.875rem', borderRadius: 'var(--radius-sm)', width: '28px', height: '28px' }}
           >
             ×
-          </button>
+          </StudioButton>
         </div>
       </div>
       <p style={{ fontSize: '0.75rem', color: 'var(--slate-400)', marginBottom: 'var(--sp-1)' }}>

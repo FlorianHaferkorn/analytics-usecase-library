@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useProjectStore } from '@/lib/store/project-store';
+import { StudioButton } from '@/components/ui/studio-page';
 
 type ReportMode = 'single' | 'board-pack';
 
@@ -34,39 +35,29 @@ export function ExportReportButton() {
 
   return (
     <div style={{ display: 'flex', gap: 'var(--sp-0-5)' }}>
-      <button
+      <StudioButton
         onClick={() => handleExport('single')}
         disabled={loading}
+        variant="secondary"
         style={{
           padding: '6px var(--sp-1-5)',
-          backgroundColor: 'var(--slate-700)',
-          border: '1px solid var(--slate-600)',
-          borderRadius: 'var(--radius-md)',
-          color: 'var(--slate-200)',
           fontSize: '0.75rem',
-          cursor: loading ? 'wait' : 'pointer',
-          opacity: loading ? 0.6 : 1,
         }}
       >
         Export Report
-      </button>
-      <button
+      </StudioButton>
+      <StudioButton
         onClick={() => handleExport('board-pack')}
         disabled={loading}
+        tone="warning"
+        variant="primary"
         style={{
           padding: '6px var(--sp-1-5)',
-          backgroundColor: 'var(--gold)',
-          border: 'none',
-          borderRadius: 'var(--radius-md)',
-          color: 'var(--slate-950)',
           fontSize: '0.75rem',
-          fontWeight: 600,
-          cursor: loading ? 'wait' : 'pointer',
-          opacity: loading ? 0.6 : 1,
         }}
       >
         Board Pack
-      </button>
+      </StudioButton>
     </div>
   );
 }
