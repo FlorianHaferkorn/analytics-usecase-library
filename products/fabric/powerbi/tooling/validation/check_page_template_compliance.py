@@ -102,13 +102,18 @@ def check_bracket_visual(
     bracket_visual_type: str,
     context: str,
     violations: List[str],
+    warnings: List[str],
 ) -> None:
-    """Check that at least one visual in the page matches the expected bracket visual type."""
+    """Check that at least one visual in the page matches the expected bracket visual type.
+
+    A type mismatch on a 30s slot is recorded as a warning (not a failure) because
+    scaffolded reports may still use placeholder visual types before measures are wired.
+    """
     expected_types = VISUAL_TYPE_MAP.get(bracket_visual_type, [bracket_visual_type])
     found = any(vt in expected_types for vt in visuals.values())
     if not found:
-        violations.append(
-            f"{context}: bracket declares visual_type='{bracket_visual_type}' "
+        warnings.append(
+            f"WARN {context}: bracket declares visual_type='{bracket_visual_type}' "
             f"(expected PBIP types: {expected_types}) but none found in page "
             f"(found: {list(set(visuals.values()))})"
         )
@@ -120,6 +125,7 @@ def check_report(
     report_dir: Path,
     uc_root: Path,
     violations: List[str],
+    warnings: Optional[List[str]] = None,
 ) -> bool:
     """Returns True if this report passes all compliance checks."""
     report_name = report_dir.name
@@ -195,14 +201,16 @@ def check_report(
                 )
                 local_ok = False
 
-        # c. component_30s visual types
+        # c. component_30s visual types (warnings only — scaffolded types may differ)
+        _warn_list: List[str] = warnings if warnings is not None else []
         for component in page1.get("component_30s", []):
             vt = component.get("visual_type")
             if vt and vt in VISUAL_TYPE_MAP:
                 check_bracket_visual(
                     ov_visuals, vt,
                     f"{prefix} Overview (30s component '{vt}')",
-                    violations if local_ok else [],  # suppress cascading after KPI fail
+                    violations=[],   # 30s type mismatch → warning, never a hard failure
+                    warnings=_warn_list,
                 )
 
     # ── Detail page ───────────────────────────────────────────────────────────
@@ -265,17 +273,27 @@ def main() -> None:
     print(f"Checking {len(reports)} report(s) for template compliance...")
 
     all_violations: List[str] = []
+    all_warnings: List[str] = []
     passed = 0
 
     for report in reports:
         viol_before = len(all_violations)
-        ok = check_report(report, uc_root, all_violations)
-        if ok and len(all_violations) == viol_before:
+        warn_before = len(all_warnings)
+        ok = check_report(report, uc_root, all_violations, all_warnings)
+        new_viols = all_violations[viol_before:]
+        new_warns = all_warnings[warn_before:]
+        if not new_viols:
             passed += 1
+            if new_warns:
+                print(f"  WARN  {report.name}")
+                for w in new_warns:
+                    print(f"        {w}")
         else:
             print(f"  FAIL  {report.name}")
-            for v in all_violations[viol_before:]:
+            for v in new_viols:
                 print(f"        {v}")
+            for w in new_warns:
+                print(f"        {w}")
 
     print()
     if not all_violations:
