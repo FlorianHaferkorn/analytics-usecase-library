@@ -423,12 +423,24 @@ class TestExtractSection:
 # ---------------------------------------------------------------------------
 
 class TestRunScorecard:
+    @staticmethod
+    def _ensure_registry(repo_root: Path) -> None:
+        """Generate master_registry.json if not present (output dir is in .gitignore)."""
+        registry_path = repo_root / "tooling" / "ontology" / "out" / "master_registry.json"
+        if not registry_path.exists():
+            import subprocess, sys
+            result = subprocess.run(
+                [sys.executable, str(repo_root / "tooling" / "ontology" / "registry_builder.py"),
+                 "--repo-root", str(repo_root)],
+                capture_output=True, text=True, timeout=120,
+            )
+            if result.returncode != 0 or not registry_path.exists():
+                pytest.skip(f"registry_builder.py failed: {result.stderr[:200]}")
+
     def test_runs_against_real_repo(self):
         """Integration test: runs against the actual repository."""
         repo_root = Path(__file__).resolve().parents[2]
-        registry_path = repo_root / "tooling" / "ontology" / "out" / "master_registry.json"
-        if not registry_path.exists():
-            pytest.skip("master_registry.json not found — run registry_builder.py first")
+        self._ensure_registry(repo_root)
         results = run_scorecard(repo_root)
         assert "metrics" in results
         assert len(results["metrics"]) == 6
@@ -439,9 +451,7 @@ class TestRunScorecard:
 
     def test_json_output_format(self):
         repo_root = Path(__file__).resolve().parents[2]
-        registry_path = repo_root / "tooling" / "ontology" / "out" / "master_registry.json"
-        if not registry_path.exists():
-            pytest.skip("master_registry.json not found")
+        self._ensure_registry(repo_root)
         results = run_scorecard(repo_root)
         # Verify JSON-serializable
         output = json.dumps(results)
