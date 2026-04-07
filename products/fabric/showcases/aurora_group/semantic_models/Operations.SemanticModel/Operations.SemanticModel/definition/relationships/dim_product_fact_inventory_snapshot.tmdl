@@ -1,3 +1,0 @@
-relationship dim_product_fact_inventory_snapshot
-	fromColumn: fact_inventory_snapshot.ProductKey
-	toColumn: dim_product.ProductKey

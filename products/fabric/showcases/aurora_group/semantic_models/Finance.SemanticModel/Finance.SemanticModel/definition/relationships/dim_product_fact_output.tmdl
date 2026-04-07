@@ -1,3 +1,0 @@
-relationship dim_product_fact_output
-	fromColumn: fact_output.ProductKey
-	toColumn: dim_product.ProductKey

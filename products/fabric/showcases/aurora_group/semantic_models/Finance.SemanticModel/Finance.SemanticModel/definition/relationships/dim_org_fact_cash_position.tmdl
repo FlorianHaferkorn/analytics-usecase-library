@@ -1,3 +1,0 @@
-relationship dim_org_fact_cash_position
-	fromColumn: fact_cash_position.OrgKey
-	toColumn: dim_org.OrgKey

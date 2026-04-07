@@ -1,3 +1,0 @@
-relationship dim_supplier_fact_accounts_payable
-	fromColumn: fact_accounts_payable.SupplierKey
-	toColumn: dim_supplier.SupplierKey

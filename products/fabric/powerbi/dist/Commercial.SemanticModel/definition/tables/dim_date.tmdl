@@ -1,4 +1,4 @@
-/// Conformed date dimension with fiscal calendar (Aurora: FY starts Apr 1)
+/// Calendar dimension with fiscal hierarchy (Fiscal Year > Quarter > Month > Date).
 table dim_date
 		lineageTag: 6a83a514-fef3-41fb-ba4a-6b94f905e53c
 

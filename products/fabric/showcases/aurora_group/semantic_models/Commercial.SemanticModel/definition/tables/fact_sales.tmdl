@@ -1,4 +1,4 @@
-/// Sales transactions (invoice line level)
+/// Invoice-line sales (net sales, quantity, price, COGS) with plan and prior year.
 table fact_sales
 		lineageTag: c60cd56e-7c63-4272-b9c9-160833889c29
 

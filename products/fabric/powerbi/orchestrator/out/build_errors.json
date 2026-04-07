@@ -1,23 +1,23 @@
 ﻿[
     {
         "phase":  "Validate Fabric output",
-        "path":  "products/fabric/powerbi/dist",
-        "timestamp":  "2026-04-03T09:14:08.7291496+02:00",
-        "message":  "",
-        "source":  "run_fabric_checks"
+        "path":  "products/fabric/showcases/aurora_group/semantic_models",
+        "timestamp":  "2026-04-07T13:18:47.2019912+02:00",
+        "message":  "No .Report directories found in C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\showcases\\aurora_group\\semantic_models. ",
+        "source":  "run_fabric_checks (aurora showcase)"
     },
     {
         "phase":  "Validate Fabric output",
-        "path":  "products/fabric/powerbi/dist",
-        "timestamp":  "2026-04-03T09:14:11.9524867+02:00",
-        "message":  "",
-        "source":  "run_fabric_checks"
+        "path":  "products/fabric/showcases/aurora_group/semantic_models",
+        "timestamp":  "2026-04-07T13:19:08.8602065+02:00",
+        "message":  "No .Report directories found in C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\showcases\\aurora_group\\semantic_models. ",
+        "source":  "run_fabric_checks (aurora showcase)"
     },
     {
         "phase":  "Validate Fabric output",
-        "path":  "products/fabric/powerbi/dist",
-        "timestamp":  "2026-04-03T09:14:16.1827810+02:00",
-        "message":  "",
-        "source":  "run_fabric_checks"
+        "path":  "products/fabric/showcases/aurora_group/semantic_models",
+        "timestamp":  "2026-04-07T13:19:31.4221388+02:00",
+        "message":  "No .Report directories found in C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\showcases\\aurora_group\\semantic_models. ",
+        "source":  "run_fabric_checks (aurora showcase)"
     }
 ]

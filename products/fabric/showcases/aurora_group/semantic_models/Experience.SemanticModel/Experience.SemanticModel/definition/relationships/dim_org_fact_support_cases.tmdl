@@ -1,3 +1,0 @@
-relationship dim_org_fact_support_cases
-	fromColumn: fact_support_cases.OrgKey
-	toColumn: dim_org.OrgKey

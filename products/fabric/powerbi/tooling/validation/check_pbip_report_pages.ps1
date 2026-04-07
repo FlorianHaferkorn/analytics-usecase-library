@@ -7,7 +7,7 @@
 #   - Exactly 2 page subdirectories (Overview + Detail)
 #   - Overview page has visuals: KPI_Cards, at least one Main_N, Slicer_Date
 #   - Detail page has visuals: Detail_Matrix, Slicer_Pane
-#   - If UseCase_Bracket.yaml action_panel: true → ActionPanel visual must be present on Detail page
+#   - If UseCase_Bracket.yaml action_panel: true -> ActionPanel visual must be present on Detail page
 #
 # Exit codes: 0 = all pass, 1 = violations, 2 = unexpected error.
 # Run from repository root.
@@ -31,11 +31,11 @@ $distAbs    = if ([IO.Path]::IsPathRooted($DistRoot))    { $DistRoot }    else {
 $ucRootAbs  = if ([IO.Path]::IsPathRooted($UseCaseRoot)) { $UseCaseRoot } else { Join-Path $script:RepoRoot ($UseCaseRoot -replace '/', [IO.Path]::DirectorySeparatorChar) }
 
 if (-not (Test-Path $distAbs)) {
-    Write-Host "WARN: dist path not found: $distAbs — nothing to check." -ForegroundColor Yellow
+    Write-Host "WARN: dist path not found: $distAbs - nothing to check." -ForegroundColor Yellow
     exit 0
 }
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# Helpers
 
 function Get-BracketActionPanel {
     # Returns $true if the use case bracket declares action_panel: true on any 300s component.
@@ -71,7 +71,7 @@ function Test-PageHasAnyMainVisual {
                        Where-Object { $_.Name -match '^Main_\d+$' } | Select-Object -First 1))
 }
 
-# ── Main scan ─────────────────────────────────────────────────────────────────
+# Main scan
 
 $reports = @(Get-ChildItem $distAbs -Directory -Filter "*.Report" -ErrorAction SilentlyContinue)
 
@@ -179,6 +179,6 @@ if ($violations.Count -eq 0) {
     Write-Host "Page structure check: PASSED ($($reports.Count) report(s))" -ForegroundColor Green
     exit 0
 } else {
-    Write-Host "Page structure check: FAILED — $($violations.Count) violation(s) across $($reports.Count - $passedCount) report(s)" -ForegroundColor Red
+    Write-Host "Page structure check: FAILED - $($violations.Count) violation(s) across $($reports.Count - $passedCount) report(s)" -ForegroundColor Red
     exit 1
 }

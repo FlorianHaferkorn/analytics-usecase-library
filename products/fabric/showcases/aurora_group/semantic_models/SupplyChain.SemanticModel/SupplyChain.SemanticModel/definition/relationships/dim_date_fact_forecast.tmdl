@@ -1,3 +1,0 @@
-relationship dim_date_fact_forecast
-	fromColumn: fact_forecast.DateKey
-	toColumn: dim_date.DateKey

@@ -135,7 +135,7 @@ table _Measures
 		displayFolder: "XD-003"
 
 	/// Revenue at Risk Amount - weighted sales exposure from OTIF failures and quality defects
-	measure 'Revenue at Risk Amount' = VAR OTIFFailRate = 1 - [Ops OTIF %] VAR FPYFailRate = 1 - [First Pass Yield %] RETURN SUM ( fact_sales[Net Sales Amount] ) * ( OTIFFailRate + FPYFailRate ) / 2
+	measure 'Revenue at Risk Amount' = VAR OTIFFailRate = 1 - [Ops OTIF %] VAR FPYFailRate = 1 - [First Pass Yield %] VAR RiskFactor = DIVIDE ( OTIFFailRate + FPYFailRate, 2 ) RETURN SUM ( fact_sales[Net Sales Amount] ) * RiskFactor
 		formatString: "#,0.00"
 		displayFolder: "XD-003"
 
@@ -171,7 +171,7 @@ table _Measures
 
 	/// Enterprise Value-at-Risk Index - enterprise.value_at_risk.index
 	/// Aggregates downside risk across domains into a single index.
-	measure 'Enterprise Value-at-Risk Index' = VAR RevAtRisk = DIVIDE ( [Revenue at Risk Amount], [Net Sales Amount] ) VAR DeliveryRisk = 1 - [OTIF %] VAR QualityRisk = 1 - [First Pass Yield %] RETURN ROUND ( ( RevAtRisk + DeliveryRisk + QualityRisk ) / 3 * 100, 0 )
+	measure 'Enterprise Value-at-Risk Index' = VAR RevAtRisk = DIVIDE ( [Revenue at Risk Amount], [Net Sales Amount] ) VAR DeliveryRisk = 1 - [OTIF %] VAR QualityRisk = 1 - [First Pass Yield %] VAR AverageRisk = DIVIDE ( RevAtRisk + DeliveryRisk + QualityRisk, 3 ) RETURN ROUND ( AverageRisk * 100, 0 )
 		formatString: "0"
 		displayFolder: "XD-003"
 

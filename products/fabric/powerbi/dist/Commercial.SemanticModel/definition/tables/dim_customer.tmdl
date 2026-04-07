@@ -1,4 +1,4 @@
-/// Customer master (PII-free, Aurora synthetic)
+/// Customer dimension (segment, region, country) for CRM and value reporting.
 table dim_customer
 		lineageTag: 723f5dd1-ad00-4635-9958-d5d89d833986
 

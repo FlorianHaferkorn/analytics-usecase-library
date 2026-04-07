@@ -1,4 +1,4 @@
-/// Product master with category hierarchy
+/// Product dimension with category hierarchy (Category > Sub Category > Brand > Product Name).
 table dim_product
 		lineageTag: daef4ca0-5338-4c49-a9b4-d997c069349b
 

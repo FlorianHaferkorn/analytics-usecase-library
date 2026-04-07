@@ -33,6 +33,33 @@ $distRootResolved = if ([System.IO.Path]::IsPathRooted($DistRoot)) { $DistRoot }
 $kpiCatalogResolved = if ([System.IO.Path]::IsPathRooted($KpiCatalogRoot)) { $KpiCatalogRoot } else { Join-Path $repoRoot $KpiCatalogRoot }
 $measureDictResolved = if ([System.IO.Path]::IsPathRooted($MeasureDictRoot)) { $MeasureDictRoot } else { Join-Path $repoRoot $MeasureDictRoot }
 
+$pythonCommand = $null
+foreach ($cmd in @("py -3", "python3", "python")) {
+  try {
+    $parts = $cmd -split " "
+    $exe = $parts[0]
+    $exeArgs = @($parts[1..([Math]::Min(999, $parts.Count - 1))] | Where-Object { $null -ne $_ }) + @("--version")
+    $ver = (& $exe $exeArgs 2>&1) -join " "
+    if ($LASTEXITCODE -eq 0 -and $ver -match "Python 3") {
+      $pythonCommand = $cmd
+      break
+    }
+  } catch {
+    continue
+  }
+}
+
+function Invoke-Python3 {
+  param([string[]]$Arguments)
+  if (-not $pythonCommand) {
+    throw "Python 3 not found. Use py -3, python3, or python and ensure one resolves to Python 3."
+  }
+  $parts = $pythonCommand -split " "
+  $exe = $parts[0]
+  $exeArgs = @($parts[1..([Math]::Min(999, $parts.Count - 1))] | Where-Object { $null -ne $_ }) + $Arguments
+  & $exe $exeArgs
+}
+
 # When -AuroraTablesDir is set, run checks against Aurora showcase tables (single _Measures.tmdl)
 $auroraTablesResolved = $null
 if ($AuroraTablesDir -and $AuroraTablesDir.Trim().Length -gt 0) {
@@ -120,7 +147,7 @@ try {
   if (Test-Path $checkCompliance) {
     Write-Host ""
     Write-Host ">> check_page_template_compliance.py" -ForegroundColor Cyan
-    python $checkCompliance --dist-root $distRootResolved
+    Invoke-Python3 -Arguments @($checkCompliance, "--dist-root", $distRootResolved)
     if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
   }
 
@@ -139,7 +166,7 @@ run = tc.start_run('_fabric_checks', adapter='fabric_checks')
 tc.record_phase(run, 'fabric_checks', '$runStatus', errors=['$failed check(s) failed'] if $failed > 0 else [])
 tc.complete_run(run)
 "@
-      python -c $telemetryCode 2>$null
+      Invoke-Python3 -Arguments @("-c", $telemetryCode) 2>$null
     } catch {
       # Non-critical — ignore telemetry errors
     }

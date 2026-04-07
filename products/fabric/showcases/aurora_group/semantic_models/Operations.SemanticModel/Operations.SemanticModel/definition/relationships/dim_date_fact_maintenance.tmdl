@@ -1,3 +1,0 @@
-relationship dim_date_fact_maintenance
-	fromColumn: fact_maintenance.DateKey
-	toColumn: dim_date.DateKey

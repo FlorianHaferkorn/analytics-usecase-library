@@ -1,3 +1,0 @@
-relationship dim_org_fact_labor
-	fromColumn: fact_labor.OrgKey
-	toColumn: dim_org.OrgKey

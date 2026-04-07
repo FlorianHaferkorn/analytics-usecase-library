@@ -1,3 +1,0 @@
-relationship dim_date_fact_ops_failures
-	fromColumn: fact_ops_failures.DateKey
-	toColumn: dim_date.DateKey

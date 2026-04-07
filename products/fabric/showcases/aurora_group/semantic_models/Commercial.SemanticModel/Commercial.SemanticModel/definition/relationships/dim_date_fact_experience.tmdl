@@ -1,3 +1,0 @@
-relationship dim_date_fact_experience
-	fromColumn: fact_experience.DateKey
-	toColumn: dim_date.DateKey

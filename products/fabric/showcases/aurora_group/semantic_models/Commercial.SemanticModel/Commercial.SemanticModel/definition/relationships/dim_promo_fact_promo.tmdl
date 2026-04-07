@@ -1,3 +1,0 @@
-relationship dim_promo_fact_promo
-	fromColumn: fact_promo.PromoKey
-	toColumn: dim_promo.PromoKey

@@ -1,4 +1,4 @@
-/// Organization hierarchy (Region → Country → Channel → Org)
+/// Organization dimension (region, country, channel, org name) for reporting and RLS.
 table dim_org
 		lineageTag: 9fbcb3ff-2811-427f-9c8b-821902f95294
 

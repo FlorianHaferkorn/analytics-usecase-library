@@ -1,4 +1,0 @@
-expression GoldDataPath = "showcases/aurora_group/data/gold" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
-	lineageTag: 1ac0645f-7cf5-5fac-b8c0-0a1afb68fa8c
-	annotation PBI_NavigationStepName = GoldDataPath
-	annotation PBI_ResultType = Text
