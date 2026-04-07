@@ -66,7 +66,7 @@ export function KpiRegistryTable({ kpis }: Props) {
           </tbody>
         </StudioTable>
         {filtered.length === 0 && (
-          <p style={{ padding: 'var(--sp-3)', textAlign: 'center', color: 'var(--slate-500)' }}>
+          <p style={{ margin: 0, padding: 'var(--sp-3)', textAlign: 'center', color: 'var(--slate-500)', fontSize: '0.8125rem', lineHeight: 1.55 }}>
             No KPIs match the filter.
           </p>
         )}
@@ -131,9 +131,9 @@ function KpiRow({ kpi, isExpanded, onToggle }: { kpi: CatalogKpi; isExpanded: bo
 }
 
 function DetailLabel({ children }: { children: React.ReactNode }) {
-  return <p style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', marginBottom: '2px', marginTop: 'var(--sp-1)' }}>{children}</p>;
+  return <p style={{ margin: '0 0 4px', fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: 'var(--sp-1-5)' }}>{children}</p>;
 }
 
 function DetailText({ children, mono }: { children: React.ReactNode; mono?: boolean }) {
-  return <p style={{ fontSize: '0.8125rem', color: 'var(--slate-200)', fontFamily: mono ? 'var(--font-mono)' : undefined }}>{children}</p>;
+  return <p style={{ margin: 0, fontSize: '0.875rem', lineHeight: 1.65, color: 'var(--slate-200)', fontFamily: mono ? 'var(--font-mono)' : undefined }}>{children}</p>;
 }

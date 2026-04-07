@@ -8,13 +8,13 @@ table _ActionReady_Logic
 	partition _ActionReady_Logic = m
 		mode: import
 		source =
-				let
-					Source = #table(type table[_Placeholder = Text.Type], {})
-				in
-					Source
+			let
+				Source = #table(type table[_Placeholder = Text.Type], {})
+			in
+				Source
 
 	column _Placeholder
-		lineageTag: 4c9001e9-a547-4a09-bcd7-f0561aea0737
+	lineageTag: 4c9001e9-a547-4a09-bcd7-f0561aea0737
 		dataType: string
 		sourceColumn: _Placeholder
 		isHidden

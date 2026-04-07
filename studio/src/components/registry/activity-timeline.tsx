@@ -51,11 +51,11 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
   }, [projectId]);
 
   if (loading) {
-    return <p style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Loading activity...</p>;
+    return <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--slate-500)' }}>Loading activity...</p>;
   }
 
   if (events.length === 0) {
-    return <p style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>No activity recorded yet.</p>;
+    return <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.5, color: 'var(--slate-500)' }}>No activity recorded yet.</p>;
   }
 
   return (
@@ -69,7 +69,7 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
           <div
             key={evt.id}
             style={{
-              padding: 'var(--sp-1) var(--sp-1-5)',
+              padding: 'var(--sp-1-5) var(--sp-2)',
               backgroundColor: 'var(--slate-800)',
               borderRadius: 'var(--radius-md)',
               border: '1px solid var(--slate-700)',
@@ -91,10 +91,10 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
                 {evt.action}
               </span>
               {/* Entity */}
-              <span style={{ fontSize: '0.75rem', color: 'var(--slate-300)' }}>
+              <span style={{ fontSize: '0.8125rem', lineHeight: 1.4, color: 'var(--slate-300)' }}>
                 {ENTITY_LABELS[evt.entity_type] ?? evt.entity_type}
               </span>
-              <span style={{ fontSize: '0.75rem', color: 'var(--slate-100)', fontWeight: 600 }}>
+              <span style={{ fontSize: '0.8125rem', lineHeight: 1.4, color: 'var(--slate-100)', fontWeight: 600 }}>
                 {evt.entity_id}
               </span>
               {/* Actor */}
@@ -114,10 +114,11 @@ export function ActivityTimeline({ projectId = 'default' }: Props) {
               <pre
                 style={{
                   marginTop: 'var(--sp-1)',
-                  padding: 'var(--sp-1)',
+                  padding: 'var(--sp-1-5)',
                   backgroundColor: 'var(--slate-900)',
                   borderRadius: 'var(--radius-sm)',
-                  fontSize: '0.625rem',
+                  fontSize: '0.6875rem',
+                  lineHeight: 1.55,
                   color: 'var(--slate-300)',
                   fontFamily: 'var(--font-mono)',
                   overflow: 'auto',

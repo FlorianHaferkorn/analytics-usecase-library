@@ -40,19 +40,19 @@ table dim_product
 				ParquetData = Parquet.Document(FirstFile)
 			in
 				ParquetData
-	hierarchy 'Product Hierarchy'
+		hierarchy 'Product Hierarchy'
 		lineageTag: 3f04d64f-f7dc-5375-a193-e2cc0ed84578
 		level Category
-			column: Category
+				column: Category
 		level Subcategory
-			column: Subcategory
+				column: Subcategory
 		level ProductName
-			column: ProductName
-	hierarchy 'ABC/XYZ Classification'
+				column: ProductName
+		hierarchy 'ABC/XYZ Classification'
 		lineageTag: e1fa68cd-2b93-5893-b8a3-65d0fd4fb0eb
 		level ABC_Class
-			column: ABC_Class
+				column: ABC_Class
 		level XYZ_Class
-			column: XYZ_Class
+				column: XYZ_Class
 		level ProductName
-			column: ProductName
+				column: ProductName

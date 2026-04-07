@@ -7,10 +7,10 @@ table _ActionReady_Logic
 	partition _ActionReady_Logic = m
 		mode: import
 		source =
-				let
-					Source = #table(type table[_Placeholder = Text.Type], {})
-				in
-					Source
+			let
+				Source = #table(type table[_Placeholder = Text.Type], {})
+			in
+				Source
 
 	column _Placeholder
 		dataType: string

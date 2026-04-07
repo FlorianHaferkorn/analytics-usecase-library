@@ -4,10 +4,10 @@ table _Measures
 	partition _Measures = m
 		mode: import
 		source =
-				let
-					Source = #table(type table[Column1 = text], {})
-				in
-					Source
+			let
+				Source = #table(type table[Column1 = text], {})
+			in
+				Source
 
 	column Column1
 		dataType: string
@@ -92,7 +92,7 @@ table _Measures
 	// ── XD-003 ──────────────────────────────────────────
 	/// Gross Margin % - margin.gm.pct
 	/// Gross Margin % used in commercial and management reporting and P&L reconciliation.
-	measure 'Gross Margin %' = DIVIDE ( [Net Sales Amount] - [Cost of Goods Sold Amount], [Net Sales Amount] )
+	measure 'Gross Margin %' = VAR NetSales = [Net Sales Amount] VAR GrossMargin = NetSales - [Cost of Goods Sold Amount] RETURN DIVIDE ( GrossMargin, NetSales )
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
@@ -104,7 +104,7 @@ table _Measures
 
 	/// CLV - crm.clv.amount
 	/// Estimate long-term value of a customer to prioritize retention, acquisition, and service investme...
-	measure 'CLV' = AVERAGEX ( VALUES ( fact_sales[CustomerKey] ), CALCULATE ( SUM ( fact_sales[Net Sales Amount] ) - SUM ( fact_sales[Cost of Goods Sold Amount] ) ) * 3 )
+	measure 'CLV' = VAR HorizonYears = 3 RETURN AVERAGEX ( VALUES ( fact_sales[CustomerKey] ), CALCULATE ( [Net Sales Amount] - [Cost of Goods Sold Amount] ) * HorizonYears )
 		formatString: "#,0.00"
 		displayFolder: "XD-003"
 
@@ -130,7 +130,7 @@ table _Measures
 		displayFolder: "XD-003"
 
 	/// First Pass Yield % (XD) - delivery quality proxy via fulfillment in-full rate
-	measure 'First Pass Yield %' = DIVIDE ( COUNTROWS ( FILTER ( fact_fulfillment, fact_fulfillment[In-Full Flag] = TRUE() ) ), COUNTROWS ( fact_fulfillment ) )
+	measure 'First Pass Yield %' = VAR InFullDeliveries = CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[In-Full Flag] = TRUE() ) VAR TotalDeliveries = COUNTROWS ( fact_fulfillment ) RETURN DIVIDE ( InFullDeliveries, TotalDeliveries )
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
@@ -141,7 +141,7 @@ table _Measures
 
 	/// Cash Conversion Cycle (Days) - ops.working_capital.ccc.days
 	/// Combines receivables, inventory, and payables days to show cash efficiency.
-	measure 'Cash Conversion Cycle (Days)' = [DSO Days] + [DIO Days] - [DPO Days]
+	measure 'Cash Conversion Cycle (Days)' = VAR DaysSalesOutstanding = [DSO Days] VAR DaysInventoryOutstanding = [DIO Days] VAR DaysPayablesOutstanding = [DPO Days] RETURN DaysSalesOutstanding + DaysInventoryOutstanding - DaysPayablesOutstanding
 		formatString: "0"
 		displayFolder: "XD-003"
 
@@ -198,40 +198,40 @@ table _Measures
 	measure 'Action_X-R2.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_workforce_management" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "head_of_workforce_management"
-		annotation ActionReady_ActionCodeId = "X-R2.1"
+	annotation ActionReady_ResponsibleRole = "head_of_workforce_management"
+	annotation ActionReady_ActionCodeId = "X-R2.1"
 
 	/// ActionReady Logic: X-R2.2
 	measure 'Action_X-R2.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: workforce_management_lead" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "workforce_management_lead"
-		annotation ActionReady_ActionCodeId = "X-R2.2"
+	annotation ActionReady_ResponsibleRole = "workforce_management_lead"
+	annotation ActionReady_ActionCodeId = "X-R2.2"
 
 	/// ActionReady Logic: X-R2.3
 	measure 'Action_X-R2.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: service_operations_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "service_operations_manager"
-		annotation ActionReady_ActionCodeId = "X-R2.3"
+	annotation ActionReady_ResponsibleRole = "service_operations_manager"
+	annotation ActionReady_ActionCodeId = "X-R2.3"
 
 	/// ActionReady Logic: X-R2.4
 	measure 'Action_X-R2.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: service_operations_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "service_operations_manager"
-		annotation ActionReady_ActionCodeId = "X-R2.4"
+	annotation ActionReady_ResponsibleRole = "service_operations_manager"
+	annotation ActionReady_ActionCodeId = "X-R2.4"
 
 	/// ActionReady Logic: X-E3.2
 	measure 'Action_X-E3.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_enterprise_controlling" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "head_of_enterprise_controlling"
-		annotation ActionReady_ActionCodeId = "X-E3.2"
+	annotation ActionReady_ResponsibleRole = "head_of_enterprise_controlling"
+	annotation ActionReady_ActionCodeId = "X-E3.2"
 
 	/// ActionReady Logic: X-E3.3
 	measure 'Action_X-E3.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: chief_of_staff_pmo_lead" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "chief_of_staff_pmo_lead"
-		annotation ActionReady_ActionCodeId = "X-E3.3"
+	annotation ActionReady_ResponsibleRole = "chief_of_staff_pmo_lead"
+	annotation ActionReady_ActionCodeId = "X-E3.3"

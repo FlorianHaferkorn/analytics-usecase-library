@@ -24,7 +24,7 @@ export function StudioSelect(props: React.SelectHTMLAttributes<HTMLSelectElement
 
 export function StudioFormGrid({ children, columns = '1fr 1fr' }: { children: ReactNode; columns?: string }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: columns, gap: 'var(--sp-1)', padding: 'var(--sp-1-5)', background: 'linear-gradient(180deg, var(--slate-850, #182030), var(--slate-800))', borderRadius: 'var(--radius-md)', border: '1px solid var(--slate-700)' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: columns, gap: 'var(--sp-1-5)', padding: 'var(--sp-2)', background: 'linear-gradient(180deg, var(--slate-850, #182030), var(--slate-800))', borderRadius: 'var(--radius-md)', border: '1px solid var(--slate-700)' }}>
       {children}
     </div>
   );
@@ -33,7 +33,7 @@ export function StudioFormGrid({ children, columns = '1fr 1fr' }: { children: Re
 export function StudioFormField({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div style={{ minWidth: 0 }}>
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--slate-500)' }}>
+      <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--slate-500)' }}>
         {label}
       </label>
       {children}
@@ -55,7 +55,7 @@ export function StudioTable({ children }: { children: ReactNode }) {
 
 export function StudioTableHeadCell({ children, style }: { children: ReactNode; style?: CSSProperties }) {
   return (
-    <th style={{ padding: 'var(--sp-1) var(--sp-1-5)', textAlign: 'left', color: 'var(--slate-400)', fontWeight: 600, fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.05em', ...style }}>
+    <th style={{ padding: 'var(--sp-1-5) var(--sp-2)', textAlign: 'left', color: 'var(--slate-400)', fontWeight: 600, fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.05em', ...style }}>
       {children}
     </th>
   );
@@ -63,7 +63,7 @@ export function StudioTableHeadCell({ children, style }: { children: ReactNode; 
 
 export function StudioTableCell({ children, style }: { children: ReactNode; style?: CSSProperties }) {
   return (
-    <td style={{ padding: 'var(--sp-1) var(--sp-1-5)', borderTop: '1px solid var(--slate-700)', color: 'var(--slate-200)', ...style }}>
+    <td style={{ padding: 'var(--sp-1-5) var(--sp-2)', borderTop: '1px solid var(--slate-700)', color: 'var(--slate-200)', lineHeight: 1.55, verticalAlign: 'top', ...style }}>
       {children}
     </td>
   );
@@ -72,7 +72,7 @@ export function StudioTableCell({ children, style }: { children: ReactNode; styl
 export function StudioExpandedRow({ children, colSpan }: { children: ReactNode; colSpan: number }) {
   return (
     <tr>
-      <td colSpan={colSpan} style={{ backgroundColor: 'var(--slate-850, #182030)', padding: 'var(--sp-2)' }}>
+      <td colSpan={colSpan} style={{ backgroundColor: 'var(--slate-850, #182030)', padding: 'var(--sp-2-5)' }}>
         {children}
       </td>
     </tr>
@@ -80,7 +80,7 @@ export function StudioExpandedRow({ children, colSpan }: { children: ReactNode; 
 }
 
 export function StudioInlineStat({ children }: { children: ReactNode }) {
-  return <p style={{ marginTop: 'var(--sp-1)', fontSize: '0.75rem', color: 'var(--slate-500)' }}>{children}</p>;
+  return <p style={{ marginTop: 'var(--sp-1-5)', fontSize: '0.75rem', lineHeight: 1.5, color: 'var(--slate-500)' }}>{children}</p>;
 }
 
 export function StudioSelectionList({ children, style }: { children: ReactNode; style?: CSSProperties }) {
@@ -124,7 +124,7 @@ export function StudioSelectionItem({
         gridTemplateColumns: 'auto auto minmax(0, 1fr) auto',
         alignItems: 'center',
         gap: 'var(--sp-1)',
-        padding: 'var(--sp-1) var(--sp-1-5)',
+        padding: 'var(--sp-1-5) var(--sp-2)',
         border: 'none',
         borderBottom: '1px solid var(--slate-700)',
         backgroundColor: selected ? 'var(--slate-750, #283548)' : 'var(--slate-900)',
@@ -146,7 +146,7 @@ export function StudioSelectionItem({
       {leading ? <span style={{ minWidth: 0 }}>{leading}</span> : <span />}
       <span style={{ minWidth: 0 }}>
         <span style={{ display: 'block', fontSize: '0.8125rem', color: 'var(--slate-100)' }}>{primary}</span>
-        {secondary ? <span style={{ display: 'block', fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: '2px' }}>{secondary}</span> : null}
+        {secondary ? <span style={{ display: 'block', fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: '4px', lineHeight: 1.5 }}>{secondary}</span> : null}
       </span>
       {meta ? <span style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', textAlign: 'right' }}>{meta}</span> : null}
     </button>
@@ -154,11 +154,12 @@ export function StudioSelectionItem({
 }
 
 const inputBaseStyle: CSSProperties = {
-  padding: 'var(--sp-1) var(--sp-1-5)',
+  padding: 'var(--sp-1-5) var(--sp-2)',
   backgroundColor: 'var(--slate-900)',
   border: '1px solid var(--slate-700)',
   borderRadius: 'var(--radius-md)',
   color: 'var(--slate-100)',
   fontSize: '0.8125rem',
+  lineHeight: 1.5,
   width: '100%',
 };

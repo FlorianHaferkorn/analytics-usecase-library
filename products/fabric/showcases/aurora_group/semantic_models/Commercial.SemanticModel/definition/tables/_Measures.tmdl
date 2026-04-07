@@ -5,13 +5,13 @@ table _Measures
 	partition _Measures = m
 		mode: import
 		source =
-				let
-					Source = #table(type table[Column1 = text], {})
-				in
-					Source
+			let
+				Source = #table(type table[Column1 = text], {})
+			in
+				Source
 
 	column Column1
-		lineageTag: b525edd9-3ac2-485b-b5ab-1a3dd31865d2
+	lineageTag: b525edd9-3ac2-485b-b5ab-1a3dd31865d2
 		dataType: string
 		sourceColumn: Column1
 		isHidden
@@ -172,53 +172,53 @@ table _Measures
 		isHidden
 		formatString: "@"
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "TBD"
-		annotation ActionReady_ActionCodeId = "C-C3.1"
+	annotation ActionReady_ResponsibleRole = "TBD"
+	annotation ActionReady_ActionCodeId = "C-C3.1"
 
 	/// ActionReady Logic: C-C3.2 - Complaint & Advocacy Recovery
 	measure 'Action_C-C3.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY segments or products with falling advocacy and rising complaints" & UNICHAR(10) & "  2. MAP the complaint pattern to channel, product, and customer ownership" & UNICHAR(10) & "  3. EXECUTE recovery actions and close the highest-value issue clusters first" & UNICHAR(10) & "  4. REVIEW complaint volume, NPS, and retention response monthly"
 		isHidden
 		formatString: "@"
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "TBD"
-		annotation ActionReady_ActionCodeId = "C-C3.2"
+	annotation ActionReady_ResponsibleRole = "TBD"
+	annotation ActionReady_ActionCodeId = "C-C3.2"
 
 	/// ActionReady Logic: C-M2.1 - Price Realization Guardrails
 	measure 'Action_C-M2.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each {entity} where price realization falls below threshold" & UNICHAR(10) & "  2. FREEZE discretionary discounts for this {entity}" & UNICHAR(10) & "  3. ENFORCE approval workflow for any price exception on this {entity}" & UNICHAR(10) & "  4. REVIEW realization recovery for this {entity} monthly"
 		isHidden
 		formatString: "@"
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "TBD"
-		annotation ActionReady_ActionCodeId = "C-M2.1"
+	annotation ActionReady_ResponsibleRole = "TBD"
+	annotation ActionReady_ActionCodeId = "C-M2.1"
 
 	/// ActionReady Logic: C-M2.2 - Mix Optimization (Margin-Driven)
 	measure 'Action_C-M2.2_Text' = "Trigger: Pattern (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each {entity} with persistent negative mix effect" & UNICHAR(10) & "  2. RANK SKUs by margin contribution for this {entity}" & UNICHAR(10) & "  3. ADJUST sales targets and focus lists for this {entity}" & UNICHAR(10) & "  4. MONITOR mix and margin for this {entity} monthly"
 		isHidden
 		formatString: "@"
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "TBD"
-		annotation ActionReady_ActionCodeId = "C-M2.2"
+	annotation ActionReady_ResponsibleRole = "TBD"
+	annotation ActionReady_ActionCodeId = "C-M2.2"
 
 	/// ActionReady Logic: C-P4.1 - Promo Calendar Discipline
 	measure 'Action_C-P4.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each {entity} with repeated negative ROI" & UNICHAR(10) & "  2. REVIEW mechanics and baseline assumptions for this {entity}" & UNICHAR(10) & "  3. STOP, REPLACE, or RESEQUENCE this {entity} based on ROI analysis" & UNICHAR(10) & "  4. VALIDATE ROI improvement for this {entity} in next cycle"
 		isHidden
 		formatString: "@"
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "TBD"
-		annotation ActionReady_ActionCodeId = "C-P4.1"
+	annotation ActionReady_ResponsibleRole = "TBD"
+	annotation ActionReady_ActionCodeId = "C-P4.1"
 
 	/// ActionReady Logic: C-S1.1 - Price Discipline Enforcement
 	measure 'Action_C-S1.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each {entity} breaching gross margin threshold" & UNICHAR(10) & "  2. FREEZE new discretionary discounts for this {entity}" & UNICHAR(10) & "  3. REQUIRE approval for any price exception on this {entity}" & UNICHAR(10) & "  4. REVIEW net price realization for this {entity} weekly"
 		isHidden
 		formatString: "@"
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "TBD"
-		annotation ActionReady_ActionCodeId = "C-S1.1"
+	annotation ActionReady_ResponsibleRole = "TBD"
+	annotation ActionReady_ActionCodeId = "C-S1.1"
 
 	/// ActionReady Logic: C-S1.2 - Sales Gap Recovery via Price & Pack Adjustment
 	measure 'Action_C-S1.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: TBD" & UNICHAR(10) & "Steps:" & UNICHAR(10) & "  1. IDENTIFY each {entity} breaching plan thresholds" & UNICHAR(10) & "  2. SELECT eligible products for this {entity} within GM guardrails" & UNICHAR(10) & "  3. APPLY temporary price or pack adjustments to this {entity}" & UNICHAR(10) & "  4. REVIEW Net Sales uplift for this {entity} after one cycle"
 		isHidden
 		formatString: "@"
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "TBD"
-		annotation ActionReady_ActionCodeId = "C-S1.2"
+	annotation ActionReady_ResponsibleRole = "TBD"
+	annotation ActionReady_ActionCodeId = "C-S1.2"

@@ -47,20 +47,20 @@ table dim_date
 		summarizeBy: none
 		/// YYYY-MM format enables correct chronological sorting in slicers
 	hierarchy 'Calendar'
-		lineageTag: fa7726b8-45c0-55f8-a1e7-4ce4ed04b8ae
-		level Year
+	lineageTag: fa7726b8-45c0-55f8-a1e7-4ce4ed04b8ae
+	level Year
 			column: Year
-		level Quarter
+	level Quarter
 			column: Quarter
-		level Month
+	level Month
 			column: Month
-		level Date
+	level Date
 			column: Date
 	hierarchy 'Week Calendar'
-		lineageTag: 983b05b7-3c70-538d-802e-dfb2c098137e
-		level Year
+	lineageTag: 983b05b7-3c70-538d-802e-dfb2c098137e
+	level Year
 			column: Year
-		level Week
+	level Week
 			column: Week
-		level Date
+	level Date
 			column: Date

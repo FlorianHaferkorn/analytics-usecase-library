@@ -53,7 +53,7 @@ export function StudioPageHeader({
   return (
     <div
       style={{
-        padding: 'var(--sp-2) var(--sp-2-5)',
+        padding: 'var(--sp-2-5) var(--sp-3)',
         borderRadius: 'var(--radius-xl)',
         border: `1px solid color-mix(in srgb, ${accent} 24%, var(--slate-700))`,
         background: `linear-gradient(135deg, color-mix(in srgb, var(--slate-850, #17202e) 86%, ${accent} 14%), var(--slate-800))`,
@@ -65,14 +65,14 @@ export function StudioPageHeader({
         flexWrap: 'wrap',
       }}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxWidth: '960px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: '960px' }}>
         {eyebrow ? (
           <span style={{ fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: accent, fontWeight: 700 }}>
             {eyebrow}
           </span>
         ) : null}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <h1 style={{ fontSize: '1.375rem', lineHeight: 1.1, fontWeight: 700, color: 'var(--slate-50)', margin: 0 }}>
+          <h1 style={{ fontSize: '1.375rem', lineHeight: 1.15, fontWeight: 700, color: 'var(--slate-50)', margin: 0 }}>
             {title}
           </h1>
           {badge ? (
@@ -91,7 +91,7 @@ export function StudioPageHeader({
             </span>
           ) : null}
         </div>
-        <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.55, color: 'var(--slate-300)' }}>
+        <p style={{ margin: 0, fontSize: '0.875rem', lineHeight: 1.65, color: 'var(--slate-300)' }}>
           {description}
         </p>
       </div>
@@ -124,7 +124,7 @@ export function StudioMetric({
   return (
     <div
       style={{
-        padding: 'var(--sp-1-5)',
+        padding: 'var(--sp-2)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--slate-700)',
         background: `linear-gradient(180deg, color-mix(in srgb, var(--slate-800) 88%, ${accent} 12%), var(--slate-800))`,
@@ -133,7 +133,7 @@ export function StudioMetric({
     >
       <p style={{ margin: 0, marginBottom: '4px', fontSize: '0.625rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</p>
       <p style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: accent }}>{value}</p>
-      {meta ? <p style={{ margin: 0, marginTop: '4px', fontSize: '0.6875rem', color: 'var(--slate-400)' }}>{meta}</p> : null}
+      {meta ? <p style={{ margin: 0, marginTop: '6px', fontSize: '0.75rem', lineHeight: 1.5, color: 'var(--slate-400)' }}>{meta}</p> : null}
     </div>
   );
 }
@@ -158,7 +158,7 @@ export function StudioPanel({
   return (
     <section
       style={{
-        padding: 'var(--sp-2)',
+        padding: 'var(--sp-2-5)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--slate-700)',
         background: `linear-gradient(180deg, color-mix(in srgb, var(--slate-800) 90%, ${accent} 10%), var(--slate-800))`,
@@ -166,15 +166,15 @@ export function StudioPanel({
       }}
     >
       {(title || description || action) ? (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--sp-1)', marginBottom: 'var(--sp-1)' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--sp-1)', marginBottom: 'var(--sp-1-5)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxWidth: '72ch' }}>
             {title ? <h3 style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 600, color: 'var(--slate-100)' }}>{title}</h3> : null}
-            {description ? <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--slate-400)' }}>{description}</p> : null}
+            {description ? <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.6, color: 'var(--slate-400)' }}>{description}</p> : null}
           </div>
           {action ? <div style={{ flexShrink: 0 }}>{action}</div> : null}
         </div>
       ) : null}
-      {children}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1-5)', minWidth: 0 }}>{children}</div>
     </section>
   );
 }
@@ -190,8 +190,8 @@ export function StudioEmptyState({ title, description }: { title: string; descri
         textAlign: 'center',
       }}
     >
-      <p style={{ margin: 0, marginBottom: 'var(--sp-1)', fontSize: '0.875rem', color: 'var(--slate-200)', fontWeight: 600 }}>{title}</p>
-      <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>{description}</div>
+      <p style={{ margin: 0, marginBottom: 'var(--sp-1)', fontSize: '0.9375rem', color: 'var(--slate-200)', fontWeight: 600 }}>{title}</p>
+      <div style={{ fontSize: '0.8125rem', lineHeight: 1.65, color: 'var(--slate-500)', maxWidth: '56ch', margin: '0 auto' }}>{description}</div>
     </div>
   );
 }
@@ -204,7 +204,7 @@ export function StudioToolbar({ children, style }: { children: ReactNode; style?
         alignItems: 'center',
         gap: 'var(--sp-1)',
         flexWrap: 'wrap',
-        padding: 'var(--sp-1-5)',
+        padding: 'var(--sp-2)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--slate-700)',
         background: 'linear-gradient(180deg, var(--slate-850, #182030), var(--slate-800))',

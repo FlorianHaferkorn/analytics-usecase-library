@@ -4,10 +4,10 @@ table _Measures
 	partition _Measures = m
 		mode: import
 		source =
-				let
-					Source = #table(type table[Column1 = text], {})
-				in
-					Source
+			let
+				Source = #table(type table[Column1 = text], {})
+			in
+				Source
 
 	column Column1
 		dataType: string
@@ -198,40 +198,40 @@ table _Measures
 	measure 'Action_X-R2.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_workforce_management" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "head_of_workforce_management"
-		annotation ActionReady_ActionCodeId = "X-R2.1"
+	annotation ActionReady_ResponsibleRole = "head_of_workforce_management"
+	annotation ActionReady_ActionCodeId = "X-R2.1"
 
 	/// ActionReady Logic: X-R2.2
 	measure 'Action_X-R2.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: workforce_management_lead" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "workforce_management_lead"
-		annotation ActionReady_ActionCodeId = "X-R2.2"
+	annotation ActionReady_ResponsibleRole = "workforce_management_lead"
+	annotation ActionReady_ActionCodeId = "X-R2.2"
 
 	/// ActionReady Logic: X-R2.3
 	measure 'Action_X-R2.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: service_operations_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "service_operations_manager"
-		annotation ActionReady_ActionCodeId = "X-R2.3"
+	annotation ActionReady_ResponsibleRole = "service_operations_manager"
+	annotation ActionReady_ActionCodeId = "X-R2.3"
 
 	/// ActionReady Logic: X-R2.4
 	measure 'Action_X-R2.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: service_operations_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "service_operations_manager"
-		annotation ActionReady_ActionCodeId = "X-R2.4"
+	annotation ActionReady_ResponsibleRole = "service_operations_manager"
+	annotation ActionReady_ActionCodeId = "X-R2.4"
 
 	/// ActionReady Logic: X-E3.2
 	measure 'Action_X-E3.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_enterprise_controlling" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "head_of_enterprise_controlling"
-		annotation ActionReady_ActionCodeId = "X-E3.2"
+	annotation ActionReady_ResponsibleRole = "head_of_enterprise_controlling"
+	annotation ActionReady_ActionCodeId = "X-E3.2"
 
 	/// ActionReady Logic: X-E3.3
 	measure 'Action_X-E3.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: chief_of_staff_pmo_lead" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-		annotation ActionReady_ResponsibleRole = "chief_of_staff_pmo_lead"
-		annotation ActionReady_ActionCodeId = "X-E3.3"
+	annotation ActionReady_ResponsibleRole = "chief_of_staff_pmo_lead"
+	annotation ActionReady_ActionCodeId = "X-E3.3"

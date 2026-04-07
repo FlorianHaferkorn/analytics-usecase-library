@@ -32,10 +32,10 @@ table fact_supplier_risk
 		source =
 			let
 				Source = #table(
-					type table [SupplierKey = Int64, DateKey = Int64,
-						#"Risk Score" = Decimal.Type, #"Delivery Risk Score" = Decimal.Type,
-						#"Quality Risk Score" = Decimal.Type, #"Financial Risk Score" = Decimal.Type],
-					{}
+				type table [SupplierKey = Int64, DateKey = Int64,
+				#"Risk Score" = Decimal.Type, #"Delivery Risk Score" = Decimal.Type,
+				#"Quality Risk Score" = Decimal.Type, #"Financial Risk Score" = Decimal.Type],
+				{}
 				)
 			in
 				Source

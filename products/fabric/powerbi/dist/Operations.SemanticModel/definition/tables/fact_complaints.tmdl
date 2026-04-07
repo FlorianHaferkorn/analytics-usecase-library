@@ -32,10 +32,10 @@ table fact_complaints
 		source =
 			let
 				Source = #table(
-					type table [DateKey = Int64, OrgKey = Int64, CustomerKey = Int64,
-						#"Complaint Count" = Int64, #"Resolved Count" = Int64,
-						#"Resolution Days" = Decimal.Type],
-					{}
+				type table [DateKey = Int64, OrgKey = Int64, CustomerKey = Int64,
+				#"Complaint Count" = Int64, #"Resolved Count" = Int64,
+				#"Resolution Days" = Decimal.Type],
+				{}
 				)
 			in
 				Source

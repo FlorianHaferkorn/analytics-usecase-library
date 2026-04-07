@@ -37,6 +37,73 @@ function Convert-LeadingSpacesToTabs {
   return "`t" * $tabCount
 }
 
+function Repair-TableTmdlIndentation {
+  param([string[]]$Lines)
+
+  $tableLineIndex = -1
+  for ($i = 0; $i -lt $Lines.Count; $i++) {
+    if ($Lines[$i] -match '^table\s+') {
+      $tableLineIndex = $i
+      break
+    }
+  }
+  if ($tableLineIndex -lt 0) { return $Lines }
+
+  $firstIndentedIndex = -1
+  for ($i = $tableLineIndex + 1; $i -lt $Lines.Count; $i++) {
+    if ($Lines[$i].Trim().Length -eq 0) { continue }
+    $firstIndentedIndex = $i
+    break
+  }
+  if ($firstIndentedIndex -lt 0) { return $Lines }
+
+  $fixed = @()
+  $inExpressionBlock = $false
+  $sourceIndent = -1
+  foreach ($line in $Lines) {
+    if ($line -match '^\t{2,}(lineageTag:|column\s|partition\s|annotation\s|measure\s|hierarchy\s|level\s)') {
+      $fixed += ($line -replace '^\t', '')
+      continue
+    }
+
+    if ($line -cmatch '^\t{2,}source\s*=') {
+      $updatedLine = if ($line -cmatch '^\t{3,}source\s*=') { ($line -replace '^\t', '') } else { $line }
+      $fixed += $updatedLine
+      $inExpressionBlock = $true
+      $sourceIndent = ([regex]::Match($updatedLine,'^\t*').Value.Length)
+      continue
+    }
+
+    if ($line -match '^\t{3,}(dataType:|sourceColumn:|summarizeBy:|isHidden\b|formatString:|displayFolder:|mode:|entityName:|schemaName:|expressionSource:|description:|annotation\s)') {
+      $updatedLine = ($line -replace '^\t', '')
+      $fixed += $updatedLine
+      continue
+    }
+
+    if ($inExpressionBlock -and $line.Trim().Length -gt 0) {
+      $trimmed = $line.Trim()
+      if ($trimmed -eq 'let') {
+        $updatedLine = (("`t" * ($sourceIndent + 1)) + 'let')
+      } elseif ($trimmed -eq 'in') {
+        $updatedLine = (("`t" * ($sourceIndent + 1)) + 'in')
+      } else {
+        $updatedLine = (("`t" * ($sourceIndent + 2)) + $trimmed)
+      }
+      $fixed += $updatedLine
+      continue
+    }
+
+    $fixed += $line
+
+    if ($inExpressionBlock -and $line.Trim().Length -eq 0) {
+      $inExpressionBlock = $false
+      $sourceIndent = -1
+    }
+  }
+
+  return $fixed
+}
+
 function Set-TmdlFileTabs {
   param([string]$FilePath)
   $content = Get-Content -Path $FilePath -Raw -Encoding utf8
@@ -50,6 +117,7 @@ function Set-TmdlFileTabs {
       $fixed += $line
     }
   }
+  $fixed = Repair-TableTmdlIndentation -Lines $fixed
   $newContent = $fixed -join "`n"
   $utf8 = New-Object System.Text.UTF8Encoding $false
   [System.IO.File]::WriteAllText($FilePath, $newContent, $utf8)
