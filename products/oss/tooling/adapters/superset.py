@@ -6,10 +6,8 @@ Lives in products/oss/ because it encodes Superset-specific knowledge
 The generator_core framework only knows the abstract GeneratorAdapter
 interface — this is the concrete Superset implementation.
 
-Status: STUB — implement render() and visual_type_map() before use.
-
 Superset output format:
-    A ZIP archive (dashboard_export.zip) that can be imported via:
+    A ZIP archive (dashboard_export.zip) importable via:
     Superset UI → Dashboards → Import, or
     POST /api/v1/dashboard/import
 
@@ -17,20 +15,33 @@ ZIP structure:
     dashboard_export/
         dashboards/<slug>.yaml
         charts/<chart_id>.yaml
-        datasets/<dataset_id>.yaml
 
 Reference:
     https://superset.apache.org/docs/using-superset/importing-exporting-datasources
+Grid translation (from OSS_Connector_Guide.md):
+    Superset uses a 12-column fluid grid.
+    Position (canvas fraction) → Superset grid:
+        col_x  = round(pos.x * 12)
+        col_w  = max(1, round(pos.width * 12))
+        row_y  = round(pos.y * 100)   # row units (each ~1%)
+        row_h  = max(2, round(pos.height * 40))
 """
 
 from __future__ import annotations
 
-from typing import Dict, List
+import io
+import json
+import zipfile
+from typing import Any, Dict, List
+
+import yaml  # pyyaml required
 
 from tooling.generator_core.adapters.base import GeneratorAdapter, RenderResult
 from tooling.generator_core.ir.specs import (
     AdapterTarget,
     DashboardSpec,
+    PageRole,
+    VisualSpec,
     VisualType,
 )
 
@@ -49,14 +60,114 @@ _VISUAL_TYPE_MAP: Dict[VisualType, List[str]] = {
     VisualType.TEXT_BOX:        ["text"],
 }
 
+# Semantic role → Superset conditional formatting color
+_SEMANTIC_COLORS = {
+    "positive": "#107C10",
+    "negative": "#A4262C",
+    "warning":  "#C98A00",
+    "neutral":  "#605E5C",
+}
+
+
+def _pos_to_superset_grid(pos) -> Dict[str, int]:
+    """Convert canvas-fraction Position to Superset grid coordinates."""
+    return {
+        "col_x":  round(pos.x * 12),
+        "col_w":  max(1, round(pos.width * 12)),
+        "row_y":  round(pos.y * 100),
+        "row_h":  max(2, round(pos.height * 40)),
+    }
+
+
+def _build_chart_yaml(visual: VisualSpec, chart_id: int, dataset_name: str, viz_type: str) -> Dict[str, Any]:
+    """Build a Superset chart export YAML dict for one visual."""
+    binding = visual.binding
+    metrics = []
+    if binding.measure:
+        metrics.append({"label": binding.measure, "expressionType": "SIMPLE",
+                        "column": {"column_name": binding.measure}})
+    for m in (binding.measures or []):
+        metrics.append({"label": m, "expressionType": "SIMPLE",
+                        "column": {"column_name": m}})
+
+    groupby = []
+    if binding.category:
+        col = binding.category.split(".")[-1]
+        groupby.append(col)
+
+    params: Dict[str, Any] = {
+        "viz_type":      viz_type,
+        "metrics":       metrics,
+        "groupby":       groupby,
+        "time_range":    "No filter",
+        "adhoc_filters": [],
+    }
+
+    # Conditional formatting for KPI cards
+    if visual.visual_type == VisualType.KPI_CARD:
+        params["comparison_type"] = "difference"
+
+    # Semantic color thresholds for charts with a single metric
+    if metrics and visual.visual_type in (VisualType.BAR_CHART, VisualType.TREND_LINE):
+        params["conditional_formatting"] = [
+            {"colorScheme": _SEMANTIC_COLORS["negative"],
+             "operator": "<", "targetValue": 0,
+             "column": metrics[0].get("label", "")},
+        ]
+
+    return {
+        "slice_name":   visual.title or visual.id,
+        "viz_type":     viz_type,
+        "datasource_type": "table",
+        "datasource_name": dataset_name,
+        "params":       json.dumps(params),
+        "cache_timeout": None,
+        "uuid":         f"chart-{chart_id:04d}",
+    }
+
+
+def _build_dashboard_yaml(spec: DashboardSpec, chart_ids: List[int],
+                           visuals: List[VisualSpec]) -> Dict[str, Any]:
+    """Build the Superset dashboard export YAML dict."""
+    slug = spec.use_case_id.lower().replace("-", "_")
+
+    position_data: Dict[str, Any] = {
+        "DASHBOARD_VERSION_KEY": "v2",
+        "ROOT_ID": {"type": "ROOT", "id": "ROOT_ID", "children": ["GRID_ID"]},
+        "GRID_ID": {"type": "GRID", "id": "GRID_ID", "children": [], "parents": ["ROOT_ID"]},
+    }
+
+    for visual, chart_id in zip(visuals, chart_ids):
+        g = _pos_to_superset_grid(visual.position)
+        container_id = f"CHART-{chart_id}"
+        position_data[container_id] = {
+            "type": "CHART",
+            "id": container_id,
+            "meta": {
+                "chartId": chart_id,
+                "width": g["col_w"],
+                "height": g["row_h"],
+                "sliceName": visual.title or visual.id,
+            },
+            "parents": ["ROOT_ID", "GRID_ID"],
+            "children": [],
+        }
+        position_data["GRID_ID"]["children"].append(container_id)
+
+    return {
+        "dashboard_title": spec.title,
+        "description":     f"Generated from {spec.use_case_id} UseCase_Bracket",
+        "slug":            slug,
+        "uuid":            f"dashboard-{slug}",
+        "position_data":   json.dumps(position_data),
+        "metadata":        json.dumps({"color_scheme": "bnbColors", "expanded_slices": {}}),
+        "version":         "1.0.0",
+    }
+
 
 class SupersetAdapter(GeneratorAdapter):
     """
     Renders a DashboardSpec to an Apache Superset dashboard ZIP export.
-
-    This is a Superset-specific class. It knows about Superset chart types,
-    dashboard YAML format, dataset references, and the ZIP import structure.
-    Nothing here should ever be referenced by the Power BI generator.
 
     Output:
         dashboard_export.zip — importable via Superset UI or API
@@ -75,27 +186,67 @@ class SupersetAdapter(GeneratorAdapter):
 
     def validate_ir(self, spec: DashboardSpec) -> List[str]:
         errors: List[str] = []
-        overview = spec.overview_page()
-        if not overview:
+        if not spec.overview_page():
             errors.append("IR missing Overview page")
-        detail = spec.detail_page()
-        if not detail:
+        if not spec.detail_page():
             errors.append("IR missing Detail page")
         return errors
 
     def render(self, spec: DashboardSpec) -> RenderResult:
-        # TODO: Implement Superset dashboard ZIP rendering.
-        # Reference: products/oss/tooling/adapters/superset.py
-        #
-        # Steps:
-        # 1. Create dashboards/<slug>.yaml with position_data for each visual
-        # 2. For each visual, create charts/<chart_id>.yaml with viz_type from
-        #    _VISUAL_TYPE_MAP and params (metrics, groupby, etc.)
-        # 3. Create datasets/<dataset_id>.yaml referencing gold tables
-        # 4. Map Position (canvas fractions) to Superset GRID_DEFAULT_CHART_WIDTH
-        #    (12 columns total; y in GRID_BASE units = 8px)
-        # 5. Bundle all YAML files into a ZIP and return as dashboard_export.zip
-        raise NotImplementedError(
-            "SupersetAdapter.render() is not yet implemented. "
-            "See products/oss/tooling/adapters/superset.py for the stub."
+        """
+        Render DashboardSpec → Superset dashboard ZIP.
+
+        Returns RenderResult with one file:
+            "dashboard_export.zip" → bytes of the importable ZIP archive
+        """
+        warnings: List[str] = []
+        dataset_name = f"{spec.domain}_{spec.use_case_id}".lower().replace("-", "_")
+
+        # Collect all visuals from all pages
+        all_visuals: List[VisualSpec] = []
+        for page in spec.pages:
+            all_visuals.extend(page.visuals)
+
+        chart_yamls: Dict[str, str] = {}
+        chart_ids: List[int] = []
+
+        for i, visual in enumerate(all_visuals):
+            chart_id = 1000 + i
+            chart_ids.append(chart_id)
+            viz_type = self.map_visual_type(visual.visual_type)
+            if viz_type == visual.visual_type.value:
+                warnings.append(f"No Superset mapping for visual_type '{visual.visual_type}' ({visual.id})")
+            chart_data = _build_chart_yaml(visual, chart_id, dataset_name, viz_type)
+            chart_yamls[f"dashboard_export/charts/chart_{chart_id:04d}.yaml"] = yaml.dump(
+                chart_data, default_flow_style=False, allow_unicode=True
+            )
+
+        dashboard_data = _build_dashboard_yaml(spec, chart_ids, all_visuals)
+        slug = dashboard_data["slug"]
+
+        # Build ZIP in memory
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr(
+                f"dashboard_export/dashboards/{slug}.yaml",
+                yaml.dump(dashboard_data, default_flow_style=False, allow_unicode=True),
+            )
+            for path, content in chart_yamls.items():
+                zf.writestr(path, content)
+            # Metadata file
+            zf.writestr(
+                "dashboard_export/metadata.yaml",
+                yaml.dump({
+                    "type": "Dashboard",
+                    "version": "1.0.0",
+                    "timestamp": spec.generated_at or "unknown",
+                    "generator": f"analytics-usecase-library/{spec.generator_version}",
+                    "use_case_id": spec.use_case_id,
+                }, default_flow_style=False),
+            )
+
+        return RenderResult(
+            files={"dashboard_export.zip": zip_buffer.getvalue()},
+            adapter=self.name,
+            warnings=warnings,
         )

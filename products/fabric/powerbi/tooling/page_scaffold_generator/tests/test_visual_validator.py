@@ -13,7 +13,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from page_scaffold_generator.visual_validator import validate_visual, validate_page
+from page_scaffold_generator.visual_validator import validate_visual, validate_page, validate_slot_compliance
 from page_scaffold_generator.visual_builder import VisualBuilder
 from page_scaffold_generator.layout_calculator import Position
 
@@ -201,6 +201,92 @@ class TestValidatePage:
         }
         errors = validate_page(page)
         assert len(errors) == 0, f"All correct visuals should pass: {errors}"
+
+
+class TestSlotCompliance:
+    """Verify slot whitelist enforcement."""
+
+    # Minimal slot mapping covering Main_1 and Main_2 for tests
+    SLOT_MAPPING = {
+        "slots": {
+            "Main_1": {
+                "allowed_templates": ["T1", "T2", "T3"],
+                "visual_types": {
+                    "preferred": "line_chart",
+                    "disallowed": ["bar_chart_column", "stacked_bar_100pct", "waterfall",
+                                   "scatter_plot", "funnel_chart"],
+                },
+            },
+            "Main_2": {
+                "allowed_templates": ["T2"],
+                "visual_types": {
+                    "preferred": "waterfall",
+                    "disallowed": ["line_chart", "area_chart", "funnel_chart",
+                                   "kpi_card", "kpi_card_hero"],
+                },
+            },
+            "KPI_Cards": {
+                "allowed_templates": ["T1", "T2", "T3", "T4"],
+                "visual_types": {
+                    "preferred": "kpi_card",
+                    "disallowed": ["status_tile"],
+                },
+            },
+        }
+    }
+
+    def test_globally_disallowed_type_rejected(self):
+        errors = validate_slot_compliance("Main_1", "pieChart")
+        assert any("globally disallowed" in e for e in errors), errors
+
+    def test_globally_disallowed_donut_rejected(self):
+        errors = validate_slot_compliance("KPI_Cards", "donutChart")
+        assert any("globally disallowed" in e for e in errors), errors
+
+    def test_line_chart_allowed_in_main1(self):
+        errors = validate_slot_compliance("Main_1", "lineChart", slot_mapping=self.SLOT_MAPPING)
+        assert errors == [], errors
+
+    def test_line_chart_disallowed_in_main2(self):
+        errors = validate_slot_compliance("Main_2", "lineChart", slot_mapping=self.SLOT_MAPPING)
+        assert any("disallowed" in e for e in errors), errors
+
+    def test_waterfall_allowed_in_main2(self):
+        errors = validate_slot_compliance("Main_2", "waterfallChart", slot_mapping=self.SLOT_MAPPING)
+        assert errors == [], errors
+
+    def test_template_constraint_violated(self):
+        # Main_2 only allowed on T2; T1 should fail
+        errors = validate_slot_compliance("Main_2", "waterfallChart", template_id="T1",
+                                         slot_mapping=self.SLOT_MAPPING)
+        assert any("not allowed on template" in e for e in errors), errors
+
+    def test_template_constraint_satisfied(self):
+        errors = validate_slot_compliance("Main_2", "waterfallChart", template_id="T2",
+                                         slot_mapping=self.SLOT_MAPPING)
+        assert errors == [], errors
+
+    def test_unknown_slot_passes(self):
+        # Custom / unknown slots should not be blocked
+        errors = validate_slot_compliance("CustomSlot", "lineChart", slot_mapping=self.SLOT_MAPPING)
+        assert errors == [], errors
+
+    def test_validate_visual_integrates_slot_check(self, builder, pos):
+        # A pie chart should be rejected even without slot_mapping
+        visual = {
+            "$schema": "https://example.com/schema.json",
+            "name": "Main_1",
+            "position": {"x": 0, "y": 0, "z": 0, "height": 300, "width": 400, "tabOrder": 1},
+            "visual": {"visualType": "pieChart", "objects": {}},
+        }
+        errors = validate_visual(visual, slot_mapping=self.SLOT_MAPPING)
+        assert any("globally disallowed" in e for e in errors), errors
+
+    def test_validate_visual_detects_slot_violation(self, builder, pos):
+        # lineChart in Main_2 is disallowed
+        chart = builder.build_line_chart(pos, name="Main_2")
+        errors = validate_visual(chart, slot_mapping=self.SLOT_MAPPING)
+        assert any("disallowed" in e for e in errors), errors
 
 
 if __name__ == "__main__":

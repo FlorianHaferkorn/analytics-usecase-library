@@ -70,7 +70,7 @@ if __name__ == "__main__":
     "core/templates/page_templates/samples/page_pulse_full.md",
     "core/templates/page_templates/samples/page_action_matrix_full.md",
     "core/templates/page_templates/samples/page_investigator_full.md",
-    "tooling/golden_thread_discovery_studio/brand_designer.py",
+    # brand_designer.py lives in the Studio (separate concern; Studio is decoupled from core)
     ]
 
     for rel in EXPECTED_FILES:
