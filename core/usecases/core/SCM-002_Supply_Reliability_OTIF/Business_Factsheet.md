@@ -125,8 +125,8 @@ Structured summary of action codes (definitions remain in YAML).
 ### 5.3 Required Slicers (Mandatory)
 
 - Date (Week/Month)  
-- Origin / Destination / Location  
-- Customer / Channel / Region  
+- Origin / Destination / Location
+- Customer / Channel / Region
 - Product / Category (if relevant)  
 
 ---
