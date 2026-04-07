@@ -84,6 +84,24 @@ trigger:
   - Trigger only if service deterioration is structurally recurring
   - Do not trigger if OTIF loss is fully explained by inventory shortages
   - Exclude lanes with active execution Action Codes in progress
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P60D
+    metric_kpi_id: supply.otif.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Avoided_Penalty_Cost + Avoided_Expedite_Cost"
+  required_measures:
+  - OTIF %
+  - Penalty Amount
+  - Expedite Cost
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

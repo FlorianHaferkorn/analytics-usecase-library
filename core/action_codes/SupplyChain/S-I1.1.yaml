@@ -86,6 +86,23 @@ trigger:
   - Trigger only if OTIF remains within agreed tolerance
   - Do not trigger if DIO increase is driven by approved buffer build-up
   - Exclude SKUs with active execution Action Codes already in progress
+impact_valuation:
+  method: CashRelease
+  currency: EUR
+  success_window:
+    duration: P60D
+    metric_kpi_id: inv.dio.days
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = (Pre_DIO - Post_DIO) / 365 * Annual_COGS"
+  required_measures:
+  - DIO Days
+  - COGS
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

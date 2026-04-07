@@ -85,6 +85,23 @@ trigger:
   - Trigger only if late deliveries dominate OTIF loss
   - Do not trigger if delays are inventory-driven
   - Exclude lanes with active penalty or expedite containment actions
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P30D
+    metric_kpi_id: supply.on_time.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P60D
+  calculation_logic:
+    standardized: "RealizedEUR = Saved_Logistics_Cost + Avoided_Delay_Penalties"
+  required_measures:
+  - On-Time %
+  - Logistics Cost
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

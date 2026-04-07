@@ -86,6 +86,23 @@ trigger:
   - Trigger only if downtime is dominated by recurring failure categories
   - Do not trigger if availability loss is driven by approved changeovers
   - Exclude periods with force majeure events
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P14D
+    metric_kpi_id: ops.performance.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P28D
+  calculation_logic:
+    standardized: "RealizedEUR = (Post_Performance_Pct - Pre_Performance_Pct) * Hourly_Production_Value * Operating_Hours"
+  required_measures:
+  - Performance %
+  - Production Value
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

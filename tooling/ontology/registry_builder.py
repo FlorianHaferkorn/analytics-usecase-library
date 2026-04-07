@@ -270,12 +270,151 @@ class KpiRecord:
     causal_links: Optional[Dict[str, Any]] = None
 
 
+def _extract_depends_on_measures(chunk_lines: List[str]) -> List[str]:
+    """
+    Extract technical.depends_on_measures from a KPI YAML chunk using a line-based parser.
+    We avoid a full YAML parse here because some catalog chunks can be "loose YAML".
+    """
+    for i, ln in enumerate(chunk_lines):
+        mm = re.match(r"^(\s*)depends_on_measures\s*:\s*(.*?)\s*$", ln)
+        if not mm:
+            continue
+        indent = len(mm.group(1) or "")
+        tail = (mm.group(2) or "").strip()
+        out: List[str] = []
+        # Inline list: [a, b, c]
+        if tail.startswith("[") and tail.endswith("]"):
+            inner = tail[1:-1].strip()
+            if inner:
+                for part in inner.split(","):
+                    tok = part.strip().strip('"').strip("'")
+                    if tok:
+                        out.append(tok)
+            return out
+        # Multi-line list items (indented deeper than the key line)
+        for j in range(i + 1, len(chunk_lines)):
+            ln2 = chunk_lines[j]
+            lead = len(ln2) - len(ln2.lstrip(" "))
+            if lead < indent:
+                break
+            # Stop when we hit the next key at the same indentation level.
+            if lead == indent and re.match(r"^\s*[A-Za-z0-9_]+\s*:\s*", ln2):
+                break
+            m2 = re.match(r"^\s*-\s*([^\s#]+)\s*", ln2)
+            if m2:
+                tok = m2.group(1).strip().strip('"').strip("'")
+                if tok:
+                    out.append(tok)
+        return out
+    return []
+
+
+def _parse_kpi_catalog_chunk(chunk_lines: List[str]) -> dict:
+    """
+    Parse one YAML block chunk (starting at ``- kpi_id: ...``) and return a raw dict
+    with the fields needed to build a KpiRecord.  Returns an empty dict if the chunk
+    cannot be parsed.
+    """
+    first_line = chunk_lines[0] if chunk_lines else ""
+    m = re.match(r"^\s*-\s*kpi_id\s*:\s*([^\s#]+)\s*", first_line)
+    if not m:
+        return {}
+    kpi_id = m.group(1).strip().strip('"').strip("'")
+
+    def _get_field(key: str) -> Optional[str]:
+        pat = re.compile(rf"^\s*{re.escape(key)}\s*:\s*(.+?)\s*$")
+        for cl in chunk_lines:
+            mm = pat.match(cl)
+            if mm:
+                val = mm.group(1).strip()
+                if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+                    val = val[1:-1]
+                return val
+        return None
+
+    kpi_role = _get_field("kpi_role")
+    business_owner = _get_field("business_owner")
+    data_owner = _get_field("data_owner")
+    steward = _get_field("steward")
+
+    depends_on_measures: List[str] = _extract_depends_on_measures(chunk_lines)
+
+    causal_links: Optional[Dict[str, Any]] = None
+    # Best-effort parse of causal_links (if present) from the chunk using YAML loader.
+    if yaml is not None:
+        try:
+            parsed = yaml.safe_load("\n".join(chunk_lines))
+            # parsed can be a list with one mapping
+            if isinstance(parsed, list) and parsed and isinstance(parsed[0], dict):
+                cl = parsed[0].get("causal_links")
+                if isinstance(cl, dict):
+                    causal_links = cl
+        except Exception:
+            # keep best-effort: ignore parse errors here (Stage 1 validates catalog separately)
+            causal_links = None
+
+    return {
+        "kpi_id": kpi_id,
+        "kpi_role": kpi_role,
+        "business_owner": business_owner,
+        "data_owner": data_owner,
+        "steward": steward,
+        "depends_on_measures": depends_on_measures,
+        "causal_links": causal_links,
+    }
+
+
+def _normalize_kpi_governance(raw_fields: dict) -> Dict[str, Optional[str]]:
+    """
+    Normalize governance role fields using the legacy-safe alias map.
+    Maps ``business_owner``/``data_owner`` -> ``owner_role`` and
+    ``steward``/``data_owner`` -> ``steward_role``.
+    """
+    business_owner = raw_fields.get("business_owner")
+    data_owner = raw_fields.get("data_owner")
+    steward = raw_fields.get("steward")
+    owner_role = business_owner or data_owner
+    steward_role = steward or data_owner
+    return {
+        "business_owner": business_owner,
+        "data_owner": data_owner,
+        "steward": steward,
+        "owner_role": owner_role,
+        "steward_role": steward_role,
+    }
+
+
+def _validate_kpi_duplicates(records: list) -> List[Issue]:
+    """
+    Check for duplicate KPI IDs in the list of (kpi_id, rel, kpi_line) tuples.
+    Returns one ERROR Issue per duplicate occurrence (second and later appearances).
+    """
+    seen: Dict[str, bool] = {}
+    issues: List[Issue] = []
+    for kpi_id, rel, kpi_line in records:
+        if kpi_id in seen:
+            issues.append(
+                Issue(
+                    "ERROR",
+                    "kpi_catalog.duplicate_kpi_id",
+                    f"Duplicate KPI ID '{kpi_id}' in catalog.",
+                    SourceLocation(rel, kpi_line),
+                )
+            )
+        else:
+            seen[kpi_id] = True
+    return issues
+
+
 def scan_kpi_catalog(repo_root: Path) -> Tuple[Dict[str, KpiRecord], List[Issue]]:
     issues: List[Issue] = []
     kpi_root = repo_root / "core" / "kpi_catalog"
     kpis: Dict[str, KpiRecord] = {}
     if not kpi_root.exists():
         return kpis, issues
+
+    # Collect all parsed records as (kpi_id, rel, kpi_line, KpiRecord) before deduplication.
+    parsed_records: List[Tuple[str, str, int, KpiRecord]] = []
 
     md_files = [p for p in kpi_root.rglob("*.md") if p.is_file()]
     for p in md_files:
@@ -299,111 +438,34 @@ def scan_kpi_catalog(repo_root: Path) -> Tuple[Dict[str, KpiRecord], List[Issue]
                 start_idx = chunk_starts[si]
                 end_idx = chunk_starts[si + 1]
                 chunk_lines = block.yaml_lines[start_idx:end_idx]
-                first_line = chunk_lines[0] if chunk_lines else ""
-                m = re.match(r"^\s*-\s*kpi_id\s*:\s*([^\s#]+)\s*", first_line)
-                if not m:
-                    continue
-                kpi_id = m.group(1).strip().strip('"').strip("'")
                 kpi_line = block.yaml_start_line + start_idx
 
-                def _get_field(key: str) -> Optional[str]:
-                    pat = re.compile(rf"^\s*{re.escape(key)}\s*:\s*(.+?)\s*$")
-                    for cl in chunk_lines:
-                        mm = pat.match(cl)
-                        if mm:
-                            val = mm.group(1).strip()
-                            if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
-                                val = val[1:-1]
-                            return val
-                    return None
-
-                kpi_role = _get_field("kpi_role")
-                business_owner = _get_field("business_owner")
-                data_owner = _get_field("data_owner")
-                steward = _get_field("steward")
-
-                def _extract_depends_on_measures() -> List[str]:
-                    """
-                    Extract technical.depends_on_measures from this KPI YAML chunk using a line-based parser.
-                    We avoid a full YAML parse here because some catalog chunks can be "loose YAML".
-                    """
-                    for i, ln in enumerate(chunk_lines):
-                        mm = re.match(r"^(\s*)depends_on_measures\s*:\s*(.*?)\s*$", ln)
-                        if not mm:
-                            continue
-                        indent = len(mm.group(1) or "")
-                        tail = (mm.group(2) or "").strip()
-                        out: List[str] = []
-                        # Inline list: [a, b, c]
-                        if tail.startswith("[") and tail.endswith("]"):
-                            inner = tail[1:-1].strip()
-                            if inner:
-                                for part in inner.split(","):
-                                    tok = part.strip().strip('"').strip("'")
-                                    if tok:
-                                        out.append(tok)
-                            return out
-                        # Multi-line list items (indented deeper than the key line)
-                        for j in range(i + 1, len(chunk_lines)):
-                            ln2 = chunk_lines[j]
-                            lead = len(ln2) - len(ln2.lstrip(" "))
-                            if lead < indent:
-                                break
-                            # Stop when we hit the next key at the same indentation level.
-                            if lead == indent and re.match(r"^\s*[A-Za-z0-9_]+\s*:\s*", ln2):
-                                break
-                            m2 = re.match(r"^\s*-\s*([^\s#]+)\s*", ln2)
-                            if m2:
-                                tok = m2.group(1).strip().strip('"').strip("'")
-                                if tok:
-                                    out.append(tok)
-                        return out
-                    return []
-
-                depends_on_measures: List[str] = _extract_depends_on_measures()
-                causal_links: Optional[Dict[str, Any]] = None
-                # Best-effort parse of causal_links (if present) from the chunk using YAML loader.
-                if yaml is not None:
-                    try:
-                        parsed = yaml.safe_load("\n".join(chunk_lines))
-                        # parsed can be a list with one mapping
-                        if isinstance(parsed, list) and parsed and isinstance(parsed[0], dict):
-                            cl = parsed[0].get("causal_links")
-                            if isinstance(cl, dict):
-                                causal_links = cl
-                    except Exception:
-                        # keep best-effort: ignore parse errors here (Stage 1 validates catalog separately)
-                        causal_links = None
-
-                # Normalize governance roles (legacy-safe alias map)
-                owner_role = business_owner or data_owner
-                steward_role = steward or data_owner
-                gov = {
-                    "business_owner": business_owner,
-                    "data_owner": data_owner,
-                    "steward": steward,
-                    "owner_role": owner_role,
-                    "steward_role": steward_role,
-                }
-                if kpi_id in kpis:
-                    issues.append(
-                        Issue(
-                            "ERROR",
-                            "kpi_catalog.duplicate_kpi_id",
-                            f"Duplicate KPI ID '{kpi_id}' in catalog.",
-                            SourceLocation(rel, kpi_line),
-                        )
-                    )
+                raw = _parse_kpi_catalog_chunk(chunk_lines)
+                if not raw:
                     continue
-                kpis[kpi_id] = KpiRecord(
-                    kpi_id=kpi_id,
+
+                gov = _normalize_kpi_governance(raw)
+                record = KpiRecord(
+                    kpi_id=raw["kpi_id"],
                     source=rel,
                     line=kpi_line,
-                    kpi_role=kpi_role,
+                    kpi_role=raw["kpi_role"],
                     governance=gov,
-                    depends_on_measures=depends_on_measures,
-                    causal_links=causal_links,
+                    depends_on_measures=raw["depends_on_measures"],
+                    causal_links=raw["causal_links"],
                 )
+                parsed_records.append((raw["kpi_id"], rel, kpi_line, record))
+
+    # Validate duplicates across all parsed records, then build the final dict (first wins).
+    dup_issues = _validate_kpi_duplicates([(kpi_id, rel, line) for kpi_id, rel, line, _ in parsed_records])
+    issues.extend(dup_issues)
+    duplicate_ids = {iss.location.file and iss.message for iss in dup_issues}  # set of dup kpi_ids for fast lookup
+    seen_ids: set = set()
+    for kpi_id, rel, kpi_line, record in parsed_records:
+        if kpi_id not in seen_ids:
+            seen_ids.add(kpi_id)
+            kpis[kpi_id] = record
+
     return kpis, issues
 
 
@@ -1207,76 +1269,18 @@ def validate_taxonomy(
     return issues
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
-    parser = argparse.ArgumentParser(description="Build ActionReady master registry and orphan reports.")
-    parser.add_argument("--repo-root", default="", help="Repository root. Default: inferred from this script location.")
-    parser.add_argument("--out-dir", default="tooling/ontology/out", help="Output directory (relative to repo root). Default: tooling/ontology/out (canonical).")
-    parser.add_argument("--strict", action="store_true", help="Fail (exit 1) if orphans detected or any ERROR issues.")
-    parser.add_argument(
-        "--validation-results",
-        default="",
-        help="Optional path to tooling/validation/results/latest_results.json. If omitted, script checks the default path.",
-    )
-    args = parser.parse_args(argv)
-
-    repo_root = Path(args.repo_root).resolve() if args.repo_root else _repo_root_from_file()
-    out_dir = (repo_root / args.out_dir).resolve()
-    out_dir.mkdir(parents=True, exist_ok=True)
-
+def _validate_org_roles(
+    brackets: Dict[str, Dict[str, Any]],
+    actions: Dict[str, Dict[str, Any]],
+    org_roles_path: Path,
+    repo_root: Path,
+) -> List[Issue]:
+    """
+    Validate that governance role fields in brackets and action codes reference
+    role IDs that exist in the org_roles registry file.  Returns Issue objects only —
+    does not mutate any input.
+    """
     issues: List[Issue] = []
-
-    # Scan primitives
-    kpis, kpi_issues = scan_kpi_catalog(repo_root)
-    actions, action_issues = scan_action_codes(repo_root)
-    brackets, bracket_issues = scan_usecase_brackets(repo_root)
-    factsheets, factsheet_issues = scan_usecase_factsheets(repo_root)
-    issues.extend(kpi_issues + action_issues + bracket_issues + factsheet_issues)
-
-    # Taxonomy validation (ID format and enum checks)
-    taxonomy = load_taxonomy(repo_root)
-    if taxonomy:
-        issues.extend(validate_taxonomy(kpis, actions, brackets, taxonomy))
-
-    # Evidence-grain governance: load allowed grains from domain contracts, validate brackets
-    allowed_grains, grain_scan_issues = scan_allowed_grains(repo_root)
-    issues.extend(grain_scan_issues)
-    grain_validation_issues = validate_evidence_grains(brackets, allowed_grains, repo_root)
-    issues.extend(grain_validation_issues)
-
-    # Action-step vs evidence-grain check removed: evidence grain is use-case-specific (bracket);
-    # action code step text is shared across use cases and must not be tied to one report grain.
-
-    # Linked sets from active brackets
-    uc_ids_active, linked_kpis, linked_actions, link_issues = build_linked_sets_from_brackets(brackets)
-    issues.extend(link_issues)
-
-    # Transitive expansion: KPIs referenced by subscribed action codes are also active
-    for aid in linked_actions:
-        arec = actions.get(aid)
-        if not arec:
-            continue
-        raw = arec.get("raw", {})
-        if isinstance(raw, dict):
-            linked_kpis.update(_extract_kpis_from_action(raw))
-
-    # Report BoM: transitive closure under depends_on_measures (supporting KPIs)
-    linked_kpis = _closure_under_depends_on(linked_kpis, kpis)
-
-    # UseCase -> Data contract mapping (from bracket overrides.data_contract_ref)
-    usecase_domain_contract: Dict[str, str] = {}
-    for uc_id in brackets.keys():
-        raw = brackets[uc_id].get("raw", {})
-        overrides = raw.get("overrides", {}) if isinstance(raw, dict) else {}
-        if isinstance(overrides, dict):
-            dcr = overrides.get("data_contract_ref")
-            if isinstance(dcr, str) and dcr.strip():
-                usecase_domain_contract[uc_id] = _normalize_contract_ref(dcr.strip())
-
-    # Org-Registry role validation (showcase override via ANALYTICS_SHOWCASE, default aurora_group; else core)
-    _showcase_name = (os.environ.get("ANALYTICS_SHOWCASE") or "").strip() or "aurora_group"
-    _showcase_org_roles = repo_root / "showcases" / _showcase_name / "organization" / "org_roles.yaml"
-    _core_org_roles = repo_root / "core" / "organization" / "org_roles.yaml"
-    org_roles_path = _showcase_org_roles if _showcase_org_roles.exists() else _core_org_roles
     org_roles_ref = str(org_roles_path.relative_to(repo_root)).replace("\\", "/")
     valid_role_ids: Set[str] = set()
     if org_roles_path.exists():
@@ -1321,6 +1325,24 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                             SourceLocation(src, 1),
                         )
                     )
+
+    return issues
+
+
+def _validate_referential_integrity(
+    brackets: Dict[str, Dict[str, Any]],
+    kpis: Dict[str, "KpiRecord"],
+    actions: Dict[str, Dict[str, Any]],
+    repo_root: Path,
+    uc_ids_active: Set[str],
+) -> List[Issue]:
+    """
+    Validate that every KPI and action code ID referenced in active use-case brackets
+    exists in the catalog / action-code registry.  Also checks value-driver formulas,
+    causal-link coverage, action alignment, and bracket completeness.
+    Returns Issue objects only — does not mutate any input.
+    """
+    issues: List[Issue] = []
 
     # Referential integrity: bracket references must exist (hard errors with line mapping)
     for uc_id in sorted(uc_ids_active):
@@ -1620,6 +1642,76 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                     SourceLocation(rec.get("source", ""), 1),
                 )
             )
+
+    return issues
+
+
+def build_registry(repo_root: Path, args: Any) -> Dict[str, Any]:
+    """
+    Run all scans, all validations, and assemble every output artefact.
+    Returns a dict with keys:
+        master_registry, orphans_report, value_map, governance_gaps,
+        issues, orphan_items, inventory_lines
+    ``args`` is the parsed argparse Namespace from ``main()``.
+    """
+    issues: List[Issue] = []
+
+    # Scan primitives
+    kpis, kpi_issues = scan_kpi_catalog(repo_root)
+    actions, action_issues = scan_action_codes(repo_root)
+    brackets, bracket_issues = scan_usecase_brackets(repo_root)
+    factsheets, factsheet_issues = scan_usecase_factsheets(repo_root)
+    issues.extend(kpi_issues + action_issues + bracket_issues + factsheet_issues)
+
+    # Taxonomy validation (ID format and enum checks)
+    taxonomy = load_taxonomy(repo_root)
+    if taxonomy:
+        issues.extend(validate_taxonomy(kpis, actions, brackets, taxonomy))
+
+    # Evidence-grain governance: load allowed grains from domain contracts, validate brackets
+    allowed_grains, grain_scan_issues = scan_allowed_grains(repo_root)
+    issues.extend(grain_scan_issues)
+    grain_validation_issues = validate_evidence_grains(brackets, allowed_grains, repo_root)
+    issues.extend(grain_validation_issues)
+
+    # Action-step vs evidence-grain check removed: evidence grain is use-case-specific (bracket);
+    # action code step text is shared across use cases and must not be tied to one report grain.
+
+    # Linked sets from active brackets
+    uc_ids_active, linked_kpis, linked_actions, link_issues = build_linked_sets_from_brackets(brackets)
+    issues.extend(link_issues)
+
+    # Transitive expansion: KPIs referenced by subscribed action codes are also active
+    for aid in linked_actions:
+        arec = actions.get(aid)
+        if not arec:
+            continue
+        raw = arec.get("raw", {})
+        if isinstance(raw, dict):
+            linked_kpis.update(_extract_kpis_from_action(raw))
+
+    # Report BoM: transitive closure under depends_on_measures (supporting KPIs)
+    linked_kpis = _closure_under_depends_on(linked_kpis, kpis)
+
+    # UseCase -> Data contract mapping (from bracket overrides.data_contract_ref)
+    usecase_domain_contract: Dict[str, str] = {}
+    for uc_id in brackets.keys():
+        raw = brackets[uc_id].get("raw", {})
+        overrides = raw.get("overrides", {}) if isinstance(raw, dict) else {}
+        if isinstance(overrides, dict):
+            dcr = overrides.get("data_contract_ref")
+            if isinstance(dcr, str) and dcr.strip():
+                usecase_domain_contract[uc_id] = _normalize_contract_ref(dcr.strip())
+
+    # Org-Registry role validation (showcase override via ANALYTICS_SHOWCASE, default aurora_group; else core)
+    _showcase_name = (os.environ.get("ANALYTICS_SHOWCASE") or "").strip() or "aurora_group"
+    _showcase_org_roles = repo_root / "showcases" / _showcase_name / "organization" / "org_roles.yaml"
+    _core_org_roles = repo_root / "core" / "organization" / "org_roles.yaml"
+    org_roles_path = _showcase_org_roles if _showcase_org_roles.exists() else _core_org_roles
+    issues.extend(_validate_org_roles(brackets, actions, org_roles_path, repo_root))
+
+    # Referential integrity checks (KPI/action refs, value-driver formulas, causal links, etc.)
+    issues.extend(_validate_referential_integrity(brackets, kpis, actions, repo_root, uc_ids_active))
 
     # Orphan detection (Full-scan vs Linked-scan)
     orphan_items: List[Dict[str, Any]] = []
@@ -2036,18 +2128,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if o and s and str(o).strip() == str(s).strip():
             governance_gaps.append({"type": "use_case_bracket", "id": uc_id, "gap": "owner_equals_steward", "source": src})
 
-    governance_gaps_path = out_dir / "governance_gaps.json"
-    _write_json(governance_gaps_path, {"gaps": governance_gaps, "meta": {"generated_at_utc": _utc_now_iso()}})
-
-    master_path = out_dir / "master_registry.json"
-    orphans_path = out_dir / "orphans_report.json"
-    value_map_path = out_dir / "value_map.json"
-    _write_json(master_path, master_registry)
-    _write_json(orphans_path, orphans_report)
-    _write_json(value_map_path, value_map)
-
-    # Generate UseCase_Inventory.md
-    inventory_path = repo_root / "core" / "usecases" / "UseCase_Inventory.md"
+    # Build inventory lines (computed here because registry_usecases is available)
     inventory_lines: List[str] = [
         "<!-- GENERATED FILE - DO NOT EDIT MANUALLY -->",
         "<!-- Source: tooling/ontology/registry_builder.py -->",
@@ -2072,6 +2153,51 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         acts_str = ", ".join(acts) if isinstance(acts, list) else ""
         inventory_lines.append(f"| {uc_id} | {title} | {domain} | {sk} | {infl_str} | {acts_str} | {owner} | {steward} |")
     inventory_lines.append("")
+
+    return {
+        "master_registry": master_registry,
+        "orphans_report": orphans_report,
+        "value_map": value_map,
+        "governance_gaps": governance_gaps,
+        "issues": issues,
+        "orphan_items": orphan_items,
+        "inventory_lines": inventory_lines,
+    }
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    parser = argparse.ArgumentParser(description="Build ActionReady master registry and orphan reports.")
+    parser.add_argument("--repo-root", default="", help="Repository root. Default: inferred from this script location.")
+    parser.add_argument("--out-dir", default="tooling/ontology/out", help="Output directory (relative to repo root). Default: tooling/ontology/out (canonical).")
+    parser.add_argument("--strict", action="store_true", help="Fail (exit 1) if orphans detected or any ERROR issues.")
+    parser.add_argument(
+        "--validation-results",
+        default="",
+        help="Optional path to tooling/validation/results/latest_results.json. If omitted, script checks the default path.",
+    )
+    args = parser.parse_args(argv)
+
+    repo_root = Path(args.repo_root).resolve() if args.repo_root else _repo_root_from_file()
+    out_dir = (repo_root / args.out_dir).resolve()
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    result = build_registry(repo_root, args)
+    master_registry = result["master_registry"]
+    orphans_report = result["orphans_report"]
+    value_map = result["value_map"]
+    governance_gaps = result["governance_gaps"]
+    issues = result["issues"]
+    orphan_items = result["orphan_items"]
+    inventory_lines = result["inventory_lines"]
+
+    # Write JSON output files
+    _write_json(out_dir / "governance_gaps.json", {"gaps": governance_gaps, "meta": {"generated_at_utc": _utc_now_iso()}})
+    _write_json(out_dir / "master_registry.json", master_registry)
+    _write_json(out_dir / "orphans_report.json", orphans_report)
+    _write_json(out_dir / "value_map.json", value_map)
+
+    # Write UseCase_Inventory.md
+    inventory_path = repo_root / "core" / "usecases" / "UseCase_Inventory.md"
     inventory_path.write_text("\n".join(inventory_lines), encoding="utf-8")
 
     # Print actionable errors and warnings to stderr for CI visibility

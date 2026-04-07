@@ -107,7 +107,11 @@ Structured summary of action codes (definitions remain in YAML).
 
 ### 5.4 300-Second Layer (Diagnostics)
 
-- (optional)
+- Failure event decomposition by asset, failure mode, and maintenance type with absolute downtime hours and relative contribution to the MTBF/MTTR gap vs target.
+- PM compliance guardrail table linking overdue preventive tasks, spare-part stockout events, and unplanned downtime spikes to the specific asset clusters that trigger O-A2.1 (reliability recovery), O-A2.2 (PM schedule optimization), or O-A2.3 (spare-parts review).
+- Top-N assets with the highest failure frequency and longest MTTR, including the last 3 monthly observations to separate aging-related degradation from isolated incidents.
+
+---
 
 ## 6. Data Requirements Summary
 

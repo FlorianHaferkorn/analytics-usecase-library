@@ -86,6 +86,24 @@ trigger:
   - Do not trigger if price effect is structurally negative for 3+ months (hand over
     to COM-002)
   - Do not trigger during approved campaign periods
+impact_valuation:
+  method: RevenueUplift
+  currency: EUR
+  attribution:
+    method: before_after
+  success_window:
+    duration: P60D
+    metric_kpi_id: sales.net_sales.amount
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P60D
+  calculation_logic:
+    standardized: "RealizedEUR = Post_Net_Sales - Pre_Net_Sales for targeted segments"
+    latex: EUR = NetSales_{post} - NetSales_{pre}
+  required_measures:
+  - Net Sales Amount
+  - Volume Units
+  - Action Execution Count
 impact:
   category: Medium
   expected_range:

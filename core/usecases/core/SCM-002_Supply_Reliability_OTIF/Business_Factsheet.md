@@ -133,7 +133,11 @@ Structured summary of action codes (definitions remain in YAML).
 
 ### 5.4 300-Second Layer (Diagnostics)
 
-- (optional)
+- OTIF gap decomposition by supplier, lane, and customer with absolute shipment count and relative contribution to the on-time and in-full shortfall vs SLA target.
+- Penalty and expedite guardrail table linking OTIF %, stockout impact %, and penalty/expedite cost to the specific supplier/lane clusters that trigger S-R2.1 (supplier escalation), S-R2.2 (route optimization), or S-R2.3 (buffer stock adjustment).
+- Top-N suppliers and lanes with the worst OTIF and highest penalty costs, including the last 3 monthly observations to separate seasonal disruptions from systemic delivery failures.
+
+---
 
 ## 6. Data Requirements Summary
 

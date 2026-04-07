@@ -85,6 +85,23 @@ trigger:
   - Trigger only if deviation is structural, not volume-mix driven
   - Do not trigger if margin erosion is price-driven (handled in COM-002)
   - Exclude plants with approved cost increase programs
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  attribution:
+    method: before_after
+  success_window:
+    duration: P90D
+    metric_kpi_id: cost.cogs.amount
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Pre_COGS - Post_COGS for targeted cost categories"
+    latex: EUR = COGS_{pre} - COGS_{post}
+  required_measures:
+  - COGS Amount
+  - Action Execution Count
 impact:
   category: High
   expected_range:

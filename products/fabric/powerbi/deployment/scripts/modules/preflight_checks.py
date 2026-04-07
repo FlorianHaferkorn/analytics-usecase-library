@@ -261,28 +261,32 @@ class PreflightChecker:
                 f"Error checking capacity access: {str(e)}"
             ))
     
-    def check_workspaces_exist(self):
-        """Check if workspaces already exist (for update scenarios)."""
+    def _get_expected_workspace_names(self) -> list:
+        """Calculate expected workspace names from env definition. Single source of truth."""
         solution_name_template = self.env_definition.get("name", "")
         environment_name = self.env_definition.get("generic", {}).get("environment_name", self.environment)
         layers = self.env_definition.get("layers", {})
-        
-        existing_workspaces = []
-        missing_workspaces = []
-        
+        names = []
         for layer_name, layer_def in layers.items():
             if isinstance(layer_def, dict):
-                workspace_name = misc.format_workspace_name(
+                names.append(misc.format_workspace_name(
                     solution_name_template,
                     layer_name,
                     environment_name
-                )
-                
-                if fabcli.workspace_exists(workspace_name):
-                    existing_workspaces.append(workspace_name)
-                else:
-                    missing_workspaces.append(workspace_name)
-        
+                ))
+        return names
+
+    def check_workspaces_exist(self):
+        """Check if workspaces already exist (for update scenarios)."""
+        existing_workspaces = []
+        missing_workspaces = []
+
+        for workspace_name in self._get_expected_workspace_names():
+            if fabcli.workspace_exists(workspace_name):
+                existing_workspaces.append(workspace_name)
+            else:
+                missing_workspaces.append(workspace_name)
+
         if existing_workspaces and missing_workspaces:
             self.results.append(PreflightCheckResult(
                 "Workspace Existence",
@@ -358,18 +362,22 @@ class PreflightChecker:
                 f"Git configured for {provider_type} repository"
             ))
     
+    def _normalize_repo_path(self, path: str) -> str:
+        """Strip leading 'solution/' prefix from a git directory path."""
+        return path.replace("solution/", "")
+
     def check_repository_paths(self, repo_base_path: str = "./solution"):
         """Check if repository paths exist."""
         layers = self.env_definition.get("layers", {})
-        
+
         missing_paths = []
         existing_paths = []
-        
+
         for layer_name, layer_def in layers.items():
             if isinstance(layer_def, dict):
                 git_directory = layer_def.get("git_directoryName", f"solution/{layer_name.lower()}")
                 # Remove 'solution/' prefix if present
-                relative_path = git_directory.replace("solution/", "")
+                relative_path = self._normalize_repo_path(git_directory)
                 full_path = os.path.join(repo_base_path, relative_path)
                 
                 if os.path.exists(full_path):

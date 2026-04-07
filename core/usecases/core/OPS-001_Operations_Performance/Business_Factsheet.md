@@ -103,7 +103,11 @@ Structured summary of action codes (definitions remain in YAML).
 
 ### 5.4 300-Second Layer (Diagnostics)
 
-- (optional)
+- OEE gap decomposition by line, shift, and cause category with absolute downtime minutes and relative contribution to the plant-level OEE shortfall vs target.
+- Loss-type guardrail table linking availability loss, speed loss, and quality loss to the specific line/shift combinations that trigger O-O1.1 (performance recovery), O-O1.2 (availability recovery), O-O1.3 (changeover reduction), or O-O1.4 (quality containment).
+- Top-N lines and assets with the largest OEE gaps, including the last 4 weekly observations to separate one-off disruptions from persistent structural losses.
+
+---
 
 ## 6. Data Requirements Summary
 

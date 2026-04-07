@@ -86,6 +86,24 @@ trigger:
   - Trigger only if defect concentration exceeds Pareto threshold
   - Do not trigger if defects are dominated by external material causes
   - Exclude lines with active scrap or rework reduction actions
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P14D
+    metric_kpi_id: quality.scrap.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P28D
+  calculation_logic:
+    standardized: "RealizedEUR = (Pre_Scrap_Pct - Post_Scrap_Pct) * Total_Output * Unit_Cost"
+  required_measures:
+  - Scrap %
+  - Total Output
+  - Unit Cost
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

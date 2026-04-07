@@ -79,6 +79,24 @@ trigger:
   - Outcome evaluation only after the domain-specific review window elapsed.
   - Exclude actions explicitly marked as informational or observation-only.
   - Do not re-route actions already owned by an executive escalation.
+impact_valuation:
+  method: RiskAvoidance
+  currency: EUR
+  success_window:
+    duration: P30D
+    metric_kpi_id: enterprise.action_routed.count
+    success_criteria:
+      kind: threshold_met
+      baseline_window: P60D
+  calculation_logic:
+    standardized: "RealizedEUR = Improved_Routing_Rate * Total_Actions * Avg_Time_Saved * Hourly_Cost"
+  required_measures:
+  - Routed Action Count
+  - Time Saved
+  - Hourly Cost
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

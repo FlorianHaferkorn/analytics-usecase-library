@@ -1,5 +1,7 @@
 /**
  * Version Check — Detects duplicate plugin IDs with conflicting versions.
+ *
+ * TODO: not yet wired into production — currently only used in tests.
  */
 
 import type { PluginManifest } from './plugin-types';

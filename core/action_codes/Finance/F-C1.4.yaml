@@ -84,6 +84,24 @@ trigger:
   - Trigger only if Supplier Risk Score remains within acceptable range
   - Do not trigger if early-payment discounts provide higher economic benefit
   - Exclude suppliers with contractual payment term freezes
+impact_valuation:
+  method: CashRelease
+  currency: EUR
+  attribution:
+    method: before_after
+  success_window:
+    duration: P90D
+    metric_kpi_id: wc.ccc.days
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = (Pre_CCC - Post_CCC) / 365 * Annual_Revenue"
+    latex: EUR = \frac{CCC_{pre} - CCC_{post}}{365} \times Rev
+  required_measures:
+  - CCC Days
+  - Revenue
+  - Action Execution Count
 impact:
   category: Medium
   expected_range:

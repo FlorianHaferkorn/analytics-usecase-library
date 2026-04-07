@@ -4,6 +4,10 @@
  * Computes luminance and contrast ratios for hex color pairs.
  * AA requires 4.5:1 for normal text, 3:1 for large text.
  * AAA requires 7:1 for normal text, 4.5:1 for large text.
+ *
+ * Note: contrastRatio() and getContrastGrade() are used in production.
+ * meetsAA(), meetsAALargeText(), meetsAAA(), relativeLuminance() are
+ * currently only used in tests — TODO: wire into brand/theme validation UI.
  */
 
 /** Parse a hex color (#RGB or #RRGGBB) into [r, g, b] 0-255. */

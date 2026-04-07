@@ -85,6 +85,24 @@ trigger:
   - Trigger only if in-full failures dominate OTIF loss
   - Do not trigger if issues are transport-driven
   - Exclude SKUs with active inventory rightsizing actions
+impact_valuation:
+  method: CostAvoidance
+  currency: EUR
+  success_window:
+    duration: P60D
+    metric_kpi_id: supply.stockout_impact.pct
+    success_criteria:
+      kind: return_to_baseline
+      baseline_window: P90D
+  calculation_logic:
+    standardized: "RealizedEUR = Avoided_Lost_Sales - Incremental_Holding_Cost"
+  required_measures:
+  - Stockout Impact %
+  - Lost Sales
+  - Holding Cost
+  - Action Execution Count
+  attribution:
+    method: before_after
 impact:
   category: High
   expected_range:

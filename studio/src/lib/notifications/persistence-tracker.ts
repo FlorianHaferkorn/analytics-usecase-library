@@ -3,6 +3,8 @@
  *
  * Action codes typically require 2+ consecutive periods below threshold
  * to trigger. This prevents false alarms from single-period fluctuations.
+ *
+ * TODO: not yet wired into production — currently only used in tests.
  */
 
 export interface PersistenceState {
