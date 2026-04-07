@@ -1,5 +1,7 @@
 'use client';
 
+import { StudioButton } from '@/components/ui/studio-page';
+
 interface Props {
   count: number;
   onClick: () => void;
@@ -7,18 +9,17 @@ interface Props {
 
 export function NotificationBell({ count, onClick }: Props) {
   return (
-    <button
+    <StudioButton
       onClick={onClick}
+      variant="ghost"
       style={{
         position: 'relative',
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
         fontSize: '1.125rem',
         padding: '4px',
         color: count > 0 ? 'var(--gold)' : 'var(--slate-500)',
+        minWidth: '32px',
+        minHeight: '32px',
       }}
-      title={`${count} active notification${count !== 1 ? 's' : ''}`}
     >
       🔔
       {count > 0 && (
@@ -42,6 +43,6 @@ export function NotificationBell({ count, onClick }: Props) {
           {count > 9 ? '9+' : count}
         </span>
       )}
-    </button>
+    </StudioButton>
   );
 }

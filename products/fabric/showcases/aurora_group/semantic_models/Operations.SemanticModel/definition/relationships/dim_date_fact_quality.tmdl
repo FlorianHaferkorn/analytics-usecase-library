@@ -1,0 +1,3 @@
+relationship dim_date_fact_quality
+	fromColumn: fact_quality.DateKey
+	toColumn: dim_date.DateKey

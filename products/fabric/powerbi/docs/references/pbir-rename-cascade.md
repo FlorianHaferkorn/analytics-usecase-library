@@ -23,11 +23,11 @@ tables/Customer.tmdl
 ```tmdl
 // Before
 table Customers
-	lineageTag: abc-123
+ lineageTag: abc-123
 
 // After
 table Customer
-	lineageTag: abc-123
+ lineageTag: abc-123
 ```
 
 **Quoting rules:** Only quote names that contain spaces or special characters. Simple names like `Customer` are unquoted. Names with spaces use single quotes: `'Invoice Document Type'`. Underscore-prefixed names without spaces are unquoted: `_Measures`.
@@ -39,13 +39,13 @@ The partition name typically matches the table name:
 ```tmdl
 // Before
 partition Customers = m
-	mode: import
-	source = ...
+ mode: import
+ source = ...
 
 // After
 partition Customer = m
-	mode: import
-	source = ...
+ mode: import
+ source = ...
 ```
 
 ### Model.tmdl Ref Entries
@@ -75,13 +75,13 @@ Both `fromColumn` and `toColumn` use the format `TableName.'Column Name'`:
 ```tmdl
 // Before
 relationship abc-123
-	fromColumn: Invoices.'Customer Key'
-	toColumn: Customers.'Customer Key'
+ fromColumn: Invoices.'Customer Key'
+ toColumn: Customers.'Customer Key'
 
 // After
 relationship abc-123
-	fromColumn: Invoices.'Customer Key'
-	toColumn: Customer.'Customer Key'
+ fromColumn: Invoices.'Customer Key'
+ toColumn: Customer.'Customer Key'
 ```
 
 ### DAX Expressions Across All TMDL Files
@@ -460,17 +460,17 @@ Renaming a measure from `# Customers` to `# Active Customers`.
 ```tmdl
 // Before
 measure '# Customers' =
-		COUNTROWS ( Customer )
-	formatString: #,##0
-	displayFolder: Measures
-	lineageTag: abc-123
+  COUNTROWS ( Customer )
+ formatString: #,##0
+ displayFolder: Measures
+ lineageTag: abc-123
 
 // After
 measure '# Active Customers' =
-		COUNTROWS ( Customer )
-	formatString: #,##0
-	displayFolder: Measures
-	lineageTag: abc-123
+  COUNTROWS ( Customer )
+ formatString: #,##0
+ displayFolder: Measures
+ lineageTag: abc-123
 ```
 
 ### DAX References in Other Measures
@@ -478,11 +478,11 @@ measure '# Active Customers' =
 ```tmdl
 // Before
 measure '% Customer Growth' =
-		DIVIDE ( [# Customers], [# Customers PY] )
+  DIVIDE ( [# Customers], [# Customers PY] )
 
 // After
 measure '% Customer Growth' =
-		DIVIDE ( [# Active Customers], [# Customers PY] )
+  DIVIDE ( [# Active Customers], [# Customers PY] )
 ```
 
 ### Visual JSON Property and queryRef

@@ -1,0 +1,38 @@
+﻿{
+    "totalChecks":  74,
+    "repoRoot":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library",
+    "timestamp":  "2026-04-07T13:01:14.1900311+02:00",
+    "failedCount":  5,
+    "failed":  [
+                   {
+                       "error":  "Non-zero exit code: 1",
+                       "arguments":  "",
+                       "duration_sec":  30.94,
+                       "check":  "tooling/maintenance/check_docs_refs.ps1"
+                   },
+                   {
+                       "error":  "Non-zero exit code: 1",
+                       "arguments":  "-MeasureDictRoot C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\core\\semantic_models\\domains -DistRoot C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist",
+                       "duration_sec":  0.54,
+                       "check":  "products/fabric/powerbi/tooling/validation/check_tmdl_vs_measure_dictionary.ps1"
+                   },
+                   {
+                       "error":  "Non-zero exit code: 1",
+                       "arguments":  "-DistRoot C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist",
+                       "duration_sec":  0.48,
+                       "check":  "products/fabric/powerbi/tooling/validation/check_dax_best_practices.ps1"
+                   },
+                   {
+                       "error":  "Non-zero exit code: 1",
+                       "arguments":  "-TmdlPath C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\Experience.SemanticModel\\definition",
+                       "duration_sec":  0.92,
+                       "check":  "tooling/validation/validate_dax.ps1"
+                   },
+                   {
+                       "error":  "Non-zero exit code: 1",
+                       "arguments":  "-TmdlPath C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\Operations.SemanticModel\\definition",
+                       "duration_sec":  1.23,
+                       "check":  "tooling/validation/validate_dax.ps1"
+                   }
+               ]
+}

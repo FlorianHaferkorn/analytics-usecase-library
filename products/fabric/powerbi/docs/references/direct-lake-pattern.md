@@ -22,13 +22,13 @@ Direct Lake is a partition mode where Power BI reads Delta tables directly from 
 
 ```
 expression DL_Lakehouse =
-	let
-		Source = AzureStorage.DataLake("https://onelake.dfs.fabric.microsoft.com/<WorkspaceId>/<LakehouseId>", [HierarchicalNavigation = true, Timeout = Duration.From(null)])
-	in
-		Source
-	lineageTag: <guid>
-	annotation PBI_NavigationStepName = DL_Lakehouse
-	annotation PBI_ResultType = Table
+ let
+  Source = AzureStorage.DataLake("https://onelake.dfs.fabric.microsoft.com/<WorkspaceId>/<LakehouseId>", [HierarchicalNavigation = true, Timeout = Duration.From(null)])
+ in
+  Source
+ lineageTag: <guid>
+ annotation PBI_NavigationStepName = DL_Lakehouse
+ annotation PBI_ResultType = Table
 ```
 
 - One named expression per model (not per table)
@@ -39,19 +39,19 @@ expression DL_Lakehouse =
 
 ```
 table fact_sales
-	lineageTag: <guid>
+ lineageTag: <guid>
 
-	column DateKey
-		dataType: Int64
-		sourceColumn: DateKey
-		summarizeBy: none
+ column DateKey
+  dataType: Int64
+  sourceColumn: DateKey
+  summarizeBy: none
 
-	partition fact_sales = entity
-		mode: directLake
-		source
-			entityName: fact_sales
-			schemaName: dbo
-			expressionSource: DL_Lakehouse
+ partition fact_sales = entity
+  mode: directLake
+  source
+   entityName: fact_sales
+   schemaName: dbo
+   expressionSource: DL_Lakehouse
 ```
 
 **Rules:**

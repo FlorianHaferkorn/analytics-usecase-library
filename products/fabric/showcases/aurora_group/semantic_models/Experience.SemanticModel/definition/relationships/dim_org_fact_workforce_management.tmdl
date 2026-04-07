@@ -1,0 +1,3 @@
+relationship dim_org_fact_workforce_management
+	fromColumn: fact_workforce_management.OrgKey
+	toColumn: dim_org.OrgKey

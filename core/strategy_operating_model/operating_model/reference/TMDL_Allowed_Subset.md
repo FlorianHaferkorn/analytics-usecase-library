@@ -180,20 +180,20 @@ TMDL-Syntax (Import):
 
 ```
 partition p_all = m
-	mode: import
-	source =
-		let Source = ... in Source
+ mode: import
+ source =
+  let Source = ... in Source
 ```
 
 TMDL-Syntax (Direct Lake):
 
 ```
 partition Sales = entity
-	mode: directLake
-	source
-		entityName: Sales
-		schemaName: dbo
-		expressionSource: DL_Lakehouse
+ mode: directLake
+ source
+  entityName: Sales
+  schemaName: dbo
+  expressionSource: DL_Lakehouse
 ```
 
 > Vollständiges Direct Lake Pattern inkl. Named Expression: `tmdl-advanced-features.md §4`
@@ -295,10 +295,10 @@ TMDL-Syntax (Datei: `definition/roles/RLS_Sales_Region.tmdl`):
 
 ```
 role 'RLS_Sales_Region'
-	modelPermission: read
+ modelPermission: read
 
-	tablePermission Sales
-		filterExpression: 'Sales'[RegionCode] = USERNAME()
+ tablePermission Sales
+  filterExpression: 'Sales'[RegionCode] = USERNAME()
 ```
 
 > Role Membership (User → Rolle) **nie in TMDL** — immer via Power BI REST API.

@@ -1,11 +1,11 @@
 # Color Semantics and Formatting Rules — Framework Governance
 #
 # Authority:   This file is the canonical source for color tokens, semantic roles,
-#              and typography rules for all Analytics Use Case Library pages.
+# and typography rules for all Analytics Use Case Library pages.
 #
 # Tool-agnostic: Tokens are defined as abstract semantic roles with hex defaults.
-#                Connector-specific bindings (PBI theme roles, CSS variables, etc.)
-#                are listed in the Connector Bindings section below.
+# Connector-specific bindings (PBI theme roles, CSS variables, etc.)
+# are listed in the Connector Bindings section below.
 #
 # Implements:  Design_Spec_3_30_300.md §7 (Visual Grammar Rules)
 # Aligns with: Storytelling_Principles.md §9 (Color System), §10 (Typography)

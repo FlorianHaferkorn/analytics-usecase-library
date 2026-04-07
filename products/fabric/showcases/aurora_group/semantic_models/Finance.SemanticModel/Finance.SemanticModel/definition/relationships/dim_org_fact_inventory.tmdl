@@ -1,0 +1,3 @@
+relationship dim_org_fact_inventory
+	fromColumn: fact_inventory.OrgKey
+	toColumn: dim_org.OrgKey

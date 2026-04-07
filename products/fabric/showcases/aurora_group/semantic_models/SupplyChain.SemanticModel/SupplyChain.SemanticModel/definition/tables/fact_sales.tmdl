@@ -1,0 +1,29 @@
+/// Sales units by SKU and month (supply chain demand view)
+table fact_sales
+	lineageTag: 0afd1d0d-82ca-5a38-b5d6-76c458cd1c2c
+	column DateKey
+		dataType: Int64
+		sourceColumn: DateKey
+		summarizeBy: none
+	column ProductKey
+		dataType: Int64
+		sourceColumn: ProductKey
+		summarizeBy: none
+	column OrgKey
+		dataType: Int64
+		sourceColumn: OrgKey
+		summarizeBy: none
+	column 'Sales Units'
+		dataType: Decimal
+		sourceColumn: Sales Units
+		summarizeBy: none
+	partition fact_sales = m
+		mode: import
+		source =
+			let
+				Source = Folder.Files(GoldDataPath & "/facts/fact_sales"),
+				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+				FirstFile = FilteredFiles{0}[Content],
+				ParquetData = Parquet.Document(FirstFile)
+			in
+				ParquetData

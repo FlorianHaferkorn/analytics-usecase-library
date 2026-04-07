@@ -10,29 +10,72 @@
                       "Create Hierarchies Definition",
                       "Write Hierarchies to TMDL",
                       "Write diagram layout",
-                      "Validate TMDL Syntax",
-                      "Run Quality Checks",
-                      "Generate Report from Template",
-                      "Validate Fabric output"
+                      "Validate TMDL Syntax"
                   ],
     "measuresFile":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\Commercial.SemanticModel\\definition\\tables\\_Measures.tmdl",
     "validateErrors":  [
 
                        ],
     "warnings":  [
-
+                     "Quality checks: Stage 1 failed",
+                     "Quality checks: Stage 1 failed",
+                     "Quality checks: Stage 1 failed"
                  ],
     "iteration":  6,
     "errors":  [
-
+                   {
+                       "phase":  "Run Quality Checks",
+                       "iteration":  4,
+                       "error":  "Quality checks reported errors. Fix and run tooling\\run_stage1_checks.ps1"
+                   },
+                   {
+                       "phase":  "Run Quality Checks",
+                       "iteration":  4,
+                       "error":  "Quality checks reported errors. Fix and run tooling\\run_stage1_checks.ps1"
+                   },
+                   {
+                       "phase":  "Run Quality Checks",
+                       "iteration":  4,
+                       "error":  "Quality checks reported errors. Fix and run tooling\\run_stage1_checks.ps1"
+                   },
+                   {
+                       "phase":  "Generate Report from Template",
+                       "iteration":  5,
+                       "error":  "Unknown ux_visual_type \u0027line_chart\u0027; defaulting to lineChart (trend)"
+                   },
+                   {
+                       "phase":  "Generate Report from Template",
+                       "iteration":  5,
+                       "error":  "Unknown ux_visual_type \u0027line_chart\u0027; defaulting to lineChart (trend)"
+                   },
+                   {
+                       "phase":  "Generate Report from Template",
+                       "iteration":  5,
+                       "error":  "Unknown ux_visual_type \u0027line_chart\u0027; defaulting to lineChart (trend)"
+                   },
+                   {
+                       "phase":  "Validate Fabric output",
+                       "iteration":  6,
+                       "error":  "In C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\tooling\\validation\\check_pbip_report_pages.ps1:182 Zeichen:133\r\n+ ... ross $($reports.Count - $passedCount) report(s)\" -ForegroundColor Red\r\n+                                                    ~~~~~~~~~~~~~~~~~~~~~~\nDie Zeichenfolge hat kein Abschlusszeichen: \".\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\tooling\\validation\\check_pbip_report_pages.ps1:181 Zeichen:8\r\n+ } else {\r\n+        ~\nDie schließende \"}\" fehlt im Anweisungsblock oder der Typdefinition.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\tooling\\validation\\check_pbip_report_pages.ps1:33 Zeichen:32\r\n+ if (-not (Test-Path $distAbs)) {\r\n+                                ~\nDie schließende \"}\" fehlt im Anweisungsblock oder der Typdefinition."
+                   },
+                   {
+                       "phase":  "Validate Fabric output",
+                       "iteration":  6,
+                       "error":  "In C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\tooling\\validation\\check_pbip_report_pages.ps1:182 Zeichen:133\r\n+ ... ross $($reports.Count - $passedCount) report(s)\" -ForegroundColor Red\r\n+                                                    ~~~~~~~~~~~~~~~~~~~~~~\nDie Zeichenfolge hat kein Abschlusszeichen: \".\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\tooling\\validation\\check_pbip_report_pages.ps1:181 Zeichen:8\r\n+ } else {\r\n+        ~\nDie schließende \"}\" fehlt im Anweisungsblock oder der Typdefinition.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\tooling\\validation\\check_pbip_report_pages.ps1:33 Zeichen:32\r\n+ if (-not (Test-Path $distAbs)) {\r\n+                                ~\nDie schließende \"}\" fehlt im Anweisungsblock oder der Typdefinition."
+                   },
+                   {
+                       "phase":  "Validate Fabric output",
+                       "iteration":  6,
+                       "error":  "In C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\tooling\\validation\\check_pbip_report_pages.ps1:182 Zeichen:133\r\n+ ... ross $($reports.Count - $passedCount) report(s)\" -ForegroundColor Red\r\n+                                                    ~~~~~~~~~~~~~~~~~~~~~~\nDie Zeichenfolge hat kein Abschlusszeichen: \".\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\tooling\\validation\\check_pbip_report_pages.ps1:181 Zeichen:8\r\n+ } else {\r\n+        ~\nDie schließende \"}\" fehlt im Anweisungsblock oder der Typdefinition.\r\n\r\nIn C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\tooling\\validation\\check_pbip_report_pages.ps1:33 Zeichen:32\r\n+ if (-not (Test-Path $distAbs)) {\r\n+                                ~\nDie schließende \"}\" fehlt im Anweisungsblock oder der Typdefinition."
+                   }
                ],
     "phase":  "validate_fabric_output",
-    "scopeName":  "COM-001",
-    "scopeType":  "UseCase",
+    "scopeName":  "Commercial",
+    "scopeType":  "Domain",
     "startTime":  {
-                      "value":  "\/Date(1775478120989)\/",
+                      "value":  "\/Date(1775553881022)\/",
                       "DisplayHint":  2,
-                      "DateTime":  "Montag, 6. April 2026 14:22:00"
+                      "DateTime":  "Dienstag, 7. April 2026 11:24:41"
                   },
     "domainMeasurePaths":  [
                                "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\Commercial.SemanticModel\\definition\\tables\\_Measures.tmdl"

@@ -35,6 +35,9 @@ function Get-MeasureNamesFromDict {
           $names.Add($currentMeasureName) | Out-Null
         }
         $currentMeasureName = $Matches[1].Trim()
+        if ($currentMeasureName) {
+          $names.Add($currentMeasureName) | Out-Null
+        }
         $currentKpiIdRef = $null
         return
       }
@@ -47,7 +50,8 @@ function Get-MeasureNamesFromDict {
     }
     if ($currentKpiIdRef) {
       $names.Add($currentKpiIdRef) | Out-Null
-    } elseif ($currentMeasureName) {
+    }
+    if ($currentMeasureName) {
       $names.Add($currentMeasureName) | Out-Null
     }
   }

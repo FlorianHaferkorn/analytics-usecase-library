@@ -1,14 +1,14 @@
 # Layout Grid System — Framework Governance
 #
 # Authority:   This file is the canonical source for all visual positioning,
-#              spacing, and grid calculations across the Analytics Use Case Library.
+# spacing, and grid calculations across the Analytics Use Case Library.
 #
 # Implements:  Design_Spec_3_30_300.md §3 (Canvas & Grid)
 # Aligns with: Storytelling_Principles.md §11 (White Space)
 #
 # Rule: Values in this file supersede pixel values stated anywhere else.
-#       All slot coordinates use the 1280×720 design-base canvas.
-#       Connectors translate to their native canvas via the LU formulae below.
+# All slot coordinates use the 1280×720 design-base canvas.
+# Connectors translate to their native canvas via the LU formulae below.
 
 ---
 
@@ -39,10 +39,10 @@ Rule: Scaffold generators read canvas from UseCase_Bracket.yaml → report_canva
 Spacing hierarchy:
   Zone gap (40px) > Gutter (16px) > Internal padding (8px)
 
-  - Between visuals in the same zone  →  16px  (gutter)
-  - Between different zone groups     →  40px  (zone gap)
-  - Inside a card or panel container  →   8px  (internal padding)
-  - Canvas edge to first visual       →  32px  (outer margin)
+- Between visuals in the same zone  →  16px  (gutter)
+- Between different zone groups     →  40px  (zone gap)
+- Inside a card or panel container  →   8px  (internal padding)
+- Canvas edge to first visual       →  32px  (outer margin)
 
 Source authority: Storytelling_Principles.md §11
 

@@ -61,7 +61,7 @@ table _Measures
 	// ── OPS-002 ──────────────────────────────────────────
 	/// MTBF (hours) - ops.mtbf.hours
 	/// Measures average operating time between failures.
-	measure 'MTBF (hours)' = VAR FailureCount = COUNTROWS ( fact_ops_failures ) VAR OperatingTime = SUMX ( fact_ops, fact_ops[Run Time Minutes] / 60 ) RETURN DIVIDE ( OperatingTime, FailureCount )
+	measure 'MTBF (hours)' = VAR FailureCount = COUNTROWS ( fact_ops_failures ) VAR OperatingTime = SUMX ( fact_ops, DIVIDE ( fact_ops[Run Time Minutes], 60 ) ) RETURN DIVIDE ( OperatingTime, FailureCount )
 		formatString: "0"
 		displayFolder: "OPS-002"
 

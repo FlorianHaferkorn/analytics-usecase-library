@@ -24,6 +24,9 @@ $script:AuroraDomainToModelName = @{
 # Fabric: single output root for semantic models and reports (tool-specific)
 $script:FabricDistRoot = "products\fabric\powerbi\dist"
 
+# Aurora showcase root for semantic model copies used by demo/open flows.
+$script:AuroraShowcaseModelRoot = "products\fabric\showcases\aurora_group\semantic_models"
+
 # Domain display name -> data contract path (relative to repo root) for table creation from gold
 $script:AuroraDomainToDataContract = @{
     Commercial  = "core\data_contracts\domains\commercial_sales.yaml"
@@ -103,7 +106,7 @@ function Get-AuroraDomainModelPath {
     if (-not $DomainName) { return $null }
     $modelName = $script:AuroraDomainToModelName[$DomainName]
     if (-not $modelName) { return $null }
-    return "showcases\aurora_group\semantic_models\$modelName"
+    return "$($script:AuroraShowcaseModelRoot)\$modelName"
 }
 
 function Get-AuroraDomainTablesPath {

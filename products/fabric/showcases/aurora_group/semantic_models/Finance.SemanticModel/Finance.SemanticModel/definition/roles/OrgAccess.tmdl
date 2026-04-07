@@ -1,0 +1,5 @@
+role OrgAccess
+	modelPermission: read
+
+	tablePermission dim_org =
+		dim_org[OrgKey] IN CALCULATETABLE( VALUES(security_user_org[OrgKey]), security_user_org[UserPrincipalName] = USERPRINCIPALNAME() )

@@ -1,0 +1,3 @@
+relationship dim_asset_fact_maintenance
+	fromColumn: fact_maintenance.AssetKey
+	toColumn: dim_asset.AssetKey

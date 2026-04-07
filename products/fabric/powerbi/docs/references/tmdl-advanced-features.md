@@ -25,8 +25,8 @@ Diese Dateien sind bei **jedem** Semantic Model via REST API Pflicht. Ohne sie s
 
 ```
 database '<DatabaseName>'
-	compatibilityLevel: 1702
-	compatibilityMode: powerBI
+ compatibilityLevel: 1702
+ compatibilityMode: powerBI
 ```
 
 > **Pflicht**: `database '<Name>'` muss die erste Zeile sein — kein bare `compatibilityLevel` ohne `database`-Deklaration.
@@ -35,16 +35,16 @@ database '<DatabaseName>'
 
 ```
 model Model
-	culture: en-US
-	defaultPowerBIDataSourceVersion: powerBI_V3
-	discourageImplicitMeasures
+ culture: en-US
+ defaultPowerBIDataSourceVersion: powerBI_V3
+ discourageImplicitMeasures
 
-	ref table Sales
-	ref table Product
-	ref table Date
+ ref table Sales
+ ref table Product
+ ref table Date
 
-	ref relationship 'Sales to Date'
-	ref relationship 'Sales to Product'
+ ref relationship 'Sales to Date'
+ ref relationship 'Sales to Product'
 ```
 
 > **Kritisch**: `defaultPowerBIDataSourceVersion: powerBI_V3` ist Pflicht für Import-Mode-Modelle.
@@ -62,7 +62,7 @@ model Model
 | Regel | Richtig | Falsch |
 |---|---|---|
 | Einrückung | **Tabs** (`\t`) | Spaces |
-| DAX-Zuweisung | `= ` | `:=` |
+| DAX-Zuweisung | `=` | `:=` |
 | Descriptions | `/// Kommentar` über dem Objekt | `description:` Property |
 | Kommentare | `///` (doc-comment) | `//` (nicht unterstützt) |
 | lineageTag | Nie manuell setzen | Auto-generiert |
@@ -77,17 +77,17 @@ In Table-Dateien immer Measures zuerst, dann Columns:
 ```
 table Sales
 
-	/// Gesamtumsatz
-	measure 'Net Sales Amount' = SUM(Sales[Net Sales Amount])
-		formatString: EUR #,0.00
-		displayFolder: 01_Sales
+ /// Gesamtumsatz
+ measure 'Net Sales Amount' = SUM(Sales[Net Sales Amount])
+  formatString: EUR #,0.00
+  displayFolder: 01_Sales
 
-	column SalesKey
-		dataType: int64
-		isHidden
-		isKey
-		summarizeBy: none
-		sourceColumn: sales_key
+ column SalesKey
+  dataType: int64
+  isHidden
+  isKey
+  summarizeBy: none
+  sourceColumn: sales_key
 ```
 
 ---
@@ -97,38 +97,38 @@ table Sales
 ```
 table Product
 
-	/// Stammdaten Produkte — Grain: ein Datensatz pro Produkt
-	measure '# Products' = COUNTROWS(Product)
-		formatString: #,##0
-		displayFolder: 03_Customer
+ /// Stammdaten Produkte — Grain: ein Datensatz pro Produkt
+ measure '# Products' = COUNTROWS(Product)
+  formatString: #,##0
+  displayFolder: 03_Customer
 
-	column ProductKey
-		dataType: int64
-		isHidden
-		isKey
-		summarizeBy: none
-		sourceColumn: ProductKey
+ column ProductKey
+  dataType: int64
+  isHidden
+  isKey
+  summarizeBy: none
+  sourceColumn: ProductKey
 
-	/// Produktname für Anzeige
-	column 'Product Name'
-		dataType: string
-		sourceColumn: ProductName
-		sortByColumn: SortOrder
+ /// Produktname für Anzeige
+ column 'Product Name'
+  dataType: string
+  sourceColumn: ProductName
+  sortByColumn: SortOrder
 
-	column SortOrder
-		dataType: int64
-		isHidden
-		summarizeBy: none
-		sourceColumn: SortOrder
+ column SortOrder
+  dataType: int64
+  isHidden
+  summarizeBy: none
+  sourceColumn: SortOrder
 
-	partition Product = m
-		mode: import
-		source =
-			let
-				Source = Sql.Database(#"Server", #"Database"),
-				Product = Source{[Schema="dbo", Item="Product"]}[Data]
-			in
-				Product
+ partition Product = m
+  mode: import
+  source =
+   let
+    Source = Sql.Database(#"Server", #"Database"),
+    Product = Source{[Schema="dbo", Item="Product"]}[Data]
+   in
+    Product
 ```
 
 ---
@@ -141,10 +141,10 @@ Verbindet das Semantic Model direkt mit Delta-Tabellen im Lakehouse — kein Dat
 
 ```
 expression DL_Lakehouse =
-	let
-		Source = AzureStorage.DataLake("https://onelake.dfs.fabric.microsoft.com/<WorkspaceId>/<LakehouseId>", [HierarchicalNavigation=true])
-	in
-		Source
+ let
+  Source = AzureStorage.DataLake("https://onelake.dfs.fabric.microsoft.com/<WorkspaceId>/<LakehouseId>", [HierarchicalNavigation=true])
+ in
+  Source
 ```
 
 > Ersetze `<WorkspaceId>` und `<LakehouseId>` mit den GUIDs des Gold-Lakehouses.
@@ -154,44 +154,44 @@ expression DL_Lakehouse =
 ```
 table Sales
 
-	/// Umsatzdaten — Grain: Rechnungszeile
-	measure 'Net Sales Amount' = ```
-			SUMX(
-				Sales,
-				Sales[Quantity] * Sales[UnitPrice]
-			)
-			```
-		formatString: EUR #,0.00
-		displayFolder: 01_Sales
+ /// Umsatzdaten — Grain: Rechnungszeile
+ measure 'Net Sales Amount' = ```
+   SUMX(
+    Sales,
+    Sales[Quantity] * Sales[UnitPrice]
+   )
+   ```
+  formatString: EUR #,0.00
+  displayFolder: 01_Sales
 
-	column SalesKey
-		dataType: int64
-		isHidden
-		isKey
-		summarizeBy: none
-		sourceColumn: sales_key
+ column SalesKey
+  dataType: int64
+  isHidden
+  isKey
+  summarizeBy: none
+  sourceColumn: sales_key
 
-	column Quantity
-		dataType: int64
-		summarizeBy: none
-		sourceColumn: quantity
+ column Quantity
+  dataType: int64
+  summarizeBy: none
+  sourceColumn: quantity
 
-	column UnitPrice
-		dataType: decimal
-		summarizeBy: none
-		sourceColumn: unit_price
+ column UnitPrice
+  dataType: decimal
+  summarizeBy: none
+  sourceColumn: unit_price
 
-	column OrderDate
-		dataType: dateTime
-		summarizeBy: none
-		sourceColumn: order_date
+ column OrderDate
+  dataType: dateTime
+  summarizeBy: none
+  sourceColumn: order_date
 
-	partition Sales = entity
-		mode: directLake
-		source
-			entityName: Sales
-			schemaName: dbo
-			expressionSource: DL_Lakehouse
+ partition Sales = entity
+  mode: directLake
+  source
+   entityName: Sales
+   schemaName: dbo
+   expressionSource: DL_Lakehouse
 ```
 
 ### Direct Lake Regeln
@@ -211,27 +211,27 @@ Der `_Measures`-Table enthält alle Measures ohne eigene Datenspalten.
 ```
 table _Measures
 
-	/// Gesamtumsatz Netto
-	measure 'Net Sales Amount' = SUM(fact_sales[net_sales_amount])
-		formatString: EUR #,0.00
-		displayFolder: 01_Sales
+ /// Gesamtumsatz Netto
+ measure 'Net Sales Amount' = SUM(fact_sales[net_sales_amount])
+  formatString: EUR #,0.00
+  displayFolder: 01_Sales
 
-	/// Bruttomargen-Anteil
-	measure 'Gross Margin %' = ```
-			VAR _ns = [Net Sales Amount]
-			RETURN IF ( _ns = 0, BLANK(), DIVIDE ( [Gross Margin Amount], _ns ) )
-			```
-		formatString: 0.0 %
-		displayFolder: 02_Margin
+ /// Bruttomargen-Anteil
+ measure 'Gross Margin %' = ```
+   VAR _ns = [Net Sales Amount]
+   RETURN IF (_ns = 0, BLANK(), DIVIDE ( [Gross Margin Amount], _ns ) )
+   ```
+  formatString: 0.0 %
+  displayFolder: 02_Margin
 
-	column Dummy
-		dataType: string
-		isHidden
-		sourceColumn: [Dummy]
+ column Dummy
+  dataType: string
+  isHidden
+  sourceColumn: [Dummy]
 
-	partition _Measures = calculated
-		mode: import
-		source = ROW("Dummy", BLANK())
+ partition _Measures = calculated
+  mode: import
+  source = ROW("Dummy", BLANK())
 ```
 
 > **Model View Position**: `_Measures`-Tabelle immer bei (0, 0) im Diagramm-Layout — Spaghetti-Prinzip.
@@ -244,67 +244,67 @@ Calculation Groups ermöglichen Zeit-Varianten (YTD, LY, etc.) ohne Measures zu 
 
 ```
 table 'Time Intelligence'
-	isHidden
+ isHidden
 
-	calculationGroup
-		precedence: 10
+ calculationGroup
+  precedence: 10
 
-		calculationItem Base = SELECTEDMEASURE()
+  calculationItem Base = SELECTEDMEASURE()
 
-		/// Year-to-Date
-		calculationItem YTD = ```
-				CALCULATE (
-					SELECTEDMEASURE(),
-					DATESYTD ( 'Date'[Date] )
-				)
-				```
+  /// Year-to-Date
+  calculationItem YTD = ```
+    CALCULATE (
+     SELECTEDMEASURE(),
+     DATESYTD ( 'Date'[Date] )
+    )
+    ```
 
-		/// Vorjahr (gleicher Zeitraum)
-		calculationItem 'LY' = ```
-				CALCULATE (
-					SELECTEDMEASURE(),
-					SAMEPERIODLASTYEAR ( 'Date'[Date] )
-				)
-				```
+  /// Vorjahr (gleicher Zeitraum)
+  calculationItem 'LY' = ```
+    CALCULATE (
+     SELECTEDMEASURE(),
+     SAMEPERIODLASTYEAR ( 'Date'[Date] )
+    )
+    ```
 
-		/// Year-over-Year Abweichung absolut
-		calculationItem 'YoY Δ' = ```
-				SELECTEDMEASURE() - CALCULATE (
-					SELECTEDMEASURE(),
-					SAMEPERIODLASTYEAR ( 'Date'[Date] )
-				)
-				```
+  /// Year-over-Year Abweichung absolut
+  calculationItem 'YoY Δ' = ```
+    SELECTEDMEASURE() - CALCULATE (
+     SELECTEDMEASURE(),
+     SAMEPERIODLASTYEAR ( 'Date'[Date] )
+    )
+    ```
 
-		/// Year-over-Year %
-		calculationItem 'YoY %' = ```
-				VAR _ly = CALCULATE (
-					SELECTEDMEASURE(),
-					SAMEPERIODLASTYEAR ( 'Date'[Date] )
-				)
-				RETURN DIVIDE ( SELECTEDMEASURE() - _ly, _ly )
-				```
-			formatStringExpression = ```
-					IF (
-						ISSELECTEDMEASURE ( [Net Sales Amount], [Gross Margin Amount] ),
-						"0.0 %",
-						"0.0 %"
-					)
-					```
+  /// Year-over-Year %
+  calculationItem 'YoY %' = ```
+    VAR _ly = CALCULATE (
+     SELECTEDMEASURE(),
+     SAMEPERIODLASTYEAR ( 'Date'[Date] )
+    )
+    RETURN DIVIDE ( SELECTEDMEASURE() - _ly, _ly )
+    ```
+   formatStringExpression = ```
+     IF (
+      ISSELECTEDMEASURE ( [Net Sales Amount], [Gross Margin Amount] ),
+      "0.0 %",
+      "0.0 %"
+     )
+     ```
 
-	column Name
-		dataType: string
-		isHidden
-		sourceColumn: Name
+ column Name
+  dataType: string
+  isHidden
+  sourceColumn: Name
 
-	column Ordinal
-		dataType: int64
-		isHidden
-		summarizeBy: none
-		sourceColumn: Ordinal
+ column Ordinal
+  dataType: int64
+  isHidden
+  summarizeBy: none
+  sourceColumn: Ordinal
 
-	partition 'Time Intelligence' = calculated
-		mode: import
-		source = CALENDAR(DATE(2020,1,1), DATE(2026,12,31))
+ partition 'Time Intelligence' = calculated
+  mode: import
+  source = CALENDAR(DATE(2020,1,1), DATE(2026,12,31))
 ```
 
 ### Calculation Group Regeln
@@ -325,35 +325,35 @@ Rollen werden in separaten Dateien unter `definition/roles/` gespeichert.
 
 ```
 role 'RLS_Sales_Region'
-	modelPermission: read
+ modelPermission: read
 
-	/// Filtert auf Regionen des eingeloggten Nutzers
-	tablePermission Sales
-		filterExpression: ```
-				'Sales'[RegionCode] = LOOKUPVALUE (
-					'User Regions'[RegionCode],
-					'User Regions'[Email],
-					USERNAME()
-				)
-				```
+ /// Filtert auf Regionen des eingeloggten Nutzers
+ tablePermission Sales
+  filterExpression: ```
+    'Sales'[RegionCode] = LOOKUPVALUE (
+     'User Regions'[RegionCode],
+     'User Regions'[Email],
+     USERNAME()
+    )
+    ```
 ```
 
 ### OLS — Object Level Security (Spalten verbergen)
 
 ```
 role Finance
-	modelPermission: read
+ modelPermission: read
 
-	/// Kosten-Spalten nur für Finance sichtbar
-	tablePermission Sales
-		columnPermission 'Unit Cost'
-			metadataPermission: read
-		columnPermission 'Discount Amount'
-			metadataPermission: read
+ /// Kosten-Spalten nur für Finance sichtbar
+ tablePermission Sales
+  columnPermission 'Unit Cost'
+   metadataPermission: read
+  columnPermission 'Discount Amount'
+   metadataPermission: read
 
-	/// Alle anderen Spalten verbergen
-	tablePermission 'Cost Details'
-		metadataPermission: none
+ /// Alle anderen Spalten verbergen
+ tablePermission 'Cost Details'
+  metadataPermission: none
 ```
 
 ### Regeln
@@ -390,29 +390,29 @@ Hierarchien werden innerhalb der Tabellen-Datei deklariert.
 ```
 table Geography
 
-	column Continent
-		dataType: string
-		sourceColumn: Continent
+ column Continent
+  dataType: string
+  sourceColumn: Continent
 
-	column Country
-		dataType: string
-		sourceColumn: Country
+ column Country
+  dataType: string
+  sourceColumn: Country
 
-	column City
-		dataType: string
-		sourceColumn: City
+ column City
+  dataType: string
+  sourceColumn: City
 
-	/// Geo-Hierarchie für Drill-Down
-	hierarchy 'Geography Hierarchy'
+ /// Geo-Hierarchie für Drill-Down
+ hierarchy 'Geography Hierarchy'
 
-		level Continent
-			column: Continent
+  level Continent
+   column: Continent
 
-		level Country
-			column: Country
+  level Country
+   column: Country
 
-		level City
-			column: City
+  level City
+   column: City
 ```
 
 ---
@@ -424,14 +424,14 @@ Relationships werden in `definition/relationships.tmdl` oder inline in model.tmd
 ```
 /// Sales → Date (aktiv)
 relationship 'Sales to Date'
-	fromColumn: Sales.'Order Date'
-	toColumn: 'Date'.'Date'
+ fromColumn: Sales.'Order Date'
+ toColumn: 'Date'.'Date'
 
 /// Sales → Date (inaktiv — für Ship Date)
 relationship 'Sales - Ship Date to Date'
-	isActive: false
-	fromColumn: Sales.'Ship Date'
-	toColumn: 'Date'.'Date'
+ isActive: false
+ fromColumn: Sales.'Ship Date'
+ toColumn: 'Date'.'Date'
 ```
 
 **Regeln:**
@@ -447,11 +447,11 @@ Annotations können an Model, Tabellen und Objekten gesetzt werden.
 
 ```
 model Model
-	annotation PBI_QueryOrder = '["Sales","Product","Date","_Measures"]'
-	annotation __PBI_TimeIntelligenceEnabled = "1"
+ annotation PBI_QueryOrder = '["Sales","Product","Date","_Measures"]'
+ annotation __PBI_TimeIntelligenceEnabled = "1"
 
 table Sales
-	annotation PBI_ResultType = "Table"
+ annotation PBI_ResultType = "Table"
 ```
 
 ---

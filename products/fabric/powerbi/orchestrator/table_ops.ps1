@@ -289,7 +289,7 @@ switch ($Operation) {
             $tmdlContent += "`r`n"
         }
         
-        # Add partition — Import (M) or DirectLake (entity partition)
+        # Add partition - Import (M) or DirectLake (entity partition)
         if ($StorageMode -eq "DirectLake") {
             if (-not $LakehouseId -or -not $WorkspaceId) {
                 # Try to read from data contract settings
@@ -409,7 +409,7 @@ switch ($Operation) {
             $baseName = $_.BaseName
             if ($baseName -eq "_Measures" -or $baseName -eq "_ActionReady_Logic") { return }
             $content = [System.IO.File]::ReadAllText($tmdlPath)
-            # Fix M "Ungültiger Bezeichner": single-quoted column names in #table must be #"Name"
+            # Fix M "Ungueltiger Bezeichner": single-quoted column names in #table must be #"Name"
             if ($content -match "#table\s*\(\s*type\s+table" -and $content -match "'[^']+'\s*=\s*\w+\.Type") {
                 $content = $content -replace "'([^']+)'\s*=\s*(\w+\.Type)", '#"$1" = $2'
                 $utf8 = New-Object System.Text.UTF8Encoding $false
@@ -627,7 +627,7 @@ expression GoldDataPath = "$goldDefault" meta [IsParameterQuery=true, Type="Text
         $skipped = 0
         Get-ChildItem $tablesDir -Filter "*.tmdl" | ForEach-Object {
             $baseName = $_.BaseName
-            # Skip calculated tables — they don't have data partitions
+            # Skip calculated tables - they do not have data partitions
             if ($baseName -eq "_Measures" -or $baseName -eq "_ActionReady_Logic") { $skipped++; return }
 
             $content = [System.IO.File]::ReadAllText($_.FullName)
@@ -701,7 +701,7 @@ expression GoldDataPath = "$goldDefault" meta [IsParameterQuery=true, Type="Text
             throw "Templates directory not found: $templatesDir. Run from repo root."
         }
 
-        # Resolve model name: explicit param → parent folder stem (remove .SemanticModel suffix) → "Model"
+        # Resolve model name: explicit param -> parent folder stem (remove .SemanticModel suffix) -> "Model"
         $resolvedModelName = $ModelName
         if (-not $resolvedModelName) {
             $parentFolder = Split-Path (Split-Path $defPath -Parent) -Leaf
@@ -717,7 +717,7 @@ expression GoldDataPath = "$goldDefault" meta [IsParameterQuery=true, Type="Text
         [System.IO.File]::WriteAllText((Join-Path $defPath "database.tmdl"), $dbContent, $utf8)
         Write-Host "  Wrote: database.tmdl  (model=$resolvedModelName, compatibilityLevel=1702)" -ForegroundColor Green
 
-        # model.tmdl — only write if it doesn't exist (preserve existing ref table entries)
+        # model.tmdl - only write if it does not exist (preserve existing ref table entries)
         $modelPath = Join-Path $defPath "model.tmdl"
         if (-not (Test-Path $modelPath)) {
             $mdlTemplate = Get-Content (Join-Path $templatesDir "model.tmdl.template") -Raw
@@ -725,10 +725,10 @@ expression GoldDataPath = "$goldDefault" meta [IsParameterQuery=true, Type="Text
             [System.IO.File]::WriteAllText($modelPath, $mdlContent, $utf8)
             Write-Host "  Wrote: model.tmdl  (culture=$Culture)" -ForegroundColor Green
         } else {
-            Write-Host "  Skipped: model.tmdl (already exists — preserving ref table entries)" -ForegroundColor Gray
+            Write-Host "  Skipped: model.tmdl (already exists - preserving ref table entries)" -ForegroundColor Gray
         }
 
-        # definition.pbism — parent of definition/ folder
+        # definition.pbism - parent of definition/ folder
         $pbismPath = Join-Path (Split-Path $defPath -Parent) "definition.pbism"
         $pbismTemplate = Get-Content (Join-Path $templatesDir "definition.pbism.template") -Raw
         [System.IO.File]::WriteAllText($pbismPath, $pbismTemplate, $utf8)

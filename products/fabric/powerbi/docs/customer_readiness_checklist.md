@@ -57,7 +57,7 @@ Runs:
 
 | Check | Script | Purpose |
 |---|---|---|
-| TMDL syntax | `check_tmdl_syntax.ps1` | Tab indentation, `= ` DAX, no `:=` |
+| TMDL syntax | `check_tmdl_syntax.ps1` | Tab indentation, `=` DAX, no `:=` |
 | PBIP readiness | `check_tmdl_pbip_readiness.ps1` | Required TMDL fields for Desktop load |
 | Diagram layout | `check_diagram_layout.ps1` | Spaghetti principle (model view positions) |
 | Measures vs KPI | `check_measures_vs_kpi.ps1` | All measures have backing KPI catalog entries |

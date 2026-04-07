@@ -1,0 +1,42 @@
+/// Calendar dimension with fiscal hierarchy for time slicing.
+table dim_date
+	lineageTag: 3faf1daa-6e06-5485-a865-6163f64e15ea
+	column DateKey
+		dataType: Int64
+		sourceColumn: DateKey
+		summarizeBy: none
+		isHidden
+	column Date
+		dataType: DateTime
+		sourceColumn: Date
+		summarizeBy: none
+	column Year
+		dataType: Int64
+		sourceColumn: Year
+		summarizeBy: none
+	column Quarter
+		dataType: String
+		sourceColumn: Quarter
+		summarizeBy: none
+	column Month
+		dataType: String
+		sourceColumn: Month
+		summarizeBy: none
+	column MonthNumber
+		dataType: Int64
+		sourceColumn: MonthNumber
+		summarizeBy: none
+	column Week
+		dataType: String
+		sourceColumn: Week
+		summarizeBy: none
+	partition dim_date = m
+		mode: import
+		source =
+			let
+				Source = Folder.Files(GoldDataPath & "/dimensions/dim_date"),
+				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+				FirstFile = FilteredFiles{0}[Content],
+				ParquetData = Parquet.Document(FirstFile)
+			in
+				ParquetData

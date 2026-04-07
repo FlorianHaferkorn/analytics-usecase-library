@@ -1,6 +1,6 @@
 Param(
   [string]$Root = ".",
-  [string[]]$ExcludeDirs = @(".git","node_modules","internal\\archive","internal\\reviews","products\\fabric\\powerbi\\dist"),
+  [string[]]$ExcludeDirs = @(".git","node_modules","internal/archive","internal/reviews","products/fabric/powerbi/dist"),
   # Link targets that are generated (e.g. gitignored) and not present in CI; do not report as broken.
   [string[]]$AllowedMissingTargets = @("PROJECT_SNAPSHOT.md", "project_mgmt/PROJECT_SNAPSHOT.md", "internal/project_mgmt/PROJECT_SNAPSHOT.md")
 )
@@ -56,6 +56,7 @@ function Resolve-RepoPath {
 function Test-RelativePath {
   param([string]$BasePath,[string]$Target)
   if (-not $Target) { return $true }
+  if ($Target -match '\{\{.+\}\}') { return $true }
   if ($Target -match '^(https?://|mailto:|#)') { return $true }
   $clean = $Target.Split('#')[0].Trim().TrimEnd('/').TrimEnd('\')
   if (-not $clean) { return $true }

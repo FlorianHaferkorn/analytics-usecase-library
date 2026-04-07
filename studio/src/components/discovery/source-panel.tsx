@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
-import { StudioInput } from '@/components/ui/studio-data';
+import { StudioInput, StudioTextarea } from '@/components/ui/studio-data';
 
 export interface SourceEntry {
   id: string;
@@ -187,19 +187,15 @@ export function SourcePanel({ sources, onAddSource, onRemoveSource }: Props) {
             <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--slate-100)', marginBottom: 'var(--sp-1-5)' }}>
               Paste Text
             </h3>
-            <textarea
+            <StudioTextarea
               autoFocus
               value={pasteText}
               onChange={(e) => setPasteText(e.target.value)}
               placeholder="Paste strategy document, meeting notes, or any text content..."
               style={{
-                width: '100%',
                 height: '200px',
                 padding: 'var(--sp-1-5)',
                 backgroundColor: 'var(--slate-900)',
-                border: '1px solid var(--slate-600)',
-                borderRadius: 'var(--radius-md)',
-                color: 'var(--slate-100)',
                 fontSize: '0.8125rem',
                 fontFamily: 'inherit',
                 resize: 'vertical',

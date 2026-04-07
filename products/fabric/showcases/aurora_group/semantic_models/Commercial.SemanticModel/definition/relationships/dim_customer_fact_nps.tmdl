@@ -1,0 +1,3 @@
+relationship dim_customer_fact_nps
+	fromColumn: fact_nps.CustomerKey
+	toColumn: dim_customer.CustomerKey

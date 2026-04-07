@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { DecisionSpine } from '@/lib/schemas/decision-spine';
 import { EscalationViewer } from './escalation-viewer';
+import { StudioButton, StudioEmptyState } from '@/components/ui/studio-page';
 
 interface Props {
   spines: DecisionSpine[];
@@ -38,11 +39,7 @@ export function SpineList({ spines }: Props) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (spines.length === 0) {
-    return (
-      <p style={{ fontSize: '0.8125rem', color: 'var(--slate-500)' }}>
-        No decision spines found.
-      </p>
-    );
+    return <StudioEmptyState title="No decision spines found" description="Registry has no governed decision spines available for the current slice." />;
   }
 
   return (
@@ -61,8 +58,9 @@ export function SpineList({ spines }: Props) {
             }}
           >
             {/* Header row */}
-            <button
+            <StudioButton
               onClick={() => setExpandedId(isExpanded ? null : spine.id)}
+              variant="ghost"
               style={{
                 width: '100%',
                 display: 'grid',
@@ -71,9 +69,8 @@ export function SpineList({ spines }: Props) {
                 alignItems: 'center',
                 padding: 'var(--sp-1-5) var(--sp-2)',
                 backgroundColor: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
                 textAlign: 'left',
+                justifyContent: 'stretch',
               }}
             >
               <div>
@@ -104,7 +101,7 @@ export function SpineList({ spines }: Props) {
               <span style={{ color: 'var(--slate-500)', fontSize: '0.875rem', transition: 'transform var(--duration-fast)', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                 &#x25BC;
               </span>
-            </button>
+            </StudioButton>
 
             {/* Expanded detail */}
             {isExpanded && (

@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { ExportResults, type ExportResultItem } from '@/components/delivery/export-results';
+import { StudioInlineStat, StudioSelectionItem, StudioSelectionList } from '@/components/ui/studio-data';
 import { StudioButton, StudioEmptyState, StudioMetric, StudioMetricBar, StudioPage, StudioPageHeader, StudioPanel } from '@/components/ui/studio-page';
 
 interface BracketSummary {
@@ -59,6 +60,10 @@ export function DeliveryClient({ brackets }: Props) {
       return next;
     });
   };
+
+  const toggleAllBrackets = useCallback(() => {
+    setSelectedBrackets((prev) => (prev.size === brackets.length ? new Set() : new Set(brackets.map((b) => b.id))));
+  }, [brackets]);
 
   const adapter = ADAPTERS.find((a) => a.id === selectedAdapter)!;
   const selectedBracketItems = brackets.filter((bracket) => selectedBrackets.has(bracket.id));
@@ -190,11 +195,7 @@ export function DeliveryClient({ brackets }: Props) {
             description="Curate the approved use cases that will flow into the selected target stack."
             action={
               <StudioButton
-                onClick={() =>
-                  setSelectedBrackets(
-                    selectedBrackets.size === brackets.length ? new Set() : new Set(brackets.map((b) => b.id))
-                  )
-                }
+                onClick={toggleAllBrackets}
                 variant="ghost"
                 tone="info"
               >
@@ -205,24 +206,24 @@ export function DeliveryClient({ brackets }: Props) {
             {brackets.length === 0 ? (
               <StudioEmptyState title="No use cases available" description="Add or approve use cases before preparing a delivery export." />
             ) : (
-              <div style={{ overflow: 'hidden', borderRadius: 'var(--radius-lg)', border: '1px solid var(--slate-700)' }}>
+              <>
+              <StudioSelectionList>
                 {brackets.map((bracket) => (
-                  <label
+                  <StudioSelectionItem
                     key={bracket.id}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 'var(--sp-1)',
-                      padding: 'var(--sp-1) var(--sp-1-5)', borderBottom: '1px solid var(--slate-700)',
-                      cursor: 'pointer',
-                      backgroundColor: selectedBrackets.has(bracket.id) ? 'var(--slate-750, #283548)' : 'var(--slate-900)',
-                    }}
-                  >
-                    <input type="checkbox" checked={selectedBrackets.has(bracket.id)} onChange={() => toggleBracket(bracket.id)} style={{ accentColor: 'var(--mint)' }} />
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--info)', width: '60px' }}>{bracket.id}</span>
-                    <span style={{ flex: 1, fontSize: '0.8125rem', color: 'var(--slate-100)' }}>{bracket.title}</span>
-                    <span style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>{bracket.kpiCount} KPIs · {bracket.actionCount} Actions</span>
-                  </label>
+                    selected={selectedBrackets.has(bracket.id)}
+                    onClick={() => toggleBracket(bracket.id)}
+                    leading={<span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--info)', minWidth: '60px', display: 'inline-block' }}>{bracket.id}</span>}
+                    primary={bracket.title}
+                    secondary={bracket.domain}
+                    meta={`${bracket.kpiCount} KPIs · ${bracket.actionCount} Actions`}
+                  />
                 ))}
-              </div>
+              </StudioSelectionList>
+              <StudioInlineStat>
+                {selectedBrackets.size} of {brackets.length} use cases selected for export.
+              </StudioInlineStat>
+              </>
             )}
           </StudioPanel>
 

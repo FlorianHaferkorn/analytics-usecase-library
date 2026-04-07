@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { ActiveNotification } from '@/lib/notifications/rule-types';
+import { StudioButton } from '@/components/ui/studio-page';
 
 interface Props {
   notifications: ActiveNotification[];
@@ -57,15 +58,19 @@ export function ToastContainer({ notifications, onDismiss }: Props) {
               <span style={{ fontSize: '0.6875rem', fontWeight: 700, color, textTransform: 'uppercase' }}>
                 {SEVERITY_LABELS[n.result.severity] ?? n.result.severity}
               </span>
-              <button
+              <StudioButton
                 onClick={() => onDismiss(n.id)}
+                variant="ghost"
                 style={{
-                  background: 'none', border: 'none', color: 'var(--slate-500)',
-                  cursor: 'pointer', fontSize: '0.875rem', padding: 0,
+                  color: 'var(--slate-500)',
+                  fontSize: '0.875rem',
+                  padding: 0,
+                  minWidth: '20px',
+                  minHeight: '20px',
                 }}
               >
                 ×
-              </button>
+              </StudioButton>
             </div>
             <p style={{ fontSize: '0.75rem', color: 'var(--slate-200)' }}>
               {n.result.message}

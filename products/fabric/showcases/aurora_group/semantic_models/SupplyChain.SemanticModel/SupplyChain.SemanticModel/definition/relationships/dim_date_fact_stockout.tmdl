@@ -1,0 +1,3 @@
+relationship dim_date_fact_stockout
+	fromColumn: fact_stockout.DateKey
+	toColumn: dim_date.DateKey

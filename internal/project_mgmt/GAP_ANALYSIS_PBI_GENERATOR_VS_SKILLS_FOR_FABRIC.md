@@ -2,7 +2,7 @@
 
 **Stand:** 2026-04-04  
 **Branch:** `claude/pbi-generator-gap-analysis-MrchA`  
-**Quelle:** https://github.com/microsoft/skills-for-fabric
+**Quelle:** <https://github.com/microsoft/skills-for-fabric>
 
 ---
 

@@ -1,0 +1,3 @@
+relationship dim_product_fact_forecast
+	fromColumn: fact_forecast.ProductKey
+	toColumn: dim_product.ProductKey

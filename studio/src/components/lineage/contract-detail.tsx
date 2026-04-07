@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { DataContract } from '@/lib/schemas';
-import { StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
+import { StudioButton, StudioEmptyState, StudioPanel } from '@/components/ui/studio-page';
 import { StudioTable, StudioTableCell, StudioTableHeadCell, StudioTableShell } from '@/components/ui/studio-data';
 
 interface Props {
@@ -14,14 +14,13 @@ function ContractCard({ contract }: { contract: DataContract }) {
 
   return (
     <StudioPanel tone={expanded ? 'info' : 'default'} style={{ padding: 0, overflow: 'hidden', border: `1px solid ${expanded ? 'var(--info)' : 'var(--slate-700)'}` }}>
-      <button
+      <StudioButton
         onClick={() => setExpanded(!expanded)}
+        variant="ghost"
         style={{
           width: '100%',
           padding: 'var(--sp-1-5) var(--sp-2)',
           backgroundColor: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -44,7 +43,7 @@ function ContractCard({ contract }: { contract: DataContract }) {
             &#x25BC;
           </span>
         </div>
-      </button>
+      </StudioButton>
 
       {expanded && (
         <div style={{ padding: '0 var(--sp-2) var(--sp-2)', display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>

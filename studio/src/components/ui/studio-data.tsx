@@ -83,6 +83,76 @@ export function StudioInlineStat({ children }: { children: ReactNode }) {
   return <p style={{ marginTop: 'var(--sp-1)', fontSize: '0.75rem', color: 'var(--slate-500)' }}>{children}</p>;
 }
 
+export function StudioSelectionList({ children, style }: { children: ReactNode; style?: CSSProperties }) {
+  return (
+    <div
+      style={{
+        overflow: 'hidden',
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid var(--slate-700)',
+        background: 'linear-gradient(180deg, var(--slate-850, #182030), var(--slate-800))',
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function StudioSelectionItem({
+  selected,
+  onClick,
+  primary,
+  secondary,
+  meta,
+  leading,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  primary: ReactNode;
+  secondary?: ReactNode;
+  meta?: ReactNode;
+  leading?: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        width: '100%',
+        display: 'grid',
+        gridTemplateColumns: 'auto auto minmax(0, 1fr) auto',
+        alignItems: 'center',
+        gap: 'var(--sp-1)',
+        padding: 'var(--sp-1) var(--sp-1-5)',
+        border: 'none',
+        borderBottom: '1px solid var(--slate-700)',
+        backgroundColor: selected ? 'var(--slate-750, #283548)' : 'var(--slate-900)',
+        color: 'var(--slate-100)',
+        textAlign: 'left',
+        cursor: 'pointer',
+      }}
+    >
+      <span
+        style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: '0.6875rem',
+          color: selected ? 'var(--mint)' : 'var(--slate-500)',
+          minWidth: '24px',
+        }}
+      >
+        {selected ? '[x]' : '[ ]'}
+      </span>
+      {leading ? <span style={{ minWidth: 0 }}>{leading}</span> : <span />}
+      <span style={{ minWidth: 0 }}>
+        <span style={{ display: 'block', fontSize: '0.8125rem', color: 'var(--slate-100)' }}>{primary}</span>
+        {secondary ? <span style={{ display: 'block', fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: '2px' }}>{secondary}</span> : null}
+      </span>
+      {meta ? <span style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', textAlign: 'right' }}>{meta}</span> : null}
+    </button>
+  );
+}
+
 const inputBaseStyle: CSSProperties = {
   padding: 'var(--sp-1) var(--sp-1-5)',
   backgroundColor: 'var(--slate-900)',

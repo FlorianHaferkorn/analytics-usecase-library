@@ -152,16 +152,16 @@ Schema: see `core/semantic_models/domains/Domain_Measure_Dictionary_Schema.md`
     status: active
     version: v1.0
     last_review: 04.11.2025
-- measure_name: OTIF %
+- measure_name: Ops OTIF %
   is_kpi_measure: true
   kpi_id_ref: ops.otif.pct
   semantic_model: Efficiency_SemanticModel
   category: KPI
   expression:
-    logical: OTIF % = On-Time In-Full deliveries / Total Deliveries
+    logical: Ops OTIF % = On-Time In-Full deliveries / Total Deliveries
     aggregation_method: ratio
   documentation:
-    description: On-Time In-Full deliveries / Total Deliveries
+    description: Operational OTIF share based on on-time and in-full deliveries.
     notes: ''
   governance:
     owner: Supply Chain BI

@@ -199,6 +199,38 @@ function Test-PbiToolsCompileCompatible {
     return (Test-Path (Join-Path $FolderPath "Version.txt"))
 }
 
+function Sync-SemanticModelsToAuroraShowcase {
+    param([string[]]$DomainNames)
+
+    $showcaseRoot = Join-Path $script:RepoRoot $script:AuroraShowcaseModelRoot
+    if (-not (Test-Path $showcaseRoot)) {
+        New-Item -ItemType Directory -Path $showcaseRoot -Force | Out-Null
+    }
+
+    foreach ($domainName in @($DomainNames | Sort-Object -Unique)) {
+        $sourceRel = Get-FabricDomainModelPath -DomainName $domainName
+        $targetRel = Get-AuroraDomainModelPath -DomainName $domainName
+        if (-not $sourceRel -or -not $targetRel) { continue }
+
+        $sourcePath = Join-Path $script:RepoRoot $sourceRel
+        $targetPath = Join-Path $script:RepoRoot $targetRel
+        if (-not (Test-Path $sourcePath)) {
+            throw "Fabric semantic model missing for showcase sync: $sourcePath"
+        }
+
+        $targetParent = Split-Path -Parent $targetPath
+        if (-not (Test-Path $targetParent)) {
+            New-Item -ItemType Directory -Path $targetParent -Force | Out-Null
+        }
+        if (Test-Path $targetPath) {
+            Remove-Item $targetPath -Recurse -Force
+        }
+
+        Copy-Item -Path $sourcePath -Destination $targetParent -Recurse -Force
+        Write-Host "  Synced showcase model: $targetRel" -ForegroundColor Green
+    }
+}
+
 # PHASE 0: BUILD REGISTRY (required for Measure binding and Action Panel)
 $state.phase = "registry"
 $state.iteration = 0
@@ -612,6 +644,7 @@ $state.phase = "validate_fabric_output"
 $state.iteration = 6
 $distReportRoot = Join-Path $script:RepoRoot "products\fabric\powerbi\dist"
 $distRootParam = "products/fabric/powerbi/dist"
+$auroraModelRootParam = ($script:AuroraShowcaseModelRoot -replace '\\', '/')
 
 Invoke-WithRetry "Validate Fabric output" {
     # (0a) Normalize TMDL tabs (all .tmdl under dist) before any other TMDL steps
@@ -624,6 +657,12 @@ Invoke-WithRetry "Validate Fabric output" {
     $ensureScript = Join-Path $script:RepoRoot "products\fabric\powerbi\tooling\ensure_pbip_desktop_ready.ps1"
     if (Test-Path $ensureScript) {
         try { & $ensureScript -DistRoot $distRootParam -RepoRoot $script:RepoRoot 2>&1 | Out-Null } catch { Write-Verbose "Optional ensure-pbip-desktop-ready: $($_.Exception.Message)" }
+    }
+
+    # (0a) Sync semantic models to the Aurora showcase path and enforce the same Desktop readiness there.
+    Sync-SemanticModelsToAuroraShowcase -DomainNames $byDomain.Keys
+    if (Test-Path $ensureScript) {
+        try { & $ensureScript -DistRoot $auroraModelRootParam -RepoRoot $script:RepoRoot 2>&1 | Out-Null } catch { Write-Verbose "Optional ensure-pbip-desktop-ready (Aurora showcase): $($_.Exception.Message)" }
     }
 
     # (0b) Auto-fix best practices: summarizeBy: none + diagram layout (Spaghetti) so they are always applied
@@ -661,6 +700,19 @@ Invoke-WithRetry "Validate Fabric output" {
         throw "Fabric checks failed (exit $LASTEXITCODE). Fix TMDL/PBIP/DAX/measures and retry."
     }
     Write-Host "  run_fabric_checks passed" -ForegroundColor Green
+
+    $auroraFabricOut = & $fabricChecksScript -DistRoot $auroraModelRootParam 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0) {
+        $state.validateErrors += @{
+            timestamp = (Get-Date -Format "o")
+            phase = "Validate Fabric output"
+            path = $auroraModelRootParam
+            message = ($auroraFabricOut -split [Environment]::NewLine | Select-Object -First 20) -join " "
+            source = "run_fabric_checks (aurora showcase)"
+        }
+        throw "Aurora showcase semantic model checks failed (exit $LASTEXITCODE). Fix showcase PBIP/TMDL sync and retry."
+    }
+    Write-Host "  Aurora showcase semantic model checks passed" -ForegroundColor Green
 
     # (2) Structure: check_report_structure, validate_pbip per PBIP folder
     $checkReportScript = Join-Path $script:RepoRoot "products\fabric\powerbi\tooling\check_report_structure.ps1"
@@ -758,6 +810,7 @@ foreach ($domainName in $byDomain.Keys) {
     Write-Host "  [$domainName] $outputModel" -ForegroundColor Gray
 }
 Write-Host "  Reports: products\fabric\powerbi\dist\<UC>.Report (datasetReference = ..\<Domain>.SemanticModel)" -ForegroundColor Gray
+Write-Host "  Aurora showcase models: $auroraModelRootParam\<Domain>.SemanticModel" -ForegroundColor Gray
 
 Write-Host ([Environment]::NewLine + "Next Steps:") -ForegroundColor Yellow
 Write-Host "  1. Open a domain model in Power BI Desktop (e.g. products\fabric\powerbi\dist\Commercial.SemanticModel)" -ForegroundColor Gray

@@ -83,9 +83,9 @@ Vorgehen:
        source_column: column_name
        transformation: SUM / AVG / COUNT / etc.
    ```
-5. Aktualisiere `completeness_score` der betroffenen KPIs (0.8 → 1.0 wenn
+1. Aktualisiere `completeness_score` der betroffenen KPIs (0.8 → 1.0 wenn
    dadurch vollstaendig).
-6. Fuehre `.\tooling\run_stage1_checks.ps1` aus.
+2. Fuehre `.\tooling\run_stage1_checks.ps1` aus.
 
 Priorisiere KPIs, die in Core Use Cases (COM-001 bis XD-004) referenziert werden.
 ```

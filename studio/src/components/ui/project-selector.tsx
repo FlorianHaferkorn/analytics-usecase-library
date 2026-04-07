@@ -82,21 +82,21 @@ export function ProjectSelector() {
         }}>
           <div style={{ padding: 'var(--sp-1)', maxHeight: 200, overflow: 'auto' }}>
             {projects.map((p) => (
-              <button
+              <StudioButton
                 key={p.id}
                 onClick={() => switchProject(p)}
+                variant="ghost"
                 style={{
                   display: 'block', width: '100%', textAlign: 'left',
                   padding: 'var(--sp-1)',
                   backgroundColor: p.id === projectId ? 'var(--slate-700)' : 'transparent',
-                  border: 'none', borderRadius: 'var(--radius-sm)',
                   color: 'var(--slate-100)', fontSize: '0.8125rem',
-                  cursor: 'pointer',
+                  justifyContent: 'flex-start',
                 }}
               >
                 <span style={{ fontWeight: p.id === projectId ? 600 : 400 }}>{p.name}</span>
                 {p.id === projectId && <span style={{ color: 'var(--mint)', marginLeft: 'var(--sp-1)', fontSize: '0.6875rem' }}>active</span>}
-              </button>
+              </StudioButton>
             ))}
           </div>
 

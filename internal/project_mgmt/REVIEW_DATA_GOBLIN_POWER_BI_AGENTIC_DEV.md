@@ -1,7 +1,7 @@
 # Review: data-goblin/power-bi-agentic-development
 
 > **Reviewed**: 2026-04-04 (initial partial) + 2026-04-04 (complete — all 6 plugins)  
-> **Repo**: https://github.com/data-goblin/power-bi-agentic-development  
+> **Repo**: <https://github.com/data-goblin/power-bi-agentic-development>  
 > **Version at review**: 0.17.1 (daily release cadence — re-check quarterly)  
 > **Context**: Assessed for adoption into our PBI Generator and Architecture Generator  
 

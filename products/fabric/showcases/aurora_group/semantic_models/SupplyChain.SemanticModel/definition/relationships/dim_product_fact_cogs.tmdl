@@ -1,0 +1,3 @@
+relationship dim_product_fact_cogs
+	fromColumn: fact_cogs.ProductKey
+	toColumn: dim_product.ProductKey
