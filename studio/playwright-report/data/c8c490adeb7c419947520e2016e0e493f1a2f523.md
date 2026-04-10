@@ -1,0 +1,1468 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: auth.spec.ts >> Auth flow >> redirects unauthenticated user to login
+- Location: e2e\auth.spec.ts:4:7
+
+# Error details
+
+```
+Error: expect(page).toHaveURL(expected) failed
+
+Expected pattern: /\/login/
+Received string:  "http://localhost:3000/steering"
+Timeout: 5000ms
+
+Call log:
+  - Expect "toHaveURL" with timeout 5000ms
+    8 × unexpected value "http://localhost:3000/steering"
+
+```
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - link "ActionReady" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e6]: ActionReady
+        - paragraph [ref=e7]: Studio v0.1.0
+      - navigation [ref=e8]:
+        - link "Discovery Hub" [ref=e9] [cursor=pointer]:
+          - /url: /discovery
+          - img [ref=e10]
+          - text: Discovery Hub
+        - link "Steering Hub" [ref=e12] [cursor=pointer]:
+          - /url: /steering
+          - img [ref=e13]
+          - text: Steering Hub
+        - link "Registry" [ref=e15] [cursor=pointer]:
+          - /url: /registry
+          - img [ref=e16]
+          - text: Registry
+        - link "Data & Lineage" [ref=e18] [cursor=pointer]:
+          - /url: /lineage
+          - img [ref=e19]
+          - text: Data & Lineage
+        - link "Simulator" [ref=e21] [cursor=pointer]:
+          - /url: /simulator
+          - img [ref=e22]
+          - text: Simulator
+        - link "Brand & UX Lab" [ref=e24] [cursor=pointer]:
+          - /url: /brand-lab
+          - img [ref=e25]
+          - text: Brand & UX Lab
+        - link "Delivery" [ref=e27] [cursor=pointer]:
+          - /url: /delivery
+          - img [ref=e28]
+          - text: Delivery
+        - link "Plugins" [ref=e30] [cursor=pointer]:
+          - /url: /plugins
+          - img [ref=e31]
+          - text: Plugins
+      - generic [ref=e34]: Aurora Group SE
+    - generic [ref=e35]:
+      - banner [ref=e36]:
+        - heading "Steering Hub" [level=1] [ref=e37]
+        - generic [ref=e38]:
+          - button "🔔" [ref=e39] [cursor=pointer]
+          - generic [ref=e42]: Stage 1 Ready
+          - button "Aurora Group ▾" [ref=e44] [cursor=pointer]:
+            - text: Aurora Group
+            - generic [ref=e46]: ▾
+      - main [ref=e47]:
+        - generic [ref=e49]:
+          - generic [ref=e50]:
+            - generic [ref=e51]:
+              - generic [ref=e52]: Studio / Decision Design
+              - generic [ref=e53]:
+                - heading "Steering" [level=1] [ref=e54]
+                - generic [ref=e55]: All 16
+              - paragraph [ref=e56]: Navigate the golden thread, refine bracket YAML, and turn draft scaffolds into governed use cases without leaving the same working surface.
+            - generic [ref=e58]:
+              - button "Export Report" [ref=e59] [cursor=pointer]
+              - button "Board Pack" [ref=e60] [cursor=pointer]
+          - generic [ref=e61]:
+            - generic [ref=e62]:
+              - paragraph [ref=e63]: Use Cases
+              - paragraph [ref=e64]: "16"
+              - paragraph [ref=e65]: loaded into steering graph
+            - generic [ref=e66]:
+              - paragraph [ref=e67]: Drivers
+              - paragraph [ref=e68]: "88"
+              - paragraph [ref=e69]: in linked brackets
+            - generic [ref=e70]:
+              - paragraph [ref=e71]: Action gaps
+              - paragraph [ref=e72]: "37"
+              - paragraph [ref=e73]: resolve in Registry →
+            - generic [ref=e74]:
+              - paragraph [ref=e75]: Sync
+              - paragraph [ref=e76]: overview
+              - paragraph [ref=e77]: aggregate mode
+          - generic [ref=e78]:
+            - generic [ref=e79]:
+              - generic [ref=e80]: Bracket focus
+              - combobox [ref=e81]:
+                - option "All Use Cases (16)" [selected]
+                - option "COM-001 — Sales Performance vs Plan & LY"
+                - option "COM-002 — Margin & Price Performance"
+                - option "COM-004 — Promotion Effectiveness"
+                - option "COM-003 — Customer Value"
+                - option "XD-003 — Executive KPI Overview"
+                - option "XD-004 — Executive Action Governance"
+                - option "XD-001 — Service Level Performance"
+                - option "XD-002 — Resource Utilization"
+                - option "FIN-001 — Cash & Liquidity Performance"
+                - option "FIN-002 — Cost Performance"
+                - option "OPS-001 — Operations Performance"
+                - option "OPS-002 — Asset Performance"
+                - option "OPS-003 — Quality & Yield"
+                - option "SCM-001 — Inventory Performance"
+                - option "SCM-002 — Supply Reliability & OTIF"
+                - option "SCM-003 — Forecast vs Actual"
+            - generic [ref=e82]:
+              - generic [ref=e83]: Workspace mode
+              - generic [ref=e84]:
+                - button "Flow" [ref=e85] [cursor=pointer]
+                - button "Flow + YAML" [ref=e86] [cursor=pointer]
+                - button "YAML" [ref=e87] [cursor=pointer]
+          - generic [ref=e89]:
+            - generic [ref=e91]:
+              - heading "Golden Thread Flow" [level=3] [ref=e92]
+              - paragraph [ref=e93]: Explore strategy anchors, drivers, and action-code coverage visually.
+            - application [ref=e96]:
+              - generic [ref=e98]:
+                - generic:
+                  - generic:
+                    - img:
+                      - group "Edge from anchor to skpi-COM-001" [ref=e99] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-001 to driver-COM-001-cost.cogs.amount" [ref=e102] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-001 to driver-COM-001-sales.net_sales.amount" [ref=e105] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-001 to driver-COM-001-sales.net_sales.delta_pct.plan" [ref=e108] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-001 to driver-COM-001-sales.net_sales.delta_pct.ly" [ref=e111] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-001 to driver-COM-001-sales.pvm.price_effect.amount" [ref=e114] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-001 to driver-COM-001-sales.pvm.volume_effect.amount" [ref=e117] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-001 to driver-COM-001-sales.pvm.mix_effect.amount" [ref=e120] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-COM-001-sales.pvm.price_effect.amount to action-COM-001-C-S1.1" [ref=e123] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-COM-001-sales.net_sales.delta_pct.plan to action-COM-001-C-S1.2" [ref=e126] [cursor=pointer]
+                    - img:
+                      - group "Edge from anchor to skpi-COM-002" [ref=e129] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-002 to driver-COM-002-margin.gm.amount" [ref=e132] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-002 to driver-COM-002-sales.price.list.amount" [ref=e135] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-002 to driver-COM-002-sales.price.net.amount" [ref=e138] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-002 to driver-COM-002-sales.price.realization_pct" [ref=e141] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-002 to driver-COM-002-sales.pvm.mix_effect.amount" [ref=e144] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-002 to driver-COM-002-cost.cogs_per_unit.amount" [ref=e147] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-002 to driver-COM-002-margin.gm.vs_plan.pct" [ref=e150] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-COM-002-sales.pvm.mix_effect.amount to action-COM-002-C-M2.2" [ref=e153] [cursor=pointer]
+                    - img:
+                      - group "Edge from anchor to skpi-COM-004" [ref=e156] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-004 to driver-COM-004-sales.promo.incremental.amount" [ref=e159] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-004 to driver-COM-004-margin.promo.gm.pct" [ref=e162] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-004 to driver-COM-004-sales.price.list.amount" [ref=e165] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-004 to driver-COM-004-sales.price.net.amount" [ref=e168] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-004 to driver-COM-004-sales.price.realization_pct" [ref=e171] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-004 to driver-COM-004-sales.promo.cannibalization.pct" [ref=e174] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-COM-004-sales.price.realization_pct to action-COM-004-C-M2.1" [ref=e177] [cursor=pointer]
+                    - img:
+                      - group "Edge from anchor to skpi-COM-003" [ref=e180] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-003 to driver-COM-003-crm.lifetime_revenue.amount" [ref=e183] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-003 to driver-COM-003-crm.retention.pct" [ref=e186] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-003 to driver-COM-003-crm.churned_customers.count" [ref=e189] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-003 to driver-COM-003-crm.active_customers.count" [ref=e192] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-003 to driver-COM-003-crm.nps.index" [ref=e195] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-COM-003 to driver-COM-003-crm.complaint.count" [ref=e198] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-COM-003-crm.retention.pct to action-COM-003-C-C3.1" [ref=e201] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-COM-003-crm.nps.index to action-COM-003-C-C3.2" [ref=e204] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-COM-003-crm.complaint.count to action-COM-003-C-C3.2" [ref=e207] [cursor=pointer]
+                    - img:
+                      - group "Edge from anchor to skpi-XD-003" [ref=e210] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-003 to driver-XD-003-margin.gm.pct" [ref=e213] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-003 to driver-XD-003-sales.net_sales.delta_pct.ly" [ref=e216] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-003 to driver-XD-003-crm.clv.amount" [ref=e219] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-003 to driver-XD-003-svc.sla.attainment.pct" [ref=e222] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-003 to driver-XD-003-ops.otif.pct" [ref=e225] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-003 to driver-XD-003-ops.working_capital.ccc.days" [ref=e228] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-003 to driver-XD-003-people.digital_adoption.pct" [ref=e231] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-003 to driver-XD-003-people.attrition_risk.pct" [ref=e234] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-XD-003-sales.net_sales.delta_pct.ly to action-XD-003-X-E3.2" [ref=e237] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-XD-003-margin.gm.pct to action-XD-003-X-E3.2" [ref=e240] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-XD-003-svc.sla.attainment.pct to action-XD-003-X-E3.2" [ref=e243] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-XD-003-ops.otif.pct to action-XD-003-X-E3.2" [ref=e246] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-XD-003-ops.working_capital.ccc.days to action-XD-003-X-E3.2" [ref=e249] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-XD-003-people.attrition_risk.pct to action-XD-003-X-E3.2" [ref=e252] [cursor=pointer]
+                    - img:
+                      - group "Edge from anchor to skpi-XD-004" [ref=e255] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-004 to driver-XD-004-enterprise.action_routed.count" [ref=e258] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-XD-004-enterprise.action_routed.count to action-XD-004-X-E3.3" [ref=e261] [cursor=pointer]
+                    - img:
+                      - group "Edge from anchor to skpi-XD-001" [ref=e264] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-001 to driver-XD-001-svc.backlog.count" [ref=e267] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-001 to driver-XD-001-svc.fcr.pct" [ref=e270] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-001 to driver-XD-001-svc.aht.minutes" [ref=e273] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-001 to driver-XD-001-svc.escalation.pct" [ref=e276] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-001 to driver-XD-001-svc.tickets.created.count" [ref=e279] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-001 to driver-XD-001-svc.tickets.closed.count" [ref=e282] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-XD-001-svc.backlog.count to action-XD-001-X-S1.1" [ref=e285] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-XD-001-svc.backlog.count to action-XD-001-X-S1.2" [ref=e288] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-XD-001-svc.fcr.pct to action-XD-001-X-S1.3" [ref=e291] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-XD-001-svc.escalation.pct to action-XD-001-X-S1.3" [ref=e294] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-XD-001-svc.aht.minutes to action-XD-001-X-S1.4" [ref=e297] [cursor=pointer]
+                    - img:
+                      - group "Edge from anchor to skpi-XD-002" [ref=e300] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-002 to driver-XD-002-res.occupancy.pct" [ref=e303] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-002 to driver-XD-002-svc.sla.attainment.pct" [ref=e306] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-002 to driver-XD-002-res.overtime.pct" [ref=e309] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-002 to driver-XD-002-res.shrinkage.pct" [ref=e312] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-002 to driver-XD-002-svc.backlog.count" [ref=e315] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-XD-002 to driver-XD-002-svc.tickets.created.count" [ref=e318] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-XD-002-res.overtime.pct to action-XD-002-X-R2.1" [ref=e321] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-XD-002-res.occupancy.pct to action-XD-002-X-R2.2" [ref=e324] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-XD-002-res.shrinkage.pct to action-XD-002-X-R2.3" [ref=e327] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-XD-002-res.overtime.pct to action-XD-002-X-R2.4" [ref=e330] [cursor=pointer]
+                    - img:
+                      - group "Edge from anchor to skpi-FIN-001" [ref=e333] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-FIN-001 to driver-FIN-001-fin.cash.balance" [ref=e336] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-FIN-001 to driver-FIN-001-fin.cash.ocf" [ref=e339] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-FIN-001 to driver-FIN-001-fin.cash.vs_plan.pct" [ref=e342] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-FIN-001 to driver-FIN-001-wc.dso.days" [ref=e345] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-FIN-001 to driver-FIN-001-wc.dio.days" [ref=e348] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-FIN-001 to driver-FIN-001-wc.dpo.days" [ref=e351] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-FIN-001-fin.cash.vs_plan.pct to action-FIN-001-F-C1.1" [ref=e354] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-FIN-001-wc.dso.days to action-FIN-001-F-C1.2" [ref=e357] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-FIN-001-wc.dpo.days to action-FIN-001-F-C1.4" [ref=e360] [cursor=pointer]
+                    - img:
+                      - group "Edge from anchor to skpi-FIN-002" [ref=e363] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-FIN-002 to driver-FIN-002-margin.cogs.pct" [ref=e366] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-FIN-002 to driver-FIN-002-cost.opex.vs_plan.pct" [ref=e369] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-FIN-002 to driver-FIN-002-cost.material.pct" [ref=e372] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-FIN-002 to driver-FIN-002-ops.labor.productivity.pct" [ref=e375] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-FIN-002 to driver-FIN-002-ops.production.volume" [ref=e378] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-FIN-002 to driver-FIN-002-ops.quality.defect_rate.pct" [ref=e381] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-FIN-002 to driver-FIN-002-ops.yield.pct" [ref=e384] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-FIN-002-cost.opex.vs_plan.pct to action-FIN-002-F-K2.1" [ref=e387] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-FIN-002-cost.material.pct to action-FIN-002-F-K2.2" [ref=e390] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-FIN-002-ops.labor.productivity.pct to action-FIN-002-F-K2.3" [ref=e393] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-FIN-002-cost.opex.vs_plan.pct to action-FIN-002-F-K2.4" [ref=e396] [cursor=pointer]
+                    - img:
+                      - group "Edge from anchor to skpi-OPS-001" [ref=e399] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-OPS-001 to driver-OPS-001-ops.availability.pct" [ref=e402] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-OPS-001 to driver-OPS-001-ops.performance.pct" [ref=e405] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-OPS-001 to driver-OPS-001-ops.quality.pct" [ref=e408] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-OPS-001 to driver-OPS-001-ops.throughput.units" [ref=e411] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-OPS-001-ops.availability.pct to action-OPS-001-O-O1.1" [ref=e414] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-OPS-001-ops.performance.pct to action-OPS-001-O-O1.2"
+                    - img:
+                      - group "Edge from driver-OPS-001-ops.quality.pct to action-OPS-001-O-O1.3" [ref=e417] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-OPS-001-ops.throughput.units to action-OPS-001-O-O1.4" [ref=e420] [cursor=pointer]
+                    - img:
+                      - group "Edge from anchor to skpi-OPS-002" [ref=e423] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-OPS-002 to driver-OPS-002-ops.availability.pct" [ref=e426] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-OPS-002 to driver-OPS-002-ops.mttr.hours" [ref=e429] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-OPS-002 to driver-OPS-002-ops.downtime.unplanned.pct" [ref=e432] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-OPS-002 to driver-OPS-002-ops.spare_parts.stockout.pct" [ref=e435] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-OPS-002 to driver-OPS-002-ops.pm_compliance.pct" [ref=e438] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-OPS-002 to driver-OPS-002-ops.failure.count" [ref=e441] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-OPS-002-ops.availability.pct to action-OPS-002-O-A2.1" [ref=e444] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-OPS-002-ops.downtime.unplanned.pct to action-OPS-002-O-A2.1" [ref=e447] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-OPS-002-ops.mttr.hours to action-OPS-002-O-A2.3" [ref=e450] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-OPS-002-ops.pm_compliance.pct to action-OPS-002-O-A2.4" [ref=e453] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-OPS-002-ops.spare_parts.stockout.pct to action-OPS-002-O-A2.5" [ref=e456] [cursor=pointer]
+                    - img:
+                      - group "Edge from anchor to skpi-OPS-003" [ref=e459] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-OPS-003 to driver-OPS-003-quality.scrap.pct" [ref=e462] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-OPS-003 to driver-OPS-003-quality.rework.pct" [ref=e465] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-OPS-003 to driver-OPS-003-quality.copq.amount" [ref=e468] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-OPS-003 to driver-OPS-003-quality.complaint.pct" [ref=e471] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-OPS-003 to driver-OPS-003-quality.defect_density" [ref=e474] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-OPS-003-quality.scrap.pct to action-OPS-003-O-Q3.1" [ref=e477] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-OPS-003-quality.defect_density to action-OPS-003-O-Q3.2" [ref=e480] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-OPS-003-quality.scrap.pct to action-OPS-003-O-Q3.3" [ref=e483] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-OPS-003-quality.rework.pct to action-OPS-003-O-Q3.3" [ref=e486] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-OPS-003-quality.copq.amount to action-OPS-003-O-Q3.4" [ref=e489] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-OPS-003-quality.complaint.pct to action-OPS-003-O-Q3.5" [ref=e492] [cursor=pointer]
+                    - img:
+                      - group "Edge from anchor to skpi-SCM-001" [ref=e495] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-SCM-001 to driver-SCM-001-inv.turnover" [ref=e498] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-SCM-001 to driver-SCM-001-inv.stockout.pct" [ref=e501] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-SCM-001 to driver-SCM-001-supply.otif.pct" [ref=e504] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-SCM-001 to driver-SCM-001-inv.obsolete.pct" [ref=e507] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-SCM-001 to driver-SCM-001-plan.forecast.accuracy.pct" [ref=e510] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-SCM-001-inv.stockout.pct to action-SCM-001-S-I1.1" [ref=e513] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-SCM-001-inv.stockout.pct to action-SCM-001-S-I1.3" [ref=e516] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-SCM-001-inv.obsolete.pct to action-SCM-001-S-I1.4" [ref=e519] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-SCM-001-plan.forecast.accuracy.pct to action-SCM-001-S-I1.5" [ref=e522] [cursor=pointer]
+                    - img:
+                      - group "Edge from anchor to skpi-SCM-002" [ref=e525] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-SCM-002 to driver-SCM-002-supply.on_time.pct" [ref=e528] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-SCM-002 to driver-SCM-002-supply.in_full.pct" [ref=e531] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-SCM-002 to driver-SCM-002-supply.stockout_impact.pct" [ref=e534] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-SCM-002 to driver-SCM-002-supply.penalty.amount" [ref=e537] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-SCM-002-supply.on_time.pct to action-SCM-002-S-R2.2" [ref=e540] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-SCM-002-supply.stockout_impact.pct to action-SCM-002-S-R2.3" [ref=e543] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-SCM-002-supply.penalty.amount to action-SCM-002-S-R2.4" [ref=e546] [cursor=pointer]
+                    - img:
+                      - group "Edge from anchor to skpi-SCM-003" [ref=e549] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-SCM-003 to driver-SCM-003-plan.forecast.mape.pct" [ref=e552] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-SCM-003 to driver-SCM-003-plan.forecast.bias.pct" [ref=e555] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-SCM-003 to driver-SCM-003-plan.forecast.service_impact.pct" [ref=e558] [cursor=pointer]
+                    - img:
+                      - group "Edge from skpi-SCM-003 to driver-SCM-003-plan.replan.count" [ref=e561] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-SCM-003-plan.replan.count to action-SCM-003-S-F3.1" [ref=e564] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-SCM-003-plan.forecast.bias.pct to action-SCM-003-S-F3.2" [ref=e567] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-SCM-003-plan.forecast.mape.pct to action-SCM-003-S-F3.2" [ref=e570] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-SCM-003-plan.forecast.service_impact.pct to action-SCM-003-S-F3.3" [ref=e573] [cursor=pointer]
+                    - img:
+                      - group "Edge from driver-SCM-003-plan.replan.count to action-SCM-003-S-F3.4" [ref=e576] [cursor=pointer]
+                  - generic:
+                    - group [ref=e579]:
+                      - generic [ref=e580]:
+                        - paragraph [ref=e581]: Strategy Anchor
+                        - paragraph [ref=e582]: Profitable growth through margin quality, cash resilience & operational excellence
+                    - group [ref=e584]:
+                      - generic [ref=e585] [cursor=pointer]:
+                        - paragraph [ref=e587]: Use Case · COM-001
+                        - paragraph [ref=e588]: Sales Performance vs Plan & LY
+                        - paragraph [ref=e589]: Gross Margin %
+                        - paragraph [ref=e590]: maximize impact
+                    - group [ref=e592]:
+                      - generic [ref=e593] [cursor=pointer]:
+                        - paragraph [ref=e595]:
+                          - text: Driver KPI
+                          - img [ref=e596]
+                          - text: No Action
+                        - paragraph [ref=e598]: Cost of Goods Sold Amount
+                        - paragraph [ref=e599]: cost.cogs.amount
+                    - group [ref=e601]:
+                      - generic [ref=e602] [cursor=pointer]:
+                        - paragraph [ref=e604]:
+                          - text: Driver KPI
+                          - img [ref=e605]
+                          - text: No Action
+                        - paragraph [ref=e607]: Net Sales Amount
+                        - paragraph [ref=e608]: sales.net_sales.amount
+                    - group [ref=e610]:
+                      - generic [ref=e611] [cursor=pointer]:
+                        - paragraph [ref=e613]: Driver KPI
+                        - paragraph [ref=e614]: Net Sales % vs Plan
+                        - paragraph [ref=e615]: sales.net_sales.delta_pct.plan
+                    - group [ref=e617]:
+                      - generic [ref=e618] [cursor=pointer]:
+                        - paragraph [ref=e620]:
+                          - text: Driver KPI
+                          - img [ref=e621]
+                          - text: No Action
+                        - paragraph [ref=e623]: Delta% Net Sales
+                        - paragraph [ref=e624]: sales.net_sales.delta_pct.ly
+                    - group [ref=e626]:
+                      - generic [ref=e627] [cursor=pointer]:
+                        - paragraph [ref=e629]: Driver KPI
+                        - paragraph [ref=e630]: Price Effect Amount
+                        - paragraph [ref=e631]: sales.pvm.price_effect.amount
+                    - group [ref=e633]:
+                      - generic [ref=e634] [cursor=pointer]:
+                        - paragraph [ref=e636]:
+                          - text: Driver KPI
+                          - img [ref=e637]
+                          - text: No Action
+                        - paragraph [ref=e639]: Volume Effect Amount
+                        - paragraph [ref=e640]: sales.pvm.volume_effect.amount
+                    - group [ref=e642]:
+                      - generic [ref=e643] [cursor=pointer]:
+                        - paragraph [ref=e645]:
+                          - text: Driver KPI
+                          - img [ref=e646]
+                          - text: No Action
+                        - paragraph [ref=e648]: Mix Effect Amount
+                        - paragraph [ref=e649]: sales.pvm.mix_effect.amount
+                    - group [ref=e651]:
+                      - generic [ref=e652]:
+                        - paragraph [ref=e654]:
+                          - img [ref=e655]
+                          - text: Orphan Action
+                        - paragraph [ref=e657]: Price Realization Guardrails
+                        - paragraph [ref=e658]: C-M2.1 · Commercial
+                    - group [ref=e660]:
+                      - generic [ref=e661]:
+                        - paragraph [ref=e663]: Action Code
+                        - paragraph [ref=e664]: Price Discipline Enforcement
+                        - paragraph [ref=e665]: C-S1.1 · Commercial
+                    - group [ref=e667]:
+                      - generic [ref=e668]:
+                        - paragraph [ref=e670]: Action Code
+                        - paragraph [ref=e671]: Sales Gap Recovery via Price & Pack Adjustment
+                        - paragraph [ref=e672]: C-S1.2 · Commercial
+                    - group [ref=e674]:
+                      - generic [ref=e675] [cursor=pointer]:
+                        - paragraph [ref=e677]: Use Case · COM-002
+                        - paragraph [ref=e678]: Margin & Price Performance
+                        - paragraph [ref=e679]: Gross Margin %
+                        - paragraph [ref=e680]: maximize impact
+                    - group [ref=e682]:
+                      - generic [ref=e683] [cursor=pointer]:
+                        - paragraph [ref=e685]:
+                          - text: Driver KPI
+                          - img [ref=e686]
+                          - text: No Action
+                        - paragraph [ref=e688]: Gross Margin Amount
+                        - paragraph [ref=e689]: margin.gm.amount
+                    - group [ref=e691]:
+                      - generic [ref=e692] [cursor=pointer]:
+                        - paragraph [ref=e694]:
+                          - text: Driver KPI
+                          - img [ref=e695]
+                          - text: No Action
+                        - paragraph [ref=e697]: List Price Amount
+                        - paragraph [ref=e698]: sales.price.list.amount
+                    - group [ref=e700]:
+                      - generic [ref=e701] [cursor=pointer]:
+                        - paragraph [ref=e703]:
+                          - text: Driver KPI
+                          - img [ref=e704]
+                          - text: No Action
+                        - paragraph [ref=e706]: Net Price Amount
+                        - paragraph [ref=e707]: sales.price.net.amount
+                    - group [ref=e709]:
+                      - generic [ref=e710] [cursor=pointer]:
+                        - paragraph [ref=e712]:
+                          - text: Driver KPI
+                          - img [ref=e713]
+                          - text: No Action
+                        - paragraph [ref=e715]: Price Realization %
+                        - paragraph [ref=e716]: sales.price.realization_pct
+                    - group [ref=e718]:
+                      - generic [ref=e719] [cursor=pointer]:
+                        - paragraph [ref=e721]: Driver KPI
+                        - paragraph [ref=e722]: Mix Effect Amount
+                        - paragraph [ref=e723]: sales.pvm.mix_effect.amount
+                    - group [ref=e725]:
+                      - generic [ref=e726] [cursor=pointer]:
+                        - paragraph [ref=e728]:
+                          - text: Driver KPI
+                          - img [ref=e729]
+                          - text: No Action
+                        - paragraph [ref=e731]: COGS per Unit
+                        - paragraph [ref=e732]: cost.cogs_per_unit.amount
+                    - group [ref=e734]:
+                      - generic [ref=e735] [cursor=pointer]:
+                        - paragraph [ref=e737]:
+                          - text: Driver KPI
+                          - img [ref=e738]
+                          - text: No Action
+                        - paragraph [ref=e740]: Gross Margin % vs Plan
+                        - paragraph [ref=e741]: margin.gm.vs_plan.pct
+                    - group [ref=e743]:
+                      - generic [ref=e744]:
+                        - paragraph [ref=e746]: Action Code
+                        - paragraph [ref=e747]: Mix Optimization (Margin-Driven)
+                        - paragraph [ref=e748]: C-M2.2 · Commercial
+                    - group [ref=e750]:
+                      - generic [ref=e751]:
+                        - paragraph [ref=e753]:
+                          - img [ref=e754]
+                          - text: Orphan Action
+                        - paragraph [ref=e756]: Promo Calendar Discipline
+                        - paragraph [ref=e757]: C-P4.1 · Trade Marketing
+                    - group [ref=e759]:
+                      - generic [ref=e760]:
+                        - paragraph [ref=e762]:
+                          - img [ref=e763]
+                          - text: Orphan Action
+                        - paragraph [ref=e765]: Sales Gap Recovery via Price & Pack Adjustment
+                        - paragraph [ref=e766]: C-S1.2 · Commercial
+                    - group [ref=e768]:
+                      - generic [ref=e769] [cursor=pointer]:
+                        - paragraph [ref=e771]: Use Case · COM-004
+                        - paragraph [ref=e772]: Promotion Effectiveness
+                        - paragraph [ref=e773]: Promo ROI %
+                        - paragraph [ref=e774]: maximize impact
+                    - group [ref=e776]:
+                      - generic [ref=e777] [cursor=pointer]:
+                        - paragraph [ref=e779]:
+                          - text: Driver KPI
+                          - img [ref=e780]
+                          - text: No Action
+                        - paragraph [ref=e782]: Incremental Sales Amount
+                        - paragraph [ref=e783]: sales.promo.incremental.amount
+                    - group [ref=e785]:
+                      - generic [ref=e786] [cursor=pointer]:
+                        - paragraph [ref=e788]:
+                          - text: Driver KPI
+                          - img [ref=e789]
+                          - text: No Action
+                        - paragraph [ref=e791]: GM % During Promo
+                        - paragraph [ref=e792]: margin.promo.gm.pct
+                    - group [ref=e794]:
+                      - generic [ref=e795] [cursor=pointer]:
+                        - paragraph [ref=e797]:
+                          - text: Driver KPI
+                          - img [ref=e798]
+                          - text: No Action
+                        - paragraph [ref=e800]: List Price Amount
+                        - paragraph [ref=e801]: sales.price.list.amount
+                    - group [ref=e803]:
+                      - generic [ref=e804] [cursor=pointer]:
+                        - paragraph [ref=e806]:
+                          - text: Driver KPI
+                          - img [ref=e807]
+                          - text: No Action
+                        - paragraph [ref=e809]: Net Price Amount
+                        - paragraph [ref=e810]: sales.price.net.amount
+                    - group [ref=e812]:
+                      - generic [ref=e813] [cursor=pointer]:
+                        - paragraph [ref=e815]: Driver KPI
+                        - paragraph [ref=e816]: Price Realization %
+                        - paragraph [ref=e817]: sales.price.realization_pct
+                    - group [ref=e819]:
+                      - generic [ref=e820] [cursor=pointer]:
+                        - paragraph [ref=e822]:
+                          - text: Driver KPI
+                          - img [ref=e823]
+                          - text: No Action
+                        - paragraph [ref=e825]: Cannibalization %
+                        - paragraph [ref=e826]: sales.promo.cannibalization.pct
+                    - group [ref=e828]:
+                      - generic [ref=e829]:
+                        - paragraph [ref=e831]:
+                          - img [ref=e832]
+                          - text: Orphan Action
+                        - paragraph [ref=e834]: Promo Calendar Discipline
+                        - paragraph [ref=e835]: C-P4.1 · Trade Marketing
+                    - group [ref=e837]:
+                      - generic [ref=e838]:
+                        - paragraph [ref=e840]: Action Code
+                        - paragraph [ref=e841]: Price Realization Guardrails
+                        - paragraph [ref=e842]: C-M2.1 · Commercial
+                    - group [ref=e844]:
+                      - generic [ref=e845]:
+                        - paragraph [ref=e847]:
+                          - img [ref=e848]
+                          - text: Orphan Action
+                        - paragraph [ref=e850]: Mix Optimization (Margin-Driven)
+                        - paragraph [ref=e851]: C-M2.2 · Commercial
+                    - group [ref=e853]:
+                      - generic [ref=e854] [cursor=pointer]:
+                        - paragraph [ref=e856]: Use Case · COM-003
+                        - paragraph [ref=e857]: Customer Value
+                        - paragraph [ref=e858]: CLV (Customer Lifetime Value)
+                        - paragraph [ref=e859]: maximize impact
+                    - group [ref=e861]:
+                      - generic [ref=e862] [cursor=pointer]:
+                        - paragraph [ref=e864]:
+                          - text: Driver KPI
+                          - img [ref=e865]
+                          - text: No Action
+                        - paragraph [ref=e867]: Customer Lifetime Revenue Amount
+                        - paragraph [ref=e868]: crm.lifetime_revenue.amount
+                    - group [ref=e870]:
+                      - generic [ref=e871] [cursor=pointer]:
+                        - paragraph [ref=e873]: Driver KPI
+                        - paragraph [ref=e874]: Customer Retention %
+                        - paragraph [ref=e875]: crm.retention.pct
+                    - group [ref=e877]:
+                      - generic [ref=e878] [cursor=pointer]:
+                        - paragraph [ref=e880]:
+                          - text: Driver KPI
+                          - img [ref=e881]
+                          - text: No Action
+                        - paragraph [ref=e883]: Churned Customers
+                        - paragraph [ref=e884]: crm.churned_customers.count
+                    - group [ref=e886]:
+                      - generic [ref=e887] [cursor=pointer]:
+                        - paragraph [ref=e889]:
+                          - text: Driver KPI
+                          - img [ref=e890]
+                          - text: No Action
+                        - paragraph [ref=e892]: Active Customers
+                        - paragraph [ref=e893]: crm.active_customers.count
+                    - group [ref=e895]:
+                      - generic [ref=e896] [cursor=pointer]:
+                        - paragraph [ref=e898]: Driver KPI
+                        - paragraph [ref=e899]: Net Promoter Score (NPS)
+                        - paragraph [ref=e900]: crm.nps.index
+                    - group [ref=e902]:
+                      - generic [ref=e903] [cursor=pointer]:
+                        - paragraph [ref=e905]: Driver KPI
+                        - paragraph [ref=e906]: Complaint Count
+                        - paragraph [ref=e907]: crm.complaint.count
+                    - group [ref=e909]:
+                      - generic [ref=e910]:
+                        - paragraph [ref=e912]: Action Code
+                        - paragraph [ref=e913]: Customer Retention Intervention
+                        - paragraph [ref=e914]: C-C3.1 · Commercial
+                    - group [ref=e916]:
+                      - generic [ref=e917]:
+                        - paragraph [ref=e919]: Action Code
+                        - paragraph [ref=e920]: Complaint & Advocacy Recovery
+                        - paragraph [ref=e921]: C-C3.2 · Commercial
+                    - group [ref=e923]:
+                      - generic [ref=e924] [cursor=pointer]:
+                        - paragraph [ref=e926]: Use Case · XD-003
+                        - paragraph [ref=e927]: Executive KPI Overview
+                        - paragraph [ref=e928]: Enterprise Value-at-Risk Index
+                        - paragraph [ref=e929]: minimize impact
+                    - group [ref=e931]:
+                      - generic [ref=e932] [cursor=pointer]:
+                        - paragraph [ref=e934]: Driver KPI
+                        - paragraph [ref=e935]: Gross Margin %
+                        - paragraph [ref=e936]: margin.gm.pct
+                    - group [ref=e938]:
+                      - generic [ref=e939] [cursor=pointer]:
+                        - paragraph [ref=e941]: Driver KPI
+                        - paragraph [ref=e942]: Delta% Net Sales
+                        - paragraph [ref=e943]: sales.net_sales.delta_pct.ly
+                    - group [ref=e945]:
+                      - generic [ref=e946] [cursor=pointer]:
+                        - paragraph [ref=e948]:
+                          - text: Driver KPI
+                          - img [ref=e949]
+                          - text: No Action
+                        - paragraph [ref=e951]: CLV (Customer Lifetime Value)
+                        - paragraph [ref=e952]: crm.clv.amount
+                    - group [ref=e954]:
+                      - generic [ref=e955] [cursor=pointer]:
+                        - paragraph [ref=e957]: Driver KPI
+                        - paragraph [ref=e958]: SLA Attainment %
+                        - paragraph [ref=e959]: svc.sla.attainment.pct
+                    - group [ref=e961]:
+                      - generic [ref=e962] [cursor=pointer]:
+                        - paragraph [ref=e964]: Driver KPI
+                        - paragraph [ref=e965]: OTIF %
+                        - paragraph [ref=e966]: ops.otif.pct
+                    - group [ref=e968]:
+                      - generic [ref=e969] [cursor=pointer]:
+                        - paragraph [ref=e971]: Driver KPI
+                        - paragraph [ref=e972]: Cash Conversion Cycle (Days)
+                        - paragraph [ref=e973]: ops.working_capital.ccc.days
+                    - group [ref=e975]:
+                      - generic [ref=e976] [cursor=pointer]:
+                        - paragraph [ref=e978]:
+                          - text: Driver KPI
+                          - img [ref=e979]
+                          - text: No Action
+                        - paragraph [ref=e981]: Digital Adoption Rate %
+                        - paragraph [ref=e982]: people.digital_adoption.pct
+                    - group [ref=e984]:
+                      - generic [ref=e985] [cursor=pointer]:
+                        - paragraph [ref=e987]: Driver KPI
+                        - paragraph [ref=e988]: Attrition Risk %
+                        - paragraph [ref=e989]: people.attrition_risk.pct
+                    - group [ref=e991]:
+                      - generic [ref=e992]:
+                        - paragraph [ref=e994]: Action Code
+                        - paragraph [ref=e995]: Cross-Domain Risk Prioritisation
+                        - paragraph [ref=e996]: X-E3.2 · Strategy / Enterprise Controlling
+                    - group [ref=e998]:
+                      - generic [ref=e999] [cursor=pointer]:
+                        - paragraph [ref=e1001]: Use Case · XD-004
+                        - paragraph [ref=e1002]: Executive Action Governance
+                        - paragraph [ref=e1003]: Action Outcome Rate %
+                        - paragraph [ref=e1004]: maximize impact
+                    - group [ref=e1006]:
+                      - generic [ref=e1007] [cursor=pointer]:
+                        - paragraph [ref=e1009]: Driver KPI
+                        - paragraph [ref=e1010]: Actions Routed Count
+                        - paragraph [ref=e1011]: enterprise.action_routed.count
+                    - group [ref=e1013]:
+                      - generic [ref=e1014]:
+                        - paragraph [ref=e1016]: Action Code
+                        - paragraph [ref=e1017]: Executive Action Governance
+                        - paragraph [ref=e1018]: X-E3.3 · Executive Office / PMO
+                    - group [ref=e1020]:
+                      - generic [ref=e1021] [cursor=pointer]:
+                        - paragraph [ref=e1023]: Use Case · XD-001
+                        - paragraph [ref=e1024]: Service Level Performance
+                        - paragraph [ref=e1025]: SLA Attainment %
+                        - paragraph [ref=e1026]: maximize impact
+                    - group [ref=e1028]:
+                      - generic [ref=e1029] [cursor=pointer]:
+                        - paragraph [ref=e1031]: Driver KPI
+                        - paragraph [ref=e1032]: Backlog Count
+                        - paragraph [ref=e1033]: svc.backlog.count
+                    - group [ref=e1035]:
+                      - generic [ref=e1036] [cursor=pointer]:
+                        - paragraph [ref=e1038]: Driver KPI
+                        - paragraph [ref=e1039]: First Contact Resolution %
+                        - paragraph [ref=e1040]: svc.fcr.pct
+                    - group [ref=e1042]:
+                      - generic [ref=e1043] [cursor=pointer]:
+                        - paragraph [ref=e1045]: Driver KPI
+                        - paragraph [ref=e1046]: Average Handling Time (minutes)
+                        - paragraph [ref=e1047]: svc.aht.minutes
+                    - group [ref=e1049]:
+                      - generic [ref=e1050] [cursor=pointer]:
+                        - paragraph [ref=e1052]: Driver KPI
+                        - paragraph [ref=e1053]: Escalation %
+                        - paragraph [ref=e1054]: svc.escalation.pct
+                    - group [ref=e1056]:
+                      - generic [ref=e1057] [cursor=pointer]:
+                        - paragraph [ref=e1059]:
+                          - text: Driver KPI
+                          - img [ref=e1060]
+                          - text: No Action
+                        - paragraph [ref=e1062]: Tickets Created Count
+                        - paragraph [ref=e1063]: svc.tickets.created.count
+                    - group [ref=e1065]:
+                      - generic [ref=e1066] [cursor=pointer]:
+                        - paragraph [ref=e1068]:
+                          - text: Driver KPI
+                          - img [ref=e1069]
+                          - text: No Action
+                        - paragraph [ref=e1071]: Tickets Closed Count
+                        - paragraph [ref=e1072]: svc.tickets.closed.count
+                    - group [ref=e1074]:
+                      - generic [ref=e1075]:
+                        - paragraph [ref=e1077]: Action Code
+                        - paragraph [ref=e1078]: Service Level Orchestration
+                        - paragraph [ref=e1079]: X-S1.1 · Service / CX Leadership
+                    - group [ref=e1081]:
+                      - generic [ref=e1082]:
+                        - paragraph [ref=e1084]: Action Code
+                        - paragraph [ref=e1085]: Capacity & Backlog Stabilisation
+                        - paragraph [ref=e1086]: X-S1.2 · Service Operations
+                    - group [ref=e1088]:
+                      - generic [ref=e1089]:
+                        - paragraph [ref=e1091]: Action Code
+                        - paragraph [ref=e1092]: Quality & First-Contact Resolution Uplift
+                        - paragraph [ref=e1093]: X-S1.3 · CX / Quality Management
+                    - group [ref=e1095]:
+                      - generic [ref=e1096]:
+                        - paragraph [ref=e1098]: Action Code
+                        - paragraph [ref=e1099]: Handling Time & Flow Efficiency
+                        - paragraph [ref=e1100]: X-S1.4 · Service Operations
+                    - group [ref=e1102]:
+                      - generic [ref=e1103] [cursor=pointer]:
+                        - paragraph [ref=e1105]: Use Case · XD-002
+                        - paragraph [ref=e1106]: Resource Utilization
+                        - paragraph [ref=e1107]: Utilization %
+                        - paragraph [ref=e1108]: maximize impact
+                    - group [ref=e1110]:
+                      - generic [ref=e1111] [cursor=pointer]:
+                        - paragraph [ref=e1113]: Driver KPI
+                        - paragraph [ref=e1114]: Occupancy %
+                        - paragraph [ref=e1115]: res.occupancy.pct
+                    - group [ref=e1117]:
+                      - generic [ref=e1118] [cursor=pointer]:
+                        - paragraph [ref=e1120]:
+                          - text: Driver KPI
+                          - img [ref=e1121]
+                          - text: No Action
+                        - paragraph [ref=e1123]: SLA Attainment %
+                        - paragraph [ref=e1124]: svc.sla.attainment.pct
+                    - group [ref=e1126]:
+                      - generic [ref=e1127] [cursor=pointer]:
+                        - paragraph [ref=e1129]: Driver KPI
+                        - paragraph [ref=e1130]: Overtime %
+                        - paragraph [ref=e1131]: res.overtime.pct
+                    - group [ref=e1133]:
+                      - generic [ref=e1134] [cursor=pointer]:
+                        - paragraph [ref=e1136]: Driver KPI
+                        - paragraph [ref=e1137]: Shrinkage %
+                        - paragraph [ref=e1138]: res.shrinkage.pct
+                    - group [ref=e1140]:
+                      - generic [ref=e1141] [cursor=pointer]:
+                        - paragraph [ref=e1143]:
+                          - text: Driver KPI
+                          - img [ref=e1144]
+                          - text: No Action
+                        - paragraph [ref=e1146]: Backlog Count
+                        - paragraph [ref=e1147]: svc.backlog.count
+                    - group [ref=e1149]:
+                      - generic [ref=e1150] [cursor=pointer]:
+                        - paragraph [ref=e1152]:
+                          - text: Driver KPI
+                          - img [ref=e1153]
+                          - text: No Action
+                        - paragraph [ref=e1155]: Tickets Created Count
+                        - paragraph [ref=e1156]: svc.tickets.created.count
+                    - group [ref=e1158]:
+                      - generic [ref=e1159]:
+                        - paragraph [ref=e1161]: Action Code
+                        - paragraph [ref=e1162]: Resource Utilization Orchestration
+                        - paragraph [ref=e1163]: X-R2.1 · Service Operations / Workforce Management Leadership
+                    - group [ref=e1165]:
+                      - generic [ref=e1166]:
+                        - paragraph [ref=e1168]: Action Code
+                        - paragraph [ref=e1169]: Capacity Reallocation & Load Balancing
+                        - paragraph [ref=e1170]: X-R2.2 · Workforce Management
+                    - group [ref=e1172]:
+                      - generic [ref=e1173]:
+                        - paragraph [ref=e1175]: Action Code
+                        - paragraph [ref=e1176]: Shrinkage & Productive Time Control
+                        - paragraph [ref=e1177]: X-R2.3 · Service Operations / CX
+                    - group [ref=e1179]:
+                      - generic [ref=e1180]:
+                        - paragraph [ref=e1182]: Action Code
+                        - paragraph [ref=e1183]: Overtime & Fatigue Containment
+                        - paragraph [ref=e1184]: X-R2.4 · Service Operations / HR
+                    - group [ref=e1186]:
+                      - generic [ref=e1187] [cursor=pointer]:
+                        - paragraph [ref=e1189]: Use Case · FIN-001
+                        - paragraph [ref=e1190]: Cash & Liquidity Performance
+                        - paragraph [ref=e1191]: CCC Days
+                        - paragraph [ref=e1192]: minimize impact
+                    - group [ref=e1194]:
+                      - generic [ref=e1195] [cursor=pointer]:
+                        - paragraph [ref=e1197]:
+                          - text: Driver KPI
+                          - img [ref=e1198]
+                          - text: No Action
+                        - paragraph [ref=e1200]: Cash Balance
+                        - paragraph [ref=e1201]: fin.cash.balance
+                    - group [ref=e1203]:
+                      - generic [ref=e1204] [cursor=pointer]:
+                        - paragraph [ref=e1206]:
+                          - text: Driver KPI
+                          - img [ref=e1207]
+                          - text: No Action
+                        - paragraph [ref=e1209]: Operating Cash Flow
+                        - paragraph [ref=e1210]: fin.cash.ocf
+                    - group [ref=e1212]:
+                      - generic [ref=e1213] [cursor=pointer]:
+                        - paragraph [ref=e1215]: Driver KPI
+                        - paragraph [ref=e1216]: Cash vs Plan %
+                        - paragraph [ref=e1217]: fin.cash.vs_plan.pct
+                    - group [ref=e1219]:
+                      - generic [ref=e1220] [cursor=pointer]:
+                        - paragraph [ref=e1222]: Driver KPI
+                        - paragraph [ref=e1223]: DSO Days
+                        - paragraph [ref=e1224]: wc.dso.days
+                    - group [ref=e1226]:
+                      - generic [ref=e1227] [cursor=pointer]:
+                        - paragraph [ref=e1229]:
+                          - text: Driver KPI
+                          - img [ref=e1230]
+                          - text: No Action
+                        - paragraph [ref=e1232]: DIO Days
+                        - paragraph [ref=e1233]: wc.dio.days
+                    - group [ref=e1235]:
+                      - generic [ref=e1236] [cursor=pointer]:
+                        - paragraph [ref=e1238]: Driver KPI
+                        - paragraph [ref=e1239]: DPO Days
+                        - paragraph [ref=e1240]: wc.dpo.days
+                    - group [ref=e1242]:
+                      - generic [ref=e1243]:
+                        - paragraph [ref=e1245]: Action Code
+                        - paragraph [ref=e1246]: Working Capital Improvement
+                        - paragraph [ref=e1247]: F-C1.1 · Finance
+                    - group [ref=e1249]:
+                      - generic [ref=e1250]:
+                        - paragraph [ref=e1252]: Action Code
+                        - paragraph [ref=e1253]: Collections Acceleration
+                        - paragraph [ref=e1254]: F-C1.2 · Finance / Credit & Collections
+                    - group [ref=e1256]:
+                      - generic [ref=e1257]:
+                        - paragraph [ref=e1259]:
+                          - img [ref=e1260]
+                          - text: Orphan Action
+                        - paragraph [ref=e1262]: Inventory Rightsizing
+                        - paragraph [ref=e1263]: S-I1.2 · Supply Planning / Inventory Management
+                    - group [ref=e1265]:
+                      - generic [ref=e1266]:
+                        - paragraph [ref=e1268]: Action Code
+                        - paragraph [ref=e1269]: Payables Optimisation
+                        - paragraph [ref=e1270]: F-C1.4 · Procurement / Accounts Payable
+                    - group [ref=e1272]:
+                      - generic [ref=e1273] [cursor=pointer]:
+                        - paragraph [ref=e1275]: Use Case · FIN-002
+                        - paragraph [ref=e1276]: Cost Performance
+                        - paragraph [ref=e1277]: Unit Cost Amount
+                        - paragraph [ref=e1278]: minimize impact
+                    - group [ref=e1280]:
+                      - generic [ref=e1281] [cursor=pointer]:
+                        - paragraph [ref=e1283]:
+                          - text: Driver KPI
+                          - img [ref=e1284]
+                          - text: No Action
+                        - paragraph [ref=e1286]: COGS % of Sales
+                        - paragraph [ref=e1287]: margin.cogs.pct
+                    - group [ref=e1289]:
+                      - generic [ref=e1290] [cursor=pointer]:
+                        - paragraph [ref=e1292]: Driver KPI
+                        - paragraph [ref=e1293]: OpEx vs Plan %
+                        - paragraph [ref=e1294]: cost.opex.vs_plan.pct
+                    - group [ref=e1296]:
+                      - generic [ref=e1297] [cursor=pointer]:
+                        - paragraph [ref=e1299]: Driver KPI
+                        - paragraph [ref=e1300]: Material Cost %
+                        - paragraph [ref=e1301]: cost.material.pct
+                    - group [ref=e1303]:
+                      - generic [ref=e1304] [cursor=pointer]:
+                        - paragraph [ref=e1306]: Driver KPI
+                        - paragraph [ref=e1307]: Labor Productivity %
+                        - paragraph [ref=e1308]: ops.labor.productivity.pct
+                    - group [ref=e1310]:
+                      - generic [ref=e1311] [cursor=pointer]:
+                        - paragraph [ref=e1313]:
+                          - text: Driver KPI
+                          - img [ref=e1314]
+                          - text: No Action
+                        - paragraph [ref=e1316]: Production Volume Units
+                        - paragraph [ref=e1317]: ops.production.volume
+                    - group [ref=e1319]:
+                      - generic [ref=e1320] [cursor=pointer]:
+                        - paragraph [ref=e1322]:
+                          - text: Driver KPI
+                          - img [ref=e1323]
+                          - text: No Action
+                        - paragraph [ref=e1325]: Quality Defect Rate %
+                        - paragraph [ref=e1326]: ops.quality.defect_rate.pct
+                    - group [ref=e1328]:
+                      - generic [ref=e1329] [cursor=pointer]:
+                        - paragraph [ref=e1331]:
+                          - text: Driver KPI
+                          - img [ref=e1332]
+                          - text: No Action
+                        - paragraph [ref=e1334]: Yield %
+                        - paragraph [ref=e1335]: ops.yield.pct
+                    - group [ref=e1337]:
+                      - generic [ref=e1338]:
+                        - paragraph [ref=e1340]: Action Code
+                        - paragraph [ref=e1341]: Cost Take-Out Orchestration
+                        - paragraph [ref=e1342]: F-K2.1 · Finance / Operations
+                    - group [ref=e1344]:
+                      - generic [ref=e1345]:
+                        - paragraph [ref=e1347]: Action Code
+                        - paragraph [ref=e1348]: Material Cost Discipline
+                        - paragraph [ref=e1349]: F-K2.2 · Procurement / Operations
+                    - group [ref=e1351]:
+                      - generic [ref=e1352]:
+                        - paragraph [ref=e1354]: Action Code
+                        - paragraph [ref=e1355]: Labor Productivity Recovery
+                        - paragraph [ref=e1356]: F-K2.3 · Operations / Production
+                    - group [ref=e1358]:
+                      - generic [ref=e1359]:
+                        - paragraph [ref=e1361]: Action Code
+                        - paragraph [ref=e1362]: OpEx Spend Control
+                        - paragraph [ref=e1363]: F-K2.4 · Finance / Ops Controlling
+                    - group [ref=e1365]:
+                      - generic [ref=e1366] [cursor=pointer]:
+                        - paragraph [ref=e1368]: Use Case · OPS-001
+                        - paragraph [ref=e1369]: Operations Performance
+                        - paragraph [ref=e1370]: Overall Equipment Effectiveness (OEE) %
+                        - paragraph [ref=e1371]: maximize impact
+                    - group [ref=e1373]:
+                      - generic [ref=e1374] [cursor=pointer]:
+                        - paragraph [ref=e1376]: Driver KPI
+                        - paragraph [ref=e1377]: Availability %
+                        - paragraph [ref=e1378]: ops.availability.pct
+                    - group [ref=e1380]:
+                      - generic [ref=e1381] [cursor=pointer]:
+                        - paragraph [ref=e1383]: Driver KPI
+                        - paragraph [ref=e1384]: Performance %
+                        - paragraph [ref=e1385]: ops.performance.pct
+                    - group [ref=e1387]:
+                      - generic [ref=e1388] [cursor=pointer]:
+                        - paragraph [ref=e1390]: Driver KPI
+                        - paragraph [ref=e1391]: Quality %
+                        - paragraph [ref=e1392]: ops.quality.pct
+                    - group [ref=e1394]:
+                      - generic [ref=e1395] [cursor=pointer]:
+                        - paragraph [ref=e1397]: Driver KPI
+                        - paragraph [ref=e1398]: Throughput Units
+                        - paragraph [ref=e1399]: ops.throughput.units
+                    - group [ref=e1401]:
+                      - generic [ref=e1402]:
+                        - paragraph [ref=e1404]: Action Code
+                        - paragraph [ref=e1405]: Operations Stabilisation
+                        - paragraph [ref=e1406]: O-O1.1 · Operations Excellence / Maintenance
+                    - group [ref=e1408]:
+                      - generic [ref=e1409]:
+                        - paragraph [ref=e1411]: Action Code
+                        - paragraph [ref=e1412]: Performance Uplift
+                        - paragraph [ref=e1413]: O-O1.2 · Production
+                    - group [ref=e1415]:
+                      - generic [ref=e1416]:
+                        - paragraph [ref=e1418]: Action Code
+                        - paragraph [ref=e1419]: Quality & Yield Recovery
+                        - paragraph [ref=e1420]: O-O1.3 · Quality / Production
+                    - group [ref=e1422]:
+                      - generic [ref=e1423]:
+                        - paragraph [ref=e1425]: Action Code
+                        - paragraph [ref=e1426]: Throughput Constraint Resolution
+                        - paragraph [ref=e1427]: O-O1.4 · Operations Leadership
+                    - group [ref=e1429]:
+                      - generic [ref=e1430] [cursor=pointer]:
+                        - paragraph [ref=e1432]: Use Case · OPS-002
+                        - paragraph [ref=e1433]: Asset Performance
+                        - paragraph [ref=e1434]: MTBF (hours)
+                        - paragraph [ref=e1435]: maximize impact
+                    - group [ref=e1437]:
+                      - generic [ref=e1438] [cursor=pointer]:
+                        - paragraph [ref=e1440]: Driver KPI
+                        - paragraph [ref=e1441]: Availability %
+                        - paragraph [ref=e1442]: ops.availability.pct
+                    - group [ref=e1444]:
+                      - generic [ref=e1445] [cursor=pointer]:
+                        - paragraph [ref=e1447]: Driver KPI
+                        - paragraph [ref=e1448]: MTTR (hours)
+                        - paragraph [ref=e1449]: ops.mttr.hours
+                    - group [ref=e1451]:
+                      - generic [ref=e1452] [cursor=pointer]:
+                        - paragraph [ref=e1454]: Driver KPI
+                        - paragraph [ref=e1455]: Unplanned Downtime %
+                        - paragraph [ref=e1456]: ops.downtime.unplanned.pct
+                    - group [ref=e1458]:
+                      - generic [ref=e1459] [cursor=pointer]:
+                        - paragraph [ref=e1461]: Driver KPI
+                        - paragraph [ref=e1462]: Spare Parts Stockout %
+                        - paragraph [ref=e1463]: ops.spare_parts.stockout.pct
+                    - group [ref=e1465]:
+                      - generic [ref=e1466] [cursor=pointer]:
+                        - paragraph [ref=e1468]: Driver KPI
+                        - paragraph [ref=e1469]: PM Compliance %
+                        - paragraph [ref=e1470]: ops.pm_compliance.pct
+                    - group [ref=e1472]:
+                      - generic [ref=e1473] [cursor=pointer]:
+                        - paragraph [ref=e1475]:
+                          - text: Driver KPI
+                          - img [ref=e1476]
+                          - text: No Action
+                        - paragraph [ref=e1478]: Failure Count
+                        - paragraph [ref=e1479]: ops.failure.count
+                    - group [ref=e1481]:
+                      - generic [ref=e1482]:
+                        - paragraph [ref=e1484]: Action Code
+                        - paragraph [ref=e1485]: Reliability Orchestration
+                        - paragraph [ref=e1486]: O-A2.1 · Operations / Maintenance Leadership
+                    - group [ref=e1488]:
+                      - generic [ref=e1489]:
+                        - paragraph [ref=e1491]:
+                          - img [ref=e1492]
+                          - text: Orphan Action
+                        - paragraph [ref=e1494]: Failure Reduction (MTBF Improvement)
+                        - paragraph [ref=e1495]: O-A2.2 · Reliability Engineering / Maintenance
+                    - group [ref=e1497]:
+                      - generic [ref=e1498]:
+                        - paragraph [ref=e1500]: Action Code
+                        - paragraph [ref=e1501]: Repair Time Reduction (MTTR Control)
+                        - paragraph [ref=e1502]: O-A2.3 · Maintenance
+                    - group [ref=e1504]:
+                      - generic [ref=e1505]:
+                        - paragraph [ref=e1507]: Action Code
+                        - paragraph [ref=e1508]: Preventive Maintenance Discipline
+                        - paragraph [ref=e1509]: O-A2.4 · Maintenance Planning
+                    - group [ref=e1511]:
+                      - generic [ref=e1512]:
+                        - paragraph [ref=e1514]: Action Code
+                        - paragraph [ref=e1515]: Spare Parts Readiness
+                        - paragraph [ref=e1516]: O-A2.5 · Maintenance / Procurement
+                    - group [ref=e1518]:
+                      - generic [ref=e1519] [cursor=pointer]:
+                        - paragraph [ref=e1521]: Use Case · OPS-003
+                        - paragraph [ref=e1522]: Quality & Yield
+                        - paragraph [ref=e1523]: First Pass Yield %
+                        - paragraph [ref=e1524]: maximize impact
+                    - group [ref=e1526]:
+                      - generic [ref=e1527] [cursor=pointer]:
+                        - paragraph [ref=e1529]: Driver KPI
+                        - paragraph [ref=e1530]: Scrap Rate %
+                        - paragraph [ref=e1531]: quality.scrap.pct
+                    - group [ref=e1533]:
+                      - generic [ref=e1534] [cursor=pointer]:
+                        - paragraph [ref=e1536]: Driver KPI
+                        - paragraph [ref=e1537]: Rework Rate %
+                        - paragraph [ref=e1538]: quality.rework.pct
+                    - group [ref=e1540]:
+                      - generic [ref=e1541] [cursor=pointer]:
+                        - paragraph [ref=e1543]: Driver KPI
+                        - paragraph [ref=e1544]: Cost of Poor Quality
+                        - paragraph [ref=e1545]: quality.copq.amount
+                    - group [ref=e1547]:
+                      - generic [ref=e1548] [cursor=pointer]:
+                        - paragraph [ref=e1550]: Driver KPI
+                        - paragraph [ref=e1551]: Complaint Rate %
+                        - paragraph [ref=e1552]: quality.complaint.pct
+                    - group [ref=e1554]:
+                      - generic [ref=e1555] [cursor=pointer]:
+                        - paragraph [ref=e1557]: Driver KPI
+                        - paragraph [ref=e1558]: Defect Density
+                        - paragraph [ref=e1559]: quality.defect_density
+                    - group [ref=e1561]:
+                      - generic [ref=e1562]:
+                        - paragraph [ref=e1564]: Action Code
+                        - paragraph [ref=e1565]: Quality & Yield Orchestration
+                        - paragraph [ref=e1566]: O-Q3.1 · Quality / Operations Leadership
+                    - group [ref=e1568]:
+                      - generic [ref=e1569]:
+                        - paragraph [ref=e1571]: Action Code
+                        - paragraph [ref=e1572]: Process Defect Elimination
+                        - paragraph [ref=e1573]: O-Q3.2 · Quality / Production
+                    - group [ref=e1575]:
+                      - generic [ref=e1576]:
+                        - paragraph [ref=e1578]: Action Code
+                        - paragraph [ref=e1579]: Scrap & Rework Reduction
+                        - paragraph [ref=e1580]: O-Q3.3 · Quality / Production
+                    - group [ref=e1582]:
+                      - generic [ref=e1583]:
+                        - paragraph [ref=e1585]: Action Code
+                        - paragraph [ref=e1586]: COPQ Reduction
+                        - paragraph [ref=e1587]: O-Q3.4 · Quality / Finance
+                    - group [ref=e1589]:
+                      - generic [ref=e1590]:
+                        - paragraph [ref=e1592]: Action Code
+                        - paragraph [ref=e1593]: Complaint-Driven Stabilisation
+                        - paragraph [ref=e1594]: O-Q3.5 · Quality / Operations Excellence
+                    - group [ref=e1596]:
+                      - generic [ref=e1597] [cursor=pointer]:
+                        - paragraph [ref=e1599]: Use Case · SCM-001
+                        - paragraph [ref=e1600]: Inventory Performance
+                        - paragraph [ref=e1601]: Days in Inventory
+                        - paragraph [ref=e1602]: minimize impact
+                    - group [ref=e1604]:
+                      - generic [ref=e1605] [cursor=pointer]:
+                        - paragraph [ref=e1607]:
+                          - text: Driver KPI
+                          - img [ref=e1608]
+                          - text: No Action
+                        - paragraph [ref=e1610]: Inventory Turnover
+                        - paragraph [ref=e1611]: inv.turnover
+                    - group [ref=e1613]:
+                      - generic [ref=e1614] [cursor=pointer]:
+                        - paragraph [ref=e1616]: Driver KPI
+                        - paragraph [ref=e1617]: Stockout Rate %
+                        - paragraph [ref=e1618]: inv.stockout.pct
+                    - group [ref=e1620]:
+                      - generic [ref=e1621] [cursor=pointer]:
+                        - paragraph [ref=e1623]:
+                          - text: Driver KPI
+                          - img [ref=e1624]
+                          - text: No Action
+                        - paragraph [ref=e1626]: OTIF %
+                        - paragraph [ref=e1627]: supply.otif.pct
+                    - group [ref=e1629]:
+                      - generic [ref=e1630] [cursor=pointer]:
+                        - paragraph [ref=e1632]: Driver KPI
+                        - paragraph [ref=e1633]: Obsolete Inventory %
+                        - paragraph [ref=e1634]: inv.obsolete.pct
+                    - group [ref=e1636]:
+                      - generic [ref=e1637] [cursor=pointer]:
+                        - paragraph [ref=e1639]: Driver KPI
+                        - paragraph [ref=e1640]: Forecast Accuracy %
+                        - paragraph [ref=e1641]: plan.forecast.accuracy.pct
+                    - group [ref=e1643]:
+                      - generic [ref=e1644]:
+                        - paragraph [ref=e1646]: Action Code
+                        - paragraph [ref=e1647]: Inventory Orchestration
+                        - paragraph [ref=e1648]: S-I1.1 · Supply Chain Leadership
+                    - group [ref=e1650]:
+                      - generic [ref=e1651]:
+                        - paragraph [ref=e1653]:
+                          - img [ref=e1654]
+                          - text: Orphan Action
+                        - paragraph [ref=e1656]: Inventory Rightsizing
+                        - paragraph [ref=e1657]: S-I1.2 · Supply Planning / Inventory Management
+                    - group [ref=e1659]:
+                      - generic [ref=e1660]:
+                        - paragraph [ref=e1662]: Action Code
+                        - paragraph [ref=e1663]: Stockout Prevention
+                        - paragraph [ref=e1664]: S-I1.3 · Supply Planning / Logistics
+                    - group [ref=e1666]:
+                      - generic [ref=e1667]:
+                        - paragraph [ref=e1669]: Action Code
+                        - paragraph [ref=e1670]: Obsolescence & Excess Reduction
+                        - paragraph [ref=e1671]: S-I1.4 · Inventory Management / Finance
+                    - group [ref=e1673]:
+                      - generic [ref=e1674]:
+                        - paragraph [ref=e1676]: Action Code
+                        - paragraph [ref=e1677]: Forecast & Planning Stabilisation
+                        - paragraph [ref=e1678]: S-I1.5 · Demand Planning / S&OP
+                    - group [ref=e1680]:
+                      - generic [ref=e1681] [cursor=pointer]:
+                        - paragraph [ref=e1683]: Use Case · SCM-002
+                        - paragraph [ref=e1684]: Supply Reliability & OTIF
+                        - paragraph [ref=e1685]: OTIF %
+                        - paragraph [ref=e1686]: maximize impact
+                    - group [ref=e1688]:
+                      - generic [ref=e1689] [cursor=pointer]:
+                        - paragraph [ref=e1691]: Driver KPI
+                        - paragraph [ref=e1692]: On-Time %
+                        - paragraph [ref=e1693]: supply.on_time.pct
+                    - group [ref=e1695]:
+                      - generic [ref=e1696] [cursor=pointer]:
+                        - paragraph [ref=e1698]:
+                          - text: Driver KPI
+                          - img [ref=e1699]
+                          - text: No Action
+                        - paragraph [ref=e1701]: In-Full %
+                        - paragraph [ref=e1702]: supply.in_full.pct
+                    - group [ref=e1704]:
+                      - generic [ref=e1705] [cursor=pointer]:
+                        - paragraph [ref=e1707]: Driver KPI
+                        - paragraph [ref=e1708]: Stockout Impact %
+                        - paragraph [ref=e1709]: supply.stockout_impact.pct
+                    - group [ref=e1711]:
+                      - generic [ref=e1712] [cursor=pointer]:
+                        - paragraph [ref=e1714]: Driver KPI
+                        - paragraph [ref=e1715]: Penalty Amount
+                        - paragraph [ref=e1716]: supply.penalty.amount
+                    - group [ref=e1718]:
+                      - generic [ref=e1719]:
+                        - paragraph [ref=e1721]:
+                          - img [ref=e1722]
+                          - text: Orphan Action
+                        - paragraph [ref=e1724]: OTIF Orchestration
+                        - paragraph [ref=e1725]: S-R2.1 · Supply Chain Leadership
+                    - group [ref=e1727]:
+                      - generic [ref=e1728]:
+                        - paragraph [ref=e1730]: Action Code
+                        - paragraph [ref=e1731]: Fulfillment & Transport Stabilisation
+                        - paragraph [ref=e1732]: S-R2.2 · Logistics / Operations
+                    - group [ref=e1734]:
+                      - generic [ref=e1735]:
+                        - paragraph [ref=e1737]: Action Code
+                        - paragraph [ref=e1738]: In-Full & Stockout Impact Reduction
+                        - paragraph [ref=e1739]: S-R2.3 · Supply Planning
+                    - group [ref=e1741]:
+                      - generic [ref=e1742]:
+                        - paragraph [ref=e1744]: Action Code
+                        - paragraph [ref=e1745]: Penalty & Expedite Cost Control
+                        - paragraph [ref=e1746]: S-R2.4 · Logistics / Procurement
+                    - group [ref=e1748]:
+                      - generic [ref=e1749]:
+                        - paragraph [ref=e1751]:
+                          - img [ref=e1752]
+                          - text: Orphan Action
+                        - paragraph [ref=e1754]: Planning & Execution Alignment
+                        - paragraph [ref=e1755]: S-R2.5 · S&OP / Supply Chain Planning
+                    - group [ref=e1757]:
+                      - generic [ref=e1758] [cursor=pointer]:
+                        - paragraph [ref=e1760]: Use Case · SCM-003
+                        - paragraph [ref=e1761]: Forecast vs Actual
+                        - paragraph [ref=e1762]: Forecast Accuracy %
+                        - paragraph [ref=e1763]: maximize impact
+                    - group [ref=e1765]:
+                      - generic [ref=e1766] [cursor=pointer]:
+                        - paragraph [ref=e1768]: Driver KPI
+                        - paragraph [ref=e1769]: Forecast MAPE %
+                        - paragraph [ref=e1770]: plan.forecast.mape.pct
+                    - group [ref=e1772]:
+                      - generic [ref=e1773] [cursor=pointer]:
+                        - paragraph [ref=e1775]: Driver KPI
+                        - paragraph [ref=e1776]: Forecast Bias %
+                        - paragraph [ref=e1777]: plan.forecast.bias.pct
+                    - group [ref=e1779]:
+                      - generic [ref=e1780] [cursor=pointer]:
+                        - paragraph [ref=e1782]: Driver KPI
+                        - paragraph [ref=e1783]: Service Impact %
+                        - paragraph [ref=e1784]: plan.forecast.service_impact.pct
+                    - group [ref=e1786]:
+                      - generic [ref=e1787] [cursor=pointer]:
+                        - paragraph [ref=e1789]: Driver KPI
+                        - paragraph [ref=e1790]: Re-Plan Count
+                        - paragraph [ref=e1791]: plan.replan.count
+                    - group [ref=e1793]:
+                      - generic [ref=e1794]:
+                        - paragraph [ref=e1796]: Action Code
+                        - paragraph [ref=e1797]: Forecast Quality Orchestration
+                        - paragraph [ref=e1798]: S-F3.1 · S&OP Leadership
+                    - group [ref=e1800]:
+                      - generic [ref=e1801]:
+                        - paragraph [ref=e1803]: Action Code
+                        - paragraph [ref=e1804]: Forecast Bias & Accuracy Correction
+                        - paragraph [ref=e1805]: S-F3.2 · Demand Planning
+                    - group [ref=e1807]:
+                      - generic [ref=e1808]:
+                        - paragraph [ref=e1810]: Action Code
+                        - paragraph [ref=e1811]: Service Impact Containment
+                        - paragraph [ref=e1812]: S-F3.3 · Supply Planning
+                    - group [ref=e1814]:
+                      - generic [ref=e1815]:
+                        - paragraph [ref=e1817]: Action Code
+                        - paragraph [ref=e1818]: Re-Plan Discipline & Stability
+                        - paragraph [ref=e1819]: S-F3.4 · S&OP / Planning Excellence
+              - img
+              - generic "Control Panel" [ref=e1821]:
+                - button "Zoom In" [ref=e1822] [cursor=pointer]:
+                  - img [ref=e1823]
+                - button "Zoom Out" [disabled]:
+                  - img
+                - button "Fit View" [ref=e1825] [cursor=pointer]:
+                  - img [ref=e1826]
+                - button "Toggle Interactivity" [ref=e1828] [cursor=pointer]:
+                  - img [ref=e1829]
+              - img "Mini Map" [ref=e1832]
+  - button "Open Next.js Dev Tools" [ref=e1839] [cursor=pointer]:
+    - img [ref=e1840]
+  - alert [ref=e1843]
+```
+
+# Test source
+
+```ts
+  1  | import { test, expect } from '@playwright/test';
+  2  | 
+  3  | test.describe('Auth flow', () => {
+  4  |   test('redirects unauthenticated user to login', async ({ page }) => {
+  5  |     await page.goto('/steering');
+> 6  |     await expect(page).toHaveURL(/\/login/);
+     |                        ^ Error: expect(page).toHaveURL(expected) failed
+  7  |   });
+  8  | 
+  9  |   test('login page renders correctly', async ({ page }) => {
+  10 |     await page.goto('/login');
+  11 |     await expect(page.getByText('ActionReady Studio')).toBeVisible();
+  12 |     await expect(page.getByPlaceholder('demo@aurora-group.eu')).toBeVisible();
+  13 |     await expect(page.getByText('Continue with GitHub')).toBeVisible();
+  14 |     await expect(page.getByText('Sign in with Demo')).toBeVisible();
+  15 |   });
+  16 | 
+  17 |   test('demo login redirects to steering', async ({ page }) => {
+  18 |     await page.goto('/login');
+  19 |     await page.getByPlaceholder('demo@aurora-group.eu').fill('demo@aurora-group.eu');
+  20 |     await page.getByText('Sign in with Demo').click();
+  21 |     await page.waitForURL(/\/(steering|login)/, { timeout: 10000 });
+  22 |   });
+  23 | });
+  24 | 
+```
