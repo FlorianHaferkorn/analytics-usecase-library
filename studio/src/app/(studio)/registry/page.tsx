@@ -9,7 +9,8 @@ import { IntegrityPanel } from '@/components/registry/integrity-panel';
 import { RegistryClientWrapper } from '@/components/registry/registry-client-wrapper';
 import { SpineList } from '@/components/registry/spine-list';
 import { ActivityTimeline } from '@/components/registry/activity-timeline';
-import { StudioPage, StudioPageHeader, StudioPanel } from '@/components/ui/studio-page';
+import { CollapsiblePanel } from '@/components/ui/collapsible-panel';
+import { StudioPage, StudioPageHeader } from '@/components/ui/studio-page';
 
 export default async function RegistryPage() {
   const [kpis, actions, brackets, spines] = await Promise.all([
@@ -37,25 +38,25 @@ export default async function RegistryPage() {
 
       <RegistryClientWrapper />
 
-      <StudioPanel title={`KPI Catalog (${kpis.length})`} description="Inspect governed KPI definitions and their readiness for downstream use cases.">
+      <CollapsiblePanel title={`KPI Catalog (${kpis.length})`} description="Inspect governed KPI definitions and their readiness for downstream use cases." defaultOpen={true}>
         <KpiRegistryTable kpis={kpis} />
-      </StudioPanel>
+      </CollapsiblePanel>
 
-      <StudioPanel title={`Action Codes (${actions.length})`} description="Review the action framework and operational trigger surface in one table.">
+      <CollapsiblePanel title={`Action Codes (${actions.length})`} description="Review the action framework and operational trigger surface in one table." defaultOpen={true}>
         <ActionRegistryTable actions={actions} />
-      </StudioPanel>
+      </CollapsiblePanel>
 
-      <StudioPanel title={`Use Case Brackets (${brackets.length})`} description="Trace current bracket definitions, governance state and lifecycle changes.">
+      <CollapsiblePanel title={`Use Case Brackets (${brackets.length})`} description="Trace current bracket definitions, governance state and lifecycle changes." defaultOpen={false}>
         <BracketRegistryTable brackets={brackets} />
-      </StudioPanel>
+      </CollapsiblePanel>
 
-      <StudioPanel title={`Decision Spines (${spines.length})`} description="Browse spine structures and ensure linkage consistency across domains.">
+      <CollapsiblePanel title={`Decision Spines (${spines.length})`} description="Browse spine structures and ensure linkage consistency across domains." defaultOpen={false}>
         <SpineList spines={spines} />
-      </StudioPanel>
+      </CollapsiblePanel>
 
-      <StudioPanel title="Activity Log" description="Review recent mutations and audit history in the same visual format as the rest of Studio.">
+      <CollapsiblePanel title="Activity Log" description="Live audit trail — mutations appear here after any create, update, or delete action." defaultOpen={false}>
         <ActivityTimeline />
-      </StudioPanel>
+      </CollapsiblePanel>
     </StudioPage>
   );
 }

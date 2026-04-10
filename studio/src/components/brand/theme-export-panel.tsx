@@ -11,8 +11,8 @@ type PreviewFormat = 'css' | 'tailwind' | 'json';
 
 interface Props {
   theme: ThemeConfig;
-  onSave: () => void;
-  saving: boolean;
+  onSave?: () => void;
+  saving?: boolean;
 }
 
 const FORMAT_LABELS: Record<PreviewFormat, string> = {
@@ -31,7 +31,7 @@ function downloadFile(content: string, filename: string, mimeType: string) {
   URL.revokeObjectURL(url);
 }
 
-export function ThemeExportPanel({ theme, onSave, saving }: Props) {
+export function ThemeExportPanel({ theme, onSave, saving = false }: Props) {
   const [activeFormat, setActiveFormat] = useState<PreviewFormat>('css');
   const [bundleLoading, setBundleLoading] = useState(false);
 
@@ -78,11 +78,11 @@ export function ThemeExportPanel({ theme, onSave, saving }: Props) {
     <StudioPanel
       title="Export Theme"
       description="Preview generated theme artifacts and export them in the target format or as a bundle."
-      action={
+      action={onSave ? (
         <StudioButton onClick={onSave} disabled={saving} tone="success" variant="primary" style={{ padding: '4px var(--sp-1-5)' }}>
           {saving ? 'Saving...' : 'Save Theme'}
         </StudioButton>
-      }
+      ) : undefined}
       style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1-5)' }}
     >
       {/* Format tabs */}

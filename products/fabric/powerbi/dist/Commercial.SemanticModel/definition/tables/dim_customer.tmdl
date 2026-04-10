@@ -3,43 +3,54 @@ table dim_customer
 	lineageTag: 723f5dd1-ad00-4635-9958-d5d89d833986
 
 	column CustomerKey
-		dataType: Int64
-		sourceColumn: CustomerKey
-		summarizeBy: none
+		dataType: int64
 		isHidden
+		lineageTag: 208e913a-e6ca-4cd0-9034-a658ea4340aa
+		summarizeBy: none
+		sourceColumn: CustomerKey
 
 	column CustomerCode
-		dataType: String
-		sourceColumn: CustomerCode
+		dataType: string
+		lineageTag: 1f7ad40a-bfa9-43e0-9c59-9621044a496a
 		summarizeBy: none
+		sourceColumn: CustomerCode
 
 	column CustomerName
-		dataType: String
-		sourceColumn: CustomerName
+		dataType: string
+		lineageTag: d4d67770-823e-4b95-ab70-4014b3e3348d
 		summarizeBy: none
+		sourceColumn: CustomerName
 
 	column Segment
-		dataType: String
+		dataType: string
+		lineageTag: 045a9baf-ba83-4bdf-bb4b-2f945ea5ca9c
+		summarizeBy: none
 		sourceColumn: Segment
-		summarizeBy: none
 
-	column Channel
-		dataType: String
-		sourceColumn: Channel
+	column 'Channel Preference'
+		dataType: string
+		lineageTag: bf1f19db-e5fc-4dca-8c7a-77ad4aec2f67
 		summarizeBy: none
+		sourceColumn: Channel Preference
 
-	column Region
-		dataType: String
-		sourceColumn: Region
+		annotation SummarizationSetBy = Automatic
+
+	column 'Tenure Bucket'
+		dataType: string
+		lineageTag: 179cb76f-011b-4366-b33d-dd786fba36f1
 		summarizeBy: none
+		sourceColumn: Tenure Bucket
+
+		annotation SummarizationSetBy = Automatic
 
 	partition dim_customer = m
 		mode: import
 		source =
-			let
-				Source = Folder.Files(GoldDataPath & "/dimensions/dim_customer"),
-				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-				FirstFile = FilteredFiles{0}[Content],
-				ParquetData = Parquet.Document(FirstFile)
-			in
-				ParquetData
+				let
+					Source = Folder.Files(GoldDataPath & "/dimensions/dim_customer"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData
+

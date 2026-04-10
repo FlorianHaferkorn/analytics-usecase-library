@@ -295,7 +295,7 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
       description="Review discovered anchors, KPIs and action codes before drafting them into governed artifacts."
       style={{ width: '280px', flexShrink: 0, display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}
     >
-      <div style={{ padding: 'var(--sp-2)', borderBottom: '1px solid var(--slate-700)' }}>
+      <div style={{ padding: 'var(--sp-2) var(--sp-2) var(--sp-1-5)', borderBottom: '1px solid var(--slate-700)' }}>
         {reviewSummary && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px', marginBottom: 'var(--sp-1)' }}>
             <ReviewStat label="New" value={reviewSummary.newCount} color="var(--mint)" />
@@ -321,7 +321,7 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
         />
       </div>
 
-      <div style={{ flex: 1, overflow: 'auto', padding: 'var(--sp-1-5)' }}>
+      <div style={{ flex: 1, overflow: 'auto', padding: 'var(--sp-2)' }}>
         {filtered.length === 0 ? (
           <StudioEmptyState
             title={elements.length === 0 ? 'No extracted elements yet' : 'No elements match the filter'}
@@ -496,7 +496,7 @@ export function ExtractionPanel({ lastResponse, sourceNames }: Props) {
       </div>
 
       {elements.length > 0 && (
-        <div style={{ padding: 'var(--sp-1-5)', borderTop: '1px solid var(--slate-700)', display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
+        <div style={{ padding: 'var(--sp-2)', borderTop: '1px solid var(--slate-700)', display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
             <div>
               <p style={{ fontSize: '0.6875rem', color: 'var(--slate-300)', fontWeight: 600 }}>

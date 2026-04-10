@@ -15,10 +15,18 @@ table _Measures
 		isHidden
 		summarizeBy: none
 
-	// ── FIN-001 ──────────────────────────────────────────
+	/// FIN-001
 	/// CCC Days - wc.ccc.days
 	/// Measures cash conversion cycle length.
-	measure 'CCC Days' = [DSO Days] + [DIO Days] - [DPO Days]
+	measure 'CCC Days' =
+		VAR DaysSalesOutstanding =
+			[DSO Days]
+		VAR DaysInventoryOutstanding =
+			[DIO Days]
+		VAR DaysPayablesOutstanding =
+			[DPO Days]
+		RETURN
+			DaysSalesOutstanding + DaysInventoryOutstanding - DaysPayablesOutstanding
 		formatString: "0"
 		displayFolder: "FIN-001"
 
@@ -36,31 +44,69 @@ table _Measures
 
 	/// Cash vs Plan % - fin.cash.vs_plan.pct
 	/// Measures deviation of cash balance versus plan.
-	measure 'Cash vs Plan %' = VAR Actual = SUM ( fact_cash_position[Cash Balance Amount] ) VAR Plan = SUM ( fact_cash_position[Plan Cash Amount] ) RETURN DIVIDE ( Actual - Plan, Plan )
+	measure 'Cash vs Plan %' =
+		VAR ActualCashBalance =
+			SUM ( fact_cash_position[Cash Balance Amount] )
+		VAR PlannedCashBalance =
+			SUM ( fact_cash_position[Plan Cash Amount] )
+		VAR CashVariance =
+			ActualCashBalance - PlannedCashBalance
+		RETURN
+			DIVIDE ( CashVariance, PlannedCashBalance )
 		formatString: "0.0%"
 		displayFolder: "FIN-001"
 
 	/// DSO Days - wc.dso.days
 	/// Measures days sales outstanding for receivables.
-	measure 'DSO Days' = VAR AR = SUM ( fact_accounts_receivable[AR Amount] ) VAR NetSales = SUM ( fact_accounts_receivable[Revenue Amount] ) RETURN DIVIDE ( AR * 365, NetSales )
+	measure 'DSO Days' =
+		VAR AccountsReceivableAmount =
+			SUM ( fact_accounts_receivable[AR Amount] )
+		VAR RevenueAmount =
+			SUM ( fact_accounts_receivable[Revenue Amount] )
+		VAR AnnualizedReceivables =
+			AccountsReceivableAmount * 365
+		RETURN
+			DIVIDE ( AnnualizedReceivables, RevenueAmount )
 		formatString: "0"
 		displayFolder: "FIN-001"
 
 	/// DIO Days - wc.dio.days
 	/// Measures days inventory outstanding.
-	measure 'DIO Days' = VAR Inventory = SUM ( fact_inventory[Inventory Amount] ) VAR COGS = SUM ( fact_inventory[COGS Amount] ) RETURN DIVIDE ( Inventory * 365, COGS )
+	measure 'DIO Days' =
+		VAR InventoryAmount =
+			SUM ( fact_inventory[Inventory Amount] )
+		VAR CostOfGoodsSoldAmount =
+			SUM ( fact_inventory[COGS Amount] )
+		VAR AnnualizedInventory =
+			InventoryAmount * 365
+		RETURN
+			DIVIDE ( AnnualizedInventory, CostOfGoodsSoldAmount )
 		formatString: "0"
 		displayFolder: "FIN-001"
 
 	/// DPO Days - wc.dpo.days
 	/// Measures days payables outstanding.
-	measure 'DPO Days' = VAR AP = SUM ( fact_accounts_payable[AP Amount] ) VAR COGS = SUM ( fact_accounts_payable[COGS Amount] ) RETURN DIVIDE ( AP * 365, COGS )
+	measure 'DPO Days' =
+		VAR AccountsPayableAmount =
+			SUM ( fact_accounts_payable[AP Amount] )
+		VAR CostOfGoodsSoldAmount =
+			SUM ( fact_accounts_payable[COGS Amount] )
+		VAR AnnualizedPayables =
+			AccountsPayableAmount * 365
+		RETURN
+			DIVIDE ( AnnualizedPayables, CostOfGoodsSoldAmount )
 		formatString: "0"
 		displayFolder: "FIN-001"
 
 	/// Supply Chain Service Level % - scm.service_level.pct
 	/// Measures supply chain service level performance.
-	measure 'Supply Chain Service Level %' = DIVIDE ( COUNTROWS ( FILTER ( fact_fulfillment, fact_fulfillment[OTIF Flag] = TRUE() ) ), COUNTROWS ( fact_fulfillment ) )
+	measure 'Supply Chain Service Level %' =
+		VAR OTIFFulfillments =
+			CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
+		VAR TotalFulfillments =
+			COUNTROWS ( fact_fulfillment )
+		RETURN
+			DIVIDE ( OTIFFulfillments, TotalFulfillments )
 		formatString: "0.0%"
 		displayFolder: "FIN-001"
 
@@ -76,7 +122,7 @@ table _Measures
 		formatString: "#,0.00"
 		displayFolder: "FIN-001"
 
-	// ── FIN-002 ──────────────────────────────────────────
+	/// FIN-002
 	/// Unit Cost Amount - cost.unit.amount
 	/// Measures total cost per unit produced or sold.
 	measure 'Unit Cost Amount' = VAR TotalCost = SUM ( fact_cost[COGS Amount] ) VAR OutputUnits = SUM ( fact_output[Output Units] ) RETURN DIVIDE ( TotalCost, OutputUnits )
@@ -91,7 +137,15 @@ table _Measures
 
 	/// OpEx vs Plan % - cost.opex.vs_plan.pct
 	/// Measures OpEx variance versus plan.
-	measure 'OpEx vs Plan %' = VAR Actual = SUM ( fact_finance[OpEx Amount] ) VAR Plan = SUM ( fact_finance[Plan OpEx Amount] ) RETURN DIVIDE ( Actual - Plan, Plan )
+	measure 'OpEx vs Plan %' =
+		VAR ActualOperatingExpense =
+			SUM ( fact_finance[OpEx Amount] )
+		VAR PlannedOperatingExpense =
+			SUM ( fact_finance[Plan OpEx Amount] )
+		VAR OperatingExpenseVariance =
+			ActualOperatingExpense - PlannedOperatingExpense
+		RETURN
+			DIVIDE ( OperatingExpenseVariance, PlannedOperatingExpense )
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 
@@ -103,7 +157,16 @@ table _Measures
 
 	/// Labor Productivity % - ops.labor.productivity.pct
 	/// Shows output efficiency relative to labor input.
-	measure 'Labor Productivity %' = VAR OutputUnits = SUM ( fact_output[Output Units] ) VAR LaborHours = SUM ( fact_labor[Labor Hours] ) VAR BaselineRate = 100.0 RETURN DIVIDE ( DIVIDE ( OutputUnits, LaborHours ) * 100, BaselineRate )
+	measure 'Labor Productivity %' =
+		VAR OutputUnits =
+			SUM ( fact_output[Output Units] )
+		VAR LaborHours =
+			SUM ( fact_labor[Labor Hours] )
+		VAR BaselineRate = 100.0
+		VAR OutputPerLaborHour =
+			DIVIDE ( OutputUnits, LaborHours ) * 100
+		RETURN
+			DIVIDE ( OutputPerLaborHour, BaselineRate )
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 
@@ -133,7 +196,13 @@ table _Measures
 
 	/// Operations Service Level % - ops.service_level.pct
 	/// Measures on-time or in-full performance for operational delivery.
-	measure 'Operations Service Level %' = DIVIDE ( COUNTROWS ( FILTER ( fact_fulfillment, fact_fulfillment[OTIF Flag] = TRUE() ) ), COUNTROWS ( fact_fulfillment ) )
+	measure 'Operations Service Level %' =
+		VAR OTIFFulfillments =
+			CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
+		VAR TotalFulfillments =
+			COUNTROWS ( fact_fulfillment )
+		RETURN
+			DIVIDE ( OTIFFulfillments, TotalFulfillments )
 		formatString: "0.0%"
 		displayFolder: "FIN-002"
 
@@ -149,59 +218,59 @@ table _Measures
 		formatString: "#,0.00"
 		displayFolder: "FIN-002"
 
-	// ── ActionReady Logic ─────────────────────────────────
+	/// ActionReady Logic
 	/// ActionReady Logic: F-C1.1
 	measure 'Action_F-C1.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: finance_director" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "finance_director"
-	annotation ActionReady_ActionCodeId = "F-C1.1"
+		annotation ActionReady_ResponsibleRole = "finance_director"
+		annotation ActionReady_ActionCodeId = "F-C1.1"
 
 	/// ActionReady Logic: F-C1.2
 	measure 'Action_F-C1.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_credit_and_collections" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "head_of_credit_and_collections"
-	annotation ActionReady_ActionCodeId = "F-C1.2"
+		annotation ActionReady_ResponsibleRole = "head_of_credit_and_collections"
+		annotation ActionReady_ActionCodeId = "F-C1.2"
 
 	/// ActionReady Logic: S-I1.2
 	measure 'Action_S-I1.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: inventory_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "inventory_manager"
-	annotation ActionReady_ActionCodeId = "S-I1.2"
+		annotation ActionReady_ResponsibleRole = "inventory_manager"
+		annotation ActionReady_ActionCodeId = "S-I1.2"
 
 	/// ActionReady Logic: F-C1.4
 	measure 'Action_F-C1.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_accounts_payable" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "head_of_accounts_payable"
-	annotation ActionReady_ActionCodeId = "F-C1.4"
+		annotation ActionReady_ResponsibleRole = "head_of_accounts_payable"
+		annotation ActionReady_ActionCodeId = "F-C1.4"
 
 	/// ActionReady Logic: F-K2.1
 	measure 'Action_F-K2.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: finance_director" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "finance_director"
-	annotation ActionReady_ActionCodeId = "F-K2.1"
+		annotation ActionReady_ResponsibleRole = "finance_director"
+		annotation ActionReady_ActionCodeId = "F-K2.1"
 
 	/// ActionReady Logic: F-K2.2
 	measure 'Action_F-K2.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_procurement" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "head_of_procurement"
-	annotation ActionReady_ActionCodeId = "F-K2.2"
+		annotation ActionReady_ResponsibleRole = "head_of_procurement"
+		annotation ActionReady_ActionCodeId = "F-K2.2"
 
 	/// ActionReady Logic: F-K2.3
 	measure 'Action_F-K2.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: plant_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "plant_manager"
-	annotation ActionReady_ActionCodeId = "F-K2.3"
+		annotation ActionReady_ResponsibleRole = "plant_manager"
+		annotation ActionReady_ActionCodeId = "F-K2.3"
 
 	/// ActionReady Logic: F-K2.4
 	measure 'Action_F-K2.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_controlling" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "head_of_controlling"
-	annotation ActionReady_ActionCodeId = "F-K2.4"
+		annotation ActionReady_ResponsibleRole = "head_of_controlling"
+		annotation ActionReady_ActionCodeId = "F-K2.4"

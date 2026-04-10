@@ -32,11 +32,12 @@ table dim_org
 				ParquetData = Parquet.Document(FirstFile)
 			in
 				ParquetData
-		hierarchy 'Org Hierarchy'
+
+	hierarchy 'Org Hierarchy'
 		lineageTag: 20da60d9-b6da-51d0-95d8-4f2d223afe62
 		level Region
-				column: Region
+			column: Region
 		level Channel
-				column: Channel
+			column: Channel
 		level Queue
-				column: Queue
+			column: Queue

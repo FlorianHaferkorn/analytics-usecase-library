@@ -11,56 +11,6 @@
   },
   "visual": {
     "visualType": "tableEx",
-    "query": {
-      "queryState": {
-        "Values": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_org"
-                    }
-                  },
-                  "Property": "OrgName"
-                }
-              },
-              "queryRef": "dim_org.OrgName",
-              "nativeQueryRef": "OrgName"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_date"
-                    }
-                  },
-                  "Property": "CalendarYearMonth"
-                }
-              },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "OTIF %"
-                }
-              },
-              "queryRef": "_Measures.OTIF %",
-              "nativeQueryRef": "OTIF %"
-            }
-          ]
-        }
-      }
-    },
     "objects": {
       "grid": [
         {
@@ -97,6 +47,182 @@
         }
       ]
     },
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org"
+                    }
+                  },
+                  "Property": "Channel"
+                }
+              },
+              "queryRef": "dim_org.Channel",
+              "nativeQueryRef": "Channel"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_customer"
+                    }
+                  },
+                  "Property": "CustomerName"
+                }
+              },
+              "queryRef": "dim_customer.CustomerName",
+              "nativeQueryRef": "CustomerName"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "location"
+                }
+              },
+              "queryRef": "_Measures.location",
+              "nativeQueryRef": "location"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "lane"
+                }
+              },
+              "queryRef": "_Measures.lane",
+              "nativeQueryRef": "lane"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "On-Time %"
+                }
+              },
+              "queryRef": "_Measures.On-Time %",
+              "nativeQueryRef": "On-Time %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "In-Full %"
+                }
+              },
+              "queryRef": "_Measures.In-Full %",
+              "nativeQueryRef": "In-Full %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Stockout Impact %"
+                }
+              },
+              "queryRef": "_Measures.Stockout Impact %",
+              "nativeQueryRef": "Stockout Impact %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Penalty Amount"
+                }
+              },
+              "queryRef": "_Measures.Penalty Amount",
+              "nativeQueryRef": "Penalty Amount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Expedite Cost Amount"
+                }
+              },
+              "queryRef": "_Measures.Expedite Cost Amount",
+              "nativeQueryRef": "Expedite Cost Amount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Order Lines Count"
+                }
+              },
+              "queryRef": "_Measures.Order Lines Count",
+              "nativeQueryRef": "Order Lines Count"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Shipments Count"
+                }
+              },
+              "queryRef": "_Measures.Shipments Count",
+              "nativeQueryRef": "Shipments Count"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "OTIF %"
+                }
+              },
+              "queryRef": "_Measures.OTIF %",
+              "nativeQueryRef": "OTIF %"
+            }
+          ]
+        }
+      }
+    }
   }
 }

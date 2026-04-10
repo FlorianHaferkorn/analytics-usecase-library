@@ -104,10 +104,10 @@ To implement one use case end-to-end (e.g. COM-001):
 2. Generate TMDL measures from the KPI catalog (from repo root):
 
    ```
-   .\tooling\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseAuroraShowcase -OverwriteExisting
+  .\tooling\generation\generate_tmdl_measures.ps1 -UseCase COM-001 -UseAuroraShowcase -OverwriteExisting
    ```
 
-   Primary output: `products/fabric/powerbi/dist/<Domain>.SemanticModel/tables/_Measures.tmdl` (single measures table; measures grouped by display folder). With `-UseAuroraShowcase`, the script targets the Aurora showcase configuration (same output path; the flag sets showcase-specific defaults such as org context and data source pointers).
+  Primary output: `products/fabric/powerbi/dist/<Domain>.SemanticModel/tables/_Measures.tmdl` (single measures table; measures grouped by display folder). `-UseAuroraShowcase` is a compatibility flag for Aurora demo flows, but the canonical model output still goes to dist; showcase copies are derived from dist.
 
 3. Run **Stage 1** to ensure framework consistency: `.\tooling\run_stage1_checks.ps1`.
 4. If you have Fabric/Power BI output, run **Fabric checks**: `products\fabric/powerbi\tooling\run_fabric_checks.ps1`.

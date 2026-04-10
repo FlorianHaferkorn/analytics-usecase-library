@@ -283,6 +283,29 @@ class TestPagesJson:
         assert data["pageOrder"].count("Page_OV") == 1, "Appending must not create duplicates"
 
 
+class TestLegacyReportFolder:
+    def test_legacy_report_folder_synced_from_definition(self, tmp_path):
+        writer = PBIPWriter(tmp_path / "R.Report")
+        writer.create_pbip_structure()
+
+        definition = tmp_path / "R.Report" / "definition"
+        pages = definition / "pages"
+        page_dir = pages / "Page_OV"
+        visual_dir = page_dir / "visuals" / "V1"
+        visual_dir.mkdir(parents=True, exist_ok=True)
+
+        (definition / "report.json").write_text('{"name":"Report"}', encoding="utf-8")
+        (pages / "pages.json").write_text('{"pageOrder":["Page_OV"]}', encoding="utf-8")
+        (page_dir / "page.json").write_text('{"name":"Page_OV","displayName":"Overview"}', encoding="utf-8")
+        (visual_dir / "visual.json").write_text('{"name":"V1"}', encoding="utf-8")
+
+        writer.sync_legacy_report_folder()
+
+        assert (tmp_path / "R.Report" / "Report" / "report.json").exists()
+        assert (tmp_path / "R.Report" / "Report" / "sections" / "000_Overview" / "section.json").exists()
+        assert (tmp_path / "R.Report" / "Report" / "sections" / "000_Overview" / "visualContainers" / "V1" / "visualContainer.json").exists()
+
+
 # ---------------------------------------------------------------------------
 # Golden file regression — COM-001
 # ---------------------------------------------------------------------------

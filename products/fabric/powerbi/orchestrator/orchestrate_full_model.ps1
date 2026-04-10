@@ -196,7 +196,83 @@ function Resolve-PbiToolsPath {
 function Test-PbiToolsCompileCompatible {
     param([string]$FolderPath)
 
-    return (Test-Path (Join-Path $FolderPath "Version.txt"))
+    $requiredPaths = @(
+        (Join-Path $FolderPath "definition.pbir"),
+        (Join-Path $FolderPath "definition\report.json")
+    )
+
+    return (($requiredPaths | Where-Object { -not (Test-Path $_) }).Count -eq 0)
+}
+
+function Copy-PbiToolsDatasetReference {
+    param(
+        [string]$SourceReportPath,
+        [string]$TargetReportPath
+    )
+
+    $pbirPath = Join-Path $SourceReportPath "definition.pbir"
+    if (-not (Test-Path $pbirPath)) { return }
+
+    try {
+        $pbir = Get-Content -Path $pbirPath -Raw -Encoding utf8 | ConvertFrom-Json
+    } catch {
+        return
+    }
+
+    $datasetRelativePath = $pbir.datasetReference.byPath.path
+    if ([string]::IsNullOrWhiteSpace($datasetRelativePath)) { return }
+
+    $sourceDatasetPath = [System.IO.Path]::GetFullPath((Join-Path $SourceReportPath $datasetRelativePath))
+    if (-not (Test-Path $sourceDatasetPath)) { return }
+
+    $targetDatasetPath = [System.IO.Path]::GetFullPath((Join-Path $TargetReportPath $datasetRelativePath))
+    $targetDatasetParent = Split-Path -Parent $targetDatasetPath
+    if ($targetDatasetParent -and -not (Test-Path $targetDatasetParent)) {
+        New-Item -ItemType Directory -Path $targetDatasetParent -Force | Out-Null
+    }
+
+    if (Test-Path $targetDatasetPath) {
+        Remove-Item -LiteralPath $targetDatasetPath -Recurse -Force
+    }
+
+    Copy-Item -LiteralPath $sourceDatasetPath -Destination $targetDatasetPath -Recurse -Force
+}
+
+function New-PbiToolsCompileInputPath {
+    param([string]$FolderPath)
+
+    $folderItem = Get-Item -LiteralPath $FolderPath -ErrorAction Stop
+    $reportCompileRoot = Join-Path $env:TEMP ("analytics-usecase-library\pbi-tools-compile\" + $folderItem.Name)
+    $compileRoot = Join-Path $reportCompileRoot "input"
+    $targetRoot = Join-Path $compileRoot $folderItem.Name
+
+    if (Test-Path $reportCompileRoot) {
+        Remove-Item -LiteralPath $reportCompileRoot -Recurse -Force
+    }
+
+    New-Item -ItemType Directory -Path $compileRoot -Force | Out-Null
+    Copy-Item -LiteralPath $FolderPath -Destination $targetRoot -Recurse -Force
+    Copy-PbiToolsDatasetReference -SourceReportPath $FolderPath -TargetReportPath $targetRoot
+
+    $ensureScript = Join-Path $script:RepoRoot "products\fabric\powerbi\tooling\ensure_pbip_desktop_ready.ps1"
+    if (-not (Test-Path $ensureScript)) {
+        throw "ensure_pbip_desktop_ready.ps1 not found: $ensureScript"
+    }
+
+    & $ensureScript -DistRoot $compileRoot -RepoRoot $script:RepoRoot -CreateLegacyPbixProjArtifacts 2>&1 | Out-Null
+    return $targetRoot
+}
+
+function Get-PbiToolsCompileOutputPath {
+    param([string]$FolderPath)
+
+    $folderItem = Get-Item -LiteralPath $FolderPath -ErrorAction Stop
+    $compileRoot = Join-Path $env:TEMP ("analytics-usecase-library\pbi-tools-compile\" + $folderItem.Name)
+    if (-not (Test-Path $compileRoot)) {
+        New-Item -ItemType Directory -Path $compileRoot -Force | Out-Null
+    }
+
+    return (Join-Path $compileRoot ($folderItem.Name + ".pbix"))
 }
 
 function Sync-SemanticModelsToAuroraShowcase {
@@ -755,22 +831,28 @@ Invoke-WithRetry "Validate Fabric output" {
         Write-Host "  WARNING: pbi-tools not found. Skipping compile step. Install for loadable gate (e.g. winget install pbi-tools)." -ForegroundColor Yellow
         $state.warnings += "pbi-tools not installed; compile step skipped"
     } else {
-        $compileDirs = @()
-        foreach ($domainName in $byDomain.Keys) {
-            $modelPath = Join-Path $script:RepoRoot (Get-FabricDomainModelPath -DomainName $domainName)
-            if (Test-Path $modelPath) { $compileDirs += $modelPath }
+        $reportDirs = @(Get-ChildItem $distReportRoot -Directory -Filter "*.Report" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName)
+        if ($reportDirs.Count -eq 0) {
+            throw "No generated report folders found under $distRootParam for pbi-tools compile gate."
         }
-        Get-ChildItem $distReportRoot -Directory -Filter "*.Report" -ErrorAction SilentlyContinue | ForEach-Object { $compileDirs += $_.FullName }
-        $compatibleCompileDirs = @($compileDirs | Where-Object { Test-PbiToolsCompileCompatible -FolderPath $_ })
-        $skippedCompileDirs = @($compileDirs | Where-Object { -not (Test-PbiToolsCompileCompatible -FolderPath $_) })
-        foreach ($skippedFolder in $skippedCompileDirs) {
-            Write-Host "  compile skipped: $([System.IO.Path]::GetFileName($skippedFolder)) (PBIP split artifact without Version.txt)" -ForegroundColor DarkGray
+        $incompatibleReportDirs = @($reportDirs | Where-Object { -not (Test-PbiToolsCompileCompatible -FolderPath $_) })
+        if ($incompatibleReportDirs.Count -gt 0) {
+            foreach ($reportDir in $incompatibleReportDirs) {
+                $state.validateErrors += @{
+                    timestamp = (Get-Date -Format "o")
+                    phase = "Validate Fabric output"
+                    path = $reportDir
+                    message = "pbi-tools compile prerequisites missing (definition.pbir or definition/report.json)."
+                    source = "pbi-tools compile"
+                }
+            }
+            $incompatibleReportNames = @($incompatibleReportDirs | ForEach-Object { [System.IO.Path]::GetFileName($_) } | Sort-Object)
+            throw "pbi-tools compile prerequisites missing for: $($incompatibleReportNames -join ', ')"
         }
-        if ($compatibleCompileDirs.Count -eq 0) {
-            Write-Host "  No pbi-tools-compatible PbixProj folders found; structural PBIP validation remains authoritative." -ForegroundColor DarkGray
-        }
-        foreach ($pbipFolder in $compatibleCompileDirs) {
-            $compileOut = & $pbiTools compile $pbipFolder 2>&1 | Out-String
+        foreach ($pbipFolder in $reportDirs) {
+            $compileInputPath = New-PbiToolsCompileInputPath -FolderPath $pbipFolder
+            $compileOutputPath = Get-PbiToolsCompileOutputPath -FolderPath $pbipFolder
+            $compileOut = & $pbiTools compile $compileInputPath $compileOutputPath PBIX true 2>&1 | Out-String
             if ($LASTEXITCODE -ne 0) {
                 $state.validateErrors += @{
                     timestamp = (Get-Date -Format "o")
@@ -781,7 +863,7 @@ Invoke-WithRetry "Validate Fabric output" {
                 }
                 throw "pbi-tools compile failed for $pbipFolder. $compileOut"
             }
-            Write-Host "  compile OK: $([System.IO.Path]::GetFileName($pbipFolder))" -ForegroundColor Green
+            Write-Host "  compile OK: $([System.IO.Path]::GetFileName($pbipFolder)) -> $([System.IO.Path]::GetFileName($compileOutputPath))" -ForegroundColor Green
         }
     }
 }

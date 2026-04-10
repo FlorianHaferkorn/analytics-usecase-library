@@ -48,13 +48,14 @@ table dim_product
 				ParquetData = Parquet.Document(FirstFile)
 			in
 				ParquetData
-			hierarchy 'Product Hierarchy'
-			lineageTag: 0ef5b45c-daa0-513f-8352-a64ade5a6bf8
-			level Category
-				column: Category
-			level Subcategory
-				column: Subcategory
-			level Brand
-				column: Brand
-			level Product Name
-				column: Product Name
+
+	hierarchy 'Product Hierarchy'
+		lineageTag: 0ef5b45c-daa0-513f-8352-a64ade5a6bf8
+		level Category
+			column: Category
+		level Subcategory
+			column: Subcategory
+		level Brand
+			column: Brand
+		level ProductName
+			column: ProductName

@@ -5,6 +5,7 @@ Writes Power BI page structures to PBIP file format.
 """
 
 import json
+import re
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
@@ -18,6 +19,7 @@ class PBIPWriter:
     VERSION_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/versionMetadata/1.0.0/schema.json"
     # Power BI Desktop (Feb 2026+) expects pbipProperties schema; itemShortcut is rejected.
     PBIP_SCHEMA = "https://developer.microsoft.com/json-schemas/fabric/pbip/pbipProperties/1.0.0/schema.json"
+    PBIXPROJ_VERSION = "1.25"
 
     def __init__(self, report_path: Path):
         """
@@ -61,6 +63,88 @@ class PBIPWriter:
         with open(pbip_file, "w", encoding="utf-8") as f:
             json.dump(pbip_data, f, indent=2, ensure_ascii=False)
         return pbip_file
+
+    def write_version_txt(self):
+        """Write Version.txt for pbi-tools PbixProj compatibility."""
+        version_file = self.report_path / "Version.txt"
+        version_file.write_text(self.PBIXPROJ_VERSION, encoding="utf-8")
+
+    def write_report_metadata_json(self):
+        """Write minimal ReportMetadata.json for pbi-tools PbixProj compatibility."""
+        metadata_file = self.report_path / "ReportMetadata.json"
+        metadata_file.write_text("{}", encoding="utf-8")
+
+    def write_report_settings_json(self):
+        """Write minimal ReportSettings.json for pbi-tools PbixProj compatibility."""
+        settings_file = self.report_path / "ReportSettings.json"
+        settings_file.write_text("{}", encoding="utf-8")
+
+    @staticmethod
+    def _sanitize_path_segment(value: str) -> str:
+        return re.sub(r'[<>:"/\\|?*]', '_', value)
+
+    def sync_legacy_report_folder(self):
+        """Materialize a minimal legacy Report/ tree so pbi-tools can compile PBIX with layout."""
+        definition_report = self.definition_path / "report.json"
+        if not definition_report.exists():
+            return
+
+        report_root = self.report_path / "Report"
+        sections_root = report_root / "sections"
+        sections_root.mkdir(parents=True, exist_ok=True)
+
+        (report_root / "report.json").write_text(definition_report.read_text(encoding="utf-8"), encoding="utf-8")
+
+        for existing in sections_root.iterdir():
+            if existing.is_dir():
+                for child in sorted(existing.rglob('*'), reverse=True):
+                    if child.is_file():
+                        child.unlink()
+                    elif child.is_dir():
+                        child.rmdir()
+                existing.rmdir()
+
+        pages_meta_path = self.pages_path / "pages.json"
+        page_order: List[str] = []
+        if pages_meta_path.exists():
+            try:
+                pages_meta = json.loads(pages_meta_path.read_text(encoding="utf-8"))
+                page_order = list(pages_meta.get("pageOrder") or [])
+            except json.JSONDecodeError:
+                page_order = []
+
+        if not page_order:
+            page_order = sorted(p.name for p in self.pages_path.iterdir() if p.is_dir())
+
+        for index, page_id in enumerate(page_order):
+            page_dir = self.pages_path / page_id
+            page_json = page_dir / "page.json"
+            if not page_json.exists():
+                continue
+
+            page_data = json.loads(page_json.read_text(encoding="utf-8"))
+            display_name = page_data.get("displayName") or page_data.get("name") or page_id
+            section_name = f"{index:03d}_{self._sanitize_path_segment(display_name)}"
+            section_dir = sections_root / section_name
+            visuals_dir = section_dir / "visualContainers"
+            visuals_dir.mkdir(parents=True, exist_ok=True)
+
+            (section_dir / "section.json").write_text(page_json.read_text(encoding="utf-8"), encoding="utf-8")
+
+            src_visuals = page_dir / "visuals"
+            if not src_visuals.exists():
+                continue
+
+            for visual_dir in sorted(p for p in src_visuals.iterdir() if p.is_dir()):
+                visual_json = visual_dir / "visual.json"
+                if not visual_json.exists():
+                    continue
+                legacy_visual_dir = visuals_dir / visual_dir.name
+                legacy_visual_dir.mkdir(parents=True, exist_ok=True)
+                (legacy_visual_dir / "visualContainer.json").write_text(
+                    visual_json.read_text(encoding="utf-8"),
+                    encoding="utf-8",
+                )
 
     def write_report_json(
         self,

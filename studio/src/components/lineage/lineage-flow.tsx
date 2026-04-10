@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { ReactFlow, Background, Controls, type Node, type Edge } from '@xyflow/react';
+import { ReactFlow, Background, Controls, MiniMap, type Node, type Edge } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import dagre from '@dagrejs/dagre';
 import type { LineageGraph } from '@/lib/core/lineage-builder';
@@ -87,7 +87,29 @@ export function LineageFlow({ graph }: Props) {
         proOptions={{ hideAttribution: true }}
       >
         <Background color="var(--slate-700)" gap={20} />
-        <Controls />
+        <Controls
+          style={{
+            backgroundColor: 'var(--slate-800)',
+            borderColor: 'var(--slate-700)',
+            borderRadius: 'var(--radius-md)',
+          }}
+        />
+        <MiniMap
+          nodeColor={(node) => {
+            const type = (node.data as Record<string, unknown>)?.type as string;
+            if (type === 'dimension') return 'var(--slate-500)';
+            if (type === 'fact') return '#3B82F6';
+            if (type === 'kpi') return 'var(--mint)';
+            if (type === 'bracket') return 'var(--gold)';
+            return 'var(--slate-600)';
+          }}
+          maskColor="color-mix(in srgb, var(--slate-950) 80%, transparent)"
+          style={{
+            backgroundColor: 'var(--slate-800)',
+            border: '1px solid var(--slate-700)',
+            borderRadius: 'var(--radius-md)',
+          }}
+        />
       </ReactFlow>
     </div>
   );

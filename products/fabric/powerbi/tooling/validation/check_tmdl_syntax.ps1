@@ -35,8 +35,22 @@ foreach ($f in $tmdlFiles) {
   $relPath = $f.FullName.Replace($distResolved, "").TrimStart([System.IO.Path]::DirectorySeparatorChar)
   $lines = Get-Content -Path $f.FullName -ErrorAction SilentlyContinue
   $lineNum = 0
+  $currentObjectIndent = $null
   foreach ($line in $lines) {
     $lineNum++
+    if ($line -match '^\s*$' -or $line -match '^\s*///') {
+      continue
+    }
+
+    if ($line -match '^(\t*)(table|column|partition|measure|hierarchy|level|annotation)\b') {
+      $currentObjectIndent = $matches[1].Length
+    } elseif ($null -ne $currentObjectIndent -and $line -match '^(\t*)([^\s].*?)(:|\s*=)') {
+      $propertyIndent = $matches[1].Length
+      if ($propertyIndent -le $currentObjectIndent) {
+        $errors += [PSCustomObject]@{ File = $relPath; Line = $lineNum; Rule = "tmdl.indent.child_scope"; Message = "Child properties must be indented deeper than their parent object; Desktop otherwise fails with invalid indentation." }
+      }
+    }
+
     # Forbidden: description property (TMDL does not support it; use /// comments)
     if ($line -match '^\s*description\s*:') {
       $errors += [PSCustomObject]@{ File = $relPath; Line = $lineNum; Rule = "tmdl.description.forbidden"; Message = "Property 'description:' is not supported; use /// comments above the object." }

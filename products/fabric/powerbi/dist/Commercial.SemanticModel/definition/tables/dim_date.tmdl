@@ -3,74 +3,119 @@ table dim_date
 	lineageTag: 6a83a514-fef3-41fb-ba4a-6b94f905e53c
 
 	column DateKey
-		dataType: Int64
-		sourceColumn: DateKey
-		summarizeBy: none
+		dataType: int64
 		isHidden
+		lineageTag: 14673ef0-1b4e-4fc4-9a56-d518fcb92036
+		summarizeBy: none
+		sourceColumn: DateKey
 
 	column Date
-		dataType: DateTime
-		sourceColumn: Date
+		dataType: dateTime
+		lineageTag: 826ae2f1-c10a-4a6f-ad57-f237555b4217
 		summarizeBy: none
+		sourceColumn: Date
+
+		variation Variation
+			isDefault
+			relationship: 4c2fd2a9-e4dc-4127-a8dc-e63351b2ffc4
+			defaultHierarchy: LocalDateTable_4396b67b-45eb-4309-9608-e56451dd861e.Datumshierarchie
 
 	column Year
-		dataType: Int64
-		sourceColumn: Year
+		dataType: int64
+		lineageTag: cf299ba3-3329-43c0-982f-48b65d6f4067
 		summarizeBy: none
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
 
 	column Quarter
-		dataType: String
-		sourceColumn: Quarter
+		dataType: int64
+		formatString: 0
+		lineageTag: f9f42a81-f348-4b7c-8af2-a0401fe47aee
 		summarizeBy: none
+		sourceColumn: Quarter
+
+		annotation SummarizationSetBy = Automatic
 
 	column Month
-		dataType: String
+		dataType: int64
+		formatString: 0
+		lineageTag: 06d0302b-4812-4308-b372-7ca13cb5a8cf
+		summarizeBy: none
 		sourceColumn: Month
-		summarizeBy: none
 
-	column MonthNumber
-		dataType: Int64
-		sourceColumn: MonthNumber
-		summarizeBy: none
+		annotation SummarizationSetBy = Automatic
 
-	column Week
-		dataType: String
-		sourceColumn: Week
+	column CalendarYearMonth
+		dataType: string
+		lineageTag: 50843c45-09d8-441b-8d83-3d295ed2d0ba
 		summarizeBy: none
+		sourceColumn: CalendarYearMonth
+
+	column 'Month Name'
+		dataType: string
+		lineageTag: 334367f8-5407-4cbe-b829-5d635aaa4d67
+		summarizeBy: none
+		sourceColumn: Month Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fiscal Year'
+		dataType: int64
+		formatString: 0
+		lineageTag: 340486d9-eac3-4956-af28-92f1ac740b88
+		summarizeBy: none
+		sourceColumn: Fiscal Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fiscal Period'
+		dataType: string
+		lineageTag: a2a820ec-17c9-445a-8682-c092351c1c86
+		summarizeBy: none
+		sourceColumn: Fiscal Period
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy Calendar
+		lineageTag: 0ec04f63-07ef-587b-9a60-ddb21de22d22
+
+		level Year
+			lineageTag: c7d33e7b-5104-48d9-a63f-bb3f7c48c2fd
+			column: Year
+
+		level Quarter
+			lineageTag: 2667fec6-b5bd-4666-bd54-a93d3a856799
+			column: Quarter
+
+		level Month
+			lineageTag: b91ed75d-9bfa-417d-b149-10cc7e62e236
+			column: Month
+
+		level Date
+			lineageTag: 3dcf5423-10b4-4bd0-91cb-8f52fea590da
+			column: Date
+
+	hierarchy 'Week Calendar'
+		lineageTag: b1d10635-c888-56d0-b8d8-917e3033d921
+
+		level Year
+			lineageTag: b9a6ea9c-2b84-4813-9858-50eb5508aed8
+			column: Year
+
+		level Date
+			lineageTag: a6935fd6-5f29-4de2-8e6d-5729a9baccdb
+			column: Date
 
 	partition dim_date = m
 		mode: import
 		source =
-			let
-				Source = Folder.Files(GoldDataPath & "/dimensions/dim_date"),
-				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-				FirstFile = FilteredFiles{0}[Content],
-				ParquetData = Parquet.Document(FirstFile)
-			in
-				ParquetData
+				let
+					Source = Folder.Files(GoldDataPath & "/dimensions/dim_date"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile),
+					WithCalendarYearMonth = Table.AddColumn(ParquetData, "CalendarYearMonth", each Date.ToText(Date.From([Date]), "yyyy-MM"), type text)
+				in
+					WithCalendarYearMonth
 
-	calculatedColumn CalendarYearMonth
-		dataType: String
-		expression = FORMAT([Date], "YYYY-MM")
-		summarizeBy: none
-		/// YYYY-MM format enables correct chronological sorting in slicers
-	hierarchy 'Fiscal Calendar'
-	lineageTag: 0ec04f63-07ef-587b-9a60-ddb21de22d22
-	level Fiscal Year
-		column: Fiscal Year
-	level Fiscal Quarter
-		column: Fiscal Quarter
-	level Fiscal Month
-		column: Fiscal Month
-	level Date
-		column: Date
-	hierarchy 'ISO Calendar'
-	lineageTag: b1d10635-c888-56d0-b8d8-917e3033d921
-	level Calendar Year
-		column: Calendar Year
-	level Calendar Quarter
-		column: Calendar Quarter
-	level Calendar Month
-		column: Calendar Month
-	level Date
-		column: Date

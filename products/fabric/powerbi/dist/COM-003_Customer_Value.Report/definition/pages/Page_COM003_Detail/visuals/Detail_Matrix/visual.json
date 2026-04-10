@@ -51,7 +51,148 @@
     "query": {
       "queryState": {
         "Values": {
-          "projections": []
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_customer"
+                    }
+                  },
+                  "Property": "Segment"
+                }
+              },
+              "queryRef": "dim_customer.Segment",
+              "nativeQueryRef": "Segment"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org"
+                    }
+                  },
+                  "Property": "Channel"
+                }
+              },
+              "queryRef": "dim_org.Channel",
+              "nativeQueryRef": "Channel"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org"
+                    }
+                  },
+                  "Property": "Region"
+                }
+              },
+              "queryRef": "dim_org.Region",
+              "nativeQueryRef": "Region"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "CLV (Customer Lifetime Value)"
+                }
+              },
+              "queryRef": "_Measures.CLV (Customer Lifetime Value)",
+              "nativeQueryRef": "CLV (Customer Lifetime Value)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Customer Retention %"
+                }
+              },
+              "queryRef": "_Measures.Customer Retention %",
+              "nativeQueryRef": "Customer Retention %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Churned Customers"
+                }
+              },
+              "queryRef": "_Measures.Churned Customers",
+              "nativeQueryRef": "Churned Customers"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Revenue at Risk Amount"
+                }
+              },
+              "queryRef": "_Measures.Revenue at Risk Amount",
+              "nativeQueryRef": "Revenue at Risk Amount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Net Promoter Score (NPS)"
+                }
+              },
+              "queryRef": "_Measures.Net Promoter Score (NPS)",
+              "nativeQueryRef": "Net Promoter Score (NPS)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Complaint Count"
+                }
+              },
+              "queryRef": "_Measures.Complaint Count",
+              "nativeQueryRef": "Complaint Count"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "CLV (Customer Lifetime Value)"
+                }
+              },
+              "queryRef": "_Measures.CLV (Customer Lifetime Value)",
+              "nativeQueryRef": "CLV (Customer Lifetime Value)"
+            }
+          ]
         }
       }
     }

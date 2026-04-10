@@ -1,0 +1,22 @@
+{
+  "run_id": "22062411",
+  "timestamp": "2026-04-08T10:27:55.456552+00:00",
+  "use_case_id": "_fabric_checks",
+  "domain": "_FABRIC_CHECKS",
+  "adapter": "fabric_checks",
+  "phases": {
+    "fabric_checks": {
+      "phase": "fabric_checks",
+      "status": "success",
+      "errors": [],
+      "warnings": [],
+      "duration_ms": 0
+    }
+  },
+  "overall_status": "success",
+  "duration_ms": 0,
+  "files_generated": 0,
+  "error_count": 0,
+  "warning_count": 0,
+  "generator_version": "1.0.0"
+}

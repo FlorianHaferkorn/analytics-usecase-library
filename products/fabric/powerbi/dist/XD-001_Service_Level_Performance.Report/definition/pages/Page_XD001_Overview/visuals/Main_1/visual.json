@@ -11,6 +11,29 @@
   },
   "visual": {
     "visualType": "lineChart",
+    "objects": {
+      "legend": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "showTitle": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true,
     "query": {
       "queryState": {
         "Category": {
@@ -41,39 +64,16 @@
                       "Entity": "_Measures"
                     }
                   },
-                  "Property": "First Contact Resolution %"
+                  "Property": "Backlog Count"
                 }
               },
-              "queryRef": "_Measures.First Contact Resolution %",
-              "nativeQueryRef": "First Contact Resolution %"
+              "queryRef": "_Measures.Backlog Count",
+              "nativeQueryRef": "Backlog Count"
             }
           ]
         }
       }
     },
-    "objects": {
-      "legend": [
-        {
-          "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
-                }
-              }
-            },
-            "showTitle": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            }
-          }
-        }
-      ]
-    },
-    "drillFilterOtherVisuals": true,
     "visualContainerObjects": {
       "visualHeader": [
         {

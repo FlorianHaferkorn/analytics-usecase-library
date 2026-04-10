@@ -23,8 +23,9 @@ export function StudioPage({ children, fill = false, style }: { children: ReactN
       style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: 'var(--sp-2)',
-        minHeight: fill ? 'calc(100vh - 56px - var(--sp-6))' : undefined,
+        gap: 'var(--sp-1-5)',
+        // fill pages need a fixed height (not minHeight) so flex:1 children can resolve their height
+        height: fill ? 'calc(100vh - 56px - var(--sp-6))' : undefined,
         ...style,
       }}
     >
@@ -53,7 +54,7 @@ export function StudioPageHeader({
   return (
     <div
       style={{
-        padding: 'var(--sp-2-5) var(--sp-3)',
+        padding: 'var(--sp-2) var(--sp-2-5)',
         borderRadius: 'var(--radius-xl)',
         border: `1px solid color-mix(in srgb, ${accent} 24%, var(--slate-700))`,
         background: `linear-gradient(135deg, color-mix(in srgb, var(--slate-850, #17202e) 86%, ${accent} 14%), var(--slate-800))`,
@@ -124,14 +125,15 @@ export function StudioMetric({
   return (
     <div
       style={{
-        padding: 'var(--sp-2)',
+        padding: 'var(--sp-1-5)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--slate-700)',
         background: `linear-gradient(180deg, color-mix(in srgb, var(--slate-800) 88%, ${accent} 12%), var(--slate-800))`,
-        minHeight: '88px',
+        minHeight: '72px',
       }}
     >
-      <p style={{ margin: 0, marginBottom: '4px', fontSize: '0.625rem', color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</p>
+      {/* T1.1: bumped from slate-500 → slate-400 for WCAG AA contrast */}
+      <p style={{ margin: 0, marginBottom: '4px', fontSize: '0.625rem', color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</p>
       <p style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: accent }}>{value}</p>
       {meta ? <p style={{ margin: 0, marginTop: '6px', fontSize: '0.75rem', lineHeight: 1.5, color: 'var(--slate-400)' }}>{meta}</p> : null}
     </div>
@@ -154,6 +156,7 @@ export function StudioPanel({
   style?: CSSProperties;
 }) {
   const accent = getToneAccent(tone);
+  const hasHeader = !!(title || description || action);
 
   return (
     <section
@@ -162,19 +165,32 @@ export function StudioPanel({
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--slate-700)',
         background: `linear-gradient(180deg, color-mix(in srgb, var(--slate-800) 90%, ${accent} 10%), var(--slate-800))`,
+        display: 'flex',
+        flexDirection: 'column',
         ...style,
       }}
     >
-      {(title || description || action) ? (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--sp-1)', marginBottom: 'var(--sp-1-5)' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxWidth: '72ch' }}>
+      {hasHeader ? (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: 'var(--sp-1)',
+          /* T2.6: subtle separator line between header and body */
+          borderBottom: '1px solid color-mix(in srgb, var(--slate-700) 55%, transparent)',
+          paddingBottom: 'var(--sp-1)',
+          marginBottom: 'var(--sp-1)',
+          flexShrink: 0,
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxWidth: '72ch' }}>
             {title ? <h3 style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 600, color: 'var(--slate-100)' }}>{title}</h3> : null}
+            {/* T1.1: bumped from slate-500 → slate-400 for WCAG AA contrast */}
             {description ? <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.6, color: 'var(--slate-400)' }}>{description}</p> : null}
           </div>
           {action ? <div style={{ flexShrink: 0 }}>{action}</div> : null}
         </div>
       ) : null}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1-5)', minWidth: 0 }}>{children}</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1-5)', minWidth: 0, flex: 1, minHeight: 0 }}>{children}</div>
     </section>
   );
 }
@@ -204,7 +220,7 @@ export function StudioToolbar({ children, style }: { children: ReactNode; style?
         alignItems: 'center',
         gap: 'var(--sp-1)',
         flexWrap: 'wrap',
-        padding: 'var(--sp-2)',
+        padding: 'var(--sp-1-5) var(--sp-2)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--slate-700)',
         background: 'linear-gradient(180deg, var(--slate-850, #182030), var(--slate-800))',
@@ -256,10 +272,12 @@ export function StudioButton({
 
   return (
     <button
+      className="studio-button"
       onClick={onClick}
       disabled={disabled}
       style={{
-        padding: '8px 12px',
+        /* T1.5: use spacing tokens instead of hardcoded 8px 12px */
+        padding: 'var(--sp-1) var(--sp-1-5)',
         borderRadius: 'var(--radius-md)',
         cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.55 : 1,
@@ -274,15 +292,20 @@ export function StudioButton({
   );
 }
 
+/** T2.3: Optional tone prop so active-tab accent matches the page's visual identity */
 export function StudioSegmentedControl<T extends string>({
   value,
   options,
   onChange,
+  tone,
 }: {
   value: T;
   options: Array<{ value: T; label: string }>;
   onChange: (value: T) => void;
+  tone?: Tone;
 }) {
+  const activeAccent = tone ? getToneAccent(tone) : 'var(--mint)';
+
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: 'var(--slate-900)', borderRadius: 'var(--radius-md)', border: '1px solid var(--slate-700)', overflow: 'hidden' }}>
       {options.map((option) => {
@@ -290,15 +313,29 @@ export function StudioSegmentedControl<T extends string>({
         return (
           <button
             key={option.value}
+            className="studio-button"
             onClick={() => onChange(option.value)}
             style={{
-              padding: '7px 12px',
+              padding: 'var(--sp-1) var(--sp-1-5)',
               backgroundColor: active ? 'var(--slate-700)' : 'transparent',
-              border: 'none',
+              /* Avoid mixing shorthand (border/borderBottom) with non-shorthands — use explicit props only */
+              borderTopWidth: 0,
+              borderLeftWidth: 0,
+              borderRightWidth: 0,
+              borderTopStyle: 'solid',
+              borderLeftStyle: 'solid',
+              borderRightStyle: 'solid',
+              borderTopColor: 'transparent',
+              borderLeftColor: 'transparent',
+              borderRightColor: 'transparent',
+              borderBottomWidth: '2px',
+              borderBottomStyle: 'solid',
+              borderBottomColor: active ? activeAccent : 'transparent',
               color: active ? 'var(--slate-50)' : 'var(--slate-500)',
               fontSize: '0.75rem',
               fontWeight: active ? 600 : 500,
               cursor: 'pointer',
+              transition: 'color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out)',
             }}
           >
             {option.label}
@@ -312,7 +349,7 @@ export function StudioSegmentedControl<T extends string>({
 export function StudioField({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div style={{ minWidth: 0 }}>
-      <label style={{ display: 'block', fontSize: '0.625rem', color: 'var(--slate-500)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+      <label style={{ display: 'block', fontSize: '0.625rem', color: 'var(--slate-400)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
         {label}
       </label>
       {children}

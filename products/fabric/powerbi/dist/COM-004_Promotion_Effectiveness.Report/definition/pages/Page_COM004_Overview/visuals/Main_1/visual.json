@@ -55,9 +55,39 @@
           ]
         },
         "Y": {
-          "projections": []
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Incremental Sales Amount"
+                }
+              },
+              "queryRef": "_Measures.Incremental Sales Amount",
+              "nativeQueryRef": "Incremental Sales Amount"
+            }
+          ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

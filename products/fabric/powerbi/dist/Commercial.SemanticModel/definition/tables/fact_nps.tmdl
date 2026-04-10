@@ -3,49 +3,59 @@ table fact_nps
 	lineageTag: 2db4f272-60ab-4738-be75-315e7490a7b1
 
 	column ResponseID
-		dataType: String
-		sourceColumn: ResponseID
-		summarizeBy: none
+		dataType: string
 		isHidden
+		lineageTag: 3b727281-33b4-4c20-844e-01408034a12c
+		summarizeBy: none
+		sourceColumn: ResponseID
 
 	column DateKey
-		dataType: Int64
-		sourceColumn: DateKey
+		dataType: int64
+		lineageTag: a46bcae1-3d28-43e2-a628-1f528203f2ed
 		summarizeBy: none
+		sourceColumn: DateKey
 
 	column CustomerKey
-		dataType: Int64
-		sourceColumn: CustomerKey
+		dataType: int64
+		lineageTag: c57b0e58-3c1a-42f6-a6b7-551682e0b1c3
 		summarizeBy: none
+		sourceColumn: CustomerKey
 
 	column OrgKey
-		dataType: Int64
-		sourceColumn: OrgKey
+		dataType: int64
+		lineageTag: 57120206-3225-4531-b704-c169bd9aff71
 		summarizeBy: none
+		sourceColumn: OrgKey
 
 	column 'NPS Score'
-		dataType: Double
-		sourceColumn: NPS Score
+		dataType: int64
+		formatString: 0
+		lineageTag: ce1bf4f3-d2e2-44e4-be2a-15d597c9f874
 		summarizeBy: none
+		sourceColumn: NPS Score
+
+		annotation SummarizationSetBy = Automatic
 
 	column 'Is Promoter'
-		dataType: Boolean
-		sourceColumn: Is Promoter
+		dataType: boolean
+		lineageTag: cbfcd9a8-2cb8-4a62-bbef-b8e852fefe52
 		summarizeBy: none
+		sourceColumn: Is Promoter
 
 	column 'Is Detractor'
-		dataType: Boolean
-		sourceColumn: Is Detractor
+		dataType: boolean
+		lineageTag: b5224a2f-b7fa-46cc-af5b-1a3c69bde9bb
 		summarizeBy: none
+		sourceColumn: Is Detractor
 
 	partition fact_nps = m
 		mode: import
 		source =
-			let
-				Source = Folder.Files(GoldDataPath & "/facts/fact_nps"),
-				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-				FirstFile = FilteredFiles{0}[Content],
-				ParquetData = Parquet.Document(FirstFile)
-			in
-				ParquetData
+				let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_nps"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData
 

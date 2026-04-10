@@ -5,11 +5,13 @@ import {
   ReactFlow,
   Background,
   Controls,
+  MiniMap,
   type Node,
   type Edge,
   BackgroundVariant,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import dagre from '@dagrejs/dagre';
 
 import { StrategyAnchorNode } from './nodes/strategy-anchor-node';
 import { StrategicKpiNode } from './nodes/strategic-kpi-node';
@@ -22,6 +24,25 @@ const nodeTypes = {
   driverKpi: DriverKpiNode,
   actionCode: ActionCodeNode,
 };
+
+/** Stable palette — one accent per domain, cycling if there are more domains than colors. */
+const DOMAIN_PALETTE = [
+  'var(--mint)',
+  '#818CF8',  // indigo
+  '#F472B6',  // pink
+  '#34D399',  // emerald
+  '#60A5FA',  // blue
+  '#FBBF24',  // amber
+  '#A78BFA',  // violet
+  '#FB923C',  // orange
+];
+
+function getDomainColor(domain: string, domainIndex: Map<string, number>): string {
+  if (!domainIndex.has(domain)) {
+    domainIndex.set(domain, domainIndex.size);
+  }
+  return DOMAIN_PALETTE[domainIndex.get(domain)! % DOMAIN_PALETTE.length];
+}
 
 export interface GoldenThreadData {
   strategyAnchor: string;
@@ -38,80 +59,72 @@ export interface GoldenThreadData {
     string,
     { name: string; status: string; domain: string; triggerKpis: string[] }
   >;
+  /** Optional human-readable KPI names keyed by kpi_id */
+  kpiNames?: Record<string, string>;
 }
 
-/** Build React Flow nodes and edges from the Golden Thread data. */
+/** Format a KPI ID into something readable when no catalog name is found. */
+function formatKpiId(id: string): string {
+  // "FI.001.gross_margin_pct" → "Gross Margin Pct"
+  const part = id.split('.').pop() ?? id;
+  return part.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+// Node dimensions for Dagre layout
+const NODE_SIZES = {
+  strategyAnchor: { width: 240, height: 56 },
+  strategicKpi:   { width: 220, height: 88 },
+  driverKpi:      { width: 200, height: 72 },
+  actionCode:     { width: 200, height: 72 },
+  domain:         { width: 140, height: 28 },
+};
+
+/** Build React Flow nodes and edges using Dagre auto-layout. */
 function buildGraph(data: GoldenThreadData): { nodes: Node[]; edges: Edge[] } {
-  const nodes: Node[] = [];
+  const rawNodes: Node[] = [];
   const edges: Edge[] = [];
+  const domainColorIndex = new Map<string, number>();
+
+  // ── 1. Collect all nodes ────────────────────────────────────────────────────
 
   // Strategy Anchor (root)
-  nodes.push({
+  rawNodes.push({
     id: 'anchor',
     type: 'strategyAnchor',
-    position: { x: 400, y: 0 },
+    position: { x: 0, y: 0 },
     data: { label: data.strategyAnchor, description: '' },
   });
 
   // Sort brackets by domain so same-domain brackets cluster together
   const sortedBrackets = [...data.brackets].sort((a, b) => a.domain.localeCompare(b.domain));
 
-  // Strategic KPIs (one per bracket)
-  let skpiX = 0;
-  const skpiY = 140;
-  const kpiSpacing = 320;
-  let prevDomain = '';
-
   for (const bracket of sortedBrackets) {
-    // Domain separator: add extra spacing and a label node on domain change
-    if (bracket.domain !== prevDomain && sortedBrackets.length > 1) {
-      if (prevDomain !== '') skpiX += kpiSpacing * 0.5; // gap between domains
-      nodes.push({
-        id: `domain-${bracket.domain}`,
-        type: 'default',
-        position: { x: skpiX, y: skpiY - 60 },
-        data: { label: bracket.domain },
-        style: {
-          backgroundColor: 'transparent',
-          border: 'none',
-          fontSize: '0.625rem',
-          fontWeight: 700,
-          color: 'var(--slate-500)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-          pointerEvents: 'none',
-        },
-        draggable: false,
-        selectable: false,
-        connectable: false,
-      });
-      prevDomain = bracket.domain;
-    }
-
+    const domainColor = getDomainColor(bracket.domain, domainColorIndex);
     const skpiId = `skpi-${bracket.id}`;
-    nodes.push({
+
+    // Strategic KPI node
+    rawNodes.push({
       id: skpiId,
       type: 'strategicKpi',
-      position: { x: skpiX, y: skpiY },
+      position: { x: 0, y: 0 },
       data: {
         kpiId: bracket.strategicKpiId,
+        kpiName: data.kpiNames?.[bracket.strategicKpiId] ?? formatKpiId(bracket.strategicKpiId),
         label: bracket.title,
         direction: bracket.impactDirection,
         useCaseId: bracket.id,
+        domainColor,
       },
     });
     edges.push({
       id: `anchor->${skpiId}`,
       source: 'anchor',
       target: skpiId,
-      style: { stroke: 'var(--slate-500)' },
+      style: { stroke: domainColor, opacity: 0.5 },
       animated: true,
     });
 
-    // Driver KPIs
-    let driverX = skpiX - ((bracket.influencingKpiIds.length - 1) * 180) / 2;
-    const driverY = skpiY + 160;
-
+    // Driver KPI nodes
     for (const driverKpiId of bracket.influencingKpiIds) {
       const dNodeId = `driver-${bracket.id}-${driverKpiId}`;
       const hasAction = bracket.actionCodeIds.some((actionId) => {
@@ -119,54 +132,50 @@ function buildGraph(data: GoldenThreadData): { nodes: Node[]; edges: Edge[] } {
         return details?.triggerKpis.includes(driverKpiId);
       });
 
-      nodes.push({
+      rawNodes.push({
         id: dNodeId,
         type: 'driverKpi',
-        position: { x: driverX, y: driverY },
+        position: { x: 0, y: 0 },
         data: {
           kpiId: driverKpiId,
-          label: driverKpiId.split('.').pop() ?? driverKpiId,
+          label: data.kpiNames?.[driverKpiId] ?? formatKpiId(driverKpiId),
           hasAction,
+          domainColor,
         },
       });
       edges.push({
         id: `${skpiId}->${dNodeId}`,
         source: skpiId,
         target: dNodeId,
-        style: { stroke: 'var(--mint-dark, #00A888)', opacity: 0.6 },
+        style: { stroke: domainColor, opacity: 0.5 },
       });
-
-      driverX += 180;
     }
 
-    // Action Codes
-    let actionX = skpiX - ((bracket.actionCodeIds.length - 1) * 200) / 2;
-    const actionY = driverY + 140;
-
+    // Action Code nodes
     for (const actionId of bracket.actionCodeIds) {
       const aNodeId = `action-${bracket.id}-${actionId}`;
       const details = data.actionDetails.get(actionId);
 
-      // Orphan: action's trigger KPIs don't overlap with bracket's influencing KPIs
       const triggerKpis = details?.triggerKpis ?? [];
       const isOrphan = triggerKpis.length === 0 ||
         !triggerKpis.some((kpi) => bracket.influencingKpiIds.includes(kpi));
 
-      nodes.push({
+      rawNodes.push({
         id: aNodeId,
         type: 'actionCode',
-        position: { x: actionX, y: actionY },
+        position: { x: 0, y: 0 },
         data: {
           actionId,
           label: details?.name ?? actionId,
           status: details?.status ?? 'draft',
           domain: details?.domain ?? bracket.domain,
           isOrphan,
+          domainColor,
         },
       });
 
-      // Connect action to its trigger KPIs (driver nodes)
-      for (const triggerKpi of details?.triggerKpis ?? []) {
+      // Connect action to its trigger KPI driver nodes
+      for (const triggerKpi of triggerKpis) {
         const dNodeId = `driver-${bracket.id}-${triggerKpi}`;
         if (bracket.influencingKpiIds.includes(triggerKpi)) {
           edges.push({
@@ -177,12 +186,38 @@ function buildGraph(data: GoldenThreadData): { nodes: Node[]; edges: Edge[] } {
           });
         }
       }
-
-      actionX += 200;
     }
-
-    skpiX += Math.max(kpiSpacing, bracket.influencingKpiIds.length * 180 + 140);
   }
+
+  // ── 2. Dagre auto-layout ────────────────────────────────────────────────────
+
+  const g = new dagre.graphlib.Graph();
+  g.setDefaultEdgeLabel(() => ({}));
+  g.setGraph({ rankdir: 'TB', ranksep: 80, nodesep: 40 });
+
+  for (const node of rawNodes) {
+    const type = node.type as keyof typeof NODE_SIZES;
+    const { width, height } = NODE_SIZES[type] ?? { width: 180, height: 60 };
+    g.setNode(node.id, { width, height });
+  }
+  for (const edge of edges) {
+    g.setEdge(edge.source, edge.target);
+  }
+
+  dagre.layout(g);
+
+  const nodes: Node[] = rawNodes.map((node) => {
+    const pos = g.node(node.id);
+    const type = node.type as keyof typeof NODE_SIZES;
+    const { width, height } = NODE_SIZES[type] ?? { width: 180, height: 60 };
+    return {
+      ...node,
+      position: {
+        x: (pos?.x ?? 0) - width / 2,
+        y: (pos?.y ?? 0) - height / 2,
+      },
+    };
+  });
 
   return { nodes, edges };
 }
@@ -194,14 +229,16 @@ interface Props {
 
 export function GoldenThreadFlow({ data, onBracketSelect }: Props) {
   const { nodes, edges } = useMemo(() => buildGraph(data), [data]);
+  const isEmpty = data.brackets.length === 0;
 
   return (
-    <div style={{ width: '100%', height: '100%', minHeight: '600px' }}>
+    <div style={{ width: '100%', height: '100%', minHeight: '600px', position: 'relative' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
         fitView
+        fitViewOptions={{ padding: 0.15 }}
         proOptions={{ hideAttribution: true }}
         defaultEdgeOptions={{ type: 'smoothstep' }}
         onNodeClick={(_, node) => {
@@ -217,7 +254,47 @@ export function GoldenThreadFlow({ data, onBracketSelect }: Props) {
             borderRadius: 'var(--radius-md)',
           }}
         />
+        <MiniMap
+          nodeColor={(node) => {
+            const d = node.data as Record<string, unknown>;
+            const color = d?.domainColor as string | undefined;
+            if (node.type === 'strategyAnchor') return 'var(--mint)';
+            return color ?? 'var(--slate-600)';
+          }}
+          maskColor="color-mix(in srgb, var(--slate-950) 80%, transparent)"
+          style={{
+            backgroundColor: 'var(--slate-800)',
+            border: '1px solid var(--slate-700)',
+            borderRadius: 'var(--radius-md)',
+          }}
+        />
       </ReactFlow>
+      {isEmpty && (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          pointerEvents: 'none',
+        }}>
+          <div style={{
+            padding: 'var(--sp-3) var(--sp-4)',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--slate-700)',
+            background: 'color-mix(in srgb, var(--slate-900) 92%, var(--mint) 8%)',
+            textAlign: 'center',
+            maxWidth: '360px',
+          }}>
+            <p style={{ margin: 0, marginBottom: 'var(--sp-1)', fontSize: '0.9375rem', fontWeight: 600, color: 'var(--slate-200)' }}>
+              No brackets loaded
+            </p>
+            <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--slate-500)', lineHeight: 1.6 }}>
+              Select a bracket from the dropdown above or run a Discovery session to generate one.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

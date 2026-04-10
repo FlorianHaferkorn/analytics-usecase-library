@@ -11,88 +11,6 @@
   },
   "visual": {
     "visualType": "clusteredBarChart",
-    "query": {
-      "queryState": {
-        "Category": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_org"
-                    }
-                  },
-                  "Property": "OrgName"
-                }
-              },
-              "queryRef": "dim_org.OrgName",
-              "nativeQueryRef": "OrgName"
-            }
-          ]
-        },
-        "Y": {
-          "projections": [
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "SLA Attainment %"
-                }
-              },
-              "queryRef": "_Measures.SLA Attainment %",
-              "nativeQueryRef": "SLA Attainment %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "First Contact Resolution %"
-                }
-              },
-              "queryRef": "_Measures.First Contact Resolution %",
-              "nativeQueryRef": "First Contact Resolution %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Average Handling Time (minutes)"
-                }
-              },
-              "queryRef": "_Measures.Average Handling Time (minutes)",
-              "nativeQueryRef": "Average Handling Time (minutes)"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Backlog Count"
-                }
-              },
-              "queryRef": "_Measures.Backlog Count",
-              "nativeQueryRef": "Backlog Count"
-            }
-          ]
-        }
-      }
-    },
     "objects": {
       "categoryAxis": [
         {
@@ -149,6 +67,88 @@
       ]
     },
     "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org"
+                    }
+                  },
+                  "Property": "OrgName"
+                }
+              },
+              "queryRef": "dim_org.OrgName",
+              "nativeQueryRef": "OrgName"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "SLA Attainment %"
+                }
+              },
+              "queryRef": "_Measures.SLA Attainment %",
+              "nativeQueryRef": "SLA Attainment %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Backlog Count"
+                }
+              },
+              "queryRef": "_Measures.Backlog Count",
+              "nativeQueryRef": "Backlog Count"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "First Contact Resolution %"
+                }
+              },
+              "queryRef": "_Measures.First Contact Resolution %",
+              "nativeQueryRef": "First Contact Resolution %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Average Handling Time (minutes)"
+                }
+              },
+              "queryRef": "_Measures.Average Handling Time (minutes)",
+              "nativeQueryRef": "Average Handling Time (minutes)"
+            }
+          ]
+        }
+      }
+    },
     "visualContainerObjects": {
       "visualHeader": [
         {

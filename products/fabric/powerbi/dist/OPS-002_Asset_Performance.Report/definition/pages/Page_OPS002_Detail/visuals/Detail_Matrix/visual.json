@@ -11,56 +11,6 @@
   },
   "visual": {
     "visualType": "tableEx",
-    "query": {
-      "queryState": {
-        "Values": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_org"
-                    }
-                  },
-                  "Property": "OrgName"
-                }
-              },
-              "queryRef": "dim_org.OrgName",
-              "nativeQueryRef": "OrgName"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_date"
-                    }
-                  },
-                  "Property": "CalendarYearMonth"
-                }
-              },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "MTBF (hours)"
-                }
-              },
-              "queryRef": "_Measures.MTBF (hours)",
-              "nativeQueryRef": "MTBF (hours)"
-            }
-          ]
-        }
-      }
-    },
     "objects": {
       "grid": [
         {
@@ -97,6 +47,154 @@
         }
       ]
     },
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "plant"
+                }
+              },
+              "queryRef": "_Measures.plant",
+              "nativeQueryRef": "plant"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "asset"
+                }
+              },
+              "queryRef": "_Measures.asset",
+              "nativeQueryRef": "asset"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "asset_class"
+                }
+              },
+              "queryRef": "_Measures.asset_class",
+              "nativeQueryRef": "asset_class"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "criticality"
+                }
+              },
+              "queryRef": "_Measures.criticality",
+              "nativeQueryRef": "criticality"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "MTTR (hours)"
+                }
+              },
+              "queryRef": "_Measures.MTTR (hours)",
+              "nativeQueryRef": "MTTR (hours)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Unplanned Downtime %"
+                }
+              },
+              "queryRef": "_Measures.Unplanned Downtime %",
+              "nativeQueryRef": "Unplanned Downtime %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "PM Compliance %"
+                }
+              },
+              "queryRef": "_Measures.PM Compliance %",
+              "nativeQueryRef": "PM Compliance %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Spare Parts Stockout %"
+                }
+              },
+              "queryRef": "_Measures.Spare Parts Stockout %",
+              "nativeQueryRef": "Spare Parts Stockout %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Failure Count"
+                }
+              },
+              "queryRef": "_Measures.Failure Count",
+              "nativeQueryRef": "Failure Count"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "MTBF (hours)"
+                }
+              },
+              "queryRef": "_Measures.MTBF (hours)",
+              "nativeQueryRef": "MTBF (hours)"
+            }
+          ]
+        }
+      }
+    }
   }
 }

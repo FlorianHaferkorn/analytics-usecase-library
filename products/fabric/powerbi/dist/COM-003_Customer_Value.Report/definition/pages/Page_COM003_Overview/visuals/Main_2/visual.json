@@ -12,7 +12,40 @@
   "visual": {
     "visualType": "clusteredBarChart",
     "objects": {
-      "legend": [
+      "categoryAxis": [
+        {
+          "properties": {
+            "innerPadding": {
+              "expr": {
+                "Literal": {
+                  "Value": "30L"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "layout": [
+        {
+          "properties": {
+            "clusteredGapSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "10L"
+                }
+              }
+            },
+            "clusteredGapOverlaps": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dataLabels": [
         {
           "properties": {
             "show": {
@@ -22,10 +55,10 @@
                 }
               }
             },
-            "showTitle": {
+            "labelPosition": {
               "expr": {
                 "Literal": {
-                  "Value": "false"
+                  "Value": "'OutsideEnd'"
                 }
               }
             }
@@ -43,21 +76,79 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_org"
+                      "Entity": "dim_date"
                     }
                   },
-                  "Property": "OrgName"
+                  "Property": "Date"
                 }
               },
-              "queryRef": "dim_org.OrgName",
-              "nativeQueryRef": "OrgName"
+              "queryRef": "dim_date.Date",
+              "nativeQueryRef": "Date"
             }
           ]
         },
         "Y": {
-          "projections": []
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Customer Retention %"
+                }
+              },
+              "queryRef": "_Measures.Customer Retention %",
+              "nativeQueryRef": "Customer Retention %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Churned Customers"
+                }
+              },
+              "queryRef": "_Measures.Churned Customers",
+              "nativeQueryRef": "Churned Customers"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Revenue at Risk Amount"
+                }
+              },
+              "queryRef": "_Measures.Revenue at Risk Amount",
+              "nativeQueryRef": "Revenue at Risk Amount"
+            }
+          ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

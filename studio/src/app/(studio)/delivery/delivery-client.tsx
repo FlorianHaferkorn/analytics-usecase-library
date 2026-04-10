@@ -31,7 +31,7 @@ const ADAPTERS = [
     name: 'Open Source Stack',
     description: 'Export as SQL transformations and Evidence.dev markdown reports',
     outputs: ['SQL transformations', 'Evidence.dev pages', 'DuckDB queries', 'YAML config'],
-    status: 'preview' as const,
+    status: 'available' as const,
     endpoint: '/api/export/opensource',
   },
   {
@@ -39,7 +39,7 @@ const ADAPTERS = [
     name: 'CI/CD Pipeline',
     description: 'Deploy via GitHub Actions or Fabric REST API',
     outputs: ['GitHub Actions workflow', 'Validation pipeline', 'Fabric deploy script'],
-    status: 'available' as const,
+    status: 'preview' as const,
     endpoint: '/api/export/cicd',
   },
 ] as const;
@@ -188,8 +188,29 @@ export function DeliveryClient({ brackets }: Props) {
           </StudioPanel>
         </div>
 
-        {/* Right: Scope Selection */}
+        {/* Right: Export trigger (sticky at top) + Scope Selection */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
+          {/* T2.5: Export trigger moved above scope list so button is always visible */}
+          <StudioPanel
+            title="Export Trigger"
+            description={`${selectedBrackets.size} use cases · ${totalKpis} KPIs · ${totalActions} actions`}
+            action={
+              <StudioButton
+                onClick={handleExport}
+                disabled={selectedBrackets.size === 0 || isExporting}
+                tone="success"
+                variant="primary"
+                style={{ padding: 'var(--sp-1) var(--sp-3)', fontSize: '0.875rem' }}
+              >
+                {isExporting ? 'Exporting...' : `Export to ${adapter.name.split('/')[0].trim()}`}
+              </StudioButton>
+            }
+          >
+            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--slate-400)' }}>
+              Select use cases below, then trigger the export when scope, governance and validation look correct.
+            </p>
+          </StudioPanel>
+
           <StudioPanel
             title="Export Scope"
             description="Curate the approved use cases that will flow into the selected target stack."
@@ -207,44 +228,26 @@ export function DeliveryClient({ brackets }: Props) {
               <StudioEmptyState title="No use cases available" description="Add or approve use cases before preparing a delivery export." />
             ) : (
               <>
-              <StudioSelectionList>
-                {brackets.map((bracket) => (
-                  <StudioSelectionItem
-                    key={bracket.id}
-                    selected={selectedBrackets.has(bracket.id)}
-                    onClick={() => toggleBracket(bracket.id)}
-                    leading={<span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--info)', minWidth: '60px', display: 'inline-block' }}>{bracket.id}</span>}
-                    primary={bracket.title}
-                    secondary={bracket.domain}
-                    meta={`${bracket.kpiCount} KPIs · ${bracket.actionCount} Actions`}
-                  />
-                ))}
-              </StudioSelectionList>
+              <div style={{ maxHeight: '280px', overflowY: 'auto', overflowX: 'hidden' }}>
+                <StudioSelectionList>
+                  {brackets.map((bracket) => (
+                    <StudioSelectionItem
+                      key={bracket.id}
+                      selected={selectedBrackets.has(bracket.id)}
+                      onClick={() => toggleBracket(bracket.id)}
+                      leading={<span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--info)', minWidth: '60px', display: 'inline-block' }}>{bracket.id}</span>}
+                      primary={bracket.title}
+                      secondary={bracket.domain}
+                      meta={`${bracket.kpiCount} KPIs · ${bracket.actionCount} Actions`}
+                    />
+                  ))}
+                </StudioSelectionList>
+              </div>
               <StudioInlineStat>
                 {selectedBrackets.size} of {brackets.length} use cases selected for export.
               </StudioInlineStat>
               </>
             )}
-          </StudioPanel>
-
-          <StudioPanel
-            title="Export Trigger"
-            description={`${selectedBrackets.size} use cases · ${totalKpis} KPIs · ${totalActions} actions`}
-            action={
-              <StudioButton
-                onClick={handleExport}
-                disabled={selectedBrackets.size === 0 || isExporting}
-                tone="success"
-                variant="primary"
-                style={{ padding: 'var(--sp-1) var(--sp-3)', fontSize: '0.875rem' }}
-              >
-                {isExporting ? 'Exporting...' : `Export to ${adapter.name.split('/')[0].trim()}`}
-              </StudioButton>
-            }
-          >
-            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--slate-400)' }}>
-              Trigger a packaged export only after the scope, governance and validation path below look correct.
-            </p>
           </StudioPanel>
 
           <StudioPanel title="Operational Plan" description="Validation checks, runbook steps and scope signals for the current delivery move." tone={readinessWarnings.length === 0 ? 'success' : 'warning'}>

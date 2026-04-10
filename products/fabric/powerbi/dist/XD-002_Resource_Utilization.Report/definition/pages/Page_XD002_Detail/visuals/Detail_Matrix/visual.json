@@ -11,56 +11,6 @@
   },
   "visual": {
     "visualType": "tableEx",
-    "query": {
-      "queryState": {
-        "Values": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_org"
-                    }
-                  },
-                  "Property": "OrgName"
-                }
-              },
-              "queryRef": "dim_org.OrgName",
-              "nativeQueryRef": "OrgName"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_date"
-                    }
-                  },
-                  "Property": "CalendarYearMonth"
-                }
-              },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Utilization %"
-                }
-              },
-              "queryRef": "_Measures.Utilization %",
-              "nativeQueryRef": "Utilization %"
-            }
-          ]
-        }
-      }
-    },
     "objects": {
       "grid": [
         {
@@ -97,6 +47,126 @@
         }
       ]
     },
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org"
+                    }
+                  },
+                  "Property": "OrgName"
+                }
+              },
+              "queryRef": "dim_org.OrgName",
+              "nativeQueryRef": "OrgName"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org"
+                    }
+                  },
+                  "Property": "Channel"
+                }
+              },
+              "queryRef": "dim_org.Channel",
+              "nativeQueryRef": "Channel"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "queue"
+                }
+              },
+              "queryRef": "_Measures.queue",
+              "nativeQueryRef": "queue"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "agent_group"
+                }
+              },
+              "queryRef": "_Measures.agent_group",
+              "nativeQueryRef": "agent_group"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Utilization %"
+                }
+              },
+              "queryRef": "_Measures.Utilization %",
+              "nativeQueryRef": "Utilization %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Occupancy %"
+                }
+              },
+              "queryRef": "_Measures.Occupancy %",
+              "nativeQueryRef": "Occupancy %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Overtime %"
+                }
+              },
+              "queryRef": "_Measures.Overtime %",
+              "nativeQueryRef": "Overtime %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Shrinkage %"
+                }
+              },
+              "queryRef": "_Measures.Shrinkage %",
+              "nativeQueryRef": "Shrinkage %"
+            }
+          ]
+        }
+      }
+    }
   }
 }

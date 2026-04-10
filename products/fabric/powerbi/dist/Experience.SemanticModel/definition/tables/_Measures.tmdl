@@ -15,16 +15,28 @@ table _Measures
 		isHidden
 		summarizeBy: none
 
-	// ── XD-001 ──────────────────────────────────────────
+	/// XD-001
 	/// SLA Attainment % - svc.sla.attainment.pct
 	/// Measures how many cases meet the committed SLA.
-	measure 'SLA Attainment %' = DIVIDE ( COUNTROWS ( FILTER ( fact_support_cases, fact_support_cases[SLA Met Flag] = TRUE() ) ), COUNTROWS ( fact_support_cases ) )
+	measure 'SLA Attainment %' =
+		VAR CasesWithinSla =
+			CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[SLA Met Flag] = TRUE() )
+		VAR TotalCases =
+			COUNTROWS ( fact_support_cases )
+		RETURN
+			DIVIDE ( CasesWithinSla, TotalCases )
 		formatString: "0.0%"
 		displayFolder: "XD-001"
 
 	/// FCR % - svc.fcr.pct
 	/// Shows the share of cases solved on first contact.
-	measure 'FCR %' = DIVIDE ( COUNTROWS ( FILTER ( fact_support_cases, fact_support_cases[FCR Flag] = TRUE() ) ), COUNTROWS ( fact_support_cases ) )
+	measure 'FCR %' =
+		VAR FirstContactResolvedCases =
+			CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[FCR Flag] = TRUE() )
+		VAR TotalCases =
+			COUNTROWS ( fact_support_cases )
+		RETURN
+			DIVIDE ( FirstContactResolvedCases, TotalCases )
 		formatString: "0.0%"
 		displayFolder: "XD-001"
 
@@ -36,19 +48,39 @@ table _Measures
 
 	/// Backlog Count - svc.backlog.count
 	/// Quantifies unresolved work in queue.
-	measure 'Backlog Count' = COUNTROWS ( FILTER ( fact_support_cases, fact_support_cases[Backlog Flag] = TRUE() ) )
+	measure 'Backlog Count' =
+		VAR BacklogCases =
+			CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[Backlog Flag] = TRUE() )
+		RETURN
+			BacklogCases
 		formatString: "#,0"
 		displayFolder: "XD-001"
 
 	/// NPS Index - svc.nps.index
 	/// Measures customer advocacy and experience quality.
-	measure 'NPS Index' = VAR Promoters = COUNTROWS ( FILTER ( fact_nps, fact_nps[NPS Score] >= 9 ) ) VAR Detractors = COUNTROWS ( FILTER ( fact_nps, fact_nps[NPS Score] <= 6 ) ) VAR Total = COUNTROWS ( fact_nps ) RETURN ROUND ( DIVIDE ( Promoters - Detractors, Total ) * 100, 0 )
+	measure 'NPS Index' =
+		VAR Promoters =
+			CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] >= 9 )
+		VAR Detractors =
+			CALCULATE ( COUNTROWS ( fact_nps ), fact_nps[NPS Score] <= 6 )
+		VAR TotalResponses =
+			COUNTROWS ( fact_nps )
+		VAR NetPromoterShare =
+			DIVIDE ( Promoters - Detractors, TotalResponses )
+		RETURN
+			ROUND ( NetPromoterShare * 100, 0 )
 		formatString: "#,0"
 		displayFolder: "XD-001"
 
 	/// Escalation % - svc.escalation.pct
 	/// Measures frequency of escalated cases.
-	measure 'Escalation %' = DIVIDE ( COUNTROWS ( FILTER ( fact_support_cases, fact_support_cases[Escalation Flag] = TRUE() ) ), COUNTROWS ( fact_support_cases ) )
+	measure 'Escalation %' =
+		VAR EscalatedCases =
+			CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[Escalation Flag] = TRUE() )
+		VAR TotalCases =
+			COUNTROWS ( fact_support_cases )
+		RETURN
+			DIVIDE ( EscalatedCases, TotalCases )
 		formatString: "0.0%"
 		displayFolder: "XD-001"
 
@@ -60,11 +92,15 @@ table _Measures
 
 	/// Tickets Closed Count - svc.tickets.closed.count
 	/// Counts customer service tickets closed in the period.
-	measure 'Tickets Closed Count' = COUNTROWS ( FILTER ( fact_support_cases, fact_support_cases[Open Case Flag] = FALSE() ) )
+	measure 'Tickets Closed Count' =
+		VAR ClosedTickets =
+			CALCULATE ( COUNTROWS ( fact_support_cases ), fact_support_cases[Open Case Flag] = FALSE() )
+		RETURN
+			ClosedTickets
 		formatString: "#,0"
 		displayFolder: "XD-001"
 
-	// ── XD-002 ──────────────────────────────────────────
+	/// XD-002
 	/// Utilization % - res.utilization.pct
 	/// Measures productive time versus paid time for agents.
 	measure 'Utilization %' = DIVIDE ( SUM ( fact_workforce_management[Work Time Minutes] ), SUM ( fact_workforce_management[Paid Time Minutes] ) )
@@ -73,7 +109,19 @@ table _Measures
 
 	/// Occupancy % - res.occupancy.pct
 	/// Measures active vs idle share of time.
-	measure 'Occupancy %' = VAR Talk = SUM ( fact_workforce_management[Talk Time Minutes] ) VAR Wrap = SUM ( fact_workforce_management[Wrap Time Minutes] ) VAR Idle = SUM ( fact_workforce_management[Idle Time Minutes] ) RETURN DIVIDE ( Talk + Wrap, Talk + Wrap + Idle )
+	measure 'Occupancy %' =
+		VAR TalkMinutes =
+			SUM ( fact_workforce_management[Talk Time Minutes] )
+		VAR WrapMinutes =
+			SUM ( fact_workforce_management[Wrap Time Minutes] )
+		VAR IdleMinutes =
+			SUM ( fact_workforce_management[Idle Time Minutes] )
+		VAR ActiveMinutes =
+			TalkMinutes + WrapMinutes
+		VAR TotalAvailableMinutes =
+			ActiveMinutes + IdleMinutes
+		RETURN
+			DIVIDE ( ActiveMinutes, TotalAvailableMinutes )
 		formatString: "0.0%"
 		displayFolder: "XD-002"
 
@@ -89,59 +137,133 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "XD-002"
 
-	// ── XD-003 ──────────────────────────────────────────
+	/// XD-003
 	/// Gross Margin % - margin.gm.pct
 	/// Gross Margin % used in commercial and management reporting and P&L reconciliation.
-	measure 'Gross Margin %' = VAR NetSales = [Net Sales Amount] VAR GrossMargin = NetSales - [Cost of Goods Sold Amount] RETURN DIVIDE ( GrossMargin, NetSales )
+	measure 'Gross Margin %' =
+		VAR NetSalesAmount =
+			[Net Sales Amount]
+		VAR GrossMarginAmount =
+			NetSalesAmount - [Cost of Goods Sold Amount]
+		RETURN
+			DIVIDE ( GrossMarginAmount, NetSalesAmount )
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
 	/// Delta% Net Sales - sales.net_sales.delta_pct.ly
 	/// Relative variance of Net Sales vs Last Year.
-	measure 'Delta% Net Sales' = VAR Actual = [Net Sales Amount] VAR LY     = SUM ( fact_sales[Last Year Sales Amount] ) RETURN DIVIDE ( Actual - LY, LY )
+	measure 'Delta% Net Sales' =
+		VAR ActualNetSales =
+			[Net Sales Amount]
+		VAR LastYearNetSales =
+			SUM ( fact_sales[Last Year Sales Amount] )
+		VAR NetSalesDelta =
+			ActualNetSales - LastYearNetSales
+		RETURN
+			DIVIDE ( NetSalesDelta, LastYearNetSales )
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
 	/// CLV - crm.clv.amount
 	/// Estimate long-term value of a customer to prioritize retention, acquisition, and service investme...
-	measure 'CLV' = VAR HorizonYears = 3 RETURN AVERAGEX ( VALUES ( fact_sales[CustomerKey] ), CALCULATE ( [Net Sales Amount] - [Cost of Goods Sold Amount] ) * HorizonYears )
+	measure 'CLV' =
+		VAR HorizonYears = 3
+		RETURN
+			AVERAGEX (
+				VALUES ( fact_sales[CustomerKey] ),
+				CALCULATE ( [Net Sales Amount] - [Cost of Goods Sold Amount] ) * HorizonYears
+			)
 		formatString: "#,0.00"
 		displayFolder: "XD-003"
 
 	/// Ops OTIF % - ops.otif.pct
 	/// Delivery reliability measured by orders delivered on-time and in-full.
-	measure 'Ops OTIF %' = DIVIDE ( COUNTROWS ( FILTER ( fact_fulfillment, fact_fulfillment[OTIF Flag] = TRUE() ) ), COUNTROWS ( fact_fulfillment ) )
+	measure 'Ops OTIF %' =
+		VAR OTIFFulfillments =
+			CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
+		VAR TotalFulfillments =
+			COUNTROWS ( fact_fulfillment )
+		RETURN
+			DIVIDE ( OTIFFulfillments, TotalFulfillments )
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
 	/// DSO Days (XD) - receivables days estimate for CCC cross-domain view
-	measure 'DSO Days' = VAR AR = SUM ( fact_sales[Net Sales Amount] ) * 0.12 VAR NetSales = SUM ( fact_sales[Net Sales Amount] ) RETURN DIVIDE ( AR * 365, NetSales )
+	measure 'DSO Days' =
+		VAR AccountsReceivableProxy =
+			SUM ( fact_sales[Net Sales Amount] ) * 0.12
+		VAR NetSalesAmount =
+			SUM ( fact_sales[Net Sales Amount] )
+		VAR AnnualizedReceivables =
+			AccountsReceivableProxy * 365
+		RETURN
+			DIVIDE ( AnnualizedReceivables, NetSalesAmount )
 		formatString: "0"
 		displayFolder: "XD-003"
 
 	/// DIO Days (XD) - inventory days estimate for CCC cross-domain view
-	measure 'DIO Days' = VAR Inventory = SUM ( fact_sales[Cost of Goods Sold Amount] ) * 0.15 VAR COGS = SUM ( fact_sales[Cost of Goods Sold Amount] ) RETURN DIVIDE ( Inventory * 365, COGS )
+	measure 'DIO Days' =
+		VAR InventoryProxy =
+			SUM ( fact_sales[Cost of Goods Sold Amount] ) * 0.15
+		VAR CostOfGoodsSoldAmount =
+			SUM ( fact_sales[Cost of Goods Sold Amount] )
+		VAR AnnualizedInventory =
+			InventoryProxy * 365
+		RETURN
+			DIVIDE ( AnnualizedInventory, CostOfGoodsSoldAmount )
 		formatString: "0"
 		displayFolder: "XD-003"
 
 	/// DPO Days (XD) - payables days estimate for CCC cross-domain view
-	measure 'DPO Days' = VAR AP = SUM ( fact_sales[Cost of Goods Sold Amount] ) * 0.08 VAR COGS = SUM ( fact_sales[Cost of Goods Sold Amount] ) RETURN DIVIDE ( AP * 365, COGS )
+	measure 'DPO Days' =
+		VAR AccountsPayableProxy =
+			SUM ( fact_sales[Cost of Goods Sold Amount] ) * 0.08
+		VAR CostOfGoodsSoldAmount =
+			SUM ( fact_sales[Cost of Goods Sold Amount] )
+		VAR AnnualizedPayables =
+			AccountsPayableProxy * 365
+		RETURN
+			DIVIDE ( AnnualizedPayables, CostOfGoodsSoldAmount )
 		formatString: "0"
 		displayFolder: "XD-003"
 
 	/// First Pass Yield % (XD) - delivery quality proxy via fulfillment in-full rate
-	measure 'First Pass Yield %' = VAR InFullDeliveries = CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[In-Full Flag] = TRUE() ) VAR TotalDeliveries = COUNTROWS ( fact_fulfillment ) RETURN DIVIDE ( InFullDeliveries, TotalDeliveries )
+	measure 'First Pass Yield %' =
+		VAR InFullDeliveries =
+			CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[In-Full Flag] = TRUE() )
+		VAR TotalDeliveries =
+			COUNTROWS ( fact_fulfillment )
+		RETURN
+			DIVIDE ( InFullDeliveries, TotalDeliveries )
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
 	/// Revenue at Risk Amount - weighted sales exposure from OTIF failures and quality defects
-	measure 'Revenue at Risk Amount' = VAR OTIFFailRate = 1 - [Ops OTIF %] VAR FPYFailRate = 1 - [First Pass Yield %] VAR RiskFactor = DIVIDE ( OTIFFailRate + FPYFailRate, 2 ) RETURN SUM ( fact_sales[Net Sales Amount] ) * RiskFactor
+	measure 'Revenue at Risk Amount' =
+		VAR OTIFFailureRate =
+			1 - [Ops OTIF %]
+		VAR FirstPassYieldFailureRate =
+			1 - [First Pass Yield %]
+		VAR CombinedRiskFactor =
+			DIVIDE ( OTIFFailureRate + FirstPassYieldFailureRate, 2 )
+		VAR NetSalesAmount =
+			SUM ( fact_sales[Net Sales Amount] )
+		RETURN
+			NetSalesAmount * CombinedRiskFactor
 		formatString: "#,0.00"
 		displayFolder: "XD-003"
 
 	/// Cash Conversion Cycle (Days) - ops.working_capital.ccc.days
 	/// Combines receivables, inventory, and payables days to show cash efficiency.
-	measure 'Cash Conversion Cycle (Days)' = VAR DaysSalesOutstanding = [DSO Days] VAR DaysInventoryOutstanding = [DIO Days] VAR DaysPayablesOutstanding = [DPO Days] RETURN DaysSalesOutstanding + DaysInventoryOutstanding - DaysPayablesOutstanding
+	measure 'Cash Conversion Cycle (Days)' =
+		VAR DaysSalesOutstanding =
+			[DSO Days]
+		VAR DaysInventoryOutstanding =
+			[DIO Days]
+		VAR DaysPayablesOutstanding =
+			[DPO Days]
+		RETURN
+			DaysSalesOutstanding + DaysInventoryOutstanding - DaysPayablesOutstanding
 		formatString: "0"
 		displayFolder: "XD-003"
 
@@ -165,13 +287,29 @@ table _Measures
 
 	/// Action Outcome Rate % - enterprise.action_outcome_rate.pct
 	/// Measures share of actions that achieved the intended outcome.
-	measure 'Action Outcome Rate %' = DIVIDE ( CALCULATE ( COUNTROWS ( fact_action_log ), fact_action_log[Outcome Status] = "Achieved" ), COUNTROWS ( fact_action_log ) )
+	measure 'Action Outcome Rate %' =
+		VAR AchievedActions =
+			CALCULATE ( COUNTROWS ( fact_action_log ), fact_action_log[Outcome Status] = "Achieved" )
+		VAR TotalActions =
+			COUNTROWS ( fact_action_log )
+		RETURN
+			DIVIDE ( AchievedActions, TotalActions )
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
 	/// Enterprise Value-at-Risk Index - enterprise.value_at_risk.index
 	/// Aggregates downside risk across domains into a single index.
-	measure 'Enterprise Value-at-Risk Index' = VAR RevAtRisk = DIVIDE ( [Revenue at Risk Amount], [Net Sales Amount] ) VAR DeliveryRisk = 1 - [OTIF %] VAR QualityRisk = 1 - [First Pass Yield %] VAR AverageRisk = DIVIDE ( RevAtRisk + DeliveryRisk + QualityRisk, 3 ) RETURN ROUND ( AverageRisk * 100, 0 )
+	measure 'Enterprise Value-at-Risk Index' =
+		VAR RevenueAtRiskShare =
+			DIVIDE ( [Revenue at Risk Amount], [Net Sales Amount] )
+		VAR DeliveryRisk =
+			1 - [OTIF %]
+		VAR QualityRisk =
+			1 - [First Pass Yield %]
+		VAR AverageRisk =
+			DIVIDE ( RevenueAtRiskShare + DeliveryRisk + QualityRisk, 3 )
+		RETURN
+			ROUND ( AverageRisk * 100, 0 )
 		formatString: "0"
 		displayFolder: "XD-003"
 
@@ -189,49 +327,55 @@ table _Measures
 
 	/// OTIF % - supply.otif.pct
 	/// Measures share of orders delivered on time and in full.
-	measure 'OTIF %' = DIVIDE ( COUNTROWS ( FILTER ( fact_fulfillment, fact_fulfillment[OTIF Flag] = TRUE() ) ), COUNTROWS ( fact_fulfillment ) )
+	measure 'OTIF %' =
+		VAR OTIFFulfillments =
+			CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[OTIF Flag] = TRUE() )
+		VAR TotalFulfillments =
+			COUNTROWS ( fact_fulfillment )
+		RETURN
+			DIVIDE ( OTIFFulfillments, TotalFulfillments )
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
-	// ── ActionReady Logic ─────────────────────────────────
+	/// ActionReady Logic
 	/// ActionReady Logic: X-R2.1
 	measure 'Action_X-R2.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_workforce_management" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "head_of_workforce_management"
-	annotation ActionReady_ActionCodeId = "X-R2.1"
+		annotation ActionReady_ResponsibleRole = "head_of_workforce_management"
+		annotation ActionReady_ActionCodeId = "X-R2.1"
 
 	/// ActionReady Logic: X-R2.2
 	measure 'Action_X-R2.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: workforce_management_lead" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "workforce_management_lead"
-	annotation ActionReady_ActionCodeId = "X-R2.2"
+		annotation ActionReady_ResponsibleRole = "workforce_management_lead"
+		annotation ActionReady_ActionCodeId = "X-R2.2"
 
 	/// ActionReady Logic: X-R2.3
 	measure 'Action_X-R2.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: service_operations_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "service_operations_manager"
-	annotation ActionReady_ActionCodeId = "X-R2.3"
+		annotation ActionReady_ResponsibleRole = "service_operations_manager"
+		annotation ActionReady_ActionCodeId = "X-R2.3"
 
 	/// ActionReady Logic: X-R2.4
 	measure 'Action_X-R2.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: service_operations_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "service_operations_manager"
-	annotation ActionReady_ActionCodeId = "X-R2.4"
+		annotation ActionReady_ResponsibleRole = "service_operations_manager"
+		annotation ActionReady_ActionCodeId = "X-R2.4"
 
 	/// ActionReady Logic: X-E3.2
 	measure 'Action_X-E3.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_enterprise_controlling" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "head_of_enterprise_controlling"
-	annotation ActionReady_ActionCodeId = "X-E3.2"
+		annotation ActionReady_ResponsibleRole = "head_of_enterprise_controlling"
+		annotation ActionReady_ActionCodeId = "X-E3.2"
 
 	/// ActionReady Logic: X-E3.3
 	measure 'Action_X-E3.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: chief_of_staff_pmo_lead" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "chief_of_staff_pmo_lead"
-	annotation ActionReady_ActionCodeId = "X-E3.3"
+		annotation ActionReady_ResponsibleRole = "chief_of_staff_pmo_lead"
+		annotation ActionReady_ActionCodeId = "X-E3.3"

@@ -1,0 +1,18 @@
+﻿{
+    "artifacts":  [
+                      {
+                          "desktopProcessId":  64288,
+                          "errors":  [
+
+                                     ],
+                          "success":  true,
+                          "startedAt":  "2026-04-08T07:35:16.2439672+02:00",
+                          "traceUpdated":  false,
+                          "artifact":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\COM-001_Sales_Performance.Report"
+                      }
+                  ],
+    "tracePath":  "C:\\Users\\florianhaferkorn\\AppData\\Local\\Microsoft\\Power BI Desktop\\Traces\\PBIDesktop.log",
+    "desktopExecutable":  "C:\\Users\\florianhaferkorn\\AppData\\Local\\Microsoft\\WindowsApps\\PBIDesktopStore.exe",
+    "success":  true,
+    "timestamp":  "2026-04-08T07:35:26.4264475+02:00"
+}

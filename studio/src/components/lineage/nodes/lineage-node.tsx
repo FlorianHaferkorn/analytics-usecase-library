@@ -17,7 +17,7 @@ export function LineageNodeComponent({ data }: Props) {
   return (
     <div
       style={{
-        padding: '8px 12px',
+        padding: 'var(--sp-1) var(--sp-1-5)',
         backgroundColor: style.bg,
         border: `2px solid ${style.border}`,
         borderRadius: '8px',

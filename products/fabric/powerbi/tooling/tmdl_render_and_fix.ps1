@@ -63,7 +63,67 @@ function Write-TmdlLog {
 
 function Test-PbiToolsCompileCompatible {
   param([string]$FolderPath)
-  return (Test-Path (Join-Path $FolderPath "Version.txt"))
+  $requiredPaths = @(
+    (Join-Path $FolderPath "definition.pbir"),
+    (Join-Path $FolderPath "definition\report.json")
+  )
+
+  return (($requiredPaths | Where-Object { -not (Test-Path $_) }).Count -eq 0)
+}
+
+function Copy-PbiToolsDatasetReference {
+  param(
+    [string]$SourceReportPath,
+    [string]$TargetReportPath
+  )
+
+  $pbirPath = Join-Path $SourceReportPath "definition.pbir"
+  if (-not (Test-Path $pbirPath)) { return }
+
+  try {
+    $pbir = Get-Content -Path $pbirPath -Raw -Encoding utf8 | ConvertFrom-Json
+  } catch {
+    return
+  }
+
+  $datasetRelativePath = $pbir.datasetReference.byPath.path
+  if ([string]::IsNullOrWhiteSpace($datasetRelativePath)) { return }
+
+  $sourceDatasetPath = [System.IO.Path]::GetFullPath((Join-Path $SourceReportPath $datasetRelativePath))
+  if (-not (Test-Path $sourceDatasetPath)) { return }
+
+  $targetDatasetPath = [System.IO.Path]::GetFullPath((Join-Path $TargetReportPath $datasetRelativePath))
+  $targetDatasetParent = Split-Path -Parent $targetDatasetPath
+  if ($targetDatasetParent -and -not (Test-Path $targetDatasetParent)) {
+    New-Item -ItemType Directory -Path $targetDatasetParent -Force | Out-Null
+  }
+
+  if (Test-Path $targetDatasetPath) {
+    Remove-Item -LiteralPath $targetDatasetPath -Recurse -Force
+  }
+
+  Copy-Item -LiteralPath $sourceDatasetPath -Destination $targetDatasetPath -Recurse -Force
+}
+
+function New-PbiToolsCompileInputPath {
+  param([string]$FolderPath)
+
+  $folderItem = Get-Item -LiteralPath $FolderPath -ErrorAction Stop
+  $reportCompileRoot = Join-Path $env:TEMP ("analytics-usecase-library\pbi-tools-compile\" + $folderItem.Name)
+  $compileRoot = Join-Path $reportCompileRoot "input"
+  $targetRoot = Join-Path $compileRoot $folderItem.Name
+
+  if (Test-Path $reportCompileRoot) {
+    Remove-Item -LiteralPath $reportCompileRoot -Recurse -Force
+  }
+
+  New-Item -ItemType Directory -Path $compileRoot -Force | Out-Null
+  Copy-Item -LiteralPath $FolderPath -Destination $targetRoot -Recurse -Force
+  Copy-PbiToolsDatasetReference -SourceReportPath $FolderPath -TargetReportPath $targetRoot
+
+  $ensureScript = Join-Path $scriptDir "ensure_pbip_desktop_ready.ps1"
+  & $ensureScript -DistRoot $compileRoot -RepoRoot $RepoRoot -CreateLegacyPbixProjArtifacts 2>&1 | Out-Null
+  return $targetRoot
 }
 
 function Invoke-TmdlValidation {
@@ -95,7 +155,8 @@ function Invoke-TmdlValidation {
       $modelDirs += @(Get-ChildItem -Path $distResolved -Directory -Filter "*.Report" -ErrorAction SilentlyContinue)
       $compatibleModelDirs = @($modelDirs | Where-Object { Test-PbiToolsCompileCompatible -FolderPath $_.FullName })
       foreach ($m in $compatibleModelDirs) {
-        $out = & $pbitools.Source compile $m.FullName 2>&1
+        $compilePath = if ($m.Name -like "*.Report") { New-PbiToolsCompileInputPath -FolderPath $m.FullName } else { $m.FullName }
+        $out = & $pbitools.Source compile $compilePath 2>&1
         $allOutput += $out
         if ($LASTEXITCODE -ne 0) { $failed = $true }
       }

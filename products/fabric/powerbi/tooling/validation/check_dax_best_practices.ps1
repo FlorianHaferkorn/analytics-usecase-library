@@ -63,25 +63,35 @@ $infos = @()
 
 foreach ($it in $allItems) {
   $e = $it.Expr
-  $eSingleLine = $e -replace '[\r\n]+', ' '
+  $eSingleLine = (($e -replace '[\r\n]+', ' ') -replace '\s+', ' ').Trim()
+  $eStructural = [regex]::Replace($eSingleLine, '"(?:[^"]|"")*"', '""')
+  $eUpper = $eStructural.ToUpperInvariant()
   if (-not $e) { continue }
   foreach ($r in $rules.rules) {
     $hit = $false
     if ($r.match -and $r.match.any) {
-      foreach ($needle in $r.match.any) { if ($e -like ('*' + $needle + '*')) { $hit = $true; break } }
+      foreach ($needle in $r.match.any) {
+        if ($eUpper.Contains($needle.ToUpperInvariant())) { $hit = $true; break }
+      }
     }
-    elseif ($r.matchRegex -and ($eSingleLine -match $r.matchRegex)) { $hit = $true }
-    elseif ($r.forbidRegex -and ($eSingleLine -match $r.forbidRegex)) { $hit = $true }
+    elseif ($r.matchRegex -and ($eStructural -match $r.matchRegex)) { $hit = $true }
+    elseif ($r.forbidRegex -and ($eStructural -match $r.forbidRegex)) { $hit = $true }
     else { continue }
     if (-not $hit) { continue }
     if ($r.mustContain) {
-      foreach ($m in $r.mustContain) { if ($e -notlike ('*' + $m + '*')) { $hit = $false; break } }
+      $missingRequiredContent = $false
+      foreach ($m in $r.mustContain) {
+        if (-not $eUpper.Contains($m.ToUpperInvariant())) { $missingRequiredContent = $true; break }
+      }
+      if (-not $missingRequiredContent) { $hit = $false }
     }
     if ($r.forbidRegex) {
-      if ($eSingleLine -match $r.forbidRegex) { $hit = $true } else { $hit = $false }
+      if ($eStructural -match $r.forbidRegex) { $hit = $true } else { $hit = $false }
     }
     if ($r.allowWhenContains) {
-      foreach ($allow in $r.allowWhenContains) { if ($e -like ('*' + $allow + '*')) { $hit = $false } }
+      foreach ($allow in $r.allowWhenContains) {
+        if ($eUpper.Contains($allow.ToUpperInvariant())) { $hit = $false }
+      }
     }
     if (-not $hit) { continue }
     $shortFile = $it.File

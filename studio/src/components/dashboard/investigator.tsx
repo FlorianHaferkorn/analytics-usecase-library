@@ -6,17 +6,21 @@ interface Props {
   label: string;
   trendData: TrendPoint[];
   waterfallData: WaterfallDriver[];
-  theme?: { primary?: string; secondary?: string; surface?: string; text?: string };
+  theme?: { primary?: string; secondary?: string; surface?: string; text?: string; background?: string; borderRadius?: number };
 }
 
 export function Investigator({ label, trendData, waterfallData, theme }: Props) {
+  const radius = theme?.borderRadius != null ? `${theme.borderRadius / 2}px` : 'var(--radius-lg)';
+  const borderColor = theme?.background
+    ? `color-mix(in srgb, ${theme.background} 60%, ${theme.text ?? 'var(--slate-400)'})`
+    : 'var(--slate-700)';
   return (
     <div style={{
       display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)',
-      padding: 'var(--sp-2)',
+      padding: 'var(--sp-3)',
       backgroundColor: theme?.surface ?? 'var(--slate-800)',
-      border: '1px solid var(--slate-700)',
-      borderRadius: 'var(--radius-lg)',
+      border: `1px solid ${borderColor}`,
+      borderRadius: radius,
     }}>
       <TrendChart label={label} data={trendData} color={theme?.primary ?? 'var(--mint)'} />
       <WaterfallChart data={waterfallData} primaryColor={theme?.primary ?? 'var(--mint)'} secondaryColor={theme?.secondary ?? 'var(--gold)'} />

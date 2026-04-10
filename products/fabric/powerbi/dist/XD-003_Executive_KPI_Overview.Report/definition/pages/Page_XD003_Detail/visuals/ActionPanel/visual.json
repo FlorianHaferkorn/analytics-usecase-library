@@ -25,7 +25,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Recommended actions (from action codes)\n\n• X-E3.2 — Cross-Domain Risk Prioritisation\n  Owner: head_of_enterprise_controlling\n  Impact: High\n  Expected: -10.0–-30.0 %\n  Confidence: Medium\n  · AGGREGATE downside deviation per KPI for this entity\n  · WEIGHT by financial and strategic materiality for this entity\n  · RANK this entity by total value-at-risk\n  ⚠ Trigger only for entities with cross-domain exposure\n  ⚠ Limit output to top N risk items per cycle\n\n• X-E3.3 — Action Follow-up & Outcome Governance\n  Owner: chief_of_staff_pmo_lead\n  Impact: High\n  Expected: 10.0–25.0 pp\n  Confidence: High\n  · TRACK routed Action Codes and execution status for this entity\n  · EVALUATE KPI trajectory post-action window for this entity\n  · ESCALATE delayed or ineffective actions for this entity\n  ⚠ Outcome evaluation only after domain-defined evaluation window\n  ⚠ Do not escalate if follow-up window not elapsed'"
+                  "Value": "'Recommended actions (from action codes)\n\n• X-E3.2 — Cross-Domain Risk Prioritisation\n  Owner: head_of_enterprise_controlling\n  Impact: High, RiskAvoidance\n  Expected: -10.0–-30.0 %\n  Confidence: Medium\n  · AGGREGATE downside deviation per KPI for this entity\n  · WEIGHT by financial and strategic materiality for this entity\n  · RANK this entity by total value-at-risk\n  ⚠ Trigger only for entities with cross-domain exposure\n  ⚠ Limit output to top N risk items per cycle'"
                 }
               }
             }

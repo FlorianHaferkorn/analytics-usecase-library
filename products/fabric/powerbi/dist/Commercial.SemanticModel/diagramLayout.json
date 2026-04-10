@@ -221,6 +221,34 @@
                                                         "height":  104,
                                                         "width":  234
                                                     }
+                                       },
+                                       {
+                                           "nodeIndex":  "DateTableTemplate_951ad0c0-ac6e-4bcf-97c8-d3dc699ada15",
+                                           "zIndex":  10,
+                                           "nodeLineageTag":  "8bd43167-6d2d-4667-9d1a-e651438752a5",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  960,
+                                                            "x":  0
+                                                        },
+                                           "size":  {
+                                                        "height":  104,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "LocalDateTable_4396b67b-45eb-4309-9608-e56451dd861e",
+                                           "zIndex":  10,
+                                           "nodeLineageTag":  "dce8b28e-ac3e-4293-9eee-de5573ae531c",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  1080,
+                                                            "x":  0
+                                                        },
+                                           "size":  {
+                                                        "height":  104,
+                                                        "width":  234
+                                                    }
                                        }
                                    ],
                          "ordinal":  0,

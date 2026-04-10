@@ -72,8 +72,8 @@ def main() -> int:
     )
     parser.add_argument(
         "--dataset-reference",
-        default="../../../showcases/aurora_group/semantic_models/Commercial.SemanticModel",
-        help="Relative path from report folder to semantic model PBIP; orchestrate sets per-domain (e.g. Commercial.SemanticModel).",
+        default="../Commercial.SemanticModel",
+        help="Relative path from report folder to semantic model PBIP. Default assumes sibling domain model in products/fabric/powerbi/dist.",
     )
     parser.add_argument(
         "--force-full",

@@ -3,44 +3,80 @@ table dim_promo
 	lineageTag: 0ab9d29f-e65d-4ec8-90f8-f42f224f424b
 
 	column PromoKey
-		dataType: Int64
-		sourceColumn: PromoKey
-		summarizeBy: none
+		dataType: int64
 		isHidden
-
-	column Promotion
-		dataType: String
-		sourceColumn: Promotion
+		lineageTag: 5e00bc9c-86bb-4aac-a0d8-a71021843be7
 		summarizeBy: none
+		sourceColumn: PromoKey
 
-	column PromoType
-		dataType: String
-		sourceColumn: PromoType
+	column PromoCode
+		dataType: string
+		lineageTag: 966f3613-f17f-4977-a271-e80fe926af7a
 		summarizeBy: none
+		sourceColumn: PromoCode
 
-	column Mechanic
-		dataType: String
-		sourceColumn: Mechanic
-		summarizeBy: none
+		annotation SummarizationSetBy = Automatic
 
-	column StartDateKey
-		dataType: Int64
-		sourceColumn: StartDateKey
+	column PromoName
+		dataType: string
+		lineageTag: 94d3ccd0-f261-4d3d-878a-fc7be28f717b
 		summarizeBy: none
+		sourceColumn: PromoName
 
-	column EndDateKey
-		dataType: Int64
-		sourceColumn: EndDateKey
+		annotation SummarizationSetBy = Automatic
+
+	column 'Promo Type'
+		dataType: string
+		lineageTag: 2fbdfe2e-e2f6-4b2c-a337-cda2ac28955f
 		summarizeBy: none
+		sourceColumn: Promo Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Promo Mechanic'
+		dataType: string
+		lineageTag: 22820823-341f-441c-a875-3384b2df21aa
+		summarizeBy: none
+		sourceColumn: Promo Mechanic
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Start DateKey'
+		dataType: int64
+		formatString: 0
+		lineageTag: 155037cc-e137-494d-863a-de4ef14367b6
+		summarizeBy: none
+		sourceColumn: Start DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'End DateKey'
+		dataType: int64
+		formatString: 0
+		lineageTag: 33e22aad-e49c-4497-85c7-7739bf2c1852
+		summarizeBy: none
+		sourceColumn: End DateKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Discount %'
+		dataType: double
+		lineageTag: 10f24340-0084-4be2-873e-b28a86ed4290
+		summarizeBy: none
+		sourceColumn: Discount %
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	partition dim_promo = m
 		mode: import
 		source =
-			let
-				Source = Folder.Files(GoldDataPath & "/dimensions/dim_promo"),
-				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-				FirstFile = FilteredFiles{0}[Content],
-				ParquetData = Parquet.Document(FirstFile)
-			in
-				ParquetData
+				let
+					Source = Folder.Files(GoldDataPath & "/dimensions/dim_promo"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData
 

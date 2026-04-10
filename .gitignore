@@ -61,7 +61,6 @@ package.json
 package-lock.json
 
 # Next.js build artifacts
-products/studio/.next/
 studio/.next/
 
 # CI run logs (local only – not versioned)

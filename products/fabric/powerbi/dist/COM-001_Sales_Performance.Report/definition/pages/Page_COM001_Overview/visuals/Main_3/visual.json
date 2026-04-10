@@ -12,7 +12,40 @@
   "visual": {
     "visualType": "clusteredBarChart",
     "objects": {
-      "legend": [
+      "categoryAxis": [
+        {
+          "properties": {
+            "innerPadding": {
+              "expr": {
+                "Literal": {
+                  "Value": "30L"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "layout": [
+        {
+          "properties": {
+            "clusteredGapSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "10L"
+                }
+              }
+            },
+            "clusteredGapOverlaps": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dataLabels": [
         {
           "properties": {
             "show": {
@@ -22,10 +55,10 @@
                 }
               }
             },
-            "showTitle": {
+            "labelPosition": {
               "expr": {
                 "Literal": {
-                  "Value": "false"
+                  "Value": "'OutsideEnd'"
                 }
               }
             }
@@ -55,9 +88,39 @@
           ]
         },
         "Y": {
-          "projections": []
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Net Sales Amount"
+                }
+              },
+              "queryRef": "_Measures.Net Sales Amount",
+              "nativeQueryRef": "Net Sales Amount"
+            }
+          ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

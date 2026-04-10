@@ -15,7 +15,7 @@ table _Measures
 		isHidden
 		summarizeBy: none
 
-	// ── SCM-001 ──────────────────────────────────────────
+	/// SCM-001
 	/// Days in Inventory - inv.dio.days
 	/// Measures inventory holding period in days.
 	measure 'Days in Inventory' = VAR AvgInv = SUM ( fact_inventory[Average Inventory Amount] ) VAR COGS = SUM ( fact_cogs[COGS Amount] ) RETURN DIVIDE ( AvgInv, DIVIDE ( COGS, 365 ) )
@@ -58,16 +58,16 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "SCM-001"
 
-	// ── SCM-002 ──────────────────────────────────────────
+	/// SCM-002
 	/// On-Time % - supply.on_time.pct
 	/// Measures share of deliveries arriving on time.
-	measure 'On-Time %' = DIVIDE ( COUNTROWS ( FILTER ( fact_fulfillment, fact_fulfillment[On-Time Flag] = TRUE() ) ), COUNTROWS ( fact_fulfillment ) )
+	measure 'On-Time %' = VAR OnTimeDeliveries = CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[On-Time Flag] = TRUE() ) VAR TotalDeliveries = COUNTROWS ( fact_fulfillment ) RETURN DIVIDE ( OnTimeDeliveries, TotalDeliveries )
 		formatString: "0.0%"
 		displayFolder: "SCM-002"
 
 	/// In-Full % - supply.in_full.pct
 	/// Measures share of deliveries with complete quantities.
-	measure 'In-Full %' = DIVIDE ( COUNTROWS ( FILTER ( fact_fulfillment, fact_fulfillment[In-Full Flag] = TRUE() ) ), COUNTROWS ( fact_fulfillment ) )
+	measure 'In-Full %' = VAR InFullDeliveries = CALCULATE ( COUNTROWS ( fact_fulfillment ), fact_fulfillment[In-Full Flag] = TRUE() ) VAR TotalDeliveries = COUNTROWS ( fact_fulfillment ) RETURN DIVIDE ( InFullDeliveries, TotalDeliveries )
 		formatString: "0.0%"
 		displayFolder: "SCM-002"
 
@@ -101,7 +101,7 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "SCM-002"
 
-	// ── SCM-003 ──────────────────────────────────────────
+	/// SCM-003
 	/// Forecast MAPE % - plan.forecast.mape.pct
 	/// Measures mean absolute percentage error in forecast.
 	measure 'Forecast MAPE %' = AVERAGEX ( VALUES ( fact_forecast[ProductKey] ), VAR Fcst = CALCULATE ( SUM ( fact_forecast[Forecast Units] ) ) VAR Actl = CALCULATE ( SUM ( fact_sales[Sales Units] ) ) RETURN IF ( Actl = 0, BLANK(), ABS ( DIVIDE ( Fcst - Actl, Actl ) ) ) )
@@ -132,101 +132,101 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "SCM-003"
 
-	// ── ActionReady Logic ─────────────────────────────────
+	/// ActionReady Logic
 	/// ActionReady Logic: S-I1.1
 	measure 'Action_S-I1.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_supply_chain" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "head_of_supply_chain"
-	annotation ActionReady_ActionCodeId = "S-I1.1"
+		annotation ActionReady_ResponsibleRole = "head_of_supply_chain"
+		annotation ActionReady_ActionCodeId = "S-I1.1"
 
 	/// ActionReady Logic: S-I1.2
 	measure 'Action_S-I1.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: inventory_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "inventory_manager"
-	annotation ActionReady_ActionCodeId = "S-I1.2"
+		annotation ActionReady_ResponsibleRole = "inventory_manager"
+		annotation ActionReady_ActionCodeId = "S-I1.2"
 
 	/// ActionReady Logic: S-I1.3
 	measure 'Action_S-I1.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: supply_planner" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "supply_planner"
-	annotation ActionReady_ActionCodeId = "S-I1.3"
+		annotation ActionReady_ResponsibleRole = "supply_planner"
+		annotation ActionReady_ActionCodeId = "S-I1.3"
 
 	/// ActionReady Logic: S-I1.4
 	measure 'Action_S-I1.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: inventory_controller" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "inventory_controller"
-	annotation ActionReady_ActionCodeId = "S-I1.4"
+		annotation ActionReady_ResponsibleRole = "inventory_controller"
+		annotation ActionReady_ActionCodeId = "S-I1.4"
 
 	/// ActionReady Logic: S-I1.5
 	measure 'Action_S-I1.5_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_demand_planning" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "head_of_demand_planning"
-	annotation ActionReady_ActionCodeId = "S-I1.5"
+		annotation ActionReady_ResponsibleRole = "head_of_demand_planning"
+		annotation ActionReady_ActionCodeId = "S-I1.5"
 
 	/// ActionReady Logic: S-R2.1
 	measure 'Action_S-R2.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_supply_chain" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "head_of_supply_chain"
-	annotation ActionReady_ActionCodeId = "S-R2.1"
+		annotation ActionReady_ResponsibleRole = "head_of_supply_chain"
+		annotation ActionReady_ActionCodeId = "S-R2.1"
 
 	/// ActionReady Logic: S-R2.2
 	measure 'Action_S-R2.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: logistics_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "logistics_manager"
-	annotation ActionReady_ActionCodeId = "S-R2.2"
+		annotation ActionReady_ResponsibleRole = "logistics_manager"
+		annotation ActionReady_ActionCodeId = "S-R2.2"
 
 	/// ActionReady Logic: S-R2.3
 	measure 'Action_S-R2.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: supply_planner" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "supply_planner"
-	annotation ActionReady_ActionCodeId = "S-R2.3"
+		annotation ActionReady_ResponsibleRole = "supply_planner"
+		annotation ActionReady_ActionCodeId = "S-R2.3"
 
 	/// ActionReady Logic: S-R2.4
 	measure 'Action_S-R2.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: logistics_cost_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "logistics_cost_manager"
-	annotation ActionReady_ActionCodeId = "S-R2.4"
+		annotation ActionReady_ResponsibleRole = "logistics_cost_manager"
+		annotation ActionReady_ActionCodeId = "S-R2.4"
 
 	/// ActionReady Logic: S-R2.5
 	measure 'Action_S-R2.5_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: s_and_op_lead" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "s_and_op_lead"
-	annotation ActionReady_ActionCodeId = "S-R2.5"
+		annotation ActionReady_ResponsibleRole = "s_and_op_lead"
+		annotation ActionReady_ActionCodeId = "S-R2.5"
 
 	/// ActionReady Logic: S-F3.1
 	measure 'Action_S-F3.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: s_and_op_lead" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "s_and_op_lead"
-	annotation ActionReady_ActionCodeId = "S-F3.1"
+		annotation ActionReady_ResponsibleRole = "s_and_op_lead"
+		annotation ActionReady_ActionCodeId = "S-F3.1"
 
 	/// ActionReady Logic: S-F3.2
 	measure 'Action_S-F3.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: demand_planning_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "demand_planning_manager"
-	annotation ActionReady_ActionCodeId = "S-F3.2"
+		annotation ActionReady_ResponsibleRole = "demand_planning_manager"
+		annotation ActionReady_ActionCodeId = "S-F3.2"
 
 	/// ActionReady Logic: S-F3.3
 	measure 'Action_S-F3.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: supply_planning_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "supply_planning_manager"
-	annotation ActionReady_ActionCodeId = "S-F3.3"
+		annotation ActionReady_ResponsibleRole = "supply_planning_manager"
+		annotation ActionReady_ActionCodeId = "S-F3.3"
 
 	/// ActionReady Logic: S-F3.4
 	measure 'Action_S-F3.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: planning_excellence_lead" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "planning_excellence_lead"
-	annotation ActionReady_ActionCodeId = "S-F3.4"
+		annotation ActionReady_ResponsibleRole = "planning_excellence_lead"
+		annotation ActionReady_ActionCodeId = "S-F3.4"

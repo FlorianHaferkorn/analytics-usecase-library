@@ -30,6 +30,7 @@ interface Props {
   brackets: BracketData[];
   actionDetails: Array<[string, { name: string; status: string; domain: string; triggerKpis: string[] }]>;
   bracketYamls: Record<string, string>;
+  kpiNames?: Record<string, string>;
   initialSelectedBracket?: string | null;
   draftBracketId?: string | null;
 }
@@ -56,7 +57,7 @@ function extractBracketData(parsed: Record<string, unknown>): Partial<BracketDat
   return result;
 }
 
-export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: initialBrackets, actionDetails, bracketYamls: initialYamls, initialSelectedBracket = null, draftBracketId = null }: Props) {
+export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: initialBrackets, actionDetails, bracketYamls: initialYamls, kpiNames = {}, initialSelectedBracket = null, draftBracketId = null }: Props) {
   const storeAnchor = useProjectStore((s) => s.strategyAnchor);
   const strategyAnchor = storeAnchor || initialAnchor;
 
@@ -151,8 +152,9 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
       strategyAnchor,
       brackets: filtered,
       actionDetails: new Map(actionDetails),
+      kpiNames,
     };
-  }, [strategyAnchor, brackets, actionDetails, selectedBracket]);
+  }, [strategyAnchor, brackets, actionDetails, selectedBracket, kpiNames]);
 
   const { totalDrivers, actionGapCount } = useMemo(() => {
     const aMap = new Map(actionDetails);
@@ -230,7 +232,7 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
       <StudioMetricBar>
         <StudioMetric label="Use Cases" value={brackets.length} meta="loaded into steering graph" tone="info" />
         <StudioMetric label="Drivers" value={totalDrivers} meta="in linked brackets" />
-        <StudioMetric label="Action gaps" value={actionGapCount} meta={actionGapCount > 0 ? 'drivers without linked action' : 'all drivers covered'} tone={actionGapCount > 0 ? 'warning' : 'success'} />
+        <StudioMetric label="Action gaps" value={actionGapCount} meta={actionGapCount > 0 ? 'resolve in Registry →' : 'all drivers covered'} tone={actionGapCount > 0 ? 'warning' : 'success'} />
         <StudioMetric label="Sync" value={selectedBracket ? syncIndicator.label : 'overview'} meta={selectedBracket ? 'current bracket state' : 'aggregate mode'} tone={syncStatus === 'error' ? 'warning' : syncStatus === 'dirty' ? 'warning' : 'success'} />
       </StudioMetricBar>
 
@@ -292,12 +294,12 @@ export function SteeringHubClient({ strategyAnchor: initialAnchor, brackets: ini
 
       <div style={{ flex: 1, display: 'flex', gap: 'var(--sp-2)', minHeight: 0 }}>
         {showFlow && (
-          <StudioPanel title="Golden Thread Flow" description="Explore strategy anchors, drivers, and action-code coverage visually." tone="success" style={{ flex: 1, padding: 0, overflow: 'hidden' }}>
+          <StudioPanel title="Golden Thread Flow" description="Explore strategy anchors, drivers, and action-code coverage visually." tone="success" style={{ flex: 1, overflow: 'hidden' }}>
             <GoldenThreadFlow data={flowData} onBracketSelect={handleBracketSelectFromFlow} />
           </StudioPanel>
         )}
         {showEditor && (
-          <StudioPanel title="Bracket YAML" description="Inspect and refine the machine-readable source of truth for the selected bracket." tone="info" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
+          <StudioPanel title="Bracket YAML" description="Inspect and refine the machine-readable source of truth for the selected bracket." tone="info" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             {activeDraftBracketId === selectedBracket && (
               <div style={{ padding: 'var(--sp-1)', borderBottom: '1px solid var(--slate-700)', backgroundColor: 'var(--slate-900)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr auto', gap: '8px', alignItems: 'end' }}>

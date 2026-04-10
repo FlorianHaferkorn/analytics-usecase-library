@@ -46,9 +46,15 @@ export function DiscoveryClient() {
       </StudioMetricBar>
 
       <div style={{ display: 'flex', gap: 'var(--sp-2)', flex: 1, minHeight: 0 }}>
-        <SourcePanel sources={sources} onAddSource={addSource} onRemoveSource={removeSource} />
-        <DiscoveryChat context={context} onExtract={handleExtract} onToolResult={handleToolResult} />
-        <ExtractionPanel lastResponse={lastResponse} sourceNames={sources.map((s) => s.name)} />
+        <div style={{ flex: '0 0 280px', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+          <SourcePanel sources={sources} onAddSource={addSource} onRemoveSource={removeSource} />
+        </div>
+        <div style={{ flex: '1 1 0', minWidth: '360px', display: 'flex', flexDirection: 'column' }}>
+          <DiscoveryChat context={context} onExtract={handleExtract} onToolResult={handleToolResult} />
+        </div>
+        <div style={{ flex: '0 0 320px', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+          <ExtractionPanel lastResponse={lastResponse} sourceNames={sources.map((s) => s.name)} />
+        </div>
       </div>
     </StudioPage>
   );

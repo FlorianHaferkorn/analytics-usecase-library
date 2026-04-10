@@ -11,56 +11,6 @@
   },
   "visual": {
     "visualType": "tableEx",
-    "query": {
-      "queryState": {
-        "Values": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_org"
-                    }
-                  },
-                  "Property": "OrgName"
-                }
-              },
-              "queryRef": "dim_org.OrgName",
-              "nativeQueryRef": "OrgName"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_date"
-                    }
-                  },
-                  "Property": "CalendarYearMonth"
-                }
-              },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Forecast Accuracy %"
-                }
-              },
-              "queryRef": "_Measures.Forecast Accuracy %",
-              "nativeQueryRef": "Forecast Accuracy %"
-            }
-          ]
-        }
-      }
-    },
     "objects": {
       "grid": [
         {
@@ -97,6 +47,196 @@
         }
       ]
     },
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org"
+                    }
+                  },
+                  "Property": "Channel"
+                }
+              },
+              "queryRef": "dim_org.Channel",
+              "nativeQueryRef": "Channel"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_product"
+                    }
+                  },
+                  "Property": "Category"
+                }
+              },
+              "queryRef": "dim_product.Category",
+              "nativeQueryRef": "Category"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "location"
+                }
+              },
+              "queryRef": "_Measures.location",
+              "nativeQueryRef": "location"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "abc_class"
+                }
+              },
+              "queryRef": "_Measures.abc_class",
+              "nativeQueryRef": "abc_class"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "xyz_class"
+                }
+              },
+              "queryRef": "_Measures.xyz_class",
+              "nativeQueryRef": "xyz_class"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Forecast MAPE %"
+                }
+              },
+              "queryRef": "_Measures.Forecast MAPE %",
+              "nativeQueryRef": "Forecast MAPE %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Forecast Bias %"
+                }
+              },
+              "queryRef": "_Measures.Forecast Bias %",
+              "nativeQueryRef": "Forecast Bias %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Service Impact %"
+                }
+              },
+              "queryRef": "_Measures.Service Impact %",
+              "nativeQueryRef": "Service Impact %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Re-Plan Count"
+                }
+              },
+              "queryRef": "_Measures.Re-Plan Count",
+              "nativeQueryRef": "Re-Plan Count"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Order Lines Count"
+                }
+              },
+              "queryRef": "_Measures.Order Lines Count",
+              "nativeQueryRef": "Order Lines Count"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Plans Count"
+                }
+              },
+              "queryRef": "_Measures.Plans Count",
+              "nativeQueryRef": "Plans Count"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Sales Units"
+                }
+              },
+              "queryRef": "_Measures.Sales Units",
+              "nativeQueryRef": "Sales Units"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Forecast Accuracy %"
+                }
+              },
+              "queryRef": "_Measures.Forecast Accuracy %",
+              "nativeQueryRef": "Forecast Accuracy %"
+            }
+          ]
+        }
+      }
+    }
   }
 }

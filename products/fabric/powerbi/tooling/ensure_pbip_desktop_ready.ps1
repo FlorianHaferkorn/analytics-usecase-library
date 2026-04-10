@@ -6,14 +6,19 @@
 Param(
     [string]$DistRoot = "products/fabric/powerbi/dist",
     [int]$MaxIterations = 5,
-    [string]$RepoRoot = $null
+    [string]$RepoRoot = $null,
+    [switch]$CreateLegacyPbixProjArtifacts
 )
 
 $ErrorActionPreference = "Stop"
 if (-not $RepoRoot) {
     $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..\..")).Path
 }
-$distPath = Join-Path $RepoRoot ($DistRoot -replace '/', [IO.Path]::DirectorySeparatorChar)
+$distPath = if ([System.IO.Path]::IsPathRooted($DistRoot)) {
+    $DistRoot
+} else {
+    Join-Path $RepoRoot ($DistRoot -replace '/', [IO.Path]::DirectorySeparatorChar)
+}
 $utf8NoBom = New-Object System.Text.UTF8Encoding $false
 
 # Fix .pbip files that are missing $schema (Desktop Feb 2026+ requires pbipProperties schema)
@@ -62,7 +67,7 @@ function Write-PbirIfMissingOrWrong {
             if ($rj.datasetReference -and $rj.datasetReference.byPath -and $rj.datasetReference.byPath.path) {
                 $datasetPath = $rj.datasetReference.byPath.path -replace '\\', '/'
             }
-        } catch { Write-Verbose "Could not read report.json in $ReportDir: $($_.Exception.Message)" }
+        } catch { Write-Verbose "Could not read report.json in ${ReportDir}: $($_.Exception.Message)" }
     }
     $needsWrite = $false
     if (-not (Test-Path $pbirPath)) {
@@ -90,6 +95,111 @@ function Write-PbirIfMissingOrWrong {
     [System.IO.File]::WriteAllText($pbirPath, $json, $utf8NoBom)
     Write-Host "  Fixed: added/updated $pbirPath" -ForegroundColor Green
     return $true
+}
+
+function Write-VersionTxtIfMissing {
+    param([string]$ReportDir)
+
+    $versionPath = Join-Path $ReportDir "Version.txt"
+    if (Test-Path $versionPath) { return $false }
+
+    [System.IO.File]::WriteAllText($versionPath, "1.25", $utf8NoBom)
+    Write-Host "  Fixed: added $versionPath" -ForegroundColor Green
+    return $true
+}
+
+function Write-JsonPlaceholderIfMissing {
+    param(
+        [string]$FilePath,
+        [string]$Label
+    )
+
+    if (Test-Path $FilePath) { return $false }
+
+    [System.IO.File]::WriteAllText($FilePath, "{}", $utf8NoBom)
+    Write-Host "  Fixed: added $Label" -ForegroundColor Green
+    return $true
+}
+
+function Remove-IfExists {
+    param([string]$Path)
+
+    if (-not (Test-Path $Path)) { return $false }
+
+    Remove-Item -LiteralPath $Path -Recurse -Force -ErrorAction Stop
+    Write-Host "  Removed legacy artifact: $Path" -ForegroundColor Green
+    return $true
+}
+
+function Sync-LegacyPbixProjReport {
+    param([string]$ReportDir)
+
+    $definitionDir = Join-Path $ReportDir "definition"
+    $definitionReport = Join-Path $definitionDir "report.json"
+    if (-not (Test-Path $definitionReport)) { return $false }
+
+    $reportRoot = Join-Path $ReportDir "Report"
+    $sectionsRoot = Join-Path $reportRoot "sections"
+    New-Item -ItemType Directory -Force -Path $sectionsRoot | Out-Null
+
+    $changed = $false
+    $legacyReportPath = Join-Path $reportRoot "report.json"
+    Copy-Item -Path $definitionReport -Destination $legacyReportPath -Force
+    $changed = $true
+
+    Get-ChildItem -Path $sectionsRoot -Directory -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+
+    $pagesRoot = Join-Path $definitionDir "pages"
+    if (-not (Test-Path $pagesRoot)) { return $changed }
+
+    $pageOrder = @()
+    $pagesMetaPath = Join-Path $pagesRoot "pages.json"
+    if (Test-Path $pagesMetaPath) {
+        try {
+            $pagesMeta = Get-Content -Path $pagesMetaPath -Raw -ErrorAction Stop | ConvertFrom-Json
+            $pageOrder = @($pagesMeta.pageOrder)
+        } catch {
+            $pageOrder = @()
+        }
+    }
+    if ($pageOrder.Count -eq 0) {
+        $pageOrder = @(Get-ChildItem -Path $pagesRoot -Directory -ErrorAction SilentlyContinue | Sort-Object Name | Select-Object -ExpandProperty Name)
+    }
+
+    for ($index = 0; $index -lt $pageOrder.Count; $index++) {
+        $pageId = $pageOrder[$index]
+        $pageDir = Join-Path $pagesRoot $pageId
+        $pageJsonPath = Join-Path $pageDir "page.json"
+        if (-not (Test-Path $pageJsonPath)) { continue }
+
+        try {
+            $pageJson = Get-Content -Path $pageJsonPath -Raw -ErrorAction Stop | ConvertFrom-Json
+            $displayName = if ($pageJson.displayName) { [string]$pageJson.displayName } elseif ($pageJson.name) { [string]$pageJson.name } else { [string]$pageId }
+        } catch {
+            $displayName = [string]$pageId
+        }
+
+        $safeDisplayName = ($displayName -replace '[<>:"/\\|?*]', '_')
+        $sectionDir = Join-Path $sectionsRoot ("{0:D3}_{1}" -f $index, $safeDisplayName)
+        $visualsDir = Join-Path $sectionDir "visualContainers"
+        New-Item -ItemType Directory -Force -Path $visualsDir | Out-Null
+        Copy-Item -Path $pageJsonPath -Destination (Join-Path $sectionDir "section.json") -Force
+
+        $srcVisuals = Join-Path $pageDir "visuals"
+        if (-not (Test-Path $srcVisuals)) { continue }
+
+        Get-ChildItem -Path $srcVisuals -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+            $srcVisualJson = Join-Path $_.FullName "visual.json"
+            if (-not (Test-Path $srcVisualJson)) { return }
+
+            $legacyVisualDir = Join-Path $visualsDir $_.Name
+            New-Item -ItemType Directory -Force -Path $legacyVisualDir | Out-Null
+            Copy-Item -Path $srcVisualJson -Destination (Join-Path $legacyVisualDir "visualContainer.json") -Force
+        }
+    }
+
+    Write-Host "  Fixed: synced legacy PbixProj Report folder in $ReportDir" -ForegroundColor Green
+    return $changed
 }
 
 function Test-DistValidation {
@@ -148,6 +258,17 @@ while ($iteration -lt $MaxIterations -and $fixedAny) {
     # Fix: Report definition.pbir
     Get-ChildItem -Path $distPath -Directory -Filter "*.Report" -ErrorAction SilentlyContinue | ForEach-Object {
         if (Write-PbirIfMissingOrWrong -ReportDir $_.FullName) { $fixedAny = $true }
+        if ($CreateLegacyPbixProjArtifacts) {
+            if (Write-VersionTxtIfMissing -ReportDir $_.FullName) { $fixedAny = $true }
+            if (Write-JsonPlaceholderIfMissing -FilePath (Join-Path $_.FullName "ReportMetadata.json") -Label (Join-Path $_.FullName "ReportMetadata.json")) { $fixedAny = $true }
+            if (Write-JsonPlaceholderIfMissing -FilePath (Join-Path $_.FullName "ReportSettings.json") -Label (Join-Path $_.FullName "ReportSettings.json")) { $fixedAny = $true }
+            if (Sync-LegacyPbixProjReport -ReportDir $_.FullName) { $fixedAny = $true }
+        } else {
+            if (Remove-IfExists -Path (Join-Path $_.FullName "Version.txt")) { $fixedAny = $true }
+            if (Remove-IfExists -Path (Join-Path $_.FullName "ReportMetadata.json")) { $fixedAny = $true }
+            if (Remove-IfExists -Path (Join-Path $_.FullName "ReportSettings.json")) { $fixedAny = $true }
+            if (Remove-IfExists -Path (Join-Path $_.FullName "Report")) { $fixedAny = $true }
+        }
     }
     # Validate (run validate_pbip per report; checks may still fail for other reasons)
     $allPass = Test-DistValidation -distFullPath $distPath

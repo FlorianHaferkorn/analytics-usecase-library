@@ -2,7 +2,7 @@
 Report Sync (Delta Update)
 
 Builds desired state from Bracket/Templates, computes diff against existing PBIP (Ist),
-and applies only add/remove/update_position actions. Used when report already exists.
+and applies add/remove/update actions for visuals plus layout updates. Used when report already exists.
 """
 
 import json
@@ -20,7 +20,23 @@ from .apply_page_layout import apply_layout_to_page
 ADD_PAGE = "add_page"
 ADD_VISUAL = "add_visual"
 REMOVE_VISUAL = "remove_visual"
+UPDATE_VISUAL = "update_visual"
 UPDATE_POSITION = "update_position"
+
+
+def _load_current_visual_data(definition_pages_path: Path, page_id: str, visual_name: str) -> Optional[Dict[str, Any]]:
+    visual_path = definition_pages_path / page_id / "visuals" / visual_name / "visual.json"
+    if not visual_path.is_file():
+        return None
+    try:
+        with open(visual_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return None
+
+
+def _json_equal(left: Dict[str, Any], right: Dict[str, Any]) -> bool:
+    return json.dumps(left, sort_keys=True, ensure_ascii=False) == json.dumps(right, sort_keys=True, ensure_ascii=False)
 
 
 def build_desired_state(
@@ -71,8 +87,7 @@ def compute_diff(
     actions: List[Tuple[str, Dict[str, Any]]] = []
     current_pages = current.get("pages") or {}
     current_order = current.get("page_order") or []
-    desired_page_ids = [p["page_id"] for p in desired_pages]
-    desired_by_id = {p["page_id"]: p for p in desired_pages}
+    definition_pages_path = current.get("pages_path")
 
     for desired in desired_pages:
         page_id = desired["page_id"]
@@ -86,13 +101,20 @@ def compute_diff(
 
         to_add = desired_visuals - current_visuals
         to_remove = current_visuals - desired_visuals
-        to_update_position = desired_visuals & current_visuals
+        to_update_existing = desired_visuals & current_visuals
 
         for name in to_add:
             actions.append((ADD_VISUAL, {"page_id": page_id, "visual_name": name, "desired_page": desired}))
         for name in to_remove:
             actions.append((REMOVE_VISUAL, {"page_id": page_id, "visual_name": name}))
-        if to_update_position and (desired.get("grid_blueprint") or desired.get("report_canvas")):
+        if definition_pages_path:
+            definition_pages_path = Path(definition_pages_path)
+            for name in to_update_existing:
+                desired_visual = _get_visual_data_by_name(desired, name)
+                current_visual = _load_current_visual_data(definition_pages_path, page_id, name)
+                if desired_visual and current_visual and not _json_equal(current_visual, desired_visual):
+                    actions.append((UPDATE_VISUAL, {"page_id": page_id, "visual_name": name, "desired_page": desired}))
+        if to_update_existing and (desired.get("grid_blueprint") or desired.get("report_canvas")):
             actions.append((UPDATE_POSITION, {
                 "page_id": page_id,
                 "grid_blueprint": desired.get("grid_blueprint"),
@@ -117,7 +139,7 @@ def apply_actions(
     definition_pages_path: Path,
 ) -> None:
     """
-    Execute add_page, add_visual, remove_visual, update_position.
+    Execute add_page, add_visual, update_visual, remove_visual, update_position.
     Does not write report.json or version.json (update mode preserves them).
     """
     writer = PBIPWriter(output_path)
@@ -134,6 +156,15 @@ def apply_actions(
                 writer.write_visual_json(page_id, s)
             writer.write_pages_json(page_ids=[page_id], append=True)
         elif action_type == ADD_VISUAL:
+            page_id = params["page_id"]
+            visual_name = params["visual_name"]
+            desired_page = params.get("desired_page")
+            if not desired_page:
+                continue
+            visual_data = _get_visual_data_by_name(desired_page, visual_name)
+            if visual_data:
+                writer.write_visual_json(page_id, visual_data)
+        elif action_type == UPDATE_VISUAL:
             page_id = params["page_id"]
             visual_name = params["visual_name"]
             desired_page = params.get("desired_page")

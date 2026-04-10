@@ -11,7 +11,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 interface Props {
   kpi: KpiSnapshot;
-  theme?: { primary?: string; surface?: string; text?: string };
+  theme?: { primary?: string; surface?: string; text?: string; background?: string; borderRadius?: number };
 }
 
 export function PulseCard({ kpi, theme }: Props) {
@@ -19,19 +19,23 @@ export function PulseCard({ kpi, theme }: Props) {
   const deltaPercent = ((delta / kpi.previousValue) * 100).toFixed(1);
   const isPositive = delta >= 0;
   const statusColor = STATUS_COLORS[kpi.status] ?? 'var(--slate-500)';
+  const radius = theme?.borderRadius != null ? `${theme.borderRadius / 2}px` : 'var(--radius-lg)';
+  const borderColor = theme?.background
+    ? `color-mix(in srgb, ${theme.background} 60%, ${theme.text ?? '#94a3b8'})`
+    : 'var(--slate-700)';
 
   return (
     <div
       style={{
-        padding: 'var(--sp-2)',
+        padding: 'var(--sp-3)',
         backgroundColor: theme?.surface ?? 'var(--slate-800)',
-        border: `1px solid var(--slate-700)`,
-        borderRadius: 'var(--radius-lg)',
+        border: `1px solid ${borderColor}`,
+        borderRadius: radius,
         borderLeft: `4px solid ${statusColor}`,
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--sp-1)' }}>
-        <span style={{ fontSize: '0.6875rem', color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <span style={{ fontSize: '0.6875rem', color: theme?.text ? `color-mix(in srgb, ${theme.text} 60%, transparent)` : 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           {kpi.label}
         </span>
         <span
@@ -51,7 +55,7 @@ export function PulseCard({ kpi, theme }: Props) {
         <span style={{ fontSize: '1.75rem', fontWeight: 700, color: theme?.text ?? 'var(--slate-100)' }}>
           {kpi.value}
         </span>
-        <span style={{ fontSize: '0.875rem', color: 'var(--slate-400)', marginLeft: '4px' }}>
+        <span style={{ fontSize: '0.875rem', color: theme?.text ? `color-mix(in srgb, ${theme.text} 50%, transparent)` : 'var(--slate-400)', marginLeft: '4px' }}>
           {kpi.unit}
         </span>
       </motion.div>
@@ -60,7 +64,7 @@ export function PulseCard({ kpi, theme }: Props) {
         <span style={{ fontSize: '0.75rem', color: isPositive ? 'var(--mint)' : 'var(--danger)' }}>
           {isPositive ? '↑' : '↓'} {Math.abs(delta).toFixed(1)} ({isPositive ? '+' : ''}{deltaPercent}%)
         </span>
-        <span style={{ fontSize: '0.6875rem', color: 'var(--slate-500)' }}>
+        <span style={{ fontSize: '0.6875rem', color: theme?.text ? `color-mix(in srgb, ${theme.text} 40%, transparent)` : 'var(--slate-500)' }}>
           Target: {kpi.target}{kpi.unit}
         </span>
       </div>

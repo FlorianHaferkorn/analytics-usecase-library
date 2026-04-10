@@ -1,0 +1,288 @@
+{
+    "selectedDiagram":  "Alle Tabellen",
+    "defaultDiagram":  "Alle Tabellen",
+    "version":  "1.1.0",
+    "diagrams":  [
+                     {
+                         "name":  "Alle Tabellen",
+                         "showExtraHeaderInfo":  false,
+                         "pinKeyFieldsToTop":  false,
+                         "scrollPosition":  {
+                                                "y":  0,
+                                                "x":  0
+                                            },
+                         "nodes":  [
+                                       {
+                                           "nodeIndex":  "_Measures",
+                                           "zIndex":  0,
+                                           "nodeLineageTag":  "a3000000-2000-4000-8000-000000000000",
+                                           "expandedHeight":  104,
+                                           "location":  {
+                                                            "y":  0,
+                                                            "x":  0
+                                                        },
+                                           "size":  {
+                                                        "height":  72,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "fact_accounts_payable",
+                                           "zIndex":  5,
+                                           "nodeLineageTag":  "97d9d8d5-6dd2-502a-9ac1-3c61c1304650",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  0,
+                                                            "x":  280
+                                                        },
+                                           "size":  {
+                                                        "height":  128,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "fact_accounts_receivable",
+                                           "zIndex":  5,
+                                           "nodeLineageTag":  "ead2939b-cbac-5a75-9965-31e40f59dc23",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  0,
+                                                            "x":  530
+                                                        },
+                                           "size":  {
+                                                        "height":  128,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "fact_cash_flow",
+                                           "zIndex":  5,
+                                           "nodeLineageTag":  "24f42843-9e38-540c-99d2-a5ae947766cf",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  0,
+                                                            "x":  780
+                                                        },
+                                           "size":  {
+                                                        "height":  128,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "fact_cash_position",
+                                           "zIndex":  5,
+                                           "nodeLineageTag":  "21615652-3685-5a91-80c6-a0b778cf7bd2",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  0,
+                                                            "x":  1030
+                                                        },
+                                           "size":  {
+                                                        "height":  128,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "fact_cost",
+                                           "zIndex":  5,
+                                           "nodeLineageTag":  "360259ee-a545-5fde-bc7d-086f89c12271",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  0,
+                                                            "x":  1280
+                                                        },
+                                           "size":  {
+                                                        "height":  128,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "fact_finance",
+                                           "zIndex":  5,
+                                           "nodeLineageTag":  "7695af1c-a6a0-5a03-ae42-602bfa3f849f",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  0,
+                                                            "x":  1530
+                                                        },
+                                           "size":  {
+                                                        "height":  128,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "fact_fulfillment",
+                                           "zIndex":  5,
+                                           "nodeLineageTag":  "f256ee67-528f-42be-99fd-4076ff3085a2",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  0,
+                                                            "x":  1780
+                                                        },
+                                           "size":  {
+                                                        "height":  128,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "fact_inventory",
+                                           "zIndex":  5,
+                                           "nodeLineageTag":  "a0c1818b-0b64-5372-b78b-4fe07f17dbd0",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  0,
+                                                            "x":  2030
+                                                        },
+                                           "size":  {
+                                                        "height":  128,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "fact_labor",
+                                           "zIndex":  5,
+                                           "nodeLineageTag":  "7fc2929f-2791-54f3-87dc-b249edff6d5c",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  0,
+                                                            "x":  2280
+                                                        },
+                                           "size":  {
+                                                        "height":  128,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "fact_output",
+                                           "zIndex":  5,
+                                           "nodeLineageTag":  "a2deee00-83cf-58da-a8cf-2c649beac779",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  0,
+                                                            "x":  2530
+                                                        },
+                                           "size":  {
+                                                        "height":  128,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "fact_supplier_risk",
+                                           "zIndex":  5,
+                                           "nodeLineageTag":  "a7c3e218-6b4f-4d9a-8e31-2f5c7b1a9d04",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  0,
+                                                            "x":  2780
+                                                        },
+                                           "size":  {
+                                                        "height":  128,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "dim_customer",
+                                           "zIndex":  10,
+                                           "nodeLineageTag":  "c2b40444-2fca-5b73-a09c-b596ffd49cc6",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  120,
+                                                            "x":  0
+                                                        },
+                                           "size":  {
+                                                        "height":  104,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "dim_date",
+                                           "zIndex":  10,
+                                           "nodeLineageTag":  "99ecc014-eaec-5bbe-b43e-0a491155a662",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  240,
+                                                            "x":  0
+                                                        },
+                                           "size":  {
+                                                        "height":  104,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "dim_org",
+                                           "zIndex":  10,
+                                           "nodeLineageTag":  "25dd022a-b15b-50f3-8924-d2e94fa044c6",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  360,
+                                                            "x":  0
+                                                        },
+                                           "size":  {
+                                                        "height":  104,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "dim_product",
+                                           "zIndex":  10,
+                                           "nodeLineageTag":  "e893a0e0-2433-58df-a3a7-2cbe8e5cfe01",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  480,
+                                                            "x":  0
+                                                        },
+                                           "size":  {
+                                                        "height":  104,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "dim_supplier",
+                                           "zIndex":  10,
+                                           "nodeLineageTag":  "bda11035-93d3-5905-8140-0f8412032423",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  600,
+                                                            "x":  0
+                                                        },
+                                           "size":  {
+                                                        "height":  104,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "security_user_org",
+                                           "zIndex":  10,
+                                           "nodeLineageTag":  "be127aca-2dba-5f1c-a14b-2482232022f4",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  720,
+                                                            "x":  0
+                                                        },
+                                           "size":  {
+                                                        "height":  104,
+                                                        "width":  234
+                                                    }
+                                       },
+                                       {
+                                           "nodeIndex":  "_ActionReady_Logic",
+                                           "zIndex":  10,
+                                           "nodeLineageTag":  "dfc8c794-175b-4806-8e52-85ccee2bf47a",
+                                           "expandedHeight":  152,
+                                           "location":  {
+                                                            "y":  840,
+                                                            "x":  0
+                                                        },
+                                           "size":  {
+                                                        "height":  104,
+                                                        "width":  234
+                                                    }
+                                       }
+                                   ],
+                         "ordinal":  0,
+                         "zoomValue":  22.850503485670025,
+                         "tablesLocked":  false,
+                         "hideKeyFieldsWhenCollapsed":  false
+                     }
+                 ]
+}

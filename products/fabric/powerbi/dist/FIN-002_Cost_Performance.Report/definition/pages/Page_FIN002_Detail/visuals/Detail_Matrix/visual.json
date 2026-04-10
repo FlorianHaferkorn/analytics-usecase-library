@@ -11,56 +11,6 @@
   },
   "visual": {
     "visualType": "tableEx",
-    "query": {
-      "queryState": {
-        "Values": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_org"
-                    }
-                  },
-                  "Property": "OrgName"
-                }
-              },
-              "queryRef": "dim_org.OrgName",
-              "nativeQueryRef": "OrgName"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_date"
-                    }
-                  },
-                  "Property": "CalendarYearMonth"
-                }
-              },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Unit Cost Amount"
-                }
-              },
-              "queryRef": "_Measures.Unit Cost Amount",
-              "nativeQueryRef": "Unit Cost Amount"
-            }
-          ]
-        }
-      }
-    },
     "objects": {
       "grid": [
         {
@@ -97,6 +47,196 @@
         }
       ]
     },
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org"
+                    }
+                  },
+                  "Property": "OrgName"
+                }
+              },
+              "queryRef": "dim_org.OrgName",
+              "nativeQueryRef": "OrgName"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_product"
+                    }
+                  },
+                  "Property": "Category"
+                }
+              },
+              "queryRef": "dim_product.Category",
+              "nativeQueryRef": "Category"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "plant"
+                }
+              },
+              "queryRef": "_Measures.plant",
+              "nativeQueryRef": "plant"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "line"
+                }
+              },
+              "queryRef": "_Measures.line",
+              "nativeQueryRef": "line"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Unit Cost Amount"
+                }
+              },
+              "queryRef": "_Measures.Unit Cost Amount",
+              "nativeQueryRef": "Unit Cost Amount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "COGS % of Sales"
+                }
+              },
+              "queryRef": "_Measures.COGS % of Sales",
+              "nativeQueryRef": "COGS % of Sales"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Material Cost %"
+                }
+              },
+              "queryRef": "_Measures.Material Cost %",
+              "nativeQueryRef": "Material Cost %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "OpEx vs Plan %"
+                }
+              },
+              "queryRef": "_Measures.OpEx vs Plan %",
+              "nativeQueryRef": "OpEx vs Plan %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Labor Productivity %"
+                }
+              },
+              "queryRef": "_Measures.Labor Productivity %",
+              "nativeQueryRef": "Labor Productivity %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Production Volume Units"
+                }
+              },
+              "queryRef": "_Measures.Production Volume Units",
+              "nativeQueryRef": "Production Volume Units"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Quality Defect Rate %"
+                }
+              },
+              "queryRef": "_Measures.Quality Defect Rate %",
+              "nativeQueryRef": "Quality Defect Rate %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Yield %"
+                }
+              },
+              "queryRef": "_Measures.Yield %",
+              "nativeQueryRef": "Yield %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Unit Cost Amount"
+                }
+              },
+              "queryRef": "_Measures.Unit Cost Amount",
+              "nativeQueryRef": "Unit Cost Amount"
+            }
+          ]
+        }
+      }
+    }
   }
 }

@@ -3,33 +3,45 @@ table fact_customer_value
 	lineageTag: de1f8e8f-8798-4256-a958-f7bbabe8d0b2
 
 	column DateKey
-		dataType: Int64
-		sourceColumn: DateKey
+		dataType: int64
+		lineageTag: fde25fd9-12b0-4930-97c4-486f804c54c3
 		summarizeBy: none
+		sourceColumn: DateKey
 
 	column CustomerKey
-		dataType: Int64
-		sourceColumn: CustomerKey
+		dataType: int64
+		lineageTag: dfd87a54-a5b7-4178-9528-b8bc567ecb56
 		summarizeBy: none
+		sourceColumn: CustomerKey
 
 	column 'CLV Amount'
-		dataType: Decimal
-		sourceColumn: CLV Amount
+		dataType: double
+		lineageTag: fd9abfd9-4d52-4109-b132-65758118aa1d
 		summarizeBy: none
+		sourceColumn: CLV Amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column 'CLV Remaining Amount'
-		dataType: Decimal
-		sourceColumn: CLV Remaining Amount
+		dataType: double
+		lineageTag: 032f9298-d285-43e8-b63c-46495a5f5380
 		summarizeBy: none
+		sourceColumn: CLV Remaining Amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	partition fact_customer_value = m
 		mode: import
 		source =
-			let
-				Source = Folder.Files(GoldDataPath & "/facts/fact_customer_value"),
-				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-				FirstFile = FilteredFiles{0}[Content],
-				ParquetData = Parquet.Document(FirstFile)
-			in
-				ParquetData
+				let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_customer_value"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData
 

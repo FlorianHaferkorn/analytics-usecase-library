@@ -11,13 +11,6 @@
   },
   "visual": {
     "visualType": "textbox",
-    "query": {
-      "queryState": {
-        "Data": {
-          "projections": []
-        }
-      }
-    },
     "objects": {
       "text": [
         {
@@ -25,7 +18,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'[Executive / Cross-Functional] Executive KPI Overview\nEvidence grain: entity_month | Strategic KPI: Gross Margin %'"
+                  "Value": "'[Executive / Cross-Functional] Executive KPI Overview\nEvidence grain: entity_month | Strategic KPI: Enterprise Value-at-Risk Index'"
                 }
               }
             }

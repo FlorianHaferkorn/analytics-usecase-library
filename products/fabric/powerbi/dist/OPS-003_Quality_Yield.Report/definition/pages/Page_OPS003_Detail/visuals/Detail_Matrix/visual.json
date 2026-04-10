@@ -11,56 +11,6 @@
   },
   "visual": {
     "visualType": "tableEx",
-    "query": {
-      "queryState": {
-        "Values": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_org"
-                    }
-                  },
-                  "Property": "OrgName"
-                }
-              },
-              "queryRef": "dim_org.OrgName",
-              "nativeQueryRef": "OrgName"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_date"
-                    }
-                  },
-                  "Property": "CalendarYearMonth"
-                }
-              },
-              "queryRef": "dim_date.CalendarYearMonth",
-              "nativeQueryRef": "CalendarYearMonth"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "First Pass Yield %"
-                }
-              },
-              "queryRef": "_Measures.First Pass Yield %",
-              "nativeQueryRef": "First Pass Yield %"
-            }
-          ]
-        }
-      }
-    },
     "objects": {
       "grid": [
         {
@@ -97,6 +47,182 @@
         }
       ]
     },
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_product"
+                    }
+                  },
+                  "Property": "Category"
+                }
+              },
+              "queryRef": "dim_product.Category",
+              "nativeQueryRef": "Category"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "plant"
+                }
+              },
+              "queryRef": "_Measures.plant",
+              "nativeQueryRef": "plant"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "line"
+                }
+              },
+              "queryRef": "_Measures.line",
+              "nativeQueryRef": "line"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "shift"
+                }
+              },
+              "queryRef": "_Measures.shift",
+              "nativeQueryRef": "shift"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Scrap Rate %"
+                }
+              },
+              "queryRef": "_Measures.Scrap Rate %",
+              "nativeQueryRef": "Scrap Rate %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Rework Rate %"
+                }
+              },
+              "queryRef": "_Measures.Rework Rate %",
+              "nativeQueryRef": "Rework Rate %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Cost of Poor Quality"
+                }
+              },
+              "queryRef": "_Measures.Cost of Poor Quality",
+              "nativeQueryRef": "Cost of Poor Quality"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Complaint Rate %"
+                }
+              },
+              "queryRef": "_Measures.Complaint Rate %",
+              "nativeQueryRef": "Complaint Rate %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Defect Density"
+                }
+              },
+              "queryRef": "_Measures.Defect Density",
+              "nativeQueryRef": "Defect Density"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Planned Output Units"
+                }
+              },
+              "queryRef": "_Measures.Planned Output Units",
+              "nativeQueryRef": "Planned Output Units"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Sales Units"
+                }
+              },
+              "queryRef": "_Measures.Sales Units",
+              "nativeQueryRef": "Sales Units"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "First Pass Yield %"
+                }
+              },
+              "queryRef": "_Measures.First Pass Yield %",
+              "nativeQueryRef": "First Pass Yield %"
+            }
+          ]
+        }
+      }
+    }
   }
 }

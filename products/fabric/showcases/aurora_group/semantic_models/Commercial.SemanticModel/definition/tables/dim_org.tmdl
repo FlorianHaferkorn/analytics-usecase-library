@@ -43,13 +43,14 @@ table dim_org
 				ParquetData = Parquet.Document(FirstFile)
 			in
 				ParquetData
-			hierarchy 'Org Hierarchy'
-			lineageTag: a3b64ab7-cd5b-5759-b4b7-bd1c98dbce02
-			level Region Name
-				column: Region Name
-			level Country Name
-				column: Country Name
-			level Channel Name
-				column: Channel Name
-			level Org Name
-				column: Org Name
+
+	hierarchy 'Org Hierarchy'
+		lineageTag: a3b64ab7-cd5b-5759-b4b7-bd1c98dbce02
+		level Region
+			column: Region
+		level Country
+			column: Country
+		level Channel
+			column: Channel
+		level OrgName
+			column: OrgName

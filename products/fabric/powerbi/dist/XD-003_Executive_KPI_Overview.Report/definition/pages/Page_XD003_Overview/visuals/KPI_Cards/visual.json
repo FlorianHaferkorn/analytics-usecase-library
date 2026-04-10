@@ -11,10 +11,55 @@
   },
   "visual": {
     "visualType": "cardVisual",
+    "objects": {
+      "layout": [
+        {
+          "properties": {
+            "columnCount": {
+              "expr": {
+                "Literal": {
+                  "Value": "4L"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
     "query": {
       "queryState": {
         "Data": {
           "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Enterprise Value-at-Risk Index"
+                }
+              },
+              "queryRef": "_Measures.Enterprise Value-at-Risk Index",
+              "nativeQueryRef": "Enterprise Value-at-Risk Index"
+            },
             {
               "field": {
                 "Measure": {
@@ -56,55 +101,10 @@
               },
               "queryRef": "_Measures.CLV (Customer Lifetime Value)",
               "nativeQueryRef": "CLV (Customer Lifetime Value)"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "SLA Attainment %"
-                }
-              },
-              "queryRef": "_Measures.SLA Attainment %",
-              "nativeQueryRef": "SLA Attainment %"
             }
           ]
         }
       }
-    },
-    "objects": {
-      "layout": [
-        {
-          "properties": {
-            "columnCount": {
-              "expr": {
-                "Literal": {
-                  "Value": "4L"
-                }
-              }
-            }
-          }
-        }
-      ]
-    },
-    "drillFilterOtherVisuals": true,
-    "visualContainerObjects": {
-      "visualHeader": [
-        {
-          "properties": {
-            "showTooltipButton": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
-                }
-              }
-            }
-          }
-        }
-      ]
     }
   }
 }

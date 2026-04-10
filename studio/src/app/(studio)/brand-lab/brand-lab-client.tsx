@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ColorPicker } from '@/components/brand/color-picker';
 import { LayoutPreview } from '@/components/brand/layout-preview';
-import { VisualGallery } from '@/components/brand/visual-gallery';
 import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { ThemeExportPanel } from '@/components/brand/theme-export-panel';
 import { CssPreview } from '@/components/brand/css-preview';
@@ -40,12 +39,21 @@ const PRESET_THEMES: Record<string, Partial<ThemeConfig>> = {
   },
 };
 
+type RightTab = '3s' | '30s' | '300s' | 'overview' | 'export';
+
+const RIGHT_TABS: Array<{ value: RightTab; label: string }> = [
+  { value: '3s', label: 'Pulse (3s)' },
+  { value: '30s', label: 'Investigator (30s)' },
+  { value: '300s', label: 'Action (300s)' },
+  { value: 'overview', label: '3-30-300' },
+  { value: 'export', label: 'Export' },
+];
+
 export function BrandLabClient() {
   const theme = useProjectStore((s) => s.theme);
   const projectId = useProjectStore((s) => s.projectId);
   const storeSetTheme = useProjectStore((s) => s.setTheme);
-  const [activeLayer, setActiveLayer] = useState<'3s' | '30s' | '300s'>('3s');
-  const [activeBottomTab, setActiveBottomTab] = useState<'overview' | 'gallery'>('overview');
+  const [activeTab, setActiveTab] = useState<RightTab>('3s');
   const [saving, setSaving] = useState(false);
 
   const updateTheme = (partial: Partial<ThemeConfig>) => {
@@ -65,7 +73,28 @@ export function BrandLabClient() {
     }
   }, [projectId, theme]);
 
+  // Dynamically load Google Font whenever fontFamily changes
+  useEffect(() => {
+    const family = theme.fontFamily;
+    if (!family || family === 'system-ui') return;
+    const id = 'brand-lab-gfont';
+    let link = document.getElementById(id) as HTMLLinkElement | null;
+    if (!link) {
+      link = document.createElement('link');
+      link.id = id;
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    }
+    const encoded = family.replace(/ /g, '+');
+    link.href = `https://fonts.googleapis.com/css2?family=${encoded}:wght@300;400;500;600;700&display=swap`;
+  }, [theme.fontFamily]);
+
   const themeChanged = JSON.stringify(theme) !== JSON.stringify(DEFAULT_THEME);
+
+  // Detect which preset (if any) is currently active
+  const activePreset = Object.entries(PRESET_THEMES).find(([, preset]) =>
+    Object.entries(preset).every(([key, value]) => theme[key as keyof ThemeConfig] === value)
+  )?.[0] ?? null;
 
   return (
     <StudioPage fill>
@@ -75,49 +104,77 @@ export function BrandLabClient() {
         description="Tune theme tokens, preview the 3-30-300 experience, and export a coherent visual language without page-specific styling drift."
         badge={theme.fontFamily}
         tone="warning"
-        actions={<StudioButton onClick={() => void handleSaveTheme()} tone="warning" variant="primary" disabled={saving}>{saving ? 'Saving…' : 'Save Theme'}</StudioButton>}
+        actions={
+          <>
+            {themeChanged && (
+              <StudioButton
+                onClick={() => storeSetTheme(DEFAULT_THEME)}
+                tone="default"
+                variant="ghost"
+              >
+                Reset
+              </StudioButton>
+            )}
+            <StudioButton onClick={() => void handleSaveTheme()} tone="warning" variant="primary" disabled={saving}>
+              {saving ? 'Saving…' : 'Save Theme'}
+            </StudioButton>
+          </>
+        }
       />
 
       <StudioMetricBar>
-        <StudioMetric label="Preset state" value={themeChanged ? 'custom' : 'default'} meta="theme token divergence" tone={themeChanged ? 'warning' : 'success'} />
-        <StudioMetric label="Preview layer" value={activeLayer} meta="active dashboard focus" tone="info" />
-        <StudioMetric label="Preview tab" value={activeBottomTab} meta="bottom canvas mode" />
+        <StudioMetric label="Theme" value={themeChanged ? 'custom' : 'default'} meta={themeChanged ? 'diverges from default' : 'using default tokens'} tone={themeChanged ? 'warning' : 'success'} />
+        <StudioMetric label="Primary" value={theme.primary.toUpperCase()} meta="accent color token" tone="info" />
+        <StudioMetric label="Radius" value={`${theme.borderRadius}px`} meta="border radius token" />
+        <StudioMetric label="Weight" value={String(theme.fontWeight ?? 400)} meta="global font weight" />
       </StudioMetricBar>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '320px minmax(0, 1fr)', gap: 'var(--sp-3)', minHeight: 0, flex: 1 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '320px minmax(0, 1fr)', gap: 'var(--sp-2)', minHeight: 0, flex: 1 }}>
       {/* Left: Theme Editor */}
       <div
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: 'var(--sp-2)',
+          gap: 'var(--sp-1-5)',
           overflow: 'auto',
         }}
       >
         {/* Presets */}
         <StudioPanel title="Presets" description="Seed the theme with a visual direction before fine-tuning individual tokens." tone="warning">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-1)' }}>
-            {Object.entries(PRESET_THEMES).map(([name, preset]) => (
-              <StudioButton
-                key={name}
-                onClick={() => updateTheme(preset)}
-                variant="ghost"
-                style={{
-                  padding: 'var(--sp-1)',
-                  backgroundColor: 'var(--slate-900)',
-                  textAlign: 'left',
-                  display: 'block',
-                  width: '100%',
-                }}
-              >
-                <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
-                  <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: preset.primary }} />
-                  <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: preset.secondary }} />
-                  <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: preset.background }} />
-                </div>
-                <p style={{ margin: 0, fontSize: '0.6875rem', color: 'var(--slate-300)' }}>{name}</p>
-              </StudioButton>
-            ))}
+            {Object.entries(PRESET_THEMES).map(([name, preset]) => {
+              const isActive = activePreset === name;
+              return (
+                <StudioButton
+                  key={name}
+                  onClick={() => updateTheme(preset)}
+                  variant="ghost"
+                  style={{
+                    padding: 'var(--sp-1)',
+                    backgroundColor: isActive ? 'var(--slate-800)' : 'var(--slate-900)',
+                    border: isActive ? `1px solid ${preset.primary}` : '1px solid var(--slate-700)',
+                    textAlign: 'left',
+                    display: 'block',
+                    width: '100%',
+                    position: 'relative',
+                  }}
+                >
+                  {isActive && (
+                    <span style={{
+                      position: 'absolute', top: '6px', right: '6px',
+                      fontSize: '0.5rem', fontWeight: 700, color: preset.primary,
+                      textTransform: 'uppercase', letterSpacing: '0.06em',
+                    }}>Active</span>
+                  )}
+                  <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
+                    <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: preset.primary }} />
+                    <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: preset.secondary }} />
+                    <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: preset.background }} />
+                  </div>
+                  <p style={{ margin: 0, fontSize: '0.6875rem', color: isActive ? 'var(--slate-100)' : 'var(--slate-300)' }}>{name}</p>
+                </StudioButton>
+              );
+            })}
           </div>
         </StudioPanel>
 
@@ -236,58 +293,67 @@ export function BrandLabClient() {
         </StudioPanel>
       </div>
 
-      {/* Right: Preview */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-2)' }}>
+      {/* Right: Tabbed Preview & Export */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1-5)', minHeight: 0 }}>
         <StudioToolbar>
           <StudioSegmentedControl
-            value={activeLayer}
-            onChange={setActiveLayer}
-            options={[
-              { value: '3s', label: 'Pulse (3s)' },
-              { value: '30s', label: 'Investigator (30s)' },
-              { value: '300s', label: 'Action (300s)' },
-            ]}
+            value={activeTab}
+            onChange={setActiveTab}
+            options={RIGHT_TABS}
           />
         </StudioToolbar>
 
-        {/* Live Dashboard Preview */}
-        <StudioPanel title="Live Dashboard Preview" description="Inspect the active layer with the current theme tokens applied." tone="success" style={{ flex: 1 }}>
-          <DashboardLayout theme={theme} layer={activeLayer} />
-        </StudioPanel>
+        {/* Dashboard layers */}
+        {(activeTab === '3s' || activeTab === '30s' || activeTab === '300s') && (
+          <StudioPanel title="Live Dashboard Preview" description="Inspect the active layer with the current theme tokens applied." tone="success" style={{ flex: 1 }}>
+            <DashboardLayout theme={theme} layer={activeTab} />
+          </StudioPanel>
+        )}
 
-        {/* Bottom: 3-30-300 Overview + Visual Gallery (tabbed) */}
-        <StudioPanel title="Preview Modes" description="Switch between structural overview and visual gallery without leaving the page.">
-          <div style={{ marginBottom: 'var(--sp-1)' }}>
-            <StudioSegmentedControl
-              value={activeBottomTab}
-              onChange={setActiveBottomTab}
-              options={[
-                { value: 'overview', label: '3-30-300 Übersicht' },
-                { value: 'gallery', label: 'Visual Gallery' },
-              ]}
-            />
-          </div>
-
-          {activeBottomTab === 'overview' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--sp-1)' }}>
-              {(['3s', '30s', '300s'] as const).map((layer) => (
-                <div key={layer}>
+        {/* 3-30-300 overview thumbnails */}
+        {activeTab === 'overview' && (
+          <StudioPanel title="Page Templates" description="Click any template to open the full interactive preview." style={{ flex: 1 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--sp-1-5)' }}>
+              {([
+                { layer: '3s' as const, label: 'Pulse (3s)', desc: 'Status KPI cards' },
+                { layer: '30s' as const, label: 'Investigator (30s)', desc: 'Trend + waterfall' },
+                { layer: '300s' as const, label: 'Action (300s)', desc: 'Evidence grid' },
+              ]).map(({ layer, label, desc }) => (
+                <button
+                  key={layer}
+                  onClick={() => setActiveTab(layer)}
+                  style={{
+                    background: 'none',
+                    border: '1px solid var(--slate-700)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: 0,
+                    cursor: 'pointer',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'border-color 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--slate-500)')}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--slate-700)')}
+                >
                   <LayoutPreview theme={theme} layer={layer} />
-                </div>
+                  <div style={{ padding: 'var(--sp-1) var(--sp-1-5)', borderTop: '1px solid var(--slate-700)', textAlign: 'left' }}>
+                    <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 600, color: 'var(--slate-100)' }}>{label}</p>
+                    <p style={{ margin: 0, fontSize: '0.6875rem', color: 'var(--slate-500)', marginTop: '2px' }}>{desc}</p>
+                  </div>
+                </button>
               ))}
             </div>
-          )}
+          </StudioPanel>
+        )}
 
-          {activeBottomTab === 'gallery' && (
-            <VisualGallery theme={theme} />
-          )}
-        </StudioPanel>
-
-        {/* CSS Preview + Export */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--sp-2)' }}>
-          <CssPreview theme={theme} />
-          <ThemeExportPanel theme={theme} onSave={handleSaveTheme} saving={saving} />
-        </div>
+        {/* Export */}
+        {activeTab === 'export' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-1-5)', flex: 1 }}>
+            <CssPreview theme={theme} />
+            <ThemeExportPanel theme={theme} />
+          </div>
+        )}
       </div>
       </div>
     </StudioPage>

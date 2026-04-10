@@ -55,9 +55,39 @@
           ]
         },
         "Y": {
-          "projections": []
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Customer Lifetime Revenue Amount"
+                }
+              },
+              "queryRef": "_Measures.Customer Lifetime Revenue Amount",
+              "nativeQueryRef": "Customer Lifetime Revenue Amount"
+            }
+          ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

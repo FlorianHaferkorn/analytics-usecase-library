@@ -3,23 +3,50 @@ table security_user_org
 	lineageTag: 560e525a-fe07-5b1d-9420-6210831ebd63
 
 	column UserPrincipalName
-		dataType: String
-		sourceColumn: UserPrincipalName
+		dataType: string
+		lineageTag: 6c439cb6-a089-467c-9d0e-92c02f6d394d
 		summarizeBy: none
+		sourceColumn: UserPrincipalName
 
 	column OrgKey
-		dataType: Int64
-		sourceColumn: OrgKey
-		summarizeBy: none
+		dataType: int64
 		isHidden
+		lineageTag: 2cf2d9c9-6977-466d-9683-0615073726c9
+		summarizeBy: none
+		sourceColumn: OrgKey
+
+	column Region
+		dataType: string
+		lineageTag: 01f088a1-8b36-408f-9bd3-7a044de815cc
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: f3a1e07b-397a-4512-b861-1518049b4d84
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column Channel
+		dataType: string
+		lineageTag: 4e4caca8-76ba-4067-8118-85af0b9bbbdd
+		summarizeBy: none
+		sourceColumn: Channel
+
+		annotation SummarizationSetBy = Automatic
 
 	partition security_user_org = m
 		mode: import
 		source =
-			let
-				Source = Folder.Files(GoldDataPath & "/security/security_user_org"),
-				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-				FirstFile = FilteredFiles{0}[Content],
-				ParquetData = Parquet.Document(FirstFile)
-			in
-				ParquetData
+				let
+					Source = Folder.Files(GoldDataPath & "/security_user_org"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData
+

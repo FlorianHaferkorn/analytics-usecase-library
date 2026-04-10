@@ -51,7 +51,176 @@
     "query": {
       "queryState": {
         "Values": {
-          "projections": []
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org"
+                    }
+                  },
+                  "Property": "Region"
+                }
+              },
+              "queryRef": "dim_org.Region",
+              "nativeQueryRef": "Region"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org"
+                    }
+                  },
+                  "Property": "Channel"
+                }
+              },
+              "queryRef": "dim_org.Channel",
+              "nativeQueryRef": "Channel"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_product"
+                    }
+                  },
+                  "Property": "Category"
+                }
+              },
+              "queryRef": "dim_product.Category",
+              "nativeQueryRef": "Category"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "promotion"
+                }
+              },
+              "queryRef": "_Measures.promotion",
+              "nativeQueryRef": "promotion"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "promo_type"
+                }
+              },
+              "queryRef": "_Measures.promo_type",
+              "nativeQueryRef": "promo_type"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "mechanic"
+                }
+              },
+              "queryRef": "_Measures.mechanic",
+              "nativeQueryRef": "mechanic"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Incremental Sales Amount"
+                }
+              },
+              "queryRef": "_Measures.Incremental Sales Amount",
+              "nativeQueryRef": "Incremental Sales Amount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Promo Cost"
+                }
+              },
+              "queryRef": "_Measures.Promo Cost",
+              "nativeQueryRef": "Promo Cost"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Incremental Gross Margin Amount"
+                }
+              },
+              "queryRef": "_Measures.Incremental Gross Margin Amount",
+              "nativeQueryRef": "Incremental Gross Margin Amount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Cannibalization %"
+                }
+              },
+              "queryRef": "_Measures.Cannibalization %",
+              "nativeQueryRef": "Cannibalization %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Price Realization %"
+                }
+              },
+              "queryRef": "_Measures.Price Realization %",
+              "nativeQueryRef": "Price Realization %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Promo ROI %"
+                }
+              },
+              "queryRef": "_Measures.Promo ROI %",
+              "nativeQueryRef": "Promo ROI %"
+            }
+          ]
         }
       }
     }

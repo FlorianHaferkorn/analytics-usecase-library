@@ -2,6 +2,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parseYaml } from '@/lib/core/yaml-loader';
 import { loadAllActionCodes } from '@/lib/core/action-loader';
+import { loadKpiMap } from '@/lib/core/catalog-loader';
 import { getProject } from '@/lib/db/project-repo';
 import { SteeringHubClient } from './steering-hub-client';
 import type { UseCaseBracketV20Lean } from '@/lib/schemas';
@@ -49,10 +50,16 @@ export default async function SteeringPage({
   searchParams?: Promise<{ draftId?: string; draftYaml?: string }>;
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const [{ brackets, yamls: bracketYamls }, actions] = await Promise.all([
+  const [{ brackets, yamls: bracketYamls }, actions, kpiMap] = await Promise.all([
     loadBracketsWithYaml(),
     loadAllActionCodes(),
+    loadKpiMap(),
   ]);
+
+  const kpiNames: Record<string, string> = {};
+  for (const [id, kpi] of kpiMap) {
+    kpiNames[id] = kpi.kpi_key || id;
+  }
 
   const defaultProject = getProject('default');
   const strategyAnchor = defaultProject?.strategy_anchor || FALLBACK_ANCHOR;
@@ -109,6 +116,7 @@ export default async function SteeringPage({
       brackets={draftBracketData ? [draftBracketData, ...bracketData] : bracketData}
       actionDetails={actionDetails}
       bracketYamls={draftBracketData && draftYaml ? { [draftBracketData.id]: draftYaml, ...bracketYamls } : bracketYamls}
+      kpiNames={kpiNames}
       initialSelectedBracket={draftBracketData?.id ?? null}
       draftBracketId={draftBracketData?.id ?? null}
     />

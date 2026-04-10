@@ -11,74 +11,6 @@
   },
   "visual": {
     "visualType": "clusteredBarChart",
-    "query": {
-      "queryState": {
-        "Category": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_date"
-                    }
-                  },
-                  "Property": "Date"
-                }
-              },
-              "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
-            }
-          ]
-        },
-        "Y": {
-          "projections": [
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Performance %"
-                }
-              },
-              "queryRef": "_Measures.Performance %",
-              "nativeQueryRef": "Performance %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Quality %"
-                }
-              },
-              "queryRef": "_Measures.Quality %",
-              "nativeQueryRef": "Quality %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Throughput Units"
-                }
-              },
-              "queryRef": "_Measures.Throughput Units",
-              "nativeQueryRef": "Throughput Units"
-            }
-          ]
-        }
-      }
-    },
     "objects": {
       "categoryAxis": [
         {
@@ -135,6 +67,74 @@
       ]
     },
     "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org"
+                    }
+                  },
+                  "Property": "OrgName"
+                }
+              },
+              "queryRef": "dim_org.OrgName",
+              "nativeQueryRef": "OrgName"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Performance %"
+                }
+              },
+              "queryRef": "_Measures.Performance %",
+              "nativeQueryRef": "Performance %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Quality %"
+                }
+              },
+              "queryRef": "_Measures.Quality %",
+              "nativeQueryRef": "Quality %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Throughput Units"
+                }
+              },
+              "queryRef": "_Measures.Throughput Units",
+              "nativeQueryRef": "Throughput Units"
+            }
+          ]
+        }
+      }
+    },
     "visualContainerObjects": {
       "visualHeader": [
         {

@@ -730,25 +730,48 @@ class VisualBuilder:
         """
         import logging
         logger = logging.getLogger(__name__)
+        normalized_type = (ux_visual_type or "").strip().lower()
+        alias_map = {
+            "line_chart": "trend_line",
+            "trend": "trend_line",
+            "bar_chart_horizontal": "bar_chart_horizontal",
+            "bar_chart_vertical": "bar_chart_vertical",
+            "bar_chart": "bar_chart",
+            "ranked_bar": "bar_chart_horizontal",
+        }
+        normalized_type = alias_map.get(normalized_type, normalized_type)
         measures = measures or []
         title = title or name
-        if ux_visual_type == "kpi_card":
+        if normalized_type == "kpi_card":
             return self.build_kpi_card(
                 position, measure_ref=measures[0] if measures else None, name=name, title=title
             )
-        if ux_visual_type == "trend_line":
+        if normalized_type == "trend_line":
             return self.build_line_chart(
                 position, measures=measures, name=name, title=title
             )
-        if ux_visual_type == "bar_chart":
+        if normalized_type == "bar_chart":
             return self.build_horizontal_bar(
                 position, measures=measures, name=name, title=title
             )
-        if ux_visual_type == "waterfall":
+        if normalized_type == "bar_chart_horizontal":
+            return self.build_horizontal_bar(
+                position,
+                measures=measures,
+                name=name,
+                title=title,
+                category_entity="dim_org",
+                category_property="OrgName",
+            )
+        if normalized_type == "bar_chart_vertical":
+            return self.build_line_chart(
+                position, measures=measures, name=name, title=title, category_entity="dim_org", category_property="OrgName"
+            )
+        if normalized_type == "waterfall":
             return self.build_waterfall(position, measures=measures, name=name)
-        if ux_visual_type in ("stacked_bar", "hundred_percent_stacked_bar"):
+        if normalized_type in ("stacked_bar", "hundred_percent_stacked_bar"):
             return self.build_stacked_bar(position, measures=measures, name=name)
-        if ux_visual_type == "funnel":
+        if normalized_type == "funnel":
             return self.build_funnel(position, name=name)
         logger.warning("Unknown ux_visual_type %r; defaulting to lineChart (trend)", ux_visual_type)
         return self.build_line_chart(position, measures=measures, name=name, title=title)

@@ -59,8 +59,8 @@ Framework (`core/`), Stage 1 and generation (`tooling/`), and showcases (`showca
 
 | Mode | Use | Output |
 |------|-----|--------|
-| **Aurora showcase** | Framework proof, single _Measures.tmdl | `showcases/aurora_group/semantic_models/.../tables/` (use `-UseAuroraShowcase`) |
-| **dist** | Customer rollout / CI, per-use-case TMDL | `dist/<UseCase>/<UseCase>.SemanticModel/...` |
+| **dist (canonical)** | CI, report opening, demo verification, rollout | `products/fabric/powerbi/dist/<Domain>.SemanticModel/...` and `products/fabric/powerbi/dist/<UseCase>.Report` |
+| **Aurora showcase mirror** | Derived demo copy for Aurora context, synced from dist | `products/fabric/showcases/aurora_group/semantic_models/...` |
 
 ---
 

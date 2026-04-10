@@ -17,11 +17,11 @@ Param(
   # When set, overwrite existing _Measures.tmdl files even if they already exist.
   # Default behaviour without this switch is to skip use cases where a measures file exists.
   [switch]$OverwriteExisting,
-  # Write into a shared semantic model (e.g. Aurora showcase). All use cases -> ONE _Measures.tmdl with displayFolder per use case.
+  # Write into a shared semantic model directory. Dist remains the canonical output; Aurora showcase models are synced from dist.
   [string]$TargetTablesDir = "",
   # When set with TargetTablesDir: write one _Measures_<UC>.tmdl per use case (delta). Only touched use cases are written; others stay unchanged.
   [switch]$PerUseCaseFiles,
-  # Convenience: same as -TargetTablesDir for one Aurora domain model (default: Commercial.SemanticModel). Prefer orchestrate with -TargetTablesDir per domain.
+  # Compatibility flag for Aurora demo flows. Keeps Aurora-specific invocation style but still writes to dist.
   [switch]$UseAuroraShowcase,
   # Skip generation of _ActionReady_Logic.tmdl (action-text measures).
   [switch]$SkipActionLogic
@@ -915,12 +915,10 @@ if (-not $script:UseIRPath) {
   if (-not $resolvedKpiRoot) { throw "Unable to resolve KPI catalog root. Provide -KpiCatalogRoot or run inside repository." }
 }
 
-# Primary output: shared semantic model (e.g. Aurora showcase). When set, write <UseCase>_Measures.tmdl into this directory.
+# Primary output: dist domain semantic model. Aurora showcase copies are synced from dist by the orchestrator.
 $resolvedTablesDir = $null
 if ($UseAuroraShowcase) {
-  $auroraRelative = "showcases/aurora_group/semantic_models/Commercial.SemanticModel/definition/tables"
-  $resolvedTablesDir = if ($script:RepoRoot -and (Test-Path (Join-Path $script:RepoRoot $auroraRelative))) { (Resolve-Path (Join-Path $script:RepoRoot $auroraRelative)).Path } else { $null }
-  if (-not $resolvedTablesDir) { $resolvedTablesDir = Join-Path $script:RepoRoot $auroraRelative; Ensure-Dir (Split-Path -Parent $resolvedTablesDir) | Out-Null; New-Item -ItemType Directory -Path $resolvedTablesDir -Force | Out-Null; $resolvedTablesDir = (Resolve-Path $resolvedTablesDir).Path }
+  Write-Host "UseAuroraShowcase selected: writing canonical semantic model output to dist; Aurora showcase copies should be synced from dist." -ForegroundColor Gray
 }
 if ($TargetTablesDir -and $TargetTablesDir.Trim().Length -gt 0) {
   if (Test-Path $TargetTablesDir) { $resolvedTablesDir = (Resolve-Path $TargetTablesDir).Path }
@@ -1118,7 +1116,7 @@ if ($UseCase -and $UseCase.Count -gt 0) {
 }
 
 # ============================================================================
-# MODE: Shared semantic model (Aurora showcase)
+# MODE: Shared semantic model target
 #   - PerUseCaseFiles: one _Measures_<UC>.tmdl per use case (delta: only touched UCs written).
 #   - Else: ALL measures in ONE _Measures.tmdl (full refresh).
 # ============================================================================

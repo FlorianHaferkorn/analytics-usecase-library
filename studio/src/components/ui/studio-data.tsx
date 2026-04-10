@@ -133,16 +133,12 @@ export function StudioSelectionItem({
         cursor: 'pointer',
       }}
     >
-      <span
-        style={{
-          fontFamily: 'var(--font-mono)',
-          fontSize: '0.6875rem',
-          color: selected ? 'var(--mint)' : 'var(--slate-500)',
-          minWidth: '24px',
-        }}
-      >
-        {selected ? '[x]' : '[ ]'}
-      </span>
+      <input
+        type="checkbox"
+        checked={selected}
+        readOnly
+        style={{ pointerEvents: 'none' }}
+      />
       {leading ? <span style={{ minWidth: 0 }}>{leading}</span> : <span />}
       <span style={{ minWidth: 0 }}>
         <span style={{ display: 'block', fontSize: '0.8125rem', color: 'var(--slate-100)' }}>{primary}</span>
@@ -150,6 +146,40 @@ export function StudioSelectionItem({
       </span>
       {meta ? <span style={{ fontSize: '0.6875rem', color: 'var(--slate-500)', textAlign: 'right' }}>{meta}</span> : null}
     </button>
+  );
+}
+
+export function StudioCheckbox({
+  checked,
+  onChange,
+  label,
+  disabled,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label?: string;
+  disabled?: boolean;
+}) {
+  return (
+    <label
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 'var(--sp-1)',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.5 : 1,
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={checked}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+      {label && (
+        <span style={{ fontSize: '0.8125rem', color: 'var(--slate-200)', lineHeight: 1.4 }}>{label}</span>
+      )}
+    </label>
   );
 }
 

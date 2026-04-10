@@ -15,22 +15,46 @@ table _Measures
 		isHidden
 		summarizeBy: none
 
-	// ── OPS-001 ──────────────────────────────────────────
+	/// OPS-001
 	/// OEE % - ops.oee.pct
 	/// Measures manufacturing performance combining availability, performance, and quality.
-	measure 'OEE %' = VAR Availability = [Availability %] VAR Performance = [Performance %] VAR Quality = [Quality %] RETURN Availability * Performance * Quality
+	measure 'OEE %' =
+		VAR AvailabilityRate =
+			[Availability %]
+		VAR PerformanceRate =
+			[Performance %]
+		VAR QualityRate =
+			[Quality %]
+		RETURN
+			AvailabilityRate * PerformanceRate * QualityRate
 		formatString: "0.0%"
 		displayFolder: "OPS-001"
 
 	/// Availability % - ops.availability.pct
 	/// Uptime share relative to planned production time.
-	measure 'Availability %' = VAR RunTime = SUM ( fact_ops[Run Time Minutes] ) VAR PlannedTime = SUM ( fact_ops[Planned Time Minutes] ) RETURN DIVIDE ( RunTime, PlannedTime )
+	measure 'Availability %' =
+		VAR RunTimeMinutes =
+			SUM ( fact_ops[Run Time Minutes] )
+		VAR PlannedTimeMinutes =
+			SUM ( fact_ops[Planned Time Minutes] )
+		RETURN
+			DIVIDE ( RunTimeMinutes, PlannedTimeMinutes )
 		formatString: "0.0%"
 		displayFolder: "OPS-001"
 
 	/// Performance % - ops.performance.pct
 	/// Throughput speed versus theoretical maximum.
-	measure 'Performance %' = VAR ActualOutput = SUM ( fact_ops[Output Units] ) VAR RunTime = SUM ( fact_ops[Run Time Minutes] ) VAR StandardRate = AVERAGE ( fact_ops[Standard Rate Units Per Minute] ) VAR TheoreticalOutput = RunTime * StandardRate RETURN DIVIDE ( ActualOutput, TheoreticalOutput )
+	measure 'Performance %' =
+		VAR ActualOutputUnits =
+			SUM ( fact_ops[Output Units] )
+		VAR RunTimeMinutes =
+			SUM ( fact_ops[Run Time Minutes] )
+		VAR StandardRateUnitsPerMinute =
+			AVERAGE ( fact_ops[Standard Rate Units Per Minute] )
+		VAR TheoreticalOutputUnits =
+			RunTimeMinutes * StandardRateUnitsPerMinute
+		RETURN
+			DIVIDE ( ActualOutputUnits, TheoreticalOutputUnits )
 		formatString: "0.0%"
 		displayFolder: "OPS-001"
 
@@ -54,11 +78,15 @@ table _Measures
 
 	/// Planned Output Units - ops.planned_output.units
 	/// Captures planned production output volume.
-	measure 'Planned Output Units' = VAR PlannedOutput = SUMX ( fact_ops, fact_ops[Standard Rate Units Per Minute] * fact_ops[Planned Time Minutes] ) RETURN PlannedOutput
+	measure 'Planned Output Units' =
+		VAR PlannedOutputUnits =
+			SUMX ( fact_ops, fact_ops[Standard Rate Units Per Minute] * fact_ops[Planned Time Minutes] )
+		RETURN
+			PlannedOutputUnits
 		formatString: "#,0"
 		displayFolder: "OPS-001"
 
-	// ── OPS-002 ──────────────────────────────────────────
+	/// OPS-002
 	/// MTBF (hours) - ops.mtbf.hours
 	/// Measures average operating time between failures.
 	measure 'MTBF (hours)' = VAR FailureCount = COUNTROWS ( fact_ops_failures ) VAR OperatingTime = SUMX ( fact_ops, DIVIDE ( fact_ops[Run Time Minutes], 60 ) ) RETURN DIVIDE ( OperatingTime, FailureCount )
@@ -113,7 +141,7 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "OPS-002"
 
-	// ── OPS-003 ──────────────────────────────────────────
+	/// OPS-003
 	/// First Pass Yield % - quality.fpy.pct
 	/// Measures share of units produced without rework or scrap.
 	measure 'First Pass Yield %' = VAR GoodUnits = SUM ( fact_quality[Good Units] ) VAR TotalUnits = SUM ( fact_quality[Total Units] ) RETURN DIVIDE ( GoodUnits, TotalUnits )
@@ -146,7 +174,15 @@ table _Measures
 
 	/// Defect Density - quality.defect_density
 	/// Measures defect count per 1,000 units produced.
-	measure 'Defect Density' = VAR DefectCount = SUM ( fact_quality[Defect Count] ) VAR TotalUnits = SUM ( fact_quality[Total Units] ) RETURN DIVIDE ( DefectCount, TotalUnits ) * 1000
+	measure 'Defect Density' =
+		VAR DefectCount =
+			SUM ( fact_quality[Defect Count] )
+		VAR TotalUnits =
+			SUM ( fact_quality[Total Units] )
+		VAR DefectRate =
+			DIVIDE ( DefectCount, TotalUnits )
+		RETURN
+			DefectRate * 1000
 		formatString: "#,0"
 		displayFolder: "OPS-003"
 
@@ -162,101 +198,101 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "OPS-003"
 
-	// ── ActionReady Logic ─────────────────────────────────
+	/// ActionReady Logic
 	/// ActionReady Logic: O-O1.1
 	measure 'Action_O-O1.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: maintenance_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "maintenance_manager"
-	annotation ActionReady_ActionCodeId = "O-O1.1"
+		annotation ActionReady_ResponsibleRole = "maintenance_manager"
+		annotation ActionReady_ActionCodeId = "O-O1.1"
 
 	/// ActionReady Logic: O-O1.2
 	measure 'Action_O-O1.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: production_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "production_manager"
-	annotation ActionReady_ActionCodeId = "O-O1.2"
+		annotation ActionReady_ResponsibleRole = "production_manager"
+		annotation ActionReady_ActionCodeId = "O-O1.2"
 
 	/// ActionReady Logic: O-O1.3
 	measure 'Action_O-O1.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: quality_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "quality_manager"
-	annotation ActionReady_ActionCodeId = "O-O1.3"
+		annotation ActionReady_ResponsibleRole = "quality_manager"
+		annotation ActionReady_ActionCodeId = "O-O1.3"
 
 	/// ActionReady Logic: O-O1.4
 	measure 'Action_O-O1.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: operations_director" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "operations_director"
-	annotation ActionReady_ActionCodeId = "O-O1.4"
+		annotation ActionReady_ResponsibleRole = "operations_director"
+		annotation ActionReady_ActionCodeId = "O-O1.4"
 
 	/// ActionReady Logic: O-A2.1
 	measure 'Action_O-A2.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: maintenance_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "maintenance_manager"
-	annotation ActionReady_ActionCodeId = "O-A2.1"
+		annotation ActionReady_ResponsibleRole = "maintenance_manager"
+		annotation ActionReady_ActionCodeId = "O-A2.1"
 
 	/// ActionReady Logic: O-A2.2
 	measure 'Action_O-A2.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: reliability_engineer" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "reliability_engineer"
-	annotation ActionReady_ActionCodeId = "O-A2.2"
+		annotation ActionReady_ResponsibleRole = "reliability_engineer"
+		annotation ActionReady_ActionCodeId = "O-A2.2"
 
 	/// ActionReady Logic: O-A2.3
 	measure 'Action_O-A2.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: maintenance_supervisor" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "maintenance_supervisor"
-	annotation ActionReady_ActionCodeId = "O-A2.3"
+		annotation ActionReady_ResponsibleRole = "maintenance_supervisor"
+		annotation ActionReady_ActionCodeId = "O-A2.3"
 
 	/// ActionReady Logic: O-A2.4
 	measure 'Action_O-A2.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: maintenance_planner" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "maintenance_planner"
-	annotation ActionReady_ActionCodeId = "O-A2.4"
+		annotation ActionReady_ResponsibleRole = "maintenance_planner"
+		annotation ActionReady_ActionCodeId = "O-A2.4"
 
 	/// ActionReady Logic: O-A2.5
 	measure 'Action_O-A2.5_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: maintenance_supply_coordinator" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "maintenance_supply_coordinator"
-	annotation ActionReady_ActionCodeId = "O-A2.5"
+		annotation ActionReady_ResponsibleRole = "maintenance_supply_coordinator"
+		annotation ActionReady_ActionCodeId = "O-A2.5"
 
 	/// ActionReady Logic: O-Q3.1
 	measure 'Action_O-Q3.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_quality" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "head_of_quality"
-	annotation ActionReady_ActionCodeId = "O-Q3.1"
+		annotation ActionReady_ResponsibleRole = "head_of_quality"
+		annotation ActionReady_ActionCodeId = "O-Q3.1"
 
 	/// ActionReady Logic: O-Q3.2
 	measure 'Action_O-Q3.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: quality_engineer" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "quality_engineer"
-	annotation ActionReady_ActionCodeId = "O-Q3.2"
+		annotation ActionReady_ResponsibleRole = "quality_engineer"
+		annotation ActionReady_ActionCodeId = "O-Q3.2"
 
 	/// ActionReady Logic: O-Q3.3
 	measure 'Action_O-Q3.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: production_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "production_manager"
-	annotation ActionReady_ActionCodeId = "O-Q3.3"
+		annotation ActionReady_ResponsibleRole = "production_manager"
+		annotation ActionReady_ActionCodeId = "O-Q3.3"
 
 	/// ActionReady Logic: O-Q3.4
 	measure 'Action_O-Q3.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_quality" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "head_of_quality"
-	annotation ActionReady_ActionCodeId = "O-Q3.4"
+		annotation ActionReady_ResponsibleRole = "head_of_quality"
+		annotation ActionReady_ActionCodeId = "O-Q3.4"
 
 	/// ActionReady Logic: O-Q3.5
 	measure 'Action_O-Q3.5_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: quality_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "quality_manager"
-	annotation ActionReady_ActionCodeId = "O-Q3.5"
+		annotation ActionReady_ResponsibleRole = "quality_manager"
+		annotation ActionReady_ActionCodeId = "O-Q3.5"

@@ -621,12 +621,14 @@ class ConfigLoader:
             for item in component_30s:
                 if not isinstance(item, dict):
                     continue
-                vt = item.get("visual_type")
+                vt = (item.get("visual_type") or "").strip().lower()
                 if vt == "trend_line":
+                    slots["needs_trend"] = True
+                elif vt == "line_chart":
                     slots["needs_trend"] = True
                 elif vt == "waterfall":
                     slots["needs_variance"] = True
-                elif vt == "bar_chart":
+                elif vt in ("bar_chart", "bar_chart_horizontal", "bar_chart_vertical"):
                     # Heuristic: multi-KPI bar chart indicates variance/bridge; otherwise ranking.
                     kpi_ids = item.get("kpi_ids")
                     if isinstance(kpi_ids, list) and len([x for x in kpi_ids if isinstance(x, str) and x.strip()]) >= 2:
@@ -744,17 +746,20 @@ class ConfigLoader:
             # --- Phase D: resolve evidence_columns to (table, col) tuples and measure names ---
             # Standard tokens map generic semantic names to Power BI table.column pairs
             EVIDENCE_DIM_TOKENS: Dict[str, tuple] = {
-                "entity":     ("dim_org",        "OrgName"),
-                "period":     ("dim_date",        "CalendarYearMonth"),
-                "customer":   ("dim_customer",    "CustomerName"),
-                "product":    ("dim_product",     "ProductName"),
-                "channel":    ("dim_channel",     "ChannelName"),
-                "region":     ("dim_org",         "RegionName"),
-                "lane":       ("dim_lane",        "LaneName"),
-                "issue_type": ("dim_issue_type",  "IssueTypeName"),
-                "category":   ("dim_product",     "ProductCategory"),
-                "supplier":   ("dim_supplier",    "SupplierName"),
-                "sku":        ("dim_product",     "SKU"),
+                "entity":            ("dim_org", "OrgName"),
+                "period":            ("dim_date", "Date"),
+                "customer":          ("dim_customer", "CustomerName"),
+                "product":           ("dim_product", "ProductName"),
+                "channel":           ("dim_org", "Channel"),
+                "region":            ("dim_org", "Region"),
+                "category":          ("dim_product", "Category"),
+                "product_category":  ("dim_product", "Category"),
+                "subcategory":       ("dim_product", "Subcategory"),
+                "brand":             ("dim_product", "Brand"),
+                "customer_segment":  ("dim_customer", "Segment"),
+                "segment":           ("dim_customer", "Segment"),
+                "country":           ("dim_org", "Country"),
+                "org":               ("dim_org", "OrgName"),
             }
             resolved_dim_cols: list = []
             resolved_measures: list = []

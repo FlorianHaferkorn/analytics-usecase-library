@@ -12,7 +12,40 @@
   "visual": {
     "visualType": "clusteredBarChart",
     "objects": {
-      "legend": [
+      "categoryAxis": [
+        {
+          "properties": {
+            "innerPadding": {
+              "expr": {
+                "Literal": {
+                  "Value": "30L"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "layout": [
+        {
+          "properties": {
+            "clusteredGapSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "10L"
+                }
+              }
+            },
+            "clusteredGapOverlaps": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "dataLabels": [
         {
           "properties": {
             "show": {
@@ -22,10 +55,10 @@
                 }
               }
             },
-            "showTitle": {
+            "labelPosition": {
               "expr": {
                 "Literal": {
-                  "Value": "false"
+                  "Value": "'OutsideEnd'"
                 }
               }
             }
@@ -55,9 +88,81 @@
           ]
         },
         "Y": {
-          "projections": []
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Promo ROI %"
+                }
+              },
+              "queryRef": "_Measures.Promo ROI %",
+              "nativeQueryRef": "Promo ROI %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Incremental Sales Amount"
+                }
+              },
+              "queryRef": "_Measures.Incremental Sales Amount",
+              "nativeQueryRef": "Incremental Sales Amount"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "GM % During Promo"
+                }
+              },
+              "queryRef": "_Measures.GM % During Promo",
+              "nativeQueryRef": "GM % During Promo"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "List Price Amount"
+                }
+              },
+              "queryRef": "_Measures.List Price Amount",
+              "nativeQueryRef": "List Price Amount"
+            }
+          ]
         }
       }
+    },
+    "visualContainerObjects": {
+      "visualHeader": [
+        {
+          "properties": {
+            "showTooltipButton": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -109,7 +109,95 @@ function Resolve-PbiToolsPath {
 function Test-PbiToolsCompileCompatible {
   param([string] $FolderPath)
 
-  return (Test-Path (Join-Path $FolderPath "Version.txt"))
+  $requiredPaths = @(
+    (Join-Path $FolderPath "definition.pbir"),
+    (Join-Path $FolderPath "definition\report.json")
+  )
+
+  return (($requiredPaths | Where-Object { -not (Test-Path $_) }).Count -eq 0)
+}
+
+function Copy-PbiToolsDatasetReference {
+  param(
+    [string] $SourceReportPath,
+    [string] $TargetReportPath
+  )
+
+  $pbirPath = Join-Path $SourceReportPath "definition.pbir"
+  if (-not (Test-Path $pbirPath)) { return }
+
+  try {
+    $pbir = Get-Content -Path $pbirPath -Raw -Encoding utf8 | ConvertFrom-Json
+  } catch {
+    return
+  }
+
+  $datasetRelativePath = $pbir.datasetReference.byPath.path
+  if ([string]::IsNullOrWhiteSpace($datasetRelativePath)) { return }
+
+  $sourceDatasetPath = [System.IO.Path]::GetFullPath((Join-Path $SourceReportPath $datasetRelativePath))
+  if (-not (Test-Path $sourceDatasetPath)) { return }
+
+  $targetDatasetPath = [System.IO.Path]::GetFullPath((Join-Path $TargetReportPath $datasetRelativePath))
+  $targetDatasetParent = Split-Path -Parent $targetDatasetPath
+  if ($targetDatasetParent -and -not (Test-Path $targetDatasetParent)) {
+    New-Item -ItemType Directory -Path $targetDatasetParent -Force | Out-Null
+  }
+
+  if (Test-Path $targetDatasetPath) {
+    Remove-Item -LiteralPath $targetDatasetPath -Recurse -Force
+  }
+
+  Copy-Item -LiteralPath $sourceDatasetPath -Destination $targetDatasetPath -Recurse -Force
+}
+
+function Get-PbiToolsCompileRoot {
+  param([string] $FolderPath)
+
+  $folderItem = Get-Item -LiteralPath $FolderPath -ErrorAction Stop
+  $hashInput = [System.Text.Encoding]::UTF8.GetBytes($folderItem.FullName.ToLowerInvariant())
+  $hashBytes = [System.Security.Cryptography.SHA1]::Create().ComputeHash($hashInput)
+  $hash = ([System.BitConverter]::ToString($hashBytes)).Replace('-', '').Substring(0, 10).ToLowerInvariant()
+  return (Join-Path $env:TEMP ("aul-pbic\\" + $hash))
+}
+
+function New-PbiToolsCompileInputPath {
+  param(
+    [string] $FolderPath,
+    [string] $RepoRoot,
+    [string] $EnsureScript
+  )
+
+  $folderItem = Get-Item -LiteralPath $FolderPath -ErrorAction Stop
+  $reportCompileRoot = Get-PbiToolsCompileRoot -FolderPath $FolderPath
+  $compileRoot = Join-Path $reportCompileRoot "i"
+  $targetRoot = Join-Path $compileRoot $folderItem.Name
+
+  if (Test-Path $reportCompileRoot) {
+    Remove-Item -LiteralPath $reportCompileRoot -Recurse -Force
+  }
+
+  New-Item -ItemType Directory -Path $compileRoot -Force | Out-Null
+  Copy-Item -LiteralPath $FolderPath -Destination $targetRoot -Recurse -Force
+  Copy-PbiToolsDatasetReference -SourceReportPath $FolderPath -TargetReportPath $targetRoot
+
+  if (-not (Test-Path $EnsureScript)) {
+    throw "ensure_pbip_desktop_ready.ps1 not found: $EnsureScript"
+  }
+
+  & $EnsureScript -DistRoot $compileRoot -RepoRoot $RepoRoot -CreateLegacyPbixProjArtifacts 2>&1 | Out-Null
+  return $targetRoot
+}
+
+function Get-PbiToolsCompileOutputPath {
+  param([string] $FolderPath)
+
+  $compileRoot = Get-PbiToolsCompileRoot -FolderPath $FolderPath
+  if (-not (Test-Path $compileRoot)) {
+    New-Item -ItemType Directory -Path $compileRoot -Force | Out-Null
+  }
+
+  return (Join-Path $compileRoot "out.pbix")
 }
 
 $resolvedPolicyPath = if ([System.IO.Path]::IsPathRooted($PolicyPath)) { $PolicyPath } else { Join-Path $RepoRoot ($PolicyPath -replace "/", [IO.Path]::DirectorySeparatorChar) }
@@ -206,12 +294,14 @@ if ($requireStage1) {
 # 1) Fabric-Checks ausführen
 if (Test-Path $fabricChecksScript) {
   try {
-    $fabricOutput = & $fabricChecksScript 2>&1
+    $fabricOutput = & powershell -NoProfile -ExecutionPolicy Bypass -File $fabricChecksScript 2>&1
     $fabricExit = $LASTEXITCODE
     if ($null -eq $fabricExit) { $fabricExit = 0 }
     $fabricLines = Convert-CommandOutputToLines -Output $fabricOutput
     [void]$sources.Add("run_fabric_checks")
-    $fabricFailed = ($fabricExit -ne 0) -or ($fabricOutput -match "Fabric checks:\s*\d+\s+failed")
+    $fabricPassedByOutput = $fabricOutput -match "(?m)^Fabric checks passed\."
+    $fabricFailedByOutput = $fabricOutput -match "(?m)^Fabric checks:\s*\d+\s+failed"
+    $fabricFailed = $fabricFailedByOutput -or (($fabricExit -ne 0) -and (-not $fabricPassedByOutput))
     if ($fabricFailed -and $fabricLines.Count -eq 0) {
       $fabricLines = @("run_fabric_checks exited with code $fabricExit")
     }
@@ -311,26 +401,36 @@ if ($effectiveRequireCompile) {
     [void]$errors.Add($message)
     Add-GateResult -Name "pbiToolsCompile" -Passed $false -Source "pbi-tools compile" -Messages @($message)
   } else {
-    $compileDirs = @(Get-ChildItem -Path $distPath -Directory -Filter "*.SemanticModel" -ErrorAction SilentlyContinue)
-    $compileDirs += @(Get-ChildItem -Path $distPath -Directory -Filter "*.Report" -ErrorAction SilentlyContinue)
+    $compileDirs = @(Get-ChildItem -Path $distPath -Directory -Filter "*.Report" -ErrorAction SilentlyContinue)
     $compileGatePassed = $true
     $compileMessages = [System.Collections.ArrayList]::new()
     $compatibleCompileDirs = @($compileDirs | Where-Object { Test-PbiToolsCompileCompatible -FolderPath $_.FullName })
     $skippedCompileDirs = @($compileDirs | Where-Object { -not (Test-PbiToolsCompileCompatible -FolderPath $_.FullName) })
     foreach ($skippedDir in $skippedCompileDirs) {
-      [void]$compileMessages.Add("[$($skippedDir.Name)] skipped pbi-tools compile: PBIP split artifact without Version.txt; pbipValidation remains the authoritative gate.")
+      $compileGatePassed = $false
+      $message = "[$($skippedDir.Name)] missing canonical PBIP prerequisites: definition.pbir or definition/report.json."
+      [void]$compileMessages.Add($message)
+      [void]$errors.Add($message)
     }
-    if ($compatibleCompileDirs.Count -eq 0) {
-      [void]$compileMessages.Add("No pbi-tools-compatible PbixProj folders found under dist; compile gate satisfied by structural PBIP validation for this layout.")
+    if (($compileDirs.Count -eq 0) -and ($compatibleCompileDirs.Count -eq 0)) {
+      $compileGatePassed = $false
+      $message = "No generated report folders found under dist for pbi-tools compile gate."
+      [void]$compileMessages.Add($message)
+      [void]$errors.Add($message)
     }
     foreach ($compileDir in $compatibleCompileDirs) {
       try {
-        $compileOutput = & $pbiTools compile $compileDir.FullName 2>&1
+        $compileInputPath = New-PbiToolsCompileInputPath -FolderPath $compileDir.FullName -RepoRoot $RepoRoot -EnsureScript $ensureScript
+        $compileOutputPath = Get-PbiToolsCompileOutputPath -FolderPath $compileDir.FullName
+        $compileOutput = & $pbiTools compile $compileInputPath $compileOutputPath PBIX true 2>&1
         $compileExit = $LASTEXITCODE
         if ($null -eq $compileExit) { $compileExit = 0 }
         $lines = Convert-CommandOutputToLines -Output $compileOutput
         if (($compileExit -ne 0) -and $lines.Count -eq 0) {
           $lines = @("pbi-tools compile exited with code $compileExit")
+        }
+        if ($compileExit -eq 0) {
+           $lines = @($lines + "compiled to $compileOutputPath")
         }
         foreach ($line in $lines) { [void]$compileMessages.Add("[$($compileDir.Name)] $line") }
         if ($compileExit -ne 0) {

@@ -3,58 +3,87 @@ table dim_product
 	lineageTag: daef4ca0-5338-4c49-a9b4-d997c069349b
 
 	column ProductKey
-		dataType: Int64
-		sourceColumn: ProductKey
-		summarizeBy: none
+		dataType: int64
 		isHidden
+		lineageTag: 646b3500-35ab-4353-a633-3802a2cc93da
+		summarizeBy: none
+		sourceColumn: ProductKey
 
 	column ProductCode
-		dataType: String
-		sourceColumn: ProductCode
+		dataType: string
+		lineageTag: ce2a88ae-ed56-4bb6-8a5c-a90df7870c6e
 		summarizeBy: none
+		sourceColumn: ProductCode
 
 	column ProductName
-		dataType: String
-		sourceColumn: ProductName
+		dataType: string
+		lineageTag: e02b9fca-d8a0-4819-9dd5-1467ffbc370c
 		summarizeBy: none
+		sourceColumn: ProductName
 
 	column Category
-		dataType: String
-		sourceColumn: Category
+		dataType: string
+		lineageTag: eb095806-9421-47d5-8870-f68569c8be38
 		summarizeBy: none
+		sourceColumn: Category
 
 	column Subcategory
-		dataType: String
-		sourceColumn: Subcategory
+		dataType: string
+		lineageTag: 8d3730e2-5a1b-41ba-9f43-99da3bc71bae
 		summarizeBy: none
+		sourceColumn: Subcategory
 
 	column Brand
-		dataType: String
+		dataType: string
+		lineageTag: 4430d698-7032-4d50-a890-ed4231e9e03f
+		summarizeBy: none
 		sourceColumn: Brand
-		summarizeBy: none
 
-	column ProductFamily
-		dataType: String
-		sourceColumn: ProductFamily
+	column 'Lifecycle Status'
+		dataType: string
+		lineageTag: f7b16660-7034-419e-9b08-31630badfdcf
 		summarizeBy: none
+		sourceColumn: Lifecycle Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'List Price Amount'
+		dataType: double
+		lineageTag: e6e10224-18a6-44cb-ab4f-a1b617eed1a6
+		summarizeBy: none
+		sourceColumn: List Price Amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	hierarchy 'Product Hierarchy'
+		lineageTag: 0ef5b45c-daa0-513f-8352-a64ade5a6bf8
+
+		level Category
+			lineageTag: bb8b1145-8d3a-48bb-b957-66f2d3ca438b
+			column: Category
+
+		level Subcategory
+			lineageTag: 70c9329b-10ff-4bd4-9da9-f2647aa52cb5
+			column: Subcategory
+
+		level Brand
+			lineageTag: 852e9e3a-f86e-4099-a684-b4545c82d7ae
+			column: Brand
+
+		level ProductName
+			lineageTag: 83597c25-4379-4a1b-bdaf-7c52ba05059e
+			column: ProductName
 
 	partition dim_product = m
 		mode: import
 		source =
-			let
-				Source = Folder.Files(GoldDataPath & "/dimensions/dim_product"),
-				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-				FirstFile = FilteredFiles{0}[Content],
-				ParquetData = Parquet.Document(FirstFile)
-			in
-				ParquetData
-			hierarchy 'Product Hierarchy'
-			lineageTag: 0ef5b45c-daa0-513f-8352-a64ade5a6bf8
-			level Category
-				column: Category
-			level Subcategory
-				column: Subcategory
-			level Brand
-				column: Brand
-			level Product Name
-				column: Product Name
+				let
+					Source = Folder.Files(GoldDataPath & "/dimensions/dim_product"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData
+

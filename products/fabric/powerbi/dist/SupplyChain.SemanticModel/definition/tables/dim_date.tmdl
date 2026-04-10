@@ -26,6 +26,12 @@ table dim_date
 		dataType: Int64
 		sourceColumn: MonthNumber
 		summarizeBy: none
+
+	column CalendarYearMonth
+		dataType: String
+		sourceColumn: CalendarYearMonth
+		summarizeBy: none
+
 	column Week
 		dataType: String
 		sourceColumn: Week
@@ -37,30 +43,27 @@ table dim_date
 				Source = Folder.Files(GoldDataPath & "/dimensions/dim_date"),
 				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
 				FirstFile = FilteredFiles{0}[Content],
-				ParquetData = Parquet.Document(FirstFile)
+				ParquetData = Parquet.Document(FirstFile),
+				WithCalendarYearMonth = Table.AddColumn(ParquetData, "CalendarYearMonth", each Date.ToText(Date.From([Date]), "yyyy-MM"), type text)
 			in
-				ParquetData
+				WithCalendarYearMonth
 
-	calculatedColumn CalendarYearMonth
-		dataType: String
-		expression = FORMAT([Date], "YYYY-MM")
-		summarizeBy: none
-		/// YYYY-MM format enables correct chronological sorting in slicers
 	hierarchy 'Calendar'
-	lineageTag: fa7726b8-45c0-55f8-a1e7-4ce4ed04b8ae
-	level Year
+		lineageTag: fa7726b8-45c0-55f8-a1e7-4ce4ed04b8ae
+		level Year
 			column: Year
-	level Quarter
+		level Quarter
 			column: Quarter
-	level Month
+		level Month
 			column: Month
-	level Date
+		level Date
 			column: Date
+
 	hierarchy 'Week Calendar'
-	lineageTag: 983b05b7-3c70-538d-802e-dfb2c098137e
-	level Year
+		lineageTag: 983b05b7-3c70-538d-802e-dfb2c098137e
+		level Year
 			column: Year
-	level Week
+		level Week
 			column: Week
-	level Date
+		level Date
 			column: Date

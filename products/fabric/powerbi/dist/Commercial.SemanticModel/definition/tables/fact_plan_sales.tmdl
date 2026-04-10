@@ -3,43 +3,61 @@ table fact_plan_sales
 	lineageTag: c66eba9b-38ec-4704-a146-d3be05d1d146
 
 	column DateKey
-		dataType: Int64
-		sourceColumn: DateKey
+		dataType: int64
+		lineageTag: 957e7f4d-ae9a-4f98-84eb-d2932a12806b
 		summarizeBy: none
+		sourceColumn: DateKey
 
 	column OrgKey
-		dataType: Int64
-		sourceColumn: OrgKey
+		dataType: int64
+		lineageTag: cbff39ad-1fbb-4551-ba84-c54a7026f2d7
 		summarizeBy: none
+		sourceColumn: OrgKey
 
 	column ProductKey
-		dataType: Int64
-		sourceColumn: ProductKey
+		dataType: int64
+		lineageTag: db614a9f-a83a-4eaf-a0a0-2d6461a39b24
 		summarizeBy: none
+		sourceColumn: ProductKey
 
 	column 'Plan Net Sales Amount'
-		dataType: Decimal
-		sourceColumn: Plan Net Sales Amount
+		dataType: double
+		lineageTag: e81fef1c-7930-4305-b8a1-4a2549f32cf1
 		summarizeBy: none
+		sourceColumn: Plan Net Sales Amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column 'Plan Cost of Goods Sold Amount'
-		dataType: Decimal
-		sourceColumn: Plan Cost of Goods Sold Amount
+		dataType: double
+		lineageTag: 2f9c0815-8ad3-43b0-abe3-34ff632e3696
 		summarizeBy: none
+		sourceColumn: Plan Cost of Goods Sold Amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column 'Plan Gross Margin Amount'
-		dataType: Decimal
-		sourceColumn: Plan Gross Margin Amount
+		dataType: double
+		lineageTag: 528b8d4c-cf25-4aec-a7de-afffe663758c
 		summarizeBy: none
+		sourceColumn: Plan Gross Margin Amount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	partition fact_plan_sales = m
 		mode: import
 		source =
-			let
-				Source = Folder.Files(GoldDataPath & "/facts/fact_plan_sales"),
-				FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
-				FirstFile = FilteredFiles{0}[Content],
-				ParquetData = Parquet.Document(FirstFile)
-			in
-				ParquetData
+				let
+					Source = Folder.Files(GoldDataPath & "/facts/fact_plan_sales"),
+					FilteredFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".parquet")),
+					FirstFile = FilteredFiles{0}[Content],
+					ParquetData = Parquet.Document(FirstFile)
+				in
+					ParquetData
 

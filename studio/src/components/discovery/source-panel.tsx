@@ -109,7 +109,7 @@ export function SourcePanel({ sources, onAddSource, onRemoveSource }: Props) {
         }}
       >
         <StudioPanel title="Sources" description="Upload documents, paste notes or inject existing brackets as discovery context." style={{ padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ flex: 1, overflow: 'auto', padding: 'var(--sp-1-5)' }}>
+        <div style={{ flex: 1, overflow: 'auto', padding: 'var(--sp-2)' }}>
           {sources.length === 0 ? (
             <StudioEmptyState
               title="No sources loaded"
@@ -142,7 +142,7 @@ export function SourcePanel({ sources, onAddSource, onRemoveSource }: Props) {
           )}
         </div>
 
-        <div style={{ padding: 'var(--sp-1-5)', borderTop: '1px solid var(--slate-700)', display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
+        <div style={{ padding: 'var(--sp-2)', borderTop: '1px solid var(--slate-700)', display: 'flex', flexDirection: 'column', gap: 'var(--sp-1)' }}>
           <div style={{ display: 'flex', gap: 'var(--sp-1)' }}>
             <StudioButton
               onClick={() => fileRef.current?.click()}

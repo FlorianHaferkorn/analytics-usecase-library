@@ -40,8 +40,8 @@
     {
       "id": "dax.blank.handling",
       "severity": "info",
-      "description": "Use BLANK() as no-data; prefer DIVIDE alternate result or COALESCE for display-only.",
-      "matchRegex": "(?i)DIVIDE\\s*\\(.*\\)"
+      "description": "Review explicit fallback densification in ratios; prefer BLANK() for no-data semantics and use COALESCE only for intentional display-only replacement.",
+      "matchRegex": "(?i)(COALESCE\\s*\\(|DIVIDE\\s*\\([^)]*,[^)]*,)"
     },
     {
       "id": "dax.timeintelligence.native",

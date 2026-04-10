@@ -11,74 +11,6 @@
   },
   "visual": {
     "visualType": "clusteredBarChart",
-    "query": {
-      "queryState": {
-        "Category": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_date"
-                    }
-                  },
-                  "Property": "Date"
-                }
-              },
-              "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
-            }
-          ]
-        },
-        "Y": {
-          "projections": [
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "CLV (Customer Lifetime Value)"
-                }
-              },
-              "queryRef": "_Measures.CLV (Customer Lifetime Value)",
-              "nativeQueryRef": "CLV (Customer Lifetime Value)"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "SLA Attainment %"
-                }
-              },
-              "queryRef": "_Measures.SLA Attainment %",
-              "nativeQueryRef": "SLA Attainment %"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "OTIF %"
-                }
-              },
-              "queryRef": "_Measures.OTIF %",
-              "nativeQueryRef": "OTIF %"
-            }
-          ]
-        }
-      }
-    },
     "objects": {
       "categoryAxis": [
         {
@@ -135,6 +67,74 @@
       ]
     },
     "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_org"
+                    }
+                  },
+                  "Property": "OrgName"
+                }
+              },
+              "queryRef": "dim_org.OrgName",
+              "nativeQueryRef": "OrgName"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "CLV (Customer Lifetime Value)"
+                }
+              },
+              "queryRef": "_Measures.CLV (Customer Lifetime Value)",
+              "nativeQueryRef": "CLV (Customer Lifetime Value)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "SLA Attainment %"
+                }
+              },
+              "queryRef": "_Measures.SLA Attainment %",
+              "nativeQueryRef": "SLA Attainment %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "OTIF %"
+                }
+              },
+              "queryRef": "_Measures.OTIF %",
+              "nativeQueryRef": "OTIF %"
+            }
+          ]
+        }
+      }
+    },
     "visualContainerObjects": {
       "visualHeader": [
         {

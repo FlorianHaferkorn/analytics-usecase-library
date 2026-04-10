@@ -15,10 +15,10 @@ table _Measures
 		isHidden
 		summarizeBy: none
 
-	// ── FIN-001 ──────────────────────────────────────────
+	/// FIN-001
 	/// CCC Days - wc.ccc.days
 	/// Measures cash conversion cycle length.
-	measure 'CCC Days' = [DSO Days] + [DIO Days] - [DPO Days]
+	measure 'CCC Days' = VAR DaysSalesOutstanding = [DSO Days] VAR DaysInventoryOutstanding = [DIO Days] VAR DaysPayablesOutstanding = [DPO Days] RETURN DaysSalesOutstanding + DaysInventoryOutstanding - DaysPayablesOutstanding
 		formatString: "0"
 		displayFolder: "FIN-001"
 
@@ -76,7 +76,7 @@ table _Measures
 		formatString: "#,0.00"
 		displayFolder: "FIN-001"
 
-	// ── FIN-002 ──────────────────────────────────────────
+	/// FIN-002
 	/// Unit Cost Amount - cost.unit.amount
 	/// Measures total cost per unit produced or sold.
 	measure 'Unit Cost Amount' = VAR TotalCost = SUM ( fact_cost[COGS Amount] ) VAR OutputUnits = SUM ( fact_output[Output Units] ) RETURN DIVIDE ( TotalCost, OutputUnits )
@@ -149,59 +149,59 @@ table _Measures
 		formatString: "#,0.00"
 		displayFolder: "FIN-002"
 
-	// ── ActionReady Logic ─────────────────────────────────
+	/// ActionReady Logic
 	/// ActionReady Logic: F-C1.1
 	measure 'Action_F-C1.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: finance_director" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "finance_director"
-	annotation ActionReady_ActionCodeId = "F-C1.1"
+		annotation ActionReady_ResponsibleRole = "finance_director"
+		annotation ActionReady_ActionCodeId = "F-C1.1"
 
 	/// ActionReady Logic: F-C1.2
 	measure 'Action_F-C1.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_credit_and_collections" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "head_of_credit_and_collections"
-	annotation ActionReady_ActionCodeId = "F-C1.2"
+		annotation ActionReady_ResponsibleRole = "head_of_credit_and_collections"
+		annotation ActionReady_ActionCodeId = "F-C1.2"
 
 	/// ActionReady Logic: S-I1.2
 	measure 'Action_S-I1.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: inventory_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "inventory_manager"
-	annotation ActionReady_ActionCodeId = "S-I1.2"
+		annotation ActionReady_ResponsibleRole = "inventory_manager"
+		annotation ActionReady_ActionCodeId = "S-I1.2"
 
 	/// ActionReady Logic: F-C1.4
 	measure 'Action_F-C1.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_accounts_payable" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "head_of_accounts_payable"
-	annotation ActionReady_ActionCodeId = "F-C1.4"
+		annotation ActionReady_ResponsibleRole = "head_of_accounts_payable"
+		annotation ActionReady_ActionCodeId = "F-C1.4"
 
 	/// ActionReady Logic: F-K2.1
 	measure 'Action_F-K2.1_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: finance_director" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "finance_director"
-	annotation ActionReady_ActionCodeId = "F-K2.1"
+		annotation ActionReady_ResponsibleRole = "finance_director"
+		annotation ActionReady_ActionCodeId = "F-K2.1"
 
 	/// ActionReady Logic: F-K2.2
 	measure 'Action_F-K2.2_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_procurement" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "head_of_procurement"
-	annotation ActionReady_ActionCodeId = "F-K2.2"
+		annotation ActionReady_ResponsibleRole = "head_of_procurement"
+		annotation ActionReady_ActionCodeId = "F-K2.2"
 
 	/// ActionReady Logic: F-K2.3
 	measure 'Action_F-K2.3_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: plant_manager" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "plant_manager"
-	annotation ActionReady_ActionCodeId = "F-K2.3"
+		annotation ActionReady_ResponsibleRole = "plant_manager"
+		annotation ActionReady_ActionCodeId = "F-K2.3"
 
 	/// ActionReady Logic: F-K2.4
 	measure 'Action_F-K2.4_Text' = "Trigger: Deviation (L1: EarlyWarning, L2: RequiredIntervention, L3: PrescriptiveExecution)" & UNICHAR(10) & "Owner: head_of_controlling" & UNICHAR(10) & "Steps:"
 		isHidden
 		displayFolder: "9_ActionReady_Logic"
-	annotation ActionReady_ResponsibleRole = "head_of_controlling"
-	annotation ActionReady_ActionCodeId = "F-K2.4"
+		annotation ActionReady_ResponsibleRole = "head_of_controlling"
+		annotation ActionReady_ActionCodeId = "F-K2.4"

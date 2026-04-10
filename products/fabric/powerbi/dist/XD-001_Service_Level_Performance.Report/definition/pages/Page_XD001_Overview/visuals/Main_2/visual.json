@@ -11,74 +11,6 @@
   },
   "visual": {
     "visualType": "clusteredBarChart",
-    "query": {
-      "queryState": {
-        "Category": {
-          "projections": [
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "dim_date"
-                    }
-                  },
-                  "Property": "Date"
-                }
-              },
-              "queryRef": "dim_date.Date",
-              "nativeQueryRef": "Date"
-            }
-          ]
-        },
-        "Y": {
-          "projections": [
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Average Handling Time (minutes)"
-                }
-              },
-              "queryRef": "_Measures.Average Handling Time (minutes)",
-              "nativeQueryRef": "Average Handling Time (minutes)"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "Backlog Count"
-                }
-              },
-              "queryRef": "_Measures.Backlog Count",
-              "nativeQueryRef": "Backlog Count"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "_Measures"
-                    }
-                  },
-                  "Property": "NPS Index"
-                }
-              },
-              "queryRef": "_Measures.NPS Index",
-              "nativeQueryRef": "NPS Index"
-            }
-          ]
-        }
-      }
-    },
     "objects": {
       "categoryAxis": [
         {
@@ -135,6 +67,74 @@
       ]
     },
     "drillFilterOtherVisuals": true,
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_date"
+                    }
+                  },
+                  "Property": "Date"
+                }
+              },
+              "queryRef": "dim_date.Date",
+              "nativeQueryRef": "Date"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "First Contact Resolution %"
+                }
+              },
+              "queryRef": "_Measures.First Contact Resolution %",
+              "nativeQueryRef": "First Contact Resolution %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Average Handling Time (minutes)"
+                }
+              },
+              "queryRef": "_Measures.Average Handling Time (minutes)",
+              "nativeQueryRef": "Average Handling Time (minutes)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Escalation %"
+                }
+              },
+              "queryRef": "_Measures.Escalation %",
+              "nativeQueryRef": "Escalation %"
+            }
+          ]
+        }
+      }
+    },
     "visualContainerObjects": {
       "visualHeader": [
         {

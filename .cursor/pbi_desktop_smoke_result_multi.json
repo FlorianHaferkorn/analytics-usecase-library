@@ -1,0 +1,108 @@
+﻿{
+    "artifacts":  [
+                      {
+                          "desktopProcessId":  98740,
+                          "errors":  [
+
+                                     ],
+                          "success":  true,
+                          "startedAt":  "2026-04-07T17:31:50.5096601+02:00",
+                          "traceUpdated":  false,
+                          "artifact":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\COM-001_Sales_Performance.Report"
+                      },
+                      {
+                          "desktopProcessId":  18696,
+                          "errors":  [
+
+                                     ],
+                          "success":  true,
+                          "startedAt":  "2026-04-07T17:32:27.2916387+02:00",
+                          "traceUpdated":  false,
+                          "artifact":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\FIN-001_Cash_Liquidity_Performance.Report"
+                      },
+                      {
+                          "desktopProcessId":  63636,
+                          "errors":  [
+
+                                     ],
+                          "success":  true,
+                          "startedAt":  "2026-04-07T17:33:03.5696933+02:00",
+                          "traceUpdated":  false,
+                          "artifact":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\OPS-001_Operations_Performance.Report"
+                      },
+                      {
+                          "desktopProcessId":  62908,
+                          "errors":  [
+
+                                     ],
+                          "success":  true,
+                          "startedAt":  "2026-04-07T17:33:39.9238366+02:00",
+                          "traceUpdated":  false,
+                          "artifact":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\SCM-001_Inventory_Performance.Report"
+                      },
+                      {
+                          "desktopProcessId":  36152,
+                          "errors":  [
+
+                                     ],
+                          "success":  true,
+                          "startedAt":  "2026-04-07T17:34:16.3483745+02:00",
+                          "traceUpdated":  false,
+                          "artifact":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\XD-001_Service_Level_Performance.Report"
+                      },
+                      {
+                          "desktopProcessId":  94448,
+                          "errors":  [
+
+                                     ],
+                          "success":  true,
+                          "startedAt":  "2026-04-07T17:34:52.7183209+02:00",
+                          "traceUpdated":  false,
+                          "artifact":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\COM-001_Sales_Performance.Report.pbix"
+                      },
+                      {
+                          "desktopProcessId":  46100,
+                          "errors":  [
+
+                                     ],
+                          "success":  true,
+                          "startedAt":  "2026-04-07T17:35:29.2212656+02:00",
+                          "traceUpdated":  false,
+                          "artifact":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\FIN-001_Cash_Liquidity_Performance.Report.pbix"
+                      },
+                      {
+                          "desktopProcessId":  23060,
+                          "errors":  [
+
+                                     ],
+                          "success":  true,
+                          "startedAt":  "2026-04-07T17:36:05.6079325+02:00",
+                          "traceUpdated":  false,
+                          "artifact":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\OPS-001_Operations_Performance.Report.pbix"
+                      },
+                      {
+                          "desktopProcessId":  12672,
+                          "errors":  [
+
+                                     ],
+                          "success":  true,
+                          "startedAt":  "2026-04-07T17:36:41.9729309+02:00",
+                          "traceUpdated":  false,
+                          "artifact":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\SCM-001_Inventory_Performance.Report.pbix"
+                      },
+                      {
+                          "desktopProcessId":  78664,
+                          "errors":  [
+
+                                     ],
+                          "success":  true,
+                          "startedAt":  "2026-04-07T17:37:18.3158373+02:00",
+                          "traceUpdated":  false,
+                          "artifact":  "C:\\Users\\florianhaferkorn\\VSCode\\analytics-usecase-library\\products\\fabric\\powerbi\\dist\\XD-001_Service_Level_Performance.Report.pbix"
+                      }
+                  ],
+    "tracePath":  "C:\\Users\\florianhaferkorn\\AppData\\Local\\Microsoft\\Power BI Desktop\\Traces\\PBIDesktop.log",
+    "desktopExecutable":  "C:\\Users\\florianhaferkorn\\AppData\\Local\\Microsoft\\WindowsApps\\PBIDesktopStore.exe",
+    "success":  true,
+    "timestamp":  "2026-04-07T17:37:54.6962352+02:00"
+}

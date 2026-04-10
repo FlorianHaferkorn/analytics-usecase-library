@@ -37,10 +37,15 @@ interface PreloadedData {
   brackets: UseCaseBracketV20Lean[];
 }
 
-/** Extract table name from a lineage reference like "fact_sales.Net Sales Amount". */
+/**
+ * Extract table name from a lineage reference.
+ * Handles both dot-separated refs ("fact_sales.Net Sales Amount" → "fact_sales")
+ * and plain table refs ("dim_date" → "dim_date") used in data contract FK columns.
+ */
 function extractTable(ref: string): string | null {
+  if (!ref) return null;
   const dot = ref.indexOf('.');
-  return dot > 0 ? ref.slice(0, dot) : null;
+  return dot > 0 ? ref.slice(0, dot) : ref;
 }
 
 /**
@@ -65,8 +70,13 @@ export async function buildLineageGraph(
     }
   };
 
+  const edgeKeys = new Set<string>();
   const addEdge = (edge: LineageEdge) => {
-    edges.push(edge);
+    const key = `${edge.source}__${edge.relationship}__${edge.target}`;
+    if (!edgeKeys.has(key)) {
+      edgeKeys.add(key);
+      edges.push(edge);
+    }
   };
 
   // 1. Data contract nodes — Pass 1: add ALL nodes first so FK refs resolve correctly
