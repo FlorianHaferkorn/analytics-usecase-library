@@ -52,48 +52,82 @@ function Resolve-RepoPath {
   return $null
 }
 
-function Get-FrontMatterBlock {
-  param([string]$Path, [int]$Depth = 0)
-  if (-not (Test-Path $Path)) { return $null }
-  $lines = Get-Content -Path $Path
-  if ($lines.Count -lt 2 -or $lines[0].Trim() -ne '---') { return $null }
-  for ($i = 1; $i -lt $lines.Count; $i++) {
-    if ($lines[$i].Trim() -eq '---') {
-      if ($i -le 1) { return @{ Text = ""; Lines = @() } }
-      $blockLines = @($lines[1..($i - 1)])
-      $text = ($blockLines -join [Environment]::NewLine)
-      $pointer = [regex]::Match($text, 'business_factsheet\s*:\s*"([^"]+)"')
-      if ($pointer.Success -and $Depth -lt 5) {
-        $target = Join-Path -Path (Split-Path -Parent $Path) -ChildPath $pointer.Groups[1].Value
-        if (Test-Path $target) {
-          return Get-FrontMatterBlock -Path $target -Depth ($Depth + 1)
-        }
-      }
-      return @{
-        Text  = $text
-        Lines = $blockLines
-      }
-    }
+function logical_expression_to_dax {
+  param([string]$logical, [string]$aggregation_method)
+  # Einfache Muster: SUM, COUNT, DIVIDE, AVERAGE, einfache Arithmetik
+  if (-not $logical) { return $null }
+  $expr = $logical.Trim()
+  # SUM ( tab[col] )
+  if ($expr -match '^.*=\s*SUM\s*\(\s*([\w\[\]\.]+)\s*\)\s*$') {
+    return "SUM ( $($matches[1]) )"
+  }
+  # COUNT ( tab[col] )
+  if ($expr -match '^.*=\s*COUNT\s*\(\s*([\w\[\]\.]+)\s*\)\s*$') {
+    return "COUNT ( $($matches[1]) )"
+  }
+  # AVERAGE ( tab[col] )
+  if ($expr -match '^.*=\s*AVERAGE\s*\(\s*([\w\[\]\.]+)\s*\)\s*$') {
+    return "AVERAGE ( $($matches[1]) )"
+  }
+  # Einfache Division: ([A] - [B]) / [B]
+  if ($expr -match '^.*=\s*\(([^\)]+)\)\s*/\s*\(([^\)]+)\)\s*$') {
+    return "DIVIDE ( $($matches[1].Trim()), $($matches[2].Trim()) )"
+  }
+  # Einfache Division: [A] / [B]
+  if ($expr -match '^.*=\s*([\w\[\]\.]+)\s*/\s*([\w\[\]\.]+)\s*$') {
+    return "DIVIDE ( $($matches[1]), $($matches[2]) )"
+  }
+  # Fallback: alles nach dem Gleichheitszeichen als DAX übernehmen
+  if ($expr -match '^.*=\s*(.+)$') {
+    return $matches[1].Trim()
   }
   return $null
 }
 
-function Parse-IdsFromFrontMatter {
-  param([string]$FrontMatter,[string]$Field)
-  if (-not $FrontMatter) { return @() }
-  $escaped = [regex]::Escape($Field)
-  $inline = [regex]::Match($FrontMatter, "^\s*$escaped\s*:\s*\[(.*?)\]", 'Multiline,Singleline')
-  $items = @()
-  if ($inline.Success) {
-    foreach ($match in [regex]::Matches($inline.Groups[1].Value, '"([^"]+)"|''([^'']+)''|([^,\s\]]+)')) {
-      $value = if ($match.Groups[1].Success) { $match.Groups[1].Value }
-               elseif ($match.Groups[2].Success) { $match.Groups[2].Value }
-               else { $match.Groups[3].Value }
-      if ($value) { $items += $value }
-    }
-    return $items
+function Build-MeasureBlock {
+  param($Measure, [string]$DefaultDisplayFolder, [hashtable]$TrustScores)
+  $t1 = "`t"
+  $t2 = "`t`t"
+  $lines = @()
+  if ($Measure.kpi_id -or $Measure.kpi_key) {
+    $label = $Measure.kpi_key
+    if (-not $label) { $label = $Measure.name }
+    $lines += ($t1 + "/// " + $Measure.kpi_id + " - " + $label)
   }
-  $block = [regex]::Match($FrontMatter, "(?ms)^\s*$escaped\s*:\s*(?:#.*)?\r?\n(?<body>(?:\s{2,}-\s*[^\r\n]*\r?\n?)+)")
+  $trustScore = $null
+  if ($TrustScores -and $Measure.kpi_id -and $TrustScores.ContainsKey($Measure.kpi_id)) {
+    $trustScore = $TrustScores[$Measure.kpi_id]
+    if ($trustScore -eq 0) {
+      $lines += ($t1 + "/// [!] UNTRUSTED - Data Contract validation failed for this KPI. trust_score=0")
+    }
+  }
+  if ($Measure.purpose) { $lines += ($t1 + "/// " + $Measure.purpose) }
+  elseif ($Measure.description) { $lines += ($t1 + "/// " + $Measure.description) }
+  $name = $Measure.name.Replace("'", "''")
+  if ($Measure.missing) {
+    $lines += ($t1 + "/// MISSING in KPI catalog: " + $Measure.kpi_id)
+    $daxOneLine = "// TODO BLANK()"
+  } else {
+    $expr = $null
+    if ($Measure.dax_expression) {
+      $expr = $Measure.dax_expression
+    } elseif ($Measure.logical) {
+      $expr = logical_expression_to_dax $Measure.logical $Measure.aggregation_method
+    }
+    if (-not $expr) { $expr = "BLANK()" }
+    $daxOneLine = ($expr -split "\r?\n" | ForEach-Object { $_.Trim() } | Where-Object { $_ }) -join " "
+  }
+  $lines += ($t1 + "measure '$name' = " + $daxOneLine)
+  $formatString = Resolve-MeasureFormatString -Measure $Measure
+  if ($formatString) { $lines += ($t2 + "formatString: \"" + $formatString.Replace('"', '""') + "\"") }
+  $displayFolder = if ($Measure.display_folder) { $Measure.display_folder } else { $DefaultDisplayFolder }
+  if ($displayFolder) { $lines += ($t2 + "displayFolder: \"" + $displayFolder.Replace('"', '\"') + "\"") }
+  if ($null -ne $trustScore) {
+    $lines += ($t2 + "annotation ActionReady_TrustScore = \"$trustScore\"")
+  }
+  $lines += ""
+  return $lines
+}
   if ($block.Success) {
     foreach ($line in ($block.Groups['body'].Value -split "\r?\n")) {
       $trimmed = $line.Trim()

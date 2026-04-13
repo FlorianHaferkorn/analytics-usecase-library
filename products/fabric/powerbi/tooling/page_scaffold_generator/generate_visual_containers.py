@@ -87,11 +87,7 @@ def _build_visual_container(
                     }
                 }
             },
-            "objects": {},
             "drillFilterOtherVisuals": True,
-        },
-        "visualContainerObjects": {
-            "visualHeader": [{"properties": {"showTooltipButton": {"expr": {"Literal": {"Value": "true"}}}}}]
         },
     }
 

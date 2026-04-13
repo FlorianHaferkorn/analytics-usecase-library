@@ -48,7 +48,6 @@ class VisualBuilder:
             },
             "visual": {
                 "visualType": visual_type,
-                "objects": {},
                 "drillFilterOtherVisuals": True
             }
         }
@@ -78,11 +77,6 @@ class VisualBuilder:
             "queryRef": f"{entity}.{property_name}",
             "nativeQueryRef": property_name
         }
-
-    def _visual_header_with_title(self, title: Optional[str] = None) -> Dict[str, Any]:
-        """Visual header. Schema allows only showTooltipButton; title/text not supported in visualContainer 2.3.0."""
-        props = {"showTooltipButton": {"expr": {"Literal": {"Value": "true"}}}}
-        return {"visualHeader": [{"properties": props}]}
 
     def build_kpi_card(
         self,
@@ -122,8 +116,6 @@ class VisualBuilder:
             ]
         }
         
-        visual["visual"]["visualContainerObjects"] = self._visual_header_with_title(title)
-
         # Cards use "Data" role for measure aggregation
         projections = [self._measure_projection(measure_ref)] if measure_ref else []
         visual["visual"]["query"] = {
@@ -168,7 +160,6 @@ class VisualBuilder:
                 }
             ]
         }
-        visual["visual"]["visualContainerObjects"] = self._visual_header_with_title(title)
         # Cards use "Data" role for measure aggregation
         projections = [self._measure_projection(m) for m in measure_refs] if measure_refs else []
         visual["visual"]["query"] = {
@@ -209,18 +200,6 @@ class VisualBuilder:
                 "Y": {"projections": y_proj},
             }
         }
-        visual["visual"]["objects"] = {
-            "legend": [
-                {
-                    "properties": {
-                        "show": {"expr": {"Literal": {"Value": "true"}}},
-                        "showTitle": {"expr": {"Literal": {"Value": "false"}}}
-                    }
-                }
-            ]
-        }
-        if title:
-            visual["visual"]["visualContainerObjects"] = self._visual_header_with_title(title)
         return visual
     
     def build_waterfall(
@@ -330,8 +309,6 @@ class VisualBuilder:
                 }
             ]
         }
-        if title:
-            visual["visual"]["visualContainerObjects"] = self._visual_header_with_title(title)
         return visual
 
     def build_stacked_bar(

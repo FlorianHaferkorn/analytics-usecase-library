@@ -20,6 +20,9 @@
       "type": "RegisteredResources"
     }
   },
+  "filterConfig": {
+    "filters": []
+  },
   "objects": {
     "section": [
       {
@@ -48,6 +51,18 @@
       }
     ]
   },
+  "settings": {
+    "useStylableVisualContainerHeader": true,
+    "exportDataMode": "AllowSummarized",
+    "defaultFilterActionIsDataFilter": true,
+    "defaultDrillFilterOtherVisuals": true,
+    "allowChangeFilterTypes": true,
+    "useEnhancedTooltips": true,
+    "useDefaultAggregateDisplayName": true,
+    "queryLimitOption": "None",
+    "customMemoryLimit": "1048576",
+    "customTimeoutLimit": "225"
+  },
   "resourcePackages": [
     {
       "name": "SharedResources",
@@ -71,17 +86,5 @@
         }
       ]
     }
-  ],
-  "settings": {
-    "useStylableVisualContainerHeader": true,
-    "exportDataMode": "AllowSummarized",
-    "defaultFilterActionIsDataFilter": true,
-    "defaultDrillFilterOtherVisuals": true,
-    "allowChangeFilterTypes": true,
-    "useEnhancedTooltips": true,
-    "useDefaultAggregateDisplayName": true,
-    "queryLimitOption": "None",
-    "customMemoryLimit": "1048576",
-    "customTimeoutLimit": "225"
-  }
+  ]
 }

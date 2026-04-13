@@ -12,9 +12,11 @@ Set-Location $repoRoot
 
 Write-Host "Generating measures for all use cases..." -ForegroundColor Cyan
 
-$generator = Join-Path $scriptRoot "generate\generate_tmdl_measures.ps1"
+
+# Korrigierter Pfad: Skript liegt direkt im selben Verzeichnis
+$generator = Join-Path $scriptRoot "generate_tmdl_measures.ps1"
 if (-not (Test-Path $generator)) {
-  throw "Generator script not found: tools/generate/generate_tmdl_measures.ps1"
+  throw "Generator script not found: tooling/generation/generate_tmdl_measures.ps1"
 }
 
 $args = @()

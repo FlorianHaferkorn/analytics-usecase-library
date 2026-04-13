@@ -11,6 +11,7 @@
   },
   "visual": {
     "visualType": "cardVisual",
+    "drillFilterOtherVisuals": true,
     "objects": {
       "layout": [
         {
@@ -19,22 +20,6 @@
               "expr": {
                 "Literal": {
                   "Value": "4L"
-                }
-              }
-            }
-          }
-        }
-      ]
-    },
-    "drillFilterOtherVisuals": true,
-    "visualContainerObjects": {
-      "visualHeader": [
-        {
-          "properties": {
-            "showTooltipButton": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
                 }
               }
             }

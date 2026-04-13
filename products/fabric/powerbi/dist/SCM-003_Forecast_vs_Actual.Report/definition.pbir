@@ -3,7 +3,7 @@
   "version": "4.0",
   "datasetReference": {
     "byPath": {
-      "path": "../../../showcases/aurora_group/semantic_models/Commercial.SemanticModel"
+      "path": "../SupplyChain.SemanticModel"
     }
   }
 }

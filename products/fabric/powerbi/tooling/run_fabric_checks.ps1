@@ -78,6 +78,7 @@ $checkDax = Join-Path $validationDir "check_dax_best_practices.ps1"
   $checkTmdlSyntax = Join-Path $validationDir "check_tmdl_syntax.ps1"
   $checkPbipReadiness = Join-Path $validationDir "check_tmdl_pbip_readiness.ps1"
   $checkDiagramLayout = Join-Path $validationDir "check_diagram_layout.ps1"
+  $checkThemeCompliance = Join-Path $validationDir "check_report_theme_compliance.py"
 
   if (-not (Test-Path $checkMeasures)) { Write-Error "Check script not found: $checkMeasures"; exit 1 }
   if (-not (Test-Path $checkTmdl)) { Write-Error "Check script not found: $checkTmdl"; exit 1 }
@@ -148,6 +149,13 @@ try {
     Write-Host ""
     Write-Host ">> check_page_template_compliance.py" -ForegroundColor Cyan
     Invoke-Python3 -Arguments @($checkCompliance, "--dist-root", $distRootResolved)
+    if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
+  }
+
+  if (Test-Path $checkThemeCompliance) {
+    Write-Host ""
+    Write-Host ">> check_report_theme_compliance.py" -ForegroundColor Cyan
+    Invoke-Python3 -Arguments @($checkThemeCompliance, "--dist-root", $distRootResolved)
     if ($LASTEXITCODE -ne $null -and $LASTEXITCODE -ne 0) { $failed++ }
   }
 

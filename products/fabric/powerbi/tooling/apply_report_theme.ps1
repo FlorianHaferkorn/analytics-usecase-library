@@ -33,7 +33,7 @@ if ($ThemePath) {
     if ($Secondary) { $scriptArgs += "--secondary", $Secondary }
 } else {
     Write-Error "Provide -ThemePath or -ThemeName."
-    exit 1
+    return
 }
 if ($CustomName) { $scriptArgs += "--custom-name", $CustomName }
 if ($BaseTheme) { $scriptArgs += "--base-theme", $BaseTheme }
@@ -49,8 +49,10 @@ foreach ($c in @("py", "python3", "python")) {
 }
 if (-not $pyExe) {
     Write-Error "Python 3 not found. Install Python 3 or ensure py/python3/python is in PATH."
-    exit 1
+    return
 }
 # Invoke: exe, script path, script args (report path, --theme-name, ...). No version flag to avoid launcher argv issues.
 & $pyExe $pyScript @scriptArgs
-exit $LASTEXITCODE
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "apply_report_theme.py failed with exit code $LASTEXITCODE."
+}

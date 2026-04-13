@@ -4,6 +4,67 @@ Reference document for **where which visual is placed and why** on the two stand
 
 ---
 
+# Tool-agnostisches 3-30-300 Page Template (Whitelist-basiert)
+
+## 1. Use Case Summary
+Use Case Name: <Platzhalter>
+Business Objective: <Platzhalter>
+Target User: <Platzhalter>
+Primary Decision: <Platzhalter>
+
+## 2. Core Business Questions
+- Frage 1: <Platzhalter>
+- Frage 2: <Platzhalter>
+- Frage 3: <Platzhalter>
+
+## 3. Standard 3-30-300 Page Structure
+### 3-Second Layer
+- Zweck: Status/Signal (Was ist passiert?)
+- KPI/Status: Headline-KPIs
+- Empfohlenes Visual: kpi_card (Whitelist)
+- Warum dieses Visual: Sofortiger Überblick über Zielerreichung und Abweichung
+
+### 30-Second Layer
+- Zweck: Treiber, Vergleich, Segmentierung (Warum ist es passiert?)
+- Treiber / Vergleich / Segmentierung: Trend, Ranking, Abweichung
+- Empfohlenes Visual: trend_line, bar_chart, waterfall (Whitelist)
+- Warum dieses Visual: Zeigt Entwicklung, Treiber und Segmentunterschiede klar auf
+
+### 300-Second Layer
+- Zweck: Diagnose, Ursachen, Drilldown (Was bedeutet es? Was tun?)
+- Diagnose / Ursachen / Drilldown: Detaildaten, operative Liste, Maßnahmen
+- Empfohlenes Visual: matrix, smart_narrative, ranking (Whitelist)
+- Warum dieses Visual: Ermöglicht gezielte Analyse und Ableitung von Maßnahmen
+
+## 4. Slicers and Defaults
+- Pflichtslicer: slicer (Whitelist) – z.B. Zeitraum, Region, Produkt
+- Default Filter: <Platzhalter>
+- Kontext, der immer sichtbar sein muss: Aktueller Filterkontext, ggf. Smart Narrative
+
+## 5. Storytelling Logic
+- Signal: kpi_card
+- Treiber: trend_line, bar_chart, waterfall
+- Ursache: matrix, ranking
+- Konsequenz: smart_narrative, ggf. ActionPanel
+- Entscheidung: Ableitung aus den Visuals, ggf. ActionPanel
+
+## 6. Exceptions to Standard Layout
+Nur falls notwendig: <Platzhalter für Begründung und Alternative>
+
+## 7. Design Rules
+- Weniger ist mehr.
+- Jede Visualisierung muss einen klaren Zweck haben.
+- Keine redundanten Charts.
+- Jede Ebene muss auf die nächste vorbereiten.
+- Die Story muss den User zur Entscheidung führen, nicht nur zur Beobachtung.
+
+---
+
+**Hinweis:**
+- Es dürfen ausschließlich Visualtypen aus der [Visual Whitelist](visual_whitelist.md) verwendet werden.
+- Die konkrete Visualauswahl pro Use Case erfolgt nach Story-Funktion, nicht nach Standard.
+- Für die Umsetzung in Power BI oder Evidence werden die Visualtypen per Übersetzer gemappt.
+
 ## Purpose by layer
 
 - **3 seconds:** One glance — headline KPIs and status vs. target.
