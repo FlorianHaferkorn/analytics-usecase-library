@@ -1,0 +1,17 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "2b4cfb099c17d4fc6a72",
+  "position": {
+    "x": 27,
+    "y": 190,
+    "z": 12000,
+    "height": 989.26829268292681,
+    "width": 1860.1044493944555,
+    "tabOrder": 14000
+  },
+  "visualGroup": {
+    "displayName": "Cancellations",
+    "groupMode": "ScaleMode"
+  },
+  "isHidden": true
+}

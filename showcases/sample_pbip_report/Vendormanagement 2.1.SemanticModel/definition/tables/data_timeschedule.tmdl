@@ -1,0 +1,252 @@
+table data_timeschedule
+	isHidden
+	lineageTag: 00fca501-aa72-42a0-b98b-3c455c47413e
+
+	column collChoiceMeetingTill
+		dataType: string
+		isHidden
+		lineageTag: ace5fe84-2da7-4b48-af2a-bd1769987a6e
+		summarizeBy: none
+		sourceColumn: collChoiceMeetingTill
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		dataType: string
+		isHidden
+		lineageTag: 5f7dc5e7-479a-4396-9630-67ec1ebbb83d
+		summarizeBy: none
+		sourceColumn: Year
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Season Month'
+		dataType: string
+		lineageTag: 3a5ba150-d46a-4c72-aad5-8e6d29b43dee
+		summarizeBy: none
+		sourceColumn: Season Month
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Creative Kickoff'
+		dataType: string
+		lineageTag: f5887866-cd76-4539-bc6c-c9cf7f60b980
+		summarizeBy: none
+		sourceColumn: Creative Kickoff
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Seasonal Briefing Till'
+		dataType: string
+		lineageTag: d1314279-ec02-4cea-88ae-85ba2d9b2b54
+		summarizeBy: none
+		sourceColumn: Seasonal Briefing Till
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Concept Meeting From'
+		dataType: string
+		lineageTag: 41e581fb-89ae-4ceb-9910-df12b322af90
+		summarizeBy: none
+		sourceColumn: Concept Meeting From
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Concept Meeting Till'
+		dataType: string
+		lineageTag: cd22cdab-5567-426c-b9f5-077da9e6db53
+		summarizeBy: none
+		sourceColumn: Concept Meeting Till
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Deadline: WS ex Proto'
+		dataType: string
+		lineageTag: 9043dd1c-18a7-453a-a912-24fe0f5dbb19
+		summarizeBy: none
+		sourceColumn: Deadline: WS ex Proto
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Collection Definition From'
+		dataType: string
+		lineageTag: d4e25169-a4ef-4068-a10f-903a3e399d60
+		summarizeBy: none
+		sourceColumn: Collection Definition From
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Deadline: Proto Comment ex'
+		dataType: string
+		lineageTag: 85e604dc-4c0c-4074-bb06-94c2a95249e2
+		summarizeBy: none
+		sourceColumn: Deadline: Proto Comment ex
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Deadline: Proto Sample Ex Country'
+		dataType: string
+		lineageTag: e1656232-a2bd-47fb-84f5-727f4e465f44
+		summarizeBy: none
+		sourceColumn: Deadline: Proto Sample Ex Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Deadline: SMS Ex Country'
+		dataType: string
+		lineageTag: a6bd675a-b076-4058-8449-963c516204f3
+		summarizeBy: none
+		sourceColumn: Deadline: SMS Ex Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Collection Review From'
+		dataType: string
+		lineageTag: 68b92fcf-d8d0-4eda-8e8e-9530be5c9eb2
+		summarizeBy: none
+		sourceColumn: Collection Review From
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Collection Review Till / SAP published'
+		dataType: string
+		lineageTag: 13ef212b-13fa-430a-9ebb-67a7f6e8ef13
+		summarizeBy: none
+		sourceColumn: Collection Review Till / SAP published
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sales Presentation'
+		dataType: string
+		lineageTag: 0cc71de4-c4d8-4f66-8271-e27900eb66df
+		summarizeBy: none
+		sourceColumn: Sales Presentation
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sales Period From'
+		dataType: string
+		lineageTag: b55e6558-397e-49ee-8630-e0f1bfab7363
+		summarizeBy: none
+		sourceColumn: Sales Period From
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Cancellation Meeting'
+		dataType: string
+		lineageTag: 578bef6a-07fa-4680-a187-c1e5d1daebac
+		summarizeBy: none
+		sourceColumn: Cancellation Meeting
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sales Period Till'
+		dataType: string
+		lineageTag: 9870787e-a3c0-4bf7-bc82-60da5ee7f776
+		summarizeBy: none
+		sourceColumn: Sales Period Till
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Final Order'
+		dataType: string
+		lineageTag: cf07d58f-8c9f-4138-b129-274f62681140
+		summarizeBy: none
+		sourceColumn: Final Order
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Final Production WS'
+		dataType: string
+		lineageTag: e8099a01-deca-44c9-a678-22f9ca70758e
+		summarizeBy: none
+		sourceColumn: Final Production WS
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Delivery Time From'
+		dataType: string
+		lineageTag: a18caee5-b9e0-45f4-abe9-61f30f37767d
+		summarizeBy: none
+		sourceColumn: Delivery Time From
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Delivery Time Till'
+		dataType: string
+		lineageTag: f5de2c35-8f57-47d7-a7d8-23bb722124f7
+		summarizeBy: none
+		sourceColumn: Delivery Time Till
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Modified Date'
+		dataType: string
+		lineageTag: 3e19ec53-741c-4fbe-8478-8cb47a514ada
+		summarizeBy: none
+		sourceColumn: Modified Date
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Deadline: Material Block'
+		dataType: string
+		lineageTag: 512e222c-ce33-40b0-8c07-21fdd7e9033b
+		summarizeBy: none
+		sourceColumn: Deadline: Material Block
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Review Time'
+		dataType: string
+		lineageTag: c16ab2c6-a5f6-4c02-bfcf-fa23c28221c5
+		summarizeBy: none
+		sourceColumn: Review Time
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Gender ID'
+		dataType: string
+		lineageTag: 3429bc34-47c7-4278-a35b-cceb54aac969
+		summarizeBy: none
+		sourceColumn: Gender ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Line ID'
+		dataType: string
+		lineageTag: 0464a96a-43f8-4875-8090-c69a060dd4d6
+		summarizeBy: none
+		sourceColumn: Line ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Collection Type ID'
+		dataType: string
+		lineageTag: f83a5038-f5fb-4cf7-bbb5-08ca11b6940d
+		summarizeBy: none
+		sourceColumn: Collection Type ID
+
+		annotation SummarizationSetBy = Automatic
+
+	partition data_timeschedule = m
+		mode: import
+		source =
+				let
+				    Quelle = Excel.Workbook(File.Contents(File_Source), null, true),
+				    data_timeschedule_Sheet = Quelle{[Item="data_timeschedule",Kind="Sheet"]}[Data],
+				    #"Höher gestufte Header" = Table.PromoteHeaders(data_timeschedule_Sheet, [PromoteAllScalars=true]),
+				    #"Geänderter Typ" = Table.TransformColumnTypes(#"Höher gestufte Header",{{"LookupItem ID", type text}, {"Gender ID", type text}, {"Gender", type text}, {"Line ID", type text}, {"Line", type text}, {"Sub Division ID", type text}, {"Collection Type ID", type text}, {"Collection Type", type text}, {"LookupItem", type text}, {"Season Year", type text}, {"Season Month", type text}, {"Season", type text}, {"Timeschedule Theme", type text}, {"Timeschedule Theme ID", Int64.Type}, {"Creative Kickoff", type text}, {"Seasonal Briefing Till", type text}, {"Concept Meeting From", type text}, {"Concept Meeting Till", type text}, {"Deadline: WS ex Proto", type text}, {"Collection Definition From", type text}, {"collChoiceMeetingTill", type text}, {"Deadline: Proto Comment ex", type text}, {"Deadline: Proto Sample Ex Country", type text}, {"Deadline: SMS Ex Country", type text}, {"Collection Review From", type text}, {"Collection Review Till / SAP published", type text}, {"Sales Presentation", type text}, {"Sales Period From", type text}, {"Cancellation Meeting", type text}, {"Sales Period Till", type text}, {"Final Order", type text}, {"Final Production WS", type text}, {"Delivery Time From", type text}, {"Delivery Time Till", type text}, {"Modified Date", type text}, {"trackingHash", type text}, {"Year", type text}, {"Deadline: Material Block", type text}, {"Review Time", type text}}),
+				    #"Columns removed by Measure Killer"= Table.RemoveColumns(#"Geänderter Typ",{"LookupItem ID", "Season", "Timeschedule Theme ID", "Timeschedule Theme", "Sub Division ID", "LookupItem", "Season Year", "trackingHash", "Gender", "Line", "Collection Type"})
+				in
+				#"Columns removed by Measure Killer"
+
+	changedProperty = IsHidden
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

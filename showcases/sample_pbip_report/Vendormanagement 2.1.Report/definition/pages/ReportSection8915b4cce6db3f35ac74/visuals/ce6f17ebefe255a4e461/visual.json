@@ -1,0 +1,295 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "ce6f17ebefe255a4e461",
+  "position": {
+    "x": 800.48780487804879,
+    "y": 13.17073170731706,
+    "z": 2000,
+    "height": 960,
+    "width": 740.48780487804879,
+    "tabOrder": 23000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Planning Data",
+                    "textStyle": {
+                      "fontFamily": "Segoe (Bold)",
+                      "fontSize": "16pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "﻿For ",
+                    "textStyle": {
+                      "fontSize": "16pt"
+                    }
+                  },
+                  {
+                    "value": "2022",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "16pt"
+                    }
+                  },
+                  {
+                    "value": ", the buying capacity planning is based on a company planning of approximately 1.2 Bn € WHSSP. ",
+                    "textStyle": {
+                      "fontSize": "16pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "The planned purchase order volume for 2022 is around 52,4 Mio. pcs and 436,3 Mio. € which is based on the Purchase Price Ratio Targets.",
+                    "textStyle": {
+                      "fontSize": "21.3333px"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "For ",
+                    "textStyle": {
+                      "fontSize": "16pt"
+                    }
+                  },
+                  {
+                    "value": "2023",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "16pt"
+                    }
+                  },
+                  {
+                    "value": ", the buying capacity planning is based on a company planning of approximately 860 Mio. € WHSSP. ",
+                    "textStyle": {
+                      "fontSize": "16pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Furthermore, due to overstocking and poor sales performance in the actual figures of 2023/01-2023/06, the buying capacity planning is reduced to 39 Mio. pcs and approximately 370 Mio. €.",
+                    "textStyle": {
+                      "fontSize": "16pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "The buying planning figures for ",
+                    "textStyle": {
+                      "fontSize": "16pt"
+                    }
+                  },
+                  {
+                    "value": "2024",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "16pt"
+                    }
+                  },
+                  {
+                    "value": " are based on the company planning of approximately 740 Mio. €. ",
+                    "textStyle": {
+                      "fontSize": "16pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "The planned purchase order volume for 2024 is around 37,5 Mio. pcs and 329,5 Mio. € which is based on the Purchase Price Ratio Targets.",
+                    "textStyle": {
+                      "fontSize": "16pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Measures",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "16pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Forecast",
+                    "textStyle": {
+                      "fontStyle": "italic",
+                      "fontSize": "16pt"
+                    }
+                  },
+                  {
+                    "value": " is a mix of actual and planning data. ",
+                    "textStyle": {
+                      "fontSize": "16pt"
+                    }
+                  },
+                  {
+                    "value": "14 days after the sales period of a season this season is considered as \"released\", which means the actual values are counted in the forecast.",
+                    "textStyle": {
+                      "fontSize": "21.3333px"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Forecast (Trend)",
+                    "textStyle": {
+                      "fontStyle": "italic",
+                      "fontSize": "16pt"
+                    }
+                  },
+                  {
+                    "value": " is a mix of actual and planning data considering the difference for all released seasons between actual and plan (=Trend). ",
+                    "textStyle": {
+                      "fontSize": "16pt"
+                    }
+                  },
+                  {
+                    "value": "14 days after the sales period of a season this season is considered as \"released\", which means the actual values are counted in the forecast.",
+                    "textStyle": {
+                      "fontSize": "21.3333px"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Final Purchase Orders %",
+                    "textStyle": {
+                      "fontStyle": "italic",
+                      "fontSize": "16pt"
+                    }
+                  },
+                  {
+                    "value": " indicates the percentage of Purchase Orders finalized (Sales Contract was sent to vendor).",
+                    "textStyle": {
+                      "fontSize": "16pt"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "parentGroupName": "0d69fcb597ce537f49f0"
+}

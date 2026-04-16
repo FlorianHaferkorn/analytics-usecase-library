@@ -1,0 +1,104 @@
+table 'CTDB_data (LINK)'
+	lineageTag: 0720516d-1f3c-4cf1-bb56-edd25355946c
+
+	column #
+		dataType: string
+		lineageTag: 0ae1acc0-4c5c-4468-8490-5312b19900b5
+		summarizeBy: none
+		sourceColumn: #
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status
+		dataType: string
+		lineageTag: 81bb3e4e-e625-44ed-b42c-8095d01ede7e
+		summarizeBy: none
+		sourceColumn: Status
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Valid Until'
+		dataType: string
+		lineageTag: 423911ea-9f12-4bdd-b058-1ebd47285507
+		summarizeBy: none
+		sourceColumn: Valid Until
+
+		changedProperty = IsHidden
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Requested Date'
+		dataType: string
+		lineageTag: 4dd888fa-6aa6-4a61-ae5d-076114f7005e
+		summarizeBy: none
+		sourceColumn: Requested Date
+
+		changedProperty = IsHidden
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Report Needed By'
+		dataType: string
+		lineageTag: 5853adc8-d195-486a-90c4-d1cf56b632bd
+		summarizeBy: none
+		sourceColumn: Report Needed By
+
+		changedProperty = IsHidden
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column Parameter
+		dataType: string
+		lineageTag: c2116168-860d-4da3-b614-156927f3ba38
+		summarizeBy: none
+		sourceColumn: Parameter
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column RT_CONFMAT
+		dataType: string
+		isHidden
+		lineageTag: e92c65b7-e2d5-4fee-a2e0-cc33061981a5
+		summarizeBy: none
+		sourceColumn: RT_CONFMAT
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Conclusion
+		dataType: string
+		lineageTag: 83219f22-3743-40fd-b7c3-c274e6bf98b1
+		summarizeBy: none
+		sourceColumn: Conclusion
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'CTDB_data (LINK)-0f0b38bb-a189-4fe6-a1cf-1825f4542357' = m
+		mode: import
+		source =
+				let
+				    Quelle = Excel.Workbook(File.Contents(File_Source), null, true),
+				    #"CTDB_data (LINK)_Sheet" = Quelle{[Item="CTDB_data (LINK)",Kind="Sheet"]}[Data],
+				    #"Höher gestufte Header" = Table.PromoteHeaders(#"CTDB_data (LINK)_Sheet", [PromoteAllScalars=true]),
+				    #"Geänderter Typ" = Table.TransformColumnTypes(#"Höher gestufte Header",{{"#", type text}, {"s.O. Style/material color code", type text}, {"PO Number", type text}, {"Status", type text}, {"Testing Lab Site", type text}, {"Valid Until", type date}, {"Requested Date", type date}, {"Report Needed By", type date}, {"Parameter", type text}, {"Substance", type text}, {"Material", type text}, {"Value", type any}, {"Material Supplier", type text}, {"Decision", type text}, {"Reason/Action", type text}, {"Root Cause", type text}, {"detailed information on performed rework", type text}, {"Report Date", type date}, {"Conclusion", type text}, {"RT_CONFMAT", type text}}),
+				    #"Columns removed by Measure Killer"= Table.RemoveColumns(#"Geänderter Typ",{"Material","Root Cause","Substance","Material Supplier","Report Date","detailed information on performed rework","PO Number","Value","Decision","s.O. Style/material color code","Testing Lab Site","Reason/Action"})
+				in
+				#"Columns removed by Measure Killer"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

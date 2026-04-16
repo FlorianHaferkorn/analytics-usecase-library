@@ -1,0 +1,81 @@
+table CPBI_PLANKURS
+	isHidden
+	lineageTag: f1203580-6338-4ed1-8fba-cd96978b07ea
+
+	column Von-Waehrung
+		dataType: string
+		isHidden
+		lineageTag: 81a472f9-e7c6-4d3f-bac7-64bc535b745c
+		summarizeBy: none
+		sourceColumn: Von-Waehrung
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Nach-Waehrung
+		dataType: string
+		isHidden
+		lineageTag: dfddfad3-16d8-4c75-8628-60f0014e7962
+		summarizeBy: none
+		sourceColumn: Nach-Waehrung
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Datum
+		dataType: dateTime
+		isHidden
+		formatString: dd.mm.yyyy
+		lineageTag: 508e5c5d-5cff-4bca-a07a-00815973b8b1
+		summarizeBy: none
+		sourceColumn: Datum
+
+		variation Variation
+			isDefault
+			relationship: b08afff4-9d6f-48f5-8c17-83b44d2b3c3a
+			defaultHierarchy: LocalDateTable_18843a25-0ef3-4fbe-b7a4-beaa3ce685bf.Datumshierarchie
+
+		changedProperty = IsHidden
+
+		changedProperty = SortByColumn
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column Kurs
+		dataType: double
+		isHidden
+		lineageTag: 734667fb-e549-4a9c-b2a7-7f8f887e6381
+		summarizeBy: none
+		sourceColumn: Kurs
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition CPBI_PLANKURS-e32e937d-71af-4cfd-a893-168c1cf33624 = m
+		mode: import
+		source =
+				let
+				    Quelle = Excel.Workbook(File.Contents(File_Source), null, true),
+				    CPBI_PLANKURS_Sheet = Quelle{[Item="CPBI_PLANKURS",Kind="Sheet"]}[Data],
+				    #"Höher gestufte Header" = Table.PromoteHeaders(CPBI_PLANKURS_Sheet, [PromoteAllScalars=true]),
+				    #"Geänderter Typ" = Table.TransformColumnTypes(#"Höher gestufte Header",{{"Von-Waehrung", type text}, {"Nach-Waehrung", type text}, {"Datum", type date}, {"Kurs", type number}})
+				in
+				    #"Geänderter Typ"
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

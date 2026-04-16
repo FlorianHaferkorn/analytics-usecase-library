@@ -1,0 +1,146 @@
+table Sustainability
+	lineageTag: 0f905b42-8907-465c-b7d1-831da2aa40ee
+
+	column 'Last Assessment Date'
+		dataType: string
+		lineageTag: 21625287-9158-40a3-a187-429290f70aeb
+		summarizeBy: none
+		sourceColumn: Last Assessment Date
+
+		changedProperty = IsHidden
+
+		changedProperty = FormatString
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'External ID'
+		dataType: string
+		isHidden
+		lineageTag: aa4ce9f3-7dd0-4751-b5fa-ca3afa5e18c3
+		summarizeBy: none
+		sourceColumn: External ID
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Last Assessment Questionnaire'
+		dataType: string
+		lineageTag: d0396b82-ff28-4b96-8f1a-35f8b0aa9281
+		summarizeBy: none
+		sourceColumn: Last Assessment Questionnaire
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'KPI 3'
+		dataType: int64
+		isHidden
+		lineageTag: 7f68dfe4-25d9-4dbc-ba14-e13925de3758
+		summarizeBy: none
+		sourceColumn: KPI 3
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'KPI 4'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d1f733c3-e94a-4899-943f-daacc1ea4ff5
+		summarizeBy: sum
+		sourceColumn: KPI 4
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Wet processing' = ```
+			
+			    SWITCH(
+			        TRUE() ,
+			            Sustainability[KPI 4] <> BLANK() , "Yes" ,
+			            "No"
+			    )
+			```
+		lineageTag: f5893a42-c42f-4860-8bbd-e9347f36ad25
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'KPI 4a Digital Tool'
+		dataType: int64
+		formatString: 0
+		lineageTag: ed0554cc-01ac-4daf-8341-720cd54067c7
+		summarizeBy: sum
+		sourceColumn: KPI 4a Digital Tool
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'KPI 4b ZDHC wastewater'
+		dataType: int64
+		formatString: 0
+		lineageTag: 5b92dbcb-e9bf-4b70-8c91-6c993bf64ea6
+		summarizeBy: sum
+		sourceColumn: KPI 4b ZDHC wastewater
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Re-Assessment Date'
+		dataType: dateTime
+		formatString: dd.mm.yyyy
+		lineageTag: 89b44425-6c14-401f-b11a-682e459bb376
+		summarizeBy: none
+		sourceColumn: Re-Assessment Date
+
+		variation Variation
+			isDefault
+			relationship: ae128ac4-e18c-40a9-bb64-3e479d8ebc9d
+			defaultHierarchy: LocalDateTable_bd400602-dba9-43ba-9213-836cd3ee91b6.Datumshierarchie
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'KPI 1'
+		dataType: int64
+		formatString: 0
+		lineageTag: fecb6424-e592-4f69-b6aa-9b83d22236d5
+		summarizeBy: sum
+		sourceColumn: KPI 1
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'KPI 2'
+		dataType: int64
+		formatString: 0
+		lineageTag: 80908a8b-2ef3-4985-b56d-3ab723a0abd7
+		summarizeBy: sum
+		sourceColumn: KPI 2
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Sustainability-0e3cb9ec-e28a-42f9-8e6f-3615ff13e124 = m
+		mode: import
+		source =
+				let
+				    Quelle = Excel.Workbook(File.Contents(File_Source), null, true),
+				    Sustainability_Sheet = Quelle{[Item="Sustainability",Kind="Sheet"]}[Data],
+				    #"Höher gestufte Header" = Table.PromoteHeaders(Sustainability_Sheet, [PromoteAllScalars=true]),
+				    #"Geänderter Typ" = Table.TransformColumnTypes(#"Höher gestufte Header",{{"FFC Factory ID", type text}, {"Last Assessment Date", type date}, {"Re-Assessment Date", type date}, {"Assessment Status", type text}, {"External ID", type text}, {"Last Assessment Questionnaire", type text}, {"KPI 1", Int64.Type}, {"KPI 2", Int64.Type}, {"KPI 3", Int64.Type}, {"KPI 4", Int64.Type}, {"KPI 4a Digital Tool", Int64.Type}, {"KPI 4b ZDHC wastewater", Int64.Type}}),
+				    #"Columns removed by Measure Killer"= Table.RemoveColumns(#"Geänderter Typ",{"FFC Factory ID","Assessment Status"})
+				in
+				#"Columns removed by Measure Killer"
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

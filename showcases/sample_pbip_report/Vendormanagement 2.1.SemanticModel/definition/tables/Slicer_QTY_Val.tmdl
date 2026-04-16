@@ -1,0 +1,30 @@
+table Slicer_QTY_Val
+	isHidden
+	lineageTag: 98f3c670-fd8a-47a6-864d-93a74aaddeb7
+
+	column 'Measure Slicer'
+		dataType: string
+		isHidden
+		lineageTag: 95910255-7f2f-49dc-bfc5-4c73d27c58d0
+		summarizeBy: none
+		sourceColumn: Measure Slicer
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Slicer_QTY_Val-0a087082-5c60-4e5e-8027-2450070d6c0a = m
+		mode: import
+		source =
+				let
+				    Quelle = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WCvCPT87PS4svSC5WitVB8MsSc5RiYwE=", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [#"Measure Slicer" = _t]),
+				    #"Geänderter Typ" = Table.TransformColumnTypes(Quelle,{{"Measure Slicer", type text}}),
+				    #"Ersetzter Wert" = Table.ReplaceValue(#"Geänderter Typ","PO_conf_pcs","Quantity",Replacer.ReplaceText,{"Measure Slicer"}),
+				    #"Ersetzter Wert1" = Table.ReplaceValue(#"Ersetzter Wert","PO_conf_val","Value",Replacer.ReplaceText,{"Measure Slicer"})
+				in
+				    #"Ersetzter Wert1"
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+

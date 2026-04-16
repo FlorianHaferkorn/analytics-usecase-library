@@ -1,0 +1,447 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "QA Insights - Key Influencer",
+  "name": "Bookmark711e47c0a98584370749",
+  "options": {
+    "applyOnlyToTargetVisuals": true,
+    "targetVisualNames": [
+      "9bf114e4c062a04aeca2",
+      "5fa70e544a83a210006e",
+      "d98fb723b247996e01d0",
+      "22a01f6acac816e0a7d0",
+      "7cd337c0ec0230846732",
+      "e3da24cf0b22bb268d64",
+      "9f9b0447eed10b0a793b",
+      "636326d15846a93069e7",
+      "b456747075d6a706691a",
+      "d632b328a7ba8d7a200d",
+      "1d126e0b060eeeead8e1",
+      "2deffc3f1044df69221d",
+      "da7e5e30067763d283a4",
+      "c66d6d689c153fef1628",
+      "bf02d53f71b54317b459",
+      "99e5802a553b8cff20cf",
+      "372ba0ce5eb85dadfa40",
+      "d5783f1de60ff6ded4fb",
+      "af7871e6054321a0aa0e",
+      "09a4c0453d7eb533b075",
+      "02d44420244256d94ee1",
+      "4d6d6324ea54c7ca28b5",
+      "ed1e3a2600010c6687cb",
+      "05fac7d598b34908a19d",
+      "8c827115872e07b00e53",
+      "29d84dc5bb98718b26d8",
+      "c460985cd5453625ba41"
+    ],
+    "suppressActiveSection": true,
+    "suppressData": true
+  },
+  "explorationState": {
+    "version": "1.3",
+    "activeSection": "ReportSectionea72a6c4d027e9b403ab",
+    "filters": {
+      "byExpr": [
+        {
+          "name": "Filter1a8dd2026e4e36274ec7",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimTimetable_Season"
+                }
+              },
+              "Property": "Year_season"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter0c080e4b1322eaba0f6b",
+          "type": "Advanced",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimTimetable_Season"
+                }
+              },
+              "Property": "Season"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter43b25e22162a5950ac9a",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimSub Agency"
+                }
+              },
+              "Property": "Sub Agency"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filterceffa814ec63e8cd25d4",
+          "type": "Categorical",
+          "expression": {
+            "GroupRef": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Offshore/Nearshore",
+              "GroupedColumns": [
+                {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "dimVendor"
+                      }
+                    },
+                    "Property": "Sourcing Market"
+                  }
+                }
+              ]
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter714f07e8d5422d314b3a",
+          "type": "Categorical",
+          "expression": {
+            "GroupRef": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Sourcing Market",
+              "GroupedColumns": [
+                {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "dimVendor"
+                      }
+                    },
+                    "Property": "Sourcing Country"
+                  }
+                }
+              ]
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter2865fa4e3d9fb30ac8ad",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Sourcing Country"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter21794651177af0b73934",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Vendor"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter6f61545f5d5e4efcc4a3",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimManufacturer"
+                }
+              },
+              "Property": "Manufacturer"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter472025abe3f0b5d65c91",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimManufacturer"
+                }
+              },
+              "Property": "Production Country ID"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter81142fe12237faebdbcc",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimBrand"
+                }
+              },
+              "Property": "Brand"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter4853be03404a764225a2",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimGender"
+                }
+              },
+              "Property": "Gender"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter77448a9f1dcf977da76c",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimLine"
+                }
+              },
+              "Property": "Line"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter80be731a7422605ea600",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimMainclass"
+                }
+              },
+              "Property": "Main Class"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter806475335b830123d8a4",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimCollectionType"
+                }
+              },
+              "Property": "Collection Type"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filterb60ec981203e41c40602",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "Details"
+                }
+              },
+              "Property": "Purchase Order"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter5a692c15ea111d22277f",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "CPBI_MATERIAL"
+                }
+              },
+              "Property": "Style"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter4d254f21424be77b7dce",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "CPBI_MATERIAL"
+                }
+              },
+              "Property": "Retail Price (UVP) €"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter16f4fe986d9343ad0012",
+          "type": "Categorical",
+          "expression": {
+            "GroupRef": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "CPBI_MATERIAL"
+                }
+              },
+              "Property": "Key Look (Cluster)",
+              "GroupedColumns": [
+                {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "CPBI_MATERIAL"
+                      }
+                    },
+                    "Property": "Key Look"
+                  }
+                }
+              ]
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filterab67c76c705f492ef9ec",
+          "type": "Categorical",
+          "expression": {
+            "GroupRef": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "Details"
+                }
+              },
+              "Property": "Top 10",
+              "GroupedColumns": [
+                {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "Details"
+                      }
+                    },
+                    "Property": "HC_CATIND1"
+                  }
+                }
+              ]
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter4fded88ce8965c5dc6d9",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "Details"
+                }
+              },
+              "Property": "Ordersplit"
+            }
+          },
+          "howCreated": 1
+        }
+      ]
+    },
+    "sections": {
+      "ReportSectionea72a6c4d027e9b403ab": {
+        "visualContainers": {},
+        "visualContainerGroups": {
+          "e813311801862d1d6cae": {
+            "children": {
+              "3d6e794dd9957364e103": {
+                "isHidden": false
+              }
+            }
+          },
+          "9f9b0447eed10b0a793b": {
+            "isHidden": true
+          },
+          "d632b328a7ba8d7a200d": {
+            "isHidden": true,
+            "children": {
+              "02d44420244256d94ee1": {
+                "isHidden": false
+              }
+            }
+          },
+          "1d126e0b060eeeead8e1": {
+            "isHidden": false
+          }
+        }
+      }
+    },
+    "objects": {
+      "merge": {
+        "outspacePane": [
+          {
+            "properties": {
+              "expanded": {
+                "expr": {
+                  "Literal": {
+                    "Value": "false"
+                  }
+                }
+              },
+              "visible": {
+                "expr": {
+                  "Literal": {
+                    "Value": "true"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

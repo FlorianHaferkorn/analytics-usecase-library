@@ -1,0 +1,158 @@
+table 'QA Stop Claim (Centric)'
+	lineageTag: 97190c33-b2ac-4cc5-87ba-8622afc069da
+
+	column PO
+		dataType: string
+		isHidden
+		lineageTag: 3a79e576-44c7-47eb-be14-5c8b5b2a39c9
+		summarizeBy: none
+		sourceColumn: PO
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Claim Type'
+		dataType: string
+		lineageTag: 97d4cc3c-d974-4cbb-ab03-f97ac1a395d9
+		summarizeBy: none
+		sourceColumn: Claim Type
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Claim Status'
+		dataType: string
+		lineageTag: 8453c250-8c4f-4195-84b8-aba0dea454b9
+		summarizeBy: none
+		sourceColumn: Claim Status
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Stop/Claim Qty'
+		dataType: int64
+		isHidden
+		formatString: #,0
+		lineageTag: a86bbbc7-331a-4b96-8725-7933e54d615e
+		summarizeBy: none
+		sourceColumn: Stop/Claim Qty
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+	column 'Claim Classification'
+		dataType: string
+		lineageTag: c2c9efc7-7934-4ef1-bb43-b38f5c850884
+		summarizeBy: none
+		sourceColumn: Claim Classification
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'DN Final Amount'
+		dataType: int64
+		isHidden
+		formatString: 0.00
+		lineageTag: bf5e2bc2-2041-437c-adb6-eecd4e6f3f25
+		summarizeBy: sum
+		sourceColumn: DN Final Amount
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Refinishing Price per Unit'
+		dataType: int64
+		isHidden
+		formatString: #,0.00
+		lineageTag: 11902643-f5db-4e27-a62f-095f52b2fb42
+		summarizeBy: none
+		sourceColumn: Refinishing Price per Unit
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+	column Created
+		dataType: dateTime
+		formatString: dd.mm.yyyy
+		lineageTag: 0daf3b84-2445-4894-918b-053ff583426e
+		summarizeBy: none
+		sourceColumn: Created
+
+		variation Variation
+			isDefault
+			relationship: d258d931-df36-48ae-a76e-7480221c7ddb
+			defaultHierarchy: LocalDateTable_ba41a86b-ea17-4e71-8ba8-875ee174b672.Datumshierarchie
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column Modified
+		dataType: dateTime
+		formatString: dd.mm.yyyy hh:nn:ss
+		lineageTag: 288890d6-66a0-47da-8797-f3854298194c
+		summarizeBy: none
+		sourceColumn: Modified
+
+		variation Variation
+			isDefault
+			relationship: 4d0c7395-10fc-43f4-94ac-9d8a86b2534a
+			defaultHierarchy: LocalDateTable_d33338b5-cab5-4cd5-8b21-a36f520978ed.Datumshierarchie
+
+		changedProperty = FormatString
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'Valid Claim Type'
+		dataType: string
+		isHidden
+		lineageTag: a52ebcd2-3775-47e4-bf36-1f0f2ba11130
+		summarizeBy: none
+		sourceColumn: Valid Claim Type
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Refinishing_val = 'QA Stop Claim (Centric)'[Stop/Claim Qty] * 'QA Stop Claim (Centric)'[Refinishing Price per Unit]
+		isHidden
+		lineageTag: 0a078c51-7896-4742-97d1-5a4937ba245d
+		summarizeBy: sum
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'QA Stop Claim (Centric)-84ac61a5-4890-4748-b745-1a691dc7b4a3' = m
+		mode: import
+		source =
+				let
+				    Quelle = Excel.Workbook(File.Contents(File_Source), null, true),
+				    #"QA Stop Claim (Centric)_Sheet" = Quelle{[Item="QA Stop Claim (Centric)",Kind="Sheet"]}[Data],
+				    #"Höher gestufte Header" = Table.PromoteHeaders(#"QA Stop Claim (Centric)_Sheet", [PromoteAllScalars=true]),
+				    #"Geänderter Typ" = Table.TransformColumnTypes(#"Höher gestufte Header",{{"Season", type text}, {"Delivery Month", type text}, {"Parent", type text}, {"PO", type text}, {"Claim Type", type text}, {"Claim SubType", type text}, {"ActualTA", type text}, {"IGI Status", type text}, {"Claim Status", type text}, {"Claim Folder", type text}, {"Vendor", type text}, {"Shipped Qty", Int64.Type}, {"Stop/Claim Qty", Int64.Type}, {"2. Choice", type any}, {"Claim Classification", type text}, {"Claim Reason", type text}, {"Hidden Defect", type text}, {"Decision Date", Int64.Type}, {"Vendor Confirmation Date", type any}, {"Vendor Confirmation Sent By", type any}, {"DN Final Amount", Int64.Type}, {"DN no", type any}, {"Purchase Price Per Unit", Int64.Type}, {"Purchased Price Currency", type text}, {"Wholesale Price", Int64.Type}, {"Wholesale Price per Unit", Int64.Type}, {"Wholesale Price Total Amount", Int64.Type}, {"Settlement Percentage", Int64.Type}, {"Info to DCD/logistics", type any}, {"Refinisher", type any}, {"Refinishing Price per Unit", Int64.Type}, {"Comment", type text}, {"Created", type datetime}, {"Modified", type datetime}, {"Identify Wet processing", type text}, {"Valid Claim Type", type text}, {"Claim Decision", type text}, {"Issues", type text}, {"Description", type any}}),
+				    #"Columns removed by Measure Killer"= Table.RemoveColumns(#"Geänderter Typ",{"Decision Date","Purchase Price Per Unit","Info to DCD/logistics","Issues","Delivery Month","Settlement Percentage","Identify Wet processing","IGI Status","Wholesale Price Total Amount","Claim Decision","Vendor","Season","DN no","Vendor Confirmation Date","Claim Reason","Wholesale Price per Unit","Comment","Claim SubType","Shipped Qty","2. Choice","Description","Wholesale Price","Refinisher","Claim Folder","Parent","Vendor Confirmation Sent By","ActualTA","Hidden Defect","Purchased Price Currency"})
+				in
+				#"Columns removed by Measure Killer"
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

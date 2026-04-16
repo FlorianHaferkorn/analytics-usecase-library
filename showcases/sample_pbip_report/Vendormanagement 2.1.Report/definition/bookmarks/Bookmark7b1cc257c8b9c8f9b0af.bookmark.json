@@ -1,0 +1,4000 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "Style Overview - Quality",
+  "name": "Bookmark7b1cc257c8b9c8f9b0af",
+  "options": {
+    "applyOnlyToTargetVisuals": true,
+    "targetVisualNames": [
+      "1d6cbf4e6a28fb501950",
+      "f101811e6b33b0633ffb",
+      "bfa648d937aaf2db8d87",
+      "5ce663ff3d2f8fe47386",
+      "ffbbb89e62564fecc93f",
+      "e20f6da1323522b3254a",
+      "91cf2326beb9bc909213",
+      "31416c0d1f3e84c2e239",
+      "28f1b5250e61f1a13dc9",
+      "8f6501c8f4b0e781117f",
+      "0be08211f2882f960dfa",
+      "08fcca3591216172e839",
+      "fb5554465e0f79c98032",
+      "1b1b69968f439683e252",
+      "129e943d31cee7526a40",
+      "ea84320f107246985ecb",
+      "960b7bba9f956fb0b025"
+    ],
+    "suppressActiveSection": true,
+    "suppressData": true
+  },
+  "explorationState": {
+    "version": "1.3",
+    "activeSection": "ReportSection58178a92342c872443b9",
+    "filters": {
+      "byExpr": [
+        {
+          "name": "Filter1a8dd2026e4e36274ec7",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimTimetable_Season"
+                }
+              },
+              "Property": "Year_season"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter0c080e4b1322eaba0f6b",
+          "type": "Advanced",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimTimetable_Season"
+                }
+              },
+              "Property": "Season"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter43b25e22162a5950ac9a",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimSub Agency"
+                }
+              },
+              "Property": "Sub Agency"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter714f07e8d5422d314b3a",
+          "type": "Categorical",
+          "expression": {
+            "GroupRef": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Sourcing Market",
+              "GroupedColumns": [
+                {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "dimVendor"
+                      }
+                    },
+                    "Property": "Sourcing Country"
+                  }
+                }
+              ]
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter2865fa4e3d9fb30ac8ad",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Sourcing Country"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter21794651177af0b73934",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Vendor"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter2daee30c90bb4319e730",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "Details"
+                }
+              },
+              "Property": "Country of Dispatch"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter6f61545f5d5e4efcc4a3",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimManufacturer"
+                }
+              },
+              "Property": "Manufacturer"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter472025abe3f0b5d65c91",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimManufacturer"
+                }
+              },
+              "Property": "Production Country ID"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter81142fe12237faebdbcc",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimBrand"
+                }
+              },
+              "Property": "Brand"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter4853be03404a764225a2",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimGender"
+                }
+              },
+              "Property": "Gender"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter77448a9f1dcf977da76c",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimLine"
+                }
+              },
+              "Property": "Line"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter80be731a7422605ea600",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimMainclass"
+                }
+              },
+              "Property": "Main Class"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter806475335b830123d8a4",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimCollectionType"
+                }
+              },
+              "Property": "Collection Type"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filterb60ec981203e41c40602",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "Details"
+                }
+              },
+              "Property": "Purchase Order"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter5a692c15ea111d22277f",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "CPBI_MATERIAL"
+                }
+              },
+              "Property": "Style"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter4d254f21424be77b7dce",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "CPBI_MATERIAL"
+                }
+              },
+              "Property": "Retail Price (UVP) €"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter16f4fe986d9343ad0012",
+          "type": "Categorical",
+          "expression": {
+            "GroupRef": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "CPBI_MATERIAL"
+                }
+              },
+              "Property": "Key Look (Cluster)",
+              "GroupedColumns": [
+                {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "CPBI_MATERIAL"
+                      }
+                    },
+                    "Property": "Key Look"
+                  }
+                }
+              ]
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter4fded88ce8965c5dc6d9",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "Details"
+                }
+              },
+              "Property": "Ordersplit"
+            }
+          },
+          "howCreated": 1
+        }
+      ]
+    },
+    "sections": {
+      "ReportSection58178a92342c872443b9": {
+        "filters": {
+          "byExpr": [
+            {
+              "name": "Filterc277e329fc45c97cb579",
+              "type": "Categorical",
+              "expression": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dimBrand"
+                    }
+                  },
+                  "Property": "Brand"
+                }
+              },
+              "howCreated": 5
+            },
+            {
+              "name": "Filter8bfa2d436306a1f2c081",
+              "type": "Categorical",
+              "expression": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dimGender"
+                    }
+                  },
+                  "Property": "Gender"
+                }
+              },
+              "howCreated": 5
+            },
+            {
+              "name": "Filter2ab1e4864b615a9660e6",
+              "type": "Categorical",
+              "expression": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dimLine"
+                    }
+                  },
+                  "Property": "Line"
+                }
+              },
+              "howCreated": 5
+            },
+            {
+              "name": "Filter993102cff7ef4f123809",
+              "type": "Categorical",
+              "expression": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dimMainclass"
+                    }
+                  },
+                  "Property": "Main Class"
+                }
+              },
+              "howCreated": 5
+            },
+            {
+              "name": "Filter669f625665184e2d2b2d",
+              "type": "Categorical",
+              "expression": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "CPBI_MATERIAL"
+                    }
+                  },
+                  "Property": "Retail Price (UVP) €"
+                }
+              },
+              "howCreated": 5
+            },
+            {
+              "name": "Filter38f12de7128ae615c940",
+              "type": "Categorical",
+              "expression": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dimCollectionType"
+                    }
+                  },
+                  "Property": "Collection Type"
+                }
+              },
+              "howCreated": 5
+            },
+            {
+              "name": "Filter2b8f1a6ecb8126fba034",
+              "type": "Categorical",
+              "expression": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dimTimetable_Season"
+                    }
+                  },
+                  "Property": "Season"
+                }
+              },
+              "howCreated": 5
+            },
+            {
+              "name": "Filter36f16c16149ecfcf1d83",
+              "type": "Categorical",
+              "expression": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dimSub Agency"
+                    }
+                  },
+                  "Property": "Sub Agency"
+                }
+              },
+              "howCreated": 5
+            },
+            {
+              "name": "Filter3d2b1a4786b0eaee5a45",
+              "type": "Categorical",
+              "expression": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Details"
+                    }
+                  },
+                  "Property": "Country of Dispatch"
+                }
+              },
+              "howCreated": 5
+            },
+            {
+              "name": "Filterf9b2152002d517930eb8",
+              "type": "Categorical",
+              "expression": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dimVendor"
+                    }
+                  },
+                  "Property": "Sourcing Country"
+                }
+              },
+              "howCreated": 5
+            },
+            {
+              "name": "Filtercf5f5ef31097e7800c32",
+              "type": "Categorical",
+              "expression": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dimVendor"
+                    }
+                  },
+                  "Property": "Vendor"
+                }
+              },
+              "howCreated": 5
+            },
+            {
+              "name": "Filterec04a7bdbc8456e9b37e",
+              "type": "Categorical",
+              "expression": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dimManufacturer"
+                    }
+                  },
+                  "Property": "Manufacturer"
+                }
+              },
+              "howCreated": 5
+            },
+            {
+              "name": "Filter896f9be46ffa5ca19233",
+              "type": "Categorical",
+              "expression": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Details"
+                    }
+                  },
+                  "Property": "Order Cluster"
+                }
+              },
+              "howCreated": 5
+            }
+          ]
+        },
+        "visualContainers": {
+          "f101811e6b33b0633ffb": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "a258173bba34833be58d",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_conf_pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "02cbb2fbddda8053139a",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_conf_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "eec29b15416976141bd1",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimMainclass"
+                        }
+                      },
+                      "Property": "Main Class"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "18215128ea504ae47348",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimCollectionType"
+                        }
+                      },
+                      "Property": "Collection Type"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "32269bcda59855e3c4b0",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "PO Date"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "5c3816a319b840649e22",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Purchase Order"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "c73dad16ccc03d070443",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CPBI_MATERIAL"
+                        }
+                      },
+                      "Property": "Style"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "4ef776c4b60a5e702381",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Year_season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "33f863716a65a6b6a18c",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "eb35e8a0e84aa044c2db",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "cdbf959f5038b50327eb",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO cancelled (pcs)"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "f80a2e6c30243dd6a21d",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO cancelled (value)"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "e71e7d5f02b884304daa",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "47f6ea750829c5093ea4",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Country of Dispatch"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "2a641edd8c5c661e6ca3",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspection Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "523b25f6dd92dc575d19",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "MSMT Test Result"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "bf9a5c504820813dce2b",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Optical Test Result"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "ad8392465de52be8c6a7",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Random Check Result"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "cfa8b2d6e4055a3e18e0",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Optical Minor Score"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "5c4245606085b05d00dc",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Optical Major Score"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "21f8cff39820c8ed7482",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Orange POMs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "7bbff813e61a54d2c389",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Red POMs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "e7f656801bb3084dbae5",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Green POMs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "2c68f5f4000d0857130d",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "# of tested styles (RS)"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "a52ae892a99de5227cd0",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "# of failed styles (RS)"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "27c79c652a5c321934b0",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Points Orange POMs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "1b089b88d11eee8c1125",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Points Red POMs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "dd13ec8ecbeba12539c7",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Max Orange POMs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "583e84cc7c31e331a0a0",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Max Red POMs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "6e5eeb35886437ed1974",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspected pcs (MSMT)"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "84ae3c8f0a65a3252901",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CPBI_MATERIAL"
+                        }
+                      },
+                      "Property": "Style Picture"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "4296e69859b6dca75248",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Retail Price €"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "tableEx",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 1,
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Year_season"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "fb5554465e0f79c98032": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "1d756b282719b238959e",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_conf_pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "41aede1c1c0730d226a6",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_conf_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "8d252510013753d7e6bc",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimMainclass"
+                        }
+                      },
+                      "Property": "Main Class"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "36d67388323546582019",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimCollectionType"
+                        }
+                      },
+                      "Property": "Collection Type"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "a68e85501014ca00419b",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "HO_best"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "6bfe43b8140029c827e0",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "HO_akt"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "9360caa11718a089e0e8",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "PO Date"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "8bad6d0f04e22a366080",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Purchase Order"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "710c15b6aa706eb28e7a",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CPBI_MATERIAL"
+                        }
+                      },
+                      "Property": "Style"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "77f0b31277cb3cd51071",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Year_season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "eb6e9a810b1105e1cc81",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_ship_initial_pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "1b27166d511747070d59",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_ship_initial_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "113506c45be1c63e482e",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_ship_initial_pcs in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "36d71f477371960de70a",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Receipt of Goods direct %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "aacacc480979eae67c4c",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Receipt of Goods direct_pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "9f15b57618c084932431",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Delay in days excl. buffer"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "71ccc198039db234d5bc",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "DDR"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "0a5005f8b07b3096bd9d",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CPBI_MATERIAL"
+                        }
+                      },
+                      "Property": "Color"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "cf566ae706dc8b79abb6",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "645219807adb2a248785",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "68ab2c109901306335e0",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_shortship_pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "ab642a2c3a2a6898342d",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_overship_pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "94bde818088d828d84b0",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "73e9ed4fb6989b0ca179",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "a0ed1a1f0c1ad87347e1",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_overship_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "235a64314c6b0102774d",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_shortship_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "ebe9eefe68262e6700ae",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Delivery Date DC"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "d85ecd8539524cd509c9",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Country of Dispatch"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "5b0bc8f503bc55cb5e90",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Initial Transport Chain"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "ce0352bde5b20762aa1a",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Actual Transport Chain"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "1bee3485a459dd508115",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Handover Status"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "58fd879b145a8b566e73",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Purchase Price"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "558a631aa1a006e1051e",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Receipt of Goods direct_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "1bb79105c8539ad28bca",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Total Leadtime"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "0accf4c471c93e2c953a",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Transit Leadtime"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "df2e99ec00551991a649",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Production Leadtime"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "eb695d824e4717b0dc08",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PP Ratio"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "f15285a43c154b372294",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PP Ratio Target"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "e9cedaae973a63b406d2",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "WHSSP €"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "2327a10a65b43d435844",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "∆ PP Ratio to Target in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "ac55451f36172948e4e4",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "HSP"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "6079b70e4d8667ca8067",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Retail Price €"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "f8df0723b6619a9930e0",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Style Picture"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "tableEx",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 1,
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Year_season"
+                    }
+                  }
+                }
+              ],
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "bfa648d937aaf2db8d87": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "3694f54751c602490ac0",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_conf_pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "9d1091dc570509196463",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_conf_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "986dbc2528460b026600",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimMainclass"
+                        }
+                      },
+                      "Property": "Main Class"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "089189721bda29252e4c",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimCollectionType"
+                        }
+                      },
+                      "Property": "Collection Type"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "161152705a326abbcb7e",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "PO Date"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "2331ae2f295767705230",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Purchase Order"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "4a8a4f852b9442b6c490",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CPBI_MATERIAL"
+                        }
+                      },
+                      "Property": "Style"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "26b8d99caa8997d99b95",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Year_season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "ffd8a010532773e2cd9b",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "cd19b508c5a16cd5c1d8",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "7b748180dbb948886c12",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Country of Dispatch"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "3d3ed83ccc9975120d08",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Initial Transport Chain"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "fa2f4de10b043b5510ae",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Actual Transport Chain"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "921d8d93a3028b5cc0ad",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Purchase Price"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "c863071364590de023eb",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PP Ratio"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "43c7b9d70dd04dc45a88",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PP Ratio Target"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "d77fcd4e66d99c466cde",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "WHSSP €"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "016855ed6c0cc4a1cdd0",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "∆ PP Ratio to Target in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "26d5f5372d6419ee0422",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "HSP"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "3683e371079db00403ee",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Retail Price €"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "d320a7336c04d9d8045b",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Style Picture"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "6de9e260947d046777b1",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "∆ COS_pre_calc to Target in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "a05fec4c93002c80c4ab",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "COS Target"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "37f0376e7a070688ccb3",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "COS_pre_calc %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "3847fced0803135e781d",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "samplecost_pre_calc €"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "b37ef08ba52b372e60e9",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "freightcost_pre_calc €"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "33fd3e8365369929784c",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "AGY_Comm_pre_calc €"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "f83eee9052002e5242a4",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "customscost_pre_calc €"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "72090d14c474ac251145",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Malus_pre_calc €"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "d1ce5600226529c600ce",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "COS_pre_calc €"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "1c74d2dcec4600016d61",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "samplecost_pre_calc %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "814f393bb9830a0bb196",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "freightcost_pre_calc %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "3bb4a3e01b4a9aece5d3",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "customscost_pre_calc %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "e4f90cc5c9aabb382c15",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "AGY_Comm_pre_calc %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "b4e77fda52201c6b4c14",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Malus_pre_calc %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "39c361163b39a2cb7ec1",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Gross Profit_val €"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "332743c066852a9a3578",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Gross Profit %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "1a52949621831d2903c4",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "WHSSP_val €"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "903a61608802734150ee",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CPBI_MATERIAL"
+                        }
+                      },
+                      "Property": "Color"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "b96a2d7cec600ab7ebdd",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Calc. Purchase Price"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "412ac3df4b1561d47500",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Fabric / Lining / Yarn Costs %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "07e259bf1cb479990d02",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Fabric / Lining / Yarn Costs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "bb5c32307ec8648041e2",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Finishing Costs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "a4513deb1ac578e20e1c",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Finishing Costs %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "9eb42cd41ec701a696dc",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Operation Costs %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "87719cbb0712d166357e",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Operation Costs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "9fae88a29190224c0e00",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Trims & Other Costs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "d71f699f870080805b66",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Trims & Other Costs %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "6a56d987666342570a00",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PP Ratio_post_calc"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "0bd22c97ae20e50a4726",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "∆_to PP Ratio Target in % (post_calc)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "tableEx",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Year_season"
+                    }
+                  }
+                }
+              ],
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "5ce663ff3d2f8fe47386": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "ffbbb89e62564fecc93f": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "e20f6da1323522b3254a": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "91cf2326beb9bc909213": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "31416c0d1f3e84c2e239": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "08fcca3591216172e839": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "28f1b5250e61f1a13dc9": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "8f6501c8f4b0e781117f": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "0be08211f2882f960dfa": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "ecee9b09b9033e063a96": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "1b1b69968f439683e252": {
+            "filters": {
+              "byName": {
+                "Filter881df5207aa26f4b56ba": {
+                  "name": "Filter881df5207aa26f4b56ba",
+                  "type": "Advanced",
+                  "filter": {
+                    "Version": 2,
+                    "From": [
+                      {
+                        "Name": "a",
+                        "Entity": "All measures",
+                        "Type": 0
+                      }
+                    ],
+                    "Where": [
+                      {
+                        "Condition": {
+                          "Comparison": {
+                            "ComparisonKind": 1,
+                            "Left": {
+                              "Measure": {
+                                "Expression": {
+                                  "SourceRef": {
+                                    "Source": "a"
+                                  }
+                                },
+                                "Property": "claimed pcs"
+                              }
+                            },
+                            "Right": {
+                              "Literal": {
+                                "Value": "0L"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed pcs"
+                    }
+                  },
+                  "howCreated": 1
+                }
+              },
+              "byExpr": [
+                {
+                  "name": "Filter92f4fe94351192c1e90e",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimClaimReason"
+                        }
+                      },
+                      "Property": "Claim Reason ID"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "Filter43417ce2f42b95f847cf",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimClaimReason"
+                        }
+                      },
+                      "Property": "Claim Reason Name"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "Filterabe5aca02539dd6d37cc",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed pcs"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "Filterb6ea9b957566ce574f5f",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed WHSSP"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "Filtereb38a3690a7af3129b7e",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimCollectionType"
+                        }
+                      },
+                      "Property": "Collection Type"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "Filterd79bcf5f226faaf1ce81",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimMainclass"
+                        }
+                      },
+                      "Property": "Main Class"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "Filter96d8a63f46ee164cd811",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CPBI_MATERIAL"
+                        }
+                      },
+                      "Property": "Retail Price (UVP) €"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "Filter802fc0a0bd391743373b",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CPBI_MATERIAL"
+                        }
+                      },
+                      "Property": "Style"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "e177aee1b19d9e0cdb46",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed eCom_val €"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "8e865f2ed7bb145e8605",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CPBI_OMS_RETURNS"
+                        }
+                      },
+                      "Property": "RETURN CATEGORY LABEL LONG"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "clusteredBarChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed eCom_val €"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CPBI_OMS_RETURNS"
+                        }
+                      },
+                      "Property": "RETURN CATEGORY LABEL LONG"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "129e943d31cee7526a40": {
+            "filters": {
+              "byName": {
+                "Filter881df5207aa26f4b56ba": {
+                  "name": "Filter881df5207aa26f4b56ba",
+                  "type": "Advanced",
+                  "filter": {
+                    "Version": 2,
+                    "From": [
+                      {
+                        "Name": "a",
+                        "Entity": "All measures",
+                        "Type": 0
+                      }
+                    ],
+                    "Where": [
+                      {
+                        "Condition": {
+                          "Comparison": {
+                            "ComparisonKind": 1,
+                            "Left": {
+                              "Measure": {
+                                "Expression": {
+                                  "SourceRef": {
+                                    "Source": "a"
+                                  }
+                                },
+                                "Property": "claimed pcs"
+                              }
+                            },
+                            "Right": {
+                              "Literal": {
+                                "Value": "0L"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed pcs"
+                    }
+                  },
+                  "howCreated": 1
+                }
+              },
+              "byExpr": [
+                {
+                  "name": "Filterabe5aca02539dd6d37cc",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed pcs"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "Filterb6ea9b957566ce574f5f",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed WHSSP"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "Filtereb38a3690a7af3129b7e",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimCollectionType"
+                        }
+                      },
+                      "Property": "Collection Type"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "Filterd79bcf5f226faaf1ce81",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimMainclass"
+                        }
+                      },
+                      "Property": "Main Class"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "Filter96d8a63f46ee164cd811",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CPBI_MATERIAL"
+                        }
+                      },
+                      "Property": "Retail Price (UVP) €"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "Filter802fc0a0bd391743373b",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CPBI_MATERIAL"
+                        }
+                      },
+                      "Property": "Style"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "1ecba587994b33a4d5b3",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "# of claims (CSS)"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "c572a9de1b08b634ad5d",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CSS_Tickets"
+                        }
+                      },
+                      "Property": "Claim Reason"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "clusteredBarChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "# of claims (CSS)"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CSS_Tickets"
+                        }
+                      },
+                      "Property": "Claim Reason"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ea84320f107246985ecb": {
+            "filters": {
+              "byName": {
+                "Filter881df5207aa26f4b56ba": {
+                  "name": "Filter881df5207aa26f4b56ba",
+                  "type": "Advanced",
+                  "filter": {
+                    "Version": 2,
+                    "From": [
+                      {
+                        "Name": "a",
+                        "Entity": "All measures",
+                        "Type": 0
+                      }
+                    ],
+                    "Where": [
+                      {
+                        "Condition": {
+                          "Comparison": {
+                            "ComparisonKind": 1,
+                            "Left": {
+                              "Measure": {
+                                "Expression": {
+                                  "SourceRef": {
+                                    "Source": "a"
+                                  }
+                                },
+                                "Property": "claimed pcs"
+                              }
+                            },
+                            "Right": {
+                              "Literal": {
+                                "Value": "0L"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed pcs"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              },
+              "byExpr": [
+                {
+                  "name": "Filterabe5aca02539dd6d37cc",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed pcs"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "Filtereb38a3690a7af3129b7e",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimCollectionType"
+                        }
+                      },
+                      "Property": "Collection Type"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "Filterd79bcf5f226faaf1ce81",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimMainclass"
+                        }
+                      },
+                      "Property": "Main Class"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "Filter96d8a63f46ee164cd811",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CPBI_MATERIAL"
+                        }
+                      },
+                      "Property": "Retail Price (UVP) €"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "Filter802fc0a0bd391743373b",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CPBI_MATERIAL"
+                        }
+                      },
+                      "Property": "Style"
+                    }
+                  },
+                  "howCreated": 1
+                },
+                {
+                  "name": "656fd4a0bd7418ab0899",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimClaimReason"
+                        }
+                      },
+                      "Property": "Claim Reason ID"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "fac8c13bac084d4e5e68",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimClaimReason"
+                        }
+                      },
+                      "Property": "Claim Reason Name"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "455745d4019aa7570d08",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed WHSSP"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "clusteredBarChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed WHSSP"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimClaimReason"
+                        }
+                      },
+                      "Property": "Claim Reason ID"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimClaimReason"
+                        }
+                      },
+                      "Property": "Claim Reason Name"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "960b7bba9f956fb0b025": {
+            "filters": {
+              "byName": {
+                "Filter9899215b5f2263957980": {
+                  "name": "Filter9899215b5f2263957980",
+                  "type": "Advanced",
+                  "filter": {
+                    "Version": 2,
+                    "From": [
+                      {
+                        "Name": "a",
+                        "Entity": "All measures",
+                        "Type": 0
+                      }
+                    ],
+                    "Where": [
+                      {
+                        "Condition": {
+                          "Comparison": {
+                            "ComparisonKind": 1,
+                            "Left": {
+                              "Measure": {
+                                "Expression": {
+                                  "SourceRef": {
+                                    "Source": "a"
+                                  }
+                                },
+                                "Property": "claimed pcs"
+                              }
+                            },
+                            "Right": {
+                              "Literal": {
+                                "Value": "0L"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed pcs"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              },
+              "byExpr": [
+                {
+                  "name": "111c02849028399b30a6",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimMainclass"
+                        }
+                      },
+                      "Property": "Main Class"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "05154a387007bbade8d5",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimCollectionType"
+                        }
+                      },
+                      "Property": "Collection Type"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "89a5d6918dc4909c9999",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "CPBI_MATERIAL"
+                        }
+                      },
+                      "Property": "Style"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "2e92d83e2c7e62be03ba",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed WHSSP"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "e299094aeecec2dd64e3",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "CCR"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "d8fb8eb1033e337e626d",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "delivered to customer pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "a6ebb32141610a0620bb",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "delivered to customer WHSSP"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "e890a623e8cb196d7d51",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "2529447604986370506e",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Country of Dispatch"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "f6e42d12abb09e57e3cd",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Retail Price €"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "4b9adefe795bdbc2c009",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "# of claims (CSS)"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "c0d0d1deb8dbe503c20b",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Style Picture"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "ee7ddf4c2b0700213703",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "delivered to eCom customer_val €"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "4c89c916cb8d503c6694",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed eCom_val €"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "01075afe5daec5d1e4d0",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "eCom Return Rate"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "tableEx",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed WHSSP"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "d8a5914f6e5ca7e10ce7": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "e870bfe3726342bbbc04": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "b7755a182b83572d24b3": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "995f6c82ac5eaaa97081": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "516b16768d5db10bb4e8",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slicer_Currency"
+                        }
+                      },
+                      "Property": "Currency"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {
+                "merge": {
+                  "general": [
+                    {
+                      "properties": {
+                        "filter": {
+                          "filter": {
+                            "Version": 2,
+                            "From": [
+                              {
+                                "Name": "s",
+                                "Entity": "Slicer_Currency",
+                                "Type": 0
+                              }
+                            ],
+                            "Where": [
+                              {
+                                "Condition": {
+                                  "In": {
+                                    "Expressions": [
+                                      {
+                                        "Column": {
+                                          "Expression": {
+                                            "SourceRef": {
+                                              "Source": "s"
+                                            }
+                                          },
+                                          "Property": "Currency"
+                                        }
+                                      }
+                                    ],
+                                    "Values": [
+                                      [
+                                        {
+                                          "Literal": {
+                                            "Value": "'EURO'"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "data": [
+                    {
+                      "properties": {
+                        "mode": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "'Basic'"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "selection": [
+                    {
+                      "properties": {
+                        "strictSingleSelect": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "true"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "activeProjections": {
+                "Values": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slicer_Currency"
+                        }
+                      },
+                      "Property": "Currency"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "134c2dcb5d74f8d70c8d": {
+            "filters": {
+              "byName": {
+                "Filter4671b1abdc38cbe3c483": {
+                  "name": "Filter4671b1abdc38cbe3c483",
+                  "type": "Advanced",
+                  "filter": {
+                    "Version": 2,
+                    "From": [
+                      {
+                        "Name": "d",
+                        "Entity": "dimTimetable_Season",
+                        "Type": 0
+                      }
+                    ],
+                    "Where": [
+                      {
+                        "Condition": {
+                          "And": {
+                            "Left": {
+                              "Comparison": {
+                                "ComparisonKind": 2,
+                                "Left": {
+                                  "Column": {
+                                    "Expression": {
+                                      "SourceRef": {
+                                        "Source": "d"
+                                      }
+                                    },
+                                    "Property": "Year"
+                                  }
+                                },
+                                "Right": {
+                                  "Literal": {
+                                    "Value": "2020L"
+                                  }
+                                }
+                              }
+                            },
+                            "Right": {
+                              "Comparison": {
+                                "ComparisonKind": 4,
+                                "Left": {
+                                  "Column": {
+                                    "Expression": {
+                                      "SourceRef": {
+                                        "Source": "d"
+                                      }
+                                    },
+                                    "Property": "Year"
+                                  }
+                                },
+                                "Right": {
+                                  "Literal": {
+                                    "Value": "2024L"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Year"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              }
+            },
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {
+                "merge": {
+                  "general": [
+                    {
+                      "properties": {
+                        "filter": {
+                          "filter": {
+                            "Version": 2,
+                            "From": [
+                              {
+                                "Name": "d",
+                                "Entity": "dimTimetable_Season",
+                                "Type": 0
+                              }
+                            ],
+                            "Where": [
+                              {
+                                "Condition": {
+                                  "In": {
+                                    "Expressions": [
+                                      {
+                                        "Column": {
+                                          "Expression": {
+                                            "SourceRef": {
+                                              "Source": "d"
+                                            }
+                                          },
+                                          "Property": "Year"
+                                        }
+                                      }
+                                    ],
+                                    "Values": [
+                                      [
+                                        {
+                                          "Literal": {
+                                            "Value": "2023L"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "data": [
+                    {
+                      "properties": {
+                        "mode": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "'Basic'"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "selection": [
+                    {
+                      "properties": {
+                        "strictSingleSelect": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "true"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Year"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Values": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Year"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "30bcbff4169fbbb49b76": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {
+                "merge": {
+                  "general": [
+                    {
+                      "properties": {
+                        "filter": {
+                          "filter": {
+                            "Version": 2,
+                            "From": [
+                              {
+                                "Name": "d",
+                                "Entity": "dimOrderType",
+                                "Type": 0
+                              }
+                            ],
+                            "Where": [
+                              {
+                                "Condition": {
+                                  "In": {
+                                    "Expressions": [
+                                      {
+                                        "Column": {
+                                          "Expression": {
+                                            "SourceRef": {
+                                              "Source": "d"
+                                            }
+                                          },
+                                          "Property": "Purchase Order Type"
+                                        }
+                                      }
+                                    ],
+                                    "Values": [
+                                      [
+                                        {
+                                          "Literal": {
+                                            "Value": "'Bulk'"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "data": [
+                    {
+                      "properties": {
+                        "mode": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "'Basic'"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "selection": [
+                    {
+                      "properties": {
+                        "strictSingleSelect": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "true"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "activeProjections": {
+                "Values": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimOrderType"
+                        }
+                      },
+                      "Property": "Purchase Order Type"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "visualContainerGroups": {
+          "1d6cbf4e6a28fb501950": {
+            "isHidden": true
+          },
+          "8fd5a72309280871ac96": {
+            "children": {
+              "62e5bbdf20cf078ef62f": {
+                "isHidden": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "objects": {
+      "merge": {
+        "outspacePane": [
+          {
+            "properties": {
+              "expanded": {
+                "expr": {
+                  "Literal": {
+                    "Value": "false"
+                  }
+                }
+              },
+              "visible": {
+                "expr": {
+                  "Literal": {
+                    "Value": "true"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

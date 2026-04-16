@@ -1,0 +1,67 @@
+table 'Measurement_AQL_2.5'
+	isHidden
+	lineageTag: 40d1c6d3-f1b4-4acf-afee-015b53b16902
+
+	column 'Lot Size'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f8f0b0fd-27d8-4b57-b412-ed28a5d62b30
+		summarizeBy: none
+		sourceColumn: Lot Size
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+	column 'Sample Size'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 4d429776-acc2-4515-834f-8ce205c9bb9f
+		summarizeBy: none
+		sourceColumn: Sample Size
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+	column 'Major - Rejected'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 45e9f204-09d5-4882-a53b-310ac5513175
+		summarizeBy: none
+		sourceColumn: Major - Rejected
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+	column 'Minor - Rejected'
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f5fc9d58-24ab-47e8-919b-59096d73c299
+		summarizeBy: none
+		sourceColumn: Minor - Rejected
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+	partition 'Measurement_AQL_2.5-34d30871-8609-49d6-ab4e-3ea1b57616db' = m
+		mode: import
+		source =
+				let
+				    Quelle = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("LY7LEQAhCEN74eyBj7i7tTj238ZC4iEZeYGJe4ulyhCHQWds8bfnaBClBExtiPVZegDNQbG/Sh9okJpnZ3hxW1VZh9jaghfJJKxPaLch7xH7Hb+ccs4P", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [#"Lot Size" = _t, #"Sample Size" = _t, #"Major - Rejected" = _t, #"Minor - Rejected" = _t]),
+				    #"Geänderter Typ" = Table.TransformColumnTypes(Quelle,{{"Lot Size", Int64.Type}, {"Sample Size", Int64.Type}, {"Major - Rejected", Int64.Type}, {"Minor - Rejected", Int64.Type}})
+				in
+				    #"Geänderter Typ"
+
+	changedProperty = IsHidden
+
+	changedProperty = Name
+
+	annotation PBI_ResultType = Table
+

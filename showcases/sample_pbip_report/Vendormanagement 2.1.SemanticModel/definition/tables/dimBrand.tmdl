@@ -1,0 +1,38 @@
+table dimBrand
+	lineageTag: 6db2eb62-47a3-4123-ab57-4513a608d60a
+
+	column 'Brand ID'
+		lineageTag: 289115d1-1ac8-41af-b4c6-d66a3607e023
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Brand ID]
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column Brand
+		lineageTag: 2571af17-ec18-4d1f-aeea-6efdf7b2c01e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Brand]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dimBrand-4e4e44c5-e003-4e3d-9967-27faff75e010 = calculated
+		mode: import
+		source = ```
+				
+				    Filter(
+				        DISTINCT(
+				            SELECTCOLUMNS(
+				                    CPBI_MATERIAL,
+				                    "Brand ID", CPBI_MATERIAL[Brand],
+				                    "Brand", CPBI_MATERIAL[Brand Text]
+				            )
+				        ), NOT ISBLANK( [Brand] ) 
+				    )
+				```
+
+	annotation PBI_Id = e2c59476b858491ebd2b7056c7eaacf5
+

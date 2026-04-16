@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Vendormanagement 2.1"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "cc61ec4e-be6a-4f55-b3a1-973ca4479fb0"
+  }
+}

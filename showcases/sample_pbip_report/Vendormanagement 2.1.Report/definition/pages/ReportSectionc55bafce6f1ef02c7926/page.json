@@ -1,0 +1,70 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "ReportSectionc55bafce6f1ef02c7926",
+  "displayName": "Performance Overview",
+  "displayOption": "FitToPage",
+  "height": 1200,
+  "width": 1920,
+  "filterConfig": {
+    "filterSortOrder": "Custom"
+  },
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "ThemeDataColor": {
+                    "ColorId": 4,
+                    "Percent": 0.4
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visualInteractions": [
+    {
+      "source": "0486e3b73a155dadf0cd",
+      "target": "e0c440942902025959d8",
+      "type": "NoFilter"
+    },
+    {
+      "source": "0486e3b73a155dadf0cd",
+      "target": "536d568929aa214693af",
+      "type": "NoFilter"
+    },
+    {
+      "source": "0486e3b73a155dadf0cd",
+      "target": "3e5e1765f2e208b4dbaf",
+      "type": "NoFilter"
+    },
+    {
+      "source": "0486e3b73a155dadf0cd",
+      "target": "b71e5723d9c52b11a0e1",
+      "type": "NoFilter"
+    },
+    {
+      "source": "0486e3b73a155dadf0cd",
+      "target": "b9f1c57b8dc2fd0147e8",
+      "type": "NoFilter"
+    },
+    {
+      "source": "0486e3b73a155dadf0cd",
+      "target": "305aab79ff853b646d49",
+      "type": "NoFilter"
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+table dimCollectionType
+	lineageTag: c9b7be99-7302-4793-8c69-1af6d32e5b2e
+
+	column 'Collection Type ID'
+		lineageTag: b0ba1931-4664-4b9b-b01d-8b076a7d7a99
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Collection Type ID]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Collection Type'
+		lineageTag: e940f455-77d6-45ee-b5f0-9c42378113ae
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Collection Type]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation __PBI_SemanticLinks = [{"LinkTarget":{"TableName":"dimCollectionType","TableItemName":"Collection Type (Cluster)","ObjectType":4},"LinkType":"UsedInGroup"}]
+
+	column 'Collection Type (Cluster)' =
+			SWITCH(
+				TRUE,
+				ISBLANK('dimCollectionType'[Collection Type]),
+				"(Leer)",
+				'dimCollectionType'[Collection Type] IN {"essentials"},
+				"Essentials",
+				'dimCollectionType'[Collection Type] IN {"Fast Track",
+					"In Season Styles",
+					"mail order",
+					"main collection",
+					"special",
+					"theme collection"},
+				"Fashion",
+				'dimCollectionType'[Collection Type] IN {"noos"},
+				"Noos",
+				"Others"
+			)
+		lineageTag: 5479c2a3-3b37-435b-8518-3637c86f00c1
+		summarizeBy: none
+
+		extendedProperty GroupingMetadata =
+				{
+				  "version": 0,
+				  "groupedColumns": [
+				    {
+				      "Column": {
+				        "Expression": {
+				          "SourceRef": {
+				            "Entity": "dimCollectionType"
+				          }
+				        },
+				        "Property": "Collection Type"
+				      }
+				    }
+				  ]
+				}
+
+		annotation GroupingDesignState = {"Version":0,"Sources":[{"Name":"d","Entity":"dimCollectionType"}],"GroupedColumns":[{"Column":{"Expression":{"SourceRef":{"Source":"d"}},"Property":"Collection Type"}}],"GroupItems":[{"DisplayName":"(Leer)","BlankDefaultPlaceholder":true},{"DisplayName":"Essentials","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"d"}},"Property":"Collection Type"}}],"Values":[[{"Literal":{"Value":"'essentials'"}}]]}}},{"DisplayName":"Fashion","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"d"}},"Property":"Collection Type"}}],"Values":[[{"Literal":{"Value":"'Fast Track'"}}],[{"Literal":{"Value":"'In Season Styles'"}}],[{"Literal":{"Value":"'mail order'"}}],[{"Literal":{"Value":"'main collection'"}}],[{"Literal":{"Value":"'special'"}}],[{"Literal":{"Value":"'theme collection'"}}]]}}},{"DisplayName":"Noos","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"d"}},"Property":"Collection Type"}}],"Values":[[{"Literal":{"Value":"'noos'"}}]]}}},{"DisplayName":"Others"}]}
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dimCollectionType-291f6d10-67c6-4d4c-869b-a72f3d2b636a = calculated
+		mode: import
+		source = ```
+				
+				    Filter(
+				        DISTINCT(
+				            SELECTCOLUMNS(
+				                    CPBI_MATERIAL,
+				                    "Collection Type ID", CPBI_MATERIAL[Kollektionsart],
+				                    "Collection Type", CPBI_MATERIAL[Kollektionsart Text]
+				            )
+				        ), 
+				        NOT ISBLANK([Collection Type])
+				    )
+				```
+
+	annotation PBI_Id = 00e630c60f4b41eda3e896d36f509e2e
+

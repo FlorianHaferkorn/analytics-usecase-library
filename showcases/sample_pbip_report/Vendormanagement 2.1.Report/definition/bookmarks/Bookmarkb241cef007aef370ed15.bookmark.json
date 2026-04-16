@@ -1,0 +1,6017 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "Quality - Summary",
+  "name": "Bookmarkb241cef007aef370ed15",
+  "options": {
+    "applyOnlyToTargetVisuals": true,
+    "targetVisualNames": [
+      "5c07479ec58d115cb153",
+      "cdf5725f8d45eb2511da",
+      "1b644afc2c319ecbeb7e",
+      "edd146c9e600c3a75a03",
+      "3d934f136b5e44fcafa0",
+      "0a50bf85b734e4e88bbd",
+      "7ceb69539e142a1ccbe6",
+      "4cfbd5ef0c402382a1a6",
+      "2e96a908152dfec07114",
+      "e726cc2946c3c589f7dc",
+      "2b4cfb099c17d4fc6a72",
+      "29f52b93658f90230c84",
+      "aa44696b58f81c809c8b",
+      "e82bc89b37c8e49c5415",
+      "a2c7e014656a021871f8",
+      "4a88e5f27fb859c6281b",
+      "79bf4b5baec2d6179223",
+      "bf870c567553be740eb3",
+      "f320fbb6d5d029f76df0",
+      "005f0ba04b1ba6f65e51",
+      "5e422f0390b6c89ad974",
+      "1d945b96a5c1fab85806",
+      "c881562b6b8f425415ce",
+      "bef1e36142698c878864",
+      "2ae7d742ff1d88586e4b",
+      "94039181cdcd44170a70",
+      "c5d5b1bf72478050b547",
+      "1812b29701561cf30acb",
+      "4279cd8bf48b92f63523",
+      "b3aac466b46c1cde12f6",
+      "86b1e3a58b9d8417a3b0",
+      "8feee39d1b295d45c37f",
+      "5a5578c49666d20fff1e",
+      "c3b2f9e3806207374255",
+      "11b553fe0850f8ef23a2",
+      "f185761ce791838e55ba",
+      "c6980581782c8b6f5a9e",
+      "c705f1852ec7e5f857b1",
+      "e326774f485d19805abb",
+      "9afe26e3ed7b7524927c",
+      "f8f461ea0a9a50a17455",
+      "4f6b56c870b1260f4dc1",
+      "f78a78462d24ed872c30",
+      "b36f1e0b148253285ca8",
+      "d10afa926452735161a7",
+      "ff4ace5365ebddaa2074",
+      "88f62abe528d867f9ab2",
+      "8698590e8d3626ec02ac",
+      "14d0bb72ec2e07cfae2f",
+      "e4a68384f6c8663ef850",
+      "8f9a879654342c6a9686",
+      "4c1a7dccff570c284ad1",
+      "505766b47589a4f3b8a4",
+      "0dc743d526b8d5e02751",
+      "a559de7e350a01225e8a",
+      "f6bed955018f6b493afe",
+      "9b306b8ea407f68d3539",
+      "eb68dabb31e965fc05dd",
+      "8bbddf945d9ddf0b497e",
+      "6f6863efb9c12c77f71a",
+      "42e6dd6ab1ac09149ec6",
+      "f4a5213e67c9416429ec",
+      "0b0f5b41039d8ac55882",
+      "3925888909c6b09f7362",
+      "0e899221f5677ecfa882",
+      "3e7dd3e2403473eb367f",
+      "d662efae41e8fb15b21e",
+      "e2fd32cb9a58b4b5e69f",
+      "91cae143d7f257d58d81",
+      "2cd0068945396e437c0d",
+      "6ab2bae220ac7875e273",
+      "ad80a0419a123d38da05",
+      "68ba93c4b8707003eb7c",
+      "41ac5dc80c7d224d1cce",
+      "0ce3f9d6c99a2e77478b",
+      "ae7c69e8e44cfc6da6f8",
+      "426cd49f02c58a88136b",
+      "e5ebe11a142440d9d78f",
+      "7fe53538060477ecfccf",
+      "8bf50886487d0d556b06",
+      "c6da1fec09ca7a8e1f5d",
+      "87d519f1f05b7ad41ea0",
+      "367e5832f8917d017755",
+      "613283b3c2c38de84336",
+      "7e01924ee8e742015d83",
+      "aabf84702f4e4d52bf3f",
+      "3d05c0ab9ed13551cf3a",
+      "7e15f0530d3106dd24a2",
+      "ade923f51e760a5054ed",
+      "8d8205ed93d7d6413f88",
+      "eb091d5b81809bb7eaeb",
+      "8baa2e97ec3307cb696c",
+      "44987185872ada297a2d",
+      "a46eb8406a38fbe34600",
+      "9c9f4b776175cf0dd770",
+      "ee6acafa6cf4e8771629",
+      "0253b074d6dcddd2ea56",
+      "02593f551760c26e8465",
+      "bbe3b866a223543b136f",
+      "ea3ec1302955b2d7a48c",
+      "906fbd0ce590a43a124f",
+      "69110664aa10d4508e25",
+      "7a542d1fc408df9d6d6d",
+      "838cc581ae954d83d18a",
+      "e64187973207c59a5603",
+      "da6bc27b55088104e32f",
+      "31a57d486221e2773ac9",
+      "44fa95a909060662f429",
+      "a78cbe84dba00a28a8c0",
+      "1571c5703c27da4f89f0",
+      "bdc8cd3eb0e082f045aa",
+      "0e91ba5f937e464d64ac",
+      "30485addf39122134ddf",
+      "c43b2afc9463499d9cfc",
+      "dd36516d9822387aa5a9",
+      "a92ceba871baab31c953",
+      "92081d23964a3023c457",
+      "1c0376b3385d3124deae",
+      "9616c4bf485b3405eaf1",
+      "84e1be04e1781c71de2c",
+      "0f8e4af7f1a0d875a9cb",
+      "24ced21c93c27f6a4748",
+      "20d3265e4fd8aefe8c31",
+      "bad537000288f12ee90f",
+      "b347b8ba36973d0934ea",
+      "b8e06f3df56650d59328"
+    ],
+    "suppressData": true
+  },
+  "explorationState": {
+    "version": "1.11",
+    "activeSection": "ReportSectionda330a02ca9ba4501861",
+    "filters": {
+      "byExpr": [
+        {
+          "name": "Filter1a8dd2026e4e36274ec7",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimTimetable_Season"
+                }
+              },
+              "Property": "Year_season"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter0c080e4b1322eaba0f6b",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimTimetable_Season"
+                }
+              },
+              "Property": "Season"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filterb06a8cc94ccf6732ba1d",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimSub Agency"
+                }
+              },
+              "Property": "Sub Agency"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter2865fa4e3d9fb30ac8ad",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Sourcing Country"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter21794651177af0b73934",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Vendor"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter2daee30c90bb4319e730",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "Details"
+                }
+              },
+              "Property": "Country of Dispatch"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter6f61545f5d5e4efcc4a3",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimManufacturer"
+                }
+              },
+              "Property": "Manufacturer"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter472025abe3f0b5d65c91",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimManufacturer"
+                }
+              },
+              "Property": "Production Country ID"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter81142fe12237faebdbcc",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimBrand"
+                }
+              },
+              "Property": "Brand"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter4853be03404a764225a2",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimGender"
+                }
+              },
+              "Property": "Gender"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter77448a9f1dcf977da76c",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimLine"
+                }
+              },
+              "Property": "Line"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter80be731a7422605ea600",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimMainclass"
+                }
+              },
+              "Property": "Main Class"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter806475335b830123d8a4",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimCollectionType"
+                }
+              },
+              "Property": "Collection Type"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter5a692c15ea111d22277f",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "CPBI_MATERIAL"
+                }
+              },
+              "Property": "Style"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filterb60ec981203e41c40602",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "Details"
+                }
+              },
+              "Property": "Purchase Order"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filterfa914436f62b35875385",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "Corrections"
+                }
+              },
+              "Property": "Correction Reason"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filtereeb64409bd662853d63c",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Vendor Status"
+            }
+          },
+          "howCreated": 1
+        }
+      ]
+    },
+    "sections": {
+      "ReportSectionda330a02ca9ba4501861": {
+        "filters": {
+          "byName": {
+            "Filterb09a06888cc652bdfb8a": {
+              "name": "Filterb09a06888cc652bdfb8a",
+              "type": "Categorical",
+              "filter": {
+                "Version": 2,
+                "From": [
+                  {
+                    "Name": "d",
+                    "Entity": "Details",
+                    "Type": 0
+                  }
+                ],
+                "Where": [
+                  {
+                    "Condition": {
+                      "Not": {
+                        "Expression": {
+                          "In": {
+                            "Expressions": [
+                              {
+                                "Column": {
+                                  "Expression": {
+                                    "SourceRef": {
+                                      "Source": "d"
+                                    }
+                                  },
+                                  "Property": "Cancellation Reason"
+                                }
+                              }
+                            ],
+                            "Values": [
+                              [
+                                {
+                                  "Literal": {
+                                    "Value": "'EF'"
+                                  }
+                                }
+                              ],
+                              [
+                                {
+                                  "Literal": {
+                                    "Value": "'ES'"
+                                  }
+                                }
+                              ],
+                              [
+                                {
+                                  "Literal": {
+                                    "Value": "'MI'"
+                                  }
+                                }
+                              ],
+                              [
+                                {
+                                  "Literal": {
+                                    "Value": "'UL'"
+                                  }
+                                }
+                              ],
+                              [
+                                {
+                                  "Literal": {
+                                    "Value": "'Z2'"
+                                  }
+                                }
+                              ],
+                              [
+                                {
+                                  "Literal": {
+                                    "Value": "'Z3'"
+                                  }
+                                }
+                              ],
+                              [
+                                {
+                                  "Literal": {
+                                    "Value": "'HG'"
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              "expression": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Details"
+                    }
+                  },
+                  "Property": "Cancellation Reason"
+                }
+              },
+              "howCreated": 1
+            }
+          }
+        },
+        "visualContainers": {
+          "64fd2294fcf6bd70543a": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "941db821e0f7c2c2c9fa": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "8f31f7cd70d500b0b263",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slicer_Currency"
+                        }
+                      },
+                      "Property": "Currency"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {
+                "merge": {
+                  "general": [
+                    {
+                      "properties": {
+                        "filter": {
+                          "filter": {
+                            "Version": 2,
+                            "From": [
+                              {
+                                "Name": "s",
+                                "Entity": "Slicer_Currency",
+                                "Type": 0
+                              }
+                            ],
+                            "Where": [
+                              {
+                                "Condition": {
+                                  "In": {
+                                    "Expressions": [
+                                      {
+                                        "Column": {
+                                          "Expression": {
+                                            "SourceRef": {
+                                              "Source": "s"
+                                            }
+                                          },
+                                          "Property": "Currency"
+                                        }
+                                      }
+                                    ],
+                                    "Values": [
+                                      [
+                                        {
+                                          "Literal": {
+                                            "Value": "'EURO'"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "data": [
+                    {
+                      "properties": {
+                        "mode": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "'Basic'"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "selection": [
+                    {
+                      "properties": {
+                        "strictSingleSelect": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "true"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "activeProjections": {
+                "Values": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slicer_Currency"
+                        }
+                      },
+                      "Property": "Currency"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "fb46af0669edd6d06b78": {
+            "filters": {
+              "byName": {
+                "Filter4671b1abdc38cbe3c483": {
+                  "name": "Filter4671b1abdc38cbe3c483",
+                  "type": "Advanced",
+                  "filter": {
+                    "Version": 2,
+                    "From": [
+                      {
+                        "Name": "d",
+                        "Entity": "dimTimetable_Season",
+                        "Type": 0
+                      }
+                    ],
+                    "Where": [
+                      {
+                        "Condition": {
+                          "And": {
+                            "Left": {
+                              "Comparison": {
+                                "ComparisonKind": 2,
+                                "Left": {
+                                  "Column": {
+                                    "Expression": {
+                                      "SourceRef": {
+                                        "Source": "d"
+                                      }
+                                    },
+                                    "Property": "Year"
+                                  }
+                                },
+                                "Right": {
+                                  "Literal": {
+                                    "Value": "2020L"
+                                  }
+                                }
+                              }
+                            },
+                            "Right": {
+                              "Comparison": {
+                                "ComparisonKind": 4,
+                                "Left": {
+                                  "Column": {
+                                    "Expression": {
+                                      "SourceRef": {
+                                        "Source": "d"
+                                      }
+                                    },
+                                    "Property": "Year"
+                                  }
+                                },
+                                "Right": {
+                                  "Literal": {
+                                    "Value": "2023L"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Year"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              }
+            },
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {
+                "merge": {
+                  "general": [
+                    {
+                      "properties": {
+                        "filter": {
+                          "filter": {
+                            "Version": 2,
+                            "From": [
+                              {
+                                "Name": "d",
+                                "Entity": "dimTimetable_Season",
+                                "Type": 0
+                              }
+                            ],
+                            "Where": [
+                              {
+                                "Condition": {
+                                  "In": {
+                                    "Expressions": [
+                                      {
+                                        "Column": {
+                                          "Expression": {
+                                            "SourceRef": {
+                                              "Source": "d"
+                                            }
+                                          },
+                                          "Property": "Year"
+                                        }
+                                      }
+                                    ],
+                                    "Values": [
+                                      [
+                                        {
+                                          "Literal": {
+                                            "Value": "2022L"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "data": [
+                    {
+                      "properties": {
+                        "mode": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "'Basic'"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "selection": [
+                    {
+                      "properties": {
+                        "strictSingleSelect": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "true"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Year"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Values": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Year"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "0923c5e2a10029959a5a": {
+            "filters": {
+              "byName": {
+                "Filter610377c7ae5ed00d6ba4": {
+                  "name": "Filter610377c7ae5ed00d6ba4",
+                  "type": "Categorical",
+                  "filter": {
+                    "Version": 2,
+                    "From": [
+                      {
+                        "Name": "d",
+                        "Entity": "dimOrderType",
+                        "Type": 0
+                      }
+                    ],
+                    "Where": [
+                      {
+                        "Condition": {
+                          "In": {
+                            "Expressions": [
+                              {
+                                "Column": {
+                                  "Expression": {
+                                    "SourceRef": {
+                                      "Source": "d"
+                                    }
+                                  },
+                                  "Property": "Purchase Order Type"
+                                }
+                              }
+                            ],
+                            "Values": [
+                              [
+                                {
+                                  "Literal": {
+                                    "Value": "'Bulk'"
+                                  }
+                                }
+                              ],
+                              [
+                                {
+                                  "Literal": {
+                                    "Value": "'Sample'"
+                                  }
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimOrderType"
+                        }
+                      },
+                      "Property": "Purchase Order Type"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              }
+            },
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {
+                "merge": {
+                  "general": [
+                    {
+                      "properties": {
+                        "filter": {
+                          "filter": {
+                            "Version": 2,
+                            "From": [
+                              {
+                                "Name": "d",
+                                "Entity": "dimOrderType",
+                                "Type": 0
+                              }
+                            ],
+                            "Where": [
+                              {
+                                "Condition": {
+                                  "In": {
+                                    "Expressions": [
+                                      {
+                                        "Column": {
+                                          "Expression": {
+                                            "SourceRef": {
+                                              "Source": "d"
+                                            }
+                                          },
+                                          "Property": "Purchase Order Type"
+                                        }
+                                      }
+                                    ],
+                                    "Values": [
+                                      [
+                                        {
+                                          "Literal": {
+                                            "Value": "'Bulk'"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "data": [
+                    {
+                      "properties": {
+                        "mode": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "'Basic'"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "selection": [
+                    {
+                      "properties": {
+                        "strictSingleSelect": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "true"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "activeProjections": {
+                "Values": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimOrderType"
+                        }
+                      },
+                      "Property": "Purchase Order Type"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "906fbd0ce590a43a124f": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "ab04693e785a70eb00b9",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "1cd08ae44a79e9a00d55",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quality"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "879ac3410c6cc2ea97ad",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspection Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "97b98c4e7a0095b5c724",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Complaint Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "8d545af27c5098048039",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "delivered to customer WHSSP"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "44a4d0534db7000ddeec",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed WHSSP"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "4d36ff766952b5769b97",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO cancelled (value)"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "50e7756c73a32e29b163",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "MSMT Test Result"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "fed98a68ecc628bbc800",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Optical Test Result"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "5c51e764c24d3903cdce",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Random Check Result"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "5b6fce9e57987d4a0a23",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "31d8fc2305ee883146ab",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Country of Dispatch"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "fd4d887a98c082b6a168",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "325dc8760d7b3d0c0045",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "pivotTable",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 1,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quality"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Rows": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  }
+                ]
+              },
+              "targetType": "pivotTable",
+              "projections": {
+                "Rows": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Country of Dispatch"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  }
+                ],
+                "Values": [
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  }
+                ]
+              },
+              "parameters": {
+                "Rows": [
+                  {
+                    "expr": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "Slice by"
+                          }
+                        },
+                        "Property": "Attributes"
+                      }
+                    },
+                    "index": 0,
+                    "length": 4
+                  }
+                ]
+              }
+            }
+          },
+          "69110664aa10d4508e25": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "31ffba8b103350398150",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Category"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "7982fa1a1a7597aad176",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Attributes"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {
+                "merge": {
+                  "general": [
+                    {
+                      "properties": {
+                        "filter": {
+                          "filter": {
+                            "Version": 2,
+                            "From": [
+                              {
+                                "Name": "s",
+                                "Entity": "Slice by",
+                                "Type": 0
+                              }
+                            ],
+                            "Where": [
+                              {
+                                "Condition": {
+                                  "In": {
+                                    "Expressions": [
+                                      {
+                                        "Column": {
+                                          "Expression": {
+                                            "SourceRef": {
+                                              "Source": "s"
+                                            }
+                                          },
+                                          "Property": "Category"
+                                        }
+                                      }
+                                    ],
+                                    "Values": [
+                                      [
+                                        {
+                                          "Literal": {
+                                            "Value": "'Sourcing'"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "data": [
+                    {
+                      "properties": {
+                        "mode": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "'Basic'"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "activeProjections": {
+                "Values": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Category"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Attributes"
+                    }
+                  }
+                ]
+              },
+              "cachedFilterDisplayItems": [
+                {
+                  "id": {
+                    "scopeId": {
+                      "Comparison": {
+                        "ComparisonKind": 0,
+                        "Left": {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Slice by"
+                              }
+                            },
+                            "Property": "Category"
+                          }
+                        },
+                        "Right": {
+                          "Literal": {
+                            "Value": "'Sourcing'"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "displayName": "Sourcing"
+                }
+              ],
+              "expansionStates": [
+                {
+                  "roles": [
+                    "Values"
+                  ],
+                  "levels": [
+                    {
+                      "queryRefs": [
+                        "Slice by.Category"
+                      ],
+                      "isCollapsed": true,
+                      "identityKeys": [
+                        {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Slice by"
+                              }
+                            },
+                            "Property": "Category"
+                          }
+                        }
+                      ],
+                      "isPinned": true
+                    },
+                    {
+                      "queryRefs": [
+                        "Slice by.Attributes"
+                      ],
+                      "isCollapsed": true,
+                      "isPinned": true
+                    }
+                  ],
+                  "root": {
+                    "identityValues": null,
+                    "children": [
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Sourcing'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      },
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Product'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      },
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Seasonal'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "838cc581ae954d83d18a": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "da6bc27b55088104e32f": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "6e7cf2f3c2690aecd69b",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "65d4abf830d3c0b85c00",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Complaint Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "0c30c5003c0dcd6c5896",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Target Complaint Rate"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Complaint Rate"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "31a57d486221e2773ac9": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "44fa95a909060662f429": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "f5299de189c7e20d5c3d",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Complaint Rate"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Complaint Rate"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "a78cbe84dba00a28a8c0": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "bdc8cd3eb0e082f045aa": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "d9568bc814009a341c96",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "8a086e46d79701eea4c6",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspection Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "41df0e27580b38457569",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Target Inspection Rate"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspection Rate"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "0e91ba5f937e464d64ac": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "d0d806038869094e770d",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspection Rate"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspection Rate"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "30485addf39122134ddf": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "c43b2afc9463499d9cfc": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "a92ceba871baab31c953": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "92081d23964a3023c457": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "1bfd5754249c25401348",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "3c32613be019c8002560",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "afb5522a049caedcc6e3",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Target Cancellation Rate"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "1c0376b3385d3124deae": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "55f079e500ed40e1adbc",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "9616c4bf485b3405eaf1": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "84e1be04e1781c71de2c": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "2d9ebde18a4608506741",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "9b13d4f2609a0c008ad2",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Target Quality"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "6215c61b204cca7c1374",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quality"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "cadfe5cb1b6580e32970",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quality PY"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quality"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "24ced21c93c27f6a4748": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "6e4b049ee7771add9639",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quality"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quality"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "20d3265e4fd8aefe8c31": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "291953829a0b0946068c",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quality ∆ to Target"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Total Score ∆ to Target"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "bad537000288f12ee90f": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "b347b8ba36973d0934ea": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "8ed81bcaccd5601077d8",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quality ∆ to PY"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Total Score ∆ to PY"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "b8e06f3df56650d59328": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "2cd0068945396e437c0d": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "6be3e44f59a23349ad12",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "891d262e1701dc21b23e",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_conf_pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "68a2a1cb6116cdd53d3d",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_conf_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "84d1d6a19a745b43213b",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO cancelled (pcs)"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "abe81b7eeed2ec24430c",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO cancelled (value)"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "be05e64022d4040e12ea",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "# of styles cancelled"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "0d5b750b6167e059b576",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate (styles)"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "913ff316b634b11d9956",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "# of styles"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "4bcd32c49198da10e050",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "8290a6219c80023b1e16",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Country of Dispatch"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "a744f8734d357d049c8b",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "ffa0744a3a152022130e",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "pivotTable",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Rows": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  }
+                ]
+              },
+              "targetType": "pivotTable",
+              "projections": {
+                "Rows": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Country of Dispatch"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  }
+                ],
+                "Values": [
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  }
+                ]
+              },
+              "parameters": {
+                "Rows": [
+                  {
+                    "expr": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "Slice by"
+                          }
+                        },
+                        "Property": "Attributes"
+                      }
+                    },
+                    "index": 0,
+                    "length": 4
+                  }
+                ]
+              }
+            }
+          },
+          "6ab2bae220ac7875e273": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "68dea56c6bda3a63dc59",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Category"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "bd7948ad7e49346c3c80",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Attributes"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {
+                "merge": {
+                  "general": [
+                    {
+                      "properties": {
+                        "filter": {
+                          "filter": {
+                            "Version": 2,
+                            "From": [
+                              {
+                                "Name": "s",
+                                "Entity": "Slice by",
+                                "Type": 0
+                              }
+                            ],
+                            "Where": [
+                              {
+                                "Condition": {
+                                  "In": {
+                                    "Expressions": [
+                                      {
+                                        "Column": {
+                                          "Expression": {
+                                            "SourceRef": {
+                                              "Source": "s"
+                                            }
+                                          },
+                                          "Property": "Category"
+                                        }
+                                      }
+                                    ],
+                                    "Values": [
+                                      [
+                                        {
+                                          "Literal": {
+                                            "Value": "'Sourcing'"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "data": [
+                    {
+                      "properties": {
+                        "mode": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "'Basic'"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "activeProjections": {
+                "Values": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Category"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Attributes"
+                    }
+                  }
+                ]
+              },
+              "cachedFilterDisplayItems": [
+                {
+                  "id": {
+                    "scopeId": {
+                      "Comparison": {
+                        "ComparisonKind": 0,
+                        "Left": {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Slice by"
+                              }
+                            },
+                            "Property": "Category"
+                          }
+                        },
+                        "Right": {
+                          "Literal": {
+                            "Value": "'Sourcing'"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "displayName": "Sourcing"
+                }
+              ],
+              "expansionStates": [
+                {
+                  "roles": [
+                    "Values"
+                  ],
+                  "levels": [
+                    {
+                      "queryRefs": [
+                        "Slice by.Category"
+                      ],
+                      "isCollapsed": true,
+                      "identityKeys": [
+                        {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Slice by"
+                              }
+                            },
+                            "Property": "Category"
+                          }
+                        }
+                      ],
+                      "isPinned": true
+                    },
+                    {
+                      "queryRefs": [
+                        "Slice by.Attributes"
+                      ],
+                      "isCollapsed": true,
+                      "isPinned": true
+                    }
+                  ],
+                  "root": {
+                    "identityValues": null,
+                    "children": [
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Sourcing'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      },
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Product'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "68ba93c4b8707003eb7c": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "0ce3f9d6c99a2e77478b": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "2cb0ddf1627775600da1",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "b650ae145961a6020004",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Complaint Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "58b306adae1e8bcd5503",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Target Complaint Rate"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Complaint Rate"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ae7c69e8e44cfc6da6f8": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "426cd49f02c58a88136b": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "1eb2a932b63006950d60",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate (WEK)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate (WEK)"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "e5ebe11a142440d9d78f": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "8bf50886487d0d556b06": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "2b1ef8704020b686675b",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "288fd188a45a1c815a96",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate (pre delivery styles)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate (pre delivery styles)"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "c6da1fec09ca7a8e1f5d": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "1adfa5d5569d49b10ed7",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate (pre delivery styles)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate (pre delivery styles)"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "87d519f1f05b7ad41ea0": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "367e5832f8917d017755": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "7e01924ee8e742015d83": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "b7334516131008d1c002",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "e8e270e60e04c0595c88",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate (WEK styles)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate (WEK styles)"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "aabf84702f4e4d52bf3f": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "3d05c0ab9ed13551cf3a": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "49ec08025d08030e1401",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate (WEK styles)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate (WEK styles)"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "7e15f0530d3106dd24a2": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "8d8205ed93d7d6413f88": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "eb091d5b81809bb7eaeb": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "2369919f40d72b7d4370",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "c3ee4754330a5be8a007",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate (pre delivery)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate (pre delivery)"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "8baa2e97ec3307cb696c": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "7c787da053c3bb7bbc07",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate (pre delivery)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate (pre delivery)"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "44987185872ada297a2d": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "a46eb8406a38fbe34600": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "6928d4669ed95b0cb930",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "44a03622d2c420dbb04e",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Target Cancellation Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "7b15e43d66b3aca19c91",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "de6e74ab93452d938a00",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate PY"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ee6acafa6cf4e8771629": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "3bf1b4c517178820e691",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "0253b074d6dcddd2ea56": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "b8f334ab5cc65a72b03a",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate ∆ to Target"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Total Score ∆ to Target"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "02593f551760c26e8465": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "bbe3b866a223543b136f": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "ae5b7712d9e7d7084894",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Cancellation Rate ∆ to PY"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Total Score ∆ to PY"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "ea3ec1302955b2d7a48c": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "e326774f485d19805abb": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "787ed218a2b9b5d088a0",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspection Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "083cd2a368b3611e151c",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "MSMT Test Result"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "6342001c51be196240cd",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Optical Test Result"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "f5dff3a01b7110b52eb5",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Random Check Result"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "96083d4b3cee70dd5289",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspected styles in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "a9189476ee1ad455c4a4",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Optical Test Points"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "0e659d08938070872be0",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "# of styles"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "fc91f9f47eee97003104",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "MSMT Test Points"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "946597405ca49324ddbc",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Random Check Points"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "1a8663ffc8227b7bc2d6",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "a3514fd00c43644c38c2",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Country of Dispatch"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "eb94cdfd2edd41d5b900",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "f87b625b22a14b9b923d",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "pivotTable",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 1,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspection Rate"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Rows": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  }
+                ]
+              },
+              "targetType": "pivotTable",
+              "projections": {
+                "Rows": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Country of Dispatch"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  }
+                ],
+                "Values": [
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  }
+                ]
+              },
+              "parameters": {
+                "Rows": [
+                  {
+                    "expr": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "Slice by"
+                          }
+                        },
+                        "Property": "Attributes"
+                      }
+                    },
+                    "index": 0,
+                    "length": 4
+                  }
+                ]
+              }
+            }
+          },
+          "9afe26e3ed7b7524927c": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "d35969609b86b878eb2e",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Category"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "42ae7a4d90001360a072",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Attributes"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {
+                "merge": {
+                  "general": [
+                    {
+                      "properties": {
+                        "filter": {
+                          "filter": {
+                            "Version": 2,
+                            "From": [
+                              {
+                                "Name": "s",
+                                "Entity": "Slice by",
+                                "Type": 0
+                              }
+                            ],
+                            "Where": [
+                              {
+                                "Condition": {
+                                  "In": {
+                                    "Expressions": [
+                                      {
+                                        "Column": {
+                                          "Expression": {
+                                            "SourceRef": {
+                                              "Source": "s"
+                                            }
+                                          },
+                                          "Property": "Category"
+                                        }
+                                      }
+                                    ],
+                                    "Values": [
+                                      [
+                                        {
+                                          "Literal": {
+                                            "Value": "'Sourcing'"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "data": [
+                    {
+                      "properties": {
+                        "mode": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "'Basic'"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "activeProjections": {
+                "Values": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Category"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Attributes"
+                    }
+                  }
+                ]
+              },
+              "cachedFilterDisplayItems": [
+                {
+                  "id": {
+                    "scopeId": {
+                      "Comparison": {
+                        "ComparisonKind": 0,
+                        "Left": {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Slice by"
+                              }
+                            },
+                            "Property": "Category"
+                          }
+                        },
+                        "Right": {
+                          "Literal": {
+                            "Value": "'Sourcing'"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "displayName": "Sourcing"
+                }
+              ],
+              "expansionStates": [
+                {
+                  "roles": [
+                    "Values"
+                  ],
+                  "levels": [
+                    {
+                      "queryRefs": [
+                        "Slice by.Category"
+                      ],
+                      "isCollapsed": true,
+                      "identityKeys": [
+                        {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Slice by"
+                              }
+                            },
+                            "Property": "Category"
+                          }
+                        }
+                      ],
+                      "isPinned": true
+                    },
+                    {
+                      "queryRefs": [
+                        "Slice by.Attributes"
+                      ],
+                      "isCollapsed": true,
+                      "isPinned": true
+                    }
+                  ],
+                  "root": {
+                    "identityValues": null,
+                    "children": [
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Product'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      },
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Sourcing'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "f8f461ea0a9a50a17455": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "fd222f640b34210c32d5",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "9a2f4e4a96dc1744d73c",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspection Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "ee75ec5d9e2098060029",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspection Rate PY"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "936cf6da57a311256c98",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Target Inspection Rate"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspection Rate"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "f78a78462d24ed872c30": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "d10afa926452735161a7": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "313e2cb2bacd4a7013c4",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "be6f7b9d10a4c2d597c7",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Random Check Result"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Random Check Result"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ff4ace5365ebddaa2074": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "88f62abe528d867f9ab2": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "7c23c5f50198455e5c14",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Random Check Result"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Random Check Result"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "8698590e8d3626ec02ac": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "e4a68384f6c8663ef850": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "858f3d91031186a1c0db",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "00ef6ab33210d1dc50a4",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "MSMT Test Result"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "MSMT Test Result"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "8f9a879654342c6a9686": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "a6cf9135b495a6d6c251",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "MSMT Test Result"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "MSMT Test Result"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "4c1a7dccff570c284ad1": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "505766b47589a4f3b8a4": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "a559de7e350a01225e8a": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "a55d76f07552c536015a",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "c574d4ede4e0002d30ce",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspected styles in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "224aaf7505812817e683",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Target Inspected styles"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspected styles in %"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "f6bed955018f6b493afe": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "9b306b8ea407f68d3539": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "35a8dae4ac796cc9d605",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspected styles in %"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspected styles in %"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "eb68dabb31e965fc05dd": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "6f6863efb9c12c77f71a": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "42e6dd6ab1ac09149ec6": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "af9aa39481e0de50b839",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "b46cedd09d08a1140972",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Optical Test Result"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Optical Test Result"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "f4a5213e67c9416429ec": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "37a611c19d0e06745999",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Optical Test Result"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Optical Test Result"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "0b0f5b41039d8ac55882": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "0e899221f5677ecfa882": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "79052b10955e16cc183a",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspection Rate"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspection Rate"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "3e7dd3e2403473eb367f": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "a21a1a600e9d075807b2",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspection Rate ∆ to Target"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Total Score ∆ to Target"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "d662efae41e8fb15b21e": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "e2fd32cb9a58b4b5e69f": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "d4c92c41542408b13672",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Inspection Rate ∆ to PY"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "91cae143d7f257d58d81": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "aa44696b58f81c809c8b": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "bca12ec7776e19166217",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Complaint Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "19574f3105c903077de4",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "delivered to customer WHSSP"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "56918fb46a4778a133bb",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed WHSSP"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "7c4a800cb03144341589",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "6f3b1c3c330980065765",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "7d8fecd69c360515b907",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "b2202c4622300108c632",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "CCR"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "9e2555441d7a2c908ebd",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "# of claimed styles (CCR)"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "620104e4071b0a934a31",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "# of styles delivered to cust."
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "831adf73c0096ca59a12",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "delivered to customer pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "8fee0403e248db7c094a",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "claimed pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "0cbb788e58120b9073e9",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "# of claimed styles (CSS)"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "9c7a71fdde17919762ad",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "CSS Claim Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "cf9f543607b4e0da764c",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Country of Dispatch"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "pivotTable",
+              "objects": {},
+              "activeProjections": {
+                "Rows": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  }
+                ]
+              },
+              "targetType": "pivotTable",
+              "projections": {
+                "Rows": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Details"
+                        }
+                      },
+                      "Property": "Country of Dispatch"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  }
+                ],
+                "Values": [
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  }
+                ]
+              },
+              "parameters": {
+                "Rows": [
+                  {
+                    "expr": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "Slice by"
+                          }
+                        },
+                        "Property": "Attributes"
+                      }
+                    },
+                    "index": 0,
+                    "length": 4
+                  }
+                ]
+              },
+              "expansionStates": [
+                {
+                  "roles": [
+                    "Rows"
+                  ],
+                  "levels": [
+                    {
+                      "queryRefs": [
+                        "dimSub Agency.Sub Agency"
+                      ],
+                      "isCollapsed": true,
+                      "identityKeys": [
+                        {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "dimSub Agency"
+                              }
+                            },
+                            "Property": "Sub Agency"
+                          }
+                        }
+                      ],
+                      "isPinned": true
+                    },
+                    {
+                      "queryRefs": [
+                        "Details.Country of Dispatch"
+                      ],
+                      "isCollapsed": true,
+                      "isPinned": true
+                    },
+                    {
+                      "queryRefs": [
+                        "dimVendor.Vendor"
+                      ],
+                      "isCollapsed": true
+                    },
+                    {
+                      "queryRefs": [
+                        "dimManufacturer.Manufacturer"
+                      ],
+                      "isCollapsed": true
+                    }
+                  ],
+                  "root": {
+                    "identityValues": null
+                  }
+                }
+              ]
+            }
+          },
+          "e82bc89b37c8e49c5415": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "63819680000068a4d46a",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Category"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "b908c8f03b6237a40cbc",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Attributes"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {
+                "merge": {
+                  "general": [
+                    {
+                      "properties": {
+                        "filter": {
+                          "filter": {
+                            "Version": 2,
+                            "From": [
+                              {
+                                "Name": "s",
+                                "Entity": "Slice by",
+                                "Type": 0
+                              }
+                            ],
+                            "Where": [
+                              {
+                                "Condition": {
+                                  "In": {
+                                    "Expressions": [
+                                      {
+                                        "Column": {
+                                          "Expression": {
+                                            "SourceRef": {
+                                              "Source": "s"
+                                            }
+                                          },
+                                          "Property": "Category"
+                                        }
+                                      }
+                                    ],
+                                    "Values": [
+                                      [
+                                        {
+                                          "Literal": {
+                                            "Value": "'Sourcing'"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "data": [
+                    {
+                      "properties": {
+                        "mode": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "'Basic'"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "activeProjections": {
+                "Values": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Category"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Attributes"
+                    }
+                  }
+                ]
+              },
+              "cachedFilterDisplayItems": [
+                {
+                  "id": {
+                    "scopeId": {
+                      "Comparison": {
+                        "ComparisonKind": 0,
+                        "Left": {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Slice by"
+                              }
+                            },
+                            "Property": "Category"
+                          }
+                        },
+                        "Right": {
+                          "Literal": {
+                            "Value": "'Sourcing'"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "displayName": "Sourcing"
+                }
+              ],
+              "expansionStates": [
+                {
+                  "roles": [
+                    "Values"
+                  ],
+                  "levels": [
+                    {
+                      "queryRefs": [
+                        "Slice by.Category"
+                      ],
+                      "isCollapsed": true,
+                      "identityKeys": [
+                        {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Slice by"
+                              }
+                            },
+                            "Property": "Category"
+                          }
+                        }
+                      ],
+                      "isPinned": true
+                    },
+                    {
+                      "queryRefs": [
+                        "Slice by.Attributes"
+                      ],
+                      "isCollapsed": true,
+                      "isPinned": true
+                    }
+                  ],
+                  "root": {
+                    "identityValues": null,
+                    "children": [
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Sourcing'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      },
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Product'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "4a88e5f27fb859c6281b": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "bf870c567553be740eb3": {
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {}
+            }
+          },
+          "f320fbb6d5d029f76df0": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "005f0ba04b1ba6f65e51": {
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "5e422f0390b6c89ad974": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "c881562b6b8f425415ce": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "7ec1b9da2b610a075984",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "cb4b7b9d1a35837530e7",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "CSS Claim Rate"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "CSS Claim Rate"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "bef1e36142698c878864": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "7a421a54893c7a7205dc",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "CSS Claim Rate"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "CSS Claim Rate"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "2ae7d742ff1d88586e4b": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "94039181cdcd44170a70": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "1812b29701561cf30acb": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "4279cd8bf48b92f63523": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "8d19213f64ea0bca7eb1",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "2ea464fe4d0ca02923bb",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "CCR"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "dc409a14804283c98a75",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Target CCR"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "CCR"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "b3aac466b46c1cde12f6": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "c5df3b9297ab5d562415",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "CCR"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "CCR"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "86b1e3a58b9d8417a3b0": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "8feee39d1b295d45c37f": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "c2666cce1930869230d8",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "d3856218805b76998680",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Complaint Rate"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "c5df76680037a5b5d641",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Complaint Rate PY"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "b418d18b9d59b278aeed",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Target Complaint Rate"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Complaint Rate"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "c3b2f9e3806207374255": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "442350587e61e7c6b012",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Complaint Rate"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Complaint Rate"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "11b553fe0850f8ef23a2": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "6859b681296890d50eee",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Complaint Rate ∆ to Target"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Total Score ∆ to Target"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "f185761ce791838e55ba": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "c6980581782c8b6f5a9e": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "72b9f5369beedd400be8",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Complaint Rate ∆ to PY"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Total Score ∆ to PY"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "c705f1852ec7e5f857b1": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "4daaad291a97c50bbb25": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "3d934f136b5e44fcafa0": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "0a50bf85b734e4e88bbd": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "4cfbd5ef0c402382a1a6": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "7ceb69539e142a1ccbe6": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "1b644afc2c319ecbeb7e": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "edd146c9e600c3a75a03": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "5c07479ec58d115cb153": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "cdf5725f8d45eb2511da": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          }
+        },
+        "visualContainerGroups": {
+          "62013838d6315a65bd8d": {
+            "children": {
+              "45942006d366f05368bd": {
+                "isHidden": false
+              }
+            }
+          },
+          "548d987e48879c6c3eae": {
+            "isHidden": true
+          },
+          "29f52b93658f90230c84": {
+            "isHidden": false
+          },
+          "2b4cfb099c17d4fc6a72": {
+            "isHidden": true
+          },
+          "e726cc2946c3c589f7dc": {
+            "isHidden": true
+          },
+          "2e96a908152dfec07114": {
+            "isHidden": true,
+            "children": {
+              "a2c7e014656a021871f8": {
+                "children": {
+                  "79bf4b5baec2d6179223": {
+                    "isHidden": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "objects": {
+      "merge": {
+        "outspacePane": [
+          {
+            "properties": {
+              "expanded": {
+                "expr": {
+                  "Literal": {
+                    "Value": "false"
+                  }
+                }
+              },
+              "visible": {
+                "expr": {
+                  "Literal": {
+                    "Value": "true"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

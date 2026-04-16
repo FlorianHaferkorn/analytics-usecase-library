@@ -1,0 +1,506 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "Delivery - Date Reliability",
+  "name": "Bookmarkf904e241558f72f96b49",
+  "options": {
+    "applyOnlyToTargetVisuals": true,
+    "targetVisualNames": [
+      "96b6f91478e0e7060573",
+      "778dbf8f9b6ea570e529",
+      "2c7f5968686eac174828",
+      "e292ea1be4862cb84f09",
+      "4f2b26da5dd7682e6de4",
+      "218b06c919714b5d0562",
+      "e2fbcbe15c918c305da6",
+      "939d4f43d634c4051e1f",
+      "a3c7ab511316d7064f76",
+      "5693204b0a61a3a977b0",
+      "09bdcc96fb961ecdbadf",
+      "87b5671f4d2cd9fa3ad2",
+      "a033e2db2ef0338b23b5",
+      "c4a8b8219bf09626df7f",
+      "8ddd5524759b89749841",
+      "a80bc24a59a7847a1066",
+      "7312f1bfc58de76d84f8",
+      "fe37c34097ee09f644e6",
+      "6c26c54255ac952b3083",
+      "faea572903344b61d067",
+      "8452791d4fb5333a2a57",
+      "9ea54dd3003240d147fc",
+      "c517fd3adb1bff95ab5b",
+      "ce3495b158ac3d5d191f",
+      "35de301f350236ddae42",
+      "7790e9cfbab5296c5c70",
+      "25baff7197e7d360cfef",
+      "be4a5ae25f59a4b33f8b",
+      "df701ef01ab2d2c1b9b6",
+      "f3662b96044148c7fcd1",
+      "153fe73fd293dae8f4ec",
+      "5ccfcb44a97e11255691",
+      "dbdebdcdc7e46c06066f",
+      "92d0efbc45242663a278",
+      "0e36bf5574da948080ec",
+      "abff5216098e04140540",
+      "14bca6079733e1a104c8",
+      "aecd9ad17d7ff627fd5c",
+      "225ececd8c1a4d63933b",
+      "4989e180d485c097a47c",
+      "d17dd1e6e857a87e8ef0",
+      "eb1d511718b591458bc1",
+      "04518bab62a21626a3a3",
+      "486381efb015d52e5ca3",
+      "a674244544f9346953ef",
+      "8a5a9932fd40337e1994",
+      "0d0a66dccdaa7e005596",
+      "5f86221b624fee38627e",
+      "bf3b2cef6cfb5d53a0da",
+      "9edf2bfeb777923cdf32",
+      "02efc7826e4ea17a6810",
+      "a7bf94be6ae13a43d553",
+      "97fb19b7e8d3f898e226",
+      "4ef00e8daa7d1dad4f2b",
+      "86bae6655fdc3ace4eaa",
+      "f62a7a378ffd87c5677d",
+      "511c82afb6a3251d70dd",
+      "029bbba47c9dc82f2287",
+      "6eaa1552545515b97e97",
+      "3caf760cac0c587c8c41",
+      "f7b3d104e94f1141975c",
+      "7b71afe8ff262bdc64e7",
+      "4a90284f45e3ead43398",
+      "fcdff62ba0440fcf29b6",
+      "8bc2be57a7d5fb11e7ab",
+      "87d9ce65e5dc2e4c6c12",
+      "307376346a4641edec50",
+      "bf7e294d9ac075e7258c",
+      "a3718ae2abfc55591a96",
+      "78376d8ee8081afcbc91",
+      "d8a0b0ae5aa24fe82464",
+      "a4c688f39fa31408e93c",
+      "12dd7d71e7248c81dde6",
+      "16ea2271f2f3da3e0308",
+      "3d34adf4071feb086c0d",
+      "8cc00f1f2e3c1724a94a",
+      "d8330217938fee9c14f6",
+      "730d71d5380aefe25cdc",
+      "a73e1e3574d80e988fb7",
+      "443874c09a78f26af6bd",
+      "77cb1556ccf8bab17d07",
+      "4b52aafe4c41e6cc7ae2",
+      "2686ca376697b4b271cb",
+      "fd70bb21c766473ada66",
+      "0ed807b03daf2dfbd526",
+      "269055375893dce003ec",
+      "d4a7026bf95846974027",
+      "469f02067414046ac0e2",
+      "b19ad85923cd86acaae0",
+      "081bc6cecbdb6cd613a3",
+      "b1661f00275298b1e0c4",
+      "2d27c513ed1ce1dfb16f"
+    ],
+    "suppressData": true
+  },
+  "explorationState": {
+    "version": "1.3",
+    "activeSection": "ReportSectione291e56ae365100cb5a8",
+    "filters": {
+      "byExpr": [
+        {
+          "name": "Filter1a8dd2026e4e36274ec7",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimTimetable_Season"
+                }
+              },
+              "Property": "Year_season"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter0c080e4b1322eaba0f6b",
+          "type": "Advanced",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimTimetable_Season"
+                }
+              },
+              "Property": "Season"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter43b25e22162a5950ac9a",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimSub Agency"
+                }
+              },
+              "Property": "Sub Agency"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filterceffa814ec63e8cd25d4",
+          "type": "Categorical",
+          "expression": {
+            "GroupRef": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Offshore/Nearshore",
+              "GroupedColumns": [
+                {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "dimVendor"
+                      }
+                    },
+                    "Property": "Sourcing Market"
+                  }
+                }
+              ]
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter714f07e8d5422d314b3a",
+          "type": "Categorical",
+          "expression": {
+            "GroupRef": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Sourcing Market",
+              "GroupedColumns": [
+                {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "dimVendor"
+                      }
+                    },
+                    "Property": "Sourcing Country"
+                  }
+                }
+              ]
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter2865fa4e3d9fb30ac8ad",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Sourcing Country"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter21794651177af0b73934",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Vendor"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter6f61545f5d5e4efcc4a3",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimManufacturer"
+                }
+              },
+              "Property": "Manufacturer"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter472025abe3f0b5d65c91",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimManufacturer"
+                }
+              },
+              "Property": "Production Country ID"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter81142fe12237faebdbcc",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimBrand"
+                }
+              },
+              "Property": "Brand"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter4853be03404a764225a2",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimGender"
+                }
+              },
+              "Property": "Gender"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter77448a9f1dcf977da76c",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimLine"
+                }
+              },
+              "Property": "Line"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter80be731a7422605ea600",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimMainclass"
+                }
+              },
+              "Property": "Main Class"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter806475335b830123d8a4",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimCollectionType"
+                }
+              },
+              "Property": "Collection Type"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filterb60ec981203e41c40602",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "Details"
+                }
+              },
+              "Property": "Purchase Order"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter5a692c15ea111d22277f",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "CPBI_MATERIAL"
+                }
+              },
+              "Property": "Style"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter4d254f21424be77b7dce",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "CPBI_MATERIAL"
+                }
+              },
+              "Property": "Retail Price (UVP) €"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter16f4fe986d9343ad0012",
+          "type": "Categorical",
+          "expression": {
+            "GroupRef": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "CPBI_MATERIAL"
+                }
+              },
+              "Property": "Key Look (Cluster)",
+              "GroupedColumns": [
+                {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "CPBI_MATERIAL"
+                      }
+                    },
+                    "Property": "Key Look"
+                  }
+                }
+              ]
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filterab67c76c705f492ef9ec",
+          "type": "Categorical",
+          "expression": {
+            "GroupRef": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "Details"
+                }
+              },
+              "Property": "Top 10",
+              "GroupedColumns": [
+                {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "Details"
+                      }
+                    },
+                    "Property": "HC_CATIND1"
+                  }
+                }
+              ]
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter4fded88ce8965c5dc6d9",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "Details"
+                }
+              },
+              "Property": "Ordersplit"
+            }
+          },
+          "howCreated": 1
+        }
+      ]
+    },
+    "sections": {
+      "ReportSectione291e56ae365100cb5a8": {
+        "visualContainers": {},
+        "visualContainerGroups": {
+          "fab9bcd17914132893f0": {
+            "children": {
+              "9900640a1cdf9bd9a8d5": {
+                "isHidden": false
+              }
+            }
+          },
+          "96b6f91478e0e7060573": {
+            "isHidden": true
+          },
+          "a3c7ab511316d7064f76": {
+            "isHidden": false
+          },
+          "939d4f43d634c4051e1f": {
+            "isHidden": true
+          }
+        }
+      }
+    },
+    "objects": {
+      "merge": {
+        "outspacePane": [
+          {
+            "properties": {
+              "expanded": {
+                "expr": {
+                  "Literal": {
+                    "Value": "false"
+                  }
+                }
+              },
+              "visible": {
+                "expr": {
+                  "Literal": {
+                    "Value": "true"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

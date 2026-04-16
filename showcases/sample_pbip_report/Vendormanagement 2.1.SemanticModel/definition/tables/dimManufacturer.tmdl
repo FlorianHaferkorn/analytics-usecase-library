@@ -1,0 +1,258 @@
+table dimManufacturer
+	lineageTag: 22f610d5-3ee4-4963-bd0d-0c45650873d7
+
+	column 'Manufacturer ID'
+		formatString: 0
+		lineageTag: bb041b59-c1dc-4a6e-b9bf-0c55bab13017
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Manufacturer ID]
+
+		annotation SummarizationSetBy = Automatic
+
+	column PLZ = LOOKUPVALUE( CC_VENDOR[Postleitzahl] , CC_VENDOR[Lieferant] , dimManufacturer[Key] )
+		lineageTag: b01d105a-89a8-43bb-b9d6-9df59112d58b
+		dataCategory: PostalCode
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Partnership in years' =
+			
+			IF(
+			    IF(
+			        dimManufacturer[Delisting Date] <> BLANK() ,
+			        DIVIDE( dimManufacturer[Delisting Date] - dimManufacturer[Activation Date] , 365.25 , 0 ) ,
+			        DIVIDE( TODAY() - dimManufacturer[Activation Date] , 365.25 , 0 )
+			    ) < 0 ,
+			    BLANK() ,
+			    IF(
+			        dimManufacturer[Delisting Date] <> BLANK() ,
+			        DIVIDE( dimManufacturer[Delisting Date] - dimManufacturer[Activation Date] , 365.25 , 0 ) ,
+			        DIVIDE( TODAY() - dimManufacturer[Activation Date] , 365.25 , 0 )
+			    )
+			)
+		formatString: 0.0
+		lineageTag: 80ed075a-41b7-40c3-8915-644865107337
+		summarizeBy: none
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = User
+
+	column 'Last Assessment Date' = CALCULATE( MAX( Sustainability[Last Assessment Date] ))
+		dataType: string
+		lineageTag: d2856155-04f4-4574-b4d8-caab54134a1a
+		summarizeBy: none
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Re-Assessment Date' = CALCULATE( MAX( Sustainability[Re-Assessment Date] ) )
+		dataType: string
+		lineageTag: 3c858b4e-afcd-413f-903d-f80a1dffbda9
+		summarizeBy: none
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column Questionaire = CALCULATE( MAX( Sustainability[Last Assessment Questionnaire] ) )
+		lineageTag: 70e7eb30-dc0f-4858-81f8-6da8831e43d4
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Key
+		isHidden
+		lineageTag: 5a4ae146-7b18-433a-bba9-988b862021f1
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Key]
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Pending = ```
+			
+			    MAXX (
+			        FILTER ( CC_LFM1_S4, CC_LFM1_S4[LIFNR] = dimManufacturer[Key] ),
+			        CC_LFM1_S4[Allg. EK Sperre]
+			    )
+			```
+		lineageTag: 30aa62cf-57e1-4308-b3ba-9c341d7cfa11
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Pending Date' = ```
+			
+			var _Date =
+			    MAXX (
+			        FILTER ( 
+			            CC_LFM1_S4, CC_LFM1_S4[LIFNR] = dimManufacturer[Key] && 
+			            CC_LFM1_S4[EK Sperre Datum] <> "00000000" ),
+			        CC_LFM1_S4[EK Sperre Datum]
+			    )
+			
+			RETURN
+			DATE( LEFT( _Date , 4 ) , MID( _Date , 5 , 2 ) , RIGHT( _Date , 2 ) )
+			```
+		dataType: string
+		lineageTag: 9c5579d1-bdbc-4d5e-98e0-4c1757a87c42
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Delisting = ```
+			
+			    MAXX (
+			        FILTER ( CC_LFM1_S4, CC_LFM1_S4[LIFNR] = dimManufacturer[Key] ),
+			        CC_LFM1_S4[Allg. Bch Sperre]
+			    )
+			```
+		lineageTag: 6dd545f9-7b50-4817-91f6-cd69e9d1f153
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Delisting Date' = ```
+			
+			var _Date =
+			    MAXX (
+			        FILTER ( 
+			            CC_LFM1_S4, CC_LFM1_S4[LIFNR] = dimManufacturer[Key] && 
+			            CC_LFM1_S4[Bch Sperre Datum] <> "00000000" ),
+			        CC_LFM1_S4[Bch Sperre Datum]
+			    )
+			
+			RETURN
+			DATE( LEFT( _Date , 4 ) , MID( _Date , 5 , 2 ) , RIGHT( _Date , 2 ) )
+			```
+		dataType: string
+		lineageTag: 16ac041e-6380-4076-9946-5b2cfc495ea8
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Manufacturer Status' = ```
+			
+			    SWITCH(
+			        TRUE() ,
+			            dimManufacturer[Delisting] <> BLANK() , "Delisted" ,
+			            dimManufacturer[Pending] <> BLANK() , "Pending" ,
+			            LEFT( dimManufacturer[Manufacturer] , 1 ) = "*" , "Delisted" ,
+			            "Active"
+			    )
+			```
+		lineageTag: af2dafe8-dd86-4d9b-8594-58e9c82c3e18
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Production Country ID'
+		lineageTag: 31095161-7ec4-4ece-97c1-db87fa25ef02
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Production Country ID]
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		lineageTag: 0c681814-2b08-41c6-94a5-19a84706aee1
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [City]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Street
+		lineageTag: 4a731ed8-6261-4197-9c46-9d9f6d7ca353
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Street]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Activation Date'
+		dataType: dateTime
+		formatString: dd.mm.yyyy
+		lineageTag: 28532dd2-b234-4d26-a088-db22e5c84116
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Activation Date]
+
+		variation Variation
+			isDefault
+			relationship: 2c2c8630-7160-4090-83b5-33c2e94efa94
+			defaultHierarchy: LocalDateTable_cb1a14e6-347c-4f44-928f-f1e8334940ef.Datumshierarchie
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'Wet Processing' =
+			
+			CALCULATE(
+			    MAX( Sustainability[Wet processing] ) ,
+			    FILTER(
+			        Sustainability,
+			        VALUE( dimManufacturer[Manufacturer ID] ) = VALUE( Sustainability[External ID] )
+			    )
+			)
+		lineageTag: c9987716-552a-4507-b206-bd564ce37468
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Manufacturer = ```
+			
+			CALCULATE( 
+			    MAX( CC_VENDOR[Textspalte für Attribut 0VENDOR] ) ,
+			    FILTER(
+			        CC_VENDOR, 
+			        dimManufacturer[Key] = CC_VENDOR[Lieferant]
+			    )
+			)
+			```
+		lineageTag: 7753ad31-b60e-48d0-82a2-6a167e1c8dec
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dimManufacturer-ad4242b0-ff73-4f63-95ad-35cb42509d57 = calculated
+		mode: import
+		source = ```
+				
+				FILTER(
+				    DISTINCT(
+				        SELECTCOLUMNS(
+				                Details,
+				                "Key", Details[Hersteller ID] ,
+				                "Manufacturer ID", 
+				                    IF(
+				                        Details[Hersteller] <> BLANK(), 
+				                        VALUE( RIGHT( Details[Hersteller] , 7 ) ) ,
+				                        BLANK()
+				                    ),
+				                --"Manufacturer" , Details[Manufacturer] ,
+				                "Production Country ID" , Details[COUNTRY_MFR] ,
+				                "City" , Details[CITY_MFR] ,
+				                "Street" , Details[STREET_MFR] ,
+				                "Activation Date" , 
+				                    IF(
+				                        VALUE( Details[Date of activation MFR] ) > 0, 
+				                        Details[Date of Activation MFR] , 
+				                        BLANK()
+				                    )
+				        )
+				    ), NOT ISBLANK( [Manufacturer ID] )
+				)
+				```
+
+	annotation PBI_Id = 70b3018cf22c40118f98dd8e0767bc19
+

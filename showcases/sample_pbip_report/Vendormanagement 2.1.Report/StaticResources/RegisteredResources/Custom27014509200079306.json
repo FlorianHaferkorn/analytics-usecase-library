@@ -1,0 +1,59 @@
+{
+  "name": "Custom",
+  "dataColors": [
+    "#A0998C",
+    "#C8C8CA",
+    "#E5E1E0",
+    "#093B23",
+    "#67CF5E",
+    "#002F9C",
+    "#1E65DD",
+    "#FF5742"
+  ],
+  "bad": "#F78272",
+  "neutral": "#F9D087",
+  "good": "#84C28A",
+  "textClasses": {
+    "label": {
+      "fontFace": "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif"
+    },
+    "callout": {
+      "fontFace": "wf_standard-font, helvetica, arial, sans-serif",
+      "fontSize": 30
+    },
+    "title": {
+      "fontFace": "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif"
+    },
+    "header": {
+      "fontFace": "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif"
+    }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [
+          {
+            "transparency": 100
+          }
+        ]
+      }
+    },
+    "page": {
+      "*": {
+        "background": [
+          {
+            "color": {
+              "solid": {
+                "color": "#F3F3F3"
+              }
+            },
+            "transparency": 0
+          }
+        ]
+      }
+    }
+  },
+  "minimum": "#D1E0F9",
+  "center": "#76A2EC",
+  "maximum": "#1E65DD"
+}

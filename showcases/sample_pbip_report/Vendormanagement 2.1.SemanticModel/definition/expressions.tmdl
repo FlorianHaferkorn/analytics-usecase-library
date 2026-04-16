@@ -1,0 +1,8 @@
+/// Name of the source file for showcases
+expression File_Source = "C:\Users\florianhaferkorn\OneDrive - Nagarro\Desktop\Vendormanagement 2.1.xlsx" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 186f6a87-0848-48bb-b9fa-b5c981a96df9
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+

@@ -1,0 +1,59 @@
+table 'dimSub Agency'
+	lineageTag: 10337797-ffa5-4779-b065-bf411f6d3ed8
+
+	column 'Sub Agency ID'
+		lineageTag: 44dd5772-b5c5-4f2f-bc03-ad9d39488eda
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Sub Agency ID]
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Sub Agency'
+		lineageTag: a9e57e35-e98b-4b01-8c49-958e69c16fb9
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Sub Agency]
+
+		annotation SummarizationSetBy = Automatic
+
+	column KEY
+		isHidden
+		lineageTag: b83cf08c-1390-4bcc-be64-c8f009b947b0
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [KEY]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'dimSub Agency' = calculated
+		mode: import
+		source = ```
+				
+				FILTER(
+				    DISTINCT(
+				        SELECTCOLUMNS(
+				                Details,
+				                "KEY" , Details[Sub Agency] ,
+				                "Sub Agency ID", VALUE( Details[Sub Agency] ),
+				                "Sub Agency", 
+				                    CALCULATE(
+				                        MAXX( 
+				                            CC_VENDOR ,
+				                                CC_VENDOR[Textspalte für Attribut 0VENDOR] 
+				                        ) ,
+				                        FILTER(
+				                            CC_VENDOR ,
+				                            Details[Sub Agency] = CC_VENDOR[Lieferant]
+				                        )
+				                    ) 
+				        )
+				    ), 
+				    NOT ISBLANK( [Sub Agency] )
+				)
+				```
+
+	annotation PBI_Id = 603d11b5ed3f4003bdf25758d1709fbd
+

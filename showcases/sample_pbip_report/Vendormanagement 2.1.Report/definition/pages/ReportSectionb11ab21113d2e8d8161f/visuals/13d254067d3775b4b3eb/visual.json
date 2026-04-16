@@ -1,0 +1,17 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "13d254067d3775b4b3eb",
+  "position": {
+    "x": 27,
+    "y": 190,
+    "z": 11000,
+    "height": 989.26829268292681,
+    "width": 1860,
+    "tabOrder": 2000
+  },
+  "visualGroup": {
+    "displayName": "PP Ratio Breakdown",
+    "groupMode": "ScaleMode"
+  },
+  "isHidden": true
+}

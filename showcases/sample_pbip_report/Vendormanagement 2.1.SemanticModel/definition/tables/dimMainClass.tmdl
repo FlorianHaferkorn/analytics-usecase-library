@@ -1,0 +1,37 @@
+table dimMainClass
+	lineageTag: 81261c70-4412-4829-952c-6c35b0cb76bc
+
+	column 'Main Class ID'
+		lineageTag: 368c58b1-2257-422c-8494-1d64a9b5ec2d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Main Class ID]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Main Class'
+		lineageTag: ba5b7cb5-b8ab-4db6-938a-d207c7c1632d
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Main Class]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dimMainClass = calculated
+		mode: import
+		source = ```
+				
+				    FILTER(
+				        DISTINCT(
+				            SELECTCOLUMNS(
+				                    CPBI_MATERIAL,
+				                    "Main Class ID", CPBI_MATERIAL[Hauptwarengruppe S4],
+				                    "Main Class", CPBI_MATERIAL[Hauptwarengruppe S4 Text]
+				            )
+				        ), 
+				        NOT ISBLANK([Main Class])
+				    )
+				```
+
+	annotation PBI_Id = d8295b06b98a4ad180e5798884f0b4c0
+

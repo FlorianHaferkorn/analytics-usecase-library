@@ -1,0 +1,48 @@
+table 'Claim reason'
+	isHidden
+	lineageTag: b66f913a-267f-49eb-b26b-f96aefec2a69
+
+	column 'Claim Reason Code' = Left('Claim reason'[Claim reason name], 3)
+		isHidden
+		lineageTag: d1155063-24c8-41a7-a2fd-343381b223c7
+		summarizeBy: none
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Claim reason'
+		dataType: string
+		lineageTag: 5654be83-44af-48c2-a0ec-fce9002ac19a
+		summarizeBy: none
+		sourceColumn: Claim reason
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Claim reason name'
+		dataType: string
+		lineageTag: c438f1e4-80ed-46d8-b8bb-5b1126e1508b
+		summarizeBy: none
+		sourceColumn: Claim reason name
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Claim reason-8aa8b184-a906-4c8e-9bc2-b0df491af4de' = m
+		mode: import
+		source =
+				let
+				    Quelle = Excel.Workbook(File.Contents(File_Source), null, true),
+				    #"Claim reason_Sheet" = Quelle{[Item="Claim reason",Kind="Sheet"]}[Data],
+				    #"Höher gestufte Header" = Table.PromoteHeaders(#"Claim reason_Sheet", [PromoteAllScalars=true]),
+				    #"Geänderter Typ" = Table.TransformColumnTypes(#"Höher gestufte Header",{{"Claim reason", type text}, {"Claim reason name", type text}, {"SPRAS", type text}, {"Claim Reason Code", Int64.Type}}),
+				    #"Entfernte Spalten" = Table.RemoveColumns(#"Geänderter Typ",{"Claim Reason Code"}),
+				    #"Columns removed by Measure Killer"= Table.RemoveColumns(#"Entfernte Spalten",{"SPRAS"})
+				in
+				#"Columns removed by Measure Killer"
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

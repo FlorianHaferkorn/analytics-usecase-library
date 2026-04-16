@@ -1,0 +1,211 @@
+table dimTimetable_Season
+	lineageTag: 3055ae85-0cbf-46c3-887f-991fda3216c6
+
+	column Date
+		dataType: dateTime
+		formatString: dd.mm.yyyy
+		lineageTag: 33f25425-27e9-43e3-9778-b009c238ea25
+		summarizeBy: none
+		sourceColumn: Date
+
+		variation Variation
+			isDefault
+			relationship: 1127cbc3-df1c-4447-8e0c-96a260904b3b
+			defaultHierarchy: LocalDateTable_12f5fdf1-be7d-4816-bdf0-34d7dc6f9f4e.Datumshierarchie
+
+		changedProperty = FormatString
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 42129d95-ba51-484d-a134-0cf38a3f56de
+		summarizeBy: none
+		sourceColumn: Year
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+	column QuarterNo
+		dataType: int64
+		formatString: 0
+		lineageTag: 8f96387a-3ffb-40fc-bb76-194a43e2a403
+		summarizeBy: none
+		sourceColumn: QuarterNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+	column Quarter
+		dataType: string
+		lineageTag: c2b4fd61-6329-448f-89c0-4f701e666ad2
+		summarizeBy: none
+		sourceColumn: Quarter
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Season
+		dataType: int64
+		formatString: 0
+		lineageTag: 4831c384-166c-4d9b-9dd4-ec57fa05ba88
+		summarizeBy: none
+		sourceColumn: Season
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+	column Month
+		dataType: string
+		lineageTag: 63ab1f4b-448c-4d9a-9f6a-8ddf581e85b9
+		summarizeBy: none
+		sourceColumn: Month
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column DayNo
+		dataType: int64
+		formatString: 0
+		lineageTag: b4e154d7-ffb4-4cf6-b21b-1b15ad4f453f
+		summarizeBy: none
+		sourceColumn: DayNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+	column Day
+		dataType: string
+		lineageTag: bb21e969-d1ff-4677-9924-31c142fd0bfb
+		summarizeBy: none
+		sourceColumn: Day
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year_season = CONCATENATE(dimTimetable_Season[Year],Format(dimTimetable_Season[Season],"00"))
+		lineageTag: 030829fe-a2a7-49e7-9860-abe7d6fd5a17
+		summarizeBy: none
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Released = ```
+			
+			Var _Factor = 0.3
+			Var _TimetoFinalize = 14
+			Var _FinalOrder = 
+			IF(
+			    CALCULATE(
+			        MINX( data_timeschedule, data_timeschedule[Sales Period Till] ),
+			        FILTER(
+			            data_timeschedule ,
+			            data_timeschedule[Line ID] = "11" && 
+			            data_timeschedule[Gender ID] = "2" &&
+			            VALUE( data_timeschedule[Year] ) = dimTimetable_Season[Year] &&
+			            VALUE( data_timeschedule[Season Month] ) = dimTimetable_Season[Season] &&
+			            data_timeschedule[Collection Type ID] = "10"
+			        )
+			    ) <> BLANK() ,
+			    CALCULATE(
+			        MINX( data_timeschedule, data_timeschedule[Sales Period Till] ),
+			        FILTER(
+			            data_timeschedule ,
+			            data_timeschedule[Line ID] = "11" && 
+			            data_timeschedule[Gender ID] = "2" &&
+			            VALUE( data_timeschedule[Year] ) = dimTimetable_Season[Year] &&
+			            VALUE( data_timeschedule[Season Month] ) = dimTimetable_Season[Season] &&
+			            data_timeschedule[Collection Type ID] = "10"
+			        )
+			    ) ,
+			    CALCULATE(
+			        MINX( data_timeschedule, data_timeschedule[Sales Period Till] ),
+			        FILTER(
+			            data_timeschedule ,
+			            data_timeschedule[Line ID] = "11" && 
+			            data_timeschedule[Gender ID] = "2" &&
+			            VALUE( data_timeschedule[Year] ) = dimTimetable_Season[Year] &&
+			            VALUE( data_timeschedule[Season Month] ) = dimTimetable_Season[Season] &&
+			            data_timeschedule[Collection Type ID] = "11"
+			        )
+			    )
+			)
+			Return
+			    IF(
+			        dimTimetable_Season[Year] < VALUE( MIN( data_timeschedule[Year] ) ) ,
+			        "Yes" ,
+			        IF(
+			            TODAY() > _FinalOrder + _TimetoFinalize && 
+			            _FinalOrder <> BLANK() ,
+			            "Yes", 
+			            "No" 
+			        )
+			    )
+			```
+		lineageTag: fa67cc5b-6087-411a-9e4e-5587027b4270
+		summarizeBy: none
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column WeekNo
+		dataType: int64
+		formatString: 0
+		lineageTag: 803cf09d-ec15-4984-bc49-a86fce27407f
+		summarizeBy: none
+		sourceColumn: WeekNo
+
+		annotation SummarizationSetBy = User
+
+	partition dimTimetable_Season-c13f6c76-6a56-4037-af14-eb35a17f2c83 = m
+		mode: import
+		source =
+				let
+				    //Variables
+				    StartDate = #date(2022, 01, 01),
+				    EndDate = #date(2024, 12, 31),
+				    Duration = Duration.Days(Duration.From(EndDate-StartDate))+1,
+				    Today = DateTime.Date(DateTime.LocalNow()),
+				
+				    //Date Columns
+				    Dates = List.Dates(StartDate,Duration,#duration(1,0,0,0)),
+				    #"Converted to Table" = Table.FromList(Dates, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+				    #"Renamed Columns" = Table.RenameColumns(#"Converted to Table",{{"Column1", "Date"}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns",{{"Date", type date}}),
+				    #"Inserted Year" = Table.AddColumn(#"Changed Type", "Year", each Date.Year([Date]), Int64.Type),
+				    #"Inserted QuarterNo" = Table.AddColumn(#"Inserted Year", "QuarterNo", each Date.QuarterOfYear([Date]), Int64.Type),
+				    #"Inserted Quarter" = Table.AddColumn(#"Inserted QuarterNo", "Quarter", each "Q"&Number.ToText([QuarterNo])),
+				    #"Inserted MonthNo" = Table.AddColumn(#"Inserted Quarter", "MonthNo", each Date.Month([Date]), Int64.Type),
+				    #"Inserted Month" = Table.AddColumn(#"Inserted MonthNo", "Month", each Text.Start(Date.MonthName([Date]),3), type text),
+				    #"Inserted WeekNo" = Table.AddColumn(#"Inserted Month", "WeekNo", each Date.WeekOfYear( [Date] , Day.Monday )),
+				    #"Inserted DayNo" = Table.AddColumn(#"Inserted WeekNo", "DayNo", each Date.DayOfWeek([Date], 1)+1, Int64.Type),
+				    #"Inserted Day Name" = Table.AddColumn(#"Inserted DayNo", "Day", each Text.Start(Date.DayOfWeekName([Date]),3), type text),
+				    #"Umbenannte Spalten" = Table.RenameColumns(#"Inserted Day Name",{{"MonthNo", "Season"}}),
+				    #"Geänderter Typ" = Table.TransformColumnTypes(#"Umbenannte Spalten",{{"Year", Int64.Type}, {"QuarterNo", Int64.Type}, {"Season", Int64.Type}, {"WeekNo", Int64.Type}, {"DayNo", Int64.Type}}),
+				    #"Sortierte Zeilen" = Table.Sort(#"Geänderter Typ",{{"Date", Order.Ascending}})
+				
+				in
+				    #"Sortierte Zeilen"
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

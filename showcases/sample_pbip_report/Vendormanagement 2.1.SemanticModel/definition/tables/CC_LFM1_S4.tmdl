@@ -1,0 +1,100 @@
+table CC_LFM1_S4
+	isHidden
+	lineageTag: 9038b5f0-8674-4688-927a-f52c16e7f296
+
+	column LIFNR
+		dataType: string
+		isHidden
+		lineageTag: 16c78569-b360-4cd3-a69a-e04f73967a74
+		summarizeBy: none
+		sourceColumn: LIFNR
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column TRANSPORT_CHAIN
+		dataType: string
+		isHidden
+		lineageTag: d83b2fdf-bb8a-4854-a7a6-938ec049a9b5
+		summarizeBy: none
+		sourceColumn: TRANSPORT_CHAIN
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Currency
+		dataType: string
+		lineageTag: c1eded01-1089-4cb9-b99f-9f0fc7b36970
+		summarizeBy: none
+		sourceColumn: Currency
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Terms of Payment'
+		dataType: string
+		lineageTag: c4d4fb92-a21d-4aad-a606-38bf95e5cea8
+		summarizeBy: none
+		sourceColumn: Terms of Payment
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Allg. EK Sperre'
+		dataType: string
+		lineageTag: 746892b5-fc75-44c0-8f03-911751fd9197
+		summarizeBy: none
+		sourceColumn: Allg. EK Sperre
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'EK Sperre Datum'
+		dataType: string
+		lineageTag: 17ec8222-258d-4040-906e-c323ad16d9da
+		summarizeBy: none
+		sourceColumn: EK Sperre Datum
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Allg. Bch Sperre'
+		dataType: string
+		lineageTag: f439f012-f114-443c-92e5-331cb02cf6ec
+		summarizeBy: none
+		sourceColumn: Allg. Bch Sperre
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Bch Sperre Datum'
+		dataType: string
+		lineageTag: b47e3083-dbb4-4ad1-a9de-7b966d6dfb76
+		summarizeBy: none
+		sourceColumn: Bch Sperre Datum
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Kontonummer der Zentrale'
+		dataType: string
+		lineageTag: 336b90a5-6814-4317-9a84-6b14aab43783
+		summarizeBy: none
+		sourceColumn: Kontonummer der Zentrale
+
+		annotation SummarizationSetBy = Automatic
+
+	partition CC_LFM1_S4-6ac28a99-1625-46e5-bc40-40b3786708a3 = m
+		mode: import
+		source =
+				let
+				    Quelle = Excel.Workbook(File.Contents(File_Source), null, true),
+				    CC_LFM1_S4_Sheet = Quelle{[Item="CC_LFM1_S4",Kind="Sheet"]}[Data],
+				    #"Höher gestufte Header" = Table.PromoteHeaders(CC_LFM1_S4_Sheet, [PromoteAllScalars=true]),
+				    #"Geänderter Typ" = Table.TransformColumnTypes(#"Höher gestufte Header",{{"LIFNR", type text}, {"Currency", type text}, {"Terms of Payment", type text}, {"TRANSPORT_CHAIN", type text}, {"Allg. EK Sperre", type text}, {"EK Sperre Datum", type text}, {"Allg. Bch Sperre", type text}, {"Bch Sperre Datum", type text}, {"Alte Kundennummer", type text}, {"Kontonummer der Zentrale", type text}}),
+				    #"Columns removed by Measure Killer"= Table.RemoveColumns(#"Geänderter Typ",{"Alte Kundennummer"})
+				in
+				#"Columns removed by Measure Killer"
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

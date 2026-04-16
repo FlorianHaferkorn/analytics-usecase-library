@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "ReportSectionf39931fc46ed2ce8bbec",
+  "displayName": "Tooltip - Cancellation",
+  "displayOption": "FitToPage",
+  "height": 600,
+  "width": 700,
+  "objects": {
+    "displayArea": [
+      {
+        "properties": {
+          "verticalAlignment": {
+            "expr": {
+              "Literal": {
+                "Value": "'Middle'"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visibility": "HiddenInViewMode",
+  "type": "Tooltip",
+  "visualInteractions": [
+    {
+      "source": "a9662872b6345ccd377d",
+      "target": "1aca170cc4d019dab7ba",
+      "type": "DataFilter"
+    },
+    {
+      "source": "1aca170cc4d019dab7ba",
+      "target": "a9662872b6345ccd377d",
+      "type": "DataFilter"
+    }
+  ]
+}

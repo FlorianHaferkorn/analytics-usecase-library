@@ -1,0 +1,4628 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/bookmark/2.1.0/schema.json",
+  "displayName": "QV - Overship",
+  "name": "Bookmark8311f111357db8e239a6",
+  "options": {
+    "applyOnlyToTargetVisuals": true,
+    "targetVisualNames": [
+      "b4b879056b88adf67957",
+      "4f09e08a47c0bac8bddc",
+      "5514e0cdb405ec03a256",
+      "314991adf3e75054a4c5",
+      "e69eb7d300d75761c5fd",
+      "073a03fbc45b936c8372",
+      "ef4f01598f04085771d8",
+      "582db2c209410843b1f8",
+      "dd29e01cab90ce441aa1",
+      "340e3dfbce923c88e618",
+      "fa32793ff8d126401464",
+      "910dc35dfef2ff204ec8",
+      "3c7b25feafdc46f932d9",
+      "ca39e401b501f91fba6d",
+      "a50903208a0f26428f74",
+      "ad051514a2d90afd046a",
+      "ed070272dbea29e14368",
+      "64d5d8caf2394b518166",
+      "4490eb39bf8e42d5fa24",
+      "10899472dd27b231555a",
+      "8f13d88069c52a18087f",
+      "47c47ac040992937d69d",
+      "13533284e21f0ebb4f72",
+      "99bac467d7b079ef4316",
+      "2e2f7a87340adf6c07e1",
+      "d462c87822fd700381eb",
+      "4f772ab0a220cdfe847f",
+      "70334afc61c56a36d76f",
+      "0d90e4ce0fe22b030d00",
+      "1d5fdad5ccec44c6d999",
+      "176d66f7bfc5e721cda9",
+      "f128fb56bf9f3c274543",
+      "87bb49b1552197a9e98f",
+      "29c2aeac43b8980dbb88",
+      "e63205ff74d91467ffe9",
+      "28c89dc4c2843108fff5",
+      "93eefe54c2d51b9763ed",
+      "d77619d769446ed1f8d8",
+      "24dd79c6c2db9fd85ad5",
+      "2460ce36ad298723afc1",
+      "79c61963e15592c3101b",
+      "86499c88188ad3446a5a",
+      "b244d84d5ef106f83c30",
+      "991e0ead8ab73d62ee5a",
+      "cadaff21f2060945f6dc",
+      "b799716d891cfb502c03",
+      "152ec7100dc0a2a9378c",
+      "40f3e71a728ada850393",
+      "e0184b45ac23fb106c95",
+      "4d9a7281a98265c60617",
+      "521901ca331a1033f6a0",
+      "a1454f271c01d221709c",
+      "eb96f938c1c7586e6818",
+      "e370decbd7ce3f4aee68",
+      "3d418379ced82d381487",
+      "583e50bc093a25eb5062",
+      "758a0cdf44fa1effd391",
+      "b2fcc7e3867d43633059",
+      "fb04b8d78c78a00a6817",
+      "e4e15a0d40eae57c8445",
+      "254f87001fe0a4c58d8e",
+      "f15701bb5357f8c2169c",
+      "f626cc4198429b594029",
+      "d7c770a59400493ad6d5",
+      "6b609f7085ca4afb126b",
+      "77826c9924e303acb80a",
+      "a78ccf4cf71322f01f37",
+      "ab643c7afcc1f83c741e",
+      "3a5755881ce5c7d0ebee",
+      "37a658f81163d731d9c5",
+      "dabca1b5136d59f73b75",
+      "c0f39b433d854b477ee7",
+      "e007942875d4f9f6a736",
+      "134fc57507f9eac0096f",
+      "1189a96d850f4ecacac0",
+      "a3a2088efd5d8cb801a3",
+      "c7aded15a7ea391f6482",
+      "9abc26c8dc5350a2dc0e",
+      "d0f1fd69e9b4f70acaf4",
+      "4c96237e153563e2038f",
+      "57b0fd92b5d183df92e8",
+      "76a6f34c3dd0e109b51b",
+      "11a4a64968c0a8129b8e",
+      "d70e54116f7d2248ad7c",
+      "ed40b282fb05fb6f4c4c",
+      "dbd26d4c77054f72b306",
+      "efa87d397a310b9acd7f"
+    ],
+    "suppressData": true
+  },
+  "explorationState": {
+    "version": "1.11",
+    "activeSection": "ReportSectiond0750ebcd46c51c21408",
+    "filters": {
+      "byExpr": [
+        {
+          "name": "Filter1a8dd2026e4e36274ec7",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimTimetable_Season"
+                }
+              },
+              "Property": "Year_season"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter0c080e4b1322eaba0f6b",
+          "type": "Advanced",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimTimetable_Season"
+                }
+              },
+              "Property": "Season"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter43b25e22162a5950ac9a",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimSub Agency"
+                }
+              },
+              "Property": "Sub Agency"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filterceffa814ec63e8cd25d4",
+          "type": "Categorical",
+          "expression": {
+            "GroupRef": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Offshore/Nearshore",
+              "GroupedColumns": [
+                {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "dimVendor"
+                      }
+                    },
+                    "Property": "Sourcing Market"
+                  }
+                }
+              ]
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter714f07e8d5422d314b3a",
+          "type": "Categorical",
+          "expression": {
+            "GroupRef": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Sourcing Market",
+              "GroupedColumns": [
+                {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "dimVendor"
+                      }
+                    },
+                    "Property": "Sourcing Country"
+                  }
+                }
+              ]
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter2865fa4e3d9fb30ac8ad",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Sourcing Country"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter21794651177af0b73934",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimVendor"
+                }
+              },
+              "Property": "Vendor"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter6f61545f5d5e4efcc4a3",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimManufacturer"
+                }
+              },
+              "Property": "Manufacturer"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter472025abe3f0b5d65c91",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimManufacturer"
+                }
+              },
+              "Property": "Production Country ID"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter81142fe12237faebdbcc",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimBrand"
+                }
+              },
+              "Property": "Brand"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter4853be03404a764225a2",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimGender"
+                }
+              },
+              "Property": "Gender"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter77448a9f1dcf977da76c",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimLine"
+                }
+              },
+              "Property": "Line"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter80be731a7422605ea600",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimMainclass"
+                }
+              },
+              "Property": "Main Class"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter806475335b830123d8a4",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "dimCollectionType"
+                }
+              },
+              "Property": "Collection Type"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filterb60ec981203e41c40602",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "Details"
+                }
+              },
+              "Property": "Purchase Order"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter5a692c15ea111d22277f",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "CPBI_MATERIAL"
+                }
+              },
+              "Property": "Style"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter4d254f21424be77b7dce",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "CPBI_MATERIAL"
+                }
+              },
+              "Property": "Retail Price (UVP) €"
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter16f4fe986d9343ad0012",
+          "type": "Categorical",
+          "expression": {
+            "GroupRef": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "CPBI_MATERIAL"
+                }
+              },
+              "Property": "Key Look (Cluster)",
+              "GroupedColumns": [
+                {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "CPBI_MATERIAL"
+                      }
+                    },
+                    "Property": "Key Look"
+                  }
+                }
+              ]
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filterab67c76c705f492ef9ec",
+          "type": "Categorical",
+          "expression": {
+            "GroupRef": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "Details"
+                }
+              },
+              "Property": "Top 10",
+              "GroupedColumns": [
+                {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "Details"
+                      }
+                    },
+                    "Property": "HC_CATIND1"
+                  }
+                }
+              ]
+            }
+          },
+          "howCreated": 1
+        },
+        {
+          "name": "Filter4fded88ce8965c5dc6d9",
+          "type": "Categorical",
+          "expression": {
+            "Column": {
+              "Expression": {
+                "SourceRef": {
+                  "Entity": "Details"
+                }
+              },
+              "Property": "Ordersplit"
+            }
+          },
+          "howCreated": 1
+        }
+      ]
+    },
+    "sections": {
+      "ReportSectiond0750ebcd46c51c21408": {
+        "visualContainers": {
+          "49ce3941e0abca41d323": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "9097187299ff6a539b93": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "64fd2294fcf6bd70543a": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "d3aeb3636bc6e2fc2e79": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "9b3676069c2e501bcc35",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slicer_Currency"
+                        }
+                      },
+                      "Property": "Currency"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {
+                "merge": {
+                  "general": [
+                    {
+                      "properties": {
+                        "filter": {
+                          "filter": {
+                            "Version": 2,
+                            "From": [
+                              {
+                                "Name": "s",
+                                "Entity": "Slicer_Currency",
+                                "Type": 0
+                              }
+                            ],
+                            "Where": [
+                              {
+                                "Condition": {
+                                  "In": {
+                                    "Expressions": [
+                                      {
+                                        "Column": {
+                                          "Expression": {
+                                            "SourceRef": {
+                                              "Source": "s"
+                                            }
+                                          },
+                                          "Property": "Currency"
+                                        }
+                                      }
+                                    ],
+                                    "Values": [
+                                      [
+                                        {
+                                          "Literal": {
+                                            "Value": "'EURO'"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "data": [
+                    {
+                      "properties": {
+                        "mode": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "'Basic'"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "selection": [
+                    {
+                      "properties": {
+                        "strictSingleSelect": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "true"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "activeProjections": {
+                "Values": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slicer_Currency"
+                        }
+                      },
+                      "Property": "Currency"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "a38fb8e1d57f4a611dda": {
+            "filters": {
+              "byName": {
+                "Filter4671b1abdc38cbe3c483": {
+                  "name": "Filter4671b1abdc38cbe3c483",
+                  "type": "Advanced",
+                  "filter": {
+                    "Version": 2,
+                    "From": [
+                      {
+                        "Name": "d",
+                        "Entity": "dimTimetable_Season",
+                        "Type": 0
+                      }
+                    ],
+                    "Where": [
+                      {
+                        "Condition": {
+                          "And": {
+                            "Left": {
+                              "Comparison": {
+                                "ComparisonKind": 2,
+                                "Left": {
+                                  "Column": {
+                                    "Expression": {
+                                      "SourceRef": {
+                                        "Source": "d"
+                                      }
+                                    },
+                                    "Property": "Year"
+                                  }
+                                },
+                                "Right": {
+                                  "Literal": {
+                                    "Value": "2020L"
+                                  }
+                                }
+                              }
+                            },
+                            "Right": {
+                              "Comparison": {
+                                "ComparisonKind": 4,
+                                "Left": {
+                                  "Column": {
+                                    "Expression": {
+                                      "SourceRef": {
+                                        "Source": "d"
+                                      }
+                                    },
+                                    "Property": "Year"
+                                  }
+                                },
+                                "Right": {
+                                  "Literal": {
+                                    "Value": "2024L"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Year"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              }
+            },
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {
+                "merge": {
+                  "general": [
+                    {
+                      "properties": {
+                        "filter": {
+                          "filter": {
+                            "Version": 2,
+                            "From": [
+                              {
+                                "Name": "d",
+                                "Entity": "dimTimetable_Season",
+                                "Type": 0
+                              }
+                            ],
+                            "Where": [
+                              {
+                                "Condition": {
+                                  "In": {
+                                    "Expressions": [
+                                      {
+                                        "Column": {
+                                          "Expression": {
+                                            "SourceRef": {
+                                              "Source": "d"
+                                            }
+                                          },
+                                          "Property": "Year"
+                                        }
+                                      }
+                                    ],
+                                    "Values": [
+                                      [
+                                        {
+                                          "Literal": {
+                                            "Value": "2023L"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "data": [
+                    {
+                      "properties": {
+                        "mode": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "'Basic'"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "selection": [
+                    {
+                      "properties": {
+                        "strictSingleSelect": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "true"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Year"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Values": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Year"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "39fd733f7f2ee641d3c3": {
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {
+                "merge": {
+                  "general": [
+                    {
+                      "properties": {
+                        "filter": {
+                          "filter": {
+                            "Version": 2,
+                            "From": [
+                              {
+                                "Name": "d",
+                                "Entity": "dimOrderType",
+                                "Type": 0
+                              }
+                            ],
+                            "Where": [
+                              {
+                                "Condition": {
+                                  "In": {
+                                    "Expressions": [
+                                      {
+                                        "Column": {
+                                          "Expression": {
+                                            "SourceRef": {
+                                              "Source": "d"
+                                            }
+                                          },
+                                          "Property": "Purchase Order Type"
+                                        }
+                                      }
+                                    ],
+                                    "Values": [
+                                      [
+                                        {
+                                          "Literal": {
+                                            "Value": "'Bulk'"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "data": [
+                    {
+                      "properties": {
+                        "mode": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "'Basic'"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "selection": [
+                    {
+                      "properties": {
+                        "strictSingleSelect": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "true"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "activeProjections": {
+                "Values": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimOrderType"
+                        }
+                      },
+                      "Property": "Purchase Order Type"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "340e3dfbce923c88e618": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "92558d7c877d2a714caa",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_conf_pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "e293066fb58d96008452",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_conf_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "667dc5b5b7108226805a",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_ship_initial_pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "0f83240751c4de67740c",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_ship_initial_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "88f65d12861ba16ac686",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "4383e47494c26973c694",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "3036fff76700b9ae6b8d",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_ship_initial_val in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "9e7c8f01862ea07a75b4",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "45f7a75e80d8c58361bc",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Sourcing Country"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "f45b06523e43c9e1ad21",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "68c7335c0c3c30744559",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "cfe1d870d9a8811eee90",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quantity Variance Score"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "55d74cf1e9b099ac7614",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_shortship_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "dc72d4813ad3401caaa1",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_overship_val"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "pivotTable",
+              "objects": {},
+              "activeProjections": {
+                "Rows": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  }
+                ]
+              },
+              "projections": {
+                "Rows": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Sourcing Country"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  }
+                ],
+                "Values": [
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  }
+                ]
+              },
+              "parameters": {
+                "Rows": [
+                  {
+                    "expr": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "Slice by"
+                          }
+                        },
+                        "Property": "Attributes"
+                      }
+                    },
+                    "index": 0,
+                    "length": 4
+                  }
+                ]
+              }
+            }
+          },
+          "fa32793ff8d126401464": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "fc0456f13a03183e345a",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Category"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "8b11c91adc69a3d36bcc",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Attributes"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {
+                "merge": {
+                  "general": [
+                    {
+                      "properties": {
+                        "filter": {
+                          "filter": {
+                            "Version": 2,
+                            "From": [
+                              {
+                                "Name": "s",
+                                "Entity": "Slice by",
+                                "Type": 0
+                              }
+                            ],
+                            "Where": [
+                              {
+                                "Condition": {
+                                  "In": {
+                                    "Expressions": [
+                                      {
+                                        "Column": {
+                                          "Expression": {
+                                            "SourceRef": {
+                                              "Source": "s"
+                                            }
+                                          },
+                                          "Property": "Category"
+                                        }
+                                      }
+                                    ],
+                                    "Values": [
+                                      [
+                                        {
+                                          "Literal": {
+                                            "Value": "'Sourcing'"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "data": [
+                    {
+                      "properties": {
+                        "mode": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "'Basic'"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "activeProjections": {
+                "Values": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Category"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Attributes"
+                    }
+                  }
+                ]
+              },
+              "cachedFilterDisplayItems": [
+                {
+                  "id": {
+                    "scopeId": {
+                      "Comparison": {
+                        "ComparisonKind": 0,
+                        "Left": {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Slice by"
+                              }
+                            },
+                            "Property": "Category"
+                          }
+                        },
+                        "Right": {
+                          "Literal": {
+                            "Value": "'Sourcing'"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "displayName": "Sourcing"
+                }
+              ],
+              "expansionStates": [
+                {
+                  "roles": [
+                    "Values"
+                  ],
+                  "levels": [
+                    {
+                      "queryRefs": [
+                        "Slice by.Category"
+                      ],
+                      "isCollapsed": true,
+                      "identityKeys": [
+                        {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Slice by"
+                              }
+                            },
+                            "Property": "Category"
+                          }
+                        }
+                      ],
+                      "isPinned": true
+                    },
+                    {
+                      "queryRefs": [
+                        "Slice by.Attributes"
+                      ],
+                      "isCollapsed": true,
+                      "isPinned": true
+                    }
+                  ],
+                  "root": {
+                    "identityValues": null,
+                    "children": [
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Sourcing'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      },
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Product'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      },
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Seasonal'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      },
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Others'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "3c7b25feafdc46f932d9": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "a50903208a0f26428f74": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "575457d8901826d892a5",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "c1860a2c2b5368a48136",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "60fb1c6e3d06a403704a",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Target Overshipped"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in %"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ad051514a2d90afd046a": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "ed070272dbea29e14368": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "bb5be42e60e13b005cb0",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in %"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in %"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "64d5d8caf2394b518166": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "10899472dd27b231555a": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "b1f64148c9d5d2d206b7",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "b9e3c136e4c80d97c8eb",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "443d23d7833a1d96a998",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Target Overshipped"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in %"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "8f13d88069c52a18087f": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "a6f03c5e28a8540e6537",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in %"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in %"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "47c47ac040992937d69d": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "13533284e21f0ebb4f72": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "2e2f7a87340adf6c07e1": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "d462c87822fd700381eb": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "bbd6cb8302a7e4802ec3",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "26a9455e3e0449a7d98c",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Target Shortshipped"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "778f88275a8715bd8804",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in %"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in %"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "4f772ab0a220cdfe847f": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "972dab177d627170363b",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in %"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in %"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "70334afc61c56a36d76f": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "0d90e4ce0fe22b030d00": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "9ee864c790953715a451",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "b631d6deebe3ab54a7c4",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quantity Variance Score"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "18b5af16a00d0c740b9c",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quantity Variance Score PY"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "6a0c51744d7517dacb20",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Target Quantity Variance"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quantity Variance Score"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "176d66f7bfc5e721cda9": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "c80ef06c5c619bcea2c9",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quantity Variance Score"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quantity Variance Score"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "f128fb56bf9f3c274543": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "b84a226e342a3c0a3479",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quantity Variance Score ∆ to Target"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "87bb49b1552197a9e98f": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "29c2aeac43b8980dbb88": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "f0c4ef550e46b5aa4ad3",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Quantity Variance Score ∆ to PY"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {}
+            }
+          },
+          "e63205ff74d91467ffe9": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "f15701bb5357f8c2169c": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "0b578b3248d03c6d1180",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_conf_pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "7638e36b1a5d0acd5dda",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_conf_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "610717610813d3653cd6",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_ship_initial_pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "ae7ee57100b06391cd9c",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_ship_initial_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "6740ef6f2120bda0a0d2",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "4b07ef3b0b405024abc6",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "# of styles"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "8b4cdbf45428190b9cc4",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "84a536606bd8763cb0da",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Sourcing Country"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "12e327257916da31007c",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "1ed5b9c5c97d8e330cc8",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "f6780c8d01031d7da68c",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Ø shortshipment in pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "71952ba57a6020804e2a",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_shortship_pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "0839ffb5e1c23244e100",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_shortship_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "c9d5f7423ac7cb851091",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "# of orders"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "cfeda301406dc6d9ad82",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in % (styles)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "pivotTable",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in %"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Rows": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  }
+                ]
+              },
+              "projections": {
+                "Rows": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Sourcing Country"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  }
+                ],
+                "Values": [
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  }
+                ]
+              },
+              "parameters": {
+                "Rows": [
+                  {
+                    "expr": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "Slice by"
+                          }
+                        },
+                        "Property": "Attributes"
+                      }
+                    },
+                    "index": 0,
+                    "length": 4
+                  }
+                ]
+              }
+            }
+          },
+          "f626cc4198429b594029": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "9830c04c5343b2cb8410",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Category"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "2a65a5f5b3708bc4aea5",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Attributes"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {
+                "merge": {
+                  "general": [
+                    {
+                      "properties": {
+                        "filter": {
+                          "filter": {
+                            "Version": 2,
+                            "From": [
+                              {
+                                "Name": "s",
+                                "Entity": "Slice by",
+                                "Type": 0
+                              }
+                            ],
+                            "Where": [
+                              {
+                                "Condition": {
+                                  "In": {
+                                    "Expressions": [
+                                      {
+                                        "Column": {
+                                          "Expression": {
+                                            "SourceRef": {
+                                              "Source": "s"
+                                            }
+                                          },
+                                          "Property": "Category"
+                                        }
+                                      }
+                                    ],
+                                    "Values": [
+                                      [
+                                        {
+                                          "Literal": {
+                                            "Value": "'Sourcing'"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "data": [
+                    {
+                      "properties": {
+                        "mode": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "'Basic'"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "activeProjections": {
+                "Values": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Category"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Attributes"
+                    }
+                  }
+                ]
+              },
+              "cachedFilterDisplayItems": [
+                {
+                  "id": {
+                    "scopeId": {
+                      "Comparison": {
+                        "ComparisonKind": 0,
+                        "Left": {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Slice by"
+                              }
+                            },
+                            "Property": "Category"
+                          }
+                        },
+                        "Right": {
+                          "Literal": {
+                            "Value": "'Sourcing'"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "displayName": "Sourcing"
+                }
+              ],
+              "expansionStates": [
+                {
+                  "roles": [
+                    "Values"
+                  ],
+                  "levels": [
+                    {
+                      "queryRefs": [
+                        "Slice by.Category"
+                      ],
+                      "isCollapsed": true,
+                      "identityKeys": [
+                        {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Slice by"
+                              }
+                            },
+                            "Property": "Category"
+                          }
+                        }
+                      ],
+                      "isPinned": true
+                    },
+                    {
+                      "queryRefs": [
+                        "Slice by.Attributes"
+                      ],
+                      "isCollapsed": true,
+                      "isPinned": true
+                    }
+                  ],
+                  "root": {
+                    "identityValues": null,
+                    "children": [
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Product'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      },
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Sourcing'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      },
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Seasonal'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      },
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Others'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "6b609f7085ca4afb126b": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "a78ccf4cf71322f01f37": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "b5a155e71a52256e164d",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "2d9077f6902c931e13d6",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in % (styles)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in % (styles)"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ab643c7afcc1f83c741e": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "3a5755881ce5c7d0ebee": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "19aee43c858d07eb55ce",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in % (styles)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in % (styles)"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "37a658f81163d731d9c5": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "c0f39b433d854b477ee7": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "65615e2085189da9069b",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "23bf89977c6a42e20194",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Ø shortshipment in pcs"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Ø shortshipment in pcs"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "e007942875d4f9f6a736": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "31cad5d3d70c04c020da",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Ø shortshipment in pcs"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Ø shortshipment in pcs"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "134fc57507f9eac0096f": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "1189a96d850f4ecacac0": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "c7aded15a7ea391f6482": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "9abc26c8dc5350a2dc0e": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "71b841f0d57009e8b87c",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "e02fceadc88ed0ced242",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in % (styles)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in % (styles)"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "d0f1fd69e9b4f70acaf4": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "a8c8bf720d6b0462c276",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in % (styles)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in % (styles)"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "4c96237e153563e2038f": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "57b0fd92b5d183df92e8": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "3ba5fcd50397966857dd",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "73757c92571de5709cb6",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Target Shortshipped"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "920d0cb220b7b0db6a82",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "def5ba3e65c8801391cb",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in % PY"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in %"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "11a4a64968c0a8129b8e": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "b376d893c236a05c0536",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in %"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in %"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "d70e54116f7d2248ad7c": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "c28a8cfbe60117732e89",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in % ∆ to Target"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Total Score ∆ to Target"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "ed40b282fb05fb6f4c4c": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "dbd26d4c77054f72b306": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "f43e7f6a8031888a8b0c",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in % ∆ to PY"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Total Score ∆ to PY"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "efa87d397a310b9acd7f": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "76755058ecab2df214e7": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "ef4f01598f04085771d8": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "4f09e08a47c0bac8bddc": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "314991adf3e75054a4c5": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "5514e0cdb405ec03a256": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "073a03fbc45b936c8372": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "b4b879056b88adf67957": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "28c89dc4c2843108fff5": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "f4072607eb23dc717358",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_conf_pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "3aa1e33c30b0a0ab2099",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_conf_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "ed8c9eb308bbc3dce2b2",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_ship_initial_pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "b324cab6e4054a262c7d",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_ship_initial_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "7fd15b289c29c779d1a6",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "# of styles"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "3e5cbcaf864334061489",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "fa61b22038d29032c736",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Sourcing Country"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "2ba3e1fe7424944055b6",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "64ba63d2740809bbe178",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "81419e0d788b8413b235",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "# of orders"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "a29f03cfccb38e0001b8",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "b99062aea2c05b4b31b0",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_overship_pcs"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "89bc1c5c210e60d2565b",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "PO_overship_val"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "7620ebe184744d9b9e23",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in % (styles)"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "bc7dc573a64d6699c5ec",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Ø overshipment in pcs"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "pivotTable",
+              "objects": {},
+              "activeProjections": {
+                "Rows": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  }
+                ]
+              },
+              "projections": {
+                "Rows": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimSub Agency"
+                        }
+                      },
+                      "Property": "Sub Agency"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Sourcing Country"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimVendor"
+                        }
+                      },
+                      "Property": "Vendor"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimManufacturer"
+                        }
+                      },
+                      "Property": "Manufacturer"
+                    }
+                  }
+                ],
+                "Values": [
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  },
+                  {
+                    "Literal": {
+                      "Value": "null"
+                    }
+                  }
+                ]
+              },
+              "parameters": {
+                "Rows": [
+                  {
+                    "expr": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "Slice by"
+                          }
+                        },
+                        "Property": "Attributes"
+                      }
+                    },
+                    "index": 0,
+                    "length": 4
+                  }
+                ]
+              }
+            }
+          },
+          "93eefe54c2d51b9763ed": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "4ba41bb3345de8bdc507",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Category"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "eb7bec4bac8800a17389",
+                  "type": "Categorical",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Attributes"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "slicer",
+              "objects": {
+                "merge": {
+                  "general": [
+                    {
+                      "properties": {
+                        "filter": {
+                          "filter": {
+                            "Version": 2,
+                            "From": [
+                              {
+                                "Name": "s",
+                                "Entity": "Slice by",
+                                "Type": 0
+                              }
+                            ],
+                            "Where": [
+                              {
+                                "Condition": {
+                                  "In": {
+                                    "Expressions": [
+                                      {
+                                        "Column": {
+                                          "Expression": {
+                                            "SourceRef": {
+                                              "Source": "s"
+                                            }
+                                          },
+                                          "Property": "Category"
+                                        }
+                                      }
+                                    ],
+                                    "Values": [
+                                      [
+                                        {
+                                          "Literal": {
+                                            "Value": "'Sourcing'"
+                                          }
+                                        }
+                                      ]
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "data": [
+                    {
+                      "properties": {
+                        "mode": {
+                          "expr": {
+                            "Literal": {
+                              "Value": "'Basic'"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "activeProjections": {
+                "Values": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Category"
+                    }
+                  },
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Slice by"
+                        }
+                      },
+                      "Property": "Attributes"
+                    }
+                  }
+                ]
+              },
+              "cachedFilterDisplayItems": [
+                {
+                  "id": {
+                    "scopeId": {
+                      "Comparison": {
+                        "ComparisonKind": 0,
+                        "Left": {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Slice by"
+                              }
+                            },
+                            "Property": "Category"
+                          }
+                        },
+                        "Right": {
+                          "Literal": {
+                            "Value": "'Sourcing'"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "displayName": "Sourcing"
+                }
+              ],
+              "expansionStates": [
+                {
+                  "roles": [
+                    "Values"
+                  ],
+                  "levels": [
+                    {
+                      "queryRefs": [
+                        "Slice by.Category"
+                      ],
+                      "isCollapsed": true,
+                      "identityKeys": [
+                        {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Entity": "Slice by"
+                              }
+                            },
+                            "Property": "Category"
+                          }
+                        }
+                      ],
+                      "isPinned": true
+                    },
+                    {
+                      "queryRefs": [
+                        "Slice by.Attributes"
+                      ],
+                      "isCollapsed": true,
+                      "isPinned": true
+                    }
+                  ],
+                  "root": {
+                    "identityValues": null,
+                    "children": [
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Product'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      },
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Sourcing'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      },
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Seasonal'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      },
+                      {
+                        "identityValues": [
+                          {
+                            "Literal": {
+                              "Value": "'Others'"
+                            }
+                          }
+                        ],
+                        "isToggled": true
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "24dd79c6c2db9fd85ad5": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "79c61963e15592c3101b": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "b5c4bf5531dbad39b506",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "ea0ed950232e0a944540",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in % (styles)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in % (styles)"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "86499c88188ad3446a5a": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "b244d84d5ef106f83c30": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "a166a6cc2b506583087b",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in % (styles)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in % (styles)"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "991e0ead8ab73d62ee5a": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "b799716d891cfb502c03": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "1beb885fd72bbb2424d4",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "b99a17dc517080231d24",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Ø overshipment in pcs"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Ø overshipment in pcs"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "152ec7100dc0a2a9378c": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "6489a9fc22938408165b",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Ø overshipment in pcs"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Ø overshipment in pcs"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "40f3e71a728ada850393": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "e0184b45ac23fb106c95": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "521901ca331a1033f6a0": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {},
+              "display": {
+                "mode": "hidden"
+              }
+            }
+          },
+          "a1454f271c01d221709c": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "ada5674b0c5d56343cd4",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "64991b6e8c629b5495a1",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in % (styles)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in % (styles)"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "eb96f938c1c7586e6818": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "2fd924c70a04eb4ba80c",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in % (styles)"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in % (styles)"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "e370decbd7ce3f4aee68": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          },
+          "3d418379ced82d381487": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "9b31d126723123b3c0a0",
+                  "type": "Advanced",
+                  "expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "192829c551b317da13c6",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in %"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "0cc959553080e360220b",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in % PY"
+                    }
+                  },
+                  "howCreated": 0
+                },
+                {
+                  "name": "b72661b0a08106557b01",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Target Overshipped"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "areaChart",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in %"
+                    }
+                  }
+                }
+              ],
+              "activeProjections": {
+                "Category": [
+                  {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "dimTimetable_Season"
+                        }
+                      },
+                      "Property": "Season"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "758a0cdf44fa1effd391": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "2397dbefa0dac173ca24",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in %"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Overshipped in %"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "b2fcc7e3867d43633059": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "38988406b1008998adc6",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in % ∆ to Target"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Total Score ∆ to Target"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "fb04b8d78c78a00a6817": {
+            "singleVisual": {
+              "visualType": "actionButton",
+              "objects": {}
+            }
+          },
+          "e4e15a0d40eae57c8445": {
+            "filters": {
+              "byExpr": [
+                {
+                  "name": "782e96d2818c66590aa1",
+                  "type": "Advanced",
+                  "expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Shortshipped in % ∆ to PY"
+                    }
+                  },
+                  "howCreated": 0
+                }
+              ]
+            },
+            "singleVisual": {
+              "visualType": "card",
+              "objects": {},
+              "orderBy": [
+                {
+                  "Direction": 2,
+                  "Expression": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "All measures"
+                        }
+                      },
+                      "Property": "Total Score ∆ to PY"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "254f87001fe0a4c58d8e": {
+            "singleVisual": {
+              "visualType": "shape",
+              "objects": {}
+            }
+          }
+        },
+        "visualContainerGroups": {
+          "62013838d6315a65bd8d": {
+            "children": {
+              "b21ba50c04db896f336e": {
+                "isHidden": false
+              }
+            }
+          },
+          "e69eb7d300d75761c5fd": {
+            "isHidden": true,
+            "children": {
+              "910dc35dfef2ff204ec8": {
+                "children": {
+                  "ca39e401b501f91fba6d": {
+                    "isHidden": true
+                  }
+                }
+              }
+            }
+          },
+          "dd29e01cab90ce441aa1": {
+            "isHidden": true,
+            "children": {
+              "d7c770a59400493ad6d5": {
+                "children": {
+                  "77826c9924e303acb80a": {
+                    "isHidden": true
+                  }
+                }
+              }
+            }
+          },
+          "582db2c209410843b1f8": {
+            "isHidden": false,
+            "children": {
+              "d77619d769446ed1f8d8": {
+                "children": {
+                  "2460ce36ad298723afc1": {
+                    "isHidden": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "objects": {
+      "merge": {
+        "outspacePane": [
+          {
+            "properties": {
+              "expanded": {
+                "expr": {
+                  "Literal": {
+                    "Value": "false"
+                  }
+                }
+              },
+              "visible": {
+                "expr": {
+                  "Literal": {
+                    "Value": "true"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
