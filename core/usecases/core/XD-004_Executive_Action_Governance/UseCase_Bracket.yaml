@@ -1,65 +1,99 @@
 schema_version: '2.0'
 id: XD-004
 title: Executive Action Governance
-domain: Executive / Governance
+domain: Experience
+
 governance:
   owner_role: chief_of_staff_pmo_lead
   steward_role: executive_office_pmo_bi_lead
+
 orchestration:
   strategic_kpi_id: enterprise.action_outcome_rate.pct
   influencing_kpi_ids:
-  - enterprise.action_routed.count
+    - enterprise.value_at_risk.index
   action_code_ids:
-  - X-E3.3
+    # Impactful 15 — full outcome loop visible in this governance view
+    - C-M2.1
+    - C-M2.2
+    - C-C3.1
+    - C-C3.2
+    - C-P4.1
+    - F-C1.1
+    - F-K2.1
+    - O-A2.1
+    - O-Q3.1
+    - O-Q3.2
+    - S-I1.2
+    - S-R2.1
+    - S-F3.1
+    - X-S1.1
+    - X-S1.2
+
+# KPI IDs for IR compiler (primary_kpi_ids → KPI_Cards visual)
+primary_kpi_ids:
+  - enterprise.action_outcome_rate.pct
+
 value_driver_model:
-  formula: enterprise.action_outcome_rate.pct = successful_actions / routed_actions
+  formula: >
+    Action Outcome Rate % = achieved_actions / total_executed_actions
   impact_direction: maximize
-  primary_driver: enterprise.action_routed.count
-  impact_logic: Executive action effectiveness improves when routed actions are owned clearly, closed on time, and evaluated against agreed outcomes.
+  primary_driver: enterprise.action_outcome_rate.pct
+  impact_logic: >
+    Executive action effectiveness improves when Impactful 15 action codes are
+    executed on time, owned clearly, and produce confirmed outcomes tracked
+    against agreed KPI improvements in fact_action_outcome.
+
 ux_layout_rules:
   report_structure: 2-Page-Lead
-  report_canvas: { width: 1920, height: 1080 }
+  report_canvas:
+    width: 1280
+    height: 720
   page_1_summary:
-    title: Executive Action Governance Summary
-    page_type: T1_Strategic_Overview
+    title: Executive Action Governance — Overview
+    page_type: T1
     template_id: pulse
     component_3s:
       kpi_id: enterprise.action_outcome_rate.pct
       visual_type: kpi_card
     component_30s:
-    - kpi_id: enterprise.action_outcome_rate.pct
-      visual_type: trend_line
-    - kpi_ids:
-      - enterprise.action_routed.count
-      visual_type: bar_chart
+      - kpi_id: enterprise.action_outcome_rate.pct
+        visual_type: trend_line
+        category: dim_date.FiscalYear
+      - kpi_id: enterprise.value_at_risk.index
+        visual_type: bar_chart
+        category: fact_action_outcome.domain
   page_2_execution:
-    title: Executive Action Governance Execution
-    page_type: T4_Prescriptive_Recommendation
+    title: Executive Action Governance — Outcome Detail
+    page_type: T4
     template_id: action_matrix
     component_300s:
-      evidence_grain: action_instance
+      evidence_grain: action_outcome
       evidence_columns:
-      - action_instance_id
-      - entity
-      - domain_action_code
-      - owner_role
-      - status
-      - due_date
-      - enterprise.action_outcome_rate.pct
+        - action_code_id
+        - domain
+        - severity_level
+        - outcome_status
+        - days_to_outcome
+        - impact_value
+        - cost_to_execute
       action_panel: true
       payload_mode: full
+
 prioritization:
   business_value: high
-  implementation_effort: medium
-  confidence: 0.8
+  implementation_effort: low
+  confidence: 0.9
   reach: organization
-  priority_score: 82
+  priority_score: 88
+
 readiness:
-  data_availability: partial
+  data_availability: available
   org_capability: developing
   stakeholder_alignment: aligned
-  overall_readiness: amber
+  overall_readiness: green
+
 overrides:
   data_contract_ref: core/data_contracts/domains/governance.yaml
+
 documentation:
   business_factsheet: ./Business_Factsheet.md
