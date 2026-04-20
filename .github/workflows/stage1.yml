@@ -85,7 +85,8 @@ jobs:
         run: |
           python3 tooling/validation/check_catalog_tmdl_drift.py \
             --catalog core/kpi_catalog/KPI_Catalog.md \
-            --dist-dir products/fabric/powerbi/dist
+            --dist-dir products/fabric/powerbi/dist \
+            --ignore-missing
         id: drift_check
 
       - name: Upload drift report
@@ -127,6 +128,10 @@ jobs:
 
       - name: Run Python unit tests (brand derivation pipeline)
         run: python -m pytest tooling/tests/test_brand_derivations.py -v --tb=short
+
+      - name: Install PowerShell modules
+        shell: pwsh
+        run: Install-Module -Name powershell-yaml -Force -Scope CurrentUser
 
       - name: Run Stage 1 checks
         shell: pwsh

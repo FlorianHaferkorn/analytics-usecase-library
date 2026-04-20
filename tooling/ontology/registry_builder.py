@@ -271,6 +271,7 @@ class KpiRecord:
     governance: Dict[str, Optional[str]]  # business_owner, data_owner, steward, owner_role, steward_role
     depends_on_measures: List[str] = dataclasses.field(default_factory=list)
     causal_links: Optional[Dict[str, Any]] = None
+    deprecated: bool = False
 
 
 def _extract_depends_on_measures(chunk_lines: List[str]) -> List[str]:
@@ -356,6 +357,9 @@ def _parse_kpi_catalog_chunk(chunk_lines: List[str]) -> dict:
             # keep best-effort: ignore parse errors here (Stage 1 validates catalog separately)
             causal_links = None
 
+    deprecated_val = _get_field("deprecated")
+    deprecated = deprecated_val is not None and str(deprecated_val).strip().lower() in ("true", "yes", "1")
+
     return {
         "kpi_id": kpi_id,
         "kpi_role": kpi_role,
@@ -364,6 +368,7 @@ def _parse_kpi_catalog_chunk(chunk_lines: List[str]) -> dict:
         "steward": steward,
         "depends_on_measures": depends_on_measures,
         "causal_links": causal_links,
+        "deprecated": deprecated,
     }
 
 
@@ -456,6 +461,7 @@ def scan_kpi_catalog(repo_root: Path) -> Tuple[Dict[str, KpiRecord], List[Issue]
                     governance=gov,
                     depends_on_measures=raw["depends_on_measures"],
                     causal_links=raw["causal_links"],
+                    deprecated=raw.get("deprecated", False),
                 )
                 parsed_records.append((raw["kpi_id"], rel, kpi_line, record))
 
@@ -1635,7 +1641,8 @@ def _validate_referential_integrity(
             if arec and isinstance(arec.get("raw"), dict):
                 explicit.update(_extract_kpis_from_action(arec["raw"]))
         closed = _closure_under_depends_on(explicit, kpis)
-        missing = closed - explicit
+        # Exclude deprecated KPIs from completeness requirement
+        missing = {k for k in (closed - explicit) if not getattr(kpis.get(k), "deprecated", False)}
         if missing:
             issues.append(
                 Issue(
@@ -1721,6 +1728,8 @@ def build_registry(repo_root: Path, args: Any) -> Dict[str, Any]:
 
     # KPI orphans: catalog KPI IDs not referenced by any active bracket
     for kpi_id, rec in sorted(kpis.items(), key=lambda kv: kv[0]):
+        if getattr(rec, "deprecated", False):
+            continue  # Deprecated KPIs are exempt from orphan detection
         if kpi_id not in linked_kpis:
             orphan_items.append(
                 {

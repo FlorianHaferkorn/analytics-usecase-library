@@ -80,7 +80,7 @@ table _Measures
 		formatString: "#,0"
 		displayFolder: "XD-001"
 
-	/// NPS Index - svc.nps.index
+	/// NPS Index - crm.nps.index
 	/// Measures customer advocacy and experience quality.
 	measure 'NPS Index' =
 		VAR Promoters =

@@ -11,6 +11,51 @@ orchestration:
   strategic_kpi_id: enterprise.action_outcome_rate.pct
   influencing_kpi_ids:
     - enterprise.value_at_risk.index
+  supporting_kpi_ids:
+    # Cross-domain KPIs pulled into closure via Impactful 15 action code trigger chains
+    - cost.material.pct
+    - cost.opex.vs_plan.pct
+    - crm.churned_customers.count
+    - crm.lifetime_revenue.amount
+    - fin.liquidity.inventory.amount
+    - inv.obsolete.pct
+    - inv.turnover
+    - margin.cogs.pct
+    - ops.downtime.unplanned.pct
+    - ops.failure.count
+    - ops.labor.productivity.pct
+    - ops.mttr.hours
+    - ops.otif.pct
+    - ops.pm_compliance.pct
+    - ops.production.volume
+    - ops.quality.defect_rate.pct
+    - ops.spare_parts.stockout.pct
+    - ops.working_capital.ccc.days
+    - ops.yield.pct
+    - people.attrition_risk.pct
+    - people.digital_adoption.pct
+    - plan.forecast.mape.pct
+    - plan.forecast.service_impact.pct
+    - quality.complaint.pct
+    - quality.copq.amount
+    - quality.rework.pct
+    - sales.net_sales.amount
+    - sales.net_sales.delta_pct.ly
+    - sales.price.list.amount
+    - sales.price.net.amount
+    - sales.promo.baseline_sales.amount
+    - sales.promo.cost.amount
+    - sales.promo.incremental_gm.amount
+    - sales.pvm.price_effect.amount
+    - sales.pvm.volume_effect.amount
+    - supply.in_full.pct
+    - supply.on_time.pct
+    - supply.stockout_impact.pct
+    - svc.escalation.pct
+    - svc.tickets.closed.count
+    - wc.dio.days
+    - wc.dpo.days
+    - wc.dso.days
   action_code_ids:
     # Impactful 15 — full outcome loop visible in this governance view
     - C-M2.1
@@ -28,6 +73,7 @@ orchestration:
     - S-F3.1
     - X-S1.1
     - X-S1.2
+    - X-E3.3
 
 # KPI IDs for IR compiler (primary_kpi_ids → KPI_Cards visual)
 primary_kpi_ids:
@@ -35,7 +81,7 @@ primary_kpi_ids:
 
 value_driver_model:
   formula: >
-    Action Outcome Rate % = achieved_actions / total_executed_actions
+    enterprise.action_outcome_rate.pct = achieved_actions / total_executed_actions
   impact_direction: maximize
   primary_driver: enterprise.action_outcome_rate.pct
   impact_logic: >

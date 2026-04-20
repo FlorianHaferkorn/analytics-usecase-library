@@ -18,6 +18,18 @@ orchestration:
   - crm.revenue_at_risk.amount
   - sales.net_sales.amount
   - cost.cogs.amount
+  # Additional KPIs from action code trigger chains (closure requirement)
+  - ops.otif.pct
+  - quality.complaint.pct
+  - quality.copq.amount
+  - quality.defect_density
+  - quality.fpy.pct
+  - quality.rework.pct
+  - quality.scrap.pct
+  - supply.in_full.pct
+  - supply.on_time.pct
+  - supply.otif.pct
+  - supply.stockout_impact.pct
   action_code_ids:
   - C-C3.1
   - C-C3.2

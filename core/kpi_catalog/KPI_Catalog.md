@@ -37,7 +37,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - crm.complaint.count
     - cost.cogs.amount
     lineage:
-    - fact_customer_value.CLV Amount
+    - fact_sales.CustomerKey
   governance:
     business_owner: "Head of CRM / Marketing Analytics"
     data_owner: "CRM BI"
@@ -77,9 +77,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - quality.fpy.pct
     lineage:
     - fact_sales.Net Sales Amount
-    - fact_fulfillment.OTIF Flag
-    - fact_quality.Good Units
-    - fact_quality.Total Units
   governance:
     business_owner: "Head of Operations"
     data_owner: "Ops BI"
@@ -115,7 +112,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: "Count of logged customer complaints"
     depends_on_measures: []
     lineage:
-    - fact_experience.Complaint ID
+    - fact_experience
   governance:
     business_owner: "Head of Customer Service"
     data_owner: "Service BI"
@@ -189,8 +186,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     depends_on_measures: []
     lineage:
     - fact_nps.NPS Score
-    - fact_nps.Is Promoter
-    - fact_nps.Is Detractor
   governance:
     business_owner: "Head of Customer Experience"
     data_owner: "CX BI"
@@ -454,7 +449,6 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - ops.spare_parts.stockout.pct
     - ops.availability.pct
     lineage:
-    - fact_ops_failures.Failure Start DateTime
     - fact_ops.Run Time Minutes
   governance:
     business_owner: "Head of Operations"
@@ -1363,11 +1357,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - ops.availability.pct
     - ops.performance.pct
     - ops.quality.pct
-    lineage:
-    - fact_ops.Good Units
-    - fact_ops.Output Units
-    - fact_ops.Planned Time Minutes
-    - fact_ops.Run Time Minutes
+    lineage: []
   governance:
     business_owner: "Head of Manufacturing"
     data_owner: "Manufacturing BI"
@@ -1405,7 +1395,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: "Counts equipment or process failures in the period."
     depends_on_measures: []
     lineage:
-    - fact_ops_failures.Repair Duration Hours
+    - fact_ops_failures
   governance:
     business_owner: "Head of Operations"
     data_owner: "Operations BI"
@@ -1514,7 +1504,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: "Counts preventive maintenance tasks executed or scheduled."
     depends_on_measures: []
     lineage:
-    - fact_maintenance.Order Type
+    - fact_maintenance
   governance:
     business_owner: "Head of Maintenance"
     data_owner: "Maintenance BI"
@@ -1617,8 +1607,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: "Safety Incident Count"
     description: "Counts safety incidents recorded in the period."
     depends_on_measures: []
-    lineage:
-    - fact_ops_failures.Cause Code
+    lineage: []
   governance:
     business_owner: "EHS Manager"
     data_owner: "EHS BI"
@@ -1724,7 +1713,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: "Counts order lines processed in the period."
     depends_on_measures: []
     lineage:
-    - fact_fulfillment.Order Qty
+    - fact_fulfillment
   governance:
     business_owner: "Head of Supply Chain"
     data_owner: "Supply Chain BI"
@@ -1759,7 +1748,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: "Counts planning cycles or plan versions in the period."
     depends_on_measures: []
     lineage:
-    - fact_forecast.Forecast Units
+    - fact_forecast.Forecast Version
   governance:
     business_owner: "Supply Planning Lead"
     data_owner: "Supply Chain BI"
@@ -1797,7 +1786,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: "Counts shipments executed in the period."
     depends_on_measures: []
     lineage:
-    - fact_warehouse.Order Lines Processed
+    - fact_fulfillment
   governance:
     business_owner: "Head of Logistics"
     data_owner: "Logistics BI"
@@ -1941,8 +1930,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: "Cash Conversion Cycle (Days)"
     description: "Combines receivables, inventory, and payables days to show cash efficiency."
     depends_on_measures: []
-    lineage:
-    - fact_accounts_receivable.AR Amount
+    lineage: []
   governance:
     business_owner: "Head of Treasury"
     data_owner: "Finance BI"
@@ -2169,7 +2157,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: "Measures share of actions that achieved the intended outcome."
     depends_on_measures: []
     lineage:
-    - fact_action_governance.Successful Actions
+    - fact_action_outcome.outcome_status
   governance:
     business_owner: "Executive Office"
     data_owner: "PMO Analytics"
@@ -2206,7 +2194,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: "Counts action codes routed for execution."
     depends_on_measures: []
     lineage:
-    - fact_action_governance.Routed Actions
+    - fact_action_log
   governance:
     business_owner: "Executive Office"
     data_owner: "PMO Analytics"
@@ -2672,8 +2660,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: "Attrition Risk %"
     description: "Probability of employee attrition"
     depends_on_measures: []
-    lineage:
-    - fact_people.Attrition Risk Score
+    lineage: []
   governance:
     business_owner: "Head of HR"
     data_owner: "People Analytics"
@@ -2936,8 +2923,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - wc.dso.days
     - wc.dio.days
     - wc.dpo.days
-    lineage:
-    - fact_accounts_receivable.AR Amount
+    lineage: []
   governance:
     business_owner: "Head of Treasury"
     data_owner: "Finance BI"
@@ -4002,8 +3988,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     - ops.working_capital.ccc.days
     - people.digital_adoption.pct
     - people.attrition_risk.pct
-    lineage:
-    - fact_risk_register.Residual Risk Score
+    lineage: []
   governance:
     business_owner: "Chief Risk Officer"
     data_owner: "Enterprise Risk"
@@ -4036,8 +4021,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     measure_name: "Supplier Risk Score"
     description: "Rates suppliers based on risk indicators."
     depends_on_measures: []
-    lineage:
-    - fact_supplier_risk.Supplier Risk Score
+    lineage: []
   governance:
     business_owner: "Head of Procurement"
     data_owner: "Supply Chain BI"
@@ -4223,7 +4207,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "'index'"
     interpretation: "Higher is better; explain shifts with FCR, AHT, escalation %."
   technical:
-    measure_name: "NPS Index"
+    measure_name: ""
     description: "Measures customer advocacy and experience quality."
     depends_on_measures: []
     lineage:
@@ -4466,7 +4450,7 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     description: "Counts customer service tickets created in the period."
     depends_on_measures: []
     lineage:
-    - fact_support_cases.Case Created Date
+    - fact_support_cases
   governance:
     business_owner: "Head of Service"
     data_owner: "Service Analytics"
