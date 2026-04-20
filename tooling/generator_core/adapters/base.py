@@ -24,7 +24,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from ..ir.specs import AdapterTarget, DashboardSpec, VisualType
 
@@ -110,3 +110,53 @@ class GeneratorAdapter(ABC):
     def accepts_visual_type(self, platform_type: str, ir_type: VisualType) -> bool:
         """Return True if platform_type is a valid rendering of ir_type."""
         return platform_type in self.visual_type_map().get(ir_type, [])
+
+    # ------------------------------------------------------------------
+    # Optional extension methods — override in concrete adapters
+    # ------------------------------------------------------------------
+
+    def diff(self, spec_a: DashboardSpec, spec_b: DashboardSpec) -> List[str]:
+        """
+        Return a human-readable list of differences between two DashboardSpecs.
+
+        Default implementation compares measure names and visual slot IDs.
+        Override in adapters that can produce richer diffs (e.g. JSON diffs).
+        """
+        changes: List[str] = []
+        measures_a = {m.name for m in spec_a.measures}
+        measures_b = {m.name for m in spec_b.measures}
+        for name in sorted(measures_a - measures_b):
+            changes.append(f"measure removed: {name}")
+        for name in sorted(measures_b - measures_a):
+            changes.append(f"measure added: {name}")
+        for m_a in spec_a.measures:
+            m_b = next((m for m in spec_b.measures if m.name == m_a.name), None)
+            if m_b and m_a.dax != m_b.dax:
+                changes.append(f"measure changed: {m_a.name}")
+
+        visuals_a = {v.id for p in spec_a.pages for v in p.visuals}
+        visuals_b = {v.id for p in spec_b.pages for v in p.visuals}
+        for vid in sorted(visuals_a - visuals_b):
+            changes.append(f"visual removed: {vid}")
+        for vid in sorted(visuals_b - visuals_a):
+            changes.append(f"visual added: {vid}")
+        return changes
+
+    def deploy(
+        self,
+        result: "RenderResult",
+        target_url: str,
+        credentials: Optional[Dict] = None,
+    ) -> bool:
+        """
+        Deploy rendered output to a live platform.
+
+        Default raises NotImplementedError — concrete adapters must override
+        when deployment via API is supported.
+
+        Returns True on success, False on failure.
+        """
+        raise NotImplementedError(
+            f"{self.__class__.__name__}.deploy() is not yet implemented. "
+            "Use the platform CLI or UI to import the rendered files."
+        )

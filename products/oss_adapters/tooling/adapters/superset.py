@@ -32,7 +32,7 @@ from __future__ import annotations
 import io
 import json
 import zipfile
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import yaml  # pyyaml required
 
@@ -191,6 +191,39 @@ class SupersetAdapter(GeneratorAdapter):
         if not spec.detail_page():
             errors.append("IR missing Detail page")
         return errors
+
+    def deploy(
+        self,
+        result: RenderResult,
+        target_url: str,
+        credentials: Optional[Dict[str, Any]] = None,
+    ) -> bool:
+        """Deploy dashboard_export.zip to a live Superset instance via POST /api/v1/dashboard/import."""
+        import urllib.request
+        token = (credentials or {}).get("token", "")
+        if not token:
+            raise ValueError("deploy() requires credentials={'token': '<access_token>'}")
+        content = result.files.get("dashboard_export.zip", b"")
+        # Superset import expects multipart/form-data; use a simple boundary
+        boundary = b"----AnalyticsBoundary"
+        body = (
+            b"--" + boundary + b"\r\n"
+            b'Content-Disposition: form-data; name="formData"; filename="dashboard_export.zip"\r\n'
+            b"Content-Type: application/zip\r\n\r\n"
+            + content + b"\r\n"
+            b"--" + boundary + b"--\r\n"
+        )
+        req = urllib.request.Request(
+            f"{target_url.rstrip('/')}/api/v1/dashboard/import",
+            data=body,
+            headers={
+                "Content-Type": f"multipart/form-data; boundary={boundary.decode()}",
+                "Authorization": f"Bearer {token}",
+            },
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return resp.status in (200, 201, 202)
 
     def render(self, spec: DashboardSpec) -> RenderResult:
         """

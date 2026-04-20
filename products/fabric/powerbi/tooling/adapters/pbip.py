@@ -267,6 +267,56 @@ class PBIPAdapter(GeneratorAdapter):
             errors.append("DashboardSpec.semantic_model is empty")
         return errors
 
+    def diff(self, spec_a: DashboardSpec, spec_b: DashboardSpec) -> List[str]:
+        """PBIP-aware diff: compares TMDL output byte-by-byte as a final check."""
+        base_changes = super().diff(spec_a, spec_b)
+        tmdl_a = _build_tmdl_measures(spec_a.measures)
+        tmdl_b = _build_tmdl_measures(spec_b.measures)
+        if tmdl_a != tmdl_b:
+            base_changes.append("tmdl_output: content differs")
+        return base_changes
+
+    def deploy(
+        self,
+        result: RenderResult,
+        target_url: str,
+        credentials: Optional[Dict[str, Any]] = None,
+    ) -> bool:
+        """Deploy PBIP output via Fabric REST API (fab import equivalent).
+
+        target_url: Fabric workspace API endpoint, e.g.
+            https://api.fabric.microsoft.com/v1/workspaces/<ws_id>
+        credentials: dict with 'token' key (Bearer token from az/fab auth).
+        """
+        import json
+        import urllib.request
+
+        token = (credentials or {}).get("token", "")
+        if not token:
+            raise ValueError("deploy() requires credentials={'token': '<bearer_token>'}")
+
+        # For each rendered file, POST via Fabric Update Item Definition API
+        # This is a minimal implementation — production use should use `fab import`
+        for rel_path, content in result.files.items():
+            api_url = f"{target_url.rstrip('/')}/items"
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            }
+            payload = json.dumps({
+                "displayName": rel_path,
+                "type": "Report",
+                "definition": {"parts": [{"path": rel_path, "payload": content.hex(), "payloadType": "InlineBase64"}]},
+            }).encode("utf-8")
+            req = urllib.request.Request(api_url, data=payload, headers=headers, method="POST")
+            try:
+                with urllib.request.urlopen(req, timeout=30) as resp:
+                    if resp.status not in (200, 201, 202):
+                        return False
+            except Exception as exc:
+                raise RuntimeError(f"Fabric deploy failed for {rel_path}: {exc}") from exc
+        return True
+
     def render(self, spec: DashboardSpec) -> RenderResult:
         files: Dict[str, bytes] = {}
         report_name = f"{spec.use_case_id}.Report"
