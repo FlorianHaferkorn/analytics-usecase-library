@@ -228,6 +228,9 @@ def scan_action_codes(repo_root: Path) -> Tuple[Dict[str, Dict[str, Any]], List[
     for p in action_root.rglob("*.yaml"):
         if "decision_spines" in p.parts:
             continue
+        # Skip meta/index files (impactful_15.yaml, golden_20.yaml style)
+        if p.name in ("impactful_15.yaml",):
+            continue
         rel = _to_repo_rel(repo_root, p)
         try:
             data = parse_yaml_file(p)

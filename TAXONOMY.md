@@ -61,6 +61,17 @@ Source contracts: `<domain>_<source>.yaml`
 
 Located in `core/data_contracts/domains/` and `core/data_contracts/sources/`.
 
+## KPI Catalog Tiers (Lean Core v1.0)
+
+The KPI catalog is organized in two tiers:
+
+| Tier | File | Count | Description |
+|------|------|-------|-------------|
+| **Lean Core (Golden 20)** | `core/kpi_catalog/golden_20.yaml` | 20 | Strategic spine; every Aurora report references at least one |
+| **Extended Playbook** | `core/kpi_catalog/extended_playbook.md` | 93 | Supporting and narrow KPIs; used as `influencing_kpi_ids` |
+
+Registry builder reads both files. KPIs marked `deprecated: true` in the catalog are excluded from Aurora generation.
+
 ## KPI Roles
 
 Each KPI in the catalog has a `kpi_role`:

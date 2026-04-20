@@ -1,0 +1,94 @@
+# Impactful 15 — Lean Core action code spine (v1.0)
+#
+# These 15 action codes are the most impactful across the framework.
+# Every XD and domain report must wire at least one Impactful 15 action code.
+# The action-outcome loop (Week 5) tracks outcome rates per this list.
+#
+# Selection criteria (audit §2B, 2026-04-20):
+#   - Referenced in 2+ use cases OR covers a strategic intervention gap
+#   - Spans L1 (Early Warning), L2 (Required Intervention), L3 (Prescriptive)
+#   - Distributed across domains to prevent single-domain bias
+
+schema_version: "1.0"
+published: "2026-04-20"
+
+action_code_ids:
+  # ── Commercial ────────────────────────────────────────────────
+  - id: C-M2.1
+    domain: Commercial
+    name: Price Realization Guardrails
+    rationale: Most-referenced commercial action; prevents margin erosion from discount drift.
+
+  - id: C-M2.2
+    domain: Commercial
+    name: Mix Optimization (Margin-Driven)
+    rationale: Second most-referenced commercial action; drives top-line quality improvement.
+
+  - id: C-C3.1
+    domain: Commercial
+    name: Customer Retention Intervention
+    rationale: Directly linked to CLV and revenue-at-risk Golden 20 KPIs.
+
+  - id: C-C3.2
+    domain: Commercial
+    name: Complaint and Advocacy Recovery
+    rationale: Closes the NPS loop; ties complaint count to advocacy recovery actions.
+
+  - id: C-P4.1
+    domain: Commercial
+    name: Promo Calendar Discipline
+    rationale: Controls promo ROI degradation; 2+ use case references.
+
+  # ── Finance ───────────────────────────────────────────────────
+  - id: F-C1.1
+    domain: Finance
+    name: Cost Variance Escalation
+    rationale: Governs cost actuals vs. plan; triggers Finance intervention hierarchy.
+
+  - id: F-K2.1
+    domain: Finance
+    name: Working Capital Optimization
+    rationale: Bridges DIO/DPO/DSO to cash conversion; strategic for Finance domain.
+
+  # ── Operations ────────────────────────────────────────────────
+  - id: O-A2.1
+    domain: Operations
+    name: Asset Downtime Response
+    rationale: Primary OEE / MTBF intervention; directly moves ops.performance.pct.
+
+  - id: O-Q3.1
+    domain: Operations
+    name: Quality Defect Containment
+    rationale: First response to FPY degradation; tier-1 quality action.
+
+  - id: O-Q3.2
+    domain: Operations
+    name: Root Cause Corrective Action
+    rationale: Tier-2 quality action; closes the loop from defect containment.
+
+  # ── Supply Chain ──────────────────────────────────────────────
+  - id: S-I1.2
+    domain: SupplyChain
+    name: Safety Stock Recalibration
+    rationale: Most-referenced SCM action; directly prevents stockouts.
+
+  - id: S-R2.1
+    domain: SupplyChain
+    name: Replenishment Order Expedite
+    rationale: L2 intervention when stockout risk is confirmed; bridges plan to execution.
+
+  - id: S-F3.1
+    domain: SupplyChain
+    name: Forecast Override (Demand Spike)
+    rationale: Primary demand sensing action; directly improves forecast.accuracy.pct.
+
+  # ── Service / Experience ──────────────────────────────────────
+  - id: X-S1.1
+    domain: Service
+    name: Escalation Prevention (Proactive Outreach)
+    rationale: Prevents NPS erosion by catching at-risk tickets before escalation.
+
+  - id: X-S1.2
+    domain: Service
+    name: First Contact Resolution Improvement
+    rationale: Core FCR action; directly moves svc.fcr.pct Golden 20 KPI.

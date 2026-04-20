@@ -1064,6 +1064,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   - sales.forecast.bias_pct
 
 - kpi_id: plan.replan.count
+  deprecated: true
+  deprecation_reason: "No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)"
   kpi_key: Re-Plan Count
   kpi_type: diagnostic
   kpi_role: strategic
@@ -2181,6 +2183,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: enterprise.action_routed.count
+  deprecated: true
+  deprecation_reason: "No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)"
   kpi_key: Actions Routed Count
   kpi_type: diagnostic
   kpi_role: supporting
@@ -2758,6 +2762,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 27.01.2026
 
 - kpi_id: fin.liquidity.payables.amount
+  deprecated: true
+  deprecation_reason: "No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)"
   kpi_key: Payables Amount
   kpi_type: supporting
   kpi_role: supporting
@@ -2793,6 +2799,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 27.01.2026
 
 - kpi_id: ops.planned.hours
+  deprecated: true
+  deprecation_reason: "No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)"
   kpi_key: Planned Hours
   kpi_type: supporting
   kpi_role: supporting
@@ -3891,6 +3899,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: cost.base_volume.amount
+  deprecated: true
+  deprecation_reason: "No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)"
   kpi_key: Cost Base Volume Amount
   kpi_type: diagnostic
   kpi_role: supporting
@@ -3927,6 +3937,8 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     last_review: 23.01.2026
 
 - kpi_id: cost.opex.base.amount
+  deprecated: true
+  deprecation_reason: "No active bracket/action-code references; targeted for removal in v1.1 (see extended_playbook.md)"
   kpi_key: Opex Base Amount
   kpi_type: diagnostic
   kpi_role: supporting
