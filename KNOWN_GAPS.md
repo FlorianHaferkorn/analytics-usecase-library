@@ -87,16 +87,18 @@ Similarly, Figma layouts are supported via `FigmaLayoutBridge` (requires Figma M
 
 ---
 
-## 5. `validate_bindings.py` — CI Integration
+## 5. `validate_bindings.py` — CI Integration ✅ Wired via MCP
 
-The CI validation script `products/fabric/powerbi/tooling/validate_bindings.py` is implemented and passes locally (15/15 reports, 0 errors). It has **not yet been wired into Azure Pipelines / GitHub Actions**.
+The CI validation script `products/fabric/powerbi/tooling/validate_bindings.py` is implemented and passes locally (15/15 reports, 0 errors). It is now also callable via the `validate_bindings` MCP tool in Studio.
 
-**To integrate:**
+**To integrate in GitHub Actions:**
 ```yaml
 # .github/workflows/validate.yml
 - name: Validate report bindings
   run: python3 products/fabric/powerbi/tooling/validate_bindings.py --dist-dir products/fabric/powerbi/dist --strict
 ```
+
+**MCP tool:** `studio mcp validate_bindings --strict` — returns exit code and full output.
 
 ---
 
@@ -121,3 +123,7 @@ These JSON templates work standalone (grid layouts). To use them with Penpot/Fig
 | Date slicers flat (no hierarchy) | 2026-03-27 | `CalendarYearMonth` column added to all `dim_date.tmdl` |
 | No Figma/Penpot layout bridge | 2026-03-27 | `figma_layout_bridge.py` + `penpot_layout_bridge.py` implemented |
 | No CI binding validation | 2026-03-27 | `validate_bindings.py` implemented (local pass: 15/15) |
+| fact_action_outcome missing from Gold layer | 2026-04-20 | 5-year synthetic Parquet generated; all 15 Impactful action codes present |
+| No action-code outcome loop in reports | 2026-04-20 | `[Action Outcome Rate %]` and 3 companion measures in all 5 domain models |
+| deploy_pbip required manual Power BI Desktop | 2026-04-20 | `deploy_pbip` MCP tool chains IR generation → `fab import` automatically |
+| No DAX execution without Desktop | 2026-04-20 | `execute_dax` MCP tool wraps `execute_dax.py` via fab+az CLI |

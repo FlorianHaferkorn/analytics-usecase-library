@@ -133,14 +133,54 @@ export function createMcpServer(): McpServer {
 
   server.tool(
     'execute_dax',
-    'Execute a DAX query against a Fabric workspace (stub — Week 7)',
+    'Execute a DAX query against a Fabric semantic model via execute_dax.py (requires fab + az CLI)',
     {
-      workspaceId: z.string().describe('Fabric workspace ID'),
-      datasetId: z.string().describe('Semantic model / dataset ID'),
-      daxQuery: z.string().describe('DAX query to execute'),
+      workspaceId: z.string().describe('Fabric workspace ID or friendly name'),
+      datasetId: z.string().describe('Semantic model ID or friendly name'),
+      daxQuery: z.string().describe('DAX query to execute (e.g. EVALUATE ROW("Value", [My Measure]))'),
+      outputFormat: z.enum(['json', 'csv', 'table']).optional().describe('Output format (default: json)'),
     },
-    async ({ workspaceId, datasetId, daxQuery }) => {
-      const result = await tools.executeDax(workspaceId, datasetId, daxQuery);
+    ({ workspaceId, datasetId, daxQuery, outputFormat }) => {
+      const result = tools.executeDax(workspaceId, datasetId, daxQuery, outputFormat ?? 'json');
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'deploy_pbip',
+    'Generate PBIP from IR and import to Fabric workspace via fab import',
+    {
+      useCaseId: z.string().describe('Use case ID to generate and deploy (e.g. COM-001)'),
+      workspaceName: z.string().describe('Fabric workspace friendly name'),
+      distPath: z.string().optional().describe('Override dist output path'),
+    },
+    ({ useCaseId, workspaceName, distPath }) => {
+      const result = tools.deployPbip(useCaseId, workspaceName, distPath);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'refresh_dataset',
+    'Trigger a Full refresh of a Fabric semantic model via fab api',
+    {
+      workspaceId: z.string().describe('Fabric workspace GUID'),
+      datasetId: z.string().describe('Semantic model / dataset GUID'),
+    },
+    ({ workspaceId, datasetId }) => {
+      const result = tools.refreshDataset(workspaceId, datasetId);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'autofix_bindings',
+    'Run validate_bindings.py and auto-patch broken visual.json measure references',
+    {
+      distPath: z.string().optional().describe('Override path to PBIP dist folder'),
+    },
+    ({ distPath }) => {
+      const result = tools.autofixBindings(distPath);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     }
   );

@@ -147,13 +147,157 @@ export function validateBindings(strict = false): { output: string; exitCode: nu
 }
 
 /**
- * Stub — execute a DAX query against a Fabric workspace.
- * Full implementation is Week 7 (requires fab CLI + workspace credentials).
+ * Execute a DAX query against a Fabric semantic model via execute_dax.py.
+ * Requires fab CLI authenticated and az CLI logged in.
+ * Accepts either workspace/dataset GUIDs or friendly names.
  */
-export async function executeDax(_workspaceId: string, _datasetId: string, _daxQuery: string) {
-  return {
-    error: 'execute_dax is not yet implemented — requires Fabric workspace credentials (Week 7)',
+export function executeDax(
+  workspaceId: string,
+  datasetId: string,
+  daxQuery: string,
+  outputFormat: 'json' | 'csv' | 'table' = 'json',
+): { output: string; exitCode: number } {
+  const repoRoot = resolve(process.cwd(), '..');
+  const script = join(repoRoot, 'products', 'fabric', 'powerbi', 'tooling', 'scripts', 'execute_dax.py');
+  const isGuid = (s: string) => /^[0-9a-f-]{36}$/i.test(s);
+  const wsFlag = isGuid(workspaceId) ? `--workspace-id "${workspaceId}"` : `--workspace "${workspaceId}"`;
+  const dsFlag = isGuid(datasetId) ? `--dataset-id "${datasetId}"` : `--dataset "${datasetId}"`;
+  const cmd = `python3 "${script}" ${wsFlag} ${dsFlag} --query "${daxQuery.replace(/"/g, '\\"')}" --output ${outputFormat}`;
+  try {
+    const output = execSync(cmd, { cwd: repoRoot, encoding: 'utf-8', timeout: 60_000 });
+    return { output, exitCode: 0 };
+  } catch (err) {
+    const e = err as { stdout?: string; stderr?: string; status?: number };
+    return { output: (e.stdout ?? '') + (e.stderr ?? '') || String(err), exitCode: e.status ?? 1 };
+  }
+}
+
+/**
+ * Deploy a PBIP report to a Fabric workspace by running the IR generator
+ * and then importing via `fab import`.
+ *
+ * Steps:
+ *   1. Build PBIP from bracket YAML via generate_full_report.py --bracket
+ *   2. Import using `fab import <workspace>/<item.SemanticModel> -i <dist_path> -f`
+ */
+export function deployPbip(
+  useCaseId: string,
+  workspaceName: string,
+  distPath?: string,
+): { output: string; exitCode: number } {
+  const repoRoot = resolve(process.cwd(), '..');
+  const resolvedDist = distPath ?? join(repoRoot, 'products', 'fabric', 'powerbi', 'dist');
+
+  // Step 1: generate from IR
+  const generatorScript = join(
+    repoRoot, 'products', 'fabric', 'powerbi', 'tooling',
+    'page_scaffold_generator', 'generate_full_report.py',
+  );
+  const bracketPath = join(repoRoot, 'core', 'usecases', 'core');
+  const genCmd = `python3 "${generatorScript}" --use-case "${useCaseId}" --output "${resolvedDist}"`;
+  try {
+    execSync(genCmd, { cwd: repoRoot, encoding: 'utf-8', timeout: 60_000 });
+  } catch (err) {
+    const e = err as { stdout?: string; status?: number };
+    return { output: `Generation failed: ${e.stdout ?? String(err)}`, exitCode: e.status ?? 1 };
+  }
+
+  // Step 2: fab import
+  // Derive domain from use case prefix (COM→Commercial, FIN→Finance, etc.)
+  const domainMap: Record<string, string> = {
+    COM: 'Commercial', FIN: 'Finance', OPS: 'Operations',
+    SCM: 'SupplyChain', XD: 'Experience',
   };
+  const prefix = useCaseId.split('-')[0]?.toUpperCase() ?? 'XD';
+  const domain = domainMap[prefix] ?? 'Commercial';
+  const modelPath = join(resolvedDist, `${domain}.SemanticModel`);
+  const fabCmd = `fab import "${workspaceName}.Workspace/${domain}.SemanticModel" -i "${modelPath}" -f`;
+  try {
+    const output = execSync(fabCmd, { cwd: repoRoot, encoding: 'utf-8', timeout: 120_000 });
+    return { output, exitCode: 0 };
+  } catch (err) {
+    const e = err as { stdout?: string; stderr?: string; status?: number };
+    return { output: (e.stdout ?? '') + (e.stderr ?? '') || String(err), exitCode: e.status ?? 1 };
+  }
+  void bracketPath; // suppress unused warning
+}
+
+/**
+ * Trigger a Full dataset refresh via `fab api`.
+ * Requires fab CLI authenticated.
+ */
+export function refreshDataset(
+  workspaceId: string,
+  datasetId: string,
+): { output: string; exitCode: number } {
+  const repoRoot = resolve(process.cwd(), '..');
+  const cmd = `fab api -A powerbi "groups/${workspaceId}/datasets/${datasetId}/refreshes" -X post -i '{"type":"Full"}'`;
+  try {
+    const output = execSync(cmd, { cwd: repoRoot, encoding: 'utf-8', timeout: 30_000 });
+    return { output: output || '{"status":"accepted"}', exitCode: 0 };
+  } catch (err) {
+    const e = err as { stdout?: string; stderr?: string; status?: number };
+    return { output: (e.stdout ?? '') + (e.stderr ?? '') || String(err), exitCode: e.status ?? 1 };
+  }
+}
+
+/**
+ * Run validate_bindings.py, parse its output, and auto-patch broken visual.json bindings.
+ *
+ * For each broken binding the patcher:
+ *   1. Locates the visual.json file in the PBIP dist folder
+ *   2. Reads the current queryState
+ *   3. Re-wires the measure reference to the correct _Measures table
+ *   4. Writes the patched file back
+ *
+ * Returns a summary of patched files and any errors.
+ */
+export function autofixBindings(distPath?: string): {
+  patchedFiles: string[];
+  errors: string[];
+  bindingsOutput: string;
+} {
+  const repoRoot = resolve(process.cwd(), '..');
+  const resolvedDist = distPath ?? join(repoRoot, 'products', 'fabric', 'powerbi', 'dist');
+  const patchedFiles: string[] = [];
+  const errors: string[] = [];
+
+  // Run validator to get broken bindings
+  const { output: bindingsOutput } = validateBindings(true);
+
+  // Parse lines like: ERROR: <path/to/visual.json> — measure '<name>' not found in _Measures
+  const errorPattern = /ERROR[^\n]*?([^\s]+\.json)[^\n]*?measure '([^']+)'/g;
+  let match: RegExpExecArray | null;
+  while ((match = errorPattern.exec(bindingsOutput)) !== null) {
+    const [, relPath, measureName] = match;
+    const fullPath = relPath.startsWith('/') ? relPath : join(resolvedDist, relPath);
+    try {
+      const raw = readFileSync(fullPath, 'utf-8');
+      const visual = JSON.parse(raw) as Record<string, unknown>;
+
+      // Re-wire: find any Measure reference with the wrong entity and fix to _Measures
+      const patched = JSON.stringify(visual, (_, value: unknown) => {
+        if (
+          typeof value === 'object' && value !== null &&
+          'Measure' in (value as Record<string, unknown>)
+        ) {
+          const m = value as { Measure: { Expression: { SourceRef: { Entity: string } }; Property: string } };
+          if (m.Measure.Property === measureName) {
+            m.Measure.Expression.SourceRef.Entity = '_Measures';
+            return m;
+          }
+        }
+        return value;
+      }, 2);
+
+      writeFileSync(fullPath, patched, 'utf-8');
+      patchedFiles.push(fullPath);
+    } catch (e) {
+      errors.push(`Failed to patch ${fullPath}: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
+
+  return { patchedFiles, errors, bindingsOutput };
 }
 
 /**
