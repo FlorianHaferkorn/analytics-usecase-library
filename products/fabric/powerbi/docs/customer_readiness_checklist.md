@@ -72,8 +72,8 @@ Runs:
 Generate all COM (Commercial) reports as a smoke test:
 
 ```powershell
-.\generate_aurora_pbip.ps1 -Domain Commercial -DryRun
-.\generate_aurora_pbip.ps1 -Domain Commercial
+.\products\fabric\powerbi\orchestrator\orchestrate_full_model.ps1 -Domain Commercial -DryRun
+.\products\fabric\powerbi\orchestrator\orchestrate_full_model.ps1 -Domain Commercial
 ```
 
 Expected output:
@@ -89,7 +89,7 @@ Expected output:
 For a complete build:
 
 ```powershell
-.\generate_aurora_pbip.ps1 -All
+.\products\fabric\powerbi\orchestrator\orchestrate_full_model.ps1 -All -UseAuroraData
 ```
 
 ---

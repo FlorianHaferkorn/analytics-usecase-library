@@ -1,6 +1,6 @@
 # 300-Second Layer (layout_330300)
 
-**Purpose:** Defines the structure of the **300-second (diagnostics + action)** layer for 3-30-300 page layouts. This is the formal definition referenced by `layout_330300` in Use Case brackets and by the page scaffold generator. Schema: [tooling/ai/schemas/layout_330300.schema.json](../../../../tooling/ai/schemas/layout_330300.schema.json).
+**Purpose:** Defines the structure of the **300-second (diagnostics + action)** layer for 3-30-300 page layouts. This is the formal definition referenced by `layout_330300` in Use Case brackets and by the page scaffold generator. Schema: [tooling/generator/schemas/layout_330300.schema.json](../../../../tooling/generator/schemas/layout_330300.schema.json).
 
 ---
 
@@ -105,7 +105,7 @@ The bracket's `ux_layout_rules.page_2_execution.component_300s` maps directly to
 | `component_300s.payload_mode` | `action_panel.payload_mode` |
 | `orchestration.action_code_ids` | `action_panel.action_code_ids` |
 
-Generators (page scaffold, report documentation) must conform to [layout_330300.schema.json](../../../../tooling/ai/schemas/layout_330300.schema.json).
+Generators (page scaffold, report documentation) must conform to [layout_330300.schema.json](../../../../tooling/generator/schemas/layout_330300.schema.json).
 
 ---
 

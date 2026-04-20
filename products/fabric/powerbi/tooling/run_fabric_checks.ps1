@@ -85,6 +85,26 @@ $checkDax = Join-Path $validationDir "check_dax_best_practices.ps1"
 
 Push-Location $repoRoot
 try {
+  # Validate pbi-tools binary against lock file before any checks
+  $lockFile = Join-Path $repoRoot ".tools/pbi-tools.lock"
+  $pbiToolsExe = Join-Path $repoRoot ".tools/pbi-tools/pbi-tools.core.exe"
+  if (Test-Path $lockFile) {
+    $lock = Get-Content $lockFile -Raw | ConvertFrom-StringData
+    $expectedHash = ($lock.sha256 ?? "placeholder_update_after_download").Trim('"')
+    if (Test-Path $pbiToolsExe) {
+      if ($expectedHash -ne "placeholder_update_after_download") {
+        $actualHash = (Get-FileHash $pbiToolsExe -Algorithm SHA256).Hash.ToLower()
+        if ($actualHash -ne $expectedHash.ToLower()) {
+          Write-Error "pbi-tools hash mismatch. Expected $expectedHash, got $actualHash. Re-download per .tools/README.md."
+          exit 1
+        }
+        Write-Host "pbi-tools hash verified OK." -ForegroundColor Green
+      } else {
+        Write-Warning "pbi-tools.lock contains placeholder SHA-256. Run get-filehash to pin it."
+      }
+    }
+  }
+
   $targetLabel = if ($auroraTablesResolved) { "Aurora: $checkRoot" } else { "Dist: $distRootResolved" }
   Write-Host "Fabric/Power BI checks ($targetLabel)..." -ForegroundColor Cyan
   $failed = 0

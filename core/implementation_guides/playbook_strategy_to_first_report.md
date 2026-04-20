@@ -95,7 +95,7 @@ This playbook focuses on the Greenfield path. Adaptation for "Existing BI migrat
 **Actions:**
 
 1. **Design** the semantic model (tables, relationships, grain) to support the required facts and dimensions from Step 3 (Silver). Use `core/strategy_operating_model/operating_model/semantic_layer.md` and implementation guide (e.g. Fabric) for patterns. (Legacy blueprint archived to internal/archive/legacy_action_ready_and_blueprint_2026-02/.)
-2. **Implement measures** for every required KPI in the use-case pack. Use the KPI Catalog and measure system rules (`operating_model/measure_system.md`). For Fabric/Power BI: generate or author TMDL; use `tooling/generation/generate_tmdl_measures.ps1` if applicable.
+2. **Implement measures** for every required KPI in the use-case pack. Use the KPI Catalog and measure system rules (`operating_model/measure_system.md`). For Fabric/Power BI: generate or author TMDL; use `tooling/generator/generate_tmdl_measures.ps1` if applicable.
 3. **Validate:** Run **Stage 1** from repo root: `.\tooling\run_stage1_checks.ps1`. For Fabric: run `.\products\fabric/powerbi\tooling\run_fabric_checks.ps1` (measures vs KPI, TMDL vs measure dictionary). Fix any failures.
 
 **Output:** Semantic model (e.g. TMDL dataset) with measures aligned to KPI catalog; Stage 1 and Fabric checks green.

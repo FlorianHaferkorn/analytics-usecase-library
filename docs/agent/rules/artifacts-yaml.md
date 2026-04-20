@@ -6,13 +6,13 @@
 - **Required (Lean 2.0):** `schema_version`, `id`, `name`, `owner_domain`, `impact_dimension`, `status`, `kpis` (IDs only: `trigger_kpis`, `guardrail_kpis`, `outcome_kpis`), `trigger`, `impact`, `operational_execution`, `governance`.
 - **KPI references:** Every KPI ID in `kpis.*` must exist in `core/kpi_catalog/`.
 - **Use case links:** Defined in `UseCase_Bracket.yaml` `orchestration.action_code_ids` (not in action code files).
-- Template: `core/templates/action_codes/ActionCode_TEMPLATE.md`. Schema: `tooling/ai/schemas/action_code.schema.json`.
+- Template: `core/templates/action_codes/ActionCode_TEMPLATE.md`. Schema: `tooling/generator/schemas/action_code.schema.json`.
 - Do not define new KPI meaning or targets in action code YAML; only reference governed KPI IDs.
 
 ## UseCase_Bracket (`core/usecases/core/*/UseCase_Bracket.yaml`)
 
 - **SSOT** for use case orchestration. Links strategic KPI, influencing KPIs, action codes, value driver model, UX layout rules, and governance roles.
-- Schema: `tooling/ai/schemas/usecase_bracket.schema.json`.
+- Schema: `tooling/generator/schemas/usecase_bracket.schema.json`.
 - Validated by `validate_factsheets.ps1` (bracket existence and minimum keys) and `registry_builder.py` (referential integrity).
 
 ## Decision spines
@@ -24,7 +24,7 @@
 
 - **Domains:** `data_contracts/domains/*.yaml` — domain-level contract structure.
 - **Sources:** `data_contracts/sources/*.yaml` — source-level mappings.
-- Schema: `tooling/ai/schemas/data_contract.schema.json` (if used for validation).
+- Schema: `tooling/generator/schemas/data_contract.schema.json` (if used for validation).
 
 ## General
 

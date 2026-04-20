@@ -1,0 +1,9 @@
+# pbi-tools lock file — managed by framework tooling
+# Run .\products\fabric\powerbi\tooling\run_fabric_checks.ps1 to validate.
+version: "1.2.0"
+variant: "core"
+platform: "win-x64"
+download_url: "https://github.com/pbi-tools/pbi-tools/releases/download/1.2.0/pbi-tools.core.1.2.0_win-x64.zip"
+sha256: "placeholder_update_after_download"
+exe_path: ".tools/pbi-tools/pbi-tools.core.exe"
+dotnet_version: "8.0"

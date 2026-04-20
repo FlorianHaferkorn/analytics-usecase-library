@@ -43,14 +43,14 @@ if (-not $LegacyCorePaths) {
   Write-Host ""
 
   Write-Host ">> Generate TMDL measures (IR-first)" -ForegroundColor Cyan
-  & ./tooling/generation/generate_tmdl_measures.ps1 `
+  & ./tooling/generator/generate_tmdl_measures.ps1 `
     -UseCase $UseCaseId `
     -IRPath $IROutPath `
     -DistRoot $DistRoot `
     -OverwriteExisting
 } else {
   Write-Host ">> Generate TMDL measures (legacy Core paths)" -ForegroundColor Cyan
-  & ./tooling/generation/generate_tmdl_measures.ps1 `
+  & ./tooling/generator/generate_tmdl_measures.ps1 `
     -UseCase $UseCaseId `
     -UseCasesRoot "core/usecases" `
     -KpiCatalogRoot $KpiCatalogRoot `

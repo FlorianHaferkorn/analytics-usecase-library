@@ -20,7 +20,7 @@
 - **Data contracts:** `core/data_contracts/domains/`, `core/data_contracts/sources/` — domain and source-level contracts.
 - **Semantic models:** `core/semantic_models/domains/` — measure dictionaries (tool-agnostic); conceptual design in `core/strategy_operating_model/operating_model/semantic_layer.md`. TMDL/PBIP output lives under `products/fabric/powerbi/dist/` or `showcases/…/semantic_models/`. (Legacy core_action_ready archived.)
 - **Docs:** `docs/company/`, `docs/operating_model/` — strategy and operating model; authority for structure and naming.
-- **Internal:** `tooling/` — validation, generation, maintenance, Power BI MCP; `tooling/ai/schemas/` — JSON schemas for factsheets, action codes, data contracts, layout_330300.
+- **Internal:** `tooling/` — validation, generation, maintenance, Power BI MCP; `tooling/generator/schemas/` — JSON schemas for factsheets, action codes, data contracts, layout_330300.
 
 ## Naming and IDs
 

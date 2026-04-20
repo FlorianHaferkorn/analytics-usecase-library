@@ -10,7 +10,7 @@ Stage 1 is the mandatory CI gate. All checks must pass before merge. When sugges
 
 ## Checks run (in order)
 
-1. **check_schema_validation.ps1** — Validates artifacts (action codes, UseCase_Bracket, org_roles) against JSON schemas in `tooling/validation/` and `tooling/ai/schemas/`.
+1. **check_schema_validation.ps1** — Validates artifacts (action codes, UseCase_Bracket, org_roles) against JSON schemas in `tooling/validation/` and `tooling/generator/schemas/`.
 2. **validate_factsheets.ps1** — Business factsheets structure; verifies `UseCase_Bracket.yaml` exists for each use case.
 3. **check_factsheet_vs_kpi.ps1** — Every KPI referenced in Business factsheets/brackets exists in KPI catalog.
 4. **validate_kpi_catalog.ps1** — KPI catalog structure and rules.

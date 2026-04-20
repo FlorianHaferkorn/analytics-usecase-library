@@ -14,7 +14,7 @@ Map Stage 1 check failures to root causes and propose concrete fixes without app
 
 | Failing Check | Likely Cause | Fix Path |
 |--------------|--------------|----------|
-| `check_schema_validation` | Schema violation in action code, bracket, or org_roles | Check `tooling/ai/schemas/*.schema.json`; fix required/missing keys |
+| `check_schema_validation` | Schema violation in action code, bracket, or org_roles | Check `tooling/generator/schemas/*.schema.json`; fix required/missing keys |
 | `check_factsheet_vs_kpi` | KPI ID referenced in factsheet/bracket doesn't exist | Add KPI to `core/kpi_catalog/` OR fix KPI ID reference |
 | `validate_kpi_catalog` | KPI catalog structure issue | Fix `core/kpi_catalog/` structure per templates |
 | `check_action_codes_vs_kpi` | KPI ID in action code doesn't exist | Add KPI to catalog OR fix action code `kpis.*` references |
@@ -33,5 +33,5 @@ Map Stage 1 check failures to root causes and propose concrete fixes without app
 - **KPI catalog is SSOT**: Never redefine KPI meaning, targets, or lineage in use cases or action codes.
 - **Action codes are SSOT for logic**: Use cases reference action code IDs; they do not define trigger logic.
 - **Factsheets are human-readable**: Machine-readable config belongs in `UseCase_Bracket.yaml`.
-- **Schema compliance is mandatory**: Use `tooling/ai/schemas/*.schema.json` as authority.
+- **Schema compliance is mandatory**: Use `tooling/generator/schemas/*.schema.json` as authority.
 - Re-run Stage 1 after every fix to catch cascading issues.

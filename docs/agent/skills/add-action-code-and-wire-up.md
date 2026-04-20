@@ -6,7 +6,7 @@ Create action code YAML files in the framework, validate all references, and wir
 
 1. **Use template and schema**:
    - Template: `core/templates/action_codes/ActionCode_TEMPLATE.md`
-   - Schema: `tooling/ai/schemas/action_code.schema.json`
+   - Schema: `tooling/generator/schemas/action_code.schema.json`
    - Required fields: `schema_version`, `id`, `name`, `owner_domain`, `impact_dimension`, `status`, `kpis`, `trigger`, `impact`, `operational_execution`, `governance`.
 2. **Create action code file**:
    - Path: `core/action_codes/<Domain>/<ID>.yaml`
@@ -50,7 +50,7 @@ After creating action code, verify:
 → Run `add-usecase-scaffold` skill to create use case structure first
 
 **If schema validation fails:**
-→ Check `tooling/ai/schemas/action_code.schema.json` for required keys
+→ Check `tooling/generator/schemas/action_code.schema.json` for required keys
 → Verify `schema_version`, `id`, `name`, `owner_domain`, `impact_dimension`, `status` are present
 
 **If governance role doesn't exist:**

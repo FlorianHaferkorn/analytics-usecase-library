@@ -238,7 +238,8 @@ table _Measures
 		formatString: "0.0%"
 		displayFolder: "XD-003"
 
-	/// Revenue at Risk Amount - weighted sales exposure from OTIF failures and quality defects
+	/// Revenue at Risk Amount - crm.revenue_at_risk.amount
+	/// Net Sales Amount weighted by average of OTIF failure rate and First Pass Yield failure rate.
 	measure 'Revenue at Risk Amount' =
 		VAR OTIFFailureRate =
 			1 - [Ops OTIF %]

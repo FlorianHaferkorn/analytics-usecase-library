@@ -6,7 +6,7 @@ Purpose: Single **knowledge base** for PBI/PBIP errors and their **solutions**. 
 
 ## Closed-loop (Power BI Desktop + Cursor)
 
-- **Live Desktop errors:** Watcher `watch_pbi.ps1` (repo root) tails `PBIDesktop.log` and appends matching lines to **`.cursor/pbi_errors.log`** (bridge file for Cursor). Run with `.\watch_pbi.ps1` while working in Power BI Desktop.
+- **Live Desktop errors:** Errors from Power BI Desktop appear in `.cursor/pbi_errors.log` (bridge file for Cursor). Use `fab` CLI or the MCP `execute_dax` tool for live DAX validation instead of the removed `watch_pbi.ps1` watcher.
 - **This file is the Wissensdatenbank:** Errors **and** solutions live in the tables below. When the agent (or a human) fixes an error from `.cursor/pbi_errors.log` or from pipeline logs, it must **add a new row** to the appropriate section if this error class is not yet documented (so the solution is stored and reusable).
 - **MCP workflow:** When using the Power BI Modeling MCP to diagnose or fix model/report issues, the agent should **read this file first** for known patterns and **update this file** after applying a fix for a new error (add Symptom | Cause | Fix).
 - **Automatischer Fix (Daemon):** Wenn gewünscht, läuft im Hintergrund `.\tooling\pbi_auto_fix_daemon.ps1`. Er überwacht `.cursor/pbi_errors.log`; bei neuem Eintrag wird nach Debounce eine LLM-API (Azure OpenAI oder OpenAI) aufgerufen und die zurückgegebene Korrektur (file_edits + optional neue Zeile hier) angewendet. Voraussetzung: `AZURE_OPENAI_*` oder `OPENAI_API_KEY` gesetzt; siehe Skript-Kommentar.
@@ -18,7 +18,7 @@ Purpose: Single **knowledge base** for PBI/PBIP errors and their **solutions**. 
 |--------|------|
 | Pipeline (orchestrator) | `products/fabric_powerbi/orchestrator/last_run_state.json` (`validateErrors`), `products/fabric_powerbi/orchestrator/out/build_errors.json` |
 | Quality Checks failures | `internal/reviews/run_all_checks_failures.json` |
-| Power BI Desktop (live) | `.cursor/pbi_errors.log` (filled by `watch_pbi.ps1`) |
+| Power BI Desktop (live) | `.cursor/pbi_errors.log` |
 
 ---
 

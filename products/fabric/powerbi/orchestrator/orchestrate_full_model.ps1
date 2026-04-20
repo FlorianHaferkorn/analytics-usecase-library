@@ -399,7 +399,7 @@ Invoke-WithRetry "Generate Measures (Aurora per domain)" {
             [System.IO.File]::WriteAllText((Join-Path $script:RepoRoot (Join-Path $modelPath "definition\model.tmdl")), $modelContent, $utf8)
         }
         Write-Host "  Domain $domainName : $($ucIdsForMeasures -join ', ')" -ForegroundColor Gray
-        & ./tooling/generation/generate_tmdl_measures.ps1 `
+        & ./tooling/generator/generate_tmdl_measures.ps1 `
             -UseCase $ucIdsForMeasures `
             -UseCasesRoot $ucRootForScript `
             -KpiCatalogRoot "core/kpi_catalog" `

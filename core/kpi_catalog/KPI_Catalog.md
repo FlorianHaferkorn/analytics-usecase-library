@@ -56,38 +56,42 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
   kpi_type: diagnostic
   kpi_role: strategic
   impact_dimension: Customer
-  domain_tag: [Customer & Market]
+  domain_tag: [Customer & Market, Operations]
   use_case_ref:
   - COM-003
+  - XD-003
   action_code_ref:
   - C-C3.1
   calc_type: amount
   business:
-    purpose: "Quantify revenue exposure from customers flagged as churn-risk."
-    definition: "CLV Remaining Amount * Attrition Risk %."
+    purpose: "Quantify revenue exposure from delivery and quality execution failures."
+    definition: "Net Sales Amount × average of (1 - OTIF %) and (1 - First Pass Yield %)."
     grain_scope: "Customer/segment; monthly."
     unit_format: "EUR (0 decimals)"
-    interpretation: "Higher values indicate more revenue at risk; prioritize retention actions."
+    interpretation: "Higher values indicate more revenue at risk from ops failures; prioritize OTIF and quality actions."
   technical:
     measure_name: "Revenue at Risk Amount"
-    description: "Revenue exposure from churn-risk customers"
+    description: "Net Sales Amount weighted by combined OTIF failure rate and First Pass Yield failure rate."
     depends_on_measures:
-    - crm.clv.amount
+    - ops.otif.pct
+    - quality.fpy.pct
     lineage:
-    - fact_customer_events.Attrition Risk %
-    - fact_customer_value.CLV Remaining Amount
+    - fact_sales.Net Sales Amount
+    - fact_fulfillment.OTIF Flag
+    - fact_quality.Good Units
+    - fact_quality.Total Units
   governance:
-    business_owner: "Head of Marketing"
-    data_owner: "CRM BI"
-    steward: "Customer Insights Analyst"
+    business_owner: "Head of Operations"
+    data_owner: "Ops BI"
+    steward: "Operations Analyst"
     review_cycle: "quarterly"
     validation_process: "manual review"
     qa_rules:
-    - At-risk revenue reconciles to CLV remaining and attrition risk inputs within +/- 1 %
-    version: "v1.0"
+    - At-risk revenue reconciles to Net Sales weighted by OTIF/FPY failure rates within +/- 1 %
+    version: "v1.1"
   metadata_quality:
     completeness_score: 1.0
-    last_review: 27.01.2026
+    last_review: 20.04.2026
 
 - kpi_id: crm.complaint.count
   kpi_key: Complaint Count
@@ -180,10 +184,11 @@ Schema: see [core/templates/kpi_catalog_templates/kpi_catalog_SCHEMA.md](../temp
     unit_format: "Index (-100 to 100)"
     interpretation: "'>0 is positive, >50 strong advocacy; track trend and segment gaps.'"
   technical:
-    measure_name: "NPS Score"
+    measure_name: "NPS Index"
     description: "Measures customer advocacy and likelihood to recommend."
     depends_on_measures: []
     lineage:
+    - fact_nps.NPS Score
     - fact_nps.Is Promoter
     - fact_nps.Is Detractor
   governance:

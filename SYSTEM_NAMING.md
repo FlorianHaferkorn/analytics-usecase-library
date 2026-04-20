@@ -42,8 +42,8 @@ Scope: scripts, checks, generators, tests, hooks, schemas, templates, and direct
 - ID-based domain files (action codes, decision spines): keep existing `DOMAIN-ID.yaml` format — those are content identifiers, not system files
 
 ### JSON schemas
-- Pattern: `<name>.schema.json` — already consistent in `tooling/ai/schemas/`
-- Note: `tooling/validation/schemas/` duplicates `tooling/ai/schemas/`; prefer the `tooling/ai/schemas/` copies
+- Pattern: `<name>.schema.json` — already consistent in `tooling/generator/schemas/`
+- Note: `tooling/validation/schemas/` duplicates `tooling/generator/schemas/`; prefer the `tooling/generator/schemas/` copies
 
 ### Markdown docs
 - Root-level governance docs: `UPPER_SNAKE_CASE.md` (README, CLAUDE, CHANGELOG, TAXONOMY, etc.)
