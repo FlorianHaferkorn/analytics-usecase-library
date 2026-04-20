@@ -36,6 +36,66 @@ jobs:
       - name: Health scorecard
         run: python tooling/health_scorecard.py
 
+  validate-bindings:
+    name: Validate bindings (${{ matrix.domain }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        domain:
+          - Commercial
+          - Experience
+          - Finance
+          - Operations
+          - SupplyChain
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate report bindings (${{ matrix.domain }})
+        run: |
+          python3 products/fabric/powerbi/tooling/validate_bindings.py \
+            --dist-dir products/fabric/powerbi/dist \
+            --domain ${{ matrix.domain }} \
+            --strict
+
+  catalog-tmdl-drift:
+    name: Catalog↔TMDL drift check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+
+      - name: Check catalog↔TMDL drift
+        run: |
+          python3 tooling/validation/check_catalog_tmdl_drift.py \
+            --catalog core/kpi_catalog/KPI_Catalog.md \
+            --dist-dir products/fabric/powerbi/dist
+        id: drift_check
+
+      - name: Upload drift report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-report
+          path: drift_report.json
+          if-no-files-found: ignore
+
   stage1:
     name: Stage 1 checks
     runs-on: windows-latest
