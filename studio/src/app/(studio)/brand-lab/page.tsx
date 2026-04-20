@@ -1,5 +1,5 @@
-import { BrandLabClient } from './brand-lab-client';
+import { redirect } from 'next/navigation';
 
 export default function BrandLabPage() {
-  return <BrandLabClient />;
+  redirect('/brand');
 }

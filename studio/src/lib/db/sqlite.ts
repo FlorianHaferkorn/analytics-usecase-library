@@ -104,6 +104,7 @@ function initSchema(db: Database.Database) {
 
     CREATE TABLE IF NOT EXISTS bracket_lifecycle (
       bracket_id TEXT PRIMARY KEY,
+      project_id TEXT NOT NULL DEFAULT 'default',
       status TEXT NOT NULL DEFAULT 'draft',
       submitted_by TEXT,
       approved_by TEXT,
@@ -115,6 +116,7 @@ function initSchema(db: Database.Database) {
     CREATE TABLE IF NOT EXISTS bracket_review_comments (
       id TEXT PRIMARY KEY,
       bracket_id TEXT NOT NULL,
+      project_id TEXT NOT NULL DEFAULT 'default',
       actor TEXT NOT NULL DEFAULT 'local-user',
       comment TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -123,6 +125,7 @@ function initSchema(db: Database.Database) {
     CREATE TABLE IF NOT EXISTS bracket_versions (
       id TEXT PRIMARY KEY,
       bracket_id TEXT NOT NULL,
+      project_id TEXT NOT NULL DEFAULT 'default',
       label TEXT NOT NULL,
       note TEXT,
       yaml_content TEXT NOT NULL,
@@ -142,4 +145,18 @@ function initSchema(db: Database.Database) {
     INSERT OR IGNORE INTO projects (id, name, strategy_anchor)
     VALUES ('default', 'Aurora Group', 'Profitable growth through margin quality, cash resilience & operational excellence');
   `);
+
+  // Column migrations for existing databases (ALTER TABLE ignores if column exists via try-catch)
+  const migrations: [string, string][] = [
+    ['bracket_lifecycle', 'project_id TEXT NOT NULL DEFAULT \'default\''],
+    ['bracket_review_comments', 'project_id TEXT NOT NULL DEFAULT \'default\''],
+    ['bracket_versions', 'project_id TEXT NOT NULL DEFAULT \'default\''],
+  ];
+  for (const [table, colDef] of migrations) {
+    try {
+      db.exec(`ALTER TABLE ${table} ADD COLUMN ${colDef}`);
+    } catch {
+      // Column already exists — safe to ignore
+    }
+  }
 }

@@ -1,5 +1,5 @@
-import { DiscoveryClient } from './discovery-client';
+import { redirect } from 'next/navigation';
 
 export default function DiscoveryPage() {
-  return <DiscoveryClient />;
+  redirect('/discover');
 }

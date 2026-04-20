@@ -76,6 +76,101 @@ export function createMcpServer(): McpServer {
     }
   );
 
+  // ── Write tools ──────────────────────────────────────────────────────────
+
+  server.tool(
+    'create_bracket',
+    'Save a use case bracket YAML draft to the Studio database',
+    {
+      bracketId: z.string().describe('Bracket ID (e.g. COM-001)'),
+      yamlContent: z.string().describe('Full UseCase_Bracket YAML content'),
+      projectId: z.string().optional().describe('Project ID (default: "default")'),
+    },
+    async ({ bracketId, yamlContent, projectId }) => {
+      const result = await tools.createBracket(bracketId, yamlContent, projectId);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'publish_draft',
+    'Submit a bracket draft for governance review',
+    {
+      bracketId: z.string().describe('Bracket ID to submit for review'),
+      actorEmail: z.string().describe('Email of the submitter'),
+      justification: z.string().optional().describe('Justification for the submission'),
+    },
+    async ({ bracketId, actorEmail, justification }) => {
+      const result = await tools.publishDraft(bracketId, actorEmail, justification);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'run_generator',
+    'Run the export generator for a use case (fabric or oss)',
+    {
+      useCaseId: z.string().describe('Use case ID to generate output for'),
+      connector: z.enum(['fabric', 'oss']).describe('Target connector: fabric or oss'),
+    },
+    async ({ useCaseId, connector }) => {
+      const result = await tools.runGenerator(useCaseId, connector);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'validate_bindings',
+    'Run validate_bindings.py and return the output',
+    {
+      strict: z.boolean().optional().describe('Enable --strict mode'),
+    },
+    ({ strict }) => {
+      const result = tools.validateBindings(strict ?? false);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'execute_dax',
+    'Execute a DAX query against a Fabric workspace (stub — Week 7)',
+    {
+      workspaceId: z.string().describe('Fabric workspace ID'),
+      datasetId: z.string().describe('Semantic model / dataset ID'),
+      daxQuery: z.string().describe('DAX query to execute'),
+    },
+    async ({ workspaceId, datasetId, daxQuery }) => {
+      const result = await tools.executeDax(workspaceId, datasetId, daxQuery);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'create_kpi',
+    'Create or update a KPI YAML definition in core/kpi_catalog/',
+    {
+      kpiId: z.string().describe('KPI ID (e.g. com.net_sales.amount)'),
+      yamlContent: z.string().describe('Full KPI YAML content'),
+    },
+    ({ kpiId, yamlContent }) => {
+      const result = tools.createKpi(kpiId, yamlContent);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
+  server.tool(
+    'update_action',
+    'Create or update an action code YAML in core/action_codes/',
+    {
+      actionId: z.string().describe('Action code ID (e.g. C-M2.1)'),
+      yamlContent: z.string().describe('Full action code YAML content'),
+    },
+    ({ actionId, yamlContent }) => {
+      const result = tools.updateAction(actionId, yamlContent);
+      return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+    }
+  );
+
   return server;
 }
 

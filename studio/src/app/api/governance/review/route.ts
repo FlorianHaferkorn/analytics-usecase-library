@@ -2,6 +2,7 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { apiError, apiSuccess, apiValidationError } from '@/lib/api/response';
 import { ErrorCode } from '@/lib/api/error-codes';
+import { requireRole } from '@/lib/auth/require-role';
 import { getLifecycle } from '@/lib/governance/approval-workflow';
 import {
   addBracketComment,
@@ -33,6 +34,9 @@ async function resolveBracketYamlPath(bracketId: string): Promise<string> {
 }
 
 export async function GET(request: Request) {
+  const [, authErr] = await requireRole('viewer');
+  if (authErr) return authErr;
+
   const { searchParams } = new URL(request.url);
   const bracketId = searchParams.get('bracketId');
   const compareVersionId = searchParams.get('compareVersionId');
@@ -69,6 +73,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const [user, authErr] = await requireRole('editor');
+  if (authErr) return authErr;
+
   const body = await request.json() as {
     bracketId?: string;
     action?: 'comment' | 'snapshot' | 'restore';
@@ -83,7 +90,7 @@ export async function POST(request: Request) {
     return apiValidationError(['bracketId and action required']);
   }
 
-  const actor = body.actor?.trim() || 'local-user';
+  const actor = user.email;
 
   try {
     if (body.action === 'comment') {
